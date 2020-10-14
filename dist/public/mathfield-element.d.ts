@@ -292,14 +292,14 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      */
     executeCommand(command: Selector | [Selector, ...any[]]): boolean;
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     getValue(format?: OutputFormat): string;
     getValue(start: number, end?: number, format?: OutputFormat): string;
     getValue(range: Range, format?: OutputFormat): string;
     getValue(ranges: Range[], format?: OutputFormat): string;
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     setValue(value?: string, options?: InsertOptions): void;
     /**
@@ -339,7 +339,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * After the insertion, the selection will be set according to the
      * `options.selectionMode`.
      *
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     insert(s: string, options?: InsertOptions): boolean;
     /**
@@ -356,12 +356,14 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      *
      * If there is no selection, the style will apply to the next character typed.
      *
-     * @category Accessing and Changing the content
+     * @category Accessing and changing the content
      */
     applyStyle(style: Style): void;
     /**
      * The bottom location of the caret (insertion point) in viewport
      * coordinates.
+     *
+     * See also [[`setCaretPoint`]]
      * @category Selection
      */
     get caretPoint(): {
@@ -374,10 +376,20 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     });
     /**
      * `x` and `y` are in viewport coordinates.
-     * Return true if the location of the point is valid caret location
+     *
+     * Return true if the location of the point is a valid caret location.
+     *
+     * See also [[`caretPoint`]]
      * @category Selection
      */
     setCaretPoint(x: number, y: number): boolean;
+    /**
+     *  Return an array of ranges matching the argument.
+     *
+     * An array is always returned, but it has no element if there are no
+     * matching items.
+     */
+    find(latex: string): Range[];
     /**
      * Custom elements lifecycle hooks
      * @internal
@@ -401,7 +413,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     set disabled(value: boolean);
     get disabled(): boolean;
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     set value(value: string);
     /**
@@ -409,7 +421,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * ```
      * document.querySelector('mf').value = '\\frac{1}{\\pi}'
      * ```
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     get value(): string;
     /**

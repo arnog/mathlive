@@ -353,6 +353,7 @@ export interface Mathfield {
         y: number;
     } | null;
     setCaretPoint(x: number, y: number): boolean;
+    find(latex: string): Range[];
 }
 export interface Model {
     readonly mathfield: Mathfield;

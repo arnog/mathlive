@@ -22812,18 +22812,22 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 return;
             // If we've received a keydown, but no keypress, check what's in the
             // textarea field.
-            if (!compositionInProgress && keydownEvent && !keypressEvent) {
+            if (keydownEvent && !keypressEvent) {
                 handleTypedText();
             }
         }, true);
-        target.addEventListener('paste', () => {
+        target.addEventListener('paste', (ev) => {
             // In some cases (Linux browsers), the text area might not be focused
             // when doing a middle-click paste command.
             textarea.focus();
-            const text = textarea.value;
             textarea.value = '';
-            if (text.length > 0)
-                handlers.paste(text);
+            handlers.paste(ev);
+        }, true);
+        target.addEventListener('cut', () => {
+            handlers.cut();
+        }, true);
+        target.addEventListener('copy', (ev) => {
+            handlers.copy(ev);
         }, true);
         target.addEventListener('blur', (_ev) => {
             if (blurInProgress || focusInProgress)
@@ -22844,28 +22848,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             focusInProgress = false;
         }, true);
         target.addEventListener('compositionstart', (ev) => {
-            if (!keydownEvent) {
-                // Previous keydown event has handled this input. Don't start
-                // a composition session. This happens for example when pressing
-                // alt+u (which is handled as a keybinding) but which could
-                // also trigger a dead key composition session for ¨
-                // (Note: `preventDefault()` on the event doesn't seem to cancel it :()
-                textarea.value = '';
-                // This sequence blur/focus seems to cancel the composition session
-                // without invoking our blur/focus handlers
-                if (typeof textarea.blur === 'function') {
-                    setTimeout(() => {
-                        const savedBlur = handlers.blur;
-                        const savedFocus = handlers.focus;
-                        handlers.blur = null;
-                        handlers.focus = null;
-                        textarea.blur();
-                        textarea.focus();
-                        handlers.blur = savedBlur;
-                        handlers.focus = savedFocus;
-                    });
-                }
-            }
             compositionInProgress = true;
             textarea.value = '';
             if (handlers.compositionStart)
@@ -22897,8 +22879,68 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // See https://github.com/w3c/uievents/issues/202
             if (ev.inputType === 'insertCompositionText')
                 return;
+            // Paste is handled in paste handler
+            if (ev.inputType === 'insertFromPaste') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                return;
+            }
             defer(handleTypedText);
         });
+        return {
+            cancelComposition: () => {
+                const savedBlur = handlers.blur;
+                const savedFocus = handlers.focus;
+                handlers.blur = null;
+                handlers.focus = null;
+                textarea.blur();
+                textarea.focus();
+                handlers.blur = savedBlur;
+                handlers.focus = savedFocus;
+            },
+            blur: () => {
+                if (typeof textarea.blur === 'function') {
+                    textarea.blur();
+                }
+            },
+            focus: () => {
+                if (typeof textarea.blur === 'function') {
+                    textarea.focus();
+                }
+            },
+            hasFocus: () => {
+                return deepActiveElement(document) === textarea;
+            },
+            setValue: (value) => {
+                if (value) {
+                    textarea.value = value;
+                    // The textarea may be a span (on mobile, for example), so check that
+                    // it has a select() before calling it.
+                    if (deepActiveElement(document) === textarea &&
+                        textarea.select) {
+                        textarea.select();
+                    }
+                }
+                else {
+                    textarea.value = '';
+                    textarea.setAttribute('aria-label', '');
+                }
+            },
+            setAriaLabel: (value) => {
+                textarea.setAttribute('aria-label', 'after: ' + value);
+            },
+            moveTo: (x, y) => {
+                textarea.style.top = y + 'px';
+                textarea.style.left = x + 'px';
+            },
+        };
+    }
+    function deepActiveElement(root = document) {
+        var _a, _b;
+        if ((_b = (_a = root.activeElement) === null || _a === void 0 ? void 0 : _a.shadowRoot) === null || _b === void 0 ? void 0 : _b.activeElement) {
+            return deepActiveElement(root.activeElement.shadowRoot);
+        }
+        return root.activeElement;
     }
     function eventToChar(evt) {
         var _a;
@@ -24553,11 +24595,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         else if (action === 'line') {
             // announce the current line -- currently that's everything
-            liveText = speakableText(mathfield.options, '', mathfield.model.root);
             mathfield.accessibleNode.innerHTML = mathfield.options.createHTML('<math xmlns="http://www.w3.org/1998/Math/MathML">' +
                 atomsToMathML(mathfield.model.root, mathfield.options) +
                 '</math>');
-            mathfield.textarea.setAttribute('aria-label', 'after: ' + liveText);
+            liveText = speakableText(mathfield.options, '', mathfield.model.root);
+            mathfield.keyboardDelegate.setAriaLabel('after: ' + liveText);
             /*** FIX -- testing hack for setting braille ***/
             // mathfield.accessibleNode.focus();
             // console.log("before sleep");
@@ -25418,7 +25460,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         else if (shortcut) {
             //
-            // 6.5 Insert the shortcut
+            // 6.5 Cancel the (upcoming) composition
+            // This is to prevent starting a composition when the keyboard event
+            // has already been handled.
+            // Example: alt+U -> \cup, but could also be diaeresis deak key (¨) which
+            // starts a composition
+            //
+            mathfield.keyboardDelegate.cancelComposition();
+            //
+            // 6.6 Insert the shortcut
             // If the shortcut is a mandatory escape sequence (\}, etc...)
             // don't make it undoable, this would result in syntactically incorrect
             // formulas
@@ -25537,107 +25587,94 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         // If the selection is not collapsed, the content will be deleted first.
         let popoverText = '';
         let displayArrows = false;
-        if (mathfield.pasteInProgress) {
-            mathfield.pasteInProgress = false;
-            // This call was made in response to a paste event.
-            // Interpret `text` as a 'smart' expression (could be LaTeX, could be
-            // UnicodeMath)
-            insert(mathfield.model, text, {
-                smartFence: mathfield.options.smartFence,
-                mode: 'math',
-            });
-        }
-        else {
-            const style = {
-                ...getAnchorStyle(mathfield.model),
-                ...mathfield.style,
-            };
-            // Decompose the string into an array of graphemes.
-            // This is necessary to correctly process what is displayed as a single
-            // glyph (a grapheme) but which is composed of multiple Unicode
-            // codepoints. This is the case in particular for some emojis, such as
-            // those with a skin tone modifier, the country flags emojis or
-            // compound emojis such as the professional emojis, including the
-            // David Bowie emoji: 👨🏻‍🎤
-            const graphemes = splitGraphemes(text);
-            for (const c of graphemes) {
-                if (mathfield.mode === 'command') {
-                    removeSuggestion(mathfield.model);
-                    mathfield.suggestionIndex = 0;
-                    const command = extractCommandStringAroundInsertionPoint(mathfield.model);
-                    const suggestions = suggest(command + c);
-                    displayArrows = suggestions.length > 1;
-                    if (suggestions.length === 0) {
-                        insert(mathfield.model, c, { mode: 'command' });
-                        if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
-                            // This looks like a command name, but not a known one
-                            decorateCommandStringAroundInsertionPoint(mathfield.model, true);
+        const style = {
+            ...getAnchorStyle(mathfield.model),
+            ...mathfield.style,
+        };
+        // Decompose the string into an array of graphemes.
+        // This is necessary to correctly process what is displayed as a single
+        // glyph (a grapheme) but which is composed of multiple Unicode
+        // codepoints. This is the case in particular for some emojis, such as
+        // those with a skin tone modifier, the country flags emojis or
+        // compound emojis such as the professional emojis, including the
+        // David Bowie emoji: 👨🏻‍🎤
+        const graphemes = splitGraphemes(text);
+        for (const c of graphemes) {
+            if (mathfield.mode === 'command') {
+                removeSuggestion(mathfield.model);
+                mathfield.suggestionIndex = 0;
+                const command = extractCommandStringAroundInsertionPoint(mathfield.model);
+                const suggestions = suggest(command + c);
+                displayArrows = suggestions.length > 1;
+                if (suggestions.length === 0) {
+                    insert(mathfield.model, c, { mode: 'command' });
+                    if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
+                        // This looks like a command name, but not a known one
+                        decorateCommandStringAroundInsertionPoint(mathfield.model, true);
+                    }
+                    hidePopover(mathfield);
+                }
+                else {
+                    insert(mathfield.model, c, { mode: 'command' });
+                    if (suggestions[0].match !== command + c) {
+                        insertSuggestion(mathfield.model, suggestions[0].match, -suggestions[0].match.length + command.length + 1);
+                    }
+                    popoverText = suggestions[0].match;
+                }
+            }
+            else if (mathfield.mode === 'math') {
+                // Some characters are mapped to commands. Handle them here.
+                // This is important to handle synthetic text input and
+                // non-US keyboards, on which, fop example, the '^' key is
+                // not mapped to  'Shift-Digit6'.
+                const selector = {
+                    '^': 'moveToSuperscript',
+                    _: 'moveToSubscript',
+                    ' ': 'moveAfterParent',
+                }[c];
+                if (selector) {
+                    if (selector === 'moveToSuperscript') {
+                        if (superscriptDepth(mathfield) >=
+                            mathfield.options.scriptDepth[1]) {
+                            mathfield.model.announce('plonk');
+                            return;
                         }
-                        hidePopover(mathfield);
+                    }
+                    else if (selector === 'moveToSubscript') {
+                        if (subscriptDepth(mathfield) >=
+                            mathfield.options.scriptDepth[0]) {
+                            mathfield.model.announce('plonk');
+                            return;
+                        }
+                    }
+                    mathfield.executeCommand(selector);
+                }
+                else {
+                    if (mathfield.options.smartSuperscript &&
+                        mathfield.model.relation() === 'superscript' &&
+                        /[0-9]/.test(c) &&
+                        mathfield.model.siblings().filter((x) => x.type !== 'first')
+                            .length === 0) {
+                        // We are inserting a digit into an empty superscript
+                        // If smartSuperscript is on, insert the digit, and
+                        // exit the superscript.
+                        insert(mathfield.model, c, {
+                            mode: 'math',
+                            style: style,
+                        });
+                        moveAfterParent(mathfield.model);
                     }
                     else {
-                        insert(mathfield.model, c, { mode: 'command' });
-                        if (suggestions[0].match !== command + c) {
-                            insertSuggestion(mathfield.model, suggestions[0].match, -suggestions[0].match.length + command.length + 1);
-                        }
-                        popoverText = suggestions[0].match;
+                        insert(mathfield.model, c, {
+                            mode: 'math',
+                            style: style,
+                            smartFence: mathfield.options.smartFence,
+                        });
                     }
                 }
-                else if (mathfield.mode === 'math') {
-                    // Some characters are mapped to commands. Handle them here.
-                    // This is important to handle synthetic text input and
-                    // non-US keyboards, on which, fop example, the '^' key is
-                    // not mapped to  'Shift-Digit6'.
-                    const selector = {
-                        '^': 'moveToSuperscript',
-                        _: 'moveToSubscript',
-                        ' ': 'moveAfterParent',
-                    }[c];
-                    if (selector) {
-                        if (selector === 'moveToSuperscript') {
-                            if (superscriptDepth(mathfield) >=
-                                mathfield.options.scriptDepth[1]) {
-                                mathfield.model.announce('plonk');
-                                return;
-                            }
-                        }
-                        else if (selector === 'moveToSubscript') {
-                            if (subscriptDepth(mathfield) >=
-                                mathfield.options.scriptDepth[0]) {
-                                mathfield.model.announce('plonk');
-                                return;
-                            }
-                        }
-                        mathfield.executeCommand(selector);
-                    }
-                    else {
-                        if (mathfield.options.smartSuperscript &&
-                            mathfield.model.relation() === 'superscript' &&
-                            /[0-9]/.test(c) &&
-                            mathfield.model
-                                .siblings()
-                                .filter((x) => x.type !== 'first').length === 0) {
-                            // We are inserting a digit into an empty superscript
-                            // If smartSuperscript is on, insert the digit, and
-                            // exit the superscript.
-                            insert(mathfield.model, c, {
-                                mode: 'math',
-                                style: style,
-                            });
-                            moveAfterParent(mathfield.model);
-                        }
-                        else {
-                            insert(mathfield.model, c, {
-                                mode: 'math',
-                                style: style,
-                                smartFence: mathfield.options.smartFence,
-                            });
-                        }
-                    }
-                }
-                else if (mathfield.mode === 'text') {
-                    insert(mathfield.model, c, { mode: 'text', style: style });
-                }
+            }
+            else if (mathfield.mode === 'text') {
+                insert(mathfield.model, c, { mode: 'text', style: style });
             }
         }
         if (mathfield.mode !== 'command') {
@@ -25764,7 +25801,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     mathfield.options.defaultMode) === 'math'
                     ? 'text'
                     : 'math';
-                let convertedSelection = mathfield.$selectedText('ASCIIMath');
+                let convertedSelection = mathfield.getValue(mathfield.selection, 'ASCIIMath');
                 if (targetMode === 'math' && /^"[^"]+"$/.test(convertedSelection)) {
                     convertedSelection = convertedSelection.slice(1, -1);
                 }
@@ -25898,10 +25935,31 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     }
 
-    function onPaste(mathfield) {
-        // Make note we're in the process of pasting. The subsequent call to
-        // onTypedText() will take care of interpreting the clipboard content
-        mathfield.pasteInProgress = true;
+    function onPaste(mathfield, ev) {
+        let text = '';
+        // Try to get a MathJSON data type
+        const json = ev.clipboardData.getData('application/json');
+        if (json) {
+            try {
+                text = astToLatex(json, {});
+            }
+            catch (e) {
+                text = '';
+            }
+        }
+        // If that didn't work, try some plain text
+        if (!text) {
+            text = ev.clipboardData.getData('text/plain');
+        }
+        if (text) {
+            insert(mathfield.model, text, {
+                smartFence: mathfield.options.smartFence,
+                mode: 'math',
+            });
+            requestUpdate(mathfield);
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
         return true;
     }
     function onCut(mathfield) {
@@ -25922,9 +25980,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             e.clipboardData.setData('application/xml', mathfield.getValue('mathML'));
         }
         else {
-            e.clipboardData.setData('text/plain', '$$' + mathfield.$selectedText('latex-expanded') + '$$');
-            e.clipboardData.setData('application/json', mathfield.$selectedText('json'));
-            e.clipboardData.setData('application/xml', mathfield.$selectedText('mathML'));
+            e.clipboardData.setData('text/plain', '$$' +
+                mathfield.getValue(mathfield.selection, 'latex-expanded') +
+                '$$');
+            e.clipboardData.setData('application/json', mathfield.getValue(mathfield.selection, 'json'));
+            e.clipboardData.setData('application/xml', mathfield.getValue(mathfield.selection, 'mathML'));
         }
         // Prevent the current document selection from being written to the clipboard.
         e.preventDefault();
@@ -25998,9 +26058,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             trackingPointer = false;
             clearInterval(scrollInterval);
-            that.element
-                .querySelectorAll('.ML__scroller')
-                .forEach((x) => x.parentNode.removeChild(x));
             evt.preventDefault();
             evt.stopPropagation();
         }
@@ -26071,9 +26128,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // Focus the mathfield
             if (!mathfield.hasFocus()) {
                 dirty = true;
-                if (mathfield.textarea.focus) {
-                    mathfield.textarea.focus();
-                }
+                mathfield.keyboardDelegate.focus();
             }
             // Clicking or tapping the field resets the keystroke buffer and
             // smart mode
@@ -26096,17 +26151,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 anchor = pathFromPoint(mathfield, anchorX, anchorY, { bias: 0 });
             }
             if (anchor) {
-                // Create divs to block out pointer tracking to the left and right of
-                // the mathfield (to avoid triggering the hover of the virtual
-                // keyboard toggle, for example)
-                let div = document.createElement('div');
-                div.className = 'ML__scroller';
-                mathfield.element.appendChild(div);
-                div.style.left = bounds.left - 200 + 'px';
-                div = document.createElement('div');
-                div.className = 'ML__scroller';
-                mathfield.element.appendChild(div);
-                div.style.left = bounds.right + 'px';
+                // Set a `tracking` class to avoid triggering the hover of the virtual
+                // keyboard toggle, for example
+                mathfield.element.classList.add('tracking');
                 if (evt.shiftKey) {
                     // Extend the selection if the shift-key is down
                     setRange(mathfield.model, mathfield.model.path, anchor);
@@ -28105,9 +28152,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         showVirtualKeyboard: (mathfield, theme) => showVirtualKeyboard(mathfield, theme),
     }, { target: 'virtual-keyboard' });
 
-    var css_248z$1 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:-1ex;position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer:focus{outline:2px solid var(--primary,hsl(var(--hue,212),40%,50%));outline-offset:3px}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:50%;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor;border-radius:50%;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2)}.ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;letter-spacing:-1px;font-weight:400;line-height:1em;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsla(0,0%,70%,.5)}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:50%;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsla(0,0%,70%,.5);color:#000;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;visibility:hidden;content:attr(data-ML__tooltip);display:inline-table;top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}[data-ML__tooltip]:hover{position:relative}[data-ML__tooltip]:hover:after{visibility:visible;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
+    var css_248z$1 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:-1ex;position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:50%;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor;border-radius:50%;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2)}.ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;letter-spacing:-1px;font-weight:400;line-height:1em;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsla(0,0%,70%,.5)}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:50%;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsla(0,0%,70%,.5);color:#000;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;display:none;content:attr(data-ML__tooltip);top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{visibility:visible;display:inline-table;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
-    var css_248z$2 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__mathlive{display:inline-block;line-height:0;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .reset-textstyle.scriptstyle{font-size:.7em}.ML__mathlive .reset-textstyle.scriptscriptstyle{font-size:.5em}.ML__mathlive .reset-scriptstyle.textstyle{font-size:1.42857em}.ML__mathlive .reset-scriptstyle.scriptscriptstyle{font-size:.71429em}.ML__mathlive .reset-scriptscriptstyle.textstyle{font-size:2em}.ML__mathlive .reset-scriptscriptstyle.scriptstyle{font-size:1.4em}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .vlist{display:inline-block}.ML__mathlive .vlist>span{display:block;height:0;position:relative;line-height:0}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .mfrac>span{text-align:center}.ML__mathlive .mfrac .frac-line{width:100%}.ML__mathlive .mfrac .frac-line:after{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor;box-sizing:content-box;transform:translate(0)}.ML__mathlive .rspace.negativethinspace{margin-right:-.16667em}.ML__mathlive .rspace.thinspace{margin-right:.16667em}.ML__mathlive .rspace.negativemediumspace{margin-right:-.22222em}.ML__mathlive .rspace.mediumspace{margin-right:.22222em}.ML__mathlive .rspace.thickspace{margin-right:.27778em}.ML__mathlive .rspace.sixmuspace{margin-right:.333333em}.ML__mathlive .rspace.eightmuspace{margin-right:.444444em}.ML__mathlive .rspace.enspace{margin-right:.5em}.ML__mathlive .rspace.twelvemuspace{margin-right:.666667em}.ML__mathlive .rspace.quad{margin-right:1em}.ML__mathlive .rspace.qquad{margin-right:2em}.ML__mathlive .mspace{display:inline-block}.ML__mathlive .mspace.negativethinspace{margin-left:-.16667em}.ML__mathlive .mspace.thinspace{width:.16667em}.ML__mathlive .mspace.negativemediumspace{margin-left:-.22222em}.ML__mathlive .mspace.mediumspace{width:.22222em}.ML__mathlive .mspace.thickspace{width:.27778em}.ML__mathlive .mspace.sixmuspace{width:.333333em}.ML__mathlive .mspace.eightmuspace{width:.444444em}.ML__mathlive .mspace.enspace{width:.5em}.ML__mathlive .mspace.twelvemuspace{width:.666667em}.ML__mathlive .mspace.quad{width:1em}.ML__mathlive .mspace.qquad{width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .sqrt{display:inline-block}.ML__mathlive .sqrt>.sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__mathlive .sqrt .sqrt-line{height:.04em;width:100%}.ML__mathlive .sqrt .sqrt-line:before{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor}.ML__mathlive .sqrt .sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__mathlive .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.ML__mathlive .fontsize-ensurer,.ML__mathlive .sizing{display:inline-block}.ML__mathlive .fontsize-ensurer.reset-size1.size1,.ML__mathlive .sizing.reset-size1.size1{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size1.size2,.ML__mathlive .sizing.reset-size1.size2{font-size:1.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size3,.ML__mathlive .sizing.reset-size1.size3{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size1.size4,.ML__mathlive .sizing.reset-size1.size4{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size1.size5,.ML__mathlive .sizing.reset-size1.size5{font-size:2em}.ML__mathlive .fontsize-ensurer.reset-size1.size6,.ML__mathlive .sizing.reset-size1.size6{font-size:2.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size7,.ML__mathlive .sizing.reset-size1.size7{font-size:2.88em}.ML__mathlive .fontsize-ensurer.reset-size1.size8,.ML__mathlive .sizing.reset-size1.size8{font-size:3.46em}.ML__mathlive .fontsize-ensurer.reset-size1.size9,.ML__mathlive .sizing.reset-size1.size9{font-size:4.14em}.ML__mathlive .fontsize-ensurer.reset-size1.size10,.ML__mathlive .sizing.reset-size1.size10{font-size:4.98em}.ML__mathlive .fontsize-ensurer.reset-size2.size1,.ML__mathlive .sizing.reset-size2.size1{font-size:.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size2,.ML__mathlive .sizing.reset-size2.size2{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size2.size3,.ML__mathlive .sizing.reset-size2.size3{font-size:1.14285714em}.ML__mathlive .fontsize-ensurer.reset-size2.size4,.ML__mathlive .sizing.reset-size2.size4{font-size:1.28571429em}.ML__mathlive .fontsize-ensurer.reset-size2.size5,.ML__mathlive .sizing.reset-size2.size5{font-size:1.42857143em}.ML__mathlive .fontsize-ensurer.reset-size2.size6,.ML__mathlive .sizing.reset-size2.size6{font-size:1.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size7,.ML__mathlive .sizing.reset-size2.size7{font-size:2.05714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size8,.ML__mathlive .sizing.reset-size2.size8{font-size:2.47142857em}.ML__mathlive .fontsize-ensurer.reset-size2.size9,.ML__mathlive .sizing.reset-size2.size9{font-size:2.95714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size10,.ML__mathlive .sizing.reset-size2.size10{font-size:3.55714286em}.ML__mathlive .fontsize-ensurer.reset-size3.size1,.ML__mathlive .sizing.reset-size3.size1{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size3.size2,.ML__mathlive .sizing.reset-size3.size2{font-size:.875em}.ML__mathlive .fontsize-ensurer.reset-size3.size3,.ML__mathlive .sizing.reset-size3.size3{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size3.size4,.ML__mathlive .sizing.reset-size3.size4{font-size:1.125em}.ML__mathlive .fontsize-ensurer.reset-size3.size5,.ML__mathlive .sizing.reset-size3.size5{font-size:1.25em}.ML__mathlive .fontsize-ensurer.reset-size3.size6,.ML__mathlive .sizing.reset-size3.size6{font-size:1.5em}.ML__mathlive .fontsize-ensurer.reset-size3.size7,.ML__mathlive .sizing.reset-size3.size7{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size3.size8,.ML__mathlive .sizing.reset-size3.size8{font-size:2.1625em}.ML__mathlive .fontsize-ensurer.reset-size3.size9,.ML__mathlive .sizing.reset-size3.size9{font-size:2.5875em}.ML__mathlive .fontsize-ensurer.reset-size3.size10,.ML__mathlive .sizing.reset-size3.size10{font-size:3.1125em}.ML__mathlive .fontsize-ensurer.reset-size4.size1,.ML__mathlive .sizing.reset-size4.size1{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size4.size2,.ML__mathlive .sizing.reset-size4.size2{font-size:.77777778em}.ML__mathlive .fontsize-ensurer.reset-size4.size3,.ML__mathlive .sizing.reset-size4.size3{font-size:.88888889em}.ML__mathlive .fontsize-ensurer.reset-size4.size4,.ML__mathlive .sizing.reset-size4.size4{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size4.size5,.ML__mathlive .sizing.reset-size4.size5{font-size:1.11111111em}.ML__mathlive .fontsize-ensurer.reset-size4.size6,.ML__mathlive .sizing.reset-size4.size6{font-size:1.33333333em}.ML__mathlive .fontsize-ensurer.reset-size4.size7,.ML__mathlive .sizing.reset-size4.size7{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size4.size8,.ML__mathlive .sizing.reset-size4.size8{font-size:1.92222222em}.ML__mathlive .fontsize-ensurer.reset-size4.size9,.ML__mathlive .sizing.reset-size4.size9{font-size:2.3em}.ML__mathlive .fontsize-ensurer.reset-size4.size10,.ML__mathlive .sizing.reset-size4.size10{font-size:2.76666667em}.ML__mathlive .fontsize-ensurer.reset-size5.size1,.ML__mathlive .sizing.reset-size5.size1{font-size:.5em}.ML__mathlive .fontsize-ensurer.reset-size5.size2,.ML__mathlive .sizing.reset-size5.size2{font-size:.7em}.ML__mathlive .fontsize-ensurer.reset-size5.size3,.ML__mathlive .sizing.reset-size5.size3{font-size:.8em}.ML__mathlive .fontsize-ensurer.reset-size5.size4,.ML__mathlive .sizing.reset-size5.size4{font-size:.9em}.ML__mathlive .fontsize-ensurer.reset-size5.size5,.ML__mathlive .sizing.reset-size5.size5{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size5.size6,.ML__mathlive .sizing.reset-size5.size6{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size5.size7,.ML__mathlive .sizing.reset-size5.size7{font-size:1.44em}.ML__mathlive .fontsize-ensurer.reset-size5.size8,.ML__mathlive .sizing.reset-size5.size8{font-size:1.73em}.ML__mathlive .fontsize-ensurer.reset-size5.size9,.ML__mathlive .sizing.reset-size5.size9{font-size:2.07em}.ML__mathlive .fontsize-ensurer.reset-size5.size10,.ML__mathlive .sizing.reset-size5.size10{font-size:2.49em}.ML__mathlive .fontsize-ensurer.reset-size6.size1,.ML__mathlive .sizing.reset-size6.size1{font-size:.41666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size2,.ML__mathlive .sizing.reset-size6.size2{font-size:.58333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size3,.ML__mathlive .sizing.reset-size6.size3{font-size:.66666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size4,.ML__mathlive .sizing.reset-size6.size4{font-size:.75em}.ML__mathlive .fontsize-ensurer.reset-size6.size5,.ML__mathlive .sizing.reset-size6.size5{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size6,.ML__mathlive .sizing.reset-size6.size6{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size6.size7,.ML__mathlive .sizing.reset-size6.size7{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size6.size8,.ML__mathlive .sizing.reset-size6.size8{font-size:1.44166667em}.ML__mathlive .fontsize-ensurer.reset-size6.size9,.ML__mathlive .sizing.reset-size6.size9{font-size:1.725em}.ML__mathlive .fontsize-ensurer.reset-size6.size10,.ML__mathlive .sizing.reset-size6.size10{font-size:2.075em}.ML__mathlive .fontsize-ensurer.reset-size7.size1,.ML__mathlive .sizing.reset-size7.size1{font-size:.34722222em}.ML__mathlive .fontsize-ensurer.reset-size7.size2,.ML__mathlive .sizing.reset-size7.size2{font-size:.48611111em}.ML__mathlive .fontsize-ensurer.reset-size7.size3,.ML__mathlive .sizing.reset-size7.size3{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size7.size4,.ML__mathlive .sizing.reset-size7.size4{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size7.size5,.ML__mathlive .sizing.reset-size7.size5{font-size:.69444444em}.ML__mathlive .fontsize-ensurer.reset-size7.size6,.ML__mathlive .sizing.reset-size7.size6{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size7.size7,.ML__mathlive .sizing.reset-size7.size7{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size7.size8,.ML__mathlive .sizing.reset-size7.size8{font-size:1.20138889em}.ML__mathlive .fontsize-ensurer.reset-size7.size9,.ML__mathlive .sizing.reset-size7.size9{font-size:1.4375em}.ML__mathlive .fontsize-ensurer.reset-size7.size10,.ML__mathlive .sizing.reset-size7.size10{font-size:1.72916667em}.ML__mathlive .fontsize-ensurer.reset-size8.size1,.ML__mathlive .sizing.reset-size8.size1{font-size:.28901734em}.ML__mathlive .fontsize-ensurer.reset-size8.size2,.ML__mathlive .sizing.reset-size8.size2{font-size:.40462428em}.ML__mathlive .fontsize-ensurer.reset-size8.size3,.ML__mathlive .sizing.reset-size8.size3{font-size:.46242775em}.ML__mathlive .fontsize-ensurer.reset-size8.size4,.ML__mathlive .sizing.reset-size8.size4{font-size:.52023121em}.ML__mathlive .fontsize-ensurer.reset-size8.size5,.ML__mathlive .sizing.reset-size8.size5{font-size:.57803468em}.ML__mathlive .fontsize-ensurer.reset-size8.size6,.ML__mathlive .sizing.reset-size8.size6{font-size:.69364162em}.ML__mathlive .fontsize-ensurer.reset-size8.size7,.ML__mathlive .sizing.reset-size8.size7{font-size:.83236994em}.ML__mathlive .fontsize-ensurer.reset-size8.size8,.ML__mathlive .sizing.reset-size8.size8{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size8.size9,.ML__mathlive .sizing.reset-size8.size9{font-size:1.19653179em}.ML__mathlive .fontsize-ensurer.reset-size8.size10,.ML__mathlive .sizing.reset-size8.size10{font-size:1.43930636em}.ML__mathlive .fontsize-ensurer.reset-size9.size1,.ML__mathlive .sizing.reset-size9.size1{font-size:.24154589em}.ML__mathlive .fontsize-ensurer.reset-size9.size2,.ML__mathlive .sizing.reset-size9.size2{font-size:.33816425em}.ML__mathlive .fontsize-ensurer.reset-size9.size3,.ML__mathlive .sizing.reset-size9.size3{font-size:.38647343em}.ML__mathlive .fontsize-ensurer.reset-size9.size4,.ML__mathlive .sizing.reset-size9.size4{font-size:.43478261em}.ML__mathlive .fontsize-ensurer.reset-size9.size5,.ML__mathlive .sizing.reset-size9.size5{font-size:.48309179em}.ML__mathlive .fontsize-ensurer.reset-size9.size6,.ML__mathlive .sizing.reset-size9.size6{font-size:.57971014em}.ML__mathlive .fontsize-ensurer.reset-size9.size7,.ML__mathlive .sizing.reset-size9.size7{font-size:.69565217em}.ML__mathlive .fontsize-ensurer.reset-size9.size8,.ML__mathlive .sizing.reset-size9.size8{font-size:.83574879em}.ML__mathlive .fontsize-ensurer.reset-size9.size9,.ML__mathlive .sizing.reset-size9.size9{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size9.size10,.ML__mathlive .sizing.reset-size9.size10{font-size:1.20289855em}.ML__mathlive .fontsize-ensurer.reset-size10.size1,.ML__mathlive .sizing.reset-size10.size1{font-size:.20080321em}.ML__mathlive .fontsize-ensurer.reset-size10.size2,.ML__mathlive .sizing.reset-size10.size2{font-size:.2811245em}.ML__mathlive .fontsize-ensurer.reset-size10.size3,.ML__mathlive .sizing.reset-size10.size3{font-size:.32128514em}.ML__mathlive .fontsize-ensurer.reset-size10.size4,.ML__mathlive .sizing.reset-size10.size4{font-size:.36144578em}.ML__mathlive .fontsize-ensurer.reset-size10.size5,.ML__mathlive .sizing.reset-size10.size5{font-size:.40160643em}.ML__mathlive .fontsize-ensurer.reset-size10.size6,.ML__mathlive .sizing.reset-size10.size6{font-size:.48192771em}.ML__mathlive .fontsize-ensurer.reset-size10.size7,.ML__mathlive .sizing.reset-size10.size7{font-size:.57831325em}.ML__mathlive .fontsize-ensurer.reset-size10.size8,.ML__mathlive .sizing.reset-size10.size8{font-size:.69477912em}.ML__mathlive .fontsize-ensurer.reset-size10.size9,.ML__mathlive .sizing.reset-size10.size9{font-size:.8313253em}.ML__mathlive .fontsize-ensurer.reset-size10.size10,.ML__mathlive .sizing.reset-size10.size10{font-size:1em}.ML__mathlive .delimsizing.size1{font-family:KaTeX_Size1}.ML__mathlive .delimsizing.size2{font-family:KaTeX_Size2}.ML__mathlive .delimsizing.size3{font-family:KaTeX_Size3}.ML__mathlive .delimsizing.size4{font-family:KaTeX_Size4}.ML__mathlive .delimsizing.mult .delim-size1{font-family:KaTeX_Size1;vertical-align:top}.ML__mathlive .delimsizing.mult .delim-size4{font-family:KaTeX_Size4;vertical-align:top}.ML__mathlive .nulldelimiter{width:.12em}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .op-limits .vlist>span{text-align:center}.ML__mathlive .op-over-under{position:relative}.ML__mathlive .op-over-under>.vlist>span:first-child,.ML__mathlive .op-over-under>.vlist>span:last-child{text-align:center}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .accent .accent-body>span{font-family:KaTeX_Main;width:0}.ML__mathlive .accent .accent-body.accent-vec>span{position:relative;left:.326em}.ML__mathlive .mtable .vertical-separator{display:inline-block;margin:0 -.025em;border-right:.05em solid}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__composition{background:#fefebf;color:#000;-webkit-text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%));text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%))}.ML__placeholder{opacity:.7;padding-left:.4ex;padding-right:.4ex;padding-top:.4ex}";
+    var css_248z$2 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__mathlive{display:inline-block;line-height:0;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .reset-textstyle.scriptstyle{font-size:.7em}.ML__mathlive .reset-textstyle.scriptscriptstyle{font-size:.5em}.ML__mathlive .reset-scriptstyle.textstyle{font-size:1.42857em}.ML__mathlive .reset-scriptstyle.scriptscriptstyle{font-size:.71429em}.ML__mathlive .reset-scriptscriptstyle.textstyle{font-size:2em}.ML__mathlive .reset-scriptscriptstyle.scriptstyle{font-size:1.4em}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .vlist{display:inline-block}.ML__mathlive .vlist>span{display:block;height:0;position:relative;line-height:0}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .mfrac>span{text-align:center}.ML__mathlive .mfrac .frac-line{width:100%}.ML__mathlive .mfrac .frac-line:after{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor;box-sizing:content-box;transform:translate(0)}.ML__mathlive .rspace.negativethinspace{margin-right:-.16667em}.ML__mathlive .rspace.thinspace{margin-right:.16667em}.ML__mathlive .rspace.negativemediumspace{margin-right:-.22222em}.ML__mathlive .rspace.mediumspace{margin-right:.22222em}.ML__mathlive .rspace.thickspace{margin-right:.27778em}.ML__mathlive .rspace.sixmuspace{margin-right:.333333em}.ML__mathlive .rspace.eightmuspace{margin-right:.444444em}.ML__mathlive .rspace.enspace{margin-right:.5em}.ML__mathlive .rspace.twelvemuspace{margin-right:.666667em}.ML__mathlive .rspace.quad{margin-right:1em}.ML__mathlive .rspace.qquad{margin-right:2em}.ML__mathlive .mspace{display:inline-block}.ML__mathlive .mspace.negativethinspace{margin-left:-.16667em}.ML__mathlive .mspace.thinspace{width:.16667em}.ML__mathlive .mspace.negativemediumspace{margin-left:-.22222em}.ML__mathlive .mspace.mediumspace{width:.22222em}.ML__mathlive .mspace.thickspace{width:.27778em}.ML__mathlive .mspace.sixmuspace{width:.333333em}.ML__mathlive .mspace.eightmuspace{width:.444444em}.ML__mathlive .mspace.enspace{width:.5em}.ML__mathlive .mspace.twelvemuspace{width:.666667em}.ML__mathlive .mspace.quad{width:1em}.ML__mathlive .mspace.qquad{width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .sqrt{display:inline-block}.ML__mathlive .sqrt>.sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__mathlive .sqrt .sqrt-line{height:.04em;width:100%}.ML__mathlive .sqrt .sqrt-line:before{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor}.ML__mathlive .sqrt .sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__mathlive .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.ML__mathlive .fontsize-ensurer,.ML__mathlive .sizing{display:inline-block}.ML__mathlive .fontsize-ensurer.reset-size1.size1,.ML__mathlive .sizing.reset-size1.size1{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size1.size2,.ML__mathlive .sizing.reset-size1.size2{font-size:1.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size3,.ML__mathlive .sizing.reset-size1.size3{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size1.size4,.ML__mathlive .sizing.reset-size1.size4{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size1.size5,.ML__mathlive .sizing.reset-size1.size5{font-size:2em}.ML__mathlive .fontsize-ensurer.reset-size1.size6,.ML__mathlive .sizing.reset-size1.size6{font-size:2.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size7,.ML__mathlive .sizing.reset-size1.size7{font-size:2.88em}.ML__mathlive .fontsize-ensurer.reset-size1.size8,.ML__mathlive .sizing.reset-size1.size8{font-size:3.46em}.ML__mathlive .fontsize-ensurer.reset-size1.size9,.ML__mathlive .sizing.reset-size1.size9{font-size:4.14em}.ML__mathlive .fontsize-ensurer.reset-size1.size10,.ML__mathlive .sizing.reset-size1.size10{font-size:4.98em}.ML__mathlive .fontsize-ensurer.reset-size2.size1,.ML__mathlive .sizing.reset-size2.size1{font-size:.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size2,.ML__mathlive .sizing.reset-size2.size2{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size2.size3,.ML__mathlive .sizing.reset-size2.size3{font-size:1.14285714em}.ML__mathlive .fontsize-ensurer.reset-size2.size4,.ML__mathlive .sizing.reset-size2.size4{font-size:1.28571429em}.ML__mathlive .fontsize-ensurer.reset-size2.size5,.ML__mathlive .sizing.reset-size2.size5{font-size:1.42857143em}.ML__mathlive .fontsize-ensurer.reset-size2.size6,.ML__mathlive .sizing.reset-size2.size6{font-size:1.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size7,.ML__mathlive .sizing.reset-size2.size7{font-size:2.05714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size8,.ML__mathlive .sizing.reset-size2.size8{font-size:2.47142857em}.ML__mathlive .fontsize-ensurer.reset-size2.size9,.ML__mathlive .sizing.reset-size2.size9{font-size:2.95714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size10,.ML__mathlive .sizing.reset-size2.size10{font-size:3.55714286em}.ML__mathlive .fontsize-ensurer.reset-size3.size1,.ML__mathlive .sizing.reset-size3.size1{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size3.size2,.ML__mathlive .sizing.reset-size3.size2{font-size:.875em}.ML__mathlive .fontsize-ensurer.reset-size3.size3,.ML__mathlive .sizing.reset-size3.size3{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size3.size4,.ML__mathlive .sizing.reset-size3.size4{font-size:1.125em}.ML__mathlive .fontsize-ensurer.reset-size3.size5,.ML__mathlive .sizing.reset-size3.size5{font-size:1.25em}.ML__mathlive .fontsize-ensurer.reset-size3.size6,.ML__mathlive .sizing.reset-size3.size6{font-size:1.5em}.ML__mathlive .fontsize-ensurer.reset-size3.size7,.ML__mathlive .sizing.reset-size3.size7{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size3.size8,.ML__mathlive .sizing.reset-size3.size8{font-size:2.1625em}.ML__mathlive .fontsize-ensurer.reset-size3.size9,.ML__mathlive .sizing.reset-size3.size9{font-size:2.5875em}.ML__mathlive .fontsize-ensurer.reset-size3.size10,.ML__mathlive .sizing.reset-size3.size10{font-size:3.1125em}.ML__mathlive .fontsize-ensurer.reset-size4.size1,.ML__mathlive .sizing.reset-size4.size1{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size4.size2,.ML__mathlive .sizing.reset-size4.size2{font-size:.77777778em}.ML__mathlive .fontsize-ensurer.reset-size4.size3,.ML__mathlive .sizing.reset-size4.size3{font-size:.88888889em}.ML__mathlive .fontsize-ensurer.reset-size4.size4,.ML__mathlive .sizing.reset-size4.size4{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size4.size5,.ML__mathlive .sizing.reset-size4.size5{font-size:1.11111111em}.ML__mathlive .fontsize-ensurer.reset-size4.size6,.ML__mathlive .sizing.reset-size4.size6{font-size:1.33333333em}.ML__mathlive .fontsize-ensurer.reset-size4.size7,.ML__mathlive .sizing.reset-size4.size7{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size4.size8,.ML__mathlive .sizing.reset-size4.size8{font-size:1.92222222em}.ML__mathlive .fontsize-ensurer.reset-size4.size9,.ML__mathlive .sizing.reset-size4.size9{font-size:2.3em}.ML__mathlive .fontsize-ensurer.reset-size4.size10,.ML__mathlive .sizing.reset-size4.size10{font-size:2.76666667em}.ML__mathlive .fontsize-ensurer.reset-size5.size1,.ML__mathlive .sizing.reset-size5.size1{font-size:.5em}.ML__mathlive .fontsize-ensurer.reset-size5.size2,.ML__mathlive .sizing.reset-size5.size2{font-size:.7em}.ML__mathlive .fontsize-ensurer.reset-size5.size3,.ML__mathlive .sizing.reset-size5.size3{font-size:.8em}.ML__mathlive .fontsize-ensurer.reset-size5.size4,.ML__mathlive .sizing.reset-size5.size4{font-size:.9em}.ML__mathlive .fontsize-ensurer.reset-size5.size5,.ML__mathlive .sizing.reset-size5.size5{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size5.size6,.ML__mathlive .sizing.reset-size5.size6{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size5.size7,.ML__mathlive .sizing.reset-size5.size7{font-size:1.44em}.ML__mathlive .fontsize-ensurer.reset-size5.size8,.ML__mathlive .sizing.reset-size5.size8{font-size:1.73em}.ML__mathlive .fontsize-ensurer.reset-size5.size9,.ML__mathlive .sizing.reset-size5.size9{font-size:2.07em}.ML__mathlive .fontsize-ensurer.reset-size5.size10,.ML__mathlive .sizing.reset-size5.size10{font-size:2.49em}.ML__mathlive .fontsize-ensurer.reset-size6.size1,.ML__mathlive .sizing.reset-size6.size1{font-size:.41666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size2,.ML__mathlive .sizing.reset-size6.size2{font-size:.58333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size3,.ML__mathlive .sizing.reset-size6.size3{font-size:.66666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size4,.ML__mathlive .sizing.reset-size6.size4{font-size:.75em}.ML__mathlive .fontsize-ensurer.reset-size6.size5,.ML__mathlive .sizing.reset-size6.size5{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size6,.ML__mathlive .sizing.reset-size6.size6{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size6.size7,.ML__mathlive .sizing.reset-size6.size7{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size6.size8,.ML__mathlive .sizing.reset-size6.size8{font-size:1.44166667em}.ML__mathlive .fontsize-ensurer.reset-size6.size9,.ML__mathlive .sizing.reset-size6.size9{font-size:1.725em}.ML__mathlive .fontsize-ensurer.reset-size6.size10,.ML__mathlive .sizing.reset-size6.size10{font-size:2.075em}.ML__mathlive .fontsize-ensurer.reset-size7.size1,.ML__mathlive .sizing.reset-size7.size1{font-size:.34722222em}.ML__mathlive .fontsize-ensurer.reset-size7.size2,.ML__mathlive .sizing.reset-size7.size2{font-size:.48611111em}.ML__mathlive .fontsize-ensurer.reset-size7.size3,.ML__mathlive .sizing.reset-size7.size3{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size7.size4,.ML__mathlive .sizing.reset-size7.size4{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size7.size5,.ML__mathlive .sizing.reset-size7.size5{font-size:.69444444em}.ML__mathlive .fontsize-ensurer.reset-size7.size6,.ML__mathlive .sizing.reset-size7.size6{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size7.size7,.ML__mathlive .sizing.reset-size7.size7{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size7.size8,.ML__mathlive .sizing.reset-size7.size8{font-size:1.20138889em}.ML__mathlive .fontsize-ensurer.reset-size7.size9,.ML__mathlive .sizing.reset-size7.size9{font-size:1.4375em}.ML__mathlive .fontsize-ensurer.reset-size7.size10,.ML__mathlive .sizing.reset-size7.size10{font-size:1.72916667em}.ML__mathlive .fontsize-ensurer.reset-size8.size1,.ML__mathlive .sizing.reset-size8.size1{font-size:.28901734em}.ML__mathlive .fontsize-ensurer.reset-size8.size2,.ML__mathlive .sizing.reset-size8.size2{font-size:.40462428em}.ML__mathlive .fontsize-ensurer.reset-size8.size3,.ML__mathlive .sizing.reset-size8.size3{font-size:.46242775em}.ML__mathlive .fontsize-ensurer.reset-size8.size4,.ML__mathlive .sizing.reset-size8.size4{font-size:.52023121em}.ML__mathlive .fontsize-ensurer.reset-size8.size5,.ML__mathlive .sizing.reset-size8.size5{font-size:.57803468em}.ML__mathlive .fontsize-ensurer.reset-size8.size6,.ML__mathlive .sizing.reset-size8.size6{font-size:.69364162em}.ML__mathlive .fontsize-ensurer.reset-size8.size7,.ML__mathlive .sizing.reset-size8.size7{font-size:.83236994em}.ML__mathlive .fontsize-ensurer.reset-size8.size8,.ML__mathlive .sizing.reset-size8.size8{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size8.size9,.ML__mathlive .sizing.reset-size8.size9{font-size:1.19653179em}.ML__mathlive .fontsize-ensurer.reset-size8.size10,.ML__mathlive .sizing.reset-size8.size10{font-size:1.43930636em}.ML__mathlive .fontsize-ensurer.reset-size9.size1,.ML__mathlive .sizing.reset-size9.size1{font-size:.24154589em}.ML__mathlive .fontsize-ensurer.reset-size9.size2,.ML__mathlive .sizing.reset-size9.size2{font-size:.33816425em}.ML__mathlive .fontsize-ensurer.reset-size9.size3,.ML__mathlive .sizing.reset-size9.size3{font-size:.38647343em}.ML__mathlive .fontsize-ensurer.reset-size9.size4,.ML__mathlive .sizing.reset-size9.size4{font-size:.43478261em}.ML__mathlive .fontsize-ensurer.reset-size9.size5,.ML__mathlive .sizing.reset-size9.size5{font-size:.48309179em}.ML__mathlive .fontsize-ensurer.reset-size9.size6,.ML__mathlive .sizing.reset-size9.size6{font-size:.57971014em}.ML__mathlive .fontsize-ensurer.reset-size9.size7,.ML__mathlive .sizing.reset-size9.size7{font-size:.69565217em}.ML__mathlive .fontsize-ensurer.reset-size9.size8,.ML__mathlive .sizing.reset-size9.size8{font-size:.83574879em}.ML__mathlive .fontsize-ensurer.reset-size9.size9,.ML__mathlive .sizing.reset-size9.size9{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size9.size10,.ML__mathlive .sizing.reset-size9.size10{font-size:1.20289855em}.ML__mathlive .fontsize-ensurer.reset-size10.size1,.ML__mathlive .sizing.reset-size10.size1{font-size:.20080321em}.ML__mathlive .fontsize-ensurer.reset-size10.size2,.ML__mathlive .sizing.reset-size10.size2{font-size:.2811245em}.ML__mathlive .fontsize-ensurer.reset-size10.size3,.ML__mathlive .sizing.reset-size10.size3{font-size:.32128514em}.ML__mathlive .fontsize-ensurer.reset-size10.size4,.ML__mathlive .sizing.reset-size10.size4{font-size:.36144578em}.ML__mathlive .fontsize-ensurer.reset-size10.size5,.ML__mathlive .sizing.reset-size10.size5{font-size:.40160643em}.ML__mathlive .fontsize-ensurer.reset-size10.size6,.ML__mathlive .sizing.reset-size10.size6{font-size:.48192771em}.ML__mathlive .fontsize-ensurer.reset-size10.size7,.ML__mathlive .sizing.reset-size10.size7{font-size:.57831325em}.ML__mathlive .fontsize-ensurer.reset-size10.size8,.ML__mathlive .sizing.reset-size10.size8{font-size:.69477912em}.ML__mathlive .fontsize-ensurer.reset-size10.size9,.ML__mathlive .sizing.reset-size10.size9{font-size:.8313253em}.ML__mathlive .fontsize-ensurer.reset-size10.size10,.ML__mathlive .sizing.reset-size10.size10{font-size:1em}.ML__mathlive .delimsizing.size1{font-family:KaTeX_Size1}.ML__mathlive .delimsizing.size2{font-family:KaTeX_Size2}.ML__mathlive .delimsizing.size3{font-family:KaTeX_Size3}.ML__mathlive .delimsizing.size4{font-family:KaTeX_Size4}.ML__mathlive .delimsizing.mult .delim-size1{font-family:KaTeX_Size1;vertical-align:top}.ML__mathlive .delimsizing.mult .delim-size4{font-family:KaTeX_Size4;vertical-align:top}.ML__mathlive .nulldelimiter{width:.12em}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .op-limits .vlist>span{text-align:center}.ML__mathlive .op-over-under{position:relative}.ML__mathlive .op-over-under>.vlist>span:first-child,.ML__mathlive .op-over-under>.vlist>span:last-child{text-align:center}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .accent .accent-body>span{font-family:KaTeX_Main;width:0}.ML__mathlive .accent .accent-body.accent-vec>span{position:relative;left:.326em}.ML__mathlive .mtable .vertical-separator{display:inline-block;margin:0 -.025em;border-right:.05em solid}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__composition{background:#fff1c2;color:#000;-webkit-text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%));text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%))}@media (prefers-color-scheme:dark){.ML__composition{background:#69571c;color:#fff}}.ML__placeholder{opacity:.7;padding-left:.4ex;padding-right:.4ex;padding-top:.4ex}";
 
     var css_248z$3 = "div.ML__popover.is-visible{visibility:inherit;-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1)}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;padding:2px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px}.ML__popover__content a{color:#5ea6fd;padding-top:.3em;margin-top:.4em;display:block}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.active,.ML__popover__content.pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-size:1.6rem}.ML__popover__prev-shortcut{height:31px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:4px;padding-bottom:2px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.active,.ML__popover__next-shortcut.pressed,.ML__popover__prev-shortcut.active,.ML__popover__prev-shortcut.pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{padding:5px;border-radius:50%;width:20px;height:20px;display:inline-block}.ML__popover__prev-shortcut>span>span{margin-top:-2px;display:block}.ML__popover__next-shortcut>span>span{margin-top:2px;display:block}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{height:34px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:2px;padding-bottom:4px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
 
@@ -30537,11 +30584,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     `;
             this.element.innerHTML = this.options.createHTML(markup);
             let iChild = 0; // index of child -- used to make changes below easier
+            let textarea;
             if (typeof this.options.substituteTextArea === 'function') {
-                this.textarea = this.options.substituteTextArea();
+                textarea = this.options.substituteTextArea();
             }
             else {
-                this.textarea = this.element.children[iChild++]
+                textarea = this.element.children[iChild++]
                     .firstElementChild;
             }
             this.field = this.element.children[iChild].children[0];
@@ -30593,21 +30641,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // enters a mode changing command.
             this.mode = this.options.defaultMode;
             this.smartModeSuppressed = false;
-            // Current style (color, weight, italic, etc...)
-            // Reflects the style to be applied on next insertion, if any
+            // Current style (color, weight, italic, etc...):
+            // reflects the style to be applied on next insertion.
             this.style = {};
             // Focus/blur state
             this.blurred = true;
             on(this.element, 'focus', this);
             on(this.element, 'blur', this);
             // Capture clipboard events
-            on(this.textarea, 'cut', this);
-            on(this.textarea, 'copy', this);
-            on(this.textarea, 'paste', this);
             // Delegate keyboard events
-            delegateKeyboardEvents(this.textarea, {
+            this.keyboardDelegate = delegateKeyboardEvents(textarea, {
                 typedText: (text) => onTypedText(this, text),
-                paste: () => onPaste(this),
+                cut: () => onCut(this),
+                copy: (ev) => onCopy(this, ev),
+                paste: (ev) => onPaste(this, ev),
                 keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
                 focus: () => this.onFocus(),
                 blur: () => this.onBlur(),
@@ -30782,15 +30829,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     this.resizeTimer = window.requestAnimationFrame(() => isValidMathfield(this) && this.onResize());
                     break;
                 }
-                case 'cut':
-                    onCut(this);
-                    break;
-                case 'copy':
-                    onCopy(this, evt);
-                    break;
-                case 'paste':
-                    onPaste(this);
-                    break;
                 default:
                     console.warn('Unexpected event type', evt.type);
             }
@@ -30807,11 +30845,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             delete this.accessibleNode;
             delete this.ariaLiveText;
             delete this.field;
-            off(this.textarea, 'cut', this);
-            off(this.textarea, 'copy', this);
-            off(this.textarea, 'paste', this);
-            this.textarea.remove();
-            delete this.textarea;
+            delete this.keyboardDelegate;
             this.virtualKeyboardToggle.remove();
             delete this.virtualKeyboardToggle;
             releaseSharedElement(this.popover);
@@ -30852,19 +30886,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const result = selectionIsCollapsed(this.model)
                 ? ''
                 : makeRoot('math', getSelectedAtoms(this.model)).toLatex(false);
-            const textarea = this.textarea;
-            if (result) {
-                textarea.value = result;
-                // The textarea may be a span (on mobile, for example), so check that
-                // it has a select() before calling it.
-                if (this.hasFocus() && textarea.select) {
-                    textarea.select();
-                }
-            }
-            else {
-                textarea.value = '';
-                textarea.setAttribute('aria-label', '');
-            }
+            this.keyboardDelegate.setValue(result);
             // Update the mode
             {
                 const previousMode = this.mode;
@@ -30891,11 +30913,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 return;
             if (this.blurred) {
                 this.blurred = false;
-                // The textarea may be a span (on mobile, for example), so check that
-                // it has a focus() before calling it.
-                if (this.textarea.focus) {
-                    this.textarea.focus();
-                }
+                this.keyboardDelegate.focus();
                 if (this.options.virtualKeyboardMode === 'onfocus') {
                     showVirtualKeyboard(this);
                 }
@@ -30939,8 +30957,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 const caretPoint = getCaretPoint(this.field);
                 if (!caretPoint)
                     return;
-                this.textarea.style.top = caretPoint.y + 'px';
-                this.textarea.style.left = caretPoint.x + 'px';
+                this.keyboardDelegate.moveTo(caretPoint.x, caretPoint.y);
             });
         }
         onCompositionUpdate(composition) {
@@ -31076,7 +31093,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     const depth = iter.at(range.start).depth;
                     for (let i = range.start + 1; i <= range.end; i++) {
                         if (iter.at(i).depth === depth) {
-                            res += this.atomToString(iter.at(i).atom, 'latex');
+                            res += this.atomToString(iter.at(i).atom, format);
                         }
                     }
                 }
@@ -31099,6 +31116,36 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             });
             this.undoManager.snapshot(this.options);
             requestUpdate(this);
+        }
+        find(latex) {
+            const result = [];
+            const iter = new PositionIterator(this.model.root);
+            const lastPosition = iter.lastPosition;
+            for (let i = 0; i < lastPosition; i++) {
+                const depth = iter.at(i).depth;
+                // @todo: adjust for depth, use the smallest depth of start and end
+                // and adjust start/end to be at the same depth
+                // if parent of start and end is not the same,
+                // look at common ancestor, if start's parent is common ancestor,
+                // use start, otherwise start =  position of common ancestor.
+                // if end's parent is common ancestor, use end, otherwise use position
+                // of common ancestor + 1.
+                // And maybe that "adjustment" need to be in getValue()? but then
+                // the range result might include duplicates
+                for (let j = i; j < lastPosition; j++) {
+                    let value = '';
+                    for (let k = i + 1; k <= j; k++) {
+                        if (iter.at(k).depth === depth) {
+                            value += this.atomToString(iter.at(k).atom, 'latex');
+                            console.log(`value(${i + 1}, ${j}) = "${value}" = '${this.getValue(i, j)}'`);
+                        }
+                    }
+                    if (value === latex) {
+                        result.push(normalizeRange(iter, { start: i, end: j }));
+                    }
+                }
+            }
+            return result;
         }
         /** @deprecated */
         $selectedText(format) {
@@ -31288,23 +31335,17 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return this.hasFocus();
         }
         hasFocus() {
-            return (document.hasFocus() && deepActiveElement(document) === this.textarea);
+            return document.hasFocus() && this.keyboardDelegate.hasFocus();
         }
         focus() {
             if (!this.hasFocus()) {
-                // The textarea may be a span (on mobile, for example), so check that
-                // it has a focus() before calling it.
-                if (typeof this.textarea.focus === 'function') {
-                    this.textarea.focus();
-                }
+                this.keyboardDelegate.focus();
                 this.model.announce('line');
             }
         }
         blur() {
             if (this.hasFocus()) {
-                if (typeof this.textarea.blur === 'function') {
-                    this.textarea.blur();
-                }
+                this.keyboardDelegate.blur();
             }
         }
         /** @deprecated */
@@ -31414,13 +31455,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 },
             });
         }
-    }
-    function deepActiveElement(root = document) {
-        var _a, _b;
-        if ((_b = (_a = root.activeElement) === null || _a === void 0 ? void 0 : _a.shadowRoot) === null || _b === void 0 ? void 0 : _b.activeElement) {
-            return deepActiveElement(root.activeElement.shadowRoot);
-        }
-        return root.activeElement;
     }
     function deprecated(method) {
         console.warn(`Method "${method}" is deprecated`);
@@ -33201,11 +33235,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
 :host([disabled]) {
     opacity:  .5;
 }
-:host(:host:focus), :host(:host:focus-within) {
+:host(:focus), :host(:focus-within) {
+    outline: Highlight auto 1px;    /* For Firefox */
     outline: -webkit-focus-ring-color auto 1px;
-}
-:host(:host:focus:not(:focus-visible)) {
-    outline: none;
 }
 </style>
 <div></div><slot style="display:none"></slot>`;
@@ -33603,7 +33635,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return undefined;
         }
         /**
-         *  @category Accessing and Changing the content
+         *  @category Accessing and changing the content
          */
         setValue(value, options) {
             if (__classPrivateFieldGet(this, _mathfield)) {
@@ -33673,7 +33705,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          * After the insertion, the selection will be set according to the
          * `options.selectionMode`.
          *
-         *  @category Accessing and Changing the content
+         *  @category Accessing and changing the content
          */
         insert(s, options) {
             var _a, _b;
@@ -33693,7 +33725,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          *
          * If there is no selection, the style will apply to the next character typed.
          *
-         * @category Accessing and Changing the content
+         * @category Accessing and changing the content
          */
         applyStyle(style) {
             var _a;
@@ -33702,6 +33734,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         /**
          * The bottom location of the caret (insertion point) in viewport
          * coordinates.
+         *
+         * See also [[`setCaretPoint`]]
          * @category Selection
          */
         get caretPoint() {
@@ -33714,12 +33748,25 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         /**
          * `x` and `y` are in viewport coordinates.
-         * Return true if the location of the point is valid caret location
+         *
+         * Return true if the location of the point is a valid caret location.
+         *
+         * See also [[`caretPoint`]]
          * @category Selection
          */
         setCaretPoint(x, y) {
             var _a, _b;
             return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.setCaretPoint(x, y)) !== null && _b !== void 0 ? _b : false;
+        }
+        /**
+         *  Return an array of ranges matching the argument.
+         *
+         * An array is always returned, but it has no element if there are no
+         * matching items.
+         */
+        find(latex) {
+            var _a, _b;
+            return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.find(latex)) !== null && _b !== void 0 ? _b : [];
         }
         /**
          * Custom elements lifecycle hooks
@@ -33914,7 +33961,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return this.hasAttribute('disabled');
         }
         /**
-         *  @category Accessing and Changing the content
+         *  @category Accessing and changing the content
          */
         set value(value) {
             this.setValue(value);
@@ -33924,7 +33971,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          * ```
          * document.querySelector('mf').value = '\\frac{1}{\\pi}'
          * ```
-         *  @category Accessing and Changing the content
+         *  @category Accessing and changing the content
          */
         get value() {
             return this.getValue();
@@ -34296,6 +34343,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     };
 
     exports.MathfieldElement = MathfieldElement;
+    exports.astToLatex = astToLatex;
     exports.convertLatexToMarkup = convertLatexToMarkup;
     exports.convertLatexToMathMl = convertLatexToMathMl;
     exports.convertLatexToSpeakableText = convertLatexToSpeakableText;

@@ -10,6 +10,15 @@
 
     - **#555** Support for IME (Input Method Engines) for Japanese, Chinese,
     Korean and other complex scripts.
+    - `find()` method to search the fragments of an expression that matches
+    a string or regular expression.
+
+### Improvements
+
+    - Improved handling of paste commands: if a JSON item is on the clipboard
+    it is used in priority, before a `plain/text` item.
+    - It is now possible to type dead keys such as `alt+e`, and they are
+    properly displayed as a composition.
 
 ## 0.58.0 (2020-10-11)
 
