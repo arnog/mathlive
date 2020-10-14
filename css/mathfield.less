@@ -75,11 +75,6 @@
     --on-secondary: hsl(var(--hue, 212), 19%, 26%);
 }
 
-.ML__fieldcontainer:focus {
-    outline: 2px solid var(--primary, hsl(var(--hue, 212), 40%, 50%));
-    outline-offset: 3px;
-}
-
 /* This is the actual field content (formula) */
 .ML__fieldcontainer__field {
     align-self: center;
@@ -283,10 +278,8 @@ scrolling to prevent the capture of hover events */
     }
     &::after {
         position: absolute;
-        visibility: hidden;
+        display: none;
         content: attr(data-ML__tooltip);
-
-        display: inline-table;
 
         top: 110%;
         // left: -50%;
@@ -320,10 +313,11 @@ scrolling to prevent the capture of hover events */
     }
 }
 
-[data-ML__tooltip]:hover {
+:not(.tracking) [data-ML__tooltip]:hover {
     position: relative;
     &::after {
         visibility: visible; // Visible triggers the animation...
+        display: inline-table;
         opacity: 1; // ... but we start fully transparent to
         // give ourselves a delay before showing
         transform: scale(1);

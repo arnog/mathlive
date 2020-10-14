@@ -55,9 +55,6 @@ export function onPointerDown(
         }
         trackingPointer = false;
         clearInterval(scrollInterval);
-        that.element
-            .querySelectorAll('.ML__scroller')
-            .forEach((x) => x.parentNode.removeChild(x));
         evt.preventDefault();
         evt.stopPropagation();
     }
@@ -167,17 +164,9 @@ export function onPointerDown(
             anchor = pathFromPoint(mathfield, anchorX, anchorY, { bias: 0 });
         }
         if (anchor) {
-            // Create divs to block out pointer tracking to the left and right of
-            // the mathfield (to avoid triggering the hover of the virtual
-            // keyboard toggle, for example)
-            let div = document.createElement('div');
-            div.className = 'ML__scroller';
-            mathfield.element.appendChild(div);
-            div.style.left = bounds.left - 200 + 'px';
-            div = document.createElement('div');
-            div.className = 'ML__scroller';
-            mathfield.element.appendChild(div);
-            div.style.left = bounds.right + 'px';
+            // Set a `tracking` class to avoid triggering the hover of the virtual
+            // keyboard toggle, for example
+            mathfield.element.classList.add('tracking');
 
             if (evt.shiftKey) {
                 // Extend the selection if the shift-key is down
