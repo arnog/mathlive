@@ -10,6 +10,31 @@ import type { MathfieldPrivate } from './mathfield-class';
 import type { PathSegment } from './path';
 
 /**
+ * Given an atom and its parent, describe the relationship between the atom
+ * and its siblings and their parent.
+ */
+function relationName(parent: Atom, leaf: PathSegment): string {
+    const EXPR_NAME = {
+        //    'array': 'should not happen',
+        numer: 'numerator',
+        denom: 'denominator',
+        index: 'index',
+        body: 'parent',
+        subscript: 'subscript',
+        superscript: 'superscript',
+    };
+    const PARENT_NAME = {
+        enclose: 'cross out',
+        leftright: 'fence',
+        surd: 'square root',
+        root: 'math field',
+    };
+    return leaf.relation === 'body'
+        ? PARENT_NAME[parent.type]
+        : EXPR_NAME[leaf.relation];
+}
+
+/**
  * Announce a change in selection or content via the aria-live region.
  *
  * @param action The action that invoked the change.
@@ -40,8 +65,9 @@ export function defaultAnnounceHook(
     } else if (action === 'focus' || /move/.test(action)) {
         //*** FIX -- should be xxx selected/unselected */
         liveText =
+            getRelationshipAsSpokenText(mathfield.model, oldModel) +
             (selectionIsCollapsed(mathfield.model) ? '' : 'selected: ') +
-            nextAtomSpeechText(mathfield, oldModel);
+            getNextAtomAsSpokenText(mathfield.model, mathfield.options);
     } else if (action === 'replacement') {
         // announce the contents
         liveText = speakableText(
@@ -81,68 +107,53 @@ export function defaultAnnounceHook(
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 
-/* Returns the speech text of the next atom after the selection or
- *   an 'end of' phrasing based on what structure we are at the end of
- */
-// @revisit. Currently this = MathfieldPrivate, but it looks like model is enough
-function nextAtomSpeechText(
-    mathfield: MathfieldPrivate,
-    oldModel: ModelPrivate
+function getRelationshipAsSpokenText(
+    model: ModelPrivate,
+    previousModel: ModelPrivate
 ): string {
-    function relation(parent: Atom, leaf: PathSegment): string {
-        const EXPR_NAME = {
-            //    'array': 'should not happen',
-            numer: 'numerator',
-            denom: 'denominator',
-            index: 'index',
-            body: 'parent',
-            subscript: 'subscript',
-            superscript: 'superscript',
-        };
-        const PARENT_NAME = {
-            enclose: 'cross out',
-            leftright: 'fence',
-            surd: 'square root',
-            root: 'math field',
-        };
-        return leaf.relation === 'body'
-            ? PARENT_NAME[parent.type]
-            : EXPR_NAME[leaf.relation];
-    }
-    const oldPath = oldModel ? oldModel.path : [];
-    const path = mathfield.model.path;
-    const leaf = path[path.length - 1];
+    const previousPath = previousModel ? previousModel.path : [];
+    const path = model.path;
     let result = '';
-    while (oldPath.length > path.length) {
+    while (previousPath.length > path.length) {
         result +=
             'out of ' +
-            relation(oldModel.parent(), oldPath[oldPath.length - 1]) +
+            relationName(
+                previousModel.parent(),
+                previousPath[previousPath.length - 1]
+            ) +
             '; ';
-        oldPath.pop();
+        previousPath.pop();
     }
-    if (!selectionIsCollapsed(mathfield.model)) {
-        return speakableText(
-            mathfield.options as Required<TextToSpeechOptions>,
-            '',
-            getSelectedAtoms(mathfield.model)
-        );
+    return result;
+}
+
+/**
+ *
+ * Return the spoken text for the atom to the right of the current selection.
+ * Take into consideration the position amongst siblings to include 'start of'
+ * and 'end of' if applicable.
+ */
+function getNextAtomAsSpokenText(
+    model: ModelPrivate,
+    options: TextToSpeechOptions
+): string {
+    const path = model.path;
+    const leaf = path[path.length - 1];
+    let result = '';
+    if (!selectionIsCollapsed(model)) {
+        return speakableText(options, '', getSelectedAtoms(model));
     }
     // announce start of denominator, etc
-    const relationName = relation(mathfield.model.parent(), leaf);
+    const relation = relationName(model.parent(), leaf);
     if (leaf.offset === 0) {
-        result +=
-            (relationName ? 'start of ' + relationName : 'unknown') + ': ';
+        result += (relation ? 'start of ' + relation : 'unknown') + ': ';
     }
-    const atom = mathfield.model.sibling(Math.max(1, mathfield.model.extent));
+    const atom = model.sibling(Math.max(1, model.extent));
     if (atom) {
-        result += speakableText(
-            mathfield.options as Required<TextToSpeechOptions>,
-            '',
-            atom
-        );
+        result += speakableText(options, '', atom);
     } else if (leaf.offset !== 0) {
         // don't say both start and end
-        result += relationName ? 'end of ' + relationName : 'unknown';
+        result += relation ? 'end of ' + relation : 'unknown';
     }
     return result;
 }
