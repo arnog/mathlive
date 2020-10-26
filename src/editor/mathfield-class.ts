@@ -77,7 +77,7 @@ import {
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomsToMathML } from '../addons/math-ml';
-import { updateUndoRedoButtons } from './virtual-keyboard';
+import { VirtualKeyboard, updateUndoRedoButtons } from './virtual-keyboard';
 
 // @ts-ignore
 import mathfieldStylesheet from '../../css/mathfield.less';
@@ -123,7 +123,7 @@ export class MathfieldPrivate implements Mathfield {
     keystrokeCaption: HTMLElement;
 
     virtualKeyboardVisible: boolean;
-    virtualKeyboard: HTMLElement;
+    virtualKeyboard: VirtualKeyboard;
 
     keybindings: Keybinding[]; // Normalized keybindings (raw ones in config)
     keyboardLayout: KeyboardLayoutName;
@@ -610,11 +610,10 @@ export class MathfieldPrivate implements Mathfield {
         delete this.popover;
         releaseSharedElement(this.keystrokeCaption);
         delete this.keystrokeCaption;
-        releaseSharedElement(this.virtualKeyboard);
-        delete this.virtualKeyboard;
-        releaseSharedElement(
-            document.getElementById('mathlive-alternate-keys-panel')
-        );
+        if (this.virtualKeyboard) {
+            this.virtualKeyboard.dispose();
+            delete this.virtualKeyboard;
+        }
         off(this.element, 'pointerdown', this);
         off(this.element, 'touchstart:active mousedown', this);
         off(this.element, 'focus', this);

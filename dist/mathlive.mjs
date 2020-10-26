@@ -19582,7 +19582,7 @@ function setPopoverPosition(mf, position) {
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     const scrollbarHeight = window.innerHeight - document.documentElement.clientHeight;
     const virtualkeyboardHeight = mf.virtualKeyboardVisible
-        ? mf.virtualKeyboard.offsetHeight
+        ? mf.virtualKeyboard.element.offsetHeight
         : 0;
     // prevent screen overflow horizontal.
     if (position.x + mf.popover.offsetWidth / 2 >
@@ -26298,6 +26298,35 @@ function pathFromPoint(mathfield, x, y, options) {
 
 var css_248z = ".ML__keyboard{--keyboard-background:rgba(209,213,217,0.97);--keyboard-text:#000;--keyboard-text-active:var(--primary,hsl(var(--hue,212),40%,50%));--keyboard-background-border:#ddd;--keycap-background:#fff;--keycap-background-active:#e5e5e5;--keycap-background-border:#e5e6e9;--keycap-background-border-bottom:#8d8f92;--keycap-text:#000;--keycap-text-active:#fff;--keycap-secondary-text:#000;--keycap-modifier-background:#b9bdc7;--keycap-modifier-border:#c5c9d0;--keycap-modifier-border-bottom:#989da6;--keyboard-alternate-background:#fff;--keyboard-alternate-background-active:#e5e5e5;--keyboard-alternate-text:#000;position:fixed;left:0;bottom:-267px;width:100vw;z-index:var(--keyboard-zindex,105);padding-top:5px;transform:translate(0);opacity:0;visibility:hidden;transition:.28s cubic-bezier(0,0,.2,1);transition-property:transform,opacity;-webkit-backdrop-filter:grayscale(50%);backdrop-filter:grayscale(50%);background-color:var(--keyboard-background);border:1px solid var(--keyboard-background-border);font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:16px;font-weight:400;margin:0;text-shadow:none;box-sizing:border-box;touch-action:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23)}.ML__keyboard.is-visible{transform:translateY(-267px);opacity:1;visibility:visible;transition-timing-function:cubic-bezier(.4,0,1,1)}.ML__keyboard .tex{font-family:KaTeX_Main,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .tex-math{font-family:KaTeX_Math,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .tt{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace!important;font-size:30px;font-weight:400}.ML__keyboard.alternate-keys{visibility:hidden;max-width:286px;background-color:var(--keyboard-alternate-background);text-align:center;border-radius:6px;position:fixed;bottom:auto;top:0;box-sizing:content-box;transform:none;z-index:calc(var(--keyboard-zindex, 105) + 1);display:flex;flex-direction:row;justify-content:center;align-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:none}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys{max-width:320px}}.ML__keyboard.alternate-keys.is-visible{visibility:visible}.ML__keyboard.alternate-keys ul{list-style:none;margin:3px;padding:0;display:flex;flex-flow:row wrap-reverse;justify-content:center}.ML__keyboard.alternate-keys ul>li{display:flex;flex-flow:column;align-items:center;justify-content:center;font-size:30px;height:70px;width:70px;box-sizing:border-box;margin:0;background:transparent;border:1px solid transparent;border-radius:5px;pointer-events:all;color:var(--keyboard-alternate-text);fill:currentColor}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys ul>li{font-size:24px;height:50px;width:50px}}.ML__keyboard.alternate-keys ul>li.active,.ML__keyboard.alternate-keys ul>li.pressed,.ML__keyboard.alternate-keys ul>li:hover{box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);background:var(--keyboard-alternate-background-active);color:var(--keyboard-text-active)}.ML__keyboard.alternate-keys ul>li.small{font-size:18px}.ML__keyboard.alternate-keys ul>li.small-button{width:42px;height:42px;margin:2px;background:#fbfbfb}.ML__keyboard.alternate-keys ul>li.small-button:hover{background:var(--keyboard-alternate-background-active)}.ML__keyboard.alternate-keys ul>li.box>div,.ML__keyboard.alternate-keys ul>li.box>span{border:1px dashed rgba(0,0,0,.24)}.ML__keyboard.alternate-keys ul>li .warning{min-height:60px;min-width:60px;background:#cd0030;color:#fff;padding:5px;display:flex;align-items:center;justify-content:center;border-radius:5px}.ML__keyboard.alternate-keys ul>li .warning.active,.ML__keyboard.alternate-keys ul>li .warning.pressed,.ML__keyboard.alternate-keys ul>li .warning:hover{background:red}.ML__keyboard.alternate-keys ul>li .warning svg{width:50px;height:50px}.ML__keyboard.alternate-keys ul>li aside{font-size:12px;line-height:12px;opacity:.78;padding-top:2px}.ML__keyboard>div.keyboard-layer{display:none;outline:none}.ML__keyboard>div.keyboard-layer.is-visible{display:flex;flex-flow:column}.ML__keyboard>div>div.keyboard-toolbar{align-self:center;display:flex;flex-flow:row;justify-content:space-between;width:736px}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard>div>div.keyboard-toolbar{width:556px}}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar{width:365px;max-width:100vw}}.ML__keyboard>div>div.keyboard-toolbar svg{height:20px;width:20px}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar svg{height:13px;width:17px}}.ML__keyboard>div>div.keyboard-toolbar>.left{position:relative;display:flex;justify-content:flex-start;flex-flow:row}.ML__keyboard>div>div.keyboard-toolbar>.right{display:flex;justify-content:flex-end;flex-flow:row}.ML__keyboard>div>div.keyboard-toolbar>div>div{display:flex;align-items:baseline;justify-content:center;pointer-events:all;color:var(--keyboard-text);fill:currentColor;background:0;font-size:110%;cursor:pointer;min-height:0;padding:4px 10px;margin:7px 4px 6px;box-shadow:none;border:none;border-bottom:2px solid transparent}.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled.pressed svg,.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled:hover svg,.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled svg{color:var(--keyboard-text);opacity:.2}@media only screen and (max-width:414px){.ML__keyboard>div>div.keyboard-toolbar>div>div{font-size:100%;padding:0 6px 0 0}}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar>div>div{padding-left:4px;padding-right:4px;font-size:90%}}.ML__keyboard>div>div.keyboard-toolbar>div>div.active,.ML__keyboard>div>div.keyboard-toolbar>div>div.pressed,.ML__keyboard>div>div.keyboard-toolbar>div>div:active,.ML__keyboard>div>div.keyboard-toolbar>div>div:hover{color:var(--keyboard-text-active)}.ML__keyboard>div>div.keyboard-toolbar>div>div.selected{color:var(--keyboard-text-active);border-bottom:2px solid var(--keyboard-text-active);margin-bottom:8px;padding-bottom:0}.ML__keyboard div .rows{border:0;border-collapse:separate;clear:both;margin:auto;display:flex;flex-flow:column;align-items:center}.ML__keyboard div .rows>ul{list-style:none;height:40px;margin:0 0 3px;padding:0}.ML__keyboard div .rows>ul>li{display:flex;flex-flow:column;align-items:center;justify-content:center;width:34px;margin-right:2px;height:40px;box-sizing:border-box;padding:8px 0;vertical-align:top;text-align:center;float:left;color:var(--keycap-text);fill:currentColor;font-size:20px;background:var(--keycap-background);border:1px solid var(--keycap-background-border);border-bottom-color:var(--keycap-background-border-bottom);border-radius:5px;pointer-events:all;position:relative;overflow:hidden;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}.ML__keyboard div .rows>ul>li:last-child{margin-right:0}.ML__keyboard div .rows>ul>li.small{font-size:16px}.ML__keyboard div .rows>ul>li.tt{color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.bottom{justify-content:flex-end}.ML__keyboard div .rows>ul>li.left{align-items:flex-start;padding-left:4px}.ML__keyboard div .rows>ul>li.right{align-items:flex-end;padding-right:4px}.ML__keyboard div .rows>ul>li svg{width:20px;height:20px}.ML__keyboard div .rows>ul>li .warning{height:25px;width:25px;min-height:25px;min-width:25px;background:#cd0030;color:#fff;border-radius:100%;padding:5px;display:flex;align-items:center;justify-content:center;margin-bottom:-2px}.ML__keyboard div .rows>ul>li .warning svg{width:16px;height:16px}@media only screen and (max-width:768px){.ML__keyboard div .rows>ul>li .warning{height:16px;width:16px;min-height:16px;min-width:16px}.ML__keyboard div .rows>ul>li .warning svg{width:14px;height:14px}}.ML__keyboard div .rows>ul>li>.w0{width:0}.ML__keyboard div .rows>ul>li>.w5{width:16px}.ML__keyboard div .rows>ul>li>.w15{width:52px}.ML__keyboard div .rows>ul>li>.w20{width:70px}.ML__keyboard div .rows>ul>li>.w50{width:178px}.ML__keyboard div .rows>ul>li.separator{background:transparent;border:none;pointer-events:none}@media only screen and (max-width:560px){.ML__keyboard div .rows>ul>li.if-wide{display:none}}.ML__keyboard div .rows>ul>li.tex-math{font-size:25px}.ML__keyboard div .rows>ul>li.pressed,.ML__keyboard div .rows>ul>li:hover{background:var(--keycap-background-active);color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.action.active,.ML__keyboard div .rows>ul>li.action:active,.ML__keyboard div .rows>ul>li.keycap.active,.ML__keyboard div .rows>ul>li.keycap:active{transform:translateY(-20px) scale(1.4);z-index:calc(var(--keyboard-zindex, 105) - 5);color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.modifier.active,.ML__keyboard div .rows>ul>li.modifier:active{background:var(--keyboard-text-active);color:var(--keycap-text-active)}.ML__keyboard div .rows>ul>li.action.font-glyph,.ML__keyboard div .rows>ul>li.modifier.font-glyph{font-size:18px}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.action.font-glyph,.ML__keyboard div .rows>ul>li.modifier.font-glyph{font-size:16px}}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.bigfnbutton,.ML__keyboard div .rows>ul>li.fnbutton{font-size:12px}}.ML__keyboard div .rows>ul>li.bigfnbutton{font-size:14px}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.bigfnbutton{font-size:9px}}.ML__keyboard div .rows>ul>li.action,.ML__keyboard div .rows>ul>li.modifier{background-color:var(--keycap-modifier-background);border-bottom-color:var(--keycap-modifier-border);border-color:var(--keycap-modifier-border) var(--keycap-modifier-border) var(--keycap-modifier-border-bottom);font-size:65%;font-weight:100}.ML__keyboard div .rows>ul>li.action.selected,.ML__keyboard div .rows>ul>li.modifier.selected{color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.action.selected.active,.ML__keyboard div .rows>ul>li.action.selected.pressed,.ML__keyboard div .rows>ul>li.action.selected:active,.ML__keyboard div .rows>ul>li.action.selected:hover,.ML__keyboard div .rows>ul>li.modifier.selected.active,.ML__keyboard div .rows>ul>li.modifier.selected.pressed,.ML__keyboard div .rows>ul>li.modifier.selected:active,.ML__keyboard div .rows>ul>li.modifier.selected:hover{color:#fff}.ML__keyboard div .rows>ul>li.keycap.w50{font-size:80%;padding-top:10px;font-weight:100}.ML__keyboard div .rows>ul>li small{color:#555}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li small{font-size:9px}}.ML__keyboard div .rows>ul>li aside{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:10px;line-height:10px;color:#666}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li aside{display:none}}@media only screen and (max-width:414px){.ML__keyboard div .rows>ul>li{width:calc(10vw - 2px);margin-right:2px}.ML__keyboard div .rows>ul>.w5{width:calc(5vw - 2px)}.ML__keyboard div .rows>ul>.w15{width:calc(15vw - 2px)}.ML__keyboard div .rows>ul>.w20{width:calc(20vw - 2px)}.ML__keyboard div .rows>ul>.w50{width:calc(50vw - 2px)}}@media only screen and (min-width:415px) and (max-width:768px){.ML__keyboard div .rows>ul>li{width:37px;margin-right:3px}.ML__keyboard div .rows>ul>.w5{width:17px}.ML__keyboard div .rows>ul>.w15{width:57px}.ML__keyboard div .rows>ul>.w20{width:77px}.ML__keyboard div .rows>ul>.w50{width:197px}}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard div .rows>ul{height:52px}.ML__keyboard div .rows>ul>li{height:52px;width:51px;margin-right:4px}.ML__keyboard div .rows>ul>.w5{width:23.5px}.ML__keyboard div .rows>ul>.w15{width:78.5px}.ML__keyboard div .rows>ul>.w20{width:106px}.ML__keyboard div .rows>ul>.w50{width:271px}}@media only screen and (min-width:1025px){.ML__keyboard div .rows>ul{height:52px}.ML__keyboard div .rows>ul>li{height:52px;width:66px;margin-right:6px}.ML__keyboard div .rows>ul>.action,.ML__keyboard div .rows>ul>.modifier{font-size:80%}.ML__keyboard div .rows>ul>.w5{width:30px}.ML__keyboard div .rows>ul>.w15{width:102px}.ML__keyboard div .rows>ul>.w20{width:138px}.ML__keyboard div .rows>ul>.w50{width:354px}}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keyboard{--hue:206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}}body[theme=dark] .ML__keyboard{--hue:206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}div.ML__keyboard.material{--keyboard-background:rgba(209,213,217,0.9);--keyboard-background-border:#ddd;--keycap-background:transparent;--keycap-background-active:#cccfd1;--keycap-background-border:transparent;--keyboard-alternate-background:#efefef;--keyboard-alternate-text:#000;font-family:Roboto,sans-serif}div.ML__keyboard.material.alternate-keys{background:var(--keyboard-alternate-background);border:1px solid transparent;border-radius:5px;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22)}div.ML__keyboard.material.alternate-keys ul li.active,div.ML__keyboard.material.alternate-keys ul li.pressed,div.ML__keyboard.material.alternate-keys ul li:active,div.ML__keyboard.material.alternate-keys ul li:hover{border:1px solid transparent;background:#5f97fc;color:#fff;fill:currentColor}div.ML__keyboard.material .keyboard-toolbar>div>div{font-size:16px}div.ML__keyboard.material .keyboard-toolbar div.div.active,div.ML__keyboard.material .keyboard-toolbar div.div.pressed,div.ML__keyboard.material .keyboard-toolbar div div:active,div.ML__keyboard.material .keyboard-toolbar div div:hover{color:#5f97fc;fill:currentColor}div.ML__keyboard.material .keyboard-toolbar>div>.selected{color:#5f97fc;fill:currentColor;border-bottom:2px solid #5f97fc;margin-bottom:8px;padding-bottom:0}div.ML__keyboard.material div>.rows>ul>.keycap{background:transparent;border:1px solid transparent;border-radius:5px;color:var(--keycap-text);fill:currentColor;transition:none}div.ML__keyboard.material div>.rows>ul>.keycap.tt{color:#5f97fc}div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]{margin-top:10px;margin-bottom:10px;height:20px;background:#e0e0e0}div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"].active,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"].pressed,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]:active,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]:hover{background:#d0d0d0;box-shadow:none;transform:none}div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):hover{border:1px solid transparent;background:var(--keycap-background-active);box-shadow:none}div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{background:var(--keyboard-alternate-background);color:var(--keyboard-alternate-text);box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23)}@media only screen and (max-width:767px){div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);font-size:10px;vertical-align:top;width:19.5px;margin-right:10px;margin-left:10px;transform:translateY(-20px) scale(2);transition:none;justify-content:flex-start;padding:2px 0 0;z-index:calc(var(--ML_keyboard-zindex, 105) - 5)}}@media only screen and (max-width:414px){div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{width:16.5px}}@media only screen and (max-width:767px){div.ML__keyboard.material div>.rows>ul>.keycap:last-child.active,div.ML__keyboard.material div>.rows>ul>.keycap:last-child:active{margin-right:0;margin-left:14px}}div.ML__keyboard.material div div.rows ul li.action,div.ML__keyboard.material div div.rows ul li.modifier{background:transparent;border:0;color:#869096;fill:currentColor;font-size:16px;transition:none}div.ML__keyboard.material div div.rows ul li.action.selected,div.ML__keyboard.material div div.rows ul li.modifier.selected{color:#5f97fc;border-radius:0;border-bottom:2px solid #5f97fc}div.ML__keyboard.material div div.rows ul li.action.active,div.ML__keyboard.material div div.rows ul li.action.pressed,div.ML__keyboard.material div div.rows ul li.action:active,div.ML__keyboard.material div div.rows ul li.action:hover,div.ML__keyboard.material div div.rows ul li.modifier.active,div.ML__keyboard.material div div.rows ul li.modifier.pressed,div.ML__keyboard.material div div.rows ul li.modifier:active,div.ML__keyboard.material div div.rows ul li.modifier:hover{border:0;color:var(--keycap-text);background:var(--keycap-background-active);box-shadow:none}div.ML__keyboard.material div div.rows ul li.bigfnbutton,div.ML__keyboard.material div div.rows ul li.fnbutton{background:transparent;border:0}div.ML__keyboard.material div div.rows ul li.bigfnbutton.selected,div.ML__keyboard.material div div.rows ul li.fnbutton.selected{color:#5f97fc;fill:currentColor;border-radius:0;border-bottom:2px solid #5f97fc}div.ML__keyboard.material div div.rows ul li.bigfnbutton.active,div.ML__keyboard.material div div.rows ul li.bigfnbutton.pressed,div.ML__keyboard.material div div.rows ul li.bigfnbutton:active,div.ML__keyboard.material div div.rows ul li.bigfnbutton:hover,div.ML__keyboard.material div div.rows ul li.fnbutton.active,div.ML__keyboard.material div div.rows ul li.fnbutton.pressed,div.ML__keyboard.material div div.rows ul li.fnbutton:active,div.ML__keyboard.material div div.rows ul li.fnbutton:hover{border:0;color:#5f97fc;fill:currentColor;background:var(--keycap-background-active);box-shadow:none}@media (prefers-color-scheme:dark){body:not([theme=light]) div.ML__keyboard.material{--hue:198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}}body[theme=dark] div.ML__keyboard.material{--hue:198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}";
 
+class VirtualKeyboard {
+    constructor(mathfield) {
+        this.mathfield = mathfield;
+        this.element = document.createElement('div');
+        // Listen to know when the mouse has been released without being
+        // captured to remove the alternate keys panel and the shifted state of the
+        // keyboard.
+        // @todo should use a scrim instead (to prevent elements underneat the alt
+        // layer from reacting while the alt layer is up)
+        window.addEventListener('mouseup', this);
+        window.addEventListener('blur', this);
+        window.addEventListener('touchend', this);
+        window.addEventListener('touchcancel', this);
+    }
+    handleEvent(evt) {
+        switch (evt.type) {
+            case 'mouseup':
+            case 'blur':
+            case 'touchend':
+            case 'touchcancel':
+                unshiftKeyboardLayer(this.mathfield);
+                break;
+        }
+    }
+    dispose() {
+        releaseSharedElement(document.getElementById('mathlive-alternate-keys-panel'));
+        this.element.remove();
+    }
+}
 const KEYBOARDS = {
     numeric: {
         tooltip: 'keyboard.tooltip.numeric',
@@ -27728,18 +27757,18 @@ function makeKeyboard(mf, theme) {
             markup += '</div>';
         }
     }
-    const result = document.createElement('div');
-    result.className = 'ML__keyboard';
+    const result = new VirtualKeyboard(mf);
+    result.element.className = 'ML__keyboard';
     if (theme) {
-        result.classList.add(theme);
+        result.element.classList.add(theme);
     }
     else if (mf.options.virtualKeyboardTheme) {
-        result.classList.add(mf.options.virtualKeyboardTheme);
+        result.element.classList.add(mf.options.virtualKeyboardTheme);
     }
-    result.innerHTML = mf.options.createHTML(markup);
+    result.element.innerHTML = mf.options.createHTML(markup);
     // Attach the element handlers
-    makeKeycap(mf, [].slice.call(result.querySelectorAll('.keycap, .action, .fnbutton, .bigfnbutton')));
-    const elList = result.getElementsByClassName('layer-switch');
+    makeKeycap(mf, [].slice.call(result.element.querySelectorAll('.keycap, .action, .fnbutton, .bigfnbutton')));
+    const elList = result.element.getElementsByClassName('layer-switch');
     for (let i = 0; i < elList.length; ++i) {
         if (elList[i].classList.contains('shift')) {
             // This is a potential press-and-hold layer switch
@@ -27768,7 +27797,7 @@ function makeKeyboard(mf, theme) {
         }
     }
     // Select the first keyboard as the initial one.
-    const layerElements = result.getElementsByClassName('keyboard-layer');
+    const layerElements = result.element.getElementsByClassName('keyboard-layer');
     Array.from(layerElements).forEach((x) => {
         x.addEventListener('mousedown', (evt) => {
             evt.preventDefault();
@@ -27780,30 +27809,9 @@ function makeKeyboard(mf, theme) {
         }, { passive: false });
     });
     layerElements[0].classList.add('is-visible');
-    // Listen to know when the mouse has been released without being
-    // captured to remove the alternate keys panel and the shifted state of the
-    // keyboard.
-    // @todo should use a scrim instead (to prevent elements underneat the alt
-    // layer from reacting while the alt layer is up)
-    window.addEventListener('mouseup', function () {
-        hideAlternateKeys();
-        unshiftKeyboardLayer(mf);
-    });
-    window.addEventListener('blur', function () {
-        hideAlternateKeys();
-        unshiftKeyboardLayer(mf);
-    });
-    window.addEventListener('touchend', function () {
-        hideAlternateKeys();
-        unshiftKeyboardLayer(mf);
-    });
-    window.addEventListener('touchcancel', function () {
-        hideAlternateKeys();
-        unshiftKeyboardLayer(mf);
-    });
     return result;
 }
-function hideAlternateKeys(_mathfield) {
+function hideAlternateKeys() {
     const altContainer = document.getElementById('mathlive-alternate-keys-panel');
     if (altContainer) {
         altContainer.classList.remove('is-visible');
@@ -27818,7 +27826,10 @@ function hideAlternateKeys(_mathfield) {
  *
  */
 function unshiftKeyboardLayer(mathfield) {
-    const keycaps = mathfield.virtualKeyboard.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
+    if (!isValidMathfield(mathfield))
+        return false;
+    hideAlternateKeys();
+    const keycaps = mathfield.virtualKeyboard.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
@@ -27836,7 +27847,7 @@ function unshiftKeyboardLayer(mathfield) {
 }
 function updateUndoRedoButtons(mathfield) {
     var _a;
-    const virtualKeyboardToolbar = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.querySelector('.keyboard-toolbar');
+    const virtualKeyboardToolbar = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelector('.keyboard-toolbar');
     if (virtualKeyboardToolbar) {
         const undoButton = virtualKeyboardToolbar.querySelector('[data-command=\'"undo"\']');
         const redoButton = virtualKeyboardToolbar.querySelector('[data-command=\'"redo"\']');
@@ -27863,7 +27874,7 @@ function updateUndoRedoButtons(mathfield) {
 register$2({
     showAlternateKeys: (mathfield, keycap, altKeys) => {
         const altContainer = getSharedElement('mathlive-alternate-keys-panel', 'ML__keyboard alternate-keys');
-        if (mathfield.virtualKeyboard.classList.contains('material')) {
+        if (mathfield.virtualKeyboard.element.classList.contains('material')) {
             altContainer.classList.add('material');
         }
         if (altKeys.length >= 7) {
@@ -27933,7 +27944,7 @@ register$2({
         markup = '<ul>' + markup + '</ul>';
         altContainer.innerHTML = mathfield.options.createHTML(markup);
         makeKeycap(mathfield, [].slice.call(altContainer.getElementsByTagName('li')), 'performAlternateKeys');
-        const keycapEl = mathfield.virtualKeyboard.querySelector('div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
+        const keycapEl = mathfield.virtualKeyboard.element.querySelector('div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
             keycap +
             '"]');
         const position = keycapEl.getBoundingClientRect();
@@ -27978,7 +27989,7 @@ function switchKeyboardLayer(mathfield, layer) {
         // If we were in a temporarily shifted state (shift-key held down)
         // restore our state before switching to a new layer.
         unshiftKeyboardLayer(mathfield);
-        const layers = mathfield.virtualKeyboard.getElementsByClassName('keyboard-layer');
+        const layers = mathfield.virtualKeyboard.element.getElementsByClassName('keyboard-layer');
         // Search for the requested layer
         let found = false;
         for (let i = 0; i < layers.length; i++) {
@@ -28009,7 +28020,7 @@ function switchKeyboardLayer(mathfield, layer) {
  */
 register$2({
     shiftKeyboardLayer: (mathfield) => {
-        const keycaps = mathfield.virtualKeyboard.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
+        const keycaps = mathfield.virtualKeyboard.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
         if (keycaps) {
             for (let i = 0; i < keycaps.length; i++) {
                 const keycap = keycaps[i];
@@ -28046,7 +28057,7 @@ register$2({
     },
 }, { target: 'virtual-keyboard' });
 register$2({
-    hideAlternateKeys: (mathfield) => hideAlternateKeys(),
+    hideAlternateKeys: () => hideAlternateKeys(),
     /*
      * The command invoked when an alternate key is pressed.
      * We need to hide the Alternate Keys panel, then perform the
@@ -28069,10 +28080,9 @@ register$2({
     toggleVirtualKeyboardAlt: (mathfield) => {
         let hadAltTheme = false;
         if (mathfield.virtualKeyboard) {
-            hadAltTheme = mathfield.virtualKeyboard.classList.contains('material');
-            mathfield.virtualKeyboard.remove();
+            hadAltTheme = mathfield.virtualKeyboard.element.classList.contains('material');
+            mathfield.virtualKeyboard.dispose();
             delete mathfield.virtualKeyboard;
-            mathfield.virtualKeyboard = null;
         }
         showVirtualKeyboard(mathfield, hadAltTheme ? '' : 'material');
         return false;
@@ -28087,11 +28097,10 @@ register$2({
             dvorak: 'colemak',
             colemak: 'qwerty',
         }[mathfield.options.virtualKeyboardLayout];
-        const layer = (_b = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.querySelector('div.keyboard-layer.is-visible').id) !== null && _b !== void 0 ? _b : '';
+        const layer = (_b = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelector('div.keyboard-layer.is-visible').id) !== null && _b !== void 0 ? _b : '';
         if (mathfield.virtualKeyboard) {
-            mathfield.virtualKeyboard.remove();
+            mathfield.virtualKeyboard.dispose();
             delete mathfield.virtualKeyboard;
-            mathfield.virtualKeyboard = null;
         }
         showVirtualKeyboard(mathfield);
         if (layer) {
@@ -28115,28 +28124,28 @@ function toggleVirtualKeyboard(mathfield, theme) {
     if (mathfield.virtualKeyboardVisible) {
         mathfield.focus();
         if (mathfield.virtualKeyboard) {
-            mathfield.virtualKeyboard.classList.add('is-visible');
+            mathfield.virtualKeyboard.element.classList.add('is-visible');
         }
         else {
             // Construct the virtual keyboard
             mathfield.virtualKeyboard = makeKeyboard(mathfield, theme);
             // Let's make sure that tapping on the keyboard focuses the field
-            on(mathfield.virtualKeyboard, 'touchstart:passive mousedown', () => {
+            on(mathfield.virtualKeyboard.element, 'touchstart:passive mousedown', () => {
                 mathfield.focus();
             });
-            document.body.appendChild(mathfield.virtualKeyboard);
+            document.body.appendChild(mathfield.virtualKeyboard.element);
         }
         // For the transition effect to work, the property has to be changed
         // after the insertion in the DOM. Use setTimeout
         window.setTimeout(() => {
-            mathfield.virtualKeyboard.classList.add('is-visible');
+            mathfield.virtualKeyboard.element.classList.add('is-visible');
         }, 1);
     }
     else if (mathfield.virtualKeyboard) {
-        mathfield.virtualKeyboard.classList.remove('is-visible');
+        mathfield.virtualKeyboard.element.classList.remove('is-visible');
     }
     if (typeof mathfield.options.onVirtualKeyboardToggle === 'function') {
-        mathfield.options.onVirtualKeyboardToggle(mathfield, mathfield.virtualKeyboardVisible, mathfield.virtualKeyboard);
+        mathfield.options.onVirtualKeyboardToggle(mathfield, mathfield.virtualKeyboardVisible, mathfield.virtualKeyboard.element);
     }
     return false;
 }
@@ -30846,9 +30855,10 @@ class MathfieldPrivate {
         delete this.popover;
         releaseSharedElement(this.keystrokeCaption);
         delete this.keystrokeCaption;
-        releaseSharedElement(this.virtualKeyboard);
-        delete this.virtualKeyboard;
-        releaseSharedElement(document.getElementById('mathlive-alternate-keys-panel'));
+        if (this.virtualKeyboard) {
+            this.virtualKeyboard.dispose();
+            delete this.virtualKeyboard;
+        }
         off(this.element, 'pointerdown', this);
         off(this.element, 'touchstart:active mousedown', this);
         off(this.element, 'focus', this);

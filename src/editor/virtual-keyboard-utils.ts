@@ -5,7 +5,7 @@ import { LINE_COLORS, AREA_COLORS } from '../core/color';
 import { localize as l10n } from './l10n';
 import { MATHSTYLES } from '../core/mathstyle';
 import { attachButtonHandlers } from './mathfield-buttons';
-import { releaseSharedElement } from './mathfield-utils';
+import { isValidMathfield, releaseSharedElement } from './mathfield-utils';
 
 import type { MathfieldPrivate } from './mathfield-class';
 
@@ -14,6 +14,40 @@ import { inject as injectStylesheet } from '../common/stylesheet';
 // @ts-ignore
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
 import { VirtualKeyboardLayer } from '../public/options';
+
+export class VirtualKeyboard {
+    mathfield: MathfieldPrivate;
+    element: HTMLDivElement;
+    constructor(mathfield: MathfieldPrivate) {
+        this.mathfield = mathfield;
+        this.element = document.createElement('div');
+        // Listen to know when the mouse has been released without being
+        // captured to remove the alternate keys panel and the shifted state of the
+        // keyboard.
+        // @todo should use a scrim instead (to prevent elements underneat the alt
+        // layer from reacting while the alt layer is up)
+        window.addEventListener('mouseup', this);
+        window.addEventListener('blur', this);
+        window.addEventListener('touchend', this);
+        window.addEventListener('touchcancel', this);
+    }
+    handleEvent(evt: Event): void {
+        switch (evt.type) {
+            case 'mouseup':
+            case 'blur':
+            case 'touchend':
+            case 'touchcancel':
+                unshiftKeyboardLayer(this.mathfield);
+                break;
+        }
+    }
+    dispose(): void {
+        releaseSharedElement(
+            document.getElementById('mathlive-alternate-keys-panel')
+        );
+        this.element.remove();
+    }
+}
 
 const KEYBOARDS = {
     numeric: {
@@ -1247,7 +1281,7 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
 export function makeKeyboard(
     mf: MathfieldPrivate,
     theme: 'apple' | 'material' | ''
-): HTMLElement {
+): VirtualKeyboard {
     const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
             <symbol id="svg-command" viewBox="0 0 640 512">
@@ -1565,26 +1599,26 @@ export function makeKeyboard(
         }
     }
 
-    const result = document.createElement('div');
-    result.className = 'ML__keyboard';
+    const result = new VirtualKeyboard(mf);
+    result.element.className = 'ML__keyboard';
     if (theme) {
-        result.classList.add(theme);
+        result.element.classList.add(theme);
     } else if (mf.options.virtualKeyboardTheme) {
-        result.classList.add(mf.options.virtualKeyboardTheme);
+        result.element.classList.add(mf.options.virtualKeyboardTheme);
     }
-    result.innerHTML = mf.options.createHTML(markup);
+    result.element.innerHTML = mf.options.createHTML(markup);
 
     // Attach the element handlers
     makeKeycap(
         mf,
         [].slice.call(
-            result.querySelectorAll<HTMLElement>(
+            result.element.querySelectorAll<HTMLElement>(
                 '.keycap, .action, .fnbutton, .bigfnbutton'
             )
         )
     );
 
-    const elList = result.getElementsByClassName('layer-switch');
+    const elList = result.element.getElementsByClassName('layer-switch');
     for (let i = 0; i < elList.length; ++i) {
         if (elList[i].classList.contains('shift')) {
             // This is a potential press-and-hold layer switch
@@ -1615,7 +1649,9 @@ export function makeKeyboard(
     }
 
     // Select the first keyboard as the initial one.
-    const layerElements = result.getElementsByClassName('keyboard-layer');
+    const layerElements = result.element.getElementsByClassName(
+        'keyboard-layer'
+    );
     Array.from(layerElements).forEach((x) => {
         x.addEventListener('mousedown', (evt) => {
             evt.preventDefault();
@@ -1632,32 +1668,10 @@ export function makeKeyboard(
     });
     layerElements[0].classList.add('is-visible');
 
-    // Listen to know when the mouse has been released without being
-    // captured to remove the alternate keys panel and the shifted state of the
-    // keyboard.
-    // @todo should use a scrim instead (to prevent elements underneat the alt
-    // layer from reacting while the alt layer is up)
-    window.addEventListener('mouseup', function () {
-        hideAlternateKeys(mf);
-        unshiftKeyboardLayer(mf);
-    });
-    window.addEventListener('blur', function () {
-        hideAlternateKeys(mf);
-        unshiftKeyboardLayer(mf);
-    });
-    window.addEventListener('touchend', function () {
-        hideAlternateKeys(mf);
-        unshiftKeyboardLayer(mf);
-    });
-    window.addEventListener('touchcancel', function () {
-        hideAlternateKeys(mf);
-        unshiftKeyboardLayer(mf);
-    });
-
     return result;
 }
 
-export function hideAlternateKeys(_mathfield: MathfieldPrivate): boolean {
+export function hideAlternateKeys(): boolean {
     const altContainer = document.getElementById(
         'mathlive-alternate-keys-panel'
     );
@@ -1674,7 +1688,11 @@ export function hideAlternateKeys(_mathfield: MathfieldPrivate): boolean {
  *
  */
 export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
-    const keycaps = mathfield.virtualKeyboard.querySelectorAll(
+    if (!isValidMathfield(mathfield)) return false;
+
+    hideAlternateKeys();
+
+    const keycaps = mathfield.virtualKeyboard.element.querySelectorAll(
         'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
     );
     if (keycaps) {
@@ -1697,7 +1715,7 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
 }
 
 export function updateUndoRedoButtons(mathfield: MathfieldPrivate): void {
-    const virtualKeyboardToolbar = mathfield.virtualKeyboard?.querySelector(
+    const virtualKeyboardToolbar = mathfield.virtualKeyboard?.element.querySelector(
         '.keyboard-toolbar'
     );
     if (virtualKeyboardToolbar) {
