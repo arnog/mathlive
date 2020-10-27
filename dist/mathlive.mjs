@@ -27826,10 +27826,11 @@ function hideAlternateKeys() {
  *
  */
 function unshiftKeyboardLayer(mathfield) {
+    var _a;
     if (!isValidMathfield(mathfield))
         return false;
     hideAlternateKeys();
-    const keycaps = mathfield.virtualKeyboard.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
+    const keycaps = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
     if (keycaps) {
         for (let i = 0; i < keycaps.length; i++) {
             const keycap = keycaps[i];
@@ -27873,8 +27874,9 @@ function updateUndoRedoButtons(mathfield) {
  */
 register$2({
     showAlternateKeys: (mathfield, keycap, altKeys) => {
+        var _a, _b;
         const altContainer = getSharedElement('mathlive-alternate-keys-panel', 'ML__keyboard alternate-keys');
-        if (mathfield.virtualKeyboard.element.classList.contains('material')) {
+        if ((_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.classList.contains('material')) {
             altContainer.classList.add('material');
         }
         if (altKeys.length >= 7) {
@@ -27944,7 +27946,7 @@ register$2({
         markup = '<ul>' + markup + '</ul>';
         altContainer.innerHTML = mathfield.options.createHTML(markup);
         makeKeycap(mathfield, [].slice.call(altContainer.getElementsByTagName('li')), 'performAlternateKeys');
-        const keycapEl = mathfield.virtualKeyboard.element.querySelector('div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
+        const keycapEl = (_b = mathfield.virtualKeyboard) === null || _b === void 0 ? void 0 : _b.element.querySelector('div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
             keycap +
             '"]');
         const position = keycapEl.getBoundingClientRect();
@@ -27976,6 +27978,7 @@ register$2({
     },
 }, { target: 'virtual-keyboard' });
 function switchKeyboardLayer(mathfield, layer) {
+    var _a;
     if (mathfield.options.virtualKeyboardMode !== 'off') {
         if (layer !== 'lower-command' &&
             layer !== 'upper-command' &&
@@ -27989,7 +27992,7 @@ function switchKeyboardLayer(mathfield, layer) {
         // If we were in a temporarily shifted state (shift-key held down)
         // restore our state before switching to a new layer.
         unshiftKeyboardLayer(mathfield);
-        const layers = mathfield.virtualKeyboard.element.getElementsByClassName('keyboard-layer');
+        const layers = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.getElementsByClassName('keyboard-layer');
         // Search for the requested layer
         let found = false;
         for (let i = 0; i < layers.length; i++) {
@@ -28020,7 +28023,8 @@ function switchKeyboardLayer(mathfield, layer) {
  */
 register$2({
     shiftKeyboardLayer: (mathfield) => {
-        const keycaps = mathfield.virtualKeyboard.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
+        var _a;
+        const keycaps = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
         if (keycaps) {
             for (let i = 0; i < keycaps.length; i++) {
                 const keycap = keycaps[i];
@@ -28078,9 +28082,10 @@ register$2({
 register$2({
     /* Toggle the virtual keyboard, but switch to the alternate theme if available */
     toggleVirtualKeyboardAlt: (mathfield) => {
+        var _a, _b;
         let hadAltTheme = false;
-        if (mathfield.virtualKeyboard) {
-            hadAltTheme = mathfield.virtualKeyboard.element.classList.contains('material');
+        if ((_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element) {
+            hadAltTheme = (_b = mathfield.virtualKeyboard) === null || _b === void 0 ? void 0 : _b.element.classList.contains('material');
             mathfield.virtualKeyboard.dispose();
             delete mathfield.virtualKeyboard;
         }
@@ -28120,10 +28125,11 @@ function hideVirtualKeyboard(mathfield) {
     return false;
 }
 function toggleVirtualKeyboard(mathfield, theme) {
+    var _a, _b, _c;
     mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
     if (mathfield.virtualKeyboardVisible) {
         mathfield.focus();
-        if (mathfield.virtualKeyboard) {
+        if ((_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element) {
             mathfield.virtualKeyboard.element.classList.add('is-visible');
         }
         else {
@@ -28138,13 +28144,15 @@ function toggleVirtualKeyboard(mathfield, theme) {
         // For the transition effect to work, the property has to be changed
         // after the insertion in the DOM. Use setTimeout
         window.setTimeout(() => {
-            mathfield.virtualKeyboard.element.classList.add('is-visible');
+            var _a;
+            (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.classList.add('is-visible');
         }, 1);
     }
-    else if (mathfield.virtualKeyboard) {
+    else if ((_b = mathfield.virtualKeyboard) === null || _b === void 0 ? void 0 : _b.element) {
         mathfield.virtualKeyboard.element.classList.remove('is-visible');
     }
-    if (typeof mathfield.options.onVirtualKeyboardToggle === 'function') {
+    if (((_c = mathfield.virtualKeyboard) === null || _c === void 0 ? void 0 : _c.element) &&
+        typeof mathfield.options.onVirtualKeyboardToggle === 'function') {
         mathfield.options.onVirtualKeyboardToggle(mathfield, mathfield.virtualKeyboardVisible, mathfield.virtualKeyboard.element);
     }
     return false;
@@ -33913,7 +33921,7 @@ class MathfieldElement extends HTMLElement {
         // Save the state (in case the elements get reconnected later)
         const options = {};
         Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-            options[toCamelCase(x)] = __classPrivateFieldGet(this, _mathfield).getConfig(toCamelCase(x));
+            options[toCamelCase(x)] = __classPrivateFieldGet(this, _mathfield).getOption(toCamelCase(x));
         });
         gDeferredState.set(this, {
             value: __classPrivateFieldGet(this, _mathfield).getValue(),

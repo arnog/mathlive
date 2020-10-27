@@ -24,7 +24,9 @@ registerCommand(
                 'ML__keyboard alternate-keys'
             );
             if (
-                mathfield.virtualKeyboard.element.classList.contains('material')
+                mathfield.virtualKeyboard?.element.classList.contains(
+                    'material'
+                )
             ) {
                 altContainer.classList.add('material');
             }
@@ -95,7 +97,7 @@ registerCommand(
                 [].slice.call(altContainer.getElementsByTagName('li')),
                 'performAlternateKeys'
             );
-            const keycapEl = mathfield.virtualKeyboard.element.querySelector(
+            const keycapEl = mathfield.virtualKeyboard?.element.querySelector(
                 'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
                     keycap +
                     '"]'
@@ -156,7 +158,7 @@ export function switchKeyboardLayer(
         // If we were in a temporarily shifted state (shift-key held down)
         // restore our state before switching to a new layer.
         unshiftKeyboardLayer(mathfield);
-        const layers = mathfield.virtualKeyboard.element.getElementsByClassName(
+        const layers = mathfield.virtualKeyboard?.element.getElementsByClassName(
             'keyboard-layer'
         );
         // Search for the requested layer
@@ -190,7 +192,7 @@ export function switchKeyboardLayer(
 registerCommand(
     {
         shiftKeyboardLayer: (mathfield: MathfieldPrivate) => {
-            const keycaps = mathfield.virtualKeyboard.element.querySelectorAll(
+            const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(
                 'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
             );
             if (keycaps) {
@@ -280,8 +282,8 @@ registerCommand(
         /* Toggle the virtual keyboard, but switch to the alternate theme if available */
         toggleVirtualKeyboardAlt: (mathfield: MathfieldPrivate) => {
             let hadAltTheme = false;
-            if (mathfield.virtualKeyboard) {
-                hadAltTheme = mathfield.virtualKeyboard.element.classList.contains(
+            if (mathfield.virtualKeyboard?.element) {
+                hadAltTheme = mathfield.virtualKeyboard?.element.classList.contains(
                     'material'
                 );
                 mathfield.virtualKeyboard.dispose();
@@ -340,7 +342,7 @@ function toggleVirtualKeyboard(
     mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
     if (mathfield.virtualKeyboardVisible) {
         mathfield.focus();
-        if (mathfield.virtualKeyboard) {
+        if (mathfield.virtualKeyboard?.element) {
             mathfield.virtualKeyboard.element.classList.add('is-visible');
         } else {
             // Construct the virtual keyboard
@@ -358,12 +360,15 @@ function toggleVirtualKeyboard(
         // For the transition effect to work, the property has to be changed
         // after the insertion in the DOM. Use setTimeout
         window.setTimeout(() => {
-            mathfield.virtualKeyboard.element.classList.add('is-visible');
+            mathfield.virtualKeyboard?.element.classList.add('is-visible');
         }, 1);
-    } else if (mathfield.virtualKeyboard) {
+    } else if (mathfield.virtualKeyboard?.element) {
         mathfield.virtualKeyboard.element.classList.remove('is-visible');
     }
-    if (typeof mathfield.options.onVirtualKeyboardToggle === 'function') {
+    if (
+        mathfield.virtualKeyboard?.element &&
+        typeof mathfield.options.onVirtualKeyboardToggle === 'function'
+    ) {
         mathfield.options.onVirtualKeyboardToggle(
             mathfield,
             mathfield.virtualKeyboardVisible,

@@ -878,7 +878,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         // Save the state (in case the elements get reconnected later)
         const options = {};
         Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-            options[toCamelCase(x)] = this.#mathfield.getConfig(
+            options[toCamelCase(x)] = this.#mathfield.getOption(
                 toCamelCase(x) as any
             );
         });

@@ -1692,7 +1692,7 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
 
     hideAlternateKeys();
 
-    const keycaps = mathfield.virtualKeyboard.element.querySelectorAll(
+    const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(
         'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
     );
     if (keycaps) {
