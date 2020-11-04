@@ -1,4 +1,4 @@
-/* 0.58.0 *//**
+/* 0.59.0 *//**
  * The mode that indicates how a portion of content is interpreted
  *
  */
