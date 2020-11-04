@@ -7,7 +7,7 @@ module.exports = {
     reporters: ['jest-silent-reporter'],
     globals: {
         'ts-jest': {
-            tsConfig: {
+            tsconfig: {
                 module: 'system',
             },
         },

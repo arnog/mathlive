@@ -34368,6 +34368,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     exports.debug = debug;
     exports.default = mathlive;
     exports.makeMathField = makeMathField;
+    exports.renderMathInDocument = renderMathInDocument;
+    exports.renderMathInElement = renderMathInElement$1;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

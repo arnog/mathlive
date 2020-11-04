@@ -34355,4 +34355,4 @@ var mathlive = {
 };
 
 export default mathlive;
-export { MathfieldElement, astToLatex, convertLatexToMarkup, convertLatexToMathMl, convertLatexToSpeakableText, debug, makeMathField };
+export { MathfieldElement, astToLatex, convertLatexToMarkup, convertLatexToMathMl, convertLatexToSpeakableText, debug, makeMathField, renderMathInDocument, renderMathInElement$1 as renderMathInElement };

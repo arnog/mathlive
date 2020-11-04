@@ -40,7 +40,7 @@
             renderMathInElement,
         } from '/dist/mathlive.mjs';
 
-        import { emitLatex, parseLatex } from '../dist/math-json.js';
+        // import { emitLatex, parseLatex } from '../dist/math-json.js';
 
 
         // prettier-ignore
@@ -1184,44 +1184,44 @@
             onContentDidChange: (mf) => {
                 const latex = mf.getValue('latex-expanded');
                 try {
-                    let errors = [];
-                    let expr = parseLatex(latex, {
-                        form: 'canonical',
-                        onError: (err) =>
-                            errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-                    });
-                    let jsonLatex = emitLatex(expr, {
-                        precision: 100, onError: (err) =>
-                            errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-                    });
-                    errors = [];
-                    expr = parseLatex(latex, {
-                        form: 'full',
-                        preserveLatex: true,
-                        onError: (err) =>
-                            errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-                    });
-                    jsonLatex = emitLatex(expr, {
-                        precision: 100, onError: (err) =>
-                            errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-                    });
-                    errors = [];
-                    expr = parseLatex(latex, {
-                        form: 'full',
-                        invisibleOperator: '',
-                        superscriptOperator: '',
-                        subscriptOperator: '',
-                        // parseArgumentsOfUnknownLatexCommands: false,
-                        invisiblePlusOperator: '',
-                        dictionary: [],
-                        promoteUnknownSymbols: /./,
+                    // let errors = [];
+                    // let expr = parseLatex(latex, {
+                    //     form: 'canonical',
+                    //     onError: (err) =>
+                    //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+                    // });
+                    // let jsonLatex = emitLatex(expr, {
+                    //     precision: 100, onError: (err) =>
+                    //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+                    // });
+                    // errors = [];
+                    // expr = parseLatex(latex, {
+                    //     form: 'full',
+                    //     preserveLatex: true,
+                    //     onError: (err) =>
+                    //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+                    // });
+                    // jsonLatex = emitLatex(expr, {
+                    //     precision: 100, onError: (err) =>
+                    //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+                    // });
+                    // errors = [];
+                    // expr = parseLatex(latex, {
+                    //     form: 'full',
+                    //     invisibleOperator: '',
+                    //     superscriptOperator: '',
+                    //     subscriptOperator: '',
+                    //     // parseArgumentsOfUnknownLatexCommands: false,
+                    //     invisiblePlusOperator: '',
+                    //     dictionary: [],
+                    //     promoteUnknownSymbols: /./,
 
-                        parseArgumentsOfUnknownLatexCommands: true,
-                        parseNumbers: true,
+                    //     parseArgumentsOfUnknownLatexCommands: true,
+                    //     parseNumbers: true,
 
-                        onError: (err) =>
-                            errors.push(err.code + (err.arg ? ' ' + err.arg : '')),
-                    });
+                    //     onError: (err) =>
+                    //         errors.push(err.code + (err.arg ? ' ' + err.arg : '')),
+                    // });
                     const mathAscci = mf.getValue('ASCIIMath');
                 } catch (e) {
                     console.error("Error converting %c " + latex + '%c ' +
@@ -1274,7 +1274,7 @@
                     )}</code><p class="formula"><script type='math/tex'>${x.latex
                     }</` + 'script></p>';
                 error = [];
-                if (mf) {
+                if (false) {
                     mf.setValue(x.latex);
                     if (error.length > 0) {
                         result +=
