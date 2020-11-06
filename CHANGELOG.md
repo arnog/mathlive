@@ -1,3 +1,9 @@
+## UNRELEASED
+
+### Improvements
+
+    - Fix issue #697: missed styles for popover in `math-field` element
+
 ## 0.59.0 (2020-11-04)
 
 ### Breaking Change
