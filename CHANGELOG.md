@@ -1,8 +1,9 @@
-## UNRELEASED
+## [Unreleased]
 
-### Improvements
+### Bug Fixes
 
-    - Fix issue #697: missed styles for popover in `math-field` element
+    - **#697** When using the `<math-field>` element the command popover did not
+    display correctly.
 
 ## 0.59.0 (2020-11-04)
 

@@ -83,7 +83,7 @@
         "paosder <denjaraos@gmail.com>"
     ],
     "devDependencies": {
-        "@babel/types": "^7.12.5",
+        "@babel/types": "^7.12.6",
         "@cortex-js/prettier-config": "^1.0.0",
         "@rollup/plugin-node-resolve": "^9.0.0",
         "@types/css-font-loading-module": "0.0.4",
@@ -95,7 +95,7 @@
         "autoprefixer": "^9.8.6",
         "check-node-version": "^4.0.3",
         "cssnano": "^4.1.10",
-        "eslint": "^7.12.1",
+        "eslint": "^7.13.0",
         "eslint-config-prettier": "^6.15.0",
         "eslint-plugin-no-unsanitized": "^3.1.4",
         "eslint-plugin-prettier": "^3.1.4",
