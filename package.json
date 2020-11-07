@@ -85,7 +85,7 @@
     "devDependencies": {
         "@babel/types": "^7.12.6",
         "@cortex-js/prettier-config": "^1.0.0",
-        "@rollup/plugin-node-resolve": "^9.0.0",
+        "@rollup/plugin-node-resolve": "^10.0.0",
         "@types/css-font-loading-module": "0.0.4",
         "@types/jest": "^26.0.15",
         "@types/node": "^14.14.6",
