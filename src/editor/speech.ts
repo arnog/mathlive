@@ -3,12 +3,11 @@ import type { SpeechScope } from '../public/commands';
 
 import type { Atom } from '../core/atom';
 
-import type { MathfieldPrivate } from './mathfield-class';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
-import { getSelectedAtoms, selectionIsCollapsed } from './model-selection';
-import { render } from './mathfield-render';
+import { render } from '../editor-mathfield/render';
 
 export function speakableText(
     speechOptions: Required<TextToSpeechOptions>,
@@ -54,46 +53,37 @@ function speak(
     speakOptions: { withHighlighting: boolean }
 ): boolean {
     speakOptions = speakOptions ?? { withHighlighting: false };
+    const model = mathfield.model;
     function getAtoms(mathfield: MathfieldPrivate, scope: SpeechScope): Atom[] {
         let result = null;
         switch (scope) {
             case 'all':
-                result = mathfield.model.root;
+                result = model.root;
                 break;
             case 'selection':
-                if (!selectionIsCollapsed(mathfield.model)) {
-                    result = getSelectedAtoms(mathfield.model);
-                }
+                result = model.getAtoms(model.selection);
                 break;
             case 'left': {
-                const siblings = mathfield.model.siblings();
-                const last = mathfield.model.startOffset();
-                if (last >= 1) {
-                    result = [];
-                    for (let i = 1; i <= last; i++) {
-                        result.push(siblings[i]);
-                    }
-                }
+                result = model.getAtoms(
+                    model.offsetOf(model.at(model.position).firstSibling),
+                    model.position
+                );
                 break;
             }
             case 'right': {
-                const siblings = mathfield.model.siblings();
-                const first = mathfield.model.endOffset() + 1;
-                if (first <= siblings.length - 1) {
-                    result = [];
-                    for (let i = first; i <= siblings.length - 1; i++) {
-                        result.push(siblings[i]);
-                    }
-                }
+                result = model.getAtoms(
+                    model.position,
+                    model.offsetOf(model.at(model.position).lastSibling)
+                );
                 break;
             }
             case 'group':
-                result = mathfield.model.siblings();
+                result = model.getAtoms(model.getSiblingsRange(model.position));
                 break;
             case 'parent': {
-                const parent = mathfield.model.parent();
+                const parent = model.at(model.position).parent;
                 if (parent && parent.type !== 'root') {
-                    result = mathfield.model.parent();
+                    result = parent;
                 }
                 break;
             }

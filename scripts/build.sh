@@ -71,8 +71,9 @@ rm -rf ./declarations
 echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Declaration files built"
 
 # Copy fonts
-printf "\033[32m ● \033[0m Copying static assets (fonts)"
+printf "\033[32m ● \033[0m Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
+cp -f -R sounds dist/
 echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static assest copied"
 
 # Build CSS
@@ -112,7 +113,7 @@ else
 
         # Run test suite
         printf "\033[32m ● \033[0m Running test suite"
-        npx jest test/math.test --silent --reporters jest-silent-reporter
+        npx jest test
         echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Test suite complete"
     fi
 fi

@@ -1,6 +1,6 @@
 /* 0.58.0 */import { MathfieldOptions } from './options';
 import { Selector } from './commands';
-import { InsertOptions, Mathfield, OutputFormat, Range } from './mathfield';
+import { Mathfield, InsertOptions, OutputFormat, Offset, Range, Selection } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
 /**
  * The `math-error` custom event signals an error while parsing an expression.
@@ -168,6 +168,7 @@ declare global {
  * | `disabled` | `disabled` |
  * | `default-mode` | `options.defaultMode` |
  * | `fonts-directory` | `options.fontsDirectory` |
+ * | `sounds-directory` | `options.soundsDirectory` |
  * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
  * | `ignore-spacebar-in-math-mode` | `options.ignoreSpacbarInMathMode` |
  * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
@@ -294,10 +295,11 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     /**
      *  @category Accessing and changing the content
      */
-    getValue(format?: OutputFormat): string;
-    getValue(start: number, end?: number, format?: OutputFormat): string;
+    getValue(): string;
+    getValue(format: OutputFormat): string;
+    getValue(start: Offset, end: Offset, format?: OutputFormat): string;
     getValue(range: Range, format?: OutputFormat): string;
-    getValue(ranges: Range[], format?: OutputFormat): string;
+    getValue(selection: Selection, format?: OutputFormat): string;
     /**
      *  @category Accessing and changing the content
      */
@@ -389,7 +391,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * An array is always returned, but it has no element if there are no
      * matching items.
      */
-    find(latex: string): Range[];
+    find(value: string | RegExp): Range[];
     /**
      * Custom elements lifecycle hooks
      * @internal
@@ -433,28 +435,28 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * @category Selection
      *
      */
-    get selection(): Range[];
+    get selection(): Selection;
     /**
      *
      * @category Selection
      */
-    set selection(value: Range[]);
+    set selection(value: Selection);
     /**
-     * The position of the caret/insertion point, from 0 to `lastPosition`.
+     * The position of the caret/insertion point, from 0 to `lastOffset`.
      *
      * @category Selection
      *
      */
-    get position(): number;
+    get position(): Offset;
     /**
      * @category Selection
      */
-    set position(value: number);
+    set position(offset: Offset);
     /**
-     * The last valid position.
+     * The last valid offset.
      * @category Selection
      */
-    get lastPosition(): number;
+    get lastOffset(): Offset;
 }
 export default MathfieldElement;
 declare global {

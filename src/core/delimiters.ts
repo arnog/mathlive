@@ -21,7 +21,6 @@
  * @summary   Handling of delimiters surrounds symbols.
  */
 
-import { getValue } from './definitions';
 import {
     makeSymbol,
     makeSpan,
@@ -32,7 +31,75 @@ import {
 } from './span';
 import { Mathstyle, MATHSTYLES } from './mathstyle';
 import { getCharacterMetrics, METRICS } from './font-metrics';
-import { Context } from './context';
+import type { Context } from './context';
+export const RIGHT_DELIM = {
+    '(': ')',
+    '{': '}',
+    '[': ']',
+    '|': '|',
+    '\\lbrace': '\\rbrace',
+    '\\{': '\\}',
+    '\\langle': '\\rangle',
+    '\\lfloor': '\\rfloor',
+    '\\lceil': '\\rceil',
+    '\\vert': '\\vert',
+    '\\lvert': '\\rvert',
+    '\\Vert': '\\Vert',
+    '\\lVert': '\\rVert',
+    '\\lbrack': '\\rbrack',
+    '\\ulcorner': '\\urcorner',
+    '\\llcorner': '\\lrcorner',
+    '\\lgroup': '\\rgroup',
+    '\\lmoustache': '\\rmoustache',
+};
+
+function getSymbolValue(symbol: string): string {
+    return (
+        {
+            '[': '[',
+            ']': ']',
+            '(': '(',
+            ')': ')',
+            '\\mid': '\u2223',
+            '|': '\u2223',
+            '\u2223': '\u2223', // DIVIDES
+            '\u2225': '\u2225', // PARALLEL TO
+            '\\|': '\u2223',
+            '\\{': '{',
+            '\\}': '}',
+            '\\lbrace': '{',
+            '\\rbrace': '}',
+            '\\lbrack': '[',
+            '\\rbrack': ']',
+            '\\vert': '\u2223',
+            '\\lvert': '\u2223',
+            '\\mvert': '\u2223',
+            '\\rvert': '\u2223',
+            '\\Vert': '\u2225',
+            '\\lVert': '\u2225',
+            '\\mVert': '\u2225',
+            '\\rVert': '\u2225',
+            '\\parallel': '\u2225',
+            '\\shortparallel': '\u2225',
+            '\\langle': '\u27e8',
+            '\\rangle': '\u27e9',
+            '\\lfloor': '\u230a',
+            '\\rfloor': '\u230b',
+            '\\lceil': '\u2308',
+            '\\rceil': '\u2309',
+            '\\ulcorner': '\u250c',
+            '\\urcorner': '\u2510',
+            '\\llcorner': '\u2514',
+            '\\lrcorner': '\u2518',
+            '\\lgroup': '\u27ee',
+            '\\rgroup': '\u27ef',
+            '\\lmoustache': '\u23b0',
+            '\\rmoustache': '\u23b1',
+            '\\surd': '\u221a',
+        }[symbol] ?? symbol
+    );
+}
+
 /**
  * Makes a small delimiter. This is a delimiter that comes in the Main-Regular
  * font, but is restyled to either be in textstyle, scriptstyle, or
@@ -46,7 +113,7 @@ function makeSmallDelim(
     context: Context,
     classes = ''
 ): Span {
-    const text = makeSymbol('Main-Regular', getValue(delim));
+    const text = makeSymbol('Main-Regular', getSymbolValue(delim));
 
     const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
 
@@ -80,7 +147,7 @@ function makeLargeDelim(
         type,
         makeSymbol(
             'Size' + size + '-Regular',
-            getValue(delim),
+            getSymbolValue(delim),
             'delimsizing size' + size
         ),
         context.mathstyle,
@@ -115,7 +182,11 @@ function makeInner(symbol: string, font: string): Span {
         sizeClass = ' delim-size4';
     }
 
-    return makeSymbol(font, getValue(symbol), 'delimsizinginner' + sizeClass);
+    return makeSymbol(
+        font,
+        getSymbolValue(symbol),
+        'delimsizinginner' + sizeClass
+    );
 }
 
 /**
@@ -136,7 +207,7 @@ function makeStackedDelim(
     let middle: string;
     let repeat: string;
     let bottom: string;
-    top = repeat = bottom = getValue(delim);
+    top = repeat = bottom = getSymbolValue(delim);
     middle = null;
     // Also keep track of what font the delimiters are in
     let font = 'Size1-Regular';
@@ -264,16 +335,16 @@ function makeStackedDelim(
     }
 
     // Get the metrics of the four sections
-    const topMetrics = getCharacterMetrics(getValue(top), font);
+    const topMetrics = getCharacterMetrics(getSymbolValue(top), font);
     const topHeightTotal = topMetrics.height + topMetrics.depth;
-    const repeatMetrics = getCharacterMetrics(getValue(repeat), font);
+    const repeatMetrics = getCharacterMetrics(getSymbolValue(repeat), font);
     const repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
-    const bottomMetrics = getCharacterMetrics(getValue(bottom), font);
+    const bottomMetrics = getCharacterMetrics(getSymbolValue(bottom), font);
     const bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
     let middleHeightTotal = 0;
     let middleFactor = 1;
     if (middle !== null) {
-        const middleMetrics = getCharacterMetrics(getValue(middle), font);
+        const middleMetrics = getCharacterMetrics(getSymbolValue(middle), font);
         middleHeightTotal = middleMetrics.height + middleMetrics.depth;
         middleFactor = 2; // repeat symmetrically above and below middle
     }
@@ -600,7 +671,7 @@ export function makeCustomSizedDelim(
 
     // Look through the sequence
     const delimType = traverseSequence(
-        getValue(delim),
+        getSymbolValue(delim),
         height,
         sequence,
         context

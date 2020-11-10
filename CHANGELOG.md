@@ -2,23 +2,116 @@
 
 ### Breaking Change
 
-    - Renamed `getCaretPosition()` and `setCaretPosition()` to `get/set caretPoint`
+-   Renamed `getCaretPosition()` and `setCaretPosition()` to `get/set caretPoint`
     and `setCaretPoint()`. "Position" refers to an index denoting the boundaries
-    between elements making up the formula.
+    between elements making up the formula. These methods return client screen
+    coordinates.
 
 ### New Feature
 
-    - **#555** Support for IME (Input Method Engines) for Japanese, Chinese,
+-   **#555** Support for IME (Input Method Engines) for Japanese, Chinese,
     Korean and other complex scripts.
-    - `find()` method to search the fragments of an expression that matches
-    a string or regular expression.
+-   New `find()` method to search the fragments of an expression that match
+    a Latex string or regular expression.
+-   Added `soundsDirectory` option to customize the location of the sound files, similarly to `fontsDirectory`.
+
+### Bug Fixes
+
+-   The selection in an expression could render incorrectly if it was made
+    before the fonts were fully loaded. This situation is now handled
+    correctly and the selection is redrawn when fonts finish loading.
+-   The `typedText` selector dropped its options argument. As a result, the
+    sound feedback from the virtual keyboard only played for some keys.
 
 ### Improvements
 
-    - Improved handling of paste commands: if a JSON item is on the clipboard
+-   Improved handling of paste commands: if a JSON item is on the clipboard
     it is used in priority, before a `plain/text` item.
-    - It is now possible to type dead keys such as `alt+e`, and they are
-    properly displayed as a composition.
+-   It is now possible to type dead keys such as `alt+e`, and they are
+    properly displayed as a composition (side effect of the fix for **#555**).
+
+### Architecture
+
+-   **Complete rewrite of selection handling.**
+
+    This is mostly an internal change, but it will offer some benefits for new
+    capabilities in the public API as well.
+
+    **Warning**: _This is a very disruptive change, and there might be some edge
+    cases that will need to be cleaned up._
+
+    The position of the insertion point is no longer represented by a _path_. It is now an _offset_ from the start of the expression, with each possible insertion point position being assigned a sequential value.
+
+    The selection is no longer represented with a _path_ and a sibling-relative _offset_. It is now a _range_, i.e. a start and end _offset_. More precisely,
+    the selection is an array of ranges (to represent discontinuous selections,
+    for example a column in a matrix) and a direction.
+
+    These changes have these benefits:
+
+    -   The selection related code is more expressive and much simpler to read and debug
+    -   The code is also simpler to change so that changes in UI behavior are
+        much easier to implement. There are several open issues that will be much
+        easier to fix now
+    -   Instead of the esoteric paths, the concept of position as an offset is
+        much easier to explain and understand, and can now be exposed in the public API. Consequently, new functionality can be exposed, such as the `find()` method which returns its results as an array of ranges. It is also possible now to query and change the current selection.
+    -   The selection is in fact represented as an _array_ of ranges. This is
+        necessary to support discontinous selections, which are useful to select
+        for example all the cells in a matrix column. This kind of selection was
+        not previously possible.
+    -   Incidentally this fixes a circular dependency, which was a smell test
+        that there was a problem with the previous architecture.
+
+    On a historical note, the reason for the original implementation with paths
+    was based on the TeX implementation: when rendering a tree of atoms (which
+    TeX calls _nodes_), the TeX layout algorithm never needs to find the parent
+    of an atom. The MathLive rendering engine was implemented in the same way.
+    However, for interactive editing, being able to locate the parent of an
+    atom is frequetly necessary. The paths were a mechanism to maintain a
+    separate data structure from the one needed by the rendering engine. However,
+    they were a complex and clumsy mechanism. Now, a `parent` property has been
+    introduced in instance of `Atom`, even though it is not necessary for the
+    rendering phase. It does make the handling of the interactive manipulation
+    of the formula much easier, though.
+
+-   **Changes to the handling of sentinel atoms (type `'first'`)**
+    This is an internal change that does not affect the public API.
+
+    Sentinel atoms are atoms of type `'first'` that are inserted as the first
+    element in atom branches. Their purpose is to simplify the handling of
+    "empty" lists, for example an empty numerator or superscript.
+
+    Previously, these atoms where added when an editable atom tree was created,
+    i.e. in the `editor` code branch, since they are not needed for pure
+    rendering. However, this created situations where the tree had to be
+    'corrected' by inserting missing `'first'`. This code was complex and
+    resulted in some unexpected operations having the side effect of modifying
+    the tree.
+
+    The `'first'` atoms are now created during parsing and are present in
+    editable and non-editable atom trees.
+
+-   **Refactoring of Atom classes**
+    This is an internal change that does not affect the public API.
+
+    Each 'kind' of atom (fraction, extensible symbol, boxed expression, etc...)
+    is now represented by a separate class extending the `Atom` base class
+    (for example `GenfracAtom`).
+    Each of those classes have a `render()` method that generates a set of
+    DOM virtual nodes representing the ATom and a `toLatex()` method which
+    generates a Latex string representing the atom.
+
+    Previously the handling of the different kind of atoms was done procedurally
+    and all over the code base. The core code is now much smaller and easier
+    to read, while the specialized code specific to each kind of atom is
+    grouped in their respective classes.
+
+-   **Unit testing usign Jest snapshot**
+    Rewrote the unit test to use Jest snapshots for more comprehensive
+    validation.
+
+### Bug Fixes
+
+    -   **#685** Virtual keyboard event listeners were not properly released when the mathfield was removed from the DOM
 
 ## 0.58.0 (2020-10-11)
 

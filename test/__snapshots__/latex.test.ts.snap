@@ -1,0 +1,170 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ARGUMENTS 0/ "\\\\frac" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.89em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:-0.67em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:0.69em\\"></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`ARGUMENTS 1/ "\\\\frac{}" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.89em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:-0.67em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:0.69em\\"></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`ARGUMENTS 2/ "\\\\frac{}{}" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.89em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:-0.67em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:0.69em\\"></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 0/ "x" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.44em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">x</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 1/ " x " renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.44em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">x</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 2/ "%" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 3/ "% comment" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 4/ "x % comment" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.44em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">x</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 5/ "x" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.44em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">x</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 6/ "-12" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.65em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.73em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">−</span><span class=\\"ML__cmr\\">12</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 7/ "1234|/@.\`abcdefgzABCDEFGZ" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">1234</span><span class=\\"ML__cmr\\">∣</span><span class=\\"ML__cmr\\">/@.‘</span><span class=\\"ML__mathit\\">abcdefgzABCDEFGZ</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 8/ "a b" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">ab</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 9/ "ab" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">ab</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 10/ "a~b" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">ab</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 11/ "a\\\\space b" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">ab</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 12/ "{a}b" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span><span class=\\"ML__mathit\\">a</span></span><span class=\\"ML__mathit\\">b</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 13/ "{-}" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.59em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.67em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span><span class=\\"ML__cmr\\">−</span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 14/ "-a" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.59em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.67em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">−</span><span class=\\"ML__mathit\\">a</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 15/ "a-" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.59em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.67em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\">−</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 16/ "a-b" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.78em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">b</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 17/ "a
+b" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">ab</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 18/ "a=1}" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.65em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">=</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">1</span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`BASIC PARSING 19/ "a=1{" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.65em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">=</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">1</span></span></span>",
+  "unbalanced-braces",
+]
+`;
+
+exports[`BASIC PARSING 20/ "a=1{}" renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.65em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">=</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">1</span></span></span>",
+  "no-error",
+]
+`;

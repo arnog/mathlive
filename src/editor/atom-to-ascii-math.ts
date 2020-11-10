@@ -1,6 +1,8 @@
 import { isArray } from '../common/types';
 
 import type { Atom } from '../core/atom';
+import { GenfracAtom } from '../core-atoms/genfrac';
+import { LeftRightAtom } from '../core-atoms/leftright';
 
 const SPECIAL_IDENTIFIERS = {
     '\u2212': '-', // MINUS SIGN
@@ -82,8 +84,12 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
             // Text mode... put it in (ASCII) quotes
             let i = 0;
             result = '"';
-            while (atom[i] && atom[i].mode === 'text') {
-                result += atom[i].body;
+            while (atom[i]?.mode === 'text') {
+                if (atom[i].body) {
+                    result += atomToAsciiMath(atom[i].body);
+                } else {
+                    result += atom[i].value;
+                }
                 i++;
             }
             result += '"' + atomToAsciiMath(atom.slice(i));
@@ -101,71 +107,79 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
     }
 
     if (atom.mode === 'text') {
-        return '"' + atom.body + '"'; // text -- add in (ASCII) quotes
+        return '"' + atom.value + '"'; // text -- add in (ASCII) quotes
     }
 
     let result = '';
-    const command = atom.symbol;
+    const command = atom.command;
     let m;
 
     switch (atom.type) {
         case 'group':
         case 'root':
-            result = atomToAsciiMath(atom.body as Atom[]);
+            result = atomToAsciiMath(atom.body);
             break;
 
         case 'array':
             break;
 
         case 'genfrac':
-            if (atom.leftDelim || atom.rightDelim) {
-                result +=
-                    atom.leftDelim === '.' || !atom.leftDelim
-                        ? '{:'
-                        : atom.leftDelim;
-            }
-            if (atom.hasBarLine) {
-                result += '(';
-                result += atomToAsciiMath(atom.numer);
-                result += ')/(';
-                result += atomToAsciiMath(atom.denom);
-                result += ')';
-            } else {
-                // No bar line, i.e. \choose, etc...
-                result += '(' + atomToAsciiMath(atom.numer) + '),';
-                result += '(' + atomToAsciiMath(atom.denom) + ')';
-            }
-            if (atom.leftDelim || atom.rightDelim) {
-                result +=
-                    atom.rightDelim === '.' || !atom.rightDelim
-                        ? '{:'
-                        : atom.rightDelim;
+            {
+                const genfracAtom = atom as GenfracAtom;
+                if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
+                    result +=
+                        genfracAtom.leftDelim === '.' || !genfracAtom.leftDelim
+                            ? '{:'
+                            : genfracAtom.leftDelim;
+                }
+                if (genfracAtom.hasBarLine) {
+                    result += '(';
+                    result += atomToAsciiMath(genfracAtom.above);
+                    result += ')/(';
+                    result += atomToAsciiMath(genfracAtom.below);
+                    result += ')';
+                } else {
+                    // No bar line, i.e. \choose, etc...
+                    result += '(' + atomToAsciiMath(genfracAtom.above) + '),';
+                    result += '(' + atomToAsciiMath(genfracAtom.below) + ')';
+                }
+                if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
+                    result +=
+                        genfracAtom.rightDelim === '.' ||
+                        !genfracAtom.rightDelim
+                            ? '{:'
+                            : genfracAtom.rightDelim;
+                }
             }
             break;
 
         case 'surd':
-            if (atom.index) {
+            if (!atom.hasEmptyBranch('above')) {
                 result +=
                     'root(' +
-                    atomToAsciiMath(atom.index) +
+                    atomToAsciiMath(atom.above) +
                     ')(' +
-                    atomToAsciiMath(atom.body as Atom[]) +
+                    atomToAsciiMath(atom.body) +
                     ')';
             } else {
-                result += 'sqrt(' + atomToAsciiMath(atom.body as Atom[]) + ')';
+                result += 'sqrt(' + atomToAsciiMath(atom.body) + ')';
             }
             break;
 
         case 'leftright':
-            result +=
-                atom.leftDelim === '.' || !atom.leftDelim
-                    ? '{:'
-                    : atom.leftDelim;
-            result += atomToAsciiMath(atom.body as Atom[]);
-            result +=
-                atom.rightDelim === '.' || !atom.rightDelim
-                    ? ':}'
-                    : atom.rightDelim;
+            {
+                const leftrightAtom = atom as LeftRightAtom;
+                result +=
+                    leftrightAtom.leftDelim === '.' || !leftrightAtom.leftDelim
+                        ? '{:'
+                        : leftrightAtom.leftDelim;
+                result += atomToAsciiMath(leftrightAtom.body);
+                result +=
+                    leftrightAtom.rightDelim === '.' ||
+                    !leftrightAtom.rightDelim
+                        ? ':}'
+                        : leftrightAtom.rightDelim;
+            }
             break;
 
         case 'sizeddelim':
@@ -182,9 +196,9 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
         case 'mord':
             // @todo, deal with some special identifiers: \alpha, etc...
             result =
-                SPECIAL_IDENTIFIERS[command] ||
-                command ||
-                (typeof atom.body === 'string' ? atom.body : '');
+                SPECIAL_IDENTIFIERS[command] ??
+                command ??
+                (typeof atom.value === 'string' ? atom.value : '');
             if (result[0] === '\\') result = String(result);
             m = command
                 ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/)
@@ -195,10 +209,10 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
             } else if (result.length > 0 && result.charAt(0) === '\\') {
                 // atom is an identifier with no special handling. Use the
                 // Unicode value
-                if (typeof atom.body === 'string') {
-                    result = atom.body.charAt(0);
+                if (typeof atom.value === 'string') {
+                    result = atom.value.charAt(0);
                 } else {
-                    result = atom.symbol;
+                    result = atom.command;
                 }
             }
             // result = '<mi' + variant + makeID(atom.id, options) + '>' + xmlEscape(result) + '</mi>';
@@ -214,13 +228,13 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
             } else if (command && SPECIAL_OPERATORS[command]) {
                 result = SPECIAL_OPERATORS[command];
             } else {
-                result = atom.body as string;
+                result = atom.value;
             }
             break;
 
         case 'mopen':
         case 'mclose':
-            result += atom.body;
+            result += atom.value;
             break;
 
         case 'mpunct':
@@ -228,19 +242,16 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
             break;
 
         case 'mop':
-            if (atom.body !== '\u200b') {
+            if (atom.value !== '\u200b') {
                 // Not ZERO-WIDTH
                 result = '';
                 if (command === '\\operatorname') {
-                    result += atomToAsciiMath(atom.body as Atom[]);
+                    result += atomToAsciiMath(atom.body);
                 } else {
-                    result += atom.body || command;
+                    result += atom.value ?? command;
                 }
                 result += ' ';
             }
-            break;
-
-        case 'mathstyle':
             break;
 
         case 'box':
@@ -257,7 +268,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
             break;
     }
     // Subscripts before superscripts (according to the ASCIIMath spec)
-    if (atom.subscript) {
+    if (!atom.hasEmptyBranch('subscript')) {
         result += '_';
         const arg = atomToAsciiMath(atom.subscript);
         if (arg.length > 1 && !/^(-)?\d+(\.\d*)?$/.test(arg)) {
@@ -267,7 +278,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
         }
     }
 
-    if (atom.superscript) {
+    if (!atom.hasEmptyBranch('superscript')) {
         result += '^';
         const arg = atomToAsciiMath(atom.superscript);
         if (arg.length > 1 && !/^(-)?\d+(\.\d*)?$/.test(arg)) {

@@ -348,15 +348,20 @@ export declare type VirtualKeyboardOptions = {
     keypressVibration: boolean;
     /**
      * When a key on the virtual keyboard is pressed, produce a short audio
-     * feedback. The value should be either a URL to a sound file or an object
-     * with the following keys:
+     * feedback.
      *
-     * -   `delete` URL to a sound file played when the delete key is pressed
+     * If the property is set to a `string` or `HTMLAudioElement`, the same
+     * sound is played in all cases. Otherwise, a distinct sound is played:
+     *
+     * -   `delete` a sound played when the delete key is pressed
      * -   `return` ... when the return/tab key is pressed
      * -   `spacebar` ... when the spacebar is pressed
      * -   `default` ... when any other key is pressed. This key is required,
      *     the others are optional. If they are missing, this sound is played as
      *     well.
+     *
+     * The value of the properties should be either a string, the name of an
+     * audio file in the `soundsDirectory` directory, or an `HTMLAudioElement`.
      */
     keypressSound: string | HTMLAudioElement | {
         spacebar?: string | HTMLAudioElement;
@@ -365,9 +370,12 @@ export declare type VirtualKeyboardOptions = {
         default: string | HTMLAudioElement;
     };
     /**
-     * URL to a sound file which will be played to provide feedback when a
+     * Sound which will be played to provide feedback when a
      * command has no effect, for example when pressing the spacebar at the root
      * level.
+     *
+     * The property is either a string, the name of an audio file in the
+     * `soundsDirectory` directory, or an `HTMLAudioElement`.
      */
     plonkSound?: string | HTMLAudioElement;
 };
@@ -751,6 +759,13 @@ export declare type MathfieldOptions = LayoutOptions & EditingOptions & Localiza
      *
      */
     fontsDirectory: string;
+    /**
+     * A URL fragment pointing to the directory containing the optional
+     * sounds used to provide feedback while typing.
+     *
+     * Some default sounds are available in the `/dist/sounds` directory of the SDK.
+     */
+    soundsDirectory: string;
     /**
      * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
      *

@@ -1,11 +1,12 @@
-import type { ModelPrivate } from './model';
-import { insert } from './model-insert';
+import type { Selection } from '../public/mathfield';
 import { UndoStateChangeListener } from '../public/options';
-import { Range } from '../public/mathfield';
+import type { ModelPrivate } from '../editor-model/model-private';
+import { insert } from '../editor-model/insert';
+import { Atom } from '../core/atom-class';
 
 export type UndoRecord = {
     latex: string;
-    selection: Range[];
+    selection: Selection;
 };
 
 interface UndoOptions {
@@ -90,7 +91,7 @@ export class UndoManager {
         this.stack.splice(this.index + 1, this.stack.length - this.index - 1);
         // Add a new entry
         this.stack.push({
-            latex: this.model.root.toLatex(false),
+            latex: Atom.toLatex(this.model.root, { expandMacro: false }),
             selection: this.model.selection,
         });
 
@@ -121,7 +122,7 @@ export class UndoManager {
      */
     save(): UndoRecord {
         return {
-            latex: this.model.root.toLatex(false),
+            latex: Atom.toLatex(this.model.root, { expandMacro: false }),
             selection: this.model.selection,
         };
     }
@@ -148,7 +149,7 @@ export class UndoManager {
         });
 
         // Restore the selection
-        this.model.selection = state ? state.selection : [{ start: 0 }];
+        this.model.selection = state ? state.selection : { ranges: [[0, 0]] };
 
         this.model.suppressChangeNotifications = wasSuppressing;
     }

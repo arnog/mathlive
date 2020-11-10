@@ -146,16 +146,16 @@ export class Span {
     type: SpanType;
 
     children?: Span[];
-    body: string;
+    value: string;
 
     classes: string;
     delim?: string; // @revisit
 
     caret: ParseMode;
+    isSelected: boolean;
 
     height?: number;
     depth?: number;
-    width?: number;
     skew?: number;
     italic?: number;
     maxFontSize?: number;
@@ -176,19 +176,19 @@ export class Span {
         classes = '',
         type: SpanType = ''
     ) {
-        // CLASSES
-        this.classes = classes;
-        // CONTENT
         if (isArray(content)) {
             // Check if isArray first, since an array is also an object
             // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
-            this.children = [].concat(...content);
+            this.children = [].concat(...content).filter((x) => x !== null);
         } else if (typeof content === 'string') {
-            this.body = content;
+            this.value = content;
         } else if (content && typeof content === 'object') {
             this.children = [content];
         }
+
+        this.classes = classes;
         this.type = type;
+        this.isSelected = false;
 
         // STYLE
         // CSS style, as an array of key value pairs.
@@ -214,7 +214,7 @@ export class Span {
                 if (x.depth > depth) depth = x.depth;
                 if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
             });
-        } else if (typeof this.body === 'string') {
+        } else if (typeof this.value === 'string') {
             height = METRICS.baselineskip;
             depth = 0;
         }
@@ -224,19 +224,13 @@ export class Span {
     }
 
     selected(isSelected: boolean): void {
-        if (isSelected && !/ML__selected/.test(this.classes)) {
-            if (this.classes.length > 0) this.classes += ' ';
-            this.classes += 'ML__selected';
-        }
-        if (!isSelected && /ML__selected/.test(this.classes)) {
-            this.classes = this.classes.replace('ML__selected', '');
-        }
+        this.isSelected = isSelected;
         if (this.children) {
             this.children.forEach((x) => x.selected(isSelected));
         }
     }
 
-    applyStyle(style: Style): void {
+    applyStyle(mode: ParseMode, style: Style, className?: string): void {
         if (!style) return;
 
         //
@@ -261,26 +255,26 @@ export class Span {
         // 2. Add any custom style classes
         //
 
-        if (style.cssClass) {
-            this.classes += ' ' + style.cssClass;
+        if (className) {
+            this.classes += ' ' + className;
         }
 
         // If the body is null (for example for a line), we're done.
-        if (!this.body) return;
+        if (!this.value) return;
 
         //
         // 3. Determine the font family (i.e. 'ams', 'mathcal', etc...)
         // and apply styling by adding appropriate classes to the atom
         //
 
-        console.assert(typeof this.body === 'string');
+        console.assert(typeof this.value === 'string');
 
-        const fontName = applyStyleForMode(this, style);
+        const fontName = applyStyleForMode(mode, this, style);
 
         //
         // 5. Get the metrics information
         //
-        if (this.body && fontName) {
+        if (fontName) {
             this.maxFontSize =
                 {
                     size1: 0.5,
@@ -298,9 +292,9 @@ export class Span {
             this.depth = 0.0;
             this.skew = 0.0;
             this.italic = 0.0;
-            for (let i = 0; i < this.body.length; i++) {
+            for (let i = 0; i < this.value.length; i++) {
                 const metrics = getCharacterMetrics(
-                    this.body.charAt(i),
+                    this.value.charAt(i),
                     fontName
                 );
                 // If we were able to get metrics info for this character, store it.
@@ -330,7 +324,7 @@ export class Span {
     }
 
     setTop(top: number): void {
-        if (top && top !== 0) {
+        if (isFinite(top) && top !== 0) {
             if (!this.style) this.style = {};
             this.style['top'] = toString(top) + 'em';
             this.height -= top;
@@ -338,30 +332,40 @@ export class Span {
         }
     }
 
-    setLeft(left: number): void {
-        if (left && left !== 0) {
-            if (!this.style) this.style = {};
-            this.style['margin-left'] = toString(left) + 'em';
+    get left(): number {
+        if (this.style?.['margin-left']) {
+            return parseFloat(this.style['margin-left']);
+        }
+        return 0;
+    }
+    set left(value: number) {
+        if (!isFinite(value)) return;
+        if (!this.style) this.style = {};
+        if (value === 0) {
+            delete this.style['margin-left'];
+        } else {
+            this.style['margin-left'] = toString(value) + 'em';
         }
     }
-    setRight(right: number): void {
-        if (right && right !== 0) {
-            if (!this.style) this.style = {};
-            this.style['margin-right'] = toString(right) + 'em';
+    set right(value: number) {
+        if (!isFinite(value)) return;
+        if (!this.style) this.style = {};
+        if (value === 0) {
+            delete this.style['margin-right'];
+        } else {
+            this.style['margin-right'] = toString(value) + 'em';
         }
     }
-    setWidth(width: number): void {
-        if (width && width !== 0) {
-            if (!this.style) this.style = {};
-            this.style['width'] = toString(width) + 'em';
-        }
+    set width(value: number) {
+        if (!this.style) this.style = {};
+        this.style['width'] = toString(value) + 'em';
     }
 
     /**
      * Generate the HTML markup to represent this span.
      *
      * @param hskip - Space (in mu, 1/18em) to leave on the left side
-     * of the span. Implemented as a Unicode character if possible, a margin-left otherwise.
+     * of the span.
      * This is used to adjust the inter-spacing between spans of different types,
      * e.g. 'bin' and 'rel', according to the TeX rules (TexBook p.170)
      *
@@ -371,9 +375,14 @@ export class Span {
      * @return HTML markup
      */
 
-    toMarkup(hskip = 1.0, hscale = 1.0): string {
+    toMarkup(
+        options: { hskip?: number; hscale?: number } = {
+            hskip: 0,
+            hscale: 1.0,
+        }
+    ): string {
         let result = '';
-        let body = this.body || '';
+        let body = this.value ?? '';
 
         //
         // 1. Calculate the spacing between atoms, based on their type
@@ -391,19 +400,21 @@ export class Span {
                 } else {
                     spacing = INTER_ATOM_SPACING[combinedType] ?? 0;
                 }
-                body += child.toMarkup(spacing, hscale);
+                body += child.toMarkup({
+                    hskip: spacing,
+                    hscale: options.hscale,
+                });
                 previousType = type;
             }
         }
-
-        // Collapse 'empty' spans
         if (
             (body === '\u200b' || (!body && !this.svgBody)) &&
-            (!this.classes || this.classes === 'ML__selected') &&
+            !this.classes &&
             !this.cssId &&
             !this.style &&
             !this.svgOverlay
         ) {
+            // 2a. Collapse 'empty' spans
             result = '';
         } else {
             // Note: We can't omit the tag, even if it has no class and no style,
@@ -418,10 +429,7 @@ export class Span {
                 result +=
                     ' ' +
                     Object.keys(this.attributes)
-                        .map(
-                            (attribute) =>
-                                `${attribute}="${this.attributes[attribute]}"`
-                        )
+                        .map((x) => `${x}="${this.attributes[x]}"`)
                         .join(' ');
             }
 
@@ -435,7 +443,7 @@ export class Span {
                     error: 'ML__error',
                 }[this.type] ?? ''
             );
-            if (this.caret && this.type === 'command') {
+            if (this.caret === 'command') {
                 classes.push('ML__command-caret');
             }
 
@@ -456,34 +464,21 @@ export class Span {
             }
 
             // If a `hskip` value was provided, add it to the margin-left
-            if (hskip) {
-                if (this.style?.['margin-left']) {
-                    // There was already a margin, add to it
-                    this.style['margin-left'] =
-                        toString(
-                            parseFloat(this.style['margin-left']) + hskip / 18
-                        ) + 'em';
-                } else {
-                    if (!this.style) this.style = {};
-                    this.style['margin-left'] = toString(hskip / 18) + 'em';
-                }
+            if (options.hskip) {
+                this.left += options.hskip / 18;
             }
 
             if (this.style) {
-                let styleString = '';
-                const isSelected = /ML__selected/.test(this.classes);
-                for (const style in this.style) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(this.style, style)
-                    ) {
+                const styleString = Object.keys(this.style)
+                    .map((x) => {
                         // Render the style property, except the background
                         // of selected spans
-                        if (style !== 'background-color' || !isSelected) {
-                            styleString +=
-                                style + ':' + this.style[style] + ';';
+                        if (x === 'background-color' && this.isSelected) {
+                            return '';
                         }
-                    }
-                }
+                        return x + ':' + this.style[x];
+                    })
+                    .join(';');
 
                 if (styleString.length > 0) {
                     result += ' style="' + styleString + '"';
@@ -529,15 +524,16 @@ export class Span {
                 result += body;
             }
 
-            result = result + '</span>';
+            result += '</span>';
         }
 
-        if (this.caret && this.type !== 'command') {
-            if (this.caret === 'text') {
-                result = result + '<span class="ML__text-caret"></span>';
-            } else {
-                result = result + '<span class="ML__caret"></span>';
-            }
+        //
+        // Add markup for the caret
+        //
+        if (this.caret === 'text') {
+            result += '<span class="ML__text-caret"></span>';
+        } else if (this.caret === 'math') {
+            result += '<span class="ML__caret"></span>';
         }
 
         return result;
@@ -566,8 +562,8 @@ export class Span {
         }
 
         // Don't coalesce if some of the content is SVG
-        if (this.svgBody || !this.body) return false;
-        if (span.svgBody || !span.body) return false;
+        if (this.svgBody || !this.value) return false;
+        if (span.svgBody || !span.value) return false;
 
         // If this span or the candidate span have children, we can't
         // coalesce them, but we'll try to coalesce their children
@@ -613,7 +609,7 @@ export class Span {
 
         // OK, the attributes of those spans are compatible.
         // Merge span into this
-        this.body += span.body;
+        this.value += span.value;
         this.height = Math.max(this.height, span.height);
         this.depth = Math.max(this.depth, span.depth);
         this.maxFontSize = Math.max(this.maxFontSize, span.maxFontSize);
@@ -719,13 +715,6 @@ export function makeSpan(
     classes = '',
     type: SpanType = ''
 ): Span {
-    if (isArray(content)) {
-        const c = content.filter((x) => Boolean(x));
-        if (c.length === 1) {
-            return new Span(c[0], classes, type);
-        }
-        return new Span(c, classes, type);
-    }
     return new Span(content, classes, type);
 }
 
@@ -742,8 +731,7 @@ export function makeSymbol(
     result.depth = metrics.depth;
     result.skew = metrics.skew;
     result.italic = metrics.italic;
-
-    result.setRight(result.italic);
+    result.right = metrics.italic;
 
     return result;
 }
@@ -783,27 +771,22 @@ function makeFontSizer(context: Context, fontSize: number): Span {
 }
 
 export function makeStruts(
-    content: Span | Span[],
+    content: Span,
     classes = '',
     type: SpanType = ''
 ): Span {
     const topStrut = makeSpan('', 'ML__strut');
-    topStrut.setStyle('height', height(content), 'em');
-    let bottomStrut: Span;
+    topStrut.setStyle('height', Math.max(0.0, height(content)), 'em');
+    const struts = [topStrut];
+
     if (depth(content) !== 0) {
-        bottomStrut = makeSpan('', 'ML__strut--bottom');
+        const bottomStrut = makeSpan('', 'ML__strut--bottom');
         bottomStrut.setStyle('height', height(content) + depth(content), 'em');
         bottomStrut.setStyle('vertical-align', -depth(content), 'em');
+        struts.push(bottomStrut);
     }
-    let struts: Span[];
-    if (isArray(content)) {
-        struts = [topStrut, bottomStrut, ...content];
-    } else {
-        struts = [topStrut, bottomStrut, content];
-    }
-    const result = makeSpan(struts, classes, type);
-    // result.setStyle('display', 'inline-block');
-    return result;
+    struts.push(content);
+    return makeSpan(struts, classes, type);
 }
 
 export function makeStyleWrap(
@@ -813,10 +796,10 @@ export function makeStyleWrap(
     toStyle: Mathstyle,
     classes: string
 ): Span {
-    classes = classes || '';
-    classes += ' style-wrap ';
-
-    const result = makeHlist(children, classes + fromStyle.adjustTo(toStyle));
+    const result = makeHlist(
+        children,
+        classes + ' style-wrap ' + fromStyle.adjustTo(toStyle)
+    );
     result.type = type;
 
     const multiplier = toStyle.sizeMultiplier / fromStyle.sizeMultiplier;
@@ -854,7 +837,7 @@ export function makeHlist(
     if (spans instanceof Span) {
         multiplier = spans.maxFontSize;
     } else {
-        multiplier = spans.reduce(
+        multiplier = result.children.reduce(
             (acc, x) => Math.max(acc, x.maxFontSize),
             multiplier
         );
@@ -886,7 +869,6 @@ export function makeVlist(
 ): Span {
     let listDepth = 0;
     let currPos = 0;
-    pos = pos || 'shift';
 
     // Normalize the elements so that they're all either a number or
     // a single span. If a child is an array of spans,
@@ -904,8 +886,12 @@ export function makeVlist(
     }
 
     if (pos === 'shift') {
-        console.assert(elements[0] instanceof Span);
-        listDepth = -(elements[0] as Span).depth - posData;
+        if (elements[0]) {
+            console.assert(elements[0] instanceof Span);
+            listDepth = -(elements[0] as Span).depth - posData;
+        } else {
+            listDepth = -posData;
+        }
     } else if (pos === 'bottom') {
         listDepth = -posData;
     } else if (pos === 'top') {
@@ -965,7 +951,7 @@ export function makeVlist(
     }
     const fontSizer = makeFontSizer(context, maxFontSize);
 
-    const newElements = [];
+    const newElements: Span[] = [];
     currPos = listDepth;
     for (const element of elements) {
         if (typeof element === 'number') {
@@ -983,8 +969,8 @@ export function makeVlist(
 
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.
-    result.depth = Math.max(listDepth, depth(result) || 0);
-    result.height = Math.max(-currPos, height(result) || 0);
+    result.depth = Math.max(listDepth, depth(result) ?? 0);
+    result.height = Math.max(-currPos, height(result) ?? 0);
 
     return result;
 }

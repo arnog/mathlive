@@ -2,7 +2,7 @@
  * The mode that indicates how a portion of content is interpreted
  *
  */
-export type ParseMode = 'math' | 'text' | 'command' | 'chem';
+export type ParseMode = 'math' | 'text' | 'command';
 
 /**
  * Error code passed to the [[`ErrorListener`]] function.
@@ -95,8 +95,8 @@ export type Variant =
     | 'sans-serif'
     | 'monospace'
     | 'normal' // 'main' (upright) or 'math' (italic) depending on letterShapeStyle
-    | 'main'
-    | 'math';
+    | 'main' //upright
+    | 'math'; // italic, with custom spacing for "f" and others
 
 /**
  * Some variants support stylistic variations.
@@ -121,7 +121,6 @@ export type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
 export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
 
 export interface Style {
-    mode?: ParseMode | string;
     color?: string;
     backgroundColor?: string;
     variant?: Variant;
@@ -130,12 +129,8 @@ export interface Style {
     fontShape?: FontShape;
     fontSeries?: FontSeries;
     fontSize?: string;
-    cssId?: string;
-    cssClass?: string;
-    isPhantom?: boolean;
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 }
-
 /**
  * **See Also**
  * * [[`MacroDictionary`]]

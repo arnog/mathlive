@@ -2,18 +2,17 @@ import { isArray } from '../common/types';
 
 import {
     MATHSTYLES,
-    decompose,
     makeSpan,
     makeStruts,
     parseString,
+    Atom,
 } from '../core/core';
 
-import { getAnchor } from './model-selection-utils';
 import { getKeybindingsForCommand } from './keybindings';
-import { attachButtonHandlers } from './mathfield-buttons';
-import { getCaretPoint } from './mathfield-utils';
+import { attachButtonHandlers } from '../editor-mathfield/buttons';
+import { getCaretPoint } from '../editor-mathfield/utils';
 
-import type { MathfieldPrivate } from './mathfield-class';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
@@ -277,7 +276,7 @@ function getNote(symbol): string {
 
 function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
     const parse = parseString(latex, 'math', null, mf.options.macros);
-    const spans = decompose(
+    const spans = Atom.render(
         {
             mathstyle: MATHSTYLES.displaystyle,
             macros: mf.options.macros,
@@ -328,7 +327,7 @@ export function showPopoverWithLatex(
     let el = mf.popover.getElementsByClassName('ML__popover__content');
     if (el && el.length > 0) {
         attachButtonHandlers(mf, el[0], {
-            default: ['complete', { acceptSuggestion: true }],
+            default: ['complete', 'accept-with-suggestion'],
         });
     }
 
@@ -353,23 +352,20 @@ export function updatePopoverPosition(
     if (!mf.element || mf.element['mathfield'] !== mf) return;
 
     // If the popover pane is visible...
-    if (mf.popover.classList.contains('is-visible')) {
-        if (options?.deferred) {
-            // Call ourselves again later, typically after the
-            // rendering/layout of the DOM has been completed
-            window.requestAnimationFrame(() => updatePopoverPosition(mf));
-        } else {
-            if (
-                !getAnchor(mf.model) ||
-                getAnchor(mf.model).type !== 'command'
-            ) {
-                hidePopover(mf);
-            } else {
-                // ... get the caret position
-                const caretPoint = getCaretPoint(mf.field);
-                if (caretPoint) setPopoverPosition(mf, caretPoint);
-            }
-        }
+    if (!mf.popover.classList.contains('is-visible')) return;
+    if (options?.deferred) {
+        // Call ourselves again later, typically after the
+        // rendering/layout of the DOM has been completed
+        // (don't do it on next frame, it might be too soon)
+        window.setTimeout(() => updatePopoverPosition(mf), 100);
+        return;
+    }
+    if (mf.model.at(mf.model.position)?.type !== 'command') {
+        hidePopover(mf);
+    } else {
+        // ... get the caret position
+        const caretPoint = getCaretPoint(mf.field);
+        if (caretPoint) setPopoverPosition(mf, caretPoint);
     }
 }
 

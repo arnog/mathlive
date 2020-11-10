@@ -1,12 +1,12 @@
-export * from './model-utils';
-export { ModelPrivate } from './model-class';
+export * from '../editor-model/utils';
+export { ModelPrivate } from '../editor-model/model-private';
 
-export * from './model-array';
-export * from './model-command-mode';
-export * from './model-delete';
-export * from './model-insert';
-export * from './model-listeners';
-export * from './model-selection';
-export * from './model-styling';
+export * from '../editor-model/array';
+export * from '../editor-model/command-mode';
+export * from '../editor-model/delete';
+export * from '../editor-model/insert';
+export * from '../editor-model/listeners';
+export * from '../editor-model/selection';
+export * from '../editor-model/styling';
 
-import './model-commands';
+import '../editor-model/commands';

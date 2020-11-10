@@ -19,6 +19,6 @@ elif [ "$VARIANT" = "snapshot" ]; then
 #    npx jest test/math-json.test -u
     npx jest  -u
 else
-    npx jest test/math.test
+    npx jest test/
     # npx jest test/math-json.test
 fi

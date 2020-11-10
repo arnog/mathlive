@@ -2,54 +2,6 @@
 import { MathfieldOptions } from './options';
 import { ParseMode, MacroDictionary, Style } from './core';
 /**
- * A pair of boundary points that can be used to denote a fragment of an
- * expression such as the selection.
- *
- * A range can be collapsed (empty) in which case it points to a single
- * location in an expression and its content is empty.
- *
- * A range can also have a direction. While many operations are insensitive
- * to the direction, a few are. For example, when selecting a fragment of an
- * expression from left to right, the direction of this range will be "forward".
- * Pressing the left arrow key will sets the insertion at the start of the range.
- * Conversely, if the selectionis made from right to left, the direction is
- * "backward" and pressing the left arrow key will set the insertion point at
- * the end of the range.
- *
- * **See Also**
- * * [[`selection`]]
- */
-export interface Range {
-    /**
-     * An offset indicating where the range starts.
-     *
-     * 0 is the first possible offset.
-     */
-    start: number;
-    /**
-     * An offset indicating where the range ends.
-     *
-     * `end` should be greater than or equal to `start`
-     */
-    end?: number;
-    /**
-     *
-     */
-    direction?: 'forward' | 'backward' | 'none';
-    /**
-     * True when `start === end`, that is an empty range with no content, a single
-     * insertion point.
-     */
-    collapsed?: boolean;
-    /**
-     * The depth of the common ancestor of the start and end offsets.
-     *
-     * Depth starts at 0 and increase for each fraction, root, superscript
-     * and subscript.
-     */
-    depth?: number;
-}
-/**
  * | Format              | Description             |
 | :------------------ | :---------------------- |
 | `"latex"`             |LaTeX rendering of the content, with LaTeX macros not expanded|
@@ -66,26 +18,26 @@ export declare type InsertOptions = {
     /** If `"auto"` or omitted, the current mode is used */
     mode?: ParseMode | 'auto';
     /**
- * The format of the input string:
- *
-| <!-- -->    | <!-- -->    |
-|:------------|:------------|
-|`"auto"`| The string is Latex fragment or command) (default)|
-|`"latex"`| The string is a Latex fragment|
- *
- */
-    format?: string;
+     * The format of the input string:
+     *
+    | <!-- -->    | <!-- -->    |
+    |:------------|:------------|
+    |`"auto"`| The string is Latex fragment or command) (default)|
+    |`"latex"`| The string is a Latex fragment|
+    *
+    */
+    format?: OutputFormat | 'auto';
     insertionMode?: 'replaceSelection' | 'replaceAll' | 'insertBefore' | 'insertAfter';
     /**
-  * Describes where the selection
-  * will be after the insertion:
-   | <!-- -->    | <!-- -->    |
-   | :---------- | :---------- |
-   |`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
-   |`"after"`| The selection will be an insertion point after the inserted text|
-   |`"before"`| The selection will be an insertion point before the inserted text|
-   |`"item"`| The inserted text will be selected|
-*/
+     * Describes where the selection
+     * will be after the insertion:
+     | <!-- -->    | <!-- -->    |
+    | :---------- | :---------- |
+    |`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
+    |`"after"`| The selection will be an insertion point after the inserted text|
+    |`"before"`| The selection will be an insertion point before the inserted text|
+    |`"item"`| The inserted text will be selected|
+    */
     selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
     placeholder?: string;
     suppressChangeNotifications?: boolean;
@@ -108,6 +60,50 @@ export declare type InsertOptions = {
      * insertion is the style of the last inserted atom.
      */
     resetStyle?: boolean;
+};
+/**
+ * A position of the caret/insertion point from the beginning of the formula.
+ */
+export declare type Offset = number;
+/**
+ * A pair of offests (boundary points) that can be used to denote a fragment
+ * of an expression.
+ *
+ * A range is said to be collapsed when start and end are equal.
+ *
+ * When specifying a range, a negative offset can be used to indicate an
+ * offset from the last valid offset, i.e. -1 is the last valid offset, -2
+ * is one offset before that, etc...
+ *
+ * A normalized range will always be such that start <= end, start >= 0,
+ * end >= 0,  start < lastOffset, end < lastOffset. All the methods return
+ * a normalized range.
+ *
+ * **See Also**
+ * * [[`Selection`]]
+ */
+export declare type Range = [start: Offset, end: Offset];
+/**
+ * A selection is a set of ranges (to support discontinous selection, for
+ * example when selecting a column in a matrix).
+ *
+ * If there is a single range and that range is collapsed, the selection is
+ * collapsed.
+ *
+ * A selection can also have a direction. While many operations are insensitive
+ * to the direction, a few are. For example, when selecting a fragment of an
+ * expression from left to right, the direction of this range will be "forward".
+ * Pressing the left arrow key will sets the insertion at the start of the range.
+ * Conversely, if the selectionis made from right to left, the direction is
+ * "backward" and pressing the left arrow key will set the insertion point at
+ * the end of the range.
+ *
+ * **See Also**
+ * * [[`Range`]]
+ */
+export declare type Selection = {
+    ranges: Range[];
+    direction?: 'forward' | 'backward' | 'none';
 };
 export interface Mathfield {
     mode: ParseMode;
@@ -173,7 +169,12 @@ export interface Mathfield {
      * **Default** = `"latex"`
      * @category Accessing the Content
      */
-    getValue(format?: OutputFormat): string;
+    getValue(): string;
+    getValue(format: OutputFormat): string;
+    getValue(start: Offset, end: Offset, format?: OutputFormat): string;
+    getValue(range: Range, format?: OutputFormat): string;
+    getValue(ranges: Selection, format?: OutputFormat): string;
+    getValue(arg1?: Offset | OutputFormat | Range | Selection, arg2?: Offset | OutputFormat, arg3?: OutputFormat): string;
     /**
      * @deprecated Use [[`getValue`]]
      */
@@ -184,7 +185,7 @@ export interface Mathfield {
      * @param format - The format of the result.
      * **Default** = `"latex"`
      * @category Accessing the Content
-     * @deprecated Use `mfe.getValue(mfe.getSelection())`
+     * @deprecated Use `mfe.getValue(mfe.selection)`
      */
     $selectedText?(format?: OutputFormat): string;
     select(): void;
@@ -353,7 +354,14 @@ export interface Mathfield {
         y: number;
     } | null;
     setCaretPoint(x: number, y: number): boolean;
-    find(latex: string): Range[];
+    /**
+     * Search the formula for items matching the value as a Latex string or
+     * as a regular expression matching a Latex string.
+     *
+     * Results are returned as an array of Range. If no results are found
+     * an empty array is returned.
+     */
+    find(value: string | RegExp): Range[];
 }
 export interface Model {
     readonly mathfield: Mathfield;

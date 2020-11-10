@@ -2,7 +2,7 @@
  * The mode that indicates how a portion of content is interpreted
  *
  */
-export declare type ParseMode = 'math' | 'text' | 'command' | 'chem';
+export declare type ParseMode = 'math' | 'text' | 'command';
 /**
  * Error code passed to the [[`ErrorListener`]] function.
  *
@@ -86,7 +86,6 @@ export declare type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
 export declare type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
 export declare type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
 export interface Style {
-    mode?: ParseMode | string;
     color?: string;
     backgroundColor?: string;
     variant?: Variant;
@@ -95,9 +94,6 @@ export interface Style {
     fontShape?: FontShape;
     fontSeries?: FontSeries;
     fontSize?: string;
-    cssId?: string;
-    cssClass?: string;
-    isPhantom?: boolean;
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 }
 /**

@@ -2,6 +2,51 @@
     'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
 
+/* The element that display info while in command mode */
+.ML__popover {
+    visibility: hidden;
+    min-width: 160px;
+    background-color: rgba(97, 97, 97, 0.95);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    // padding: 8px 8px;
+    position: fixed;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    transition: all 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
+
+    /* The 'tip' of the popover panel */
+    &::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: calc(50% - 3px);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+
+        font-size: 1rem;
+
+        border-bottom: 5px solid rgba(97, 97, 97, 0.9);
+    }
+}
+
+.ML__popover--reverse-direction {
+    &::after {
+        top: auto;
+        bottom: -5px;
+        border-top: 5px solid rgba(97, 97, 97, 0.9);
+        border-bottom: 0;
+    }
+}
+
 div.ML__popover.is-visible {
     visibility: inherit;
     animation: ML__fade-in cubic-bezier(0, 0, 0.2, 1) 0.15s;
@@ -48,6 +93,7 @@ div.ML__popover.is-visible {
 /* The command inside a popover (inside a ML__popover-content) */
 .ML__popover__command {
     font-size: 1.6rem;
+    font-family: KaTeX_Main;
 }
 
 .ML__popover__prev-shortcut {

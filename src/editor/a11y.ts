@@ -1,49 +1,58 @@
 import type { TextToSpeechOptions } from '../public/options';
 
-import type { Atom } from '../core/atom';
+import { Atom } from '../core/atom';
 
 import { atomsToMathML } from '../addons/math-ml';
 import { speakableText } from './speech';
-import { selectionIsCollapsed, getSelectedAtoms } from './model-selection';
-import type { ModelPrivate } from './model-class';
-import type { MathfieldPrivate } from './mathfield-class';
-import type { PathSegment } from './path';
+import type { ModelPrivate } from '../editor-model/model-private';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 /**
- * Given an atom and its parent, describe the relationship between the atom
+ * Given an atom, describe the relationship between the atom
  * and its siblings and their parent.
  */
-function relationName(parent: Atom, leaf: PathSegment): string {
-    const EXPR_NAME = {
-        //    'array': 'should not happen',
-        numer: 'numerator',
-        denom: 'denominator',
-        index: 'index',
-        body: 'parent',
-        subscript: 'subscript',
-        superscript: 'superscript',
-    };
-    const PARENT_NAME = {
-        enclose: 'cross out',
-        leftright: 'fence',
-        surd: 'square root',
-        root: 'math field',
-    };
-    return leaf.relation === 'body'
-        ? PARENT_NAME[parent.type]
-        : EXPR_NAME[leaf.relation];
+function relationName(atom: Atom): string {
+    let result: string;
+    if (atom.treeBranch === 'body') {
+        result = {
+            enclose: 'cross out',
+            leftright: 'fence',
+            surd: 'square root',
+            root: 'math field',
+            mop: 'operator', // e.g. `\operatorname`, a `mop` with a body
+        }[atom.parent.type];
+    } else if (atom.parent.type === 'genfrac') {
+        if (atom.treeBranch === 'above') {
+            return 'numerator';
+        } else if (atom.treeBranch === 'below') {
+            return 'denominator';
+        }
+    } else if (atom.parent.type === 'surd') {
+        if (atom.treeBranch === 'above') {
+            result = 'index';
+        }
+    } else if (atom.treeBranch === 'superscript') {
+        result = 'superscript';
+    } else if (atom.treeBranch === 'subscript') {
+        result = 'subscript';
+    }
+
+    if (!result) {
+        console.log('unknown relationship');
+    }
+    return result ?? 'parent';
 }
 
 /**
  * Announce a change in selection or content via the aria-live region.
  *
  * @param action The action that invoked the change.
- * @param oldModel The previous value of the model before the change.
+ * @param previousPosition The position of the insertion point before the change
  */
 export function defaultAnnounceHook(
     mathfield: MathfieldPrivate,
     action: string,
-    oldModel: ModelPrivate,
+    previousPosition: number,
     atoms: Atom[]
 ): void {
     //** Fix: the focus is the end of the selection, so it is before where we want it
@@ -53,10 +62,7 @@ export function defaultAnnounceHook(
     if (action === 'plonk') {
         // Use this sound to indicate (minor) errors, for
         // example when a action has no effect.
-        if (mathfield.plonkSound) {
-            mathfield.plonkSound.load();
-            mathfield.plonkSound.play().catch((err) => console.warn(err));
-        }
+        mathfield.plonkSound?.play().catch((err) => console.warn(err));
         // As a side effect, reset the keystroke buffer
         mathfield.resetKeystrokeBuffer();
     } else if (action === 'delete') {
@@ -65,15 +71,15 @@ export function defaultAnnounceHook(
     } else if (action === 'focus' || /move/.test(action)) {
         //*** FIX -- should be xxx selected/unselected */
         liveText =
-            getRelationshipAsSpokenText(mathfield.model, oldModel) +
-            (selectionIsCollapsed(mathfield.model) ? '' : 'selected: ') +
+            getRelationshipAsSpokenText(mathfield.model, previousPosition) +
+            (mathfield.model.selectionIsCollapsed ? '' : 'selected: ') +
             getNextAtomAsSpokenText(mathfield.model, mathfield.options);
     } else if (action === 'replacement') {
         // announce the contents
         liveText = speakableText(
             mathfield.options,
             '',
-            mathfield.model.sibling(0)
+            mathfield.model.at(mathfield.model.position)
         );
     } else if (action === 'line') {
         // announce the current line -- currently that's everything
@@ -104,26 +110,27 @@ export function defaultAnnounceHook(
         ? ' \u202f '
         : ' \u00a0 ';
     mathfield.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
+    console.info('live text = ', liveText);
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 
 function getRelationshipAsSpokenText(
     model: ModelPrivate,
-    previousModel: ModelPrivate
+    previousOffset?: number
 ): string {
-    const previousPath = previousModel ? previousModel.path : [];
-    const path = model.path;
-    let result = '';
-    while (previousPath.length > path.length) {
-        result +=
-            'out of ' +
-            relationName(
-                previousModel.parent(),
-                previousPath[previousPath.length - 1]
-            ) +
-            '; ';
-        previousPath.pop();
+    if (isNaN(previousOffset)) return '';
+    const previous = model.at(previousOffset);
+    if (previous.treeDepth <= model.at(model.position).treeDepth) {
+        return '';
     }
+    let result = '';
+    let ancestor = previous.parent;
+    const newParent = model.at(model.position).parent;
+    while (ancestor !== model.root && ancestor !== newParent) {
+        result += `out of ${relationName(ancestor)};`;
+        ancestor = ancestor.parent;
+    }
+
     return result;
 }
 
@@ -137,23 +144,24 @@ function getNextAtomAsSpokenText(
     model: ModelPrivate,
     options: TextToSpeechOptions
 ): string {
-    const path = model.path;
-    const leaf = path[path.length - 1];
+    if (!model.selectionIsCollapsed) {
+        return speakableText(options, '', model.getAtoms(model.selection));
+    }
     let result = '';
-    if (!selectionIsCollapsed(model)) {
-        return speakableText(options, '', getSelectedAtoms(model));
-    }
+
     // announce start of denominator, etc
-    const relation = relationName(model.parent(), leaf);
-    if (leaf.offset === 0) {
-        result += (relation ? 'start of ' + relation : 'unknown') + ': ';
+    const cursor = model.at(model.position);
+    const relation = relationName(cursor);
+    if (cursor.isFirstSibling) {
+        result = (relation ? 'start of ' + relation : 'unknown') + ': ';
     }
-    const atom = model.sibling(Math.max(1, model.extent));
-    if (atom) {
-        result += speakableText(options, '', atom);
-    } else if (leaf.offset !== 0) {
+    if (cursor.isLastSibling) {
         // don't say both start and end
-        result += relation ? 'end of ' + relation : 'unknown';
+        if (!cursor.isFirstSibling) {
+            result += relation ? 'end of ' + relation : 'unknown';
+        }
+    } else {
+        result += speakableText(options, '', cursor);
     }
     return result;
 }

@@ -7,10 +7,10 @@ import {
     unshiftKeyboardLayer,
 } from './virtual-keyboard-utils';
 import { complete } from './autocomplete';
-import { getSharedElement } from './mathfield-utils';
+import { getSharedElement } from '../editor-mathfield/utils';
 import { register as registerCommand } from './commands';
-import { on } from './mathfield-utils';
-import type { MathfieldPrivate } from './mathfield-class';
+import { on } from '../editor-mathfield/utils';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 /*
  * Alternate options are displayed when a key on the virtual keyboard is pressed
  * and held.
@@ -146,7 +146,7 @@ export function switchKeyboardLayer(
             layer !== 'symbols-command'
         ) {
             // If we switch to a non-command keyboard layer, first exit command mode.
-            complete(mathfield);
+            complete(mathfield, 'accept');
         }
         showVirtualKeyboard(mathfield);
         // If the alternate keys panel was visible, hide it

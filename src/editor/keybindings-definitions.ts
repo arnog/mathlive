@@ -16,16 +16,16 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     { key: 'up', command: 'moveUp' },
     { key: 'down', command: 'moveDown' },
 
-    { key: 'shift+[ArrowLeft]', command: 'extendToPreviousChar' },
-    { key: 'shift+[ArrowRight]', command: 'extendToNextChar' },
-    { key: 'shift+[ArrowUp]', command: 'extendUp' },
-    { key: 'shift+[ArrowDown]', command: 'extendDown' },
+    { key: 'shift+[ArrowLeft]', command: 'extendSelectionBackward' },
+    { key: 'shift+[ArrowRight]', command: 'extendSelectionForward' },
+    { key: 'shift+[ArrowUp]', command: 'extendSelectionUpward' },
+    { key: 'shift+[ArrowDown]', command: 'extendSelectionDownward' },
 
-    { key: '[Backspace]', command: 'deletePreviousChar' },
-    { key: 'alt+[Delete]', command: 'deletePreviousChar' },
+    { key: '[Backspace]', command: 'deleteBackward' },
+    { key: 'alt+[Delete]', command: 'deleteBackward' },
 
-    { key: '[Delete]', command: 'deleteNextChar' },
-    { key: 'alt+[Backspace]', command: 'deleteNextChar' },
+    { key: '[Delete]', command: 'deleteForward' },
+    { key: 'alt+[Backspace]', command: 'deleteForward' },
 
     { key: 'alt+[ArrowLeft]', command: 'moveToPreviousWord' },
     { key: 'alt+[ArrowRight]', command: 'moveToNextWord' },
@@ -86,19 +86,19 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     {
         key: '[Escape]',
         ifMode: 'command',
-        command: ['complete', { discard: true }],
+        command: ['complete', 'reject'],
     }, // discard the command} insert nothing
     {
         key: '[Tab]',
         ifMode: 'command',
-        command: ['complete', { acceptSuggestion: true }],
+        command: ['complete', 'accept-with-suggestion'],
     }, // complete the suggestion
     { key: '[Return]', ifMode: 'command', command: 'complete' },
     { key: '[Enter]', ifMode: 'command', command: 'complete' },
     {
         key: 'shift+[Escape]',
         ifMode: 'command',
-        command: ['complete', { discard: true }],
+        command: ['complete', 'reject'],
     }, // Some keyboards can't generate
     // this combination, for example in 60% keyboards it is mapped to ~
     { key: '[ArrowDown]', ifMode: 'command', command: 'nextSuggestion' },
@@ -112,7 +112,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     { key: '[Cut]', command: 'cutToClipboard' },
     { key: '[Copy]', command: 'copyToClipboard' },
     { key: '[Paste]', command: 'pasteFromClipboard' },
-    { key: '[Clear]', command: 'deletePreviousChar' },
+    { key: '[Clear]', command: 'deleteBackward' },
 
     { key: 'ctrl+z', ifPlatform: '!macos', command: 'undo' },
     { key: 'cmd+z', command: 'undo' },
@@ -135,11 +135,23 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     {
         key: 'ctrl+shift+b',
         ifPlatform: 'macos',
-        command: 'extendToPreviousChar',
+        command: 'extendSelectionBackward',
     },
-    { key: 'ctrl+shift+f', ifPlatform: 'macos', command: 'extendToNextChar' },
-    { key: 'ctrl+shift+p', ifPlatform: 'macos', command: 'extendUp' },
-    { key: 'ctrl+shift+n', ifPlatform: 'macos', command: 'extendDown' },
+    {
+        key: 'ctrl+shift+f',
+        ifPlatform: 'macos',
+        command: 'extendSelectionForward',
+    },
+    {
+        key: 'ctrl+shift+p',
+        ifPlatform: 'macos',
+        command: 'extendSelectionUpward',
+    },
+    {
+        key: 'ctrl+shift+n',
+        ifPlatform: 'macos',
+        command: 'extendSelectionDownward',
+    },
     {
         key: 'ctrl+shift+a',
         ifPlatform: 'macos',
@@ -163,8 +175,8 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
         command: 'extendToNextWord',
     },
 
-    { key: 'ctrl+h', ifPlatform: 'macos', command: 'deletePreviousChar' },
-    { key: 'ctrl+d', ifPlatform: 'macos', command: 'deleteNextChar' },
+    { key: 'ctrl+h', ifPlatform: 'macos', command: 'deleteBackward' },
+    { key: 'ctrl+d', ifPlatform: 'macos', command: 'deleteForward' },
     { key: 'ctrl+l', ifPlatform: 'macos', command: 'scrollIntoView' },
     // { key: 'ctrl+t', ifPlatform: 'macos', command: 'transpose' },
 

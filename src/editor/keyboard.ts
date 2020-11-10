@@ -308,7 +308,18 @@ export function delegateKeyboardEvents(
     );
     target.addEventListener(
         'blur',
-        (_ev) => {
+        (ev) => {
+            // If the relatedTarget (the element that is gaining the focus)
+            // is contained in our shadow host, ignore the blur event
+            if (
+                ev.relatedTarget ===
+                (((ev.target as HTMLElement).getRootNode() as any) as ShadowRoot)
+                    .host
+            ) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                return;
+            }
             if (blurInProgress || focusInProgress) return;
 
             blurInProgress = true;
@@ -397,22 +408,19 @@ export function delegateKeyboardEvents(
             }
         },
         focus: (): void => {
-            if (typeof textarea.blur === 'function') {
+            if (typeof textarea.focus === 'function') {
                 textarea.focus();
             }
         },
         hasFocus: (): boolean => {
-            return deepActiveElement(document) === textarea;
+            return deepActiveElement() === textarea;
         },
         setValue: (value: string): void => {
             if (value) {
                 textarea.value = value;
                 // The textarea may be a span (on mobile, for example), so check that
                 // it has a select() before calling it.
-                if (
-                    deepActiveElement(document) === textarea &&
-                    textarea.select
-                ) {
+                if (deepActiveElement() === textarea && textarea.select) {
                     textarea.select();
                 }
             } else {
@@ -430,13 +438,12 @@ export function delegateKeyboardEvents(
     };
 }
 
-function deepActiveElement(
-    root: DocumentOrShadowRoot = document
-): Element | null {
-    if (root.activeElement?.shadowRoot?.activeElement) {
-        return deepActiveElement(root.activeElement.shadowRoot);
+function deepActiveElement(): Element | null {
+    let a = document.activeElement;
+    while (a && a.shadowRoot && a.shadowRoot.activeElement) {
+        a = a.shadowRoot.activeElement;
     }
-    return root.activeElement;
+    return a;
 }
 
 export function eventToChar(evt: KeyboardEvent): string {

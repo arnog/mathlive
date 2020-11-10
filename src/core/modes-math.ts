@@ -1,8 +1,13 @@
 import { colorToString } from './color';
-import { getInfo, mathVariantToUnicode } from './definitions-utils';
-import type { Atom } from './atom';
+import {
+    getInfo,
+    mathVariantToUnicode,
+} from '../core-definitions/definitions-utils';
+import { Atom, ToLatexOptions } from './atom';
 import { joinLatex } from './tokenizer';
 import { getPropertyRuns, register } from './modes-utils';
+import { Style } from '../public/core';
+import { Span } from './span';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -90,40 +95,30 @@ const LETTER_SHAPE_MODIFIER = {
 
 // See http://ctan.math.illinois.edu/macros/latex/base/fntguide.pdf
 
-function emitLatexMathRun(
-    context: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
-    let contextValue = context.variant;
-    if (context.variantStyle && context.variantStyle !== 'up') {
-        contextValue += '-' + context.variantStyle;
-    }
+function emitLatexMathRun(run: Atom[], options: ToLatexOptions): string {
+    const parent = run[0].parent;
+    const parentMode = parent?.mode ?? 'math';
+    const contextValue = variantString(parent);
+    const contextColor = parent?.computedStyle.color;
     return joinLatex(
         getPropertyRuns(run, 'color').map((x) => {
             const result = joinLatex(
                 getPropertyRuns(x, 'variant').map((x) => {
-                    let value = x[0].variant;
-                    if (x[0].variantStyle && x[0].variantStyle !== 'up') {
-                        value += '-' + x[0].variantStyle;
-                    }
+                    const value = variantString(x[0]);
                     // Check if all the atoms in this run have a base
                     // variant identical to the current variant
                     // If so, we can skip wrapping them
                     if (
                         x.every((x) => {
-                            const info = getInfo(x.symbol, context.mode, null);
-                            if (!info || !(info.variant || info.variantStyle)) {
-                                return false;
-                            }
-                            let styledValue = x.variant;
-                            if (x.variantStyle && x.variantStyle !== 'up') {
-                                styledValue += '-' + x.variantStyle;
-                            }
-                            return styledValue === value;
+                            const info = getInfo(x.command, parentMode, null);
+                            if (!info || !info.variant) return false;
+
+                            return variantString(x) === value;
                         })
                     ) {
-                        return joinLatex(x.map((x) => x.toLatex(expandMacro)));
+                        return joinLatex(
+                            x.map((x) => Atom.toLatex(x, options))
+                        );
                     }
 
                     let command = '';
@@ -156,16 +151,18 @@ function emitLatexMathRun(
                         console.assert(typeof command !== 'undefined');
                     }
                     return (
-                        command +
-                        joinLatex(x.map((x) => x.toLatex(expandMacro))) +
-                        (command ? '}' : '')
+                        joinLatex([
+                            command,
+                            ...x.map((x) => Atom.toLatex(x, options)),
+                        ]) + (command ? '}' : '')
                     );
                 })
             );
-            if (x[0].color && (!context || context.color !== x[0].color)) {
+            const style = x[0].computedStyle;
+            if (style.color && (!parent || contextColor !== style.color)) {
                 return (
                     '\\textcolor{' +
-                    colorToString(x[0].color) +
+                    colorToString(style.color) +
                     '}{' +
                     result +
                     '}'
@@ -176,7 +173,10 @@ function emitLatexMathRun(
     );
 }
 
-function applyStyle(atom, style): string {
+function applyStyle(span: Span, style: Style): string {
+    // If no variant specified, don't change the font
+    if (!style.variant) return '';
+
     // letterShapeStyle will usually be set automatically, except when the
     // locale cannot be determined, in which case its value will be 'auto'
     // which we default to 'tex'
@@ -184,8 +184,8 @@ function applyStyle(atom, style): string {
         style.letterShapeStyle === 'auto' || !style.letterShapeStyle
             ? 'tex'
             : style.letterShapeStyle;
-    let variant = style.variant || 'normal';
-    let variantStyle = style.variantStyle || '';
+    let variant = style.variant;
+    let variantStyle = style.variantStyle;
 
     // 1. Remap to "main" font some characters that don't exist
     // in the "math" font
@@ -200,7 +200,7 @@ function applyStyle(atom, style): string {
     if (
         variant === 'normal' &&
         !variantStyle &&
-        /\u00a3|\u0131|\u0237/.test(atom.body)
+        /\u00a3|\u0131|\u0237/.test(span.value)
     ) {
         variant = 'main';
         variantStyle = 'italic';
@@ -208,10 +208,10 @@ function applyStyle(atom, style): string {
 
     // 2. If no explicit variant style, auto-italicize some symbols,
     // depending on the letterShapeStyle
-    if (variant === 'normal' && !variantStyle && atom.body.length === 1) {
+    if (variant === 'normal' && !variantStyle && span.value.length === 1) {
         LETTER_SHAPE_RANGES.forEach((x, i) => {
             if (
-                x.test(atom.body) &&
+                x.test(span.value) &&
                 LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it'
             ) {
                 variantStyle = 'italic';
@@ -233,27 +233,34 @@ function applyStyle(atom, style): string {
     // (return NULL to use default metrics)
     if (
         VARIANT_REPERTOIRE[variant] &&
-        !VARIANT_REPERTOIRE[variant].test(atom.body)
+        !VARIANT_REPERTOIRE[variant].test(span.value)
     ) {
         // Map to unicode character
-        atom.body = mathVariantToUnicode(atom.body, variant, variantStyle);
-        atom.variant = '';
-        atom.variantStyle = '';
+        span.value = mathVariantToUnicode(span.value, variant, variantStyle);
         // Return NULL to use default metrics
         return null;
     }
     // Lowercase greek letters have an incomplete repertoire (no bold)
     // so, for \mathbf to behave correctly, add a 'lcGreek' class.
-    if (GREEK_LOWERCASE.test(atom.body)) {
-        atom.classes += ' lcGreek';
+    if (GREEK_LOWERCASE.test(span.value)) {
+        span.classes += ' lcGreek';
     }
 
     // 5. Assign classes based on the font
     if (classes) {
-        atom.classes += ' ' + classes;
+        span.classes += ' ' + classes;
     }
 
     return fontName;
+}
+
+function variantString(atom: Atom): string {
+    const style = atom.computedStyle;
+    let result = style.variant ?? '';
+    if (style.variantStyle && style.variantStyle !== 'up') {
+        result += '-' + style.variantStyle;
+    }
+    return result;
 }
 
 register('math', {
