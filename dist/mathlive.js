@@ -22631,7 +22631,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         const scrollbarHeight = window.innerHeight - document.documentElement.clientHeight;
         const virtualkeyboardHeight = mf.virtualKeyboardVisible
-            ? mf.virtualKeyboard.offsetHeight
+            ? mf.virtualKeyboard.element.offsetHeight
             : 0;
         // prevent screen overflow horizontal.
         if (position.x + mf.popover.offsetWidth / 2 >
@@ -28517,6 +28517,35 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
 
     var css_248z$1 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__mathlive{display:inline-block;line-height:0;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .reset-textstyle.scriptstyle{font-size:.7em}.ML__mathlive .reset-textstyle.scriptscriptstyle{font-size:.5em}.ML__mathlive .reset-scriptstyle.textstyle{font-size:1.42857em}.ML__mathlive .reset-scriptstyle.scriptscriptstyle{font-size:.71429em}.ML__mathlive .reset-scriptscriptstyle.textstyle{font-size:2em}.ML__mathlive .reset-scriptscriptstyle.scriptstyle{font-size:1.4em}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .vlist{display:inline-block}.ML__mathlive .vlist>span{display:block;height:0;position:relative;line-height:0}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .mfrac>span{text-align:center}.ML__mathlive .mfrac .frac-line{width:100%}.ML__mathlive .mfrac .frac-line:after{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor;box-sizing:content-box;transform:translate(0)}.ML__mathlive .rspace.negativethinspace{margin-right:-.16667em}.ML__mathlive .rspace.thinspace{margin-right:.16667em}.ML__mathlive .rspace.negativemediumspace{margin-right:-.22222em}.ML__mathlive .rspace.mediumspace{margin-right:.22222em}.ML__mathlive .rspace.thickspace{margin-right:.27778em}.ML__mathlive .rspace.sixmuspace{margin-right:.333333em}.ML__mathlive .rspace.eightmuspace{margin-right:.444444em}.ML__mathlive .rspace.enspace{margin-right:.5em}.ML__mathlive .rspace.twelvemuspace{margin-right:.666667em}.ML__mathlive .rspace.quad{margin-right:1em}.ML__mathlive .rspace.qquad{margin-right:2em}.ML__mathlive .mspace{display:inline-block}.ML__mathlive .mspace.negativethinspace{margin-left:-.16667em}.ML__mathlive .mspace.thinspace{width:.16667em}.ML__mathlive .mspace.negativemediumspace{margin-left:-.22222em}.ML__mathlive .mspace.mediumspace{width:.22222em}.ML__mathlive .mspace.thickspace{width:.27778em}.ML__mathlive .mspace.sixmuspace{width:.333333em}.ML__mathlive .mspace.eightmuspace{width:.444444em}.ML__mathlive .mspace.enspace{width:.5em}.ML__mathlive .mspace.twelvemuspace{width:.666667em}.ML__mathlive .mspace.quad{width:1em}.ML__mathlive .mspace.qquad{width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .sqrt{display:inline-block}.ML__mathlive .sqrt>.sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__mathlive .sqrt .sqrt-line{height:.04em;width:100%}.ML__mathlive .sqrt .sqrt-line:before{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor}.ML__mathlive .sqrt .sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__mathlive .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.ML__mathlive .fontsize-ensurer,.ML__mathlive .sizing{display:inline-block}.ML__mathlive .fontsize-ensurer.reset-size1.size1,.ML__mathlive .sizing.reset-size1.size1{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size1.size2,.ML__mathlive .sizing.reset-size1.size2{font-size:1.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size3,.ML__mathlive .sizing.reset-size1.size3{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size1.size4,.ML__mathlive .sizing.reset-size1.size4{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size1.size5,.ML__mathlive .sizing.reset-size1.size5{font-size:2em}.ML__mathlive .fontsize-ensurer.reset-size1.size6,.ML__mathlive .sizing.reset-size1.size6{font-size:2.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size7,.ML__mathlive .sizing.reset-size1.size7{font-size:2.88em}.ML__mathlive .fontsize-ensurer.reset-size1.size8,.ML__mathlive .sizing.reset-size1.size8{font-size:3.46em}.ML__mathlive .fontsize-ensurer.reset-size1.size9,.ML__mathlive .sizing.reset-size1.size9{font-size:4.14em}.ML__mathlive .fontsize-ensurer.reset-size1.size10,.ML__mathlive .sizing.reset-size1.size10{font-size:4.98em}.ML__mathlive .fontsize-ensurer.reset-size2.size1,.ML__mathlive .sizing.reset-size2.size1{font-size:.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size2,.ML__mathlive .sizing.reset-size2.size2{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size2.size3,.ML__mathlive .sizing.reset-size2.size3{font-size:1.14285714em}.ML__mathlive .fontsize-ensurer.reset-size2.size4,.ML__mathlive .sizing.reset-size2.size4{font-size:1.28571429em}.ML__mathlive .fontsize-ensurer.reset-size2.size5,.ML__mathlive .sizing.reset-size2.size5{font-size:1.42857143em}.ML__mathlive .fontsize-ensurer.reset-size2.size6,.ML__mathlive .sizing.reset-size2.size6{font-size:1.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size7,.ML__mathlive .sizing.reset-size2.size7{font-size:2.05714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size8,.ML__mathlive .sizing.reset-size2.size8{font-size:2.47142857em}.ML__mathlive .fontsize-ensurer.reset-size2.size9,.ML__mathlive .sizing.reset-size2.size9{font-size:2.95714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size10,.ML__mathlive .sizing.reset-size2.size10{font-size:3.55714286em}.ML__mathlive .fontsize-ensurer.reset-size3.size1,.ML__mathlive .sizing.reset-size3.size1{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size3.size2,.ML__mathlive .sizing.reset-size3.size2{font-size:.875em}.ML__mathlive .fontsize-ensurer.reset-size3.size3,.ML__mathlive .sizing.reset-size3.size3{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size3.size4,.ML__mathlive .sizing.reset-size3.size4{font-size:1.125em}.ML__mathlive .fontsize-ensurer.reset-size3.size5,.ML__mathlive .sizing.reset-size3.size5{font-size:1.25em}.ML__mathlive .fontsize-ensurer.reset-size3.size6,.ML__mathlive .sizing.reset-size3.size6{font-size:1.5em}.ML__mathlive .fontsize-ensurer.reset-size3.size7,.ML__mathlive .sizing.reset-size3.size7{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size3.size8,.ML__mathlive .sizing.reset-size3.size8{font-size:2.1625em}.ML__mathlive .fontsize-ensurer.reset-size3.size9,.ML__mathlive .sizing.reset-size3.size9{font-size:2.5875em}.ML__mathlive .fontsize-ensurer.reset-size3.size10,.ML__mathlive .sizing.reset-size3.size10{font-size:3.1125em}.ML__mathlive .fontsize-ensurer.reset-size4.size1,.ML__mathlive .sizing.reset-size4.size1{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size4.size2,.ML__mathlive .sizing.reset-size4.size2{font-size:.77777778em}.ML__mathlive .fontsize-ensurer.reset-size4.size3,.ML__mathlive .sizing.reset-size4.size3{font-size:.88888889em}.ML__mathlive .fontsize-ensurer.reset-size4.size4,.ML__mathlive .sizing.reset-size4.size4{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size4.size5,.ML__mathlive .sizing.reset-size4.size5{font-size:1.11111111em}.ML__mathlive .fontsize-ensurer.reset-size4.size6,.ML__mathlive .sizing.reset-size4.size6{font-size:1.33333333em}.ML__mathlive .fontsize-ensurer.reset-size4.size7,.ML__mathlive .sizing.reset-size4.size7{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size4.size8,.ML__mathlive .sizing.reset-size4.size8{font-size:1.92222222em}.ML__mathlive .fontsize-ensurer.reset-size4.size9,.ML__mathlive .sizing.reset-size4.size9{font-size:2.3em}.ML__mathlive .fontsize-ensurer.reset-size4.size10,.ML__mathlive .sizing.reset-size4.size10{font-size:2.76666667em}.ML__mathlive .fontsize-ensurer.reset-size5.size1,.ML__mathlive .sizing.reset-size5.size1{font-size:.5em}.ML__mathlive .fontsize-ensurer.reset-size5.size2,.ML__mathlive .sizing.reset-size5.size2{font-size:.7em}.ML__mathlive .fontsize-ensurer.reset-size5.size3,.ML__mathlive .sizing.reset-size5.size3{font-size:.8em}.ML__mathlive .fontsize-ensurer.reset-size5.size4,.ML__mathlive .sizing.reset-size5.size4{font-size:.9em}.ML__mathlive .fontsize-ensurer.reset-size5.size5,.ML__mathlive .sizing.reset-size5.size5{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size5.size6,.ML__mathlive .sizing.reset-size5.size6{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size5.size7,.ML__mathlive .sizing.reset-size5.size7{font-size:1.44em}.ML__mathlive .fontsize-ensurer.reset-size5.size8,.ML__mathlive .sizing.reset-size5.size8{font-size:1.73em}.ML__mathlive .fontsize-ensurer.reset-size5.size9,.ML__mathlive .sizing.reset-size5.size9{font-size:2.07em}.ML__mathlive .fontsize-ensurer.reset-size5.size10,.ML__mathlive .sizing.reset-size5.size10{font-size:2.49em}.ML__mathlive .fontsize-ensurer.reset-size6.size1,.ML__mathlive .sizing.reset-size6.size1{font-size:.41666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size2,.ML__mathlive .sizing.reset-size6.size2{font-size:.58333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size3,.ML__mathlive .sizing.reset-size6.size3{font-size:.66666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size4,.ML__mathlive .sizing.reset-size6.size4{font-size:.75em}.ML__mathlive .fontsize-ensurer.reset-size6.size5,.ML__mathlive .sizing.reset-size6.size5{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size6,.ML__mathlive .sizing.reset-size6.size6{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size6.size7,.ML__mathlive .sizing.reset-size6.size7{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size6.size8,.ML__mathlive .sizing.reset-size6.size8{font-size:1.44166667em}.ML__mathlive .fontsize-ensurer.reset-size6.size9,.ML__mathlive .sizing.reset-size6.size9{font-size:1.725em}.ML__mathlive .fontsize-ensurer.reset-size6.size10,.ML__mathlive .sizing.reset-size6.size10{font-size:2.075em}.ML__mathlive .fontsize-ensurer.reset-size7.size1,.ML__mathlive .sizing.reset-size7.size1{font-size:.34722222em}.ML__mathlive .fontsize-ensurer.reset-size7.size2,.ML__mathlive .sizing.reset-size7.size2{font-size:.48611111em}.ML__mathlive .fontsize-ensurer.reset-size7.size3,.ML__mathlive .sizing.reset-size7.size3{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size7.size4,.ML__mathlive .sizing.reset-size7.size4{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size7.size5,.ML__mathlive .sizing.reset-size7.size5{font-size:.69444444em}.ML__mathlive .fontsize-ensurer.reset-size7.size6,.ML__mathlive .sizing.reset-size7.size6{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size7.size7,.ML__mathlive .sizing.reset-size7.size7{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size7.size8,.ML__mathlive .sizing.reset-size7.size8{font-size:1.20138889em}.ML__mathlive .fontsize-ensurer.reset-size7.size9,.ML__mathlive .sizing.reset-size7.size9{font-size:1.4375em}.ML__mathlive .fontsize-ensurer.reset-size7.size10,.ML__mathlive .sizing.reset-size7.size10{font-size:1.72916667em}.ML__mathlive .fontsize-ensurer.reset-size8.size1,.ML__mathlive .sizing.reset-size8.size1{font-size:.28901734em}.ML__mathlive .fontsize-ensurer.reset-size8.size2,.ML__mathlive .sizing.reset-size8.size2{font-size:.40462428em}.ML__mathlive .fontsize-ensurer.reset-size8.size3,.ML__mathlive .sizing.reset-size8.size3{font-size:.46242775em}.ML__mathlive .fontsize-ensurer.reset-size8.size4,.ML__mathlive .sizing.reset-size8.size4{font-size:.52023121em}.ML__mathlive .fontsize-ensurer.reset-size8.size5,.ML__mathlive .sizing.reset-size8.size5{font-size:.57803468em}.ML__mathlive .fontsize-ensurer.reset-size8.size6,.ML__mathlive .sizing.reset-size8.size6{font-size:.69364162em}.ML__mathlive .fontsize-ensurer.reset-size8.size7,.ML__mathlive .sizing.reset-size8.size7{font-size:.83236994em}.ML__mathlive .fontsize-ensurer.reset-size8.size8,.ML__mathlive .sizing.reset-size8.size8{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size8.size9,.ML__mathlive .sizing.reset-size8.size9{font-size:1.19653179em}.ML__mathlive .fontsize-ensurer.reset-size8.size10,.ML__mathlive .sizing.reset-size8.size10{font-size:1.43930636em}.ML__mathlive .fontsize-ensurer.reset-size9.size1,.ML__mathlive .sizing.reset-size9.size1{font-size:.24154589em}.ML__mathlive .fontsize-ensurer.reset-size9.size2,.ML__mathlive .sizing.reset-size9.size2{font-size:.33816425em}.ML__mathlive .fontsize-ensurer.reset-size9.size3,.ML__mathlive .sizing.reset-size9.size3{font-size:.38647343em}.ML__mathlive .fontsize-ensurer.reset-size9.size4,.ML__mathlive .sizing.reset-size9.size4{font-size:.43478261em}.ML__mathlive .fontsize-ensurer.reset-size9.size5,.ML__mathlive .sizing.reset-size9.size5{font-size:.48309179em}.ML__mathlive .fontsize-ensurer.reset-size9.size6,.ML__mathlive .sizing.reset-size9.size6{font-size:.57971014em}.ML__mathlive .fontsize-ensurer.reset-size9.size7,.ML__mathlive .sizing.reset-size9.size7{font-size:.69565217em}.ML__mathlive .fontsize-ensurer.reset-size9.size8,.ML__mathlive .sizing.reset-size9.size8{font-size:.83574879em}.ML__mathlive .fontsize-ensurer.reset-size9.size9,.ML__mathlive .sizing.reset-size9.size9{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size9.size10,.ML__mathlive .sizing.reset-size9.size10{font-size:1.20289855em}.ML__mathlive .fontsize-ensurer.reset-size10.size1,.ML__mathlive .sizing.reset-size10.size1{font-size:.20080321em}.ML__mathlive .fontsize-ensurer.reset-size10.size2,.ML__mathlive .sizing.reset-size10.size2{font-size:.2811245em}.ML__mathlive .fontsize-ensurer.reset-size10.size3,.ML__mathlive .sizing.reset-size10.size3{font-size:.32128514em}.ML__mathlive .fontsize-ensurer.reset-size10.size4,.ML__mathlive .sizing.reset-size10.size4{font-size:.36144578em}.ML__mathlive .fontsize-ensurer.reset-size10.size5,.ML__mathlive .sizing.reset-size10.size5{font-size:.40160643em}.ML__mathlive .fontsize-ensurer.reset-size10.size6,.ML__mathlive .sizing.reset-size10.size6{font-size:.48192771em}.ML__mathlive .fontsize-ensurer.reset-size10.size7,.ML__mathlive .sizing.reset-size10.size7{font-size:.57831325em}.ML__mathlive .fontsize-ensurer.reset-size10.size8,.ML__mathlive .sizing.reset-size10.size8{font-size:.69477912em}.ML__mathlive .fontsize-ensurer.reset-size10.size9,.ML__mathlive .sizing.reset-size10.size9{font-size:.8313253em}.ML__mathlive .fontsize-ensurer.reset-size10.size10,.ML__mathlive .sizing.reset-size10.size10{font-size:1em}.ML__mathlive .delimsizing.size1{font-family:KaTeX_Size1}.ML__mathlive .delimsizing.size2{font-family:KaTeX_Size2}.ML__mathlive .delimsizing.size3{font-family:KaTeX_Size3}.ML__mathlive .delimsizing.size4{font-family:KaTeX_Size4}.ML__mathlive .delimsizing.mult .delim-size1{font-family:KaTeX_Size1;vertical-align:top}.ML__mathlive .delimsizing.mult .delim-size4{font-family:KaTeX_Size4;vertical-align:top}.ML__mathlive .nulldelimiter{width:.12em}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .op-limits .vlist>span{text-align:center}.ML__mathlive .op-over-under{position:relative}.ML__mathlive .op-over-under>.vlist>span:first-child,.ML__mathlive .op-over-under>.vlist>span:last-child{text-align:center}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .accent .accent-body>span{font-family:KaTeX_Main;width:0}.ML__mathlive .accent .accent-body.accent-vec>span{position:relative;left:.326em}.ML__mathlive .mtable .vertical-separator{display:inline-block;margin:0 -.025em;border-right:.05em solid}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__composition{background:#fff1c2;color:#000;-webkit-text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%));text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%))}@media (prefers-color-scheme:dark){.ML__composition{background:#69571c;color:#fff}}.ML__placeholder{opacity:.7;padding-left:.4ex;padding-right:.4ex;padding-top:.4ex}";
 
+    class VirtualKeyboard {
+        constructor(mathfield) {
+            this.mathfield = mathfield;
+            this.element = document.createElement('div');
+            // Listen to know when the mouse has been released without being
+            // captured to remove the alternate keys panel and the shifted state of the
+            // keyboard.
+            // @todo should use a scrim instead (to prevent elements underneat the alt
+            // layer from reacting while the alt layer is up)
+            window.addEventListener('mouseup', this);
+            window.addEventListener('blur', this);
+            window.addEventListener('touchend', this);
+            window.addEventListener('touchcancel', this);
+        }
+        handleEvent(evt) {
+            switch (evt.type) {
+                case 'mouseup':
+                case 'blur':
+                case 'touchend':
+                case 'touchcancel':
+                    unshiftKeyboardLayer(this.mathfield);
+                    break;
+            }
+        }
+        dispose() {
+            releaseSharedElement(document.getElementById('mathlive-alternate-keys-panel'));
+            this.element.remove();
+        }
+    }
     const KEYBOARDS = {
         numeric: {
             tooltip: 'keyboard.tooltip.numeric',
@@ -29948,18 +29977,18 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 markup += '</div>';
             }
         }
-        const result = document.createElement('div');
-        result.className = 'ML__keyboard';
+        const result = new VirtualKeyboard(mf);
+        result.element.className = 'ML__keyboard';
         if (theme) {
-            result.classList.add(theme);
+            result.element.classList.add(theme);
         }
         else if (mf.options.virtualKeyboardTheme) {
-            result.classList.add(mf.options.virtualKeyboardTheme);
+            result.element.classList.add(mf.options.virtualKeyboardTheme);
         }
-        result.innerHTML = mf.options.createHTML(markup);
+        result.element.innerHTML = mf.options.createHTML(markup);
         // Attach the element handlers
-        makeKeycap(mf, [].slice.call(result.querySelectorAll('.keycap, .action, .fnbutton, .bigfnbutton')));
-        const elList = result.getElementsByClassName('layer-switch');
+        makeKeycap(mf, [].slice.call(result.element.querySelectorAll('.keycap, .action, .fnbutton, .bigfnbutton')));
+        const elList = result.element.getElementsByClassName('layer-switch');
         for (let i = 0; i < elList.length; ++i) {
             if (elList[i].classList.contains('shift')) {
                 // This is a potential press-and-hold layer switch
@@ -29988,7 +30017,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
         }
         // Select the first keyboard as the initial one.
-        const layerElements = result.getElementsByClassName('keyboard-layer');
+        const layerElements = result.element.getElementsByClassName('keyboard-layer');
         Array.from(layerElements).forEach((x) => {
             x.addEventListener('mousedown', (evt) => {
                 evt.preventDefault();
@@ -30000,30 +30029,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }, { passive: false });
         });
         layerElements[0].classList.add('is-visible');
-        // Listen to know when the mouse has been released without being
-        // captured to remove the alternate keys panel and the shifted state of the
-        // keyboard.
-        // @todo should use a scrim instead (to prevent elements underneat the alt
-        // layer from reacting while the alt layer is up)
-        window.addEventListener('mouseup', function () {
-            hideAlternateKeys();
-            unshiftKeyboardLayer(mf);
-        });
-        window.addEventListener('blur', function () {
-            hideAlternateKeys();
-            unshiftKeyboardLayer(mf);
-        });
-        window.addEventListener('touchend', function () {
-            hideAlternateKeys();
-            unshiftKeyboardLayer(mf);
-        });
-        window.addEventListener('touchcancel', function () {
-            hideAlternateKeys();
-            unshiftKeyboardLayer(mf);
-        });
         return result;
     }
-    function hideAlternateKeys(_mathfield) {
+    function hideAlternateKeys() {
         const altContainer = document.getElementById('mathlive-alternate-keys-panel');
         if (altContainer) {
             altContainer.classList.remove('is-visible');
@@ -30038,7 +30046,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      *
      */
     function unshiftKeyboardLayer(mathfield) {
-        const keycaps = mathfield.virtualKeyboard.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
+        var _a;
+        hideAlternateKeys();
+        const keycaps = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
         if (keycaps) {
             for (let i = 0; i < keycaps.length; i++) {
                 const keycap = keycaps[i];
@@ -30056,7 +30066,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     }
     function updateUndoRedoButtons(mathfield) {
         var _a;
-        const virtualKeyboardToolbar = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.querySelector('.keyboard-toolbar');
+        const virtualKeyboardToolbar = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelector('.keyboard-toolbar');
         if (virtualKeyboardToolbar) {
             const undoButton = virtualKeyboardToolbar.querySelector('[data-command=\'"undo"\']');
             const redoButton = virtualKeyboardToolbar.querySelector('[data-command=\'"redo"\']');
@@ -30082,8 +30092,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      */
     register$2({
         showAlternateKeys: (mathfield, keycap, altKeys) => {
+            var _a, _b;
             const altContainer = getSharedElement('mathlive-alternate-keys-panel', 'ML__keyboard alternate-keys');
-            if (mathfield.virtualKeyboard.classList.contains('material')) {
+            if ((_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.classList.contains('material')) {
                 altContainer.classList.add('material');
             }
             if (altKeys.length >= 7) {
@@ -30153,7 +30164,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             markup = '<ul>' + markup + '</ul>';
             altContainer.innerHTML = mathfield.options.createHTML(markup);
             makeKeycap(mathfield, [].slice.call(altContainer.getElementsByTagName('li')), 'performAlternateKeys');
-            const keycapEl = mathfield.virtualKeyboard.querySelector('div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
+            const keycapEl = (_b = mathfield.virtualKeyboard) === null || _b === void 0 ? void 0 : _b.element.querySelector('div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
                 keycap +
                 '"]');
             const position = keycapEl.getBoundingClientRect();
@@ -30185,6 +30196,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         },
     }, { target: 'virtual-keyboard' });
     function switchKeyboardLayer(mathfield, layer) {
+        var _a;
         if (mathfield.options.virtualKeyboardMode !== 'off') {
             if (layer !== 'lower-command' &&
                 layer !== 'upper-command' &&
@@ -30198,7 +30210,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // If we were in a temporarily shifted state (shift-key held down)
             // restore our state before switching to a new layer.
             unshiftKeyboardLayer(mathfield);
-            const layers = mathfield.virtualKeyboard.getElementsByClassName('keyboard-layer');
+            const layers = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.getElementsByClassName('keyboard-layer');
             // Search for the requested layer
             let found = false;
             for (let i = 0; i < layers.length; i++) {
@@ -30229,7 +30241,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      */
     register$2({
         shiftKeyboardLayer: (mathfield) => {
-            const keycaps = mathfield.virtualKeyboard.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
+            var _a;
+            const keycaps = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
             if (keycaps) {
                 for (let i = 0; i < keycaps.length; i++) {
                     const keycap = keycaps[i];
@@ -30266,7 +30279,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         },
     }, { target: 'virtual-keyboard' });
     register$2({
-        hideAlternateKeys: (mathfield) => hideAlternateKeys(),
+        hideAlternateKeys: () => hideAlternateKeys(),
         /*
          * The command invoked when an alternate key is pressed.
          * We need to hide the Alternate Keys panel, then perform the
@@ -30287,12 +30300,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     register$2({
         /* Toggle the virtual keyboard, but switch to the alternate theme if available */
         toggleVirtualKeyboardAlt: (mathfield) => {
+            var _a, _b;
             let hadAltTheme = false;
-            if (mathfield.virtualKeyboard) {
-                hadAltTheme = mathfield.virtualKeyboard.classList.contains('material');
-                mathfield.virtualKeyboard.remove();
+            if ((_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element) {
+                hadAltTheme = (_b = mathfield.virtualKeyboard) === null || _b === void 0 ? void 0 : _b.element.classList.contains('material');
+                mathfield.virtualKeyboard.dispose();
                 delete mathfield.virtualKeyboard;
-                mathfield.virtualKeyboard = null;
             }
             showVirtualKeyboard(mathfield, hadAltTheme ? '' : 'material');
             return false;
@@ -30307,11 +30320,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 dvorak: 'colemak',
                 colemak: 'qwerty',
             }[mathfield.options.virtualKeyboardLayout];
-            const layer = (_b = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.querySelector('div.keyboard-layer.is-visible').id) !== null && _b !== void 0 ? _b : '';
+            const layer = (_b = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelector('div.keyboard-layer.is-visible').id) !== null && _b !== void 0 ? _b : '';
             if (mathfield.virtualKeyboard) {
-                mathfield.virtualKeyboard.remove();
+                mathfield.virtualKeyboard.dispose();
                 delete mathfield.virtualKeyboard;
-                mathfield.virtualKeyboard = null;
             }
             showVirtualKeyboard(mathfield);
             if (layer) {
@@ -30331,32 +30343,35 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return false;
     }
     function toggleVirtualKeyboard(mathfield, theme) {
+        var _a, _b, _c;
         mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
         if (mathfield.virtualKeyboardVisible) {
             mathfield.focus();
-            if (mathfield.virtualKeyboard) {
-                mathfield.virtualKeyboard.classList.add('is-visible');
+            if ((_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element) {
+                mathfield.virtualKeyboard.element.classList.add('is-visible');
             }
             else {
                 // Construct the virtual keyboard
                 mathfield.virtualKeyboard = makeKeyboard(mathfield, theme);
                 // Let's make sure that tapping on the keyboard focuses the field
-                on(mathfield.virtualKeyboard, 'touchstart:passive mousedown', () => {
+                on(mathfield.virtualKeyboard.element, 'touchstart:passive mousedown', () => {
                     mathfield.focus();
                 });
-                document.body.appendChild(mathfield.virtualKeyboard);
+                document.body.appendChild(mathfield.virtualKeyboard.element);
             }
             // For the transition effect to work, the property has to be changed
             // after the insertion in the DOM. Use setTimeout
             window.setTimeout(() => {
-                mathfield.virtualKeyboard.classList.add('is-visible');
+                var _a;
+                (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.classList.add('is-visible');
             }, 1);
         }
-        else if (mathfield.virtualKeyboard) {
-            mathfield.virtualKeyboard.classList.remove('is-visible');
+        else if ((_b = mathfield.virtualKeyboard) === null || _b === void 0 ? void 0 : _b.element) {
+            mathfield.virtualKeyboard.element.classList.remove('is-visible');
         }
-        if (typeof mathfield.options.onVirtualKeyboardToggle === 'function') {
-            mathfield.options.onVirtualKeyboardToggle(mathfield, mathfield.virtualKeyboardVisible, mathfield.virtualKeyboard);
+        if (((_c = mathfield.virtualKeyboard) === null || _c === void 0 ? void 0 : _c.element) &&
+            typeof mathfield.options.onVirtualKeyboardToggle === 'function') {
+            mathfield.options.onVirtualKeyboardToggle(mathfield, mathfield.virtualKeyboardVisible, mathfield.virtualKeyboard.element);
         }
         return false;
     }
@@ -30787,9 +30802,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             delete this.popover;
             releaseSharedElement(this.keystrokeCaption);
             delete this.keystrokeCaption;
-            releaseSharedElement(this.virtualKeyboard);
-            delete this.virtualKeyboard;
-            releaseSharedElement(document.getElementById('mathlive-alternate-keys-panel'));
+            if (this.virtualKeyboard) {
+                this.virtualKeyboard.dispose();
+                delete this.virtualKeyboard;
+            }
             off(this.element, 'pointerdown', this);
             off(this.element, 'touchstart:active mousedown', this);
             off(this.element, 'focus', this);
@@ -33615,7 +33631,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // Save the state (in case the elements get reconnected later)
             const options = {};
             Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-                options[toCamelCase(x)] = __classPrivateFieldGet(this, _mathfield).getConfig(toCamelCase(x));
+                options[toCamelCase(x)] = __classPrivateFieldGet(this, _mathfield).getOption(toCamelCase(x));
             });
             gDeferredState.set(this, {
                 value: __classPrivateFieldGet(this, _mathfield).getValue(),
@@ -33955,7 +33971,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return element.getAttribute('data-' + ((_a = options.namespace) !== null && _a !== void 0 ? _a : '') + 'original-content');
     }
     // This SDK_VERSION variable will be replaced during the build process.
-    const version = '{{SDK_VERSION}}';
+    const version = '0.59.0';
     function deprecated$1(method) {
         console.warn(`Function "${method}" is deprecated`);
     }
@@ -34055,4 +34071,3 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=mathlive.js.map

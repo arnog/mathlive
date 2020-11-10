@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### Bug Fixes
+
+    - **#697** When using the `<math-field>` element the command popover did not
+    display correctly.
+
 ### Breaking Change
 
 -   Renamed `getCaretPosition()` and `setCaretPosition()` to `get/set caretPoint`
@@ -108,6 +113,8 @@
 -   **Unit testing usign Jest snapshot**
     Rewrote the unit test to use Jest snapshots for more comprehensive
     validation.
+
+## 0.59.0 (2020-11-04)
 
 ### Bug Fixes
 

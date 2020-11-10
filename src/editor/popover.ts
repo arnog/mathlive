@@ -398,7 +398,7 @@ function setPopoverPosition(
     const scrollbarHeight =
         window.innerHeight - document.documentElement.clientHeight;
     const virtualkeyboardHeight = mf.virtualKeyboardVisible
-        ? mf.virtualKeyboard.offsetHeight
+        ? mf.virtualKeyboard.element.offsetHeight
         : 0;
     // prevent screen overflow horizontal.
     if (
