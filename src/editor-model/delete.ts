@@ -188,12 +188,14 @@ function onDelete(
             (direction === 'backward' && branch === 'below')
         ) {
             // above last or below first: hoist
-            const pos = atom.leftSibling;
-            parent.addChildrenAfter(atom.removeBranch('below'), atom);
-            parent.addChildrenAfter(atom.removeBranch('above'), atom);
-            parent.removeChild(atom);
+            const above = atom.removeBranch('above');
+            const below = atom.removeBranch('below');
 
-            model.position = model.offsetOf(pos);
+            parent.addChildrenAfter([...above, ...below], atom);
+            parent.removeChild(atom);
+            model.position = model.offsetOf(
+                above.length > 0 ? above[above.length - 1] : below[0]
+            );
             return true;
         }
 
