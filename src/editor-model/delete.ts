@@ -177,6 +177,7 @@ function onDelete(
         //
         if (!branch) {
             // After or before atom
+            if (!atom.hasChildren) return false;
             model.position = model.offsetOf(
                 direction === 'forward' ? atom.firstChild : atom.lastChild
             );

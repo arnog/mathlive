@@ -23193,6 +23193,8 @@ function onDelete(model, direction, atom, branch) {
         //
         if (!branch) {
             // After or before atom
+            if (!atom.hasChildren)
+                return false;
             model.position = model.offsetOf(direction === 'forward' ? atom.firstChild : atom.lastChild);
             return true;
         }

@@ -23199,6 +23199,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             //
             if (!branch) {
                 // After or before atom
+                if (!atom.hasChildren)
+                    return false;
                 model.position = model.offsetOf(direction === 'forward' ? atom.firstChild : atom.lastChild);
                 return true;
             }
