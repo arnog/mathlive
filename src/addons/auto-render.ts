@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
 import '../core/atom';
-import { MACROS, MacroDictionary } from '../core/definitions';
+import { MACROS, MacroDictionary } from '../core-definitions/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
 import { ErrorListener, ParserErrorCode } from '../public/core';
 import { loadFonts } from '../core/fonts';

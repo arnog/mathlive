@@ -1,7 +1,8 @@
 import { MacroDictionary, ParseMode } from '../public/core';
 import { Mathstyle, MATHSTYLES } from './mathstyle';
+import { Span } from './span';
 
-export type ParseModePrivate =
+export type ArgumentType =
     | ParseMode
     | (
           | 'auto'
@@ -31,6 +32,7 @@ export interface ContextInterface {
     opacity?: number;
     color?: string;
     smartFence?: boolean;
+    phantomBase?: Span[];
 }
 
 /**
@@ -77,6 +79,8 @@ export class Context implements ContextInterface {
     opacity?: number;
     color?: string;
     smartFence?: boolean;
+    phantomBase?: Span[]; // The spans to use to calculate the placement of the sup/sub
+    // Used by 'msubsup' scaffolding atoms
 
     constructor(from: ContextInterface) {
         this.macros = from.macros ?? {};
@@ -93,6 +97,7 @@ export class Context implements ContextInterface {
 
         this.opacity = from.opacity;
         this.smartFence = from.smartFence;
+        this.phantomBase = from.phantomBase;
     }
 
     /**

@@ -1,5 +1,5 @@
 export * from './mathfield';
-export * from './mathfield-buttons';
+export * from '../editor-mathfield/buttons';
 
 export * from './model';
 

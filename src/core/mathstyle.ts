@@ -219,3 +219,9 @@ MATHSTYLES.displaystyle = MATHSTYLES[0];
 MATHSTYLES.textstyle = MATHSTYLES[2];
 MATHSTYLES.scriptstyle = MATHSTYLES[4];
 MATHSTYLES.scriptscriptstyle = MATHSTYLES[6];
+
+export type MathStyleName =
+    | 'displaystyle'
+    | 'textstyle'
+    | 'scriptstyle'
+    | 'scriptscriptstyle';

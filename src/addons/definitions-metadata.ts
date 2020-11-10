@@ -1,5 +1,5 @@
 /// ^.*('\\.*').*
-import { FUNCTIONS, MATH_SYMBOLS } from '../core/definitions';
+import { FUNCTIONS, MATH_SYMBOLS } from '../core-definitions/definitions';
 
 // Frequency of a symbol.
 // String constants corresponding to frequency values,

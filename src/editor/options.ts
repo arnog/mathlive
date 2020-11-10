@@ -3,14 +3,14 @@ import type { MathfieldOptions } from '../public/options';
 import { isArray } from '../common/types';
 
 import type { Atom } from '../core/atom';
-import { MACROS } from '../core/definitions';
+import { MACROS } from '../core-definitions/definitions';
 
-import type { MathfieldPrivate } from './mathfield-class';
-import type { ModelPrivate } from './model-class';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { l10n } from './l10n';
 import { defaultAnnounceHook } from './a11y';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
+import { gScriptUrl } from '../common/script-url';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // from 0.0 to 1.0
 
@@ -22,21 +22,31 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
     onAnnounce: (
         target: MathfieldPrivate,
         command: string, // verb
-        modelBefore: ModelPrivate,
+        previousPosition: number,
         atoms: Atom[] // object of the command
     ) => void; // @revisit 1.0: rename announceHook
 };
 
-function loadSound(sound: string | HTMLAudioElement): HTMLAudioElement {
-    if (typeof sound === 'string') {
-        const result: HTMLAudioElement = new Audio();
-        result.preload = 'none';
-        result.src = sound;
-        result.volume = AUDIO_FEEDBACK_VOLUME;
-
-        return result;
+function loadSound(
+    soundDirectory: string,
+    sound: string | HTMLAudioElement
+): HTMLAudioElement {
+    if (sound instanceof HTMLAudioElement) {
+        sound.load();
+        return sound;
     }
-    return sound;
+
+    const url = new URL(
+        (soundDirectory ?? './sounds') + '/' + sound,
+        gScriptUrl
+    ).toString();
+
+    const result: HTMLAudioElement = new Audio();
+    result.preload = 'auto';
+    result.src = url;
+    result.volume = AUDIO_FEEDBACK_VOLUME;
+    result.load();
+    return result;
 }
 
 function unloadSound(
@@ -48,6 +58,8 @@ function unloadSound(
     if (sound instanceof HTMLAudioElement) {
         sound.pause();
         sound.removeAttribute('src');
+        // Important to properly unload: call load() after removing the
+        // `src` attribute
         sound.load();
     }
 }
@@ -56,6 +68,8 @@ export function update(
     current: Required<MathfieldOptionsPrivate>,
     updates: Partial<MathfieldOptionsPrivate>
 ): Required<MathfieldOptionsPrivate> {
+    const soundsDirectory =
+        updates.soundsDirectory ?? current.soundsDirectory ?? './sounds';
     const result: Required<MathfieldOptionsPrivate> = get(
         current,
         Object.keys(current)
@@ -150,12 +164,18 @@ export function update(
                 break;
             case 'plonkSound':
                 unloadSound(result.plonkSound);
-                result.plonkSound = loadSound(updates.plonkSound);
+                result.plonkSound = loadSound(
+                    soundsDirectory,
+                    updates.plonkSound
+                );
                 break;
             case 'keypressSound':
                 unloadSound(result.keypressSound);
                 if (typeof updates.keypressSound === 'string') {
-                    const sound = loadSound(updates.keypressSound);
+                    const sound = loadSound(
+                        soundsDirectory,
+                        updates.keypressSound
+                    );
                     result.keypressSound = {
                         delete: sound,
                         return: sound,
@@ -174,18 +194,25 @@ export function update(
                         throw Error('Missing keypressSound.default');
                     }
                     result.keypressSound = { ...updates.keypressSound };
-                    if (!result.keypressSound.return) {
-                        result.keypressSound.return =
-                            updates.keypressSound.default;
-                    }
-                    if (!result.keypressSound.spacebar) {
-                        result.keypressSound.spacebar =
-                            updates.keypressSound.default;
-                    }
-                    if (!result.keypressSound.delete) {
-                        result.keypressSound.delete =
-                            updates.keypressSound.default;
-                    }
+                    result.keypressSound.default = loadSound(
+                        soundsDirectory,
+                        result.keypressSound.default
+                    );
+                    result.keypressSound.delete =
+                        loadSound(
+                            soundsDirectory,
+                            result.keypressSound.delete
+                        ) ?? updates.keypressSound.default;
+                    result.keypressSound.return =
+                        loadSound(
+                            soundsDirectory,
+                            result.keypressSound.return
+                        ) ?? updates.keypressSound.default;
+                    result.keypressSound.spacebar =
+                        loadSound(
+                            soundsDirectory,
+                            result.keypressSound.spacebar
+                        ) ?? updates.keypressSound.default;
                 }
                 break;
             case 'onBlur':
@@ -270,6 +297,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         readOnly: false,
         createHTML: (s: string): any => s,
         fontsDirectory: './fonts',
+        soundsDirectory: './sounds',
 
         defaultMode: 'math',
         macros: MACROS,

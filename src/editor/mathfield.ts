@@ -1,2 +1,2 @@
-export * from './mathfield-class';
-export * from './mathfield-utils';
+export * from '../editor-mathfield/mathfield-private';
+export * from '../editor-mathfield/utils';

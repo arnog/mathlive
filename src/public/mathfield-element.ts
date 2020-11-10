@@ -1,6 +1,13 @@
 import { MathfieldOptions } from './options';
 import { Selector } from './commands';
-import { InsertOptions, Mathfield, OutputFormat, Range } from './mathfield';
+import {
+    Mathfield,
+    InsertOptions,
+    OutputFormat,
+    Offset,
+    Range,
+    Selection,
+} from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
 
 import {
@@ -8,7 +15,8 @@ import {
     getDefault as getDefaultOptions,
     update as updateOptions,
 } from '../editor/options';
-import { MathfieldPrivate } from '../editor/mathfield-class';
+import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { isOffset, isRange, isSelection } from '../editor/model';
 
 //
 // Custom Events
@@ -131,7 +139,11 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 //
 const gDeferredState = new WeakMap<
     MathfieldElement,
-    { value: string; selection: Range[]; options: Partial<MathfieldOptions> }
+    {
+        value: string;
+        selection: Selection;
+        options: Partial<MathfieldOptions>;
+    }
 >();
 
 /**
@@ -233,6 +245,7 @@ const gDeferredState = new WeakMap<
  * | `disabled` | `disabled` |
  * | `default-mode` | `options.defaultMode` |
  * | `fonts-directory` | `options.fontsDirectory` |
+ * | `sounds-directory` | `options.soundsDirectory` |
  * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
  * | `ignore-spacebar-in-math-mode` | `options.ignoreSpacbarInMathMode` |
  * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
@@ -352,6 +365,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     */
     constructor(options?: Partial<MathfieldOptions>) {
         super();
+
         this.attachShadow({ mode: 'open' });
         this.shadowRoot.appendChild(MATHFIELD_TEMPLATE.content.cloneNode(true));
         const slot = this.shadowRoot.querySelector<HTMLSlotElement>(
@@ -360,8 +374,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
         // When the elements get focused (through tabbing for example)
         // focus the mathfield
-        this.shadowRoot.host.addEventListener('focus', (_event) =>
-            this.focus()
+        this.shadowRoot.host.addEventListener(
+            'focus',
+            (_event) => this.focus(),
+            true
         );
 
         // Inline options (as a JSON structure in the markup)
@@ -462,7 +478,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             if (gDeferredState.has(this)) {
                 gDeferredState.set(this, {
                     value: gDeferredState.get(this).value,
-                    selection: [{ start: 0, end: -1 }],
+                    selection: { ranges: [[0, -1]] },
                     options: {
                         ...gDeferredState.get(this).options,
                         ...options,
@@ -471,7 +487,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             } else {
                 gDeferredState.set(this, {
                     value: '',
-                    selection: [{ start: 0 }],
+                    selection: { ranges: [[0, 0]] },
                     options: options,
                 });
             }
@@ -505,47 +521,39 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     /**
      *  @category Accessing and changing the content
      */
-    getValue(format?: OutputFormat): string;
-    getValue(start: number, end?: number, format?: OutputFormat): string;
+    getValue(): string;
+    getValue(format: OutputFormat): string;
+    getValue(start: Offset, end: Offset, format?: OutputFormat): string;
     getValue(range: Range, format?: OutputFormat): string;
-    getValue(ranges: Range[], format?: OutputFormat): string;
+    getValue(selection: Selection, format?: OutputFormat): string;
     getValue(
-        arg1?: number | OutputFormat | Range | Range[],
-        arg2?: number | OutputFormat,
+        arg1?: Offset | Range | Selection | OutputFormat,
+        arg2?: Offset | OutputFormat,
         arg3?: OutputFormat
     ): string {
-        let ranges: Range[];
-        let format: OutputFormat;
-        if (typeof arg1 === 'undefined') {
-            format = 'latex';
-            ranges = [{ start: 0, end: -1 }];
-        } else if (typeof arg1 === 'string') {
-            format = arg1;
-            ranges = [{ start: 0, end: -1 }];
-        } else if (typeof arg1 === 'number' && typeof arg2 === 'number') {
-            ranges = [
-                {
-                    start: arg1,
-                    end: arg2 ?? -1,
-                },
-            ];
-            format = arg3 ?? 'latex';
-        } else if (Array.isArray(arg1)) {
-            ranges = arg1;
-            format = (arg2 as OutputFormat) ?? 'latex';
-        } else {
-            ranges = [arg1 as Range];
-            format = (arg2 as OutputFormat) ?? 'latex';
-        }
         if (this.#mathfield) {
-            return this.#mathfield.getValue(ranges, format);
+            return this.#mathfield.getValue(arg1 as any, arg2 as any, arg3);
         }
         if (gDeferredState.has(this)) {
-            const fullRange =
-                ranges.length === 1 &&
-                ranges[0].start === 0 &&
-                ranges[0].end === -1;
-            if (format === 'latex' && fullRange) {
+            let start: Offset;
+            let end: Offset;
+            let format: OutputFormat;
+            if (isSelection(arg1)) {
+                [start, end] = arg1.ranges[0];
+                format = arg2 as OutputFormat;
+            } else if (isRange(arg1)) {
+                [start, end] = arg1;
+                format = arg2 as OutputFormat;
+            } else if (isOffset(arg1) && isOffset(arg2)) {
+                start = arg1;
+                end = arg2;
+                format = arg3 as OutputFormat;
+            } else {
+                start = 0;
+                end = -1;
+                format = arg1 as OutputFormat;
+            }
+            if (format === 'latex' && start === 0 && end === -1) {
                 return gDeferredState.get(this).value;
             }
         }
@@ -563,14 +571,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         if (gDeferredState.has(this)) {
             gDeferredState.set(this, {
                 value,
-                selection: [{ start: 0, end: -1, direction: 'forward' }],
+                selection: { ranges: [[0, -1]], direction: 'forward' },
                 options: gDeferredState.get(this).options,
             });
             return;
         }
         gDeferredState.set(this, {
             value,
-            selection: [{ start: 0, end: -1, direction: 'forward' }],
+            selection: { ranges: [[0, -1]], direction: 'forward' },
             options: getOptionsFromAttributes(this),
         });
     }
@@ -677,8 +685,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * An array is always returned, but it has no element if there are no
      * matching items.
      */
-    find(latex: string): Range[] {
-        return this.#mathfield?.find(latex) ?? [];
+    find(value: string | RegExp): Range[] {
+        return this.#mathfield?.find(value) ?? [];
     }
     /**
      * Custom elements lifecycle hooks
@@ -692,10 +700,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         this.#mathfield = new MathfieldPrivate(
             this.shadowRoot.querySelector(':host > div'),
             {
-                ...getOptionsFromAttributes(this),
-                ...(gDeferredState.has(this)
-                    ? gDeferredState.get(this).options
-                    : {}),
                 onBlur: () => {
                     this.dispatchEvent(
                         new Event('blur', {
@@ -836,20 +840,41 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                         })
                     );
                 },
+                ...getOptionsFromAttributes(this),
+                ...(gDeferredState.has(this)
+                    ? gDeferredState.get(this).options
+                    : {}),
             }
         );
 
-        if (gDeferredState.has(this)) {
-            const suppressChangeNotifications = this.#mathfield.model
-                .suppressChangeNotifications;
-            this.#mathfield.model.suppressChangeNotifications = true;
-            this.#mathfield.setValue(gDeferredState.get(this).value);
-            this.#mathfield.selection = gDeferredState.get(this).selection;
-            gDeferredState.delete(this);
-            this.#mathfield.model.suppressChangeNotifications = suppressChangeNotifications;
+        this.upgradeProperty('disabled');
+
+        // The mathfield creation could have failed
+        if (!this.#mathfield || !this.#mathfield.model) {
+            this.#mathfield = null;
+            return;
         }
 
-        this.upgradeProperty('disabled');
+        this.#mathfield.field.parentElement.addEventListener(
+            'focus',
+            (_event) => {
+                this.focus();
+            },
+            true
+        );
+
+        if (gDeferredState.has(this)) {
+            this.#mathfield.model.deferNotifications(
+                { content: false, selection: false },
+                () => {
+                    this.#mathfield.setValue(gDeferredState.get(this).value);
+                    this.#mathfield.selection = gDeferredState.get(
+                        this
+                    ).selection;
+                    gDeferredState.delete(this);
+                }
+            );
+        }
 
         // Notify listeners that we're mounted and ready
         this.dispatchEvent(
@@ -966,21 +991,21 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * @category Selection
      *
      */
-    get selection(): Range[] {
+    get selection(): Selection {
         if (this.#mathfield) {
             return this.#mathfield.selection;
         }
         if (gDeferredState.has(this)) {
             return gDeferredState.get(this).selection;
         }
-        return [{ start: 0, direction: 'forward' }];
+        return { ranges: [[0, 0]], direction: 'forward' };
     }
 
     /**
      *
      * @category Selection
      */
-    set selection(value: Range[]) {
+    set selection(value: Selection) {
         if (this.#mathfield) {
             this.#mathfield.selection = value;
         }
@@ -1000,32 +1025,28 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     * The position of the caret/insertion point, from 0 to `lastPosition`.
+     * The position of the caret/insertion point, from 0 to `lastOffset`.
      *
      * @category Selection
      *
      */
-    get position(): number {
-        const selection = this.selection;
-        if (selection[selection.length - 1].direction === 'backward') {
-            return selection[selection.length - 1].start;
-        }
-        return selection[0].end ?? selection[0].start;
+    get position(): Offset {
+        return this.#mathfield.model.position;
     }
 
     /**
      * @category Selection
      */
-    set position(value: number) {
-        this.selection = [{ start: value }];
+    set position(offset: Offset) {
+        this.#mathfield.model.position = offset;
     }
 
     /**
-     * The last valid position.
+     * The last valid offset.
      * @category Selection
      */
-    get lastPosition(): number {
-        return this.#mathfield?.lastPosition ?? -1;
+    get lastOffset(): Offset {
+        return this.#mathfield?.lastOffset ?? -1;
     }
 }
 

@@ -1,13 +1,14 @@
-import './atom-accent';
-import './atom-array';
-import './atom-box';
-import './atom-enclose';
-import './atom-genfrac';
-import './atom-leftright';
-import './atom-line';
-import './atom-op';
-import './atom-overunder';
-import './atom-phantom';
-import './atom-surd';
+import '../core-atoms/accent';
+import '../core-atoms/array';
+import '../core-atoms/box';
+import '../core-atoms/enclose';
+import '../core-atoms/genfrac';
+import '../core-atoms/leftright';
+import '../core-atoms/line';
+import '../core-atoms/operator';
+import '../core-atoms/overunder';
+import '../core-atoms/phantom';
+import '../core-atoms/surd';
 
+export * from './atom-class';
 export * from './atom-utils';

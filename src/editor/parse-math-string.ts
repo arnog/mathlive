@@ -1,3 +1,4 @@
+import { OutputFormat } from '../public/mathfield';
 import { InlineShortcutDefinition, getInlineShortcut } from './shortcuts';
 
 /**
@@ -35,10 +36,10 @@ import { InlineShortcutDefinition, getInlineShortcut } from './shortcuts';
 export function parseMathString(
     s: string,
     options?: {
-        format?: string;
+        format?: OutputFormat;
         inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
     }
-): [string, string] {
+): [OutputFormat, string] {
     if (!s) return ['latex', ''];
 
     // Nothing to do if a single character
@@ -89,7 +90,7 @@ export function parseMathString(
     s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
     return [
-        options?.format || 'ASCIIMath',
+        options?.format ?? 'ASCIIMath',
         parseMathExpression(s, options ?? {}),
     ];
 }
@@ -124,7 +125,7 @@ function parseMathExpression(
                 inlineShortcuts: options?.inlineShortcuts ?? {},
                 noWrap: true,
             });
-            const sqrtArgument = m.match || '\\placeholder{}';
+            const sqrtArgument = m.match ?? '\\placeholder{}';
             s = '\\sqrt{' + sqrtArgument + '}';
             s += parseMathExpression(m.rest, options);
             done = true;
@@ -139,7 +140,7 @@ function parseMathExpression(
                 inlineShortcuts: options?.inlineShortcuts ?? {},
                 noWrap: true,
             });
-            const sqrtArgument = m.match || '\\placeholder{}';
+            const sqrtArgument = m.match ?? '\\placeholder{}';
             s = '\\sqrt[3]{' + sqrtArgument + '}';
             s += parseMathExpression(m.rest, options);
             done = true;

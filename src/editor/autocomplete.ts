@@ -1,121 +1,118 @@
-import { Atom } from '../core/atom';
-import { parseString } from '../core/parser';
-import { suggest } from '../core/definitions-utils';
+import { ParseMode } from '../public/core';
+import type { Atom } from '../core/atom';
+import { CommandAtom } from '../core-atoms/command';
 
-import type { ModelPrivate } from './model-class';
-import { register as registerCommand } from './commands';
-import { hidePopover, showPopoverWithLatex } from './popover';
-import { insert } from './model-insert';
+import { suggest } from '../core-definitions/definitions-utils';
+
+import type { ModelPrivate } from '../editor-model/model-private';
+import { contentDidChange } from '../editor-model/listeners';
 import {
-    decorateCommandStringAroundInsertionPoint,
-    extractCommandStringAroundInsertionPoint,
-    spliceCommandStringAroundInsertionPoint,
-} from './model-command-mode';
-import { removeSuggestion } from './model-utils';
-import { setPositionAfterCommitedCommand } from './model-selection';
-import type { MathfieldPrivate } from './mathfield-class';
-import { requestUpdate } from './mathfield-render';
+    getCommandString,
+    getCommandRange,
+    getCommandSuggestionRange,
+    getCommandAtoms,
+} from '../editor-model/command-mode';
 
-export function insertSuggestion(
-    model: ModelPrivate,
-    s: string,
-    l: number
-): void {
-    removeSuggestion(model);
+import { register as registerCommand } from './commands';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { hidePopover, showPopoverWithLatex } from './popover';
+import { insert } from '../editor-model/insert';
+import { parseString } from '../core/parser';
+import { requestUpdate } from '../editor-mathfield/render';
 
-    const mathlist = [];
+export function acceptCommandSuggestion(model: ModelPrivate): void {
+    model
+        .getAtoms(getCommandSuggestionRange(model))
+        .forEach((x: CommandAtom) => {
+            x.isSuggestion = false;
+        });
+}
 
-    // Make a mathlist from the string argument with the `suggestion` property set
-    const subs = s.substr(l);
-    for (const c of subs) {
-        const atom = new Atom('command', 'command', c);
-        atom.isSuggestion = true;
-        mathlist.push(atom);
+export function insertSuggestion(model: ModelPrivate, s: string): void {
+    // Remove any previous suggestion
+    model.deleteAtoms(getCommandSuggestionRange(model));
+
+    const atoms = [];
+    for (const c of s) {
+        atoms.push(new CommandAtom(c, { isSuggestion: true }));
     }
 
-    // Splice in the mathlist after the insertion point, but don't change the
-    // insertion point
-    Array.prototype.splice.apply(
-        model.siblings(),
-        [model.anchorOffset() + 1, 0].concat(mathlist)
-    );
+    const cursor = model.at(model.position);
+    cursor.parent.addChildrenAfter(atoms, cursor);
 }
 
 /**
- * When in command mode, insert the select command and return to math mode
- * If escape is true, the command is discared.
- * @param options.discard if true, the command is discarded and the
+ * When in command mode, insert the command in progress and leave command mode
+ *
+ * @param options.discard if true, the entire command is discarded and the
  * mode switched back to math
  * @param options.acceptSuggestion if true, accept the suggestion to
  * complete the command. Otherwise, only use what has been entered so far.
  */
 export function complete(
     mathfield: MathfieldPrivate,
-    options?: {
-        discard?: boolean;
-        acceptSuggestion?: boolean;
-    }
+    completion: 'reject' | 'accept' | 'accept-with-suggestion',
+    options?: { mode: ParseMode }
 ): boolean {
-    options = options ?? { acceptSuggestion: false };
     hidePopover(mathfield);
-    if (options.discard) {
-        spliceCommandStringAroundInsertionPoint(mathfield.model, null);
+
+    if (completion === 'reject') {
+        mathfield.model.deleteAtoms(getCommandRange(mathfield.model));
+        mathfield.switchMode(options?.mode ?? 'math');
+        return true;
+    }
+    const command = getCommandString(mathfield.model, {
+        withSuggestion: completion === 'accept-with-suggestion',
+    });
+    if (!command) return false;
+
+    if (command === '\\(' || command === '\\)') {
+        mathfield.model.deleteAtoms(getCommandRange(mathfield.model));
+        insert(mathfield.model, command.slice(1), {
+            mode: mathfield.mode,
+        });
+    } else {
+        // We'll assume we want to insert in math mode
+        // (commands are only available in math mode)
         mathfield.switchMode('math');
-        return true;
-    }
-    const command = extractCommandStringAroundInsertionPoint(
-        mathfield.model,
-        !options.acceptSuggestion
-    );
-    if (command) {
-        if (command === '\\(' || command === '\\)') {
-            spliceCommandStringAroundInsertionPoint(mathfield.model, []);
-            insert(mathfield.model, command.slice(1), {
-                mode: mathfield.mode,
-            });
+        // Interpret the input as LaTeX code
+        const atoms = parseString(
+            command,
+            'math',
+            null,
+            mathfield.options.macros
+        );
+        if (atoms) {
+            insertCommand(mathfield.model, atoms);
         } else {
-            // We'll assume we want to insert in math mode
-            // (commands are only available in math mode)
-            mathfield.switchMode('math');
-            // Interpret the input as LaTeX code
-            const mathlist = parseString(
-                command,
-                'math',
-                null,
-                mathfield.options.macros
-            );
-            if (mathlist) {
-                spliceCommandStringAroundInsertionPoint(
-                    mathfield.model,
-                    mathlist
-                );
-            } else {
-                decorateCommandStringAroundInsertionPoint(
-                    mathfield.model,
-                    true
-                );
-            }
+            getCommandAtoms(mathfield.model).forEach((x) => {
+                x.isError = true;
+            });
         }
-        mathfield.snapshot();
-        mathfield.model.announce('replacement');
-        return true;
     }
-    return false;
+    mathfield.snapshot();
+    mathfield.model.announce('replacement');
+    return true;
 }
 
 function updateSuggestion(mathfield: MathfieldPrivate): boolean {
-    setPositionAfterCommitedCommand(mathfield.model);
-    removeSuggestion(mathfield.model);
-    const command = extractCommandStringAroundInsertionPoint(mathfield.model);
+    const model = mathfield.model;
+    model.deleteAtoms(getCommandSuggestionRange(model));
+    const command = getCommandString(model);
     const suggestions = suggest(command);
     if (suggestions.length === 0) {
         hidePopover(mathfield);
-        decorateCommandStringAroundInsertionPoint(mathfield.model, true);
+        getCommandAtoms(mathfield.model).forEach((x) => {
+            x.isError = true;
+        });
     } else {
         const index = mathfield.suggestionIndex % suggestions.length;
         const l = command.length - suggestions[index].match.length;
         if (l !== 0) {
-            insertSuggestion(mathfield.model, suggestions[index].match, l);
+            insertSuggestion(
+                mathfield.model,
+                suggestions[index].match.substr(l)
+            );
         }
         showPopoverWithLatex(
             mathfield,
@@ -141,15 +138,46 @@ function previousSuggestion(mathfield: MathfieldPrivate): boolean {
         // We're rolling over
         // Get the list of suggestions, so we can know how many there are
         // Not very efficient, but simple.
-        removeSuggestion(mathfield.model);
-        const command = extractCommandStringAroundInsertionPoint(
-            mathfield.model
-        );
-        const suggestions = suggest(command);
+        mathfield.model.deleteAtoms(getCommandSuggestionRange(mathfield.model));
+        const suggestions = suggest(getCommandString(mathfield.model));
         mathfield.suggestionIndex = suggestions.length - 1;
     }
     updateSuggestion(mathfield);
     return false;
+}
+
+function insertCommand(model: ModelPrivate, atoms: Atom[]): void {
+    let didChange = model.deleteAtoms(getCommandRange(model));
+
+    if (atoms) {
+        // Find any placeholders in the new atoms
+        const placeholders = [];
+        atoms.forEach((atom) =>
+            atom.children.forEach((x) => {
+                if (x.type === 'placeholder') placeholders.push(x);
+            })
+        );
+
+        // Insert the new atoms
+        const cursor = model.at(model.position);
+        cursor.parent.addChildrenAfter(atoms, cursor);
+        didChange = true;
+
+        // Change the selection
+        if (placeholders.length > 0) {
+            const offset = model.offsetOf(placeholders[0]);
+            console.assert(offset >= 0);
+            model.setSelection(offset - 1, offset);
+        } else {
+            // No placeholder, move after the last new atom
+            model.position = model.offsetOf(atoms[atoms.length - 1]);
+        }
+    }
+
+    if (didChange) {
+        // Dispatch notifications
+        contentDidChange(model);
+    }
 }
 
 registerCommand(

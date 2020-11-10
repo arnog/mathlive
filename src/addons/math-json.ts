@@ -7,14 +7,17 @@
 import { isArray } from '../common/types';
 
 import { Atom, AtomType } from '../core/atom';
+import { ArrayAtom } from '../core-atoms/array';
 import { parseString } from '../core/parser';
 import { joinLatex } from '../core/tokenizer';
 import {
     unicodeStringToLatex,
     getInfo,
     mathVariantToUnicode,
-    RIGHT_DELIM,
-} from '../core/definitions';
+} from '../core-definitions/definitions';
+import { LeftRightAtom } from '../core-atoms/leftright';
+import { SizedDelimAtom } from '../core-atoms/delim';
+import { RIGHT_DELIM } from '../core/delimiters';
 
 export type MathJsonLatexOptions = {
     precision?: number;
@@ -636,12 +639,12 @@ function getString(atom) {
     if (atom.type === 'leftright') {
         return '';
     }
-    if (typeof atom.body === 'string') {
-        return atom.body;
+    if (typeof atom.value === 'string') {
+        return atom.value;
     }
-    if (isArray(atom.body)) {
+    if (isArray(atom.branch('body'))) {
         let result = '';
-        for (const subAtom of atom.body) {
+        for (const subAtom of atom.branch('body')) {
             result += getString(subAtom);
         }
         return result;
@@ -797,8 +800,8 @@ function parseSupsub(expr, options) {
     // Is there a supsub directly on this atom?
     if (
         atom &&
-        (typeof atom.superscript !== 'undefined' ||
-            typeof atom.subscript !== 'undefined')
+        (typeof atom.branches?.superscript !== 'undefined' ||
+            typeof atom.branches?.subscript !== 'undefined')
     ) {
         // Move to the following atom
         expr.index += 1;
@@ -813,7 +816,7 @@ function parseSupsub(expr, options) {
         if (
             !atom ||
             atom.type !== 'msubsup' ||
-            !(atom.superscript || atom.subscript)
+            !(atom.branches?.superscript || atom.branches?.subscript)
         ) {
             atom = null;
         } else {
@@ -823,18 +826,24 @@ function parseSupsub(expr, options) {
     }
 
     if (atom) {
-        if (typeof atom.subscript !== 'undefined') {
-            expr.ast.sub = parse(atom.subscript, options);
+        if (typeof atom.branches?.subscript !== 'undefined') {
+            expr.ast.sub = parse(atom.branches?.subscript, options);
         }
-        if (typeof atom.superscript !== 'undefined') {
+        if (typeof atom.branches?.superscript !== 'undefined') {
             if (atom.type === 'msubsup') {
-                if (/['\u2032]|\\prime/.test(getString(atom.superscript))) {
+                if (
+                    /['\u2032]|\\prime/.test(
+                        getString(atom.branches?.superscript)
+                    )
+                ) {
                     expr.index += 1;
                     atom = expr.atoms[expr.index + 1];
                     if (
                         atom &&
                         atom.type === 'msubsup' &&
-                        /['\u2032]|\\prime/.test(getString(atom.superscript))
+                        /['\u2032]|\\prime/.test(
+                            getString(atom.branches?.superscript)
+                        )
                     ) {
                         expr.ast.sup = { sym: '\u2033' }; // DOUBLE-PRIME
                     } else {
@@ -842,14 +851,16 @@ function parseSupsub(expr, options) {
                         expr.index -= 1;
                     }
                 } else if (
-                    /['\u2033]|\\doubleprime/.test(getString(atom.superscript))
+                    /['\u2033]|\\doubleprime/.test(
+                        getString(atom.branches?.superscript)
+                    )
                 ) {
                     expr.ast.sup = { sym: '\u2033' }; // DOUBLE-PRIME
                 } else if (expr.ast) {
-                    expr.ast.sup = parse(atom.superscript, options);
+                    expr.ast.sup = parse(atom.branches?.superscript, options);
                 }
             } else {
-                expr.ast.sup = parse(atom.superscript, options);
+                expr.ast.sup = parse(atom.branches?.superscript, options);
             }
         }
     } else {
@@ -930,12 +941,12 @@ function parseDelim(
         // and return it as a function application
         let pairedDelim = true;
         if (atom.type === 'mopen') {
-            ldelim = atom.symbol;
+            ldelim = atom.value;
             rdelim = RIGHT_DELIM[ldelim];
         } else if (atom.type === 'sizeddelim') {
-            ldelim = atom.delim;
+            ldelim = atom.value;
             rdelim = RIGHT_DELIM[ldelim];
-        } else if (atom.type === 'leftright') {
+        } else if (atom instanceof LeftRightAtom) {
             pairedDelim = false;
             ldelim = atom.leftDelim;
             rdelim = atom.rightDelim;
@@ -943,14 +954,14 @@ function parseDelim(
             // matching the left delim
             if (rdelim === '?') rdelim = RIGHT_DELIM[ldelim];
         } else if (atom.type === 'textord') {
-            ldelim = atom.symbol;
+            ldelim = atom.value;
             rdelim = RIGHT_DELIM[ldelim];
         }
         if (ldelim && rdelim) {
             if (ldelim === '|' && rdelim === '|') {
                 // Check if this could be a ||x|| instead of |x|
                 const atom = expr.atoms[expr.index + 1];
-                if (atom && atom.type === 'textord' && atom.symbol === '|') {
+                if (atom && atom.type === 'textord' && atom.value === '|') {
                     // Yes, it's a ||x||
                     ldelim = '\\lVert';
                     rdelim = '\\rVert';
@@ -994,10 +1005,10 @@ function parseDelim(
     } else if (
         ldelim === '\\lVert' &&
         atom.type === 'textord' &&
-        atom.symbol === '|'
+        atom.value === '|'
     ) {
         atom = expr.atoms[expr.index + 1];
-        if (atom && atom.type === 'textord' && atom.symbol === '|') {
+        if (atom && atom.type === 'textord' && atom.value === '|') {
             // This is an opening ||
             expr.index += 2; // Skip the open delim
             expr = parseExpression(expr, options);
@@ -1006,10 +1017,10 @@ function parseDelim(
             if (
                 atom &&
                 atom.type === 'textord' &&
-                atom.symbol === '|' &&
+                atom.value === '|' &&
                 atom2 &&
                 atom2.type === 'textord' &&
-                atom2.symbol === '|'
+                atom2.value === '|'
             ) {
                 // This was a closing ||
                 expr.index += 2;
@@ -1017,23 +1028,23 @@ function parseDelim(
                 expr = parsePostfix(expr, options);
             }
         }
-    } else if (atom.type === 'sizeddelim' && atom.delim === ldelim) {
+    } else if (atom.type === 'sizeddelim' && atom.value === ldelim) {
         expr.index += 1; // Skip the open delim
         expr = parseExpression(expr, options);
         atom = expr.atoms[expr.index];
-        if (atom && atom.type === 'sizeddelim' && atom.delim === rdelim) {
+        if (atom && atom.type === 'sizeddelim' && atom.value === rdelim) {
             expr.index += 1;
             expr = parseSupsub(expr, options);
             expr = parsePostfix(expr, options);
         } // TODO: else, syntax error?
     } else if (
-        atom.type === 'leftright' &&
+        atom instanceof LeftRightAtom &&
         atom.leftDelim === ldelim &&
         (atom.rightDelim === '?' || atom.rightDelim === rdelim)
     ) {
         // This atom type includes the content of the parenthetical expression
         // in its body
-        expr.ast = parse(atom.body as Atom[], options);
+        expr.ast = parse(atom.branch('body'), options);
         if (nextIsSupsub(expr)) {
             // Wrap in a group if we have an upcoming superscript or subscript
             expr.ast = { group: expr.ast };
@@ -1125,7 +1136,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
             expr.atoms[expr.index] &&
             expr.atoms[expr.index].mode === 'text'
         ) {
-            text += expr.atoms[expr.index].body;
+            text += expr.atoms[expr.index].value;
             expr.index += 1;
         }
         expr.ast = { text: text };
@@ -1139,7 +1150,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
         expr.ast = wrapFn(expr.ast, parsePrimary(expr, options).ast);
     } else if (atom.type === 'root') {
         expr.index = 0;
-        expr.atoms = atom.body as Atom[];
+        expr.atoms = atom.branch('body');
         return parsePrimary(expr, options);
     } else if (atom.type === 'mbin' && val === '-') {
         // Prefix - sign
@@ -1151,7 +1162,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
         expr.index += 1; // Skip the '+' symbol
         expr = parsePrimary(expr, options);
         expr.ast = wrapFn('add', expr.ast);
-    } else if (atom.type === 'mord' && /^[0-9.]$/.test(atom.symbol)) {
+    } else if (atom.type === 'mord' && /^[0-9.]$/.test(atom.value)) {
         // Looks like a number
         let num = '';
         let done = false;
@@ -1163,7 +1174,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
                 ((isAtom(expr, 'mord') ||
                     isAtom(expr, 'mpunct', ',') ||
                     isAtom(expr, 'mbin')) &&
-                    pat.test(expr.atoms[expr.index].symbol)))
+                    pat.test(expr.atoms[expr.index].value)))
         ) {
             if (expr.atoms[expr.index].type === 'spacing') {
                 expr.index += 1;
@@ -1173,7 +1184,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
             ) {
                 done = true;
             } else {
-                let digit = expr.atoms[expr.index].symbol;
+                let digit = expr.atoms[expr.index].value;
                 if (digit === 'd' || digit === 'D') {
                     digit = 'e';
                     pat = /^[0-9+-.]$/;
@@ -1206,8 +1217,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
         if (
             atom &&
             atom.type === 'group' &&
-            atom.symbol &&
-            atom.symbol.startsWith('\\nicefrac')
+            atom.command.startsWith('\\nicefrac')
         ) {
             // \nicefrac macro, add an invisible plus
             const lhs = expr.ast;
@@ -1254,7 +1264,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
         // in parseExpression()
         if (!isOperator(atom)) {
             // This doesn't look like a textord operator
-            if (!RIGHT_DELIM[atom.symbol || (atom.body as string)]) {
+            if (!RIGHT_DELIM[atom.value]) {
                 // Not an operator, not a fence, it's a symbol or a function
                 if (isFunction(val)) {
                     // It's a function
@@ -1281,13 +1291,13 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
         if (
-            (/^\\(mathop|operatorname|operatorname\*)/.test(atom.symbol) ||
+            (/^\\(mathop|operatorname|operatorname\*)/.test(atom.command) ||
                 isFunction(val)) &&
             !isOperator(atom)
         ) {
             expr.ast = {
-                fn: /^\\(mathop|operatorname|operatorname\*)/.test(atom.symbol)
-                    ? getString(atom.body)
+                fn: /^\\(mathop|operatorname|operatorname\*)/.test(atom.command)
+                    ? getString(atom.branch('body'))
                     : val,
             };
             expr = parseSupsub(expr, options);
@@ -1345,7 +1355,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
         return expr;
     } else if (atom.type === 'error') {
         expr.index += 1;
-        expr.ast = { error: atom.symbol };
+        expr.ast = { error: atom.command };
         return expr;
     }
 
@@ -1371,8 +1381,6 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
                 expr.ast.error = 'Unexpected token ' + "'" + atom.type + "'";
                 if (atom.latex) {
                     expr.ast.latex = atom.latex;
-                } else if (atom.body && atom.toLatex) {
-                    expr.ast.latex = atom.toLatex();
                 }
             }
             expr.index += 1; // Skip the unexpected token, and attempt to continue
@@ -1389,9 +1397,9 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
             atom.type === 'sizeddelim' ||
             atom.type === 'leftright')
     ) {
-        if (atom.type === 'sizeddelim') {
+        if (atom instanceof SizedDelimAtom) {
             for (const d in RIGHT_DELIM) {
-                if (atom.delim === RIGHT_DELIM[d]) {
+                if (atom.value === RIGHT_DELIM[d]) {
                     // This is (most likely) a closing delim, exit.
                     // There are ambiguous cases, for example |x|y|z|.
                     expr.index += 1;
@@ -1684,26 +1692,27 @@ export function atomToMathJson(
     let sym = '';
     let m;
     let lhs, rhs;
+    const style = atom.computedStyle;
     let variant =
         MATH_VARIANTS[
-            atom.variant +
-                (!atom.variantStyle || atom.variantStyle === 'up'
+            style.variant +
+                (!style.variantStyle || style.variantStyle === 'up'
                     ? ''
-                    : '-' + atom.variantStyle)
+                    : '-' + style.variantStyle)
         ];
     let variantSym;
 
-    let style = '';
-    if (atom.fontSeries === 'b') style += 'bold';
-    if (atom.fontShape === 'it') style += 'italic';
+    let styleString = '';
+    if (style.fontSeries === 'b') styleString += 'bold';
+    if (style.fontShape === 'it') styleString += 'italic';
 
-    const command = atom.symbol;
+    const command = atom.command;
     switch (atom.type) {
         case 'root':
         case 'group':
             // Macros appear as group as well. Handle some of them.
-            if (atom.symbol?.startsWith('\\nicefrac')) {
-                m = atom.symbol.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
+            if (command?.startsWith('\\nicefrac')) {
+                m = command.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
                 if (m) {
                     if (m[1].length === 1) {
                         lhs = m[1];
@@ -1728,7 +1737,7 @@ export function atomToMathJson(
                     result = { fn: 'divide' };
                 }
             } else {
-                result = { group: parse(atom.body as Atom[], options) };
+                result = { group: parse(atom.branch('body'), options) };
             }
             break;
 
@@ -1736,22 +1745,22 @@ export function atomToMathJson(
             // If there's no denominator, or a placeholder, use "1" as the value
             result = wrapFn(
                 'divide',
-                parse(atom.numer, options),
-                atom.denom?.[0]?.type === 'placeholder'
+                parse(atom.above, options),
+                atom.below?.[0]?.type === 'placeholder'
                     ? wrapNum(1)
-                    : parse(atom.denom, options)
+                    : parse(atom.below, options)
             );
             break;
 
         case 'surd':
-            if (atom.index) {
+            if (!atom.hasEmptyBranch('above')) {
                 result = wrapFn(
                     'pow',
-                    parse(atom.body as Atom[], options),
-                    wrapFn('divide', wrapNum(1), parse(atom.index, options))
+                    parse(atom.body, options),
+                    wrapFn('divide', wrapNum(1), parse(atom.above, options))
                 );
             } else {
-                result = wrapFn('sqrt', parse(atom.body as Atom[], options));
+                result = wrapFn('sqrt', parse(atom.body, options));
             }
             break;
 
@@ -1780,18 +1789,20 @@ export function atomToMathJson(
                 if (sym.length > 0 && sym.charAt(0) === '\\') {
                     // This is an identifier with no special handling.
                     // Use the Unicode value if outside ASCII range
-                    if (typeof atom.body === 'string') {
+                    if (typeof atom.value === 'string') {
                         // TODO: consider making this an option?
-                        // if (atom.body.charCodeAt(0) > 255) {
+                        // if (atom.branch('body').charCodeAt(0) > 255) {
                         //     sym = '&#x' + ('000000' +
-                        //         atom.body.charCodeAt(0).toString(16)).substr(-4) + ';';
+                        //         atom.branch('body').charCodeAt(0).toString(16)).substr(-4) + ';';
                         // } else {
-                        sym = atom.body;
+                        sym = atom.value;
                         // }
                     }
                 }
             }
-            variantSym = escapeText(mathVariantToUnicode(sym, variant, style));
+            variantSym = escapeText(
+                mathVariantToUnicode(sym, variant, styleString)
+            );
             if (variantSym !== sym) {
                 // If there's a specific Unicode character matching this one
                 // no need to record a variant.
@@ -1813,7 +1824,7 @@ export function atomToMathJson(
             break;
 
         case 'box':
-            result = parse(atom.body as Atom[], options);
+            result = parse(atom.branch('body'), options);
             break;
 
         case 'enclose':
@@ -1825,46 +1836,50 @@ export function atomToMathJson(
             //         sep = ' ';
             //     }
             // }
-            // result += '">' + toAST(atom.body).mathML + '</menclose>';
+            // result += '">' + toAST(atom.branch('body')).mathML + '</menclose>';
             break;
 
         case 'array':
-            if (atom.environmentName === 'cardinality') {
-                // @revisit... It's an environment, but not an array...?
-                result = wrapFn(
-                    'card',
-                    parse((atom.array as unknown) as Atom[], options)
-                );
-            } else if (
-                /array|matrix|pmatrix|bmatrix/.test(atom.environmentName)
-            ) {
-                result = { fn: 'array', args: [] };
-                for (const row of atom.array) {
-                    result.args.push(row.map((cell) => parse(cell, options)));
-                }
-            } else if (atom.environmentName === 'cases') {
-                result = { fn: 'cases', args: [] };
-                for (const row of atom.array) {
-                    if (row[0]) {
-                        const statement = [];
-                        statement.push(parse(row[0], options));
-                        let condition = parse(row[1], options);
-                        if (condition) {
-                            if (condition.fn === 'text' && condition.arg) {
-                                if (
-                                    /^(if|when|for)$/i.test(
-                                        condition.arg[0].trim()
-                                    )
-                                ) {
-                                    condition = condition.arg.filter(
-                                        (x) => typeof x !== 'string'
-                                    );
+            if (atom instanceof ArrayAtom) {
+                if (atom.environmentName === 'cardinality') {
+                    // @revisit... It's an environment, but not an array...?
+                    result = wrapFn(
+                        'card',
+                        parse((atom.array as unknown) as Atom[], options)
+                    );
+                } else if (
+                    /array|matrix|pmatrix|bmatrix/.test(atom.environmentName)
+                ) {
+                    result = { fn: 'array', args: [] };
+                    for (const row of atom.array) {
+                        result.args.push(
+                            row.map((cell) => parse(cell, options))
+                        );
+                    }
+                } else if (atom.environmentName === 'cases') {
+                    result = { fn: 'cases', args: [] };
+                    for (const row of atom.array) {
+                        if (row[0]) {
+                            const statement = [];
+                            statement.push(parse(row[0], options));
+                            let condition = parse(row[1], options);
+                            if (condition) {
+                                if (condition.fn === 'text' && condition.arg) {
+                                    if (
+                                        /^(if|when|for)$/i.test(
+                                            condition.arg[0].trim()
+                                        )
+                                    ) {
+                                        condition = condition.arg.filter(
+                                            (x) => typeof x !== 'string'
+                                        );
+                                    }
                                 }
                             }
-                        }
 
-                        statement.push(condition ?? {});
-                        result.args.push(statement);
+                            statement.push(condition ?? {});
+                            result.args.push(statement);
+                        }
                     }
                 }
             }
@@ -1872,7 +1887,6 @@ export function atomToMathJson(
 
         case 'spacing':
         case 'space':
-        case 'mathstyle':
             break;
         default:
             result = undefined;
@@ -1880,20 +1894,13 @@ export function atomToMathJson(
                 'Unhandled atom "' +
                     atom.type +
                     '" in "' +
-                    (atom.symbol || atom.body) +
+                    (atom.command ?? atom.branch('body')) +
                     '"'
             );
     }
 
     if (result && variant && variant !== 'normal') {
         result.variant = variant;
-    }
-
-    if (result && typeof atom.cssClass === 'string') {
-        result.class = atom.cssClass;
-    }
-    if (result && typeof atom.cssId === 'string') {
-        result.id = atom.cssId;
     }
 
     return result;
@@ -1914,27 +1921,27 @@ function filterPresentationAtoms(
         if (atoms.type === 'spacing' || atoms.type === 'first') {
             return [];
         } else if (atoms.type === 'box') {
-            result = filterPresentationAtoms(atoms.body as Atom[]);
+            result = filterPresentationAtoms(atoms.branch('body'));
         } else {
-            if (atoms.body && isArray(atoms.body)) {
-                atoms.body = filterPresentationAtoms(atoms.body);
+            if (!atoms.hasEmptyBranch('body')) {
+                atoms.setChildren(
+                    filterPresentationAtoms(atoms.branch('body')),
+                    'body'
+                );
             }
-            if (atoms.superscript && isArray(atoms.superscript)) {
-                atoms.superscript = filterPresentationAtoms(atoms.superscript);
+            if (!atoms.hasEmptyBranch('superscript')) {
+                atoms.setChildren(
+                    filterPresentationAtoms(atoms.branch('superscript')),
+                    'superscript'
+                );
             }
-            if (atoms.subscript && isArray(atoms.subscript)) {
-                atoms.subscript = filterPresentationAtoms(atoms.subscript);
+            if (!atoms.hasEmptyBranch('subscript')) {
+                atoms.setChildren(
+                    filterPresentationAtoms(atoms.branch('subscript')),
+                    'subscript'
+                );
             }
-            if (atoms.index && isArray(atoms.index)) {
-                atoms.index = filterPresentationAtoms(atoms.index);
-            }
-            if (atoms.denom && isArray(atoms.denom)) {
-                atoms.denom = filterPresentationAtoms(atoms.denom);
-            }
-            if (atoms.numer && isArray(atoms.numer)) {
-                atoms.numer = filterPresentationAtoms(atoms.numer);
-            }
-            if (atoms.array && isArray(atoms.array)) {
+            if (atoms instanceof ArrayAtom) {
                 atoms.array = atoms.array.map((row) =>
                     row.map((cell) => filterPresentationAtoms(cell))
                 );
@@ -1966,7 +1973,7 @@ function parseSentence(
                 expr.atoms[expr.index] &&
                 expr.atoms[expr.index].mode === 'text'
             ) {
-                text += expr.atoms[expr.index].body;
+                text += expr.atoms[expr.index].value;
                 expr.index += 1;
             }
             zones.push(wrapFn('text', text));

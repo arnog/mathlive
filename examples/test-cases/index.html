@@ -6,6 +6,7 @@
     <title>MathLive Testing Playground</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="/dist/mathlive-fonts.css" />
 
     <!-- <link rel="stylesheet" href="/dist/mathlive-static.css" /> -->
     <style>
@@ -47,8 +48,14 @@
         <h1>MathLive Testing Playground</h1>
     </header>
     <main class='centered'>
-        <math-field id="mf" class="mathfield" style="max-width: 400px; width:100%" tabindex="0"
-            virtual-keyboard-mode="manual"></math-field>
+        <math-field id="mf" class="mathfield" style="max-width: 400px; width:100%" tabindex="0" smart-fence="true"
+            virtual-keyboard-mode="manual">
+            {{{{
+
+            <!--  $$x+\left(\sqrt{x+1}+1\right)+\sum_0^4n^2+\frac{1+x}{x-1}\int^{\infty}_0x\mathrm{d}x+\boxed{\frac{1}{x}}\colorbox{yellow}{\sqrt{\frac{1}{x}}}\cancel{x^2+1}\xRightarrow[\text{above}]{\text{below}}$$
+            -->
+            <!-- x=x^2_{b+1}+\frac{1}{2_{56}}^{34}_{56}+\sqrt{23}+\sqrt[45]{67}+\box{x+1}+\xRightarrow[below]{above}^2+\begin{matrix}1&2&3\\4\\5&6\end{matrix} -->
+        </math-field>
 
         <div class="centered"><input id='ta' placeholder="Find Latex"></input></div>
 
@@ -75,10 +82,10 @@
         <!-- -123, 456.789, -->
         <!-- x_5 -->
         <!-- -5-3-2 -->
-        <!-- 12+ -- >
-        <!-- \lbrack\rbrack -- >
+        <!-- 12+ -->
+        <!-- \lbrack\rbrack -->
         <!-- \foo  -->
-        <!-- (a,,b) -- >
+        <!-- (a,,b) -->
         <!--       a\le b \overline{z} \overrightarrow{ABC} -->
         <!-- $$(deadbeef)_{16}$$ -->
         <!-- \partial^2_{x,y} f(x,y) -->
@@ -87,8 +94,8 @@
         <!-- -0+0(\frac{0}{\frac{0}{0}}-0) -->
         <!-- x_0 + x_{0} +  x_n + x_{n+1}-->
         <!-- -2x5z\sqrt{y}\frac{3}{4}3\pi y} -->
-        <!-- \sin^{-1}\prime(x)      \sin^{-1}'(x) -- >
-        <!-- "\begin{align*}\dot{x} & =\sigma(y-x) \\ \dot{y} & =\rho x-y-xz \\ \dot{z} & =-\beta z+xy\end{align*}" ->
+        <!-- \sin^{-1}\prime(x)      \sin^{-1}'(x) -->
+        <!-- "\begin{align*}\dot{x} & =\sigma(y-x) \\ \dot{y} & =\rho x-y-xz \\ \dot{z} & =-\beta z+xy\end{align*}" -->
         <!-- i, 2i, -i -->
         <!-- 2{xy} should create group -->
 
@@ -130,16 +137,6 @@
                     join('<br>');
 
         }
-
-        document.getElementById('mf').setOptions({
-            inlineShortcuts: {
-                // ㄱ: '\\sqrt',
-                sq: '\\sqrt{#0}',
-                // ㄱㄴ: '\\sqrt{#0}',
-                "ㄱㄴ": '\\sqrt{#0}',
-            }
-        });
-
         const ta = document.getElementById('ta');
         ta.addEventListener('change', (ev) => {
             gSearchLatex = ta.value;
@@ -147,7 +144,17 @@
         });
 
         const mf = document.getElementById('mf');
-        mf.selection = [{ start: 2, end: 5 }];
+        mf.setOptions({
+            inlineShortcuts: {
+                // ㄱ: '\\sqrt',
+                sq: '\\sqrt{#0}',
+                // ㄱㄴ: '\\sqrt{#0}',
+                "ㄱㄴ": '\\sqrt{#0}',
+            },
+            onError: (ev) => { console.log('Error :' + ev.code); }
+        });
+
+        mf.selection = [2, 5];
         mf.addEventListener('input', (ev) => {
             updateContent(mf);
             applySearchTerm();
@@ -155,14 +162,18 @@
         mf.addEventListener('change', (ev) => {
         });
         mf.addEventListener('selection-change', (ev) => {
-            const selection = mf.selection[0];
+            const selection = mf.selection;
+            // console.assert(selection.ranges[0][0] !== 2 || selection.ranges[0][1] !== 3);
             document.getElementById('selection').innerHTML =
-                label("start     ") + selection.start + "<br>" +
-                label("end       ") + selection.end + "<br>" +
-                label("depth     ") + selection.depth + "<br>" +
+                // label("anchor    ") + mf.anchor + "<br>" +
+                label("position  ") + mf.position + "<br>" +
+                label("start     ") + selection.ranges[0][0] + "<br>" +
+                label("end       ") + selection.ranges[0][1] + "<br>" +
                 label("direction ") + '\"' + selection.direction + "\"<br>" +
-                label("collapsed ") + (selection.collapsed ? "true" : "false") + "<br>" +
                 label("value     ") + '\"' + mf.getValue(selection) + '"'
+        });
+        mf.addEventListener('math-error', (ev) => {
+            console.log('Error :' + ev.detail.code);
         });
         updateContent(mf);
         applySearchTerm();

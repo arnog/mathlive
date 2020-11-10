@@ -152,14 +152,16 @@ class Tokenizer {
             // This could be either a param token, or a literal # (used for
             // colorspecs, for example). A param token is a '#' followed by
             // - a digit 0-9 followed by a non-alpha, non-digit
-            // - or '?'.
+            // - or '?' (to indicate a placeholder)
+            // - or '@' (to indicate an implicit, optional, argument)
             // Otherwise, it's a literal '#'.
             if (!this.end()) {
                 let isParam = false;
-                if (/[0-9?]/.test(this.peek())) {
+                if (/[0-9?@]/.test(this.peek())) {
                     // Could be a param
                     isParam = true;
                     // Need to look ahead to the following char
+                    // (to exclude, e.g. '#1c1b2d': it's not a '#' token, it's a color)
                     if (this.pos + 1 < this.s.length) {
                         const after = this.s[this.pos + 1];
                         isParam = /[^0-9A-Za-z]/.test(after);
@@ -239,7 +241,7 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
             do {
                 if (tokens.length === 0) {
                     // We're out of tokens to look at, get some more
-                    if (/^#[0-9?]$/.test(lex.peek())) {
+                    if (/^#[0-9?@]$/.test(lex.peek())) {
                         // Expand parameters (but not commands)
                         const param = lex.get().slice(1);
                         tokens = tokenize(

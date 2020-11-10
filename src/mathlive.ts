@@ -6,11 +6,11 @@ import type {
     MathfieldErrorCode,
 } from './public/core';
 
-import { decompose } from './core/atom-utils';
+import { Atom } from './core/atom-class';
 import { parseString } from './core/parser';
 import { coalesce, makeSpan, makeStruts } from './core/span';
-import { MACROS, MacroDictionary } from './core/definitions';
-import { MathfieldPrivate } from './editor/mathfield-class';
+import { MACROS, MacroDictionary } from './core-definitions/definitions';
+import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
 import AutoRender from './addons/auto-render';
 import {
     MathJsonLatexOptions,
@@ -91,7 +91,7 @@ export function convertLatexToMarkup(
     // 2. Transform the math atoms into elementary spans
     //    for example from genfrac to vlist.
     //
-    let spans = decompose(
+    let spans = Atom.render(
         {
             mathstyle: MATHSTYLES[options.mathstyle],
             letterShapeStyle: options.letterShapeStyle,
@@ -106,8 +106,6 @@ export function convertLatexToMarkup(
     //
     spans = coalesce(spans);
 
-    if (options.format === 'span') return (spans as unknown) as string;
-
     //
     // 4. Wrap the expression with struts
     //
@@ -117,7 +115,7 @@ export function convertLatexToMarkup(
     // 5. Generate markup
     //
 
-    return wrapper.toMarkup();
+    return wrapper.toMarkup({ hscale: 1.0 });
 }
 
 export function convertLatexToMathMl(

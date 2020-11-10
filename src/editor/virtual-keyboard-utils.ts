@@ -1,18 +1,20 @@
-import { decompose } from '../core/atom';
+import { Atom } from '../core/atom';
 import { makeSpan, makeStruts } from '../core/span';
 import { parseString } from '../core/parser';
 import { LINE_COLORS, AREA_COLORS } from '../core/color';
 import { localize as l10n } from './l10n';
 import { MATHSTYLES } from '../core/mathstyle';
-import { attachButtonHandlers } from './mathfield-buttons';
-import { isValidMathfield, releaseSharedElement } from './mathfield-utils';
+import { attachButtonHandlers } from '../editor-mathfield/buttons';
+import { releaseSharedElement } from '../editor-mathfield/utils';
 
-import type { MathfieldPrivate } from './mathfield-class';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
 
 // @ts-ignore
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
+// @ts-ignore
+import coreStylesheet from '../../css/core.less';
 import { VirtualKeyboardLayer } from '../public/options';
 
 export class VirtualKeyboard {
@@ -542,7 +544,7 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <li class='keycap tex small' data-alt-keys='int' data-latex='\\int_0^\\infty'><span></span></li>
                 <li class='keycap tex' data-latex='\\forall' data-alt-keys='logic' ></li>
-                <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
+                <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'>&#x232b;</li></ul>
             </ul>
             <ul>
                 <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
@@ -643,7 +645,7 @@ const LAYERS = {
                 <li class='action font-glyph bottom right w15'
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
+                    data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
             </ul>
             <ul>
@@ -692,7 +694,7 @@ const LAYERS = {
                 <li class='action font-glyph bottom right w15'
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
+                    data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
             </ul>
             <ul>
@@ -735,7 +737,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='{\\char"392}'>&Beta;<aside>beta</aside></li>
                 <li class='keycap tex' data-insert='{\\char"39D}'>&Nu;<aside>nu</aside></li>
                 <li class='keycap tex' data-insert='{\\char"39C}'>&Mu;<aside>mu</aside></li>
-                <li class='action font-glyph bottom right w15' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
+                <li class='action font-glyph bottom right w15' data-command='["performWithFeedback","deleteBackward"]'>&#x232b;</li></ul>
             <ul>
                 <li class='separator w10'>&nbsp;</li>
                 <li class='keycap'>.</li>
@@ -790,7 +792,7 @@ const LAYERS = {
                 <li class='action font-glyph bottom right'
                     data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
+                    data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
             </ul>
             <ul>
@@ -837,7 +839,7 @@ const LAYERS = {
                 <li class='bigfnbutton' data-insert='$$\\operatorname{round}(#?) $$' data-latex='\\operatorname{round}()'></li>
                 <li class='bigfnbutton' data-insert='$$\\prod_{n\\mathop=0}^{\\infty}$$' data-latex='{\\scriptstyle \\prod_{n=0}^{\\infty}}'></li>
                 <li class='bigfnbutton' data-insert='$$\\frac{\\differentialD #0}{\\differentialD x}$$'></li>
-                <li class='action font-glyph bottom right' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
+                <li class='action font-glyph bottom right' data-command='["performWithFeedback","deleteBackward"]'>&#x232b;</li></ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton'>(</li>
                 <li class='fnbutton'>)</li>
@@ -894,7 +896,7 @@ function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
 
     return makeStruts(
         makeSpan(
-            decompose(
+            Atom.render(
                 {
                     mathstyle: MATHSTYLES.displaystyle,
                     macros: mf.options.macros,
@@ -1215,7 +1217,7 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
                             : 'w15';
                     row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
-                        data-alt-keys='delete' data-command='["performWithFeedback","deletePreviousChar"]'
+                        data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                         >&#x232b;</li>`;
                 } else if (c === ' ') {
                     // Separator
@@ -1250,7 +1252,7 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
                         "'" +
                         ` data-command='["typedText","` +
                         c +
-                        `",{"commandMode":true, "focus":true, "feedback":true}]'` +
+                        `",{"mode":"command", "focus":true, "feedback":true}]'` +
                         '>' +
                         c +
                         '</li>';
@@ -1333,6 +1335,7 @@ export function makeKeyboard(
     let markup = svgIcons;
 
     injectStylesheet(null, virtualKeyboardStylesheet);
+    injectStylesheet(null, coreStylesheet);
 
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];
@@ -1688,8 +1691,6 @@ export function hideAlternateKeys(): boolean {
  *
  */
 export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
-    if (!isValidMathfield(mathfield)) return false;
-
     hideAlternateKeys();
 
     const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(

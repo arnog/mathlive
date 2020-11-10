@@ -1,4 +1,4 @@
-import { render } from './mathfield-render';
+import { render } from '../editor-mathfield/render';
 import { MathfieldOptions } from '../public/options';
 
 function removeHighlight(element: Element): void {

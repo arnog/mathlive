@@ -11,7 +11,7 @@
             "runtimeArgs": [
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/.bin/jest",
-                "test/math.test.ts",
+                "test/latex.test.ts",
                 "--runInBand"
             ],
             "console": "integratedTerminal",

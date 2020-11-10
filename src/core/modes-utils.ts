@@ -3,12 +3,13 @@ import {
     Style,
     MacroDictionary,
     ParserErrorCode,
+    ParseMode,
 } from '../public/core';
 
 import type { Span } from './span';
 import type { Token } from './tokenizer';
-import type { Atom } from './atom';
-import type { ParseModePrivate } from './context';
+import { Atom, ToLatexOptions } from './atom';
+import type { ArgumentType } from './context';
 
 export interface ParseTokensOptions {
     args: (string | Atom[])[];
@@ -16,10 +17,31 @@ export interface ParseTokensOptions {
     smartFence: boolean;
     style: Style;
     parse: (
-        mode: ParseModePrivate,
+        mode: ArgumentType,
         tokens: Token[],
         options: ParseTokensOptions
     ) => [Atom[], Token[]];
+}
+/*
+ * Return an array of runs with the same mode
+ */
+export function getModeRuns(atoms: Atom[]): Atom[][] {
+    const result = [];
+    let run = [];
+    let currentMode = 'NONE';
+    atoms.forEach((atom) => {
+        if (atom.type === 'first') return;
+        if (atom.mode !== currentMode) {
+            if (run.length > 0) result.push(run);
+            run = [atom];
+            currentMode = atom.mode;
+        } else {
+            run.push(atom);
+        }
+    });
+    // Push whatever is left
+    if (run.length > 0) result.push(run);
+    return result;
 }
 
 /*
@@ -31,26 +53,29 @@ export function getPropertyRuns(atoms: Atom[], property: string): Atom[][] {
     let run = [];
     let currentValue: string;
     atoms.forEach((atom: Atom) => {
-        if (atom.type !== 'first') {
-            let value: string;
-            if (property === 'variant') {
-                value = atom.variant;
-                if (atom.variantStyle && atom.variantStyle !== 'up') {
-                    value += '-' + atom.variantStyle;
-                }
-            } else {
-                value = atom[property];
+        if (atom.type === 'first') return;
+        let value: string;
+        if (property === 'variant') {
+            value = atom.style.variant;
+            if (atom.style.variantStyle && atom.style.variantStyle !== 'up') {
+                value += '-' + atom.style.variantStyle;
             }
-            // If the value of this atom is different from the
+        } else if (property === 'cssClass') {
+            if (atom.type === 'group') {
+                value = atom['customClass'];
+            }
+        } else {
+            value = atom.style[property];
+        }
+        if (value === currentValue) {
+            // Same value, add it to the current run
+            run.push(atom);
+        } else {
+            // The value of property for this atom is different from the
             // current value, start a new run
-            if (value !== currentValue) {
-                if (run.length > 0) result.push(run);
-                run = [atom];
-                currentValue = value;
-            } else {
-                // Same value, add it to the current run
-                run.push(atom);
-            }
+            if (run.length > 0) result.push(run);
+            run = [atom];
+            currentValue = value;
         }
     });
 
@@ -64,11 +89,7 @@ export const MODES_REGISTRY = {};
 export function register(
     name: string,
     definition: {
-        emitLatexRun: (
-            context: Atom,
-            run: Atom[],
-            expandMacro: boolean
-        ) => string;
+        emitLatexRun: (run: Atom[], options: ToLatexOptions) => string;
         applyStyle: (span: Span, style: Style) => string;
         parse?: (
             tokens: Token[],
@@ -80,23 +101,15 @@ export function register(
     MODES_REGISTRY[name] = { ...definition };
 }
 
-export function emitLatexRun(
-    parent: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
+export function emitLatexRun(run: Atom[], options: ToLatexOptions): string {
     if (MODES_REGISTRY[run[0].mode]?.emitLatexRun) {
-        return MODES_REGISTRY[run[0].mode].emitLatexRun(
-            parent,
-            run,
-            expandMacro
-        );
+        return MODES_REGISTRY[run[0].mode].emitLatexRun(run, options);
     }
     return '';
 }
 
 export function parseTokens(
-    mode: ParseModePrivate,
+    mode: ParseMode,
     tokens: Token[],
     onError: ErrorListener<ParserErrorCode>,
     options: ParseTokensOptions
@@ -112,9 +125,9 @@ export function parseTokens(
  * the effective font name to be used for metrics
  * ('Main-Regular', 'Caligraphic-Regualr' etc...)
  */
-export function applyStyle(span: Span, style: Style): string {
-    if (MODES_REGISTRY[style.mode]?.applyStyle) {
-        return MODES_REGISTRY[style.mode].applyStyle(span, style);
+export function applyStyle(mode: ParseMode, span: Span, style: Style): string {
+    if (MODES_REGISTRY[mode]?.applyStyle) {
+        return MODES_REGISTRY[mode].applyStyle(span, style);
     }
     return '';
 }

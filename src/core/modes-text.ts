@@ -3,96 +3,87 @@ import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
 import { colorToString } from './color';
 import { joinLatex, Token } from './tokenizer';
 import { Span } from './span';
-import { Atom } from './atom';
-import { getInfo, charToLatex, unicodeStringToLatex } from './definitions';
+import { Atom, ToLatexOptions } from './atom';
+import { getInfo, charToLatex } from '../core-definitions/definitions';
+import { TextAtom } from '../core-atoms/text';
 
-function emitStringTextRun(
-    _context: Atom,
-    run: Atom[],
-    _expandMacro: boolean
-): string {
-    let needSpace = false;
+function emitStringTextRun(run: Atom[], options: ToLatexOptions): string {
+    // let needSpace = false;
     return joinLatex(
         run.map((x: Atom) => {
-            let result = '';
-            let space = '';
-            if (x.latex) {
-                result = x.latex;
-            } else if (typeof x.body === 'string') {
-                result = unicodeStringToLatex('text', x.body);
-            } else if (x.symbol) {
-                result = x.symbol.replace(/\\/g, '\\backslash ');
-            }
-            if (needSpace && (!result || /^[a-zA-Z0-9*]/.test(result))) {
-                space = '{}';
-            }
-            needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
-            return space + result;
+            return Atom.toLatex(x, options);
+            // let result = x.toLatex(options);
+            // let space = '';
+
+            // if (x.latex && !options.expandMacro) {
+            //     result = x.latex;
+            // } else if (x.toLatexOverride) {
+            //     result = x.toLatexOverride(x, options);
+            // } else if (typeof x.value === 'string') {
+            //     result = unicodeStringToLatex('text', x.value);
+            // } else if (x.command) {
+            //     result = x.command.replace(/\\/g, '\\backslash ');
+            // }
+            // if (needSpace && (!result || /^[a-zA-Z0-9*]/.test(result))) {
+            //     space = '{}';
+            // }
+            // needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
+            // return space + result;
         })
     );
 }
 
-function emitFontShapeTextRun(
-    context: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
+function emitFontShapeTextRun(run: Atom[], options: ToLatexOptions): string {
     return joinLatex(
         getPropertyRuns(run, 'fontShape').map((x: Atom[]) => {
-            const result = emitStringTextRun(context, x, expandMacro);
-            if (x[0].fontShape === 'it') {
+            const result = emitStringTextRun(x, options);
+            const fontShape = x[0].style.fontShape;
+            if (fontShape === 'it') {
                 return '\\textit{' + result + '}';
             }
-            if (x[0].fontShape === 'sl') {
+            if (fontShape === 'sl') {
                 return '\\textsl{' + result + '}';
             }
-            if (x[0].fontShape === 'sc') {
+            if (fontShape === 'sc') {
                 return '\\textsc{' + result + '}';
             }
-            if (x[0].fontShape === 'n') {
+            if (fontShape === 'n') {
                 return '\\textup{' + result + '}';
             }
-            if (x[0].fontShape) {
-                return '\\fontshape{' + x[0].fontShape + '}' + result;
+            if (fontShape) {
+                return '\\fontshape{' + x[0].style.fontShape + '}' + result;
             }
             return result;
         })
     );
 }
 
-function emitFontSeriesTextRun(
-    context: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
+function emitFontSeriesTextRun(run: Atom[], options: ToLatexOptions): string {
     return joinLatex(
         getPropertyRuns(run, 'fontSeries').map((x) => {
-            const result = emitFontShapeTextRun(context, x, expandMacro);
-            if (x[0].fontSeries === 'b') {
+            const result = emitFontShapeTextRun(x, options);
+            const fontSeries = x[0].style.fontSeries;
+            if (fontSeries === 'b') {
                 return '\\textbf{' + result + '}';
             }
-            if (x[0].fontSeries === 'l') {
+            if (fontSeries === 'l') {
                 return '\\textlf{' + result + '}';
             }
-            if (x[0].fontSeries === 'm') {
+            if (fontSeries === 'm') {
                 return '\\textmd{' + result + '}';
             }
-            if (x[0].fontSeries) {
-                return '\\fontseries{' + x[0].fontSeries + '}' + result;
+            if (fontSeries) {
+                return '\\fontseries{' + fontSeries + '}' + result;
             }
             return result;
         })
     );
 }
 
-function emitSizeTextRun(
-    context: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
+function emitSizeTextRun(run: Atom[], options: ToLatexOptions): string {
     return joinLatex(
         getPropertyRuns(run, 'fontSize').map((x: Atom[]) => {
-            const result = emitFontSeriesTextRun(context, x, expandMacro);
+            const result = emitFontSeriesTextRun(x, options);
             const command =
                 {
                     size1: 'tiny',
@@ -105,7 +96,7 @@ function emitSizeTextRun(
                     size8: 'LARGE',
                     size9: 'huge',
                     size10: 'Huge',
-                }[x[0].fontSize] || '';
+                }[x[0].style.fontSize] || '';
             if (command) {
                 return '\\' + command + ' ' + result;
             }
@@ -114,58 +105,48 @@ function emitSizeTextRun(
     );
 }
 
-function emitFontFamilyTextRun(
-    context: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
+function emitFontFamilyTextRun(run: Atom[], options: ToLatexOptions): string {
     return joinLatex(
         getPropertyRuns(run, 'fontFamily').map((x: Atom[]) => {
-            const result = emitSizeTextRun(context, x, expandMacro);
+            const result = emitSizeTextRun(x, options);
             const command =
                 {
                     roman: 'textrm',
                     monospace: 'texttt',
                     'sans-serif': 'textsf',
-                }[x[0].fontFamily] || '';
+                }[x[0].style.fontFamily] || '';
             if (command) {
                 return '\\' + command + '{' + result + '}';
             }
-            if (x[0].fontFamily) {
-                return '\\fontfamily{' + x[0].fontFamily + '}' + result;
+            if (x[0].style.fontFamily) {
+                return '\\fontfamily{' + x[0].style.fontFamily + '}' + result;
             }
             return result;
         })
     );
 }
 
-function emitStyledTextRun(
-    context: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
-    return emitFontFamilyTextRun(context, run, expandMacro);
+function emitStyledTextRun(run: Atom[], options: ToLatexOptions): string {
+    return emitFontFamilyTextRun(run, options);
 }
 
-function emitColorRun(
-    context: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
+function emitColorRun(run: Atom[], options: ToLatexOptions): string {
+    if (!run || run.length === 0) return '';
+    const parentColor = run[0].parent?.style.color;
     return joinLatex(
         getPropertyRuns(run, 'color').map((x) => {
-            const result = emitStyledTextRun(context, x, expandMacro);
+            const result = emitStyledTextRun(x, options);
 
             if (
-                x[0].color &&
-                x[0].color !== 'none' &&
-                (!context || context.color !== x[0].color)
+                x[0].style.color &&
+                x[0].style.color !== 'none' &&
+                parentColor !== x[0].style.color
             ) {
                 // If there is a color specified, and it is different
                 // from our context color, output a command
                 return (
                     '\\textcolor{' +
-                    colorToString(x[0].color) +
+                    colorToString(x[0].style.color) +
                     '}{' +
                     result +
                     '}'
@@ -176,25 +157,22 @@ function emitColorRun(
     );
 }
 
-function emitLatexTextRun(
-    context: Atom,
-    run: Atom[],
-    expandMacro: boolean
-): string {
-    const result = emitColorRun(context, run, expandMacro);
+function emitLatexTextRun(run: Atom[], options: ToLatexOptions): string {
+    const result = emitColorRun(run, options);
 
-    const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
-        (x: Atom) => x.fontSeries || x.fontShape || x.fontFamily
-    );
-    if (
-        !allAtomsHaveShapeOrSeriesOrFontFamily ||
-        run[0].mode !== context.mode
-    ) {
-        // Wrap in text, only if there isn't a shape or series on
-        // all the atoms, because if so, it will be wrapped in a
-        // \\textbf, \\textit, etc... and the \\text would be redundant
-        return `\\text{${result}}`;
-    }
+    // const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
+    //     (x: Atom) =>
+    //         x.style.fontSeries || x.style.fontShape || x.style.fontFamily
+    // );
+    // if (
+    //     !allAtomsHaveShapeOrSeriesOrFontFamily ||
+    //     run[0].mode !== context.mode
+    // ) {
+    //     // Wrap in text, only if there isn't a shape or series on
+    //     // all the atoms, because if so, it will be wrapped in a
+    //     // \\textbf, \\textit, etc... and the \\text would be redundant
+    //     return `\\text{${result}}`;
+    // }
     return result;
 }
 
@@ -279,9 +257,7 @@ function parse(
     while (tokens.length > 0) {
         const token = tokens.shift();
         if (token === '<space>') {
-            atom = new Atom('text', '', ' ', options.style);
-            atom.symbol = ' ';
-            result.push(atom);
+            result.push(new TextAtom(' ', ' ', options.style));
         } else if (token[0] === '\\') {
             // Invoke the 'main' parser to handle the command
             tokens.unshift(token);
@@ -303,20 +279,12 @@ function parse(
             // commands without inserting a space, e.g. "\backlash{}command"
         } else {
             const info = getInfo(token, 'text', options.macros);
-            if (!info) {
+            if (!info || (info.ifMode && !info.ifMode.includes('text'))) {
                 error({ code: 'unexpected-token' });
-            } else if (!info.mode || info.mode.includes('text')) {
-                atom = new Atom(
-                    'text',
-                    info ? info.type : '', // @todo: revisit. Use 'text' type?
-                    info ? info.value : token,
-                    options.style
-                );
-                atom.symbol = token;
+            } else {
+                atom = new TextAtom(token, info.value, options.style);
                 atom.latex = charToLatex('text', token);
                 result.push(atom);
-            } else {
-                error({ code: 'unexpected-token' });
             }
         }
     }

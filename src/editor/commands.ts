@@ -1,11 +1,10 @@
 import { isArray } from '../common/types';
 
 import { hidePopover, showPopoverWithLatex } from './popover'; // @revisit
-import { suggest } from '../core/definitions';
-import type { MathfieldPrivate } from './mathfield-class';
-import { selectionIsCollapsed } from './model-selection';
-import { extractCommandStringAroundInsertionPoint } from './model-command-mode';
-import { requestUpdate } from './mathfield-render';
+import { suggest } from '../core-definitions/definitions';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { getCommandString } from '../editor-model/command-mode';
+import { requestUpdate } from '../editor-mathfield/render';
 import { SelectorPrivate, CommandRegistry } from './commands-definitions';
 export { SelectorPrivate };
 
@@ -76,7 +75,7 @@ export function perform(
     ) as SelectorPrivate;
     if (COMMANDS[selector]?.target === 'model') {
         if (/^(delete|transpose|add)/.test(selector)) {
-            if (selector !== 'deletePreviousChar') {
+            if (selector !== 'deleteBackward') {
                 mathfield.resetKeystrokeBuffer();
             }
         }
@@ -96,9 +95,7 @@ export function perform(
             mathfield.snapshot();
         }
         if (/^(delete)/.test(selector) && mathfield.mode === 'command') {
-            const command = extractCommandStringAroundInsertionPoint(
-                mathfield.model
-            );
+            const command = getCommandString(mathfield.model);
             const suggestions = suggest(command);
             if (suggestions.length === 0) {
                 hidePopover(mathfield);
@@ -122,7 +119,7 @@ export function perform(
     // collapsed, or if it was an editing command, reset the inline
     // shortcut buffer and the user style
     if (
-        !selectionIsCollapsed(mathfield.model) ||
+        !mathfield.model.selectionIsCollapsed ||
         /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(
             selector
         )
@@ -163,18 +160,10 @@ export function performWithFeedback(
         selector === 'moveToPreviousPlaceholder' ||
         selector === 'complete'
     ) {
-        if (mathfield.returnKeypressSound) {
-            mathfield.returnKeypressSound.load();
-            mathfield.returnKeypressSound
-                .play()
-                .catch((err) => console.warn(err));
-        } else if (mathfield.keypressSound) {
-            mathfield.keypressSound.load();
-            mathfield.keypressSound.play().catch((err) => console.warn(err));
-        }
+        mathfield.returnKeypressSound?.play().catch(console.warn);
     } else if (
-        selector === 'deletePreviousChar' ||
-        selector === 'deleteNextChar' ||
+        selector === 'deleteBackward' ||
+        selector === 'deleteForward' ||
         selector === 'deletePreviousWord' ||
         selector === 'deleteNextWord' ||
         selector === 'deleteToGroupStart' ||
@@ -182,18 +171,9 @@ export function performWithFeedback(
         selector === 'deleteToMathFieldStart' ||
         selector === 'deleteToMathFieldEnd'
     ) {
-        if (mathfield.deleteKeypressSound) {
-            mathfield.deleteKeypressSound.load();
-            mathfield.deleteKeypressSound
-                .play()
-                .catch((err) => console.warn(err));
-        } else if (mathfield.keypressSound) {
-            mathfield.keypressSound.load();
-            mathfield.keypressSound.play().catch((err) => console.warn(err));
-        }
-    } else if (mathfield.keypressSound) {
-        mathfield.keypressSound.load();
-        mathfield.keypressSound.play().catch((err) => console.warn(err));
+        mathfield.deleteKeypressSound?.play().catch(console.warn);
+    } else {
+        mathfield.keypressSound?.play().catch(console.warn);
     }
     return mathfield.executeCommand(selector);
 }

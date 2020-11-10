@@ -1,5 +1,5 @@
 import type { InlineShortcutDefinition } from '../public/options';
-import { LETTER } from '../core/definitions';
+import { LETTER } from '../core-definitions/definitions';
 import type { Atom } from '../core/atom';
 
 import { MathfieldOptionsPrivate } from './options';
@@ -88,21 +88,16 @@ function validateShortcut(
             return '';
         }
         text = sibling.mode === 'text';
-        letter =
-            !text &&
-            sibling.type === 'mord' &&
-            LETTER.test(sibling.body as string);
+        letter = !text && sibling.type === 'mord' && LETTER.test(sibling.value);
         digit =
-            !text &&
-            sibling.type === 'mord' &&
-            /[0-9]+$/.test(sibling.body as string);
+            !text && sibling.type === 'mord' && /[0-9]+$/.test(sibling.value);
         isFunction = !text && sibling.isFunction;
         frac = sibling.type === 'genfrac';
         surd = sibling.type === 'surd';
         binop = sibling.type === 'mbin';
         relop = sibling.type === 'mrel';
         punct = sibling.type === 'mpunct' || sibling.type === 'minner';
-        array = Boolean(sibling.array);
+        array = sibling.type === 'array';
         openfence = sibling.type === 'mopen';
         closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
         space = sibling.type === 'space';

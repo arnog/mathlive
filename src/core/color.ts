@@ -429,6 +429,7 @@ export function stringToColor(s: string): string {
 }
 
 export function colorToString(color: string): string {
+    if (!color) return '';
     let result = color.toUpperCase();
 
     for (const c in NAMED_COLORS) {

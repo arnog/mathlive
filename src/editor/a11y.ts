@@ -1,24 +1,58 @@
 import type { TextToSpeechOptions } from '../public/options';
 
-import type { Atom } from '../core/atom';
+import { Atom } from '../core/atom';
 
 import { atomsToMathML } from '../addons/math-ml';
 import { speakableText } from './speech';
-import { selectionIsCollapsed, getSelectedAtoms } from './model-selection';
-import type { ModelPrivate } from './model-class';
-import type { MathfieldPrivate } from './mathfield-class';
-import type { PathSegment } from './path';
+import type { ModelPrivate } from '../editor-model/model-private';
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+
+/**
+ * Given an atom, describe the relationship between the atom
+ * and its siblings and their parent.
+ */
+function relationName(atom: Atom): string {
+    let result: string;
+    if (atom.treeBranch === 'body') {
+        result = {
+            enclose: 'cross out',
+            leftright: 'fence',
+            surd: 'square root',
+            root: 'math field',
+            mop: 'operator', // e.g. `\operatorname`, a `mop` with a body
+        }[atom.parent.type];
+    } else if (atom.parent.type === 'genfrac') {
+        if (atom.treeBranch === 'above') {
+            return 'numerator';
+        } else if (atom.treeBranch === 'below') {
+            return 'denominator';
+        }
+    } else if (atom.parent.type === 'surd') {
+        if (atom.treeBranch === 'above') {
+            result = 'index';
+        }
+    } else if (atom.treeBranch === 'superscript') {
+        result = 'superscript';
+    } else if (atom.treeBranch === 'subscript') {
+        result = 'subscript';
+    }
+
+    if (!result) {
+        console.log('unknown relationship');
+    }
+    return result ?? 'parent';
+}
 
 /**
  * Announce a change in selection or content via the aria-live region.
  *
  * @param action The action that invoked the change.
- * @param oldModel The previous value of the model before the change.
+ * @param previousPosition The position of the insertion point before the change
  */
 export function defaultAnnounceHook(
     mathfield: MathfieldPrivate,
     action: string,
-    oldModel: ModelPrivate,
+    previousPosition: number,
     atoms: Atom[]
 ): void {
     //** Fix: the focus is the end of the selection, so it is before where we want it
@@ -28,10 +62,7 @@ export function defaultAnnounceHook(
     if (action === 'plonk') {
         // Use this sound to indicate (minor) errors, for
         // example when a action has no effect.
-        if (mathfield.plonkSound) {
-            mathfield.plonkSound.load();
-            mathfield.plonkSound.play().catch((err) => console.warn(err));
-        }
+        mathfield.plonkSound?.play().catch((err) => console.warn(err));
         // As a side effect, reset the keystroke buffer
         mathfield.resetKeystrokeBuffer();
     } else if (action === 'delete') {
@@ -40,14 +71,15 @@ export function defaultAnnounceHook(
     } else if (action === 'focus' || /move/.test(action)) {
         //*** FIX -- should be xxx selected/unselected */
         liveText =
-            (selectionIsCollapsed(mathfield.model) ? '' : 'selected: ') +
-            nextAtomSpeechText(mathfield, oldModel);
+            getRelationshipAsSpokenText(mathfield.model, previousPosition) +
+            (mathfield.model.selectionIsCollapsed ? '' : 'selected: ') +
+            getNextAtomAsSpokenText(mathfield.model, mathfield.options);
     } else if (action === 'replacement') {
         // announce the contents
         liveText = speakableText(
             mathfield.options,
             '',
-            mathfield.model.sibling(0)
+            mathfield.model.at(mathfield.model.position)
         );
     } else if (action === 'line') {
         // announce the current line -- currently that's everything
@@ -81,68 +113,54 @@ export function defaultAnnounceHook(
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 
-/* Returns the speech text of the next atom after the selection or
- *   an 'end of' phrasing based on what structure we are at the end of
- */
-// @revisit. Currently this = MathfieldPrivate, but it looks like model is enough
-function nextAtomSpeechText(
-    mathfield: MathfieldPrivate,
-    oldModel: ModelPrivate
+function getRelationshipAsSpokenText(
+    model: ModelPrivate,
+    previousOffset?: number
 ): string {
-    function relation(parent: Atom, leaf: PathSegment): string {
-        const EXPR_NAME = {
-            //    'array': 'should not happen',
-            numer: 'numerator',
-            denom: 'denominator',
-            index: 'index',
-            body: 'parent',
-            subscript: 'subscript',
-            superscript: 'superscript',
-        };
-        const PARENT_NAME = {
-            enclose: 'cross out',
-            leftright: 'fence',
-            surd: 'square root',
-            root: 'math field',
-        };
-        return leaf.relation === 'body'
-            ? PARENT_NAME[parent.type]
-            : EXPR_NAME[leaf.relation];
+    if (isNaN(previousOffset)) return '';
+    const previous = model.at(previousOffset);
+    if (previous.treeDepth <= model.at(model.position).treeDepth) {
+        return '';
     }
-    const oldPath = oldModel ? oldModel.path : [];
-    const path = mathfield.model.path;
-    const leaf = path[path.length - 1];
     let result = '';
-    while (oldPath.length > path.length) {
-        result +=
-            'out of ' +
-            relation(oldModel.parent(), oldPath[oldPath.length - 1]) +
-            '; ';
-        oldPath.pop();
+    let ancestor = previous.parent;
+    const newParent = model.at(model.position).parent;
+    while (ancestor !== model.root && ancestor !== newParent) {
+        result += `out of ${relationName(ancestor)};`;
+        ancestor = ancestor.parent;
     }
-    if (!selectionIsCollapsed(mathfield.model)) {
-        return speakableText(
-            mathfield.options as Required<TextToSpeechOptions>,
-            '',
-            getSelectedAtoms(mathfield.model)
-        );
+
+    return result;
+}
+
+/**
+ *
+ * Return the spoken text for the atom to the right of the current selection.
+ * Take into consideration the position amongst siblings to include 'start of'
+ * and 'end of' if applicable.
+ */
+function getNextAtomAsSpokenText(
+    model: ModelPrivate,
+    options: TextToSpeechOptions
+): string {
+    if (!model.selectionIsCollapsed) {
+        return speakableText(options, '', model.getAtoms(model.selection));
     }
+    let result = '';
+
     // announce start of denominator, etc
-    const relationName = relation(mathfield.model.parent(), leaf);
-    if (leaf.offset === 0) {
-        result +=
-            (relationName ? 'start of ' + relationName : 'unknown') + ': ';
+    const cursor = model.at(model.position);
+    const relation = relationName(cursor);
+    if (cursor.isFirstSibling) {
+        result = (relation ? 'start of ' + relation : 'unknown') + ': ';
     }
-    const atom = mathfield.model.sibling(Math.max(1, mathfield.model.extent));
-    if (atom) {
-        result += speakableText(
-            mathfield.options as Required<TextToSpeechOptions>,
-            '',
-            atom
-        );
-    } else if (leaf.offset !== 0) {
+    if (cursor.isLastSibling) {
         // don't say both start and end
-        result += relationName ? 'end of ' + relationName : 'unknown';
+        if (!cursor.isFirstSibling) {
+            result += relation ? 'end of ' + relation : 'unknown';
+        }
+    } else {
+        result += speakableText(options, '', cursor);
     }
     return result;
 }

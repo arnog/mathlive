@@ -3,6 +3,7 @@ import { TextToSpeechOptions } from '../public/options';
 import { Atom, isAtomArray } from '../core/atom';
 
 import { atomsToMathML } from '../addons/math-ml';
+import { LeftRightAtom } from '../core-atoms/leftright';
 
 // Markup
 // Two common flavor of markups: SSML and 'mac'. The latter is only available
@@ -183,8 +184,8 @@ function atomicValue(atoms: Atom[]): string {
     let result = '';
     if (isAtomArray(atoms)) {
         for (const atom of atoms) {
-            if (atom.type !== 'first' && typeof atom.body === 'string') {
-                result += atom.body;
+            if (atom.type !== 'first' && typeof atom.value === 'string') {
+                result += atom.value;
             }
         }
     }
@@ -247,7 +248,7 @@ function atomToSpeakableFragment(
                 i += 2;
             } else if (atom[i].mode === 'text') {
                 if (isInTextRun) {
-                    result += atom[i].body ? atom[i].body : ' ';
+                    result += atom[i].value ?? ' ';
                 } else {
                     isInTextRun = true;
                     result += atomToSpeakableFragment('text', atom[i], options);
@@ -257,10 +258,10 @@ function atomToSpeakableFragment(
                 // Note: the first char in a digit/text run potentially needs to have a 'mark', hence the call to 'toSpeakableFragment'
             } else if (
                 atom[i].type === 'mord' &&
-                /[0123456789,.]/.test(atom[i].body as string)
+                /[0123456789,.]/.test(atom[i].value)
             ) {
                 if (isInDigitRun) {
-                    result += atom[i].body;
+                    result += atom[i].value;
                 } else {
                     isInDigitRun = true;
                     result += atomToSpeakableFragment(mode, atom[i], options);
@@ -274,7 +275,7 @@ function atomToSpeakableFragment(
         if (atom.id && mode === 'math') {
             result += '<mark name="' + atom.id.toString() + '"/>';
         }
-        result += atom.body as string;
+        result += atom.value;
     } else {
         if (atom.id && mode === 'math') {
             result += '<mark name="' + atom.id.toString() + '"/>';
@@ -286,17 +287,13 @@ function atomToSpeakableFragment(
         switch (atom.type) {
             case 'group':
             case 'root':
-                result += atomToSpeakableFragment(
-                    'math',
-                    atom.body as Atom[],
-                    options
-                );
+                result += atomToSpeakableFragment('math', atom.body, options);
                 break;
 
             case 'genfrac':
-                numer = atomToSpeakableFragment('math', atom.numer, options);
-                denom = atomToSpeakableFragment('math', atom.denom, options);
-                if (isAtomic(atom.numer) && isAtomic(atom.denom)) {
+                numer = atomToSpeakableFragment('math', atom.above, options);
+                denom = atomToSpeakableFragment('math', atom.below, options);
+                if (isAtomic(atom.above) && isAtomic(atom.below)) {
                     const COMMON_FRACTIONS = {
                         '1/2': ' half ',
                         '1/3': ' one third ',
@@ -325,9 +322,9 @@ function atomToSpeakableFragment(
                     };
                     const commonFraction =
                         COMMON_FRACTIONS[
-                            atomicValue(atom.numer) +
+                            atomicValue(atom.above) +
                                 '/' +
-                                atomicValue(atom.denom)
+                                atomicValue(atom.below)
                         ];
                     if (commonFraction) {
                         result = commonFraction;
@@ -345,14 +342,10 @@ function atomToSpeakableFragment(
 
                 break;
             case 'surd':
-                body = atomToSpeakableFragment(
-                    'math',
-                    atom.body as Atom[],
-                    options
-                );
+                body = atomToSpeakableFragment('math', atom.body, options);
 
-                if (!atom.index) {
-                    if (isAtomic(atom.body as Atom[])) {
+                if (atom.hasEmptyBranch('above')) {
+                    if (isAtomic(atom.body)) {
                         result += ' the square root of ' + body + ' , ';
                     } else {
                         result +=
@@ -363,7 +356,7 @@ function atomToSpeakableFragment(
                 } else {
                     let index = atomToSpeakableFragment(
                         'math',
-                        atom.index,
+                        atom.above,
                         options
                     );
                     index = index.trim();
@@ -389,13 +382,20 @@ function atomToSpeakableFragment(
                 }
                 break;
             case 'leftright':
-                result += PRONUNCIATION[atom.leftDelim] || atom.leftDelim;
-                result += atomToSpeakableFragment(
-                    'math',
-                    atom.body as Atom[],
-                    options
-                );
-                result += PRONUNCIATION[atom.rightDelim] || atom.rightDelim;
+                {
+                    const delimAtom = atom as LeftRightAtom;
+                    result +=
+                        PRONUNCIATION[delimAtom.leftDelim] ||
+                        delimAtom.leftDelim;
+                    result += atomToSpeakableFragment(
+                        'math',
+                        atom.body,
+                        options
+                    );
+                    result +=
+                        PRONUNCIATION[delimAtom.rightDelim] ||
+                        delimAtom.rightDelim;
+                }
                 break;
             case 'rule':
                 // @todo
@@ -407,7 +407,7 @@ function atomToSpeakableFragment(
                 // @todo
                 break;
             case 'placeholder':
-                result += 'placeholder ' + atom.body;
+                result += 'placeholder ';
                 break;
             case 'delim':
             case 'sizeddelim':
@@ -419,7 +419,7 @@ function atomToSpeakableFragment(
             case 'mopen':
             case 'mclose':
             case 'textord': {
-                const command = atom.symbol;
+                const command = atom.command;
                 if (
                     command === '\\mathbin' ||
                     command === '\\mathrel' ||
@@ -429,18 +429,14 @@ function atomToSpeakableFragment(
                     command === '\\mathord' ||
                     command === '\\mathinner'
                 ) {
-                    result = atomToSpeakableFragment(
-                        mode,
-                        atom.body as Atom[],
-                        options
-                    );
+                    result = atomToSpeakableFragment(mode, atom.body, options);
                     break;
                 }
 
-                let atomValue = atom.body as string;
-                let latexValue = atom.symbol;
+                let atomValue = atom.value;
+                let latexValue = atom.command;
                 if (atom.type === 'delim' || atom.type === 'sizeddelim') {
-                    atomValue = latexValue = atom.delim;
+                    atomValue = latexValue = atom.value;
                 }
                 if (mode === 'text') {
                     result += atomValue;
@@ -469,7 +465,7 @@ function atomToSpeakableFragment(
                     } else {
                         result += atomToSpeakableFragment(
                             'math',
-                            atom.body as Atom[],
+                            atom.body,
                             options
                         );
                     }
@@ -481,11 +477,14 @@ function atomToSpeakableFragment(
             }
             case 'mop':
                 // @todo
-                if (atom.body !== '\u200b') {
+                if (atom.value !== '\u200b') {
                     // Not ZERO-WIDTH
-                    const trimLatex = atom.symbol;
+                    const trimLatex = atom.command;
                     if (trimLatex === '\\sum') {
-                        if (atom.superscript && atom.subscript) {
+                        if (
+                            !atom.hasEmptyBranch('superscript') &&
+                            !atom.hasEmptyBranch('subscript')
+                        ) {
                             let sup = atomToSpeakableFragment(
                                 'math',
                                 atom.superscript,
@@ -505,7 +504,7 @@ function atomToSpeakableFragment(
                                 sup +
                                 '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
-                        } else if (atom.subscript) {
+                        } else if (!atom.hasEmptyBranch('subscript')) {
                             let sub = atomToSpeakableFragment(
                                 'math',
                                 atom.subscript,
@@ -521,7 +520,10 @@ function atomToSpeakableFragment(
                             result += ' the summation of';
                         }
                     } else if (trimLatex === '\\prod') {
-                        if (atom.superscript && atom.subscript) {
+                        if (
+                            !atom.hasEmptyBranch('superscript') &&
+                            !atom.hasEmptyBranch('subscript')
+                        ) {
                             let sup = atomToSpeakableFragment(
                                 'math',
                                 atom.superscript,
@@ -541,7 +543,7 @@ function atomToSpeakableFragment(
                                 sup +
                                 '<break time="200ms"/> of <break time="150ms"/>';
                             supsubHandled = true;
-                        } else if (atom.subscript) {
+                        } else if (!atom.hasEmptyBranch('subscript')) {
                             let sub = atomToSpeakableFragment(
                                 'math',
                                 atom.subscript,
@@ -557,7 +559,10 @@ function atomToSpeakableFragment(
                             result += ' the product  of ';
                         }
                     } else if (trimLatex === '\\int') {
-                        if (atom.superscript && atom.subscript) {
+                        if (
+                            !atom.hasEmptyBranch('superscript') &&
+                            !atom.hasEmptyBranch('subscript')
+                        ) {
                             let sup = atomToSpeakableFragment(
                                 'math',
                                 atom.superscript,
@@ -580,33 +585,29 @@ function atomToSpeakableFragment(
                         } else {
                             result += ' the integral of <break time="200ms"/> ';
                         }
-                    } else if (typeof atom.body === 'string') {
+                    } else if (typeof atom.value === 'string') {
                         const value =
-                            PRONUNCIATION[atom.body] ||
-                            PRONUNCIATION[atom.symbol];
+                            PRONUNCIATION[atom.value] ??
+                            PRONUNCIATION[atom.command];
                         if (value) {
                             result += value;
                         } else {
-                            result += ' ' + atom.body;
+                            result += ' ' + atom.value;
                         }
-                    } else if (atom.symbol) {
-                        if (atom.symbol[0] === '\\') {
-                            result += ' ' + atom.symbol.substr(1);
+                    } else if (atom.command) {
+                        if (atom.command[0] === '\\') {
+                            result += ' ' + atom.command.substr(1);
                         } else {
-                            result += ' ' + atom.symbol;
+                            result += ' ' + atom.command;
                         }
                     }
                 }
                 break;
 
             case 'enclose':
-                body = atomToSpeakableFragment(
-                    'math',
-                    atom.body as Atom[],
-                    options
-                );
+                body = atomToSpeakableFragment('math', atom.body, options);
 
-                if (isAtomic(atom.body as Atom[])) {
+                if (isAtomic(atom.body)) {
                     result += ' crossed out ' + body + ' , ';
                 } else {
                     result += ' crossed out ' + body + '. End cross out';
@@ -615,11 +616,10 @@ function atomToSpeakableFragment(
 
             case 'space':
             case 'spacing':
-            case 'mathstyle':
                 // @todo
                 break;
         }
-        if (!supsubHandled && atom.superscript) {
+        if (!supsubHandled && !atom.hasEmptyBranch('superscript')) {
             let sup = atomToSpeakableFragment(mode, atom.superscript, options);
             sup = sup.trim();
             const sup2 = sup.replace(/<[^>]*>/g, '');
@@ -655,7 +655,7 @@ function atomToSpeakableFragment(
                 }
             }
         }
-        if (!supsubHandled && atom.subscript) {
+        if (!supsubHandled && !atom.hasEmptyBranch('subscript')) {
             let sub = atomToSpeakableFragment('math', atom.subscript, options);
             sub = sub.trim();
             if (isAtomic(atom.subscript)) {

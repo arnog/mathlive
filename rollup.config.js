@@ -48,6 +48,9 @@ const TERSER_OPTIONS = {
     },
     output: {
         preamble: '/* MathLive ' + SDK_VERSION + '  */',
+        ascii_only: true, // The project has some characters (”) which can
+        // confuse Safari when the charset is not set to UTF-8 on the page.
+        // This workaround that.
     },
 };
 

@@ -1,4 +1,4 @@
-/* 0.58.0 */import type { Keys } from './types-utils';
+/* 0.59.0 */import type { Keys } from './types-utils';
 import type { ParseMode, Style } from './core';
 import type { Mathfield, Model } from './mathfield';
 /**
@@ -118,11 +118,11 @@ export interface Commands {
     /**
      * @category Deleting
      */
-    deleteNextChar: (model: Model) => boolean;
+    deleteForward: (model: Model) => boolean;
     /**
      * @category Deleting
      */
-    deletePreviousChar: (model: Model) => boolean;
+    deleteBackward: (model: Model) => boolean;
     /**
      * @category Deleting
      */
@@ -226,11 +226,11 @@ export interface Commands {
     /**
      * @category Selection
      */
-    extendToNextChar: (model: Model) => boolean;
+    extendSelectionForward: (model: Model) => boolean;
     /**
      * @category Selection
      */
-    extendToPreviousChar: (model: Model) => boolean;
+    extendSelectionBackward: (model: Model) => boolean;
     /**
      * @category Selection
      */
@@ -242,11 +242,11 @@ export interface Commands {
     /**
      * @category Selection
      */
-    extendUp: (model: Model) => boolean;
+    extendSelectionUpward: (model: Model) => boolean;
     /**
      * @category Selection
      */
-    extendDown: (model: Model) => boolean;
+    extendSelectionDownward: (model: Model) => boolean;
     /**
      * @category Selection
      */
