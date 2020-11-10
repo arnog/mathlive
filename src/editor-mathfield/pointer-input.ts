@@ -322,7 +322,6 @@ export function offsetFromPoint(
     // Try to find the deepest element that is near the point that was
     // clicked on (the point could be outside of the element)
     const atom = nearestAtomFromPoint(mathfield, x, y);
-    console.log(atom);
     let result = mathfield.model.offsetOf(atom);
 
     if (result < 0) return -1;

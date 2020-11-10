@@ -1,32 +1,30 @@
 ## [Unreleased]
 
-### Bug Fixes
-
-    - **#697** When using the `<math-field>` element the command popover did not
-    display correctly.
-
 ### Breaking Change
 
--   Renamed `getCaretPosition()` and `setCaretPosition()` to `get/set caretPoint`
-    and `setCaretPoint()`. "Position" refers to an index denoting the boundaries
+-   Renamed `getCaretPosition()` and `setCaretPosition()` to
+    `get/set caretPoint`. "Position" refers to an offset denoting the boundaries
     between elements making up the formula. These methods return client screen
-    coordinates.
+    coordinates and the new name better reflect the correct terminology.
 
-### New Feature
+### New Features
 
 -   **#555** Support for IME (Input Method Engines) for Japanese, Chinese,
     Korean and other complex scripts.
 -   New `find()` method to search the fragments of an expression that match
     a Latex string or regular expression.
 -   Added `soundsDirectory` option to customize the location of the sound files, similarly to `fontsDirectory`.
+-   Enabled audio feedback by default.
 
 ### Bug Fixes
 
--   The selection in an expression could render incorrectly if it was made
+-   The selection in an expression could render incorrectly if it was displayed
     before the fonts were fully loaded. This situation is now handled
     correctly and the selection is redrawn when fonts finish loading.
 -   The `typedText` selector dropped its options argument. As a result, the
     sound feedback from the virtual keyboard only played for some keys.
+-   **#697** When using the `<math-field>` element the command popover did not
+    display correctly.
 
 ### Improvements
 
@@ -45,9 +43,9 @@
     **Warning**: _This is a very disruptive change, and there might be some edge
     cases that will need to be cleaned up._
 
-    The position of the insertion point is no longer represented by a _path_. It is now an _offset_ from the start of the expression, with each possible insertion point position being assigned a sequential value.
+    The _position_ of the insertion point is no longer represented by a _path_. It is now an _offset_ from the start of the expression, with each possible insertion point position being assigned a sequential value.
 
-    The selection is no longer represented with a _path_ and a sibling-relative _offset_. It is now a _range_, i.e. a start and end _offset_. More precisely,
+    The _selection_ is no longer represented with a _path_ and a sibling-relative _offset_. It is now a _range_, i.e. a start and end _offset_. More precisely,
     the selection is an array of ranges (to represent discontinuous selections,
     for example a column in a matrix) and a direction.
 
@@ -56,12 +54,12 @@
     -   The selection related code is more expressive and much simpler to read and debug
     -   The code is also simpler to change so that changes in UI behavior are
         much easier to implement. There are several open issues that will be much
-        easier to fix now
+        easier to fix now. In particular, the `onDelete` function now regroups all the special handling
+        when pressing the **Backspace** and **Delete** keys.
     -   Instead of the esoteric paths, the concept of position as an offset is
-        much easier to explain and understand, and can now be exposed in the public API. Consequently, new functionality can be exposed, such as the `find()` method which returns its results as an array of ranges. It is also possible now to query and change the current selection.
-    -   The selection is in fact represented as an _array_ of ranges. This is
-        necessary to support discontinous selections, which are useful to select
-        for example all the cells in a matrix column. This kind of selection was
+        much easier to explain and understand, and can now be exposed in the public API. Consequently, new functionality can be exposed, such as the `find()` method which returns its results as an array of ranges. It is also possible now to query and change the current selection, and to apply styling to a portion of the expression other than the selection.
+    -   The selection is represented as an _array_ of ranges to support discontinous selections, which are useful to select
+        for example all the cells in the column of a matrix column. This kind of selection was
         not previously possible.
     -   Incidentally this fixes a circular dependency, which was a smell test
         that there was a problem with the previous architecture.
@@ -79,6 +77,7 @@
     of the formula much easier, though.
 
 -   **Changes to the handling of sentinel atoms (type `'first'`)**
+
     This is an internal change that does not affect the public API.
 
     Sentinel atoms are atoms of type `'first'` that are inserted as the first
@@ -96,13 +95,14 @@
     editable and non-editable atom trees.
 
 -   **Refactoring of Atom classes**
+
     This is an internal change that does not affect the public API.
 
     Each 'kind' of atom (fraction, extensible symbol, boxed expression, etc...)
     is now represented by a separate class extending the `Atom` base class
     (for example `GenfracAtom`).
     Each of those classes have a `render()` method that generates a set of
-    DOM virtual nodes representing the ATom and a `toLatex()` method which
+    DOM virtual nodes representing the Atom and a `toLatex()` method which
     generates a Latex string representing the atom.
 
     Previously the handling of the different kind of atoms was done procedurally
@@ -110,15 +110,16 @@
     to read, while the specialized code specific to each kind of atom is
     grouped in their respective classes.
 
--   **Unit testing usign Jest snapshot**
-    Rewrote the unit test to use Jest snapshots for more comprehensive
+-   **Unit testing using Jest snapshot**
+
+    Rewrote the unit tests to use Jest snapshots for more comprehensive
     validation.
 
 ## 0.59.0 (2020-11-04)
 
 ### Bug Fixes
 
-    -   **#685** Virtual keyboard event listeners were not properly released when the mathfield was removed from the DOM
+-   **#685** Virtual keyboard event listeners were not properly released when the mathfield was removed from the DOM
 
 ## 0.58.0 (2020-10-11)
 

@@ -26851,7 +26851,6 @@ function defaultAnnounceHook(mathfield, action, previousPosition, atoms) {
         ? ' \u202f '
         : ' \u00a0 ';
     mathfield.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
-    console.info('live text = ', liveText);
     // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 function getRelationshipAsSpokenText(model, previousOffset) {
@@ -28486,7 +28485,6 @@ function offsetFromPoint(mathfield, x, y, options) {
     // Try to find the deepest element that is near the point that was
     // clicked on (the point could be outside of the element)
     const atom = nearestAtomFromPoint(mathfield, x, y);
-    console.log(atom);
     let result = mathfield.model.offsetOf(atom);
     if (result < 0)
         return -1;
