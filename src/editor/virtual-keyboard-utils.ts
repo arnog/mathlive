@@ -15,7 +15,10 @@ import { inject as injectStylesheet } from '../common/stylesheet';
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
 // @ts-ignore
 import coreStylesheet from '../../css/core.less';
-import { VirtualKeyboardLayer } from '../public/options';
+import {
+    VirtualKeyboardLayer,
+    VirtualKeyboardToolbarOptions,
+} from '../public/options';
 
 export class VirtualKeyboard {
     mathfield: MathfieldPrivate;
@@ -968,9 +971,12 @@ function makeKeyboardToolbar(
     }
     result += '</div>';
 
-    // The right hand side of the toolbar, with the copy/undo/redo commands
-    result += `
-        <div class='right'>
+    const toolbarOptions = mf.options.toolbar;
+    const availableActions =
+        toolbarOptions === 'default' ? ['copyToClipboard', 'undo', 'redo'] : [];
+
+    const actionsMarkup = {
+        copyToClipboard: `
             <div class='action'
                 data-command='"copyToClipboard"'
                 data-ML__tooltip='${l10n(
@@ -978,6 +984,8 @@ function makeKeyboardToolbar(
                 )}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-copy' /></svg>
             </div>
+        `,
+        undo: `
             <div class='action disabled'
                 data-command='"undo"'
                 data-ML__tooltip='${l10n(
@@ -985,6 +993,8 @@ function makeKeyboardToolbar(
                 )}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-undo' /></svg>
             </div>
+        `,
+        redo: `
             <div class='action disabled'
                 data-command='"redo"'
                 data-ML__tooltip='${l10n(
@@ -992,8 +1002,19 @@ function makeKeyboardToolbar(
                 )}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-redo' /></svg>
             </div>
-        </div>
-    `;
+        `,
+    };
+
+    // The right hand side of the toolbar, with the copy/undo/redo commands
+    if (availableActions.length > 0) {
+        result += `
+            <div class='right'>
+                ${availableActions
+                    .map((action) => actionsMarkup[action])
+                    .join('')}
+            </div>
+        `;
+    }
 
     return "<div class='keyboard-toolbar' role='toolbar'>" + result + '</div>';
 }
@@ -1726,15 +1747,21 @@ export function updateUndoRedoButtons(mathfield: MathfieldPrivate): void {
         const redoButton = virtualKeyboardToolbar.querySelector(
             '[data-command=\'"redo"\']'
         );
-        if (mathfield.canRedo()) {
-            redoButton.classList.remove('disabled');
-        } else {
-            redoButton.classList.add('disabled');
+
+        if (redoButton) {
+            if (mathfield.canRedo()) {
+                redoButton.classList.remove('disabled');
+            } else {
+                redoButton.classList.add('disabled');
+            }
         }
-        if (mathfield.canUndo()) {
-            undoButton.classList.remove('disabled');
-        } else {
-            undoButton.classList.add('disabled');
+
+        if (undoButton) {
+            if (mathfield.canUndo()) {
+                undoButton.classList.remove('disabled');
+            } else {
+                undoButton.classList.add('disabled');
+            }
         }
     }
 }

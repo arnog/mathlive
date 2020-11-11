@@ -318,6 +318,8 @@ export interface VirtualKeyboardLayer {
     rows?: VirtualKeyboardKeycap[][];
 }
 
+export type VirtualKeyboardToolbarOptions = 'none' | 'default';
+
 export type VirtualKeyboardOptions = {
     /**
      * If specified, the markup to be used to display the virtual keyboard
@@ -426,6 +428,13 @@ export type VirtualKeyboardOptions = {
      * `soundsDirectory` directory, or an `HTMLAudioElement`.
      */
     plonkSound?: string | HTMLAudioElement;
+
+    /**
+     * The right hand side toolbar configuration.
+     *
+     * Use `none` to disable right hand side toolbar of virtual keyboard.
+     */
+    toolbar?: VirtualKeyboardToolbarOptions;
 };
 
 /**
