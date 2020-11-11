@@ -33971,7 +33971,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return element.getAttribute('data-' + ((_a = options.namespace) !== null && _a !== void 0 ? _a : '') + 'original-content');
     }
     // This SDK_VERSION variable will be replaced during the build process.
-    const version = '0.59.0';
+    const version = '{{SDK_VERSION}}';
     function deprecated$1(method) {
         console.warn(`Function "${method}" is deprecated`);
     }
@@ -34071,3 +34071,4 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
+//# sourceMappingURL=mathlive.js.map

@@ -33965,7 +33965,7 @@ function getOriginalContent(element, options) {
     return element.getAttribute('data-' + ((_a = options.namespace) !== null && _a !== void 0 ? _a : '') + 'original-content');
 }
 // This SDK_VERSION variable will be replaced during the build process.
-const version = '0.59.0';
+const version = '{{SDK_VERSION}}';
 function deprecated$1(method) {
     console.warn(`Function "${method}" is deprecated`);
 }
@@ -34053,3 +34053,4 @@ var mathlive = {
 
 export default mathlive;
 export { MathfieldElement, astToLatex, convertLatexToMarkup, convertLatexToMathMl, convertLatexToSpeakableText, debug, makeMathField, renderMathInDocument, renderMathInElement$1 as renderMathInElement };
+//# sourceMappingURL=mathlive.mjs.map
