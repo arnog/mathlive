@@ -434,7 +434,7 @@ export type VirtualKeyboardOptions = {
      *
      * Use `none` to disable right hand side toolbar of virtual keyboard.
      */
-    toolbar?: VirtualKeyboardToolbarOptions;
+    virtualKeyboardToolbar?: VirtualKeyboardToolbarOptions;
 };
 
 /**
