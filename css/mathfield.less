@@ -43,7 +43,7 @@
     content: '_';
     border: none;
     margin-right: 0;
-    margin-right: -1ex;
+    margin-right: calc(-1ex - 2px);
     position: relative;
     color: var(--caret, hsl(var(--hue, 212), 40%, 49%));
     animation: ML__caret-blink 1.05s step-end forwards infinite;
@@ -172,9 +172,7 @@ with this style */
 
 .ML__command {
     font-family: @monospace;
-    letter-spacing: -1px;
     font-weight: 400;
-    line-height: 1em;
 
     color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
