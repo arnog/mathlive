@@ -332,6 +332,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         keypressVibration: true,
         keypressSound: null,
         plonkSound: null,
+        virtualKeyboardToolbar: 'default',
 
         textToSpeechRules: 'mathlive',
         textToSpeechMarkup: '', // no markup
