@@ -968,7 +968,7 @@ function makeKeyboardToolbar(
     }
     result += '</div>';
 
-    const toolbarOptions = mf.options.toolbar;
+    const toolbarOptions = mf.options.virtualKeyboardToolbar;
     const availableActions =
         toolbarOptions === 'default' ? ['copyToClipboard', 'undo', 'redo'] : [];
 
