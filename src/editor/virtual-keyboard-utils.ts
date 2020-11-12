@@ -15,10 +15,7 @@ import { inject as injectStylesheet } from '../common/stylesheet';
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
 // @ts-ignore
 import coreStylesheet from '../../css/core.less';
-import {
-    VirtualKeyboardLayer,
-    VirtualKeyboardToolbarOptions,
-} from '../public/options';
+import { VirtualKeyboardLayer } from '../public/options';
 
 export class VirtualKeyboard {
     mathfield: MathfieldPrivate;
