@@ -47,6 +47,10 @@ export class VirtualKeyboard {
         releaseSharedElement(
             document.getElementById('mathlive-alternate-keys-panel')
         );
+        window.removeEventListener('mouseup', this);
+        window.removeEventListener('blur', this);
+        window.removeEventListener('touchend', this);
+        window.removeEventListener('touchcancel', this);
         this.element.remove();
     }
 }
