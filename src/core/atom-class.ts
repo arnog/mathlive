@@ -203,6 +203,8 @@ export class Atom {
     // If true, some structural changes have been made to the atom
     // (insertion or removal of children) or one of its children is dirty
     _isDirty: boolean;
+    // A monotonically increasing counter to detect structural changes
+    _changeCounter: number;
     // Cached list of children, invalidated when isDirty = true
     _children: Atom[];
 
@@ -225,6 +227,7 @@ export class Atom {
             this.value = options.value;
         }
         this._isDirty = false;
+        this._changeCounter = 0;
 
         this.mode = options?.mode ?? 'math';
         this.isExtensibleSymbol = options?.isExtensibleSymbol ?? false;
@@ -233,17 +236,23 @@ export class Atom {
         this.style = options?.style ?? {};
         this.toLatexOverride = options?.toLatexOverride;
     }
+    get changeCounter(): number {
+        return this._changeCounter;
+    }
     get isDirty(): boolean {
         return this._isDirty;
     }
     set isDirty(dirty: boolean) {
         this._isDirty = dirty;
+        this._changeCounter++;
         if (dirty) {
             this.latex = undefined;
             this._children = null;
+            this._changeCounter++;
             let parent = this.parent;
             while (parent) {
                 parent._isDirty = true;
+                parent._changeCounter++;
                 parent._children = null;
                 parent.latex = undefined;
                 parent = parent.parent;

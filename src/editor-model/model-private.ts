@@ -45,7 +45,6 @@ export class ModelPrivate implements Model {
 
     root: Atom;
 
-    private _atoms: Atom[];
     private _selection: Selection;
     private _anchor: Offset;
     private _position: Offset;
@@ -65,7 +64,6 @@ export class ModelPrivate implements Model {
         };
         this.root = new Atom('root', { mode: this.options.mode });
         this.root.body = [];
-        this._atoms = null;
         this._selection = { ranges: [[0, 0]], direction: 'none' };
         this._anchor = 0;
         this._position = 0;
@@ -78,13 +76,7 @@ export class ModelPrivate implements Model {
     }
 
     get atoms(): Atom[] {
-        // The root is dirty when there has been some strucural changes
-        // (adding/removing atoms) which would invalidate the iterator
-        if (!this._atoms || this.root.isDirty) {
-            this._atoms = this.root.children;
-            this.root.isDirty = false;
-        }
-        return this._atoms;
+        return this.root.children;
     }
 
     /**
@@ -592,14 +584,14 @@ export class ModelPrivate implements Model {
         const oldSelection = this._selection;
         const oldAnchor = this._anchor;
         const oldPosition = this._position;
-        let contentChanged = false;
         let selectionChanged = false;
 
         const saved = this.suppressChangeNotifications;
         this.suppressChangeNotifications = true;
+        const previousCounter = this.root.changeCounter;
         f();
 
-        contentChanged = this.root._isDirty;
+        const contentChanged = this.root.changeCounter !== previousCounter;
         if (
             oldAnchor !== this._anchor ||
             oldPosition !== this._position ||
