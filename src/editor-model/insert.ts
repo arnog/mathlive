@@ -1,6 +1,6 @@
 import { InsertOptions, Offset } from '../public/mathfield';
 
-import { COMMAND_MODE_CHARACTERS, parseString } from '../core/core';
+import { COMMAND_MODE_CHARACTERS, parseLatex } from '../core/core';
 import { Atom, BranchName, NAMED_BRANCHES } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 
@@ -10,7 +10,7 @@ import { ModelPrivate } from './model-private';
 import { applyStyleToUnstyledAtoms } from './styling';
 import { contentDidChange, selectionDidChange } from './listeners';
 
-import { getMode, move } from './selection';
+import { getMode } from './selection';
 
 import type { Style } from '../public/core';
 import { LeftRightAtom } from '../core-atoms/leftright';
@@ -30,7 +30,7 @@ function convertStringToAtoms(
     let result = [];
     if (mode === 'math' && options.format === 'ASCIIMath') {
         [, s] = parseMathString(s, { format: 'ASCIIMath' });
-        result = parseString(
+        result = parseLatex(
             s,
             'math',
             null,
@@ -65,7 +65,7 @@ function convertStringToAtoms(
                 s = s.substring(2, s.length - 2);
             }
 
-            result = parseString(
+            result = parseLatex(
                 s,
                 mode,
                 args,
@@ -101,7 +101,7 @@ function convertStringToAtoms(
         s = s.replace(/~/g, '\\textasciitilde ');
         s = s.replace(/£/g, '\\textsterling ');
 
-        result = parseString(
+        result = parseLatex(
             s,
             'text',
             args,
@@ -284,7 +284,7 @@ export function insert(
             model.position = model.offsetOf(lastNewAtom);
         }
     } else if (options.selectionMode === 'before') {
-        // Do nothing: don't change the anchorOffset.
+        // Do nothing: don't change the position.
     } else if (options.selectionMode === 'after') {
         if (lastNewAtom) {
             model.position = model.offsetOf(lastNewAtom);
@@ -543,7 +543,7 @@ export function insertSmartFence(
             grandparent.rightDelim === '?' &&
             model.at(model.position).isLastSibling
         ) {
-            move(model, 'forward');
+            model.position = model.offsetOf(grandparent);
             return insertSmartFence(model, fence, style);
         }
 

@@ -15,6 +15,7 @@ import { Token, tokenize, tokensToString } from './tokenizer';
 import { Atom, BBoxParam } from './atom-class';
 import { parseTokens } from './modes-utils';
 import {
+    Argument,
     FunctionDefinition,
     getEnvironmentDefinition,
     getInfo,
@@ -220,7 +221,7 @@ class Parser {
         if (typeof this.args?.['?'] === 'string') {
             // If there is a specific value defined for the placeholder,
             // use it.
-            return parseString(
+            return parseLatex(
                 this.args['?'],
                 this.parseMode,
                 null,
@@ -610,7 +611,7 @@ class Parser {
 
         // The \begin command is immediately followed by the environment
         // name, as a string argument
-        const envName = this.parseArgument('string') as string;
+        const envName = this.parseArgument('string');
         if (!envName) return null;
         const def = getEnvironmentDefinition(envName);
         if (!def) {
@@ -622,23 +623,18 @@ class Parser {
         }
 
         // If the environment has some arguments, parse them
-        const args: (string | number | BBoxParam | Colspec[] | Atom[])[] = [];
-        if (def?.params) {
+        const args: Argument[] = [];
+        if (def.params) {
             for (const param of def.params) {
                 // Parse an argument
                 if (param.isOptional) {
-                    // If it's not present, scanArg returns null,
+                    // If it's not present, parseOptionalArgument returns null,
                     // but push it on the list of arguments anyway.
                     // The null value will be interpreted as unspecified
                     // optional value by the command parse function.
                     args.push(this.parseOptionalArgument(param.type));
                 } else {
-                    const arg:
-                        | string
-                        | number
-                        | BBoxParam
-                        | Colspec[]
-                        | Atom[] = this.parseArgument(param.type);
+                    const arg: Argument = this.parseArgument(param.type);
                     if (!arg) {
                         this.onError({
                             code: 'missing-argument',
@@ -917,7 +913,7 @@ class Parser {
         while (token === '^' || token === '_' || token === "'") {
             const supsub = token === '_' ? 'subscript' : 'superscript';
             if (this.match('^') || this.match('_')) {
-                const arg = this.parseArgument('math') as Atom[];
+                const arg = this.parseArgument('math');
                 if (arg) {
                     this.lastSubsupAtom().addChildren(arg, supsub);
                     result = true;
@@ -972,12 +968,10 @@ class Parser {
         }
         return false;
     }
-    parseArguments(
-        info: FunctionDefinition
-    ): [ParseMode, (string | number | BBoxParam | Colspec[] | Atom[])[]] {
+    parseArguments(info: FunctionDefinition): [ParseMode, Argument[]] {
         if (!info || !info.params) return [undefined, []];
         let explicitGroup: ParseMode;
-        const args: (string | number | BBoxParam | Colspec[] | Atom[])[] = [];
+        const args: Argument[] = [];
         let i = info.infix ? 2 : 0;
         while (i < info.params.length) {
             const param = info.params[i];
@@ -1010,7 +1004,18 @@ class Parser {
      * in braces.
      *
      */
-    parseArgument(argType: ArgumentType): string | number | Atom[] | Colspec[] {
+    parseArgument(argType: 'auto'): Atom[];
+    parseArgument(argType: ParseMode): Atom[];
+    parseArgument(argType: 'balanced-string'): string;
+    parseArgument(argType: 'color'): string;
+    parseArgument(argType: 'colspec'): Colspec[];
+    parseArgument(argType: 'delim'): string;
+    parseArgument(argType: 'dimen'): number;
+    parseArgument(argType: 'number'): number;
+    parseArgument(argType: 'skip'): number;
+    parseArgument(argType: 'string'): string;
+    parseArgument(argType: ArgumentType): Argument;
+    parseArgument(argType: ArgumentType): Argument {
         this.skipFiller();
         argType = argType === 'auto' ? this.parseMode : argType;
         let result: string | number | Atom[] | Colspec[];
@@ -1101,15 +1106,13 @@ class Parser {
         const atoms = this.swapAtoms(saveAtoms);
         return result ?? atoms;
     }
-    parseOptionalArgument(
-        parseMode: ArgumentType
-    ): string | number | BBoxParam | Colspec[] | Atom[] {
+    parseOptionalArgument(parseMode: ArgumentType): Argument {
         parseMode = parseMode === 'auto' ? this.parseMode : parseMode;
         this.matchWhitespace();
         if (!this.match('[')) return null;
         const savedParseMode = this.parseMode;
         const saveAtoms = this.swapAtoms();
-        let result: string | number | BBoxParam | Colspec[] | Atom[];
+        let result: Argument;
         while (!this.end() && !this.match(']')) {
             if (parseMode === 'string') {
                 result = this.scanString();
@@ -1170,7 +1173,7 @@ class Parser {
             return [
                 new PlaceholderAtom({
                     mode: this.parseMode,
-                    value: this.parseArgument('string') as string,
+                    value: this.parseArgument('string'),
                     style: this.style,
                 }),
             ];
@@ -1183,7 +1186,7 @@ class Parser {
             if (!isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff) {
                 codepoint = 0x2753; // BLACK QUESTION MARK
             }
-            result = new Atom(this.parseMode === 'math' ? 'mord' : '', {
+            result = new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
                 command: '\\char',
                 mode: this.parseMode,
                 value: String.fromCodePoint(codepoint),
@@ -1265,7 +1268,7 @@ class Parser {
         if (typeof info.createAtom === 'function') {
             result = info.createAtom(command, args, this.style);
             if (explicitGroup) {
-                result.body = this.parseArgument(explicitGroup) as Atom[];
+                result.body = this.parseArgument(explicitGroup);
             }
         } else if (typeof info.applyStyle === 'function') {
             const style = info.applyStyle(command, args);
@@ -1282,7 +1285,7 @@ class Parser {
                 // Create a temporary style
                 const saveStyle = this.style;
                 this.style = { ...this.style, ...style };
-                const atoms = this.parseArgument(explicitGroup) as Atom[];
+                const atoms = this.parseArgument(explicitGroup);
                 this.style = saveStyle;
                 this.parseMode = savedMode;
                 return atoms;
@@ -1347,7 +1350,7 @@ class Parser {
                 result.isFunction = true;
             }
         } else {
-            result = new Atom(this.parseMode === 'math' ? 'mord' : '', {
+            result = new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
                 command: literal,
                 mode: this.parseMode,
                 value: literal,
@@ -1374,7 +1377,7 @@ class Parser {
         if (token === '<space>') {
             if (this.parseMode === 'text') {
                 return [
-                    new Atom('', {
+                    new Atom('text', {
                         command: ' ',
                         mode: 'text',
                         value: ' ',
@@ -1440,7 +1443,7 @@ class Parser {
         return new MacroAtom(
             macro,
             tokensToString(this.tokens.slice(initialIndex, this.index)),
-            parseString(
+            parseLatex(
                 def,
                 this.parseMode,
                 args,
@@ -1482,7 +1485,7 @@ class Parser {
  * @param smartFence - If true, promote plain fences, e.g. `(`,
  * as `\left...\right` or `\mleft...\mright`
  */
-export function parseString(
+export function parseLatex(
     s: string,
     parseMode: ParseMode,
     args: null | (string | Atom[])[],

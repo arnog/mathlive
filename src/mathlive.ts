@@ -7,8 +7,8 @@ import type {
 } from './public/core';
 
 import { Atom } from './core/atom-class';
-import { parseString } from './core/parser';
-import { coalesce, makeSpan, makeStruts } from './core/span';
+import { parseLatex } from './core/parser';
+import { coalesce, makeStruts, Span } from './core/span';
 import { MACROS, MacroDictionary } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
 import AutoRender from './addons/auto-render';
@@ -78,7 +78,7 @@ export function convertLatexToMarkup(
     // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
     //
 
-    const atoms = parseString(
+    const atoms = parseLatex(
         text,
         'math',
         null,
@@ -109,7 +109,7 @@ export function convertLatexToMarkup(
     //
     // 4. Wrap the expression with struts
     //
-    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), 'ML__mathlive');
+    const wrapper = makeStruts(new Span(spans, 'ML__base'), 'ML__mathlive');
 
     //
     // 5. Generate markup
@@ -129,7 +129,7 @@ export function convertLatexToMathMl(
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
     return atomsToMathML(
-        parseString(latex, 'math', [], options.macros, false, options.onError),
+        parseLatex(latex, 'math', [], options.macros, false, options.onError),
         options
     );
 }
@@ -160,14 +160,7 @@ function latexToAST(
     // return parseLatex(latex, options);
 
     return atomtoMathJson(
-        parseString(
-            latex,
-            'math',
-            null,
-            options.macros,
-            false,
-            options.onError
-        ),
+        parseLatex(latex, 'math', null, options.macros, false, options.onError),
         options
     );
 }
@@ -196,7 +189,7 @@ export function convertLatexToSpeakableText(
     options.macros = options.macros ?? {};
     Object.assign(options.macros, MACROS);
 
-    const mathlist = parseString(
+    const mathlist = parseLatex(
         latex,
         'math',
         null,

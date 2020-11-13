@@ -14,8 +14,8 @@ export class CompositionAtom extends Atom {
         // In theory one would like to be able to draw the clauses
         // in an active composition. Unfortunately, there are
         // no API to give access to those clauses :(
-        const result = this.makeSpan(context, this.value);
-        result.classes = 'ML__composition';
+        const result = new Span(this.value, 'ML__composition', 'composition');
+        this.bind(context, result);
         if (this.caret) result.caret = this.caret;
         return [result];
     }

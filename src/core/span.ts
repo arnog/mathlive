@@ -15,6 +15,7 @@ import { Mathstyle } from './mathstyle';
 
 const SPAN_TYPE = [
     '',
+    'chem',
     'mord',
     'mbin',
     'mop',
@@ -24,14 +25,11 @@ const SPAN_TYPE = [
     'mpunct',
     'minner',
     'spacing',
-    // 'mtable',
     'first',
     'command',
     'composition',
     'error',
     'placeholder',
-    'textord', // @revisit
-    'none', // @revisit. Use ''?
 ] as const; // The const assertion prevents widening to string[]
 export type SpanType = typeof SPAN_TYPE[number];
 
@@ -215,8 +213,13 @@ export class Span {
                 if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
             });
         } else if (typeof this.value === 'string') {
-            height = METRICS.baselineskip;
-            depth = 0;
+            if (this.type === 'command') {
+                height = 1.1;
+                depth = 0;
+            } else {
+                height = METRICS.baselineskip;
+                depth = 0;
+            }
         }
         this.height = height;
         this.depth = depth;
@@ -232,6 +235,10 @@ export class Span {
 
     applyStyle(mode: ParseMode, style: Style, className?: string): void {
         if (!style) return;
+
+        if (this.type === 'command') {
+            console.log(METRICS.baselineskip);
+        }
 
         //
         // 1. Apply color
@@ -629,7 +636,6 @@ function getEffectiveType(xs: Span[], i: number): string {
     let result = xs[i].type ?? 'none';
 
     if (result === 'first') return 'none';
-    if (result === 'textord') return 'mord';
     if (result === 'mbin') {
         // If a `mbin` span, i.e. "+" is after or before spans
         // of a certain type, consider it to be a `mord` instead.
@@ -705,19 +711,6 @@ export function italic(spans: Span | Span[]): number {
     return spans.italic;
 }
 
-/**
- * Make an element made of a sequence of children with classes
- * @param content the items 'contained' by this node
- * @param classes list of classes attributes associated with this node
- */
-export function makeSpan(
-    content: string | Span | Span[],
-    classes = '',
-    type: SpanType = ''
-): Span {
-    return new Span(content, classes, type);
-}
-
 export function makeSymbol(
     fontFamily: string,
     symbol: string,
@@ -775,18 +768,18 @@ export function makeStruts(
     classes = '',
     type: SpanType = ''
 ): Span {
-    const topStrut = makeSpan('', 'ML__strut');
+    const topStrut = new Span('', 'ML__strut');
     topStrut.setStyle('height', Math.max(0.0, height(content)), 'em');
     const struts = [topStrut];
 
     if (depth(content) !== 0) {
-        const bottomStrut = makeSpan('', 'ML__strut--bottom');
+        const bottomStrut = new Span('', 'ML__strut--bottom');
         bottomStrut.setStyle('height', height(content) + depth(content), 'em');
         bottomStrut.setStyle('vertical-align', -depth(content), 'em');
         struts.push(bottomStrut);
     }
     struts.push(content);
-    return makeSpan(struts, classes, type);
+    return new Span(struts, classes, type);
 }
 
 export function makeStyleWrap(
@@ -880,7 +873,7 @@ export function makeVlist(
                 elements[i] = elements[i][0];
             } else {
                 // Otherwise, wrap it in a span
-                elements[i] = makeSpan(elements[i] as Span[]);
+                elements[i] = new Span(elements[i] as Span[]);
             }
         }
     }
@@ -958,14 +951,14 @@ export function makeVlist(
             // It's a kern adjustment
             currPos += element;
         } else if (element instanceof Span) {
-            const wrap = makeSpan([fontSizer, element]);
+            const wrap = new Span([fontSizer, element]);
             wrap.setTop(-element.depth - currPos);
             newElements.push(wrap);
             currPos += element.height + element.depth;
         }
     }
 
-    const result = makeSpan(newElements, 'vlist');
+    const result = new Span(newElements, 'vlist');
 
     // Fix the final height and depth, in case there were kerns at the ends
     // since makeSpan won't take that into account.

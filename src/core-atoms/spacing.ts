@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { makeSpan, Span } from '../core/span';
+import { Span } from '../core/span';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -24,7 +24,7 @@ export class SpacingAtom extends Atom {
                 result = this.makeSpan(context, '\u00a0');
             }
         } else if (isFinite(this.width)) {
-            result = makeSpan('\u200b', 'mspace ');
+            result = new Span('\u200b', 'mspace ');
             result.left = this.width;
         } else {
             const spacingCls =
@@ -37,7 +37,7 @@ export class SpacingAtom extends Atom {
                     '\\,': 'thinspace',
                     '\\!': 'negativethinspace',
                 }[this.command] ?? 'mediumspace';
-            result = makeSpan('\u200b', 'mspace ' + spacingCls);
+            result = new Span('\u200b', 'mspace ' + spacingCls);
         }
         if (this.caret) result.caret = this.caret;
         return [result];

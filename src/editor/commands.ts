@@ -1,11 +1,11 @@
 import { isArray } from '../common/types';
 
-import { hidePopover, showPopoverWithLatex } from './popover'; // @revisit
-import { suggest } from '../core-definitions/definitions';
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { getCommandString } from '../editor-model/command-mode';
-import { requestUpdate } from '../editor-mathfield/render';
 import { SelectorPrivate, CommandRegistry } from './commands-definitions';
+
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { requestUpdate } from '../editor-mathfield/render';
+import { updateAutocomplete, complete } from '../editor-mathfield/autocomplete';
+
 export { SelectorPrivate };
 
 // @revisit: move to mathfield.vibrate()
@@ -33,6 +33,10 @@ interface RegisterCommandOptions {
 
 const COMMANDS: CommandRegistry<RegisterCommandOptions> = {};
 
+/**
+ * Register one or more selectors.
+ * The selector function return true to request a render update of the expression.
+ */
 export function register(
     commands: { [selector: string]: (...args: any[]) => boolean },
     options?: RegisterCommandOptions
@@ -94,18 +98,8 @@ export function perform(
         ) {
             mathfield.snapshot();
         }
-        if (/^(delete)/.test(selector) && mathfield.mode === 'command') {
-            const command = getCommandString(mathfield.model);
-            const suggestions = suggest(command);
-            if (suggestions.length === 0) {
-                hidePopover(mathfield);
-            } else {
-                showPopoverWithLatex(
-                    mathfield,
-                    suggestions[0].match,
-                    suggestions.length > 1
-                );
-            }
+        if (mathfield.mode === 'command') {
+            updateAutocomplete(mathfield);
         }
         dirty = true;
         handled = true;
@@ -184,3 +178,24 @@ register({
         command: SelectorPrivate
     ): boolean => performWithFeedback(mathfield, command),
 });
+
+function nextSuggestion(mathfield: MathfieldPrivate): boolean {
+    // The modulo of the suggestionIndex is used to determine which suggestion
+    // to display, so no need to worry about rolling over.
+    updateAutocomplete(mathfield, { atIndex: mathfield.suggestionIndex + 1 });
+    return false;
+}
+
+function previousSuggestion(mathfield: MathfieldPrivate): boolean {
+    updateAutocomplete(mathfield, { atIndex: mathfield.suggestionIndex - 1 });
+    return false;
+}
+
+register(
+    {
+        complete: complete,
+        nextSuggestion: nextSuggestion,
+        previousSuggestion: previousSuggestion,
+    },
+    { target: 'mathfield', category: 'autocomplete' }
+);

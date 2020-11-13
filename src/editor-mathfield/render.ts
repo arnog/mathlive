@@ -1,4 +1,4 @@
-import { makeSpan, makeStruts } from '../core/span';
+import { makeStruts, Span } from '../core/span';
 import { MATHSTYLES } from '../core/mathstyle';
 
 import { Rect, getSelectionBounds, isValidMathfield } from './utils';
@@ -6,6 +6,7 @@ import type { MathfieldPrivate } from './mathfield-private';
 
 import { atomsToMathML } from '../addons/math-ml';
 import { Atom, Context } from '../core/core';
+import { updatePopoverPosition } from '../editor/popover';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -113,8 +114,7 @@ export function render(
     //
     // 4. Construct struts around the spans
     //
-    const base = makeSpan(spans, 'ML__base');
-    base.setTop(base.height - base.depth);
+    const base = new Span(spans, 'ML__base');
     const wrapper = makeStruts(base, 'ML__mathlive');
     wrapper.attributes = {
         // Sometimes Google Translate kicks in an attempts to 'translate' math
@@ -156,6 +156,9 @@ export function render(
         // (re-render a bit later because the layout, sometimes, is not
         // up to date by now)
         setTimeout(() => renderSelection(mathfield), 32);
+    } else {
+        // The popover is relative to the location of the caret
+        setTimeout(() => updatePopoverPosition(mathfield), 32);
     }
 }
 

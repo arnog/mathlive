@@ -29,6 +29,7 @@ import {
     isOffset,
     isSelection,
     isRange,
+    AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
 
@@ -96,6 +97,18 @@ export class ModelPrivate implements Model {
         this.setSelection(value);
     }
 
+    // // Update the mode
+    // {
+    //     const newMode =
+    //         getMode(this.model, this.model.position) ??
+    //         this.options.defaultMode;
+    //     if (this.mode === 'command' && newMode !== 'command') {
+    //         complete(this, 'accept', { mode: newMode });
+    //     } else {
+    //         this.switchMode(newMode);
+    //     }
+    // }
+
     setSelection(from: Offset, to: Offset): boolean;
     setSelection(range: Range): boolean;
     setSelection(selection: Selection): boolean;
@@ -119,6 +132,7 @@ export class ModelPrivate implements Model {
                 value.ranges[0][0] === value.ranges[0][1]
             ) {
                 const pos = value.ranges[0][0];
+                console.assert(pos >= 0 && pos <= this.lastOffset);
                 this._position = pos;
                 this._anchor = pos;
                 this._selection = value;
@@ -147,21 +161,6 @@ export class ModelPrivate implements Model {
                     // and cursor
                     // @todo array
                 } else {
-                    // 3b/ Otherwise, account for the common ancestor
-
-                    // 3b.1/ Go up from the anchor until we reach the common ancestor
-                    // if (first.parent !== commonAncestor) {
-                    //     while (first.parent !== commonAncestor) {
-                    //         first = first.parent;
-                    //     }
-                    //     first = first.leftSibling;
-                    // }
-
-                    // 3b.2/ Go up from the cursor until we reach the common ancestor
-                    // while (last.parent !== commonAncestor) {
-                    //     last = last.parent;
-                    // }
-
                     this._selection = {
                         ranges: [[this.offsetOf(first), this.offsetOf(last)]],
                         direction: value.direction,
@@ -172,8 +171,13 @@ export class ModelPrivate implements Model {
                     } else {
                         this._position = this._selection.ranges[0][1];
                     }
+                    console.assert(
+                        this._position >= 0 && this._position <= this.lastOffset
+                    );
                 }
             }
+
+            // Adjust mode
         });
     }
 
@@ -530,7 +534,7 @@ export class ModelPrivate implements Model {
                 parent = parent.parent;
             }
 
-            this._position = position;
+            this._position = this.normalizeOffset(position);
             this._selection = {
                 ranges: [[start, end]],
                 direction: 'none',
@@ -557,8 +561,22 @@ export class ModelPrivate implements Model {
         };
     }
 
+    /**
+     * This method is called to provide feedback when using a screen reader
+     * or other assistive device, for example when changing the selection or
+     * moving the insertion point.
+     *
+     * It can also be used with the 'plonk' command to provide an audible
+     * feedback when a command is not possible.
+     *
+     * This method should not be called from other methods of the model
+     * (such as `setSelection`) as these methods can also be called
+     * programmatically and a feedback in these case would be innapropriate,
+     * however they should be called from functions called as a result of a user
+     * action, such as the functions in `commands.ts`
+     */
     announce(
-        command: string,
+        command: AnnounceVerb,
         previousPosition?: number,
         atoms: Atom[] = []
     ): void {

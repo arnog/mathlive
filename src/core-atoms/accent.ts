@@ -3,7 +3,6 @@ import { Atom } from '../core/atom-class';
 
 import {
     makeSVGSpan,
-    makeSpan,
     makeVlist,
     makeSymbol,
     height as spanHeight,
@@ -68,14 +67,14 @@ export class AccentAtom extends Atom {
             // thus shows up much too far to the left. To account for this, we add a
             // specific class which shifts the accent over to where we want it.
             const vecClass = this.accent === '\u20d7' ? ' accent-vec' : '';
-            accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);
+            accentBody = new Span(new Span(accent), 'accent-body' + vecClass);
         }
         accentBody = makeVlist(context, [base, -clearance, accentBody]);
         // Shift the accent over by the skew. Note we shift by twice the skew
         // because we are centering the accent, so by adding 2*skew to the left,
         // we shift it to the right by 1*skew.
         accentBody.children[accentBody.children.length - 1].left = 2 * skew;
-        const result = makeSpan(accentBody, 'accent', 'mord');
+        const result = new Span(accentBody, 'accent', 'mord');
         if (this.caret) result.caret = this.caret;
         return [this.attachSupsub(context, result, result.type)];
     }

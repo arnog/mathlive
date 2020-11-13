@@ -6,7 +6,7 @@ import {
     hideAlternateKeys,
     unshiftKeyboardLayer,
 } from './virtual-keyboard-utils';
-import { complete } from './autocomplete';
+import { complete } from '../editor-mathfield/autocomplete';
 import { getSharedElement } from '../editor-mathfield/utils';
 import { register as registerCommand } from './commands';
 import { on } from '../editor-mathfield/utils';

@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { makeSpan, Span, SpanType } from '../core/span';
+import { Span, SpanType } from '../core/span';
 import { Context } from '../core/context';
 import { makeSizedDelim } from '../core/delimiters';
 import { Style } from '../public/core';
@@ -19,7 +19,7 @@ export class DelimAtom extends Atom {
         this.size = options?.size;
     }
     render(_context: Context): Span[] {
-        const span = makeSpan(null, '');
+        const span = new Span(null, '');
         span.delim = this.value;
         return [span];
     }

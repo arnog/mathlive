@@ -5,7 +5,6 @@ import {
     ToLatexOptions,
 } from '../core/atom-class';
 import {
-    makeSpan,
     makeVlist,
     depth as spanDepth,
     height as spanHeight,
@@ -163,7 +162,7 @@ export class ArrayAtom extends Atom {
                     mathstyle: MATHSTYLES[this.mathStyleName],
                 });
                 const cell = Atom.render(localContext, inrow[c]) || [];
-                const elt = [makeSpan(null, '', 'mord')].concat(cell);
+                const elt = [new Span(null, '', 'mord')].concat(cell);
                 depth = Math.max(depth, spanDepth(elt));
                 height = Math.max(height, spanHeight(elt));
                 outrow.cells.push(elt);
@@ -232,7 +231,7 @@ export class ArrayAtom extends Atom {
                     cols.push(makeColGap(arraycolsep));
                 }
                 cols.push(
-                    makeSpan(
+                    new Span(
                         contentCols[currentContentCol],
                         'col-align-' + colDesc.align
                     )
@@ -265,7 +264,7 @@ export class ArrayAtom extends Atom {
                 firstColumn = false;
             } else if (colDesc.rule) {
                 // It's a rule.
-                const separator = makeSpan(null, 'vertical-separator');
+                const separator = new Span(null, 'vertical-separator');
                 separator.setStyle('height', totalHeight, 'em');
                 // result.setTop((1 - context.mathstyle.sizeMultiplier) *
                 //     context.mathstyle.metrics.axisHeight);
@@ -300,17 +299,17 @@ export class ArrayAtom extends Atom {
         ) {
             // There are no delimiters around the array, just return what
             // we've built so far.
-            return [makeSpan(cols, 'mtable', 'mord')];
+            return [new Span(cols, 'mtable', 'mord')];
         }
         // There is at least one delimiter. Wrap the core of the array with
         // appropriate left and right delimiters
-        // const inner = makeSpan(makeSpan(cols, 'mtable'), 'mord');
-        const inner = makeSpan(cols, 'mtable');
+        // const inner = new Span(new Span(cols, 'mtable'), 'mord');
+        const inner = new Span(cols, 'mtable');
         const innerHeight = spanHeight(inner);
         const innerDepth = spanDepth(inner);
         const result = this.bind(
             context,
-            makeSpan(
+            new Span(
                 [
                     this.bind(
                         context,
@@ -383,8 +382,8 @@ export class ArrayAtom extends Atom {
     addChildAfter(_child: Atom, _after: Atom): void {
         return;
     }
-    addChildrenAfter(_children: Atom[], _after: Atom): void {
-        return;
+    addChildrenAfter(_children: Atom[], _after: Atom): Atom {
+        return null;
     }
     removeChild(_child: Atom): void {
         return;
@@ -445,7 +444,7 @@ export class ArrayAtom extends Atom {
  *
  */
 function makeColGap(width: number): Span {
-    const separator = makeSpan('\u200b', 'arraycolsep');
+    const separator = new Span('\u200b', 'arraycolsep');
     separator.width = width;
     return separator;
 }
@@ -461,7 +460,7 @@ function makeColOfRepeatingElements(
 ): Span {
     const col = [];
     for (const row of rows) {
-        const cell = makeSpan(Atom.render(context, elem));
+        const cell = new Span(Atom.render(context, elem));
         cell.depth = row.depth;
         cell.height = row.height;
         col.push(cell);

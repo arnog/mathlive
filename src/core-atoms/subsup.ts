@@ -1,10 +1,5 @@
 import { Atom, AtomType, ToLatexOptions } from '../core/atom-class';
-import {
-    Span,
-    makeSpan,
-    height as spanHeight,
-    depth as spanDepth,
-} from '../core/span';
+import { Span, height as spanHeight, depth as spanDepth } from '../core/span';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -27,7 +22,7 @@ export class SubsupAtom extends Atom {
                 minner: 'minner',
                 spacing: 'spacing',
             }[this.baseType] ?? 'mord';
-        const result = makeSpan('\u200b', '', baseType);
+        const result = new Span('\u200b', '', baseType);
         if (context.phantomBase) {
             result.height = spanHeight(context.phantomBase);
             result.depth = spanDepth(context.phantomBase);

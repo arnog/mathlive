@@ -1,11 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import {
-    makeSpan,
-    depth as spanDepth,
-    height as spanHeight,
-    Span,
-} from '../core/span';
+import { depth as spanDepth, height as spanHeight, Span } from '../core/span';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -56,16 +51,16 @@ export class BoxAtom extends Atom {
                 : FONTMETRICS.fboxsep;
 
         // Base is the main content "inside" the box
-        const content = makeSpan(Atom.render(context, this.body), '', 'mord');
+        const content = new Span(Atom.render(context, this.body), '', 'mord');
         content.setStyle('vertical-align', -spanDepth(content), 'em');
         content.setStyle('height', 0);
-        const base = makeSpan(content, '', 'mord');
+        const base = new Span(content, '', 'mord');
 
         // This span will represent the box (background and border)
         // It's positioned to overlap the base
         // The 'ML__box' class is required to prevent the span from being omitted
         // during rendering (it looks like an empty, no-op span)
-        const box = makeSpan('', 'ML__box');
+        const box = new Span('', 'ML__box');
         box.setStyle('position', 'absolute');
 
         box.setStyle(
@@ -99,7 +94,7 @@ export class BoxAtom extends Atom {
         base.setStyle('height', spanHeight(base) + spanDepth(base), 'em');
 
         // The result is a span that encloses the box and the base
-        const result = makeSpan([box, base]);
+        const result = new Span([box, base]);
         // Set its position as relative so that the box can be absolute positioned
         // over the base
         result.setStyle('position', 'relative');

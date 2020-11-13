@@ -4,7 +4,6 @@ import {
     SpanType,
     isSpanType,
     makeSVGSpan,
-    makeSpan,
     makeVlist,
     depth as spanDepth,
     height as spanHeight,
@@ -69,7 +68,7 @@ export class OverunderAtom extends Atom {
         if (this.svgAbove) {
             above = makeSVGSpan(this.svgAbove);
         } else if (this.above) {
-            above = makeSpan(
+            above = new Span(
                 Atom.render(annotationStyle, this.above),
                 context.mathstyle.adjustTo(annotationStyle.mathstyle)
             );
@@ -77,7 +76,7 @@ export class OverunderAtom extends Atom {
         if (this.svgBelow) {
             below = makeSVGSpan(this.svgBelow);
         } else if (this.below) {
-            below = makeSpan(
+            below = new Span(
                 Atom.render(annotationStyle, this.below),
                 context.mathstyle.adjustTo(annotationStyle.mathstyle)
             );
@@ -123,7 +122,7 @@ function makeOverunderStack(
 ): Span {
     // If nothing above and nothing below, nothing to do.
     if (!above && !below) {
-        return makeSpan(nucleus, 'op-over-under', type);
+        return new Span(nucleus, 'op-over-under', type);
         // return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
     }
 
@@ -186,5 +185,5 @@ function makeOverunderStack(
         );
     }
 
-    return makeSpan(result, 'op-over-under', type);
+    return new Span(result, 'op-over-under', type);
 }

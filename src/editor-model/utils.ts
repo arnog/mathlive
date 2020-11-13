@@ -11,23 +11,26 @@ export type ModelOptions = {
     removeExtraneousParentheses: boolean;
 };
 
+export type AnnounceVerb =
+    | 'plonk'
+    | 'focus'
+    | 'replacement'
+    | 'line'
+    | 'move'
+    | 'move up'
+    | 'move down'
+    | 'delete'
+    | 'delete: numerator'
+    | 'delete: denominator'
+    | 'delete: root'
+    | 'delete: superscript';
+
 export type ModelHooks = {
     announce?: (
         target: Mathfield, // @revisit: could drop this argument
-        command: string, // verb
-        // | 'plonk'
-        // | 'replacement'
-        //     | 'line'
-        //     | 'move'
-        //     | 'moveUp'
-        //     | 'moveDown'
-        //     | 'deleted'
-        //     | 'deleted: numerator'
-        //     | 'deleted: denominator'
-        //     | 'deleted: root'
-        //     | 'deleted: superscript',
+        verb: AnnounceVerb,
         previousPosition: number,
-        atoms: Atom[] // object of the command
+        object: Atom[] // object of the command
     ) => void;
     /*
      * Return false if handled.

@@ -21,14 +21,7 @@
  * @summary   Handling of delimiters surrounds symbols.
  */
 
-import {
-    makeSymbol,
-    makeSpan,
-    makeVlist,
-    makeStyleWrap,
-    SpanType,
-    Span,
-} from './span';
+import { makeSymbol, makeVlist, makeStyleWrap, SpanType, Span } from './span';
 import { Mathstyle, MATHSTYLES } from './mathstyle';
 import { getCharacterMetrics, METRICS } from './font-metrics';
 import type { Context } from './context';
@@ -410,7 +403,7 @@ function makeStackedDelim(
 
     return makeStyleWrap(
         type,
-        makeSpan(inner, 'delimsizing mult'),
+        new Span(inner, 'delimsizing mult'),
         context.mathstyle,
         MATHSTYLES.textstyle,
         classes
@@ -492,7 +485,6 @@ export function makeSizedDelim(
         // Empty delimiters still count as elements, even though they don't
         // show anything.
         return makeNullFence(type, context, classes);
-        // return makeSpan('', classes);
     }
 
     // < and > turn into \langle and \rangle in delimiters
@@ -756,7 +748,7 @@ function makeNullFence(
     context: Context,
     classes: string
 ): Span {
-    return makeSpan(
+    return new Span(
         '',
         'sizing' + // @todo not useful, redundant with 'nulldelimiter'
             // 'reset-' + context.size, 'size5',

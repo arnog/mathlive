@@ -1,7 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import {
-    makeSpan,
     addSVGOverlay,
     depth as spanDepth,
     height as spanHeight,
@@ -122,7 +121,7 @@ export class EncloseAtom extends Atom {
         return result;
     }
     render(context: Context): Span[] {
-        const base = makeSpan(Atom.render(context, this.body), '', 'mord');
+        const base = new Span(Atom.render(context, this.body), '', 'mord');
 
         // Account for the padding
         const padding =
@@ -132,7 +131,7 @@ export class EncloseAtom extends Atom {
 
         // The 'ML__notation' class is required to prevent the span from being omitted
         // during rendering (it looks like an empty, no-op span)
-        const notation = makeSpan('', 'ML__notation');
+        const notation = new Span('', 'ML__notation');
         notation.setStyle('position', 'absolute');
         notation.setStyle(
             'height',
@@ -291,7 +290,7 @@ export class EncloseAtom extends Atom {
             }
             addSVGOverlay(notation, svg, svgStyle);
         }
-        const result = makeSpan([notation, base]);
+        const result = new Span([notation, base]);
         // Set its position as relative so that the box can be absolute positioned
         // over the base
         result.setStyle('position', 'relative');

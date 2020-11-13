@@ -1,5 +1,5 @@
 import { Atom } from '../core/atom-class';
-import { Span, makeSpan, makeVlist } from '../core/span';
+import { Span, makeVlist } from '../core/span';
 import { Context } from '../core/context';
 import type { Style } from '../public/core';
 
@@ -30,19 +30,19 @@ export class PhantomAtom extends Atom {
     }
     render(context: Context): Span[] {
         if (this.phantomType === 'vphantom') {
-            const content = makeSpan(Atom.render(context, this.body), 'inner');
+            const content = new Span(Atom.render(context, this.body), 'inner');
             content.applyStyle('math', {
                 backgroundColor: 'transparent',
                 color: 'transparent',
             });
-            return [makeSpan([content, makeSpan(null, 'fix')], 'rlap', 'mord')];
+            return [new Span([content, new Span(null, 'fix')], 'rlap', 'mord')];
         } else if (
             this.phantomType === 'hphantom' ||
             this.phantomType === 'smash' ||
             this.phantomType === 'bsmash' ||
             this.phantomType === 'tsmash'
         ) {
-            const content = makeSpan(
+            const content = new Span(
                 Atom.render(context, this.body),
                 '',
                 'mord'
@@ -59,9 +59,9 @@ export class PhantomAtom extends Atom {
             if (this.phantomType !== 'tsmash') {
                 content.depth = 0;
             }
-            return [makeSpan(makeVlist(context, [content]), '', 'mord')];
+            return [new Span(makeVlist(context, [content]), '', 'mord')];
         }
 
-        return [makeSpan(Atom.render(context, this.body), '', 'mord')];
+        return [new Span(Atom.render(context, this.body), '', 'mord')];
     }
 }

@@ -3,7 +3,7 @@ import { ParseMode, Style } from '../public/core';
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { MATHSTYLES, MathStyleName } from '../core/mathstyle';
-import { Span, makeSpan } from '../core/span';
+import { Span } from '../core/span';
 
 export class GroupAtom extends Atom {
     latexOpen?: string;
@@ -54,7 +54,7 @@ export class GroupAtom extends Atom {
                 ? MATHSTYLES[this.mathStyleName]
                 : undefined,
         });
-        const span = makeSpan(Atom.render(localContext, this.body), '', 'mord'); // @revisit
+        const span = new Span(Atom.render(localContext, this.body), '', 'mord'); // @revisit
         if (this.cssId) span.cssId = this.cssId;
         span.applyStyle(
             this.mode,

@@ -58,7 +58,7 @@ function scanIdentifier(stream, final, options) {
 
     if (
         stream.index < final &&
-        (atom.type === 'mord' || atom.type === 'textord') &&
+        atom.type === 'mord' &&
         '0123456789,.'.indexOf(atom.value) < 0
     ) {
         body = atomToMathML(atom, options);
@@ -657,7 +657,6 @@ function atomToMathML(atom, options): string {
         '\\ddots': '\u22f1',
         '\\vdots': '\u22ee',
         '\\ldotp': '\u002e',
-        // TODO: include all the 'textord' that are identifiers, not operators.
     };
 
     const MATH_VARIANTS = {
@@ -991,7 +990,6 @@ function atomToMathML(atom, options): string {
             }
             case 'mbin':
             case 'mrel':
-            case 'textord':
             case 'minner':
                 if (command && SPECIAL_IDENTIFIERS[command]) {
                     // Some 'textord' are actually identifiers. Check them here.

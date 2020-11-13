@@ -1,7 +1,7 @@
 import { Atom } from '../core/atom-class';
 import { MATHSTYLES } from '../core/mathstyle';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import { Span, makeSpan, makeVlist, height as spanHeight } from '../core/span';
+import { Span, makeVlist, height as spanHeight } from '../core/span';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -23,7 +23,7 @@ export class LineAtom extends Atom {
         const inner = Atom.render(context.cramp(), this.body);
         const ruleWidth =
             FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-        const line = makeSpan(
+        const line = new Span(
             null,
             context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
                 ' ' +
@@ -36,7 +36,7 @@ export class LineAtom extends Atom {
         if (this.position === 'overline') {
             vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
         } else {
-            const innerSpan = makeSpan(inner);
+            const innerSpan = new Span(inner);
             vlist = makeVlist(
                 context,
                 [ruleWidth, line, 3 * ruleWidth, innerSpan],
@@ -45,6 +45,6 @@ export class LineAtom extends Atom {
             );
         }
         if (this.caret) vlist.caret = this.caret;
-        return [makeSpan(vlist, this.position, 'mord')];
+        return [new Span(vlist, this.position, 'mord')];
     }
 }

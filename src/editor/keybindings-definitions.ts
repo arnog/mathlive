@@ -86,12 +86,12 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     {
         key: '[Escape]',
         ifMode: 'command',
-        command: ['complete', 'reject'],
-    }, // discard the command} insert nothing
+        command: ['complete', 'complete', { selectItem: 'true' }],
+    }, // accept the entry (without the suggestion) and select
     {
         key: '[Tab]',
         ifMode: 'command',
-        command: ['complete', 'accept-with-suggestion'],
+        command: ['complete', 'accept-suggestion'],
     }, // complete the suggestion
     { key: '[Return]', ifMode: 'command', command: 'complete' },
     { key: '[Enter]', ifMode: 'command', command: 'complete' },

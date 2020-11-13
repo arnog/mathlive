@@ -1,6 +1,6 @@
 import { Atom, AtomType, ToLatexOptions } from '../core/atom-class';
 import { MATHSTYLES } from '../core/mathstyle';
-import { makeSymbol, makeSpan, Span } from '../core/span';
+import { makeSymbol, Span } from '../core/span';
 import { Context } from '../core/context';
 import { Style, Variant, VariantStyle } from '../public/core';
 import { joinLatex } from '../core/tokenizer';
@@ -79,7 +79,7 @@ export class OperatorAtom extends Atom {
             });
         } else if (this.body) {
             // If this is a list, decompose that list.
-            base = makeSpan(Atom.render(context, this.body), '', 'mop');
+            base = new Span(Atom.render(context, this.body), '', 'mop');
             base.applyStyle(this.mode, {
                 color: this.style.color,
                 backgroundColor: this.style.backgroundColor,

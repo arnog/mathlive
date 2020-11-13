@@ -3,7 +3,6 @@ import { MATHSTYLES, MathStyleName } from '../core/mathstyle';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import {
     Span,
-    makeSpan,
     makeHlist,
     makeVlist,
     depth as spanDepth,
@@ -81,7 +80,7 @@ export class GenfracAtom extends Atom {
         const style = this.computedStyle;
         let numer = [];
         if (this.numerPrefix) {
-            numer.push(makeSpan(this.numerPrefix, 'mord'));
+            numer.push(new Span(this.numerPrefix, 'mord'));
         }
         const numeratorStyle = this.continuousFraction
             ? mathstyle
@@ -98,7 +97,7 @@ export class GenfracAtom extends Atom {
         );
         let denom = [];
         if (this.denomPrefix) {
-            denom.push(makeSpan(this.denomPrefix, 'mord'));
+            denom.push(new Span(this.denomPrefix, 'mord'));
         }
         const denominatorStyle = this.continuousFraction
             ? mathstyle
@@ -174,20 +173,24 @@ export class GenfracAtom extends Atom {
                 denomShift +=
                     clearance - (denomLine - (denomHeight - denomShift));
             }
-            const mid = makeSpan(null, ' frac-line');
+            const mid = new Span(null, ' frac-line');
             mid.applyStyle(this.mode, style);
             // Manually set the height of the line because its height is
             // created in CSS
             mid.height = ruleWidth / 2;
             mid.depth = ruleWidth / 2;
-            const elements = [];
-            elements.push(numerReset);
-            elements.push(-numShift);
-            elements.push(mid);
-            elements.push(ruleWidth / 2 - axisHeight);
-            elements.push(denomReset);
-            elements.push(denomShift);
-            frac = makeVlist(newContext, elements, 'individualShift');
+            frac = makeVlist(
+                newContext,
+                [
+                    denomReset,
+                    denomShift,
+                    mid,
+                    ruleWidth / 2 - axisHeight,
+                    numerReset,
+                    -numShift,
+                ],
+                'individualShift'
+            );
         }
         // Add a 'mfrac' class to provide proper context for
         // other css selectors (such as 'frac-line')
@@ -233,7 +236,7 @@ export class GenfracAtom extends Atom {
         const result = this.bind(
             context,
             // makeStruts(
-            makeSpan(
+            new Span(
                 [leftDelim, frac, rightDelim],
                 context.parentSize !== context.size
                     ? 'sizing reset-' + context.parentSize + ' ' + context.size

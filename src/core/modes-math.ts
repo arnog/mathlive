@@ -255,6 +255,7 @@ function applyStyle(span: Span, style: Style): string {
 }
 
 function variantString(atom: Atom): string {
+    if (!atom) return '';
     const style = atom.computedStyle;
     let result = style.variant ?? '';
     if (style.variantStyle && style.variantStyle !== 'up') {

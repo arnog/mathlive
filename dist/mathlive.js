@@ -3088,6 +3088,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      */
     const SPAN_TYPE = [
         '',
+        'chem',
         'mord',
         'mbin',
         'mop',
@@ -3097,14 +3098,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         'mpunct',
         'minner',
         'spacing',
-        // 'mtable',
         'first',
         'command',
         'composition',
         'error',
         'placeholder',
-        'textord',
-        'none',
     ]; // The const assertion prevents widening to string[]
     function isSpanType(type) {
         return SPAN_TYPE.includes(type);
@@ -3247,8 +3245,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 });
             }
             else if (typeof this.value === 'string') {
-                height = METRICS.baselineskip;
-                depth = 0;
+                if (this.type === 'command') {
+                    height = 1.1;
+                    depth = 0;
+                }
+                else {
+                    height = METRICS.baselineskip;
+                    depth = 0;
+                }
             }
             this.height = height;
             this.depth = depth;
@@ -3263,6 +3267,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         applyStyle(mode, style, className) {
             if (!style)
                 return;
+            if (this.type === 'command') {
+                console.log(METRICS.baselineskip);
+            }
             //
             // 1. Apply color
             //
@@ -3639,8 +3646,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         let result = (_e = xs[i].type) !== null && _e !== void 0 ? _e : 'none';
         if (result === 'first')
             return 'none';
-        if (result === 'textord')
-            return 'mord';
         if (result === 'mbin') {
             // If a `mbin` span, i.e. "+" is after or before spans
             // of a certain type, consider it to be a `mord` instead.
@@ -3709,14 +3714,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         return spans.italic;
     }
-    /**
-     * Make an element made of a sequence of children with classes
-     * @param content the items 'contained' by this node
-     * @param classes list of classes attributes associated with this node
-     */
-    function makeSpan(content, classes = '', type = '') {
-        return new Span(content, classes, type);
-    }
     function makeSymbol(fontFamily, symbol, classes = '', type = '') {
         const result = new Span(symbol, classes, type);
         const metrics = getCharacterMetrics(symbol, fontFamily);
@@ -3753,17 +3750,17 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return fontSizeAdjustment !== 0 ? fontSizeInner : null;
     }
     function makeStruts(content, classes = '', type = '') {
-        const topStrut = makeSpan('', 'ML__strut');
+        const topStrut = new Span('', 'ML__strut');
         topStrut.setStyle('height', Math.max(0.0, height(content)), 'em');
         const struts = [topStrut];
         if (depth(content) !== 0) {
-            const bottomStrut = makeSpan('', 'ML__strut--bottom');
+            const bottomStrut = new Span('', 'ML__strut--bottom');
             bottomStrut.setStyle('height', height(content) + depth(content), 'em');
             bottomStrut.setStyle('vertical-align', -depth(content), 'em');
             struts.push(bottomStrut);
         }
         struts.push(content);
-        return makeSpan(struts, classes, type);
+        return new Span(struts, classes, type);
     }
     function makeStyleWrap(type, children, fromStyle, toStyle, classes) {
         const result = makeHlist(children, classes + ' style-wrap ' + fromStyle.adjustTo(toStyle));
@@ -3825,7 +3822,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
                 else {
                     // Otherwise, wrap it in a span
-                    elements[i] = makeSpan(elements[i]);
+                    elements[i] = new Span(elements[i]);
                 }
             }
         }
@@ -3899,13 +3896,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 currPos += element;
             }
             else if (element instanceof Span) {
-                const wrap = makeSpan([fontSizer, element]);
+                const wrap = new Span([fontSizer, element]);
                 wrap.setTop(-element.depth - currPos);
                 newElements.push(wrap);
                 currPos += element.height + element.depth;
             }
         }
-        const result = makeSpan(newElements, 'vlist');
+        const result = new Span(newElements, 'vlist');
         // Fix the final height and depth, in case there were kerns at the ends
         // since makeSpan won't take that into account.
         result.depth = Math.max(listDepth, (_a = depth(result)) !== null && _a !== void 0 ? _a : 0);
@@ -4968,8 +4965,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * Infix operators are excluded, since they are deprecated commands.
      */
     function suggest(s) {
-        if (s.length <= 1)
-            return [];
         const result = [];
         // Iterate over items in the dictionary
         for (const p in FUNCTIONS) {
@@ -4987,10 +4982,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
         }
         result.sort((a, b) => {
+            var _a, _b;
             if (a.frequency === b.frequency) {
+                if (a.match.length === b.match.length) {
+                    return a.match.localeCompare(b.match);
+                }
                 return a.match.length - b.match.length;
             }
-            return (b.frequency || 0) - (a.frequency || 0);
+            return ((_a = b.frequency) !== null && _a !== void 0 ? _a : 0) - ((_b = a.frequency) !== null && _b !== void 0 ? _b : 0);
         });
         return result;
     }
@@ -5139,11 +5138,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         'subscript',
     ];
     /**
-     * A "branch" is a set of children of an atom.
+     * A _branch_ is a set of children of an atom.
+     *
      * There are two kind of branches:
-     * - **colRow** branches are used with array type of atoms. They are addressed
-     * with a column and row number
-     * - **named branches** used with other kind of atom. There is a fixed set of
+     * - **colRow** branches are adressed with a column and row number and are
+     * used with ArrayAtom
+     * - **named branches** used with other kind of atoms. There is a fixed set of
      * possible named branches.
      */
     function isNamedBranch(branch) {
@@ -5192,17 +5192,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * inside this element.
      */
     class Atom {
-        // color?: string;
-        // backgroundColor?: string;
-        // variant?: Variant;
-        // variantStyle?: VariantStyle;
-        // fontFamily?: string;
-        // fontShape?: FontShape;
-        // fontSeries?: FontSeries;
-        // fontSize?: string;
-        // cssId?: string;
-        // cssClass?: string; // A single CSS class, as a style decoration
-        // letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         constructor(type, options) {
             var _a, _b, _c, _d;
             this.command = options === null || options === void 0 ? void 0 : options.command;
@@ -5564,9 +5553,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (this.style.fontSize === 'auto') {
                 delete this.style.fontSize;
             }
-            if (this.style.fontSize) {
-                this.maxFontSize = SIZING_MULTIPLIER[this.style.fontSize];
-            }
         }
         getInitialBaseElement() {
             let result;
@@ -5657,6 +5643,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         addChildren(children, branch) {
             children.forEach((x) => this.addChild(x, branch));
         }
+        /**
+         * Return the last atom that was added
+         */
         addChildrenAfter(children, after) {
             console.assert(children.length === 0 || children[0].type !== 'first');
             const branch = this.createBranch(after.treeBranch);
@@ -5667,6 +5656,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 x.parent = this;
                 x.treeBranch = after.treeBranch;
             });
+            return children[children.length - 1];
         }
         removeBranch(name) {
             const children = this.branch(name);
@@ -5828,11 +5818,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             let submid = null;
             if (this.branches.superscript) {
                 const sup = Atom.render(context.sup(), this.branches.superscript);
-                supmid = makeSpan(sup, mathstyle.adjustTo(mathstyle.sup()));
+                supmid = new Span(sup, mathstyle.adjustTo(mathstyle.sup()));
             }
             if (this.branches.subscript) {
                 const sub = Atom.render(context.sub(), this.branches.subscript);
-                submid = makeSpan(sub, mathstyle.adjustTo(mathstyle.sub()));
+                submid = new Span(sub, mathstyle.adjustTo(mathstyle.sub()));
             }
             // Rule 18a, p445
             let supShift = 0;
@@ -5900,19 +5890,19 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             // Display the caret *following* the superscript and subscript,
             // so attach the caret to the 'msubsup' element.
-            const supsubContainer = makeSpan(supsub, 'msubsup');
+            const supsubContainer = new Span(supsub, 'msubsup');
             if (this.caret) {
                 supsubContainer.caret = this.caret;
                 // this.caret = ''; // @revisit: we shouln't clear the **Atom** caret
             }
-            return makeSpan([nucleus, supsubContainer], '', type);
+            return new Span([nucleus, supsubContainer], '', type);
         }
         attachLimits(context, nucleus, nucleusShift, slant) {
             const limitAbove = this.superscript
-                ? makeSpan(Atom.render(context.sup(), this.superscript), context.mathstyle.adjustTo(context.mathstyle.sup()))
+                ? new Span(Atom.render(context.sup(), this.superscript), context.mathstyle.adjustTo(context.mathstyle.sup()))
                 : null;
             const limitBelow = this.subscript
-                ? makeSpan(Atom.render(context.sub(), this.subscript), context.mathstyle.adjustTo(context.mathstyle.sub()))
+                ? new Span(Atom.render(context.sub(), this.subscript), context.mathstyle.adjustTo(context.mathstyle.sub()))
                 : null;
             return makeLimitsStack(context, nucleus, nucleusShift, slant, limitAbove, limitBelow);
         }
@@ -5939,12 +5929,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         makeSpan(context, value) {
             var _a;
             // Ensure that the atom type is a valid Span type, or use ''
-            const type = this.type === 'textord'
-                ? 'mord'
-                : isSpanType(this.type)
-                    ? this.type
-                    : '';
-            const result = makeSpan(typeof value === 'string' ? value : Atom.render(context, value), '', type);
+            const type = isSpanType(this.type) ? this.type : '';
+            const result = new Span(typeof value === 'string' ? value : Atom.render(context, value), '', type);
             // The font family is determined by:
             // - the base font family associated with this atom (optional). For example,
             // some atoms such as some functions ('\sin', '\cos', etc...) or some
@@ -5992,7 +5978,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 // to the 'msubsup' atom, so no need to have it here.
                 if (!this.superscript && !this.subscript) {
                     result.caret = this.caret;
-                    // this.caret = ''; // @revisit: we shouln't clear the **Atom** caret
                 }
             }
             if (context.mathstyle.isTight())
@@ -6035,7 +6020,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         // IE8 clips \int if it is in a display: inline-block. We wrap it
         // in a new span so it is an inline, and works.
         // @todo: revisit
-        nucleus = makeSpan(nucleus);
+        nucleus = new Span(nucleus);
         let aboveShift = 0;
         let belowShift = 0;
         if (above) {
@@ -6080,7 +6065,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // See comment above about slants
             result.children[1].left = slant;
         }
-        return makeSpan(result, 'op-limits', 'mop');
+        return new Span(result, 'op-limits', 'mop');
     }
     /**
      *
@@ -6560,7 +6545,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     ? MATHSTYLES[this.mathStyleName]
                     : undefined,
             });
-            const span = makeSpan(Atom.render(localContext, this.body), '', 'mord'); // @revisit
+            const span = new Span(Atom.render(localContext, this.body), '', 'mord'); // @revisit
             if (this.cssId)
                 span.cssId = this.cssId;
             span.applyStyle(this.mode, {
@@ -6612,7 +6597,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
             }
             else if (isFinite(this.width)) {
-                result = makeSpan('\u200b', 'mspace ');
+                result = new Span('\u200b', 'mspace ');
                 result.left = this.width;
             }
             else {
@@ -6625,7 +6610,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     '\\,': 'thinspace',
                     '\\!': 'negativethinspace',
                 }[this.command]) !== null && _a !== void 0 ? _a : 'mediumspace';
-                result = makeSpan('\u200b', 'mspace ' + spacingCls);
+                result = new Span('\u200b', 'mspace ' + spacingCls);
             }
             if (this.caret)
                 result.caret = this.caret;
@@ -7012,7 +6997,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         if (typeof context.opacity === 'number') {
             inner.setStyle('opacity', context.opacity);
         }
-        return makeStyleWrap(type, makeSpan(inner, 'delimsizing mult'), context.mathstyle, MATHSTYLES.textstyle, classes);
+        return makeStyleWrap(type, new Span(inner, 'delimsizing mult'), context.mathstyle, MATHSTYLES.textstyle, classes);
     }
     // There are three kinds of delimiters, delimiters that stack when they become
     // too large
@@ -7079,7 +7064,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // Empty delimiters still count as elements, even though they don't
             // show anything.
             return makeNullFence(type, context, classes);
-            // return makeSpan('', classes);
         }
         // < and > turn into \langle and \rangle in delimiters
         if (delim === '<' || delim === '\\lt') {
@@ -7243,7 +7227,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * @param type either 'mopen', 'mclose' or null
      */
     function makeNullFence(type, context, classes) {
-        return makeSpan('', 'sizing' + // @todo not useful, redundant with 'nulldelimiter'
+        return new Span('', 'sizing' + // @todo not useful, redundant with 'nulldelimiter'
             // 'reset-' + context.size, 'size5',
             // @todo: that seems like a lot of resizing... do we need both?
             context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
@@ -7392,8 +7376,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // behavior for `\mleft...\mright`, which allows for tighter spacing
             // for example in `\sin\mleft(x\mright)`
             const result = this.inner
-                ? makeSpan(spans, mathstyle.cls(), 'minner')
-                : makeSpan(spans, mathstyle.cls(), 'mclose');
+                ? new Span(spans, mathstyle.cls(), 'minner')
+                : new Span(spans, mathstyle.cls(), 'mclose');
             if (this.caret)
                 result.caret = this.caret;
             return [this.bind(context, result)];
@@ -7418,7 +7402,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 minner: 'minner',
                 spacing: 'spacing',
             }[this.baseType]) !== null && _a !== void 0 ? _a : 'mord';
-            const result = makeSpan('\u200b', '', baseType);
+            const result = new Span('\u200b', '', baseType);
             if (context.phantomBase) {
                 result.height = height(context.phantomBase);
                 result.depth = depth(context.phantomBase);
@@ -7483,9 +7467,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return options.expandMacro ? this.bodyToLatex(options) : this.latex;
         }
         render(context) {
-            const result = makeSpan(Atom.render(context, this.body), '', 'mord');
+            const result = new Span(Atom.render(context, this.body), '', 'mord');
             if (this.caret)
                 result.caret = this.caret;
+            this.bind(context, result);
             return [result];
         }
     }
@@ -7649,7 +7634,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (typeof ((_a = this.args) === null || _a === void 0 ? void 0 : _a['?']) === 'string') {
                 // If there is a specific value defined for the placeholder,
                 // use it.
-                return parseString(this.args['?'], this.parseMode, null, this.macros, false, this.onError);
+                return parseLatex(this.args['?'], this.parseMode, null, this.macros, false, this.onError);
             }
             return this.args['?'];
         }
@@ -8070,11 +8055,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             // If the environment has some arguments, parse them
             const args = [];
-            if (def === null || def === void 0 ? void 0 : def.params) {
+            if (def.params) {
                 for (const param of def.params) {
                     // Parse an argument
                     if (param.isOptional) {
-                        // If it's not present, scanArg returns null,
+                        // If it's not present, parseOptionalArgument returns null,
                         // but push it on the list of arguments anyway.
                         // The null value will be interpreted as unspecified
                         // optional value by the command parse function.
@@ -8439,13 +8424,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             return [explicitGroup, args];
         }
-        /**
-         * Parse a math field (in the TeX parlance), an argument to a function.
-         *
-         * An argument can either be a single atom or  a sequence of atoms enclosed
-         * in braces.
-         *
-         */
         parseArgument(argType) {
             var _a;
             this.skipFiller();
@@ -8622,7 +8600,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 if (!isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff) {
                     codepoint = 0x2753; // BLACK QUESTION MARK
                 }
-                result = new Atom(this.parseMode === 'math' ? 'mord' : '', {
+                result = new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
                     command: '\\char',
                     mode: this.parseMode,
                     value: String.fromCodePoint(codepoint),
@@ -8776,7 +8754,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
             }
             else {
-                result = new Atom(this.parseMode === 'math' ? 'mord' : '', {
+                result = new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
                     command: literal,
                     mode: this.parseMode,
                     value: literal,
@@ -8800,7 +8778,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (token === '<space>') {
                 if (this.parseMode === 'text') {
                     return [
-                        new Atom('', {
+                        new Atom('text', {
                             command: ' ',
                             mode: 'text',
                             value: ' ',
@@ -8874,7 +8852,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // Carry forward the placeholder argument, if any.
             args['?'] = (_a = this.args) === null || _a === void 0 ? void 0 : _a['?'];
             // Group the result of the macro expansion
-            return new MacroAtom(macro, tokensToString(this.tokens.slice(initialIndex, this.index)), parseString(def, this.parseMode, args, this.macros, false, this.onError));
+            return new MacroAtom(macro, tokensToString(this.tokens.slice(initialIndex, this.index)), parseLatex(def, this.parseMode, args, this.macros, false, this.onError));
         }
         /**
          * Make an atom for the current token or token group and
@@ -8909,7 +8887,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * @param smartFence - If true, promote plain fences, e.g. `(`,
      * as `\left...\right` or `\mleft...\mright`
      */
-    function parseString(s, parseMode, args, macros, smartFence = false, onError) {
+    function parseLatex(s, parseMode, args, macros, smartFence = false, onError) {
         const parser = new Parser(tokenize(s, args), args, macros, (err) => {
             if (typeof onError === 'function') {
                 onError({ ...err, latex: s });
@@ -8977,14 +8955,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 // thus shows up much too far to the left. To account for this, we add a
                 // specific class which shifts the accent over to where we want it.
                 const vecClass = this.accent === '\u20d7' ? ' accent-vec' : '';
-                accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);
+                accentBody = new Span(new Span(accent), 'accent-body' + vecClass);
             }
             accentBody = makeVlist(context, [base, -clearance, accentBody]);
             // Shift the accent over by the skew. Note we shift by twice the skew
             // because we are centering the accent, so by adding 2*skew to the left,
             // we shift it to the right by 1*skew.
             accentBody.children[accentBody.children.length - 1].left = 2 * skew$1;
-            const result = makeSpan(accentBody, 'accent', 'mord');
+            const result = new Span(accentBody, 'accent', 'mord');
             if (this.caret)
                 result.caret = this.caret;
             return [this.attachSupsub(context, result, result.type)];
@@ -9028,13 +9006,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 above = makeSVGSpan(this.svgAbove);
             }
             else if (this.above) {
-                above = makeSpan(Atom.render(annotationStyle, this.above), context.mathstyle.adjustTo(annotationStyle.mathstyle));
+                above = new Span(Atom.render(annotationStyle, this.above), context.mathstyle.adjustTo(annotationStyle.mathstyle));
             }
             if (this.svgBelow) {
                 below = makeSVGSpan(this.svgBelow);
             }
             else if (this.below) {
-                below = makeSpan(Atom.render(annotationStyle, this.below), context.mathstyle.adjustTo(annotationStyle.mathstyle));
+                below = new Span(Atom.render(annotationStyle, this.below), context.mathstyle.adjustTo(annotationStyle.mathstyle));
             }
             if (above && below) {
                 // Pad the above and below if over a "base"
@@ -9065,7 +9043,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     function makeOverunderStack(context, nucleus, above, below, type) {
         // If nothing above and nothing below, nothing to do.
         if (!above && !below) {
-            return makeSpan(nucleus, 'op-over-under', type);
+            return new Span(nucleus, 'op-over-under', type);
             // return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
         }
         let aboveShift = 0;
@@ -9101,7 +9079,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 above,
             ], 'bottom', depth(nucleus));
         }
-        return makeSpan(result, 'op-over-under', type);
+        return new Span(result, 'op-over-under', type);
     }
 
     const ACCENTS = {
@@ -9319,14 +9297,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return result;
         }
         render(context) {
-            const base = makeSpan(Atom.render(context, this.body), '', 'mord');
+            const base = new Span(Atom.render(context, this.body), '', 'mord');
             // Account for the padding
             const padding = typeof this.padding === 'number'
                 ? this.padding
                 : METRICS.fboxsep;
             // The 'ML__notation' class is required to prevent the span from being omitted
             // during rendering (it looks like an empty, no-op span)
-            const notation = makeSpan('', 'ML__notation');
+            const notation = new Span('', 'ML__notation');
             notation.setStyle('position', 'absolute');
             notation.setStyle('height', height(base) + depth(base) + 2 * padding, 'em');
             notation.height = height(base) + padding;
@@ -9477,7 +9455,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
                 addSVGOverlay(notation, svg, svgStyle);
             }
-            const result = makeSpan([notation, base]);
+            const result = new Span([notation, base]);
             // Set its position as relative so that the box can be absolute positioned
             // over the base
             result.setStyle('position', 'relative');
@@ -9714,7 +9692,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         mathstyle: MATHSTYLES[this.mathStyleName],
                     });
                     const cell = Atom.render(localContext, inrow[c]) || [];
-                    const elt = [makeSpan(null, '', 'mord')].concat(cell);
+                    const elt = [new Span(null, '', 'mord')].concat(cell);
                     depth$1 = Math.max(depth$1, depth(elt));
                     height$1 = Math.max(height$1, height(elt));
                     outrow.cells.push(elt);
@@ -9781,7 +9759,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         // add a smaller gap
                         cols.push(makeColGap(arraycolsep));
                     }
-                    cols.push(makeSpan(contentCols[currentContentCol], 'col-align-' + colDesc.align));
+                    cols.push(new Span(contentCols[currentContentCol], 'col-align-' + colDesc.align));
                     currentContentCol++;
                     prevColContent = true;
                     prevColRule = false;
@@ -9806,7 +9784,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
                 else if (colDesc.rule) {
                     // It's a rule.
-                    const separator = makeSpan(null, 'vertical-separator');
+                    const separator = new Span(null, 'vertical-separator');
                     separator.setStyle('height', totalHeight, 'em');
                     // result.setTop((1 - context.mathstyle.sizeMultiplier) *
                     //     context.mathstyle.metrics.axisHeight);
@@ -9836,15 +9814,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 (!this.rightDelim || this.rightDelim === '.')) {
                 // There are no delimiters around the array, just return what
                 // we've built so far.
-                return [makeSpan(cols, 'mtable', 'mord')];
+                return [new Span(cols, 'mtable', 'mord')];
             }
             // There is at least one delimiter. Wrap the core of the array with
             // appropriate left and right delimiters
-            // const inner = makeSpan(makeSpan(cols, 'mtable'), 'mord');
-            const inner = makeSpan(cols, 'mtable');
+            // const inner = new Span(new Span(cols, 'mtable'), 'mord');
+            const inner = new Span(cols, 'mtable');
             const innerHeight = height(inner);
             const innerDepth = depth(inner);
-            const result = this.bind(context, makeSpan([
+            const result = this.bind(context, new Span([
                 this.bind(context, makeLeftRightDelim('mopen', this.leftDelim, innerHeight, innerDepth, context)),
                 inner,
                 this.bind(context, makeLeftRightDelim('mclose', this.rightDelim, innerHeight, innerDepth, context)),
@@ -9896,7 +9874,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return;
         }
         addChildrenAfter(_children, _after) {
-            return;
+            return null;
         }
         removeChild(_child) {
             return;
@@ -9956,7 +9934,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      *
      */
     function makeColGap(width) {
-        const separator = makeSpan('\u200b', 'arraycolsep');
+        const separator = new Span('\u200b', 'arraycolsep');
         separator.width = width;
         return separator;
     }
@@ -9966,7 +9944,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     function makeColOfRepeatingElements(context, rows, offset, elem) {
         const col = [];
         for (const row of rows) {
-            const cell = makeSpan(Atom.render(context, elem));
+            const cell = new Span(Atom.render(context, elem));
             cell.depth = row.depth;
             cell.height = row.height;
             col.push(cell);
@@ -10438,7 +10416,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             else if (this.body) {
                 // If this is a list, decompose that list.
-                base = makeSpan(Atom.render(context, this.body), '', 'mop');
+                base = new Span(Atom.render(context, this.body), '', 'mop');
                 base.applyStyle(this.mode, {
                     color: this.style.color,
                     backgroundColor: this.style.backgroundColor,
@@ -10529,7 +10507,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const mathstyle = context.mathstyle;
             // First, we do the same steps as in overline to build the inner group
             // and line
-            const inner = (_a = Atom.render(context.cramp(), this.body)) !== null && _a !== void 0 ? _a : makeSpan('');
+            const inner = (_a = Atom.render(context.cramp(), this.body)) !== null && _a !== void 0 ? _a : new Span('');
             const ruleWidth = METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
             let phi = ruleWidth;
             if (mathstyle.id < MATHSTYLES.textstyle.id) {
@@ -10540,7 +10518,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const innerTotalHeight = Math.max(2 * phi, (height(inner) + depth(inner)) * mathstyle.sizeMultiplier);
             const minDelimiterHeight = innerTotalHeight + (lineClearance + ruleWidth);
             // Create a \surd delimiter of the required minimum size
-            const delim = this.bind(context, makeSpan(makeCustomSizedDelim('', '\\surd', minDelimiterHeight, false, context), 'sqrt-sign'));
+            const delim = this.bind(context, new Span(makeCustomSizedDelim('', '\\surd', minDelimiterHeight, false, context), 'sqrt-sign'));
             delim.applyStyle(this.mode, this.style);
             const delimDepth = delim.height + delim.depth - ruleWidth;
             // Adjust the clearance based on the delimiter size
@@ -10553,7 +10531,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             // Shift the delimiter so that its top lines up with the top of the line
             delim.setTop(delim.height - height(inner) - (lineClearance + ruleWidth));
-            const line = makeSpan(null, context.mathstyle.adjustTo(MATHSTYLES.textstyle) + ' sqrt-line');
+            const line = new Span(null, context.mathstyle.adjustTo(MATHSTYLES.textstyle) + ' sqrt-line');
             line.applyStyle(this.mode, this.style);
             line.height = ruleWidth;
             const body = makeVlist(context, [
@@ -10566,7 +10544,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (this.containsCaret)
                 className += ' ML__contains-caret';
             if (!this.above) {
-                const result = makeSpan([delim, body], className, 'mord');
+                const result = new Span([delim, body], className, 'mord');
                 if (this.caret)
                     result.caret = this.caret;
                 return [this.bind(context, result)];
@@ -10576,7 +10554,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const newcontext = context.clone({
                 mathstyle: MATHSTYLES.scriptscriptstyle,
             });
-            const root = makeSpan(Atom.render(newcontext, this.above), mathstyle.adjustTo(MATHSTYLES.scriptscriptstyle));
+            const root = new Span(Atom.render(newcontext, this.above), mathstyle.adjustTo(MATHSTYLES.scriptscriptstyle));
             // Figure out the height and depth of the inner part
             const innerRootHeight = Math.max(delim.height, body.height);
             const innerRootDepth = Math.max(delim.depth, body.depth);
@@ -10587,7 +10565,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const rootVlist = makeVlist(context, [root], 'shift', -toShift);
             // Add a class surrounding it so we can add on the appropriate
             // kerning
-            const result = makeSpan([makeSpan(rootVlist, 'root'), delim, body], className, 'mord');
+            const result = new Span([new Span(rootVlist, 'root'), delim, body], className, 'mord');
             result.height = delim.height;
             result.depth = delim.depth;
             if (this.caret)
@@ -10638,7 +10616,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const style = this.computedStyle;
             let numer = [];
             if (this.numerPrefix) {
-                numer.push(makeSpan(this.numerPrefix, 'mord'));
+                numer.push(new Span(this.numerPrefix, 'mord'));
             }
             const numeratorStyle = this.continuousFraction
                 ? mathstyle
@@ -10647,7 +10625,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const numerReset = makeHlist(numer, context.mathstyle.adjustTo(numeratorStyle));
             let denom = [];
             if (this.denomPrefix) {
-                denom.push(makeSpan(this.denomPrefix, 'mord'));
+                denom.push(new Span(this.denomPrefix, 'mord'));
             }
             const denominatorStyle = this.continuousFraction
                 ? mathstyle
@@ -10714,20 +10692,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     denomShift +=
                         clearance - (denomLine - (denomHeight - denomShift));
                 }
-                const mid = makeSpan(null, ' frac-line');
+                const mid = new Span(null, ' frac-line');
                 mid.applyStyle(this.mode, style);
                 // Manually set the height of the line because its height is
                 // created in CSS
                 mid.height = ruleWidth / 2;
                 mid.depth = ruleWidth / 2;
-                const elements = [];
-                elements.push(numerReset);
-                elements.push(-numShift);
-                elements.push(mid);
-                elements.push(ruleWidth / 2 - axisHeight);
-                elements.push(denomReset);
-                elements.push(denomShift);
-                frac = makeVlist(newContext, elements, 'individualShift');
+                frac = makeVlist(newContext, [
+                    denomReset,
+                    denomShift,
+                    mid,
+                    ruleWidth / 2 - axisHeight,
+                    numerReset,
+                    -numShift,
+                ], 'individualShift');
             }
             // Add a 'mfrac' class to provide proper context for
             // other css selectors (such as 'frac-line')
@@ -10749,7 +10727,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             rightDelim.applyStyle(this.mode, style);
             const result = this.bind(context, 
             // makeStruts(
-            makeSpan([leftDelim, frac, rightDelim], context.parentSize !== context.size
+            new Span([leftDelim, frac, rightDelim], context.parentSize !== context.size
                 ? 'sizing reset-' + context.parentSize + ' ' + context.size
                 : '', 'mord'
             // )
@@ -10767,7 +10745,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             this.size = options === null || options === void 0 ? void 0 : options.size;
         }
         render(_context) {
-            const span = makeSpan(null, '');
+            const span = new Span(null, '');
             span.delim = this.value;
             return [span];
         }
@@ -11074,12 +11052,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         constructor(command, arg) {
             super('chem', { command, mode: 'math' });
             const tex = texify.go(mhchemParser.go(arg, command === '\\pu' ? 'pu' : 'ce'), false);
-            this.body = parseString(tex);
+            this.body = parseLatex(tex);
             this.latex = command + '{' + arg + '}';
             this.captureSelection = true;
         }
         render(context) {
-            const span = makeSpan(Atom.render(context, this.body), '', 'mord'); // @revisit
+            const span = new Span(Atom.render(context, this.body), '', 'chem');
             if (this.caret)
                 span.caret = this.caret;
             // Need to bind the group so that the DOM element can be matched
@@ -13487,15 +13465,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 ? this.padding
                 : METRICS.fboxsep;
             // Base is the main content "inside" the box
-            const content = makeSpan(Atom.render(context, this.body), '', 'mord');
+            const content = new Span(Atom.render(context, this.body), '', 'mord');
             content.setStyle('vertical-align', -depth(content), 'em');
             content.setStyle('height', 0);
-            const base = makeSpan(content, '', 'mord');
+            const base = new Span(content, '', 'mord');
             // This span will represent the box (background and border)
             // It's positioned to overlap the base
             // The 'ML__box' class is required to prevent the span from being omitted
             // during rendering (it looks like an empty, no-op span)
-            const box = makeSpan('', 'ML__box');
+            const box = new Span('', 'ML__box');
             box.setStyle('position', 'absolute');
             box.setStyle('height', height(base) + depth(base) + 2 * padding, 'em');
             if (padding !== 0) {
@@ -13519,7 +13497,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             base.setStyle('display', 'inline-block');
             base.setStyle('height', height(base) + depth(base), 'em');
             // The result is a span that encloses the box and the base
-            const result = makeSpan([box, base]);
+            const result = new Span([box, base]);
             // Set its position as relative so that the box can be absolute positioned
             // over the base
             result.setStyle('position', 'relative');
@@ -13549,18 +13527,18 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         render(context) {
             if (this.phantomType === 'vphantom') {
-                const content = makeSpan(Atom.render(context, this.body), 'inner');
+                const content = new Span(Atom.render(context, this.body), 'inner');
                 content.applyStyle('math', {
                     backgroundColor: 'transparent',
                     color: 'transparent',
                 });
-                return [makeSpan([content, makeSpan(null, 'fix')], 'rlap', 'mord')];
+                return [new Span([content, new Span(null, 'fix')], 'rlap', 'mord')];
             }
             else if (this.phantomType === 'hphantom' ||
                 this.phantomType === 'smash' ||
                 this.phantomType === 'bsmash' ||
                 this.phantomType === 'tsmash') {
-                const content = makeSpan(Atom.render(context, this.body), '', 'mord');
+                const content = new Span(Atom.render(context, this.body), '', 'mord');
                 if (this.isInvisible) {
                     content.applyStyle('math', {
                         backgroundColor: 'transparent',
@@ -13573,9 +13551,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 if (this.phantomType !== 'tsmash') {
                     content.depth = 0;
                 }
-                return [makeSpan(makeVlist(context, [content]), '', 'mord')];
+                return [new Span(makeVlist(context, [content]), '', 'mord')];
             }
-            return [makeSpan(Atom.render(context, this.body), '', 'mord')];
+            return [new Span(Atom.render(context, this.body), '', 'mord')];
         }
     }
 
@@ -13591,7 +13569,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // TeXBook:443. Rule 9 and 10
             const inner = Atom.render(context.cramp(), this.body);
             const ruleWidth = METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-            const line = makeSpan(null, context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
+            const line = new Span(null, context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
                 ' ' +
                 this.position +
                 '-line');
@@ -13602,12 +13580,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
             }
             else {
-                const innerSpan = makeSpan(inner);
+                const innerSpan = new Span(inner);
                 vlist = makeVlist(context, [ruleWidth, line, 3 * ruleWidth, innerSpan], 'top', height(innerSpan));
             }
             if (this.caret)
                 vlist.caret = this.caret;
-            return [makeSpan(vlist, this.position, 'mord')];
+            return [new Span(vlist, this.position, 'mord')];
         }
     }
 
@@ -13624,11 +13602,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // smash (common), mathllap (0), mathrlap (0), mathclap (0)
             // See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf
             // and https://tex.stackexchange.com/questions/98785/what-are-the-different-kinds-of-vertical-spacing-and-horizontal-spacing-commands
-            const inner = makeSpan(Atom.render(context, this.body), 'inner'); // @revisit
+            const inner = new Span(Atom.render(context, this.body), 'inner'); // @revisit
             if (this.caret)
                 inner.caret = this.caret;
             return [
-                makeSpan([inner, makeSpan(null, 'fix')], this.align === 'left' ? 'llap' : 'rlap', 'mord'),
+                new Span([inner, new Span(null, 'fix')], this.align === 'left' ? 'llap' : 'rlap', 'mord'),
             ];
         }
     }
@@ -13648,7 +13626,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             shift = shift / mathstyle.sizeMultiplier;
             const width = this.width / mathstyle.sizeMultiplier;
             const height = this.height / mathstyle.sizeMultiplier;
-            const result = makeSpan('', 'rule', 'mord');
+            const result = new Span('', 'rule', 'mord');
             result.setStyle('border-right-width', width, 'em');
             result.setStyle('border-top-width', height, 'em');
             result.setStyle('margin-top', -(height - shift), 'em');
@@ -14866,7 +14844,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     defineSymbol('\\blacktriangleleft', '\u25c0', 'mrel', 'ams');
     defineSymbol('\\blacktriangleright', '\u25b6', 'mrel', 'ams');
     defineSymbol('\\/', '/');
-    defineSymbol('|', '\u2223', 'textord');
+    defineSymbol('|', '\u2223', 'mord');
     defineSymbol('\\And', '\u0026', 'mbin');
     defineSymbol('\\imath', '\u0131');
     defineSymbol('\\jmath', '\u0237');
@@ -15871,15 +15849,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 if (rdelim === '?')
                     rdelim = RIGHT_DELIM[ldelim];
             }
-            else if (atom.type === 'textord') {
-                ldelim = atom.value;
-                rdelim = RIGHT_DELIM[ldelim];
-            }
             if (ldelim && rdelim) {
                 if (ldelim === '|' && rdelim === '|') {
                     // Check if this could be a ||x|| instead of |x|
                     const atom = expr.atoms[expr.index + 1];
-                    if (atom && atom.type === 'textord' && atom.value === '|') {
+                    if (atom && atom.type === 'mord' && atom.value === '|') {
                         // Yes, it's a ||x||
                         ldelim = '\\lVert';
                         rdelim = '\\rVert';
@@ -15912,31 +15886,31 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 expr = parsePostfix(expr, options);
             } // TODO: else, syntax error?
         }
-        else if (atom.type === 'textord' && getString(atom) === ldelim) {
+        else if (atom.type === 'mord' && getString(atom) === ldelim) {
             expr.index += 1; // Skip the open delim
             expr = parseExpression(expr, options);
             atom = expr.atoms[expr.index];
-            if (atom && atom.type === 'textord' && getString(atom) === rdelim) {
+            if (atom && atom.type === 'mord' && getString(atom) === rdelim) {
                 expr.index += 1;
                 expr = parseSupsub(expr, options);
                 expr = parsePostfix(expr, options);
             } // TODO: else, syntax error?
         }
         else if (ldelim === '\\lVert' &&
-            atom.type === 'textord' &&
+            atom.type === 'mord' &&
             atom.value === '|') {
             atom = expr.atoms[expr.index + 1];
-            if (atom && atom.type === 'textord' && atom.value === '|') {
+            if (atom && atom.type === 'mord' && atom.value === '|') {
                 // This is an opening ||
                 expr.index += 2; // Skip the open delim
                 expr = parseExpression(expr, options);
                 atom = expr.atoms[expr.index];
                 const atom2 = expr.atoms[expr.index + 1];
                 if (atom &&
-                    atom.type === 'textord' &&
+                    atom.type === 'mord' &&
                     atom.value === '|' &&
                     atom2 &&
-                    atom2.type === 'textord' &&
+                    atom2.type === 'mord' &&
                     atom2.value === '|') {
                     // This was a closing ||
                     expr.index += 2;
@@ -16001,7 +15975,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         if (expr.atoms.length <= 1 || expr.index >= expr.atoms.length - 1) {
             return undefined;
         }
-        if (isAtom(expr, 'textord', '\\nabla')) {
+        if (isAtom(expr, 'mord', '\\nabla')) {
             expr.index += 1;
             if (isAtom(expr, 'mbin', '\\times')) {
                 expr.index += 1;
@@ -16164,35 +16138,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 expr = parseSupsub(expr, options);
             }
             expr = parsePostfix(expr, options);
-        }
-        else if (atom.type === 'textord') {
-            // Note that 'textord' can also be operators, and are handled as such
-            // in parseExpression()
-            if (!isOperator(atom)) {
-                // This doesn't look like a textord operator
-                if (!RIGHT_DELIM[atom.value]) {
-                    // Not an operator, not a fence, it's a symbol or a function
-                    if (isFunction(val)) {
-                        // It's a function
-                        expr.ast = { fn: val };
-                        expr = parseSupsub(expr, options);
-                        const fn = expr.ast;
-                        expr.index += 1; // Skip the function name
-                        fn.arg = [parsePrimary(expr, options).ast];
-                        expr.ast = fn;
-                        expr = parsePostfix(expr, options);
-                    }
-                    else {
-                        // It was a symbol...
-                        expr.ast = atomToMathJson(atom, options);
-                        if (typeof atom.superscript === 'undefined') {
-                            expr.index += 1;
-                        }
-                        expr = parseSupsub(expr, options);
-                        expr = parsePostfix(expr, options);
-                    }
-                }
-            }
         }
         else if (atom.type === 'mop') {
             // Could be a function or an operator.
@@ -16592,14 +16537,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         else {
                             lhs = m[1].substr(1, m[1].length - 2);
                         }
-                        lhs = parseString(lhs, 'math', null, options.macros);
+                        lhs = parseLatex(lhs, 'math', null, options.macros);
                         if (m[2].length === 1) {
                             rhs = m[2];
                         }
                         else {
                             rhs = m[2].substr(1, m[2].length - 2);
                         }
-                        rhs = parseString(rhs, 'math', null, options.macros);
+                        rhs = parseLatex(rhs, 'math', null, options.macros);
                         result = wrapFn('divide', parse(lhs, options), parse(rhs, options));
                     }
                     else {
@@ -16633,7 +16578,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             case 'overunder':
                 break;
             case 'mord':
-            case 'textord':
             case 'mbin':
                 // Check to see if it's a \char command
                 m = !command
@@ -17427,7 +17371,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         let subscript = -1;
         const atom = stream.atoms[stream.index];
         if (stream.index < final &&
-            (atom.type === 'mord' || atom.type === 'textord') &&
+            atom.type === 'mord' &&
             '0123456789,.'.indexOf(atom.value) < 0) {
             body = atomToMathML(atom, options);
             if ((_a = atom.branches) === null || _a === void 0 ? void 0 : _a.superscript) {
@@ -18245,7 +18189,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
                 case 'mbin':
                 case 'mrel':
-                case 'textord':
                 case 'minner':
                     if (command && SPECIAL_IDENTIFIERS[command]) {
                         // Some 'textord' are actually identifiers. Check them here.
@@ -18547,7 +18490,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 break;
             case 'mbin':
             case 'mrel':
-            case 'textord':
             case 'minner':
                 if (command && SPECIAL_IDENTIFIERS[command]) {
                     // Some 'textord' are actually identifiers. Check them here.
@@ -18986,8 +18928,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 case 'mrel':
                 case 'mpunct':
                 case 'mopen':
-                case 'mclose':
-                case 'textord': {
+                case 'mclose': {
                     const command = atom.command;
                     if (command === '\\mathbin' ||
                         command === '\\mathrel' ||
@@ -19409,6 +19350,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 if (value.ranges.length === 1 &&
                     value.ranges[0][0] === value.ranges[0][1]) {
                     const pos = value.ranges[0][0];
+                    console.assert(pos >= 0 && pos <= this.lastOffset);
                     this._position = pos;
                     this._anchor = pos;
                     this._selection = value;
@@ -19432,18 +19374,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         first.parent === commonAncestor &&
                         last.parent === commonAncestor) ;
                     else {
-                        // 3b/ Otherwise, account for the common ancestor
-                        // 3b.1/ Go up from the anchor until we reach the common ancestor
-                        // if (first.parent !== commonAncestor) {
-                        //     while (first.parent !== commonAncestor) {
-                        //         first = first.parent;
-                        //     }
-                        //     first = first.leftSibling;
-                        // }
-                        // 3b.2/ Go up from the cursor until we reach the common ancestor
-                        // while (last.parent !== commonAncestor) {
-                        //     last = last.parent;
-                        // }
                         this._selection = {
                             ranges: [[this.offsetOf(first), this.offsetOf(last)]],
                             direction: value.direction,
@@ -19455,8 +19385,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         else {
                             this._position = this._selection.ranges[0][1];
                         }
+                        console.assert(this._position >= 0 && this._position <= this.lastOffset);
                     }
                 }
+                // Adjust mode
             });
         }
         /**
@@ -19771,7 +19703,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     console.assert(end >= 0);
                     parent = parent.parent;
                 }
-                this._position = position;
+                this._position = this.normalizeOffset(position);
                 this._selection = {
                     ranges: [[start, end]],
                     direction: 'none',
@@ -19791,6 +19723,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 tabOut: (hooks === null || hooks === void 0 ? void 0 : hooks.tabOut) ? hooks.tabOut : () => true,
             };
         }
+        /**
+         * This method is called to provide feedback when using a screen reader
+         * or other assistive device, for example when changing the selection or
+         * moving the insertion point.
+         *
+         * It can also be used with the 'plonk' command to provide an audible
+         * feedback when a command is not possible.
+         *
+         * This method should not be called from other methods of the model
+         * (such as `setSelection`) as these methods can also be called
+         * programmatically and a feedback in these case would be innapropriate,
+         * however they should be called from functions called as a result of a user
+         * action, such as the functions in `commands.ts`
+         */
         announce(command, previousPosition, atoms = []) {
             this.hooks.announce(this.mathfield, command, previousPosition, atoms);
         }
@@ -19912,6 +19858,187 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return true;
         }
         return false;
+    }
+
+    function on(el, inSelectors, listener, options) {
+        const selectors = inSelectors.split(' ');
+        for (const sel of selectors) {
+            const m = sel.match(/(.*):(.*)/);
+            if (m) {
+                const options2 = options !== null && options !== void 0 ? options : {};
+                if (m[2] === 'active') {
+                    options2.passive = false;
+                }
+                else {
+                    options2[m[2]] = true;
+                }
+                el.addEventListener(m[1], listener, options2);
+            }
+            else {
+                el.addEventListener(sel, listener, options);
+            }
+        }
+    }
+    function off(el, inSelectors, listener, options) {
+        const selectors = inSelectors.split(' ');
+        for (const sel of selectors) {
+            const m = sel.match(/(.*):(.*)/);
+            if (m) {
+                const options2 = options !== null && options !== void 0 ? options : {};
+                if (m[2] === 'active') {
+                    options2.passive = false;
+                }
+                else {
+                    options2[m[2]] = true;
+                }
+                el.removeEventListener(m[1], listener, options2);
+            }
+            else {
+                el.removeEventListener(sel, listener, options);
+            }
+        }
+    }
+    function getSharedElement(id, cls) {
+        let result = document.getElementById(id);
+        if (result) {
+            result.setAttribute('data-refcount', Number(parseInt(result.getAttribute('data-refcount')) + 1).toString());
+        }
+        else {
+            result = document.createElement('div');
+            result.setAttribute('aria-hidden', 'true');
+            result.setAttribute('data-refcount', '1');
+            result.className = cls;
+            result.id = id;
+            document.body.appendChild(result);
+        }
+        return result;
+    }
+    // @revisit: check the elements are correctly released
+    function releaseSharedElement(el) {
+        if (!el)
+            return;
+        const refcount = parseInt(el.getAttribute('data-refcount'));
+        if (refcount <= 1) {
+            el.remove();
+        }
+        else {
+            el.setAttribute('data-refcount', Number(refcount - 1).toString());
+        }
+    }
+    /**
+     * Checks if the argument is a valid Mathfield.
+     * After a Mathfield has been destroyed (for example by calling `dispose()`
+     * the Mathfield is no longer valid. However, there may be some pending
+     * operations invoked via requestAnimationFrame() for example, that would
+     * need to ensure the mathfield is still valid by the time they're executed.
+     */
+    function isValidMathfield(mf) {
+        return mf.element && mf.element['mathfield'] === mf;
+    }
+    /**
+     * Return the element which has the caret
+     */
+    function findElementWithCaret(el) {
+        var _a, _b;
+        return ((_b = (_a = el.querySelector('.ML__caret')) !== null && _a !== void 0 ? _a : el.querySelector('.ML__text-caret')) !== null && _b !== void 0 ? _b : el.querySelector('.ML__command-caret'));
+    }
+    /**
+     * Return the (x,y) client coordinates of the caret
+     */
+    function getCaretPoint(el) {
+        const caret = findElementWithCaret(el);
+        if (!caret)
+            return null;
+        const bounds = caret.getBoundingClientRect();
+        return {
+            x: bounds.right,
+            y: bounds.bottom,
+            height: bounds.height,
+        };
+    }
+    function branchId(atom) {
+        let result = atom.parent ? atom.parent.id : 'root';
+        if (typeof atom.treeBranch === 'string') {
+            result += '-' + atom.treeBranch;
+        }
+        else {
+            result += `-${atom.treeBranch[0]}/${atom.treeBranch[0]}`;
+        }
+        return result;
+    }
+    function adjustForScrolling(mathfield, rect) {
+        if (!rect)
+            return null;
+        const fieldRect = mathfield.field.getBoundingClientRect();
+        const w = rect.right - rect.left;
+        const h = rect.bottom - rect.top;
+        const left = Math.ceil(rect.left - fieldRect.left + mathfield.field.scrollLeft);
+        const top = Math.ceil(rect.top - fieldRect.top);
+        return {
+            left: left,
+            right: left + w,
+            top: top,
+            bottom: top + h,
+        };
+    }
+    function getNodeBounds(node) {
+        const bounds = node.getBoundingClientRect();
+        const result = {
+            top: bounds.top,
+            bottom: bounds.bottom,
+            left: bounds.left,
+            right: bounds.right,
+        };
+        if (node.tagName !== 'svg') {
+            Array.from(node.children).forEach((x) => {
+                if (x.nodeType === 1) {
+                    const r = getNodeBounds(x);
+                    result.left = Math.min(result.left, r.left);
+                    result.right = Math.max(result.right, r.right);
+                    result.top = Math.min(result.top, r.top);
+                    result.bottom = Math.max(result.bottom, r.bottom);
+                }
+            });
+        }
+        return result;
+    }
+    function getAtomBounds(mathfield, atom) {
+        const node = mathfield.field.querySelector(`[data-atom-id="${atom.id}"]`);
+        if (!node)
+            return null;
+        return getNodeBounds(node);
+    }
+    /*
+     * Return an array of bounds for the specified branch, at most
+     * one rect per branch.
+     */
+    function getRangeBounds(mathfield, range) {
+        // The key of the map is a 'branchId', i.e. "atom id + branch"
+        const rects = new Map();
+        mathfield.model
+            .getAtoms(range, { includeChildren: true })
+            .forEach((x) => {
+            const bounds = adjustForScrolling(mathfield, getAtomBounds(mathfield, x));
+            if (bounds) {
+                const id = branchId(x);
+                if (rects.has(id)) {
+                    const r = rects.get(id);
+                    rects.set(id, {
+                        top: Math.min(r.top, bounds.top),
+                        bottom: Math.max(r.bottom, bounds.bottom),
+                        left: Math.min(r.left, bounds.left),
+                        right: Math.max(r.right, bounds.right),
+                    });
+                }
+                else {
+                    rects.set(id, bounds);
+                }
+            }
+        });
+        return Array.from(rects.values());
+    }
+    function getSelectionBounds(mathfield) {
+        return mathfield.model.selection.ranges.reduce((acc, x) => acc.concat(...getRangeBounds(mathfield, x)), []);
     }
 
     // Each entry indicate the font-name (to be used to calculate font metrics)
@@ -20111,6 +20238,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     }
     function variantString(atom) {
         var _a;
+        if (!atom)
+            return '';
         const style = atom.computedStyle;
         let result = (_a = style.variant) !== null && _a !== void 0 ? _a : '';
         if (style.variantStyle && style.variantStyle !== 'up') {
@@ -21406,12 +21535,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         {
             key: '[Escape]',
             ifMode: 'command',
-            command: ['complete', 'reject'],
+            command: ['complete', 'complete', { selectItem: 'true' }],
         },
         {
             key: '[Tab]',
             ifMode: 'command',
-            command: ['complete', 'accept-with-suggestion'],
+            command: ['complete', 'accept-suggestion'],
         },
         { key: '[Return]', ifMode: 'command', command: 'complete' },
         { key: '[Enter]', ifMode: 'command', command: 'complete' },
@@ -21916,187 +22045,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     }
 
-    function on(el, inSelectors, listener, options) {
-        const selectors = inSelectors.split(' ');
-        for (const sel of selectors) {
-            const m = sel.match(/(.*):(.*)/);
-            if (m) {
-                const options2 = options !== null && options !== void 0 ? options : {};
-                if (m[2] === 'active') {
-                    options2.passive = false;
-                }
-                else {
-                    options2[m[2]] = true;
-                }
-                el.addEventListener(m[1], listener, options2);
-            }
-            else {
-                el.addEventListener(sel, listener, options);
-            }
-        }
-    }
-    function off(el, inSelectors, listener, options) {
-        const selectors = inSelectors.split(' ');
-        for (const sel of selectors) {
-            const m = sel.match(/(.*):(.*)/);
-            if (m) {
-                const options2 = options !== null && options !== void 0 ? options : {};
-                if (m[2] === 'active') {
-                    options2.passive = false;
-                }
-                else {
-                    options2[m[2]] = true;
-                }
-                el.removeEventListener(m[1], listener, options2);
-            }
-            else {
-                el.removeEventListener(sel, listener, options);
-            }
-        }
-    }
-    function getSharedElement(id, cls) {
-        let result = document.getElementById(id);
-        if (result) {
-            result.setAttribute('data-refcount', Number(parseInt(result.getAttribute('data-refcount')) + 1).toString());
-        }
-        else {
-            result = document.createElement('div');
-            result.setAttribute('aria-hidden', 'true');
-            result.setAttribute('data-refcount', '1');
-            result.className = cls;
-            result.id = id;
-            document.body.appendChild(result);
-        }
-        return result;
-    }
-    // @revisit: check the elements are correctly released
-    function releaseSharedElement(el) {
-        if (!el)
-            return;
-        const refcount = parseInt(el.getAttribute('data-refcount'));
-        if (refcount <= 1) {
-            el.remove();
-        }
-        else {
-            el.setAttribute('data-refcount', Number(refcount - 1).toString());
-        }
-    }
-    /**
-     * Checks if the argument is a valid Mathfield.
-     * After a Mathfield has been destroyed (for example by calling `dispose()`
-     * the Mathfield is no longer valid. However, there may be some pending
-     * operations invoked via requestAnimationFrame() for example, that would
-     * need to ensure the mathfield is still valid by the time they're executed.
-     */
-    function isValidMathfield(mf) {
-        return mf.element && mf.element['mathfield'] === mf;
-    }
-    /**
-     * Return the element which has the caret
-     */
-    function findElementWithCaret(el) {
-        var _a, _b;
-        return ((_b = (_a = el.querySelector('.ML__caret')) !== null && _a !== void 0 ? _a : el.querySelector('.ML__text-caret')) !== null && _b !== void 0 ? _b : el.querySelector('.ML__command-caret'));
-    }
-    /**
-     * Return the (x,y) client coordinates of the caret
-     */
-    function getCaretPoint(el) {
-        const caret = findElementWithCaret(el);
-        if (!caret)
-            return null;
-        const bounds = caret.getBoundingClientRect();
-        return {
-            x: bounds.right,
-            y: bounds.bottom,
-            height: bounds.height,
-        };
-    }
-    function branchId(atom) {
-        let result = atom.parent ? atom.parent.id : 'root';
-        if (typeof atom.treeBranch === 'string') {
-            result += '-' + atom.treeBranch;
-        }
-        else {
-            result += `-${atom.treeBranch[0]}/${atom.treeBranch[0]}`;
-        }
-        return result;
-    }
-    function adjustForScrolling(mathfield, rect) {
-        if (!rect)
-            return null;
-        const fieldRect = mathfield.field.getBoundingClientRect();
-        const w = rect.right - rect.left;
-        const h = rect.bottom - rect.top;
-        const left = Math.ceil(rect.left - fieldRect.left + mathfield.field.scrollLeft);
-        const top = Math.ceil(rect.top - fieldRect.top);
-        return {
-            left: left,
-            right: left + w,
-            top: top,
-            bottom: top + h,
-        };
-    }
-    function getNodeBounds(node) {
-        const bounds = node.getBoundingClientRect();
-        const result = {
-            top: bounds.top,
-            bottom: bounds.bottom,
-            left: bounds.left,
-            right: bounds.right,
-        };
-        if (node.tagName !== 'svg') {
-            Array.from(node.children).forEach((x) => {
-                if (x.nodeType === 1) {
-                    const r = getNodeBounds(x);
-                    result.left = Math.min(result.left, r.left);
-                    result.right = Math.max(result.right, r.right);
-                    result.top = Math.min(result.top, r.top);
-                    result.bottom = Math.max(result.bottom, r.bottom);
-                }
-            });
-        }
-        return result;
-    }
-    function getAtomBounds(mathfield, atom) {
-        const node = mathfield.field.querySelector(`[data-atom-id="${atom.id}"]`);
-        if (!node)
-            return null;
-        return getNodeBounds(node);
-    }
-    /*
-     * Return an array of bounds for the specified branch, at most
-     * one rect per branch.
-     */
-    function getRangeBounds(mathfield, range) {
-        // The key of the map is a 'branchId', i.e. "atom id + branch"
-        const rects = new Map();
-        mathfield.model
-            .getAtoms(range, { includeChildren: true })
-            .forEach((x) => {
-            const bounds = adjustForScrolling(mathfield, getAtomBounds(mathfield, x));
-            if (bounds) {
-                const id = branchId(x);
-                if (rects.has(id)) {
-                    const r = rects.get(id);
-                    rects.set(id, {
-                        top: Math.min(r.top, bounds.top),
-                        bottom: Math.max(r.bottom, bounds.bottom),
-                        left: Math.min(r.left, bounds.left),
-                        right: Math.max(r.right, bounds.right),
-                    });
-                }
-                else {
-                    rects.set(id, bounds);
-                }
-            }
-        });
-        return Array.from(rects.values());
-    }
-    function getSelectionBounds(mathfield) {
-        return mathfield.model.selection.ranges.reduce((acc, x) => acc.concat(...getRangeBounds(mathfield, x)), []);
-    }
-
     /**
      * Attach event handlers to an element so that it will react by executing
      * a command when pressed.
@@ -22536,12 +22484,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     }
     function latexToMarkup(latex, mf) {
-        const parse = parseString(latex, 'math', null, mf.options.macros);
+        const parse = parseLatex(latex, 'math', null, mf.options.macros);
         const spans = Atom.render({
             mathstyle: MATHSTYLES.displaystyle,
             macros: mf.options.macros,
         }, parse);
-        const wrapper = makeStruts(makeSpan(spans, 'ML__base'), 'ML__mathlive');
+        const wrapper = makeStruts(new Span(spans, 'ML__base'), 'ML__mathlive');
         return wrapper.toMarkup();
     }
     function showPopoverWithLatex(mf, latex, displayArrows) {
@@ -22569,11 +22517,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         template += displayArrows
             ? '<div class="ML__popover__next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>'
             : '';
-        showPopover(mf, template);
+        mf.popover.innerHTML = mf.options.createHTML(template);
         let el = mf.popover.getElementsByClassName('ML__popover__content');
         if (el && el.length > 0) {
             attachButtonHandlers(mf, el[0], {
-                default: ['complete', 'accept-with-suggestion'],
+                default: ['complete', 'accept-suggestion'],
             });
         }
         el = mf.popover.getElementsByClassName('ML__popover__prev-shortcut');
@@ -22584,6 +22532,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         if (el && el.length > 0) {
             attachButtonHandlers(mf, el[0], 'nextSuggestion');
         }
+        setTimeout(() => {
+            const caretPoint = getCaretPoint(mf.field);
+            if (caretPoint)
+                setPopoverPosition(mf, caretPoint);
+            mf.popover.classList.add('is-visible');
+        }, 32);
     }
     function updatePopoverPosition(mf, options) {
         var _a;
@@ -22611,13 +22565,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (caretPoint)
                 setPopoverPosition(mf, caretPoint);
         }
-    }
-    function showPopover(mf, markup) {
-        mf.popover.innerHTML = mf.options.createHTML(markup);
-        const caretPoint = getCaretPoint(mf.field);
-        if (caretPoint)
-            setPopoverPosition(mf, caretPoint);
-        mf.popover.classList.add('is-visible');
     }
     function setPopoverPosition(mf, position) {
         // get screen width & height (browser compatibility)
@@ -22658,91 +22605,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
     }
     function hidePopover(mf) {
+        mf.suggestionIndex = 0;
         mf.popover.classList.remove('is-visible');
-    }
-
-    class CommandAtom extends Atom {
-        constructor(value, options) {
-            super('command', { value, mode: 'command' });
-            if (options === null || options === void 0 ? void 0 : options.isSuggestion) {
-                this.isSuggestion = true;
-            }
-        }
-        get computedStyle() {
-            return {};
-        }
-        render(context) {
-            const result = this.makeSpan(context, this.value);
-            result.classes = ''; // Override fonts and other attributes.
-            if (this.isSuggestion) {
-                result.classes = ' ML__suggestion';
-            }
-            else if (this.isError) {
-                result.classes = ' ML__error';
-            }
-            if (this.caret)
-                result.caret = this.caret;
-            return [result];
-        }
-    }
-
-    /**
-     * Return the range of the command in the expression or
-     * `[undefined, undefined]`.
-     *
-     * (There should be at most one command in an expression)
-     */
-    function getCommandRange(model) {
-        let start = 0;
-        let found = false;
-        while (start <= model.lastOffset && !found) {
-            found = model.at(start) instanceof CommandAtom;
-            if (!found)
-                start++;
-        }
-        if (!found)
-            return [undefined, undefined];
-        let end = start;
-        let done = false;
-        while (end <= model.lastOffset && !done) {
-            done = !(model.at(end) instanceof CommandAtom);
-            end++;
-        }
-        return [start - 1, end - 1];
-    }
-    function getCommandSuggestionRange(model) {
-        let start = 0;
-        let found = false;
-        while (start <= model.lastOffset && !found) {
-            const atom = model.at(start);
-            found = atom instanceof CommandAtom && atom.isSuggestion;
-            if (!found)
-                start++;
-        }
-        if (!found)
-            return [undefined, undefined];
-        let end = start;
-        let done = false;
-        while (end <= model.lastOffset && !done) {
-            const atom = model.at(end);
-            done = !(atom instanceof CommandAtom && atom.isSuggestion);
-            end++;
-        }
-        return [start - 1, end - 1];
-    }
-    function getCommandAtoms(model) {
-        return model.getAtoms(getCommandRange(model));
-    }
-    function getCommandString(model, options) {
-        var _a;
-        const commandAtoms = getCommandAtoms(model);
-        if ((_a = options === null || options === void 0 ? void 0 : options.withSuggestion) !== null && _a !== void 0 ? _a : false) {
-            return commandAtoms.map((x) => x.value).join('');
-        }
-        return commandAtoms
-            .filter((x) => !x.isSuggestion)
-            .map((x) => x.value)
-            .join('');
+        mf.popover.innerHTML = '';
     }
 
     /*
@@ -22842,8 +22707,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         //
         // 4. Construct struts around the spans
         //
-        const base = makeSpan(spans, 'ML__base');
-        base.setTop(base.height - base.depth);
+        const base = new Span(spans, 'ML__base');
         const wrapper = makeStruts(base, 'ML__mathlive');
         wrapper.attributes = {
             // Sometimes Google Translate kicks in an attempts to 'translate' math
@@ -22880,6 +22744,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // up to date by now)
             setTimeout(() => renderSelection(mathfield), 32);
         }
+        else {
+            // The popover is relative to the location of the caret
+            setTimeout(() => updatePopoverPosition(mathfield), 32);
+        }
     }
     function renderSelection(mathfield) {
         mathfield.field.querySelectorAll('.ML__selection').forEach((x) => {
@@ -22898,466 +22766,84 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         });
     }
 
-    // @revisit: move to mathfield.vibrate()
-    const HAPTIC_FEEDBACK_DURATION = 3; // in ms
-    const COMMANDS = {};
-    function register$2(commands, options) {
-        options = options !== null && options !== void 0 ? options : { target: 'mathfield', canUndo: false };
-        Object.keys(commands).forEach((selector) => {
-            console.assert(!COMMANDS[selector], 'Selector already defined: ', selector);
-            COMMANDS[selector] = { ...options, fn: commands[selector] };
-        });
+    class CommandAtom extends Atom {
+        constructor(value, options) {
+            super('command', { value, mode: 'command' });
+            if (options === null || options === void 0 ? void 0 : options.isSuggestion) {
+                this.isSuggestion = true;
+            }
+        }
+        get computedStyle() {
+            return {};
+        }
+        render(context) {
+            const result = new Span(this.value, this.isSuggestion
+                ? 'ML__suggestion'
+                : this.isError
+                    ? 'ML__error'
+                    : '', 'command');
+            if (this.caret)
+                result.caret = this.caret;
+            this.bind(context, result);
+            return [result];
+        }
     }
-    function perform(mathfield, command) {
-        var _a;
-        if (!command) {
-            return false;
-        }
-        let selector;
-        let args = [];
-        let handled = false;
-        let dirty = false;
-        if (isArray(command)) {
-            selector = command[0];
-            args = command.slice(1);
-        }
-        else {
-            selector = command;
-        }
-        // Convert kebab case (like-this) to camel case (likeThis).
-        selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase());
-        if (((_a = COMMANDS[selector]) === null || _a === void 0 ? void 0 : _a.target) === 'model') {
-            if (/^(delete|transpose|add)/.test(selector)) {
-                if (selector !== 'deleteBackward') {
-                    mathfield.resetKeystrokeBuffer();
-                }
-            }
-            if (/^(delete|transpose|add)/.test(selector) &&
-                mathfield.mode !== 'command') {
-                // Update the undo state to account for the current selection
-                mathfield.popUndoStack();
-                mathfield.snapshot();
-            }
-            COMMANDS[selector].fn(mathfield.model, ...args);
-            if (/^(delete|transpose|add)/.test(selector) &&
-                mathfield.mode !== 'command') {
-                mathfield.snapshot();
-            }
-            if (/^(delete)/.test(selector) && mathfield.mode === 'command') {
-                const command = getCommandString(mathfield.model);
-                const suggestions = suggest(command);
-                if (suggestions.length === 0) {
-                    hidePopover(mathfield);
-                }
-                else {
-                    showPopoverWithLatex(mathfield, suggestions[0].match, suggestions.length > 1);
-                }
-            }
-            dirty = true;
-            handled = true;
-        }
-        else if (COMMANDS[selector]) {
-            dirty = COMMANDS[selector].fn(mathfield, ...args);
-            handled = true;
-        }
-        else {
-            throw Error('Unknown command "' + selector + '"');
-        }
-        // If the command changed the selection so that it is no longer
-        // collapsed, or if it was an editing command, reset the inline
-        // shortcut buffer and the user style
-        if (!mathfield.model.selectionIsCollapsed ||
-            /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(selector)) {
-            mathfield.resetKeystrokeBuffer();
-            mathfield.style = {};
-        }
-        // Render the mathlist
-        if (dirty) {
-            requestUpdate(mathfield);
-        }
-        return handled;
-    }
-    /**
-     * Perform a command, but:
-     * * focus the mathfield
-     * * provide haptic and audio feedback
-     * This is used by the virtual keyboard when command keys (delete, arrows, etc..)
-     * are pressed.
-     */
-    function performWithFeedback(mathfield, selector) {
-        var _a, _b, _c;
-        // @revisit: have a registry of commands -> sound
-        mathfield.focus();
-        if (mathfield.options.keypressVibration && (navigator === null || navigator === void 0 ? void 0 : navigator.vibrate)) {
-            navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
-        }
-        // Convert kebab case to camel case.
-        selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase());
-        if (selector === 'moveToNextPlaceholder' ||
-            selector === 'moveToPreviousPlaceholder' ||
-            selector === 'complete') {
-            (_a = mathfield.returnKeypressSound) === null || _a === void 0 ? void 0 : _a.play().catch(console.warn);
-        }
-        else if (selector === 'deleteBackward' ||
-            selector === 'deleteForward' ||
-            selector === 'deletePreviousWord' ||
-            selector === 'deleteNextWord' ||
-            selector === 'deleteToGroupStart' ||
-            selector === 'deleteToGroupEnd' ||
-            selector === 'deleteToMathFieldStart' ||
-            selector === 'deleteToMathFieldEnd') {
-            (_b = mathfield.deleteKeypressSound) === null || _b === void 0 ? void 0 : _b.play().catch(console.warn);
-        }
-        else {
-            (_c = mathfield.keypressSound) === null || _c === void 0 ? void 0 : _c.play().catch(console.warn);
-        }
-        return mathfield.executeCommand(selector);
-    }
-    register$2({
-        performWithFeedback: (mathfield, command) => performWithFeedback(mathfield, command),
-    });
 
-    // import { getEnvironmentDefinition } from '../core/definitions';
-    function addRowAfter(model) {
-        contentDidChange(model);
-        return true;
-    }
-    function addRowBefore(model) {
-        contentDidChange(model);
-        return true;
-    }
-    function addColumnAfter(model) {
-        contentDidChange(model);
-        return true;
-    }
-    function addColumnBefore(model) {
-        contentDidChange(model);
-        return true;
-    }
-    register$2({
-        addRowAfter: addRowAfter,
-        addColumnAfter: addColumnAfter,
-        addRowBefore: addRowBefore,
-        addColumnBefore: addColumnBefore,
-    }, { target: 'model', category: 'array-edit' });
-
-    // import {
-    //     arrayFirstCellByRow,
-    //     arrayColRow,
-    //     arrayAdjustRow,
-    //     arrayIndex,
-    //     arrayJoinColumns,
-    //     arrayRemoveRow,
-    //     arrayColumnCellCount,
-    //     arrayRemoveColumn,
-    //     arrayJoinRows,
-    // } from './model-array';
-    // function deleteFirstSiblingInArray(model: ModelPrivate): boolean {
-    //     const contentWasChanging = model.suppressChangeNotifications;
-    //     model.suppressChangeNotifications = true;
-    //     const array = model.parent.array;
-    //     if (arrayFirstCellByRow(array) === model.relation) {
-    //         // (1) First cell:
-    //         // delete array, replace it with linearized content
-    //         const atoms = arrayJoinRows(array);
-    //         model.path.pop();
-    //         model.siblings().splice(model.anchorOffset(), 1, ...atoms);
-    //         model._iter = null;
-    //         setSelectionOffset(model, model.anchorOffset() - 1, atoms.length);
-    //     } else {
-    //         const colRow = arrayColRow(array, model.relation);
-    //         if (colRow.col === 0) {
-    //             // (2) First (non-empty) column (but not first row):
-    //             // Move to the end of the last cell of the previous row
-    //             const dest = arrayAdjustRow(array, colRow, -1);
-    //             dest.col = array[dest.row].length - 1;
-    //             model.path[model.path.length - 1].relation = ('cell' +
-    //                 arrayIndex(array, dest)) as Relation;
-    //             const destLength = array[dest.row][dest.col].length;
-    //             // (2.1) Linearize it and merge it with last cell of previous row
-    //             // (note that atoms could be empty if there are no non-empty
-    //             // cells left in the row)
-    //             const atoms = arrayJoinColumns(array[colRow.row]);
-    //             array[dest.row][dest.col] = array[dest.row][dest.col].concat(atoms);
-    //             setSelectionOffset(model, destLength - 1, atoms.length);
-    //             // (2.2) Remove row
-    //             arrayRemoveRow(array, colRow.row);
-    //         } else {
-    //             // (3) Non-first column
-    //             // (3.1) If column is empty, remove it
-    //             if (arrayColumnCellCount(array, colRow.col) === 0) {
-    //                 arrayRemoveColumn(array, colRow.col);
-    //                 colRow.col -= 1;
-    //                 model.path[model.path.length - 1].relation = ('cell' +
-    //                     arrayIndex(array, colRow)) as Relation;
-    //                 const destCell = array[colRow.row][colRow.col];
-    //                 setSelectionOffset(model, destCell.length - 1, 0);
-    //             }
-    //             // (3.2) merge cell with cell in previous column
-    //         }
-    //     }
-    //     // Dispatch notifications
-    //     model.suppressChangeNotifications = contentWasChanging;
-    //     selectionDidChange(model);
-    //     contentDidChange(model);
-    //     return true;
-    // }
     /**
-     * Handle special cases when deleting an atom as per the table below
-     * - deleting an empty numerator: demote fraction
-     * - forward-deleting a square root: demote it
-     * - delete last atom inside a square root: delete the square root
-     * - delete last atom in a subsup: delete the subsup
-     * - etc...
+     * Return the range of the command in the expression or
+     * `[undefined, undefined]`.
      *
-     *
-     * @param branch: if deleting inside an atom, the branch being delete
-     * (always the first or last atom of the branch). If undefined, the atom
-     * itself is about to be deleted.
-     *
-     * @return true if handled
+     * (There should be at most one command in an expression)
      */
-    function onDelete(model, direction, atom, branch) {
-        var _a, _b, _c, _d, _e, _f;
-        const parent = atom.parent;
-        if (atom instanceof LeftRightAtom) {
-            //
-            // 'leftright': \left\right
-            //
-            const atStart = (!branch && direction === 'forward') ||
-                (branch === 'body' && direction === 'backward');
-            const pos = atStart
-                ? model.offsetOf(atom) - 1
-                : model.offsetOf(atom.lastChild);
-            if (!atStart && atom.leftDelim !== '?' && atom.leftDelim !== '.') {
-                // Insert open fence
-                parent.addChildBefore(new Atom('mopen', { value: atom.leftDelim }), atom);
-            }
-            else if (atStart &&
-                atom.rightDelim !== '?' &&
-                atom.rightDelim !== '.') {
-                // Insert closing fence
-                parent.addChildAfter(new Atom('mclose', { value: atom.rightDelim }), atom);
-            }
-            // Hoist body
-            parent.addChildrenAfter(atom.removeBranch('body'), atom);
-            parent.removeChild(atom);
-            model.position = pos;
-            return true;
+    function getCommandRange(model) {
+        let start = 0;
+        let found = false;
+        while (start <= model.lastOffset && !found) {
+            found = model.at(start) instanceof CommandAtom;
+            if (!found)
+                start++;
         }
-        else if (atom.type === 'surd') {
-            //
-            // 'surd': square root
-            //
-            if ((direction === 'forward' && !branch) ||
-                (direction === 'backward' && branch === 'body')) {
-                // Before fwd or body 1st bwd: Demote body
-                const pos = atom.leftSibling;
-                parent.addChildrenAfter(atom.removeBranch('body'), atom);
-                parent.removeChild(atom);
-                model.position = model.offsetOf(pos);
-            }
-            else if (direction === 'forward' && branch === 'body') {
-                // body last fwd: move to after
-                model.position = model.offsetOf(atom);
-            }
-            else if (!branch && direction === 'backward') {
-                // after bwd: move to last of body
-                model.position = model.offsetOf(atom.lastChild);
-            }
-            else if (branch === 'above') {
-                if (atom.hasEmptyBranch('above')) {
-                    atom.removeBranch('above');
-                }
-                if (direction === 'backward') {
-                    // above 1st
-                    model.position = model.offsetOf(atom.leftSibling);
-                }
-                else {
-                    // above last
-                    model.position = model.offsetOf(atom.body[0]);
-                }
-            }
-            return true;
+        if (!found)
+            return [undefined, undefined];
+        let end = start;
+        let done = false;
+        while (end <= model.lastOffset && !done) {
+            done = !(model.at(end) instanceof CommandAtom);
+            if (!done)
+                end++;
         }
-        else if (atom.type === 'box' || atom.type === 'enclose') {
-            //
-            // 'box': \boxed, \fbox 'enclose': \cancel
-            //
-            const pos = (branch && direction === 'backward') ||
-                (!branch && direction === 'forward')
-                ? atom.leftSibling
-                : atom.lastChild;
-            parent.addChildrenAfter(atom.removeBranch('body'), atom);
-            parent.removeChild(atom);
-            model.position = model.offsetOf(pos);
-            return true;
-        }
-        else if (atom.type === 'genfrac' || atom.type === 'overunder') {
-            //
-            // 'genfrac': \frac, \choose, etc...
-            //
-            if (!branch) {
-                // After or before atom
-                if (!atom.hasChildren)
-                    return false;
-                model.position = model.offsetOf(direction === 'forward' ? atom.firstChild : atom.lastChild);
-                return true;
-            }
-            if ((direction === 'forward' && branch === 'above') ||
-                (direction === 'backward' && branch === 'below')) {
-                // above last or below first: hoist
-                const above = atom.removeBranch('above');
-                const below = atom.removeBranch('below');
-                parent.addChildrenAfter([...above, ...below], atom);
-                parent.removeChild(atom);
-                model.position = model.offsetOf(above.length > 0 ? above[above.length - 1] : below[0]);
-                return true;
-            }
-            if (direction === 'backward') {
-                // above first: move to before
-                model.position = model.offsetOf(atom.leftSibling);
-                return true;
-            }
-            // below last: move to after
-            model.position = model.offsetOf(atom);
-            return true;
-        }
-        else if ((atom instanceof OperatorAtom && atom.isExtensibleSymbol) ||
-            atom.type === 'msubsup') {
-            //
-            // Extensible operator: \sum, \int, etc...
-            // Superscript/subscript carrier
-            //
-            if (!branch && direction === 'forward')
-                return false;
-            if (!branch) {
-                if (atom.subscript || atom.superscript) {
-                    let pos;
-                    if (direction === 'forward') {
-                        // before
-                        pos = (_b = (_a = atom.superscript) === null || _a === void 0 ? void 0 : _a[0]) !== null && _b !== void 0 ? _b : (_c = atom.subscript) === null || _c === void 0 ? void 0 : _c[0];
-                    }
-                    else {
-                        // after
-                        pos = (_e = (_d = atom.subscript) === null || _d === void 0 ? void 0 : _d[0].lastSibling) !== null && _e !== void 0 ? _e : (_f = atom.superscript) === null || _f === void 0 ? void 0 : _f[0].lastSibling;
-                    }
-                    model.position = model.offsetOf(pos);
-                    return true;
-                }
-                return false;
-            }
-            if (branch && atom.hasEmptyBranch(branch)) {
-                atom.removeBranch(branch);
-            }
-            if (branch === 'superscript') {
-                if (direction === 'backward') {
-                    const pos = model.offsetOf(atom.firstChild) - 1;
-                    console.assert(pos >= 0);
-                    model.position = pos;
-                }
-                else if (atom.subscript) {
-                    model.position = model.offsetOf(atom.subscript[0]);
-                }
-                else {
-                    model.position = model.offsetOf(atom);
-                }
-            }
-            else if (branch === 'subscript') {
-                if (direction === 'backward' && atom.superscript) {
-                    // subscript first: move to superscript end
-                    model.position = model.offsetOf(atom.superscript[0].lastSibling);
-                }
-                else if (direction === 'backward') {
-                    // subscript first: move to before
-                    model.position = model.offsetOf(atom.firstChild) - 1;
-                }
-                else {
-                    // subscript last: move after
-                    model.position = model.offsetOf(atom);
-                }
-            }
-            return true;
-        }
-        return false;
+        return [start - 1, end - 1];
     }
-    /**
-     * Delete the item at the current position
-     */
-    function deleteBackward(model) {
-        if (!model.selectionIsCollapsed) {
-            return deleteRange(model, range(model.selection));
+    function getCommandSuggestionRange(model, options) {
+        let start = 0;
+        let found = false;
+        const last = isFinite(options === null || options === void 0 ? void 0 : options.before) ? options.before : model.lastOffset;
+        while (start <= last && !found) {
+            const atom = model.at(start);
+            found = atom instanceof CommandAtom && atom.isSuggestion;
+            if (!found)
+                start++;
         }
-        let target = model.at(model.position);
-        if (target && onDelete(model, 'backward', target))
-            return true;
-        if (target === null || target === void 0 ? void 0 : target.isFirstSibling) {
-            if (onDelete(model, 'backward', target.parent, target.treeBranch)) {
-                return true;
-            }
-            target = null;
+        if (!found)
+            return [undefined, undefined];
+        let end = start;
+        let done = false;
+        while (end <= last && !done) {
+            const atom = model.at(end);
+            done = !(atom instanceof CommandAtom && atom.isSuggestion);
+            if (!done)
+                end++;
         }
-        // At the first position: nothing to delete...
-        if (!target) {
-            model.announce('plonk');
-            return false;
-        }
-        return model.deferNotifications({ content: true, selection: true }, () => {
-            const offset = model.offsetOf(target.leftSibling);
-            target.parent.removeChild(target);
-            model.announce('deleted', null, [target]);
-            model.position = offset;
-        });
+        return [start - 1, end - 1];
     }
-    /**
-     * Delete the item forward of the current position, update the position and
-     * send notifications
-     */
-    function deleteForward(model) {
-        if (!model.selectionIsCollapsed) {
-            return deleteRange(model, range(model.selection));
-        }
-        let target = model.at(model.position).rightSibling;
-        if (target && onDelete(model, 'forward', target))
-            return true;
-        if (!target) {
-            target = model.at(model.position);
-            if (target.isLastSibling &&
-                onDelete(model, 'forward', target.parent, target.treeBranch)) {
-                return true;
-            }
-            target = null;
-        }
-        else if (model.at(model.position).isLastSibling &&
-            onDelete(model, 'forward', target.parent, target.treeBranch)) {
-            return true;
-        }
-        if (model.position === model.lastOffset || !target) {
-            model.announce('plonk');
-            return false;
-        }
-        return model.deferNotifications({ content: true, selection: true }, () => {
-            var _a, _b;
-            target.parent.removeChild(target);
-            let sibling = (_a = model.at(model.position)) === null || _a === void 0 ? void 0 : _a.rightSibling;
-            while ((sibling === null || sibling === void 0 ? void 0 : sibling.type) === 'msubsup') {
-                sibling.parent.removeChild(sibling);
-                sibling = (_b = model.at(model.position)) === null || _b === void 0 ? void 0 : _b.rightSibling;
-            }
-            model.announce('deleted', null, [target]);
-        });
+    function getCommandAtoms(model) {
+        return model.getAtoms(getCommandRange(model));
     }
-    /**
-     * Delete the specified range, as a result of a user action: this will
-     * account for special cases such as deleting empty denominator, and will
-     * provide appropriate feedback to screen readers.
-     *
-     * Use model.deleteAtoms() for operations that are not a result of
-     * user action.
-     */
-    function deleteRange(model, range) {
-        model.deleteAtoms(range);
-        return true;
+    function getCommandString(model) {
+        return model
+            .getAtoms(getCommandRange(model))
+            .map((x) => x.value)
+            .join('');
     }
 
     /**
@@ -24203,16 +23689,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return true;
     }
 
-    /**
-     * Return true if the atom could be a part of a number
-     * i.e. "-12354.568"
-     */
-    function isNumber$1(atom) {
-        if (!atom)
-            return false;
-        return ((atom.type === 'mord' && /[0-9.]/.test(atom.value)) ||
-            (atom.type === 'mpunct' && atom.value === ','));
-    }
     function getMode(model, offset) {
         const atom = model.at(offset);
         let result;
@@ -24227,654 +23703,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         return result;
     }
-    /**
-     * Move to the next/previous placeholder or empty child list.
-     * @return False if no placeholder found and did not move
-     */
-    function leap(model, dir, callHooks = true) {
-        var _a, _b;
-        const dist = dir === 'forward' ? 1 : -1;
-        if (model.at(model.anchor).type === 'placeholder') {
-            // If we're already at a placeholder, move by one more (the placeholder
-            // is right after the insertion point)
-            move(model, dir);
-        }
-        // Candidate placeholders are atom of type 'placeholder'
-        // or empty children list (except for the root: if the root is empty,
-        // it is not a valid placeholder)
-        const atoms = model.getAllAtoms(model.position + dist);
-        if (dir === 'backward')
-            atoms.reverse();
-        const placeholders = atoms.filter((atom) => atom.type === 'placeholder' ||
-            (atom.treeDepth > 0 && atom.isFirstSibling && atom.isLastSibling));
-        // If no placeholders were found, call handler or move to the next focusable
-        // element in the document
-        if (placeholders.length === 0) {
-            const handled = !callHooks || !((_b = (_a = model.hooks).tabOut) === null || _b === void 0 ? void 0 : _b.call(_a, model, dir));
-            if (handled)
-                return false;
-            const tabbable = getTabbableElements();
-            if (!document.activeElement || tabbable.length === 1) {
-                model.announce('plonk');
-                return false;
-            }
-            let index = tabbable.indexOf(document.activeElement) + dist;
-            if (index < 0)
-                index = tabbable.length - 1;
-            if (index >= tabbable.length)
-                index = 0;
-            tabbable[index].focus();
-            return false;
-        }
-        // Set the selection to the next placeholder
-        const previousPosition = model.position;
-        const newPosition = model.offsetOf(placeholders[0]);
-        if (placeholders[0].type === 'placeholder') {
-            model.setSelection(newPosition - 1, newPosition);
-        }
-        else {
-            model.position = newPosition;
-        }
-        model.announce('move', previousPosition);
-        return true;
-    }
-    /**
-     * Return an array of tabbable elements, approximately in the order a browser
-     * would (the browsers are inconsistent), which is first by accounting
-     * for non-null tabIndex, then null tabIndex, then document order of focusable
-     * elements.
-     */
-    function getTabbableElements() {
-        // const focussableElements = `a[href]:not([disabled]),
-        // button:not([disabled]),
-        // textarea:not([disabled]),
-        // input[type=text]:not([disabled]),
-        // select:not([disabled]),
-        // [contentEditable="true"],
-        // [tabindex]:not([disabled]):not([tabindex="-1"])`;
-        // // Get all the potentially focusable elements
-        // // and exclude (1) those that are invisible (width and height = 0)
-        // // (2) not the active element
-        // // (3) the ancestor of the active element
-        // return Array.prototype.filter.call(
-        //     document.querySelectorAll(focussableElements),
-        //     (element) =>
-        //         ((element.offsetWidth > 0 || element.offsetHeight > 0) &&
-        //             !element.contains(document.activeElement)) ||
-        //         element === document.activeElement
-        // );
-        function tabbable(el) {
-            const regularTabbables = [];
-            const orderedTabbables = [];
-            const candidates = Array.from(el.querySelectorAll(`input, select, textarea, a[href], button, 
-        [tabindex], audio[controls], video[controls],
-        [contenteditable]:not([contenteditable="false"]), details>summary`)).filter(isNodeMatchingSelectorTabbable);
-            candidates.forEach((candidate, i) => {
-                const candidateTabindex = getTabindex(candidate);
-                if (candidateTabindex === 0) {
-                    regularTabbables.push(candidate);
-                }
-                else {
-                    orderedTabbables.push({
-                        documentOrder: i,
-                        tabIndex: candidateTabindex,
-                        node: candidate,
-                    });
-                }
-            });
-            return orderedTabbables
-                .sort((a, b) => a.tabIndex === b.tabIndex
-                ? a.documentOrder - b.documentOrder
-                : a.tabIndex - b.tabIndex)
-                .map((a) => a.node)
-                .concat(regularTabbables);
-        }
-        function isNodeMatchingSelectorTabbable(el) {
-            if (!isNodeMatchingSelectorFocusable(el) ||
-                isNonTabbableRadio(el) ||
-                getTabindex(el) < 0) {
-                return false;
-            }
-            return true;
-        }
-        function isNodeMatchingSelectorFocusable(node) {
-            if (node.disabled ||
-                (node.tagName === 'INPUT' && node.type === 'hidden') ||
-                isHidden(node)) {
-                return false;
-            }
-            return true;
-        }
-        function getTabindex(node) {
-            const tabindexAttr = parseInt(node.getAttribute('tabindex'), 10);
-            if (!isNaN(tabindexAttr)) {
-                return tabindexAttr;
-            }
-            // Browsers do not return `tabIndex` correctly for contentEditable nodes;
-            // so if they don't have a tabindex attribute specifically set, assume it's 0.
-            if (node.contentEditable === 'true') {
-                return 0;
-            }
-            // in Chrome, <audio controls/> and <video controls/> elements get a default
-            //  `tabIndex` of -1 when the 'tabindex' attribute isn't specified in the DOM,
-            //  yet they are still part of the regular tab order; in FF, they get a default
-            //  `tabIndex` of 0; since Chrome still puts those elements in the regular tab
-            //  order, consider their tab index to be 0
-            if ((node.nodeName === 'AUDIO' || node.nodeName === 'VIDEO') &&
-                node.getAttribute('tabindex') === null) {
-                return 0;
-            }
-            return node.tabIndex;
-        }
-        function isNonTabbableRadio(node) {
-            return (node.tagName === 'INPUT' &&
-                node.type === 'radio' &&
-                !isTabbableRadio(node));
-        }
-        function getCheckedRadio(nodes, form) {
-            for (let i = 0; i < nodes.length; i++) {
-                if (nodes[i].checked && nodes[i].form === form) {
-                    return nodes[i];
-                }
-            }
-            return null;
-        }
-        function isTabbableRadio(node) {
-            if (!node.name) {
-                return true;
-            }
-            const radioScope = node.form || node.ownerDocument;
-            const radioSet = radioScope.querySelectorAll('input[type="radio"][name="' + node.name + '"]');
-            const checked = getCheckedRadio(radioSet, node.form);
-            return !checked || checked === node;
-        }
-        function isHidden(el) {
-            if (el === document.activeElement ||
-                el.contains(document.activeElement)) {
-                return false;
-            }
-            if (getComputedStyle(el).visibility === 'hidden')
-                return true;
-            // Note that browsers generally don't consider the bounding rect
-            // as a criteria to determine if an item is focusable, but we want
-            // to exclude the invisible textareas used to capture keyoard input.
-            const bounds = el.getBoundingClientRect();
-            if (bounds.width === 0 || bounds.height === 0)
-                return true;
-            while (el) {
-                if (getComputedStyle(el).display === 'none')
-                    return true;
-                el = el.parentElement;
-            }
-            return false;
-        }
-        return tabbable(document.body);
-    }
-    /**
-     * Handle keyboard navigation (arrow keys)
-     */
-    function move(model, direction, options) {
-        var _a, _b, _c, _d, _e, _f, _g;
-        options = options !== null && options !== void 0 ? options : { extend: false };
-        deleteRange(model, getCommandSuggestionRange(model));
-        if (direction === 'upward')
-            return moveUpward(model, options);
-        if (direction === 'downward')
-            return moveDownward(model, options);
-        const previousPosition = model.position;
-        if (options.extend) {
-            return model.extendSelection(direction);
-        }
-        if (model.selectionIsPlaceholder) {
-            model.collapseSelection(direction);
-            return move(model, direction);
-        }
-        if (!model.collapseSelection(direction)) {
-            let pos = model.position + (direction === 'forward' ? +1 : -1);
-            //
-            // 1. Handle `captureSelection` and `skipBoundary`
-            //
-            if (direction === 'forward') {
-                const atom = model.at(model.position + 1);
-                if ((_a = atom === null || atom === void 0 ? void 0 : atom.parent) === null || _a === void 0 ? void 0 : _a.captureSelection) {
-                    // When going forward, if in a capture selection, jump to
-                    // after
-                    pos = model.offsetOf(atom === null || atom === void 0 ? void 0 : atom.parent.lastChild) + 1;
-                }
-                else if (atom === null || atom === void 0 ? void 0 : atom.skipBoundary) {
-                    // When going forward if next is skipboundary, move 2
-                    pos += 1;
-                }
-            }
-            else if (direction === 'backward') {
-                const atom = model.at(model.position - 1);
-                if ((_b = atom === null || atom === void 0 ? void 0 : atom.parent) === null || _b === void 0 ? void 0 : _b.captureSelection) {
-                    // When going backward, if in a capture selection, jump to
-                    // before
-                    pos = Math.max(0, model.offsetOf(atom === null || atom === void 0 ? void 0 : atom.parent.firstChild) - 1);
-                }
-                else if ((atom === null || atom === void 0 ? void 0 : atom.isFirstSibling) && ((_c = atom.parent) === null || _c === void 0 ? void 0 : _c.skipBoundary)) {
-                    // When going backward, if land on first of group and previous is
-                    // skipbounday,  move -2
-                    pos -= 1;
-                }
-            }
-            //
-            // 2. Handle out of bounds
-            //
-            if (pos < 0 || pos > model.lastOffset) {
-                // We're going out of bounds
-                let result = true; // true => perform default handling
-                if (!model.suppressChangeNotifications) {
-                    result = (_d = model.hooks) === null || _d === void 0 ? void 0 : _d.moveOut(model, direction);
-                }
-                if (result)
-                    model.announce('plonk');
-                return result;
-            }
-            //
-            // 3. Handle placeholder
-            //
-            if (((_e = model.at(pos)) === null || _e === void 0 ? void 0 : _e.type) === 'placeholder') {
-                // We're going right of a placeholder: select it
-                model.setSelection(pos - 1, pos);
-            }
-            else if (((_g = (_f = model.at(pos)) === null || _f === void 0 ? void 0 : _f.rightSibling) === null || _g === void 0 ? void 0 : _g.type) === 'placeholder') {
-                // We're going left of a placeholder: select it
-                model.setSelection(pos, pos + 1);
-            }
-            else {
-                model.position = pos;
-            }
-        }
-        model.announce('move', previousPosition);
-        return true;
-    }
-    function moveUpward(model, options) {
-        var _a, _b, _c, _d;
-        const extend = (_a = options === null || options === void 0 ? void 0 : options.extend) !== null && _a !== void 0 ? _a : false;
-        model.collapseSelection('backward');
-        // Find a target branch
-        // This is to handle the case: `\frac{x}{\sqrt{y}}`. If we're at `y`
-        // we'd expectto move to `x`, even though `\sqrt` doesn't have an 'above'
-        // branch, but one of its ancestor does.
-        let atom = model.at(model.position);
-        while (atom && atom.treeBranch !== 'below') {
-            atom = atom.parent;
-        }
-        if (atom) {
-            if (extend) {
-                model.setSelection(model.offsetOf(atom.parent.leftSibling), model.offsetOf(atom.parent));
-            }
-            else {
-                // If branch doesn't exist, create it
-                const branch = (_b = atom.parent.branch('above')) !== null && _b !== void 0 ? _b : atom.parent.createBranch('above');
-                // Move to the last atom of the branch
-                model.position = model.offsetOf(branch[branch.length - 1]);
-            }
-            model.announce('moveUp');
-            // } else if (model.parent.array) {
-            //     // In an array
-            //     let colRow = arrayColRow(model.parent.array, relation);
-            //     colRow = arrayAdjustRow(model.parent.array, colRow, -1);
-            //     if (colRow && arrayCell(model.parent.array, colRow)) {
-            //         model.path[model.path.length - 1].relation = ('cell' +
-            //             arrayIndex(model.parent.array, colRow)) as Relation;
-            //         setSelectionOffset(model, model.anchorOffset());
-            //         model.announce('moveUp');
-            //     } else {
-            //         move(model, 'backward', options);
-            //     }
-        }
-        else {
-            if (!((_c = model.at(model.position).parent) === null || _c === void 0 ? void 0 : _c.parent)) {
-                let result = true; // true => perform default handling
-                if (!model.suppressChangeNotifications) {
-                    result = (_d = model.hooks) === null || _d === void 0 ? void 0 : _d.moveOut(model, 'upward');
-                }
-                model.announce(result ? 'plonk' : 'line');
-                return result;
-            }
-        }
-        return true;
-    }
-    function moveDownward(model, options) {
-        var _a, _b, _c, _d;
-        const extend = (_a = options === null || options === void 0 ? void 0 : options.extend) !== null && _a !== void 0 ? _a : false;
-        model.collapseSelection('forward');
-        let atom = model.at(model.position);
-        while (atom && atom.treeBranch !== 'above') {
-            atom = atom.parent;
-        }
-        if (atom) {
-            if (extend) {
-                model.setSelection(model.offsetOf(atom.parent.leftSibling), model.offsetOf(atom.parent));
-            }
-            else {
-                // If branch doesn't exist, create it
-                const branch = (_b = atom.parent.branch('below')) !== null && _b !== void 0 ? _b : atom.parent.createBranch('below');
-                // Move to the last atom of the branch
-                model.position = model.offsetOf(branch[branch.length - 1]);
-            }
-            model.announce('moveDown');
-            //     // In an array
-            //     let colRow = arrayColRow(model.parent.array, relation);
-            //     colRow = arrayAdjustRow(model.parent.array, colRow, +1);
-            //     // @revisit: validate this codepath
-            //     if (colRow && arrayCell(model.parent.array, colRow)) {
-            //         model.path[model.path.length - 1].relation = ('cell' +
-            //             arrayIndex(model.parent.array, colRow)) as Relation;
-            //         setSelectionOffset(model, model.anchorOffset());
-            //         model.announce('moveDown');
-            //     } else {
-            //         move(model, 'forward', options);
-            //     }
-        }
-        else {
-            if (!((_c = model.at(model.position).parent) === null || _c === void 0 ? void 0 : _c.parent)) {
-                let result = true; // true => perform default handling
-                if (!model.suppressChangeNotifications) {
-                    result = (_d = model.hooks) === null || _d === void 0 ? void 0 : _d.moveOut(model, 'downward');
-                }
-                model.announce(result ? 'plonk' : 'line');
-                return result;
-            }
-        }
-        return true;
-    }
-    /**
-     * Keyboard navigation with alt/option:
-     * Move the insertion point to the next/previous point of interest.
-     * A point of interest is an atom of a different type (mbin, mord, etc...)
-     * than the current focus.
-     * If `extend` is true, the selection will be extended. Otherwise, it is
-     * collapsed, then moved.
-     * @param dir +1 to skip forward, -1 to skip back
-     * @revisit: to do
-     */
-    function skip(model, direction, options) {
-        var _a, _b, _c, _d, _e, _f, _g;
-        const previousPosition = model.position;
-        if (!((_a = options === null || options === void 0 ? void 0 : options.extend) !== null && _a !== void 0 ? _a : false)) {
-            model.collapseSelection(direction);
-        }
-        let atom = model.at(model.position);
-        if (direction === 'forward') {
-            if (atom.type === 'msubsup') {
-                atom = atom.rightSibling;
-                if (!atom) {
-                    atom = model.at(model.position + 1);
-                }
-            }
-            else {
-                atom = model.at(model.position + 1);
-            }
-        }
-        if (!atom)
-            return false;
-        let offset = model.offsetOf(atom);
-        if (atom.mode === 'text') {
-            //
-            // We're in a text zone, skip word by word
-            //
-            offset = wordBoundaryOffset(model, offset, direction);
-        }
-        else if (direction === 'forward' && atom.type === 'mopen') {
-            //
-            // Right before a 'mopen', skip to the corresponding balanced fence
-            //
-            let level = 0;
-            do {
-                if (atom.type === 'mopen') {
-                    level += 1;
-                }
-                else if (atom.type === 'mclose') {
-                    level -= 1;
-                }
-                atom = atom.rightSibling;
-            } while (!atom.isLastSibling && level !== 0);
-            offset = model.offsetOf(atom.leftSibling);
-        }
-        else if (direction === 'backward' && atom.type === 'mclose') {
-            //
-            // Right after a 'mclose', skip to the corresponding balanced fence
-            //
-            let level = 0;
-            do {
-                if (atom.type === 'mopen') {
-                    level += 1;
-                }
-                else if (atom.type === 'mclose') {
-                    level -= 1;
-                }
-                atom = atom.leftSibling;
-            } while (!atom.isFirstSibling && level !== 0);
-            offset = model.offsetOf(atom);
-        }
-        else {
-            //
-            // We're in a regular math zone (not before/after a fence)
-            //
-            if (direction === 'backward') {
-                if (atom.type === 'first') {
-                    while (offset > 0 && atom.type === 'first') {
-                        offset -= 1;
-                        atom = model.at(offset);
-                    }
-                }
-                else {
-                    const type = atom instanceof SubsupAtom ? atom.baseType : atom.type;
-                    if (atom.type === 'msubsup') {
-                        // If we're after a 'msubsup', skip to its left sibling
-                        // (the base of the super/subscript)
-                        offset = model.offsetOf(model.at(offset).leftSibling);
-                    }
-                    offset -= 1;
-                    let nextType = (_b = model.at(offset)) === null || _b === void 0 ? void 0 : _b.type;
-                    // if (nextType === 'msubsup') {
-                    //     offset = model.offsetOf(model.at(offset).leftSibling);
-                    // }
-                    while (offset >= 0 && nextType === type) {
-                        if (((_c = model.at(offset)) === null || _c === void 0 ? void 0 : _c.type) === 'msubsup') {
-                            offset = model.offsetOf(model.at(offset).leftSibling);
-                        }
-                        else {
-                            offset -= 1;
-                        }
-                        nextType = model.at(offset).type;
-                    }
-                }
-            }
-            else {
-                const type = atom.type;
-                // if (atom.type === 'msubsup') {
-                //     offset = model.offsetOf(model.at(offset).rightSibling);
-                // }
-                let nextType = (_d = model.at(offset)) === null || _d === void 0 ? void 0 : _d.type;
-                const lastOffset = model.lastOffset;
-                while (offset <= lastOffset &&
-                    (nextType === type || nextType === 'msubsup')) {
-                    while (((_e = model.at(offset).rightSibling) === null || _e === void 0 ? void 0 : _e.type) === 'msubsup') {
-                        offset = model.offsetOf(model.at(offset).rightSibling);
-                    }
-                    offset += 1;
-                    nextType = (_f = model.at(offset)) === null || _f === void 0 ? void 0 : _f.type;
-                }
-                offset -= 1;
-            }
-        }
-        if ((_g = options === null || options === void 0 ? void 0 : options.extend) !== null && _g !== void 0 ? _g : false) {
-            model.setSelection(model.anchor, offset);
-        }
-        else {
-            model.position = offset;
-        }
-        model.announce('move', previousPosition);
-        return true;
-    }
-    /**
-     * Select all the atoms in the current group, that is all the siblings.
-     * When the selection is in a numerator, the group is the numerator. When
-     * the selection is a superscript or subscript, the group is the supsub.
-     * When the selection is in a text zone, the "group" is a word.
-     */
-    function selectGroup(model) {
-        if (getMode(model, model.position) === 'text') {
-            let start = Math.min(model.anchor, model.position);
-            let end = Math.max(model.anchor, model.position);
-            //
-            let done = false;
-            while (!done && start > 0) {
-                const atom = model.at(start);
-                if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
-                    start -= 1;
-                }
-                else {
-                    done = true;
-                }
-            }
-            done = false;
-            while (!done && end <= model.lastOffset) {
-                const atom = model.at(end);
-                if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
-                    end += 1;
-                }
-                else {
-                    done = true;
-                }
-            }
-            if (done) {
-                end -= 1;
-            }
-            if (start >= end) {
-                // No word found. Select a single character
-                model.setSelection(end - 1, end);
-                return true;
-            }
-            model.setSelection(start, end);
-        }
-        else {
-            const atom = model.at(model.position);
-            // In a math zone, select all the sibling nodes
-            if (isNumber$1(atom)) {
-                // In a number, select all the digits
-                let start = Math.min(model.anchor, model.position);
-                let end = Math.max(model.anchor, model.position);
-                //
-                while (isNumber$1(model.at(start)))
-                    start -= 1;
-                while (isNumber$1(model.at(end)))
-                    end += 1;
-                model.setSelection(start, end - 1);
-            }
-            else {
-                model.setSelection(model.offsetOf(atom.firstSibling), model.offsetOf(atom.lastSibling));
-            }
-        }
-        return true;
-    }
-    function moveAfterParent(model) {
-        const previousPosition = model.position;
-        if (!model.at(previousPosition).parent) {
-            model.announce('plonk');
-            return false;
-        }
-        model.position = model.offsetOf(model.at(model.position).parent);
-        model.announce('move', previousPosition);
-        return true;
-    }
-    /*
-     * Calculates the offset of the "next word".
-     * This is inspired by the behavior of text editors on macOS, namely:
-        blue   yellow
-          ^-
-             ^-------
-     * That is:
-
-     * (1) If starts with an alphanumerical character, find the first alphanumerical
-     * character which is followed by a non-alphanumerical character
-     *
-     * The behavior regarding non-alphanumeric characters is less consistent.
-     * Here's the behavior we use:
-     *
-     *   +=-()_:”     blue
-     * ^---------
-     *   +=-()_:”     blue
-     *      ^---------
-     *   +=-()_:”blue
-     *      ^--------
-     *
-     * (2) If starts in whitespace, skip whitespace, then find first non-whitespace*
-     *    followed by whitespace
-     * (*) Pages actually uses the character class of the first non-whitespace
-     * encountered.
-     *
-     * (3) If starts in a non-whitespace, non alphanumerical character, find the first
-     *      whitespace
-     *
-     */
-    function wordBoundaryOffset(model, offset, direction) {
-        if (model.at(offset).mode !== 'text')
-            return offset;
-        const dir = direction === 'backward' ? -1 : +1;
-        let result;
-        if (LETTER_AND_DIGITS.test(model.at(offset).value)) {
-            // (1) We start with an alphanumerical character
-            let i = offset;
-            let match;
-            do {
-                match =
-                    model.at(i).mode === 'text' &&
-                        LETTER_AND_DIGITS.test(model.at(i).value);
-                i += dir;
-            } while (model.at(i) && match);
-            result = model.at(i) ? i - 2 * dir : i - dir;
-        }
-        else if (/\s/.test(model.at(offset).value)) {
-            // (2) We start with whitespace
-            // Skip whitespace
-            let i = offset;
-            while (model.at(i) &&
-                model.at(i).mode === 'text' &&
-                /\s/.test(model.at(i).value)) {
-                i += dir;
-            }
-            if (!model.at(i)) {
-                // We've reached the end
-                result = i - dir;
-            }
-            else {
-                let match = true;
-                do {
-                    match =
-                        model.at(i).mode === 'text' &&
-                            !/\s/.test(model.at(i).value);
-                    i += dir;
-                } while (model.at(i) && match);
-                result = model.at(i) ? i - 2 * dir : i - dir;
-            }
-        }
-        else {
-            // (3)
-            let i = offset;
-            // Skip non-whitespace
-            while (model.at(i) &&
-                model.at(i).mode === 'text' &&
-                !/\s/.test(model.at(i).value)) {
-                i += dir;
-            }
-            result = model.at(i) ? i : i - dir;
-            let match = true;
-            while (model.at(i) && match) {
-                match = model.at(i).mode === 'text' && /\s/.test(model.at(i).value);
-                if (match)
-                    result = i;
-                i += dir;
-            }
-            result = model.at(i) ? i - 2 * dir : i - dir;
-        }
-        return result - (dir > 0 ? 0 : 1);
-    }
 
     class CompositionAtom extends Atom {
         constructor(value, options) {
@@ -24888,8 +23716,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // In theory one would like to be able to draw the clauses
             // in an active composition. Unfortunately, there are
             // no API to give access to those clauses :(
-            const result = this.makeSpan(context, this.value);
-            result.classes = 'ML__composition';
+            const result = new Span(this.value, 'ML__composition', 'composition');
+            this.bind(context, result);
             if (this.caret)
                 result.caret = this.caret;
             return [result];
@@ -24905,7 +23733,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         let result = [];
         if (mode === 'math' && options.format === 'ASCIIMath') {
             [, s] = parseMathString(s, { format: 'ASCIIMath' });
-            result = parseString(s, 'math', null, options === null || options === void 0 ? void 0 : options.macros, false, model.listeners.onError);
+            result = parseLatex(s, 'math', null, options === null || options === void 0 ? void 0 : options.macros, false, model.listeners.onError);
             // Simplify result.
             if (model.options.removeExtraneousParentheses) {
                 simplifyParen(result);
@@ -24930,7 +23758,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 if (/^\$\$(.*)\$\$$/.test(s)) {
                     s = s.substring(2, s.length - 2);
                 }
-                result = parseString(s, mode, args, options.macros, (_b = options.smartFence) !== null && _b !== void 0 ? _b : false, model.listeners.onError);
+                result = parseLatex(s, mode, args, options.macros, (_b = options.smartFence) !== null && _b !== void 0 ? _b : false, model.listeners.onError);
                 // Simplify result.
                 if (options.format !== 'latex' &&
                     model.options.removeExtraneousParentheses) {
@@ -24955,7 +23783,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             s = s.replace(/\^/g, '\\textasciicircum ');
             s = s.replace(/~/g, '\\textasciitilde ');
             s = s.replace(/£/g, '\\textsterling ');
-            result = parseString(s, 'text', args, options.macros, false, model.listeners.onError);
+            result = parseLatex(s, 'text', args, options.macros, false, model.listeners.onError);
         }
         // Some atoms may already have a style (for example if there was an
         // argument, i.e. the selection, that this was applied to).
@@ -25343,7 +24171,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (grandparent instanceof LeftRightAtom &&
                 grandparent.rightDelim === '?' &&
                 model.at(model.position).isLastSibling) {
-                move(model, 'forward');
+                model.position = model.offsetOf(grandparent);
                 return insertSmartFence(model, fence, style);
             }
             // Meh... We couldn't find a matching open fence. Just insert the
@@ -25396,6 +24224,753 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return false;
     }
 
+    function updateAutocomplete(mathfield, options) {
+        var _a;
+        const model = mathfield.model;
+        // Remove any error indicator and any suggestions
+        const atoms = getCommandAtoms(model);
+        atoms.forEach((x) => {
+            if (x.isSuggestion) {
+                x.parent.removeChild(x);
+            }
+            else {
+                x.isError = false;
+            }
+        });
+        if (!model.selectionIsCollapsed) {
+            hidePopover(mathfield);
+            return;
+        }
+        // The current command is the sequence of around the insertion point
+        // that ends on the left with a '\\' and on the right with a non-command
+        // character.
+        const command = [];
+        let atom = model.at(model.position);
+        while (atom &&
+            atom instanceof CommandAtom &&
+            /[a-zA-Z*]$/.test(atom.value)) {
+            command.unshift(atom);
+            atom = atom.leftSibling;
+        }
+        if (atom && atom instanceof CommandAtom && atom.value === '\\') {
+            // We found the beginning of a command, include the atoms after the
+            // insertion point
+            command.unshift(atom);
+            atom = model.at(model.position).rightSibling;
+            while (atom &&
+                atom instanceof CommandAtom &&
+                /[a-zA-Z*]$/.test(atom.value)) {
+                command.push(atom);
+                atom = atom.rightSibling;
+            }
+        }
+        const commandString = command.map((x) => x.value).join('');
+        const suggestions = commandString ? suggest(commandString) : [];
+        if (suggestions.length === 0) {
+            if (/^\\[a-zA-Z\\*]+$/.test(commandString)) {
+                // This looks like a command name, but not a known one
+                command.forEach((x) => {
+                    x.isError = true;
+                });
+            }
+            hidePopover(mathfield);
+            return;
+        }
+        mathfield.suggestionIndex = (_a = options === null || options === void 0 ? void 0 : options.atIndex) !== null && _a !== void 0 ? _a : 0;
+        if (mathfield.suggestionIndex < 0) {
+            mathfield.suggestionIndex = suggestions.length - 1;
+        }
+        const suggestion = suggestions[mathfield.suggestionIndex % suggestions.length].match;
+        if (suggestion !== commandString) {
+            const lastAtom = command[command.length - 1];
+            lastAtom.parent.addChildrenAfter(Array.from(suggestion.substr(commandString.length - suggestion.length)).map((x) => new CommandAtom(x, { isSuggestion: true })), lastAtom);
+            requestUpdate(mathfield);
+        }
+        showPopoverWithLatex(mathfield, suggestion, suggestions.length > 1);
+    }
+    function acceptCommandSuggestion(model) {
+        model
+            .getAtoms(getCommandSuggestionRange(model, { before: model.position }))
+            .forEach((x) => {
+            x.isSuggestion = false;
+        });
+    }
+    /**
+     * When in command mode, insert the command in progress and leave command mode
+     *
+     */
+    function complete(mathfield, completion = 'accept', options) {
+        var _a, _b;
+        hidePopover(mathfield);
+        if (completion === 'reject') {
+            mathfield.model.deleteAtoms(getCommandRange(mathfield.model));
+            mathfield.switchMode((_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : 'math');
+            return true;
+        }
+        if (completion === 'accept-suggestion') {
+            acceptCommandSuggestion(mathfield.model);
+        }
+        const command = getCommandString(mathfield.model);
+        if (!command)
+            return false;
+        if (command === '\\(' || command === '\\)') {
+            mathfield.model.deleteAtoms(getCommandRange(mathfield.model));
+            insert(mathfield.model, command.slice(1), {
+                mode: mathfield.mode,
+            });
+        }
+        else {
+            // We'll assume we want to insert in math mode
+            // (commands are only available in math mode)
+            mathfield.switchMode('math');
+            // Interpret the input as LaTeX code
+            const atoms = parseLatex(command, 'math', null, mathfield.options.macros);
+            if (atoms) {
+                insertCommand(mathfield.model, atoms, {
+                    selectItem: (_b = options === null || options === void 0 ? void 0 : options.selectItem) !== null && _b !== void 0 ? _b : false,
+                });
+            }
+            else {
+                getCommandAtoms(mathfield.model).forEach((x) => {
+                    x.isError = true;
+                });
+            }
+        }
+        mathfield.snapshot();
+        mathfield.model.announce('replacement');
+        return true;
+    }
+    function insertCommand(model, atoms, options) {
+        let didChange = model.deleteAtoms(getCommandRange(model));
+        if (atoms) {
+            // Find any placeholders in the new atoms
+            const placeholders = [];
+            atoms.forEach((atom) => atom.children.forEach((x) => {
+                if (x.type === 'placeholder')
+                    placeholders.push(x);
+            }));
+            // Insert the new atoms
+            const cursor = model.at(model.position);
+            cursor.parent.addChildrenAfter(atoms, cursor);
+            didChange = true;
+            // Change the selection
+            if (placeholders.length > 0) {
+                const offset = model.offsetOf(placeholders[0]);
+                console.assert(offset >= 0);
+                model.setSelection(offset - 1, offset);
+            }
+            else {
+                // No placeholder.
+                if (options.selectItem) {
+                    model.setSelection(model.offsetOf(atoms[0]) - 1, model.offsetOf(atoms[atoms.length - 1]));
+                }
+                else {
+                    // Move after the last new atom
+                    model.position = model.offsetOf(atoms[atoms.length - 1]);
+                }
+            }
+        }
+        if (didChange) {
+            // Dispatch notifications
+            contentDidChange(model);
+        }
+    }
+
+    // @revisit: move to mathfield.vibrate()
+    const HAPTIC_FEEDBACK_DURATION = 3; // in ms
+    const COMMANDS = {};
+    /**
+     * Register one or more selectors.
+     * The selector function return true to request a render update of the expression.
+     */
+    function register$2(commands, options) {
+        options = options !== null && options !== void 0 ? options : { target: 'mathfield', canUndo: false };
+        Object.keys(commands).forEach((selector) => {
+            console.assert(!COMMANDS[selector], 'Selector already defined: ', selector);
+            COMMANDS[selector] = { ...options, fn: commands[selector] };
+        });
+    }
+    function perform(mathfield, command) {
+        var _a;
+        if (!command) {
+            return false;
+        }
+        let selector;
+        let args = [];
+        let handled = false;
+        let dirty = false;
+        if (isArray(command)) {
+            selector = command[0];
+            args = command.slice(1);
+        }
+        else {
+            selector = command;
+        }
+        // Convert kebab case (like-this) to camel case (likeThis).
+        selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase());
+        if (((_a = COMMANDS[selector]) === null || _a === void 0 ? void 0 : _a.target) === 'model') {
+            if (/^(delete|transpose|add)/.test(selector)) {
+                if (selector !== 'deleteBackward') {
+                    mathfield.resetKeystrokeBuffer();
+                }
+            }
+            if (/^(delete|transpose|add)/.test(selector) &&
+                mathfield.mode !== 'command') {
+                // Update the undo state to account for the current selection
+                mathfield.popUndoStack();
+                mathfield.snapshot();
+            }
+            COMMANDS[selector].fn(mathfield.model, ...args);
+            if (/^(delete|transpose|add)/.test(selector) &&
+                mathfield.mode !== 'command') {
+                mathfield.snapshot();
+            }
+            if (mathfield.mode === 'command') {
+                updateAutocomplete(mathfield);
+            }
+            dirty = true;
+            handled = true;
+        }
+        else if (COMMANDS[selector]) {
+            dirty = COMMANDS[selector].fn(mathfield, ...args);
+            handled = true;
+        }
+        else {
+            throw Error('Unknown command "' + selector + '"');
+        }
+        // If the command changed the selection so that it is no longer
+        // collapsed, or if it was an editing command, reset the inline
+        // shortcut buffer and the user style
+        if (!mathfield.model.selectionIsCollapsed ||
+            /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(selector)) {
+            mathfield.resetKeystrokeBuffer();
+            mathfield.style = {};
+        }
+        // Render the mathlist
+        if (dirty) {
+            requestUpdate(mathfield);
+        }
+        return handled;
+    }
+    /**
+     * Perform a command, but:
+     * * focus the mathfield
+     * * provide haptic and audio feedback
+     * This is used by the virtual keyboard when command keys (delete, arrows, etc..)
+     * are pressed.
+     */
+    function performWithFeedback(mathfield, selector) {
+        var _a, _b, _c;
+        // @revisit: have a registry of commands -> sound
+        mathfield.focus();
+        if (mathfield.options.keypressVibration && (navigator === null || navigator === void 0 ? void 0 : navigator.vibrate)) {
+            navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+        }
+        // Convert kebab case to camel case.
+        selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase());
+        if (selector === 'moveToNextPlaceholder' ||
+            selector === 'moveToPreviousPlaceholder' ||
+            selector === 'complete') {
+            (_a = mathfield.returnKeypressSound) === null || _a === void 0 ? void 0 : _a.play().catch(console.warn);
+        }
+        else if (selector === 'deleteBackward' ||
+            selector === 'deleteForward' ||
+            selector === 'deletePreviousWord' ||
+            selector === 'deleteNextWord' ||
+            selector === 'deleteToGroupStart' ||
+            selector === 'deleteToGroupEnd' ||
+            selector === 'deleteToMathFieldStart' ||
+            selector === 'deleteToMathFieldEnd') {
+            (_b = mathfield.deleteKeypressSound) === null || _b === void 0 ? void 0 : _b.play().catch(console.warn);
+        }
+        else {
+            (_c = mathfield.keypressSound) === null || _c === void 0 ? void 0 : _c.play().catch(console.warn);
+        }
+        return mathfield.executeCommand(selector);
+    }
+    register$2({
+        performWithFeedback: (mathfield, command) => performWithFeedback(mathfield, command),
+    });
+    function nextSuggestion(mathfield) {
+        // The modulo of the suggestionIndex is used to determine which suggestion
+        // to display, so no need to worry about rolling over.
+        updateAutocomplete(mathfield, { atIndex: mathfield.suggestionIndex + 1 });
+        return false;
+    }
+    function previousSuggestion(mathfield) {
+        updateAutocomplete(mathfield, { atIndex: mathfield.suggestionIndex - 1 });
+        return false;
+    }
+    register$2({
+        complete: complete,
+        nextSuggestion: nextSuggestion,
+        previousSuggestion: previousSuggestion,
+    }, { target: 'mathfield', category: 'autocomplete' });
+
+    // import { getEnvironmentDefinition } from '../core/definitions';
+    function addRowAfter(model) {
+        contentDidChange(model);
+        return true;
+    }
+    function addRowBefore(model) {
+        contentDidChange(model);
+        return true;
+    }
+    function addColumnAfter(model) {
+        contentDidChange(model);
+        return true;
+    }
+    function addColumnBefore(model) {
+        contentDidChange(model);
+        return true;
+    }
+    register$2({
+        addRowAfter: addRowAfter,
+        addColumnAfter: addColumnAfter,
+        addRowBefore: addRowBefore,
+        addColumnBefore: addColumnBefore,
+    }, { target: 'model', category: 'array-edit' });
+
+    // import {
+    //     arrayFirstCellByRow,
+    //     arrayColRow,
+    //     arrayAdjustRow,
+    //     arrayIndex,
+    //     arrayJoinColumns,
+    //     arrayRemoveRow,
+    //     arrayColumnCellCount,
+    //     arrayRemoveColumn,
+    //     arrayJoinRows,
+    // } from './model-array';
+    // function deleteFirstSiblingInArray(model: ModelPrivate): boolean {
+    //     const contentWasChanging = model.suppressChangeNotifications;
+    //     model.suppressChangeNotifications = true;
+    //     const array = model.parent.array;
+    //     if (arrayFirstCellByRow(array) === model.relation) {
+    //         // (1) First cell:
+    //         // delete array, replace it with linearized content
+    //         const atoms = arrayJoinRows(array);
+    //         model.path.pop();
+    //         model.siblings().splice(model.anchorOffset(), 1, ...atoms);
+    //         model._iter = null;
+    //         setSelectionOffset(model, model.anchorOffset() - 1, atoms.length);
+    //     } else {
+    //         const colRow = arrayColRow(array, model.relation);
+    //         if (colRow.col === 0) {
+    //             // (2) First (non-empty) column (but not first row):
+    //             // Move to the end of the last cell of the previous row
+    //             const dest = arrayAdjustRow(array, colRow, -1);
+    //             dest.col = array[dest.row].length - 1;
+    //             model.path[model.path.length - 1].relation = ('cell' +
+    //                 arrayIndex(array, dest)) as Relation;
+    //             const destLength = array[dest.row][dest.col].length;
+    //             // (2.1) Linearize it and merge it with last cell of previous row
+    //             // (note that atoms could be empty if there are no non-empty
+    //             // cells left in the row)
+    //             const atoms = arrayJoinColumns(array[colRow.row]);
+    //             array[dest.row][dest.col] = array[dest.row][dest.col].concat(atoms);
+    //             setSelectionOffset(model, destLength - 1, atoms.length);
+    //             // (2.2) Remove row
+    //             arrayRemoveRow(array, colRow.row);
+    //         } else {
+    //             // (3) Non-first column
+    //             // (3.1) If column is empty, remove it
+    //             if (arrayColumnCellCount(array, colRow.col) === 0) {
+    //                 arrayRemoveColumn(array, colRow.col);
+    //                 colRow.col -= 1;
+    //                 model.path[model.path.length - 1].relation = ('cell' +
+    //                     arrayIndex(array, colRow)) as Relation;
+    //                 const destCell = array[colRow.row][colRow.col];
+    //                 setSelectionOffset(model, destCell.length - 1, 0);
+    //             }
+    //             // (3.2) merge cell with cell in previous column
+    //         }
+    //     }
+    //     // Dispatch notifications
+    //     model.suppressChangeNotifications = contentWasChanging;
+    //     selectionDidChange(model);
+    //     contentDidChange(model);
+    //     return true;
+    // }
+    /**
+     * Handle special cases when deleting an atom as per the table below
+     * - deleting an empty numerator: demote fraction
+     * - forward-deleting a square root: demote it
+     * - delete last atom inside a square root: delete the square root
+     * - delete last atom in a subsup: delete the subsup
+     * - etc...
+     *
+     *
+     * @param branch: if deleting inside an atom, the branch being delete
+     * (always the first or last atom of the branch). If undefined, the atom
+     * itself is about to be deleted.
+     *
+     * @return true if handled
+     */
+    function onDelete(model, direction, atom, branch) {
+        var _a, _b, _c, _d, _e, _f;
+        const parent = atom.parent;
+        if (atom instanceof LeftRightAtom) {
+            //
+            // 'leftright': \left\right
+            //
+            const atStart = (!branch && direction === 'forward') ||
+                (branch === 'body' && direction === 'backward');
+            const pos = atStart
+                ? model.offsetOf(atom) - 1
+                : model.offsetOf(atom.lastChild);
+            if (!atStart && atom.leftDelim !== '?' && atom.leftDelim !== '.') {
+                // Insert open fence
+                parent.addChildBefore(new Atom('mopen', { value: atom.leftDelim }), atom);
+            }
+            else if (atStart &&
+                atom.rightDelim !== '?' &&
+                atom.rightDelim !== '.') {
+                // Insert closing fence
+                parent.addChildAfter(new Atom('mclose', { value: atom.rightDelim }), atom);
+            }
+            // Hoist body
+            parent.addChildrenAfter(atom.removeBranch('body'), atom);
+            parent.removeChild(atom);
+            model.position = pos;
+            return true;
+        }
+        else if (atom.type === 'surd') {
+            //
+            // 'surd': square root
+            //
+            if ((direction === 'forward' && !branch) ||
+                (direction === 'backward' && branch === 'body')) {
+                // Before fwd or body 1st bwd: Demote body
+                const pos = atom.leftSibling;
+                parent.addChildrenAfter(atom.removeBranch('body'), atom);
+                parent.removeChild(atom);
+                model.position = model.offsetOf(pos);
+            }
+            else if (direction === 'forward' && branch === 'body') {
+                // body last fwd: move to after
+                model.position = model.offsetOf(atom);
+            }
+            else if (!branch && direction === 'backward') {
+                // after bwd: move to last of body
+                model.position = model.offsetOf(atom.lastChild);
+            }
+            else if (branch === 'above') {
+                if (atom.hasEmptyBranch('above')) {
+                    atom.removeBranch('above');
+                }
+                if (direction === 'backward') {
+                    // above 1st
+                    model.position = model.offsetOf(atom.leftSibling);
+                }
+                else {
+                    // above last
+                    model.position = model.offsetOf(atom.body[0]);
+                }
+            }
+            return true;
+        }
+        else if (atom.type === 'box' || atom.type === 'enclose') {
+            //
+            // 'box': \boxed, \fbox 'enclose': \cancel
+            //
+            const pos = (branch && direction === 'backward') ||
+                (!branch && direction === 'forward')
+                ? atom.leftSibling
+                : atom.lastChild;
+            parent.addChildrenAfter(atom.removeBranch('body'), atom);
+            parent.removeChild(atom);
+            model.position = model.offsetOf(pos);
+            return true;
+        }
+        else if (atom.type === 'genfrac' || atom.type === 'overunder') {
+            //
+            // 'genfrac': \frac, \choose, etc...
+            //
+            if (!branch) {
+                // After or before atom
+                if (!atom.hasChildren)
+                    return false;
+                model.position = model.offsetOf(direction === 'forward' ? atom.firstChild : atom.lastChild);
+                return true;
+            }
+            if ((direction === 'forward' && branch === 'above') ||
+                (direction === 'backward' && branch === 'below')) {
+                // above last or below first: hoist
+                const above = atom.removeBranch('above');
+                const below = atom.removeBranch('below');
+                parent.addChildrenAfter([...above, ...below], atom);
+                parent.removeChild(atom);
+                model.position = model.offsetOf(above.length > 0 ? above[above.length - 1] : below[0]);
+                return true;
+            }
+            if (direction === 'backward') {
+                // above first: move to before
+                model.position = model.offsetOf(atom.leftSibling);
+                return true;
+            }
+            // below last: move to after
+            model.position = model.offsetOf(atom);
+            return true;
+        }
+        else if ((atom instanceof OperatorAtom && atom.isExtensibleSymbol) ||
+            atom.type === 'msubsup') {
+            //
+            // Extensible operator: \sum, \int, etc...
+            // Superscript/subscript carrier
+            //
+            if (!branch && direction === 'forward')
+                return false;
+            if (!branch) {
+                if (atom.subscript || atom.superscript) {
+                    let pos;
+                    if (direction === 'forward') {
+                        // before
+                        pos = (_b = (_a = atom.superscript) === null || _a === void 0 ? void 0 : _a[0]) !== null && _b !== void 0 ? _b : (_c = atom.subscript) === null || _c === void 0 ? void 0 : _c[0];
+                    }
+                    else {
+                        // after
+                        pos = (_e = (_d = atom.subscript) === null || _d === void 0 ? void 0 : _d[0].lastSibling) !== null && _e !== void 0 ? _e : (_f = atom.superscript) === null || _f === void 0 ? void 0 : _f[0].lastSibling;
+                    }
+                    model.position = model.offsetOf(pos);
+                    return true;
+                }
+                return false;
+            }
+            if (branch && atom.hasEmptyBranch(branch)) {
+                atom.removeBranch(branch);
+            }
+            if (!atom.hasChildren) {
+                // We've removed the last branch of a msubsup
+                const pos = direction === 'forward'
+                    ? model.offsetOf(atom)
+                    : Math.max(0, model.offsetOf(atom) - 1);
+                atom.parent.removeChild(atom);
+                model.position = pos;
+                return true;
+            }
+            if (branch === 'superscript') {
+                if (direction === 'backward') {
+                    const pos = model.offsetOf(atom.firstChild) - 1;
+                    console.assert(pos >= 0);
+                    model.position = pos;
+                }
+                else if (atom.subscript) {
+                    model.position = model.offsetOf(atom.subscript[0]);
+                }
+                else {
+                    model.position = model.offsetOf(atom);
+                }
+            }
+            else if (branch === 'subscript') {
+                if (direction === 'backward' && atom.superscript) {
+                    // subscript first: move to superscript end
+                    model.position = model.offsetOf(atom.superscript[0].lastSibling);
+                }
+                else if (direction === 'backward') {
+                    // subscript first: move to before
+                    model.position = model.offsetOf(atom.firstChild) - 1;
+                }
+                else {
+                    // subscript last: move after
+                    model.position = model.offsetOf(atom);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Delete the item at the current position
+     */
+    function deleteBackward(model) {
+        if (!model.selectionIsCollapsed) {
+            return deleteRange(model, range(model.selection));
+        }
+        let target = model.at(model.position);
+        if (target && onDelete(model, 'backward', target))
+            return true;
+        if (target === null || target === void 0 ? void 0 : target.isFirstSibling) {
+            if (onDelete(model, 'backward', target.parent, target.treeBranch)) {
+                return true;
+            }
+            target = null;
+        }
+        // At the first position: nothing to delete...
+        if (!target) {
+            model.announce('plonk');
+            return false;
+        }
+        return model.deferNotifications({ content: true, selection: true }, () => {
+            const offset = model.offsetOf(target.leftSibling);
+            target.parent.removeChild(target);
+            model.announce('delete', null, [target]);
+            model.position = offset;
+        });
+    }
+    /**
+     * Delete the item forward of the current position, update the position and
+     * send notifications
+     */
+    function deleteForward(model) {
+        if (!model.selectionIsCollapsed) {
+            return deleteRange(model, range(model.selection));
+        }
+        let target = model.at(model.position).rightSibling;
+        if (target && onDelete(model, 'forward', target))
+            return true;
+        if (!target) {
+            target = model.at(model.position);
+            if (target.isLastSibling &&
+                onDelete(model, 'forward', target.parent, target.treeBranch)) {
+                return true;
+            }
+            target = null;
+        }
+        else if (model.at(model.position).isLastSibling &&
+            onDelete(model, 'forward', target.parent, target.treeBranch)) {
+            return true;
+        }
+        if (model.position === model.lastOffset || !target) {
+            model.announce('plonk');
+            return false;
+        }
+        return model.deferNotifications({ content: true, selection: true }, () => {
+            var _a, _b;
+            target.parent.removeChild(target);
+            let sibling = (_a = model.at(model.position)) === null || _a === void 0 ? void 0 : _a.rightSibling;
+            while ((sibling === null || sibling === void 0 ? void 0 : sibling.type) === 'msubsup') {
+                sibling.parent.removeChild(sibling);
+                sibling = (_b = model.at(model.position)) === null || _b === void 0 ? void 0 : _b.rightSibling;
+            }
+            model.announce('delete', null, [target]);
+        });
+    }
+    /**
+     * Delete the specified range, as a result of a user action: this will
+     * account for special cases such as deleting empty denominator, and will
+     * provide appropriate feedback to screen readers.
+     *
+     * Use model.deleteAtoms() for operations that are not a result of
+     * user action.
+     */
+    function deleteRange(model, range) {
+        model.deleteAtoms(range);
+        return true;
+    }
+
+    /**
+     * Return true if the atom could be a part of a number
+     * i.e. "-12354.568"
+     */
+    function isNumber$1(atom) {
+        if (!atom)
+            return false;
+        return ((atom.type === 'mord' && /[0-9.]/.test(atom.value)) ||
+            (atom.type === 'mpunct' && atom.value === ','));
+    }
+    /*
+     * Calculates the offset of the "next word".
+     * This is inspired by the behavior of text editors on macOS, namely:
+        blue   yellow
+          ^-
+             ^-------
+     * That is:
+
+     * (1) If starts with an alphanumerical character, find the first alphanumerical
+     * character which is followed by a non-alphanumerical character
+     *
+     * The behavior regarding non-alphanumeric characters is less consistent.
+     * Here's the behavior we use:
+     *
+     *   +=-()_:”     blue
+     * ^---------
+     *   +=-()_:”     blue
+     *      ^---------
+     *   +=-()_:”blue
+     *      ^--------
+     *
+     * (2) If starts in whitespace, skip whitespace, then find first non-whitespace*
+     *    followed by whitespace
+     * (*) Pages actually uses the character class of the first non-whitespace
+     * encountered.
+     *
+     * (3) If starts in a non-whitespace, non alphanumerical character, find the first
+     *      whitespace
+     *
+     */
+    function wordBoundaryOffset(model, offset, direction) {
+        if (model.at(offset).mode !== 'text')
+            return offset;
+        const dir = direction === 'backward' ? -1 : +1;
+        let result;
+        if (LETTER_AND_DIGITS.test(model.at(offset).value)) {
+            // (1) We start with an alphanumerical character
+            let i = offset;
+            let match;
+            do {
+                match =
+                    model.at(i).mode === 'text' &&
+                        LETTER_AND_DIGITS.test(model.at(i).value);
+                i += dir;
+            } while (model.at(i) && match);
+            result = model.at(i) ? i - 2 * dir : i - dir;
+        }
+        else if (/\s/.test(model.at(offset).value)) {
+            // (2) We start with whitespace
+            // Skip whitespace
+            let i = offset;
+            while (model.at(i) &&
+                model.at(i).mode === 'text' &&
+                /\s/.test(model.at(i).value)) {
+                i += dir;
+            }
+            if (!model.at(i)) {
+                // We've reached the end
+                result = i - dir;
+            }
+            else {
+                let match = true;
+                do {
+                    match =
+                        model.at(i).mode === 'text' &&
+                            !/\s/.test(model.at(i).value);
+                    i += dir;
+                } while (model.at(i) && match);
+                result = model.at(i) ? i - 2 * dir : i - dir;
+            }
+        }
+        else {
+            // (3)
+            let i = offset;
+            // Skip non-whitespace
+            while (model.at(i) &&
+                model.at(i).mode === 'text' &&
+                !/\s/.test(model.at(i).value)) {
+                i += dir;
+            }
+            result = model.at(i) ? i : i - dir;
+            let match = true;
+            while (model.at(i) && match) {
+                match = model.at(i).mode === 'text' && /\s/.test(model.at(i).value);
+                if (match)
+                    result = i;
+                i += dir;
+            }
+            result = model.at(i) ? i - 2 * dir : i - dir;
+        }
+        return result - (dir > 0 ? 0 : 1);
+    }
+    function moveAfterParent(model) {
+        const previousPosition = model.position;
+        if (!model.at(previousPosition).parent) {
+            model.announce('plonk');
+            return false;
+        }
+        model.position = model.offsetOf(model.at(model.position).parent);
+        model.announce('move', previousPosition);
+        return true;
+    }
     /**
      * Switch the cursor to the superscript and select it. If there is no subscript
      * yet, create one.
@@ -25454,6 +25029,611 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return true;
     }
     /**
+     * Keyboard navigation with alt/option:
+     * Move the insertion point to the next/previous point of interest.
+     * A point of interest is an atom of a different type (mbin, mord, etc...)
+     * than the current focus.
+     * If `extend` is true, the selection will be extended. Otherwise, it is
+     * collapsed, then moved.
+     * @param dir +1 to skip forward, -1 to skip back
+     * @revisit: to do
+     */
+    function skip(model, direction, options) {
+        var _a, _b, _c, _d, _e, _f, _g;
+        const previousPosition = model.position;
+        if (!((_a = options === null || options === void 0 ? void 0 : options.extend) !== null && _a !== void 0 ? _a : false)) {
+            model.collapseSelection(direction);
+        }
+        let atom = model.at(model.position);
+        if (direction === 'forward') {
+            if (atom.type === 'msubsup') {
+                atom = atom.rightSibling;
+                if (!atom) {
+                    atom = model.at(model.position + 1);
+                }
+            }
+            else {
+                atom = model.at(model.position + 1);
+            }
+        }
+        if (!atom) {
+            model.announce('plonk');
+            return false;
+        }
+        let offset = model.offsetOf(atom);
+        if (atom instanceof TextAtom) {
+            //
+            // We're in a text zone, skip word by word
+            //
+            offset = wordBoundaryOffset(model, offset, direction);
+        }
+        else if (atom instanceof CommandAtom) {
+            //
+            // We're in a command zone, skip suggestion
+            //
+            if (atom.isSuggestion) {
+                // Since suggestions are always at the end, this must be forward
+                console.assert(direction === 'forward');
+                while (atom && atom instanceof CommandAtom) {
+                    atom.isSuggestion = false;
+                    offset = model.offsetOf(atom);
+                    atom = atom.rightSibling;
+                }
+            }
+            else {
+                if (direction === 'forward') {
+                    atom = atom.rightSibling;
+                    if (!atom || !(atom instanceof CommandAtom)) {
+                        // At the end of the command
+                        model.announce('plonk');
+                        return false;
+                    }
+                    while (atom &&
+                        atom instanceof CommandAtom &&
+                        /[a-zA-Z\*]/.test(atom.value)) {
+                        offset = model.offsetOf(atom);
+                        atom = atom.rightSibling;
+                    }
+                }
+                else {
+                    atom = atom.leftSibling;
+                    if (!atom || !(atom instanceof CommandAtom)) {
+                        // At the start of the command
+                        model.announce('plonk');
+                        return false;
+                    }
+                    while (atom &&
+                        atom instanceof CommandAtom &&
+                        /[a-zA-Z\*]/.test(atom.value)) {
+                        offset = model.offsetOf(atom);
+                        atom = atom.leftSibling;
+                    }
+                }
+            }
+        }
+        else if (direction === 'forward' && atom.type === 'mopen') {
+            //
+            // Right before a 'mopen', skip to the corresponding balanced fence
+            //
+            let level = 0;
+            do {
+                if (atom.type === 'mopen') {
+                    level += 1;
+                }
+                else if (atom.type === 'mclose') {
+                    level -= 1;
+                }
+                atom = atom.rightSibling;
+            } while (!atom.isLastSibling && level !== 0);
+            offset = model.offsetOf(atom.leftSibling);
+        }
+        else if (direction === 'backward' && atom.type === 'mclose') {
+            //
+            // Right after a 'mclose', skip to the corresponding balanced fence
+            //
+            let level = 0;
+            do {
+                if (atom.type === 'mopen') {
+                    level += 1;
+                }
+                else if (atom.type === 'mclose') {
+                    level -= 1;
+                }
+                atom = atom.leftSibling;
+            } while (!atom.isFirstSibling && level !== 0);
+            offset = model.offsetOf(atom);
+        }
+        else {
+            //
+            // We're in a regular math zone (not before/after a fence)
+            //
+            if (direction === 'backward') {
+                if (atom.type === 'first') {
+                    while (offset > 0 && atom.type === 'first') {
+                        offset -= 1;
+                        atom = model.at(offset);
+                    }
+                }
+                else {
+                    const type = atom instanceof SubsupAtom ? atom.baseType : atom.type;
+                    if (atom.type === 'msubsup') {
+                        // If we're after a 'msubsup', skip to its left sibling
+                        // (the base of the super/subscript)
+                        offset = model.offsetOf(model.at(offset).leftSibling);
+                    }
+                    offset -= 1;
+                    let nextType = (_b = model.at(offset)) === null || _b === void 0 ? void 0 : _b.type;
+                    // if (nextType === 'msubsup') {
+                    //     offset = model.offsetOf(model.at(offset).leftSibling);
+                    // }
+                    while (offset >= 0 && nextType === type) {
+                        if (((_c = model.at(offset)) === null || _c === void 0 ? void 0 : _c.type) === 'msubsup') {
+                            offset = model.offsetOf(model.at(offset).leftSibling);
+                        }
+                        else {
+                            offset -= 1;
+                        }
+                        nextType = model.at(offset).type;
+                    }
+                }
+            }
+            else {
+                const type = atom.type;
+                // if (atom.type === 'msubsup') {
+                //     offset = model.offsetOf(model.at(offset).rightSibling);
+                // }
+                let nextType = (_d = model.at(offset)) === null || _d === void 0 ? void 0 : _d.type;
+                const lastOffset = model.lastOffset;
+                while (offset <= lastOffset &&
+                    (nextType === type || nextType === 'msubsup')) {
+                    while (((_e = model.at(offset).rightSibling) === null || _e === void 0 ? void 0 : _e.type) === 'msubsup') {
+                        offset = model.offsetOf(model.at(offset).rightSibling);
+                    }
+                    offset += 1;
+                    nextType = (_f = model.at(offset)) === null || _f === void 0 ? void 0 : _f.type;
+                }
+                offset -= 1;
+            }
+        }
+        if ((_g = options === null || options === void 0 ? void 0 : options.extend) !== null && _g !== void 0 ? _g : false) {
+            if (!model.setSelection(model.anchor, offset)) {
+                model.announce('plonk');
+                return false;
+            }
+        }
+        else {
+            if (offset === model.position) {
+                model.announce('plonk');
+                return false;
+            }
+            model.position = offset;
+        }
+        model.announce('move', previousPosition);
+        return true;
+    }
+    /**
+     * Select all the atoms in the current group, that is all the siblings.
+     * When the selection is in a numerator, the group is the numerator. When
+     * the selection is a superscript or subscript, the group is the supsub.
+     * When the selection is in a text zone, the "group" is a word.
+     */
+    function selectGroup(model) {
+        if (getMode(model, model.position) === 'text') {
+            let start = Math.min(model.anchor, model.position);
+            let end = Math.max(model.anchor, model.position);
+            //
+            let done = false;
+            while (!done && start > 0) {
+                const atom = model.at(start);
+                if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
+                    start -= 1;
+                }
+                else {
+                    done = true;
+                }
+            }
+            done = false;
+            while (!done && end <= model.lastOffset) {
+                const atom = model.at(end);
+                if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
+                    end += 1;
+                }
+                else {
+                    done = true;
+                }
+            }
+            if (done) {
+                end -= 1;
+            }
+            if (start >= end) {
+                // No word found. Select a single character
+                model.setSelection(end - 1, end);
+                return true;
+            }
+            model.setSelection(start, end);
+        }
+        else {
+            const atom = model.at(model.position);
+            // In a math zone, select all the sibling nodes
+            if (isNumber$1(atom)) {
+                // In a number, select all the digits
+                let start = Math.min(model.anchor, model.position);
+                let end = Math.max(model.anchor, model.position);
+                //
+                while (isNumber$1(model.at(start)))
+                    start -= 1;
+                while (isNumber$1(model.at(end)))
+                    end += 1;
+                model.setSelection(start, end - 1);
+            }
+            else {
+                model.setSelection(model.offsetOf(atom.firstSibling), model.offsetOf(atom.lastSibling));
+            }
+        }
+        return true;
+    }
+    /**
+     * Handle keyboard navigation (arrow keys)
+     */
+    function move(model, direction, options) {
+        var _a, _b, _c, _d, _e, _f, _g;
+        options = options !== null && options !== void 0 ? options : { extend: false };
+        deleteRange(model, getCommandSuggestionRange(model));
+        if (direction === 'upward')
+            return moveUpward(model, options);
+        if (direction === 'downward')
+            return moveDownward(model, options);
+        const previousPosition = model.position;
+        if (options.extend) {
+            return model.extendSelection(direction);
+        }
+        if (model.selectionIsPlaceholder) {
+            model.collapseSelection(direction);
+            return move(model, direction);
+        }
+        if (!model.collapseSelection(direction)) {
+            let pos = model.position + (direction === 'forward' ? +1 : -1);
+            //
+            // 1. Handle `captureSelection` and `skipBoundary`
+            //
+            if (direction === 'forward') {
+                const atom = model.at(model.position + 1);
+                if ((_a = atom === null || atom === void 0 ? void 0 : atom.parent) === null || _a === void 0 ? void 0 : _a.captureSelection) {
+                    // When going forward, if in a capture selection, jump to
+                    // after
+                    pos = model.offsetOf(atom === null || atom === void 0 ? void 0 : atom.parent.lastChild) + 1;
+                }
+                else if (atom === null || atom === void 0 ? void 0 : atom.skipBoundary) {
+                    // When going forward if next is skipboundary, move 2
+                    pos += 1;
+                }
+            }
+            else if (direction === 'backward') {
+                const atom = model.at(model.position - 1);
+                if ((_b = atom === null || atom === void 0 ? void 0 : atom.parent) === null || _b === void 0 ? void 0 : _b.captureSelection) {
+                    // When going backward, if in a capture selection, jump to
+                    // before
+                    pos = Math.max(0, model.offsetOf(atom === null || atom === void 0 ? void 0 : atom.parent.firstChild) - 1);
+                }
+                else if ((atom === null || atom === void 0 ? void 0 : atom.isFirstSibling) && ((_c = atom.parent) === null || _c === void 0 ? void 0 : _c.skipBoundary)) {
+                    // When going backward, if land on first of group and previous is
+                    // skipbounday,  move -2
+                    pos -= 1;
+                }
+            }
+            //
+            // 2. Handle out of bounds
+            //
+            if (pos < 0 || pos > model.lastOffset) {
+                // We're going out of bounds
+                let result = true; // true => perform default handling
+                if (!model.suppressChangeNotifications) {
+                    result = (_d = model.hooks) === null || _d === void 0 ? void 0 : _d.moveOut(model, direction);
+                }
+                if (result)
+                    model.announce('plonk');
+                return result;
+            }
+            //
+            // 3. Handle placeholder
+            //
+            if (((_e = model.at(pos)) === null || _e === void 0 ? void 0 : _e.type) === 'placeholder') {
+                // We're going right of a placeholder: select it
+                model.setSelection(pos - 1, pos);
+            }
+            else if (((_g = (_f = model.at(pos)) === null || _f === void 0 ? void 0 : _f.rightSibling) === null || _g === void 0 ? void 0 : _g.type) === 'placeholder') {
+                // We're going left of a placeholder: select it
+                model.setSelection(pos, pos + 1);
+            }
+            else {
+                model.position = pos;
+            }
+        }
+        model.announce('move', previousPosition);
+        return true;
+    }
+    function moveUpward(model, options) {
+        var _a, _b, _c, _d;
+        const extend = (_a = options === null || options === void 0 ? void 0 : options.extend) !== null && _a !== void 0 ? _a : false;
+        model.collapseSelection('backward');
+        // Find a target branch
+        // This is to handle the case: `\frac{x}{\sqrt{y}}`. If we're at `y`
+        // we'd expectto move to `x`, even though `\sqrt` doesn't have an 'above'
+        // branch, but one of its ancestor does.
+        let atom = model.at(model.position);
+        while (atom && atom.treeBranch !== 'below') {
+            atom = atom.parent;
+        }
+        if (atom) {
+            if (extend) {
+                model.setSelection(model.offsetOf(atom.parent.leftSibling), model.offsetOf(atom.parent));
+            }
+            else {
+                // If branch doesn't exist, create it
+                const branch = (_b = atom.parent.branch('above')) !== null && _b !== void 0 ? _b : atom.parent.createBranch('above');
+                // Move to the last atom of the branch
+                model.position = model.offsetOf(branch[branch.length - 1]);
+            }
+            model.announce('move up');
+            // } else if (model.parent.array) {
+            //     // In an array
+            //     let colRow = arrayColRow(model.parent.array, relation);
+            //     colRow = arrayAdjustRow(model.parent.array, colRow, -1);
+            //     if (colRow && arrayCell(model.parent.array, colRow)) {
+            //         model.path[model.path.length - 1].relation = ('cell' +
+            //             arrayIndex(model.parent.array, colRow)) as Relation;
+            //         setSelectionOffset(model, model.anchorOffset());
+            //         model.announce('moveUp');
+            //     } else {
+            //         move(model, 'backward', options);
+            //     }
+        }
+        else {
+            if (!((_c = model.at(model.position).parent) === null || _c === void 0 ? void 0 : _c.parent)) {
+                let result = true; // true => perform default handling
+                if (!model.suppressChangeNotifications) {
+                    result = (_d = model.hooks) === null || _d === void 0 ? void 0 : _d.moveOut(model, 'upward');
+                }
+                model.announce(result ? 'plonk' : 'line');
+                return result;
+            }
+        }
+        return true;
+    }
+    function moveDownward(model, options) {
+        var _a, _b, _c, _d;
+        const extend = (_a = options === null || options === void 0 ? void 0 : options.extend) !== null && _a !== void 0 ? _a : false;
+        model.collapseSelection('forward');
+        let atom = model.at(model.position);
+        while (atom && atom.treeBranch !== 'above') {
+            atom = atom.parent;
+        }
+        if (atom) {
+            if (extend) {
+                model.setSelection(model.offsetOf(atom.parent.leftSibling), model.offsetOf(atom.parent));
+            }
+            else {
+                // If branch doesn't exist, create it
+                const branch = (_b = atom.parent.branch('below')) !== null && _b !== void 0 ? _b : atom.parent.createBranch('below');
+                // Move to the last atom of the branch
+                model.position = model.offsetOf(branch[branch.length - 1]);
+            }
+            model.announce('move down');
+            //     // In an array
+            //     let colRow = arrayColRow(model.parent.array, relation);
+            //     colRow = arrayAdjustRow(model.parent.array, colRow, +1);
+            //     // @revisit: validate this codepath
+            //     if (colRow && arrayCell(model.parent.array, colRow)) {
+            //         model.path[model.path.length - 1].relation = ('cell' +
+            //             arrayIndex(model.parent.array, colRow)) as Relation;
+            //         setSelectionOffset(model, model.anchorOffset());
+            //         model.announce('moveDown');
+            //     } else {
+            //         move(model, 'forward', options);
+            //     }
+        }
+        else {
+            if (!((_c = model.at(model.position).parent) === null || _c === void 0 ? void 0 : _c.parent)) {
+                let result = true; // true => perform default handling
+                if (!model.suppressChangeNotifications) {
+                    result = (_d = model.hooks) === null || _d === void 0 ? void 0 : _d.moveOut(model, 'downward');
+                }
+                model.announce(result ? 'plonk' : 'line');
+                return result;
+            }
+        }
+        return true;
+    }
+    /**
+     * Move to the next/previous placeholder or empty child list.
+     * @return False if no placeholder found and did not move
+     */
+    function leap(model, dir, callHooks = true) {
+        var _a, _b;
+        const dist = dir === 'forward' ? 1 : -1;
+        if (model.at(model.anchor).type === 'placeholder') {
+            // If we're already at a placeholder, move by one more (the placeholder
+            // is right after the insertion point)
+            move(model, dir);
+        }
+        // Candidate placeholders are atom of type 'placeholder'
+        // or empty children list (except for the root: if the root is empty,
+        // it is not a valid placeholder)
+        const atoms = model.getAllAtoms(model.position + dist);
+        if (dir === 'backward')
+            atoms.reverse();
+        const placeholders = atoms.filter((atom) => atom.type === 'placeholder' ||
+            (atom.treeDepth > 0 && atom.isFirstSibling && atom.isLastSibling));
+        // If no placeholders were found, call handler or move to the next focusable
+        // element in the document
+        if (placeholders.length === 0) {
+            const handled = !callHooks || !((_b = (_a = model.hooks).tabOut) === null || _b === void 0 ? void 0 : _b.call(_a, model, dir));
+            if (handled) {
+                model.announce('plonk');
+                return false;
+            }
+            const tabbable = getTabbableElements();
+            if (!document.activeElement || tabbable.length === 1) {
+                model.announce('plonk');
+                return false;
+            }
+            let index = tabbable.indexOf(document.activeElement) + dist;
+            if (index < 0)
+                index = tabbable.length - 1;
+            if (index >= tabbable.length)
+                index = 0;
+            tabbable[index].focus();
+            if (index === 0) {
+                model.announce('plonk');
+                return false;
+            }
+            return true;
+        }
+        // Set the selection to the next placeholder
+        const previousPosition = model.position;
+        const newPosition = model.offsetOf(placeholders[0]);
+        if (placeholders[0].type === 'placeholder') {
+            model.setSelection(newPosition - 1, newPosition);
+        }
+        else {
+            model.position = newPosition;
+        }
+        model.announce('move', previousPosition);
+        return true;
+    }
+    /**
+     * Return an array of tabbable elements, approximately in the order a browser
+     * would (the browsers are inconsistent), which is first by accounting
+     * for non-null tabIndex, then null tabIndex, then document order of focusable
+     * elements.
+     */
+    function getTabbableElements() {
+        // const focussableElements = `a[href]:not([disabled]),
+        // button:not([disabled]),
+        // textarea:not([disabled]),
+        // input[type=text]:not([disabled]),
+        // select:not([disabled]),
+        // [contentEditable="true"],
+        // [tabindex]:not([disabled]):not([tabindex="-1"])`;
+        // // Get all the potentially focusable elements
+        // // and exclude (1) those that are invisible (width and height = 0)
+        // // (2) not the active element
+        // // (3) the ancestor of the active element
+        // return Array.prototype.filter.call(
+        //     document.querySelectorAll(focussableElements),
+        //     (element) =>
+        //         ((element.offsetWidth > 0 || element.offsetHeight > 0) &&
+        //             !element.contains(document.activeElement)) ||
+        //         element === document.activeElement
+        // );
+        function tabbable(el) {
+            const regularTabbables = [];
+            const orderedTabbables = [];
+            const candidates = Array.from(el.querySelectorAll(`input, select, textarea, a[href], button, 
+        [tabindex], audio[controls], video[controls],
+        [contenteditable]:not([contenteditable="false"]), details>summary`)).filter(isNodeMatchingSelectorTabbable);
+            candidates.forEach((candidate, i) => {
+                const candidateTabindex = getTabindex(candidate);
+                if (candidateTabindex === 0) {
+                    regularTabbables.push(candidate);
+                }
+                else {
+                    orderedTabbables.push({
+                        documentOrder: i,
+                        tabIndex: candidateTabindex,
+                        node: candidate,
+                    });
+                }
+            });
+            return orderedTabbables
+                .sort((a, b) => a.tabIndex === b.tabIndex
+                ? a.documentOrder - b.documentOrder
+                : a.tabIndex - b.tabIndex)
+                .map((a) => a.node)
+                .concat(regularTabbables);
+        }
+        function isNodeMatchingSelectorTabbable(el) {
+            if (!isNodeMatchingSelectorFocusable(el) ||
+                isNonTabbableRadio(el) ||
+                getTabindex(el) < 0) {
+                return false;
+            }
+            return true;
+        }
+        function isNodeMatchingSelectorFocusable(node) {
+            if (node.disabled ||
+                (node.tagName === 'INPUT' && node.type === 'hidden') ||
+                isHidden(node)) {
+                return false;
+            }
+            return true;
+        }
+        function getTabindex(node) {
+            const tabindexAttr = parseInt(node.getAttribute('tabindex'), 10);
+            if (!isNaN(tabindexAttr)) {
+                return tabindexAttr;
+            }
+            // Browsers do not return `tabIndex` correctly for contentEditable nodes;
+            // so if they don't have a tabindex attribute specifically set, assume it's 0.
+            if (node.contentEditable === 'true') {
+                return 0;
+            }
+            // in Chrome, <audio controls/> and <video controls/> elements get a default
+            //  `tabIndex` of -1 when the 'tabindex' attribute isn't specified in the DOM,
+            //  yet they are still part of the regular tab order; in FF, they get a default
+            //  `tabIndex` of 0; since Chrome still puts those elements in the regular tab
+            //  order, consider their tab index to be 0
+            if ((node.nodeName === 'AUDIO' || node.nodeName === 'VIDEO') &&
+                node.getAttribute('tabindex') === null) {
+                return 0;
+            }
+            return node.tabIndex;
+        }
+        function isNonTabbableRadio(node) {
+            return (node.tagName === 'INPUT' &&
+                node.type === 'radio' &&
+                !isTabbableRadio(node));
+        }
+        function getCheckedRadio(nodes, form) {
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].checked && nodes[i].form === form) {
+                    return nodes[i];
+                }
+            }
+            return null;
+        }
+        function isTabbableRadio(node) {
+            if (!node.name) {
+                return true;
+            }
+            const radioScope = node.form || node.ownerDocument;
+            const radioSet = radioScope.querySelectorAll('input[type="radio"][name="' + node.name + '"]');
+            const checked = getCheckedRadio(radioSet, node.form);
+            return !checked || checked === node;
+        }
+        function isHidden(el) {
+            if (el === document.activeElement ||
+                el.contains(document.activeElement)) {
+                return false;
+            }
+            if (getComputedStyle(el).visibility === 'hidden')
+                return true;
+            // Note that browsers generally don't consider the bounding rect
+            // as a criteria to determine if an item is focusable, but we want
+            // to exclude the invisible textareas used to capture keyoard input.
+            const bounds = el.getBoundingClientRect();
+            if (bounds.width === 0 || bounds.height === 0)
+                return true;
+            while (el) {
+                if (getComputedStyle(el).display === 'none')
+                    return true;
+                el = el.parentElement;
+            }
+            return false;
+        }
+        return tabbable(document.body);
+    }
+    /**
      * If cursor is currently in:
      * - superscript: move to subscript, creating it if necessary
      * - subscript: move to superscript, creating it if necessary
@@ -25471,8 +25651,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             };
             const cursor = model.at(model.position);
             const parent = cursor.parent;
-            if (!parent)
+            if (!parent) {
+                model.announce('plonk');
                 return false;
+            }
             const relation = cursor.treeBranch;
             let oppositeRelation;
             if (typeof relation === 'string') {
@@ -25510,18 +25692,36 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         moveToNextWord: (model) => skip(model, 'forward'),
         moveToPreviousWord: (model) => skip(model, 'backward'),
         moveToGroupStart: (model) => {
-            model.position = model.offsetOf(model.at(model.position).firstSibling);
+            const pos = model.offsetOf(model.at(model.position).firstSibling);
+            if (pos === model.position) {
+                model.announce('plonk');
+                return false;
+            }
+            model.position = pos;
             return true;
         },
         moveToGroupEnd: (model) => {
-            model.position = model.offsetOf(model.at(model.position).lastSibling);
+            const pos = model.offsetOf(model.at(model.position).lastSibling);
+            if (pos === model.position) {
+                model.announce('plonk');
+                return false;
+            }
+            model.position = pos;
             return true;
         },
         moveToMathFieldStart: (model) => {
+            if (model.position === 0) {
+                model.announce('plonk');
+                return false;
+            }
             model.position = 0;
             return true;
         },
         moveToMathFieldEnd: (model) => {
+            if (model.position === model.lastOffset) {
+                model.announce('plonk');
+                return false;
+            }
             model.position = model.lastOffset;
             return true;
         },
@@ -25529,10 +25729,25 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         moveToSubscript: (model) => moveToSubscript(model),
     }, { target: 'model', category: 'selection-anchor' });
     register$2({
-        selectGroup: (model) => selectGroup(model),
+        selectGroup: (model) => {
+            const result = selectGroup(model);
+            if (!result)
+                model.announce('plonk');
+            return result;
+        },
         selectAll: (model) => model.setSelection(0, model.lastOffset),
-        extendSelectionForward: (model) => model.extendSelection('forward'),
-        extendSelectionBackward: (model) => model.extendSelection('backward'),
+        extendSelectionForward: (model) => {
+            const result = model.extendSelection('forward');
+            if (!result)
+                model.announce('plonk');
+            return result;
+        },
+        extendSelectionBackward: (model) => {
+            const result = model.extendSelection('backward');
+            if (!result)
+                model.announce('plonk');
+            return result;
+        },
         extendToNextWord: (model) => skip(model, 'forward', { extend: true }),
         extendToPreviousWord: (model) => skip(model, 'backward', { extend: true }),
         extendSelectionUpward: (model) => move(model, 'upward', { extend: true }),
@@ -25553,10 +25768,30 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          * to "2345".
          */
         extendToPreviousBoundary: (model) => skip(model, 'backward', { extend: true }),
-        extendToGroupStart: (model) => model.setSelection(model.anchor, model.offsetOf(model.at(model.position).firstSibling)),
-        extendToGroupEnd: (model) => model.setSelection(model.anchor, model.offsetOf(model.at(model.position).lastSibling)),
-        extendToMathFieldStart: (model) => model.setSelection(model.anchor, 0),
-        extendToMathFieldEnd: (model) => model.setSelection(model.anchor, model.lastOffset),
+        extendToGroupStart: (model) => {
+            const result = model.setSelection(model.anchor, model.offsetOf(model.at(model.position).firstSibling));
+            if (!result)
+                model.announce('plonk');
+            return result;
+        },
+        extendToGroupEnd: (model) => {
+            const result = model.setSelection(model.anchor, model.offsetOf(model.at(model.position).lastSibling));
+            if (!result)
+                model.announce('plonk');
+            return result;
+        },
+        extendToMathFieldStart: (model) => {
+            const result = model.setSelection(model.anchor, 0);
+            if (!result)
+                model.announce('plonk');
+            return result;
+        },
+        extendToMathFieldEnd: (model) => {
+            const result = model.setSelection(model.anchor, model.lastOffset);
+            if (!result)
+                model.announce('plonk');
+            return result;
+        },
     }, { target: 'model', category: 'selection-extend' });
     function superscriptDepth(model) {
         let result = 0;
@@ -26419,146 +26654,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     }
 
-    function acceptCommandSuggestion(model) {
-        model
-            .getAtoms(getCommandSuggestionRange(model))
-            .forEach((x) => {
-            x.isSuggestion = false;
-        });
-    }
-    function insertSuggestion(model, s) {
-        // Remove any previous suggestion
-        model.deleteAtoms(getCommandSuggestionRange(model));
-        const atoms = [];
-        for (const c of s) {
-            atoms.push(new CommandAtom(c, { isSuggestion: true }));
-        }
-        const cursor = model.at(model.position);
-        cursor.parent.addChildrenAfter(atoms, cursor);
-    }
-    /**
-     * When in command mode, insert the command in progress and leave command mode
-     *
-     * @param options.discard if true, the entire command is discarded and the
-     * mode switched back to math
-     * @param options.acceptSuggestion if true, accept the suggestion to
-     * complete the command. Otherwise, only use what has been entered so far.
-     */
-    function complete(mathfield, completion, options) {
-        var _a;
-        hidePopover(mathfield);
-        if (completion === 'reject') {
-            mathfield.model.deleteAtoms(getCommandRange(mathfield.model));
-            mathfield.switchMode((_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : 'math');
-            return true;
-        }
-        const command = getCommandString(mathfield.model, {
-            withSuggestion: completion === 'accept-with-suggestion',
-        });
-        if (!command)
-            return false;
-        if (command === '\\(' || command === '\\)') {
-            mathfield.model.deleteAtoms(getCommandRange(mathfield.model));
-            insert(mathfield.model, command.slice(1), {
-                mode: mathfield.mode,
-            });
-        }
-        else {
-            // We'll assume we want to insert in math mode
-            // (commands are only available in math mode)
-            mathfield.switchMode('math');
-            // Interpret the input as LaTeX code
-            const atoms = parseString(command, 'math', null, mathfield.options.macros);
-            if (atoms) {
-                insertCommand(mathfield.model, atoms);
-            }
-            else {
-                getCommandAtoms(mathfield.model).forEach((x) => {
-                    x.isError = true;
-                });
-            }
-        }
-        mathfield.snapshot();
-        mathfield.model.announce('replacement');
-        return true;
-    }
-    function updateSuggestion(mathfield) {
-        const model = mathfield.model;
-        model.deleteAtoms(getCommandSuggestionRange(model));
-        const command = getCommandString(model);
-        const suggestions = suggest(command);
-        if (suggestions.length === 0) {
-            hidePopover(mathfield);
-            getCommandAtoms(mathfield.model).forEach((x) => {
-                x.isError = true;
-            });
-        }
-        else {
-            const index = mathfield.suggestionIndex % suggestions.length;
-            const l = command.length - suggestions[index].match.length;
-            if (l !== 0) {
-                insertSuggestion(mathfield.model, suggestions[index].match.substr(l));
-            }
-            showPopoverWithLatex(mathfield, suggestions[index].match, suggestions.length > 1);
-        }
-        requestUpdate(mathfield);
-        return true;
-    }
-    function nextSuggestion(mathfield) {
-        mathfield.suggestionIndex += 1;
-        // The modulo of the suggestionIndex is used to determine which suggestion
-        // to display, so no need to worry about rolling over.
-        updateSuggestion(mathfield);
-        return false;
-    }
-    function previousSuggestion(mathfield) {
-        mathfield.suggestionIndex -= 1;
-        if (mathfield.suggestionIndex < 0) {
-            // We're rolling over
-            // Get the list of suggestions, so we can know how many there are
-            // Not very efficient, but simple.
-            mathfield.model.deleteAtoms(getCommandSuggestionRange(mathfield.model));
-            const suggestions = suggest(getCommandString(mathfield.model));
-            mathfield.suggestionIndex = suggestions.length - 1;
-        }
-        updateSuggestion(mathfield);
-        return false;
-    }
-    function insertCommand(model, atoms) {
-        let didChange = model.deleteAtoms(getCommandRange(model));
-        if (atoms) {
-            // Find any placeholders in the new atoms
-            const placeholders = [];
-            atoms.forEach((atom) => atom.children.forEach((x) => {
-                if (x.type === 'placeholder')
-                    placeholders.push(x);
-            }));
-            // Insert the new atoms
-            const cursor = model.at(model.position);
-            cursor.parent.addChildrenAfter(atoms, cursor);
-            didChange = true;
-            // Change the selection
-            if (placeholders.length > 0) {
-                const offset = model.offsetOf(placeholders[0]);
-                console.assert(offset >= 0);
-                model.setSelection(offset - 1, offset);
-            }
-            else {
-                // No placeholder, move after the last new atom
-                model.position = model.offsetOf(atoms[atoms.length - 1]);
-            }
-        }
-        if (didChange) {
-            // Dispatch notifications
-            contentDidChange(model);
-        }
-    }
-    register$2({
-        complete: complete,
-        nextSuggestion: nextSuggestion,
-        previousSuggestion: previousSuggestion,
-    }, { target: 'mathfield', category: 'autocomplete' });
-
     function speakableText(speechOptions, prefix, atoms) {
         const options = {
             ...speechOptions,
@@ -26761,6 +26856,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
     }
 
+    // import { atomsToMathML } from '../addons/math-ml';
     /**
      * Given an atom, describe the relationship between the atom
      * and its siblings and their parent.
@@ -26812,8 +26908,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         let liveText = '';
         // const action = moveAmount > 0 ? "right" : "left";
         if (action === 'plonk') {
-            // Use this sound to indicate (minor) errors, for
-            // example when a action has no effect.
+            // Use this sound to indicate minor errors, for
+            // example when an action has no effect.
             (_a = mathfield.plonkSound) === null || _a === void 0 ? void 0 : _a.play().catch((err) => console.warn(err));
             // As a side effect, reset the keystroke buffer
             mathfield.resetKeystrokeBuffer();
@@ -26835,9 +26931,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         else if (action === 'line') {
             // announce the current line -- currently that's everything
-            mathfield.accessibleNode.innerHTML = mathfield.options.createHTML('<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-                atomsToMathML(mathfield.model.root, mathfield.options) +
-                '</math>');
+            // mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
+            //     '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
+            //         atomsToMathML(mathfield.model.root, mathfield.options) +
+            //         '</math>'
+            // );
             liveText = speakableText(mathfield.options, '', mathfield.model.root);
             mathfield.keyboardDelegate.setAriaLabel('after: ' + liveText);
             /*** FIX -- testing hack for setting braille ***/
@@ -26865,6 +26963,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         if (isNaN(previousOffset))
             return '';
         const previous = model.at(previousOffset);
+        if (!previous)
+            return '';
         if (previous.treeDepth <= model.at(model.position).treeDepth) {
             return '';
         }
@@ -27642,7 +27742,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     let context;
                     if (mathfield.keystrokeBufferStates[i]) {
                         const root = new Atom('root', { mode: 'math' });
-                        context = parseString(mathfield.keystrokeBufferStates[i].latex, mathfield.options.defaultMode, null, mathfield.options.macros);
+                        context = parseLatex(mathfield.keystrokeBufferStates[i].latex, mathfield.options.defaultMode, null, mathfield.options.macros);
                         root.body = context;
                     }
                     else {
@@ -27717,14 +27817,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         // 6. Perform the action matching this selector or insert the shortcut
         //
         //
-        // 6.1 Remove any error indicator (wavy underline) on the current command
-        // sequence (if there is one)
-        //
-        getCommandAtoms(model).forEach((x) => {
-            x.isError = false;
-        });
-        //
-        // 6.2 If we have a `moveAfterParent` selector (usually triggered with
+        // 6.1 If we have a `moveAfterParent` selector (usually triggered with
         // `spacebar), and we're at the end of a smart fence, close the fence with
         // an empty (.) right delimiter
         //
@@ -27742,7 +27835,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             requestUpdate(mathfield); // Re-render the closed smartFence
         }
         //
-        // 6.3 If this is the Spacebar and we're just before or right after
+        // 6.2 If this is the Spacebar and we're just before or right after
         // a text zone, insert the space inside the text zone
         //
         if (mathfield.mode === 'math' && keystroke === '[Spacebar]' && !shortcut) {
@@ -27754,7 +27847,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
         }
         //
-        // 6.4 If there's a selector, perform it.
+        // 6.3 If there's a selector, perform it.
         //
         if (selector) {
             mathfield.executeCommand(selector);
@@ -27810,6 +27903,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     mathfield.mode = 'text';
                     insert(model, ' ', { mode: 'text', style: style });
                 }
+                return true; // Content changed
             });
             mathfield.snapshot();
             mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
@@ -27886,8 +27980,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         // 4/ Insert the specified text at the current insertion point.
         // If the selection is not collapsed, the content will be deleted first.
         //
-        let popoverText = '';
-        let displayArrows = false;
         const style = {
             ...model.at(model.position).computedStyle,
             ...mathfield.style,
@@ -27902,31 +27994,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         const graphemes = splitGraphemes(text);
         if (mathfield.mode === 'command') {
             for (const c of graphemes) {
-                // Remove any error indicator on the current command sequence
-                // (if there is one)
-                getCommandAtoms(model).forEach((x) => {
-                    x.isError = false;
-                });
-                model.deleteAtoms(getCommandSuggestionRange(model));
-                mathfield.suggestionIndex = 0;
-                const command = getCommandString(model);
                 insert(model, c, { mode: 'command' });
-                const suggestions = suggest(command + c);
-                if (suggestions.length === 0) {
-                    if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
-                        // This looks like a command name, but not a known one
-                        getCommandAtoms(model).forEach((x) => {
-                            x.isError = true;
-                        });
-                    }
-                }
-                else {
-                    if (suggestions[0].match !== command + c) {
-                        insertSuggestion(model, suggestions[0].match.substr(command.length - suggestions[0].match.length + 1));
-                    }
-                    popoverText = suggestions[0].match;
-                    displayArrows = suggestions.length > 1;
-                }
+                updateAutocomplete(mathfield);
             }
         }
         else if (mathfield.mode === 'text') {
@@ -27982,13 +28051,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         mathfield.dirty = true;
         // Render and make sure the insertion point is visible
         mathfield.scrollIntoView();
-        //
-        // 7/ Update popover
-        //
-        // Since the location of the popover depends on the position of the caret
-        // only show the popover after the formula has been rendered and the
-        // position of the caret calculated
-        showPopoverWithLatex(mathfield, popoverText, displayArrows);
     }
 
     register$2({
@@ -28320,6 +28382,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             });
             if (actualAnchor >= 0 && focus >= 0) {
                 that.model.extendSelectionTo(actualAnchor, focus);
+                acceptCommandSuggestion(mathfield.model);
                 requestUpdate(mathfield);
             }
             // Prevent synthetic mouseMove event when this is a touch event
@@ -28367,6 +28430,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     // If the Shift key is down, extend the selection
                     // (in that case, 'anchor' is actually the focus
                     mathfield.model.extendSelectionTo(mathfield.model.anchor, anchor);
+                    acceptCommandSuggestion(mathfield.model);
                 }
                 else {
                     if (mathfield.model.at(anchor).type === 'placeholder') {
@@ -28378,6 +28442,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     }
                     else {
                         mathfield.model.position = anchor;
+                        acceptCommandSuggestion(mathfield.model);
                     }
                 }
                 // The selection has changed, so we'll need to re-render
@@ -28524,6 +28589,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // Listen to know when the mouse has been released without being
             // captured to remove the alternate keys panel and the shifted state of the
             // keyboard.
+            // Note that we need to listen on the window to capture events happening
+            // outside the virtual keyboard.
             // @todo should use a scrim instead (to prevent elements underneat the alt
             // layer from reacting while the alt layer is up)
             window.addEventListener('mouseup', this);
@@ -28543,6 +28610,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         dispose() {
             releaseSharedElement(document.getElementById('mathlive-alternate-keys-panel'));
+            window.removeEventListener('mouseup', this);
+            window.removeEventListener('blur', this);
+            window.removeEventListener('touchend', this);
+            window.removeEventListener('touchcancel', this);
             this.element.remove();
         }
     }
@@ -29345,10 +29416,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     function latexToMarkup$1(latex, arg, mf) {
         // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
         latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
-        return makeStruts(makeSpan(Atom.render({
+        return makeStruts(new Span(Atom.render({
             mathstyle: MATHSTYLES.displaystyle,
             macros: mf.options.macros,
-        }, parseString(latex, 'math', arg, mf.options.macros)), 'ML__base'), 'ML__mathlive').toMarkup();
+        }, parseLatex(latex, 'math', arg, mf.options.macros)), 'ML__base'), 'ML__mathlive').toMarkup();
     }
     /**
      * Return a markup string for the keyboard toolbar for the specified layer.
@@ -30381,9 +30452,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         showVirtualKeyboard: (mathfield, theme) => showVirtualKeyboard(mathfield, theme),
     }, { target: 'virtual-keyboard' });
 
-    var css_248z$2 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:-1ex;position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:50%;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor;border-radius:50%;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2)}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;letter-spacing:-1px;font-weight:400;line-height:1em;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsla(0,0%,70%,.5)}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:50%;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsla(0,0%,70%,.5);color:#000;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;display:none;content:attr(data-ML__tooltip);top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{visibility:visible;display:inline-table;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
+    var css_248z$2 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:calc(-1ex - 2px);position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:8px;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsla(0,0%,70%,.5);color:#333;fill:currentColor;border-radius:8px;border:1px solid hsla(0,0%,100%,.5)}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:8px;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;display:none;content:attr(data-ML__tooltip);top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{visibility:visible;display:inline-table;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
-    var css_248z$3 = ".ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}div.ML__popover.is-visible{visibility:inherit;-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1)}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;padding:2px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px}.ML__popover__content a{color:#5ea6fd;padding-top:.3em;margin-top:.4em;display:block}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.active,.ML__popover__content.pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-size:1.6rem;font-family:KaTeX_Main}.ML__popover__prev-shortcut{height:31px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:4px;padding-bottom:2px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.active,.ML__popover__next-shortcut.pressed,.ML__popover__prev-shortcut.active,.ML__popover__prev-shortcut.pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{padding:5px;border-radius:50%;width:20px;height:20px;display:inline-block}.ML__popover__prev-shortcut>span>span{margin-top:-2px;display:block}.ML__popover__next-shortcut>span>span{margin-top:2px;display:block}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{height:34px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:2px;padding-bottom:4px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
+    var css_248z$3 = ".ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}div.ML__popover.is-visible{visibility:inherit;-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1)}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;padding:2px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px}.ML__popover__content a{color:#5ea6fd;padding-top:.3em;margin-top:.4em;display:block}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.active,.ML__popover__content.pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-size:1.6rem;font-family:KaTeX_Main}.ML__popover__prev-shortcut{height:31px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:4px;padding-bottom:2px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.active,.ML__popover__next-shortcut.pressed,.ML__popover__prev-shortcut.active,.ML__popover__prev-shortcut.pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{padding:5px;border-radius:8px;width:20px;height:20px;display:inline-block}.ML__popover__prev-shortcut>span>span{margin-top:-2px;display:block}.ML__popover__next-shortcut>span>span{margin-top:2px;display:block}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{height:34px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:2px;padding-bottom:4px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
 
     var css_248z$4 = ".ML__keystroke-caption{visibility:hidden;background:var(--secondary);border-color:var(--secondary-border);box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);text-align:center;border-radius:6px;padding:16px;position:absolute;z-index:1;display:flex;flex-direction:row;justify-content:center;--keystroke:#fff;--on-keystroke:#555;--keystroke-border:#f7f7f7}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keystroke-caption{--keystroke:hsl(var(--hue,212),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue,212),50%,25%)}}body[theme=dark] .ML__keystroke-caption{--keystroke:hsl(var(--hue,212),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue,212),50%,25%)}.ML__keystroke-caption>span{min-width:14px;margin:0 8px 0 0;padding:4px;background-color:var(--keystroke);color:var(--on-keystroke);fill:currentColor;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:1em;border-radius:6px;border:2px solid var(--keystroke-border)}";
 
@@ -30554,6 +30625,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // Some panels are shared amongst instances of mathfield
             // (there's a single instance in the document)
             this.popover = getSharedElement('mathlive-popover-panel', 'ML__popover');
+            this.stylesheets.push(inject(null, css_248z$1));
             this.stylesheets.push(inject(null, css_248z$3));
             this.keystrokeCaption = getSharedElement('mathlive-keystroke-caption-panel', 'ML__keystroke-caption');
             this.stylesheets.push(inject(null, css_248z$4));
@@ -30830,25 +30902,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             clearTimeout(this.keystrokeBufferResetTimer);
         }
         _onSelectionDidChange() {
-            // Every suggestion atom is now committed
-            acceptCommandSuggestion(this.model);
             // Keep the content of the textarea in sync wiht the selection.
             // This will allow cut/copy to work.
             this.keyboardDelegate.setValue(this.getValue(this.model.selection, 'latex-expanded'));
-            // Update the mode
-            {
-                const newMode = getMode(this.model, this.model.position) ||
-                    this.options.defaultMode;
-                if (this.mode === 'command' && newMode !== 'command') {
-                    complete(this, 'reject', { mode: newMode });
-                }
-                else {
-                    this.switchMode(newMode);
-                }
-            }
-            // Defer the updating of the popover position: we'll need the tree to be
-            // re-rendered first to get an updated caret position
-            updatePopoverPosition(this, { deferred: true });
             // Invoke client listeners, if provided.
             if (typeof this.options.onSelectionDidChange === 'function') {
                 this.options.onSelectionDidChange(this);
@@ -30882,7 +30938,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 if (/onfocus|manual/.test(this.options.virtualKeyboardMode)) {
                     hideVirtualKeyboard(this);
                 }
-                complete(this, 'reject');
+                complete(this, 'accept');
                 requestUpdate(this);
                 if (typeof this.options.onBlur === 'function') {
                     this.options.onBlur(this);
@@ -31116,49 +31172,64 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         switchMode(mode, prefix = '', suffix = '') {
             if (this.mode === mode)
                 return;
-            this.model.deferNotifications({ content: !!suffix || !!prefix, selection: true }, () => {
+            const model = this.model;
+            model.deferNotifications({ content: !!suffix || !!prefix, selection: true }, () => {
+                let contentChanged = false;
                 this.resetKeystrokeBuffer();
                 // Suppress (temporarily) smart mode if switching to/from text or math
                 // This prevents switching to/from command mode from supressing smart mode.
                 this.smartModeSuppressed =
                     /text|math/.test(this.mode) && /text|math/.test(mode);
                 if (prefix) {
-                    this.insert(prefix, {
-                        format: 'latex',
-                        mode: { math: 'text', text: 'math' }[mode],
-                    });
+                    const atoms = parseLatex(prefix, { math: 'text', text: 'math' }[mode], null, null);
+                    model.collapseSelection('forward');
+                    const cursor = model.at(model.position);
+                    model.position = model.offsetOf(cursor.parent.addChildrenAfter(atoms, cursor));
+                    contentChanged = true;
                 }
                 this.mode = mode;
                 if (mode === 'command') {
-                    this.model.deleteAtoms(getCommandRange(this.model));
+                    model.deleteAtoms(getCommandRange(this.model));
                     hidePopover(this);
-                    this.suggestionIndex = 0;
                     // Switch to the command mode keyboard layer
                     if (this.virtualKeyboardVisible) {
                         switchKeyboardLayer(this, 'lower-command');
                     }
                     // Inserting a command atom
-                    const cursor = this.model.at(this.model.position);
-                    cursor.parent.addChildrenAfter([new CommandAtom('\\')], cursor);
-                    this.model.position += 1;
+                    let cursor = model.at(model.position);
+                    if (model.selectionIsCollapsed) {
+                        cursor.parent.addChildrenAfter([new CommandAtom('\\')], cursor);
+                        model.position += 1;
+                    }
+                    else {
+                        const selectionRange = range(model.selection);
+                        cursor = model.at(selectionRange[0]);
+                        const latex = Atom.toLatex(model.extractAtoms(selectionRange), {
+                            expandMacro: false,
+                        });
+                        const lastAtom = cursor.parent.addChildrenAfter(Array.from(latex).map((x) => new CommandAtom(x)), cursor);
+                        model.setSelection(model.offsetOf(cursor), model.offsetOf(lastAtom));
+                    }
                 }
                 else {
                     // Remove any error indicator on the current command sequence (if there is one)
-                    getCommandAtoms(this.model).forEach((x) => {
+                    getCommandAtoms(model).forEach((x) => {
                         x.isError = false;
                     });
                 }
                 if (suffix) {
-                    this.insert(suffix, {
-                        format: 'latex',
-                        mode: mode,
-                    });
+                    const atoms = parseLatex(suffix, { math: 'text', text: 'math' }[mode], null, null);
+                    model.collapseSelection('forward');
+                    const cursor = model.at(model.position);
+                    model.position = model.offsetOf(cursor.parent.addChildrenAfter(atoms, cursor));
+                    contentChanged = true;
                 }
                 // Notify of mode change
                 if (typeof this.options.onModeChange === 'function') {
                     this.options.onModeChange(this, this.mode);
                 }
                 requestUpdate(this);
+                return contentChanged;
             });
         }
         /** @deprecated */
@@ -31668,7 +31739,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * It is also used by the automated test suite.
      */
     function latexToAsciiMath(latex, mode = 'math') {
-        const mathlist = parseString(latex, mode, null, null);
+        const mathlist = parseLatex(latex, mode, null, null);
         return atomToAsciiMath(mathlist);
     }
     function asciiMathToLatex(ascii) {
@@ -32378,24 +32449,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     metadata('Letterlike Symbols', [
         '\\nabla',
         '\\partial',
-        '\\doubleStruckCapitalN',
         '\\N',
-        '\\doubleStruckCapitalR',
         '\\R',
-        '\\doubleStruckCapitalQ',
         '\\Q',
-        '\\doubleStruckCapitalC',
         '\\C',
-        '\\doubleStruckCapitalZ',
         '\\Z',
         '\\exponentialE',
         '\\forall',
         '\\exists',
         '\\nexists',
-        '\\$',
-        '\\%',
-        '\\And',
-        '\\degree',
     ], SUPERCOMMON);
     metadata('Letterlike Symbols', [
         '\\doubleStruckCapitalP',
@@ -32410,12 +32472,21 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         '\\differentialD',
         '\\rd',
         '\\capitalDifferentialD',
+        '\\doubleStruckCapitalN',
+        '\\doubleStruckCapitalR',
+        '\\doubleStruckCapitalQ',
+        '\\doubleStruckCapitalC',
+        '\\doubleStruckCapitalZ',
         '\\rD',
         '\\differencedelta',
         '\\mid',
         '@',
         '\\Re',
         '\\Im',
+        '\\$',
+        '\\%',
+        '\\And',
+        '\\degree',
     ], COMMON);
     metadata('Letterlike Symbols', [
         '\\top',
@@ -33850,7 +33921,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         //
         // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
         //
-        const atoms = parseString(text, 'math', null, options.macros, false, options.onError);
+        const atoms = parseLatex(text, 'math', null, options.macros, false, options.onError);
         //
         // 2. Transform the math atoms into elementary spans
         //    for example from genfrac to vlist.
@@ -33868,7 +33939,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         //
         // 4. Wrap the expression with struts
         //
-        const wrapper = makeStruts(makeSpan(spans, 'ML__base'), 'ML__mathlive');
+        const wrapper = makeStruts(new Span(spans, 'ML__base'), 'ML__mathlive');
         //
         // 5. Generate markup
         //
@@ -33877,7 +33948,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     function convertLatexToMathMl(latex, options = {}) {
         var _a;
         options.macros = { ...MACROS, ...((_a = options.macros) !== null && _a !== void 0 ? _a : {}) };
-        return atomsToMathML(parseString(latex, 'math', [], options.macros, false, options.onError), options);
+        return atomsToMathML(parseLatex(latex, 'math', [], options.macros, false, options.onError), options);
     }
     /** @deprecated */
     function latexToMathML(latex, options) {
@@ -33889,7 +33960,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         options = options !== null && options !== void 0 ? options : {};
         options.macros = { ...MACROS, ...((_a = options.macros) !== null && _a !== void 0 ? _a : {}) };
         // return parseLatex(latex, options);
-        return atomtoMathJson(parseString(latex, 'math', null, options.macros, false, options.onError), options);
+        return atomtoMathJson(parseLatex(latex, 'math', null, options.macros, false, options.onError), options);
     }
     /** @deprecated Use MathJSON */
     function astToLatex(expr, options) {
@@ -33900,7 +33971,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         var _a;
         options.macros = (_a = options.macros) !== null && _a !== void 0 ? _a : {};
         Object.assign(options.macros, MACROS);
-        const mathlist = parseString(latex, 'math', null, options.macros, false, options.onError);
+        const mathlist = parseLatex(latex, 'math', null, options.macros, false, options.onError);
         return atomToSpeakableText(mathlist, options);
     }
     /** @deprecated */

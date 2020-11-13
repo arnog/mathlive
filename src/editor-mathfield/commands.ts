@@ -1,6 +1,6 @@
 import { ParseMode } from '../public/core';
 import { register as registerCommand } from '../editor/commands';
-import { complete } from '../editor/autocomplete';
+import { complete } from './autocomplete';
 import type { MathfieldPrivate } from './mathfield-private';
 import { onTypedText } from './keyboard-input';
 

@@ -2,7 +2,6 @@ import { Atom, ToLatexOptions } from '../core/atom-class';
 import { MATHSTYLES } from '../core/mathstyle';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import {
-    makeSpan,
     makeVlist,
     depth as spanDepth,
     height as spanHeight,
@@ -40,7 +39,7 @@ export class SurdAtom extends Atom {
         const mathstyle = context.mathstyle;
         // First, we do the same steps as in overline to build the inner group
         // and line
-        const inner = Atom.render(context.cramp(), this.body) ?? makeSpan('');
+        const inner = Atom.render(context.cramp(), this.body) ?? new Span('');
         const ruleWidth =
             FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
         let phi = ruleWidth;
@@ -59,7 +58,7 @@ export class SurdAtom extends Atom {
         // Create a \surd delimiter of the required minimum size
         const delim = this.bind(
             context,
-            makeSpan(
+            new Span(
                 makeCustomSizedDelim(
                     '',
                     '\\surd',
@@ -87,7 +86,7 @@ export class SurdAtom extends Atom {
         delim.setTop(
             delim.height - spanHeight(inner) - (lineClearance + ruleWidth)
         );
-        const line = makeSpan(
+        const line = new Span(
             null,
             context.mathstyle.adjustTo(MATHSTYLES.textstyle) + ' sqrt-line'
         );
@@ -105,7 +104,7 @@ export class SurdAtom extends Atom {
         if (this.containsCaret) className += ' ML__contains-caret';
 
         if (!this.above) {
-            const result = makeSpan([delim, body], className, 'mord');
+            const result = new Span([delim, body], className, 'mord');
             if (this.caret) result.caret = this.caret;
             return [this.bind(context, result)];
         }
@@ -115,7 +114,7 @@ export class SurdAtom extends Atom {
         const newcontext = context.clone({
             mathstyle: MATHSTYLES.scriptscriptstyle,
         });
-        const root = makeSpan(
+        const root = new Span(
             Atom.render(newcontext, this.above),
             mathstyle.adjustTo(MATHSTYLES.scriptscriptstyle)
         );
@@ -131,8 +130,8 @@ export class SurdAtom extends Atom {
         // Add a class surrounding it so we can add on the appropriate
         // kerning
 
-        const result = makeSpan(
-            [makeSpan(rootVlist, 'root'), delim, body],
+        const result = new Span(
+            [new Span(rootVlist, 'root'), delim, body],
             className,
             'mord'
         );

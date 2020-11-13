@@ -641,7 +641,7 @@ defineSymbol('\\blacktriangleleft', '\u25c0', 'mrel', 'ams');
 defineSymbol('\\blacktriangleright', '\u25b6', 'mrel', 'ams');
 
 defineSymbol('\\/', '/');
-defineSymbol('|', '\u2223', 'textord');
+defineSymbol('|', '\u2223', 'mord');
 
 defineSymbol('\\And', '\u0026', 'mbin');
 defineSymbol('\\imath', '\u0131');

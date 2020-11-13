@@ -5,7 +5,7 @@
  */
 
 import { ParseMode } from '../public/core';
-import { parseString } from '../core/parser';
+import { parseLatex } from '../core/parser';
 import type { Span } from '../core/span';
 import {
     MACROS,
@@ -25,7 +25,7 @@ export function latexToAsciiMath(
     latex: string,
     mode: ParseMode = 'math'
 ): string {
-    const mathlist = parseString(latex, mode, null, null);
+    const mathlist = parseLatex(latex, mode, null, null);
 
     return atomToAsciiMath(mathlist);
 }

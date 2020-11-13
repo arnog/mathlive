@@ -8,7 +8,7 @@ import { isArray } from '../common/types';
 
 import { Atom, AtomType } from '../core/atom';
 import { ArrayAtom } from '../core-atoms/array';
-import { parseString } from '../core/parser';
+import { parseLatex } from '../core/parser';
 import { joinLatex } from '../core/tokenizer';
 import {
     unicodeStringToLatex,
@@ -953,15 +953,12 @@ function parseDelim(
             // If we have an unclosed smart fence, assume the right delim is
             // matching the left delim
             if (rdelim === '?') rdelim = RIGHT_DELIM[ldelim];
-        } else if (atom.type === 'textord') {
-            ldelim = atom.value;
-            rdelim = RIGHT_DELIM[ldelim];
         }
         if (ldelim && rdelim) {
             if (ldelim === '|' && rdelim === '|') {
                 // Check if this could be a ||x|| instead of |x|
                 const atom = expr.atoms[expr.index + 1];
-                if (atom && atom.type === 'textord' && atom.value === '|') {
+                if (atom && atom.type === 'mord' && atom.value === '|') {
                     // Yes, it's a ||x||
                     ldelim = '\\lVert';
                     rdelim = '\\rVert';
@@ -993,22 +990,22 @@ function parseDelim(
             expr = parseSupsub(expr, options);
             expr = parsePostfix(expr, options);
         } // TODO: else, syntax error?
-    } else if (atom.type === 'textord' && getString(atom) === ldelim) {
+    } else if (atom.type === 'mord' && getString(atom) === ldelim) {
         expr.index += 1; // Skip the open delim
         expr = parseExpression(expr, options);
         atom = expr.atoms[expr.index];
-        if (atom && atom.type === 'textord' && getString(atom) === rdelim) {
+        if (atom && atom.type === 'mord' && getString(atom) === rdelim) {
             expr.index += 1;
             expr = parseSupsub(expr, options);
             expr = parsePostfix(expr, options);
         } // TODO: else, syntax error?
     } else if (
         ldelim === '\\lVert' &&
-        atom.type === 'textord' &&
+        atom.type === 'mord' &&
         atom.value === '|'
     ) {
         atom = expr.atoms[expr.index + 1];
-        if (atom && atom.type === 'textord' && atom.value === '|') {
+        if (atom && atom.type === 'mord' && atom.value === '|') {
             // This is an opening ||
             expr.index += 2; // Skip the open delim
             expr = parseExpression(expr, options);
@@ -1016,10 +1013,10 @@ function parseDelim(
             const atom2 = expr.atoms[expr.index + 1];
             if (
                 atom &&
-                atom.type === 'textord' &&
+                atom.type === 'mord' &&
                 atom.value === '|' &&
                 atom2 &&
-                atom2.type === 'textord' &&
+                atom2.type === 'mord' &&
                 atom2.value === '|'
             ) {
                 // This was a closing ||
@@ -1093,7 +1090,7 @@ function parseDigraph(expr) {
         return undefined;
     }
 
-    if (isAtom(expr, 'textord', '\\nabla')) {
+    if (isAtom(expr, 'mord', '\\nabla')) {
         expr.index += 1;
         if (isAtom(expr, 'mbin', '\\times')) {
             expr.index += 1;
@@ -1259,35 +1256,6 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
             expr = parseSupsub(expr, options);
         }
         expr = parsePostfix(expr, options);
-    } else if (atom.type === 'textord') {
-        // Note that 'textord' can also be operators, and are handled as such
-        // in parseExpression()
-        if (!isOperator(atom)) {
-            // This doesn't look like a textord operator
-            if (!RIGHT_DELIM[atom.value]) {
-                // Not an operator, not a fence, it's a symbol or a function
-                if (isFunction(val)) {
-                    // It's a function
-                    expr.ast = { fn: val };
-                    expr = parseSupsub(expr, options);
-
-                    const fn = expr.ast;
-                    expr.index += 1; // Skip the function name
-                    fn.arg = [parsePrimary(expr, options).ast];
-                    expr.ast = fn;
-
-                    expr = parsePostfix(expr, options);
-                } else {
-                    // It was a symbol...
-                    expr.ast = atomToMathJson(atom, options);
-                    if (typeof atom.superscript === 'undefined') {
-                        expr.index += 1;
-                    }
-                    expr = parseSupsub(expr, options);
-                    expr = parsePostfix(expr, options);
-                }
-            }
-        }
     } else if (atom.type === 'mop') {
         // Could be a function or an operator.
         if (
@@ -1719,14 +1687,14 @@ export function atomToMathJson(
                     } else {
                         lhs = m[1].substr(1, m[1].length - 2);
                     }
-                    lhs = parseString(lhs, 'math', null, options.macros);
+                    lhs = parseLatex(lhs, 'math', null, options.macros);
 
                     if (m[2].length === 1) {
                         rhs = m[2];
                     } else {
                         rhs = m[2].substr(1, m[2].length - 2);
                     }
-                    rhs = parseString(rhs, 'math', null, options.macros);
+                    rhs = parseLatex(rhs, 'math', null, options.macros);
 
                     result = wrapFn(
                         'divide',
@@ -1776,7 +1744,6 @@ export function atomToMathJson(
             break;
 
         case 'mord':
-        case 'textord':
         case 'mbin':
             // Check to see if it's a \char command
             m = !command

@@ -1,6 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { Span, makeSpan } from '../core/span';
+import { Span } from '../core/span';
 
 export class MacroAtom extends Atom {
     constructor(macro: string, args: string, body: Atom[]) {
@@ -15,9 +15,9 @@ export class MacroAtom extends Atom {
         return options.expandMacro ? this.bodyToLatex(options) : this.latex;
     }
     render(context: Context): Span[] {
-        const result = makeSpan(Atom.render(context, this.body), '', 'mord');
+        const result = new Span(Atom.render(context, this.body), '', 'mord');
         if (this.caret) result.caret = this.caret;
-
+        this.bind(context, result);
         return [result];
     }
 }

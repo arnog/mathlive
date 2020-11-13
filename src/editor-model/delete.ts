@@ -238,6 +238,17 @@ function onDelete(
             atom.removeBranch(branch);
         }
 
+        if (!atom.hasChildren) {
+            // We've removed the last branch of a msubsup
+            const pos =
+                direction === 'forward'
+                    ? model.offsetOf(atom)
+                    : Math.max(0, model.offsetOf(atom) - 1);
+            atom.parent.removeChild(atom);
+            model.position = pos;
+            return true;
+        }
+
         if (branch === 'superscript') {
             if (direction === 'backward') {
                 const pos = model.offsetOf(atom.firstChild) - 1;
@@ -296,7 +307,7 @@ export function deleteBackward(model: ModelPrivate): boolean {
     return model.deferNotifications({ content: true, selection: true }, () => {
         const offset = model.offsetOf(target.leftSibling);
         target.parent.removeChild(target);
-        model.announce('deleted', null, [target]);
+        model.announce('delete', null, [target]);
         model.position = offset;
     });
 }
@@ -342,7 +353,7 @@ export function deleteForward(model: ModelPrivate): boolean {
             sibling.parent.removeChild(sibling);
             sibling = model.at(model.position)?.rightSibling;
         }
-        model.announce('deleted', null, [target]);
+        model.announce('delete', null, [target]);
     });
 }
 

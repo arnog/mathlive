@@ -1,9 +1,10 @@
-import { selectGroup } from '../editor-model/selection';
 import { on, off, getAtomBounds, Rect } from './utils';
 import type { MathfieldPrivate } from './mathfield-private';
 import { requestUpdate } from './render';
 import { Offset } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
+import { acceptCommandSuggestion } from './autocomplete';
+import { selectGroup } from '../editor-model/commands';
 
 let gLastTap: { x: number; y: number; time: number };
 let gTapCount = 0;
@@ -109,6 +110,7 @@ export function onPointerDown(
         }
         if (actualAnchor >= 0 && focus >= 0) {
             that.model.extendSelectionTo(actualAnchor, focus);
+            acceptCommandSuggestion(mathfield.model);
             requestUpdate(mathfield);
         }
         // Prevent synthetic mouseMove event when this is a touch event
@@ -166,6 +168,7 @@ export function onPointerDown(
                     mathfield.model.anchor,
                     anchor
                 );
+                acceptCommandSuggestion(mathfield.model);
             } else {
                 if (mathfield.model.at(anchor).type === 'placeholder') {
                     mathfield.model.setSelection(anchor - 1, anchor);
@@ -176,6 +179,7 @@ export function onPointerDown(
                     mathfield.model.setSelection(anchor, anchor + 1);
                 } else {
                     mathfield.model.position = anchor;
+                    acceptCommandSuggestion(mathfield.model);
                 }
             }
 

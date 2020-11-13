@@ -30,9 +30,8 @@ import {
     SelectorPrivate,
     perform,
 } from '../editor/commands';
-import { getMode } from '../editor-model/selection';
 import { find } from '../editor-model/find';
-import { acceptCommandSuggestion, complete } from '../editor/autocomplete';
+import { complete } from './autocomplete';
 import { requestUpdate } from './render';
 import {
     MathfieldOptionsPrivate,
@@ -86,13 +85,13 @@ import {
 import mathfieldStylesheet from '../../css/mathfield.less';
 // @ts-ignore
 import coreStylesheet from '../../css/core.less';
-
 // @ts-ignore
 import popoverStylesheet from '../../css/popover.less';
 // @ts-ignore
 import keystrokeCaptionStylesheet from '../../css/keystroke-caption.less';
 import { range } from '../editor-model/selection-utils';
 import { CommandAtom } from '../core-atoms/command';
+import { parseLatex } from '../core/parser';
 
 export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
@@ -338,6 +337,7 @@ export class MathfieldPrivate implements Mathfield {
             'mathlive-popover-panel',
             'ML__popover'
         );
+        this.stylesheets.push(injectStylesheet(null, coreStylesheet));
         this.stylesheets.push(injectStylesheet(null, popoverStylesheet));
         this.keystrokeCaption = getSharedElement(
             'mathlive-keystroke-caption-panel',
@@ -715,28 +715,11 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     private _onSelectionDidChange(): void {
-        // Every suggestion atom is now committed
-        acceptCommandSuggestion(this.model);
         // Keep the content of the textarea in sync wiht the selection.
         // This will allow cut/copy to work.
         this.keyboardDelegate.setValue(
             this.getValue(this.model.selection, 'latex-expanded')
         );
-
-        // Update the mode
-        {
-            const newMode =
-                getMode(this.model, this.model.position) ||
-                this.options.defaultMode;
-            if (this.mode === 'command' && newMode !== 'command') {
-                complete(this, 'reject', { mode: newMode });
-            } else {
-                this.switchMode(newMode);
-            }
-        }
-        // Defer the updating of the popover position: we'll need the tree to be
-        // re-rendered first to get an updated caret position
-        updatePopoverPosition(this, { deferred: true });
 
         // Invoke client listeners, if provided.
         if (typeof this.options.onSelectionDidChange === 'function') {
@@ -771,7 +754,7 @@ export class MathfieldPrivate implements Mathfield {
             if (/onfocus|manual/.test(this.options.virtualKeyboardMode)) {
                 hideVirtualKeyboard(this);
             }
-            complete(this, 'reject');
+            complete(this, 'accept');
             requestUpdate(this);
             if (typeof this.options.onBlur === 'function') {
                 this.options.onBlur(this);
@@ -1027,56 +1010,94 @@ export class MathfieldPrivate implements Mathfield {
     }
     switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
         if (this.mode === mode) return;
-        this.model.deferNotifications(
+        const model = this.model;
+        model.deferNotifications(
             { content: !!suffix || !!prefix, selection: true },
-            () => {
+            (): boolean => {
+                let contentChanged = false;
                 this.resetKeystrokeBuffer();
                 // Suppress (temporarily) smart mode if switching to/from text or math
                 // This prevents switching to/from command mode from supressing smart mode.
                 this.smartModeSuppressed =
                     /text|math/.test(this.mode) && /text|math/.test(mode);
                 if (prefix) {
-                    this.insert(prefix, {
-                        format: 'latex',
-                        mode: { math: 'text', text: 'math' }[mode],
-                    });
+                    const atoms = parseLatex(
+                        prefix,
+                        { math: 'text', text: 'math' }[mode],
+                        null,
+                        null
+                    );
+                    model.collapseSelection('forward');
+                    const cursor = model.at(model.position);
+                    model.position = model.offsetOf(
+                        cursor.parent.addChildrenAfter(atoms, cursor)
+                    );
+                    contentChanged = true;
                 }
 
                 this.mode = mode;
 
                 if (mode === 'command') {
-                    this.model.deleteAtoms(getCommandRange(this.model));
+                    model.deleteAtoms(getCommandRange(this.model));
                     hidePopover(this);
-                    this.suggestionIndex = 0;
                     // Switch to the command mode keyboard layer
                     if (this.virtualKeyboardVisible) {
                         switchKeyboardLayer(this, 'lower-command');
                     }
 
                     // Inserting a command atom
-                    const cursor = this.model.at(this.model.position);
-                    cursor.parent.addChildrenAfter(
-                        [new CommandAtom('\\')],
-                        cursor
-                    );
-                    this.model.position += 1;
+                    let cursor = model.at(model.position);
+                    if (model.selectionIsCollapsed) {
+                        cursor.parent.addChildrenAfter(
+                            [new CommandAtom('\\')],
+                            cursor
+                        );
+                        model.position += 1;
+                    } else {
+                        const selectionRange = range(model.selection);
+                        cursor = model.at(selectionRange[0]);
+
+                        const latex = Atom.toLatex(
+                            model.extractAtoms(selectionRange),
+                            {
+                                expandMacro: false,
+                            }
+                        );
+                        const lastAtom = cursor.parent.addChildrenAfter(
+                            Array.from(latex).map((x) => new CommandAtom(x)),
+                            cursor
+                        );
+                        model.setSelection(
+                            model.offsetOf(cursor),
+                            model.offsetOf(lastAtom)
+                        );
+                    }
                 } else {
                     // Remove any error indicator on the current command sequence (if there is one)
-                    getCommandAtoms(this.model).forEach((x) => {
+                    getCommandAtoms(model).forEach((x) => {
                         x.isError = false;
                     });
                 }
                 if (suffix) {
-                    this.insert(suffix, {
-                        format: 'latex',
-                        mode: mode,
-                    });
+                    const atoms = parseLatex(
+                        suffix,
+                        { math: 'text', text: 'math' }[mode],
+                        null,
+                        null
+                    );
+                    model.collapseSelection('forward');
+                    const cursor = model.at(model.position);
+                    model.position = model.offsetOf(
+                        cursor.parent.addChildrenAfter(atoms, cursor)
+                    );
+                    contentChanged = true;
                 }
                 // Notify of mode change
                 if (typeof this.options.onModeChange === 'function') {
                     this.options.onModeChange(this, this.mode);
                 }
                 requestUpdate(this);
+                return contentChanged;
             }
         );
     }

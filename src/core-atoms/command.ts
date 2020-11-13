@@ -21,14 +21,17 @@ export class CommandAtom extends Atom {
         return {};
     }
     render(context: Context): Span[] {
-        const result = this.makeSpan(context, this.value);
-        result.classes = ''; // Override fonts and other attributes.
-        if (this.isSuggestion) {
-            result.classes = ' ML__suggestion';
-        } else if (this.isError) {
-            result.classes = ' ML__error';
-        }
+        const result = new Span(
+            this.value,
+            this.isSuggestion
+                ? 'ML__suggestion'
+                : this.isError
+                ? 'ML__error'
+                : '',
+            'command'
+        );
         if (this.caret) result.caret = this.caret;
+        this.bind(context, result);
         return [result];
     }
 }

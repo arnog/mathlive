@@ -100,7 +100,7 @@
     cursor: pointer;
     box-sizing: border-box;
     /* Avoid some weird blinking with :hover */
-    border-radius: 50%;
+    border-radius: 8px;
     border: 1px solid transparent;
     transition: background 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
     color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
@@ -108,13 +108,14 @@
     background: transparent;
 
     &:hover {
-        background: hsl(var(--hue, 212), 25%, 35%);
-        color: hsl(0, 0%, 98%);
+        background: hsla(0, 0%, 70%, 0.5);
+        color: #333;
         fill: currentColor;
-        border-radius: 50%;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, .5)
         // border: 1px solid rgba(255, 255, 255, .9);
-        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-            0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+        // box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        //     0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
 }
 
@@ -190,19 +191,21 @@ with this style */
 }
 
 .ML__virtual-keyboard-toggle.pressed {
-    background: hsla(0, 0%, 70%, 0.5);
+    background: hsl(var(--hue, 212), 25%, 35%);
+    color: #fafafa;
+    fill: currentColor;
 }
 
 .ML__virtual-keyboard-toggle:focus {
     outline: none;
-    border-radius: 50%;
+    border-radius: 8px;
     border: 2px solid var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
 .ML__virtual-keyboard-toggle.active:hover,
 .ML__virtual-keyboard-toggle.active {
-    background: hsla(0, 0%, 70%, 0.5);
-    color: #000;
+    background: hsl(var(--hue, 212), 25%, 35%);
+    color: #fafafa;
     fill: currentColor;
 }
 

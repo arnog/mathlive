@@ -417,8 +417,7 @@ function atomToSpeakableFragment(
             case 'mrel':
             case 'mpunct':
             case 'mopen':
-            case 'mclose':
-            case 'textord': {
+            case 'mclose': {
                 const command = atom.command;
                 if (
                     command === '\\mathbin' ||

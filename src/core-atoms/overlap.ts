@@ -1,5 +1,5 @@
 import { Atom } from '../core/atom-class';
-import { makeSpan, Span } from '../core/span';
+import { Span } from '../core/span';
 import { Context } from '../core/context';
 import type { Style } from '../public/core';
 
@@ -20,11 +20,11 @@ export class OverlapAtom extends Atom {
         // smash (common), mathllap (0), mathrlap (0), mathclap (0)
         // See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf
         // and https://tex.stackexchange.com/questions/98785/what-are-the-different-kinds-of-vertical-spacing-and-horizontal-spacing-commands
-        const inner = makeSpan(Atom.render(context, this.body), 'inner'); // @revisit
+        const inner = new Span(Atom.render(context, this.body), 'inner'); // @revisit
         if (this.caret) inner.caret = this.caret;
         return [
-            makeSpan(
-                [inner, makeSpan(null, 'fix')],
+            new Span(
+                [inner, new Span(null, 'fix')],
                 this.align === 'left' ? 'llap' : 'rlap',
                 'mord'
             ),

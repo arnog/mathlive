@@ -15,10 +15,10 @@
  */
 
 import { defineFunction } from './definitions-utils';
-import { parseString } from '../core/parser';
+import { parseLatex } from '../core/parser';
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { Span, makeSpan } from '../core/span';
+import { Span } from '../core/span';
 
 class ChemAtom extends Atom {
     constructor(command: string, arg: string) {
@@ -28,12 +28,12 @@ class ChemAtom extends Atom {
             false
         );
 
-        this.body = parseString(tex);
+        this.body = parseLatex(tex);
         this.latex = command + '{' + arg + '}';
         this.captureSelection = true;
     }
     render(context: Context): Span[] {
-        const span = makeSpan(Atom.render(context, this.body), '', 'mord'); // @revisit
+        const span = new Span(Atom.render(context, this.body), '', 'chem');
 
         if (this.caret) span.caret = this.caret;
         // Need to bind the group so that the DOM element can be matched

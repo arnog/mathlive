@@ -1,4 +1,4 @@
-import type { Range } from '../public/mathfield';
+import type { Offset, Range } from '../public/mathfield';
 import { CommandAtom } from '../core-atoms/command';
 import type { ModelPrivate } from './model-private';
 
@@ -21,15 +21,19 @@ export function getCommandRange(model: ModelPrivate): Range {
     let done = false;
     while (end <= model.lastOffset && !done) {
         done = !(model.at(end) instanceof CommandAtom);
-        end++;
+        if (!done) end++;
     }
     return [start - 1, end - 1];
 }
 
-export function getCommandSuggestionRange(model: ModelPrivate): Range {
+export function getCommandSuggestionRange(
+    model: ModelPrivate,
+    options?: { before: Offset }
+): Range {
     let start = 0;
     let found = false;
-    while (start <= model.lastOffset && !found) {
+    const last = isFinite(options?.before) ? options.before : model.lastOffset;
+    while (start <= last && !found) {
         const atom = model.at(start);
         found = atom instanceof CommandAtom && atom.isSuggestion;
         if (!found) start++;
@@ -38,10 +42,10 @@ export function getCommandSuggestionRange(model: ModelPrivate): Range {
 
     let end = start;
     let done = false;
-    while (end <= model.lastOffset && !done) {
+    while (end <= last && !done) {
         const atom = model.at(end);
         done = !(atom instanceof CommandAtom && atom.isSuggestion);
-        end++;
+        if (!done) end++;
     }
     return [start - 1, end - 1];
 }
@@ -50,16 +54,9 @@ export function getCommandAtoms(model: ModelPrivate): CommandAtom[] {
     return model.getAtoms(getCommandRange(model));
 }
 
-export function getCommandString(
-    model: ModelPrivate,
-    options?: { withSuggestion: boolean }
-): string {
-    const commandAtoms = getCommandAtoms(model);
-    if (options?.withSuggestion ?? false) {
-        return commandAtoms.map((x) => x.value).join('');
-    }
-    return commandAtoms
-        .filter((x) => !x.isSuggestion)
+export function getCommandString(model: ModelPrivate): string {
+    return model
+        .getAtoms(getCommandRange(model))
         .map((x) => x.value)
         .join('');
 }

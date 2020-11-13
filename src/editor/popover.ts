@@ -1,12 +1,6 @@
 import { isArray } from '../common/types';
 
-import {
-    MATHSTYLES,
-    makeSpan,
-    makeStruts,
-    parseString,
-    Atom,
-} from '../core/core';
+import { MATHSTYLES, Span, makeStruts, parseLatex, Atom } from '../core/core';
 
 import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
@@ -275,7 +269,7 @@ function getNote(symbol): string {
 }
 
 function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
-    const parse = parseString(latex, 'math', null, mf.options.macros);
+    const parse = parseLatex(latex, 'math', null, mf.options.macros);
     const spans = Atom.render(
         {
             mathstyle: MATHSTYLES.displaystyle,
@@ -284,7 +278,7 @@ function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
         parse
     );
 
-    const wrapper = makeStruts(makeSpan(spans, 'ML__base'), 'ML__mathlive');
+    const wrapper = makeStruts(new Span(spans, 'ML__base'), 'ML__mathlive');
 
     return wrapper.toMarkup();
 }
@@ -322,12 +316,13 @@ export function showPopoverWithLatex(
     template += displayArrows
         ? '<div class="ML__popover__next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>'
         : '';
-    showPopover(mf, template);
+
+    mf.popover.innerHTML = mf.options.createHTML(template);
 
     let el = mf.popover.getElementsByClassName('ML__popover__content');
     if (el && el.length > 0) {
         attachButtonHandlers(mf, el[0], {
-            default: ['complete', 'accept-with-suggestion'],
+            default: ['complete', 'accept-suggestion'],
         });
     }
 
@@ -340,6 +335,13 @@ export function showPopoverWithLatex(
     if (el && el.length > 0) {
         attachButtonHandlers(mf, el[0], 'nextSuggestion');
     }
+
+    setTimeout(() => {
+        const caretPoint = getCaretPoint(mf.field);
+        if (caretPoint) setPopoverPosition(mf, caretPoint);
+
+        mf.popover.classList.add('is-visible');
+    }, 32);
 }
 
 export function updatePopoverPosition(
@@ -367,15 +369,6 @@ export function updatePopoverPosition(
         const caretPoint = getCaretPoint(mf.field);
         if (caretPoint) setPopoverPosition(mf, caretPoint);
     }
-}
-
-export function showPopover(mf: MathfieldPrivate, markup: string): void {
-    mf.popover.innerHTML = mf.options.createHTML(markup);
-
-    const caretPoint = getCaretPoint(mf.field);
-    if (caretPoint) setPopoverPosition(mf, caretPoint);
-
-    mf.popover.classList.add('is-visible');
 }
 
 function setPopoverPosition(
@@ -428,5 +421,7 @@ function setPopoverPosition(
 }
 
 export function hidePopover(mf: MathfieldPrivate): void {
+    mf.suggestionIndex = 0;
     mf.popover.classList.remove('is-visible');
+    mf.popover.innerHTML = '';
 }

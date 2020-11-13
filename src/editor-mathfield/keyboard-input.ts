@@ -1,8 +1,6 @@
 import type { Selector } from '../public/commands';
-import { suggest } from '../core-definitions/definitions';
 import { Atom } from '../core/atom-class';
-import { parseString } from '../core/parser';
-import { moveAfterParent } from '../editor-model/selection';
+import { parseLatex } from '../core/parser';
 import {
     mightProducePrintableCharacter,
     eventToChar,
@@ -16,15 +14,9 @@ import {
     getKeybindingMarkup,
     normalizeKeybindings,
 } from '../editor/keybindings';
-import { showPopoverWithLatex } from '../editor/popover';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION } from '../editor/commands';
-import { insertSuggestion } from '../editor/autocomplete';
-import {
-    getCommandAtoms,
-    getCommandString,
-    getCommandSuggestionRange,
-} from '../editor-model/command-mode';
+import { updateAutocomplete } from './autocomplete';
 
 import { insert, insertSmartFence } from '../editor-model/insert';
 import { requestUpdate } from './render';
@@ -38,6 +30,7 @@ import {
     validateKeyboardLayout,
 } from '../editor/keyboard-layout';
 import { ParseMode } from '../public/core';
+import { moveAfterParent } from '../editor-model/commands';
 
 export function showKeystroke(
     mathfield: MathfieldPrivate,
@@ -147,7 +140,7 @@ export function onKeystroke(
                 let context: Atom[];
                 if (mathfield.keystrokeBufferStates[i]) {
                     const root = new Atom('root', { mode: 'math' });
-                    context = parseString(
+                    context = parseLatex(
                         mathfield.keystrokeBufferStates[i].latex,
                         mathfield.options.defaultMode,
                         null,
@@ -245,15 +238,7 @@ export function onKeystroke(
     //
 
     //
-    // 6.1 Remove any error indicator (wavy underline) on the current command
-    // sequence (if there is one)
-    //
-    getCommandAtoms(model).forEach((x) => {
-        x.isError = false;
-    });
-
-    //
-    // 6.2 If we have a `moveAfterParent` selector (usually triggered with
+    // 6.1 If we have a `moveAfterParent` selector (usually triggered with
     // `spacebar), and we're at the end of a smart fence, close the fence with
     // an empty (.) right delimiter
     //
@@ -273,7 +258,7 @@ export function onKeystroke(
         requestUpdate(mathfield); // Re-render the closed smartFence
     }
     //
-    // 6.3 If this is the Spacebar and we're just before or right after
+    // 6.2 If this is the Spacebar and we're just before or right after
     // a text zone, insert the space inside the text zone
     //
     if (mathfield.mode === 'math' && keystroke === '[Spacebar]' && !shortcut) {
@@ -287,7 +272,7 @@ export function onKeystroke(
         }
     }
     //
-    // 6.4 If there's a selector, perform it.
+    // 6.3 If there's a selector, perform it.
     //
     if (selector) {
         mathfield.executeCommand(selector);
@@ -334,23 +319,27 @@ export function onKeystroke(
             );
             mathfield.mode = saveMode;
         }
-        model.deferNotifications({ content: true, selection: true }, () => {
-            // Insert the substitute, possibly as a smart fence
-            insert(model, shortcut, {
-                format: 'latex',
-                mode: mathfield.mode,
-                style: style,
-                smartFence: true,
-            });
-            // Check if as a result of the substitution there is now an isolated
-            // (text mode) space (surrounded by math). In which case, remove it.
-            removeIsolatedSpace(mathfield.model);
-            // Switch (back) to text mode if the shortcut ended with a space
-            if (shortcut.endsWith(' ')) {
-                mathfield.mode = 'text';
-                insert(model, ' ', { mode: 'text', style: style });
+        model.deferNotifications(
+            { content: true, selection: true },
+            (): boolean => {
+                // Insert the substitute, possibly as a smart fence
+                insert(model, shortcut, {
+                    format: 'latex',
+                    mode: mathfield.mode,
+                    style: style,
+                    smartFence: true,
+                });
+                // Check if as a result of the substitution there is now an isolated
+                // (text mode) space (surrounded by math). In which case, remove it.
+                removeIsolatedSpace(mathfield.model);
+                // Switch (back) to text mode if the shortcut ended with a space
+                if (shortcut.endsWith(' ')) {
+                    mathfield.mode = 'text';
+                    insert(model, ' ', { mode: 'text', style: style });
+                }
+                return true; // Content changed
             }
-        });
+        );
         mathfield.snapshot();
         mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
         model.announce('replacement');
@@ -440,8 +429,6 @@ export function onTypedText(
     // 4/ Insert the specified text at the current insertion point.
     // If the selection is not collapsed, the content will be deleted first.
     //
-    let popoverText = '';
-    let displayArrows = false;
 
     const style = {
         ...model.at(model.position).computedStyle,
@@ -457,35 +444,8 @@ export function onTypedText(
     const graphemes = splitGraphemes(text);
     if (mathfield.mode === 'command') {
         for (const c of graphemes) {
-            // Remove any error indicator on the current command sequence
-            // (if there is one)
-            getCommandAtoms(model).forEach((x) => {
-                x.isError = false;
-            });
-            model.deleteAtoms(getCommandSuggestionRange(model));
-            mathfield.suggestionIndex = 0;
-            const command = getCommandString(model);
             insert(model, c, { mode: 'command' });
-            const suggestions = suggest(command + c);
-            if (suggestions.length === 0) {
-                if (/^\\[a-zA-Z\\*]+$/.test(command + c)) {
-                    // This looks like a command name, but not a known one
-                    getCommandAtoms(model).forEach((x) => {
-                        x.isError = true;
-                    });
-                }
-            } else {
-                if (suggestions[0].match !== command + c) {
-                    insertSuggestion(
-                        model,
-                        suggestions[0].match.substr(
-                            command.length - suggestions[0].match.length + 1
-                        )
-                    );
-                }
-                popoverText = suggestions[0].match;
-                displayArrows = suggestions.length > 1;
-            }
+            updateAutocomplete(mathfield);
         }
     } else if (mathfield.mode === 'text') {
         for (const c of graphemes) {
@@ -542,12 +502,4 @@ export function onTypedText(
 
     // Render and make sure the insertion point is visible
     mathfield.scrollIntoView();
-
-    //
-    // 7/ Update popover
-    //
-    // Since the location of the popover depends on the position of the caret
-    // only show the popover after the formula has been rendered and the
-    // position of the caret calculated
-    showPopoverWithLatex(mathfield, popoverText, displayArrows);
 }

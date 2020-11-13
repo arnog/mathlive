@@ -5,7 +5,6 @@ import { Style, ParseMode } from '../public/core';
 import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics';
 import {
-    makeSpan,
     makeVlist,
     depth as spanDepth,
     height as spanHeight,
@@ -39,11 +38,12 @@ export const NAMED_BRANCHES: BranchName[] = [
 ];
 
 /**
- * A "branch" is a set of children of an atom.
+ * A _branch_ is a set of children of an atom.
+ *
  * There are two kind of branches:
- * - **colRow** branches are used with array type of atoms. They are addressed
- * with a column and row number
- * - **named branches** used with other kind of atom. There is a fixed set of
+ * - **colRow** branches are adressed with a column and row number and are
+ * used with ArrayAtom
+ * - **named branches** used with other kind of atoms. There is a fixed set of
  * possible named branches.
  */
 export function isNamedBranch(branch: Branch): branch is BranchName {
@@ -63,7 +63,6 @@ export type ToLatexOptions = {
 };
 
 export type AtomType =
-    | ''
     | 'accent'
     | 'array' // a group, which has children arranged in rows. Used
     // by environments such as `matrix`, `cases`, etc...
@@ -91,8 +90,7 @@ export type AtomType =
     | 'mord' // ordinary symbol, e.g. `x`, `\alpha`
     | 'mpunct' // punctuation: `,`, `:`, etc...
     | 'mrel' // relational operator: `=`, `\ne`, etc...
-    | 'msubsup'
-    | 'none' // @revisit
+    | 'msubsup' // a carrier for a superscript/subscript
     | 'overlap' // display a symbol _over_ another
     | 'overunder' // displays an annotation above or below a symbol
     | 'placeholder' // a temporary item. Placeholders are displayed as a dashed square in the editor.
@@ -103,8 +101,7 @@ export type AtomType =
     | 'space'
     | 'spacing'
     | 'surd' // aka square root, nth root
-    | 'text' // text mode atom
-    | 'textord';
+    | 'text'; // text mode atom;
 
 export type BBoxParam = {
     backgroundcolor?: string;
@@ -160,40 +157,30 @@ export class Atom {
     // atom belongs to or if in an array, the row and column
     treeBranch: Branch | [number, number];
 
+    value: string; // If no branches
+    private branches: Branches;
+
     // Used to match a DOM element to an Atom
     // (the corresponding DOM element has a `data-atom-id` attribute)
     id?: string;
-
-    // If true, some structural changes have been made to the atom
-    // (insertion or removal of children) or one of its children is dirty
-    _isDirty: boolean;
-    // Cached list of children, invalidated when isDirty = true
-    _children: Atom[];
 
     type: AtomType;
 
     // Latex command ('\sin') or character ('a')
     command: string;
+    // Verbatim Latex of the command and its arguments
+    latex?: string;
     // If true, the atom is an extensible symbol (affects layout of supsub)
     isExtensibleSymbol: boolean;
     // If true, the atom represents a function (which can be followed by parentheses)
     // e.g. "f" or "\sin"
     isFunction: boolean;
 
-    skipBoundary?: boolean;
-    captureSelection?: boolean;
-
     isSelected: boolean;
     // If the atom or one of its descendant includes the caret
     // (used to highligth surd or fences to make clearer where the caret is
     containsCaret: boolean;
     caret: ParseMode | '';
-
-    // Verbatim Latex of the command and its arguments
-    latex?: string;
-
-    // Optional, per instance, override of the `toLatex()` method
-    toLatexOverride?: (atom: Atom, options: ToLatexOptions) => string;
 
     // How to display "limits" (i.e. superscript/subscript) for example
     // with `\sum`:
@@ -204,32 +191,20 @@ export class Atom {
     // True if the limits were set by a command
     explicitLimits?: boolean;
 
-    value: string;
-    private branches: Branches;
-
-    private maxFontSize?: number;
-
-    // mathstyle?:
-    //     | 'auto'
-    //     | 'displaystyle'
-    //     | 'textstyle'
-    //     | 'scriptstyle'
-    //     | 'scriptscriptstyle'; // type = 'genfrac', ''
+    skipBoundary?: boolean;
+    captureSelection?: boolean;
 
     style: Style;
     mode: ParseMode;
 
-    // color?: string;
-    // backgroundColor?: string;
-    // variant?: Variant;
-    // variantStyle?: VariantStyle;
-    // fontFamily?: string;
-    // fontShape?: FontShape;
-    // fontSeries?: FontSeries;
-    // fontSize?: string;
-    // cssId?: string;
-    // cssClass?: string; // A single CSS class, as a style decoration
-    // letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+    // Optional, per instance, override of the `toLatex()` method
+    toLatexOverride?: (atom: Atom, options: ToLatexOptions) => string;
+
+    // If true, some structural changes have been made to the atom
+    // (insertion or removal of children) or one of its children is dirty
+    _isDirty: boolean;
+    // Cached list of children, invalidated when isDirty = true
+    _children: Atom[];
 
     constructor(
         type: AtomType,
@@ -612,10 +587,6 @@ export class Atom {
         if (this.style.fontSize === 'auto') {
             delete this.style.fontSize;
         }
-
-        if (this.style.fontSize) {
-            this.maxFontSize = SIZING_MULTIPLIER[this.style.fontSize];
-        }
     }
 
     getInitialBaseElement(): Atom {
@@ -713,7 +684,10 @@ export class Atom {
     addChildren(children: Atom[], branch: Branch): void {
         children.forEach((x) => this.addChild(x, branch));
     }
-    addChildrenAfter(children: Atom[], after: Atom): void {
+    /**
+     * Return the last atom that was added
+     */
+    addChildrenAfter(children: Atom[], after: Atom): Atom {
         console.assert(children.length === 0 || children[0].type !== 'first');
         const branch = this.createBranch(after.treeBranch);
         branch.splice(branch.indexOf(after) + 1, 0, ...children);
@@ -724,6 +698,7 @@ export class Atom {
             x.parent = this;
             x.treeBranch = after.treeBranch;
         });
+        return children[children.length - 1];
     }
     removeBranch(name: Branch): Atom[] {
         const children = this.branch(name);
@@ -889,11 +864,11 @@ export class Atom {
         let submid = null;
         if (this.branches.superscript) {
             const sup = Atom.render(context.sup(), this.branches.superscript);
-            supmid = makeSpan(sup, mathstyle.adjustTo(mathstyle.sup()));
+            supmid = new Span(sup, mathstyle.adjustTo(mathstyle.sup()));
         }
         if (this.branches.subscript) {
             const sub = Atom.render(context.sub(), this.branches.subscript);
-            submid = makeSpan(sub, mathstyle.adjustTo(mathstyle.sub()));
+            submid = new Span(sub, mathstyle.adjustTo(mathstyle.sub()));
         }
         // Rule 18a, p445
         let supShift = 0;
@@ -977,12 +952,12 @@ export class Atom {
         }
         // Display the caret *following* the superscript and subscript,
         // so attach the caret to the 'msubsup' element.
-        const supsubContainer = makeSpan(supsub, 'msubsup');
+        const supsubContainer = new Span(supsub, 'msubsup');
         if (this.caret) {
             supsubContainer.caret = this.caret;
             // this.caret = ''; // @revisit: we shouln't clear the **Atom** caret
         }
-        return makeSpan([nucleus, supsubContainer], '', type);
+        return new Span([nucleus, supsubContainer], '', type);
     }
 
     attachLimits(
@@ -992,13 +967,13 @@ export class Atom {
         slant: number
     ): Span {
         const limitAbove = this.superscript
-            ? makeSpan(
+            ? new Span(
                   Atom.render(context.sup(), this.superscript),
                   context.mathstyle.adjustTo(context.mathstyle.sup())
               )
             : null;
         const limitBelow = this.subscript
-            ? makeSpan(
+            ? new Span(
                   Atom.render(context.sub(), this.subscript),
                   context.mathstyle.adjustTo(context.mathstyle.sub())
               )
@@ -1035,13 +1010,8 @@ export class Atom {
      */
     makeSpan(context: Context, value: string | Atom[]): Span {
         // Ensure that the atom type is a valid Span type, or use ''
-        const type: SpanType =
-            this.type === 'textord'
-                ? 'mord'
-                : isSpanType(this.type)
-                ? this.type
-                : '';
-        const result = makeSpan(
+        const type: SpanType = isSpanType(this.type) ? this.type : '';
+        const result = new Span(
             typeof value === 'string' ? value : Atom.render(context, value),
             '',
             type
@@ -1099,7 +1069,6 @@ export class Atom {
             // to the 'msubsup' atom, so no need to have it here.
             if (!this.superscript && !this.subscript) {
                 result.caret = this.caret;
-                // this.caret = ''; // @revisit: we shouln't clear the **Atom** caret
             }
         }
         if (context.mathstyle.isTight()) result.isTight = true;
@@ -1149,7 +1118,7 @@ function makeLimitsStack(
     // IE8 clips \int if it is in a display: inline-block. We wrap it
     // in a new span so it is an inline, and works.
     // @todo: revisit
-    nucleus = makeSpan(nucleus);
+    nucleus = new Span(nucleus);
 
     let aboveShift = 0;
     let belowShift = 0;
@@ -1225,7 +1194,7 @@ function makeLimitsStack(
         result!.children[1].left = slant;
     }
 
-    return makeSpan(result, 'op-limits', 'mop');
+    return new Span(result, 'op-limits', 'mop');
 }
 
 /**

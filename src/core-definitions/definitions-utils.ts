@@ -158,7 +158,7 @@ type EnvironmentConstructor = (
     name: string,
     array: Atom[][][],
     rowGaps: number[],
-    args: (string | number | BBoxParam | Colspec[] | Atom[])[]
+    args: Argument[]
 ) => Atom;
 
 export const MACROS: MacroDictionary = {
@@ -729,7 +729,6 @@ export function getInfo(
  * Infix operators are excluded, since they are deprecated commands.
  */
 export function suggest(s: string): { match: string; frequency: number }[] {
-    if (s.length <= 1) return [];
     const result = [];
 
     // Iterate over items in the dictionary
@@ -751,9 +750,12 @@ export function suggest(s: string): { match: string; frequency: number }[] {
 
     result.sort((a, b) => {
         if (a.frequency === b.frequency) {
+            if (a.match.length === b.match.length) {
+                return a.match.localeCompare(b.match);
+            }
             return a.match.length - b.match.length;
         }
-        return (b.frequency || 0) - (a.frequency || 0);
+        return (b.frequency ?? 0) - (a.frequency ?? 0);
     });
 
     return result;

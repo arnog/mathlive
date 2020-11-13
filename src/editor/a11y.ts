@@ -2,10 +2,11 @@ import type { TextToSpeechOptions } from '../public/options';
 
 import { Atom } from '../core/atom';
 
-import { atomsToMathML } from '../addons/math-ml';
+// import { atomsToMathML } from '../addons/math-ml';
 import { speakableText } from './speech';
 import type { ModelPrivate } from '../editor-model/model-private';
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { AnnounceVerb } from '../editor-model/utils';
 
 /**
  * Given an atom, describe the relationship between the atom
@@ -51,17 +52,17 @@ function relationName(atom: Atom): string {
  */
 export function defaultAnnounceHook(
     mathfield: MathfieldPrivate,
-    action: string,
-    previousPosition: number,
-    atoms: Atom[]
+    action: AnnounceVerb,
+    previousPosition?: number,
+    atoms?: Atom[]
 ): void {
     //** Fix: the focus is the end of the selection, so it is before where we want it
     let liveText = '';
     // const action = moveAmount > 0 ? "right" : "left";
 
     if (action === 'plonk') {
-        // Use this sound to indicate (minor) errors, for
-        // example when a action has no effect.
+        // Use this sound to indicate minor errors, for
+        // example when an action has no effect.
         mathfield.plonkSound?.play().catch((err) => console.warn(err));
         // As a side effect, reset the keystroke buffer
         mathfield.resetKeystrokeBuffer();
@@ -83,11 +84,11 @@ export function defaultAnnounceHook(
         );
     } else if (action === 'line') {
         // announce the current line -- currently that's everything
-        mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
-            '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-                atomsToMathML(mathfield.model.root, mathfield.options) +
-                '</math>'
-        );
+        // mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
+        //     '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
+        //         atomsToMathML(mathfield.model.root, mathfield.options) +
+        //         '</math>'
+        // );
 
         liveText = speakableText(mathfield.options, '', mathfield.model.root);
         mathfield.keyboardDelegate.setAriaLabel('after: ' + liveText);
@@ -119,6 +120,7 @@ function getRelationshipAsSpokenText(
 ): string {
     if (isNaN(previousOffset)) return '';
     const previous = model.at(previousOffset);
+    if (!previous) return '';
     if (previous.treeDepth <= model.at(model.position).treeDepth) {
         return '';
     }

@@ -1,6 +1,6 @@
 import { Atom } from '../core/atom';
-import { makeSpan, makeStruts } from '../core/span';
-import { parseString } from '../core/parser';
+import { Span, makeStruts } from '../core/span';
+import { parseLatex } from '../core/parser';
 import { LINE_COLORS, AREA_COLORS } from '../core/color';
 import { localize as l10n } from './l10n';
 import { MATHSTYLES } from '../core/mathstyle';
@@ -26,6 +26,8 @@ export class VirtualKeyboard {
         // Listen to know when the mouse has been released without being
         // captured to remove the alternate keys panel and the shifted state of the
         // keyboard.
+        // Note that we need to listen on the window to capture events happening
+        // outside the virtual keyboard.
         // @todo should use a scrim instead (to prevent elements underneat the alt
         // layer from reacting while the alt layer is up)
         window.addEventListener('mouseup', this);
@@ -47,6 +49,10 @@ export class VirtualKeyboard {
         releaseSharedElement(
             document.getElementById('mathlive-alternate-keys-panel')
         );
+        window.removeEventListener('mouseup', this);
+        window.removeEventListener('blur', this);
+        window.removeEventListener('touchend', this);
+        window.removeEventListener('touchcancel', this);
         this.element.remove();
     }
 }
@@ -895,13 +901,13 @@ function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
     return makeStruts(
-        makeSpan(
+        new Span(
             Atom.render(
                 {
                     mathstyle: MATHSTYLES.displaystyle,
                     macros: mf.options.macros,
                 },
-                parseString(latex, 'math', arg, mf.options.macros)
+                parseLatex(latex, 'math', arg, mf.options.macros)
             ),
             'ML__base'
         ),

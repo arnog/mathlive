@@ -220,7 +220,6 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
 
         case 'mbin':
         case 'mrel':
-        case 'textord':
         case 'minner':
             if (command && SPECIAL_IDENTIFIERS[command]) {
                 // Some 'textord' are actually identifiers. Check them here.

@@ -1,10 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import {
-    makeSpan,
-    depth as spanDepth,
-    height as spanHeight,
-    Span,
-} from '../core/span';
+import { depth as spanDepth, height as spanHeight, Span } from '../core/span';
 import { makeLeftRightDelim } from '../core/delimiters';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
@@ -196,8 +191,8 @@ export class LeftRightAtom extends Atom {
         // behavior for `\mleft...\mright`, which allows for tighter spacing
         // for example in `\sin\mleft(x\mright)`
         const result = this.inner
-            ? makeSpan(spans, mathstyle.cls(), 'minner')
-            : makeSpan(spans, mathstyle.cls(), 'mclose');
+            ? new Span(spans, mathstyle.cls(), 'minner')
+            : new Span(spans, mathstyle.cls(), 'mclose');
 
         if (this.caret) result.caret = this.caret;
 

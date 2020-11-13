@@ -1,6 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { Span, makeSpan } from '../core/span';
+import { Span } from '../core/span';
 import { Style } from '../public/core';
 
 export class RuleAtom extends Atom {
@@ -30,7 +30,7 @@ export class RuleAtom extends Atom {
         shift = shift / mathstyle.sizeMultiplier;
         const width = this.width / mathstyle.sizeMultiplier;
         const height = this.height / mathstyle.sizeMultiplier;
-        const result = makeSpan('', 'rule', 'mord');
+        const result = new Span('', 'rule', 'mord');
         result.setStyle('border-right-width', width, 'em');
         result.setStyle('border-top-width', height, 'em');
         result.setStyle('margin-top', -(height - shift), 'em');
