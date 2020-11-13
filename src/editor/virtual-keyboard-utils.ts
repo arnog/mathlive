@@ -28,10 +28,10 @@ export class VirtualKeyboard {
         // keyboard.
         // @todo should use a scrim instead (to prevent elements underneat the alt
         // layer from reacting while the alt layer is up)
-        this.element.addEventListener('mouseup', this);
-        this.element.addEventListener('blur', this);
-        this.element.addEventListener('touchend', this);
-        this.element.addEventListener('touchcancel', this);
+        window.addEventListener('mouseup', this);
+        window.addEventListener('blur', this);
+        window.addEventListener('touchend', this);
+        window.addEventListener('touchcancel', this);
     }
     handleEvent(evt: Event): void {
         switch (evt.type) {
@@ -47,6 +47,10 @@ export class VirtualKeyboard {
         releaseSharedElement(
             document.getElementById('mathlive-alternate-keys-panel')
         );
+        window.removeEventListener('mouseup', this);
+        window.removeEventListener('blur', this);
+        window.removeEventListener('touchend', this);
+        window.removeEventListener('touchcancel', this);
         this.element.remove();
     }
 }
