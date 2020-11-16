@@ -285,6 +285,7 @@ export interface VirtualKeyboardLayer {
     container?: string;
     rows?: VirtualKeyboardKeycap[][];
 }
+export declare type VirtualKeyboardToolbarOptions = 'none' | 'default';
 export declare type VirtualKeyboardOptions = {
     /**
      * If specified, the markup to be used to display the virtual keyboard
@@ -313,7 +314,7 @@ export declare type VirtualKeyboardOptions = {
      *
      * The keyboards will be displayed in the order indicated.
      */
-    virtualKeyboards: 'all' | 'numeric' | 'roman' | 'greek' | 'functions' | 'symbols' | 'command' | string;
+    virtualKeyboards: 'all' | 'numeric' | 'roman' | 'greek' | 'functions' | 'symbols' | 'latex' | string;
     virtualKeyboardLayout: 'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak';
     /**
      * Some additional custom virtual keyboard layers.
@@ -378,6 +379,12 @@ export declare type VirtualKeyboardOptions = {
      * `soundsDirectory` directory, or an `HTMLAudioElement`.
      */
     plonkSound?: string | HTMLAudioElement;
+    /**
+     * The right hand side toolbar configuration.
+     *
+     * Use `none` to disable right hand side toolbar of virtual keyboard.
+     */
+    virtualKeyboardToolbar?: VirtualKeyboardToolbarOptions;
 };
 /**
  * These methods provide an opportunity to intercept or modify an action.

@@ -8,6 +8,7 @@ export class TextAtom extends Atom {
     constructor(command: string, value: string, style: Style) {
         super('text', { command, mode: 'text' });
         this.value = value;
+        this.latex = value;
         this.applyStyle(style);
     }
     render(context: Context): Span[] {

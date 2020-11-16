@@ -362,7 +362,7 @@ export function updatePopoverPosition(
         window.setTimeout(() => updatePopoverPosition(mf), 100);
         return;
     }
-    if (mf.model.at(mf.model.position)?.type !== 'command') {
+    if (mf.model.at(mf.model.position)?.type !== 'latex') {
         hidePopover(mf);
     } else {
         // ... get the caret position

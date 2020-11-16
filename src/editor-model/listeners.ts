@@ -18,7 +18,9 @@ export function selectionDidChange(model: ModelPrivate): void {
         typeof model.listeners?.onSelectionDidChange === 'function' &&
         !model.suppressChangeNotifications
     ) {
+        model.suppressChangeNotifications = true;
         model.listeners.onSelectionDidChange(model);
+        model.suppressChangeNotifications = false;
     }
 }
 
@@ -27,7 +29,9 @@ export function contentDidChange(model: ModelPrivate): void {
         typeof model.listeners?.onContentDidChange === 'function' &&
         !model.suppressChangeNotifications
     ) {
+        model.suppressChangeNotifications = true;
         model.listeners.onContentDidChange(model);
+        model.suppressChangeNotifications = false;
     }
 }
 

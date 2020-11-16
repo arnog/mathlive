@@ -18,7 +18,6 @@ import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION } from '../editor/commands';
 import { updateAutocomplete } from './autocomplete';
 
-import { insert, insertSmartFence } from '../editor-model/insert';
 import { requestUpdate } from './render';
 
 import type { MathfieldPrivate } from './mathfield-private';
@@ -29,8 +28,11 @@ import {
     getActiveKeyboardLayout,
     validateKeyboardLayout,
 } from '../editor/keyboard-layout';
-import { ParseMode } from '../public/core';
-import { moveAfterParent } from '../editor-model/commands';
+import { ParseMode, Style } from '../public/core';
+import { moveAfterParent } from '../editor-model/commands-move';
+import { range } from '../editor-model/selection-utils';
+import { insertSmartFence } from './mode-editor-math';
+import { ModeEditor } from './mode-editor';
 
 export function showKeystroke(
     mathfield: MathfieldPrivate,
@@ -120,7 +122,7 @@ export function onKeystroke(
     // Ignore the key if command or control is pressed (it may be a keybinding,
     // see 5.3)
     if (
-        mathfield.mode !== 'command' &&
+        mathfield.mode !== 'latex' &&
         (!evt || (!evt.ctrlKey && !evt.metaKey))
     ) {
         if (keystroke === '[Backspace]') {
@@ -139,14 +141,12 @@ export function onKeystroke(
             while (!shortcut && i < candidate.length) {
                 let context: Atom[];
                 if (mathfield.keystrokeBufferStates[i]) {
-                    const root = new Atom('root', { mode: 'math' });
                     context = parseLatex(
                         mathfield.keystrokeBufferStates[i].latex,
                         mathfield.options.defaultMode,
                         null,
                         mathfield.options.macros
                     );
-                    root.body = context;
                 } else {
                     // The context is from the start of the group to the current position
                     context = model.getAtoms(
@@ -268,7 +268,7 @@ export function onKeystroke(
             (nextSibling && nextSibling.mode === 'text') ||
             (previousSibling && previousSibling.mode === 'text')
         ) {
-            insert(model, ' ', { mode: 'text' });
+            ModeEditor.insert('text', model, ' ');
         }
     }
     //
@@ -293,8 +293,9 @@ export function onKeystroke(
         // don't make it undoable, this would result in syntactically incorrect
         // formulas
         //
-        const style = {
+        const style: Style = {
             ...model.at(model.position).computedStyle,
+            variant: 'normal', // Don't inherit variant style
             ...mathfield.style,
         };
         if (
@@ -305,9 +306,8 @@ export function onKeystroke(
             // To enable the substitution to be undoable,
             // insert the character before applying the substitution
             const saveMode = mathfield.mode;
-            insert(model, eventToChar(evt), {
+            ModeEditor.insert(mathfield.mode, model, eventToChar(evt), {
                 suppressChangeNotifications: true,
-                mode: mathfield.mode,
                 style: style,
             });
             // Create a snapshot with the inserted character
@@ -323,9 +323,8 @@ export function onKeystroke(
             { content: true, selection: true },
             (): boolean => {
                 // Insert the substitute, possibly as a smart fence
-                insert(model, shortcut, {
+                ModeEditor.insert(mathfield.mode, model, shortcut, {
                     format: 'latex',
-                    mode: mathfield.mode,
                     style: style,
                     smartFence: true,
                 });
@@ -335,7 +334,7 @@ export function onKeystroke(
                 // Switch (back) to text mode if the shortcut ended with a space
                 if (shortcut.endsWith(' ')) {
                     mathfield.mode = 'text';
-                    insert(model, ' ', { mode: 'text', style: style });
+                    ModeEditor.insert('text', model, ' ', { style });
                 }
                 return true; // Content changed
             }
@@ -430,10 +429,14 @@ export function onTypedText(
     // If the selection is not collapsed, the content will be deleted first.
     //
 
-    const style = {
+    const style: Style = {
         ...model.at(model.position).computedStyle,
+        variant: 'normal', // Don't inherit variant style
         ...mathfield.style,
     };
+    if (!model.selectionIsCollapsed) {
+        model.position = model.deleteAtoms(range(model.selection));
+    }
     // Decompose the string into an array of graphemes.
     // This is necessary to correctly process what is displayed as a single
     // glyph (a grapheme) but which is composed of multiple Unicode
@@ -442,14 +445,16 @@ export function onTypedText(
     // compound emojis such as the professional emojis, including the
     // David Bowie emoji: 👨🏻‍🎤
     const graphemes = splitGraphemes(text);
-    if (mathfield.mode === 'command') {
-        for (const c of graphemes) {
-            insert(model, c, { mode: 'command' });
+    if (mathfield.mode === 'latex') {
+        model.deferNotifications({ content: true, selection: true }, () => {
+            for (const c of graphemes) {
+                ModeEditor.insert('latex', model, c);
+            }
             updateAutocomplete(mathfield);
-        }
+        });
     } else if (mathfield.mode === 'text') {
         for (const c of graphemes) {
-            insert(model, c, { mode: 'text', style: style });
+            ModeEditor.insert('text', model, c, { style });
         }
     } else if (mathfield.mode === 'math') {
         for (const c of graphemes) {
@@ -473,15 +478,11 @@ export function onTypedText(
                 // We are inserting a digit into an empty superscript
                 // If smartSuperscript is on, insert the digit, and
                 // exit the superscript.
-                insert(model, c, {
-                    mode: 'math',
-                    style: style,
-                });
+                ModeEditor.insert('math', model, c, { style });
                 moveAfterParent(model);
             } else {
-                insert(model, c, {
-                    mode: 'math',
-                    style: style,
+                ModeEditor.insert('math', model, c, {
+                    style,
                     smartFence: mathfield.options.smartFence,
                 });
             }
@@ -491,9 +492,7 @@ export function onTypedText(
     //
     // 5/ Take a snapshot for undo stack
     //
-    if (mathfield.mode !== 'command') {
-        mathfield.snapshotAndCoalesce();
-    }
+    mathfield.snapshotAndCoalesce();
 
     //
     // 6/ Render the mathfield

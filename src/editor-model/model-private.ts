@@ -89,18 +89,6 @@ export class ModelPrivate implements Model {
         this.setSelection(value);
     }
 
-    // // Update the mode
-    // {
-    //     const newMode =
-    //         getMode(this.model, this.model.position) ??
-    //         this.options.defaultMode;
-    //     if (this.mode === 'command' && newMode !== 'command') {
-    //         complete(this, 'accept', { mode: newMode });
-    //     } else {
-    //         this.switchMode(newMode);
-    //     }
-    // }
-
     setSelection(from: Offset, to: Offset): boolean;
     setSelection(range: Range): boolean;
     setSelection(selection: Selection): boolean;
@@ -168,8 +156,6 @@ export class ModelPrivate implements Model {
                     );
                 }
             }
-
-            // Adjust mode
         });
     }
 
@@ -242,13 +228,16 @@ export class ModelPrivate implements Model {
             this.offsetOf(branch[branch.length - 1]),
         ];
     }
-    // getAtoms([3, 5]) -> atoms 4 and 5
-    // getAtoms(3, 5) -> atoms 4 and 5
-    // getAtom(3) -> all atoms, starting at 4 till lastOffset, then 0 to 3
-    // getAtoms(3, -1) -> all atoms after 3 till lastOffset
-    // getAtoms(-5, -2) -> all atoms between lastOffset - 4 and lastOffset - 1
-    // Note that an atom with children is included in the result only if
-    // all its children are in range.
+    /**
+     * Return the atoms in a range.
+     * getAtoms([3, 5]) -> atoms 4 and 5
+     * getAtoms(3, 5) -> atoms 4 and 5
+     * getAtom(3) -> all atoms, starting at 4 till lastOffset, then 0 to 3
+     * getAtoms(3, -1) -> all atoms after 3 till lastOffset
+     * getAtoms(-5, -2) -> all atoms between lastOffset - 4 and lastOffset - 1
+     * Note that an atom with children is included in the result only if
+     * all its children are in range.
+     */
     getAtoms(arg: Selection, options?: GetAtomOptions): Atom[];
     getAtoms(arg: Range, options?: GetAtomOptions): Atom[];
     getAtoms(from: Offset, to?: Offset, options?: GetAtomOptions): Atom[];
@@ -315,9 +304,11 @@ export class ModelPrivate implements Model {
 
         return result;
     }
-    // Unlike `getAtoms()`, the argument here is an index
-    // Return all the atoms, in order, starting at startingIndex
-    // then looping back at the beginning
+    /**
+     * Unlike `getAtoms()`, the argument here is an index
+     * Return all the atoms, in order, starting at startingIndex
+     * then looping back at the beginning
+     */
     getAllAtoms(startingIndex: number): Atom[] {
         const result: Atom[] = [];
         const last = this.lastOffset;
@@ -333,17 +324,12 @@ export class ModelPrivate implements Model {
     extractAtoms(range: Range): Atom[] {
         const result = this.getAtoms(range);
         result.forEach((x) => x.parent.removeChild(x));
-
-        if (isFinite(range[0])) {
-            this.position = range[0];
-        }
-
         return result;
     }
 
-    deleteAtoms(range: Range): boolean {
-        const atoms = this.extractAtoms(range);
-        return atoms.length > 0;
+    deleteAtoms(range: Range): Offset {
+        this.extractAtoms(range);
+        return range[0];
     }
 
     atomToString(atom: Atom, format: OutputFormat): string {

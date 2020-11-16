@@ -1,8 +1,8 @@
 import type { Selection } from '../public/mathfield';
 import { UndoStateChangeListener } from '../public/options';
 import type { ModelPrivate } from '../editor-model/model-private';
-import { insert } from '../editor-model/insert';
 import { Atom } from '../core/atom-class';
+import { ModeEditor } from '../editor-mathfield/mode-editor';
 
 export type UndoRecord = {
     latex: string;
@@ -139,10 +139,9 @@ export class UndoManager {
         }
 
         // Restore the content
-        insert(this.model, state ? state.latex : '', {
+        ModeEditor.insert('math', this.model, state ? state.latex : '', {
             ...options,
             format: 'latex',
-            mode: 'math',
             insertionMode: 'replaceAll',
             selectionMode: 'after',
             smartFence: false,

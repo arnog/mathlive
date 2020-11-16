@@ -13,14 +13,13 @@ import { stringToColor } from './color';
 import { convertDimenToEm } from './font-metrics';
 import { Token, tokenize, tokensToString } from './tokenizer';
 import { Atom, BBoxParam } from './atom-class';
-import { parseTokens } from './modes-utils';
+import { Mode } from './modes-utils';
 import {
     Argument,
     FunctionDefinition,
     getEnvironmentDefinition,
     getInfo,
     SymbolDefinition,
-    unicodeCharToLatex,
 } from '../core-definitions/definitions-utils';
 import { Colspec } from '../core-atoms/array';
 import { GroupAtom } from '../core-atoms/group';
@@ -31,6 +30,7 @@ import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { ErrorAtom } from '../core-atoms/error';
 import { MacroAtom } from '../core-atoms/macro';
 import { ArgumentType } from './context';
+import { TextAtom } from '../core-atoms/text';
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
 
@@ -1048,7 +1048,7 @@ class Parser {
                 if (token === '<}>') depth -= 1;
                 if (token === '<{>') depth += 1;
             } while (depth > 0 && !this.end());
-            result = parseTokens(
+            result = Mode.parseTokens(
                 argType,
                 this.tokens.slice(initialIndex, this.index - 1),
                 this.onError,
@@ -1336,29 +1336,9 @@ class Parser {
     }
 
     parseLiteral(literal: string): Atom[] {
-        let result: Atom;
-        const info = getInfo(literal, this.parseMode, this.macros);
-
-        if (info) {
-            result = new Atom(info.type, {
-                command: literal,
-                mode: this.parseMode,
-                value: info.value ?? literal,
-                style: { ...this.style },
-            });
-            if (info.isFunction) {
-                result.isFunction = true;
-            }
-        } else {
-            result = new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
-                command: literal,
-                mode: this.parseMode,
-                value: literal,
-                style: { ...this.style },
-            });
-        }
-
-        result.latex = unicodeCharToLatex(this.parseMode, literal);
+        const result = Mode.createAtom(this.parseMode, literal, {
+            ...this.style,
+        });
 
         if (result.isFunction && this.smartFence) {
             // The atom was a function that may be followed by
@@ -1376,14 +1356,7 @@ class Parser {
 
         if (token === '<space>') {
             if (this.parseMode === 'text') {
-                return [
-                    new Atom('text', {
-                        command: ' ',
-                        mode: 'text',
-                        value: ' ',
-                        style: this.style,
-                    }),
-                ];
+                return [new TextAtom(' ', ' ', this.style)];
             }
             return null;
         }
@@ -1488,8 +1461,8 @@ class Parser {
 export function parseLatex(
     s: string,
     parseMode: ParseMode,
-    args: null | (string | Atom[])[],
-    macros: null | MacroDictionary,
+    args: null | (string | Atom[])[] = null,
+    macros: null | MacroDictionary = null,
     smartFence = false,
     onError?: ErrorListener<ParserErrorCode>
 ): Atom[] {

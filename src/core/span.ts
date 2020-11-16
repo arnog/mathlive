@@ -3,7 +3,7 @@ import { isArray } from '../common/types';
 import { Style, ParseMode } from '../public/core';
 import { getCharacterMetrics, METRICS } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span';
-import { applyStyle as applyStyleForMode } from './modes-utils';
+import { Mode } from './modes-utils';
 import { Context } from './context';
 import { Mathstyle } from './mathstyle';
 
@@ -26,7 +26,7 @@ const SPAN_TYPE = [
     'minner',
     'spacing',
     'first',
-    'command',
+    'latex',
     'composition',
     'error',
     'placeholder',
@@ -127,7 +127,7 @@ function toString(arg: (string | number)[] | string | number): string {
  * @param classes list of classes attributes associated with this node
 
 
- * @property  type - For example, `'command'`, `'mrel'`, etc...
+ * @property  type - For example, `'latex'`, `'mrel'`, etc...
  * @property classes - A string of space separated CSS classes
  * associated with this element
  * @property cssId - A CSS ID assigned to this span (optional)
@@ -213,9 +213,9 @@ export class Span {
                 if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
             });
         } else if (typeof this.value === 'string') {
-            if (this.type === 'command') {
-                height = 1.1;
-                depth = 0;
+            if (this.type === 'latex') {
+                height = 0.8;
+                depth = 0.2;
             } else {
                 height = METRICS.baselineskip;
                 depth = 0;
@@ -236,7 +236,7 @@ export class Span {
     applyStyle(mode: ParseMode, style: Style, className?: string): void {
         if (!style) return;
 
-        if (this.type === 'command') {
+        if (this.type === 'latex') {
             console.log(METRICS.baselineskip);
         }
 
@@ -276,7 +276,7 @@ export class Span {
 
         console.assert(typeof this.value === 'string');
 
-        const fontName = applyStyleForMode(mode, this, style);
+        const fontName = Mode.applyStyle(mode, this, style);
 
         //
         // 5. Get the metrics information
@@ -445,13 +445,13 @@ export class Span {
             // Add the type (mbin, mrel, etc...) if specified
             classes.push(
                 {
-                    command: 'ML__command',
+                    latex: 'ML__latex',
                     placeholder: 'ML__placeholder',
                     error: 'ML__error',
                 }[this.type] ?? ''
             );
-            if (this.caret === 'command') {
-                classes.push('ML__command-caret');
+            if (this.caret === 'latex') {
+                classes.push('ML__latex-caret');
             }
 
             // Remove duplicate and empty classes
@@ -559,11 +559,11 @@ export class Span {
         // Don't coalesce if the tag or type are different
         if (this.type !== span.type) return false;
 
-        // Don't coalesce consecutive errors, placeholders or commands
+        // Don't coalesce consecutive errors, placeholders or raw latex
         if (
             this.type === 'error' ||
             this.type === 'placeholder' ||
-            this.type === 'command'
+            this.type === 'latex'
         ) {
             return false;
         }

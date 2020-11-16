@@ -184,7 +184,7 @@ export function delegateKeyboardEvents(
     textarea: HTMLTextAreaElement,
     handlers: {
         typedText: (text: string) => void;
-        cut: () => void;
+        cut: (ev: ClipboardEvent) => void;
         copy: (ev: ClipboardEvent) => void;
         paste: (ev: ClipboardEvent) => void;
         keystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
@@ -292,20 +292,8 @@ export function delegateKeyboardEvents(
         },
         true
     );
-    target.addEventListener(
-        'cut',
-        () => {
-            handlers.cut();
-        },
-        true
-    );
-    target.addEventListener(
-        'copy',
-        (ev) => {
-            handlers.copy(ev);
-        },
-        true
-    );
+    target.addEventListener('cut', (ev) => handlers.cut(ev), true);
+    target.addEventListener('copy', (ev) => handlers.copy(ev), true);
     target.addEventListener(
         'blur',
         (ev) => {

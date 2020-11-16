@@ -39,7 +39,7 @@
     animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
-.ML__command-caret:after {
+.ML__latex-caret:after {
     content: '_';
     border: none;
     margin-right: 0;
@@ -171,18 +171,18 @@ with this style */
     color: var(--caret, hsl(var(--hue, 212), 40%, 49%));
 }
 
-.ML__command {
+.ML__latex {
     font-family: @monospace;
     font-weight: 400;
 
     color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
-:not(.ML__command) + .ML__command {
+:not(.ML__latex) + .ML__latex {
     margin-left: 0.25em;
 }
 
-.ML__command + :not(.ML__command) {
+.ML__latex + :not(.ML__latex) {
     padding-left: 0.25em;
 }
 

@@ -1,5 +1,5 @@
 import { ErrorListener, Style, ParserErrorCode } from '../public/core';
-import { register, getPropertyRuns, ParseTokensOptions } from './modes-utils';
+import { Mode, ParseTokensOptions, getPropertyRuns } from './modes-utils';
 import { colorToString } from './color';
 import { joinLatex, Token } from './tokenizer';
 import { Span } from './span';
@@ -8,29 +8,7 @@ import { getInfo, charToLatex } from '../core-definitions/definitions';
 import { TextAtom } from '../core-atoms/text';
 
 function emitStringTextRun(run: Atom[], options: ToLatexOptions): string {
-    // let needSpace = false;
-    return joinLatex(
-        run.map((x: Atom) => {
-            return Atom.toLatex(x, options);
-            // let result = x.toLatex(options);
-            // let space = '';
-
-            // if (x.latex && !options.expandMacro) {
-            //     result = x.latex;
-            // } else if (x.toLatexOverride) {
-            //     result = x.toLatexOverride(x, options);
-            // } else if (typeof x.value === 'string') {
-            //     result = unicodeStringToLatex('text', x.value);
-            // } else if (x.command) {
-            //     result = x.command.replace(/\\/g, '\\backslash ');
-            // }
-            // if (needSpace && (!result || /^[a-zA-Z0-9*]/.test(result))) {
-            //     space = '{}';
-            // }
-            // needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
-            // return space + result;
-        })
-    );
+    return joinLatex(run.map((x: Atom) => Atom.toLatex(x, options)));
 }
 
 function emitFontShapeTextRun(run: Atom[], options: ToLatexOptions): string {
@@ -156,143 +134,147 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
         })
     );
 }
-
-function emitLatexTextRun(run: Atom[], options: ToLatexOptions): string {
-    const result = emitColorRun(run, options);
-
-    // const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
-    //     (x: Atom) =>
-    //         x.style.fontSeries || x.style.fontShape || x.style.fontFamily
-    // );
-    // if (
-    //     !allAtomsHaveShapeOrSeriesOrFontFamily ||
-    //     run[0].mode !== context.mode
-    // ) {
-    //     // Wrap in text, only if there isn't a shape or series on
-    //     // all the atoms, because if so, it will be wrapped in a
-    //     // \\textbf, \\textit, etc... and the \\text would be redundant
-    //     return `\\text{${result}}`;
-    // }
-    return result;
-}
-
 const TEXT_FONT_CLASS = {
     roman: '',
     'sans-serif': 'ML__sans',
     monospace: 'ML__tt',
 };
 
-/**
- * Return the font-family name
- */
-function applyStyle(span: Span, style: Style): string {
-    const fontFamily = style.fontFamily;
-
-    if (TEXT_FONT_CLASS[fontFamily]) {
-        span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
-    } else if (fontFamily) {
-        // Not a well-known family. Use a style.
-        span.setStyle('font-family', fontFamily);
+export class TextMode extends Mode {
+    constructor() {
+        super('text');
+    }
+    createAtom(command: string, style: Style): Atom | null {
+        const info = getInfo(command, 'text');
+        const value = info?.value ?? command;
+        return new TextAtom(command, value, style);
     }
 
-    if (style.fontShape) {
-        span.classes +=
-            ' ' +
-            ({
-                it: 'ML__it',
-                sl: 'ML__shape_sl', // slanted
-                sc: 'ML__shape_sc', // small caps
-                ol: 'ML__shape_ol', // outline
-            }[style.fontShape] || '');
-    }
-    if (style.fontSeries) {
-        const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
-        if (m) {
-            span.classes +=
-                ' ' +
-                ({
-                    ul: 'ML__series_ul',
-                    el: 'ML__series_el',
-                    l: 'ML__series_l',
-                    sl: 'ML__series_sl',
-                    m: '', // medium (default)
-                    sb: 'ML__series_sb',
-                    b: 'ML__bold',
-                    eb: 'ML__series_eb',
-                    ub: 'ML__series_ub',
-                }[m[1] || ''] || '');
-            span.classes +=
-                ' ' +
-                ({
-                    uc: 'ML__series_uc',
-                    ec: 'ML__series_ec',
-                    c: 'ML__series_c',
-                    sc: 'ML__series_sc',
-                    n: '', // normal (default)
-                    sx: 'ML__series_sx',
-                    x: 'ML__series_x',
-                    ex: 'ML__series_ex',
-                    ux: 'ML__series_ux',
-                }[m[2] || ''] || '');
+    toLatex(run: Atom[], options: ToLatexOptions): string {
+        const result = emitColorRun(run, options);
+
+        const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
+            (x: Atom) =>
+                x.style.fontSeries || x.style.fontShape || x.style.fontFamily
+        );
+        if (!allAtomsHaveShapeOrSeriesOrFontFamily) {
+            // Wrap in text, only if there isn't a shape or series on
+            // all the atoms, because if so, it will be wrapped in a
+            // \\textbf, \\textit, etc... and the \\text would be redundant
+            return `\\text{${result}}`;
         }
+        return result;
     }
-    // Always use the metrics of 'Main-Regular' in text mode
-    return 'Main-Regular';
-}
 
-// Given an array of tokens, return an array of atoms
-// options.args
-// options.macros
-// options.smartFence
-// options.style
-// options.parser
-function parse(
-    tokens: Token[],
-    error: ErrorListener<ParserErrorCode>,
-    options: ParseTokensOptions
-): [Atom[], Token[]] {
-    let result = [];
-    let atom: Atom;
+    /**
+     * Return the font-family name
+     */
+    applyStyle(span: Span, style: Style): string {
+        const fontFamily = style.fontFamily;
 
-    while (tokens.length > 0) {
-        const token = tokens.shift();
-        if (token === '<space>') {
-            result.push(new TextAtom(' ', ' ', options.style));
-        } else if (token[0] === '\\') {
-            // Invoke the 'main' parser to handle the command
-            tokens.unshift(token);
-            let atoms: Atom[];
-            [atoms, tokens] = options.parse('text', tokens, options);
-            result = [...result, ...atoms];
-        } else if (token === '<$>' || token === '<$$>') {
-            // Mode-shift
-            const subtokens = tokens.slice(
-                0,
-                tokens.findIndex((x: Token) => x === token)
-            );
-            tokens = tokens.slice(subtokens.length + 1);
-            const [atoms] = options.parse('math', subtokens, options);
-            result = [...result, ...atoms];
-        } else if (token === '<{>' || token === '<}>') {
-            // Spurious braces are ignored by TeX in text mode
-            // In text mode, braces are sometimes used to separate adjacent
-            // commands without inserting a space, e.g. "\backlash{}command"
-        } else {
-            const info = getInfo(token, 'text', options.macros);
-            if (!info || (info.ifMode && !info.ifMode.includes('text'))) {
-                error({ code: 'unexpected-token' });
-            } else {
-                atom = new TextAtom(token, info.value, options.style);
-                atom.latex = charToLatex('text', token);
-                result.push(atom);
+        if (TEXT_FONT_CLASS[fontFamily]) {
+            span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
+        } else if (fontFamily) {
+            // Not a well-known family. Use a style.
+            span.setStyle('font-family', fontFamily);
+        }
+
+        if (style.fontShape) {
+            span.classes +=
+                ' ' +
+                ({
+                    it: 'ML__it',
+                    sl: 'ML__shape_sl', // slanted
+                    sc: 'ML__shape_sc', // small caps
+                    ol: 'ML__shape_ol', // outline
+                }[style.fontShape] || '');
+        }
+        if (style.fontSeries) {
+            const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
+            if (m) {
+                span.classes +=
+                    ' ' +
+                    ({
+                        ul: 'ML__series_ul',
+                        el: 'ML__series_el',
+                        l: 'ML__series_l',
+                        sl: 'ML__series_sl',
+                        m: '', // medium (default)
+                        sb: 'ML__series_sb',
+                        b: 'ML__bold',
+                        eb: 'ML__series_eb',
+                        ub: 'ML__series_ub',
+                    }[m[1] || ''] || '');
+                span.classes +=
+                    ' ' +
+                    ({
+                        uc: 'ML__series_uc',
+                        ec: 'ML__series_ec',
+                        c: 'ML__series_c',
+                        sc: 'ML__series_sc',
+                        n: '', // normal (default)
+                        sx: 'ML__series_sx',
+                        x: 'ML__series_x',
+                        ex: 'ML__series_ex',
+                        ux: 'ML__series_ux',
+                    }[m[2] || ''] || '');
             }
         }
+        // Always use the metrics of 'Main-Regular' in text mode
+        return 'Main-Regular';
     }
-    return [result, tokens];
+
+    // Given an array of tokens, return an array of atoms
+    // options.args
+    // options.macros
+    // options.smartFence
+    // options.style
+    // options.parser
+    parse(
+        tokens: Token[],
+        error: ErrorListener<ParserErrorCode>,
+        options: ParseTokensOptions
+    ): [Atom[], Token[]] {
+        let result = [];
+        let atom: Atom;
+
+        while (tokens.length > 0) {
+            const token = tokens.shift();
+            if (token === '<space>') {
+                result.push(new TextAtom(' ', ' ', options.style));
+            } else if (token[0] === '\\') {
+                // Invoke the 'main' parser to handle the command
+                tokens.unshift(token);
+                let atoms: Atom[];
+                [atoms, tokens] = options.parse('text', tokens, options);
+                result = [...result, ...atoms];
+            } else if (token === '<$>' || token === '<$$>') {
+                // Mode-shift
+                const subtokens = tokens.slice(
+                    0,
+                    tokens.findIndex((x: Token) => x === token)
+                );
+                tokens = tokens.slice(subtokens.length + 1);
+                const [atoms] = options.parse('math', subtokens, options);
+                result = [...result, ...atoms];
+            } else if (token === '<{>' || token === '<}>') {
+                // Spurious braces are ignored by TeX in text mode
+                // In text mode, braces are sometimes used to separate adjacent
+                // commands without inserting a space, e.g. "\backlash{}command"
+            } else {
+                const info = getInfo(token, 'text', options.macros);
+                if (!info || (info.ifMode && !info.ifMode.includes('text'))) {
+                    error({ code: 'unexpected-token' });
+                } else {
+                    atom = new TextAtom(token, info.value, options.style);
+                    atom.latex = charToLatex('text', token);
+                    result.push(atom);
+                }
+            }
+        }
+        return [result, tokens];
+    }
 }
 
-register('text', {
-    emitLatexRun: emitLatexTextRun,
-    applyStyle,
-    parse: (tokens, error, options) => parse(tokens, error, options)[0],
-});
+// Singleton class
+new TextMode();

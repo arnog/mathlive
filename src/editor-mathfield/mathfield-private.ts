@@ -14,16 +14,11 @@ import { Atom } from '../core/atom-class';
 import { loadFonts } from '../core/fonts';
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
-import {
-    deleteRange,
-    getCommandAtoms,
-    getCommandRange,
-    ModelPrivate,
-} from '../editor/model';
+import { deleteRange, getMode, ModelPrivate } from '../editor/model';
 import { applyStyle } from '../editor-model/styling';
 import { delegateKeyboardEvents, KeyboardDelegate } from '../editor/keyboard';
 import { UndoRecord, UndoManager } from '../editor/undo';
-import { hidePopover, updatePopoverPosition } from '../editor/popover';
+import { updatePopoverPosition } from '../editor/popover';
 import { localize as l10n } from '../editor/l10n';
 import {
     HAPTIC_FEEDBACK_DURATION,
@@ -40,10 +35,9 @@ import {
     get as getOptions,
 } from '../editor/options';
 import {
-    insert,
     removeComposition,
     updateComposition,
-} from '../editor-model/insert';
+} from '../editor-model/composition';
 import { addRowAfter, addColumnAfter } from '../editor-model/array';
 import { onTypedText, onKeystroke } from './keyboard-input';
 import { render } from './render';
@@ -61,7 +55,6 @@ import {
     off,
 } from './utils';
 
-import { onCut, onCopy, onPaste } from './clipboard';
 import { attachButtonHandlers } from './buttons';
 import { onPointerDown, offsetFromPoint } from './pointer-input';
 import {
@@ -90,8 +83,14 @@ import popoverStylesheet from '../../css/popover.less';
 // @ts-ignore
 import keystrokeCaptionStylesheet from '../../css/keystroke-caption.less';
 import { range } from '../editor-model/selection-utils';
-import { CommandAtom } from '../core-atoms/command';
+import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex } from '../core/parser';
+import { ModeEditor } from './mode-editor';
+import './mode-editor-math';
+import './mode-editor-latex';
+import './mode-editor-text';
+import { getLatexGroupBody } from './mode-editor-latex';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
@@ -357,7 +356,7 @@ export class MathfieldPrivate implements Mathfield {
         // display in the popover panel
         this.suggestionIndex = 0;
         // The input mode (text, math, command)
-        // While getAnchorMode() represent the mode of the current selection,
+        // While model.getMode() represent the mode of the current selection,
         // this.mode is the mode chosen by the user. It indicates the mode the
         // next character typed will be interpreted in.
         // It is often identical to getAnchorMode() since changing the selection
@@ -378,9 +377,31 @@ export class MathfieldPrivate implements Mathfield {
             textarea as HTMLTextAreaElement,
             {
                 typedText: (text: string): void => onTypedText(this, text),
-                cut: () => onCut(this),
-                copy: (ev) => onCopy(this, ev),
-                paste: (ev) => onPaste(this, ev),
+                cut: (_ev: ClipboardEvent) => {
+                    // Snapshot the undo state
+                    this.snapshot();
+
+                    // Clearing the selection will have the side effect of clearing the
+                    // content of the textarea. However, the textarea value is what will
+                    // be copied to the clipboard, so defer the clearing of the selection
+                    // to later, after the cut operation has been handled.
+                    setTimeout(() => {
+                        deleteRange(this.model, range(this.model.selection));
+                        requestUpdate(this);
+                    }, 0);
+                },
+                copy: (ev: ClipboardEvent) =>
+                    ModeEditor.onCopy(
+                        this.model.at(this.model.position).mode,
+                        this,
+                        ev
+                    ),
+                paste: (ev: ClipboardEvent) =>
+                    ModeEditor.onPaste(
+                        this.model.at(this.model.position).mode,
+                        this,
+                        ev
+                    ),
                 keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
                 focus: () => this.onFocus(),
                 blur: () => this.onBlur(),
@@ -451,11 +472,10 @@ export class MathfieldPrivate implements Mathfield {
 
         // Use the content of the element for the initial value of the mathfield
         if (elementText) {
-            insert(this.model, elementText, {
+            ModeEditor.insert('math', this.model, elementText, {
                 insertionMode: 'replaceAll',
                 selectionMode: 'after',
                 format: 'latex',
-                mode: 'math',
                 suppressChangeNotifications: true,
                 macros: this.options.macros,
             });
@@ -575,11 +595,10 @@ export class MathfieldPrivate implements Mathfield {
         // Changing some config options (i.e. `macros`) may
         // require the content to be reparsed and re-rendered
         const content = Atom.toLatex(this.model.root, { expandMacro: false });
-        insert(this.model, content, {
+        ModeEditor.insert('math', this.model, content, {
             insertionMode: 'replaceAll',
             selectionMode: 'after',
             format: 'latex',
-            mode: 'math',
             suppressChangeNotifications: true,
             macros: this.options.macros,
         });
@@ -721,6 +740,20 @@ export class MathfieldPrivate implements Mathfield {
             this.getValue(this.model.selection, 'latex-expanded')
         );
 
+        // Adjust mode
+        {
+            const cursor = this.model.at(this.model.position);
+            const newMode = cursor.mode ?? this.options.defaultMode;
+            if (this.mode !== newMode) {
+                if (this.mode === 'latex') {
+                    complete(this, 'accept', { mode: newMode });
+                    this.model.position = this.model.offsetOf(cursor);
+                } else {
+                    this.switchMode(newMode);
+                }
+            }
+        }
+
         // Invoke client listeners, if provided.
         if (typeof this.options.onSelectionDidChange === 'function') {
             this.options.onSelectionDidChange(this);
@@ -769,7 +802,9 @@ export class MathfieldPrivate implements Mathfield {
     }
     private onCompositionStart(_composition: string): void {
         // Clear the selection if there is one
-        this.model.deleteAtoms(range(this.model.selection));
+        this.model.position = this.model.deleteAtoms(
+            range(this.model.selection)
+        );
         requestAnimationFrame(() => {
             render(this); // Recalculate the position of the caret
             // Synchronize the location and style of textarea
@@ -856,7 +891,11 @@ export class MathfieldPrivate implements Mathfield {
         ) {
             options.format = 'latex';
         }
-        if (insert(this.model, value, options)) {
+        let mode: ParseMode = 'math';
+        if (!options.mode || options.mode === 'auto') {
+            mode = getMode(this.model, this.model.position);
+        }
+        if (ModeEditor.insert(mode, this.model, value, options)) {
             this.undoManager.snapshot(this.options);
             requestUpdate(this);
         }
@@ -911,7 +950,7 @@ export class MathfieldPrivate implements Mathfield {
             });
             if (text !== oldValue) {
                 options = options ?? { mode: 'math' };
-                insert(this.model, text, {
+                ModeEditor.insert('math', this.model, text, {
                     insertionMode: 'replaceAll',
                     selectionMode: 'after',
                     format: 'latex',
@@ -993,8 +1032,7 @@ export class MathfieldPrivate implements Mathfield {
                 addColumnAfter(this.model);
             } else {
                 const savedStyle = this.style;
-                insert(this.model, s, {
-                    mode: this.mode,
+                ModeEditor.insert(this.mode, this.model, s, {
                     style: this.model.at(this.model.position).computedStyle,
                     ...options,
                 });
@@ -1037,44 +1075,47 @@ export class MathfieldPrivate implements Mathfield {
 
                 this.mode = mode;
 
-                if (mode === 'command') {
-                    model.deleteAtoms(getCommandRange(this.model));
-                    hidePopover(this);
+                if (mode === 'latex') {
+                    const wasCollapsed = model.selectionIsCollapsed;
+                    // We can have only a single latex group at a time.
+                    // If a latex group is open, close it first
+                    complete(this, 'accept');
+
                     // Switch to the command mode keyboard layer
                     if (this.virtualKeyboardVisible) {
-                        switchKeyboardLayer(this, 'lower-command');
+                        switchKeyboardLayer(this, 'latex-lower');
                     }
 
-                    // Inserting a command atom
+                    // Insert a latex group atom
+                    let latex: string;
                     let cursor = model.at(model.position);
-                    if (model.selectionIsCollapsed) {
-                        cursor.parent.addChildrenAfter(
-                            [new CommandAtom('\\')],
-                            cursor
-                        );
-                        model.position += 1;
+                    if (wasCollapsed) {
+                        latex = '\\';
                     } else {
-                        const selectionRange = range(model.selection);
-                        cursor = model.at(selectionRange[0]);
-
-                        const latex = Atom.toLatex(
-                            model.extractAtoms(selectionRange),
+                        const selRange = range(model.selection);
+                        latex = Atom.toLatex(
+                            model
+                                .extractAtoms(selRange)
+                                .filter((x) => !(x instanceof PlaceholderAtom)),
                             {
                                 expandMacro: false,
                             }
                         );
-                        const lastAtom = cursor.parent.addChildrenAfter(
-                            Array.from(latex).map((x) => new CommandAtom(x)),
-                            cursor
-                        );
+                        cursor = model.at(selRange[0]);
+                    }
+                    const atom = new LatexGroupAtom(latex);
+                    cursor.parent.addChildAfter(atom, cursor);
+                    if (wasCollapsed) {
+                        model.position = model.offsetOf(atom.lastChild);
+                    } else {
                         model.setSelection(
-                            model.offsetOf(cursor),
-                            model.offsetOf(lastAtom)
+                            model.offsetOf(atom.firstChild),
+                            model.offsetOf(atom.lastChild)
                         );
                     }
                 } else {
                     // Remove any error indicator on the current command sequence (if there is one)
-                    getCommandAtoms(model).forEach((x) => {
+                    getLatexGroupBody(model).forEach((x) => {
                         x.isError = false;
                     });
                 }

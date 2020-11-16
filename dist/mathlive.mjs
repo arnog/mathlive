@@ -2975,6 +2975,45 @@ function svgBodyHeight(svgBodyName) {
     return SVG_ACCENTS[svgBodyName][2];
 }
 
+class Mode {
+    constructor(name) {
+        Mode._registry[name] = this;
+    }
+    static createAtom(mode, command, style) {
+        return Mode._registry[mode].createAtom(command, style);
+    }
+    createAtom(_command, _style) {
+        return null;
+    }
+    static parseTokens(mode, tokens, onError, options) {
+        return Mode._registry[mode].parseTokens(tokens, onError, options);
+    }
+    parseTokens(_tokens, _onError, _options) {
+        return null;
+    }
+    // `run` should be a run (sequence) of atoms all with the same
+    // mode
+    static toLatex(run, options) {
+        console.assert(run.length > 0);
+        const mode = Mode._registry[run[0].mode];
+        return mode.toLatex(run, options);
+    }
+    toLatex(_run, _options) {
+        return '';
+    }
+    static applyStyle(mode, span, style) {
+        return Mode._registry[mode].applyStyle(span, style);
+    }
+    /*
+     * Apply the styling (bold, italic, etc..) as classes to the span, and return
+     * the effective font name to be used for metrics
+     * ('Main-Regular', 'Caligraphic-Regualr' etc...)
+     */
+    applyStyle(_span, _style) {
+        return '';
+    }
+}
+Mode._registry = {};
 /*
  * Return an array of runs with the same mode
  */
@@ -3044,36 +3083,6 @@ function getPropertyRuns(atoms, property) {
         result.push(run);
     return result;
 }
-const MODES_REGISTRY = {};
-function register(name, definition) {
-    MODES_REGISTRY[name] = { ...definition };
-}
-function emitLatexRun(run, options) {
-    var _a;
-    if ((_a = MODES_REGISTRY[run[0].mode]) === null || _a === void 0 ? void 0 : _a.emitLatexRun) {
-        return MODES_REGISTRY[run[0].mode].emitLatexRun(run, options);
-    }
-    return '';
-}
-function parseTokens(mode, tokens, onError, options) {
-    var _a;
-    if ((_a = MODES_REGISTRY[mode]) === null || _a === void 0 ? void 0 : _a.parse) {
-        return MODES_REGISTRY[mode].parse(tokens, onError, options);
-    }
-    return null;
-}
-/*
- * Apply the styling (bold, italic, etc..) as classes to the atom, and return
- * the effective font name to be used for metrics
- * ('Main-Regular', 'Caligraphic-Regualr' etc...)
- */
-function applyStyle(mode, span, style) {
-    var _a;
-    if ((_a = MODES_REGISTRY[mode]) === null || _a === void 0 ? void 0 : _a.applyStyle) {
-        return MODES_REGISTRY[mode].applyStyle(span, style);
-    }
-    return '';
-}
 
 /*
  * See https://tex.stackexchange.com/questions/81752/
@@ -3093,7 +3102,7 @@ const SPAN_TYPE = [
     'minner',
     'spacing',
     'first',
-    'command',
+    'latex',
     'composition',
     'error',
     'placeholder',
@@ -3182,7 +3191,7 @@ function toString(arg) {
  * @param classes list of classes attributes associated with this node
 
 
- * @property  type - For example, `'command'`, `'mrel'`, etc...
+ * @property  type - For example, `'latex'`, `'mrel'`, etc...
  * @property classes - A string of space separated CSS classes
  * associated with this element
  * @property cssId - A CSS ID assigned to this span (optional)
@@ -3239,9 +3248,9 @@ class Span {
             });
         }
         else if (typeof this.value === 'string') {
-            if (this.type === 'command') {
-                height = 1.1;
-                depth = 0;
+            if (this.type === 'latex') {
+                height = 0.8;
+                depth = 0.2;
             }
             else {
                 height = METRICS.baselineskip;
@@ -3261,7 +3270,7 @@ class Span {
     applyStyle(mode, style, className) {
         if (!style)
             return;
-        if (this.type === 'command') {
+        if (this.type === 'latex') {
             console.log(METRICS.baselineskip);
         }
         //
@@ -3297,7 +3306,7 @@ class Span {
         // and apply styling by adding appropriate classes to the atom
         //
         console.assert(typeof this.value === 'string');
-        const fontName = applyStyle(mode, this, style);
+        const fontName = Mode.applyStyle(mode, this, style);
         //
         // 5. Get the metrics information
         //
@@ -3460,12 +3469,12 @@ class Span {
             const classes = this.classes.split(' ');
             // Add the type (mbin, mrel, etc...) if specified
             classes.push((_d = {
-                command: 'ML__command',
+                latex: 'ML__latex',
                 placeholder: 'ML__placeholder',
                 error: 'ML__error',
             }[this.type]) !== null && _d !== void 0 ? _d : '');
-            if (this.caret === 'command') {
-                classes.push('ML__command-caret');
+            if (this.caret === 'latex') {
+                classes.push('ML__latex-caret');
             }
             // Remove duplicate and empty classes
             let classList = '';
@@ -3568,10 +3577,10 @@ class Span {
         // Don't coalesce if the tag or type are different
         if (this.type !== span.type)
             return false;
-        // Don't coalesce consecutive errors, placeholders or commands
+        // Don't coalesce consecutive errors, placeholders or raw latex
         if (this.type === 'error' ||
             this.type === 'placeholder' ||
-            this.type === 'command') {
+            this.type === 'latex') {
             return false;
         }
         // Don't coalesce if some of the content is SVG
@@ -5165,25 +5174,6 @@ const SIZING_MULTIPLIER = {
  *
  * It keeps track of the content, while the dimensions, position and style
  * are tracked by Span objects which are created by the `decompose()` functions.
- *
- * @property mode - `'display'`, `'command'`, etc...
- *
- * In addition to these basic types, which correspond to the TeX atom types,
- * some atoms represent more complex compounds, including:
- * - `space` and `spacing`: blank space between atoms
- * - `mathstyle`: to change the math style used: `display` or `text`.
- * The layout rules are different for each, the latter being more compact and
- * intended to be incorporated with surrounding non-math text.
- *
- *
- * @property captureSelection if true, this atom does not let its
- * children be selected. Used by the `\enclose` annotations, for example.
- *
- * @property skipBoundary if true, when the caret reaches the
- * first position in this element's body, it automatically moves to the
- * outside of the element. Conversely, when the caret reaches the position
- * right after this element, it automatically moves to the last position
- * inside this element.
  */
 class Atom {
     constructor(type, options) {
@@ -5194,6 +5184,7 @@ class Atom {
             this.value = options.value;
         }
         this._isDirty = false;
+        this._changeCounter = 0;
         this.mode = (_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : 'math';
         this.isExtensibleSymbol = (_b = options === null || options === void 0 ? void 0 : options.isExtensibleSymbol) !== null && _b !== void 0 ? _b : false;
         this.isFunction = (_c = options === null || options === void 0 ? void 0 : options.isFunction) !== null && _c !== void 0 ? _c : false;
@@ -5201,17 +5192,23 @@ class Atom {
         this.style = (_d = options === null || options === void 0 ? void 0 : options.style) !== null && _d !== void 0 ? _d : {};
         this.toLatexOverride = options === null || options === void 0 ? void 0 : options.toLatexOverride;
     }
+    get changeCounter() {
+        return this._changeCounter;
+    }
     get isDirty() {
         return this._isDirty;
     }
     set isDirty(dirty) {
         this._isDirty = dirty;
+        this._changeCounter++;
         if (dirty) {
             this.latex = undefined;
             this._children = null;
+            this._changeCounter++;
             let parent = this.parent;
             while (parent) {
                 parent._isDirty = true;
+                parent._changeCounter++;
                 parent._children = null;
                 parent.latex = undefined;
                 parent = parent.parent;
@@ -5398,7 +5395,7 @@ class Atom {
         }
         if (this.value && this.value !== '\u200b') {
             // There's probably just a value (which is a unicode character)
-            return (_a = charToLatex(this.mode, this.value)) !== null && _a !== void 0 ? _a : this.command;
+            return (_a = this.command) !== null && _a !== void 0 ? _a : unicodeCharToLatex(this.mode, this.value);
         }
         return '';
     }
@@ -6076,7 +6073,7 @@ function atomsToLatex(atoms, options) {
     }
     if (atoms.length === 0)
         return '';
-    return joinLatex(getPropertyRuns(atoms, 'cssClass').map((x) => joinLatex(getPropertyRuns(x, 'color').map((x) => joinLatex(getModeRuns(x).map((x) => emitLatexRun(x, options)))))));
+    return joinLatex(getPropertyRuns(atoms, 'cssClass').map((x) => joinLatex(getPropertyRuns(x, 'color').map((x) => joinLatex(getModeRuns(x).map((x) => Mode.toLatex(x, options)))))));
 }
 
 /**
@@ -7469,6 +7466,25 @@ class MacroAtom extends Atom {
     }
 }
 
+class TextAtom extends Atom {
+    constructor(command, value, style) {
+        super('text', { command, mode: 'text' });
+        this.value = value;
+        this.latex = value;
+        this.applyStyle(style);
+    }
+    render(context) {
+        const result = this.makeSpan(context, this.value);
+        if (this.caret)
+            result.caret = this.caret;
+        return [result];
+    }
+    toLatex(_options) {
+        var _a;
+        return (_a = this.latex) !== null && _a !== void 0 ? _a : charToLatex('text', this.value);
+    }
+}
+
 // Performance to check first char of string: https://jsben.ch/QLjdZ
 function isLiteral(token) {
     return !/^<({|}|\$|\$\$|space)>$/.test(token);
@@ -8453,7 +8469,7 @@ class Parser {
                 if (token === '<{>')
                     depth += 1;
             } while (depth > 0 && !this.end());
-            result = parseTokens(argType, this.tokens.slice(initialIndex, this.index - 1), this.onError, {
+            result = Mode.parseTokens(argType, this.tokens.slice(initialIndex, this.index - 1), this.onError, {
                 args: this.args,
                 macros: this.macros,
                 smartFence: this.smartFence,
@@ -8733,29 +8749,9 @@ class Parser {
         return [result];
     }
     parseLiteral(literal) {
-        var _a;
-        let result;
-        const info = getInfo(literal, this.parseMode, this.macros);
-        if (info) {
-            result = new Atom(info.type, {
-                command: literal,
-                mode: this.parseMode,
-                value: (_a = info.value) !== null && _a !== void 0 ? _a : literal,
-                style: { ...this.style },
-            });
-            if (info.isFunction) {
-                result.isFunction = true;
-            }
-        }
-        else {
-            result = new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
-                command: literal,
-                mode: this.parseMode,
-                value: literal,
-                style: { ...this.style },
-            });
-        }
-        result.latex = unicodeCharToLatex(this.parseMode, literal);
+        const result = Mode.createAtom(this.parseMode, literal, {
+            ...this.style,
+        });
         if (result.isFunction && this.smartFence) {
             // The atom was a function that may be followed by
             // an argument, like `f(`.
@@ -8771,14 +8767,7 @@ class Parser {
             return null;
         if (token === '<space>') {
             if (this.parseMode === 'text') {
-                return [
-                    new Atom('text', {
-                        command: ' ',
-                        mode: 'text',
-                        value: ' ',
-                        style: this.style,
-                    }),
-                ];
+                return [new TextAtom(' ', ' ', this.style)];
             }
             return null;
         }
@@ -8881,7 +8870,7 @@ class Parser {
  * @param smartFence - If true, promote plain fences, e.g. `(`,
  * as `\left...\right` or `\mleft...\mright`
  */
-function parseLatex(s, parseMode, args, macros, smartFence = false, onError) {
+function parseLatex(s, parseMode, args = null, macros = null, smartFence = false, onError) {
     const parser = new Parser(tokenize(s, args), args, macros, (err) => {
         if (typeof onError === 'function') {
             onError({ ...err, latex: s });
@@ -19206,14 +19195,18 @@ function selectionDidChange(model) {
     var _a;
     if (typeof ((_a = model.listeners) === null || _a === void 0 ? void 0 : _a.onSelectionDidChange) === 'function' &&
         !model.suppressChangeNotifications) {
+        model.suppressChangeNotifications = true;
         model.listeners.onSelectionDidChange(model);
+        model.suppressChangeNotifications = false;
     }
 }
 function contentDidChange(model) {
     var _a;
     if (typeof ((_a = model.listeners) === null || _a === void 0 ? void 0 : _a.onContentDidChange) === 'function' &&
         !model.suppressChangeNotifications) {
+        model.suppressChangeNotifications = true;
         model.listeners.onContentDidChange(model);
+        model.suppressChangeNotifications = false;
     }
 }
 /*
@@ -19301,7 +19294,6 @@ class ModelPrivate {
         };
         this.root = new Atom('root', { mode: this.options.mode });
         this.root.body = [];
-        this._atoms = null;
         this._selection = { ranges: [[0, 0]], direction: 'none' };
         this._anchor = 0;
         this._position = 0;
@@ -19311,13 +19303,7 @@ class ModelPrivate {
         this.suppressChangeNotifications = false;
     }
     get atoms() {
-        // The root is dirty when there has been some strucural changes
-        // (adding/removing atoms) which would invalidate the iterator
-        if (!this._atoms || this.root.isDirty) {
-            this._atoms = this.root.children;
-            this.root.isDirty = false;
-        }
-        return this._atoms;
+        return this.root.children;
     }
     /**
      * The selection, accounting for the common ancestors
@@ -19382,7 +19368,6 @@ class ModelPrivate {
                     console.assert(this._position >= 0 && this._position <= this.lastOffset);
                 }
             }
-            // Adjust mode
         });
     }
     /**
@@ -19507,9 +19492,11 @@ class ModelPrivate {
         }
         return result;
     }
-    // Unlike `getAtoms()`, the argument here is an index
-    // Return all the atoms, in order, starting at startingIndex
-    // then looping back at the beginning
+    /**
+     * Unlike `getAtoms()`, the argument here is an index
+     * Return all the atoms, in order, starting at startingIndex
+     * then looping back at the beginning
+     */
     getAllAtoms(startingIndex) {
         const result = [];
         const last = this.lastOffset;
@@ -19524,14 +19511,11 @@ class ModelPrivate {
     extractAtoms(range) {
         const result = this.getAtoms(range);
         result.forEach((x) => x.parent.removeChild(x));
-        if (isFinite(range[0])) {
-            this.position = range[0];
-        }
         return result;
     }
     deleteAtoms(range) {
-        const atoms = this.extractAtoms(range);
-        return atoms.length > 0;
+        this.extractAtoms(range);
+        return range[0];
     }
     atomToString(atom, format) {
         format = format !== null && format !== void 0 ? format : 'latex';
@@ -19740,12 +19724,12 @@ class ModelPrivate {
         const oldSelection = this._selection;
         const oldAnchor = this._anchor;
         const oldPosition = this._position;
-        let contentChanged = false;
         let selectionChanged = false;
         const saved = this.suppressChangeNotifications;
         this.suppressChangeNotifications = true;
+        const previousCounter = this.root.changeCounter;
         f();
-        contentChanged = this.root._isDirty;
+        const contentChanged = this.root.changeCounter !== previousCounter;
         if (oldAnchor !== this._anchor ||
             oldPosition !== this._position ||
             compareSelection(this._selection, oldSelection) === 'different') {
@@ -19934,7 +19918,7 @@ function isValidMathfield(mf) {
  */
 function findElementWithCaret(el) {
     var _a, _b;
-    return ((_b = (_a = el.querySelector('.ML__caret')) !== null && _a !== void 0 ? _a : el.querySelector('.ML__text-caret')) !== null && _b !== void 0 ? _b : el.querySelector('.ML__command-caret'));
+    return ((_b = (_a = el.querySelector('.ML__caret')) !== null && _a !== void 0 ? _a : el.querySelector('.ML__text-caret')) !== null && _b !== void 0 ? _b : el.querySelector('.ML__latex-caret'));
 }
 /**
  * Return the (x,y) client coordinates of the caret
@@ -20107,128 +20091,153 @@ const LETTER_SHAPE_MODIFIER = {
     upright: ['up', 'up', 'up', 'up'],
 };
 // See http://ctan.math.illinois.edu/macros/latex/base/fntguide.pdf
-function emitLatexMathRun(run, options) {
-    var _a;
-    const parent = run[0].parent;
-    const parentMode = (_a = parent === null || parent === void 0 ? void 0 : parent.mode) !== null && _a !== void 0 ? _a : 'math';
-    const contextValue = variantString(parent);
-    const contextColor = parent === null || parent === void 0 ? void 0 : parent.computedStyle.color;
-    return joinLatex(getPropertyRuns(run, 'color').map((x) => {
-        const result = joinLatex(getPropertyRuns(x, 'variant').map((x) => {
-            const value = variantString(x[0]);
-            // Check if all the atoms in this run have a base
-            // variant identical to the current variant
-            // If so, we can skip wrapping them
-            if (x.every((x) => {
-                const info = getInfo(x.command, parentMode, null);
-                if (!info || !info.variant)
-                    return false;
-                return variantString(x) === value;
-            })) {
-                return joinLatex(x.map((x) => Atom.toLatex(x, options)));
-            }
-            let command = '';
-            if (value && value !== contextValue) {
-                command = {
-                    calligraphic: '\\mathcal{',
-                    fraktur: '\\mathfrak{',
-                    'double-struck': '\\mathbb{',
-                    script: '\\mathscr{',
-                    monospace: '\\mathtt{',
-                    'sans-serif': '\\mathsf{',
-                    normal: '\\mathrm{',
-                    'normal-italic': '\\mathit{',
-                    'normal-bold': '\\mathbf{',
-                    'normal-bolditalic': '\\mathbfit{',
-                    ams: '',
-                    'ams-italic': '\\mathit{',
-                    'ams-bold': '\\mathbf{',
-                    'ams-bolditalic': '\\mathbfit{',
-                    main: '',
-                    'main-italic': '\\mathit{',
-                    'main-bold': '\\mathbf{',
-                    'main-bolditalic': '\\mathbfit{',
-                }[value];
-                console.assert(typeof command !== 'undefined');
-            }
-            return (joinLatex([
-                command,
-                ...x.map((x) => Atom.toLatex(x, options)),
-            ]) + (command ? '}' : ''));
-        }));
-        const style = x[0].computedStyle;
-        if (style.color && (!parent || contextColor !== style.color)) {
-            return ('\\textcolor{' +
-                colorToString(style.color) +
-                '}{' +
-                result +
-                '}');
+class MathMode extends Mode {
+    constructor() {
+        super('math');
+    }
+    createAtom(command, style) {
+        var _a, _b, _c;
+        const info = getInfo(command, 'math');
+        const value = (_a = info === null || info === void 0 ? void 0 : info.value) !== null && _a !== void 0 ? _a : command;
+        const result = new Atom((_b = info === null || info === void 0 ? void 0 : info.type) !== null && _b !== void 0 ? _b : 'mord', {
+            mode: 'math',
+            command,
+            value,
+            style,
+        });
+        if ((_c = info === null || info === void 0 ? void 0 : info.isFunction) !== null && _c !== void 0 ? _c : false) {
+            result.isFunction = true;
+        }
+        if (command.startsWith('\\')) {
+            result.latex = command;
         }
         return result;
-    }));
-}
-function applyStyle$1(span, style) {
-    // If no variant specified, don't change the font
-    if (!style.variant)
-        return '';
-    // letterShapeStyle will usually be set automatically, except when the
-    // locale cannot be determined, in which case its value will be 'auto'
-    // which we default to 'tex'
-    const letterShapeStyle = style.letterShapeStyle === 'auto' || !style.letterShapeStyle
-        ? 'tex'
-        : style.letterShapeStyle;
-    let variant = style.variant;
-    let variantStyle = style.variantStyle;
-    // 1. Remap to "main" font some characters that don't exist
-    // in the "math" font
-    // There are two fonts that include the roman italic characters, "main-it" and "math"
-    // They are similar, but the "math" font has some different kernings ('f')
-    // and some slightly different character shape. It doesn't include a few
-    // characters, so for those characters, "main" has to be used instead
-    // \imath, \jmath and \pound don't exist in "math" font,
-    // so use "main" italic instead.
-    if (variant === 'normal' &&
-        !variantStyle &&
-        /\u00a3|\u0131|\u0237/.test(span.value)) {
-        variant = 'main';
-        variantStyle = 'italic';
     }
-    // 2. If no explicit variant style, auto-italicize some symbols,
-    // depending on the letterShapeStyle
-    if (variant === 'normal' && !variantStyle && span.value.length === 1) {
-        LETTER_SHAPE_RANGES.forEach((x, i) => {
-            if (x.test(span.value) &&
-                LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it') {
-                variantStyle = 'italic';
+    toLatex(run, options) {
+        var _a;
+        const parent = run[0].parent;
+        const parentMode = (_a = parent === null || parent === void 0 ? void 0 : parent.mode) !== null && _a !== void 0 ? _a : 'math';
+        const contextValue = variantString(parent);
+        const contextColor = parent === null || parent === void 0 ? void 0 : parent.computedStyle.color;
+        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
+            const result = joinLatex(getPropertyRuns(x, 'variant').map((x) => {
+                const value = variantString(x[0]);
+                // Check if all the atoms in this run have a base
+                // variant identical to the current variant
+                // If so, we can skip wrapping them
+                if (x.every((x) => {
+                    const info = getInfo(x.command, parentMode, null);
+                    if (!info || !info.variant)
+                        return false;
+                    return variantString(x) === value;
+                })) {
+                    return joinLatex(x.map((x) => Atom.toLatex(x, options)));
+                }
+                let command = '';
+                if (value && value !== contextValue) {
+                    command = {
+                        calligraphic: '\\mathcal{',
+                        fraktur: '\\mathfrak{',
+                        'double-struck': '\\mathbb{',
+                        script: '\\mathscr{',
+                        monospace: '\\mathtt{',
+                        'sans-serif': '\\mathsf{',
+                        normal: '\\mathrm{',
+                        'normal-italic': '\\mathit{',
+                        'normal-bold': '\\mathbf{',
+                        'normal-bolditalic': '\\mathbfit{',
+                        ams: '',
+                        'ams-italic': '\\mathit{',
+                        'ams-bold': '\\mathbf{',
+                        'ams-bolditalic': '\\mathbfit{',
+                        main: '',
+                        'main-italic': '\\mathit{',
+                        'main-bold': '\\mathbf{',
+                        'main-bolditalic': '\\mathbfit{',
+                    }[value];
+                    console.assert(typeof command !== 'undefined');
+                }
+                return (joinLatex([
+                    command,
+                    ...x.map((x) => Atom.toLatex(x, options)),
+                ]) + (command ? '}' : ''));
+            }));
+            const style = x[0].computedStyle;
+            if (style.color && (!parent || contextColor !== style.color)) {
+                return ('\\textcolor{' +
+                    colorToString(style.color) +
+                    '}{' +
+                    result +
+                    '}');
             }
-        });
+            return result;
+        }));
     }
-    // 3. Map the variant + variantStyle to a font
-    if (variantStyle === 'up') {
-        variantStyle = '';
+    applyStyle(span, style) {
+        // If no variant specified, don't change the font
+        if (!style.variant)
+            return '';
+        // letterShapeStyle will usually be set automatically, except when the
+        // locale cannot be determined, in which case its value will be 'auto'
+        // which we default to 'tex'
+        const letterShapeStyle = style.letterShapeStyle === 'auto' || !style.letterShapeStyle
+            ? 'tex'
+            : style.letterShapeStyle;
+        let variant = style.variant;
+        let variantStyle = style.variantStyle;
+        // 1. Remap to "main" font some characters that don't exist
+        // in the "math" font
+        // There are two fonts that include the roman italic characters, "main-it" and "math"
+        // They are similar, but the "math" font has some different kernings ('f')
+        // and some slightly different character shape. It doesn't include a few
+        // characters, so for those characters, "main" has to be used instead
+        // \imath, \jmath and \pound don't exist in "math" font,
+        // so use "main" italic instead.
+        if (variant === 'normal' &&
+            !variantStyle &&
+            /\u00a3|\u0131|\u0237/.test(span.value)) {
+            variant = 'main';
+            variantStyle = 'italic';
+        }
+        // 2. If no explicit variant style, auto-italicize some symbols,
+        // depending on the letterShapeStyle
+        if (variant === 'normal' && !variantStyle && span.value.length === 1) {
+            LETTER_SHAPE_RANGES.forEach((x, i) => {
+                if (x.test(span.value) &&
+                    LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it') {
+                    variantStyle = 'italic';
+                }
+            });
+        }
+        // 3. Map the variant + variantStyle to a font
+        if (variantStyle === 'up') {
+            variantStyle = '';
+        }
+        const styledVariant = variantStyle
+            ? variant + '-' + variantStyle
+            : variant;
+        console.assert(VARIANTS[styledVariant]);
+        const [fontName, classes] = VARIANTS[styledVariant];
+        // 4. If outside the font repertoire, switch to system font
+        // (return NULL to use default metrics)
+        if (VARIANT_REPERTOIRE[variant] &&
+            !VARIANT_REPERTOIRE[variant].test(span.value)) {
+            // Map to unicode character
+            span.value = mathVariantToUnicode(span.value, variant, variantStyle);
+            // Return NULL to use default metrics
+            return null;
+        }
+        // Lowercase greek letters have an incomplete repertoire (no bold)
+        // so, for \mathbf to behave correctly, add a 'lcGreek' class.
+        if (GREEK_LOWERCASE.test(span.value)) {
+            span.classes += ' lcGreek';
+        }
+        // 5. Assign classes based on the font
+        if (classes) {
+            span.classes += ' ' + classes;
+        }
+        return fontName;
     }
-    const styledVariant = variantStyle ? variant + '-' + variantStyle : variant;
-    console.assert(VARIANTS[styledVariant]);
-    const [fontName, classes] = VARIANTS[styledVariant];
-    // 4. If outside the font repertoire, switch to system font
-    // (return NULL to use default metrics)
-    if (VARIANT_REPERTOIRE[variant] &&
-        !VARIANT_REPERTOIRE[variant].test(span.value)) {
-        // Map to unicode character
-        span.value = mathVariantToUnicode(span.value, variant, variantStyle);
-        // Return NULL to use default metrics
-        return null;
-    }
-    // Lowercase greek letters have an incomplete repertoire (no bold)
-    // so, for \mathbf to behave correctly, add a 'lcGreek' class.
-    if (GREEK_LOWERCASE.test(span.value)) {
-        span.classes += ' lcGreek';
-    }
-    // 5. Assign classes based on the font
-    if (classes) {
-        span.classes += ' ' + classes;
-    }
-    return fontName;
 }
 function variantString(atom) {
     var _a;
@@ -20241,50 +20250,11 @@ function variantString(atom) {
     }
     return result;
 }
-register('math', {
-    emitLatexRun: emitLatexMathRun,
-    applyStyle: applyStyle$1,
-});
-
-class TextAtom extends Atom {
-    constructor(command, value, style) {
-        super('text', { command, mode: 'text' });
-        this.value = value;
-        this.applyStyle(style);
-    }
-    render(context) {
-        const result = this.makeSpan(context, this.value);
-        if (this.caret)
-            result.caret = this.caret;
-        return [result];
-    }
-    toLatex(_options) {
-        var _a;
-        return (_a = this.latex) !== null && _a !== void 0 ? _a : charToLatex('text', this.value);
-    }
-}
+// Singleton class
+new MathMode();
 
 function emitStringTextRun(run, options) {
-    // let needSpace = false;
-    return joinLatex(run.map((x) => {
-        return Atom.toLatex(x, options);
-        // let result = x.toLatex(options);
-        // let space = '';
-        // if (x.latex && !options.expandMacro) {
-        //     result = x.latex;
-        // } else if (x.toLatexOverride) {
-        //     result = x.toLatexOverride(x, options);
-        // } else if (typeof x.value === 'string') {
-        //     result = unicodeStringToLatex('text', x.value);
-        // } else if (x.command) {
-        //     result = x.command.replace(/\\/g, '\\backslash ');
-        // }
-        // if (needSpace && (!result || /^[a-zA-Z0-9*]/.test(result))) {
-        //     space = '{}';
-        // }
-        // needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
-        // return space + result;
-    }));
+    return joinLatex(run.map((x) => Atom.toLatex(x, options)));
 }
 function emitFontShapeTextRun(run, options) {
     return joinLatex(getPropertyRuns(run, 'fontShape').map((x) => {
@@ -20389,132 +20359,201 @@ function emitColorRun(run, options) {
         return result;
     }));
 }
-function emitLatexTextRun(run, options) {
-    const result = emitColorRun(run, options);
-    // const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
-    //     (x: Atom) =>
-    //         x.style.fontSeries || x.style.fontShape || x.style.fontFamily
-    // );
-    // if (
-    //     !allAtomsHaveShapeOrSeriesOrFontFamily ||
-    //     run[0].mode !== context.mode
-    // ) {
-    //     // Wrap in text, only if there isn't a shape or series on
-    //     // all the atoms, because if so, it will be wrapped in a
-    //     // \\textbf, \\textit, etc... and the \\text would be redundant
-    //     return `\\text{${result}}`;
-    // }
-    return result;
-}
 const TEXT_FONT_CLASS = {
     roman: '',
     'sans-serif': 'ML__sans',
     monospace: 'ML__tt',
 };
-/**
- * Return the font-family name
- */
-function applyStyle$2(span, style) {
-    const fontFamily = style.fontFamily;
-    if (TEXT_FONT_CLASS[fontFamily]) {
-        span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
+class TextMode extends Mode {
+    constructor() {
+        super('text');
     }
-    else if (fontFamily) {
-        // Not a well-known family. Use a style.
-        span.setStyle('font-family', fontFamily);
+    createAtom(command, style) {
+        var _a;
+        const info = getInfo(command, 'text');
+        const value = (_a = info === null || info === void 0 ? void 0 : info.value) !== null && _a !== void 0 ? _a : command;
+        return new TextAtom(command, value, style);
     }
-    if (style.fontShape) {
-        span.classes +=
-            ' ' +
-                ({
-                    it: 'ML__it',
-                    sl: 'ML__shape_sl',
-                    sc: 'ML__shape_sc',
-                    ol: 'ML__shape_ol',
-                }[style.fontShape] || '');
+    toLatex(run, options) {
+        const result = emitColorRun(run, options);
+        const allAtomsHaveShapeOrSeriesOrFontFamily = run.every((x) => x.style.fontSeries || x.style.fontShape || x.style.fontFamily);
+        if (!allAtomsHaveShapeOrSeriesOrFontFamily) {
+            // Wrap in text, only if there isn't a shape or series on
+            // all the atoms, because if so, it will be wrapped in a
+            // \\textbf, \\textit, etc... and the \\text would be redundant
+            return `\\text{${result}}`;
+        }
+        return result;
     }
-    if (style.fontSeries) {
-        const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
-        if (m) {
+    /**
+     * Return the font-family name
+     */
+    applyStyle(span, style) {
+        const fontFamily = style.fontFamily;
+        if (TEXT_FONT_CLASS[fontFamily]) {
+            span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
+        }
+        else if (fontFamily) {
+            // Not a well-known family. Use a style.
+            span.setStyle('font-family', fontFamily);
+        }
+        if (style.fontShape) {
             span.classes +=
                 ' ' +
                     ({
-                        ul: 'ML__series_ul',
-                        el: 'ML__series_el',
-                        l: 'ML__series_l',
-                        sl: 'ML__series_sl',
-                        m: '',
-                        sb: 'ML__series_sb',
-                        b: 'ML__bold',
-                        eb: 'ML__series_eb',
-                        ub: 'ML__series_ub',
-                    }[m[1] || ''] || '');
-            span.classes +=
-                ' ' +
-                    ({
-                        uc: 'ML__series_uc',
-                        ec: 'ML__series_ec',
-                        c: 'ML__series_c',
-                        sc: 'ML__series_sc',
-                        n: '',
-                        sx: 'ML__series_sx',
-                        x: 'ML__series_x',
-                        ex: 'ML__series_ex',
-                        ux: 'ML__series_ux',
-                    }[m[2] || ''] || '');
+                        it: 'ML__it',
+                        sl: 'ML__shape_sl',
+                        sc: 'ML__shape_sc',
+                        ol: 'ML__shape_ol',
+                    }[style.fontShape] || '');
         }
-    }
-    // Always use the metrics of 'Main-Regular' in text mode
-    return 'Main-Regular';
-}
-// Given an array of tokens, return an array of atoms
-// options.args
-// options.macros
-// options.smartFence
-// options.style
-// options.parser
-function parse$1(tokens, error, options) {
-    let result = [];
-    let atom;
-    while (tokens.length > 0) {
-        const token = tokens.shift();
-        if (token === '<space>') {
-            result.push(new TextAtom(' ', ' ', options.style));
-        }
-        else if (token[0] === '\\') {
-            // Invoke the 'main' parser to handle the command
-            tokens.unshift(token);
-            let atoms;
-            [atoms, tokens] = options.parse('text', tokens, options);
-            result = [...result, ...atoms];
-        }
-        else if (token === '<$>' || token === '<$$>') {
-            // Mode-shift
-            const subtokens = tokens.slice(0, tokens.findIndex((x) => x === token));
-            tokens = tokens.slice(subtokens.length + 1);
-            const [atoms] = options.parse('math', subtokens, options);
-            result = [...result, ...atoms];
-        }
-        else if (token === '<{>' || token === '<}>') ;
-        else {
-            const info = getInfo(token, 'text', options.macros);
-            if (!info || (info.ifMode && !info.ifMode.includes('text'))) {
-                error({ code: 'unexpected-token' });
+        if (style.fontSeries) {
+            const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
+            if (m) {
+                span.classes +=
+                    ' ' +
+                        ({
+                            ul: 'ML__series_ul',
+                            el: 'ML__series_el',
+                            l: 'ML__series_l',
+                            sl: 'ML__series_sl',
+                            m: '',
+                            sb: 'ML__series_sb',
+                            b: 'ML__bold',
+                            eb: 'ML__series_eb',
+                            ub: 'ML__series_ub',
+                        }[m[1] || ''] || '');
+                span.classes +=
+                    ' ' +
+                        ({
+                            uc: 'ML__series_uc',
+                            ec: 'ML__series_ec',
+                            c: 'ML__series_c',
+                            sc: 'ML__series_sc',
+                            n: '',
+                            sx: 'ML__series_sx',
+                            x: 'ML__series_x',
+                            ex: 'ML__series_ex',
+                            ux: 'ML__series_ux',
+                        }[m[2] || ''] || '');
             }
+        }
+        // Always use the metrics of 'Main-Regular' in text mode
+        return 'Main-Regular';
+    }
+    // Given an array of tokens, return an array of atoms
+    // options.args
+    // options.macros
+    // options.smartFence
+    // options.style
+    // options.parser
+    parse(tokens, error, options) {
+        let result = [];
+        let atom;
+        while (tokens.length > 0) {
+            const token = tokens.shift();
+            if (token === '<space>') {
+                result.push(new TextAtom(' ', ' ', options.style));
+            }
+            else if (token[0] === '\\') {
+                // Invoke the 'main' parser to handle the command
+                tokens.unshift(token);
+                let atoms;
+                [atoms, tokens] = options.parse('text', tokens, options);
+                result = [...result, ...atoms];
+            }
+            else if (token === '<$>' || token === '<$$>') {
+                // Mode-shift
+                const subtokens = tokens.slice(0, tokens.findIndex((x) => x === token));
+                tokens = tokens.slice(subtokens.length + 1);
+                const [atoms] = options.parse('math', subtokens, options);
+                result = [...result, ...atoms];
+            }
+            else if (token === '<{>' || token === '<}>') ;
             else {
-                atom = new TextAtom(token, info.value, options.style);
-                atom.latex = charToLatex('text', token);
-                result.push(atom);
+                const info = getInfo(token, 'text', options.macros);
+                if (!info || (info.ifMode && !info.ifMode.includes('text'))) {
+                    error({ code: 'unexpected-token' });
+                }
+                else {
+                    atom = new TextAtom(token, info.value, options.style);
+                    atom.latex = charToLatex('text', token);
+                    result.push(atom);
+                }
             }
         }
+        return [result, tokens];
     }
-    return [result, tokens];
 }
-register('text', {
-    emitLatexRun: emitLatexTextRun,
-    applyStyle: applyStyle$2,
-    parse: (tokens, error, options) => parse$1(tokens, error, options)[0],
-});
+// Singleton class
+new TextMode();
+
+/**
+ * Atom for raw latex character, while in Latex editing mode
+ */
+class LatexAtom extends Atom {
+    constructor(value, options) {
+        var _a;
+        super('latex', { value, mode: 'latex' });
+        this.isSuggestion = (_a = options === null || options === void 0 ? void 0 : options.isSuggestion) !== null && _a !== void 0 ? _a : false;
+        this.isError = false;
+        this.latex = value;
+    }
+    get computedStyle() {
+        return {};
+    }
+    render(context) {
+        const result = new Span(this.value, this.isSuggestion
+            ? 'ML__suggestion'
+            : this.isError
+                ? 'ML__error'
+                : '', 'latex');
+        if (this.caret)
+            result.caret = this.caret;
+        this.bind(context, result);
+        return [result];
+    }
+}
+/**
+ * A group that represents a raw Latex editing zone.
+ * There is only one LatexGroupAtom at a time in an expression.
+ */
+class LatexGroupAtom extends Atom {
+    constructor(latex) {
+        super('group', { mode: 'latex' });
+        this.body = Array.from(latex).map((x) => new LatexAtom(x));
+        this.skipBoundary = false;
+    }
+    render(context) {
+        const span = new Span(Atom.render(context, this.body), '', 'mord');
+        if (this.caret)
+            span.caret = this.caret;
+        // Need to bind the group so that the DOM element can be matched
+        // and the atom iterated recursively. Otherwise, it behaves
+        // as if `captureSelection === true`
+        this.bind(context, span);
+        return [span];
+    }
+    toLatex(_options) {
+        return this.body.map((x) => x.value).join('');
+    }
+}
+
+class LatexMode extends Mode {
+    constructor() {
+        super('latex');
+    }
+    createAtom(command, _style) {
+        return new LatexAtom(command);
+    }
+    toLatex(run, _options) {
+        return run
+            .filter((x) => x instanceof LatexAtom && !x.isSuggestion)
+            .map((x) => x.value)
+            .join('');
+    }
+}
+new LatexMode();
 
 const DEFAULT_KEYBOARD_LAYOUT = platform$1() === 'apple'
     ? {
@@ -20812,7 +20851,7 @@ function platform$1() {
     }
     return result;
 }
-function register$1(layout) {
+function register(layout) {
     if (layout.platform === platform$1()) {
         gKeyboardLayouts.push(layout);
     }
@@ -20923,8 +20962,8 @@ function setKeyboardLayoutLocale(locale) {
 function getActiveKeyboardLayout() {
     return gKeyboardLayout !== null && gKeyboardLayout !== void 0 ? gKeyboardLayout : gKeyboardLayouts[0];
 }
-register$1(DEFAULT_KEYBOARD_LAYOUT);
-register$1({
+register(DEFAULT_KEYBOARD_LAYOUT);
+register({
     id: 'apple.french',
     locale: 'fr',
     displayName: 'French',
@@ -20988,7 +21027,7 @@ register$1({
         NumpadEqual: ['=', '=', '=', '='],
     },
 });
-register$1({
+register({
     id: 'apple.spanish',
     locale: 'es',
     displayName: 'Spanish ISO',
@@ -21061,7 +21100,7 @@ register$1({
         IntlBackslash: ['º', 'ª', '\\', '°'],
     },
 });
-register$1({
+register({
     id: 'windows.spanish',
     locale: 'es',
     displayName: 'Spanish',
@@ -21123,7 +21162,7 @@ register$1({
         IntlBackslash: ['<', '>', '', ''],
     },
 });
-register$1({
+register({
     id: 'linux.spanish',
     locale: 'es',
     displayName: 'Spanish',
@@ -21205,7 +21244,7 @@ register$1({
         NumpadParenRight: [')', ')', ')', ')'],
     },
 });
-register$1({
+register({
     id: 'linux.french',
     locale: 'fr',
     displayName: 'French',
@@ -21271,7 +21310,7 @@ register$1({
         IntlBackslash: ['<', '>', '|', '¦'],
     },
 });
-register$1({
+register({
     id: 'windows.french',
     locale: 'fr',
     displayName: 'French',
@@ -21333,7 +21372,7 @@ register$1({
         IntlBackslash: ['<', '>', '', ''],
     },
 });
-register$1({
+register({
     id: 'windows.german',
     locale: 'de',
     displayName: 'German',
@@ -21395,7 +21434,7 @@ register$1({
         IntlBackslash: ['<', '>', '|', ''],
     },
 });
-register$1({
+register({
     id: 'apple.german',
     locale: 'de',
     displayName: 'German',
@@ -21514,8 +21553,8 @@ const DEFAULT_KEYBINDINGS = [
         ifMode: 'text',
         command: 'moveToPreviousPlaceholder',
     },
-    { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'command'] },
-    { key: '\\', ifMode: 'math', command: ['switchMode', 'command'] },
+    { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'latex'] },
+    { key: '\\', ifMode: 'math', command: ['switchMode', 'latex'] },
     {
         key: 'alt+[Equal]',
         ifMode: 'math',
@@ -21528,25 +21567,25 @@ const DEFAULT_KEYBINDINGS = [
     },
     {
         key: '[Escape]',
-        ifMode: 'command',
+        ifMode: 'latex',
         command: ['complete', 'complete', { selectItem: 'true' }],
     },
     {
         key: '[Tab]',
-        ifMode: 'command',
+        ifMode: 'latex',
         command: ['complete', 'accept-suggestion'],
     },
-    { key: '[Return]', ifMode: 'command', command: 'complete' },
-    { key: '[Enter]', ifMode: 'command', command: 'complete' },
+    { key: '[Return]', ifMode: 'latex', command: 'complete' },
+    { key: '[Enter]', ifMode: 'latex', command: 'complete' },
     {
         key: 'shift+[Escape]',
-        ifMode: 'command',
+        ifMode: 'latex',
         command: ['complete', 'reject'],
     },
     // this combination, for example in 60% keyboards it is mapped to ~
-    { key: '[ArrowDown]', ifMode: 'command', command: 'nextSuggestion' },
-    // { key: 'ios:command:[Tab]', ifMode: 'command',command: 'nextSuggestion' },
-    { key: '[ArrowUp]', ifMode: 'command', command: 'previousSuggestion' },
+    { key: '[ArrowDown]', ifMode: 'latex', command: 'nextSuggestion' },
+    // { key: 'ios:command:[Tab]', ifMode: 'latex',command: 'nextSuggestion' },
+    { key: '[ArrowUp]', ifMode: 'latex', command: 'previousSuggestion' },
     { key: 'ctrl+a', ifPlatform: '!macos', command: 'selectAll' },
     { key: 'cmd+a', command: 'selectAll' },
     // Rare keys on some extended keyboards
@@ -22550,7 +22589,7 @@ function updatePopoverPosition(mf, options) {
         window.setTimeout(() => updatePopoverPosition(mf), 100);
         return;
     }
-    if (((_a = mf.model.at(mf.model.position)) === null || _a === void 0 ? void 0 : _a.type) !== 'command') {
+    if (((_a = mf.model.at(mf.model.position)) === null || _a === void 0 ? void 0 : _a.type) !== 'latex') {
         hidePopover(mf);
     }
     else {
@@ -22760,53 +22799,119 @@ function renderSelection(mathfield) {
     });
 }
 
-class CommandAtom extends Atom {
-    constructor(value, options) {
-        super('command', { value, mode: 'command' });
-        if (options === null || options === void 0 ? void 0 : options.isSuggestion) {
-            this.isSuggestion = true;
-        }
+class ModeEditor {
+    constructor(name) {
+        ModeEditor._registry[name] = this;
     }
-    get computedStyle() {
-        return {};
+    static onPaste(mode, mathfield, ev) {
+        return ModeEditor._registry[mode].onPaste(mathfield, ev);
     }
-    render(context) {
-        const result = new Span(this.value, this.isSuggestion
-            ? 'ML__suggestion'
-            : this.isError
-                ? 'ML__error'
-                : '', 'command');
-        if (this.caret)
-            result.caret = this.caret;
-        this.bind(context, result);
-        return [result];
+    onPaste(_mathfield, _ev) {
+        return false;
+    }
+    static onCopy(mode, mathfield, ev) {
+        ModeEditor._registry[mode].onCopy(mathfield, ev);
+    }
+    onCopy(_mathfield, _ev) {
+        return;
+    }
+    static insert(mode, model, text, options = {}) {
+        return ModeEditor._registry[mode].insert(model, text, options);
+    }
+    insert(_model, _text, _options) {
+        return;
     }
 }
+ModeEditor._registry = {};
 
-/**
- * Return the range of the command in the expression or
- * `[undefined, undefined]`.
- *
- * (There should be at most one command in an expression)
- */
-function getCommandRange(model) {
-    let start = 0;
-    let found = false;
-    while (start <= model.lastOffset && !found) {
-        found = model.at(start) instanceof CommandAtom;
-        if (!found)
-            start++;
+class LatexModeEditor extends ModeEditor {
+    constructor() {
+        super('latex');
     }
-    if (!found)
-        return [undefined, undefined];
-    let end = start;
-    let done = false;
-    while (end <= model.lastOffset && !done) {
-        done = !(model.at(end) instanceof CommandAtom);
-        if (!done)
-            end++;
+    createAtom(command, _style) {
+        return new LatexAtom(command);
     }
-    return [start - 1, end - 1];
+    onPaste(mathfield, ev) {
+        const text = ev.clipboardData.getData('text/plain');
+        if (text) {
+            if (this.insert(mathfield.model, text)) {
+                requestUpdate(mathfield);
+            }
+            ev.preventDefault();
+            ev.stopPropagation();
+            return true;
+        }
+        return false;
+    }
+    onCopy(mathfield, ev) {
+        const value = mathfield.model.selectionIsCollapsed
+            ? [0, mathfield.model.lastOffset]
+            : range(mathfield.selection);
+        ev.clipboardData.setData('text/plain', mathfield.getValue(value, 'latex-expanded'));
+        // Prevent the current document selection from being written to the clipboard.
+        ev.preventDefault();
+    }
+    insert(model, text, options) {
+        if (!options)
+            options = {};
+        if (!options.insertionMode)
+            options.insertionMode = 'replaceSelection';
+        if (!options.selectionMode)
+            options.selectionMode = 'placeholder';
+        const suppressChangeNotifications = model.suppressChangeNotifications;
+        if (options.suppressChangeNotifications) {
+            model.suppressChangeNotifications = true;
+        }
+        const savedSuppressChangeNotifications = model.suppressChangeNotifications;
+        model.suppressChangeNotifications = true;
+        // Delete any selected items
+        if (options.insertionMode === 'replaceSelection' &&
+            !model.selectionIsCollapsed) {
+            model.position = model.deleteAtoms(range(model.selection));
+        }
+        else if (options.insertionMode === 'replaceAll') {
+            model.root.setChildren([], 'body');
+            model.position = 0;
+        }
+        else if (options.insertionMode === 'insertBefore') {
+            model.collapseSelection('backward');
+        }
+        else if (options.insertionMode === 'insertAfter') {
+            model.collapseSelection('forward');
+        }
+        const newAtoms = [];
+        // Short-circuit the tokenizer and parser if in command mode
+        for (const c of text) {
+            if (COMMAND_MODE_CHARACTERS.test(c)) {
+                newAtoms.push(new LatexAtom(c));
+            }
+        }
+        //
+        // Insert the new atoms
+        //
+        const cursor = model.at(model.position);
+        const lastNewAtom = cursor.parent.addChildrenAfter(newAtoms, cursor);
+        // Prepare to dispatch notifications
+        model.suppressChangeNotifications = savedSuppressChangeNotifications;
+        if (options.selectionMode === 'before') ;
+        else if (options.selectionMode === 'item') {
+            model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
+        }
+        else if (lastNewAtom) {
+            model.position = model.offsetOf(lastNewAtom);
+        }
+        contentDidChange(model);
+        model.suppressChangeNotifications = suppressChangeNotifications;
+        return true;
+    }
+}
+function getLatexGroup(model) {
+    return model.atoms.find((x) => x instanceof LatexGroupAtom);
+}
+function getLatexGroupBody(model) {
+    var _a, _b;
+    return ((_b = (_a = model.atoms
+        .find((x) => x instanceof LatexGroupAtom)) === null || _a === void 0 ? void 0 : _a.body.filter((x) => x instanceof LatexAtom)) !== null && _b !== void 0 ? _b : []);
 }
 function getCommandSuggestionRange(model, options) {
     let start = 0;
@@ -22814,7 +22919,7 @@ function getCommandSuggestionRange(model, options) {
     const last = isFinite(options === null || options === void 0 ? void 0 : options.before) ? options.before : model.lastOffset;
     while (start <= last && !found) {
         const atom = model.at(start);
-        found = atom instanceof CommandAtom && atom.isSuggestion;
+        found = atom instanceof LatexAtom && atom.isSuggestion;
         if (!found)
             start++;
     }
@@ -22824,1406 +22929,19 @@ function getCommandSuggestionRange(model, options) {
     let done = false;
     while (end <= last && !done) {
         const atom = model.at(end);
-        done = !(atom instanceof CommandAtom && atom.isSuggestion);
+        done = !(atom instanceof LatexAtom && atom.isSuggestion);
         if (!done)
             end++;
     }
     return [start - 1, end - 1];
 }
-function getCommandAtoms(model) {
-    return model.getAtoms(getCommandRange(model));
-}
-function getCommandString(model) {
-    return model
-        .getAtoms(getCommandRange(model))
-        .map((x) => x.value)
-        .join('');
-}
-
-/**
- * These shortcut strings are replaced with the corresponding LaTeX expression
- * without requiring an escape sequence or command.
- */
-const INLINE_SHORTCUTS = {
-    // Primes
-    "''": { mode: 'math', value: '^{\\doubleprime}' },
-    // Greek letters
-    alpha: '\\alpha',
-    delta: '\\delta',
-    Delta: '\\Delta',
-    pi: { mode: 'math', value: '\\pi' },
-    'pi ': { mode: 'text', value: '\\pi ' },
-    Pi: { mode: 'math', value: '\\Pi' },
-    theta: '\\theta',
-    Theta: '\\Theta',
-    // Letter-like
-    ii: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\imaginaryI',
-    },
-    jj: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\imaginaryJ',
-    },
-    ee: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\exponentialE',
-    },
-    nabla: { mode: 'math', value: '\\nabla' },
-    grad: { mode: 'math', value: '\\nabla' },
-    del: { mode: 'math', value: '\\partial' },
-    '\u221e': '\\infty',
-    // '&infin;': '\\infty',
-    // '&#8734;': '\\infty',
-    oo: {
-        mode: 'math',
-        after: 'nothing+digit+frac+surd+binop+relop+punct+array+openfence+closefence+space',
-        value: '\\infty',
-    },
-    // Big operators
-    '∑': { mode: 'math', value: '\\sum' },
-    sum: { mode: 'math', value: '\\sum_{#?}^{#?}' },
-    prod: { mode: 'math', value: '\\prod_{#?}^{#?}' },
-    sqrt: { mode: 'math', value: '\\sqrt{#?}' },
-    // '∫':                    '\\int',             // There's a alt-B command for this
-    '∆': { mode: 'math', value: '\\differentialD' },
-    '∂': { mode: 'math', value: '\\differentialD' },
-    // Functions
-    arcsin: { mode: 'math', value: '\\arcsin' },
-    arccos: { mode: 'math', value: '\\arccos' },
-    arctan: { mode: 'math', value: '\\arctan' },
-    sin: { mode: 'math', value: '\\sin' },
-    sinh: { mode: 'math', value: '\\sinh' },
-    cos: { mode: 'math', value: '\\cos' },
-    cosh: { mode: 'math', value: '\\cosh' },
-    tan: { mode: 'math', value: '\\tan' },
-    tanh: { mode: 'math', value: '\\tanh' },
-    sec: { mode: 'math', value: '\\sec' },
-    csc: { mode: 'math', value: '\\csc' },
-    cot: { mode: 'math', value: '\\cot' },
-    log: { mode: 'math', value: '\\log' },
-    ln: { mode: 'math', value: '\\ln' },
-    exp: { mode: 'math', value: '\\exp' },
-    lim: { mode: 'math', value: '\\lim_{#?}' },
-    // Differentials
-    // According to ISO31/XI (ISO 80000-2), differentials should be upright
-    dx: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\differentialD x',
-    },
-    dy: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\differentialD y',
-    },
-    dt: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\differentialD t',
-    },
-    // Logic
-    AA: { mode: 'math', value: '\\forall' },
-    EE: { mode: 'math', value: '\\exists' },
-    '!EE': { mode: 'math', value: '\\nexists' },
-    '&&': { mode: 'math', value: '\\land' },
-    // The shortcut for the greek letter "xi" is interfering with "x in"
-    xin: {
-        mode: 'math',
-        after: 'nothing+text+relop+punct+openfence+space',
-        value: 'x \\in',
-    },
-    in: {
-        mode: 'math',
-        after: 'nothing+letter+closefence',
-        value: '\\in',
-    },
-    '!in': { mode: 'math', value: '\\notin' },
-    // Sets
-    NN: '\\N',
-    ZZ: '\\Z',
-    QQ: '\\Q',
-    RR: '\\R',
-    CC: '\\C',
-    PP: '\\P',
-    // Operators
-    xx: { mode: 'math', value: '\\times' },
-    '+-': { mode: 'math', value: '\\pm' },
-    // Relational operators
-    '!=': { mode: 'math', value: '\\ne' },
-    '>=': { mode: 'math', value: '\\ge' },
-    '<=': { mode: 'math', value: '\\le' },
-    '<<': { mode: 'math', value: '\\ll' },
-    '>>': { mode: 'math', value: '\\gg' },
-    '~~': { mode: 'math', value: '\\approx' },
-    // More operators
-    '≈': { mode: 'math', value: '\\approx' },
-    '?=': { mode: 'math', value: '\\questeq' },
-    '÷': { mode: 'math', value: '\\div' },
-    '¬': { mode: 'math', value: '\\neg' },
-    ':=': { mode: 'math', value: '\\coloneq' },
-    '::': { mode: 'math', value: '\\Colon' },
-    // Fences
-    '(:': { mode: 'math', value: '\\langle' },
-    ':)': { mode: 'math', value: '\\rangle' },
-    // More Greek letters
-    beta: '\\beta',
-    chi: '\\chi',
-    epsilon: '\\epsilon',
-    varepsilon: '\\varepsilon',
-    eta: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\eta',
-    },
-    'eta ': {
-        mode: 'text',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\eta ',
-    },
-    gamma: '\\gamma',
-    Gamma: '\\Gamma',
-    iota: '\\iota',
-    kappa: '\\kappa',
-    lambda: '\\lambda',
-    Lambda: '\\Lambda',
-    mu: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\mu',
-    },
-    'mu ': {
-        mode: 'text',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\mu ',
-    },
-    nu: {
-        mode: 'math',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\nu',
-    },
-    'nu ': {
-        mode: 'text',
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\nu ',
-    },
-    µ: '\\mu',
-    phi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\phi',
-    },
-    Phi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\Phi',
-    },
-    varphi: '\\varphi',
-    psi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\psi',
-    },
-    Psi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\Psi',
-    },
-    rho: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\rho',
-    },
-    sigma: '\\sigma',
-    Sigma: '\\Sigma',
-    tau: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\tau',
-    },
-    vartheta: '\\vartheta',
-    upsilon: '\\upsilon',
-    xi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\xi',
-    },
-    Xi: {
-        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-        value: '\\Xi',
-    },
-    zeta: '\\zeta',
-    omega: '\\omega',
-    Omega: '\\Omega',
-    Ω: '\\omega',
-    // More Logic
-    forall: { mode: 'math', value: '\\forall' },
-    exists: {
-        mode: 'math',
-        value: '\\exists',
-    },
-    '!exists': {
-        mode: 'math',
-        value: '\\nexists',
-    },
-    ':.': {
-        mode: 'math',
-        value: '\\therefore',
-    },
-    // MORE FUNCTIONS
-    // 'arg': '\\arg',
-    liminf: '\\operatorname*{lim~inf}_{#?}',
-    limsup: '\\operatorname*{lim~sup}_{#?}',
-    argmin: '\\operatorname*{arg~min}_{#?}',
-    argmax: '\\operatorname*{arg~max}_{#?}',
-    det: '\\det',
-    mod: {
-        mode: 'math',
-        value: '\\mod',
-    },
-    max: {
-        mode: 'math',
-        value: '\\max',
-    },
-    min: {
-        mode: 'math',
-        value: '\\min',
-    },
-    erf: '\\operatorname{erf}',
-    erfc: '\\operatorname{erfc}',
-    bessel: {
-        mode: 'math',
-        value: '\\operatorname{bessel}',
-    },
-    mean: {
-        mode: 'math',
-        value: '\\operatorname{mean}',
-    },
-    median: {
-        mode: 'math',
-        value: '\\operatorname{median}',
-    },
-    fft: {
-        mode: 'math',
-        value: '\\operatorname{fft}',
-    },
-    lcm: {
-        mode: 'math',
-        value: '\\operatorname{lcm}',
-    },
-    gcd: {
-        mode: 'math',
-        value: '\\operatorname{gcd}',
-    },
-    randomReal: '\\operatorname{randomReal}',
-    randomInteger: '\\operatorname{randomInteger}',
-    Re: {
-        mode: 'math',
-        value: '\\operatorname{Re}',
-    },
-    Im: {
-        mode: 'math',
-        value: '\\operatorname{Im}',
-    },
-    // UNITS
-    mm: {
-        mode: 'math',
-        after: 'nothing+digit',
-        value: '\\operatorname{mm}',
-    },
-    cm: {
-        mode: 'math',
-        after: 'nothing+digit',
-        value: '\\operatorname{cm}',
-    },
-    km: {
-        mode: 'math',
-        after: 'nothing+digit',
-        value: '\\operatorname{km}',
-    },
-    kg: {
-        mode: 'math',
-        after: 'nothing+digit',
-        value: '\\operatorname{kg}',
-    },
-    // '||':                   '\\lor',
-    '...': '\\ldots',
-    '+...': '+\\cdots',
-    '-...': '-\\cdots',
-    '->...': '\\to\\cdots',
-    '->': '\\to',
-    '|->': '\\mapsto',
-    '-->': '\\longrightarrow',
-    //    '<-':                   '\\leftarrow',
-    '<--': '\\longleftarrow',
-    '=>': '\\Rightarrow',
-    '==>': '\\Longrightarrow',
-    // '<=': '\\Leftarrow',     // CONFLICTS WITH LESS THAN OR EQUAL
-    '<=>': '\\Leftrightarrow',
-    '<->': '\\leftrightarrow',
-    '(.)': '\\odot',
-    '(+)': '\\oplus',
-    '(/)': '\\oslash',
-    '(*)': '\\otimes',
-    '(-)': '\\ominus',
-    // '(-)':                  '\\circleddash',
-    '||': '\\Vert',
-    '{': '\\{',
-    '}': '\\}',
-    '*': '\\cdot',
-};
-
-/**
- * Return an array of potential shortcuts
- */
-function getInlineShortcutsStartingWith(s, config) {
-    const result = [];
-    const skipDefaultShortcuts = config.overrideDefaultInlineShortcuts;
-    for (let i = 0; i <= s.length - 1; i++) {
-        const s2 = s.substring(i);
-        if (!skipDefaultShortcuts) {
-            Object.keys(INLINE_SHORTCUTS).forEach((key) => {
-                if (key.startsWith(s2) && !result.includes(key)) {
-                    result.push(key);
-                }
-            });
-        }
-        const customInlineShortcuts = (config === null || config === void 0 ? void 0 : config.inlineShortcuts) ? config.inlineShortcuts
-            : null;
-        if (customInlineShortcuts) {
-            Object.keys(customInlineShortcuts).forEach((key) => {
-                if (key.startsWith(s2)) {
-                    result.push(key);
-                }
-            });
-        }
-    }
-    return result;
-}
-/**
- *
- * @param siblings atoms preceding this potential shortcut
- */
-function validateShortcut(siblings, shortcut) {
-    if (!shortcut)
-        return '';
-    // If it's a simple shortcut (no conditional), it's always valid
-    if (typeof shortcut === 'string')
-        return shortcut;
-    // If we have no context, we assume all the shortcuts are valid
-    if (!siblings)
-        return shortcut.value;
-    let nothing = false;
-    let letter = false;
-    let digit = false;
-    let isFunction = false;
-    let frac = false;
-    let surd = false;
-    let binop = false;
-    let relop = false;
-    let punct = false;
-    let array = false;
-    let openfence = false;
-    let closefence = false;
-    let text = false;
-    let space = false;
-    let sibling = siblings[siblings.length - 1];
-    let index = siblings.length - 1;
-    while (sibling && /msubsup|placeholder/.test(sibling.type)) {
-        index -= 1;
-        sibling = siblings[index];
-    }
-    nothing = !sibling || sibling.type === 'first'; // start of a group
-    if (sibling) {
-        if (typeof shortcut.mode !== 'undefined' &&
-            sibling.mode !== shortcut.mode) {
-            return '';
-        }
-        text = sibling.mode === 'text';
-        letter = !text && sibling.type === 'mord' && LETTER.test(sibling.value);
-        digit =
-            !text && sibling.type === 'mord' && /[0-9]+$/.test(sibling.value);
-        isFunction = !text && sibling.isFunction;
-        frac = sibling.type === 'genfrac';
-        surd = sibling.type === 'surd';
-        binop = sibling.type === 'mbin';
-        relop = sibling.type === 'mrel';
-        punct = sibling.type === 'mpunct' || sibling.type === 'minner';
-        array = sibling.type === 'array';
-        openfence = sibling.type === 'mopen';
-        closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
-        space = sibling.type === 'space';
-    }
-    if (typeof shortcut.after !== 'undefined') {
-        // If this is a conditional shortcut, consider the conditions now
-        if ((/nothing/.test(shortcut.after) && nothing) ||
-            (/letter/.test(shortcut.after) && letter) ||
-            (/digit/.test(shortcut.after) && digit) ||
-            (/function/.test(shortcut.after) && isFunction) ||
-            (/frac/.test(shortcut.after) && frac) ||
-            (/surd/.test(shortcut.after) && surd) ||
-            (/binop/.test(shortcut.after) && binop) ||
-            (/relop/.test(shortcut.after) && relop) ||
-            (/punct/.test(shortcut.after) && punct) ||
-            (/array/.test(shortcut.after) && array) ||
-            (/openfence/.test(shortcut.after) && openfence) ||
-            (/closefence/.test(shortcut.after) && closefence) ||
-            (/text/.test(shortcut.after) && text) ||
-            (/space/.test(shortcut.after) && space)) {
-            return shortcut.value;
-        }
-        return '';
-    }
-    return shortcut.value;
-}
-/**
- *
- * @param context - atoms preceding the candidate, potentially used
- * to reduce which shortcuts are applicable. If 'null', no restrictions are
- * applied.
- * @param s - candidate inline shortcuts (e.g. `'pi'`)
- * @return A replacement string matching the shortcut (e.g. `'\pi'`)
- */
-function getInlineShortcut(context, s, shortcuts) {
-    var _a;
-    return validateShortcut(context, (_a = shortcuts === null || shortcuts === void 0 ? void 0 : shortcuts[s]) !== null && _a !== void 0 ? _a : INLINE_SHORTCUTS[s]);
-}
-
-/**
- * Attempts to parse and interpret a string in an unknown format, possibly
- * ASCIIMath and return a canonical LaTeX string.
- *
- * The format recognized are one of these variations:
- * - ASCIIMath: Only supports a subset
- * (1/2x)
- * 1/2sin x                     -> \frac {1}{2}\sin x
- * 1/2sinx                      -> \frac {1}{2}\sin x
- * (1/2sin x (x^(2+1))          // Unbalanced parentheses
- * (1/2sin(x^(2+1))             -> \left(\frac {1}{2}\sin \left(x^{2+1}\right)\right)
- * alpha + (pi)/(4)             -> \alpha +\frac {\pi }{4}
- * x=(-b +- sqrt(b^2 – 4ac))/(2a)
- * alpha/beta
- * sqrt2 + sqrtx + sqrt(1+a) + sqrt(1/2)
- * f(x) = x^2 "when" x >= 0
- * AA n in QQ
- * AA x in RR "," |x| > 0
- * AA x in RR "," abs(x) > 0
- *
- * - UnicodeMath (generated by Microsoft Word): also only supports a subset
- *      - See https://www.unicode.org/notes/tn28/UTN28-PlainTextMath-v3.1.pdf
- * √(3&x+1)
- * {a+b/c}
- * [a+b/c]
- * _a^b x
- * lim_(n->\infty) n
- * \iint_(a=0)^\infty  a
- *
- * - "JavaScript Latex": a variant that is LaTeX, but with escaped backslashes
- *  \\frac{1}{2} \\sin x
- */
-function parseMathString(s, options) {
-    var _a;
-    if (!s)
-        return ['latex', ''];
-    // Nothing to do if a single character
-    if (s.length <= 1)
-        return ['latex', s];
-    if (!options || options.format !== 'ASCIIMath') {
-        // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
-        // If the strings is surrounded by `$..$` or `$$..$$`, assumes it is LaTeX
-        const trimedString = s.trim();
-        if ((trimedString.startsWith('$$') && trimedString.endsWith('$$')) ||
-            (trimedString.startsWith('\\[') && trimedString.endsWith('\\]')) ||
-            (trimedString.startsWith('\\(') && trimedString.endsWith('\\)'))) {
-            return [
-                'latex',
-                trimedString.substring(2, trimedString.length - 2),
-            ];
-        }
-        if (trimedString.startsWith('$') && trimedString.endsWith('$')) {
-            return [
-                'latex',
-                trimedString.substring(1, trimedString.length - 1),
-            ];
-        }
-        // Replace double-backslash (coming from JavaScript) to a single one
-        s = s.replace(/\\\\([^\s\n])/g, '\\$1');
-        if (/\\/.test(s)) {
-            // If the string includes a '\' it's probably a LaTeX string
-            // (that's not completely true, it could be a UnicodeMath string, since
-            // UnicodeMath supports some LaTeX commands. However, we need to pick
-            // one in order to correctly interpret {} (which are argument delimiters
-            // in LaTeX, and are fences in UnicodeMath)
-            return ['latex', s];
-        }
-    }
-    s = s.replace(/\u2061/gu, ''); // Remove function application
-    s = s.replace(/\u3016/gu, '{'); // WHITE LENTICULAR BRACKET (grouping)
-    s = s.replace(/\u3017/gu, '}'); // WHITE LENTICULAR BRACKET (grouping)
-    s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // common typo
-    s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // common typo
-    s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
-    return [
-        (_a = options === null || options === void 0 ? void 0 : options.format) !== null && _a !== void 0 ? _a : 'ASCIIMath',
-        parseMathExpression(s, options !== null && options !== void 0 ? options : {}),
-    ];
-}
-function parseMathExpression(s, options) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-    if (!s)
-        return '';
-    let done = false;
-    let m;
-    if (!done && (s[0] === '^' || s[0] === '_')) {
-        // Superscript and subscript
-        m = parseMathArgument(s.substr(1), {
-            inlineShortcuts: (_a = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _a !== void 0 ? _a : {},
-            noWrap: true,
-        });
-        s = s[0] + '{' + m.match + '}';
-        s += parseMathExpression(m.rest, options);
-        done = true;
-    }
-    if (!done) {
-        m = s.match(/^(sqrt|\u221a)(.*)/);
-        if (m) {
-            // Square root
-            m = parseMathArgument(m[2], {
-                inlineShortcuts: (_b = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _b !== void 0 ? _b : {},
-                noWrap: true,
-            });
-            const sqrtArgument = (_c = m.match) !== null && _c !== void 0 ? _c : '\\placeholder{}';
-            s = '\\sqrt{' + sqrtArgument + '}';
-            s += parseMathExpression(m.rest, options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^(\\cbrt|\u221b)(.*)/);
-        if (m) {
-            // Cube root
-            m = parseMathArgument(m[2], {
-                inlineShortcuts: (_d = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _d !== void 0 ? _d : {},
-                noWrap: true,
-            });
-            const sqrtArgument = (_e = m.match) !== null && _e !== void 0 ? _e : '\\placeholder{}';
-            s = '\\sqrt[3]{' + sqrtArgument + '}';
-            s += parseMathExpression(m.rest, options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^abs(.*)/);
-        if (m) {
-            // Absolute value
-            m = parseMathArgument(m[1], {
-                inlineShortcuts: (_f = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _f !== void 0 ? _f : {},
-                noWrap: true,
-            });
-            s = '\\left|' + m.match + '\\right|';
-            s += parseMathExpression(m.rest, options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^["”“](.*?)["”“](.*)/);
-        if (m) {
-            // Quoted text
-            s = '\\text{' + m[1] + '}';
-            s += parseMathExpression(m[2], options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^([^a-zA-Z({[_^\\\s"]+)(.*)/);
-        // A string of symbols...
-        // Could be a binary or relational operator, etc...
-        if (m) {
-            s = paddedShortcut(m[1], options);
-            s += parseMathExpression(m[2], options);
-            done = true;
-        }
-    }
-    if (!done && /^(f|g|h)[^a-zA-Z]/.test(s)) {
-        // This could be a function...
-        m = parseMathArgument(s.substring(1), {
-            inlineShortcuts: (_g = options.inlineShortcuts) !== null && _g !== void 0 ? _g : {},
-            noWrap: true,
-        });
-        if (s[1] === '(') {
-            s = s[0] + '\\mleft(' + m.match + '\\mright)';
-        }
-        else {
-            s = s[0] + m.match;
-        }
-        s += parseMathExpression(m.rest, options);
-        done = true;
-    }
-    if (!done) {
-        m = s.match(/^([a-zA-Z]+)(.*)/);
-        if (m) {
-            // Some alphabetical string...
-            // Could be a function name (sin) or symbol name (alpha)
-            s = paddedShortcut(m[1], options);
-            s += parseMathExpression(m[2], options);
-            done = true;
-        }
-    }
-    if (!done) {
-        m = parseMathArgument(s, {
-            inlineShortcuts: (_h = options.inlineShortcuts) !== null && _h !== void 0 ? _h : {},
-            noWrap: true,
-        });
-        if (m.match && m.rest[0] === '/') {
-            // Fraction
-            const m2 = parseMathArgument(m.rest.substr(1), {
-                inlineShortcuts: (_j = options.inlineShortcuts) !== null && _j !== void 0 ? _j : {},
-                noWrap: true,
-            });
-            if (m2.match) {
-                s =
-                    '\\frac{' +
-                        m.match +
-                        '}{' +
-                        m2.match +
-                        '}' +
-                        parseMathExpression(m2.rest, options);
-            }
-            done = true;
-        }
-        else if (m.match) {
-            if (s[0] === '(') {
-                s =
-                    '\\left(' +
-                        m.match +
-                        '\\right)' +
-                        parseMathExpression(m.rest, options);
-            }
-            else {
-                s = m.match + parseMathExpression(m.rest, options);
-            }
-            done = true;
-        }
-    }
-    if (!done) {
-        m = s.match(/^(\s+)(.*)$/);
-        // Whitespace
-        if (m) {
-            s = ' ' + parseMathExpression(m[2], options);
-            done = true;
-        }
-    }
-    return s;
-}
-/**
- * Parse a math argument, as defined by ASCIIMath and UnicodeMath:
- * - Either an expression fenced in (), {} or []
- * - a number (- sign, digits, decimal point, digits)
- * - a single [a-zA-Z] letter (an identifier)
- * - a multi-letter shortcut (e.g., pi)
- * - a LaTeX command (\pi) (for UnicodeMath)
- * @return
- * - match: the parsed (and converted) portion of the string that is an argument
- * - rest: the raw, unconverted, rest of the string
- */
-function parseMathArgument(s, options) {
-    let match = '';
-    s = s.trim();
-    let rest = s;
-    let lFence = s.charAt(0);
-    let rFence = { '(': ')', '{': '}', '[': ']' }[lFence];
-    if (rFence) {
-        // It's a fence
-        let level = 1;
-        let i = 1;
-        while (i < s.length && level > 0) {
-            if (s[i] === lFence)
-                level++;
-            if (s[i] === rFence)
-                level--;
-            i++;
-        }
-        if (level === 0) {
-            // We've found the matching closing fence
-            if (options.noWrap && lFence === '(') {
-                match = parseMathExpression(s.substring(1, i - 1), options);
-            }
-            else {
-                if (lFence === '{' && rFence === '}') {
-                    lFence = '\\{';
-                    rFence = '\\}';
-                }
-                match =
-                    '\\left' +
-                        lFence +
-                        parseMathExpression(s.substring(1, i - 1), options) +
-                        '\\right' +
-                        rFence;
-            }
-            rest = s.substring(i);
-        }
-        else {
-            // Unbalanced fence...
-            match = s.substring(1, i);
-            rest = '';
-        }
-    }
-    else {
-        let m = s.match(/^([a-zA-Z]+)/);
-        if (m) {
-            // It's a string of letter, maybe a shortcut
-            let shortcut = getInlineShortcut(null, s, options.inlineShortcuts);
-            if (shortcut) {
-                shortcut = shortcut.replace('_{#?}', '');
-                shortcut = shortcut.replace('^{#?}', '');
-                return { match: shortcut, rest: s.substring(shortcut.length) };
-            }
-        }
-        m = s.match(/^([a-zA-Z])/);
-        if (m) {
-            // It's a single letter
-            return { match: m[1], rest: s.substring(1) };
-        }
-        m = s.match(/^(-)?\d+(\.\d*)?/);
-        if (m) {
-            // It's a number
-            return { match: m[0], rest: s.substring(m[0].length) };
-        }
-        if (!/^\\(left|right)/.test(s)) {
-            // It's a LaTeX command (but not a \left\right)
-            m = s.match(/^(\\[a-zA-Z]+)/);
-            if (m) {
-                rest = s.substring(m[1].length);
-                match = m[1];
-            }
-        }
-    }
-    return { match: match, rest: rest };
-}
-function paddedShortcut(s, options) {
-    let result = getInlineShortcut(null, s, options);
-    if (result) {
-        result = result.replace('_{#?}', '');
-        result = result.replace('^{#?}', '');
-        result += ' ';
-    }
-    else {
-        result = s;
-    }
-    return result;
-}
-
-function applyStyleToUnstyledAtoms(atom, style) {
-    if (!atom || !style)
-        return;
-    if (isAtomArray(atom)) {
-        // Apply styling options to each atom
-        atom.forEach((x) => applyStyleToUnstyledAtoms(x, style));
-    }
-    else if (typeof atom === 'object') {
-        if (!atom.style.color &&
-            !atom.style.backgroundColor &&
-            !atom.style.fontFamily &&
-            !atom.style.fontShape &&
-            !atom.style.fontSeries &&
-            !atom.style.fontSize) {
-            atom.applyStyle(style);
-            applyStyleToUnstyledAtoms(atom.body, style);
-            applyStyleToUnstyledAtoms(atom.above, style);
-            applyStyleToUnstyledAtoms(atom.below, style);
-            applyStyleToUnstyledAtoms(atom.subscript, style);
-            applyStyleToUnstyledAtoms(atom.superscript, style);
-        }
-    }
-}
-/**
- * Apply a style (color, background) to the selection.
- *
- * If the style is already applied to the selection, remove it. If the selection
- * has the style partially applied (i.e. only some sections), remove it from
- * those sections, and apply it to the entire selection.
- */
-function applyStyle$3(model, range, style
-//  & { series?: FontSeries; shape?: FontShape; size?: string }
-) {
-    function everyStyle(property, value) {
-        let result = true;
-        model.getAtoms(model.selection).forEach((x) => {
-            result = result && x[property] === value;
-        });
-        return result;
-    }
-    range = model.normalizeRange(range);
-    if (range[0] === range[1])
-        return false;
-    if (style.color && everyStyle('color', style.color)) {
-        // If the selection already has this color, turn it off
-        style.color = 'none';
-    }
-    if (style.backgroundColor &&
-        everyStyle('backgroundColor', style.backgroundColor)) {
-        // If the selection already has this color, turn it off
-        style.backgroundColor = 'none';
-    }
-    if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
-        // If the selection already has this font family, turn it off
-        style.fontFamily = 'none';
-    }
-    // if (style.series) style.fontSeries = style.series;
-    if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
-        // If the selection already has this series (weight), turn it off
-        style.fontSeries = 'auto';
-    }
-    // if (style.shape) style.fontShape = style.shape;
-    if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
-        // If the selection already has this shape (italic), turn it off
-        style.fontShape = 'auto';
-    }
-    // if (style.size) style.fontSize = style.size;
-    if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
-        // If the selection already has this size, reset it to default size
-        style.fontSize = 'size5';
-    }
-    model.getAtoms(range).forEach((x) => x.applyStyle(style));
-    contentDidChange(model);
-    return true;
-}
-
-function getMode(model, offset) {
-    const atom = model.at(offset);
-    let result;
-    if (atom) {
-        result = atom.mode;
-        let ancestor = atom.parent;
-        while (!result && ancestor) {
-            if (ancestor)
-                result = ancestor.mode;
-            ancestor = ancestor.parent;
-        }
-    }
-    return result;
-}
-
-class CompositionAtom extends Atom {
-    constructor(value, options) {
-        var _a;
-        super('composition', { mode: (_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : 'math', value });
-    }
-    get computedStyle() {
-        return {};
-    }
-    render(context) {
-        // In theory one would like to be able to draw the clauses
-        // in an active composition. Unfortunately, there are
-        // no API to give access to those clauses :(
-        const result = new Span(this.value, 'ML__composition', 'composition');
-        this.bind(context, result);
-        if (this.caret)
-            result.caret = this.caret;
-        return [result];
-    }
-    toLatex(_options) {
-        return '';
-    }
-}
-
-function convertStringToAtoms(model, s, args, options) {
-    var _a, _b;
-    const mode = (_a = options.mode) !== null && _a !== void 0 ? _a : getMode(model, model.position);
-    let result = [];
-    if (mode === 'math' && options.format === 'ASCIIMath') {
-        [, s] = parseMathString(s, { format: 'ASCIIMath' });
-        result = parseLatex(s, 'math', null, options === null || options === void 0 ? void 0 : options.macros, false, model.listeners.onError);
-        // Simplify result.
-        if (model.options.removeExtraneousParentheses) {
-            simplifyParen(result);
-        }
-    }
-    else if (mode !== 'text' &&
-        (options.format === 'auto' || options.format === 'latex')) {
-        if (mode === 'command') {
-            // Short-circuit the tokenizer and parser if in command mode
-            result = [];
-            for (const c of s) {
-                if (COMMAND_MODE_CHARACTERS.test(c)) {
-                    result.push(new CommandAtom(c));
-                }
-            }
-        }
-        else if (mode === 'math') {
-            if (options.format === 'auto') {
-                [options.format, s] = parseMathString(s);
-            }
-            // If the whole string is bracketed by a mode shift command, remove it
-            if (/^\$\$(.*)\$\$$/.test(s)) {
-                s = s.substring(2, s.length - 2);
-            }
-            result = parseLatex(s, mode, args, options.macros, (_b = options.smartFence) !== null && _b !== void 0 ? _b : false, model.listeners.onError);
-            // Simplify result.
-            if (options.format !== 'latex' &&
-                model.options.removeExtraneousParentheses) {
-                simplifyParen(result);
-            }
-        }
-    }
-    else if (mode === 'text') {
-        // Map special TeX characters to alternatives
-        // Must do this one first, since other replacements include backslash
-        s = s.replace(/\\/g, '\\textbackslash ');
-        s = s.replace(/#/g, '\\#');
-        s = s.replace(/\$/g, '\\$');
-        s = s.replace(/%/g, '\\%');
-        s = s.replace(/&/g, '\\&');
-        // s = s.replace(/:/g, '\\colon');     // text colon?
-        // s = s.replace(/\[/g, '\\lbrack');
-        // s = s.replace(/]/g, '\\rbrack');
-        s = s.replace(/_/g, '\\_');
-        s = s.replace(/{/g, '\\textbraceleft ');
-        s = s.replace(/}/g, '\\textbraceright ');
-        s = s.replace(/\^/g, '\\textasciicircum ');
-        s = s.replace(/~/g, '\\textasciitilde ');
-        s = s.replace(/£/g, '\\textsterling ');
-        result = parseLatex(s, 'text', args, options.macros, false, model.listeners.onError);
-    }
-    // Some atoms may already have a style (for example if there was an
-    // argument, i.e. the selection, that this was applied to).
-    // So, don't apply style to atoms that are already styled, but *do*
-    // apply it to newly created atoms that have no style yet.
-    applyStyleToUnstyledAtoms(result, options.style);
-    return result;
-}
-function insert(model, s, options) {
-    var _a, _b, _c, _d;
-    if (!options.insertionMode)
-        options.insertionMode = 'replaceSelection';
-    if (!options.selectionMode)
-        options.selectionMode = 'placeholder';
-    if (!options.format)
-        options.format = 'auto';
-    options.macros = (_a = options.macros) !== null && _a !== void 0 ? _a : model.options.macros;
-    //
-    // Try to insert a smart fence.
-    //
-    if (!((_b = options.smartFence) !== null && _b !== void 0 ? _b : false)) {
-        // When smartFence is turned off, only do a "smart" fence insert
-        // if we're inside a `leftright`, at the last char
-        const parent = model.at(model.position).parent;
-        if (parent instanceof LeftRightAtom &&
-            parent.rightDelim === '?' &&
-            model.at(model.position).isLastSibling &&
-            /^[)}\]|]$/.test(s)) {
-            parent.rightDelim = s;
-            model.position += 1;
-            selectionDidChange(model);
-            contentDidChange(model);
-            return true;
-        }
-    }
-    else if (model.selectionIsCollapsed &&
-        insertSmartFence(model, s, options.style)) {
-        return true;
-    }
-    const suppressChangeNotifications = model.suppressChangeNotifications;
-    if (options.suppressChangeNotifications) {
-        model.suppressChangeNotifications = true;
-    }
-    const contentWasChanging = model.suppressChangeNotifications;
-    model.suppressChangeNotifications = true;
-    //
-    // Save the content of the selection, if any
-    //
-    const args = [];
-    args[0] = model.getValue(model.selection);
-    args['?'] = (_c = options.placeholder) !== null && _c !== void 0 ? _c : '\\placeholder{}';
-    args['@'] = args['?'];
-    //
-    // Delete any selected items
-    //
-    if (options.insertionMode === 'replaceSelection' &&
-        !model.selectionIsCollapsed) {
-        model.deleteAtoms(range(model.selection));
-    }
-    else if (options.insertionMode === 'replaceAll') {
-        model.root.setChildren([], 'body');
-        model.position = 0;
-    }
-    else if (options.insertionMode === 'insertBefore') {
-        model.collapseSelection('backward');
-    }
-    else if (options.insertionMode === 'insertAfter') {
-        model.collapseSelection('forward');
-    }
-    //
-    // Delete any placeholders before or after the insertion point
-    //
-    if (!model.at(model.position).isLastSibling &&
-        model.at(model.position + 1).type === 'placeholder') {
-        // Before a `placeholder`
-        model.deleteAtoms([model.position, model.position + 1]);
-    }
-    else if (model.at(model.position).type === 'placeholder') {
-        // After a `placeholder`
-        model.deleteAtoms([model.position - 1, model.position]);
-    }
-    //
-    // Calculate the implicit argument (#@)
-    //
-    const mode = (_d = options.mode) !== null && _d !== void 0 ? _d : getMode(model, model.position);
-    if (mode === 'math') {
-        if (args[0]) {
-            // There was a selection, we'll use it for #@
-            args['@'] = args[0];
-        }
-        else if (/(^|[^\\])#@/.test(s)) {
-            // We'll use the preceding `mord`s or text mode atoms for it (implicit argument)
-            const offset = getImplicitArgOffset(model);
-            if (offset >= 0) {
-                args['@'] = model.getValue(offset, model.position);
-                model.deleteAtoms([offset, model.position]);
-            }
-        }
-        if (!args[0])
-            args[0] = args['?'];
-    }
-    const newAtoms = convertStringToAtoms(model, s, args, options);
-    if (!newAtoms)
-        return false;
-    //
-    // Insert the new atoms
-    //
-    const parent = model.at(model.position).parent;
-    // Are we inserting a fraction inside a lefright?
-    if (options.format !== 'latex' &&
-        model.options.removeExtraneousParentheses &&
-        parent instanceof LeftRightAtom &&
-        parent.leftDelim === '(' &&
-        parent.hasEmptyBranch('body') &&
-        newAtoms.length === 1 &&
-        newAtoms[0].type === 'genfrac') {
-        // Remove the leftright
-        // i.e. `\left(\frac{}{}\right))` -> `\frac{}{}`
-        const newParent = parent.parent;
-        const branch = parent.treeBranch;
-        newParent.removeChild(parent);
-        newParent.setChildren(newAtoms, branch);
-    }
-    else {
-        if (options.format === 'latex' && args.length === 1 && !args[0]) {
-            // If we are given a latex string with no arguments, store it verbatim
-            // Caution: we can only do this if the toLatex() for this parent
-            // would return an empty string. If the latex is generated using other
-            // properties than parent.body, for example by adding '\left.' and
-            // '\right.' with a 'leftright' type, we can't use this shortcut.
-            if (parent.type === 'root' && parent.hasEmptyBranch('body')) {
-                parent.latex = s;
-            }
-        }
-        const cursor = model.at(model.position);
-        cursor.parent.addChildrenAfter(newAtoms, cursor);
-    }
-    // Prepare to dispatch notifications
-    // (for selection changes, then content change)
-    model.suppressChangeNotifications = contentWasChanging;
-    const lastNewAtom = newAtoms[newAtoms.length - 1];
-    // Update the anchor's location
-    if (options.selectionMode === 'placeholder') {
-        // Move to the next placeholder
-        const newPlaceholders = newAtoms.reduce((acc, atom) => [
-            ...acc,
-            ...atom.children.filter((x) => x.type === 'placeholder'),
-        ], []);
-        if (newPlaceholders.length > 0) {
-            const placeholderOffset = model.offsetOf(newPlaceholders[0]);
-            model.setSelection(placeholderOffset - 1, placeholderOffset);
-            model.announce('move'); // should have placeholder selected
-        }
-        else if (lastNewAtom) {
-            // No placeholder found, move to right after what we just inserted
-            model.position = model.offsetOf(lastNewAtom);
-        }
-    }
-    else if (options.selectionMode === 'before') ;
-    else if (options.selectionMode === 'after') {
-        if (lastNewAtom) {
-            model.position = model.offsetOf(lastNewAtom);
-        }
-    }
-    else if (options.selectionMode === 'item') {
-        model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
-    }
-    contentDidChange(model);
-    model.suppressChangeNotifications = suppressChangeNotifications;
-    return true;
-}
-/**
- * Create, remove or update a composition atom at the current location
- */
-function updateComposition(model, s) {
-    const cursor = model.at(model.position);
-    // We're creating or updating a composition
-    if (cursor.type === 'composition') {
-        // Composition already in progress, update it
-        cursor.value = s;
-    }
-    else {
-        // No composition yet, create one
-        // Remove previous caret
-        const caret = cursor.caret;
-        cursor.caret = '';
-        // Create 'composition' atom, with caret
-        const atom = new CompositionAtom(s, { mode: cursor.mode });
-        atom.caret = caret;
-        cursor.parent.addChildAfter(atom, cursor);
-        //Move cursor one past the composition zone
-        model.position += 1;
-    }
-}
-/**
- * Remove the composition zone
- */
-function removeComposition(model) {
-    const cursor = model.at(model.position);
-    if (cursor.type === 'composition') {
-        cursor.parent.removeChild(cursor);
-        model.position -= 1;
-    }
-}
-function removeParen(atoms) {
-    if (!atoms)
-        return null;
-    console.assert(atoms[0].type === 'first');
-    if (atoms.length > 1)
-        return null;
-    const atom = atoms[0];
-    if (atom instanceof LeftRightAtom &&
-        atom.leftDelim === '(' &&
-        atom.rightDelim === ')') {
-        return atom.removeBranch('body');
-    }
-    return null;
-}
-/**
- * If it's a fraction with a parenthesized numerator or denominator
- * remove the parentheses
- * @revisit: don't need model, only need to know if removeExtraneousParentheses
- *              Check at callsites.
- */
-function simplifyParen(atoms) {
-    if (!atoms)
-        return;
-    for (let i = 0; atoms[i]; i++) {
-        const atom = atoms[i];
-        if (atom instanceof LeftRightAtom && atom.leftDelim === '(') {
-            let genFracCount = 0;
-            let genFracIndex = 0;
-            let nonGenFracCount = 0;
-            for (let j = 0; atom.body[j]; j++) {
-                if (atom.body[j].type === 'genfrac') {
-                    genFracCount++;
-                    genFracIndex = j;
-                }
-                nonGenFracCount++;
-            }
-            if (nonGenFracCount === 0 && genFracCount === 1) {
-                // This is a single frac inside a leftright: remove the leftright
-                atoms[i] = atom.body[genFracIndex];
-            }
-        }
-    }
-    atoms.forEach((atom) => {
-        NAMED_BRANCHES.forEach((branch) => {
-            if (!atom.hasEmptyBranch(branch)) {
-                simplifyParen(atom.branch(branch));
-                const newChildren = removeParen(atom.branch(branch));
-                if (newChildren)
-                    atom.setChildren(newChildren, branch);
-            }
-        });
-        if (atom instanceof ArrayAtom) {
-            atom.cells.forEach((x) => simplifyParen(x));
-        }
-    });
-}
-// const MATCHING_FENCE = {
-//     '\\lbrace': ['\\rbrace'],
-//     '(': [')', ']', '\\rbrack'],
-//     // For (open/closed) intervals
-//     '\\rbrack': [')', ']', '\\rbrack', '[', '\\lbrack'],
-//     '\\lbrack': [')', ']', '\\rbrack', '[', '\\lbrack'],
-// };
-/**
- * Insert a smart fence '(', '{', '[', etc...
- * If not handled (because `fence` wasn't a fence), return false.
- */
-function insertSmartFence(model, fence, style) {
-    console.assert(model.selectionIsCollapsed);
-    const atom = model.at(model.position);
-    const parent = atom.parent;
-    let delims = parent instanceof LeftRightAtom
-        ? parent.leftDelim + parent.rightDelim
-        : '';
-    if (delims === '\\lbrace\\rbrace')
-        delims = '{}';
-    if (delims === '\\{\\}')
-        delims = '{}';
-    //
-    // 1. Are we inserting a middle fence?
-    // ...as in {...|...}
-    //
-    if (delims === '{}' && /\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
-        insert(model, '\\,\\middle' + fence + '\\, ', {
-            mode: 'math',
-            format: 'latex',
-            style: style,
-        });
-        return true;
-    }
-    // Normalize some fences.
-    // Note that '{' and '}' are not valid braces.
-    // They should be '\{' or '\lbrace' and '\}' or '\rbrace'
-    if (fence === '{' || fence === '\\{')
-        fence = '\\lbrace';
-    if (fence === '}' || fence === '\\}')
-        fence = '\\rbrace';
-    if (fence === '[')
-        fence = '\\lbrack';
-    if (fence === ']')
-        fence = '\\rbrack';
-    //
-    // 2. Is it an open fence?
-    //
-    const rDelim = RIGHT_DELIM[fence];
-    if (rDelim &&
-        !(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
-        // We have a valid open fence as input
-        let s = '';
-        if (atom.isFunction) {
-            // We're before a function (e.g. `\sin`, or 'f'):  this is an
-            // argument list.
-            // Use `\mleft...\mright'.
-            s = '\\mleft' + fence + '\\mright' + rDelim;
-        }
-        else {
-            s = '\\left' + fence + '\\right?';
-        }
-        const lastSiblingOffset = model.offsetOf(atom.lastSibling);
-        const content = model.extractAtoms([model.position, lastSiblingOffset]);
-        insert(model, s, { mode: 'math', format: 'latex', style: style });
-        // Move everything that was after the anchor into the leftright
-        model.at(model.position).body = content;
-        model.position -= 1;
-        return true;
-    }
-    //
-    // 3. Is it a close fence?
-    //
-    let lDelim;
-    Object.keys(RIGHT_DELIM).forEach((delim) => {
-        if (fence === RIGHT_DELIM[delim])
-            lDelim = delim;
-    });
-    if (lDelim) {
-        // We found a matching open fence, so it was a valid close fence.
-        // Note that `lDelim` may not match `fence`. That's OK.
-        // If we're the last atom inside a 'leftright',
-        // update the parent
-        if (parent instanceof LeftRightAtom && atom.isLastSibling) {
-            parent.rightDelim = fence;
-            model.position += 1;
-            contentDidChange(model);
-            return true;
-        }
-        // If we have a `leftright` sibling to our left
-        // with an indeterminate right fence,
-        // move what's between us and the `leftright` inside the `leftright`
-        const firstSibling = model.offsetOf(atom.firstSibling);
-        let i;
-        for (i = model.position; i >= firstSibling; i--) {
-            const atom = model.at(i);
-            if (atom instanceof LeftRightAtom && atom.rightDelim === '?') {
-                break;
-            }
-        }
-        const match = model.at(i);
-        if (i >= firstSibling && match instanceof LeftRightAtom) {
-            match.rightDelim = fence;
-            match.addChildren(model.extractAtoms([i, model.position]), atom.treeBranch);
-            contentDidChange(model);
-            return true;
-        }
-        // If we're inside a `leftright`, but not the last atom,
-        // and the `leftright` right delim is indeterminate
-        // adjust the body (put everything after the insertion point outside)
-        if (parent instanceof LeftRightAtom && parent.rightDelim === '?') {
-            parent.rightDelim = fence;
-            parent.parent.addChildren(model.extractAtoms([
-                model.position,
-                model.offsetOf(atom.lastSibling),
-            ]), parent.treeBranch);
-            model.position = model.offsetOf(parent);
-            contentDidChange(model);
-            return true;
-        }
-        // Is our grand-parent a 'leftright'?
-        // If `\left(\frac{1}{x|}\right?` with the cursor at `|`
-        // go up to the 'leftright' and apply it there instead
-        const grandparent = parent.parent;
-        if (grandparent instanceof LeftRightAtom &&
-            grandparent.rightDelim === '?' &&
-            model.at(model.position).isLastSibling) {
-            model.position = model.offsetOf(grandparent);
-            return insertSmartFence(model, fence, style);
-        }
-        // Meh... We couldn't find a matching open fence. Just insert the
-        // closing fence as a regular character
-        return false;
-    }
-    return false;
-}
-/**
- * Locate the offset before the insertion point that would indicate
- * a good place to select as an implicit argument.
- *
- * For example with '1+\sin(x)', if the insertion point is at the
- * end, the implicit arg offset would be after the plus. As a result,
- * inserting a fraction after the sin would yield: '1+\frac{\sin(c)}{\placeholder{}}'
- */
-function getImplicitArgOffset(model) {
-    let atom = model.at(model.position);
-    if (atom.mode === 'text') {
-        while (!atom.isFirstSibling && atom.mode === 'text') {
-            atom = atom.leftSibling;
-        }
-        return model.offsetOf(atom);
-    }
-    if (!isImplicitArg(atom)) {
-        return -1;
-    }
-    // Find the first 'mrel', etc... to the left of the insertion point
-    // until the first sibling
-    while (!atom.isFirstSibling && isImplicitArg(atom)) {
-        atom = atom.leftSibling;
-    }
-    return model.offsetOf(atom);
-}
-/**
- *
- * Predicate returns true if the atom should be considered an implicit argument.
- *
- * Used for example when typing "/" to insert a fraction: all the atoms to
- * the left of insertion point that return true for `isImplicitArg()` will
- * be included as the numerator
- */
-function isImplicitArg(atom) {
-    if (/^(mord|surd|msubsup|leftright|mop)$/.test(atom.type)) {
-        // Exclude `\int`, \`sum`, etc...
-        if (atom.isExtensibleSymbol)
-            return false;
-        return true;
-    }
-    return false;
-}
+new LatexModeEditor();
 
 function updateAutocomplete(mathfield, options) {
     var _a;
     const model = mathfield.model;
     // Remove any error indicator and any suggestions
-    const atoms = getCommandAtoms(model);
-    atoms.forEach((x) => {
+    getLatexGroupBody(model).forEach((x) => {
         if (x.isSuggestion) {
             x.parent.removeChild(x);
         }
@@ -24235,24 +22953,22 @@ function updateAutocomplete(mathfield, options) {
         hidePopover(mathfield);
         return;
     }
-    // The current command is the sequence of around the insertion point
+    // The current command is the sequence of atom around the insertion point
     // that ends on the left with a '\\' and on the right with a non-command
     // character.
     const command = [];
     let atom = model.at(model.position);
-    while (atom &&
-        atom instanceof CommandAtom &&
-        /[a-zA-Z*]$/.test(atom.value)) {
+    while (atom && atom instanceof LatexAtom && /[a-zA-Z*]$/.test(atom.value)) {
         command.unshift(atom);
         atom = atom.leftSibling;
     }
-    if (atom && atom instanceof CommandAtom && atom.value === '\\') {
+    if (atom && atom instanceof LatexAtom && atom.value === '\\') {
         // We found the beginning of a command, include the atoms after the
         // insertion point
         command.unshift(atom);
         atom = model.at(model.position).rightSibling;
         while (atom &&
-            atom instanceof CommandAtom &&
+            atom instanceof LatexAtom &&
             /[a-zA-Z*]$/.test(atom.value)) {
             command.push(atom);
             atom = atom.rightSibling;
@@ -24277,7 +22993,7 @@ function updateAutocomplete(mathfield, options) {
     const suggestion = suggestions[mathfield.suggestionIndex % suggestions.length].match;
     if (suggestion !== commandString) {
         const lastAtom = command[command.length - 1];
-        lastAtom.parent.addChildrenAfter(Array.from(suggestion.substr(commandString.length - suggestion.length)).map((x) => new CommandAtom(x, { isSuggestion: true })), lastAtom);
+        lastAtom.parent.addChildrenAfter(Array.from(suggestion.substr(commandString.length - suggestion.length)).map((x) => new LatexAtom(x, { isSuggestion: true })), lastAtom);
         requestUpdate(mathfield);
     }
     showPopoverWithLatex(mathfield, suggestion, suggestions.length > 1);
@@ -24290,84 +23006,40 @@ function acceptCommandSuggestion(model) {
     });
 }
 /**
- * When in command mode, insert the command in progress and leave command mode
+ * When in latex mode, insert the latex being edited and leave latex mode
  *
  */
 function complete(mathfield, completion = 'accept', options) {
     var _a, _b;
     hidePopover(mathfield);
-    if (completion === 'reject') {
-        mathfield.model.deleteAtoms(getCommandRange(mathfield.model));
-        mathfield.switchMode((_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : 'math');
+    const latexGroup = getLatexGroup(mathfield.model);
+    if (!latexGroup)
+        return false;
+    if (completion === 'accept-suggestion') {
+        const suggestion = getLatexGroupBody(mathfield.model).filter((x) => x.isSuggestion === true);
+        if (suggestion.length === 0)
+            return false;
+        suggestion.forEach((x) => {
+            x.isSuggestion = false;
+        });
+        mathfield.model.position = mathfield.model.offsetOf(suggestion[suggestion.length - 1]);
         return true;
     }
-    if (completion === 'accept-suggestion') {
-        acceptCommandSuggestion(mathfield.model);
-    }
-    const command = getCommandString(mathfield.model);
-    if (!command)
-        return false;
-    if (command === '\\(' || command === '\\)') {
-        mathfield.model.deleteAtoms(getCommandRange(mathfield.model));
-        insert(mathfield.model, command.slice(1), {
-            mode: mathfield.mode,
-        });
-    }
-    else {
-        // We'll assume we want to insert in math mode
-        // (commands are only available in math mode)
-        mathfield.switchMode('math');
-        // Interpret the input as LaTeX code
-        const atoms = parseLatex(command, 'math', null, mathfield.options.macros);
-        if (atoms) {
-            insertCommand(mathfield.model, atoms, {
-                selectItem: (_b = options === null || options === void 0 ? void 0 : options.selectItem) !== null && _b !== void 0 ? _b : false,
-            });
-        }
-        else {
-            getCommandAtoms(mathfield.model).forEach((x) => {
-                x.isError = true;
-            });
-        }
-    }
+    const body = getLatexGroupBody(mathfield.model).filter((x) => x.isSuggestion === false);
+    const latex = body.map((x) => x.value).join('');
+    const newPos = latexGroup.leftSibling;
+    latexGroup.parent.removeChild(latexGroup);
+    mathfield.model.position = mathfield.model.offsetOf(newPos);
+    mathfield.mode = (_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : 'math';
+    if (completion === 'reject')
+        return true;
+    ModeEditor.insert('math', mathfield.model, latex, {
+        macros: mathfield.options.macros,
+        selectionMode: ((_b = options === null || options === void 0 ? void 0 : options.selectItem) !== null && _b !== void 0 ? _b : false) ? 'item' : 'placeholder',
+    });
     mathfield.snapshot();
     mathfield.model.announce('replacement');
     return true;
-}
-function insertCommand(model, atoms, options) {
-    let didChange = model.deleteAtoms(getCommandRange(model));
-    if (atoms) {
-        // Find any placeholders in the new atoms
-        const placeholders = [];
-        atoms.forEach((atom) => atom.children.forEach((x) => {
-            if (x.type === 'placeholder')
-                placeholders.push(x);
-        }));
-        // Insert the new atoms
-        const cursor = model.at(model.position);
-        cursor.parent.addChildrenAfter(atoms, cursor);
-        didChange = true;
-        // Change the selection
-        if (placeholders.length > 0) {
-            const offset = model.offsetOf(placeholders[0]);
-            console.assert(offset >= 0);
-            model.setSelection(offset - 1, offset);
-        }
-        else {
-            // No placeholder.
-            if (options.selectItem) {
-                model.setSelection(model.offsetOf(atoms[0]) - 1, model.offsetOf(atoms[atoms.length - 1]));
-            }
-            else {
-                // Move after the last new atom
-                model.position = model.offsetOf(atoms[atoms.length - 1]);
-            }
-        }
-    }
-    if (didChange) {
-        // Dispatch notifications
-        contentDidChange(model);
-    }
 }
 
 // @revisit: move to mathfield.vibrate()
@@ -24377,7 +23049,7 @@ const COMMANDS = {};
  * Register one or more selectors.
  * The selector function return true to request a render update of the expression.
  */
-function register$2(commands, options) {
+function register$1(commands, options) {
     options = options !== null && options !== void 0 ? options : { target: 'mathfield', canUndo: false };
     Object.keys(commands).forEach((selector) => {
         console.assert(!COMMANDS[selector], 'Selector already defined: ', selector);
@@ -24409,17 +23081,17 @@ function perform(mathfield, command) {
             }
         }
         if (/^(delete|transpose|add)/.test(selector) &&
-            mathfield.mode !== 'command') {
+            mathfield.mode !== 'latex') {
             // Update the undo state to account for the current selection
             mathfield.popUndoStack();
             mathfield.snapshot();
         }
         COMMANDS[selector].fn(mathfield.model, ...args);
         if (/^(delete|transpose|add)/.test(selector) &&
-            mathfield.mode !== 'command') {
+            mathfield.mode !== 'latex') {
             mathfield.snapshot();
         }
-        if (mathfield.mode === 'command') {
+        if (mathfield.mode === 'latex') {
             updateAutocomplete(mathfield);
         }
         dirty = true;
@@ -24482,7 +23154,7 @@ function performWithFeedback(mathfield, selector) {
     }
     return mathfield.executeCommand(selector);
 }
-register$2({
+register$1({
     performWithFeedback: (mathfield, command) => performWithFeedback(mathfield, command),
 });
 function nextSuggestion(mathfield) {
@@ -24495,7 +23167,7 @@ function previousSuggestion(mathfield) {
     updateAutocomplete(mathfield, { atIndex: mathfield.suggestionIndex - 1 });
     return false;
 }
-register$2({
+register$1({
     complete: complete,
     nextSuggestion: nextSuggestion,
     previousSuggestion: previousSuggestion,
@@ -24518,7 +23190,7 @@ function addColumnBefore(model) {
     contentDidChange(model);
     return true;
 }
-register$2({
+register$1({
     addRowAfter: addRowAfter,
     addColumnAfter: addColumnAfter,
     addRowBefore: addRowBefore,
@@ -24637,7 +23309,9 @@ function onDelete(model, direction, atom, branch) {
             (direction === 'backward' && branch === 'body')) {
             // Before fwd or body 1st bwd: Demote body
             const pos = atom.leftSibling;
-            parent.addChildrenAfter(atom.removeBranch('body'), atom);
+            if (atom.hasChildren) {
+                parent.addChildrenAfter(atom.removeBranch('body'), atom);
+            }
             parent.removeChild(atom);
             model.position = model.offsetOf(pos);
         }
@@ -24647,7 +23321,13 @@ function onDelete(model, direction, atom, branch) {
         }
         else if (!branch && direction === 'backward') {
             // after bwd: move to last of body
-            model.position = model.offsetOf(atom.lastChild);
+            if (atom.hasChildren) {
+                model.position = model.offsetOf(atom.lastChild);
+            }
+            else {
+                model.position = Math.max(model.offsetOf(atom) - 1);
+                atom.parent.removeChild(atom);
+            }
         }
         else if (branch === 'above') {
             if (atom.hasEmptyBranch('above')) {
@@ -24781,21 +23461,21 @@ function deleteBackward(model) {
     if (!model.selectionIsCollapsed) {
         return deleteRange(model, range(model.selection));
     }
-    let target = model.at(model.position);
-    if (target && onDelete(model, 'backward', target))
-        return true;
-    if (target === null || target === void 0 ? void 0 : target.isFirstSibling) {
-        if (onDelete(model, 'backward', target.parent, target.treeBranch)) {
-            return true;
-        }
-        target = null;
-    }
-    // At the first position: nothing to delete...
-    if (!target) {
-        model.announce('plonk');
-        return false;
-    }
     return model.deferNotifications({ content: true, selection: true }, () => {
+        let target = model.at(model.position);
+        if (target && onDelete(model, 'backward', target))
+            return;
+        if (target === null || target === void 0 ? void 0 : target.isFirstSibling) {
+            if (onDelete(model, 'backward', target.parent, target.treeBranch)) {
+                return;
+            }
+            target = null;
+        }
+        // At the first position: nothing to delete...
+        if (!target) {
+            model.announce('plonk');
+            return;
+        }
         const offset = model.offsetOf(target.leftSibling);
         target.parent.removeChild(target);
         model.announce('delete', null, [target]);
@@ -24810,27 +23490,27 @@ function deleteForward(model) {
     if (!model.selectionIsCollapsed) {
         return deleteRange(model, range(model.selection));
     }
-    let target = model.at(model.position).rightSibling;
-    if (target && onDelete(model, 'forward', target))
-        return true;
-    if (!target) {
-        target = model.at(model.position);
-        if (target.isLastSibling &&
-            onDelete(model, 'forward', target.parent, target.treeBranch)) {
-            return true;
-        }
-        target = null;
-    }
-    else if (model.at(model.position).isLastSibling &&
-        onDelete(model, 'forward', target.parent, target.treeBranch)) {
-        return true;
-    }
-    if (model.position === model.lastOffset || !target) {
-        model.announce('plonk');
-        return false;
-    }
     return model.deferNotifications({ content: true, selection: true }, () => {
         var _a, _b;
+        let target = model.at(model.position).rightSibling;
+        if (target && onDelete(model, 'forward', target))
+            return;
+        if (!target) {
+            target = model.at(model.position);
+            if (target.isLastSibling &&
+                onDelete(model, 'forward', target.parent, target.treeBranch)) {
+                return;
+            }
+            target = null;
+        }
+        else if (model.at(model.position).isLastSibling &&
+            onDelete(model, 'forward', target.parent, target.treeBranch)) {
+            return;
+        }
+        if (model.position === model.lastOffset || !target) {
+            model.announce('plonk');
+            return;
+        }
         target.parent.removeChild(target);
         let sibling = (_a = model.at(model.position)) === null || _a === void 0 ? void 0 : _a.rightSibling;
         while ((sibling === null || sibling === void 0 ? void 0 : sibling.type) === 'msubsup') {
@@ -24849,20 +23529,162 @@ function deleteForward(model) {
  * user action.
  */
 function deleteRange(model, range) {
-    model.deleteAtoms(range);
-    return true;
+    return model.deferNotifications({ content: true, selection: true }, () => {
+        model.deleteAtoms(range);
+        model.position = range[0];
+    });
+}
+
+class CompositionAtom extends Atom {
+    constructor(value, options) {
+        var _a;
+        super('composition', { mode: (_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : 'math', value });
+    }
+    get computedStyle() {
+        return {};
+    }
+    render(context) {
+        // In theory one would like to be able to draw the clauses
+        // in an active composition. Unfortunately, there are
+        // no API to give access to those clauses :(
+        const result = new Span(this.value, 'ML__composition', 'composition');
+        this.bind(context, result);
+        if (this.caret)
+            result.caret = this.caret;
+        return [result];
+    }
+    toLatex(_options) {
+        return '';
+    }
 }
 
 /**
- * Return true if the atom could be a part of a number
- * i.e. "-12354.568"
+ * Create, remove or update a composition atom at the current location
  */
-function isNumber$1(atom) {
-    if (!atom)
-        return false;
-    return ((atom.type === 'mord' && /[0-9.]/.test(atom.value)) ||
-        (atom.type === 'mpunct' && atom.value === ','));
+function updateComposition(model, s) {
+    const cursor = model.at(model.position);
+    // We're creating or updating a composition
+    if (cursor.type === 'composition') {
+        // Composition already in progress, update it
+        cursor.value = s;
+    }
+    else {
+        // No composition yet, create one
+        // Remove previous caret
+        const caret = cursor.caret;
+        cursor.caret = '';
+        // Create 'composition' atom, with caret
+        const atom = new CompositionAtom(s, { mode: cursor.mode });
+        atom.caret = caret;
+        cursor.parent.addChildAfter(atom, cursor);
+        //Move cursor one past the composition zone
+        model.position += 1;
+    }
 }
+/**
+ * Remove the composition zone
+ */
+function removeComposition(model) {
+    const cursor = model.at(model.position);
+    if (cursor.type === 'composition') {
+        cursor.parent.removeChild(cursor);
+        model.position -= 1;
+    }
+}
+
+function getMode(model, offset) {
+    const atom = model.at(offset);
+    let result;
+    if (atom) {
+        result = atom.mode;
+        let ancestor = atom.parent;
+        while (!result && ancestor) {
+            if (ancestor)
+                result = ancestor.mode;
+            ancestor = ancestor.parent;
+        }
+    }
+    return result;
+}
+
+function applyStyleToUnstyledAtoms(atom, style) {
+    if (!atom || !style)
+        return;
+    if (isAtomArray(atom)) {
+        // Apply styling options to each atom
+        atom.forEach((x) => applyStyleToUnstyledAtoms(x, style));
+    }
+    else if (typeof atom === 'object') {
+        if (!atom.style.color &&
+            !atom.style.backgroundColor &&
+            !atom.style.fontFamily &&
+            !atom.style.fontShape &&
+            !atom.style.fontSeries &&
+            !atom.style.fontSize &&
+            !atom.style.variant &&
+            !atom.style.variantStyle) {
+            atom.applyStyle(style);
+            applyStyleToUnstyledAtoms(atom.body, style);
+            applyStyleToUnstyledAtoms(atom.above, style);
+            applyStyleToUnstyledAtoms(atom.below, style);
+            applyStyleToUnstyledAtoms(atom.subscript, style);
+            applyStyleToUnstyledAtoms(atom.superscript, style);
+        }
+    }
+}
+/**
+ * Apply a style (color, background) to the selection.
+ *
+ * If the style is already applied to the selection, remove it. If the selection
+ * has the style partially applied (i.e. only some sections), remove it from
+ * those sections, and apply it to the entire selection.
+ */
+function applyStyle(model, range, style
+//  & { series?: FontSeries; shape?: FontShape; size?: string }
+) {
+    function everyStyle(property, value) {
+        let result = true;
+        model.getAtoms(model.selection).forEach((x) => {
+            result = result && x[property] === value;
+        });
+        return result;
+    }
+    range = model.normalizeRange(range);
+    if (range[0] === range[1])
+        return false;
+    if (style.color && everyStyle('color', style.color)) {
+        // If the selection already has this color, turn it off
+        style.color = 'none';
+    }
+    if (style.backgroundColor &&
+        everyStyle('backgroundColor', style.backgroundColor)) {
+        // If the selection already has this color, turn it off
+        style.backgroundColor = 'none';
+    }
+    if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
+        // If the selection already has this font family, turn it off
+        style.fontFamily = 'none';
+    }
+    // if (style.series) style.fontSeries = style.series;
+    if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
+        // If the selection already has this series (weight), turn it off
+        style.fontSeries = 'auto';
+    }
+    // if (style.shape) style.fontShape = style.shape;
+    if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
+        // If the selection already has this shape (italic), turn it off
+        style.fontShape = 'auto';
+    }
+    // if (style.size) style.fontSize = style.size;
+    if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
+        // If the selection already has this size, reset it to default size
+        style.fontSize = 'size5';
+    }
+    model.getAtoms(range).forEach((x) => x.applyStyle(style));
+    contentDidChange(model);
+    return true;
+}
+
 /*
  * Calculates the offset of the "next word".
  * This is inspired by the behavior of text editors on macOS, namely:
@@ -24955,73 +23777,6 @@ function wordBoundaryOffset(model, offset, direction) {
     }
     return result - (dir > 0 ? 0 : 1);
 }
-function moveAfterParent(model) {
-    const previousPosition = model.position;
-    if (!model.at(previousPosition).parent) {
-        model.announce('plonk');
-        return false;
-    }
-    model.position = model.offsetOf(model.at(model.position).parent);
-    model.announce('move', previousPosition);
-    return true;
-}
-/**
- * Switch the cursor to the superscript and select it. If there is no subscript
- * yet, create one.
- */
-function moveToSuperscript(model) {
-    var _a;
-    model.collapseSelection();
-    if (superscriptDepth(model) >= model.mathfield.options.scriptDepth[1]) {
-        model.announce('plonk');
-        return false;
-    }
-    let target = model.at(model.position);
-    if (target.limits !== 'limits' && target.limits !== 'auto') {
-        // This atom can't have a superscript/subscript:
-        // add an adjacent `msubsup` atom instead.
-        if (((_a = model.at(model.position + 1)) === null || _a === void 0 ? void 0 : _a.type) !== 'msubsup') {
-            target.parent.addChildAfter(new SubsupAtom({
-                baseType: target.type,
-                style: model.at(model.position).computedStyle,
-            }), target);
-        }
-        target = model.at(model.position + 1);
-    }
-    // Ensure there is a superscript branch
-    target.createBranch('superscript');
-    model.setSelection(model.getSiblingsRange(model.offsetOf(target.superscript[0])));
-    return true;
-}
-/**
- * Switch the cursor to the subscript and select it. If there is no subscript
- * yet, create one.
- */
-function moveToSubscript(model) {
-    var _a;
-    model.collapseSelection();
-    if (subscriptDepth(model) >= model.mathfield.options.scriptDepth[0]) {
-        model.announce('plonk');
-        return false;
-    }
-    let target = model.at(model.position);
-    if (target.limits !== 'limits' && target.limits !== 'auto') {
-        // This atom can't have a superscript/subscript:
-        // add an adjacent `msubsup` atom instead.
-        if (((_a = model.at(model.position + 1)) === null || _a === void 0 ? void 0 : _a.type) !== 'msubsup') {
-            target.parent.addChildAfter(new Atom('msubsup', {
-                mode: target.mode,
-                value: '\u200b',
-                style: model.at(model.position).computedStyle,
-            }), target);
-        }
-        target = model.at(model.position + 1);
-    }
-    // Ensure there is a subscript branch
-    target.createBranch('subscript');
-    model.setSelection(model.getSiblingsRange(model.offsetOf(target.subscript[0])));
-    return true;
-}
 /**
  * Keyboard navigation with alt/option:
  * Move the insertion point to the next/previous point of interest.
@@ -25029,8 +23784,7 @@ function moveToSubscript(model) {
  * than the current focus.
  * If `extend` is true, the selection will be extended. Otherwise, it is
  * collapsed, then moved.
- * @param dir +1 to skip forward, -1 to skip back
- * @revisit: to do
+ * @revisit: array
  */
 function skip(model, direction, options) {
     var _a, _b, _c, _d, _e, _f, _g;
@@ -25061,14 +23815,14 @@ function skip(model, direction, options) {
         //
         offset = wordBoundaryOffset(model, offset, direction);
     }
-    else if (atom instanceof CommandAtom) {
+    else if (atom instanceof LatexAtom) {
         //
         // We're in a command zone, skip suggestion
         //
         if (atom.isSuggestion) {
             // Since suggestions are always at the end, this must be forward
             console.assert(direction === 'forward');
-            while (atom && atom instanceof CommandAtom) {
+            while (atom && atom instanceof LatexAtom) {
                 atom.isSuggestion = false;
                 offset = model.offsetOf(atom);
                 atom = atom.rightSibling;
@@ -25077,13 +23831,13 @@ function skip(model, direction, options) {
         else {
             if (direction === 'forward') {
                 atom = atom.rightSibling;
-                if (!atom || !(atom instanceof CommandAtom)) {
+                if (!atom || !(atom instanceof LatexAtom)) {
                     // At the end of the command
                     model.announce('plonk');
                     return false;
                 }
                 while (atom &&
-                    atom instanceof CommandAtom &&
+                    atom instanceof LatexAtom &&
                     /[a-zA-Z\*]/.test(atom.value)) {
                     offset = model.offsetOf(atom);
                     atom = atom.rightSibling;
@@ -25091,13 +23845,13 @@ function skip(model, direction, options) {
             }
             else {
                 atom = atom.leftSibling;
-                if (!atom || !(atom instanceof CommandAtom)) {
+                if (!atom || !(atom instanceof LatexAtom)) {
                     // At the start of the command
                     model.announce('plonk');
                     return false;
                 }
                 while (atom &&
-                    atom instanceof CommandAtom &&
+                    atom instanceof LatexAtom &&
                     /[a-zA-Z\*]/.test(atom.value)) {
                     offset = model.offsetOf(atom);
                     atom = atom.leftSibling;
@@ -25206,73 +23960,14 @@ function skip(model, direction, options) {
     return true;
 }
 /**
- * Select all the atoms in the current group, that is all the siblings.
- * When the selection is in a numerator, the group is the numerator. When
- * the selection is a superscript or subscript, the group is the supsub.
- * When the selection is in a text zone, the "group" is a word.
- */
-function selectGroup(model) {
-    if (getMode(model, model.position) === 'text') {
-        let start = Math.min(model.anchor, model.position);
-        let end = Math.max(model.anchor, model.position);
-        //
-        let done = false;
-        while (!done && start > 0) {
-            const atom = model.at(start);
-            if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
-                start -= 1;
-            }
-            else {
-                done = true;
-            }
-        }
-        done = false;
-        while (!done && end <= model.lastOffset) {
-            const atom = model.at(end);
-            if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
-                end += 1;
-            }
-            else {
-                done = true;
-            }
-        }
-        if (done) {
-            end -= 1;
-        }
-        if (start >= end) {
-            // No word found. Select a single character
-            model.setSelection(end - 1, end);
-            return true;
-        }
-        model.setSelection(start, end);
-    }
-    else {
-        const atom = model.at(model.position);
-        // In a math zone, select all the sibling nodes
-        if (isNumber$1(atom)) {
-            // In a number, select all the digits
-            let start = Math.min(model.anchor, model.position);
-            let end = Math.max(model.anchor, model.position);
-            //
-            while (isNumber$1(model.at(start)))
-                start -= 1;
-            while (isNumber$1(model.at(end)))
-                end += 1;
-            model.setSelection(start, end - 1);
-        }
-        else {
-            model.setSelection(model.offsetOf(atom.firstSibling), model.offsetOf(atom.lastSibling));
-        }
-    }
-    return true;
-}
-/**
  * Handle keyboard navigation (arrow keys)
  */
 function move(model, direction, options) {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a, _b, _c, _d;
     options = options !== null && options !== void 0 ? options : { extend: false };
-    deleteRange(model, getCommandSuggestionRange(model));
+    if (direction !== 'forward') {
+        model.deleteAtoms(getCommandSuggestionRange(model));
+    }
     if (direction === 'upward')
         return moveUpward(model, options);
     if (direction === 'downward')
@@ -25300,6 +23995,9 @@ function move(model, direction, options) {
             else if (atom === null || atom === void 0 ? void 0 : atom.skipBoundary) {
                 // When going forward if next is skipboundary, move 2
                 pos += 1;
+            }
+            else if (atom instanceof LatexAtom && atom.isSuggestion) {
+                atom.isSuggestion = false;
             }
         }
         else if (direction === 'backward') {
@@ -25331,20 +24029,24 @@ function move(model, direction, options) {
         //
         // 3. Handle placeholder
         //
-        if (((_e = model.at(pos)) === null || _e === void 0 ? void 0 : _e.type) === 'placeholder') {
-            // We're going right of a placeholder: select it
-            model.setSelection(pos - 1, pos);
-        }
-        else if (((_g = (_f = model.at(pos)) === null || _f === void 0 ? void 0 : _f.rightSibling) === null || _g === void 0 ? void 0 : _g.type) === 'placeholder') {
-            // We're going left of a placeholder: select it
-            model.setSelection(pos, pos + 1);
-        }
-        else {
-            model.position = pos;
-        }
+        setPositionHandlingPlaceholder(model, pos);
     }
     model.announce('move', previousPosition);
     return true;
+}
+function setPositionHandlingPlaceholder(model, pos) {
+    var _a, _b, _c;
+    if (((_a = model.at(pos)) === null || _a === void 0 ? void 0 : _a.type) === 'placeholder') {
+        // We're going right of a placeholder: select it
+        model.setSelection(pos - 1, pos);
+    }
+    else if (((_c = (_b = model.at(pos)) === null || _b === void 0 ? void 0 : _b.rightSibling) === null || _c === void 0 ? void 0 : _c.type) === 'placeholder') {
+        // We're going left of a placeholder: select it
+        model.setSelection(pos, pos + 1);
+    }
+    else {
+        model.position = pos;
+    }
 }
 function moveUpward(model, options) {
     var _a, _b, _c, _d;
@@ -25366,7 +24068,7 @@ function moveUpward(model, options) {
             // If branch doesn't exist, create it
             const branch = (_b = atom.parent.branch('above')) !== null && _b !== void 0 ? _b : atom.parent.createBranch('above');
             // Move to the last atom of the branch
-            model.position = model.offsetOf(branch[branch.length - 1]);
+            setPositionHandlingPlaceholder(model, model.offsetOf(branch[branch.length - 1]));
         }
         model.announce('move up');
         // } else if (model.parent.array) {
@@ -25410,7 +24112,7 @@ function moveDownward(model, options) {
             // If branch doesn't exist, create it
             const branch = (_b = atom.parent.branch('below')) !== null && _b !== void 0 ? _b : atom.parent.createBranch('below');
             // Move to the last atom of the branch
-            model.position = model.offsetOf(branch[branch.length - 1]);
+            setPositionHandlingPlaceholder(model, model.offsetOf(branch[branch.length - 1]));
         }
         model.announce('move down');
         //     // In an array
@@ -25438,61 +24140,136 @@ function moveDownward(model, options) {
     }
     return true;
 }
-/**
- * Move to the next/previous placeholder or empty child list.
- * @return False if no placeholder found and did not move
- */
-function leap(model, dir, callHooks = true) {
-    var _a, _b;
-    const dist = dir === 'forward' ? 1 : -1;
-    if (model.at(model.anchor).type === 'placeholder') {
-        // If we're already at a placeholder, move by one more (the placeholder
-        // is right after the insertion point)
-        move(model, dir);
-    }
-    // Candidate placeholders are atom of type 'placeholder'
-    // or empty children list (except for the root: if the root is empty,
-    // it is not a valid placeholder)
-    const atoms = model.getAllAtoms(model.position + dist);
-    if (dir === 'backward')
-        atoms.reverse();
-    const placeholders = atoms.filter((atom) => atom.type === 'placeholder' ||
-        (atom.treeDepth > 0 && atom.isFirstSibling && atom.isLastSibling));
-    // If no placeholders were found, call handler or move to the next focusable
-    // element in the document
-    if (placeholders.length === 0) {
-        const handled = !callHooks || !((_b = (_a = model.hooks).tabOut) === null || _b === void 0 ? void 0 : _b.call(_a, model, dir));
-        if (handled) {
-            model.announce('plonk');
-            return false;
-        }
-        const tabbable = getTabbableElements();
-        if (!document.activeElement || tabbable.length === 1) {
-            model.announce('plonk');
-            return false;
-        }
-        let index = tabbable.indexOf(document.activeElement) + dist;
-        if (index < 0)
-            index = tabbable.length - 1;
-        if (index >= tabbable.length)
-            index = 0;
-        tabbable[index].focus();
-        if (index === 0) {
-            model.announce('plonk');
-            return false;
-        }
-        return true;
-    }
-    // Set the selection to the next placeholder
+
+register$1({
+    deleteAll: (model) => {
+        return deleteRange(model, [0, -1]);
+    },
+    deleteForward: (model) => deleteForward(model),
+    deleteBackward: (model) => deleteBackward(model),
+    deleteNextWord: (model) => deleteRange(model, [
+        model.anchor,
+        wordBoundaryOffset(model, model.position, 'forward'),
+    ]),
+    deletePreviousWord: (model) => deleteRange(model, [
+        model.anchor,
+        wordBoundaryOffset(model, model.position, 'backward'),
+    ]),
+    deleteToGroupStart: (model) => deleteRange(model, [
+        model.anchor,
+        model.offsetOf(model.at(model.position).firstSibling),
+    ]),
+    deleteToGroupEnd: (model) => deleteRange(model, [
+        model.anchor,
+        model.offsetOf(model.at(model.position).lastSibling),
+    ]),
+    deleteToMathFieldStart: (model) => deleteRange(model, [model.anchor, 0]),
+    deleteToMathFieldEnd: (model) => deleteRange(model, [model.anchor, -1]),
+}, { target: 'model', category: 'delete' });
+
+function moveAfterParent(model) {
     const previousPosition = model.position;
-    const newPosition = model.offsetOf(placeholders[0]);
-    if (placeholders[0].type === 'placeholder') {
-        model.setSelection(newPosition - 1, newPosition);
+    if (!model.at(previousPosition).parent) {
+        model.announce('plonk');
+        return false;
     }
-    else {
-        model.position = newPosition;
-    }
+    model.position = model.offsetOf(model.at(model.position).parent);
     model.announce('move', previousPosition);
+    return true;
+}
+function superscriptDepth(model) {
+    let result = 0;
+    let atom = model.at(model.position);
+    let wasSuperscript = false;
+    while (atom) {
+        if (!atom.hasEmptyBranch('superscript') ||
+            !atom.hasEmptyBranch('subscript')) {
+            result += 1;
+        }
+        if (!atom.hasEmptyBranch('superscript')) {
+            wasSuperscript = true;
+        }
+        else if (!atom.hasEmptyBranch('subscript')) {
+            wasSuperscript = false;
+        }
+        atom = atom.parent;
+    }
+    return wasSuperscript ? result : 0;
+}
+function subscriptDepth(model) {
+    let result = 0;
+    let atom = model.at(model.position);
+    let wasSubscript = false;
+    while (atom) {
+        if (!atom.hasEmptyBranch('superscript') ||
+            !atom.hasEmptyBranch('subscript')) {
+            result += 1;
+        }
+        if (!atom.hasEmptyBranch('superscript')) {
+            wasSubscript = false;
+        }
+        else if (!atom.hasEmptyBranch('subscript')) {
+            wasSubscript = true;
+        }
+        atom = atom.parent;
+    }
+    return wasSubscript ? result : 0;
+}
+/**
+ * Switch the cursor to the superscript and select it. If there is no subscript
+ * yet, create one.
+ */
+function moveToSuperscript(model) {
+    var _a;
+    model.collapseSelection();
+    if (superscriptDepth(model) >= model.mathfield.options.scriptDepth[1]) {
+        model.announce('plonk');
+        return false;
+    }
+    let target = model.at(model.position);
+    if (target.limits !== 'limits' && target.limits !== 'auto') {
+        // This atom can't have a superscript/subscript:
+        // add an adjacent `msubsup` atom instead.
+        if (((_a = model.at(model.position + 1)) === null || _a === void 0 ? void 0 : _a.type) !== 'msubsup') {
+            target.parent.addChildAfter(new SubsupAtom({
+                baseType: target.type,
+                style: model.at(model.position).computedStyle,
+            }), target);
+        }
+        target = model.at(model.position + 1);
+    }
+    // Ensure there is a superscript branch
+    target.createBranch('superscript');
+    model.setSelection(model.getSiblingsRange(model.offsetOf(target.superscript[0])));
+    return true;
+}
+/**
+ * Switch the cursor to the subscript and select it. If there is no subscript
+ * yet, create one.
+ */
+function moveToSubscript(model) {
+    var _a;
+    model.collapseSelection();
+    if (subscriptDepth(model) >= model.mathfield.options.scriptDepth[0]) {
+        model.announce('plonk');
+        return false;
+    }
+    let target = model.at(model.position);
+    if (target.limits !== 'limits' && target.limits !== 'auto') {
+        // This atom can't have a superscript/subscript:
+        // add an adjacent `msubsup` atom instead.
+        if (((_a = model.at(model.position + 1)) === null || _a === void 0 ? void 0 : _a.type) !== 'msubsup') {
+            target.parent.addChildAfter(new Atom('msubsup', {
+                mode: target.mode,
+                value: '\u200b',
+                style: model.at(model.position).computedStyle,
+            }), target);
+        }
+        target = model.at(model.position + 1);
+    }
+    // Ensure there is a subscript branch
+    target.createBranch('subscript');
+    model.setSelection(model.getSiblingsRange(model.offsetOf(target.subscript[0])));
     return true;
 }
 /**
@@ -25628,6 +24405,63 @@ function getTabbableElements() {
     return tabbable(document.body);
 }
 /**
+ * Move to the next/previous placeholder or empty child list.
+ * @return False if no placeholder found and did not move
+ */
+function leap(model, dir, callHooks = true) {
+    var _a, _b;
+    const dist = dir === 'forward' ? 1 : -1;
+    if (model.at(model.anchor).type === 'placeholder') {
+        // If we're already at a placeholder, move by one more (the placeholder
+        // is right after the insertion point)
+        move(model, dir);
+    }
+    // Candidate placeholders are atom of type 'placeholder'
+    // or empty children list (except for the root: if the root is empty,
+    // it is not a valid placeholder)
+    const atoms = model.getAllAtoms(model.position + dist);
+    if (dir === 'backward')
+        atoms.reverse();
+    const placeholders = atoms.filter((atom) => atom.type === 'placeholder' ||
+        (atom.treeDepth > 0 && atom.isFirstSibling && atom.isLastSibling));
+    // If no placeholders were found, call handler or move to the next focusable
+    // element in the document
+    if (placeholders.length === 0) {
+        const handled = !callHooks || !((_b = (_a = model.hooks).tabOut) === null || _b === void 0 ? void 0 : _b.call(_a, model, dir));
+        if (handled) {
+            model.announce('plonk');
+            return false;
+        }
+        const tabbable = getTabbableElements();
+        if (!document.activeElement || tabbable.length === 1) {
+            model.announce('plonk');
+            return false;
+        }
+        let index = tabbable.indexOf(document.activeElement) + dist;
+        if (index < 0)
+            index = tabbable.length - 1;
+        if (index >= tabbable.length)
+            index = 0;
+        tabbable[index].focus();
+        if (index === 0) {
+            model.announce('plonk');
+            return false;
+        }
+        return true;
+    }
+    // Set the selection to the next placeholder
+    const previousPosition = model.position;
+    const newPosition = model.offsetOf(placeholders[0]);
+    if (placeholders[0].type === 'placeholder') {
+        model.setSelection(newPosition - 1, newPosition);
+    }
+    else {
+        model.position = newPosition;
+    }
+    model.announce('move', previousPosition);
+    return true;
+}
+/**
  * If cursor is currently in:
  * - superscript: move to subscript, creating it if necessary
  * - subscript: move to superscript, creating it if necessary
@@ -25635,7 +24469,7 @@ function getTabbableElements() {
  * - denominator: move to numerator
  * - otherwise: move to superscript
  */
-register$2({
+register$1({
     moveToOpposite: (model) => {
         const OPPOSITE_RELATIONS = {
             superscript: 'subscript',
@@ -25722,7 +24556,79 @@ register$2({
     moveToSuperscript: (model) => moveToSuperscript(model),
     moveToSubscript: (model) => moveToSubscript(model),
 }, { target: 'model', category: 'selection-anchor' });
-register$2({
+
+/**
+ * Return true if the atom could be a part of a number
+ * i.e. "-12354.568"
+ */
+function isNumber$1(atom) {
+    if (!atom)
+        return false;
+    return ((atom.type === 'mord' && /[0-9.]/.test(atom.value)) ||
+        (atom.type === 'mpunct' && atom.value === ','));
+}
+/**
+ * Select all the atoms in the current group, that is all the siblings.
+ * When the selection is in a numerator, the group is the numerator. When
+ * the selection is a superscript or subscript, the group is the supsub.
+ * When the selection is in a text zone, the "group" is a word.
+ */
+function selectGroup(model) {
+    if (getMode(model, model.position) === 'text') {
+        let start = Math.min(model.anchor, model.position);
+        let end = Math.max(model.anchor, model.position);
+        //
+        let done = false;
+        while (!done && start > 0) {
+            const atom = model.at(start);
+            if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
+                start -= 1;
+            }
+            else {
+                done = true;
+            }
+        }
+        done = false;
+        while (!done && end <= model.lastOffset) {
+            const atom = model.at(end);
+            if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
+                end += 1;
+            }
+            else {
+                done = true;
+            }
+        }
+        if (done) {
+            end -= 1;
+        }
+        if (start >= end) {
+            // No word found. Select a single character
+            model.setSelection(end - 1, end);
+            return true;
+        }
+        model.setSelection(start, end);
+    }
+    else {
+        const atom = model.at(model.position);
+        // In a math zone, select all the sibling nodes
+        if (isNumber$1(atom)) {
+            // In a number, select all the digits
+            let start = Math.min(model.anchor, model.position);
+            let end = Math.max(model.anchor, model.position);
+            //
+            while (isNumber$1(model.at(start)))
+                start -= 1;
+            while (isNumber$1(model.at(end)))
+                end += 1;
+            model.setSelection(start, end - 1);
+        }
+        else {
+            model.setSelection(model.offsetOf(atom.firstSibling), model.offsetOf(atom.lastSibling));
+        }
+    }
+    return true;
+}
+register$1({
     selectGroup: (model) => {
         const result = selectGroup(model);
         if (!result)
@@ -25787,69 +24693,6 @@ register$2({
         return result;
     },
 }, { target: 'model', category: 'selection-extend' });
-function superscriptDepth(model) {
-    let result = 0;
-    let atom = model.at(model.position);
-    let wasSuperscript = false;
-    while (atom) {
-        if (!atom.hasEmptyBranch('superscript') ||
-            !atom.hasEmptyBranch('subscript')) {
-            result += 1;
-        }
-        if (!atom.hasEmptyBranch('superscript')) {
-            wasSuperscript = true;
-        }
-        else if (!atom.hasEmptyBranch('subscript')) {
-            wasSuperscript = false;
-        }
-        atom = atom.parent;
-    }
-    return wasSuperscript ? result : 0;
-}
-function subscriptDepth(model) {
-    let result = 0;
-    let atom = model.at(model.position);
-    let wasSubscript = false;
-    while (atom) {
-        if (!atom.hasEmptyBranch('superscript') ||
-            !atom.hasEmptyBranch('subscript')) {
-            result += 1;
-        }
-        if (!atom.hasEmptyBranch('superscript')) {
-            wasSubscript = false;
-        }
-        else if (!atom.hasEmptyBranch('subscript')) {
-            wasSubscript = true;
-        }
-        atom = atom.parent;
-    }
-    return wasSubscript ? result : 0;
-}
-register$2({
-    deleteAll: (model) => {
-        return deleteRange(model, [0, -1]);
-    },
-    deleteForward: (model) => deleteForward(model),
-    deleteBackward: (model) => deleteBackward(model),
-    deleteNextWord: (model) => deleteRange(model, [
-        model.anchor,
-        wordBoundaryOffset(model, model.position, 'forward'),
-    ]),
-    deletePreviousWord: (model) => deleteRange(model, [
-        model.anchor,
-        wordBoundaryOffset(model, model.position, 'backward'),
-    ]),
-    deleteToGroupStart: (model) => deleteRange(model, [
-        model.anchor,
-        model.offsetOf(model.at(model.position).firstSibling),
-    ]),
-    deleteToGroupEnd: (model) => deleteRange(model, [
-        model.anchor,
-        model.offsetOf(model.at(model.position).lastSibling),
-    ]),
-    deleteToMathFieldStart: (model) => deleteRange(model, [model.anchor, 0]),
-    deleteToMathFieldEnd: (model) => deleteRange(model, [model.anchor, -1]),
-}, { target: 'model', category: 'delete' });
 
 /**
  * This modules handles low-level keyboard events and normalize them across
@@ -26087,12 +24930,8 @@ function delegateKeyboardEvents(textarea, handlers) {
         textarea.value = '';
         handlers.paste(ev);
     }, true);
-    target.addEventListener('cut', () => {
-        handlers.cut();
-    }, true);
-    target.addEventListener('copy', (ev) => {
-        handlers.copy(ev);
-    }, true);
+    target.addEventListener('cut', (ev) => handlers.cut(ev), true);
+    target.addEventListener('copy', (ev) => handlers.copy(ev), true);
     target.addEventListener('blur', (ev) => {
         // If the relatedTarget (the element that is gaining the focus)
         // is contained in our shadow host, ignore the blur event
@@ -26344,10 +25183,9 @@ class UndoManager {
                 options.suppressChangeNotifications;
         }
         // Restore the content
-        insert(this.model, state ? state.latex : '', {
+        ModeEditor.insert('math', this.model, state ? state.latex : '', {
             ...options,
             format: 'latex',
-            mode: 'math',
             insertionMode: 'replaceAll',
             selectionMode: 'after',
             smartFence: false,
@@ -26667,7 +25505,7 @@ function speakableText(speechOptions, prefix, atoms) {
  * highlighting of speech will happen (if possible). Default is false.
  */
 // @revisit: register 'speak' command with mathfield (to get access to SpeechOptions, which need to be passed down)
-register$2({
+register$1({
     speak: (mathfield, scope, options) => {
         return speak(mathfield, scope, options);
     },
@@ -27000,6 +25838,333 @@ function getNextAtomAsSpokenText(model, options) {
     return result;
 }
 
+/**
+ * These shortcut strings are replaced with the corresponding LaTeX expression
+ * without requiring an escape sequence or command.
+ */
+const INLINE_SHORTCUTS = {
+    // Primes
+    "''": { mode: 'math', value: '^{\\doubleprime}' },
+    // Greek letters
+    alpha: '\\alpha',
+    delta: '\\delta',
+    Delta: '\\Delta',
+    pi: { mode: 'math', value: '\\pi' },
+    'pi ': { mode: 'text', value: '\\pi ' },
+    Pi: { mode: 'math', value: '\\Pi' },
+    theta: '\\theta',
+    Theta: '\\Theta',
+    // Letter-like
+    ii: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\imaginaryI',
+    },
+    jj: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\imaginaryJ',
+    },
+    ee: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\exponentialE',
+    },
+    nabla: { mode: 'math', value: '\\nabla' },
+    grad: { mode: 'math', value: '\\nabla' },
+    del: { mode: 'math', value: '\\partial' },
+    '\u221e': '\\infty',
+    // '&infin;': '\\infty',
+    // '&#8734;': '\\infty',
+    oo: {
+        mode: 'math',
+        after: 'nothing+digit+frac+surd+binop+relop+punct+array+openfence+closefence+space',
+        value: '\\infty',
+    },
+    // Big operators
+    '∑': { mode: 'math', value: '\\sum' },
+    sum: { mode: 'math', value: '\\sum_{#?}^{#?}' },
+    prod: { mode: 'math', value: '\\prod_{#?}^{#?}' },
+    sqrt: { mode: 'math', value: '\\sqrt{#?}' },
+    // '∫':                    '\\int',             // There's a alt-B command for this
+    '∆': { mode: 'math', value: '\\differentialD' },
+    '∂': { mode: 'math', value: '\\differentialD' },
+    // Functions
+    arcsin: { mode: 'math', value: '\\arcsin' },
+    arccos: { mode: 'math', value: '\\arccos' },
+    arctan: { mode: 'math', value: '\\arctan' },
+    sin: { mode: 'math', value: '\\sin' },
+    sinh: { mode: 'math', value: '\\sinh' },
+    cos: { mode: 'math', value: '\\cos' },
+    cosh: { mode: 'math', value: '\\cosh' },
+    tan: { mode: 'math', value: '\\tan' },
+    tanh: { mode: 'math', value: '\\tanh' },
+    sec: { mode: 'math', value: '\\sec' },
+    csc: { mode: 'math', value: '\\csc' },
+    cot: { mode: 'math', value: '\\cot' },
+    log: { mode: 'math', value: '\\log' },
+    ln: { mode: 'math', value: '\\ln' },
+    exp: { mode: 'math', value: '\\exp' },
+    lim: { mode: 'math', value: '\\lim_{#?}' },
+    // Differentials
+    // According to ISO31/XI (ISO 80000-2), differentials should be upright
+    dx: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD x',
+    },
+    dy: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD y',
+    },
+    dt: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\differentialD t',
+    },
+    // Logic
+    AA: { mode: 'math', value: '\\forall' },
+    EE: { mode: 'math', value: '\\exists' },
+    '!EE': { mode: 'math', value: '\\nexists' },
+    '&&': { mode: 'math', value: '\\land' },
+    // The shortcut for the greek letter "xi" is interfering with "x in"
+    xin: {
+        mode: 'math',
+        after: 'nothing+text+relop+punct+openfence+space',
+        value: 'x \\in',
+    },
+    in: {
+        mode: 'math',
+        after: 'nothing+letter+closefence',
+        value: '\\in',
+    },
+    '!in': { mode: 'math', value: '\\notin' },
+    // Sets
+    NN: '\\N',
+    ZZ: '\\Z',
+    QQ: '\\Q',
+    RR: '\\R',
+    CC: '\\C',
+    PP: '\\P',
+    // Operators
+    xx: { mode: 'math', value: '\\times' },
+    '+-': { mode: 'math', value: '\\pm' },
+    // Relational operators
+    '!=': { mode: 'math', value: '\\ne' },
+    '>=': { mode: 'math', value: '\\ge' },
+    '<=': { mode: 'math', value: '\\le' },
+    '<<': { mode: 'math', value: '\\ll' },
+    '>>': { mode: 'math', value: '\\gg' },
+    '~~': { mode: 'math', value: '\\approx' },
+    // More operators
+    '≈': { mode: 'math', value: '\\approx' },
+    '?=': { mode: 'math', value: '\\questeq' },
+    '÷': { mode: 'math', value: '\\div' },
+    '¬': { mode: 'math', value: '\\neg' },
+    ':=': { mode: 'math', value: '\\coloneq' },
+    '::': { mode: 'math', value: '\\Colon' },
+    // Fences
+    '(:': { mode: 'math', value: '\\langle' },
+    ':)': { mode: 'math', value: '\\rangle' },
+    // More Greek letters
+    beta: '\\beta',
+    chi: '\\chi',
+    epsilon: '\\epsilon',
+    varepsilon: '\\varepsilon',
+    eta: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\eta',
+    },
+    'eta ': {
+        mode: 'text',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\eta ',
+    },
+    gamma: '\\gamma',
+    Gamma: '\\Gamma',
+    iota: '\\iota',
+    kappa: '\\kappa',
+    lambda: '\\lambda',
+    Lambda: '\\Lambda',
+    mu: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\mu',
+    },
+    'mu ': {
+        mode: 'text',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\mu ',
+    },
+    nu: {
+        mode: 'math',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\nu',
+    },
+    'nu ': {
+        mode: 'text',
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\nu ',
+    },
+    µ: '\\mu',
+    phi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\phi',
+    },
+    Phi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\Phi',
+    },
+    varphi: '\\varphi',
+    psi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\psi',
+    },
+    Psi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\Psi',
+    },
+    rho: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\rho',
+    },
+    sigma: '\\sigma',
+    Sigma: '\\Sigma',
+    tau: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\tau',
+    },
+    vartheta: '\\vartheta',
+    upsilon: '\\upsilon',
+    xi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\xi',
+    },
+    Xi: {
+        after: 'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+        value: '\\Xi',
+    },
+    zeta: '\\zeta',
+    omega: '\\omega',
+    Omega: '\\Omega',
+    Ω: '\\omega',
+    // More Logic
+    forall: { mode: 'math', value: '\\forall' },
+    exists: {
+        mode: 'math',
+        value: '\\exists',
+    },
+    '!exists': {
+        mode: 'math',
+        value: '\\nexists',
+    },
+    ':.': {
+        mode: 'math',
+        value: '\\therefore',
+    },
+    // MORE FUNCTIONS
+    // 'arg': '\\arg',
+    liminf: '\\operatorname*{lim~inf}_{#?}',
+    limsup: '\\operatorname*{lim~sup}_{#?}',
+    argmin: '\\operatorname*{arg~min}_{#?}',
+    argmax: '\\operatorname*{arg~max}_{#?}',
+    det: '\\det',
+    mod: {
+        mode: 'math',
+        value: '\\mod',
+    },
+    max: {
+        mode: 'math',
+        value: '\\max',
+    },
+    min: {
+        mode: 'math',
+        value: '\\min',
+    },
+    erf: '\\operatorname{erf}',
+    erfc: '\\operatorname{erfc}',
+    bessel: {
+        mode: 'math',
+        value: '\\operatorname{bessel}',
+    },
+    mean: {
+        mode: 'math',
+        value: '\\operatorname{mean}',
+    },
+    median: {
+        mode: 'math',
+        value: '\\operatorname{median}',
+    },
+    fft: {
+        mode: 'math',
+        value: '\\operatorname{fft}',
+    },
+    lcm: {
+        mode: 'math',
+        value: '\\operatorname{lcm}',
+    },
+    gcd: {
+        mode: 'math',
+        value: '\\operatorname{gcd}',
+    },
+    randomReal: '\\operatorname{randomReal}',
+    randomInteger: '\\operatorname{randomInteger}',
+    Re: {
+        mode: 'math',
+        value: '\\operatorname{Re}',
+    },
+    Im: {
+        mode: 'math',
+        value: '\\operatorname{Im}',
+    },
+    // UNITS
+    mm: {
+        mode: 'math',
+        after: 'nothing+digit',
+        value: '\\operatorname{mm}',
+    },
+    cm: {
+        mode: 'math',
+        after: 'nothing+digit',
+        value: '\\operatorname{cm}',
+    },
+    km: {
+        mode: 'math',
+        after: 'nothing+digit',
+        value: '\\operatorname{km}',
+    },
+    kg: {
+        mode: 'math',
+        after: 'nothing+digit',
+        value: '\\operatorname{kg}',
+    },
+    // '||':                   '\\lor',
+    '...': '\\ldots',
+    '+...': '+\\cdots',
+    '-...': '-\\cdots',
+    '->...': '\\to\\cdots',
+    '->': '\\to',
+    '|->': '\\mapsto',
+    '-->': '\\longrightarrow',
+    //    '<-':                   '\\leftarrow',
+    '<--': '\\longleftarrow',
+    '=>': '\\Rightarrow',
+    '==>': '\\Longrightarrow',
+    // '<=': '\\Leftarrow',     // CONFLICTS WITH LESS THAN OR EQUAL
+    '<=>': '\\Leftrightarrow',
+    '<->': '\\leftrightarrow',
+    '(.)': '\\odot',
+    '(+)': '\\oplus',
+    '(/)': '\\oslash',
+    '(*)': '\\otimes',
+    '(-)': '\\ominus',
+    // '(-)':                  '\\circleddash',
+    '||': '\\Vert',
+    '{': '\\{',
+    '}': '\\}',
+    '*': '\\cdot',
+};
+
 const AUDIO_FEEDBACK_VOLUME = 0.5; // from 0.0 to 1.0
 const NO_OP_LISTENER = () => {
     return;
@@ -27266,6 +26431,7 @@ function getDefault() {
         keypressVibration: true,
         keypressSound: null,
         plonkSound: null,
+        virtualKeyboardToolbar: 'default',
         textToSpeechRules: 'mathlive',
         textToSpeechMarkup: '',
         textToSpeechRulesOptions: {},
@@ -27294,6 +26460,122 @@ function getDefault() {
             return;
         },
     };
+}
+
+/**
+ * Return an array of potential shortcuts
+ */
+function getInlineShortcutsStartingWith(s, config) {
+    const result = [];
+    const skipDefaultShortcuts = config.overrideDefaultInlineShortcuts;
+    for (let i = 0; i <= s.length - 1; i++) {
+        const s2 = s.substring(i);
+        if (!skipDefaultShortcuts) {
+            Object.keys(INLINE_SHORTCUTS).forEach((key) => {
+                if (key.startsWith(s2) && !result.includes(key)) {
+                    result.push(key);
+                }
+            });
+        }
+        const customInlineShortcuts = (config === null || config === void 0 ? void 0 : config.inlineShortcuts) ? config.inlineShortcuts
+            : null;
+        if (customInlineShortcuts) {
+            Object.keys(customInlineShortcuts).forEach((key) => {
+                if (key.startsWith(s2)) {
+                    result.push(key);
+                }
+            });
+        }
+    }
+    return result;
+}
+/**
+ *
+ * @param siblings atoms preceding this potential shortcut
+ */
+function validateShortcut(siblings, shortcut) {
+    if (!shortcut)
+        return '';
+    // If it's a simple shortcut (no conditional), it's always valid
+    if (typeof shortcut === 'string')
+        return shortcut;
+    // If we have no context, we assume all the shortcuts are valid
+    if (!siblings)
+        return shortcut.value;
+    let nothing = false;
+    let letter = false;
+    let digit = false;
+    let isFunction = false;
+    let frac = false;
+    let surd = false;
+    let binop = false;
+    let relop = false;
+    let punct = false;
+    let array = false;
+    let openfence = false;
+    let closefence = false;
+    let text = false;
+    let space = false;
+    let sibling = siblings[siblings.length - 1];
+    let index = siblings.length - 1;
+    while (sibling && /msubsup|placeholder/.test(sibling.type)) {
+        index -= 1;
+        sibling = siblings[index];
+    }
+    nothing = !sibling || sibling.type === 'first'; // start of a group
+    if (sibling) {
+        if (typeof shortcut.mode !== 'undefined' &&
+            sibling.mode !== shortcut.mode) {
+            return '';
+        }
+        text = sibling.mode === 'text';
+        letter = !text && sibling.type === 'mord' && LETTER.test(sibling.value);
+        digit =
+            !text && sibling.type === 'mord' && /[0-9]+$/.test(sibling.value);
+        isFunction = !text && sibling.isFunction;
+        frac = sibling.type === 'genfrac';
+        surd = sibling.type === 'surd';
+        binop = sibling.type === 'mbin';
+        relop = sibling.type === 'mrel';
+        punct = sibling.type === 'mpunct' || sibling.type === 'minner';
+        array = sibling.type === 'array';
+        openfence = sibling.type === 'mopen';
+        closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
+        space = sibling.type === 'space';
+    }
+    if (typeof shortcut.after !== 'undefined') {
+        // If this is a conditional shortcut, consider the conditions now
+        if ((/nothing/.test(shortcut.after) && nothing) ||
+            (/letter/.test(shortcut.after) && letter) ||
+            (/digit/.test(shortcut.after) && digit) ||
+            (/function/.test(shortcut.after) && isFunction) ||
+            (/frac/.test(shortcut.after) && frac) ||
+            (/surd/.test(shortcut.after) && surd) ||
+            (/binop/.test(shortcut.after) && binop) ||
+            (/relop/.test(shortcut.after) && relop) ||
+            (/punct/.test(shortcut.after) && punct) ||
+            (/array/.test(shortcut.after) && array) ||
+            (/openfence/.test(shortcut.after) && openfence) ||
+            (/closefence/.test(shortcut.after) && closefence) ||
+            (/text/.test(shortcut.after) && text) ||
+            (/space/.test(shortcut.after) && space)) {
+            return shortcut.value;
+        }
+        return '';
+    }
+    return shortcut.value;
+}
+/**
+ *
+ * @param context - atoms preceding the candidate, potentially used
+ * to reduce which shortcuts are applicable. If 'null', no restrictions are
+ * applied.
+ * @param s - candidate inline shortcuts (e.g. `'pi'`)
+ * @return A replacement string matching the shortcut (e.g. `'\pi'`)
+ */
+function getInlineShortcut(context, s, shortcuts) {
+    var _a;
+    return validateShortcut(context, (_a = shortcuts === null || shortcuts === void 0 ? void 0 : shortcuts[s]) !== null && _a !== void 0 ? _a : INLINE_SHORTCUTS[s]);
 }
 
 /**
@@ -27650,6 +26932,800 @@ function smartMode(mathfield, keystroke, evt) {
     return false;
 }
 
+/**
+ * Attempts to parse and interpret a string in an unknown format, possibly
+ * ASCIIMath and return a canonical LaTeX string.
+ *
+ * The format recognized are one of these variations:
+ * - ASCIIMath: Only supports a subset
+ * (1/2x)
+ * 1/2sin x                     -> \frac {1}{2}\sin x
+ * 1/2sinx                      -> \frac {1}{2}\sin x
+ * (1/2sin x (x^(2+1))          // Unbalanced parentheses
+ * (1/2sin(x^(2+1))             -> \left(\frac {1}{2}\sin \left(x^{2+1}\right)\right)
+ * alpha + (pi)/(4)             -> \alpha +\frac {\pi }{4}
+ * x=(-b +- sqrt(b^2 – 4ac))/(2a)
+ * alpha/beta
+ * sqrt2 + sqrtx + sqrt(1+a) + sqrt(1/2)
+ * f(x) = x^2 "when" x >= 0
+ * AA n in QQ
+ * AA x in RR "," |x| > 0
+ * AA x in RR "," abs(x) > 0
+ *
+ * - UnicodeMath (generated by Microsoft Word): also only supports a subset
+ *      - See https://www.unicode.org/notes/tn28/UTN28-PlainTextMath-v3.1.pdf
+ * √(3&x+1)
+ * {a+b/c}
+ * [a+b/c]
+ * _a^b x
+ * lim_(n->\infty) n
+ * \iint_(a=0)^\infty  a
+ *
+ * - "JavaScript Latex": a variant that is LaTeX, but with escaped backslashes
+ *  \\frac{1}{2} \\sin x
+ */
+function parseMathString(s, options) {
+    var _a;
+    if (!s)
+        return ['latex', ''];
+    // Nothing to do if a single character
+    if (s.length <= 1)
+        return ['latex', s];
+    if (!options || options.format !== 'ASCIIMath') {
+        // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
+        // If the strings is surrounded by `$..$` or `$$..$$`, assumes it is LaTeX
+        const trimedString = s.trim();
+        if ((trimedString.startsWith('$$') && trimedString.endsWith('$$')) ||
+            (trimedString.startsWith('\\[') && trimedString.endsWith('\\]')) ||
+            (trimedString.startsWith('\\(') && trimedString.endsWith('\\)'))) {
+            return [
+                'latex',
+                trimedString.substring(2, trimedString.length - 2),
+            ];
+        }
+        if (trimedString.startsWith('$') && trimedString.endsWith('$')) {
+            return [
+                'latex',
+                trimedString.substring(1, trimedString.length - 1),
+            ];
+        }
+        // Replace double-backslash (coming from JavaScript) to a single one
+        s = s.replace(/\\\\([^\s\n])/g, '\\$1');
+        if (/\\/.test(s)) {
+            // If the string includes a '\' it's probably a LaTeX string
+            // (that's not completely true, it could be a UnicodeMath string, since
+            // UnicodeMath supports some LaTeX commands. However, we need to pick
+            // one in order to correctly interpret {} (which are argument delimiters
+            // in LaTeX, and are fences in UnicodeMath)
+            return ['latex', s];
+        }
+    }
+    s = s.replace(/\u2061/gu, ''); // Remove function application
+    s = s.replace(/\u3016/gu, '{'); // WHITE LENTICULAR BRACKET (grouping)
+    s = s.replace(/\u3017/gu, '}'); // WHITE LENTICULAR BRACKET (grouping)
+    s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // common typo
+    s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // common typo
+    s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
+    return [
+        (_a = options === null || options === void 0 ? void 0 : options.format) !== null && _a !== void 0 ? _a : 'ASCIIMath',
+        parseMathExpression(s, options !== null && options !== void 0 ? options : {}),
+    ];
+}
+function parseMathExpression(s, options) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    if (!s)
+        return '';
+    let done = false;
+    let m;
+    if (!done && (s[0] === '^' || s[0] === '_')) {
+        // Superscript and subscript
+        m = parseMathArgument(s.substr(1), {
+            inlineShortcuts: (_a = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _a !== void 0 ? _a : {},
+            noWrap: true,
+        });
+        s = s[0] + '{' + m.match + '}';
+        s += parseMathExpression(m.rest, options);
+        done = true;
+    }
+    if (!done) {
+        m = s.match(/^(sqrt|\u221a)(.*)/);
+        if (m) {
+            // Square root
+            m = parseMathArgument(m[2], {
+                inlineShortcuts: (_b = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _b !== void 0 ? _b : {},
+                noWrap: true,
+            });
+            const sqrtArgument = (_c = m.match) !== null && _c !== void 0 ? _c : '\\placeholder{}';
+            s = '\\sqrt{' + sqrtArgument + '}';
+            s += parseMathExpression(m.rest, options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^(\\cbrt|\u221b)(.*)/);
+        if (m) {
+            // Cube root
+            m = parseMathArgument(m[2], {
+                inlineShortcuts: (_d = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _d !== void 0 ? _d : {},
+                noWrap: true,
+            });
+            const sqrtArgument = (_e = m.match) !== null && _e !== void 0 ? _e : '\\placeholder{}';
+            s = '\\sqrt[3]{' + sqrtArgument + '}';
+            s += parseMathExpression(m.rest, options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^abs(.*)/);
+        if (m) {
+            // Absolute value
+            m = parseMathArgument(m[1], {
+                inlineShortcuts: (_f = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _f !== void 0 ? _f : {},
+                noWrap: true,
+            });
+            s = '\\left|' + m.match + '\\right|';
+            s += parseMathExpression(m.rest, options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^["”“](.*?)["”“](.*)/);
+        if (m) {
+            // Quoted text
+            s = '\\text{' + m[1] + '}';
+            s += parseMathExpression(m[2], options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^([^a-zA-Z({[_^\\\s"]+)(.*)/);
+        // A string of symbols...
+        // Could be a binary or relational operator, etc...
+        if (m) {
+            s = paddedShortcut(m[1], options);
+            s += parseMathExpression(m[2], options);
+            done = true;
+        }
+    }
+    if (!done && /^(f|g|h)[^a-zA-Z]/.test(s)) {
+        // This could be a function...
+        m = parseMathArgument(s.substring(1), {
+            inlineShortcuts: (_g = options.inlineShortcuts) !== null && _g !== void 0 ? _g : {},
+            noWrap: true,
+        });
+        if (s[1] === '(') {
+            s = s[0] + '\\mleft(' + m.match + '\\mright)';
+        }
+        else {
+            s = s[0] + m.match;
+        }
+        s += parseMathExpression(m.rest, options);
+        done = true;
+    }
+    if (!done) {
+        m = s.match(/^([a-zA-Z]+)(.*)/);
+        if (m) {
+            // Some alphabetical string...
+            // Could be a function name (sin) or symbol name (alpha)
+            s = paddedShortcut(m[1], options);
+            s += parseMathExpression(m[2], options);
+            done = true;
+        }
+    }
+    if (!done) {
+        m = parseMathArgument(s, {
+            inlineShortcuts: (_h = options.inlineShortcuts) !== null && _h !== void 0 ? _h : {},
+            noWrap: true,
+        });
+        if (m.match && m.rest[0] === '/') {
+            // Fraction
+            const m2 = parseMathArgument(m.rest.substr(1), {
+                inlineShortcuts: (_j = options.inlineShortcuts) !== null && _j !== void 0 ? _j : {},
+                noWrap: true,
+            });
+            if (m2.match) {
+                s =
+                    '\\frac{' +
+                        m.match +
+                        '}{' +
+                        m2.match +
+                        '}' +
+                        parseMathExpression(m2.rest, options);
+            }
+            done = true;
+        }
+        else if (m.match) {
+            if (s[0] === '(') {
+                s =
+                    '\\left(' +
+                        m.match +
+                        '\\right)' +
+                        parseMathExpression(m.rest, options);
+            }
+            else {
+                s = m.match + parseMathExpression(m.rest, options);
+            }
+            done = true;
+        }
+    }
+    if (!done) {
+        m = s.match(/^(\s+)(.*)$/);
+        // Whitespace
+        if (m) {
+            s = ' ' + parseMathExpression(m[2], options);
+            done = true;
+        }
+    }
+    return s;
+}
+/**
+ * Parse a math argument, as defined by ASCIIMath and UnicodeMath:
+ * - Either an expression fenced in (), {} or []
+ * - a number (- sign, digits, decimal point, digits)
+ * - a single [a-zA-Z] letter (an identifier)
+ * - a multi-letter shortcut (e.g., pi)
+ * - a LaTeX command (\pi) (for UnicodeMath)
+ * @return
+ * - match: the parsed (and converted) portion of the string that is an argument
+ * - rest: the raw, unconverted, rest of the string
+ */
+function parseMathArgument(s, options) {
+    let match = '';
+    s = s.trim();
+    let rest = s;
+    let lFence = s.charAt(0);
+    let rFence = { '(': ')', '{': '}', '[': ']' }[lFence];
+    if (rFence) {
+        // It's a fence
+        let level = 1;
+        let i = 1;
+        while (i < s.length && level > 0) {
+            if (s[i] === lFence)
+                level++;
+            if (s[i] === rFence)
+                level--;
+            i++;
+        }
+        if (level === 0) {
+            // We've found the matching closing fence
+            if (options.noWrap && lFence === '(') {
+                match = parseMathExpression(s.substring(1, i - 1), options);
+            }
+            else {
+                if (lFence === '{' && rFence === '}') {
+                    lFence = '\\{';
+                    rFence = '\\}';
+                }
+                match =
+                    '\\left' +
+                        lFence +
+                        parseMathExpression(s.substring(1, i - 1), options) +
+                        '\\right' +
+                        rFence;
+            }
+            rest = s.substring(i);
+        }
+        else {
+            // Unbalanced fence...
+            match = s.substring(1, i);
+            rest = '';
+        }
+    }
+    else {
+        let m = s.match(/^([a-zA-Z]+)/);
+        if (m) {
+            // It's a string of letter, maybe a shortcut
+            let shortcut = getInlineShortcut(null, s, options.inlineShortcuts);
+            if (shortcut) {
+                shortcut = shortcut.replace('_{#?}', '');
+                shortcut = shortcut.replace('^{#?}', '');
+                return { match: shortcut, rest: s.substring(shortcut.length) };
+            }
+        }
+        m = s.match(/^([a-zA-Z])/);
+        if (m) {
+            // It's a single letter
+            return { match: m[1], rest: s.substring(1) };
+        }
+        m = s.match(/^(-)?\d+(\.\d*)?/);
+        if (m) {
+            // It's a number
+            return { match: m[0], rest: s.substring(m[0].length) };
+        }
+        if (!/^\\(left|right)/.test(s)) {
+            // It's a LaTeX command (but not a \left\right)
+            m = s.match(/^(\\[a-zA-Z]+)/);
+            if (m) {
+                rest = s.substring(m[1].length);
+                match = m[1];
+            }
+        }
+    }
+    return { match: match, rest: rest };
+}
+function paddedShortcut(s, options) {
+    let result = getInlineShortcut(null, s, options);
+    if (result) {
+        result = result.replace('_{#?}', '');
+        result = result.replace('^{#?}', '');
+        result += ' ';
+    }
+    else {
+        result = s;
+    }
+    return result;
+}
+
+class MathModeEditor extends ModeEditor {
+    constructor() {
+        super('math');
+    }
+    onPaste(mathfield, ev) {
+        let text = '';
+        // Try to get a MathJSON data type
+        const json = ev.clipboardData.getData('application/json');
+        if (json) {
+            try {
+                text = jsonToLatex(JSON.parse(json), {});
+            }
+            catch (e) {
+                text = '';
+            }
+        }
+        // If that didn't work, try some plain text
+        if (!text) {
+            text = ev.clipboardData.getData('text/plain');
+        }
+        if (text) {
+            if (this.insert(mathfield.model, text, {
+                smartFence: mathfield.options.smartFence,
+            })) {
+                requestUpdate(mathfield);
+            }
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
+        return true;
+    }
+    onCopy(mathfield, ev) {
+        const value = mathfield.model.selectionIsCollapsed
+            ? [0, mathfield.model.lastOffset]
+            : range(mathfield.selection);
+        ev.clipboardData.setData('text/plain', '$$' + mathfield.getValue(value, 'latex-expanded') + '$$');
+        ev.clipboardData.setData('application/json', mathfield.getValue(value, 'json'));
+        ev.clipboardData.setData('application/xml', mathfield.getValue(value, 'mathML'));
+        // Prevent the current document selection from being written to the clipboard.
+        ev.preventDefault();
+    }
+    insert(model, text, options) {
+        var _a, _b, _c;
+        if (!options.insertionMode)
+            options.insertionMode = 'replaceSelection';
+        if (!options.selectionMode)
+            options.selectionMode = 'placeholder';
+        if (!options.format)
+            options.format = 'auto';
+        options.macros = (_a = options.macros) !== null && _a !== void 0 ? _a : model.options.macros;
+        //
+        // Try to insert a smart fence.
+        //
+        if (!((_b = options.smartFence) !== null && _b !== void 0 ? _b : false)) {
+            // When smartFence is turned off, only do a "smart" fence insert
+            // if we're inside a `leftright`, at the last char
+            const parent = model.at(model.position).parent;
+            if (parent instanceof LeftRightAtom &&
+                parent.rightDelim === '?' &&
+                model.at(model.position).isLastSibling &&
+                /^[)}\]|]$/.test(text)) {
+                parent.rightDelim = text;
+                model.position += 1;
+                selectionDidChange(model);
+                contentDidChange(model);
+                return true;
+            }
+        }
+        else if (model.selectionIsCollapsed &&
+            insertSmartFence(model, text, options.style)) {
+            return true;
+        }
+        const suppressChangeNotifications = model.suppressChangeNotifications;
+        if (options.suppressChangeNotifications) {
+            model.suppressChangeNotifications = true;
+        }
+        const contentWasChanging = model.suppressChangeNotifications;
+        model.suppressChangeNotifications = true;
+        //
+        // Save the content of the selection, if any
+        //
+        const args = [];
+        args[0] = model.getValue(model.selection);
+        args['?'] = (_c = options.placeholder) !== null && _c !== void 0 ? _c : '\\placeholder{}';
+        args['@'] = args['?'];
+        //
+        // Delete any selected items
+        //
+        if (options.insertionMode === 'replaceSelection' &&
+            !model.selectionIsCollapsed) {
+            model.position = model.deleteAtoms(range(model.selection));
+        }
+        else if (options.insertionMode === 'replaceAll') {
+            model.root.setChildren([], 'body');
+            model.position = 0;
+        }
+        else if (options.insertionMode === 'insertBefore') {
+            model.collapseSelection('backward');
+        }
+        else if (options.insertionMode === 'insertAfter') {
+            model.collapseSelection('forward');
+        }
+        //
+        // Delete any placeholders before or after the insertion point
+        //
+        if (!model.at(model.position).isLastSibling &&
+            model.at(model.position + 1).type === 'placeholder') {
+            // Before a `placeholder`
+            model.deleteAtoms([model.position, model.position + 1]);
+        }
+        else if (model.at(model.position).type === 'placeholder') {
+            // After a `placeholder`
+            model.deleteAtoms([model.position - 1, model.position]);
+            model.position = model.position - 1;
+        }
+        //
+        // Calculate the implicit argument (#@)
+        //
+        if (args[0]) {
+            // There was a selection, we'll use it for #@
+            args['@'] = args[0];
+        }
+        else if (/(^|[^\\])#@/.test(text)) {
+            // We'll use the preceding `mord`s or text mode atoms for it (implicit argument)
+            const offset = getImplicitArgOffset(model);
+            if (offset >= 0) {
+                args['@'] = model.getValue(offset, model.position);
+                model.deleteAtoms([offset, model.position]);
+                model.position = offset;
+            }
+        }
+        if (!args[0])
+            args[0] = args['?'];
+        const newAtoms = convertStringToAtoms(model, text, args, options);
+        if (!newAtoms)
+            return false;
+        //
+        // Insert the new atoms
+        //
+        const parent = model.at(model.position).parent;
+        // Are we inserting a fraction inside a lefright?
+        if (options.format !== 'latex' &&
+            model.options.removeExtraneousParentheses &&
+            parent instanceof LeftRightAtom &&
+            parent.leftDelim === '(' &&
+            parent.hasEmptyBranch('body') &&
+            newAtoms.length === 1 &&
+            newAtoms[0].type === 'genfrac') {
+            // Remove the leftright
+            // i.e. `\left(\frac{}{}\right))` -> `\frac{}{}`
+            const newParent = parent.parent;
+            const branch = parent.treeBranch;
+            newParent.removeChild(parent);
+            newParent.setChildren(newAtoms, branch);
+        }
+        else {
+            if (options.format === 'latex' && args.length === 1 && !args[0]) {
+                // If we are given a latex string with no arguments, store it verbatim
+                // Caution: we can only do this if the toLatex() for this parent
+                // would return an empty string. If the latex is generated using other
+                // properties than parent.body, for example by adding '\left.' and
+                // '\right.' with a 'leftright' type, we can't use this shortcut.
+                if (parent.type === 'root' && parent.hasEmptyBranch('body')) {
+                    parent.latex = text;
+                }
+            }
+            const cursor = model.at(model.position);
+            cursor.parent.addChildrenAfter(newAtoms, cursor);
+        }
+        // Prepare to dispatch notifications
+        // (for selection changes, then content change)
+        model.suppressChangeNotifications = contentWasChanging;
+        const lastNewAtom = newAtoms[newAtoms.length - 1];
+        // Update the anchor's location
+        if (options.selectionMode === 'placeholder') {
+            // Move to the next placeholder
+            const newPlaceholders = newAtoms.reduce((acc, atom) => [
+                ...acc,
+                ...atom.children.filter((x) => x.type === 'placeholder'),
+            ], []);
+            if (newPlaceholders.length > 0) {
+                const placeholderOffset = model.offsetOf(newPlaceholders[0]);
+                model.setSelection(placeholderOffset - 1, placeholderOffset);
+                model.announce('move'); // should have placeholder selected
+            }
+            else if (lastNewAtom) {
+                // No placeholder found, move to right after what we just inserted
+                model.position = model.offsetOf(lastNewAtom);
+            }
+        }
+        else if (options.selectionMode === 'before') ;
+        else if (options.selectionMode === 'after') {
+            if (lastNewAtom) {
+                model.position = model.offsetOf(lastNewAtom);
+            }
+        }
+        else if (options.selectionMode === 'item') {
+            model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
+        }
+        contentDidChange(model);
+        model.suppressChangeNotifications = suppressChangeNotifications;
+        return true;
+    }
+}
+function convertStringToAtoms(model, s, args, options) {
+    var _a;
+    let result = [];
+    if (options.format === 'ASCIIMath') {
+        [, s] = parseMathString(s, { format: 'ASCIIMath' });
+        result = parseLatex(s, 'math', null, options === null || options === void 0 ? void 0 : options.macros, false, model.listeners.onError);
+        // Simplify result.
+        if (model.options.removeExtraneousParentheses) {
+            simplifyParen(result);
+        }
+    }
+    else if (options.format === 'auto' || options.format === 'latex') {
+        if (options.format === 'auto') {
+            [options.format, s] = parseMathString(s);
+        }
+        // If the whole string is bracketed by a mode shift command, remove it
+        if (/^\$\$(.*)\$\$$/.test(s)) {
+            s = s.substring(2, s.length - 2);
+        }
+        result = parseLatex(s, 'math', args, options.macros, (_a = options.smartFence) !== null && _a !== void 0 ? _a : false, model.listeners.onError);
+        // Simplify result.
+        if (options.format !== 'latex' &&
+            model.options.removeExtraneousParentheses) {
+            simplifyParen(result);
+        }
+    }
+    // Some atoms may already have a style (for example if there was an
+    // argument, i.e. the selection, that this was applied to).
+    // So, don't apply style to atoms that are already styled, but *do*
+    // apply it to newly created atoms that have no style yet.
+    applyStyleToUnstyledAtoms(result, options.style);
+    return result;
+}
+function removeParen(atoms) {
+    if (!atoms)
+        return null;
+    console.assert(atoms[0].type === 'first');
+    if (atoms.length > 1)
+        return null;
+    const atom = atoms[0];
+    if (atom instanceof LeftRightAtom &&
+        atom.leftDelim === '(' &&
+        atom.rightDelim === ')') {
+        return atom.removeBranch('body');
+    }
+    return null;
+}
+/**
+ * If it's a fraction with a parenthesized numerator or denominator
+ * remove the parentheses
+ * @revisit: don't need model, only need to know if removeExtraneousParentheses
+ *              Check at callsites.
+ */
+function simplifyParen(atoms) {
+    if (!atoms)
+        return;
+    for (let i = 0; atoms[i]; i++) {
+        const atom = atoms[i];
+        if (atom instanceof LeftRightAtom && atom.leftDelim === '(') {
+            let genFracCount = 0;
+            let genFracIndex = 0;
+            let nonGenFracCount = 0;
+            for (let j = 0; atom.body[j]; j++) {
+                if (atom.body[j].type === 'genfrac') {
+                    genFracCount++;
+                    genFracIndex = j;
+                }
+                nonGenFracCount++;
+            }
+            if (nonGenFracCount === 0 && genFracCount === 1) {
+                // This is a single frac inside a leftright: remove the leftright
+                atoms[i] = atom.body[genFracIndex];
+            }
+        }
+    }
+    atoms.forEach((atom) => {
+        NAMED_BRANCHES.forEach((branch) => {
+            if (!atom.hasEmptyBranch(branch)) {
+                simplifyParen(atom.branch(branch));
+                const newChildren = removeParen(atom.branch(branch));
+                if (newChildren)
+                    atom.setChildren(newChildren, branch);
+            }
+        });
+        if (atom instanceof ArrayAtom) {
+            atom.cells.forEach((x) => simplifyParen(x));
+        }
+    });
+}
+/**
+ * Locate the offset before the insertion point that would indicate
+ * a good place to select as an implicit argument.
+ *
+ * For example with '1+\sin(x)', if the insertion point is at the
+ * end, the implicit arg offset would be after the plus. As a result,
+ * inserting a fraction after the sin would yield: '1+\frac{\sin(c)}{\placeholder{}}'
+ */
+function getImplicitArgOffset(model) {
+    let atom = model.at(model.position);
+    if (atom.mode === 'text') {
+        while (!atom.isFirstSibling && atom.mode === 'text') {
+            atom = atom.leftSibling;
+        }
+        return model.offsetOf(atom);
+    }
+    if (!isImplicitArg(atom)) {
+        return -1;
+    }
+    // Find the first 'mrel', etc... to the left of the insertion point
+    // until the first sibling
+    while (!atom.isFirstSibling && isImplicitArg(atom)) {
+        atom = atom.leftSibling;
+    }
+    return model.offsetOf(atom);
+}
+/**
+ *
+ * Predicate returns true if the atom should be considered an implicit argument.
+ *
+ * Used for example when typing "/" to insert a fraction: all the atoms to
+ * the left of insertion point that return true for `isImplicitArg()` will
+ * be included as the numerator
+ */
+function isImplicitArg(atom) {
+    if (/^(mord|surd|msubsup|leftright|mop)$/.test(atom.type)) {
+        // Exclude `\int`, \`sum`, etc...
+        if (atom.isExtensibleSymbol)
+            return false;
+        return true;
+    }
+    return false;
+}
+/**
+ * Insert a smart fence '(', '{', '[', etc...
+ * If not handled (because `fence` wasn't a fence), return false.
+ */
+function insertSmartFence(model, fence, style) {
+    console.assert(model.selectionIsCollapsed);
+    const atom = model.at(model.position);
+    const parent = atom.parent;
+    let delims = parent instanceof LeftRightAtom
+        ? parent.leftDelim + parent.rightDelim
+        : '';
+    if (delims === '\\lbrace\\rbrace')
+        delims = '{}';
+    if (delims === '\\{\\}')
+        delims = '{}';
+    //
+    // 1. Are we inserting a middle fence?
+    // ...as in {...|...}
+    //
+    if (delims === '{}' && /\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
+        ModeEditor.insert('math', model, '\\,\\middle' + fence + '\\, ', {
+            format: 'latex',
+            style: style,
+        });
+        return true;
+    }
+    // Normalize some fences.
+    // Note that '{' and '}' are not valid braces.
+    // They should be '\{' or '\lbrace' and '\}' or '\rbrace'
+    if (fence === '{' || fence === '\\{')
+        fence = '\\lbrace';
+    if (fence === '}' || fence === '\\}')
+        fence = '\\rbrace';
+    if (fence === '[')
+        fence = '\\lbrack';
+    if (fence === ']')
+        fence = '\\rbrack';
+    //
+    // 2. Is it an open fence?
+    //
+    const rDelim = RIGHT_DELIM[fence];
+    if (rDelim &&
+        !(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
+        // We have a valid open fence as input
+        let s = '';
+        if (atom.isFunction) {
+            // We're before a function (e.g. `\sin`, or 'f'):  this is an
+            // argument list.
+            // Use `\mleft...\mright'.
+            s = '\\mleft' + fence + '\\mright' + rDelim;
+        }
+        else {
+            s = '\\left' + fence + '\\right?';
+        }
+        const lastSiblingOffset = model.offsetOf(atom.lastSibling);
+        const content = model.extractAtoms([model.position, lastSiblingOffset]);
+        ModeEditor.insert('math', model, s, {
+            format: 'latex',
+            style: style,
+        });
+        // Move everything that was after the anchor into the leftright
+        model.at(model.position).body = content;
+        model.position -= 1;
+        return true;
+    }
+    //
+    // 3. Is it a close fence?
+    //
+    let lDelim;
+    Object.keys(RIGHT_DELIM).forEach((delim) => {
+        if (fence === RIGHT_DELIM[delim])
+            lDelim = delim;
+    });
+    if (lDelim) {
+        // We found a matching open fence, so it was a valid close fence.
+        // Note that `lDelim` may not match `fence`. That's OK.
+        // If we're the last atom inside a 'leftright',
+        // update the parent
+        if (parent instanceof LeftRightAtom && atom.isLastSibling) {
+            parent.rightDelim = fence;
+            model.position += 1;
+            contentDidChange(model);
+            return true;
+        }
+        // If we have a `leftright` sibling to our left
+        // with an indeterminate right fence,
+        // move what's between us and the `leftright` inside the `leftright`
+        const firstSibling = model.offsetOf(atom.firstSibling);
+        let i;
+        for (i = model.position; i >= firstSibling; i--) {
+            const atom = model.at(i);
+            if (atom instanceof LeftRightAtom && atom.rightDelim === '?') {
+                break;
+            }
+        }
+        const match = model.at(i);
+        if (i >= firstSibling && match instanceof LeftRightAtom) {
+            match.rightDelim = fence;
+            match.addChildren(model.extractAtoms([i, model.position]), atom.treeBranch);
+            model.position = i;
+            contentDidChange(model);
+            return true;
+        }
+        // If we're inside a `leftright`, but not the last atom,
+        // and the `leftright` right delim is indeterminate
+        // adjust the body (put everything after the insertion point outside)
+        if (parent instanceof LeftRightAtom && parent.rightDelim === '?') {
+            parent.rightDelim = fence;
+            parent.parent.addChildren(model.extractAtoms([
+                model.position,
+                model.offsetOf(atom.lastSibling),
+            ]), parent.treeBranch);
+            model.position = model.offsetOf(parent);
+            contentDidChange(model);
+            return true;
+        }
+        // Is our grand-parent a 'leftright'?
+        // If `\left(\frac{1}{x|}\right?` with the cursor at `|`
+        // go up to the 'leftright' and apply it there instead
+        const grandparent = parent.parent;
+        if (grandparent instanceof LeftRightAtom &&
+            grandparent.rightDelim === '?' &&
+            model.at(model.position).isLastSibling) {
+            model.position = model.offsetOf(grandparent);
+            return insertSmartFence(model, fence, style);
+        }
+        // Meh... We couldn't find a matching open fence. Just insert the
+        // closing fence as a regular character
+        return false;
+    }
+    return false;
+}
+new MathModeEditor();
+
 function showKeystroke(mathfield, keystroke) {
     const vb = mathfield.keystrokeCaption;
     if (vb && mathfield.keystrokeCaptionVisible) {
@@ -27715,7 +27791,7 @@ function onKeystroke(mathfield, keystroke, evt) {
     // would match a long shortcut (i.e. '~~')
     // Ignore the key if command or control is pressed (it may be a keybinding,
     // see 5.3)
-    if (mathfield.mode !== 'command' &&
+    if (mathfield.mode !== 'latex' &&
         (!evt || (!evt.ctrlKey && !evt.metaKey))) {
         if (keystroke === '[Backspace]') {
             // Special case for backspace
@@ -27735,9 +27811,7 @@ function onKeystroke(mathfield, keystroke, evt) {
             while (!shortcut && i < candidate.length) {
                 let context;
                 if (mathfield.keystrokeBufferStates[i]) {
-                    const root = new Atom('root', { mode: 'math' });
                     context = parseLatex(mathfield.keystrokeBufferStates[i].latex, mathfield.options.defaultMode, null, mathfield.options.macros);
-                    root.body = context;
                 }
                 else {
                     // The context is from the start of the group to the current position
@@ -27837,7 +27911,7 @@ function onKeystroke(mathfield, keystroke, evt) {
         const previousSibling = model.at(model.position - 1);
         if ((nextSibling && nextSibling.mode === 'text') ||
             (previousSibling && previousSibling.mode === 'text')) {
-            insert(model, ' ', { mode: 'text' });
+            ModeEditor.insert('text', model, ' ');
         }
     }
     //
@@ -27863,15 +27937,15 @@ function onKeystroke(mathfield, keystroke, evt) {
         //
         const style = {
             ...model.at(model.position).computedStyle,
+            variant: 'normal',
             ...mathfield.style,
         };
         if (!/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(shortcut)) {
             // To enable the substitution to be undoable,
             // insert the character before applying the substitution
             const saveMode = mathfield.mode;
-            insert(model, eventToChar(evt), {
+            ModeEditor.insert(mathfield.mode, model, eventToChar(evt), {
                 suppressChangeNotifications: true,
-                mode: mathfield.mode,
                 style: style,
             });
             // Create a snapshot with the inserted character
@@ -27883,9 +27957,8 @@ function onKeystroke(mathfield, keystroke, evt) {
         }
         model.deferNotifications({ content: true, selection: true }, () => {
             // Insert the substitute, possibly as a smart fence
-            insert(model, shortcut, {
+            ModeEditor.insert(mathfield.mode, model, shortcut, {
                 format: 'latex',
-                mode: mathfield.mode,
                 style: style,
                 smartFence: true,
             });
@@ -27895,7 +27968,7 @@ function onKeystroke(mathfield, keystroke, evt) {
             // Switch (back) to text mode if the shortcut ended with a space
             if (shortcut.endsWith(' ')) {
                 mathfield.mode = 'text';
-                insert(model, ' ', { mode: 'text', style: style });
+                ModeEditor.insert('text', model, ' ', { style });
             }
             return true; // Content changed
         });
@@ -27976,8 +28049,12 @@ function onTypedText(mathfield, text, options) {
     //
     const style = {
         ...model.at(model.position).computedStyle,
+        variant: 'normal',
         ...mathfield.style,
     };
+    if (!model.selectionIsCollapsed) {
+        model.position = model.deleteAtoms(range(model.selection));
+    }
     // Decompose the string into an array of graphemes.
     // This is necessary to correctly process what is displayed as a single
     // glyph (a grapheme) but which is composed of multiple Unicode
@@ -27986,15 +28063,17 @@ function onTypedText(mathfield, text, options) {
     // compound emojis such as the professional emojis, including the
     // David Bowie emoji: 👨🏻‍🎤
     const graphemes = splitGraphemes(text);
-    if (mathfield.mode === 'command') {
-        for (const c of graphemes) {
-            insert(model, c, { mode: 'command' });
+    if (mathfield.mode === 'latex') {
+        model.deferNotifications({ content: true, selection: true }, () => {
+            for (const c of graphemes) {
+                ModeEditor.insert('latex', model, c);
+            }
             updateAutocomplete(mathfield);
-        }
+        });
     }
     else if (mathfield.mode === 'text') {
         for (const c of graphemes) {
-            insert(model, c, { mode: 'text', style: style });
+            ModeEditor.insert('text', model, c, { style });
         }
     }
     else if (mathfield.mode === 'math') {
@@ -28018,16 +28097,12 @@ function onTypedText(mathfield, text, options) {
                 // We are inserting a digit into an empty superscript
                 // If smartSuperscript is on, insert the digit, and
                 // exit the superscript.
-                insert(model, c, {
-                    mode: 'math',
-                    style: style,
-                });
+                ModeEditor.insert('math', model, c, { style });
                 moveAfterParent(model);
             }
             else {
-                insert(model, c, {
-                    mode: 'math',
-                    style: style,
+                ModeEditor.insert('math', model, c, {
+                    style,
                     smartFence: mathfield.options.smartFence,
                 });
             }
@@ -28036,9 +28111,7 @@ function onTypedText(mathfield, text, options) {
     //
     // 5/ Take a snapshot for undo stack
     //
-    if (mathfield.mode !== 'command') {
-        mathfield.snapshotAndCoalesce();
-    }
+    mathfield.snapshotAndCoalesce();
     //
     // 6/ Render the mathfield
     //
@@ -28047,7 +28120,7 @@ function onTypedText(mathfield, text, options) {
     mathfield.scrollIntoView();
 }
 
-register$2({
+register$1({
     undo: (mathfield) => {
         complete(mathfield, 'accept');
         // Undo to the previous state
@@ -28072,8 +28145,8 @@ register$2({
         mathfield.field.scroll(fieldBounds.left - window.scrollX, 0);
         return true;
     },
-    enterCommandMode: (mathfield) => {
-        mathfield.switchMode('command');
+    enterLatexMode: (mathfield) => {
+        mathfield.switchMode('latex');
         return true;
     },
     toggleKeystrokeCaption: (mathfield) => {
@@ -28100,8 +28173,30 @@ register$2({
         return true;
     },
 });
+register$1({
+    copyToClipboard: (mathfield) => {
+        mathfield.focus();
+        // If the selection is empty, select the entire field before
+        // copying it.
+        if (mathfield.model.selectionIsCollapsed) {
+            mathfield.select();
+        }
+        document.execCommand('copy');
+        return false;
+    },
+    cutToClipboard: (mathfield) => {
+        mathfield.focus();
+        document.execCommand('cut');
+        return true;
+    },
+    pasteFromClipboard: (mathfield) => {
+        mathfield.focus();
+        document.execCommand('paste');
+        return true;
+    },
+}, { target: 'mathfield', category: 'clipboard' });
 
-function applyStyle$4(mathfield, inStyle) {
+function applyStyle$1(mathfield, inStyle) {
     const style = validateStyle(inStyle);
     mathfield.resetKeystrokeBuffer();
     const model = mathfield.model;
@@ -28129,12 +28224,12 @@ function applyStyle$4(mathfield, inStyle) {
     }
     else {
         // Change the style of the selection
-        model.selection.ranges.forEach((range) => applyStyle$3(model, range, style));
+        model.selection.ranges.forEach((range) => applyStyle(model, range, style));
         mathfield.snapshot();
     }
     return true;
 }
-register$2({ applyStyle: applyStyle$4 }, { target: 'mathfield' });
+register$1({ applyStyle: applyStyle$1 }, { target: 'mathfield' });
 /**
  * Validate a style specification object
  */
@@ -28205,84 +28300,6 @@ function validateStyle(style) {
     }
     return result;
 }
-
-function onPaste(mathfield, ev) {
-    let text = '';
-    // Try to get a MathJSON data type
-    const json = ev.clipboardData.getData('application/json');
-    if (json) {
-        try {
-            text = jsonToLatex(JSON.parse(json), {});
-        }
-        catch (e) {
-            text = '';
-        }
-    }
-    // If that didn't work, try some plain text
-    if (!text) {
-        text = ev.clipboardData.getData('text/plain');
-    }
-    if (text) {
-        if (insert(mathfield.model, text, {
-            smartFence: mathfield.options.smartFence,
-            mode: 'math',
-        })) {
-            requestUpdate(mathfield);
-        }
-        ev.preventDefault();
-        ev.stopPropagation();
-    }
-    return true;
-}
-function onCut(mathfield) {
-    // Clearing the selection will have the side effect of clearing the
-    // content of the textarea. However, the textarea value is what will
-    // be copied to the clipboard, so defer the clearing of the selection
-    // to later, after the cut operation has been handled.
-    setTimeout(function () {
-        mathfield.$clearSelection();
-        requestUpdate(mathfield);
-    }.bind(mathfield), 0);
-    return true;
-}
-function onCopy(mathfield, e) {
-    if (mathfield.model.selectionIsCollapsed) {
-        e.clipboardData.setData('text/plain', '$$' + mathfield.getValue('latex-expanded') + '$$');
-        e.clipboardData.setData('application/json', mathfield.getValue('json'));
-        e.clipboardData.setData('application/xml', mathfield.getValue('mathML'));
-    }
-    else {
-        e.clipboardData.setData('text/plain', '$$' +
-            mathfield.getValue(mathfield.selection, 'latex-expanded') +
-            '$$');
-        e.clipboardData.setData('application/json', mathfield.getValue(mathfield.selection, 'json'));
-        e.clipboardData.setData('application/xml', mathfield.getValue(mathfield.selection, 'mathML'));
-    }
-    // Prevent the current document selection from being written to the clipboard.
-    e.preventDefault();
-}
-register$2({
-    copyToClipboard: (mathfield) => {
-        mathfield.focus();
-        // If the selection is empty, select the entire field before
-        // copying it.
-        if (mathfield.model.selectionIsCollapsed) {
-            mathfield.select();
-        }
-        document.execCommand('copy');
-        return false;
-    },
-    cutToClipboard: (mathfield) => {
-        mathfield.focus();
-        document.execCommand('cut');
-        return true;
-    },
-    pasteFromClipboard: (mathfield) => {
-        mathfield.focus();
-        document.execCommand('paste');
-        return true;
-    },
-}, { target: 'mathfield', category: 'clipboard' });
 
 let gLastTap;
 let gTapCount = 0;
@@ -28645,14 +28662,14 @@ const KEYBOARDS = {
         classes: 'tex',
         layers: ['symbols'],
     },
-    command: {
+    latex: {
         tooltip: 'keyboard.tooltip.command',
-        // For the command keyboard, perform a command rather than
-        // doing a simple layer switch, as we want to enter command mode
+        // For the latex keyboard, perform a command rather than
+        // doing a simple layer switch, as we want to enter latex mode
         // when the keyboard is activated
-        command: 'enterCommandMode',
+        command: ['switchMode', 'latex'],
         label: `<svg><use xlink:href='#svg-command' /></svg>`,
-        layers: ['lower-command', 'upper-command', 'symbols-command'],
+        layers: ['latex-lower', 'latex-upper', 'latex-symbols'],
     },
     style: {
         tooltip: 'keyboard.tooltip.style',
@@ -29263,13 +29280,13 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'lower-command': `
+    'latex-lower': `
         <div class='rows'>
-            <ul><row name='lower-1' class='tt' shift-layer='upper-command'/></ul>
-            <ul><row name='lower-2' class='tt' shift-layer='upper-command'/></ul>
-            <ul><row name='lower-3' class='tt' shift-layer='upper-command'/></ul>
+            <ul><row name='lower-1' class='tt' shift-layer='latex-upper'/></ul>
+            <ul><row name='lower-2' class='tt' shift-layer='latex-upper'/></ul>
+            <ul><row name='lower-3' class='tt' shift-layer='latex-upper'/></ul>
             <ul>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'>01#</li>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='latex-symbols'>01#</li>
                 <li class='keycap tt' data-shifted='[' data-shifted-command='["insertAndUnshiftKeyboardLayer", "["]'>{</li>
                 <li class='keycap tt' data-shifted=']' data-shifted-command='["insertAndUnshiftKeyboardLayer", "]"]'>}</li>
                 <li class='keycap tt' data-shifted='(' data-shifted-command='["insertAndUnshiftKeyboardLayer", "("]'>^</li>
@@ -29278,13 +29295,13 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'upper-command': `
+    'latex-upper': `
         <div class='rows'>
-            <ul><row name='upper-1' class='tt' shift-layer='lower-command'/></ul>
-            <ul><row name='upper-2' class='tt' shift-layer='lower-command'/></ul>
-            <ul><row name='upper-3' class='tt' shift-layer='lower-command'/></ul>
+            <ul><row name='upper-1' class='tt' shift-layer='latex-lower'/></ul>
+            <ul><row name='upper-2' class='tt' shift-layer='latex-lower'/></ul>
+            <ul><row name='upper-3' class='tt' shift-layer='latex-lower'/></ul>
             <ul>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'01#</li>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='latex-symbols'01#</li>
                 <li class='keycap tt'>[</li>
                 <li class='keycap tt'>]</li>
                 <li class='keycap tt'>(</li>
@@ -29293,7 +29310,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'symbols-command': `
+    'latex-symbols': `
         <div class='rows'>
             <ul><li class='keycap tt'>1</li><li class='keycap tt'>2</li><li class='keycap tt'>3</li><li class='keycap tt'>4</li><li class='keycap tt'>5</li><li class='keycap tt'>6</li><li class='keycap tt'>7</li><li class='keycap tt'>8</li><li class='keycap tt'>9</li><li class='keycap tt'>0</li></ul>
             <ul><li class='keycap tt'>!</li><li class='keycap tt'>@</li><li class='keycap tt'>#</li><li class='keycap tt'>$</li><li class='keycap tt'>%</li><li class='keycap tt'>^</li><li class='keycap tt'>&</li><li class='keycap tt'>*</li><li class='keycap tt'>+</li><li class='keycap tt'>=</li></ul>
@@ -29314,7 +29331,7 @@ const LAYERS = {
                 >&#x232b;</li>
             </ul>
             <ul>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-command'>abc</li>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='latex-lower'>abc</li>
                 <li class='keycap tt'>&lt;</li>
                 <li class='keycap tt'>&gt;</li>
                 <li class='keycap tt'>~</li>
@@ -29468,26 +29485,41 @@ function makeKeyboardToolbar(mf, keyboardIDs, currentKeyboard) {
         }
     }
     result += '</div>';
-    // The right hand side of the toolbar, with the copy/undo/redo commands
-    result += `
-        <div class='right'>
+    const toolbarOptions = mf.options.virtualKeyboardToolbar;
+    const availableActions = toolbarOptions === 'default' ? ['copyToClipboard', 'undo', 'redo'] : [];
+    const actionsMarkup = {
+        copyToClipboard: `
             <div class='action'
                 data-command='"copyToClipboard"'
                 data-ML__tooltip='${localize('tooltip.copy to clipboard')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-copy' /></svg>
             </div>
+        `,
+        undo: `
             <div class='action disabled'
                 data-command='"undo"'
                 data-ML__tooltip='${localize('tooltip.undo')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-undo' /></svg>
             </div>
+        `,
+        redo: `
             <div class='action disabled'
                 data-command='"redo"'
                 data-ML__tooltip='${localize('tooltip.redo')}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-redo' /></svg>
             </div>
-        </div>
-    `;
+        `,
+    };
+    // The right hand side of the toolbar, with the copy/undo/redo commands
+    if (availableActions.length > 0) {
+        result += `
+            <div class='right'>
+                ${availableActions
+            .map((action) => actionsMarkup[action])
+            .join('')}
+            </div>
+        `;
+    }
     return "<div class='keyboard-toolbar' role='toolbar'>" + result + '</div>';
 }
 function makeKeycap(mf, elList, chainedCommand) {
@@ -30135,17 +30167,21 @@ function updateUndoRedoButtons(mathfield) {
     if (virtualKeyboardToolbar) {
         const undoButton = virtualKeyboardToolbar.querySelector('[data-command=\'"undo"\']');
         const redoButton = virtualKeyboardToolbar.querySelector('[data-command=\'"redo"\']');
-        if (mathfield.canRedo()) {
-            redoButton.classList.remove('disabled');
+        if (redoButton) {
+            if (mathfield.canRedo()) {
+                redoButton.classList.remove('disabled');
+            }
+            else {
+                redoButton.classList.add('disabled');
+            }
         }
-        else {
-            redoButton.classList.add('disabled');
-        }
-        if (mathfield.canUndo()) {
-            undoButton.classList.remove('disabled');
-        }
-        else {
-            undoButton.classList.add('disabled');
+        if (undoButton) {
+            if (mathfield.canUndo()) {
+                undoButton.classList.remove('disabled');
+            }
+            else {
+                undoButton.classList.add('disabled');
+            }
         }
     }
 }
@@ -30155,7 +30191,7 @@ function updateUndoRedoButtons(mathfield) {
  * and held.
  *
  */
-register$2({
+register$1({
     showAlternateKeys: (mathfield, keycap, altKeys) => {
         var _a, _b;
         const altContainer = getSharedElement('mathlive-alternate-keys-panel', 'ML__keyboard alternate-keys');
@@ -30304,7 +30340,7 @@ function switchKeyboardLayer(mathfield, layer) {
  * Temporarily change the labels and the command of the keys
  * (for example when a modifier key is held down.)
  */
-register$2({
+register$1({
     shiftKeyboardLayer: (mathfield) => {
         var _a;
         const keycaps = (_a = mathfield.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.element.querySelectorAll('div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action');
@@ -30343,7 +30379,7 @@ register$2({
         return false;
     },
 }, { target: 'virtual-keyboard' });
-register$2({
+register$1({
     hideAlternateKeys: () => hideAlternateKeys(),
     /*
      * The command invoked when an alternate key is pressed.
@@ -30362,7 +30398,7 @@ register$2({
         return true;
     },
 }, { target: 'virtual-keyboard' });
-register$2({
+register$1({
     /* Toggle the virtual keyboard, but switch to the alternate theme if available */
     toggleVirtualKeyboardAlt: (mathfield) => {
         var _a, _b;
@@ -30440,17 +30476,125 @@ function toggleVirtualKeyboard(mathfield, theme) {
     }
     return false;
 }
-register$2({
+register$1({
     toggleVirtualKeyboard: (mathfield, theme) => toggleVirtualKeyboard(mathfield, theme),
     hideVirtualKeyboard: (mathfield) => hideVirtualKeyboard(mathfield),
     showVirtualKeyboard: (mathfield, theme) => showVirtualKeyboard(mathfield, theme),
 }, { target: 'virtual-keyboard' });
 
-var css_248z$2 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:calc(-1ex - 2px);position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:8px;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsla(0,0%,70%,.5);color:#333;fill:currentColor;border-radius:8px;border:1px solid hsla(0,0%,100%,.5)}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:8px;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;display:none;content:attr(data-ML__tooltip);top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{visibility:visible;display:inline-table;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
+var css_248z$2 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__latex-caret:after{content:\"_\";border:none;margin-right:calc(-1ex - 2px);position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:8px;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsla(0,0%,70%,.5);color:#333;fill:currentColor;border-radius:8px;border:1px solid hsla(0,0%,100%,.5)}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__latex{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__latex)+.ML__latex{margin-left:.25em}.ML__latex+:not(.ML__latex){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:8px;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;display:none;content:attr(data-ML__tooltip);top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{visibility:visible;display:inline-table;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
 var css_248z$3 = ".ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}div.ML__popover.is-visible{visibility:inherit;-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1)}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;padding:2px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px}.ML__popover__content a{color:#5ea6fd;padding-top:.3em;margin-top:.4em;display:block}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.active,.ML__popover__content.pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-size:1.6rem;font-family:KaTeX_Main}.ML__popover__prev-shortcut{height:31px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:4px;padding-bottom:2px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.active,.ML__popover__next-shortcut.pressed,.ML__popover__prev-shortcut.active,.ML__popover__prev-shortcut.pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{padding:5px;border-radius:8px;width:20px;height:20px;display:inline-block}.ML__popover__prev-shortcut>span>span{margin-top:-2px;display:block}.ML__popover__next-shortcut>span>span{margin-top:2px;display:block}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{height:34px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:2px;padding-bottom:4px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
 
 var css_248z$4 = ".ML__keystroke-caption{visibility:hidden;background:var(--secondary);border-color:var(--secondary-border);box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);text-align:center;border-radius:6px;padding:16px;position:absolute;z-index:1;display:flex;flex-direction:row;justify-content:center;--keystroke:#fff;--on-keystroke:#555;--keystroke-border:#f7f7f7}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keystroke-caption{--keystroke:hsl(var(--hue,212),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue,212),50%,25%)}}body[theme=dark] .ML__keystroke-caption{--keystroke:hsl(var(--hue,212),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue,212),50%,25%)}.ML__keystroke-caption>span{min-width:14px;margin:0 8px 0 0;padding:4px;background-color:var(--keystroke);color:var(--on-keystroke);fill:currentColor;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:1em;border-radius:6px;border:2px solid var(--keystroke-border)}";
+
+class TextModeEditor extends ModeEditor {
+    constructor() {
+        super('text');
+    }
+    onPaste(mathfield, ev) {
+        const text = ev.clipboardData.getData('text/plain');
+        if (text) {
+            if (this.insert(mathfield.model, text)) {
+                requestUpdate(mathfield);
+            }
+            ev.preventDefault();
+            ev.stopPropagation();
+            return true;
+        }
+        return false;
+    }
+    onCopy(mathfield, ev) {
+        const r = mathfield.model.selectionIsCollapsed
+            ? [0, mathfield.model.lastOffset]
+            : range(mathfield.selection);
+        ev.clipboardData.setData('text/plain', mathfield.model
+            .getAtoms(r)
+            .filter((x) => x instanceof TextAtom)
+            .map((x) => x.value)
+            .join(''));
+        // Prevent the current document selection from being written to the clipboard.
+        ev.preventDefault();
+    }
+    insert(model, text, options = {}) {
+        var _a;
+        if (!options.insertionMode)
+            options.insertionMode = 'replaceSelection';
+        if (!options.selectionMode)
+            options.selectionMode = 'placeholder';
+        if (!options.format)
+            options.format = 'auto';
+        options.macros = (_a = options.macros) !== null && _a !== void 0 ? _a : model.options.macros;
+        const suppressChangeNotifications = model.suppressChangeNotifications;
+        if (options.suppressChangeNotifications) {
+            model.suppressChangeNotifications = true;
+        }
+        const contentWasChanging = model.suppressChangeNotifications;
+        model.suppressChangeNotifications = true;
+        //
+        // Delete any selected items
+        //
+        if (options.insertionMode === 'replaceSelection' &&
+            !model.selectionIsCollapsed) {
+            model.position = model.deleteAtoms(range(model.selection));
+        }
+        else if (options.insertionMode === 'replaceAll') {
+            model.root.setChildren([], 'body');
+            model.position = 0;
+        }
+        else if (options.insertionMode === 'insertBefore') {
+            model.collapseSelection('backward');
+        }
+        else if (options.insertionMode === 'insertAfter') {
+            model.collapseSelection('forward');
+        }
+        const newAtoms = convertStringToAtoms$1(text);
+        // Some atoms may already have a style (for example if there was an
+        // argument, i.e. the selection, that this was applied to).
+        // So, don't apply style to atoms that are already styled, but *do*
+        // apply it to newly created atoms that have no style yet.
+        applyStyleToUnstyledAtoms(newAtoms, options.style);
+        if (!newAtoms)
+            return false;
+        const cursor = model.at(model.position);
+        const lastNewAtom = cursor.parent.addChildrenAfter(newAtoms, cursor);
+        // Prepare to dispatch notifications
+        // (for selection changes, then content change)
+        model.suppressChangeNotifications = contentWasChanging;
+        if (options.selectionMode === 'before') ;
+        else if (options.selectionMode === 'item') {
+            model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
+        }
+        else {
+            if (lastNewAtom) {
+                model.position = model.offsetOf(lastNewAtom);
+            }
+        }
+        contentDidChange(model);
+        model.suppressChangeNotifications = suppressChangeNotifications;
+        return true;
+    }
+}
+function convertStringToAtoms$1(s) {
+    // Map special TeX characters to alternatives
+    // Must do this one first, since other replacements include backslash
+    s = s.replace(/\\/g, '\\textbackslash ');
+    s = s.replace(/#/g, '\\#');
+    s = s.replace(/\$/g, '\\$');
+    s = s.replace(/%/g, '\\%');
+    s = s.replace(/&/g, '\\&');
+    // s = s.replace(/:/g, '\\colon');     // text colon?
+    // s = s.replace(/\[/g, '\\lbrack');
+    // s = s.replace(/]/g, '\\rbrack');
+    s = s.replace(/_/g, '\\_');
+    s = s.replace(/{/g, '\\textbraceleft ');
+    s = s.replace(/}/g, '\\textbraceright ');
+    s = s.replace(/\^/g, '\\textasciicircum ');
+    s = s.replace(/~/g, '\\textasciitilde ');
+    s = s.replace(/£/g, '\\textsterling ');
+    return parseLatex(s, 'text');
+}
+new TextModeEditor();
 
 class MathfieldPrivate {
     /**
@@ -30634,7 +30778,7 @@ class MathfieldPrivate {
         // display in the popover panel
         this.suggestionIndex = 0;
         // The input mode (text, math, command)
-        // While getAnchorMode() represent the mode of the current selection,
+        // While model.getMode() represent the mode of the current selection,
         // this.mode is the mode chosen by the user. It indicates the mode the
         // next character typed will be interpreted in.
         // It is often identical to getAnchorMode() since changing the selection
@@ -30653,9 +30797,20 @@ class MathfieldPrivate {
         // Delegate keyboard events
         this.keyboardDelegate = delegateKeyboardEvents(textarea, {
             typedText: (text) => onTypedText(this, text),
-            cut: () => onCut(this),
-            copy: (ev) => onCopy(this, ev),
-            paste: (ev) => onPaste(this, ev),
+            cut: (_ev) => {
+                // Snapshot the undo state
+                this.snapshot();
+                // Clearing the selection will have the side effect of clearing the
+                // content of the textarea. However, the textarea value is what will
+                // be copied to the clipboard, so defer the clearing of the selection
+                // to later, after the cut operation has been handled.
+                setTimeout(() => {
+                    deleteRange(this.model, range(this.model.selection));
+                    requestUpdate(this);
+                }, 0);
+            },
+            copy: (ev) => ModeEditor.onCopy(this.model.at(this.model.position).mode, this, ev),
+            paste: (ev) => ModeEditor.onPaste(this.model.at(this.model.position).mode, this, ev),
             keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
             focus: () => this.onFocus(),
             blur: () => this.onBlur(),
@@ -30696,11 +30851,10 @@ class MathfieldPrivate {
         this.undoManager = new UndoManager(this.model);
         // Use the content of the element for the initial value of the mathfield
         if (elementText) {
-            insert(this.model, elementText, {
+            ModeEditor.insert('math', this.model, elementText, {
                 insertionMode: 'replaceAll',
                 selectionMode: 'after',
                 format: 'latex',
-                mode: 'math',
                 suppressChangeNotifications: true,
                 macros: this.options.macros,
             });
@@ -30783,11 +30937,10 @@ class MathfieldPrivate {
         // Changing some config options (i.e. `macros`) may
         // require the content to be reparsed and re-rendered
         const content = Atom.toLatex(this.model.root, { expandMacro: false });
-        insert(this.model, content, {
+        ModeEditor.insert('math', this.model, content, {
             insertionMode: 'replaceAll',
             selectionMode: 'after',
             format: 'latex',
-            mode: 'math',
             suppressChangeNotifications: true,
             macros: this.options.macros,
         });
@@ -30896,9 +31049,24 @@ class MathfieldPrivate {
         clearTimeout(this.keystrokeBufferResetTimer);
     }
     _onSelectionDidChange() {
+        var _a;
         // Keep the content of the textarea in sync wiht the selection.
         // This will allow cut/copy to work.
         this.keyboardDelegate.setValue(this.getValue(this.model.selection, 'latex-expanded'));
+        // Adjust mode
+        {
+            const cursor = this.model.at(this.model.position);
+            const newMode = (_a = cursor.mode) !== null && _a !== void 0 ? _a : this.options.defaultMode;
+            if (this.mode !== newMode) {
+                if (this.mode === 'latex') {
+                    complete(this, 'accept', { mode: newMode });
+                    this.model.position = this.model.offsetOf(cursor);
+                }
+                else {
+                    this.switchMode(newMode);
+                }
+            }
+        }
         // Invoke client listeners, if provided.
         if (typeof this.options.onSelectionDidChange === 'function') {
             this.options.onSelectionDidChange(this);
@@ -30945,7 +31113,7 @@ class MathfieldPrivate {
     }
     onCompositionStart(_composition) {
         // Clear the selection if there is one
-        this.model.deleteAtoms(range(this.model.selection));
+        this.model.position = this.model.deleteAtoms(range(this.model.selection));
         requestAnimationFrame(() => {
             render(this); // Recalculate the position of the caret
             // Synchronize the location and style of textarea
@@ -31012,7 +31180,11 @@ class MathfieldPrivate {
             options.format === 'auto') {
             options.format = 'latex';
         }
-        if (insert(this.model, value, options)) {
+        let mode = 'math';
+        if (!options.mode || options.mode === 'auto') {
+            mode = getMode(this.model, this.model.position);
+        }
+        if (ModeEditor.insert(mode, this.model, value, options)) {
             this.undoManager.snapshot(this.options);
             requestUpdate(this);
         }
@@ -31061,7 +31233,7 @@ class MathfieldPrivate {
             });
             if (text !== oldValue) {
                 options = options !== null && options !== void 0 ? options : { mode: 'math' };
-                insert(this.model, text, {
+                ModeEditor.insert('math', this.model, text, {
                     insertionMode: 'replaceAll',
                     selectionMode: 'after',
                     format: 'latex',
@@ -31148,8 +31320,7 @@ class MathfieldPrivate {
             }
             else {
                 const savedStyle = this.style;
-                insert(this.model, s, {
-                    mode: this.mode,
+                ModeEditor.insert(this.mode, this.model, s, {
                     style: this.model.at(this.model.position).computedStyle,
                     ...options,
                 });
@@ -31182,32 +31353,42 @@ class MathfieldPrivate {
                 contentChanged = true;
             }
             this.mode = mode;
-            if (mode === 'command') {
-                model.deleteAtoms(getCommandRange(this.model));
-                hidePopover(this);
+            if (mode === 'latex') {
+                const wasCollapsed = model.selectionIsCollapsed;
+                // We can have only a single latex group at a time.
+                // If a latex group is open, close it first
+                complete(this, 'accept');
                 // Switch to the command mode keyboard layer
                 if (this.virtualKeyboardVisible) {
-                    switchKeyboardLayer(this, 'lower-command');
+                    switchKeyboardLayer(this, 'latex-lower');
                 }
-                // Inserting a command atom
+                // Insert a latex group atom
+                let latex;
                 let cursor = model.at(model.position);
-                if (model.selectionIsCollapsed) {
-                    cursor.parent.addChildrenAfter([new CommandAtom('\\')], cursor);
-                    model.position += 1;
+                if (wasCollapsed) {
+                    latex = '\\';
                 }
                 else {
-                    const selectionRange = range(model.selection);
-                    cursor = model.at(selectionRange[0]);
-                    const latex = Atom.toLatex(model.extractAtoms(selectionRange), {
+                    const selRange = range(model.selection);
+                    latex = Atom.toLatex(model
+                        .extractAtoms(selRange)
+                        .filter((x) => !(x instanceof PlaceholderAtom)), {
                         expandMacro: false,
                     });
-                    const lastAtom = cursor.parent.addChildrenAfter(Array.from(latex).map((x) => new CommandAtom(x)), cursor);
-                    model.setSelection(model.offsetOf(cursor), model.offsetOf(lastAtom));
+                    cursor = model.at(selRange[0]);
+                }
+                const atom = new LatexGroupAtom(latex);
+                cursor.parent.addChildAfter(atom, cursor);
+                if (wasCollapsed) {
+                    model.position = model.offsetOf(atom.lastChild);
+                }
+                else {
+                    model.setSelection(model.offsetOf(atom.firstChild), model.offsetOf(atom.lastChild));
                 }
             }
             else {
                 // Remove any error indicator on the current command sequence (if there is one)
-                getCommandAtoms(model).forEach((x) => {
+                getLatexGroupBody(model).forEach((x) => {
                     x.isError = false;
                 });
             }
@@ -31269,15 +31450,15 @@ class MathfieldPrivate {
     }
     applyStyle(style, range) {
         if (typeof range === 'undefined') {
-            this.model.selection.ranges.forEach((range) => applyStyle$3(this.model, range, style));
+            this.model.selection.ranges.forEach((range) => applyStyle(this.model, range, style));
         }
         else {
-            applyStyle$3(this.model, range, style);
+            applyStyle(this.model, range, style);
         }
     }
     /** @deprecated */
     $applyStyle(style) {
-        this.model.selection.ranges.forEach((range) => applyStyle$3(this.model, range, style));
+        this.model.selection.ranges.forEach((range) => applyStyle(this.model, range, style));
     }
     /** @deprecated */
     $keystroke(keys, evt) {

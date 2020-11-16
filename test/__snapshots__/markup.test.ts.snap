@@ -1,643 +1,643 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ACCENTS 0/ "\\\\vec" renders correctly 1`] = `
+exports[`ACCENTS 0/ \\vec renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.93em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.02em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body accent-vec\\"><span><span class=\\"math\\" style=\\"margin-right:0.16em\\">⃗</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body accent-vec\\"><span><span class=\\"math\\" style=\\"margin-right:0.16em\\">⃗</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body accent-vec\\"><span><span class=\\"math\\" style=\\"margin-right:0.16em\\">⃗</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 1/ "\\\\acute" renders correctly 1`] = `
+exports[`ACCENTS 1/ \\acute renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.91em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body\\"><span><span class=\\"math\\">ˊ</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">ˊ</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body\\"><span><span class=\\"math\\">ˊ</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 2/ "\\\\grave" renders correctly 1`] = `
+exports[`ACCENTS 2/ \\grave renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.91em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body\\"><span><span class=\\"math\\">ˋ</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">ˋ</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body\\"><span><span class=\\"math\\">ˋ</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 3/ "\\\\dot" renders correctly 1`] = `
+exports[`ACCENTS 3/ \\dot renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.89em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.97em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body\\"><span><span class=\\"math\\">˙</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">˙</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body\\"><span><span class=\\"math\\">˙</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 4/ "\\\\ddot" renders correctly 1`] = `
+exports[`ACCENTS 4/ \\ddot renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.89em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.97em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body\\"><span><span class=\\"math\\">¨</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">¨</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body\\"><span><span class=\\"math\\">¨</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 5/ "\\\\tilde" renders correctly 1`] = `
+exports[`ACCENTS 5/ \\tilde renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.89em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.97em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span style=\\"top:-0.35em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">~</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.56em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">~</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span style=\\"top:-0.35em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">~</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 6/ "\\\\bar" renders correctly 1`] = `
+exports[`ACCENTS 6/ \\bar renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.79em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.87em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body\\"><span><span class=\\"math\\">ˉ</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">ˉ</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body\\"><span><span class=\\"math\\">ˉ</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 7/ "\\\\breve" renders correctly 1`] = `
+exports[`ACCENTS 7/ \\breve renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.91em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body\\"><span><span class=\\"math\\">˘</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">˘</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body\\"><span><span class=\\"math\\">˘</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 8/ "\\\\check" renders correctly 1`] = `
+exports[`ACCENTS 8/ \\check renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.85em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.93em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body\\"><span><span class=\\"math\\">ˇ</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">ˇ</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body\\"><span><span class=\\"math\\">ˇ</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ACCENTS 9/ "\\\\hat" renders correctly 1`] = `
+exports[`ACCENTS 9/ \\hat renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.91em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span><span class=\\"accent-body\\"><span><span class=\\"math\\">^</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span></span></span><span style=\\"top:-0.21em\\"><span class=\\"accent-body\\"><span><span class=\\"math\\">^</span></span></span></span></span></span><span class=\\"accent\\"><span class=\\"vlist\\"><span><span class=\\"accent-body\\"><span><span class=\\"math\\">^</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 0/ "a+b" renders corectly 1`] = `
+exports[`BINARY OPERATORS 0/ a+b renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.78em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 1/ "f(a)+f(b)" renders corectly 1`] = `
+exports[`BINARY OPERATORS 1/ f(a)+f(b) renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\">)</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em;margin-left:0.23em\\">f</span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__mathit\\">b</span><span class=\\"ML__cmr\\">)</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 2/ "x^n+y^n" renders corectly 1`] = `
+exports[`BINARY OPERATORS 2/ x^n+y^n renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.72em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.13em;vertical-align:-0.41em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">x</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.41em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">n</span></span></span></span></span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">y</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.41em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">n</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 3/ "+b" renders corectly 1`] = `
+exports[`BINARY OPERATORS 3/ +b renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.78em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">+</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 4/ "(+b" renders corectly 1`] = `
+exports[`BINARY OPERATORS 4/ (+b renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 5/ "=+b" renders corectly 1`] = `
+exports[`BINARY OPERATORS 5/ =+b renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.78em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">=</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">+</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 6/ "\\\\sin+b" renders corectly 1`] = `
+exports[`BINARY OPERATORS 6/ \\sin+b renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.78em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">sin</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.17em\\">+</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 7/ ", +b" renders corectly 1`] = `
+exports[`BINARY OPERATORS 7/ , +b renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.89em;vertical-align:-0.19em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">,</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.17em\\">+</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 8/ "\\\\textcolor{red}{a}+b" renders corectly 1`] = `
+exports[`BINARY OPERATORS 8/ \\textcolor{red}{a}+b renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.78em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\" style=\\"color:#ed1b23\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BINARY OPERATORS 9/ "\\\\textcolor{red}{a=}+b" renders corectly 1`] = `
+exports[`BINARY OPERATORS 9/ \\textcolor{red}{a=}+b renders corectly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.78em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\" style=\\"color:#ed1b23\\">a</span><span class=\\"ML__cmr\\" style=\\"color:#ed1b23;margin-left:0.28em\\">=</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">+</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 0/ "\\\\bbox{1+x}" renders correctly 1`] = `
+exports[`BOX AND RULE 0/ \\bbox{1+x} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.95em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.33em;vertical-align:-0.38em\\"></span><span class=\\"ML__base\\"><span style=\\"position:relative;vertical-align:-0.21em;margin-left:0.3em;margin-right:0.3em;height:0.73em;top:-0.3em;display:inline-block\\"><span class=\\"ML__box\\" style=\\"position:absolute;height:1.33em;width:calc(100% + 0.6em);top:-0.6em;left:-0.3em;z-index:-1;box-sizing:border-box\\"></span><span style=\\"display:inline-block;height:0.73em\\"><span style=\\"vertical-align:-0.08em;height:0\\"><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 1/ "\\\\bbox[border:solid 1px red]{1+x}" renders correctly 1`] = `
+exports[`BOX AND RULE 1/ \\bbox[border:solid 1px red]{1+x} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.95em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.33em;vertical-align:-0.38em\\"></span><span class=\\"ML__base\\"><span style=\\"position:relative;vertical-align:-0.21em;margin-left:0.3em;margin-right:0.3em;height:0.73em;top:-0.3em;display:inline-block\\"><span class=\\"ML__box\\" style=\\"position:absolute;height:1.33em;width:calc(100% + 0.6em);top:-0.6em;left:-0.3em;z-index:-1;box-sizing:border-box;border:solid 1px red\\"></span><span style=\\"display:inline-block;height:0.73em\\"><span style=\\"vertical-align:-0.08em;height:0\\"><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 2/ "\\\\bbox[yellow]{1+x}" renders correctly 1`] = `
+exports[`BOX AND RULE 2/ \\bbox[yellow]{1+x} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.95em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.33em;vertical-align:-0.38em\\"></span><span class=\\"ML__base\\"><span style=\\"position:relative;vertical-align:-0.21em;margin-left:0.3em;margin-right:0.3em;height:0.73em;top:-0.3em;display:inline-block\\"><span class=\\"ML__box\\" style=\\"position:absolute;height:1.33em;width:calc(100% + 0.6em);top:-0.6em;left:-0.3em;z-index:-1;box-sizing:border-box;background-color:#fff200\\"></span><span style=\\"display:inline-block;height:0.73em\\"><span style=\\"vertical-align:-0.08em;height:0\\"><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 3/ "\\\\bbox[yellow]{1+x}" renders correctly 1`] = `
+exports[`BOX AND RULE 3/ \\bbox[yellow]{1+x} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.95em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.33em;vertical-align:-0.38em\\"></span><span class=\\"ML__base\\"><span style=\\"position:relative;vertical-align:-0.21em;margin-left:0.3em;margin-right:0.3em;height:0.73em;top:-0.3em;display:inline-block\\"><span class=\\"ML__box\\" style=\\"position:absolute;height:1.33em;width:calc(100% + 0.6em);top:-0.6em;left:-0.3em;z-index:-1;box-sizing:border-box;background-color:#fff200\\"></span><span style=\\"display:inline-block;height:0.73em\\"><span style=\\"vertical-align:-0.08em;height:0\\"><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 4/ "\\\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}" renders correctly 1`] = `
+exports[`BOX AND RULE 4/ \\bbox[ yellow , border: 1px solid red, 4 em ]{1+x} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:4.65em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:8.73em;vertical-align:-4.08em\\"></span><span class=\\"ML__base\\"><span style=\\"position:relative;vertical-align:-3.91em;margin-left:4em;margin-right:4em;height:0.73em;top:-4em;display:inline-block\\"><span class=\\"ML__box\\" style=\\"position:absolute;height:8.73em;width:calc(100% + 8em);top:-8em;left:-4em;z-index:-1;box-sizing:border-box;background-color:#fff200;border:1px solid red\\"></span><span style=\\"display:inline-block;height:0.73em\\"><span style=\\"vertical-align:-0.08em;height:0\\"><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 5/ "\\\\rlap{x}o" renders correctly 1`] = `
+exports[`BOX AND RULE 5/ \\rlap{x}o renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.44em\\"></span><span class=\\"ML__base\\"><span class=\\"rlap\\"><span class=\\"inner\\"><span class=\\"ML__mathit\\">x</span></span><span class=\\"fix\\"></span></span><span class=\\"ML__mathit\\">o</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 6/ "\\\\mathrlap{x}o" renders correctly 1`] = `
+exports[`BOX AND RULE 6/ \\mathrlap{x}o renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.44em\\"></span><span class=\\"ML__base\\"><span class=\\"rlap\\"><span class=\\"inner\\"><span class=\\"ML__mathit\\">x</span></span><span class=\\"fix\\"></span></span><span class=\\"ML__mathit\\">o</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 7/ "\\\\llap{x}o" renders correctly 1`] = `
+exports[`BOX AND RULE 7/ \\llap{x}o renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.44em\\"></span><span class=\\"ML__base\\"><span class=\\"llap\\"><span class=\\"inner\\"><span class=\\"ML__mathit\\">x</span></span><span class=\\"fix\\"></span></span><span class=\\"ML__mathit\\">o</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`BOX AND RULE 8/ "\\\\mathllap{x}o" renders correctly 1`] = `
+exports[`BOX AND RULE 8/ \\mathllap{x}o renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.44em\\"></span><span class=\\"ML__base\\"><span class=\\"llap\\"><span class=\\"inner\\"><span class=\\"ML__mathit\\">x</span></span><span class=\\"fix\\"></span></span><span class=\\"ML__mathit\\">o</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 0/ "\\\\sin x \\\\textcolor{#f00}{red} \\\\backgroundcolor{yellow}{x + \\\\frac1{\\\\frac34}} \\\\textcolor{m1}{\\\\blacktriangle}\\\\textcolor{m2}{\\\\blacktriangle}\\\\textcolor{m3}{\\\\blacktriangle}\\\\textcolor{m4}{\\\\blacktriangle}\\\\textcolor{m5}{\\\\blacktriangle}\\\\textcolor{m6}{\\\\blacktriangle}\\\\textcolor{m7}{\\\\blacktriangle}\\\\textcolor{m8}{\\\\blacktriangle}\\\\textcolor{m9}{\\\\blacktriangle}" renders correctly 1`] = `
+exports[`COLORS 0/ \\sin x \\textcolor{#f00}{red} \\backgroundcolor{yellow}{x + \\frac1{\\frac34}} \\textcolor{m1}{\\blacktriangle}\\textcolor{m2}{\\blacktriangle}\\textcolor{m3}{\\blacktriangle}\\textcolor{m4}{\\blacktriangle}\\textcolor{m5}{\\blacktriangle}\\textcolor{m6}{\\blacktriangle}\\textcolor{m7}{\\blacktriangle}\\textcolor{m8}{\\blacktriangle}\\textcolor{m9}{\\blacktriangle} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.33em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.76em;vertical-align:-1.43em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">sin</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.17em\\">xred</span><span class=\\"ML__error\\">\\\\backgroundcolor</span><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">ye</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.02em\\">llo</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.03em\\">w</span></span><span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span style=\\"margin-left:0.23em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:1.09em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">4</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">3</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span><span class=\\"ML__ams\\" style=\\"color:#993d71\\">▲</span><span class=\\"ML__ams\\" style=\\"color:#998b3d\\">▲</span><span class=\\"ML__ams\\" style=\\"color:#3d9956\\">▲</span><span class=\\"ML__ams\\" style=\\"color:#3d5a99\\">▲</span><span class=\\"ML__ams\\" style=\\"color:#993d90\\">▲</span><span class=\\"ML__ams\\" style=\\"color:#996d3d\\">▲</span><span class=\\"ML__ams\\" style=\\"color:#43993d\\">▲</span><span class=\\"ML__ams\\" style=\\"color:#3d7999\\">▲</span><span class=\\"ML__ams\\" style=\\"color:#843d99\\">▲</span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`COLORS 0/ color format ""aquamarine"" renders correctly 1`] = `
+exports[`COLORS 0/ color format "aquamarine" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 1/ "a+\\\\backgroundcolor{#f00}{\\\\frac1{\\\\frac{a+1}{b+c}}}" renders correctly 1`] = `
+exports[`COLORS 1/ a+\\backgroundcolor{#f00}{\\frac1{\\frac{a+1}{b+c}}} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.33em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.82em;vertical-align:-1.49em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\backgroundcolor</span><span><span class=\\"ML__cmr\\">#</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__cmr\\">00</span></span><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:1.09em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">b</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`COLORS 1/ color format ""rgb(240, 10, 200)"" renders correctly 1`] = `
+exports[`COLORS 1/ color format "rgb(240, 10, 200)" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 2/ "a+\\\\backgroundcolor{#f00}{\\\\frac{\\\\frac{\\\\frac{1}{2}}{c}}{\\\\frac{a+1}{b+c}}}" renders correctly 1`] = `
+exports[`COLORS 2/ a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{\\frac{a+1}{b+c}}} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.26em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.75em;vertical-align:-1.49em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\backgroundcolor</span><span><span class=\\"ML__cmr\\">#</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__cmr\\">00</span></span><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:1.09em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">b</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.73em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.68em\\"><span class=\\"reset-textstyle scriptstyle\\"><span><span class=\\"sizing reset-scriptstyle textstyle nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.54em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"reset-scriptstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span><span style=\\"top:-0.22em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"reset-scriptstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing reset-scriptstyle textstyle nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`COLORS 2/ color format ""#33d"" renders correctly 1`] = `
+exports[`COLORS 2/ color format "#33d" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 3/ "a+\\\\backgroundcolor{#f00}{\\\\frac{\\\\frac{\\\\frac{1}{2}}{c}}{a}" renders correctly 1`] = `
+exports[`COLORS 3/ a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.26em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.95em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\backgroundcolor</span><span><span class=\\"ML__cmr\\">#</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__cmr\\">00</span></span><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.73em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.68em\\"><span class=\\"reset-textstyle scriptstyle\\"><span><span class=\\"sizing reset-scriptstyle textstyle nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.54em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"reset-scriptstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span><span style=\\"top:-0.22em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"reset-scriptstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing reset-scriptstyle textstyle nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`COLORS 3/ color format ""#3130da"" renders correctly 1`] = `
+exports[`COLORS 3/ color format "#3130da" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 4/ "a+\\\\backgroundcolor{#f00}{\\\\frac1{\\\\frac{a+1}{b+c}}}" renders correctly 1`] = `
+exports[`COLORS 4/ a+\\backgroundcolor{#f00}{\\frac1{\\frac{a+1}{b+c}}} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.33em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.82em;vertical-align:-1.49em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\backgroundcolor</span><span><span class=\\"ML__cmr\\">#</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__cmr\\">00</span></span><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:1.09em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">b</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`COLORS 4/ color format ""white"" renders correctly 1`] = `
+exports[`COLORS 4/ color format "white" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 5/ "a+\\\\backgroundcolor{#f00}{\\\\frac{\\\\frac{\\\\frac{1}{2}}{c}}{\\\\frac{a+1}{b+c}}}" renders correctly 1`] = `
+exports[`COLORS 5/ a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{\\frac{a+1}{b+c}}} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.26em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.75em;vertical-align:-1.49em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\backgroundcolor</span><span><span class=\\"ML__cmr\\">#</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__cmr\\">00</span></span><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:1.09em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">b</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.73em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.68em\\"><span class=\\"reset-textstyle scriptstyle\\"><span><span class=\\"sizing reset-scriptstyle textstyle nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.54em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"reset-scriptstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span><span style=\\"top:-0.22em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"reset-scriptstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing reset-scriptstyle textstyle nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`COLORS 5/ color format ""AquaMarine"" renders correctly 1`] = `
+exports[`COLORS 5/ color format "AquaMarine" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 6/ "a+\\\\backgroundcolor{#f00}{\\\\frac{\\\\frac{\\\\frac{1}{2}}{c}}{a}" renders correctly 1`] = `
+exports[`COLORS 6/ a+\\backgroundcolor{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.26em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.95em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\backgroundcolor</span><span><span class=\\"ML__cmr\\">#</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__cmr\\">00</span></span><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.73em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.68em\\"><span class=\\"reset-textstyle scriptstyle\\"><span><span class=\\"sizing reset-scriptstyle textstyle nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.54em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"reset-scriptstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span><span style=\\"top:-0.22em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span aria-hidden=\\"true\\" style=\\"font-size:1.43em\\">​</span><span class=\\"reset-scriptstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing reset-scriptstyle textstyle nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`COLORS 6/ color format ""M5"" renders correctly 1`] = `
+exports[`COLORS 6/ color format "M5" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 7/ "a{b\\\\color{#f00} c}d" renders correctly 1`] = `
+exports[`COLORS 7/ a{b\\color{#f00} c}d renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span><span class=\\"ML__mathit\\">bc</span></span><span class=\\"ML__mathit\\">d</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 7/ color format ""#fff"" renders correctly 1`] = `
+exports[`COLORS 7/ color format "#fff" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 8/ "a\\\\left(b\\\\color{#f00} c\\\\right)d" renders correctly 1`] = `
+exports[`COLORS 8/ a\\left(b\\color{#f00} c\\right)d renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"displaystyle textstyle\\" style=\\"margin-left:0.17em\\"><span class=\\"ML__small-delim ML__open style-wrap\\"><span>(</span></span><span class=\\"ML__mathit\\">bc</span><span class=\\"ML__small-delim ML__close style-wrap\\"><span>)</span></span></span><span class=\\"ML__mathit\\">d</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 8/ color format ""#ffffff"" renders correctly 1`] = `
+exports[`COLORS 8/ color format "#ffffff" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 9/ "{\\\\color{apricot}\\\\blacksquare}{\\\\color{aquamarine}\\\\blacksquare}{\\\\color{bittersweet}\\\\blacksquare}{\\\\color{black}\\\\blacksquare}{\\\\color{blue}\\\\blacksquare}{\\\\color{blueGreen}\\\\blacksquare}{\\\\color{blueviolet}\\\\blacksquare}{\\\\color{brickred}\\\\blacksquare}{\\\\color{brown}\\\\blacksquare}{\\\\color{burntorange}\\\\blacksquare}{\\\\color{cadetblue}\\\\blacksquare}{\\\\color{carnationpink}\\\\blacksquare}{\\\\color{cerulean}\\\\blacksquare}{\\\\color{cornflowerblue}\\\\blacksquare}{\\\\color{cyan}\\\\blacksquare}{\\\\color{dandelion}\\\\blacksquare}{\\\\color{darkorchid}\\\\blacksquare}{\\\\color{emerald}\\\\blacksquare}{\\\\color{forestgreen}\\\\blacksquare}{\\\\color{fuchsia}\\\\blacksquare}{\\\\color{goldenrod}\\\\blacksquare}{\\\\color{gray}\\\\blacksquare}{\\\\color{green}\\\\blacksquare}{\\\\color{greenyellow}\\\\blacksquare}{\\\\color{junglegreen}\\\\blacksquare}{\\\\color{lavender}\\\\blacksquare}{\\\\color{limegreen}\\\\blacksquare}{\\\\color{magenta}\\\\blacksquare}{\\\\color{mahogany}\\\\blacksquare}{\\\\color{maroon}\\\\blacksquare}{\\\\color{melon}\\\\blacksquare}{\\\\color{midnightblue}\\\\blacksquare}{\\\\color{mulberry}\\\\blacksquare}{\\\\color{navyblue}\\\\blacksquare}{\\\\color{olivegreen}\\\\blacksquare}{\\\\color{orange}\\\\blacksquare}{\\\\color{orangered}\\\\blacksquare}{\\\\color{orchid}\\\\blacksquare}{\\\\color{peach}\\\\blacksquare}{\\\\color{periwinkle}\\\\blacksquare}{\\\\color{pinegreen}\\\\blacksquare}{\\\\color{plum}\\\\blacksquare}{\\\\color{processblue}\\\\blacksquare}{\\\\color{purple}\\\\blacksquare}{\\\\color{rawsienna}\\\\blacksquare}{\\\\color{red}\\\\blacksquare}{\\\\color{redorange}\\\\blacksquare}{\\\\color{redviolet}\\\\blacksquare}{\\\\color{rhodamine}\\\\blacksquare}{\\\\color{royalblue}\\\\blacksquare}{\\\\color{royalpurple}\\\\blacksquare}{\\\\color{rubinered}\\\\blacksquare}{\\\\color{salmon}\\\\blacksquare}{\\\\color{seagreen}\\\\blacksquare}{\\\\color{sepia}\\\\blacksquare}{\\\\color{skyblue}\\\\blacksquare}{\\\\color{springgreen}\\\\blacksquare}{\\\\color{tan}\\\\blacksquare}{\\\\color{tealblue}\\\\blacksquare}{\\\\color{thistle}\\\\blacksquare}{\\\\color{turquoise}\\\\blacksquare}{\\\\color{violet}\\\\blacksquare}{\\\\color{violetred}\\\\blacksquare}{\\\\color{white}\\\\blacksquare}{\\\\color{wildstrawberry}\\\\blacksquare}{\\\\color{yellow}\\\\blacksquare}{\\\\color{yellowgreen}\\\\blacksquare}{\\\\color{yelloworange}\\\\blacksquare}" renders correctly 1`] = `
+exports[`COLORS 9/ {\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}{\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}{\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}{\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}{\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}{\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}{\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}{\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}{\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}{\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}{\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}{\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}{\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}{\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}{\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}{\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}{\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}{\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}{\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}{\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}{\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}{\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}{\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}{\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}{\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}{\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}{\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}{\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}{\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}{\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}{\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}{\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}{\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}{\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"ML__ams\\" style=\\"color:#fbb982\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00b5be\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#c04f17\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#221e1f\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#2d2f92\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00b3b8\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#473992\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#b6321c\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#792500\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#f7921d\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#74729a\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#f282b4\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00a2e3\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#41b0e4\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00aeef\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#fdbc42\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#a4538a\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00a99d\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#009b55\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#8c368c\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ffdf42\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#949698\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00a64f\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#dfe674\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00a99a\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#f49ec4\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#8dc73e\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ec008c\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#a9341f\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#af3235\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#f89e7b\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#006795\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#a93c93\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#006eb8\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#3c8031\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#f58137\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ed135a\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#af72b0\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#f7965a\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#7977b8\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#008b72\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#92268f\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00b0f0\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#99479b\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#974006\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ed1b23\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#f26035\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#a1246b\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ef559f\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#0071bc\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#613f99\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ed017d\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#f69289\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#3fbc9d\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#671800\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#46c5dd\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#c6dc67\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#da9d76\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00aeb3\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#d883b7\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#00b4ce\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#58429b\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ef58a0\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ffffff\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#ee2967\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#fff200\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#98cc70\\">■</span></span><span><span class=\\"ML__ams\\" style=\\"color:#faa21a\\">■</span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 9/ color format ""#fCFcfC"" renders correctly 1`] = `
+exports[`COLORS 9/ color format "#fCFcfC" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 10/ color format ""rgb(255, 255, 255)"" renders correctly 1`] = `
+exports[`COLORS 10/ color format "rgb(255, 255, 255)" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 11/ color format ""rgb(255,255,255)"" renders correctly 1`] = `
+exports[`COLORS 11/ color format "rgb(255,255,255)" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 12/ color format ""  rgb  (  255  ,  255  ,  255  ) "" renders correctly 1`] = `
+exports[`COLORS 12/ color format "  rgb  (  255  ,  255  ,  255  ) " renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 13/ color format ""rgb(3.5, 0, 0)"" renders correctly 1`] = `
+exports[`COLORS 13/ color format "rgb(3.5, 0, 0)" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 14/ color format ""rgb(3, 5, 7"" renders correctly 1`] = `
+exports[`COLORS 14/ color format "rgb(3, 5, 7" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 15/ color format ""rgb(125.5, 0.556, -12.5)"" renders correctly 1`] = `
+exports[`COLORS 15/ color format "rgb(125.5, 0.556, -12.5)" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 16/ color format ""rgb(xxy)"" renders correctly 1`] = `
+exports[`COLORS 16/ color format "rgb(xxy)" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 17/ color format ""rgb(3, 5)"" renders correctly 1`] = `
+exports[`COLORS 17/ color format "rgb(3, 5)" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 18/ color format ""rgb(3, 5, 7, 11)"" renders correctly 1`] = `
+exports[`COLORS 18/ color format "rgb(3, 5, 7, 11)" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 19/ color format ""#111!50"" renders correctly 1`] = `
+exports[`COLORS 19/ color format "#111!50" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 20/ color format ""#111!50!#fff"" renders correctly 1`] = `
+exports[`COLORS 20/ color format "#111!50!#fff" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 21/ color format ""#111!50!#000"" renders correctly 1`] = `
+exports[`COLORS 21/ color format "#111!50!#000" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`COLORS 22/ color format ""-green!40!yellow"" renders correctly 1`] = `
+exports[`COLORS 22/ color format "-green!40!yellow" renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">axb</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ENVIRONMENTS 0/ "\\\\begin" renders correctly 1`] = `
+exports[`ENVIRONMENTS 0/ \\begin renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ENVIRONMENTS 1/ "\\\\begin{a}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 1/ \\begin{a} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"></span></span>",
   "unknown-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 2/ "\\\\begin{a}\\\\end" renders correctly 1`] = `
+exports[`ENVIRONMENTS 2/ \\begin{a}\\end renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span></span></span>",
   "unknown-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 3/ "\\\\begin{a}\\\\end{x}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 3/ \\begin{a}\\end{x} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span><span><span class=\\"ML__mathit\\">x</span></span></span></span>",
   "unknown-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 4/ "\\\\begin{a}\\\\end{a}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 4/ \\begin{a}\\end{a} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span><span><span class=\\"ML__mathit\\">a</span></span></span></span>",
   "unknown-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 5/ "\\\\begin{array}\\\\end{a}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 5/ \\begin{array}\\end{a} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"></span></span></span>",
   "unbalanced-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 6/ "\\\\begin{array}xyz\\\\end{a}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 6/ \\begin{array}xyz\\end{a} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"></span></span></span>",
   "unbalanced-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 7/ "\\\\begin{array}xyz\\\\end{array}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 7/ \\begin{array}xyz\\end{array} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"></span></span></span>",
   "unbalanced-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 8/ "\\\\begin{array}xyz" renders correctly 1`] = `
+exports[`ENVIRONMENTS 8/ \\begin{array}xyz renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"></span></span></span>",
   "unbalanced-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 9/ "\\\\begin{\\\\alpha}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 9/ \\begin{\\alpha} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"></span></span>",
   "unknown-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 10/ "\\\\begin{.}\\\\end{.}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 10/ \\begin{.}\\end{.} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span><span><span class=\\"ML__cmr\\">.</span></span></span></span>",
   "unknown-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 11/ "\\\\begin{(}\\\\end{(}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 11/ \\begin{(}\\end{(} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span><span><span class=\\"ML__cmr\\">(</span></span></span></span>",
   "unknown-environment",
 ]
 `;
 
-exports[`ENVIRONMENTS 12/ "\\\\begin{bmatrix}a & b & c\\\\end{bmatrix}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 12/ \\begin{bmatrix}a & b & c\\end{bmatrix} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.86em;vertical-align:-0.65em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size2\\">[</span></span><span class=\\"mtable\\"><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.01em\\"><span><span class=\\"ML__mathit\\">a</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.01em\\"><span><span class=\\"ML__mathit\\">b</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.01em\\"><span><span class=\\"ML__mathit\\">c</span></span></span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size2\\">]</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ENVIRONMENTS 13/ "\\\\begin{bmatrix}a & b & c\\\\\\\\ d & e & f\\\\end{bmatrix}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 13/ \\begin{bmatrix}a & b & c\\\\ d & e & f\\end{bmatrix} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.45em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">[</span></span><span class=\\"mtable\\"><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:0.6em\\"><span><span class=\\"ML__mathit\\">d</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">b</span></span></span><span style=\\"top:0.6em\\"><span><span class=\\"ML__mathit\\">e</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:0.6em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span></span></span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">]</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ENVIRONMENTS 14/ "\\\\begin{bmatrix}a & b & c\\\\\\\\ d \\\\end{bmatrix}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 14/ \\begin{bmatrix}a & b & c\\\\ d \\end{bmatrix} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.45em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">[</span></span><span class=\\"mtable\\"><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:0.6em\\"><span><span class=\\"ML__mathit\\">d</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">b</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">c</span></span></span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">]</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ENVIRONMENTS 15/ "\\\\begin{bmatrix}a & b & c\\\\\\\\ d \\\\\\\\ g & h & i & j\\\\end{bmatrix}" renders correctly 1`] = `
+exports[`ENVIRONMENTS 15/ \\begin{bmatrix}a & b & c\\\\ d \\\\ g & h & i & j\\end{bmatrix} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.91em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.29em;vertical-align:-1.38em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size4\\">[</span></span><span class=\\"mtable\\"><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-1.21em\\"><span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:0em\\"><span><span class=\\"ML__mathit\\">d</span></span></span><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">g</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-1.21em\\"><span><span class=\\"ML__mathit\\">b</span></span></span><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\">h</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-1.21em\\"><span><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\">i</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">j</span></span></span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size4\\">]</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FONTS 0/ "\\\\alpha + x - 1 - \\\\Gamma" renders correctly 1`] = `
+exports[`FONTS 0/ \\alpha + x - 1 - \\Gamma renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.29em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span>α</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span style=\\"margin-left:0.23em\\">Γ</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FONTS 1/ "\\\\alpha + x - 1 - \\\\Gamma" renders correctly 1`] = `
+exports[`FONTS 1/ \\alpha + x - 1 - \\Gamma renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.29em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span>α</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span style=\\"margin-left:0.23em\\">Γ</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FONTS 2/ "\\\\alpha + x - 1 - \\\\Gamma" renders correctly 1`] = `
+exports[`FONTS 2/ \\alpha + x - 1 - \\Gamma renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.29em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span>α</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span style=\\"margin-left:0.23em\\">Γ</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FONTS 3/ "\\\\alpha + x - 1 - \\\\Gamma" renders correctly 1`] = `
+exports[`FONTS 3/ \\alpha + x - 1 - \\Gamma renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.29em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span>α</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span style=\\"margin-left:0.23em\\">Γ</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FONTS 4/ "\\\\mathfrak{\\\\sin}" renders correctly 1`] = `
+exports[`FONTS 4/ \\mathfrak{\\sin} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.9em;vertical-align:-0.2em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">𝔰</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FRACTIONS 0/ "\\\\frac57" renders correctly 1`] = `
+exports[`FRACTIONS 0/ \\frac57 renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.33em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.01em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">7</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">5</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FRACTIONS 1/ "\\\\frac {5} {7}" renders correctly 1`] = `
+exports[`FRACTIONS 1/ \\frac {5} {7} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.33em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.01em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">7</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">5</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FRACTIONS 2/ "\\\\frac {\\\\frac57} {\\\\frac37}" renders correctly 1`] = `
+exports[`FRACTIONS 2/ \\frac {\\frac57} {\\frac37} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.94em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.37em;vertical-align:-1.43em\\"></span><span class=\\"ML__base\\"><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:1.09em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">7</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">3</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.73em\\"><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">7</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.38em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">5</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FRACTIONS 3/ "\\\\[ 1 + \\\\frac{q^2}{(1-q)}+\\\\frac{q^6}{(1-q)(1-q^2)}+\\\\cdots = \\\\prod_{j=0}^{\\\\infty}\\\\frac{1}{(1-q^{5j+2})(1-q^{5j+3})}, \\\\quad\\\\quad \\\\text{for $|q|<1$}. \\\\]" renders correctly 1`] = `
+exports[`FRACTIONS 3/ \\[ 1 + \\frac{q^2}{(1-q)}+\\frac{q^6}{(1-q)(1-q^2)}+\\cdots = \\prod_{j=0}^{\\infty}\\frac{1}{(1-q^{5j+2})(1-q^{5j+3})}, \\quad\\quad \\text{for $|q|<1$}. \\] renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.1em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.41em;vertical-align:-1.31em\\"></span><span class=\\"ML__base\\"><span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span style=\\"margin-left:0.23em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span class=\\"ML__cmr\\">)</span></span></span><span style=\\"top:-0.23em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.82em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.43em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span></span></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span style=\\"margin-left:0.23em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span class=\\"ML__cmr\\">)</span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.28em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span></span></span></span><span class=\\"ML__cmr\\">)</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.82em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.43em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">6</span></span></span></span></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span style=\\"margin-left:0.23em\\">⋯</span><span class=\\"ML__cmr\\">=</span><span class=\\"op-limits\\" style=\\"margin-left:0.28em\\"><span class=\\"vlist\\"><span style=\\"top:1.18em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">j</span><span class=\\"ML__cmr\\">=</span><span class=\\"ML__cmr\\">0</span></span></span><span style=\\"top:0em\\"><span><span class=\\"op-symbol large-op\\" style=\\"top:0em\\">∏</span></span></span><span style=\\"top:-1.25em\\"><span class=\\"reset-textstyle scriptstyle\\"><span>∞</span></span></span></span></span><span style=\\"margin-left:0.17em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.28em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">5</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">j</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__cmr\\">2</span></span></span></span></span></span><span class=\\"ML__cmr\\">)</span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.28em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">5</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">j</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__cmr\\">3</span></span></span></span></span></span><span class=\\"ML__cmr\\">)</span></span></span><span style=\\"top:-0.23em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span><span class=\\"ML__cmr\\">,</span><span class=\\"mspace quad\\">​​</span><span class=\\"ML__text\\">for </span><span class=\\"ML__cmr\\">∣</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">q</span><span class=\\"ML__cmr\\">∣</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\"><</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">1.</span></span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.1em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.41em;vertical-align:-1.31em\\"></span><span class=\\"ML__base\\"><span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span style=\\"margin-left:0.23em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span class=\\"ML__cmr\\">)</span></span></span><span style=\\"top:-0.23em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.82em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.43em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span></span></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span style=\\"margin-left:0.23em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span class=\\"ML__cmr\\">)</span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.28em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span></span></span></span><span class=\\"ML__cmr\\">)</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.82em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.43em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">6</span></span></span></span></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span style=\\"margin-left:0.23em\\">⋯</span><span class=\\"ML__cmr\\">=</span><span class=\\"op-limits\\" style=\\"margin-left:0.28em\\"><span class=\\"vlist\\"><span style=\\"top:1.18em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">j</span><span class=\\"ML__cmr\\">=</span><span class=\\"ML__cmr\\">0</span></span></span><span style=\\"top:0em\\"><span><span class=\\"op-symbol large-op\\" style=\\"top:0em\\">∏</span></span></span><span style=\\"top:-1.25em\\"><span class=\\"reset-textstyle scriptstyle\\"><span>∞</span></span></span></span></span><span style=\\"margin-left:0.17em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.28em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">5</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">j</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__cmr\\">2</span></span></span></span></span></span><span class=\\"ML__cmr\\">)</span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.23em\\">q</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.28em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">5</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">j</span><span class=\\"ML__cmr\\">+</span><span class=\\"ML__cmr\\">3</span></span></span></span></span></span><span class=\\"ML__cmr\\">)</span></span></span><span style=\\"top:-0.23em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">1</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span><span class=\\"ML__cmr\\">,</span><span class=\\"mspace quad\\">​​</span><span class=\\"ML__text\\">for </span><span><span class=\\"ML__cmr\\">∣</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">q</span><span class=\\"ML__cmr\\">∣</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\"><</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">1</span></span><span class=\\"ML__cmr\\">.</span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FRACTIONS 4/ "\\\\binom{n}{k}" renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.45em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">(</span></span><span class=\\"vlist mfrac\\"><span style=\\"top:-0.67em\\"><span><span class=\\"ML__mathit\\">n</span></span></span><span style=\\"top:0.69em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">k</span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">)</span></span></span></span></span>",
-  "no-error",
-]
-`;
-
-exports[`FRACTIONS 5/ "\\\\dbinom{n}{k}" renders correctly 1`] = `
+exports[`FRACTIONS 4/ \\binom{n}{k} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.45em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">(</span></span><span class=\\"vlist mfrac\\"><span style=\\"top:-0.67em\\"><span><span class=\\"ML__mathit\\">n</span></span></span><span style=\\"top:0.69em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">k</span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">)</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FRACTIONS 6/ "\\\\tbinom{n}{k}" renders correctly 1`] = `
+exports[`FRACTIONS 5/ \\dbinom{n}{k} renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.45em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">(</span></span><span class=\\"vlist mfrac\\"><span style=\\"top:-0.67em\\"><span><span class=\\"ML__mathit\\">n</span></span></span><span style=\\"top:0.69em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">k</span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">)</span></span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`FRACTIONS 6/ \\tbinom{n}{k} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.85em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.33em;vertical-align:-0.47em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size1\\">(</span></span><span class=\\"vlist mfrac\\"><span style=\\"top:-0.47em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\">n</span></span></span><span style=\\"top:0.35em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">k</span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size1\\">)</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FRACTIONS 7/ "n \\\\choose k" renders correctly 1`] = `
+exports[`FRACTIONS 7/ n \\choose k renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.45em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">(</span></span><span class=\\"vlist mfrac\\"><span style=\\"top:-0.67em\\"><span><span class=\\"ML__mathit\\">n</span></span></span><span style=\\"top:0.69em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">k</span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">)</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`FRACTIONS 8/ "\\\\pdiff{f(x)}{x}" renders correctly 1`] = `
+exports[`FRACTIONS 8/ \\pdiff{f(x)}{x} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.88em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.97em;vertical-align:-1.08em\\"></span><span class=\\"ML__base\\"><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:1.09em\\"><span><span class=\\"mord\\">∂</span><span class=\\"ML__mathit\\">x</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"mord\\">∂</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__cmr\\">(</span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\">)</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span>",
   "no-error",
@@ -1022,217 +1022,217 @@ Array [
 ]
 `;
 
-exports[`OVER/UNDERLINE 0/ "a\\\\overline{x}b" renders correctly 1`] = `
+exports[`OVER/UNDERLINE 0/ a\\overline{x}b renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"overline\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">x</span></span></span><span style=\\"top:-0.55em\\"><span class=\\"overline-line\\"></span></span></span></span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`OVER/UNDERLINE 1/ "\\\\overline{xyz}\\\\overline{1+\\\\frac34}\\\\underline{abc}\\\\underline{\\\\frac57}" renders correctly 1`] = `
+exports[`OVER/UNDERLINE 1/ \\overline{xyz}\\overline{1+\\frac34}\\underline{abc}\\underline{\\frac57} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.49em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.33em;vertical-align:-0.84em\\"></span><span class=\\"ML__base\\"><span class=\\"overline\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">xyz</span></span></span><span style=\\"top:-0.55em\\"><span class=\\"overline-line\\"></span></span></span></span><span class=\\"overline\\"><span class=\\"vlist\\"><span><span><span class=\\"ML__cmr\\">1</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span style=\\"margin-left:0.23em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">4</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">3</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span><span style=\\"top:-1.44em\\"><span class=\\"overline-line\\"></span></span></span></span><span class=\\"underline\\"><span class=\\"vlist\\"><span style=\\"top:0.17em\\"><span class=\\"underline-line\\"></span></span><span style=\\"top:0.01em\\"><span><span class=\\"ML__mathit\\">abc</span></span></span></span></span><span class=\\"underline\\"><span class=\\"vlist\\"><span style=\\"top:0.85em\\"><span class=\\"underline-line\\"></span></span><span><span><span><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">7</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"><span><span class=\\"ML__cmr\\">5</span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 0/ "\\\\rule{1em}{2em}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 0/ \\rule{1em}{2em} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:1em;border-top-width:2em;margin-top:-2em;width:1em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 1/ "\\\\rule[1em]{1em}{2em}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 1/ \\rule[1em]{1em}{2em} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:3em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:1em;border-top-width:2em;margin-top:-1em;width:1em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 2/ "\\\\rule{1em}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 2/ \\rule{1em} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:1em;border-top-width:NaNem;margin-top:NaNem;width:1em\\"></span></span></span>",
   "missing-unit",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 3/ "\\\\rule{-1em}{+10em}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 3/ \\rule{-1em}{+10em} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:10em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:-1em;border-top-width:10em;margin-top:-10em;width:-1em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 4/ "\\\\rule{0}{4}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 4/ \\rule{0}{4} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.4em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:0em;border-top-width:0.4em;margin-top:-0.4em;width:0em\\"></span></span></span>",
   "missing-unit",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 5/ "\\\\rule{1245.5667em}{2902929,292929em}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 5/ \\rule{1245.5667em}{2902929,292929em} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2902929.3em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:1245.57em;border-top-width:2902929.3em;margin-top:-2902929.29em;width:1245.57em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 6/ "\\\\rule{5mm}{7mm}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 6/ \\rule{5mm}{7mm} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:1.43em;border-top-width:2em;margin-top:-1.99em;width:1.43em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 7/ "\\\\rule{5cm}{7cm}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 7/ \\rule{5cm}{7cm} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:19.92em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:14.23em;border-top-width:19.92em;margin-top:-19.91em;width:14.23em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 8/ "\\\\rule{5ex}{7ex}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 8/ \\rule{5ex}{7ex} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:3.02em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:2.16em;border-top-width:3.02em;margin-top:-3.01em;width:2.16em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 9/ "\\\\rule{5em}{7em}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 9/ \\rule{5em}{7em} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:7em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:5em;border-top-width:7em;margin-top:-7em;width:5em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 10/ "\\\\rule{5bp}{7bp}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 10/ \\rule{5bp}{7bp} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.71em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:0.51em;border-top-width:0.71em;margin-top:-0.7em;width:0.51em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 11/ "\\\\rule{5dd}{7dd}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 11/ \\rule{5dd}{7dd} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:0.54em;border-top-width:0.75em;margin-top:-0.74em;width:0.54em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 12/ "\\\\rule{5pc}{7pc}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 12/ \\rule{5pc}{7pc} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:8.4em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:6em;border-top-width:8.4em;margin-top:-8.39em;width:6em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 13/ "\\\\rule{5in}{7in}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 13/ \\rule{5in}{7in} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:50.59em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:36.14em;border-top-width:50.59em;margin-top:-50.58em;width:36.14em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`RULE AND DIMENSIONS 14/ "\\\\rule{5mu}{7mu}" renders correctly 1`] = `
+exports[`RULE AND DIMENSIONS 14/ \\rule{5mu}{7mu} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.39em\\"></span><span class=\\"ML__base\\"><span class=\\"rule\\" style=\\"border-right-width:0.28em;border-top-width:0.39em;margin-top:-0.38em;width:0.28em\\"></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SIZING COMMANDS 0/ sizing command "\\\\bigl", "\\\\bigr", "\\\\bigm", "\\\\big" 1`] = `
+exports[`SIZING COMMANDS 0/ sizing command \\bigl, \\bigr, \\bigm, \\big 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.56em;vertical-align:-0.35em\\"></span><span class=\\"ML__base\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size1\\">(</span></span><span class=\\"ML__mathit\\">x</span><span class=\\"style-wrap\\" style=\\"margin-left:0.28em\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.36em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:-0.24em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span></span></span></span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.28em\\">y</span><span class=\\"style-wrap\\"><span class=\\"delimsizing size1\\">)</span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">=</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.28em\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\bigx</span><span class=\\"sizing nulldelimiter\\"></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`SIZING COMMANDS 1/ sizing command "\\\\Bigl", "\\\\Bigr", "\\\\Bigm", "\\\\Big" 1`] = `
+exports[`SIZING COMMANDS 1/ sizing command \\Bigl, \\Bigr, \\Bigm, \\Big 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.86em;vertical-align:-0.65em\\"></span><span class=\\"ML__base\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size2\\">(</span></span><span class=\\"ML__mathit\\">x</span><span class=\\"style-wrap\\" style=\\"margin-left:0.28em\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.66em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:0.06em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:-0.54em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span></span></span></span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.28em\\">y</span><span class=\\"style-wrap\\"><span class=\\"delimsizing size2\\">)</span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">=</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.28em\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\Bigx</span><span class=\\"sizing nulldelimiter\\"></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`SIZING COMMANDS 2/ sizing command "\\\\biggl", "\\\\biggr", "\\\\biggm", "\\\\bigg" 1`] = `
+exports[`SIZING COMMANDS 2/ sizing command \\biggl, \\biggr, \\biggm, \\bigg 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.46em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">(</span></span><span class=\\"ML__mathit\\">x</span><span class=\\"style-wrap\\" style=\\"margin-left:0.28em\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.96em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:0.36em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:-0.24em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:-0.84em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span></span></span></span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.28em\\">y</span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">)</span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">=</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.28em\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\biggx</span><span class=\\"sizing nulldelimiter\\"></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`SIZING COMMANDS 3/ sizing command "\\\\Biggl", "\\\\Biggr", "\\\\Biggm", "\\\\Bigg" 1`] = `
+exports[`SIZING COMMANDS 3/ sizing command \\Biggl, \\Biggr, \\Biggm, \\Bigg 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.76em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.01em;vertical-align:-1.25em\\"></span><span class=\\"ML__base\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size4\\">(</span></span><span class=\\"ML__mathit\\">x</span><span class=\\"style-wrap\\" style=\\"margin-left:0.28em\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:1.26em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:0.66em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:0.06em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:-0.54em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span><span style=\\"top:-1.14em\\"><span class=\\"delimsizinginner delim-size1\\">∣</span></span></span></span></span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em;margin-left:0.28em\\">y</span><span class=\\"style-wrap\\"><span class=\\"delimsizing size4\\">)</span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">=</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.28em\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__error\\">\\\\Biggx</span><span class=\\"sizing nulldelimiter\\"></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`SIZING STYLE 0/ "\\\\text{a \\\\tiny x y}b" renders correctly 1`] = `
+exports[`SIZING STYLE 0/ \\text{a \\tiny x y}b renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.89em;vertical-align:-0.19em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__text\\">a </span><span class=\\"sizing reset-size5 size1 ML__text\\">x y</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SPACING AND KERN 0/ "a\\\\hskip 3em b" renders correctly 1`] = `
+exports[`SPACING AND KERN 0/ a\\hskip 3em b renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"mspace\\" style=\\"margin-left:3em\\">​</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SPACING AND KERN 1/ "a\\\\kern 3em b" renders correctly 1`] = `
+exports[`SPACING AND KERN 1/ a\\kern 3em b renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"mspace\\" style=\\"margin-left:3em\\">​</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SPACING AND KERN 2/ "a\\\\hspace{3em} b" renders correctly 1`] = `
+exports[`SPACING AND KERN 2/ a\\hspace{3em} b renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"mspace\\" style=\\"margin-left:3em\\">​</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SPACING AND KERN 3/ "a\\\\hskip 3em b" renders correctly 1`] = `
+exports[`SPACING AND KERN 3/ a\\hskip 3em b renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"mspace\\" style=\\"margin-left:3em\\">​</span><span class=\\"ML__mathit\\">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SURDS 0/ "\\\\sqrt5" renders correctly 1`] = `
+exports[`SURDS 0/ \\sqrt5 renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.02em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.21em;vertical-align:-0.18em\\"></span><span class=\\"ML__base\\"><span class=\\"sqrt\\"><span class=\\"sqrt-sign\\" style=\\"top:-0.16em\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size1\\">√</span></span></span><span class=\\"vlist\\"><span><span><span class=\\"ML__cmr\\">5</span></span></span><span style=\\"top:-0.97em\\"><span class=\\"sqrt-line\\"></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SURDS 1/ "\\\\sqrt{}" renders correctly 1`] = `
+exports[`SURDS 1/ \\sqrt{} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.7em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.21em;vertical-align:-0.5em\\"></span><span class=\\"ML__base\\"><span class=\\"sqrt\\"><span class=\\"sqrt-sign\\" style=\\"top:0.16em\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size1\\">√</span></span></span><span class=\\"vlist\\"><span style=\\"top:-0.65em\\"><span class=\\"sqrt-line\\"></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SURDS 2/ "ax^2+bx+c = a \\\\left( x - \\\\frac{-b + \\\\sqrt {b^2-4ac}}{2a} \\\\right) \\\\left( x - \\\\frac{-b - \\\\sqrt {b^2-4ac}}{2a} \\\\right)" renders correctly 1`] = `
+exports[`SURDS 2/ ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right) renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.75em;vertical-align:-1.55em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">ax</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.41em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span></span></span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">bx</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.23em\\">c</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.28em\\">=</span><span class=\\"ML__mathit\\" style=\\"margin-left:0.28em\\">a</span><span class=\\"displaystyle textstyle\\" style=\\"margin-left:0.17em\\"><span class=\\"ML__open style-wrap\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.91em\\"><span class=\\"delimsizinginner delim-size4\\">⎝</span></span><span style=\\"top:-0.89em\\"><span class=\\"delimsizinginner delim-size4\\">⎛</span></span></span></span></span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span style=\\"margin-left:0.23em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">2</span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-1.01em\\"><span><span class=\\"ML__cmr\\">−</span><span class=\\"ML__mathit\\">b</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">+</span><span class=\\"sqrt\\" style=\\"margin-left:0.23em\\"><span class=\\"sqrt-sign\\" style=\\"top:-0.02em\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size2\\">√</span></span></span><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">b</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.34em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span></span></span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">4</span><span class=\\"ML__mathit\\">ac</span></span></span><span style=\\"top:-1.13em\\"><span class=\\"sqrt-line\\"></span></span></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span><span class=\\"ML__close style-wrap\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.91em\\"><span class=\\"delimsizinginner delim-size4\\">⎠</span></span><span style=\\"top:-0.89em\\"><span class=\\"delimsizinginner delim-size4\\">⎞</span></span></span></span></span></span><span class=\\"displaystyle textstyle\\"><span class=\\"ML__open style-wrap\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.91em\\"><span class=\\"delimsizinginner delim-size4\\">⎝</span></span><span style=\\"top:-0.89em\\"><span class=\\"delimsizinginner delim-size4\\">⎛</span></span></span></span></span><span class=\\"ML__mathit\\">x</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span style=\\"margin-left:0.23em\\"><span class=\\"sizing nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"><span><span class=\\"ML__cmr\\">2</span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-1.01em\\"><span><span class=\\"ML__cmr\\">−</span><span class=\\"ML__mathit\\">b</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"sqrt\\" style=\\"margin-left:0.23em\\"><span class=\\"sqrt-sign\\" style=\\"top:-0.02em\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size2\\">√</span></span></span><span class=\\"vlist\\"><span><span><span class=\\"ML__mathit\\">b</span><span><span class=\\"msubsup\\"><span class=\\"vlist\\"><span style=\\"top:-0.34em;margin-right:0.05em\\"><span class=\\"reset-textstyle scriptstyle\\"><span class=\\"ML__cmr\\">2</span></span></span></span></span></span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">4</span><span class=\\"ML__mathit\\">ac</span></span></span><span style=\\"top:-1.13em\\"><span class=\\"sqrt-line\\"></span></span></span></span></span></span></span><span class=\\"sizing nulldelimiter mclose\\"></span></span><span class=\\"ML__close style-wrap\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.91em\\"><span class=\\"delimsizinginner delim-size4\\">⎠</span></span><span style=\\"top:-0.89em\\"><span class=\\"delimsizinginner delim-size4\\">⎞</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SURDS 3/ "\\\\sqrt[3]{5}" renders correctly 1`] = `
+exports[`SURDS 3/ \\sqrt[3]{5} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.02em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.21em;vertical-align:-0.18em\\"></span><span class=\\"ML__base\\"><span class=\\"sqrt\\"><span class=\\"root\\"><span class=\\"vlist\\"><span style=\\"top:-0.49em\\"><span class=\\"reset-textstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">3</span></span></span></span></span><span class=\\"sqrt-sign\\" style=\\"top:-0.16em\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size1\\">√</span></span></span><span class=\\"vlist\\"><span><span><span class=\\"ML__cmr\\">5</span></span></span><span style=\\"top:-0.97em\\"><span class=\\"sqrt-line\\"></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`SURDS 4/ "\\\\sqrt[3]5" renders correctly 1`] = `
+exports[`SURDS 4/ \\sqrt[3]5 renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.02em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.21em;vertical-align:-0.18em\\"></span><span class=\\"ML__base\\"><span class=\\"sqrt\\"><span class=\\"root\\"><span class=\\"vlist\\"><span style=\\"top:-0.49em\\"><span class=\\"reset-textstyle scriptscriptstyle\\"><span class=\\"ML__cmr\\">3</span></span></span></span></span><span class=\\"sqrt-sign\\" style=\\"top:-0.16em\\"><span class=\\"style-wrap\\"><span class=\\"delimsizing size1\\">√</span></span></span><span class=\\"vlist\\"><span><span><span class=\\"ML__cmr\\">5</span></span></span><span style=\\"top:-0.97em\\"><span class=\\"sqrt-line\\"></span></span></span></span></span></span>",
   "no-error",

@@ -14,8 +14,8 @@ import {
     Span,
 } from './span';
 import { joinLatex } from './tokenizer';
-import { emitLatexRun, getModeRuns, getPropertyRuns } from './modes-utils';
-import { charToLatex } from '../core-definitions/definitions-utils';
+import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
+import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 
 export const ATOM_REGISTRY = {};
 
@@ -68,7 +68,6 @@ export type AtomType =
     // by environments such as `matrix`, `cases`, etc...
     | 'box' // a border drawn around an expression and change its background color
     | 'chem' // a chemical formula (mhchem)
-    | 'command' // command` indicate a command being entered. The text is displayed in blue in the editor.
     | 'composition' // IME composition area
     | 'delim'
     | 'enclose'
@@ -79,6 +78,7 @@ export type AtomType =
     | 'genfrac' // a generalized fraction: a numerator and denominator, separated
     // by an optional line, and surrounded by optional fences
     | 'group' // a simple group of atoms, for example from a `{...}`
+    | 'latex' // `latex` indicate a raw latex atom
     | 'leftright' // used by the `\left` and `\right` commands
     | 'line' // used by `\overline` and `\underline`
     | 'macro'
@@ -129,25 +129,6 @@ const SIZING_MULTIPLIER = {
  *
  * It keeps track of the content, while the dimensions, position and style
  * are tracked by Span objects which are created by the `decompose()` functions.
- *
- * @property mode - `'display'`, `'command'`, etc...
- *
- * In addition to these basic types, which correspond to the TeX atom types,
- * some atoms represent more complex compounds, including:
- * - `space` and `spacing`: blank space between atoms
- * - `mathstyle`: to change the math style used: `display` or `text`.
- * The layout rules are different for each, the latter being more compact and
- * intended to be incorporated with surrounding non-math text.
- *
- *
- * @property captureSelection if true, this atom does not let its
- * children be selected. Used by the `\enclose` annotations, for example.
- *
- * @property skipBoundary if true, when the caret reaches the
- * first position in this element's body, it automatically moves to the
- * outside of the element. Conversely, when the caret reaches the position
- * right after this element, it automatically moves to the last position
- * inside this element.
  */
 export class Atom {
     parent: Atom | null;
@@ -191,7 +172,14 @@ export class Atom {
     // True if the limits were set by a command
     explicitLimits?: boolean;
 
+    // if true, when the caret reaches the
+    // first position in this element's body, it automatically moves to the
+    // outside of the element. Conversely, when the caret reaches the position
+    // right after this element, it automatically moves to the last position
+    // inside this element.
     skipBoundary?: boolean;
+    // if true, this atom does not let its children be selected. Used by the
+    // `\enclose` annotations, for example.
     captureSelection?: boolean;
 
     style: Style;
@@ -461,7 +449,7 @@ export class Atom {
         }
         if (this.value && this.value !== '\u200b') {
             // There's probably just a value (which is a unicode character)
-            return charToLatex(this.mode, this.value) ?? this.command;
+            return this.command ?? unicodeCharToLatex(this.mode, this.value);
         }
 
         return '';
@@ -1225,7 +1213,7 @@ function atomsToLatex(atoms: Atom[], options: ToLatexOptions): string {
             joinLatex(
                 getPropertyRuns(x, 'color').map((x) =>
                     joinLatex(
-                        getModeRuns(x).map((x) => emitLatexRun(x, options))
+                        getModeRuns(x).map((x) => Mode.toLatex(x, options))
                     )
                 )
             )

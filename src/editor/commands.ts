@@ -85,7 +85,7 @@ export function perform(
         }
         if (
             /^(delete|transpose|add)/.test(selector) &&
-            mathfield.mode !== 'command'
+            mathfield.mode !== 'latex'
         ) {
             // Update the undo state to account for the current selection
             mathfield.popUndoStack();
@@ -94,11 +94,11 @@ export function perform(
         COMMANDS[selector].fn(mathfield.model, ...args);
         if (
             /^(delete|transpose|add)/.test(selector) &&
-            mathfield.mode !== 'command'
+            mathfield.mode !== 'latex'
         ) {
             mathfield.snapshot();
         }
-        if (mathfield.mode === 'command') {
+        if (mathfield.mode === 'latex') {
             updateAutocomplete(mathfield);
         }
         dirty = true;

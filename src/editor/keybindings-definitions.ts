@@ -69,8 +69,8 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
         command: 'moveToPreviousPlaceholder',
     },
 
-    { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'command'] },
-    { key: '\\', ifMode: 'math', command: ['switchMode', 'command'] },
+    { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'latex'] },
+    { key: '\\', ifMode: 'math', command: ['switchMode', 'latex'] },
 
     {
         key: 'alt+[Equal]',
@@ -85,25 +85,25 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
 
     {
         key: '[Escape]',
-        ifMode: 'command',
+        ifMode: 'latex',
         command: ['complete', 'complete', { selectItem: 'true' }],
     }, // accept the entry (without the suggestion) and select
     {
         key: '[Tab]',
-        ifMode: 'command',
+        ifMode: 'latex',
         command: ['complete', 'accept-suggestion'],
     }, // complete the suggestion
-    { key: '[Return]', ifMode: 'command', command: 'complete' },
-    { key: '[Enter]', ifMode: 'command', command: 'complete' },
+    { key: '[Return]', ifMode: 'latex', command: 'complete' },
+    { key: '[Enter]', ifMode: 'latex', command: 'complete' },
     {
         key: 'shift+[Escape]',
-        ifMode: 'command',
+        ifMode: 'latex',
         command: ['complete', 'reject'],
     }, // Some keyboards can't generate
     // this combination, for example in 60% keyboards it is mapped to ~
-    { key: '[ArrowDown]', ifMode: 'command', command: 'nextSuggestion' },
-    // { key: 'ios:command:[Tab]', ifMode: 'command',command: 'nextSuggestion' },
-    { key: '[ArrowUp]', ifMode: 'command', command: 'previousSuggestion' },
+    { key: '[ArrowDown]', ifMode: 'latex', command: 'nextSuggestion' },
+    // { key: 'ios:command:[Tab]', ifMode: 'latex',command: 'nextSuggestion' },
+    { key: '[ArrowUp]', ifMode: 'latex', command: 'previousSuggestion' },
 
     { key: 'ctrl+a', ifPlatform: '!macos', command: 'selectAll' },
     { key: 'cmd+a', command: 'selectAll' },

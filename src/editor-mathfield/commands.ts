@@ -29,8 +29,8 @@ registerCommand({
         mathfield.field.scroll(fieldBounds.left - window.scrollX, 0);
         return true;
     },
-    enterCommandMode: (mathfield: MathfieldPrivate) => {
-        mathfield.switchMode('command');
+    enterLatexMode: (mathfield: MathfieldPrivate) => {
+        mathfield.switchMode('latex');
         return true;
     },
     toggleKeystrokeCaption: (mathfield: MathfieldPrivate) => {
@@ -58,3 +58,31 @@ registerCommand({
         return true;
     },
 });
+
+registerCommand(
+    {
+        copyToClipboard: (mathfield: MathfieldPrivate) => {
+            mathfield.focus();
+            // If the selection is empty, select the entire field before
+            // copying it.
+            if (mathfield.model.selectionIsCollapsed) {
+                mathfield.select();
+            }
+            document.execCommand('copy');
+            return false;
+        },
+
+        cutToClipboard: (mathfield: MathfieldPrivate) => {
+            mathfield.focus();
+            document.execCommand('cut');
+            return true;
+        },
+
+        pasteFromClipboard: (mathfield: MathfieldPrivate) => {
+            mathfield.focus();
+            document.execCommand('paste');
+            return true;
+        },
+    },
+    { target: 'mathfield', category: 'clipboard' }
+);

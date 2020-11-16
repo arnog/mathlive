@@ -1,7 +1,7 @@
 import type { Keys } from './types-utils';
 
 import type { ParseMode, Style } from './core';
-import type { Mathfield, Model } from './mathfield';
+import type { InsertOptions, Mathfield, Model } from './mathfield';
 
 /**
  * How much of the formula should be spoken:
@@ -86,15 +86,14 @@ export interface Commands {
      */
     scrollToEnd: (mathfield: Mathfield) => boolean;
 
-    /**
-     * @deprecated The command mode will be dropped in a future release.
-     */
-    enterCommandMode: (mathfield: Mathfield) => boolean;
-
     toggleKeystrokeCaption: (mathfield: Mathfield) => boolean;
 
     switchMode: (mathfield: Mathfield, mode: ParseMode) => boolean;
-    insert: (mathfield: Mathfield, s: string, options) => boolean;
+    insert: (
+        mathfield: Mathfield,
+        s: string,
+        options: InsertOptions
+    ) => boolean;
     typedText: (
         text: string,
         options: {

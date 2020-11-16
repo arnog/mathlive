@@ -91,14 +91,14 @@ const KEYBOARDS = {
         classes: 'tex',
         layers: ['symbols'],
     },
-    command: {
+    latex: {
         tooltip: 'keyboard.tooltip.command',
-        // For the command keyboard, perform a command rather than
-        // doing a simple layer switch, as we want to enter command mode
+        // For the latex keyboard, perform a command rather than
+        // doing a simple layer switch, as we want to enter latex mode
         // when the keyboard is activated
-        command: 'enterCommandMode',
+        command: ['switchMode', 'latex'],
         label: `<svg><use xlink:href='#svg-command' /></svg>`,
-        layers: ['lower-command', 'upper-command', 'symbols-command'],
+        layers: ['latex-lower', 'latex-upper', 'latex-symbols'],
     },
     style: {
         tooltip: 'keyboard.tooltip.style',
@@ -751,13 +751,13 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'lower-command': `
+    'latex-lower': `
         <div class='rows'>
-            <ul><row name='lower-1' class='tt' shift-layer='upper-command'/></ul>
-            <ul><row name='lower-2' class='tt' shift-layer='upper-command'/></ul>
-            <ul><row name='lower-3' class='tt' shift-layer='upper-command'/></ul>
+            <ul><row name='lower-1' class='tt' shift-layer='latex-upper'/></ul>
+            <ul><row name='lower-2' class='tt' shift-layer='latex-upper'/></ul>
+            <ul><row name='lower-3' class='tt' shift-layer='latex-upper'/></ul>
             <ul>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'>01#</li>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='latex-symbols'>01#</li>
                 <li class='keycap tt' data-shifted='[' data-shifted-command='["insertAndUnshiftKeyboardLayer", "["]'>{</li>
                 <li class='keycap tt' data-shifted=']' data-shifted-command='["insertAndUnshiftKeyboardLayer", "]"]'>}</li>
                 <li class='keycap tt' data-shifted='(' data-shifted-command='["insertAndUnshiftKeyboardLayer", "("]'>^</li>
@@ -766,13 +766,13 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'upper-command': `
+    'latex-upper': `
         <div class='rows'>
-            <ul><row name='upper-1' class='tt' shift-layer='lower-command'/></ul>
-            <ul><row name='upper-2' class='tt' shift-layer='lower-command'/></ul>
-            <ul><row name='upper-3' class='tt' shift-layer='lower-command'/></ul>
+            <ul><row name='upper-1' class='tt' shift-layer='latex-lower'/></ul>
+            <ul><row name='upper-2' class='tt' shift-layer='latex-lower'/></ul>
+            <ul><row name='upper-3' class='tt' shift-layer='latex-lower'/></ul>
             <ul>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='symbols-command'01#</li>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='latex-symbols'01#</li>
                 <li class='keycap tt'>[</li>
                 <li class='keycap tt'>]</li>
                 <li class='keycap tt'>(</li>
@@ -781,7 +781,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'symbols-command': `
+    'latex-symbols': `
         <div class='rows'>
             <ul><li class='keycap tt'>1</li><li class='keycap tt'>2</li><li class='keycap tt'>3</li><li class='keycap tt'>4</li><li class='keycap tt'>5</li><li class='keycap tt'>6</li><li class='keycap tt'>7</li><li class='keycap tt'>8</li><li class='keycap tt'>9</li><li class='keycap tt'>0</li></ul>
             <ul><li class='keycap tt'>!</li><li class='keycap tt'>@</li><li class='keycap tt'>#</li><li class='keycap tt'>$</li><li class='keycap tt'>%</li><li class='keycap tt'>^</li><li class='keycap tt'>&</li><li class='keycap tt'>*</li><li class='keycap tt'>+</li><li class='keycap tt'>=</li></ul>
@@ -802,7 +802,7 @@ const LAYERS = {
                 >&#x232b;</li>
             </ul>
             <ul>
-                <li class='layer-switch font-glyph modifier bottom left' data-layer='lower-command'>abc</li>
+                <li class='layer-switch font-glyph modifier bottom left' data-layer='latex-lower'>abc</li>
                 <li class='keycap tt'>&lt;</li>
                 <li class='keycap tt'>&gt;</li>
                 <li class='keycap tt'>~</li>

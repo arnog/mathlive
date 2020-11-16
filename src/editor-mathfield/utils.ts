@@ -104,7 +104,7 @@ function findElementWithCaret(el: Element): Element {
     return (
         el.querySelector('.ML__caret') ??
         el.querySelector('.ML__text-caret') ??
-        el.querySelector('.ML__command-caret')
+        el.querySelector('.ML__latex-caret')
     );
 }
 

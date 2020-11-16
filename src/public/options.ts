@@ -355,7 +355,7 @@ export type VirtualKeyboardOptions = {
         | 'greek'
         | 'functions'
         | 'symbols'
-        | 'command'
+        | 'latex'
         | string;
     virtualKeyboardLayout:
         | 'auto'

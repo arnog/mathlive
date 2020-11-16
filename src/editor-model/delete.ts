@@ -136,7 +136,9 @@ function onDelete(
         ) {
             // Before fwd or body 1st bwd: Demote body
             const pos = atom.leftSibling;
-            parent.addChildrenAfter(atom.removeBranch('body'), atom);
+            if (atom.hasChildren) {
+                parent.addChildrenAfter(atom.removeBranch('body'), atom);
+            }
             parent.removeChild(atom);
             model.position = model.offsetOf(pos);
         } else if (direction === 'forward' && branch === 'body') {
@@ -144,7 +146,12 @@ function onDelete(
             model.position = model.offsetOf(atom);
         } else if (!branch && direction === 'backward') {
             // after bwd: move to last of body
-            model.position = model.offsetOf(atom.lastChild);
+            if (atom.hasChildren) {
+                model.position = model.offsetOf(atom.lastChild);
+            } else {
+                model.position = Math.max(model.offsetOf(atom) - 1);
+                atom.parent.removeChild(atom);
+            }
         } else if (branch === 'above') {
             if (atom.hasEmptyBranch('above')) {
                 atom.removeBranch('above');
@@ -286,25 +293,24 @@ export function deleteBackward(model: ModelPrivate): boolean {
     if (!model.selectionIsCollapsed) {
         return deleteRange(model, range(model.selection));
     }
-
-    let target = model.at(model.position);
-
-    if (target && onDelete(model, 'backward', target)) return true;
-
-    if (target?.isFirstSibling) {
-        if (onDelete(model, 'backward', target.parent, target.treeBranch)) {
-            return true;
-        }
-        target = null;
-    }
-
-    // At the first position: nothing to delete...
-    if (!target) {
-        model.announce('plonk');
-        return false;
-    }
-
     return model.deferNotifications({ content: true, selection: true }, () => {
+        let target = model.at(model.position);
+
+        if (target && onDelete(model, 'backward', target)) return;
+
+        if (target?.isFirstSibling) {
+            if (onDelete(model, 'backward', target.parent, target.treeBranch)) {
+                return;
+            }
+            target = null;
+        }
+
+        // At the first position: nothing to delete...
+        if (!target) {
+            model.announce('plonk');
+            return;
+        }
+
         const offset = model.offsetOf(target.leftSibling);
         target.parent.removeChild(target);
         model.announce('delete', null, [target]);
@@ -321,32 +327,32 @@ export function deleteForward(model: ModelPrivate): boolean {
         return deleteRange(model, range(model.selection));
     }
 
-    let target = model.at(model.position).rightSibling;
+    return model.deferNotifications({ content: true, selection: true }, () => {
+        let target = model.at(model.position).rightSibling;
 
-    if (target && onDelete(model, 'forward', target)) return true;
+        if (target && onDelete(model, 'forward', target)) return;
 
-    if (!target) {
-        target = model.at(model.position);
-        if (
-            target.isLastSibling &&
+        if (!target) {
+            target = model.at(model.position);
+            if (
+                target.isLastSibling &&
+                onDelete(model, 'forward', target.parent, target.treeBranch)
+            ) {
+                return;
+            }
+            target = null;
+        } else if (
+            model.at(model.position).isLastSibling &&
             onDelete(model, 'forward', target.parent, target.treeBranch)
         ) {
-            return true;
+            return;
         }
-        target = null;
-    } else if (
-        model.at(model.position).isLastSibling &&
-        onDelete(model, 'forward', target.parent, target.treeBranch)
-    ) {
-        return true;
-    }
 
-    if (model.position === model.lastOffset || !target) {
-        model.announce('plonk');
-        return false;
-    }
+        if (model.position === model.lastOffset || !target) {
+            model.announce('plonk');
+            return;
+        }
 
-    return model.deferNotifications({ content: true, selection: true }, () => {
         target.parent.removeChild(target);
         let sibling = model.at(model.position)?.rightSibling;
         while (sibling?.type === 'msubsup') {
@@ -367,6 +373,8 @@ export function deleteForward(model: ModelPrivate): boolean {
  */
 
 export function deleteRange(model: ModelPrivate, range: Range): boolean {
-    model.deleteAtoms(range);
-    return true;
+    return model.deferNotifications({ content: true, selection: true }, () => {
+        model.deleteAtoms(range);
+        model.position = range[0];
+    });
 }

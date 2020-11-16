@@ -2,7 +2,7 @@
  * The mode that indicates how a portion of content is interpreted
  *
  */
-export declare type ParseMode = 'math' | 'text' | 'command';
+export declare type ParseMode = 'math' | 'text' | 'latex';
 /**
  * Error code passed to the [[`ErrorListener`]] function.
  *

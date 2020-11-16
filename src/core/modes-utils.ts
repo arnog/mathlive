@@ -22,6 +22,57 @@ export interface ParseTokensOptions {
         options: ParseTokensOptions
     ) => [Atom[], Token[]];
 }
+
+export class Mode {
+    static _registry: { [name: string]: Mode } = {};
+    constructor(name: string) {
+        Mode._registry[name] = this;
+    }
+    static createAtom(mode: ParseMode, command: string, style: Style): Atom {
+        return Mode._registry[mode].createAtom(command, style);
+    }
+    createAtom(_command: string, _style: Style): Atom | null {
+        return null;
+    }
+    static parseTokens(
+        mode: ParseMode,
+        tokens: Token[],
+        onError: ErrorListener<ParserErrorCode>,
+        options: ParseTokensOptions
+    ): Atom[] {
+        return Mode._registry[mode].parseTokens(tokens, onError, options);
+    }
+    parseTokens(
+        _tokens: Token[],
+        _onError: ErrorListener<ParserErrorCode>,
+        _options: ParseTokensOptions
+    ): Atom[] | null {
+        return null;
+    }
+    // `run` should be a run (sequence) of atoms all with the same
+    // mode
+    static toLatex(run: Atom[], options: ToLatexOptions): string {
+        console.assert(run.length > 0);
+        const mode = Mode._registry[run[0].mode];
+        return mode.toLatex(run, options);
+    }
+    toLatex(_run: Atom[], _options: ToLatexOptions): string {
+        return '';
+    }
+
+    static applyStyle(mode: ParseMode, span: Span, style: Style): string {
+        return Mode._registry[mode].applyStyle(span, style);
+    }
+    /*
+     * Apply the styling (bold, italic, etc..) as classes to the span, and return
+     * the effective font name to be used for metrics
+     * ('Main-Regular', 'Caligraphic-Regualr' etc...)
+     */
+    applyStyle(_span: Span, _style: Style): string {
+        return '';
+    }
+}
+
 /*
  * Return an array of runs with the same mode
  */
@@ -82,52 +133,4 @@ export function getPropertyRuns(atoms: Atom[], property: string): Atom[][] {
     // Push whatever is left
     if (run.length > 0) result.push(run);
     return result;
-}
-
-export const MODES_REGISTRY = {};
-
-export function register(
-    name: string,
-    definition: {
-        emitLatexRun: (run: Atom[], options: ToLatexOptions) => string;
-        applyStyle: (span: Span, style: Style) => string;
-        parse?: (
-            tokens: Token[],
-            onError: ErrorListener<ParserErrorCode>,
-            options: ParseTokensOptions
-        ) => Atom[];
-    }
-): void {
-    MODES_REGISTRY[name] = { ...definition };
-}
-
-export function emitLatexRun(run: Atom[], options: ToLatexOptions): string {
-    if (MODES_REGISTRY[run[0].mode]?.emitLatexRun) {
-        return MODES_REGISTRY[run[0].mode].emitLatexRun(run, options);
-    }
-    return '';
-}
-
-export function parseTokens(
-    mode: ParseMode,
-    tokens: Token[],
-    onError: ErrorListener<ParserErrorCode>,
-    options: ParseTokensOptions
-): Atom[] {
-    if (MODES_REGISTRY[mode]?.parse) {
-        return MODES_REGISTRY[mode].parse(tokens, onError, options);
-    }
-    return null;
-}
-
-/*
- * Apply the styling (bold, italic, etc..) as classes to the atom, and return
- * the effective font name to be used for metrics
- * ('Main-Regular', 'Caligraphic-Regualr' etc...)
- */
-export function applyStyle(mode: ParseMode, span: Span, style: Style): string {
-    if (MODES_REGISTRY[mode]?.applyStyle) {
-        return MODES_REGISTRY[mode].applyStyle(span, style);
-    }
-    return '';
 }

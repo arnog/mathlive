@@ -5,7 +5,7 @@ import {
 } from '../core-definitions/definitions-utils';
 import { Atom, ToLatexOptions } from './atom';
 import { joinLatex } from './tokenizer';
-import { getPropertyRuns, register } from './modes-utils';
+import { getPropertyRuns, Mode } from './modes-utils';
 import { Style } from '../public/core';
 import { Span } from './span';
 
@@ -95,165 +95,196 @@ const LETTER_SHAPE_MODIFIER = {
 
 // See http://ctan.math.illinois.edu/macros/latex/base/fntguide.pdf
 
-function emitLatexMathRun(run: Atom[], options: ToLatexOptions): string {
-    const parent = run[0].parent;
-    const parentMode = parent?.mode ?? 'math';
-    const contextValue = variantString(parent);
-    const contextColor = parent?.computedStyle.color;
-    return joinLatex(
-        getPropertyRuns(run, 'color').map((x) => {
-            const result = joinLatex(
-                getPropertyRuns(x, 'variant').map((x) => {
-                    const value = variantString(x[0]);
-                    // Check if all the atoms in this run have a base
-                    // variant identical to the current variant
-                    // If so, we can skip wrapping them
-                    if (
-                        x.every((x) => {
-                            const info = getInfo(x.command, parentMode, null);
-                            if (!info || !info.variant) return false;
-
-                            return variantString(x) === value;
-                        })
-                    ) {
-                        return joinLatex(
-                            x.map((x) => Atom.toLatex(x, options))
-                        );
-                    }
-
-                    let command = '';
-                    if (value && value !== contextValue) {
-                        command = {
-                            calligraphic: '\\mathcal{',
-                            fraktur: '\\mathfrak{',
-                            'double-struck': '\\mathbb{',
-                            script: '\\mathscr{',
-                            monospace: '\\mathtt{',
-                            'sans-serif': '\\mathsf{',
-                            normal: '\\mathrm{',
-                            'normal-italic': '\\mathit{',
-                            'normal-bold': '\\mathbf{',
-                            'normal-bolditalic': '\\mathbfit{',
-                            ams: '',
-                            'ams-italic': '\\mathit{',
-                            'ams-bold': '\\mathbf{',
-                            'ams-bolditalic': '\\mathbfit{',
-                            main: '',
-                            'main-italic': '\\mathit{',
-                            'main-bold': '\\mathbf{',
-                            'main-bolditalic': '\\mathbfit{',
-                            // There are a few rare font families possible, which
-                            // are not supported:
-                            // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
-                            // In addition, the 'main' and 'math' font technically
-                            // map to \mathnormal{}
-                        }[value];
-                        console.assert(typeof command !== 'undefined');
-                    }
-                    return (
-                        joinLatex([
-                            command,
-                            ...x.map((x) => Atom.toLatex(x, options)),
-                        ]) + (command ? '}' : '')
-                    );
-                })
-            );
-            const style = x[0].computedStyle;
-            if (style.color && (!parent || contextColor !== style.color)) {
-                return (
-                    '\\textcolor{' +
-                    colorToString(style.color) +
-                    '}{' +
-                    result +
-                    '}'
-                );
-            }
-            return result;
-        })
-    );
-}
-
-function applyStyle(span: Span, style: Style): string {
-    // If no variant specified, don't change the font
-    if (!style.variant) return '';
-
-    // letterShapeStyle will usually be set automatically, except when the
-    // locale cannot be determined, in which case its value will be 'auto'
-    // which we default to 'tex'
-    const letterShapeStyle =
-        style.letterShapeStyle === 'auto' || !style.letterShapeStyle
-            ? 'tex'
-            : style.letterShapeStyle;
-    let variant = style.variant;
-    let variantStyle = style.variantStyle;
-
-    // 1. Remap to "main" font some characters that don't exist
-    // in the "math" font
-
-    // There are two fonts that include the roman italic characters, "main-it" and "math"
-    // They are similar, but the "math" font has some different kernings ('f')
-    // and some slightly different character shape. It doesn't include a few
-    // characters, so for those characters, "main" has to be used instead
-
-    // \imath, \jmath and \pound don't exist in "math" font,
-    // so use "main" italic instead.
-    if (
-        variant === 'normal' &&
-        !variantStyle &&
-        /\u00a3|\u0131|\u0237/.test(span.value)
-    ) {
-        variant = 'main';
-        variantStyle = 'italic';
+export class MathMode extends Mode {
+    constructor() {
+        super('math');
     }
-
-    // 2. If no explicit variant style, auto-italicize some symbols,
-    // depending on the letterShapeStyle
-    if (variant === 'normal' && !variantStyle && span.value.length === 1) {
-        LETTER_SHAPE_RANGES.forEach((x, i) => {
-            if (
-                x.test(span.value) &&
-                LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it'
-            ) {
-                variantStyle = 'italic';
-            }
+    createAtom(command: string, style: Style): Atom | null {
+        const info = getInfo(command, 'math');
+        const value = info?.value ?? command;
+        const result = new Atom(info?.type ?? 'mord', {
+            mode: 'math',
+            command,
+            value,
+            style,
         });
+        if (info?.isFunction ?? false) {
+            result.isFunction = true;
+        }
+        if (command.startsWith('\\')) {
+            result.latex = command;
+        }
+        return result;
     }
 
-    // 3. Map the variant + variantStyle to a font
-    if (variantStyle === 'up') {
-        variantStyle = '';
+    toLatex(run: Atom[], options: ToLatexOptions): string {
+        const parent = run[0].parent;
+        const parentMode = parent?.mode ?? 'math';
+        const contextValue = variantString(parent);
+        const contextColor = parent?.computedStyle.color;
+        return joinLatex(
+            getPropertyRuns(run, 'color').map((x) => {
+                const result = joinLatex(
+                    getPropertyRuns(x, 'variant').map((x) => {
+                        const value = variantString(x[0]);
+                        // Check if all the atoms in this run have a base
+                        // variant identical to the current variant
+                        // If so, we can skip wrapping them
+                        if (
+                            x.every((x) => {
+                                const info = getInfo(
+                                    x.command,
+                                    parentMode,
+                                    null
+                                );
+                                if (!info || !info.variant) return false;
+
+                                return variantString(x) === value;
+                            })
+                        ) {
+                            return joinLatex(
+                                x.map((x) => Atom.toLatex(x, options))
+                            );
+                        }
+
+                        let command = '';
+                        if (value && value !== contextValue) {
+                            command = {
+                                calligraphic: '\\mathcal{',
+                                fraktur: '\\mathfrak{',
+                                'double-struck': '\\mathbb{',
+                                script: '\\mathscr{',
+                                monospace: '\\mathtt{',
+                                'sans-serif': '\\mathsf{',
+                                normal: '\\mathrm{',
+                                'normal-italic': '\\mathit{',
+                                'normal-bold': '\\mathbf{',
+                                'normal-bolditalic': '\\mathbfit{',
+                                ams: '',
+                                'ams-italic': '\\mathit{',
+                                'ams-bold': '\\mathbf{',
+                                'ams-bolditalic': '\\mathbfit{',
+                                main: '',
+                                'main-italic': '\\mathit{',
+                                'main-bold': '\\mathbf{',
+                                'main-bolditalic': '\\mathbfit{',
+                                // There are a few rare font families possible, which
+                                // are not supported:
+                                // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
+                                // In addition, the 'main' and 'math' font technically
+                                // map to \mathnormal{}
+                            }[value];
+                            console.assert(typeof command !== 'undefined');
+                        }
+                        return (
+                            joinLatex([
+                                command,
+                                ...x.map((x) => Atom.toLatex(x, options)),
+                            ]) + (command ? '}' : '')
+                        );
+                    })
+                );
+                const style = x[0].computedStyle;
+                if (style.color && (!parent || contextColor !== style.color)) {
+                    return (
+                        '\\textcolor{' +
+                        colorToString(style.color) +
+                        '}{' +
+                        result +
+                        '}'
+                    );
+                }
+                return result;
+            })
+        );
     }
-    const styledVariant = variantStyle ? variant + '-' + variantStyle : variant;
+    applyStyle(span: Span, style: Style): string {
+        // If no variant specified, don't change the font
+        if (!style.variant) return '';
 
-    console.assert(VARIANTS[styledVariant]);
+        // letterShapeStyle will usually be set automatically, except when the
+        // locale cannot be determined, in which case its value will be 'auto'
+        // which we default to 'tex'
+        const letterShapeStyle =
+            style.letterShapeStyle === 'auto' || !style.letterShapeStyle
+                ? 'tex'
+                : style.letterShapeStyle;
+        let variant = style.variant;
+        let variantStyle = style.variantStyle;
 
-    const [fontName, classes] = VARIANTS[styledVariant];
+        // 1. Remap to "main" font some characters that don't exist
+        // in the "math" font
 
-    // 4. If outside the font repertoire, switch to system font
-    // (return NULL to use default metrics)
-    if (
-        VARIANT_REPERTOIRE[variant] &&
-        !VARIANT_REPERTOIRE[variant].test(span.value)
-    ) {
-        // Map to unicode character
-        span.value = mathVariantToUnicode(span.value, variant, variantStyle);
-        // Return NULL to use default metrics
-        return null;
+        // There are two fonts that include the roman italic characters, "main-it" and "math"
+        // They are similar, but the "math" font has some different kernings ('f')
+        // and some slightly different character shape. It doesn't include a few
+        // characters, so for those characters, "main" has to be used instead
+
+        // \imath, \jmath and \pound don't exist in "math" font,
+        // so use "main" italic instead.
+        if (
+            variant === 'normal' &&
+            !variantStyle &&
+            /\u00a3|\u0131|\u0237/.test(span.value)
+        ) {
+            variant = 'main';
+            variantStyle = 'italic';
+        }
+
+        // 2. If no explicit variant style, auto-italicize some symbols,
+        // depending on the letterShapeStyle
+        if (variant === 'normal' && !variantStyle && span.value.length === 1) {
+            LETTER_SHAPE_RANGES.forEach((x, i) => {
+                if (
+                    x.test(span.value) &&
+                    LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it'
+                ) {
+                    variantStyle = 'italic';
+                }
+            });
+        }
+
+        // 3. Map the variant + variantStyle to a font
+        if (variantStyle === 'up') {
+            variantStyle = '';
+        }
+        const styledVariant = variantStyle
+            ? variant + '-' + variantStyle
+            : variant;
+
+        console.assert(VARIANTS[styledVariant]);
+
+        const [fontName, classes] = VARIANTS[styledVariant];
+
+        // 4. If outside the font repertoire, switch to system font
+        // (return NULL to use default metrics)
+        if (
+            VARIANT_REPERTOIRE[variant] &&
+            !VARIANT_REPERTOIRE[variant].test(span.value)
+        ) {
+            // Map to unicode character
+            span.value = mathVariantToUnicode(
+                span.value,
+                variant,
+                variantStyle
+            );
+            // Return NULL to use default metrics
+            return null;
+        }
+        // Lowercase greek letters have an incomplete repertoire (no bold)
+        // so, for \mathbf to behave correctly, add a 'lcGreek' class.
+        if (GREEK_LOWERCASE.test(span.value)) {
+            span.classes += ' lcGreek';
+        }
+
+        // 5. Assign classes based on the font
+        if (classes) {
+            span.classes += ' ' + classes;
+        }
+
+        return fontName;
     }
-    // Lowercase greek letters have an incomplete repertoire (no bold)
-    // so, for \mathbf to behave correctly, add a 'lcGreek' class.
-    if (GREEK_LOWERCASE.test(span.value)) {
-        span.classes += ' lcGreek';
-    }
-
-    // 5. Assign classes based on the font
-    if (classes) {
-        span.classes += ' ' + classes;
-    }
-
-    return fontName;
 }
-
 function variantString(atom: Atom): string {
     if (!atom) return '';
     const style = atom.computedStyle;
@@ -264,7 +295,5 @@ function variantString(atom: Atom): string {
     return result;
 }
 
-register('math', {
-    emitLatexRun: emitLatexMathRun,
-    applyStyle,
-});
+// Singleton class
+new MathMode();

@@ -19,7 +19,9 @@ export function applyStyleToUnstyledAtoms(
             !atom.style.fontFamily &&
             !atom.style.fontShape &&
             !atom.style.fontSeries &&
-            !atom.style.fontSize
+            !atom.style.fontSize &&
+            !atom.style.variant &&
+            !atom.style.variantStyle
         ) {
             atom.applyStyle(style);
             applyStyleToUnstyledAtoms(atom.body, style);

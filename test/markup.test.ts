@@ -25,7 +25,7 @@ describe('FONTS', () => {
         '\\alpha + x - 1 - \\Gamma',
         '\\alpha + x - 1 - \\Gamma',
         '\\mathfrak{\\sin}',
-    ])('%#/ %p renders correctly', (a) => {
+    ])('%#/ %s renders correctly', (a) => {
         expect(markupAndError(a)).toMatchSnapshot();
     });
 });
@@ -42,7 +42,7 @@ describe('BINARY OPERATORS', () => {
         ', +b',
         '\\textcolor{red}{a}+b',
         '\\textcolor{red}{a=}+b',
-    ])('%#/ %p renders corectly', (a) => {
+    ])('%#/ %s renders corectly', (a) => {
         expect(markupAndError(a)).toMatchSnapshot();
     });
 });
@@ -58,13 +58,13 @@ describe('FRACTIONS', function () {
         '\\tbinom{n}{k}',
         'n \\choose k',
         '\\pdiff{f(x)}{x}',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 });
 
 describe('SIZING STYLE', function () {
-    test.each(['\\text{a \\tiny x y}b'])('%#/ %p renders correctly', (x) => {
+    test.each(['\\text{a \\tiny x y}b'])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 });
@@ -86,7 +86,7 @@ describe('RULE AND DIMENSIONS', function () {
         '\\rule{5pc}{7pc}',
         '\\rule{5in}{7in}',
         '\\rule{5mu}{7mu}',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 
@@ -96,7 +96,7 @@ describe('RULE AND DIMENSIONS', function () {
         ["\\rule{'12em}{10em}", '\\rule{10em}{10em}'],
         ["\\rule{'12.9999em}{10em}", '\\rule{10pt}{10em}'],
         ['\\rule{"A em}{10em}', '\\rule{10em}{10em}'],
-    ])('%#/ %p matches %p', (a, b) => {
+    ])('%#/ %s matches %s', (a, b) => {
         expect(convertLatexToMarkup(a)).toMatch(convertLatexToMarkup(b));
     });
     // However, TeX doesn't parse it either...  Actually, TeX doesn't even parse "a2em
@@ -115,7 +115,7 @@ describe('BOX AND RULE', () => {
         '\\mathrlap{x}o',
         '\\llap{x}o',
         '\\mathllap{x}o',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 });
@@ -124,7 +124,7 @@ describe('OVER/UNDERLINE', () => {
     test.each([
         'a\\overline{x}b',
         '\\overline{xyz}\\overline{1+\\frac34}\\underline{abc}\\underline{\\frac57}',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 });
@@ -135,7 +135,7 @@ describe('SPACING AND KERN', () => {
         'a\\kern 3em b',
         'a\\hspace{3em} b',
         'a\\hskip 3em b',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 });
@@ -209,7 +209,7 @@ describe('SIZING COMMANDS', () => {
         ['\\Bigl', '\\Bigr', '\\Bigm', '\\Big'],
         ['\\biggl', '\\biggr', '\\biggm', '\\bigg'],
         ['\\Biggl', '\\Biggr', '\\Biggm', '\\Bigg'],
-    ])('%#/ sizing command %p, %p, %p, %p', (a, b, c, d) => {
+    ])('%#/ sizing command %s, %s, %s, %s', (a, b, c, d) => {
         expect(
             markupAndError(`${a}(x${c}|y${b}) = x+${d}x${d}+`)
         ).toMatchSnapshot();
@@ -235,7 +235,7 @@ describe('ENVIRONMENTS', function () {
         '\\begin{bmatrix}a & b & c\\\\ d & e & f\\end{bmatrix}',
         '\\begin{bmatrix}a & b & c\\\\ d \\end{bmatrix}',
         '\\begin{bmatrix}a & b & c\\\\ d \\\\ g & h & i & j\\end{bmatrix}',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 });
@@ -248,7 +248,7 @@ describe('SURDS', function () {
         'ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)',
         '\\sqrt[3]{5}',
         '\\sqrt[3]5',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 });
@@ -266,7 +266,7 @@ describe('ACCENTS', function () {
         '\\breve',
         '\\check',
         '\\hat',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(`${x}{x}${x}{x + 1}${x}`)).toMatchSnapshot();
     });
 });
@@ -287,7 +287,7 @@ describe('COLORS', function () {
         'a{b\\color{#f00} c}d',
         'a\\left(b\\color{#f00} c\\right)d',
         '{\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}{\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}{\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}{\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}{\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}{\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}{\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}{\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}{\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}{\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}{\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}{\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}{\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}{\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}{\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}{\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}{\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}{\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}{\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}{\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}{\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}{\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}{\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}{\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}{\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}{\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}{\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}{\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}{\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}{\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}{\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}{\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}{\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}{\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}',
-    ])('%#/ %p renders correctly', (x) => {
+    ])('%#/ %s renders correctly', (x) => {
         expect(markupAndError(x)).toMatchSnapshot();
     });
 
@@ -315,7 +315,7 @@ describe('COLORS', function () {
         '#111!50!#fff',
         '#111!50!#000',
         '-green!40!yellow',
-    ])('%#/ color format "%p" renders correctly', (x) => {
+    ])('%#/ color format "%s" renders correctly', (x) => {
         expect(markupAndError(`a\\textcolor{${x}}{x}b`)).toMatchSnapshot();
     });
 });
