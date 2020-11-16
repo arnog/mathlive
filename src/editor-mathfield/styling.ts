@@ -36,11 +36,13 @@ export function applyStyle(
         // This global style will be used the next time an atom is inserted
         mathfield.style = { ...mathfield.style, ...style };
     } else {
-        // Change the style of the selection
-        model.selection.ranges.forEach((range) =>
-            applyStyleToModel(model, range, style)
-        );
-        mathfield.snapshot();
+        mathfield.model.deferNotifications({ content: true }, () => {
+            // Change the style of the selection
+            model.selection.ranges.forEach((range) =>
+                applyStyleToModel(model, range, style, { operation: 'toggle' })
+            );
+            mathfield.snapshot();
+        });
     }
     return true;
 }

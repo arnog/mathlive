@@ -287,8 +287,9 @@ export class MathMode extends Mode {
 }
 function variantString(atom: Atom): string {
     if (!atom) return '';
-    const style = atom.computedStyle;
-    let result = style.variant ?? '';
+    const style = atom.style;
+    if (!style.variant) return '';
+    let result = style.variant;
     if (style.variantStyle && style.variantStyle !== 'up') {
         result += '-' + style.variantStyle;
     }

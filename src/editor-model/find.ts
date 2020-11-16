@@ -1,45 +1,71 @@
-import type { Range } from '../public/mathfield';
+import { Atom, Branch, NAMED_BRANCHES } from '../core/atom';
+import type { FindOptions, Range } from '../public/mathfield';
 import { ModelPrivate } from './model-private';
 
-/**
- * @todo: handle RegExp
- */
-export function find(model: ModelPrivate, value: string | RegExp): Range[] {
-    if (typeof value !== 'string') return []; // @todo: handle RegExp
+function match(value: string | RegExp, latex: string): boolean {
+    if (typeof value === 'string') {
+        return value === latex;
+    }
+    if (value.test(latex)) {
+        console.log('matches ', latex);
+        return true;
+    }
+    return false;
+}
 
+function findInBranch(
+    model: ModelPrivate,
+    atom: Atom,
+    branchName: Branch,
+    value: string | RegExp,
+    options: FindOptions
+): Range[] {
+    // Iterate each position.
+    const branch = atom.branch(branchName);
+    if (!branch) return [];
     const result = [];
-    const lastOffset = model.lastOffset;
-
-    for (let i = 0; i < lastOffset; i++) {
-        const depth = model.at(i).treeDepth;
-        // @todo: adjust for depth, use the smallest depth of start and end
-        // and adjust start/end to be at the same depth
-        // if parent of start and end is not the same,
-        // look at common ancestor, if start's parent is common ancestor,
-        // use start, otherwise start =  position of common ancestor.
-        // if end's parent is common ancestor, use end, otherwise use position
-        // of common ancestor + 1.
-        // And maybe that "adjustment" need to be in getValue()? but then
-        // the range result might include duplicates
-        for (let j = i; j < lastOffset; j++) {
-            let fragment = '';
-            for (let k = i + 1; k <= j; k++) {
-                if (model.at(k).treeDepth === depth) {
-                    fragment += model.atomToString(model.at(k), 'latex');
-                    console.log(
-                        `fragment(${
-                            i + 1
-                        }, ${j}) = "${fragment}" = '${model.getValue(i, j)}'`
-                    );
-                }
-            }
-            if (
-                (typeof value === 'string' && value === fragment) ||
-                (typeof value !== 'string' && value.test(fragment))
-            ) {
-                result.push(model.normalizeRange([i, j]));
+    let length = branch.length;
+    while (length > 0) {
+        for (let i = 1; i < branch.length - length + 1; i++) {
+            const latex = Atom.toLatex(branch.slice(i, i + length), {
+                expandMacro: false,
+            });
+            if (match(value, latex)) {
+                result.push([
+                    model.offsetOf(branch[i].leftSibling),
+                    model.offsetOf(branch[i + length - 1]),
+                ]);
             }
         }
+        length--;
     }
-    return result;
+    return branch.reduce(
+        (acc, x) => [...acc, ...findRecursive(model, x, value, options)],
+        result
+    );
+}
+function findRecursive(
+    model: ModelPrivate,
+    atom: Atom,
+    value: string | RegExp,
+    options: FindOptions
+): Range[] {
+    if (atom.type === 'first') return [];
+
+    // If the mode doesn't match, ignore this atom
+    if (options?.mode && options.mode !== atom.mode) return [];
+
+    return NAMED_BRANCHES.reduce((acc, x) => {
+        return [...acc, ...findInBranch(model, atom, x, value, options)];
+    }, []);
+
+    // @todo array
+}
+
+export function find(
+    model: ModelPrivate,
+    value: string | RegExp,
+    options: FindOptions
+): Range[] {
+    return findInBranch(model, model.root, 'body', value, options);
 }

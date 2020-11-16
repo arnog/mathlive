@@ -1,6 +1,6 @@
 /* 0.59.0 */import { MathfieldOptions } from './options';
 import { Selector } from './commands';
-import { Mathfield, InsertOptions, OutputFormat, Offset, Range, Selection } from './mathfield';
+import { Mathfield, InsertOptions, OutputFormat, Offset, Range, Selection, FindOptions } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
 /**
  * The `math-error` custom event signals an error while parsing an expression.
@@ -348,19 +348,28 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * Updates the style (color, bold, italic, etc...) of the selection or sets
      * the style to be applied to future input.
      *
-     * If there is a selection, the style is applied to the selection
+     * If there is no selection and no range is specified, the style will
+     * apply to the next character typed.
      *
-     * If the selection already has this style, it is removed.
+     * If a range is specified, the style is applied to the range, otherwise,
+     * if there is a selection, the style is applied to the selection.
      *
-     * If the selection has the style partially applied (i.e. only some
-     * sections), it is removed from those sections, and applied to the
-     * entire selection.
+     * If the operation is 'toggle' and the range already has this style,
+     * remove it. If the range
+     * has the style partially applied (i.e. only some sections), remove it from
+     * those sections, and apply it to the entire range.
      *
-     * If there is no selection, the style will apply to the next character typed.
+     * If the operation is 'set', the style is applied to the range,
+     * whether it already has the style or not.
+     *
+     * The default operation is 'set'.
      *
      * @category Accessing and changing the content
      */
-    applyStyle(style: Style): void;
+    applyStyle(style: Style, options?: Range | {
+        range?: Range;
+        operation?: 'set' | 'toggle';
+    }): void;
     /**
      * The bottom location of the caret (insertion point) in viewport
      * coordinates.
@@ -391,7 +400,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * An array is always returned, but it has no element if there are no
      * matching items.
      */
-    find(value: string | RegExp): Range[];
+    find(value: string | RegExp, options?: FindOptions): Range[];
     /**
      * Custom elements lifecycle hooks
      * @internal

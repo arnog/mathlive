@@ -136,7 +136,7 @@ export class Atom {
     // e.g. `body` and `superscript`
     // The `treeBranch` property indicate which branch of the parent this
     // atom belongs to or if in an array, the row and column
-    treeBranch: Branch | [number, number];
+    treeBranch: Branch;
 
     value: string; // If no branches
     private branches: Branches;
@@ -560,10 +560,17 @@ export class Atom {
         this.setChildren(atoms, 'below');
     }
     get computedStyle(): Style {
-        if (!this.parent) return this.style ?? {};
-        return { ...this.parent.computedStyle, ...this.style };
+        const style = { ...this.style };
+        if (style) {
+            // Variant are not included in the computed style (they're not inherited)
+            delete style.variant;
+            delete style.variantStyle;
+        }
+        if (!this.parent) return style ?? {};
+        return { ...this.parent.computedStyle, ...style };
     }
     applyStyle(style: Style): void {
+        this.isDirty = true;
         this.style = { ...this.style, ...style };
 
         if (this.style.fontFamily === 'none') {

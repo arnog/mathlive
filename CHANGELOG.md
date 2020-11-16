@@ -3,17 +3,33 @@
 ### Breaking Change
 
 -   Renamed `getCaretPosition()` and `setCaretPosition()` to `get/set caretPoint`.
-    "Position" refers to an offset denoting the boundaries between
-    elements making up the formula. These methods return client screen
+
+    "Position" refers to where the caret/insertion point is, as an
+    offset inside the expression. These methods return client screen
     coordinates and the new name better reflect the correct terminology.
+
 -   Removed deprecated (April 2019) method `enterCommandMode()`
 
 ### New Features
 
 -   **#555** Support for IME (Input Method Engines) for Japanese, Chinese,
     Korean and other complex scripts.
--   New `find()` method to search the fragments of an expression that match a
-    Latex string or regular expression.
+-   `applyStyle()` has now more options. Previously it always toggled the
+    style of the selection. Now it can either toggle or set the style, and modify the selection or a specific range.
+-   **#387** `find()` method to search the fragments of an expression
+    that match a Latex string or regular expression.
+
+    For example the following code snippet will add a yellow background to
+    the fractions in the expression:
+
+    ```javascript
+    mf.find(new RegExp(/^\\frac{[^}]_}{[^}]_}\$/)).forEach((x) =>
+        mf.applyStyle({backgroundColor: "yellow"}, x, {
+            suppressChangeNotifications: true
+        });
+    });
+    ```
+
 -   New **Latex Mode**
 
     This mode replaces the previous **Command Mode**. While the **Command Mode**

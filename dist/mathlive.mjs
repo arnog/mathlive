@@ -5519,12 +5519,18 @@ class Atom {
         this.setChildren(atoms, 'below');
     }
     get computedStyle() {
-        var _a;
+        const style = { ...this.style };
+        if (style) {
+            // Variant are not included in the computed style (they're not inherited)
+            delete style.variant;
+            delete style.variantStyle;
+        }
         if (!this.parent)
-            return (_a = this.style) !== null && _a !== void 0 ? _a : {};
-        return { ...this.parent.computedStyle, ...this.style };
+            return style !== null && style !== void 0 ? style : {};
+        return { ...this.parent.computedStyle, ...style };
     }
     applyStyle(style) {
+        this.isDirty = true;
         this.style = { ...this.style, ...style };
         if (this.style.fontFamily === 'none') {
             delete this.style.fontFamily;
@@ -6090,16 +6096,16 @@ function atomsToLatex(atoms, options) {
  * Also known as _indexed color scheme #97_.
  */
 const MATHEMATICA_COLORS = {
-    m0: '#3f3d99',
-    m1: '#993d71',
-    m2: '#998b3d',
-    m3: '#3d9956',
-    m4: '#3d5a99',
-    m5: '#993d90',
-    m6: '#996d3d',
-    m7: '#43993d',
-    m8: '#3d7999',
-    m9: '#843d99',
+    m0: '#3F3D99',
+    m1: '#993D71',
+    m2: '#998B3D',
+    m3: '#3D9956',
+    m4: '#3D5A99',
+    m5: '#993D90',
+    m6: '#996D3D',
+    m7: '#43993D',
+    m8: '#3D7999',
+    m9: '#843D99',
 };
 // ColorData97 (Mathematica standard lines)
 // rgb(0.368417, 0.506779, 0.709798),       #5e81b5
@@ -6412,7 +6418,7 @@ yellowgreen	rgb(154, 205, 50)
  * @return An RGB color expressed as a hex-triplet preceded by `#`
  */
 function stringToColor(s) {
-    var _a;
+    var _a, _b;
     const colorSpec = s.toLowerCase().split('!');
     let baseRed;
     let baseGreen;
@@ -6430,7 +6436,7 @@ function stringToColor(s) {
         baseGreen = green;
         baseBlue = blue;
         const colorName = (_a = colorSpec[i].match(/([a-z0-9]*)/)) === null || _a === void 0 ? void 0 : _a[1];
-        let color = NAMED_COLORS[colorName] || MATHEMATICA_COLORS[colorName];
+        let color = (_b = NAMED_COLORS[colorName]) !== null && _b !== void 0 ? _b : MATHEMATICA_COLORS[colorName];
         if (!color)
             color = colorSpec[i];
         let m = color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
@@ -6492,6 +6498,8 @@ function stringToColor(s) {
 function colorToString(color) {
     if (!color)
         return '';
+    if (color[0] !== '#')
+        return color;
     let result = color.toUpperCase();
     for (const c in NAMED_COLORS) {
         if (NAMED_COLORS[c] === result) {
@@ -20240,11 +20248,12 @@ class MathMode extends Mode {
     }
 }
 function variantString(atom) {
-    var _a;
     if (!atom)
         return '';
-    const style = atom.computedStyle;
-    let result = (_a = style.variant) !== null && _a !== void 0 ? _a : '';
+    const style = atom.style;
+    if (!style.variant)
+        return '';
+    let result = style.variant;
     if (style.variantStyle && style.variantStyle !== 'up') {
         result += '-' + style.variantStyle;
     }
@@ -23639,49 +23648,49 @@ function applyStyleToUnstyledAtoms(atom, style) {
  * has the style partially applied (i.e. only some sections), remove it from
  * those sections, and apply it to the entire selection.
  */
-function applyStyle(model, range, style
-//  & { series?: FontSeries; shape?: FontShape; size?: string }
-) {
+function applyStyle(model, range, style, options) {
     function everyStyle(property, value) {
         let result = true;
-        model.getAtoms(model.selection).forEach((x) => {
-            result = result && x[property] === value;
+        atoms.forEach((x) => {
+            result = result && x.style[property] === value;
         });
         return result;
     }
     range = model.normalizeRange(range);
     if (range[0] === range[1])
         return false;
-    if (style.color && everyStyle('color', style.color)) {
-        // If the selection already has this color, turn it off
-        style.color = 'none';
+    const atoms = model.getAtoms(range, { includeChildren: true });
+    if (options.operation === 'toggle') {
+        if (style.color && everyStyle('color', style.color)) {
+            // If the selection already has this color, turn it off
+            style.color = 'none';
+        }
+        if (style.backgroundColor &&
+            everyStyle('backgroundColor', style.backgroundColor)) {
+            // If the selection already has this color, turn it off
+            style.backgroundColor = 'none';
+        }
+        if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
+            // If the selection already has this font family, turn it off
+            style.fontFamily = 'none';
+        }
+        // if (style.series) style.fontSeries = style.series;
+        if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
+            // If the selection already has this series (weight), turn it off
+            style.fontSeries = 'auto';
+        }
+        // if (style.shape) style.fontShape = style.shape;
+        if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
+            // If the selection already has this shape (italic), turn it off
+            style.fontShape = 'auto';
+        }
+        // if (style.size) style.fontSize = style.size;
+        if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
+            // If the selection already has this size, reset it to default size
+            style.fontSize = 'size5';
+        }
     }
-    if (style.backgroundColor &&
-        everyStyle('backgroundColor', style.backgroundColor)) {
-        // If the selection already has this color, turn it off
-        style.backgroundColor = 'none';
-    }
-    if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
-        // If the selection already has this font family, turn it off
-        style.fontFamily = 'none';
-    }
-    // if (style.series) style.fontSeries = style.series;
-    if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
-        // If the selection already has this series (weight), turn it off
-        style.fontSeries = 'auto';
-    }
-    // if (style.shape) style.fontShape = style.shape;
-    if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
-        // If the selection already has this shape (italic), turn it off
-        style.fontShape = 'auto';
-    }
-    // if (style.size) style.fontSize = style.size;
-    if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
-        // If the selection already has this size, reset it to default size
-        style.fontSize = 'size5';
-    }
-    model.getAtoms(range).forEach((x) => x.applyStyle(style));
-    contentDidChange(model);
+    atoms.forEach((x) => x.applyStyle(style));
     return true;
 }
 
@@ -25450,40 +25459,52 @@ function localize(s) {
     return result;
 }
 
-/**
- * @todo: handle RegExp
- */
-function find(model, value) {
-    if (typeof value !== 'string')
-        return []; // @todo: handle RegExp
+function match(value, latex) {
+    if (typeof value === 'string') {
+        return value === latex;
+    }
+    if (value.test(latex)) {
+        console.log('matches ', latex);
+        return true;
+    }
+    return false;
+}
+function findInBranch(model, atom, branchName, value, options) {
+    // Iterate each position.
+    const branch = atom.branch(branchName);
+    if (!branch)
+        return [];
     const result = [];
-    const lastOffset = model.lastOffset;
-    for (let i = 0; i < lastOffset; i++) {
-        const depth = model.at(i).treeDepth;
-        // @todo: adjust for depth, use the smallest depth of start and end
-        // and adjust start/end to be at the same depth
-        // if parent of start and end is not the same,
-        // look at common ancestor, if start's parent is common ancestor,
-        // use start, otherwise start =  position of common ancestor.
-        // if end's parent is common ancestor, use end, otherwise use position
-        // of common ancestor + 1.
-        // And maybe that "adjustment" need to be in getValue()? but then
-        // the range result might include duplicates
-        for (let j = i; j < lastOffset; j++) {
-            let fragment = '';
-            for (let k = i + 1; k <= j; k++) {
-                if (model.at(k).treeDepth === depth) {
-                    fragment += model.atomToString(model.at(k), 'latex');
-                    console.log(`fragment(${i + 1}, ${j}) = "${fragment}" = '${model.getValue(i, j)}'`);
-                }
-            }
-            if ((typeof value === 'string' && value === fragment) ||
-                (typeof value !== 'string' && value.test(fragment))) {
-                result.push(model.normalizeRange([i, j]));
+    let length = branch.length;
+    while (length > 0) {
+        for (let i = 1; i < branch.length - length + 1; i++) {
+            const latex = Atom.toLatex(branch.slice(i, i + length), {
+                expandMacro: false,
+            });
+            if (match(value, latex)) {
+                result.push([
+                    model.offsetOf(branch[i].leftSibling),
+                    model.offsetOf(branch[i + length - 1]),
+                ]);
             }
         }
+        length--;
     }
-    return result;
+    return branch.reduce((acc, x) => [...acc, ...findRecursive(model, x, value, options)], result);
+}
+function findRecursive(model, atom, value, options) {
+    if (atom.type === 'first')
+        return [];
+    // If the mode doesn't match, ignore this atom
+    if ((options === null || options === void 0 ? void 0 : options.mode) && options.mode !== atom.mode)
+        return [];
+    return NAMED_BRANCHES.reduce((acc, x) => {
+        return [...acc, ...findInBranch(model, atom, x, value, options)];
+    }, []);
+    // @todo array
+}
+function find(model, value, options) {
+    return findInBranch(model, model.root, 'body', value, options);
 }
 
 function speakableText(speechOptions, prefix, atoms) {
@@ -27937,7 +27958,6 @@ function onKeystroke(mathfield, keystroke, evt) {
         //
         const style = {
             ...model.at(model.position).computedStyle,
-            variant: 'normal',
             ...mathfield.style,
         };
         if (!/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(shortcut)) {
@@ -28049,7 +28069,7 @@ function onTypedText(mathfield, text, options) {
     //
     const style = {
         ...model.at(model.position).computedStyle,
-        variant: 'normal',
+        // variant: 'main',
         ...mathfield.style,
     };
     if (!model.selectionIsCollapsed) {
@@ -28223,9 +28243,11 @@ function applyStyle$1(mathfield, inStyle) {
         mathfield.style = { ...mathfield.style, ...style };
     }
     else {
-        // Change the style of the selection
-        model.selection.ranges.forEach((range) => applyStyle(model, range, style));
-        mathfield.snapshot();
+        mathfield.model.deferNotifications({ content: true }, () => {
+            // Change the style of the selection
+            model.selection.ranges.forEach((range) => applyStyle(model, range, style, { operation: 'toggle' }));
+            mathfield.snapshot();
+        });
     }
     return true;
 }
@@ -31192,8 +31214,8 @@ class MathfieldPrivate {
     /**
      *
      */
-    find(value) {
-        return find(this.model, value);
+    find(value, options) {
+        return find(this.model, value, options);
     }
     /** @deprecated */
     $selectedText(format) {
@@ -31342,7 +31364,7 @@ class MathfieldPrivate {
             let contentChanged = false;
             this.resetKeystrokeBuffer();
             // Suppress (temporarily) smart mode if switching to/from text or math
-            // This prevents switching to/from command mode from supressing smart mode.
+            // This prevents switching to/from command mode from suppressing smart mode.
             this.smartModeSuppressed =
                 /text|math/.test(this.mode) && /text|math/.test(mode);
             if (prefix) {
@@ -31448,17 +31470,33 @@ class MathfieldPrivate {
         deprecated('$clearSelection');
         deleteRange(this.model, range(this.model.selection));
     }
-    applyStyle(style, range) {
-        if (typeof range === 'undefined') {
-            this.model.selection.ranges.forEach((range) => applyStyle(this.model, range, style));
+    applyStyle(style, inOptions = {}) {
+        var _a, _b;
+        const options = {
+            operation: 'set',
+            suppressChangeNotifications: false,
+        };
+        if (isRange(inOptions)) {
+            options.range = inOptions;
         }
         else {
-            applyStyle(this.model, range, style);
+            options.range = inOptions.range;
+            options.suppressChangeNotifications = (_a = inOptions.suppressChangeNotifications) !== null && _a !== void 0 ? _a : false;
         }
+        const operation = (_b = options.operation) !== null && _b !== void 0 ? _b : 'set';
+        this.model.deferNotifications({ content: !options.suppressChangeNotifications }, () => {
+            if (typeof options.range === 'undefined') {
+                this.model.selection.ranges.forEach((range) => applyStyle(this.model, range, style, { operation }));
+            }
+            else {
+                applyStyle(this.model, options.range, style, { operation });
+            }
+        });
+        requestUpdate(this);
     }
     /** @deprecated */
     $applyStyle(style) {
-        this.model.selection.ranges.forEach((range) => applyStyle(this.model, range, style));
+        this.model.selection.ranges.forEach((range) => applyStyle(this.model, range, style, { operation: 'toggle' }));
     }
     /** @deprecated */
     $keystroke(keys, evt) {
@@ -33677,21 +33715,27 @@ class MathfieldElement extends HTMLElement {
      * Updates the style (color, bold, italic, etc...) of the selection or sets
      * the style to be applied to future input.
      *
-     * If there is a selection, the style is applied to the selection
+     * If there is no selection and no range is specified, the style will
+     * apply to the next character typed.
      *
-     * If the selection already has this style, it is removed.
+     * If a range is specified, the style is applied to the range, otherwise,
+     * if there is a selection, the style is applied to the selection.
      *
-     * If the selection has the style partially applied (i.e. only some
-     * sections), it is removed from those sections, and applied to the
-     * entire selection.
+     * If the operation is 'toggle' and the range already has this style,
+     * remove it. If the range
+     * has the style partially applied (i.e. only some sections), remove it from
+     * those sections, and apply it to the entire range.
      *
-     * If there is no selection, the style will apply to the next character typed.
+     * If the operation is 'set', the style is applied to the range,
+     * whether it already has the style or not.
+     *
+     * The default operation is 'set'.
      *
      * @category Accessing and changing the content
      */
-    applyStyle(style) {
+    applyStyle(style, options) {
         var _a;
-        return (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.applyStyle(style);
+        return (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.applyStyle(style, options);
     }
     /**
      * The bottom location of the caret (insertion point) in viewport
@@ -33726,9 +33770,9 @@ class MathfieldElement extends HTMLElement {
      * An array is always returned, but it has no element if there are no
      * matching items.
      */
-    find(value) {
+    find(value, options) {
         var _a, _b;
-        return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.find(value)) !== null && _b !== void 0 ? _b : [];
+        return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.find(value, options)) !== null && _b !== void 0 ? _b : [];
     }
     /**
      * Custom elements lifecycle hooks

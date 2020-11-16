@@ -295,7 +295,6 @@ export function onKeystroke(
         //
         const style: Style = {
             ...model.at(model.position).computedStyle,
-            variant: 'normal', // Don't inherit variant style
             ...mathfield.style,
         };
         if (
@@ -431,7 +430,7 @@ export function onTypedText(
 
     const style: Style = {
         ...model.at(model.position).computedStyle,
-        variant: 'normal', // Don't inherit variant style
+        // variant: 'main',
         ...mathfield.style,
     };
     if (!model.selectionIsCollapsed) {

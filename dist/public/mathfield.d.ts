@@ -61,6 +61,14 @@ export declare type InsertOptions = {
      */
     resetStyle?: boolean;
 };
+export declare type FindOptions = {
+    mode?: ParseMode;
+};
+export declare type ApplyStyleOptions = {
+    range?: Range;
+    operation?: 'set' | 'toggle';
+    suppressChangeNotifications?: boolean;
+};
 /**
  * A position of the caret/insertion point from the beginning of the formula.
  */
@@ -310,16 +318,24 @@ export interface Mathfield {
      * Updates the style (color, bold, italic, etc...) of the selection or sets
      * the style to be applied to future input.
      *
-     * If there is a selection, the style is applied to the selection
+     * If there is no selection and no range is specified, the style will
+     * apply to the next character typed.
      *
-     * If the selection already has this style, remove it. If the selection
+     * If a range is specified, the style is applied to the range, otherwise,
+     * if there is a selection, the style is applied to the selection.
+     *
+     * If the operation is 'toggle' and the range already has this style,
+     * remove it. If the range
      * has the style partially applied (i.e. only some sections), remove it from
-     * those sections, and apply it to the entire selection.
+     * those sections, and apply it to the entire range.
      *
-     * If there is no selection, the style will apply to the next character typed.
+     * If the operation is 'set', the style is applied to the range,
+     * whether it already has the style or not.
+     *
+     * The default operation is 'set'.
      *
      */
-    applyStyle(style: Style): void;
+    applyStyle(style: Style, options?: ApplyStyleOptions): void;
     /**
      * @deprecated Use [[`applyStyle`]]
      */
@@ -361,7 +377,7 @@ export interface Mathfield {
      * Results are returned as an array of Range. If no results are found
      * an empty array is returned.
      */
-    find(value: string | RegExp): Range[];
+    find(value: string | RegExp, options?: FindOptions): Range[];
 }
 export interface Model {
     readonly mathfield: Mathfield;

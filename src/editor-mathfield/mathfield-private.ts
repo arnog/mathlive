@@ -7,6 +7,8 @@ import type {
     Offset,
     Range,
     Selection,
+    FindOptions,
+    ApplyStyleOptions,
 } from '../public/mathfield';
 
 import { Atom } from '../core/atom-class';
@@ -14,7 +16,7 @@ import { Atom } from '../core/atom-class';
 import { loadFonts } from '../core/fonts';
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
-import { deleteRange, getMode, ModelPrivate } from '../editor/model';
+import { deleteRange, getMode, isRange, ModelPrivate } from '../editor/model';
 import { applyStyle } from '../editor-model/styling';
 import { delegateKeyboardEvents, KeyboardDelegate } from '../editor/keyboard';
 import { UndoRecord, UndoManager } from '../editor/undo';
@@ -904,8 +906,8 @@ export class MathfieldPrivate implements Mathfield {
     /**
      *
      */
-    find(value: string | RegExp): Range[] {
-        return find(this.model, value);
+    find(value: string | RegExp, options: FindOptions): Range[] {
+        return find(this.model, value, options);
     }
 
     /** @deprecated */
@@ -1055,7 +1057,7 @@ export class MathfieldPrivate implements Mathfield {
                 let contentChanged = false;
                 this.resetKeystrokeBuffer();
                 // Suppress (temporarily) smart mode if switching to/from text or math
-                // This prevents switching to/from command mode from supressing smart mode.
+                // This prevents switching to/from command mode from suppressing smart mode.
                 this.smartModeSuppressed =
                     /text|math/.test(this.mode) && /text|math/.test(mode);
                 if (prefix) {
@@ -1185,20 +1187,38 @@ export class MathfieldPrivate implements Mathfield {
         deleteRange(this.model, range(this.model.selection));
     }
 
-    applyStyle(style: Style, range?: Range): void {
-        if (typeof range === 'undefined') {
-            this.model.selection.ranges.forEach((range) =>
-                applyStyle(this.model, range, style)
-            );
+    applyStyle(style: Style, inOptions: Range | ApplyStyleOptions = {}): void {
+        const options: ApplyStyleOptions = {
+            operation: 'set',
+            suppressChangeNotifications: false,
+        };
+        if (isRange(inOptions)) {
+            options.range = inOptions;
         } else {
-            applyStyle(this.model, range, style);
+            options.range = inOptions.range;
+            options.suppressChangeNotifications =
+                inOptions.suppressChangeNotifications ?? false;
         }
+        const operation = options.operation ?? 'set';
+        this.model.deferNotifications(
+            { content: !options.suppressChangeNotifications },
+            () => {
+                if (typeof options.range === 'undefined') {
+                    this.model.selection.ranges.forEach((range) =>
+                        applyStyle(this.model, range, style, { operation })
+                    );
+                } else {
+                    applyStyle(this.model, options.range, style, { operation });
+                }
+            }
+        );
+        requestUpdate(this);
     }
 
     /** @deprecated */
     $applyStyle(style: Style): void {
         this.model.selection.ranges.forEach((range) =>
-            applyStyle(this.model, range, style)
+            applyStyle(this.model, range, style, { operation: 'toggle' })
         );
     }
 

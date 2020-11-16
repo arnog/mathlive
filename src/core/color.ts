@@ -14,16 +14,16 @@
  * Also known as _indexed color scheme #97_.
  */
 const MATHEMATICA_COLORS: { [key: string]: string } = {
-    m0: '#3f3d99', // strong blue
-    m1: '#993d71', // strong cerise
-    m2: '#998b3d', // strong gold
-    m3: '#3d9956', // malachite green
-    m4: '#3d5a99', // strong cobalt blue
-    m5: '#993d90', // strong orchid
-    m6: '#996d3d', // strong orange
-    m7: '#43993d', // strong sap green
-    m8: '#3d7999', // cornflower blue
-    m9: '#843d99', // mulberry
+    m0: '#3F3D99', // strong blue
+    m1: '#993D71', // strong cerise
+    m2: '#998B3D', // strong gold
+    m3: '#3D9956', // malachite green
+    m4: '#3D5A99', // strong cobalt blue
+    m5: '#993D90', // strong orchid
+    m6: '#996D3D', // strong orange
+    m7: '#43993D', // strong sap green
+    m8: '#3D7999', // cornflower blue
+    m9: '#843D99', // mulberry
 };
 // ColorData97 (Mathematica standard lines)
 // rgb(0.368417, 0.506779, 0.709798),       #5e81b5
@@ -364,7 +364,7 @@ export function stringToColor(s: string): string {
 
         const colorName = colorSpec[i].match(/([a-z0-9]*)/)?.[1];
 
-        let color = NAMED_COLORS[colorName] || MATHEMATICA_COLORS[colorName];
+        let color = NAMED_COLORS[colorName] ?? MATHEMATICA_COLORS[colorName];
         if (!color) color = colorSpec[i];
 
         let m = color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
@@ -430,6 +430,7 @@ export function stringToColor(s: string): string {
 
 export function colorToString(color: string): string {
     if (!color) return '';
+    if (color[0] !== '#') return color;
     let result = color.toUpperCase();
 
     for (const c in NAMED_COLORS) {

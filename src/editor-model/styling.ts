@@ -1,6 +1,5 @@
 import { Atom, isAtomArray } from '../core/atom';
 import type { ModelPrivate } from './model-private';
-import { contentDidChange } from './listeners';
 import { Range } from '../public/mathfield';
 import { Style } from '../public/core';
 
@@ -44,13 +43,13 @@ export function applyStyleToUnstyledAtoms(
 export function applyStyle(
     model: ModelPrivate,
     range: Range,
-    style: Style
-    //  & { series?: FontSeries; shape?: FontShape; size?: string }
+    style: Style,
+    options: { operation: 'set' | 'toggle' }
 ): boolean {
     function everyStyle(property, value): boolean {
         let result = true;
-        model.getAtoms(model.selection).forEach((x) => {
-            result = result && x[property] === value;
+        atoms.forEach((x: Atom) => {
+            result = result && x.style[property] === value;
         });
         return result;
     }
@@ -58,45 +57,47 @@ export function applyStyle(
     range = model.normalizeRange(range);
     if (range[0] === range[1]) return false;
 
-    if (style.color && everyStyle('color', style.color)) {
-        // If the selection already has this color, turn it off
-        style.color = 'none';
+    const atoms = model.getAtoms(range, { includeChildren: true });
+
+    if (options.operation === 'toggle') {
+        if (style.color && everyStyle('color', style.color)) {
+            // If the selection already has this color, turn it off
+            style.color = 'none';
+        }
+
+        if (
+            style.backgroundColor &&
+            everyStyle('backgroundColor', style.backgroundColor)
+        ) {
+            // If the selection already has this color, turn it off
+            style.backgroundColor = 'none';
+        }
+
+        if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
+            // If the selection already has this font family, turn it off
+            style.fontFamily = 'none';
+        }
+
+        // if (style.series) style.fontSeries = style.series;
+        if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
+            // If the selection already has this series (weight), turn it off
+            style.fontSeries = 'auto';
+        }
+
+        // if (style.shape) style.fontShape = style.shape;
+        if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
+            // If the selection already has this shape (italic), turn it off
+            style.fontShape = 'auto';
+        }
+
+        // if (style.size) style.fontSize = style.size;
+        if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
+            // If the selection already has this size, reset it to default size
+            style.fontSize = 'size5';
+        }
     }
 
-    if (
-        style.backgroundColor &&
-        everyStyle('backgroundColor', style.backgroundColor)
-    ) {
-        // If the selection already has this color, turn it off
-        style.backgroundColor = 'none';
-    }
-
-    if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
-        // If the selection already has this font family, turn it off
-        style.fontFamily = 'none';
-    }
-
-    // if (style.series) style.fontSeries = style.series;
-    if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
-        // If the selection already has this series (weight), turn it off
-        style.fontSeries = 'auto';
-    }
-
-    // if (style.shape) style.fontShape = style.shape;
-    if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
-        // If the selection already has this shape (italic), turn it off
-        style.fontShape = 'auto';
-    }
-
-    // if (style.size) style.fontSize = style.size;
-    if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
-        // If the selection already has this size, reset it to default size
-        style.fontSize = 'size5';
-    }
-
-    model.getAtoms(range).forEach((x) => x.applyStyle(style));
-
-    contentDidChange(model);
+    atoms.forEach((x) => x.applyStyle(style));
 
     return true;
 }
