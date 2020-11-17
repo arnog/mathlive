@@ -5376,10 +5376,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             return result;
         }
-        // Default Latex emmiter.
-        // Avoid calling directly, instead call `Atom.toLatex(atom)`
-        // to correctly call per-definition emitters and use the cached verbatim
-        // latex when applicable.
+        /**
+         * Default Latex emmiter.
+         * Avoid calling directly, instead call `Atom.toLatex(atom)`
+         * to correctly call per-definition emitters and use the cached verbatim
+         * latex when applicable.
+         */
         toLatex(options) {
             var _a;
             if (this.body && this.command) {
@@ -5455,9 +5457,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          * Return the atoms in the branch, if it exists, otherwise null
          */
         branch(name) {
-            if (!this.branches)
-                return null;
             if (!isNamedBranch(name))
+                return null;
+            if (!this.branches)
                 return null;
             return this.branches[name];
         }
@@ -5710,6 +5712,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return this === this.lastSibling;
         }
         get hasNoSiblings() {
+            // There is always at least one sibling, the 'first'
+            // atom, but we don't count it.
             return this.siblings.length === 1;
         }
         get leftSibling() {
@@ -5721,7 +5725,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return siblings[siblings.indexOf(this) + 1];
         }
         get hasChildren() {
-            // @todo array: account for colRow branches
             return this.branches && this.children.length > 0;
         }
         get firstChild() {
@@ -5742,7 +5745,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         get children() {
             if (this._children)
                 return this._children;
-            // @todo array: add colrow branches
             const result = [];
             if (this.branches) {
                 NAMED_BRANCHES.forEach((branch) => {
@@ -9585,12 +9587,31 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         constructor(envName, array, rowGaps, options = {}) {
             super('array');
             this.environmentName = envName;
+            // The array could be sparse, desparsify-it
+            // @todo
             this.array = array;
             this.rowGaps = rowGaps;
             if (options.mathStyleName)
                 this.mathStyleName = options.mathStyleName;
             if (options.colFormat)
                 this.colFormat = options.colFormat;
+            if (this.colFormat && this.colFormat.length === 0) {
+                this.colFormat = [{ align: 'l' }];
+            }
+            if (!this.colFormat) {
+                this.colFormat = [
+                    { align: 'l' },
+                    { align: 'l' },
+                    { align: 'l' },
+                    { align: 'l' },
+                    { align: 'l' },
+                    { align: 'l' },
+                    { align: 'l' },
+                    { align: 'l' },
+                    { align: 'l' },
+                    { align: 'l' },
+                ];
+            }
             if (options.leftDelim)
                 this.leftDelim = options.leftDelim;
             if (options.rightDelim)
@@ -9599,6 +9620,22 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 this.jot = options.jot;
             if (options.arraycolsep)
                 this.arraycolsep = options.arraycolsep;
+        }
+        branch(cell) {
+            if (!isColRowBranch(cell))
+                return null;
+            return this.array[cell[0]][cell[1]];
+        }
+        createBranch(cell) {
+            if (!isColRowBranch(cell))
+                return [];
+            return [];
+        }
+        get rowCount() {
+            return this.array.length;
+        }
+        get colCount() {
+            return this.array[0].length;
         }
         removeBranch(name) {
             if (isNamedBranch(name)) {
@@ -9616,28 +9653,25 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             this.isDirty = true;
             return children;
         }
+        get hasChildren() {
+            return this.children.length > 0;
+        }
+        get children() {
+            let result = [];
+            this.array.forEach((row) => {
+                row.forEach((col) => {
+                    col.forEach((x) => {
+                        result = [...result, ...x.children];
+                    });
+                });
+            });
+            return [...result, ...super.children];
+        }
         render(context) {
             var _a;
             // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
             // and http://tug.ctan.org/macros/latex/base/lttab.dtx
-            let colFormat = this.colFormat;
-            if (colFormat && colFormat.length === 0) {
-                colFormat = [{ align: 'l' }];
-            }
-            if (!colFormat) {
-                colFormat = [
-                    { align: 'l' },
-                    { align: 'l' },
-                    { align: 'l' },
-                    { align: 'l' },
-                    { align: 'l' },
-                    { align: 'l' },
-                    { align: 'l' },
-                    { align: 'l' },
-                    { align: 'l' },
-                    { align: 'l' },
-                ];
-            }
+            const colFormat = this.colFormat;
             // Fold the array so that there are no more columns of content than
             // there are columns prescribed by the column format.
             const array = [];
@@ -9861,21 +9895,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             result += '\\end{' + this.environmentName + '}';
             return result;
         }
-        addChild(_child, _branch) {
-            return;
-        }
-        addChildBefore(_child, _before) {
-            return;
-        }
-        addChildAfter(_child, _after) {
-            return;
-        }
-        addChildrenAfter(_children, _after) {
-            return null;
-        }
-        removeChild(_child) {
-            return;
-        }
         getCell(row, col) {
             return this.array[row][col];
         }
@@ -9913,17 +9932,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 });
             });
             return result;
-        }
-        get children() {
-            let result = [];
-            this.array.forEach((row) => {
-                row.forEach((col) => {
-                    col.forEach((x) => {
-                        result = [...result, ...x.children];
-                    });
-                });
-            });
-            return [...result, ...super.children];
         }
     }
     /**
@@ -23799,7 +23807,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * than the current focus.
      * If `extend` is true, the selection will be extended. Otherwise, it is
      * collapsed, then moved.
-     * @revisit: array
+     * @todo array
      */
     function skip(model, direction, options) {
         var _a, _b, _c, _d, _e, _f, _g;
@@ -25465,24 +25473,21 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     }
 
-    function match(value, latex) {
-        if (typeof value === 'string') {
-            return value === latex;
+    function match(pattern, latex) {
+        if (typeof pattern === 'string') {
+            return pattern === latex;
         }
-        if (value.test(latex)) {
-            console.log('matches ', latex);
-            return true;
-        }
-        return false;
+        return pattern.test(latex);
     }
     function findInBranch(model, atom, branchName, value, options) {
-        // Iterate each position.
         const branch = atom.branch(branchName);
         if (!branch)
             return [];
         const result = [];
         let length = branch.length;
+        // For each length...
         while (length > 0) {
+            // Consider each possible position in the branch
             for (let i = 1; i < branch.length - length + 1; i++) {
                 const latex = Atom.toLatex(branch.slice(i, i + length), {
                     expandMacro: false,
@@ -25492,13 +25497,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         model.offsetOf(branch[i].leftSibling),
                         model.offsetOf(branch[i + length - 1]),
                     ]);
+                    i = i + length;
                 }
             }
             length--;
         }
-        return branch.reduce((acc, x) => [...acc, ...findRecursive(model, x, value, options)], result);
+        return branch.reduce((acc, x) => [...acc, ...findInAtom(model, x, value, options)], result);
     }
-    function findRecursive(model, atom, value, options) {
+    function findInAtom(model, atom, value, options) {
         if (atom.type === 'first')
             return [];
         // If the mode doesn't match, ignore this atom
@@ -25510,7 +25516,91 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         // @todo array
     }
     function find(model, value, options) {
-        return findInBranch(model, model.root, 'body', value, options);
+        return findInBranch(model, model.root, 'body', value, options).sort((a, b) => {
+            if (b[0] === a[0]) {
+                return b[1] - a[1];
+            }
+            return b[0] - a[0];
+        });
+    }
+    function replaceInBranch(model, atom, branchName, pattern, replacement, options) {
+        const branch = atom.branch(branchName);
+        if (!branch)
+            return;
+        let i = 1;
+        while (i < branch.length) {
+            let length = branch.length - i;
+            while (length > 0) {
+                let matched = false;
+                const latex = Atom.toLatex(branch.slice(i, i + length), {
+                    expandMacro: false,
+                });
+                console.log('testing ' + latex);
+                const replacementArgs = { latex };
+                if (typeof pattern === 'string' && latex === pattern) {
+                    matched = true;
+                }
+                else if (pattern instanceof RegExp) {
+                    const match = latex.match(pattern);
+                    if (match !== null) {
+                        matched = true;
+                        if (match.length > 0) {
+                            replacementArgs.p = [...match];
+                        }
+                        replacementArgs.groups = match.groups;
+                    }
+                }
+                if (matched) {
+                    // Remove the atoms that matched
+                    for (let j = i; j < i + length; j++) {
+                        atom.removeChild(branch[j]);
+                    }
+                    let replacementString;
+                    if (typeof replacement === 'string') {
+                        replacementString = replacement;
+                        if (replacementArgs.p) {
+                            replacementArgs.p.forEach((x, index) => {
+                                if (typeof x === 'string') {
+                                    replacementString = replacementString.replace('$' + Number(index).toString(), x);
+                                }
+                            });
+                        }
+                        if (replacementArgs.groups) {
+                            Object.keys(replacementArgs.groups).forEach((x) => {
+                                if (typeof x === 'string') {
+                                    replacementString = replacementString.replace('$' + x, replacementArgs.groups[x]);
+                                }
+                            });
+                        }
+                        replacementString = replacementString.replace('$$', '$');
+                    }
+                    else {
+                        replacementString = replacement(replacementArgs);
+                    }
+                    const lastChild = atom.addChildrenAfter(parseLatex(replacementString, atom.mode), branch[i - 1]);
+                    i = branch.indexOf(lastChild) + 1;
+                    length = branch.length - i;
+                }
+                else {
+                    length--;
+                }
+            }
+            i++;
+        }
+        branch.forEach((x) => replaceInAtom(model, x, pattern, replacement, options));
+    }
+    function replaceInAtom(model, atom, pattern, replacement, options) {
+        if (atom.type === 'first')
+            return;
+        // If the mode doesn't match, ignore this atom
+        if ((options === null || options === void 0 ? void 0 : options.mode) && options.mode !== atom.mode)
+            return;
+        NAMED_BRANCHES.forEach((x) => replaceInBranch(model, atom, x, pattern, replacement, options));
+        // @todo array
+    }
+    function replace(model, pattern, replacement, options) {
+        replaceInBranch(model, model.root, 'body', pattern, replacement, options);
+        model.position = model.normalizeOffset(model.position);
     }
 
     function speakableText(speechOptions, prefix, atoms) {
@@ -31217,11 +31307,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 requestUpdate(this);
             }
         }
-        /**
-         *
-         */
         find(value, options) {
             return find(this.model, value, options);
+        }
+        replace(searchValue, newValue, options) {
+            replace(this.model, searchValue, newValue, options);
         }
         /** @deprecated */
         $selectedText(format) {
@@ -33776,9 +33866,21 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          * An array is always returned, but it has no element if there are no
          * matching items.
          */
-        find(value, options) {
+        find(pattern, options) {
             var _a, _b;
-            return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.find(value, options)) !== null && _b !== void 0 ? _b : [];
+            return (_b = (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.find(pattern, options)) !== null && _b !== void 0 ? _b : [];
+        }
+        /**
+         * Replace the pattern items matching the **pattern** with the
+         * **replacement** value.
+         *
+         * If **replacement** is a function, the function is called
+         * for each match and the function return value will be
+         * used as the replacement.
+         */
+        replace(pattern, replacement, options) {
+            var _a;
+            (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.replace(pattern, replacement, options);
         }
         /**
          * Custom elements lifecycle hooks

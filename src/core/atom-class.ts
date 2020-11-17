@@ -50,7 +50,7 @@ export function isNamedBranch(branch: Branch): branch is BranchName {
     return typeof branch === 'string' && NAMED_BRANCHES.includes(branch);
 }
 
-function isColRowBranch(branch: Branch): branch is [number, number] {
+export function isColRowBranch(branch: Branch): branch is [number, number] {
     return Array.isArray(branch) && branch.length === 2;
 }
 
@@ -425,10 +425,12 @@ export class Atom {
         }
         return result;
     }
-    // Default Latex emmiter.
-    // Avoid calling directly, instead call `Atom.toLatex(atom)`
-    // to correctly call per-definition emitters and use the cached verbatim
-    // latex when applicable.
+    /**
+     * Default Latex emmiter.
+     * Avoid calling directly, instead call `Atom.toLatex(atom)`
+     * to correctly call per-definition emitters and use the cached verbatim
+     * latex when applicable.
+     */
     toLatex(options: ToLatexOptions): string {
         if (this.body && this.command) {
             // There's a command and body
@@ -500,9 +502,9 @@ export class Atom {
     /**
      * Return the atoms in the branch, if it exists, otherwise null
      */
-    branch(name: Branch | [col: number, row: number]): Atom[] | null {
-        if (!this.branches) return null;
+    branch(name: Branch): Atom[] | null {
         if (!isNamedBranch(name)) return null;
+        if (!this.branches) return null;
         return this.branches[name];
     }
     /**
@@ -754,6 +756,8 @@ export class Atom {
         return this === this.lastSibling;
     }
     get hasNoSiblings(): boolean {
+        // There is always at least one sibling, the 'first'
+        // atom, but we don't count it.
         return this.siblings.length === 1;
     }
     get leftSibling(): Atom {
@@ -766,7 +770,6 @@ export class Atom {
     }
 
     get hasChildren(): boolean {
-        // @todo array: account for colRow branches
         return this.branches && this.children.length > 0;
     }
     get firstChild(): Atom {
@@ -787,7 +790,6 @@ export class Atom {
      */
     get children(): Atom[] {
         if (this._children) return this._children;
-        // @todo array: add colrow branches
         const result = [];
         if (this.branches) {
             NAMED_BRANCHES.forEach((branch) => {

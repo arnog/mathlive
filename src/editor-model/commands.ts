@@ -111,7 +111,7 @@ export function wordBoundaryOffset(
  * than the current focus.
  * If `extend` is true, the selection will be extended. Otherwise, it is
  * collapsed, then moved.
- * @revisit: array
+ * @todo array
  */
 export function skip(
     model: ModelPrivate,

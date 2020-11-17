@@ -1,6 +1,7 @@
 import {
     Atom,
     Branch,
+    isColRowBranch,
     isNamedBranch,
     ToLatexOptions,
 } from '../core/atom-class';
@@ -47,14 +48,15 @@ type ArrayRow = {
 export class ArrayAtom extends Atom {
     array: Atom[][][];
     environmentName: string;
+    rowGaps: number[];
+    colFormat: Colspec[];
     arraystretch?: number;
     arraycolsep?: number;
     jot?: number;
-    rowGaps?: number[];
-    colFormat?: Colspec[];
     leftDelim?: string;
     rightDelim?: string;
     mathStyleName?: MathStyleName;
+
     constructor(
         envName: string,
         array: Atom[][][],
@@ -63,15 +65,53 @@ export class ArrayAtom extends Atom {
     ) {
         super('array');
         this.environmentName = envName;
+        // The array could be sparse, desparsify-it
+        // @todo
         this.array = array;
         this.rowGaps = rowGaps;
         if (options.mathStyleName) this.mathStyleName = options.mathStyleName;
         if (options.colFormat) this.colFormat = options.colFormat;
+        if (this.colFormat && this.colFormat.length === 0) {
+            this.colFormat = [{ align: 'l' }];
+        }
+        if (!this.colFormat) {
+            this.colFormat = [
+                { align: 'l' },
+                { align: 'l' },
+                { align: 'l' },
+                { align: 'l' },
+                { align: 'l' },
+                { align: 'l' },
+                { align: 'l' },
+                { align: 'l' },
+                { align: 'l' },
+                { align: 'l' },
+            ];
+        }
         if (options.leftDelim) this.leftDelim = options.leftDelim;
         if (options.rightDelim) this.rightDelim = options.rightDelim;
         if (options.jot) this.jot = options.jot;
         if (options.arraycolsep) this.arraycolsep = options.arraycolsep;
     }
+
+    branch(cell: Branch): Atom[] | null {
+        if (!isColRowBranch(cell)) return null;
+        return this.array[cell[0]][cell[1]];
+    }
+
+    createBranch(cell: Branch): Atom[] {
+        if (!isColRowBranch(cell)) return [];
+        return [];
+    }
+
+    get rowCount(): number {
+        return this.array.length;
+    }
+
+    get colCount(): number {
+        return this.array[0].length;
+    }
+
     removeBranch(name: Branch): Atom[] {
         if (isNamedBranch(name)) {
             return super.removeBranch(name);
@@ -88,27 +128,27 @@ export class ArrayAtom extends Atom {
         this.isDirty = true;
         return children;
     }
+
+    get hasChildren(): boolean {
+        return this.children.length > 0;
+    }
+
+    get children(): Atom[] {
+        let result = [];
+        this.array.forEach((row) => {
+            row.forEach((col) => {
+                col.forEach((x) => {
+                    result = [...result, ...x.children];
+                });
+            });
+        });
+        return [...result, ...super.children];
+    }
+
     render(context: Context): Span[] | null {
         // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
         // and http://tug.ctan.org/macros/latex/base/lttab.dtx
-        let colFormat = this.colFormat;
-        if (colFormat && colFormat.length === 0) {
-            colFormat = [{ align: 'l' }];
-        }
-        if (!colFormat) {
-            colFormat = [
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-                { align: 'l' },
-            ];
-        }
+        const colFormat = this.colFormat;
         // Fold the array so that there are no more columns of content than
         // there are columns prescribed by the column format.
         const array = [];
@@ -373,21 +413,6 @@ export class ArrayAtom extends Atom {
 
         return result;
     }
-    addChild(_child: Atom, _branch: Branch): void {
-        return;
-    }
-    addChildBefore(_child: Atom, _before: Atom): void {
-        return;
-    }
-    addChildAfter(_child: Atom, _after: Atom): void {
-        return;
-    }
-    addChildrenAfter(_children: Atom[], _after: Atom): Atom {
-        return null;
-    }
-    removeChild(_child: Atom): void {
-        return;
-    }
     getCell(row: number, col: number): Atom[] {
         return this.array[row][col];
     }
@@ -425,18 +450,6 @@ export class ArrayAtom extends Atom {
             });
         });
         return result;
-    }
-
-    get children(): Atom[] {
-        let result = [];
-        this.array.forEach((row) => {
-            row.forEach((col) => {
-                col.forEach((x) => {
-                    result = [...result, ...x.children];
-                });
-            });
-        });
-        return [...result, ...super.children];
     }
 }
 /**

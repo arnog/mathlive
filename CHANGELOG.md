@@ -23,11 +23,25 @@
     the fractions in the expression:
 
     ```javascript
-    mf.find(new RegExp(/^\\frac{[^}]_}{[^}]_}\$/)).forEach((x) =>
-        mf.applyStyle({backgroundColor: "yellow"}, x, {
-            suppressChangeNotifications: true
+    mf.find(/^\\frac{[^}]*}{[^}]*}\$/).forEach((x) => {
+        mf.applyStyle({ backgroundColor: 'yellow' }, x, {
+            suppressChangeNotifications: true,
         });
     });
+    ```
+
+-   **#387** `replace()` method to replace fragments of an expression.
+
+    This method is similar to the `replace()` method of the `String` class.
+    The search pattern can be specified using a string or regular expression, and
+    the replacement pattern can be a string or a function.
+    If using a regular expression, it can contain capture groups, and those
+    can be references in the replacement pattern.
+
+    The following snippet will invert fractions in a formula:
+
+    ```javascript
+    mf.replace(/^\\frac{([^}]*)}{([^}]*)}$/, '\\frac{$2}{$1}');
     ```
 
 -   New **Latex Mode**

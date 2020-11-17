@@ -9,6 +9,7 @@ import type {
     Selection,
     FindOptions,
     ApplyStyleOptions,
+    ReplacementFunction,
 } from '../public/mathfield';
 
 import { Atom } from '../core/atom-class';
@@ -27,7 +28,7 @@ import {
     SelectorPrivate,
     perform,
 } from '../editor/commands';
-import { find } from '../editor-model/find';
+import { find, replace } from '../editor-model/find';
 import { complete } from './autocomplete';
 import { requestUpdate } from './render';
 import {
@@ -903,11 +904,16 @@ export class MathfieldPrivate implements Mathfield {
         }
     }
 
-    /**
-     *
-     */
     find(value: string | RegExp, options: FindOptions): Range[] {
         return find(this.model, value, options);
+    }
+
+    replace(
+        searchValue: string | RegExp,
+        newValue: string | ReplacementFunction,
+        options?: FindOptions
+    ): void {
+        replace(this.model, searchValue, newValue, options);
     }
 
     /** @deprecated */

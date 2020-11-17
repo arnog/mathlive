@@ -1,6 +1,6 @@
 /* 0.59.0 */import { MathfieldOptions } from './options';
 import { Selector } from './commands';
-import { Mathfield, InsertOptions, OutputFormat, Offset, Range, Selection, FindOptions } from './mathfield';
+import { Mathfield, InsertOptions, OutputFormat, Offset, Range, Selection, FindOptions, ReplacementFunction } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
 /**
  * The `math-error` custom event signals an error while parsing an expression.
@@ -400,7 +400,16 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * An array is always returned, but it has no element if there are no
      * matching items.
      */
-    find(value: string | RegExp, options?: FindOptions): Range[];
+    find(pattern: string | RegExp, options?: FindOptions): Range[];
+    /**
+     * Replace the pattern items matching the **pattern** with the
+     * **replacement** value.
+     *
+     * If **replacement** is a function, the function is called
+     * for each match and the function return value will be
+     * used as the replacement.
+     */
+    replace(pattern: string | RegExp, replacement: string | ReplacementFunction, options?: FindOptions): void;
     /**
      * Custom elements lifecycle hooks
      * @internal
