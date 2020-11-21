@@ -106,7 +106,7 @@
         "less": "^3.12.2",
         "lint-staged": "^10.5.1",
         "postcss-cli": "^7.1.2",
-        "prettier": "^2.1.2",
+        "prettier": "^2.2.0",
         "rimraf": "^3.0.2",
         "rollup": "^2.33.2",
         "rollup-plugin-copy": "^3.3.0",
