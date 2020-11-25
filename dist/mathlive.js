@@ -5459,9 +5459,24 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         branch(name) {
             if (!isNamedBranch(name))
                 return null;
-            if (!this.branches)
+            if (!this._branches)
                 return null;
-            return this.branches[name];
+            return this._branches[name];
+        }
+        /**
+         * Return all the branches that exist.
+         * Some of them may be empty.
+         */
+        get branches() {
+            const result = [];
+            if (this._branches) {
+                NAMED_BRANCHES.forEach((x) => {
+                    if (this._branches[x]) {
+                        result.push(x);
+                    }
+                });
+            }
+            return result;
         }
         /**
          * Return the atoms in the branch, if it exists, otherwise create it
@@ -5470,16 +5485,16 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             console.assert(isNamedBranch(name));
             if (!isNamedBranch(name))
                 return [];
-            if (!this.branches) {
-                this.branches = {
+            if (!this._branches) {
+                this._branches = {
                     [name]: [this.makeFirstAtom(name)],
                 };
             }
-            else if (!this.branches[name]) {
-                this.branches[name] = [this.makeFirstAtom(name)];
+            else if (!this._branches[name]) {
+                this._branches[name] = [this.makeFirstAtom(name)];
             }
             this.isDirty = true;
-            return this.branches[name];
+            return this._branches[name];
         }
         get row() {
             if (!isColRowBranch(this.treeBranch))
@@ -5493,35 +5508,35 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         get body() {
             var _a;
-            return (_a = this.branches) === null || _a === void 0 ? void 0 : _a.body;
+            return (_a = this._branches) === null || _a === void 0 ? void 0 : _a.body;
         }
         set body(atoms) {
             this.setChildren(atoms, 'body');
         }
         get superscript() {
             var _a;
-            return (_a = this.branches) === null || _a === void 0 ? void 0 : _a.superscript;
+            return (_a = this._branches) === null || _a === void 0 ? void 0 : _a.superscript;
         }
         set superscript(atoms) {
             this.setChildren(atoms, 'superscript');
         }
         get subscript() {
             var _a;
-            return (_a = this.branches) === null || _a === void 0 ? void 0 : _a.subscript;
+            return (_a = this._branches) === null || _a === void 0 ? void 0 : _a.subscript;
         }
         set subscript(atoms) {
             this.setChildren(atoms, 'subscript');
         }
         get above() {
             var _a;
-            return (_a = this.branches) === null || _a === void 0 ? void 0 : _a.above;
+            return (_a = this._branches) === null || _a === void 0 ? void 0 : _a.above;
         }
         set above(atoms) {
             this.setChildren(atoms, 'above');
         }
         get below() {
             var _a;
-            return (_a = this.branches) === null || _a === void 0 ? void 0 : _a.below;
+            return (_a = this._branches) === null || _a === void 0 ? void 0 : _a.below;
         }
         set below(atoms) {
             this.setChildren(atoms, 'below');
@@ -5600,13 +5615,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 return;
             console.assert(((_a = children[0]) === null || _a === void 0 ? void 0 : _a.type) !== 'first');
             // Update the parent
-            if (!this.branches) {
-                this.branches = {
+            if (!this._branches) {
+                this._branches = {
                     [branch]: [this.makeFirstAtom(branch), ...children],
                 };
             }
             else {
-                this.branches[branch] = [this.makeFirstAtom(branch), ...children];
+                this._branches[branch] = [this.makeFirstAtom(branch), ...children];
             }
             this.isDirty = true;
             // Update the children
@@ -5666,7 +5681,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         removeBranch(name) {
             const children = this.branch(name);
             if (isNamedBranch(name)) {
-                this.branches[name] = null;
+                this._branches[name] = null;
             }
             children.forEach((x) => {
                 x.parent = null;
@@ -5725,7 +5740,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return siblings[siblings.indexOf(this) + 1];
         }
         get hasChildren() {
-            return this.branches && this.children.length > 0;
+            return this._branches && this.children.length > 0;
         }
         get firstChild() {
             console.assert(this.hasChildren);
@@ -5746,10 +5761,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (this._children)
                 return this._children;
             const result = [];
-            if (this.branches) {
+            if (this._branches) {
                 NAMED_BRANCHES.forEach((branch) => {
-                    if (this.branches[branch]) {
-                        this.branches[branch].forEach((x) => {
+                    if (this._branches[branch]) {
+                        this._branches[branch].forEach((x) => {
                             result.push(...x.children);
                             result.push(x);
                         });
@@ -5821,12 +5836,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const mathstyle = context.mathstyle;
             let supmid = null;
             let submid = null;
-            if (this.branches.superscript) {
-                const sup = Atom.render(context.sup(), this.branches.superscript);
+            if (this._branches.superscript) {
+                const sup = Atom.render(context.sup(), this._branches.superscript);
                 supmid = new Span(sup, mathstyle.adjustTo(mathstyle.sup()));
             }
-            if (this.branches.subscript) {
-                const sub = Atom.render(context.sub(), this.branches.subscript);
+            if (this._branches.subscript) {
+                const sub = Atom.render(context.sub(), this._branches.subscript);
                 submid = new Span(sub, mathstyle.adjustTo(mathstyle.sub()));
             }
             // Rule 18a, p445
@@ -9587,7 +9602,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         constructor(envName, array, rowGaps, options = {}) {
             super('array');
             this.environmentName = envName;
-            // The array could be sparse, desparsify-it
+            // The array could be sparse, desparsify-it.
+            // Each cell need to be inserted (with a 'first' atom)
             // @todo
             this.array = array;
             this.rowGaps = rowGaps;
@@ -9626,6 +9642,17 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 return null;
             return this.array[cell[0]][cell[1]];
         }
+        get branches() {
+            const result = super.branches;
+            this.array.forEach((_, col) => {
+                this.array[col].forEach((_, row) => {
+                    if (this.array[col][row]) {
+                        result.push([col, row]);
+                    }
+                });
+            });
+            return result;
+        }
         createBranch(cell) {
             if (!isColRowBranch(cell))
                 return [];
@@ -9657,11 +9684,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             return this.children.length > 0;
         }
         get children() {
-            let result = [];
+            const result = [];
             this.array.forEach((row) => {
                 row.forEach((col) => {
                     col.forEach((x) => {
-                        result = [...result, ...x.children];
+                        result.push(...x.children);
+                        result.push(x);
                     });
                 });
             });
@@ -25455,21 +25483,24 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         },
     });
     l10n.strings = STRINGS;
-    function localize(s) {
+    /**
+     * Return a localised string for the `key`.
+     */
+    function localize(key) {
         const language = l10n.locale.substring(0, 2);
         let result = '';
         // Attempt to find a match for the current locale
         if (l10n.strings[l10n.locale])
-            result = l10n.strings[l10n.locale][s];
+            result = l10n.strings[l10n.locale][key];
         // If none is found, attempt to find a match for the language
         if (!result && l10n.strings[language])
-            result = l10n.strings[language][s];
+            result = l10n.strings[language][key];
         // If none is found, try english
         if (!result)
-            result = l10n.strings['en'][s];
-        // If that didn't work, use the key...
+            result = l10n.strings['en'][key];
+        // If that didn't work, return undefined
         if (!result)
-            result = s;
+            return undefined;
         return result;
     }
 
@@ -25510,10 +25541,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         // If the mode doesn't match, ignore this atom
         if ((options === null || options === void 0 ? void 0 : options.mode) && options.mode !== atom.mode)
             return [];
-        return NAMED_BRANCHES.reduce((acc, x) => {
+        return atom.branches.reduce((acc, x) => {
             return [...acc, ...findInBranch(model, atom, x, value, options)];
         }, []);
-        // @todo array
     }
     function find(model, value, options) {
         return findInBranch(model, model.root, 'body', value, options).sort((a, b) => {
@@ -25595,8 +25625,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         // If the mode doesn't match, ignore this atom
         if ((options === null || options === void 0 ? void 0 : options.mode) && options.mode !== atom.mode)
             return;
-        NAMED_BRANCHES.forEach((x) => replaceInBranch(model, atom, x, pattern, replacement, options));
-        // @todo array
+        atom.branches.forEach((x) => replaceInBranch(model, atom, x, pattern, replacement, options));
     }
     function replace(model, pattern, replacement, options) {
         replaceInBranch(model, model.root, 'body', pattern, replacement, options);
@@ -27653,7 +27682,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
         }
         atoms.forEach((atom) => {
-            NAMED_BRANCHES.forEach((branch) => {
+            atom.branches.forEach((branch) => {
                 if (!atom.hasEmptyBranch(branch)) {
                     simplifyParen(atom.branch(branch));
                     const newChildren = removeParen(atom.branch(branch));
@@ -30600,7 +30629,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         showVirtualKeyboard: (mathfield, theme) => showVirtualKeyboard(mathfield, theme),
     }, { target: 'virtual-keyboard' });
 
-    var css_248z$2 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__latex-caret:after{content:\"_\";border:none;margin-right:calc(-1ex - 2px);position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:8px;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsla(0,0%,70%,.5);color:#333;fill:currentColor;border-radius:8px;border:1px solid hsla(0,0%,100%,.5)}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__latex{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__latex)+.ML__latex{margin-left:.25em}.ML__latex+:not(.ML__latex){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:8px;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;display:none;content:attr(data-ML__tooltip);top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{visibility:visible;display:inline-table;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
+    var css_248z$2 = "@-webkit-keyframes ML__caret-blink{0%,50%{opacity:0}to{opacity:1}}@keyframes ML__caret-blink{0%,50%{opacity:0}to{opacity:1}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__latex-caret:after{content:\"_\";border:none;margin-right:calc(-1ex - 2px);position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--secondary:hsl(var(--hue,212),19%,26%);--on-secondary:hsl(var(--hue,212),19%,26%)}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:8px;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsla(0,0%,70%,.5);color:#333;fill:currentColor;border-radius:8px;border:1px solid hsla(0,0%,100%,.5)}.ML__textarea__textarea{transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__latex{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__latex)+.ML__latex{margin-left:.25em}.ML__latex+:not(.ML__latex){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:8px;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;display:none;content:attr(data-ML__tooltip);top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{visibility:visible;display:inline-table;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
     var css_248z$3 = ".ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}div.ML__popover.is-visible{visibility:inherit;-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1)}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;padding:2px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px}.ML__popover__content a{color:#5ea6fd;padding-top:.3em;margin-top:.4em;display:block}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.active,.ML__popover__content.pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-size:1.6rem;font-family:KaTeX_Main}.ML__popover__prev-shortcut{height:31px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:4px;padding-bottom:2px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.active,.ML__popover__next-shortcut.pressed,.ML__popover__prev-shortcut.active,.ML__popover__prev-shortcut.pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{padding:5px;border-radius:8px;width:20px;height:20px;display:inline-block}.ML__popover__prev-shortcut>span>span{margin-top:-2px;display:block}.ML__popover__next-shortcut>span>span{margin-top:2px;display:block}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{height:34px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:2px;padding-bottom:4px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
 
@@ -31049,7 +31078,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 this.deleteKeypressSound = this.options.keypressSound
                     .delete;
             }
-            if (!this.options.readOnly) {
+            if (this.options.readOnly) {
                 this.onBlur();
             }
             // Changing some config options (i.e. `macros`) may
@@ -33540,12 +33569,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const slot = this.shadowRoot.querySelector('slot:not([name])');
             // When the elements get focused (through tabbing for example)
             // focus the mathfield
-            this.shadowRoot.host.addEventListener('focus', (_event) => this.focus(), true);
+            this.shadowRoot.host.addEventListener('focus', (_event) => { var _a; return (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.focus(); }, true);
+            this.shadowRoot.host.addEventListener('blur', (_event) => { var _a; return (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.blur(); }, true);
             // Inline options (as a JSON structure in the markup)
             try {
                 const json = slot
                     .assignedElements()
-                    .filter((x) => x['type'] !== 'application/json')
+                    .filter((x) => x['type'] === 'application/json')
                     .map((x) => x.textContent)
                     .join('');
                 if (json) {
@@ -33770,8 +33800,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          *
          */
         focus() {
-            var _a;
-            (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.focus();
+            super.focus();
+            // if (this.#mathfield) {
+            //     // Don't call this.#mathfield.focus(): it checks the focus state,
+            //     // but super.focus() just changed it...
+            //     this.#mathfield.keyboardDelegate.focus();
+            //     this.#mathfield.model.announce('line');
+            // }
         }
         /**
          * Remove the focus from the mathfield (will no longer respond to keyboard
@@ -33781,8 +33816,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          *
          */
         blur() {
-            var _a;
-            (_a = __classPrivateFieldGet(this, _mathfield)) === null || _a === void 0 ? void 0 : _a.blur();
+            super.blur();
+            // if (this.#mathfield) {
+            //     // Don't call this.#mathfield.focs(): it checks the focus state,
+            //     // but super.blur() just changed it...
+            //     this.#mathfield.keyboardDelegate.blur();
+            // }
         }
         /**
          * Select the content of the mathfield.
@@ -33998,9 +34037,16 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 __classPrivateFieldSet(this, _mathfield, null);
                 return;
             }
-            __classPrivateFieldGet(this, _mathfield).field.parentElement.addEventListener('focus', (_event) => {
-                this.focus();
-            }, true);
+            // this.#mathfield.field.parentElement.addEventListener(
+            //     'focus',
+            //     (_event) => this.#mathfield.focus(),
+            //     true
+            // );
+            // this.#mathfield.field.parentElement.addEventListener(
+            //     'blur',
+            //     (_event) => this.#mathfield.blur(),
+            //     true
+            // );
             if (gDeferredState.has(this)) {
                 __classPrivateFieldGet(this, _mathfield).model.deferNotifications({ content: false, selection: false }, () => {
                     __classPrivateFieldGet(this, _mathfield).setValue(gDeferredState.get(this).value);

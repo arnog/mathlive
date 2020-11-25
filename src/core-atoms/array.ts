@@ -65,7 +65,8 @@ export class ArrayAtom extends Atom {
     ) {
         super('array');
         this.environmentName = envName;
-        // The array could be sparse, desparsify-it
+        // The array could be sparse, desparsify-it.
+        // Each cell need to be inserted (with a 'first' atom)
         // @todo
         this.array = array;
         this.rowGaps = rowGaps;
@@ -97,6 +98,18 @@ export class ArrayAtom extends Atom {
     branch(cell: Branch): Atom[] | null {
         if (!isColRowBranch(cell)) return null;
         return this.array[cell[0]][cell[1]];
+    }
+
+    get branches(): Branch[] {
+        const result = super.branches;
+        this.array.forEach((_, col) => {
+            this.array[col].forEach((_, row) => {
+                if (this.array[col][row]) {
+                    result.push([col, row]);
+                }
+            });
+        });
+        return result;
     }
 
     createBranch(cell: Branch): Atom[] {
@@ -134,11 +147,12 @@ export class ArrayAtom extends Atom {
     }
 
     get children(): Atom[] {
-        let result = [];
+        const result = [];
         this.array.forEach((row) => {
             row.forEach((col) => {
                 col.forEach((x) => {
-                    result = [...result, ...x.children];
+                    result.push(...x.children);
+                    result.push(x);
                 });
             });
         });

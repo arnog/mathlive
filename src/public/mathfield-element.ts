@@ -378,7 +378,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         // focus the mathfield
         this.shadowRoot.host.addEventListener(
             'focus',
-            (_event) => this.focus(),
+            (_event) => this.#mathfield?.focus(),
+            true
+        );
+        this.shadowRoot.host.addEventListener(
+            'blur',
+            (_event) => this.#mathfield?.blur(),
             true
         );
 
@@ -386,7 +391,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         try {
             const json = slot
                 .assignedElements()
-                .filter((x) => x['type'] !== 'application/json')
+                .filter((x) => x['type'] === 'application/json')
                 .map((x) => x.textContent)
                 .join('');
             if (json) {
@@ -602,7 +607,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *
      */
     focus(): void {
-        this.#mathfield?.focus();
+        super.focus();
+        // if (this.#mathfield) {
+        //     // Don't call this.#mathfield.focus(): it checks the focus state,
+        //     // but super.focus() just changed it...
+        //     this.#mathfield.keyboardDelegate.focus();
+        //     this.#mathfield.model.announce('line');
+        // }
     }
     /**
      * Remove the focus from the mathfield (will no longer respond to keyboard
@@ -612,7 +623,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *
      */
     blur(): void {
-        this.#mathfield?.blur();
+        super.blur();
+        // if (this.#mathfield) {
+        //     // Don't call this.#mathfield.focs(): it checks the focus state,
+        //     // but super.blur() just changed it...
+        //     this.#mathfield.keyboardDelegate.blur();
+        // }
     }
 
     /**
@@ -881,13 +897,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             return;
         }
 
-        this.#mathfield.field.parentElement.addEventListener(
-            'focus',
-            (_event) => {
-                this.focus();
-            },
-            true
-        );
+        // this.#mathfield.field.parentElement.addEventListener(
+        //     'focus',
+        //     (_event) => this.#mathfield.focus(),
+        //     true
+        // );
+        // this.#mathfield.field.parentElement.addEventListener(
+        //     'blur',
+        //     (_event) => this.#mathfield.blur(),
+        //     true
+        // );
 
         if (gDeferredState.has(this)) {
             this.#mathfield.model.deferNotifications(

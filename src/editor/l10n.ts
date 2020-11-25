@@ -132,19 +132,22 @@ Object.defineProperty(l10n, 'cardinal', {
 
 l10n.strings = STRINGS;
 
-export function localize(s: string): string {
+/**
+ * Return a localised string for the `key`.
+ */
+export function localize(key: string): string {
     const language = l10n.locale.substring(0, 2);
 
     let result = '';
 
     // Attempt to find a match for the current locale
-    if (l10n.strings[l10n.locale]) result = l10n.strings[l10n.locale][s];
+    if (l10n.strings[l10n.locale]) result = l10n.strings[l10n.locale][key];
     // If none is found, attempt to find a match for the language
-    if (!result && l10n.strings[language]) result = l10n.strings[language][s];
+    if (!result && l10n.strings[language]) result = l10n.strings[language][key];
     // If none is found, try english
-    if (!result) result = l10n.strings['en'][s];
-    // If that didn't work, use the key...
-    if (!result) result = s;
+    if (!result) result = l10n.strings['en'][key];
+    // If that didn't work, return undefined
+    if (!result) return undefined;
 
     return result;
 }

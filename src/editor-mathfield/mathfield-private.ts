@@ -592,7 +592,7 @@ export class MathfieldPrivate implements Mathfield {
                 .delete as HTMLAudioElement;
         }
 
-        if (!this.options.readOnly) {
+        if (this.options.readOnly) {
             this.onBlur();
         }
         // Changing some config options (i.e. `macros`) may

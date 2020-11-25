@@ -29,7 +29,7 @@ export type Branch = BranchName | [row: number, col: number];
 /**
  * The order of these branches specify the keyboard navigation order
  */
-export const NAMED_BRANCHES: BranchName[] = [
+const NAMED_BRANCHES: BranchName[] = [
     'above',
     'body',
     'below',
@@ -139,7 +139,7 @@ export class Atom {
     treeBranch: Branch;
 
     value: string; // If no branches
-    private branches: Branches;
+    private _branches: Branches;
 
     // Used to match a DOM element to an Atom
     // (the corresponding DOM element has a `data-atom-id` attribute)
@@ -504,24 +504,41 @@ export class Atom {
      */
     branch(name: Branch): Atom[] | null {
         if (!isNamedBranch(name)) return null;
-        if (!this.branches) return null;
-        return this.branches[name];
+        if (!this._branches) return null;
+        return this._branches[name];
     }
+
+    /**
+     * Return all the branches that exist.
+     * Some of them may be empty.
+     */
+    get branches(): Branch[] {
+        const result = [];
+        if (this._branches) {
+            NAMED_BRANCHES.forEach((x) => {
+                if (this._branches[x]) {
+                    result.push(x);
+                }
+            });
+        }
+        return result;
+    }
+
     /**
      * Return the atoms in the branch, if it exists, otherwise create it
      */
     createBranch(name: Branch): Atom[] {
         console.assert(isNamedBranch(name));
         if (!isNamedBranch(name)) return [];
-        if (!this.branches) {
-            this.branches = {
+        if (!this._branches) {
+            this._branches = {
                 [name]: [this.makeFirstAtom(name)],
             };
-        } else if (!this.branches[name]) {
-            this.branches[name] = [this.makeFirstAtom(name)];
+        } else if (!this._branches[name]) {
+            this._branches[name] = [this.makeFirstAtom(name)];
         }
         this.isDirty = true;
-        return this.branches[name];
+        return this._branches[name];
     }
     get row(): number {
         if (!isColRowBranch(this.treeBranch)) return -1;
@@ -532,31 +549,31 @@ export class Atom {
         return this.treeBranch[1];
     }
     get body(): Atom[] {
-        return this.branches?.body;
+        return this._branches?.body;
     }
     set body(atoms: Atom[]) {
         this.setChildren(atoms, 'body');
     }
     get superscript(): Atom[] {
-        return this.branches?.superscript;
+        return this._branches?.superscript;
     }
     set superscript(atoms: Atom[]) {
         this.setChildren(atoms, 'superscript');
     }
     get subscript(): Atom[] {
-        return this.branches?.subscript;
+        return this._branches?.subscript;
     }
     set subscript(atoms: Atom[]) {
         this.setChildren(atoms, 'subscript');
     }
     get above(): Atom[] {
-        return this.branches?.above;
+        return this._branches?.above;
     }
     set above(atoms: Atom[]) {
         this.setChildren(atoms, 'above');
     }
     get below(): Atom[] {
-        return this.branches?.below;
+        return this._branches?.below;
     }
     set below(atoms: Atom[]) {
         this.setChildren(atoms, 'below');
@@ -636,12 +653,12 @@ export class Atom {
         console.assert(children[0]?.type !== 'first');
 
         // Update the parent
-        if (!this.branches) {
-            this.branches = {
+        if (!this._branches) {
+            this._branches = {
                 [branch]: [this.makeFirstAtom(branch), ...children],
             };
         } else {
-            this.branches[branch] = [this.makeFirstAtom(branch), ...children];
+            this._branches[branch] = [this.makeFirstAtom(branch), ...children];
         }
         this.isDirty = true;
 
@@ -709,7 +726,7 @@ export class Atom {
     removeBranch(name: Branch): Atom[] {
         const children = this.branch(name);
         if (isNamedBranch(name)) {
-            this.branches[name] = null;
+            this._branches[name] = null;
         }
         children.forEach((x) => {
             x.parent = null;
@@ -770,7 +787,7 @@ export class Atom {
     }
 
     get hasChildren(): boolean {
-        return this.branches && this.children.length > 0;
+        return this._branches && this.children.length > 0;
     }
     get firstChild(): Atom {
         console.assert(this.hasChildren);
@@ -791,10 +808,10 @@ export class Atom {
     get children(): Atom[] {
         if (this._children) return this._children;
         const result = [];
-        if (this.branches) {
+        if (this._branches) {
             NAMED_BRANCHES.forEach((branch) => {
-                if (this.branches[branch]) {
-                    this.branches[branch].forEach((x) => {
+                if (this._branches[branch]) {
+                    this._branches[branch].forEach((x) => {
                         result.push(...x.children);
                         result.push(x);
                     });
@@ -868,12 +885,12 @@ export class Atom {
         const mathstyle = context.mathstyle;
         let supmid = null;
         let submid = null;
-        if (this.branches.superscript) {
-            const sup = Atom.render(context.sup(), this.branches.superscript);
+        if (this._branches.superscript) {
+            const sup = Atom.render(context.sup(), this._branches.superscript);
             supmid = new Span(sup, mathstyle.adjustTo(mathstyle.sup()));
         }
-        if (this.branches.subscript) {
-            const sub = Atom.render(context.sub(), this.branches.subscript);
+        if (this._branches.subscript) {
+            const sub = Atom.render(context.sub(), this._branches.subscript);
             submid = new Span(sub, mathstyle.adjustTo(mathstyle.sub()));
         }
         // Rule 18a, p445

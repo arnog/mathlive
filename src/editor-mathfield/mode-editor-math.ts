@@ -6,7 +6,7 @@ import { range } from '../editor-model/selection-utils';
 import { ModeEditor } from './mode-editor';
 import { ModelPrivate } from '../editor-model/model-private';
 
-import { Atom, BranchName, NAMED_BRANCHES } from '../core/atom-class';
+import { Atom, BranchName } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 
 import { parseMathString } from '../editor/parse-math-string';
@@ -356,7 +356,7 @@ function simplifyParen(atoms: Atom[]): void {
     }
 
     atoms.forEach((atom) => {
-        NAMED_BRANCHES.forEach((branch: BranchName) => {
+        atom.branches.forEach((branch: BranchName) => {
             if (!atom.hasEmptyBranch(branch)) {
                 simplifyParen(atom.branch(branch));
                 const newChildren = removeParen(atom.branch(branch));

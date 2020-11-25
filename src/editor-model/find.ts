@@ -1,4 +1,4 @@
-import { Atom, Branch, NAMED_BRANCHES } from '../core/atom';
+import { Atom, Branch } from '../core/atom';
 import { parseLatex } from '../core/parser';
 import type {
     FindOptions,
@@ -59,11 +59,9 @@ function findInAtom(
     // If the mode doesn't match, ignore this atom
     if (options?.mode && options.mode !== atom.mode) return [];
 
-    return NAMED_BRANCHES.reduce((acc, x) => {
+    return atom.branches.reduce((acc, x) => {
         return [...acc, ...findInBranch(model, atom, x, value, options)];
     }, []);
-
-    // @todo array
 }
 
 export function find(
@@ -175,11 +173,9 @@ function replaceInAtom(
     // If the mode doesn't match, ignore this atom
     if (options?.mode && options.mode !== atom.mode) return;
 
-    NAMED_BRANCHES.forEach((x) =>
+    atom.branches.forEach((x) =>
         replaceInBranch(model, atom, x, pattern, replacement, options)
     );
-
-    // @todo array
 }
 export function replace(
     model: ModelPrivate,
