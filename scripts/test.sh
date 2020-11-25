@@ -12,6 +12,9 @@ VARIANT="${1-test}"
 
 export TEST="true"
 
+# Make a build
+npm run dist
+
 if [ "$VARIANT" = "coverage" ]; then
 #    npx jest test/math-json.test  --coverage
     npx jest   --coverage
