@@ -392,6 +392,19 @@ defineTabularEnvironment(
     }
 );
 
+defineTabularEnvironment(
+    'rcases',
+    '',
+    (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
+        return new ArrayAtom(name, array, rowGaps, {
+            arraystretch: 1.2,
+            leftDelim: '.',
+            rightDelim: '\\rbrace',
+            colFormat: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
+        });
+    }
+);
+
 // This is a text mode environment
 /*
 \begin{theorem}

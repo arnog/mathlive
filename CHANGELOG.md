@@ -67,6 +67,9 @@
     similarly to `fontsDirectory`.
 -   Enabled audio feedback by default.
 
+-   **#707** added support for `\begin{rcases}\end{rcases}` (reverse `cases`,
+    with brace trailing instead of leading)
+
 ### Bug Fixes
 
 -   The selection in an expression could render incorrectly if it was displayed
