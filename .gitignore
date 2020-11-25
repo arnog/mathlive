@@ -4,6 +4,7 @@
 /out
 /node_modules
 /coverage
+/dist
 
 babel.babel
 TODO.md
