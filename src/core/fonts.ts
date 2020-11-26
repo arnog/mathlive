@@ -123,10 +123,12 @@ export async function loadFonts(
                 )) as unknown) as FontFace[];
                 // Render them at the same time
                 loadedFonts.forEach((font) => document['fonts'].add(font));
-                document.body.classList.remove('ML__fonts-loading');
             } catch (err) {
                 console.error(err);
             }
+            // Event if an error occur, give up and pretend the fonts are
+            // loaded (displayign somehting is better than nothing)
+            document.body.classList.remove('ML__fonts-loading');
         }
     }
 }
