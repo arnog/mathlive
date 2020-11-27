@@ -111,8 +111,10 @@ registerCommand(
                         altContainer.style.height = '56px'; // 1 row
                     } else if (altKeys.length <= 12) {
                         altContainer.style.height = '108px'; // 2 rows
-                    } else {
+                    } else if (altKeys.length <= 18) {
                         altContainer.style.height = '205px'; // 3 rows
+                    } else {
+                        altContainer.classList.add('compact');
                     }
                 }
                 const top =
