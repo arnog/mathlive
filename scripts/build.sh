@@ -74,7 +74,7 @@ echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Declaration files built"
 printf "\033[32m ● \033[0m Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
 cp -f -R sounds dist/
-echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static assest copied"
+echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static assets copied"
 
 # Build CSS
 printf "\033[32m ● \033[0m Building static CSS"
