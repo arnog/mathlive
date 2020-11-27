@@ -32,6 +32,10 @@
     --keyboard-alternate-background-active: #e5e5e5;
     --keyboard-alternate-text: #000;
 
+    --keyboard-alternate-key-length: 70px;
+    --keyboard-alternate-key-font-size: 30px;
+    --keyboard-alternate-key-aside-font-size: 12px;
+
     position: fixed;
     left: 0;
     bottom: -267px;
@@ -123,6 +127,13 @@
         &.is-visible {
             visibility: visible;
         }
+
+        &.compact {
+            --keyboard-alternate-key-length: 50px;
+            --keyboard-alternate-key-font-size: 24px;
+            --keyboard-alternate-key-aside-font-size: 10px;
+        }
+
         ul {
             list-style: none;
             margin: 3px;
@@ -136,16 +147,17 @@
                 flex-flow: column;
                 align-items: center;
                 justify-content: center;
-                font-size: 30px;
+                font-size: var(--keyboard-alternate-key-font-size);
 
-                height: 70px;
-                width: 70px;
+                height: var(--keyboard-alternate-key-length);
+                width: var(--keyboard-alternate-key-length);
 
                 @media only screen and (max-height: 412px) {
                     font-size: 24px;
                     height: 50px;
                     width: 50px;
                 }
+
                 box-sizing: border-box;
                 margin: 0;
                 background: transparent;
@@ -199,7 +211,7 @@
                     }
                 }
                 aside {
-                    font-size: 12px;
+                    font-size: var(--keyboard-alternate-key-aside-font-size);
                     line-height: 12px;
                     opacity: 0.78;
                     padding-top: 2px;
