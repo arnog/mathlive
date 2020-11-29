@@ -36,6 +36,12 @@
     --keyboard-alternate-key-font-size: 30px;
     --keyboard-alternate-key-aside-font-size: 12px;
 
+    --keycap-height: 52px;
+    --keycap-font-size: 20px;
+    --keycap-small-font-size: calc(var(--keycap-font-size) * 0.9);
+    --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
+    --keycap-tt-font-size: calc(var(--keycap-font-size) * 1.5);
+
     position: fixed;
     left: 0;
     bottom: -267px;
@@ -68,7 +74,7 @@
     border: 1px solid var(--keyboard-background-border);
 
     font-family: @system;
-    font-size: 16px;
+    font-size: 16px; /* Size of toolbar labels */
     font-weight: 400;
 
     margin: 0;
@@ -92,7 +98,7 @@
     }
     .tt {
         font-family: @monospace !important;
-        font-size: 30px;
+        font-size: var(--keycap-tt-font-size, 30px);
         font-weight: 400;
     }
 
@@ -174,7 +180,7 @@
                     color: var(--keyboard-text-active);
                 }
                 &.small {
-                    font-size: 18px;
+                    font-size: var(--keycap-small-font-size, 18px);
                 }
                 &.small-button {
                     width: 42px;
@@ -357,7 +363,7 @@
 
                 color: var(--keycap-text);
                 fill: currentColor;
-                font-size: 20px;
+                font-size: var(--keycap-font-size, 20px);
                 background: var(--keycap-background);
                 border: 1px solid var(--keycap-background-border);
                 border-bottom-color: var(--keycap-background-border-bottom);
@@ -370,7 +376,7 @@
                 }
 
                 &.small {
-                    font-size: 16px;
+                    font-size: var(--keycap-small-font-size, 16px);
                 }
                 &.tt {
                     color: var(--keyboard-text-active);
@@ -490,8 +496,7 @@
                 -webkit-tap-highlight-color: transparent;
                 // z-index: 1;
                 // transition: .14s cubic-bezier(.4, 0, .2, 1);
-                &.fnbutton,
-                &.bigfnbutton {
+                &.fnbutton {
                     @media only screen and (max-width: 767px) {
                         font-size: 12px;
                     }
@@ -499,9 +504,11 @@
                     // max-width: 60px;
                 }
                 &.bigfnbutton {
-                    font-size: 14px;
+                    font-size: var(--keycap-extra-small-font-size, 14px);
                     @media only screen and (max-width: 767px) {
-                        font-size: 9px;
+                        font-size: calc(
+                            var(--keycap-extra-small-font-size, 14px) / 1.55
+                        );
                     }
                 }
                 &.modifier,
@@ -590,9 +597,9 @@
         /* Tablet size */
         @media only screen and (min-width: 768px) and (max-width: 1024px) {
             & > ul {
-                height: 52px;
+                height: var(--keycap-height, 52px);
                 & > li {
-                    height: 52px;
+                    height: var(--keycap-height, 52px);
                     width: 51px;
                     margin-right: 4px;
                 }
@@ -613,9 +620,9 @@
         /* Desktop size */
         @media only screen and (min-width: 1025px) {
             & > ul {
-                height: 52px;
+                height: var(--keycap-height, 52px);
                 & > li {
-                    height: 52px;
+                    height: var(--keycap-height, 52px);
                     width: 66px;
                     margin-right: 6px;
                 }
