@@ -163,6 +163,7 @@ type Keycode =
 type KeyboardLayout = {
     id: KeyboardLayoutId;
     displayName: string; // Doesn't have to be unique
+    virtualLayout: 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak';
     locale: string;
     platform: 'windows' | 'apple' | 'linux' | '';
     score: number;
@@ -174,6 +175,7 @@ const DEFAULT_KEYBOARD_LAYOUT: KeyboardLayout =
         ? {
               id: 'apple.en-intl',
               displayName: 'English (international)',
+              virtualLayout: 'qwerty',
               platform: 'apple',
               locale: 'en',
               score: 0,
@@ -251,6 +253,7 @@ const DEFAULT_KEYBOARD_LAYOUT: KeyboardLayout =
               id: 'windows.en-intl',
               displayName: 'English (international)',
               platform: 'windows',
+              virtualLayout: 'qwerty',
               locale: 'en',
               score: 0,
               mapping: {
@@ -313,6 +316,7 @@ const DEFAULT_KEYBOARD_LAYOUT: KeyboardLayout =
               id: 'linux.en',
               displayName: 'English',
               platform: 'linux',
+              virtualLayout: 'qwerty',
               locale: 'en',
               score: 0,
               mapping: {
@@ -608,6 +612,7 @@ register({
     locale: 'fr',
     displayName: 'French',
     platform: 'apple',
+    virtualLayout: 'azerty',
     score: 0,
     mapping: {
         KeyA: ['q', 'Q', '‡', 'Ω'],
@@ -673,6 +678,7 @@ register({
     locale: 'es',
     displayName: 'Spanish ISO',
     platform: 'apple',
+    virtualLayout: 'qwerty',
     score: 0,
     mapping: {
         KeyA: ['a', 'A', 'å', 'Å'],
@@ -747,6 +753,7 @@ register({
     locale: 'es',
     displayName: 'Spanish',
     platform: 'windows',
+    virtualLayout: 'qwerty',
     score: 0,
     mapping: {
         KeyA: ['a', 'A', '', ''],
@@ -810,6 +817,7 @@ register({
     locale: 'es',
     displayName: 'Spanish',
     platform: 'linux',
+    virtualLayout: 'qwerty',
     score: 0,
     mapping: {
         KeyA: ['a', 'A', 'æ', 'Æ'],
@@ -892,6 +900,7 @@ register({
     id: 'linux.french',
     locale: 'fr',
     displayName: 'French',
+    virtualLayout: 'azerty',
     platform: 'apple',
     score: 0,
     mapping: {
@@ -959,6 +968,7 @@ register({
     id: 'windows.french',
     locale: 'fr',
     displayName: 'French',
+    virtualLayout: 'azerty',
     platform: 'windows',
     score: 0,
     mapping: {
@@ -1023,6 +1033,7 @@ register({
     locale: 'de',
     displayName: 'German',
     platform: 'windows',
+    virtualLayout: 'qwertz',
     score: 0,
     mapping: {
         KeyA: ['a', 'A', '', ''],
@@ -1085,6 +1096,7 @@ register({
     id: 'apple.german',
     locale: 'de',
     displayName: 'German',
+    virtualLayout: 'qwertz',
     platform: 'apple',
     score: 0,
     mapping: {
@@ -1150,6 +1162,7 @@ register({
     id: 'dvorak',
     locale: 'en',
     displayName: 'Dvorak',
+    virtualLayout: 'dvorak',
     platform: '',
     score: 0,
     mapping: {

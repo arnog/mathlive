@@ -70,6 +70,16 @@
 -   **#707** added support for `\begin{rcases}\end{rcases}` (reverse `cases`,
     with brace trailing instead of leading)
 
+-   **#730** added new CSS variables to control the height of the virtual keyboard:
+    -   `--keycap-height`
+    -   `--keycap-font-size`
+    -   `--keycap-small-font-size` (only if needed)
+    -   `--keycap-extra-small-font-size` (only if needed)
+    -   `--keycap-tt-font-size` (only if needed)
+-   **#732** Support for Dvorak keyboard layout
+-   Synchronize the virtual keyboard layout (QWERTY, AZERTY, etc...) with the
+    physical keyboard layout.
+
 ### Bug Fixes
 
 -   The selection in an expression could render incorrectly if it was displayed

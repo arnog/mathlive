@@ -116,23 +116,7 @@ export function update(
                 result.strings = l10n.strings;
                 break;
             case 'virtualKeyboardLayout':
-                if (updates.virtualKeyboardLayout === 'auto') {
-                    result.virtualKeyboardLayout =
-                        {
-                            fr: 'azerty',
-                            be: 'azerty',
-                            al: 'qwertz',
-                            ba: 'qwertz',
-                            cz: 'qwertz',
-                            de: 'qwertz',
-                            hu: 'qwertz',
-                            sk: 'qwertz',
-                            ch: 'qwertz',
-                        }[l10n.locale.substring(0, 2)] ?? 'qwerty';
-                } else {
-                    result.virtualKeyboardLayout =
-                        updates.virtualKeyboardLayout;
-                }
+                result.virtualKeyboardLayout = updates.virtualKeyboardLayout;
                 break;
             case 'virtualKeyboardMode':
                 {

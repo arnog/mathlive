@@ -2,7 +2,7 @@ import { Atom } from '../core/atom';
 import { Span, makeStruts } from '../core/span';
 import { parseLatex } from '../core/parser';
 import { LINE_COLORS, AREA_COLORS } from '../core/color';
-import { localize as l10n } from './l10n';
+import { l10n as l10nOptions, localize as l10n } from './l10n';
 import { MATHSTYLES } from '../core/mathstyle';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
 import { releaseSharedElement } from '../editor-mathfield/utils';
@@ -16,6 +16,7 @@ import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
 // @ts-ignore
 import coreStylesheet from '../../css/core.less';
 import { VirtualKeyboardLayer } from '../public/options';
+import { getActiveKeyboardLayout } from './keyboard-layout';
 
 export class VirtualKeyboard {
     mathfield: MathfieldPrivate;
@@ -1189,9 +1190,31 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
             'upper-3': '^ZXCVBKM~',
         },
     };
-    const layout = ROWS[mf.options.virtualKeyboardLayout]
-        ? ROWS[mf.options.virtualKeyboardLayout]
-        : ROWS['qwerty'];
+    // Determine the layout of the virtual keyboard based on a
+    // detected physical keyboard layout, or the current locale
+    let layoutName = mf.options.virtualKeyboardLayout;
+    if (layoutName === 'auto') {
+        const activeLayout = getActiveKeyboardLayout();
+        if (activeLayout) {
+            layoutName = activeLayout.virtualLayout;
+        }
+        if (!layoutName || layoutName === 'auto') {
+            layoutName =
+                {
+                    fr: 'azerty',
+                    be: 'azerty',
+                    al: 'qwertz',
+                    ba: 'qwertz',
+                    cz: 'qwertz',
+                    de: 'qwertz',
+                    hu: 'qwertz',
+                    sk: 'qwertz',
+                    ch: 'qwertz',
+                }[l10nOptions.locale.substring(0, 2)] ?? 'qwerty';
+        }
+    }
+
+    const layout = ROWS[layoutName] ?? ROWS['qwerty'];
 
     let result = layer;
     let row;
