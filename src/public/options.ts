@@ -880,21 +880,23 @@ export type MathfieldConfig = MathfieldOptions;
  *
  *  | Name | Platform | Display name |
  *  | :----- | :----- | :----- |
- *  | `'apple.en-intl'`         |  Apple | English (International) |
- *  | `'apple.french'`          |  Apple | French (AZERTY) |
- *  | `'apple.german'`          |  Apple | German (QWERTZ) |
- *  | `'windows.en-intl'`       |  Windows | English (International) |
- *  | `'windows.french'`        |  Windows | French (AZERTY) |
- *  | `'windows.german'`          |  Windows | German (QWERTZ) |
- *  | `'linux.en'`              |  Linux | English |
- *  | `'linux.french'`          |  Linux | French (AZERTY) |
- *  | `'linux.german'`          |  Linux | German (QWERTZ) |
+ *  | `'apple.en-intl'`         |  Apple    | English (International) |
+ *  | `'apple.french'`          |  Apple    | French (AZERTY) |
+ *  | `'apple.german'`          |  Apple    | German (QWERTZ) |
+ *  | `'dvorak'`                |           | English (Dvorak) |
+ *  | `'windows.en-intl'`       |  Windows  | English (International) |
+ *  | `'windows.french'`        |  Windows  | French (AZERTY) |
+ *  | `'windows.german'`        |  Windows  | German (QWERTZ) |
+ *  | `'linux.en'`              |  Linux    | English |
+ *  | `'linux.french'`          |  Linux    | French (AZERTY) |
+ *  | `'linux.german'`          |  Linux    | German (QWERTZ) |
  */
 export type KeyboardLayoutName =
     | 'apple.en-intl'
     | 'apple.french'
     | 'apple.german'
     | 'apple.spanish'
+    | 'dvorak'
     | 'windows.en-intl'
     | 'windows.french'
     | 'windows.german'
