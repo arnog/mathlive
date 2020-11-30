@@ -422,6 +422,8 @@ function setPopoverPosition(
 
 export function hidePopover(mf: MathfieldPrivate): void {
     mf.suggestionIndex = 0;
-    mf.popover.classList.remove('is-visible');
-    mf.popover.innerHTML = '';
+    if (mf.popover) {
+        mf.popover.classList.remove('is-visible');
+        mf.popover.innerHTML = '';
+    }
 }

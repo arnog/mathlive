@@ -11,6 +11,127 @@ import { getSharedElement } from '../editor-mathfield/utils';
 import { register as registerCommand } from './commands';
 import { on } from '../editor-mathfield/utils';
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+
+export { unshiftKeyboardLayer };
+export { hideAlternateKeys };
+
+export function showAlternateKeys(
+    mathfield: MathfieldPrivate,
+    keycap,
+    altKeys
+) {
+    const altContainer = getSharedElement(
+        'mathlive-alternate-keys-panel',
+        'ML__keyboard alternate-keys'
+    );
+    if (mathfield.virtualKeyboard?.element.classList.contains('material')) {
+        altContainer.classList.add('material');
+    }
+    if (altKeys.length >= 7) {
+        // Width 4
+        altContainer.style.width = '286px';
+    } else if (altKeys.length === 4 || altKeys.length === 2) {
+        // Width 2
+        altContainer.style.width = '146px';
+    } else if (altKeys.length === 1) {
+        // Width 1
+        altContainer.style.width = '86px';
+    } else {
+        // Width 3
+        altContainer.style.width = '146px';
+    }
+    // Reset container height
+    altContainer.style.height = 'auto';
+    let markup = '';
+    for (const altKey of altKeys) {
+        markup += '<li';
+        if (typeof altKey === 'string') {
+            markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
+        } else {
+            if (altKey.latex) {
+                markup +=
+                    ' data-latex="' +
+                    altKey.latex.replace(/"/g, '&quot;') +
+                    '"';
+            }
+            if (altKey.content) {
+                markup +=
+                    ' data-content="' +
+                    altKey.content.replace(/"/g, '&quot;') +
+                    '"';
+            }
+            if (altKey.insert) {
+                markup +=
+                    ' data-insert="' +
+                    altKey.insert.replace(/"/g, '&quot;') +
+                    '"';
+            }
+            if (altKey.command) {
+                markup +=
+                    " data-command='" +
+                    altKey.command.replace(/"/g, '&quot;') +
+                    "'";
+            }
+            if (altKey.aside) {
+                markup +=
+                    ' data-aside="' +
+                    altKey.aside.replace(/"/g, '&quot;') +
+                    '"';
+            }
+            if (altKey.classes) {
+                markup += ' data-classes="' + altKey.classes + '"';
+            }
+        }
+        markup += '>';
+        markup += altKey.label || '';
+        markup += '</li>';
+    }
+    markup = '<ul>' + markup + '</ul>';
+    altContainer.innerHTML = mathfield.options.createHTML(markup);
+    makeKeycap(
+        mathfield,
+        [].slice.call(altContainer.getElementsByTagName('li')),
+        'performAlternateKeys'
+    );
+    const keycapEl = mathfield.virtualKeyboard?.element.querySelector(
+        'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
+            keycap +
+            '"]'
+    );
+    const position = keycapEl.getBoundingClientRect();
+    if (position) {
+        if (position.top - altContainer.clientHeight < 0) {
+            // altContainer.style.maxWidth = '320px';  // Up to six columns
+            altContainer.style.width = 'auto';
+            if (altKeys.length <= 6) {
+                altContainer.style.height = '56px'; // 1 row
+            } else if (altKeys.length <= 12) {
+                altContainer.style.height = '108px'; // 2 rows
+            } else if (altKeys.length <= 18) {
+                altContainer.style.height = '205px'; // 3 rows
+            } else {
+                altContainer.classList.add('compact');
+            }
+        }
+        const top =
+            (position.top - altContainer.clientHeight + 5).toString() + 'px';
+        const left =
+            Math.max(
+                0,
+                Math.min(
+                    window.innerWidth - altContainer.offsetWidth,
+                    (position.left +
+                        position.right -
+                        altContainer.offsetWidth) /
+                        2
+                )
+            ) + 'px';
+        altContainer.style.transform = 'translate(' + left + ',' + top + ')';
+        altContainer.classList.add('is-visible');
+    }
+    return false;
+}
+
 /*
  * Alternate options are displayed when a key on the virtual keyboard is pressed
  * and held.
@@ -18,125 +139,7 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
  */
 registerCommand(
     {
-        showAlternateKeys: (mathfield: MathfieldPrivate, keycap, altKeys) => {
-            const altContainer = getSharedElement(
-                'mathlive-alternate-keys-panel',
-                'ML__keyboard alternate-keys'
-            );
-            if (
-                mathfield.virtualKeyboard?.element.classList.contains(
-                    'material'
-                )
-            ) {
-                altContainer.classList.add('material');
-            }
-            if (altKeys.length >= 7) {
-                // Width 4
-                altContainer.style.width = '286px';
-            } else if (altKeys.length === 4 || altKeys.length === 2) {
-                // Width 2
-                altContainer.style.width = '146px';
-            } else if (altKeys.length === 1) {
-                // Width 1
-                altContainer.style.width = '86px';
-            } else {
-                // Width 3
-                altContainer.style.width = '146px';
-            }
-            // Reset container height
-            altContainer.style.height = 'auto';
-            let markup = '';
-            for (const altKey of altKeys) {
-                markup += '<li';
-                if (typeof altKey === 'string') {
-                    markup +=
-                        ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
-                } else {
-                    if (altKey.latex) {
-                        markup +=
-                            ' data-latex="' +
-                            altKey.latex.replace(/"/g, '&quot;') +
-                            '"';
-                    }
-                    if (altKey.content) {
-                        markup +=
-                            ' data-content="' +
-                            altKey.content.replace(/"/g, '&quot;') +
-                            '"';
-                    }
-                    if (altKey.insert) {
-                        markup +=
-                            ' data-insert="' +
-                            altKey.insert.replace(/"/g, '&quot;') +
-                            '"';
-                    }
-                    if (altKey.command) {
-                        markup +=
-                            " data-command='" +
-                            altKey.command.replace(/"/g, '&quot;') +
-                            "'";
-                    }
-                    if (altKey.aside) {
-                        markup +=
-                            ' data-aside="' +
-                            altKey.aside.replace(/"/g, '&quot;') +
-                            '"';
-                    }
-                    if (altKey.classes) {
-                        markup += ' data-classes="' + altKey.classes + '"';
-                    }
-                }
-                markup += '>';
-                markup += altKey.label || '';
-                markup += '</li>';
-            }
-            markup = '<ul>' + markup + '</ul>';
-            altContainer.innerHTML = mathfield.options.createHTML(markup);
-            makeKeycap(
-                mathfield,
-                [].slice.call(altContainer.getElementsByTagName('li')),
-                'performAlternateKeys'
-            );
-            const keycapEl = mathfield.virtualKeyboard?.element.querySelector(
-                'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
-                    keycap +
-                    '"]'
-            );
-            const position = keycapEl.getBoundingClientRect();
-            if (position) {
-                if (position.top - altContainer.clientHeight < 0) {
-                    // altContainer.style.maxWidth = '320px';  // Up to six columns
-                    altContainer.style.width = 'auto';
-                    if (altKeys.length <= 6) {
-                        altContainer.style.height = '56px'; // 1 row
-                    } else if (altKeys.length <= 12) {
-                        altContainer.style.height = '108px'; // 2 rows
-                    } else if (altKeys.length <= 18) {
-                        altContainer.style.height = '205px'; // 3 rows
-                    } else {
-                        altContainer.classList.add('compact');
-                    }
-                }
-                const top =
-                    (position.top - altContainer.clientHeight + 5).toString() +
-                    'px';
-                const left =
-                    Math.max(
-                        0,
-                        Math.min(
-                            window.innerWidth - altContainer.offsetWidth,
-                            (position.left +
-                                position.right -
-                                altContainer.offsetWidth) /
-                                2
-                        )
-                    ) + 'px';
-                altContainer.style.transform =
-                    'translate(' + left + ',' + top + ')';
-                altContainer.classList.add('is-visible');
-            }
-            return false;
-        },
+        showAlternateKeys: showAlternateKeys,
     },
     { target: 'virtual-keyboard' }
 );
@@ -152,7 +155,9 @@ export function switchKeyboardLayer(
             layer !== 'symbols-command'
         ) {
             // If we switch to a non-command keyboard layer, first exit command mode.
-            complete(mathfield, 'accept');
+            if (!(mathfield.options as any).skipComplete) {
+                complete(mathfield, 'accept');
+            }
         }
         showVirtualKeyboard(mathfield);
         // If the alternate keys panel was visible, hide it
@@ -187,70 +192,71 @@ export function switchKeyboardLayer(
     return true;
 }
 
+export function shiftKeyboardLayer(mathfield: MathfieldPrivate) {
+    const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(
+        'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
+    );
+    if (keycaps) {
+        for (let i = 0; i < keycaps.length; i++) {
+            const keycap = keycaps[i];
+            let shiftedContent = keycap.getAttribute('data-shifted');
+            if (shiftedContent || /^[a-z]$/.test(keycap.innerHTML)) {
+                keycap.setAttribute('data-unshifted-content', keycap.innerHTML);
+                if (!shiftedContent) {
+                    shiftedContent = keycap.innerHTML.toUpperCase();
+                }
+                keycap.innerHTML = mathfield.options.createHTML(shiftedContent);
+                const command = keycap.getAttribute(
+                    'data-' + mathfield.options.namespace + 'command'
+                );
+                if (command) {
+                    keycap.setAttribute('data-unshifted-command', command);
+                    const shifteCommand = keycap.getAttribute(
+                        'data-shifted-command'
+                    );
+                    if (shifteCommand) {
+                        keycap.setAttribute(
+                            'data-' + mathfield.options.namespace + 'command',
+                            shifteCommand
+                        );
+                    } else {
+                        const commandObj = JSON.parse(command);
+                        if (isArray(commandObj)) {
+                            commandObj[1] = commandObj[1].toUpperCase();
+                        }
+                        keycap.setAttribute(
+                            'data-' + mathfield.options.namespace + 'command',
+                            JSON.stringify(commandObj)
+                        );
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 /*
  * Temporarily change the labels and the command of the keys
  * (for example when a modifier key is held down.)
  */
 registerCommand(
     {
-        shiftKeyboardLayer: (mathfield: MathfieldPrivate) => {
-            const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(
-                'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
-            );
-            if (keycaps) {
-                for (let i = 0; i < keycaps.length; i++) {
-                    const keycap = keycaps[i];
-                    let shiftedContent = keycap.getAttribute('data-shifted');
-                    if (shiftedContent || /^[a-z]$/.test(keycap.innerHTML)) {
-                        keycap.setAttribute(
-                            'data-unshifted-content',
-                            keycap.innerHTML
-                        );
-                        if (!shiftedContent) {
-                            shiftedContent = keycap.innerHTML.toUpperCase();
-                        }
-                        keycap.innerHTML = mathfield.options.createHTML(
-                            shiftedContent
-                        );
-                        const command = keycap.getAttribute(
-                            'data-' + mathfield.options.namespace + 'command'
-                        );
-                        if (command) {
-                            keycap.setAttribute(
-                                'data-unshifted-command',
-                                command
-                            );
-                            const shifteCommand = keycap.getAttribute(
-                                'data-shifted-command'
-                            );
-                            if (shifteCommand) {
-                                keycap.setAttribute(
-                                    'data-' +
-                                        mathfield.options.namespace +
-                                        'command',
-                                    shifteCommand
-                                );
-                            } else {
-                                const commandObj = JSON.parse(command);
-                                if (isArray(commandObj)) {
-                                    commandObj[1] = commandObj[1].toUpperCase();
-                                }
-                                keycap.setAttribute(
-                                    'data-' +
-                                        mathfield.options.namespace +
-                                        'command',
-                                    JSON.stringify(commandObj)
-                                );
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        },
+        shiftKeyboardLayer: shiftKeyboardLayer,
     },
     { target: 'virtual-keyboard' }
 );
+
+export function performAlternateKeys(mathfield: MathfieldPrivate, command) {
+    hideAlternateKeys();
+    return mathfield.executeCommand(command);
+}
+
+export function insertAndUnshiftKeyboardLayer(mathfield: MathfieldPrivate, c) {
+    mathfield.insert(c);
+    unshiftKeyboardLayer(mathfield);
+    return true;
+}
 
 registerCommand(
     {
@@ -261,63 +267,59 @@ registerCommand(
          * We need to hide the Alternate Keys panel, then perform the
          * command.
          */
-        performAlternateKeys: (mathfield: MathfieldPrivate, command) => {
-            hideAlternateKeys();
-            return mathfield.executeCommand(command);
-        },
+        performAlternateKeys: performAlternateKeys,
         switchKeyboardLayer: (mathfield: MathfieldPrivate, layer) =>
             switchKeyboardLayer(mathfield, layer),
         unshiftKeyboardLayer: (mathfield: MathfieldPrivate) =>
             unshiftKeyboardLayer(mathfield),
-
-        insertAndUnshiftKeyboardLayer: (mathfield: MathfieldPrivate, c) => {
-            mathfield.insert(c);
-            unshiftKeyboardLayer(mathfield);
-            return true;
-        },
+        insertAndUnshiftKeyboardLayer: insertAndUnshiftKeyboardLayer,
     },
     { target: 'virtual-keyboard' }
 );
 
+export function toggleVirtualKeyboardAlt(mathfield: MathfieldPrivate) {
+    let hadAltTheme = false;
+    if (mathfield.virtualKeyboard?.element) {
+        hadAltTheme = mathfield.virtualKeyboard?.element.classList.contains(
+            'material'
+        );
+        mathfield.virtualKeyboard.dispose();
+        delete mathfield.virtualKeyboard;
+    }
+    showVirtualKeyboard(mathfield, hadAltTheme ? '' : 'material');
+    return false;
+}
+
+export function toggleVirtualKeyboardShift(mathfield: MathfieldPrivate) {
+    mathfield.options.virtualKeyboardLayout = {
+        qwerty: 'azerty',
+
+        azerty: 'qwertz',
+        qwertz: 'dvorak',
+        dvorak: 'colemak',
+        colemak: 'qwerty',
+    }[mathfield.options.virtualKeyboardLayout];
+    const layer =
+        mathfield.virtualKeyboard?.element.querySelector(
+            'div.keyboard-layer.is-visible'
+        ).id ?? '';
+    if (mathfield.virtualKeyboard) {
+        mathfield.virtualKeyboard.dispose();
+        delete mathfield.virtualKeyboard;
+    }
+    showVirtualKeyboard(mathfield);
+    if (layer) {
+        switchKeyboardLayer(mathfield, layer);
+    }
+    return false;
+}
+
 registerCommand(
     {
         /* Toggle the virtual keyboard, but switch to the alternate theme if available */
-        toggleVirtualKeyboardAlt: (mathfield: MathfieldPrivate) => {
-            let hadAltTheme = false;
-            if (mathfield.virtualKeyboard?.element) {
-                hadAltTheme = mathfield.virtualKeyboard?.element.classList.contains(
-                    'material'
-                );
-                mathfield.virtualKeyboard.dispose();
-                delete mathfield.virtualKeyboard;
-            }
-            showVirtualKeyboard(mathfield, hadAltTheme ? '' : 'material');
-            return false;
-        },
+        toggleVirtualKeyboardAlt: toggleVirtualKeyboardAlt,
         /** Toggle the virtual keyboard, but switch another keyboard layout */
-        toggleVirtualKeyboardShift: (mathfield: MathfieldPrivate) => {
-            mathfield.options.virtualKeyboardLayout = {
-                qwerty: 'azerty',
-
-                azerty: 'qwertz',
-                qwertz: 'dvorak',
-                dvorak: 'colemak',
-                colemak: 'qwerty',
-            }[mathfield.options.virtualKeyboardLayout];
-            const layer =
-                mathfield.virtualKeyboard?.element.querySelector(
-                    'div.keyboard-layer.is-visible'
-                ).id ?? '';
-            if (mathfield.virtualKeyboard) {
-                mathfield.virtualKeyboard.dispose();
-                delete mathfield.virtualKeyboard;
-            }
-            showVirtualKeyboard(mathfield);
-            if (layer) {
-                switchKeyboardLayer(mathfield, layer);
-            }
-            return false;
-        },
+        toggleVirtualKeyboardShift: toggleVirtualKeyboardShift,
     },
     { target: 'virtual-keyboard' }
 );

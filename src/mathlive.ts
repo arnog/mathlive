@@ -320,11 +320,17 @@ export const debug = {
     getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
 };
 
+import { makeKeyboard } from './editor/virtual-keyboard-utils';
+import * as virtualKeyboardCommands from './editor/virtual-keyboard-commands';
+
 export default {
     version: (): string => {
         deprecated('export default version');
         return version;
     },
+    makeKeyboard: makeKeyboard,
+    virtualKeyboardCommands: virtualKeyboardCommands,
+    MACROS,
     latexToMarkup: (
         text: string,
         options?: {

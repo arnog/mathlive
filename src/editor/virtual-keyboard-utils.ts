@@ -17,6 +17,7 @@ import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
 import coreStylesheet from '../../css/core.less';
 import { VirtualKeyboardLayer } from '../public/options';
 import { getActiveKeyboardLayout } from './keyboard-layout';
+import { loadFonts } from '../core/fonts';
 
 export class VirtualKeyboard {
     mathfield: MathfieldPrivate;
@@ -1382,6 +1383,8 @@ export function makeKeyboard(
     let markup = svgIcons;
 
     injectStylesheet(null, virtualKeyboardStylesheet);
+
+    loadFonts(mf.options.fontsDirectory);
     injectStylesheet(null, coreStylesheet);
 
     // Auto-populate the ALT_KEYS table
