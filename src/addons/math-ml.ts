@@ -29,13 +29,9 @@ const SPECIAL_OPERATORS = {
     '\\hat': '&#x005e;',
 };
 
-const HEXADECIMAL_SYMBOLS = {
-    applyFunction: '&#x2061;',
-};
+const APPLY_FUNCTION: string = '&#x2061;';
 
-const DECIMAL_SYMBOLS = {
-    invisibleTimes: '&#8290;',
-};
+const INVISIBLE_TIMES: string = '&#8290;';
 
 function xmlEscape(str: string): string {
     return (
@@ -159,11 +155,11 @@ function scanIdentifier(stream, final, options) {
                 stream.lastType === 'fence') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)
         ) {
-            mathML = `<mo>${DECIMAL_SYMBOLS.invisibleTimes}</mo>${mathML}`; // &InvisibleTimes;
+            mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
         }
 
         if (body.endsWith('>f</mi>') || body.endsWith('>g</mi>')) {
-            mathML += `<mo>${HEXADECIMAL_SYMBOLS.applyFunction}</mo>`; // &ApplyFunction;
+            mathML += `<mo>${APPLY_FUNCTION}</mo>`; // &ApplyFunction;
             stream.lastType = 'applyfunction';
         } else {
             stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
@@ -378,7 +374,7 @@ function scanFence(stream, final, options) {
                 stream.lastType === 'mfrac' ||
                 stream.lastType === 'fence'
             ) {
-                mathML = `<mo>${DECIMAL_SYMBOLS.invisibleTimes}</mo>${mathML}`; // &InvisibleTimes;
+                mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
             }
             stream.index = closeIndex + 1;
 
@@ -471,7 +467,7 @@ function scanOperator(stream, final, options) {
             }
             stream.index -= 1;
             if (!isUnit && !/^<mo>(.*)<\/mo>$/.test(op)) {
-                mathML += `<mo>${HEXADECIMAL_SYMBOLS.applyFunction}</mo>`; // APPLY FUNCTION
+                mathML += `<mo>${APPLY_FUNCTION}</mo>`; // APPLY FUNCTION
                 // mathML += scanArgument(stream);
                 lastType = 'applyfunction';
             } else {
@@ -484,7 +480,7 @@ function scanOperator(stream, final, options) {
             (stream.lastType === 'mi' || stream.lastType === 'mn') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)
         ) {
-            mathML = `<mo>${DECIMAL_SYMBOLS.invisibleTimes}</mo>${mathML}`; // &InvisibleTimes;
+            mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
         }
         stream.index += 1;
     }
