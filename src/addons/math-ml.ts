@@ -484,7 +484,7 @@ function scanOperator(stream, final, options) {
             (stream.lastType === 'mi' || stream.lastType === 'mn') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)
         ) {
-            mathML = '<mo>&#8290;</mo>' + mathML; // &InvisibleTimes;
+            mathML = `<mo>${DECIMAL_SYMBOLS.invisibleTimes}</mo>${mathML}`; // &InvisibleTimes;
         }
         stream.index += 1;
     }
