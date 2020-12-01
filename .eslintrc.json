@@ -233,13 +233,7 @@
         // (they are turned on later in the "overrides" section)
         "@typescript-eslint/explicit-module-boundary-types": "off",
 
-        // We use @ts-ignore to generate the .d.ts files using tsc, even though
-        // they import .less file which tsc doesn't know to handle.
-        "@typescript-eslint/ban-ts-comment": "off",
-
-        // When used with optional chaining, eslint can give an incorrect warning
         "no-unused-expressions": "off",
-        "@typescript-eslint/no-unused-expressions": "warn",
 
         "prettier/prettier": [
             "error",
@@ -256,17 +250,7 @@
         // "no-undef": "warn",
         "no-unreachable": "warn",
         "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-        "@typescript-eslint/no-unused-vars": [
-            "error",
-            {
-                "argsIgnorePattern": "^_"
-                // "varsIgnorePattern": "^_",
-                // "vars": "all",
-                // "args": "after-used",
-                // "ignoreRestSiblings": false
-            }
-        ],
-
+        "@typescript-eslint/no-unused-vars": "off",
         "constructor-super": "warn",
 
         "block-scoped-var": "error",
@@ -312,7 +296,23 @@
             // Typescript-specific rules
             "files": ["*.ts"],
             "rules": {
-                // "@typescript-eslint/prefer-optional-chain": "warn",
+                "@typescript-eslint/no-unused-vars": [
+                    "error",
+                    {
+                        "argsIgnorePattern": "^_"
+                        // "varsIgnorePattern": "^_",
+                        // "vars": "all",
+                        // "args": "after-used",
+                        // "ignoreRestSiblings": false
+                    }
+                ],
+                // We use @ts-ignore to generate the .d.ts files using tsc, even though
+                // they import .less file which tsc doesn't know to handle.
+                "@typescript-eslint/ban-ts-comment": "off",
+
+                // When used with optional chaining, eslint can give an incorrect warning
+                "@typescript-eslint/no-unused-expressions": "warn",
+                "@typescript-eslint/prefer-optional-chain": "warn",
                 "@typescript-eslint/prefer-nullish-coalescing": "warn",
 
                 "@typescript-eslint/naming-convention": [

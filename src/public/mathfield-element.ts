@@ -105,6 +105,7 @@ declare global {
      * Map the custom event names to types
      * @internal
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface DocumentEventMap {
         ['math-error']: CustomEvent<MathErrorEvent>;
         ['keystroke']: CustomEvent<KeystrokeEvent>;
@@ -1165,6 +1166,7 @@ export default MathfieldElement;
 
 declare global {
     /** @internal */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Window {
         MathfieldElement: typeof MathfieldElement;
     }

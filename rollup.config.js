@@ -169,7 +169,7 @@ const ROLLUP = [
             }),
             resolve({
                 customResolveOptions: {
-                    moduleDirectory: 'submodules/math-json/src',
+                    moduleDirectories: ['submodules/math-json/src'],
                 },
             }),
             typescript(TYPESCRIPT_OPTIONS),
@@ -211,10 +211,10 @@ const ROLLUP = [
 // MathLive Vue-js adapter
 ROLLUP.push({
     input: 'src/vue-mathlive.js',
-    plugins: [terser(TERSER_OPTIONS)],
+    plugins: [PRODUCTION && terser(TERSER_OPTIONS)],
     output: {
         // JavaScript native module
-        sourcemap: false,
+        sourcemap: !PRODUCTION,
         file: 'dist/vue-mathlive.mjs',
         format: 'es',
     },

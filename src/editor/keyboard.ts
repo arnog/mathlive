@@ -428,7 +428,7 @@ export function delegateKeyboardEvents(
 
 function deepActiveElement(): Element | null {
     let a = document.activeElement;
-    while (a && a.shadowRoot && a.shadowRoot.activeElement) {
+    while (a?.shadowRoot?.activeElement) {
         a = a.shadowRoot.activeElement;
     }
     return a;
