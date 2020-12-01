@@ -29,6 +29,10 @@ const SPECIAL_OPERATORS = {
     '\\hat': '&#x005e;',
 };
 
+const APPLY_FUNCTION: string = '&#x2061;';
+
+const INVISIBLE_TIMES: string = '&#8290;';
+
 function xmlEscape(str: string): string {
     return (
         str
@@ -151,11 +155,11 @@ function scanIdentifier(stream, final, options) {
                 stream.lastType === 'fence') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)
         ) {
-            mathML = '<mo>&#8290;</mo>' + mathML; // &InvisibleTimes;
+            mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
         }
 
         if (body.endsWith('>f</mi>') || body.endsWith('>g</mi>')) {
-            mathML += '<mo>&x2061;</mo>'; // &ApplyFunction;
+            mathML += `<mo>${APPLY_FUNCTION}</mo>`; // &ApplyFunction;
             stream.lastType = 'applyfunction';
         } else {
             stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
@@ -370,7 +374,7 @@ function scanFence(stream, final, options) {
                 stream.lastType === 'mfrac' ||
                 stream.lastType === 'fence'
             ) {
-                mathML = '<mo>&#8290;</mo>' + mathML; // &InvisibleTimes;
+                mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
             }
             stream.index = closeIndex + 1;
 
@@ -463,7 +467,7 @@ function scanOperator(stream, final, options) {
             }
             stream.index -= 1;
             if (!isUnit && !/^<mo>(.*)<\/mo>$/.test(op)) {
-                mathML += '<mo>&#x2061;</mo>'; // APPLY FUNCTION
+                mathML += `<mo>${APPLY_FUNCTION}</mo>`; // APPLY FUNCTION
                 // mathML += scanArgument(stream);
                 lastType = 'applyfunction';
             } else {
@@ -476,7 +480,7 @@ function scanOperator(stream, final, options) {
             (stream.lastType === 'mi' || stream.lastType === 'mn') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)
         ) {
-            mathML = '<mo>&#8290;</mo>' + mathML; // &InvisibleTimes;
+            mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
         }
         stream.index += 1;
     }
