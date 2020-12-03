@@ -1,5 +1,9 @@
 import type { ParseMode, Style } from '../public/core';
-import type { Keybinding, KeyboardLayoutName } from '../public/options';
+import type {
+    Keybinding,
+    KeyboardLayoutName,
+    RemoteKeyboardOptions,
+} from '../public/options';
 import type {
     Mathfield,
     InsertOptions,
@@ -94,8 +98,60 @@ import './mode-editor-latex';
 import './mode-editor-text';
 import { getLatexGroupBody } from './mode-editor-latex';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { Selector } from '../public/commands';
+import { MathfieldProxyHost } from './mathfield-proxy';
 
-export class MathfieldPrivate implements Mathfield {
+export interface ICommandExecutor {
+    /**
+     * Execute a [[`Commands`|command]] defined by a selector.
+     * ```javascript
+     * mfe.executeCommand('add-column-after');
+     * mfe.executeCommand(['switch-mode', 'math']);
+     * ```
+     *
+     * @param command - A selector, or an array whose first element
+     * is a selector, and whose subsequent elements are arguments to the selector.
+     *
+     * Selectors can be passed either in camelCase or kebab-case.
+     *
+     * ```javascript
+     * // Both calls do the same thing
+     * mfe.executeCommand('selectAll');
+     * mfe.executeCommand('select-all');
+     * ```
+     */
+    executeCommand(
+        command: SelectorPrivate | [SelectorPrivate, ...any[]]
+    ): boolean;
+
+    /** @deprecated */
+    options?: {
+        /** @deprecated */
+        namespace?: string;
+    };
+}
+
+export interface IRemoteMathfield extends ICommandExecutor {
+    /**
+     * @category Focus
+     */
+    focus?(): void;
+
+    /**
+     * @category Focus
+     */
+    blur?(): void;
+
+    virtualKeyboardVisible: boolean;
+    virtualKeyboard: VirtualKeyboard;
+
+    /**
+     * Provide access to options that required to correct work of remote keyboard.
+     */
+    options: Required<RemoteKeyboardOptions>;
+}
+
+export class MathfieldPrivate implements Mathfield, IRemoteMathfield {
     model: ModelPrivate;
     options: Required<MathfieldOptionsPrivate>;
 
@@ -150,6 +206,8 @@ export class MathfieldPrivate implements Mathfield {
     deleteKeypressSound: HTMLAudioElement;
     plonkSound: HTMLAudioElement;
 
+    private proxyHost: ICommandExecutor;
+
     /**
      * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
      * instead of invoking directly this constructor.
@@ -173,6 +231,10 @@ export class MathfieldPrivate implements Mathfield {
             },
             ...options,
         });
+
+        this.proxyHost = options.useProxyHost
+            ? new MathfieldProxyHost(this)
+            : null;
 
         this.plonkSound = this.options.plonkSound as HTMLAudioElement;
         if (
@@ -769,7 +831,7 @@ export class MathfieldPrivate implements Mathfield {
             this.blurred = false;
             this.keyboardDelegate.focus();
             if (this.options.virtualKeyboardMode === 'onfocus') {
-                showVirtualKeyboard(this);
+                this.executeCommand('showVirtualKeyboard');
             }
             updatePopoverPosition(this);
             if (this.options.onFocus) {
@@ -788,7 +850,7 @@ export class MathfieldPrivate implements Mathfield {
             this.blurred = true;
             this.ariaLiveText.textContent = '';
             if (/onfocus|manual/.test(this.options.virtualKeyboardMode)) {
-                hideVirtualKeyboard(this);
+                this.executeCommand('hideVirtualKeyboard');
             }
             complete(this, 'accept');
             requestUpdate(this);
@@ -852,7 +914,11 @@ export class MathfieldPrivate implements Mathfield {
     executeCommand(
         command: SelectorPrivate | [SelectorPrivate, ...any[]]
     ): boolean {
-        return perform(this, command);
+        if (this.proxyHost) {
+            return this.proxyHost.executeCommand(command);
+        } else {
+            return perform(this, command);
+        }
     }
 
     get lastOffset(): number {
@@ -1091,7 +1157,10 @@ export class MathfieldPrivate implements Mathfield {
 
                     // Switch to the command mode keyboard layer
                     if (this.virtualKeyboardVisible) {
-                        switchKeyboardLayer(this, 'latex-lower');
+                        this.executeCommand([
+                            'switchKeyboardLayer',
+                            'latex-lower',
+                        ]);
                     }
 
                     // Insert a latex group atom
@@ -1266,7 +1335,11 @@ export class MathfieldPrivate implements Mathfield {
         this.undoManager.snapshot({
             ...this.options,
             onUndoStateDidChange: (mf, reason): void => {
-                updateUndoRedoButtons(this);
+                this.executeCommand([
+                    'updateUndoRedoButtons',
+                    this.canUndo(),
+                    this.canRedo(),
+                ]);
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });
@@ -1275,7 +1348,11 @@ export class MathfieldPrivate implements Mathfield {
         this.undoManager.snapshotAndCoalesce({
             ...this.options,
             onUndoStateDidChange: (mf, reason): void => {
-                updateUndoRedoButtons(this);
+                this.executeCommand([
+                    'updateUndoRedoButtons',
+                    this.canUndo(),
+                    this.canRedo(),
+                ]);
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });
@@ -1293,7 +1370,11 @@ export class MathfieldPrivate implements Mathfield {
         return this.undoManager.undo({
             ...this.options,
             onUndoStateDidChange: (mf, reason): void => {
-                updateUndoRedoButtons(this);
+                this.executeCommand([
+                    'updateUndoRedoButtons',
+                    this.canUndo(),
+                    this.canRedo(),
+                ]);
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });
@@ -1302,7 +1383,11 @@ export class MathfieldPrivate implements Mathfield {
         return this.undoManager.redo({
             ...this.options,
             onUndoStateDidChange: (mf, reason): void => {
-                updateUndoRedoButtons(this);
+                this.executeCommand([
+                    'updateUndoRedoButtons',
+                    this.canUndo(),
+                    this.canRedo(),
+                ]);
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });

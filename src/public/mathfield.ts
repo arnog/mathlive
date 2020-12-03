@@ -1,6 +1,7 @@
 import { Selector } from './commands';
-import { MathfieldOptions } from './options';
+import { MathfieldOptions, RemoteKeyboardOptions } from './options';
 import { ParseMode, MacroDictionary, Style } from './core';
+import { VirtualKeyboard } from '../editor/virtual-keyboard';
 
 /**
  * | Format              | Description             |

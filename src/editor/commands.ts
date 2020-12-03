@@ -11,8 +11,10 @@ export { SelectorPrivate };
 // @revisit: move to mathfield.vibrate()
 export const HAPTIC_FEEDBACK_DURATION = 3; // in ms
 
+type CommandTarget = 'model' | 'mathfield' | 'virtual-keyboard';
+
 interface RegisterCommandOptions {
-    target: 'model' | 'mathfield' | 'virtual-keyboard';
+    target: CommandTarget;
     category?:
         | 'delete'
         | 'edit' // Changes the content
@@ -53,6 +55,25 @@ export function register(
     });
 }
 
+export function getCommandTarget(
+    command: SelectorPrivate | [SelectorPrivate, ...any[]]
+): CommandTarget {
+    let selector: SelectorPrivate;
+
+    if (isArray(command)) {
+        selector = command[0] as SelectorPrivate;
+    } else {
+        selector = command;
+    }
+
+    // Convert kebab case (like-this) to camel case (likeThis).
+    selector = selector.replace(/-\w/g, (m) =>
+        m[1].toUpperCase()
+    ) as SelectorPrivate;
+
+    return COMMANDS[selector]?.target;
+}
+
 export function perform(
     mathfield: MathfieldPrivate,
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
@@ -77,7 +98,10 @@ export function perform(
     selector = selector.replace(/-\w/g, (m) =>
         m[1].toUpperCase()
     ) as SelectorPrivate;
-    if (COMMANDS[selector]?.target === 'model') {
+
+    const commandTarget = COMMANDS[selector]?.target;
+
+    if (commandTarget === 'model') {
         if (/^(delete|transpose|add)/.test(selector)) {
             if (selector !== 'deleteBackward') {
                 mathfield.resetKeystrokeBuffer();
@@ -109,18 +133,23 @@ export function perform(
     } else {
         throw Error('Unknown command "' + selector + '"');
     }
-    // If the command changed the selection so that it is no longer
-    // collapsed, or if it was an editing command, reset the inline
-    // shortcut buffer and the user style
-    if (
-        !mathfield.model.selectionIsCollapsed ||
-        /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(
-            selector
-        )
-    ) {
-        mathfield.resetKeystrokeBuffer();
-        mathfield.style = {};
+
+    // Virtual keyboard commands is not update mathfield state
+    if (commandTarget !== 'virtual-keyboard') {
+        // If the command changed the selection so that it is no longer
+        // collapsed, or if it was an editing command, reset the inline
+        // shortcut buffer and the user style
+        if (
+            !mathfield.model.selectionIsCollapsed ||
+            /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(
+                selector
+            )
+        ) {
+            mathfield.resetKeystrokeBuffer();
+            mathfield.style = {};
+        }
     }
+
     // Render the mathlist
     if (dirty) {
         requestUpdate(mathfield);

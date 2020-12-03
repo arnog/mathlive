@@ -1,5 +1,9 @@
 import type { Mathfield } from './public/mathfield';
-import type { MathfieldOptions, TextToSpeechOptions } from './public/options';
+import type {
+    MathfieldOptions,
+    RemoteKeyboardOptions,
+    TextToSpeechOptions,
+} from './public/options';
 import type {
     ErrorListener,
     ParserErrorCode,
@@ -322,11 +326,15 @@ export const debug = {
 
 import { makeKeyboard } from './editor/virtual-keyboard-utils';
 import * as virtualKeyboardCommands from './editor/virtual-keyboard-commands';
+import { MathfieldProxyClient } from './editor-mathfield/mathfield-proxy';
 
 export default {
     version: (): string => {
         deprecated('export default version');
         return version;
+    },
+    makeRemoteClient: (options: Partial<RemoteKeyboardOptions>) => {
+        return new MathfieldProxyClient(options);
     },
     makeKeyboard: makeKeyboard,
     virtualKeyboardCommands: virtualKeyboardCommands,

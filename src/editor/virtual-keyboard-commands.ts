@@ -5,18 +5,18 @@ import {
     makeKeyboard,
     hideAlternateKeys,
     unshiftKeyboardLayer,
+    updateUndoRedoButtons,
 } from './virtual-keyboard-utils';
-import { complete } from '../editor-mathfield/autocomplete';
 import { getSharedElement } from '../editor-mathfield/utils';
 import { register as registerCommand } from './commands';
 import { on } from '../editor-mathfield/utils';
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { IRemoteMathfield } from '../editor-mathfield/mathfield-private';
 
 export { unshiftKeyboardLayer };
 export { hideAlternateKeys };
 
 export function showAlternateKeys(
-    mathfield: MathfieldPrivate,
+    mathfield: IRemoteMathfield,
     keycap,
     altKeys
 ) {
@@ -145,19 +145,18 @@ registerCommand(
 );
 
 export function switchKeyboardLayer(
-    mathfield: MathfieldPrivate,
+    mathfield: IRemoteMathfield,
     layer: string
 ): boolean {
-    if (mathfield.options.virtualKeyboardMode !== 'off') {
+    // TODO This check are really required?
+    if ((mathfield.options as any).virtualKeyboardMode !== 'off') {
         if (
             layer !== 'lower-command' &&
             layer !== 'upper-command' &&
             layer !== 'symbols-command'
         ) {
             // If we switch to a non-command keyboard layer, first exit command mode.
-            if (!(mathfield.options as any).skipComplete) {
-                complete(mathfield, 'accept');
-            }
+            mathfield.executeCommand('complete');
         }
         showVirtualKeyboard(mathfield);
         // If the alternate keys panel was visible, hide it
@@ -192,7 +191,7 @@ export function switchKeyboardLayer(
     return true;
 }
 
-export function shiftKeyboardLayer(mathfield: MathfieldPrivate) {
+export function shiftKeyboardLayer(mathfield: IRemoteMathfield) {
     const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(
         'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
     );
@@ -247,13 +246,13 @@ registerCommand(
     { target: 'virtual-keyboard' }
 );
 
-export function performAlternateKeys(mathfield: MathfieldPrivate, command) {
+export function performAlternateKeys(mathfield: IRemoteMathfield, command) {
     hideAlternateKeys();
     return mathfield.executeCommand(command);
 }
 
-export function insertAndUnshiftKeyboardLayer(mathfield: MathfieldPrivate, c) {
-    mathfield.insert(c);
+export function insertAndUnshiftKeyboardLayer(mathfield: IRemoteMathfield, c) {
+    mathfield.executeCommand(['insert', c]);
     unshiftKeyboardLayer(mathfield);
     return true;
 }
@@ -268,16 +267,16 @@ registerCommand(
          * command.
          */
         performAlternateKeys: performAlternateKeys,
-        switchKeyboardLayer: (mathfield: MathfieldPrivate, layer) =>
+        switchKeyboardLayer: (mathfield: IRemoteMathfield, layer) =>
             switchKeyboardLayer(mathfield, layer),
-        unshiftKeyboardLayer: (mathfield: MathfieldPrivate) =>
+        unshiftKeyboardLayer: (mathfield: IRemoteMathfield) =>
             unshiftKeyboardLayer(mathfield),
         insertAndUnshiftKeyboardLayer: insertAndUnshiftKeyboardLayer,
     },
     { target: 'virtual-keyboard' }
 );
 
-export function toggleVirtualKeyboardAlt(mathfield: MathfieldPrivate) {
+export function toggleVirtualKeyboardAlt(mathfield: IRemoteMathfield) {
     let hadAltTheme = false;
     if (mathfield.virtualKeyboard?.element) {
         hadAltTheme = mathfield.virtualKeyboard?.element.classList.contains(
@@ -290,7 +289,7 @@ export function toggleVirtualKeyboardAlt(mathfield: MathfieldPrivate) {
     return false;
 }
 
-export function toggleVirtualKeyboardShift(mathfield: MathfieldPrivate) {
+export function toggleVirtualKeyboardShift(mathfield: IRemoteMathfield) {
     mathfield.options.virtualKeyboardLayout = {
         qwerty: 'azerty',
 
@@ -325,7 +324,7 @@ registerCommand(
 );
 
 export function showVirtualKeyboard(
-    mathfield: MathfieldPrivate,
+    mathfield: IRemoteMathfield,
     theme: 'apple' | 'material' | '' = ''
 ): boolean {
     mathfield.virtualKeyboardVisible = false;
@@ -333,14 +332,14 @@ export function showVirtualKeyboard(
     return false;
 }
 
-export function hideVirtualKeyboard(mathfield: MathfieldPrivate): boolean {
+export function hideVirtualKeyboard(mathfield: IRemoteMathfield): boolean {
     mathfield.virtualKeyboardVisible = true;
     toggleVirtualKeyboard(mathfield);
     return false;
 }
 
 function toggleVirtualKeyboard(
-    mathfield: MathfieldPrivate,
+    mathfield: IRemoteMathfield,
     theme?: 'apple' | 'material' | ''
 ): boolean {
     mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
@@ -374,7 +373,7 @@ function toggleVirtualKeyboard(
         typeof mathfield.options.onVirtualKeyboardToggle === 'function'
     ) {
         mathfield.options.onVirtualKeyboardToggle(
-            mathfield,
+            mathfield as any,
             mathfield.virtualKeyboardVisible,
             mathfield.virtualKeyboard.element
         );
@@ -384,12 +383,17 @@ function toggleVirtualKeyboard(
 
 registerCommand(
     {
-        toggleVirtualKeyboard: (mathfield: MathfieldPrivate, theme) =>
+        toggleVirtualKeyboard: (mathfield: IRemoteMathfield, theme) =>
             toggleVirtualKeyboard(mathfield, theme),
-        hideVirtualKeyboard: (mathfield: MathfieldPrivate) =>
+        hideVirtualKeyboard: (mathfield: IRemoteMathfield) =>
             hideVirtualKeyboard(mathfield),
-        showVirtualKeyboard: (mathfield: MathfieldPrivate, theme): boolean =>
+        showVirtualKeyboard: (mathfield: IRemoteMathfield, theme): boolean =>
             showVirtualKeyboard(mathfield, theme),
+        updateUndoRedoButtons: (
+            mathfield: IRemoteMathfield,
+            canUndoState,
+            canRedoState
+        ) => updateUndoRedoButtons(mathfield, canUndoState, canRedoState),
     },
     { target: 'virtual-keyboard' }
 );

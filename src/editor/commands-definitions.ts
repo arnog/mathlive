@@ -23,6 +23,12 @@ export interface CommandsPrivate {
 
     /** Toggle the virtual keyboard, but switch another keyboard layout */
     toggleVirtualKeyboardShift: (mathfield: Mathfield) => boolean;
+
+    updateUndoRedoButtons: (
+        mathfield: Mathfield,
+        canUndoState: boolean,
+        canRedoState: boolean
+    ) => boolean;
 }
 
 export type SelectorPrivate = Keys<Commands & CommandsPrivate>;

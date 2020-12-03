@@ -7,7 +7,7 @@ import { MATHSTYLES } from '../core/mathstyle';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
 import { releaseSharedElement } from '../editor-mathfield/utils';
 
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { IRemoteMathfield } from '../editor-mathfield/mathfield-private';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
 
@@ -20,9 +20,9 @@ import { getActiveKeyboardLayout } from './keyboard-layout';
 import { loadFonts } from '../core/fonts';
 
 export class VirtualKeyboard {
-    mathfield: MathfieldPrivate;
+    mathfield: IRemoteMathfield;
     element: HTMLDivElement;
-    constructor(mathfield: MathfieldPrivate) {
+    constructor(mathfield: IRemoteMathfield) {
         this.mathfield = mathfield;
         this.element = document.createElement('div');
         // Listen to know when the mouse has been released without being
@@ -898,7 +898,7 @@ const LAYERS = {
         </div>`,
 };
 
-function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
+function latexToMarkup(latex: string, arg, mf: IRemoteMathfield): string {
     // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
@@ -921,7 +921,7 @@ function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
  * Return a markup string for the keyboard toolbar for the specified layer.
  */
 function makeKeyboardToolbar(
-    mf: MathfieldPrivate,
+    mf: IRemoteMathfield,
     keyboardIDs,
     currentKeyboard
 ): string {
@@ -1025,7 +1025,7 @@ function makeKeyboardToolbar(
 }
 
 export function makeKeycap(
-    mf: MathfieldPrivate,
+    mf: IRemoteMathfield,
     elList: HTMLElement[],
     chainedCommand?: string | any[]
 ): void {
@@ -1139,7 +1139,7 @@ export function makeKeycap(
 /**
  * Expand the shortcut tags (e.g. <row>) inside a layer.
  */
-function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
+function expandLayerMarkup(mf: IRemoteMathfield, layer): string {
     const ROWS = {
         // First row should be 10 key wide
         // Second row should be 10 key wide
@@ -1329,7 +1329,7 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
  * mathfield and an optional theme.
  */
 export function makeKeyboard(
-    mf: MathfieldPrivate,
+    mf: IRemoteMathfield,
     theme: 'apple' | 'material' | ''
 ): VirtualKeyboard {
     const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -1740,7 +1740,7 @@ export function hideAlternateKeys(): boolean {
  * was pressed.
  *
  */
-export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
+export function unshiftKeyboardLayer(mathfield: IRemoteMathfield): boolean {
     hideAlternateKeys();
 
     const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(
@@ -1765,10 +1765,15 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
     return false;
 }
 
-export function updateUndoRedoButtons(mathfield: MathfieldPrivate): void {
+export function updateUndoRedoButtons(
+    mathfield: IRemoteMathfield,
+    canUndoState: boolean,
+    canRedoState: boolean
+): boolean {
     const virtualKeyboardToolbar = mathfield.virtualKeyboard?.element.querySelector(
         '.keyboard-toolbar'
     );
+
     if (virtualKeyboardToolbar) {
         const undoButton = virtualKeyboardToolbar.querySelector(
             '[data-command=\'"undo"\']'
@@ -1778,7 +1783,7 @@ export function updateUndoRedoButtons(mathfield: MathfieldPrivate): void {
         );
 
         if (redoButton) {
-            if (mathfield.canRedo()) {
+            if (canRedoState) {
                 redoButton.classList.remove('disabled');
             } else {
                 redoButton.classList.add('disabled');
@@ -1786,11 +1791,13 @@ export function updateUndoRedoButtons(mathfield: MathfieldPrivate): void {
         }
 
         if (undoButton) {
-            if (mathfield.canUndo()) {
+            if (canUndoState) {
                 undoButton.classList.remove('disabled');
             } else {
                 undoButton.classList.add('disabled');
             }
         }
     }
+
+    return false;
 }
