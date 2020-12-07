@@ -38,6 +38,8 @@ import { atomsToMathML } from './addons/math-ml';
 import './addons/definitions-metadata';
 import { AutoRenderOptionsPrivate } from './addons/auto-render';
 
+import './editor/virtual-keyboard-commands';
+
 export { MathfieldElement } from './public/mathfield-element';
 
 export function makeMathField(
