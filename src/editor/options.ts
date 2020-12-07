@@ -1,6 +1,7 @@
 import type {
     MathfieldOptions,
     RemoteKeyboardOptions,
+    RemoteMathfieldOptions,
 } from '../public/options';
 
 import { isArray } from '../common/types';
@@ -277,12 +278,13 @@ export function get(
     return result;
 }
 
-export function getRemoteKeyboardDefault(): Required<RemoteKeyboardOptions> {
+export function getRemoteDefault(): Required<RemoteMathfieldOptions> {
     return {
         namespace: '',
         createHTML: (s: string): any => s,
         fontsDirectory: './fonts',
         soundsDirectory: './sounds',
+        targetOrigin: '*',
 
         defaultMode: 'math',
         macros: MACROS,
@@ -357,6 +359,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         virtualKeyboardToolbar: 'default',
 
         useProxyHost: false,
+        proxyHostTargetOrigin: '*',
 
         textToSpeechRules: 'mathlive',
         textToSpeechMarkup: '', // no markup

@@ -206,7 +206,7 @@ export class MathfieldPrivate implements Mathfield, IRemoteMathfield {
     deleteKeypressSound: HTMLAudioElement;
     plonkSound: HTMLAudioElement;
 
-    private proxyHost: ICommandExecutor;
+    private proxyHost: MathfieldProxyHost;
 
     /**
      * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
@@ -830,6 +830,11 @@ export class MathfieldPrivate implements Mathfield, IRemoteMathfield {
         if (this.blurred) {
             this.blurred = false;
             this.keyboardDelegate.focus();
+
+            if (this.proxyHost) {
+                this.proxyHost.enable();
+            }
+
             if (this.options.virtualKeyboardMode === 'onfocus') {
                 this.executeCommand('showVirtualKeyboard');
             }
@@ -849,6 +854,7 @@ export class MathfieldPrivate implements Mathfield, IRemoteMathfield {
         if (!this.blurred) {
             this.blurred = true;
             this.ariaLiveText.textContent = '';
+
             if (/onfocus|manual/.test(this.options.virtualKeyboardMode)) {
                 this.executeCommand('hideVirtualKeyboard');
             }
@@ -857,6 +863,11 @@ export class MathfieldPrivate implements Mathfield, IRemoteMathfield {
             if (typeof this.options.onBlur === 'function') {
                 this.options.onBlur(this);
             }
+
+            if (this.proxyHost) {
+                this.proxyHost.disable();
+            }
+
             if (
                 typeof this.options.onCommit === 'function' &&
                 this.getValue() !== this.valueOnFocus

@@ -842,10 +842,13 @@ export type CoreOptions = {
     // @todo https://github.com/microsoft/TypeScript/issues/30024
 };
 
+export type RemoteMathfieldOptions = RemoteKeyboardOptions & {
+    targetOrigin: '*';
+};
+
 /**
  * @keywords security, trust, sanitize, errors
  */
-
 export type MathfieldOptions = LayoutOptions &
     EditingOptions &
     LocalizationOptions &
@@ -856,7 +859,8 @@ export type MathfieldOptions = LayoutOptions &
     CoreOptions &
     MathfieldHooks &
     MathfieldListeners & {
-        useProxyHost?: boolean;
+        useProxyHost: boolean;
+        proxyHostTargetOrigin: string;
 
         /**
          * An optional listener function that will be

@@ -101,6 +101,13 @@ export function perform(
 
     const commandTarget = COMMANDS[selector]?.target;
 
+    // TODO Refactor this method
+    // Actually using commands by this way increase code complexity,
+    //  ideally all code must be moved under command code, maybe it is
+    //  a good idea to implement new Command API with additional hooks
+    //  and callbacks to make command code more transparent. Now logic of
+    //  commands are splitted between command function, registration options
+    //  and there.
     if (commandTarget === 'model') {
         if (/^(delete|transpose|add)/.test(selector)) {
             if (selector !== 'deleteBackward') {
@@ -154,6 +161,7 @@ export function perform(
     if (dirty) {
         requestUpdate(mathfield);
     }
+
     return handled;
 }
 
