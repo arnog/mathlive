@@ -2,6 +2,7 @@ import type { Mathfield } from './public/mathfield';
 import type {
     MathfieldOptions,
     RemoteKeyboardOptions,
+    RemoteMathfieldOptions,
     TextToSpeechOptions,
 } from './public/options';
 import type {
@@ -15,6 +16,7 @@ import { parseLatex } from './core/parser';
 import { coalesce, makeStruts, Span } from './core/span';
 import { MACROS, MacroDictionary } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
+import { MathfieldProxyClient } from './editor-mathfield/mathfield-proxy';
 import AutoRender from './addons/auto-render';
 import {
     MathJsonLatexOptions,
@@ -49,6 +51,12 @@ export function makeMathField(
     options.speakHook = options.speakHook ?? defaultSpeakHook;
     options.readAloudHook = options.readAloudHook ?? defaultReadAloudHook;
     return new MathfieldPrivate(getElement(element), options);
+}
+
+export function makeRemoteClient(
+    options: Partial<RemoteMathfieldOptions>
+): MathfieldProxyClient {
+    return new MathfieldProxyClient(options);
 }
 
 /** @deprecated */
@@ -326,21 +334,15 @@ export const debug = {
     getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
 };
 
-import { makeKeyboard } from './editor/virtual-keyboard-utils';
-import * as virtualKeyboardCommands from './editor/virtual-keyboard-commands';
-import { MathfieldProxyClient } from './editor-mathfield/mathfield-proxy';
-
 export default {
     version: (): string => {
         deprecated('export default version');
         return version;
     },
     makeRemoteClient: (options: Partial<RemoteKeyboardOptions>) => {
-        return new MathfieldProxyClient(options);
+        deprecated('export default makeRemoteClient');
+        return makeRemoteClient(options);
     },
-    makeKeyboard: makeKeyboard,
-    virtualKeyboardCommands: virtualKeyboardCommands,
-    MACROS,
     latexToMarkup: (
         text: string,
         options?: {

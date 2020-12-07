@@ -64,22 +64,13 @@ import {
 
 import { attachButtonHandlers } from './buttons';
 import { onPointerDown, offsetFromPoint } from './pointer-input';
-import {
-    showVirtualKeyboard,
-    hideVirtualKeyboard,
-    switchKeyboardLayer,
-} from '../editor/virtual-keyboard-commands';
-
 import { normalizeKeybindings } from '../editor/keybindings';
 import {
     setKeyboardLayoutLocale,
     getActiveKeyboardLayout,
 } from '../editor/keyboard-layout';
 
-import {
-    VirtualKeyboard,
-    updateUndoRedoButtons,
-} from '../editor/virtual-keyboard';
+import { VirtualKeyboard } from '../editor/virtual-keyboard';
 
 // @ts-ignore
 import mathfieldStylesheet from '../../css/mathfield.less';
@@ -755,6 +746,7 @@ export class MathfieldPrivate implements Mathfield, IRemoteMathfield {
         this.dispose();
         this.element.innerHTML = this.options.createHTML(this.originalContent);
     }
+
     dispose(): void {
         this.element.innerHTML = '$$' + this.getValue() + '$$';
         delete this.element['mathfield'];
@@ -780,6 +772,10 @@ export class MathfieldPrivate implements Mathfield, IRemoteMathfield {
         off(window, 'resize', this);
         delete this.element;
         this.stylesheets.forEach((x) => x.release());
+
+        if (this.proxyHost) {
+            this.proxyHost.dispose();
+        }
     }
 
     resetKeystrokeBuffer(options?: { defer: boolean }): void {

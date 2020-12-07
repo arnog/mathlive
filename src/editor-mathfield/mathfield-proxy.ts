@@ -36,7 +36,7 @@ export class MathfieldProxyHost implements ICommandExecutor {
         this._initHandlers();
     }
 
-    public shutdown(): void {
+    public dispose(): void {
         this.disable();
     }
 
@@ -56,6 +56,18 @@ export class MathfieldProxyHost implements ICommandExecutor {
         }
 
         return perform(this.mathfield, command);
+    }
+
+    public enable(): void {
+        if (!this.enabled) {
+            this._initHandlers();
+        }
+    }
+
+    public disable(): void {
+        if (this.enabled) {
+            this._removeHandlers();
+        }
     }
 
     private sendMessage(action: string, payload: any = {}): boolean {
@@ -97,18 +109,6 @@ export class MathfieldProxyHost implements ICommandExecutor {
                 this.mathfield.blur();
                 return;
             }
-        }
-    }
-
-    public enable(): void {
-        if (!this.enabled) {
-            this._initHandlers();
-        }
-    }
-
-    public disable(): void {
-        if (this.enabled) {
-            this._removeHandlers();
         }
     }
 
@@ -198,7 +198,7 @@ export class MathfieldProxyClient implements IRemoteMathfield {
         return this.canRedoState;
     }
 
-    public shutdown(): void {
+    public dispose(): void {
         this._removeHandlers();
     }
 

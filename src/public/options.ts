@@ -843,7 +843,13 @@ export type CoreOptions = {
 };
 
 export type RemoteMathfieldOptions = RemoteKeyboardOptions & {
-    targetOrigin: '*';
+    /**
+     * Specify the `targetOrigin` parameter for [postMessage](https://developer.mozilla.org/ru/docs/Web/API/Window/postMessage)
+     * to send control messages from parent to child frame to remote control of mathfield component.
+     *
+     * **Default**: `'*'`
+     */
+    targetOrigin: string;
 };
 
 /**
@@ -859,7 +865,33 @@ export type MathfieldOptions = LayoutOptions &
     CoreOptions &
     MathfieldHooks &
     MathfieldListeners & {
+        /**
+         * Enable usage of proxy host to deligate virtual keyboard commands to parent frame.
+         *
+         * Use following code to initialize virtual keyboard
+         * on parent frame with `true` value of this option:
+         *
+         * ```javascript
+         * import { makeRemoteClient } from 'mathlive';
+         *
+         * (function() {
+         *     const mathfieldClient = makeRemoteClient({
+         *         virtualKeyboardToolbar: 'none',
+         *     });
+         * })();
+         * ```
+         *
+         * **Default**: `false`
+         */
         useProxyHost: boolean;
+        /**
+         * Specify the `targetOrigin` parameter for
+         * [postMessage](https://developer.mozilla.org/ru/docs/Web/API/Window/postMessage)
+         * to send control messages from child to parent frame to remote control
+         * of mathfield component.
+         *
+         * **Default**: `'*'`
+         */
         proxyHostTargetOrigin: string;
 
         /**

@@ -20,8 +20,13 @@
 
 import { Mathfield } from './mathfield';
 import { MathfieldElement } from './mathfield-element';
-import { MathfieldOptions, TextToSpeechOptions } from './options';
+import {
+    MathfieldOptions,
+    RemoteMathfieldOptions,
+    TextToSpeechOptions,
+} from './options';
 import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
+import { IRemoteMathfield } from '../editor/editor';
 
 export { Mathfield };
 export { MathfieldOptions as MathfieldConfig };
@@ -68,6 +73,10 @@ export declare function makeMathField(
     element: HTMLElement | string,
     options: MathfieldOptions
 ): Mathfield;
+
+export declare function makeRemoteClient(
+    options: RemoteMathfieldOptions
+): IRemoteMathfield;
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
