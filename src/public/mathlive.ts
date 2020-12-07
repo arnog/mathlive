@@ -74,6 +74,31 @@ export declare function makeMathField(
     options: MathfieldOptions
 ): Mathfield;
 
+/**
+ * Initialize remote client for mathfield elements rendered in child frames.
+ * This client instance control focus between multiple frames and mathfield elements and
+ * renders the virtual keyboard with required options passed by params of this method.
+ *
+ * @param options Options to configure virtual keyboard that will be rendered on this frame.
+ *
+ * ```html
+ * <iframe src="...">
+ *      <!-- The iframe page content -->
+ *      <math-field virtual-keyboard-mode="onfocus" use-proxy-host="true" />
+ *
+ *      <script type="module">
+ *          import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ *      </script>
+ * </iframe>
+ * ```
+ *
+ * ```javascript
+ *  import { makeRemoteClient } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ *
+ *  makeRemoteClient({});
+ * ```
+ * @keywords create, make, mathfield, iframe
+ */
 export declare function makeRemoteClient(
     options: RemoteMathfieldOptions
 ): IRemoteMathfield;
