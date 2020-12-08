@@ -1,5 +1,5 @@
 import { on } from './utils';
-import type { ICommandExecutor, MathfieldPrivate } from './mathfield-private';
+import { ExecuteCommandFunction } from '../editor/commands-definitions';
 
 /**
  * Attach event handlers to an element so that it will react by executing
@@ -27,7 +27,7 @@ import type { ICommandExecutor, MathfieldPrivate } from './mathfield-private';
  *
  */
 export function attachButtonHandlers(
-    mathfield: ICommandExecutor,
+    executeCommand: ExecuteCommandFunction,
     el: Element,
     command:
         | string
@@ -44,26 +44,20 @@ export function attachButtonHandlers(
     if (typeof command === 'object' && (command.default || command.pressed)) {
         // Attach the default (no modifiers pressed) command to the element
         if (command.default) {
-            el.setAttribute(
-                'data-' + mathfield.options.namespace + 'command',
-                JSON.stringify(command.default)
-            );
+            el.setAttribute('data-command', JSON.stringify(command.default));
         }
         if (command.alt) {
-            el.setAttribute(
-                'data-' + mathfield.options.namespace + 'command-alt',
-                JSON.stringify(command.alt)
-            );
+            el.setAttribute('data-command-alt', JSON.stringify(command.alt));
         }
         if (command.altshift) {
             el.setAttribute(
-                'data-' + mathfield.options.namespace + 'command-altshift',
+                'data-command-altshift',
                 JSON.stringify(command.altshift)
             );
         }
         if (command.shift) {
             el.setAttribute(
-                'data-' + mathfield.options.namespace + 'command-shift',
+                'data-command-shift',
                 JSON.stringify(command.shift)
             );
         }
@@ -72,23 +66,19 @@ export function attachButtonHandlers(
         // the button is released
         if (command.pressed) {
             el.setAttribute(
-                'data-' + mathfield.options.namespace + 'command-pressed',
+                'data-command-pressed',
                 JSON.stringify(command.pressed)
             );
         }
         if (command.pressAndHoldStart) {
             el.setAttribute(
-                'data-' +
-                    mathfield.options.namespace +
-                    'command-pressAndHoldStart',
+                'data-command-pressAndHoldStart',
                 JSON.stringify(command.pressAndHoldStart)
             );
         }
         if (command.pressAndHoldEnd) {
             el.setAttribute(
-                'data-' +
-                    mathfield.options.namespace +
-                    'command-pressAndHoldEnd',
+                'data-command-pressAndHoldEnd',
                 JSON.stringify(command.pressAndHoldEnd)
             );
         }
@@ -96,10 +86,7 @@ export function attachButtonHandlers(
         // We need to turn the command into a string to attach it to the dataset
         // associated with the button (the command could be an array made of a
         // selector and one or more parameters)
-        el.setAttribute(
-            'data-' + mathfield.options.namespace + 'command',
-            JSON.stringify(command)
-        );
+        el.setAttribute('data-command', JSON.stringify(command));
     }
     let pressHoldStart;
     let pressHoldElement;
@@ -125,18 +112,14 @@ export function attachButtonHandlers(
                 }
                 // Parse the JSON to get the command (and its optional arguments)
                 // and perform it immediately
-                const command = el.getAttribute(
-                    'data-' + mathfield.options.namespace + 'command-pressed'
-                );
+                const command = el.getAttribute('data-command-pressed');
                 if (command) {
-                    mathfield.executeCommand(JSON.parse(command));
+                    executeCommand(JSON.parse(command));
                 }
                 // If there is a `press and hold start` command, perform it
                 // after a delay, if we're still pressed by then.
                 const pressAndHoldStartCommand = el.getAttribute(
-                    'data-' +
-                        mathfield.options.namespace +
-                        'command-pressAndHoldStart'
+                    'data-command-pressAndHoldStart'
                 );
                 if (pressAndHoldStartCommand) {
                     pressHoldElement = el;
@@ -145,7 +128,7 @@ export function attachButtonHandlers(
                     }
                     pressAndHoldTimer = window.setTimeout(function () {
                         if (el.classList.contains('pressed')) {
-                            mathfield.executeCommand(
+                            executeCommand(
                                 JSON.parse(pressAndHoldStartCommand)
                             );
                         }
@@ -156,11 +139,11 @@ export function attachButtonHandlers(
     );
     on(el, 'mouseleave touchcancel', () => {
         el.classList.remove('pressed');
-        // let command = el.getAttribute('data-' + mathfield.config.namespace +
+        // let command = el.getAttribute('data-' + config.namespace +
         //     'command-pressAndHoldEnd');
         // const now = Date.now();
         // if (command && now > pressHoldStart + 300) {
-        //     mathfield.executeCommand(JSON.parse(command));
+        //     executeCommand(JSON.parse(command));
         // }
     });
     on(
@@ -233,11 +216,7 @@ export function attachButtonHandlers(
             window.setTimeout(function () {
                 el.classList.remove('active');
             }, 150);
-            let command = el.getAttribute(
-                'data-' +
-                    mathfield.options.namespace +
-                    'command-pressAndHoldEnd'
-            );
+            let command = el.getAttribute('data-command-pressAndHoldEnd');
             const now = Date.now();
             // If the button has not been pressed for very long or if we were
             // not the button that started the press and hold, don't consider
@@ -246,29 +225,21 @@ export function attachButtonHandlers(
                 command = undefined;
             }
             if (!command && ev.altKey && ev.shiftKey) {
-                command = el.getAttribute(
-                    'data-' + mathfield.options.namespace + 'command-altshift'
-                );
+                command = el.getAttribute('data-command-altshift');
             }
             if (!command && ev.altKey) {
-                command = el.getAttribute(
-                    'data-' + mathfield.options.namespace + 'command-alt'
-                );
+                command = el.getAttribute('data-command-alt');
             }
             if (!command && ev.shiftKey) {
-                command = el.getAttribute(
-                    'data-' + mathfield.options.namespace + 'command-shift'
-                );
+                command = el.getAttribute('data-command-shift');
             }
             if (!command) {
-                command = el.getAttribute(
-                    'data-' + mathfield.options.namespace + 'command'
-                );
+                command = el.getAttribute('data-command');
             }
             if (command) {
                 // Parse the JSON to get the command (and its optional arguments)
                 // and perform it
-                mathfield.executeCommand(JSON.parse(command));
+                executeCommand(JSON.parse(command));
             }
             ev.stopPropagation();
             ev.preventDefault();

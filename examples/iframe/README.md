@@ -6,30 +6,29 @@ It uses the Mathlive SDK distributed via a CDN.
 
 ## Initialize child frame
 
-Initialize a mathfield element as usual, just pass an option `useProxyHost` or `use-proxy-host` attribute with `true` value.
+Initialize a mathfield element as usual, just pass an option
+`useSharedVirtualKeyboard` with a value of true or set a
+`use-shared-virtual-keyboard` attribute.
 
 ```html
 <script src="https://unpkg.com/mathlive/dist/mathlive.js"></script>
 
-<math-field virtual-keyboard-mode="onfocus" use-proxy-host="true"></math-field>
+<math-field
+    virtual-keyboard-mode="onfocus"
+    use-shared-virtual-keyboard
+></math-field>
 ```
-
-Once loaded, the global object `MathLive` will contain the main API entry points,
-such as `MathLive.makeMathField()`
-
-Note that the `mathlive.js` file in the `dist` directory is a UMD
-(Universal Module Definition) file, meaning that you can use it with
-several loaders, include requirejs, and CommonJS.
 
 ## Initialize parent frame
 
-At parent frame you should also load Mathlive using a `<script>` tag and use `makeRemoteClient` method to initialize client.
+In the parent frame you should also load Mathlive using a `<script>` tag and
+invoke `makeSharedVirtualKeyboard()` function to create the shared virtual keyboard.
 
 ```html
 <script type="module">
-    import { makeRemoteClient } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+    import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
 
-    const client = makeRemoteClient({});
+    makeSharedVirtualKeyboard({});
 </script>
 ```
 

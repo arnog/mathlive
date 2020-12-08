@@ -33,7 +33,7 @@ interface RegisterCommandOptions {
     changeSelection?: boolean; // To update inline shortcut buffer
 }
 
-const COMMANDS: CommandRegistry<RegisterCommandOptions> = {};
+export const COMMANDS: CommandRegistry<RegisterCommandOptions> = {};
 
 /**
  * Register one or more selectors.
@@ -134,6 +134,9 @@ export function perform(
         }
         dirty = true;
         handled = true;
+    } else if (commandTarget === 'virtual-keyboard') {
+        dirty = mathfield.virtualKeyboard.executeCommand(command);
+        handled = true;
     } else if (COMMANDS[selector]) {
         dirty = COMMANDS[selector].fn(mathfield, ...args);
         handled = true;
@@ -141,7 +144,7 @@ export function perform(
         throw Error('Unknown command "' + selector + '"');
     }
 
-    // Virtual keyboard commands is not update mathfield state
+    // Virtual keyboard commands do not update mathfield state
     if (commandTarget !== 'virtual-keyboard') {
         // If the command changed the selection so that it is no longer
         // collapsed, or if it was an editing command, reset the inline

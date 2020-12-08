@@ -2,6 +2,7 @@ import type { Keys } from './types-utils';
 
 import type { ParseMode, Style } from './core';
 import type { InsertOptions, Mathfield, Model } from './mathfield';
+import { VirtualKeyboardInterface } from '../editor/virtual-keyboard-utils';
 
 /**
  * How much of the formula should be spoken:
@@ -312,18 +313,18 @@ export interface Commands {
      * @category Virtual Keyboard
      */
     toggleVirtualKeyboard: (
-        mathfield: Mathfield,
+        keyboard: VirtualKeyboardInterface,
         theme: 'apple' | 'material' | ''
     ) => boolean;
     /**
      * @category Virtual Keyboard
      */
-    hideVirtualKeyboard: (mathfield: Mathfield) => boolean;
+    hideVirtualKeyboard: (keyboard: VirtualKeyboardInterface) => boolean;
     /**
      * @category Virtual Keyboard
      */
     showVirtualKeyboard: (
-        mathfield: Mathfield,
+        keyboard: VirtualKeyboardInterface,
         theme: 'apple' | 'material' | ''
     ) => boolean;
 }

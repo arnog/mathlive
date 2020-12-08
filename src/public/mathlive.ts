@@ -22,11 +22,10 @@ import { Mathfield } from './mathfield';
 import { MathfieldElement } from './mathfield-element';
 import {
     MathfieldOptions,
-    RemoteMathfieldOptions,
+    RemoteVirtualKeyboardOptions,
     TextToSpeechOptions,
 } from './options';
 import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
-import { IRemoteMathfield } from '../editor/editor';
 
 export { Mathfield };
 export { MathfieldOptions as MathfieldConfig };
@@ -84,7 +83,7 @@ export declare function makeMathField(
  * ```html
  * <iframe src="...">
  *      <!-- The iframe page content -->
- *      <math-field virtual-keyboard-mode="onfocus" use-proxy-host="true" />
+ *      <math-field virtual-keyboard-mode="onfocus" use-shared-virtual-keyboard />
  *
  *      <script type="module">
  *          import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
@@ -99,9 +98,9 @@ export declare function makeMathField(
  * ```
  * @keywords create, make, mathfield, iframe
  */
-export declare function makeRemoteClient(
-    options: RemoteMathfieldOptions
-): IRemoteMathfield;
+export declare function makeSharedVirtualKeyboard(
+    options: RemoteVirtualKeyboardOptions
+): void;
 
 /**
  * Convert a LaTeX string to a string of HTML markup.

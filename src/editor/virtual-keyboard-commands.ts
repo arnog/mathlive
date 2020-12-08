@@ -2,29 +2,29 @@ import { isArray } from '../common/types';
 
 import {
     makeKeycap,
-    makeKeyboard,
+    makeKeyboardElement,
     hideAlternateKeys,
     unshiftKeyboardLayer,
-    updateUndoRedoButtons,
+    onUndoStateChanged,
+    VirtualKeyboard,
 } from './virtual-keyboard-utils';
 import { getSharedElement } from '../editor-mathfield/utils';
-import { register as registerCommand } from './commands';
+import { register as registerCommand, SelectorPrivate } from './commands';
 import { on } from '../editor-mathfield/utils';
-import type { IRemoteMathfield } from '../editor-mathfield/mathfield-private';
 
 export { unshiftKeyboardLayer };
 export { hideAlternateKeys };
 
 export function showAlternateKeys(
-    mathfield: IRemoteMathfield,
-    keycap,
-    altKeys
-) {
+    keyboard: VirtualKeyboard,
+    keycap: string,
+    altKeys: string | any[]
+): boolean {
     const altContainer = getSharedElement(
         'mathlive-alternate-keys-panel',
         'ML__keyboard alternate-keys'
     );
-    if (mathfield.virtualKeyboard?.element.classList.contains('material')) {
+    if (keyboard.element.classList.contains('material')) {
         altContainer.classList.add('material');
     }
     if (altKeys.length >= 7) {
@@ -87,13 +87,13 @@ export function showAlternateKeys(
         markup += '</li>';
     }
     markup = '<ul>' + markup + '</ul>';
-    altContainer.innerHTML = mathfield.options.createHTML(markup);
+    altContainer.innerHTML = keyboard.options.createHTML(markup);
     makeKeycap(
-        mathfield,
+        keyboard,
         [].slice.call(altContainer.getElementsByTagName('li')),
         'performAlternateKeys'
     );
-    const keycapEl = mathfield.virtualKeyboard?.element.querySelector(
+    const keycapEl = keyboard?.element.querySelector(
         'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
             keycap +
             '"]'
@@ -145,26 +145,26 @@ registerCommand(
 );
 
 export function switchKeyboardLayer(
-    mathfield: IRemoteMathfield,
+    keyboard: VirtualKeyboard,
     layer: string
 ): boolean {
     // TODO This check are really required?
-    if ((mathfield.options as any).virtualKeyboardMode !== 'off') {
+    if (keyboard.options.virtualKeyboardMode !== 'off') {
         if (
             layer !== 'lower-command' &&
             layer !== 'upper-command' &&
             layer !== 'symbols-command'
         ) {
             // If we switch to a non-command keyboard layer, first exit command mode.
-            mathfield.executeCommand('complete');
+            keyboard.executeCommand('complete');
         }
-        showVirtualKeyboard(mathfield);
+        showVirtualKeyboard(keyboard);
         // If the alternate keys panel was visible, hide it
         hideAlternateKeys();
         // If we were in a temporarily shifted state (shift-key held down)
         // restore our state before switching to a new layer.
-        unshiftKeyboardLayer(mathfield);
-        const layers = mathfield.virtualKeyboard?.element.getElementsByClassName(
+        unshiftKeyboardLayer(keyboard);
+        const layers = keyboard?.element.getElementsByClassName(
             'keyboard-layer'
         );
         // Search for the requested layer
@@ -186,13 +186,13 @@ export function switchKeyboardLayer(
                 }
             }
         }
-        mathfield.focus();
+        keyboard.focusMathfield();
     }
     return true;
 }
 
-export function shiftKeyboardLayer(mathfield: IRemoteMathfield) {
-    const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(
+export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
+    const keycaps = keyboard?.element.querySelectorAll(
         'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
     );
     if (keycaps) {
@@ -204,27 +204,22 @@ export function shiftKeyboardLayer(mathfield: IRemoteMathfield) {
                 if (!shiftedContent) {
                     shiftedContent = keycap.innerHTML.toUpperCase();
                 }
-                keycap.innerHTML = mathfield.options.createHTML(shiftedContent);
-                const command = keycap.getAttribute(
-                    'data-' + mathfield.options.namespace + 'command'
-                );
+                keycap.innerHTML = keyboard.options.createHTML(shiftedContent);
+                const command = keycap.getAttribute('data-command');
                 if (command) {
                     keycap.setAttribute('data-unshifted-command', command);
                     const shifteCommand = keycap.getAttribute(
                         'data-shifted-command'
                     );
                     if (shifteCommand) {
-                        keycap.setAttribute(
-                            'data-' + mathfield.options.namespace + 'command',
-                            shifteCommand
-                        );
+                        keycap.setAttribute('data-command', shifteCommand);
                     } else {
                         const commandObj = JSON.parse(command);
                         if (isArray(commandObj)) {
                             commandObj[1] = commandObj[1].toUpperCase();
                         }
                         keycap.setAttribute(
-                            'data-' + mathfield.options.namespace + 'command',
+                            'data-command',
                             JSON.stringify(commandObj)
                         );
                     }
@@ -246,14 +241,20 @@ registerCommand(
     { target: 'virtual-keyboard' }
 );
 
-export function performAlternateKeys(mathfield: IRemoteMathfield, command) {
+export function performAlternateKeys(
+    keyboard: VirtualKeyboard,
+    command: SelectorPrivate | [SelectorPrivate, ...any[]]
+): boolean {
     hideAlternateKeys();
-    return mathfield.executeCommand(command);
+    return keyboard.executeCommand(command);
 }
 
-export function insertAndUnshiftKeyboardLayer(mathfield: IRemoteMathfield, c) {
-    mathfield.executeCommand(['insert', c]);
-    unshiftKeyboardLayer(mathfield);
+export function insertAndUnshiftKeyboardLayer(
+    keyboard: VirtualKeyboard,
+    c: string
+): boolean {
+    keyboard.executeCommand(['insert', c]);
+    unshiftKeyboardLayer(keyboard);
     return true;
 }
 
@@ -267,48 +268,43 @@ registerCommand(
          * command.
          */
         performAlternateKeys: performAlternateKeys,
-        switchKeyboardLayer: (mathfield: IRemoteMathfield, layer) =>
-            switchKeyboardLayer(mathfield, layer),
-        unshiftKeyboardLayer: (mathfield: IRemoteMathfield) =>
-            unshiftKeyboardLayer(mathfield),
+        switchKeyboardLayer: (keyboard: VirtualKeyboard, layer) =>
+            switchKeyboardLayer(keyboard, layer),
+        unshiftKeyboardLayer: (keyboard: VirtualKeyboard) =>
+            unshiftKeyboardLayer(keyboard),
         insertAndUnshiftKeyboardLayer: insertAndUnshiftKeyboardLayer,
     },
     { target: 'virtual-keyboard' }
 );
 
-export function toggleVirtualKeyboardAlt(mathfield: IRemoteMathfield) {
+export function toggleVirtualKeyboardAlt(keyboard: VirtualKeyboard): boolean {
     let hadAltTheme = false;
-    if (mathfield.virtualKeyboard?.element) {
-        hadAltTheme = mathfield.virtualKeyboard?.element.classList.contains(
-            'material'
-        );
-        mathfield.virtualKeyboard.dispose();
-        delete mathfield.virtualKeyboard;
+    if (keyboard?.element) {
+        hadAltTheme = keyboard?.element.classList.contains('material');
+        keyboard.dispose();
     }
-    showVirtualKeyboard(mathfield, hadAltTheme ? '' : 'material');
+    showVirtualKeyboard(keyboard, hadAltTheme ? '' : 'material');
     return false;
 }
 
-export function toggleVirtualKeyboardShift(mathfield: IRemoteMathfield) {
-    mathfield.options.virtualKeyboardLayout = {
+export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
+    keyboard.options.virtualKeyboardLayout = {
         qwerty: 'azerty',
 
         azerty: 'qwertz',
         qwertz: 'dvorak',
         dvorak: 'colemak',
         colemak: 'qwerty',
-    }[mathfield.options.virtualKeyboardLayout];
+    }[keyboard.options.virtualKeyboardLayout];
     const layer =
-        mathfield.virtualKeyboard?.element.querySelector(
-            'div.keyboard-layer.is-visible'
-        ).id ?? '';
-    if (mathfield.virtualKeyboard) {
-        mathfield.virtualKeyboard.dispose();
-        delete mathfield.virtualKeyboard;
+        keyboard?.element.querySelector('div.keyboard-layer.is-visible').id ??
+        '';
+    if (keyboard) {
+        keyboard.dispose();
     }
-    showVirtualKeyboard(mathfield);
+    showVirtualKeyboard(keyboard);
     if (layer) {
-        switchKeyboardLayer(mathfield, layer);
+        switchKeyboardLayer(keyboard, layer);
     }
     return false;
 }
@@ -324,76 +320,69 @@ registerCommand(
 );
 
 export function showVirtualKeyboard(
-    mathfield: IRemoteMathfield,
+    keyboard: VirtualKeyboard,
     theme: 'apple' | 'material' | '' = ''
 ): boolean {
-    mathfield.virtualKeyboardVisible = false;
-    toggleVirtualKeyboard(mathfield, theme);
+    keyboard.visible = false;
+    toggleVirtualKeyboard(keyboard, theme);
     return false;
 }
 
-export function hideVirtualKeyboard(mathfield: IRemoteMathfield): boolean {
-    mathfield.virtualKeyboardVisible = true;
-    toggleVirtualKeyboard(mathfield);
+export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
+    keyboard.visible = true;
+    toggleVirtualKeyboard(keyboard);
     return false;
 }
 
 function toggleVirtualKeyboard(
-    mathfield: IRemoteMathfield,
+    keyboard: VirtualKeyboard,
     theme?: 'apple' | 'material' | ''
 ): boolean {
-    mathfield.virtualKeyboardVisible = !mathfield.virtualKeyboardVisible;
-    if (mathfield.virtualKeyboardVisible) {
-        mathfield.focus();
-        if (mathfield.virtualKeyboard?.element) {
-            mathfield.virtualKeyboard.element.classList.add('is-visible');
+    keyboard.visible = !keyboard.visible;
+    if (keyboard.visible) {
+        keyboard.focusMathfield();
+        if (keyboard.element) {
+            keyboard.element.classList.add('is-visible');
         } else {
             // Construct the virtual keyboard
-            mathfield.virtualKeyboard = makeKeyboard(mathfield, theme);
+            keyboard.element = makeKeyboardElement(keyboard, theme);
             // Let's make sure that tapping on the keyboard focuses the field
-            on(
-                mathfield.virtualKeyboard.element,
-                'touchstart:passive mousedown',
-                () => {
-                    mathfield.focus();
-                }
+            on(keyboard.element, 'touchstart:passive mousedown', () =>
+                keyboard.focusMathfield()
             );
-            document.body.appendChild(mathfield.virtualKeyboard.element);
+            document.body.appendChild(keyboard.element);
         }
         // For the transition effect to work, the property has to be changed
         // after the insertion in the DOM. Use setTimeout
         window.setTimeout(() => {
-            mathfield.virtualKeyboard?.element.classList.add('is-visible');
+            keyboard?.element.classList.add('is-visible');
         }, 1);
-    } else if (mathfield.virtualKeyboard?.element) {
-        mathfield.virtualKeyboard.element.classList.remove('is-visible');
-    }
-    if (
-        mathfield.virtualKeyboard?.element &&
-        typeof mathfield.options.onVirtualKeyboardToggle === 'function'
-    ) {
-        mathfield.options.onVirtualKeyboardToggle(
-            mathfield as any,
-            mathfield.virtualKeyboardVisible,
-            mathfield.virtualKeyboard.element
+    } else if (keyboard?.element) {
+        keyboard.element.classList.remove('is-visible');
+        keyboard.element.dispatchEvent(
+            new Event('virtual-keyboard-toggle', {
+                bubbles: true,
+                cancelable: false,
+            })
         );
     }
+    keyboard.stateChanged();
     return false;
 }
 
 registerCommand(
     {
-        toggleVirtualKeyboard: (mathfield: IRemoteMathfield, theme) =>
-            toggleVirtualKeyboard(mathfield, theme),
-        hideVirtualKeyboard: (mathfield: IRemoteMathfield) =>
-            hideVirtualKeyboard(mathfield),
-        showVirtualKeyboard: (mathfield: IRemoteMathfield, theme): boolean =>
-            showVirtualKeyboard(mathfield, theme),
-        updateUndoRedoButtons: (
-            mathfield: IRemoteMathfield,
+        toggleVirtualKeyboard: (keyboard: VirtualKeyboard, theme) =>
+            toggleVirtualKeyboard(keyboard, theme),
+        hideVirtualKeyboard: (keyboard: VirtualKeyboard) =>
+            hideVirtualKeyboard(keyboard),
+        showVirtualKeyboard: (keyboard: VirtualKeyboard, theme): boolean =>
+            showVirtualKeyboard(keyboard, theme),
+        onUndoStateChanged: (
+            keyboard: VirtualKeyboard,
             canUndoState,
             canRedoState
-        ) => updateUndoRedoButtons(mathfield, canUndoState, canRedoState),
+        ) => onUndoStateChanged(keyboard, canUndoState, canRedoState),
     },
     { target: 'virtual-keyboard' }
 );

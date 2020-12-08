@@ -7,7 +7,6 @@ import {
 } from './core';
 import type { Mathfield } from './mathfield';
 import type { Selector } from './commands';
-import { ICommandExecutor } from '../editor/editor';
 
 /**
  * A keybinding associates a combination of physical keyboard keys with a
@@ -321,12 +320,6 @@ export interface VirtualKeyboardLayer {
 
 export type VirtualKeyboardToolbarOptions = 'none' | 'default';
 
-export type RemoteKeyboardOptions = CoreOptions &
-    LayoutOptions &
-    VirtualKeyboardOptions &
-    MathfieldKeyboardListeners &
-    MathfieldHooks;
-
 export type VirtualKeyboardOptions = {
     /**
      * A space separated list of the keyboards that should be available. The
@@ -497,19 +490,22 @@ export interface MathfieldHooks {
     ) => boolean;
 }
 
+export type RemoteVirtualKeyboardOptions = CoreOptions &
+    VirtualKeyboardOptions & {
+        /**
+         * Specify the `targetOrigin` parameter for [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+         * to send control messages from parent to child frame to remote control of
+         * mathfield component.
+         *
+         * **Default**: `'*'`
+         */
+        targetOrigin: string;
+    };
+
 export type UndoStateChangeListener = (
     target: Mathfield,
     action: 'undo' | 'redo' | 'snapshot'
 ) => void;
-
-/** @deprecated */
-export interface MathfieldKeyboardListeners {
-    onVirtualKeyboardToggle: (
-        sender: Mathfield,
-        visible: boolean,
-        keyboardElement: HTMLElement
-    ) => void;
-}
 
 /**
  * The methods provide a notification that an event is about to occur or has
@@ -525,7 +521,7 @@ mfe.addEventListener('input', (ev) => {
  * @deprecated Use corresponding events of `MathfieldEvent` instead
  */
 
-export interface MathfieldListeners extends MathfieldKeyboardListeners {
+export interface MathfieldListeners {
     /** The mathfield has lost keyboard focus */
     onBlur: (sender: Mathfield) => void;
     /** The mathfield has gained keyboard focus */
@@ -842,16 +838,6 @@ export type CoreOptions = {
     // @todo https://github.com/microsoft/TypeScript/issues/30024
 };
 
-export type RemoteMathfieldOptions = RemoteKeyboardOptions & {
-    /**
-     * Specify the `targetOrigin` parameter for [postMessage](https://developer.mozilla.org/ru/docs/Web/API/Window/postMessage)
-     * to send control messages from parent to child frame to remote control of mathfield component.
-     *
-     * **Default**: `'*'`
-     */
-    targetOrigin: string;
-};
-
 /**
  * @keywords security, trust, sanitize, errors
  */
@@ -866,33 +852,32 @@ export type MathfieldOptions = LayoutOptions &
     MathfieldHooks &
     MathfieldListeners & {
         /**
-         * Enable usage of proxy host to deligate virtual keyboard commands to parent frame.
+         * When true, use a shared virtual keyboard for all the mathfield
+         * elements in the page, even across iframes.
          *
-         * Use following code to initialize virtual keyboard
-         * on parent frame with `true` value of this option:
+         * When setting this option to true, you must create the shared
+         * virtual keyboard in the the parent document:
          *
          * ```javascript
-         * import { makeRemoteClient } from 'mathlive';
+         * import { makeSharedVirtualKeyboard } from 'mathlive';
          *
-         * (function() {
-         *     const mathfieldClient = makeRemoteClient({
+         *     makeSharedVirtualKeyboard({
          *         virtualKeyboardToolbar: 'none',
          *     });
-         * })();
          * ```
          *
          * **Default**: `false`
          */
-        useProxyHost: boolean;
+        useSharedVirtualKeyboard: boolean;
         /**
          * Specify the `targetOrigin` parameter for
-         * [postMessage](https://developer.mozilla.org/ru/docs/Web/API/Window/postMessage)
+         * [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
          * to send control messages from child to parent frame to remote control
          * of mathfield component.
          *
          * **Default**: `'*'`
          */
-        proxyHostTargetOrigin: string;
+        sharedVirtualKeyboardTargetOrigin: string;
 
         /**
          * An optional listener function that will be

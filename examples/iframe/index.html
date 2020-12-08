@@ -19,9 +19,9 @@
         iframe {
             display: block;
             width: 100%;
-            min-height: 30vh;
+            min-height: 230px;
             margin: 20px 0;
-            border: 2px solid #444;
+            border: 2px dashed #999;
         }
     </style>
 </head>
@@ -29,16 +29,15 @@
 <body>
     <main>
         <h2>MathLive Iframe Example</h2>
-        
-        <iframe src="child.html"></iframe>
+        <iframe src="child2.html"></iframe>
         <iframe src="child.html"></iframe>
     </main>
 
     <script type="module">
-        import { makeRemoteClient } from '/dist/mathlive.mjs';
-        // import {makeRemoteClient} from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+        import { makeSharedVirtualKeyboard } from '/dist/mathlive.mjs';
+        // import {makeSharedVirtualKeyboard} from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
 
-        const client = makeRemoteClient({});
+        makeSharedVirtualKeyboard({});
     </script>
 </body>
 

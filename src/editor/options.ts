@@ -1,8 +1,4 @@
-import type {
-    MathfieldOptions,
-    RemoteKeyboardOptions,
-    RemoteMathfieldOptions,
-} from '../public/options';
+import type { MathfieldOptions } from '../public/options';
 
 import { isArray } from '../common/types';
 
@@ -213,7 +209,6 @@ export function update(
             case 'onUndoStateDidChange':
             case 'onModeChange':
             case 'onCommit':
-            case 'onVirtualKeyboardToggle':
             case 'onReadAloudStatus':
             case 'onError':
                 if (updates[key] === null) {
@@ -278,42 +273,6 @@ export function get(
     return result;
 }
 
-export function getRemoteDefault(): Required<RemoteMathfieldOptions> {
-    return {
-        namespace: '',
-        createHTML: (s: string): any => s,
-        fontsDirectory: './fonts',
-        soundsDirectory: './sounds',
-        targetOrigin: '*',
-
-        defaultMode: 'math',
-        macros: MACROS,
-        horizontalSpacingScale: 1.0,
-        letterShapeStyle: 'auto',
-
-        virtualKeyboards: 'all',
-        virtualKeyboardLayout: 'auto',
-        customVirtualKeyboardLayers: {},
-        customVirtualKeyboards: {},
-        virtualKeyboardTheme: /android|cros/i.test(navigator?.userAgent)
-            ? 'material'
-            : 'apple',
-        keypressVibration: true,
-        keypressSound: null,
-        plonkSound: null,
-        virtualKeyboardToolbar: 'default',
-
-        virtualKeyboardToggleGlyph: `<span style="width: 21px; margin-top: 4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`,
-        virtualKeyboardMode: 'auto',
-
-        onKeystroke: (): boolean => true,
-        onMoveOutOf: (): boolean => true,
-        onTabOutOf: (): boolean => true,
-
-        onVirtualKeyboardToggle: NO_OP_LISTENER,
-    };
-}
-
 export function getDefault(): Required<MathfieldOptionsPrivate> {
     return {
         namespace: '',
@@ -358,8 +317,8 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         plonkSound: null,
         virtualKeyboardToolbar: 'default',
 
-        useProxyHost: false,
-        proxyHostTargetOrigin: '*',
+        useSharedVirtualKeyboard: false,
+        sharedVirtualKeyboardTargetOrigin: '*',
 
         textToSpeechRules: 'mathlive',
         textToSpeechMarkup: '', // no markup
@@ -384,7 +343,6 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         onUndoStateWillChange: NO_OP_LISTENER,
         onUndoStateDidChange: NO_OP_LISTENER,
         onModeChange: NO_OP_LISTENER,
-        onVirtualKeyboardToggle: NO_OP_LISTENER,
         onReadAloudStatus: NO_OP_LISTENER,
         onCommit: NO_OP_LISTENER,
 
