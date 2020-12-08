@@ -338,6 +338,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             'virtual-keyboard-theme': 'string',
             'virtual-keyboards': 'string',
             'use-shared-virtual-keyboard': 'boolean',
+            'shared-virtual-keyboard-target-origin': 'string',
         };
     }
     /**
