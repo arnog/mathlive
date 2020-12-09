@@ -103,13 +103,6 @@ export default {
                 onUndoStateDidChange: (_, command) => {
                     this.$emit('undo-state-did-change', command);
                 },
-                onVirtualKeyboardToggle: (_, visible, keyboardElement) => {
-                    this.$emit(
-                        'virtual-keyboard-toggle',
-                        visible,
-                        keyboardElement
-                    );
-                },
                 onReadAloudStatus: (_, status) => {
                     this.$emit('read-aloud-status-change', status);
                 },

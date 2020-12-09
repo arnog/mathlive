@@ -9,6 +9,19 @@ import type { Mathfield } from './mathfield';
 import type { Selector } from './commands';
 
 /**
+ * Specify behaviour for origin validation.
+ * | Value | Description |
+ * | ----- | ----------- |
+ * | `'same-origin'` | The origin of received message must be the same of hosted window, instead exception will thow. |
+ * | `'(origin: string) => boolean` | The callback to verify origin to be expected validation. When callback return `false` value, message will rejected and exception will throw. |
+ * | `'none'` | No origin validation for post messages. |
+ */
+export type OriginValidator =
+    | ((origin: string) => boolean)
+    | 'same-origin'
+    | 'none';
+
+/**
  * A keybinding associates a combination of physical keyboard keys with a
  * command.
  *
@@ -322,26 +335,6 @@ export type VirtualKeyboardToolbarOptions = 'none' | 'default';
 
 export type VirtualKeyboardOptions = {
     /**
-     * If specified, the markup to be used to display the virtual keyboard
-     * toggle glyph. If none is specified a default keyboard icon is used.
-     */
-    virtualKeyboardToggleGlyph: string;
-    /**
-     * -   `'manual'`: pressing the virtual keyboard toggle button will show or hide
-     *     the virtual keyboard. If hidden, the virtual keyboard is not shown when
-     *     the field is focused until the toggle button is pressed.
-     * -   `'onfocus'`: the virtual keyboard will be displayed whenever the field is
-     *     focused and hidden when the field loses focus. In that case, the virtual
-     *     keyboard toggle button is not displayed.
-     * -   `'off'`: the virtual keyboard toggle button is not displayed, and the
-     *     virtual keyboard is never triggered.
-     *
-     * If the setting is empty, it will default to `'onfocus'` on touch-capable
-     * devices and to `'off'` otherwise.
-     *
-     */
-    virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
-    /**
      * A space separated list of the keyboards that should be available. The
      * keyboard `'all'` is synonym with `'numeric'`, `'functions'``, `'symbols'``
      * `'roman'` and `'greek'`,
@@ -435,6 +428,27 @@ export type VirtualKeyboardOptions = {
      * Use `none` to disable right hand side toolbar of virtual keyboard.
      */
     virtualKeyboardToolbar?: VirtualKeyboardToolbarOptions;
+
+    /**
+     * If specified, the markup to be used to display the virtual keyboard
+     * toggle glyph. If none is specified a default keyboard icon is used.
+     */
+    virtualKeyboardToggleGlyph: string;
+    /**
+     * -   `'manual'`: pressing the virtual keyboard toggle button will show or hide
+     *     the virtual keyboard. If hidden, the virtual keyboard is not shown when
+     *     the field is focused until the toggle button is pressed.
+     * -   `'onfocus'`: the virtual keyboard will be displayed whenever the field is
+     *     focused and hidden when the field loses focus. In that case, the virtual
+     *     keyboard toggle button is not displayed.
+     * -   `'off'`: the virtual keyboard toggle button is not displayed, and the
+     *     virtual keyboard is never triggered.
+     *
+     * If the setting is empty, it will default to `'onfocus'` on touch-capable
+     * devices and to `'off'` otherwise.
+     *
+     */
+    virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
 };
 
 /**
@@ -489,6 +503,26 @@ export interface MathfieldHooks {
     ) => boolean;
 }
 
+export type RemoteVirtualKeyboardOptions = CoreOptions &
+    VirtualKeyboardOptions & {
+        /**
+         * Specify the `targetOrigin` parameter for [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+         * to send control messages from parent to child frame to remote control of
+         * mathfield component.
+         *
+         * **Default**: `window.origin`
+         */
+        targetOrigin: string;
+
+        /**
+         * Specify behaviour how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+         * should be validated.
+         *
+         * **Default**: `'same-origin'`
+         */
+        originValidator: OriginValidator;
+    };
+
 export type UndoStateChangeListener = (
     target: Mathfield,
     action: 'undo' | 'redo' | 'snapshot'
@@ -521,11 +555,6 @@ export interface MathfieldListeners {
     onUndoStateDidChange: UndoStateChangeListener;
     onCommit: (sender: Mathfield) => void;
     onModeChange: (sender: Mathfield, mode: ParseMode) => void;
-    onVirtualKeyboardToggle: (
-        sender: Mathfield,
-        visible: boolean,
-        keyboardElement: HTMLElement
-    ) => void;
     onReadAloudStatus: (sender: Mathfield) => void;
 }
 
@@ -763,10 +792,76 @@ mf.setConfig({
     letterShapeStyle: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
 };
 
+export type CoreOptions = {
+    /**
+     * Namespace that is added to `data-` attributes to avoid collisions
+     * with other libraries.
+     *
+     * The namespace should be a string of lowercase letters.
+     *
+     * It is empty by default.
+     *
+     * @deprecated
+     */
+    namespace: string;
+    /**
+     * A URL fragment pointing to the directory containing the fonts
+     * necessary to render a formula.
+     *
+     * These fonts are available in the `/dist/fonts` directory of the SDK.
+     *
+     * Customize this value to reflect where you have copied these fonts,
+     * or to use the CDN version.
+     *
+     * The default value is './fonts'.
+     *
+     * Changing this setting after the mathfield has been created will have
+     * no effect.
+     *
+     * ```javascript
+     * {
+     *      // Use the CDN version
+     *      fontsDirectory: ''
+     * }
+     * ```
+     * ```javascript
+     * {
+     *      // Use a directory called 'fonts', located next to the
+     *      // `mathlive.js` (or `mathlive.mjs`) file.
+     *      fontsDirectory: './fonts'
+     * }
+     * ```
+     * ```javascript
+     * {
+     *      // Use a directory located at the top your website
+     *      fontsDirectory: 'https://example.com/fonts'
+     * }
+     * ```
+     *
+     */
+    fontsDirectory: string;
+
+    /**
+     * A URL fragment pointing to the directory containing the optional
+     * sounds used to provide feedback while typing.
+     *
+     * Some default sounds are available in the `/dist/sounds` directory of the SDK.
+     */
+    soundsDirectory: string;
+    /**
+     * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+     *
+     * This optional function will be called before a string of HTML is
+     * injected in the DOM, allowing that string to be sanitized
+     * according to a policy defined by the host.
+     */
+    createHTML: (html: string) => any;
+    // @todo https://github.com/microsoft/TypeScript/issues/30024
+};
+
 /**
  * @keywords security, trust, sanitize, errors
  */
-
 export type MathfieldOptions = LayoutOptions &
     EditingOptions &
     LocalizationOptions &
@@ -774,19 +869,44 @@ export type MathfieldOptions = LayoutOptions &
     KeyboardOptions &
     VirtualKeyboardOptions &
     TextToSpeechOptions &
+    CoreOptions &
     MathfieldHooks &
     MathfieldListeners & {
         /**
-         * Namespace that is added to `data-` attributes to avoid collisions
-         * with other libraries.
+         * When true, use a shared virtual keyboard for all the mathfield
+         * elements in the page, even across iframes.
          *
-         * The namespace should be a string of lowercase letters.
+         * When setting this option to true, you must create the shared
+         * virtual keyboard in the the parent document:
          *
-         * It is empty by default.
+         * ```javascript
+         * import { makeSharedVirtualKeyboard } from 'mathlive';
          *
-         * @deprecated
+         *     makeSharedVirtualKeyboard({
+         *         virtualKeyboardToolbar: 'none',
+         *     });
+         * ```
+         *
+         * **Default**: `false`
          */
-        namespace: string;
+        useSharedVirtualKeyboard: boolean;
+        /**
+         * Specify the `targetOrigin` parameter for
+         * [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+         * to send control messages from child to parent frame to remote control
+         * of mathfield component.
+         *
+         * **Default**: `window.origin`
+         */
+        sharedVirtualKeyboardTargetOrigin: string;
+
+        /**
+         * Specify behaviour how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+         * should be validated.
+         *
+         * **Default**: `'same-origin'`
+         */
+        originValidator: OriginValidator;
 
         /**
          * An optional listener function that will be
@@ -814,60 +934,6 @@ export type MathfieldOptions = LayoutOptions &
          * Alternatively, the ID of a DOM element can be provided.
          */
         substituteTextArea: string | (() => HTMLElement);
-
-        /**
-         * A URL fragment pointing to the directory containing the fonts
-         * necessary to render a formula.
-         *
-         * These fonts are available in the `/dist/fonts` directory of the SDK.
-         *
-         * Customize this value to reflect where you have copied these fonts,
-         * or to use the CDN version.
-         *
-         * The default value is './fonts'.
-         *
-         * Changing this setting after the mathfield has been created will have
-         * no effect.
-         *
-         * ```javascript
-         * {
-         *      // Use the CDN version
-         *      fontsDirectory: ''
-         * }
-         * ```
-         * ```javascript
-         * {
-         *      // Use a directory called 'fonts', located next to the
-         *      // `mathlive.js` (or `mathlive.mjs`) file.
-         *      fontsDirectory: './fonts'
-         * }
-         * ```
-         * ```javascript
-         * {
-         *      // Use a directory located at the top your website
-         *      fontsDirectory: 'https://example.com/fonts'
-         * }
-         * ```
-         *
-         */
-        fontsDirectory: string;
-
-        /**
-         * A URL fragment pointing to the directory containing the optional
-         * sounds used to provide feedback while typing.
-         *
-         * Some default sounds are available in the `/dist/sounds` directory of the SDK.
-         */
-        soundsDirectory: string;
-        /**
-         * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
-         *
-         * This optional function will be called before a string of HTML is
-         * injected in the DOM, allowing that string to be sanitized
-         * according to a policy defined by the host.
-         */
-        createHTML: (html: string) => any;
-        // @todo https://github.com/microsoft/TypeScript/issues/30024
     };
 
 /**

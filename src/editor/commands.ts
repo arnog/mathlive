@@ -11,8 +11,10 @@ export { SelectorPrivate };
 // @revisit: move to mathfield.vibrate()
 export const HAPTIC_FEEDBACK_DURATION = 3; // in ms
 
+type CommandTarget = 'model' | 'mathfield' | 'virtual-keyboard';
+
 interface RegisterCommandOptions {
-    target: 'model' | 'mathfield' | 'virtual-keyboard';
+    target: CommandTarget;
     category?:
         | 'delete'
         | 'edit' // Changes the content
@@ -31,7 +33,7 @@ interface RegisterCommandOptions {
     changeSelection?: boolean; // To update inline shortcut buffer
 }
 
-const COMMANDS: CommandRegistry<RegisterCommandOptions> = {};
+export const COMMANDS: CommandRegistry<RegisterCommandOptions> = {};
 
 /**
  * Register one or more selectors.
@@ -51,6 +53,25 @@ export function register(
         );
         COMMANDS[selector] = { ...options, fn: commands[selector] };
     });
+}
+
+export function getCommandTarget(
+    command: SelectorPrivate | [SelectorPrivate, ...any[]]
+): CommandTarget {
+    let selector: SelectorPrivate;
+
+    if (isArray(command)) {
+        selector = command[0] as SelectorPrivate;
+    } else {
+        selector = command;
+    }
+
+    // Convert kebab case (like-this) to camel case (likeThis).
+    selector = selector.replace(/-\w/g, (m) =>
+        m[1].toUpperCase()
+    ) as SelectorPrivate;
+
+    return COMMANDS[selector]?.target;
 }
 
 export function perform(
@@ -77,7 +98,17 @@ export function perform(
     selector = selector.replace(/-\w/g, (m) =>
         m[1].toUpperCase()
     ) as SelectorPrivate;
-    if (COMMANDS[selector]?.target === 'model') {
+
+    const commandTarget = COMMANDS[selector]?.target;
+
+    // TODO Refactor this method
+    // Actually using commands by this way increase code complexity,
+    //  ideally all code must be moved under command code, maybe it is
+    //  a good idea to implement new Command API with additional hooks
+    //  and callbacks to make command code more transparent. Now logic of
+    //  commands are splitted between command function, registration options
+    //  and there.
+    if (commandTarget === 'model') {
         if (/^(delete|transpose|add)/.test(selector)) {
             if (selector !== 'deleteBackward') {
                 mathfield.resetKeystrokeBuffer();
@@ -103,28 +134,37 @@ export function perform(
         }
         dirty = true;
         handled = true;
+    } else if (commandTarget === 'virtual-keyboard') {
+        dirty = mathfield.virtualKeyboard.executeCommand(command);
+        handled = true;
     } else if (COMMANDS[selector]) {
         dirty = COMMANDS[selector].fn(mathfield, ...args);
         handled = true;
     } else {
         throw Error('Unknown command "' + selector + '"');
     }
-    // If the command changed the selection so that it is no longer
-    // collapsed, or if it was an editing command, reset the inline
-    // shortcut buffer and the user style
-    if (
-        !mathfield.model.selectionIsCollapsed ||
-        /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(
-            selector
-        )
-    ) {
-        mathfield.resetKeystrokeBuffer();
-        mathfield.style = {};
+
+    // Virtual keyboard commands do not update mathfield state
+    if (commandTarget !== 'virtual-keyboard') {
+        // If the command changed the selection so that it is no longer
+        // collapsed, or if it was an editing command, reset the inline
+        // shortcut buffer and the user style
+        if (
+            !mathfield.model.selectionIsCollapsed ||
+            /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(
+                selector
+            )
+        ) {
+            mathfield.resetKeystrokeBuffer();
+            mathfield.style = {};
+        }
     }
+
     // Render the mathlist
     if (dirty) {
         requestUpdate(mathfield);
     }
+
     return handled;
 }
 

@@ -321,19 +321,27 @@ export function showPopoverWithLatex(
 
     let el = mf.popover.getElementsByClassName('ML__popover__content');
     if (el && el.length > 0) {
-        attachButtonHandlers(mf, el[0], {
+        attachButtonHandlers((command) => mf.executeCommand(command), el[0], {
             default: ['complete', 'accept-suggestion'],
         });
     }
 
     el = mf.popover.getElementsByClassName('ML__popover__prev-shortcut');
     if (el && el.length > 0) {
-        attachButtonHandlers(mf, el[0], 'previousSuggestion');
+        attachButtonHandlers(
+            (command) => mf.executeCommand(command),
+            el[0],
+            'previousSuggestion'
+        );
     }
 
     el = mf.popover.getElementsByClassName('ML__popover__next-shortcut');
     if (el && el.length > 0) {
-        attachButtonHandlers(mf, el[0], 'nextSuggestion');
+        attachButtonHandlers(
+            (command) => mf.executeCommand(command),
+            el[0],
+            'nextSuggestion'
+        );
     }
 
     setTimeout(() => {
@@ -390,9 +398,7 @@ function setPopoverPosition(
         window.innerWidth - document.documentElement.clientWidth;
     const scrollbarHeight =
         window.innerHeight - document.documentElement.clientHeight;
-    const virtualkeyboardHeight = mf.virtualKeyboardVisible
-        ? mf.virtualKeyboard.element.offsetHeight
-        : 0;
+    const virtualkeyboardHeight = mf.virtualKeyboard.height;
     // prevent screen overflow horizontal.
     if (
         position.x + mf.popover.offsetWidth / 2 >
@@ -422,6 +428,8 @@ function setPopoverPosition(
 
 export function hidePopover(mf: MathfieldPrivate): void {
     mf.suggestionIndex = 0;
-    mf.popover.classList.remove('is-visible');
-    mf.popover.innerHTML = '';
+    if (mf.popover) {
+        mf.popover.classList.remove('is-visible');
+        mf.popover.innerHTML = '';
+    }
 }

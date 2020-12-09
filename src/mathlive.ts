@@ -1,5 +1,9 @@
 import type { Mathfield } from './public/mathfield';
-import type { MathfieldOptions, TextToSpeechOptions } from './public/options';
+import type {
+    MathfieldOptions,
+    RemoteVirtualKeyboardOptions,
+    TextToSpeechOptions,
+} from './public/options';
 import type {
     ErrorListener,
     ParserErrorCode,
@@ -34,6 +38,9 @@ import { atomsToMathML } from './addons/math-ml';
 import './addons/definitions-metadata';
 import { AutoRenderOptionsPrivate } from './addons/auto-render';
 
+import './editor/virtual-keyboard-commands';
+import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboard';
+
 export { MathfieldElement } from './public/mathfield-element';
 
 export function makeMathField(
@@ -43,6 +50,12 @@ export function makeMathField(
     options.speakHook = options.speakHook ?? defaultSpeakHook;
     options.readAloudHook = options.readAloudHook ?? defaultReadAloudHook;
     return new MathfieldPrivate(getElement(element), options);
+}
+
+export function makeSharedVirtualKeyboard(
+    options: Partial<RemoteVirtualKeyboardOptions>
+): void {
+    new RemoteVirtualKeyboard(options);
 }
 
 /** @deprecated */

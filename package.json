@@ -16,6 +16,7 @@
         "build": "bash ./scripts/build.sh",
         "clean": "rimraf build dist coverage",
         "dist": "bash ./scripts/build.sh production",
+        "prepare": "bash ./scripts/build.sh production",
         "lint": "eslint --fix src/",
         "start": "bash ./scripts/build.sh watch",
         "test": "bash ./scripts/test.sh",

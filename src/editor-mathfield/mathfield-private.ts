@@ -27,6 +27,7 @@ import {
     HAPTIC_FEEDBACK_DURATION,
     SelectorPrivate,
     perform,
+    getCommandTarget,
 } from '../editor/commands';
 import { find, replace } from '../editor-model/find';
 import { complete } from './autocomplete';
@@ -60,12 +61,6 @@ import {
 
 import { attachButtonHandlers } from './buttons';
 import { onPointerDown, offsetFromPoint } from './pointer-input';
-import {
-    showVirtualKeyboard,
-    hideVirtualKeyboard,
-    switchKeyboardLayer,
-} from '../editor/virtual-keyboard-commands';
-
 import { normalizeKeybindings } from '../editor/keybindings';
 import {
     setKeyboardLayoutLocale,
@@ -74,7 +69,7 @@ import {
 
 import {
     VirtualKeyboard,
-    updateUndoRedoButtons,
+    VirtualKeyboardInterface,
 } from '../editor/virtual-keyboard';
 
 // @ts-ignore
@@ -94,6 +89,7 @@ import './mode-editor-latex';
 import './mode-editor-text';
 import { getLatexGroupBody } from './mode-editor-latex';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 
 export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
@@ -127,8 +123,7 @@ export class MathfieldPrivate implements Mathfield {
     keystrokeCaptionVisible: boolean;
     keystrokeCaption: HTMLElement;
 
-    virtualKeyboardVisible: boolean;
-    virtualKeyboard: VirtualKeyboard;
+    virtualKeyboard: VirtualKeyboardInterface;
 
     keybindings: Keybinding[]; // Normalized keybindings (raw ones in config)
     keyboardLayout: KeyboardLayoutName;
@@ -173,6 +168,23 @@ export class MathfieldPrivate implements Mathfield {
             },
             ...options,
         });
+
+        // The virtual keyboard can be either attached to this mathfield
+        // or a delegate that mirrors a global virtual keyboard attached
+        // to the document. This is useful for example when using
+        // mathfield in iframes so that all the mathfields share the keyboard
+        // at the document level (rather than having one in each iframe)
+        this.virtualKeyboard = options.useSharedVirtualKeyboard
+            ? new VirtualKeyboardDelegate({
+                  targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
+                  focus: () => this.focus(),
+                  blur: () => this.blur(),
+                  executeCommand: (command) => this.executeCommand(command),
+                  originValidator: this.options.originValidator,
+              })
+            : new VirtualKeyboard(this.options, {
+                  executeCommand: (command) => this.executeCommand(command),
+              });
 
         this.plonkSound = this.options.plonkSound as HTMLAudioElement;
         if (
@@ -324,11 +336,15 @@ export class MathfieldPrivate implements Mathfield {
 
         this.virtualKeyboardToggle = this.element.children[iChild++]
             .children[1] as HTMLElement;
-        attachButtonHandlers(this, this.virtualKeyboardToggle, {
-            default: 'toggleVirtualKeyboard',
-            alt: 'toggleVirtualKeyboardAlt',
-            shift: 'toggleVirtualKeyboardShift',
-        });
+        attachButtonHandlers(
+            (command) => this.executeCommand(command),
+            this.virtualKeyboardToggle,
+            {
+                default: 'toggleVirtualKeyboard',
+                alt: 'toggleVirtualKeyboardAlt',
+                shift: 'toggleVirtualKeyboardShift',
+            }
+        );
         this.ariaLiveText = this.element.children[iChild]
             .children[0] as HTMLElement;
         this.accessibleNode = this.element.children[iChild++]
@@ -351,7 +367,6 @@ export class MathfieldPrivate implements Mathfield {
         // The keystroke caption panel and the command bar are
         // initially hidden
         this.keystrokeCaptionVisible = false;
-        this.virtualKeyboardVisible = false;
         this.keystrokeBuffer = '';
         this.keystrokeBufferStates = [];
         this.keystrokeBufferResetTimer = null;
@@ -693,6 +708,7 @@ export class MathfieldPrivate implements Mathfield {
         this.dispose();
         this.element.innerHTML = this.options.createHTML(this.originalContent);
     }
+
     dispose(): void {
         this.element.innerHTML = '$$' + this.getValue() + '$$';
         delete this.element['mathfield'];
@@ -768,13 +784,15 @@ export class MathfieldPrivate implements Mathfield {
         if (this.blurred) {
             this.blurred = false;
             this.keyboardDelegate.focus();
+
+            this.virtualKeyboard.enable();
+
             if (this.options.virtualKeyboardMode === 'onfocus') {
-                showVirtualKeyboard(this);
+                this.executeCommand('showVirtualKeyboard');
             }
             updatePopoverPosition(this);
-            if (this.options.onFocus) {
-                this.options.onFocus(this);
-            }
+            this.options.onFocus?.(this);
+
             // Save the current value.
             // It will be compared in `onBlur()` to see if the
             // `onCommit` listener needs to be invoked. This
@@ -787,14 +805,18 @@ export class MathfieldPrivate implements Mathfield {
         if (!this.blurred) {
             this.blurred = true;
             this.ariaLiveText.textContent = '';
+
             if (/onfocus|manual/.test(this.options.virtualKeyboardMode)) {
-                hideVirtualKeyboard(this);
+                this.executeCommand('hideVirtualKeyboard');
             }
             complete(this, 'accept');
             requestUpdate(this);
             if (typeof this.options.onBlur === 'function') {
                 this.options.onBlur(this);
             }
+
+            this.virtualKeyboard.disable();
+
             if (
                 typeof this.options.onCommit === 'function' &&
                 this.getValue() !== this.valueOnFocus
@@ -852,6 +874,9 @@ export class MathfieldPrivate implements Mathfield {
     executeCommand(
         command: SelectorPrivate | [SelectorPrivate, ...any[]]
     ): boolean {
+        if (getCommandTarget(command) === 'virtual-keyboard') {
+            return this.virtualKeyboard?.executeCommand(command);
+        }
         return perform(this, command);
     }
 
@@ -1090,8 +1115,11 @@ export class MathfieldPrivate implements Mathfield {
                     complete(this, 'accept');
 
                     // Switch to the command mode keyboard layer
-                    if (this.virtualKeyboardVisible) {
-                        switchKeyboardLayer(this, 'latex-lower');
+                    if (this.virtualKeyboard.visible) {
+                        this.executeCommand([
+                            'switchKeyboardLayer',
+                            'latex-lower',
+                        ]);
                     }
 
                     // Insert a latex group atom
@@ -1266,7 +1294,11 @@ export class MathfieldPrivate implements Mathfield {
         this.undoManager.snapshot({
             ...this.options,
             onUndoStateDidChange: (mf, reason): void => {
-                updateUndoRedoButtons(this);
+                this.virtualKeyboard.executeCommand([
+                    'onUndoStateChanged',
+                    this.canUndo(),
+                    this.canRedo(),
+                ]);
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });
@@ -1275,7 +1307,11 @@ export class MathfieldPrivate implements Mathfield {
         this.undoManager.snapshotAndCoalesce({
             ...this.options,
             onUndoStateDidChange: (mf, reason): void => {
-                updateUndoRedoButtons(this);
+                this.virtualKeyboard.executeCommand([
+                    'onUndoStateChanged',
+                    this.canUndo(),
+                    this.canRedo(),
+                ]);
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });
@@ -1293,7 +1329,11 @@ export class MathfieldPrivate implements Mathfield {
         return this.undoManager.undo({
             ...this.options,
             onUndoStateDidChange: (mf, reason): void => {
-                updateUndoRedoButtons(this);
+                this.virtualKeyboard.executeCommand([
+                    'onUndoStateChanged',
+                    this.canUndo(),
+                    this.canRedo(),
+                ]);
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });
@@ -1302,7 +1342,11 @@ export class MathfieldPrivate implements Mathfield {
         return this.undoManager.redo({
             ...this.options,
             onUndoStateDidChange: (mf, reason): void => {
-                updateUndoRedoButtons(this);
+                this.virtualKeyboard.executeCommand([
+                    'onUndoStateChanged',
+                    this.canUndo(),
+                    this.canRedo(),
+                ]);
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });
