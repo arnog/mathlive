@@ -5,7 +5,11 @@ import {
     VirtualKeyboardInterface,
 } from '../editor/virtual-keyboard-utils';
 import { Selector } from '../public/commands';
-import { RemoteVirtualKeyboardOptions } from '../public/options';
+import {
+    OriginValidator,
+    RemoteVirtualKeyboardOptions,
+} from '../public/options';
+import { validateOrigin } from './utils';
 
 const POST_MESSAGE_TYPE = 'ml#systemPostMessage';
 
@@ -25,6 +29,7 @@ interface RemoteKeyboardMessageData {
 export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     // private mathfield: MathfieldPrivate;
     private targetOrigin: string;
+    private originValidator: OriginValidator;
     private enabled: boolean;
     visible: boolean;
     height: number;
@@ -44,9 +49,11 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
         focus: () => void;
         blur: () => void;
         executeCommand: ExecuteCommandFunction;
+        originValidator: OriginValidator;
     }) {
         // this.mathfield = mathfield;
-        this.targetOrigin = options.targetOrigin ?? '*';
+        this.targetOrigin = options.targetOrigin ?? window.origin;
+        this.originValidator = options.originValidator ?? 'same-origin';
         this._focus = options.focus;
         this._blur = options.blur;
         this._executeCommand = options.executeCommand;
@@ -115,9 +122,13 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
             e.data &&
             e.data.type === POST_MESSAGE_TYPE
         ) {
-            const action = e.data.action;
+            if (!validateOrigin(e.origin, this.originValidator)) {
+                throw new Error(
+                    `Message from unknown origin (${e.origin}) can not be handled`
+                );
+            }
 
-            // @todo: security: should check 'e.origin'
+            const action = e.data.action;
 
             if (action === 'executeCommand') {
                 this.executeCommand(e.data.command);
@@ -158,7 +169,8 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
             createHTML: (s: string): any => s,
             fontsDirectory: './fonts',
             soundsDirectory: './sounds',
-            targetOrigin: '*',
+            targetOrigin: window.origin,
+            originValidator: 'same-origin',
 
             virtualKeyboards: 'all',
             virtualKeyboardLayout: 'auto',
@@ -183,6 +195,12 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
             e.data &&
             e.data.type === POST_MESSAGE_TYPE
         ) {
+            if (!validateOrigin(e.origin, this.options.originValidator)) {
+                throw new Error(
+                    `Can not handle message from unknown origin (${e.origin}).`
+                );
+            }
+
             const action = e.data.action;
             if (action === 'executeCommand') {
                 const command = e.data.command;

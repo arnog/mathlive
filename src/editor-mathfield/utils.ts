@@ -1,5 +1,6 @@
 import { Atom } from '../core/atom-class';
 import type { Range } from '../public/mathfield';
+import { OriginValidator } from '../public/options';
 import { MathfieldPrivate } from './mathfield-private';
 
 export type Rect = {
@@ -227,4 +228,23 @@ export function getSelectionBounds(mathfield: MathfieldPrivate): Rect[] {
         (acc, x) => acc.concat(...getRangeBounds(mathfield, x)),
         []
     );
+}
+
+export function validateOrigin(
+    origin: string,
+    originValidator: OriginValidator
+): boolean {
+    if (originValidator === 'none') {
+        return true;
+    }
+
+    if (originValidator === 'same-origin') {
+        return origin === window.origin;
+    }
+
+    if (typeof originValidator === 'function') {
+        return originValidator(origin);
+    }
+
+    return false;
 }

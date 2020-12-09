@@ -180,6 +180,7 @@ export class MathfieldPrivate implements Mathfield {
                   focus: () => this.focus(),
                   blur: () => this.blur(),
                   executeCommand: (command) => this.executeCommand(command),
+                  originValidator: this.options.originValidator,
               })
             : new VirtualKeyboard(this.options, {
                   executeCommand: (command) => this.executeCommand(command),

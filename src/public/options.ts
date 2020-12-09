@@ -9,6 +9,19 @@ import type { Mathfield } from './mathfield';
 import type { Selector } from './commands';
 
 /**
+ * Specify behaviour for origin validation.
+ * | Value | Description |
+ * | ----- | ----------- |
+ * | `'same-origin'` | The origin of received message must be the same of hosted window, instead exception will thow. |
+ * | `'(origin: string) => boolean` | The callback to verify origin to be expected validation. When callback return `false` value, message will rejected and exception will throw. |
+ * | `'none'` | No origin validation for post messages. |
+ */
+export type OriginValidator =
+    | ((origin: string) => boolean)
+    | 'same-origin'
+    | 'none';
+
+/**
  * A keybinding associates a combination of physical keyboard keys with a
  * command.
  *
@@ -497,9 +510,17 @@ export type RemoteVirtualKeyboardOptions = CoreOptions &
          * to send control messages from parent to child frame to remote control of
          * mathfield component.
          *
-         * **Default**: `'*'`
+         * **Default**: `window.origin`
          */
         targetOrigin: string;
+
+        /**
+         * Specify behaviour how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+         * should be validated.
+         *
+         * **Default**: `'same-origin'`
+         */
+        originValidator: OriginValidator;
     };
 
 export type UndoStateChangeListener = (
@@ -875,9 +896,17 @@ export type MathfieldOptions = LayoutOptions &
          * to send control messages from child to parent frame to remote control
          * of mathfield component.
          *
-         * **Default**: `'*'`
+         * **Default**: `window.origin`
          */
         sharedVirtualKeyboardTargetOrigin: string;
+
+        /**
+         * Specify behaviour how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+         * should be validated.
+         *
+         * **Default**: `'same-origin'`
+         */
+        originValidator: OriginValidator;
 
         /**
          * An optional listener function that will be

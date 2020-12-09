@@ -318,7 +318,8 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         virtualKeyboardToolbar: 'default',
 
         useSharedVirtualKeyboard: false,
-        sharedVirtualKeyboardTargetOrigin: '*',
+        sharedVirtualKeyboardTargetOrigin: window.origin,
+        originValidator: 'same-origin',
 
         textToSpeechRules: 'mathlive',
         textToSpeechMarkup: '', // no markup
