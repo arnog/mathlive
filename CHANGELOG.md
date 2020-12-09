@@ -12,6 +12,26 @@
 
 ### New Features
 
+-   Support for _iframes_. Multiple mathfields in a single document but
+    in different _iframes_ can now share a single virtual keyboard.
+    In the main document, use:
+
+    ```javascript
+    makeVirtualKeyboard({
+        virtualKeyboardLayout: 'dvorak',
+    });
+    ```
+
+    And in the _iframes_, use the `use-shared-virtual-keyboard` attribute:
+
+    ```html
+    <math-field use-shared-virtual-keyboard></math-field>
+    ```
+
+    See `examples/iframe` for more info.
+
+    Contribution by https://github.com/alexprey. Thanks!
+
 -   **#555** Support for IME (Input Method Engines) for Japanese, Chinese,
     Korean and other complex scripts.
 -   `applyStyle()` has now more options. Previously it always toggled the
