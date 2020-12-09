@@ -70,8 +70,8 @@
         <h1>MathLive with Vue.js</h1>
     </header>
     <main>
-        <mathlive-mathfield id="mf" ref="mathfield"
-            :options="{virtualKeyboardMode:'focus', smartFence:false, fontsDirectory:'./fonts'}" @focus="ping"
+        <mathlive-mathfield id="mf" ref="mathfield" @focus="ping"
+            :options="{virtualKeyboardMode:'onfocus', smartFence:false, fontsDirectory:'./fonts'}"
             :on-keystroke="displayKeystroke" v-model="formula">f(x)=</mathlive-mathfield>
         <div><label>Keystroke:&nbsp;</label><kbd>{{keystroke}}</kbd></div>
         <div class="output">LaTeX: {{formula}}</div>
