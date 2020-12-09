@@ -77,6 +77,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     }
 
     handleEvent(evt: Event): void {
+        if (!this.element) {
+            return;
+        }
+
         switch (evt.type) {
             case 'mouseup':
             case 'blur':
@@ -129,7 +133,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
         window.removeEventListener('blur', this);
         window.removeEventListener('touchend', this);
         window.removeEventListener('touchcancel', this);
-        this.element.remove();
+
+        this.element?.remove();
     }
 }
 

@@ -181,7 +181,9 @@ export class MathfieldPrivate implements Mathfield {
                   blur: () => this.blur(),
                   executeCommand: (command) => this.executeCommand(command),
               })
-            : new VirtualKeyboard(this.options);
+            : new VirtualKeyboard(this.options, {
+                  executeCommand: (command) => this.executeCommand(command),
+              });
 
         this.plonkSound = this.options.plonkSound as HTMLAudioElement;
         if (
