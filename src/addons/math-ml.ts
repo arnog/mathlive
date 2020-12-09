@@ -29,9 +29,9 @@ const SPECIAL_OPERATORS = {
     '\\hat': '&#x005e;',
 };
 
-const APPLY_FUNCTION: string = '&#x2061;';
+const APPLY_FUNCTION = '&#x2061;';
 
-const INVISIBLE_TIMES: string = '&#8290;';
+const INVISIBLE_TIMES = '&#8290;';
 
 function xmlEscape(str: string): string {
     return (

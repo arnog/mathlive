@@ -159,9 +159,7 @@ function getTabbableElements(): HTMLElement[] {
         const orderedTabbables = [];
 
         const candidates = Array.from(
-            el.querySelectorAll<
-                HTMLElement
-            >(`input, select, textarea, a[href], button, 
+            el.querySelectorAll<HTMLElement>(`input, select, textarea, a[href], button, 
         [tabindex], audio[controls], video[controls],
         [contenteditable]:not([contenteditable="false"]), details>summary`)
         ).filter(isNodeMatchingSelectorTabbable);
