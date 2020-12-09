@@ -337,6 +337,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             'virtual-keyboard-mode': 'string',
             'virtual-keyboard-theme': 'string',
             'virtual-keyboards': 'string',
+            'use-shared-virtual-keyboard': 'boolean',
+            'shared-virtual-keyboard-target-origin': 'string',
         };
     }
     /**
@@ -870,18 +872,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                         })
                     );
                 },
-                onVirtualKeyboardToggle: (
-                    _sender: Mathfield,
-                    _visible: boolean,
-                    _keyboardElement: HTMLElement
-                ) => {
-                    this.dispatchEvent(
-                        new Event('virtual-keyboard-toggle', {
-                            bubbles: true,
-                            cancelable: false,
-                        })
-                    );
-                },
                 ...getOptionsFromAttributes(this),
                 ...(gDeferredState.has(this)
                     ? gDeferredState.get(this).options
@@ -1141,21 +1131,14 @@ function getOptionsFromAttributes(
         if (mfe.hasAttribute(x)) {
             const value = mfe.getAttribute(x);
             if (attribs[x] === 'boolean') {
-                const lcValue = value.toLowerCase();
-                if (
-                    lcValue === 'true' ||
-                    lcValue === 'yes' ||
-                    lcValue === 'on'
-                ) {
-                    result[toCamelCase(x)] = true;
-                } else {
-                    result[toCamelCase(x)] = false;
-                }
+                result[toCamelCase(x)] = true;
             } else if (attribs[x] === 'number') {
                 result[toCamelCase(x)] = parseFloat(value);
             } else {
                 result[toCamelCase(x)] = value;
             }
+        } else if (attribs[x] === 'boolean') {
+            result[toCamelCase(x)] = false;
         }
     });
     return result;

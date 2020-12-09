@@ -7,23 +7,59 @@ import { MATHSTYLES } from '../core/mathstyle';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
 import { releaseSharedElement } from '../editor-mathfield/utils';
 
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-
 import { inject as injectStylesheet } from '../common/stylesheet';
 
 // @ts-ignore
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
 // @ts-ignore
 import coreStylesheet from '../../css/core.less';
-import { VirtualKeyboardLayer } from '../public/options';
+import {
+    CoreOptions,
+    VirtualKeyboardLayer,
+    VirtualKeyboardOptions,
+} from '../public/options';
 import { getActiveKeyboardLayout } from './keyboard-layout';
+import { loadFonts } from '../core/fonts';
+import { isArray } from '../common/types';
+import { COMMANDS, SelectorPrivate } from './commands';
+import { ExecuteCommandFunction } from './commands-definitions';
 
-export class VirtualKeyboard {
-    mathfield: MathfieldPrivate;
+/**
+ * This interface is implemented by:
+ * - VirtualKeyboard
+ * - VirtualKeyboardDelegate (used when the virtual keyboard is shared amongst
+ * mathfield instances)
+ * - RemoteVirtualKeyboard (the shared virtual keyboard instance)
+ */
+export interface VirtualKeyboardInterface {
+    visible: boolean;
+    height: number;
+    dispose(): void;
+    executeCommand(
+        command: SelectorPrivate | [SelectorPrivate, ...any[]]
+    ): boolean;
+    focusMathfield(): void;
+    blurMathfield(): void;
+    enable(): void;
+    disable(): void;
+    stateChanged(): void;
+}
+
+export class VirtualKeyboard implements VirtualKeyboardInterface {
+    options: VirtualKeyboardOptions & CoreOptions;
+    visible: boolean;
     element: HTMLDivElement;
-    constructor(mathfield: MathfieldPrivate) {
-        this.mathfield = mathfield;
-        this.element = document.createElement('div');
+    _executeCommand: ExecuteCommandFunction;
+
+    constructor(
+        options: VirtualKeyboardOptions & CoreOptions,
+        alt?: {
+            executeCommand: ExecuteCommandFunction;
+        }
+    ) {
+        this.options = options;
+        this.visible = false;
+        this._executeCommand = alt?.executeCommand;
         // Listen to know when the mouse has been released without being
         // captured to remove the alternate keys panel and the shifted state of the
         // keyboard.
@@ -36,15 +72,58 @@ export class VirtualKeyboard {
         window.addEventListener('touchend', this);
         window.addEventListener('touchcancel', this);
     }
+    get height(): number {
+        return this.element?.offsetHeight ?? 0;
+    }
+
     handleEvent(evt: Event): void {
+        if (!this.element) {
+            return;
+        }
+
         switch (evt.type) {
             case 'mouseup':
             case 'blur':
             case 'touchend':
             case 'touchcancel':
-                unshiftKeyboardLayer(this.mathfield);
+                unshiftKeyboardLayer(this);
                 break;
         }
+    }
+    focusMathfield(): void {
+        return;
+    }
+    blurMathfield(): void {
+        return;
+    }
+    enable(): void {
+        return;
+    }
+    disable(): void {
+        return;
+    }
+    stateChanged(): void {
+        return;
+    }
+    executeCommand(
+        command: SelectorPrivate | [SelectorPrivate, ...any[]]
+    ): boolean {
+        let selector: SelectorPrivate;
+        let args: string[] = [];
+        if (isArray(command)) {
+            selector = command[0] as SelectorPrivate;
+            args = command.slice(1);
+        } else {
+            selector = command;
+        }
+        // Convert kebab case (like-this) to camel case (likeThis).
+        selector = selector.replace(/-\w/g, (m) =>
+            m[1].toUpperCase()
+        ) as SelectorPrivate;
+        if (COMMANDS[selector]?.target === 'virtual-keyboard') {
+            return COMMANDS[selector].fn(this, ...args);
+        }
+        return this._executeCommand?.(command) ?? false;
     }
     dispose(): void {
         releaseSharedElement(
@@ -54,7 +133,8 @@ export class VirtualKeyboard {
         window.removeEventListener('blur', this);
         window.removeEventListener('touchend', this);
         window.removeEventListener('touchcancel', this);
-        this.element.remove();
+
+        this.element?.remove();
     }
 }
 
@@ -897,18 +977,15 @@ const LAYERS = {
         </div>`,
 };
 
-function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
+function latexToMarkup(latex: string, arg): string {
     // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
     latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
     return makeStruts(
         new Span(
             Atom.render(
-                {
-                    mathstyle: MATHSTYLES.displaystyle,
-                    macros: mf.options.macros,
-                },
-                parseLatex(latex, 'math', arg, mf.options.macros)
+                { mathstyle: MATHSTYLES.displaystyle },
+                parseLatex(latex, 'math', arg)
             ),
             'ML__base'
         ),
@@ -920,7 +997,7 @@ function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
  * Return a markup string for the keyboard toolbar for the specified layer.
  */
 function makeKeyboardToolbar(
-    mf: MathfieldPrivate,
+    options: VirtualKeyboardOptions,
     keyboardIDs,
     currentKeyboard
 ): string {
@@ -930,7 +1007,7 @@ function makeKeyboardToolbar(
     if (keyboardList.length > 1) {
         const keyboards = {
             ...KEYBOARDS,
-            ...(mf.options.customVirtualKeyboards ?? {}),
+            ...(options.customVirtualKeyboards ?? {}),
         };
         for (const keyboard of keyboardList) {
             if (!keyboards[keyboard]) {
@@ -975,7 +1052,7 @@ function makeKeyboardToolbar(
     }
     result += '</div>';
 
-    const toolbarOptions = mf.options.virtualKeyboardToolbar;
+    const toolbarOptions = options.virtualKeyboardToolbar;
     const availableActions =
         toolbarOptions === 'default' ? ['copyToClipboard', 'undo', 'redo'] : [];
 
@@ -1024,7 +1101,7 @@ function makeKeyboardToolbar(
 }
 
 export function makeKeycap(
-    mf: MathfieldPrivate,
+    keyboard: VirtualKeyboard,
     elList: HTMLElement[],
     chainedCommand?: string | any[]
 ): void {
@@ -1035,14 +1112,12 @@ export function makeKeycap(
         if (el.getAttribute('data-latex')) {
             html = latexToMarkup(
                 el.getAttribute('data-latex').replace(/&quot;/g, '"'),
-                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' },
-                mf
+                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
             );
         } else if (el.getAttribute('data-insert') && el.innerHTML === '') {
             html = latexToMarkup(
                 el.getAttribute('data-insert').replace(/&quot;/g, '"'),
-                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' },
-                mf
+                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
             );
         } else if (el.getAttribute('data-content')) {
             html = el.getAttribute('data-content').replace(/&quot;/g, '"');
@@ -1056,7 +1131,7 @@ export function makeKeycap(
                 '</aside>';
         }
         if (typeof html !== 'undefined') {
-            el.innerHTML = mf.options.createHTML(html);
+            el.innerHTML = keyboard.options.createHTML(html);
         }
         if (el.getAttribute('data-classes')) {
             el.classList.add(el.getAttribute('data-classes'));
@@ -1131,14 +1206,18 @@ export function makeKeycap(
             }
         }
 
-        attachButtonHandlers(mf, el, handlers);
+        attachButtonHandlers(
+            (command) => keyboard.executeCommand(command),
+            el,
+            handlers
+        );
     }
 }
 
 /**
  * Expand the shortcut tags (e.g. <row>) inside a layer.
  */
-function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
+function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
     const ROWS = {
         // First row should be 10 key wide
         // Second row should be 10 key wide
@@ -1192,7 +1271,7 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
     };
     // Determine the layout of the virtual keyboard based on a
     // detected physical keyboard layout, or the current locale
-    let layoutName = mf.options.virtualKeyboardLayout;
+    let layoutName = options.virtualKeyboardLayout;
     if (layoutName === 'auto') {
         const activeLayout = getActiveKeyboardLayout();
         if (activeLayout) {
@@ -1327,10 +1406,10 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
  * Construct a virtual keyboard element based on the config options in the
  * mathfield and an optional theme.
  */
-export function makeKeyboard(
-    mf: MathfieldPrivate,
+export function makeKeyboardElement(
+    keyboard: VirtualKeyboard,
     theme: 'apple' | 'material' | ''
-): VirtualKeyboard {
+): HTMLDivElement {
     const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
             <symbol id="svg-command" viewBox="0 0 640 512">
@@ -1382,6 +1461,8 @@ export function makeKeyboard(
     let markup = svgIcons;
 
     injectStylesheet(null, virtualKeyboardStylesheet);
+
+    loadFonts(keyboard.options.fontsDirectory);
     injectStylesheet(null, coreStylesheet);
 
     // Auto-populate the ALT_KEYS table
@@ -1511,7 +1592,7 @@ export function makeKeyboard(
         });
     }
 
-    let keyboardIDs = mf.options.virtualKeyboards;
+    let keyboardIDs = keyboard.options.virtualKeyboards;
     if (!keyboardIDs) {
         keyboardIDs = 'all';
     }
@@ -1524,24 +1605,24 @@ export function makeKeyboard(
         [layerName: string]: string | VirtualKeyboardLayer;
     } = {
         ...LAYERS,
-        ...(mf.options.customVirtualKeyboardLayers ?? {}),
+        ...(keyboard.options.customVirtualKeyboardLayers ?? {}),
     };
     const keyboards = {
         ...KEYBOARDS,
-        ...(mf.options.customVirtualKeyboards ?? {}),
+        ...(keyboard.options.customVirtualKeyboards ?? {}),
     };
 
     const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
-    for (const keyboard of keyboardList) {
-        if (!keyboards[keyboard]) {
-            console.error('Unknown virtual keyboard "' + keyboard + '"');
+    for (const keyboardName of keyboardList) {
+        if (!keyboards[keyboardName]) {
+            console.error('Unknown virtual keyboard "' + keyboardName + '"');
             break;
         }
         // Add the default layer to the list of layers,
         // and make sure the list of layers is uniquified.
-        let keyboardLayers = keyboards[keyboard].layers || [];
-        if (keyboards[keyboard].layer) {
-            keyboardLayers.push(keyboards[keyboard].layer);
+        let keyboardLayers = keyboards[keyboardName].layers || [];
+        if (keyboards[keyboardName].layer) {
+            keyboardLayers.push(keyboards[keyboardName].layer);
         }
         keyboardLayers = Array.from(new Set(keyboardLayers));
 
@@ -1640,68 +1721,78 @@ export function makeKeyboard(
                 `<div tabindex="-1" class='keyboard-layer' data-layer='` +
                 layerName +
                 `'>`;
-            markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
+            markup += makeKeyboardToolbar(
+                keyboard.options,
+                keyboardIDs,
+                keyboard
+            );
             const layerMarkup = layers[layerName];
             // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
             // be expanded
-            markup += expandLayerMarkup(mf, layerMarkup);
+            markup += expandLayerMarkup(keyboard.options, layerMarkup);
             markup += '</div>';
         }
     }
 
-    const result = new VirtualKeyboard(mf);
-    result.element.className = 'ML__keyboard';
+    const result = document.createElement('div');
+    result.className = 'ML__keyboard';
     if (theme) {
-        result.element.classList.add(theme);
-    } else if (mf.options.virtualKeyboardTheme) {
-        result.element.classList.add(mf.options.virtualKeyboardTheme);
+        result.classList.add(theme);
+    } else if (keyboard.options.virtualKeyboardTheme) {
+        result.classList.add(keyboard.options.virtualKeyboardTheme);
     }
-    result.element.innerHTML = mf.options.createHTML(markup);
+    result.innerHTML = keyboard.options.createHTML(markup);
 
     // Attach the element handlers
     makeKeycap(
-        mf,
-        [].slice.call(
-            result.element.querySelectorAll<HTMLElement>(
+        keyboard,
+        Array.from(
+            result.querySelectorAll<HTMLElement>(
                 '.keycap, .action, .fnbutton, .bigfnbutton'
             )
         )
     );
 
-    const elList = result.element.getElementsByClassName('layer-switch');
+    const elList = result.getElementsByClassName('layer-switch');
     for (let i = 0; i < elList.length; ++i) {
         if (elList[i].classList.contains('shift')) {
             // This is a potential press-and-hold layer switch
-            attachButtonHandlers(mf, elList[i], {
-                // When the modifier is initially pressed, we will shift the labels
-                // (if available)
-                pressed: ['shiftKeyboardLayer', 'shift'],
+            attachButtonHandlers(
+                (command) => keyboard.executeCommand(command),
+                elList[i],
+                {
+                    // When the modifier is initially pressed, we will shift the labels
+                    // (if available)
+                    pressed: ['shiftKeyboardLayer', 'shift'],
 
-                // If the key is released before a delay, we switch to the target layer
-                default: [
-                    'switchKeyboardLayer',
-                    elList[i].getAttribute('data-layer'),
-                ],
+                    // If the key is released before a delay, we switch to the target layer
+                    default: [
+                        'switchKeyboardLayer',
+                        elList[i].getAttribute('data-layer'),
+                    ],
 
-                // If the key is released after a longer delay, we restore the
-                // shifted labels
-                pressAndHoldEnd: 'unshiftKeyboardLayer',
-            });
+                    // If the key is released after a longer delay, we restore the
+                    // shifted labels
+                    pressAndHoldEnd: 'unshiftKeyboardLayer',
+                }
+            );
         } else {
             // This is a simple layer switch
-            attachButtonHandlers(mf, elList[i], {
-                default: [
-                    'switchKeyboardLayer',
-                    elList[i].getAttribute('data-layer'),
-                ],
-            });
+            attachButtonHandlers(
+                (command) => keyboard.executeCommand(command),
+                elList[i],
+                {
+                    default: [
+                        'switchKeyboardLayer',
+                        elList[i].getAttribute('data-layer'),
+                    ],
+                }
+            );
         }
     }
 
     // Select the first keyboard as the initial one.
-    const layerElements = result.element.getElementsByClassName(
-        'keyboard-layer'
-    );
+    const layerElements = result.getElementsByClassName('keyboard-layer');
     Array.from(layerElements).forEach((x) => {
         x.addEventListener('mousedown', (evt) => {
             evt.preventDefault();
@@ -1737,10 +1828,10 @@ export function hideAlternateKeys(): boolean {
  * was pressed.
  *
  */
-export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
+export function unshiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
     hideAlternateKeys();
 
-    const keycaps = mathfield.virtualKeyboard?.element.querySelectorAll(
+    const keycaps = keyboard.element.querySelectorAll(
         'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
     );
     if (keycaps) {
@@ -1748,46 +1839,43 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
             const keycap = keycaps[i];
             const content = keycap.getAttribute('data-unshifted-content');
             if (content) {
-                keycap.innerHTML = mathfield.options.createHTML(content);
+                keycap.innerHTML = keyboard.options.createHTML(content);
             }
             const command = keycap.getAttribute('data-unshifted-command');
             if (command) {
-                keycap.setAttribute(
-                    'data-' + mathfield.options.namespace + 'command',
-                    command
-                );
+                keycap.setAttribute('data-command', command);
             }
         }
     }
     return false;
 }
 
-export function updateUndoRedoButtons(mathfield: MathfieldPrivate): void {
-    const virtualKeyboardToolbar = mathfield.virtualKeyboard?.element.querySelector(
-        '.keyboard-toolbar'
-    );
-    if (virtualKeyboardToolbar) {
-        const undoButton = virtualKeyboardToolbar.querySelector(
-            '[data-command=\'"undo"\']'
-        );
-        const redoButton = virtualKeyboardToolbar.querySelector(
-            '[data-command=\'"redo"\']'
-        );
+export function onUndoStateChanged(
+    keyboard: VirtualKeyboard,
+    canUndoState: boolean,
+    canRedoState: boolean
+): boolean {
+    const toolbar = keyboard.element.querySelector('.keyboard-toolbar');
+    if (!toolbar) return false;
 
-        if (redoButton) {
-            if (mathfield.canRedo()) {
-                redoButton.classList.remove('disabled');
-            } else {
-                redoButton.classList.add('disabled');
-            }
-        }
+    const undoButton = toolbar.querySelector('[data-command=\'"undo"\']');
+    const redoButton = toolbar.querySelector('[data-command=\'"redo"\']');
 
-        if (undoButton) {
-            if (mathfield.canUndo()) {
-                undoButton.classList.remove('disabled');
-            } else {
-                undoButton.classList.add('disabled');
-            }
+    if (redoButton) {
+        if (canRedoState) {
+            redoButton.classList.remove('disabled');
+        } else {
+            redoButton.classList.add('disabled');
         }
     }
+
+    if (undoButton) {
+        if (canUndoState) {
+            undoButton.classList.remove('disabled');
+        } else {
+            undoButton.classList.add('disabled');
+        }
+    }
+
+    return false;
 }

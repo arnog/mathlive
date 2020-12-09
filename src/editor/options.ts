@@ -209,7 +209,6 @@ export function update(
             case 'onUndoStateDidChange':
             case 'onModeChange':
             case 'onCommit':
-            case 'onVirtualKeyboardToggle':
             case 'onReadAloudStatus':
             case 'onError':
                 if (updates[key] === null) {
@@ -318,6 +317,10 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         plonkSound: null,
         virtualKeyboardToolbar: 'default',
 
+        useSharedVirtualKeyboard: false,
+        sharedVirtualKeyboardTargetOrigin: window.origin,
+        originValidator: 'same-origin',
+
         textToSpeechRules: 'mathlive',
         textToSpeechMarkup: '', // no markup
         textToSpeechRulesOptions: {},
@@ -341,7 +344,6 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         onUndoStateWillChange: NO_OP_LISTENER,
         onUndoStateDidChange: NO_OP_LISTENER,
         onModeChange: NO_OP_LISTENER,
-        onVirtualKeyboardToggle: NO_OP_LISTENER,
         onReadAloudStatus: NO_OP_LISTENER,
         onCommit: NO_OP_LISTENER,
 

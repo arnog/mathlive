@@ -20,7 +20,11 @@
 
 import { Mathfield } from './mathfield';
 import { MathfieldElement } from './mathfield-element';
-import { MathfieldOptions, TextToSpeechOptions } from './options';
+import {
+    MathfieldOptions,
+    RemoteVirtualKeyboardOptions,
+    TextToSpeechOptions,
+} from './options';
 import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
 
 export { Mathfield };
@@ -68,6 +72,35 @@ export declare function makeMathField(
     element: HTMLElement | string,
     options: MathfieldOptions
 ): Mathfield;
+
+/**
+ * Initialize remote client for mathfield elements rendered in child frames.
+ * This client instance control focus between multiple frames and mathfield elements and
+ * renders the virtual keyboard with required options passed by params of this method.
+ *
+ * @param options Options to configure virtual keyboard that will be rendered on this frame.
+ *
+ * ```html
+ * <iframe src="...">
+ *      <!-- The iframe page content -->
+ *      <math-field virtual-keyboard-mode="onfocus" use-shared-virtual-keyboard />
+ *
+ *      <script type="module">
+ *          import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ *      </script>
+ * </iframe>
+ * ```
+ *
+ * ```javascript
+ *  import { makeRemoteClient } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ *
+ *  makeRemoteClient({});
+ * ```
+ * @keywords create, make, mathfield, iframe
+ */
+export declare function makeSharedVirtualKeyboard(
+    options: RemoteVirtualKeyboardOptions
+): void;
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
