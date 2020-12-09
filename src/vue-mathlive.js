@@ -71,8 +71,10 @@ export default {
         },
         options: {
             deep: true,
-            handler: function (options) {
-                this.$el.mathfield.setOptions(options);
+            handler: function (newValue, oldValue) {
+                if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
+                    this.$el.mathfield.setOptions(newValue);
+                }
             },
         },
     },
