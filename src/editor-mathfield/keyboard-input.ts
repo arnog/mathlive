@@ -166,12 +166,8 @@ export function onKeystroke(
                 mathfield.keystrokeBufferStates.length - (candidate.length - i);
             mathfield.keystrokeBuffer += c;
             mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
-            if (
-                getInlineShortcutsStartingWith(candidate, mathfield.options)
-                    .length <= 1
-            ) {
-                resetKeystrokeBuffer = true;
-            } else {
+
+            if (shortcut) {
                 mathfield.resetKeystrokeBuffer({ defer: true });
             }
         }
