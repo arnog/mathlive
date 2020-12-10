@@ -35,21 +35,25 @@
         import MathLive, { makeMathField } from '/dist/mathlive.mjs';
         // import {makeMathField} from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
 
+        const handleContentChanged = (mf) => {
+            const latex = mf.getValue();
+            document.getElementById('latex').innerHTML = escapeHtml(
+                latex
+            );
+
+            const mathJSON = MathLive.latexToAST(latex);
+            document.getElementById('mathjson').innerHTML = escapeHtml(
+                JSON.stringify(mathJSON)
+            );
+        };
+
         const mf = makeMathField('mf', {
             smartMode: true,
             virtualKeyboardMode: 'manual',
-            onContentDidChange: (mf) => {
-                const latex = mf.getValue();
-                document.getElementById('latex').innerHTML = escapeHtml(
-                    latex
-                );
-
-                const mathJSON = MathLive.latexToAST(latex);
-                document.getElementById('mathjson').innerHTML = escapeHtml(
-                    JSON.stringify(mathJSON)
-                );
-            },
+            onContentDidChange: handleContentChanged,
         });
+
+        handleContentChanged(mf);
 
         function escapeHtml(string) {
             return String(string).replace(/[&<>"'`=/\u200b]/g, function (
