@@ -1855,7 +1855,7 @@ export function onUndoStateChanged(
     canUndoState: boolean,
     canRedoState: boolean
 ): boolean {
-    const toolbar = keyboard.element.querySelector('.keyboard-toolbar');
+    const toolbar = keyboard.element?.querySelector('.keyboard-toolbar');
     if (!toolbar) return false;
 
     const undoButton = toolbar.querySelector('[data-command=\'"undo"\']');
