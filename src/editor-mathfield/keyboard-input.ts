@@ -170,8 +170,17 @@ export function onKeystroke(
                 getInlineShortcutsStartingWith(candidate, mathfield.options)
                     .length <= 1
             ) {
+                // There's only a single shortcut matching this sequence.
+                // We can confidently reset the keystroke buffer
                 resetKeystrokeBuffer = true;
             } else {
+                // There are several potential shortcuts matching this sequence
+                // Don't reset the keystroke buffer yet, in case some
+                // keys typed later disambiguate the desirted shortcut,
+                // but schedule a defered reset. This handles the case if there
+                // was a shortcut for "sin" and "sinh", to avoid the detecting
+                // of the "sin" shortcut from ever having the "sinh" shortcut
+                // triggered.
                 mathfield.resetKeystrokeBuffer({ defer: true });
             }
         }

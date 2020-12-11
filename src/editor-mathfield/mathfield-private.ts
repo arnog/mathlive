@@ -739,7 +739,11 @@ export class MathfieldPrivate implements Mathfield {
     resetKeystrokeBuffer(options?: { defer: boolean }): void {
         options = options ?? { defer: false };
         if (options.defer) {
-            if (this.options.inlineShortcutTimeout) {
+            // If there is a timeout greater than 0, defer the reset
+            // If the timeout is 0, never do the reset: regardless of the amount
+            // of time between keystrokes, consider them as candidates for
+            // a shortcut
+            if (this.options.inlineShortcutTimeout > 0) {
                 // Set a timer to reset the shortcut buffer
                 this.keystrokeBufferResetTimer = setTimeout(() => {
                     this.resetKeystrokeBuffer();
