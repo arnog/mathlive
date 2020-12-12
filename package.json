@@ -106,7 +106,7 @@
         "jest-silent-reporter": "^0.4.0",
         "less": "^3.12.2",
         "lint-staged": "^10.5.3",
-        "postcss-cli": "^8.3.0",
+        "postcss-cli": "^8.3.1",
         "postcss": "^8.2.1",
         "prettier": "^2.2.1",
         "rimraf": "^3.0.2",
