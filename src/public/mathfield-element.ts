@@ -350,7 +350,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         return [...Object.keys(MathfieldElement.optionsAttributes), 'disabled'];
     }
 
-    #mathfield: MathfieldPrivate;
+    private _mathfield: MathfieldPrivate;
 
     /**
      * To create programmatically a new mahfield use:
@@ -381,12 +381,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         // focus the mathfield
         this.shadowRoot.host.addEventListener(
             'focus',
-            (_event) => this.#mathfield?.focus(),
+            (_event) => this._mathfield?.focus(),
             true
         );
         this.shadowRoot.host.addEventListener(
             'blur',
-            (_event) => this.#mathfield?.blur(),
+            (_event) => this._mathfield?.blur(),
             true
         );
 
@@ -429,12 +429,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
                 .map((x) => (x.nodeType === 3 ? x.textContent : ''))
                 .join('')
                 .trim();
-            if (!this.#mathfield) {
+            if (!this._mathfield) {
                 this.value = value;
             } else {
                 // Don't suppress notification changes. We need to know
                 // if the value has changed indirectly through slot manipulation
-                this.#mathfield.setValue(value, {
+                this._mathfield.setValue(value, {
                     insertionMode: 'replaceAll',
                 });
             }
@@ -442,11 +442,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     get mode(): ParseMode {
-        return this.#mathfield?.mode;
+        return this._mathfield?.mode;
     }
     set mode(value: ParseMode) {
-        if (!this.#mathfield) return;
-        this.#mathfield.mode = value;
+        if (!this._mathfield) return;
+        this._mathfield.mode = value;
     }
 
     /**
@@ -459,8 +459,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     getOptions(
         keys?: keyof MathfieldOptions | (keyof MathfieldOptions)[]
     ): any | Partial<MathfieldOptions> {
-        if (this.#mathfield) {
-            return getOptions(this.#mathfield.options, keys);
+        if (this._mathfield) {
+            return getOptions(this._mathfield.options, keys);
         }
         if (!gDeferredState.has(this)) return null;
         return getOptions(
@@ -482,8 +482,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *  @category Options
      */
     setOptions(options: Partial<MathfieldOptions>): void {
-        if (this.#mathfield) {
-            this.#mathfield.setOptions(options);
+        if (this._mathfield) {
+            this._mathfield.setOptions(options);
         } else {
             if (gDeferredState.has(this)) {
                 gDeferredState.set(this, {
@@ -525,7 +525,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * ```
      */
     executeCommand(command: Selector | [Selector, ...any[]]): boolean {
-        return this.#mathfield?.executeCommand(command) ?? false;
+        return this._mathfield?.executeCommand(command) ?? false;
     }
 
     /**
@@ -541,8 +541,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         arg2?: Offset | OutputFormat,
         arg3?: OutputFormat
     ): string {
-        if (this.#mathfield) {
-            return this.#mathfield.getValue(arg1 as any, arg2 as any, arg3);
+        if (this._mathfield) {
+            return this._mathfield.getValue(arg1 as any, arg2 as any, arg3);
         }
         if (gDeferredState.has(this)) {
             let start: Offset;
@@ -574,8 +574,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *  @category Accessing and changing the content
      */
     setValue(value?: string, options?: InsertOptions): void {
-        if (this.#mathfield) {
-            this.#mathfield.setValue(value, options);
+        if (this._mathfield) {
+            this._mathfield.setValue(value, options);
             return;
         }
         if (gDeferredState.has(this)) {
@@ -601,7 +601,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *
      */
     hasFocus(): boolean {
-        return this.#mathfield?.hasFocus() ?? false;
+        return this._mathfield?.hasFocus() ?? false;
     }
     /**
      * Sets the focus to the mathfield (will respond to keyboard input).
@@ -611,11 +611,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      */
     focus(): void {
         super.focus();
-        // if (this.#mathfield) {
-        //     // Don't call this.#mathfield.focus(): it checks the focus state,
+        // if (this._mathfield) {
+        //     // Don't call this._mathfield.focus(): it checks the focus state,
         //     // but super.focus() just changed it...
-        //     this.#mathfield.keyboardDelegate.focus();
-        //     this.#mathfield.model.announce('line');
+        //     this._mathfield.keyboardDelegate.focus();
+        //     this._mathfield.model.announce('line');
         // }
     }
     /**
@@ -627,10 +627,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      */
     blur(): void {
         super.blur();
-        // if (this.#mathfield) {
-        //     // Don't call this.#mathfield.focs(): it checks the focus state,
+        // if (this._mathfield) {
+        //     // Don't call this._mathfield.focs(): it checks the focus state,
         //     // but super.blur() just changed it...
-        //     this.#mathfield.keyboardDelegate.blur();
+        //     this._mathfield.keyboardDelegate.blur();
         // }
     }
 
@@ -639,7 +639,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * @category Selection
      */
     select(): void {
-        this.#mathfield?.select();
+        this._mathfield?.select();
     }
     /**
      * Inserts a block of text at the current insertion point.
@@ -653,7 +653,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *  @category Accessing and changing the content
      */
     insert(s: string, options?: InsertOptions): boolean {
-        return this.#mathfield?.insert(s, options) ?? false;
+        return this._mathfield?.insert(s, options) ?? false;
     }
     /**
      * Updates the style (color, bold, italic, etc...) of the selection or sets
@@ -681,7 +681,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         style: Style,
         options?: Range | { range?: Range; operation?: 'set' | 'toggle' }
     ): void {
-        return this.#mathfield?.applyStyle(style, options);
+        return this._mathfield?.applyStyle(style, options);
     }
 
     /**
@@ -692,10 +692,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * @category Selection
      */
     get caretPoint(): { x: number; y: number } {
-        return this.#mathfield?.getCaretPoint() ?? null;
+        return this._mathfield?.getCaretPoint() ?? null;
     }
     set caretPoint(point: { x: number; y: number }) {
-        this.#mathfield?.setCaretPoint(point.x, point.y);
+        this._mathfield?.setCaretPoint(point.x, point.y);
     }
     /**
      * `x` and `y` are in viewport coordinates.
@@ -706,7 +706,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * @category Selection
      */
     setCaretPoint(x: number, y: number): boolean {
-        return this.#mathfield?.setCaretPoint(x, y) ?? false;
+        return this._mathfield?.setCaretPoint(x, y) ?? false;
     }
 
     /**
@@ -716,7 +716,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * matching items.
      */
     find(pattern: string | RegExp, options?: FindOptions): Range[] {
-        return this.#mathfield?.find(pattern, options) ?? [];
+        return this._mathfield?.find(pattern, options) ?? [];
     }
     /**
      * Replace the pattern items matching the **pattern** with the
@@ -731,7 +731,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         replacement: string | ReplacementFunction,
         options?: FindOptions
     ): void {
-        this.#mathfield?.replace(pattern, replacement, options);
+        this._mathfield?.replace(pattern, replacement, options);
     }
     /**
      * Custom elements lifecycle hooks
@@ -742,7 +742,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         // this.setAttribute('aria-multiline', 'false');
         if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
-        this.#mathfield = new MathfieldPrivate(
+        this._mathfield = new MathfieldPrivate(
             this.shadowRoot.querySelector(':host > div'),
             {
                 onBlur: () => {
@@ -883,28 +883,28 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         this.upgradeProperty('disabled');
 
         // The mathfield creation could have failed
-        if (!this.#mathfield || !this.#mathfield.model) {
-            this.#mathfield = null;
+        if (!this._mathfield || !this._mathfield.model) {
+            this._mathfield = null;
             return;
         }
 
-        // this.#mathfield.field.parentElement.addEventListener(
+        // this._mathfield.field.parentElement.addEventListener(
         //     'focus',
-        //     (_event) => this.#mathfield.focus(),
+        //     (_event) => this._mathfield.focus(),
         //     true
         // );
-        // this.#mathfield.field.parentElement.addEventListener(
+        // this._mathfield.field.parentElement.addEventListener(
         //     'blur',
-        //     (_event) => this.#mathfield.blur(),
+        //     (_event) => this._mathfield.blur(),
         //     true
         // );
 
         if (gDeferredState.has(this)) {
-            this.#mathfield.model.deferNotifications(
+            this._mathfield.model.deferNotifications(
                 { content: false, selection: false },
                 () => {
-                    this.#mathfield.setValue(gDeferredState.get(this).value);
-                    this.#mathfield.selection = gDeferredState.get(
+                    this._mathfield.setValue(gDeferredState.get(this).value);
+                    this._mathfield.selection = gDeferredState.get(
                         this
                     ).selection;
                     gDeferredState.delete(this);
@@ -934,24 +934,24 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             })
         );
 
-        if (!this.#mathfield) return;
+        if (!this._mathfield) return;
 
         // Save the state (in case the elements get reconnected later)
         const options = {};
         Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-            options[toCamelCase(x)] = this.#mathfield.getOption(
+            options[toCamelCase(x)] = this._mathfield.getOption(
                 toCamelCase(x) as any
             );
         });
         gDeferredState.set(this, {
-            value: this.#mathfield.getValue(),
-            selection: this.#mathfield.selection,
+            value: this._mathfield.getValue(),
+            selection: this._mathfield.selection,
             options,
         });
 
         // Dispose of the mathfield
-        this.#mathfield.dispose();
-        this.#mathfield = null;
+        this._mathfield.dispose();
+        this._mathfield = null;
     }
 
     /**
@@ -1028,8 +1028,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *
      */
     get selection(): Selection {
-        if (this.#mathfield) {
-            return this.#mathfield.selection;
+        if (this._mathfield) {
+            return this._mathfield.selection;
         }
         if (gDeferredState.has(this)) {
             return gDeferredState.get(this).selection;
@@ -1042,8 +1042,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * @category Selection
      */
     set selection(value: Selection) {
-        if (this.#mathfield) {
-            this.#mathfield.selection = value;
+        if (this._mathfield) {
+            this._mathfield.selection = value;
         }
         if (gDeferredState.has(this)) {
             gDeferredState.set(this, {
@@ -1067,14 +1067,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *
      */
     get position(): Offset {
-        return this.#mathfield.model.position;
+        return this._mathfield.model.position;
     }
 
     /**
      * @category Selection
      */
     set position(offset: Offset) {
-        this.#mathfield.model.position = offset;
+        this._mathfield.model.position = offset;
     }
 
     /**
@@ -1082,7 +1082,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * @category Selection
      */
     get lastOffset(): Offset {
-        return this.#mathfield?.lastOffset ?? -1;
+        return this._mathfield?.lastOffset ?? -1;
     }
 }
 
