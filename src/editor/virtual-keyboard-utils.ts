@@ -18,32 +18,12 @@ import {
     VirtualKeyboardLayer,
     VirtualKeyboardOptions,
 } from '../public/options';
+import { VirtualKeyboardInterface } from '../public/mathfield';
 import { getActiveKeyboardLayout } from './keyboard-layout';
 import { loadFonts } from '../core/fonts';
 import { isArray } from '../common/types';
 import { COMMANDS, SelectorPrivate } from './commands';
 import { ExecuteCommandFunction } from './commands-definitions';
-
-/**
- * This interface is implemented by:
- * - VirtualKeyboard
- * - VirtualKeyboardDelegate (used when the virtual keyboard is shared amongst
- * mathfield instances)
- * - RemoteVirtualKeyboard (the shared virtual keyboard instance)
- */
-export interface VirtualKeyboardInterface {
-    visible: boolean;
-    height: number;
-    dispose(): void;
-    executeCommand(
-        command: SelectorPrivate | [SelectorPrivate, ...any[]]
-    ): boolean;
-    focusMathfield(): void;
-    blurMathfield(): void;
-    enable(): void;
-    disable(): void;
-    stateChanged(): void;
-}
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
     options: VirtualKeyboardOptions & CoreOptions;

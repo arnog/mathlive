@@ -10,6 +10,7 @@ import type {
     FindOptions,
     ApplyStyleOptions,
     ReplacementFunction,
+    VirtualKeyboardInterface,
 } from '../public/mathfield';
 
 import { Atom } from '../core/atom-class';
@@ -67,10 +68,7 @@ import {
     getActiveKeyboardLayout,
 } from '../editor/keyboard-layout';
 
-import {
-    VirtualKeyboard,
-    VirtualKeyboardInterface,
-} from '../editor/virtual-keyboard';
+import { VirtualKeyboard } from '../editor/virtual-keyboard';
 
 // @ts-ignore
 import mathfieldStylesheet from '../../css/mathfield.less';
@@ -870,13 +868,15 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     /** @deprecated */
-    $perform(command: SelectorPrivate | [SelectorPrivate, ...any[]]): boolean {
+    $perform(
+        command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
+    ): boolean {
         deprecated('$perform');
         return this.executeCommand(command);
     }
 
     executeCommand(
-        command: SelectorPrivate | [SelectorPrivate, ...any[]]
+        command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
     ): boolean {
         if (getCommandTarget(command) === 'virtual-keyboard') {
             return this.virtualKeyboard?.executeCommand(command);

@@ -144,6 +144,25 @@ export type Selection = {
     direction?: 'forward' | 'backward' | 'none';
 };
 
+/**
+ * This interface is implemented by:
+ * - VirtualKeyboard
+ * - VirtualKeyboardDelegate (used when the virtual keyboard is shared amongst
+ * mathfield instances)
+ * - RemoteVirtualKeyboard (the shared virtual keyboard instance)
+ */
+export interface VirtualKeyboardInterface {
+    visible: boolean;
+    height: number;
+    dispose(): void;
+    executeCommand(command: string | [string, ...any[]]): boolean;
+    focusMathfield(): void;
+    blurMathfield(): void;
+    enable(): void;
+    disable(): void;
+    stateChanged(): void;
+}
+
 export interface Mathfield {
     mode: ParseMode;
 

@@ -1,8 +1,12 @@
 import type { Keys } from './types-utils';
 
 import type { ParseMode, Style } from './core';
-import type { InsertOptions, Mathfield, Model } from './mathfield';
-import { VirtualKeyboardInterface } from '../editor/virtual-keyboard-utils';
+import type {
+    InsertOptions,
+    Mathfield,
+    Model,
+    VirtualKeyboardInterface,
+} from './mathfield';
 
 /**
  * How much of the formula should be spoken:

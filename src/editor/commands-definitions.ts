@@ -1,7 +1,7 @@
 import { Keys } from '../public/types-utils';
 
-import { Commands } from '../public/commands';
-import { VirtualKeyboardInterface } from './virtual-keyboard';
+import { Selector } from '../public/commands';
+import { VirtualKeyboardInterface } from '../public/mathfield';
 
 export type ExecuteCommandFunction = (
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
@@ -41,7 +41,7 @@ export interface CommandsPrivate {
     ) => boolean;
 }
 
-export type SelectorPrivate = Keys<Commands & CommandsPrivate>;
+export type SelectorPrivate = Selector | Keys<CommandsPrivate>;
 
 export type CommandRegistry<T> = Partial<
     { [K in SelectorPrivate]: { fn: (...args: any[]) => boolean } & T }

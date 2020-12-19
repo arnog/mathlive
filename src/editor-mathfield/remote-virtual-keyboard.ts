@@ -1,10 +1,8 @@
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
 import { ExecuteCommandFunction } from '../editor/commands-definitions';
-import {
-    VirtualKeyboard,
-    VirtualKeyboardInterface,
-} from '../editor/virtual-keyboard-utils';
+import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { Selector } from '../public/commands';
+import { VirtualKeyboardInterface } from '../public/mathfield';
 import {
     OriginValidator,
     RemoteVirtualKeyboardOptions,
