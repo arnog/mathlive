@@ -177,7 +177,7 @@ The code base attempts to follow these general guidelines:
     example, RegEx are crazy fast in all modern browsers, and trying to roll out
     your own pattern matching will result in more code and less performance. If
     you think something could be made faster, use
-    [http://jsben.ch/](https://http://jsben.ch/) to try out options in various
+    [http://jsben.ch/](http://jsben.ch/) to try out options in various
     browsers and compare the results. You might be surprised.
 -   **Follow Postel's Law, the Robustness Principle** "Be conservative in what
     you do, be liberal in what you accept from others". For example, functions
