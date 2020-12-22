@@ -17,6 +17,7 @@
         <div class="mathfield" id="mf">f(x)=\frac{\sin(x)}{\cos(x)}
         </div>
         <div class="output" id="latex"></div>
+        <div class="output" id="mathml"></div>
         <div class="output" id="mathjson"></div>
     </main>
 
@@ -45,6 +46,9 @@
             document.getElementById('mathjson').innerHTML = escapeHtml(
                 JSON.stringify(mathJSON)
             );
+
+            const mathML = mf.getValue('mathML');
+            document.getElementById('mathml').innerHTML = escapeHtml(mathML);
         };
 
         const mf = makeMathField('mf', {
