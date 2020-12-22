@@ -149,6 +149,36 @@ const gDeferredState = new WeakMap<
     }
 >();
 
+export interface MathfieldElementAttributes {
+    'default-mode': string;
+    'fonts-directory': string;
+    'horizontal-spacing-scale': string;
+    'ignore-spacebar-in-math-mode': boolean;
+    'inline-shortcut-timeout': string;
+    'keypress-vibration': boolean;
+    'letter-shape-style': string;
+    locale: string;
+    'read-only': boolean;
+    'remove-extraneous-parentheses': boolean;
+    'smart-fence': boolean;
+    'smart-mode': boolean;
+    'smart-superscript': boolean;
+    'speech-engine': string;
+    'speech-engine-rate': string;
+    'speech-engine-voice': string;
+    'text-to-speech-markup': string;
+    'text-to-speech-rules': string;
+    'virtual-keyboard-layout': string;
+    'virtual-keyboard-mode': string;
+    'virtual-keyboard-theme': string;
+    'virtual-keyboards': string;
+    'use-shared-virtual-keyboard': boolean;
+    'shared-virtual-keyboard-target-origin': string;
+    // Allow for global aria attributes, data- attributes, micro-data attributes
+    // and global element attributes
+    [key: string]: number | string | boolean | undefined;
+}
+
 /**
  * The `MathfieldElement` class provides special properties and
  * methods to control the display and behavior of `<math-field>`
@@ -318,9 +348,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         return {
             'default-mode': 'string',
             'fonts-directory': 'string',
-            'horizontal-spacing-scale': 'number',
+            'horizontal-spacing-scale': 'string',
             'ignore-spacebar-in-math-mode': 'boolean',
-            'inline-shortcut-timeout': 'number',
+            'inline-shortcut-timeout': 'string',
             'keypress-vibration': 'boolean',
             'letter-shape-style': 'string',
             locale: 'string',
@@ -1153,9 +1183,15 @@ declare global {
     interface Window {
         MathfieldElement: typeof MathfieldElement;
     }
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace JSX {
+        interface IntrinsicElements {
+            'math-field': MathfieldElementAttributes;
+        }
+    }
 }
 
-if (!window.customElements.get('math-field')) {
+if (!window.customElements?.get('math-field')) {
     window.MathfieldElement = MathfieldElement;
-    window.customElements.define('math-field', MathfieldElement);
+    window.customElements?.define('math-field', MathfieldElement);
 }
