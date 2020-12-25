@@ -163,35 +163,9 @@
         <h1>MathLive Testing Playground</h1>
     </header>
     <main class='centered' tabindex="0">
-        <!-- <ui-context-menu>
-            <script type='application/json'>
-            [
-                { "label": "Cut"},
-                { "label": "Copy"},
-                { "label": "Paste"},
-                {
-                    "label": "Paste as Graphic",
-                    "enabled": false
-                },
-                { "type": "separator"},
-                {
-                    "label": "Fence",
-                    "submenu": [
-                        {"label": "()"},
-                        {"label": "[]"},
-                        {"label": "}"}
-                    ]
-                },
-                { "type": "separator"},
-                { "label": "Insert Row Before"},
-                {"label": "Insert Row After"},
-                { "label": "Insert Column Before"},
-                {"label": "Insert Column After"}
-            ]
-        </script>
-        </ui-context-menu> -->
 
-        <math-field id="mf" class="mathfield" style="max-width: 400px; width:100%" tabindex="0" smart-fence="true"
+        <math-field id="mf" onkeystroke='console.log("keystroke handler")' onfocus='console.log("focusing")'
+            class="mathfield" style="max-width: 400px; width:100%" tabindex="0" smart-fence="true"
             virtual-keyboard-mode="manual">f(x)=\frac{1}{\sin(x)}
             <!--f(x)=\frac{x+1}{x-1}+x+1 -->
             <!--x=\begin{bmatrix}x+1&b&c\\\alpha&\\beta\end{bmatrix}^T+x+1 -->
@@ -267,88 +241,6 @@
 
         let gSearchLatex;
 
-        // document.querySelector('ui-context-menu').addEventListener('select', (ev) => {
-        //     console.log(ev.detail.menuItem.label);
-        // });
-
-        // document.querySelector('main').appendChild(new UIContextMenuElement([
-        //     { "label": "Cut" },
-        //     { "label": "Copy" },
-        //     { "label": "Paste" },
-        //     {
-        //         "label": (item, kbd) => {
-        //             if (kbd && kbd.alt) {
-        //                 return "Paste as Graphic (option)"
-        //             }
-        //             return "Paste as Graphic"
-        //         },
-        //         "enabled": false,
-        //     },
-        //     {
-        //         "type": "separator",
-        //     },
-        //     {
-        //         "label": "Fence",
-        //         "submenu": [
-        //             {
-        //                 "label": "()",
-        //                 "click": (menuItem) => {
-        //                     console.log("Clicked " + menuItem.label);
-        //                 }
-        //             },
-        //             {
-        //                 "label": "[]",
-        //                 "click": (menuItem) => {
-        //                     console.log("Clicked " + menuItem.label);
-        //                 }
-        //             },
-        //             {
-        //                 "label": "}",
-        //                 "click": (menuItem) => {
-        //                     console.log("Clicked " + menuItem.label);
-        //                 }
-        //             }
-        //         ]
-        //     },
-        //     {
-        //         "label": "Color",
-        //         "submenu": [
-        //             { "label": "Red" },
-        //             { "label": "Green" },
-        //             { "label": "Blue" },
-        //             { "label": "Yellow" },
-        //             { "label": "Orange" },
-        //             { "label": "Purple" },
-        //             { "label": "Violet" },
-        //         ]
-        //     },
-        //     {
-        //         "label": "Insert Row Before",
-        //         "click": (menuItem) => {
-        //             console.log("Clicked " + menuItem.label);
-        //         },
-        //         visible: (item, kbd) => {
-        //             if (kbd && kbd.meta) {
-        //                 return false;
-        //             }
-        //             return true;
-        //         },
-        //     },
-        //     {
-        //         "label": "Insert Row After",
-        //         "click": (menuItem) => {
-        //             console.log("Clicked " + menuItem.label);
-        //         },
-        //         "enabled": (item, kbd) => {
-        //             if (kbd && kbd.shift) {
-        //                 return false;
-        //             }
-        //             return true;
-        //         },
-        //     }
-        // ]));
-
-
         function applySearchTerm() {
             if (!gSearchLatex) {
                 document.getElementById('search-results').classList.add('hidden');
@@ -409,6 +301,7 @@
 
         const mf = document.getElementById('mf');
         mf.setOptions({
+            onBlur: () => { console.log('blurring') },
             inlineShortcuts: {
                 // ㄱ: '\\sqrt',
                 sq: '\\sqrt{#0}',
@@ -426,6 +319,15 @@
         });
 
         mf.selection = [2, 5];
+        mf.addEventListener('blur', (ev) => {
+            console.log('blur event');
+        });
+        mf.addEventListener('keystroke', (ev) => {
+            console.log('keystroke event', ev.detail.keystroke);
+        });
+        mf.addEventListener('focus', (ev) => {
+            console.log('focus event');
+        });
         mf.addEventListener('input', (ev) => {
             updateContent(mf);
             applySearchTerm();
