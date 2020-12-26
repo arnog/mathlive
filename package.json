@@ -84,7 +84,7 @@
         "paosder <denjaraos@gmail.com>"
     ],
     "devDependencies": {
-        "@babel/types": "^7.12.11",
+        "@babel/types": "^7.12.12",
         "@cortex-js/prettier-config": "^1.0.0",
         "@rollup/plugin-node-resolve": "^11.0.1",
         "@types/css-font-loading-module": "0.0.4",
