@@ -372,7 +372,13 @@ export type VirtualKeyboardOptions = {
     customVirtualKeyboardLayers: {
         [layerName: string]: string | VirtualKeyboardLayer;
     };
-    customVirtualKeyboards: { [layerName: string]: string };
+    customVirtualKeyboards: {
+        [virtualKeyboardName: string]: {
+            label: string;
+            tooltip?: string;
+            layer: string;
+        };
+    };
     /**
      * The visual theme used for the virtual keyboard.
      *
