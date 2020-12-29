@@ -4,25 +4,25 @@ import { Context } from '../core/context';
 import { ParseMode, Style } from '../public/core';
 
 export class PlaceholderAtom extends Atom {
-    constructor(options?: { value?: string; mode?: ParseMode; style?: Style }) {
-        super('placeholder', {
-            mode: options?.mode,
-            style: options?.style,
-            value: options?.value,
-        });
-        this.captureSelection = true;
+  constructor(options?: { value?: string; mode?: ParseMode; style?: Style }) {
+    super('placeholder', {
+      mode: options?.mode,
+      style: options?.style,
+      value: options?.value,
+    });
+    this.captureSelection = true;
+  }
+
+  render(context: Context): Span[] {
+    const result = this.makeSpan(context, '⬚');
+    if (this.caret) {
+      result.classes += 'ML__placeholder-selected';
     }
 
-    render(context: Context): Span[] {
-        const result = this.makeSpan(context, '⬚');
-        if (this.caret) {
-            result.classes += 'ML__placeholder-selected';
-        }
+    return [result];
+  }
 
-        return [result];
-    }
-
-    toLatex(_options: ToLatexOptions): string {
-        return `\\placeholder{${this.value ?? ''}}`;
-    }
+  toLatex(_options: ToLatexOptions): string {
+    return `\\placeholder{${this.value ?? ''}}`;
+  }
 }

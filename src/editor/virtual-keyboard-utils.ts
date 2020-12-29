@@ -14,10 +14,10 @@ import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
 import {
-    CoreOptions,
-    VirtualKeyboardDefinition,
-    VirtualKeyboardLayer,
-    VirtualKeyboardOptions,
+  CoreOptions,
+  VirtualKeyboardDefinition,
+  VirtualKeyboardLayer,
+  VirtualKeyboardOptions,
 } from '../public/options';
 import { VirtualKeyboardInterface } from '../public/mathfield';
 import { getActiveKeyboardLayout } from './keyboard-layout';
@@ -27,175 +27,175 @@ import { COMMANDS, SelectorPrivate } from './commands';
 import { ExecuteCommandFunction } from './commands-definitions';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
-    options: VirtualKeyboardOptions & CoreOptions;
-    visible: boolean;
-    element: HTMLDivElement;
-    _executeCommand: ExecuteCommandFunction;
+  options: VirtualKeyboardOptions & CoreOptions;
+  visible: boolean;
+  element: HTMLDivElement;
+  _executeCommand: ExecuteCommandFunction;
 
-    constructor(
-        options: VirtualKeyboardOptions & CoreOptions,
-        alt?: {
-            executeCommand: ExecuteCommandFunction;
-        }
-    ) {
-        this.options = options;
-        this.visible = false;
-        this._executeCommand = alt?.executeCommand;
-        // Listen to know when the mouse has been released without being
-        // captured to remove the alternate keys panel and the shifted state of the
-        // keyboard.
-        // Note that we need to listen on the window to capture events happening
-        // outside the virtual keyboard.
-        // @todo should use a scrim instead (to prevent elements underneat the alt
-        // layer from reacting while the alt layer is up)
-        window.addEventListener('mouseup', this);
-        window.addEventListener('blur', this);
-        window.addEventListener('touchend', this);
-        window.addEventListener('touchcancel', this);
+  constructor(
+    options: VirtualKeyboardOptions & CoreOptions,
+    alt?: {
+      executeCommand: ExecuteCommandFunction;
+    }
+  ) {
+    this.options = options;
+    this.visible = false;
+    this._executeCommand = alt?.executeCommand;
+    // Listen to know when the mouse has been released without being
+    // captured to remove the alternate keys panel and the shifted state of the
+    // keyboard.
+    // Note that we need to listen on the window to capture events happening
+    // outside the virtual keyboard.
+    // @todo should use a scrim instead (to prevent elements underneat the alt
+    // layer from reacting while the alt layer is up)
+    window.addEventListener('mouseup', this);
+    window.addEventListener('blur', this);
+    window.addEventListener('touchend', this);
+    window.addEventListener('touchcancel', this);
+  }
+
+  get height(): number {
+    return this.element?.offsetHeight ?? 0;
+  }
+
+  handleEvent(evt: Event): void {
+    if (!this.element) {
+      return;
     }
 
-    get height(): number {
-        return this.element?.offsetHeight ?? 0;
+    switch (evt.type) {
+      case 'mouseup':
+      case 'blur':
+      case 'touchend':
+      case 'touchcancel':
+        unshiftKeyboardLayer(this);
+        break;
+    }
+  }
+
+  focusMathfield(): void {}
+
+  blurMathfield(): void {}
+
+  enable(): void {}
+
+  disable(): void {}
+
+  stateChanged(): void {}
+
+  executeCommand(
+    command: SelectorPrivate | [SelectorPrivate, ...any[]]
+  ): boolean {
+    let selector: SelectorPrivate;
+    let args: string[] = [];
+    if (isArray(command)) {
+      selector = command[0];
+      args = command.slice(1);
+    } else {
+      selector = command;
     }
 
-    handleEvent(evt: Event): void {
-        if (!this.element) {
-            return;
-        }
-
-        switch (evt.type) {
-            case 'mouseup':
-            case 'blur':
-            case 'touchend':
-            case 'touchcancel':
-                unshiftKeyboardLayer(this);
-                break;
-        }
+    // Convert kebab case (like-this) to camel case (likeThis).
+    selector = selector.replace(/-\w/g, (m) =>
+      m[1].toUpperCase()
+    ) as SelectorPrivate;
+    if (COMMANDS[selector]?.target === 'virtual-keyboard') {
+      return COMMANDS[selector].fn(this, ...args);
     }
 
-    focusMathfield(): void {}
+    return this._executeCommand?.(command) ?? false;
+  }
 
-    blurMathfield(): void {}
+  dispose(): void {
+    releaseSharedElement(
+      document.querySelector('#mathlive-alternate-keys-panel')
+    );
+    window.removeEventListener('mouseup', this);
+    window.removeEventListener('blur', this);
+    window.removeEventListener('touchend', this);
+    window.removeEventListener('touchcancel', this);
 
-    enable(): void {}
-
-    disable(): void {}
-
-    stateChanged(): void {}
-
-    executeCommand(
-        command: SelectorPrivate | [SelectorPrivate, ...any[]]
-    ): boolean {
-        let selector: SelectorPrivate;
-        let args: string[] = [];
-        if (isArray(command)) {
-            selector = command[0];
-            args = command.slice(1);
-        } else {
-            selector = command;
-        }
-
-        // Convert kebab case (like-this) to camel case (likeThis).
-        selector = selector.replace(/-\w/g, (m) =>
-            m[1].toUpperCase()
-        ) as SelectorPrivate;
-        if (COMMANDS[selector]?.target === 'virtual-keyboard') {
-            return COMMANDS[selector].fn(this, ...args);
-        }
-
-        return this._executeCommand?.(command) ?? false;
-    }
-
-    dispose(): void {
-        releaseSharedElement(
-            document.querySelector('#mathlive-alternate-keys-panel')
-        );
-        window.removeEventListener('mouseup', this);
-        window.removeEventListener('blur', this);
-        window.removeEventListener('touchend', this);
-        window.removeEventListener('touchcancel', this);
-
-        this.element?.remove();
-    }
+    this.element?.remove();
+  }
 }
 
 const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {
-    numeric: {
-        tooltip: 'keyboard.tooltip.numeric',
-        layer: 'math',
-        label: '123',
-        layers: ['math'],
-    },
-    roman: {
-        tooltip: 'keyboard.tooltip.roman',
-        layer: 'lower-roman',
-        label: 'ABC',
-        layers: ['lower-roman', 'upper-roman'],
-    },
-    greek: {
-        tooltip: 'keyboard.tooltip.greek',
-        layer: 'lower-greek',
-        label: '&alpha;&beta;&gamma;',
-        classes: 'tex-math',
-        layers: ['lower-greek', 'upper-greek'],
-    },
-    functions: {
-        tooltip: 'keyboard.tooltip.functions',
-        layer: 'functions',
-        label: '<i>f</i>&thinsp;()',
-        classes: 'tex',
-        layers: ['functions'],
-    },
-    symbols: {
-        tooltip: 'keyboard.tooltip.symbols',
-        layer: 'symbols',
-        label: '&infin;≠∈',
-        classes: 'tex',
-        layers: ['symbols'],
-    },
-    latex: {
-        tooltip: 'keyboard.tooltip.command',
-        // For the latex keyboard, perform a command rather than
-        // doing a simple layer switch, as we want to enter latex mode
-        // when the keyboard is activated
-        command: ['switchMode', 'latex'],
-        label: `<svg><use xlink:href='#svg-command' /></svg>`,
-        layers: ['latex-lower', 'latex-upper', 'latex-symbols'],
-    },
-    style: {
-        tooltip: 'keyboard.tooltip.style',
-        layer: 'style',
-        label: '<b>b</b><i>i</i>𝔹',
-    },
+  numeric: {
+    tooltip: 'keyboard.tooltip.numeric',
+    layer: 'math',
+    label: '123',
+    layers: ['math'],
+  },
+  roman: {
+    tooltip: 'keyboard.tooltip.roman',
+    layer: 'lower-roman',
+    label: 'ABC',
+    layers: ['lower-roman', 'upper-roman'],
+  },
+  greek: {
+    tooltip: 'keyboard.tooltip.greek',
+    layer: 'lower-greek',
+    label: '&alpha;&beta;&gamma;',
+    classes: 'tex-math',
+    layers: ['lower-greek', 'upper-greek'],
+  },
+  functions: {
+    tooltip: 'keyboard.tooltip.functions',
+    layer: 'functions',
+    label: '<i>f</i>&thinsp;()',
+    classes: 'tex',
+    layers: ['functions'],
+  },
+  symbols: {
+    tooltip: 'keyboard.tooltip.symbols',
+    layer: 'symbols',
+    label: '&infin;≠∈',
+    classes: 'tex',
+    layers: ['symbols'],
+  },
+  latex: {
+    tooltip: 'keyboard.tooltip.command',
+    // For the latex keyboard, perform a command rather than
+    // doing a simple layer switch, as we want to enter latex mode
+    // when the keyboard is activated
+    command: ['switchMode', 'latex'],
+    label: `<svg><use xlink:href='#svg-command' /></svg>`,
+    layers: ['latex-lower', 'latex-upper', 'latex-symbols'],
+  },
+  style: {
+    tooltip: 'keyboard.tooltip.style',
+    layer: 'style',
+    label: '<b>b</b><i>i</i>𝔹',
+  },
 };
 
 const SHIFTED_KEYS = {
-    '\\varphi ': ['&Phi;', '\\Phi '],
-    '\\varsigma ': ['&Sigma;', '\\Sigma '],
-    '\\epsilon ': ['&#x0190;', '{\\char"0190}'],
-    '\\rho ': ['&#x3A1', '{\\char"3A1}'],
-    '\\tau ': ['&#x3A4;', '{\\char"3A4}'],
-    '\\upsilon ': ['&Upsilon;', '\\Upsilon '],
-    '\\theta ': ['&Theta;', '\\Theta '],
-    '\\iota ': ['&Iota;', '{\\char"399}'],
-    '\\omicron ': ['&#x039F;', '{\\char"39F}'],
-    '\\pi ': ['&Pi;', '\\Pi '],
-    '\\alpha ': ['&Alpha;', '{\\char"391}'],
-    '\\sigma ': ['&Sigma;', '\\Sigma '],
-    '\\delta ': ['&Delta;', '\\Delta '],
-    '\\phi ': ['&#x03a6;', '\\Phi '],
-    '\\gamma ': ['&Gamma;', '\\Gamma '],
-    '\\eta ': ['&Eta;', '{\\char"397}'],
-    '\\xi ': ['&Xi;', '\\Xi '],
-    '\\kappa ': ['&Kappa;', '{\\char"39A}'],
-    '\\lambda ': ['&Lambda;', '\\Lambda '],
-    '\\zeta ': ['&Zeta;', '{\\char"396}'],
-    '\\chi ': ['&Chi;', '{\\char"3A7}'],
-    '\\psi ': ['&Psi;', '\\Psi '],
-    '\\omega ': ['&Omega;', '\\Omega '],
-    '\\beta ': ['&Beta;', '{\\char"392}'],
-    '\\nu ': ['&Nu;', '{\\char"39D}'],
-    '\\mu ': ['&Mu;', '{\\char"39C}'],
+  '\\varphi ': ['&Phi;', '\\Phi '],
+  '\\varsigma ': ['&Sigma;', '\\Sigma '],
+  '\\epsilon ': ['&#x0190;', '{\\char"0190}'],
+  '\\rho ': ['&#x3A1', '{\\char"3A1}'],
+  '\\tau ': ['&#x3A4;', '{\\char"3A4}'],
+  '\\upsilon ': ['&Upsilon;', '\\Upsilon '],
+  '\\theta ': ['&Theta;', '\\Theta '],
+  '\\iota ': ['&Iota;', '{\\char"399}'],
+  '\\omicron ': ['&#x039F;', '{\\char"39F}'],
+  '\\pi ': ['&Pi;', '\\Pi '],
+  '\\alpha ': ['&Alpha;', '{\\char"391}'],
+  '\\sigma ': ['&Sigma;', '\\Sigma '],
+  '\\delta ': ['&Delta;', '\\Delta '],
+  '\\phi ': ['&#x03a6;', '\\Phi '],
+  '\\gamma ': ['&Gamma;', '\\Gamma '],
+  '\\eta ': ['&Eta;', '{\\char"397}'],
+  '\\xi ': ['&Xi;', '\\Xi '],
+  '\\kappa ': ['&Kappa;', '{\\char"39A}'],
+  '\\lambda ': ['&Lambda;', '\\Lambda '],
+  '\\zeta ': ['&Zeta;', '{\\char"396}'],
+  '\\chi ': ['&Chi;', '{\\char"3A7}'],
+  '\\psi ': ['&Psi;', '\\Psi '],
+  '\\omega ': ['&Omega;', '\\Omega '],
+  '\\beta ': ['&Beta;', '{\\char"392}'],
+  '\\nu ': ['&Nu;', '{\\char"39D}'],
+  '\\mu ': ['&Mu;', '{\\char"39C}'],
 };
 
 // Const FUNCTIONS = [
@@ -205,384 +205,384 @@ const SHIFTED_KEYS = {
 //         ['\\sum', '\\prod', '\\bigcup_x']
 // ]
 const ALT_KEYS_BASE = {
-    '0': [
-        '\\emptyset',
-        '\\varnothing',
-        '\\infty',
-        { latex: '#?_0', insert: '#@_0' },
-        '\\circ',
-        '\\bigcirc',
-        '\\bullet',
-    ],
-    '2': ['\\frac{1}{2}', { latex: '#?^2', insert: '#@^2' }],
-    '3': ['\\frac{1}{3}', { latex: '#?^3', insert: '#@^3' }],
-    '.': [
-        ',',
-        ';',
-        '\\colon',
-        { latex: ':', aside: 'ratio' },
-        { latex: '\\cdotp', aside: 'center dot', classes: 'box' },
-        { latex: '\\cdots', aside: 'center ellipsis', classes: 'box' },
-        { latex: '\\ldotp', aside: 'low dot', classes: 'box' },
-        { latex: '\\ldots', aside: 'low ellipsis', classes: 'box' },
-        { latex: '\\vdots', aside: '', classes: 'box' },
-        { latex: '\\ddots', aside: '', classes: 'box' },
-        '\\odot',
-        '\\oslash',
-        '\\circledcirc',
-    ],
+  '0': [
+    '\\emptyset',
+    '\\varnothing',
+    '\\infty',
+    { latex: '#?_0', insert: '#@_0' },
+    '\\circ',
+    '\\bigcirc',
+    '\\bullet',
+  ],
+  '2': ['\\frac{1}{2}', { latex: '#?^2', insert: '#@^2' }],
+  '3': ['\\frac{1}{3}', { latex: '#?^3', insert: '#@^3' }],
+  '.': [
+    ',',
+    ';',
+    '\\colon',
+    { latex: ':', aside: 'ratio' },
+    { latex: '\\cdotp', aside: 'center dot', classes: 'box' },
+    { latex: '\\cdots', aside: 'center ellipsis', classes: 'box' },
+    { latex: '\\ldotp', aside: 'low dot', classes: 'box' },
+    { latex: '\\ldots', aside: 'low ellipsis', classes: 'box' },
+    { latex: '\\vdots', aside: '', classes: 'box' },
+    { latex: '\\ddots', aside: '', classes: 'box' },
+    '\\odot',
+    '\\oslash',
+    '\\circledcirc',
+  ],
 
-    '*': [
-        '\\cdot',
-        '\\ast',
-        '\\star',
-        '\\bigstar',
-        '\\ltimes',
-        '\\rtimes',
-        '\\rightthreetimes',
-        '\\leftthreetimes',
-        '\\intercal',
-        '\\prod',
-        { latex: '\\prod_{n\\mathop=0}^{\\infty}', classes: 'small' },
-    ],
+  '*': [
+    '\\cdot',
+    '\\ast',
+    '\\star',
+    '\\bigstar',
+    '\\ltimes',
+    '\\rtimes',
+    '\\rightthreetimes',
+    '\\leftthreetimes',
+    '\\intercal',
+    '\\prod',
+    { latex: '\\prod_{n\\mathop=0}^{\\infty}', classes: 'small' },
+  ],
 
-    '+': [
-        '\\pm',
-        '\\mp',
-        '\\sum',
-        { latex: '\\sum_{n\\mathop=0}^{\\infty}', classes: 'small' },
-        '\\dotplus',
-        '\\oplus',
-    ],
-    '-': ['\\pm', '\\mp', '\\ominus', '\\vert #0  \\vert'],
+  '+': [
+    '\\pm',
+    '\\mp',
+    '\\sum',
+    { latex: '\\sum_{n\\mathop=0}^{\\infty}', classes: 'small' },
+    '\\dotplus',
+    '\\oplus',
+  ],
+  '-': ['\\pm', '\\mp', '\\ominus', '\\vert #0  \\vert'],
 
-    '/': ['\\divideontimes', '/', '\\div'],
+  '/': ['\\divideontimes', '/', '\\div'],
 
-    '(': [
-        '\\left( #0\\right)',
-        '\\left[ #0\\right]',
-        '\\left\\{ #0\\right\\}',
-        '\\left\\langle #0\\right\\rangle',
-        '\\lfloor',
-        '\\llcorner',
-        '(',
-        '\\lbrack',
-        '\\lvert',
-        '\\lVert',
-        '\\lgroup',
-        '\\langle',
-        '\\lceil',
-        '\\ulcorner',
-        '\\lmoustache',
-        '\\lbrace',
-    ],
+  '(': [
+    '\\left( #0\\right)',
+    '\\left[ #0\\right]',
+    '\\left\\{ #0\\right\\}',
+    '\\left\\langle #0\\right\\rangle',
+    '\\lfloor',
+    '\\llcorner',
+    '(',
+    '\\lbrack',
+    '\\lvert',
+    '\\lVert',
+    '\\lgroup',
+    '\\langle',
+    '\\lceil',
+    '\\ulcorner',
+    '\\lmoustache',
+    '\\lbrace',
+  ],
 
-    ')': [
-        '\\rfloor',
-        '\\lrcorner',
-        ')',
-        '\\rbrack',
-        '\\rvert',
-        '\\rVert',
-        '\\rgroup',
-        '\\rangle',
-        '\\rceil',
-        '\\urcorner',
-        '\\rmoustache',
-        '\\rbrace',
-    ],
+  ')': [
+    '\\rfloor',
+    '\\lrcorner',
+    ')',
+    '\\rbrack',
+    '\\rvert',
+    '\\rVert',
+    '\\rgroup',
+    '\\rangle',
+    '\\rceil',
+    '\\urcorner',
+    '\\rmoustache',
+    '\\rbrace',
+  ],
 
-    '=': [
-        '\\cong',
-        '\\asymp',
-        '\\equiv',
-        '\\differencedelta',
-        '\\varpropto',
-        '\\thickapprox',
-        '\\approxeq',
-        '\\thicksim',
-        '\\backsim',
-        '\\eqsim',
-        '\\simeq',
-        '\\Bumpeq',
-        '\\bumpeq',
-        '\\doteq',
-        '\\Doteq',
-        '\\fallingdotseq',
-        '\\risingdotseq',
-        '\\coloneq',
-        '\\eqcirc',
-        '\\circeq',
-        '\\triangleq',
-        '\\between',
-    ],
+  '=': [
+    '\\cong',
+    '\\asymp',
+    '\\equiv',
+    '\\differencedelta',
+    '\\varpropto',
+    '\\thickapprox',
+    '\\approxeq',
+    '\\thicksim',
+    '\\backsim',
+    '\\eqsim',
+    '\\simeq',
+    '\\Bumpeq',
+    '\\bumpeq',
+    '\\doteq',
+    '\\Doteq',
+    '\\fallingdotseq',
+    '\\risingdotseq',
+    '\\coloneq',
+    '\\eqcirc',
+    '\\circeq',
+    '\\triangleq',
+    '\\between',
+  ],
 
-    '!=': ['\\neq', '\\ncong', '', '\\nsim'],
+  '!=': ['\\neq', '\\ncong', '', '\\nsim'],
 
-    '<': [
-        '\\leq',
-        '\\leqq',
-        '\\lneqq',
-        '\\ll',
-        '\\nless',
-        '\\nleq',
-        '\\precsim',
-        '\\lesssim',
-        '\\lessgtr',
-        '\\prec',
-        '\\preccurlyeq',
-        '\\lessdot',
-        '\\nprec',
-    ],
+  '<': [
+    '\\leq',
+    '\\leqq',
+    '\\lneqq',
+    '\\ll',
+    '\\nless',
+    '\\nleq',
+    '\\precsim',
+    '\\lesssim',
+    '\\lessgtr',
+    '\\prec',
+    '\\preccurlyeq',
+    '\\lessdot',
+    '\\nprec',
+  ],
 
-    '>': [
-        '\\geq',
-        '\\geqq',
-        '\\gneqq',
-        '\\gg',
-        '\\ngtr',
-        '\\ngeq',
-        '\\succsim',
-        '\\gtrsim',
-        '\\gtrless',
-        '\\succ',
-        '\\succcurlyeq',
-        '\\gtrdot',
-        '\\nsucc',
-    ],
+  '>': [
+    '\\geq',
+    '\\geqq',
+    '\\gneqq',
+    '\\gg',
+    '\\ngtr',
+    '\\ngeq',
+    '\\succsim',
+    '\\gtrsim',
+    '\\gtrless',
+    '\\succ',
+    '\\succcurlyeq',
+    '\\gtrdot',
+    '\\nsucc',
+  ],
 
-    'set': ['\\in', '\\owns', '\\subset', '\\nsubset', '\\supset', '\\nsupset'],
+  'set': ['\\in', '\\owns', '\\subset', '\\nsubset', '\\supset', '\\nsupset'],
 
-    '!set': ['\\notin', '\\backepsilon'],
+  '!set': ['\\notin', '\\backepsilon'],
 
-    'subset': [],
-    'supset': [],
+  'subset': [],
+  'supset': [],
 
-    'infinity': ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
+  'infinity': ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
 
-    'numeric-pi': ['\\prod', '\\theta', '\\rho', '\\sin', '\\cos', '\\tan'],
+  'numeric-pi': ['\\prod', '\\theta', '\\rho', '\\sin', '\\cos', '\\tan'],
 
-    'ee': ['\\times 10^{#?}', '\\ln', '\\ln_{10}', '\\log'],
+  'ee': ['\\times 10^{#?}', '\\ln', '\\ln_{10}', '\\log'],
 
-    '^': ['_{#?}'],
+  '^': ['_{#?}'],
 
-    // Integrals
-    'int': [
-        { latex: '\\int_{#?}^{#?}', classes: 'small' },
-        { latex: '\\int', classes: 'small' },
-        { latex: '\\smallint', classes: 'small' },
-        { latex: '\\iint', classes: 'small' },
-        { latex: '\\iiint', classes: 'small' },
-        { latex: '\\oint', classes: 'small' },
-        { latex: '\\dfrac{\\rd}{\\rd x}', classes: 'small' },
-        { latex: '\\frac{\\partial}{\\partial x}', classes: 'small' },
+  // Integrals
+  'int': [
+    { latex: '\\int_{#?}^{#?}', classes: 'small' },
+    { latex: '\\int', classes: 'small' },
+    { latex: '\\smallint', classes: 'small' },
+    { latex: '\\iint', classes: 'small' },
+    { latex: '\\iiint', classes: 'small' },
+    { latex: '\\oint', classes: 'small' },
+    { latex: '\\dfrac{\\rd}{\\rd x}', classes: 'small' },
+    { latex: '\\frac{\\partial}{\\partial x}', classes: 'small' },
 
-        '\\capitalDifferentialD',
-        '\\rd',
-        '\\partial',
-    ],
+    '\\capitalDifferentialD',
+    '\\rd',
+    '\\partial',
+  ],
 
-    'nabla': ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
+  'nabla': ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
 
-    '!': ['!!', '\\Gamma', '\\Pi'],
-    'accents': [
-        '\\bar{#@}',
-        '\\vec{#@}',
-        '\\hat{#@}',
-        '\\check{#@}',
-        '\\dot{#@}',
-        '\\ddot{#@}',
-        '\\mathring{#@}',
-        '\\breve{#@}',
-        '\\acute{#@}',
-        '\\tilde{#@}',
-        '\\grave{#@}',
-    ],
-    // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},
-    //     {latex:'\\lvert #@ \\rvert', aside:'determinant'},
-    //     {latex:'\\begin{cardinality} #@ \\end{cardinality}', aside:'cardinality'},
-    //     {latex:'\\lvert #@ \\rvert', aside:'length'},
-    //     {latex:'\\lvert #@ \\rvert', aside:'order'},
+  '!': ['!!', '\\Gamma', '\\Pi'],
+  'accents': [
+    '\\bar{#@}',
+    '\\vec{#@}',
+    '\\hat{#@}',
+    '\\check{#@}',
+    '\\dot{#@}',
+    '\\ddot{#@}',
+    '\\mathring{#@}',
+    '\\breve{#@}',
+    '\\acute{#@}',
+    '\\tilde{#@}',
+    '\\grave{#@}',
+  ],
+  // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},
+  //     {latex:'\\lvert #@ \\rvert', aside:'determinant'},
+  //     {latex:'\\begin{cardinality} #@ \\end{cardinality}', aside:'cardinality'},
+  //     {latex:'\\lvert #@ \\rvert', aside:'length'},
+  //     {latex:'\\lvert #@ \\rvert', aside:'order'},
 
-    // ],
-    'A': [
-        { latex: '\\aleph', aside: 'aleph' },
-        { latex: '\\forall', aside: 'for all' },
-    ],
-    'a': [
-        { latex: '\\aleph', aside: 'aleph' },
-        { latex: '\\forall', aside: 'for all' },
-    ],
-    'b': [{ latex: '\\beth', aside: 'beth' }],
-    'B': [{ latex: '\\beth', aside: 'beth' }],
-    'c': [{ latex: '\\C', aside: 'set of complex numbers' }],
-    'd': [{ latex: '\\daleth', aside: 'daleth' }],
-    'D': [{ latex: '\\daleth', aside: 'daleth' }],
-    'e': [
-        { latex: '\\exponentialE', aside: 'exponential e' },
-        { latex: '\\exists', aside: 'there is' },
-        { latex: '\\nexists', aside: 'there isn’t' },
-    ],
-    'g': [{ latex: '\\gimel', aside: 'gimel' }],
-    'G': [{ latex: '\\gimel', aside: 'gimel' }],
-    'h': [
-        { latex: '\\hbar', aside: 'h bar' },
-        { latex: '\\hslash', aside: 'h slash' },
-    ],
-    'i': [{ latex: '\\imaginaryI', aside: 'imaginary i' }],
-    'j': [{ latex: '\\imaginaryJ', aside: 'imaginary j' }],
-    'l': [{ latex: '\\ell', aside: 'ell' }],
-    'n': [{ latex: '\\N', aside: 'set of natural numbers' }],
-    'p': [{ latex: '\\P', aside: 'set of primes' }],
-    'q': [{ latex: '\\Q', aside: 'set of rational numbers' }],
-    'r': [{ latex: '\\R', aside: 'set of real numbers' }],
-    'z': [{ latex: '\\Z', aside: 'set of integers' }],
+  // ],
+  'A': [
+    { latex: '\\aleph', aside: 'aleph' },
+    { latex: '\\forall', aside: 'for all' },
+  ],
+  'a': [
+    { latex: '\\aleph', aside: 'aleph' },
+    { latex: '\\forall', aside: 'for all' },
+  ],
+  'b': [{ latex: '\\beth', aside: 'beth' }],
+  'B': [{ latex: '\\beth', aside: 'beth' }],
+  'c': [{ latex: '\\C', aside: 'set of complex numbers' }],
+  'd': [{ latex: '\\daleth', aside: 'daleth' }],
+  'D': [{ latex: '\\daleth', aside: 'daleth' }],
+  'e': [
+    { latex: '\\exponentialE', aside: 'exponential e' },
+    { latex: '\\exists', aside: 'there is' },
+    { latex: '\\nexists', aside: 'there isn’t' },
+  ],
+  'g': [{ latex: '\\gimel', aside: 'gimel' }],
+  'G': [{ latex: '\\gimel', aside: 'gimel' }],
+  'h': [
+    { latex: '\\hbar', aside: 'h bar' },
+    { latex: '\\hslash', aside: 'h slash' },
+  ],
+  'i': [{ latex: '\\imaginaryI', aside: 'imaginary i' }],
+  'j': [{ latex: '\\imaginaryJ', aside: 'imaginary j' }],
+  'l': [{ latex: '\\ell', aside: 'ell' }],
+  'n': [{ latex: '\\N', aside: 'set of natural numbers' }],
+  'p': [{ latex: '\\P', aside: 'set of primes' }],
+  'q': [{ latex: '\\Q', aside: 'set of rational numbers' }],
+  'r': [{ latex: '\\R', aside: 'set of real numbers' }],
+  'z': [{ latex: '\\Z', aside: 'set of integers' }],
 
-    'x-var': [
-        'y',
-        'z',
-        't',
-        'r',
-        { latex: 'f(#?)', classes: 'small' },
-        { latex: 'g(#?)', classes: 'small' },
-        'x^2',
-        'x^n',
-        'x_n',
-        'x_{n+1}',
-        'x_i',
-        'x_{i+1}',
-    ],
-    'n-var': ['i', 'j', 'p', 'k', 'a', 'u'],
-    'ii': ['\\Re', '\\Im', '\\imaginaryJ', '\\Vert #0 \\Vert'],
+  'x-var': [
+    'y',
+    'z',
+    't',
+    'r',
+    { latex: 'f(#?)', classes: 'small' },
+    { latex: 'g(#?)', classes: 'small' },
+    'x^2',
+    'x^n',
+    'x_n',
+    'x_{n+1}',
+    'x_i',
+    'x_{i+1}',
+  ],
+  'n-var': ['i', 'j', 'p', 'k', 'a', 'u'],
+  'ii': ['\\Re', '\\Im', '\\imaginaryJ', '\\Vert #0 \\Vert'],
 
-    'logic': [
-        { latex: '\\exists', aside: 'there is' },
-        { latex: '\\nexists', aside: 'there isn’t' },
+  'logic': [
+    { latex: '\\exists', aside: 'there is' },
+    { latex: '\\nexists', aside: 'there isn’t' },
 
-        { latex: '\\ni', aside: 'such that' },
-        { latex: '\\Colon', aside: 'such that' },
+    { latex: '\\ni', aside: 'such that' },
+    { latex: '\\Colon', aside: 'such that' },
 
-        { latex: '\\implies', aside: 'implies' },
-        { latex: '\\impliedby', aside: 'implied by' },
+    { latex: '\\implies', aside: 'implies' },
+    { latex: '\\impliedby', aside: 'implied by' },
 
-        { latex: '\\iff', aside: 'if and only if' },
+    { latex: '\\iff', aside: 'if and only if' },
 
-        { latex: '\\land', aside: 'and' },
-        { latex: '\\lor', aside: 'or' },
-        { latex: '\\oplus', aside: 'xor' },
-        { latex: '\\lnot', aside: 'not' },
+    { latex: '\\land', aside: 'and' },
+    { latex: '\\lor', aside: 'or' },
+    { latex: '\\oplus', aside: 'xor' },
+    { latex: '\\lnot', aside: 'not' },
 
-        { latex: '\\downarrow', aside: 'nor' },
-        { latex: '\\uparrow', aside: 'nand' },
+    { latex: '\\downarrow', aside: 'nor' },
+    { latex: '\\uparrow', aside: 'nand' },
 
-        { latex: '\\curlywedge', aside: 'nor' },
-        { latex: '\\bar\\curlywedge', aside: 'nand' },
+    { latex: '\\curlywedge', aside: 'nor' },
+    { latex: '\\bar\\curlywedge', aside: 'nand' },
 
-        // {latex:'\\barwedge', aside:'bar wedge'},
-        // {latex:'\\curlyvee', aside:'curly vee'},
-        // {latex:'\\veebar', aside:'vee bar'},
+    // {latex:'\\barwedge', aside:'bar wedge'},
+    // {latex:'\\curlyvee', aside:'curly vee'},
+    // {latex:'\\veebar', aside:'vee bar'},
 
-        { latex: '\\therefore', aside: 'therefore' },
-        { latex: '\\because', aside: 'because' },
+    { latex: '\\therefore', aside: 'therefore' },
+    { latex: '\\because', aside: 'because' },
 
-        { latex: '^\\biconditional', aside: 'biconditional' },
+    { latex: '^\\biconditional', aside: 'biconditional' },
 
-        '\\leftrightarrow',
-        '\\Leftrightarrow',
-        '\\to',
-        '\\models',
-        '\\vdash',
-        '\\gets',
-        '\\dashv',
-        '\\roundimplies',
-    ],
+    '\\leftrightarrow',
+    '\\Leftrightarrow',
+    '\\to',
+    '\\models',
+    '\\vdash',
+    '\\gets',
+    '\\dashv',
+    '\\roundimplies',
+  ],
 
-    'set-operators': [
-        '\\cap',
-        '\\cup',
-        '\\setminus',
-        '\\smallsetminus',
-        '\\complement',
-    ],
+  'set-operators': [
+    '\\cap',
+    '\\cup',
+    '\\setminus',
+    '\\smallsetminus',
+    '\\complement',
+  ],
 
-    'set-relations': [
-        '\\in',
-        '\\notin',
-        '\\ni',
-        '\\owns',
-        '\\subset',
-        '\\supset',
-        '\\subseteq',
-        '\\supseteq',
-        '\\subsetneq',
-        '\\supsetneq',
-        '\\varsubsetneq',
-        '\\subsetneqq',
-        '\\nsubset',
-        '\\nsupset',
-        '\\nsubseteq',
-        '\\nsupseteq',
-    ],
+  'set-relations': [
+    '\\in',
+    '\\notin',
+    '\\ni',
+    '\\owns',
+    '\\subset',
+    '\\supset',
+    '\\subseteq',
+    '\\supseteq',
+    '\\subsetneq',
+    '\\supsetneq',
+    '\\varsubsetneq',
+    '\\subsetneqq',
+    '\\nsubset',
+    '\\nsupset',
+    '\\nsubseteq',
+    '\\nsupseteq',
+  ],
 
-    'space': [
-        {
-            latex: '\\char"203A\\!\\char"2039',
-            insert: '\\!',
-            aside: 'negative thin space<br>⁻³⧸₁₈ em',
-        },
-        {
-            latex: '\\unicode{"203A}\\,\\unicode{"2039}',
-            insert: '\\,',
-            aside: 'thin space<br>³⧸₁₈ em',
-        },
-        {
-            latex: '\\unicode{"203A}\\:\\unicode{"2039}',
-            insert: '\\:',
-            aside: 'medium space<br>⁴⧸₁₈ em',
-        },
-        {
-            latex: '\\unicode{"203A}\\;\\unicode{"2039}',
-            insert: '\\;',
-            aside: 'thick space<br>⁵⧸₁₈ em',
-        },
-        {
-            latex: '\\unicode{"203A}\\ \\unicode{"2039}',
-            insert: '\\ ',
-            aside: '⅓ em',
-        },
-        {
-            latex: '\\unicode{"203A}\\enspace\\unicode{"2039}',
-            insert: '\\enspace',
-            aside: '½ em',
-        },
-        {
-            latex: '\\unicode{"203A}\\quad\\unicode{"2039}',
-            insert: '\\quad',
-            aside: '1 em',
-        },
-        {
-            latex: '\\unicode{"203A}\\qquad\\unicode{"2039}',
-            insert: '\\qquad',
-            aside: '2 em',
-        },
-    ],
+  'space': [
+    {
+      latex: '\\char"203A\\!\\char"2039',
+      insert: '\\!',
+      aside: 'negative thin space<br>⁻³⧸₁₈ em',
+    },
+    {
+      latex: '\\unicode{"203A}\\,\\unicode{"2039}',
+      insert: '\\,',
+      aside: 'thin space<br>³⧸₁₈ em',
+    },
+    {
+      latex: '\\unicode{"203A}\\:\\unicode{"2039}',
+      insert: '\\:',
+      aside: 'medium space<br>⁴⧸₁₈ em',
+    },
+    {
+      latex: '\\unicode{"203A}\\;\\unicode{"2039}',
+      insert: '\\;',
+      aside: 'thick space<br>⁵⧸₁₈ em',
+    },
+    {
+      latex: '\\unicode{"203A}\\ \\unicode{"2039}',
+      insert: '\\ ',
+      aside: '⅓ em',
+    },
+    {
+      latex: '\\unicode{"203A}\\enspace\\unicode{"2039}',
+      insert: '\\enspace',
+      aside: '½ em',
+    },
+    {
+      latex: '\\unicode{"203A}\\quad\\unicode{"2039}',
+      insert: '\\quad',
+      aside: '1 em',
+    },
+    {
+      latex: '\\unicode{"203A}\\qquad\\unicode{"2039}',
+      insert: '\\qquad',
+      aside: '2 em',
+    },
+  ],
 
-    // @todo could also delete to end
-    'delete': [
-        {
-            label:
-                '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>',
-            command: '"deleteAll"',
-        },
-    ],
+  // @todo could also delete to end
+  'delete': [
+    {
+      label:
+        '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>',
+      command: '"deleteAll"',
+    },
+  ],
 
-    // @todo Tab: could turn on speech, visible keyboard...
-    '->|': [],
+  // @todo Tab: could turn on speech, visible keyboard...
+  '->|': [],
 };
 let ALT_KEYS = {};
 
 const LAYERS = {
-    'math': `
+  'math': `
         <div class='rows'>
             <ul>
                 <li class='keycap tex' data-alt-keys='x-var'><i>x</i></li>
@@ -624,7 +624,7 @@ const LAYERS = {
             </ul>
         </div>
     `,
-    'lower-roman': `
+  'lower-roman': `
         <div class='rows'>
             <ul>
                 <row name='numpad-1' class='if-wide'/>
@@ -646,7 +646,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'upper-roman': `
+  'upper-roman': `
         <div class='rows'>
             <ul>
                 <row name='numpad-1' class='if-wide'/>
@@ -668,7 +668,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'symbols': `
+  'symbols': `
         <div class='rows'>
             <ul>
                 <row name='numpad-1' class='if-wide'/>
@@ -728,7 +728,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'lower-greek': `
+  'lower-greek': `
         <div class='rows'>
             <ul><li class='keycap tex' data-insert='\\varphi '><i>&#x03c6;</i><aside>phi var.</aside></li>
                 <li class='keycap tex' data-insert='\\varsigma '><i>&#x03c2;</i><aside>sigma var.</aside></li>
@@ -776,7 +776,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'upper-greek': `
+  'upper-greek': `
         <div class='rows'>
             <ul><li class='keycap tex' data-insert='\\Phi '>&Phi;<aside>phi</aside></li>
                 <li class='keycap tex' data-insert='\\Sigma '>&Sigma;<aside>sigma</aside></li>
@@ -813,7 +813,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'latex-lower': `
+  'latex-lower': `
         <div class='rows'>
             <ul><row name='lower-1' class='tt' shift-layer='latex-upper'/></ul>
             <ul><row name='lower-2' class='tt' shift-layer='latex-upper'/></ul>
@@ -828,7 +828,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'latex-upper': `
+  'latex-upper': `
         <div class='rows'>
             <ul><row name='upper-1' class='tt' shift-layer='latex-lower'/></ul>
             <ul><row name='upper-2' class='tt' shift-layer='latex-lower'/></ul>
@@ -843,7 +843,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'latex-symbols': `
+  'latex-symbols': `
         <div class='rows'>
             <ul><li class='keycap tt'>1</li><li class='keycap tt'>2</li><li class='keycap tt'>3</li><li class='keycap tt'>4</li><li class='keycap tt'>5</li><li class='keycap tt'>6</li><li class='keycap tt'>7</li><li class='keycap tt'>8</li><li class='keycap tt'>9</li><li class='keycap tt'>0</li></ul>
             <ul><li class='keycap tt'>!</li><li class='keycap tt'>@</li><li class='keycap tt'>#</li><li class='keycap tt'>$</li><li class='keycap tt'>%</li><li class='keycap tt'>^</li><li class='keycap tt'>&</li><li class='keycap tt'>*</li><li class='keycap tt'>+</li><li class='keycap tt'>=</li></ul>
@@ -874,7 +874,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'functions': `
+  'functions': `
         <div class='rows'>
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-insert='\\sin'></li>
@@ -917,7 +917,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    'style': `
+  'style': `
         <div class='rows'>
             <ul>
                 <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
@@ -959,339 +959,332 @@ const LAYERS = {
 };
 
 function latexToMarkup(latex: string, arg): string {
-    // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
-    latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
+  // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
+  latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
-    return makeStruts(
-        new Span(
-            Atom.render(
-                { mathstyle: MATHSTYLES.displaystyle },
-                parseLatex(latex, 'math', arg)
-            ),
-            'ML__base'
-        ),
-        'ML__mathlive'
-    ).toMarkup();
+  return makeStruts(
+    new Span(
+      Atom.render(
+        { mathstyle: MATHSTYLES.displaystyle },
+        parseLatex(latex, 'math', arg)
+      ),
+      'ML__base'
+    ),
+    'ML__mathlive'
+  ).toMarkup();
 }
 
 /**
  * Return a markup string for the keyboard toolbar for the specified layer.
  */
 function makeKeyboardToolbar(
-    options: VirtualKeyboardOptions,
-    keyboardIDs,
-    currentKeyboard
+  options: VirtualKeyboardOptions,
+  keyboardIDs,
+  currentKeyboard
 ): string {
-    // The left hand side of the toolbar has a list of all the available keyboards
-    let result = "<div class='left'>";
-    const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
-    if (keyboardList.length > 1) {
-        const keyboards = {
-            ...KEYBOARDS,
-            ...(options.customVirtualKeyboards ?? {}),
-        };
-        for (const keyboard of keyboardList) {
-            if (!keyboards[keyboard]) {
-                console.error('Unknown virtual keyboard "', keyboard, '"');
-                break;
-            }
+  // The left hand side of the toolbar has a list of all the available keyboards
+  let result = "<div class='left'>";
+  const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
+  if (keyboardList.length > 1) {
+    const keyboards = {
+      ...KEYBOARDS,
+      ...(options.customVirtualKeyboards ?? {}),
+    };
+    for (const keyboard of keyboardList) {
+      if (!keyboards[keyboard]) {
+        console.error('Unknown virtual keyboard "', keyboard, '"');
+        break;
+      }
 
-            result += "<div class='";
-            if (keyboard === currentKeyboard) {
-                result += 'selected ';
-            } else if (keyboards[keyboard].command) {
-                result += 'action ';
-            } else {
-                result += 'layer-switch ';
-            }
+      result += "<div class='";
+      if (keyboard === currentKeyboard) {
+        result += 'selected ';
+      } else if (keyboards[keyboard].command) {
+        result += 'action ';
+      } else {
+        result += 'layer-switch ';
+      }
 
-            result += (keyboards[keyboard].classes ?? '') + "'";
+      result += (keyboards[keyboard].classes ?? '') + "'";
 
-            if (keyboards[keyboard].tooltip) {
-                result +=
-                    "data-ML__tooltip='" +
-                    l10n(keyboards[keyboard].tooltip) +
-                    "' ";
-                result += "data-placement='top' data-delay='1s'";
-            }
+      if (keyboards[keyboard].tooltip) {
+        result +=
+          "data-ML__tooltip='" + l10n(keyboards[keyboard].tooltip) + "' ";
+        result += "data-placement='top' data-delay='1s'";
+      }
 
-            if (keyboard !== currentKeyboard) {
-                if (typeof keyboards[keyboard].command === 'string') {
-                    result += `data-command='"${
-                        keyboards[keyboard].command as string
-                    }"'`;
-                } else if (Array.isArray(keyboards[keyboard].command)) {
-                    result += `data-command='"${(keyboards[keyboard]
-                        .command as string[]).join('')}"'`;
-                }
-
-                if (keyboards[keyboard].layer) {
-                    result += "data-layer='" + keyboards[keyboard].layer + "'";
-                }
-            }
-
-            result += '>' + keyboards[keyboard].label + '</div>';
+      if (keyboard !== currentKeyboard) {
+        if (typeof keyboards[keyboard].command === 'string') {
+          result += `data-command='"${keyboards[keyboard].command as string}"'`;
+        } else if (Array.isArray(keyboards[keyboard].command)) {
+          result += `data-command='"${(keyboards[keyboard]
+            .command as string[]).join('')}"'`;
         }
+
+        if (keyboards[keyboard].layer) {
+          result += "data-layer='" + keyboards[keyboard].layer + "'";
+        }
+      }
+
+      result += '>' + keyboards[keyboard].label + '</div>';
     }
+  }
 
-    result += '</div>';
+  result += '</div>';
 
-    const toolbarOptions = options.virtualKeyboardToolbar;
-    const availableActions =
-        toolbarOptions === 'default' ? ['copyToClipboard', 'undo', 'redo'] : [];
+  const toolbarOptions = options.virtualKeyboardToolbar;
+  const availableActions =
+    toolbarOptions === 'default' ? ['copyToClipboard', 'undo', 'redo'] : [];
 
-    const actionsMarkup = {
-        copyToClipboard: `
+  const actionsMarkup = {
+    copyToClipboard: `
             <div class='action'
                 data-command='"copyToClipboard"'
                 data-ML__tooltip='${l10n(
-                    'tooltip.copy to clipboard'
+                  'tooltip.copy to clipboard'
                 )}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-copy' /></svg>
             </div>
         `,
-        undo: `
+    undo: `
             <div class='action disabled'
                 data-command='"undo"'
                 data-ML__tooltip='${l10n(
-                    'tooltip.undo'
+                  'tooltip.undo'
                 )}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-undo' /></svg>
             </div>
         `,
-        redo: `
+    redo: `
             <div class='action disabled'
                 data-command='"redo"'
                 data-ML__tooltip='${l10n(
-                    'tooltip.redo'
+                  'tooltip.redo'
                 )}' data-placement='top' data-delay='1s'>
                 <svg><use xlink:href='#svg-redo' /></svg>
             </div>
         `,
-    };
+  };
 
-    // The right hand side of the toolbar, with the copy/undo/redo commands
-    if (availableActions.length > 0) {
-        result += `
+  // The right hand side of the toolbar, with the copy/undo/redo commands
+  if (availableActions.length > 0) {
+    result += `
             <div class='right'>
                 ${availableActions
-                    .map((action) => actionsMarkup[action])
-                    .join('')}
+                  .map((action) => actionsMarkup[action])
+                  .join('')}
             </div>
         `;
-    }
+  }
 
-    return "<div class='keyboard-toolbar' role='toolbar'>" + result + '</div>';
+  return "<div class='keyboard-toolbar' role='toolbar'>" + result + '</div>';
 }
 
 export function makeKeycap(
-    keyboard: VirtualKeyboard,
-    elementList: HTMLElement[],
-    chainedCommand?: string | any[]
+  keyboard: VirtualKeyboard,
+  elementList: HTMLElement[],
+  chainedCommand?: string | any[]
 ): void {
-    for (const element of elementList) {
-        let html: string;
-        // Display
-        if (element.getAttribute('data-latex')) {
-            html = latexToMarkup(
-                element.getAttribute('data-latex').replace(/&quot;/g, '"'),
-                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
-            );
-        } else if (
-            element.getAttribute('data-insert') &&
-            element.innerHTML === ''
-        ) {
-            html = latexToMarkup(
-                element.getAttribute('data-insert').replace(/&quot;/g, '"'),
-                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
-            );
-        } else if (element.getAttribute('data-content')) {
-            html = element.getAttribute('data-content').replace(/&quot;/g, '"');
-        }
-
-        if (element.getAttribute('data-aside')) {
-            html =
-                (html ?? '') +
-                '<aside>' +
-                element.getAttribute('data-aside').replace(/&quot;/g, '"') +
-                '</aside>';
-        }
-
-        if (typeof html !== 'undefined') {
-            element.innerHTML = keyboard.options.createHTML(html);
-        }
-
-        if (element.getAttribute('data-classes')) {
-            element.classList.add(element.getAttribute('data-classes'));
-        }
-
-        const key = element
-            .getAttribute('data-insert')
-            ?.replace(/&quot;/g, '"');
-        if (key && SHIFTED_KEYS[key]) {
-            element.dataset.shifted = SHIFTED_KEYS[key][0];
-            element.dataset.shiftedCommand = JSON.stringify([
-                'insertAndUnshiftKeyboardLayer',
-                SHIFTED_KEYS[key][1],
-            ]);
-        }
-
-        // Commands
-        let handlers;
-        if (element.getAttribute('data-command')) {
-            handlers = JSON.parse(element.getAttribute('data-command'));
-        } else if (element.getAttribute('data-insert')) {
-            handlers = [
-                'insert',
-                element.getAttribute('data-insert'),
-                {
-                    focus: true,
-                    feedback: true,
-                    mode: 'math',
-                    format: 'latex',
-                    resetStyle: true,
-                },
-            ];
-        } else if (element.getAttribute('data-latex')) {
-            handlers = [
-                'insert',
-                element.getAttribute('data-latex'),
-                {
-                    focus: true,
-                    feedback: true,
-                    mode: 'math',
-                    format: 'latex',
-                    resetStyle: true,
-                },
-            ];
-        } else {
-            handlers = [
-                'typedText',
-                element.getAttribute('data-key') || element.textContent,
-                { focus: true, feedback: true, simulateKeystroke: true },
-            ];
-        }
-
-        if (chainedCommand) {
-            handlers = [chainedCommand, handlers];
-        }
-
-        if (element.getAttribute('data-alt-keys')) {
-            const altKeys = ALT_KEYS[element.getAttribute('data-alt-keys')];
-            if (altKeys) {
-                handlers = {
-                    default: handlers,
-                    pressAndHoldStart: [
-                        'showAlternateKeys',
-                        element.getAttribute('data-alt-keys'),
-                        altKeys,
-                    ],
-                    pressAndHoldEnd: 'hideAlternateKeys',
-                };
-            } else {
-                console.warn(
-                    'Unknown alt key set: "' +
-                        element.getAttribute('data-alt-keys')
-                );
-            }
-        }
-
-        attachButtonHandlers(
-            (command) => keyboard.executeCommand(command),
-            element,
-            handlers
-        );
+  for (const element of elementList) {
+    let html: string;
+    // Display
+    if (element.getAttribute('data-latex')) {
+      html = latexToMarkup(
+        element.getAttribute('data-latex').replace(/&quot;/g, '"'),
+        { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
+      );
+    } else if (
+      element.getAttribute('data-insert') &&
+      element.innerHTML === ''
+    ) {
+      html = latexToMarkup(
+        element.getAttribute('data-insert').replace(/&quot;/g, '"'),
+        { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
+      );
+    } else if (element.getAttribute('data-content')) {
+      html = element.getAttribute('data-content').replace(/&quot;/g, '"');
     }
+
+    if (element.getAttribute('data-aside')) {
+      html =
+        (html ?? '') +
+        '<aside>' +
+        element.getAttribute('data-aside').replace(/&quot;/g, '"') +
+        '</aside>';
+    }
+
+    if (typeof html !== 'undefined') {
+      element.innerHTML = keyboard.options.createHTML(html);
+    }
+
+    if (element.getAttribute('data-classes')) {
+      element.classList.add(element.getAttribute('data-classes'));
+    }
+
+    const key = element.getAttribute('data-insert')?.replace(/&quot;/g, '"');
+    if (key && SHIFTED_KEYS[key]) {
+      element.dataset.shifted = SHIFTED_KEYS[key][0];
+      element.dataset.shiftedCommand = JSON.stringify([
+        'insertAndUnshiftKeyboardLayer',
+        SHIFTED_KEYS[key][1],
+      ]);
+    }
+
+    // Commands
+    let handlers;
+    if (element.getAttribute('data-command')) {
+      handlers = JSON.parse(element.getAttribute('data-command'));
+    } else if (element.getAttribute('data-insert')) {
+      handlers = [
+        'insert',
+        element.getAttribute('data-insert'),
+        {
+          focus: true,
+          feedback: true,
+          mode: 'math',
+          format: 'latex',
+          resetStyle: true,
+        },
+      ];
+    } else if (element.getAttribute('data-latex')) {
+      handlers = [
+        'insert',
+        element.getAttribute('data-latex'),
+        {
+          focus: true,
+          feedback: true,
+          mode: 'math',
+          format: 'latex',
+          resetStyle: true,
+        },
+      ];
+    } else {
+      handlers = [
+        'typedText',
+        element.getAttribute('data-key') || element.textContent,
+        { focus: true, feedback: true, simulateKeystroke: true },
+      ];
+    }
+
+    if (chainedCommand) {
+      handlers = [chainedCommand, handlers];
+    }
+
+    if (element.getAttribute('data-alt-keys')) {
+      const altKeys = ALT_KEYS[element.getAttribute('data-alt-keys')];
+      if (altKeys) {
+        handlers = {
+          default: handlers,
+          pressAndHoldStart: [
+            'showAlternateKeys',
+            element.getAttribute('data-alt-keys'),
+            altKeys,
+          ],
+          pressAndHoldEnd: 'hideAlternateKeys',
+        };
+      } else {
+        console.warn(
+          'Unknown alt key set: "' + element.getAttribute('data-alt-keys')
+        );
+      }
+    }
+
+    attachButtonHandlers(
+      (command) => keyboard.executeCommand(command),
+      element,
+      handlers
+    );
+  }
 }
 
 /**
  * Expand the shortcut tags (e.g. <row>) inside a layer.
  */
 function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
-    const ROWS = {
-        // First row should be 10 key wide
-        // Second row should be 10 key wide
-        // Third row should be 8.5 key wide
-        // One row should have ^ (shift key) which is 1.5 key wide
-        // One row should have ~ (delete key) which is .5 or 1.5 key wide
-        qwerty: {
-            'lower-1': 'qwertyuiop',
-            'lower-2': ' asdfghjkl ',
-            'lower-3': '^zxcvbnm~',
-            'upper-1': 'QWERTYUIOP',
-            'upper-2': ' ASDFGHJKL ',
-            'upper-3': '^ZXCVBNM~',
-            'numpad-1': '789/',
-            'numpad-2': '456*',
-            'numpad-3': '123-',
-            'numpad-4': '0.=+',
-        },
-        azerty: {
-            'lower-1': 'azertyuiop',
-            'lower-2': 'qsdfghjklm',
-            'lower-3': '^ wxcvbn ~',
-            'upper-1': 'AZERTYUIOP',
-            'upper-2': 'QSDFGHJKLM',
-            'upper-3': '^ WXCVBN ~',
-        },
-        qwertz: {
-            'lower-1': 'qwertzuiop',
-            'lower-2': ' asdfghjkl ',
-            'lower-3': '^yxcvbnm~',
-            'upper-1': 'QWERTZUIOP',
-            'upper-2': ' ASDFGHJKL',
-            'upper-3': '^YXCVBNM~',
-        },
-        dvorak: {
-            'lower-1': '^  pyfgcrl ',
-            'lower-2': 'aoeuidhtns',
-            'lower-3': 'qjkxbmwvz~',
-            'upper-1': '^  PYFGCRL ',
-            'upper-2': 'AOEUIDHTNS',
-            'upper-3': 'QJKXBMWVZ~',
-        },
-        colemak: {
-            'lower-1': ' qwfpgjluy ',
-            'lower-2': 'arstdhneio',
-            'lower-3': '^zxcvbkm~',
-            'upper-1': ' QWFPGNLUY ',
-            'upper-2': 'ARSTDHNEIO',
-            'upper-3': '^ZXCVBKM~',
-        },
-    };
-    // Determine the layout of the virtual keyboard based on a
-    // detected physical keyboard layout, or the current locale
-    let layoutName = options.virtualKeyboardLayout;
-    if (layoutName === 'auto') {
-        const activeLayout = getActiveKeyboardLayout();
-        if (activeLayout) {
-            layoutName = activeLayout.virtualLayout;
-        }
-
-        if (!layoutName || layoutName === 'auto') {
-            layoutName =
-                {
-                    fr: 'azerty',
-                    be: 'azerty',
-                    al: 'qwertz',
-                    ba: 'qwertz',
-                    cz: 'qwertz',
-                    de: 'qwertz',
-                    hu: 'qwertz',
-                    sk: 'qwertz',
-                    ch: 'qwertz',
-                }[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
-        }
+  const ROWS = {
+    // First row should be 10 key wide
+    // Second row should be 10 key wide
+    // Third row should be 8.5 key wide
+    // One row should have ^ (shift key) which is 1.5 key wide
+    // One row should have ~ (delete key) which is .5 or 1.5 key wide
+    qwerty: {
+      'lower-1': 'qwertyuiop',
+      'lower-2': ' asdfghjkl ',
+      'lower-3': '^zxcvbnm~',
+      'upper-1': 'QWERTYUIOP',
+      'upper-2': ' ASDFGHJKL ',
+      'upper-3': '^ZXCVBNM~',
+      'numpad-1': '789/',
+      'numpad-2': '456*',
+      'numpad-3': '123-',
+      'numpad-4': '0.=+',
+    },
+    azerty: {
+      'lower-1': 'azertyuiop',
+      'lower-2': 'qsdfghjklm',
+      'lower-3': '^ wxcvbn ~',
+      'upper-1': 'AZERTYUIOP',
+      'upper-2': 'QSDFGHJKLM',
+      'upper-3': '^ WXCVBN ~',
+    },
+    qwertz: {
+      'lower-1': 'qwertzuiop',
+      'lower-2': ' asdfghjkl ',
+      'lower-3': '^yxcvbnm~',
+      'upper-1': 'QWERTZUIOP',
+      'upper-2': ' ASDFGHJKL',
+      'upper-3': '^YXCVBNM~',
+    },
+    dvorak: {
+      'lower-1': '^  pyfgcrl ',
+      'lower-2': 'aoeuidhtns',
+      'lower-3': 'qjkxbmwvz~',
+      'upper-1': '^  PYFGCRL ',
+      'upper-2': 'AOEUIDHTNS',
+      'upper-3': 'QJKXBMWVZ~',
+    },
+    colemak: {
+      'lower-1': ' qwfpgjluy ',
+      'lower-2': 'arstdhneio',
+      'lower-3': '^zxcvbkm~',
+      'upper-1': ' QWFPGNLUY ',
+      'upper-2': 'ARSTDHNEIO',
+      'upper-3': '^ZXCVBKM~',
+    },
+  };
+  // Determine the layout of the virtual keyboard based on a
+  // detected physical keyboard layout, or the current locale
+  let layoutName = options.virtualKeyboardLayout;
+  if (layoutName === 'auto') {
+    const activeLayout = getActiveKeyboardLayout();
+    if (activeLayout) {
+      layoutName = activeLayout.virtualLayout;
     }
 
-    const layout = ROWS[layoutName] ?? ROWS.qwerty;
+    if (!layoutName || layoutName === 'auto') {
+      layoutName =
+        {
+          fr: 'azerty',
+          be: 'azerty',
+          al: 'qwertz',
+          ba: 'qwertz',
+          cz: 'qwertz',
+          de: 'qwertz',
+          hu: 'qwertz',
+          sk: 'qwertz',
+          ch: 'qwertz',
+        }[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
+    }
+  }
 
-    let result = layer;
-    let row;
+  const layout = ROWS[layoutName] ?? ROWS.qwerty;
 
-    result = result.replace(
-        /<arrows\/>/g,
-        `
+  let result = layer;
+  let row;
+
+  result = result.replace(
+    /<arrows\/>/g,
+    `
         <li class='action' data-command='["performWithFeedback","moveToPreviousChar"]'
             data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>'
             data-shifted-command='["performWithFeedback","extendToPreviousChar"]'>
@@ -1304,86 +1297,84 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
         </li>
         <li class='action' data-command='["performWithFeedback","moveToNextPlaceholder"]'>
         <svg><use xlink:href='#svg-tab' /></svg></li>`
-    );
+  );
 
-    let m: string[] = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
-    while (m) {
-        row = '';
-        const attributesArray = m[2].match(
-            /[a-zA-Z][a-zA-Z\d-]*=(['"])(.*?)\1/g
-        );
-        const attributes: Record<string, string> = {};
-        for (const attribute of attributesArray) {
-            const m2 = attribute.match(/([a-zA-Z][a-zA-Z\d-]*)=(['"])(.*?)\2/);
-            attributes[m2[1]] = m2[3];
-        }
+  let m: string[] = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
+  while (m) {
+    row = '';
+    const attributesArray = m[2].match(/[a-zA-Z][a-zA-Z\d-]*=(['"])(.*?)\1/g);
+    const attributes: Record<string, string> = {};
+    for (const attribute of attributesArray) {
+      const m2 = attribute.match(/([a-zA-Z][a-zA-Z\d-]*)=(['"])(.*?)\2/);
+      attributes[m2[1]] = m2[3];
+    }
 
-        let keys = layout[attributes.name] as string;
-        if (!keys) keys = ROWS.qwerty[attributes.name];
-        if (!keys) {
-            console.warn('Unknown roman keyboard row:', attributes.name);
-        } else {
-            for (const c of keys) {
-                let cls: string = attributes.class ?? '';
-                if (cls) cls = ` ${cls}`;
-                if (c === '~') {
-                    row += `<li class='action font-glyph bottom right `;
-                    row +=
-                        keys.length - (keys.match(/ /g) || []).length / 2 === 10
-                            ? 'w10'
-                            : 'w15';
-                    row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+    let keys = layout[attributes.name] as string;
+    if (!keys) keys = ROWS.qwerty[attributes.name];
+    if (!keys) {
+      console.warn('Unknown roman keyboard row:', attributes.name);
+    } else {
+      for (const c of keys) {
+        let cls: string = attributes.class ?? '';
+        if (cls) cls = ` ${cls}`;
+        if (c === '~') {
+          row += `<li class='action font-glyph bottom right `;
+          row +=
+            keys.length - (keys.match(/ /g) || []).length / 2 === 10
+              ? 'w10'
+              : 'w15';
+          row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
                         data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                         >&#x232b;</li>`;
-                } else if (c === ' ') {
-                    // Separator
-                    row += "<li class='separator w5'></li>";
-                } else if (c === '^') {
-                    // Shift key
-                    row +=
-                        `<li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='` +
-                        attributes['shift-layer'] +
-                        `'>&#x21e7;</li>`;
-                } else if (c === '/') {
-                    row +=
-                        "<li class='keycap" +
-                        cls +
-                        "' data-alt-keys='/' data-insert='\\frac{#@}{#?}'>&divide;</li>";
-                } else if (c === '*') {
-                    row +=
-                        "<li class='keycap" +
-                        cls +
-                        "' data-alt-keys='*' data-insert='\\times '>&times;</li>";
-                } else if (c === '-') {
-                    row +=
-                        "<li class='keycap" +
-                        cls +
-                        "' data-alt-keys='-' data-key='-' data-alt-keys='-'>&#x2212;</li>";
-                } else if (cls.includes('tt')) {
-                    row +=
-                        `<li class='keycap${cls}' data-alt-keys='${c}' ` +
-                        `data-command='["typedText","${c}",{"mode":"command", "focus":true, "feedback":true}]'` +
-                        `>${c}</li>`;
-                } else {
-                    row +=
-                        "<li class='keycap" +
-                        cls +
-                        "' data-alt-keys='" +
-                        c +
-                        "'>" +
-                        c +
-                        '</li>';
-                }
-            }
+        } else if (c === ' ') {
+          // Separator
+          row += "<li class='separator w5'></li>";
+        } else if (c === '^') {
+          // Shift key
+          row +=
+            `<li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='` +
+            attributes['shift-layer'] +
+            `'>&#x21e7;</li>`;
+        } else if (c === '/') {
+          row +=
+            "<li class='keycap" +
+            cls +
+            "' data-alt-keys='/' data-insert='\\frac{#@}{#?}'>&divide;</li>";
+        } else if (c === '*') {
+          row +=
+            "<li class='keycap" +
+            cls +
+            "' data-alt-keys='*' data-insert='\\times '>&times;</li>";
+        } else if (c === '-') {
+          row +=
+            "<li class='keycap" +
+            cls +
+            "' data-alt-keys='-' data-key='-' data-alt-keys='-'>&#x2212;</li>";
+        } else if (cls.includes('tt')) {
+          row +=
+            `<li class='keycap${cls}' data-alt-keys='${c}' ` +
+            `data-command='["typedText","${c}",{"mode":"command", "focus":true, "feedback":true}]'` +
+            `>${c}</li>`;
+        } else {
+          row +=
+            "<li class='keycap" +
+            cls +
+            "' data-alt-keys='" +
+            c +
+            "'>" +
+            c +
+            '</li>';
         }
-
-        result = result.replace(new RegExp(m[1] + m[2] + m[3]), row);
-
-        m = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
+      }
     }
 
-    return result;
+    result = result.replace(new RegExp(m[1] + m[2] + m[3]), row);
+
+    m = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
+  }
+
+  return result;
 }
 
 /**
@@ -1391,10 +1382,10 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
  * mathfield and an optional theme.
  */
 export function makeKeyboardElement(
-    keyboard: VirtualKeyboard,
-    theme: 'apple' | 'material' | ''
+  keyboard: VirtualKeyboard,
+  theme: 'apple' | 'material' | ''
 ): HTMLDivElement {
-    const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
             <symbol id="svg-command" viewBox="0 0 640 512">
                 <path d="M34.495 36.465l211.051 211.05c4.686 4.686 4.686 12.284 0 16.971L34.495 475.535c-4.686 4.686-12.284 4.686-16.97 0l-7.071-7.07c-4.686-4.686-4.686-12.284 0-16.971L205.947 256 10.454 60.506c-4.686-4.686-4.686-12.284 0-16.971l7.071-7.07c4.686-4.687 12.284-4.687 16.97 0zM640 468v-10c0-6.627-5.373-12-12-12H300c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h328c6.627 0 12-5.373 12-12z"/>
@@ -1429,391 +1420,373 @@ export function makeKeyboardElement(
             </symbol>
         </svg>
         `;
-    // <symbol id="svg-wikipedia" viewBox="0 0 640 512">
-    //         <path d="M640 51.2l-.3 12.2c-28.1.8-45 15.8-55.8 40.3-25 57.8-103.3 240-155.3 358.6H415l-81.9-193.1c-32.5 63.6-68.3 130-99.2 193.1-.3.3-15 0-15-.3C172 352.3 122.8 243.4 75.8 133.4 64.4 106.7 26.4 63.4.2 63.7c0-3.1-.3-10-.3-14.2h161.9v13.9c-19.2 1.1-52.8 13.3-43.3 34.2 21.9 49.7 103.6 240.3 125.6 288.6 15-29.7 57.8-109.2 75.3-142.8-13.9-28.3-58.6-133.9-72.8-160-9.7-17.8-36.1-19.4-55.8-19.7V49.8l142.5.3v13.1c-19.4.6-38.1 7.8-29.4 26.1 18.9 40 30.6 68.1 48.1 104.7 5.6-10.8 34.7-69.4 48.1-100.8 8.9-20.6-3.9-28.6-38.6-29.4.3-3.6 0-10.3.3-13.6 44.4-.3 111.1-.3 123.1-.6v13.6c-22.5.8-45.8 12.8-58.1 31.7l-59.2 122.8c6.4 16.1 63.3 142.8 69.2 156.7L559.2 91.8c-8.6-23.1-36.4-28.1-47.2-28.3V49.6l127.8 1.1.2.5z"/>
-    // </symbol>
-    // <symbol id="svg-link" viewBox="0 0 512 512">
-    //         <path d="M301.148 394.702l-79.2 79.19c-50.778 50.799-133.037 50.824-183.84 0-50.799-50.778-50.824-133.037 0-183.84l79.19-79.2a132.833 132.833 0 0 1 3.532-3.403c7.55-7.005 19.795-2.004 20.208 8.286.193 4.807.598 9.607 1.216 14.384.481 3.717-.746 7.447-3.397 10.096-16.48 16.469-75.142 75.128-75.3 75.286-36.738 36.759-36.731 96.188 0 132.94 36.759 36.738 96.188 36.731 132.94 0l79.2-79.2.36-.36c36.301-36.672 36.14-96.07-.37-132.58-8.214-8.214-17.577-14.58-27.585-19.109-4.566-2.066-7.426-6.667-7.134-11.67a62.197 62.197 0 0 1 2.826-15.259c2.103-6.601 9.531-9.961 15.919-7.28 15.073 6.324 29.187 15.62 41.435 27.868 50.688 50.689 50.679 133.17 0 183.851zm-90.296-93.554c12.248 12.248 26.362 21.544 41.435 27.868 6.388 2.68 13.816-.68 15.919-7.28a62.197 62.197 0 0 0 2.826-15.259c.292-5.003-2.569-9.604-7.134-11.67-10.008-4.528-19.371-10.894-27.585-19.109-36.51-36.51-36.671-95.908-.37-132.58l.36-.36 79.2-79.2c36.752-36.731 96.181-36.738 132.94 0 36.731 36.752 36.738 96.181 0 132.94-.157.157-58.819 58.817-75.3 75.286-2.651 2.65-3.878 6.379-3.397 10.096a163.156 163.156 0 0 1 1.216 14.384c.413 10.291 12.659 15.291 20.208 8.286a131.324 131.324 0 0 0 3.532-3.403l79.19-79.2c50.824-50.803 50.799-133.062 0-183.84-50.802-50.824-133.062-50.799-183.84 0l-79.2 79.19c-50.679 50.682-50.688 133.163 0 183.851z"/>
-    // </symbol>
-    //     <symbol id="svg-external-link" viewBox="0 0 448 512">
-    //     <path d="M400 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm16 400c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V80c0-8.822 7.178-16 16-16h352c8.822 0 16 7.178 16 16v352zM99.515 374.828c-4.686-4.686-4.686-12.284 0-16.971l195.15-195.15-.707-.707-89.958.342c-6.627 0-12-5.373-12-12v-9.999c0-6.628 5.372-12 12-12L340 128c6.627 0 12 5.372 12 12l-.343 136c0 6.627-5.373 12-12 12h-9.999c-6.627 0-12-5.373-12-12l.342-89.958-.707-.707-195.15 195.15c-4.686 4.686-12.284 4.686-16.971 0l-5.657-5.657z"/>
-    // </symbol>
-    // <symbol id="svg-external-link" viewBox="0 0 512 512">
-    //     <path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-36 344h12V232h-12c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h48c6.627 0 12 5.373 12 12v140h12c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-72c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12zm36-240c-17.673 0-32 14.327-32 32s14.327 32 32 32 32-14.327 32-32-14.327-32-32-32z"/>
-    // </symbol>
+  // <symbol id="svg-wikipedia" viewBox="0 0 640 512">
+  //         <path d="M640 51.2l-.3 12.2c-28.1.8-45 15.8-55.8 40.3-25 57.8-103.3 240-155.3 358.6H415l-81.9-193.1c-32.5 63.6-68.3 130-99.2 193.1-.3.3-15 0-15-.3C172 352.3 122.8 243.4 75.8 133.4 64.4 106.7 26.4 63.4.2 63.7c0-3.1-.3-10-.3-14.2h161.9v13.9c-19.2 1.1-52.8 13.3-43.3 34.2 21.9 49.7 103.6 240.3 125.6 288.6 15-29.7 57.8-109.2 75.3-142.8-13.9-28.3-58.6-133.9-72.8-160-9.7-17.8-36.1-19.4-55.8-19.7V49.8l142.5.3v13.1c-19.4.6-38.1 7.8-29.4 26.1 18.9 40 30.6 68.1 48.1 104.7 5.6-10.8 34.7-69.4 48.1-100.8 8.9-20.6-3.9-28.6-38.6-29.4.3-3.6 0-10.3.3-13.6 44.4-.3 111.1-.3 123.1-.6v13.6c-22.5.8-45.8 12.8-58.1 31.7l-59.2 122.8c6.4 16.1 63.3 142.8 69.2 156.7L559.2 91.8c-8.6-23.1-36.4-28.1-47.2-28.3V49.6l127.8 1.1.2.5z"/>
+  // </symbol>
+  // <symbol id="svg-link" viewBox="0 0 512 512">
+  //         <path d="M301.148 394.702l-79.2 79.19c-50.778 50.799-133.037 50.824-183.84 0-50.799-50.778-50.824-133.037 0-183.84l79.19-79.2a132.833 132.833 0 0 1 3.532-3.403c7.55-7.005 19.795-2.004 20.208 8.286.193 4.807.598 9.607 1.216 14.384.481 3.717-.746 7.447-3.397 10.096-16.48 16.469-75.142 75.128-75.3 75.286-36.738 36.759-36.731 96.188 0 132.94 36.759 36.738 96.188 36.731 132.94 0l79.2-79.2.36-.36c36.301-36.672 36.14-96.07-.37-132.58-8.214-8.214-17.577-14.58-27.585-19.109-4.566-2.066-7.426-6.667-7.134-11.67a62.197 62.197 0 0 1 2.826-15.259c2.103-6.601 9.531-9.961 15.919-7.28 15.073 6.324 29.187 15.62 41.435 27.868 50.688 50.689 50.679 133.17 0 183.851zm-90.296-93.554c12.248 12.248 26.362 21.544 41.435 27.868 6.388 2.68 13.816-.68 15.919-7.28a62.197 62.197 0 0 0 2.826-15.259c.292-5.003-2.569-9.604-7.134-11.67-10.008-4.528-19.371-10.894-27.585-19.109-36.51-36.51-36.671-95.908-.37-132.58l.36-.36 79.2-79.2c36.752-36.731 96.181-36.738 132.94 0 36.731 36.752 36.738 96.181 0 132.94-.157.157-58.819 58.817-75.3 75.286-2.651 2.65-3.878 6.379-3.397 10.096a163.156 163.156 0 0 1 1.216 14.384c.413 10.291 12.659 15.291 20.208 8.286a131.324 131.324 0 0 0 3.532-3.403l79.19-79.2c50.824-50.803 50.799-133.062 0-183.84-50.802-50.824-133.062-50.799-183.84 0l-79.2 79.19c-50.679 50.682-50.688 133.163 0 183.851z"/>
+  // </symbol>
+  //     <symbol id="svg-external-link" viewBox="0 0 448 512">
+  //     <path d="M400 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm16 400c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V80c0-8.822 7.178-16 16-16h352c8.822 0 16 7.178 16 16v352zM99.515 374.828c-4.686-4.686-4.686-12.284 0-16.971l195.15-195.15-.707-.707-89.958.342c-6.627 0-12-5.373-12-12v-9.999c0-6.628 5.372-12 12-12L340 128c6.627 0 12 5.372 12 12l-.343 136c0 6.627-5.373 12-12 12h-9.999c-6.627 0-12-5.373-12-12l.342-89.958-.707-.707-195.15 195.15c-4.686 4.686-12.284 4.686-16.971 0l-5.657-5.657z"/>
+  // </symbol>
+  // <symbol id="svg-external-link" viewBox="0 0 512 512">
+  //     <path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-36 344h12V232h-12c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h48c6.627 0 12 5.373 12 12v140h12c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-72c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12zm36-240c-17.673 0-32 14.327-32 32s14.327 32 32 32 32-14.327 32-32-14.327-32-32-32z"/>
+  // </symbol>
 
-    let markup = svgIcons;
+  let markup = svgIcons;
 
-    injectStylesheet(null, virtualKeyboardStylesheet);
+  injectStylesheet(null, virtualKeyboardStylesheet);
 
-    void loadFonts(keyboard.options.fontsDirectory);
-    injectStylesheet(null, coreStylesheet);
+  void loadFonts(keyboard.options.fontsDirectory);
+  injectStylesheet(null, coreStylesheet);
 
-    // Auto-populate the ALT_KEYS table
-    ALT_KEYS_BASE['foreground-color'] = [];
-    for (const color of LINE_COLORS) {
-        ALT_KEYS_BASE['foreground-color'].push({
-            classes: 'small-button',
-            content:
-                '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
-                color +
-                '"></span>',
-            command: '["applyStyle",{"color":"' + color + '"}]',
-        });
-    }
-
-    ALT_KEYS_BASE['background-color'] = [];
-    for (const color of AREA_COLORS) {
-        ALT_KEYS_BASE['background-color'].push({
-            classes: 'small-button',
-            content:
-                '<span style="border-radius:50%;width:32px;height:32px; background:' +
-                color +
-                '"></span>',
-            command: '["applyStyle",{"backgroundColor":"' + color + '"}]',
-        });
-    }
-
-    ALT_KEYS = { ...ALT_KEYS_BASE };
-    Object.keys(ALT_KEYS).forEach((key) => {
-        ALT_KEYS[key] = ALT_KEYS[key].slice();
+  // Auto-populate the ALT_KEYS table
+  ALT_KEYS_BASE['foreground-color'] = [];
+  for (const color of LINE_COLORS) {
+    ALT_KEYS_BASE['foreground-color'].push({
+      classes: 'small-button',
+      content:
+        '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
+        color +
+        '"></span>',
+      command: '["applyStyle",{"color":"' + color + '"}]',
     });
+  }
 
-    const UPPER_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
-    const DIGITS = '0123456789';
-    // Define the alternate set for uppercase keys
-    for (let i = 0; i < 26; i++) {
-        const key = UPPER_ALPHA[i];
-        if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
-        ALT_KEYS[key].unshift({
-            latex: '\\mathbb{' + key + '}',
-            aside: 'blackboard',
-            insert: '\\mathbb{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathbf{' + key + '}',
-            aside: 'bold',
-            insert: '\\mathbf{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathsf{' + key + '}',
-            aside: 'sans',
-            insert: '\\mathsf{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathtt{' + key + '}',
-            aside: 'monospace',
-            insert: '\\mathtt{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathcal{' + key + '}',
-            aside: 'calligraphy',
-            insert: '\\mathcal{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathfrak{' + key + '}',
-            aside: 'fraktur',
-            insert: '\\mathfrak{' + key + '}',
-        });
+  ALT_KEYS_BASE['background-color'] = [];
+  for (const color of AREA_COLORS) {
+    ALT_KEYS_BASE['background-color'].push({
+      classes: 'small-button',
+      content:
+        '<span style="border-radius:50%;width:32px;height:32px; background:' +
+        color +
+        '"></span>',
+      command: '["applyStyle",{"backgroundColor":"' + color + '"}]',
+    });
+  }
+
+  ALT_KEYS = { ...ALT_KEYS_BASE };
+  Object.keys(ALT_KEYS).forEach((key) => {
+    ALT_KEYS[key] = ALT_KEYS[key].slice();
+  });
+
+  const UPPER_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
+  const DIGITS = '0123456789';
+  // Define the alternate set for uppercase keys
+  for (let i = 0; i < 26; i++) {
+    const key = UPPER_ALPHA[i];
+    if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
+    ALT_KEYS[key].unshift({
+      latex: '\\mathbb{' + key + '}',
+      aside: 'blackboard',
+      insert: '\\mathbb{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathbf{' + key + '}',
+      aside: 'bold',
+      insert: '\\mathbf{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathsf{' + key + '}',
+      aside: 'sans',
+      insert: '\\mathsf{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathtt{' + key + '}',
+      aside: 'monospace',
+      insert: '\\mathtt{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathcal{' + key + '}',
+      aside: 'calligraphy',
+      insert: '\\mathcal{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathfrak{' + key + '}',
+      aside: 'fraktur',
+      insert: '\\mathfrak{' + key + '}',
+    });
+  }
+
+  // Define the alternate set for lowercase keys
+  for (let i = 0; i <= 26; i++) {
+    const key = LOWER_ALPHA[i];
+    if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
+    ALT_KEYS[key].unshift({
+      latex: '\\mathsf{' + key + '}',
+      aside: 'sans',
+      insert: '\\mathsf{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathbf{' + key + '}',
+      aside: 'bold',
+      insert: '\\mathbf{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathtt{' + key + '}',
+      aside: 'monospace',
+      insert: '\\mathtt{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathfrak{' + key + '}',
+      aside: 'fraktur',
+      insert: '\\mathfrak{' + key + '}',
+    });
+  }
+
+  for (let i = 0; i < 10; i++) {
+    const key = DIGITS[i];
+    if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
+    // The mathbb font does not appear to include digits,
+    // although it's supposed to.
+    // ALT_KEYS[key].push({
+    //         latex: '\\underset{\\textsf{\\footnotesize blackboard}}{\\mathbb{' + key + '}}',
+    //         insert: '\\mathbb{' + key + '}}'});
+    ALT_KEYS[key].unshift({
+      latex: '\\mathbf{' + key + '}',
+      aside: 'bold',
+      insert: '\\mathbf{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathsf{' + key + '}',
+      aside: 'sans',
+      insert: '\\mathsf{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathtt{' + key + '}',
+      aside: 'monospace',
+      insert: '\\mathtt{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathcal{' + key + '}',
+      aside: 'script',
+      insert: '\\mathcal{' + key + '}',
+    });
+    ALT_KEYS[key].unshift({
+      latex: '\\mathfrak{' + key + '}',
+      aside: 'fraktur',
+      insert: '\\mathfrak{' + key + '}',
+    });
+  }
+
+  let keyboardIDs = keyboard.options.virtualKeyboards;
+  if (!keyboardIDs) {
+    keyboardIDs = 'all';
+  }
+
+  keyboardIDs = keyboardIDs.replace(
+    /\ball\b/i,
+    'numeric functions symbols roman  greek'
+  );
+
+  const layers: Record<string, string | VirtualKeyboardLayer> = {
+    ...LAYERS,
+    ...(keyboard.options.customVirtualKeyboardLayers ?? {}),
+  };
+  const keyboards = {
+    ...KEYBOARDS,
+    ...(keyboard.options.customVirtualKeyboards ?? {}),
+  };
+
+  const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
+  for (const keyboardName of keyboardList) {
+    if (!keyboards[keyboardName]) {
+      console.error('Unknown virtual keyboard "' + keyboardName + '"');
+      break;
     }
 
-    // Define the alternate set for lowercase keys
-    for (let i = 0; i <= 26; i++) {
-        const key = LOWER_ALPHA[i];
-        if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
-        ALT_KEYS[key].unshift({
-            latex: '\\mathsf{' + key + '}',
-            aside: 'sans',
-            insert: '\\mathsf{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathbf{' + key + '}',
-            aside: 'bold',
-            insert: '\\mathbf{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathtt{' + key + '}',
-            aside: 'monospace',
-            insert: '\\mathtt{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathfrak{' + key + '}',
-            aside: 'fraktur',
-            insert: '\\mathfrak{' + key + '}',
-        });
+    // Add the default layer to the list of layers,
+    // and make sure the list of layers is uniquified.
+    let keyboardLayers = keyboards[keyboardName].layers ?? [];
+    if (keyboards[keyboardName].layer) {
+      keyboardLayers.push(keyboards[keyboardName].layer);
     }
 
-    for (let i = 0; i < 10; i++) {
-        const key = DIGITS[i];
-        if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
-        // The mathbb font does not appear to include digits,
-        // although it's supposed to.
-        // ALT_KEYS[key].push({
-        //         latex: '\\underset{\\textsf{\\footnotesize blackboard}}{\\mathbb{' + key + '}}',
-        //         insert: '\\mathbb{' + key + '}}'});
-        ALT_KEYS[key].unshift({
-            latex: '\\mathbf{' + key + '}',
-            aside: 'bold',
-            insert: '\\mathbf{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathsf{' + key + '}',
-            aside: 'sans',
-            insert: '\\mathsf{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathtt{' + key + '}',
-            aside: 'monospace',
-            insert: '\\mathtt{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathcal{' + key + '}',
-            aside: 'script',
-            insert: '\\mathcal{' + key + '}',
-        });
-        ALT_KEYS[key].unshift({
-            latex: '\\mathfrak{' + key + '}',
-            aside: 'fraktur',
-            insert: '\\mathfrak{' + key + '}',
-        });
-    }
+    keyboardLayers = [...new Set(keyboardLayers)];
 
-    let keyboardIDs = keyboard.options.virtualKeyboards;
-    if (!keyboardIDs) {
-        keyboardIDs = 'all';
-    }
+    for (const layerName of keyboardLayers) {
+      if (!layers[layerName]) {
+        console.error('Unknown virtual keyboard layer: "', layerName, '"');
+        break;
+      }
 
-    keyboardIDs = keyboardIDs.replace(
-        /\ball\b/i,
-        'numeric functions symbols roman  greek'
+      if (typeof layers[layerName] === 'object') {
+        const layer = layers[layerName] as VirtualKeyboardLayer;
+        // Process JSON layer to web element based layer.
+
+        let temporaryLayer = '';
+        if (layer.styles) {
+          temporaryLayer += `<style>${layer.styles}</style>`;
+        }
+
+        if (layer.backdrop) {
+          temporaryLayer += `<div class='${layer.backdrop}'>`;
+        }
+
+        if (layer.container) {
+          temporaryLayer += `<div class='${layer.container}'>`;
+        }
+
+        if (layer.rows) {
+          temporaryLayer += `<div class='rows'>`;
+          for (const row of layer.rows) {
+            temporaryLayer += `<ul>`;
+            for (const keycap of row) {
+              temporaryLayer += `<li`;
+              if (keycap.class) {
+                temporaryLayer += ` class="${keycap.class}"`;
+              }
+
+              if (keycap.key) {
+                temporaryLayer += ` data-key="${keycap.key}"`;
+              }
+
+              if (keycap.command) {
+                if (typeof keycap.command === 'string') {
+                  temporaryLayer += ` data-command='"${keycap.command}"'`;
+                } else {
+                  temporaryLayer += ` data-command='`;
+                  temporaryLayer += JSON.stringify(keycap.command);
+                  temporaryLayer += `'`;
+                }
+              }
+
+              if (keycap.insert) {
+                temporaryLayer += ` data-insert="${keycap.insert}"`;
+              }
+
+              if (keycap.latex) {
+                temporaryLayer += ` data-latex="${keycap.latex}"`;
+              }
+
+              if (keycap.aside) {
+                temporaryLayer += ` data-aside="${keycap.aside}"`;
+              }
+
+              if (keycap.altKeys) {
+                temporaryLayer += ` data-alt-keys="${keycap.altKeys}"`;
+              }
+
+              if (keycap.shifted) {
+                temporaryLayer += ` data-shifted="${keycap.shifted}"`;
+              }
+
+              if (keycap.shiftedCommand) {
+                temporaryLayer += ` data-shifted-command="${keycap.shiftedCommand}"`;
+              }
+
+              temporaryLayer += `>${keycap.label ? keycap.label : ''}</li>`;
+            }
+
+            temporaryLayer += `</ul>`;
+          }
+
+          temporaryLayer += `</div>`;
+        }
+
+        if (layer.container) {
+          temporaryLayer += '</div>';
+        }
+
+        if (layer.backdrop) {
+          temporaryLayer += '</div>';
+        }
+
+        layers[layerName] = temporaryLayer;
+      }
+
+      markup += `<div tabindex="-1" class='keyboard-layer' data-layer='${layerName}'>`;
+      markup += makeKeyboardToolbar(keyboard.options, keyboardIDs, keyboard);
+      const layerMarkup = layers[layerName];
+      // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
+      // be expanded
+      markup += expandLayerMarkup(keyboard.options, layerMarkup);
+      markup += '</div>';
+    }
+  }
+
+  const result = document.createElement('div');
+  result.className = 'ML__keyboard';
+  if (theme) {
+    result.classList.add(theme);
+  } else if (keyboard.options.virtualKeyboardTheme) {
+    result.classList.add(keyboard.options.virtualKeyboardTheme);
+  }
+
+  result.innerHTML = keyboard.options.createHTML(markup);
+
+  // Attach the element handlers
+  makeKeycap(keyboard, [
+    ...result.querySelectorAll<HTMLElement>(
+      '.keycap, .action, .fnbutton, .bigfnbutton'
+    ),
+  ]);
+
+  const elementList = result.querySelectorAll<HTMLElement>('.layer-switch');
+  for (const element of elementList) {
+    if (element.classList.contains('shift')) {
+      // This is a potential press-and-hold layer switch
+      attachButtonHandlers(
+        (command) => keyboard.executeCommand(command),
+        element,
+        {
+          // When the modifier is initially pressed, we will shift the labels
+          // (if available)
+          pressed: ['shiftKeyboardLayer', 'shift'],
+
+          // If the key is released before a delay, we switch to the target layer
+          default: ['switchKeyboardLayer', element.getAttribute('data-layer')],
+
+          // If the key is released after a longer delay, we restore the
+          // shifted labels
+          pressAndHoldEnd: 'unshiftKeyboardLayer',
+        }
+      );
+    } else {
+      // This is a simple layer switch
+      attachButtonHandlers(
+        (command) => keyboard.executeCommand(command),
+        element,
+        {
+          default: ['switchKeyboardLayer', element.getAttribute('data-layer')],
+        }
+      );
+    }
+  }
+
+  // Select the first keyboard as the initial one.
+  const layerElements = result.querySelectorAll('.keyboard-layer');
+  [...layerElements].forEach((x) => {
+    x.addEventListener('mousedown', (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+    });
+    x.addEventListener(
+      'touchstart',
+      (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+      },
+      { passive: false }
     );
+  });
+  layerElements[0].classList.add('is-visible');
 
-    const layers: Record<string, string | VirtualKeyboardLayer> = {
-        ...LAYERS,
-        ...(keyboard.options.customVirtualKeyboardLayers ?? {}),
-    };
-    const keyboards = {
-        ...KEYBOARDS,
-        ...(keyboard.options.customVirtualKeyboards ?? {}),
-    };
-
-    const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
-    for (const keyboardName of keyboardList) {
-        if (!keyboards[keyboardName]) {
-            console.error('Unknown virtual keyboard "' + keyboardName + '"');
-            break;
-        }
-
-        // Add the default layer to the list of layers,
-        // and make sure the list of layers is uniquified.
-        let keyboardLayers = keyboards[keyboardName].layers ?? [];
-        if (keyboards[keyboardName].layer) {
-            keyboardLayers.push(keyboards[keyboardName].layer);
-        }
-
-        keyboardLayers = [...new Set(keyboardLayers)];
-
-        for (const layerName of keyboardLayers) {
-            if (!layers[layerName]) {
-                console.error(
-                    'Unknown virtual keyboard layer: "',
-                    layerName,
-                    '"'
-                );
-                break;
-            }
-
-            if (typeof layers[layerName] === 'object') {
-                const layer = layers[layerName] as VirtualKeyboardLayer;
-                // Process JSON layer to web element based layer.
-
-                let temporaryLayer = '';
-                if (layer.styles) {
-                    temporaryLayer += `<style>${layer.styles}</style>`;
-                }
-
-                if (layer.backdrop) {
-                    temporaryLayer += `<div class='${layer.backdrop}'>`;
-                }
-
-                if (layer.container) {
-                    temporaryLayer += `<div class='${layer.container}'>`;
-                }
-
-                if (layer.rows) {
-                    temporaryLayer += `<div class='rows'>`;
-                    for (const row of layer.rows) {
-                        temporaryLayer += `<ul>`;
-                        for (const keycap of row) {
-                            temporaryLayer += `<li`;
-                            if (keycap.class) {
-                                temporaryLayer += ` class="${keycap.class}"`;
-                            }
-
-                            if (keycap.key) {
-                                temporaryLayer += ` data-key="${keycap.key}"`;
-                            }
-
-                            if (keycap.command) {
-                                if (typeof keycap.command === 'string') {
-                                    temporaryLayer += ` data-command='"${keycap.command}"'`;
-                                } else {
-                                    temporaryLayer += ` data-command='`;
-                                    temporaryLayer += JSON.stringify(
-                                        keycap.command
-                                    );
-                                    temporaryLayer += `'`;
-                                }
-                            }
-
-                            if (keycap.insert) {
-                                temporaryLayer += ` data-insert="${keycap.insert}"`;
-                            }
-
-                            if (keycap.latex) {
-                                temporaryLayer += ` data-latex="${keycap.latex}"`;
-                            }
-
-                            if (keycap.aside) {
-                                temporaryLayer += ` data-aside="${keycap.aside}"`;
-                            }
-
-                            if (keycap.altKeys) {
-                                temporaryLayer += ` data-alt-keys="${keycap.altKeys}"`;
-                            }
-
-                            if (keycap.shifted) {
-                                temporaryLayer += ` data-shifted="${keycap.shifted}"`;
-                            }
-
-                            if (keycap.shiftedCommand) {
-                                temporaryLayer += ` data-shifted-command="${keycap.shiftedCommand}"`;
-                            }
-
-                            temporaryLayer += `>${
-                                keycap.label ? keycap.label : ''
-                            }</li>`;
-                        }
-
-                        temporaryLayer += `</ul>`;
-                    }
-
-                    temporaryLayer += `</div>`;
-                }
-
-                if (layer.container) {
-                    temporaryLayer += '</div>';
-                }
-
-                if (layer.backdrop) {
-                    temporaryLayer += '</div>';
-                }
-
-                layers[layerName] = temporaryLayer;
-            }
-
-            markup += `<div tabindex="-1" class='keyboard-layer' data-layer='${layerName}'>`;
-            markup += makeKeyboardToolbar(
-                keyboard.options,
-                keyboardIDs,
-                keyboard
-            );
-            const layerMarkup = layers[layerName];
-            // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
-            // be expanded
-            markup += expandLayerMarkup(keyboard.options, layerMarkup);
-            markup += '</div>';
-        }
-    }
-
-    const result = document.createElement('div');
-    result.className = 'ML__keyboard';
-    if (theme) {
-        result.classList.add(theme);
-    } else if (keyboard.options.virtualKeyboardTheme) {
-        result.classList.add(keyboard.options.virtualKeyboardTheme);
-    }
-
-    result.innerHTML = keyboard.options.createHTML(markup);
-
-    // Attach the element handlers
-    makeKeycap(keyboard, [
-        ...result.querySelectorAll<HTMLElement>(
-            '.keycap, .action, .fnbutton, .bigfnbutton'
-        ),
-    ]);
-
-    const elementList = result.querySelectorAll<HTMLElement>('.layer-switch');
-    for (const element of elementList) {
-        if (element.classList.contains('shift')) {
-            // This is a potential press-and-hold layer switch
-            attachButtonHandlers(
-                (command) => keyboard.executeCommand(command),
-                element,
-                {
-                    // When the modifier is initially pressed, we will shift the labels
-                    // (if available)
-                    pressed: ['shiftKeyboardLayer', 'shift'],
-
-                    // If the key is released before a delay, we switch to the target layer
-                    default: [
-                        'switchKeyboardLayer',
-                        element.getAttribute('data-layer'),
-                    ],
-
-                    // If the key is released after a longer delay, we restore the
-                    // shifted labels
-                    pressAndHoldEnd: 'unshiftKeyboardLayer',
-                }
-            );
-        } else {
-            // This is a simple layer switch
-            attachButtonHandlers(
-                (command) => keyboard.executeCommand(command),
-                element,
-                {
-                    default: [
-                        'switchKeyboardLayer',
-                        element.getAttribute('data-layer'),
-                    ],
-                }
-            );
-        }
-    }
-
-    // Select the first keyboard as the initial one.
-    const layerElements = result.querySelectorAll('.keyboard-layer');
-    [...layerElements].forEach((x) => {
-        x.addEventListener('mousedown', (evt) => {
-            evt.preventDefault();
-            evt.stopPropagation();
-        });
-        x.addEventListener(
-            'touchstart',
-            (evt) => {
-                evt.preventDefault();
-                evt.stopPropagation();
-            },
-            { passive: false }
-        );
-    });
-    layerElements[0].classList.add('is-visible');
-
-    return result;
+  return result;
 }
 
 export function hideAlternateKeys(): boolean {
-    const altContainer = document.querySelector<HTMLElement>(
-        '#mathlive-alternate-keys-panel'
-    );
-    if (altContainer) {
-        altContainer.classList.remove('is-visible');
-        altContainer.innerHTML = '';
-        releaseSharedElement(altContainer);
-    }
+  const altContainer = document.querySelector<HTMLElement>(
+    '#mathlive-alternate-keys-panel'
+  );
+  if (altContainer) {
+    altContainer.classList.remove('is-visible');
+    altContainer.innerHTML = '';
+    releaseSharedElement(altContainer);
+  }
 
-    return false;
+  return false;
 }
 
 /*
@@ -1822,54 +1795,54 @@ export function hideAlternateKeys(): boolean {
  *
  */
 export function unshiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
-    hideAlternateKeys();
+  hideAlternateKeys();
 
-    const keycaps = keyboard.element.querySelectorAll<HTMLElement>(
-        'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
-    );
-    if (keycaps) {
-        for (const keycap of keycaps) {
-            const content = keycap.getAttribute('data-unshifted-content');
-            if (content) {
-                keycap.innerHTML = keyboard.options.createHTML(content);
-            }
+  const keycaps = keyboard.element.querySelectorAll<HTMLElement>(
+    'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
+  );
+  if (keycaps) {
+    for (const keycap of keycaps) {
+      const content = keycap.getAttribute('data-unshifted-content');
+      if (content) {
+        keycap.innerHTML = keyboard.options.createHTML(content);
+      }
 
-            const command = keycap.getAttribute('data-unshifted-command');
-            if (command) {
-                keycap.dataset.command = command;
-            }
-        }
+      const command = keycap.getAttribute('data-unshifted-command');
+      if (command) {
+        keycap.dataset.command = command;
+      }
     }
+  }
 
-    return false;
+  return false;
 }
 
 export function onUndoStateChanged(
-    keyboard: VirtualKeyboard,
-    canUndoState: boolean,
-    canRedoState: boolean
+  keyboard: VirtualKeyboard,
+  canUndoState: boolean,
+  canRedoState: boolean
 ): boolean {
-    const toolbar = keyboard.element?.querySelector('.keyboard-toolbar');
-    if (!toolbar) return false;
+  const toolbar = keyboard.element?.querySelector('.keyboard-toolbar');
+  if (!toolbar) return false;
 
-    const undoButton = toolbar.querySelector('[data-command=\'"undo"\']');
-    const redoButton = toolbar.querySelector('[data-command=\'"redo"\']');
+  const undoButton = toolbar.querySelector('[data-command=\'"undo"\']');
+  const redoButton = toolbar.querySelector('[data-command=\'"redo"\']');
 
-    if (redoButton) {
-        if (canRedoState) {
-            redoButton.classList.remove('disabled');
-        } else {
-            redoButton.classList.add('disabled');
-        }
+  if (redoButton) {
+    if (canRedoState) {
+      redoButton.classList.remove('disabled');
+    } else {
+      redoButton.classList.add('disabled');
     }
+  }
 
-    if (undoButton) {
-        if (canUndoState) {
-            undoButton.classList.remove('disabled');
-        } else {
-            undoButton.classList.add('disabled');
-        }
+  if (undoButton) {
+    if (canUndoState) {
+      undoButton.classList.remove('disabled');
+    } else {
+      undoButton.classList.add('disabled');
     }
+  }
 
-    return false;
+  return false;
 }

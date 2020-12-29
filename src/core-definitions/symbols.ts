@@ -1,7 +1,7 @@
 import {
-    defineSymbol,
-    defineSymbols,
-    defineSymbolRange,
+  defineSymbol,
+  defineSymbols,
+  defineSymbolRange,
 } from './definitions-utils';
 
 // Simple characters allowed in math mode

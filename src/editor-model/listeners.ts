@@ -1,102 +1,102 @@
 import type {
-    ErrorListener,
-    ParserErrorCode,
-    MathfieldErrorCode,
+  ErrorListener,
+  ParserErrorCode,
+  MathfieldErrorCode,
 } from '../public/core';
 import { ModelPrivate } from './model-private';
 
 export type ModelListeners = {
-    onContentWillChange: (sender: ModelPrivate) => void;
-    onContentDidChange: (sender: ModelPrivate) => void;
-    onSelectionWillChange: (sender: ModelPrivate) => void;
-    onSelectionDidChange: (sender: ModelPrivate) => void;
-    onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
+  onContentWillChange: (sender: ModelPrivate) => void;
+  onContentDidChange: (sender: ModelPrivate) => void;
+  onSelectionWillChange: (sender: ModelPrivate) => void;
+  onSelectionDidChange: (sender: ModelPrivate) => void;
+  onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
 };
 
 export function selectionDidChange(model: ModelPrivate): void {
-    if (
-        typeof model.listeners?.onSelectionDidChange === 'function' &&
-        !model.suppressChangeNotifications
-    ) {
-        model.suppressChangeNotifications = true;
-        model.listeners.onSelectionDidChange(model);
-        model.suppressChangeNotifications = false;
-    }
+  if (
+    typeof model.listeners?.onSelectionDidChange === 'function' &&
+    !model.suppressChangeNotifications
+  ) {
+    model.suppressChangeNotifications = true;
+    model.listeners.onSelectionDidChange(model);
+    model.suppressChangeNotifications = false;
+  }
 }
 
 export function contentDidChange(model: ModelPrivate): void {
-    if (
-        typeof model.listeners?.onContentDidChange === 'function' &&
-        !model.suppressChangeNotifications
-    ) {
-        model.suppressChangeNotifications = true;
-        model.listeners.onContentDidChange(model);
-        model.suppressChangeNotifications = false;
-    }
+  if (
+    typeof model.listeners?.onContentDidChange === 'function' &&
+    !model.suppressChangeNotifications
+  ) {
+    model.suppressChangeNotifications = true;
+    model.listeners.onContentDidChange(model);
+    model.suppressChangeNotifications = false;
+  }
 }
 
 /// ///
 
 export interface Disposable {
-    dispose(): void;
+  dispose(): void;
 }
 
 export type EventListener = (...payload: any[]) => void;
 
 export class EventEmitter {
-    events: Map<string, EventListener[]>;
+  events: Map<string, EventListener[]>;
 
-    constructor() {
-        this.events = new Map();
+  constructor() {
+    this.events = new Map();
+  }
+
+  addListener(
+    event: string,
+    listener: EventListener,
+    options?: { once?: boolean }
+  ): Disposable {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
     }
 
-    addListener(
-        event: string,
-        listener: EventListener,
-        options?: { once?: boolean }
-    ): Disposable {
-        if (!this.events.has(event)) {
-            this.events.set(event, []);
-        }
-
-        options = options ?? {};
-        if (options.once ?? false) {
-            listener = (...payload: any[]): void => {
-                this.events.get(event).filter((x) => x !== listener);
-                listener.apply(this, ...payload);
-            };
-        }
-
-        this.events.get(event).push(listener);
-        return {
-            dispose: (): void => {
-                this.events.set(
-                    event,
-                    this.events.get(event).filter((x) => x !== listener)
-                );
-            },
-        };
+    options = options ?? {};
+    if (options.once ?? false) {
+      listener = (...payload: any[]): void => {
+        this.events.get(event).filter((x) => x !== listener);
+        listener.apply(this, ...payload);
+      };
     }
 
-    on(event: string, listener: EventListener): Disposable {
-        return this.addListener(event, listener);
+    this.events.get(event).push(listener);
+    return {
+      dispose: (): void => {
+        this.events.set(
+          event,
+          this.events.get(event).filter((x) => x !== listener)
+        );
+      },
+    };
+  }
+
+  on(event: string, listener: EventListener): Disposable {
+    return this.addListener(event, listener);
+  }
+
+  once(event: string, listener: EventListener): Disposable {
+    return this.addListener(event, listener, { once: true });
+  }
+
+  emit(event: string, ...payload: any[]): boolean {
+    const listeners = this.events.get(event);
+    if (listeners && listeners.length > 0) {
+      listeners.forEach((listener) => {
+        listener.apply(this, ...payload);
+      });
+      return true;
     }
 
-    once(event: string, listener: EventListener): Disposable {
-        return this.addListener(event, listener, { once: true });
-    }
-
-    emit(event: string, ...payload: any[]): boolean {
-        const listeners = this.events.get(event);
-        if (listeners && listeners.length > 0) {
-            listeners.forEach((listener) => {
-                listener.apply(this, ...payload);
-            });
-            return true;
-        }
-
-        return false;
-    }
+    return false;
+  }
 }
 
 /*

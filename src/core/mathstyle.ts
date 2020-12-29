@@ -42,29 +42,29 @@
 
 import { SIGMAS } from './font-metrics';
 interface Metrics {
-    slant: number;
-    space: number;
-    stretch: number;
-    shrink: number;
-    xHeight: number;
-    quad: number;
-    extraSpace: number;
-    num1: number; // 8
-    num2: number; // 9
-    num3: number; // 10
-    denom1: number; // 11
-    denom2: number; // 12
-    sup1: number;
-    sup2: number;
-    sup3: number;
-    sub1: number;
-    sub2: number;
-    supDrop: number;
-    subDrop: number;
-    delim1: number;
-    delim2: number;
-    axisHeight: number;
-    emPerEx?: number;
+  slant: number;
+  space: number;
+  stretch: number;
+  shrink: number;
+  xHeight: number;
+  quad: number;
+  extraSpace: number;
+  num1: number; // 8
+  num2: number; // 9
+  num3: number; // 10
+  denom1: number; // 11
+  denom2: number; // 12
+  sup1: number;
+  sup2: number;
+  sup3: number;
+  sub1: number;
+  sub2: number;
+  supDrop: number;
+  subDrop: number;
+  delim1: number;
+  delim2: number;
+  axisHeight: number;
+  emPerEx?: number;
 } // @revisit: belongs in ./font-metrics
 
 // IDs of the different MATHSTYLES
@@ -86,140 +86,134 @@ const SSc = 7;
  * @property {boolean}  cramped flag
  */
 export class Mathstyle {
-    id: number;
-    size: number;
-    cramped: boolean;
-    sizeMultiplier: number; // @revisit...? Same as multiplier
-    metrics: Metrics;
+  id: number;
+  size: number;
+  cramped: boolean;
+  sizeMultiplier: number; // @revisit...? Same as multiplier
+  metrics: Metrics;
 
-    constructor(
-        id: number,
-        size: number,
-        multiplier: number,
-        cramped: boolean
-    ) {
-        this.id = id;
-        this.size = size;
-        this.cramped = cramped;
-        this.sizeMultiplier = multiplier;
-        this.metrics = Object.keys(SIGMAS).reduce((acc, x) => {
-            return { ...acc, [x]: SIGMAS[x][this.size] };
-        }, {}) as Metrics;
-        this.metrics.emPerEx =
-            SIGMAS.xHeight[this.size] / SIGMAS.quad[this.size];
-    }
+  constructor(id: number, size: number, multiplier: number, cramped: boolean) {
+    this.id = id;
+    this.size = size;
+    this.cramped = cramped;
+    this.sizeMultiplier = multiplier;
+    this.metrics = Object.keys(SIGMAS).reduce((acc, x) => {
+      return { ...acc, [x]: SIGMAS[x][this.size] };
+    }, {}) as Metrics;
+    this.metrics.emPerEx = SIGMAS.xHeight[this.size] / SIGMAS.quad[this.size];
+  }
 
-    /**
-     * Get the style of a superscript given a base in the current style.
-     */
-    sup(): Mathstyle {
-        return MATHSTYLES[[S, Sc, S, Sc, SS, SSc, SS, SSc][this.id]];
-    }
+  /**
+   * Get the style of a superscript given a base in the current style.
+   */
+  sup(): Mathstyle {
+    return MATHSTYLES[[S, Sc, S, Sc, SS, SSc, SS, SSc][this.id]];
+  }
 
-    /**
-     * Get the style of a subscript given a base in the current style.
-     */
-    sub(): Mathstyle {
-        return MATHSTYLES[[Sc, Sc, Sc, Sc, SSc, SSc, SSc, SSc][this.id]];
-    }
+  /**
+   * Get the style of a subscript given a base in the current style.
+   */
+  sub(): Mathstyle {
+    return MATHSTYLES[[Sc, Sc, Sc, Sc, SSc, SSc, SSc, SSc][this.id]];
+  }
 
-    /**
-     * Get the style of a fraction numerator given the fraction in the current
-     * style.
-     */
-    fracNum(): Mathstyle {
-        return MATHSTYLES[[T, Tc, S, Sc, SS, SSc, SS, SSc][this.id]];
-    }
+  /**
+   * Get the style of a fraction numerator given the fraction in the current
+   * style.
+   */
+  fracNum(): Mathstyle {
+    return MATHSTYLES[[T, Tc, S, Sc, SS, SSc, SS, SSc][this.id]];
+  }
 
-    /**
-     * Get the style of a fraction denominator given the fraction in the current
-     * style.
-     */
-    fracDen(): Mathstyle {
-        return MATHSTYLES[[Tc, Tc, Sc, Sc, SSc, SSc, SSc, SSc][this.id]];
-    }
+  /**
+   * Get the style of a fraction denominator given the fraction in the current
+   * style.
+   */
+  fracDen(): Mathstyle {
+    return MATHSTYLES[[Tc, Tc, Sc, Sc, SSc, SSc, SSc, SSc][this.id]];
+  }
 
-    /**
-     * Get the cramped version of a style (in particular, cramping a cramped style
-     * doesn't change the style).
-     */
-    cramp(): Mathstyle {
-        return MATHSTYLES[[Dc, Dc, Tc, Tc, Sc, Sc, SSc, SSc][this.id]];
-    }
+  /**
+   * Get the cramped version of a style (in particular, cramping a cramped style
+   * doesn't change the style).
+   */
+  cramp(): Mathstyle {
+    return MATHSTYLES[[Dc, Dc, Tc, Tc, Sc, Sc, SSc, SSc][this.id]];
+  }
 
-    /**
-     * CSS class name, for example `displaystyle cramped`
-     */
-    cls(): string {
-        return [
-            'displaystyle textstyle', // @revisit. Should just be 'displaystyle'
-            'textstyle',
-            'scriptstyle',
-            'scriptscriptstyle',
-        ][this.size]; // @revisit: use this.id to include 'cramped' variants
-    }
+  /**
+   * CSS class name, for example `displaystyle cramped`
+   */
+  cls(): string {
+    return [
+      'displaystyle textstyle', // @revisit. Should just be 'displaystyle'
+      'textstyle',
+      'scriptstyle',
+      'scriptscriptstyle',
+    ][this.size]; // @revisit: use this.id to include 'cramped' variants
+  }
 
-    /**
-     * CSS class name to adjust from one style to another, like 'reset-textstyle'
-     */
-    adjustTo(newStyle: Mathstyle): string {
-        // @revisit the values used here
-        let result = [
-            [
-                '', // 'reset-textstyle displaystyle textstyle',
-                '', // 'reset-textstyle textstyle',
-                'reset-textstyle scriptstyle',
-                'reset-textstyle scriptscriptstyle',
-            ],
+  /**
+   * CSS class name to adjust from one style to another, like 'reset-textstyle'
+   */
+  adjustTo(newStyle: Mathstyle): string {
+    // @revisit the values used here
+    let result = [
+      [
+        '', // 'reset-textstyle displaystyle textstyle',
+        '', // 'reset-textstyle textstyle',
+        'reset-textstyle scriptstyle',
+        'reset-textstyle scriptscriptstyle',
+      ],
 
-            [
-                'reset-textstyle displaystyle textstyle',
-                '', // 'reset-textstyle textstyle',
-                'reset-textstyle scriptstyle',
-                'reset-textstyle scriptscriptstyle',
-            ],
+      [
+        'reset-textstyle displaystyle textstyle',
+        '', // 'reset-textstyle textstyle',
+        'reset-textstyle scriptstyle',
+        'reset-textstyle scriptscriptstyle',
+      ],
 
-            [
-                'reset-scriptstyle textstyle displaystyle',
-                'reset-scriptstyle textstyle',
-                '', // 'reset-scriptstyle scriptstyle',
-                'reset-scriptstyle scriptscriptstyle',
-            ],
+      [
+        'reset-scriptstyle textstyle displaystyle',
+        'reset-scriptstyle textstyle',
+        '', // 'reset-scriptstyle scriptstyle',
+        'reset-scriptstyle scriptscriptstyle',
+      ],
 
-            [
-                'reset-scriptscriptstyle textstyle displaystyle', // @revisit. Should not have 'textstyle'
-                'reset-scriptscriptstyle textstyle',
-                'reset-scriptscriptstyle scriptstyle',
-                '', // 'reset-scriptscriptstyle scriptscriptstyle'
-            ],
-        ][this.size][newStyle.size];
-        if (result.length > 0) result = ' ' + result;
-        return result;
-    }
+      [
+        'reset-scriptscriptstyle textstyle displaystyle', // @revisit. Should not have 'textstyle'
+        'reset-scriptscriptstyle textstyle',
+        'reset-scriptscriptstyle scriptstyle',
+        '', // 'reset-scriptscriptstyle scriptscriptstyle'
+      ],
+    ][this.size][newStyle.size];
+    if (result.length > 0) result = ' ' + result;
+    return result;
+  }
 
-    /**
-     * Return if this style is tightly spaced (scriptstyle/scriptscriptstyle)
-     */
-    isTight(): boolean {
-        return this.size >= 2;
-    }
+  /**
+   * Return if this style is tightly spaced (scriptstyle/scriptscriptstyle)
+   */
+  isTight(): boolean {
+    return this.size >= 2;
+  }
 }
 
 export const MATHSTYLES: {
-    [key: number]: Mathstyle;
-    displaystyle?: Mathstyle;
-    textstyle?: Mathstyle;
-    scriptstyle?: Mathstyle;
-    scriptscriptstyle?: Mathstyle;
+  [key: number]: Mathstyle;
+  displaystyle?: Mathstyle;
+  textstyle?: Mathstyle;
+  scriptstyle?: Mathstyle;
+  scriptscriptstyle?: Mathstyle;
 } = {
-    0: new Mathstyle(D, 0, 1, false),
-    1: new Mathstyle(Dc, 0, 1, true),
-    2: new Mathstyle(T, 1, 1, false),
-    3: new Mathstyle(Tc, 1, 1, true),
-    4: new Mathstyle(S, 2, 0.7, false),
-    5: new Mathstyle(Sc, 2, 0.7, true),
-    6: new Mathstyle(SS, 3, 0.5, false),
-    7: new Mathstyle(SSc, 3, 0.5, true),
+  0: new Mathstyle(D, 0, 1, false),
+  1: new Mathstyle(Dc, 0, 1, true),
+  2: new Mathstyle(T, 1, 1, false),
+  3: new Mathstyle(Tc, 1, 1, true),
+  4: new Mathstyle(S, 2, 0.7, false),
+  5: new Mathstyle(Sc, 2, 0.7, true),
+  6: new Mathstyle(SS, 3, 0.5, false),
+  7: new Mathstyle(SSc, 3, 0.5, true),
 };
 
 // Aliases
@@ -229,7 +223,7 @@ MATHSTYLES.scriptstyle = MATHSTYLES[4];
 MATHSTYLES.scriptscriptstyle = MATHSTYLES[6];
 
 export type MathStyleName =
-    | 'displaystyle'
-    | 'textstyle'
-    | 'scriptstyle'
-    | 'scriptscriptstyle';
+  | 'displaystyle'
+  | 'textstyle'
+  | 'scriptstyle'
+  | 'scriptscriptstyle';

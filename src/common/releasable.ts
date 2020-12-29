@@ -1,3 +1,3 @@
 export interface Releasable {
-    release(): void;
+  release(): void;
 }

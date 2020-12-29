@@ -30,20 +30,20 @@ export type ParseMode = 'math' | 'text' | 'latex';
     | `improper-alphabetic-constant`    | The alphabetic constant prefix `` ` `` was not followed by a letter or single character command. |
  */
 export type ParserErrorCode =
-    | 'unknown-command'
-    | 'invalid-command'
-    | 'unbalanced-braces'
-    | 'unknown-environment'
-    | 'unbalanced-environment'
-    | 'unbalanced-mode-shift'
-    | 'missing-argument'
-    | 'too-many-infix-commands'
-    | 'unexpected-command-in-string'
-    | 'missing-unit'
-    | 'unexpected-delimiter'
-    | 'unexpected-token'
-    | 'unexpected-end-of-string'
-    | 'improper-alphabetic-constant';
+  | 'unknown-command'
+  | 'invalid-command'
+  | 'unbalanced-braces'
+  | 'unknown-environment'
+  | 'unbalanced-environment'
+  | 'unbalanced-mode-shift'
+  | 'missing-argument'
+  | 'too-many-infix-commands'
+  | 'unexpected-command-in-string'
+  | 'missing-unit'
+  | 'unexpected-delimiter'
+  | 'unexpected-token'
+  | 'unexpected-end-of-string'
+  | 'improper-alphabetic-constant';
 
 // See https://ww2.eng.famu.fsu.edu/~dommelen/l2h/errors.html
 // for a reference of TeX errors.
@@ -51,11 +51,11 @@ export type ParserErrorCode =
 export type MathfieldErrorCode = 'invalid-keybinding' | 'font-not-found';
 
 export type ErrorListener<T> = (err: {
-    code: T;
-    arg?: string;
-    latex?: string;
-    before?: string;
-    after?: string;
+  code: T;
+  arg?: string;
+  latex?: string;
+  before?: string;
+  after?: string;
 }) => void;
 
 /**
@@ -87,16 +87,16 @@ export type ErrorListener<T> = (err: {
  * * [[`Style`]]
  */
 export type Variant =
-    | 'ams'
-    | 'double-struck'
-    | 'calligraphic'
-    | 'script'
-    | 'fraktur'
-    | 'sans-serif'
-    | 'monospace'
-    | 'normal' // 'main' (upright) or 'math' (italic) depending on letterShapeStyle
-    | 'main' // Upright
-    | 'math'; // Italic, with custom spacing for "f" and others
+  | 'ams'
+  | 'double-struck'
+  | 'calligraphic'
+  | 'script'
+  | 'fraktur'
+  | 'sans-serif'
+  | 'monospace'
+  | 'normal' // 'main' (upright) or 'math' (italic) depending on letterShapeStyle
+  | 'main' // Upright
+  | 'math'; // Italic, with custom spacing for "f" and others
 
 /**
  * Some variants support stylistic variations.
@@ -121,15 +121,15 @@ export type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
 export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
 
 export interface Style {
-    color?: string;
-    backgroundColor?: string;
-    variant?: Variant;
-    variantStyle?: VariantStyle;
-    fontFamily?: string;
-    fontShape?: FontShape;
-    fontSeries?: FontSeries;
-    fontSize?: string;
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+  color?: string;
+  backgroundColor?: string;
+  variant?: Variant;
+  variantStyle?: VariantStyle;
+  fontFamily?: string;
+  fontShape?: FontShape;
+  fontSeries?: FontSeries;
+  fontSize?: string;
+  letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 }
 /**
  * **See Also**

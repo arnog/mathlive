@@ -14,16 +14,16 @@
  * Also known as _indexed color scheme #97_.
  */
 const MATHEMATICA_COLORS: Record<string, string> = {
-    m0: '#3F3D99', // Strong blue
-    m1: '#993D71', // Strong cerise
-    m2: '#998B3D', // Strong gold
-    m3: '#3D9956', // Malachite green
-    m4: '#3D5A99', // Strong cobalt blue
-    m5: '#993D90', // Strong orchid
-    m6: '#996D3D', // Strong orange
-    m7: '#43993D', // Strong sap green
-    m8: '#3D7999', // Cornflower blue
-    m9: '#843D99', // Mulberry
+  m0: '#3F3D99', // Strong blue
+  m1: '#993D71', // Strong cerise
+  m2: '#998B3D', // Strong gold
+  m3: '#3D9956', // Malachite green
+  m4: '#3D5A99', // Strong cobalt blue
+  m5: '#993D90', // Strong orchid
+  m6: '#996D3D', // Strong orange
+  m7: '#43993D', // Strong sap green
+  m8: '#3D7999', // Cornflower blue
+  m9: '#843D99', // Mulberry
 };
 // ColorData97 (Mathematica standard lines)
 // rgb(0.368417, 0.506779, 0.709798),       #5e81b5
@@ -53,34 +53,34 @@ const MATHEMATICA_COLORS: Record<string, string> = {
 
 /* Area colors are most appropriate to color a large area */
 export const AREA_COLORS = [
-    '#d35d60', // Red
-    '#7293cb', // Cobalt blue
-    '#e1974d', // Orange
-    '#84bb5d', // Pistachio
-    '#9066a7', // Purple
-    '#aD6a58', // Vermilion
-    '#f5a4ce', // Pale rose
-    '#fff590', // Pale gold
-    '#212121', // Black
-    '#818787', // Dark grey
-    '#d4d5d2', // Light grey
-    '#ffffff', // White
+  '#d35d60', // Red
+  '#7293cb', // Cobalt blue
+  '#e1974d', // Orange
+  '#84bb5d', // Pistachio
+  '#9066a7', // Purple
+  '#aD6a58', // Vermilion
+  '#f5a4ce', // Pale rose
+  '#fff590', // Pale gold
+  '#212121', // Black
+  '#818787', // Dark grey
+  '#d4d5d2', // Light grey
+  '#ffffff', // White
 ];
 
 /* Line colors are most appropriate to color as a stroke color */
 export const LINE_COLORS = [
-    '#cc2428', // Red
-    '#3769b1', // Cobalt blue
-    '#da7e30', // Orange
-    '#409852', // Malachite green
-    '#6b4c9a', // Blue violet
-    '#922426', // Red
-    '#e7298a', // Brilliant rose
-    '#ffe907', // Vivid gold
-    '#000000',
-    '#525055',
-    '#adafaa',
-    '#ffffff',
+  '#cc2428', // Red
+  '#3769b1', // Cobalt blue
+  '#da7e30', // Orange
+  '#409852', // Malachite green
+  '#6b4c9a', // Blue violet
+  '#922426', // Red
+  '#e7298a', // Brilliant rose
+  '#ffe907', // Vivid gold
+  '#000000',
+  '#525055',
+  '#adafaa',
+  '#ffffff',
 ];
 
 /**
@@ -94,74 +94,74 @@ export const LINE_COLORS = [
  * - {@link https://en.wikibooks.org/w/index.php?title=LaTeX/Colors | Wikibooks:LaTeX/Colors}
  */
 const NAMED_COLORS: Record<string, string> = {
-    apricot: '#FBB982',
-    aquamarine: '#00B5BE',
-    bittersweet: '#C04F17',
-    black: '#221E1F', // Indeed.
-    blue: '#2D2F92',
-    bluegreen: '#00B3B8',
-    blueviolet: '#473992',
-    brickred: '#B6321C',
-    brown: '#792500',
-    burntorange: '#F7921D',
-    cadetblue: '#74729A',
-    carnationpink: '#F282B4',
-    cerulean: '#00A2E3',
-    cornflowerblue: '#41B0E4',
-    cyan: '#00AEEF',
-    dandelion: '#FDBC42',
-    darkorchid: '#A4538A',
-    emerald: '#00A99D',
-    forestgreen: '#009B55',
-    fuchsia: '#8C368C',
-    goldenrod: '#FFDF42',
-    gray: '#949698',
-    green: '#00A64F',
-    greenyellow: '#DFE674',
-    junglegreen: '#00A99A',
-    lavender: '#F49EC4',
-    limegreen: '#8DC73E',
-    magenta: '#EC008C',
-    mahogany: '#A9341F',
-    maroon: '#AF3235',
-    melon: '#F89E7B',
-    midnightblue: '#006795',
-    mulberry: '#A93C93',
-    navyblue: '#006EB8',
-    olivegreen: '#3C8031',
-    orange: '#F58137',
-    orangered: '#ED135A',
-    orchid: '#AF72B0',
-    peach: '#F7965A',
-    periwinkle: '#7977B8',
-    pinegreen: '#008B72',
-    plum: '#92268F',
-    processblue: '#00B0F0',
-    purple: '#99479B',
-    rawsienna: '#974006',
-    red: '#ED1B23',
-    redorange: '#F26035',
-    redviolet: '#A1246B',
-    rhodamine: '#EF559F',
-    royalblue: '#0071BC',
-    royalpurple: '#613F99',
-    rubinered: '#ED017D',
-    salmon: '#F69289',
-    seagreen: '#3FBC9D',
-    sepia: '#671800',
-    skyblue: '#46C5DD',
-    springgreen: '#C6DC67',
-    tan: '#DA9D76',
-    tealblue: '#00AEB3',
-    thistle: '#D883B7',
-    turquoise: '#00B4CE',
-    violet: '#58429B',
-    violetred: '#EF58A0',
-    white: '#FFFFFF',
-    wildstrawberry: '#EE2967',
-    yellow: '#FFF200',
-    yellowgreen: '#98CC70',
-    yelloworange: '#FAA21A',
+  apricot: '#FBB982',
+  aquamarine: '#00B5BE',
+  bittersweet: '#C04F17',
+  black: '#221E1F', // Indeed.
+  blue: '#2D2F92',
+  bluegreen: '#00B3B8',
+  blueviolet: '#473992',
+  brickred: '#B6321C',
+  brown: '#792500',
+  burntorange: '#F7921D',
+  cadetblue: '#74729A',
+  carnationpink: '#F282B4',
+  cerulean: '#00A2E3',
+  cornflowerblue: '#41B0E4',
+  cyan: '#00AEEF',
+  dandelion: '#FDBC42',
+  darkorchid: '#A4538A',
+  emerald: '#00A99D',
+  forestgreen: '#009B55',
+  fuchsia: '#8C368C',
+  goldenrod: '#FFDF42',
+  gray: '#949698',
+  green: '#00A64F',
+  greenyellow: '#DFE674',
+  junglegreen: '#00A99A',
+  lavender: '#F49EC4',
+  limegreen: '#8DC73E',
+  magenta: '#EC008C',
+  mahogany: '#A9341F',
+  maroon: '#AF3235',
+  melon: '#F89E7B',
+  midnightblue: '#006795',
+  mulberry: '#A93C93',
+  navyblue: '#006EB8',
+  olivegreen: '#3C8031',
+  orange: '#F58137',
+  orangered: '#ED135A',
+  orchid: '#AF72B0',
+  peach: '#F7965A',
+  periwinkle: '#7977B8',
+  pinegreen: '#008B72',
+  plum: '#92268F',
+  processblue: '#00B0F0',
+  purple: '#99479B',
+  rawsienna: '#974006',
+  red: '#ED1B23',
+  redorange: '#F26035',
+  redviolet: '#A1246B',
+  rhodamine: '#EF559F',
+  royalblue: '#0071BC',
+  royalpurple: '#613F99',
+  rubinered: '#ED017D',
+  salmon: '#F69289',
+  seagreen: '#3FBC9D',
+  sepia: '#671800',
+  skyblue: '#46C5DD',
+  springgreen: '#C6DC67',
+  tan: '#DA9D76',
+  tealblue: '#00AEB3',
+  thistle: '#D883B7',
+  turquoise: '#00B4CE',
+  violet: '#58429B',
+  violetred: '#EF58A0',
+  white: '#FFFFFF',
+  wildstrawberry: '#EE2967',
+  yellow: '#FFF200',
+  yellowgreen: '#98CC70',
+  yelloworange: '#FAA21A',
 };
 
 // Other color lists: SVG colors, x11 colors
@@ -342,113 +342,109 @@ yellowgreen	rgb(154, 205, 50)
  * @return An RGB color expressed as a hex-triplet preceded by `#`
  */
 export function stringToColor(s: string): string {
-    const colorSpec = s.toLowerCase().split('!');
+  const colorSpec = s.toLowerCase().split('!');
 
-    let baseRed;
-    let baseGreen;
-    let baseBlue;
-    let red = 255;
-    let green = 255;
-    let blue = 255;
-    let mix = -1;
+  let baseRed;
+  let baseGreen;
+  let baseBlue;
+  let red = 255;
+  let green = 255;
+  let blue = 255;
+  let mix = -1;
 
-    // If the string is prefixed with a '-', use the complementary color
-    const complementary = colorSpec.length > 0 && colorSpec[0].startsWith('-');
-    if (complementary) colorSpec[0] = colorSpec[0].slice(1);
+  // If the string is prefixed with a '-', use the complementary color
+  const complementary = colorSpec.length > 0 && colorSpec[0].startsWith('-');
+  if (complementary) colorSpec[0] = colorSpec[0].slice(1);
 
-    for (let i = 0; i < colorSpec.length; i++) {
-        baseRed = red;
-        baseGreen = green;
-        baseBlue = blue;
+  for (let i = 0; i < colorSpec.length; i++) {
+    baseRed = red;
+    baseGreen = green;
+    baseBlue = blue;
 
-        const colorName = colorSpec[i].match(/([a-z\d]*)/)?.[1];
+    const colorName = colorSpec[i].match(/([a-z\d]*)/)?.[1];
 
-        let color = NAMED_COLORS[colorName] ?? MATHEMATICA_COLORS[colorName];
-        if (!color) color = colorSpec[i];
+    let color = NAMED_COLORS[colorName] ?? MATHEMATICA_COLORS[colorName];
+    if (!color) color = colorSpec[i];
 
-        let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
+    let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
+    if (m?.[1] && m[2] && m[3]) {
+      // It's a six-digit hex number
+      red = Math.max(0, Math.min(255, Number.parseInt(m[1], 16)));
+      green = Math.max(0, Math.min(255, Number.parseInt(m[2], 16)));
+      blue = Math.max(0, Math.min(255, Number.parseInt(m[3], 16)));
+    } else {
+      m = color.match(/^#([\da-f]{3})$/i);
+      if (m?.[1]) {
+        // It's a three-digit hex number
+        const r1 = Number.parseInt(m[1][0], 16);
+        const g1 = Number.parseInt(m[1][1], 16);
+        const b1 = Number.parseInt(m[1][2], 16);
+        red = Math.max(0, Math.min(255, r1 * 16 + r1));
+        green = Math.max(0, Math.min(255, g1 * 16 + g1));
+        blue = Math.max(0, Math.min(255, b1 * 16 + b1));
+      } else {
+        // It's a rgb functional
+        m = color.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
         if (m?.[1] && m[2] && m[3]) {
-            // It's a six-digit hex number
-            red = Math.max(0, Math.min(255, Number.parseInt(m[1], 16)));
-            green = Math.max(0, Math.min(255, Number.parseInt(m[2], 16)));
-            blue = Math.max(0, Math.min(255, Number.parseInt(m[3], 16)));
+          red = Math.max(0, Math.min(255, Number.parseInt(m[1])));
+          green = Math.max(0, Math.min(255, Number.parseInt(m[2])));
+          blue = Math.max(0, Math.min(255, Number.parseInt(m[3])));
         } else {
-            m = color.match(/^#([\da-f]{3})$/i);
-            if (m?.[1]) {
-                // It's a three-digit hex number
-                const r1 = Number.parseInt(m[1][0], 16);
-                const g1 = Number.parseInt(m[1][1], 16);
-                const b1 = Number.parseInt(m[1][2], 16);
-                red = Math.max(0, Math.min(255, r1 * 16 + r1));
-                green = Math.max(0, Math.min(255, g1 * 16 + g1));
-                blue = Math.max(0, Math.min(255, b1 * 16 + b1));
-            } else {
-                // It's a rgb functional
-                m = color.match(
-                    /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
-                );
-                if (m?.[1] && m[2] && m[3]) {
-                    red = Math.max(0, Math.min(255, Number.parseInt(m[1])));
-                    green = Math.max(0, Math.min(255, Number.parseInt(m[2])));
-                    blue = Math.max(0, Math.min(255, Number.parseInt(m[3])));
-                } else {
-                    return null;
-                }
-            }
+          return null;
         }
-
-        if (mix >= 0) {
-            red = (1 - mix) * red + mix * baseRed;
-            green = (1 - mix) * green + mix * baseGreen;
-            blue = (1 - mix) * blue + mix * baseBlue;
-            mix = -1;
-        }
-
-        if (i + 1 < colorSpec.length) {
-            mix =
-                Math.max(0, Math.min(100, Number.parseInt(colorSpec[++i]))) /
-                100;
-        }
+      }
     }
 
     if (mix >= 0) {
-        red = mix * red + (1 - mix) * baseRed;
-        green = mix * green + (1 - mix) * baseGreen;
-        blue = mix * blue + (1 - mix) * baseBlue;
+      red = (1 - mix) * red + mix * baseRed;
+      green = (1 - mix) * green + mix * baseGreen;
+      blue = (1 - mix) * blue + mix * baseBlue;
+      mix = -1;
     }
 
-    if (complementary) {
-        red = 255 - red;
-        green = 255 - green;
-        blue = 255 - blue;
+    if (i + 1 < colorSpec.length) {
+      mix = Math.max(0, Math.min(100, Number.parseInt(colorSpec[++i]))) / 100;
     }
+  }
 
-    return (
-        '#' +
-        ('00' + Math.round(red).toString(16)).slice(-2) +
-        ('00' + Math.round(green).toString(16)).slice(-2) +
-        ('00' + Math.round(blue).toString(16)).slice(-2)
-    );
+  if (mix >= 0) {
+    red = mix * red + (1 - mix) * baseRed;
+    green = mix * green + (1 - mix) * baseGreen;
+    blue = mix * blue + (1 - mix) * baseBlue;
+  }
+
+  if (complementary) {
+    red = 255 - red;
+    green = 255 - green;
+    blue = 255 - blue;
+  }
+
+  return (
+    '#' +
+    ('00' + Math.round(red).toString(16)).slice(-2) +
+    ('00' + Math.round(green).toString(16)).slice(-2) +
+    ('00' + Math.round(blue).toString(16)).slice(-2)
+  );
 }
 
 export function colorToString(color: string): string {
-    if (!color) return '';
-    if (!color.startsWith('#')) return color;
-    let result = color.toUpperCase();
+  if (!color) return '';
+  if (!color.startsWith('#')) return color;
+  let result = color.toUpperCase();
 
-    for (const c in NAMED_COLORS) {
-        if (NAMED_COLORS[c] === result) {
-            result = c;
-            break;
-        }
+  for (const c in NAMED_COLORS) {
+    if (NAMED_COLORS[c] === result) {
+      result = c;
+      break;
     }
+  }
 
-    for (const c in MATHEMATICA_COLORS) {
-        if (MATHEMATICA_COLORS[c] === result) {
-            result = c;
-            break;
-        }
+  for (const c in MATHEMATICA_COLORS) {
+    if (MATHEMATICA_COLORS[c] === result) {
+      result = c;
+      break;
     }
+  }
 
-    return result;
+  return result;
 }

@@ -21,9 +21,9 @@
 import { Mathfield } from './mathfield';
 import { MathfieldElement } from './mathfield-element';
 import {
-    MathfieldOptions,
-    RemoteVirtualKeyboardOptions,
-    TextToSpeechOptions,
+  MathfieldOptions,
+  RemoteVirtualKeyboardOptions,
+  TextToSpeechOptions,
 } from './options';
 import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
 
@@ -69,8 +69,8 @@ export declare const version: string;
  * @deprecated Use `new [[MathfieldElement]]()`
  */
 export declare function makeMathField(
-    element: HTMLElement | string,
-    options: MathfieldOptions
+  element: HTMLElement | string,
+  options: MathfieldOptions
 ): Mathfield;
 
 /**
@@ -99,7 +99,7 @@ export declare function makeMathField(
  * @keywords create, make, mathfield, iframe
  */
 export declare function makeSharedVirtualKeyboard(
-    options: RemoteVirtualKeyboardOptions
+  options: RemoteVirtualKeyboardOptions
 ): void;
 
 /**
@@ -138,13 +138,13 @@ export declare function makeSharedVirtualKeyboard(
  * @keywords convert, latex, markup
  */
 export declare function convertLatexToMarkup(
-    text: string,
-    options?: {
-        mathstyle?: 'displaystyle' | 'textstyle';
-        letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode>;
-    }
+  text: string,
+  options?: {
+    mathstyle?: 'displaystyle' | 'textstyle';
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+    macros?: MacroDictionary;
+    onError?: ErrorListener<ParserErrorCode>;
+  }
 ): string;
 
 /**
@@ -152,13 +152,13 @@ export declare function convertLatexToMarkup(
  * @category Converting
  */
 export declare function latexToMarkup(
-    text: string,
-    options?: {
-        mathstyle?: 'displaystyle' | 'textstyle';
-        letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode>;
-    }
+  text: string,
+  options?: {
+    mathstyle?: 'displaystyle' | 'textstyle';
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+    macros?: MacroDictionary;
+    onError?: ErrorListener<ParserErrorCode>;
+  }
 ): string;
 
 /**
@@ -175,12 +175,12 @@ export declare function latexToMarkup(
  * @category Converting
  */
 export declare function convertLatexToMathMl(
-    latex: string,
-    options?: {
-        macros?: MacroDictionary;
-        generateID: boolean;
-        onError?: ErrorListener<ParserErrorCode>;
-    }
+  latex: string,
+  options?: {
+    macros?: MacroDictionary;
+    generateID: boolean;
+    onError?: ErrorListener<ParserErrorCode>;
+  }
 ): string;
 
 /**
@@ -188,12 +188,12 @@ export declare function convertLatexToMathMl(
  * @category Converting
  */
 export declare function latexToMathML(
-    latex: string,
-    options?: {
-        macros?: MacroDictionary;
-        generateID: boolean;
-        onError?: ErrorListener<ParserErrorCode>;
-    }
+  latex: string,
+  options?: {
+    macros?: MacroDictionary;
+    generateID: boolean;
+    onError?: ErrorListener<ParserErrorCode>;
+  }
 ): string;
 
 /**
@@ -213,11 +213,11 @@ export declare function latexToMathML(
  * @deprecated Use MathJSON
  */
 export declare function latexToAST(
-    latex: string,
-    options?: {
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode | string>;
-    }
+  latex: string,
+  options?: {
+    macros?: MacroDictionary;
+    onError?: ErrorListener<ParserErrorCode | string>;
+  }
 );
 
 /**
@@ -231,27 +231,27 @@ export declare function latexToAST(
  * @deprecated Use MathJSON
  */
 export declare function astToLatex(
-    mathJson: any,
-    options?: {
-        /** The number of digits used in the representation of numbers. **Default** = 14 */
-        precision?: number;
-        /** The character used as the decimal marker. **Default** = `"."`. */
-        decimalMarker?: string;
-        /** The character used to separate group of numbers, typically thousands. **Default** = `"\\, "` */
-        groupSeparator?: string;
-        /** The character used to indicate product. Other option would be `"\\times "`. **Default** = `"\\cdot "` */
-        product?: string;
-        /** The character used before an exponent indicator. **Default** = `"\\cdot "` */
-        exponentProduct?: string;
-        /** The character used to indicate an exponent. **Default** = `""` */
-        exponentMarker?: string;
-        /** The format used for numbers using the scientific notation. **Default** = `"auto"` * /
+  mathJson: any,
+  options?: {
+    /** The number of digits used in the representation of numbers. **Default** = 14 */
+    precision?: number;
+    /** The character used as the decimal marker. **Default** = `"."`. */
+    decimalMarker?: string;
+    /** The character used to separate group of numbers, typically thousands. **Default** = `"\\, "` */
+    groupSeparator?: string;
+    /** The character used to indicate product. Other option would be `"\\times "`. **Default** = `"\\cdot "` */
+    product?: string;
+    /** The character used before an exponent indicator. **Default** = `"\\cdot "` */
+    exponentProduct?: string;
+    /** The character used to indicate an exponent. **Default** = `""` */
+    exponentMarker?: string;
+    /** The format used for numbers using the scientific notation. **Default** = `"auto"` * /
         scientificNotation?: 'auto' | 'engineering' | 'on';
         /** The string used at the begining of repeating digits. **Default** = `"\\overline{"` */
-        beginRepeatingDigits?: string;
-        /** The string used at the end of repeating digits. **Default** = `"}"` */
-        endRepeatingDigits?: string;
-    }
+    beginRepeatingDigits?: string;
+    /** The string used at the end of repeating digits. **Default** = `"}"` */
+    endRepeatingDigits?: string;
+  }
 ): string;
 
 /**
@@ -272,11 +272,11 @@ export declare function astToLatex(
  * @keywords convert, latex, speech, speakable, text, speakable text
  */
 export declare function convertLatexToSpeakableText(
-    latex: string,
-    options: TextToSpeechOptions & {
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode>;
-    }
+  latex: string,
+  options: TextToSpeechOptions & {
+    macros?: MacroDictionary;
+    onError?: ErrorListener<ParserErrorCode>;
+  }
 ): string;
 
 /**
@@ -284,154 +284,154 @@ export declare function convertLatexToSpeakableText(
  * @category Converting
  */
 export declare function latexToSpeakableText(
-    latex: string,
-    options: TextToSpeechOptions & {
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode>;
-    }
+  latex: string,
+  options: TextToSpeechOptions & {
+    macros?: MacroDictionary;
+    onError?: ErrorListener<ParserErrorCode>;
+  }
 ): string;
 
 export type AutoRenderOptions = {
-    /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.
-     *
-     * It is empty by default.
-     *
-     * The namespace should be a string of lowercase letters.
+  /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.
+   *
+   * It is empty by default.
+   *
+   * The namespace should be a string of lowercase letters.
+   */
+  namespace?: string;
+
+  /**
+   * A URL fragment pointing to the directory containing the fonts
+   * necessary to render a formula.
+   *
+   * These fonts are available in the `/dist/fonts` directory of the SDK.
+   *
+   * Customize this value to reflect where you have copied these fonts,
+   * or to use the CDN version.
+   *
+   * The default value is './fonts'.
+   *
+   * Changing this setting after the mathfield has been created will have
+   * no effect.
+   *
+   * ```javascript
+   * {
+   *      // Use the CDN version
+   *      fontsDirectory: ''
+   * }
+   * ```
+   * ```javascript
+   * {
+   *      // Use a directory called 'fonts', located next to the
+   *      // `mathlive.js` (or `mathlive.mjs`) file.
+   *      fontsDirectory: './fonts'
+   * }
+   * ```
+   * ```javascript
+   * {
+   *      // Use a directory located at the top your website
+   *      fontsDirectory: 'https://example.com/fonts'
+   * }
+   * ```
+   *
+   */
+  fontsDirectory?: string;
+
+  /**
+   * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+   *
+   * This optional function will be called whenever the DOM is modified
+   * by injecting a string of HTML, allowing that string to be sanitized
+   * according to a policy defined by the host.
+   */
+  createHTML?: (html: string) => any;
+
+  /** Custom LaTeX macros */
+  macros?: MacroDictionary;
+
+  /** An array of tag names whose content will
+   *  not be scanned for delimiters (unless their class matches the `processClass`
+   * pattern below.
+   *
+   * **Default:** `['noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
+   */
+  skipTags?: string[];
+
+  /**
+   * A string used as a regular expression of class names of elements whose content will not be
+   * scanned for delimiter
+   *
+   * **Default**: `'tex2jax_ignore'`
+   */
+  ignoreClass?: string;
+
+  /**
+   * A string used as a
+   * regular expression of class names of elements whose content **will** be
+   * scanned for delimiters,  even if their tag name or parent class name would
+   * have prevented them from doing so.
+   *
+   * **Default**: `'tex2jax_process'`
+   *
+   * */
+  processClass?: string;
+
+  /**
+   * `<script>` tags of the
+   * indicated type will be processed while others will be ignored.
+   *
+   * **Default**: `'math/tex'`
+   */
+  processScriptType?: string;
+
+  /** The format(s) in
+   * which to render the math for screen readers:
+   * - `'mathml'` MathML
+   * - `'speakable-text'` Spoken representation
+   *
+   * You can pass an empty string to turn off the rendering of accessible content.
+   * You can pass multiple values separated by spaces, e.g `'mathml speakable-text'`
+   *
+   * **Default**: `'mathml'`
+   */
+  renderAccessibleContent?: string;
+
+  /** If true, store the
+   * original textual content of the element in a `data-original-content`
+   * attribute. This value can be accessed for example to restore the element to
+   * its original value:
+   * ```javascript
+   *      elem.innerHTML = elem.dataset.originalContent;
+   * ```
+   * @deprecatd
+   *
+   */
+  preserveOriginalContent?: boolean;
+
+  /**
+   * If true, generate markup that can
+   * be read aloud later using {@linkcode speak}
+   *
+   * **Default**: `false`
+   */
+  readAloud?: boolean;
+
+  TeX?: {
+    /** If false, math expression
+     * that start with `\begin{` will not automatically be rendered.
      */
-    namespace?: string;
+
+    processEnvironments?: boolean;
 
     /**
-     * A URL fragment pointing to the directory containing the fonts
-     * necessary to render a formula.
+     * Delimiter pairs that will trigger a render of the content in
+     * display style or inline, respectively.
      *
-     * These fonts are available in the `/dist/fonts` directory of the SDK.
-     *
-     * Customize this value to reflect where you have copied these fonts,
-     * or to use the CDN version.
-     *
-     * The default value is './fonts'.
-     *
-     * Changing this setting after the mathfield has been created will have
-     * no effect.
-     *
-     * ```javascript
-     * {
-     *      // Use the CDN version
-     *      fontsDirectory: ''
-     * }
-     * ```
-     * ```javascript
-     * {
-     *      // Use a directory called 'fonts', located next to the
-     *      // `mathlive.js` (or `mathlive.mjs`) file.
-     *      fontsDirectory: './fonts'
-     * }
-     * ```
-     * ```javascript
-     * {
-     *      // Use a directory located at the top your website
-     *      fontsDirectory: 'https://example.com/fonts'
-     * }
-     * ```
+     * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ] ], inline: [ ['\\(','\\)'] ] ]}`
      *
      */
-    fontsDirectory?: string;
-
-    /**
-     * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
-     *
-     * This optional function will be called whenever the DOM is modified
-     * by injecting a string of HTML, allowing that string to be sanitized
-     * according to a policy defined by the host.
-     */
-    createHTML?: (html: string) => any;
-
-    /** Custom LaTeX macros */
-    macros?: MacroDictionary;
-
-    /** An array of tag names whose content will
-     *  not be scanned for delimiters (unless their class matches the `processClass`
-     * pattern below.
-     *
-     * **Default:** `['noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
-     */
-    skipTags?: string[];
-
-    /**
-     * A string used as a regular expression of class names of elements whose content will not be
-     * scanned for delimiter
-     *
-     * **Default**: `'tex2jax_ignore'`
-     */
-    ignoreClass?: string;
-
-    /**
-     * A string used as a
-     * regular expression of class names of elements whose content **will** be
-     * scanned for delimiters,  even if their tag name or parent class name would
-     * have prevented them from doing so.
-     *
-     * **Default**: `'tex2jax_process'`
-     *
-     * */
-    processClass?: string;
-
-    /**
-     * `<script>` tags of the
-     * indicated type will be processed while others will be ignored.
-     *
-     * **Default**: `'math/tex'`
-     */
-    processScriptType?: string;
-
-    /** The format(s) in
-     * which to render the math for screen readers:
-     * - `'mathml'` MathML
-     * - `'speakable-text'` Spoken representation
-     *
-     * You can pass an empty string to turn off the rendering of accessible content.
-     * You can pass multiple values separated by spaces, e.g `'mathml speakable-text'`
-     *
-     * **Default**: `'mathml'`
-     */
-    renderAccessibleContent?: string;
-
-    /** If true, store the
-     * original textual content of the element in a `data-original-content`
-     * attribute. This value can be accessed for example to restore the element to
-     * its original value:
-     * ```javascript
-     *      elem.innerHTML = elem.dataset.originalContent;
-     * ```
-     * @deprecatd
-     *
-     */
-    preserveOriginalContent?: boolean;
-
-    /**
-     * If true, generate markup that can
-     * be read aloud later using {@linkcode speak}
-     *
-     * **Default**: `false`
-     */
-    readAloud?: boolean;
-
-    TeX?: {
-        /** If false, math expression
-         * that start with `\begin{` will not automatically be rendered.
-         */
-
-        processEnvironments?: boolean;
-
-        /**
-         * Delimiter pairs that will trigger a render of the content in
-         * display style or inline, respectively.
-         *
-         * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ] ], inline: [ ['\\(','\\)'] ] ]}`
-         *
-         */
-        delimiters?: { display: string[][]; inline: string[][] };
-    };
+    delimiters?: { display: string[][]; inline: string[][] };
+  };
 };
 
 /**
@@ -472,8 +472,8 @@ export declare function renderMathInDocument(options?: AutoRenderOptions): void;
  * @keywords render, element, htmlelement
  */
 export declare function renderMathInElement(
-    element: string | HTMLElement,
-    options?: AutoRenderOptions
+  element: string | HTMLElement,
+  options?: AutoRenderOptions
 ): void;
 
 /**
@@ -486,14 +486,14 @@ export declare function renderMathInElement(
  * @deprecated
  */
 export declare function revertToOriginalContent(
-    element: HTMLElement,
-    /** The namespace used for the `data-`
-     * attributes. If you used a namespace with `renderMathInElement`, you must
-     * use the same namespace here.
-     */
-    options?: {
-        namespace?: string;
-    }
+  element: HTMLElement,
+  /** The namespace used for the `data-`
+   * attributes. If you used a namespace with `renderMathInElement`, you must
+   * use the same namespace here.
+   */
+  options?: {
+    namespace?: string;
+  }
 ): void;
 
 /**
@@ -522,11 +522,11 @@ export declare function revertToOriginalContent(
  * @deprecated
  */
 export declare function getOriginalContent(
-    element: string | HTMLElement,
-    options?: {
-        /** The namespace used for the `data-` attributes.
-         * If you used a namespace with `renderMathInElement()`, you must
-         * use the same namespace here. */
-        namespace?: string;
-    }
+  element: string | HTMLElement,
+  options?: {
+    /** The namespace used for the `data-` attributes.
+     * If you used a namespace with `renderMathInElement()`, you must
+     * use the same namespace here. */
+    namespace?: string;
+  }
 ): string;

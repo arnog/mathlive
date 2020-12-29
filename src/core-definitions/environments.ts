@@ -1,6 +1,6 @@
 import {
-    defineEnvironment,
-    defineTabularEnvironment,
+  defineEnvironment,
+  defineTabularEnvironment,
 } from './definitions-utils';
 import type { Atom } from '../core/atom-class';
 import { ArrayAtom, Colspec } from '../core-atoms/array';
@@ -150,46 +150,46 @@ a component in a containing expression, e.g. for putting the entire alignment
 in a parenthesis
 */
 defineEnvironment(
-    'math',
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-        new ArrayAtom(name, array, rowGaps, { mathStyleName: 'textstyle' })
+  'math',
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+    new ArrayAtom(name, array, rowGaps, { mathStyleName: 'textstyle' })
 );
 
 defineEnvironment(
-    'displaymath',
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-        new ArrayAtom(name, array, rowGaps, { mathStyleName: 'textstyle' })
+  'displaymath',
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+    new ArrayAtom(name, array, rowGaps, { mathStyleName: 'textstyle' })
 );
 
 defineTabularEnvironment(
-    'array',
-    '{columns:colspec}',
-    (name: string, array: Atom[][][], rowGaps: number[], args): Atom =>
-        new ArrayAtom(name, array, rowGaps, {
-            colFormat: args[0] as Colspec[],
-            mathStyleName: 'textstyle',
-        })
+  'array',
+  '{columns:colspec}',
+  (name: string, array: Atom[][][], rowGaps: number[], args): Atom =>
+    new ArrayAtom(name, array, rowGaps, {
+      colFormat: args[0] as Colspec[],
+      mathStyleName: 'textstyle',
+    })
 );
 
 defineTabularEnvironment(
-    ['equation', 'equation', 'subequations'],
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-        new ArrayAtom(name, array, rowGaps, {
-            colFormat: [{ align: 'c' }],
-        })
+  ['equation', 'equation', 'subequations'],
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+    new ArrayAtom(name, array, rowGaps, {
+      colFormat: [{ align: 'c' }],
+    })
 );
 
 // Note spelling: MULTLINE, not multiline.
 defineTabularEnvironment(
-    'multline',
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-        new ArrayAtom(name, array, rowGaps, {
-            colFormat: [{ align: 'm' }],
-        })
+  'multline',
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+    new ArrayAtom(name, array, rowGaps, {
+      colFormat: [{ align: 'm' }],
+    })
 );
 
 // An AMS-Math environment
@@ -201,37 +201,37 @@ defineTabularEnvironment(
 // is is generally recommended to avoid using eqnarray and use align isntead.
 // https://texblog.net/latex-archive/maths/eqnarray-align-environment/
 defineTabularEnvironment(
-    ['align', 'align*', 'aligned', 'eqnarray'],
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
-        let colCount = 0;
-        for (const row of array) {
-            colCount = Math.max(colCount, row.length);
-        }
-
-        const colFormat: Colspec[] = [
-            { gap: 0 },
-            { align: 'r' },
-            { gap: 0 },
-            { align: 'l' },
-        ];
-        let i = 2;
-        while (i < colCount) {
-            colFormat.push({ gap: 1 });
-            colFormat.push({ align: 'r' });
-            colFormat.push({ gap: 0 });
-            colFormat.push({ align: 'l' });
-            i += 2;
-        }
-
-        colFormat.push({ gap: 0 });
-
-        return new ArrayAtom(name, array, rowGaps, {
-            arraycolsep: 0,
-            colFormat,
-            jot: 0.3,
-        });
+  ['align', 'align*', 'aligned', 'eqnarray'],
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
+    let colCount = 0;
+    for (const row of array) {
+      colCount = Math.max(colCount, row.length);
     }
+
+    const colFormat: Colspec[] = [
+      { gap: 0 },
+      { align: 'r' },
+      { gap: 0 },
+      { align: 'l' },
+    ];
+    let i = 2;
+    while (i < colCount) {
+      colFormat.push({ gap: 1 });
+      colFormat.push({ align: 'r' });
+      colFormat.push({ gap: 0 });
+      colFormat.push({ align: 'l' });
+      i += 2;
+    }
+
+    colFormat.push({ gap: 0 });
+
+    return new ArrayAtom(name, array, rowGaps, {
+      arraycolsep: 0,
+      colFormat,
+      jot: 0.3,
+    });
+  }
 );
 
 // DefineEnvironment('alignat', '', function(name, args) {
@@ -247,32 +247,32 @@ defineTabularEnvironment(
 // });
 
 defineTabularEnvironment(
-    'split',
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-        new ArrayAtom(name, array, rowGaps, {
-            colFormat: [{ align: 'r' }, { align: 'l' }],
-        })
+  'split',
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+    new ArrayAtom(name, array, rowGaps, {
+      colFormat: [{ align: 'r' }, { align: 'l' }],
+    })
 );
 
 defineTabularEnvironment(
-    ['gather', 'gathered'],
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-        // An AMS-Math environment
-        // %    The \env{gathered} environment is for several lines that are
-        // %    centered independently.
-        // From amstex.sty
-        // \newenvironment{gathered}[1][c]{%
-        //   \relax\ifmmode\else\nonmatherr@{\begin{gathered}}\fi
-        //   \null\,%
-        //   \if #1t\vtop \else \if#1b\vbox \else \vcenter \fi\fi
-        //   \bgroup\Let@\restore@math@cr
-        //   \ifinany@\else\openup\jot\fi\ialign
-        //   \bgroup\hfil\strut@$\m@th\displaystyle##$\hfil\crcr
-        new ArrayAtom(name, array, rowGaps, {
-            colFormat: [{ gap: 0.25 }, { align: 'c' }, { gap: 0 }],
-        })
+  ['gather', 'gathered'],
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+    // An AMS-Math environment
+    // %    The \env{gathered} environment is for several lines that are
+    // %    centered independently.
+    // From amstex.sty
+    // \newenvironment{gathered}[1][c]{%
+    //   \relax\ifmmode\else\nonmatherr@{\begin{gathered}}\fi
+    //   \null\,%
+    //   \if #1t\vtop \else \if#1b\vbox \else \vcenter \fi\fi
+    //   \bgroup\Let@\restore@math@cr
+    //   \ifinany@\else\openup\jot\fi\ialign
+    //   \bgroup\hfil\strut@$\m@th\displaystyle##$\hfil\crcr
+    new ArrayAtom(name, array, rowGaps, {
+      colFormat: [{ gap: 0.25 }, { align: 'c' }, { gap: 0 }],
+    })
 );
 
 // DefineEnvironment('cardinality', '',  function() {
@@ -286,126 +286,126 @@ defineTabularEnvironment(
 // });
 
 defineTabularEnvironment(
-    [
-        'matrix',
-        'pmatrix',
-        'bmatrix',
-        'Bmatrix',
-        'vmatrix',
-        'Vmatrix',
-        'smallmatrix',
-        'matrix*',
-        'pmatrix*',
-        'bmatrix*',
-        'Bmatrix*',
-        'vmatrix*',
-        'Vmatrix*',
-        'smallmatrix*',
-    ],
-    '[columns:colspec]',
-    (name: string, array: Atom[][][], rowGaps: number[], args): Atom => {
-        // From amstex.sty:
-        // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
-        // \def\endmatrix{\endarray \hskip -\arraycolsep}
-        let leftDelim: string;
-        let rightDelim: string;
-        switch (name) {
-            case 'pmatrix':
-            case 'pmatrix*':
-                leftDelim = '(';
-                rightDelim = ')';
-                break;
+  [
+    'matrix',
+    'pmatrix',
+    'bmatrix',
+    'Bmatrix',
+    'vmatrix',
+    'Vmatrix',
+    'smallmatrix',
+    'matrix*',
+    'pmatrix*',
+    'bmatrix*',
+    'Bmatrix*',
+    'vmatrix*',
+    'Vmatrix*',
+    'smallmatrix*',
+  ],
+  '[columns:colspec]',
+  (name: string, array: Atom[][][], rowGaps: number[], args): Atom => {
+    // From amstex.sty:
+    // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
+    // \def\endmatrix{\endarray \hskip -\arraycolsep}
+    let leftDelim: string;
+    let rightDelim: string;
+    switch (name) {
+      case 'pmatrix':
+      case 'pmatrix*':
+        leftDelim = '(';
+        rightDelim = ')';
+        break;
 
-            case 'bmatrix':
-            case 'bmatrix*':
-                leftDelim = '[';
-                rightDelim = ']';
-                break;
+      case 'bmatrix':
+      case 'bmatrix*':
+        leftDelim = '[';
+        rightDelim = ']';
+        break;
 
-            case 'Bmatrix':
-            case 'Bmatrix*':
-                leftDelim = '\\lbrace';
-                rightDelim = '\\rbrace';
-                break;
+      case 'Bmatrix':
+      case 'Bmatrix*':
+        leftDelim = '\\lbrace';
+        rightDelim = '\\rbrace';
+        break;
 
-            case 'vmatrix':
-            case 'vmatrix*':
-                leftDelim = '\\vert';
-                rightDelim = '\\vert';
-                break;
+      case 'vmatrix':
+      case 'vmatrix*':
+        leftDelim = '\\vert';
+        rightDelim = '\\vert';
+        break;
 
-            case 'Vmatrix':
-            case 'Vmatrix*':
-                leftDelim = '\\Vert';
-                rightDelim = '\\Vert';
-                break;
+      case 'Vmatrix':
+      case 'Vmatrix*':
+        leftDelim = '\\Vert';
+        rightDelim = '\\Vert';
+        break;
 
-            case 'matrix':
-            case 'matrix*':
-                // Specifying a fence, even a null fence,
-                // will prevent the insertion of an initial and final gap
-                leftDelim = '.';
-                rightDelim = '.';
-                break;
-            default:
-        }
-
-        return new ArrayAtom(name, array, rowGaps, {
-            mathStyleName: name.startsWith('smallmatrix')
-                ? 'scriptstyle'
-                : 'textstyle',
-            leftDelim,
-            rightDelim,
-            colFormat: (args[0] as Colspec[]) ?? [
-                { align: 'c' },
-                { align: 'c' },
-                { align: 'c' },
-                { align: 'c' },
-                { align: 'c' },
-                { align: 'c' },
-                { align: 'c' },
-                { align: 'c' },
-                { align: 'c' },
-                { align: 'c' },
-            ],
-        });
+      case 'matrix':
+      case 'matrix*':
+        // Specifying a fence, even a null fence,
+        // will prevent the insertion of an initial and final gap
+        leftDelim = '.';
+        rightDelim = '.';
+        break;
+      default:
     }
+
+    return new ArrayAtom(name, array, rowGaps, {
+      mathStyleName: name.startsWith('smallmatrix')
+        ? 'scriptstyle'
+        : 'textstyle',
+      leftDelim,
+      rightDelim,
+      colFormat: (args[0] as Colspec[]) ?? [
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+      ],
+    });
+  }
 );
 
 defineTabularEnvironment(
-    'cases',
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
-        // From amstex.sty:
-        // \def\cases{\left\{\def\arraystretch{1.2}\hskip-\arraycolsep
-        //   \array{l@{\quad}l}}
-        // \def\endcases{\endarray\hskip-\arraycolsep\right.}
-        // From amsmath.dtx
-        // \def\env@cases{%
-        //   \let\@ifnextchar\new@ifnextchar
-        //   \left\lbrace
-        //   \def\arraystretch{1.2}%
-        //   \array{@{}l@{\quad}l@{}}%
-        return new ArrayAtom(name, array, rowGaps, {
-            arraystretch: 1.2,
-            leftDelim: '\\lbrace',
-            rightDelim: '.',
-            colFormat: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
-        });
-    }
+  'cases',
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
+    // From amstex.sty:
+    // \def\cases{\left\{\def\arraystretch{1.2}\hskip-\arraycolsep
+    //   \array{l@{\quad}l}}
+    // \def\endcases{\endarray\hskip-\arraycolsep\right.}
+    // From amsmath.dtx
+    // \def\env@cases{%
+    //   \let\@ifnextchar\new@ifnextchar
+    //   \left\lbrace
+    //   \def\arraystretch{1.2}%
+    //   \array{@{}l@{\quad}l@{}}%
+    return new ArrayAtom(name, array, rowGaps, {
+      arraystretch: 1.2,
+      leftDelim: '\\lbrace',
+      rightDelim: '.',
+      colFormat: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
+    });
+  }
 );
 
 defineTabularEnvironment(
-    'rcases',
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
-        return new ArrayAtom(name, array, rowGaps, {
-            arraystretch: 1.2,
-            leftDelim: '.',
-            rightDelim: '\\rbrace',
-            colFormat: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
-        });
-    }
+  'rcases',
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
+    return new ArrayAtom(name, array, rowGaps, {
+      arraystretch: 1.2,
+      leftDelim: '.',
+      rightDelim: '\\rbrace',
+      colFormat: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
+    });
+  }
 );
 
 // This is a text mode environment
@@ -420,8 +420,8 @@ is a continuous function.
 // });
 
 defineEnvironment(
-    'center',
-    '',
-    (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-        new ArrayAtom(name, array, rowGaps, { colFormat: [{ align: 'c' }] })
+  'center',
+  '',
+  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+    new ArrayAtom(name, array, rowGaps, { colFormat: [{ align: 'c' }] })
 );
