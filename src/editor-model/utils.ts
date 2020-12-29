@@ -30,7 +30,7 @@ export type ModelHooks = {
         target: Mathfield, // @revisit: could drop this argument
         verb: AnnounceVerb,
         previousPosition: number,
-        object: Atom[] // object of the command
+        object: Atom[] // Object of the command
     ) => void;
     /*
      * Return false if handled.
@@ -49,7 +49,7 @@ export type ModelHooks = {
 };
 
 export function isOffset(value: unknown): value is Offset {
-    return typeof value === 'number' && !isNaN(value);
+    return typeof value === 'number' && !Number.isNaN(value);
 }
 
 export function isRange(value: unknown): value is Range {
@@ -60,6 +60,6 @@ export function isSelection(value: unknown): value is Selection {
     return (
         typeof value === 'object' &&
         'ranges' in value &&
-        Array.isArray(value['ranges'])
+        Array.isArray((value as Selection).ranges)
     );
 }

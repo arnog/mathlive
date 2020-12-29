@@ -2,7 +2,7 @@ import type { TextToSpeechOptions } from '../public/options';
 
 import { Atom } from '../core/atom';
 
-// import { atomsToMathML } from '../addons/math-ml';
+// Import { atomsToMathML } from '../addons/math-ml';
 import { speakableText } from './speech';
 import type { ModelPrivate } from '../editor-model/model-private';
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
@@ -20,12 +20,14 @@ function relationName(atom: Atom): string {
             leftright: 'fence',
             surd: 'square root',
             root: 'math field',
-            mop: 'operator', // e.g. `\operatorname`, a `mop` with a body
+            mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
         }[atom.parent.type];
     } else if (atom.parent.type === 'genfrac') {
         if (atom.treeBranch === 'above') {
             return 'numerator';
-        } else if (atom.treeBranch === 'below') {
+        }
+
+        if (atom.treeBranch === 'below') {
             return 'denominator';
         }
     } else if (atom.parent.type === 'surd') {
@@ -41,6 +43,7 @@ function relationName(atom: Atom): string {
     if (!result) {
         console.log('unknown relationship');
     }
+
     return result ?? 'parent';
 }
 
@@ -56,34 +59,34 @@ export function defaultAnnounceHook(
     previousPosition?: number,
     atoms?: Atom[]
 ): void {
-    //** Fix: the focus is the end of the selection, so it is before where we want it
+    //* * Fix: the focus is the end of the selection, so it is before where we want it
     let liveText = '';
-    // const action = moveAmount > 0 ? "right" : "left";
+    // Const action = moveAmount > 0 ? "right" : "left";
 
     if (action === 'plonk') {
         // Use this sound to indicate minor errors, for
         // example when an action has no effect.
-        mathfield.plonkSound?.play().catch((err) => console.warn(err));
+        mathfield.plonkSound?.play().catch((error) => console.warn(error));
         // As a side effect, reset the keystroke buffer
         mathfield.resetKeystrokeBuffer();
     } else if (action === 'delete') {
         liveText = speakableText(mathfield.options, 'deleted: ', atoms);
-        //*** FIX: could also be moveUp or moveDown -- do something different like provide context???
-    } else if (action === 'focus' || /move/.test(action)) {
-        //*** FIX -- should be xxx selected/unselected */
+        //* ** FIX: could also be moveUp or moveDown -- do something different like provide context???
+    } else if (action === 'focus' || action.includes('move')) {
+        //* ** FIX -- should be xxx selected/unselected */
         liveText =
             getRelationshipAsSpokenText(mathfield.model, previousPosition) +
             (mathfield.model.selectionIsCollapsed ? '' : 'selected: ') +
             getNextAtomAsSpokenText(mathfield.model, mathfield.options);
     } else if (action === 'replacement') {
-        // announce the contents
+        // Announce the contents
         liveText = speakableText(
             mathfield.options,
             '',
             mathfield.model.at(mathfield.model.position)
         );
     } else if (action === 'line') {
-        // announce the current line -- currently that's everything
+        // Announce the current line -- currently that's everything
         // mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
         //     '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
         //         atomsToMathML(mathfield.model.root, mathfield.options) +
@@ -93,7 +96,7 @@ export function defaultAnnounceHook(
         liveText = speakableText(mathfield.options, '', mathfield.model.root);
         mathfield.keyboardDelegate.setAriaLabel('after: ' + liveText);
 
-        /*** FIX -- testing hack for setting braille ***/
+        /** * FIX -- testing hack for setting braille ***/
         // mathfield.accessibleNode.focus();
         // console.log("before sleep");
         // sleep(1000).then(() => {
@@ -105,25 +108,27 @@ export function defaultAnnounceHook(
             ? speakableText(mathfield.options, action + ' ', atoms)
             : action;
     }
-    // aria-live regions are only spoken when it changes; force a change by
+
+    // Aria-live regions are only spoken when it changes; force a change by
     // alternately using nonbreaking space or narrow nonbreaking space
-    const ariaLiveChangeHack = /\u00a0/.test(mathfield.ariaLiveText.textContent)
-        ? ' \u202f '
-        : ' \u00a0 ';
+    const ariaLiveChangeHack = mathfield.ariaLiveText.textContent.includes(' ')
+        ? ' \u202F '
+        : ' \u00A0 ';
     mathfield.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
-    // this.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
+    // This.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 
 function getRelationshipAsSpokenText(
     model: ModelPrivate,
     previousOffset?: number
 ): string {
-    if (isNaN(previousOffset)) return '';
+    if (Number.isNaN(previousOffset)) return '';
     const previous = model.at(previousOffset);
     if (!previous) return '';
     if (previous.treeDepth <= model.at(model.position).treeDepth) {
         return '';
     }
+
     let result = '';
     let ancestor = previous.parent;
     const newParent = model.at(model.position).parent;
@@ -148,21 +153,24 @@ function getNextAtomAsSpokenText(
     if (!model.selectionIsCollapsed) {
         return speakableText(options, '', model.getAtoms(model.selection));
     }
+
     let result = '';
 
-    // announce start of denominator, etc
+    // Announce start of denominator, etc
     const cursor = model.at(model.position);
     const relation = relationName(cursor);
     if (cursor.isFirstSibling) {
         result = (relation ? 'start of ' + relation : 'unknown') + ': ';
     }
+
     if (cursor.isLastSibling) {
-        // don't say both start and end
+        // Don't say both start and end
         if (!cursor.isFirstSibling) {
             result += relation ? 'end of ' + relation : 'unknown';
         }
     } else {
         result += speakableText(options, '', cursor);
     }
+
     return result;
 }

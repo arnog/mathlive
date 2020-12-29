@@ -208,6 +208,7 @@ defineTabularEnvironment(
         for (const row of array) {
             colCount = Math.max(colCount, row.length);
         }
+
         const colFormat: Colspec[] = [
             { gap: 0 },
             { align: 'r' },
@@ -222,17 +223,18 @@ defineTabularEnvironment(
             colFormat.push({ align: 'l' });
             i += 2;
         }
+
         colFormat.push({ gap: 0 });
 
         return new ArrayAtom(name, array, rowGaps, {
             arraycolsep: 0,
-            colFormat: colFormat,
+            colFormat,
             jot: 0.3,
         });
     }
 );
 
-// defineEnvironment('alignat', '', function(name, args) {
+// DefineEnvironment('alignat', '', function(name, args) {
 //     return {
 
 //     };
@@ -273,7 +275,7 @@ defineTabularEnvironment(
         })
 );
 
-// defineEnvironment('cardinality', '',  function() {
+// DefineEnvironment('cardinality', '',  function() {
 //     const result = {};
 
 //     result.mathstyle = 'textstyle';
@@ -347,6 +349,7 @@ defineTabularEnvironment(
                 break;
             default:
         }
+
         return new ArrayAtom(name, array, rowGaps, {
             mathStyleName: name.startsWith('smallmatrix')
                 ? 'scriptstyle'

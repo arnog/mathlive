@@ -1,7 +1,8 @@
+/* eslint-disable no-new */
 import { InsertOptions, Offset, Range } from '../public/mathfield';
-import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { MathfieldPrivate } from './mathfield-private';
 import { jsonToLatex } from '../addons/math-json';
-import { requestUpdate } from '../editor-mathfield/render';
+import { requestUpdate } from './render';
 import { range } from '../editor-model/selection-utils';
 import { ModeEditor } from './mode-editor';
 import { ModelPrivate } from '../editor-model/model-private';
@@ -34,10 +35,11 @@ export class MathModeEditor extends ModeEditor {
         if (json) {
             try {
                 text = jsonToLatex(JSON.parse(json), {});
-            } catch (e) {
+            } catch {
                 text = '';
             }
         }
+
         // If that didn't work, try some plain text
         if (!text) {
             text = ev.clipboardData.getData('text/plain');
@@ -51,11 +53,14 @@ export class MathModeEditor extends ModeEditor {
             ) {
                 requestUpdate(mathfield);
             }
+
             ev.preventDefault();
             ev.stopPropagation();
         }
+
         return true;
     }
+
     onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
         const value: Range = mathfield.model.selectionIsCollapsed
             ? [0, mathfield.model.lastOffset]
@@ -75,6 +80,7 @@ export class MathModeEditor extends ModeEditor {
         // Prevent the current document selection from being written to the clipboard.
         ev.preventDefault();
     }
+
     insert(model: ModelPrivate, text: string, options: InsertOptions): boolean {
         if (!options.insertionMode) options.insertionMode = 'replaceSelection';
         if (!options.selectionMode) options.selectionMode = 'placeholder';
@@ -87,7 +93,7 @@ export class MathModeEditor extends ModeEditor {
         if (!(options.smartFence ?? false)) {
             // When smartFence is turned off, only do a "smart" fence insert
             // if we're inside a `leftright`, at the last char
-            const parent = model.at(model.position).parent;
+            const { parent } = model.at(model.position);
             if (
                 parent instanceof LeftRightAtom &&
                 parent.rightDelim === '?' &&
@@ -107,10 +113,11 @@ export class MathModeEditor extends ModeEditor {
             return true;
         }
 
-        const suppressChangeNotifications = model.suppressChangeNotifications;
+        const { suppressChangeNotifications } = model;
         if (options.suppressChangeNotifications) {
             model.suppressChangeNotifications = true;
         }
+
         const contentWasChanging = model.suppressChangeNotifications;
         model.suppressChangeNotifications = true;
 
@@ -151,7 +158,7 @@ export class MathModeEditor extends ModeEditor {
         } else if (model.at(model.position).type === 'placeholder') {
             // After a `placeholder`
             model.deleteAtoms([model.position - 1, model.position]);
-            model.position = model.position - 1;
+            model.position -= 1;
         }
 
         //
@@ -169,6 +176,7 @@ export class MathModeEditor extends ModeEditor {
                 model.position = offset;
             }
         }
+
         if (!args[0]) args[0] = args['?'];
 
         const newAtoms = convertStringToAtoms(model, text, args, options);
@@ -177,7 +185,7 @@ export class MathModeEditor extends ModeEditor {
         //
         // Insert the new atoms
         //
-        const parent = model.at(model.position).parent;
+        const { parent } = model.at(model.position);
         // Are we inserting a fraction inside a lefright?
         if (
             options.format !== 'latex' &&
@@ -205,6 +213,7 @@ export class MathModeEditor extends ModeEditor {
                     parent.latex = text;
                 }
             }
+
             const cursor = model.at(model.position);
             cursor.parent.addChildrenAfter(newAtoms, cursor);
         }
@@ -228,7 +237,7 @@ export class MathModeEditor extends ModeEditor {
             if (newPlaceholders.length > 0) {
                 const placeholderOffset = model.offsetOf(newPlaceholders[0]);
                 model.setSelection(placeholderOffset - 1, placeholderOffset);
-                model.announce('move'); // should have placeholder selected
+                model.announce('move'); // Should have placeholder selected
             } else if (lastNewAtom) {
                 // No placeholder found, move to right after what we just inserted
                 model.position = model.offsetOf(lastNewAtom);
@@ -324,6 +333,7 @@ function removeParen(atoms: Atom[]): Atom[] | null {
     ) {
         return atom.removeBranch('body');
     }
+
     return null;
 }
 
@@ -346,8 +356,10 @@ function simplifyParen(atoms: Atom[]): void {
                     genFracCount++;
                     genFracIndex = j;
                 }
+
                 nonGenFracCount++;
             }
+
             if (nonGenFracCount === 0 && genFracCount === 1) {
                 // This is a single frac inside a leftright: remove the leftright
                 atoms[i] = atom.body[genFracIndex];
@@ -384,11 +396,14 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
         while (!atom.isFirstSibling && atom.mode === 'text') {
             atom = atom.leftSibling;
         }
+
         return model.offsetOf(atom);
     }
+
     if (!isImplicitArg(atom)) {
         return -1;
     }
+
     // Find the first 'mrel', etc... to the left of the insertion point
     // until the first sibling
     while (!atom.isFirstSibling && isImplicitArg(atom)) {
@@ -412,6 +427,7 @@ function isImplicitArg(atom: Atom): boolean {
         if (atom.isExtensibleSymbol) return false;
         return true;
     }
+
     return false;
 }
 
@@ -426,7 +442,7 @@ export function insertSmartFence(
 ): boolean {
     console.assert(model.selectionIsCollapsed);
     const atom = model.at(model.position);
-    const parent = atom.parent;
+    const { parent } = atom;
     let delims =
         parent instanceof LeftRightAtom
             ? parent.leftDelim + parent.rightDelim
@@ -441,10 +457,11 @@ export function insertSmartFence(
     if (delims === '{}' && /\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
         ModeEditor.insert('math', model, '\\,\\middle' + fence + '\\, ', {
             format: 'latex',
-            style: style,
+            style,
         });
         return true;
     }
+
     // Normalize some fences.
     // Note that '{' and '}' are not valid braces.
     // They should be '\{' or '\lbrace' and '\}' or '\rbrace'
@@ -464,20 +481,18 @@ export function insertSmartFence(
         // We have a valid open fence as input
         let s = '';
 
-        if (atom.isFunction) {
-            // We're before a function (e.g. `\sin`, or 'f'):  this is an
-            // argument list.
-            // Use `\mleft...\mright'.
-            s = '\\mleft' + fence + '\\mright' + rDelim;
-        } else {
-            s = '\\left' + fence + '\\right?';
-        }
+        // If we're before a function (e.g. `\sin`, or 'f'):  this is an
+        // argument list: Use `\mleft...\mright'.
+
+        s = atom.isFunction
+            ? `\\mleft${fence}\\mright${rDelim}`
+            : `\\left${fence}\\right?`;
 
         const lastSiblingOffset = model.offsetOf(atom.lastSibling);
         const content = model.extractAtoms([model.position, lastSiblingOffset]);
         ModeEditor.insert('math', model, s, {
             format: 'latex',
-            style: style,
+            style,
         });
         // Move everything that was after the anchor into the leftright
         model.at(model.position).body = content;
@@ -504,6 +519,7 @@ export function insertSmartFence(
             contentDidChange(model);
             return true;
         }
+
         // If we have a `leftright` sibling to our left
         // with an indeterminate right fence,
         // move what's between us and the `leftright` inside the `leftright`
@@ -515,6 +531,7 @@ export function insertSmartFence(
                 break;
             }
         }
+
         const match = model.at(i);
         if (i >= firstSibling && match instanceof LeftRightAtom) {
             match.rightDelim = fence;

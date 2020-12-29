@@ -1,5 +1,5 @@
 import type { ArgumentType } from '../core/context';
-import type { Atom, AtomType, BBoxParam } from '../core/atom-class';
+import type { Atom, AtomType, BBoxParameter } from '../core/atom-class';
 import type { Colspec } from '../core-atoms/array';
 import type {
     Variant,
@@ -14,7 +14,7 @@ export type FunctionArgumentDefiniton = {
     type: ArgumentType;
 };
 
-export type Argument = string | number | BBoxParam | Colspec[] | Atom[];
+export type Argument = string | number | BBoxParameter | Colspec[] | Atom[];
 
 export type FunctionDefinition = {
     params: FunctionArgumentDefiniton[];
@@ -42,14 +42,14 @@ export type SymbolDefinition = {
     type: AtomType;
     value: string;
     variant: Variant;
-    // variantStyle: VariantStyle;
+    // VariantStyle: VariantStyle;
 
     frequency?: number;
     category?: string;
     template?: string;
 };
 
-export const MATH_SYMBOLS: { [name: string]: SymbolDefinition } = {};
+export const MATH_SYMBOLS: Record<string, SymbolDefinition> = {};
 // Map a character to some corresponding Latex
 // This is used for some characters such as ² SUPERSCRIPT TWO.
 // This is also an opportunity to specify the prefered form when
@@ -69,18 +69,18 @@ export const REVERSE_MATH_SYMBOLS = {
     ']': '\\rbrack',
     ':': '\\colon', // Also :
     
-    '\u00a0': '~', // Also \space
-    '\u00ac': '\\neg',  // Also \lnot
+    '\u00A0': '~', // Also \space
+    '\u00AC': '\\neg',  // Also \lnot
 
-    '\u00b7': '\\cdot',
-    '\u00bc': '\\frac{1}{4}',
-    '\u00bd': '\\frac{1}{2}',
-    '\u00be': '\\frac{3}{4}',
+    '\u00B7': '\\cdot',
+    '\u00BC': '\\frac{1}{4}',
+    '\u00BD': '\\frac{1}{2}',
+    '\u00BE': '\\frac{3}{4}',
     '\u2070': '^{0}',
-    '\u2071': '^{i}', // eslint-disable-line
-    '\u00b9': '^{1}',
-    '\u00b2': '^{2}',
-    '\u00b3': '^{3}',
+    '\u2071': '^{i}',
+    '\u00B9': '^{1}',
+    '\u00B2': '^{2}',
+    '\u00B3': '^{3}',
 
     '\u2020': '\\dagger', // Also \dag
     '\u2021': '\\ddagger', // Also \ddag
@@ -92,10 +92,10 @@ export const REVERSE_MATH_SYMBOLS = {
     '\u2077': '^{7}',
     '\u2078': '^{8}',
     '\u2079': '^{9}',
-    '\u207a': '^{+}',
-    '\u207b': '^{-}',
-    '\u207c': '^{=}',
-    '\u207f': '^{n}', // eslint-disable-line
+    '\u207A': '^{+}',
+    '\u207B': '^{-}',
+    '\u207C': '^{=}',
+    '\u207F': '^{n}',
     '\u2080': '_{0}',
     '\u2081': '_{1}',
     '\u2082': '_{2}',
@@ -106,13 +106,13 @@ export const REVERSE_MATH_SYMBOLS = {
     '\u2087': '_{7}',
     '\u2088': '_{8}',
     '\u2089': '_{9}',
-    '\u208a': '_{+}',
-    '\u208b': '_{-}',
-    '\u208c': '_{=}',
-    '\u2090': '_{a}',// eslint-disable-line
-    '\u2091': '_{e}',// eslint-disable-line
-    '\u2092': '_{o}',// eslint-disable-line
-    '\u2093': '_{x}',// eslint-disable-line
+    '\u208A': '_{+}',
+    '\u208B': '_{-}',
+    '\u208C': '_{=}',
+    '\u2090': '_{a}',
+    '\u2091': '_{e}',
+    '\u2092': '_{o}',
+    '\u2093': '_{x}',
 
     '\u2032': '\\prime',
     '\'': '\\prime',
@@ -120,10 +120,10 @@ export const REVERSE_MATH_SYMBOLS = {
     '\u2190': '\\gets', // Also \leftarrow
     '\u2192': '\\to',   // Also \rightarrow
 
-    '\u25b3': '\\triangle', // Also \bigtriangleup, \vartriangle
-    '\u25bd': '\\triangledown',
+    '\u25B3': '\\triangle', // Also \bigtriangleup, \vartriangle
+    '\u25BD': '\\triangledown',
 
-    '\u220b': '\\owns', // Also \ni
+    '\u220B': '\\owns', // Also \ni
     '\u2217': '\\ast',  // Also *
     '\u2223': '\\vert',  // Also |, \mvert, \lvert, \rvert
     '\u2225': '\\Vert',  // Also \parallel \shortparallel
@@ -131,28 +131,28 @@ export const REVERSE_MATH_SYMBOLS = {
     '\u2227': '\\land', // Also \wedge
     '\u2228': '\\lor', // Also \vee
 
-    '\u22c5': '\\cdot', // Also \centerdot, \cdotp
-    '\u22c8': '\\bowtie', // Also \Joint
+    '\u22C5': '\\cdot', // Also \centerdot, \cdotp
+    '\u22C8': '\\bowtie', // Also \Joint
 
     '\u2260': '\\ne',   // Also \neq
     '\u2264': '\\le',   // Also \leq
     '\u2265': '\\ge',   // Also \geq
-    '\u22a5': '\\bot', // Also \perp
+    '\u22A5': '\\bot', // Also \perp
 
-    '\u27f7': '\\biconditional',    // Also longleftrightarrow
-    '\u27f8': '\\impliedby', // Also \Longleftarrow
-    '\u27f9': '\\implies', // Also \Longrightarrow
+    '\u27F7': '\\biconditional',    // Also longleftrightarrow
+    '\u27F8': '\\impliedby', // Also \Longleftarrow
+    '\u27F9': '\\implies', // Also \Longrightarrow
 
     '\u2102': '\\C',    // Also \doubleStruckCapitalC
     '\u2115': '\\N',    // Also \doubleStruckCapitalN
     '\u2119': '\\P',    // Also \doubleStruckCapitalP
-    '\u211a': '\\Q',    // Also \doubleStruckCapitalQ
-    '\u211d': '\\R',    // Also \doubleStruckCapitalR
+    '\u211A': '\\Q',    // Also \doubleStruckCapitalQ
+    '\u211D': '\\R',    // Also \doubleStruckCapitalR
     '\u2124': '\\Z',    // Also \doubleStruckCapitalZ
 };
-export const FUNCTIONS: { [name: string]: FunctionDefinition } = {};
+export const FUNCTIONS: Record<string, FunctionDefinition> = {};
 
-export const ENVIRONMENTS: { [name: string]: EnvironmentDefinition } = {};
+export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 
 type EnvironmentConstructor = (
     name: string,
@@ -162,7 +162,7 @@ type EnvironmentConstructor = (
 ) => Atom;
 
 export const MACROS: MacroDictionary = {
-    iff: '\\;\u27fa\\;', //>2,000 Note: additional spaces around the arrows
+    iff: '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
     nicefrac: '^{#1}\\!\\!/\\!_{#2}',
 
     // From bracket.sty, Dirac notation
@@ -222,9 +222,9 @@ export const TEXT_SYMBOLS = {
     '\\backslash': '\\',
     '`': '\u2018',
     "'": '\u2019',
-    '``': '\u201c',
-    "''": '\u201d',
-    '\\degree': '\u00b0',
+    '``': '\u201C',
+    "''": '\u201D',
+    '\\degree': '\u00B0',
     '\\textasciicircum': '^',
     '\\textasciitilde': '~',
     '\\textasteriskcentered': '*',
@@ -244,19 +244,19 @@ export const TEXT_SYMBOLS = {
     '“': '\u201C', // LEFT DOUBLE QUOTATION MARK
     '”': '\u201D', // RIGHT DOUBLE QUOTATION MARK
     '"': '\u201D', // DOUBLE PRIME
-    '\\ss': '\u00df', // LATIN SMALL LETTER SHARP S
+    '\\ss': '\u00DF', // LATIN SMALL LETTER SHARP S
     '\\ae': '\u00E6', // LATIN SMALL LETTER AE
     '\\oe': '\u0153', // LATIN SMALL LIGATURE OE
-    '\\AE': '\u00c6', // LATIN CAPITAL LETTER AE
+    '\\AE': '\u00C6', // LATIN CAPITAL LETTER AE
     '\\OE': '\u0152', // LATIN CAPITAL LIGATURE OE
-    '\\O': '\u00d8', // LATIN CAPITAL LETTER O WITH STROKE
+    '\\O': '\u00D8', // LATIN CAPITAL LETTER O WITH STROKE
     '\\i': '\u0131', // LATIN SMALL LETTER DOTLESS I
     '\\j': '\u0237', // LATIN SMALL LETTER DOTLESS J
-    '\\aa': '\u00e5', // LATIN SMALL LETTER A WITH RING ABOVE
-    '\\AA': '\u00c5', // LATIN CAPITAL LETTER A WITH RING ABOVE
+    '\\aa': '\u00E5', // LATIN SMALL LETTER A WITH RING ABOVE
+    '\\AA': '\u00C5', // LATIN CAPITAL LETTER A WITH RING ABOVE
 };
 
-export const COMMAND_MODE_CHARACTERS = /[a-zA-Z0-9!@*()-=+{}[\]\\';:?/.,~<>`|'$%#&^_" ]/;
+export const COMMAND_MODE_CHARACTERS = /[\w!@*()-=+{}[\]\\';:?/.,~<>`|$%#&^" ]/;
 
 // Word boundaries for Cyrillic, Polish, French, German, Italian
 // and Spanish. We use \p{L} (Unicode property escapes: "Letter")
@@ -265,15 +265,17 @@ export const COMMAND_MODE_CHARACTERS = /[a-zA-Z0-9!@*()-=+{}[\]\\';:?/.,~<>`|'$%
 // See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
 export const LETTER =
     typeof navigator !== 'undefined' &&
-    /firefox|edge|Trident/i.test(navigator.userAgent)
-        ? /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/
-        : new RegExp('\\p{Letter}', 'u');
+    /firefox|edge|trident/i.test(navigator.userAgent)
+        ? /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/
+        : /* eslint-disable-next-line prefer-regex-literals */
+          new RegExp('\\p{Letter}', 'u');
 
 export const LETTER_AND_DIGITS =
     typeof navigator !== 'undefined' &&
-    /firefox|edge|Trident/i.test(navigator.userAgent)
-        ? /[0-9a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒäöüßÄÖÜẞàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚáéíñóúüÁÉÍÑÓÚÜ]/
-        : new RegExp('[0-9\\p{Letter}]', 'u');
+    /firefox|edge|trident/i.test(navigator.userAgent)
+        ? /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/
+        : /* eslint-disable-next-line prefer-regex-literals */
+          new RegExp('[0-9\\p{Letter}]', 'u');
 
 /**
  * @param symbol    The LaTeX command for this symbol, for
@@ -293,6 +295,7 @@ export function defineSymbol(
     if (!REVERSE_MATH_SYMBOLS[value] && !variant) {
         REVERSE_MATH_SYMBOLS[value] = symbol;
     }
+
     // We accept all math symbols in text mode as well
     // which is a bit more permissive than TeX
     TEXT_SYMBOLS[symbol] = value;
@@ -329,6 +332,7 @@ export function charToLatex(parseMode: ArgumentType, s: string): string {
     if (parseMode === 'math') {
         return REVERSE_MATH_SYMBOLS[s] || s;
     }
+
     if (parseMode === 'text') {
         let textSymbol = Object.keys(TEXT_SYMBOLS).find(
             (x) => TEXT_SYMBOLS[x] === s
@@ -337,8 +341,10 @@ export function charToLatex(parseMode: ArgumentType, s: string): string {
             const hex = s.codePointAt(0).toString(16);
             textSymbol = '^'.repeat(hex.length) + hex;
         }
+
         return textSymbol;
     }
+
     return s;
 }
 
@@ -508,20 +514,19 @@ function unicodeToMathVariant(
         }
     }
 
-    for (let i = 0; i < MATH_UNICODE_BLOCKS.length; i++) {
+    for (const MATH_UNICODE_BLOCK of MATH_UNICODE_BLOCKS) {
         if (
-            codepoint >= MATH_UNICODE_BLOCKS[i].start &&
-            codepoint <
-                MATH_UNICODE_BLOCKS[i].start + MATH_UNICODE_BLOCKS[i].len
+            codepoint >= MATH_UNICODE_BLOCK.start &&
+            codepoint < MATH_UNICODE_BLOCK.start + MATH_UNICODE_BLOCK.len
         ) {
             return {
                 char: String.fromCodePoint(
                     codepoint -
-                        MATH_UNICODE_BLOCKS[i].start +
-                        MATH_UNICODE_BLOCKS[i].offset
+                        MATH_UNICODE_BLOCK.start +
+                        MATH_UNICODE_BLOCK.offset
                 ),
-                variant: MATH_UNICODE_BLOCKS[i].variant,
-                style: MATH_UNICODE_BLOCKS[i].style,
+                variant: MATH_UNICODE_BLOCK.variant,
+                style: MATH_UNICODE_BLOCK.style,
             };
         }
     }
@@ -538,24 +543,23 @@ export function mathVariantToUnicode(
     variant: string,
     style: string
 ): string {
-    if (!/[A-Za-z0-9]/.test(char)) return char;
+    if (!/[A-Za-z\d]/.test(char)) return char;
     if (!variant && !style) return char;
 
     const codepoint = char.codePointAt(0);
 
-    for (let i = 0; i < MATH_UNICODE_BLOCKS.length; i++) {
-        if (!variant || MATH_UNICODE_BLOCKS[i].variant === variant) {
-            if (!style || MATH_UNICODE_BLOCKS[i].style === style) {
+    for (const MATH_UNICODE_BLOCK of MATH_UNICODE_BLOCKS) {
+        if (!variant || MATH_UNICODE_BLOCK.variant === variant) {
+            if (!style || MATH_UNICODE_BLOCK.style === style) {
                 if (
-                    codepoint >= MATH_UNICODE_BLOCKS[i].offset &&
+                    codepoint >= MATH_UNICODE_BLOCK.offset &&
                     codepoint <
-                        MATH_UNICODE_BLOCKS[i].offset +
-                            MATH_UNICODE_BLOCKS[i].len
+                        MATH_UNICODE_BLOCK.offset + MATH_UNICODE_BLOCK.len
                 ) {
                     const result =
-                        MATH_UNICODE_BLOCKS[i].start +
+                        MATH_UNICODE_BLOCK.start +
                         codepoint -
-                        MATH_UNICODE_BLOCKS[i].offset;
+                        MATH_UNICODE_BLOCK.offset;
                     return String.fromCodePoint(
                         MATH_LETTER_EXCEPTIONS[result] || result
                     );
@@ -590,6 +594,7 @@ export function unicodeCharToLatex(
     if (v.variant) {
         result = '\\' + v.variant + '{' + result + '}';
     }
+
     if (v.style === 'bold') {
         result = '\\mathbf{' + result + '}';
     } else if (v.style === 'italic') {
@@ -597,6 +602,7 @@ export function unicodeCharToLatex(
     } else if (v.style === 'bolditalic') {
         result = '\\mathbfit{' + result + '}';
     }
+
     return '\\mathord{' + result + '}';
 }
 
@@ -608,21 +614,19 @@ export function unicodeStringToLatex(
     let needSpace = false;
     for (const c of s) {
         if (needSpace) {
-            if (parseMode === 'text') {
-                result += '{}';
-            } else {
-                result += ' ';
-            }
+            result += parseMode === 'text' ? '{}' : ' ';
         }
+
         needSpace = false;
         const latex = unicodeCharToLatex(parseMode, c);
         if (latex) {
             result += latex;
-            needSpace = /\\[a-zA-Z0-9]+\*?$/.test(latex);
+            needSpace = /\\[a-zA-Z\d]+\*?$/.test(latex);
         } else {
             result += c;
         }
     }
+
     return result;
 }
 
@@ -652,7 +656,7 @@ export function getInfo(
 
     let info = null;
 
-    if (symbol.charAt(0) === '\\') {
+    if (symbol.startsWith('\\')) {
         // This could be a function or a symbol
         info = FUNCTIONS[symbol];
         if (info) {
@@ -675,6 +679,7 @@ export function getInfo(
                 if (typeof def === 'object') {
                     def = def.def;
                 }
+
                 let argCount = 0;
                 // Let's see if there are arguments in the definition.
                 if (/(^|[^\\])#1/.test(def)) argCount = 1;
@@ -701,14 +706,12 @@ export function getInfo(
                 }
             }
         }
-    } else {
-        if (parseMode === 'math') {
-            info = MATH_SYMBOLS[symbol];
-        } else if (TEXT_SYMBOLS[symbol]) {
-            info = { value: TEXT_SYMBOLS[symbol] };
-        } else if (parseMode === 'text') {
-            info = { value: symbol };
-        }
+    } else if (parseMode === 'math') {
+        info = MATH_SYMBOLS[symbol];
+    } else if (TEXT_SYMBOLS[symbol]) {
+        info = { value: TEXT_SYMBOLS[symbol] };
+    } else if (parseMode === 'text') {
+        info = { value: symbol };
     }
 
     // Special case `f`, `g` and `h` are recognized as functions.
@@ -753,8 +756,10 @@ export function suggest(s: string): { match: string; frequency: number }[] {
             if (a.match.length === b.match.length) {
                 return a.match.localeCompare(b.match);
             }
+
             return a.match.length - b.match.length;
         }
+
         return (b.frequency ?? 0) - (a.frequency ?? 0);
     });
 
@@ -772,7 +777,7 @@ export function suggest(s: string): { match: string; frequency: number }[] {
  * - <type> is one of 'string', 'color', 'dimen', 'auto', 'text', 'math'
  *
  */
-function parseParamTemplateArgument(argTemplate: string): ArgumentType {
+function parseParameterTemplateArgument(argTemplate: string): ArgumentType {
     let type: ArgumentType = 'auto';
 
     // Parse the type (:type)
@@ -782,34 +787,34 @@ function parseParamTemplateArgument(argTemplate: string): ArgumentType {
     return type;
 }
 
-function parseParamTemplate(
-    paramTemplate: string
+function parseParameterTemplate(
+    parameterTemplate: string
 ): FunctionArgumentDefiniton[] {
-    if (!paramTemplate) return [];
+    if (!parameterTemplate) return [];
 
     let result = [];
-    let params = paramTemplate.split(']');
-    if (params[0].charAt(0) === '[') {
+    let parameters = parameterTemplate.split(']');
+    if (parameters[0].startsWith('[')) {
         // We found at least one optional parameter.
         result.push({
             isOptional: true,
-            type: parseParamTemplateArgument(params[0].slice(1)),
+            type: parseParameterTemplateArgument(parameters[0].slice(1)),
         });
         // Parse the rest
-        for (let i = 1; i <= params.length; i++) {
-            result = result.concat(parseParamTemplate(params[i]));
+        for (let i = 1; i <= parameters.length; i++) {
+            result = result.concat(parseParameterTemplate(parameters[i]));
         }
     } else {
-        params = paramTemplate.split('}');
-        if (params[0].charAt(0) === '{') {
+        parameters = parameterTemplate.split('}');
+        if (parameters[0].startsWith('{')) {
             // We found a required parameter
             result.push({
                 isOptional: false,
-                type: parseParamTemplateArgument(params[0].slice(1)),
+                type: parseParameterTemplateArgument(parameters[0].slice(1)),
             });
             // Parse the rest
-            for (let i = 1; i <= params.length; i++) {
-                result = result.concat(parseParamTemplate(params[i]));
+            for (let i = 1; i <= parameters.length; i++) {
+                result = result.concat(parseParameterTemplate(parameters[i]));
             }
         }
     }
@@ -843,21 +848,22 @@ export function parseArgAsString(atoms: Atom[]): string {
  */
 export function defineEnvironment(
     names: string | string[],
-    params: string,
+    parameters: string,
     parser: EnvironmentConstructor,
     isTabular = false
 ): void {
     if (typeof names === 'string') {
         names = [names];
     }
-    const parsedParams = parseParamTemplate(params);
+
+    const parsedParameters = parseParameterTemplate(parameters);
 
     // Set default values of functions
     const data: EnvironmentDefinition = {
         tabular: isTabular,
         // Params: the parameters for this function, an array of
         // {optional, type}
-        params: parsedParams,
+        params: parsedParameters,
 
         // Callback to create an atom
         createAtom: parser,
@@ -874,10 +880,10 @@ export function defineEnvironment(
  */
 export function defineTabularEnvironment(
     names: string | string[],
-    params: string,
+    parameters: string,
     parser: EnvironmentConstructor
 ): void {
-    defineEnvironment(names, params, parser, true);
+    defineEnvironment(names, parameters, parser, true);
 }
 
 /**
@@ -890,7 +896,7 @@ export function defineTabularEnvironment(
  */
 export function defineFunction(
     names: string | string[],
-    params: string,
+    parameters: string,
     options: {
         ifMode?: ParseMode;
         applyMode?: ParseMode;
@@ -910,7 +916,7 @@ export function defineFunction(
     const data: FunctionDefinition = {
         // The parameters for this function, an array of
         // {optional, type}
-        params: parseParamTemplate(params),
+        params: parseParameterTemplate(parameters),
 
         ifMode: options.ifMode,
         isFunction: options.isFunction ?? false,

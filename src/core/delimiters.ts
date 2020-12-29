@@ -74,21 +74,21 @@ function getSymbolValue(symbol: string): string {
             '\\rVert': '\u2225',
             '\\parallel': '\u2225',
             '\\shortparallel': '\u2225',
-            '\\langle': '\u27e8',
-            '\\rangle': '\u27e9',
-            '\\lfloor': '\u230a',
-            '\\rfloor': '\u230b',
+            '\\langle': '\u27E8',
+            '\\rangle': '\u27E9',
+            '\\lfloor': '\u230A',
+            '\\rfloor': '\u230B',
             '\\lceil': '\u2308',
             '\\rceil': '\u2309',
-            '\\ulcorner': '\u250c',
+            '\\ulcorner': '\u250C',
             '\\urcorner': '\u2510',
             '\\llcorner': '\u2514',
             '\\lrcorner': '\u2518',
-            '\\lgroup': '\u27ee',
-            '\\rgroup': '\u27ef',
-            '\\lmoustache': '\u23b0',
-            '\\rmoustache': '\u23b1',
-            '\\surd': '\u221a',
+            '\\lgroup': '\u27EE',
+            '\\rgroup': '\u27EF',
+            '\\lmoustache': '\u23B0',
+            '\\rmoustache': '\u23B1',
+            '\\surd': '\u221A',
         }[symbol] ?? symbol
     );
 }
@@ -116,6 +116,7 @@ function makeSmallDelim(
                 context.mathstyle.metrics.axisHeight
         );
     }
+
     span.setStyle('color', context.color);
     if (typeof context.opacity === 'number') {
         span.setStyle('opacity', context.opacity);
@@ -154,6 +155,7 @@ function makeLargeDelim(
                 context.mathstyle.metrics.axisHeight
         );
     }
+
     result.setStyle('color', context.color);
     if (typeof context.opacity === 'number') {
         result.setStyle('opacity', context.opacity);
@@ -225,96 +227,96 @@ function makeStackedDelim(
     ) {
         repeat = top = bottom = '\u2225';
     } else if (delim === '\\uparrow') {
-        repeat = bottom = '\u23d0';
+        repeat = bottom = '\u23D0';
     } else if (delim === '\\Uparrow') {
         repeat = bottom = '\u2016';
     } else if (delim === '\\downarrow') {
-        top = repeat = '\u23d0';
+        top = repeat = '\u23D0';
     } else if (delim === '\\Downarrow') {
         top = repeat = '\u2016';
     } else if (delim === '\\updownarrow') {
         top = '\u2191';
-        repeat = '\u23d0';
+        repeat = '\u23D0';
         bottom = '\u2193';
     } else if (delim === '\\Updownarrow') {
-        top = '\u21d1';
+        top = '\u21D1';
         repeat = '\u2016';
-        bottom = '\u21d3';
+        bottom = '\u21D3';
     } else if (delim === '[' || delim === '\\lbrack') {
-        top = '\u23a1';
-        repeat = '\u23a2';
-        bottom = '\u23a3';
+        top = '\u23A1';
+        repeat = '\u23A2';
+        bottom = '\u23A3';
         font = 'Size4-Regular';
     } else if (delim === ']' || delim === '\\rbrack') {
-        top = '\u23a4';
-        repeat = '\u23a5';
-        bottom = '\u23a6';
+        top = '\u23A4';
+        repeat = '\u23A5';
+        bottom = '\u23A6';
         font = 'Size4-Regular';
     } else if (delim === '\\lfloor') {
-        repeat = top = '\u23a2';
-        bottom = '\u23a3';
+        repeat = top = '\u23A2';
+        bottom = '\u23A3';
         font = 'Size4-Regular';
     } else if (delim === '\\lceil') {
-        top = '\u23a1';
-        repeat = bottom = '\u23a2';
+        top = '\u23A1';
+        repeat = bottom = '\u23A2';
         font = 'Size4-Regular';
     } else if (delim === '\\rfloor') {
-        repeat = top = '\u23a5';
-        bottom = '\u23a6';
+        repeat = top = '\u23A5';
+        bottom = '\u23A6';
         font = 'Size4-Regular';
     } else if (delim === '\\rceil') {
-        top = '\u23a4';
-        repeat = bottom = '\u23a5';
+        top = '\u23A4';
+        repeat = bottom = '\u23A5';
         font = 'Size4-Regular';
     } else if (delim === '(') {
-        top = '\u239b';
-        repeat = '\u239c';
-        bottom = '\u239d';
+        top = '\u239B';
+        repeat = '\u239C';
+        bottom = '\u239D';
         font = 'Size4-Regular';
     } else if (delim === ')') {
-        top = '\u239e';
-        repeat = '\u239f';
-        bottom = '\u23a0';
+        top = '\u239E';
+        repeat = '\u239F';
+        bottom = '\u23A0';
         font = 'Size4-Regular';
     } else if (delim === '\\{' || delim === '\\lbrace') {
-        top = '\u23a7';
-        middle = '\u23a8';
-        bottom = '\u23a9';
-        repeat = '\u23aa';
+        top = '\u23A7';
+        middle = '\u23A8';
+        bottom = '\u23A9';
+        repeat = '\u23AA';
         font = 'Size4-Regular';
     } else if (delim === '\\}' || delim === '\\rbrace') {
-        top = '\u23ab';
-        middle = '\u23ac';
-        bottom = '\u23ad';
-        repeat = '\u23aa';
+        top = '\u23AB';
+        middle = '\u23AC';
+        bottom = '\u23AD';
+        repeat = '\u23AA';
         font = 'Size4-Regular';
     } else if (delim === '\\lgroup') {
-        top = '\u23a7';
-        bottom = '\u23a9';
-        repeat = '\u23aa';
+        top = '\u23A7';
+        bottom = '\u23A9';
+        repeat = '\u23AA';
         font = 'Size4-Regular';
     } else if (delim === '\\rgroup') {
-        top = '\u23ab';
-        bottom = '\u23ad';
-        repeat = '\u23aa';
+        top = '\u23AB';
+        bottom = '\u23AD';
+        repeat = '\u23AA';
         font = 'Size4-Regular';
     } else if (delim === '\\lmoustache') {
-        top = '\u23a7';
-        bottom = '\u23ad';
-        repeat = '\u23aa';
+        top = '\u23A7';
+        bottom = '\u23AD';
+        repeat = '\u23AA';
         font = 'Size4-Regular';
     } else if (delim === '\\rmoustache') {
-        top = '\u23ab';
-        bottom = '\u23a9';
-        repeat = '\u23aa';
+        top = '\u23AB';
+        bottom = '\u23A9';
+        repeat = '\u23AA';
         font = 'Size4-Regular';
     } else if (delim === '\\surd') {
-        top = '\ue001';
-        bottom = '\u23b7';
-        repeat = '\ue000';
+        top = '\uE001';
+        bottom = '\u23B7';
+        repeat = '\uE000';
         font = 'Size4-Regular';
     } else if (delim === '\\ulcorner') {
-        top = '\u250c';
+        top = '\u250C';
         repeat = bottom = ' ';
     } else if (delim === '\\urcorner') {
         top = '\u2510';
@@ -339,7 +341,7 @@ function makeStackedDelim(
     if (middle !== null) {
         const middleMetrics = getCharacterMetrics(getSymbolValue(middle), font);
         middleHeightTotal = middleMetrics.height + middleMetrics.depth;
-        middleFactor = 2; // repeat symmetrically above and below middle
+        middleFactor = 2; // Repeat symmetrically above and below middle
     }
 
     // Calculate the minimal height that the delimiter can have.
@@ -359,10 +361,11 @@ function makeStackedDelim(
     // that in this context, 'center' means that the delimiter should be
     // centered around the axis in the current style, while normally it is
     // centered around the axis in textstyle.
-    let axisHeight = context.mathstyle.metrics.axisHeight;
+    let { axisHeight } = context.mathstyle.metrics;
     if (center) {
         axisHeight *= context.mathstyle.sizeMultiplier;
     }
+
     // Calculate the depth
     const depth = realHeightTotal / 2 - axisHeight;
 
@@ -385,6 +388,7 @@ function makeStackedDelim(
         for (let i = 0; i < repeatCount; i++) {
             inners.push(makeInner(repeat, font));
         }
+
         inners.push(makeInner(middle, font));
         for (let i = 0; i < repeatCount; i++) {
             inners.push(makeInner(repeat, font));
@@ -412,7 +416,7 @@ function makeStackedDelim(
 
 // There are three kinds of delimiters, delimiters that stack when they become
 // too large
-const stackLargeDelimiters = [
+const stackLargeDelimiters = new Set([
     '(',
     ')',
     '[',
@@ -428,10 +432,10 @@ const stackLargeDelimiters = [
     '\\lceil',
     '\\rceil',
     '\\surd',
-];
+]);
 
-// delimiters that always stack
-const stackAlwaysDelimiters = [
+// Delimiters that always stack
+const stackAlwaysDelimiters = new Set([
     '\\uparrow',
     '\\downarrow',
     '\\updownarrow',
@@ -452,10 +456,10 @@ const stackAlwaysDelimiters = [
     '\\rgroup',
     '\\lmoustache',
     '\\rmoustache',
-];
+]);
 
-// and delimiters that never stack
-const stackNeverDelimiters = [
+// And delimiters that never stack
+const stackNeverDelimiters = new Set([
     '<',
     '>',
     '\\langle',
@@ -464,12 +468,12 @@ const stackNeverDelimiters = [
     '\\backslash',
     '\\lt',
     '\\gt',
-];
+]);
 
 // Metrics of the different sizes. Found by looking at TeX's output of
 // $\bigl| // \Bigl| \biggl| \Biggl| \showlists$
 // Used to create stacked delimiters of appropriate sizes in makeSizedDelim.
-const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
+const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3];
 
 /**
  * Used to create a delimiter of a specific size, where `size` is 1, 2, 3, or 4.
@@ -495,12 +499,11 @@ export function makeSizedDelim(
     }
 
     // Sized delimiters are never centered.
-    if (
-        stackLargeDelimiters.includes(delim) ||
-        stackNeverDelimiters.includes(delim)
-    ) {
+    if (stackLargeDelimiters.has(delim) || stackNeverDelimiters.has(delim)) {
         return makeLargeDelim(type, delim, size, false, context, classes);
-    } else if (stackAlwaysDelimiters.includes(delim)) {
+    }
+
+    if (stackAlwaysDelimiters.has(delim)) {
         return makeStackedDelim(
             type,
             delim,
@@ -510,6 +513,7 @@ export function makeSizedDelim(
             classes
         );
     }
+
     console.assert(false, "Unknown delimiter '" + delim + "'");
     return null;
 }
@@ -570,9 +574,12 @@ const stackLargeDelimiterSequence: DelimiterInfo[] = [
 function delimTypeToFont(info: DelimiterInfo): string {
     if (info.type === 'small') {
         return 'Main-Regular';
-    } else if (info.type === 'large') {
+    }
+
+    if (info.type === 'large') {
         return 'Size' + info.size + '-Regular';
     }
+
     console.assert(info.type === 'stack');
     return 'Size4-Regular';
 }
@@ -608,6 +615,7 @@ function traverseSequence(
             // assume we'll construct as a small delimiter
             return { type: 'small', mathstyle: MATHSTYLES.scriptstyle };
         }
+
         let heightDepth = metrics.height + metrics.depth;
 
         // Small delimiters are scaled down versions of the same font, so we
@@ -653,9 +661,9 @@ export function makeCustomSizedDelim(
 
     // Decide what sequence to use
     let sequence: DelimiterInfo[];
-    if (stackNeverDelimiters.includes(delim)) {
+    if (stackNeverDelimiters.has(delim)) {
         sequence = stackNeverDelimiterSequence;
-    } else if (stackLargeDelimiters.includes(delim)) {
+    } else if (stackLargeDelimiters.has(delim)) {
         sequence = stackLargeDelimiterSequence;
     } else {
         sequence = stackAlwaysDelimiterSequence;
@@ -681,6 +689,7 @@ export function makeCustomSizedDelim(
             'ML__small-delim ' + classes
         );
     }
+
     if (delimType.type === 'large') {
         return makeLargeDelim(
             type,
@@ -691,6 +700,7 @@ export function makeCustomSizedDelim(
             classes
         );
     }
+
     console.assert(delimType.type === 'stack');
     return makeStackedDelim(type, delim, height, center, context, classes);
 }
@@ -718,8 +728,8 @@ export function makeLeftRightDelim(
         context.mathstyle.metrics.axisHeight * context.mathstyle.sizeMultiplier;
 
     // Taken from TeX source, tex.web, function make_left_right
-    const delimiterFactor = 901; // plain.tex:327, texboox:152
-    const delimiterShortfall = 5.0 / METRICS.ptPerEm; // plain.tex:345, texboox:152
+    const delimiterFactor = 901; // Plain.tex:327, texboox:152
+    const delimiterShortfall = 5 / METRICS.ptPerEm; // Plain.tex:345, texboox:152
 
     const maxDistFromAxis = Math.max(height - axisHeight, depth + axisHeight);
     const totalHeight = Math.max(

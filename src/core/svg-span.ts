@@ -1,4 +1,4 @@
-const SVG_BODY = {
+const SVG_BODY: Record<string, [string[], number, number, string?]> = {
     // Adapted from https://github.com/KaTeX/KaTeX/blob/master/src/stretchy.js
 
     overrightarrow: [['rightarrow'], 0.888, 522, 'xMaxYMin'],
@@ -69,8 +69,8 @@ const SVG_BODY = {
 // While the images above are sliced, "accents" are stretched
 // The variants (xxx1, xxx2, etc...) are used depending on the length
 // (in number of characters) of the base.
-const SVG_ACCENTS = {
-    // viewBoxWidth, viewBoxHeight, height
+const SVG_ACCENTS: Record<string, [number, number, number]> = {
+    // ViewBoxWidth, viewBoxHeight, height
     widehat1: [1062, 239, 0.24],
     widehat2: [2364, 300, 0.3],
     widehat3: [2364, 360, 0.36],
@@ -87,7 +87,7 @@ const SVG_ACCENTS = {
 
 // From https://github.com/KaTeX/KaTeX/blob/master/src/svgGeometry.js
 
-const PATHS = {
+const PATHS: Record<string, string> = {
     // The doubleleftarrow geometry is from glyph U+21D0 in the font KaTeX Main
     doubleleftarrow: `M262 157
 l10-10c34-36 62.7-77 86-123 3.3-8 5-13.3 5-16 0-5.3-6.7-8-20-8-7.3
@@ -99,7 +99,7 @@ c2 1.7 6.3 3.5 13 5.5 68 17.3 128.2 47.8 180.5 91.5 52.3 43.7 93.8 96.2 124.5
 -2 6-3.7 10-5 36.7-16 72.3-37.3 107-64l10-8h399782v-40z
 m8 0v40h399730v-40zm0 194v40h399730v-40z`,
 
-    // doublerightarrow is from glyph U+21D2 in font KaTeX Main
+    // Doublerightarrow is from glyph U+21D2 in font KaTeX Main
     doublerightarrow: `M399738 392l
 -10 10c-34 36-62.7 77-86 123-3.3 8-5 13.3-5 16 0 5.3 6.7 8 20 8 7.3 0 12.2-.5
  14.5-1.5 2.3-1 4.8-4.5 7.5-10.5 49.3-97.3 121.7-169.3 217-216 28-14 57.3-25 88
@@ -109,7 +109,7 @@ m8 0v40h399730v-40zm0 194v40h399730v-40z`,
 c-328 0 0 0 0 0l10 8c26.7 20 65.7 43 117 69-2.7 2-6 3.7-10 5-36.7 16-72.3 37.3
 -107 64l-10 8H0v40zM0 157v40h399730v-40zm0 194v40h399730v-40z`,
 
-    // leftarrow is from glyph U+2190 in font KaTeX Main
+    // Leftarrow is from glyph U+2190 in font KaTeX Main
     leftarrow: `M400000 241H110l3-3c68.7-52.7 113.7-120
  135-202 4-14.7 6-23 6-25 0-7.3-7-11-21-11-8 0-13.2.8-15.5 2.5-2.3 1.7-4.2 5.8
 -5.5 12.5-1.3 4.7-2.7 10.3-4 17-12 48.7-34.8 92-68.5 130S65.3 228.3 18 247
@@ -118,7 +118,7 @@ c-10 4-16 7.7-18 11 0 8.7 6 14.3 18 17 47.3 18.7 87.8 47 121.5 85S196 441.3 208
  1.8 6 2.5s6 1 10 1c14 0 21-3.7 21-11 0-2-2-10.3-6-25-20-79.3-65-146.7-135-202
  l-3-3h399890zM100 241v40h399900v-40z`,
 
-    // overbrace is from glyphs U+23A9/23A8/23A7 in font KaTeX_Size4-Regular
+    // Overbrace is from glyphs U+23A9/23A8/23A7 in font KaTeX_Size4-Regular
     leftbrace: `M6 548l-6-6v-35l6-11c56-104 135.3-181.3 238-232 57.3-28.7 117
 -45 179-50h399577v120H403c-43.3 7-81 15-113 26-100.7 33-179.7 91-237 174-2.7
  5-6 9-10 13-.7 1-7.3 1-20 1H6z`,
@@ -128,7 +128,7 @@ c-10 4-16 7.7-18 11 0 8.7 6 14.3 18 17 47.3 18.7 87.8 47 121.5 85S196 441.3 208
  0 2 .3 4 1 18.688 2.7 76 4.3 172 5h399450v120H429l-6-1c-124.688-8-235-61.7
 -331-161C60.687 138.7 32.312 99.3 7 54L0 41V6z`,
 
-    // overgroup is from the MnSymbol package (public domain)
+    // Overgroup is from the MnSymbol package (public domain)
     leftgroup: `M400000 80
 H435C64 80 168.3 229.4 21 260c-5.9 1.2-18 0-18 0-2 0-3-1-3-3v-38C76 61 257 0
  435 0h399565z`,
@@ -159,7 +159,7 @@ m0 0v40h400000v-40z`,
 -2 18-6 2-2.7 1-9.7-3-21-32-87.3-82.7-157.7-152-211l-3-3h399907v-40H7zm93 0
 v40h399900v-40zM0 241v40h399900v-40zm0 0v40h399900v-40z`,
 
-    // hook is from glyph U+21A9 in font KaTeX Main
+    // Hook is from glyph U+21A9 in font KaTeX Main
     lefthook: `M400000 281 H103s-33-11.2-61-33.5S0 197.3 0 164s14.2-61.2 42.5
 -83.5C70.8 58.2 104 47 142 47 c16.7 0 25 6.7 25 20 0 12-8.7 18.7-26 20-40 3.3
 -68.7 15.7-86 37-10 12-15 25.3-15 40 0 22.7 9.8 40.7 29.5 54 19.7 13.3 43.5 21
@@ -171,7 +171,7 @@ M40 281 V428 H0 V94 H40 V241 H400000 v40z`,
     leftmapsto: `M40 281 V448H0V74H40V241H400000v40z
 M40 281 V448H0V74H40V241H400000v40z`,
 
-    // tofrom is from glyph U+21C4 in font KaTeX AMS Regular
+    // Tofrom is from glyph U+21C4 in font KaTeX AMS Regular
     leftToFrom: `M0 147h400000v40H0zm0 214c68 40 115.7 95.7 143 167h22c15.3 0 23
 -.3 23-1 0-1.3-5.3-13.7-16-37-18-35.3-41.3-69-70-101l-7-8h399905v-40H95l7-8
 c28.7-32 52-65.7 70-101 10.7-23.3 16-35.7 16-37 0-.7-7.7-1-23-1h-22C115.7 265.3
@@ -269,7 +269,7 @@ M399960 241 V94 h40 V428 h-40 V281 H0 v-40z`,
 -52 65.7-70 101-10.7 23.3-16 35.7-16 37 0 .7 7.7 1 23 1h23c24-69.3 71.3-125 142
 -167z M100 147v40h399900v-40zM0 341v40h399900v-40z`,
 
-    // twoheadleftarrow is from glyph U+219E in font KaTeX AMS Regular
+    // Twoheadleftarrow is from glyph U+219E in font KaTeX AMS Regular
     twoheadleftarrow: `M0 167c68 40
  115.7 95.7 143 167h22c15.3 0 23-.3 23-1 0-1.3-5.3-13.7-16-37-18-35.3-41.3-69
 -70-101l-7-8h125l9 7c50.7 39.3 85 86 103 140h46c0-4.7-6.3-18.7-19-42-18-35.3
@@ -284,14 +284,14 @@ c-68-40-115.7-95.7-143-167h-22c-15.3 0-23 .3-23 1 0 1.3 5.3 13.7 16 37 18 35.3
 -19 37.333-19 42h46c18-54 52.3-100.7 103-140l9-7h125l-7 8c-28.7 32-52 65.7-70
  101-10.7 23.333-16 35.7-16 37 0 .7 7.7 1 23 1h22c27.3-71.3 75-127 143-167z`,
 
-    // tilde1 is a modified version of a glyph from the MnSymbol package
+    // Tilde1 is a modified version of a glyph from the MnSymbol package
     widetilde1: `M200 55.538c-77 0-168 73.953-177 73.953-3 0-7
 -2.175-9-5.437L2 97c-1-2-2-4-2-6 0-4 2-7 5-9l20-12C116 12 171 0 207 0c86 0
  114 68 191 68 78 0 168-68 177-68 4 0 7 2 9 5l12 19c1 2.175 2 4.35 2 6.525 0
  4.35-2 7.613-5 9.788l-19 13.05c-92 63.077-116.937 75.308-183 76.128
 -68.267.847-113-73.952-191-73.952z`,
 
-    // ditto tilde2, tilde3, & tilde4
+    // Ditto tilde2, tilde3, & tilde4
     widetilde2: `M344 55.266c-142 0-300.638 81.316-311.5 86.418
 -8.01 3.762-22.5 10.91-23.5 5.562L1 120c-1-2-1-3-1-4 0-5 3-9 8-10l18.4-9C160.9
  31.9 283 0 358 0c148 0 188 122 331 122s314-97 326-97c4 0 8 2 10 7l7 21.114
@@ -310,7 +310,7 @@ c1 2.14 1 3.21 1 4.28 0 5.347-3 9.626-7 10.696l-22.3 12.622C852.6 158.372 751
  14.495l-20.7 5.574c-366.85 99.79-607.3 139.372-776.3 139.372-338 0-409
  -175.236-744-175.236z`,
 
-    // vec is from glyph U+20D7 in font KaTeX Main
+    // Vec is from glyph U+20D7 in font KaTeX Main
     vec: `M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
 3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
 10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
@@ -319,11 +319,11 @@ c1 2.14 1 3.21 1 4.28 0 5.347-3 9.626-7 10.696l-22.3 12.622C852.6 158.372 751
 H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
 c-16-25.333-24-45-24-59z`,
 
-    // widehat1 is a modified version of a glyph from the MnSymbol package
+    // Widehat1 is a modified version of a glyph from the MnSymbol package
     widehat1: `M529 0h5l519 115c5 1 9 5 9 10 0 1-1 2-1 3l-4 22
 c-1 5-5 9-11 9h-2L532 67 19 159h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13z`,
 
-    // ditto widehat2, widehat3, & widehat4
+    // Ditto widehat2, widehat3, & widehat4
     widehat2: `M1181 0h2l1171 176c6 0 10 5 10 11l-2 23c-1 6-5 10
 -11 10h-1L1182 67 15 220h-1c-6 0-10-4-11-10l-2-23c-1-6 4-11 10-11z`,
 
@@ -333,7 +333,7 @@ c-1 5-5 9-11 9h-2L532 67 19 159h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13z`,
     widehat4: `M1181 0h2l1171 296c6 0 10 5 10 11l-2 23c-1 6-5 10
 -11 10h-1L1182 67 15 340h-1c-6 0-10-4-11-10l-2-23c-1-6 4-11 10-11z`,
 
-    // widecheck paths are all inverted versions of widehat
+    // Widecheck paths are all inverted versions of widehat
     widecheck1: `M529,159h5l519,-115c5,-1,9,-5,9,-10c0,-1,-1,-2,-1,-3l-4,-22c-1,
 -5,-5,-9,-11,-9h-2l-512,92l-513,-92h-2c-5,0,-9,4,-11,9l-5,22c-1,6,2,12,8,13z`,
 
@@ -359,7 +359,7 @@ s2.2 4.5 3.5 5.5c1.3 1 3.3 1.8 6 2.5s6 1 10 1c14 0 21 -3.7 21 -11
 c0 -2 -2 -10.3 -6 -25c-20 -79.3 -65 -146.7 -135 -202l-3 -3h399890z
 M100 620v40h399900v-40z M0 241v40h399900v-40zM0 241v40h399900v-40z`,
 
-    // rightarrowabovebar is mostly from glyph U+2192, KaTeX Main
+    // Rightarrowabovebar is mostly from glyph U+2192, KaTeX Main
     rightarrowabovebar: `M0 241v40h399891c-47.3 35.3-84 78-110 128-16.7 32
 -27.7 63.7-33 95 0 1.3-.2 2.7-.5 4-.3 1.3-.5 2.3-.5 3 0 7.3 6.7 11 20 11 8 0
 13.2-.8 15.5-2.5 2.3-1.7 4.2-5.5 5.5-11.5 2-13.3 5.7-27 11-41 14.7-44.7 39
@@ -427,13 +427,16 @@ export function svgBodyToMarkup(svgBodyName: string): string {
         widthClasses = ['slice-1-of-1'];
         aligns = [align];
     }
+
     const body = paths
         .map(
             (path: string | number, i: string | number) =>
-                `<span class="${widthClasses[i]}" style="height:${height}em">` +
+                `<span class="${
+                    widthClasses[i] as string
+                }" style="height:${height}em">` +
                 `<svg width="400em" height="${height}em"` +
                 `viewBox="0 0 400000 ${viewBoxHeight}"` +
-                `preserveAspectRatio="${aligns[i]} slice">` +
+                `preserveAspectRatio="${aligns[i] as string} slice">` +
                 `<path d="${PATHS[path]}"></path>` +
                 `</svg></span>`
         )
@@ -445,5 +448,6 @@ export function svgBodyHeight(svgBodyName: string): number {
     if (SVG_BODY[svgBodyName]) {
         return SVG_BODY[svgBodyName][2] / 1000;
     }
+
     return SVG_ACCENTS[svgBodyName][2];
 }

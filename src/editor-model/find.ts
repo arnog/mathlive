@@ -11,6 +11,7 @@ function match(pattern: string | RegExp, latex: string): boolean {
     if (typeof pattern === 'string') {
         return pattern === latex;
     }
+
     return pattern.test(latex);
 }
 
@@ -24,7 +25,7 @@ function findInBranch(
     const branch = atom.branch(branchName);
     if (!branch) return [];
     const result = [];
-    let length = branch.length;
+    let { length } = branch;
     // For each length...
     while (length > 0) {
         // Consider each possible position in the branch
@@ -37,11 +38,13 @@ function findInBranch(
                     model.offsetOf(branch[i].leftSibling),
                     model.offsetOf(branch[i + length - 1]),
                 ]);
-                i = i + length;
+                i += length;
             }
         }
+
         length--;
     }
+
     return branch.reduce(
         (acc, x) => [...acc, ...findInAtom(model, x, value, options)],
         result
@@ -74,6 +77,7 @@ export function find(
             if (b[0] === a[0]) {
                 return b[1] - a[1];
             }
+
             return b[0] - a[0];
         }
     );
@@ -109,14 +113,17 @@ function replaceInBranch(
                     if (match.length > 0) {
                         replacementArgs.p = [...match];
                     }
+
                     replacementArgs.groups = match.groups;
                 }
             }
+
             if (matched) {
                 // Remove the atoms that matched
                 for (let j = i; j < i + length; j++) {
                     atom.removeChild(branch[j]);
                 }
+
                 let replacementString: string;
                 if (typeof replacement === 'string') {
                     replacementString = replacement;
@@ -130,6 +137,7 @@ function replaceInBranch(
                             }
                         });
                     }
+
                     if (replacementArgs.groups) {
                         Object.keys(replacementArgs.groups).forEach((x) => {
                             if (typeof x === 'string') {
@@ -140,10 +148,12 @@ function replaceInBranch(
                             }
                         });
                     }
+
                     replacementString = replacementString.replace('$$', '$');
                 } else {
                     replacementString = replacement(replacementArgs);
                 }
+
                 const lastChild = atom.addChildrenAfter(
                     parseLatex(replacementString, atom.mode),
                     branch[i - 1]
@@ -154,8 +164,10 @@ function replaceInBranch(
                 length--;
             }
         }
+
         i++;
     }
+
     branch.forEach((x) =>
         replaceInAtom(model, x, pattern, replacement, options)
     );
@@ -177,6 +189,7 @@ function replaceInAtom(
         replaceInBranch(model, atom, x, pattern, replacement, options)
     );
 }
+
 export function replace(
     model: ModelPrivate,
     pattern: string | RegExp,

@@ -14,9 +14,11 @@ export function compareSelection(
             ) {
                 i++;
             }
+
             return i === l ? 'equal' : 'different';
         }
     }
+
     return 'different';
 }
 

@@ -17,7 +17,10 @@ interface UndoOptions {
 
 export class UndoManager {
     private model: ModelPrivate;
-    private maximumDepth = 1000; // Maximum number of undo/redo states
+    private get maximumDepth() {
+        return 1000;
+    } // Maximum number of undo/redo states
+
     private record = false;
     private canCoalesce = false;
     private stack: UndoRecord[]; // Stack of undo/redo states
@@ -50,33 +53,40 @@ export class UndoManager {
             if (typeof options?.onUndoStateWillChange === 'function') {
                 options.onUndoStateWillChange(this.model.mathfield, 'undo');
             }
+
             this.restore(this.stack[this.index - 1], options);
             this.index -= 1;
             if (options && typeof options.onUndoStateDidChange === 'function') {
                 options.onUndoStateDidChange(this.model.mathfield, 'undo');
             }
+
             this.canCoalesce = false;
         }
     }
+
     redo(options: UndoOptions): void {
         if (this.canRedo()) {
             if (typeof options?.onUndoStateWillChange === 'function') {
                 options.onUndoStateWillChange(this.model.mathfield, 'redo');
             }
+
             this.index += 1;
             this.restore(this.stack[this.index], options);
             if (options && typeof options.onUndoStateDidChange === 'function') {
                 options.onUndoStateDidChange(this.model.mathfield, 'redo');
             }
+
             this.canCoalesce = false;
         }
     }
+
     pop(): void {
         if (this.canUndo()) {
             this.index -= 1;
             this.stack.pop();
         }
     }
+
     /**
      * Push a snapshot of the content and selection of the mathfield onto the
      * undo stack so that it can potentially be reverted to later.
@@ -87,6 +97,7 @@ export class UndoManager {
         if (typeof options?.onUndoStateWillChange === 'function') {
             options.onUndoStateWillChange(this.model.mathfield, 'snapshot');
         }
+
         // Drop any entries that are part of the redo stack
         this.stack.splice(this.index + 1, this.stack.length - this.index - 1);
         // Add a new entry
@@ -101,9 +112,11 @@ export class UndoManager {
         if (this.stack.length > this.maximumDepth) {
             this.stack.shift();
         }
+
         if (options && typeof options.onUndoStateDidChange === 'function') {
             options.onUndoStateDidChange(this.model.mathfield, 'snapshot');
         }
+
         this.canCoalesce = false;
     }
 
@@ -111,6 +124,7 @@ export class UndoManager {
         if (this.canCoalesce) {
             this.pop();
         }
+
         this.snapshot(options);
         this.canCoalesce = true;
     }
@@ -126,6 +140,7 @@ export class UndoManager {
             selection: this.model.selection,
         };
     }
+
     /**
      * Set the content and selection of the mathfield to a value previously
      * captured with save() or stored in the undo stack.

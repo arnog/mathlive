@@ -11,7 +11,7 @@ let gTapCount = 0;
 
 export function onPointerDown(
     mathfield: MathfieldPrivate,
-    evt: PointerEvent
+    evt: PointerEvent | TouchEvent
 ): void {
     const that = mathfield;
     let anchor: Offset;
@@ -22,16 +22,19 @@ export function onPointerDown(
     // If a mouse button other than the main one was pressed, return.
     // On iOS 12.4 Safari and Firefox on Android (which do not support
     // PointerEvent) the touchstart event is sent with event.buttons = 0
-    // which for a mouse event would normally be an
-    // invalid button. Accept this button 0.
-    if (evt.buttons !== 1 && evt.buttons !== 0) {
+    // which for a mouse event would normally be an invalid button.
+    // Accept this button 0.
+    if (evt instanceof PointerEvent && evt.buttons !== 1 && evt.buttons !== 0) {
         return;
     }
+
     let scrollLeft = false;
     let scrollRight = false;
     // Note: evt['touches'] is for touchstart (when PointerEvent is not supported)
-    const anchorX = evt['touches'] ? evt['touches'][0].clientX : evt.clientX;
-    const anchorY = evt['touches'] ? evt['touches'][0].clientY : evt.clientY;
+    const anchorX =
+        evt instanceof TouchEvent ? evt.touches[0].clientX : evt.clientX;
+    const anchorY =
+        evt instanceof TouchEvent ? evt.touches[0].clientY : evt.clientY;
     const anchorTime = Date.now();
     const scrollInterval = setInterval(() => {
         if (scrollLeft) {
@@ -40,19 +43,20 @@ export function onPointerDown(
             that.field.scroll({ top: 0, left: that.field.scrollLeft + 16 });
         }
     }, 32);
-    function endPointerTracking(evt?: PointerEvent): void {
+    function endPointerTracking(evt?: PointerEvent | TouchEvent): void {
         if (window.PointerEvent) {
             off(that.field, 'pointermove', onPointerMove);
             off(that.field, 'pointerup pointercancel', endPointerTracking);
-            // off(window, 'pointermove', onPointerMove);
-            // off(window, 'pointerup blur', endPointerTracking);
-            if (evt) that.field.releasePointerCapture(evt.pointerId);
+            if (evt instanceof PointerEvent) {
+                that.field.releasePointerCapture(evt.pointerId);
+            }
         } else {
             off(that.field, 'touchmove', onPointerMove);
             off(that.field, 'touchcancel touchend', endPointerTracking);
             off(window, 'mousemove', onPointerMove);
             off(window, 'mouseup blur', endPointerTracking);
         }
+
         trackingPointer = false;
         clearInterval(scrollInterval);
         mathfield.element.classList.remove('tracking');
@@ -62,17 +66,21 @@ export function onPointerDown(
         }
     }
 
-    function onPointerMove(evt: PointerEvent): void {
+    function onPointerMove(evt: PointerEvent | TouchEvent): void {
         // If we've somehow lost focus, end tracking
         if (!that.hasFocus()) {
             endPointerTracking();
             return;
         }
-        const x = evt['touches'] ? evt['touches'][0].clientX : evt.clientX;
-        const y = evt['touches'] ? evt['touches'][0].clientY : evt.clientY;
+
+        const x =
+            evt instanceof TouchEvent ? evt.touches[0].clientX : evt.clientX;
+        const y =
+            evt instanceof TouchEvent ? evt.touches[0].clientY : evt.clientY;
         // Ignore events that are within small spatial and temporal bounds
         // of the pointer down
-        const hysteresis = evt.pointerType === 'touch' ? 20 : 5;
+        const hysteresis =
+            evt instanceof TouchEvent || evt.pointerType === 'touch' ? 20 : 5;
         if (
             Date.now() < anchorTime + 500 &&
             Math.abs(anchorX - x) < hysteresis &&
@@ -82,37 +90,39 @@ export function onPointerDown(
             evt.stopPropagation();
             return;
         }
+
         const fieldBounds = that.field.getBoundingClientRect();
         scrollRight = x > fieldBounds.right;
         scrollLeft = x < fieldBounds.left;
         let actualAnchor: Offset = anchor;
-        if (window.PointerEvent) {
+        if (evt instanceof PointerEvent) {
             if (!evt.isPrimary) {
                 actualAnchor = offsetFromPoint(that, evt.clientX, evt.clientY, {
                     bias: 0,
                 });
             }
-        } else {
-            if (evt['touches'] && evt['touches'].length === 2) {
-                actualAnchor = offsetFromPoint(
-                    that,
-                    evt['touches'][1].clientX,
-                    evt['touches'][1].clientY,
-                    { bias: 0 }
-                );
-            }
+        } else if (evt.touches && evt.touches.length === 2) {
+            actualAnchor = offsetFromPoint(
+                that,
+                evt.touches[1].clientX,
+                evt.touches[1].clientY,
+                { bias: 0 }
+            );
         }
+
         const focus = offsetFromPoint(that, x, y, {
             bias: x <= anchorX ? (x === anchorX ? 0 : -1) : +1,
         });
         if (trackingWords) {
             // @revisit: extend focus, actualAnchor to word boundary
         }
+
         if (actualAnchor >= 0 && focus >= 0) {
             that.model.extendSelectionTo(actualAnchor, focus);
             acceptCommandSuggestion(mathfield.model);
             requestUpdate(mathfield);
         }
+
         // Prevent synthetic mouseMove event when this is a touch event
         evt.preventDefault();
         evt.stopPropagation();
@@ -135,6 +145,7 @@ export function onPointerDown(
         };
         gTapCount = 1;
     }
+
     const bounds = mathfield.field.getBoundingClientRect();
     if (
         anchorX >= bounds.left &&
@@ -169,18 +180,15 @@ export function onPointerDown(
                     anchor
                 );
                 acceptCommandSuggestion(mathfield.model);
+            } else if (mathfield.model.at(anchor).type === 'placeholder') {
+                mathfield.model.setSelection(anchor - 1, anchor);
+            } else if (
+                mathfield.model.at(anchor).rightSibling?.type === 'placeholder'
+            ) {
+                mathfield.model.setSelection(anchor, anchor + 1);
             } else {
-                if (mathfield.model.at(anchor).type === 'placeholder') {
-                    mathfield.model.setSelection(anchor - 1, anchor);
-                } else if (
-                    mathfield.model.at(anchor).rightSibling?.type ===
-                    'placeholder'
-                ) {
-                    mathfield.model.setSelection(anchor, anchor + 1);
-                } else {
-                    mathfield.model.position = anchor;
-                    acceptCommandSuggestion(mathfield.model);
-                }
+                mathfield.model.position = anchor;
+                acceptCommandSuggestion(mathfield.model);
             }
 
             // The selection has changed, so we'll need to re-render
@@ -208,10 +216,12 @@ export function onPointerDown(
                         'pointerup pointercancel',
                         endPointerTracking
                     );
-                    that.field.setPointerCapture(evt.pointerId);
+                    if (evt instanceof PointerEvent) {
+                        that.field.setPointerCapture(evt.pointerId);
+                    }
                 } else {
                     on(window, 'blur', endPointerTracking);
-                    if (evt['touches']) {
+                    if (evt instanceof TouchEvent && evt.touches) {
                         // This is a touchstart event (and PointerEvent is not supported)
                         // To receive the subsequent touchmove/touch, need to
                         // listen to this evt.target.
@@ -227,6 +237,7 @@ export function onPointerDown(
                         on(window, 'mouseup', endPointerTracking);
                     }
                 }
+
                 if (evt.detail === 2 || gTapCount === 2) {
                     // This is a double-click
                     trackingWords = true;
@@ -237,9 +248,11 @@ export function onPointerDown(
     } else {
         gLastTap = null;
     }
+
     if (dirty) {
         requestUpdate(mathfield);
     }
+
     // Prevent the browser from handling. In particular when this is a
     // touch event, prevent the synthetic mouseDown event from being generated
     evt.preventDefault();
@@ -259,9 +272,6 @@ function nearestAtomFromPointRecursive(
 ): { distance: number; atom: Atom } {
     let result = { distance: Infinity, atom: null };
 
-    if (atom.type === 'leftright') {
-        console.log('found');
-    }
     const bounds = getAtomBounds(mathfield, atom);
     if (!bounds) return result;
 
@@ -276,7 +286,9 @@ function nearestAtomFromPointRecursive(
     ) {
         atom.children.forEach((atom) => {
             const r = nearestAtomFromPointRecursive(mathfield, atom, x, y);
+            console.log('checking', atom);
             if (r.distance < result.distance) {
+                console.log('match');
                 result = r;
             }
         });
@@ -301,6 +313,7 @@ function nearestAtomFromPoint(
     return nearestAtomFromPointRecursive(mathfield, mathfield.model.root, x, y)
         .atom;
 }
+
 /**
  * @param options.bias  if 0, the midpoint of the bounding box
  * is considered to return the sibling. If <0, the left sibling is
@@ -316,6 +329,7 @@ export function offsetFromPoint(
     if (x > bounds.right || y > bounds.bottom + 8) {
         return mathfield.model.lastOffset;
     }
+
     if (x < bounds.left || y < bounds.top - 8) {
         return 0;
     }
@@ -345,5 +359,6 @@ export function offsetFromPoint(
     } else if (options.bias < 0) {
         result = Math.max(0, result - 1);
     }
+
     return result;
 }

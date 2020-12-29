@@ -6,7 +6,7 @@ import { Context } from '../core/context';
 import { Style } from '../public/core';
 
 export class LineAtom extends Atom {
-    private position: 'overline' | 'underline';
+    private readonly position: 'overline' | 'underline';
     constructor(
         command: string,
         body: Atom[],
@@ -17,8 +17,9 @@ export class LineAtom extends Atom {
         this.body = body;
         this.position = options.position;
     }
+
     render(context: Context): Span[] {
-        const mathstyle = context.mathstyle;
+        const { mathstyle } = context;
         // TeXBook:443. Rule 9 and 10
         const inner = Atom.render(context.cramp(), this.body);
         const ruleWidth =
@@ -31,7 +32,7 @@ export class LineAtom extends Atom {
                 '-line'
         );
         line.height = ruleWidth;
-        line.maxFontSize = 1.0;
+        line.maxFontSize = 1;
         let vlist;
         if (this.position === 'overline') {
             vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
@@ -44,6 +45,7 @@ export class LineAtom extends Atom {
                 spanHeight(innerSpan)
             );
         }
+
         if (this.caret) vlist.caret = this.caret;
         return [new Span(vlist, this.position, 'mord')];
     }

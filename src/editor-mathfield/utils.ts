@@ -11,7 +11,7 @@ export type Rect = {
 };
 
 export function on(
-    el: EventTarget,
+    element: EventTarget,
     inSelectors: string,
     listener: EventListenerOrEventListenerObject,
     options?: AddEventListenerOptions
@@ -26,15 +26,16 @@ export function on(
             } else {
                 options2[m[2]] = true;
             }
-            el.addEventListener(m[1], listener, options2);
+
+            element.addEventListener(m[1], listener, options2);
         } else {
-            el.addEventListener(sel, listener, options);
+            element.addEventListener(sel, listener, options);
         }
     }
 }
 
 export function off(
-    el: EventTarget,
+    element: EventTarget,
     inSelectors: string,
     listener: EventListenerOrEventListenerObject,
     options?: AddEventListenerOptions
@@ -49,9 +50,10 @@ export function off(
             } else {
                 options2[m[2]] = true;
             }
-            el.removeEventListener(m[1], listener, options2);
+
+            element.removeEventListener(m[1], listener, options2);
         } else {
-            el.removeEventListener(sel, listener, options);
+            element.removeEventListener(sel, listener, options);
         }
     }
 }
@@ -59,31 +61,29 @@ export function off(
 export function getSharedElement(id: string, cls: string): HTMLElement {
     let result = document.getElementById(id);
     if (result) {
-        result.setAttribute(
-            'data-refcount',
-            Number(
-                parseInt(result.getAttribute('data-refcount')) + 1
-            ).toString()
-        );
+        result.dataset.refcount = Number(
+            Number.parseInt(result.getAttribute('data-refcount')) + 1
+        ).toString();
     } else {
         result = document.createElement('div');
         result.setAttribute('aria-hidden', 'true');
-        result.setAttribute('data-refcount', '1');
+        result.dataset.refcount = '1';
         result.className = cls;
         result.id = id;
-        document.body.appendChild(result);
+        document.body.append(result);
     }
+
     return result;
 }
 
 // @revisit: check the elements are correctly released
-export function releaseSharedElement(el: HTMLElement): void {
-    if (!el) return;
-    const refcount = parseInt(el.getAttribute('data-refcount'));
+export function releaseSharedElement(element: HTMLElement): void {
+    if (!element) return;
+    const refcount = Number.parseInt(element.getAttribute('data-refcount'));
     if (refcount <= 1) {
-        el.remove();
+        element.remove();
     } else {
-        el.setAttribute('data-refcount', Number(refcount - 1).toString());
+        element.dataset.refcount = Number(refcount - 1).toString();
     }
 }
 
@@ -95,17 +95,17 @@ export function releaseSharedElement(el: HTMLElement): void {
  * need to ensure the mathfield is still valid by the time they're executed.
  */
 export function isValidMathfield(mf: MathfieldPrivate): boolean {
-    return mf.element && mf.element['mathfield'] === mf;
+    return mf.element && mf.element.mathfield === mf;
 }
 
 /**
  * Return the element which has the caret
  */
-function findElementWithCaret(el: Element): Element {
+function findElementWithCaret(element: Element): Element {
     return (
-        el.querySelector('.ML__caret') ??
-        el.querySelector('.ML__text-caret') ??
-        el.querySelector('.ML__latex-caret')
+        element.querySelector('.ML__caret') ??
+        element.querySelector('.ML__text-caret') ??
+        element.querySelector('.ML__latex-caret')
     );
 }
 
@@ -113,9 +113,9 @@ function findElementWithCaret(el: Element): Element {
  * Return the (x,y) client coordinates of the caret
  */
 export function getCaretPoint(
-    el: Element
+    element: Element
 ): { x: number; y: number; height: number } | null {
-    const caret = findElementWithCaret(el);
+    const caret = findElementWithCaret(element);
     if (!caret) return null;
     const bounds = caret.getBoundingClientRect();
     return {
@@ -127,11 +127,10 @@ export function getCaretPoint(
 
 function branchId(atom: Atom): string {
     let result = atom.parent ? atom.parent.id : 'root';
-    if (typeof atom.treeBranch === 'string') {
-        result += '-' + atom.treeBranch;
-    } else {
-        result += `-${atom.treeBranch[0]}/${atom.treeBranch[0]}`;
-    }
+    result +=
+        typeof atom.treeBranch === 'string'
+            ? '-' + atom.treeBranch
+            : `-${atom.treeBranch[0]}/${atom.treeBranch[0]}`;
     return result;
 }
 
@@ -148,9 +147,9 @@ function adjustForScrolling(
     );
     const top = Math.ceil(rect.top - fieldRect.top);
     return {
-        left: left,
+        left,
         right: left + w,
-        top: top,
+        top,
         bottom: top + h,
     };
 }
@@ -164,7 +163,7 @@ function getNodeBounds(node: Element): Rect {
         right: bounds.right,
     };
     if (node.tagName !== 'svg') {
-        Array.from(node.children).forEach((x) => {
+        [...node.children].forEach((x) => {
             if (x.nodeType === 1) {
                 const r: Rect = getNodeBounds(x);
                 result.left = Math.min(result.left, r.left);
@@ -174,6 +173,7 @@ function getNodeBounds(node: Element): Rect {
             }
         });
     }
+
     return result;
 }
 
@@ -220,7 +220,7 @@ export function getRangeBounds(
             }
         });
 
-    return Array.from(rects.values());
+    return [...rects.values()];
 }
 
 export function getSelectionBounds(mathfield: MathfieldPrivate): Rect[] {

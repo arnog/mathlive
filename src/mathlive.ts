@@ -1,3 +1,4 @@
+/* eslint-disable no-new */
 import type { Mathfield } from './public/mathfield';
 import type {
     MathfieldOptions,
@@ -15,14 +16,17 @@ import { parseLatex } from './core/parser';
 import { coalesce, makeStruts, Span } from './core/span';
 import { MACROS, MacroDictionary } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
-import AutoRender from './addons/auto-render';
+import AutoRender, { AutoRenderOptionsPrivate } from './addons/auto-render';
 import {
     MathJsonLatexOptions,
     MathJson,
     atomtoMathJson,
     jsonToLatex,
 } from './addons/math-json';
-import MathLiveDebug from './addons/debug';
+import MathLiveDebug, {
+    asciiMathToLatex,
+    latexToAsciiMath,
+} from './addons/debug';
 import { MATHSTYLES } from './core/mathstyle';
 import { defaultSpeakHook } from './editor/speech';
 import {
@@ -36,7 +40,6 @@ import { atomToSpeakableText } from './editor/atom-to-speakable-text';
 import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
-import { AutoRenderOptionsPrivate } from './addons/auto-render';
 
 import './editor/virtual-keyboard-commands';
 import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboard';
@@ -128,7 +131,7 @@ export function convertLatexToMarkup(
     // 5. Generate markup
     //
 
-    return wrapper.toMarkup({ hscale: 1.0 });
+    return wrapper.toMarkup({ hscale: 1 });
 }
 
 export function convertLatexToMathMl(
@@ -170,7 +173,7 @@ function latexToAST(
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
-    // return parseLatex(latex, options);
+    // Return parseLatex(latex, options);
 
     return atomtoMathJson(
         parseLatex(latex, 'math', null, options.macros, false, options.onError),
@@ -187,7 +190,7 @@ export function astToLatex(
         typeof expr === 'string' ? JSON.parse(expr) : expr,
         options
     );
-    // return emitLatex(expr, options);
+    // Return emitLatex(expr, options);
 }
 
 export function convertLatexToSpeakableText(
@@ -216,6 +219,7 @@ export function convertLatexToSpeakableText(
         options as Required<TextToSpeechOptions>
     );
 }
+
 /** @deprecated */
 function latexToSpeakableText(
     latex: string,
@@ -237,10 +241,14 @@ function getElement(element: string | HTMLElement): HTMLElement {
     if (typeof element === 'string') {
         const result: HTMLElement = document.getElementById(element);
         if (result === null) {
-            throw Error(`The element with ID "${element}" could not be found.`);
+            throw new Error(
+                `The element with ID "${element}" could not be found.`
+            );
         }
+
         return result;
     }
+
     return element;
 }
 
@@ -259,12 +267,13 @@ export function renderMathInElement(
 
 function validateNamespace(options): void {
     if (typeof options.namespace === 'string') {
-        if (!/^[a-z]+[-]?$/.test(options.namespace)) {
-            throw Error(
+        if (!/^[a-z]+-?$/.test(options.namespace)) {
+            throw new Error(
                 'options.namespace must be a string of lowercase characters only'
             );
         }
-        if (!/-$/.test(options.namespace)) {
+
+        if (!options.namespace.endsWith('-')) {
             options.namespace += '-';
         }
     }
@@ -276,7 +285,7 @@ function revertToOriginalContent(
     options: AutoRenderOptionsPrivate
 ): void {
     deprecated('revertToOriginalContent');
-    //  if (element instanceof MathfieldPrivate) {
+    //  If (element instanceof MathfieldPrivate) {
     //      element.$revertToOriginalContent();
     //    } else {
     // element is a pair: accessible span, math -- set it to the math part
@@ -302,7 +311,8 @@ function getOriginalContent(
     if (element instanceof MathfieldPrivate) {
         return element.originalContent;
     }
-    // element is a pair: accessible span, math -- set it to the math part
+
+    // Element is a pair: accessible span, math -- set it to the math part
     element = getElement(element).children[1] as HTMLElement;
     options = options ?? {};
     validateNamespace(options);
@@ -317,13 +327,14 @@ const version = '{{SDK_VERSION}}';
 function deprecated(method: string) {
     console.warn(`Function "${method}" is deprecated`);
 }
+
 export const debug = {
     getStyle: MathLiveDebug.getStyle,
     getType: MathLiveDebug.getType,
     spanToString: MathLiveDebug.spanToString,
     hasClass: MathLiveDebug.hasClass,
-    latexToAsciiMath: MathLiveDebug.latexToAsciiMath,
-    asciiMathToLatex: MathLiveDebug.asciiMathToLatex,
+    latexToAsciiMath,
+    asciiMathToLatex,
     FUNCTIONS: MathLiveDebug.FUNCTIONS,
     MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
     TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
@@ -400,25 +411,25 @@ export default {
         renderMathInDocument(options);
     },
     renderMathInElement: (
-        el: HTMLElement,
+        element: HTMLElement,
         options: AutoRenderOptionsPrivate
     ): void => {
         deprecated('export default renderMathInElement');
-        renderMathInElement(el, options);
+        renderMathInElement(element, options);
     },
     revertToOriginalContent: (
-        el: string | HTMLElement,
+        element: string | HTMLElement,
         options: AutoRenderOptionsPrivate
     ): void => {
         deprecated('export default revertToOriginalContent');
-        revertToOriginalContent(el, options);
+        revertToOriginalContent(element, options);
     },
     getOriginalContent: (
-        el: string | HTMLElement,
+        element: string | HTMLElement,
         options: AutoRenderOptionsPrivate
     ): void => {
         deprecated('export default getOriginalContent');
-        getOriginalContent(el, options);
+        getOriginalContent(element, options);
     },
 
     readAloud: (

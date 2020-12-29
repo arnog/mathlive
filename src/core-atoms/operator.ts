@@ -9,8 +9,8 @@ import { joinLatex } from '../core/tokenizer';
  * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
  */
 export class OperatorAtom extends Atom {
-    private variant: Variant;
-    private variantStyle: VariantStyle;
+    private readonly variant: Variant;
+    private readonly variantStyle: VariantStyle;
     constructor(
         command: string,
         symbol: string | Atom[],
@@ -34,17 +34,19 @@ export class OperatorAtom extends Atom {
             isFunction: options?.isFunction,
         });
         if (typeof symbol === 'string') {
-            this.value = symbol as string;
+            this.value = symbol;
         } else {
-            this.body = symbol as Atom[];
+            this.body = symbol;
         }
+
         this.captureSelection = options.captureSelection;
         this.variant = options?.variant;
         this.variantStyle = options?.variantStyle;
         this.limits = options?.limits;
     }
+
     render(context: Context): Span[] {
-        const mathstyle = context.mathstyle;
+        const { mathstyle } = context;
         let base: Span;
         let baseShift = 0;
         let slant = 0;
@@ -104,15 +106,12 @@ export class OperatorAtom extends Atom {
         let result = base;
         if (this.superscript || this.subscript) {
             const limits = this.limits ?? 'auto';
-            if (
+            result =
                 limits === 'limits' ||
                 (limits === 'auto' &&
                     mathstyle.size === MATHSTYLES.displaystyle.size)
-            ) {
-                result = this.attachLimits(context, base, baseShift, slant);
-            } else {
-                result = this.attachSupsub(context, base, 'mop');
-            }
+                    ? this.attachLimits(context, base, baseShift, slant)
+                    : this.attachSupsub(context, base, 'mop');
         }
 
         if (this.caret) result.caret = this.caret;
@@ -122,24 +121,23 @@ export class OperatorAtom extends Atom {
         this.bind(context, result);
         return [result];
     }
+
     toLatex(options: ToLatexOptions): string {
         let result = '';
-        if (this.value !== '\u200b') {
+        if (this.value !== '\u200B') {
             // Not ZERO-WIDTH
-            if (
-                this.command === '\\mathop' ||
-                this.command === '\\operatorname'
-            ) {
-                result += this.command + `{${this.bodyToLatex(options)}}`;
-            } else {
-                result += this.command;
-            }
+            result +=
+                this.command === '\\mathop' || this.command === '\\operatorname'
+                    ? this.command + `{${this.bodyToLatex(options)}}`
+                    : this.command;
         }
+
         result = joinLatex([result, this.supsubToLatex(options)]);
         if (this.explicitLimits) {
             if (this.limits === 'limits') result += '\\limits';
             if (this.limits === 'nolimits') result += '\\nolimits';
         }
+
         return result;
     }
 }

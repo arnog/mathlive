@@ -12,6 +12,7 @@ export class PlaceholderAtom extends Atom {
         });
         this.captureSelection = true;
     }
+
     render(context: Context): Span[] {
         const result = this.makeSpan(context, '⬚');
         if (this.caret) {
@@ -20,6 +21,7 @@ export class PlaceholderAtom extends Atom {
 
         return [result];
     }
+
     toLatex(_options: ToLatexOptions): string {
         return `\\placeholder{${this.value ?? ''}}`;
     }

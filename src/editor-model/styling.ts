@@ -78,19 +78,19 @@ export function applyStyle(
             style.fontFamily = 'none';
         }
 
-        // if (style.series) style.fontSeries = style.series;
+        // If (style.series) style.fontSeries = style.series;
         if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
             // If the selection already has this series (weight), turn it off
             style.fontSeries = 'auto';
         }
 
-        // if (style.shape) style.fontShape = style.shape;
+        // If (style.shape) style.fontShape = style.shape;
         if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
             // If the selection already has this shape (italic), turn it off
             style.fontShape = 'auto';
         }
 
-        // if (style.size) style.fontSize = style.size;
+        // If (style.size) style.fontSize = style.size;
         if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
             // If the selection already has this size, reset it to default size
             style.fontSize = 'size5';

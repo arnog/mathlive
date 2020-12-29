@@ -11,9 +11,11 @@ export class MacroAtom extends Atom {
         this.captureSelection = true;
         this.latex = macro + args;
     }
+
     toLatex(options: ToLatexOptions): string {
         return options.expandMacro ? this.bodyToLatex(options) : this.latex;
     }
+
     render(context: Context): Span[] {
         const result = new Span(Atom.render(context, this.body), '', 'mord');
         if (this.caret) result.caret = this.caret;

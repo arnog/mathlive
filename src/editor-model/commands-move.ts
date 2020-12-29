@@ -10,6 +10,7 @@ export function moveAfterParent(model: ModelPrivate): boolean {
         model.announce('plonk');
         return false;
     }
+
     model.position = model.offsetOf(model.at(model.position).parent);
     model.announce('move', previousPosition);
     return true;
@@ -26,13 +27,16 @@ function superscriptDepth(model: ModelPrivate): number {
         ) {
             result += 1;
         }
+
         if (!atom.hasEmptyBranch('superscript')) {
             wasSuperscript = true;
         } else if (!atom.hasEmptyBranch('subscript')) {
             wasSuperscript = false;
         }
+
         atom = atom.parent;
     }
+
     return wasSuperscript ? result : 0;
 }
 
@@ -47,13 +51,16 @@ function subscriptDepth(model: ModelPrivate): number {
         ) {
             result += 1;
         }
+
         if (!atom.hasEmptyBranch('superscript')) {
             wasSubscript = false;
         } else if (!atom.hasEmptyBranch('subscript')) {
             wasSubscript = true;
         }
+
         atom = atom.parent;
     }
+
     return wasSubscript ? result : 0;
 }
 
@@ -67,6 +74,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
         model.announce('plonk');
         return false;
     }
+
     let target = model.at(model.position);
 
     if (target.limits !== 'limits' && target.limits !== 'auto') {
@@ -81,8 +89,10 @@ function moveToSuperscript(model: ModelPrivate): boolean {
                 target
             );
         }
+
         target = model.at(model.position + 1);
     }
+
     // Ensure there is a superscript branch
     target.createBranch('superscript');
     model.setSelection(
@@ -102,6 +112,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
         model.announce('plonk');
         return false;
     }
+
     let target = model.at(model.position);
 
     if (target.limits !== 'limits' && target.limits !== 'auto') {
@@ -111,14 +122,16 @@ function moveToSubscript(model: ModelPrivate): boolean {
             target.parent.addChildAfter(
                 new Atom('msubsup', {
                     mode: target.mode,
-                    value: '\u200b',
+                    value: '\u200B',
                     style: model.at(model.position).computedStyle,
                 }),
                 target
             );
         }
+
         target = model.at(model.position + 1);
     }
+
     // Ensure there is a subscript branch
     target.createBranch('subscript');
     model.setSelection(
@@ -134,7 +147,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
  * elements.
  */
 function getTabbableElements(): HTMLElement[] {
-    // const focussableElements = `a[href]:not([disabled]),
+    // Const focussableElements = `a[href]:not([disabled]),
     // button:not([disabled]),
     // textarea:not([disabled]),
     // input[type=text]:not([disabled]),
@@ -154,15 +167,15 @@ function getTabbableElements(): HTMLElement[] {
     //         element === document.activeElement
     // );
 
-    function tabbable(el: HTMLElement) {
+    function tabbable(element: HTMLElement) {
         const regularTabbables = [];
         const orderedTabbables = [];
 
-        const candidates = Array.from(
-            el.querySelectorAll<HTMLElement>(`input, select, textarea, a[href], button, 
+        const candidates = [
+            ...element.querySelectorAll<HTMLElement>(`input, select, textarea, a[href], button, 
         [tabindex], audio[controls], video[controls],
-        [contenteditable]:not([contenteditable="false"]), details>summary`)
-        ).filter(isNodeMatchingSelectorTabbable);
+        [contenteditable]:not([contenteditable="false"]), details>summary`),
+        ].filter(isNodeMatchingSelectorTabbable);
 
         candidates.forEach((candidate, i) => {
             const candidateTabindex = getTabindex(candidate);
@@ -187,14 +200,15 @@ function getTabbableElements(): HTMLElement[] {
             .concat(regularTabbables);
     }
 
-    function isNodeMatchingSelectorTabbable(el: HTMLElement): boolean {
+    function isNodeMatchingSelectorTabbable(element: HTMLElement): boolean {
         if (
-            !isNodeMatchingSelectorFocusable(el) ||
-            isNonTabbableRadio(el) ||
-            getTabindex(el) < 0
+            !isNodeMatchingSelectorFocusable(element) ||
+            isNonTabbableRadio(element) ||
+            getTabindex(element) < 0
         ) {
             return false;
         }
+
         return true;
     }
 
@@ -206,13 +220,14 @@ function getTabbableElements(): HTMLElement[] {
         ) {
             return false;
         }
+
         return true;
     }
 
     function getTabindex(node: HTMLElement): number {
-        const tabindexAttr = parseInt(node.getAttribute('tabindex'), 10);
+        const tabindexAttr = Number.parseInt(node.getAttribute('tabindex'), 10);
 
-        if (!isNaN(tabindexAttr)) {
+        if (!Number.isNaN(tabindexAttr)) {
             return tabindexAttr;
         }
 
@@ -222,7 +237,7 @@ function getTabbableElements(): HTMLElement[] {
             return 0;
         }
 
-        // in Chrome, <audio controls/> and <video controls/> elements get a default
+        // In Chrome, <audio controls/> and <video controls/> elements get a default
         //  `tabIndex` of -1 when the 'tabindex' attribute isn't specified in the DOM,
         //  yet they are still part of the regular tab order; in FF, they get a default
         //  `tabIndex` of 0; since Chrome still puts those elements in the regular tab
@@ -246,11 +261,12 @@ function getTabbableElements(): HTMLElement[] {
     }
 
     function getCheckedRadio(nodes, form) {
-        for (let i = 0; i < nodes.length; i++) {
-            if (nodes[i].checked && nodes[i].form === form) {
-                return nodes[i];
+        for (const node of nodes) {
+            if (node.checked && node.form === form) {
+                return node;
             }
         }
+
         return null;
     }
 
@@ -258,6 +274,7 @@ function getTabbableElements(): HTMLElement[] {
         if (!node.name) {
             return true;
         }
+
         const radioScope = node.form || node.ownerDocument;
         const radioSet = radioScope.querySelectorAll(
             'input[type="radio"][name="' + node.name + '"]'
@@ -266,29 +283,30 @@ function getTabbableElements(): HTMLElement[] {
         return !checked || checked === node;
     }
 
-    function isHidden(el: HTMLElement) {
+    function isHidden(element: HTMLElement) {
         if (
-            el === document.activeElement ||
-            el.contains(document.activeElement)
+            element === document.activeElement ||
+            element.contains(document.activeElement)
         ) {
             return false;
         }
 
-        if (getComputedStyle(el).visibility === 'hidden') return true;
+        if (getComputedStyle(element).visibility === 'hidden') return true;
 
         // Note that browsers generally don't consider the bounding rect
         // as a criteria to determine if an item is focusable, but we want
         // to exclude the invisible textareas used to capture keyoard input.
-        const bounds = el.getBoundingClientRect();
+        const bounds = element.getBoundingClientRect();
         if (bounds.width === 0 || bounds.height === 0) return true;
 
-        while (el) {
-            if (getComputedStyle(el).display === 'none') return true;
-            el = el.parentElement;
+        while (element) {
+            if (getComputedStyle(element).display === 'none') return true;
+            element = element.parentElement;
         }
 
         return false;
     }
+
     return tabbable(document.body);
 }
 
@@ -307,6 +325,7 @@ function leap(
         // is right after the insertion point)
         move(model, dir);
     }
+
     // Candidate placeholders are atom of type 'placeholder'
     // or empty children list (except for the root: if the root is empty,
     // it is not a valid placeholder)
@@ -326,11 +345,13 @@ function leap(
             model.announce('plonk');
             return false;
         }
+
         const tabbable = getTabbableElements();
         if (!document.activeElement || tabbable.length === 1) {
             model.announce('plonk');
             return false;
         }
+
         let index =
             tabbable.indexOf(document.activeElement as HTMLElement) + dist;
         if (index < 0) index = tabbable.length - 1;
@@ -341,6 +362,7 @@ function leap(
             model.announce('plonk');
             return false;
         }
+
         return true;
     }
 
@@ -352,6 +374,7 @@ function leap(
     } else {
         model.position = newPosition;
     }
+
     model.announce('move', previousPosition);
     return true;
 }
@@ -374,20 +397,23 @@ register(
                 below: 'above',
             };
             const cursor = model.at(model.position);
-            const parent = cursor.parent;
+            const { parent } = cursor;
             if (!parent) {
                 model.announce('plonk');
                 return false;
             }
+
             const relation = cursor.treeBranch;
             let oppositeRelation: BranchName;
             if (typeof relation === 'string') {
                 oppositeRelation = OPPOSITE_RELATIONS[relation];
             }
+
             if (!oppositeRelation) {
                 if (!cursor.limits) {
                     return moveToSuperscript(model);
                 }
+
                 return moveToSubscript(model);
             }
 
@@ -402,11 +428,12 @@ register(
             );
         },
         moveBeforeParent: (model: ModelPrivate): boolean => {
-            const parent = model.at(model.position).parent;
+            const { parent } = model.at(model.position);
             if (!parent) {
                 model.announce('plonk');
                 return false;
             }
+
             model.position = model.offsetOf(parent);
             return true;
         },
@@ -433,6 +460,7 @@ register(
                 model.announce('plonk');
                 return false;
             }
+
             model.position = pos;
             return true;
         },
@@ -442,6 +470,7 @@ register(
                 model.announce('plonk');
                 return false;
             }
+
             model.position = pos;
             return true;
         },
@@ -450,6 +479,7 @@ register(
                 model.announce('plonk');
                 return false;
             }
+
             model.position = 0;
             return true;
         },
@@ -458,6 +488,7 @@ register(
                 model.announce('plonk');
                 return false;
             }
+
             model.position = model.lastOffset;
             return true;
         },

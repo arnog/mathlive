@@ -4,48 +4,46 @@ import type { InlineShortcutDefinition } from '../public/options';
  * These shortcut strings are replaced with the corresponding LaTeX expression
  * without requiring an escape sequence or command.
  */
-export const INLINE_SHORTCUTS: {
-    [shorcut: string]: InlineShortcutDefinition;
-} = {
+export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
     // Primes
     "''": { mode: 'math', value: '^{\\doubleprime}' },
 
     // Greek letters
-    alpha: '\\alpha',
-    delta: '\\delta',
-    Delta: '\\Delta',
-    pi: { mode: 'math', value: '\\pi' },
+    'alpha': '\\alpha',
+    'delta': '\\delta',
+    'Delta': '\\Delta',
+    'pi': { mode: 'math', value: '\\pi' },
     'pi ': { mode: 'text', value: '\\pi ' },
-    Pi: { mode: 'math', value: '\\Pi' },
-    theta: '\\theta',
-    Theta: '\\Theta',
+    'Pi': { mode: 'math', value: '\\Pi' },
+    'theta': '\\theta',
+    'Theta': '\\Theta',
 
     // Letter-like
-    ii: {
+    'ii': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\imaginaryI',
     },
-    jj: {
+    'jj': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\imaginaryJ',
     },
-    ee: {
+    'ee': {
         mode: 'math',
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\exponentialE',
     },
 
-    nabla: { mode: 'math', value: '\\nabla' },
-    grad: { mode: 'math', value: '\\nabla' },
-    del: { mode: 'math', value: '\\partial' },
+    'nabla': { mode: 'math', value: '\\nabla' },
+    'grad': { mode: 'math', value: '\\nabla' },
+    'del': { mode: 'math', value: '\\partial' },
 
-    '\u221e': '\\infty', // @TODO: doesn't work
+    '\u221E': '\\infty', // @TODO: doesn't work
     // '&infin;': '\\infty',
     // '&#8734;': '\\infty',
-    oo: {
+    'oo': {
         mode: 'math',
         after:
             'nothing+digit+frac+surd+binop+relop+punct+array+openfence+closefence+space',
@@ -54,47 +52,47 @@ export const INLINE_SHORTCUTS: {
 
     // Big operators
     '∑': { mode: 'math', value: '\\sum' },
-    sum: { mode: 'math', value: '\\sum_{#?}^{#?}' },
-    prod: { mode: 'math', value: '\\prod_{#?}^{#?}' },
-    sqrt: { mode: 'math', value: '\\sqrt{#?}' },
+    'sum': { mode: 'math', value: '\\sum_{#?}^{#?}' },
+    'prod': { mode: 'math', value: '\\prod_{#?}^{#?}' },
+    'sqrt': { mode: 'math', value: '\\sqrt{#?}' },
     // '∫':                    '\\int',             // There's a alt-B command for this
     '∆': { mode: 'math', value: '\\differentialD' }, // @TODO: is \\diffD most common?
     '∂': { mode: 'math', value: '\\differentialD' },
 
     // Functions
-    arcsin: { mode: 'math', value: '\\arcsin' },
-    arccos: { mode: 'math', value: '\\arccos' },
-    arctan: { mode: 'math', value: '\\arctan' },
-    sin: { mode: 'math', value: '\\sin' },
-    sinh: { mode: 'math', value: '\\sinh' },
-    cos: { mode: 'math', value: '\\cos' },
-    cosh: { mode: 'math', value: '\\cosh' },
-    tan: { mode: 'math', value: '\\tan' },
-    tanh: { mode: 'math', value: '\\tanh' },
-    sec: { mode: 'math', value: '\\sec' },
-    csc: { mode: 'math', value: '\\csc' },
-    cot: { mode: 'math', value: '\\cot' },
+    'arcsin': { mode: 'math', value: '\\arcsin' },
+    'arccos': { mode: 'math', value: '\\arccos' },
+    'arctan': { mode: 'math', value: '\\arctan' },
+    'sin': { mode: 'math', value: '\\sin' },
+    'sinh': { mode: 'math', value: '\\sinh' },
+    'cos': { mode: 'math', value: '\\cos' },
+    'cosh': { mode: 'math', value: '\\cosh' },
+    'tan': { mode: 'math', value: '\\tan' },
+    'tanh': { mode: 'math', value: '\\tanh' },
+    'sec': { mode: 'math', value: '\\sec' },
+    'csc': { mode: 'math', value: '\\csc' },
+    'cot': { mode: 'math', value: '\\cot' },
 
-    log: { mode: 'math', value: '\\log' },
-    ln: { mode: 'math', value: '\\ln' },
-    exp: { mode: 'math', value: '\\exp' },
-    lim: { mode: 'math', value: '\\lim_{#?}' },
+    'log': { mode: 'math', value: '\\log' },
+    'ln': { mode: 'math', value: '\\ln' },
+    'exp': { mode: 'math', value: '\\exp' },
+    'lim': { mode: 'math', value: '\\lim_{#?}' },
 
     // Differentials
     // According to ISO31/XI (ISO 80000-2), differentials should be upright
-    dx: {
+    'dx': {
         mode: 'math',
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\differentialD x',
     },
-    dy: {
+    'dy': {
         mode: 'math',
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\differentialD y',
     },
-    dt: {
+    'dt': {
         mode: 'math',
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
@@ -102,17 +100,17 @@ export const INLINE_SHORTCUTS: {
     },
 
     // Logic
-    AA: { mode: 'math', value: '\\forall' },
-    EE: { mode: 'math', value: '\\exists' },
+    'AA': { mode: 'math', value: '\\forall' },
+    'EE': { mode: 'math', value: '\\exists' },
     '!EE': { mode: 'math', value: '\\nexists' },
     '&&': { mode: 'math', value: '\\land' },
     // The shortcut for the greek letter "xi" is interfering with "x in"
-    xin: {
+    'xin': {
         mode: 'math',
         after: 'nothing+text+relop+punct+openfence+space',
         value: 'x \\in',
     },
-    in: {
+    'in': {
         mode: 'math',
         after: 'nothing+letter+closefence',
         value: '\\in',
@@ -120,15 +118,15 @@ export const INLINE_SHORTCUTS: {
     '!in': { mode: 'math', value: '\\notin' },
 
     // Sets
-    NN: '\\N', // Natural numbers
-    ZZ: '\\Z', // Integers
-    QQ: '\\Q', // Rational numbers
-    RR: '\\R', // Real numbers
-    CC: '\\C', // Complex numbers
-    PP: '\\P', // Prime numbers
+    'NN': '\\N', // Natural numbers
+    'ZZ': '\\Z', // Integers
+    'QQ': '\\Q', // Rational numbers
+    'RR': '\\R', // Real numbers
+    'CC': '\\C', // Complex numbers
+    'PP': '\\P', // Prime numbers
 
     // Operators
-    xx: { mode: 'math', value: '\\times' },
+    'xx': { mode: 'math', value: '\\times' },
     '+-': { mode: 'math', value: '\\pm' },
 
     // Relational operators
@@ -152,11 +150,11 @@ export const INLINE_SHORTCUTS: {
     ':)': { mode: 'math', value: '\\rangle' },
 
     // More Greek letters
-    beta: '\\beta',
-    chi: '\\chi',
-    epsilon: '\\epsilon',
-    varepsilon: '\\varepsilon',
-    eta: {
+    'beta': '\\beta',
+    'chi': '\\chi',
+    'epsilon': '\\epsilon',
+    'varepsilon': '\\varepsilon',
+    'eta': {
         mode: 'math',
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
@@ -168,13 +166,13 @@ export const INLINE_SHORTCUTS: {
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\eta ',
     },
-    gamma: '\\gamma',
-    Gamma: '\\Gamma',
-    iota: '\\iota',
-    kappa: '\\kappa',
-    lambda: '\\lambda',
-    Lambda: '\\Lambda',
-    mu: {
+    'gamma': '\\gamma',
+    'Gamma': '\\Gamma',
+    'iota': '\\iota',
+    'kappa': '\\kappa',
+    'lambda': '\\lambda',
+    'Lambda': '\\Lambda',
+    'mu': {
         mode: 'math',
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
@@ -186,7 +184,7 @@ export const INLINE_SHORTCUTS: {
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\mu ',
     },
-    nu: {
+    'nu': {
         mode: 'math',
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
@@ -198,60 +196,60 @@ export const INLINE_SHORTCUTS: {
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\nu ',
     },
-    µ: '\\mu', // @TODO: or micro?
-    phi: {
+    'µ': '\\mu', // @TODO: or micro?
+    'phi': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\phi',
     },
-    Phi: {
+    'Phi': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\Phi',
     },
-    varphi: '\\varphi',
-    psi: {
+    'varphi': '\\varphi',
+    'psi': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\psi',
     },
-    Psi: {
+    'Psi': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\Psi',
     },
-    rho: {
+    'rho': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\rho',
     },
-    sigma: '\\sigma',
-    Sigma: '\\Sigma',
-    tau: {
+    'sigma': '\\sigma',
+    'Sigma': '\\Sigma',
+    'tau': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\tau',
     },
-    vartheta: '\\vartheta',
-    upsilon: '\\upsilon',
-    xi: {
+    'vartheta': '\\vartheta',
+    'upsilon': '\\upsilon',
+    'xi': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\xi',
     },
-    Xi: {
+    'Xi': {
         after:
             'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
         value: '\\Xi',
     },
-    zeta: '\\zeta',
-    omega: '\\omega',
-    Omega: '\\Omega',
-    Ω: '\\omega', // @TODO: or ohm?
+    'zeta': '\\zeta',
+    'omega': '\\omega',
+    'Omega': '\\Omega',
+    'Ω': '\\omega', // @TODO: or ohm?
 
     // More Logic
-    forall: { mode: 'math', value: '\\forall' },
-    exists: {
+    'forall': { mode: 'math', value: '\\forall' },
+    'exists': {
         mode: 'math',
         value: '\\exists',
     },
@@ -266,80 +264,80 @@ export const INLINE_SHORTCUTS: {
 
     // MORE FUNCTIONS
     // 'arg': '\\arg',
-    liminf: '\\operatorname*{lim~inf}_{#?}',
-    limsup: '\\operatorname*{lim~sup}_{#?}',
-    argmin: '\\operatorname*{arg~min}_{#?}',
-    argmax: '\\operatorname*{arg~max}_{#?}',
-    det: '\\det',
-    mod: {
+    'liminf': '\\operatorname*{lim~inf}_{#?}',
+    'limsup': '\\operatorname*{lim~sup}_{#?}',
+    'argmin': '\\operatorname*{arg~min}_{#?}',
+    'argmax': '\\operatorname*{arg~max}_{#?}',
+    'det': '\\det',
+    'mod': {
         mode: 'math',
         value: '\\mod',
     },
-    max: {
+    'max': {
         mode: 'math',
         value: '\\max',
     },
-    min: {
+    'min': {
         mode: 'math',
         value: '\\min',
     },
-    erf: '\\operatorname{erf}',
-    erfc: '\\operatorname{erfc}',
-    bessel: {
+    'erf': '\\operatorname{erf}',
+    'erfc': '\\operatorname{erfc}',
+    'bessel': {
         mode: 'math',
         value: '\\operatorname{bessel}',
     },
-    mean: {
+    'mean': {
         mode: 'math',
         value: '\\operatorname{mean}',
     },
-    median: {
+    'median': {
         mode: 'math',
         value: '\\operatorname{median}',
     },
-    fft: {
+    'fft': {
         mode: 'math',
         value: '\\operatorname{fft}',
     },
-    lcm: {
+    'lcm': {
         mode: 'math',
         value: '\\operatorname{lcm}',
     },
-    gcd: {
+    'gcd': {
         mode: 'math',
         value: '\\operatorname{gcd}',
     },
-    randomReal: '\\operatorname{randomReal}',
-    randomInteger: '\\operatorname{randomInteger}',
-    Re: {
+    'randomReal': '\\operatorname{randomReal}',
+    'randomInteger': '\\operatorname{randomInteger}',
+    'Re': {
         mode: 'math',
         value: '\\operatorname{Re}',
     },
-    Im: {
+    'Im': {
         mode: 'math',
         value: '\\operatorname{Im}',
     },
 
     // UNITS
-    mm: {
+    'mm': {
         mode: 'math',
         after: 'nothing+digit',
-        value: '\\operatorname{mm}', // millimeter
+        value: '\\operatorname{mm}', // Millimeter
     },
-    cm: {
+    'cm': {
         mode: 'math',
         after: 'nothing+digit',
-        value: '\\operatorname{cm}', // centimeter
+        value: '\\operatorname{cm}', // Centimeter
     },
-    km: {
+    'km': {
         mode: 'math',
         after: 'nothing+digit',
-        value: '\\operatorname{km}', // kilometer
+        value: '\\operatorname{km}', // Kilometer
     },
-    kg: {
+    'kg': {
         mode: 'math',
         after: 'nothing+digit',
-        value: '\\operatorname{kg}', // kilogram
+        value: '\\operatorname{kg}', // Kilogram
     },
 
     // '||':                   '\\lor',

@@ -1,3 +1,4 @@
+/* eslint-disable no-new */
 import { Mode } from './modes-utils';
 import { Atom, ToLatexOptions } from './atom';
 import { LatexAtom } from '../core-atoms/latex';
@@ -7,6 +8,7 @@ export class LatexMode extends Mode {
     constructor() {
         super('latex');
     }
+
     createAtom(command: string, _style: Style): Atom | null {
         return new LatexAtom(command);
     }

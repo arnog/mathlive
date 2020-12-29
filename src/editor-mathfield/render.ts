@@ -16,8 +16,9 @@ function hash(latex: string): number {
     let result = 0;
     for (let i = 0; i < latex.length; i++) {
         result = result * 31 + latex.charCodeAt(i);
-        result = result | 0; // Force it to a 32-bit number
+        result = Math.trunc(result); // Force it to a 32-bit integer
     }
+
     return Math.abs(result);
 }
 
@@ -46,14 +47,15 @@ export function render(
 ): void {
     renderOptions = renderOptions ?? {};
     mathfield.dirty = false;
-    const model = mathfield.model;
+    const { model } = mathfield;
 
     //
     // 1. Stop and reset read aloud state
     //
-    if (!window['mathlive']) {
-        window['mathlive'] = {};
+    if (window.mathlive === undefined) {
+        window.mathlive = {};
     }
+
     //
     // 2. Update selection state and blinking cursor (caret)
     //
@@ -87,9 +89,11 @@ export function render(
                 ancestor.containsCaret = true;
                 done = true;
             }
+
             ancestor = ancestor.parent;
         }
     }
+
     //
     // 3. Render spans
     //
@@ -119,7 +123,7 @@ export function render(
     wrapper.attributes = {
         // Sometimes Google Translate kicks in an attempts to 'translate' math
         // This doesn't work very well, so turn off translate
-        translate: 'no',
+        'translate': 'no',
         // Hint to screen readers to not attempt to read this <span>.
         // They should use instead the 'aria-label' attribute.
         'aria-hidden': 'true',
@@ -134,6 +138,7 @@ export function render(
     } else if (!isFocused && hasFocus) {
         mathfield.field.classList.add('ML__focused');
     }
+
     mathfield.field.innerHTML = mathfield.options.createHTML(
         wrapper.toMarkup({
             hskip: 0,
@@ -164,7 +169,7 @@ export function render(
 
 function renderSelection(mathfield: MathfieldPrivate): void {
     mathfield.field.querySelectorAll('.ML__selection').forEach((x) => {
-        x.parentElement.removeChild(x);
+        x.remove();
     });
     const selectionRects: Rect[] = getSelectionBounds(mathfield);
     selectionRects.forEach((x) => {

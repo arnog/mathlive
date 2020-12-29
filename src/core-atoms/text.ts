@@ -11,11 +11,13 @@ export class TextAtom extends Atom {
         this.latex = value;
         this.applyStyle(style);
     }
+
     render(context: Context): Span[] {
         const result = this.makeSpan(context, this.value);
         if (this.caret) result.caret = this.caret;
         return [result];
     }
+
     toLatex(_options: ToLatexOptions): string {
         return this.latex ?? charToLatex('text', this.value);
     }

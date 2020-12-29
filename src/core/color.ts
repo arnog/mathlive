@@ -13,17 +13,17 @@
  *
  * Also known as _indexed color scheme #97_.
  */
-const MATHEMATICA_COLORS: { [key: string]: string } = {
-    m0: '#3F3D99', // strong blue
-    m1: '#993D71', // strong cerise
-    m2: '#998B3D', // strong gold
-    m3: '#3D9956', // malachite green
-    m4: '#3D5A99', // strong cobalt blue
-    m5: '#993D90', // strong orchid
-    m6: '#996D3D', // strong orange
-    m7: '#43993D', // strong sap green
-    m8: '#3D7999', // cornflower blue
-    m9: '#843D99', // mulberry
+const MATHEMATICA_COLORS: Record<string, string> = {
+    m0: '#3F3D99', // Strong blue
+    m1: '#993D71', // Strong cerise
+    m2: '#998B3D', // Strong gold
+    m3: '#3D9956', // Malachite green
+    m4: '#3D5A99', // Strong cobalt blue
+    m5: '#993D90', // Strong orchid
+    m6: '#996D3D', // Strong orange
+    m7: '#43993D', // Strong sap green
+    m8: '#3D7999', // Cornflower blue
+    m9: '#843D99', // Mulberry
 };
 // ColorData97 (Mathematica standard lines)
 // rgb(0.368417, 0.506779, 0.709798),       #5e81b5
@@ -53,30 +53,30 @@ const MATHEMATICA_COLORS: { [key: string]: string } = {
 
 /* Area colors are most appropriate to color a large area */
 export const AREA_COLORS = [
-    '#d35d60', // red
-    '#7293cb', // cobalt blue
-    '#e1974d', // orange
-    '#84bb5d', // pistachio
-    '#9066a7', // purple
-    '#aD6a58', // vermilion
-    '#f5a4ce', // pale rose
-    '#fff590', // pale gold
+    '#d35d60', // Red
+    '#7293cb', // Cobalt blue
+    '#e1974d', // Orange
+    '#84bb5d', // Pistachio
+    '#9066a7', // Purple
+    '#aD6a58', // Vermilion
+    '#f5a4ce', // Pale rose
+    '#fff590', // Pale gold
     '#212121', // Black
-    '#818787', // dark grey
-    '#d4d5d2', // light grey
-    '#ffffff', // white
+    '#818787', // Dark grey
+    '#d4d5d2', // Light grey
+    '#ffffff', // White
 ];
 
 /* Line colors are most appropriate to color as a stroke color */
 export const LINE_COLORS = [
-    '#cc2428', // red
-    '#3769b1', // cobalt blue
-    '#da7e30', // orange
-    '#409852', // malachite green
-    '#6b4c9a', // blue violet
-    '#922426', // red
-    '#e7298a', // brilliant rose
-    '#ffe907', // vivid gold
+    '#cc2428', // Red
+    '#3769b1', // Cobalt blue
+    '#da7e30', // Orange
+    '#409852', // Malachite green
+    '#6b4c9a', // Blue violet
+    '#922426', // Red
+    '#e7298a', // Brilliant rose
+    '#ffe907', // Vivid gold
     '#000000',
     '#525055',
     '#adafaa',
@@ -93,7 +93,7 @@ export const LINE_COLORS = [
  * - {@link http://mirror.jmu.edu/pub/CTAN/systems/knuth/local/lib/colordvi.tex | ColorDVI.tex}
  * - {@link https://en.wikibooks.org/w/index.php?title=LaTeX/Colors | Wikibooks:LaTeX/Colors}
  */
-const NAMED_COLORS: { [key: string]: string } = {
+const NAMED_COLORS: Record<string, string> = {
     apricot: '#FBB982',
     aquamarine: '#00B5BE',
     bittersweet: '#C04F17',
@@ -353,8 +353,7 @@ export function stringToColor(s: string): string {
     let mix = -1;
 
     // If the string is prefixed with a '-', use the complementary color
-    const complementary =
-        colorSpec.length > 0 && colorSpec[0].charAt(0) === '-';
+    const complementary = colorSpec.length > 0 && colorSpec[0].startsWith('-');
     if (complementary) colorSpec[0] = colorSpec[0].slice(1);
 
     for (let i = 0; i < colorSpec.length; i++) {
@@ -362,24 +361,24 @@ export function stringToColor(s: string): string {
         baseGreen = green;
         baseBlue = blue;
 
-        const colorName = colorSpec[i].match(/([a-z0-9]*)/)?.[1];
+        const colorName = colorSpec[i].match(/([a-z\d]*)/)?.[1];
 
         let color = NAMED_COLORS[colorName] ?? MATHEMATICA_COLORS[colorName];
         if (!color) color = colorSpec[i];
 
-        let m = color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+        let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
         if (m?.[1] && m[2] && m[3]) {
             // It's a six-digit hex number
-            red = Math.max(0, Math.min(255, parseInt(m[1], 16)));
-            green = Math.max(0, Math.min(255, parseInt(m[2], 16)));
-            blue = Math.max(0, Math.min(255, parseInt(m[3], 16)));
+            red = Math.max(0, Math.min(255, Number.parseInt(m[1], 16)));
+            green = Math.max(0, Math.min(255, Number.parseInt(m[2], 16)));
+            blue = Math.max(0, Math.min(255, Number.parseInt(m[3], 16)));
         } else {
-            m = color.match(/^#([0-9a-f]{3})$/i);
+            m = color.match(/^#([\da-f]{3})$/i);
             if (m?.[1]) {
                 // It's a three-digit hex number
-                const r1 = parseInt(m[1][0], 16);
-                const g1 = parseInt(m[1][1], 16);
-                const b1 = parseInt(m[1][2], 16);
+                const r1 = Number.parseInt(m[1][0], 16);
+                const g1 = Number.parseInt(m[1][1], 16);
+                const b1 = Number.parseInt(m[1][2], 16);
                 red = Math.max(0, Math.min(255, r1 * 16 + r1));
                 green = Math.max(0, Math.min(255, g1 * 16 + g1));
                 blue = Math.max(0, Math.min(255, b1 * 16 + b1));
@@ -389,29 +388,33 @@ export function stringToColor(s: string): string {
                     /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
                 );
                 if (m?.[1] && m[2] && m[3]) {
-                    red = Math.max(0, Math.min(255, parseInt(m[1])));
-                    green = Math.max(0, Math.min(255, parseInt(m[2])));
-                    blue = Math.max(0, Math.min(255, parseInt(m[3])));
+                    red = Math.max(0, Math.min(255, Number.parseInt(m[1])));
+                    green = Math.max(0, Math.min(255, Number.parseInt(m[2])));
+                    blue = Math.max(0, Math.min(255, Number.parseInt(m[3])));
                 } else {
                     return null;
                 }
             }
         }
+
         if (mix >= 0) {
-            red = (1.0 - mix) * red + mix * baseRed;
-            green = (1.0 - mix) * green + mix * baseGreen;
-            blue = (1.0 - mix) * blue + mix * baseBlue;
+            red = (1 - mix) * red + mix * baseRed;
+            green = (1 - mix) * green + mix * baseGreen;
+            blue = (1 - mix) * blue + mix * baseBlue;
             mix = -1;
         }
+
         if (i + 1 < colorSpec.length) {
-            mix = Math.max(0, Math.min(100, parseInt(colorSpec[++i]))) / 100.0;
+            mix =
+                Math.max(0, Math.min(100, Number.parseInt(colorSpec[++i]))) /
+                100;
         }
     }
 
     if (mix >= 0) {
-        red = mix * red + (1.0 - mix) * baseRed;
-        green = mix * green + (1.0 - mix) * baseGreen;
-        blue = mix * blue + (1.0 - mix) * baseBlue;
+        red = mix * red + (1 - mix) * baseRed;
+        green = mix * green + (1 - mix) * baseGreen;
+        blue = mix * blue + (1 - mix) * baseBlue;
     }
 
     if (complementary) {
@@ -430,7 +433,7 @@ export function stringToColor(s: string): string {
 
 export function colorToString(color: string): string {
     if (!color) return '';
-    if (color[0] !== '#') return color;
+    if (!color.startsWith('#')) return color;
     let result = color.toUpperCase();
 
     for (const c in NAMED_COLORS) {

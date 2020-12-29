@@ -64,46 +64,46 @@ export type ToLatexOptions = {
 
 export type AtomType =
     | 'accent'
-    | 'array' // a group, which has children arranged in rows. Used
+    | 'array' // A group, which has children arranged in rows. Used
     // by environments such as `matrix`, `cases`, etc...
-    | 'box' // a border drawn around an expression and change its background color
-    | 'chem' // a chemical formula (mhchem)
+    | 'box' // A border drawn around an expression and change its background color
+    | 'chem' // A chemical formula (mhchem)
     | 'composition' // IME composition area
     | 'delim'
     | 'enclose'
-    | 'error' //  an unknown command, for example `\xyzy`. The text  is displayed with a wavy red underline in the editor.
-    | 'first' // a special, empty, atom put as the first atom in math lists in
+    | 'error' //  An unknown command, for example `\xyzy`. The text  is displayed with a wavy red underline in the editor.
+    | 'first' // A special, empty, atom put as the first atom in math lists in
     // order to be able to position the caret before the first element. Aside from
     // the caret, they display nothing.
-    | 'genfrac' // a generalized fraction: a numerator and denominator, separated
+    | 'genfrac' // A generalized fraction: a numerator and denominator, separated
     // by an optional line, and surrounded by optional fences
-    | 'group' // a simple group of atoms, for example from a `{...}`
+    | 'group' // A simple group of atoms, for example from a `{...}`
     | 'latex' // `latex` indicate a raw latex atom
-    | 'leftright' // used by the `\left` and `\right` commands
-    | 'line' // used by `\overline` and `\underline`
+    | 'leftright' // Used by the `\left` and `\right` commands
+    | 'line' // Used by `\overline` and `\underline`
     | 'macro'
-    | 'mbin' // binary operator: `+`, `*`, etc...
-    | 'mclose' // closing fence: `)`, `\rangle`, etc...
-    | 'minner' // special layout cases, overlap, `\left...\right`
+    | 'mbin' // Binary operator: `+`, `*`, etc...
+    | 'mclose' // Closing fence: `)`, `\rangle`, etc...
+    | 'minner' // Special layout cases, overlap, `\left...\right`
     | 'mop' // `mop`: operators, including special functions, `\sin`, `\sum`, `\cap`.
-    | 'mopen' // opening fence: `(`, `\langle`, etc...
-    | 'mord' // ordinary symbol, e.g. `x`, `\alpha`
-    | 'mpunct' // punctuation: `,`, `:`, etc...
-    | 'mrel' // relational operator: `=`, `\ne`, etc...
-    | 'msubsup' // a carrier for a superscript/subscript
-    | 'overlap' // display a symbol _over_ another
-    | 'overunder' // displays an annotation above or below a symbol
-    | 'placeholder' // a temporary item. Placeholders are displayed as a dashed square in the editor.
+    | 'mopen' // Opening fence: `(`, `\langle`, etc...
+    | 'mord' // Ordinary symbol, e.g. `x`, `\alpha`
+    | 'mpunct' // Punctuation: `,`, `:`, etc...
+    | 'mrel' // Relational operator: `=`, `\ne`, etc...
+    | 'msubsup' // A carrier for a superscript/subscript
+    | 'overlap' // Display a symbol _over_ another
+    | 'overunder' // Displays an annotation above or below a symbol
+    | 'placeholder' // A temporary item. Placeholders are displayed as a dashed square in the editor.
     | 'phantom'
-    | 'root' // a group, which has no parent (only one per formula)
-    | 'rule' // draw a line, for the `\rule` command
-    | 'sizeddelim' // a delimiter that can grow
+    | 'root' // A group, which has no parent (only one per formula)
+    | 'rule' // Draw a line, for the `\rule` command
+    | 'sizeddelim' // A delimiter that can grow
     | 'space'
     | 'spacing'
-    | 'surd' // aka square root, nth root
-    | 'text'; // text mode atom;
+    | 'surd' // Aka square root, nth root
+    | 'text'; // Text mode atom;
 
-export type BBoxParam = {
+export type BBoxParameter = {
     backgroundcolor?: string;
     padding?: number;
     border?: string;
@@ -115,7 +115,7 @@ const SIZING_MULTIPLIER = {
     size2: 0.7,
     size3: 0.8,
     size4: 0.9,
-    size5: 1.0,
+    size5: 1,
     size6: 1.2,
     size7: 1.44,
     size8: 1.73,
@@ -139,7 +139,6 @@ export class Atom {
     treeBranch: Branch;
 
     value: string; // If no branches
-    private _branches: Branches;
 
     // Used to match a DOM element to an Atom
     // (the corresponding DOM element has a `data-atom-id` attribute)
@@ -172,21 +171,18 @@ export class Atom {
     // True if the limits were set by a command
     explicitLimits?: boolean;
 
-    // if true, when the caret reaches the
+    // If true, when the caret reaches the
     // first position in this element's body, it automatically moves to the
     // outside of the element. Conversely, when the caret reaches the position
     // right after this element, it automatically moves to the last position
     // inside this element.
     skipBoundary?: boolean;
-    // if true, this atom does not let its children be selected. Used by the
+    // If true, this atom does not let its children be selected. Used by the
     // `\enclose` annotations, for example.
     captureSelection?: boolean;
 
     style: Style;
     mode: ParseMode;
-
-    // Optional, per instance, override of the `toLatex()` method
-    toLatexOverride?: (atom: Atom, options: ToLatexOptions) => string;
 
     // If true, some structural changes have been made to the atom
     // (insertion or removal of children) or one of its children is dirty
@@ -195,6 +191,11 @@ export class Atom {
     _changeCounter: number;
     // Cached list of children, invalidated when isDirty = true
     _children: Atom[];
+
+    // Optional, per instance, override of the `toLatex()` method
+    toLatexOverride?: (atom: Atom, options: ToLatexOptions) => string;
+
+    private _branches: Branches;
 
     constructor(
         type: AtomType,
@@ -214,6 +215,7 @@ export class Atom {
         if (typeof options?.value === 'string') {
             this.value = options.value;
         }
+
         this._isDirty = false;
         this._changeCounter = 0;
 
@@ -224,12 +226,15 @@ export class Atom {
         this.style = options?.style ?? {};
         this.toLatexOverride = options?.toLatexOverride;
     }
+
     get changeCounter(): number {
         return this._changeCounter;
     }
+
     get isDirty(): boolean {
         return this._isDirty;
     }
+
     set isDirty(dirty: boolean) {
         this._isDirty = dirty;
         this._changeCounter++;
@@ -237,7 +242,7 @@ export class Atom {
             this.latex = undefined;
             this._children = null;
             this._changeCounter++;
-            let parent = this.parent;
+            let { parent } = this;
             while (parent) {
                 parent._isDirty = true;
                 parent._changeCounter++;
@@ -266,12 +271,14 @@ export class Atom {
             return (
                 atom.type === 'mord' &&
                 Boolean(atom.value) &&
-                /^[0-9,.]$/.test(atom.value)
+                /^[\d,.]$/.test(atom.value)
             );
         }
+
         function isText(atom: Atom): boolean {
             return atom.mode === 'text';
         }
+
         if (!atoms) return null;
         if (atoms.length === 0) return [];
 
@@ -294,24 +301,27 @@ export class Atom {
             if (result && displaySelection && atoms[0].isSelected) {
                 result.forEach((x: Span) => x.selected(true));
             }
+
             console.assert(!result || isArray(result));
         } else {
             let selection: Span[] = [];
             let digitOrTextStringID = '';
             let lastWasDigit = true;
-            for (let i = 0; i < atoms.length; i++) {
+            for (const atom of atoms) {
                 if (
                     context.atomIdsSettings?.groupNumbers &&
                     digitOrTextStringID &&
-                    ((lastWasDigit && isDigit(atoms[i])) ||
-                        (!lastWasDigit && isText(atoms[i])))
+                    ((lastWasDigit && isDigit(atom)) ||
+                        (!lastWasDigit && isText(atom)))
                 ) {
                     context.atomIdsSettings.overrideID = digitOrTextStringID;
                 }
-                const span: Span[] = atoms[i].render(context);
+
+                const span: Span[] = atom.render(context);
                 if (context.atomIdsSettings) {
                     context.atomIdsSettings.overrideID = null;
                 }
+
                 if (span) {
                     // Flatten the spans (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
                     const flat = [].concat(...span);
@@ -319,20 +329,21 @@ export class Atom {
 
                     // If this is a digit or text run, keep track of it
                     if (context.atomIdsSettings?.groupNumbers) {
-                        if (isDigit(atoms[i]) || isText(atoms[i])) {
+                        if (isDigit(atom) || isText(atom)) {
                             if (
                                 !digitOrTextStringID ||
-                                lastWasDigit !== isDigit(atoms[i])
+                                lastWasDigit !== isDigit(atom)
                             ) {
-                                // changed from text to digits or vice-versa
-                                lastWasDigit = isDigit(atoms[i]);
-                                digitOrTextStringID = atoms[i].id;
+                                // Changed from text to digits or vice-versa
+                                lastWasDigit = isDigit(atom);
+                                digitOrTextStringID = atom.id;
                             }
                         }
+
                         if (
-                            (!(isDigit(atoms[i]) || isText(atoms[i])) ||
-                                !atoms[i].hasEmptyBranch('superscript') ||
-                                !atoms[i].hasEmptyBranch('subscript')) &&
+                            (!(isDigit(atom) || isText(atom)) ||
+                                !atom.hasEmptyBranch('superscript') ||
+                                !atom.hasEmptyBranch('subscript')) &&
                             digitOrTextStringID
                         ) {
                             // Done with digits/text
@@ -340,7 +351,7 @@ export class Atom {
                         }
                     }
 
-                    if (displaySelection && atoms[i].isSelected) {
+                    if (displaySelection && atom.isSelected) {
                         selection = selection.concat(flat);
                         selection.forEach((x: Span) => x.selected(true));
                     } else {
@@ -350,6 +361,7 @@ export class Atom {
                             result = [...result, ...selection];
                             selection = [];
                         }
+
                         result = result.concat(flat);
                     }
                 }
@@ -373,12 +385,14 @@ export class Atom {
             for (const span of result) {
                 console.assert(!isArray(span));
                 console.assert(
-                    typeof span.height === 'number' && isFinite(span.height)
+                    typeof span.height === 'number' &&
+                        Number.isFinite(span.height)
                 );
                 span.height *= factor;
                 span.depth *= factor;
             }
         }
+
         // If the size changed between the parent and the current group,
         // account for the size difference
         if (context.size !== context.parentSize) {
@@ -388,7 +402,8 @@ export class Atom {
             for (const span of result) {
                 console.assert(!isArray(span));
                 console.assert(
-                    typeof span.height === 'number' && isFinite(span.height)
+                    typeof span.height === 'number' &&
+                        Number.isFinite(span.height)
                 );
                 span.height *= factor;
                 span.depth *= factor;
@@ -418,13 +433,46 @@ export class Atom {
             if (!options.expandMacro && typeof value.latex === 'string') {
                 return value.latex;
             }
+
             if (value.toLatexOverride) {
                 return value.toLatexOverride(value, options);
             }
+
             result = value.toLatex(options);
         }
+
         return result;
     }
+
+    /**
+     * The common ancestor between two atoms
+     */
+    static commonAncestor(a: Atom, b: Atom): Atom {
+        if (a === b) return a.parent;
+
+        // Short-circuit a common case
+        if (a.parent === b.parent) return a.parent;
+
+        // Accumulate all the parents of `a`
+        const parents = new WeakSet<Atom>();
+        let { parent } = a;
+        while (parent) {
+            parents.add(parent);
+            parent = parent.parent;
+        }
+
+        // Walk up the parents of `b`. If a parent of `b` is also a parent of
+        // `a`, it's the common ancestor
+        parent = b.parent;
+        while (parent) {
+            if (parents.has(parent)) return parent;
+            parent = parent.parent;
+        }
+
+        console.assert(Boolean(parent)); // Never reached
+        return null;
+    }
+
     /**
      * Default Latex emmiter.
      * Avoid calling directly, instead call `Atom.toLatex(atom)`
@@ -442,6 +490,7 @@ export class Atom {
                 this.supsubToLatex(options),
             ]);
         }
+
         if (this.body) {
             // There's a body with no command
             return joinLatex([
@@ -449,22 +498,27 @@ export class Atom {
                 this.supsubToLatex(options),
             ]);
         }
-        if (this.value && this.value !== '\u200b') {
+
+        if (this.value && this.value !== '\u200B') {
             // There's probably just a value (which is a unicode character)
             return this.command ?? unicodeCharToLatex(this.mode, this.value);
         }
 
         return '';
     }
+
     bodyToLatex(options: ToLatexOptions): string {
         return Atom.toLatex(this.body, options);
     }
+
     aboveToLatex(options: ToLatexOptions): string {
         return Atom.toLatex(this.above, options);
     }
+
     belowToLatex(options: ToLatexOptions): string {
         return Atom.toLatex(this.below, options);
     }
+
     supsubToLatex(options: ToLatexOptions): string {
         let result = '';
         if (!this.hasEmptyBranch('superscript')) {
@@ -475,21 +529,21 @@ export class Atom {
                 } else if (sup === '\u2033') {
                     sup = '\\doubleprime ';
                 }
+
                 result += '^' + sup;
             } else {
                 result += '^{' + sup + '}';
             }
         }
+
         if (!this.hasEmptyBranch('subscript')) {
             const sub = Atom.toLatex(this.subscript, options);
-            if (sub.length === 1) {
-                result += '_' + sub;
-            } else {
-                result += '_{' + sub + '}';
-            }
+            result += sub.length === 1 ? '_' + sub : '_{' + sub + '}';
         }
+
         return result;
     }
+
     get treeDepth(): number {
         let result = 1;
         let atom = this.parent;
@@ -497,8 +551,10 @@ export class Atom {
             atom = atom.parent;
             result += 1;
         }
+
         return result;
     }
+
     /**
      * Return the atoms in the branch, if it exists, otherwise null
      */
@@ -521,6 +577,7 @@ export class Atom {
                 }
             });
         }
+
         return result;
     }
 
@@ -537,47 +594,61 @@ export class Atom {
         } else if (!this._branches[name]) {
             this._branches[name] = [this.makeFirstAtom(name)];
         }
+
         this.isDirty = true;
         return this._branches[name];
     }
+
     get row(): number {
         if (!isColRowBranch(this.treeBranch)) return -1;
         return this.treeBranch[0];
     }
+
     get col(): number {
         if (!isColRowBranch(this.treeBranch)) return -1;
         return this.treeBranch[1];
     }
+
     get body(): Atom[] {
         return this._branches?.body;
     }
+
     set body(atoms: Atom[]) {
         this.setChildren(atoms, 'body');
     }
+
     get superscript(): Atom[] {
         return this._branches?.superscript;
     }
+
     set superscript(atoms: Atom[]) {
         this.setChildren(atoms, 'superscript');
     }
+
     get subscript(): Atom[] {
         return this._branches?.subscript;
     }
+
     set subscript(atoms: Atom[]) {
         this.setChildren(atoms, 'subscript');
     }
+
     get above(): Atom[] {
         return this._branches?.above;
     }
+
     set above(atoms: Atom[]) {
         this.setChildren(atoms, 'above');
     }
+
     get below(): Atom[] {
         return this._branches?.below;
     }
+
     set below(atoms: Atom[]) {
         this.setChildren(atoms, 'below');
     }
+
     get computedStyle(): Style {
         const style = { ...this.style };
         if (style) {
@@ -585,9 +656,11 @@ export class Atom {
             delete style.variant;
             delete style.variantStyle;
         }
+
         if (!this.parent) return style ?? {};
         return { ...this.parent.computedStyle, ...style };
     }
+
     applyStyle(style: Style): void {
         this.isDirty = true;
         this.style = { ...this.style, ...style };
@@ -595,18 +668,23 @@ export class Atom {
         if (this.style.fontFamily === 'none') {
             delete this.style.fontFamily;
         }
+
         if (this.style.fontShape === 'auto') {
             delete this.style.fontShape;
         }
+
         if (this.style.fontSeries === 'auto') {
             delete this.style.fontSeries;
         }
+
         if (this.style.color === 'none') {
             delete this.style.color;
         }
+
         if (this.style.backgroundColor === 'none') {
             delete this.style.backgroundColor;
         }
+
         if (this.style.fontSize === 'auto') {
             delete this.style.fontSize;
         }
@@ -618,6 +696,7 @@ export class Atom {
             console.assert(this.body[0].type === 'first');
             result = this.body[1].getInitialBaseElement();
         }
+
         return result ?? this;
     }
 
@@ -625,6 +704,7 @@ export class Atom {
         if (!this.hasEmptyBranch('body')) {
             return this.body[this.body.length - 1].getFinalBaseElement();
         }
+
         return this;
     }
 
@@ -640,6 +720,7 @@ export class Atom {
         console.assert(atoms[0].type === 'first');
         return atoms.length === 1;
     }
+
     /*
      * Setting `null` does nothing
      * Setting `[]` adds an empty list (the branch is created)
@@ -653,13 +734,14 @@ export class Atom {
         console.assert(children[0]?.type !== 'first');
 
         // Update the parent
-        if (!this._branches) {
+        if (this._branches) {
+            this._branches[branch] = [this.makeFirstAtom(branch), ...children];
+        } else {
             this._branches = {
                 [branch]: [this.makeFirstAtom(branch), ...children],
             };
-        } else {
-            this._branches[branch] = [this.makeFirstAtom(branch), ...children];
         }
+
         this.isDirty = true;
 
         // Update the children
@@ -668,6 +750,7 @@ export class Atom {
             x.treeBranch = branch;
         });
     }
+
     makeFirstAtom(branch: Branch): Atom {
         const result = new Atom('first', { mode: this.mode });
         result.parent = this;
@@ -695,6 +778,7 @@ export class Atom {
         child.parent = this;
         child.treeBranch = before.treeBranch;
     }
+
     addChildAfter(child: Atom, after: Atom): void {
         const branch = this.createBranch(after.treeBranch);
         branch.splice(branch.indexOf(after) + 1, 0, child);
@@ -704,9 +788,11 @@ export class Atom {
         child.parent = this;
         child.treeBranch = after.treeBranch;
     }
+
     addChildren(children: Atom[], branch: Branch): void {
         children.forEach((x) => this.addChild(x, branch));
     }
+
     /**
      * Return the last atom that was added
      */
@@ -723,11 +809,13 @@ export class Atom {
         });
         return children[children.length - 1];
     }
+
     removeBranch(name: Branch): Atom[] {
         const children = this.branch(name);
         if (isNamedBranch(name)) {
             this._branches[name] = null;
         }
+
         children.forEach((x) => {
             x.parent = null;
             x.treeBranch = undefined;
@@ -738,6 +826,7 @@ export class Atom {
         this.isDirty = true;
         return children;
     }
+
     removeChild(child: Atom): void {
         console.assert(child.parent === this);
 
@@ -755,32 +844,40 @@ export class Atom {
         child.parent = null;
         child.treeBranch = undefined;
     }
+
     get siblings(): Atom[] {
         if (this.type === 'root') return [];
         return this.parent.branch(this.treeBranch);
     }
+
     get firstSibling(): Atom {
         return this.siblings[0];
     }
+
     get lastSibling(): Atom {
-        const siblings = this.siblings;
+        const { siblings } = this;
         return siblings[siblings.length - 1];
     }
+
     get isFirstSibling(): boolean {
         return this === this.firstSibling;
     }
+
     get isLastSibling(): boolean {
         return this === this.lastSibling;
     }
+
     get hasNoSiblings(): boolean {
         // There is always at least one sibling, the 'first'
         // atom, but we don't count it.
         return this.siblings.length === 1;
     }
+
     get leftSibling(): Atom {
         const siblings = this.parent.branch(this.treeBranch);
         return siblings[siblings.indexOf(this) - 1];
     }
+
     get rightSibling(): Atom {
         const siblings = this.parent.branch(this.treeBranch);
         return siblings[siblings.indexOf(this) + 1];
@@ -789,13 +886,15 @@ export class Atom {
     get hasChildren(): boolean {
         return this._branches && this.children.length > 0;
     }
+
     get firstChild(): Atom {
         console.assert(this.hasChildren);
         return this.children[0];
     }
+
     get lastChild(): Atom {
         console.assert(this.hasChildren);
-        const children = this.children;
+        const { children } = this;
         return children[children.length - 1];
     }
 
@@ -818,35 +917,9 @@ export class Atom {
                 }
             });
         }
+
         this._children = result;
         return result;
-    }
-
-    /**
-     * The common ancestor between two atoms
-     */
-    static commonAncestor(a: Atom, b: Atom): Atom {
-        if (a === b) return a.parent;
-
-        // Short-circuit a common case
-        if (a.parent === b.parent) return a.parent;
-
-        // Accumulate all the parents of `a`
-        const parents = new WeakSet<Atom>();
-        let parent = a.parent;
-        while (parent) {
-            parents.add(parent);
-            parent = parent.parent;
-        }
-        // Walk up the parents of `b`. If a parent of `b` is also a parent of
-        // `a`, it's the common ancestor
-        parent = b.parent;
-        while (parent) {
-            if (parents.has(parent)) return parent;
-            parent = parent.parent;
-        }
-        console.assert(!!parent); // Never reached
-        return null;
     }
 
     /**
@@ -865,12 +938,14 @@ export class Atom {
         if (this.containsCaret) {
             result.classes = (result.classes || '') + ' ML__contains-caret';
         }
+
         // Finally, render any necessary superscript, subscripts
         if (!this.limits && (this.superscript || this.subscript)) {
             // If `limits` is set, the attachment of sup/sub was handled
             // in the atom decomposition (e.g. mop, accent)
             result = this.attachSupsub(context, result, result.type);
         }
+
         return [result];
     }
 
@@ -879,20 +954,23 @@ export class Atom {
         if (!this.superscript && !this.subscript) {
             return nucleus;
         }
+
         // Superscript and subscripts are discussed in the TeXbook
         // on page 445-446, rules 18(a-f).
         // TeX:14859-14945
-        const mathstyle = context.mathstyle;
-        let supmid = null;
-        let submid = null;
+        const { mathstyle } = context;
+        let supmid: Span = null;
+        let submid: Span = null;
         if (this._branches.superscript) {
             const sup = Atom.render(context.sup(), this._branches.superscript);
             supmid = new Span(sup, mathstyle.adjustTo(mathstyle.sup()));
         }
+
         if (this._branches.subscript) {
             const sub = Atom.render(context.sub(), this._branches.subscript);
             submid = new Span(sub, mathstyle.adjustTo(mathstyle.sub()));
         }
+
         // Rule 18a, p445
         let supShift = 0;
         let subShift = 0;
@@ -900,16 +978,18 @@ export class Atom {
             supShift = spanHeight(nucleus) - mathstyle.metrics.supDrop;
             subShift = spanDepth(nucleus) + mathstyle.metrics.subDrop;
         }
+
         // Rule 18c, p445
         let minSupShift: number;
         if (mathstyle === MATHSTYLES.displaystyle) {
-            minSupShift = mathstyle.metrics.sup1; // sigma13
+            minSupShift = mathstyle.metrics.sup1; // Sigma13
         } else if (mathstyle.cramped) {
-            minSupShift = mathstyle.metrics.sup3; // sigma15
+            minSupShift = mathstyle.metrics.sup3; // Sigma15
         } else {
-            minSupShift = mathstyle.metrics.sup2; // sigma14
+            minSupShift = mathstyle.metrics.sup2; // Sigma14
         }
-        // scriptspace is a font-size-independent size, so scale it
+
+        // Scriptspace is a font-size-independent size, so scale it
         // appropriately @revisit: do we really need to do this scaling? It's in em...
         const multiplier =
             MATHSTYLES.textstyle.sizeMultiplier * mathstyle.sizeMultiplier;
@@ -940,6 +1020,7 @@ export class Atom {
                     subShift -= psi;
                 }
             }
+
             supsub = makeVlist(
                 context,
                 [submid, subShift, supmid, -supShift],
@@ -973,13 +1054,15 @@ export class Atom {
             supsub = makeVlist(context, [supmid], 'shift', -supShift);
             supsub.children[0].right = scriptspace;
         }
+
         // Display the caret *following* the superscript and subscript,
         // so attach the caret to the 'msubsup' element.
         const supsubContainer = new Span(supsub, 'msubsup');
         if (this.caret) {
             supsubContainer.caret = this.caret;
-            // this.caret = ''; // @revisit: we shouln't clear the **Atom** caret
+            // This.caret = ''; // @revisit: we shouln't clear the **Atom** caret
         }
+
         return new Span([nucleus, supsubContainer], '', type);
     }
 
@@ -1016,13 +1099,14 @@ export class Atom {
      * can be retrieved from the span later on (e.g. when the span is clicked on)
      */
     bind(context: Context, span: Span): Span {
-        if (this.type !== 'first' && this.value !== '\u200b') {
+        if (this.type !== 'first' && this.value !== '\u200B') {
             this.id = makeID(context);
             if (this.id) {
                 if (!span.attributes) span.attributes = {};
                 span.attributes['data-atom-id'] = this.id;
             }
         }
+
         return span;
     }
 
@@ -1051,7 +1135,7 @@ export class Atom {
         // which italicizes some characters, but which can be overridden
 
         const style: Style = {
-            variant: 'normal', // will auto-italicize
+            variant: 'normal', // Will auto-italicize
             ...this.style,
             letterShapeStyle: context.letterShapeStyle,
         };
@@ -1066,9 +1150,10 @@ export class Atom {
             result.classes += ' sizing reset-' + context.parentSize;
             result.classes += ' ' + context.size;
         }
+
         result.maxFontSize = Math.max(
             result.maxFontSize,
-            context.mathstyle.sizeMultiplier ?? 1.0
+            context.mathstyle.sizeMultiplier ?? 1
         );
 
         // Set other attributes
@@ -1094,6 +1179,7 @@ export class Atom {
                 result.caret = this.caret;
             }
         }
+
         if (context.mathstyle.isTight()) result.isTight = true;
         return result;
     }
@@ -1113,6 +1199,7 @@ function makeID(context: Context): string {
                 Math.floor(Math.random() * 0x186a0).toString(36);
         }
     }
+
     return result;
 }
 
@@ -1152,6 +1239,7 @@ function makeLimitsStack(
             FONTMETRICS.bigOpSpacing3 - spanDepth(above)
         );
     }
+
     if (below) {
         belowShift = Math.max(
             FONTMETRICS.bigOpSpacing2,
@@ -1189,8 +1277,8 @@ function makeLimitsStack(
         // that we are supposed to shift the limits by 1/2 of the slant,
         // but since we are centering the limits adding a full slant of
         // margin will shift by 1/2 that.
-        result!.children[0].left = -slant;
-        result!.children[2].left = slant;
+        result.children[0].left = -slant;
+        result.children[2].left = slant;
     } else if (below && !above) {
         const top = spanHeight(nucleus) - nucleusShift;
 
@@ -1202,7 +1290,7 @@ function makeLimitsStack(
         );
 
         // See comment above about slants
-        result!.children[0].left = -slant;
+        result.children[0].left = -slant;
     } else if (!below && above) {
         const bottom = spanDepth(nucleus) + nucleusShift;
 
@@ -1214,7 +1302,7 @@ function makeLimitsStack(
         );
 
         // See comment above about slants
-        result!.children[1].left = slant;
+        result.children[1].left = slant;
     }
 
     return new Span(result, 'op-limits', 'mop');
@@ -1232,6 +1320,7 @@ function atomsToLatex(atoms: Atom[], options: ToLatexOptions): string {
         // Remove the 'first' atom, if present
         atoms = atoms.slice(1);
     }
+
     if (atoms.length === 0) return '';
 
     return joinLatex(

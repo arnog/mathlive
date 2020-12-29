@@ -95,8 +95,8 @@ export type Variant =
     | 'sans-serif'
     | 'monospace'
     | 'normal' // 'main' (upright) or 'math' (italic) depending on letterShapeStyle
-    | 'main' //upright
-    | 'math'; // italic, with custom spacing for "f" and others
+    | 'main' // Upright
+    | 'math'; // Italic, with custom spacing for "f" and others
 
 /**
  * Some variants support stylistic variations.
@@ -157,4 +157,4 @@ The code above will support the following notation:
  * **See Also**
  * * [Macros Example](/mathlive/examples/macros/)
  */
-export type MacroDictionary = { [name: string]: string | MacroDefinition };
+export type MacroDictionary = Record<string, string | MacroDefinition>;

@@ -9,6 +9,7 @@ export class SubsupAtom extends Atom {
         super('msubsup', { style: options?.style });
         this.baseType = options?.baseType;
     }
+
     render(context: Context): Span[] {
         // The caret for this atom type is handled by its elements
         const baseType =
@@ -22,15 +23,17 @@ export class SubsupAtom extends Atom {
                 minner: 'minner',
                 spacing: 'spacing',
             }[this.baseType] ?? 'mord';
-        const result = new Span('\u200b', '', baseType);
+        const result = new Span('\u200B', '', baseType);
         if (context.phantomBase) {
             result.height = spanHeight(context.phantomBase);
             result.depth = spanDepth(context.phantomBase);
         }
+
         console.assert(!this.limits);
 
         return [this.attachSupsub(context, result, result.type)];
     }
+
     toLatex(options: ToLatexOptions): string {
         return this.supsubToLatex(options);
     }

@@ -9,7 +9,7 @@ export function applyStyle(
 ): boolean {
     const style = validateStyle(inStyle);
     mathfield.resetKeystrokeBuffer();
-    const model = mathfield.model;
+    const { model } = mathfield;
     if (model.selectionIsCollapsed) {
         // No selection, let's update the 'current' style
         if (
@@ -18,21 +18,26 @@ export function applyStyle(
         ) {
             style.fontSeries = 'auto';
         }
+
         if (style.fontShape && style.fontShape === mathfield.style.fontShape) {
             style.fontShape = 'auto';
         }
+
         if (style.color && style.color === mathfield.style.color) {
             style.color = 'none';
         }
+
         if (
             style.backgroundColor &&
             style.backgroundColor === mathfield.style.backgroundColor
         ) {
             style.backgroundColor = 'none';
         }
+
         if (style.fontSize && style.fontSize === mathfield.style.fontSize) {
             style.fontSize = 'auto';
         }
+
         // This global style will be used the next time an atom is inserted
         mathfield.style = { ...mathfield.style, ...style };
     } else {
@@ -44,6 +49,7 @@ export function applyStyle(
             mathfield.snapshot();
         });
     }
+
     return true;
 }
 
@@ -52,7 +58,7 @@ registerCommand({ applyStyle }, { target: 'mathfield' });
 /**
  * Validate a style specification object
  */
-function validateStyle(style: { [key: string]: any }): Style {
+function validateStyle(style: Record<string, any>): Style {
     const result: Style = {};
 
     if (typeof style.color === 'string') {
@@ -70,9 +76,11 @@ function validateStyle(style: { [key: string]: any }): Style {
     if (typeof style.series === 'string') {
         result.fontSeries = style.series as FontSeries;
     }
+
     if (typeof style.fontSeries === 'string') {
         result.fontSeries = style.fontSeries.toLowerCase() as FontSeries;
     }
+
     if (result.fontSeries) {
         result.fontSeries =
             {
@@ -85,9 +93,11 @@ function validateStyle(style: { [key: string]: any }): Style {
     if (typeof style.shape === 'string') {
         result.fontShape = style.shape as FontShape;
     }
+
     if (typeof style.fontShape === 'string') {
         result.fontShape = style.fontShape.toLowerCase() as FontShape;
     }
+
     if (result.fontShape) {
         result.fontShape =
             {
@@ -101,11 +111,13 @@ function validateStyle(style: { [key: string]: any }): Style {
     if (typeof style.size === 'string') {
         result.fontSize = style.size;
     } else if (typeof style.size === 'number') {
-        result.fontSize = 'size' + Math.min(0, Math.max(10, style.size));
+        result.fontSize = `size${Math.min(0, Math.max(10, style.size))}`;
     }
+
     if (typeof style.fontSize === 'string') {
         result.fontSize = style.fontSize.toLowerCase();
     }
+
     if (result.fontSize) {
         result.fontSize =
             {

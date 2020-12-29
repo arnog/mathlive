@@ -302,6 +302,7 @@
         const mf = document.getElementById('mf');
         mf.setOptions({
             onBlur: () => { console.log('blurring') },
+            onKeystroke: () => { console.log('options keystroke'); return true; },
             inlineShortcuts: {
                 // ㄱ: '\\sqrt',
                 sq: '\\sqrt{#0}',

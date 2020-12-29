@@ -1,4 +1,4 @@
-// import { getEnvironmentDefinition } from '../core/definitions';
+// Import { getEnvironmentDefinition } from '../core/definitions';
 import { Atom } from '../core/atom';
 import type { ModelPrivate } from './model-private';
 import { contentDidChange } from './listeners';
@@ -23,15 +23,18 @@ export function arrayJoinColumns(
             // Remove the 'first' atom, if present
             cell = cell.slice(1);
         }
+
         if (cell && cell.length > 0) {
             if (sep) {
                 result.push(sep);
             } else {
-                sep = new Atom('mpunct', { value: separator, style: style });
+                sep = new Atom('mpunct', { value: separator, style });
             }
+
             result = result.concat(cell);
         }
     }
+
     return result;
 }
 
@@ -49,10 +52,12 @@ export function arrayJoinRows(
         if (sep) {
             result.push(sep);
         } else {
-            sep = new Atom('mpunct', { value: separators[0], style: style });
+            sep = new Atom('mpunct', { value: separators[0], style });
         }
+
         result = result.concat(arrayJoinColumns(row, separators[1]));
     }
+
     return result;
 }
 
@@ -61,18 +66,20 @@ export function arrayJoinRows(
  */
 export function arrayColumnCellCount(array: Atom[][][], col: number): number {
     let result = 0;
-    const colRow = { col: col, row: 0 };
+    const colRow = { col, row: 0 };
     while (colRow.row < array.length) {
         const cell = arrayCell(array, colRow);
         if (cell && cell.length > 0) {
-            let cellLen = cell.length;
-            if (cell[0].type === 'first') cellLen -= 1;
-            if (cellLen > 0) {
+            let cellLength = cell.length;
+            if (cell[0].type === 'first') cellLength -= 1;
+            if (cellLength > 0) {
                 result += 1;
             }
         }
+
         colRow.row += 1;
     }
+
     return result;
 }
 
@@ -85,6 +92,7 @@ export function arrayRemoveColumn(array: Atom[][][], col: number): void {
         if (array[row][col]) {
             array[row].splice(col, 1);
         }
+
         row += 1;
     }
 }
@@ -104,7 +112,8 @@ export function arrayFirstCellByRow(array: Atom[][][]): string {
     while (colRow.row < array.length && !arrayCell(array, colRow)) {
         colRow.row += 1;
     }
-    return arrayCell(array, colRow) ? 'cell' + arrayIndex(array, colRow) : '';
+
+    return arrayCell(array, colRow) ? `cell${arrayIndex(array, colRow)}` : '';
 }
 
 /**
@@ -142,7 +151,7 @@ function addCell(
 }
 
 export function convertParentToArray(_model: ModelPrivate): void {
-    // const parent = model.parent;
+    // Const parent = model.parent;
     // if (parent.type === 'leftright') {
     //     parent.type = 'array';
     //     const envName =
@@ -177,6 +186,7 @@ export function addRowBefore(model: ModelPrivate): boolean {
     contentDidChange(model);
     return true;
 }
+
 export function addColumnAfter(model: ModelPrivate): boolean {
     convertParentToArray(model);
     addCell(model, 'after column');
@@ -193,10 +203,10 @@ export function addColumnBefore(model: ModelPrivate): boolean {
 
 registerCommand(
     {
-        addRowAfter: addRowAfter,
-        addColumnAfter: addColumnAfter,
-        addRowBefore: addRowBefore,
-        addColumnBefore: addColumnBefore,
+        addRowAfter,
+        addColumnAfter,
+        addRowBefore,
+        addColumnBefore,
     },
     { target: 'model', category: 'array-edit' }
 );

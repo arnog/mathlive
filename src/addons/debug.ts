@@ -56,22 +56,29 @@ function getSymbol(spans: Span[], symbol: string | number | number[]): Span {
         if (childSymbol && childSymbol.length > 0) {
             return getSymbol(spans[symbol].children, childSymbol);
         }
+
         return spans[symbol];
-    } else if (typeof symbol === 'string') {
-        for (let i = 0; i < spans.length; i++) {
+    }
+
+    if (typeof symbol === 'string') {
+        for (const span of spans) {
             // Does this span match the symbol we're looking for?
-            if (spans[i].value === symbol) {
+            if (span.value === symbol) {
                 if (childSymbol && childSymbol.length > 0) {
-                    return getSymbol(spans[i].children, childSymbol);
+                    return getSymbol(span.children, childSymbol);
                 }
-                return spans[i];
+
+                return span;
             }
+
             // If not, try its children
-            result = getSymbol(spans[i].children, symbol);
+            result = getSymbol(span.children, symbol);
             if (result) return result;
         }
+
         return result;
     }
+
     return null;
 }
 
@@ -110,15 +117,16 @@ function hasClass(spans: Span[], symbol: string, cls: string): boolean {
     const classes = getClasses(spans, symbol);
     if (!classes) return false;
     const clsList = classes.split(' ');
-    for (let j = 0; j < clsList.length; j++) {
-        if (clsList[j] === cls) return true;
+    for (const element of clsList) {
+        if (element === cls) return true;
     }
+
     return false;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
 
 function spanToString(span: Span, indent = ''): string {
     let result = '';
@@ -128,9 +136,10 @@ function spanToString(span: Span, indent = ''): string {
         } else {
             result += '[\n';
             for (let i = 0; i < span.length; i++) {
-                result += spanToString(span[i], '\t' + indent + i + ',');
+                result += spanToString(span[i], `\t ${indent}${i} ,`);
                 result += i < span.length - 1 ? ',\n' : '\n';
             }
+
             result += indent + ']\n';
         }
     } else {
@@ -138,12 +147,15 @@ function spanToString(span: Span, indent = ''): string {
         if (span.type) {
             result += indent + 'type:"' + span.type + '",\n';
         }
+
         if (span.value && span.value.length > 0) {
             result += indent + 'body:"' + span.value + '",\n';
         }
+
         if (span.classes && span.classes.length > 0) {
             result += indent + 'classes:"' + span.classes + '",\n';
         }
+
         if (span.style) {
             for (const s in span.style) {
                 if (Object.prototype.hasOwnProperty.call(span.style, s)) {
@@ -152,29 +164,32 @@ function spanToString(span: Span, indent = ''): string {
                 }
             }
         }
+
         if (span.children && span.children.length > 0) {
             result +=
                 indent +
                 'children:' +
                 span.children.map((x) => spanToString(x, indent)).join('; ');
         }
+
         result += indent + '}';
     }
+
     return result;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
 
 function spanToMarkup(span: Span, indent = ''): string {
-    // if (indent.length === 0) {
+    // If (indent.length === 0) {
     //     result += '<table>';
     // }
     let result = '';
     if (Array.isArray(span)) {
-        for (let i = 0; i < span.length; i++) {
-            result += spanToMarkup(span[i], indent);
+        for (const element of span) {
+            result += spanToMarkup(element, indent);
         }
     } else if (span) {
         result = '<br>' + indent;
@@ -184,16 +199,20 @@ function spanToMarkup(span: Span, indent = ''): string {
             if (span.type) {
                 result += '<span class="type">' + span.type + '</span>';
             }
+
             if (span.value && span.value.length > 0) {
                 result += '<span class="value">' + span.value + '</span>';
             }
+
             if (span.classes && span.classes.length > 0) {
                 result +=
                     '&nbsp;<span class="classes">' + span.classes + '</span>';
             }
+
             if (span.isTight) {
                 result += '&nbsp;<span class="stylevalue"> tight </span>';
             }
+
             if (span.caret) {
                 result += '&nbsp;<span class="stylevalue"> caret </span>';
             }
@@ -210,6 +229,7 @@ function spanToMarkup(span: Span, indent = ''): string {
                     }
                 }
             }
+
             if (span.children) {
                 result += span.children
                     .map((x) => spanToMarkup(x, indent + '▷'))
@@ -217,11 +237,11 @@ function spanToMarkup(span: Span, indent = ''): string {
             }
         }
     }
+
     return result;
 }
 
-// Export the public interface for this module
-export default {
+const MathliveDebug = {
     spanToMarkup,
 
     spanToString,
@@ -245,3 +265,6 @@ export default {
 
     getKeybindingMarkup,
 };
+
+// Export the public interface for this module
+export default MathliveDebug;

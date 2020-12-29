@@ -10,6 +10,7 @@ export class ErrorAtom extends Atom {
         super('error', { value, command: value, mode: 'math' });
         this.latex = value;
     }
+
     render(context: Context): Span[] {
         const result = this.makeSpan(context, this.value);
         result.classes = 'ML__error';

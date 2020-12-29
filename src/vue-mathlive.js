@@ -16,19 +16,19 @@ export default {
         },
         onKeystroke: {
             type: Function,
-            default: function (_keystroke, _ev) {
+            default(_keystroke, _ev) {
                 return true;
             },
         },
         onMoveOutOf: {
             type: Function,
-            default: function (_direction) {
+            default(_direction) {
                 return true;
             },
         },
         onTabOutOf: {
             type: Function,
-            default: function (_direction) {
+            default(_direction) {
                 return true;
             },
         },
@@ -47,7 +47,7 @@ export default {
      * @param {object} mathlive - The MathLive module, as returned from an import
      * statement
      */
-    install: function (vue, mathlive) {
+    install(vue, mathlive) {
         // When the component is installed (with Vue.use()), the first argument
         // should be the component (as received from import) and the second
         // should be the MathLive module (also as received from import).
@@ -59,7 +59,7 @@ export default {
         vue.component('mathlive-mathfield', this);
     },
     watch: {
-        value: function (newValue, oldValue) {
+        value(newValue, oldValue) {
             // When the `value` prop (from the model) is modified
             // update the mathfield to stay in sync, but don't send back content
             // change notifications, to avoid infinite loops.
@@ -71,14 +71,14 @@ export default {
         },
         options: {
             deep: true,
-            handler: function (newValue, oldValue) {
+            handler(newValue, oldValue) {
                 if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
                     this.$el.mathfield.setOptions(newValue);
                 }
             },
         },
     },
-    mounted: function () {
+    mounted() {
         // A new instance is being created
         // Wait until the DOM has been constructed...
         this.$nextTick(() => {
@@ -126,32 +126,32 @@ export default {
          *
          * @param {string} selector
          */
-        executeCommand: function (selector) {
+        executeCommand(selector) {
             this.$el.mathfield.executeCommand(selector);
         },
         /*
          * @return {boolean}
          */
-        hasFocus: function () {
+        hasFocus() {
             return this.$el.mathfield.hasFocus();
         },
-        focus: function () {
+        focus() {
             this.$el.mathfield.focus();
         },
-        blur: function () {
+        blur() {
             this.$el.mathfield.blur();
         },
-        getValue: function (format) {
+        getValue(format) {
             return this.$el.mathfield.getValue(format);
         },
         /** @deprecated */
-        selectedText: function (format) {
+        selectedText(format) {
             return this.$el.mathfield.$selectedText(format);
         },
-        insert: function (text, options) {
+        insert(text, options) {
             this.$el.mathfield.insert(text, options);
         },
-        select: function () {
+        select() {
             this.$el.mathfield.select();
         },
     },

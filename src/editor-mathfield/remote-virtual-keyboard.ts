@@ -25,16 +25,15 @@ interface RemoteKeyboardMessageData {
  * Must be used on frame with mathfield editor
  */
 export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
-    // private mathfield: MathfieldPrivate;
-    private targetOrigin: string;
-    private originValidator: OriginValidator;
-    private enabled: boolean;
     visible: boolean;
     height: number;
+    private readonly targetOrigin: string;
+    private readonly originValidator: OriginValidator;
+    private enabled: boolean;
 
-    private _focus: () => void;
-    private _blur: () => void;
-    private _executeCommand: ExecuteCommandFunction;
+    private readonly _focus: () => void;
+    private readonly _blur: () => void;
+    private readonly _executeCommand: ExecuteCommandFunction;
 
     /**
      * @param targetOrigin only virtual keyboards in a frame (or document) with this
@@ -49,7 +48,6 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
         executeCommand: ExecuteCommandFunction;
         originValidator: OriginValidator;
     }) {
-        // this.mathfield = mathfield;
         this.targetOrigin = options.targetOrigin ?? window.origin;
         this.originValidator = options.originValidator ?? 'same-origin';
         this._focus = options.focus;
@@ -69,6 +67,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
             this.sendMessage('executeCommand', { command });
             return false;
         }
+
         return this._executeCommand(command);
     }
 
@@ -86,15 +85,37 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
         }
     }
 
-    focusMathfield(): void {
-        return;
-    }
-    blurMathfield(): void {
-        return;
-    }
+    focusMathfield(): void {}
 
-    stateChanged(): void {
-        return;
+    blurMathfield(): void {}
+
+    stateChanged(): void {}
+
+    handleEvent(event: MessageEvent<RemoteKeyboardMessageData>): void {
+        if (
+            event.type === 'message' &&
+            event.data &&
+            event.data.type === POST_MESSAGE_TYPE
+        ) {
+            if (!validateOrigin(event.origin, this.originValidator)) {
+                throw new Error(
+                    `Message from unknown origin (${event.origin}) can not be handled`
+                );
+            }
+
+            const { action } = event.data;
+
+            if (action === 'executeCommand') {
+                this.executeCommand(event.data.command);
+            } else if (action === 'updateState') {
+                this.visible = event.data.state.visible;
+                this.height = event.data.state.height;
+            } else if (action === 'focus') {
+                this._focus();
+            } else if (action === 'blur') {
+                this._blur();
+            }
+        }
     }
 
     private sendMessage(action: string, payload: any = {}): boolean {
@@ -102,7 +123,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
             window.parent.postMessage(
                 {
                     type: POST_MESSAGE_TYPE,
-                    action: action,
+                    action,
                     ...payload,
                 },
                 this.targetOrigin
@@ -113,44 +134,17 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
 
         return false;
     }
-
-    handleEvent(e: MessageEvent<RemoteKeyboardMessageData>): void {
-        if (
-            e.type === 'message' &&
-            e.data &&
-            e.data.type === POST_MESSAGE_TYPE
-        ) {
-            if (!validateOrigin(e.origin, this.originValidator)) {
-                throw new Error(
-                    `Message from unknown origin (${e.origin}) can not be handled`
-                );
-            }
-
-            const action = e.data.action;
-
-            if (action === 'executeCommand') {
-                this.executeCommand(e.data.command);
-            } else if (action === 'updateState') {
-                this.visible = e.data.state.visible;
-                this.height = e.data.state.height;
-            } else if (action === 'focus') {
-                this._focus();
-            } else if (action === 'blur') {
-                this._blur();
-            }
-        }
-    }
 }
 
 /**
  * Must be used on parent frame where virtual keyboard will be rendered
  */
 export class RemoteVirtualKeyboard extends VirtualKeyboard {
-    private sourceFrame: Window;
     options: RemoteVirtualKeyboardOptions;
 
-    private canUndoState: boolean;
-    private canRedoState: boolean;
+    private sourceFrame: Window;
+    private readonly canUndoState: boolean;
+    private readonly canRedoState: boolean;
 
     constructor(options?: Partial<RemoteVirtualKeyboardOptions>) {
         super({
@@ -187,22 +181,22 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
         };
     }
 
-    handleEvent(e: MessageEvent<RemoteKeyboardMessageData>): void {
+    handleEvent(event: MessageEvent<RemoteKeyboardMessageData>): void {
         if (
-            e.type === 'message' &&
-            e.data &&
-            e.data.type === POST_MESSAGE_TYPE
+            event.type === 'message' &&
+            event.data &&
+            event.data.type === POST_MESSAGE_TYPE
         ) {
-            if (!validateOrigin(e.origin, this.options.originValidator)) {
+            if (!validateOrigin(event.origin, this.options.originValidator)) {
                 throw new Error(
-                    `Can not handle message from unknown origin (${e.origin}).`
+                    `Can not handle message from unknown origin (${event.origin}).`
                 );
             }
 
-            const action = e.data.action;
+            const { action } = event.data;
             if (action === 'executeCommand') {
-                const command = e.data.command;
-                this.sourceFrame = e.source as Window;
+                const { command } = event.data;
+                this.sourceFrame = event.source as Window;
 
                 this.executeCommand(command);
             }
@@ -261,7 +255,7 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
         this.sourceFrame?.postMessage(
             {
                 type: POST_MESSAGE_TYPE,
-                action: action,
+                action,
                 ...payload,
             },
             this.options.targetOrigin

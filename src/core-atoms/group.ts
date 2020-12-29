@@ -42,6 +42,7 @@ export class GroupAtom extends Atom {
 
         this.skipBoundary = true;
     }
+
     render(context: Context): Span[] {
         // The scope of the context is this group, so clone it
         // so that any changes to it will be discarded when finished
@@ -71,6 +72,7 @@ export class GroupAtom extends Atom {
         this.bind(context, span);
         return [span];
     }
+
     toLatex(options: ToLatexOptions): string {
         const body = this.bodyToLatex(options);
 

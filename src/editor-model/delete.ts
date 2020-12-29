@@ -4,7 +4,7 @@ import { Atom, Branch } from '../core/atom';
 import type { Range } from '../public/mathfield';
 import { ModelPrivate } from './model-private';
 import { range } from './selection-utils';
-// import {
+// Import {
 //     arrayFirstCellByRow,
 //     arrayColRow,
 //     arrayAdjustRow,
@@ -93,7 +93,7 @@ function onDelete(
     atom: Atom,
     branch?: Branch
 ): boolean {
-    const parent = atom.parent;
+    const { parent } = atom;
     if (atom instanceof LeftRightAtom) {
         //
         // 'leftright': \left\right
@@ -121,12 +121,15 @@ function onDelete(
                 atom
             );
         }
+
         // Hoist body
         parent.addChildrenAfter(atom.removeBranch('body'), atom);
         parent.removeChild(atom);
         model.position = pos;
         return true;
-    } else if (atom.type === 'surd') {
+    }
+
+    if (atom.type === 'surd') {
         //
         // 'surd': square root
         //
@@ -139,33 +142,38 @@ function onDelete(
             if (atom.hasChildren) {
                 parent.addChildrenAfter(atom.removeBranch('body'), atom);
             }
+
             parent.removeChild(atom);
             model.position = model.offsetOf(pos);
         } else if (direction === 'forward' && branch === 'body') {
-            // body last fwd: move to after
+            // Body last fwd: move to after
             model.position = model.offsetOf(atom);
         } else if (!branch && direction === 'backward') {
-            // after bwd: move to last of body
+            // After bwd: move to last of body
             if (atom.hasChildren) {
                 model.position = model.offsetOf(atom.lastChild);
             } else {
                 model.position = Math.max(model.offsetOf(atom) - 1);
-                atom.parent.removeChild(atom);
+                parent.removeChild(atom);
             }
         } else if (branch === 'above') {
             if (atom.hasEmptyBranch('above')) {
                 atom.removeBranch('above');
             }
+
             if (direction === 'backward') {
-                // above 1st
+                // Above 1st
                 model.position = model.offsetOf(atom.leftSibling);
             } else {
-                // above last
+                // Above last
                 model.position = model.offsetOf(atom.body[0]);
             }
         }
+
         return true;
-    } else if (atom.type === 'box' || atom.type === 'enclose') {
+    }
+
+    if (atom.type === 'box' || atom.type === 'enclose') {
         //
         // 'box': \boxed, \fbox 'enclose': \cancel
         //
@@ -178,7 +186,9 @@ function onDelete(
         parent.removeChild(atom);
         model.position = model.offsetOf(pos);
         return true;
-    } else if (atom.type === 'genfrac' || atom.type === 'overunder') {
+    }
+
+    if (atom.type === 'genfrac' || atom.type === 'overunder') {
         //
         // 'genfrac': \frac, \choose, etc...
         //
@@ -190,11 +200,12 @@ function onDelete(
             );
             return true;
         }
+
         if (
             (direction === 'forward' && branch === 'above') ||
             (direction === 'backward' && branch === 'below')
         ) {
-            // above last or below first: hoist
+            // Above last or below first: hoist
             const above = atom.removeBranch('above');
             const below = atom.removeBranch('below');
 
@@ -207,14 +218,17 @@ function onDelete(
         }
 
         if (direction === 'backward') {
-            // above first: move to before
+            // Above first: move to before
             model.position = model.offsetOf(atom.leftSibling);
             return true;
         }
-        // below last: move to after
+
+        // Below last: move to after
         model.position = model.offsetOf(atom);
         return true;
-    } else if (
+    }
+
+    if (
         (atom instanceof OperatorAtom && atom.isExtensibleSymbol) ||
         atom.type === 'msubsup'
     ) {
@@ -225,22 +239,18 @@ function onDelete(
         if (!branch && direction === 'forward') return false;
         if (!branch) {
             if (atom.subscript || atom.superscript) {
-                let pos: Atom;
-                if (direction === 'forward') {
-                    // before
-                    pos = atom.superscript?.[0] ?? atom.subscript?.[0];
-                } else {
-                    // after
-                    pos =
-                        atom.subscript?.[0].lastSibling ??
-                        atom.superscript?.[0].lastSibling;
-                }
+                const pos: Atom =
+                    direction === 'forward'
+                        ? atom.superscript?.[0] ?? atom.subscript?.[0]
+                        : atom.subscript?.[0].lastSibling ??
+                          atom.superscript?.[0].lastSibling;
                 model.position = model.offsetOf(pos);
                 return true;
             }
 
             return false;
         }
+
         if (branch && atom.hasEmptyBranch(branch)) {
             atom.removeBranch(branch);
         }
@@ -268,18 +278,19 @@ function onDelete(
             }
         } else if (branch === 'subscript') {
             if (direction === 'backward' && atom.superscript) {
-                // subscript first: move to superscript end
+                // Subscript first: move to superscript end
                 model.position = model.offsetOf(
                     atom.superscript[0].lastSibling
                 );
             } else if (direction === 'backward') {
-                // subscript first: move to before
+                // Subscript first: move to before
                 model.position = model.offsetOf(atom.firstChild) - 1;
             } else {
-                // subscript last: move after
+                // Subscript last: move after
                 model.position = model.offsetOf(atom);
             }
         }
+
         return true;
     }
 
@@ -293,6 +304,7 @@ export function deleteBackward(model: ModelPrivate): boolean {
     if (!model.selectionIsCollapsed) {
         return deleteRange(model, range(model.selection));
     }
+
     return model.deferNotifications({ content: true, selection: true }, () => {
         let target = model.at(model.position);
 
@@ -302,6 +314,7 @@ export function deleteBackward(model: ModelPrivate): boolean {
             if (onDelete(model, 'backward', target.parent, target.treeBranch)) {
                 return;
             }
+
             target = null;
         }
 
@@ -340,6 +353,7 @@ export function deleteForward(model: ModelPrivate): boolean {
             ) {
                 return;
             }
+
             target = null;
         } else if (
             model.at(model.position).isLastSibling &&
@@ -359,6 +373,7 @@ export function deleteForward(model: ModelPrivate): boolean {
             sibling.parent.removeChild(sibling);
             sibling = model.at(model.position)?.rightSibling;
         }
+
         model.announce('delete', null, [target]);
     });
 }

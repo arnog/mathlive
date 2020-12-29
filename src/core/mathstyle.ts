@@ -68,13 +68,13 @@ interface Metrics {
 } // @revisit: belongs in ./font-metrics
 
 // IDs of the different MATHSTYLES
-const D = 0; // displaystyle
-const Dc = 1; // displaystyle, cramped
-const T = 2; // textstyle
+const D = 0; // Displaystyle
+const Dc = 1; // Displaystyle, cramped
+const T = 2; // Textstyle
 const Tc = 3;
-const S = 4; // scriptstyle
+const S = 4; // Scriptstyle
 const Sc = 5;
-const SS = 6; // scriptscriptstyle
+const SS = 6; // Scriptscriptstyle
 const SSc = 7;
 
 /**
@@ -108,18 +108,21 @@ export class Mathstyle {
         this.metrics.emPerEx =
             SIGMAS.xHeight[this.size] / SIGMAS.quad[this.size];
     }
+
     /**
      * Get the style of a superscript given a base in the current style.
      */
     sup(): Mathstyle {
         return MATHSTYLES[[S, Sc, S, Sc, SS, SSc, SS, SSc][this.id]];
     }
+
     /**
      * Get the style of a subscript given a base in the current style.
      */
     sub(): Mathstyle {
         return MATHSTYLES[[Sc, Sc, Sc, Sc, SSc, SSc, SSc, SSc][this.id]];
     }
+
     /**
      * Get the style of a fraction numerator given the fraction in the current
      * style.
@@ -127,6 +130,7 @@ export class Mathstyle {
     fracNum(): Mathstyle {
         return MATHSTYLES[[T, Tc, S, Sc, SS, SSc, SS, SSc][this.id]];
     }
+
     /**
      * Get the style of a fraction denominator given the fraction in the current
      * style.
@@ -134,6 +138,7 @@ export class Mathstyle {
     fracDen(): Mathstyle {
         return MATHSTYLES[[Tc, Tc, Sc, Sc, SSc, SSc, SSc, SSc][this.id]];
     }
+
     /**
      * Get the cramped version of a style (in particular, cramping a cramped style
      * doesn't change the style).
@@ -141,6 +146,7 @@ export class Mathstyle {
     cramp(): Mathstyle {
         return MATHSTYLES[[Dc, Dc, Tc, Tc, Sc, Sc, SSc, SSc][this.id]];
     }
+
     /**
      * CSS class name, for example `displaystyle cramped`
      */
@@ -152,6 +158,7 @@ export class Mathstyle {
             'scriptscriptstyle',
         ][this.size]; // @revisit: use this.id to include 'cramped' variants
     }
+
     /**
      * CSS class name to adjust from one style to another, like 'reset-textstyle'
      */
@@ -189,6 +196,7 @@ export class Mathstyle {
         if (result.length > 0) result = ' ' + result;
         return result;
     }
+
     /**
      * Return if this style is tightly spaced (scriptstyle/scriptscriptstyle)
      */
@@ -204,10 +212,10 @@ export const MATHSTYLES: {
     scriptstyle?: Mathstyle;
     scriptscriptstyle?: Mathstyle;
 } = {
-    0: new Mathstyle(D, 0, 1.0, false),
-    1: new Mathstyle(Dc, 0, 1.0, true),
-    2: new Mathstyle(T, 1, 1.0, false),
-    3: new Mathstyle(Tc, 1, 1.0, true),
+    0: new Mathstyle(D, 0, 1, false),
+    1: new Mathstyle(Dc, 0, 1, true),
+    2: new Mathstyle(T, 1, 1, false),
+    3: new Mathstyle(Tc, 1, 1, true),
     4: new Mathstyle(S, 2, 0.7, false),
     5: new Mathstyle(Sc, 2, 0.7, true),
     6: new Mathstyle(SS, 3, 0.5, false),

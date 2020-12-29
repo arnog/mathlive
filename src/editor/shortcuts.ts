@@ -20,7 +20,7 @@ export function getInlineShortcutsStartingWith(
     const skipDefaultShortcuts = config.overrideDefaultInlineShortcuts;
 
     for (let i = 0; i <= s.length - 1; i++) {
-        const s2 = s.substring(i);
+        const s2 = s.slice(Math.max(0, i));
         if (!skipDefaultShortcuts) {
             Object.keys(INLINE_SHORTCUTS).forEach((key) => {
                 if (key.startsWith(s2) && !result.includes(key)) {
@@ -40,6 +40,7 @@ export function getInlineShortcutsStartingWith(
             });
         }
     }
+
     return result;
 }
 
@@ -79,7 +80,8 @@ function validateShortcut(
         index -= 1;
         sibling = siblings[index];
     }
-    nothing = !sibling || sibling.type === 'first'; // start of a group
+
+    nothing = !sibling || sibling.type === 'first'; // Start of a group
     if (sibling) {
         if (
             typeof shortcut.mode !== 'undefined' &&
@@ -87,10 +89,10 @@ function validateShortcut(
         ) {
             return '';
         }
+
         text = sibling.mode === 'text';
         letter = !text && sibling.type === 'mord' && LETTER.test(sibling.value);
-        digit =
-            !text && sibling.type === 'mord' && /[0-9]+$/.test(sibling.value);
+        digit = !text && sibling.type === 'mord' && /\d+$/.test(sibling.value);
         isFunction = !text && sibling.isFunction;
         frac = sibling.type === 'genfrac';
         surd = sibling.type === 'surd';
@@ -106,23 +108,24 @@ function validateShortcut(
     if (typeof shortcut.after !== 'undefined') {
         // If this is a conditional shortcut, consider the conditions now
         if (
-            (/nothing/.test(shortcut.after) && nothing) ||
-            (/letter/.test(shortcut.after) && letter) ||
-            (/digit/.test(shortcut.after) && digit) ||
-            (/function/.test(shortcut.after) && isFunction) ||
-            (/frac/.test(shortcut.after) && frac) ||
-            (/surd/.test(shortcut.after) && surd) ||
-            (/binop/.test(shortcut.after) && binop) ||
-            (/relop/.test(shortcut.after) && relop) ||
-            (/punct/.test(shortcut.after) && punct) ||
-            (/array/.test(shortcut.after) && array) ||
-            (/openfence/.test(shortcut.after) && openfence) ||
-            (/closefence/.test(shortcut.after) && closefence) ||
-            (/text/.test(shortcut.after) && text) ||
-            (/space/.test(shortcut.after) && space)
+            (shortcut.after.includes('nothing') && nothing) ||
+            (shortcut.after.includes('letter') && letter) ||
+            (shortcut.after.includes('digit') && digit) ||
+            (shortcut.after.includes('function') && isFunction) ||
+            (shortcut.after.includes('frac') && frac) ||
+            (shortcut.after.includes('surd') && surd) ||
+            (shortcut.after.includes('binop') && binop) ||
+            (shortcut.after.includes('relop') && relop) ||
+            (shortcut.after.includes('punct') && punct) ||
+            (shortcut.after.includes('array') && array) ||
+            (shortcut.after.includes('openfence') && openfence) ||
+            (shortcut.after.includes('closefence') && closefence) ||
+            (shortcut.after.includes('text') && text) ||
+            (shortcut.after.includes('space') && space)
         ) {
             return shortcut.value;
         }
+
         return '';
     }
 
@@ -140,7 +143,7 @@ function validateShortcut(
 export function getInlineShortcut(
     context: Atom[],
     s: string,
-    shortcuts?: { [key: string]: InlineShortcutDefinition }
+    shortcuts?: Record<string, InlineShortcutDefinition>
 ): string {
     return validateShortcut(context, shortcuts?.[s] ?? INLINE_SHORTCUTS[s]);
 }

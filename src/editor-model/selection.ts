@@ -7,12 +7,13 @@ export function getMode(model: ModelPrivate, offset: Offset): ParseMode {
     const atom = model.at(offset);
     let result: ParseMode;
     if (atom) {
-        result = atom.mode as ParseMode;
+        result = atom.mode;
         let ancestor = atom.parent;
         while (!result && ancestor) {
-            if (ancestor) result = ancestor.mode as ParseMode;
+            if (ancestor) result = ancestor.mode;
             ancestor = ancestor.parent;
         }
     }
+
     return result;
 }

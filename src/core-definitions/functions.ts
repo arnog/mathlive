@@ -135,6 +135,7 @@ defineFunction(
                     options.leftDelim = '(';
                     options.rightDelim = ')';
                     break;
+                default:
             }
 
             switch (command) {
@@ -150,7 +151,9 @@ defineFunction(
                     options.hasBarLine = true;
                     options.continuousFraction = true;
                     break;
+                default:
             }
+
             return new GenfracAtom(
                 command,
                 args[0] as Atom[],
@@ -171,10 +174,11 @@ defineFunction(['over', 'atop', 'choose'], '', {
             leftDelim = '(';
             rightDelim = ')';
         }
+
         return new GenfracAtom(command, args[0] as Atom[], args[1] as Atom[], {
             hasBarLine: command === '\\over',
-            leftDelim: leftDelim,
-            rightDelim: rightDelim,
+            leftDelim,
+            rightDelim,
             style,
             toLatexOverride: (atom: GenfracAtom, options: ToLatexOptions) =>
                 `{${atom.aboveToLatex(options)}${
@@ -224,19 +228,19 @@ defineFunction(
                 command,
                 {
                     coprod: '\u2210',
-                    bigvee: '\u22c1',
-                    bigwedge: '\u22c0',
-                    biguplus: '\u2a04',
-                    bigcap: '\u22c2',
-                    bigcup: '\u22c3',
-                    intop: '\u222b',
-                    prod: '\u220f',
+                    bigvee: '\u22C1',
+                    bigwedge: '\u22C0',
+                    biguplus: '\u2A04',
+                    bigcap: '\u22C2',
+                    bigcup: '\u22C3',
+                    intop: '\u222B',
+                    prod: '\u220F',
                     sum: '\u2211',
-                    bigotimes: '\u2a02',
-                    bigoplus: '\u2a01',
-                    bigodot: '\u2a00',
-                    bigsqcup: '\u2a06',
-                    smallint: '\u222b',
+                    bigotimes: '\u2A02',
+                    bigoplus: '\u2A01',
+                    bigodot: '\u2A00',
+                    bigsqcup: '\u2A06',
+                    smallint: '\u222B',
                 }[command.slice(1)],
                 {
                     isExtensibleSymbol: true,
@@ -251,25 +255,25 @@ defineFunction(
 // No limits, symbols (i.e. display larger in 'display' mode, and
 // centered on the baseline)
 const EXTENSIBLE_SYMBOLS = {
-    int: '\u222b',
-    iint: '\u222c',
-    iiint: '\u222d',
-    oint: '\u222e',
-    oiint: '\u222f',
+    int: '\u222B',
+    iint: '\u222C',
+    iiint: '\u222D',
+    oint: '\u222E',
+    oiint: '\u222F',
     oiiint: '\u2230',
     intclockwise: '\u2231',
     varointclockwise: '\u2232',
     ointctrclockwise: '\u2233',
-    intctrclockwise: '\u2a11',
+    intctrclockwise: '\u2A11',
     sqcup: '\u2294',
     sqcap: '\u2293',
-    uplus: '\u228e',
+    uplus: '\u228E',
     wr: '\u2240',
-    amalg: '\u2a3f',
-    Cap: '\u22d2',
-    Cup: '\u22d3',
-    doublecap: '\u22d2',
-    doublecup: '\u22d3',
+    amalg: '\u2A3F',
+    Cap: '\u22D2',
+    Cup: '\u22D3',
+    doublecap: '\u22D2',
+    doublecup: '\u22D3',
 };
 defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
     createAtom: (command: string, _args: Argument[], style: Style): Atom =>
@@ -277,7 +281,7 @@ defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
             limits: 'nolimits',
             isExtensibleSymbol: true,
             style,
-            variant: { '\u22d2': 'ams', '\u22d3': 'ams' }[
+            variant: { '\u22D2': 'ams', '\u22D3': 'ams' }[
                 EXTENSIBLE_SYMBOLS[command.slice(1)]
             ],
         }),
@@ -287,7 +291,7 @@ defineFunction(['Re', 'Im'], '', {
     createAtom: (command: string, _args: Argument[], style: Style): Atom =>
         new OperatorAtom(
             command,
-            { '\\Re': '\u211c', '\\Im': '\u2111' }[command],
+            { '\\Re': '\u211C', '\\Im': '\u2111' }[command],
             {
                 limits: 'nolimits',
                 style,

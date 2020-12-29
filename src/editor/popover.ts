@@ -308,10 +308,12 @@ export function showPopoverWithLatex(
     if (commandNote) {
         template += '<div class="ML__popover__note">' + commandNote + '</div>';
     }
+
     if (keybinding) {
         template +=
             '<div class="ML__popover__shortcut">' + keybinding + '</div>';
     }
+
     template += '</span>';
     template += displayArrows
         ? '<div class="ML__popover__next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>'
@@ -319,27 +321,33 @@ export function showPopoverWithLatex(
 
     mf.popover.innerHTML = mf.options.createHTML(template);
 
-    let el = mf.popover.getElementsByClassName('ML__popover__content');
-    if (el && el.length > 0) {
-        attachButtonHandlers((command) => mf.executeCommand(command), el[0], {
-            default: ['complete', 'accept-suggestion'],
-        });
-    }
-
-    el = mf.popover.getElementsByClassName('ML__popover__prev-shortcut');
-    if (el && el.length > 0) {
+    let element = mf.popover.querySelectorAll<HTMLElement>(
+        '.ML__popover__content'
+    );
+    if (element && element.length > 0) {
         attachButtonHandlers(
             (command) => mf.executeCommand(command),
-            el[0],
+            element[0],
+            {
+                default: ['complete', 'accept-suggestion'],
+            }
+        );
+    }
+
+    element = mf.popover.querySelectorAll('.ML__popover__prev-shortcut');
+    if (element && element.length > 0) {
+        attachButtonHandlers(
+            (command) => mf.executeCommand(command),
+            element[0],
             'previousSuggestion'
         );
     }
 
-    el = mf.popover.getElementsByClassName('ML__popover__next-shortcut');
-    if (el && el.length > 0) {
+    element = mf.popover.querySelectorAll('.ML__popover__next-shortcut');
+    if (element && element.length > 0) {
         attachButtonHandlers(
             (command) => mf.executeCommand(command),
-            el[0],
+            element[0],
             'nextSuggestion'
         );
     }
@@ -359,7 +367,7 @@ export function updatePopoverPosition(
     // Check that the mathfield is still valid
     // (we're calling ourselves from requestAnimationFrame() and the mathfield
     // could have gotten destroyed
-    if (!mf.element || mf.element['mathfield'] !== mf) return;
+    if (!mf.element || mf.element.mathfield !== mf) return;
 
     // If the popover pane is visible...
     if (!mf.popover.classList.contains('is-visible')) return;
@@ -370,6 +378,7 @@ export function updatePopoverPosition(
         window.setTimeout(() => updatePopoverPosition(mf), 100);
         return;
     }
+
     if (mf.model.at(mf.model.position)?.type !== 'latex') {
         hidePopover(mf);
     } else {
@@ -383,7 +392,7 @@ function setPopoverPosition(
     mf: MathfieldPrivate,
     position: { x: number; y: number; height: number }
 ): void {
-    // get screen width & height (browser compatibility)
+    // Get screen width & height (browser compatibility)
     const screenHeight =
         window.innerHeight ||
         document.documentElement.clientHeight ||
@@ -393,36 +402,38 @@ function setPopoverPosition(
         document.documentElement.clientWidth ||
         document.body.clientWidth;
 
-    // get scrollbar size. This would be 0 in mobile device (also no needed).
+    // Get scrollbar size. This would be 0 in mobile device (also no needed).
     const scrollbarWidth =
         window.innerWidth - document.documentElement.clientWidth;
     const scrollbarHeight =
         window.innerHeight - document.documentElement.clientHeight;
     const virtualkeyboardHeight = mf.virtualKeyboard.height;
-    // prevent screen overflow horizontal.
+    // Prevent screen overflow horizontal.
     if (
         position.x + mf.popover.offsetWidth / 2 >
         screenWidth - scrollbarWidth
     ) {
-        mf.popover.style.left =
-            screenWidth - mf.popover.offsetWidth - scrollbarWidth + 'px';
+        mf.popover.style.left = `${
+            screenWidth - mf.popover.offsetWidth - scrollbarWidth
+        }px`;
     } else if (position.x - mf.popover.offsetWidth / 2 < 0) {
         mf.popover.style.left = '0';
     } else {
-        mf.popover.style.left = position.x - mf.popover.offsetWidth / 2 + 'px';
+        mf.popover.style.left = `${position.x - mf.popover.offsetWidth / 2}px`;
     }
 
-    // and position the popover right below or above the caret
+    // And position the popover right below or above the caret
     if (
         position.y + mf.popover.offsetHeight + 5 >
         screenHeight - scrollbarHeight - virtualkeyboardHeight
     ) {
         mf.popover.classList.add('ML__popover--reverse-direction');
-        mf.popover.style.top =
-            position.y - position.height - mf.popover.offsetHeight - 5 + 'px';
+        mf.popover.style.top = `${
+            position.y - position.height - mf.popover.offsetHeight - 5
+        }px`;
     } else {
         mf.popover.classList.remove('ML__popover--reverse-direction');
-        mf.popover.style.top = position.y + 5 + 'px';
+        mf.popover.style.top = `${position.y + 5}px`;
     }
 }
 

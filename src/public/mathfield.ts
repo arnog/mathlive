@@ -239,11 +239,9 @@ export interface Mathfield {
      * **Default** = `"latex"`
      * @category Accessing the Content
      */
-    getValue(): string;
-    getValue(format: OutputFormat): string;
+    getValue(format?: OutputFormat): string;
     getValue(start: Offset, end: Offset, format?: OutputFormat): string;
-    getValue(range: Range, format?: OutputFormat): string;
-    getValue(ranges: Selection, format?: OutputFormat): string;
+    getValue(range: Range | Selection, format?: OutputFormat): string;
     getValue(
         arg1?: Offset | OutputFormat | Range | Selection,
         arg2?: Offset | OutputFormat,

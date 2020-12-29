@@ -26,7 +26,7 @@
 
 import { normalizeKeyboardEvent } from './keyboard-layout';
 
-const PRINTABLE_KEYCODE = [
+const PRINTABLE_KEYCODE = new Set([
     'Backquote', // Japanese keyboard: hankaku/zenkaku/kanji key, which is non-printable
     'Digit0',
     'Digit1',
@@ -102,7 +102,7 @@ const PRINTABLE_KEYCODE = [
     'NumpadParenRight',
     'NumpadStar',
     'NumpadSubstract',
-];
+]);
 
 export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
     if (evt.ctrlKey || evt.metaKey) {
@@ -116,7 +116,7 @@ export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
     // When issued via a composition, the `code` field is empty
     if (evt.code === '') return true;
 
-    return PRINTABLE_KEYCODE.indexOf(evt.code) >= 0;
+    return PRINTABLE_KEYCODE.has(evt.code);
 }
 
 /**
@@ -227,22 +227,22 @@ export function delegateKeyboardEvents(
 
     target.addEventListener(
         'keydown',
-        (e: KeyboardEvent): void => {
+        (event: KeyboardEvent): void => {
             // "Process" key indicates commit of IME session (on Firefox)
             // It's handled with compositionEnd so it can be safely ignored
             if (
                 compositionInProgress ||
-                e.key === 'Process' ||
-                e.code === 'CapsLock' ||
-                /(Control|Meta|Alt|Shift)(Left|Right)/.test(e.code)
+                event.key === 'Process' ||
+                event.code === 'CapsLock' ||
+                /(Control|Meta|Alt|Shift)(Left|Right)/.test(event.code)
             ) {
                 keydownEvent = null;
                 return;
             }
 
-            keydownEvent = e;
+            keydownEvent = event;
             keypressEvent = null;
-            if (!handlers.keystroke(keyboardEventToString(e), e)) {
+            if (!handlers.keystroke(keyboardEventToString(event), event)) {
                 keydownEvent = null;
                 textarea.value = '';
             }
@@ -251,7 +251,7 @@ export function delegateKeyboardEvents(
     );
     target.addEventListener(
         'keypress',
-        (e) => {
+        (event) => {
             if (compositionInProgress) return;
             // If this is not the first keypress after a keydown, that is,
             // if this is a repeated keystroke, call the keystroke handler.
@@ -263,7 +263,7 @@ export function delegateKeyboardEvents(
                     );
                 }
 
-                keypressEvent = e;
+                keypressEvent = event;
                 defer(handleTypedText);
             }
         },
@@ -283,12 +283,12 @@ export function delegateKeyboardEvents(
     );
     target.addEventListener(
         'paste',
-        (ev: ClipboardEvent) => {
+        (event: ClipboardEvent) => {
             // In some cases (Linux browsers), the text area might not be focused
             // when doing a middle-click paste command.
             textarea.focus();
             textarea.value = '';
-            handlers.paste(ev);
+            handlers.paste(event);
         },
         true
     );
@@ -296,18 +296,19 @@ export function delegateKeyboardEvents(
     target.addEventListener('copy', (ev) => handlers.copy(ev), true);
     target.addEventListener(
         'blur',
-        (ev) => {
+        (event) => {
             // If the relatedTarget (the element that is gaining the focus)
             // is contained in our shadow host, ignore the blur event
             if (
-                ev.relatedTarget ===
-                (((ev.target as HTMLElement).getRootNode() as any) as ShadowRoot)
+                event.relatedTarget ===
+                (((event.target as HTMLElement).getRootNode() as any) as ShadowRoot)
                     .host
             ) {
-                ev.preventDefault();
-                ev.stopPropagation();
+                event.preventDefault();
+                event.stopPropagation();
                 return;
             }
+
             if (blurInProgress || focusInProgress) return;
 
             blurInProgress = true;
@@ -331,11 +332,13 @@ export function delegateKeyboardEvents(
     );
     target.addEventListener(
         'compositionstart',
-        (ev: CompositionEvent) => {
+        (event: CompositionEvent) => {
             compositionInProgress = true;
             textarea.value = '';
 
-            if (handlers.compositionStart) handlers.compositionStart(ev.data);
+            if (handlers.compositionStart) {
+                handlers.compositionStart(event.data);
+            }
         },
         true
     );
@@ -420,8 +423,8 @@ export function delegateKeyboardEvents(
             textarea.setAttribute('aria-label', 'after: ' + value);
         },
         moveTo: (x: number, y: number): void => {
-            textarea.style.top = y + 'px';
-            textarea.style.left = x + 'px';
+            textarea.style.top = `${y}px`;
+            textarea.style.left = `${x}px`;
         },
     };
 }
@@ -431,6 +434,7 @@ function deepActiveElement(): Element | null {
     while (a?.shadowRoot?.activeElement) {
         a = a.shadowRoot.activeElement;
     }
+
     return a;
 }
 
@@ -441,9 +445,10 @@ export function eventToChar(evt: KeyboardEvent): string {
         // On Android, the evt.key seems to always be 'Unidentified'.
         // Get the value entered in the event target
         if (evt.target) {
-            result = evt.target['value'];
+            result = (evt.target as HTMLInputElement).value;
         }
     }
+
     result = result ?? evt.key ?? evt.code;
     if (
         /^(Dead|Return|Enter|Tab|Escape|Delete|PageUp|PageDown|Home|End|Help|ArrowLeft|ArrowRight|ArrowUp|ArrowDown)$/.test(
@@ -452,5 +457,6 @@ export function eventToChar(evt: KeyboardEvent): string {
     ) {
         result = '';
     }
+
     return result;
 }

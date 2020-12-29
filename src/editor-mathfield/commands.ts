@@ -39,6 +39,7 @@ registerCommand({
         if (!mathfield.keystrokeCaptionVisible) {
             mathfield.keystrokeCaption.style.visibility = 'hidden';
         }
+
         return false;
     },
     switchMode: (mathfield: MathfieldPrivate, mode: ParseMode) => {
@@ -55,6 +56,7 @@ registerCommand({
         if (typeof mathfield.options.onCommit === 'function') {
             mathfield.options.onCommit(mathfield);
         }
+
         return true;
     },
 });
@@ -68,6 +70,7 @@ registerCommand(
             if (mathfield.model.selectionIsCollapsed) {
                 mathfield.select();
             }
+
             document.execCommand('copy');
             return false;
         },

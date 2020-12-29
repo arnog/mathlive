@@ -21,9 +21,11 @@ export class LatexAtom extends Atom {
         this.isError = false;
         this.latex = value;
     }
+
     get computedStyle(): Style {
         return {};
     }
+
     render(context: Context): Span[] {
         const result = new Span(
             this.value,
@@ -47,10 +49,11 @@ export class LatexAtom extends Atom {
 export class LatexGroupAtom extends Atom {
     constructor(latex: string) {
         super('group', { mode: 'latex' });
-        this.body = Array.from(latex).map((x) => new LatexAtom(x));
+        this.body = [...latex].map((x) => new LatexAtom(x));
 
         this.skipBoundary = false;
     }
+
     render(context: Context): Span[] {
         const span = new Span(Atom.render(context, this.body), '', 'mord');
 
@@ -61,6 +64,7 @@ export class LatexGroupAtom extends Atom {
         this.bind(context, span);
         return [span];
     }
+
     toLatex(_options: ToLatexOptions): string {
         return this.body.map((x) => x.value).join('');
     }

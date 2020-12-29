@@ -1,3 +1,4 @@
+/* eslint-disable no-new */
 import { ErrorListener, Style, ParserErrorCode } from '../public/core';
 import { Mode, ParseTokensOptions, getPropertyRuns } from './modes-utils';
 import { colorToString } from './color';
@@ -15,22 +16,27 @@ function emitFontShapeTextRun(run: Atom[], options: ToLatexOptions): string {
     return joinLatex(
         getPropertyRuns(run, 'fontShape').map((x: Atom[]) => {
             const result = emitStringTextRun(x, options);
-            const fontShape = x[0].style.fontShape;
+            const { fontShape } = x[0].style;
             if (fontShape === 'it') {
                 return '\\textit{' + result + '}';
             }
+
             if (fontShape === 'sl') {
                 return '\\textsl{' + result + '}';
             }
+
             if (fontShape === 'sc') {
                 return '\\textsc{' + result + '}';
             }
+
             if (fontShape === 'n') {
                 return '\\textup{' + result + '}';
             }
+
             if (fontShape) {
                 return '\\fontshape{' + x[0].style.fontShape + '}' + result;
             }
+
             return result;
         })
     );
@@ -40,19 +46,23 @@ function emitFontSeriesTextRun(run: Atom[], options: ToLatexOptions): string {
     return joinLatex(
         getPropertyRuns(run, 'fontSeries').map((x) => {
             const result = emitFontShapeTextRun(x, options);
-            const fontSeries = x[0].style.fontSeries;
+            const { fontSeries } = x[0].style;
             if (fontSeries === 'b') {
                 return '\\textbf{' + result + '}';
             }
+
             if (fontSeries === 'l') {
                 return '\\textlf{' + result + '}';
             }
+
             if (fontSeries === 'm') {
                 return '\\textmd{' + result + '}';
             }
+
             if (fontSeries) {
                 return '\\fontseries{' + fontSeries + '}' + result;
             }
+
             return result;
         })
     );
@@ -62,7 +72,7 @@ function emitSizeTextRun(run: Atom[], options: ToLatexOptions): string {
     return joinLatex(
         getPropertyRuns(run, 'fontSize').map((x: Atom[]) => {
             const result = emitFontSeriesTextRun(x, options);
-            const command =
+            const command: string =
                 {
                     size1: 'tiny',
                     size2: 'scriptsize',
@@ -76,8 +86,9 @@ function emitSizeTextRun(run: Atom[], options: ToLatexOptions): string {
                     size10: 'Huge',
                 }[x[0].style.fontSize] || '';
             if (command) {
-                return '\\' + command + ' ' + result;
+                return `\\${command} ${result}`;
             }
+
             return result;
         })
     );
@@ -87,18 +98,18 @@ function emitFontFamilyTextRun(run: Atom[], options: ToLatexOptions): string {
     return joinLatex(
         getPropertyRuns(run, 'fontFamily').map((x: Atom[]) => {
             const result = emitSizeTextRun(x, options);
-            const command =
+            const command: string =
                 {
-                    roman: 'textrm',
-                    monospace: 'texttt',
+                    'roman': 'textrm',
+                    'monospace': 'texttt',
                     'sans-serif': 'textsf',
                 }[x[0].style.fontFamily] || '';
-            if (command) {
-                return '\\' + command + '{' + result + '}';
-            }
+            if (command) return `\\${command}{${result}}`;
+
             if (x[0].style.fontFamily) {
                 return '\\fontfamily{' + x[0].style.fontFamily + '}' + result;
             }
+
             return result;
         })
     );
@@ -130,20 +141,23 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
                     '}'
                 );
             }
+
             return result;
         })
     );
 }
-const TEXT_FONT_CLASS = {
-    roman: '',
+
+const TEXT_FONT_CLASS: Record<string, string> = {
+    'roman': '',
     'sans-serif': 'ML__sans',
-    monospace: 'ML__tt',
+    'monospace': 'ML__tt',
 };
 
 export class TextMode extends Mode {
     constructor() {
         super('text');
     }
+
     createAtom(command: string, style: Style): Atom | null {
         const info = getInfo(command, 'text');
         const value = info?.value ?? command;
@@ -163,6 +177,7 @@ export class TextMode extends Mode {
             // \\textbf, \\textit, etc... and the \\text would be redundant
             return `\\text{${result}}`;
         }
+
         return result;
     }
 
@@ -170,7 +185,7 @@ export class TextMode extends Mode {
      * Return the font-family name
      */
     applyStyle(span: Span, style: Style): string {
-        const fontFamily = style.fontFamily;
+        const { fontFamily } = style;
 
         if (TEXT_FONT_CLASS[fontFamily]) {
             span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
@@ -180,46 +195,48 @@ export class TextMode extends Mode {
         }
 
         if (style.fontShape) {
+            span.classes += ' ';
             span.classes +=
-                ' ' +
-                ({
+                {
                     it: 'ML__it',
-                    sl: 'ML__shape_sl', // slanted
-                    sc: 'ML__shape_sc', // small caps
-                    ol: 'ML__shape_ol', // outline
-                }[style.fontShape] || '');
+                    sl: 'ML__shape_sl', // Slanted
+                    sc: 'ML__shape_sc', // Small caps
+                    ol: 'ML__shape_ol', // Outline
+                }[style.fontShape] ?? '';
         }
+
         if (style.fontSeries) {
             const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
             if (m) {
+                span.classes += ' ';
                 span.classes +=
-                    ' ' +
-                    ({
+                    {
                         ul: 'ML__series_ul',
                         el: 'ML__series_el',
                         l: 'ML__series_l',
                         sl: 'ML__series_sl',
-                        m: '', // medium (default)
+                        m: '', // Medium (default)
                         sb: 'ML__series_sb',
                         b: 'ML__bold',
                         eb: 'ML__series_eb',
                         ub: 'ML__series_ub',
-                    }[m[1] || ''] || '');
+                    }[m[1] ?? ''] ?? '';
+                span.classes += ' ';
                 span.classes +=
-                    ' ' +
-                    ({
+                    {
                         uc: 'ML__series_uc',
                         ec: 'ML__series_ec',
                         c: 'ML__series_c',
                         sc: 'ML__series_sc',
-                        n: '', // normal (default)
+                        n: '', // Normal (default)
                         sx: 'ML__series_sx',
                         x: 'ML__series_x',
                         ex: 'ML__series_ex',
                         ux: 'ML__series_ux',
-                    }[m[2] || ''] || '');
+                    }[m[2] ?? ''] ?? '';
             }
         }
+
         // Always use the metrics of 'Main-Regular' in text mode
         return 'Main-Regular';
     }
@@ -242,7 +259,7 @@ export class TextMode extends Mode {
             const token = tokens.shift();
             if (token === '<space>') {
                 result.push(new TextAtom(' ', ' ', options.style));
-            } else if (token[0] === '\\') {
+            } else if (token.startsWith('\\')) {
                 // Invoke the 'main' parser to handle the command
                 tokens.unshift(token);
                 let atoms: Atom[];
@@ -272,6 +289,7 @@ export class TextMode extends Mode {
                 }
             }
         }
+
         return [result, tokens];
     }
 }

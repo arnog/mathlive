@@ -1,6 +1,6 @@
 import { Argument, defineFunction } from './definitions-utils';
 import { colorToString, stringToColor } from '../core/color';
-import { Atom, BBoxParam, ToLatexOptions } from '../core/atom-class';
+import { Atom, BBoxParameter, ToLatexOptions } from '../core/atom-class';
 import { FontShape, FontSeries, Style } from '../public/core';
 import { GroupAtom } from '../core-atoms/group';
 import { BoxAtom } from '../core-atoms/box';
@@ -104,7 +104,7 @@ defineFunction(
 defineFunction('bbox', '[:bbox]{body:auto}', {
     createAtom: (name: string, args: Argument[], style: Style): Atom => {
         if (args[0]) {
-            const arg = args[0] as BBoxParam;
+            const arg = args[0] as BBoxParameter;
             return new BoxAtom(name, args[1] as Atom[], {
                 padding: arg.padding,
                 border: arg.border,
@@ -113,31 +113,35 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
                 toLatexOverride: (atom: BoxAtom, options: ToLatexOptions) => {
                     let result = name;
                     if (
-                        isFinite(atom.padding) ||
+                        Number.isFinite(atom.padding) ||
                         typeof atom.border !== 'undefined' ||
                         typeof atom.backgroundcolor !== 'undefined'
                     ) {
-                        const bboxParams = [];
-                        if (isFinite(atom.padding)) {
-                            bboxParams.push(
-                                Math.floor(1e2 * atom.padding) / 1e2 + 'em'
+                        const bboxParameters = [];
+                        if (Number.isFinite(atom.padding)) {
+                            bboxParameters.push(
+                                `${Math.floor(1e2 * atom.padding) / 1e2}em`
                             );
                         }
+
                         if (atom.border) {
-                            bboxParams.push('border:' + atom.border);
+                            bboxParameters.push(`border: ${atom.border}`);
                         }
+
                         if (atom.backgroundcolor) {
-                            bboxParams.push(
+                            bboxParameters.push(
                                 colorToString(atom.backgroundcolor)
                             );
                         }
-                        result += `[${bboxParams.join(',')}]`;
+
+                        result += `[${bboxParameters.join(',')}]`;
                     }
 
                     return result + `{${atom.bodyToLatex(options)}}`;
                 },
             });
         }
+
         return new BoxAtom(name, args[1] as Atom[], { style });
     },
 });
@@ -679,18 +683,19 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
 class UnicodeAtom extends Atom {
     codepoint: number;
     constructor(arg: string, style: Style) {
-        let codepoint = parseInt(arg);
-        if (!isFinite(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
+        let codepoint = Number.parseInt(arg);
+        if (!Number.isFinite(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
         super('mord', {
             value: String.fromCodePoint(codepoint),
             style,
         });
         this.codepoint = codepoint;
     }
+
     toLatex(_options: ToLatexOptions): string {
         return (
             '\\unicode"' +
-            ('000000' + this.codepoint.toString(16)).toUpperCase().substr(-6)
+            ('000000' + this.codepoint.toString(16)).toUpperCase().slice(-6)
         );
     }
 }
@@ -793,6 +798,7 @@ defineFunction('smash', '[:string]{:auto}', {
         } else if (args[0] === 't') {
             phantomType = 'tsmash';
         }
+
         return new PhantomAtom(name, args[1] as Atom[], { phantomType, style });
     },
 });

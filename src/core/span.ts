@@ -95,21 +95,26 @@ function toString(arg: (string | number)[] | string | number): string {
     if (typeof arg === 'string') {
         return arg;
     }
+
     if (typeof arg === 'number') {
         return Number(Math.ceil(1e2 * arg) / 1e2).toString();
     }
+
     if (typeof arg === 'undefined') {
         return '';
     }
+
     if (isArray(arg)) {
         let result = '';
-        for (const elem of arg) {
-            result += toString(elem);
+        for (const element of arg) {
+            result += toString(element);
         }
+
         return result;
         // } else if (arg) {
         //     result += (arg as number).toString();
     }
+
     console.error('Span.toStringUnexpected argument type');
     return '';
 }
@@ -166,8 +171,8 @@ export class Span {
     svgOverlay?: string;
     svgStyle?: string;
 
-    style: { [key: string]: string };
-    attributes?: { [key: string]: string }; // HTML attributes, for example 'data-atom-id'
+    style: Record<string, string>;
+    attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
 
     constructor(
         content: string | Span | Span[],
@@ -196,6 +201,7 @@ export class Span {
         // Calculate the dimensions of this span based on its children
         this.updateDimensions();
     }
+
     /**
      * Update the dimensions of this node based on its children:
      * - height: distance from bottom to top
@@ -203,9 +209,9 @@ export class Span {
      * - maxFontSize: a size multiplier (typically set with commands such as \huge)
      */
     updateDimensions(): void {
-        let height = 0.0;
-        let depth = 0.0;
-        let maxFontSize = 1.0;
+        let height = 0;
+        let depth = 0;
+        let maxFontSize = 1;
         if (this.children) {
             this.children.forEach((x) => {
                 if (x.height > height) height = x.height;
@@ -221,6 +227,7 @@ export class Span {
                 depth = 0;
             }
         }
+
         this.height = height;
         this.depth = depth;
         this.maxFontSize = maxFontSize;
@@ -244,17 +251,18 @@ export class Span {
         // 1. Apply color
         //
         if (style.color) {
-            if (style.color !== 'none') {
-                this.setStyle('color', style.color);
-            } else {
+            if (style.color === 'none') {
                 this.setStyle('color', '');
+            } else {
+                this.setStyle('color', style.color);
             }
         }
+
         if (style.backgroundColor) {
-            if (style.backgroundColor !== 'none') {
-                this.setStyle('background-color', style.backgroundColor);
-            } else {
+            if (style.backgroundColor === 'none') {
                 this.setStyle('background-color', '');
+            } else {
+                this.setStyle('background-color', style.backgroundColor);
             }
         }
 
@@ -288,17 +296,17 @@ export class Span {
                     size2: 0.7,
                     size3: 0.8,
                     size4: 0.9,
-                    size5: 1.0,
+                    size5: 1,
                     size6: 1.2,
                     size7: 1.44,
                     size8: 1.73,
                     size9: 2.07,
                     size10: 2.49,
-                }[style.fontSize] || 1.0;
-            this.height = 0.0;
-            this.depth = 0.0;
-            this.skew = 0.0;
-            this.italic = 0.0;
+                }[style.fontSize] || 1;
+            this.height = 0;
+            this.depth = 0;
+            this.skew = 0;
+            this.italic = 0;
             for (let i = 0; i < this.value.length; i++) {
                 const metrics = getCharacterMetrics(
                     this.value.charAt(i),
@@ -331,9 +339,9 @@ export class Span {
     }
 
     setTop(top: number): void {
-        if (isFinite(top) && top !== 0) {
+        if (Number.isFinite(top) && top !== 0) {
             if (!this.style) this.style = {};
-            this.style['top'] = toString(top) + 'em';
+            this.style.top = toString(top) + 'em';
             this.height -= top;
             this.depth += top;
         }
@@ -341,12 +349,14 @@ export class Span {
 
     get left(): number {
         if (this.style?.['margin-left']) {
-            return parseFloat(this.style['margin-left']);
+            return Number.parseFloat(this.style['margin-left']);
         }
+
         return 0;
     }
+
     set left(value: number) {
-        if (!isFinite(value)) return;
+        if (!Number.isFinite(value)) return;
         if (!this.style) this.style = {};
         if (value === 0) {
             delete this.style['margin-left'];
@@ -354,8 +364,9 @@ export class Span {
             this.style['margin-left'] = toString(value) + 'em';
         }
     }
+
     set right(value: number) {
-        if (!isFinite(value)) return;
+        if (!Number.isFinite(value)) return;
         if (!this.style) this.style = {};
         if (value === 0) {
             delete this.style['margin-right'];
@@ -363,9 +374,10 @@ export class Span {
             this.style['margin-right'] = toString(value) + 'em';
         }
     }
+
     set width(value: number) {
         if (!this.style) this.style = {};
-        this.style['width'] = toString(value) + 'em';
+        this.style.width = toString(value) + 'em';
     }
 
     /**
@@ -385,7 +397,7 @@ export class Span {
     toMarkup(
         options: { hskip?: number; hscale?: number } = {
             hskip: 0,
-            hscale: 1.0,
+            hscale: 1,
         }
     ): string {
         let result = '';
@@ -402,11 +414,9 @@ export class Span {
                 let spacing = 0;
                 const type = getEffectiveType(this.children, i);
                 const combinedType = previousType + '+' + type;
-                if (child.isTight) {
-                    spacing = INTER_ATOM_TIGHT_SPACING[combinedType] ?? 0;
-                } else {
-                    spacing = INTER_ATOM_SPACING[combinedType] ?? 0;
-                }
+                spacing = child.isTight
+                    ? INTER_ATOM_TIGHT_SPACING[combinedType] ?? 0
+                    : INTER_ATOM_SPACING[combinedType] ?? 0;
                 body += child.toMarkup({
                     hskip: spacing,
                     hscale: options.hscale,
@@ -414,8 +424,9 @@ export class Span {
                 previousType = type;
             }
         }
+
         if (
-            (body === '\u200b' || (!body && !this.svgBody)) &&
+            (body === '\u200B' || (!body && !this.svgBody)) &&
             !this.classes &&
             !this.cssId &&
             !this.style &&
@@ -456,15 +467,14 @@ export class Span {
 
             // Remove duplicate and empty classes
             let classList = '';
-            if (classes.length > 1) {
-                classList = classes
-                    .filter((x, e, a) => {
-                        return x.length > 0 && a.indexOf(x) === e;
-                    })
-                    .join(' ');
-            } else {
-                classList = classes[0];
-            }
+            classList =
+                classes.length > 1
+                    ? classes
+                          .filter((x, e, a) => {
+                              return x.length > 0 && a.indexOf(x) === e;
+                          })
+                          .join(' ')
+                    : classes[0];
 
             if (classList.length > 0) {
                 result += ` class="${classList}"`;
@@ -483,6 +493,7 @@ export class Span {
                         if (x === 'background-color' && this.isSelected) {
                             return '';
                         }
+
                         return x + ':' + this.style[x];
                     })
                     .join(';');
@@ -491,6 +502,7 @@ export class Span {
                     result += ' style="' + styleString + '"';
                 }
             }
+
             result += '>';
 
             // If there is some SVG markup associated with this span,
@@ -500,30 +512,31 @@ export class Span {
             } else if (this.svgOverlay) {
                 result += '<span style="';
                 result += 'display: inline-block;';
-                result += 'height:' + (this.height + this.depth) + 'em;';
-                result += 'vertical-align:' + this.depth + 'em;';
+                result += `height:${this.height + this.depth}em;`;
+                result += `vertical-align:${this.depth}em;`;
                 result += '">';
                 result += body;
                 result += '</span>';
                 result += '<svg ';
                 result += 'style="position:absolute;';
                 result += 'overflow:overlay;';
-                result += 'height:' + (this.height + this.depth) + 'em;';
+                result += `height:${this.height + this.depth}em;`;
                 if (this.style?.padding) {
-                    result += 'top:' + this.style.padding + ';';
-                    result += 'left:' + this.style.padding + ';';
-                    result +=
-                        'width:calc(100% - 2 * ' + this.style.padding + ' );';
+                    result += `top:${this.style.padding};`;
+                    result += `left:{this.style.padding};`;
+                    result += `width:calc(100% - 2 * ${this.style.padding} );`;
                 } else {
                     result += 'top:0;';
                     result += 'left:0;';
                     result += 'width:100%;';
                 }
+
                 result += 'z-index:2;';
                 result += '"';
                 if (this.svgStyle) {
                     result += ' style="' + this.svgStyle + '"';
                 }
+
                 result += '>';
                 result += this.svgOverlay;
                 result += '</svg>';
@@ -595,11 +608,11 @@ export class Span {
         // If they have different classes, can't coalesce
         classes.sort();
         spanClasses.sort();
-        for (let i = 0; i < classes.length; i++) {
+        for (const [i, class_] of classes.entries()) {
             // Don't coalesce vertical separators
             // (used in column formating with {l||r} for example
-            if (classes[i] === 'vertical-separator') return false;
-            if (classes[i] !== spanClasses[i]) return false;
+            if (class_ === 'vertical-separator') return false;
+            if (class_ !== spanClasses[i]) return false;
         }
 
         // If the styles are different, can't coalesce
@@ -630,7 +643,7 @@ export class Span {
 function getEffectiveType(xs: Span[], i: number): string {
     if (i < 0 || i >= xs.length) return 'none';
 
-    const prevType = xs[i - 1]?.type ?? 'none';
+    const previousType = xs[i - 1]?.type ?? 'none';
     const nextType = xs[i + 1]?.type ?? 'none';
 
     let result = xs[i].type ?? 'none';
@@ -641,7 +654,7 @@ function getEffectiveType(xs: Span[], i: number): string {
         // of a certain type, consider it to be a `mord` instead.
         // This is to handle proper spacing of, e.g. "-4" vs "1-4"
         if (
-            /first|none|mrel|mpunct|mopen|mbin|mop/.test(prevType) ||
+            /first|none|mrel|mpunct|mopen|mbin|mop/.test(previousType) ||
             /none|mrel|mpunct|mclose/.test(nextType)
         ) {
             result = 'mord';
@@ -668,6 +681,7 @@ export function coalesce(spans: Span[]): Span[] {
             result.push(spans[i]);
         }
     }
+
     return result;
 }
 
@@ -680,6 +694,7 @@ export function height(spans: Span | Span[]): number {
     if (isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.height), 0);
     }
+
     return spans.height;
 }
 
@@ -688,6 +703,7 @@ export function depth(spans: Span | Span[]): number {
     if (isArray(spans)) {
         return spans.reduce((acc, x) => Math.max(acc, x.depth), 0);
     }
+
     return spans.depth;
 }
 
@@ -698,8 +714,10 @@ export function skew(spans: Span | Span[]): number {
         for (const span of spans) {
             result += span.skew || 0;
         }
+
         return result;
     }
+
     return spans.skew;
 }
 
@@ -708,6 +726,7 @@ export function italic(spans: Span | Span[]): number {
     if (isArray(spans)) {
         return spans[spans.length - 1].italic;
     }
+
     return spans.italic;
 }
 
@@ -740,7 +759,7 @@ function makeFontSizer(context: Context, fontSize: number): Span {
     const fontSizeAdjustment = fontSize
         ? fontSize / context.mathstyle.sizeMultiplier
         : 0;
-    const fontSizeInner = new Span('\u200b'); // ZERO WIDTH SPACE
+    const fontSizeInner = new Span('\u200B'); // ZERO WIDTH SPACE
     fontSizeInner.depth = 0;
     fontSizeInner.height = 0;
     if (fontSizeAdjustment !== 1) {
@@ -760,6 +779,7 @@ function makeFontSizer(context: Context, fontSize: number): Span {
             'fontsize-ensurer reset-' + context.size + ' size5'
         );
     }
+
     return fontSizeAdjustment !== 0 ? fontSizeInner : null;
 }
 
@@ -769,7 +789,7 @@ export function makeStruts(
     type: SpanType = ''
 ): Span {
     const topStrut = new Span('', 'ML__strut');
-    topStrut.setStyle('height', Math.max(0.0, height(content)), 'em');
+    topStrut.setStyle('height', Math.max(0, height(content)), 'em');
     const struts = [topStrut];
 
     if (depth(content) !== 0) {
@@ -778,6 +798,7 @@ export function makeStruts(
         bottomStrut.setStyle('vertical-align', -depth(content), 'em');
         struts.push(bottomStrut);
     }
+
     struts.push(content);
     return new Span(struts, classes, type);
 }
@@ -826,15 +847,14 @@ export function makeHlist(
 
     const result = new Span(spans, classes, type);
 
-    let multiplier = 1.0;
-    if (spans instanceof Span) {
-        multiplier = spans.maxFontSize;
-    } else {
-        multiplier = result.children.reduce(
-            (acc, x) => Math.max(acc, x.maxFontSize),
-            multiplier
-        );
-    }
+    let multiplier = 1;
+    multiplier =
+        spans instanceof Span
+            ? spans.maxFontSize
+            : result.children.reduce(
+                  (acc, x) => Math.max(acc, x.maxFontSize),
+                  multiplier
+              );
     result.height *= multiplier;
     result.depth *= multiplier;
 
@@ -898,6 +918,7 @@ export function makeVlist(
                 bottom -= element;
             }
         }
+
         listDepth = bottom;
     } else if (pos === 'individualShift') {
         // Individual adjustment to each elements.
@@ -920,7 +941,7 @@ export function makeVlist(
                 -originalElements[i + 1] -
                 currPos -
                 (originalElements[i] as Span).depth;
-            currPos = currPos + diff;
+            currPos += diff;
 
             console.assert(originalElements[i - 2] instanceof Span);
             const kern =
@@ -936,12 +957,13 @@ export function makeVlist(
     }
 
     // Make the fontSizer
-    let maxFontSize = 1.0;
+    let maxFontSize = 1;
     for (const element of elements) {
         if (element instanceof Span) {
             maxFontSize = Math.max(maxFontSize, element.maxFontSize);
         }
     }
+
     const fontSizer = makeFontSizer(context, maxFontSize);
 
     const newElements: Span[] = [];

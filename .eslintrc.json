@@ -1,364 +1,364 @@
 {
-    "env": {
-        "browser": true,
-        // "commonjs": true,
-        // "es6": true,
-        "es2020": true,
-        "jest": true,
-        "node": true, // For jest, config files, etc...
-        "amd": true,
-        "mocha": true
-    },
+  "env": {
+    "browser": true,
+    // "commonjs": true,
+    // "es6": true,
+    "es2020": true,
+    "jest": true,
+    "node": true, // For jest, config files, etc...
+    "amd": true,
+    "mocha": true
+  },
 
-    "parser": "@typescript-eslint/parser",
+  "parser": "@typescript-eslint/parser",
 
-    "parserOptions": {
-        // Configure the parser with the tsconfig file in the root project
-        // (or rather an extended version that add peripheral files such as rollup.config.js
-        // so that eslint doesn't complain that they are not in the project)
-        "project": "./tsconfig.eslint.json",
+  "parserOptions": {
+    // Configure the parser with the tsconfig file in the root project
+    // (or rather an extended version that add peripheral files such as rollup.config.js
+    // so that eslint doesn't complain that they are not in the project)
+    "project": "./tsconfig.eslint.json",
 
-        // "ecmaFeatures": { "jsx": false }, // default
-        "ecmaVersion": 2020,
-        // "sourceType": "module" // Allow the use of import
-        "extraFileExtensions": [".less"]
-    },
+    // "ecmaFeatures": { "jsx": false }, // default
+    "ecmaVersion": 2020,
+    // "sourceType": "module" // Allow the use of import
+    "extraFileExtensions": [".less"]
+  },
 
-    "extends": [
-        // Uses the recommended rules for Typescript
-        "plugin:@typescript-eslint/recommended",
-        "prettier/@typescript-eslint", // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
-        // Disable rules that conflict with prettier
-        // See https://prettier.io/docs/en/integrating-with-linters.html
-        "plugin:prettier/recommended"
+  "extends": [
+    // Uses the recommended rules for Typescript
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint", // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
+    // Disable rules that conflict with prettier
+    // See https://prettier.io/docs/en/integrating-with-linters.html
+    "plugin:prettier/recommended"
 
-        // "plugin:no-unsanitized/DOM"
+    // "plugin:no-unsanitized/DOM"
+  ],
+
+  // Note:
+  // "off" or 0 - turn the rule off
+  // "warn" or 1 - turn the rule on as a warning (doesn’t affect exit code)
+  // "error" or 2 - turn the rule on as an error (exit code is 1 when triggered)
+  // See http://eslint.org/docs/rules/
+  "rules": {
+    // "no-unsanitized/method": [
+    //     "warn",
+    //     {
+    //         // "disableDefault": true,
+    //         "escape": {
+    //             "methods": [
+    //                 "createHTML",
+    //                 "mathfield.config.createHTML",
+    //                 "MathfieldPrivate.config.createHTML"
+    //             ]
+    //         }
+    //     }
+    // ],
+    "no-restricted-globals": [
+      "error",
+      "postMessage",
+      "blur",
+      "focus",
+      "close",
+      "frames",
+      "self",
+      "parent",
+      "opener",
+      "top",
+      "length",
+      "closed",
+      "location",
+      "origin",
+      "name",
+      "locationbar",
+      "menubar",
+      "personalbar",
+      "scrollbars",
+      "statusbar",
+      "toolbar",
+      "status",
+      "frameElement",
+      // "navigator",
+      "customElements",
+      "external",
+      "screen",
+      "innerWidth",
+      "innerHeight",
+      "scrollX",
+      "pageXOffset",
+      "scrollY",
+      "pageYOffset",
+      "screenX",
+      "screenY",
+      "outerWidth",
+      "outerHeight",
+      "devicePixelRatio",
+      "clientInformation",
+      "screenLeft",
+      "screenTop",
+      "defaultStatus",
+      "defaultstatus",
+      "styleMedia",
+      "onanimationend",
+      "onanimationiteration",
+      "onanimationstart",
+      "onsearch",
+      "ontransitionend",
+      "onwebkitanimationend",
+      "onwebkitanimationiteration",
+      "onwebkitanimationstart",
+      "onwebkittransitionend",
+      "isSecureContext",
+      "onabort",
+      "onblur",
+      "oncancel",
+      "oncanplay",
+      "oncanplaythrough",
+      "onchange",
+      "onclick",
+      "onclose",
+      "oncontextmenu",
+      "oncuechange",
+      "ondblclick",
+      "ondrag",
+      "ondragend",
+      "ondragenter",
+      "ondragleave",
+      "ondragover",
+      "ondragstart",
+      "ondrop",
+      "ondurationchange",
+      "onemptied",
+      "onended",
+      "onerror",
+      "onfocus",
+      "oninput",
+      "oninvalid",
+      "onkeydown",
+      "onkeypress",
+      "onkeyup",
+      "onload",
+      "onloadeddata",
+      "onloadedmetadata",
+      "onloadstart",
+      "onmousedown",
+      "onmouseenter",
+      "onmouseleave",
+      "onmousemove",
+      "onmouseout",
+      "onmouseover",
+      "onmouseup",
+      "onmousewheel",
+      "onpause",
+      "onplay",
+      "onplaying",
+      "onprogress",
+      "onratechange",
+      "onreset",
+      "onresize",
+      "onscroll",
+      "onseeked",
+      "onseeking",
+      "onselect",
+      "onstalled",
+      "onsubmit",
+      "onsuspend",
+      "ontimeupdate",
+      "ontoggle",
+      "onvolumechange",
+      "onwaiting",
+      "onwheel",
+      "onauxclick",
+      "ongotpointercapture",
+      "onlostpointercapture",
+      "onpointerdown",
+      "onpointermove",
+      "onpointerup",
+      "onpointercancel",
+      "onpointerover",
+      "onpointerout",
+      "onpointerenter",
+      "onpointerleave",
+      "onafterprint",
+      "onbeforeprint",
+      "onbeforeunload",
+      "onhashchange",
+      "onlanguagechange",
+      "onmessage",
+      "onmessageerror",
+      "onoffline",
+      "ononline",
+      "onpagehide",
+      "onpageshow",
+      "onpopstate",
+      "onrejectionhandled",
+      "onstorage",
+      "onunhandledrejection",
+      "onunload",
+      "performance",
+      "stop",
+      "open",
+      "print",
+      "captureEvents",
+      "releaseEvents",
+      // "getComputedStyle",
+      "matchMedia",
+      "moveTo",
+      "moveBy",
+      "resizeTo",
+      "resizeBy",
+      "getSelection",
+      "find",
+      "createImageBitmap",
+      "scroll",
+      "scrollTo",
+      "scrollBy",
+      "onappinstalled",
+      "onbeforeinstallprompt",
+      "crypto",
+      "ondevicemotion",
+      "ondeviceorientation",
+      "ondeviceorientationabsolute",
+      "indexedDB",
+      "webkitStorageInfo",
+      "chrome",
+      "visualViewport",
+      "speechSynthesis",
+      "webkitRequestFileSystem",
+      "webkitResolveLocalFileSystemURL",
+      "openDatabase"
     ],
 
-    // Note:
-    // "off" or 0 - turn the rule off
-    // "warn" or 1 - turn the rule on as a warning (doesn’t affect exit code)
-    // "error" or 2 - turn the rule on as an error (exit code is 1 when triggered)
-    // See http://eslint.org/docs/rules/
-    "rules": {
-        // "no-unsanitized/method": [
+    // Turn off rules that are Typescript specific
+    // (they are turned on later in the "overrides" section)
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+
+    "no-unused-expressions": "off",
+
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
+
+    // note you must disable the base rule as it can report incorrect errors
+    "indent": "off",
+
+    "no-const-assign": "warn",
+    "no-this-before-super": "warn",
+    // "no-undef": "warn",
+    "no-unreachable": "warn",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { "argsIgnorePattern": "^_" }
+    ],
+    "constructor-super": "warn",
+
+    "block-scoped-var": "error",
+
+    "array-bracket-spacing": ["error", "never"],
+    "block-spacing": ["error", "always"],
+    "brace-style": ["warn", "1tbs", { "allowSingleLine": true }],
+    "prefer-const": "warn",
+
+    "valid-typeof": "error",
+    "consistent-return": "error",
+    "curly": ["warn", "multi-line"],
+    "eqeqeq": ["error", "smart"],
+    "guard-for-in": "warn",
+    // "max-len": "warn",
+    "new-cap": "warn",
+    "no-bitwise": "off",
+    "no-console": "off",
+    "no-dupe-class-members": "off", // Support TypeScritp polymorphism
+    "no-else-return": "warn",
+    "no-eval": "error",
+    "no-fallthrough": "error",
+    "no-invalid-this": "warn",
+    "no-lone-blocks": "warn",
+    "no-return-assign": ["warn", "always"],
+    "no-redeclare": "off",
+    "no-self-compare": "error",
+    "no-sequences": "warn",
+    "no-unneeded-ternary": "warn",
+    "no-useless-call": "warn",
+    "no-var": "error",
+    "no-with": "error",
+    // "vars-on-top": "warn",
+    "no-delete-var": "warn",
+    "no-mixed-spaces-and-tabs": ["warn", "smart-tabs"],
+    "require-jsdoc": "off",
+    "space-infix-ops": ["error", { "int32Hint": false }],
+
+    "no-trailing-spaces": [1, { "skipBlankLines": true }]
+  },
+  "overrides": [
+    {
+      // Typescript-specific rules
+      "files": ["*.ts"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_"
+            // "varsIgnorePattern": "^_",
+            // "vars": "all",
+            // "args": "after-used",
+            // "ignoreRestSiblings": false
+          }
+        ],
+        // We use @ts-ignore to generate the .d.ts files using tsc, even though
+        // they import .less file which tsc doesn't know to handle.
+        "@typescript-eslint/ban-ts-comment": "off",
+
+        // When used with optional chaining, eslint can give an incorrect warning
+        "@typescript-eslint/no-unused-expressions": "warn",
+        "@typescript-eslint/prefer-optional-chain": "warn",
+        "@typescript-eslint/prefer-nullish-coalescing": "warn",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": "typeParameter",
+            "format": ["PascalCase"]
+          }
+        ],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-use-before-define": [
+          "error",
+          {
+            "functions": false,
+            "classes": false,
+            "variables": false,
+            "typedefs": false
+          }
+        ],
+        "@typescript-eslint/no-this-alias": [
+          "error",
+          {
+            "allowedNames": ["self", "that"] // Allow `const self = this`; `[]` by default
+          }
+        ],
+        "@typescript-eslint/no-for-in-array": "error",
+
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "warn",
+        "@typescript-eslint/no-unnecessary-type-arguments": "warn",
+        // "@typescript-eslint/typedef": [
         //     "warn",
         //     {
-        //         // "disableDefault": true,
-        //         "escape": {
-        //             "methods": [
-        //                 "createHTML",
-        //                 "mathfield.config.createHTML",
-        //                 "MathfieldPrivate.config.createHTML"
-        //             ]
-        //         }
+        //         "parameter": true,
+        //         "arrowParameter": false,
+        //         "variableDeclaration": false
         //     }
         // ],
-        "no-restricted-globals": [
-            "error",
-            "postMessage",
-            "blur",
-            "focus",
-            "close",
-            "frames",
-            "self",
-            "parent",
-            "opener",
-            "top",
-            "length",
-            "closed",
-            "location",
-            "origin",
-            "name",
-            "locationbar",
-            "menubar",
-            "personalbar",
-            "scrollbars",
-            "statusbar",
-            "toolbar",
-            "status",
-            "frameElement",
-            // "navigator",
-            "customElements",
-            "external",
-            "screen",
-            "innerWidth",
-            "innerHeight",
-            "scrollX",
-            "pageXOffset",
-            "scrollY",
-            "pageYOffset",
-            "screenX",
-            "screenY",
-            "outerWidth",
-            "outerHeight",
-            "devicePixelRatio",
-            "clientInformation",
-            "screenLeft",
-            "screenTop",
-            "defaultStatus",
-            "defaultstatus",
-            "styleMedia",
-            "onanimationend",
-            "onanimationiteration",
-            "onanimationstart",
-            "onsearch",
-            "ontransitionend",
-            "onwebkitanimationend",
-            "onwebkitanimationiteration",
-            "onwebkitanimationstart",
-            "onwebkittransitionend",
-            "isSecureContext",
-            "onabort",
-            "onblur",
-            "oncancel",
-            "oncanplay",
-            "oncanplaythrough",
-            "onchange",
-            "onclick",
-            "onclose",
-            "oncontextmenu",
-            "oncuechange",
-            "ondblclick",
-            "ondrag",
-            "ondragend",
-            "ondragenter",
-            "ondragleave",
-            "ondragover",
-            "ondragstart",
-            "ondrop",
-            "ondurationchange",
-            "onemptied",
-            "onended",
-            "onerror",
-            "onfocus",
-            "oninput",
-            "oninvalid",
-            "onkeydown",
-            "onkeypress",
-            "onkeyup",
-            "onload",
-            "onloadeddata",
-            "onloadedmetadata",
-            "onloadstart",
-            "onmousedown",
-            "onmouseenter",
-            "onmouseleave",
-            "onmousemove",
-            "onmouseout",
-            "onmouseover",
-            "onmouseup",
-            "onmousewheel",
-            "onpause",
-            "onplay",
-            "onplaying",
-            "onprogress",
-            "onratechange",
-            "onreset",
-            "onresize",
-            "onscroll",
-            "onseeked",
-            "onseeking",
-            "onselect",
-            "onstalled",
-            "onsubmit",
-            "onsuspend",
-            "ontimeupdate",
-            "ontoggle",
-            "onvolumechange",
-            "onwaiting",
-            "onwheel",
-            "onauxclick",
-            "ongotpointercapture",
-            "onlostpointercapture",
-            "onpointerdown",
-            "onpointermove",
-            "onpointerup",
-            "onpointercancel",
-            "onpointerover",
-            "onpointerout",
-            "onpointerenter",
-            "onpointerleave",
-            "onafterprint",
-            "onbeforeprint",
-            "onbeforeunload",
-            "onhashchange",
-            "onlanguagechange",
-            "onmessage",
-            "onmessageerror",
-            "onoffline",
-            "ononline",
-            "onpagehide",
-            "onpageshow",
-            "onpopstate",
-            "onrejectionhandled",
-            "onstorage",
-            "onunhandledrejection",
-            "onunload",
-            "performance",
-            "stop",
-            "open",
-            "print",
-            "captureEvents",
-            "releaseEvents",
-            // "getComputedStyle",
-            "matchMedia",
-            "moveTo",
-            "moveBy",
-            "resizeTo",
-            "resizeBy",
-            "getSelection",
-            "find",
-            "createImageBitmap",
-            "scroll",
-            "scrollTo",
-            "scrollBy",
-            "onappinstalled",
-            "onbeforeinstallprompt",
-            "crypto",
-            "ondevicemotion",
-            "ondeviceorientation",
-            "ondeviceorientationabsolute",
-            "indexedDB",
-            "webkitStorageInfo",
-            "chrome",
-            "visualViewport",
-            "speechSynthesis",
-            "webkitRequestFileSystem",
-            "webkitResolveLocalFileSystemURL",
-            "openDatabase"
-        ],
 
-        // Turn off rules that are Typescript specific
-        // (they are turned on later in the "overrides" section)
-        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/array-type": ["warn", { "default": "array" }],
 
-        "no-unused-expressions": "off",
-
-        "prettier/prettier": [
-            "error",
-            {
-                "endOfLine": "auto"
-            }
-        ],
-
-        // note you must disable the base rule as it can report incorrect errors
-        "indent": "off",
-
-        "no-const-assign": "warn",
-        "no-this-before-super": "warn",
-        // "no-undef": "warn",
-        "no-unreachable": "warn",
-        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-        "@typescript-eslint/no-unused-vars": "off",
-        "constructor-super": "warn",
-
-        "block-scoped-var": "error",
-
-        "array-bracket-spacing": ["error", "never"],
-        "block-spacing": ["error", "always"],
-        "brace-style": ["warn", "1tbs", { "allowSingleLine": true }],
-        "prefer-const": "warn",
-
-        "valid-typeof": "error",
-        "consistent-return": "error",
-        "curly": ["warn", "multi-line"],
-        "eqeqeq": ["error", "smart"],
-        "guard-for-in": "warn",
-        // "max-len": "warn",
-        "new-cap": "warn",
-        "no-bitwise": "off",
-        "no-console": "off",
-        "no-dupe-class-members": "off", // Support TypeScritp polymorphism
-        "no-else-return": "warn",
-        "no-eval": "error",
-        "no-fallthrough": "error",
-        "no-invalid-this": "warn",
-        "no-lone-blocks": "warn",
-        "no-return-assign": ["warn", "always"],
-        "no-redeclare": "off",
-        "no-self-compare": "error",
-        "no-sequences": "warn",
-        "no-unneeded-ternary": "warn",
-        "no-useless-call": "warn",
-        "no-var": "error",
-        "no-with": "error",
-        // "vars-on-top": "warn",
-        "no-delete-var": "warn",
-        "no-mixed-spaces-and-tabs": ["warn", "smart-tabs"],
-        "require-jsdoc": "off",
-        "space-infix-ops": ["error", { "int32Hint": false }],
-
-        "no-trailing-spaces": [1, { "skipBlankLines": true }]
-    },
-    "overrides": [
-        {
-            // Typescript-specific rules
-            "files": ["*.ts"],
-            "rules": {
-                "@typescript-eslint/no-unused-vars": [
-                    "error",
-                    {
-                        "argsIgnorePattern": "^_"
-                        // "varsIgnorePattern": "^_",
-                        // "vars": "all",
-                        // "args": "after-used",
-                        // "ignoreRestSiblings": false
-                    }
-                ],
-                // We use @ts-ignore to generate the .d.ts files using tsc, even though
-                // they import .less file which tsc doesn't know to handle.
-                "@typescript-eslint/ban-ts-comment": "off",
-
-                // When used with optional chaining, eslint can give an incorrect warning
-                "@typescript-eslint/no-unused-expressions": "warn",
-                "@typescript-eslint/prefer-optional-chain": "warn",
-                "@typescript-eslint/prefer-nullish-coalescing": "warn",
-
-                "@typescript-eslint/naming-convention": [
-                    "warn",
-                    {
-                        "selector": "typeParameter",
-                        "format": ["PascalCase"]
-                    }
-                ],
-                "@typescript-eslint/no-non-null-assertion": "off",
-                "@typescript-eslint/no-use-before-define": [
-                    "error",
-                    {
-                        "functions": false,
-                        "classes": false,
-                        "variables": false,
-                        "typedefs": false
-                    }
-                ],
-                "@typescript-eslint/no-this-alias": [
-                    "error",
-                    {
-                        "allowedNames": ["self", "that"] // Allow `const self = this`; `[]` by default
-                    }
-                ],
-                "@typescript-eslint/no-for-in-array": "error",
-
-                "@typescript-eslint/explicit-function-return-type": "off",
-                "@typescript-eslint/explicit-module-boundary-types": "warn",
-                "@typescript-eslint/no-unnecessary-type-arguments": "warn",
-                // "@typescript-eslint/typedef": [
-                //     "warn",
-                //     {
-                //         "parameter": true,
-                //         "arrowParameter": false,
-                //         "variableDeclaration": false
-                //     }
-                // ],
-
-                "@typescript-eslint/array-type": [
-                    "warn",
-                    { "default": "array" }
-                ],
-
-                "@typescript-eslint/no-explicit-any": "off"
-            }
-        }
-    ]
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
 }

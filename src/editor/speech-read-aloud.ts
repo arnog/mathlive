@@ -1,6 +1,13 @@
 import { render } from '../editor-mathfield/render';
 import { MathfieldOptions } from '../public/options';
 
+declare global {
+    interface Window {
+        AWS: any;
+        mathlive: any;
+    }
+}
+
 function removeHighlight(element: Element): void {
     element.classList.remove('ML__highlight');
     if (element.children) {
@@ -19,19 +26,23 @@ function removeHighlight(element: Element): void {
  * @param {string} atomID
  *
  */
-function highlightAtomID(element: Element, atomID?: string): void {
-    if (!atomID || element['dataset']?.atomId === atomID) {
+function highlightAtomID(element: HTMLElement, atomID?: string): void {
+    if (!atomID || element.dataset?.atomId === atomID) {
         element.classList.add('ML__highlight');
         if (element.children && element.children.length > 0) {
-            Array.from(element.children).forEach((x) => {
-                highlightAtomID(x);
+            [...element.children].forEach((x) => {
+                if (x instanceof HTMLElement) {
+                    highlightAtomID(x);
+                }
             });
         }
     } else {
         element.classList.remove('ML__highlight');
         if (element.children && element.children.length > 0) {
-            Array.from(element.children).forEach((x) => {
-                highlightAtomID(x, atomID);
+            [...element.children].forEach((x) => {
+                if (x instanceof HTMLElement) {
+                    highlightAtomID(x, atomID);
+                }
             });
         }
     }
@@ -52,8 +63,9 @@ export function defaultReadAloudHook(
     if (!window) {
         return;
     }
-    if (!config && window['mathlive']) {
-        config = window['mathlive'].config;
+
+    if (!config && window.mathlive) {
+        config = window.mathlive.config;
     }
 
     if (config.speechEngine !== 'amazon') {
@@ -61,15 +73,17 @@ export function defaultReadAloudHook(
         if (config.speakHook) config.speakHook(text, config);
         return;
     }
-    if (!window['AWS']) {
+
+    if (!window.AWS) {
         console.warn(
             'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
         );
         return;
     }
-    const polly = new window['AWS'].Polly({ apiVersion: '2016-06-10' });
 
-    const params = {
+    const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
+
+    const parameters = {
         OutputFormat: 'json',
         VoiceId: config.speechEngineVoice || 'Joanna',
         Engine: 'standard', // The neural engine does not appear to support ssml marks
@@ -78,40 +92,43 @@ export function defaultReadAloudHook(
         SpeechMarkTypes: ['ssml'],
     };
 
-    window['mathlive'] = window['mathlive'] ?? {};
-    window['mathlive'].readAloudElement = element;
+    window.mathlive = window.mathlive ?? {};
+    window.mathlive.readAloudElement = element;
 
     const statusHook =
-        config.onReadAloudStatus || window['mathlive'].onReadAloudStatus;
+        config.onReadAloudStatus || window.mathlive.onReadAloudStatus;
 
     // Request the mark points
-    polly.synthesizeSpeech(params, (err, data) => {
+    polly.synthesizeSpeech(parameters, (err, data) => {
         if (err) {
             console.warn('polly.synthesizeSpeech() error:', err, err.stack);
             return;
         }
+
         if (!data || !data.AudioStream) {
-            console.log('polly.synthesizeSpeech():' + data);
+            console.log('polly.synthesizeSpeech():', data);
             return;
         }
+
         const response = new TextDecoder('utf-8').decode(
             new Uint8Array(data.AudioStream)
         );
-        window['mathlive'].readAloudMarks = response
+        window.mathlive.readAloudMarks = response
             .split('\n')
             .map((x) => (x ? JSON.parse(x) : {}));
-        window['mathlive'].readAloudTokens = [];
-        for (const mark of window['mathlive'].readAloudMarks) {
+        window.mathlive.readAloudTokens = [];
+        for (const mark of window.mathlive.readAloudMarks) {
             if (mark.value) {
-                window['mathlive'].readAloudTokens.push(mark.value);
+                window.mathlive.readAloudTokens.push(mark.value);
             }
         }
-        window['mathlive'].readAloudCurrentMark = '';
+
+        window.mathlive.readAloudCurrentMark = '';
 
         // Request the audio
-        params.OutputFormat = 'mp3';
-        params.SpeechMarkTypes = [];
-        polly.synthesizeSpeech(params, function (err, data) {
+        parameters.OutputFormat = 'mp3';
+        parameters.SpeechMarkTypes = [];
+        polly.synthesizeSpeech(parameters, (err, data) => {
             if (err) {
                 console.warn(
                     'polly.synthesizeSpeech(',
@@ -122,39 +139,37 @@ export function defaultReadAloudHook(
                 );
                 return;
             }
+
             if (!data || !data.AudioStream) {
                 return;
             }
+
             const uInt8Array = new Uint8Array(data.AudioStream);
             const blob = new Blob([uInt8Array.buffer], {
                 type: 'audio/mpeg',
             });
             const url = URL.createObjectURL(blob);
 
-            if (!window['mathlive'].readAloudAudio) {
-                window['mathlive'].readAloudAudio = new Audio();
-                window['mathlive'].readAloudAudio.addEventListener(
-                    'ended',
-                    () => {
-                        const mathfield = window['mathlive'].readAloudMathField;
-                        if (statusHook) {
-                            statusHook(mathfield, 'ended');
-                        }
-                        if (mathfield) {
-                            render(mathfield);
-                            window['mathlive'].readAloudElement = null;
-                            window['mathlive'].readAloudMathField = null;
-                            window['mathlive'].readAloudTokens = [];
-                            window['mathlive'].readAloudMarks = [];
-                            window['mathlive'].readAloudCurrentMark = '';
-                        } else {
-                            removeHighlight(
-                                window['mathlive'].readAloudElement
-                            );
-                        }
+            if (!window.mathlive.readAloudAudio) {
+                window.mathlive.readAloudAudio = new Audio();
+                window.mathlive.readAloudAudio.addEventListener('ended', () => {
+                    const mathfield = window.mathlive.readAloudMathField;
+                    if (statusHook) {
+                        statusHook(mathfield, 'ended');
                     }
-                );
-                window['mathlive'].readAloudAudio.addEventListener(
+
+                    if (mathfield) {
+                        render(mathfield);
+                        window.mathlive.readAloudElement = null;
+                        window.mathlive.readAloudMathField = null;
+                        window.mathlive.readAloudTokens = [];
+                        window.mathlive.readAloudMarks = [];
+                        window.mathlive.readAloudCurrentMark = '';
+                    } else {
+                        removeHighlight(window.mathlive.readAloudElement);
+                    }
+                });
+                window.mathlive.readAloudAudio.addEventListener(
                     'timeupdate',
                     () => {
                         let value = '';
@@ -162,42 +177,43 @@ export function defaultReadAloudHook(
                         // plus 100 ms. By anticipating it a little bit, it feels more natural, otherwise it
                         // feels like the highlighting is trailing the audio.
                         const target =
-                            window['mathlive'].readAloudAudio.currentTime *
-                                1000 +
+                            window.mathlive.readAloudAudio.currentTime * 1000 +
                             100;
 
                         // Find the smallest element which is bigger than the target time
-                        for (const mark of window['mathlive'].readAloudMarks) {
+                        for (const mark of window.mathlive.readAloudMarks) {
                             if (mark.time < target) {
                                 value = mark.value;
                             }
                         }
-                        if (window['mathlive'].readAloudCurrentMark !== value) {
-                            window['mathlive'].readAloudCurrentToken = value;
+
+                        if (window.mathlive.readAloudCurrentMark !== value) {
+                            window.mathlive.readAloudCurrentToken = value;
                             if (
                                 value &&
-                                value === window['mathlive'].readAloudFinalToken
+                                value === window.mathlive.readAloudFinalToken
                             ) {
-                                window['mathlive'].readAloudAudio.pause();
+                                window.mathlive.readAloudAudio.pause();
                             } else {
-                                window['mathlive'].readAloudCurrentMark = value;
+                                window.mathlive.readAloudCurrentMark = value;
                                 highlightAtomID(
-                                    window['mathlive'].readAloudElement,
-                                    window['mathlive'].readAloudCurrentMark
+                                    window.mathlive.readAloudElement,
+                                    window.mathlive.readAloudCurrentMark
                                 );
                             }
                         }
                     }
                 );
             } else {
-                window['mathlive'].readAloudAudio.pause();
+                window.mathlive.readAloudAudio.pause();
             }
 
-            window['mathlive'].readAloudAudio.src = url;
+            window.mathlive.readAloudAudio.src = url;
             if (statusHook) {
-                statusHook(window['mathlive'].readAloudMathField, 'playing');
+                statusHook(window.mathlive.readAloudMathField, 'playing');
             }
-            window['mathlive'].readAloudAudio.play();
+
+            window.mathlive.readAloudAudio.play();
         });
     });
 }
@@ -221,11 +237,11 @@ export function readAloudStatus():
     | 'paused'
     | 'unavailable' {
     if (!window) return 'unavailable';
-    window['mathlive'] = window['mathlive'] ?? {};
+    window.mathlive = window.mathlive ?? {};
 
-    if (!window['mathlive'].readAloudAudio) return 'ready';
-    if (window['mathlive'].readAloudAudio.paused) return 'paused';
-    if (!window['mathlive'].readAloudAudio.ended) return 'playing';
+    if (!window.mathlive.readAloudAudio) return 'ready';
+    if (window.mathlive.readAloudAudio.paused) return 'paused';
+    if (!window.mathlive.readAloudAudio.ended) return 'playing';
 
     return 'ready';
 }
@@ -237,15 +253,16 @@ export function readAloudStatus():
  */
 export function pauseReadAloud(): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] ?? {};
-    if (window['mathlive'].readAloudAudio) {
-        if (window['mathlive'].onReadAloudStatus) {
-            window['mathlive'].onReadAloudStatus(
-                window['mathlive'].readAloudMathField,
+    window.mathlive = window.mathlive ?? {};
+    if (window.mathlive.readAloudAudio) {
+        if (window.mathlive.onReadAloudStatus) {
+            window.mathlive.onReadAloudStatus(
+                window.mathlive.readAloudMathField,
                 'paused'
             );
         }
-        window['mathlive'].readAloudAudio.pause();
+
+        window.mathlive.readAloudAudio.pause();
     }
 }
 
@@ -256,15 +273,16 @@ export function pauseReadAloud(): void {
  */
 export function resumeReadAloud(): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] ?? {};
-    if (window['mathlive'].readAloudAudio) {
-        if (window['mathlive'].onReadAloudStatus) {
-            window['mathlive'].onReadAloudStatus(
-                window['mathlive'].readAloudMathField,
+    window.mathlive = window.mathlive ?? {};
+    if (window.mathlive.readAloudAudio) {
+        if (window.mathlive.onReadAloudStatus) {
+            window.mathlive.onReadAloudStatus(
+                window.mathlive.readAloudMathField,
                 'playing'
             );
         }
-        window['mathlive'].readAloudAudio.play();
+
+        window.mathlive.readAloudAudio.play();
     }
 }
 
@@ -277,33 +295,36 @@ export function resumeReadAloud(): void {
  */
 export function playReadAloud(token: string, count: number): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] ?? {};
-    if (window['mathlive'].readAloudAudio) {
+    window.mathlive = window.mathlive ?? {};
+    if (window.mathlive.readAloudAudio) {
         let timeIndex = 0;
-        window['mathlive'].readAloudFinalToken = null;
+        window.mathlive.readAloudFinalToken = null;
         if (token) {
-            window['mathlive'].readAloudMarks =
-                window['mathlive'].readAloudMarks || [];
-            for (const mark of window['mathlive'].readAloudMarks) {
+            window.mathlive.readAloudMarks =
+                window.mathlive.readAloudMarks || [];
+            for (const mark of window.mathlive.readAloudMarks) {
                 if (mark.value === token) {
                     timeIndex = mark.time / 1000;
                 }
             }
-            let tokenIndex = window['mathlive'].readAloudTokens.indexOf(token);
+
+            let tokenIndex = window.mathlive.readAloudTokens.indexOf(token);
             if (tokenIndex >= 0) {
                 tokenIndex += count;
-                if (tokenIndex < window['mathlive'].readAloudTokens.length) {
-                    window['mathlive'].readAloudFinalToken = tokenIndex;
+                if (tokenIndex < window.mathlive.readAloudTokens.length) {
+                    window.mathlive.readAloudFinalToken = tokenIndex;
                 }
             }
         }
-        window['mathlive'].readAloudAudio.currentTime = timeIndex;
-        if (window['mathlive'].onReadAloudStatus) {
-            window['mathlive'].onReadAloudStatus(
-                window['mathlive'].readAloudMathField,
+
+        window.mathlive.readAloudAudio.currentTime = timeIndex;
+        if (window.mathlive.onReadAloudStatus) {
+            window.mathlive.onReadAloudStatus(
+                window.mathlive.readAloudMathField,
                 'playing'
             );
         }
-        window['mathlive'].readAloudAudio.play();
+
+        window.mathlive.readAloudAudio.play();
     }
 }

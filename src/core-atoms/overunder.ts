@@ -56,6 +56,7 @@ export class OverunderAtom extends Atom {
         this.above = options.above;
         this.below = options.below;
     }
+
     render(context: Context): Span[] {
         const body: Span | Span[] = this.svgBody
             ? makeSVGSpan(this.svgBody)
@@ -73,6 +74,7 @@ export class OverunderAtom extends Atom {
                 context.mathstyle.adjustTo(annotationStyle.mathstyle)
             );
         }
+
         if (this.svgBelow) {
             below = makeSVGSpan(this.svgBelow);
         } else if (this.below) {
@@ -81,6 +83,7 @@ export class OverunderAtom extends Atom {
                 context.mathstyle.adjustTo(annotationStyle.mathstyle)
             );
         }
+
         if (above && below) {
             // Pad the above and below if over a "base"
             below.left = 0.3;
@@ -88,6 +91,7 @@ export class OverunderAtom extends Atom {
             above.left = 0.3;
             above.right = 0.3;
         }
+
         let result = makeOverunderStack(
             context,
             body,
@@ -98,6 +102,7 @@ export class OverunderAtom extends Atom {
         if (this.superscript || this.subscript) {
             result = this.attachLimits(context, result, 0, 0);
         }
+
         if (this.caret) result.caret = this.caret;
         // Bind the generated span so its components can be selected
         this.bind(context, result);
@@ -123,7 +128,7 @@ function makeOverunderStack(
     // If nothing above and nothing below, nothing to do.
     if (!above && !below) {
         return new Span(nucleus, 'op-over-under', type);
-        // return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
+        // Return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
     }
 
     let aboveShift = 0;
@@ -135,6 +140,7 @@ function makeOverunderStack(
             FONTMETRICS.bigOpSpacing3 - spanDepth(above)
         );
     }
+
     if (below) {
         belowShift = Math.max(
             FONTMETRICS.bigOpSpacing2,

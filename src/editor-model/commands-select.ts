@@ -12,7 +12,7 @@ import { move, skip } from './commands';
 function isNumber(atom: Atom): boolean {
     if (!atom) return false;
     return (
-        (atom.type === 'mord' && /[0-9.]/.test(atom.value)) ||
+        (atom.type === 'mord' && /[\d.]/.test(atom.value)) ||
         (atom.type === 'mpunct' && atom.value === ',')
     );
 }
@@ -37,6 +37,7 @@ export function selectGroup(model: ModelPrivate): boolean {
                 done = true;
             }
         }
+
         done = false;
         while (!done && end <= model.lastOffset) {
             const atom = model.at(end);
@@ -46,9 +47,11 @@ export function selectGroup(model: ModelPrivate): boolean {
                 done = true;
             }
         }
+
         if (done) {
             end -= 1;
         }
+
         if (start >= end) {
             // No word found. Select a single character
             model.setSelection(end - 1, end);
@@ -74,6 +77,7 @@ export function selectGroup(model: ModelPrivate): boolean {
             );
         }
     }
+
     return true;
 }
 

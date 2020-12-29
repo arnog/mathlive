@@ -32,7 +32,7 @@ import {
 } from '../editor/commands';
 import { find, replace } from '../editor-model/find';
 import { complete } from './autocomplete';
-import { requestUpdate } from './render';
+import { requestUpdate, render } from './render';
 import {
     MathfieldOptionsPrivate,
     update as updateOptions,
@@ -45,7 +45,6 @@ import {
 } from '../editor-model/composition';
 import { addRowAfter, addColumnAfter } from '../editor-model/array';
 import { onTypedText, onKeystroke } from './keyboard-input';
-import { render } from './render';
 
 import './commands';
 import './styling';
@@ -70,22 +69,22 @@ import {
 
 import { VirtualKeyboard } from '../editor/virtual-keyboard';
 
-// @ts-ignore
+// @ts-ignore-error
 import mathfieldStylesheet from '../../css/mathfield.less';
-// @ts-ignore
+// @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
-// @ts-ignore
+// @ts-ignore-error
 import popoverStylesheet from '../../css/popover.less';
-// @ts-ignore
+// @ts-ignore-error
 import keystrokeCaptionStylesheet from '../../css/keystroke-caption.less';
 import { range } from '../editor-model/selection-utils';
 import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex } from '../core/parser';
 import { ModeEditor } from './mode-editor';
 import './mode-editor-math';
-import './mode-editor-latex';
-import './mode-editor-text';
 import { getLatexGroupBody } from './mode-editor-latex';
+import './mode-editor-text';
+
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 
@@ -93,22 +92,15 @@ export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
     options: Required<MathfieldOptionsPrivate>;
 
-    private undoManager: UndoManager;
-
-    private blurred: boolean;
-    // The value of the mathfield when it is focussed.
-    // If this value is different when the field is blured
-    // the `onCommit` listener is triggered
-    private valueOnFocus: string;
     dirty: boolean; // If true, need to be redrawn
     smartModeSuppressed: boolean;
-    private resizeTimer: number; // Timer handle
 
-    element: HTMLElement;
+    element: HTMLElement & {
+        mathfield?: MathfieldPrivate;
+    };
+
     /** @deprecated */
     readonly originalContent: string;
-
-    private stylesheets: Stylesheet[] = [];
 
     keyboardDelegate: KeyboardDelegate;
     field: HTMLElement;
@@ -135,13 +127,22 @@ export class MathfieldPrivate implements Mathfield {
     mode: ParseMode;
     style: Style;
 
-    private eventHandlingInProgress = '';
-
     keypressSound: HTMLAudioElement;
     spacebarKeypressSound: HTMLAudioElement;
     returnKeypressSound: HTMLAudioElement;
     deleteKeypressSound: HTMLAudioElement;
     plonkSound: HTMLAudioElement;
+
+    private readonly undoManager: UndoManager;
+
+    private blurred: boolean;
+    // The value of the mathfield when it is focussed.
+    // If this value is different when the field is blured
+    // the `onCommit` listener is triggered
+    private valueOnFocus: string;
+    private eventHandlingInProgress = '';
+    private readonly stylesheets: Stylesheet[] = [];
+    private resizeTimer: number; // Timer handle
 
     /**
      * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
@@ -152,7 +153,7 @@ export class MathfieldPrivate implements Mathfield {
      * Note that `element.mathfield` is this object.
      */
     constructor(
-        element: HTMLElement,
+        element: HTMLElement & { mathfield?: MathfieldPrivate },
         options: Partial<MathfieldOptionsPrivate>
     ) {
         // Setup default config options
@@ -200,7 +201,7 @@ export class MathfieldPrivate implements Mathfield {
         }
 
         this.element = element;
-        element['mathfield'] = this;
+        element.mathfield = this;
 
         // Save existing content
         this.originalContent = element.innerHTML;
@@ -210,7 +211,7 @@ export class MathfieldPrivate implements Mathfield {
         }
 
         // Load the fonts, inject the core and mathfield stylesheets
-        loadFonts(this.options.fontsDirectory, this.options.onError);
+        void loadFonts(this.options.fontsDirectory, this.options.onError);
         this.stylesheets.push(injectStylesheet(element, coreStylesheet));
         this.stylesheets.push(injectStylesheet(element, mathfieldStylesheet));
 
@@ -227,35 +228,31 @@ export class MathfieldPrivate implements Mathfield {
         // 5.1/ The aria-live region for announcements
         let markup = '';
         if (!this.options.substituteTextArea) {
-            if (/android|ipad|ipod|iphone/i.test(navigator?.userAgent)) {
-                // On Android or iOS, don't use a textarea, which has the side effect of
-                // bringing up the OS virtual keyboard
-                markup += `<span class='ML__textarea'>
+            // On Android or iOS, don't use a textarea, which has the side effect of
+            // bringing up the OS virtual keyboard
+            markup += /android|ipad|ipod|iphone/i.test(navigator?.userAgent)
+                ? `<span class='ML__textarea'>
                 <span class='ML__textarea__textarea'
                     tabindex="-1" role="textbox"
                     style='display:inline-block;height:1px;width:1px' >
                 </span>
-            </span>`;
-            } else {
-                markup +=
-                    '<span class="ML__textarea">' +
-                    '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
-                    `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${
-                        element.tabIndex ?? 0
-                    }">` +
-                    '</textarea>' +
-                    '</span>';
-            }
+            </span>`
+                : '<span class="ML__textarea">' +
+                  '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
+                  `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${
+                      element.tabIndex ?? 0
+                  }">` +
+                  '</textarea>' +
+                  '</span>';
+        } else if (typeof this.options.substituteTextArea === 'string') {
+            markup += this.options.substituteTextArea;
         } else {
-            if (typeof this.options.substituteTextArea === 'string') {
-                markup += this.options.substituteTextArea;
-            } else {
-                // We don't really need this one, but we keep it here so that the
-                // indexes below remain the same whether a substituteTextArea is
-                // provided or not.
-                markup += '<span></span>';
-            }
+            // We don't really need this one, but we keep it here so that the
+            // indexes below remain the same whether a substituteTextArea is
+            // provided or not.
+            markup += '<span></span>';
         }
+
         markup +=
             '<span class="ML__fieldcontainer">' +
             '<span class="ML__fieldcontainer__field"></span>';
@@ -266,16 +263,15 @@ export class MathfieldPrivate implements Mathfield {
             markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
                 'tooltip.toggle virtual keyboard'
             )}">`;
-            // data-ML__tooltip='Toggle Virtual Keyboard'
-            if (this.options.virtualKeyboardToggleGlyph) {
-                markup += this.options.virtualKeyboardToggleGlyph;
-            } else {
-                markup += `<span style="width: 21px; margin-top: 4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
-            }
+            // Data-ML__tooltip='Toggle Virtual Keyboard'
+            markup += this.options.virtualKeyboardToggleGlyph
+                ? this.options.virtualKeyboardToggleGlyph
+                : `<span style="width: 21px; margin-top: 4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
             markup += '</div>';
         } else {
             markup += '<span ></span>';
         }
+
         markup += '</span>';
         markup += `
         <div class="ML__sr-only">
@@ -296,17 +292,15 @@ export class MathfieldPrivate implements Mathfield {
                 'color:red;font-family:system-ui;font-size:1.2rem;font-weight:bold',
                 'color:inherith;font-family:system-ui;font-size:inherit;font-weight:inherit'
             );
-            return null;
+            return;
         }
 
-        let iChild = 0; // index of child -- used to make changes below easier
-        let textarea: HTMLElement;
-        if (typeof this.options.substituteTextArea === 'function') {
-            textarea = this.options.substituteTextArea();
-        } else {
-            textarea = this.element.children[iChild++]
-                .firstElementChild as HTMLElement;
-        }
+        let iChild = 0; // Index of child -- used to make changes below easier
+        const textarea: HTMLElement =
+            typeof this.options.substituteTextArea === 'function'
+                ? this.options.substituteTextArea()
+                : (this.element.children[iChild++]
+                      .firstElementChild as HTMLElement);
         this.field = this.element.children[iChild].children[0] as HTMLElement;
         // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
         this.field.addEventListener(
@@ -316,7 +310,7 @@ export class MathfieldPrivate implements Mathfield {
                 ev.stopPropagation();
                 const wheelDelta =
                     typeof ev.deltaX === 'undefined' ? ev.detail : -ev.deltaX;
-                if (isFinite(wheelDelta)) {
+                if (Number.isFinite(wheelDelta)) {
                     this.field.scroll({
                         top: 0,
                         left: this.field.scrollLeft - wheelDelta * 5,
@@ -418,7 +412,8 @@ export class MathfieldPrivate implements Mathfield {
                         this,
                         ev
                     ),
-                keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
+                keystroke: (keystroke, event) =>
+                    onKeystroke(this, keystroke, event),
                 focus: () => this.onFocus(),
                 blur: () => this.onBlur(),
                 compositionStart: (composition: string) =>
@@ -528,6 +523,7 @@ export class MathfieldPrivate implements Mathfield {
         if (!this.options.locale.startsWith(getActiveKeyboardLayout().locale)) {
             setKeyboardLayoutLocale(this.options.locale);
         }
+
         this.keybindings = normalizeKeybindings(
             this.options.keybindings,
             (e) => {
@@ -537,6 +533,7 @@ export class MathfieldPrivate implements Mathfield {
                         arg: e.join('\n'),
                     });
                 }
+
                 console.log(e.join('\n'));
             }
         );
@@ -548,6 +545,7 @@ export class MathfieldPrivate implements Mathfield {
         deprecated('$setConfig');
         this.setOptions(config);
     }
+
     setOptions(config: Partial<MathfieldOptionsPrivate>): void {
         this.options = updateOptions(this.options, config);
         this.model.setListeners({
@@ -577,6 +575,7 @@ export class MathfieldPrivate implements Mathfield {
         if (!this.options.locale.startsWith(getActiveKeyboardLayout().locale)) {
             setKeyboardLayoutLocale(this.options.locale);
         }
+
         this.keybindings = normalizeKeybindings(
             this.options.keybindings,
             (e) => {
@@ -586,6 +585,7 @@ export class MathfieldPrivate implements Mathfield {
                         arg: e.join('\n'),
                     });
                 }
+
                 console.log(e.join('\n'));
             }
         );
@@ -608,6 +608,7 @@ export class MathfieldPrivate implements Mathfield {
         if (this.options.readOnly) {
             this.onBlur();
         }
+
         // Changing some config options (i.e. `macros`) may
         // require the content to be reparsed and re-rendered
         const content = Atom.toLatex(this.model.root, { expandMacro: false });
@@ -648,6 +649,7 @@ export class MathfieldPrivate implements Mathfield {
     ): any | Partial<MathfieldOptionsPrivate> {
         return getOptions(this.options, keys);
     }
+
     getOption<K extends keyof MathfieldOptionsPrivate>(
         key: K
     ): MathfieldOptionsPrivate[K] {
@@ -655,7 +657,7 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     /*
-     * handleEvent is a function invoked when an event is registered with an
+     * HandleEvent is a function invoked when an event is registered with an
      * object instead ( see `addEventListener()` in `on()`)
      * The name is defined by `addEventListener()` and cannot be changed.
      * This pattern is used to be able to release bound event handlers,
@@ -671,6 +673,7 @@ export class MathfieldPrivate implements Mathfield {
                     this.onFocus();
                     this.eventHandlingInProgress = '';
                 }
+
                 break;
             case 'blur':
                 if (!this.eventHandlingInProgress) {
@@ -678,10 +681,11 @@ export class MathfieldPrivate implements Mathfield {
                     this.onBlur();
                     this.eventHandlingInProgress = '';
                 }
+
                 break;
             case 'touchstart':
             case 'mousedown':
-                // iOS <=13 Safari and Firefox on Android
+                // IOS <=13 Safari and Firefox on Android
                 onPointerDown(this, evt as PointerEvent);
                 break;
             case 'pointerdown':
@@ -691,15 +695,18 @@ export class MathfieldPrivate implements Mathfield {
                 if (this.resizeTimer) {
                     window.cancelAnimationFrame(this.resizeTimer);
                 }
+
                 this.resizeTimer = window.requestAnimationFrame(
                     () => isValidMathfield(this) && this.onResize()
                 );
                 break;
             }
+
             default:
                 console.warn('Unexpected event type', evt.type);
         }
     }
+
     /** @deprecated */
     $revertToOriginalContent(): void {
         deprecated('$revertToOriginalContent');
@@ -709,7 +716,7 @@ export class MathfieldPrivate implements Mathfield {
 
     dispose(): void {
         this.element.innerHTML = '$$' + this.getValue() + '$$';
-        delete this.element['mathfield'];
+        delete this.element.mathfield;
         delete this.accessibleNode;
         delete this.ariaLiveText;
         delete this.field;
@@ -725,6 +732,7 @@ export class MathfieldPrivate implements Mathfield {
             this.virtualKeyboard.dispose();
             delete this.virtualKeyboard;
         }
+
         off(this.element, 'pointerdown', this);
         off(this.element, 'touchstart:active mousedown', this);
         off(this.element, 'focus', this);
@@ -747,124 +755,13 @@ export class MathfieldPrivate implements Mathfield {
                     this.resetKeystrokeBuffer();
                 }, this.options.inlineShortcutTimeout);
             }
+
             return;
         }
+
         this.keystrokeBuffer = '';
         this.keystrokeBufferStates = [];
         clearTimeout(this.keystrokeBufferResetTimer);
-    }
-
-    private _onSelectionDidChange(): void {
-        // Keep the content of the textarea in sync wiht the selection.
-        // This will allow cut/copy to work.
-        this.keyboardDelegate.setValue(
-            this.getValue(this.model.selection, 'latex-expanded')
-        );
-
-        // Adjust mode
-        {
-            const cursor = this.model.at(this.model.position);
-            const newMode = cursor.mode ?? this.options.defaultMode;
-            if (this.mode !== newMode) {
-                if (this.mode === 'latex') {
-                    complete(this, 'accept', { mode: newMode });
-                    this.model.position = this.model.offsetOf(cursor);
-                } else {
-                    this.switchMode(newMode);
-                }
-            }
-        }
-
-        // Invoke client listeners, if provided.
-        if (typeof this.options.onSelectionDidChange === 'function') {
-            this.options.onSelectionDidChange(this);
-        }
-    }
-
-    private onFocus(): void {
-        if (this.options.readOnly) return;
-        if (this.blurred) {
-            this.blurred = false;
-            this.keyboardDelegate.focus();
-
-            this.virtualKeyboard.enable();
-
-            if (this.options.virtualKeyboardMode === 'onfocus') {
-                this.executeCommand('showVirtualKeyboard');
-            }
-            updatePopoverPosition(this);
-            this.options.onFocus?.(this);
-
-            // Save the current value.
-            // It will be compared in `onBlur()` to see if the
-            // `onCommit` listener needs to be invoked. This
-            // mimic the `<input>` and `<textarea>` behavior
-            this.valueOnFocus = this.getValue();
-            requestUpdate(this);
-        }
-    }
-    private onBlur(): void {
-        if (!this.blurred) {
-            this.blurred = true;
-            this.ariaLiveText.textContent = '';
-
-            if (/onfocus|manual/.test(this.options.virtualKeyboardMode)) {
-                this.executeCommand('hideVirtualKeyboard');
-            }
-            complete(this, 'accept');
-            requestUpdate(this);
-            if (typeof this.options.onBlur === 'function') {
-                this.options.onBlur(this);
-            }
-
-            this.virtualKeyboard.disable();
-
-            if (
-                typeof this.options.onCommit === 'function' &&
-                this.getValue() !== this.valueOnFocus
-            ) {
-                this.options.onCommit(this);
-            }
-        }
-    }
-    private onCompositionStart(_composition: string): void {
-        // Clear the selection if there is one
-        this.model.position = this.model.deleteAtoms(
-            range(this.model.selection)
-        );
-        requestAnimationFrame(() => {
-            render(this); // Recalculate the position of the caret
-            // Synchronize the location and style of textarea
-            // so that the IME candidate window can align with the composition
-            const caretPoint = getCaretPoint(this.field);
-            if (!caretPoint) return;
-            this.keyboardDelegate.moveTo(caretPoint.x, caretPoint.y);
-        });
-    }
-    private onCompositionUpdate(composition: string): void {
-        updateComposition(this.model, composition);
-        requestUpdate(this);
-    }
-    private onCompositionEnd(composition: string): void {
-        removeComposition(this.model);
-        onTypedText(this, composition, {
-            simulateKeystroke: true,
-        });
-    }
-    private onResize(): void {
-        this.element.classList.remove(
-            'ML__isNarrowWidth',
-            'ML__isWideWidth',
-            'ML__isExtendedWidth'
-        );
-        if (window.innerWidth >= 1024) {
-            this.element.classList.add('ML__isExtendedWidth');
-        } else if (window.innerWidth >= 768) {
-            this.element.classList.add('ML__isWideWidth');
-        } else {
-            this.element.classList.add('ML__isNarrowWidth');
-        }
-        updatePopoverPosition(this);
     }
 
     /** @deprecated */
@@ -881,15 +778,18 @@ export class MathfieldPrivate implements Mathfield {
         if (getCommandTarget(command) === 'virtual-keyboard') {
             return this.virtualKeyboard?.executeCommand(command);
         }
+
         return perform(this, command);
     }
 
     get lastOffset(): number {
         return this.model.lastOffset;
     }
+
     get selection(): Selection {
         return this.model.selection;
     }
+
     set selection(value: Selection) {
         this.model.selection = value;
     }
@@ -917,16 +817,19 @@ export class MathfieldPrivate implements Mathfield {
         if (typeof options.insertionMode === 'undefined') {
             options.insertionMode = 'replaceAll';
         }
+
         if (
             typeof options.format === 'undefined' ||
             options.format === 'auto'
         ) {
             options.format = 'latex';
         }
+
         let mode: ParseMode = 'math';
         if (!options.mode || options.mode === 'auto') {
             mode = getMode(this.model, this.model.position);
         }
+
         if (ModeEditor.insert(mode, this.model, value, options)) {
             this.undoManager.snapshot(this.options);
             requestUpdate(this);
@@ -957,6 +860,7 @@ export class MathfieldPrivate implements Mathfield {
         deprecated('$selectionIsCollapsed');
         return this.model.selectionIsCollapsed;
     }
+
     /** @deprecated */
     $selectionDepth(): number {
         deprecated('$selectionDepth');
@@ -972,6 +876,7 @@ export class MathfieldPrivate implements Mathfield {
         deprecated('$selectionAtStart');
         return false;
     }
+
     /** @deprecated */
     $selectionAtEnd(): boolean {
         deprecated('$selectionAtEnd');
@@ -999,22 +904,27 @@ export class MathfieldPrivate implements Mathfield {
                 this.undoManager.snapshot(this.options);
                 requestUpdate(this);
             }
+
             return text;
         }
+
         // Return the content as LaTeX
         return Atom.toLatex(this.model.root, { expandMacro: false });
     }
+
     /** @deprecated */
     $el(): HTMLElement {
         deprecated('$el');
         return this.element;
     }
+
     scrollIntoView(): void {
         // If a render is pending, do it now to make sure we have correct layout
         // and caret position
         if (this.dirty) {
             render(this);
         }
+
         const fieldBounds = this.field.getBoundingClientRect();
         let caretPoint: number;
         if (this.model.selectionIsCollapsed) {
@@ -1028,6 +938,7 @@ export class MathfieldPrivate implements Mathfield {
                     this.field.scrollLeft;
             }
         }
+
         if (typeof caretPoint !== 'undefined') {
             const x = caretPoint - window.scrollX;
             if (x < fieldBounds.left) {
@@ -1045,23 +956,28 @@ export class MathfieldPrivate implements Mathfield {
             }
         }
     }
+
     /** @deprecated */
     $insert(s: string, options?: InsertOptions): boolean {
         deprecated('$insert');
         return this.insert(s, options);
     }
+
     insert(s: string, options?: InsertOptions): boolean {
         if (typeof s === 'string' && s.length > 0) {
             options = options ?? { mode: 'math' };
             if (options.focus) {
                 this.focus();
             }
+
             if (options.feedback) {
                 if (this.options.keypressVibration && navigator?.vibrate) {
                     navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
                 }
-                this.keypressSound?.play();
+
+                void this.keypressSound?.play();
             }
+
             if (s === '\\\\') {
                 // This string is interpreted as an "insert row after" command
                 addRowAfter(this.model);
@@ -1077,17 +993,20 @@ export class MathfieldPrivate implements Mathfield {
                     this.style = savedStyle;
                 }
             }
+
             this.undoManager.snapshot(this.options);
             requestUpdate(this);
             return true;
         }
+
         return false;
     }
+
     switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
         if (this.mode === mode) return;
-        const model = this.model;
+        const { model } = this;
         model.deferNotifications(
-            { content: !!suffix || !!prefix, selection: true },
+            { content: Boolean(suffix) || Boolean(prefix), selection: true },
             (): boolean => {
                 let contentChanged = false;
                 this.resetKeystrokeBuffer();
@@ -1143,6 +1062,7 @@ export class MathfieldPrivate implements Mathfield {
                         );
                         cursor = model.at(selRange[0]);
                     }
+
                     const atom = new LatexGroupAtom(latex);
                     cursor.parent.addChildAfter(atom, cursor);
                     if (wasCollapsed) {
@@ -1159,6 +1079,7 @@ export class MathfieldPrivate implements Mathfield {
                         x.isError = false;
                     });
                 }
+
                 if (suffix) {
                     const atoms = parseLatex(
                         suffix,
@@ -1173,10 +1094,12 @@ export class MathfieldPrivate implements Mathfield {
                     );
                     contentChanged = true;
                 }
+
                 // Notify of mode change
                 if (typeof this.options.onModeChange === 'function') {
                     this.options.onModeChange(this, this.mode);
                 }
+
                 requestUpdate(this);
                 return contentChanged;
             }
@@ -1188,37 +1111,45 @@ export class MathfieldPrivate implements Mathfield {
         deprecated('$hasFocus');
         return this.hasFocus();
     }
+
     hasFocus(): boolean {
         return document.hasFocus() && this.keyboardDelegate.hasFocus();
     }
+
     focus(): void {
         if (!this.hasFocus()) {
             this.keyboardDelegate.focus();
             this.model.announce('line');
         }
     }
+
     blur(): void {
         if (this.hasFocus()) {
             this.keyboardDelegate.blur();
         }
     }
+
     /** @deprecated */
     $focus(): void {
         deprecated('$focus');
         return this.focus();
     }
+
     /** @deprecated */
     $blur(): void {
         deprecated('$blur');
         return this.blur();
     }
+
     /** @deprecated */
     $select(): void {
         this.select();
     }
+
     select(): void {
         this.model.selection = { ranges: [[0, this.model.lastOffset]] };
     }
+
     /** @deprecated */
     $clearSelection(): void {
         deprecated('$clearSelection');
@@ -1237,6 +1168,7 @@ export class MathfieldPrivate implements Mathfield {
             options.suppressChangeNotifications =
                 inOptions.suppressChangeNotifications ?? false;
         }
+
         const operation = options.operation ?? 'set';
         this.model.deferNotifications(
             { content: !options.suppressChangeNotifications },
@@ -1265,6 +1197,7 @@ export class MathfieldPrivate implements Mathfield {
         deprecated('$keystroke');
         return onKeystroke(this, keys, evt);
     }
+
     /** @deprecated */
     $typedText(text: string): void {
         deprecated('$typedText');
@@ -1275,6 +1208,7 @@ export class MathfieldPrivate implements Mathfield {
         const caretOffset = getCaretPoint(this.field);
         return caretOffset ? { x: caretOffset.x, y: caretOffset.y } : null;
     }
+
     setCaretPoint(x: number, y: number): boolean {
         const newPosition = offsetFromPoint(this, x, y, { bias: 0 });
         if (newPosition < 0) return false;
@@ -1288,12 +1222,15 @@ export class MathfieldPrivate implements Mathfield {
     canUndo(): boolean {
         return this.undoManager.canUndo();
     }
+
     canRedo(): boolean {
         return this.undoManager.canRedo();
     }
+
     popUndoStack(): void {
         this.undoManager.pop();
     }
+
     snapshot(): void {
         this.undoManager.snapshot({
             ...this.options,
@@ -1307,6 +1244,7 @@ export class MathfieldPrivate implements Mathfield {
             },
         });
     }
+
     snapshotAndCoalesce(): void {
         this.undoManager.snapshotAndCoalesce({
             ...this.options,
@@ -1320,15 +1258,18 @@ export class MathfieldPrivate implements Mathfield {
             },
         });
     }
+
     getUndoRecord(): UndoRecord {
         return this.undoManager.save();
     }
+
     restoreToUndoRecord(s: UndoRecord): void {
         this.undoManager.restore(s, {
             ...this.options,
             suppressChangeNotifications: true,
         });
     }
+
     undo(): void {
         return this.undoManager.undo({
             ...this.options,
@@ -1342,6 +1283,7 @@ export class MathfieldPrivate implements Mathfield {
             },
         });
     }
+
     redo(): void {
         return this.undoManager.redo({
             ...this.options,
@@ -1354,6 +1296,127 @@ export class MathfieldPrivate implements Mathfield {
                 this.options.onUndoStateDidChange(mf, reason);
             },
         });
+    }
+
+    private _onSelectionDidChange(): void {
+        // Keep the content of the textarea in sync wiht the selection.
+        // This will allow cut/copy to work.
+        this.keyboardDelegate.setValue(
+            this.getValue(this.model.selection, 'latex-expanded')
+        );
+
+        // Adjust mode
+        {
+            const cursor = this.model.at(this.model.position);
+            const newMode = cursor.mode ?? this.options.defaultMode;
+            if (this.mode !== newMode) {
+                if (this.mode === 'latex') {
+                    complete(this, 'accept', { mode: newMode });
+                    this.model.position = this.model.offsetOf(cursor);
+                } else {
+                    this.switchMode(newMode);
+                }
+            }
+        }
+
+        // Invoke client listeners, if provided.
+        if (typeof this.options.onSelectionDidChange === 'function') {
+            this.options.onSelectionDidChange(this);
+        }
+    }
+
+    private onFocus(): void {
+        if (this.options.readOnly) return;
+        if (this.blurred) {
+            this.blurred = false;
+            this.keyboardDelegate.focus();
+
+            this.virtualKeyboard.enable();
+
+            if (this.options.virtualKeyboardMode === 'onfocus') {
+                this.executeCommand('showVirtualKeyboard');
+            }
+
+            updatePopoverPosition(this);
+            this.options.onFocus?.(this);
+
+            // Save the current value.
+            // It will be compared in `onBlur()` to see if the
+            // `onCommit` listener needs to be invoked. This
+            // mimic the `<input>` and `<textarea>` behavior
+            this.valueOnFocus = this.getValue();
+            requestUpdate(this);
+        }
+    }
+
+    private onBlur(): void {
+        if (!this.blurred) {
+            this.blurred = true;
+            this.ariaLiveText.textContent = '';
+
+            if (/onfocus|manual/.test(this.options.virtualKeyboardMode)) {
+                this.executeCommand('hideVirtualKeyboard');
+            }
+
+            complete(this, 'accept');
+            requestUpdate(this);
+            if (typeof this.options.onBlur === 'function') {
+                this.options.onBlur(this);
+            }
+
+            this.virtualKeyboard.disable();
+
+            if (
+                typeof this.options.onCommit === 'function' &&
+                this.getValue() !== this.valueOnFocus
+            ) {
+                this.options.onCommit(this);
+            }
+        }
+    }
+
+    private onCompositionStart(_composition: string): void {
+        // Clear the selection if there is one
+        this.model.position = this.model.deleteAtoms(
+            range(this.model.selection)
+        );
+        requestAnimationFrame(() => {
+            render(this); // Recalculate the position of the caret
+            // Synchronize the location and style of textarea
+            // so that the IME candidate window can align with the composition
+            const caretPoint = getCaretPoint(this.field);
+            if (!caretPoint) return;
+            this.keyboardDelegate.moveTo(caretPoint.x, caretPoint.y);
+        });
+    }
+
+    private onCompositionUpdate(composition: string): void {
+        updateComposition(this.model, composition);
+        requestUpdate(this);
+    }
+
+    private onCompositionEnd(composition: string): void {
+        removeComposition(this.model);
+        onTypedText(this, composition, {
+            simulateKeystroke: true,
+        });
+    }
+
+    private onResize(): void {
+        this.element.classList.remove(
+            'ML__isNarrowWidth',
+            'ML__isWideWidth',
+            'ML__isExtendedWidth'
+        );
+        if (window.innerWidth >= 1024) {
+            this.element.classList.add('ML__isExtendedWidth');
+        } else if (window.innerWidth >= 768) {
+            this.element.classList.add('ML__isWideWidth');
+        } else {
+            this.element.classList.add('ML__isNarrowWidth');
+        }
+
+        updatePopoverPosition(this);
     }
 }
 

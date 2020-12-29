@@ -17,7 +17,7 @@ export async function loadFonts(
     function makeFontFace(
         name: string,
         source: string,
-        descriptors: { [key: string]: string } = {}
+        descriptors: Record<string, string> = {}
     ): FontFace {
         return new FontFace(
             name,
@@ -50,7 +50,7 @@ export async function loadFonts(
             'KaTeX_Size3',
             'KaTeX_Size4',
         ];
-        // for (const fontFace of document.fonts.values()) { console.log(fontFace.family)}
+        // For (const fontFace of document.fonts.values()) { console.log(fontFace.family)}
         let fontsLoaded = false;
 
         // Firefox returns true for fonts that are not loaded...
@@ -59,9 +59,9 @@ export async function loadFonts(
         if (!/firefox/i.test(navigator.userAgent)) {
             try {
                 fontsLoaded = fontFamilies.every((x) =>
-                    document['fonts'].check('16px ' + x)
+                    document.fonts.check('16px ' + x)
                 );
-            } catch (e) {
+            } catch {
                 fontsLoaded = false;
             }
         }
@@ -70,6 +70,7 @@ export async function loadFonts(
             if (document.body.classList.contains('ML__fonts-loading')) {
                 return;
             }
+
             document.body.classList.add('ML__fonts-loading');
 
             // Locate the `fonts` folder relative to the script URL
@@ -98,7 +99,7 @@ export async function loadFonts(
                 ['KaTeX_Size2-Regular'],
                 ['KaTeX_Size3-Regular'],
                 ['KaTeX_Size4-Regular'],
-            ] as [string, { [key: string]: string }][]).map((x) =>
+            ] as [string, Record<string, string>][]).map((x) =>
                 makeFontFace(
                     x[0].replace(/-[a-zA-Z]+$/, ''),
                     fontsFolder + '/' + x[0],
@@ -110,22 +111,24 @@ export async function loadFonts(
                     fonts.map((x) => {
                         try {
                             return x.load();
-                        } catch (e) {
+                        } catch (error: unknown) {
                             if (typeof onError === 'function') {
                                 onError({
                                     code: 'font-not-found',
-                                    arg: e,
+                                    arg: error as string,
                                 });
                             }
                         }
+
                         return undefined;
                     })
                 )) as unknown) as FontFace[];
                 // Render them at the same time
-                loadedFonts.forEach((font) => document['fonts'].add(font));
-            } catch (err) {
-                console.error(err);
+                loadedFonts.forEach((font) => document.fonts.add(font));
+            } catch (error: unknown) {
+                console.error(error);
             }
+
             // Event if an error occur, give up and pretend the fonts are
             // loaded (displayign somehting is better than nothing)
             document.body.classList.remove('ML__fonts-loading');

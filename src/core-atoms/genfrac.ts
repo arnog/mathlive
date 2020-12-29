@@ -36,13 +36,13 @@ export type GenfracOptions = {
  * also be set to 'auto', which indicates it should use the current mathstyle
  */
 export class GenfracAtom extends Atom {
-    private continuousFraction: boolean;
-    private numerPrefix?: string;
-    private denomPrefix?: string;
     leftDelim?: string;
     rightDelim?: string;
     hasBarLine: boolean;
-    private mathStyleName: MathStyleName | 'auto';
+    private readonly continuousFraction: boolean;
+    private readonly numerPrefix?: string;
+    private readonly denomPrefix?: string;
+    private readonly mathStyleName: MathStyleName | 'auto';
     constructor(
         command: string,
         above: Atom[],
@@ -64,6 +64,7 @@ export class GenfracAtom extends Atom {
         this.leftDelim = options?.leftDelim;
         this.rightDelim = options?.rightDelim;
     }
+
     toLatex(options: ToLatexOptions): string {
         return (
             this.command +
@@ -71,17 +72,19 @@ export class GenfracAtom extends Atom {
             `{${this.belowToLatex(options)}}`
         );
     }
+
     render(context: Context): Span[] {
         const mathstyle =
             this.mathStyleName === 'auto'
                 ? context.mathstyle
                 : MATHSTYLES[this.mathStyleName];
-        const newContext = context.clone({ mathstyle: mathstyle });
+        const newContext = context.clone({ mathstyle });
         const style = this.computedStyle;
         let numer = [];
         if (this.numerPrefix) {
             numer.push(new Span(this.numerPrefix, 'mord'));
         }
+
         const numeratorStyle = this.continuousFraction
             ? mathstyle
             : mathstyle.fracNum();
@@ -99,6 +102,7 @@ export class GenfracAtom extends Atom {
         if (this.denomPrefix) {
             denom.push(new Span(this.denomPrefix, 'mord'));
         }
+
         const denominatorStyle = this.continuousFraction
             ? mathstyle
             : mathstyle.fracDen();
@@ -122,27 +126,28 @@ export class GenfracAtom extends Atom {
         // its numerator shifted up by an amount u with respect to the current
         // baseline, and with the denominator shifted down by v, unless the boxes
         // are unusually large.)
-        let numShift: number;
+        let numberShift: number;
         let clearance = 0;
         let denomShift: number;
         if (mathstyle.size === MATHSTYLES.displaystyle.size) {
-            numShift = mathstyle.metrics.num1; // set u ← σ8
-            if (ruleWidth > 0) {
-                clearance = 3 * ruleWidth; //  φ ← 3θ
-            } else {
-                clearance = 7 * FONTMETRICS.defaultRuleThickness; // φ ← 7 ξ8
-            }
-            denomShift = mathstyle.metrics.denom1; // v ← σ11
+            numberShift = mathstyle.metrics.num1; // Set u ← σ8
+            clearance =
+                ruleWidth > 0
+                    ? 3 * ruleWidth
+                    : 7 * FONTMETRICS.defaultRuleThickness;
+            denomShift = mathstyle.metrics.denom1; // V ← σ11
         } else {
             if (ruleWidth > 0) {
-                numShift = mathstyle.metrics.num2; // u ← σ9
-                clearance = ruleWidth; //  φ ← θ
+                numberShift = mathstyle.metrics.num2; // U ← σ9
+                clearance = ruleWidth; //  Φ ← θ
             } else {
-                numShift = mathstyle.metrics.num3; // u ← σ10
-                clearance = 3 * FONTMETRICS.defaultRuleThickness; // φ ← 3 ξ8
+                numberShift = mathstyle.metrics.num3; // U ← σ10
+                clearance = 3 * FONTMETRICS.defaultRuleThickness; // Φ ← 3 ξ8
             }
-            denomShift = mathstyle.metrics.denom2; // v ← σ12
+
+            denomShift = mathstyle.metrics.denom2; // V ← σ12
         }
+
         const numerDepth = spanDepth(numerReset);
         const denomHeight = spanHeight(denomReset);
         let frac: Span;
@@ -150,29 +155,33 @@ export class GenfracAtom extends Atom {
             // Rule 15c from Appendix G
             // No bar line between numerator and denominator
             const candidateClearance =
-                numShift - numerDepth - (denomHeight - denomShift);
+                numberShift - numerDepth - (denomHeight - denomShift);
             if (candidateClearance < clearance) {
-                numShift += 0.5 * (clearance - candidateClearance);
+                numberShift += 0.5 * (clearance - candidateClearance);
                 denomShift += 0.5 * (clearance - candidateClearance);
             }
+
             frac = makeVlist(
                 newContext,
-                [numerReset, -numShift, denomReset, denomShift],
+                [numerReset, -numberShift, denomReset, denomShift],
                 'individualShift'
             );
         } else {
             // Rule 15d from Appendix G
             // There is a bar line between the numerator and the denominator
-            const axisHeight = mathstyle.metrics.axisHeight;
+            const { axisHeight } = mathstyle.metrics;
             const numerLine = axisHeight + 0.5 * ruleWidth;
             const denomLine = axisHeight - 0.5 * ruleWidth;
-            if (numShift - numerDepth - numerLine < clearance) {
-                numShift += clearance - (numShift - numerDepth - numerLine);
+            if (numberShift - numerDepth - numerLine < clearance) {
+                numberShift +=
+                    clearance - (numberShift - numerDepth - numerLine);
             }
+
             if (denomLine - (denomHeight - denomShift) < clearance) {
                 denomShift +=
                     clearance - (denomLine - (denomHeight - denomShift));
             }
+
             const mid = new Span(null, ' frac-line');
             mid.applyStyle(this.mode, style);
             // Manually set the height of the line because its height is
@@ -187,11 +196,12 @@ export class GenfracAtom extends Atom {
                     mid,
                     ruleWidth / 2 - axisHeight,
                     numerReset,
-                    -numShift,
+                    -numberShift,
                 ],
                 'individualShift'
             );
         }
+
         // Add a 'mfrac' class to provide proper context for
         // other css selectors (such as 'frac-line')
         frac.classes += ' mfrac';
@@ -216,7 +226,7 @@ export class GenfracAtom extends Atom {
                 this.leftDelim,
                 delimSize,
                 true,
-                context.clone({ mathstyle: mathstyle })
+                context.clone({ mathstyle })
             )
         );
         leftDelim.applyStyle(this.mode, style);
@@ -228,14 +238,14 @@ export class GenfracAtom extends Atom {
                 this.rightDelim,
                 delimSize,
                 true,
-                context.clone({ mathstyle: mathstyle })
+                context.clone({ mathstyle })
             )
         );
         rightDelim.applyStyle(this.mode, style);
 
         const result = this.bind(
             context,
-            // makeStruts(
+            // MakeStruts(
             new Span(
                 [leftDelim, frac, rightDelim],
                 context.parentSize !== context.size

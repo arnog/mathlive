@@ -18,22 +18,25 @@ export class DelimAtom extends Atom {
         this.value = delim;
         this.size = options?.size;
     }
+
     render(_context: Context): Span[] {
         const span = new Span(null, '');
         span.delim = this.value;
         return [span];
     }
+
     toLatex(_options: ToLatexOptions): string {
         if (this.value.length === 1) {
             return this.command + this.value;
         }
+
         return this.command + '{' + this.value + '}';
     }
 }
 
 export class SizedDelimAtom extends Atom {
-    private size: 1 | 2 | 3 | 4;
     protected delimClass?: SpanType;
+    private readonly size: 1 | 2 | 3 | 4;
     constructor(
         command: string,
         delim: string,
@@ -48,6 +51,7 @@ export class SizedDelimAtom extends Atom {
         this.delimClass = options.delimClass;
         this.size = options.size;
     }
+
     render(context: Context): Span[] {
         const result = this.bind(
             context,
@@ -56,10 +60,12 @@ export class SizedDelimAtom extends Atom {
         if (this.caret) result.caret = this.caret;
         return [result];
     }
+
     toLatex(_options: ToLatexOptions): string {
         if (this.value.length === 1) {
             return this.command + this.value;
         }
+
         return this.command + '{' + this.value + '}';
     }
 }

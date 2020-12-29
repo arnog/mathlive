@@ -44,12 +44,11 @@ export class ModelPrivate implements Model {
     hooks: Required<ModelHooks>;
 
     root: Atom;
+    suppressChangeNotifications: boolean;
 
     private _selection: Selection;
     private _anchor: Offset;
     private _position: Offset;
-
-    suppressChangeNotifications: boolean;
 
     constructor(
         options?: ModelOptions,
@@ -85,6 +84,7 @@ export class ModelPrivate implements Model {
     get selection(): Selection {
         return this._selection;
     }
+
     set selection(value: Selection) {
         this.setSelection(value);
     }
@@ -101,7 +101,7 @@ export class ModelPrivate implements Model {
             const value = this.normalizeSelection(arg1, arg2);
 
             if (typeof value === 'undefined') {
-                throw Error('Invalid selection');
+                throw new TypeError('Invalid selection');
             }
 
             //
@@ -127,6 +127,7 @@ export class ModelPrivate implements Model {
                 } else {
                     [this._anchor, this._position] = selRange;
                 }
+
                 const first = this.at(selRange[0]);
                 const last = this.at(selRange[1]);
 
@@ -151,6 +152,7 @@ export class ModelPrivate implements Model {
                     } else {
                         this._position = this._selection.ranges[0][1];
                     }
+
                     console.assert(
                         this._position >= 0 && this._position <= this.lastOffset
                     );
@@ -167,9 +169,11 @@ export class ModelPrivate implements Model {
     get position(): Offset {
         return this._position;
     }
+
     set position(value: Offset) {
         this.setSelection(value, value);
     }
+
     /**
      * The offset from which the selection is extended
      */
@@ -188,8 +192,10 @@ export class ModelPrivate implements Model {
                 'placeholder'
             );
         }
+
         return false;
     }
+
     collapseSelection(direction: 'forward' | 'backward' = 'forward'): boolean {
         if (this._anchor === this._position) return false;
         if (direction === 'backward') {
@@ -197,6 +203,7 @@ export class ModelPrivate implements Model {
         } else {
             this.position = Math.max(this._anchor, this._position);
         }
+
         return true;
     }
 
@@ -207,13 +214,14 @@ export class ModelPrivate implements Model {
     at(index: number): Atom {
         return this.atoms[index];
     }
+
     offsetOf(atom: Atom): Offset {
         return this.atoms.indexOf(atom);
     }
 
     getSiblingsRange(offset: Offset): Range {
         const atom: Atom = this.at(offset);
-        const parent = atom.parent;
+        const { parent } = atom;
         if (!parent) return [0, this.lastOffset];
         const branch = atom.parent.branch(atom.treeBranch);
         return [
@@ -221,6 +229,7 @@ export class ModelPrivate implements Model {
             this.offsetOf(branch[branch.length - 1]),
         ];
     }
+
     getBranchRange(offset: Offset, branchName: Branch): Range {
         const branch = this.at(offset).branch(branchName);
         return [
@@ -228,6 +237,7 @@ export class ModelPrivate implements Model {
             this.offsetOf(branch[branch.length - 1]),
         ];
     }
+
     /**
      * Return the atoms in a range.
      * getAtoms([3, 5]) -> atoms 4 and 5
@@ -258,8 +268,10 @@ export class ModelPrivate implements Model {
                     []
                 );
             }
+
             arg1 = arg1.ranges[0];
         }
+
         let start: number;
         let end: number;
         if (isOffset(arg1)) {
@@ -271,7 +283,7 @@ export class ModelPrivate implements Model {
             options = (arg2 as GetAtomOptions) ?? {};
         }
 
-        if (!isFinite(start)) return [];
+        if (!Number.isFinite(start)) return [];
 
         if (typeof options.includeChildren === 'undefined') {
             options.includeChildren = false;
@@ -289,21 +301,24 @@ export class ModelPrivate implements Model {
                 result.push(atom);
             }
         }
+
         if (!options.includeChildren) {
             // Remove any atoms whose ancestor is also included
             result = result.filter((atom) => {
                 let ancestorIncluded = false;
-                let parent = atom.parent;
+                let { parent } = atom;
                 while (parent && !ancestorIncluded) {
                     ancestorIncluded = atomIsInRange(this, parent, first, last);
                     parent = parent.parent;
                 }
+
                 return !ancestorIncluded;
             });
         }
 
         return result;
     }
+
     /**
      * Unlike `getAtoms()`, the argument here is an index
      * Return all the atoms, in order, starting at startingIndex
@@ -315,9 +330,11 @@ export class ModelPrivate implements Model {
         for (let i = startingIndex; i <= last; i++) {
             result.push(this.atoms[i]);
         }
+
         for (let i = 0; i < startingIndex; i++) {
             result.push(this.atoms[i]);
         }
+
         return result;
     }
 
@@ -355,14 +372,14 @@ export class ModelPrivate implements Model {
         ) {
             const saveTextToSpeechMarkup = this.mathfield.options
                 .textToSpeechMarkup;
-            // const savedAtomIdsSettings = this.config.atomIdsSettings;    // @revisit
+            // Const savedAtomIdsSettings = this.config.atomIdsSettings;    // @revisit
             this.mathfield.options.textToSpeechMarkup = 'ssml';
-            // if (format === 'spoken-ssml-withHighlighting') {     // @revisit
+            // If (format === 'spoken-ssml-withHighlighting') {     // @revisit
             //     this.config.atomIdsSettings = { seed: 'random' };
             // }
             result = atomToSpeakableText(atom, this.mathfield.options);
             this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
-            // this.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
+            // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
         } else if (format === 'json') {
             console.log('deprecated format. Use MathJSON');
             const json = atomtoMathJson(atom);
@@ -370,7 +387,7 @@ export class ModelPrivate implements Model {
         } else if (format === 'json-2') {
             console.log('deprecated format. Use MathJSON');
             const json = atomtoMathJson(atom);
-            // const json = parseLatex(root.toLatex(true), {
+            // Const json = parseLatex(root.toLatex(true), {
             //     form: 'canonical',
             // });
             result = JSON.stringify(json, null, 2);
@@ -379,9 +396,11 @@ export class ModelPrivate implements Model {
         } else {
             console.warn('Unknown format :', format);
         }
+
         return result;
     }
-    // getValue(): string;
+
+    // GetValue(): string;
     // getValue(format: OutputFormat): string;
     // getValue(start: Offset, end: Offset, format?: OutputFormat): string;
     // getValue(range: Range, format?: OutputFormat): string;
@@ -392,18 +411,20 @@ export class ModelPrivate implements Model {
         arg3?: OutputFormat
     ): string {
         if (typeof arg1 === 'undefined') {
-            // getValue()
+            // GetValue()
             return this.atomToString(this.root, 'latex');
         }
+
         if (typeof arg1 === 'string') {
-            // getValue(format): Output format only
+            // GetValue(format): Output format only
             return this.atomToString(this.root, arg1);
         }
+
         let ranges: Range[];
         let format: OutputFormat;
         if (isOffset(arg1) && isOffset(arg2)) {
             ranges = [this.normalizeRange([arg1, arg2])];
-            format = arg3 as OutputFormat;
+            format = arg3;
         } else if (isRange(arg1)) {
             ranges = [this.normalizeRange(arg1)];
             format = arg2 as OutputFormat;
@@ -411,6 +432,7 @@ export class ModelPrivate implements Model {
             ranges = arg1.ranges;
             format = arg2 as OutputFormat;
         }
+
         format = format ?? 'latex';
         if (format === 'latex' || format === 'latex-expanded') {
             const options: ToLatexOptions = {
@@ -422,6 +444,7 @@ export class ModelPrivate implements Model {
                 )
             );
         }
+
         return ranges
             .map((range): string =>
                 this.getAtoms(range)
@@ -446,6 +469,7 @@ export class ModelPrivate implements Model {
             if (pos === anchor - 1 && this.at(anchor).type === 'first') {
                 pos = anchor;
             }
+
             return this.extendSelectionTo(anchor, pos);
         }
 
@@ -459,6 +483,7 @@ export class ModelPrivate implements Model {
         while (pos >= 0 && this.at(pos).isLastSibling) {
             pos--;
         }
+
         if (pos < 0) pos = 0;
 
         if (pos === anchor + 1 && this.at(pos).type === 'first') {
@@ -484,7 +509,7 @@ export class ModelPrivate implements Model {
             let [start, end] = range;
 
             // Include the parent if all the chidlren are selected
-            let parent = this.at(end).parent;
+            let { parent } = this.at(end);
             while (
                 parent !== this.root &&
                 childrenInRange(this, parent, [start, end])
@@ -492,6 +517,7 @@ export class ModelPrivate implements Model {
                 end = this.offsetOf(parent);
                 parent = parent.parent;
             }
+
             parent = this.at(start).parent;
             while (
                 parent !== this.root &&
@@ -500,6 +526,7 @@ export class ModelPrivate implements Model {
                 start = this.offsetOf(parent.leftSibling);
                 parent = parent.parent;
             }
+
             // Now that the start has potentially changed, check again
             // if end needs to be updated
             parent = this.at(end).parent;
@@ -519,9 +546,11 @@ export class ModelPrivate implements Model {
             };
         });
     }
+
     setListeners(listeners?: ModelListeners): void {
         this.listeners = listeners;
     }
+
     setHooks(hooks?: ModelHooks): void {
         this.hooks = {
             announce: hooks?.announce
@@ -531,9 +560,7 @@ export class ModelPrivate implements Model {
                       _command: string,
                       _previousPosition: number,
                       _atoms: Atom[]
-                  ): void => {
-                      return;
-                  },
+                  ): void => {},
             moveOut: hooks?.moveOut ? hooks.moveOut : (): boolean => true,
             tabOut: hooks?.tabOut ? hooks.tabOut : (): boolean => true,
         };
@@ -585,12 +612,14 @@ export class ModelPrivate implements Model {
         ) {
             selectionChanged = true;
         }
+
         this.suppressChangeNotifications = saved;
         if (!this.suppressChangeNotifications) {
             // Notify of content change, if requested
             if (options.content && contentChanged) {
                 contentDidChange(this);
             }
+
             // If the selection has effectively changed, notify
             if (options.selection && selectionChanged) {
                 selectionDidChange(this);
@@ -606,6 +635,7 @@ export class ModelPrivate implements Model {
         } else if (value < 0) {
             value = this.lastOffset + value + 1;
         }
+
         return value;
     }
 
@@ -633,31 +663,30 @@ export class ModelPrivate implements Model {
             const offset = this.normalizeOffset(value);
             if (isOffset(value2)) {
                 const offset2 = this.normalizeOffset(value2);
-                if (offset <= offset2) {
-                    result = { ranges: [[offset, offset2]], direction: 'none' };
-                } else {
-                    result = {
-                        ranges: [[offset2, offset]],
-                        direction: 'backward',
-                    };
-                }
+                result =
+                    offset <= offset2
+                        ? { ranges: [[offset, offset2]], direction: 'none' }
+                        : {
+                              ranges: [[offset2, offset]],
+                              direction: 'backward',
+                          };
             } else {
                 result = { ranges: [[offset, offset]], direction: 'none' };
             }
         } else if (isRange(value)) {
             const start = this.normalizeOffset(value[0]);
             const end = this.normalizeOffset(value[1]);
-            if (start <= end) {
-                result = { ranges: [[start, end]], direction: 'none' };
-            } else {
-                result = { ranges: [[end, start]], direction: 'backward' };
-            }
+            result =
+                start <= end
+                    ? { ranges: [[start, end]], direction: 'none' }
+                    : { ranges: [[end, start]], direction: 'backward' };
         } else if (isSelection(value)) {
             result = {
                 ranges: value.ranges.map((x) => this.normalizeRange(x)),
                 direction: value.direction ?? 'none',
             };
         }
+
         return result;
     }
 }
@@ -682,6 +711,7 @@ function atomIsInRange(
             return true;
         }
     }
+
     return false;
 }
 
@@ -697,5 +727,6 @@ function childrenInRange(
     if (first >= start && first <= end && last >= first && last <= end) {
         return true;
     }
+
     return false;
 }

@@ -5,7 +5,7 @@ import { AutoRenderOptions } from '../public/mathlive';
 import { ErrorListener, ParserErrorCode } from '../public/core';
 import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
-// @ts-ignore
+// @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
@@ -24,7 +24,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
     ) => string;
 
     /**
-     * a function that will convert any LaTeX found to
+     * A function that will convert any LaTeX found to
      * MathML markup.
      */
     renderToMathML?: (
@@ -54,13 +54,13 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
     format?: string;
 };
 
-function findEndOfMath(delimiter, text, startIndex): number {
+function findEndOfMath(delimiter, text, startIndex: number): number {
     // Adapted from
     // https://github.com/Khan/perseus/blob/master/src/perseus-markdown.jsx
     let index = startIndex;
     let braceLevel = 0;
 
-    const delimLength = delimiter.length;
+    const delimLength: number = delimiter.length;
 
     while (index < text.length) {
         const character = text[index];
@@ -70,7 +70,9 @@ function findEndOfMath(delimiter, text, startIndex): number {
             text.slice(index, index + delimLength) === delimiter
         ) {
             return index;
-        } else if (character === '\\') {
+        }
+
+        if (character === '\\') {
             index++;
         } else if (character === '{') {
             braceLevel++;
@@ -86,8 +88,8 @@ function findEndOfMath(delimiter, text, startIndex): number {
 
 function splitAtDelimiters(
     startData,
-    leftDelim,
-    rightDelim,
+    leftDelim: string,
+    rightDelim: string,
     mathstyle
 ): {
     type: string;
@@ -97,13 +99,13 @@ function splitAtDelimiters(
 }[] {
     const finalData = [];
 
-    for (let i = 0; i < startData.length; i++) {
-        if (startData[i].type === 'text') {
-            const text = startData[i].data;
+    for (const startDatum of startData) {
+        if (startDatum.type === 'text') {
+            const text = startDatum.data;
 
             let lookingForLeft = true;
             let currIndex = 0;
-            let nextIndex;
+            let nextIndex: number;
 
             nextIndex = text.indexOf(leftDelim);
             if (nextIndex !== -1) {
@@ -114,8 +116,10 @@ function splitAtDelimiters(
                         data: text.slice(0, currIndex),
                     });
                 }
+
                 lookingForLeft = false;
             }
+
             let done = false;
             while (!done) {
                 if (lookingForLeft) {
@@ -124,6 +128,7 @@ function splitAtDelimiters(
                         done = true;
                         break;
                     }
+
                     if (currIndex !== nextIndex) {
                         finalData.push({
                             type: 'text',
@@ -153,7 +158,7 @@ function splitAtDelimiters(
                             currIndex,
                             nextIndex + rightDelim.length
                         ),
-                        mathstyle: mathstyle,
+                        mathstyle,
                     });
 
                     currIndex = nextIndex + rightDelim.length;
@@ -161,6 +166,7 @@ function splitAtDelimiters(
 
                 lookingForLeft = !lookingForLeft;
             }
+
             if (currIndex < text.length) {
                 finalData.push({
                     type: 'text',
@@ -168,7 +174,7 @@ function splitAtDelimiters(
                 });
             }
         } else {
-            finalData.push(startData[i]);
+            finalData.push(startDatum);
         }
     }
 
@@ -189,6 +195,7 @@ function splitWithDelimiters(
         const delimiter = delimiters.inline[i];
         data = splitAtDelimiters(data, delimiter[0], delimiter[1], 'textstyle');
     }
+
     for (let i = 0; i < delimiters.display.length; i++) {
         const delimiter = delimiters.display[i];
         data = splitAtDelimiters(
@@ -215,10 +222,14 @@ function createMathMLNode(
             options.renderToMathML(latex, options) +
             '</math>';
         span.innerHTML = options.createHTML ? options.createHTML(html) : html;
-    } catch (e) {
-        console.error("Could not convert'" + latex + "' to MathML with ", e);
+    } catch (error: unknown) {
+        console.error(
+            "Could not convert '" + latex + "' to MathML with ",
+            error
+        );
         span.textContent = latex;
     }
+
     span.className = 'ML__sr-only';
     return span;
 }
@@ -250,7 +261,7 @@ function createMarkupNode(
     }
 
     try {
-        loadFonts(options.fontsDirectory);
+        void loadFonts(options.fontsDirectory);
         injectStylesheet(null, coreStylesheet);
         const html = options.renderToMarkup(text, {
             mathstyle: mathstyle ?? 'displaystyle',
@@ -258,14 +269,15 @@ function createMarkupNode(
             macros: options.macros,
         });
         span.innerHTML = options.createHTML ? options.createHTML(html) : html;
-    } catch (e) {
-        console.error("Could not parse'" + text + "' with ", e);
+    } catch (error: unknown) {
+        console.error("Could not parse'" + text + "' with ", error);
         if (createNodeOnFailure) {
             span = document.createTextNode(text);
         } else {
             return null;
         }
     }
+
     return span;
 }
 
@@ -294,8 +306,9 @@ function createAccessibleMarkupPair(
             /\bmathml\b/i.test(options.renderAccessibleContent) &&
             options.renderToMathML
         ) {
-            fragment.appendChild(createMathMLNode(text, options));
+            fragment.append(createMathMLNode(text, options));
         }
+
         if (
             /\bspeakable-text\b/i.test(options.renderAccessibleContent) &&
             options.renderToSpeakableText
@@ -306,9 +319,10 @@ function createAccessibleMarkupPair(
                 ? options.createHTML(html)
                 : html;
             span.className = 'ML__sr-only';
-            fragment.appendChild(span);
+            fragment.append(span);
         }
-        fragment.appendChild(markupNode);
+
+        fragment.append(markupNode);
         return fragment;
     }
 
@@ -331,16 +345,17 @@ function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
             // This text contains no math. No need to continue processing
             return null;
         }
+
         fragment = document.createDocumentFragment();
 
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].type === 'text') {
-                fragment.appendChild(document.createTextNode(data[i].data));
+        for (const datum of data) {
+            if (datum.type === 'text') {
+                fragment.appendChild(document.createTextNode(datum.data));
             } else {
                 fragment.appendChild(
                     createAccessibleMarkupPair(
-                        data[i].data,
-                        data[i].mathstyle,
+                        datum.data,
+                        datum.mathstyle,
                         options,
                         true
                     )
@@ -348,15 +363,16 @@ function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
             }
         }
     }
+
     return fragment;
 }
 
-function scanElement(elem, options: AutoRenderOptionsPrivate): void {
-    const originalContent = elem.getAttribute(
+function scanElement(element, options: AutoRenderOptionsPrivate): void {
+    const originalContent = element.getAttribute(
         'data-' + options.namespace + 'original-content'
     );
     if (originalContent) {
-        const mathstyle = elem.getAttribute(
+        const mathstyle = element.getAttribute(
             'data-' + options.namespace + 'mathstyle'
         );
         const span = createAccessibleMarkupPair(
@@ -365,20 +381,24 @@ function scanElement(elem, options: AutoRenderOptionsPrivate): void {
             options,
             false
         );
-        if (span != null) {
-            elem.textContent = '';
-            elem.appendChild(span);
+        if (span !== null) {
+            element.textContent = '';
+            element.append(span);
         }
+
         return;
     }
 
-    if (elem.childNodes.length === 1 && elem.childNodes[0].nodeType === 3) {
+    if (
+        element.childNodes.length === 1 &&
+        element.childNodes[0].nodeType === 3
+    ) {
         // This is a node with textual content only. Perhaps an opportunity
         // to simplify and avoid creating extra nested elements...
-        const text = elem.childNodes[0].textContent;
+        const text = element.childNodes[0].textContent;
         if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
-            elem.textContent = '';
-            elem.appendChild(
+            element.textContent = '';
+            element.append(
                 createAccessibleMarkupPair(text, undefined, options, true)
             );
             return;
@@ -388,8 +408,8 @@ function scanElement(elem, options: AutoRenderOptionsPrivate): void {
         if (data.length === 1 && data[0].type === 'math') {
             // The entire content is a math expression: we can replace the content
             // with the latex markup without creating additional wrappers.
-            elem.textContent = '';
-            elem.appendChild(
+            element.textContent = '';
+            element.append(
                 createAccessibleMarkupPair(
                     data[0].data,
                     data[0].mathstyle,
@@ -398,22 +418,24 @@ function scanElement(elem, options: AutoRenderOptionsPrivate): void {
                 )
             );
             return;
-        } else if (data.length === 1 && data[0].type === 'text') {
+        }
+
+        if (data.length === 1 && data[0].type === 'text') {
             // This element only contained text with no math. No need to
             // do anything.
             return;
         }
     }
 
-    for (let i = 0; i < elem.childNodes.length; i++) {
-        const childNode = elem.childNodes[i];
+    for (let i = 0; i < element.childNodes.length; i++) {
+        const childNode = element.childNodes[i];
         if (childNode.nodeType === 3) {
             // A text node
             // Look for math mode delimiters inside the text
             const frag = scanText(childNode.textContent, options);
             if (frag) {
                 i += frag.childNodes.length - 1;
-                elem.replaceChild(frag, childNode);
+                childNode.replaceWith(frag);
             }
         } else if (childNode.nodeType === 1) {
             // An element node
@@ -426,11 +448,10 @@ function scanElement(elem, options: AutoRenderOptionsPrivate): void {
                 for (const l of childNode.type.split(';')) {
                     const v = l.split('=');
                     if (v[0].toLowerCase() === 'mode') {
-                        if (v[1].toLoweCase() === 'display') {
-                            style = 'displaystyle';
-                        } else {
-                            style = 'textstyle';
-                        }
+                        style =
+                            v[1].toLoweCase() === 'display'
+                                ? 'displaystyle'
+                                : 'textstyle';
                     }
                 }
 
@@ -453,12 +474,12 @@ function scanElement(elem, options: AutoRenderOptionsPrivate): void {
 
                 if (shouldRender) {
                     if (
-                        elem.childNodes.length === 1 &&
-                        elem.childNodes[0].nodeType === 3
+                        element.childNodes.length === 1 &&
+                        element.childNodes[0].nodeType === 3
                     ) {
-                        const formula = elem.textContent;
-                        elem.textContent = '';
-                        elem.appendChild(
+                        const formula = element.textContent;
+                        element.textContent = '';
+                        element.append(
                             createAccessibleMarkupPair(
                                 formula,
                                 'displaystyle',
@@ -522,7 +543,7 @@ const defaultOptions: AutoRenderOptions = {
 };
 
 function renderMathInElement(
-    elem: HTMLElement | string,
+    element: HTMLElement | string,
     options: AutoRenderOptionsPrivate
 ): void {
     try {
@@ -536,24 +557,25 @@ function renderMathInElement(
 
         // Validate the namespace (used for `data-` attributes)
         if (options.namespace) {
-            if (!/^[a-z]+[-]?$/.test(options.namespace)) {
-                throw Error(
+            if (!/^[a-z]+-?$/.test(options.namespace)) {
+                throw new Error(
                     'options.namespace must be a string of lowercase characters only'
                 );
             }
-            if (!/-$/.test(options.namespace)) {
+
+            if (!options.namespace.endsWith('-')) {
                 options.namespace += '-';
             }
         }
 
-        scanElement(elem, options);
-    } catch (e) {
-        if (e instanceof Error) {
-            console.error('renderMathInElement(): ' + e.message);
+        scanElement(element, options);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('renderMathInElement(): ' + error.message);
         } else {
             console.error(
-                'renderMathInElement(): Could not render math for element ' +
-                    elem
+                'renderMathInElement(): Could not render math for element',
+                element
             );
         }
     }

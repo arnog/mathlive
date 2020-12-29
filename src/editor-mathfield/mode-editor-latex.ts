@@ -1,12 +1,12 @@
-import { Offset, Range } from '../public/mathfield';
+/* eslint-disable no-new */
+import { Offset, Range, InsertOptions } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
 import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
-import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { requestUpdate } from '../editor-mathfield/render';
+import { MathfieldPrivate } from './mathfield-private';
+import { requestUpdate } from './render';
 import { range } from '../editor-model/selection-utils';
 import { Style } from '../public/core';
 import { ModeEditor } from './mode-editor';
-import { InsertOptions } from '../public/mathfield';
 
 import { COMMAND_MODE_CHARACTERS } from '../core/core';
 import { ModelPrivate } from '../editor-model/model-private';
@@ -16,9 +16,11 @@ export class LatexModeEditor extends ModeEditor {
     constructor() {
         super('latex');
     }
+
     createAtom(command: string, _style: Style): Atom | null {
         return new LatexAtom(command);
     }
+
     onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
         const text = ev.clipboardData.getData('text/plain');
 
@@ -26,12 +28,15 @@ export class LatexModeEditor extends ModeEditor {
             if (this.insert(mathfield.model, text)) {
                 requestUpdate(mathfield);
             }
+
             ev.preventDefault();
             ev.stopPropagation();
             return true;
         }
+
         return false;
     }
+
     onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
         const value: Range = mathfield.model.selectionIsCollapsed
             ? [0, mathfield.model.lastOffset]
@@ -53,10 +58,11 @@ export class LatexModeEditor extends ModeEditor {
         if (!options.insertionMode) options.insertionMode = 'replaceSelection';
         if (!options.selectionMode) options.selectionMode = 'placeholder';
 
-        const suppressChangeNotifications = model.suppressChangeNotifications;
+        const { suppressChangeNotifications } = model;
         if (options.suppressChangeNotifications) {
             model.suppressChangeNotifications = true;
         }
+
         const savedSuppressChangeNotifications =
             model.suppressChangeNotifications;
         model.suppressChangeNotifications = true;
@@ -100,6 +106,7 @@ export class LatexModeEditor extends ModeEditor {
         } else if (lastNewAtom) {
             model.position = model.offsetOf(lastNewAtom);
         }
+
         contentDidChange(model);
 
         model.suppressChangeNotifications = suppressChangeNotifications;
@@ -126,12 +133,15 @@ export function getCommandSuggestionRange(
 ): Range {
     let start = 0;
     let found = false;
-    const last = isFinite(options?.before) ? options.before : model.lastOffset;
+    const last = Number.isFinite(options?.before)
+        ? options.before
+        : model.lastOffset;
     while (start <= last && !found) {
         const atom = model.at(start);
         found = atom instanceof LatexAtom && atom.isSuggestion;
         if (!found) start++;
     }
+
     if (!found) return [undefined, undefined];
 
     let end = start;
@@ -141,6 +151,7 @@ export function getCommandSuggestionRange(
         done = !(atom instanceof LatexAtom && atom.isSuggestion);
         if (!done) end++;
     }
+
     return [start - 1, end - 1];
 }
 

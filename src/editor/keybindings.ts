@@ -33,9 +33,10 @@ function matchPlatform(p: string): boolean {
             /(ipad)/i.test(navigator.userAgent)
         ) {
             plat = 'ios';
-        } else if (/\bCrOS\b/i.test(navigator.userAgent)) {
+        } else if (/\bcros\b/i.test(navigator.userAgent)) {
             plat = 'chromeos';
         }
+
         if (p.startsWith('!') && !p.endsWith(plat)) return true;
         if (p.endsWith(plat)) return true;
     }
@@ -64,6 +65,7 @@ export function getCommandForKeybinding(
             }
         }
     }
+
     return '';
 }
 
@@ -71,11 +73,10 @@ function commandToString(command: string | Selector | string[]): string {
     let result: string | string[] = command;
 
     if (isArray(result)) {
-        if (result.length > 0) {
-            result = result[0] + '(' + result.slice(1).join('') + ')';
-        } else {
-            result = '';
-        }
+        result =
+            result.length > 0
+                ? result[0] + '(' + result.slice(1).join('') + ')'
+                : '';
     }
 
     return result;
@@ -131,29 +132,30 @@ export function getKeybindingMarkup(keystroke: string): string {
         if (!useSymbol && result) {
             result += '<span class="ML__shortcut-join">+</span>';
         }
+
         if (segment.startsWith('Key')) {
-            result += segment.substr(3, 1);
+            result += segment.slice(3, 4);
         } else if (segment.startsWith('Digit')) {
-            result += segment.substr(5, 1);
+            result += segment.slice(5, 6);
         } else {
             result +=
                 {
-                    cmd: '\u2318',
-                    meta: useSymbol ? '\u2318' : 'command',
-                    shift: useSymbol ? '\u21e7' : 'shift',
-                    alt: useSymbol ? '\u2325' : 'alt',
-                    ctrl: useSymbol ? '\u2303' : 'control',
-                    '\n': useSymbol ? '\u23ce' : 'return',
-                    '[return]': useSymbol ? '\u23ce' : 'return',
+                    'cmd': '\u2318',
+                    'meta': useSymbol ? '\u2318' : 'command',
+                    'shift': useSymbol ? '\u21E7' : 'shift',
+                    'alt': useSymbol ? '\u2325' : 'alt',
+                    'ctrl': useSymbol ? '\u2303' : 'control',
+                    '\n': useSymbol ? '\u23CE' : 'return',
+                    '[return]': useSymbol ? '\u23CE' : 'return',
                     '[enter]': useSymbol ? '\u2324' : 'enter',
-                    '[tab]': useSymbol ? '\u21e5' : 'tab',
+                    '[tab]': useSymbol ? '\u21E5' : 'tab',
                     // 'Esc':          useSymbol ? '\u238b' : 'esc',
                     '[escape]': 'esc',
 
-                    '[backspace]': useSymbol ? '\u232b' : 'backspace',
+                    '[backspace]': useSymbol ? '\u232B' : 'backspace',
                     '[delete]': useSymbol ? '\u2326' : 'del',
-                    '[pageup]': useSymbol ? '\u21de' : 'page up',
-                    '[pagedown]': useSymbol ? '\u21df' : 'page down',
+                    '[pageup]': useSymbol ? '\u21DE' : 'page up',
+                    '[pagedown]': useSymbol ? '\u21DF' : 'page down',
                     '[home]': useSymbol ? '\u2912' : 'home',
                     '[end]': useSymbol ? '\u2913' : 'end',
                     '[space]': 'space',
@@ -163,29 +165,29 @@ export function getKeybindingMarkup(keystroke: string): string {
                     '[backslash]': '\\',
                     '[bracketleft]': '[',
                     '[bracketright]': ']',
-                    semicolon: ';',
-                    period: '.',
-                    comma: ',',
-                    minus: '-',
-                    equal: '=',
-                    quote: "'",
-                    bracketLeft: '[',
-                    bracketRight: ']',
-                    backslash: '\\',
-                    intlbackslash: '\\',
-                    backquote: '`',
-                    slash: '/',
-                    numpadmultiply: '* &#128290;',
-                    numpaddivide: '/ &#128290;', // Numeric keypad
-                    numpadsubtract: '- &#128290;',
-                    numpadadd: '+ &#128290;',
-                    numpaddecimal: '. &#128290;',
-                    numpadcomma: ', &#128290;',
-                    help: 'help',
-                    left: '\u21E0',
-                    up: '\u21E1',
-                    right: '\u21E2',
-                    down: '\u21E3',
+                    'semicolon': ';',
+                    'period': '.',
+                    'comma': ',',
+                    'minus': '-',
+                    'equal': '=',
+                    'quote': "'",
+                    'bracketLeft': '[',
+                    'bracketRight': ']',
+                    'backslash': '\\',
+                    'intlbackslash': '\\',
+                    'backquote': '`',
+                    'slash': '/',
+                    'numpadmultiply': '* &#128290;',
+                    'numpaddivide': '/ &#128290;', // Numeric keypad
+                    'numpadsubtract': '- &#128290;',
+                    'numpadadd': '+ &#128290;',
+                    'numpaddecimal': '. &#128290;',
+                    'numpadcomma': ', &#128290;',
+                    'help': 'help',
+                    'left': '\u21E0',
+                    'up': '\u21E1',
+                    'right': '\u21E2',
+                    'down': '\u21E3',
                     '[arrowleft]': '\u21E0',
                     '[arrowup]': '\u21E1',
                     '[arrowright]': '\u21E2',
@@ -203,6 +205,7 @@ export function getKeybindingMarkup(keystroke: string): string {
                 }[segment.toLowerCase()] ?? segment.toUpperCase();
         }
     }
+
     return result;
 }
 
@@ -217,6 +220,7 @@ function normalizeKeybinding(keybinding: Keybinding): Keybinding {
             `Unexpected platform "${keybinding.ifPlatform}" for keybinding ${keybinding.key}`
         );
     }
+
     let segments = keybinding.key.split('+');
     const key = segments.pop();
     let platform = keybinding.ifPlatform;
@@ -229,32 +233,38 @@ function normalizeKeybinding(keybinding: Keybinding): Keybinding {
                     'Unexpected "cmd" modifier with platform "' + platform + '"'
                 );
             }
+
             if (!platform) {
                 platform = matchPlatform('ios') ? 'ios' : 'macos';
             }
 
             return 'meta';
-        } else if (x === 'win') {
+        }
+
+        if (x === 'win') {
             if (platform && platform !== 'windows') {
                 throw new Error(
                     'Unexpected "win" modifier with platform "' + platform + '"'
                 );
             }
+
             platform = 'windows';
             return 'meta';
         }
+
         return x;
     });
 
     if (platform && !matchPlatform(platform)) return undefined;
 
-    if (!/^\[(.*)\]$/.test(key)) {
+    if (!/^\[(.*)]$/.test(key)) {
         // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`)
         // Convert it to a key code
         const code = getCodeForKey(key);
         if (!code) {
             throw new Error('Invalid keybinding key "' + keybinding.key + '"');
         }
+
         segments = segments.concat(code.split('+'));
     } else {
         segments.push(key);
@@ -270,7 +280,7 @@ function normalizeKeybinding(keybinding: Keybinding): Keybinding {
  */
 export function normalizeKeybindings(
     keybindings: Keybinding[],
-    onError: (e: any) => void
+    onError: (error: any) => void
 ): Keybinding[] {
     const result = [];
     const errors = [];
@@ -280,12 +290,15 @@ export function normalizeKeybindings(
             if (keybinding) {
                 result.push(keybinding);
             }
-        } catch (e) {
-            errors.push(e.message);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                errors.push(error.message);
+            }
         }
     });
     if (errors.length > 0) {
         onError(errors);
     }
+
     return result;
 }

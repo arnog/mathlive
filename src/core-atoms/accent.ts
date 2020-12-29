@@ -13,8 +13,8 @@ import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import { Style } from '../public/core';
 
 export class AccentAtom extends Atom {
-    private accent?: string;
-    private svgAccent?: string;
+    private readonly accent?: string;
+    private readonly svgAccent?: string;
     constructor(
         command: string,
         body: Atom[],
@@ -26,6 +26,7 @@ export class AccentAtom extends Atom {
         } else {
             this.svgAccent = options?.svgAccent;
         }
+
         this.body = body;
         this.skipBoundary = true;
         this.limits = 'accent'; // This will suppress the regular
@@ -33,9 +34,10 @@ export class AccentAtom extends Atom {
         // it to the decomposeAccent
         // (any non-null value would do)
     }
+
     render(context: Context): Span[] {
         // Accents are handled in the TeXbook pg. 443, rule 12.
-        const mathstyle = context.mathstyle;
+        const { mathstyle } = context;
         // Build the base atom
         const base = Atom.render(context.cramp(), this.body);
         // Calculate the skew of the accent. This is based on the line "If the
@@ -51,7 +53,8 @@ export class AccentAtom extends Atom {
         ) {
             skew = spanSkew(base);
         }
-        // calculate the amount of space between the body and the accent
+
+        // Calculate the amount of space between the body and the accent
         let clearance = Math.min(spanHeight(base), mathstyle.metrics.xHeight);
         let accentBody: Span;
         if (this.svgAccent) {
@@ -66,9 +69,10 @@ export class AccentAtom extends Atom {
             // The \vec character that the fonts use is a combining character, and
             // thus shows up much too far to the left. To account for this, we add a
             // specific class which shifts the accent over to where we want it.
-            const vecClass = this.accent === '\u20d7' ? ' accent-vec' : '';
+            const vecClass = this.accent === '\u20D7' ? ' accent-vec' : '';
             accentBody = new Span(new Span(accent), 'accent-body' + vecClass);
         }
+
         accentBody = makeVlist(context, [base, -clearance, accentBody]);
         // Shift the accent over by the skew. Note we shift by twice the skew
         // because we are centering the accent, so by adding 2*skew to the left,

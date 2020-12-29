@@ -20,7 +20,7 @@ export function updateAutocomplete(
     mathfield: MathfieldPrivate,
     options?: { atIndex?: number }
 ): void {
-    const model = mathfield.model;
+    const { model } = mathfield;
     // Remove any error indicator and any suggestions
     getLatexGroupBody(model).forEach((x) => {
         if (x.isSuggestion) {
@@ -44,6 +44,7 @@ export function updateAutocomplete(
         command.unshift(atom);
         atom = atom.leftSibling;
     }
+
     if (atom && atom instanceof LatexAtom && atom.value === '\\') {
         // We found the beginning of a command, include the atoms after the
         // insertion point
@@ -69,6 +70,7 @@ export function updateAutocomplete(
                 x.isError = true;
             });
         }
+
         hidePopover(mathfield);
         return;
     }
@@ -83,13 +85,14 @@ export function updateAutocomplete(
     if (suggestion !== commandString) {
         const lastAtom = command[command.length - 1];
         lastAtom.parent.addChildrenAfter(
-            Array.from(
-                suggestion.substr(commandString.length - suggestion.length)
-            ).map((x) => new LatexAtom(x, { isSuggestion: true })),
+            [...suggestion.slice(commandString.length - suggestion.length)].map(
+                (x) => new LatexAtom(x, { isSuggestion: true })
+            ),
             lastAtom
         );
         requestUpdate(mathfield);
     }
+
     showPopoverWithLatex(mathfield, suggestion, suggestions.length > 1);
 }
 
@@ -116,7 +119,7 @@ export function complete(
 
     if (completion === 'accept-suggestion') {
         const suggestion = getLatexGroupBody(mathfield.model).filter(
-            (x) => x.isSuggestion === true
+            (x) => x.isSuggestion
         );
         if (suggestion.length === 0) return false;
         suggestion.forEach((x) => {
@@ -129,7 +132,7 @@ export function complete(
     }
 
     const body = getLatexGroupBody(mathfield.model).filter(
-        (x) => x.isSuggestion === false
+        (x) => !x.isSuggestion
     );
 
     const latex = body.map((x) => x.value).join('');

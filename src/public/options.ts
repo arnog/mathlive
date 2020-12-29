@@ -233,7 +233,7 @@ export type TextToSpeechOptions = {
      * options for the SRE engine are documented
      * {@link https://github.com/zorkow/speech-rule-engine | here}
      */
-    textToSpeechRulesOptions: { [key: string]: string };
+    textToSpeechRulesOptions: Record<string, string>;
     /**
      * Indicates which speech engine to use for speech output.
      *
@@ -324,6 +324,15 @@ export interface VirtualKeyboardKeycap {
     shiftedCommand?: string;
 }
 
+export interface VirtualKeyboardDefinition {
+    label: string;
+    layer?: string;
+    tooltip?: string;
+    layers?: string[];
+    classes?: string;
+    command?: string | string[];
+}
+
 export interface VirtualKeyboardLayer {
     styles?: string;
     backdrop?: string;
@@ -369,16 +378,8 @@ export type VirtualKeyboardOptions = {
      * {@link https://github.com/arnog/mathlive/tree/master/examples/virtual_keyboard | virtual keyboard example}
      *
      */
-    customVirtualKeyboardLayers: {
-        [layerName: string]: string | VirtualKeyboardLayer;
-    };
-    customVirtualKeyboards: {
-        [virtualKeyboardName: string]: {
-            label: string;
-            tooltip?: string;
-            layer: string;
-        };
-    };
+    customVirtualKeyboardLayers: Record<string, string | VirtualKeyboardLayer>;
+    customVirtualKeyboards: Record<string, VirtualKeyboardDefinition>;
     /**
      * The visual theme used for the virtual keyboard.
      *
@@ -587,7 +588,7 @@ export type InlineShortcutsOptions = {
      * {@inheritDoc InlineShortcutDefinition}
      */
 
-    inlineShortcuts: { [key: string]: InlineShortcutDefinition };
+    inlineShortcuts: Record<string, InlineShortcutDefinition>;
     /**
      * Maximum time, in milliseconds, between consecutive characters for them to be
      * considered part of the same shortcut sequence.
@@ -638,7 +639,7 @@ export type LocalizationOptions = {
  *
  * This will override the default localized strings.
 */
-    strings: { [locale: string]: { [key: string]: string } };
+    strings: Record<string, Record<string, string>>;
 };
 
 export type EditingOptions = {

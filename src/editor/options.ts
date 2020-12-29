@@ -12,18 +12,16 @@ import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { gScriptUrl } from '../common/script-url';
 
-const AUDIO_FEEDBACK_VOLUME = 0.5; // from 0.0 to 1.0
+const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
-const NO_OP_LISTENER = (): void => {
-    return;
-};
+const NO_OP_LISTENER = (): void => {};
 
 export type MathfieldOptionsPrivate = MathfieldOptions & {
     onAnnounce: (
         target: MathfieldPrivate,
-        command: string, // verb
+        command: string, // Verb
         previousPosition: number,
-        atoms: Atom[] // object of the command
+        atoms: Atom[] // Object of the command
     ) => void; // @revisit 1.0: rename announceHook
 };
 
@@ -50,10 +48,7 @@ function loadSound(
 }
 
 function unloadSound(
-    sound:
-        | string
-        | HTMLAudioElement
-        | { [key: string]: HTMLAudioElement | string }
+    sound: string | HTMLAudioElement | Record<string, HTMLAudioElement | string>
 ): void {
     if (sound instanceof HTMLAudioElement) {
         sound.pause();
@@ -88,21 +83,24 @@ export function update(
                         updates.scriptDepth,
                     ];
                 } else {
-                    throw Error('Unexpected value for scriptDepth');
+                    throw new TypeError('Unexpected value for scriptDepth');
                 }
+
                 break;
             case 'namespace':
                 // Validate the namespace (used for `data-` attributes)
-                if (!/^[a-z]*[-]?$/.test(updates.namespace)) {
-                    throw Error(
+                if (!/^[a-z]*-?$/.test(updates.namespace)) {
+                    throw new Error(
                         'namespace must be a string of lowercase characters only'
                     );
                 }
-                if (!/-$/.test(updates.namespace)) {
+
+                if (!updates.namespace.endsWith('-')) {
                     result.namespace = updates.namespace + '-';
                 } else {
                     result.namespace = updates.namespace;
                 }
+
                 break;
             case 'locale':
                 result.locale =
@@ -132,12 +130,13 @@ export function update(
                             updates.virtualKeyboardMode;
                     }
                 }
+
                 break;
 
             case 'letterShapeStyle':
                 if (updates.letterShapeStyle === 'auto') {
                     // Letter shape style (locale dependent)
-                    if (l10n.locale.substring(0, 2) === 'fr') {
+                    if (l10n.locale.startsWith('fr')) {
                         result.letterShapeStyle = 'french';
                     } else {
                         result.letterShapeStyle = 'tex';
@@ -145,6 +144,7 @@ export function update(
                 } else {
                     result.letterShapeStyle = updates.letterShapeStyle;
                 }
+
                 break;
             case 'plonkSound':
                 unloadSound(result.plonkSound);
@@ -175,8 +175,9 @@ export function update(
                     };
                 } else {
                     if (!updates.keypressSound.default) {
-                        throw Error('Missing keypressSound.default');
+                        throw new Error('Missing keypressSound.default');
                     }
+
                     result.keypressSound = { ...updates.keypressSound };
                     result.keypressSound.default = loadSound(
                         soundsDirectory,
@@ -198,6 +199,7 @@ export function update(
                             result.keypressSound.spacebar
                         ) ?? updates.keypressSound.default;
                 }
+
                 break;
             case 'onBlur':
             case 'onFocus':
@@ -214,8 +216,9 @@ export function update(
                 if (updates[key] === null) {
                     result[key] = NO_OP_LISTENER;
                 } else if (typeof updates[key] !== 'function') {
-                    throw Error(key + ' must be a function or null');
+                    throw new TypeError(key + ' must be a function or null');
                 }
+
                 result[key] = updates[key] as any;
                 break;
             default:
@@ -241,6 +244,7 @@ export function update(
             };
         }
     }
+
     return result;
 }
 
@@ -256,6 +260,7 @@ export function get(
     } else {
         resolvedKeys = keys;
     }
+
     const result: Partial<MathfieldOptionsPrivate> = {};
     resolvedKeys.forEach((x) => {
         if (isArray(result[x])) {
@@ -270,6 +275,7 @@ export function get(
     if (typeof keys === 'string') {
         return result[keys];
     }
+
     return result;
 }
 
@@ -284,7 +290,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
         defaultMode: 'math',
         macros: MACROS,
-        horizontalSpacingScale: 1.0,
+        horizontalSpacingScale: 1,
         letterShapeStyle: 'auto',
 
         smartMode: false,
@@ -322,7 +328,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         originValidator: 'same-origin',
 
         textToSpeechRules: 'mathlive',
-        textToSpeechMarkup: '', // no markup
+        textToSpeechMarkup: '', // No markup
         textToSpeechRulesOptions: {},
         speechEngine: 'local',
         speechEngineVoice: 'Joanna',
@@ -347,8 +353,6 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
         onReadAloudStatus: NO_OP_LISTENER,
         onCommit: NO_OP_LISTENER,
 
-        onError: (): void => {
-            return;
-        },
+        onError: (): void => {},
     };
 }

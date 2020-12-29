@@ -8,8 +8,9 @@ import {
 
 import type { Span } from './span';
 import type { Token } from './tokenizer';
-import { Atom, ToLatexOptions } from './atom';
 import type { ArgumentType } from './context';
+import type { GroupAtom } from '../core-atoms/group';
+import { Atom, ToLatexOptions } from './atom';
 
 export interface ParseTokensOptions {
     args: (string | Atom[])[];
@@ -24,16 +25,15 @@ export interface ParseTokensOptions {
 }
 
 export class Mode {
-    static _registry: { [name: string]: Mode } = {};
+    static _registry: Record<string, Mode> = {};
     constructor(name: string) {
         Mode._registry[name] = this;
     }
+
     static createAtom(mode: ParseMode, command: string, style: Style): Atom {
         return Mode._registry[mode].createAtom(command, style);
     }
-    createAtom(_command: string, _style: Style): Atom | null {
-        return null;
-    }
+
     static parseTokens(
         mode: ParseMode,
         tokens: Token[],
@@ -42,13 +42,7 @@ export class Mode {
     ): Atom[] {
         return Mode._registry[mode].parseTokens(tokens, onError, options);
     }
-    parseTokens(
-        _tokens: Token[],
-        _onError: ErrorListener<ParserErrorCode>,
-        _options: ParseTokensOptions
-    ): Atom[] | null {
-        return null;
-    }
+
     // `run` should be a run (sequence) of atoms all with the same
     // mode
     static toLatex(run: Atom[], options: ToLatexOptions): string {
@@ -56,13 +50,27 @@ export class Mode {
         const mode = Mode._registry[run[0].mode];
         return mode.toLatex(run, options);
     }
-    toLatex(_run: Atom[], _options: ToLatexOptions): string {
-        return '';
-    }
 
     static applyStyle(mode: ParseMode, span: Span, style: Style): string {
         return Mode._registry[mode].applyStyle(span, style);
     }
+
+    createAtom(_command: string, _style: Style): Atom | null {
+        return null;
+    }
+
+    parseTokens(
+        _tokens: Token[],
+        _onError: ErrorListener<ParserErrorCode>,
+        _options: ParseTokensOptions
+    ): Atom[] | null {
+        return null;
+    }
+
+    toLatex(_run: Atom[], _options: ToLatexOptions): string {
+        return '';
+    }
+
     /*
      * Apply the styling (bold, italic, etc..) as classes to the span, and return
      * the effective font name to be used for metrics
@@ -113,11 +121,12 @@ export function getPropertyRuns(atoms: Atom[], property: string): Atom[][] {
             }
         } else if (property === 'cssClass') {
             if (atom.type === 'group') {
-                value = atom['customClass'];
+                value = (atom as GroupAtom).customClass;
             }
         } else {
             value = atom.style[property];
         }
+
         if (value === currentValue) {
             // Same value, add it to the current run
             run.push(atom);

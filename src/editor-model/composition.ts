@@ -15,7 +15,7 @@ export function updateComposition(model: ModelPrivate, s: string): void {
         // No composition yet, create one
 
         // Remove previous caret
-        const caret = cursor.caret;
+        const { caret } = cursor;
         cursor.caret = '';
 
         // Create 'composition' atom, with caret
@@ -23,7 +23,7 @@ export function updateComposition(model: ModelPrivate, s: string): void {
         atom.caret = caret;
         cursor.parent.addChildAfter(atom, cursor);
 
-        //Move cursor one past the composition zone
+        // Move cursor one past the composition zone
         model.position += 1;
     }
 }

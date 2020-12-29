@@ -9,12 +9,13 @@ import { releaseSharedElement } from '../editor-mathfield/utils';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
 
-// @ts-ignore
+// @ts-ignore-error
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
-// @ts-ignore
+// @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
 import {
     CoreOptions,
+    VirtualKeyboardDefinition,
     VirtualKeyboardLayer,
     VirtualKeyboardOptions,
 } from '../public/options';
@@ -52,6 +53,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
         window.addEventListener('touchend', this);
         window.addEventListener('touchcancel', this);
     }
+
     get height(): number {
         return this.element?.offsetHeight ?? 0;
     }
@@ -70,32 +72,29 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
                 break;
         }
     }
-    focusMathfield(): void {
-        return;
-    }
-    blurMathfield(): void {
-        return;
-    }
-    enable(): void {
-        return;
-    }
-    disable(): void {
-        return;
-    }
-    stateChanged(): void {
-        return;
-    }
+
+    focusMathfield(): void {}
+
+    blurMathfield(): void {}
+
+    enable(): void {}
+
+    disable(): void {}
+
+    stateChanged(): void {}
+
     executeCommand(
         command: SelectorPrivate | [SelectorPrivate, ...any[]]
     ): boolean {
         let selector: SelectorPrivate;
         let args: string[] = [];
         if (isArray(command)) {
-            selector = command[0] as SelectorPrivate;
+            selector = command[0];
             args = command.slice(1);
         } else {
             selector = command;
         }
+
         // Convert kebab case (like-this) to camel case (likeThis).
         selector = selector.replace(/-\w/g, (m) =>
             m[1].toUpperCase()
@@ -103,11 +102,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
         if (COMMANDS[selector]?.target === 'virtual-keyboard') {
             return COMMANDS[selector].fn(this, ...args);
         }
+
         return this._executeCommand?.(command) ?? false;
     }
+
     dispose(): void {
         releaseSharedElement(
-            document.getElementById('mathlive-alternate-keys-panel')
+            document.querySelector('#mathlive-alternate-keys-panel')
         );
         window.removeEventListener('mouseup', this);
         window.removeEventListener('blur', this);
@@ -118,7 +119,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     }
 }
 
-const KEYBOARDS = {
+const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {
     numeric: {
         tooltip: 'keyboard.tooltip.numeric',
         layer: 'math',
@@ -197,7 +198,7 @@ const SHIFTED_KEYS = {
     '\\mu ': ['&Mu;', '{\\char"39C}'],
 };
 
-// const FUNCTIONS = [
+// Const FUNCTIONS = [
 //     'Basic',
 //         ['\\sin', '\\cos', '\\tan', '\\min', '\\max', '\\gcd', '\\lcm', '\\repeat', 'encapsulate', 'recognize'],
 //     'Operators',
@@ -350,23 +351,23 @@ const ALT_KEYS_BASE = {
         '\\nsucc',
     ],
 
-    set: ['\\in', '\\owns', '\\subset', '\\nsubset', '\\supset', '\\nsupset'],
+    'set': ['\\in', '\\owns', '\\subset', '\\nsubset', '\\supset', '\\nsupset'],
 
     '!set': ['\\notin', '\\backepsilon'],
 
-    subset: [],
-    supset: [],
+    'subset': [],
+    'supset': [],
 
-    infinity: ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
+    'infinity': ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
 
     'numeric-pi': ['\\prod', '\\theta', '\\rho', '\\sin', '\\cos', '\\tan'],
 
-    ee: ['\\times 10^{#?}', '\\ln', '\\ln_{10}', '\\log'],
+    'ee': ['\\times 10^{#?}', '\\ln', '\\ln_{10}', '\\log'],
 
     '^': ['_{#?}'],
 
     // Integrals
-    int: [
+    'int': [
         { latex: '\\int_{#?}^{#?}', classes: 'small' },
         { latex: '\\int', classes: 'small' },
         { latex: '\\smallint', classes: 'small' },
@@ -381,10 +382,10 @@ const ALT_KEYS_BASE = {
         '\\partial',
     ],
 
-    nabla: ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
+    'nabla': ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
 
     '!': ['!!', '\\Gamma', '\\Pi'],
-    accents: [
+    'accents': [
         '\\bar{#@}',
         '\\vec{#@}',
         '\\hat{#@}',
@@ -404,38 +405,38 @@ const ALT_KEYS_BASE = {
     //     {latex:'\\lvert #@ \\rvert', aside:'order'},
 
     // ],
-    A: [
+    'A': [
         { latex: '\\aleph', aside: 'aleph' },
         { latex: '\\forall', aside: 'for all' },
     ],
-    a: [
+    'a': [
         { latex: '\\aleph', aside: 'aleph' },
         { latex: '\\forall', aside: 'for all' },
     ],
-    b: [{ latex: '\\beth', aside: 'beth' }],
-    B: [{ latex: '\\beth', aside: 'beth' }],
-    c: [{ latex: '\\C', aside: 'set of complex numbers' }],
-    d: [{ latex: '\\daleth', aside: 'daleth' }],
-    D: [{ latex: '\\daleth', aside: 'daleth' }],
-    e: [
+    'b': [{ latex: '\\beth', aside: 'beth' }],
+    'B': [{ latex: '\\beth', aside: 'beth' }],
+    'c': [{ latex: '\\C', aside: 'set of complex numbers' }],
+    'd': [{ latex: '\\daleth', aside: 'daleth' }],
+    'D': [{ latex: '\\daleth', aside: 'daleth' }],
+    'e': [
         { latex: '\\exponentialE', aside: 'exponential e' },
         { latex: '\\exists', aside: 'there is' },
         { latex: '\\nexists', aside: 'there isn’t' },
     ],
-    g: [{ latex: '\\gimel', aside: 'gimel' }],
-    G: [{ latex: '\\gimel', aside: 'gimel' }],
-    h: [
+    'g': [{ latex: '\\gimel', aside: 'gimel' }],
+    'G': [{ latex: '\\gimel', aside: 'gimel' }],
+    'h': [
         { latex: '\\hbar', aside: 'h bar' },
         { latex: '\\hslash', aside: 'h slash' },
     ],
-    i: [{ latex: '\\imaginaryI', aside: 'imaginary i' }],
-    j: [{ latex: '\\imaginaryJ', aside: 'imaginary j' }],
-    l: [{ latex: '\\ell', aside: 'ell' }],
-    n: [{ latex: '\\N', aside: 'set of natural numbers' }],
-    p: [{ latex: '\\P', aside: 'set of primes' }],
-    q: [{ latex: '\\Q', aside: 'set of rational numbers' }],
-    r: [{ latex: '\\R', aside: 'set of real numbers' }],
-    z: [{ latex: '\\Z', aside: 'set of integers' }],
+    'i': [{ latex: '\\imaginaryI', aside: 'imaginary i' }],
+    'j': [{ latex: '\\imaginaryJ', aside: 'imaginary j' }],
+    'l': [{ latex: '\\ell', aside: 'ell' }],
+    'n': [{ latex: '\\N', aside: 'set of natural numbers' }],
+    'p': [{ latex: '\\P', aside: 'set of primes' }],
+    'q': [{ latex: '\\Q', aside: 'set of rational numbers' }],
+    'r': [{ latex: '\\R', aside: 'set of real numbers' }],
+    'z': [{ latex: '\\Z', aside: 'set of integers' }],
 
     'x-var': [
         'y',
@@ -452,9 +453,9 @@ const ALT_KEYS_BASE = {
         'x_{i+1}',
     ],
     'n-var': ['i', 'j', 'p', 'k', 'a', 'u'],
-    ii: ['\\Re', '\\Im', '\\imaginaryJ', '\\Vert #0 \\Vert'],
+    'ii': ['\\Re', '\\Im', '\\imaginaryJ', '\\Vert #0 \\Vert'],
 
-    logic: [
+    'logic': [
         { latex: '\\exists', aside: 'there is' },
         { latex: '\\nexists', aside: 'there isn’t' },
 
@@ -523,7 +524,7 @@ const ALT_KEYS_BASE = {
         '\\nsupseteq',
     ],
 
-    space: [
+    'space': [
         {
             latex: '\\char"203A\\!\\char"2039',
             insert: '\\!',
@@ -567,7 +568,7 @@ const ALT_KEYS_BASE = {
     ],
 
     // @todo could also delete to end
-    delete: [
+    'delete': [
         {
             label:
                 '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>',
@@ -581,7 +582,7 @@ const ALT_KEYS_BASE = {
 let ALT_KEYS = {};
 
 const LAYERS = {
-    math: `
+    'math': `
         <div class='rows'>
             <ul>
                 <li class='keycap tex' data-alt-keys='x-var'><i>x</i></li>
@@ -667,7 +668,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    symbols: `
+    'symbols': `
         <div class='rows'>
             <ul>
                 <row name='numpad-1' class='if-wide'/>
@@ -873,7 +874,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    functions: `
+    'functions': `
         <div class='rows'>
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-insert='\\sin'></li>
@@ -916,7 +917,7 @@ const LAYERS = {
                 <arrows/>
             </ul>
         </div>`,
-    style: `
+    'style': `
         <div class='rows'>
             <ul>
                 <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
@@ -991,21 +992,20 @@ function makeKeyboardToolbar(
         };
         for (const keyboard of keyboardList) {
             if (!keyboards[keyboard]) {
-                console.error('Unknown virtual keyboard "' + keyboard + '"');
+                console.error('Unknown virtual keyboard "', keyboard, '"');
                 break;
             }
+
             result += "<div class='";
             if (keyboard === currentKeyboard) {
                 result += 'selected ';
+            } else if (keyboards[keyboard].command) {
+                result += 'action ';
             } else {
-                if (keyboards[keyboard].command) {
-                    result += 'action ';
-                } else {
-                    result += 'layer-switch ';
-                }
+                result += 'layer-switch ';
             }
 
-            result += (keyboards[keyboard].classes || '') + "'";
+            result += (keyboards[keyboard].classes ?? '') + "'";
 
             if (keyboards[keyboard].tooltip) {
                 result +=
@@ -1016,20 +1016,24 @@ function makeKeyboardToolbar(
             }
 
             if (keyboard !== currentKeyboard) {
-                if (keyboards[keyboard].command) {
-                    result +=
-                        'data-command=\'"' +
-                        keyboards[keyboard].command +
-                        '"\'';
+                if (typeof keyboards[keyboard].command === 'string') {
+                    result += `data-command='"${
+                        keyboards[keyboard].command as string
+                    }"'`;
+                } else if (Array.isArray(keyboards[keyboard].command)) {
+                    result += `data-command='"${(keyboards[keyboard]
+                        .command as string[]).join('')}"'`;
                 }
 
                 if (keyboards[keyboard].layer) {
                     result += "data-layer='" + keyboards[keyboard].layer + "'";
                 }
             }
+
             result += '>' + keyboards[keyboard].label + '</div>';
         }
     }
+
     result += '</div>';
 
     const toolbarOptions = options.virtualKeyboardToolbar;
@@ -1082,61 +1086,64 @@ function makeKeyboardToolbar(
 
 export function makeKeycap(
     keyboard: VirtualKeyboard,
-    elList: HTMLElement[],
+    elementList: HTMLElement[],
     chainedCommand?: string | any[]
 ): void {
-    for (let i = 0; i < elList.length; ++i) {
-        const el = elList[i];
+    for (const element of elementList) {
         let html: string;
         // Display
-        if (el.getAttribute('data-latex')) {
+        if (element.getAttribute('data-latex')) {
             html = latexToMarkup(
-                el.getAttribute('data-latex').replace(/&quot;/g, '"'),
+                element.getAttribute('data-latex').replace(/&quot;/g, '"'),
                 { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
             );
-        } else if (el.getAttribute('data-insert') && el.innerHTML === '') {
+        } else if (
+            element.getAttribute('data-insert') &&
+            element.innerHTML === ''
+        ) {
             html = latexToMarkup(
-                el.getAttribute('data-insert').replace(/&quot;/g, '"'),
+                element.getAttribute('data-insert').replace(/&quot;/g, '"'),
                 { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
             );
-        } else if (el.getAttribute('data-content')) {
-            html = el.getAttribute('data-content').replace(/&quot;/g, '"');
+        } else if (element.getAttribute('data-content')) {
+            html = element.getAttribute('data-content').replace(/&quot;/g, '"');
         }
 
-        if (el.getAttribute('data-aside')) {
+        if (element.getAttribute('data-aside')) {
             html =
                 (html ?? '') +
                 '<aside>' +
-                el.getAttribute('data-aside').replace(/&quot;/g, '"') +
+                element.getAttribute('data-aside').replace(/&quot;/g, '"') +
                 '</aside>';
         }
+
         if (typeof html !== 'undefined') {
-            el.innerHTML = keyboard.options.createHTML(html);
-        }
-        if (el.getAttribute('data-classes')) {
-            el.classList.add(el.getAttribute('data-classes'));
+            element.innerHTML = keyboard.options.createHTML(html);
         }
 
-        const key = el.getAttribute('data-insert')?.replace(/&quot;/g, '"');
+        if (element.getAttribute('data-classes')) {
+            element.classList.add(element.getAttribute('data-classes'));
+        }
+
+        const key = element
+            .getAttribute('data-insert')
+            ?.replace(/&quot;/g, '"');
         if (key && SHIFTED_KEYS[key]) {
-            el.setAttribute('data-shifted', SHIFTED_KEYS[key][0]);
-            el.setAttribute(
-                'data-shifted-command',
-                JSON.stringify([
-                    'insertAndUnshiftKeyboardLayer',
-                    SHIFTED_KEYS[key][1],
-                ])
-            );
+            element.dataset.shifted = SHIFTED_KEYS[key][0];
+            element.dataset.shiftedCommand = JSON.stringify([
+                'insertAndUnshiftKeyboardLayer',
+                SHIFTED_KEYS[key][1],
+            ]);
         }
 
         // Commands
         let handlers;
-        if (el.getAttribute('data-command')) {
-            handlers = JSON.parse(el.getAttribute('data-command'));
-        } else if (el.getAttribute('data-insert')) {
+        if (element.getAttribute('data-command')) {
+            handlers = JSON.parse(element.getAttribute('data-command'));
+        } else if (element.getAttribute('data-insert')) {
             handlers = [
                 'insert',
-                el.getAttribute('data-insert'),
+                element.getAttribute('data-insert'),
                 {
                     focus: true,
                     feedback: true,
@@ -1145,10 +1152,10 @@ export function makeKeycap(
                     resetStyle: true,
                 },
             ];
-        } else if (el.getAttribute('data-latex')) {
+        } else if (element.getAttribute('data-latex')) {
             handlers = [
                 'insert',
-                el.getAttribute('data-latex'),
+                element.getAttribute('data-latex'),
                 {
                     focus: true,
                     feedback: true,
@@ -1160,35 +1167,38 @@ export function makeKeycap(
         } else {
             handlers = [
                 'typedText',
-                el.getAttribute('data-key') || el.textContent,
+                element.getAttribute('data-key') || element.textContent,
                 { focus: true, feedback: true, simulateKeystroke: true },
             ];
         }
+
         if (chainedCommand) {
             handlers = [chainedCommand, handlers];
         }
-        if (el.getAttribute('data-alt-keys')) {
-            const altKeys = ALT_KEYS[el.getAttribute('data-alt-keys')];
+
+        if (element.getAttribute('data-alt-keys')) {
+            const altKeys = ALT_KEYS[element.getAttribute('data-alt-keys')];
             if (altKeys) {
                 handlers = {
                     default: handlers,
                     pressAndHoldStart: [
                         'showAlternateKeys',
-                        el.getAttribute('data-alt-keys'),
+                        element.getAttribute('data-alt-keys'),
                         altKeys,
                     ],
                     pressAndHoldEnd: 'hideAlternateKeys',
                 };
             } else {
                 console.warn(
-                    'Unknown alt key set: "' + el.getAttribute('data-alt-keys')
+                    'Unknown alt key set: "' +
+                        element.getAttribute('data-alt-keys')
                 );
             }
         }
 
         attachButtonHandlers(
             (command) => keyboard.executeCommand(command),
-            el,
+            element,
             handlers
         );
     }
@@ -1257,6 +1267,7 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
         if (activeLayout) {
             layoutName = activeLayout.virtualLayout;
         }
+
         if (!layoutName || layoutName === 'auto') {
             layoutName =
                 {
@@ -1269,11 +1280,11 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
                     hu: 'qwertz',
                     sk: 'qwertz',
                     ch: 'qwertz',
-                }[l10nOptions.locale.substring(0, 2)] ?? 'qwerty';
+                }[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
         }
     }
 
-    const layout = ROWS[layoutName] ?? ROWS['qwerty'];
+    const layout = ROWS[layoutName] ?? ROWS.qwerty;
 
     let result = layer;
     let row;
@@ -1295,26 +1306,26 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
         <svg><use xlink:href='#svg-tab' /></svg></li>`
     );
 
-    let m = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
+    let m: string[] = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
     while (m) {
         row = '';
         const attributesArray = m[2].match(
-            /[a-zA-Z][a-zA-Z0-9-]*=(['"])(.*?)\1/g
+            /[a-zA-Z][a-zA-Z\d-]*=(['"])(.*?)\1/g
         );
-        const attributes = {};
+        const attributes: Record<string, string> = {};
         for (const attribute of attributesArray) {
-            const m2 = attribute.match(/([a-zA-Z][a-zA-Z0-9-]*)=(['"])(.*?)\2/);
+            const m2 = attribute.match(/([a-zA-Z][a-zA-Z\d-]*)=(['"])(.*?)\2/);
             attributes[m2[1]] = m2[3];
         }
 
-        let keys = layout[attributes['name']];
-        if (!keys) keys = ROWS['qwerty'][attributes['name']];
+        let keys = layout[attributes.name] as string;
+        if (!keys) keys = ROWS.qwerty[attributes.name];
         if (!keys) {
-            console.warn('Unknown roman keyboard row: ' + attributes['name']);
+            console.warn('Unknown roman keyboard row:', attributes.name);
         } else {
             for (const c of keys) {
-                let cls = attributes['class'] || '';
-                if (cls) cls = ' ' + cls;
+                let cls: string = attributes.class ?? '';
+                if (cls) cls = ` ${cls}`;
                 if (c === '~') {
                     row += `<li class='action font-glyph bottom right `;
                     row +=
@@ -1349,19 +1360,11 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
                         "<li class='keycap" +
                         cls +
                         "' data-alt-keys='-' data-key='-' data-alt-keys='-'>&#x2212;</li>";
-                } else if (/tt/.test(cls)) {
+                } else if (cls.includes('tt')) {
                     row +=
-                        "<li class='keycap" +
-                        cls +
-                        "' data-alt-keys='" +
-                        c +
-                        "'" +
-                        ` data-command='["typedText","` +
-                        c +
-                        `",{"mode":"command", "focus":true, "feedback":true}]'` +
-                        '>' +
-                        c +
-                        '</li>';
+                        `<li class='keycap${cls}' data-alt-keys='${c}' ` +
+                        `data-command='["typedText","${c}",{"mode":"command", "focus":true, "feedback":true}]'` +
+                        `>${c}</li>`;
                 } else {
                     row +=
                         "<li class='keycap" +
@@ -1374,6 +1377,7 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
                 }
             }
         }
+
         result = result.replace(new RegExp(m[1] + m[2] + m[3]), row);
 
         m = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
@@ -1442,7 +1446,7 @@ export function makeKeyboardElement(
 
     injectStylesheet(null, virtualKeyboardStylesheet);
 
-    loadFonts(keyboard.options.fontsDirectory);
+    void loadFonts(keyboard.options.fontsDirectory);
     injectStylesheet(null, coreStylesheet);
 
     // Auto-populate the ALT_KEYS table
@@ -1457,6 +1461,7 @@ export function makeKeyboardElement(
             command: '["applyStyle",{"color":"' + color + '"}]',
         });
     }
+
     ALT_KEYS_BASE['background-color'] = [];
     for (const color of AREA_COLORS) {
         ALT_KEYS_BASE['background-color'].push({
@@ -1512,6 +1517,7 @@ export function makeKeyboardElement(
             insert: '\\mathfrak{' + key + '}',
         });
     }
+
     // Define the alternate set for lowercase keys
     for (let i = 0; i <= 26; i++) {
         const key = LOWER_ALPHA[i];
@@ -1537,6 +1543,7 @@ export function makeKeyboardElement(
             insert: '\\mathfrak{' + key + '}',
         });
     }
+
     for (let i = 0; i < 10; i++) {
         const key = DIGITS[i];
         if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
@@ -1576,14 +1583,13 @@ export function makeKeyboardElement(
     if (!keyboardIDs) {
         keyboardIDs = 'all';
     }
+
     keyboardIDs = keyboardIDs.replace(
         /\ball\b/i,
         'numeric functions symbols roman  greek'
     );
 
-    const layers: {
-        [layerName: string]: string | VirtualKeyboardLayer;
-    } = {
+    const layers: Record<string, string | VirtualKeyboardLayer> = {
         ...LAYERS,
         ...(keyboard.options.customVirtualKeyboardLayers ?? {}),
     };
@@ -1598,18 +1604,22 @@ export function makeKeyboardElement(
             console.error('Unknown virtual keyboard "' + keyboardName + '"');
             break;
         }
+
         // Add the default layer to the list of layers,
         // and make sure the list of layers is uniquified.
-        let keyboardLayers = keyboards[keyboardName].layers || [];
+        let keyboardLayers = keyboards[keyboardName].layers ?? [];
         if (keyboards[keyboardName].layer) {
             keyboardLayers.push(keyboards[keyboardName].layer);
         }
-        keyboardLayers = Array.from(new Set(keyboardLayers));
+
+        keyboardLayers = [...new Set(keyboardLayers)];
 
         for (const layerName of keyboardLayers) {
             if (!layers[layerName]) {
                 console.error(
-                    'Unknown virtual keyboard layer: "' + layerName + '"'
+                    'Unknown virtual keyboard layer: "',
+                    layerName,
+                    '"'
                 );
                 break;
             }
@@ -1618,89 +1628,92 @@ export function makeKeyboardElement(
                 const layer = layers[layerName] as VirtualKeyboardLayer;
                 // Process JSON layer to web element based layer.
 
-                let tempLayer = '';
+                let temporaryLayer = '';
                 if (layer.styles) {
-                    tempLayer += `<style>${layer.styles}</style>`;
+                    temporaryLayer += `<style>${layer.styles}</style>`;
                 }
 
                 if (layer.backdrop) {
-                    tempLayer += `<div class='${layer.backdrop}'>`;
+                    temporaryLayer += `<div class='${layer.backdrop}'>`;
                 }
 
                 if (layer.container) {
-                    tempLayer += `<div class='${layer.container}'>`;
+                    temporaryLayer += `<div class='${layer.container}'>`;
                 }
 
                 if (layer.rows) {
-                    tempLayer += `<div class='rows'>`;
+                    temporaryLayer += `<div class='rows'>`;
                     for (const row of layer.rows) {
-                        tempLayer += `<ul>`;
+                        temporaryLayer += `<ul>`;
                         for (const keycap of row) {
-                            tempLayer += `<li`;
+                            temporaryLayer += `<li`;
                             if (keycap.class) {
-                                tempLayer += ` class="${keycap.class}"`;
+                                temporaryLayer += ` class="${keycap.class}"`;
                             }
+
                             if (keycap.key) {
-                                tempLayer += ` data-key="${keycap.key}"`;
+                                temporaryLayer += ` data-key="${keycap.key}"`;
                             }
 
                             if (keycap.command) {
                                 if (typeof keycap.command === 'string') {
-                                    tempLayer += ` data-command='"${keycap.command}"'`;
+                                    temporaryLayer += ` data-command='"${keycap.command}"'`;
                                 } else {
-                                    tempLayer += ` data-command='`;
-                                    tempLayer += JSON.stringify(keycap.command);
-                                    tempLayer += `'`;
+                                    temporaryLayer += ` data-command='`;
+                                    temporaryLayer += JSON.stringify(
+                                        keycap.command
+                                    );
+                                    temporaryLayer += `'`;
                                 }
                             }
+
                             if (keycap.insert) {
-                                tempLayer += ` data-insert="${keycap.insert}"`;
+                                temporaryLayer += ` data-insert="${keycap.insert}"`;
                             }
 
                             if (keycap.latex) {
-                                tempLayer += ` data-latex="${keycap.latex}"`;
+                                temporaryLayer += ` data-latex="${keycap.latex}"`;
                             }
 
                             if (keycap.aside) {
-                                tempLayer += ` data-aside="${keycap.aside}"`;
+                                temporaryLayer += ` data-aside="${keycap.aside}"`;
                             }
 
                             if (keycap.altKeys) {
-                                tempLayer += ` data-alt-keys="${keycap.altKeys}"`;
+                                temporaryLayer += ` data-alt-keys="${keycap.altKeys}"`;
                             }
 
                             if (keycap.shifted) {
-                                tempLayer += ` data-shifted="${keycap.shifted}"`;
+                                temporaryLayer += ` data-shifted="${keycap.shifted}"`;
                             }
 
                             if (keycap.shiftedCommand) {
-                                tempLayer += ` data-shifted-command="${keycap.shiftedCommand}"`;
+                                temporaryLayer += ` data-shifted-command="${keycap.shiftedCommand}"`;
                             }
 
-                            tempLayer += `>${
+                            temporaryLayer += `>${
                                 keycap.label ? keycap.label : ''
                             }</li>`;
                         }
-                        tempLayer += `</ul>`;
+
+                        temporaryLayer += `</ul>`;
                     }
-                    tempLayer += `</div>`;
+
+                    temporaryLayer += `</div>`;
                 }
 
                 if (layer.container) {
-                    tempLayer += '</div>';
+                    temporaryLayer += '</div>';
                 }
 
                 if (layer.backdrop) {
-                    tempLayer += '</div>';
+                    temporaryLayer += '</div>';
                 }
 
-                layers[layerName] = tempLayer;
+                layers[layerName] = temporaryLayer;
             }
 
-            markup +=
-                `<div tabindex="-1" class='keyboard-layer' data-layer='` +
-                layerName +
-                `'>`;
+            markup += `<div tabindex="-1" class='keyboard-layer' data-layer='${layerName}'>`;
             markup += makeKeyboardToolbar(
                 keyboard.options,
                 keyboardIDs,
@@ -1721,25 +1734,23 @@ export function makeKeyboardElement(
     } else if (keyboard.options.virtualKeyboardTheme) {
         result.classList.add(keyboard.options.virtualKeyboardTheme);
     }
+
     result.innerHTML = keyboard.options.createHTML(markup);
 
     // Attach the element handlers
-    makeKeycap(
-        keyboard,
-        Array.from(
-            result.querySelectorAll<HTMLElement>(
-                '.keycap, .action, .fnbutton, .bigfnbutton'
-            )
-        )
-    );
+    makeKeycap(keyboard, [
+        ...result.querySelectorAll<HTMLElement>(
+            '.keycap, .action, .fnbutton, .bigfnbutton'
+        ),
+    ]);
 
-    const elList = result.getElementsByClassName('layer-switch');
-    for (let i = 0; i < elList.length; ++i) {
-        if (elList[i].classList.contains('shift')) {
+    const elementList = result.querySelectorAll<HTMLElement>('.layer-switch');
+    for (const element of elementList) {
+        if (element.classList.contains('shift')) {
             // This is a potential press-and-hold layer switch
             attachButtonHandlers(
                 (command) => keyboard.executeCommand(command),
-                elList[i],
+                element,
                 {
                     // When the modifier is initially pressed, we will shift the labels
                     // (if available)
@@ -1748,7 +1759,7 @@ export function makeKeyboardElement(
                     // If the key is released before a delay, we switch to the target layer
                     default: [
                         'switchKeyboardLayer',
-                        elList[i].getAttribute('data-layer'),
+                        element.getAttribute('data-layer'),
                     ],
 
                     // If the key is released after a longer delay, we restore the
@@ -1760,11 +1771,11 @@ export function makeKeyboardElement(
             // This is a simple layer switch
             attachButtonHandlers(
                 (command) => keyboard.executeCommand(command),
-                elList[i],
+                element,
                 {
                     default: [
                         'switchKeyboardLayer',
-                        elList[i].getAttribute('data-layer'),
+                        element.getAttribute('data-layer'),
                     ],
                 }
             );
@@ -1772,8 +1783,8 @@ export function makeKeyboardElement(
     }
 
     // Select the first keyboard as the initial one.
-    const layerElements = result.getElementsByClassName('keyboard-layer');
-    Array.from(layerElements).forEach((x) => {
+    const layerElements = result.querySelectorAll('.keyboard-layer');
+    [...layerElements].forEach((x) => {
         x.addEventListener('mousedown', (evt) => {
             evt.preventDefault();
             evt.stopPropagation();
@@ -1793,16 +1804,18 @@ export function makeKeyboardElement(
 }
 
 export function hideAlternateKeys(): boolean {
-    const altContainer = document.getElementById(
-        'mathlive-alternate-keys-panel'
+    const altContainer = document.querySelector<HTMLElement>(
+        '#mathlive-alternate-keys-panel'
     );
     if (altContainer) {
         altContainer.classList.remove('is-visible');
         altContainer.innerHTML = '';
         releaseSharedElement(altContainer);
     }
+
     return false;
 }
+
 /*
  * Restore the key labels and commands to the state before a modifier key
  * was pressed.
@@ -1811,22 +1824,23 @@ export function hideAlternateKeys(): boolean {
 export function unshiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
     hideAlternateKeys();
 
-    const keycaps = keyboard.element.querySelectorAll(
+    const keycaps = keyboard.element.querySelectorAll<HTMLElement>(
         'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
     );
     if (keycaps) {
-        for (let i = 0; i < keycaps.length; i++) {
-            const keycap = keycaps[i];
+        for (const keycap of keycaps) {
             const content = keycap.getAttribute('data-unshifted-content');
             if (content) {
                 keycap.innerHTML = keyboard.options.createHTML(content);
             }
+
             const command = keycap.getAttribute('data-unshifted-command');
             if (command) {
-                keycap.setAttribute('data-command', command);
+                keycap.dataset.command = command;
             }
         }
     }
+
     return false;
 }
 

@@ -1,7 +1,10 @@
-import { eventToChar } from '../editor/keyboard';
+import {
+    eventToChar,
+    mightProducePrintableCharacter,
+} from '../editor/keyboard';
 import { contentDidChange } from '../editor-model/listeners';
 import type { MathfieldPrivate } from './mathfield-private';
-import { mightProducePrintableCharacter } from '../editor/keyboard';
+
 import { ModelPrivate } from '../editor-model/model-private';
 import { Atom } from '../core/atom-class';
 import { LeftRightAtom } from '../core-atoms/leftright';
@@ -21,9 +24,11 @@ function convertLastAtomsToText(
         until = count;
         count = Infinity;
     }
+
     if (typeof count === 'undefined') {
         count = Infinity;
     }
+
     let i = model.position;
     let done = false;
     while (!done) {
@@ -44,11 +49,14 @@ function convertLastAtomsToText(
             atom.command = atom.value;
             atom.latex = undefined;
         }
+
         i -= 1;
         count -= 1;
     }
+
     contentDidChange(model);
 }
+
 /**
  * Convert the atoms before the anchor to 'math' mode 'mord'
  * @param {number} count - how many atoms back to look at
@@ -64,9 +72,11 @@ function convertLastAtomsToMath(
         until = count;
         count = Infinity;
     }
+
     if (typeof count === 'undefined') {
         count = Infinity;
     }
+
     let i = model.position;
     let done = false;
     while (!done) {
@@ -81,14 +91,16 @@ function convertLastAtomsToMath(
         if (!done) {
             atom.mode = 'math';
         }
+
         i -= 1;
         count -= 1;
     }
+
     removeIsolatedSpace(model);
     contentDidChange(model);
 }
 
-// export function applyMode(
+// Export function applyMode(
 //     _mathfield: MathfieldPrivate,
 //     _range: Range,
 //     _mode: ParseMode
@@ -162,6 +174,7 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
     while (i >= 0 && model.at(i)?.mode === 'math') {
         i -= 1;
     }
+
     if (i < 0) return;
     // If the atom before the last one converted is a
     // text mode space, preceded by a math mode atom,
@@ -182,6 +195,7 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
         model.suppressChangeNotifications = save;
     }
 }
+
 /**
  * Return the characters before the insertion point that could potentially be
  * turned into text mode.
@@ -202,8 +216,10 @@ function getTextBeforePosition(model: ModelPrivate): string {
         if (!done) {
             result = atom.value + result;
         }
+
         i -= 1;
     }
+
     return result;
 }
 /**
@@ -223,16 +239,19 @@ export function smartMode(
     if (mathfield.smartModeSuppressed) {
         return false;
     }
-    const model = mathfield.model;
+
+    const { model } = mathfield;
     // Are we at the end of a group?
     if (!model.at(model.position).isLastSibling) {
         return false;
     }
+
     // Is there an event that would produce a printable char?
     // (i.e. not an arrow key, etc...)
     if (!evt || !mightProducePrintableCharacter(evt)) {
         return false;
     }
+
     const c = eventToChar(evt);
     if (!model.selectionIsCollapsed) {
         // There is a selection
@@ -242,8 +261,10 @@ export function smartMode(
                 return true;
             }
         }
+
         return false;
     }
+
     const context = getTextBeforePosition(model) + c;
     if (mathfield.mode === 'text') {
         // We're in text mode. Should we switch to math?
@@ -253,6 +274,7 @@ export function smartMode(
             // switch to 'math'
             return true;
         }
+
         if (/[\^_]/.test(c)) {
             // If this is a superscript or subscript
             // switch to 'math'
@@ -261,12 +283,14 @@ export function smartMode(
                 // convert it to math
                 convertLastAtomsToMath(model, 1);
             }
+
             return true;
         }
+
         // If this is a closing matching fence
         // switch to 'math' mode
         const lFence = { ')': '(', '}': '{', ']': '[' }[c];
-        const parent = model.at(model.position).parent;
+        const { parent } = model.at(model.position);
         if (
             lFence &&
             parent instanceof LeftRightAtom &&
@@ -274,42 +298,48 @@ export function smartMode(
         ) {
             return true;
         }
-        if (/(^|[^a-zA-Z])(a|I)[ ]$/.test(context)) {
+
+        if (/(^|[^a-zA-Z])(a|I) $/.test(context)) {
             // Single letters that are valid words in the current language
             // Do nothing. @todo: localization
             return false;
         }
+
         if (/[$€£₤₺¥¤฿¢₡₧₨₹₩₱]/u.test(c)) {
             // A currency symbol.
             // Switch to math mode
             return true;
         }
-        if (/(^|[^a-zA-Z'’])[a-zA-Z][ ]$/.test(context)) {
+
+        if (/(^|[^a-zA-Z'’])[a-zA-Z] $/.test(context)) {
             // An isolated letter, followed by a space:
             // Convert the letter to math, stay in text mode.
             convertLastAtomsToMath(model, 1);
             return false;
         }
-        if (/[^0-9]\.[^0-9\s]$/.test(context)) {
+
+        if (/\D\.[^\d\s]$/.test(context)) {
             // A period followed by something other than space or a digit
             // and not preceded by a digit.
             // We thought this was a text period, but turns out it's not
             // Turn it into a \cdot
             convertLastAtomsToMath(model, 1);
             const atom = model.at(model.position);
-            atom.value = '⋅'; // centered dot
+            atom.value = '⋅'; // Centered dot
             atom.style.variant = 'normal'; // @revisit. Was 'auto'. Check for proper conversion.
             atom.command = '\\cdot';
             atom.latex = undefined;
             contentDidChange(model);
             return true;
         }
+
         if (/(^|\s)[a-zA-Z][^a-zA-Z]$/.test(context)) {
             // Single letter (x), followed by a non-letter (>, =...)
             convertLastAtomsToMath(model, 1);
             return true;
         }
-        if (/\.[0-9]$/.test(context)) {
+
+        if (/\.\d$/.test(context)) {
             // If the new character is a digit,
             // and it was preceded by a dot (which may have been converted
             // to text)
@@ -317,21 +347,24 @@ export function smartMode(
             convertLastAtomsToMath(model, 1);
             return true;
         }
-        if (/[(][0-9+\-.]$/.test(context)) {
+
+        if (/\([\d+\-.]$/.test(context)) {
             // An open paren followed by a number
             // Turn the paren back to math and switch.
             convertLastAtomsToMath(model, 1);
             return true;
         }
-        if (/[(][a-z][,;]$/.test(context)) {
+
+        if (/\([a-z][,;]$/.test(context)) {
             // An open paren followed by a single letter, then a "," or ";"
             // Turn the paren back and letter to math and switch.
             convertLastAtomsToMath(model, 2);
             return true;
         }
+
         // The tests above can look behind and change what had previously
         // been entered. Now, let's just look at the typed character.
-        if (/[0-9+\-=><*|]$/.test(c)) {
+        if (/[\d+\-=><*|]$/.test(c)) {
             // If this new character looks like a number,
             // or a relational operator (=, <, >)
             // or a "*" or "|"
@@ -348,6 +381,7 @@ export function smartMode(
             );
             return true;
         }
+
         if (
             /[a-zA-Z]{3,}$/.test(context) &&
             !/(dxd|abc|xyz|uvw)$/.test(context)
@@ -360,13 +394,15 @@ export function smartMode(
             );
             return true;
         }
-        if (/(^|\W)(if|If)$/i.test(context)) {
+
+        if (/(^|\W)(if)$/i.test(context)) {
             // @todo localization
             convertLastAtomsToText(model, 1);
             return true;
         }
+
         if (
-            /(\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5){3,}$/u.test(
+            /(\u0393|\u0394|\u0398|\u039B|\u039E|\u03A0|\u03A3|\u03A5|\u03A6|\u03A8|\u03A9|[\u03B1-\u03C9]|\u03D1|\u03D5|\u03D6|\u03F1|\u03F5){3,}$/u.test(
                 context
             ) &&
             !/(αβγ)$/.test(context)
@@ -375,21 +411,24 @@ export function smartMode(
             // (except for one exception)
             // Convert them to text.
             convertLastAtomsToText(model, undefined, (a) =>
-                /(:|,|;|.|\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9|[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5)/u.test(
+                /(:|,|;|.|\u0393|\u0394|\u0398|\u039B|\u039E|\u03A0|\u03A3|\u03A5|\u03A6|\u03A8|\u03A9|[\u03B1-\u03C9]|\u03D1|\u03D5|\u03D6|\u03F1|\u03F5)/u.test(
                     a.value
                 )
             );
             return true;
         }
+
         if (c === '?') {
             // If the last character is a question mark,
             // turn it to 'text'
             return true;
         }
-        if (c === '.' && !/[0-9-+]\.$/.test(context)) {
+
+        if (c === '.' && !/[\d-+]\.$/.test(context)) {
             // A period after something other than a digit (or minus)
             return true;
         }
     }
+
     return false;
 }

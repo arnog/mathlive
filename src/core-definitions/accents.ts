@@ -9,17 +9,17 @@ import { OverunderAtom } from '../core-atoms/overunder';
 import { Style } from '../public/core';
 
 const ACCENTS = {
-    acute: '\u02ca',
-    grave: '\u02cb',
-    dot: '\u02d9',
-    ddot: '\u00a8',
-    mathring: '\u02da',
-    tilde: '\u007e',
-    bar: '\u02c9',
-    breve: '\u02d8',
-    check: '\u02c7',
-    hat: '\u005e',
-    vec: '\u20d7',
+    acute: '\u02CA',
+    grave: '\u02CB',
+    dot: '\u02D9',
+    ddot: '\u00A8',
+    mathring: '\u02DA',
+    tilde: '\u007E',
+    bar: '\u02C9',
+    breve: '\u02D8',
+    check: '\u02C7',
+    hat: '\u005E',
+    vec: '\u20D7',
 };
 
 defineFunction(Object.keys(ACCENTS), '{body:auto}', {
@@ -73,7 +73,7 @@ defineFunction('^', '{:string}', {
             isExtensibleSymbol: false,
             isFunction: false,
             limits: 'nolimits',
-            style: style,
+            style,
             value: args[0]
                 ? {
                       a: 'â',
@@ -98,7 +98,7 @@ defineFunction('`', '{:string}', {
             isExtensibleSymbol: false,
             isFunction: false,
             limits: 'nolimits',
-            style: style,
+            style,
             value: args[0]
                 ? {
                       a: 'à',
@@ -123,7 +123,7 @@ defineFunction("'", '{:string}', {
             isExtensibleSymbol: false,
             isFunction: false,
             limits: 'nolimits',
-            style: style,
+            style,
             value: args[0]
                 ? {
                       a: 'á',
@@ -136,8 +136,8 @@ defineFunction("'", '{:string}', {
                       I: 'Í',
                       O: 'Ó',
                       U: 'Ú',
-                  }[args[0] as string] ?? '\u005e'
-                : '\u005e',
+                  }[args[0] as string] ?? '\u005E'
+                : '\u005E',
         }),
 });
 
@@ -148,7 +148,7 @@ defineFunction('~', '{:string}', {
             isExtensibleSymbol: false,
             isFunction: false,
             limits: 'nolimits',
-            style: style,
+            style,
             value: args[0]
                 ? { n: 'ñ', N: 'Ñ', a: 'ã', o: 'õ', A: 'Ã', O: 'Õ' }[
                       args[0] as string
@@ -164,7 +164,7 @@ defineFunction('c', '{:string}', {
             isExtensibleSymbol: false,
             isFunction: false,
             limits: 'nolimits',
-            style: style,
+            style,
             value: args[0] ? { c: 'ç', C: 'Ç' }[args[0] as string] ?? '' : '',
         }),
 });

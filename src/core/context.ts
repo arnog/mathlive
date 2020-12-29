@@ -7,13 +7,13 @@ export type ArgumentType =
     | (
           | 'auto'
           | 'bbox'
-          | 'color' //color name, hex value: `'#fff'`, `'#a0a0a0'`
-          | 'colspec' // formating of a column in tabular environment, e.g. `'r@{.}l'`
+          | 'color' // Color name, hex value: `'#fff'`, `'#a0a0a0'`
+          | 'colspec' // Formating of a column in tabular environment, e.g. `'r@{.}l'`
           | 'delim'
           | 'dimen' // `'25mu'`, `'2pt'`
-          | 'number' //`+/-12.56`
+          | 'number' // `+/-12.56`
           | 'skip' // `'25mu plus 2em minus fiLll'`, `'2pt'`
-          | 'string' // delimiter is a non-literal token (e.g. `<}>` `<$>`, etc
+          | 'string' // Delimiter is a non-literal token (e.g. `<}>` `<$>`, etc
           | 'balanced-string' // Delimiter is a balanced closing brace
       );
 
@@ -71,6 +71,7 @@ export class Context implements ContextInterface {
         groupNumbers: boolean;
         seed: string | number;
     };
+
     mathstyle: Mathstyle;
     parentMathstyle?: Mathstyle;
     size?: string; // @revisit: set explicit possible values, e.g. 'size5', etc...
@@ -90,7 +91,7 @@ export class Context implements ContextInterface {
 
         this.letterShapeStyle = from.letterShapeStyle ?? 'tex';
 
-        this.size = from.size ?? 'size5'; // medium size
+        this.size = from.size ?? 'size5'; // Medium size
 
         this.parentMathstyle = from.parentMathstyle ?? this.mathstyle;
         this.parentSize = from.parentSize ?? this.size;
@@ -121,6 +122,7 @@ export class Context implements ContextInterface {
                 }
             }
         }
+
         return result;
     }
 
@@ -135,12 +137,15 @@ export class Context implements ContextInterface {
             this.mathstyle = MATHSTYLES[value];
         }
     }
+
     cramp(): Context {
         return this.clone({ mathstyle: this.mathstyle.cramp() });
     }
+
     sup(): Context {
         return this.clone({ mathstyle: this.mathstyle.sup() });
     }
+
     sub(): Context {
         return this.clone({ mathstyle: this.mathstyle.sub() });
     }

@@ -35,7 +35,7 @@ export function contentDidChange(model: ModelPrivate): void {
     }
 }
 
-//////
+/// ///
 
 export interface Disposable {
     dispose(): void;
@@ -58,6 +58,7 @@ export class EventEmitter {
         if (!this.events.has(event)) {
             this.events.set(event, []);
         }
+
         options = options ?? {};
         if (options.once ?? false) {
             listener = (...payload: any[]): void => {
@@ -93,6 +94,7 @@ export class EventEmitter {
             });
             return true;
         }
+
         return false;
     }
 }

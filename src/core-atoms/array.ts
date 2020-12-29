@@ -26,7 +26,7 @@ export type Colspec = {
 };
 
 export type ArrayAtomConstructorOptions = {
-    // params: FunctionArgumentDefiniton[];
+    // Params: FunctionArgumentDefiniton[];
     // parser: ParseFunction;
     mathStyleName?: MathStyleName;
     colFormat?: Colspec[];
@@ -75,6 +75,7 @@ export class ArrayAtom extends Atom {
         if (this.colFormat && this.colFormat.length === 0) {
             this.colFormat = [{ align: 'l' }];
         }
+
         if (!this.colFormat) {
             this.colFormat = [
                 { align: 'l' },
@@ -89,6 +90,7 @@ export class ArrayAtom extends Atom {
                 { align: 'l' },
             ];
         }
+
         if (options.leftDelim) this.leftDelim = options.leftDelim;
         if (options.rightDelim) this.rightDelim = options.rightDelim;
         if (options.jot) this.jot = options.jot;
@@ -129,6 +131,7 @@ export class ArrayAtom extends Atom {
         if (isNamedBranch(name)) {
             return super.removeBranch(name);
         }
+
         const children = this.branch(name);
         this.array[name[0]][name[1]] = null;
         children.forEach((x) => {
@@ -162,7 +165,7 @@ export class ArrayAtom extends Atom {
     render(context: Context): Span[] | null {
         // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
         // and http://tug.ctan.org/macros/latex/base/lttab.dtx
-        const colFormat = this.colFormat;
+        const { colFormat } = this;
         // Fold the array so that there are no more columns of content than
         // there are columns prescribed by the column format.
         const array = [];
@@ -170,6 +173,7 @@ export class ArrayAtom extends Atom {
         for (const colSpec of colFormat) {
             if (colSpec.align) colMax++;
         }
+
         for (const row of this.array) {
             let colIndex = 0;
             while (colIndex < row.length) {
@@ -178,9 +182,11 @@ export class ArrayAtom extends Atom {
                 while (colIndex < lastCol) {
                     newRow.push(row[colIndex++]);
                 }
+
                 array.push(newRow);
             }
         }
+
         // If the last row is empty, ignore it.
         if (
             array[array.length - 1].length === 1 &&
@@ -188,6 +194,7 @@ export class ArrayAtom extends Atom {
         ) {
             array.pop();
         }
+
         const mathstyle = this.mathStyleName
             ? MATHSTYLES[this.mathStyleName]
             : context.mathstyle;
@@ -209,18 +216,19 @@ export class ArrayAtom extends Atom {
             const inrow = array[r];
             nc = Math.max(nc, inrow.length);
             let height = arstrutHeight; // \@array adds an \@arstrut
-            let depth = arstrutDepth; // to each row (via the template)
+            let depth = arstrutDepth; // To each row (via the template)
             const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
-            for (let c = 0; c < inrow.length; ++c) {
+            for (const element of inrow) {
                 const localContext = context.clone({
                     mathstyle: MATHSTYLES[this.mathStyleName],
                 });
-                const cell = Atom.render(localContext, inrow[c]) || [];
+                const cell = Atom.render(localContext, element) || [];
                 const elt = [new Span(null, '', 'mord')].concat(cell);
                 depth = Math.max(depth, spanDepth(elt));
                 height = Math.max(height, spanHeight(elt));
                 outrow.cells.push(elt);
             }
+
             let jot = r === nr - 1 ? 0 : this.jot || 0;
             if (this.rowGaps?.[r]) {
                 jot = this.rowGaps[r];
@@ -230,9 +238,11 @@ export class ArrayAtom extends Atom {
                     if (depth < jot) {
                         depth = jot; // \@xargarraycr
                     }
+
                     jot = 0;
                 }
             }
+
             outrow.height = height;
             outrow.depth = depth;
             totalHeight += height;
@@ -240,31 +250,35 @@ export class ArrayAtom extends Atom {
             totalHeight += depth + jot; // \@yargarraycr
             body.push(outrow);
         }
+
         const offset = totalHeight / 2 + mathstyle.metrics.axisHeight;
         const contentCols = [];
         for (let colIndex = 0; colIndex < nc; colIndex++) {
             const col = [];
             for (const row of body) {
-                const elem = row.cells[colIndex];
-                if (!elem) {
+                const element = row.cells[colIndex];
+                if (!element) {
                     continue;
                 }
-                elem.depth = row.depth;
-                elem.height = row.height;
 
-                col.push(elem);
+                element.depth = row.depth;
+                element.height = row.height;
+
+                col.push(element);
                 col.push(row.pos - offset);
             }
+
             if (col.length > 0) {
                 contentCols.push(makeVlist(context, col, 'individualShift'));
             }
         }
+
         // Iterate over each column description.
         // Each `colDesc` will indicate whether to insert a gap, a rule or
         // a column from 'contentCols'
         const cols = [];
-        let prevColContent = false;
-        let prevColRule = false;
+        let previousColContent = false;
+        let previousColRule = false;
         let currentContentCol = 0;
         let firstColumn = !this.leftDelim;
         for (const colDesc of colFormat) {
@@ -275,15 +289,16 @@ export class ArrayAtom extends Atom {
                 currentContentCol < contentCols.length
             ) {
                 // If an alignment is specified, insert a column of content
-                if (prevColContent) {
+                if (previousColContent) {
                     // If no gap was provided, insert a default gap between
                     // consecutive columns of content
                     cols.push(makeColGap(2 * arraycolsep));
-                } else if (prevColRule || firstColumn) {
+                } else if (previousColRule || firstColumn) {
                     // If the previous column was a rule or this is the first column
                     // add a smaller gap
                     cols.push(makeColGap(arraycolsep));
                 }
+
                 cols.push(
                     new Span(
                         contentCols[currentContentCol],
@@ -291,8 +306,8 @@ export class ArrayAtom extends Atom {
                     )
                 );
                 currentContentCol++;
-                prevColContent = true;
-                prevColRule = false;
+                previousColContent = true;
+                previousColRule = false;
                 firstColumn = false;
             } else if (typeof colDesc.gap !== 'undefined') {
                 // Something to insert in between columns of content
@@ -313,14 +328,15 @@ export class ArrayAtom extends Atom {
                         )
                     );
                 }
-                prevColContent = false;
-                prevColRule = false;
+
+                previousColContent = false;
+                previousColRule = false;
                 firstColumn = false;
             } else if (colDesc.rule) {
                 // It's a rule.
                 const separator = new Span(null, 'vertical-separator');
                 separator.setStyle('height', totalHeight, 'em');
-                // result.setTop((1 - context.mathstyle.sizeMultiplier) *
+                // Result.setTop((1 - context.mathstyle.sizeMultiplier) *
                 //     context.mathstyle.metrics.axisHeight);
                 separator.setStyle(
                     'margin-top',
@@ -328,25 +344,28 @@ export class ArrayAtom extends Atom {
                     'em'
                 );
                 separator.setStyle('vertical-align', 'top');
-                // separator.setStyle('display', 'inline-block');
+                // Separator.setStyle('display', 'inline-block');
                 let gap = 0;
-                if (prevColRule) {
+                if (previousColRule) {
                     gap =
                         FONTMETRICS.doubleRuleSep - FONTMETRICS.arrayrulewidth;
-                } else if (prevColContent) {
+                } else if (previousColContent) {
                     gap = arraycolsep - FONTMETRICS.arrayrulewidth;
                 }
+
                 separator.left = gap;
                 cols.push(separator);
-                prevColContent = false;
-                prevColRule = true;
+                previousColContent = false;
+                previousColRule = true;
                 firstColumn = false;
             }
         }
-        if (prevColContent && !this.rightDelim) {
+
+        if (previousColContent && !this.rightDelim) {
             // If the last column was content, add a small gap
             cols.push(makeColGap(arraycolsep));
         }
+
         if (
             (!this.leftDelim || this.leftDelim === '.') &&
             (!this.rightDelim || this.rightDelim === '.')
@@ -355,6 +374,7 @@ export class ArrayAtom extends Atom {
             // we've built so far.
             return [new Span(cols, 'mtable', 'mord')];
         }
+
         // There is at least one delimiter. Wrap the core of the array with
         // appropriate left and right delimiters
         // const inner = new Span(new Span(cols, 'mtable'), 'mord');
@@ -395,6 +415,7 @@ export class ArrayAtom extends Atom {
 
         return [this.attachSupsub(context, result, result.type)];
     }
+
     toLatex(options: ToLatexOptions): string {
         let result = '\\begin{' + this.environmentName + '}';
         if (this.environmentName === 'array') {
@@ -408,8 +429,10 @@ export class ArrayAtom extends Atom {
                     }
                 }
             }
+
             result += '}';
         }
+
         for (let row = 0; row < this.array.length; row++) {
             for (let col = 0; col < this.array[row].length; col++) {
                 if (col > 0) result += ' & ';
@@ -418,42 +441,51 @@ export class ArrayAtom extends Atom {
                     Atom.toLatex(this.array[row][col], options),
                 ]);
             }
+
             // Adds a separator between rows (but not after the last row)
             if (row < this.array.length - 1) {
                 result += ' \\\\ ';
             }
         }
+
         result += '\\end{' + this.environmentName + '}';
 
         return result;
     }
+
     getCell(row: number, col: number): Atom[] {
         return this.array[row][col];
     }
+
     setCell(_row: number, _column: number, _value: Atom[]): void {
         // @todo array
         console.assert(this.type === 'array' && Array.isArray(this.array));
         this.isDirty = true;
     }
+
     addRowBefore(_row: number): void {
         console.assert(this.type === 'array' && Array.isArray(this.array));
         // @todo array
         this.isDirty = true;
     }
+
     addRowAfter(_row: number): void {
         console.assert(this.type === 'array' && Array.isArray(this.array));
         // @todo array
         this.isDirty = true;
     }
+
     addColumnBefore(_col: number): void {
         console.assert(this.type === 'array' && Array.isArray(this.array));
         this.isDirty = true;
     }
+
     addColumnAfter(_col: number): void {
         console.assert(this.type === 'array' && Array.isArray(this.array));
         // @todo array
         this.isDirty = true;
     }
+
     get cells(): Atom[][] {
         const result = [];
         this.array.forEach((row) => {
@@ -471,7 +503,7 @@ export class ArrayAtom extends Atom {
  *
  */
 function makeColGap(width: number): Span {
-    const separator = new Span('\u200b', 'arraycolsep');
+    const separator = new Span('\u200B', 'arraycolsep');
     separator.width = width;
     return separator;
 }
@@ -483,15 +515,16 @@ function makeColOfRepeatingElements(
     context: Context,
     rows: ArrayRow[],
     offset: number,
-    elem: Atom[]
+    element: Atom[]
 ): Span {
     const col = [];
     for (const row of rows) {
-        const cell = new Span(Atom.render(context, elem));
+        const cell = new Span(Atom.render(context, element));
         cell.depth = row.depth;
         cell.height = row.height;
         col.push(cell);
         col.push(row.pos - offset);
     }
+
     return makeVlist(context, col, 'individualShift');
 }

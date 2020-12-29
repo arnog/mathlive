@@ -16,6 +16,7 @@ export function arrayIndex(
             result += 1;
         }
     }
+
     result += rowCol.col;
 
     return result;
@@ -37,13 +38,15 @@ export function arrayColRow(
     if (Array.isArray(index)) {
         return { col: index[0], row: index[1] };
     }
+
     let i: number;
     if (typeof index === 'string') {
-        const m = index.match(/cell([0-9]*)$/);
-        if (m) i = parseInt(m[1]);
+        const m = index.match(/cell(\d*)$/);
+        if (m) i = Number.parseInt(m[1]);
     } else {
         i = index;
     }
+
     const result = { row: 0, col: 0 };
     while (i > 0) {
         result.col += 1;
@@ -51,6 +54,7 @@ export function arrayColRow(
             result.col = 0;
             result.row += 1;
         }
+
         i -= 1;
     }
 
@@ -77,12 +81,14 @@ export function arrayCell(
     ) {
         colrow = arrayColRow(array, colrow);
     }
+
     let result: Atom[];
     if (isArray(array[colrow.row])) {
         result = array[colrow.row][colrow.col] ?? null;
         console.assert(result.length > 0);
         console.assert(result[0].type === 'first');
     }
+
     return result;
 }
 
@@ -91,13 +97,14 @@ export function arrayCell(
  */
 export function arrayCellCount(array: Atom[][][]): number {
     let result = 0;
-    let numRows = 0;
-    let numCols = 1;
+    let numberRows = 0;
+    let numberCols = 1;
     for (const row of array) {
-        numRows += 1;
-        if (row.length > numCols) numCols = row.length;
+        numberRows += 1;
+        if (row.length > numberCols) numberCols = row.length;
     }
-    result = numRows * numCols;
+
+    result = numberRows * numberCols;
     return result;
 }
 
@@ -120,6 +127,7 @@ export function arrayAdjustRow(
         while (result.row >= 0 && !arrayCell(array, result)) {
             result.row -= 1;
         }
+
         if (result.row < 0) return null;
     } else if (result.row >= array.length) {
         result.col += dir;
@@ -127,7 +135,9 @@ export function arrayAdjustRow(
         while (result.row < array.length && !arrayCell(array, result)) {
             result.row += 1;
         }
+
         if (result.row > array.length - 1) return null;
     }
+
     return result;
 }

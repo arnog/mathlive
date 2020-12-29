@@ -9,7 +9,7 @@ import { updateAutocomplete, complete } from '../editor-mathfield/autocomplete';
 export { SelectorPrivate };
 
 // @revisit: move to mathfield.vibrate()
-export const HAPTIC_FEEDBACK_DURATION = 3; // in ms
+export const HAPTIC_FEEDBACK_DURATION = 3; // In ms
 
 type CommandTarget = 'model' | 'mathfield' | 'virtual-keyboard';
 
@@ -40,7 +40,7 @@ export const COMMANDS: CommandRegistry<RegisterCommandOptions> = {};
  * The selector function return true to request a render update of the expression.
  */
 export function register(
-    commands: { [selector: string]: (...args: any[]) => boolean },
+    commands: Record<string, (...args: any[]) => boolean>,
     options?: RegisterCommandOptions
 ): void {
     options = options ?? { target: 'mathfield', canUndo: false };
@@ -60,11 +60,7 @@ export function getCommandTarget(
 ): CommandTarget {
     let selector: SelectorPrivate;
 
-    if (isArray(command)) {
-        selector = command[0] as SelectorPrivate;
-    } else {
-        selector = command;
-    }
+    selector = isArray(command) ? command[0] : command;
 
     // Convert kebab case (like-this) to camel case (likeThis).
     selector = selector.replace(/-\w/g, (m) =>
@@ -88,7 +84,7 @@ export function perform(
     let dirty = false;
 
     if (isArray(command)) {
-        selector = command[0] as SelectorPrivate;
+        selector = command[0];
         args = command.slice(1);
     } else {
         selector = command;
@@ -114,6 +110,7 @@ export function perform(
                 mathfield.resetKeystrokeBuffer();
             }
         }
+
         if (
             /^(delete|transpose|add)/.test(selector) &&
             mathfield.mode !== 'latex'
@@ -122,6 +119,7 @@ export function perform(
             mathfield.popUndoStack();
             mathfield.snapshot();
         }
+
         COMMANDS[selector].fn(mathfield.model, ...args);
         if (
             /^(delete|transpose|add)/.test(selector) &&
@@ -129,9 +127,11 @@ export function perform(
         ) {
             mathfield.snapshot();
         }
+
         if (mathfield.mode === 'latex') {
             updateAutocomplete(mathfield);
         }
+
         dirty = true;
         handled = true;
     } else if (commandTarget === 'virtual-keyboard') {
@@ -141,7 +141,7 @@ export function perform(
         dirty = COMMANDS[selector].fn(mathfield, ...args);
         handled = true;
     } else {
-        throw Error('Unknown command "' + selector + '"');
+        throw new Error('Unknown command "' + selector + '"');
     }
 
     // Virtual keyboard commands do not update mathfield state
@@ -185,6 +185,7 @@ export function performWithFeedback(
     if (mathfield.options.keypressVibration && navigator?.vibrate) {
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
+
     // Convert kebab case to camel case.
     selector = selector.replace(/-\w/g, (m) =>
         m[1].toUpperCase()
@@ -209,6 +210,7 @@ export function performWithFeedback(
     } else {
         mathfield.keypressSound?.play().catch(console.warn);
     }
+
     return mathfield.executeCommand(selector);
 }
 
@@ -233,9 +235,9 @@ function previousSuggestion(mathfield: MathfieldPrivate): boolean {
 
 register(
     {
-        complete: complete,
-        nextSuggestion: nextSuggestion,
-        previousSuggestion: previousSuggestion,
+        complete,
+        nextSuggestion,
+        previousSuggestion,
     },
     { target: 'mathfield', category: 'autocomplete' }
 );

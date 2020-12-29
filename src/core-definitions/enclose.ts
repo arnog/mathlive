@@ -34,9 +34,10 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
                 const shorthand = s.match(/\s*(\S+)\s+(\S+)\s+(.*)/);
                 if (shorthand) {
                     options.strokeWidth = convertDimenToPx(shorthand[1], 'px');
-                    if (!isFinite(options.strokeWidth)) {
+                    if (!Number.isFinite(options.strokeWidth)) {
                         options.strokeWidth = 1;
                     }
+
                     options.strokeStyle = shorthand[2];
                     options.strokeColor = shorthand[3];
                 } else {
@@ -57,18 +58,15 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
                     }
                 }
             }
+
             if (options.strokeStyle === 'dashed') {
                 options.svgStrokeStyle = '5,5';
             } else if (options.strokeStyle === 'dotted') {
                 options.svgStrokeStyle = '1,5';
             }
         }
-        options.borderStyle =
-            options.strokeWidth +
-            'px ' +
-            options.strokeStyle +
-            ' ' +
-            options.strokeColor;
+
+        options.borderStyle = `${options.strokeWidth}px ${options.strokeStyle} ${options.strokeColor}`;
 
         // Normalize the list of notations.
         const notation = {};

@@ -54,6 +54,7 @@ export function wordBoundaryOffset(
                 LETTER_AND_DIGITS.test(model.at(i).value);
             i += dir;
         } while (model.at(i) && match);
+
         result = model.at(i) ? i - 2 * dir : i - dir;
     } else if (/\s/.test(model.at(offset).value)) {
         // (2) We start with whitespace
@@ -67,6 +68,7 @@ export function wordBoundaryOffset(
         ) {
             i += dir;
         }
+
         if (!model.at(i)) {
             // We've reached the end
             result = i - dir;
@@ -78,6 +80,7 @@ export function wordBoundaryOffset(
                     !/\s/.test(model.at(i).value);
                 i += dir;
             } while (model.at(i) && match);
+
             result = model.at(i) ? i - 2 * dir : i - dir;
         }
     } else {
@@ -91,6 +94,7 @@ export function wordBoundaryOffset(
         ) {
             i += dir;
         }
+
         result = model.at(i) ? i : i - dir;
         let match = true;
         while (model.at(i) && match) {
@@ -98,6 +102,7 @@ export function wordBoundaryOffset(
             if (match) result = i;
             i += dir;
         }
+
         result = model.at(i) ? i - 2 * dir : i - dir;
     }
 
@@ -123,6 +128,7 @@ export function skip(
     if (!(options?.extend ?? false)) {
         model.collapseSelection(direction);
     }
+
     let atom = model.at(model.position);
     if (direction === 'forward') {
         if (atom.type === 'msubsup') {
@@ -134,10 +140,12 @@ export function skip(
             atom = model.at(model.position + 1);
         }
     }
+
     if (!atom) {
         model.announce('plonk');
         return false;
     }
+
     let offset = model.offsetOf(atom);
 
     if (atom instanceof TextAtom) {
@@ -157,37 +165,37 @@ export function skip(
                 offset = model.offsetOf(atom);
                 atom = atom.rightSibling;
             }
-        } else {
-            if (direction === 'forward') {
+        } else if (direction === 'forward') {
+            atom = atom.rightSibling;
+            if (!atom || !(atom instanceof LatexAtom)) {
+                // At the end of the command
+                model.announce('plonk');
+                return false;
+            }
+
+            while (
+                atom &&
+                atom instanceof LatexAtom &&
+                /[a-zA-Z*]/.test(atom.value)
+            ) {
+                offset = model.offsetOf(atom);
                 atom = atom.rightSibling;
-                if (!atom || !(atom instanceof LatexAtom)) {
-                    // At the end of the command
-                    model.announce('plonk');
-                    return false;
-                }
-                while (
-                    atom &&
-                    atom instanceof LatexAtom &&
-                    /[a-zA-Z\*]/.test(atom.value)
-                ) {
-                    offset = model.offsetOf(atom);
-                    atom = atom.rightSibling;
-                }
-            } else {
+            }
+        } else {
+            atom = atom.leftSibling;
+            if (!atom || !(atom instanceof LatexAtom)) {
+                // At the start of the command
+                model.announce('plonk');
+                return false;
+            }
+
+            while (
+                atom &&
+                atom instanceof LatexAtom &&
+                /[a-zA-Z*]/.test(atom.value)
+            ) {
+                offset = model.offsetOf(atom);
                 atom = atom.leftSibling;
-                if (!atom || !(atom instanceof LatexAtom)) {
-                    // At the start of the command
-                    model.announce('plonk');
-                    return false;
-                }
-                while (
-                    atom &&
-                    atom instanceof LatexAtom &&
-                    /[a-zA-Z\*]/.test(atom.value)
-                ) {
-                    offset = model.offsetOf(atom);
-                    atom = atom.leftSibling;
-                }
             }
         }
     } else if (direction === 'forward' && atom.type === 'mopen') {
@@ -201,8 +209,10 @@ export function skip(
             } else if (atom.type === 'mclose') {
                 level -= 1;
             }
+
             atom = atom.rightSibling;
         } while (!atom.isLastSibling && level !== 0);
+
         offset = model.offsetOf(atom.leftSibling);
     } else if (direction === 'backward' && atom.type === 'mclose') {
         //
@@ -215,60 +225,63 @@ export function skip(
             } else if (atom.type === 'mclose') {
                 level -= 1;
             }
+
             atom = atom.leftSibling;
         } while (!atom.isFirstSibling && level !== 0);
+
         offset = model.offsetOf(atom);
-    } else {
+    } else if (direction === 'backward') {
         //
         // We're in a regular math zone (not before/after a fence)
         //
-        if (direction === 'backward') {
-            if (atom.type === 'first') {
-                while (offset > 0 && atom.type === 'first') {
-                    offset -= 1;
-                    atom = model.at(offset);
-                }
-            } else {
-                const type =
-                    atom instanceof SubsupAtom ? atom.baseType : atom.type;
-                if (atom.type === 'msubsup') {
-                    // If we're after a 'msubsup', skip to its left sibling
-                    // (the base of the super/subscript)
-                    offset = model.offsetOf(model.at(offset).leftSibling);
-                }
+        if (atom.type === 'first') {
+            while (offset > 0 && atom.type === 'first') {
                 offset -= 1;
-                let nextType = model.at(offset)?.type;
-                // if (nextType === 'msubsup') {
-                //     offset = model.offsetOf(model.at(offset).leftSibling);
-                // }
-                while (offset >= 0 && nextType === type) {
-                    if (model.at(offset)?.type === 'msubsup') {
-                        offset = model.offsetOf(model.at(offset).leftSibling);
-                    } else {
-                        offset -= 1;
-                    }
-                    nextType = model.at(offset).type;
-                }
+                atom = model.at(offset);
             }
         } else {
-            const type = atom.type;
-            // if (atom.type === 'msubsup') {
-            //     offset = model.offsetOf(model.at(offset).rightSibling);
-            // }
-            let nextType = model.at(offset)?.type;
-            const lastOffset = model.lastOffset;
-            while (
-                offset <= lastOffset &&
-                (nextType === type || nextType === 'msubsup')
-            ) {
-                while (model.at(offset).rightSibling?.type === 'msubsup') {
-                    offset = model.offsetOf(model.at(offset).rightSibling);
-                }
-                offset += 1;
-                nextType = model.at(offset)?.type;
+            const type = atom instanceof SubsupAtom ? atom.baseType : atom.type;
+            if (atom.type === 'msubsup') {
+                // If we're after a 'msubsup', skip to its left sibling
+                // (the base of the super/subscript)
+                offset = model.offsetOf(model.at(offset).leftSibling);
             }
+
             offset -= 1;
+            let nextType = model.at(offset)?.type;
+            // If (nextType === 'msubsup') {
+            //     offset = model.offsetOf(model.at(offset).leftSibling);
+            // }
+            while (offset >= 0 && nextType === type) {
+                if (model.at(offset)?.type === 'msubsup') {
+                    offset = model.offsetOf(model.at(offset).leftSibling);
+                } else {
+                    offset -= 1;
+                }
+
+                nextType = model.at(offset).type;
+            }
         }
+    } else {
+        const { type } = atom;
+        // If (atom.type === 'msubsup') {
+        //     offset = model.offsetOf(model.at(offset).rightSibling);
+        // }
+        let nextType = model.at(offset)?.type;
+        const { lastOffset } = model;
+        while (
+            offset <= lastOffset &&
+            (nextType === type || nextType === 'msubsup')
+        ) {
+            while (model.at(offset).rightSibling?.type === 'msubsup') {
+                offset = model.offsetOf(model.at(offset).rightSibling);
+            }
+
+            offset += 1;
+            nextType = model.at(offset)?.type;
+        }
+
+        offset -= 1;
     }
 
     if (options?.extend ?? false) {
@@ -281,8 +294,10 @@ export function skip(
             model.announce('plonk');
             return false;
         }
+
         model.position = offset;
     }
+
     model.announce('move', previousPosition);
     return true;
 }
@@ -309,10 +324,12 @@ export function move(
     if (options.extend) {
         return model.extendSelection(direction);
     }
+
     if (model.selectionIsPlaceholder) {
         model.collapseSelection(direction);
         return move(model, direction);
     }
+
     if (!model.collapseSelection(direction)) {
         let pos = model.position + (direction === 'forward' ? +1 : -1);
 
@@ -349,10 +366,11 @@ export function move(
         //
         if (pos < 0 || pos > model.lastOffset) {
             // We're going out of bounds
-            let result = true; // true => perform default handling
+            let result = true; // True => perform default handling
             if (!model.suppressChangeNotifications) {
                 result = model.hooks?.moveOut(model, direction);
             }
+
             if (result) model.announce('plonk');
             return result;
         }
@@ -362,6 +380,7 @@ export function move(
         //
         setPositionHandlingPlaceholder(model, pos);
     }
+
     model.announce('move', previousPosition);
     return true;
 }
@@ -415,6 +434,7 @@ function moveUpward(
                 model.offsetOf(branch[branch.length - 1])
             );
         }
+
         model.announce('move up');
         // } else if (model.parent.array) {
         //     // In an array
@@ -429,16 +449,16 @@ function moveUpward(
         //     } else {
         //         move(model, 'backward', options);
         //     }
-    } else {
-        if (!model.at(model.position).parent?.parent) {
-            let result = true; // true => perform default handling
-            if (!model.suppressChangeNotifications) {
-                result = model.hooks?.moveOut(model, 'upward');
-            }
-            model.announce(result ? 'plonk' : 'line');
-            return result;
+    } else if (!model.at(model.position).parent?.parent) {
+        let result = true; // True => perform default handling
+        if (!model.suppressChangeNotifications) {
+            result = model.hooks?.moveOut(model, 'upward');
         }
+
+        model.announce(result ? 'plonk' : 'line');
+        return result;
     }
+
     return true;
 }
 
@@ -472,6 +492,7 @@ function moveDownward(
                 model.offsetOf(branch[branch.length - 1])
             );
         }
+
         model.announce('move down');
         //     // In an array
         //     let colRow = arrayColRow(model.parent.array, relation);
@@ -485,15 +506,14 @@ function moveDownward(
         //     } else {
         //         move(model, 'forward', options);
         //     }
-    } else {
-        if (!model.at(model.position).parent?.parent) {
-            let result = true; // true => perform default handling
-            if (!model.suppressChangeNotifications) {
-                result = model.hooks?.moveOut(model, 'downward');
-            }
-            model.announce(result ? 'plonk' : 'line');
-            return result;
+    } else if (!model.at(model.position).parent?.parent) {
+        let result = true; // True => perform default handling
+        if (!model.suppressChangeNotifications) {
+            result = model.hooks?.moveOut(model, 'downward');
         }
+
+        model.announce(result ? 'plonk' : 'line');
+        return result;
     }
 
     return true;

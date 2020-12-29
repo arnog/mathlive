@@ -9,6 +9,13 @@ import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { render } from '../editor-mathfield/render';
 
+declare global {
+    interface Window {
+        AWS: any;
+        mathlive: any;
+    }
+}
+
 export function speakableText(
     speechOptions: Required<TextToSpeechOptions>,
     prefix: string,
@@ -53,7 +60,7 @@ function speak(
     speakOptions: { withHighlighting: boolean }
 ): boolean {
     speakOptions = speakOptions ?? { withHighlighting: false };
-    const model = mathfield.model;
+    const { model } = mathfield;
     function getAtoms(mathfield: MathfieldPrivate, scope: SpeechScope): Atom[] {
         let result = null;
         switch (scope) {
@@ -70,6 +77,7 @@ function speak(
                 );
                 break;
             }
+
             case 'right': {
                 result = model.getAtoms(
                     model.position,
@@ -77,25 +85,30 @@ function speak(
                 );
                 break;
             }
+
             case 'group':
                 result = model.getAtoms(model.getSiblingsRange(model.position));
                 break;
             case 'parent': {
-                const parent = model.at(model.position).parent;
+                const { parent } = model.at(model.position);
                 if (parent && parent.type !== 'root') {
                     result = parent;
                 }
+
                 break;
             }
-            // case 'start':
+
+            // Case 'start':
             // case 'end':
             // not yet implemented
             // break;
             default:
                 break;
         }
+
         return result;
     }
+
     function getFailedSpeech(scope: string): string {
         let result = '';
         switch (scope) {
@@ -121,23 +134,27 @@ function speak(
                 console.log('unknown speak_ param value: "' + scope + '"');
                 break;
         }
+
         return result;
     }
+
     const atoms = getAtoms(mathfield, scope);
     if (atoms === null) {
         mathfield.options.speakHook(getFailedSpeech(scope), mathfield.options);
         return false;
     }
+
     const options = { ...mathfield.options };
     if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
         options.textToSpeechMarkup =
-            window['sre'] && options.textToSpeechRules === 'sre'
+            window.sre && options.textToSpeechRules === 'sre'
                 ? 'ssml_step'
                 : 'ssml';
     }
+
     const text = atomToSpeakableText(atoms, options);
     if (speakOptions.withHighlighting) {
-        window['mathlive'].readAloudMathField = mathfield;
+        window.mathlive.readAloudMathField = mathfield;
         render(mathfield, { forHighlighting: true });
         if (mathfield.options.readAloudHook) {
             mathfield.options.readAloudHook(
@@ -146,10 +163,8 @@ function speak(
                 mathfield.options
             );
         }
-    } else {
-        if (mathfield.options.speakHook) {
-            mathfield.options.speakHook(text, options);
-        }
+    } else if (mathfield.options.speakHook) {
+        mathfield.options.speakHook(text, options);
     }
 
     return false;
@@ -159,9 +174,10 @@ export function defaultSpeakHook(
     text: string,
     config?: Partial<MathfieldOptions>
 ): void {
-    if (!config && window && window['mathlive']) {
-        config = window['mathlive'].config;
+    if (!config && window?.mathlive) {
+        config = window.mathlive.config;
     }
+
     config = config ?? {};
 
     if (!config.speechEngine || config.speechEngine === 'local') {
@@ -171,16 +187,16 @@ export function defaultSpeakHook(
         if (window) {
             window.speechSynthesis.speak(utterance);
         } else {
-            console.log('Speak: ', text);
+            console.log('Speak:', text);
         }
     } else if (config.speechEngine === 'amazon') {
-        if (!window || !window['AWS']) {
+        if (!window || !window.AWS) {
             console.warn(
                 'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
             );
         } else {
-            const polly = new window['AWS'].Polly({ apiVersion: '2016-06-10' });
-            const params = {
+            const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
+            const parameters = {
                 OutputFormat: 'mp3',
                 VoiceId: config.speechEngineVoice,
                 Engine: [
@@ -204,14 +220,14 @@ export function defaultSpeakHook(
                 // SpeechMarkTypes: ['ssml]'
             };
             // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Polly.html#synthesizeSpeech-property
-            polly.synthesizeSpeech(params, function (err, data) {
+            polly.synthesizeSpeech(parameters, (err, data) => {
                 if (err) {
                     console.warn(
                         'polly.synthesizeSpeech() error:',
                         err,
                         err.stack
                     );
-                    // announce('plonk');
+                    // Announce('plonk');
                 } else if (data?.AudioStream) {
                     const uInt8Array = new Uint8Array(data.AudioStream);
                     const blob = new Blob([uInt8Array.buffer], {
@@ -220,9 +236,9 @@ export function defaultSpeakHook(
                     const url = URL.createObjectURL(blob);
 
                     const audioElement = new Audio(url);
-                    audioElement.play().catch((err) => console.log(err));
+                    audioElement.play().catch((error) => console.log(error));
                 } else {
-                    console.log('polly.synthesizeSpeech():' + data);
+                    console.log('polly.synthesizeSpeech():', data);
                 }
             });
 

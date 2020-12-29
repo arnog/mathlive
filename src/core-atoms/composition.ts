@@ -7,9 +7,11 @@ export class CompositionAtom extends Atom {
     constructor(value: string, options?: { mode: ParseMode }) {
         super('composition', { mode: options?.mode ?? 'math', value });
     }
+
     get computedStyle(): Style {
         return {};
     }
+
     render(context: Context): Span[] {
         // In theory one would like to be able to draw the clauses
         // in an active composition. Unfortunately, there are
@@ -19,6 +21,7 @@ export class CompositionAtom extends Atom {
         if (this.caret) result.caret = this.caret;
         return [result];
     }
+
     toLatex(_options: ToLatexOptions): string {
         return '';
     }

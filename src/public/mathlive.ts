@@ -417,7 +417,7 @@ export type AutoRenderOptions = {
     readAloud?: boolean;
 
     TeX?: {
-        /** if false, math expression
+        /** If false, math expression
          * that start with `\begin{` will not automatically be rendered.
          */
 

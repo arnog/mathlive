@@ -29,51 +29,55 @@ export type Token = string;
  * @param s A string of LaTeX
  */
 class Tokenizer {
-    private s: string | string[];
+    obeyspaces: boolean;
+    private readonly s: string | string[];
     private pos: number;
-
-    obeyspaces = false;
 
     constructor(s: string) {
         this.s = splitGraphemes(s);
         this.pos = 0;
+        this.obeyspaces = false;
     }
+
     /**
      * @return True if we reached the end of the stream
      */
     end(): boolean {
         return this.pos >= this.s.length;
     }
+
     /**
      * Return the next char and advance
      */
     get(): string {
         return this.pos < this.s.length ? this.s[this.pos++] : '';
     }
+
     /**
      * Return the next char, but do not advance
      */
     peek(): string {
         return this.s[this.pos];
     }
+
     /**
      * Return the next substring matching regEx and advance.
      */
     match(regEx: RegExp): string {
-        // this.s can either be a string, if it's made up only of ASCII chars
+        // This.s can either be a string, if it's made up only of ASCII chars
         // or an array of graphemes, if it's more complicated.
-        let execResult: (string | null)[] | null;
-        if (typeof this.s === 'string') {
-            execResult = regEx.exec(this.s.slice(this.pos));
-        } else {
-            execResult = regEx.exec(this.s.slice(this.pos).join(''));
-        }
+        const execResult: (string | null)[] | null =
+            typeof this.s === 'string'
+                ? regEx.exec(this.s.slice(this.pos))
+                : regEx.exec(this.s.slice(this.pos).join(''));
         if (execResult?.[0]) {
             this.pos += execResult[0].length;
             return execResult[0];
         }
+
         return null;
     }
+
     /**
      * Return the next token, or null.
      */
@@ -83,7 +87,10 @@ class Tokenizer {
         // Handle white space
         // In text mode, spaces are significant,
         // however they are coalesced unless \obeyspaces
-        if (!this.obeyspaces && this.match(/^[ \f\n\r\t\v\xA0\u2028\u2029]+/)) {
+        if (
+            !this.obeyspaces &&
+            this.match(/^[ \f\n\r\t\v\u00A0\u2028\u2029]+/)
+        ) {
             // Note that browsers are inconsistent in their definitions of the
             // `\s` metacharacter, so we use an explicit pattern instead.
 
@@ -99,13 +106,13 @@ class Tokenizer {
             // - \u2028: LINE SEPARATOR
             // - \u2029: PARAGRAPH SEPARATOR
             return '<space>';
-        } else if (
-            this.obeyspaces &&
-            this.match(/^[ \f\n\r\t\v\xA0\u2028\u2029]/)
-        ) {
+        }
+
+        if (this.obeyspaces && this.match(/^[ \f\n\r\t\v\u00A0\u2028\u2029]/)) {
             // Don't coalesce when this.obeyspaces is true (different regex from above)
             return '<space>';
         }
+
         const next = this.get();
         // Is it a command?
         if (next === '\\') {
@@ -115,7 +122,7 @@ class Tokenizer {
                 if (command) {
                     // Spaces after a 'control word' are ignored
                     // (but not after a 'control symbol' (single char)
-                    this.match(/^[ \f\n\r\t\v\xA0\u2028\u2029]*/);
+                    this.match(/^[ \f\n\r\t\v\u00A0\u2028\u2029]*/);
                 } else {
                     // ... or a single non-letter character
                     command = this.get();
@@ -139,14 +146,15 @@ class Tokenizer {
                 this.get();
                 // There can be zero to six carets with the same number of hex digits
                 const hex = this.match(
-                    /^(\^(\^(\^(\^[0-9a-f])?[0-9a-f])?[0-9a-f])?[0-9a-f])?[0-9a-f][0-9a-f]/
+                    /^(\^(\^(\^(\^[\da-f])?[\da-f])?[\da-f])?[\da-f])?[\da-f]{2}/
                 );
                 if (hex) {
                     return String.fromCodePoint(
-                        parseInt(hex.slice(hex.lastIndexOf('^') + 1), 16)
+                        Number.parseInt(hex.slice(hex.lastIndexOf('^') + 1), 16)
                     );
                 }
             }
+
             return next;
         } else if (next === '#') {
             // This could be either a param token, or a literal # (used for
@@ -156,20 +164,22 @@ class Tokenizer {
             // - or '@' (to indicate an implicit, optional, argument)
             // Otherwise, it's a literal '#'.
             if (!this.end()) {
-                let isParam = false;
-                if (/[0-9?@]/.test(this.peek())) {
+                let isParameter = false;
+                if (/[\d?@]/.test(this.peek())) {
                     // Could be a param
-                    isParam = true;
+                    isParameter = true;
                     // Need to look ahead to the following char
                     // (to exclude, e.g. '#1c1b2d': it's not a '#' token, it's a color)
                     if (this.pos + 1 < this.s.length) {
                         const after = this.s[this.pos + 1];
-                        isParam = /[^0-9A-Za-z]/.test(after);
+                        isParameter = /[^\dA-Za-z]/.test(after);
                     }
                 }
-                if (isParam) {
+
+                if (isParameter) {
                     return '#' + this.get();
                 }
+
                 return '#';
             }
         } else if (next === '$') {
@@ -179,9 +189,11 @@ class Tokenizer {
                 this.get();
                 return '<$$>';
             }
+
             // $
             return '<$>';
         }
+
         return next;
     }
 }
@@ -217,8 +229,8 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
             // Turn the next token into a string
             token = lex.next();
             if (token) {
-                if (token[0] === '\\') {
-                    Array.from(token).forEach((x) =>
+                if (token.startsWith('\\')) {
+                    [...token].forEach((x) =>
                         result.push(x === '\\' ? '\\backslash' : x)
                     );
                 } else if (token === '<{>') {
@@ -241,11 +253,13 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
             do {
                 if (tokens.length === 0) {
                     // We're out of tokens to look at, get some more
-                    if (/^#[0-9?@]$/.test(lex.peek())) {
+                    if (/^#[\d?@]$/.test(lex.peek())) {
                         // Expand parameters (but not commands)
-                        const param = lex.get().slice(1);
+                        const parameter = lex.get().slice(1);
                         tokens = tokenize(
-                            args?.[param] ?? args?.['?'] ?? '\\placeholder{}',
+                            args?.[parameter] ??
+                                args?.['?'] ??
+                                '\\placeholder{}',
                             args
                         );
                         token = tokens[0];
@@ -254,35 +268,40 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
                         tokens = token ? [token] : [];
                     }
                 }
+
                 done = tokens.length === 0;
                 if (!done && token === '\\endcsname') {
                     done = true;
                     tokens.shift();
                 }
+
                 if (!done) {
                     done =
                         token === '<$>' ||
                         token === '<$$>' ||
                         token === '<{>' ||
                         token === '<}>' ||
-                        (token.length > 1 && token[0] === '\\');
+                        (token.length > 1 && token.startsWith('\\'));
                 }
+
                 if (!done) {
                     command += tokens.shift();
                 }
             } while (!done);
+
             if (command) {
                 result.push('\\' + command);
             }
+
             result = result.concat(tokens);
         } else if (token === '\\endcsname') {
             // Unexpected \endcsname are ignored
-        } else if (token.length > 1 && token[0] === '#') {
+        } else if (token.length > 1 && token.startsWith('#')) {
             // It's a parameter to expand
-            const param = token.slice(1);
+            const parameter = token.slice(1);
             result = result.concat(
                 tokenize(
-                    args?.[param] ?? args?.['?'] ?? '\\placeholder{}',
+                    args?.[parameter] ?? args?.['?'] ?? '\\placeholder{}',
                     args
                 )
             );
@@ -290,6 +309,7 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
             result.push(token);
         }
     }
+
     return result;
 }
 
@@ -332,16 +352,13 @@ export function joinLatex(segments: string[]): string {
                 // name... insert a separator (if one was needed for the previous segment)
                 result += sep;
             }
+
             // If the segment ends in a command...
-            if (/\\[a-zA-Z]+\*?$/.test(segment)) {
-                // ... potentially add a space before the next segment
-                sep = ' ';
-            } else {
-                sep = '';
-            }
+            sep = /\\[a-zA-Z]+\*?$/.test(segment) ? ' ' : '';
             result += segment;
         }
     }
+
     return result;
 }
 

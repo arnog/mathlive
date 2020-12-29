@@ -1,15 +1,8 @@
-// import { Keys } from '../types-utils';
+// Import { Keys } from '../types-utils';
 import { STRINGS } from './l10n-strings';
 
 export const l10n: {
     locale?: string;
-    plural?(value, s, options): Intl.PluralRules;
-    ordinal?(value, s, options): Intl.PluralRules;
-    cardinal?(value, s, options): Intl.PluralRules;
-    merge?(
-        locale: string | { [language: string]: { [key: string]: string } },
-        strings?: { [key: string]: string }
-    ): void;
     _ordinalEnglishPluralCategories?: string[];
     _ordinalPluralCategories?: string[];
     _ordinalEnglish?: Intl.PluralRules;
@@ -19,13 +12,20 @@ export const l10n: {
     _cardinalEnglish?: Intl.PluralRules;
     _cardinal?: Intl.PluralRules;
     _locale?: string;
-    strings?: { [language: string]: { [key: string]: string } };
+    strings?: Record<string, Record<string, string>>;
+    plural?(value, s, options): Intl.PluralRules;
+    ordinal?(value, s, options): Intl.PluralRules;
+    cardinal?(value, s, options): Intl.PluralRules;
+    merge?(
+        locale: string | Record<string, Record<string, string>>,
+        strings?: Record<string, string>
+    ): void;
 } = {};
 
 l10n.plural = function (value: number, s: string, options): Intl.PluralRules {
     options = options ?? {};
     options.type = options.type ?? 'cardinal';
-    const language = l10n.locale.substring(0, 2);
+    const language = l10n.locale.slice(0, 2);
     const rules = options.type === 'ordinal' ? l10n._ordinal : l10n._cardinal;
     let rule =
         options.type === 'ordinal'
@@ -36,18 +36,18 @@ l10n.plural = function (value: number, s: string, options): Intl.PluralRules {
     if (l10n.strings[l10n.locale]) result = l10n.strings[l10n.locale][s];
     if (!result && l10n.strings[language]) result = l10n.strings[language][s];
     if (!result) {
-        result = l10n.strings['en'][s];
+        result = l10n.strings.en[s];
         if (!result) result = s;
-        if (options.type === 'ordinal') {
-            rule = l10n._ordinalPluralCategories.indexOf(
-                l10n._ordinalEnglish.select(value)
-            );
-        } else {
-            rule = l10n._cardinalPluralCategories.indexOf(
-                l10n._cardinalEnglish.select(value)
-            );
-        }
+        rule =
+            options.type === 'ordinal'
+                ? l10n._ordinalPluralCategories.indexOf(
+                      l10n._ordinalEnglish.select(value)
+                  )
+                : l10n._cardinalPluralCategories.indexOf(
+                      l10n._cardinalEnglish.select(value)
+                  );
     }
+
     return result.split(';')[rule] || result.split(';')[0];
 };
 
@@ -60,8 +60,8 @@ l10n.plural = function (value: number, s: string, options): Intl.PluralRules {
  *
  */
 l10n.merge = function (
-    locale: string | { [language: string]: { [key: string]: string } },
-    strings?: { [key: string]: string }
+    locale: string | Record<string, Record<string, string>>,
+    strings?: Record<string, string>
 ): void {
     if (locale && strings) {
         const savedLocale = l10n._locale;
@@ -74,7 +74,7 @@ l10n.merge = function (
         l10n.locale = savedLocale;
     } else if (locale && !strings) {
         Object.keys(
-            locale as { [language: string]: { [key: string]: string } }
+            locale as Record<string, Record<string, string>>
         ).forEach((l) => l10n.merge(l, locale[l]));
     }
 };
@@ -93,6 +93,7 @@ Object.defineProperty(l10n, 'locale', {
             // Use the setter, which will load the necessary .json files.
             l10n._locale = navigator?.language.slice(0, 5) ?? 'en';
         }
+
         return l10n._locale;
     },
 });
@@ -110,6 +111,7 @@ Object.defineProperty(l10n, 'ordinal', {
             l10n._ordinalPluralCategories = l10n._ordinal.resolvedOptions().pluralCategories;
             //    "zero", "one", "two", "few", "many" and "other"
         }
+
         return l10n._ordinal;
     },
 });
@@ -126,6 +128,7 @@ Object.defineProperty(l10n, 'cardinal', {
             });
             l10n._cardinalPluralCategories = l10n._ordinal.resolvedOptions().pluralCategories;
         }
+
         return l10n._cardinal;
     },
 });
@@ -136,7 +139,7 @@ l10n.strings = STRINGS;
  * Return a localised string for the `key`.
  */
 export function localize(key: string): string {
-    const language = l10n.locale.substring(0, 2);
+    const language = l10n.locale.slice(0, 2);
 
     let result = '';
 
@@ -145,7 +148,7 @@ export function localize(key: string): string {
     // If none is found, attempt to find a match for the language
     if (!result && l10n.strings[language]) result = l10n.strings[language][key];
     // If none is found, try english
-    if (!result) result = l10n.strings['en'][key];
+    if (!result) result = l10n.strings.en[key];
     // If that didn't work, return undefined
     if (!result) return undefined;
 

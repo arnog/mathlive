@@ -5,6 +5,7 @@
     "cSpell.allowCompoundWords": true,
     "cSpell.words": ["assistive", "grapheme", "latexify", "mathrm"],
     "cSpell.enabled": false,
-    "editor.formatOnSave": true,
-    "liveServer.settings.port": 5501
+    "liveServer.settings.port": 5501,
+    "xo.enable": true,
+    "xo.format.enable": true
 }

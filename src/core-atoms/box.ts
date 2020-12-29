@@ -43,6 +43,7 @@ export class BoxAtom extends Atom {
         this.padding = options.padding;
         this.border = options.border;
     }
+
     render(context: Context): Span[] {
         // The padding extends outside of the base
         const padding =
@@ -68,10 +69,10 @@ export class BoxAtom extends Atom {
             spanHeight(base) + spanDepth(base) + 2 * padding,
             'em'
         );
-        if (padding !== 0) {
-            box.setStyle('width', 'calc(100% + ' + 2 * padding + 'em)');
-        } else {
+        if (padding === 0) {
             box.setStyle('width', '100%');
+        } else {
+            box.setStyle('width', `calc(100% + ${2 * padding}em)`);
         }
 
         box.setStyle('top', -2 * padding, 'em');
@@ -82,12 +83,14 @@ export class BoxAtom extends Atom {
         if (this.backgroundcolor) {
             box.setStyle('background-color', this.backgroundcolor);
         }
+
         if (this.framecolor) {
             box.setStyle(
                 'border',
-                FONTMETRICS.fboxrule + 'em solid ' + this.framecolor
+                `${FONTMETRICS.fboxrule} em solid ${this.framecolor}`
             );
         }
+
         if (this.border) box.setStyle('border', this.border);
 
         base.setStyle('display', 'inline-block');

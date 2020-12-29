@@ -37,7 +37,7 @@ export function parseMathString(
     s: string,
     options?: {
         format?: OutputFormat;
-        inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
+        inlineShortcuts?: Record<string, InlineShortcutDefinition>;
     }
 ): [OutputFormat, string] {
     if (!s) return ['latex', ''];
@@ -71,7 +71,7 @@ export function parseMathString(
         // Replace double-backslash (coming from JavaScript) to a single one
         s = s.replace(/\\\\([^\s\n])/g, '\\$1');
 
-        if (/\\/.test(s)) {
+        if (s.includes('\\')) {
             // If the string includes a '\' it's probably a LaTeX string
             // (that's not completely true, it could be a UnicodeMath string, since
             // UnicodeMath supports some LaTeX commands. However, we need to pick
@@ -85,8 +85,8 @@ export function parseMathString(
     s = s.replace(/\u3016/gu, '{'); // WHITE LENTICULAR BRACKET (grouping)
     s = s.replace(/\u3017/gu, '}'); // WHITE LENTICULAR BRACKET (grouping)
 
-    s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // common typo
-    s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // common typo
+    s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // Common typo
+    s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // Common typo
     s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
     return [
@@ -99,16 +99,16 @@ function parseMathExpression(
     s: string,
     options: {
         format?: string;
-        inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
+        inlineShortcuts?: Record<string, InlineShortcutDefinition>;
     }
 ): string {
     if (!s) return '';
     let done = false;
     let m;
 
-    if (!done && (s[0] === '^' || s[0] === '_')) {
+    if (!done && (s.startsWith('^') || s.startsWith('_'))) {
         // Superscript and subscript
-        m = parseMathArgument(s.substr(1), {
+        m = parseMathArgument(s.slice(1), {
             inlineShortcuts: options?.inlineShortcuts ?? {},
             noWrap: true,
         });
@@ -118,7 +118,7 @@ function parseMathExpression(
     }
 
     if (!done) {
-        m = s.match(/^(sqrt|\u221a)(.*)/);
+        m = s.match(/^(sqrt|\u221A)(.*)/);
         if (m) {
             // Square root
             m = parseMathArgument(m[2], {
@@ -133,7 +133,7 @@ function parseMathExpression(
     }
 
     if (!done) {
-        m = s.match(/^(\\cbrt|\u221b)(.*)/);
+        m = s.match(/^(\\cbrt|\u221B)(.*)/);
         if (m) {
             // Cube root
             m = parseMathArgument(m[2], {
@@ -182,17 +182,16 @@ function parseMathExpression(
         }
     }
 
-    if (!done && /^(f|g|h)[^a-zA-Z]/.test(s)) {
+    if (!done && /^([fgh])[^a-zA-Z]/.test(s)) {
         // This could be a function...
-        m = parseMathArgument(s.substring(1), {
+        m = parseMathArgument(s.slice(1), {
             inlineShortcuts: options.inlineShortcuts ?? {},
             noWrap: true,
         });
-        if (s[1] === '(') {
-            s = s[0] + '\\mleft(' + m.match + '\\mright)';
-        } else {
-            s = s[0] + m.match;
-        }
+        s =
+            s[1] === '('
+                ? s[0] + '\\mleft(' + m.match + '\\mright)'
+                : s[0] + m.match;
         s += parseMathExpression(m.rest, options);
         done = true;
     }
@@ -215,7 +214,7 @@ function parseMathExpression(
         });
         if (m.match && m.rest[0] === '/') {
             // Fraction
-            const m2 = parseMathArgument(m.rest.substr(1), {
+            const m2 = parseMathArgument(m.rest.slice(1), {
                 inlineShortcuts: options.inlineShortcuts ?? {},
                 noWrap: true,
             });
@@ -228,17 +227,15 @@ function parseMathExpression(
                     '}' +
                     parseMathExpression(m2.rest, options);
             }
+
             done = true;
         } else if (m.match) {
-            if (s[0] === '(') {
-                s =
-                    '\\left(' +
-                    m.match +
-                    '\\right)' +
-                    parseMathExpression(m.rest, options);
-            } else {
-                s = m.match + parseMathExpression(m.rest, options);
-            }
+            s = s.startsWith('(')
+                ? '\\left(' +
+                  m.match +
+                  '\\right)' +
+                  parseMathExpression(m.rest, options)
+                : m.match + parseMathExpression(m.rest, options);
             done = true;
         }
     }
@@ -271,7 +268,7 @@ function parseMathArgument(
     options: {
         noWrap?: boolean;
         format?: string;
-        inlineShortcuts?: { [key: string]: InlineShortcutDefinition };
+        inlineShortcuts?: Record<string, InlineShortcutDefinition>;
     }
 ): { match: string; rest: string } {
     let match = '';
@@ -288,6 +285,7 @@ function parseMathArgument(
             if (s[i] === rFence) level--;
             i++;
         }
+
         if (level === 0) {
             // We've found the matching closing fence
             if (options.noWrap && lFence === '(') {
@@ -297,6 +295,7 @@ function parseMathArgument(
                     lFence = '\\{';
                     rFence = '\\}';
                 }
+
                 match =
                     '\\left' +
                     lFence +
@@ -304,7 +303,8 @@ function parseMathArgument(
                     '\\right' +
                     rFence;
             }
-            rest = s.substring(i);
+
+            rest = s.slice(Math.max(0, i));
         } else {
             // Unbalanced fence...
             match = s.substring(1, i);
@@ -318,33 +318,33 @@ function parseMathArgument(
             if (shortcut) {
                 shortcut = shortcut.replace('_{#?}', '');
                 shortcut = shortcut.replace('^{#?}', '');
-                return { match: shortcut, rest: s.substring(shortcut.length) };
+                return { match: shortcut, rest: s.slice(shortcut.length) };
             }
         }
 
         m = s.match(/^([a-zA-Z])/);
         if (m) {
             // It's a single letter
-            return { match: m[1], rest: s.substring(1) };
+            return { match: m[1], rest: s.slice(1) };
         }
 
         m = s.match(/^(-)?\d+(\.\d*)?/);
         if (m) {
             // It's a number
-            return { match: m[0], rest: s.substring(m[0].length) };
+            return { match: m[0], rest: s.slice(m[0].length) };
         }
 
         if (!/^\\(left|right)/.test(s)) {
             // It's a LaTeX command (but not a \left\right)
             m = s.match(/^(\\[a-zA-Z]+)/);
             if (m) {
-                rest = s.substring(m[1].length);
+                rest = s.slice(m[1].length);
                 match = m[1];
             }
         }
     }
 
-    return { match: match, rest: rest };
+    return { match, rest };
 }
 
 function paddedShortcut(s: string, options: { format?: string }): string {
@@ -356,5 +356,6 @@ function paddedShortcut(s: string, options: { format?: string }): string {
     } else {
         result = s;
     }
+
     return result;
 }

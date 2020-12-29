@@ -5,6 +5,12 @@ import { Atom, isAtomArray } from '../core/atom';
 import { atomsToMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 
+declare global {
+    interface Window {
+        sre: any;
+    }
+}
+
 // Markup
 // Two common flavor of markups: SSML and 'mac'. The latter is only available
 // when using the native TTS synthesizer on Mac OS.
@@ -25,7 +31,7 @@ import { LeftRightAtom } from '../core-atoms/leftright';
 
 // "I am now <prosody rate='+0.06'>speaking 6% faster.</prosody>"
 
-const PRONUNCIATION = {
+const PRONUNCIATION: Record<string, string> = {
     '\\alpha': 'alpha ',
     '\\mu': 'mew ',
     '\\sigma': 'sigma ',
@@ -35,8 +41,8 @@ const PRONUNCIATION = {
     '\\sum': 'Summation ',
     '\\prod': 'Product ',
 
-    a: '<phoneme alphabet="ipa" ph="eɪ">a</phoneme>',
-    A: 'capital <phoneme alphabet="ipa" ph="eɪ">A</phoneme>',
+    'a': '<phoneme alphabet="ipa" ph="eɪ">a</phoneme>',
+    'A': 'capital <phoneme alphabet="ipa" ph="eɪ">A</phoneme>',
     '+': 'plus ',
     '-': 'minus ',
     ';': '<break time="150ms"/> semi-colon <break time="150ms"/>',
@@ -57,7 +63,7 @@ const PRONUNCIATION = {
     '!': 'factorial ',
     '\\sin': 'sine ',
     '\\cos': 'cosine ',
-    '\u200b': '',
+    '\u200B': '',
     '\u2212': 'minus ',
     ':': '<break time="150ms"/> such that <break time="200ms"/> ',
     '\\colon': '<break time="150ms"/> such that <break time="200ms"/> ',
@@ -116,21 +122,22 @@ const PRONUNCIATION = {
     '\\rbrack':
         '<break time="150ms"/> close square bracket <break time="150ms"/>',
 
-    // need to add code to detect singluar/plural. Until then spoken as plural since that is vastly more common
+    // Need to add code to detect singluar/plural. Until then spoken as plural since that is vastly more common
     // note: need to worry about intervening &InvisibleTimes;.
     // note: need to also do this when in numerator of fraction and number preceeds fraction
     // note: need to do this for <msup>
-    mm: 'millimeters',
-    cm: 'centimeters',
-    km: 'kilometers',
-    kg: 'kilograms',
+    'mm': 'millimeters',
+    'cm': 'centimeters',
+    'km': 'kilometers',
+    'kg': 'kilograms',
 };
 
 function getSpokenName(latex: string): string {
     let result = '';
-    if (latex.charAt(0) === '\\') {
+    if (latex.startsWith('\\')) {
         result = ' ' + latex.replace('\\', '') + ' ';
     }
+
     return result;
 }
 
@@ -149,7 +156,7 @@ function platform(p: string): string {
             /(ipad)/i.test(navigator.userAgent)
         ) {
             result = 'ios';
-        } else if (/\bCrOS\b/i.test(navigator.userAgent)) {
+        } else if (/\bcros\b/i.test(navigator.userAgent)) {
             result = 'chromeos';
         }
     }
@@ -166,6 +173,7 @@ function isAtomic(atoms: Atom[]): boolean {
             }
         }
     }
+
     return count === 1;
 }
 
@@ -177,6 +185,7 @@ function atomicID(atoms: Atom[]): string {
             }
         }
     }
+
     return '';
 }
 
@@ -189,6 +198,7 @@ function atomicValue(atoms: Atom[]): string {
             }
         }
     }
+
     return result;
 }
 
@@ -207,16 +217,14 @@ function atomToSpeakableFragment(
             } else {
                 result += c;
             }
+        } else if (/[a-z]/.test(c)) {
+            result += ' <say-as interpret-as="character">' + c + '</say-as>';
+        } else if (/[A-Z]/.test(c)) {
+            result += String('capital ' + c.toLowerCase());
         } else {
-            if (/[a-z]/.test(c)) {
-                result +=
-                    ' <say-as interpret-as="character">' + c + '</say-as>';
-            } else if (/[A-Z]/.test(c)) {
-                result += String('capital ' + c.toLowerCase());
-            } else {
-                result += c;
-            }
+            result += c;
         }
+
         return result;
     }
 
@@ -229,12 +237,13 @@ function atomToSpeakableFragment(
     let result = '';
 
     if (isAtomArray(atom)) {
-        let isInDigitRun = false; // need to group sequence of digits
-        let isInTextRun = false; // need to group text
+        let isInDigitRun = false; // Need to group sequence of digits
+        let isInTextRun = false; // Need to group text
         for (let i = 0; i < atom.length; i++) {
             if (atom[i].mode !== 'text') {
                 isInTextRun = false;
             }
+
             if (
                 i < atom.length - 2 &&
                 atom[i].type === 'mopen' &&
@@ -275,11 +284,13 @@ function atomToSpeakableFragment(
         if (atom.id && mode === 'math') {
             result += '<mark name="' + atom.id.toString() + '"/>';
         }
+
         result += atom.value;
     } else {
         if (atom.id && mode === 'math') {
             result += '<mark name="' + atom.id.toString() + '"/>';
         }
+
         let numer = '';
         let denom = '';
         let body = '';
@@ -345,14 +356,11 @@ function atomToSpeakableFragment(
                 body = atomToSpeakableFragment('math', atom.body, options);
 
                 if (atom.hasEmptyBranch('above')) {
-                    if (isAtomic(atom.body)) {
-                        result += ' the square root of ' + body + ' , ';
-                    } else {
-                        result +=
-                            ' the square root of <break time="200ms"/>' +
-                            body +
-                            '. <break time="200ms"/> End square root';
-                    }
+                    result += isAtomic(atom.body)
+                        ? ' the square root of ' + body + ' , '
+                        : ' the square root of <break time="200ms"/>' +
+                          body +
+                          '. <break time="200ms"/> End square root';
                 } else {
                     let index = atomToSpeakableFragment(
                         'math',
@@ -380,6 +388,7 @@ function atomToSpeakableFragment(
                             '. <break time="200ms"/> End root';
                     }
                 }
+
                 break;
             case 'leftright':
                 {
@@ -396,6 +405,7 @@ function atomToSpeakableFragment(
                         PRONUNCIATION[delimAtom.rightDelim] ||
                         delimAtom.rightDelim;
                 }
+
                 break;
             case 'rule':
                 // @todo
@@ -418,7 +428,7 @@ function atomToSpeakableFragment(
             case 'mpunct':
             case 'mopen':
             case 'mclose': {
-                const command = atom.command;
+                const { command } = atom;
                 if (
                     command === '\\mathbin' ||
                     command === '\\mathrel' ||
@@ -435,8 +445,10 @@ function atomToSpeakableFragment(
                 let atomValue = atom.value;
                 let latexValue = atom.command;
                 if (atom.type === 'delim' || atom.type === 'sizeddelim') {
-                    atomValue = latexValue = atom.value;
+                    latexValue = atom.value;
+                    atomValue = latexValue;
                 }
+
                 if (mode === 'text') {
                     result += atomValue;
                 } else {
@@ -468,15 +480,18 @@ function atomToSpeakableFragment(
                             options
                         );
                     }
+
                     if (atom.type === 'mbin') {
                         result += '<break time="150ms"/>';
                     }
                 }
+
                 break;
             }
+
             case 'mop':
                 // @todo
-                if (atom.value !== '\u200b') {
+                if (atom.value !== '\u200B') {
                     // Not ZERO-WIDTH
                     const trimLatex = atom.command;
                     if (trimLatex === '\\sum') {
@@ -588,29 +603,22 @@ function atomToSpeakableFragment(
                         const value =
                             PRONUNCIATION[atom.value] ??
                             PRONUNCIATION[atom.command];
-                        if (value) {
-                            result += value;
-                        } else {
-                            result += ' ' + atom.value;
-                        }
+                        result += value ? value : ' ' + atom.value;
                     } else if (atom.command) {
-                        if (atom.command[0] === '\\') {
-                            result += ' ' + atom.command.substr(1);
-                        } else {
-                            result += ' ' + atom.command;
-                        }
+                        result += atom.command.startsWith('\\')
+                            ? ' ' + atom.command.slice(1)
+                            : ' ' + atom.command;
                     }
                 }
+
                 break;
 
             case 'enclose':
                 body = atomToSpeakableFragment('math', atom.body, options);
 
-                if (isAtomic(atom.body)) {
-                    result += ' crossed out ' + body + ' , ';
-                } else {
-                    result += ' crossed out ' + body + '. End cross out';
-                }
+                result += isAtomic(atom.body)
+                    ? ' crossed out ' + body + ' , '
+                    : ' crossed out ' + body + '. End cross out';
                 break;
 
             case 'space':
@@ -618,6 +626,7 @@ function atomToSpeakableFragment(
                 // @todo
                 break;
         }
+
         if (!supsubHandled && !atom.hasEmptyBranch('superscript')) {
             let sup = atomToSpeakableFragment(mode, atom.superscript, options);
             sup = sup.trim();
@@ -629,13 +638,14 @@ function atomToSpeakableFragment(
                         result += '<mark name="' + id + '"/>';
                     }
                 }
+
                 if (sup2 === '\u2032') {
                     result += ' prime ';
                 } else if (sup2 === '2') {
                     result += ' squared ';
                 } else if (sup2 === '3') {
                     result += ' cubed ';
-                } else if (isNaN(parseInt(sup2))) {
+                } else if (Number.isNaN(Number.parseInt(sup2))) {
                     result += ' to the ' + sup + '; ';
                 } else {
                     result +=
@@ -643,25 +653,22 @@ function atomToSpeakableFragment(
                         sup2 +
                         '</say-as> power; ';
                 }
+            } else if (Number.isNaN(Number.parseInt(sup2))) {
+                result += ' raised to the ' + sup + '; ';
             } else {
-                if (isNaN(parseInt(sup2))) {
-                    result += ' raised to the ' + sup + '; ';
-                } else {
-                    result +=
-                        ' raised to the <say-as interpret-as="ordinal">' +
-                        sup2 +
-                        '</say-as> power; ';
-                }
+                result +=
+                    ' raised to the <say-as interpret-as="ordinal">' +
+                    sup2 +
+                    '</say-as> power; ';
             }
         }
+
         if (!supsubHandled && !atom.hasEmptyBranch('subscript')) {
             let sub = atomToSpeakableFragment('math', atom.subscript, options);
             sub = sub.trim();
-            if (isAtomic(atom.subscript)) {
-                result += ' sub ' + sub;
-            } else {
-                result += ' subscript ' + sub + '. End subscript. ';
-            }
+            result += isAtomic(atom.subscript)
+                ? ' sub ' + sub
+                : ' subscript ' + sub + '. End subscript. ';
         }
     }
 
@@ -680,7 +687,7 @@ export function atomToSpeakableText(
         textToSpeechRulesOptions: { ...speechOptions.textToSpeechRulesOptions },
     };
 
-    if (window['sre'] && options.textToSpeechRules === 'sre') {
+    if (window.sre && options.textToSpeechRules === 'sre') {
         const mathML = atomsToMathML(atoms, options);
         if (mathML) {
             if (options.textToSpeechMarkup) {
@@ -691,16 +698,20 @@ export function atomToSpeakableText(
                 if (options.textToSpeechRulesOptions.markup === 'ssml') {
                     options.textToSpeechRulesOptions.markup = 'ssml_step';
                 }
+
                 options.textToSpeechRulesOptions.rate =
                     options.speechEngineRate;
             }
+
             if (options.textToSpeechRulesOptions) {
-                window['sre'].System.getInstance().setupEngine(
+                window.sre.System.getInstance().setupEngine(
                     options.textToSpeechRulesOptions
                 );
             }
-            return window['sre'].System.getInstance().toSpeech(mathML);
+
+            return window.sre.System.getInstance().toSpeech(mathML);
         }
+
         return '';
     }
 
@@ -711,6 +722,7 @@ export function atomToSpeakableText(
         if (options.speechEngineRate) {
             prosody = '<prosody rate="' + options.speechEngineRate + '">';
         }
+
         result =
             `<?xml version="1.0"?><speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">` +
             '<amazon:auto-breaths>' +
@@ -730,7 +742,7 @@ export function atomToSpeakableText(
             .replace(/<mark([^/]*)\/>/g, '')
             .replace(/<emphasis>/g, '[[emph+]]')
             .replace(/<\/emphasis>/g, '')
-            .replace(/<break time="([0-9]*)ms"\/>/g, '[[slc $1]]')
+            .replace(/<break time="(\d*)ms"\/>/g, '[[slc $1]]')
             .replace(/<say-as[^>]*>/g, '')
             .replace(/<\/say-as>/g, '');
     } else {
@@ -739,5 +751,6 @@ export function atomToSpeakableText(
         // Strip out the SSML markup
         result = result.replace(/<[^>]*>/g, '').replace(/\s{2,}/g, ' ');
     }
+
     return result;
 }

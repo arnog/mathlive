@@ -87,12 +87,12 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
         key: '[Escape]',
         ifMode: 'latex',
         command: ['complete', 'complete', { selectItem: 'true' }],
-    }, // accept the entry (without the suggestion) and select
+    }, // Accept the entry (without the suggestion) and select
     {
         key: '[Tab]',
         ifMode: 'latex',
         command: ['complete', 'accept-suggestion'],
-    }, // complete the suggestion
+    }, // Complete the suggestion
     { key: '[Return]', ifMode: 'latex', command: 'complete' },
     { key: '[Enter]', ifMode: 'latex', command: 'complete' },
     {

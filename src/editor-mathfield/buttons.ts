@@ -28,7 +28,7 @@ import { ExecuteCommandFunction } from '../editor/commands-definitions';
  */
 export function attachButtonHandlers(
     executeCommand: ExecuteCommandFunction,
-    el: Element,
+    element: HTMLElement,
     command:
         | string
         | {
@@ -44,57 +44,53 @@ export function attachButtonHandlers(
     if (typeof command === 'object' && (command.default || command.pressed)) {
         // Attach the default (no modifiers pressed) command to the element
         if (command.default) {
-            el.setAttribute('data-command', JSON.stringify(command.default));
+            element.dataset.command = JSON.stringify(command.default);
         }
+
         if (command.alt) {
-            el.setAttribute('data-command-alt', JSON.stringify(command.alt));
+            element.dataset.commandAlt = JSON.stringify(command.alt);
         }
+
         if (command.altshift) {
-            el.setAttribute(
-                'data-command-altshift',
-                JSON.stringify(command.altshift)
-            );
+            element.dataset.commandAltshift = JSON.stringify(command.altshift);
         }
+
         if (command.shift) {
-            el.setAttribute(
-                'data-command-shift',
-                JSON.stringify(command.shift)
-            );
+            element.dataset.commandShift = JSON.stringify(command.shift);
         }
+
         // .pressed: command to perform when the button is pressed (i.e.
         // on mouse down/touch). Otherwise the command is performed when
         // the button is released
         if (command.pressed) {
-            el.setAttribute(
-                'data-command-pressed',
-                JSON.stringify(command.pressed)
-            );
+            element.dataset.commandPressed = JSON.stringify(command.pressed);
         }
+
         if (command.pressAndHoldStart) {
-            el.setAttribute(
-                'data-command-pressAndHoldStart',
-                JSON.stringify(command.pressAndHoldStart)
+            element.dataset.commandPressAndHoldStart = JSON.stringify(
+                command.pressAndHoldStart
             );
         }
+
         if (command.pressAndHoldEnd) {
-            el.setAttribute(
-                'data-command-pressAndHoldEnd',
-                JSON.stringify(command.pressAndHoldEnd)
+            element.dataset.commandPressAndHoldEnd = JSON.stringify(
+                command.pressAndHoldEnd
             );
         }
     } else {
         // We need to turn the command into a string to attach it to the dataset
         // associated with the button (the command could be an array made of a
         // selector and one or more parameters)
-        el.setAttribute('data-command', JSON.stringify(command));
+        element.dataset.command = JSON.stringify(command);
     }
-    let pressHoldStart;
-    let pressHoldElement;
+
+    let pressHoldStart: number;
+    let pressHoldElement: HTMLElement;
     let touchID;
     let syntheticTarget; // Target while touch move
     let pressAndHoldTimer;
     on(
-        el,
+        element,
         'mousedown touchstart:passive',
         (ev: MouseEvent & TouchEvent & PointerEvent) => {
             if (ev.type !== 'mousedown' || ev.buttons === 1) {
@@ -104,30 +100,34 @@ export function attachButtonHandlers(
                 if (ev.type !== 'touchstart') {
                     ev.preventDefault();
                 }
-                el.classList.add('pressed');
+
+                element.classList.add('pressed');
                 pressHoldStart = Date.now();
                 // Record the ID of the primary touch point for tracking on touchmove
                 if (ev.type === 'touchstart') {
                     touchID = ev.changedTouches[0].identifier;
                 }
+
                 // Parse the JSON to get the command (and its optional arguments)
                 // and perform it immediately
-                const command = el.getAttribute('data-command-pressed');
+                const command = element.getAttribute('data-command-pressed');
                 if (command) {
                     executeCommand(JSON.parse(command));
                 }
+
                 // If there is a `press and hold start` command, perform it
                 // after a delay, if we're still pressed by then.
-                const pressAndHoldStartCommand = el.getAttribute(
+                const pressAndHoldStartCommand = element.getAttribute(
                     'data-command-pressAndHoldStart'
                 );
                 if (pressAndHoldStartCommand) {
-                    pressHoldElement = el;
+                    pressHoldElement = element;
                     if (pressAndHoldTimer) {
                         clearTimeout(pressAndHoldTimer);
                     }
-                    pressAndHoldTimer = window.setTimeout(function () {
-                        if (el.classList.contains('pressed')) {
+
+                    pressAndHoldTimer = window.setTimeout(() => {
+                        if (element.classList.contains('pressed')) {
                             executeCommand(
                                 JSON.parse(pressAndHoldStartCommand)
                             );
@@ -137,9 +137,9 @@ export function attachButtonHandlers(
             }
         }
     );
-    on(el, 'mouseleave touchcancel', () => {
-        el.classList.remove('pressed');
-        // let command = el.getAttribute('data-' + config.namespace +
+    on(element, 'mouseleave touchcancel', () => {
+        element.classList.remove('pressed');
+        // Let command = el.getAttribute('data-' + config.namespace +
         //     'command-pressAndHoldEnd');
         // const now = Date.now();
         // if (command && now > pressHoldStart + 300) {
@@ -147,7 +147,7 @@ export function attachButtonHandlers(
         // }
     });
     on(
-        el,
+        element,
         'touchmove:passive',
         (ev: MouseEvent & TouchEvent & PointerEvent) => {
             // Unlike with mouse tracking, touch tracking only sends events
@@ -165,10 +165,13 @@ export function attachButtonHandlers(
                     if (target !== syntheticTarget && syntheticTarget) {
                         syntheticTarget.dispatchEvent(
                             new MouseEvent('mouseleave'),
-                            { bubbles: true }
+                            {
+                                bubbles: true,
+                            }
                         );
                         syntheticTarget = null;
                     }
+
                     if (target) {
                         syntheticTarget = target;
                         target.dispatchEvent(
@@ -182,13 +185,13 @@ export function attachButtonHandlers(
             }
         }
     );
-    on(el, 'mouseenter', (ev: MouseEvent & TouchEvent & PointerEvent) => {
+    on(element, 'mouseenter', (ev: MouseEvent & TouchEvent & PointerEvent) => {
         if (ev.buttons === 1) {
-            el.classList.add('pressed');
+            element.classList.add('pressed');
         }
     });
     on(
-        el,
+        element,
         'mouseup touchend click',
         (ev: MouseEvent & TouchEvent & PointerEvent) => {
             if (syntheticTarget) {
@@ -201,8 +204,9 @@ export function attachButtonHandlers(
                 );
                 return;
             }
-            el.classList.remove('pressed');
-            el.classList.add('active');
+
+            element.classList.remove('pressed');
+            element.classList.add('active');
             if (ev.type === 'click' && ev.detail !== 0) {
                 // This is a click event triggered by a mouse interaction
                 // (and not a keyboard interaction)
@@ -211,36 +215,43 @@ export function attachButtonHandlers(
                 ev.preventDefault();
                 return;
             }
+
             // Since we want the active state to be visible for a while,
             // use a timer to remove it after a short delay
-            window.setTimeout(function () {
-                el.classList.remove('active');
+            window.setTimeout(() => {
+                element.classList.remove('active');
             }, 150);
-            let command = el.getAttribute('data-command-pressAndHoldEnd');
+            let command = element.getAttribute('data-command-pressAndHoldEnd');
             const now = Date.now();
             // If the button has not been pressed for very long or if we were
             // not the button that started the press and hold, don't consider
             // it a press-and-hold.
-            if (el !== pressHoldElement || now < pressHoldStart + 300) {
+            if (element !== pressHoldElement || now < pressHoldStart + 300) {
                 command = undefined;
             }
+
             if (!command && ev.altKey && ev.shiftKey) {
-                command = el.getAttribute('data-command-altshift');
+                command = element.getAttribute('data-command-altshift');
             }
+
             if (!command && ev.altKey) {
-                command = el.getAttribute('data-command-alt');
+                command = element.getAttribute('data-command-alt');
             }
+
             if (!command && ev.shiftKey) {
-                command = el.getAttribute('data-command-shift');
+                command = element.getAttribute('data-command-shift');
             }
+
             if (!command) {
-                command = el.getAttribute('data-command');
+                command = element.getAttribute('data-command');
             }
+
             if (command) {
                 // Parse the JSON to get the command (and its optional arguments)
                 // and perform it
                 executeCommand(JSON.parse(command));
             }
+
             ev.stopPropagation();
             ev.preventDefault();
         }

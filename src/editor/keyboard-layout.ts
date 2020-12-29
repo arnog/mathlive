@@ -466,7 +466,7 @@ export function platform(): 'apple' | 'windows' | 'linux' {
             /(ipad)/i.test(navigator.userAgent)
         ) {
             result = 'apple';
-        } else if (/\bCrOS\b/i.test(navigator.userAgent)) {
+        } else if (/\bcros\b/i.test(navigator.userAgent)) {
             result = 'linux';
         }
     }
@@ -549,13 +549,17 @@ export function normalizeKeyboardEvent(evt: KeyboardEvent): KeyboardEvent {
                     } else if (index === 1) {
                         shiftKey = true;
                     }
+
                     break;
                 }
             }
+
             if (code) break;
         }
+
         return new KeyboardEvent(evt.type, { ...evt, altKey, shiftKey, code });
     }
+
     return new KeyboardEvent(evt.type, evt);
 }
 
@@ -857,7 +861,7 @@ register({
         Digit9: ['9', ')', ']', '±'],
         Digit0: ['0', '=', '}', '°'],
         Enter: ['\r', '\r', '\r', '\r'],
-        Escape: ['\u001b', '\u001b', '\u001b', '\u001b'],
+        Escape: ['\u001B', '\u001B', '\u001B', '\u001B'],
         Backspace: ['\b', '\b', '\b', '\b'],
         Tab: ['\t', '', '\t', ''],
         Space: [' ', ' ', ' ', ' '],
@@ -941,7 +945,7 @@ register({
         Digit9: ['ç', '9', '^', '±'],
         Digit0: ['à', '0', '@', '°'],
         Enter: ['\r', '\r', '\r', '\r'],
-        Escape: ['\u001b', '\u001b', '\u001b', '\u001b'],
+        Escape: ['\u001B', '\u001B', '\u001B', '\u001B'],
         Backspace: ['\b', '\b', '\b', '\b'],
         Tab: ['\t', '', '\t', ''],
         Space: [' ', ' ', ' ', ' '],

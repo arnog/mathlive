@@ -22,8 +22,8 @@ import { requestUpdate } from './render';
 
 import type { MathfieldPrivate } from './mathfield-private';
 
-import { removeIsolatedSpace } from './smartmode';
-import { smartMode } from './smartmode';
+import { removeIsolatedSpace, smartMode } from './smartmode';
+
 import {
     getActiveKeyboardLayout,
     validateKeyboardLayout,
@@ -41,8 +41,8 @@ export function showKeystroke(
     const vb = mathfield.keystrokeCaption;
     if (vb && mathfield.keystrokeCaptionVisible) {
         const bounds = mathfield.element.getBoundingClientRect();
-        vb.style.left = bounds.left + 'px';
-        vb.style.top = bounds.top - 64 + 'px';
+        vb.style.left = `${bounds.left}px`;
+        vb.style.top = `${bounds.top - 64}px`;
         vb.innerHTML = mathfield.options.createHTML(
             '<span>' +
                 (getKeybindingMarkup(keystroke) || keystroke) +
@@ -50,10 +50,11 @@ export function showKeystroke(
                 vb.innerHTML
         );
         vb.style.visibility = 'visible';
-        setTimeout(function () {
+        setTimeout(() => {
             if (vb.childNodes.length > 0) {
-                vb.removeChild(vb.childNodes[vb.childNodes.length - 1]);
+                vb.childNodes[vb.childNodes.length - 1].remove();
             }
+
             if (vb.childNodes.length === 0) {
                 vb.style.visibility = 'hidden';
             }
@@ -69,7 +70,7 @@ export function onKeystroke(
     keystroke: string,
     evt: KeyboardEvent
 ): boolean {
-    const model = mathfield.model;
+    const { model } = mathfield;
 
     // 1. Update the keybindings according to the current keyboard layout
 
@@ -78,18 +79,19 @@ export function onKeystroke(
 
     const activeLayout = getActiveKeyboardLayout();
     if (mathfield.keyboardLayout !== activeLayout.id) {
-        // console.log('Switching to keyboard layout ' + activeLayout.id);
+        // Console.log('Switching to keyboard layout ' + activeLayout.id);
         mathfield.keyboardLayout = activeLayout.id;
         mathfield.keybindings = normalizeKeybindings(
             mathfield.options.keybindings,
-            (e) => {
+            (error) => {
                 if (typeof mathfield.options.onError === 'function') {
                     mathfield.options.onError({
                         code: 'invalid-keybinding',
-                        arg: e.join('\n'),
+                        arg: error.join('\n'),
                     });
                 }
-                console.log(e.join('\n'));
+
+                console.log(error.join('\n'));
             }
         );
     }
@@ -109,6 +111,7 @@ export function onKeystroke(
             evt.preventDefault();
             evt.stopPropagation();
         }
+
         return false;
     }
 
@@ -139,21 +142,18 @@ export function onKeystroke(
             const candidate = mathfield.keystrokeBuffer + c;
             let i = 0;
             while (!shortcut && i < candidate.length) {
-                let context: Atom[];
-                if (mathfield.keystrokeBufferStates[i]) {
-                    context = parseLatex(
-                        mathfield.keystrokeBufferStates[i].latex,
-                        mathfield.options.defaultMode,
-                        null,
-                        mathfield.options.macros
-                    );
-                } else {
-                    // The context is from the start of the group to the current position
-                    context = model.getAtoms(
-                        model.offsetOf(model.at(model.position).firstSibling),
-                        model.position
-                    );
-                }
+                const context: Atom[] = mathfield.keystrokeBufferStates[i]
+                    ? parseLatex(
+                          mathfield.keystrokeBufferStates[i].latex,
+                          mathfield.options.defaultMode,
+                          null,
+                          mathfield.options.macros
+                      )
+                    : // The context is from the start of the group to the current position
+                      model.getAtoms(
+                          model.offsetOf(model.at(model.position).firstSibling),
+                          model.position
+                      );
                 shortcut = getInlineShortcut(
                     context,
                     candidate.slice(i),
@@ -185,6 +185,7 @@ export function onKeystroke(
             }
         }
     }
+
     // 5.2. Should we switch mode?
     // Need to check this before determing if there's a valid shortcut
     // since if we switch to math mode, we may want to apply the shortcut
@@ -199,6 +200,7 @@ export function onKeystroke(
             mathfield.mode = { math: 'text', text: 'math' }[mathfield.mode];
             selector = '';
         }
+
         // Notify of mode change
         if (
             mathfield.mode !== previousMode &&
@@ -207,6 +209,7 @@ export function onKeystroke(
             mathfield.options.onModeChange(mathfield, mathfield.mode);
         }
     }
+
     // 5.3 Check if this matches a keybinding
     // Need to check this **after** checking for inline shortcuts because
     // shift+backquote is a keybinding that inserts "\~"", but "~~" is a
@@ -218,6 +221,7 @@ export function onKeystroke(
             keystroke
         );
     }
+
     if (
         !shortcut &&
         !selector &&
@@ -230,6 +234,7 @@ export function onKeystroke(
                 evt.preventDefault();
                 evt.stopPropagation();
             }
+
             return false;
         }
     }
@@ -238,6 +243,7 @@ export function onKeystroke(
     if (!shortcut && !selector) {
         return true;
     }
+
     if (mathfield.options.readOnly && selector[0] === 'insert') {
         return true;
     }
@@ -252,7 +258,7 @@ export function onKeystroke(
     // an empty (.) right delimiter
     //
     const child = model.at(Math.max(model.position, model.anchor));
-    const parent = child.parent;
+    const { parent } = child;
     if (
         selector === 'moveAfterParent' &&
         parent &&
@@ -266,6 +272,7 @@ export function onKeystroke(
         selector = '';
         requestUpdate(mathfield); // Re-render the closed smartFence
     }
+
     //
     // 6.2 If this is the Spacebar and we're just before or right after
     // a text zone, insert the space inside the text zone
@@ -280,6 +287,7 @@ export function onKeystroke(
             ModeEditor.insert('text', model, ' ');
         }
     }
+
     //
     // 6.3 If there's a selector, perform it.
     //
@@ -316,7 +324,7 @@ export function onKeystroke(
             const saveMode = mathfield.mode;
             ModeEditor.insert(mathfield.mode, model, eventToChar(evt), {
                 suppressChangeNotifications: true,
-                style: style,
+                style,
             });
             // Create a snapshot with the inserted character
             mathfield.snapshotAndCoalesce();
@@ -327,13 +335,14 @@ export function onKeystroke(
             );
             mathfield.mode = saveMode;
         }
+
         model.deferNotifications(
             { content: true, selection: true },
             (): boolean => {
                 // Insert the substitute, possibly as a smart fence
                 ModeEditor.insert(mathfield.mode, model, shortcut, {
                     format: 'latex',
-                    style: style,
+                    style,
                     smartFence: true,
                 });
                 // Check if as a result of the substitution there is now an isolated
@@ -344,6 +353,7 @@ export function onKeystroke(
                     mathfield.mode = 'text';
                     ModeEditor.insert('text', model, ' ', { style });
                 }
+
                 return true; // Content changed
             }
         );
@@ -369,6 +379,7 @@ export function onKeystroke(
         evt.preventDefault();
         evt.stopPropagation();
     }
+
     return false;
 }
 
@@ -393,11 +404,12 @@ export function onTypedText(
         simulateKeystroke?: boolean;
     }
 ): void {
-    const model = mathfield.model;
+    const { model } = mathfield;
     if (mathfield.options.readOnly) {
         model.announce('plonk');
         return;
     }
+
     options = options ?? {};
 
     //
@@ -406,12 +418,15 @@ export function onTypedText(
     if (options.focus) {
         mathfield.focus();
     }
+
     if (options.feedback) {
         if (mathfield.options.keypressVibration && navigator?.vibrate) {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
+
         mathfield.keypressSound?.play().catch(console.warn);
     }
+
     //
     // 2/ Switch mode if requested
     //
@@ -423,7 +438,7 @@ export function onTypedText(
     // 3/ Simulate keystroke, if requested
     //
     if (options.simulateKeystroke) {
-        // for (const c of text) {
+        // For (const c of text) {
         const c = text.charAt(0);
         const ev = new KeyboardEvent('keypress', { key: c });
         if (!onKeystroke(mathfield, c, ev)) {
@@ -439,12 +454,13 @@ export function onTypedText(
 
     const style: Style = {
         ...model.at(model.position).computedStyle,
-        // variant: 'main',
+        // Variant: 'main',
         ...mathfield.style,
     };
     if (!model.selectionIsCollapsed) {
         model.position = model.deleteAtoms(range(model.selection));
     }
+
     // Decompose the string into an array of graphemes.
     // This is necessary to correctly process what is displayed as a single
     // glyph (a grapheme) but which is composed of multiple Unicode
@@ -458,6 +474,7 @@ export function onTypedText(
             for (const c of graphemes) {
                 ModeEditor.insert('latex', model, c);
             }
+
             updateAutocomplete(mathfield);
         });
     } else if (mathfield.mode === 'text') {
@@ -472,13 +489,13 @@ export function onTypedText(
             // not mapped to  'Shift-Digit6'.
             const selector = {
                 '^': 'moveToSuperscript',
-                _: 'moveToSubscript',
+                '_': 'moveToSubscript',
                 ' ': 'moveAfterParent',
             }[c];
             if (selector) {
                 mathfield.executeCommand(selector);
             } else if (
-                /[0-9]/.test(c) &&
+                /\d/.test(c) &&
                 mathfield.options.smartSuperscript &&
                 model.at(model.position).treeBranch === 'superscript' &&
                 model.at(model.position).hasNoSiblings

@@ -2,9 +2,14 @@
     "extends": "./tsconfig.json",
     "include": [
         "./src",
+        "./test",
+        "./tutorials",
+        "./*.js",
         "**/*.js",
-        "**/*.config.js",
         "**/*.test.ts",
-        "**/*.less"
-    ]
+        "**/*.spec.ts",
+        "**/*.less",
+        "./submodules"
+    ],
+    "exclude": ["coverage", "node_modules", "dist", "build", "examples"]
 }

@@ -1,9 +1,9 @@
-import { Range } from '../public/mathfield';
+/* eslint-disable no-new */
+import { Range, InsertOptions } from '../public/mathfield';
 import { ModeEditor } from './mode-editor';
 import { TextAtom } from '../core-atoms/text';
 import { MathfieldPrivate } from './mathfield-private';
 import { requestUpdate } from './render';
-import { InsertOptions } from '../public/mathfield';
 
 import { parseLatex } from '../core/core';
 import { Atom } from '../core/atom-class';
@@ -16,6 +16,7 @@ export class TextModeEditor extends ModeEditor {
     constructor() {
         super('text');
     }
+
     onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
         const text = ev.clipboardData.getData('text/plain');
 
@@ -23,12 +24,15 @@ export class TextModeEditor extends ModeEditor {
             if (this.insert(mathfield.model, text)) {
                 requestUpdate(mathfield);
             }
+
             ev.preventDefault();
             ev.stopPropagation();
             return true;
         }
+
         return false;
     }
+
     onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
         const r: Range = mathfield.model.selectionIsCollapsed
             ? [0, mathfield.model.lastOffset]
@@ -44,6 +48,7 @@ export class TextModeEditor extends ModeEditor {
         // Prevent the current document selection from being written to the clipboard.
         ev.preventDefault();
     }
+
     insert(
         model: ModelPrivate,
         text: string,
@@ -54,10 +59,11 @@ export class TextModeEditor extends ModeEditor {
         if (!options.format) options.format = 'auto';
         options.macros = options.macros ?? model.options.macros;
 
-        const suppressChangeNotifications = model.suppressChangeNotifications;
+        const { suppressChangeNotifications } = model;
         if (options.suppressChangeNotifications) {
             model.suppressChangeNotifications = true;
         }
+
         const contentWasChanging = model.suppressChangeNotifications;
         model.suppressChangeNotifications = true;
 
@@ -97,10 +103,8 @@ export class TextModeEditor extends ModeEditor {
             // Do nothing: don't change the position.
         } else if (options.selectionMode === 'item') {
             model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
-        } else {
-            if (lastNewAtom) {
-                model.position = model.offsetOf(lastNewAtom);
-            }
+        } else if (lastNewAtom) {
+            model.position = model.offsetOf(lastNewAtom);
         }
 
         contentDidChange(model);
@@ -120,7 +124,7 @@ function convertStringToAtoms(s: string): Atom[] {
     s = s.replace(/\$/g, '\\$');
     s = s.replace(/%/g, '\\%');
     s = s.replace(/&/g, '\\&');
-    // s = s.replace(/:/g, '\\colon');     // text colon?
+    // S = s.replace(/:/g, '\\colon');     // text colon?
     // s = s.replace(/\[/g, '\\lbrack');
     // s = s.replace(/]/g, '\\rbrack');
     s = s.replace(/_/g, '\\_');
@@ -132,4 +136,5 @@ function convertStringToAtoms(s: string): Atom[] {
 
     return parseLatex(s, 'text');
 }
+
 new TextModeEditor();

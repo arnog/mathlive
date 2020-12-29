@@ -4,7 +4,7 @@ import { Context } from '../core/context';
 import type { Style } from '../public/core';
 
 export class OverlapAtom extends Atom {
-    private align?: 'left' | 'right';
+    private readonly align?: 'left' | 'right';
     constructor(
         command: string,
         body: Atom[],
@@ -15,6 +15,7 @@ export class OverlapAtom extends Atom {
         this.body = body;
         this.align = options?.align ?? 'left';
     }
+
     render(context: Context): Span[] {
         // For llap (18), rlap (270), clap (0)
         // smash (common), mathllap (0), mathrlap (0), mathclap (0)

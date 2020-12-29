@@ -32,13 +32,14 @@ function metadata(
             MATH_SYMBOLS[symbol].category = category;
             MATH_SYMBOLS[symbol].template = template.replace(/\$0/g, symbol);
         }
+
         if (FUNCTIONS[symbol]) {
             // Make a copy of the entry, since it could be shared by multiple
             // symbols
             FUNCTIONS[symbol] = {
                 ...FUNCTIONS[symbol],
-                frequency: frequency,
-                category: category,
+                frequency,
+                category,
                 template: template.replace(/\$0/g, symbol),
             };
         }
@@ -210,7 +211,7 @@ metadata(
 metadata('Styling', ['\\fontseries'], RARE, '\\text{$0{b}Don Knuth}');
 metadata('Styling', ['\\fontfamily'], RARE, '\\text{$0{cmtt}Don Knuth}');
 metadata('Styling', ['\\fontshape'], RARE, '\\text{$0{sc}Don Knuth}');
-metadata('Styling', ['\\selectfont'], RARE, '\\text{$0}'); // no-op, but only valid in text mode
+metadata('Styling', ['\\selectfont'], RARE, '\\text{$0}'); // No-op, but only valid in text mode
 
 metadata('Styling', ['\\emph'], RARE, 'Don$0{Knuth}');
 metadata('Styling', ['\\em'], RARE, 'Don{$0 Knuth}');

@@ -25,18 +25,21 @@ export class SurdAtom extends Atom {
         this.body = options.body;
         this.above = options.index;
     }
+
     toLatex(options: ToLatexOptions): string {
         let args = '';
         if (this.above) {
             args += `[${this.aboveToLatex(options)}]`;
         }
+
         args += `{${this.bodyToLatex(options)}}`;
         return this.command + args;
     }
+
     render(context: Context): Span[] {
         // See the TeXbook pg. 443, Rule 11.
         // http://www.ctex.org/documents/shredder/src/texbook.pdf
-        const mathstyle = context.mathstyle;
+        const { mathstyle } = context;
         // First, we do the same steps as in overline to build the inner group
         // and line
         const inner = Atom.render(context.cramp(), this.body) ?? new Span('');
@@ -46,6 +49,7 @@ export class SurdAtom extends Atom {
         if (mathstyle.id < MATHSTYLES.textstyle.id) {
             phi = mathstyle.metrics.xHeight;
         }
+
         // Calculate the clearance between the body and line
         let lineClearance = ruleWidth + phi / 4;
         const innerTotalHeight = Math.max(
