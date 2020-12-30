@@ -218,7 +218,7 @@ class Parser {
    * one, or if a value was provided for #? via args, that value.
    */
   placeholder(): Atom[] {
-    if (!this.args || typeof this.args['?'] === 'undefined') {
+    if (!this.args || this.args['?'] === undefined) {
       return [
         new PlaceholderAtom({
           mode: this.parseMode,
@@ -1063,7 +1063,7 @@ class Parser {
         explicitGroup = parameter.type.slice(0, -1) as ParseMode;
       } else {
         const arg = this.parseArgument(parameter.type);
-        if (typeof arg !== 'undefined') {
+        if (arg !== undefined) {
           args.push(arg);
         } else {
           // Report an error

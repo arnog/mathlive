@@ -100,7 +100,7 @@ function toString(arg: (string | number)[] | string | number): string {
     return Number(Math.ceil(1e2 * arg) / 1e2).toString();
   }
 
-  if (typeof arg === 'undefined') {
+  if (arg === undefined) {
     return '';
   }
 

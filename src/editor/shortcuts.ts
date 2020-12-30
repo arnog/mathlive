@@ -83,10 +83,7 @@ function validateShortcut(
 
   nothing = !sibling || sibling.type === 'first'; // Start of a group
   if (sibling) {
-    if (
-      typeof shortcut.mode !== 'undefined' &&
-      sibling.mode !== shortcut.mode
-    ) {
+    if (shortcut.mode !== undefined && sibling.mode !== shortcut.mode) {
       return '';
     }
 
@@ -105,7 +102,7 @@ function validateShortcut(
     space = sibling.type === 'space';
   }
 
-  if (typeof shortcut.after !== 'undefined') {
+  if (shortcut.after !== undefined) {
     // If this is a conditional shortcut, consider the conditions now
     if (
       (shortcut.after.includes('nothing') && nothing) ||

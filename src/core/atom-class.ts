@@ -420,7 +420,7 @@ export class Atom {
       result = value.toString();
     } else if (typeof value === 'string') {
       result = value.replace(/\s/g, '~');
-    } else if (typeof value !== 'undefined') {
+    } else if (value !== undefined) {
       // If we have some verbatim latex for this atom, use it.
       // This allow non-significant punctuation to be preserved when possible.
       if (!options.expandMacro && typeof value.latex === 'string') {

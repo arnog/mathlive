@@ -100,7 +100,7 @@ export class ModelPrivate implements Model {
       //
       const value = this.normalizeSelection(arg1, arg2);
 
-      if (typeof value === 'undefined') {
+      if (value === undefined) {
         throw new TypeError('Invalid selection');
       }
 
@@ -275,7 +275,7 @@ export class ModelPrivate implements Model {
 
     if (!Number.isFinite(start)) return [];
 
-    if (typeof options.includeChildren === 'undefined') {
+    if (options.includeChildren === undefined) {
       options.includeChildren = false;
     }
 
@@ -398,7 +398,7 @@ export class ModelPrivate implements Model {
     arg2?: Offset | OutputFormat,
     arg3?: OutputFormat
   ): string {
-    if (typeof arg1 === 'undefined') {
+    if (arg1 === undefined) {
       // GetValue()
       return this.atomToString(this.root, 'latex');
     }

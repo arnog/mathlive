@@ -162,7 +162,7 @@ function getNodeBounds(node: Element): Rect {
     left: bounds.left,
     right: bounds.right,
   };
-  if (node.tagName !== 'svg') {
+  if (node.tagName !== 'SVG') {
     [...node.children].forEach((x) => {
       if (x.nodeType === 1) {
         const r: Rect = getNodeBounds(x);

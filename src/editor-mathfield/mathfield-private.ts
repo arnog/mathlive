@@ -307,8 +307,7 @@ export class MathfieldPrivate implements Mathfield {
       (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        const wheelDelta =
-          typeof ev.deltaX === 'undefined' ? ev.detail : -ev.deltaX;
+        const wheelDelta = ev.deltaX === undefined ? ev.detail : -ev.deltaX;
         if (Number.isFinite(wheelDelta)) {
           this.field.scroll({
             top: 0,
@@ -772,11 +771,11 @@ export class MathfieldPrivate implements Mathfield {
 
   setValue(value: string, options?: InsertOptions): void {
     options = options ?? { mode: 'math' };
-    if (typeof options.insertionMode === 'undefined') {
+    if (options.insertionMode === undefined) {
       options.insertionMode = 'replaceAll';
     }
 
-    if (typeof options.format === 'undefined' || options.format === 'auto') {
+    if (options.format === undefined || options.format === 'auto') {
       options.format = 'latex';
     }
 
@@ -891,7 +890,7 @@ export class MathfieldPrivate implements Mathfield {
       }
     }
 
-    if (typeof caretPoint !== 'undefined') {
+    if (caretPoint !== undefined) {
       const x = caretPoint - window.scrollX;
       if (x < fieldBounds.left) {
         this.field.scroll({
@@ -1122,7 +1121,7 @@ export class MathfieldPrivate implements Mathfield {
     this.model.deferNotifications(
       { content: !options.suppressChangeNotifications },
       () => {
-        if (typeof options.range === 'undefined') {
+        if (options.range === undefined) {
           this.model.selection.ranges.forEach((range) =>
             applyStyle(this.model, range, style, { operation })
           );

@@ -679,7 +679,7 @@ function asMachineNumber(node): number {
 }
 
 function isNumber(node): boolean {
-  return typeof node === 'object' && typeof node.num !== 'undefined';
+  return typeof node === 'object' && node.num !== undefined;
 }
 
 function numberRe(node): number {
@@ -687,9 +687,7 @@ function numberRe(node): number {
   if (isNumber(node)) {
     if (typeof node.num === 'object') {
       result =
-        typeof node.num.re !== 'undefined'
-          ? parseFloatToPrecision(node.num.re)
-          : 0;
+        node.num.re !== undefined ? parseFloatToPrecision(node.num.re) : 0;
     } else {
       result = Number.parseFloat(node.num);
     }

@@ -148,7 +148,7 @@ export class UndoManager {
    */
   restore(state: UndoRecord, options: UndoOptions): void {
     const wasSuppressing = this.model.suppressChangeNotifications;
-    if (typeof options.suppressChangeNotifications !== 'undefined') {
+    if (options.suppressChangeNotifications !== undefined) {
       this.model.suppressChangeNotifications =
         options.suppressChangeNotifications;
     }

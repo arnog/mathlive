@@ -212,7 +212,7 @@ export function update(
 
   // @revisit 1.0: for backward compatibility, interprets the overrideDefaultInlineShortcuts
   // property
-  if (typeof updates.overrideDefaultInlineShortcuts !== 'undefined') {
+  if (updates.overrideDefaultInlineShortcuts !== undefined) {
     if (updates.overrideDefaultInlineShortcuts) {
       result.inlineShortcuts = updates.inlineShortcuts;
     } else {
@@ -233,7 +233,7 @@ export function get(
   let resolvedKeys: string[];
   if (typeof keys === 'string') {
     resolvedKeys = [keys];
-  } else if (typeof keys === 'undefined') {
+  } else if (keys === undefined) {
     resolvedKeys = Object.keys(config);
   } else {
     resolvedKeys = keys;

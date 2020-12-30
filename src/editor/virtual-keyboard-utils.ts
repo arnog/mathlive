@@ -1113,7 +1113,7 @@ export function makeKeycap(
         '</aside>';
     }
 
-    if (typeof html !== 'undefined') {
+    if (html !== undefined) {
       element.innerHTML = keyboard.options.createHTML(html);
     }
 

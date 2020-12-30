@@ -169,7 +169,7 @@ export class MathMode extends Mode {
                 // In addition, the 'main' and 'math' font technically
                 // map to \mathnormal{}
               }[value];
-              console.assert(typeof command !== 'undefined');
+              console.assert(command !== undefined);
             }
 
             return (

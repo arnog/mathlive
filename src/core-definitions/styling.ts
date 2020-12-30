@@ -111,8 +111,8 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
           let result = name;
           if (
             Number.isFinite(atom.padding) ||
-            typeof atom.border !== 'undefined' ||
-            typeof atom.backgroundcolor !== 'undefined'
+            atom.border !== undefined ||
+            atom.backgroundcolor !== undefined
           ) {
             const bboxParameters = [];
             if (Number.isFinite(atom.padding)) {

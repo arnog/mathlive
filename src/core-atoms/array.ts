@@ -303,7 +303,7 @@ export class ArrayAtom extends Atom {
         previousColContent = true;
         previousColRule = false;
         firstColumn = false;
-      } else if (typeof colDesc.gap !== 'undefined') {
+      } else if (colDesc.gap !== undefined) {
         // Something to insert in between columns of content
         if (typeof colDesc.gap === 'number') {
           // It's a number, indicating how much space, in em,
@@ -408,7 +408,7 @@ export class ArrayAtom extends Atom {
     let result = '\\begin{' + this.environmentName + '}';
     if (this.environmentName === 'array') {
       result += '{';
-      if (typeof this.colFormat !== 'undefined') {
+      if (this.colFormat !== undefined) {
         for (let i = 0; i < this.colFormat.length; i++) {
           if (this.colFormat[i].align) {
             result += this.colFormat[i].align;

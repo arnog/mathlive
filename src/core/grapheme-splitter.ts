@@ -46,7 +46,7 @@ let emojiCombinator: Record<number, boolean>;
 const REGIONAL_INDICATOR = [0x1f1e6, 0x1f1ff];
 
 function isEmojiCombinator(code: number): boolean {
-  if (typeof emojiCombinator === 'undefined') {
+  if (emojiCombinator === undefined) {
     emojiCombinator = {};
     EMOJI_COMBINATOR.forEach((x) => {
       for (let i = x[0]; i <= x[0] + x[1] - 1; i++) {

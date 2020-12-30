@@ -25,7 +25,7 @@ function convertLastAtomsToText(
     count = Infinity;
   }
 
-  if (typeof count === 'undefined') {
+  if (count === undefined) {
     count = Infinity;
   }
 
@@ -73,7 +73,7 @@ function convertLastAtomsToMath(
     count = Infinity;
   }
 
-  if (typeof count === 'undefined') {
+  if (count === undefined) {
     count = Infinity;
   }
 

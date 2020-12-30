@@ -107,7 +107,7 @@ export class Context implements ContextInterface {
    */
   clone(override: ContextInterface = {}): Context {
     const result = new Context(this);
-    if (typeof override !== 'undefined') {
+    if (override !== undefined) {
       // `'auto'` (or undefined) to indicate that the mathstyle should in
       // fact not be changed. This is used when specifying the mathstyle
       // for some environments.
