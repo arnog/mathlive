@@ -1410,7 +1410,7 @@ class Parser {
 
     if (
       result instanceof Atom &&
-      !/^\\(llap|rlap|class|cssId)$/.test(command)
+      !/^\\(llap|rlap|class|cssId|data)$/.test(command)
     ) {
       const argString = tokensToString(
         this.tokens.slice(initialIndex, this.index)
