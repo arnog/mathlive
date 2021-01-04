@@ -494,7 +494,7 @@ defineFunction('cssId', '{id:string}{content:auto}', {
     }),
 });
 
-/* A MathJax extension: assign an ID to the element */
+/*  assign an property to the element */
 defineFunction('data', '{data:string}{content:auto}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom =>
     new GroupAtom(args[1] as Atom[], {

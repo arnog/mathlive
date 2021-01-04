@@ -443,14 +443,6 @@ export class Span {
         result += ' id="' + this.cssId + '" ';
       }
 
-      if (this.attributes) {
-        result +=
-          ' ' +
-          Object.keys(this.attributes)
-            .map((x) => `${x}="${this.attributes[x]}"`)
-            .join(' ');
-      }
-
       if (this.data) {
         const entries = this.data.split(',');
         for (const entry of entries) {
@@ -459,6 +451,14 @@ export class Span {
             result += `udata-${matched[1]}=${matched[2]} `;
           }
         }
+      }
+
+      if (this.attributes) {
+        result +=
+          ' ' +
+          Object.keys(this.attributes)
+            .map((x) => `${x}="${this.attributes[x]}"`)
+            .join(' ');
       }
 
       if (this.attributes) {
