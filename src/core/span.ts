@@ -461,14 +461,6 @@ export class Span {
             .join(' ');
       }
 
-      if (this.attributes) {
-        result +=
-          ' ' +
-          Object.keys(this.attributes)
-            .map((x) => `${x}="${this.attributes[x]}"`)
-            .join(' ');
-      }
-
       const classes = this.classes.split(' ');
 
       // Add the type (mbin, mrel, etc...) if specified
