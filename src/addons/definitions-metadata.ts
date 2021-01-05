@@ -188,6 +188,7 @@ metadata(
     '\\ttfamily',
     '\\class',
     '\\cssId',
+    '\\htmlData',
   ],
   RARE,
   '{$0 Don Knuth}'

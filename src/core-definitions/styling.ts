@@ -494,6 +494,15 @@ defineFunction('cssId', '{id:string}{content:auto}', {
     }),
 });
 
+/*  assign an property to the element */
+defineFunction('htmlData', '{data:string}{content:auto}', {
+  createAtom: (command: string, args: Argument[], style: Style): Atom =>
+    new GroupAtom(args[1] as Atom[], {
+      htmlData: args[0] as string,
+      style,
+    }),
+});
+
 /* Note: in TeX, \em is restricted to text mode. We extend it to math
  * This is the 'switch' variant of \emph, i.e:
  * `\emph{important text}`
