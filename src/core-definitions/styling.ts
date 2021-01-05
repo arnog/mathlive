@@ -495,10 +495,10 @@ defineFunction('cssId', '{id:string}{content:auto}', {
 });
 
 /*  assign an property to the element */
-defineFunction('data', '{data:string}{content:auto}', {
+defineFunction('htmlData', '{data:string}{content:auto}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom =>
     new GroupAtom(args[1] as Atom[], {
-      data: args[0] as string,
+      htmlData: args[0] as string,
       style,
     }),
 });

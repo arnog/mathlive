@@ -136,7 +136,7 @@ function toString(arg: (string | number)[] | string | number): string {
  * @property classes - A string of space separated CSS classes
  * associated with this element
  * @property cssId - A CSS ID assigned to this span (optional)
- * @property data - data fields assigned to this span (optional)
+ * @property htmlData - data fields assigned to this span (optional)
  * @property children - An array, potentially empty, of spans which
  * this span encloses
  * @property body - Content of this span. Can be empty.
@@ -167,7 +167,7 @@ export class Span {
   isTight?: boolean;
 
   cssId?: string;
-  data?: string;
+  htmlData?: string;
 
   svgBody?: string;
   svgOverlay?: string;
@@ -428,7 +428,7 @@ export class Span {
       (body === '\u200B' || (!body && !this.svgBody)) &&
       !this.classes &&
       !this.cssId &&
-      !this.data &&
+      !this.htmlData &&
       !this.style &&
       !this.svgOverlay
     ) {
@@ -443,12 +443,12 @@ export class Span {
         result += ' id="' + this.cssId + '" ';
       }
 
-      if (this.data) {
-        const entries = this.data.split(',');
+      if (this.htmlData) {
+        const entries = this.htmlData.split(',');
         for (const entry of entries) {
           const matched = entry.match(/([^=]+)=(.+$)/);
           if (matched) {
-            result += `udata-${matched[1]}=${matched[2]} `;
+            result += `data-${matched[1]}=${matched[2]} `;
           }
         }
       }

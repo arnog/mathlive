@@ -9,7 +9,7 @@ export class GroupAtom extends Atom {
   latexOpen?: string;
   latexClose?: string;
   cssId?: string;
-  data?: string;
+  htmlData?: string;
   customClass?: string;
   mathStyleName: MathStyleName;
   constructor(
@@ -19,7 +19,7 @@ export class GroupAtom extends Atom {
       latexOpen?: string;
       latexClose?: string;
       cssId?: string;
-      data?: string;
+      htmlData?: string;
       customClass?: string;
       mode?: ParseMode;
       style?: Style;
@@ -37,7 +37,7 @@ export class GroupAtom extends Atom {
     this.latexOpen = options?.latexOpen;
     this.latexClose = options?.latexClose;
     this.cssId = options?.cssId;
-    this.data = options?.data;
+    this.htmlData = options?.htmlData;
     this.customClass = options?.customClass;
 
     this.skipBoundary = true;
@@ -57,7 +57,7 @@ export class GroupAtom extends Atom {
     });
     const span = new Span(Atom.render(localContext, this.body), '', 'mord'); // @revisit
     if (this.cssId) span.cssId = this.cssId;
-    if (this.data) span.data = this.data;
+    if (this.htmlData) span.htmlData = this.htmlData;
     span.applyStyle(
       this.mode,
       {
@@ -84,8 +84,8 @@ export class GroupAtom extends Atom {
     if (this.cssId) {
       return `\\cssId{${this.cssId}}${body}}`;
     }
-    if (this.data) {
-      return `\\data{${this.data}}${body}}`;
+    if (this.htmlData) {
+      return `\\htmlData{${this.htmlData}}${body}}`;
     }
     if (this.customClass) {
       return `\\class{${this.customClass}}${body}}`;
