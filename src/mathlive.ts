@@ -282,7 +282,7 @@ function revertToOriginalContent(
   element: string | HTMLElement,
   options: AutoRenderOptionsPrivate
 ): void {
-  deprecated('revertToOriginalContent');
+  deprecatedDefaultImport('revertToOriginalContent');
   //  If (element instanceof MathfieldPrivate) {
   //      element.$revertToOriginalContent();
   //    } else {
@@ -303,7 +303,7 @@ function getOriginalContent(
   element: string | HTMLElement,
   options: AutoRenderOptionsPrivate
 ): string {
-  deprecated('getOriginalContent');
+  deprecatedDefaultImport('getOriginalContent');
   if (element instanceof MathfieldPrivate) {
     return element.originalContent;
   }
@@ -320,8 +320,20 @@ function getOriginalContent(
 // This SDK_VERSION variable will be replaced during the build process.
 const version = '{{SDK_VERSION}}';
 
-function deprecated(method: string) {
-  console.warn(`Function "${method}" is deprecated`);
+function deprecated(method: string, remedy: string) {
+  console.warn(`"${method}" is deprecated. 
+${remedy ?? ''}`);
+}
+
+function deprecatedDefaultImport(method: string) {
+  console.warn(`Using "${method}" as a default import is deprecated.
+Instead of
+    import Mathlive from 'mathlive';
+    ${method}(...);
+use
+   import ${method} from 'mathlive;
+   ${method}(...)  
+`);
 }
 
 export const debug = {
@@ -342,7 +354,7 @@ export const debug = {
 
 export default {
   version: (): string => {
-    deprecated('export default version');
+    deprecatedDefaultImport('version');
     return version;
   },
   latexToMarkup: (
@@ -355,7 +367,7 @@ export default {
       format?: string;
     }
   ): string => {
-    deprecated('export default latexToMarkup');
+    deprecatedDefaultImport('latexToMarkup');
     return latexToMarkup(text, options);
   },
   latexToMathML: (
@@ -366,7 +378,7 @@ export default {
       generateID: boolean;
     }>
   ): string => {
-    deprecated('export default latexToMathML');
+    deprecatedDefaultImport('latexToMathML');
     return latexToMathML(latex, options);
   },
   latexToSpeakableText: (
@@ -378,7 +390,7 @@ export default {
       }
     >
   ): string => {
-    deprecated('export default latexToSpeakableText');
+    deprecatedDefaultImport('latexToSpeakableText');
     return latexToSpeakableText(latex, options);
   },
   latexToAST: (
@@ -388,43 +400,43 @@ export default {
       onError?: ErrorListener<ParserErrorCode | string>;
     }
   ): string => {
-    deprecated('export default latexToAST: use MathJSON');
+    deprecated('latexToAST', 'Use MathJSON.');
     return latexToAST(latex, options);
   },
   astToLatex: (expr: MathJson, options: MathJsonLatexOptions): string => {
-    deprecated('export default astToLatex: use MathJSON');
+    deprecated('astToLatex', 'Use MathJSON.');
     return astToLatex(expr, options);
   },
   makeMathField: (
     element: HTMLElement,
     options: Partial<MathfieldOptions>
   ): Mathfield => {
-    deprecated('export default makeMathField');
+    deprecatedDefaultImport('makeMathField');
     return makeMathField(element, options);
   },
   renderMathInDocument: (options?: AutoRenderOptionsPrivate): void => {
-    deprecated('export default renderMathInDocument');
+    deprecatedDefaultImport('renderMathInDocument');
     renderMathInDocument(options);
   },
   renderMathInElement: (
     element: HTMLElement,
     options: AutoRenderOptionsPrivate
   ): void => {
-    deprecated('export default renderMathInElement');
+    deprecatedDefaultImport('renderMathInElement');
     renderMathInElement(element, options);
   },
   revertToOriginalContent: (
     element: string | HTMLElement,
     options: AutoRenderOptionsPrivate
   ): void => {
-    deprecated('export default revertToOriginalContent');
+    deprecatedDefaultImport('revertToOriginalContent');
     revertToOriginalContent(element, options);
   },
   getOriginalContent: (
     element: string | HTMLElement,
     options: AutoRenderOptionsPrivate
   ): void => {
-    deprecated('export default getOriginalContent');
+    deprecatedDefaultImport('getOriginalContent');
     getOriginalContent(element, options);
   },
 
@@ -433,23 +445,23 @@ export default {
     text: string,
     config: Partial<MathfieldOptions>
   ): void => {
-    deprecated('export default readAloud');
+    deprecatedDefaultImport('readAloud');
     return defaultReadAloudHook(element, text, config);
   },
   readAloudStatus: (): string => {
-    deprecated('export default readAloudStatus');
+    deprecatedDefaultImport('readAloudStatus');
     return readAloudStatus();
   },
   pauseReadAloud: (): void => {
-    deprecated('export default pauseReadAloud');
+    deprecatedDefaultImport('pauseReadAloud');
     pauseReadAloud();
   },
   resumeReadAloud: (): void => {
-    deprecated('export default resumeReadAloud');
+    deprecatedDefaultImport('resumeReadAloud');
     resumeReadAloud();
   },
   playReadAloud: (token: string, count: number): void => {
-    deprecated('export default playReadAloud');
+    deprecatedDefaultImport('playReadAloud');
     playReadAloud(token, count);
   },
 };
