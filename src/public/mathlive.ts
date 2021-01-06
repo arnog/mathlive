@@ -70,7 +70,7 @@ export declare const version: string;
  */
 export declare function makeMathField(
   element: HTMLElement | string,
-  options: MathfieldOptions
+  options: Partial<MathfieldOptions>
 ): Mathfield;
 
 /**
