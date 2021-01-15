@@ -145,6 +145,7 @@ MathLive.renderMathInElement(document.getElementById('formulas'), {
                 ['$', '$'],
                 ['\\(', '\\)'],
             ],
+            display: [],
         },
     },
 });
