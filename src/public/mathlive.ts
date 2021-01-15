@@ -430,7 +430,10 @@ export type AutoRenderOptions = {
      * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ] ], inline: [ ['\\(','\\)'] ] ]}`
      *
      */
-    delimiters?: { display: string[][]; inline: string[][] };
+    delimiters?: {
+      display: [openDelim: string, closeDelim: string][];
+      inline: [openDelim: string, closeDelim: string][];
+    };
   };
 };
 

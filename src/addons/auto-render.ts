@@ -177,7 +177,10 @@ function splitAtDelimiters(
 
 function splitWithDelimiters(
   text: string,
-  delimiters
+  delimiters: {
+    display: [openDelim: string, closeDelim: string][];
+    inline: [openDelim: string, closeDelim: string][];
+  }
 ): {
   type: string;
   data: string;
@@ -185,16 +188,17 @@ function splitWithDelimiters(
   mathstyle?: string;
 }[] {
   let data = [{ type: 'text', data: text }];
-  for (let i = 0; i < delimiters.inline.length; i++) {
-    const delimiter = delimiters.inline[i];
-    data = splitAtDelimiters(data, delimiter[0], delimiter[1], 'textstyle');
+  if (delimiters.inline) {
+    delimiters.inline.forEach(([openDelim, closeDelim]) => {
+      data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
+    });
   }
 
-  for (let i = 0; i < delimiters.display.length; i++) {
-    const delimiter = delimiters.display[i];
-    data = splitAtDelimiters(data, delimiter[0], delimiter[1], 'displaystyle');
+  if (delimiters.display) {
+    delimiters.display.forEach(([openDelim, closeDelim]) => {
+      data = splitAtDelimiters(data, openDelim, closeDelim, 'displaystyle');
+    });
   }
-
   return data;
 }
 
