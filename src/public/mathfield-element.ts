@@ -148,22 +148,116 @@ const gDeferredState = new WeakMap<
   }
 >();
 
+/**
+ * These attributes of the `<math-field>` element correspond to the
+ * [MathfieldOptions] properties.
+ */
 export interface MathfieldElementAttributes {
   // Allow for global aria attributes, data- attributes, micro-data attributes
   // and global element attributes
   [key: string]: number | string | boolean | undefined;
   'default-mode': string;
   'fonts-directory': string;
+  /**
+   * Scaling factor to be applied to horizontal spacing between elements of
+   * the formula. A value greater than 1.0 can be used to improve the
+   * legibility.
+   *
+   */
   'horizontal-spacing-scale': string;
   'ignore-spacebar-in-math-mode': boolean;
+  /**
+   * Maximum time, in milliseconds, between consecutive characters for them to be
+   * considered part of the same shortcut sequence.
+   *
+   * A value of 0 is the same as infinity: any consecutive character will be
+   * candidate for an inline shortcut, regardless of the interval between this
+   * character and the previous one.
+   *
+   * A value of 750 will indicate that the maximum interval between two
+   * characters to be considered part of the same inline shortcut sequence is
+   * 3/4 of a second.
+   *
+   * This is useful to enter "+-" as a sequence of two characters, while also
+   * supporting the "±" shortcut with the same sequence.
+   *
+   * The first result can be entered by pausing slightly between the first and
+   * second character if this option is set to a value of 250 or so.
+   *
+   * Note that some operations, such as clicking to change the selection, or
+   * losing the focus on the mathfield, will automatically timeout the
+   * shortcuts.
+   */
   'inline-shortcut-timeout': string;
   'keypress-vibration': boolean;
   'letter-shape-style': string;
+  /**
+   * The locale (language + region) to use for string localization.
+   *
+   * If none is provided, the locale of the browser is used.
+   *
+   */
   'locale': string;
+  /** When true, the user cannot edit the mathfield. */
   'read-only': boolean;
   'remove-extraneous-parentheses': boolean;
+  /**
+   * When `true` and an open fence is entered via `typedText()` it will
+   * generate a contextually appropriate markup, for example using
+   * `\left...\right` if applicable.
+   *
+   * When `false`, the literal value of the character will be inserted instead.
+   */
   'smart-fence': boolean;
+  /**
+   * When true, during text input the field will switch automatically between
+   * 'math' and 'text' mode depending on what is typed and the context of the
+   * formula. If necessary, what was previously typed will be 'fixed' to
+   * account for the new info.
+   *
+   * For example, when typing "if x >0":
+   *
+   * | Type  | Interpretation |
+   * |---:|:---|
+   * | "i" | math mode, imaginary unit |
+   * | "if" | text mode, english word "if" |
+   * | "if x" | all in text mode, maybe the next word is xylophone? |
+   * | "if x >" | "if" stays in text mode, but now "x >" is in math mode |
+   * | "if x > 0" | "if" in text mode, "x > 0" in math mode |
+   *
+   * Smart Mode is off by default.
+   *
+   * Manually switching mode (by typing `alt/option+=`) will temporarily turn
+   * off smart mode.
+   *
+   *
+   * **Examples**
+   *
+   * -   slope = rise/run
+   * -   If x > 0, then f(x) = sin(x)
+   * -   x^2 + sin (x) when x > 0
+   * -   When x<0, x^{2n+1}<0
+   * -   Graph x^2 -x+3 =0 for 0<=x<=5
+   * -   Divide by x-3 and then add x^2-1 to both sides
+   * -   Given g(x) = 4x – 3, when does g(x)=0?
+   * -   Let D be the set {(x,y)|0<=x<=1 and 0<=y<=x}
+   * -   \int\_{the unit square} f(x,y) dx dy
+   * -   For all n in NN
+   *
+   */
   'smart-mode': boolean;
+  /**
+   * When `true`, when a digit is entered in an empty superscript, the cursor
+   * leaps automatically out of the superscript. This makes entry of common
+   * polynomials easier and faster. If entering other characters (for example
+   * "n+1") the navigation out of the superscript must be done manually (by
+   * using the cursor keys or the spacebar to leap to the next insertion
+   * point).
+   *
+   * When `false`, the navigation out of the superscript must always be done
+   * manually.
+   *
+   */
   'smart-superscript': boolean;
   'speech-engine': string;
   'speech-engine-rate': string;
@@ -171,10 +265,71 @@ export interface MathfieldElementAttributes {
   'text-to-speech-markup': string;
   'text-to-speech-rules': string;
   'virtual-keyboard-layout': string;
-  'virtual-keyboard-mode': string;
+  /**
+   * -   `'manual'`: pressing the virtual keyboard toggle button will show or hide
+   *     the virtual keyboard. If hidden, the virtual keyboard is not shown when
+   *     the field is focused until the toggle button is pressed.
+   * -   `'onfocus'`: the virtual keyboard will be displayed whenever the field is
+   *     focused and hidden when the field loses focus. In that case, the virtual
+   *     keyboard toggle button is not displayed.
+   * -   `'off'`: the virtual keyboard toggle button is not displayed, and the
+   *     virtual keyboard is never triggered.
+   *
+   * If the setting is empty, it will default to `'onfocus'` on touch-capable
+   * devices and to `'off'` otherwise.
+   *
+   */
+  'virtual-keyboard-mode': 'auto' | 'manual' | 'onfocus' | 'off';
+  /**
+   * The visual theme used for the virtual keyboard.
+   *
+   * If empty, the theme will switch automatically based on the device it's
+   * running on. The two supported themes are 'material' and 'apple' (the
+   * default).
+   */
   'virtual-keyboard-theme': string;
-  'virtual-keyboards': string;
+  /**
+   * A space separated list of the keyboards that should be available. The
+   * keyboard `'all'` is synonym with `'numeric'`, `'functions'``, `'symbols'``
+   * `'roman'` and `'greek'`,
+   *
+   * The keyboards will be displayed in the order indicated.
+   */
+  'virtual-keyboards':
+    | 'all'
+    | 'numeric'
+    | 'roman'
+    | 'greek'
+    | 'functions'
+    | 'symbols'
+    | 'latex'
+    | string;
+  /**
+   * When true, use a shared virtual keyboard for all the mathfield
+   * elements in the page, even across iframes.
+   *
+   * When setting this option to true, you must create the shared
+   * virtual keyboard in the the parent document:
+   *
+   * ```javascript
+   * import { makeSharedVirtualKeyboard } from 'mathlive';
+   *
+   *     makeSharedVirtualKeyboard({
+   *         virtualKeyboardToolbar: 'none',
+   *     });
+   * ```
+   *
+   * **Default**: `false`
+   */
   'use-shared-virtual-keyboard': boolean;
+  /**
+   * Specify the `targetOrigin` parameter for
+   * [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+   * to send control messages from child to parent frame to remote control
+   * of mathfield component.
+   *
+   * **Default**: `window.origin`
+   */
   'shared-virtual-keyboard-target-origin': string;
 }
 
