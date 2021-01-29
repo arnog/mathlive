@@ -905,7 +905,7 @@ register({
   locale: 'fr',
   displayName: 'French',
   virtualLayout: 'azerty',
-  platform: 'apple',
+  platform: 'linux',
   score: 0,
   mapping: {
     KeyA: ['q', 'Q', '@', 'Ω'],
