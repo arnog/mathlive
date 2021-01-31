@@ -16,5 +16,14 @@ function getFileUrl() {
   return m[0];
 }
 
+// The URL of the bundled MathLive library. Used later to locate the `fonts`
+// directory, relative to the library
+
+// If loaded via a <script> tag, `document.currentScript.src` is this location
+// If loaded via a module (e.g. `import ...`),`import.meta.url` is this location.
+// However, `import.meta` is not supported by WebPack. So, use a super-hacky-alternative
+// to get the URL.
+// See https://github.com/webpack/webpack/issues/6719
+
 export const gScriptUrl =
   (document.currentScript as HTMLScriptElement)?.src ?? getFileUrl();
