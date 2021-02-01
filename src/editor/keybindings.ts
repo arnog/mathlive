@@ -316,7 +316,7 @@ function selectorToString(selector: Selector | [Selector, ...any[]]): string {
       sel.shift() +
       '(' +
       sel
-        .map((x) => (typeof x === 'string' ? '"' + x + '"' : x.toString()))
+        .map((x) => (typeof x === 'string' ? `"${x}"` : x.toString()))
         .join(', ') +
       ')'
     );
@@ -333,16 +333,13 @@ function selectorToString(selector: Selector | [Selector, ...any[]]): string {
 export function normalizeKeybindings(
   keybindings: Keybinding[],
   layout: KeyboardLayout,
-  onError: (error: any) => void
+  onError: (error: string[]) => void
 ): Keybinding[] {
   const result: Keybinding[] = [];
   const errors = [];
 
   for (const x of keybindings) {
     try {
-      if (x.ifPlatform === '!macos') {
-        console.log('found it');
-      }
       const keybinding = normalizeKeybinding(x, layout);
       if (keybinding) {
         const matches = result.filter(

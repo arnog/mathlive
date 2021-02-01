@@ -17,10 +17,10 @@ function getFileUrl() {
   const callerFrame = stackTraceFrames[0];
 
   // Extract the script's complete url
-  const m = callerFrame.match(/http.*js/);
+  const m = callerFrame.match(/[^(]+js/);
   if (!m) {
     console.error(
-      'Unable to determine source file location (unexpected file URL).\n' +
+      `Unable to determine source file location (unexpected location "${callerFrame}")\n` +
         'Relative paths to specify assets location are not supported.'
     );
     return '';
