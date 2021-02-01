@@ -105,7 +105,7 @@ export type Keybinding = {
    * a key code should be used instead: `alt+[Digit2]`. This will correspond
    * to a key combination that can be generated on any keyboard.
    *
-   * If a keybinding is invalid (impossible to produce) with the current
+   * If a keybinding is invalid (impossible to produce or ambiguous) with the current
    * keyboard layout, an error will be generated, and the `onError` listener
    * will be called with a `invalid-keybinding` error code.
    *
@@ -115,7 +115,7 @@ export type Keybinding = {
   command: Selector | [Selector, ...any[]];
   /**
    * If specified, this indicates in which mode this keybinding will apply.
-   * If none is specified, the keybinding apply in every mode.
+   * If none is specified, the keybinding will apply in every mode.
    */
   ifMode?: ParseMode;
 

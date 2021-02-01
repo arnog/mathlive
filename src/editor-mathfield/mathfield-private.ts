@@ -65,6 +65,7 @@ import { normalizeKeybindings } from '../editor/keybindings';
 import {
   setKeyboardLayoutLocale,
   getActiveKeyboardLayout,
+  DEFAULT_KEYBOARD_LAYOUT,
 } from '../editor/keyboard-layout';
 
 import { VirtualKeyboard } from '../editor/virtual-keyboard';
@@ -115,7 +116,7 @@ export class MathfieldPrivate implements Mathfield {
 
   virtualKeyboard: VirtualKeyboardInterface;
 
-  keybindings: Keybinding[]; // Normalized keybindings (raw ones in config)
+  _keybindings: Keybinding[]; // Normalized keybindings (raw ones in config)
   keyboardLayout: KeyboardLayoutName;
 
   keystrokeBuffer: string;
@@ -494,17 +495,26 @@ export class MathfieldPrivate implements Mathfield {
       setKeyboardLayoutLocale(this.options.locale);
     }
 
-    this.keybindings = normalizeKeybindings(this.options.keybindings, (e) => {
-      if (typeof this.options.onError === 'function') {
-        this.options.onError({
-          code: 'invalid-keybinding',
-          arg: e.join('\n'),
-        });
-      }
-
-      console.log(e.join('\n'));
-    });
     requestUpdate(this);
+  }
+
+  get keybindings(): Keybinding[] {
+    if (this._keybindings) return this._keybindings;
+    this._keybindings = normalizeKeybindings(
+      this.options.keybindings,
+      getActiveKeyboardLayout() ?? DEFAULT_KEYBOARD_LAYOUT,
+      (e) => {
+        if (typeof this.options.onError === 'function') {
+          this.options.onError({
+            code: 'invalid-keybinding',
+            arg: e.join('\n'),
+          });
+        }
+
+        console.error(e.join('\n'));
+      }
+    );
+    return this._keybindings;
   }
 
   /** @deprecated */
@@ -536,16 +546,7 @@ export class MathfieldPrivate implements Mathfield {
       setKeyboardLayoutLocale(this.options.locale);
     }
 
-    this.keybindings = normalizeKeybindings(this.options.keybindings, (e) => {
-      if (typeof this.options.onError === 'function') {
-        this.options.onError({
-          code: 'invalid-keybinding',
-          arg: e.join('\n'),
-        });
-      }
-
-      console.log(e.join('\n'));
-    });
+    this._keybindings = undefined;
 
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (

@@ -1,5 +1,48 @@
 import type { KeyboardLayoutName as KeyboardLayoutId } from '../public/options';
 
+type KeystrokeModifiers = {
+  shift: boolean;
+  alt: boolean;
+  cmd: boolean;
+  win: boolean;
+  meta: boolean;
+  ctrl: boolean;
+  key: string;
+};
+
+export function keystrokeModifiersFromString(key: string): KeystrokeModifiers {
+  const segments = key.split('+');
+  const result: KeystrokeModifiers = {
+    shift: false,
+    alt: false,
+    cmd: false,
+    win: false,
+    meta: false,
+    ctrl: false,
+    key: segments.pop(),
+  };
+  if (segments.includes('shift')) result.shift = true;
+  if (segments.includes('alt')) result.alt = true;
+  if (segments.includes('ctrl')) result.ctrl = true;
+  if (segments.includes('cmd')) result.cmd = true;
+  if (segments.includes('win')) result.win = true;
+  if (segments.includes('meta')) result.meta = true;
+
+  return result;
+}
+
+export function keystrokeModifiersToString(key: KeystrokeModifiers): string {
+  let result = '';
+  if (key.shift) result += 'shift+';
+  if (key.alt) result += 'alt+';
+  if (key.ctrl) result += 'ctrl+';
+  if (key.cmd) result += 'cmd+';
+  if (key.win) result += 'win+';
+  if (key.meta) result += 'meta+';
+
+  return result + key.key;
+}
+
 // From https://www.w3.org/TR/uievents-code/
 type Keycode =
   | 'Sleep'
@@ -160,7 +203,7 @@ type Keycode =
   | 'BrowserRefresh'
   | 'BrowserFavorites';
 
-type KeyboardLayout = {
+export type KeyboardLayout = {
   id: KeyboardLayoutId;
   displayName: string; // Doesn't have to be unique
   virtualLayout: 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak';
@@ -170,7 +213,7 @@ type KeyboardLayout = {
   mapping: { [K in Keycode]?: [string, string, string, string] };
 };
 
-const DEFAULT_KEYBOARD_LAYOUT: KeyboardLayout =
+export const DEFAULT_KEYBOARD_LAYOUT: KeyboardLayout =
   platform() === 'apple'
     ? {
         id: 'apple.en-intl',
@@ -514,17 +557,46 @@ export function register(layout: KeyboardLayout): void {
 //     return evt.key;
 // }
 
-export function getCodeForKey(k: string): string {
-  const layout = getActiveKeyboardLayout() ?? DEFAULT_KEYBOARD_LAYOUT;
+export function getCodeForKey(
+  k: string,
+  layout: KeyboardLayout
+): KeystrokeModifiers {
+  const result: KeystrokeModifiers = {
+    shift: false,
+    alt: false,
+    cmd: false,
+    win: false,
+    meta: false,
+    ctrl: false,
+    key: '',
+  };
+  if (!k) return result;
 
   for (const [key, value] of Object.entries(layout.mapping)) {
-    if (value[0] === k) return '[' + key + ']';
-    if (value[1] === k) return 'shift+[' + key + ']';
-    if (value[2] === k) return 'alt+[' + key + ']';
-    if (value[3] === k) return 'shift+alt+[' + key + ']';
+    if (value[0] === k) {
+      result.key = `[${key}]`;
+      return result;
+    }
+    if (value[1] === k) {
+      result.shift = true;
+      result.key = `[${key}]`;
+      return result;
+    }
+    if (value[2] === k) {
+      result.alt = true;
+      result.key = `[${key}]`;
+      return result;
+    }
+    if (value[3] === k) {
+      result.shift = true;
+      result.alt = true;
+      result.key = `[${key}]`;
+      return result;
+    }
   }
 
-  return BASE_LAYOUT_MAPPING[k] ?? '';
+  result.key = BASE_LAYOUT_MAPPING[k] ?? '';
+  return result;
 }
 
 export function normalizeKeyboardEvent(evt: KeyboardEvent): KeyboardEvent {
@@ -577,15 +649,18 @@ export function validateKeyboardLayout(evt: KeyboardEvent): void {
   // (we dont' know what char they could produce, only the physical key associated with them )
   if (evt.key === 'Dead') return;
 
-  const layouts = gKeyboardLayouts.filter(
-    (layout) => layout.mapping[evt.code]?.[index] === evt.key
-  );
-  if (layouts.length === 0) return;
+  for (const layout of gKeyboardLayouts) {
+    if (layout.mapping[evt.code]?.[index] === evt.key) {
+      // Increase the score of the layouts that have a mapping compatible with
+      // this keyboard event.
+      layout.score += 1;
+    } else if (layout.mapping[evt.code]?.[index]) {
+      // There is a mapping, but it's not compatible with this keystroke:
+      // zero-out the score
+      layout.score = 0;
+    }
+  }
 
-  // Increase the score of the layouts that have a mapping compatible with this keyboard event.
-  layouts.forEach((x) => {
-    x.score += 1;
-  });
   gKeyboardLayouts.sort((a, b) => b.score - a.score);
 }
 

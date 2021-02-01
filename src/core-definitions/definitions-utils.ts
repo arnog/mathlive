@@ -504,11 +504,9 @@ function unicodeToMathVariant(
 
   // Handle the 'gap' letters by converting them back into their logical range
   for (const c in MATH_LETTER_EXCEPTIONS) {
-    if (Object.prototype.hasOwnProperty.call(MATH_LETTER_EXCEPTIONS, c)) {
-      if (MATH_LETTER_EXCEPTIONS[c] === codepoint) {
-        codepoint = c.codePointAt(0) ?? 0;
-        break;
-      }
+    if (MATH_LETTER_EXCEPTIONS[c] === codepoint) {
+      codepoint = c.codePointAt(0) ?? 0;
+      break;
     }
   }
 
@@ -727,18 +725,14 @@ export function suggest(s: string): { match: string; frequency: number }[] {
 
   // Iterate over items in the dictionary
   for (const p in FUNCTIONS) {
-    if (Object.prototype.hasOwnProperty.call(FUNCTIONS, p)) {
-      if (p.startsWith(s) && !FUNCTIONS[p].infix) {
-        result.push({ match: p, frequency: FUNCTIONS[p].frequency });
-      }
+    if (p.startsWith(s) && !FUNCTIONS[p].infix) {
+      result.push({ match: p, frequency: FUNCTIONS[p].frequency });
     }
   }
 
   for (const p in MATH_SYMBOLS) {
-    if (Object.prototype.hasOwnProperty.call(MATH_SYMBOLS, p)) {
-      if (p.startsWith(s)) {
-        result.push({ match: p, frequency: MATH_SYMBOLS[p].frequency });
-      }
+    if (p.startsWith(s)) {
+      result.push({ match: p, frequency: MATH_SYMBOLS[p].frequency });
     }
   }
 

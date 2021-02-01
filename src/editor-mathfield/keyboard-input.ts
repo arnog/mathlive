@@ -12,7 +12,6 @@ import {
 import {
   getCommandForKeybinding,
   getKeybindingMarkup,
-  normalizeKeybindings,
 } from '../editor/keybindings';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION } from '../editor/commands';
@@ -79,21 +78,9 @@ export function onKeystroke(
 
   const activeLayout = getActiveKeyboardLayout();
   if (mathfield.keyboardLayout !== activeLayout.id) {
-    // Console.log('Switching to keyboard layout ' + activeLayout.id);
+    // console.log('Switching to keyboard layout ' + activeLayout.id);
     mathfield.keyboardLayout = activeLayout.id;
-    mathfield.keybindings = normalizeKeybindings(
-      mathfield.options.keybindings,
-      (error) => {
-        if (typeof mathfield.options.onError === 'function') {
-          mathfield.options.onError({
-            code: 'invalid-keybinding',
-            arg: error.join('\n'),
-          });
-        }
-
-        console.log(error.join('\n'));
-      }
-    );
+    mathfield._keybindings = undefined;
   }
 
   // 2. Display the keystroke in the keystroke panel (if visible)

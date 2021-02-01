@@ -3,7 +3,12 @@ import { isArray } from '../common/types';
 import type { Selector } from '../public/commands';
 import type { Keybinding } from '../public/options';
 
-import { getCodeForKey } from './keyboard-layout';
+import {
+  KeyboardLayout,
+  getCodeForKey,
+  keystrokeModifiersFromString,
+  keystrokeModifiersToString,
+} from './keyboard-layout';
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
 import type { ParseMode } from '../public/core';
 
@@ -36,9 +41,10 @@ function matchPlatform(p: string): boolean {
     } else if (/\bcros\b/i.test(navigator.userAgent)) {
       plat = 'chromeos';
     }
-
-    if (p.startsWith('!') && !p.endsWith(plat)) return true;
-    if (p.endsWith(plat)) return true;
+    const isNeg = p.startsWith('!');
+    const isMatch = p.endsWith(plat);
+    if (isNeg && !isMatch) return true;
+    if (!isNeg && isMatch) return true;
   }
 
   return false;
@@ -47,15 +53,20 @@ function matchPlatform(p: string): boolean {
 /**
  * Return the selector matching the keystroke.
  * The keybindings and keystroke should be in normalized form
- * (i.e. using key code, e.g. `[KeyQ]`
+ * (i.e. using key code, e.g. `[KeyQ]`)
  *
  */
 export function getCommandForKeybinding(
   keybindings: Keybinding[],
   mode: ParseMode,
-  keystroke: string
+  inKeystroke: string
 ): Selector | [Selector, ...any[]] | '' {
   if (keybindings.length === 0) return '';
+
+  // Normalize keystroke to the format (order of modifiers) expected by keybindings
+  const keystroke = keystrokeModifiersToString(
+    keystrokeModifiersFromString(inKeystroke)
+  );
 
   // Try to match using a virtual keystroke
   for (let i = keybindings.length - 1; i >= 0; i--) {
@@ -207,7 +218,10 @@ export function getKeybindingMarkup(keystroke: string): string {
   return result;
 }
 
-function normalizeKeybinding(keybinding: Keybinding): Keybinding {
+function normalizeKeybinding(
+  keybinding: Keybinding,
+  layout: KeyboardLayout
+): Keybinding {
   if (
     keybinding.ifPlatform &&
     !/^!?(macos|windows|android|ios|chromeos|other)$/.test(
@@ -219,56 +233,96 @@ function normalizeKeybinding(keybinding: Keybinding): Keybinding {
     );
   }
 
-  let segments = keybinding.key.split('+');
-  const key = segments.pop();
+  const modifiers = keystrokeModifiersFromString(keybinding.key);
   let platform = keybinding.ifPlatform;
 
-  segments = segments.map((segment) => {
-    const x = segment.toLowerCase();
-    if (x === 'cmd') {
-      if (platform && platform !== 'macos' && platform !== 'ios') {
-        throw new Error(
-          'Unexpected "cmd" modifier with platform "' + platform + '"'
-        );
-      }
-
-      if (!platform) {
-        platform = matchPlatform('ios') ? 'ios' : 'macos';
-      }
-
-      return 'meta';
+  if (modifiers.cmd) {
+    if (platform && platform !== 'macos' && platform !== 'ios') {
+      throw new Error(
+        'Unexpected "cmd" modifier with platform "' +
+          platform +
+          '"' +
+          '\n' +
+          '"cmd" modifier can only be used with macOS or iOS platform.'
+      );
     }
 
-    if (x === 'win') {
-      if (platform && platform !== 'windows') {
-        throw new Error(
-          'Unexpected "win" modifier with platform "' + platform + '"'
-        );
-      }
-
-      platform = 'windows';
-      return 'meta';
+    if (!platform) {
+      platform = matchPlatform('ios') ? 'ios' : 'macos';
     }
 
-    return x;
-  });
+    modifiers.win = false;
+    modifiers.cmd = false;
+    modifiers.meta = true;
+  }
+
+  if (modifiers.win) {
+    if (platform && platform !== 'windows') {
+      throw new Error(
+        'Unexpected "win" modifier with platform "' +
+          platform +
+          '"' +
+          '\n' +
+          '"win" modifier can only be used with Windows platform.'
+      );
+    }
+
+    platform = 'windows';
+    modifiers.win = false;
+    modifiers.cmd = false;
+    modifiers.meta = true;
+  }
 
   if (platform && !matchPlatform(platform)) return undefined;
 
-  if (!/^\[(.*)]$/.test(key)) {
-    // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`)
-    // Convert it to a key code
-    const code = getCodeForKey(key);
+  if (!/^\[(.*)]$/.test(modifiers.key)) {
+    // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`).
+    // Convert it to a key code.
+    const code = getCodeForKey(modifiers.key, layout);
     if (!code) {
       throw new Error('Invalid keybinding key "' + keybinding.key + '"');
     }
-
-    segments = segments.concat(code.split('+'));
-  } else {
-    segments.push(key);
+    if ((code.shift && modifiers.shift) || (code.alt && modifiers.alt)) {
+      throw new Error(
+        `The keybinding ${keybinding.key} (${selectorToString(
+          keybinding.command
+        )}) is conflicting with the key combination ${keystrokeModifiersToString(
+          code
+        )} using the ${layout.displayName} keyboard layout`
+      );
+    }
+    code.shift = code.shift || modifiers.shift;
+    code.alt = code.alt || modifiers.alt;
+    code.meta = modifiers.meta;
+    code.ctrl = modifiers.ctrl;
+    return {
+      ...keybinding,
+      ifPlatform: platform,
+      key: keystrokeModifiersToString(code),
+    };
   }
 
-  return { ...keybinding, ifPlatform: platform, key: segments.join('+') };
+  return {
+    ...keybinding,
+    ifPlatform: platform,
+    key: keystrokeModifiersToString(modifiers),
+  };
+}
+
+function selectorToString(selector: Selector | [Selector, ...any[]]): string {
+  if (Array.isArray(selector)) {
+    const sel = [...selector];
+    return (
+      sel.shift() +
+      '(' +
+      sel
+        .map((x) => (typeof x === 'string' ? '"' + x + '"' : x.toString()))
+        .join(', ') +
+      ')'
+    );
+  }
+
+  return selector as string;
 }
 
 /**
@@ -278,14 +332,31 @@ function normalizeKeybinding(keybinding: Keybinding): Keybinding {
  */
 export function normalizeKeybindings(
   keybindings: Keybinding[],
+  layout: KeyboardLayout,
   onError: (error: any) => void
 ): Keybinding[] {
-  const result = [];
+  const result: Keybinding[] = [];
   const errors = [];
-  keybindings.forEach((x) => {
+
+  for (const x of keybindings) {
     try {
-      const keybinding = normalizeKeybinding(x);
+      if (x.ifPlatform === '!macos') {
+        console.log('found it');
+      }
+      const keybinding = normalizeKeybinding(x, layout);
       if (keybinding) {
+        const matches = result.filter(
+          (x) => x.key === keybinding.key && x.ifMode === keybinding.ifMode
+        );
+        if (matches.length > 0) {
+          throw new Error(
+            `Ambiguous key binding ${x.key} (${selectorToString(
+              x.command
+            )}) matches ${matches[0].key} (${selectorToString(
+              matches[0].command
+            )}) with the ${layout.displayName} keyboard layout`
+          );
+        }
         result.push(keybinding);
       }
     } catch (error: unknown) {
@@ -293,10 +364,9 @@ export function normalizeKeybindings(
         errors.push(error.message);
       }
     }
-  });
-  if (errors.length > 0) {
-    onError(errors);
   }
+
+  if (errors.length > 0) onError(errors);
 
   return result;
 }
