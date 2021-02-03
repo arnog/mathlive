@@ -73,9 +73,11 @@ l10n.merge = function (
     };
     l10n.locale = savedLocale;
   } else if (locale && !strings) {
-    Object.keys(locale as Record<string, Record<string, string>>).forEach((l) =>
-      l10n.merge(l, locale[l])
-    );
+    for (const l of Object.keys(
+      locale as Record<string, Record<string, string>>
+    )) {
+      l10n.merge(l, locale[l]);
+    }
   }
 };
 

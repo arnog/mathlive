@@ -227,9 +227,9 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
       token = lex.next();
       if (token) {
         if (token.startsWith('\\')) {
-          [...token].forEach((x) =>
-            result.push(x === '\\' ? '\\backslash' : x)
-          );
+          for (const x of token) {
+            result.push(x === '\\' ? '\\backslash' : x);
+          }
         } else if (token === '<{>') {
           result.push('\\{');
         } else if (token === '<space>') {

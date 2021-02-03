@@ -215,11 +215,11 @@ export class Span {
     let depth = 0;
     let maxFontSize = 1;
     if (this.children) {
-      this.children.forEach((x) => {
-        if (x.height > height) height = x.height;
-        if (x.depth > depth) depth = x.depth;
-        if (x.maxFontSize > maxFontSize) maxFontSize = x.maxFontSize;
-      });
+      for (const child of this.children) {
+        if (child.height > height) height = child.height;
+        if (child.depth > depth) depth = child.depth;
+        if (child.maxFontSize > maxFontSize) maxFontSize = child.maxFontSize;
+      }
     } else if (typeof this.value === 'string') {
       if (this.type === 'latex') {
         height = 0.8;
@@ -238,7 +238,9 @@ export class Span {
   selected(isSelected: boolean): void {
     this.isSelected = isSelected;
     if (this.children) {
-      this.children.forEach((x) => x.selected(isSelected));
+      for (const child of this.children) {
+        child.selected(isSelected);
+      }
     }
   }
 

@@ -88,16 +88,17 @@ export function getModeRuns(atoms: Atom[]): Atom[][] {
   const result = [];
   let run = [];
   let currentMode = 'NONE';
-  atoms.forEach((atom) => {
-    if (atom.type === 'first') return;
-    if (atom.mode !== currentMode) {
-      if (run.length > 0) result.push(run);
-      run = [atom];
-      currentMode = atom.mode;
-    } else {
-      run.push(atom);
+  for (const atom of atoms) {
+    if (atom.type !== 'first') {
+      if (atom.mode !== currentMode) {
+        if (run.length > 0) result.push(run);
+        run = [atom];
+        currentMode = atom.mode;
+      } else {
+        run.push(atom);
+      }
     }
-  });
+  }
   // Push whatever is left
   if (run.length > 0) result.push(run);
   return result;
@@ -111,33 +112,34 @@ export function getPropertyRuns(atoms: Atom[], property: string): Atom[][] {
   const result = [];
   let run = [];
   let currentValue: string;
-  atoms.forEach((atom: Atom) => {
-    if (atom.type === 'first') return;
-    let value: string;
-    if (property === 'variant') {
-      value = atom.style.variant;
-      if (atom.style.variantStyle && atom.style.variantStyle !== 'up') {
-        value += '-' + atom.style.variantStyle;
+  for (const atom of atoms) {
+    if (atom.type !== 'first') {
+      let value: string;
+      if (property === 'variant') {
+        value = atom.style.variant;
+        if (atom.style.variantStyle && atom.style.variantStyle !== 'up') {
+          value += '-' + atom.style.variantStyle;
+        }
+      } else if (property === 'cssClass') {
+        if (atom.type === 'group') {
+          value = (atom as GroupAtom).customClass;
+        }
+      } else {
+        value = atom.style[property];
       }
-    } else if (property === 'cssClass') {
-      if (atom.type === 'group') {
-        value = (atom as GroupAtom).customClass;
-      }
-    } else {
-      value = atom.style[property];
-    }
 
-    if (value === currentValue) {
-      // Same value, add it to the current run
-      run.push(atom);
-    } else {
-      // The value of property for this atom is different from the
-      // current value, start a new run
-      if (run.length > 0) result.push(run);
-      run = [atom];
-      currentValue = value;
+      if (value === currentValue) {
+        // Same value, add it to the current run
+        run.push(atom);
+      } else {
+        // The value of property for this atom is different from the
+        // current value, start a new run
+        if (run.length > 0) result.push(run);
+        run = [atom];
+        currentValue = value;
+      }
     }
-  });
+  }
 
   // Push whatever is left
   if (run.length > 0) result.push(run);

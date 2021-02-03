@@ -69,7 +69,7 @@ export function update(
     current,
     Object.keys(current)
   ) as Required<MathfieldOptionsPrivate>;
-  Object.keys(updates).forEach((key) => {
+  for (const key of Object.keys(updates)) {
     switch (key) {
       case 'scriptDepth':
         if (isArray(updates.scriptDepth)) {
@@ -208,7 +208,7 @@ export function update(
           result[key] = updates[key];
         }
     }
-  });
+  }
 
   // @revisit 1.0: for backward compatibility, interprets the overrideDefaultInlineShortcuts
   // property
@@ -240,7 +240,7 @@ export function get(
   }
 
   const result: Partial<MathfieldOptionsPrivate> = {};
-  resolvedKeys.forEach((x) => {
+  for (const x of resolvedKeys) {
     if (isArray(result[x])) {
       result[x] = [...result[x]];
     } else if (typeof result[x] === 'object') {
@@ -248,7 +248,7 @@ export function get(
     } else {
       result[x] = config[x];
     }
-  });
+  }
   // If requested a single key, return its value
   if (typeof keys === 'string') {
     return result[keys];

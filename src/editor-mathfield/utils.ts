@@ -163,15 +163,15 @@ function getNodeBounds(node: Element): Rect {
     right: bounds.right,
   };
   if (node.tagName !== 'SVG') {
-    [...node.children].forEach((x) => {
-      if (x.nodeType === 1) {
-        const r: Rect = getNodeBounds(x);
+    for (const child of node.children) {
+      if (child.nodeType === 1) {
+        const r: Rect = getNodeBounds(child);
         result.left = Math.min(result.left, r.left);
         result.right = Math.max(result.right, r.right);
         result.top = Math.min(result.top, r.top);
         result.bottom = Math.max(result.bottom, r.bottom);
       }
-    });
+    }
   }
 
   return result;
@@ -187,7 +187,7 @@ export function getAtomBounds(
 }
 
 /*
- * Return an array of bounds for the specified branch, at most
+ * Return an array of bounds for the specified range, at most
  * one rect per branch.
  */
 export function getRangeBounds(
@@ -197,25 +197,28 @@ export function getRangeBounds(
   // The key of the map is a 'branchId', i.e. "atom id + branch"
   const rects = new Map<string, Rect>();
 
-  mathfield.model
-    .getAtoms(range, { includeChildren: true })
-    .forEach((x: Atom) => {
-      const bounds = adjustForScrolling(mathfield, getAtomBounds(mathfield, x));
-      if (bounds) {
-        const id = branchId(x);
-        if (rects.has(id)) {
-          const r = rects.get(id);
-          rects.set(id, {
-            top: Math.min(r.top, bounds.top),
-            bottom: Math.max(r.bottom, bounds.bottom),
-            left: Math.min(r.left, bounds.left),
-            right: Math.max(r.right, bounds.right),
-          });
-        } else {
-          rects.set(id, bounds);
-        }
+  for (const atom of mathfield.model.getAtoms(range, {
+    includeChildren: true,
+  })) {
+    const bounds = adjustForScrolling(
+      mathfield,
+      getAtomBounds(mathfield, atom)
+    );
+    if (bounds) {
+      const id = branchId(atom);
+      if (rects.has(id)) {
+        const r = rects.get(id);
+        rects.set(id, {
+          top: Math.min(r.top, bounds.top),
+          bottom: Math.max(r.bottom, bounds.bottom),
+          left: Math.min(r.left, bounds.left),
+          right: Math.max(r.right, bounds.right),
+        });
+      } else {
+        rects.set(id, bounds);
       }
-    });
+    }
+  }
 
   return [...rects.values()];
 }

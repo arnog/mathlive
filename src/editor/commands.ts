@@ -45,10 +45,10 @@ export function register(
 ): void {
   options = options ?? { target: 'mathfield', canUndo: false };
 
-  Object.keys(commands).forEach((selector) => {
+  for (const selector of Object.keys(commands)) {
     console.assert(!COMMANDS[selector], 'Selector already defined: ', selector);
     COMMANDS[selector] = { ...options, fn: commands[selector] };
-  });
+  }
 }
 
 export function getCommandTarget(

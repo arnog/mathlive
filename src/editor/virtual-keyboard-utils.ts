@@ -1466,9 +1466,9 @@ export function makeKeyboardElement(
   }
 
   ALT_KEYS = { ...ALT_KEYS_BASE };
-  Object.keys(ALT_KEYS).forEach((key) => {
+  for (const key of Object.keys(ALT_KEYS)) {
     ALT_KEYS[key] = ALT_KEYS[key].slice();
-  });
+  }
 
   const UPPER_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
@@ -1757,7 +1757,7 @@ export function makeKeyboardElement(
 
   // Select the first keyboard as the initial one.
   const layerElements = result.querySelectorAll('.keyboard-layer');
-  [...layerElements].forEach((x) => {
+  for (const x of layerElements) {
     x.addEventListener('mousedown', (evt) => {
       evt.preventDefault();
       evt.stopPropagation();
@@ -1770,7 +1770,7 @@ export function makeKeyboardElement(
       },
       { passive: false }
     );
-  });
+  }
   layerElements[0].classList.add('is-visible');
 
   return result;

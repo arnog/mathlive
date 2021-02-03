@@ -26,7 +26,7 @@ function metadata(
   frequency = COMMON,
   template = '$0'
 ): void {
-  symbols.forEach((symbol) => {
+  for (const symbol of symbols) {
     if (MATH_SYMBOLS[symbol]) {
       MATH_SYMBOLS[symbol].frequency = frequency;
       MATH_SYMBOLS[symbol].category = category;
@@ -43,7 +43,7 @@ function metadata(
         template: template.replace(/\$0/g, symbol),
       };
     }
-  });
+  }
 }
 
 metadata('Trigonometry', ['\\cos', '\\sin', '\\tan'], SUPERCOMMON);

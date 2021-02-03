@@ -120,11 +120,11 @@ export function getKeybindingsForCommand(
         .replace('^', '\\^') +
       '([^*a-zA-Z]|$)'
   );
-  keybindings.forEach((keybinding) => {
+  for (const keybinding of keybindings) {
     if (regex.test(commandToString(keybinding.command))) {
       result.push(keybinding);
     }
-  });
+  }
 
   return result.map(getKeybindingMarkup);
 }

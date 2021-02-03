@@ -22,22 +22,22 @@ export function getInlineShortcutsStartingWith(
   for (let i = 0; i <= s.length - 1; i++) {
     const s2 = s.slice(Math.max(0, i));
     if (!skipDefaultShortcuts) {
-      Object.keys(INLINE_SHORTCUTS).forEach((key) => {
+      for (const key of Object.keys(INLINE_SHORTCUTS)) {
         if (key.startsWith(s2) && !result.includes(key)) {
           result.push(key);
         }
-      });
+      }
     }
 
     const customInlineShortcuts = config?.inlineShortcuts
       ? config.inlineShortcuts
       : null;
     if (customInlineShortcuts) {
-      Object.keys(customInlineShortcuts).forEach((key) => {
+      for (const key of Object.keys(customInlineShortcuts)) {
         if (key.startsWith(s2)) {
           result.push(key);
         }
-      });
+      }
     }
   }
 

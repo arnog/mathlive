@@ -30,9 +30,9 @@ function compareRange(a: Range, b: Range): 'equal' | 'different' {
 export function range(selection: Selection): Range {
   let first = Infinity;
   let last = -Infinity;
-  selection.ranges.forEach((x) => {
-    first = Math.min(first, x[0], x[1]);
-    last = Math.max(last, x[0], x[1]);
-  });
+  for (const range of selection.ranges) {
+    first = Math.min(first, range[0], range[1]);
+    last = Math.max(last, range[0], range[1]);
+  }
   return [first, last];
 }

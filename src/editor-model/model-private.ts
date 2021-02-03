@@ -330,7 +330,7 @@ export class ModelPrivate implements Model {
 
   extractAtoms(range: Range): Atom[] {
     const result = this.getAtoms(range);
-    result.forEach((x) => x.parent.removeChild(x));
+    for (const child of result) child.parent.removeChild(child);
     return result;
   }
 

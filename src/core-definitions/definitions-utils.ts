@@ -815,13 +815,13 @@ export function parseArgAsString(atoms: Atom[]): string {
   if (!atoms) return '';
   let result = '';
   let success = true;
-  atoms.forEach((atom) => {
+  for (const atom of atoms) {
     if (typeof atom.value === 'string') {
       result += atom.value;
     } else {
       success = false;
     }
-  });
+  }
   return success ? result : '';
 }
 

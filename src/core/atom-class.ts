@@ -299,7 +299,7 @@ export class Atom {
     if (atoms.length === 1) {
       result = atoms[0].render(context);
       if (result && displaySelection && atoms[0].isSelected) {
-        result.forEach((x: Span) => x.selected(true));
+        for (const span of result) span.selected(true);
       }
 
       console.assert(!result || isArray(result));
@@ -349,7 +349,7 @@ export class Atom {
 
           if (displaySelection && atom.isSelected) {
             selection = selection.concat(flat);
-            selection.forEach((x: Span) => x.selected(true));
+            for (const span of selection) span.selected(true);
           } else {
             if (selection.length > 0) {
               // There was a selection, but we're out of it now
@@ -562,15 +562,13 @@ export class Atom {
    * Some of them may be empty.
    */
   get branches(): Branch[] {
+    if (!this._branches) return [];
     const result = [];
-    if (this._branches) {
-      NAMED_BRANCHES.forEach((x) => {
-        if (this._branches[x]) {
-          result.push(x);
-        }
-      });
+    for (const branch of NAMED_BRANCHES) {
+      if (this._branches[branch]) {
+        result.push(branch);
+      }
     }
-
     return result;
   }
 
@@ -738,10 +736,10 @@ export class Atom {
     this.isDirty = true;
 
     // Update the children
-    children.forEach((x) => {
-      x.parent = this;
-      x.treeBranch = branch;
-    });
+    for (const child of children) {
+      child.parent = this;
+      child.treeBranch = branch;
+    }
   }
 
   makeFirstAtom(branch: Branch): Atom {
@@ -783,7 +781,7 @@ export class Atom {
   }
 
   addChildren(children: Atom[], branch: Branch): void {
-    children.forEach((x) => this.addChild(x, branch));
+    for (const child of children) this.addChild(child, branch);
   }
 
   /**
@@ -796,10 +794,10 @@ export class Atom {
     this.isDirty = true;
 
     // Update the children
-    children.forEach((x) => {
-      x.parent = this;
-      x.treeBranch = after.treeBranch;
-    });
+    for (const child of children) {
+      child.parent = this;
+      child.treeBranch = after.treeBranch;
+    }
     return children[children.length - 1];
   }
 
@@ -809,10 +807,10 @@ export class Atom {
       this._branches[name] = null;
     }
 
-    children.forEach((x) => {
-      x.parent = null;
-      x.treeBranch = undefined;
-    });
+    for (const child of children) {
+      child.parent = null;
+      child.treeBranch = undefined;
+    }
     // Drop the 'first' element
     console.assert(children[0].type === 'first');
     children.shift();
@@ -899,16 +897,15 @@ export class Atom {
    */
   get children(): Atom[] {
     if (this._children) return this._children;
+    if (!this._branches) return [];
     const result = [];
-    if (this._branches) {
-      NAMED_BRANCHES.forEach((branch) => {
-        if (this._branches[branch]) {
-          this._branches[branch].forEach((x) => {
-            result.push(...x.children);
-            result.push(x);
-          });
+    for (const branch of NAMED_BRANCHES) {
+      if (this._branches[branch]) {
+        for (const x of this._branches[branch]) {
+          result.push(...x.children);
+          result.push(x);
         }
-      });
+      }
     }
 
     this._children = result;
