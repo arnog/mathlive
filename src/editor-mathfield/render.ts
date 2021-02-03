@@ -16,7 +16,7 @@ function hash(latex: string): number {
   let result = 0;
   for (let i = 0; i < latex.length; i++) {
     result = result * 31 + latex.charCodeAt(i);
-    result = Math.trunc(result); // Force it to a 32-bit integer
+    result = result | 0; // Force it to a 32-bit integer
   }
 
   return Math.abs(result);
