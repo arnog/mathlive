@@ -273,11 +273,7 @@ function nearestAtomFromPointRecursive(
   ) {
     for (const child of atom.children) {
       const r = nearestAtomFromPointRecursive(mathfield, child, x, y);
-      console.log('checking', child);
-      if (r.distance < result.distance) {
-        console.log('match');
-        result = r;
-      }
+      if (r.distance < result.distance) result = r;
     }
   }
 

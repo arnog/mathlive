@@ -10,7 +10,7 @@ import { l10n } from './l10n';
 import { defaultAnnounceHook } from './a11y';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
-import { gScriptUrl } from '../common/script-url';
+import { resolveRelativeUrl } from '../common/script-url';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -34,9 +34,8 @@ function loadSound(
     return sound;
   }
 
-  const url = new URL(
-    (soundDirectory ?? './sounds') + '/' + sound,
-    gScriptUrl
+  const url = resolveRelativeUrl(
+    (soundDirectory ?? './sounds') + '/' + sound
   ).toString();
 
   const result: HTMLAudioElement = new Audio();

@@ -1,17 +1,5 @@
-import { gScriptUrl } from '../common/script-url';
+import { resolveRelativeUrl } from '../common/script-url';
 import { ErrorListener, MathfieldErrorCode } from '../public/core';
-
-function resolveRelativeUrl(url: string): string {
-  let result = '';
-  try {
-    result = new URL(url, gScriptUrl).toString();
-  } catch (e) {
-    console.error(
-      `Invalid font directory "${url}" (relative to "${gScriptUrl}")`
-    );
-  }
-  return result;
-}
 
 function makeFontFace(
   name: string,

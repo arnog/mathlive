@@ -17,7 +17,7 @@ function getFileUrl() {
   const callerFrame = stackTraceFrames[0];
 
   // Extract the script's complete url
-  const m = callerFrame.match(/[^(]+js/);
+  const m = callerFrame.match(/[^(@]+js:/);
   if (!m) {
     console.error(
       `Unable to determine source file location (unexpected location "${callerFrame}")\n` +
@@ -26,6 +26,16 @@ function getFileUrl() {
     return '';
   }
   return m[0];
+}
+
+export function resolveRelativeUrl(url: string): string {
+  let result = '';
+  try {
+    result = new URL(url, gScriptUrl).toString();
+  } catch (e) {
+    console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
+  }
+  return result;
 }
 
 // The URL of the bundled MathLive library. Used later to locate the `fonts`
@@ -41,5 +51,5 @@ function getFileUrl() {
 // (the empty string). Therefore, use the "||" operator rather than "??"
 // to properly apply the alternative value in this case.
 
-export const gScriptUrl =
+const gScriptUrl =
   (document.currentScript as HTMLScriptElement)?.src || getFileUrl();
