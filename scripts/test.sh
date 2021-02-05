@@ -10,18 +10,22 @@ cd "$(dirname "$0")/.."
 # Read the first argument, set it to "test" if not set
 VARIANT="${1-test}"
 
-export TEST="true"
+if [ ! -d "./dist" ]; then
+    echo -e "No build available. Run `npm run build` or `npm run dist`"
+    exit 1    
+fi
 
-# Make a build
-npm run dist
 
 if [ "$VARIANT" = "coverage" ]; then
-#    npx jest test/math-json.test  --coverage
-    npx jest   --coverage
+    printf "\033[32m ● \033[0m Running test suite with coverage"
+    npx jest test/  --coverage
+    echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Test suite with coverage complete"
 elif [ "$VARIANT" = "snapshot" ]; then
-#    npx jest test/math-json.test -u
-    npx jest  -u
+    printf "\033[32m ● \033[0m Running test suite snapshot"
+    npx jest test/ -u
+    echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Test suite snapshot complete"
 else
+    printf "\033[32m ● \033[0m Running test suite"
     npx jest test/
-    # npx jest test/math-json.test
+    echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Test suite complete"
 fi

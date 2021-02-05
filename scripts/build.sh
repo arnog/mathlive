@@ -28,7 +28,7 @@ npx check-node-version --package
 if [ ! -d "./node_modules" ]; then
     printf "\033[32m\033[1K ● \033[0Installing dependencies"
     npm install
-    echo -e "\033[32m\033[1K ✔ \033[0Dependencies installed"
+    echo -e "\033[32m\033[1K ✔ \033[0m Dependencies installed"
 fi
 
 # Read the first argument, set it to "development" if not set
@@ -106,15 +106,6 @@ else
         find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
         find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
         echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Output files stamped"
-
-        # Linting
-        # echo -e "\033[40m`basename "$0"`\033[0m 🚀 Linting"
-        # npm run lint
-
-        # Run test suite
-        printf "\033[32m ● \033[0m Running test suite"
-        npx jest test
-        echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Test suite complete"
     fi
 fi
 
