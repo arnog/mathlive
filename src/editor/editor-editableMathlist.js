@@ -2340,12 +2340,13 @@ EditableMathlist.prototype._insertSmartFence = function(fence, style) {
     const parent = this.parent();
 
     // We're inserting a middle punctuation, for example as in {...|...}
-    if (parent.type === 'leftright' && parent.leftDelim !== '|') {
-        if (/\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
-            this.insert('\\,\\middle' + fence + '\\, ', { mode: 'math', format: 'latex', style: style });
-            return true;
-         }
-    }
+    // if (parent.type === 'leftright' && parent.leftDelim !== '|') {
+    //     if (/\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
+    //         this.insert('\\,\\middle' + fence + '\\, ', { mode: 'math', format: 'latex', style: style });
+    //         return true;
+    //      }
+    // }
+
     if (fence === '{' || fence === '\\{') fence = '\\lbrace';
     if (fence === '}' || fence === '\\}') fence = '\\rbrace';
     if (fence === '[' || fence === '\\[') fence = '\\lbrack';
