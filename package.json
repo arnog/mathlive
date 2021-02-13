@@ -122,7 +122,7 @@
     "@rollup/plugin-node-resolve": "^11.1.1",
     "@types/css-font-loading-module": "0.0.4",
     "@types/jest": "^26.0.20",
-    "@types/node": "^14.14.25",
+    "@types/node": "^14.14.27",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "@typescript-eslint/typescript-estree": "^4.14.2",
