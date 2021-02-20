@@ -203,7 +203,7 @@ export function delegateKeyboardEvents(
 
   // This callback is invoked after a keyboard event has been processed
   // by the textarea
-  let callbackTimeoutID: number;
+  let callbackTimeoutID;
   function defer(cb: () => void): void {
     clearTimeout(callbackTimeoutID);
     callbackTimeoutID = setTimeout(() => {
