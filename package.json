@@ -142,7 +142,7 @@
     "postcss": "^8.2.4",
     "postcss-cli": "^8.3.1",
     "prettier": "^2.2.1",
-    "rollup": "^2.38.4",
+    "rollup": "^2.41.2",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-eslint": "^7.0.0",
     "rollup-plugin-postcss": "^4.0.0",
