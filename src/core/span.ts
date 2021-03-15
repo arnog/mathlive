@@ -450,7 +450,7 @@ export class Span {
         for (const entry of entries) {
           const matched = entry.match(/([^=]+)=(.+$)/);
           if (matched) {
-            result += `data-${matched[1]}=${matched[2]} `;
+            result += ` data-${matched[1]}=${matched[2]} `;
           }
         }
       }
