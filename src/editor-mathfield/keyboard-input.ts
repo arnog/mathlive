@@ -468,11 +468,11 @@ export function onTypedText(
       // This is important to handle synthetic text input and
       // non-US keyboards, on which, fop example, the '^' key is
       // not mapped to  'Shift-Digit6'.
-      const selector = {
+      const selector = ({
         '^': 'moveToSuperscript',
         '_': 'moveToSubscript',
         ' ': 'moveAfterParent',
-      }[c];
+      } as const)[c];
       if (selector) {
         mathfield.executeCommand(selector);
       } else if (

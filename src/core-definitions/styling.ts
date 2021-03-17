@@ -618,7 +618,7 @@ defineFunction(
   {
     createAtom: (command: string, args: Argument[], style: Style): Atom =>
       new OperatorAtom(command, args[0] as Atom[], {
-        type: {
+        type: ({
           '\\mathbin': 'mbin',
           '\\mathrel': 'mrel',
           '\\mathopen': 'mopen',
@@ -626,7 +626,7 @@ defineFunction(
           '\\mathpunct': 'mpunct',
           '\\mathord': 'mord',
           '\\mathinner': 'minner',
-        }[command],
+        } as const)[command],
         captureSelection: true,
         style,
       }),

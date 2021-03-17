@@ -1263,7 +1263,7 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
 
     if (!layoutName || layoutName === 'auto') {
       layoutName =
-        {
+        ({
           fr: 'azerty',
           be: 'azerty',
           al: 'qwertz',
@@ -1273,7 +1273,7 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
           hu: 'qwertz',
           sk: 'qwertz',
           ch: 'qwertz',
-        }[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
+        } as const)[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
     }
   }
 
