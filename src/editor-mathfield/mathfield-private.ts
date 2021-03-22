@@ -274,12 +274,11 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     markup += '</span>';
-    markup += `
-        <div class="ML__sr-only">
-            <span aria-live="assertive" aria-atomic="true"></span>
-            <span></span>
-        </div>
-    `;
+    markup += 
+        '<div class="ML__sr-only">' +
+            '<span aria-live="assertive" aria-atomic="true"></span>' +
+            '<span></span>' +
+        '</div>';
 
     this.element.innerHTML = this.options.createHTML(markup);
     if (!this.element.children) {
