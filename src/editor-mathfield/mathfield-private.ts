@@ -576,6 +576,11 @@ export class MathfieldPrivate implements Mathfield {
       suppressChangeNotifications: true,
       macros: this.options.macros,
     });
+
+    this.virtualKeyboard = new VirtualKeyboard(this.options, {
+      executeCommand: (command) => this.executeCommand(command),
+    });
+
     requestUpdate(this);
   }
 
