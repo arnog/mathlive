@@ -1,37 +1,28 @@
 <div align="center">
-    <img alt="math live" style="border-radius: 8px" src="assets/mathlive-1.png?raw=true">
+    <img alt="math live" src="assets/mathlive-1.png?raw=true">
 </div>
 
-  <h1 style="border:none; font-size: 4rem; line-height: 3.5rem; font-weight: 700; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"><span style='display: block;
-  font-size: 32px;
-  margin: 0;
-  padding: 0;
-  opacity: 0.4;
-  line-height: 1;
-  letter-spacing: -0.2px;
-'>MathLive</span>A Web Component for Math Input</h1>
+<h3><strong>MathLive</strong></h3>
+<h1>A Web Component for Math Input</h1>
 
-<video autoplay loop muted playinline>
-  <source src="assets/screenshots/mathlive-demo.webm" type="video/webm">
-  <source src="assets/screenshots/mathlive-demo.mp4" type="video/mp4">
-  <img src="assets/screenshots/mathlive-demo.png">
-</video>
+<img src="assets/screenshots/mathlive-demo.png">
 
 [![Maintenance](https://img.shields.io/maintenance/yes/2021.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 [![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
 [![David](https://img.shields.io/david/dev/arnog/mathlive.svg)]()
 
-- [x] A Web Component easy to integrate in your project, regardless of the
+- [x] A **Web Component** easy to integrate in your project, regardless of the
       framework you use, or even if you use no framework
-- [x] Edit math formulas with an easy to use interface
-- [x] Beautiful, TeX-quality typesetting
-- [x] Designed for mobile devices with an extensive set of virtual keyboards
-- [x] Compatible with screen readers, and includes custom math-to-speech support
-      for improved accessibility
+- [x] Edit **math formulas** with an easy to use interface
+- [x] Beautiful, **TeX-quality** typesetting: over 800 LaTex commands built-in
+- [x] Designed for **mobile devices** with an extensive set of **virtual
+      keyboards**
+- [x] Compatible with **screen readers**, and includes custom math-to-speech
+      support for improved **accessibility**
 - [x] Output to **LaTeX**, **MathML** or **MathJSON** (Abstract Syntax Tree)
       formats
-- [x] And it is easy to customize to your needs!
+- [x] And it is easy to **customize** to your needs!
 
 Reference documentation and guides at
 [cortexjs.io/mathlive](https://cortexjs.io/mathlive/).
