@@ -228,10 +228,13 @@ export class MathfieldPrivate implements Mathfield {
     //         screen reader to read it
     // 5.1/ The aria-live region for announcements
     let markup = '';
+    const isTouchDevice =
+      /android|ipad|ipod|iphone/i.test(navigator?.userAgent) ||
+      (/mac/i.test(navigator?.userAgent) && navigator?.maxTouchPoints === 5);
     if (!this.options.substituteTextArea) {
-      // On Android or iOS, don't use a textarea, which has the side effect of
-      // bringing up the OS virtual keyboard
-      markup += /android|ipad|ipod|iphone/i.test(navigator?.userAgent)
+      // On Android, iOS or iPadOS don't use a `<textarea>`, which has the side
+      // effect of bringing up the OS virtual keyboard
+      markup += isTouchDevice
         ? `<span class='ML__textarea'>
                 <span class='ML__textarea__textarea'
                     tabindex="-1" role="textbox"
@@ -274,11 +277,11 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     markup += '</span>';
-    markup += 
-        '<div class="ML__sr-only">' +
-            '<span aria-live="assertive" aria-atomic="true"></span>' +
-            '<span></span>' +
-        '</div>';
+    markup +=
+      '<div class="ML__sr-only">' +
+      '<span aria-live="assertive" aria-atomic="true"></span>' +
+      '<span></span>' +
+      '</div>';
 
     this.element.innerHTML = this.options.createHTML(markup);
     if (!this.element.children) {
