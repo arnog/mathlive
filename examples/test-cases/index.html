@@ -300,6 +300,9 @@
         });
 
         const mf = document.getElementById('mf');
+
+
+
         mf.setOptions({
             onBlur: () => { console.log('blurring') },
             onKeystroke: () => { console.log('options keystroke'); return true; },
@@ -319,7 +322,7 @@
             onError: (ev) => { console.log('Error :' + ev.code); }
         });
 
-        mf.selection = [2, 5];
+        // mf.selection = [2, 5];
         mf.addEventListener('blur', (ev) => {
             console.log('blur event');
         });
@@ -333,8 +336,8 @@
             updateContent(mf);
             applySearchTerm();
         });
-        mf.addEventListener('change', (ev) => {
-        });
+        // mf.addEventListener('change', (ev) => {
+        // });
         mf.addEventListener('selection-change', (ev) => {
             const selection = mf.selection;
             // console.assert(selection.ranges[0][0] !== 2 || selection.ranges[0][1] !== 3);
@@ -352,40 +355,47 @@
         updateContent(mf);
         applySearchTerm();
 
-        let mathfieldContainer = document.getElementById('mathfield-container');
-        if (mathfieldContainer) {
-            let mfe = new MathfieldElement();
-            // Deferred assignments
-            mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
-            mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
-            mfe.setOptions({
-                virtualKeyboardMode: 'manual',
-            });
-            // mfe.setAttribute('disabled', '');   // sets to true
+        setTimeout(() => {
+          mf.insert('(1)/(2)', { format: 'auto' })
+        }, 1000);
 
-            // Attach the element (and use the attached values);
-            mathfieldContainer.appendChild(mfe);
 
-            mathfieldContainer.removeChild(mfe);
 
-            mathfieldContainer.appendChild(mfe);
-        }
-        if (document.getElementById('oldschool-mf')) {
-            MathLive.makeMathField('oldschool-mf', {
-                smartFence: true,
-                smartMode: true,
-                virtualKeyboardMode: 'manual',
-                // onContentDidChange: (mf) => {
-                //     updateContent(mf)
-                // },
-                onError: (err) => {
-                    console.error(
-                        err.latex,
-                        err.code + ' ' + (err.arg ?? '')
-                    );
-                },
-            });
-        }
+
+        // let mathfieldContainer = document.getElementById('mathfield-container');
+        // if (mathfieldContainer) {
+        //     let mfe = new MathfieldElement();
+        //     // Deferred assignments
+        //     mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
+        //     mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
+        //     mfe.setOptions({
+        //         virtualKeyboardMode: 'manual',
+        //     });
+        //     // mfe.setAttribute('disabled', '');   // sets to true
+
+        //     // Attach the element (and use the attached values);
+        //     mathfieldContainer.appendChild(mfe);
+
+        //     mathfieldContainer.removeChild(mfe);
+
+        //     mathfieldContainer.appendChild(mfe);
+        // }
+        // if (document.getElementById('oldschool-mf')) {
+        //     MathLive.makeMathField('oldschool-mf', {
+        //         smartFence: true,
+        //         smartMode: true,
+        //         virtualKeyboardMode: 'manual',
+        //         // onContentDidChange: (mf) => {
+        //         //     updateContent(mf)
+        //         // },
+        //         onError: (err) => {
+        //             console.error(
+        //                 err.latex,
+        //                 err.code + ' ' + (err.arg ?? '')
+        //             );
+        //         },
+        //     });
+        // }
         function updateContent(mf) {
             const latex = mf.getValue('latex-expanded');
             try {

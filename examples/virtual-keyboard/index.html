@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Virtual Keyboard Example</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+  <header>
+    <h1>Virtual Keyboard Example</h1>
+  </header>
+  <main>
+    Press the Virtual Keyboard icon to show a custom virtual
+    keyboard.
+    <math-field class="mathfield" id="mf" style="width:100%">\frac{\pi}{2}</math-field>
+
+    <!-- <math-field class="mathfield" id="mf-2" style="width:100%">\frac{\pi}{4}</math-field> -->
+<!-- 
+    <math-field class="mathfield" id="mf-3"     
+      virtual-keyboard-mode="onfocus"
+      use-shared-virtual-keyboard
+      style="width:100%">\frac{\pi}{8}</math-field> -->
+
+  </main>
+  <footer>
+    <a href="https://github.com/arnog/mathlive/tree/master/examples/basic"><svg class="fa-w-24" height="24px"
+        style="vertical-align: -3px; margin-right: 6px;">
+        <use xlink:href="../icons.svg#github" />
+      </svg>View source&nbsp;<svg class="fa-w-24" height="24px">
+        <use xlink:href="../icons.svg#angle-right" />
+      </svg></a>
+    <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px">
+        <use xlink:href="../icons.svg#angle-right" />
+      </svg></a>
+    <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px">
+        <use xlink:href="../icons.svg#angle-right" />
+      </svg></a>
+  </footer>
+
+
+  <script type="module">
+    import { MathfieldElement,  makeSharedVirtualKeyboard } from '/dist/mathlive.mjs';
+    const COLLEGE_KEYBOARD_LAYER = {
+      "college-layer": {
+        styles: "",
+        rows: [
+          [
+            { class: "keycap tex", latex: "a" },
+            { class: "keycap tex", latex: "x" },
+            { class: "separator w5" },
+            { class: "keycap", label: "7", key: "7" },
+            { class: "keycap", label: "8", key: "8" },
+            { class: "keycap", label: "9", key: "9" },
+            { class: "keycap", latex: "\\div" },
+            { class: "separator w5" },
+            {
+              class: "keycap tex small",
+              insert: "$$#@^{2}$$",
+              label: "<span><i>x</i>&thinsp;²</span>"
+            },
+            {
+              class: "keycap tex small",
+              insert: "$$#@^{}$$",
+              label: "<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>"
+            },
+            {
+              class: "keycap small",
+              insert: "$$\\sqrt{#0}$$",
+              latex: "\\sqrt{#0}"
+            }
+          ],
+          [
+            { class: "keycap tex", latex: "b" },
+            { class: "keycap tex", latex: "y" },
+            { class: "separator w5" },
+            { class: "keycap", label: "4", latex:"4" },
+            { class: "keycap", label: "5", key: "5" },
+            { class: "keycap", label: "6", key: "6" },
+            { class: "keycap", latex: "\\times" },
+            { class: "separator w5" },
+            { class: "keycap small", latex: "\\frac{#0}{#0}" },
+            { class: "separator" },
+            { class: "separator" }
+          ],
+          [
+            { class: "keycap tex", label: "<i>c</i>" },
+            { class: "keycap tex", label: "<i>z</i>" },
+            { class: "separator w5" },
+            { class: "keycap", label: "1", key: "1" },
+            { class: "keycap", label: "2", key: "2" },
+            { class: "keycap", label: "3", key: "3" },
+            { class: "keycap", latex: "-" },
+            { class: "separator w5" },
+            { class: "separator" },
+            { class: "separator" },
+            { class: "separator" }
+          ],
+          [
+            { class: "keycap", latex: "(" },
+            { class: "keycap", latex: ")" },
+
+            { class: "separator w5" },
+            { class: "keycap", label: "0", key: "0" },
+            { class: "keycap", latex: "." },
+            { class: "keycap tex", latex: "\\pi" },
+            { class: "keycap", latex: "+" },
+            { class: "separator w5" },
+            {
+              class: "action",
+              command: ["performWithFeedback", "moveToPreviousChar"],
+              label: "<svg><use xlink:href='#svg-arrow-left' /></svg>"
+            },
+            {
+              class: "action",
+              command: ["performWithFeedback", "moveToNextChar"],
+              label: "<svg><use xlink:href='#svg-arrow-right' /></svg>"
+            },
+            {
+              class: "action font-glyph bottom right",
+              command: ["performWithFeedback", "deleteBackward"],
+              label: "&#x232b;"
+            }
+          ]
+        ]
+      }
+    };
+    const COLLEGE_KEYBOARD = {
+      "college-keyboard": {
+        "label": "College", // Label displayed in the Virtual Keyboard Switcher
+        "tooltip": "College Level", // Tooltip when hovering over the label
+        "layer": "college-layer"
+      }
+    };
+    const mf = document.getElementById('mf');
+    mf.setOptions({
+      virtualKeyboardMode: "onfocus",
+      customVirtualKeyboardLayers: COLLEGE_KEYBOARD_LAYER,
+      customVirtualKeyboards: COLLEGE_KEYBOARD,
+      virtualKeyboards: "numeric college-keyboard"
+    });
+
+    // const mf3 = document.getElementById('mf-3');
+
+    // makeSharedVirtualKeyboard({});
+
+
+  </script>
+</body>
+
+</html>

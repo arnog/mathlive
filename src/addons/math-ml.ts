@@ -1077,6 +1077,20 @@ function atomToMathML(atom, options): string {
         break;
 
       case 'msubsup':
+        // if (atom.superscript && atom.subscript) {
+        //   result = '<msubsup>' + base;
+        //   result += toMathML(atom.subscript, 0, 0, options).mathML;
+        //   result += toMathML(atom.superscript, 0, 0, options).mathML;
+        //   result += '</msubsup>';
+        // } else if (atom.superscript) {
+        //   result = '<msup>' + base;
+        //   result += toMathML(atom.superscript, 0, 0, options).mathML;
+        //   result += '</msup>';
+        // } else if (atom.subscript) {
+        //   result = '<msub>' + base;
+        //   result += toMathML(atom.subscript, 0, 0, options).mathML;
+        //   result += '</msub>';
+        // }
         break;
 
       case 'phantom':

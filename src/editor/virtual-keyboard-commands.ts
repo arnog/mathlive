@@ -16,8 +16,8 @@ export { hideAlternateKeys };
 
 export function showAlternateKeys(
   keyboard: VirtualKeyboard,
-  keycap: string,
-  altKeys: string | any[]
+  altKeysetName: string,
+  altKeys: (string | any)[]
 ): boolean {
   const altContainer = getSharedElement(
     'mathlive-alternate-keys-panel',
@@ -91,7 +91,7 @@ export function showAlternateKeys(
   );
   const keycapElement = keyboard?.element.querySelector(
     'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
-      keycap +
+      altKeysetName +
       '"]'
   );
   const position = keycapElement.getBoundingClientRect();

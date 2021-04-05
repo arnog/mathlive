@@ -108,6 +108,8 @@
 
 ### Bug Fixes
 
+- **#818**: on iPad OS 14 and later, Safari pretends to be macOS ("Desktop
+  Mode"). This interfered with the handling of the MathLive virtual keyboard.
 - The selection in an expression could render incorrectly if it was displayed
   before the fonts were fully loaded. This situation is now handled correctly
   and the selection is redrawn when fonts finish loading.

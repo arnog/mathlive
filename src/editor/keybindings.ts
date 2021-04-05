@@ -28,15 +28,14 @@ function matchPlatform(p: string): boolean {
     let plat: KeybindingPlatform;
     if (/^(mac)/i.test(navigator.platform)) {
       plat = 'macos';
+      // WebKit on iPad OS 14 looks like macOS.
+      // Use the number of touch points to distinguish between macOS and iPad OS
+      if (navigator.maxTouchPoints === 5) plat = 'ios';
     } else if (/^(win)/i.test(navigator.platform)) {
       plat = 'windows';
     } else if (/(android)/i.test(navigator.userAgent)) {
       plat = 'android';
-    } else if (
-      /(iphone)/i.test(navigator.userAgent) ||
-      /(ipod)/i.test(navigator.userAgent) ||
-      /(ipad)/i.test(navigator.userAgent)
-    ) {
+    } else if (/(iphone|ipod|ipad)/i.test(navigator.userAgent)) {
       plat = 'ios';
     } else if (/\bcros\b/i.test(navigator.userAgent)) {
       plat = 'chromeos';

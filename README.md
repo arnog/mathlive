@@ -95,7 +95,17 @@ its internal state changes.
   <dd>Everything you need to integrate the MathLive library to your project</dd>  
   <dt><a href="https://cortexjs.io/docs/mathlive">MathLive SDK</a></dt>
   <dd>Reference documentation of the MathLive API</dd>
+</dl>
 
+## Related Projects
+
+<dl>
+  <dt><a href="https://cortexjs.io/math-json">MathJSON</a> (on <a href="https://github.com/cortex-js/math-json">GitHub</a>)</dt>
+  <dd>A lightweight data interchange format for mathematical notation.</dd>  
+  <dt><a href="https://cortexjs.io/compute-engine">Compute Engine</a> (on <a href="https://github.com/cortex-js/math-json/tree/master/src/compute-engine">GitHub</a>)</dt>
+  <dd>The CortexJS Compute Engine performs calculations on MathJSON expressions</dd>  
+  <dt><a href="https://cortexjs.io/cortex">Cortex</a> (on <a href="https://github.com/cortex-js/math-json/tree/master/src/cortex">GitHub</a>)</dt>
+  <dd>Cortex is a programming language for scientific computing</dd>  
 </dl>
 
 ## Contact Us

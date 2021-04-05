@@ -503,11 +503,7 @@ export function platform(): 'apple' | 'windows' | 'linux' {
       result = 'windows';
     } else if (/(android)/i.test(navigator.userAgent)) {
       result = 'linux';
-    } else if (
-      /(iphone)/i.test(navigator.userAgent) ||
-      /(ipod)/i.test(navigator.userAgent) ||
-      /(ipad)/i.test(navigator.userAgent)
-    ) {
+    } else if (/(iphone|ipod|ipad)/i.test(navigator.userAgent)) {
       result = 'apple';
     } else if (/\bcros\b/i.test(navigator.userAgent)) {
       result = 'linux';

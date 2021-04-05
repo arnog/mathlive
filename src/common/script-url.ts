@@ -58,4 +58,5 @@ export function resolveRelativeUrl(url: string): string {
 // to properly apply the alternative value in this case.
 
 const gScriptUrl =
-  (document.currentScript as HTMLScriptElement)?.src || getFileUrl();
+  (globalThis?.document?.currentScript as HTMLScriptElement)?.src ||
+  getFileUrl();

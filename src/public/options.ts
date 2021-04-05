@@ -278,7 +278,7 @@ export type TextToSpeechOptions = {
  */
 export interface VirtualKeyboardKeycap {
   /**
-   * The string displayed for the keycap
+   * The HTML markup displayed for the keycap
    */
   label?: string;
   /**
@@ -334,9 +334,13 @@ export interface VirtualKeyboardDefinition {
 }
 
 export interface VirtualKeyboardLayer {
+  /** The CSS stylesheet associated with this layer */
   styles?: string;
+  /** A CSS class name to customize the appearance of the background of the layer */
   backdrop?: string;
+  /** A CSS class name to customize the appearance of the container the layer */
   container?: string;
+  /** The rows of keycaps in this layer */
   rows?: VirtualKeyboardKeycap[][];
 }
 

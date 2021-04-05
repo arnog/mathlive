@@ -149,11 +149,7 @@ function platform(p: string): string {
       result = 'win';
     } else if (/(android)/i.test(navigator.userAgent)) {
       result = 'android';
-    } else if (
-      /(iphone)/i.test(navigator.userAgent) ||
-      /(ipod)/i.test(navigator.userAgent) ||
-      /(ipad)/i.test(navigator.userAgent)
-    ) {
+    } else if (/(iphone|ipad|ipod)/i.test(navigator.userAgent)) {
       result = 'ios';
     } else if (/\bcros\b/i.test(navigator.userAgent)) {
       result = 'chromeos';

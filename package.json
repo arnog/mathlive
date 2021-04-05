@@ -40,6 +40,7 @@
     "quoteProps": "consistent",
     "semi": true,
     "singleQuote": true,
+    "indentSize": 2,
     "tabWidth": 2,
     "trailingComma": "es5",
     "useTabs": false

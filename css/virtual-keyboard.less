@@ -1,9 +1,9 @@
 @keyboard-zindex: 105;
 @system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
 @monospace: 'IBM Plex Mono', 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
-    'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
+  'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
 @material-primary: #5f97fc;
 
 @shadow2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
@@ -12,666 +12,640 @@
 @shadow5: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
 
 .ML__keyboard {
-    --keyboard-background: rgba(209, 213, 217, 0.97);
-    --keyboard-text: #000;
-    --keyboard-text-active: var(--primary, hsl(var(--hue, 212), 40%, 50%));
-    --keyboard-background-border: #ddd;
-    --keycap-background: white;
-    --keycap-background-active: #e5e5e5;
-    --keycap-background-border: #e5e6e9;
-    --keycap-background-border-bottom: #8d8f92;
-    --keycap-text: #000;
-    --keycap-text-active: #fff;
-    --keycap-secondary-text: #000;
+  --keyboard-background: rgba(209, 213, 217, 0.97);
+  --keyboard-text: #000;
+  --keyboard-text-active: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+  --keyboard-background-border: #ddd;
+  --keycap-background: white;
+  --keycap-background-active: #e5e5e5;
+  --keycap-background-border: #e5e6e9;
+  --keycap-background-border-bottom: #8d8f92;
+  --keycap-text: #000;
+  --keycap-text-active: #fff;
+  --keycap-secondary-text: #000;
 
-    --keycap-modifier-background: #b9bdc7;
-    --keycap-modifier-border: #c5c9d0;
-    --keycap-modifier-border-bottom: #989da6;
+  --keycap-modifier-background: #b9bdc7;
+  --keycap-modifier-border: #c5c9d0;
+  --keycap-modifier-border-bottom: #989da6;
 
-    --keyboard-alternate-background: #fff;
-    --keyboard-alternate-background-active: #e5e5e5;
-    --keyboard-alternate-text: #000;
+  --keyboard-alternate-background: #fff;
+  --keyboard-alternate-background-active: #e5e5e5;
+  --keyboard-alternate-text: #000;
 
-    --keyboard-alternate-key-length: 70px;
-    --keyboard-alternate-key-font-size: 30px;
-    --keyboard-alternate-key-aside-font-size: 12px;
+  --keyboard-alternate-key-length: 70px;
+  --keyboard-alternate-key-font-size: 30px;
+  --keyboard-alternate-key-aside-font-size: 12px;
 
-    --keycap-height: 52px;
-    --keycap-font-size: 20px;
-    --keycap-small-font-size: calc(var(--keycap-font-size) * 0.9);
-    --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
-    --keycap-tt-font-size: calc(var(--keycap-font-size) * 1.5);
+  --keycap-height: 52px;
+  --keycap-font-size: 20px;
+  --keycap-small-font-size: calc(var(--keycap-font-size) * 0.8);
+  --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
+  --keycap-tt-font-size: calc(var(--keycap-font-size) * 1.5);
 
-    position: fixed;
-    left: 0;
-    bottom: -267px;
-    width: 100vw;
-    z-index: var(--keyboard-zindex, @keyboard-zindex);
+  position: fixed;
+  left: 0;
+  bottom: -267px;
+  width: 100vw;
+  z-index: var(--keyboard-zindex, @keyboard-zindex);
 
-    padding-top: 5px;
+  padding-top: 5px;
 
-    transform: translate(0, 0);
-    opacity: 0;
-    visibility: hidden;
-    // To make the keyboard visible, add the .is-visible class
-    // This will slide in and fade in the keyboard
-    transition: 0.28s cubic-bezier(0, 0, 0.2, 1); // Deceleration curve
-    transition-property: transform, opacity;
-    &.is-visible {
-        transform: translate(0, -267px);
-        opacity: 1;
-        visibility: visible;
-        transition-timing-function: cubic-bezier(
-            0.4,
-            0,
-            1,
-            1
-        ); // Acceleration curve
-    }
+  transform: translate(0, 0);
+  opacity: 0;
+  visibility: hidden;
+  // To make the keyboard visible, add the .is-visible class
+  // This will slide in and fade in the keyboard
+  transition: 0.28s cubic-bezier(0, 0, 0.2, 1); // Deceleration curve
+  transition-property: transform, opacity;
+  &.is-visible {
+    transform: translate(0, -267px);
+    opacity: 1;
+    visibility: visible;
+    transition-timing-function: cubic-bezier(
+      0.4,
+      0,
+      1,
+      1
+    ); // Acceleration curve
+  }
 
-    backdrop-filter: grayscale(50%);
-    background-color: var(--keyboard-background);
-    border: 1px solid var(--keyboard-background-border);
+  backdrop-filter: grayscale(50%);
+  background-color: var(--keyboard-background);
+  border: 1px solid var(--keyboard-background-border);
 
-    font-family: @system;
-    font-size: 16px; /* Size of toolbar labels */
+  font-family: @system;
+  font-size: 16px; /* Size of toolbar labels */
+  font-weight: 400;
+
+  margin: 0;
+  text-shadow: none;
+  box-sizing: border-box;
+
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+
+  box-shadow: @shadow2;
+
+  .tex {
+    font-family: KaTeX_Main, 'Cambria Math', 'Asana Math', OpenSymbol, Symbola,
+      STIX, Times, serif !important;
+  }
+  .tex-math {
+    font-family: KaTeX_Math, 'Cambria Math', 'Asana Math', OpenSymbol, Symbola,
+      STIX, Times, serif !important;
+  }
+  .tt {
+    font-family: @monospace !important;
+    font-size: var(--keycap-tt-font-size, 30px);
     font-weight: 400;
+  }
 
-    margin: 0;
-    text-shadow: none;
-    box-sizing: border-box;
-
-    touch-action: none;
-    -webkit-user-select: none;
-    user-select: none;
-    cursor: pointer;
-
-    box-shadow: @shadow2;
-
-    .tex {
-        font-family: KaTeX_Main, 'Cambria Math', 'Asana Math', OpenSymbol,
-            Symbola, STIX, Times, serif !important;
-    }
-    .tex-math {
-        font-family: KaTeX_Math, 'Cambria Math', 'Asana Math', OpenSymbol,
-            Symbola, STIX, Times, serif !important;
-    }
-    .tt {
-        font-family: @monospace !important;
-        font-size: var(--keycap-tt-font-size, 30px);
-        font-weight: 400;
+  /* This is the element that displays alternate keys on press+hold */
+  &.alternate-keys {
+    visibility: hidden;
+    max-width: 286px;
+    @media only screen and (max-height: 412px) {
+      // 412 is the height of the Google Pixel in landscape mode
+      max-width: 320px;
     }
 
-    /* This is the element that displays alternate keys on press+hold */
-    &.alternate-keys {
-        visibility: hidden;
-        max-width: 286px;
-        @media only screen and (max-height: 412px) {
-            // 412 is the height of the Google Pixel in landscape mode
-            max-width: 320px;
-        }
+    background-color: var(--keyboard-alternate-background);
+    text-align: center;
+    border-radius: 6px;
+    position: fixed;
+    bottom: auto; // Override the value from ML__keyboard
+    top: 0; // "
+    box-sizing: content-box; // "
+    transform: none; // "
+    z-index: calc(var(--keyboard-zindex, @keyboard-zindex) + 1);
 
-        background-color: var(--keyboard-alternate-background);
-        text-align: center;
-        border-radius: 6px;
-        position: fixed;
-        bottom: auto; // Override the value from ML__keyboard
-        top: 0; // "
-        box-sizing: content-box; // "
-        transform: none; // "
-        z-index: calc(var(--keyboard-zindex, @keyboard-zindex) + 1);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
 
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-content: center;
+    box-shadow: @shadow4;
 
-        box-shadow: @shadow4;
+    transition: none;
 
-        transition: none;
-
-        &.is-visible {
-            visibility: visible;
-        }
-
-        &.compact {
-            --keyboard-alternate-key-length: 50px;
-            --keyboard-alternate-key-font-size: 24px;
-            --keyboard-alternate-key-aside-font-size: 10px;
-        }
-
-        ul {
-            list-style: none;
-            margin: 3px;
-            padding: 0;
-            display: flex;
-            flex-flow: row wrap-reverse;
-            justify-content: center;
-            & > li {
-                // Alternate Keys
-                display: flex;
-                flex-flow: column;
-                align-items: center;
-                justify-content: center;
-                font-size: var(--keyboard-alternate-key-font-size);
-
-                height: var(--keyboard-alternate-key-length);
-                width: var(--keyboard-alternate-key-length);
-
-                @media only screen and (max-height: 412px) {
-                    font-size: 24px;
-                    height: 50px;
-                    width: 50px;
-                }
-
-                box-sizing: border-box;
-                margin: 0;
-                background: transparent;
-                border: 1px solid transparent; // #e5e6e9;
-                border-radius: 5px;
-                pointer-events: all;
-                color: var(--keyboard-alternate-text);
-                fill: currentColor;
-                &:hover,
-                &.pressed,
-                &.active {
-                    box-shadow: @shadow3;
-                    background: var(--keyboard-alternate-background-active);
-                    color: var(--keyboard-text-active);
-                }
-                &.small {
-                    font-size: var(--keycap-small-font-size, 18px);
-                }
-                &.small-button {
-                    width: 42px;
-                    height: 42px;
-                    margin: 2px;
-                    background: #fbfbfb;
-                    &:hover {
-                        background: var(--keyboard-alternate-background-active);
-                    }
-                }
-                &.box > div,
-                &.box > span {
-                    border: 1px dashed rgba(0, 0, 0, 0.24);
-                }
-                // Use to display warning icons, with a SVG icon
-                .warning {
-                    min-height: 60px;
-                    min-width: 60px;
-                    background: #cd0030;
-                    color: white;
-                    padding: 5px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 5px;
-                    &:hover,
-                    &.pressed,
-                    &.active {
-                        background: red;
-                    }
-                    svg {
-                        width: 50px;
-                        height: 50px;
-                    }
-                }
-                aside {
-                    font-size: var(--keyboard-alternate-key-aside-font-size);
-                    line-height: 12px;
-                    opacity: 0.78;
-                    padding-top: 2px;
-                }
-            }
-        }
+    &.is-visible {
+      visibility: visible;
     }
 
-    & > div.keyboard-layer {
-        display: none;
-        outline: none;
-        &.is-visible {
-            display: flex;
-            flex-flow: column;
-        }
-    }
-    & > div > div.keyboard-toolbar {
-        align-self: center;
-        display: flex;
-        flex-flow: row;
-        justify-content: space-between;
-        width: 736px; // Desktop
-        /* Tablet */
-        @media only screen and (min-width: 768px) and (max-width: 1024px) {
-            width: 556px;
-        }
-        /* Phone */
-        @media only screen and (max-width: 767px) {
-            width: 365px;
-            max-width: 100vw; // iPhone 5 is 320px
-        }
-
-        /* Icons for undo/redo, etc. */
-        svg {
-            height: 20px;
-            width: 20px;
-        }
-        @media only screen and (max-width: 767px) {
-            svg {
-                height: 13px;
-                width: 17px;
-            }
-        }
-        & > .left {
-            position: relative;
-            display: flex;
-            justify-content: flex-start;
-            flex-flow: row;
-        }
-        & > .right {
-            display: flex;
-            justify-content: flex-end;
-            flex-flow: row;
-        }
-        & > div > div {
-            /* "button" in the toolbar */
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-
-            pointer-events: all;
-            color: var(--keyboard-text);
-            fill: currentColor;
-            background: 0;
-            font-size: 110%;
-            padding: 4px 15px;
-            cursor: pointer;
-            min-height: 0;
-            border: none;
-            padding-left: 10px;
-            padding-right: 10px;
-            margin-top: 7px;
-            margin-bottom: 6px;
-            margin-left: 4px;
-            margin-right: 4px;
-            box-shadow: none;
-            border-bottom: 2px solid transparent;
-
-            &.disabled svg,
-            &.disabled:hover svg,
-            &.disabled.pressed svg {
-                color: var(--keyboard-text);
-                opacity: 0.2;
-            }
-
-            /* iPhone 5 */
-            @media only screen and (max-width: 414px) {
-                font-size: 100%;
-                padding: 0 6px 0 0;
-            }
-            /* Phone */
-            @media only screen and (max-width: 767px) {
-                padding-left: 4px;
-                padding-right: 4px;
-                font-size: 90%;
-            }
-            &:hover,
-            &:active,
-            &.pressed,
-            &.active {
-                color: var(--keyboard-text-active);
-            }
-            &.selected {
-                color: var(--keyboard-text-active);
-                border-bottom: 2px solid var(--keyboard-text-active);
-                margin-bottom: 8px;
-                padding-bottom: 0;
-            }
-        }
+    &.compact {
+      --keyboard-alternate-key-length: 50px;
+      --keyboard-alternate-key-font-size: 24px;
+      --keyboard-alternate-key-aside-font-size: 10px;
     }
 
-    /* Keyboard layouts are made or rows of keys... */
-    & div .rows {
-        border: 0;
-        border-collapse: separate;
-        clear: both;
-        margin: auto;
+    ul {
+      list-style: none;
+      margin: 3px;
+      padding: 0;
+      display: flex;
+      flex-flow: row wrap-reverse;
+      justify-content: center;
+      & > li {
+        // Alternate Keys
         display: flex;
         flex-flow: column;
         align-items: center;
-        & > ul {
-            list-style: none;
-            height: 40px;
-            margin: 0 0 3px 0;
-            padding: 0;
+        justify-content: center;
+        font-size: var(--keyboard-alternate-key-font-size);
 
-            & > li {
-                /* Key widths. A standard key is 10 units wide (w10) */
-                /* The formula for wn = n * w10 / 10 + (n -1) * margin-right */
-                display: flex;
-                flex-flow: column;
-                align-items: center;
-                justify-content: center;
+        height: var(--keyboard-alternate-key-length);
+        width: var(--keyboard-alternate-key-length);
 
-                width: 34px;
-                margin-right: 2px;
-                height: 40px;
-                box-sizing: border-box;
-                padding: 8px 0;
-                vertical-align: top;
-                text-align: center;
-                float: left;
-
-                color: var(--keycap-text);
-                fill: currentColor;
-                font-size: var(--keycap-font-size, 20px);
-                background: var(--keycap-background);
-                border: 1px solid var(--keycap-background-border);
-                border-bottom-color: var(--keycap-background-border-bottom);
-                border-radius: 5px;
-                pointer-events: all;
-
-                /* Last key should be flush against the border */
-                &:last-child {
-                    margin-right: 0;
-                }
-
-                &.small {
-                    font-size: var(--keycap-small-font-size, 16px);
-                }
-                &.tt {
-                    color: var(--keyboard-text-active);
-                }
-
-                /* For the alignment of the text on some modifiers (e.g. shift) */
-                &.bottom {
-                    justify-content: flex-end;
-                }
-                &.left {
-                    align-items: flex-start;
-                    padding-left: 4px;
-                }
-                &.right {
-                    align-items: flex-end;
-                    padding-right: 4px;
-                }
-
-                svg {
-                    width: 20px;
-                    height: 20px;
-                }
-                // Use to display warning icons, with a SVG icon
-                .warning {
-                    height: 25px;
-                    width: 25px;
-                    min-height: 25px;
-                    min-width: 25px;
-                    background: #cd0030;
-                    color: white;
-                    border-radius: 100%;
-                    padding: 5px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-bottom: -2px;
-                    svg {
-                        width: 16px;
-                        height: 16px;
-                    }
-                    @media only screen and (max-width: 768px) {
-                        height: 16px;
-                        width: 16px;
-                        min-height: 16px;
-                        min-width: 16px;
-                        svg {
-                            width: 14px;
-                            height: 14px;
-                        }
-                    }
-                }
-                & > .w0 {
-                    width: 0;
-                }
-                & > .w5 {
-                    width: 16px;
-                }
-                & > .w15 {
-                    width: 52px;
-                }
-                & > .w20 {
-                    width: 70px;
-                }
-                & > .w50 {
-                    width: 178px;
-                }
-                /* Extra spacing between two adjacent keys */
-                &.separator {
-                    background: transparent;
-                    border: none;
-                    pointer-events: none;
-                }
-
-                // Only show if there's extra room (up to four more columns)
-                @media only screen and (max-width: 560px) {
-                    &.if-wide {
-                        display: none;
-                    }
-                }
-
-                &.tex-math {
-                    font-size: 25px;
-                }
-                // &.tt {font-size: 30px;}
-                &:hover,
-                &.pressed {
-                    // box-shadow: inset 0 0 1px 1px #8d8f92;
-                    background: var(--keycap-background-active);
-                    color: var(--keyboard-text-active);
-                }
-                &.keycap:active,
-                &.keycap.active,
-                &.action:active,
-                &.action.active {
-                    transform: translateY(-20px) scale(1.4, 1.4);
-                    z-index: calc(var(--keyboard-zindex, @keyboard-zindex) - 5);
-                    color: var(--keyboard-text-active);
-                }
-                &.modifier:active,
-                &.modifier.active {
-                    background: var(--keyboard-text-active);
-                    color: var(--keycap-text-active);
-                }
-                &.action.font-glyph,
-                &.modifier.font-glyph {
-                    font-size: 18px;
-                    @media only screen and (max-width: 767px) {
-                        font-size: 16px;
-                    }
-                }
-
-                // Waves effect
-                position: relative;
-                overflow: hidden;
-                -webkit-user-select: none;
-                user-select: none;
-                -webkit-tap-highlight-color: transparent;
-                // z-index: 1;
-                // transition: .14s cubic-bezier(.4, 0, .2, 1);
-                &.fnbutton {
-                    @media only screen and (max-width: 767px) {
-                        font-size: 12px;
-                    }
-                    // width: 60px;
-                    // max-width: 60px;
-                }
-                &.bigfnbutton {
-                    font-size: var(--keycap-extra-small-font-size, 14px);
-                    @media only screen and (max-width: 767px) {
-                        font-size: calc(
-                            var(--keycap-extra-small-font-size, 14px) / 1.55
-                        );
-                    }
-                }
-                &.modifier,
-                &.action {
-                    background-color: var(--keycap-modifier-background);
-                    border-color: var(--keycap-modifier-border);
-                    border-bottom-color: var(--keycap-modifier-border-bottom);
-                    font-size: 65%;
-                    font-weight: 100;
-                }
-                &.modifier.selected,
-                &.action.selected {
-                    color: var(--keyboard-text-active);
-                    &:hover,
-                    &:active,
-                    &.pressed,
-                    &.active {
-                        color: white;
-                    }
-                }
-                &.keycap.w50 {
-                    font-size: 80%;
-                    padding-top: 10px;
-                    font-weight: 100;
-                }
-                small {
-                    color: #555;
-                    @media only screen and (max-width: 767px) {
-                        font-size: 9px;
-                    }
-                }
-                aside {
-                    font-family: @system;
-                    font-size: 10px;
-                    line-height: 10px;
-                    color: #666;
-                    /* On small screens, don't display */
-                    @media only screen and (max-width: 767px) {
-                        display: none;
-                    }
-                }
-            }
+        @media only screen and (max-height: 412px) {
+          font-size: 24px;
+          height: 50px;
+          width: 50px;
         }
-        /* iPhone 5 */
-        @media only screen and (max-width: 414px) {
-            & > ul {
-                & > li {
-                    width: calc(10vw - 2px); // 29px;
-                    margin-right: 2px;
-                }
-                & > .w5 {
-                    width: calc(5vw -2px); // 13.5px;
-                }
-                & > .w15 {
-                    width: calc(15vw - 2px); // 44.5px;
-                }
-                & > .w20 {
-                    width: calc(20vw - 2px); // 60px;
-                }
-                & > .w50 {
-                    width: calc(50vw - 2px); // 153px;
-                }
-            }
+
+        box-sizing: border-box;
+        margin: 0;
+        background: transparent;
+        border: 1px solid transparent; // #e5e6e9;
+        border-radius: 5px;
+        pointer-events: all;
+        color: var(--keyboard-alternate-text);
+        fill: currentColor;
+        &:hover,
+        &.pressed,
+        &.active {
+          box-shadow: @shadow3;
+          background: var(--keyboard-alternate-background-active);
+          color: var(--keyboard-text-active);
         }
-        /* Pixel, iPhone 6,7,8+ */
-        @media only screen and (min-width: 415px) and (max-width: 768px) {
-            & > ul {
-                & > li {
-                    width: 37px;
-                    margin-right: 3px;
-                }
-                & > .w5 {
-                    width: 17px;
-                }
-                & > .w15 {
-                    width: 57px;
-                }
-                & > .w20 {
-                    width: 77px;
-                }
-                & > .w50 {
-                    width: 197px;
-                }
-            }
+        &.small {
+          font-size: var(--keycap-small-font-size, 16px);
         }
-        /* Tablet size */
-        @media only screen and (min-width: 768px) and (max-width: 1024px) {
-            & > ul {
-                height: var(--keycap-height, 52px);
-                & > li {
-                    height: var(--keycap-height, 52px);
-                    width: 51px;
-                    margin-right: 4px;
-                }
-                & > .w5 {
-                    width: 23.5px;
-                }
-                & > .w15 {
-                    width: 78.5px;
-                }
-                & > .w20 {
-                    width: 106px;
-                }
-                & > .w50 {
-                    width: 271px;
-                }
-            }
+        &.small-button {
+          width: 42px;
+          height: 42px;
+          margin: 2px;
+          background: #fbfbfb;
+          &:hover {
+            background: var(--keyboard-alternate-background-active);
+          }
         }
-        /* Desktop size */
-        @media only screen and (min-width: 1025px) {
-            & > ul {
-                height: var(--keycap-height, 52px);
-                & > li {
-                    height: var(--keycap-height, 52px);
-                    width: 66px;
-                    margin-right: 6px;
-                }
-                & > .modifier,
-                & > .action {
-                    font-size: 80%;
-                }
-                & > .w5 {
-                    width: 30px;
-                }
-                & > .w15 {
-                    width: 102px;
-                }
-                & > .w20 {
-                    width: 138px;
-                }
-                & > .w50 {
-                    width: 354px;
-                }
-            }
+        &.box > div,
+        &.box > span {
+          border: 1px dashed rgba(0, 0, 0, 0.24);
         }
+        // Use to display warning icons, with a SVG icon
+        .warning {
+          min-height: 60px;
+          min-width: 60px;
+          background: #cd0030;
+          color: white;
+          padding: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 5px;
+          &:hover,
+          &.pressed,
+          &.active {
+            background: red;
+          }
+          svg {
+            width: 50px;
+            height: 50px;
+          }
+        }
+        aside {
+          font-size: var(--keyboard-alternate-key-aside-font-size);
+          line-height: 12px;
+          opacity: 0.78;
+          padding-top: 2px;
+        }
+      }
     }
+  }
+
+  & > div.keyboard-layer {
+    display: none;
+    outline: none;
+    &.is-visible {
+      display: flex;
+      flex-flow: column;
+    }
+  }
+  & > div > div.keyboard-toolbar {
+    align-self: center;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    width: 736px; // Desktop
+    /* Tablet */
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+      width: 556px;
+    }
+    /* Phone */
+    @media only screen and (max-width: 767px) {
+      width: 365px;
+      max-width: 100vw; // iPhone 5 is 320px
+    }
+
+    /* Icons for undo/redo, etc. */
+    svg {
+      height: 20px;
+      width: 20px;
+    }
+    @media only screen and (max-width: 767px) {
+      svg {
+        height: 13px;
+        width: 17px;
+      }
+    }
+    & > .left {
+      position: relative;
+      display: flex;
+      justify-content: flex-start;
+      flex-flow: row;
+    }
+    & > .right {
+      display: flex;
+      justify-content: flex-end;
+      flex-flow: row;
+    }
+    & > div > div {
+      /* "button" in the toolbar */
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+
+      pointer-events: all;
+      color: var(--keyboard-text);
+      fill: currentColor;
+      background: 0;
+      font-size: 110%;
+      padding: 4px 15px;
+      cursor: pointer;
+      min-height: 0;
+      border: none;
+      padding-left: 10px;
+      padding-right: 10px;
+      margin-top: 7px;
+      margin-bottom: 6px;
+      margin-left: 4px;
+      margin-right: 4px;
+      box-shadow: none;
+      border-bottom: 2px solid transparent;
+
+      &.disabled svg,
+      &.disabled:hover svg,
+      &.disabled.pressed svg {
+        color: var(--keyboard-text);
+        opacity: 0.2;
+      }
+
+      /* iPhone 5 */
+      @media only screen and (max-width: 414px) {
+        font-size: 100%;
+        padding: 0 6px 0 0;
+      }
+      /* Phone */
+      @media only screen and (max-width: 767px) {
+        padding-left: 4px;
+        padding-right: 4px;
+        font-size: 90%;
+      }
+      &:hover,
+      &:active,
+      &.pressed,
+      &.active {
+        color: var(--keyboard-text-active);
+      }
+      &.selected {
+        color: var(--keyboard-text-active);
+        border-bottom: 2px solid var(--keyboard-text-active);
+        margin-bottom: 8px;
+        padding-bottom: 0;
+      }
+    }
+  }
+
+  /* Keyboard layouts are made or rows of keys... */
+  & div .rows {
+    border: 0;
+    border-collapse: separate;
+    clear: both;
+    margin: auto;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    & > ul {
+      list-style: none;
+      height: 40px;
+      margin: 0 0 3px 0;
+      padding: 0;
+
+      & > li {
+        /* Key widths. A standard key is 10 units wide (w10) */
+        /* The formula for wn = n * w10 / 10 + (n -1) * margin-right */
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: center;
+
+        width: 34px;
+        margin-right: 2px;
+        height: 40px;
+        box-sizing: border-box;
+        padding: 8px 0;
+        vertical-align: top;
+        text-align: center;
+        float: left;
+
+        color: var(--keycap-text);
+        fill: currentColor;
+        font-size: var(--keycap-font-size, 20px);
+        background: var(--keycap-background);
+        border: 1px solid var(--keycap-background-border);
+        border-bottom-color: var(--keycap-background-border-bottom);
+        border-radius: 5px;
+        pointer-events: all;
+
+        /* Last key should be flush against the border */
+        &:last-child {
+          margin-right: 0;
+        }
+
+        &.small {
+          font-size: var(--keycap-small-font-size, 16px);
+        }
+        &.tt {
+          color: var(--keyboard-text-active);
+        }
+
+        /* For the alignment of the text on some modifiers (e.g. shift) */
+        &.bottom {
+          justify-content: flex-end;
+        }
+        &.left {
+          align-items: flex-start;
+          padding-left: 4px;
+        }
+        &.right {
+          align-items: flex-end;
+          padding-right: 4px;
+        }
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+        // Use to display warning icons, with a SVG icon
+        .warning {
+          height: 25px;
+          width: 25px;
+          min-height: 25px;
+          min-width: 25px;
+          background: #cd0030;
+          color: white;
+          border-radius: 100%;
+          padding: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: -2px;
+          svg {
+            width: 16px;
+            height: 16px;
+          }
+          @media only screen and (max-width: 768px) {
+            height: 16px;
+            width: 16px;
+            min-height: 16px;
+            min-width: 16px;
+            svg {
+              width: 14px;
+              height: 14px;
+            }
+          }
+        }
+        & > .w0 {
+          width: 0;
+        }
+        & > .w5 {
+          width: 16px;
+        }
+        & > .w15 {
+          width: 52px;
+        }
+        & > .w20 {
+          width: 70px;
+        }
+        & > .w50 {
+          width: 178px;
+        }
+        /* Extra spacing between two adjacent keys */
+        &.separator {
+          background: transparent;
+          border: none;
+          pointer-events: none;
+        }
+
+        // Only show if there's extra room (up to four more columns)
+        @media only screen and (max-width: 560px) {
+          &.if-wide {
+            display: none;
+          }
+        }
+
+        &.tex-math {
+          font-size: 25px;
+        }
+        // &.tt {font-size: 30px;}
+        &:hover,
+        &.pressed {
+          // box-shadow: inset 0 0 1px 1px #8d8f92;
+          background: var(--keycap-background-active);
+          color: var(--keyboard-text-active);
+        }
+        &.keycap:active,
+        &.keycap.active,
+        &.action:active,
+        &.action.active {
+          transform: translateY(-20px) scale(1.4, 1.4);
+          z-index: calc(var(--keyboard-zindex, @keyboard-zindex) - 5);
+          color: var(--keyboard-text-active);
+        }
+        &.modifier:active,
+        &.modifier.active {
+          background: var(--keyboard-text-active);
+          color: var(--keycap-text-active);
+        }
+        &.action.font-glyph,
+        &.modifier.font-glyph {
+          font-size: 18px;
+          @media only screen and (max-width: 767px) {
+            font-size: 16px;
+          }
+        }
+
+        // Waves effect
+        position: relative;
+        overflow: hidden;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        // z-index: 1;
+        // transition: .14s cubic-bezier(.4, 0, .2, 1);
+        &.fnbutton {
+          @media only screen and (max-width: 767px) {
+            font-size: 12px;
+          }
+          // width: 60px;
+          // max-width: 60px;
+        }
+        &.bigfnbutton {
+          font-size: var(--keycap-extra-small-font-size, 14px);
+          @media only screen and (max-width: 767px) {
+            font-size: calc(var(--keycap-extra-small-font-size, 14px) / 1.55);
+          }
+        }
+        &.modifier,
+        &.action {
+          background-color: var(--keycap-modifier-background);
+          border-color: var(--keycap-modifier-border);
+          border-bottom-color: var(--keycap-modifier-border-bottom);
+          font-size: 65%;
+          font-weight: 100;
+        }
+        &.modifier.selected,
+        &.action.selected {
+          color: var(--keyboard-text-active);
+          &:hover,
+          &:active,
+          &.pressed,
+          &.active {
+            color: white;
+          }
+        }
+        &.keycap.w50 {
+          font-size: 80%;
+          padding-top: 10px;
+          font-weight: 100;
+        }
+        small {
+          color: #555;
+          @media only screen and (max-width: 767px) {
+            font-size: 9px;
+          }
+        }
+        aside {
+          font-family: @system;
+          font-size: 10px;
+          line-height: 10px;
+          color: #666;
+          /* On small screens, don't display */
+          @media only screen and (max-width: 767px) {
+            display: none;
+          }
+        }
+      }
+    }
+    /* iPhone 5 */
+    @media only screen and (max-width: 414px) {
+      & > ul {
+        & > li {
+          width: calc(10vw - 2px); // 29px;
+          margin-right: 2px;
+        }
+        & > .w5 {
+          width: calc(5vw -2px); // 13.5px;
+        }
+        & > .w15 {
+          width: calc(15vw - 2px); // 44.5px;
+        }
+        & > .w20 {
+          width: calc(20vw - 2px); // 60px;
+        }
+        & > .w50 {
+          width: calc(50vw - 2px); // 153px;
+        }
+      }
+    }
+    /* Pixel, iPhone 6,7,8+ */
+    @media only screen and (min-width: 415px) and (max-width: 768px) {
+      & > ul {
+        & > li {
+          width: 37px;
+          margin-right: 3px;
+        }
+        & > .w5 {
+          width: 17px;
+        }
+        & > .w15 {
+          width: 57px;
+        }
+        & > .w20 {
+          width: 77px;
+        }
+        & > .w50 {
+          width: 197px;
+        }
+      }
+    }
+    /* Tablet size */
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+      & > ul {
+        height: var(--keycap-height, 52px);
+        & > li {
+          height: var(--keycap-height, 52px);
+          width: 51px;
+          margin-right: 4px;
+        }
+        & > .w5 {
+          width: 23.5px;
+        }
+        & > .w15 {
+          width: 78.5px;
+        }
+        & > .w20 {
+          width: 106px;
+        }
+        & > .w50 {
+          width: 271px;
+        }
+      }
+    }
+    /* Desktop size */
+    @media only screen and (min-width: 1025px) {
+      & > ul {
+        height: var(--keycap-height, 52px);
+        & > li {
+          height: var(--keycap-height, 52px);
+          width: 66px;
+          margin-right: 6px;
+        }
+        & > .modifier,
+        & > .action {
+          font-size: 80%;
+        }
+        & > .w5 {
+          width: 30px;
+        }
+        & > .w15 {
+          width: 102px;
+        }
+        & > .w20 {
+          width: 138px;
+        }
+        & > .w50 {
+          width: 354px;
+        }
+      }
+    }
+  }
 }
 @media (prefers-color-scheme: dark) {
-    body:not([theme='light']) .ML__keyboard {
-        --hue: 206;
-        --keyboard-background: hsl(var(--hue, 212), 19%, 38%);
-        --keyboard-text: #f0f0f0;
-        --keyboard-text-active: hsl(var(--hue, 212), 100%, 60%);
-        --keyboard-background-border: hsl(0, 0%, 20%);
-        --keycap-background: hsl(var(--hue, 212), 25%, 39%);
-        --keycap-background-active: hsl(var(--hue, 212), 35%, 42%);
-        --keycap-background-border: hsl(var(--hue, 212), 25%, 35%);
-        --keycap-background-border-bottom: hsl(206, 35%, 40%);
-        --keycap-text: hsl(0, 0%, 81.6%);
-        --keycap-text-active: #000;
-        --keycap-secondary-text: #fff;
-
-        --keycap-modifier-background: hsl(var(--hue, 212), 35%, 40%);
-        --keycap-modifier-border: hsl(var(--hue, 212), 35%, 35%);
-        --keycap-modifier-border-bottom: hsl(var(--hue, 212), 35%, 42%);
-
-        --keyboard-alternate-background: hsl(var(--hue, 212), 19%, 38%);
-        --keyboard-alternate-background-active: hsl(var(--hue, 212), 35%, 42%);
-        --keyboard-alternate-text: hsl(0, 0%, 82%);
-    }
-}
-/* Same as the media query, but with a class */
-body[theme='dark'] .ML__keyboard {
+  body:not([theme='light']) .ML__keyboard {
     --hue: 206;
     --keyboard-background: hsl(var(--hue, 212), 19%, 38%);
     --keyboard-text: #f0f0f0;
@@ -692,196 +666,197 @@ body[theme='dark'] .ML__keyboard {
     --keyboard-alternate-background: hsl(var(--hue, 212), 19%, 38%);
     --keyboard-alternate-background-active: hsl(var(--hue, 212), 35%, 42%);
     --keyboard-alternate-text: hsl(0, 0%, 82%);
+  }
+}
+/* Same as the media query, but with a class */
+body[theme='dark'] .ML__keyboard {
+  --hue: 206;
+  --keyboard-background: hsl(var(--hue, 212), 19%, 38%);
+  --keyboard-text: #f0f0f0;
+  --keyboard-text-active: hsl(var(--hue, 212), 100%, 60%);
+  --keyboard-background-border: hsl(0, 0%, 20%);
+  --keycap-background: hsl(var(--hue, 212), 25%, 39%);
+  --keycap-background-active: hsl(var(--hue, 212), 35%, 42%);
+  --keycap-background-border: hsl(var(--hue, 212), 25%, 35%);
+  --keycap-background-border-bottom: hsl(206, 35%, 40%);
+  --keycap-text: hsl(0, 0%, 81.6%);
+  --keycap-text-active: #000;
+  --keycap-secondary-text: #fff;
+
+  --keycap-modifier-background: hsl(var(--hue, 212), 35%, 40%);
+  --keycap-modifier-border: hsl(var(--hue, 212), 35%, 35%);
+  --keycap-modifier-border-bottom: hsl(var(--hue, 212), 35%, 42%);
+
+  --keyboard-alternate-background: hsl(var(--hue, 212), 19%, 38%);
+  --keyboard-alternate-background-active: hsl(var(--hue, 212), 35%, 42%);
+  --keyboard-alternate-text: hsl(0, 0%, 82%);
 }
 
 /* The 'material' theme for the virtual keyboard */
 div.ML__keyboard.material {
-    --keyboard-background: rgba(209, 213, 217, 0.9);
-    --keyboard-background-border: #ddd;
-    --keycap-background: transparent;
-    --keycap-background-active: #cccfd1;
-    --keycap-background-border: transparent;
+  --keyboard-background: rgba(209, 213, 217, 0.9);
+  --keyboard-background-border: #ddd;
+  --keycap-background: transparent;
+  --keycap-background-active: #cccfd1;
+  --keycap-background-border: transparent;
 
-    --keyboard-alternate-background: #efefef;
-    --keyboard-alternate-text: #000;
+  --keyboard-alternate-background: #efefef;
+  --keyboard-alternate-text: #000;
 
-    font-family: Roboto, sans-serif;
+  font-family: Roboto, sans-serif;
 
-    &.alternate-keys {
-        background: var(--keyboard-alternate-background);
-        border: 1px solid transparent;
-        border-radius: 5px;
-        box-shadow: @shadow4;
+  &.alternate-keys {
+    background: var(--keyboard-alternate-background);
+    border: 1px solid transparent;
+    border-radius: 5px;
+    box-shadow: @shadow4;
 
-        ul li:hover,
-        ul li:active,
-        ul li.active,
-        ul li.pressed {
-            border: 1px solid transparent;
-            background: @material-primary;
-            color: white;
-            fill: currentColor;
-        }
+    ul li:hover,
+    ul li:active,
+    ul li.active,
+    ul li.pressed {
+      border: 1px solid transparent;
+      background: @material-primary;
+      color: white;
+      fill: currentColor;
+    }
+  }
+
+  .keyboard-toolbar {
+    & > div > div {
+      font-size: 16px;
+    }
+    div div:hover,
+    div div:active,
+    div.div.active,
+    div.div.pressed {
+      color: @material-primary;
+      fill: currentColor;
+    }
+    & > div > .selected {
+      color: @material-primary;
+      fill: currentColor;
+      border-bottom: 2px solid @material-primary;
+      margin-bottom: 8px;
+      padding-bottom: 0;
+    }
+  }
+  div > .rows > ul > .keycap {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    color: var(--keycap-text);
+    fill: currentColor;
+
+    &.tt {
+      color: @material-primary;
     }
 
-    .keyboard-toolbar {
-        & > div > div {
-            font-size: 16px;
-        }
-        div div:hover,
-        div div:active,
-        div.div.active,
-        div.div.pressed {
-            color: @material-primary;
-            fill: currentColor;
-        }
-        & > div > .selected {
-            color: @material-primary;
-            fill: currentColor;
-            border-bottom: 2px solid @material-primary;
-            margin-bottom: 8px;
-            padding-bottom: 0;
-        }
+    // transition: .14s cubic-bezier(.4, 0, .2, 1);
+    transition: none;
+    &[data-key=' '] {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      height: 20px;
+      background: #e0e0e0;
+
+      &:hover,
+      &:active,
+      &.active,
+      &.pressed {
+        background: #d0d0d0;
+        box-shadow: none;
+        transform: none;
+      }
     }
-    div > .rows > ul > .keycap {
-        background: transparent;
-        border: 1px solid transparent;
-        border-radius: 5px;
-        color: var(--keycap-text);
-        fill: currentColor;
-
-        &.tt {
-            color: @material-primary;
-        }
-
-        // transition: .14s cubic-bezier(.4, 0, .2, 1);
+    &:not([data-key=' ']):hover {
+      border: 1px solid transparent;
+      background: var(--keycap-background-active);
+      box-shadow: none;
+    }
+    &:not([data-key=' ']).pressed,
+    &:not([data-key=' ']).active,
+    &:not([data-key=' ']):active {
+      background: var(--keyboard-alternate-background);
+      color: var(--keyboard-alternate-text);
+      box-shadow: @shadow3;
+      @media only screen and (max-width: 767px) {
+        box-shadow: @shadow3;
+        font-size: 10px;
+        vertical-align: top;
+        width: 19.5px;
+        margin-right: 10px;
+        margin-left: 10px;
+        transform: translateY(-20px) scale(2, 2);
+        // transition: .07s cubic-bezier(.4, 0, .2, 1);
         transition: none;
-        &[data-key=' '] {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            height: 20px;
-            background: #e0e0e0;
-
-            &:hover,
-            &:active,
-            &.active,
-            &.pressed {
-                background: #d0d0d0;
-                box-shadow: none;
-                transform: none;
-            }
-        }
-        &:not([data-key=' ']):hover {
-            border: 1px solid transparent;
-            background: var(--keycap-background-active);
-            box-shadow: none;
-        }
-        &:not([data-key=' ']).pressed,
-        &:not([data-key=' ']).active,
-        &:not([data-key=' ']):active {
-            background: var(--keyboard-alternate-background);
-            color: var(--keyboard-alternate-text);
-            box-shadow: @shadow3;
-            @media only screen and (max-width: 767px) {
-                box-shadow: @shadow3;
-                font-size: 10px;
-                vertical-align: top;
-                width: 19.5px;
-                margin-right: 10px;
-                margin-left: 10px;
-                transform: translateY(-20px) scale(2, 2);
-                // transition: .07s cubic-bezier(.4, 0, .2, 1);
-                transition: none;
-                justify-content: flex-start;
-                padding: 2px 0 0 0;
-                z-index: calc(var(--ML_keyboard-zindex, @keyboard-zindex) - 5);
-            }
-            @media only screen and (max-width: 414px) {
-                width: 16.5px;
-            }
-        }
-        &:last-child:active,
-        &:last-child.active {
-            @media only screen and (max-width: 767px) {
-                margin-right: 0;
-                margin-left: 14px;
-            }
-        }
+        justify-content: flex-start;
+        padding: 2px 0 0 0;
+        z-index: calc(var(--ML_keyboard-zindex, @keyboard-zindex) - 5);
+      }
+      @media only screen and (max-width: 414px) {
+        width: 16.5px;
+      }
     }
-    div div.rows ul li.modifier,
-    div div.rows ul li.action {
-        background: transparent;
-        border: 0;
-        color: #869096;
-        fill: currentColor;
-        font-size: 16px;
-        // transition: .28s cubic-bezier(.4, 0, .2, 1);
-        transition: none;
-        &.selected {
-            color: @material-primary;
-            border-radius: 0;
-            border-bottom: 2px solid @material-primary;
-        }
-        &:hover,
-        &:active,
-        &.active,
-        &.pressed {
-            border: 0;
-            color: var(--keycap-text);
-            background: var(--keycap-background-active);
-            box-shadow: none;
-        }
+    &:last-child:active,
+    &:last-child.active {
+      @media only screen and (max-width: 767px) {
+        margin-right: 0;
+        margin-left: 14px;
+      }
     }
-    div div.rows ul li.fnbutton,
-    div div.rows ul li.bigfnbutton {
-        background: transparent;
-        border: 0;
-        // transition: .28s cubic-bezier(.4, 0, .2, 1);
-        &.selected,
-        &.selected {
-            color: @material-primary;
-            fill: currentColor;
-            border-radius: 0;
-            border-bottom: 2px solid @material-primary;
-        }
-        &:hover,
-        &:active,
-        &.pressed,
-        &.active {
-            border: 0;
-            color: @material-primary;
-            fill: currentColor;
-            background: var(--keycap-background-active);
-            box-shadow: none;
-        }
+  }
+  div div.rows ul li.modifier,
+  div div.rows ul li.action {
+    background: transparent;
+    border: 0;
+    color: #869096;
+    fill: currentColor;
+    font-size: 16px;
+    // transition: .28s cubic-bezier(.4, 0, .2, 1);
+    transition: none;
+    &.selected {
+      color: @material-primary;
+      border-radius: 0;
+      border-bottom: 2px solid @material-primary;
     }
+    &:hover,
+    &:active,
+    &.active,
+    &.pressed {
+      border: 0;
+      color: var(--keycap-text);
+      background: var(--keycap-background-active);
+      box-shadow: none;
+    }
+  }
+  div div.rows ul li.fnbutton,
+  div div.rows ul li.bigfnbutton {
+    background: transparent;
+    border: 0;
+    // transition: .28s cubic-bezier(.4, 0, .2, 1);
+    &.selected,
+    &.selected {
+      color: @material-primary;
+      fill: currentColor;
+      border-radius: 0;
+      border-bottom: 2px solid @material-primary;
+    }
+    &:hover,
+    &:active,
+    &.pressed,
+    &.active {
+      border: 0;
+      color: @material-primary;
+      fill: currentColor;
+      background: var(--keycap-background-active);
+      box-shadow: none;
+    }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
-    body:not([theme='light']) div.ML__keyboard.material {
-        --hue: 198;
-        --keyboard-background: hsl(var(--hue, 212), 19%, 18%);
-        --keyboard-text: #d4d6d7;
-        --keyboard-text-active: @material-primary;
-        --keyboard-background-border: hsl(0, 0%, 20%);
-        --keycap-background: hsl(var(--hue, 212), 25%, 39%);
-        --keycap-background-active: @material-primary;
-        --keycap-background-border: transparent;
-        --keycap-background-border-bottom: transparent;
-        --keycap-text: hsl(0, 0%, 81.6%);
-        --keycap-text-active: #d4d6d7;
-        --keycap-secondary-text: @material-primary;
-
-        --keycap-modifier-background: hsl(var(--hue, 212), 35%, 40%);
-        --keycap-modifier-border: hsl(var(--hue, 212), 35%, 35%);
-        --keycap-modifier-border-bottom: hsl(var(--hue, 212), 35%, 42%);
-
-        --keyboard-alternate-background: hsl(var(--hue, 212), 8%, 2%);
-        --keyboard-alternate-background-active: hsl(var(--hue, 212), 35%, 42%);
-        --keyboard-alternate-text: hsl(0, 0%, 82%);
-    }
-}
-body[theme='dark'] div.ML__keyboard.material {
+  body:not([theme='light']) div.ML__keyboard.material {
     --hue: 198;
     --keyboard-background: hsl(var(--hue, 212), 19%, 18%);
     --keyboard-text: #d4d6d7;
@@ -902,4 +877,27 @@ body[theme='dark'] div.ML__keyboard.material {
     --keyboard-alternate-background: hsl(var(--hue, 212), 8%, 2%);
     --keyboard-alternate-background-active: hsl(var(--hue, 212), 35%, 42%);
     --keyboard-alternate-text: hsl(0, 0%, 82%);
+  }
+}
+body[theme='dark'] div.ML__keyboard.material {
+  --hue: 198;
+  --keyboard-background: hsl(var(--hue, 212), 19%, 18%);
+  --keyboard-text: #d4d6d7;
+  --keyboard-text-active: @material-primary;
+  --keyboard-background-border: hsl(0, 0%, 20%);
+  --keycap-background: hsl(var(--hue, 212), 25%, 39%);
+  --keycap-background-active: @material-primary;
+  --keycap-background-border: transparent;
+  --keycap-background-border-bottom: transparent;
+  --keycap-text: hsl(0, 0%, 81.6%);
+  --keycap-text-active: #d4d6d7;
+  --keycap-secondary-text: @material-primary;
+
+  --keycap-modifier-background: hsl(var(--hue, 212), 35%, 40%);
+  --keycap-modifier-border: hsl(var(--hue, 212), 35%, 35%);
+  --keycap-modifier-border-bottom: hsl(var(--hue, 212), 35%, 42%);
+
+  --keyboard-alternate-background: hsl(var(--hue, 212), 8%, 2%);
+  --keyboard-alternate-background-active: hsl(var(--hue, 212), 35%, 42%);
+  --keyboard-alternate-text: hsl(0, 0%, 82%);
 }

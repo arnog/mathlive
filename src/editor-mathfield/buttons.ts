@@ -118,7 +118,7 @@ export function attachButtonHandlers(
         // If there is a `press and hold start` command, perform it
         // after a delay, if we're still pressed by then.
         const pressAndHoldStartCommand = element.getAttribute(
-          'data-command-pressAndHoldStart'
+          'data-command-press-and-hold-start'
         );
         if (pressAndHoldStartCommand) {
           pressHoldElement = element;
@@ -214,7 +214,7 @@ export function attachButtonHandlers(
       window.setTimeout(() => {
         element.classList.remove('active');
       }, 150);
-      let command = element.getAttribute('data-command-pressAndHoldEnd');
+      let command = element.getAttribute('data-command-press-and-hold-end');
       const now = Date.now();
       // If the button has not been pressed for very long or if we were
       // not the button that started the press and hold, don't consider

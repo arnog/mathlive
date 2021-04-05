@@ -256,7 +256,7 @@ const ALT_KEYS_BASE = {
   ],
   '-': ['\\pm', '\\mp', '\\ominus', '\\vert #0  \\vert'],
 
-  '/': ['\\divideontimes', '/', '\\div'],
+  '/': ['\\divideontimes', '/', '\\div', '\\%'],
 
   '(': [
     '\\left( #0\\right)',
@@ -600,9 +600,9 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <row name='numpad-2'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='x2' data-insert='$$#@^{2}$$'><span><i>x</i>&thinsp;²</span></li>
+                <li class='keycap tex' data-insert='$$#@^{2}$$'><span><i>x</i>&thinsp;²</span></li>
                 <li class='keycap tex' data-alt-keys='^' data-insert='$$#@^{#?}$$'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>
-                <li class='keycap tex' data-alt-keys='sqrt' data-insert='$$\\sqrt{#0}$$' data-latex='\\sqrt{#0}'></li>
+                <li class='keycap tex' data-insert='$$\\sqrt{#0}$$' data-latex='\\sqrt{#0}'></li>
             </ul>
             <ul>
                 <li class='keycap tex' data-alt-keys='(' >(</li>
@@ -1593,7 +1593,7 @@ export function makeKeyboardElement(
   for (const keyboardName of keyboardList) {
     if (!keyboards[keyboardName]) {
       console.error('Unknown virtual keyboard "' + keyboardName + '"');
-      break;
+      continue;
     }
 
     // Add the default layer to the list of layers,
@@ -1771,7 +1771,8 @@ export function makeKeyboardElement(
       { passive: false }
     );
   }
-  layerElements[0].classList.add('is-visible');
+  console.assert(layerElements.length > 0, 'No virtual keyboards available');
+  layerElements[0]?.classList.add('is-visible');
 
   return result;
 }

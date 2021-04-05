@@ -119,7 +119,20 @@ export function update(
             result.virtualKeyboardMode = updates.virtualKeyboardMode;
           }
         }
+        break;
 
+      case 'customVirtualKeyboardLayers':
+        result.customVirtualKeyboardLayers = {
+          ...result.customVirtualKeyboardLayers,
+          ...updates.customVirtualKeyboardLayers,
+        };
+        break;
+
+      case 'customVirtualKeyboards':
+        result.customVirtualKeyboards = {
+          ...result.customVirtualKeyboards,
+          ...updates.customVirtualKeyboards,
+        };
         break;
 
       case 'letterShapeStyle':
