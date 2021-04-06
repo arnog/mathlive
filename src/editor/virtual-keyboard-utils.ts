@@ -28,8 +28,8 @@ import { ExecuteCommandFunction } from './commands-definitions';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
-  visible: boolean;
-  element: HTMLDivElement;
+  _visible: boolean;
+  _element?: HTMLDivElement;
   _executeCommand: ExecuteCommandFunction;
 
   constructor(
@@ -52,6 +52,27 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     window.addEventListener('blur', this);
     window.addEventListener('touchend', this);
     window.addEventListener('touchcancel', this);
+  }
+
+  setOptions(options: VirtualKeyboardOptions & CoreOptions): void {
+    this.visible = false;
+    this._element?.remove();
+    this._element = undefined;
+    this.options = options;
+  }
+
+  get element(): HTMLDivElement {
+    return this._element;
+  }
+  set element(val: HTMLDivElement) {
+    this._element?.remove();
+    this._element = val;
+  }
+  get visible(): boolean {
+    return this._visible;
+  }
+  set visible(val: boolean) {
+    this._visible = val;
   }
 
   get height(): number {
@@ -107,6 +128,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   dispose(): void {
+    this.visible = false;
     releaseSharedElement(
       document.querySelector('#mathlive-alternate-keys-panel')
     );
@@ -115,7 +137,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     window.removeEventListener('touchend', this);
     window.removeEventListener('touchcancel', this);
 
-    this.element?.remove();
+    this._element?.remove();
+    this._element = undefined;
   }
 }
 
@@ -602,7 +625,7 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <li class='keycap tex' data-insert='$$#@^{2}$$'><span><i>x</i>&thinsp;²</span></li>
                 <li class='keycap tex' data-alt-keys='^' data-insert='$$#@^{#?}$$'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>
-                <li class='keycap tex' data-insert='$$\\sqrt{#0}$$' data-latex='\\sqrt{#0}'></li>
+                <li class='keycap tex small' data-insert='$$\\sqrt{#0}$$' data-latex='\\sqrt{#0}'></li>
             </ul>
             <ul>
                 <li class='keycap tex' data-alt-keys='(' >(</li>
@@ -979,8 +1002,8 @@ function latexToMarkup(latex: string, arg): string {
  */
 function makeKeyboardToolbar(
   options: VirtualKeyboardOptions,
-  keyboardIDs,
-  currentKeyboard
+  keyboardIDs: string,
+  currentKeyboard: string
 ): string {
   // The left hand side of the toolbar has a list of all the available keyboards
   let result = "<div class='left'>";
@@ -1697,7 +1720,11 @@ export function makeKeyboardElement(
       }
 
       markup += `<div tabindex="-1" class='keyboard-layer' data-layer='${layerName}'>`;
-      markup += makeKeyboardToolbar(keyboard.options, keyboardIDs, keyboard);
+      markup += makeKeyboardToolbar(
+        keyboard.options,
+        keyboardIDs,
+        keyboardName
+      );
       const layerMarkup = layers[layerName];
       // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
       // be expanded

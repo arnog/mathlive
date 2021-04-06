@@ -92,9 +92,9 @@ export declare function makeMathField(
  * ```
  *
  * ```javascript
- *  import { makeRemoteClient } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ *  import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
  *
- *  makeRemoteClient({});
+ *  makeSharedVirtualKeyboard({});
  * ```
  * @keywords create, make, mathfield, iframe
  */

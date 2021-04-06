@@ -17,7 +17,7 @@
   document, use:
 
   ```javascript
-  makeVirtualKeyboard({
+  makeSharedVirtualKeyboard({
     virtualKeyboardLayout: 'dvorak',
   });
   ```

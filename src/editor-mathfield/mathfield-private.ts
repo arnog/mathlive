@@ -229,8 +229,7 @@ export class MathfieldPrivate implements Mathfield {
     // 5.1/ The aria-live region for announcements
     let markup = '';
     const isTouchDevice =
-      /android|ipad|ipod|iphone/i.test(navigator?.userAgent) ||
-      (/mac/i.test(navigator?.userAgent) && navigator?.maxTouchPoints === 5);
+      globalThis.window?.matchMedia?.('(any-pointer: coarse)').matches ?? false;
     if (!this.options.substituteTextArea) {
       // On Android, iOS or iPadOS don't use a `<textarea>`, which has the side
       // effect of bringing up the OS virtual keyboard
@@ -261,20 +260,14 @@ export class MathfieldPrivate implements Mathfield {
       '<span class="ML__fieldcontainer">' +
       '<span class="ML__fieldcontainer__field"></span>';
 
-    // Only display the virtual keyboard toggle if the virtual keyboard mode is
-    // 'manual'
-    if (this.options.virtualKeyboardMode === 'manual') {
-      markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
-        'tooltip.toggle virtual keyboard'
-      )}">`;
-      // Data-ML__tooltip='Toggle Virtual Keyboard'
-      markup += this.options.virtualKeyboardToggleGlyph
-        ? this.options.virtualKeyboardToggleGlyph
-        : `<span style="width: 21px; margin-top: 4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
-      markup += '</div>';
-    } else {
-      markup += '<span ></span>';
-    }
+    markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
+      'tooltip.toggle virtual keyboard'
+    )}">`;
+    // Data-ML__tooltip='Toggle Virtual Keyboard'
+    markup += this.options.virtualKeyboardToggleGlyph
+      ? this.options.virtualKeyboardToggleGlyph
+      : `<span style="width: 21px; margin-top: 4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
+    markup += '</div>';
 
     markup += '</span>';
     markup +=
@@ -327,8 +320,16 @@ export class MathfieldPrivate implements Mathfield {
       render(this);
     });
 
-    this.virtualKeyboardToggle = this.element.children[iChild++]
-      .children[1] as HTMLElement;
+    iChild++;
+
+    this.virtualKeyboardToggle = this.element.querySelector(
+      '.ML__virtual-keyboard-toggle'
+    );
+    if (this.options.virtualKeyboardMode === 'manual') {
+      this.virtualKeyboardToggle.classList.add('is-visible');
+    } else {
+      this.virtualKeyboardToggle.classList.remove('is-visible');
+    }
     attachButtonHandlers(
       (command) => this.executeCommand(command),
       this.virtualKeyboardToggle,
@@ -569,6 +570,14 @@ export class MathfieldPrivate implements Mathfield {
       this.onBlur();
     }
 
+    this.virtualKeyboard.setOptions(this.options);
+
+    if (this.options.virtualKeyboardMode === 'manual') {
+      this.virtualKeyboardToggle.classList.add('is-visible');
+    } else {
+      this.virtualKeyboardToggle.classList.remove('is-visible');
+    }
+
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
     const content = Atom.toLatex(this.model.root, { expandMacro: false });
@@ -578,10 +587,6 @@ export class MathfieldPrivate implements Mathfield {
       format: 'latex',
       suppressChangeNotifications: true,
       macros: this.options.macros,
-    });
-
-    this.virtualKeyboard = new VirtualKeyboard(this.options, {
-      executeCommand: (command) => this.executeCommand(command),
     });
 
     requestUpdate(this);

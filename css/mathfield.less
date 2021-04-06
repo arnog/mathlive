@@ -86,36 +86,39 @@
 }
 
 .ML__virtual-keyboard-toggle {
-    display: flex;
-    align-self: center;
-    align-items: center;
-    flex-shrink: 0;
-    flex-direction: column;
-    justify-content: center;
+    display: none;
+    &.is-visible {
+      display: flex;
+      align-self: center;
+      align-items: center;
+      flex-shrink: 0;
+      flex-direction: column;
+      justify-content: center;
 
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    margin-right: 4px;
-    cursor: pointer;
-    box-sizing: border-box;
-    /* Avoid some weird blinking with :hover */
-    border-radius: 8px;
-    border: 1px solid transparent;
-    transition: background 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
-    color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
-    fill: currentColor;
-    background: transparent;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      margin-right: 4px;
+      cursor: pointer;
+      box-sizing: border-box;
+      /* Avoid some weird blinking with :hover */
+      border-radius: 8px;
+      border: 1px solid transparent;
+      transition: background 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
+      color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+      fill: currentColor;
+      background: transparent;
 
-    &:hover {
-        background: hsla(0, 0%, 70%, 0.5);
-        color: #333;
-        fill: currentColor;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, .5)
-        // border: 1px solid rgba(255, 255, 255, .9);
-        // box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-        //     0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      &:hover {
+          background: hsla(0, 0%, 70%, 0.5);
+          color: #333;
+          fill: currentColor;
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, .5)
+          // border: 1px solid rgba(255, 255, 255, .9);
+          // box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+          //     0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
     }
 }
 

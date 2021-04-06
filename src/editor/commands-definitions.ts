@@ -18,14 +18,14 @@ export interface CommandsPrivate {
    */
   performAlternateKeys: (
     keyboard: VirtualKeyboardInterface,
-    command
+    command: SelectorPrivate | [SelectorPrivate, ...any[]]
   ) => boolean;
 
   switchKeyboardLayer: (keyboard: VirtualKeyboardInterface, layer) => boolean;
   unshiftKeyboardLayer: (keyboard: VirtualKeyboardInterface) => boolean;
   insertAndUnshiftKeyboardLayer: (
     keyboard: VirtualKeyboardInterface,
-    c
+    c: string
   ) => boolean;
 
   /** Toggle the virtual keyboard, but switch to the alternate theme if available */

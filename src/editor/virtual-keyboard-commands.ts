@@ -352,9 +352,9 @@ function toggleVirtualKeyboard(
     // For the transition effect to work, the property has to be changed
     // after the insertion in the DOM. Use setTimeout
     window.setTimeout(() => {
-      keyboard?.element.classList.add('is-visible');
+      keyboard?.element?.classList.add('is-visible');
     }, 1);
-  } else if (keyboard?.element) {
+  } else if (keyboard.element) {
     keyboard.element.classList.remove('is-visible');
     keyboard.element.dispatchEvent(
       new Event('virtual-keyboard-toggle', {
@@ -362,6 +362,9 @@ function toggleVirtualKeyboard(
         cancelable: false,
       })
     );
+    // Remove the element from the DOM
+    keyboard.element.remove();
+    keyboard.element = undefined;
   }
 
   keyboard.stateChanged();

@@ -14,9 +14,11 @@
     <h1>Virtual Keyboard Example</h1>
   </header>
   <main>
-    Press the Virtual Keyboard icon to show a custom virtual
-    keyboard.
+    <p>Press the Virtual Keyboard icon to show a custom virtual
+    keyboard.</p>
     <math-field class="mathfield" id="mf" style="width:100%">\frac{\pi}{2}</math-field>
+    <p>This mathfield is configured to automatically show the default virtual keyboard on focus.</p>
+    <math-field virtual-keyboard-mode="onfocus" class="mathfield" id="mf2" style="width:100%">\frac{\pi}{2}</math-field>
 
     <!-- <math-field class="mathfield" id="mf-2" style="width:100%">\frac{\pi}{4}</math-field> -->
 <!-- 
@@ -137,7 +139,7 @@
     };
     const mf = document.getElementById('mf');
     mf.setOptions({
-      virtualKeyboardMode: "onfocus",
+      virtualKeyboardMode: "manual",
       customVirtualKeyboardLayers: COLLEGE_KEYBOARD_LAYER,
       customVirtualKeyboards: COLLEGE_KEYBOARD,
       virtualKeyboards: "numeric college-keyboard"

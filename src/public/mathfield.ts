@@ -1,5 +1,9 @@
 import { Selector } from './commands';
-import { MathfieldOptions } from './options';
+import {
+  CoreOptions,
+  MathfieldOptions,
+  VirtualKeyboardOptions,
+} from './options';
 import { ParseMode, MacroDictionary, Style } from './core';
 
 /**
@@ -161,6 +165,7 @@ export interface VirtualKeyboardInterface {
   enable(): void;
   disable(): void;
   stateChanged(): void;
+  setOptions(options: VirtualKeyboardOptions & CoreOptions): void;
 }
 
 export interface Mathfield {

@@ -213,7 +213,7 @@ export type TextToSpeechOptions = {
    * work SRE should be loaded separately.
    *
    * **See**
-   * {@link https://github.com/arnog/mathlive/tree/master/examples/speech | speech example}
+   * {@link https://cortexjs.io/mathlive/guides/speech/ | Guide: Speech}
    */
   textToSpeechRules: 'mathlive' | 'sre';
   /**
@@ -243,7 +243,7 @@ export type TextToSpeechOptions = {
    * AWS API library and configure it with your API key before use.
    *
    * **See**
-   * {@link https://github.com/arnog/mathlive/tree/master/examples/speech | speech example}
+   * {@link https://cortexjs.io/mathlive/guides/speech/ | Guide: Speech}
    */
   speechEngine: 'local' | 'amazon';
   /**
@@ -284,7 +284,7 @@ export interface VirtualKeyboardKeycap {
   /**
    * Command to perform when the keycap is pressed
    */
-  command?: string;
+  command: Selector | [Selector, ...any[]];
   /**
    * Latex fragment to insert when the keycap is pressed
    * (ignored if command is specified)
@@ -301,12 +301,27 @@ export interface VirtualKeyboardKeycap {
    */
   key?: string;
 
-  /** CSS class to apply to the keycap.
+  /**
+   * CSS classes to apply to the keycap.
+   *
+   * - `keycap`: a standard-width keycap, using the system font for its label
+   * - `keycap tex`: a standard-width keycap, using the TeX font for its label.
+   *    Using the tex class is not necessary if using the latex property to
+   *    define the label.
+   * - `modifier`: a modifier (shift/option, etc…) keycap
+   * - `keycap small`: display the label in a smaller size
+   * - `action`: an “action” keycap (for arrows, return, etc…)
+   * - `separator w5`: a half-width blank used as a separator. Other widths
+   *    include `w15` (1.5 width), `w20` (double width) and `w50` (five-wide,
+   *    used for the space bar).
+   * - `bottom`, `left`, `right`: alignment of the label
+   *
    */
   class?: string;
 
   /**
-   * Markup displayed with the key label (for example to explain what the symbol of the key is)
+   * Markup displayed with the key label (for example to explain what the
+   * symbol of the key is)
    */
   aside?: string;
 
@@ -321,7 +336,7 @@ export interface VirtualKeyboardKeycap {
   /**
    * Command to perform when the shifted key is pressed
    */
-  shiftedCommand?: string;
+  shiftedCommand?: Selector | [Selector, ...any[]];
 }
 
 export interface VirtualKeyboardDefinition {
@@ -371,21 +386,21 @@ export type VirtualKeyboardOptions = {
     | 'dvorak'
     | 'colemak';
   /**
-   * Some additional custom virtual keyboard layers.
+   * Custom virtual keyboard layers.
    *
    * A keyboard is made up of one or more layers (think of the main layer and the
    * shift layer on a hardware keyboard). Each key in this object define a new
    * keyboard layer (or replace an existing one). The value of the key should be
    * some HTML markup.
    *
-   * **See**
-   * {@link https://github.com/arnog/mathlive/tree/master/examples/virtual_keyboard | virtual keyboard example}
+   * **See* {@link https://cortexjs.io/mathlive/guides/virtual-keyboards | Guide: Virtual Keyboards}
+   *
    *
    */
   customVirtualKeyboardLayers: Record<string, string | VirtualKeyboardLayer>;
   customVirtualKeyboards: Record<string, VirtualKeyboardDefinition>;
   /**
-   * The visual theme used for the virtual keyboard.
+   * The visual theme of the virtual keyboard.
    *
    * If empty, the theme will switch automatically based on the device it's
    * running on. The two supported themes are 'material' and 'apple' (the
@@ -424,9 +439,8 @@ export type VirtualKeyboardOptions = {
         default: string | HTMLAudioElement;
       };
   /**
-   * Sound which will be played to provide feedback when a
-   * command has no effect, for example when pressing the spacebar at the root
-   * level.
+   * Sound played to provide feedback when a command has no effect, for example
+   * when pressing the spacebar at the root level.
    *
    * The property is either a string, the name of an audio file in the
    * `soundsDirectory` directory, or an `HTMLAudioElement`.
@@ -441,8 +455,9 @@ export type VirtualKeyboardOptions = {
   virtualKeyboardToolbar?: VirtualKeyboardToolbarOptions;
 
   /**
-   * If specified, the markup to be used to display the virtual keyboard
-   * toggle glyph. If none is specified a default keyboard icon is used.
+   * Markup for  the virtual keyboard toggle glyph.
+   *
+   * If none is specified a default keyboard icon is used.
    */
   virtualKeyboardToggleGlyph: string;
   /**
@@ -454,9 +469,8 @@ export type VirtualKeyboardOptions = {
    *     keyboard toggle button is not displayed.
    * -   `'off'`: the virtual keyboard toggle button is not displayed, and the
    *     virtual keyboard is never triggered.
-   *
-   * If the setting is empty, it will default to `'onfocus'` on touch-capable
-   * devices and to `'off'` otherwise.
+   * -   '`auto'`:  `'onfocus'` on touch-capable devices and `'off'` otherwise
+   *    (**default**).
    *
    */
   virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';

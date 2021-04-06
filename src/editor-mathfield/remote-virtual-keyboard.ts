@@ -4,8 +4,10 @@ import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { Selector } from '../public/commands';
 import { VirtualKeyboardInterface } from '../public/mathfield';
 import {
+  CoreOptions,
   OriginValidator,
   RemoteVirtualKeyboardOptions,
+  VirtualKeyboardOptions,
 } from '../public/options';
 import { validateOrigin } from './utils';
 
@@ -56,6 +58,11 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     this.enable();
   }
 
+  setOptions(_options: VirtualKeyboardOptions & CoreOptions): void {
+    // The associated mathfield is using a keyboard delegate, and no keyboard
+    // options should be set on it
+  }
+
   public dispose(): void {
     this.disable();
   }
@@ -99,7 +106,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     ) {
       if (!validateOrigin(event.origin, this.originValidator)) {
         throw new Error(
-          `Message from unknown origin (${event.origin}) can not be handled`
+          `Message from unknown origin (${event.origin}) cannot be handled`
         );
       }
 
