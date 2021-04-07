@@ -385,6 +385,12 @@ export class MathfieldPrivate implements Mathfield {
       {
         typedText: (text: string): void => onTypedText(this, text),
         cut: (_ev: ClipboardEvent) => {
+          // Ignore if in read-only mode
+          if (this.options.readOnly) {
+            this.model.announce('plonk');
+            return;
+          }
+
           // Snapshot the undo state
           this.snapshot();
 
@@ -399,8 +405,14 @@ export class MathfieldPrivate implements Mathfield {
         },
         copy: (ev: ClipboardEvent) =>
           ModeEditor.onCopy(this.model.at(this.model.position).mode, this, ev),
-        paste: (ev: ClipboardEvent) =>
-          ModeEditor.onPaste(this.model.at(this.model.position).mode, this, ev),
+        paste: (ev: ClipboardEvent) => {
+          // Ignore if in read-only mode
+          if (this.options.readOnly) {
+            this.model.announce('plonk');
+            return;
+          }
+          ModeEditor.onPaste(this.model.at(this.model.position).mode, this, ev);
+        },
         keystroke: (keystroke, event) => onKeystroke(this, keystroke, event),
         focus: () => this.onFocus(),
         blur: () => this.onBlur(),

@@ -101,6 +101,16 @@ export function perform(
   //  commands are splitted between command function, registration options
   //  and there.
   if (commandTarget === 'model') {
+    // If in read-only mode, reject commands that would modify the
+    // content.
+    if (
+      mathfield.options.readOnly &&
+      /^(paste|cut|insert|delete|transpose|add)/.test(selector)
+    ) {
+      mathfield.model.announce('plonk');
+      return false;
+    }
+
     if (/^(delete|transpose|add)/.test(selector)) {
       if (selector !== 'deleteBackward') {
         mathfield.resetKeystrokeBuffer();

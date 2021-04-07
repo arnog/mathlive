@@ -227,10 +227,6 @@ export function onKeystroke(
     return true;
   }
 
-  if (mathfield.options.readOnly && selector[0] === 'insert') {
-    return true;
-  }
-
   //
   // 6. Perform the action matching this selector or insert the shortcut
   //
