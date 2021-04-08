@@ -212,8 +212,8 @@ export const MATHSTYLES: {
   3: new Mathstyle(Tc, 1, 1, true),
   4: new Mathstyle(S, 2, 0.7, false),
   5: new Mathstyle(Sc, 2, 0.7, true),
-  6: new Mathstyle(SS, 3, 0.5, false),
-  7: new Mathstyle(SSc, 3, 0.5, true),
+  6: new Mathstyle(SS, 2, 0.5, false),
+  7: new Mathstyle(SSc, 2, 0.5, true),
 };
 
 // Aliases
