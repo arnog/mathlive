@@ -411,7 +411,7 @@ export class Span {
     // (`mord`, `mbin`, `mrel`, etc...)
     //
     if (this.children) {
-      let previousType = 'none';
+      let previousType: SpanType = 'none';
       for (let i = 0; i < this.children.length; i++) {
         const child = this.children[i];
         let spacing = 0;
@@ -424,7 +424,7 @@ export class Span {
           hskip: spacing,
           hscale: options.hscale,
         });
-        previousType = type;
+        if (type !== 'supsub') previousType = type;
       }
     }
 
@@ -654,7 +654,7 @@ export class Span {
   }
 }
 
-function getEffectiveType(xs: Span[], i: number): string {
+function getEffectiveType(xs: Span[], i: number): SpanType {
   if (i < 0 || i >= xs.length) return 'none';
 
   const previousType: SpanType = xs[i - 1]?.type ?? 'none';
@@ -662,9 +662,9 @@ function getEffectiveType(xs: Span[], i: number): string {
 
   let result: SpanType = xs[i].type ?? 'none';
 
-  // The effective type of a 'subsup' span is 'none':
+  // The effective type of a 'supsub' span is 'supsub':
   // it attaches directly to its left sibling
-  if (result === 'supsub') return 'none';
+  if (result === 'supsub') return 'supsub';
 
   if (result === 'first') return 'none';
 
