@@ -1,5 +1,4 @@
 import type { ModelPrivate } from './model-private';
-import { SubsupAtom } from '../core-atoms/subsup';
 import { LatexAtom } from '../core-atoms/latex';
 import { TextAtom } from '../core-atoms/text';
 import { LETTER_AND_DIGITS } from '../core-definitions/definitions';
@@ -238,7 +237,7 @@ export function skip(
         atom = model.at(offset);
       }
     } else {
-      const type = atom instanceof SubsupAtom ? atom.baseType : atom.type;
+      const type = atom.type;
       if (atom.type === 'msubsup') {
         // If we're after a 'msubsup', skip to its left sibling
         // (the base of the super/subscript)

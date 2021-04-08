@@ -108,6 +108,9 @@
 
 ### Bug Fixes
 
+- **#805**: exponent towers did not display correctly
+- **#857**: when a mathfield was in `read-only` mode, it was still possible to
+  delete a portion of it by pressing the backspace key.
 - **#818**: on iPad OS 14 and later, Safari pretends to be macOS ("Desktop
   Mode"). This interfered with the handling of the MathLive virtual keyboard.
 - The selection in an expression could render incorrectly if it was displayed

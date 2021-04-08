@@ -152,20 +152,28 @@ class Parser {
    * If there isn't one, insert a `msubsup` and return it.
    */
   lastSubsupAtom(): Atom {
-    const lastAtom =
-      this.atoms.length === 0 ? undefined : this.atoms[this.atoms.length - 1];
-    if (
-      !lastAtom ||
-      (lastAtom.type !== 'mop' &&
-        lastAtom.type !== 'leftright' &&
-        lastAtom.type !== 'msubsup')
-    ) {
-      if (!lastAtom?.limits || lastAtom?.limits === 'nolimits') {
-        this.atoms.push(new SubsupAtom({ baseType: lastAtom?.type }));
-      }
+    let atom: Atom;
+    if (this.atoms.length === 0) {
+      atom = new SubsupAtom();
+      this.atoms.push(atom);
+      return atom;
     }
 
-    return this.atoms[this.atoms.length - 1];
+    atom = this.atoms[this.atoms.length - 1];
+
+    // If this is a subsup atom, it can have a subsup attached to it.
+    if (atom.type === 'msubsup') return atom;
+
+    // An operator (\sum) can have superscript/subscript attached to it
+    // if it accepts limits
+    if (atom.type === 'mop' && atom?.limits && atom?.limits !== 'nolimits') {
+      return atom;
+    }
+
+    // Creata a new subsup atom and return it
+    atom = new SubsupAtom();
+    this.atoms.push(atom);
+    return atom;
   }
 
   /**
@@ -977,37 +985,50 @@ class Parser {
   parseSupSub(): boolean {
     // No sup/sub in text or command mode.
     if (this.parseMode !== 'math') return false;
+
     // Apply the subscript/superscript to the last rendered atom.
     // If none is present (beginning of the list, i.e. `{^2}`,
     // an empty atom will be created, equivalent to `{{}^2}`
-    let result = false;
     let token = this.peek();
+    if (token !== '^' && token !== '_' && token !== "'") return false;
+
     while (token === '^' || token === '_' || token === "'") {
-      const supsub = token === '_' ? 'subscript' : 'superscript';
-      if (this.match('^') || this.match('_')) {
+      if (this.match("'")) {
+        if (this.match("'")) {
+          // A single quote, twice, is equivalent to '^{\doubleprime}'
+          this.lastSubsupAtom().addChild(
+            new Atom('mord', {
+              command: '\\doubleprime',
+              mode: 'math',
+              value: '\u2032\u2032', // "\u2033" displays too high
+            }),
+            'superscript'
+          );
+        } else {
+          // A single quote (prime) is equivalent to '^{\prime}'
+          this.lastSubsupAtom().addChild(
+            new Atom('mord', {
+              command: '\\prime',
+              mode: 'math',
+              value: '\u2032',
+            }),
+            'superscript'
+          );
+        }
+      } else if (this.match('^') || this.match('_')) {
         const arg = this.parseArgument('math');
         if (arg) {
-          this.lastSubsupAtom().addChildren(arg, supsub);
-          result = true;
+          this.lastSubsupAtom().addChildren(
+            arg,
+            token === '_' ? 'subscript' : 'superscript'
+          );
         }
-      } else if (this.match("'")) {
-        // A single quote (prime) is actually equivalent to a
-        // '^{\prime}'
-        this.lastSubsupAtom().addChild(
-          new Atom('mord', {
-            command: '\\prime',
-            mode: 'math',
-            value: '\u2032',
-          }),
-          'superscript'
-        );
-        result = true;
       }
 
       token = this.peek();
     }
 
-    return result;
+    return true;
   }
 
   /**

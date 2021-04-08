@@ -80,17 +80,14 @@ function moveToSuperscript(model: ModelPrivate): boolean {
   if (target.limits !== 'limits' && target.limits !== 'auto') {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
-    if (model.at(model.position + 1)?.type !== 'msubsup') {
+    if (target.rightSibling?.type !== 'msubsup') {
       target.parent.addChildAfter(
-        new SubsupAtom({
-          baseType: target.type,
-          style: model.at(model.position).computedStyle,
-        }),
+        new SubsupAtom({ style: target.computedStyle }),
         target
       );
     }
 
-    target = model.at(model.position + 1);
+    target = target.rightSibling;
   }
 
   // Ensure there is a superscript branch

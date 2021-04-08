@@ -30,6 +30,8 @@ const SPAN_TYPE = [
   'composition',
   'error',
   'placeholder',
+  'supsub',
+  'none',
 ] as const; // The const assertion prevents widening to string[]
 export type SpanType = typeof SPAN_TYPE[number];
 
@@ -414,7 +416,7 @@ export class Span {
         const child = this.children[i];
         let spacing = 0;
         const type = getEffectiveType(this.children, i);
-        const combinedType = previousType + '+' + type;
+        const combinedType = `${previousType}+${type}`;
         spacing = child.isTight
           ? INTER_ATOM_TIGHT_SPACING[combinedType] ?? 0
           : INTER_ATOM_SPACING[combinedType] ?? 0;
@@ -655,10 +657,16 @@ export class Span {
 function getEffectiveType(xs: Span[], i: number): string {
   if (i < 0 || i >= xs.length) return 'none';
 
-  const previousType = xs[i - 1]?.type ?? 'none';
+  const previousType: SpanType = xs[i - 1]?.type ?? 'none';
   const nextType = xs[i + 1]?.type ?? 'none';
 
-  let result = xs[i].type ?? 'none';
+  let result: SpanType = xs[i].type ?? 'none';
+
+  // The effective type of a 'subsup' span is the type of the atom to which
+  // it is attached
+  if (result === 'supsub') {
+    result = previousType;
+  }
 
   if (result === 'first') return 'none';
   if (result === 'mbin') {
