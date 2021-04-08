@@ -37,7 +37,7 @@
   --keyboard-alternate-key-font-size: 30px;
   --keyboard-alternate-key-aside-font-size: 12px;
 
-  --keyboard-heiht: @keyboard-height;
+  --keyboard-height: @keyboard-height;
   --keycap-height: 52px;
   --keycap-font-size: 20px;
   --keycap-small-font-size: calc(var(--keycap-font-size) * 0.8);
@@ -46,7 +46,7 @@
 
   position: fixed;
   left: 0;
-  bottom: var(--keyboard-height, @keyboard-height);
+  bottom: calc(-1 * var(--keyboard-height, @keyboard-height));
   width: 100vw;
   z-index: var(--keyboard-zindex, @keyboard-zindex);
 
@@ -60,7 +60,10 @@
   transition: 0.28s cubic-bezier(0, 0, 0.2, 1); // Deceleration curve
   transition-property: transform, opacity;
   &.is-visible {
-    transform: translate(0, var(--keyboard-height, @keyboard-height));
+    transform: translate(
+      0,
+      calc(-1 * var(--keyboard-height, @keyboard-height))
+    );
     opacity: 1;
     visibility: visible;
     transition-timing-function: cubic-bezier(
