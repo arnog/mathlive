@@ -321,22 +321,22 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   // UNITS
   'mm': {
     mode: 'math',
-    after: 'nothing+digit',
+    after: 'nothing+digit+operator',
     value: '\\operatorname{mm}', // Millimeter
   },
   'cm': {
     mode: 'math',
-    after: 'nothing+digit',
+    after: 'nothing+digit+operator',
     value: '\\operatorname{cm}', // Centimeter
   },
   'km': {
     mode: 'math',
-    after: 'nothing+digit',
+    after: 'nothing+digit+operator',
     value: '\\operatorname{km}', // Kilometer
   },
   'kg': {
     mode: 'math',
-    after: 'nothing+digit',
+    after: 'nothing+digit+operator',
     value: '\\operatorname{kg}', // Kilogram
   },
 

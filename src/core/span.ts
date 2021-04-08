@@ -407,7 +407,7 @@ export class Span {
     let body = this.value ?? '';
 
     //
-    // 1. Calculate the spacing between atoms, based on their type
+    // 1. Calculate the spacing between spans, based on their type
     // (`mord`, `mbin`, `mrel`, etc...)
     //
     if (this.children) {
@@ -662,13 +662,12 @@ function getEffectiveType(xs: Span[], i: number): string {
 
   let result: SpanType = xs[i].type ?? 'none';
 
-  // The effective type of a 'subsup' span is the type of the atom to which
-  // it is attached
-  if (result === 'supsub') {
-    result = previousType;
-  }
+  // The effective type of a 'subsup' span is 'none':
+  // it attaches directly to its left sibling
+  if (result === 'supsub') return 'none';
 
   if (result === 'first') return 'none';
+
   if (result === 'mbin') {
     // If a `mbin` span, i.e. "+" is after or before spans
     // of a certain type, consider it to be a `mord` instead.

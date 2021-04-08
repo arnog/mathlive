@@ -449,7 +449,14 @@ export class ModelPrivate implements Model {
     if (direction === 'forward') {
       let pos = this._position;
       do {
-        pos++;
+        const atom = this.at(pos + 1);
+        if (atom?.parent.captureSelection) {
+          // When going forward, if in a capture selection, jump to
+          // after
+          pos = this.offsetOf(atom?.parent.lastChild) + 1;
+        } else {
+          pos += 1;
+        }
       } while (pos <= this.lastOffset && this.at(pos).isFirstSibling);
 
       if (pos === anchor - 1 && this.at(anchor).type === 'first') {
@@ -467,7 +474,14 @@ export class ModelPrivate implements Model {
     if (pos < 0) return false;
 
     while (pos >= 0 && this.at(pos).isLastSibling) {
-      pos--;
+      const atom = this.at(pos);
+      if (atom?.parent.captureSelection) {
+        // When going backward, if in a capture selection, jump to
+        // before
+        pos = this.offsetOf(atom?.parent.firstChild) - 1;
+      } else {
+        pos -= 1;
+      }
     }
 
     if (pos < 0) pos = 0;

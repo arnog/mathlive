@@ -68,6 +68,7 @@ function validateShortcut(
   let surd = false;
   let binop = false;
   let relop = false;
+  let operator = false;
   let punct = false;
   let array = false;
   let openfence = false;
@@ -95,6 +96,7 @@ function validateShortcut(
     surd = sibling.type === 'surd';
     binop = sibling.type === 'mbin';
     relop = sibling.type === 'mrel';
+    operator = sibling.type === 'mop';
     punct = sibling.type === 'mpunct' || sibling.type === 'minner';
     array = sibling.type === 'array';
     openfence = sibling.type === 'mopen';
@@ -113,6 +115,7 @@ function validateShortcut(
       (shortcut.after.includes('surd') && surd) ||
       (shortcut.after.includes('binop') && binop) ||
       (shortcut.after.includes('relop') && relop) ||
+      (shortcut.after.includes('operator') && operator) ||
       (shortcut.after.includes('punct') && punct) ||
       (shortcut.after.includes('array') && array) ||
       (shortcut.after.includes('openfence') && openfence) ||
