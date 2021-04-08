@@ -254,7 +254,7 @@ export const DEFAULT_KEYBOARD_LAYOUT: KeyboardLayout =
           Digit3: ['3', '#', '£', '‹'],
           Digit4: ['4', '$', '¢', '›'],
           Digit5: ['5', '%', '∞', 'ﬁ'],
-          Digit6: ['6', 'ˆ', '§', 'ﬂ'],
+          Digit6: ['6', '^', '§', 'ﬂ'],
           Digit7: ['7', '&', '¶', '‡'],
           Digit8: ['8', '*', '•', '°'],
           Digit9: ['9', '(', 'ª', '·'],
