@@ -288,7 +288,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     smartSuperscript: true,
     scriptDepth: [Infinity, Infinity],
     removeExtraneousParentheses: true,
-    ignoreSpacebarInMathMode: true,
+    mathModeSpace: '',
 
     locale: l10n.locale,
     strings: l10n.strings,

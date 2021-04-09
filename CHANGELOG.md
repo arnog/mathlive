@@ -10,6 +10,13 @@
 
 - Removed deprecated (April 2019) method `enterCommandMode()`
 
+- Replaced `ignoreSpacebarInMathMode` option with `mathModeSpace`. The
+  `ignoreSpacebarInMathMode` was accidentally not working (**#859**). However,
+  the boolean form is problematic as an element attribute (it defaults to true,
+  but element attributes default to false). It has been replaced with
+  `mathModeSpace` which is more flexible (you can specify which space to use)
+  and doesn't have the issue of the default boolean value.
+
 ### New Features
 
 - Support for _iframes_. Multiple mathfields in a single document but in

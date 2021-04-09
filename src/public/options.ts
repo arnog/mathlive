@@ -740,11 +740,11 @@ export type EditingOptions = {
    */
   removeExtraneousParentheses: boolean;
   /**
-   * When `true` and the spacebar is pressed, no space is inserted.
-   *
-   * When `false`, a space is inserted when the spacebar is pressed.
+   * The Latex string to insert when the spacebar is pressed (on the physical or
+   * virtual keyboard). Empty by default. Use `\;` for a thick space, `\:` for
+   * a medium space, `\,` for a thin space.
    */
-  ignoreSpacebarInMathMode: boolean;
+  mathModeSpace: string;
 };
 
 export type LayoutOptions = {

@@ -14,7 +14,7 @@ import {
   getKeybindingMarkup,
 } from '../editor/keybindings';
 import { splitGraphemes } from '../core/grapheme-splitter';
-import { HAPTIC_FEEDBACK_DURATION } from '../editor/commands';
+import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate } from '../editor/commands';
 import { updateAutocomplete } from './autocomplete';
 
 import { requestUpdate } from './render';
@@ -253,17 +253,26 @@ export function onKeystroke(
   }
 
   //
-  // 6.2 If this is the Spacebar and we're just before or right after
-  // a text zone, insert the space inside the text zone
+  // 6.2 If this is the Space bar and we're just before or right after
+  // a text zone, or if `mathModeSpace` is enabled, insert the space
   //
-  if (mathfield.mode === 'math' && keystroke === '[Spacebar]' && !shortcut) {
-    const nextSibling = model.at(model.position + 1);
-    const previousSibling = model.at(model.position - 1);
-    if (
-      (nextSibling && nextSibling.mode === 'text') ||
-      (previousSibling && previousSibling.mode === 'text')
-    ) {
-      ModeEditor.insert('text', model, ' ');
+  if (mathfield.mode === 'math' && keystroke === '[Space]' && !shortcut) {
+    if (mathfield.options.mathModeSpace) {
+      mathfield.snapshot();
+      ModeEditor.insert('math', model, mathfield.options.mathModeSpace);
+      selector = '';
+      mathfield.dirty = true;
+    } else {
+      const nextSibling = model.at(model.position + 1);
+      const previousSibling = model.at(model.position - 1);
+      if (
+        (nextSibling && nextSibling.mode === 'text') ||
+        (previousSibling && previousSibling.mode === 'text')
+      ) {
+        mathfield.snapshot();
+        ModeEditor.insert('text', model, ' ');
+        mathfield.dirty = true;
+      }
     }
   }
 
@@ -463,12 +472,15 @@ export function onTypedText(
       // Some characters are mapped to commands. Handle them here.
       // This is important to handle synthetic text input and
       // non-US keyboards, on which, fop example, the '^' key is
-      // not mapped to  'Shift-Digit6'.
-      const selector = ({
+      // not mapped to 'Shift-Digit6'.
+      let selector: SelectorPrivate | [SelectorPrivate, ...unknown[]] = ({
         '^': 'moveToSuperscript',
         '_': 'moveToSubscript',
         ' ': 'moveAfterParent',
       } as const)[c];
+      if (c === ' ' && mathfield.options.mathModeSpace) {
+        selector = ['insert', mathfield.options.mathModeSpace];
+      }
       if (selector) {
         mathfield.executeCommand(selector);
       } else if (

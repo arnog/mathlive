@@ -165,7 +165,6 @@ export interface MathfieldElementAttributes {
    *
    */
   'horizontal-spacing-scale': string;
-  'ignore-spacebar-in-math-mode': boolean;
   /**
    * Maximum time, in milliseconds, between consecutive characters for them to be
    * considered part of the same shortcut sequence.
@@ -331,6 +330,13 @@ export interface MathfieldElementAttributes {
    * **Default**: `window.origin`
    */
   'shared-virtual-keyboard-target-origin': string;
+
+  /**
+   * The Latex string to insert when the spacebar is pressed (on the physical or
+   * virtual keyboard). Empty by default. Use `\;` for a thick space, `\:` for
+   * a medium space, `\,` for a thin space.
+   */
+  'math-mode-space': string;
 }
 
 /**
@@ -434,11 +440,11 @@ export interface MathfieldElementAttributes {
  * | `fonts-directory` | `options.fontsDirectory` |
  * | `sounds-directory` | `options.soundsDirectory` |
  * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
- * | `ignore-spacebar-in-math-mode` | `options.ignoreSpacbarInMathMode` |
  * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
  * | `keypress-vibration` | `options.keypressVibration` |
  * | `letter-shape-style` | `options.letterShapeStyle` |
  * | `locale` | `options.locale` |
+ * | `math-mode-space` | `options.mathModeSpace` |
  * | `read-only` | `options.readOnly` |
  * | `remove-extraneous-parentheses` | `options.removeExtraneousParentheses` |
  * | `smart-fence` | `options.smartFence` |
@@ -504,7 +510,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'default-mode': 'string',
       'fonts-directory': 'string',
       'horizontal-spacing-scale': 'string',
-      'ignore-spacebar-in-math-mode': 'boolean',
+      'math-mode-space': 'string',
       'inline-shortcut-timeout': 'string',
       'keypress-vibration': 'boolean',
       'letter-shape-style': 'string',
