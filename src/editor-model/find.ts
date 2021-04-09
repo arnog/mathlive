@@ -102,7 +102,6 @@ function replaceInBranch(
       const latex = Atom.toLatex(branch.slice(i, i + length), {
         expandMacro: false,
       });
-      console.log('testing ' + latex);
       const replacementArgs: any = { latex };
       if (typeof pattern === 'string' && latex === pattern) {
         matched = true;
@@ -120,7 +119,7 @@ function replaceInBranch(
 
       if (matched) {
         // Remove the atoms that matched
-        for (let j = i; j < i + length; j++) {
+        for (let j = i + length - 1; j >= i; j--) {
           atom.removeChild(branch[j]);
         }
 
