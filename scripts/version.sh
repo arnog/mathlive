@@ -26,4 +26,4 @@ sedi () {
 sedi -e 's/\[Unreleased\]/'"$PACKAGE_VERSION"' ('"$DATE_STAMP"')/g' CHANGELOG.md
 
 git add CHANGELOG.md
-git add dist
+# git add dist

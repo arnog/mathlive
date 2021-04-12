@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.60.0 (2021-04-12)
 
 ### Breaking Change
 
