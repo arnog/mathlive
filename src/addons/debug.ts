@@ -193,7 +193,7 @@ function spanToMarkup(span: Span, indent = ''): string {
     }
   } else if (span) {
     result = '<br>' + indent;
-    if (span.classes.includes('fontsize-ensurer')) {
+    if (span.classes.includes('sz-set')) {
       result += 'FONTSIZE-ENSURER';
     } else {
       if (span.type) {

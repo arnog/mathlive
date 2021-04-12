@@ -367,8 +367,8 @@ export class ArrayAtom extends Atom {
     // appropriate left and right delimiters
     // const inner = new Span(new Span(cols, 'mtable'), 'mord');
     const inner = new Span(cols, 'mtable');
-    const innerHeight = spanHeight(inner);
-    const innerDepth = spanDepth(inner);
+    const innerHeight = inner.height;
+    const innerDepth = inner.depth;
     const result = this.bind(
       context,
       new Span(

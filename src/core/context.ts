@@ -17,6 +17,17 @@ export type ArgumentType =
       | 'balanced-string' // Delimiter is a balanced closing brace
     );
 
+export type FontSize =
+  | 'size1'
+  | 'size2'
+  | 'size3'
+  | 'size4'
+  | 'size5'
+  | 'size6'
+  | 'size7'
+  | 'size8'
+  | 'size9'
+  | 'size10';
 export interface ContextInterface {
   macros?: MacroDictionary;
   atomIdsSettings?: {
@@ -26,8 +37,8 @@ export interface ContextInterface {
   };
   mathstyle?: Mathstyle;
   parentMathstyle?: Mathstyle;
-  size?: string; // @revisit: set explicit possible values, e.g. 'size5', etc...
-  parentSize?: string;
+  size?: FontSize;
+  parentSize?: FontSize;
   letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
   opacity?: number;
   color?: string;
@@ -74,8 +85,8 @@ export class Context implements ContextInterface {
 
   mathstyle: Mathstyle;
   parentMathstyle?: Mathstyle;
-  size?: string; // @revisit: set explicit possible values, e.g. 'size5', etc...
-  parentSize?: string;
+  size?: FontSize;
+  parentSize?: FontSize;
   letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
   opacity?: number;
   color?: string;

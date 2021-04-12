@@ -5,8 +5,6 @@ import {
   isSpanType,
   makeSVGSpan,
   makeVlist,
-  depth as spanDepth,
-  height as spanHeight,
 } from '../core/span';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import { MATHSTYLES } from '../core/mathstyle';
@@ -58,8 +56,8 @@ export class OverunderAtom extends Atom {
   }
 
   render(context: Context): Span[] {
-    const body: Span | Span[] = this.svgBody
-      ? makeSVGSpan(this.svgBody)
+    const body: Span[] = this.svgBody
+      ? [makeSVGSpan(this.svgBody)]
       : Atom.render(context, this.body);
     const annotationStyle = context.clone({
       mathstyle: MATHSTYLES.scriptstyle,
@@ -120,7 +118,7 @@ export class OverunderAtom extends Atom {
  */
 function makeOverunderStack(
   context: Context,
-  nucleus: Span | Span[],
+  nucleus: Span[],
   above: Span,
   below: Span,
   type: SpanType
@@ -137,21 +135,22 @@ function makeOverunderStack(
   if (above) {
     aboveShift = Math.max(
       FONTMETRICS.bigOpSpacing1,
-      FONTMETRICS.bigOpSpacing3 - spanDepth(above)
+      FONTMETRICS.bigOpSpacing3 - above.depth
     );
   }
 
   if (below) {
     belowShift = Math.max(
       FONTMETRICS.bigOpSpacing2,
-      FONTMETRICS.bigOpSpacing4 - spanHeight(below)
+      FONTMETRICS.bigOpSpacing4 - below.height
     );
   }
 
   let result = null;
+  const wrappedNucleus = new Span(nucleus);
 
   if (below && above) {
-    const bottom = spanHeight(below) + spanDepth(below) + spanDepth(nucleus);
+    const bottom = below.height + below.depth + wrappedNucleus.depth;
 
     result = makeVlist(
       context,
@@ -159,7 +158,7 @@ function makeOverunderStack(
         0,
         below,
         belowShift,
-        nucleus,
+        wrappedNucleus,
         aboveShift,
         above,
         FONTMETRICS.bigOpSpacing2,
@@ -168,20 +167,25 @@ function makeOverunderStack(
       bottom
     );
   } else if (below && !above) {
-    const top = spanHeight(nucleus);
+    const top = wrappedNucleus.height;
 
-    result = makeVlist(context, [0, below, belowShift, nucleus], 'top', top);
+    result = makeVlist(
+      context,
+      [0, below, belowShift, wrappedNucleus],
+      'top',
+      top
+    );
   } else if (above && !below) {
     result = makeVlist(
       context,
       [
-        spanDepth(nucleus),
-        nucleus,
+        wrappedNucleus.depth,
+        wrappedNucleus,
         Math.max(FONTMETRICS.bigOpSpacing2, aboveShift), // TeXBook 13a, p.444
         above,
       ],
       'bottom',
-      spanDepth(nucleus)
+      wrappedNucleus.depth
     );
   }
 

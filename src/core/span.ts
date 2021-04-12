@@ -179,17 +179,17 @@ export class Span {
   attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
 
   constructor(
-    content: string | Span | Span[],
+    content: string | Span | (Span | null)[],
     classes = '',
     type: SpanType = ''
   ) {
     if (isArray(content)) {
       // Check if isArray first, since an array is also an object
       // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
-      this.children = [].concat(...content).filter((x) => x !== null);
+      this.children = content.filter((x) => x !== null);
     } else if (typeof content === 'string') {
       this.value = content;
-    } else if (content && typeof content === 'object') {
+    } else if (content && content instanceof Span) {
       this.children = [content];
     }
 
@@ -208,8 +208,8 @@ export class Span {
 
   /**
    * Update the dimensions of this node based on its children:
-   * - height: distance from bottom to top
-   * - depth: distance from bottom to baseline
+   * - height: distance from baseline to top (>0)
+   * - depth: distance from bottom to baseline (>0)
    * - maxFontSize: a size multiplier (typically set with commands such as \huge)
    */
   updateDimensions(): void {
@@ -708,22 +708,12 @@ export function coalesce(spans: Span[]): Span[] {
 // UTILITY FUNCTIONS
 //----------------------------------------------------------------------------
 
-export function height(spans: Span | Span[]): number {
-  if (!spans) return 0;
-  if (isArray(spans)) {
-    return spans.reduce((acc, x) => Math.max(acc, x.height), 0);
-  }
-
-  return spans.height;
+export function height(spans: Span[]): number {
+  return spans.reduce((acc: number, x: Span) => Math.max(acc, x.height), 0);
 }
 
-export function depth(spans: Span | Span[]): number {
-  if (!spans) return 0;
-  if (isArray(spans)) {
-    return spans.reduce((acc, x) => Math.max(acc, x.depth), 0);
-  }
-
-  return spans.depth;
+export function depth(spans: Span[]): number {
+  return spans.reduce((acc: number, x: Span) => Math.max(acc, x.depth), 0);
 }
 
 export function skew(spans: Span | Span[]): number {
@@ -774,7 +764,7 @@ export function makeSymbol(
 //  * Note: without this, even when fontSize = 0, the fraction bar is no
 //  * longer positioned correctly
  */
-function makeFontSizer(context: Context, fontSize: number): Span {
+function makeFontSizer(context: Context, fontSize: number): Span | null {
   const fontSizeAdjustment = fontSize
     ? fontSize / context.mathstyle.sizeMultiplier
     : 0;
@@ -793,10 +783,7 @@ function makeFontSizer(context: Context, fontSize: number): Span {
   }
 
   if (context.size !== 'size5') {
-    return new Span(
-      fontSizeInner,
-      'fontsize-ensurer reset-' + context.size + ' size5'
-    );
+    return new Span(fontSizeInner, 'sz-set reset-' + context.size + ' size5');
   }
 
   return fontSizeAdjustment !== 0 ? fontSizeInner : null;
@@ -808,13 +795,13 @@ export function makeStruts(
   type: SpanType = ''
 ): Span {
   const topStrut = new Span('', 'ML__strut');
-  topStrut.setStyle('height', Math.max(0, height(content)), 'em');
+  topStrut.setStyle('height', Math.max(0, content.height), 'em');
   const struts = [topStrut];
 
-  if (depth(content) !== 0) {
+  if (content.depth !== 0) {
     const bottomStrut = new Span('', 'ML__strut--bottom');
-    bottomStrut.setStyle('height', height(content) + depth(content), 'em');
-    bottomStrut.setStyle('vertical-align', -depth(content), 'em');
+    bottomStrut.setStyle('height', content.height + content.depth, 'em');
+    bottomStrut.setStyle('vertical-align', -content.depth, 'em');
     struts.push(bottomStrut);
   }
 
@@ -884,7 +871,7 @@ export function makeHlist(
  * Create a new span of type `vlist`, a set of vertically stacked items
  * @param elements  An array of Span and integer. The integer can be either some kerning information
  * or the value of an individual shift of the preceding child if in 'individualShift' mode
- * @param pos The method that will be used to position the elements in the vlist.
+ * @param posMethod The method that will be used to position the elements in the vlist.
  *
  * One of:
  * - `"individualShift"`: each child must be followed by a number indicating how much to shift it (i.e. moved downwards)
@@ -895,39 +882,23 @@ export function makeHlist(
  */
 export function makeVlist(
   context: Context,
-  elements: (number | Span[] | Span)[],
-  pos: 'shift' | 'top' | 'bottom' | 'individualShift' = 'shift',
-  posData = 0
+  elements: (number | Span)[],
+  posMethod: 'shift' | 'top' | 'bottom' | 'individualShift' = 'shift',
+  initialPos = 0
 ): Span {
-  let listDepth = 0;
-  let currPos = 0;
+  let minPos = 0; // <0 if below the baseline
+  let pos = 0;
 
-  // Normalize the elements so that they're all either a number or
-  // a single span. If a child is an array of spans,
-  // wrap it in a span
-  for (let i = 0; i < elements.length; i++) {
-    if (isArray(elements[i])) {
-      if ((elements[i] as Span[]).length === 1) {
-        // If that's an array made up of a single span, use that span
-        elements[i] = elements[i][0];
-      } else {
-        // Otherwise, wrap it in a span
-        elements[i] = new Span(elements[i] as Span[]);
-      }
-    }
-  }
-
-  if (pos === 'shift') {
-    if (elements[0]) {
-      console.assert(elements[0] instanceof Span);
-      listDepth = -(elements[0] as Span).depth - posData;
+  if (posMethod === 'shift') {
+    if (elements[0] instanceof Span) {
+      minPos = -elements[0].depth - initialPos;
     } else {
-      listDepth = -posData;
+      minPos = -initialPos;
     }
-  } else if (pos === 'bottom') {
-    listDepth = -posData;
-  } else if (pos === 'top') {
-    let bottom = posData;
+  } else if (posMethod === 'bottom') {
+    minPos = -initialPos;
+  } else if (posMethod === 'top') {
+    let bottom = initialPos;
     for (const element of elements) {
       if (element instanceof Span) {
         // It's a Span, use the dimension data
@@ -938,26 +909,24 @@ export function makeVlist(
       }
     }
 
-    listDepth = bottom;
-  } else if (pos === 'individualShift') {
+    minPos = bottom;
+  } else if (posMethod === 'individualShift') {
     // Individual adjustment to each elements.
     // The elements list is made up of a Span followed
     // by a shift adjustment as an integer
-    const originalElements: (number | Span)[] = elements as (number | Span)[];
+    const originalElements: (number | Span)[] = elements;
+    console.assert(originalElements[0] instanceof Span);
     elements = [originalElements[0]];
 
     // Add in kerns to the list of elements to get each element to be
     // shifted to the correct specified shift
-    console.assert(originalElements[0] instanceof Span);
-    listDepth = -originalElements[1] - (originalElements[0] as Span).depth;
-    currPos = listDepth;
+    minPos = -originalElements[1] - (originalElements[0] as Span).depth;
+    pos = minPos;
     for (let i = 2; i < originalElements.length; i += 2) {
       console.assert(originalElements[i] instanceof Span);
       const diff =
-        -originalElements[i + 1] -
-        currPos -
-        (originalElements[i] as Span).depth;
-      currPos += diff;
+        -originalElements[i + 1] - pos - (originalElements[i] as Span).depth;
+      pos += diff;
 
       console.assert(originalElements[i - 2] instanceof Span);
       const kern =
@@ -968,8 +937,6 @@ export function makeVlist(
       elements.push(kern);
       elements.push(originalElements[i]);
     }
-  } else {
-    console.assert(false, 'makeVList with unknown method: "' + pos + '"');
   }
 
   // Make the fontSizer
@@ -983,25 +950,27 @@ export function makeVlist(
   const fontSizer = makeFontSizer(context, maxFontSize);
 
   const newElements: Span[] = [];
-  currPos = listDepth;
+  pos = minPos;
   for (const element of elements) {
     if (typeof element === 'number') {
       // It's a kern adjustment
-      currPos += element;
-    } else if (element instanceof Span) {
+      pos += element;
+    } else {
+      // const wrap = element;
+      // wrap.setTop(-element.depth - pos);
+      // newElements.push(wrap);
       const wrap = new Span([fontSizer, element]);
-      wrap.setTop(-element.depth - currPos);
+      wrap.setTop(-element.depth - pos);
       newElements.push(wrap);
-      currPos += element.height + element.depth;
+      pos += element.height + element.depth;
     }
   }
 
   const result = new Span(newElements, 'vlist');
 
-  // Fix the final height and depth, in case there were kerns at the ends
-  // since makeSpan won't take that into account.
-  result.depth = Math.max(listDepth, depth(result) ?? 0);
-  result.height = Math.max(-currPos, height(result) ?? 0);
+  // Fix the final height and depth
+  result.depth = -minPos;
+  result.height = pos; // + 0.05
 
   return result;
 }

@@ -83,15 +83,13 @@ export class LeftRightAtom extends Atom {
     const localContext = context.clone();
     const inner = Atom.render(localContext, this.body);
     const { mathstyle } = localContext;
-    let innerHeight = 0;
-    let innerDepth = 0;
     let spans: Span[] = [];
     // Calculate its height and depth
     // The size of delimiters is the same, regardless of what mathstyle we are
     // in. Thus, to correctly calculate the size of delimiter we need around
     // a group, we scale down the inner size based on the size.
-    innerHeight = spanHeight(inner) * mathstyle.sizeMultiplier;
-    innerDepth = spanDepth(inner) * mathstyle.sizeMultiplier;
+    const innerHeight = spanHeight(inner) * mathstyle.sizeMultiplier;
+    const innerDepth = spanDepth(inner) * mathstyle.sizeMultiplier;
     // Add the left delimiter to the beginning of the expression
     if (this.leftDelim) {
       spans.push(

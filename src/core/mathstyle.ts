@@ -81,26 +81,31 @@ const SSc = 7;
  * @property {number} id unique id for the style
  * @property {number} size (which is the same for cramped and uncramped version
  * of a style)
- * @property {number}  multiplier, size multiplier which gives the size difference between
+ * @property {number}  sizeMultiplier, size multiplier which gives the size difference between
  * a style and textstyle.
  * @property {boolean}  cramped flag
  */
 export class Mathstyle {
-  id: number;
-  size: number;
+  id: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  size: 0 | 1 | 2 | 3;
   cramped: boolean;
-  sizeMultiplier: number; // @revisit...? Same as multiplier
+  sizeMultiplier: number;
   metrics: Metrics;
 
-  constructor(id: number, size: number, multiplier: number, cramped: boolean) {
+  constructor(
+    id: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7,
+    size: 0 | 1 | 2 | 3,
+    cramped: boolean
+  ) {
     this.id = id;
     this.size = size;
+    this.sizeMultiplier = [1, 1, 0.7, 0.5][size];
     this.cramped = cramped;
-    this.sizeMultiplier = multiplier;
+    const sizeIndex = size === 0 ? 0 : size - 1;
     this.metrics = Object.keys(SIGMAS).reduce((acc, x) => {
-      return { ...acc, [x]: SIGMAS[x][this.size] };
+      return { ...acc, [x]: SIGMAS[x][sizeIndex] };
     }, {}) as Metrics;
-    this.metrics.emPerEx = SIGMAS.xHeight[this.size] / SIGMAS.quad[this.size];
+    this.metrics.emPerEx = SIGMAS.xHeight[sizeIndex] / SIGMAS.quad[sizeIndex];
   }
 
   /**
@@ -145,50 +150,24 @@ export class Mathstyle {
    * CSS class name, for example `displaystyle cramped`
    */
   cls(): string {
-    return [
-      'displaystyle textstyle', // @revisit. Should just be 'displaystyle'
-      'textstyle',
-      'scriptstyle',
-      'scriptscriptstyle',
-    ][this.size]; // @revisit: use this.id to include 'cramped' variants
+    return ['displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle'][
+      this.size
+    ]; // @revisit: use this.id to include 'cramped' variants
   }
 
   /**
-   * CSS class name to adjust from one style to another, like 'reset-textstyle'
+   * CSS class name to adjust from one style (size) to another.
+   * See TexBook pg. 441
    */
   adjustTo(newStyle: Mathstyle): string {
-    // @revisit the values used here
-    let result = [
-      [
-        '', // 'reset-textstyle displaystyle textstyle',
-        '', // 'reset-textstyle textstyle',
-        'reset-textstyle scriptstyle',
-        'reset-textstyle scriptscriptstyle',
-      ],
-
-      [
-        'reset-textstyle displaystyle textstyle',
-        '', // 'reset-textstyle textstyle',
-        'reset-textstyle scriptstyle',
-        'reset-textstyle scriptscriptstyle',
-      ],
-
-      [
-        'reset-scriptstyle textstyle displaystyle',
-        'reset-scriptstyle textstyle',
-        '', // 'reset-scriptstyle scriptstyle',
-        'reset-scriptstyle scriptscriptstyle',
-      ],
-
-      [
-        'reset-scriptscriptstyle textstyle displaystyle', // @revisit. Should not have 'textstyle'
-        'reset-scriptscriptstyle textstyle',
-        'reset-scriptscriptstyle scriptstyle',
-        '', // 'reset-scriptscriptstyle scriptscriptstyle'
-      ],
+    const result = [
+      ['', '', 'sz-10-7', 'sz-10-5'],
+      ['', '', 'sz-10-7', 'sz-10-5'],
+      ['sz-7-10', 'sz-7-10', '', 'sz-7-5'],
+      ['sz-5-10', 'sz-5-10', 'sz-5-7', ''],
     ][this.size][newStyle.size];
-    if (result.length > 0) result = ' ' + result;
-    return result;
+    if (result.length === 0) return '';
+    return ' ' + result;
   }
 
   /**
@@ -206,14 +185,14 @@ export const MATHSTYLES: {
   scriptstyle?: Mathstyle;
   scriptscriptstyle?: Mathstyle;
 } = {
-  0: new Mathstyle(D, 0, 1, false),
-  1: new Mathstyle(Dc, 0, 1, true),
-  2: new Mathstyle(T, 1, 1, false),
-  3: new Mathstyle(Tc, 1, 1, true),
-  4: new Mathstyle(S, 2, 0.7, false),
-  5: new Mathstyle(Sc, 2, 0.7, true),
-  6: new Mathstyle(SS, 2, 0.5, false),
-  7: new Mathstyle(SSc, 2, 0.5, true),
+  0: new Mathstyle(D, 0, false),
+  1: new Mathstyle(Dc, 0, true),
+  2: new Mathstyle(T, 1, false),
+  3: new Mathstyle(Tc, 1, true),
+  4: new Mathstyle(S, 2, false),
+  5: new Mathstyle(Sc, 2, true),
+  6: new Mathstyle(SS, 3, false),
+  7: new Mathstyle(SSc, 3, true),
 };
 
 // Aliases

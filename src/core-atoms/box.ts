@@ -1,6 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import { depth as spanDepth, height as spanHeight, Span } from '../core/span';
+import { Span } from '../core/span';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -48,7 +48,7 @@ export class BoxAtom extends Atom {
 
     // Base is the main content "inside" the box
     const content = new Span(Atom.render(context, this.body), '', 'mord');
-    content.setStyle('vertical-align', -spanDepth(content), 'em');
+    content.setStyle('vertical-align', -content.depth, 'em');
     content.setStyle('height', 0);
     const base = new Span(content, '', 'mord');
 
@@ -59,11 +59,7 @@ export class BoxAtom extends Atom {
     const box = new Span('', 'ML__box');
     box.setStyle('position', 'absolute');
 
-    box.setStyle(
-      'height',
-      spanHeight(base) + spanDepth(base) + 2 * padding,
-      'em'
-    );
+    box.setStyle('height', base.height + base.depth + 2 * padding, 'em');
     if (padding === 0) {
       box.setStyle('width', '100%');
     } else {
@@ -89,18 +85,18 @@ export class BoxAtom extends Atom {
     if (this.border) box.setStyle('border', this.border);
 
     base.setStyle('display', 'inline-block');
-    base.setStyle('height', spanHeight(base) + spanDepth(base), 'em');
+    base.setStyle('height', base.height + base.depth, 'em');
 
     // The result is a span that encloses the box and the base
     const result = new Span([box, base]);
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');
-    result.setStyle('vertical-align', -padding + spanDepth(base), 'em');
+    result.setStyle('vertical-align', -padding + base.depth, 'em');
 
     // The padding adds to the width and height of the pod
-    result.height = spanHeight(base) + padding;
-    result.depth = spanDepth(base) + padding;
+    result.height = base.height + padding;
+    result.depth = base.depth + padding;
     result.left = padding;
     result.right = padding;
     result.setStyle('height', result.height + result.depth - 2 * padding, 'em');

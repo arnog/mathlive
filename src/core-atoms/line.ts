@@ -1,7 +1,7 @@
 import { Atom } from '../core/atom-class';
 import { MATHSTYLES } from '../core/mathstyle';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import { Span, makeVlist, height as spanHeight } from '../core/span';
+import { Span, makeVlist } from '../core/span';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -21,7 +21,7 @@ export class LineAtom extends Atom {
   render(context: Context): Span[] {
     const { mathstyle } = context;
     // TeXBook:443. Rule 9 and 10
-    const inner = Atom.render(context.cramp(), this.body);
+    const inner = new Span(Atom.render(context.cramp(), this.body));
     const ruleWidth =
       FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     const line = new Span(
@@ -33,16 +33,15 @@ export class LineAtom extends Atom {
     );
     line.height = ruleWidth;
     line.maxFontSize = 1;
-    let vlist;
+    let vlist: Span;
     if (this.position === 'overline') {
       vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
     } else {
-      const innerSpan = new Span(inner);
       vlist = makeVlist(
         context,
-        [ruleWidth, line, 3 * ruleWidth, innerSpan],
+        [ruleWidth, line, 3 * ruleWidth, inner],
         'top',
-        spanHeight(innerSpan)
+        inner.height
       );
     }
 

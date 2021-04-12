@@ -2,182 +2,182 @@
 @mu: 1/18em;
 
 @system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
 
 .ML__sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 body.ML__fonts-loading .ML__base {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 .ML__base {
-    visibility: inherit;
-    display: inline-block;
-    position: relative;
-    cursor: text;
+  visibility: inherit;
+  display: inline-block;
+  position: relative;
+  cursor: text;
 }
 
 .ML__strut,
 .ML__strut--bottom {
-    display: inline-block;
-    min-height: 0.5em;
+  display: inline-block;
+  min-height: 0.5em;
 }
 
 .ML__small-delim {
-    font-family: KaTeX_Main;
+  font-family: KaTeX_Main;
 }
 
 /* Text mode */
 .ML__text {
-    font-family: var(--text-font-family, @system);
-    white-space: pre;
+  font-family: var(--text-font-family, @system);
+  white-space: pre;
 }
 
 /* Use cmr for 'math upright' */
 .ML__cmr {
-    font-family: KaTeX_Main;
-    font-style: normal;
+  font-family: KaTeX_Main;
+  font-style: normal;
 }
 
 .ML__mathit {
-    font-family: KaTeX_Math;
-    /* The KaTeX_Math font is italic 
+  font-family: KaTeX_Math;
+  /* The KaTeX_Math font is italic 
         by default, so the font-style below is only 
         useful when a fallback font is used
     */
-    font-style: italic;
+  font-style: italic;
 }
 
 .ML__mathbf {
-    font-family: KaTeX_Main; // Use upright font
-    font-weight: bold;
+  font-family: KaTeX_Main; // Use upright font
+  font-weight: bold;
 }
 
 /* lowercase greek symbols should stick to math font when \mathbf is applied 
    to match TeX idiosyncratic behavior */
 .lcGreek.ML__mathbf {
-    font-family: KaTeX_Math;
-    font-weight: normal;
+  font-family: KaTeX_Math;
+  font-weight: normal;
 }
 
 .ML__mathbfit {
-    font-family: KaTeX_Math;
-    font-weight: bold;
-    font-style: italic;
+  font-family: KaTeX_Math;
+  font-weight: bold;
+  font-style: italic;
 }
 
 .ML__ams {
-    font-family: KaTeX_AMS;
+  font-family: KaTeX_AMS;
 }
 
 /* Blackboard */
 .ML__bb {
-    font-family: KaTeX_AMS;
+  font-family: KaTeX_AMS;
 }
 
 .ML__cal {
-    font-family: KaTeX_Caligraphic;
+  font-family: KaTeX_Caligraphic;
 }
 
 .ML__frak {
-    font-family: KaTeX_Fraktur;
+  font-family: KaTeX_Fraktur;
 }
 
 .ML__tt {
-    font-family: KaTeX_Typewriter;
+  font-family: KaTeX_Typewriter;
 }
 
 .ML__script {
-    font-family: KaTeX_Script;
+  font-family: KaTeX_Script;
 }
 
 .ML__sans {
-    font-family: KaTeX_SansSerif;
+  font-family: KaTeX_SansSerif;
 }
 .ML__series_ul {
-    font-weight: 100;
+  font-weight: 100;
 }
 .ML__series_el {
-    font-weight: 100;
+  font-weight: 100;
 }
 .ML__series_l {
-    font-weight: 200;
+  font-weight: 200;
 }
 .ML__series_sl {
-    font-weight: 300;
+  font-weight: 300;
 }
 
 .ML__series_sb {
-    font-weight: 500;
+  font-weight: 500;
 }
 .ML__bold,
 .ML__boldsymbol {
-    font-weight: 700;
+  font-weight: 700;
 }
 .ML__series_eb {
-    font-weight: 800;
+  font-weight: 800;
 }
 .ML__series_ub {
-    font-weight: 900;
+  font-weight: 900;
 }
 
 .ML__series_uc {
-    font-stretch: ultra-condensed;
+  font-stretch: ultra-condensed;
 }
 .ML__series_ec {
-    font-stretch: extra-condensed;
+  font-stretch: extra-condensed;
 }
 .ML__series_c {
-    font-stretch: condensed;
+  font-stretch: condensed;
 }
 .ML__series_sc {
-    font-stretch: semi-condensed;
+  font-stretch: semi-condensed;
 }
 .ML__series_sx {
-    font-stretch: semi-expanded;
+  font-stretch: semi-expanded;
 }
 .ML__series_x {
-    font-stretch: expanded;
+  font-stretch: expanded;
 }
 .ML__series_ex {
-    font-stretch: extra-expanded;
+  font-stretch: extra-expanded;
 }
 .ML__series_ux {
-    font-stretch: ultra-expanded;
+  font-stretch: ultra-expanded;
 }
 
 .ML__it {
-    font-style: italic;
+  font-style: italic;
 }
 .ML__shape_ol {
-    -webkit-text-stroke: 1px black;
-    text-stroke: 1px black;
-    color: transparent;
+  -webkit-text-stroke: 1px black;
+  text-stroke: 1px black;
+  color: transparent;
 }
 .ML__shape_sc {
-    font-variant: small-caps;
+  font-variant: small-caps;
 }
 .ML__shape_sl {
-    font-style: oblique;
+  font-style: oblique;
 }
 
 /* First level emphasis */
 .ML__emph {
-    color: #bc2612;
+  color: #bc2612;
 }
 /* Second level emphasis */
 .ML__emph .ML__emph {
-    color: #0c7f99;
+  color: #0c7f99;
 }
 
 // Style used to highlight a portion of the expression when speaking
@@ -185,562 +185,566 @@ body.ML__fonts-loading .ML__base {
 // See https://www.w3.org/WAI/RD/2012/text-customization/r11
 // and https://www.cs.cmu.edu/~jbigham/pubs/pdfs/2017/colors.pdf
 .ML__highlight {
-    color: #007cb2; // Complementary to peach
-    background: #edd1b0; // Peach
+  color: #007cb2; // Complementary to peach
+  background: #edd1b0; // Peach
 }
 
 .ML__mathlive {
-    // This value is also used in font-metrics.js, if you change it make sure the
-    // values match.
-    @ptperem: 10;
-    @nulldelimiterspace: 1.2em / @ptperem;
+  // This value is also used in font-metrics.js, if you change it make sure the
+  // values match.
+  @ptperem: 10;
+  @nulldelimiterspace: 0.12em;
 
-    @thinspace: 0.16667em; // 3mu
-    @mediumspace: 0.22222em; // 4mu
-    @thickspace: 0.27778em; // 5mu
+  @thinspace: 0.16667em; // 3mu
+  @mediumspace: 0.22222em; // 4mu
+  @thickspace: 0.27778em; // 5mu
 
+  display: inline-block;
+
+  line-height: 0;
+
+  direction: ltr;
+
+  text-align: left;
+  text-indent: 0;
+  text-rendering: auto;
+  font-family: KaTeX_Main;
+  font-style: normal;
+  font-size-adjust: none;
+  letter-spacing: normal;
+
+  word-wrap: normal;
+  word-spacing: normal;
+  white-space: nowrap;
+
+  text-shadow: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  width: min-content;
+
+  // Encourage browsers to consider allocating a hardware accelerated
+  // layer for this element.
+  transform: translateZ(0);
+
+  .sz-10-7 {
+    font-size: 0.7em;
+  }
+
+  .sz-10-5 {
+    font-size: 0.5em;
+  }
+
+  .sz-7-10 {
+    font-size: 1.428571429em;
+  }
+
+  .sz-7-5 {
+    font-size: 0.714285714em;
+  }
+
+  .sz-5-10 {
+    font-size: 2em;
+  }
+
+  .sz-5-7 {
+    font-size: 1.4em;
+  }
+
+  .style-wrap {
+    position: relative;
+  }
+  .vlist {
     display: inline-block;
 
-    line-height: 0;
+    > span {
+      display: block;
+      height: 0;
+      position: relative;
+      line-height: 0;
 
-    direction: ltr;
+      // display: flex;
+      // flex-direction: row;
+      // position: relative;
+      // height: 0;
 
-    text-align: left;
-    text-indent: 0;
-    text-rendering: auto;
-    font-family: KaTeX_Main;
-    font-style: normal;
-    font-size-adjust: none;
-    letter-spacing: normal;
-
-    word-wrap: normal;
-    word-spacing: normal;
-    white-space: nowrap;
-
-    text-shadow: none;
-    -webkit-user-select: none;
-    user-select: none;
-
-    width: min-content;
-
-    // Encourage browsers to consider allocating a hardware accelerated
-    // layer for this element.
-    transform: translateZ(0);
-
-    .reset-textstyle.scriptstyle {
-        font-size: 0.7em;
-    }
-    .reset-textstyle.scriptscriptstyle {
-        font-size: 0.5em;
-    }
-
-    .reset-scriptstyle.textstyle {
-        font-size: 1.42857em;
-    }
-    .reset-scriptstyle.scriptscriptstyle {
-        font-size: 0.71429em;
-    }
-
-    .reset-scriptscriptstyle.textstyle {
-        font-size: 2em;
-    }
-    .reset-scriptscriptstyle.scriptstyle {
-        font-size: 1.4em;
-    }
-    .style-wrap {
-        position: relative;
-    }
-    .vlist {
+      > span {
         display: inline-block;
+      }
+    }
+  }
 
-        > span {
-            display: block;
-            height: 0;
-            position: relative;
-            line-height: 0;
+  .msubsup {
+    text-align: left;
+  }
 
-            // display: flex;
-            // flex-direction: row;
-            // position: relative;
-            // height: 0;
-
-            > span {
-                display: inline-block;
-            }
-        }
+  .mfrac {
+    // line-height: 0;
+    > span {
+      // justify-content: center;
+      text-align: center;
     }
 
-    .msubsup {
-        text-align: left;
-    }
+    .frac-line {
+      width: 100%;
 
-    .mfrac {
-        // line-height: 0;
-        > span {
-            // justify-content: center;
-            text-align: center;
-        }
+      // &:before {
+      //     border-bottom-style: solid;
+      //     border-bottom-width: 1px;
+      //     content: "";
+      //     display: block;
+      // }
 
-        .frac-line {
-            width: 100%;
-
-            // &:before {
-            //     border-bottom-style: solid;
-            //     border-bottom-width: 1px;
-            //     content: "";
-            //     display: block;
-            // }
-
-            &:after {
-                content: '';
-                display: block;
-                margin-top: -0.04em;
-                min-height: 0.04em;
-                /* There's a bug since Chrome 62 where 
+      &:after {
+        content: '';
+        display: block;
+        margin-top: -0.04em;
+        min-height: 0.04em;
+        /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). 
                 Setting the min-height used to work around it, but that workaround
                 broke in Chrome 84 or so.
                 Setting the background (and the min-height) seems to work for now.
                 */
-                background: currentColor;
-                box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
+        background: currentColor;
+        box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
                 causes the fraction line to not draw at all sizes (see #26) */
-                /* On some versions of Firefox on Windows, the line fails to 
+        /* On some versions of Firefox on Windows, the line fails to 
                 draw at some zoom levels, but setting the transform triggers
                 the hardware accelerated path, which works */
-                transform: translate(0, 0);
-            }
-        }
+        transform: translate(0, 0);
+      }
+    }
+  }
+
+  .rspace {
+    &.negativethinspace {
+      margin-right: -@thinspace;
     }
 
-    .rspace {
-        &.negativethinspace {
-            margin-right: -@thinspace;
-        }
-
-        &.thinspace {
-            margin-right: @thinspace;
-        }
-
-        &.negativemediumspace {
-            margin-right: -@mediumspace;
-        }
-
-        &.mediumspace {
-            margin-right: @mediumspace;
-        }
-
-        &.thickspace {
-            margin-right: @thickspace;
-        }
-
-        &.sixmuspace {
-            margin-right: 0.333333em;
-        }
-
-        &.eightmuspace {
-            margin-right: 0.444444em;
-        }
-
-        &.enspace {
-            margin-right: 0.5em;
-        }
-
-        &.twelvemuspace {
-            margin-right: 0.666667em;
-        }
-
-        &.quad {
-            margin-right: 1em;
-        }
-
-        &.qquad {
-            margin-right: 2em;
-        }
+    &.thinspace {
+      margin-right: @thinspace;
     }
 
-    .mspace {
-        display: inline-block;
-
-        &.negativethinspace {
-            margin-left: -@thinspace;
-        }
-
-        &.thinspace {
-            width: @thinspace;
-        }
-
-        &.negativemediumspace {
-            margin-left: -@mediumspace;
-        }
-
-        &.mediumspace {
-            width: @mediumspace;
-        }
-
-        &.thickspace {
-            width: @thickspace;
-        }
-
-        &.sixmuspace {
-            width: 0.333333em;
-        }
-
-        &.eightmuspace {
-            width: 0.444444em;
-        }
-
-        &.enspace {
-            width: 0.5em;
-        }
-
-        &.twelvemuspace {
-            width: 0.666667em;
-        }
-
-        &.quad {
-            width: 1em;
-        }
-
-        &.qquad {
-            width: 2em;
-        }
+    &.negativemediumspace {
+      margin-right: -@mediumspace;
     }
 
-    .llap,
-    .rlap {
-        width: 0;
-        position: relative;
-
-        > .inner {
-            position: absolute;
-        }
-
-        > .fix {
-            display: inline-block;
-        }
+    &.mediumspace {
+      margin-right: @mediumspace;
     }
 
-    .llap > .inner {
-        right: 0;
+    &.thickspace {
+      margin-right: @thickspace;
     }
 
-    .rlap > .inner {
-        left: 0;
+    &.sixmuspace {
+      margin-right: 0.333333em;
     }
 
-    .rule {
-        display: inline-block;
-        border: solid 0;
-        position: relative;
+    &.eightmuspace {
+      margin-right: 0.444444em;
     }
 
-    .overline .overline-line,
-    .underline .underline-line {
-        width: 100%;
+    &.enspace {
+      margin-right: 0.5em;
+    }
 
-        &:before {
-            border-bottom-style: solid;
-            border-bottom-width: 0.04em;
-            content: '';
-            display: block;
-        }
+    &.twelvemuspace {
+      margin-right: 0.666667em;
+    }
 
-        &:after {
-            border-bottom-style: solid;
-            border-bottom-width: 0.04em;
-            min-height: thin; /* There's a bug since Chrome 62 where 
+    &.quad {
+      margin-right: 1em;
+    }
+
+    &.qquad {
+      margin-right: 2em;
+    }
+  }
+
+  .mspace {
+    display: inline-block;
+
+    &.negativethinspace {
+      margin-left: -@thinspace;
+    }
+
+    &.thinspace {
+      width: @thinspace;
+    }
+
+    &.negativemediumspace {
+      margin-left: -@mediumspace;
+    }
+
+    &.mediumspace {
+      width: @mediumspace;
+    }
+
+    &.thickspace {
+      width: @thickspace;
+    }
+
+    &.sixmuspace {
+      width: 0.333333em;
+    }
+
+    &.eightmuspace {
+      width: 0.444444em;
+    }
+
+    &.enspace {
+      width: 0.5em;
+    }
+
+    &.twelvemuspace {
+      width: 0.666667em;
+    }
+
+    &.quad {
+      width: 1em;
+    }
+
+    &.qquad {
+      width: 2em;
+    }
+  }
+
+  .llap,
+  .rlap {
+    width: 0;
+    position: relative;
+
+    > .inner {
+      position: absolute;
+    }
+
+    > .fix {
+      display: inline-block;
+    }
+  }
+
+  .llap > .inner {
+    right: 0;
+  }
+
+  .rlap > .inner {
+    left: 0;
+  }
+
+  .rule {
+    display: inline-block;
+    border: solid 0;
+    position: relative;
+  }
+
+  .overline .overline-line,
+  .underline .underline-line {
+    width: 100%;
+
+    &:before {
+      border-bottom-style: solid;
+      border-bottom-width: 0.04em;
+      content: '';
+      display: block;
+    }
+
+    &:after {
+      border-bottom-style: solid;
+      border-bottom-width: 0.04em;
+      min-height: thin; /* There's a bug since Chrome 62 where 
             sub-pixel border lines don't draw at some zoom 
             levels (110%, 90%). Setting the min-height seems to work around it.
             */
-            content: '';
-            display: block;
-            margin-top: -1px;
-        }
+      content: '';
+      display: block;
+      margin-top: -1px;
+    }
+  }
+
+  .stretchy {
+    display: block;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    overflow: hidden;
+    &:before,
+    &:after {
+      content: '';
+    }
+    svg {
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: inherit;
+      fill: currentColor;
+      stroke: currentColor;
+      fill-rule: nonzero;
+      fill-opacity: 1;
+      stroke-width: 1;
+      stroke-linecap: butt;
+      stroke-linejoin: miter;
+      stroke-miterlimit: 4;
+      stroke-dasharray: none;
+      stroke-dashoffset: 0;
+      stroke-opacity: 1;
+    }
+  }
+
+  .slice-1-of-2 {
+    display: inline-flex;
+    position: absolute;
+    left: 0;
+    width: 50.2%;
+    overflow: hidden;
+  }
+  .slice-2-of-2 {
+    display: inline-flex;
+    position: absolute;
+    right: 0;
+    width: 50.2%;
+    overflow: hidden;
+  }
+  .slice-1-of-3 {
+    display: inline-flex;
+    position: absolute;
+    left: 0;
+    width: 25.1%;
+    overflow: hidden;
+  }
+  .slice-2-of-3 {
+    display: inline-flex;
+    position: absolute;
+    left: 25%;
+    width: 50%;
+    overflow: hidden;
+  }
+  .slice-3-of-3 {
+    display: inline-flex;
+    position: absolute;
+    right: 0;
+    width: 25.1%;
+    overflow: hidden;
+  }
+  .slice-1-of-1 {
+    display: inline-flex;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    overflow: hidden;
+  }
+
+  .sqrt {
+    display: inline-block;
+
+    > .sqrt-sign {
+      font-family: KaTeX_Main;
+      position: relative;
     }
 
-    .stretchy {
+    .sqrt-line {
+      // line-height: 0;
+      height: 0.04em;
+      width: 100%;
+
+      &:before {
+        content: '';
         display: block;
-        position: absolute;
-        width: 100%;
-        left: 0;
-        overflow: hidden;
-        &:before,
-        &:after {
-            content: '';
-        }
-        svg {
-            display: block;
-            position: absolute;
-            width: 100%;
-            height: inherit;
-            fill: currentColor;
-            stroke: currentColor;
-            fill-rule: nonzero;
-            fill-opacity: 1;
-            stroke-width: 1;
-            stroke-linecap: butt;
-            stroke-linejoin: miter;
-            stroke-miterlimit: 4;
-            stroke-dasharray: none;
-            stroke-dashoffset: 0;
-            stroke-opacity: 1;
-        }
-    }
+        margin-top: -0.04em;
+        min-height: 0.04em;
+        background: currentColor;
+      }
 
-    .slice-1-of-2 {
-        display: inline-flex;
-        position: absolute;
-        left: 0;
-        width: 50.2%;
-        overflow: hidden;
-    }
-    .slice-2-of-2 {
-        display: inline-flex;
-        position: absolute;
-        right: 0;
-        width: 50.2%;
-        overflow: hidden;
-    }
-    .slice-1-of-3 {
-        display: inline-flex;
-        position: absolute;
-        left: 0;
-        width: 25.1%;
-        overflow: hidden;
-    }
-    .slice-2-of-3 {
-        display: inline-flex;
-        position: absolute;
-        left: 25%;
-        width: 50%;
-        overflow: hidden;
-    }
-    .slice-3-of-3 {
-        display: inline-flex;
-        position: absolute;
-        right: 0;
-        width: 25.1%;
-        overflow: hidden;
-    }
-    .slice-1-of-1 {
-        display: inline-flex;
-        position: absolute;
-        width: 100%;
-        left: 0;
-        overflow: hidden;
-    }
-
-    .sqrt {
-        display: inline-block;
-
-        > .sqrt-sign {
-            font-family: KaTeX_Main;
-            position: relative;
-        }
-
-        .sqrt-line {
-            // line-height: 0;
-            height: 0.04em;
-            width: 100%;
-
-            &:before {
-                content: '';
-                display: block;
-                margin-top: -0.04em;
-                min-height: 0.04em;
-                background: currentColor;
-            }
-
-            &:after {
-                border-bottom-width: 1px;
-                content: ' ';
-                display: block;
-                margin-top: -0.1em;
-                /* On some versions of Firefox on Windows, the line fails to 
+      &:after {
+        border-bottom-width: 1px;
+        content: ' ';
+        display: block;
+        margin-top: -0.1em;
+        /* On some versions of Firefox on Windows, the line fails to 
                 draw at some zoom levels, but setting the transform triggers
                 the hardware accelerated path, which works */
-                transform: translate(0, 0);
-            }
-        }
-
-        > .root {
-            // These values are taken from the definition of `\r@@t`,
-            // `\mkern 5mu` and `\mkern -10mu`.
-            margin-left: 5 * (@mu);
-            margin-right: -10 * (@mu);
-        }
+        transform: translate(0, 0);
+      }
     }
 
-    .sizing,
-    .fontsize-ensurer {
-        display: inline-block;
+    > .root {
+      // These values are taken from the definition of `\r@@t`,
+      // `\mkern 5mu` and `\mkern -10mu`.
+      margin-left: 5 * (@mu);
+      margin-right: -10 * (@mu);
+    }
+  }
 
-        @size1: 0.5;
-        @size2: 0.7;
-        @size3: 0.8;
-        @size4: 0.9;
-        @size5: 1;
-        @size6: 1.2;
-        @size7: 1.44;
-        @size8: 1.73;
-        @size9: 2.07;
-        @size10: 2.49;
+  .sizing,
+  .sz-set {
+    display: inline-block;
 
-        .generate-size-change(@from, @to) {
-            &.reset-size@{from}.size@{to} {
-                @sizeFromVariable: ~'size@{from}';
-                @sizeToVariable: ~'size@{to}';
-                font-size: (@@sizeToVariable / @@sizeFromVariable) * 1em;
-            }
-        }
+    @size1: 0.5;
+    @size2: 0.7;
+    @size3: 0.8;
+    @size4: 0.9;
+    @size5: 1;
+    @size6: 1.2;
+    @size7: 1.44;
+    @size8: 1.73;
+    @size9: 2.07;
+    @size10: 2.49;
 
-        .generate-to-size-change(@from, @currTo) when (@currTo =< 10) {
-            .generate-size-change(@from, @currTo);
-
-            .generate-to-size-change(@from, (@currTo + 1));
-        }
-
-        .generate-from-size-change(@currFrom) when (@currFrom =< 10) {
-            .generate-to-size-change(@currFrom, 1);
-
-            .generate-from-size-change((@currFrom + 1));
-        }
-
-        .generate-from-size-change(1);
+    .generate-size-change(@from, @to) {
+      &.reset-size@{from}.size@{to} {
+        @sizeFromVariable: ~'size@{from}';
+        @sizeToVariable: ~'size@{to}';
+        font-size: (@@sizeToVariable / @@sizeFromVariable) * 1em;
+      }
     }
 
-    .delimsizing {
-        &.size1 {
-            font-family: KaTeX_Size1;
-        }
-        &.size2 {
-            font-family: KaTeX_Size2;
-        }
-        &.size3 {
-            font-family: KaTeX_Size3;
-        }
-        &.size4 {
-            font-family: KaTeX_Size4;
-        }
+    .generate-to-size-change(@from, @currTo) when (@currTo =< 10) {
+      .generate-size-change(@from, @currTo);
 
-        &.mult {
-            .delim-size1 {
-                font-family: KaTeX_Size1;
-                vertical-align: top;
-            }
-            .delim-size4 {
-                font-family: KaTeX_Size4;
-                vertical-align: top;
-            }
-        }
+      .generate-to-size-change(@from, (@currTo + 1));
     }
 
-    .nulldelimiter {
-        width: @nulldelimiterspace;
+    .generate-from-size-change(@currFrom) when (@currFrom =< 10) {
+      .generate-to-size-change(@currFrom, 1);
+
+      .generate-from-size-change((@currFrom + 1));
     }
 
-    .op-symbol {
-        position: relative;
+    .generate-from-size-change(1);
+  }
 
-        &.small-op {
-            font-family: KaTeX_Size1;
-        }
-        &.large-op {
-            font-family: KaTeX_Size2;
-        }
+  .delimsizing {
+    &.size1 {
+      font-family: KaTeX_Size1;
+    }
+    &.size2 {
+      font-family: KaTeX_Size2;
+    }
+    &.size3 {
+      font-family: KaTeX_Size3;
+    }
+    &.size4 {
+      font-family: KaTeX_Size4;
     }
 
-    .op-limits {
-        .vlist > span {
-            text-align: center;
-        }
+    &.mult {
+      .delim-size1 {
+        font-family: KaTeX_Size1;
+        vertical-align: top;
+      }
+      .delim-size4 {
+        font-family: KaTeX_Size4;
+        vertical-align: top;
+      }
     }
-    .op-over-under {
-        position: relative;
+  }
+
+  .nulldelimiter {
+    width: @nulldelimiterspace;
+  }
+
+  .op-symbol {
+    position: relative;
+
+    &.small-op {
+      font-family: KaTeX_Size1;
     }
-    .op-over-under > .vlist > span:first-child,
-    .op-over-under > .vlist > span:last-child {
-        text-align: center;
+    &.large-op {
+      font-family: KaTeX_Size2;
+    }
+  }
+
+  .op-limits {
+    .vlist > span {
+      text-align: center;
+    }
+  }
+  .op-over-under {
+    position: relative;
+  }
+  .op-over-under > .vlist > span:first-child,
+  .op-over-under > .vlist > span:last-child {
+    text-align: center;
+  }
+
+  .accent {
+    > .vlist > span {
+      text-align: center;
     }
 
-    .accent {
-        > .vlist > span {
-            text-align: center;
-        }
-
-        .accent-body > span {
-            font-family: KaTeX_Main;
-            width: 0;
-        }
-
-        .accent-body.accent-vec > span {
-            position: relative;
-            // This value is half of the value that the MathJax's makeFF shifts
-            // it left. We center it by shifting it half way right again.
-            left: 0.326em;
-        }
+    .accent-body > span {
+      font-family: KaTeX_Main;
+      width: 0;
     }
 
-    .mtable {
-        .vertical-separator {
-            display: inline-block;
-            margin: 0 -0.025em;
-            border-right: 0.05em solid currentColor;
-        }
-
-        .arraycolsep {
-            display: inline-block;
-        }
-
-        .col-align-m > .vlist {
-            text-align: center;
-        }
-
-        .col-align-c > .vlist {
-            text-align: center;
-        }
-
-        .col-align-l > .vlist {
-            text-align: left;
-        }
-
-        .col-align-r > .vlist {
-            text-align: right;
-        }
+    .accent-body.accent-vec > span {
+      position: relative;
+      // This value is half of the value that the MathJax's makeFF shifts
+      // it left. We center it by shifting it half way right again.
+      left: 0.326em;
     }
+  }
+
+  .mtable {
+    .vertical-separator {
+      display: inline-block;
+      margin: 0 -0.025em;
+      border-right: 0.05em solid currentColor;
+    }
+
+    .arraycolsep {
+      display: inline-block;
+    }
+
+    .col-align-m > .vlist {
+      text-align: center;
+    }
+
+    .col-align-c > .vlist {
+      text-align: center;
+    }
+
+    .col-align-l > .vlist {
+      text-align: left;
+    }
+
+    .col-align-r > .vlist {
+      text-align: right;
+    }
+  }
 }
 
 .ML__error {
-    // Wavy pattern
-    background-image: radial-gradient(
-        ellipse at center,
-        hsl(341, 100%, 40%),
-        rgba(0, 0, 0, 0) 70%
-    );
+  // Wavy pattern
+  background-image: radial-gradient(
+    ellipse at center,
+    hsl(341, 100%, 40%),
+    rgba(0, 0, 0, 0) 70%
+  );
 
-    background-repeat: repeat-x;
-    background-size: 3px 3px;
-    background-position: 0 98%;
+  background-repeat: repeat-x;
+  background-size: 3px 3px;
+  background-position: 0 98%;
 }
 
 .ML__composition {
-    background: #fff1c2;
-    color: black;
-    text-decoration: underline var(--caret, hsl(var(--hue, 212), 40%, 49%));
+  background: #fff1c2;
+  color: black;
+  text-decoration: underline var(--caret, hsl(var(--hue, 212), 40%, 49%));
 }
 
 @media (prefers-color-scheme: dark) {
-    .ML__composition {
-        background: #69571c;
-        color: white;
-    }
+  .ML__composition {
+    background: #69571c;
+    color: white;
+  }
 }
 
 .ML__placeholder {
-    opacity: 0.7;
-    padding-left: 0.4ex;
-    padding-right: 0.4ex;
-    padding-top: 0.4ex;
+  opacity: 0.7;
+  padding-left: 0.4ex;
+  padding-right: 0.4ex;
+  padding-top: 0.4ex;
 }

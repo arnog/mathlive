@@ -748,14 +748,19 @@ function makeNullFence(
   context: Context,
   classes: string
 ): Span {
+  let sizeAdjust = '';
+  if (context.size !== 'size5') {
+    sizeAdjust = `sizing reset-${context.size} size5`;
+  }
   return new Span(
     '',
-    'sizing' + // @todo not useful, redundant with 'nulldelimiter'
-      // 'reset-' + context.size, 'size5',
-      // @todo: that seems like a lot of resizing... do we need both?
+    // Reset the font-size to the default (size5)
+    sizeAdjust +
+      // Correct from scriptstyle/scriptscriptstyle to textstyle if necessary
       context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
-      ' nulldelimiter ' + // The null delimiter has a width, specified by class 'nulldelimiter'
-      (classes || ''),
+      // The null delimiter has a width, specified by class 'nulldelimiter'
+      ' nulldelimiter ' +
+      (classes ?? ''),
     type
   );
 }

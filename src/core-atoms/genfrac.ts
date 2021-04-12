@@ -1,13 +1,7 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { MATHSTYLES, MathStyleName } from '../core/mathstyle';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import {
-  Span,
-  makeHlist,
-  makeVlist,
-  depth as spanDepth,
-  height as spanHeight,
-} from '../core/span';
+import { Span, makeHlist, makeVlist } from '../core/span';
 import { makeCustomSizedDelim } from '../core/delimiters';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
@@ -140,8 +134,8 @@ export class GenfracAtom extends Atom {
       denomShift = mathstyle.metrics.denom2; // V ← σ12
     }
 
-    const numerDepth = spanDepth(numerReset);
-    const denomHeight = spanHeight(denomReset);
+    const numerDepth = numerReset.depth;
+    const denomHeight = denomReset.height;
     let frac: Span;
     if (ruleWidth === 0) {
       // Rule 15c from Appendix G

@@ -73,7 +73,7 @@ export class AccentAtom extends Atom {
       accentBody = new Span(new Span(accent), 'accent-body' + vecClass);
     }
 
-    accentBody = makeVlist(context, [base, -clearance, accentBody]);
+    accentBody = makeVlist(context, [new Span(base), -clearance, accentBody]);
     // Shift the accent over by the skew. Note we shift by twice the skew
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.

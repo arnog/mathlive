@@ -1,12 +1,7 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { MATHSTYLES } from '../core/mathstyle';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import {
-  makeVlist,
-  depth as spanDepth,
-  height as spanHeight,
-  Span,
-} from '../core/span';
+import { makeVlist, Span } from '../core/span';
 import { Context } from '../core/context';
 
 import { makeCustomSizedDelim } from '../core/delimiters';
@@ -42,7 +37,8 @@ export class SurdAtom extends Atom {
     const { mathstyle } = context;
     // First, we do the same steps as in overline to build the inner group
     // and line
-    const inner = Atom.render(context.cramp(), this.body) ?? new Span('');
+    const inner =
+      new Span(Atom.render(context.cramp(), this.body)) ?? new Span('');
     const ruleWidth =
       FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     let phi = ruleWidth;
@@ -54,7 +50,7 @@ export class SurdAtom extends Atom {
     let lineClearance = ruleWidth + phi / 4;
     const innerTotalHeight = Math.max(
       2 * phi,
-      (spanHeight(inner) + spanDepth(inner)) * mathstyle.sizeMultiplier
+      (inner.height + inner.depth) * mathstyle.sizeMultiplier
     );
     const minDelimiterHeight = innerTotalHeight + (lineClearance + ruleWidth);
 
@@ -71,16 +67,13 @@ export class SurdAtom extends Atom {
     const delimDepth = delim.height + delim.depth - ruleWidth;
 
     // Adjust the clearance based on the delimiter size
-    if (delimDepth > spanHeight(inner) + spanDepth(inner) + lineClearance) {
+    if (delimDepth > inner.height + inner.depth + lineClearance) {
       lineClearance =
-        (lineClearance + delimDepth - (spanHeight(inner) + spanDepth(inner))) /
-        2;
+        (lineClearance + delimDepth - (inner.height + inner.depth)) / 2;
     }
 
     // Shift the delimiter so that its top lines up with the top of the line
-    delim.setTop(
-      delim.height - spanHeight(inner) - (lineClearance + ruleWidth)
-    );
+    delim.setTop(delim.height - inner.height - (lineClearance + ruleWidth));
     const line = new Span(
       null,
       context.mathstyle.adjustTo(MATHSTYLES.textstyle) + ' sqrt-line'
@@ -88,7 +81,12 @@ export class SurdAtom extends Atom {
     line.applyStyle(this.mode, this.style);
     line.height = ruleWidth;
 
-    const body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
+    const body = makeVlist(context, [
+      new Span(inner),
+      lineClearance,
+      line,
+      ruleWidth,
+    ]);
 
     let className = 'sqrt';
     if (this.containsCaret) className += ' ML__contains-caret';

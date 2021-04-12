@@ -1,11 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import {
-  addSVGOverlay,
-  depth as spanDepth,
-  height as spanHeight,
-  Span,
-} from '../core/span';
+import { addSVGOverlay, Span } from '../core/span';
 import { Context } from '../core/context';
 import { colorToString } from '../core/color';
 import { Style } from '../public/core';
@@ -130,13 +125,9 @@ export class EncloseAtom extends Atom {
     // during rendering (it looks like an empty, no-op span)
     const notation = new Span('', 'ML__notation');
     notation.setStyle('position', 'absolute');
-    notation.setStyle(
-      'height',
-      spanHeight(base) + spanDepth(base) + 2 * padding,
-      'em'
-    );
-    notation.height = spanHeight(base) + padding;
-    notation.depth = spanDepth(base) + padding;
+    notation.setStyle('height', base.height + base.depth + 2 * padding, 'em');
+    notation.height = base.height + padding;
+    notation.depth = base.depth + padding;
     if (padding !== 0) {
       notation.setStyle('width', `calc(100% + ${2 * padding}em)`);
     } else {
@@ -162,11 +153,7 @@ export class EncloseAtom extends Atom {
     }
 
     if (this.notation.roundedbox) {
-      notation.setStyle(
-        'border-radius',
-        (spanHeight(base) + spanDepth(base)) / 2,
-        'em'
-      );
+      notation.setStyle('border-radius', (base.height + base.depth) / 2, 'em');
       notation.setStyle('border', this.borderStyle);
     }
 
@@ -310,8 +297,8 @@ export class EncloseAtom extends Atom {
     result.setStyle('display', 'inline');
 
     // The padding adds to the width and height of the pod
-    result.height = spanHeight(base) + padding;
-    result.depth = spanDepth(base) + padding;
+    result.height = base.height + padding;
+    result.depth = base.depth + padding;
     result.left = padding;
     result.right = padding;
 

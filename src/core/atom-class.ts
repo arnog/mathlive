@@ -6,8 +6,6 @@ import { MATHSTYLES } from './mathstyle';
 import { METRICS as FONTMETRICS } from './font-metrics';
 import {
   makeVlist,
-  depth as spanDepth,
-  height as spanHeight,
   italic as spanItalic,
   SpanType,
   isSpanType,
@@ -115,12 +113,12 @@ const SIZING_MULTIPLIER = {
   size2: 0.7,
   size3: 0.8,
   size4: 0.9,
-  size5: 1,
+  size5: 1.0,
   size6: 1.2,
   size7: 1.44,
-  size8: 1.73,
-  size9: 2.07,
-  size10: 2.49,
+  size8: 1.728,
+  size9: 2.074,
+  size10: 2.488,
 };
 
 /**
@@ -379,10 +377,6 @@ export class Atom {
         context.mathstyle.sizeMultiplier /
         context.parentMathstyle.sizeMultiplier;
       for (const span of result) {
-        console.assert(!isArray(span));
-        console.assert(
-          typeof span.height === 'number' && Number.isFinite(span.height)
-        );
         span.height *= factor;
         span.depth *= factor;
       }
@@ -394,10 +388,6 @@ export class Atom {
       const factor =
         SIZING_MULTIPLIER[context.size] / SIZING_MULTIPLIER[context.parentSize];
       for (const span of result) {
-        console.assert(!isArray(span));
-        console.assert(
-          typeof span.height === 'number' && Number.isFinite(span.height)
-        );
         span.height *= factor;
         span.depth *= factor;
       }
@@ -965,8 +955,8 @@ export class Atom {
     let supShift = 0;
     let subShift = 0;
     if (!this.isCharacterBox()) {
-      supShift = spanHeight(nucleus) - mathstyle.metrics.supDrop;
-      subShift = spanDepth(nucleus) + mathstyle.metrics.subDrop;
+      supShift = nucleus.height - mathstyle.metrics.supDrop;
+      subShift = nucleus.depth + mathstyle.metrics.subDrop;
     }
 
     // Rule 18c, p445
@@ -995,13 +985,11 @@ export class Atom {
       subShift = Math.max(subShift, mathstyle.metrics.sub2);
       const ruleWidth = FONTMETRICS.defaultRuleThickness;
       if (
-        supShift - spanDepth(supmid) - (spanHeight(submid) - subShift) <
+        supShift - supmid.depth - (submid.height - subShift) <
         4 * ruleWidth
       ) {
-        subShift =
-          4 * ruleWidth - (supShift - supmid.depth) + spanHeight(submid);
-        const psi =
-          0.8 * mathstyle.metrics.xHeight - (supShift - spanDepth(supmid));
+        subShift = 4 * ruleWidth - (supShift - supmid.depth) + submid.height;
+        const psi = 0.8 * mathstyle.metrics.xHeight - (supShift - supmid.depth);
         if (psi > 0) {
           supShift += psi;
           subShift -= psi;
@@ -1024,7 +1012,7 @@ export class Atom {
       subShift = Math.max(
         subShift,
         mathstyle.metrics.sub1,
-        spanHeight(submid) - 0.8 * mathstyle.metrics.xHeight
+        submid.height - 0.8 * mathstyle.metrics.xHeight
       );
       supsub = makeVlist(context, [submid], 'shift', subShift);
       supsub.children[0].right = scriptspace;
@@ -1223,14 +1211,14 @@ function makeLimitsStack(
   if (above) {
     aboveShift = Math.max(
       FONTMETRICS.bigOpSpacing1,
-      FONTMETRICS.bigOpSpacing3 - spanDepth(above)
+      FONTMETRICS.bigOpSpacing3 - above.depth
     );
   }
 
   if (below) {
     belowShift = Math.max(
       FONTMETRICS.bigOpSpacing2,
-      FONTMETRICS.bigOpSpacing4 - spanHeight(below)
+      FONTMETRICS.bigOpSpacing4 - below.height
     );
   }
 
@@ -1239,10 +1227,10 @@ function makeLimitsStack(
   if (below && above) {
     const bottom =
       FONTMETRICS.bigOpSpacing5 +
-      spanHeight(below) +
-      spanDepth(below) +
+      below.height +
+      below.depth +
       belowShift +
-      spanDepth(nucleus) +
+      nucleus.depth +
       nucleusShift;
 
     result = makeVlist(
@@ -1267,7 +1255,7 @@ function makeLimitsStack(
     result.children[0].left = -slant;
     result.children[2].left = slant;
   } else if (below && !above) {
-    const top = spanHeight(nucleus) - nucleusShift;
+    const top = nucleus.height - nucleusShift;
 
     result = makeVlist(
       context,
@@ -1279,7 +1267,7 @@ function makeLimitsStack(
     // See comment above about slants
     result.children[0].left = -slant;
   } else if (!below && above) {
-    const bottom = spanDepth(nucleus) + nucleusShift;
+    const bottom = nucleus.depth + nucleusShift;
 
     result = makeVlist(
       context,
