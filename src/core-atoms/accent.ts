@@ -5,7 +5,6 @@ import {
   makeSVGSpan,
   makeVlist,
   makeSymbol,
-  height as spanHeight,
   skew as spanSkew,
   Span,
 } from '../core/span';
@@ -39,7 +38,7 @@ export class AccentAtom extends Atom {
     // Accents are handled in the TeXbook pg. 443, rule 12.
     const { mathstyle } = context;
     // Build the base atom
-    const base = Atom.render(context.cramp(), this.body);
+    const base = new Span(Atom.render(context.cramp(), this.body));
     // Calculate the skew of the accent. This is based on the line "If the
     // nucleus is not a single character, let s = 0; otherwise set s to the
     // kern amount for the nucleus followed by the \skewchar of its font."
@@ -55,7 +54,7 @@ export class AccentAtom extends Atom {
     }
 
     // Calculate the amount of space between the body and the accent
-    let clearance = Math.min(spanHeight(base), mathstyle.metrics.xHeight);
+    let clearance = Math.min(base.height, mathstyle.metrics.xHeight);
     let accentBody: Span;
     if (this.svgAccent) {
       accentBody = makeSVGSpan(this.svgAccent);

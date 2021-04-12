@@ -256,11 +256,11 @@ export class ArrayAtom extends Atom {
     for (let colIndex = 0; colIndex < nc; colIndex++) {
       const col = [];
       for (const row of body) {
-        const element = row.cells[colIndex];
+        let element = row.cells[colIndex];
         if (!element) {
           continue;
         }
-
+        element = new Span(element);
         element.depth = row.depth;
         element.height = row.height;
 
