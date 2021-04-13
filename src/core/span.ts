@@ -956,9 +956,6 @@ export function makeVlist(
       // It's a kern adjustment
       pos += element;
     } else {
-      // const wrap = element;
-      // wrap.setTop(-element.depth - pos);
-      // newElements.push(wrap);
       const wrap = new Span([fontSizer, element]);
       wrap.setTop(-element.depth - pos);
       newElements.push(wrap);
@@ -969,8 +966,8 @@ export function makeVlist(
   const result = new Span(newElements, 'vlist');
 
   // Fix the final height and depth
-  result.depth = -minPos;
-  result.height = pos; // + 0.05
+  result.depth = Math.max(minPos, result.depth ?? 0);
+  result.height = Math.max(-pos, result.height ?? 0);
 
   return result;
 }

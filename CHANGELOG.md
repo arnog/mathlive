@@ -15,6 +15,8 @@
 ### New Features
 
 - **#793**. Added '%' inline shortcut
+- **#898**. Setting the `plonkSound` or `keypressSound` option to `null` will
+  suppress sound feedback.
 
 ## 0.60.0 (2021-04-12)
 

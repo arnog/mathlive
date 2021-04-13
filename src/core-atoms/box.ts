@@ -48,7 +48,7 @@ export class BoxAtom extends Atom {
 
     // Base is the main content "inside" the box
     const content = new Span(Atom.render(context, this.body), '', 'mord');
-    content.setStyle('vertical-align', -content.depth, 'em');
+    content.setStyle('vertical-align', -content.depth + padding, 'em');
     content.setStyle('height', 0);
     const base = new Span(content, '', 'mord');
 
@@ -64,10 +64,10 @@ export class BoxAtom extends Atom {
       box.setStyle('width', '100%');
     } else {
       box.setStyle('width', `calc(100% + ${2 * padding}em)`);
+      box.setStyle('top', -2 * padding, 'em');
+      box.setStyle('left', -padding, 'em');
     }
 
-    box.setStyle('top', -2 * padding, 'em');
-    box.setStyle('left', -padding, 'em');
     box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
     box.setStyle('box-sizing', 'border-box');
 
@@ -86,21 +86,22 @@ export class BoxAtom extends Atom {
 
     base.setStyle('display', 'inline-block');
     base.setStyle('height', base.height + base.depth, 'em');
+    base.setStyle('vertical-align', -padding, 'em');
 
     // The result is a span that encloses the box and the base
     const result = new Span([box, base]);
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');
-    result.setStyle('vertical-align', -padding + base.depth, 'em');
+    result.setStyle('vertical-align', base.depth, 'em');
 
     // The padding adds to the width and height of the pod
-    result.height = base.height + padding;
-    result.depth = base.depth + padding;
+    result.height = base.height;
+    result.depth = base.depth;
     result.left = padding;
     result.right = padding;
-    result.setStyle('height', result.height + result.depth - 2 * padding, 'em');
-    result.setStyle('top', -padding, 'em');
+    result.setStyle('height', base.height + base.depth, 'em');
+    result.setStyle('top', 0, 'em');
     result.setStyle('display', 'inline-block');
 
     if (this.caret) result.caret = this.caret;

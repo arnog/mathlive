@@ -165,9 +165,14 @@
     </header>
     <main class='centered' tabindex="0">
 
-      <math-field math-mode-space='\;' id="mf" onkeystroke='console.log("keystroke handler")' onfocus='console.log("focusing")'
-            class="mathfield" style="max-width: 400px; width:100%" tabindex="0" smart-fence="true"
-            virtual-keyboard-mode="manual">$$e^{2^3}-e^{\frac{x^2}{3}}=2^{3^{4^{5^{6}}}}$$
+      <math-field 
+        id="mf" 
+        tabindex="0" 
+        class="mathfield" style="max-width: 400px; width:100%" 
+        onfocus='console.log("focusing")'
+        smart-fence="true"
+        virtual-keyboard-mode="manual"> \boxed{\frac{\frac12}{x^{3^x}}}+a=\left[\frac{\frac12}{x^{3^x}}\right]            
+            <!-- -\begin{bmatrix}2 & 3 \\ 4 & 5 \\ 6 & 7 \end{bmatrix} -->
             <!--
               
               30\operatorname{cm}^2+4\operatorname{mm}^2-->

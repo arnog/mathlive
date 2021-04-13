@@ -218,18 +218,20 @@ export class ArrayAtom extends Atom {
       let height = arstrutHeight; // \@array adds an \@arstrut
       let depth = arstrutDepth; // To each row (via the template)
       const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
+      const rowContext = context.clone({
+        mathstyle: MATHSTYLES[this.mathStyleName],
+      });
       for (const element of inrow) {
-        const localContext = context.clone({
-          mathstyle: MATHSTYLES[this.mathStyleName],
-        });
-        const cell = Atom.render(localContext, element) || [];
-        const elt = [new Span(null, '', 'mord')].concat(cell);
+        const elt = [
+          new Span(null, '', 'mord'),
+          ...(Atom.render(rowContext, element) ?? []),
+        ];
         depth = Math.max(depth, spanDepth(elt));
         height = Math.max(height, spanHeight(elt));
         outrow.cells.push(elt);
       }
 
-      let jot = r === nr - 1 ? 0 : this.jot || 0;
+      let jot = r === nr - 1 ? 0 : this.jot ?? 0;
       if (this.rowGaps?.[r]) {
         jot = this.rowGaps[r];
         if (jot > 0) {
@@ -254,18 +256,17 @@ export class ArrayAtom extends Atom {
     const offset = totalHeight / 2 + mathstyle.metrics.axisHeight;
     const contentCols = [];
     for (let colIndex = 0; colIndex < nc; colIndex++) {
-      const col = [];
+      const col: (number | Span)[] = [];
       for (const row of body) {
         let element = row.cells[colIndex];
-        if (!element) {
-          continue;
-        }
-        element = new Span(element);
-        element.depth = row.depth;
-        element.height = row.height;
+        if (element) {
+          element = new Span(element);
+          element.depth = row.depth;
+          element.height = row.height;
 
-        col.push(element);
-        col.push(row.pos - offset);
+          col.push(element);
+          col.push(row.pos - offset);
+        }
       }
 
       if (col.length > 0) {
