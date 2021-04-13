@@ -1358,13 +1358,6 @@ declare global {
   interface Window {
     MathfieldElement: typeof MathfieldElement;
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace JSX {
-    interface IntrinsicElements {
-      'math-field': Partial<MathfieldElementAttributes>;
-    }
-  }
 }
 
 if (!window.customElements?.get('math-field')) {
