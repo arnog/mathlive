@@ -6,6 +6,7 @@
 - When using the `vite` bundler, the library location could not be determined
   correctly. As a result, the assets (fonts and sounds) could not be loaded when
   in their default location.
+- **#864** Fixed layout of `\enclose{roundedbox}` and other variants.
 
 ### New Features
 
