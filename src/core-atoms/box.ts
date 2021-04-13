@@ -78,7 +78,7 @@ export class BoxAtom extends Atom {
     if (this.framecolor) {
       box.setStyle(
         'border',
-        `${FONTMETRICS.fboxrule} em solid ${this.framecolor}`
+        `${FONTMETRICS.fboxrule}em solid ${this.framecolor}`
       );
     }
 
