@@ -2,9 +2,14 @@
 
 ### Bug Fixes
 
+- **#896**. Touch events were not properly detected on FireFox.
 - When using the `vite` bundler, the library location could not be determined
   correctly. As a result, the assets (fonts and sounds) could not be loaded when
   in their default location.
+
+### New Features
+
+- **#793**. Added '%' inline shortcut
 
 ## 0.60.0 (2021-04-12)
 
