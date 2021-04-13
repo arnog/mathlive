@@ -6,32 +6,36 @@ function getFileUrl() {
 
   if (stackTraceFrames.length === 0) {
     console.error(
-      "Can't use relative paths to specify assets location because the source file location could not be determined (invalid stack trace)."
+      "Can't use relative paths to specify assets location because the source" +
+        'file location could not be determined (unexpected stack trace format' +
+        ` "${new Error().stack}").`
     );
     return '';
   }
 
   // 0 = this getFileUrl frame (because the Error is created here)
   // 1 = the caller of getFileUrl (the file path we want to grab)
-  let callerFrame = stackTraceFrames[0];
+  let callerFrame = stackTraceFrames[1];
 
   // Extract the script's complete url
-  let m = callerFrame.match(/[^(@]+ts:/);
+  let m = callerFrame.match(/[^(@ ]+\.ts[\?:]/);
   if (m) {
-    // This is a typescript file, therefore there's a source map that's remapping to the
-    // source file. Use an entry further in the stack trace.
+    // This is a Typescript file, therefore there's a source map that's
+    // remapping to the source file. Use an entry further in the stack trace.
     callerFrame = stackTraceFrames[2];
   }
 
-  m = callerFrame.match(/[^(@]+js:/);
+  m = callerFrame.match(/([^(@ ]+js)[\?:]/);
   if (!m) {
     console.error(stackTraceFrames);
     console.error(
-      `Can't use relative paths to specify assets location because the source file location could not be determined (unexpected location "${callerFrame}").`
+      "Can't use relative paths to specify assets location because the source " +
+        'file location could not be determined ' +
+        `(unexpected location "${callerFrame}").`
     );
     return '';
   }
-  return m[0];
+  return m[1];
 }
 
 export function resolveRelativeUrl(url: string): string {

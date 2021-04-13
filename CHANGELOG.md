@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- When using the `vite` bundler, the library location could not be determined
+  correctly. As a result, the assets (fonts and sounds) could not be loaded when
+  in their default location.
+
 ## 0.60.0 (2021-04-12)
 
 ### Breaking Change
