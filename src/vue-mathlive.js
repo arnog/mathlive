@@ -59,11 +59,12 @@ export default {
     vue.component('mathlive-mathfield', this);
   },
   watch: {
-    value(newValue, oldValue) {
+    value(newValue, _oldValue) {
       // When the `value` prop (from the model) is modified
       // update the mathfield to stay in sync, but don't send back content
       // change notifications, to avoid infinite loops.
-      if (newValue !== oldValue) {
+      const oldMathfieldValue = this.$el.mathfield.getValue();
+      if (newValue !== oldMathfieldValue) {
         this.$el.mathfield.setValue(newValue, {
           suppressChangeNotifications: true,
         });
