@@ -593,13 +593,15 @@ export class MathfieldPrivate implements Mathfield {
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
     const content = Atom.toLatex(this.model.root, { expandMacro: false });
-    ModeEditor.insert('math', this.model, content, {
-      insertionMode: 'replaceAll',
-      selectionMode: 'after',
-      format: 'latex',
-      suppressChangeNotifications: true,
-      macros: this.options.macros,
-    });
+    if (this.model.getValue() !== content) {
+      ModeEditor.insert('math', this.model, content, {
+        insertionMode: 'replaceAll',
+        selectionMode: 'after',
+        format: 'latex',
+        suppressChangeNotifications: true,
+        macros: this.options.macros,
+      });
+    }
 
     requestUpdate(this);
   }

@@ -7,6 +7,10 @@
   correctly. As a result, the assets (fonts and sounds) could not be loaded when
   in their default location.
 - **#864** Fixed layout of `\enclose{roundedbox}` and other variants.
+- **#822** When using the Vue.js wrapper, the caret would jump to end of input
+  field when typing a character in the middle of the formula
+- When changing options with `setOptions()` avoid changing the selection unless
+  necessary (react-mathlive issue #4).
 
 ### New Features
 
