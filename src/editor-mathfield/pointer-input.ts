@@ -9,6 +9,10 @@ import { selectGroup } from '../editor-model/commands-select';
 let gLastTap: { x: number; y: number; time: number };
 let gTapCount = 0;
 
+function isTouchEvent(evt: Event): evt is TouchEvent {
+  return globalThis.TouchEvent !== undefined && evt instanceof TouchEvent;
+}
+
 export function onPointerDown(
   mathfield: MathfieldPrivate,
   evt: PointerEvent | TouchEvent
@@ -31,10 +35,8 @@ export function onPointerDown(
   let scrollLeft = false;
   let scrollRight = false;
   // Note: evt['touches'] is for touchstart (when PointerEvent is not supported)
-  const anchorX =
-    evt instanceof TouchEvent ? evt.touches[0].clientX : evt.clientX;
-  const anchorY =
-    evt instanceof TouchEvent ? evt.touches[0].clientY : evt.clientY;
+  const anchorX = isTouchEvent(evt) ? evt.touches[0].clientX : evt.clientX;
+  const anchorY = isTouchEvent(evt) ? evt.touches[0].clientY : evt.clientY;
   const anchorTime = Date.now();
   const scrollInterval = setInterval(() => {
     if (scrollLeft) {
@@ -73,12 +75,12 @@ export function onPointerDown(
       return;
     }
 
-    const x = evt instanceof TouchEvent ? evt.touches[0].clientX : evt.clientX;
-    const y = evt instanceof TouchEvent ? evt.touches[0].clientY : evt.clientY;
+    const x = isTouchEvent(evt) ? evt.touches[0].clientX : evt.clientX;
+    const y = isTouchEvent(evt) ? evt.touches[0].clientY : evt.clientY;
     // Ignore events that are within small spatial and temporal bounds
     // of the pointer down
     const hysteresis =
-      evt instanceof TouchEvent || evt.pointerType === 'touch' ? 20 : 5;
+      isTouchEvent(evt) || evt.pointerType === 'touch' ? 20 : 5;
     if (
       Date.now() < anchorTime + 500 &&
       Math.abs(anchorX - x) < hysteresis &&
@@ -212,7 +214,7 @@ export function onPointerDown(
           }
         } else {
           on(window, 'blur', endPointerTracking);
-          if (evt instanceof TouchEvent && evt.touches) {
+          if (isTouchEvent(evt) && evt.touches) {
             // This is a touchstart event (and PointerEvent is not supported)
             // To receive the subsequent touchmove/touch, need to
             // listen to this evt.target.
