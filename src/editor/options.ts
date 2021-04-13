@@ -27,8 +27,9 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
 
 function loadSound(
   soundDirectory: string,
-  sound: string | HTMLAudioElement
+  sound: string | HTMLAudioElement | null
 ): HTMLAudioElement {
+  if (sound === null) return null;
   if (sound instanceof HTMLAudioElement) {
     sound.load();
     return sound;
@@ -153,8 +154,24 @@ export function update(
         result.plonkSound = loadSound(soundsDirectory, updates.plonkSound);
         break;
       case 'keypressSound':
-        unloadSound(result.keypressSound);
-        if (typeof updates.keypressSound === 'string') {
+        if (
+          typeof result.keypressSound === 'object' &&
+          result.keypressSound !== null &&
+          'default' in result.keypressSound
+        ) {
+          unloadSound(result.keypressSound.default);
+          unloadSound(result.keypressSound.delete);
+          unloadSound(result.keypressSound.return);
+          unloadSound(result.keypressSound.spacebar);
+        }
+        if (updates.keypressSound === null) {
+          result.keypressSound = {
+            default: null,
+            delete: null,
+            return: null,
+            spacebar: null,
+          };
+        } else if (typeof updates.keypressSound === 'string') {
           const sound = loadSound(soundsDirectory, updates.keypressSound);
           result.keypressSound = {
             delete: sound,
@@ -170,10 +187,6 @@ export function update(
             default: updates.keypressSound,
           };
         } else {
-          if (!updates.keypressSound.default) {
-            throw new Error('Missing keypressSound.default');
-          }
-
           result.keypressSound = { ...updates.keypressSound };
           result.keypressSound.default = loadSound(
             soundsDirectory,
