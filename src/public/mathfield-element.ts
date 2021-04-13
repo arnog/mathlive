@@ -155,7 +155,7 @@ const gDeferredState = new WeakMap<
 export interface MathfieldElementAttributes {
   // Allow for global aria attributes, data- attributes, micro-data attributes
   // and global element attributes
-  [key: string]: number | string | boolean | undefined;
+  [key: string]: unknown;
   'default-mode': string;
   'fonts-directory': string;
   /**
@@ -1362,7 +1362,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
-      'math-field': MathfieldElementAttributes;
+      'math-field': Partial<MathfieldElementAttributes>;
     }
   }
 }
