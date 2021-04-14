@@ -47,26 +47,30 @@ type ArrayRow = {
   pos: number;
 };
 
-function arrayToString(array: Atom[][][]): string {
-  let result = `${array.length}r ⨉ ${array[0].length}c\n`;
+// function arrayToString(array: Atom[][][]): string {
+//   let result = `${array.length}r ⨉ ${array[0].length}c\n`;
 
-  for (const row of array) {
-    result += '    ';
-    for (const cell of row) {
-      if (!cell || cell.length === 0) {
-        result += '!!';
-      } else if (cell[0].type === 'first') {
-        result += cell[1].command;
-      } else {
-        result += '!' + cell[0].command;
-      }
-      result += '  ';
-    }
-    result += '\n';
-  }
+//   for (const row of array) {
+//     result += '    ';
+//     for (const cell of row) {
+//       if (!cell || cell.length === 0) {
+//         result += '😱';
+//       } else if (cell[0].type === 'first') {
+//         if (cell[1]) {
+//           result += cell[1].command;
+//         } else {
+//           result += '∅';
+//         }
+//       } else {
+//         result += '👎' + cell[0].command;
+//       }
+//       result += '  ';
+//     }
+//     result += '\n';
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
 /**
  * Normalize the array:
@@ -76,43 +80,92 @@ function arrayToString(array: Atom[][][]): string {
  * - remove last row if empty
  */
 
-function normalizeArray(array: Atom[][][], colFormat: Colspec[]): Atom[][][] {
-  const result: Atom[][][] = [];
-
+function normalizeArray(
+  atom: ArrayAtom,
+  array: Atom[][][],
+  colFormat: Colspec[]
+): Atom[][][] {
   //
-  // 1/ Fold the array so that there are no more columns of content than
+  // 1/
+  // - Fold the array so that there are no more columns of content than
   // there are columns prescribed by the column format.
+  // - Fill rows that have fewer cells than expected with empty cells
+  // - Ensure that all the cells have a `first` atom.
   //
 
-  let colMax = 0; // Maximum number of columns of content
+  // The number of column is determined by the colFormat
+  let maxColCount = 0;
   for (const colSpec of colFormat) {
-    if (colSpec.align) colMax += 1;
+    if (colSpec.align) maxColCount += 1;
   }
+  // Actual number of columns (at most `maxColCount`)
+  let colCount = 0;
+  const rows: Atom[][][] = [];
 
   for (const row of array) {
     let colIndex = 0;
+    colCount = Math.max(colCount, Math.min(row.length, maxColCount));
     while (colIndex < row.length) {
       const newRow = [];
-      const lastCol = Math.min(row.length, colIndex + colMax);
+      const lastCol = Math.min(row.length, colIndex + maxColCount);
       while (colIndex < lastCol) {
-        newRow.push(row[colIndex++]);
+        if (row[colIndex].length > 0 && row[colIndex][0].type !== 'first') {
+          newRow.push([
+            new Atom('first', { mode: atom.mode }),
+            ...row[colIndex],
+          ]);
+        } else {
+          newRow.push(row[colIndex]);
+        }
+        colIndex += 1;
       }
 
-      result.push(newRow);
+      rows.push(newRow);
     }
   }
 
   //
-  // 2/ If the last row is empty, ignore it.
+  // 2/ If the last row is empty, ignore it (TeX behavior)
   //
   if (
-    array[array.length - 1].length === 1 &&
-    array[array.length - 1][0].length === 0
+    rows[rows.length - 1].length === 1 &&
+    rows[rows.length - 1][0].length === 0
   ) {
-    array.pop();
+    rows.pop();
   }
 
-  // 3/ Ensure each cell starts with a `first` atom
+  //
+  // 3/ Fill out any missing cells
+  //
+  const result: Atom[][][] = [];
+  for (const row of rows) {
+    if (row.length !== colCount) {
+      for (let i = row.length; i < colCount; i++) {
+        row.push([new Atom('first', { mode: atom.mode })]);
+      }
+    }
+    result.push(row);
+  }
+
+  //
+  // 4/ Set the `parent` and `treeBranch` for each cell
+  //
+  let rowIndex = 0;
+  let colIndex = 0;
+  for (const row of result) {
+    colIndex = 0;
+    for (const cell of row) {
+      for (const element of cell) {
+        element.parent = atom;
+        element.treeBranch = [rowIndex, colIndex];
+      }
+      colIndex += 1;
+    }
+    rowIndex += 1;
+  }
+
+  atom.isDirty = true;
+
   return result;
 }
 
@@ -163,8 +216,8 @@ export class ArrayAtom extends Atom {
       ];
     }
 
-    this.array = normalizeArray(array, this.colFormat);
-    console.log(arrayToString(this.array));
+    this.array = normalizeArray(this, array, this.colFormat);
+    // console.log(arrayToString(this.array));
     if (options.leftDelim) this.leftDelim = options.leftDelim;
     if (options.rightDelim) this.rightDelim = options.rightDelim;
     if (options.jot !== undefined) this.jot = options.jot;
