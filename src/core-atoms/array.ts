@@ -17,7 +17,9 @@ import { MathStyleName, MATHSTYLES } from '../core/mathstyle';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
 
+/** `Colspec` defines the format of a column */
 export type Colspec = {
+  // The width of a gap between columns, or a Latex expression between columns
   gap?: number | Atom[];
   // 'm' is a special alignement for multline: left on first row, right on last
   // row, centered otherwise
@@ -45,6 +47,75 @@ type ArrayRow = {
   pos: number;
 };
 
+function arrayToString(array: Atom[][][]): string {
+  let result = `${array.length}r ⨉ ${array[0].length}c\n`;
+
+  for (const row of array) {
+    result += '    ';
+    for (const cell of row) {
+      if (!cell || cell.length === 0) {
+        result += '!!';
+      } else if (cell[0].type === 'first') {
+        result += cell[1].command;
+      } else {
+        result += '!' + cell[0].command;
+      }
+      result += '  ';
+    }
+    result += '\n';
+  }
+
+  return result;
+}
+
+/**
+ * Normalize the array:
+ * - ensure it is dense (not sparse)
+ * - fold rows that overflow (longer than maximum number of columns)
+ * - ensure each cell begins with a `first` atom
+ * - remove last row if empty
+ */
+
+function normalizeArray(array: Atom[][][], colFormat: Colspec[]): Atom[][][] {
+  const result: Atom[][][] = [];
+
+  //
+  // 1/ Fold the array so that there are no more columns of content than
+  // there are columns prescribed by the column format.
+  //
+
+  let colMax = 0; // Maximum number of columns of content
+  for (const colSpec of colFormat) {
+    if (colSpec.align) colMax += 1;
+  }
+
+  for (const row of array) {
+    let colIndex = 0;
+    while (colIndex < row.length) {
+      const newRow = [];
+      const lastCol = Math.min(row.length, colIndex + colMax);
+      while (colIndex < lastCol) {
+        newRow.push(row[colIndex++]);
+      }
+
+      result.push(newRow);
+    }
+  }
+
+  //
+  // 2/ If the last row is empty, ignore it.
+  //
+  if (
+    array[array.length - 1].length === 1 &&
+    array[array.length - 1][0].length === 0
+  ) {
+    array.pop();
+  }
+
+  // 3/ Ensure each cell starts with a `first` atom
+  return result;
+}
+
 export class ArrayAtom extends Atom {
   array: Atom[][][];
   environmentName: string;
@@ -65,17 +136,18 @@ export class ArrayAtom extends Atom {
   ) {
     super('array');
     this.environmentName = envName;
-    // The array could be sparse, desparsify-it.
-    // Each cell need to be inserted (with a 'first' atom)
-    // @todo
-    this.array = array;
     this.rowGaps = rowGaps;
     if (options.mathStyleName) this.mathStyleName = options.mathStyleName;
-    if (options.colFormat) this.colFormat = options.colFormat;
-    if (this.colFormat && this.colFormat.length === 0) {
-      this.colFormat = [{ align: 'l' }];
-    }
 
+    if (options.colFormat) {
+      if (options.colFormat.length === 0) {
+        this.colFormat = [{ align: 'l' }];
+      } else {
+        this.colFormat = options.colFormat;
+      }
+    }
+    // The TeX definition is that arrays by default have a maximum
+    // of 10, left-aligned, columns.
     if (!this.colFormat) {
       this.colFormat = [
         { align: 'l' },
@@ -91,9 +163,11 @@ export class ArrayAtom extends Atom {
       ];
     }
 
+    this.array = normalizeArray(array, this.colFormat);
+    console.log(arrayToString(this.array));
     if (options.leftDelim) this.leftDelim = options.leftDelim;
     if (options.rightDelim) this.rightDelim = options.rightDelim;
-    if (options.jot) this.jot = options.jot;
+    if (options.jot !== undefined) this.jot = options.jot;
     if (options.arraycolsep) this.arraycolsep = options.arraycolsep;
   }
 
@@ -166,34 +240,6 @@ export class ArrayAtom extends Atom {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
     // and http://tug.ctan.org/macros/latex/base/lttab.dtx
     const { colFormat } = this;
-    // Fold the array so that there are no more columns of content than
-    // there are columns prescribed by the column format.
-    const array = [];
-    let colMax = 0; // Maximum number of columns of content
-    for (const colSpec of colFormat) {
-      if (colSpec.align) colMax++;
-    }
-
-    for (const row of this.array) {
-      let colIndex = 0;
-      while (colIndex < row.length) {
-        const newRow = [];
-        const lastCol = Math.min(row.length, colIndex + colMax);
-        while (colIndex < lastCol) {
-          newRow.push(row[colIndex++]);
-        }
-
-        array.push(newRow);
-      }
-    }
-
-    // If the last row is empty, ignore it.
-    if (
-      array[array.length - 1].length === 1 &&
-      array[array.length - 1][0].length === 0
-    ) {
-      array.pop();
-    }
 
     const mathstyle = this.mathStyleName
       ? MATHSTYLES[this.mathStyleName]
@@ -211,9 +257,9 @@ export class ArrayAtom extends Atom {
     let totalHeight = 0;
     let nc = 0;
     const body = [];
-    const nr = array.length;
+    const nr = this.array.length;
     for (let r = 0; r < nr; ++r) {
-      const inrow = array[r];
+      const inrow = this.array[r];
       nc = Math.max(nc, inrow.length);
       let height = arstrutHeight; // \@array adds an \@arstrut
       let depth = arstrutDepth; // To each row (via the template)

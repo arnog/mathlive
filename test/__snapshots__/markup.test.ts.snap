@@ -434,117 +434,64 @@ Array [
 ]
 `;
 
-exports[`ENVIRONMENTS 0/ \\begin renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"></span></span>",
-  "no-error",
-]
-`;
+exports[`ENVIRONMENTS 0/ \\begin errors 1`] = `"no-error"`;
 
-exports[`ENVIRONMENTS 1/ \\begin{a} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"></span></span>",
-  "unknown-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 2/ \\begin{a}\\end renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span></span></span>",
-  "unknown-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 3/ \\begin{a}\\end{x} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span><span><span class=\\"ML__mathit\\">x</span></span></span></span>",
-  "unknown-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 4/ \\begin{a}\\end{a} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span><span><span class=\\"ML__mathit\\">a</span></span></span></span>",
-  "unknown-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 5/ \\begin{array}\\end{a} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"></span></span></span>",
-  "unbalanced-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 6/ \\begin{array}xyz\\end{a} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"></span></span></span>",
-  "unbalanced-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 7/ \\begin{array}xyz\\end{array} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"></span></span></span>",
-  "unbalanced-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 8/ \\begin{array}xyz renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"></span></span></span>",
-  "unbalanced-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 9/ \\begin{\\alpha} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"></span></span>",
-  "unknown-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 10/ \\begin{.}\\end{.} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span><span><span class=\\"ML__cmr\\">.</span></span></span></span>",
-  "unknown-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 11/ \\begin{(}\\end{(} renders correctly 1`] = `
-Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__error\\">\\\\end</span><span><span class=\\"ML__cmr\\">(</span></span></span></span>",
-  "unknown-environment",
-]
-`;
-
-exports[`ENVIRONMENTS 12/ \\begin{bmatrix}a & b & c\\end{bmatrix} renders correctly 1`] = `
+exports[`ENVIRONMENTS 0/ \\begin{bmatrix}a & b & c\\end{bmatrix} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.86em;vertical-align:-0.65em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size2\\">[</span></span><span class=\\"mtable\\"><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.01em\\"><span><span class=\\"ML__mathit\\">a</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.01em\\"><span><span class=\\"ML__mathit\\">b</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.01em\\"><span><span class=\\"ML__mathit\\">c</span></span></span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size2\\">]</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ENVIRONMENTS 13/ \\begin{bmatrix}a & b & c\\\\ d & e & f\\end{bmatrix} renders correctly 1`] = `
+exports[`ENVIRONMENTS 1/ \\begin{a} errors 1`] = `"unknown-environment"`;
+
+exports[`ENVIRONMENTS 1/ \\begin{bmatrix}a & b & c\\\\ d & e & f\\end{bmatrix} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.45em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">[</span></span><span class=\\"mtable\\"><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:0.6em\\"><span><span class=\\"ML__mathit\\">d</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">b</span></span></span><span style=\\"top:0.6em\\"><span><span class=\\"ML__mathit\\">e</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:0.6em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span></span></span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">]</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ENVIRONMENTS 14/ \\begin{bmatrix}a & b & c\\\\ d \\end{bmatrix} renders correctly 1`] = `
+exports[`ENVIRONMENTS 2/ \\begin{a}\\end errors 1`] = `"unknown-environment"`;
+
+exports[`ENVIRONMENTS 2/ \\begin{bmatrix}a & b & c\\\\ d \\end{bmatrix} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.45em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:2.41em;vertical-align:-0.95em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">[</span></span><span class=\\"mtable\\"><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:0.6em\\"><span><span class=\\"ML__mathit\\">d</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">b</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-0.61em\\"><span><span class=\\"ML__mathit\\">c</span></span></span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing size3\\">]</span></span></span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`ENVIRONMENTS 15/ \\begin{bmatrix}a & b & c\\\\ d \\\\ g & h & i & j\\end{bmatrix} renders correctly 1`] = `
+exports[`ENVIRONMENTS 3/ \\begin{a}\\end{x} errors 1`] = `"unknown-environment"`;
+
+exports[`ENVIRONMENTS 3/ \\begin{bmatrix}a & b & c\\\\ d \\\\ g & h & i & j\\end{bmatrix} renders correctly 1`] = `
 Array [
   "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.06em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.61em;vertical-align:-1.55em\\"></span><span class=\\"ML__base\\"><span><span class=\\"style-wrap\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.91em\\"><span class=\\"delimsizinginner delim-size4\\">⎣</span></span><span style=\\"top:-0.89em\\"><span class=\\"delimsizinginner delim-size4\\">⎡</span></span></span></span></span><span class=\\"mtable\\"><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-1.21em\\"><span><span class=\\"ML__mathit\\">a</span></span></span><span style=\\"top:0em\\"><span><span class=\\"ML__mathit\\">d</span></span></span><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">g</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-1.21em\\"><span><span class=\\"ML__mathit\\">b</span></span></span><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\">h</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:-1.21em\\"><span><span class=\\"ML__mathit\\">c</span></span></span><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\">i</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-c\\"><span class=\\"vlist\\"><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">j</span></span></span></span></span></span><span class=\\"style-wrap\\"><span class=\\"delimsizing mult\\"><span class=\\"vlist\\"><span style=\\"top:0.91em\\"><span class=\\"delimsizinginner delim-size4\\">⎦</span></span><span style=\\"top:-0.89em\\"><span class=\\"delimsizinginner delim-size4\\">⎤</span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;
+
+exports[`ENVIRONMENTS 4/ \\begin{a}\\end{a} errors 1`] = `"unknown-environment"`;
+
+exports[`ENVIRONMENTS 4/ \\begin{array}{ll}xyz & abc & 123 \\\\ cde & fgh \\end{array} renders correctly 1`] = `
+Array [
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:2.05em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:3.6em;vertical-align:-1.54em\\"></span><span class=\\"ML__base\\"><span class=\\"mtable\\"><span class=\\"arraycolsep\\" style=\\"width:0.5em\\">​</span><span class=\\"col-align-l\\"><span class=\\"vlist\\"><span style=\\"top:-1.21em\\"><span><span class=\\"ML__mathit\\">xyz</span></span></span><span style=\\"top:0em\\"><span><span class=\\"ML__cmr\\">123</span></span></span><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\">cde</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:1em\\">​</span><span class=\\"col-align-l\\"><span class=\\"vlist\\"><span style=\\"top:-1.21em\\"><span><span class=\\"ML__mathit\\">abc</span></span></span><span style=\\"top:1.19em\\"><span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">gh</span></span></span></span></span><span class=\\"arraycolsep\\" style=\\"width:0.5em\\">​</span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`ENVIRONMENTS 5/ \\begin{array}{ll}\\end{a} errors 1`] = `"unbalanced-environment"`;
+
+exports[`ENVIRONMENTS 6/ \\begin{array}{ll}xyz\\end{a} errors 1`] = `"unbalanced-environment"`;
+
+exports[`ENVIRONMENTS 7/ \\begin{array}{ll}xyz errors 1`] = `"unbalanced-environment"`;
+
+exports[`ENVIRONMENTS 8/ \\begin{array}{ll}xyz errors 1`] = `"unbalanced-environment"`;
+
+exports[`ENVIRONMENTS 9/ \\begin{\\alpha} errors 1`] = `"unknown-environment"`;
+
+exports[`ENVIRONMENTS 10/ \\begin{.}\\end{.} errors 1`] = `"unknown-environment"`;
+
+exports[`ENVIRONMENTS 11/ \\begin{(}\\end{(} errors 1`] = `"unknown-environment"`;
 
 exports[`FONTS 0/ \\alpha + x - 1 - \\Gamma renders correctly 1`] = `
 Array [
