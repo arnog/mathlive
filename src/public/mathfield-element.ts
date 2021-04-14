@@ -543,6 +543,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   private _mathfield: MathfieldPrivate;
+  // The original text content of the slot
+  // Recored at construction to avoid reacting to it if a
+  // slotchange event gets fired as part of the construction
+  // (different browsers behave differently).
+  private _slotValue: string;
 
   /**
      * To create programmatically a new mahfield use:
@@ -565,9 +570,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.append(MATHFIELD_TEMPLATE.content.cloneNode(true));
-    const slot = this.shadowRoot.querySelector<HTMLSlotElement>(
-      'slot:not([name])'
-    );
 
     // When the elements get focused (through tabbing for example)
     // focus the mathfield
@@ -582,6 +584,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       true
     );
 
+    const slot = this.shadowRoot.querySelector<HTMLSlotElement>(
+      'slot:not([name])'
+    );
+    this._slotValue = slot
+      .assignedNodes()
+      .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+      .join('')
+      .trim();
     // Inline options (as a JSON structure in the markup)
     try {
       const json = slot
@@ -617,24 +627,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
           .join('')
           .trim() ?? '';
     }
-
-    slot.addEventListener('slotchange', (event) => {
-      if (event.target !== slot) return;
-      const value = slot
-        .assignedNodes()
-        .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-        .join('')
-        .trim();
-      if (!this._mathfield) {
-        this.value = value;
-      } else {
-        // Don't suppress notification changes. We need to know
-        // if the value has changed indirectly through slot manipulation
-        this._mathfield.setValue(value, {
-          insertionMode: 'replaceAll',
-        });
-      }
-    });
   }
 
   get mode(): ParseMode {
@@ -1114,6 +1106,26 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         }
       );
     }
+
+    const slot = this.shadowRoot.querySelector<HTMLSlotElement>(
+      'slot:not([name])'
+    );
+    slot.addEventListener('slotchange', (event) => {
+      if (event.target !== slot) return;
+      const value = slot
+        .assignedNodes()
+        .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+        .join('')
+        .trim();
+      if (value === this._slotValue) return;
+      if (!this._mathfield) {
+        this.value = value;
+      } else {
+        // Don't suppress notification changes. We need to know
+        // if the value has changed indirectly through slot manipulation
+        this._mathfield.setValue(value);
+      }
+    });
 
     // Notify listeners that we're mounted and ready
     this.dispatchEvent(
