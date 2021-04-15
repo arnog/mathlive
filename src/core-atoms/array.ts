@@ -16,6 +16,7 @@ import { makeLeftRightDelim } from '../core/delimiters';
 import { MathStyleName, MATHSTYLES } from '../core/mathstyle';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
+import { PlaceholderAtom } from './placeholder';
 
 /** `Colspec` defines the format of a column */
 export type Colspec = {
@@ -48,7 +49,8 @@ type ArrayRow = {
 };
 
 // function arrayToString(array: Atom[][][]): string {
-//   let result = `${array.length}r ⨉ ${array[0].length}c\n`;
+//   if (array || array.length === 0) return `0 ⨉ 0\n`;
+//   let result = `${array.length}r ⨉ ${array[0].length ?? 0}c\n`;
 
 //   for (const row of array) {
 //     result += '    ';
@@ -141,7 +143,10 @@ function normalizeArray(
   for (const row of rows) {
     if (row.length !== colCount) {
       for (let i = row.length; i < colCount; i++) {
-        row.push([new Atom('first', { mode: atom.mode })]);
+        row.push([
+          new Atom('first', { mode: atom.mode }),
+          new PlaceholderAtom(),
+        ]);
       }
     }
     result.push(row);
