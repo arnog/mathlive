@@ -7,6 +7,7 @@ import type {
   MacroDictionary,
   Style,
   ParseMode,
+  VariantStyle,
 } from '../public/core';
 
 export type FunctionArgumentDefiniton = {
@@ -375,7 +376,13 @@ const MATH_LETTER_EXCEPTIONS = {
   0x1d551: 0x02124,
 };
 
-const MATH_UNICODE_BLOCKS = [
+const MATH_UNICODE_BLOCKS: {
+  start: number;
+  len: number;
+  offset: number;
+  style?: VariantStyle;
+  variant?: Variant;
+}[] = [
   { start: 0x1d400, len: 26, offset: 65, style: 'bold' },
   { start: 0x1d41a, len: 26, offset: 97, style: 'bold' },
   { start: 0x1d434, len: 26, offset: 65, style: 'italic' },
@@ -479,7 +486,7 @@ const MATH_UNICODE_BLOCKS = [
     style: 'bolditalic',
   },
 
-  { start: 0x1d7ce, len: 10, offset: 48, variant: '', style: 'bold' },
+  { start: 0x1d7ce, len: 10, offset: 48, variant: 'main', style: 'bold' },
   { start: 0x1d7d8, len: 10, offset: 48, variant: 'double-struck' },
   { start: 0x1d7e3, len: 10, offset: 48, variant: 'sans-serif' },
   {
@@ -494,7 +501,7 @@ const MATH_UNICODE_BLOCKS = [
 
 function unicodeToMathVariant(
   codepoint: number
-): { char: string; variant?: string; style?: string } {
+): { char: string; variant?: Variant; style?: string } {
   if (
     (codepoint < 0x1d400 || codepoint > 0x1d7ff) &&
     (codepoint < 0x2100 || codepoint > 0x214f)

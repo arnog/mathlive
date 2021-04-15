@@ -12,6 +12,9 @@
 - When changing options with `setOptions()` avoid changing the selection unless
   necessary (react-mathlive issue #4).
 - Fixed Latex output of `\htmlData`, `\cssId` and `\class` commands.
+- Fixed styling of some characters, such as the ones from `\cdot`. The incorrect
+  styling resulting in incorrect measurement and vertical layout of some
+  characters.
 
 ### New Features
 

@@ -1412,12 +1412,11 @@ class Parser {
       this.parseMode = savedMode;
     } else {
       // The new atom will inherit the current style
-      // Only override the variant if it is not '' or undefined
-      const style = {
-        ...this.style,
-        variant: info.variant ?? this.style.variant,
-        // VariantStyle: info.variantStyle || this.style.variantStyle,
-      };
+      const style = { ...this.style };
+      // Override the variant if an explicit variant is provided
+      if (info.variant) {
+        style.variant = info.variant;
+      }
       result =
         info.type === 'spacing'
           ? new SpacingAtom(command, this.style)

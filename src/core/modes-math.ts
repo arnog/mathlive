@@ -192,7 +192,7 @@ export class MathMode extends Mode {
 
   applyStyle(span: Span, style: Style): string {
     // If no variant specified, don't change the font
-    if (!style.variant) return '';
+    if (style.variant === undefined) return '';
 
     // LetterShapeStyle will usually be set automatically, except when the
     // locale cannot be determined, in which case its value will be 'auto'
@@ -238,7 +238,7 @@ export class MathMode extends Mode {
 
     // 3. Map the variant + variantStyle to a font
     if (variantStyle === 'up') {
-      variantStyle = '';
+      variantStyle = undefined;
     }
 
     const styledVariant = variantStyle ? variant + '-' + variantStyle : variant;
@@ -276,7 +276,7 @@ export class MathMode extends Mode {
 function variantString(atom: Atom): string {
   if (!atom) return '';
   const { style } = atom;
-  if (!style.variant) return '';
+  if (style.variant === undefined) return '';
   let result = style.variant;
   if (style.variantStyle && style.variantStyle !== 'up') {
     result += '-' + style.variantStyle;

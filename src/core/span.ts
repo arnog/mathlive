@@ -249,10 +249,6 @@ export class Span {
   applyStyle(mode: ParseMode, style: Style, className?: string): void {
     if (!style) return;
 
-    if (this.type === 'latex') {
-      console.log(METRICS.baselineskip);
-    }
-
     //
     // 1. Apply color
     //
@@ -308,7 +304,7 @@ export class Span {
           size8: 1.73,
           size9: 2.07,
           size10: 2.49,
-        }[style.fontSize] || 1;
+        }[style.fontSize] ?? 1;
       this.height = 0;
       this.depth = 0;
       this.skew = 0;
