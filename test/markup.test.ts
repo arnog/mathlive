@@ -326,6 +326,21 @@ describe('COLORS', function () {
   });
 });
 
+describe('EXTENSIONS', function () {
+  test.each([
+    '\\htmlData{foo=green}{2+\\frac{1}{x}}',
+    '\\htmlData{foo=green, bar}{2+\\frac{1}{x}}',
+    '\\htmlData{foo=green, bar=blue}{2+\\frac{1}{x}}',
+    '\\htmlData{foo bar=green, bar=blue}{2+\\frac{1}{x}}',
+    '\\class{cssClassName}{2+\\frac{1}{x}}',
+    '\\class{css class name}{2+\\frac{1}{x}}',
+    '\\cssId{a-css-id-1234}{2+\\frac{1}{x}}',
+    '\\cssId{a css id 1234}{2+\\frac{1}{x}}',
+  ])('%#/ %s renders correctly', (x) => {
+    expect(markupAndError(x)).toMatchSnapshot();
+  });
+});
+
 // // \cos(|x| + |y|)
 
 // // \cos (|\frac {x}{5}|+|\frac {y}{5}|)

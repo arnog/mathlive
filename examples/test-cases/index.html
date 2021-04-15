@@ -166,16 +166,16 @@
     <main class='centered' tabindex="0">
 
       <math-field 
-        id="mf" 
+        id=mf 
         tabindex="0" 
         class="mathfield" style="max-width: 400px; width:100%" 
         onfocus='console.log("focusing")'
         smart-fence="true"
-        virtual-keyboard-mode="manual"> \boxed{\frac{\frac12}{x^{3^x}}}+a=\left[\frac{\frac12}{x^{3^x}}\right]            
-            <!-- -\begin{bmatrix}2 & 3 \\ 4 & 5 \\ 6 & 7 \end{bmatrix} -->
-            <!--
-              
-              30\operatorname{cm}^2+4\operatorname{mm}^2-->
+        virtual-keyboard-mode="manual"> \begin{array}{ll}\end{a}
+        
+        <!-- -\begin{bmatrix}2 & 3 \\ 4 \\ 6 & 7 & 8 \\ \end{bmatrix}=0 -->
+        <!-- -->
+            <!--30\operatorname{cm}^2+4\operatorname{mm}^2-->
             <!--f(x)=\frac{x+1}{x-1}+x+1 -->
             <!--x=\begin{bmatrix}x+1&b&c\\\alpha&\\beta\end{bmatrix}^T+x+1 -->
             <!--  $$x+\left(\sqrt{x+1}+1\right)+\sum_0^4n^2+\frac{1+x}{x-1}\int^{\infty}_0x\mathrm{d}x+\boxed{\frac{1}{x}}\colorbox{yellow}{\sqrt{\frac{1}{x}}}\cancel{x^2+1}\xRightarrow[\text{above}]{\text{below}}$$
@@ -313,14 +313,14 @@
 
 
         mf.setOptions({
-            onBlur: () => { console.log('blurring') },
-            onKeystroke: () => { console.log('options keystroke'); return true; },
-            inlineShortcuts: {
-                // ㄱ: '\\sqrt',
-                sq: '\\sqrt{#0}',
-                // ㄱㄴ: '\\sqrt{#0}',
-                "ㄱㄴ": '\\sqrt{#0}',
-            },
+            // onBlur: () => { console.log('blurring') },
+            // onKeystroke: () => { console.log('options keystroke'); return true; },
+            // inlineShortcuts: {
+            //     // ㄱ: '\\sqrt',
+            //     sq: '\\sqrt{#0}',
+            //     // ㄱㄴ: '\\sqrt{#0}',
+            //     "ㄱㄴ": '\\sqrt{#0}',
+            // },
             macros: {
                 'rcases': `\\left.
 \\begin{array}{ll}
@@ -332,15 +332,15 @@
         });
 
         // mf.selection = [2, 5];
-        mf.addEventListener('blur', (ev) => {
-            console.log('blur event');
-        });
-        mf.addEventListener('keystroke', (ev) => {
-            console.log('keystroke event', ev.detail.keystroke);
-        });
-        mf.addEventListener('focus', (ev) => {
-            console.log('focus event');
-        });
+        // mf.addEventListener('blur', (ev) => {
+        //     console.log('blur event');
+        // });
+        // mf.addEventListener('keystroke', (ev) => {
+        //     console.log('keystroke event', ev.detail.keystroke);
+        // });
+        // mf.addEventListener('focus', (ev) => {
+        //     console.log('focus event');
+        // });
         mf.addEventListener('input', (ev) => {
             updateContent(mf);
             applySearchTerm();

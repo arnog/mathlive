@@ -444,7 +444,8 @@ export class Span {
       result = '<span';
 
       if (this.cssId) {
-        result += ' id="' + this.cssId + '" ';
+        // A (HTML5) CSS id may not contain a space
+        result += ` id=${this.cssId.replace(/ /g, '-')} `;
       }
 
       if (this.htmlData) {
@@ -452,7 +453,15 @@ export class Span {
         for (const entry of entries) {
           const matched = entry.match(/([^=]+)=(.+$)/);
           if (matched) {
-            result += ` data-${matched[1]}=${matched[2]} `;
+            const key = matched[1].trim().replace(/ /g, '-');
+            if (key) {
+              result += ` data-${key}=${matched[2]} `;
+            }
+          } else {
+            const key = entry.trim().replace(/ /g, '-');
+            if (key) {
+              result += ` data-${key} `;
+            }
           }
         }
       }

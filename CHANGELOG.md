@@ -11,6 +11,7 @@
   field when typing a character in the middle of the formula
 - When changing options with `setOptions()` avoid changing the selection unless
   necessary (react-mathlive issue #4).
+- Fixed Latex output of `\htmlData`, `\cssId` and `\class` commands.
 
 ### New Features
 
