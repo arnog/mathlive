@@ -204,6 +204,10 @@ export function update(
         }
 
         break;
+      case 'virtualKeyboardAppendTarget':
+        result.virtualKeyboardAppendTarget =
+          updates.virtualKeyboardAppendTarget;
+        break;
       case 'onBlur':
       case 'onFocus':
       case 'onContentWillChange':
@@ -325,6 +329,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     keypressSound: null,
     plonkSound: null,
     virtualKeyboardToolbar: 'default',
+    virtualKeyboardAppendTarget: document.body,
 
     useSharedVirtualKeyboard: false,
     sharedVirtualKeyboardTargetOrigin: window.origin,
