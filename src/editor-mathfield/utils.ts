@@ -157,10 +157,10 @@ function adjustForScrolling(
 function getNodeBounds(node: Element): Rect {
   const bounds = node.getBoundingClientRect();
   const result: Rect = {
-    top: bounds.top,
+    top: bounds.top - 1,
     bottom: bounds.bottom,
     left: bounds.left,
-    right: bounds.right,
+    right: bounds.right - 1,
   };
   if (node.tagName !== 'SVG') {
     for (const child of node.children) {
