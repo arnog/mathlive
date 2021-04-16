@@ -169,7 +169,7 @@ defineFunction(
   ],
   '',
   {
-    applyMode: 'text',
+    ifMode: 'text',
     applyStyle: (name, _args): Style => {
       return {
         fontSize: {
