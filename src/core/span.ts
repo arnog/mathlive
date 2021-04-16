@@ -271,7 +271,10 @@ export class Span {
       this.skew = 0;
       this.italic = 0;
       for (let i = 0; i < this.value.length; i++) {
-        const metrics = getCharacterMetrics(this.value.charAt(i), fontName);
+        const metrics = getCharacterMetrics(
+          this.value.charAt(i),
+          fontName ?? 'Main-Regular'
+        );
         // If we were able to get metrics info for this character, store it.
         if (metrics) {
           this.height = Math.max(
@@ -317,7 +320,7 @@ export class Span {
   }
 
   setTop(top: number): void {
-    if (Number.isFinite(top) && top !== 0) {
+    if (Number.isFinite(top) && Math.abs(top) > 1e-2) {
       if (!this.cssProperties) this.cssProperties = {};
       this.cssProperties.top = toString(top) + 'em';
       this.height -= top;
@@ -733,7 +736,7 @@ export function makeSymbol(
     type?: SpanType;
   }
 ): Span {
-  const result = new Span(symbol, options);
+  const result = new Span(symbol);
 
   const metrics = getCharacterMetrics(symbol, fontFamily);
   result.height = metrics.height;
@@ -741,8 +744,10 @@ export function makeSymbol(
   result.skew = metrics.skew;
   result.italic = metrics.italic;
   result.right = metrics.italic;
-
-  return result;
+  // Wrap the result symbol:
+  // This allow us to account for the italic correction in the bounding box
+  // e.g. for `\int`
+  return new Span(result, options);
 }
 
 /**
