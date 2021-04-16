@@ -101,151 +101,151 @@ function getType(spans: Span[], symbol: string): string {
   return null;
 }
 
-function getStyle(spans: Span[], symbol: string, prop: string): string {
-  const s = getSymbol(spans, symbol);
-  if (s?.style) return s.style[prop];
-  return null;
-}
+// function getStyle(spans: Span[], symbol: string, prop: string): string {
+//   const s = getSymbol(spans, symbol);
+//   if (s?.style) return s.style[prop];
+//   return null;
+// }
 
-function getClasses(spans: Span[], symbol: string): string {
-  const s = getSymbol(spans, symbol);
-  if (s) return s.classes ?? '';
-  return null;
-}
+// function getClasses(spans: Span[], symbol: string): string {
+//   const s = getSymbol(spans, symbol);
+//   if (s) return s.classes ?? '';
+//   return null;
+// }
 
-function hasClass(spans: Span[], symbol: string, cls: string): boolean {
-  const classes = getClasses(spans, symbol);
-  if (!classes) return false;
-  const clsList = classes.split(' ');
-  for (const element of clsList) {
-    if (element === cls) return true;
-  }
+// function hasClass(spans: Span[], symbol: string, cls: string): boolean {
+//   const classes = getClasses(spans, symbol);
+//   if (!classes) return false;
+//   const clsList = classes.split(' ');
+//   for (const element of clsList) {
+//     if (element === cls) return true;
+//   }
 
-  return false;
-}
-
-/// /////////////////////////////////////////////////////////////////////////////
-/// /////////////////////////////////////////////////////////////////////////////
-/// /////////////////////////////////////////////////////////////////////////////
-
-function spanToString(span: Span, indent = ''): string {
-  let result = '';
-  if (Array.isArray(span)) {
-    if (span.length === 0) {
-      result += '[]\n';
-    } else {
-      result += '[\n';
-      for (let i = 0; i < span.length; i++) {
-        result += spanToString(span[i], `\t ${indent}${i} ,`);
-        result += i < span.length - 1 ? ',\n' : '\n';
-      }
-
-      result += indent + ']\n';
-    }
-  } else {
-    result = indent + '{\n';
-    if (span.type) {
-      result += indent + 'type:"' + span.type + '",\n';
-    }
-
-    if (span.value && span.value.length > 0) {
-      result += indent + 'body:"' + span.value + '",\n';
-    }
-
-    if (span.classes && span.classes.length > 0) {
-      result += indent + 'classes:"' + span.classes + '",\n';
-    }
-
-    if (span.style) {
-      for (const s in span.style) {
-        if (Object.prototype.hasOwnProperty.call(span.style, s)) {
-          result += indent + s + ':"';
-          result += span.style[s] + '",\n';
-        }
-      }
-    }
-
-    if (span.children && span.children.length > 0) {
-      result +=
-        indent +
-        'children:' +
-        span.children.map((x) => spanToString(x, indent)).join('; ');
-    }
-
-    result += indent + '}';
-  }
-
-  return result;
-}
+//   return false;
+// }
 
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
 
-function spanToMarkup(span: Span, indent = ''): string {
-  // If (indent.length === 0) {
-  //     result += '<table>';
-  // }
-  let result = '';
-  if (Array.isArray(span)) {
-    for (const element of span) {
-      result += spanToMarkup(element, indent);
-    }
-  } else if (span) {
-    result = '<br>' + indent;
-    if (span.classes.includes('sz-set')) {
-      result += 'FONTSIZE-ENSURER';
-    } else {
-      if (span.type) {
-        result += '<span class="type">' + span.type + '</span>';
-      }
+// function spanToString(span: Span, indent = ''): string {
+//   let result = '';
+//   if (Array.isArray(span)) {
+//     if (span.length === 0) {
+//       result += '[]\n';
+//     } else {
+//       result += '[\n';
+//       for (let i = 0; i < span.length; i++) {
+//         result += spanToString(span[i], `\t ${indent}${i} ,`);
+//         result += i < span.length - 1 ? ',\n' : '\n';
+//       }
 
-      if (span.value && span.value.length > 0) {
-        result += '<span class="value">' + span.value + '</span>';
-      }
+//       result += indent + ']\n';
+//     }
+//   } else {
+//     result = indent + '{\n';
+//     if (span.type) {
+//       result += indent + 'type:"' + span.type + '",\n';
+//     }
 
-      if (span.classes && span.classes.length > 0) {
-        result += '&nbsp;<span class="classes">' + span.classes + '</span>';
-      }
+//     if (span.value && span.value.length > 0) {
+//       result += indent + 'body:"' + span.value + '",\n';
+//     }
 
-      if (span.isTight) {
-        result += '&nbsp;<span class="stylevalue"> tight </span>';
-      }
+//     if (span.classes && span.classes.length > 0) {
+//       result += indent + 'classes:"' + span.classes + '",\n';
+//     }
 
-      if (span.caret) {
-        result += '&nbsp;<span class="stylevalue"> caret </span>';
-      }
+//     if (span.style) {
+//       for (const s in span.style) {
+//         if (Object.prototype.hasOwnProperty.call(span.style, s)) {
+//           result += indent + s + ':"';
+//           result += span.style[s] + '",\n';
+//         }
+//       }
+//     }
 
-      if (span.style) {
-        for (const s in span.style) {
-          if (Object.prototype.hasOwnProperty.call(span.style, s)) {
-            result += '&nbsp;<span class="styleprop">' + s + ':</span>';
-            result +=
-              '<span class="stylevalue"> ' + span.style[s] + '</span>;&nbsp;';
-          }
-        }
-      }
+//     if (span.children && span.children.length > 0) {
+//       result +=
+//         indent +
+//         'children:' +
+//         span.children.map((x) => spanToString(x, indent)).join('; ');
+//     }
 
-      if (span.children) {
-        result += span.children
-          .map((x) => spanToMarkup(x, indent + '▷'))
-          .join('; ');
-      }
-    }
-  }
+//     result += indent + '}';
+//   }
 
-  return result;
-}
+//   return result;
+// }
+
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+
+// function spanToMarkup(span: Span, indent = ''): string {
+//   // If (indent.length === 0) {
+//   //     result += '<table>';
+//   // }
+//   let result = '';
+//   if (Array.isArray(span)) {
+//     for (const element of span) {
+//       result += spanToMarkup(element, indent);
+//     }
+//   } else if (span) {
+//     result = '<br>' + indent;
+//     if (span.classes.includes('sz-set')) {
+//       result += 'FONTSIZE-ENSURER';
+//     } else {
+//       if (span.type) {
+//         result += '<span class="type">' + span.type + '</span>';
+//       }
+
+//       if (span.value && span.value.length > 0) {
+//         result += '<span class="value">' + span.value + '</span>';
+//       }
+
+//       if (span.classes && span.classes.length > 0) {
+//         result += '&nbsp;<span class="classes">' + span.classes + '</span>';
+//       }
+
+//       if (span.isTight) {
+//         result += '&nbsp;<span class="stylevalue"> tight </span>';
+//       }
+
+//       if (span.caret) {
+//         result += '&nbsp;<span class="stylevalue"> caret </span>';
+//       }
+
+//       if (span.style) {
+//         for (const s in span.style) {
+//           if (Object.prototype.hasOwnProperty.call(span.style, s)) {
+//             result += '&nbsp;<span class="styleprop">' + s + ':</span>';
+//             result +=
+//               '<span class="stylevalue"> ' + span.style[s] + '</span>;&nbsp;';
+//           }
+//         }
+//       }
+
+//       if (span.children) {
+//         result += span.children
+//           .map((x) => spanToMarkup(x, indent + '▷'))
+//           .join('; ');
+//       }
+//     }
+//   }
+
+//   return result;
+// }
 
 const MathliveDebug = {
-  spanToMarkup,
+  // spanToMarkup,
 
-  spanToString,
+  // spanToString,
 
-  hasClass,
-  getClasses,
+  // hasClass,
+  // getClasses,
   getProp,
-  getStyle,
+  // getStyle,
   getType,
 
   latexToAsciiMath,

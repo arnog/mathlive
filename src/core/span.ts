@@ -5,7 +5,6 @@ import { getCharacterMetrics, METRICS } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-span';
 import { Mode } from './modes-utils';
 import { Context } from './context';
-import { Mathstyle } from './mathstyle';
 
 /*
  * See https://tex.stackexchange.com/questions/81752/
@@ -106,7 +105,7 @@ function toString(arg: (string | number)[] | string | number): string {
     return '';
   }
 
-  if (isArray(arg)) {
+  if (isArray<string | number>(arg)) {
     let result = '';
     for (const element of arg) {
       result += toString(element);
@@ -142,7 +141,7 @@ function toString(arg: (string | number)[] | string | number): string {
  * @property children - An array, potentially empty, of spans which
  * this span encloses
  * @property body - Content of this span. Can be empty.
- * @property style - A set of key/value pairs specifying CSS properties
+ * @property cssProperties - A set of key/value pairs specifying CSS properties
  * associated with this element.
  * @property height - The measurement from baseline to top, in em.
  * @property depth - The measurement from baseline to bottom, in em.
@@ -164,7 +163,7 @@ export class Span {
   depth?: number;
   skew?: number;
   italic?: number;
-  maxFontSize?: number;
+  maxFontSize: number;
 
   isTight?: boolean;
 
@@ -175,123 +174,85 @@ export class Span {
   svgOverlay?: string;
   svgStyle?: string;
 
-  style: Record<string, string>;
+  private cssProperties: Record<string, string>;
   attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
 
+  /**
+   * If a `style` option is provided, a `mode` must also be provided.
+   */
   constructor(
-    content: string | Span | (Span | null)[],
-    classes = '',
-    type: SpanType = ''
+    content: null | string | Span | (Span | null)[],
+    options?: {
+      classes?: string;
+      type?: SpanType;
+      mode?: ParseMode;
+      style?: Style;
+    }
   ) {
-    if (isArray(content)) {
-      // Check if isArray first, since an array is also an object
-      // Flatten it (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
-      this.children = content.filter((x) => x !== null);
-    } else if (typeof content === 'string') {
+    if (typeof content === 'string') {
       this.value = content;
+    } else if (isArray<Span | null>(content)) {
+      this.children = content.filter((x) => x !== null);
+      // if (this.children.length === 0) this.children = undefined;
     } else if (content && content instanceof Span) {
       this.children = [content];
     }
 
-    this.classes = classes;
-    this.type = type;
+    this.type = options?.type;
     this.isSelected = false;
+    this.maxFontSize = 1;
 
-    // STYLE
-    // CSS style, as an array of key value pairs.
-    // Use this.setStyle() to modify it.
-    this.style = null;
+    // CSS style, as a set of key value pairs.
+    // Use `Span.setStyle()` to modify it.
+    this.cssProperties = null;
+
+    // Apply color
+    if (options?.style?.color) {
+      if (options.style.color === 'none') {
+        this.setStyle('color', '');
+      } else {
+        this.setStyle('color', options.style.color);
+      }
+    }
+
+    if (options?.style?.backgroundColor) {
+      if (options.style.backgroundColor === 'none') {
+        this.setStyle('background-color', '');
+      } else {
+        this.setStyle('background-color', options.style.backgroundColor);
+      }
+    }
+
+    // Set initial classes
+    this.classes = options?.classes ?? '';
+
+    let fontName = 'Main-Regular';
+    if (options?.style && this.value) {
+      console.assert(
+        typeof options.mode === 'string' && options.mode.length > 1
+      );
+      fontName = Mode.applyStyle(options.mode, this, options.style);
+    }
 
     // Calculate the dimensions of this span based on its children
-    this.updateDimensions();
-  }
-
-  /**
-   * Update the dimensions of this node based on its children:
-   * - height: distance from baseline to top (>0)
-   * - depth: distance from bottom to baseline (>0)
-   * - maxFontSize: a size multiplier (typically set with commands such as \huge)
-   */
-  updateDimensions(): void {
-    let height = 0;
-    let depth = 0;
-    let maxFontSize = 1;
-    if (this.children) {
+    // assuming they are laid out horizontally
+    if (this.type === 'latex') {
+      this.height = 0.8;
+      this.depth = 0.2;
+    } else if (this.children) {
+      let height = 0;
+      let depth = 0;
+      let maxFontSize = 1;
       for (const child of this.children) {
         if (child.height > height) height = child.height;
         if (child.depth > depth) depth = child.depth;
         if (child.maxFontSize > maxFontSize) maxFontSize = child.maxFontSize;
       }
-    } else if (typeof this.value === 'string') {
-      if (this.type === 'latex') {
-        height = 0.8;
-        depth = 0.2;
-      } else {
-        height = METRICS.baselineskip;
-        depth = 0;
-      }
-    }
-
-    this.height = height;
-    this.depth = depth;
-    this.maxFontSize = maxFontSize;
-  }
-
-  selected(isSelected: boolean): void {
-    this.isSelected = isSelected;
-    if (this.children) {
-      for (const child of this.children) {
-        child.selected(isSelected);
-      }
-    }
-  }
-
-  applyStyle(mode: ParseMode, style: Style, className?: string): void {
-    if (!style) return;
-
-    //
-    // 1. Apply color
-    //
-    if (style.color) {
-      if (style.color === 'none') {
-        this.setStyle('color', '');
-      } else {
-        this.setStyle('color', style.color);
-      }
-    }
-
-    if (style.backgroundColor) {
-      if (style.backgroundColor === 'none') {
-        this.setStyle('background-color', '');
-      } else {
-        this.setStyle('background-color', style.backgroundColor);
-      }
-    }
-
-    //
-    // 2. Add any custom style classes
-    //
-
-    if (className) {
-      this.classes += ' ' + className;
-    }
-
-    // If the body is null (for example for a line), we're done.
-    if (!this.value) return;
-
-    //
-    // 3. Determine the font family (i.e. 'ams', 'mathcal', etc...)
-    // and apply styling by adding appropriate classes to the atom
-    //
-
-    console.assert(typeof this.value === 'string');
-
-    const fontName = Mode.applyStyle(mode, this, style);
-
-    //
-    // 5. Get the metrics information
-    //
-    if (fontName) {
+      this.height = height;
+      this.depth = depth;
+      this.maxFontSize = maxFontSize;
+    } else if (this.value && this.value.length > 0) {
+      // Get the metrics information
       this.maxFontSize =
         {
           size1: 0.5,
@@ -304,7 +265,7 @@ export class Span {
           size8: 1.73,
           size9: 2.07,
           size10: 2.49,
-        }[style.fontSize] ?? 1;
+        }[options?.style?.fontSize] ?? 1;
       this.height = 0;
       this.depth = 0;
       this.skew = 0;
@@ -313,11 +274,29 @@ export class Span {
         const metrics = getCharacterMetrics(this.value.charAt(i), fontName);
         // If we were able to get metrics info for this character, store it.
         if (metrics) {
-          this.height = Math.max(this.height, metrics.height);
-          this.depth = Math.max(this.depth, metrics.depth);
-          this.skew = metrics.skew;
-          this.italic = metrics.italic;
+          this.height = Math.max(
+            this.height,
+            this.maxFontSize * metrics.height
+          );
+          this.depth = Math.max(this.depth, this.maxFontSize * metrics.depth);
+          this.skew = this.maxFontSize * metrics.skew;
+          this.italic = this.maxFontSize * metrics.italic;
         }
+      }
+    } else if (this.value) {
+      this.height = METRICS.baselineskip;
+      this.depth = 0;
+    } else {
+      this.height = 0;
+      this.depth = 0;
+    }
+  }
+
+  selected(isSelected: boolean): void {
+    this.isSelected = isSelected;
+    if (this.children) {
+      for (const child of this.children) {
+        child.selected(isSelected);
       }
     }
   }
@@ -332,23 +311,23 @@ export class Span {
   setStyle(prop: string, ...value: (string | number)[]): void {
     const v = toString(value);
     if (v.length > 0) {
-      if (!this.style) this.style = {};
-      this.style[prop] = v;
+      if (!this.cssProperties) this.cssProperties = {};
+      this.cssProperties[prop] = v;
     }
   }
 
   setTop(top: number): void {
     if (Number.isFinite(top) && top !== 0) {
-      if (!this.style) this.style = {};
-      this.style.top = toString(top) + 'em';
+      if (!this.cssProperties) this.cssProperties = {};
+      this.cssProperties.top = toString(top) + 'em';
       this.height -= top;
       this.depth += top;
     }
   }
 
   get left(): number {
-    if (this.style?.['margin-left']) {
-      return Number.parseFloat(this.style['margin-left']);
+    if (this.cssProperties?.['margin-left']) {
+      return Number.parseFloat(this.cssProperties['margin-left']);
     }
 
     return 0;
@@ -356,27 +335,27 @@ export class Span {
 
   set left(value: number) {
     if (!Number.isFinite(value)) return;
-    if (!this.style) this.style = {};
+    if (!this.cssProperties) this.cssProperties = {};
     if (value === 0) {
-      delete this.style['margin-left'];
+      delete this.cssProperties['margin-left'];
     } else {
-      this.style['margin-left'] = toString(value) + 'em';
+      this.cssProperties['margin-left'] = toString(value) + 'em';
     }
   }
 
   set right(value: number) {
     if (!Number.isFinite(value)) return;
-    if (!this.style) this.style = {};
+    if (!this.cssProperties) this.cssProperties = {};
     if (value === 0) {
-      delete this.style['margin-right'];
+      delete this.cssProperties['margin-right'];
     } else {
-      this.style['margin-right'] = toString(value) + 'em';
+      this.cssProperties['margin-right'] = toString(value) + 'em';
     }
   }
 
   set width(value: number) {
-    if (!this.style) this.style = {};
-    this.style.width = toString(value) + 'em';
+    if (!this.cssProperties) this.cssProperties = {};
+    this.cssProperties.width = toString(value) + 'em';
   }
 
   /**
@@ -429,7 +408,7 @@ export class Span {
       !this.classes &&
       !this.cssId &&
       !this.htmlData &&
-      !this.style &&
+      !this.cssProperties &&
       !this.svgOverlay
     ) {
       // 2a. Collapse 'empty' spans
@@ -504,8 +483,8 @@ export class Span {
         this.left += options.hskip / 18;
       }
 
-      if (this.style) {
-        const styleString = Object.keys(this.style)
+      if (this.cssProperties) {
+        const styleString = Object.keys(this.cssProperties)
           .map((x) => {
             // Render the style property, except the background
             // of selected spans
@@ -513,7 +492,7 @@ export class Span {
               return '';
             }
 
-            return x + ':' + this.style[x];
+            return x + ':' + this.cssProperties[x];
           })
           .join(';');
 
@@ -540,10 +519,10 @@ export class Span {
         result += 'style="position:absolute;';
         result += 'overflow:overlay;';
         result += `height:${this.height + this.depth}em;`;
-        if (this.style?.padding) {
-          result += `top:${this.style.padding};`;
+        if (this.cssProperties?.padding) {
+          result += `top:${this.cssProperties.padding};`;
           result += `left:{this.style.padding};`;
-          result += `width:calc(100% - 2 * ${this.style.padding} );`;
+          result += `width:calc(100% - 2 * ${this.cssProperties.padding} );`;
         } else {
           result += 'top:0;';
           result += 'left:0;';
@@ -588,7 +567,7 @@ export class Span {
    *      "<span class='mord mathrm'>1</span><span class='mord mathrm'>2</span>"
    */
   tryCoalesceWith(span: Span): boolean {
-    // Don't coalesce if the tag or type are different
+    // Don't coalesce if the types are different
     if (this.type !== span.type) return false;
 
     // Don't coalesce consecutive errors, placeholders or raw latex
@@ -611,8 +590,8 @@ export class Span {
     if (hasChildren || spanHasChildren) return false;
 
     // If they have a different number of styles, can't coalesce
-    const thisStyleCount = this.style ? this.style.length : 0;
-    const spanStyleCount = span.style ? span.style.length : 0;
+    const thisStyleCount = this.cssProperties ? this.cssProperties.length : 0;
+    const spanStyleCount = span.cssProperties ? span.cssProperties.length : 0;
     if (thisStyleCount !== spanStyleCount) return false;
 
     // For the purpose of our comparison,
@@ -635,13 +614,15 @@ export class Span {
     }
 
     // If the styles are different, can't coalesce
-    if (this.style && span.style) {
-      for (const style in this.style) {
+    if (this.cssProperties && span.cssProperties) {
+      for (const style in this.cssProperties) {
         if (
-          Object.prototype.hasOwnProperty.call(this.style, style) &&
-          Object.prototype.hasOwnProperty.call(span.style, style)
+          Object.prototype.hasOwnProperty.call(this.cssProperties, style) &&
+          Object.prototype.hasOwnProperty.call(span.cssProperties, style)
         ) {
-          if (this.style[style] !== span.style[style]) return false;
+          if (this.cssProperties[style] !== span.cssProperties[style]) {
+            return false;
+          }
         }
       }
     }
@@ -723,7 +704,7 @@ export function depth(spans: Span[]): number {
 
 export function skew(spans: Span | Span[]): number {
   if (!spans) return 0;
-  if (isArray(spans)) {
+  if (isArray<Span>(spans)) {
     let result = 0;
     for (const span of spans) {
       result += span.skew || 0;
@@ -737,7 +718,7 @@ export function skew(spans: Span | Span[]): number {
 
 export function italic(spans: Span | Span[]): number {
   if (!spans) return 0;
-  if (isArray(spans)) {
+  if (isArray<Span>(spans)) {
     return spans[spans.length - 1].italic;
   }
 
@@ -747,10 +728,12 @@ export function italic(spans: Span | Span[]): number {
 export function makeSymbol(
   fontFamily: string,
   symbol: string,
-  classes = '',
-  type: SpanType = ''
+  options?: {
+    classes?: string;
+    type?: SpanType;
+  }
 ): Span {
-  const result = new Span(symbol, classes, type);
+  const result = new Span(symbol, options);
 
   const metrics = getCharacterMetrics(symbol, fontFamily);
   result.height = metrics.height;
@@ -788,7 +771,9 @@ function makeFontSizer(context: Context, fontSize: number): Span | null {
   }
 
   if (context.size !== 'size5') {
-    return new Span(fontSizeInner, 'sz-set reset-' + context.size + ' size5');
+    return new Span(fontSizeInner, {
+      classes: 'sz-set reset-' + context.size + ' size5',
+    });
   }
 
   return fontSizeAdjustment !== 0 ? fontSizeInner : null;
@@ -796,43 +781,24 @@ function makeFontSizer(context: Context, fontSize: number): Span | null {
 
 export function makeStruts(
   content: Span,
-  classes = '',
-  type: SpanType = ''
+  options: {
+    classes: string;
+    type?: SpanType;
+  }
 ): Span {
-  const topStrut = new Span('', 'ML__strut');
+  const topStrut = new Span(null, { classes: 'ML__strut' });
   topStrut.setStyle('height', Math.max(0, content.height), 'em');
   const struts = [topStrut];
 
   if (content.depth !== 0) {
-    const bottomStrut = new Span('', 'ML__strut--bottom');
+    const bottomStrut = new Span(null, { classes: 'ML__strut--bottom' });
     bottomStrut.setStyle('height', content.height + content.depth, 'em');
     bottomStrut.setStyle('vertical-align', -content.depth, 'em');
     struts.push(bottomStrut);
   }
 
   struts.push(content);
-  return new Span(struts, classes, type);
-}
-
-export function makeStyleWrap(
-  type: SpanType,
-  children: Span | Span[],
-  fromStyle: Mathstyle,
-  toStyle: Mathstyle,
-  classes: string
-): Span {
-  const result = makeHlist(
-    children,
-    classes + ' style-wrap ' + fromStyle.adjustTo(toStyle)
-  );
-  result.type = type;
-
-  const multiplier = toStyle.sizeMultiplier / fromStyle.sizeMultiplier;
-  result.height *= multiplier; // @revisit. Use spanHeight()? is height set at this point?
-  result.depth *= multiplier;
-  result.maxFontSize = toStyle.sizeMultiplier;
-
-  return result;
+  return new Span(struts, options);
 }
 
 /**
@@ -850,14 +816,19 @@ export function addSVGOverlay(
 
 export function makeHlist(
   spans: Span | Span[],
-  classes = '',
-  type: SpanType = ''
+  options?: {
+    classes?: string;
+    type?: SpanType;
+    mode?: ParseMode;
+    style?: Style;
+  }
 ): Span {
   // Note: do not try to optimize and avoid creating the span below
   // Some layouts, e.g. vlist, depend on that span being there.
 
-  const result = new Span(spans, classes, type);
+  const result = new Span(spans, options);
 
+  /* @revisit: is this necessary or is it already accounted for in the Span constructor ? */
   let multiplier = 1;
   multiplier =
     spans instanceof Span
@@ -889,10 +860,14 @@ export function makeVlist(
   context: Context,
   elements: (number | Span)[],
   posMethod: 'shift' | 'top' | 'bottom' | 'individualShift' = 'shift',
-  initialPos = 0
+  options?: {
+    initialPos?: number;
+    classes?: string;
+  }
 ): Span {
   let minPos = 0; // <0 if below the baseline
   let pos = 0;
+  const initialPos = options?.initialPos ?? 0;
 
   if (posMethod === 'shift') {
     if (elements[0] instanceof Span) {
@@ -968,7 +943,9 @@ export function makeVlist(
     }
   }
 
-  const result = new Span(newElements, 'vlist');
+  const result = new Span(newElements, {
+    classes: 'vlist ' + (options?.classes ?? ''),
+  });
 
   // Fix the final height and depth
   result.depth = Math.max(minPos, result.depth ?? 0);
@@ -979,8 +956,6 @@ export function makeVlist(
 
 /**
  * Create a span that consist of a (stretchy) SVG element
- *
- * @param classes list of classes attributes associated with this node
  */
 export function makeSVGSpan(svgBodyName: string): Span {
   const span = new Span(null);

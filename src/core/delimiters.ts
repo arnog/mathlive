@@ -21,10 +21,11 @@
  * @summary   Handling of delimiters surrounds symbols.
  */
 
-import { makeSymbol, makeVlist, makeStyleWrap, SpanType, Span } from './span';
+import { makeSymbol, makeVlist, SpanType, Span, makeHlist } from './span';
 import { Mathstyle, MATHSTYLES } from './mathstyle';
 import { getCharacterMetrics, METRICS } from './font-metrics';
 import type { Context } from './context';
+import { ParseMode, Style } from '../public/core';
 export const RIGHT_DELIM = {
   '(': ')',
   '{': '}',
@@ -45,6 +46,32 @@ export const RIGHT_DELIM = {
   '\\lgroup': '\\rgroup',
   '\\lmoustache': '\\rmoustache',
 };
+
+function makeStyleWrap(
+  children: Span | Span[],
+  fromStyle: Mathstyle,
+  toStyle: Mathstyle,
+  options: {
+    classes?: string;
+    type?: SpanType;
+    mode?: ParseMode;
+    style?: Style;
+  }
+): Span {
+  const result = makeHlist(children, {
+    ...options,
+    classes:
+      (options.classes ?? '') + ' style-wrap ' + fromStyle.adjustTo(toStyle),
+  });
+
+  const multiplier = toStyle.sizeMultiplier / fromStyle.sizeMultiplier;
+  result.height *= multiplier;
+  result.depth *= multiplier;
+  result.maxFontSize =
+    toStyle.sizeMultiplier; /** @revisit: shouldn't that be `multiplier` ? */
+
+  return result;
+}
 
 function getSymbolValue(symbol: string): string {
   return (
@@ -99,20 +126,24 @@ function getSymbolValue(symbol: string): string {
  * scriptscriptstyle.
  */
 function makeSmallDelim(
-  type: SpanType,
   delim: string,
-  style: Mathstyle,
+  mathstyle: Mathstyle,
   center: boolean,
   context: Context,
-  classes = ''
+  options: {
+    classes: string;
+    type: 'mopen' | 'mclose' | 'minner';
+    mode?: ParseMode;
+    style?: Style;
+  }
 ): Span {
   const text = makeSymbol('Main-Regular', getSymbolValue(delim));
 
-  const span = makeStyleWrap(type, text, context.mathstyle, style, classes);
+  const span = makeStyleWrap(text, context.mathstyle, mathstyle, options);
 
   if (center) {
     span.setTop(
-      (1 - context.mathstyle.sizeMultiplier / style.sizeMultiplier) *
+      (1 - context.mathstyle.sizeMultiplier / mathstyle.sizeMultiplier) *
         context.mathstyle.metrics.axisHeight
     );
   }
@@ -130,23 +161,24 @@ function makeSmallDelim(
  * Size3, or Size4 fonts. It is always rendered in textstyle.
  */
 function makeLargeDelim(
-  type: SpanType,
   delim: string,
   size: number,
   center: boolean,
   context: Context,
-  classes = ''
+  options: {
+    classes?: string;
+    type?: 'mopen' | 'mclose' | 'minner';
+    mode?: ParseMode;
+    style?: Style;
+  }
 ): Span {
   const result = makeStyleWrap(
-    type,
-    makeSymbol(
-      'Size' + size + '-Regular',
-      getSymbolValue(delim),
-      'delimsizing size' + size
-    ),
+    makeSymbol('Size' + size + '-Regular', getSymbolValue(delim), {
+      classes: 'delimsizing size' + size,
+    }),
     context.mathstyle,
     MATHSTYLES.textstyle,
-    classes
+    options
   );
 
   if (center) {
@@ -177,11 +209,9 @@ function makeInner(symbol: string, font: string): Span {
     sizeClass = ' delim-size4';
   }
 
-  return makeSymbol(
-    font,
-    getSymbolValue(symbol),
-    'delimsizinginner' + sizeClass
-  );
+  return makeSymbol(font, getSymbolValue(symbol), {
+    classes: 'delimsizinginner' + sizeClass,
+  });
 }
 
 /**
@@ -189,12 +219,16 @@ function makeInner(symbol: string, font: string): Span {
  * least `heightTotal`. This routine is mentioned on page 442 of the TeXbook.
  */
 function makeStackedDelim(
-  type: SpanType,
   delim: string,
   heightTotal: number,
   center: boolean,
   context: Context,
-  classes = ''
+  options: {
+    classes?: string;
+    type?: SpanType;
+    mode?: ParseMode;
+    style?: Style;
+  }
 ): Span {
   // There are four parts, the top, an optional middle, a repeated part, and a
   // bottom.
@@ -399,18 +433,17 @@ function makeStackedDelim(
   inners.push(makeInner(top, font));
 
   // Finally, build the vlist
-  const inner = makeVlist(context, inners, 'bottom', depth);
+  const inner = makeVlist(context, inners, 'bottom', { initialPos: depth });
   inner.setStyle('color', context.color);
   if (typeof context.opacity === 'number') {
     inner.setStyle('opacity', context.opacity);
   }
 
   return makeStyleWrap(
-    type,
-    new Span(inner, 'delimsizing mult'),
+    new Span(inner, { classes: 'delimsizing mult' }),
     context.mathstyle,
     MATHSTYLES.textstyle,
-    classes
+    options
   );
 }
 
@@ -479,16 +512,20 @@ const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3];
  * Used to create a delimiter of a specific size, where `size` is 1, 2, 3, or 4.
  */
 export function makeSizedDelim(
-  type: SpanType,
   delim: string,
-  size: number,
+  size: 1 | 2 | 3 | 4,
   context: Context,
-  classes = ''
+  options: {
+    classes: string;
+    type?: 'mopen' | 'mclose';
+    mode?: ParseMode;
+    style?: Style;
+  }
 ): Span {
   if (delim === '.') {
     // Empty delimiters still count as elements, even though they don't
     // show anything.
-    return makeNullFence(type, context, classes);
+    return makeNullFence(context, options.type, options.classes);
   }
 
   // < and > turn into \langle and \rangle in delimiters
@@ -500,17 +537,16 @@ export function makeSizedDelim(
 
   // Sized delimiters are never centered.
   if (stackLargeDelimiters.has(delim) || stackNeverDelimiters.has(delim)) {
-    return makeLargeDelim(type, delim, size, false, context, classes);
+    return makeLargeDelim(delim, size, false, context, options);
   }
 
   if (stackAlwaysDelimiters.has(delim)) {
     return makeStackedDelim(
-      type,
       delim,
       sizeToMaxHeight[size],
       false,
       context,
-      classes
+      options
     );
   }
 
@@ -635,19 +671,21 @@ function traverseSequence(
 /**
  * Make a delimiter of a given height+depth, with optional centering. Here, we
  * traverse the sequences, and create a delimiter that the sequence tells us to.
- *
- * @param type - 'mopen' or 'mclose'
  */
 export function makeCustomSizedDelim(
-  type: SpanType,
+  type: 'mopen' | 'mclose' | 'minner',
   delim: string,
   height: number,
   center: boolean,
   context: Context,
-  classes = ''
+  options?: {
+    classes?: string;
+    mode?: ParseMode;
+    style?: Style;
+  }
 ): Span {
   if (!delim || delim.length === 0 || delim === '.') {
-    return makeNullFence(type, context, type);
+    return makeNullFence(context, type, type);
   }
 
   if (delim === '<' || delim === '\\lt') {
@@ -677,29 +715,24 @@ export function makeCustomSizedDelim(
   // Depending on the sequence element we decided on,
   // call the appropriate function.
   if (delimType.type === 'small') {
-    return makeSmallDelim(
+    return makeSmallDelim(delim, delimType.mathstyle, center, context, {
       type,
-      delim,
-      delimType.mathstyle,
-      center,
-      context,
-      'ML__small-delim ' + classes
-    );
+      classes: 'ML__small-delim ' + (options?.classes ?? ''),
+    });
   }
 
   if (delimType.type === 'large') {
-    return makeLargeDelim(
+    return makeLargeDelim(delim, delimType.size, center, context, {
+      ...options,
       type,
-      delim,
-      delimType.size,
-      center,
-      context,
-      classes
-    );
+    });
   }
 
   console.assert(delimType.type === 'stack');
-  return makeStackedDelim(type, delim, height, center, context, classes);
+  return makeStackedDelim(delim, height, center, context, {
+    ...options,
+    type,
+  });
 }
 
 /**
@@ -708,16 +741,16 @@ export function makeCustomSizedDelim(
  * See tex.web:14994
  */
 export function makeLeftRightDelim(
-  type: SpanType,
+  type: 'mopen' | 'mclose' | 'minner',
   delim: string,
   height: number,
   depth: number,
   context: Context,
-  classes = ''
+  options?: { classes?: string; style?: Style; mode?: ParseMode }
 ): Span {
   // If this is the empty delimiter, return a null fence
   if (delim === '.') {
-    return makeNullFence(type, context, classes);
+    return makeNullFence(context, type, options?.classes);
   }
 
   // We always center \left/\right delimiters, so the axis is always shifted
@@ -736,7 +769,7 @@ export function makeLeftRightDelim(
 
   // Finally, we defer to `makeCustomSizedDelim` with our calculated total
   // height
-  return makeCustomSizedDelim(type, delim, totalHeight, true, context, classes);
+  return makeCustomSizedDelim(type, delim, totalHeight, true, context, options);
 }
 
 /**
@@ -744,23 +777,23 @@ export function makeLeftRightDelim(
  * @param type either 'mopen', 'mclose' or null
  */
 function makeNullFence(
-  type: SpanType,
   context: Context,
+  type: 'mopen' | 'mclose' | 'minner',
   classes: string
 ): Span {
   let sizeAdjust = '';
   if (context.size !== 'size5') {
     sizeAdjust = `sizing reset-${context.size} size5`;
   }
-  return new Span(
-    '',
+  return new Span(null, {
     // Reset the font-size to the default (size5)
-    sizeAdjust +
+    classes:
+      sizeAdjust +
       // Correct from scriptstyle/scriptscriptstyle to textstyle if necessary
       context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
       // The null delimiter has a width, specified by class 'nulldelimiter'
       ' nulldelimiter ' +
       (classes ?? ''),
-    type
-  );
+    type,
+  });
 }

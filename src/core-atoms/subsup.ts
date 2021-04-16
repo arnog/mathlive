@@ -13,7 +13,7 @@ export class SubsupAtom extends Atom {
 
     // The span type of a `subsup` atom is 'supsub' as it doesn't
     // have any special INTER_ATOM_SPACING with its attached atom (previous span)
-    const result = new Span('\u200B', '', 'supsub');
+    const result = new Span('\u200B', { type: 'supsub' });
     if (context.phantomBase) {
       result.height = spanHeight(context.phantomBase);
       result.depth = spanDepth(context.phantomBase);

@@ -72,7 +72,7 @@ export function update(
   for (const key of Object.keys(updates)) {
     switch (key) {
       case 'scriptDepth':
-        if (isArray(updates.scriptDepth)) {
+        if (isArray<number>(updates.scriptDepth)) {
           result.scriptDepth = [updates.scriptDepth[0], updates.scriptDepth[1]];
         } else if (typeof updates.scriptDepth === 'number') {
           result.scriptDepth = [updates.scriptDepth, updates.scriptDepth];

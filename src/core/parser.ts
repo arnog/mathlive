@@ -1557,7 +1557,7 @@ class Parser {
     // If we have an atom to add, push it at the end of the current math list
     // We could have no atom for tokens that were skipped, a ' ' in math mode
     // for example
-    if (isArray(result)) {
+    if (isArray<Atom>(result)) {
       this.atoms = this.atoms.concat(result);
     } else if (result) {
       this.atoms.push(result);

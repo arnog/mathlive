@@ -184,11 +184,11 @@ export class Atom {
 
   // If true, some structural changes have been made to the atom
   // (insertion or removal of children) or one of its children is dirty
-  _isDirty: boolean;
+  private _isDirty: boolean;
   // A monotonically increasing counter to detect structural changes
-  _changeCounter: number;
+  private _changeCounter: number;
   // Cached list of children, invalidated when isDirty = true
-  _children: Atom[];
+  private _children: Atom[];
 
   // Optional, per instance, override of the `toLatex()` method
   toLatexOverride?: (atom: Atom, options: ToLatexOptions) => string;
@@ -404,7 +404,7 @@ export class Atom {
     options: ToLatexOptions
   ): string {
     let result = '';
-    if (isArray(value)) {
+    if (isArray<Atom>(value)) {
       if (value.length > 0) result = atomsToLatex(value, options);
     } else if (typeof value === 'number' || typeof value === 'boolean') {
       result = value.toString();
@@ -909,15 +909,11 @@ export class Atom {
    */
   render(context: Context): Span[] | null {
     // Render the body branch if present, even if it's empty (need to
-    // render the 'first' atom to render the caret in an empty branch
-    let result: Span = this.makeSpan(context, this.body ?? this.value);
+    // render the 'first' atom to render the caret in an empty branch)
+    let result: Span = this.makeSpan(context, this.body ?? this.value, {
+      classes: this.containsCaret ? 'ML__contains-caret' : '',
+    });
     if (!result) return null;
-
-    result.type = isSpanType(this.type) ? this.type : '';
-
-    if (this.containsCaret) {
-      result.classes = (result.classes || '') + ' ML__contains-caret';
-    }
 
     // Finally, render any necessary superscript, subscripts
     if (!this.limits && (this.superscript || this.subscript)) {
@@ -943,12 +939,12 @@ export class Atom {
     let submid: Span = null;
     if (this._branches.superscript) {
       const sup = Atom.render(context.sup(), this._branches.superscript);
-      supmid = new Span(sup, mathstyle.adjustTo(mathstyle.sup()));
+      supmid = new Span(sup, { classes: mathstyle.adjustTo(mathstyle.sup()) });
     }
 
     if (this._branches.subscript) {
       const sub = Atom.render(context.sub(), this._branches.subscript);
-      submid = new Span(sub, mathstyle.adjustTo(mathstyle.sub()));
+      submid = new Span(sub, { classes: mathstyle.adjustTo(mathstyle.sub()) });
     }
 
     // Rule 18a, p445
@@ -1014,7 +1010,7 @@ export class Atom {
         mathstyle.metrics.sub1,
         submid.height - 0.8 * mathstyle.metrics.xHeight
       );
-      supsub = makeVlist(context, [submid], 'shift', subShift);
+      supsub = makeVlist(context, [submid], 'shift', { initialPos: subShift });
       supsub.children[0].right = scriptspace;
       if (this.isCharacterBox()) {
         supsub.children[0].left = -spanItalic(nucleus);
@@ -1026,19 +1022,19 @@ export class Atom {
         minSupShift,
         supmid.depth + 0.25 * mathstyle.metrics.xHeight
       );
-      supsub = makeVlist(context, [supmid], 'shift', -supShift);
+      supsub = makeVlist(context, [supmid], 'shift', { initialPos: -supShift });
       supsub.children[0].right = scriptspace;
     }
 
     // Display the caret *following* the superscript and subscript,
     // so attach the caret to the 'msubsup' element.
-    const supsubContainer = new Span(supsub, 'msubsup');
+    const supsubContainer = new Span(supsub, { classes: 'msubsup' });
     if (this.caret) {
       supsubContainer.caret = this.caret;
       // This.caret = ''; // @revisit: we shouln't clear the **Atom** caret
     }
 
-    return new Span([nucleus, supsubContainer], '', type);
+    return new Span([nucleus, supsubContainer], { type });
   }
 
   attachLimits(
@@ -1048,16 +1044,14 @@ export class Atom {
     slant: number
   ): Span {
     const limitAbove = this.superscript
-      ? new Span(
-          Atom.render(context.sup(), this.superscript),
-          context.mathstyle.adjustTo(context.mathstyle.sup())
-        )
+      ? new Span(Atom.render(context.sup(), this.superscript), {
+          classes: context.mathstyle.adjustTo(context.mathstyle.sup()),
+        })
       : null;
     const limitBelow = this.subscript
-      ? new Span(
-          Atom.render(context.sub(), this.subscript),
-          context.mathstyle.adjustTo(context.mathstyle.sub())
-        )
+      ? new Span(Atom.render(context.sub(), this.subscript), {
+          classes: context.mathstyle.adjustTo(context.mathstyle.sub()),
+        })
       : null;
     return makeLimitsStack(
       context,
@@ -1075,7 +1069,7 @@ export class Atom {
    */
   bind(context: Context, span: Span): Span {
     if (this.type !== 'first' && this.value !== '\u200B') {
-      this.id = makeID(context);
+      this.id = context.makeID();
       if (this.id) {
         if (!span.attributes) span.attributes = {};
         span.attributes['data-atom-id'] = this.id;
@@ -1090,14 +1084,13 @@ export class Atom {
    * equal to the type ('mbin', 'inner', 'spacing', etc...)
    *
    */
-  makeSpan(context: Context, value: string | Atom[]): Span {
+  makeSpan(
+    context: Context,
+    value: string | Atom[],
+    options?: { style?: Style; classes?: string }
+  ): Span {
     // Ensure that the atom type is a valid Span type, or use ''
     const type: SpanType = isSpanType(this.type) ? this.type : '';
-    const result = new Span(
-      typeof value === 'string' ? value : Atom.render(context, value),
-      '',
-      type
-    );
 
     // The font family is determined by:
     // - the base font family associated with this atom (optional). For example,
@@ -1109,31 +1102,38 @@ export class Atom {
     // - the font family automatically determined in math mode, for example
     // which italicizes some characters, but which can be overridden
 
-    const style: Style = {
+    const style: Style = options?.style ?? {
       variant: 'normal', // Will auto-italicize
       ...this.style,
       letterShapeStyle: context.letterShapeStyle,
     };
-    result.applyStyle(this.mode, style);
+
+    let classes = options?.classes ?? '';
+
+    if (this.mode === 'text') classes += ' ML__text';
 
     // Apply size correction
     const size = style?.fontSize ? style.fontSize : 'size5';
     if (size !== context.parentSize) {
-      result.classes += ' sizing reset-' + context.parentSize;
-      result.classes += ' ' + size;
+      classes += ' sizing reset-' + context.parentSize;
+      classes += ' ' + size;
     } else if (context.parentSize !== context.size) {
-      result.classes += ' sizing reset-' + context.parentSize;
-      result.classes += ' ' + context.size;
+      classes += ' sizing reset-' + context.parentSize;
+      classes += ' ' + context.size;
     }
 
+    const result = new Span(
+      typeof value === 'string' ? value : Atom.render(context, value),
+      { type, mode: this.mode, style, classes }
+    );
+
+    /** @revisit: If maxFontSize is changed, it should be applied to height/depth */
     result.maxFontSize = Math.max(
       result.maxFontSize,
       context.mathstyle.sizeMultiplier ?? 1
     );
 
     // Set other attributes
-
-    if (this.mode === 'text') result.classes += ' ML__text';
     if (context.mathstyle.isTight()) result.isTight = true;
     // The italic correction applies only in math mode
     if (this.mode !== 'math') result.italic = 0;
@@ -1155,27 +1155,8 @@ export class Atom {
       }
     }
 
-    if (context.mathstyle.isTight()) result.isTight = true;
     return result;
   }
-}
-
-function makeID(context: Context): string {
-  let result: string;
-  if (context.atomIdsSettings) {
-    if (typeof context.atomIdsSettings.seed === 'number') {
-      result = context.atomIdsSettings.overrideID
-        ? context.atomIdsSettings.overrideID
-        : context.atomIdsSettings.seed.toString(36);
-      context.atomIdsSettings.seed += 1;
-    } else {
-      result =
-        Date.now().toString(36).slice(-2) +
-        Math.floor(Math.random() * 0x186a0).toString(36);
-    }
-  }
-
-  return result;
 }
 
 /* Combine a nucleus with an atom above and an atom below. Used to form
@@ -1245,7 +1226,7 @@ function makeLimitsStack(
         FONTMETRICS.bigOpSpacing5,
       ],
       'bottom',
-      bottom
+      { initialPos: bottom }
     );
 
     // Here, we shift the limits by the slant of the symbol. Note
@@ -1261,7 +1242,7 @@ function makeLimitsStack(
       context,
       [FONTMETRICS.bigOpSpacing5, below, belowShift, nucleus],
       'top',
-      top
+      { initialPos: top }
     );
 
     // See comment above about slants
@@ -1273,14 +1254,14 @@ function makeLimitsStack(
       context,
       [nucleus, aboveShift, above, FONTMETRICS.bigOpSpacing5],
       'bottom',
-      bottom
+      { initialPos: bottom }
     );
 
     // See comment above about slants
     result.children[1].left = slant;
   }
 
-  return new Span(result, 'op-limits', 'mop');
+  return new Span(result, { classes: 'op-limits', type: 'mop' });
 }
 
 /**

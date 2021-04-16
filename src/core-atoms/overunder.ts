@@ -67,19 +67,17 @@ export class OverunderAtom extends Atom {
     if (this.svgAbove) {
       above = makeSVGSpan(this.svgAbove);
     } else if (this.above) {
-      above = new Span(
-        Atom.render(annotationStyle, this.above),
-        context.mathstyle.adjustTo(annotationStyle.mathstyle)
-      );
+      above = new Span(Atom.render(annotationStyle, this.above), {
+        classes: context.mathstyle.adjustTo(annotationStyle.mathstyle),
+      });
     }
 
     if (this.svgBelow) {
       below = makeSVGSpan(this.svgBelow);
     } else if (this.below) {
-      below = new Span(
-        Atom.render(annotationStyle, this.below),
-        context.mathstyle.adjustTo(annotationStyle.mathstyle)
-      );
+      below = new Span(Atom.render(annotationStyle, this.below), {
+        classes: context.mathstyle.adjustTo(annotationStyle.mathstyle),
+      });
     }
 
     if (above && below) {
@@ -125,7 +123,7 @@ function makeOverunderStack(
 ): Span {
   // If nothing above and nothing below, nothing to do.
   if (!above && !below) {
-    return new Span(nucleus, 'op-over-under', type);
+    return new Span(nucleus, { classes: 'op-over-under', type });
     // Return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
   }
 
@@ -164,17 +162,14 @@ function makeOverunderStack(
         FONTMETRICS.bigOpSpacing2,
       ],
       'bottom',
-      bottom
+      { initialPos: bottom }
     );
   } else if (below && !above) {
     const top = wrappedNucleus.height;
 
-    result = makeVlist(
-      context,
-      [0, below, belowShift, wrappedNucleus],
-      'top',
-      top
-    );
+    result = makeVlist(context, [0, below, belowShift, wrappedNucleus], 'top', {
+      initialPos: top,
+    });
   } else if (above && !below) {
     result = makeVlist(
       context,
@@ -185,9 +180,9 @@ function makeOverunderStack(
         above,
       ],
       'bottom',
-      wrappedNucleus.depth
+      { initialPos: wrappedNucleus.depth }
     );
   }
 
-  return new Span(result, 'op-over-under', type);
+  return new Span(result, { classes: 'op-over-under', type });
 }

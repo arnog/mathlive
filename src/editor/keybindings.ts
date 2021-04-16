@@ -82,7 +82,7 @@ export function getCommandForKeybinding(
 function commandToString(command: string | Selector | string[]): string {
   let result: string | string[] = command;
 
-  if (isArray(result)) {
+  if (isArray<string>(result)) {
     result =
       result.length > 0 ? result[0] + '(' + result.slice(1).join('') + ')' : '';
   }
@@ -98,7 +98,7 @@ export function getKeybindingsForCommand(
 
   if (typeof command === 'string') {
     const candidate = REVERSE_KEYBINDINGS[command];
-    if (isArray(candidate)) {
+    if (isArray<string>(candidate)) {
       result = candidate.slice();
     } else if (candidate) {
       result.push(candidate);

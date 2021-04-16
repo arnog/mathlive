@@ -327,7 +327,7 @@ export class ArrayAtom extends Atom {
       });
       for (const element of inrow) {
         const elt = [
-          new Span(null, '', 'mord'),
+          new Span(null, { type: 'mord' }),
           ...(Atom.render(rowContext, element) ?? []),
         ];
         depth = Math.max(depth, spanDepth(elt));
@@ -402,7 +402,9 @@ export class ArrayAtom extends Atom {
         }
 
         cols.push(
-          new Span(contentCols[currentContentCol], 'col-align-' + colDesc.align)
+          new Span(contentCols[currentContentCol], {
+            classes: 'col-align-' + colDesc.align,
+          })
         );
         currentContentCol++;
         previousColContent = true;
@@ -428,7 +430,7 @@ export class ArrayAtom extends Atom {
         firstColumn = false;
       } else if (colDesc.rule) {
         // It's a rule.
-        const separator = new Span(null, 'vertical-separator');
+        const separator = new Span(null, { classes: 'vertical-separator' });
         separator.setStyle('height', totalHeight, 'em');
         // Result.setTop((1 - context.mathstyle.sizeMultiplier) *
         //     context.mathstyle.metrics.axisHeight);
@@ -465,13 +467,13 @@ export class ArrayAtom extends Atom {
     ) {
       // There are no delimiters around the array, just return what
       // we've built so far.
-      return [new Span(cols, 'mtable', 'mord')];
+      return [new Span(cols, { classes: 'mtable', type: 'mord' })];
     }
 
     // There is at least one delimiter. Wrap the core of the array with
     // appropriate left and right delimiters
     // const inner = new Span(new Span(cols, 'mtable'), 'mord');
-    const inner = new Span(cols, 'mtable');
+    const inner = new Span(cols, { classes: 'mtable' });
     const innerHeight = inner.height;
     const innerDepth = inner.depth;
     const result = this.bind(
@@ -500,8 +502,7 @@ export class ArrayAtom extends Atom {
             )
           ),
         ],
-        '',
-        'mord'
+        { type: 'mord' }
       )
     );
     if (this.caret) result.caret = this.caret;
@@ -596,7 +597,7 @@ export class ArrayAtom extends Atom {
  *
  */
 function makeColGap(width: number): Span {
-  const separator = new Span('\u200B', 'arraycolsep');
+  const separator = new Span('\u200B', { classes: 'arraycolsep' });
   separator.width = width;
   return separator;
 }

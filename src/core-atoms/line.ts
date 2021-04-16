@@ -24,13 +24,13 @@ export class LineAtom extends Atom {
     const inner = new Span(Atom.render(context.cramp(), this.body));
     const ruleWidth =
       FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-    const line = new Span(
-      null,
-      context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
+    const line = new Span(null, {
+      classes:
+        context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
         ' ' +
         this.position +
-        '-line'
-    );
+        '-line',
+    });
     line.height = ruleWidth;
     line.maxFontSize = 1;
     let vlist: Span;
@@ -41,11 +41,11 @@ export class LineAtom extends Atom {
         context,
         [ruleWidth, line, 3 * ruleWidth, inner],
         'top',
-        inner.height
+        { initialPos: inner.height }
       );
     }
 
     if (this.caret) vlist.caret = this.caret;
-    return [new Span(vlist, this.position, 'mord')];
+    return [new Span(vlist, { classes: this.position, type: 'mord' })];
   }
 }

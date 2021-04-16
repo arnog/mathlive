@@ -55,17 +55,16 @@ export class GroupAtom extends Atom {
         ? MATHSTYLES[this.mathStyleName]
         : undefined,
     });
-    const span = new Span(Atom.render(localContext, this.body), '', 'mord'); // @revisit
-    if (this.cssId) span.cssId = this.cssId;
-    if (this.htmlData) span.htmlData = this.htmlData;
-    span.applyStyle(
-      this.mode,
-      {
+    const span = new Span(Atom.render(localContext, this.body), {
+      type: 'mord',
+      classes: this.customClass,
+      mode: this.mode,
+      style: {
         backgroundColor: this.style.backgroundColor,
       },
-      this.customClass
-    );
-
+    }); // @revisit
+    if (this.cssId) span.cssId = this.cssId;
+    if (this.htmlData) span.htmlData = this.htmlData;
     if (this.caret) span.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
@@ -75,22 +74,22 @@ export class GroupAtom extends Atom {
   }
 
   toLatex(options: ToLatexOptions): string {
-    const body = this.bodyToLatex(options);
+    let result = this.bodyToLatex(options);
 
     if (typeof this.latexOpen === 'string') {
-      return this.latexOpen + body + this.latexClose;
+      result = this.latexOpen + result + this.latexClose;
     }
 
-    if (this.cssId) {
-      return `\\cssId{${this.cssId}}${body}`;
-    }
     if (this.htmlData) {
-      return `\\htmlData{${this.htmlData}}${body}`;
+      result = `\\htmlData{${this.htmlData}}${result}`;
     }
     if (this.customClass) {
-      return `\\class{${this.customClass}}${body}`;
+      result = `\\class{${this.customClass}}${result}`;
+    }
+    if (this.cssId) {
+      result = `\\cssId{${this.cssId}}${result}`;
     }
 
-    return body;
+    return result;
   }
 }

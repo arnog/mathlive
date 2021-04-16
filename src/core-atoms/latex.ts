@@ -27,11 +27,14 @@ export class LatexAtom extends Atom {
   }
 
   render(context: Context): Span[] {
-    const result = new Span(
-      this.value,
-      this.isSuggestion ? 'ML__suggestion' : this.isError ? 'ML__error' : '',
-      'latex'
-    );
+    const result = new Span(this.value, {
+      classes: this.isSuggestion
+        ? 'ML__suggestion'
+        : this.isError
+        ? 'ML__error'
+        : '',
+      type: 'latex',
+    });
     if (this.caret) result.caret = this.caret;
     this.bind(context, result);
     return [result];
@@ -51,7 +54,7 @@ export class LatexGroupAtom extends Atom {
   }
 
   render(context: Context): Span[] {
-    const span = new Span(Atom.render(context, this.body), '', 'mord');
+    const span = new Span(Atom.render(context, this.body), { type: 'mord' });
 
     if (this.caret) span.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched

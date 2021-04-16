@@ -31,12 +31,17 @@ export class PhantomAtom extends Atom {
 
   render(context: Context): Span[] {
     if (this.phantomType === 'vphantom') {
-      const content = new Span(Atom.render(context, this.body), 'inner');
-      content.applyStyle('math', {
-        backgroundColor: 'transparent',
-        color: 'transparent',
+      const content = new Span(Atom.render(context, this.body), {
+        classes: 'inner',
       });
-      return [new Span([content, new Span(null, 'fix')], 'rlap', 'mord')];
+      content.setStyle('color', 'transparent');
+      content.setStyle('backgroundColor', 'transparent');
+      return [
+        new Span([content, new Span(null, { classes: 'fix' })], {
+          classes: 'rlap',
+          type: 'mord',
+        }),
+      ];
     }
 
     if (
@@ -45,12 +50,12 @@ export class PhantomAtom extends Atom {
       this.phantomType === 'bsmash' ||
       this.phantomType === 'tsmash'
     ) {
-      const content = new Span(Atom.render(context, this.body), '', 'mord');
+      const content = new Span(Atom.render(context, this.body), {
+        type: 'mord',
+      });
       if (this.isInvisible) {
-        content.applyStyle('math', {
-          backgroundColor: 'transparent',
-          color: 'transparent',
-        });
+        content.setStyle('color', 'transparent');
+        content.setStyle('backgroundColor', 'transparent');
       }
 
       if (this.phantomType !== 'bsmash') {
@@ -61,9 +66,9 @@ export class PhantomAtom extends Atom {
         content.depth = 0;
       }
 
-      return [new Span(makeVlist(context, [content]), '', 'mord')];
+      return [new Span(makeVlist(context, [content]), { type: 'mord' })];
     }
 
-    return [new Span(Atom.render(context, this.body), '', 'mord')];
+    return [new Span(Atom.render(context, this.body), { type: 'mord' })];
   }
 }

@@ -86,8 +86,8 @@ export function convertLatexToMarkup(
   }
 ): string {
   options = options ?? {};
-  options.mathstyle = options.mathstyle || 'displaystyle';
-  options.letterShapeStyle = options.letterShapeStyle || 'auto';
+  options.mathstyle = options.mathstyle ?? 'displaystyle';
+  options.letterShapeStyle = options.letterShapeStyle ?? 'auto';
   options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
   //
@@ -125,7 +125,9 @@ export function convertLatexToMarkup(
   //
   // 4. Wrap the expression with struts
   //
-  const wrapper = makeStruts(new Span(spans, 'ML__base'), 'ML__mathlive');
+  const wrapper = makeStruts(new Span(spans, { classes: 'ML__base' }), {
+    classes: 'ML__mathlive',
+  });
 
   //
   // 5. Generate markup
@@ -337,10 +339,10 @@ use
 }
 
 export const debug = {
-  getStyle: MathLiveDebug.getStyle,
+  // getStyle: MathLiveDebug.getStyle,
   getType: MathLiveDebug.getType,
-  spanToString: MathLiveDebug.spanToString,
-  hasClass: MathLiveDebug.hasClass,
+  // spanToString: MathLiveDebug.spanToString,
+  // hasClass: MathLiveDebug.hasClass,
   latexToAsciiMath,
   asciiMathToLatex,
   FUNCTIONS: MathLiveDebug.FUNCTIONS,

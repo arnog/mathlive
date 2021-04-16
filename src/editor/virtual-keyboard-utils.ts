@@ -991,9 +991,9 @@ function latexToMarkup(latex: string, arg): string {
         { mathstyle: MATHSTYLES.displaystyle },
         parseLatex(latex, 'math', arg)
       ),
-      'ML__base'
+      { classes: 'ML__base' }
     ),
-    'ML__mathlive'
+    { classes: 'ML__mathlive' }
   ).toMarkup();
 }
 

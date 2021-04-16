@@ -288,7 +288,7 @@ function createAccessibleMarkupPair(
     markupNode &&
     /\b(mathml|speakable-text)\b/i.test(options.renderAccessibleContent)
   ) {
-    const fragment = document.createDocumentFragment();
+    const fragment = document.createElement('span');
     if (
       /\bmathml\b/i.test(options.renderAccessibleContent) &&
       options.renderToMathML
@@ -404,7 +404,10 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
     }
   }
 
-  for (let i = 0; i < element.childNodes.length; i++) {
+  // Iterate backward, as we will be replacing childNode with a documentfragment
+  // which may insert multiple nodes (one for the accessible markup, one for
+  // the formula)
+  for (let i = element.childNodes.length - 1; i > 0; i--) {
     const childNode = element.childNodes[i];
     if (childNode.nodeType === 3) {
       // A text node

@@ -75,7 +75,7 @@ const SPECIAL_OPERATORS = {
 
 export function atomToAsciiMath(atom: Atom | Atom[]): string {
   if (!atom) return '';
-  if (isArray(atom)) {
+  if (isArray<Atom>(atom)) {
     let result = '';
     if (atom.length === 0) return '';
     if (atom[0].type === 'first') atom = atom.slice(1);

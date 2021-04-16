@@ -61,7 +61,7 @@ export class AccentAtom extends Atom {
       clearance = -clearance + FONTMETRICS.bigOpSpacing1;
     } else {
       // Build the accent
-      const accent = makeSymbol('Main-Regular', this.accent, 'math');
+      const accent = makeSymbol('Main-Regular', this.accent);
       // Remove the italic correction of the accent, because it only serves to
       // shift the accent over to a place we don't want.
       accent.italic = 0;
@@ -69,7 +69,9 @@ export class AccentAtom extends Atom {
       // thus shows up much too far to the left. To account for this, we add a
       // specific class which shifts the accent over to where we want it.
       const vecClass = this.accent === '\u20D7' ? ' accent-vec' : '';
-      accentBody = new Span(new Span(accent), 'accent-body' + vecClass);
+      accentBody = new Span(new Span(accent), {
+        classes: 'accent-body' + vecClass,
+      });
     }
 
     accentBody = makeVlist(context, [new Span(base), -clearance, accentBody]);
@@ -77,7 +79,7 @@ export class AccentAtom extends Atom {
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.
     accentBody.children[accentBody.children.length - 1].left = 2 * skew;
-    const result = new Span(accentBody, 'accent', 'mord');
+    const result = new Span(accentBody, { classes: 'accent', type: 'mord' });
     if (this.caret) result.caret = this.caret;
     return [this.attachSupsub(context, result, result.type)];
   }

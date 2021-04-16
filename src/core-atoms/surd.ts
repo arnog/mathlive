@@ -58,11 +58,16 @@ export class SurdAtom extends Atom {
     const delim = this.bind(
       context,
       new Span(
-        makeCustomSizedDelim('', '\\surd', minDelimiterHeight, false, context),
-        'sqrt-sign'
+        makeCustomSizedDelim(
+          null,
+          '\\surd',
+          minDelimiterHeight,
+          false,
+          context
+        ),
+        { classes: 'sqrt-sign', mode: this.mode, style: this.style }
       )
     );
-    delim.applyStyle(this.mode, this.style);
 
     const delimDepth = delim.height + delim.depth - ruleWidth;
 
@@ -74,11 +79,11 @@ export class SurdAtom extends Atom {
 
     // Shift the delimiter so that its top lines up with the top of the line
     delim.setTop(delim.height - inner.height - (lineClearance + ruleWidth));
-    const line = new Span(
-      null,
-      context.mathstyle.adjustTo(MATHSTYLES.textstyle) + ' sqrt-line'
-    );
-    line.applyStyle(this.mode, this.style);
+    const line = new Span(null, {
+      classes: context.mathstyle.adjustTo(MATHSTYLES.textstyle) + ' sqrt-line',
+      mode: this.mode,
+      style: this.style,
+    });
     line.height = ruleWidth;
 
     const body = makeVlist(context, [
@@ -92,7 +97,10 @@ export class SurdAtom extends Atom {
     if (this.containsCaret) className += ' ML__contains-caret';
 
     if (!this.above) {
-      const result = new Span([delim, body], className, 'mord');
+      const result = new Span([delim, body], {
+        classes: className,
+        type: 'mord',
+      });
       if (this.caret) result.caret = this.caret;
       return [this.bind(context, result)];
     }
@@ -102,10 +110,9 @@ export class SurdAtom extends Atom {
     const newcontext = context.clone({
       mathstyle: MATHSTYLES.scriptscriptstyle,
     });
-    const root = new Span(
-      Atom.render(newcontext, this.above),
-      mathstyle.adjustTo(MATHSTYLES.scriptscriptstyle)
-    );
+    const root = new Span(Atom.render(newcontext, this.above), {
+      classes: mathstyle.adjustTo(MATHSTYLES.scriptscriptstyle),
+    });
     // Figure out the height and depth of the inner part
     const innerRootHeight = Math.max(delim.height, body.height);
     const innerRootDepth = Math.max(delim.depth, body.depth);
@@ -113,15 +120,19 @@ export class SurdAtom extends Atom {
     // source, in the definition of `\r@@t`.
     const toShift = 0.6 * (innerRootHeight - innerRootDepth);
     // Build a VList with the superscript shifted up correctly
-    const rootVlist = makeVlist(context, [root], 'shift', -toShift);
+    const rootVlist = makeVlist(context, [root], 'shift', {
+      initialPos: -toShift,
+    });
 
     // Add a class surrounding it so we can add on the appropriate
     // kerning
 
     const result = new Span(
-      [new Span(rootVlist, 'root'), delim, body],
-      className,
-      'mord'
+      [new Span(rootVlist, { classes: 'root' }), delim, body],
+      {
+        classes: className,
+        type: 'mord',
+      }
     );
     result.height = delim.height;
     result.depth = delim.depth;

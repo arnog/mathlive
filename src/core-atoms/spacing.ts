@@ -24,7 +24,7 @@ export class SpacingAtom extends Atom {
           ? this.makeSpan(context, ' ')
           : this.makeSpan(context, '\u00A0');
     } else if (Number.isFinite(this.width)) {
-      result = new Span('\u200B', 'mspace ');
+      result = new Span('\u200B', { classes: 'mspace' });
       result.left = this.width;
     } else {
       const spacingCls: string =
@@ -37,7 +37,7 @@ export class SpacingAtom extends Atom {
           '\\,': 'thinspace',
           '\\!': 'negativethinspace',
         }[this.command] ?? 'mediumspace';
-      result = new Span('\u200B', 'mspace ' + spacingCls);
+      result = new Span('\u200B', { classes: 'mspace ' + spacingCls });
     }
 
     if (this.caret) result.caret = this.caret;

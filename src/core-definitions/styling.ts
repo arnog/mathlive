@@ -814,6 +814,49 @@ defineFunction(['phantom', 'vphantom', 'hphantom'], '{:auto*}', {
     }),
 });
 
+defineFunction('not', '{:math}', {
+  createAtom: (name: string, args: Argument[], style: Style): Atom => {
+    if (!args || args.length < 1 || args[0] === null) {
+      return new Atom('mrel', { command: name, style, value: '\ue020' });
+    }
+    const arg = args[0] as Atom[];
+    return new GroupAtom(
+      [
+        new OverlapAtom(name, '\ue020', {
+          align: 'right',
+          style,
+          spanType: 'mrel',
+        }),
+        ...arg,
+      ],
+      {
+        toLatexOverride: (atom: GroupAtom, options) => {
+          const argLatex = Atom.toLatex(arg, options);
+          if (argLatex.length === 1 && !/[a-zA-Z]/.test(argLatex)) {
+            return '\\not' + argLatex;
+          }
+          return `\\not{${argLatex}}`;
+        },
+      }
+    );
+  },
+});
+
+defineFunction(['ne', 'neq'], '', {
+  createAtom: (name: string, args: Argument[], style: Style): Atom =>
+    new GroupAtom(
+      [
+        new OverlapAtom(name, '\ue020', {
+          align: 'right',
+          style,
+          spanType: 'mrel',
+        }),
+        new Atom('mrel', { style, value: '=' }),
+      ],
+      { toLatexOverride: () => name }
+    ),
+});
+
 defineFunction('rlap', '{:auto}', {
   createAtom: (name: string, args: Argument[], style: Style): Atom =>
     new OverlapAtom(name, args[0] as Atom[], { align: 'right', style }),

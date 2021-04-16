@@ -35,7 +35,7 @@ export function arrayColRow(
   col: number;
   row: number;
 } {
-  if (Array.isArray(index)) {
+  if (isArray<number>(index)) {
     return { col: index[0], row: index[1] };
   }
 
@@ -77,13 +77,13 @@ export function arrayCell(
   if (
     typeof colrow === 'number' ||
     typeof colrow === 'string' ||
-    Array.isArray(colrow)
+    isArray<number>(colrow)
   ) {
     colrow = arrayColRow(array, colrow);
   }
 
   let result: Atom[];
-  if (isArray(array[colrow.row])) {
+  if (isArray<number>(array[colrow.row])) {
     result = array[colrow.row][colrow.col] ?? null;
     console.assert(result.length > 0);
     console.assert(result[0].type === 'first');

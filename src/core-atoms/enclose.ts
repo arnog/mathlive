@@ -115,7 +115,7 @@ export class EncloseAtom extends Atom {
   }
 
   render(context: Context): Span[] {
-    const base = new Span(Atom.render(context, this.body), '', 'mord');
+    const base = new Span(Atom.render(context, this.body), { type: 'mord' });
 
     // Account for the padding
     const padding =
@@ -123,7 +123,7 @@ export class EncloseAtom extends Atom {
 
     // The 'ML__notation' class is required to prevent the span from being omitted
     // during rendering (it looks like an empty, no-op span)
-    const notation = new Span('', 'ML__notation');
+    const notation = new Span(null, { classes: 'ML__notation' });
     notation.setStyle('position', 'absolute');
     notation.setStyle('height', base.height + base.depth + 2 * padding, 'em');
     notation.height = base.height + padding;

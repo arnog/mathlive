@@ -116,8 +116,8 @@ export function render(
   //
   // 4. Construct struts around the spans
   //
-  const base = new Span(spans, 'ML__base');
-  const wrapper = makeStruts(base, 'ML__mathlive');
+  const base = new Span(spans, { classes: 'ML__base' });
+  const wrapper = makeStruts(base, { classes: 'ML__mathlive' });
   wrapper.attributes = {
     // Sometimes Google Translate kicks in an attempts to 'translate' math
     // This doesn't work very well, so turn off translate

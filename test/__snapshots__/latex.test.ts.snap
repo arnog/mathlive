@@ -2,21 +2,21 @@
 
 exports[`ARGUMENTS 0/ "\\\\frac" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.89em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"></span></span><span class=\\"nulldelimiter mclose\\"></span></span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.68em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.37em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"></span></span><span class=\\"nulldelimiter mclose\\"></span></span></span></span>",
   "no-error",
 ]
 `;
 
 exports[`ARGUMENTS 1/ "\\\\frac{}" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.89em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"></span></span><span class=\\"nulldelimiter mclose\\"></span></span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.68em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.37em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"></span></span><span class=\\"nulldelimiter mclose\\"></span></span></span></span>",
   "no-error",
 ]
 `;
 
 exports[`ARGUMENTS 2/ "\\\\frac{}{}" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:1.2em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.89em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"></span></span><span class=\\"nulldelimiter mclose\\"></span></span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.68em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.37em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter mopen\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"></span></span><span class=\\"nulldelimiter mclose\\"></span></span></span></span>",
   "no-error",
 ]
 `;

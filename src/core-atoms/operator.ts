@@ -57,12 +57,10 @@ export class OperatorAtom extends Atom {
         mathstyle.size === MATHSTYLES.displaystyle.size &&
         this.value !== '\\smallint';
 
-      base = makeSymbol(
-        large ? 'Size2-Regular' : 'Size1-Regular',
-        this.value,
-        'op-symbol ' + (large ? 'large-op' : 'small-op'),
-        'mop'
-      );
+      base = makeSymbol(large ? 'Size2-Regular' : 'Size1-Regular', this.value, {
+        classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
+        type: 'mop',
+      });
 
       // Shift the symbol so its center lies on the axis (rule 13). It
       // appears that our fonts have the centers of the symbols already
@@ -75,30 +73,27 @@ export class OperatorAtom extends Atom {
 
       // The slant of the symbol is just its italic correction.
       slant = base.italic;
-      base.applyStyle(this.mode, {
-        color: this.style.color,
-        backgroundColor: this.style.backgroundColor,
-      });
+      base.setStyle('color', this.style.color);
+      base.setStyle('backgroundColor', this.style.backgroundColor);
     } else if (this.body) {
       // If this is a list, decompose that list.
-      base = new Span(Atom.render(context, this.body), '', 'mop');
-      base.applyStyle(this.mode, {
-        color: this.style.color,
-        backgroundColor: this.style.backgroundColor,
-      });
+      base = new Span(Atom.render(context, this.body), { type: 'mop' });
+      base.setStyle('color', this.style.color);
+      base.setStyle('backgroundColor', this.style.backgroundColor);
     } else {
       // Otherwise, this is a text operator. Build the text from the
       // operator's name.
       console.assert(this.type === 'mop');
-      base = this.makeSpan(context, this.value);
       // Not all styles are applied, since the operators have a distinct
       // appearance (for example, can't override their font family)
-      base.applyStyle(this.mode, {
-        color: this.style.color,
-        backgroundColor: this.style.backgroundColor,
-        letterShapeStyle: context.letterShapeStyle,
-        variant: this.variant,
-        variantStyle: this.variantStyle,
+      base = this.makeSpan(context, this.value, {
+        style: {
+          color: this.style.color,
+          backgroundColor: this.style.backgroundColor,
+          letterShapeStyle: context.letterShapeStyle,
+          variant: this.variant,
+          variantStyle: this.variantStyle,
+        },
       });
     }
 

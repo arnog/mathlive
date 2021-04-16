@@ -1,14 +1,15 @@
-import { Atom, isAtomArray } from '../core/atom';
+import { Atom } from '../core/atom';
 import type { ModelPrivate } from './model-private';
 import { Range } from '../public/mathfield';
 import { Style } from '../public/core';
+import { isArray } from '../common/types';
 
 export function applyStyleToUnstyledAtoms(
   atom: Atom | Atom[],
   style: Style
 ): void {
   if (!atom || !style) return;
-  if (isAtomArray(atom)) {
+  if (isArray<Atom>(atom)) {
     // Apply styling options to each atom
     atom.forEach((x) => applyStyleToUnstyledAtoms(x, style));
   } else if (typeof atom === 'object') {

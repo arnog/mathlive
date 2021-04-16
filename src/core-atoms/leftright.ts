@@ -101,11 +101,15 @@ export class LeftRightAtom extends Atom {
             innerHeight,
             innerDepth,
             localContext,
-            'ML__open'
+            {
+              classes:
+                'ML__open' + (this.containsCaret ? ' ML__contains-caret' : ''),
+              mode: this.mode,
+              style: this.style,
+            }
           )
         )
       );
-      spans[spans.length - 1].applyStyle(this.mode, this.style);
     }
 
     if (inner) {
@@ -134,7 +138,7 @@ export class LeftRightAtom extends Atom {
     // Add the right delimiter to the end of the expression.
     if (this.rightDelim) {
       let delim = this.rightDelim;
-      let classes: string;
+      let classes = this.containsCaret ? ' ML__contains-caret' : '';
       if (delim === '?') {
         if (context.smartFence) {
           // Use a placeholder delimiter matching the open delimiter
@@ -156,7 +160,7 @@ export class LeftRightAtom extends Atom {
             '\\lmoustache': '\\rmoustache',
           }[this.leftDelim];
           delim = delim || this.leftDelim;
-          classes = 'ML__smart-fence__close';
+          classes += 'ML__smart-fence__close';
         } else {
           delim = '.';
         }
@@ -171,20 +175,14 @@ export class LeftRightAtom extends Atom {
             innerHeight,
             innerDepth,
             localContext,
-            (classes ?? '') + ' ML__close'
+            {
+              classes: classes + ' ML__close',
+              mode: this.mode,
+              style: this.style,
+            }
           )
         )
       );
-      spans[spans.length - 1].applyStyle(this.mode, this.style);
-    }
-
-    if (this.containsCaret) {
-      // Tag the first and last atom in the
-      // list with the "ML__contains-caret" style (it's the open and
-      // closing fence, respectively)
-      spans[0].classes = (spans[0].classes ?? '') + ' ML__contains-caret';
-      spans[spans.length - 1].classes =
-        (spans[spans.length - 1].classes ?? '') + ' ML__contains-caret';
     }
 
     // If the `inner` flag is set, return the `inner` element (that's the
@@ -192,9 +190,10 @@ export class LeftRightAtom extends Atom {
     // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the
     // behavior for `\mleft...\mright`, which allows for tighter spacing
     // for example in `\sin\mleft(x\mright)`
-    const result = this.inner
-      ? new Span(spans, mathstyle.cls(), 'minner')
-      : new Span(spans, mathstyle.cls(), 'mclose');
+    const result = new Span(spans, {
+      classes: mathstyle.cls(),
+      type: this.inner ? 'minner' : 'mclose',
+    });
 
     if (this.caret) result.caret = this.caret;
 

@@ -20,7 +20,7 @@ export class DelimAtom extends Atom {
   }
 
   render(_context: Context): Span[] {
-    const span = new Span(null, '');
+    const span = new Span(null);
     span.delim = this.value;
     return [span];
   }
@@ -55,7 +55,9 @@ export class SizedDelimAtom extends Atom {
   render(context: Context): Span[] {
     const result = this.bind(
       context,
-      makeSizedDelim(this.delimClass, this.value, this.size, context)
+      makeSizedDelim(this.value, this.size, context, {
+        classes: this.delimClass,
+      })
     );
     if (this.caret) result.caret = this.caret;
     return [result];

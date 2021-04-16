@@ -1,4 +1,4 @@
-export function isArray(x: unknown): x is any[] {
+export function isArray<T = any>(x: unknown): x is T[] {
   return Array.isArray(x);
 }
 

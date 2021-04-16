@@ -119,8 +119,9 @@ export const METRICS = {
   bigOpSpacing5: xi13,
   ptPerEm,
   pxPerEm: (ptPerEm * 4) / 3, // A CSS pt is fixed at 1.333px
-  doubleRuleSep: 2 / ptPerEm, // The space between adjacent `|` columns in an array definition. From
+  // The space between adjacent `|` columns in an array definition. From
   // article.cls.txt:455
+  doubleRuleSep: 2 / ptPerEm,
   arraycolsep: 5 / ptPerEm,
   baselineskip: 12 / ptPerEm,
   arrayrulewidth: 0.4 / ptPerEm,

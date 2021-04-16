@@ -112,6 +112,24 @@ export class Context implements ContextInterface {
     this.phantomBase = from.phantomBase;
   }
 
+  makeID(): string {
+    let result: string;
+    if (this.atomIdsSettings) {
+      if (typeof this.atomIdsSettings.seed === 'number') {
+        result = this.atomIdsSettings.overrideID
+          ? this.atomIdsSettings.overrideID
+          : this.atomIdsSettings.seed.toString(36);
+        this.atomIdsSettings.seed += 1;
+      } else {
+        result =
+          Date.now().toString(36).slice(-2) +
+          Math.floor(Math.random() * 0x186a0).toString(36);
+      }
+    }
+
+    return result;
+  }
+
   /**
    * Returns a new context with the same properties as 'this',
    * except for the ones provided in `override`

@@ -31,7 +31,7 @@ export class RuleAtom extends Atom {
     shift /= mathstyle.sizeMultiplier;
     const width = this.width / mathstyle.sizeMultiplier;
     const height = this.height / mathstyle.sizeMultiplier;
-    const result = new Span('', 'rule', 'mord');
+    const result = new Span(null, { classes: 'rule', type: 'mord' });
     result.setStyle('border-right-width', width, 'em');
     result.setStyle('border-top-width', height, 'em');
     result.setStyle('margin-top', -(height - shift), 'em');

@@ -14,12 +14,11 @@ export class PlaceholderAtom extends Atom {
   }
 
   render(context: Context): Span[] {
-    const result = this.makeSpan(context, '⬚');
-    if (this.caret) {
-      result.classes += 'ML__placeholder-selected';
-    }
-
-    return [result];
+    return [
+      this.makeSpan(context, '⬚', {
+        classes: this.caret ? 'ML__placeholder-selected' : '',
+      }),
+    ];
   }
 
   toLatex(_options: ToLatexOptions): string {

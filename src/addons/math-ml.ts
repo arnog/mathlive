@@ -1097,6 +1097,23 @@ function atomToMathML(atom, options): string {
         break;
       case 'composition':
         break;
+      case 'rule':
+        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        break;
+      case 'chem':
+        break;
+      case 'mopen':
+        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        break;
+      case 'mclose':
+        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        break;
+      case 'macro':
+        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        break;
+      case 'error':
+        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        break;
       default:
         console.log('In conversion to MathML, unknown type : ' + atom.type);
     }

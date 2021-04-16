@@ -17,7 +17,7 @@ export class MacroAtom extends Atom {
   }
 
   render(context: Context): Span[] {
-    const result = new Span(Atom.render(context, this.body), '', 'mord');
+    const result = new Span(Atom.render(context, this.body), { type: 'mord' });
     if (this.caret) result.caret = this.caret;
     this.bind(context, result);
     return [result];

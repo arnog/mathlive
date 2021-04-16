@@ -76,7 +76,7 @@ export class GenfracAtom extends Atom {
     const style = this.computedStyle;
     let numer = [];
     if (this.numerPrefix) {
-      numer.push(new Span(this.numerPrefix, 'mord'));
+      numer.push(new Span(this.numerPrefix, { type: 'mord' }));
     }
 
     const numeratorStyle = this.continuousFraction
@@ -85,13 +85,12 @@ export class GenfracAtom extends Atom {
     numer = numer.concat(
       Atom.render(newContext.clone({ mathstyle: numeratorStyle }), this.above)
     );
-    const numerReset = makeHlist(
-      numer,
-      context.mathstyle.adjustTo(numeratorStyle)
-    );
+    const numerReset = makeHlist(numer, {
+      classes: context.mathstyle.adjustTo(numeratorStyle),
+    });
     let denom = [];
     if (this.denomPrefix) {
-      denom.push(new Span(this.denomPrefix, 'mord'));
+      denom.push(new Span(this.denomPrefix, { type: 'mord' }));
     }
 
     const denominatorStyle = this.continuousFraction
@@ -100,10 +99,9 @@ export class GenfracAtom extends Atom {
     denom = denom.concat(
       Atom.render(newContext.clone({ mathstyle: denominatorStyle }), this.below)
     );
-    const denomReset = makeHlist(
-      denom,
-      context.mathstyle.adjustTo(denominatorStyle)
-    );
+    const denomReset = makeHlist(denom, {
+      classes: context.mathstyle.adjustTo(denominatorStyle),
+    });
     const ruleWidth = !this.hasBarLine
       ? 0
       : FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
@@ -150,7 +148,8 @@ export class GenfracAtom extends Atom {
       frac = makeVlist(
         newContext,
         [numerReset, -numberShift, denomReset, denomShift],
-        'individualShift'
+        'individualShift',
+        { classes: 'mfrac' }
       );
     } else {
       // Rule 15d from Appendix G
@@ -166,29 +165,30 @@ export class GenfracAtom extends Atom {
         denomShift += clearance - (denomLine - (denomHeight - denomShift));
       }
 
-      const mid = new Span(null, ' frac-line');
-      mid.applyStyle(this.mode, style);
-      // Manually set the height of the line because its height is
+      const fracLine = new Span(null, {
+        classes: 'frac-line',
+        mode: this.mode,
+        style,
+      });
+      // Manually set the height of the frac line because its height is
       // created in CSS
-      mid.height = ruleWidth / 2;
-      mid.depth = ruleWidth / 2;
+      fracLine.height = ruleWidth / 2;
+      fracLine.depth = ruleWidth / 2;
       frac = makeVlist(
         newContext,
         [
           denomReset,
           denomShift,
-          mid,
+          fracLine,
           ruleWidth / 2 - axisHeight,
           numerReset,
           -numberShift,
         ],
-        'individualShift'
+        'individualShift',
+        { classes: 'mfrac' }
       );
     }
 
-    // Add a 'mfrac' class to provide proper context for
-    // other css selectors (such as 'frac-line')
-    frac.classes += ' mfrac';
     // Since we manually change the style sometimes (with \dfrac or \tfrac),
     // account for the possible size change here.
     frac.height *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
@@ -208,10 +208,10 @@ export class GenfracAtom extends Atom {
         this.leftDelim,
         delimSize,
         true,
-        context.clone({ mathstyle })
+        context.clone({ mathstyle }),
+        { style, mode: this.mode }
       )
     );
-    leftDelim.applyStyle(this.mode, style);
 
     const rightDelim = this.bind(
       context,
@@ -220,20 +220,23 @@ export class GenfracAtom extends Atom {
         this.rightDelim,
         delimSize,
         true,
-        context.clone({ mathstyle })
+        context.clone({ mathstyle }),
+        { style, mode: this.mode }
       )
     );
-    rightDelim.applyStyle(this.mode, style);
 
     const result = this.bind(
       context,
       // MakeStruts(
       new Span(
         [leftDelim, frac, rightDelim],
-        context.parentSize !== context.size
-          ? 'sizing reset-' + context.parentSize + ' ' + context.size
-          : '',
-        'mord'
+        {
+          classes:
+            context.parentSize !== context.size
+              ? 'sizing reset-' + context.parentSize + ' ' + context.size
+              : '',
+          type: 'mord',
+        }
         // )
       )
     );

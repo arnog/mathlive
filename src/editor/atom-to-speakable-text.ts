@@ -1,9 +1,10 @@
 import { TextToSpeechOptions } from '../public/options';
 
-import { Atom, isAtomArray } from '../core/atom';
+import { Atom } from '../core/atom';
 
 import { atomsToMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
+import { isArray } from '../common/types';
 
 declare global {
   interface Window {
@@ -161,7 +162,7 @@ function platform(p: string): string {
 
 function isAtomic(atoms: Atom[]): boolean {
   let count = 0;
-  if (isAtomArray(atoms)) {
+  if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
       if (atom.type !== 'first') {
         count += 1;
@@ -173,7 +174,7 @@ function isAtomic(atoms: Atom[]): boolean {
 }
 
 function atomicID(atoms: Atom[]): string {
-  if (isAtomArray(atoms)) {
+  if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
       if (atom.type !== 'first' && atom.id) {
         return atom.id.toString();
@@ -186,7 +187,7 @@ function atomicID(atoms: Atom[]): string {
 
 function atomicValue(atoms: Atom[]): string {
   let result = '';
-  if (isAtomArray(atoms)) {
+  if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
       if (atom.type !== 'first' && typeof atom.value === 'string') {
         result += atom.value;
@@ -231,7 +232,7 @@ function atomToSpeakableFragment(
 
   let result = '';
 
-  if (isAtomArray(atom)) {
+  if (isArray<Atom>(atom)) {
     let isInDigitRun = false; // Need to group sequence of digits
     let isInTextRun = false; // Need to group text
     for (let i = 0; i < atom.length; i++) {

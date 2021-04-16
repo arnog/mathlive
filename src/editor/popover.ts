@@ -259,8 +259,8 @@ export const NOTES = {
   '\\lim': 'limit',
 };
 
-function getNote(symbol): string {
-  let result = NOTES[symbol] || '';
+function getNote(symbol: string): string {
+  let result = NOTES[symbol] ?? '';
   if (isArray(result)) {
     result = result.join('<br>');
   }
@@ -278,7 +278,9 @@ function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
     parse
   );
 
-  const wrapper = makeStruts(new Span(spans, 'ML__base'), 'ML__mathlive');
+  const wrapper = makeStruts(new Span(spans, { classes: 'ML__base' }), {
+    classes: 'ML__mathlive',
+  });
 
   return wrapper.toMarkup();
 }

@@ -1,4 +1,29 @@
+## [Unreleased]
+
+### Improvements
+
+- In many cases, the layout of the formula is closer to the TeX layout.
+
+### New Features
+
+- **#898**. Setting the `plonkSound` or `keypressSound` option to `null` will
+  suppress sound feedback.
+
+### Bug Fixes
+
+- Fixed Latex output of `\htmlData`, `\cssId` and `\class` commands.
+- Fixed styling of some characters, such as the ones from `\cdot`. The incorrect
+  styling resulting in incorrect measurement and vertical layout of some
+  characters.
+- Fixed rendering of `\ne`, `\neq` and `\not`.
+- When using `renderMathInElement()` or `renderMathInDocument()` do not
+  duplicate the accessible node.
+
 ## 0.60.1 (2021-04-13)
+
+### New Features
+
+- **#793**. Added '%' inline shortcut
 
 ### Bug Fixes
 
@@ -11,16 +36,6 @@
   field when typing a character in the middle of the formula
 - When changing options with `setOptions()` avoid changing the selection unless
   necessary (react-mathlive issue #4).
-- Fixed Latex output of `\htmlData`, `\cssId` and `\class` commands.
-- Fixed styling of some characters, such as the ones from `\cdot`. The incorrect
-  styling resulting in incorrect measurement and vertical layout of some
-  characters.
-
-### New Features
-
-- **#793**. Added '%' inline shortcut
-- **#898**. Setting the `plonkSound` or `keypressSound` option to `null` will
-  suppress sound feedback.
 
 ## 0.60.0 (2021-04-12)
 

@@ -302,8 +302,8 @@ defineSymbol('\\rmoustache', '\u23B1', 'mclose');
 // Relations
 
 defineSymbol('=', '=', 'mrel');
-defineSymbol('\\ne', '\u2260', 'mrel');
-defineSymbol('\\neq', '\u2260', 'mrel');
+// defineSymbol('\\ne', '\u2260', 'mrel');
+// defineSymbol('\\neq', '\u2260', 'mrel');
 // DefineSymbol( '\\longequal', '\uF7D9',  'mrel',  MAIN);   // NOTE: Not TeX
 
 defineSymbol('<', '<', 'mrel');
@@ -536,7 +536,8 @@ defineSymbol('\\complement', '\u2201', 'mord', 'ams');
 
 defineSymbol('\\in', '\u2208', 'mrel');
 defineSymbol('\\notin', '\u2209', 'mrel');
-defineSymbol('\\not', '\u0338', 'mrel');
+// defineSymbol('\\not', '\u0338', 'mrel');
+// defineSymbol('\\not', '\ue020', 'mrel');
 defineSymbol('\\ni', '\u220B', 'mrel');
 defineSymbol('\\owns', '\u220B', 'mrel');
 defineSymbol('\\subset', '\u2282', 'mrel');

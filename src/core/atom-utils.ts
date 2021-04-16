@@ -1,4 +1,3 @@
-import { isArray } from '../common/types';
 import { ParseMode } from '../public/core';
 import { Atom } from './atom-class';
 
@@ -14,8 +13,4 @@ export function makeRoot(parseMode: ParseMode, body: Atom[] = []): Atom {
   console.assert(body.every((x) => !x.parent));
   root.body = body;
   return root;
-}
-
-export function isAtomArray(arg: string | Atom | Atom[]): arg is Atom[] {
-  return isArray(arg);
 }

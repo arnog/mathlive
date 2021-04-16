@@ -47,16 +47,16 @@ export class BoxAtom extends Atom {
       typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
 
     // Base is the main content "inside" the box
-    const content = new Span(Atom.render(context, this.body), '', 'mord');
+    const content = new Span(Atom.render(context, this.body), { type: 'mord' });
     content.setStyle('vertical-align', -content.depth + padding, 'em');
     content.setStyle('height', 0);
-    const base = new Span(content, '', 'mord');
+    const base = new Span(content, { type: 'mord' });
 
     // This span will represent the box (background and border)
     // It's positioned to overlap the base
     // The 'ML__box' class is required to prevent the span from being omitted
     // during rendering (it looks like an empty, no-op span)
-    const box = new Span('', 'ML__box');
+    const box = new Span(null, { classes: 'ML__box' });
     box.setStyle('position', 'absolute');
 
     box.setStyle('height', base.height + base.depth + 2 * padding, 'em');
