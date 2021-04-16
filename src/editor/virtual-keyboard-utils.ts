@@ -25,6 +25,7 @@ import { loadFonts } from '../core/fonts';
 import { isArray } from '../common/types';
 import { COMMANDS, SelectorPrivate } from './commands';
 import { ExecuteCommandFunction } from './commands-definitions';
+import { MACROS } from '../core-definitions/definitions';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
@@ -989,7 +990,7 @@ function latexToMarkup(latex: string, arg): string {
     new Span(
       Atom.render(
         { mathstyle: MATHSTYLES.displaystyle },
-        parseLatex(latex, 'math', arg)
+        parseLatex(latex, 'math', arg, MACROS)
       ),
       { classes: 'ML__base' }
     ),

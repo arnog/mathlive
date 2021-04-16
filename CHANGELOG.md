@@ -18,6 +18,7 @@
 - Fixed rendering of `\ne`, `\neq` and `\not`.
 - When using `renderMathInElement()` or `renderMathInDocument()` do not
   duplicate the accessible node.
+- Correctly display e^x and d/dx in `functions` virtual keyboard
 
 ## 0.60.1 (2021-04-13)
 
