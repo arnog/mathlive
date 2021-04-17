@@ -22,12 +22,21 @@ function hash(latex: string): number {
   return Math.abs(result);
 }
 
-export function requestUpdate(mathfield: MathfieldPrivate): void {
+export function requestUpdate(
+  mathfield: MathfieldPrivate,
+  options?: { interactive: boolean }
+): void {
   if (!mathfield.dirty) {
     mathfield.dirty = true;
     requestAnimationFrame(() => {
       if (isValidMathfield(mathfield) && mathfield.dirty) {
-        render(mathfield);
+        let hadCache = true;
+        if (!mathfield._atomBoundsCache) {
+          hadCache = false;
+          mathfield._atomBoundsCache = new Map<string, Rect>();
+        }
+        render(mathfield, options);
+        if (!hadCache) mathfield._atomBoundsCache = null;
       }
     });
   }
@@ -43,7 +52,7 @@ export function requestUpdate(mathfield: MathfieldPrivate): void {
  */
 export function render(
   mathfield: MathfieldPrivate,
-  renderOptions?: { forHighlighting?: boolean }
+  renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
   renderOptions = renderOptions ?? {};
   mathfield.dirty = false;
@@ -156,9 +165,11 @@ export function render(
   //
   if (!model.selectionIsCollapsed) {
     renderSelection(mathfield);
-    // (re-render a bit later because the layout, sometimes, is not
-    // up to date by now)
-    setTimeout(() => renderSelection(mathfield), 32);
+    if (!(renderOptions?.interactive ?? false)) {
+      // (re-render a bit later because the layout, sometimes, is not
+      // up to date by now)
+      setTimeout(() => renderSelection(mathfield), 32);
+    }
   } else {
     // The popover is relative to the location of the caret
     setTimeout(() => updatePopoverPosition(mathfield), 32);
@@ -169,7 +180,8 @@ function renderSelection(mathfield: MathfieldPrivate): void {
   mathfield.field.querySelectorAll('.ML__selection').forEach((x) => {
     x.remove();
   });
-  const selectionRects: Rect[] = getSelectionBounds(mathfield);
+
+  const selectionRects: Set<Rect> = new Set(getSelectionBounds(mathfield));
   selectionRects.forEach((x) => {
     const selectionElement = document.createElement('div');
     selectionElement.classList.add('ML__selection');

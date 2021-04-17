@@ -57,6 +57,7 @@ import {
   isValidMathfield,
   on,
   off,
+  Rect,
 } from './utils';
 
 import { attachButtonHandlers } from './buttons';
@@ -144,6 +145,8 @@ export class MathfieldPrivate implements Mathfield {
   private eventHandlingInProgress = '';
   private readonly stylesheets: Stylesheet[] = [];
   private resizeTimer: number; // Timer handle
+
+  _atomBoundsCache: Map<string, Rect>;
 
   /**
    * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}

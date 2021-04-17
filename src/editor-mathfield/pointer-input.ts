@@ -17,6 +17,9 @@ export function onPointerDown(
   mathfield: MathfieldPrivate,
   evt: PointerEvent | TouchEvent
 ): void {
+  //Reset the atom bounds cache
+  mathfield._atomBoundsCache = new Map<string, Rect>();
+
   const that = mathfield;
   let anchor: Offset;
   let trackingPointer = false;

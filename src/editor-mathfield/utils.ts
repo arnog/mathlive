@@ -162,7 +162,7 @@ function getNodeBounds(node: Element): Rect {
     left: bounds.left,
     right: bounds.right - 1,
   };
-  if (node.tagName !== 'SVG') {
+  if (node.children.length > 0 && node.tagName !== 'SVG') {
     for (const child of node.children) {
       if (child.nodeType === 1) {
         const r: Rect = getNodeBounds(child);
@@ -181,9 +181,15 @@ export function getAtomBounds(
   mathfield: MathfieldPrivate,
   atom: Atom
 ): Rect | null {
+  if (!atom.id) return null;
+  let result = mathfield._atomBoundsCache?.get(atom.id);
+  if (result !== undefined) return result;
   const node = mathfield.field.querySelector(`[data-atom-id="${atom.id}"]`);
-  if (!node) return null;
-  return getNodeBounds(node);
+  result = node ? getNodeBounds(node) : null;
+  if (mathfield._atomBoundsCache) {
+    mathfield._atomBoundsCache.set(atom.id, result);
+  }
+  return result;
 }
 
 /*

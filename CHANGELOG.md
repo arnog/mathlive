@@ -3,6 +3,8 @@
 ### Improvements
 
 - In many cases, the layout of the formula is closer to the TeX layout.
+- Improved performance selection rendering for complex formulas, particularly
+  when doing interactive selection.
 
 ### New Features
 
