@@ -346,7 +346,9 @@ function toggleVirtualKeyboard(
       on(keyboard.element, 'touchstart:passive mousedown', () =>
         keyboard.focusMathfield()
       );
-      document.body.append(keyboard.element);
+      keyboard.options.virtualKeyboardAppendTarget.appendChild(
+        keyboard.element
+      );
     }
 
     // For the transition effect to work, the property has to be changed
