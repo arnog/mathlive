@@ -304,12 +304,11 @@ export interface VirtualKeyboardKeycap {
   /**
    * CSS classes to apply to the keycap.
    *
-   * - `keycap`: a standard-width keycap, using the system font for its label
-   * - `keycap tex`: a standard-width keycap, using the TeX font for its label.
+   * - `tex`: use the TeX font for its label.
    *    Using the tex class is not necessary if using the latex property to
    *    define the label.
    * - `modifier`: a modifier (shift/option, etc…) keycap
-   * - `keycap small`: display the label in a smaller size
+   * - `small`: display the label in a smaller size
    * - `action`: an “action” keycap (for arrows, return, etc…)
    * - `separator w5`: a half-width blank used as a separator. Other widths
    *    include `w15` (1.5 width), `w20` (double width) and `w50` (five-wide,

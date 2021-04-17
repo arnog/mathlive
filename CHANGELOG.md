@@ -11,6 +11,8 @@
 - **PR#905**. Added option to specify the container of the virtual keyboard.
   Contributed by Dominik Janković (https://github.com/djankovic). Thanks,
   Dominik!
+- Simplified the specification of virtual keyboards: the `keycap` class no
+  longer need to be specified for each keycap.
 
 ### Bug Fixes
 
@@ -23,6 +25,7 @@
   duplicate the accessible node.
 - Correctly display e^x and d/dx in `functions` virtual keyboard
 - Ensure the `\tiny`, `\large`, `\huge` sizing commands only apply in text mode.
+- Ensure the correct spacing (none) on the left and right of fractions.
 
 ## 0.60.1 (2021-04-13)
 

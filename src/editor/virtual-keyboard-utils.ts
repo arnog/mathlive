@@ -1658,8 +1658,12 @@ export function makeKeyboardElement(
             temporaryLayer += `<ul>`;
             for (const keycap of row) {
               temporaryLayer += `<li`;
-              if (keycap.class) {
+              if (/separator/.test(keycap.class)) {
                 temporaryLayer += ` class="${keycap.class}"`;
+              } else if (keycap.class) {
+                temporaryLayer += ` class="keycap ${keycap.class}"`;
+              } else {
+                temporaryLayer += ` class="keycap"`;
               }
 
               if (keycap.key) {
