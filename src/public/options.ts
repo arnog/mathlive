@@ -475,11 +475,15 @@ export type VirtualKeyboardOptions = {
    */
   virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
   /**
-   * Target element the virtual keyboard element gets appended to.
+   * Element the virtual keyboard element gets appended to.
+   *
+   * When using [full screen elements](https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API)
+   * that contain mathfield, set this property to the full screen element to
+   * ensure the virtual keyboard will be visible.
    *
    * **Default**: `document.body`
    */
-  virtualKeyboardAppendTarget?: HTMLElement;
+  virtualKeyboardContainer?: HTMLElement;
 };
 
 /**

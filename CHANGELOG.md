@@ -8,6 +8,9 @@
 
 - **#898**. Setting the `plonkSound` or `keypressSound` option to `null` will
   suppress sound feedback.
+- **PR#905**. Added option to specify the container of the virtual keyboard.
+  Contributed by Dominik Janković (https://github.com/djankovic). Thanks,
+  Dominik!
 
 ### Bug Fixes
 
@@ -19,6 +22,7 @@
 - When using `renderMathInElement()` or `renderMathInDocument()` do not
   duplicate the accessible node.
 - Correctly display e^x and d/dx in `functions` virtual keyboard
+- Ensure the `\tiny`, `\large`, `\huge` sizing commands only apply in text mode.
 
 ## 0.60.1 (2021-04-13)
 
