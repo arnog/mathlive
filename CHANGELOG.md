@@ -19,6 +19,9 @@
 ### Bug Fixes
 
 - Fixed Latex output of `\htmlData`, `\cssId` and `\class` commands.
+- Ignore commands that are only applicable in some modes when they are used in
+  an incorrect mode (for example `\Huge` when used in math mode). This matches
+  TeX behavior.
 - Fixed styling of some characters, such as the ones from `\cdot`. The incorrect
   styling resulting in incorrect measurement and vertical layout of some
   characters.

@@ -1336,12 +1336,9 @@ class Parser {
     }
 
     if (info.ifMode && !info.ifMode.includes(this.parseMode)) {
-      // Command invalid in this mode
-      this.onError({
-        code: 'invalid-command',
-        arg: command,
-      });
-      return [new ErrorAtom(command)];
+      // Command not applicable in this mode: ignore it (TeX behavior)
+      // (for example `\Huge` in math mode
+      return [];
     }
 
     // Parse the arguments
