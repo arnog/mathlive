@@ -2,7 +2,13 @@
 
 [Description of the bug or feature.]
 
-[Include screenshots, screen recordings, code fragments or CodePen if applicable]
+[Include screenshots, screen recordings, code fragments or CodePen if
+applicable]
+
+[To quickly build a demo project, consider
+
+- (https://github.com/mindreframer/mathlive-bug-issue-templates)
+- (https://github.com/mindreframer/mathlive-create-app) ]
 
 ## Steps to Reproduce
 
@@ -16,8 +22,8 @@
 
 [What happens when you follow the steps above]
 
-[If there are any error messages, include the exact text shown,
-or upload a screenshot. Some error messages may be displayed in the Javascript console.]
+[If there are any error messages, include the exact text shown, or upload a
+screenshot. Some error messages may be displayed in the Javascript console.]
 
 ### Expected Behavior
 
@@ -27,7 +33,8 @@ or upload a screenshot. Some error messages may be displayed in the Javascript c
 
 ### Environment
 
-**Operating System**
-[macOS, Windows, iOS. Include the version if possible]
+**MathLive version**
+
+**Operating System** [macOS, Windows, iOS. Include the version if possible]
 
 **Browser** [Safari, Chrome, IE, Firefox, etc...]
