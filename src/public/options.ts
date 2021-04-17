@@ -474,6 +474,12 @@ export type VirtualKeyboardOptions = {
    *
    */
   virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
+  /**
+   * Target element the virtual keyboard element gets appended to.
+   *
+   * **Default**: `document.body`
+   */
+  virtualKeyboardAppendTarget?: HTMLElement;
 };
 
 /**
