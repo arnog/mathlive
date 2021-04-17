@@ -48,10 +48,10 @@ export async function loadFonts(
     ];
     let fontsLoaded = false;
 
-    // Firefox returns true for fonts that are not loaded...
+    // Firefox and Safari return true for fonts that are not loaded...
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1252821 🤦‍♂️
     // So, if on Firefox, always assume that the fonts are not loaded.
-    if (!/firefox/i.test(navigator.userAgent)) {
+    if (!/firefox|safari/i.test(navigator.userAgent)) {
       try {
         fontsLoaded = fontFamilies.every((x) =>
           document.fonts.check('16px ' + x)

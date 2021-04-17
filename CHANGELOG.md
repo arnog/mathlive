@@ -28,6 +28,7 @@
 - Correctly display e^x and d/dx in `functions` virtual keyboard
 - Ensure the `\tiny`, `\large`, `\huge` sizing commands only apply in text mode.
 - Ensure the correct spacing (none) on the left and right of fractions.
+- In Safari, the fonts would not load.
 
 ## 0.60.1 (2021-04-13)
 
