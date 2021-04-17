@@ -47,16 +47,18 @@ export class BoxAtom extends Atom {
       typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
 
     // Base is the main content "inside" the box
-    const content = new Span(Atom.render(context, this.body), { type: 'mord' });
-    content.setStyle('vertical-align', -content.depth + padding, 'em');
-    content.setStyle('height', 0);
+    const content = new Span(Atom.render(context, this.body));
+    content.setStyle('vertical-align', -content.height, 'em');
     const base = new Span(content, { type: 'mord' });
 
-    // This span will represent the box (background and border)
-    // It's positioned to overlap the base
+    // This span will represent the box (background and border).
+    // It's positioned to overlap the base.
     // The 'ML__box' class is required to prevent the span from being omitted
     // during rendering (it looks like an empty, no-op span)
     const box = new Span(null, { classes: 'ML__box' });
+    box.height = base.height + padding;
+    box.depth = base.depth + padding;
+    box.setStyle('box-sizing', 'border-box');
     box.setStyle('position', 'absolute');
 
     box.setStyle('height', base.height + base.depth + 2 * padding, 'em');
@@ -64,12 +66,11 @@ export class BoxAtom extends Atom {
       box.setStyle('width', '100%');
     } else {
       box.setStyle('width', `calc(100% + ${2 * padding}em)`);
-      box.setStyle('top', -2 * padding, 'em');
+      box.setStyle('top', FONTMETRICS.fboxsep, 'em'); // empirical
       box.setStyle('left', -padding, 'em');
     }
 
     box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
-    box.setStyle('box-sizing', 'border-box');
 
     if (this.backgroundcolor) {
       box.setStyle('background-color', this.backgroundcolor);
@@ -83,26 +84,27 @@ export class BoxAtom extends Atom {
     }
 
     if (this.border) box.setStyle('border', this.border);
+    // box.setStyle('top', /* width of the border */);
 
     base.setStyle('display', 'inline-block');
-    base.setStyle('height', base.height + base.depth, 'em');
+    base.setStyle('height', content.height + content.depth, 'em');
     base.setStyle('vertical-align', -padding, 'em');
 
     // The result is a span that encloses the box and the base
-    const result = new Span([box, base]);
+    const result = new Span([box, base], { type: 'mord' });
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');
-    result.setStyle('vertical-align', base.depth, 'em');
+    result.setStyle('display', 'inline-block');
 
     // The padding adds to the width and height of the pod
-    result.height = base.height;
-    result.depth = base.depth;
+    result.height = base.height + padding;
+    result.depth = base.depth + padding;
     result.left = padding;
     result.right = padding;
-    result.setStyle('height', base.height + base.depth, 'em');
-    result.setStyle('top', 0, 'em');
-    result.setStyle('display', 'inline-block');
+    result.setStyle('height', base.height + padding, 'em');
+    result.setStyle('top', base.depth - base.height, 'em');
+    result.setStyle('vertical-align', base.depth + padding, 'em');
 
     if (this.caret) result.caret = this.caret;
 
