@@ -339,9 +339,10 @@ export function move(
         // When going forward, if in a capture selection, jump to
         // after
         pos = model.offsetOf(atom?.parent.lastChild) + 1;
-      } else if (atom?.skipBoundary) {
+      } else if (atom?.parent?.skipBoundary) {
         // When going forward if next is skipboundary, move 2
-        pos += 1;
+        model.position = pos + 1;
+        return move(model, 'forward', options);
       } else if (atom instanceof LatexAtom && atom.isSuggestion) {
         atom.isSuggestion = false;
       }
