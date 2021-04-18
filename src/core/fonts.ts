@@ -8,7 +8,7 @@ function makeFontFace(
 ): FontFace {
   return new FontFace(
     name,
-    `url(${source}.woff2) format('woff2'), url(${source}.woff) format('woff')`,
+    `url(${source}.woff2) format('woff2')`,
     descriptors
   );
 }
