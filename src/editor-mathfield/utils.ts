@@ -156,11 +156,12 @@ function adjustForScrolling(
 
 function getNodeBounds(node: Element): Rect {
   const bounds = node.getBoundingClientRect();
+  const marginRight = parseInt(getComputedStyle(node).marginRight);
   const result: Rect = {
     top: bounds.top - 1,
     bottom: bounds.bottom,
     left: bounds.left,
-    right: bounds.right - 1,
+    right: bounds.right - 1 + marginRight,
   };
   if (node.children.length > 0 && node.tagName !== 'SVG') {
     for (const child of node.children) {
@@ -173,7 +174,6 @@ function getNodeBounds(node: Element): Rect {
       }
     }
   }
-
   return result;
 }
 

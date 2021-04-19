@@ -3,10 +3,12 @@
 ### Improvements
 
 - In many cases, the layout of the formula is closer to the TeX layout.
-- Improved performance selection rendering for complex formulas, particularly
-  when doing interactive selection.
+- Improved performance of hit testing, selection tracking and selection
+  rendering for complex formulas.
 - Dropped `woff` fonts. This change should be transparent, as all supported
   browsers support `woff2` at this point.
+- Apply sizing commands (e.g. `\Huge`) to math mode. TeX is inconsistent in how
+  it handles those, we chose to apply them uniformly as this seems useful.
 
 ### New Features
 
@@ -22,8 +24,7 @@
 
 - Fixed Latex output of `\htmlData`, `\cssId` and `\class` commands.
 - Ignore commands that are only applicable in some modes when they are used in
-  an incorrect mode (for example `\Huge` when used in math mode). This matches
-  TeX behavior.
+  an incorrect mode.
 - Fixed styling of some characters, such as the ones from `\cdot`. The incorrect
   styling resulting in incorrect measurement and vertical layout of some
   characters.
@@ -31,9 +32,16 @@
 - When using `renderMathInElement()` or `renderMathInDocument()` do not
   duplicate the accessible node.
 - Correctly display e^x and d/dx in `functions` virtual keyboard
-- Ensure the `\tiny`, `\large`, `\huge` sizing commands only apply in text mode.
-- Ensure the correct spacing (none) on the left and right of fractions.
+- Ensure the correct spacing around fractions.
 - In Safari, the fonts would not load.
+- Correctly parse the `\displaystyle`, `\textstyle`, `\scriptstyle` and
+  `\scriptscriptstyle` commands: they apply to the commands to their right.
+- Moving forward in a group with the `skipBoundary` flag would not skip it.
+- In a sequence of atoms with `skipBoundary`, only the first one would be
+  skipped.
+- In the virtual keyboard, some keycaps in the greek keyboard were displayed
+  with the system font instead of the TeX font.
+- The selection rectangle for `\int` now accounts for the slant of the symbol
 
 ## 0.60.1 (2021-04-13)
 
