@@ -36,7 +36,7 @@ export function requestUpdate(
           mathfield._atomBoundsCache = new Map<string, Rect>();
         }
         render(mathfield, options);
-        if (!hadCache) mathfield._atomBoundsCache = null;
+        if (!hadCache) mathfield._atomBoundsCache = undefined;
       }
     });
   }
@@ -165,7 +165,7 @@ export function render(
   //
   if (!model.selectionIsCollapsed) {
     renderSelection(mathfield);
-    if (!(renderOptions?.interactive ?? false)) {
+    if (!(renderOptions.interactive ?? false)) {
       // (re-render a bit later because the layout, sometimes, is not
       // up to date by now)
       setTimeout(() => renderSelection(mathfield), 32);
@@ -176,13 +176,10 @@ export function render(
   }
 }
 
-function renderSelection(mathfield: MathfieldPrivate): void {
-  mathfield.field.querySelectorAll('.ML__selection').forEach((x) => {
-    x.remove();
-  });
+export function renderSelection(mathfield: MathfieldPrivate): void {
+  mathfield.field.querySelectorAll('.ML__selection').forEach((x) => x.remove());
 
-  const selectionRects: Set<Rect> = new Set(getSelectionBounds(mathfield));
-  selectionRects.forEach((x) => {
+  for (const x of uniqueRects(getSelectionBounds(mathfield))) {
     const selectionElement = document.createElement('div');
     selectionElement.classList.add('ML__selection');
     selectionElement.style.position = 'absolute';
@@ -194,5 +191,28 @@ function renderSelection(mathfield: MathfieldPrivate): void {
       selectionElement,
       mathfield.field.childNodes[0]
     );
-  });
+  }
+}
+
+/**
+ * Return the rects that are not entirely contained by other rects.
+ */
+function uniqueRects(rects: Rect[]): Rect[] {
+  const result = [];
+  for (const rect of rects) {
+    let count = 0;
+    for (const rect2 of rects) {
+      if (
+        rect.left >= rect2.left &&
+        rect.right <= rect2.right &&
+        rect.top >= rect2.top &&
+        rect.bottom <= rect2.bottom
+      ) {
+        count += 1;
+        if (count > 1) break;
+      }
+    }
+    if (count === 1) result.push(rect);
+  }
+  return result;
 }

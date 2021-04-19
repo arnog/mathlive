@@ -1,6 +1,6 @@
 import { on, off, getAtomBounds, Rect } from './utils';
 import type { MathfieldPrivate } from './mathfield-private';
-import { requestUpdate } from './render';
+import { renderSelection, requestUpdate } from './render';
 import { Offset } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
@@ -24,7 +24,7 @@ export function onPointerDown(
   let anchor: Offset;
   let trackingPointer = false;
   let trackingWords = false;
-  let dirty = false;
+  let dirty: 'none' | 'selection' | 'all' = 'none';
 
   // If a mouse button other than the main one was pressed, return.
   // On iOS 12.4 Safari and Firefox on Android (which do not support
@@ -121,9 +121,17 @@ export function onPointerDown(
     }
 
     if (actualAnchor >= 0 && focus >= 0) {
+      const wasCollapsed = mathfield.model.selectionIsCollapsed;
       that.model.extendSelectionTo(actualAnchor, focus);
-      acceptCommandSuggestion(mathfield.model);
-      requestUpdate(mathfield);
+      if (
+        acceptCommandSuggestion(mathfield.model) ||
+        wasCollapsed ||
+        mathfield.model.selectionIsCollapsed
+      ) {
+        requestUpdate(mathfield);
+      } else {
+        renderSelection(mathfield);
+      }
     }
 
     // Prevent synthetic mouseMove event when this is a touch event
@@ -158,7 +166,7 @@ export function onPointerDown(
   ) {
     // Focus the mathfield
     if (!mathfield.hasFocus()) {
-      dirty = true;
+      dirty = 'all';
       mathfield.keyboardDelegate.focus();
     }
 
@@ -178,21 +186,29 @@ export function onPointerDown(
       if (evt.shiftKey) {
         // If the Shift key is down, extend the selection
         // (in that case, 'anchor' is actually the focus
+        const wasCollapsed = mathfield.model.selectionIsCollapsed;
         mathfield.model.extendSelectionTo(mathfield.model.anchor, anchor);
-        acceptCommandSuggestion(mathfield.model);
+        if (acceptCommandSuggestion(mathfield.model) || wasCollapsed) {
+          dirty = 'all';
+        } else {
+          dirty = 'selection';
+        }
       } else if (mathfield.model.at(anchor).type === 'placeholder') {
         mathfield.model.setSelection(anchor - 1, anchor);
+        dirty = 'selection';
       } else if (
         mathfield.model.at(anchor).rightSibling?.type === 'placeholder'
       ) {
         mathfield.model.setSelection(anchor, anchor + 1);
+        dirty = 'selection';
       } else {
         mathfield.model.position = anchor;
-        acceptCommandSuggestion(mathfield.model);
+        if (acceptCommandSuggestion(mathfield.model)) {
+          dirty = 'all';
+        } else {
+          dirty = 'selection';
+        }
       }
-
-      // The selection has changed, so we'll need to re-render
-      dirty = true;
 
       // Reset any user-specified style
       mathfield.style = {};
@@ -206,6 +222,7 @@ export function onPointerDown(
           mathfield.model.selection = {
             ranges: [[0, mathfield.model.lastOffset]],
           };
+          dirty = 'all';
         }
       } else if (!trackingPointer) {
         trackingPointer = true;
@@ -234,6 +251,7 @@ export function onPointerDown(
           // This is a double-click
           trackingWords = true;
           selectGroup(mathfield.model);
+          dirty = 'all';
         }
       }
     }
@@ -241,8 +259,13 @@ export function onPointerDown(
     gLastTap = null;
   }
 
-  if (dirty) {
-    requestUpdate(mathfield);
+  if (dirty !== 'none') {
+    if (mathfield.model.selectionIsCollapsed) dirty = 'all';
+    if (dirty === 'all') {
+      requestUpdate(mathfield);
+    } else {
+      renderSelection(mathfield);
+    }
   }
 
   // Prevent the browser from handling. In particular when this is a
@@ -258,15 +281,18 @@ function distance(x: number, y: number, r: Rect): number {
 
 function nearestAtomFromPointRecursive(
   mathfield: MathfieldPrivate,
+  cache: Map<string, [distance: number, atom: Atom | null]>,
   atom: Atom,
   x: number,
   y: number
-): { distance: number; atom: Atom } {
-  let result = { distance: Infinity, atom: null };
+): [distance: number, atom: Atom | null] {
+  if (!atom.id) return [Infinity, null];
+  if (cache.has(atom.id)) return cache.get(atom.id);
+
+  let result: [distance: number, atom: Atom | null] = [Infinity, null];
 
   const bounds = getAtomBounds(mathfield, atom);
   if (!bounds) return result;
-
   //
   // 1. Consider any children within the horizontal bounds
   //
@@ -277,19 +303,18 @@ function nearestAtomFromPointRecursive(
     atom.hasChildren
   ) {
     for (const child of atom.children) {
-      const r = nearestAtomFromPointRecursive(mathfield, child, x, y);
-      if (r.distance < result.distance) result = r;
+      const r = nearestAtomFromPointRecursive(mathfield, cache, child, x, y);
+      if (r[0] < result[0]) result = r;
     }
   }
 
   //
   // 2. If no children matched, this atom matches
   //
-  if (!result.atom) {
-    result.atom = atom;
-    result.distance = distance(x, y, bounds);
+  if (!result[1]) {
+    result = [distance(x, y, bounds), atom];
   }
-
+  cache.set(atom.id, result);
   return result;
 }
 
@@ -298,8 +323,13 @@ function nearestAtomFromPoint(
   x: number,
   y: number
 ): Atom {
-  return nearestAtomFromPointRecursive(mathfield, mathfield.model.root, x, y)
-    .atom;
+  return nearestAtomFromPointRecursive(
+    mathfield,
+    new Map(),
+    mathfield.model.root,
+    x,
+    y
+  )[1];
 }
 
 /**

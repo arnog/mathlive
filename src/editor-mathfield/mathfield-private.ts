@@ -915,8 +915,11 @@ export class MathfieldPrivate implements Mathfield {
     } else {
       const selectionBounds = getSelectionBounds(this);
       if (selectionBounds.length > 0) {
-        caretPoint =
-          selectionBounds[0].right + fieldBounds.left - this.field.scrollLeft;
+        let maxRight = -Infinity;
+        for (const r of selectionBounds) {
+          if (r.right > maxRight) maxRight = r.right;
+        }
+        caretPoint = maxRight + fieldBounds.left - this.field.scrollLeft;
       }
     }
 
