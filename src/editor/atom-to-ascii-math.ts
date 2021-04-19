@@ -3,6 +3,7 @@ import { isArray } from '../common/types';
 import type { Atom } from '../core/atom';
 import { GenfracAtom } from '../core-atoms/genfrac';
 import { LeftRightAtom } from '../core-atoms/leftright';
+import { ArrayAtom } from '../core-atoms/array';
 
 const SPECIAL_IDENTIFIERS = {
   '\u2212': '-', // MINUS SIGN
@@ -117,9 +118,6 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
     case 'group':
     case 'root':
       result = atomToAsciiMath(atom.body);
-      break;
-
-    case 'array':
       break;
 
     case 'genfrac':
@@ -245,7 +243,30 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
             : atom.value ?? command;
         result += ' ';
       }
+      break;
 
+    case 'array':
+      const array = (atom as ArrayAtom).array;
+      const environment = (atom as ArrayAtom).environmentName;
+      const rowDelim = {
+        'bmatrix': ['[', ']'],
+        'bmatrix*': ['[', ']'],
+      }[environment] ?? ['(', ')'];
+      const rows = [];
+      for (const row of array) {
+        const cells = [];
+        for (const cell of row) {
+          cells.push(rowDelim[0] + atomToAsciiMath(cell) + rowDelim[1]);
+        }
+        rows.push(cells.join(','));
+      }
+
+      const delim = {
+        'bmatrix': ['[', ']'],
+        'bmatrix*': ['[', ']'],
+        'cases': ['{', ':}'],
+      }[environment] ?? ['(', ')'];
+      result = delim[0] + rows.join(',') + delim[1];
       break;
 
     case 'box':
@@ -260,21 +281,23 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
     case 'space':
       result = ' ';
       break;
+
+    case 'msubsup':
+    case 'first':
+      return '';
   }
 
   // Subscripts before superscripts (according to the ASCIIMath spec)
   if (!atom.hasEmptyBranch('subscript')) {
     result += '_';
     const arg = atomToAsciiMath(atom.subscript);
-    result +=
-      arg.length > 1 && !/^(-)?\d+(\.\d*)?$/.test(arg) ? '(' + arg + ')' : arg;
+    result += arg.length > 1 ? '(' + arg + ')' : arg;
   }
 
   if (!atom.hasEmptyBranch('superscript')) {
     result += '^';
     const arg = atomToAsciiMath(atom.superscript);
-    result +=
-      arg.length > 1 && !/^(-)?\d+(\.\d*)?$/.test(arg) ? '(' + arg + ')' : arg;
+    result += arg.length > 1 ? '(' + arg + ')' : arg;
   }
 
   return result;

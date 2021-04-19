@@ -5,10 +5,11 @@
 - In many cases, the layout of the formula is closer to the TeX layout.
 - Improved performance of hit testing, selection tracking and selection
   rendering for complex formulas.
+- More efficient rendering by generating simpler markup in some cases.
 - Dropped `woff` fonts. This change should be transparent, as all supported
   browsers support `woff2` at this point.
 - Apply sizing commands (e.g. `\Huge`) to math mode. TeX is inconsistent in how
-  it handles those, we chose to apply them uniformly as this seems useful.
+  it handles those, we chose to apply them in math mode as this seems useful.
 
 ### New Features
 
@@ -42,6 +43,11 @@
 - In the virtual keyboard, some keycaps in the greek keyboard were displayed
   with the system font instead of the TeX font.
 - The selection rectangle for `\int` now accounts for the slant of the symbol
+- When using `convertLatexToMarkup()` or `renderMathInDocument()` properly wrap
+  the generated atoms in a root atom. Without it, some atoms render differently
+  in static mode than in interative mode.
+- **#654** Added ASCII Math output for tabular environments (array, matrix,
+  etc...)
 
 ## 0.60.1 (2021-04-13)
 
