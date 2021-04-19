@@ -61,18 +61,6 @@
         delay the generation of click events when the user taps the screen." */
     touch-action: none;
     width: 100%;
-
-    --hue: 212;
-    // --highlight: hsl(var(--hue, 212), 97%, 85%);
-    // --highlight: Highlight;         // Highlight color defined in https://www.w3.org/TR/REC-CSS2/ui.html
-    //                                 // It has been deprectated in https://www.w3.org/TR/css-color-3/ :(
-    // --on-highlight: HighlightText;
-    // --caret: hsl(var(--hue, 212), 40%, 49%);
-    // --highlight-inactive: #ccc;
-    // --primary: hsl(var(--hue, 212), 40%, 50%);
-
-    --secondary: hsl(var(--hue, 212), 19%, 26%);
-    --on-secondary: hsl(var(--hue, 212), 19%, 26%);
 }
 
 /* This is the actual field content (formula) */
@@ -81,7 +69,7 @@
     position: relative;
     overflow: hidden;
     line-height: 0;
-    padding: 2px;
+    padding: 2px 0 2px 0;
     width: 100%;
 }
 
