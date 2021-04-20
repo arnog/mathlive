@@ -1,156 +1,161 @@
 @monospace: 'IBM Plex Mono', 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
-    'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
+  'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
 
 @system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
 
 @keyframes ML__caret-blink {
-    0%,
-    100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0;
-    }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .ML__caret:after {
-    content: '';
-    border: none;
-    border-radius: 2px;
-    border-right: 2px solid var(--caret, hsl(var(--hue, 212), 40%, 49%));
-    margin-right: -2px;
-    position: relative;
-    left: -1px;
+  content: '';
+  border: none;
+  border-radius: 2px;
+  border-right: 2px solid var(--caret, hsl(var(--hue, 212), 40%, 49%));
+  margin-right: -2px;
+  position: relative;
+  left: -1px;
 
-    animation: ML__caret-blink 1.05s step-end forwards infinite;
+  animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
 .ML__text-caret:after {
-    content: '';
-    border: none;
-    border-radius: 1px;
-    border-right: 1px solid var(--caret, hsl(var(--hue, 212), 40%, 49%));
-    margin-right: -1px;
-    position: relative;
-    left: 0;
+  content: '';
+  border: none;
+  border-radius: 1px;
+  border-right: 1px solid var(--caret, hsl(var(--hue, 212), 40%, 49%));
+  margin-right: -1px;
+  position: relative;
+  left: 0;
 
-    animation: ML__caret-blink 1.05s step-end forwards infinite;
+  animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
 .ML__latex-caret:after {
-    content: '_';
-    border: none;
-    margin-right: 0;
-    margin-right: calc(-1ex - 2px);
-    position: relative;
-    color: var(--caret, hsl(var(--hue, 212), 40%, 49%));
-    animation: ML__caret-blink 1.05s step-end forwards infinite;
+  content: '_';
+  border: none;
+  margin-right: 0;
+  margin-right: calc(-1ex - 2px);
+  position: relative;
+  color: var(--caret, hsl(var(--hue, 212), 40%, 49%));
+  animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
 .ML__fieldcontainer {
-    display: flex;
-    flex-flow: row;
-    justify-content: space-between;
-    align-items: flex-end;
-    min-height: 39px; /* Need some room for the virtual keyboard toggle */
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  min-height: 39px; /* Need some room for the virtual keyboard toggle */
 
-    /* Prevent the browser from trying to interpret touch gestures in the field */
-    /* "Disabling double-tap to zoom removes the need for browsers to
+  /* Prevent the browser from trying to interpret touch gestures in the field */
+  /* "Disabling double-tap to zoom removes the need for browsers to
         delay the generation of click events when the user taps the screen." */
-    touch-action: none;
-    width: 100%;
+  touch-action: none;
+  width: 100%;
 }
 
 /* This is the actual field content (formula) */
 .ML__fieldcontainer__field {
-    align-self: center;
-    position: relative;
-    overflow: hidden;
-    line-height: 0;
-    padding: 2px 0 2px 0;
-    width: 100%;
+  align-self: center;
+  position: relative;
+  overflow: hidden;
+  line-height: 0;
+  padding: 2px 0 2px 1px;
+  width: 100%;
 }
 
 .ML__virtual-keyboard-toggle {
-    display: none;
-    &.is-visible {
-      display: flex;
-      align-self: center;
-      align-items: center;
-      flex-shrink: 0;
-      flex-direction: column;
-      justify-content: center;
+  display: none;
+  & > span {
+    display: flex;
+    align-self: center;
+    align-items: center;
+  }
+  &.is-visible {
+    display: flex;
+    align-self: center;
+    align-items: center;
+    flex-shrink: 0;
+    flex-direction: column;
+    justify-content: center;
 
-      width: 34px;
-      height: 34px;
-      padding: 0;
-      margin-right: 4px;
-      cursor: pointer;
-      box-sizing: border-box;
-      /* Avoid some weird blinking with :hover */
-      border-radius: 8px;
-      border: 1px solid transparent;
-      transition: background 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
-      color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    margin-right: 4px;
+    cursor: pointer;
+    box-sizing: border-box;
+    /* Avoid some weird blinking with :hover */
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: background 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
+    color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+    fill: currentColor;
+    background: transparent;
+
+    &:hover {
+      background: hsla(0, 0%, 70%, 0.5);
+      color: #333;
       fill: currentColor;
-      background: transparent;
-
-      &:hover {
-          background: hsla(0, 0%, 70%, 0.5);
-          color: #333;
-          fill: currentColor;
-          border-radius: 8px;
-          border: 1px solid rgba(255, 255, 255, .5)
-          // border: 1px solid rgba(255, 255, 255, .9);
-          // box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-          //     0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
-      }
+      border-radius: 8px;
+      // border: 1px solid rgba(255, 255, 255, .5)
+      // border: 1px solid rgba(255, 255, 255, .9);
+      // box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+      //     0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
+  }
 }
 
 /* Style for the invisible textarea element which is used
 to capture keyboard events. We're just trying really hard
 to make sure it doesn't show. */
 .ML__textarea__textarea {
-    transform: scale(0);
-    resize: none;
+  transform: scale(0);
+  resize: none;
 
-    outline: none;
-    border: none;
+  outline: none;
+  border: none;
 
-    /* Need these for Microsoft Edge */
-    position: absolute;
-    clip: rect(0 0 0 0);
-    width: 1px;
-    height: 1px;
-    /*-ms-transform: scale(0);*/
+  /* Need these for Microsoft Edge */
+  position: absolute;
+  clip: rect(0 0 0 0);
+  width: 1px;
+  height: 1px;
+  /*-ms-transform: scale(0);*/
 
-    /* Need this to prevent iOS Safari from auto-zooming */
-    font-size: 1em;
-    font-family: KaTeX_Main;
+  /* Need this to prevent iOS Safari from auto-zooming */
+  font-size: 1em;
+  font-family: KaTeX_Main;
 }
 
 .ML__focused .ML__text {
-    background: hsla(var(--hue, 212), 40%, 50%, 0.1);
+  background: hsla(var(--hue, 212), 40%, 50%, 0.1);
 }
 
 /* When using smartFence, the anticipated closing fence is displayed
 with this style */
 .ML__smart-fence__close {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 .ML__selection {
-    background: var(--highlight-inactive, #ccc);
-    box-sizing: border-box;
+  background: var(--highlight-inactive, #ccc);
+  box-sizing: border-box;
 }
 
 .ML__focused .ML__selection {
-    background: var(--highlight, hsl(var(--hue, 212), 97%, 85%) ;) !important;
-    color: var(--on-highlight);
-    // display:inline-block;
+  background: var(--highlight, hsl(var(--hue, 212), 97%, 85%) ;) !important;
+  color: var(--on-highlight);
+  // display:inline-block;
 }
 
 .ML__contains-caret.ML__close,
@@ -159,56 +164,57 @@ with this style */
 .ML__contains-caret > .ML__open,
 .sqrt.ML__contains-caret > .sqrt-sign,
 .sqrt.ML__contains-caret > .vlist > span > .sqrt-line {
-    color: var(--caret, hsl(var(--hue, 212), 40%, 49%));
+  color: var(--caret, hsl(var(--hue, 212), 40%, 49%));
 }
 
 .ML__latex {
-    font-family: @monospace;
-    font-weight: 400;
+  font-family: @monospace;
+  font-weight: 400;
 
-    color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+  color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
 :not(.ML__latex) + .ML__latex {
-    margin-left: 0.25em;
+  margin-left: 0.25em;
 }
 
 .ML__latex + :not(.ML__latex) {
-    padding-left: 0.25em;
+  padding-left: 0.25em;
 }
 
 .ML__suggestion {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
-.ML__virtual-keyboard-toggle.pressed {
-    background: hsl(var(--hue, 212), 25%, 35%);
-    color: #fafafa;
-    fill: currentColor;
+.ML__virtual-keyboard-toggle.is-visible.pressed:hover {
+  background: hsl(var(--hue, 212), 25%, 35%);
+  color: #fafafa;
+  fill: currentColor;
 }
 
 .ML__virtual-keyboard-toggle:focus {
-    outline: none;
-    border-radius: 8px;
-    border: 2px solid var(--primary, hsl(var(--hue, 212), 40%, 50%));
+  outline: none;
+  border-radius: 8px;
+  border: 2px solid var(--primary, hsl(var(--hue, 212), 40%, 50%));
 }
 
+.ML__virtual-keyboard-toggle.pressed,
 .ML__virtual-keyboard-toggle.active:hover,
 .ML__virtual-keyboard-toggle.active {
-    background: hsl(var(--hue, 212), 25%, 35%);
-    color: #fafafa;
-    fill: currentColor;
+  background: hsl(var(--hue, 212), 25%, 35%);
+  color: #fafafa;
+  fill: currentColor;
 }
 
 /* Styling for an element which is overlaid
 to the left and right of the mathfield while
 scrolling to prevent the capture of hover events */
 .ML__scroller {
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    height: 100vh;
-    width: 200px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  height: 100vh;
+  width: 200px;
 }
 
 /* Add an attribute 'data-ML__tooltip' to automatically show a
@@ -218,64 +224,64 @@ scrolling to prevent the capture of hover events */
    Use 'data-delay' to delay the triggering of the tooltip.
 */
 [data-ML__tooltip] {
-    position: relative;
-    &[data-placement='top']::after {
-        top: inherit;
-        bottom: 100%;
+  position: relative;
+  &[data-placement='top']::after {
+    top: inherit;
+    bottom: 100%;
+  }
+  &::after {
+    position: absolute;
+    display: none;
+    content: attr(data-ML__tooltip);
+
+    top: 110%;
+    // left: -50%;
+    // height: 22px;
+    width: max-content;
+    max-width: 200px;
+    padding: 8px 8px;
+    background: #616161; // Grey 700
+    color: #fff;
+    text-align: center;
+    z-index: 2;
+
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12),
+      0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+
+    font-family: @system;
+    font-weight: 400;
+    font-size: 12px;
+
+    /* Phone */
+    @media only screen and (max-width: 767px) {
+      padding: 8px 16px;
+      font-size: 14px;
     }
-    &::after {
-        position: absolute;
-        display: none;
-        content: attr(data-ML__tooltip);
 
-        top: 110%;
-        // left: -50%;
-        // height: 22px;
-        width: max-content;
-        max-width: 200px;
-        padding: 8px 8px;
-        background: #616161; // Grey 700
-        color: #fff;
-        text-align: center;
-        z-index: 2;
-
-        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-            0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
-        border-radius: 2px;
-
-        font-family: @system;
-        font-weight: 400;
-        font-size: 12px;
-
-        /* Phone */
-        @media only screen and (max-width: 767px) {
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-
-        opacity: 0;
-        transform: scale(0.5);
-        // animation: .150s tooltipFadeOut cubic-bezier(0.4, 0.0, 1, 1) forwards;
-        transition: all 0.15s cubic-bezier(0.4, 0, 1, 1);
-    }
+    opacity: 0;
+    transform: scale(0.5);
+    // animation: .150s tooltipFadeOut cubic-bezier(0.4, 0.0, 1, 1) forwards;
+    transition: all 0.15s cubic-bezier(0.4, 0, 1, 1);
+  }
 }
 
 :not(.tracking) [data-ML__tooltip]:hover {
-    position: relative;
-    &::after {
-        visibility: visible; // Visible triggers the animation...
-        display: inline-table;
-        opacity: 1; // ... but we start fully transparent to
-        // give ourselves a delay before showing
-        transform: scale(1);
-    }
+  position: relative;
+  &::after {
+    visibility: visible; // Visible triggers the animation...
+    display: inline-table;
+    opacity: 1; // ... but we start fully transparent to
+    // give ourselves a delay before showing
+    transform: scale(1);
+  }
 }
 
 [data-ML__tooltip][data-delay]::after {
-    // On fade out, we don't want a delay
-    transition-delay: 0s;
+  // On fade out, we don't want a delay
+  transition-delay: 0s;
 }
 [data-ML__tooltip][data-delay]:hover::after {
-    // But we do want a delay on fade in
-    transition-delay: 1s; /* attr(data-delay); Should work. But doesn't. */
+  // But we do want a delay on fade in
+  transition-delay: 1s; /* attr(data-delay); Should work. But doesn't. */
 }
