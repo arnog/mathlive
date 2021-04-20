@@ -1,4 +1,4 @@
-import { makeStruts, Span } from '../core/span';
+import { makeStruts } from '../core/span';
 import { MATHSTYLES } from '../core/mathstyle';
 
 import { Rect, getSelectionBounds, isValidMathfield } from './utils';
