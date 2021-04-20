@@ -289,10 +289,13 @@ function nearestAtomFromPointRecursive(
   if (!atom.id) return [Infinity, null];
   if (cache.has(atom.id)) return cache.get(atom.id);
 
-  let result: [distance: number, atom: Atom | null] = [Infinity, null];
-
   const bounds = getAtomBounds(mathfield, atom);
-  if (!bounds) return result;
+  if (!bounds) return [Infinity, null];
+
+  let result: [distance: number, atom: Atom | null] = [
+    distance(x, y, bounds),
+    atom,
+  ];
   //
   // 1. Consider any children within the horizontal bounds
   //

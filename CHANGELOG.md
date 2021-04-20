@@ -9,7 +9,7 @@
 - Dropped `woff` fonts. This change should be transparent, as all supported
   browsers support `woff2` at this point.
 - Apply sizing commands (e.g. `\Huge`) to math mode. TeX is inconsistent in how
-  it handles those, we chose to apply them in math mode as this seems useful.
+  it handles those. We choose to always apply them in math mode.
 
 ### New Features
 
@@ -19,7 +19,7 @@
   Contributed by Dominik Janković (https://github.com/djankovic). Thanks,
   Dominik!
 - Simplified the specification of virtual keyboards: the `keycap` class no
-  longer need to be specified for each keycap.
+  longer needs to be specified for each keycap.
 
 ### Bug Fixes
 
@@ -27,27 +27,35 @@
 - Ignore commands that are only applicable in some modes when they are used in
   an incorrect mode.
 - Fixed styling of some characters, such as the ones from `\cdot`. The incorrect
-  styling resulting in incorrect measurement and vertical layout of some
+  styling resulted in incorrect measurement and vertical layout of some
   characters.
 - Fixed rendering of `\ne`, `\neq` and `\not`.
 - When using `renderMathInElement()` or `renderMathInDocument()` do not
   duplicate the accessible node.
-- Correctly display e^x and d/dx in `functions` virtual keyboard
+- Correctly display `e^x` and `d/dx` in the `functions` virtual keyboard
 - Ensure the correct spacing around fractions.
-- In Safari, the fonts would not load.
+- In Safari, the fonts would not load. This was a regression due to a change in
+  the behavior of the API to test if a font is loaded. Safari lies and always
+  answer yes (to prevent fingerprinting).
 - Correctly parse the `\displaystyle`, `\textstyle`, `\scriptstyle` and
   `\scriptscriptstyle` commands: they apply to the commands to their right.
+- In a tabular environment (matrix, etc...) `\displaystyle` applies to the
+  current cell only (not the whole array).
 - Moving forward in a group with the `skipBoundary` flag would not skip it.
 - In a sequence of atoms with `skipBoundary`, only the first one would be
   skipped.
 - In the virtual keyboard, some keycaps in the greek keyboard were displayed
   with the system font instead of the TeX font.
-- The selection rectangle for `\int` now accounts for the slant of the symbol
+- The selection rectangle for `\int` now accounts for the slant of the symbol.
 - When using `convertLatexToMarkup()` or `renderMathInDocument()` properly wrap
   the generated atoms in a root atom. Without it, some atoms render differently
-  in static mode than in interative mode.
+  in static mode than in interactive mode.
 - **#654** Added ASCII Math output for tabular environments (array, matrix,
   etc...)
+- If the basefont of the mathfield was large (>48px) the virtual keyboard toggle
+  button would not be vertically centered in the field.
+- Correctly layout superscripts after `\overset` (they are adjacent, not over,
+  unlike `\overbrace`).
 
 ## 0.60.1 (2021-04-13)
 

@@ -64,7 +64,6 @@ interface Metrics {
   delim1: number;
   delim2: number;
   axisHeight: number;
-  emPerEx?: number;
 } // @revisit: belongs in ./font-metrics
 
 // IDs of the different MATHSTYLES
@@ -105,7 +104,6 @@ export class Mathstyle {
     this.metrics = Object.keys(SIGMAS).reduce((acc, x) => {
       return { ...acc, [x]: SIGMAS[x][sizeIndex] };
     }, {}) as Metrics;
-    this.metrics.emPerEx = SIGMAS.xHeight[sizeIndex] / SIGMAS.quad[sizeIndex];
   }
 
   /**

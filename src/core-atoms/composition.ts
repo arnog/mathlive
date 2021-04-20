@@ -12,7 +12,7 @@ export class CompositionAtom extends Atom {
     return {};
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     // In theory one would like to be able to draw the clauses
     // in an active composition. Unfortunately, there are
     // no API to give access to those clauses :(
@@ -22,7 +22,7 @@ export class CompositionAtom extends Atom {
     });
     this.bind(context, result);
     if (this.caret) result.caret = this.caret;
-    return [result];
+    return result;
   }
 
   toLatex(_options: ToLatexOptions): string {

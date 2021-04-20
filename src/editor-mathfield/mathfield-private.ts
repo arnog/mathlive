@@ -810,7 +810,7 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     let mode: ParseMode = 'math';
-    if (!options.mode || options.mode === 'auto') {
+    if (options.mode === undefined || options.mode === 'auto') {
       mode = getMode(this.model, this.model.position);
     }
 

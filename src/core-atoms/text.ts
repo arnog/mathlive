@@ -12,10 +12,10 @@ export class TextAtom extends Atom {
     this.applyStyle(style);
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const result = this.makeSpan(context, this.value);
     if (this.caret) result.caret = this.caret;
-    return [result];
+    return result;
   }
 
   toLatex(_options: ToLatexOptions): string {

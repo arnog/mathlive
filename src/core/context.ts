@@ -1,4 +1,4 @@
-import { MacroDictionary, ParseMode } from '../public/core';
+import { FontSize, MacroDictionary, ParseMode } from '../public/core';
 import { Mathstyle, MATHSTYLES } from './mathstyle';
 import { Span } from './span';
 
@@ -12,22 +12,12 @@ export type ArgumentType =
       | 'delim'
       | 'dimen' // `'25mu'`, `'2pt'`
       | 'number' // `+/-12.56`
+      | 'rest' // `{\foo \textsize ...}` to capture "..."
       | 'skip' // `'25mu plus 2em minus fiLll'`, `'2pt'`
       | 'string' // Delimiter is a non-literal token (e.g. `<}>` `<$>`, etc
       | 'balanced-string' // Delimiter is a balanced closing brace
     );
 
-export type FontSize =
-  | 'size1'
-  | 'size2'
-  | 'size3'
-  | 'size4'
-  | 'size5'
-  | 'size6'
-  | 'size7'
-  | 'size8'
-  | 'size9'
-  | 'size10';
 export interface ContextInterface {
   macros?: MacroDictionary;
   atomIdsSettings?: {
@@ -37,7 +27,7 @@ export interface ContextInterface {
   };
   mathstyle?: Mathstyle;
   parentMathstyle?: Mathstyle;
-  size?: FontSize;
+  size?: FontSize | 'auto';
   parentSize?: FontSize;
   letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
   opacity?: number;
@@ -102,7 +92,11 @@ export class Context implements ContextInterface {
 
     this.letterShapeStyle = from.letterShapeStyle ?? 'tex';
 
-    this.size = from.size ?? 'size5'; // Medium size
+    if (from.size === 'auto') {
+      this.size = 'size5';
+    } else {
+      this.size = from.size ?? 'size5'; // Medium size
+    }
 
     this.parentMathstyle = from.parentMathstyle ?? this.mathstyle;
     this.parentSize = from.parentSize ?? this.size;
@@ -145,7 +139,6 @@ export class Context implements ContextInterface {
         result.mathstyle = this.mathstyle;
       } else {
         result.parentMathstyle = this.mathstyle;
-        result.parentSize = this.size;
         if (typeof override.mathstyle === 'string') {
           result.mathstyle = MATHSTYLES[override.mathstyle];
         }
@@ -165,6 +158,10 @@ export class Context implements ContextInterface {
     if (value && value !== 'auto') {
       this.mathstyle = MATHSTYLES[value];
     }
+  }
+
+  withFontsize(size: FontSize | 'auto'): Context {
+    return this.clone({ size: size === 'auto' ? 'size5' : size });
   }
 
   cramp(): Context {

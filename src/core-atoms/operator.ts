@@ -11,6 +11,7 @@ import { joinLatex } from '../core/tokenizer';
 export class OperatorAtom extends Atom {
   private readonly variant: Variant;
   private readonly variantStyle: VariantStyle;
+
   constructor(
     command: string,
     symbol: string | Atom[],
@@ -23,14 +24,13 @@ export class OperatorAtom extends Atom {
       // content of this atom, but not propagated to the next atom
       variant?: Variant;
       variantStyle?: VariantStyle;
-      limits?: 'limits' | 'nolimits' | 'accent' | 'overunder' | 'auto';
+      limits?: 'auto' | 'over-under' | 'adjacent';
       style?: Style;
     }
   ) {
     super(options.type ?? 'mop', {
       command,
       style: options.style,
-      isExtensibleSymbol: options?.isExtensibleSymbol,
       isFunction: options?.isFunction,
     });
     if (typeof symbol === 'string') {
@@ -42,10 +42,11 @@ export class OperatorAtom extends Atom {
     this.captureSelection = options.captureSelection;
     this.variant = options?.variant;
     this.variantStyle = options?.variantStyle;
-    this.limits = options?.limits;
+    this.subsupPlacement = options?.limits;
+    this.isExtensibleSymbol = options?.isExtensibleSymbol ?? false;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const { mathstyle } = context;
     let base: Span;
     let baseShift = 0;
@@ -100,9 +101,9 @@ export class OperatorAtom extends Atom {
     if (this.isExtensibleSymbol) base.setTop(baseShift);
     let result = base;
     if (this.superscript || this.subscript) {
-      const limits = this.limits ?? 'auto';
+      const limits = this.subsupPlacement ?? 'auto';
       result =
-        limits === 'limits' ||
+        limits === 'over-under' ||
         (limits === 'auto' && mathstyle.size === MATHSTYLES.displaystyle.size)
           ? this.attachLimits(context, base, baseShift, slant)
           : this.attachSupsub(context, base, 'mop');
@@ -112,8 +113,7 @@ export class OperatorAtom extends Atom {
 
     // Bind the generated span with its limits so they
     // can all be selected as one
-    this.bind(context, result);
-    return [result];
+    return this.bind(context, result);
   }
 
   toLatex(options: ToLatexOptions): string {
@@ -127,9 +127,9 @@ export class OperatorAtom extends Atom {
     }
 
     result = joinLatex([result, this.supsubToLatex(options)]);
-    if (this.explicitLimits) {
-      if (this.limits === 'limits') result += '\\limits';
-      if (this.limits === 'nolimits') result += '\\nolimits';
+    if (this.explicitSubsupPlacement) {
+      if (this.subsupPlacement === 'over-under') result += '\\limits';
+      if (this.subsupPlacement === 'adjacent') result += '\\nolimits';
     }
 
     return result;

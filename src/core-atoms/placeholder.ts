@@ -13,12 +13,10 @@ export class PlaceholderAtom extends Atom {
     this.captureSelection = true;
   }
 
-  render(context: Context): Span[] {
-    return [
-      this.makeSpan(context, '⬚', {
-        classes: this.caret ? 'ML__placeholder-selected' : '',
-      }),
-    ];
+  render(context: Context): Span {
+    return this.makeSpan(context, '⬚', {
+      classes: this.caret ? 'ML__placeholder-selected' : '',
+    });
   }
 
   toLatex(_options: ToLatexOptions): string {

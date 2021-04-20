@@ -917,7 +917,5 @@ export function defineFunction(
     createAtom: options.createAtom,
     applyStyle: options.applyStyle,
   };
-  names.forEach((name) => {
-    FUNCTIONS['\\' + name] = data;
-  });
+  for (const name of names) FUNCTIONS['\\' + name] = data;
 }

@@ -28,13 +28,13 @@ export class AccentAtom extends Atom {
 
     this.body = body;
     this.skipBoundary = true;
-    this.limits = 'accent'; // This will suppress the regular
+    // this.limits = 'accent'; // This will suppress the regular
     // supsub attachment and will delegate
     // it to the decomposeAccent
     // (any non-null value would do)
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     // Accents are handled in the TeXbook pg. 443, rule 12.
     const { mathstyle } = context;
     // Build the base atom
@@ -81,6 +81,6 @@ export class AccentAtom extends Atom {
     accentBody.children[accentBody.children.length - 1].left = 2 * skew;
     const result = new Span(accentBody, { classes: 'accent', type: 'mord' });
     if (this.caret) result.caret = this.caret;
-    return [this.attachSupsub(context, result, result.type)];
+    return this.attachSupsub(context, result, result.type);
   }
 }

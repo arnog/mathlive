@@ -409,7 +409,10 @@ function scanOperator(stream, final, options) {
   } else if (stream.index < final && atom.type === 'mop') {
     // MathML += '<mrow>';
 
-    if (atom.limits === 'limits' && (atom.superscript || atom.subscript)) {
+    if (
+      atom.subsupPlacement === 'over-under' &&
+      (atom.superscript || atom.subscript)
+    ) {
       // Operator with limits, e.g. \sum
       const op = toMo(atom, options);
       if (atom.superscript && atom.subscript) {

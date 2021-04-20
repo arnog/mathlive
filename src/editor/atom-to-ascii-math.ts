@@ -115,6 +115,8 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
   let m;
 
   switch (atom.type) {
+    case 'first':
+      return '';
     case 'group':
     case 'root':
       result = atomToAsciiMath(atom.body);
@@ -283,8 +285,8 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
       break;
 
     case 'msubsup':
-    case 'first':
-      return '';
+      result = '';
+      break;
   }
 
   // Subscripts before superscripts (according to the ASCIIMath spec)

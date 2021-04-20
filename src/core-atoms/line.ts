@@ -18,7 +18,7 @@ export class LineAtom extends Atom {
     this.position = options.position;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const { mathstyle } = context;
     // TeXBook:443. Rule 9 and 10
     const inner = new Span(Atom.render(context.cramp(), this.body));
@@ -46,6 +46,6 @@ export class LineAtom extends Atom {
     }
 
     if (this.caret) vlist.caret = this.caret;
-    return [new Span(vlist, { classes: this.position, type: 'mord' })];
+    return new Span(vlist, { classes: this.position, type: 'mord' });
   }
 }

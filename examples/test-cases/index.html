@@ -10,152 +10,46 @@
 
     <!-- <link rel="stylesheet" href="/dist/mathlive-static.css" /> -->
     <style>
-        code {
-            white-space: pre-wrap;
-        }
+      math-field {
+        font-size: 48px;
+      }
+      math-field:not(:defined) {
+          display: none;
+      }
+      code {
+          white-space: pre-wrap;
+      }
 
-        h2 {
-            font-size: 1em;
-            padding: 0;
-            margin: 0;
-            color: #666;
-        }
+      h2 {
+          font-size: 1em;
+          padding: 0;
+          margin: 0;
+          color: #666;
+      }
 
 
-        #mathfield-container {
-            padding: 8px;
-            min-width: 50px;
-            border: 1px solid #ddd;
-        }
+      #mathfield-container {
+          padding: 8px;
+          min-width: 50px;
+          border: 1px solid #ddd;
+      }
 
-        #ta {
-            font-size: 1.5em;
-            font-weight: 700;
-        }
+      #ta {
+          font-size: 1.5em;
+          font-weight: 700;
+      }
 
-        .hidden {
-            display: none;
-        }
+      #find-input , #replace-input{
+        width: 320px;
+      }
 
-        .label {
-            font-weight: 700;
-        }
+      .hidden {
+          display: none;
+      }
 
-        .popup-menu {
-            width: auto;
-            border-radius: 8px;
-            background: #e2e2e2;
-            box-shadow: 0 0 2px rgba(0, 0, 0, .5), 0 0 20px rgba(0, 0, 0, .2)
-        }
-
-        .popup-menu ul {
-            list-style: none;
-            padding: 6px 0 6px 0;
-            margin: 0;
-            cursor: initial;
-            user-select: none;
-        }
-
-        .popup-menu ul li {
-            display: flex;
-            flex-flow: column;
-            align-items: baseline;
-            padding: 1px 7px 1px 7px;
-            margin-top: 0;
-            margin-left: 6px;
-            margin-right: 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-            position: relative;
-        }
-
-        .popup-menu ul li button {
-            appearance: none;
-            background: none;
-            outline: none;
-            width: 100%;
-            margin: 0;
-            padding: 1px 2px 1px 1px;
-            text-align: left;
-            color: inherit;
-            overflow: visible;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            border: 1px solid transparent;
-            white-space: nowrap;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            font-size: 13px;
-            line-height: 16px;
-            letter-spacing: 0.007em;
-        }
-
-        .popup-menu li[role=separator] {
-            border-bottom: 1px solid #c7c7c7;
-            border-radius: 0;
-            padding: 0;
-            margin-left: 15px;
-            margin-right: 15px;
-            padding-top: 5px;
-            margin-bottom: 5px;
-        }
-
-        .popup-menu ul li.disabled {
-            opacity: .5;
-        }
-
-        .popup-menu ul li[role=separator]:hover {
-            background: transparent;
-        }
-
-        .popup-menu ul li:hover {
-            background: #5898ff;
-        }
-
-        .popup-menu ul li.disabled:hover {
-            background: transparent;
-        }
-
-        .popup-menu ul li:hover>button {
-            color: white;
-        }
-
-        .popup-menu ul li.disabled:hover button {
-            color: inherit;
-        }
-
-        .popup-menu ul li ul {
-            display: none;
-        }
-
-        .popup-menu ul li:hover ul,
-        .submenu ul:hover {
-            display: block;
-            z-index: 10000;
-        }
-
-        .submenu>button {
-            padding-right: 0;
-        }
-
-        .submenu>button::after {
-            content: "〉";
-
-            font-weight: 900;
-            margin-left: 24px;
-        }
-
-        .submenu ul {
-            position: absolute;
-            width: auto;
-            border-radius: 8px;
-            border: 1px solid #c1c1c1;
-            background: #e2e2e2;
-            box-shadow: 0 0 20px rgba(0, 0, 0, .2);
-            left: calc(100% - 8px);
-            top: -4px;
-        }
+      .label {
+          font-weight: 700;
+      }
     </style>
 </head>
 
@@ -168,10 +62,30 @@
       <math-field 
         id=mf 
         tabindex="0" 
-        class="mathfield" style="max-width: 400px; width:100%" 
+        class="mathfield" style="max-width: 640px; width:100%" 
         onfocus='console.log("focusing")'
         smart-fence="true"
-        virtual-keyboard-mode="manual">\left(a\middle|b\right)
+        virtual-keyboard-mode="manual">\dbinom{n}{k}
+        <!-- z = \overbrace{\frac12}^\text{complex number} -->
+
+      <!-- z = \overbrace{
+          \underbrace{x}_\text{real} + i
+          \underbrace{y}_\text{imaginary}
+      }^\text{complex number} -->
+      
+      <!-- {}^8 x^2\sum^{5}_{n=0}\left(\frac12\right)^2\int _{x}^{\infty } \sum^{5}_{n=0}\nolimits  \vec{x}^2 \overset{+}{=}^2  \overbrace{xyz}^2      -->
+        
+        <!-- {}^8 x^2\sum^{5}_{n=0}\left(\frac12\right)^2\int _{x}^{\infty } \sum^{5}_{n=0}\nolimits  \vec{x}^2 \overset{+}{=}^2  \overbrace{xyz}^2      -->
+        <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
+        <!-- \binom{1}{2}{\textstyle \binom{3}{4}}{\scriptstyle \binom{5}{6}}{\displaystyle \binom{7}{8}}{\scriptstyle \binom{9}{0}}$$ -->
+
+       <!-- \Huge \overset{\left[\frac00\right]}{\underset{\mathop{H}}{=}} -->
+        <!-- \binom34  \huge \binom56 x \text{huge} -->
+        <!-- $$\boxed{\frac{\frac{1}{2}}{x^{3^x}}}+a=\left[\frac{\frac{1}{2}}{x^{3^x}}\right]$$ -->
+        
+         <!-- $$-\bbox[4em,border: 5px solid red]{\sqrt{\frac{\frac{2}{\frac{3}{\frac{4}{\frac{5}{\frac{6}{\frac{7}{\frac{8}{\frac{9}{\frac{a}{\frac{b}{\frac{x}{\frac{s}{d}}}}}}}}}}}}}{1+x}}}-$$  -->
+
+        <!-- a\ne b - c -->
         <!-- -\begin{bmatrix}2 & 3 \\ 4 \\ 6 & 7 & 8 \\ \end{bmatrix}=0 -->
         <!-- -->
             <!--30\operatorname{cm}^2+4\operatorname{mm}^2-->
@@ -242,10 +156,16 @@
         <div class="output" id="latex"></div>
         <h2>MathASCII</h2>
         <div class="output" id="mathascii"></div>
+        <h2>MathML</h2>
+        <div class="output" id="mathml"></div>
+        <h2>MASTON</h2>
+        <div class="output" id="maston"></div>
     </main>
 
     <script type="module">
         import { convertLatexToMarkup } from '/dist/mathlive.mjs';
+
+      //  console.log( convertLatexToMarkup('\\int _{x}^{\\infty }'));
 
         let gSearchLatex;
 
@@ -411,6 +331,12 @@
                 document.getElementById(
                     'mathascii'
                 ).innerHTML = escapeHtml(mf.getValue('ASCIIMath'));
+                document.getElementById(
+                    'mathml'
+                ).innerHTML = escapeHtml(mf.getValue('mathML'));
+                document.getElementById(
+                    'maston'
+                ).innerHTML = escapeHtml(mf.getValue('json'));
             } catch (e) {
                 console.error("Error converting %c " + latex + '%c ' +
                     e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');

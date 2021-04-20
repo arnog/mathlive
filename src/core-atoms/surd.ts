@@ -1,6 +1,9 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { MATHSTYLES } from '../core/mathstyle';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
+import {
+  METRICS as FONTMETRICS,
+  SIZING_MULTIPLIER,
+} from '../core/font-metrics';
 import { makeVlist, Span } from '../core/span';
 import { Context } from '../core/context';
 
@@ -31,7 +34,7 @@ export class SurdAtom extends Atom {
     return this.command + args;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     // See the TeXbook pg. 443, Rule 11.
     // http://www.ctex.org/documents/shredder/src/texbook.pdf
     const { mathstyle } = context;
@@ -46,14 +49,17 @@ export class SurdAtom extends Atom {
       phi = mathstyle.metrics.xHeight;
     }
 
+    const factor = SIZING_MULTIPLIER[this.style.fontSize] ?? 1;
+
     // Calculate the clearance between the body and line
-    let lineClearance = ruleWidth + phi / 4;
+    let lineClearance = factor * (ruleWidth + phi / 4);
     const innerTotalHeight = Math.max(
-      2 * phi,
-      (inner.height + inner.depth) * mathstyle.sizeMultiplier
+      factor * 2 * phi,
+      inner.height + inner.depth
     );
     const minDelimiterHeight = innerTotalHeight + (lineClearance + ruleWidth);
 
+    const delimContext = context.withFontsize(this.style?.fontSize ?? 'size5');
     // Create a \surd delimiter of the required minimum size
     const delim = this.bind(
       context,
@@ -63,7 +69,7 @@ export class SurdAtom extends Atom {
           '\\surd',
           minDelimiterHeight,
           false,
-          context
+          delimContext
         ),
         { classes: 'sqrt-sign', mode: this.mode, style: this.style }
       )
@@ -102,7 +108,7 @@ export class SurdAtom extends Atom {
         type: 'mord',
       });
       if (this.caret) result.caret = this.caret;
-      return [this.bind(context, result)];
+      return this.bind(context, result);
     }
 
     // Handle the optional root index
@@ -137,6 +143,6 @@ export class SurdAtom extends Atom {
     result.height = delim.height;
     result.depth = delim.depth;
     if (this.caret) result.caret = this.caret;
-    return [this.bind(context, result)];
+    return this.bind(context, result);
   }
 }

@@ -63,7 +63,7 @@ export class LeftRightAtom extends Atom {
     return joinLatex(segments);
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     if (!this.body) {
       // No body, only a delimiter
       if (this.leftDelim) {
@@ -80,8 +80,10 @@ export class LeftRightAtom extends Atom {
     // The scope of the context is this group, so make a copy of it
     // so that any changes to it will be discarded when finished
     // with this group.
-    const localContext = context.clone();
-    const inner = Atom.render(localContext, this.body);
+    const inner = Atom.render(context.clone(), this.body);
+    const localContext = context.clone({
+      size: this.style?.fontSize ?? 'size5',
+    });
     const { mathstyle } = localContext;
     let spans: Span[] = [];
     // Calculate its height and depth
@@ -90,6 +92,7 @@ export class LeftRightAtom extends Atom {
     // a group, we scale down the inner size based on the size.
     const innerHeight = spanHeight(inner) * mathstyle.sizeMultiplier;
     const innerDepth = spanDepth(inner) * mathstyle.sizeMultiplier;
+
     // Add the left delimiter to the beginning of the expression
     if (this.leftDelim) {
       spans.push(
@@ -142,25 +145,26 @@ export class LeftRightAtom extends Atom {
       if (delim === '?') {
         if (context.smartFence) {
           // Use a placeholder delimiter matching the open delimiter
-          delim = {
-            '(': ')',
-            '\\{': '\\}',
-            '\\lbrace': '\\rbrace',
-            '\\langle': '\\rangle',
-            '\\lfloor': '\\rfloor',
-            '\\lceil': '\\rceil',
-            '\\vert': '\\vert',
-            '\\lvert': '\\rvert',
-            '\\Vert': '\\Vert',
-            '\\lVert': '\\rVert',
-            '\\lbrack': '\\rbrack',
-            '\\ulcorner': '\\urcorner',
-            '\\llcorner': '\\lrcorner',
-            '\\lgroup': '\\rgroup',
-            '\\lmoustache': '\\rmoustache',
-          }[this.leftDelim];
-          delim = delim || this.leftDelim;
-          classes += 'ML__smart-fence__close';
+          delim =
+            {
+              '(': ')',
+              '[': '\\rbrack',
+              '\\{': '\\}',
+              '\\lbrace': '\\rbrace',
+              '\\langle': '\\rangle',
+              '\\lfloor': '\\rfloor',
+              '\\lceil': '\\rceil',
+              '\\vert': '\\vert',
+              '\\lvert': '\\rvert',
+              '\\Vert': '\\Vert',
+              '\\lVert': '\\rVert',
+              '\\lbrack': '\\rbrack',
+              '\\ulcorner': '\\urcorner',
+              '\\llcorner': '\\lrcorner',
+              '\\lgroup': '\\rgroup',
+              '\\lmoustache': '\\rmoustache',
+            }[this.leftDelim] ?? this.leftDelim;
+          classes += ' ML__smart-fence__close';
         } else {
           delim = '.';
         }
@@ -197,6 +201,6 @@ export class LeftRightAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return [this.bind(context, result)];
+    return this.bind(context, result);
   }
 }

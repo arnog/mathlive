@@ -29,19 +29,17 @@ export class PhantomAtom extends Atom {
     this.isInvisible = options.isInvisible ?? false;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     if (this.phantomType === 'vphantom') {
       const content = new Span(Atom.render(context, this.body), {
         classes: 'inner',
       });
       content.setStyle('color', 'transparent');
       content.setStyle('backgroundColor', 'transparent');
-      return [
-        new Span([content, new Span(null, { classes: 'fix' })], {
-          classes: 'rlap',
-          type: 'mord',
-        }),
-      ];
+      return new Span([content, new Span(null, { classes: 'fix' })], {
+        classes: 'rlap',
+        type: 'mord',
+      });
     }
 
     if (
@@ -66,9 +64,9 @@ export class PhantomAtom extends Atom {
         content.depth = 0;
       }
 
-      return [new Span(makeVlist(context, [content]), { type: 'mord' })];
+      return new Span(makeVlist(context, [content]), { type: 'mord' });
     }
 
-    return [new Span(Atom.render(context, this.body), { type: 'mord' })];
+    return new Span(Atom.render(context, this.body), { type: 'mord' });
   }
 }

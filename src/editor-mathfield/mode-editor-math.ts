@@ -7,7 +7,7 @@ import { range } from '../editor-model/selection-utils';
 import { ModeEditor } from './mode-editor';
 import { ModelPrivate } from '../editor-model/model-private';
 
-import { Atom, BranchName } from '../core/atom-class';
+import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 
 import { parseMathString } from '../editor/parse-math-string';
@@ -367,19 +367,19 @@ function simplifyParen(atoms: Atom[]): void {
     }
   }
 
-  atoms.forEach((atom) => {
-    atom.branches.forEach((branch: BranchName) => {
+  for (const atom of atoms) {
+    for (const branch of atom.branches) {
       if (!atom.hasEmptyBranch(branch)) {
         simplifyParen(atom.branch(branch));
         const newChildren = removeParen(atom.branch(branch));
         if (newChildren) atom.setChildren(newChildren, branch);
       }
-    });
+    }
 
     if (atom instanceof ArrayAtom) {
-      atom.cells.forEach((x) => simplifyParen(x));
+      for (const x of atom.cells) simplifyParen(x);
     }
-  });
+  }
 }
 
 /**

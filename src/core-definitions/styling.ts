@@ -1,7 +1,7 @@
 import { Argument, defineFunction } from './definitions-utils';
 import { colorToString, stringToColor } from '../core/color';
 import { Atom, BBoxParameter, ToLatexOptions } from '../core/atom-class';
-import { FontShape, FontSeries, Style } from '../public/core';
+import { FontShape, FontSeries, Style, FontSize } from '../public/core';
 import { GroupAtom } from '../core-atoms/group';
 import { BoxAtom } from '../core-atoms/box';
 import { PhantomAtom, PhantomType } from '../core-atoms/phantom';
@@ -141,12 +141,12 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
 
 defineFunction(
   ['displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle'],
-  '{:math*}',
+  '{:rest}',
   {
     createAtom: (name: string, args: Argument[], style: Style): Atom =>
       new GroupAtom(args[0] as Atom[], {
-        latexOpen: `{${name} `,
-        latexClose: '}',
+        latexOpen: `${name} `,
+        latexClose: '',
         style,
         mathStyleName: name.slice(1) as MathStyleName,
       }),
@@ -169,21 +169,23 @@ defineFunction(
   ],
   '',
   {
-    ifMode: 'text',
+    // TeX behaves very inconsistently when sizing commands are applied
+    // to math mode. We allow sizing commands to be applied in both math and
+    // text mode
     applyStyle: (name, _args): Style => {
       return {
         fontSize: {
-          tiny: 'size1',
-          scriptsize: 'size2',
-          footnotesize: 'size3',
-          small: 'size4',
-          normalsize: 'size5',
-          large: 'size6',
-          Large: 'size7',
-          LARGE: 'size8',
-          huge: 'size9',
-          Huge: 'size10',
-        }[name.slice(1)],
+          '\\tiny': 'size1',
+          '\\scriptsize': 'size2',
+          '\\footnotesize': 'size3',
+          '\\small': 'size4',
+          '\\normalsize': 'size5',
+          '\\large': 'size6',
+          '\\Large': 'size7',
+          '\\LARGE': 'size8',
+          '\\huge': 'size9',
+          '\\Huge': 'size10',
+        }[name] as FontSize,
       };
     },
   }
@@ -598,7 +600,7 @@ defineFunction('mathop', '{:auto}', {
     new OperatorAtom(command, args[0] as Atom[], {
       type: 'mop',
       captureSelection: true,
-      limits: 'limits',
+      limits: 'over-under',
       isFunction: true,
       style,
     }),
@@ -640,7 +642,7 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
   createAtom: (name: string, args: Argument[], style: Style): Atom => {
     const result = new OperatorAtom(name, args[0] as Atom[], {
       isFunction: true,
-      limits: name === '\\operatorname' ? 'nolimits' : 'limits',
+      limits: name === '\\operatorname' ? 'adjacent' : 'over-under',
       style,
     });
     result.captureSelection = true; // Do not let children be selected

@@ -1,4 +1,12 @@
-const SVG_BODY: Record<string, [string[], number, number, string?]> = {
+const SVG_BODY: Record<
+  string,
+  [
+    name: string[],
+    minWidth: number,
+    viewBoxHeight: number,
+    align?: 'xMaxYMin' | 'xMinYMin'
+  ]
+> = {
   // Adapted from https://github.com/KaTeX/KaTeX/blob/master/src/stretchy.js
 
   overrightarrow: [['rightarrow'], 0.888, 522, 'xMaxYMin'],
@@ -423,17 +431,15 @@ export function svgBodyToMarkup(svgBodyName: string): string {
   const body = paths
     .map(
       (path: string | number, i: string | number) =>
-        `<span class="${
-          widthClasses[i] as string
-        }" style="height:${height}em">` +
-        `<svg width="400em" height="${height}em"` +
-        `viewBox="0 0 400000 ${viewBoxHeight}"` +
-        `preserveAspectRatio="${aligns[i] as string} slice">` +
+        `<span class="${widthClasses[i] as string}" style=height:${height}em>` +
+        `<svg width=400em height=${height}em ` +
+        `viewBox="0 0 400000 ${viewBoxHeight}" ` +
+        `preserveAspectRatio="${aligns[i]} slice">` +
         `<path d="${PATHS[path]}"></path>` +
         `</svg></span>`
     )
     .join('');
-  return `<span style="height:${height}em;min-width:${minWidth}em;display:inline-block;">${body}</span>`;
+  return `<span style="display:inline-block;height:${height}em;min-width:${minWidth}em;">${body}</span>`;
 }
 
 export function svgBodyHeight(svgBodyName: string): number {

@@ -10,6 +10,7 @@ import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import { MATHSTYLES } from '../core/mathstyle';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
+import { makeNullFence } from '../core/delimiters';
 
 // An `overunder` atom has the following attributes:
 // - body: atoms[]: atoms displayed on the base line
@@ -32,6 +33,7 @@ export class OverunderAtom extends Atom {
       svgAbove?: string;
       svgBelow?: string;
       skipBoundary?: boolean;
+      subsupPlacement?: 'over-under';
       style: Style;
       toLatexOverride?: (
         atom: OverunderAtom,
@@ -45,7 +47,7 @@ export class OverunderAtom extends Atom {
       style: options.style,
     });
     this.skipBoundary = options.skipBoundary ?? true;
-    this.limits = 'overunder';
+    this.subsupPlacement = options.subsupPlacement ? 'over-under' : undefined;
 
     this.body = options.body;
     this.svgAbove = options.svgAbove;
@@ -55,7 +57,7 @@ export class OverunderAtom extends Atom {
     this.below = options.below;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const body: Span[] = this.svgBody
       ? [makeSVGSpan(this.svgBody)]
       : Atom.render(context, this.body);
@@ -101,8 +103,7 @@ export class OverunderAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
     // Bind the generated span so its components can be selected
-    this.bind(context, result);
-    return [result];
+    return this.bind(context, result);
   }
 }
 
@@ -131,6 +132,7 @@ function makeOverunderStack(
   let belowShift = 0;
 
   if (above) {
+    above.height += FONTMETRICS.bigOpSpacing5;
     aboveShift = Math.max(
       FONTMETRICS.bigOpSpacing1,
       FONTMETRICS.bigOpSpacing3 - above.depth
@@ -138,6 +140,7 @@ function makeOverunderStack(
   }
 
   if (below) {
+    below.height += FONTMETRICS.bigOpSpacing5;
     belowShift = Math.max(
       FONTMETRICS.bigOpSpacing2,
       FONTMETRICS.bigOpSpacing4 - below.height
@@ -145,7 +148,11 @@ function makeOverunderStack(
   }
 
   let result = null;
-  const wrappedNucleus = new Span(nucleus);
+  const wrappedNucleus = new Span([
+    makeNullFence(context, 'mopen'),
+    ...nucleus,
+    makeNullFence(context, 'mclose'),
+  ]);
 
   if (below && above) {
     const bottom = below.height + below.depth + wrappedNucleus.depth;
@@ -164,24 +171,21 @@ function makeOverunderStack(
       'bottom',
       { initialPos: bottom }
     );
+    // result.height = result.height - belowShift;
+    // result.depth = belowShift;
   } else if (below && !above) {
-    const top = wrappedNucleus.height;
-
     result = makeVlist(context, [0, below, belowShift, wrappedNucleus], 'top', {
-      initialPos: top,
+      initialPos: wrappedNucleus.height,
     });
   } else if (above && !below) {
     result = makeVlist(
       context,
-      [
-        wrappedNucleus.depth,
-        wrappedNucleus,
-        Math.max(FONTMETRICS.bigOpSpacing2, aboveShift), // TeXBook 13a, p.444
-        above,
-      ],
+      [wrappedNucleus.depth, wrappedNucleus, aboveShift, above],
       'bottom',
       { initialPos: wrappedNucleus.depth }
     );
+    result.height = result.height - wrappedNucleus.depth;
+    result.depth = wrappedNucleus.depth;
   }
 
   return new Span(result, { classes: 'op-over-under', type });

@@ -97,7 +97,7 @@ const xi9 = 0.111;
 const xi10 = 0.166;
 const xi11 = 0.2;
 const xi12 = 0.6;
-const xi13 = 0.1;
+export const xi13 = 0.1;
 // Note: xi14: offset from baseline for superscript TexBook p. 179
 // Note: xi16: offset from baseline for subscript
 
@@ -106,6 +106,20 @@ const xi13 = 0.1;
 // This value is also used in katex.less; if you change it make sure the values
 // match.
 const ptPerEm = 10;
+
+// A table of size -> font size for the different sizing functions
+export const SIZING_MULTIPLIER = {
+  size1: 0.5,
+  size2: 0.7,
+  size3: 0.8,
+  size4: 0.9,
+  size5: 1.0,
+  size6: 1.2,
+  size7: 1.44,
+  size8: 1.728,
+  size9: 2.074,
+  size10: 2.488,
+};
 
 /*
  * This is just a mapping from common names to real metrics

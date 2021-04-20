@@ -1,10 +1,13 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { MATHSTYLES, MathStyleName } from '../core/mathstyle';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import { Span, makeHlist, makeVlist } from '../core/span';
-import { makeCustomSizedDelim } from '../core/delimiters';
+import { makeCustomSizedDelim, makeNullFence } from '../core/delimiters';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
+import {
+  METRICS as FONTMETRICS,
+  SIZING_MULTIPLIER,
+} from '../core/font-metrics';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;
@@ -67,44 +70,44 @@ export class GenfracAtom extends Atom {
     );
   }
 
-  render(context: Context): Span[] {
-    const mathstyle =
+  render(context: Context): Span {
+    const outerstyle =
       this.mathStyleName === 'auto'
         ? context.mathstyle
         : MATHSTYLES[this.mathStyleName];
-    const newContext = context.clone({ mathstyle });
+    const newContext = context.clone({ mathstyle: outerstyle });
     const style = this.computedStyle;
+
+    const numeratorStyle = this.continuousFraction
+      ? outerstyle
+      : outerstyle.fracNum();
     let numer = [];
     if (this.numerPrefix) {
       numer.push(new Span(this.numerPrefix, { type: 'mord' }));
     }
-
-    const numeratorStyle = this.continuousFraction
-      ? mathstyle
-      : mathstyle.fracNum();
     numer = numer.concat(
       Atom.render(newContext.clone({ mathstyle: numeratorStyle }), this.above)
     );
-    const numerReset = makeHlist(numer, {
+    const numerSpans = makeHlist(numer, {
       classes: context.mathstyle.adjustTo(numeratorStyle),
     });
+
+    const denominatorStyle = this.continuousFraction
+      ? outerstyle
+      : outerstyle.fracDen();
     let denom = [];
     if (this.denomPrefix) {
       denom.push(new Span(this.denomPrefix, { type: 'mord' }));
     }
-
-    const denominatorStyle = this.continuousFraction
-      ? mathstyle
-      : mathstyle.fracDen();
     denom = denom.concat(
       Atom.render(newContext.clone({ mathstyle: denominatorStyle }), this.below)
     );
-    const denomReset = makeHlist(denom, {
+    const denomSpans = makeHlist(denom, {
       classes: context.mathstyle.adjustTo(denominatorStyle),
     });
     const ruleWidth = !this.hasBarLine
       ? 0
-      : FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
+      : FONTMETRICS.defaultRuleThickness / outerstyle.sizeMultiplier;
     // Rule 15b from TeXBook Appendix G, p.444
     //
     // 15b. If C > T, set u ← σ8 and v ← σ11. Otherwise set u ← σ9 or σ10,according
@@ -112,57 +115,61 @@ export class GenfracAtom extends Atom {
     // its numerator shifted up by an amount u with respect to the current
     // baseline, and with the denominator shifted down by v, unless the boxes
     // are unusually large.)
-    let numberShift: number;
+    let numerShift: number;
     let clearance = 0;
     let denomShift: number;
-    if (mathstyle.size === MATHSTYLES.displaystyle.size) {
-      numberShift = mathstyle.metrics.num1; // Set u ← σ8
+    if (outerstyle.size === MATHSTYLES.displaystyle.size) {
+      numerShift = outerstyle.metrics.num1; // Set u ← σ8
       clearance =
         ruleWidth > 0 ? 3 * ruleWidth : 7 * FONTMETRICS.defaultRuleThickness;
-      denomShift = mathstyle.metrics.denom1; // V ← σ11
+      denomShift = outerstyle.metrics.denom1; // V ← σ11
     } else {
       if (ruleWidth > 0) {
-        numberShift = mathstyle.metrics.num2; // U ← σ9
+        numerShift = outerstyle.metrics.num2; // U ← σ9
         clearance = ruleWidth; //  Φ ← θ
       } else {
-        numberShift = mathstyle.metrics.num3; // U ← σ10
+        numerShift = outerstyle.metrics.num3; // U ← σ10
         clearance = 3 * FONTMETRICS.defaultRuleThickness; // Φ ← 3 ξ8
       }
 
-      denomShift = mathstyle.metrics.denom2; // V ← σ12
+      denomShift = outerstyle.metrics.denom2; // V ← σ12
     }
 
-    const numerDepth = numerReset.depth;
-    const denomHeight = denomReset.height;
+    const numerDepth = numerSpans.depth;
+    const denomHeight = denomSpans.height;
     let frac: Span;
     if (ruleWidth === 0) {
       // Rule 15c from Appendix G
       // No bar line between numerator and denominator
       const candidateClearance =
-        numberShift - numerDepth - (denomHeight - denomShift);
+        numerShift - numerDepth - (denomHeight - denomShift);
       if (candidateClearance < clearance) {
-        numberShift += 0.5 * (clearance - candidateClearance);
-        denomShift += 0.5 * (clearance - candidateClearance);
+        numerShift += (clearance - candidateClearance) / 2;
+        denomShift += (clearance - candidateClearance) / 2;
       }
 
       frac = makeVlist(
         newContext,
-        [numerReset, -numberShift, denomReset, denomShift],
+        [
+          [numerSpans, -numerShift],
+          [denomSpans, denomShift],
+        ],
         'individualShift',
         { classes: 'mfrac' }
       );
     } else {
       // Rule 15d from Appendix G
       // There is a bar line between the numerator and the denominator
-      const { axisHeight } = mathstyle.metrics;
-      const numerLine = axisHeight + 0.5 * ruleWidth;
-      const denomLine = axisHeight - 0.5 * ruleWidth;
-      if (numberShift - numerDepth - numerLine < clearance) {
-        numberShift += clearance - (numberShift - numerDepth - numerLine);
+      let { axisHeight } = outerstyle.metrics;
+      axisHeight *= SIZING_MULTIPLIER[this.style?.fontSize ?? 'size5'];
+      const numerLine = axisHeight + ruleWidth / 2;
+      const denomLine = axisHeight - ruleWidth / 2;
+      if (numerShift < clearance + numerDepth + numerLine) {
+        numerShift = clearance + numerDepth + numerLine;
       }
 
-      if (denomLine - (denomHeight - denomShift) < clearance) {
-        denomShift += clearance - (denomLine - (denomHeight - denomShift));
+      if (denomShift < clearance + denomHeight - denomLine) {
+        denomShift = clearance + denomHeight - denomLine;
       }
 
       const fracLine = new Span(null, {
@@ -177,12 +184,9 @@ export class GenfracAtom extends Atom {
       frac = makeVlist(
         newContext,
         [
-          denomReset,
-          denomShift,
-          fracLine,
-          ruleWidth / 2 - axisHeight,
-          numerReset,
-          -numberShift,
+          [denomSpans, denomShift],
+          [fracLine, -denomLine],
+          [numerSpans, -numerShift],
         ],
         'individualShift',
         { classes: 'mfrac' }
@@ -191,39 +195,56 @@ export class GenfracAtom extends Atom {
 
     // Since we manually change the style sometimes (with \dfrac or \tfrac),
     // account for the possible size change here.
-    frac.height *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-    frac.depth *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
+    frac.height *= outerstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
+    frac.depth *= outerstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
 
     // Rule 15e of Appendix G
     const delimSize =
-      mathstyle.size === MATHSTYLES.displaystyle.size
-        ? mathstyle.metrics.delim1
-        : mathstyle.metrics.delim2;
+      outerstyle.size === MATHSTYLES.displaystyle.size
+        ? outerstyle.metrics.delim1
+        : outerstyle.metrics.delim2;
+    const delimContext = context.clone({
+      mathstyle: outerstyle,
+      size: this.style?.fontSize ?? 'size5',
+    });
+    const delimSizingClass =
+      context.parentSize !== delimContext.size
+        ? 'sizing reset-' + context.parentSize + ' ' + delimContext.size
+        : '';
 
     // Optional delimiters
-    const leftDelim = this.bind(
-      context,
-      makeCustomSizedDelim(
-        'mopen',
-        this.leftDelim,
-        delimSize,
-        true,
-        context.clone({ mathstyle }),
-        { style, mode: this.mode }
-      )
-    );
+    const leftDelim = this.leftDelim
+      ? this.bind(
+          context,
+          makeCustomSizedDelim(
+            'mopen',
+            this.leftDelim,
+            delimSize,
+            true,
+            delimContext,
+            { style, mode: this.mode, classes: delimSizingClass }
+          )
+        )
+      : makeNullFence(context, 'mopen');
 
-    const rightDelim = this.bind(
-      context,
-      makeCustomSizedDelim(
-        'mclose',
-        this.rightDelim,
-        delimSize,
-        true,
-        context.clone({ mathstyle }),
-        { style, mode: this.mode }
-      )
-    );
+    let rightDelim: Span;
+    if (this.continuousFraction) {
+      rightDelim = new Span(null);
+    } else if (!this.rightDelim) {
+      rightDelim = makeNullFence(context, 'mclose');
+    } else {
+      rightDelim = this.bind(
+        context,
+        makeCustomSizedDelim(
+          'mclose',
+          this.rightDelim,
+          delimSize,
+          true,
+          context.clone({ mathstyle: outerstyle }),
+          { style, mode: this.mode, classes: delimSizingClass }
+        )
+      );
+    }
 
     const result = this.bind(
       context,
@@ -243,6 +264,6 @@ export class GenfracAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return [this.attachSupsub(context, result, result.type)];
+    return this.attachSupsub(context, result, result.type);
   }
 }

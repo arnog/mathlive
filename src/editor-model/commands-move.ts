@@ -77,7 +77,10 @@ function moveToSuperscript(model: ModelPrivate): boolean {
 
   let target = model.at(model.position);
 
-  if (target.limits !== 'limits' && target.limits !== 'auto') {
+  if (
+    target.subsupPlacement !== 'over-under' &&
+    target.subsupPlacement !== 'auto'
+  ) {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
     if (target.rightSibling?.type !== 'msubsup') {
@@ -112,7 +115,10 @@ function moveToSubscript(model: ModelPrivate): boolean {
 
   let target = model.at(model.position);
 
-  if (target.limits !== 'limits' && target.limits !== 'auto') {
+  if (
+    target.subsupPlacement !== 'over-under' &&
+    target.subsupPlacement !== 'auto'
+  ) {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'msubsup') {
@@ -212,7 +218,7 @@ function getTabbableElements(): HTMLElement[] {
   function isNodeMatchingSelectorFocusable(node) {
     if (
       node.disabled ||
-      (node.tagName === 'INPUT' && node.type === 'hidden') ||
+      (node.type === 'hidden' && node.tagName.toUpperCase() === 'INPUT') ||
       isHidden(node)
     ) {
       return false;
@@ -251,7 +257,7 @@ function getTabbableElements(): HTMLElement[] {
 
   function isNonTabbableRadio(node: HTMLElement): boolean {
     return (
-      node.tagName === 'INPUT' &&
+      node.tagName.toUpperCase() === 'INPUT' &&
       (node as HTMLInputElement).type === 'radio' &&
       !isTabbableRadio(node as HTMLInputElement)
     );
@@ -406,7 +412,7 @@ register(
       }
 
       if (!oppositeRelation) {
-        if (!cursor.limits) {
+        if (!cursor.subsupPlacement) {
           return moveToSuperscript(model);
         }
 

@@ -1,5 +1,4 @@
 import { LeftRightAtom } from '../core-atoms/leftright';
-import { OperatorAtom } from '../core-atoms/operator';
 import { Atom, Branch } from '../core/atom';
 import type { Range } from '../public/mathfield';
 import { ModelPrivate } from './model-private';
@@ -221,10 +220,7 @@ function onDelete(
     return true;
   }
 
-  if (
-    (atom instanceof OperatorAtom && atom.isExtensibleSymbol) ||
-    atom.type === 'msubsup'
-  ) {
+  if (atom.isExtensibleSymbol || atom.type === 'msubsup') {
     //
     // Extensible operator: \sum, \int, etc...
     // Superscript/subscript carrier

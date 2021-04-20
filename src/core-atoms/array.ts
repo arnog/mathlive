@@ -294,7 +294,7 @@ export class ArrayAtom extends Atom {
     return [...result, ...super.children];
   }
 
-  render(context: Context): Span[] | null {
+  render(context: Context): Span | null {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
     // and http://tug.ctan.org/macros/latex/base/lttab.dtx
     const { colFormat } = this;
@@ -360,7 +360,7 @@ export class ArrayAtom extends Atom {
     const offset = totalHeight / 2 + mathstyle.metrics.axisHeight;
     const contentCols = [];
     for (let colIndex = 0; colIndex < nc; colIndex++) {
-      const col: (number | Span)[] = [];
+      const col: [Span, number][] = [];
       for (const row of body) {
         let element = row.cells[colIndex];
         if (element) {
@@ -368,8 +368,7 @@ export class ArrayAtom extends Atom {
           element.depth = row.depth;
           element.height = row.height;
 
-          col.push(element);
-          col.push(row.pos - offset);
+          col.push([element, row.pos - offset]);
         }
       }
 
@@ -467,7 +466,7 @@ export class ArrayAtom extends Atom {
     ) {
       // There are no delimiters around the array, just return what
       // we've built so far.
-      return [new Span(cols, { classes: 'mtable', type: 'mord' })];
+      return new Span(cols, { classes: 'mtable', type: 'mord' });
     }
 
     // There is at least one delimiter. Wrap the core of the array with
@@ -507,7 +506,7 @@ export class ArrayAtom extends Atom {
     );
     if (this.caret) result.caret = this.caret;
 
-    return [this.attachSupsub(context, result, result.type)];
+    return this.attachSupsub(context, result, result.type);
   }
 
   toLatex(options: ToLatexOptions): string {
@@ -616,8 +615,7 @@ function makeColOfRepeatingElements(
     const cell = new Span(Atom.render(context, element));
     cell.depth = row.depth;
     cell.height = row.height;
-    col.push(cell);
-    col.push(row.pos - offset);
+    col.push([cell, row.pos - offset]);
   }
 
   return makeVlist(context, col, 'individualShift');

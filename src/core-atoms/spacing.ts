@@ -11,7 +11,7 @@ export class SpacingAtom extends Atom {
     this.width = width;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     let result: Span;
     // A spacing command (\quad, etc...)
     // @revisit: is value needed? Is it ever set?
@@ -41,7 +41,7 @@ export class SpacingAtom extends Atom {
     }
 
     if (this.caret) result.caret = this.caret;
-    return [result];
+    return result;
   }
 
   toLatex(_options: ToLatexOptions): string {

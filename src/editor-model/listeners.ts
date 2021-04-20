@@ -89,9 +89,7 @@ export class EventEmitter {
   emit(event: string, ...payload: any[]): boolean {
     const listeners = this.events.get(event);
     if (listeners && listeners.length > 0) {
-      listeners.forEach((listener) => {
-        listener.apply(this, ...payload);
-      });
+      for (const listener of listeners) listener.apply(this, ...payload);
       return true;
     }
 

@@ -13,7 +13,7 @@ import type {
 
 import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
-import { coalesce, makeStruts, Span } from './core/span';
+import { coalesce, makeStruts } from './core/span';
 import { MACROS, MacroDictionary } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
 import AutoRender, { AutoRenderOptionsPrivate } from './addons/auto-render';
@@ -43,6 +43,7 @@ import './addons/definitions-metadata';
 
 import './editor/virtual-keyboard-commands';
 import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboard';
+import { Context } from './core/context';
 
 export { MathfieldElement } from './public/mathfield-element';
 
@@ -59,20 +60,6 @@ export function makeSharedVirtualKeyboard(
   options: Partial<RemoteVirtualKeyboardOptions>
 ): void {
   new RemoteVirtualKeyboard(options);
-}
-
-/** @deprecated */
-function latexToMarkup(
-  text: string,
-  options?: {
-    mathstyle?: 'displaystyle' | 'textstyle';
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-    macros?: MacroDictionary;
-    onError?: ErrorListener<ParserErrorCode>;
-    format?: string;
-  }
-): string {
-  return convertLatexToMarkup(text, options);
 }
 
 export function convertLatexToMarkup(
@@ -94,7 +81,8 @@ export function convertLatexToMarkup(
   // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
   //
 
-  const atoms = parseLatex(
+  const root = new Atom('root', { mode: 'math' });
+  root.body = parseLatex(
     text,
     'math',
     null,
@@ -102,32 +90,26 @@ export function convertLatexToMarkup(
     false,
     options.onError
   );
-
   //
   // 2. Transform the math atoms into elementary spans
   //    for example from genfrac to vlist.
-  //
-  let spans = Atom.render(
-    {
-      mathstyle: MATHSTYLES[options.mathstyle],
-      letterShapeStyle: options.letterShapeStyle,
-    },
-    atoms
-  );
-
-  //
-  // 3. Simplify by coalescing adjacent nodes
+  //    Simplify by coalescing adjacent nodes
   //    for example, from <span>1</span><span>2</span>
   //    to <span>12</span>
   //
-  spans = coalesce(spans);
+  const span = coalesce(
+    root.render(
+      new Context({
+        mathstyle: MATHSTYLES[options.mathstyle],
+        letterShapeStyle: options.letterShapeStyle,
+      })
+    )
+  );
 
   //
   // 4. Wrap the expression with struts
   //
-  const wrapper = makeStruts(new Span(spans, { classes: 'ML__base' }), {
-    classes: 'ML__mathlive',
-  });
+  const wrapper = makeStruts(span, { classes: 'ML__mathlive' });
 
   //
   // 5. Generate markup
@@ -207,7 +189,7 @@ export function convertLatexToSpeakableText(
   options.macros = options.macros ?? {};
   Object.assign(options.macros, MACROS);
 
-  const mathlist = parseLatex(
+  const atoms = parseLatex(
     latex,
     'math',
     null,
@@ -216,10 +198,7 @@ export function convertLatexToSpeakableText(
     options.onError
   );
 
-  return atomToSpeakableText(
-    mathlist,
-    options as Required<TextToSpeechOptions>
-  );
+  return atomToSpeakableText(atoms, options as Required<TextToSpeechOptions>);
 }
 
 /** @deprecated */
@@ -370,7 +349,7 @@ export default {
     }
   ): string => {
     deprecatedDefaultImport('latexToMarkup');
-    return latexToMarkup(text, options);
+    return convertLatexToMarkup(text, options);
   },
   latexToMathML: (
     latex: string,

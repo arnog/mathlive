@@ -41,7 +41,7 @@ export class BoxAtom extends Atom {
     this.border = options.border;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     // The padding extends outside of the base
     const padding =
       typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
@@ -108,6 +108,6 @@ export class BoxAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return [this.attachSupsub(context, result, result.type)];
+    return this.attachSupsub(context, result, result.type);
   }
 }

@@ -11,12 +11,12 @@ export class ErrorAtom extends Atom {
     this.latex = value;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const result = this.makeSpan(context, this.value);
     result.classes = 'ML__error';
 
     if (this.caret) result.caret = this.caret;
 
-    return [result];
+    return result;
   }
 }

@@ -22,13 +22,13 @@ export function updateAutocomplete(
 ): void {
   const { model } = mathfield;
   // Remove any error indicator and any suggestions
-  getLatexGroupBody(model).forEach((x) => {
-    if (x.isSuggestion) {
-      x.parent.removeChild(x);
+  for (const atom of getLatexGroupBody(model)) {
+    if (atom.isSuggestion) {
+      atom.parent.removeChild(atom);
     } else {
-      x.isError = false;
+      atom.isError = false;
     }
-  });
+  }
 
   if (!model.selectionIsCollapsed) {
     hidePopover(mathfield);
@@ -92,12 +92,17 @@ export function updateAutocomplete(
   showPopoverWithLatex(mathfield, suggestion, suggestions.length > 1);
 }
 
-export function acceptCommandSuggestion(model: ModelPrivate): void {
+export function acceptCommandSuggestion(model: ModelPrivate): boolean {
+  let result = false;
   model
     .getAtoms(getCommandSuggestionRange(model, { before: model.position }))
     .forEach((x: LatexAtom) => {
-      x.isSuggestion = false;
+      if (x.isSuggestion) {
+        x.isSuggestion = false;
+        result = true;
+      }
     });
+  return result;
 }
 
 /**
@@ -114,15 +119,14 @@ export function complete(
   if (!latexGroup) return false;
 
   if (completion === 'accept-suggestion') {
-    const suggestion = getLatexGroupBody(mathfield.model).filter(
+    const suggestions = getLatexGroupBody(mathfield.model).filter(
       (x) => x.isSuggestion
     );
-    if (suggestion.length === 0) return false;
-    suggestion.forEach((x) => {
-      x.isSuggestion = false;
-    });
+    if (suggestions.length === 0) return false;
+    for (const suggestion of suggestions) suggestion.isSuggestion = false;
+
     mathfield.model.position = mathfield.model.offsetOf(
-      suggestion[suggestion.length - 1]
+      suggestions[suggestions.length - 1]
     );
     return true;
   }

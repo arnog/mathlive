@@ -52,8 +52,7 @@ defineFunction(
     isFunction: true,
     createAtom: (command: string, _args: Argument[], style: Style): Atom =>
       new OperatorAtom(command, command.slice(1), {
-        limits: 'nolimits',
-        isExtensibleSymbol: false,
+        limits: 'adjacent',
         isFunction: true,
         variant: 'main',
         variantStyle: 'up',
@@ -68,8 +67,7 @@ defineFunction(['liminf', 'limsup'], '', {
       command,
       { '\\liminf': 'lim inf', '\\limsup': 'lim sup' }[command],
       {
-        limits: 'limits',
-        isExtensibleSymbol: false,
+        limits: 'over-under',
         variant: 'main',
         style,
       }
@@ -79,8 +77,7 @@ defineFunction(['liminf', 'limsup'], '', {
 defineFunction(['lim', 'mod'], '', {
   createAtom: (command: string, _args: Argument[], style: Style): Atom =>
     new OperatorAtom(command, command.slice(1), {
-      limits: 'limits',
-      isExtensibleSymbol: false,
+      limits: 'over-under',
       variant: 'main',
       style,
     }),
@@ -91,8 +88,7 @@ defineFunction(['det', 'max', 'min'], '', {
   isFunction: true,
   createAtom: (command: string, _args: Argument[], style: Style): Atom =>
     new OperatorAtom(command, command.slice(1), {
-      limits: 'limits',
-      isExtensibleSymbol: false,
+      limits: 'over-under',
       isFunction: true,
       variant: 'main',
       style,
@@ -278,7 +274,7 @@ const EXTENSIBLE_SYMBOLS = {
 defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
   createAtom: (command: string, _args: Argument[], style: Style): Atom =>
     new OperatorAtom(command, EXTENSIBLE_SYMBOLS[command.slice(1)], {
-      limits: 'nolimits',
+      limits: 'adjacent',
       isExtensibleSymbol: true,
       style,
       variant: { '\u22D2': 'ams', '\u22D3': 'ams' }[
@@ -290,9 +286,8 @@ defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
 defineFunction(['Re', 'Im'], '', {
   createAtom: (command: string, _args: Argument[], style: Style): Atom =>
     new OperatorAtom(command, { '\\Re': '\u211C', '\\Im': '\u2111' }[command], {
-      limits: 'nolimits',
+      limits: 'adjacent',
       style,
-      isExtensibleSymbol: false,
       isFunction: true,
       variant: 'fraktur',
     }),

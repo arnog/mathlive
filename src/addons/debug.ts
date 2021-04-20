@@ -20,14 +20,15 @@ import { getKeybindingMarkup } from '../editor/keybindings';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { parseMathString } from '../editor/parse-math-string';
+import { Atom } from '../core/atom';
 
 export function latexToAsciiMath(
   latex: string,
   mode: ParseMode = 'math'
 ): string {
-  const mathlist = parseLatex(latex, mode, null, null);
-
-  return atomToAsciiMath(mathlist);
+  const root = new Atom('root', { mode: 'math' });
+  root.body = parseLatex(latex, mode, null, null);
+  return atomToAsciiMath(root);
 }
 
 export function asciiMathToLatex(ascii: string): string {

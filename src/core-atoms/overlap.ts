@@ -22,7 +22,7 @@ export class OverlapAtom extends Atom {
     this.spanType = options?.spanType ?? 'mord';
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     // For llap (18), rlap (270), clap (0)
     // smash (common), mathllap (0), mathrlap (0), mathclap (0)
     // See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf
@@ -31,11 +31,9 @@ export class OverlapAtom extends Atom {
       classes: 'inner',
     }); // @revisit
     if (this.caret) inner.caret = this.caret;
-    return [
-      new Span([inner, new Span(null, { classes: 'fix' })], {
-        classes: this.align === 'left' ? 'llap' : 'rlap',
-        type: this.spanType,
-      }),
-    ];
+    return new Span([inner, new Span(null, { classes: 'fix' })], {
+      classes: this.align === 'left' ? 'llap' : 'rlap',
+      type: this.spanType,
+    });
   }
 }

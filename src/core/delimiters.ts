@@ -23,7 +23,11 @@
 
 import { makeSymbol, makeVlist, SpanType, Span, makeHlist } from './span';
 import { Mathstyle, MATHSTYLES } from './mathstyle';
-import { getCharacterMetrics, METRICS } from './font-metrics';
+import {
+  getCharacterMetrics,
+  METRICS,
+  SIZING_MULTIPLIER,
+} from './font-metrics';
 import type { Context } from './context';
 import { ParseMode, Style } from '../public/core';
 export const RIGHT_DELIM = {
@@ -67,8 +71,7 @@ function makeStyleWrap(
   const multiplier = toStyle.sizeMultiplier / fromStyle.sizeMultiplier;
   result.height *= multiplier;
   result.depth *= multiplier;
-  result.maxFontSize =
-    toStyle.sizeMultiplier; /** @revisit: shouldn't that be `multiplier` ? */
+  result.maxFontSize = multiplier; /** @revisit: shouldn't that be `multiplier` ? */
 
   return result;
 }
@@ -144,7 +147,8 @@ function makeSmallDelim(
   if (center) {
     span.setTop(
       (1 - context.mathstyle.sizeMultiplier / mathstyle.sizeMultiplier) *
-        context.mathstyle.metrics.axisHeight
+        context.mathstyle.metrics.axisHeight *
+        SIZING_MULTIPLIER[context.size]
     );
   }
 
@@ -184,7 +188,8 @@ function makeLargeDelim(
   if (center) {
     result.setTop(
       (1 - context.mathstyle.sizeMultiplier) *
-        context.mathstyle.metrics.axisHeight
+        context.mathstyle.metrics.axisHeight *
+        SIZING_MULTIPLIER[context.size]
     );
   }
 
@@ -194,24 +199,6 @@ function makeLargeDelim(
   }
 
   return result;
-}
-
-/**
- * Make an inner span with the given offset and in the given font. This is used
- * in `makeStackedDelim` to make the stacking pieces for the delimiter.
- */
-function makeInner(symbol: string, font: string): Span {
-  let sizeClass = '';
-  // Apply the correct CSS class to choose the right font.
-  if (font === 'Size1-Regular') {
-    sizeClass = ' delim-size1';
-  } else if (font === 'Size4-Regular') {
-    sizeClass = ' delim-size4';
-  }
-
-  return makeSymbol(font, getSymbolValue(symbol), {
-    classes: 'delimsizinginner' + sizeClass,
-  });
 }
 
 /**
@@ -396,8 +383,12 @@ function makeStackedDelim(
   // centered around the axis in the current style, while normally it is
   // centered around the axis in textstyle.
   let { axisHeight } = context.mathstyle.metrics;
+
   if (center) {
-    axisHeight *= context.mathstyle.sizeMultiplier;
+    axisHeight =
+      axisHeight *
+      context.mathstyle.sizeMultiplier *
+      SIZING_MULTIPLIER[context.size];
   }
 
   // Calculate the depth
@@ -407,40 +398,60 @@ function makeStackedDelim(
 
   // Keep a list of the inner pieces
   const inners = [];
+  let sizeClass = '';
+  // Apply the correct CSS class to choose the right font.
+  if (font === 'Size1-Regular') {
+    sizeClass = ' delim-size1';
+  } else if (font === 'Size4-Regular') {
+    sizeClass = ' delim-size4';
+  }
 
   // Add the bottom symbol
-  inners.push(makeInner(bottom, font));
+  inners.push(makeSymbol(font, getSymbolValue(bottom)));
+
+  const repeatSpan = makeSymbol(font, getSymbolValue(repeat));
 
   if (middle === null) {
     // Add that many symbols
     for (let i = 0; i < repeatCount; i++) {
-      inners.push(makeInner(repeat, font));
+      inners.push(repeatSpan);
     }
   } else {
     // When there is a middle bit, we need the middle part and two repeated
     // sections
     for (let i = 0; i < repeatCount; i++) {
-      inners.push(makeInner(repeat, font));
+      inners.push(repeatSpan);
     }
 
-    inners.push(makeInner(middle, font));
+    inners.push(makeSymbol(font, getSymbolValue(middle)));
+
     for (let i = 0; i < repeatCount; i++) {
-      inners.push(makeInner(repeat, font));
+      inners.push(repeatSpan);
     }
   }
 
   // Add the top symbol
-  inners.push(makeInner(top, font));
+  inners.push(makeSymbol(font, getSymbolValue(top)));
 
   // Finally, build the vlist
-  const inner = makeVlist(context, inners, 'bottom', { initialPos: depth });
+  const inner = makeVlist(context, inners, 'bottom', {
+    initialPos: depth,
+    classes: 'delimsizinginner' + sizeClass,
+  });
   inner.setStyle('color', context.color);
   if (typeof context.opacity === 'number') {
     inner.setStyle('opacity', context.opacity);
   }
 
+  const result = new Span(inner, { classes: 'delimsizing mult' });
+  result.setStyle(
+    'vertical-align',
+    -context.mathstyle.metrics.axisHeight * SIZING_MULTIPLIER[context.size],
+    'em'
+  );
+
   return makeStyleWrap(
-    new Span(inner, { classes: 'delimsizing mult' }),
+    result,
     context.mathstyle,
     MATHSTYLES.textstyle,
     options
@@ -512,7 +523,7 @@ const sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3];
  * Used to create a delimiter of a specific size, where `size` is 1, 2, 3, or 4.
  */
 export function makeSizedDelim(
-  delim: string,
+  delim: string | undefined,
   size: 1 | 2 | 3 | 4,
   context: Context,
   options: {
@@ -522,7 +533,7 @@ export function makeSizedDelim(
     style?: Style;
   }
 ): Span {
-  if (delim === '.') {
+  if (delim === undefined || delim === '.') {
     // Empty delimiters still count as elements, even though they don't
     // show anything.
     return makeNullFence(context, options.type, options.classes);
@@ -755,8 +766,9 @@ export function makeLeftRightDelim(
 
   // We always center \left/\right delimiters, so the axis is always shifted
   const axisHeight =
-    context.mathstyle.metrics.axisHeight * context.mathstyle.sizeMultiplier;
-
+    context.mathstyle.metrics.axisHeight *
+    context.mathstyle.sizeMultiplier *
+    SIZING_MULTIPLIER[context.size];
   // Taken from TeX source, tex.web, function make_left_right
   const delimiterFactor = 901; // Plain.tex:327, texboox:152
   const delimiterShortfall = 5 / METRICS.ptPerEm; // Plain.tex:345, texboox:152
@@ -772,14 +784,10 @@ export function makeLeftRightDelim(
   return makeCustomSizedDelim(type, delim, totalHeight, true, context, options);
 }
 
-/**
- *
- * @param type either 'mopen', 'mclose' or null
- */
-function makeNullFence(
+export function makeNullFence(
   context: Context,
   type: 'mopen' | 'mclose' | 'minner',
-  classes: string
+  classes?: string
 ): Span {
   let sizeAdjust = '';
   if (context.size !== 'size5') {

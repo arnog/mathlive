@@ -66,31 +66,32 @@ export function render(
   //
   model.root.caret = undefined;
   model.root.isSelected = false;
-  model.root.containsCaret = false;
-  model.atoms.forEach((a) => {
-    a.caret = undefined;
-    a.isSelected = false;
-    a.containsCaret = false;
-  });
+  model.root.containsCaret = true;
+  for (const atom of model.atoms) {
+    atom.caret = undefined;
+    atom.isSelected = false;
+    atom.containsCaret = false;
+  }
   const hasFocus = mathfield.hasFocus() && !mathfield.options.readOnly;
   if (model.selectionIsCollapsed) {
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
   } else {
-    model.getAtoms(model.selection, { includeChildren: true }).forEach((x) => {
-      x.isSelected = true;
-    });
+    for (const atom of model.getAtoms(model.selection, {
+      includeChildren: true,
+    })) {
+      atom.isSelected = true;
+    }
   }
 
   if (hasFocus) {
     let ancestor = model.at(model.position).parent;
-    let done = false;
-    while (ancestor && !done) {
+    while (ancestor) {
       // The `surd` and `leftright` types of atom have a special display,
       // mark the first of them in the path from the caret (`position`) to
       // the root  as such.
       if (ancestor.type === 'surd' || ancestor.type === 'leftright') {
         ancestor.containsCaret = true;
-        done = true;
+        break;
       }
 
       ancestor = ancestor.parent;
@@ -100,7 +101,7 @@ export function render(
   //
   // 3. Render spans
   //
-  const spans = model.root.render(
+  const base = model.root.render(
     new Context({
       mathstyle: MATHSTYLES.displaystyle,
       letterShapeStyle: mathfield.options.letterShapeStyle,
@@ -121,7 +122,6 @@ export function render(
   //
   // 4. Construct struts around the spans
   //
-  const base = new Span(spans, { classes: 'ML__base' });
   const wrapper = makeStruts(base, { classes: 'ML__mathlive' });
   wrapper.attributes = {
     // Sometimes Google Translate kicks in an attempts to 'translate' math
@@ -173,7 +173,9 @@ export function render(
 }
 
 export function renderSelection(mathfield: MathfieldPrivate): void {
-  mathfield.field.querySelectorAll('.ML__selection').forEach((x) => x.remove());
+  for (const element of mathfield.field.querySelectorAll('.ML__selection')) {
+    element.remove();
+  }
 
   for (const x of uniqueRects(getSelectionBounds(mathfield))) {
     const selectionElement = document.createElement('div');

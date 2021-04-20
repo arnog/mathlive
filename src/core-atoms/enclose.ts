@@ -114,7 +114,7 @@ export class EncloseAtom extends Atom {
     return result;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const base = new Span(Atom.render(context, this.body), { type: 'mord' });
 
     // Account for the padding
@@ -305,6 +305,6 @@ export class EncloseAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return [result];
+    return result;
   }
 }

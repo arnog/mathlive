@@ -115,7 +115,9 @@
     "David Le Jolly <david.lejolly@gmail.com>",
     "Johannes Wilm <johanneswilm@gmail.com>",
     "Nick Gravelyn <nick@gravelyn.com>",
-    "paosder <denjaraos@gmail.com>"
+    "paosder <denjaraos@gmail.com>",
+    "Ben Eater (https://github.com/beneater)",
+    "Dominik Janković (https://github.com/djankovic)"
   ],
   "devDependencies": {
     "@babel/types": "^7.13.14",

@@ -49,9 +49,9 @@ export function applyStyle(
 ): boolean {
   function everyStyle(property, value): boolean {
     let result = true;
-    atoms.forEach((x: Atom) => {
-      result = result && x.style[property] === value;
-    });
+    for (const atom of atoms) {
+      result = result && atom.style[property] === value;
+    }
     return result;
   }
 
@@ -98,7 +98,7 @@ export function applyStyle(
     }
   }
 
-  atoms.forEach((x) => x.applyStyle(style));
+  for (const atom of atoms) atom.applyStyle(style);
 
   return true;
 }

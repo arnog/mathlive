@@ -25,7 +25,7 @@ export class RuleAtom extends Atom {
     this.shift = options.shift ?? 0;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const { mathstyle } = context;
     let shift = Number.isFinite(this.shift) ? this.shift : 0;
     shift /= mathstyle.sizeMultiplier;
@@ -40,7 +40,7 @@ export class RuleAtom extends Atom {
     result.height = height + shift;
     result.depth = -shift;
     if (this.caret) result.caret = this.caret;
-    return [result];
+    return result;
   }
 
   toLatex(options: ToLatexOptions): string {

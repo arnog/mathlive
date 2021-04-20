@@ -1,4 +1,4 @@
-import { Style, FontSeries, FontShape } from '../public/core';
+import { Style, FontSeries, FontShape, FontSize } from '../public/core';
 import { MathfieldPrivate } from './mathfield-private';
 import { applyStyle as applyStyleToModel } from '../editor-model/styling';
 import { register as registerCommand } from '../editor/commands';
@@ -109,13 +109,16 @@ function validateStyle(style: Record<string, any>): Style {
   }
 
   if (typeof style.size === 'string') {
-    result.fontSize = style.size;
+    result.fontSize = style.size as FontSize;
   } else if (typeof style.size === 'number') {
-    result.fontSize = `size${Math.min(0, Math.max(10, style.size))}`;
+    result.fontSize = `size${Math.min(
+      0,
+      Math.max(10, style.size)
+    )}` as FontSize;
   }
 
   if (typeof style.fontSize === 'string') {
-    result.fontSize = style.fontSize.toLowerCase();
+    result.fontSize = style.fontSize.toLowerCase() as FontSize;
   }
 
   if (result.fontSize) {

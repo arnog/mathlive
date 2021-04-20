@@ -148,29 +148,24 @@ class Parser {
   }
 
   /**
-   * Return the last atom that can have a subsup attached to it.
-   * If there isn't one, insert a `msubsup` and return it.
+   * Return the last atom that can have a subscript/superscript attached to it.
+   * If there isn't one, insert a `SubsupAtom` and return it.
    */
   lastSubsupAtom(): Atom {
     let atom: Atom;
-    if (this.atoms.length === 0) {
-      atom = new SubsupAtom();
-      this.atoms.push(atom);
-      return atom;
+    if (this.atoms.length > 0) {
+      atom = this.atoms[this.atoms.length - 1];
+
+      // If this is a `subsup` atom, it can have a `subsup` attached to it.
+      if (atom.type === 'msubsup') return atom;
+
+      // if (atom.type === 'mop' && atom?.limits && atom?.limits !== undefined) {
+
+      // An atom can have superscript/subscript attached to it if it accepts
+      // limits (`\sum`, `\vec`...)
+      if (atom?.subsupPlacement !== undefined) return atom;
     }
-
-    atom = this.atoms[this.atoms.length - 1];
-
-    // If this is a subsup atom, it can have a subsup attached to it.
-    if (atom.type === 'msubsup') return atom;
-
-    // An operator (\sum) can have superscript/subscript attached to it
-    // if it accepts limits
-    if (atom.type === 'mop' && atom?.limits && atom?.limits !== 'nolimits') {
-      return atom;
-    }
-
-    // Creata a new subsup atom and return it
+    // Create a new `subsup` atom and return it
     atom = new SubsupAtom();
     this.atoms.push(atom);
     return atom;
@@ -1038,29 +1033,27 @@ class Parser {
    * (if `\limits`) or in the superscript/subscript position (if `\nolimits`).
    *
    * This overrides the calculation made for the placement, which is usually
-   * dependent on the displaystyle (`inlinemath` prefers `\nolimits`, while
-   * `displaymath` prefers `\limits`).
+   * dependent on the displaystyle (`textstyle` prefers `\nolimits`, while
+   * `displaystyle` prefers `\limits`).
    */
   parseLimits(): boolean {
-    // Note: technically, \limits and \nolimits are only applicable
+    // Note: technically, `\limits` and `\nolimits` are only applicable
     // after an operator. However, we apply them in all cases. They
     // will simply be ignored when not applicable (i.e. on a literal)
     // which is actually consistent with TeX.
     if (this.match('\\limits')) {
       const lastAtom = this.lastSubsupAtom();
-      lastAtom.limits = 'limits';
+      lastAtom.subsupPlacement = 'over-under';
       // Record that the limits was set through an explicit command
       // so we can generate the appropriate LaTeX later
-      lastAtom.explicitLimits = true;
+      lastAtom.explicitSubsupPlacement = true;
       return true;
     }
 
     if (this.match('\\nolimits')) {
       const lastAtom = this.lastSubsupAtom();
-      lastAtom.limits = 'nolimits';
-      // Record that the limits was set through an explicit command
-      // so we can generate the appropriate LaTeX later
-      lastAtom.explicitLimits = true;
+      lastAtom.subsupPlacement = 'adjacent';
+      lastAtom.explicitSubsupPlacement = true;
       return true;
     }
 
@@ -1075,7 +1068,18 @@ class Parser {
     while (i < info.params.length) {
       const parameter = info.params[i];
       // Parse an argument
-      if (parameter.isOptional) {
+      if (parameter.type === 'rest') {
+        args.push(
+          this.parse(
+            (token: Token) =>
+              token === '<}>' ||
+              token === '&' ||
+              token === '\\end' ||
+              token === '\\cr' ||
+              token === '\\\\'
+          )
+        );
+      } else if (parameter.isOptional) {
         args.push(this.parseOptionalArgument(parameter.type));
       } else if (parameter.type.endsWith('*')) {
         // For example 'math*'.
@@ -1341,15 +1345,18 @@ class Parser {
       return [];
     }
 
-    // Parse the arguments
+    // Parse the arguments.
+    //
     // If explicitGroup is not empty, an explicit group is expected
     // to follow the command and will be parsed *after* the
     // command has been processed.
+    //
     // This is used for commands such as \textcolor{color}{content}
     // that need to apply the color to the content *after* the
     // style has been changed.
+    //
     // In definitions, this is indicated with a parameter type
-    // of 'auto*'
+    // thats ends with a '*' ('math*', 'auto*').
 
     const savedMode = this.parseMode;
     if (info.applyMode) {
@@ -1596,7 +1603,7 @@ export function parseLatex(
       }
     }
   );
-  parser.parseMode = parseMode ?? 'math'; // Other possible values: 'text', 'color', etc...
+  parser.parseMode = parseMode ?? 'math';
   if (smartFence) parser.smartFence = true;
 
   let atoms = [];
@@ -1604,6 +1611,8 @@ export function parseLatex(
     const more = parser.parse();
     if (more) {
       atoms = atoms.concat(more);
+    } else {
+      break;
     }
   }
 

@@ -63,12 +63,6 @@ describe('FRACTIONS', function () {
   });
 });
 
-describe('SIZING STYLE', function () {
-  test.each(['\\text{a \\tiny x y}b'])('%#/ %s renders correctly', (x) => {
-    expect(markupAndError(x)).toMatchSnapshot();
-  });
-});
-
 describe('RULE AND DIMENSIONS', function () {
   test.each([
     '\\rule{1em}{2em}',
@@ -104,13 +98,14 @@ describe('RULE AND DIMENSIONS', function () {
   // '\\rule{\"A EM}{10em}' (the AE confuses it)
 });
 
-describe('BOX AND RULE', () => {
+describe('BOX', () => {
   test.each([
-    '\\bbox{1+x}',
-    '\\bbox[border:solid 1px red]{1+x}',
-    '\\bbox[yellow]{1+x}',
-    '\\bbox[yellow]{1+x}',
-    '\\bbox[ yellow , border: 1px solid red, 4 em ]{1+x}',
+    '-\\bbox{\\sqrt{\\frac{2}{1+x}}}-',
+    '-\\bbox[border:solid 1px red]{\\sqrt{\\frac{2}{1+x}}}-',
+    '-\\bbox[yellow]{\\sqrt{\\frac{2}{1+x}}}-',
+    '-\\bbox[yellow]{\\sqrt{\\frac{2}{1+x}}}-',
+    '-\\bbox[ yellow , border: 1px solid red, 4 em ]{\\sqrt{\\frac{2}{1+x}}}-',
+    // '-\\bbox[4em,border: 1px solid red,yellow]{\\sqrt{\\frac{\\frac{2}{\\frac{3}{\\frac{4}{\\frac{5}{\\frac{6}{\\frac{7}{\\frac{8}{\\frac{9}{\\frac{a}{\\frac{b}{\\frac{x}{\\frac{s}{d}}}}}}}}}}}}}{1+x}}}-',
     '\\rlap{x}o',
     '\\mathrlap{x}o',
     '\\llap{x}o',
@@ -203,7 +198,7 @@ describe('LEFT/RIGHT', () => {
   });
 });
 
-describe('SIZING COMMANDS', () => {
+describe('DELIMTIER SIZING COMMANDS', () => {
   test.each([
     ['\\bigl', '\\bigr', '\\bigm', '\\big'],
     ['\\Bigl', '\\Bigr', '\\Bigm', '\\Big'],
@@ -213,6 +208,16 @@ describe('SIZING COMMANDS', () => {
     expect(
       markupAndError(`${a}(x${c}|y${b}) = x+${d}x${d}+`)
     ).toMatchSnapshot();
+  });
+});
+
+describe('SIZING COMMANDS', function () {
+  test.each([
+    '\\text{a \\tiny x y}b',
+    '\\mbox{a \\tiny x y}b',
+    '\\binom12  \\sqrt[3]{x}  \\Huge \\sqrt[3]{x} \\binom56 x \\text{text is huge}',
+  ])('%#/ %s renders correctly', (x) => {
+    expect(markupAndError(x)).toMatchSnapshot();
   });
 });
 

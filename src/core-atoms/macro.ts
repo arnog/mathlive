@@ -16,10 +16,9 @@ export class MacroAtom extends Atom {
     return options.expandMacro ? this.bodyToLatex(options) : this.latex;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const result = new Span(Atom.render(context, this.body), { type: 'mord' });
     if (this.caret) result.caret = this.caret;
-    this.bind(context, result);
-    return [result];
+    return this.bind(context, result);
   }
 }

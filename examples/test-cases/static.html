@@ -14,6 +14,15 @@
             border: 1px solid #ddd;
             font-family: fantasy;
             margin: 4px;
+            font-size: 32px;
+        }
+
+        .small {
+          font-size: 16px;
+        }
+
+        .fail {
+          color: #dd3333;
         }
 
         code {
@@ -65,6 +74,7 @@
     <li>there is some extra space after the letter "f"</li>
 </ul>
 `,
+                class: 'small',
                 latex: `(+-1234.56=0)\\{|/@"\`\\}abcfgxyz\\alpha \\beta ABCFGXYZ\\Gamma \\Delta \\Psi`,
             },
             {
@@ -87,6 +97,23 @@
                 title: 'Extended math symbols, arrows',
                 pic: 'ordinary-4.gif',
                 latex: `\\nleqslant\\nshortparallel\\measuredangle\\blacklozenge\\Finv\\maltese\\leftrightarrows\\curvearrowright\\looparrowright\\hookrightarrow\\nearrow`,
+            },
+            {
+              title: 'Superscript in displaystyle',
+              pic: 'superscript-displaystyle.png',
+                latex:'{}^8 x^2\\sum^{5}_{n=0}\\left(\\frac12\\right)^2\\int _{x}^{\\infty } \\sum^{5}_{n=0}\\nolimits  \\vec{x}^2 \\overset{+}{=}^2 = \\overbrace{xyz}^2'
+            },
+            {
+              title: 'Superscript in textstyle',
+                latex:'\\textstyle {}^8 x^2\\sum^{5}_{n=0}\\left(\\frac12\\right)^2\\int _{x}^{\\infty } \\sum^{5}_{n=0}\\nolimits  \\vec{x}^2 \\overset{+}{=}^2 = \\overbrace{xyz}^2'
+            },
+            {
+              title: 'Subscript',
+                latex:'{}_8 x_2\\sum^{5}_{n=0}\\left(\\frac12\\right)_2\\int _{x}^{\\infty } \\sum^{5}_{n=0}\\nolimits  \\vec{x}_2 \\overset{+}{=}_2 = \\overbrace{xyz}^2'
+            },
+            {
+              title: 'Subscript in textstyle',
+                latex:'\\textstyle {}_8 x_2\\sum^{5}_{n=0}\\left(\\frac12\\right)_2\\int _{x}^{\\infty } \\sum^{5}_{n=0}\\nolimits  \\vec{x}_2 \\overset{+}{=}_2 = \\overbrace{xyz}^2'
             },
             {
                 
@@ -197,6 +224,7 @@
             {
                 
                 title: 'Operator',
+                class:'small',
                 latex: `f(x)=\\operatorname {li}(x)-\\sum _{\\rho }\\operatorname {li}(x^{\\rho })-\\log(2)+\\int _{x}^{\\infty }{\\frac  {dt}{t(t^{2}-1)\\log(t)}}`,
             },
             {
@@ -216,6 +244,7 @@
             {
                 
                 title: '<kbd>\\nolimits</kbd>',
+                clas: 'small',
                 latex: `\\sum_{P_i \\in Paths(I)} \\text{Probes}(P_{i}) = \\sum\\nolimits_{P_i \\in Paths(I)} \\text{Probes}(P_{i})`,
             },
             {
@@ -282,6 +311,7 @@
             {
                 
                 title: 'A Rogers-Ramanujan Identity',
+                class: 'small',
                 latex: `  1 +  \\frac{q^2}{(1-q)}+\\frac{q^6}{(1-q)(1-q^2)}+\\cdots =
 \\prod_{j=0}^{\\infty}\\frac{1}{(1-q^{5j+2})(1-q^{5j+3})},
 \\quad\\quad \\text{for $|q|<1$}.`,
@@ -337,6 +367,7 @@ surface is zero.
                 
                 title: 'Riemann’s Formula',
                 pic: 'riemann.gif',
+                class: 'small',
                 latex: `\\begin{array}{lc}
     \\text{Given:}\\\\
     &    f(x)=\\operatorname {li}(x)-\\sum _{\\rho }\\operatorname {li}(x^{\\rho })-\\log(2)+\\int _{x}^{\\infty }{\\frac  {dt}{t(t^{2}-1)\\log(t)}}\\\\
@@ -356,6 +387,7 @@ surface is zero.
                 pic: 'cnoidal.gif',
                 comment:
                     '<a href="https://en.wikipedia.org/wiki/Cnoidal_wave">Cnoidal wave</a>',
+                class: 'small',
                 latex: `\\begin{align*}
     \\frac{1}{\\lambda}\\, \\int_0^\\lambda \\eta^2\\; \\text{d}x
     &= \\frac{1}{\\lambda} \\int_0^\\lambda
@@ -390,6 +422,7 @@ surface is zero.
                 title: 'The Loop Equation',
                 comment:
                     'This equation is a description of a loop in a programming language using formal methods.',
+                class: 'small',
                 latex: `\\begin{matrix}
     \\alpha\\in p(DO)
         \\quad\\Longleftrightarrow\\quad
@@ -465,21 +498,24 @@ surface is zero.
             {
                 
                 title: 'Keyboard Input: parens',
+                class: 'small',
                 latex: `a = (b+c) \\times \\lbrack d+e+f \\} + (a + (b - c \\star d) ) = 0`,
             },
             {
                 
                 title: 'Keyboard Input: Placeholders',
+                class: 'small',
                 latex: `\\alpha^2+1+\\frac{#?}{#?}+\\sqrt{#?}-x^2_{a+1}=0`,
             },
             {
                 
                 title: 'Keyboard Input: Sub-expressions',
+                class: 'small',
                 latex: `1+ {(n+\\frac{123}{456})+\\sqrt{2n+1+(a*2)}}  - x^2_{a+1}=0`,
             },
             {
                 
-                title: 'Aligned Numbers (custom column separator) *',
+                title: 'Aligned Numbers (custom column separator)',
                 latex: `\\begin{array}{r@{.}l}
     3   & 14159 \\\\
     16  & 2     \\\\
@@ -488,7 +524,8 @@ surface is zero.
             },
             {
                 
-                title: 'Modulo *',
+                title: 'Modulo',
+                class: 'fail small', 
                 latex: `\\begin{aligned}
 \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff p-1\\pmod{4}=0\\\\
 \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\mod 4 =0\\\\
@@ -497,10 +534,11 @@ surface is zero.
             },
             {
                 
-                title: '<kbd>\\vphantom</kbd> *',
+                title: '<kbd>\\vphantom</kbd>',
+                class: 'fail', 
                 latex: `\\begin{align*}
-    f & = g\\left( 3^{3^{3}} + \\text{\\textrm{\\ldots}}\\right.\\\\
-    & \\qquad \\left.+ 3\\vphantom{3^{3^{3}}} \\right)\\,.
+    f & = g\\left( 3^{3^{3}} + \\text{\\textrm{\\ldots}} \\right. \\\\
+    \\quad & \\vphantom{ 3^{3^{3}} + \\text{\\textrm{\\ldots}} } \\left.\\right)\\,.
 \\end{align*}`,
             },
             {
@@ -515,7 +553,9 @@ surface is zero.
             },
             {
                 
-                title: 'Stacked Accents with Superscript *',
+                title: 'Stacked Accents with Superscript',
+                comment: 'The superscript vertical position is incorrect',
+                class: 'fail small', 
                 pic: 'stacked-accents.gif',
                 latex: `\\vec{\\breve{\\hat{\\acute{Y}}}}^2 =
   \\vec{\\breve{\\hat{\\acute{XXX}}}}^2 =
@@ -551,7 +591,7 @@ surface is zero.
             {
                 
                 title: 'Cube root with <kbd>\\Huge</kbd> index',
-                comment: '<kbd>\\Huge</kbd> does not apply in math mode',
+                comment: '<kbd>\\Huge</kbd> does apply in math mode (unlike TeX, which applies it only sometimes)',
                 latex: 'g(x)=\\sqrt[\\Huge 3]{29}',
             },
 
@@ -618,7 +658,8 @@ surface is zero.
             },
             {
                 
-                title: '<kbd>\\atopwithdelims</kbd> *',
+                title: '<kbd>\\atopwithdelims</kbd>',
+                class: 'fail', 
                 latex: `{n \\atopwithdelims ()0}`,
             },
             {
@@ -651,6 +692,7 @@ surface is zero.
             {
                 
                 title: 'Matrix Inversion',
+                class: 'small',
                 comment:
                     'The extra line (\\\\) at the bottom of the matrices should be ignored.',
                 latex: `\\mathbf{A}^{-1} =
@@ -711,9 +753,25 @@ d & -b \\\\
                 
                 title: 'Array with mathstyle',
                 comment:
-                    'The content of <kbd>\\array</kbd> is in text mode, so technically <kbd>\\displaystyle</kbd> should be illegal. But TeX does render it, so...',
-                latex: `\\frac12 \\begin{array}{c} \\textstyle \\frac12 \\end{array}`,
+                    'The content of <kbd>\\array</kbd> is in text mode, ' + 
+                    'so technically <kbd>\\displaystyle</kbd> is illegal.' ,
+                latex: `\\frac12 \\begin{array}{cc} \\displaystyle \\frac12 & \\frac34 \\end{array}`,
             },
+            {
+                
+                title: 'Matrix with mathstyle',
+                comment:
+                    'The content of <kbd>\\bmatrix</kbd> is in <kbd>\\textstyle</kbd>. ' + 
+                    'Applying <kbd>\\displaystyle</kbd> affects the current cell only.' ,
+                latex: `\\begin{bmatrix}{c}\
+\\displaystyle \\sum_n^1 & \\sum_n^1 \\
+\\sum_n^1 
+\\end{bmatrix}`,
+            },
+
+
+            
+
             {
                 
                 title: 'Cases',
@@ -738,6 +796,7 @@ d & -b \\\\
                 
                 title: 'Array with Lines',
                 pic: 'array-with-lines.gif',
+                class: 'fail',
                 latex: `\\begin{array}{c|c}
     1 & 2 \\\\
     \\hline
@@ -847,6 +906,7 @@ d & -b \\\\
             {
                 
                 title: 'Matrix: Column Separator in Embedded Array',
+                class: 'fail',
                 latex: `-\\begin{align}
     - &= -\\begin{array}{|r} \\displaystyle \\frac12 \\end{array}
 \\end{align}`,
@@ -873,9 +933,8 @@ d & -b \\\\
             },
             {
                 
-                title: 'Quadratic Roots (<kbd>\\left</kbd>...<kbd>\\right</kbd>) *',
-                comment:
-                    'The bar of the square root is off by one pixel. LineHeight and FontSize are off compared to KaTex',
+                title: 'Quadratic Roots (<kbd>\\left</kbd>...<kbd>\\right</kbd>)',
+                class: 'small', 
                 latex: `ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)`,
             },
 
@@ -931,7 +990,7 @@ d & -b \\\\
             {
                 
                 pic: 'overunderbrace-1.gif',
-                title: 'Over/under Brace *',
+                title: 'Over/under Brace',
                 latex: `z = \\overbrace{
     \\underbrace{x}_\\text{real} + i
     \\underbrace{y}_\\text{imaginary}
@@ -939,7 +998,8 @@ d & -b \\\\
             },
             {
                 
-                title: 'Stacking *',
+                title: 'Stacking',
+                class: 'fail small', 
                 latex: `\\ell(x,y) = e\\bigl(\\arg(x+\\mathrm {i}y)\\bigr) \\quad\\stackrel{ \\mathcal{P}}{ \\hbox to 40pt{\\rightarrowfill}} \\quad \\overset {\\mbox {\\raisebox {-3pt}[0pt][0pt]{\\scriptsize $\\frown $}}}{\\ell }(r,\\varphi)=e(\\varphi)`,
             },
             {
@@ -982,15 +1042,19 @@ d & -b \\\\
             {
                 
                 title: 'Sizing',
-                pic: 'sizing-1.gif',
                 comment:
-                    '<kbd>\\Huge</kbd>, <kbd>\\large</kbd>, etc... only affect size of text mode content',
-                latex: `\\binom12  \\binom34  \\huge \\binom56 x \\text{huge}`,
+                    'In TeX, sizing commands (<kbd>\\Huge</kbd>, <kbd>\\large</kbd>, etc...)' + 
+                    ' have unpredictable results when used in Math mode. If the ' + 
+                    ' command is first, it affects subsequent math and text. If it is' + 
+                    ' not first, it affects subsequent text and complex math' + 
+                    ' expressions (square roots) but not simple ones ("x").' + 
+                    ' We decide to behave more consistently and always allow sizing commands',
+                latex: `\\binom12  \\sqrt[3]{x}  \\huge \\sqrt[3]{x} \\binom56 x \\text{huge}`,
             },
 
             {
                 
-                title: 'White *',
+                title: 'White',
                 latex: '{\\color{white}\\blacksquare}',
             },
             {
@@ -1093,6 +1157,7 @@ d & -b \\\\
             },
             {
                 title: 'Chemistry',
+                class: 'fail',                
                 latex: '\\ce{A\\sbond B\\dbond C\\tbond D }'
             },
             {
@@ -1105,6 +1170,7 @@ d & -b \\\\
             // },
             {
                 title: 'Chemistry',
+                class: 'small',
                 latex: '\\ce{$x\\,$ Na(NH4)HPO4 ->[\\Delta](NaPO3)_{$x$} + $x\\,$ NH3 ^ + $x\\,$ H2O }'
             },
             {
@@ -1133,6 +1199,7 @@ d & -b \\\\
             },
             {
                 title: 'Chemistry',
+                class: 'small',
                 latex: '\\ce{ Zn^2+ <=>[\\ce{+ 2OH-}][\\ce{+ 2H+}]$\\underset{\\text{amphoteric hydroxide}}{\\ce{Zn(OH)2 v}}$<=>C[+2OH-][{+ 2H+}]$\\underset{\\text{tetrahydroxozincate}}{\\ce{[Zn(OH)4]^2-}}$ }'
             },
             {
@@ -1142,24 +1209,28 @@ d & -b \\\\
             {
                 
                 title: 'MASTON: Numbers',
+                class: 'small',
                 comment: '',
                 latex: `1 + 2.34 + \\frac{5}{6} + (-7.8) + 901.2e^{-3} + 4,567,890 + 1\\,234 + 567d8 + 9 \\frac{1}{2} + 3~\\frac{4}{5} + 6~7/8`,
             },
             {
                 
                 title: 'MASTON: Symbols',
+                class: 'small',
                 comment: '',
                 latex: `a + \\alpha +  \\mathop{mathop} + \\aleph + \\mathrm{roman} + \\mathbf{bold} + \\pi + e - \\exponentialE + i - \\imaginaryI`,
             },
             {
                 
                 title: 'MASTON: Arithmetic operations',
+                class: 'small',
                 comment: '',
                 latex: `-xy + a\\times b - \\frac{a}{b} + x^2 - (x + 1)^{n+1} + \\alpha(q + 3) + f(x)`,
             },
             {
                 
                 title: 'MASTON: Functions',
+                class: 'small',
                 comment: '',
                 latex: `\\ln_{10}x + \\ln_{10}(x) + \\ln_{10}(x+1) + \\zeta(x+1) + \\sin x + \\sin^{-1}x`,
             },
@@ -1277,10 +1348,11 @@ d & -b \\\\
             document.getElementById(
                 'examples'
             ).innerHTML = TESTING_SAMPLES.map((x) => {
+              const titleClass = (x.class && x.class.includes('fail')) ? 'fail' : '';
                 let result =
-                    `<h2>${x.title}</h2><p>${x.comment || ''}</p>
+                    `<h2 class="${titleClass}">${x.title}</h2><p>${x.comment || ''}</p>
                     <code>${escapeHtml(x.latex)}</code>
-                    <p class="formula">
+                    <p class="formula ${x.class ?? ''}">
                       <script type='math/tex'>${x.latex}</` 
                   + 'script></p>';
                 error = [];

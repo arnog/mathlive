@@ -32,15 +32,14 @@ class ChemAtom extends Atom {
     this.latex = command + '{' + arg + '}';
     this.captureSelection = true;
   }
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const span = new Span(Atom.render(context, this.body), '', 'chem');
 
     if (this.caret) span.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
     // as if `captureSelection === true`
-    this.bind(context, span);
-    return [span];
+    return this.bind(context, span);
   }
   toLatex(_options: ToLatexOptions): string {
     return this.latex;
@@ -48,8 +47,8 @@ class ChemAtom extends Atom {
 }
 
 defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', {
-  createAtom: (command: string, args: Argument[], style: Style): Atom =>
-    new ChemAtom(name, args[0] as string),
+  createAtom: (command: string, args: Argument[], _style: Style): Atom =>
+    new ChemAtom(command, args[0] as string),
 });
 
 /*************************************************************

@@ -3,14 +3,8 @@ import { isArray } from '../common/types';
 import { Context, ContextInterface } from './context';
 import { Style, ParseMode } from '../public/core';
 import { MATHSTYLES } from './mathstyle';
-import { METRICS as FONTMETRICS } from './font-metrics';
-import {
-  makeVlist,
-  italic as spanItalic,
-  SpanType,
-  isSpanType,
-  Span,
-} from './span';
+import { METRICS as FONTMETRICS, SIZING_MULTIPLIER } from './font-metrics';
+import { makeVlist, SpanType, isSpanType, Span } from './span';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
@@ -76,7 +70,7 @@ export type AtomType =
   | 'genfrac' // A generalized fraction: a numerator and denominator, separated
   // by an optional line, and surrounded by optional fences
   | 'group' // A simple group of atoms, for example from a `{...}`
-  | 'latex' // `latex` indicate a raw latex atom
+  | 'latex' // A raw latex atom
   | 'leftright' // Used by the `\left` and `\right` commands
   | 'line' // Used by `\overline` and `\underline`
   | 'macro'
@@ -107,20 +101,6 @@ export type BBoxParameter = {
   border?: string;
 };
 
-// A table of size -> font size for the different sizing functions
-const SIZING_MULTIPLIER = {
-  size1: 0.5,
-  size2: 0.7,
-  size3: 0.8,
-  size4: 0.9,
-  size5: 1.0,
-  size6: 1.2,
-  size7: 1.44,
-  size8: 1.728,
-  size9: 2.074,
-  size10: 2.488,
-};
-
 /**
  * An atom is an object encapsulating an elementary mathematical unit,
  * independent of its graphical representation.
@@ -146,15 +126,19 @@ export class Atom {
 
   // Latex command ('\sin') or character ('a')
   command: string;
+
   // Verbatim Latex of the command and its arguments
   latex?: string;
-  // If true, the atom is an extensible symbol (affects layout of supsub)
-  isExtensibleSymbol: boolean;
+
+  style: Style;
+  mode: ParseMode;
+
   // If true, the atom represents a function (which can be followed by parentheses)
   // e.g. "f" or "\sin"
   isFunction: boolean;
 
   isSelected: boolean;
+
   // If the atom or one of its descendant includes the caret
   // (used to highligth surd or fences to make clearer where the caret is
   containsCaret: boolean;
@@ -162,12 +146,19 @@ export class Atom {
 
   // How to display "limits" (i.e. superscript/subscript) for example
   // with `\sum`:
-  // - 'limits': above and below the symbold
-  // - 'nolimits': in superscript and subscript positions (for example
-  // when in `textstyle`)
-  limits?: 'limits' | 'nolimits' | 'accent' | 'overunder' | 'auto';
-  // True if the limits were set by a command
-  explicitLimits?: boolean;
+  // - 'over-under': directly above and below the symbol
+  // - 'adjacent': to the right, above and below the baseline (for example
+  // for operators in `textstyle` style)
+  // - 'auto': 'over-under' in \displaystyle, 'adjacent' otherwise
+  subsupPlacement?: 'auto' | 'over-under' | 'adjacent';
+
+  // True if the subsupPlacement was set by `\limits` or `\nolimits`.
+  // Necessary so the propert latex can be output
+  explicitSubsupPlacement?: boolean;
+
+  // If true, the atom is an operator such as `\int` or `\sum`
+  // (affects layout of supsub)
+  isExtensibleSymbol: boolean;
 
   // If true, when the caret reaches the
   // first position in this element's body, it automatically moves to the
@@ -175,18 +166,18 @@ export class Atom {
   // right after this element, it automatically moves to the last position
   // inside this element.
   skipBoundary?: boolean;
+
   // If true, this atom does not let its children be selected. Used by the
   // `\enclose` annotations, for example.
   captureSelection?: boolean;
 
-  style: Style;
-  mode: ParseMode;
-
   // If true, some structural changes have been made to the atom
   // (insertion or removal of children) or one of its children is dirty
   private _isDirty: boolean;
+
   // A monotonically increasing counter to detect structural changes
   private _changeCounter: number;
+
   // Cached list of children, invalidated when isDirty = true
   private _children: Atom[];
 
@@ -201,9 +192,8 @@ export class Atom {
       command?: string;
       mode?: ParseMode;
       value?: string;
-      isExtensibleSymbol?: boolean;
       isFunction?: boolean;
-      limits?: 'limits' | 'nolimits' | 'accent' | 'overunder' | 'auto';
+      limits?: 'auto' | 'over-under' | 'adjacent';
       style?: Style;
       toLatexOverride?: (atom: Atom, options: ToLatexOptions) => string;
     }
@@ -218,9 +208,8 @@ export class Atom {
     this._changeCounter = 0;
 
     this.mode = options?.mode ?? 'math';
-    this.isExtensibleSymbol = options?.isExtensibleSymbol ?? false;
     this.isFunction = options?.isFunction ?? false;
-    this.limits = options?.limits;
+    this.subsupPlacement = options?.limits;
     this.style = options?.style ?? {};
     this.toLatexOverride = options?.toLatexOverride;
   }
@@ -295,12 +284,11 @@ export class Atom {
 
     let result: Span[] | null = [];
     if (atoms.length === 1) {
-      result = atoms[0].render(context);
-      if (result && displaySelection && atoms[0].isSelected) {
-        for (const span of result) span.selected(true);
+      const span = atoms[0].render(context);
+      if (span && displaySelection && atoms[0].isSelected) {
+        span.selected(true);
       }
-
-      console.assert(!result || isArray(result));
+      if (span) result = [span];
     } else {
       let selection: Span[] = [];
       let digitOrTextStringID = '';
@@ -314,15 +302,14 @@ export class Atom {
           context.atomIdsSettings.overrideID = digitOrTextStringID;
         }
 
-        const span: Span[] = atom.render(context);
+        const span: Span = atom.render(context);
         if (context.atomIdsSettings) {
           context.atomIdsSettings.overrideID = null;
         }
 
         if (span) {
           // Flatten the spans (i.e. [[a1, a2], b1, b2] -> [a1, a2, b1, b2]
-          const flat = [].concat(...span);
-          context.phantomBase = flat;
+          context.phantomBase = [span];
 
           // If this is a digit or text run, keep track of it
           if (context.atomIdsSettings?.groupNumbers) {
@@ -346,7 +333,7 @@ export class Atom {
           }
 
           if (displaySelection && atom.isSelected) {
-            selection = selection.concat(flat);
+            selection.push(span);
             for (const span of selection) span.selected(true);
           } else {
             if (selection.length > 0) {
@@ -356,7 +343,7 @@ export class Atom {
               selection = [];
             }
 
-            result = result.concat(flat);
+            result.push(span);
           }
         }
       }
@@ -889,9 +876,9 @@ export class Atom {
     if (this._children) return this._children;
     if (!this._branches) return [];
     const result = [];
-    for (const branch of NAMED_BRANCHES) {
-      if (this._branches[branch]) {
-        for (const x of this._branches[branch]) {
+    for (const branchName of NAMED_BRANCHES) {
+      if (this._branches[branchName]) {
+        for (const x of this._branches[branchName]) {
           result.push(...x.children);
           result.push(x);
         }
@@ -907,22 +894,24 @@ export class Atom {
    *
    * @param context Font variant, size, color, etc...
    */
-  render(context: Context): Span[] | null {
+  render(context: Context): Span | null {
     // Render the body branch if present, even if it's empty (need to
     // render the 'first' atom to render the caret in an empty branch)
     let result: Span = this.makeSpan(context, this.body ?? this.value, {
-      classes: this.containsCaret ? 'ML__contains-caret' : '',
+      classes:
+        (this.containsCaret ? 'ML__contains-caret' : '') +
+        (this.type === 'root' ? ' ML__base' : ''),
     });
     if (!result) return null;
 
     // Finally, render any necessary superscript, subscripts
-    if (!this.limits && (this.superscript || this.subscript)) {
+    if (!this.subsupPlacement && (this.superscript || this.subscript)) {
       // If `limits` is set, the attachment of sup/sub was handled
       // in the atom decomposition (e.g. mop, accent)
       result = this.attachSupsub(context, result, result.type);
     }
 
-    return [result];
+    return result;
   }
 
   attachSupsub(context: Context, nucleus: Span, type: SpanType): Span {
@@ -937,13 +926,13 @@ export class Atom {
     const { mathstyle } = context;
     let supmid: Span = null;
     let submid: Span = null;
-    if (this._branches.superscript) {
-      const sup = Atom.render(context.sup(), this._branches.superscript);
+    if (this.superscript) {
+      const sup = Atom.render(context.sup(), this.superscript);
       supmid = new Span(sup, { classes: mathstyle.adjustTo(mathstyle.sup()) });
     }
 
-    if (this._branches.subscript) {
-      const sub = Atom.render(context.sub(), this._branches.subscript);
+    if (this.subscript) {
+      const sub = Atom.render(context.sub(), this.subscript);
       submid = new Span(sub, { classes: mathstyle.adjustTo(mathstyle.sub()) });
     }
 
@@ -994,14 +983,17 @@ export class Atom {
 
       supsub = makeVlist(
         context,
-        [submid, subShift, supmid, -supShift],
+        [
+          [submid, subShift],
+          [supmid, -supShift],
+        ],
         'individualShift'
       );
       // Subscripts shouldn't be shifted by the nucleus' italic correction.
       // Account for that by shifting the subscript back the appropriate
       // amount. Note we only do this when the nucleus is a single symbol.
       if (this.isExtensibleSymbol) {
-        supsub.children[0].left = -spanItalic(nucleus);
+        supsub.children[0].left = -(nucleus.italic ?? 0);
       }
     } else if (submid && !supmid) {
       // Rule 18b
@@ -1013,7 +1005,7 @@ export class Atom {
       supsub = makeVlist(context, [submid], 'shift', { initialPos: subShift });
       supsub.children[0].right = scriptspace;
       if (this.isCharacterBox()) {
-        supsub.children[0].left = -spanItalic(nucleus);
+        supsub.children[0].left = -(nucleus.italic ?? 0);
       }
     } else if (!submid && supmid) {
       // Rule 18c, d

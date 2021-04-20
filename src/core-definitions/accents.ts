@@ -70,9 +70,8 @@ defineFunction('^', '{:string}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom =>
     new Atom('mord', {
       command,
-      isExtensibleSymbol: false,
       isFunction: false,
-      limits: 'nolimits',
+      limits: 'adjacent',
       style,
       value: args[0]
         ? {
@@ -95,9 +94,8 @@ defineFunction('`', '{:string}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom =>
     new Atom('mord', {
       command,
-      isExtensibleSymbol: false,
       isFunction: false,
-      limits: 'nolimits',
+      limits: 'adjacent',
       style,
       value: args[0]
         ? {
@@ -120,9 +118,8 @@ defineFunction("'", '{:string}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom =>
     new Atom('mord', {
       command,
-      isExtensibleSymbol: false,
       isFunction: false,
-      limits: 'nolimits',
+      limits: 'adjacent',
       style,
       value: args[0]
         ? {
@@ -145,9 +142,8 @@ defineFunction('~', '{:string}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom =>
     new Atom('mord', {
       command,
-      isExtensibleSymbol: false,
       isFunction: false,
-      limits: 'nolimits',
+      limits: 'adjacent',
       style,
       value: args[0]
         ? { n: 'ñ', N: 'Ñ', a: 'ã', o: 'õ', A: 'Ã', O: 'Õ' }[
@@ -161,9 +157,8 @@ defineFunction('c', '{:string}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom =>
     new Atom('mord', {
       command,
-      isExtensibleSymbol: false,
       isFunction: false,
-      limits: 'nolimits',
+      limits: 'adjacent',
       style,
       value: args[0] ? { c: 'ç', C: 'Ç' }[args[0] as string] ?? '' : '',
     }),

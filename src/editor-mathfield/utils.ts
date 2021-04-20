@@ -163,7 +163,7 @@ function getNodeBounds(node: Element): Rect {
     left: bounds.left,
     right: bounds.right - 1 + marginRight,
   };
-  if (node.children.length > 0 && node.tagName !== 'SVG') {
+  if (node.children.length > 0 && node.tagName.toUpperCase() !== 'SVG') {
     for (const child of node.children) {
       if (child.nodeType === 1) {
         const r: Rect = getNodeBounds(child);

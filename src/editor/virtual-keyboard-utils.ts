@@ -348,15 +348,18 @@ const ALT_KEYS_BASE = {
     '\\leqq',
     '\\lneqq',
     '\\ll',
+
+    '\\lessgtr',
     '\\nless',
     '\\nleq',
-    '\\precsim',
     '\\lesssim',
-    '\\lessgtr',
+
+    '\\precsim',
     '\\prec',
-    '\\preccurlyeq',
-    '\\lessdot',
     '\\nprec',
+    '\\preccurlyeq',
+
+    '\\lessdot',
   ],
 
   '>': [
@@ -364,15 +367,18 @@ const ALT_KEYS_BASE = {
     '\\geqq',
     '\\gneqq',
     '\\gg',
+
+    '\\gtrless',
     '\\ngtr',
     '\\ngeq',
-    '\\succsim',
     '\\gtrsim',
-    '\\gtrless',
+
+    '\\succsim',
     '\\succ',
-    '\\succcurlyeq',
-    '\\gtrdot',
     '\\nsucc',
+    '\\succcurlyeq',
+
+    '\\gtrdot',
   ],
 
   'set': ['\\in', '\\owns', '\\subset', '\\nsubset', '\\supset', '\\nsupset'],
@@ -624,8 +630,8 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <row name='numpad-2'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='$$#@^{2}$$'><span><i>x</i>&thinsp;²</span></li>
-                <li class='keycap tex' data-alt-keys='^' data-insert='$$#@^{#?}$$'><span><i>x</i><sup>&thinsp;<small>&#x2b1a;</small></sup></span></li>
+                <li class='keycap tex' data-insert='$$#@^{2}$$' data-latex='x^2'></li>
+                <li class='keycap tex' data-alt-keys='^' data-insert='$$#@^{#?}$$' data-latex='x^\\placeholder'></li>
                 <li class='keycap tex small' data-insert='$$\\sqrt{#0}$$' data-latex='\\sqrt{#0}'></li>
             </ul>
             <ul>
@@ -634,8 +640,8 @@ const LAYERS = {
                 <li class='separator w5'></li>
                 <row name='numpad-3'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex small' data-alt-keys='int' data-latex='\\int_0^\\infty'><span></span></li>
-                <li class='keycap tex' data-latex='\\forall' data-alt-keys='logic' ></li>
+                <li class='keycap small' data-alt-keys='int' data-latex='\\int_0^\\infty'></li>
+                <li class='keycap' data-latex='\\forall' data-alt-keys='logic' ></li>
                 <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'>&#x232b;</li></ul>
             </ul>
             <ul>
@@ -912,9 +918,9 @@ const LAYERS = {
                 <li class='bigfnbutton' data-insert='$$\\operatorname{abs}(#?)$$' data-latex='\\operatorname{abs}()'></li>
             </ul>
             <ul><li class='separator'></li>
-                <li class='fnbutton' data-insert='\\cos'></li>
-                <li class='fnbutton' data-insert='\\cos^{-1}'></li>
-                <li class='fnbutton' data-insert='\\ln_{10}'></li>
+                <li class='fnbutton' data-latex='\\cos'></li>
+                <li class='fnbutton' data-latex='\\cos^{-1}'></li>
+                <li class='fnbutton' data-latex='\\ln_{10}'></li>
                 <li class='fnbutton' data-insert='$$10^{#?}$$'></li>
                 <li class='bigfnbutton' data-insert='$$\\operatorname{gcd}(#?)$$' data-latex='\\operatorname{gcd}()'></li>
                 <li class='bigfnbutton' data-insert='$$\\operatorname{floor}(#?)$$' data-latex='\\operatorname{floor}()'></li>
@@ -923,8 +929,8 @@ const LAYERS = {
                 <li class='bigfnbutton' data-insert='$$\\operatorname{sign}(#?)$$' data-latex='\\operatorname{sign}()'></li>
             </ul>
             <ul><li class='separator'></li>
-                <li class='fnbutton' data-insert='\\tan'></li>
-                <li class='fnbutton' data-insert='\\tan^{-1}'></li>
+                <li class='fnbutton' data-latex='\\tan'></li>
+                <li class='fnbutton' data-latex='\\tan^{-1}'></li>
                 <li class='fnbutton' data-insert='$$\\log_{#?}$$'></li>
                 <li class='fnbutton' data-insert='$$\\sqrt[#?]{#0}$$'></li>
                 <li class='bigfnbutton' data-insert='$$#0 \\mod$$' data-latex='\\mod'></li>
@@ -935,8 +941,8 @@ const LAYERS = {
             <ul><li class='separator'></li>
                 <li class='fnbutton'>(</li>
                 <li class='fnbutton'>)</li>
-                <li class='fnbutton' data-insert='$$^{#?} $$' data-latex='x^{#?} '></li>
-                <li class='fnbutton' data-insert='$$_{#?} $$' data-latex='x_{#?} '></li>
+                <li class='fnbutton' data-insert='$$^{#?}$$' data-latex='x^{#?}'></li>
+                <li class='fnbutton' data-insert='$$_{#?}$$' data-latex='x_{#?}'></li>
                 <li class='keycap w20 ' data-key=' '>&nbsp;</li>
                 <arrows/>
             </ul>

@@ -43,7 +43,7 @@ export class GroupAtom extends Atom {
     this.skipBoundary = true;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     // The scope of the context is this group, so clone it
     // so that any changes to it will be discarded when finished
     // with this group.
@@ -69,8 +69,7 @@ export class GroupAtom extends Atom {
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
     // as if `captureSelection === true`
-    this.bind(context, span);
-    return [span];
+    return this.bind(context, span);
   }
 
   toLatex(options: ToLatexOptions): string {

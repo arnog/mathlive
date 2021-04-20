@@ -8,7 +8,7 @@ export class SubsupAtom extends Atom {
     super('msubsup', { style: options?.style });
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     // The caret for this atom type is handled by its elements
 
     // The span type of a `subsup` atom is 'supsub' as it doesn't
@@ -19,9 +19,9 @@ export class SubsupAtom extends Atom {
       result.depth = spanDepth(context.phantomBase);
     }
 
-    console.assert(!this.limits);
+    console.assert(!this.subsupPlacement);
 
-    return [this.attachSupsub(context, result, 'supsub')];
+    return this.attachSupsub(context, result, 'supsub');
   }
 
   toLatex(options: ToLatexOptions): string {

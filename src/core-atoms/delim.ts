@@ -19,10 +19,10 @@ export class DelimAtom extends Atom {
     this.size = options?.size;
   }
 
-  render(_context: Context): Span[] {
+  render(_context: Context): Span {
     const span = new Span(null);
     span.delim = this.value;
-    return [span];
+    return span;
   }
 
   toLatex(_options: ToLatexOptions): string {
@@ -52,7 +52,7 @@ export class SizedDelimAtom extends Atom {
     this.size = options.size;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const result = this.bind(
       context,
       makeSizedDelim(this.value, this.size, context, {
@@ -60,7 +60,7 @@ export class SizedDelimAtom extends Atom {
       })
     );
     if (this.caret) result.caret = this.caret;
-    return [result];
+    return result;
   }
 
   toLatex(_options: ToLatexOptions): string {

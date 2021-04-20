@@ -26,7 +26,7 @@ export class LatexAtom extends Atom {
     return {};
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const result = new Span(this.value, {
       classes: this.isSuggestion
         ? 'ML__suggestion'
@@ -36,8 +36,7 @@ export class LatexAtom extends Atom {
       type: 'latex',
     });
     if (this.caret) result.caret = this.caret;
-    this.bind(context, result);
-    return [result];
+    return this.bind(context, result);
   }
 }
 
@@ -53,15 +52,14 @@ export class LatexGroupAtom extends Atom {
     this.skipBoundary = false;
   }
 
-  render(context: Context): Span[] {
+  render(context: Context): Span {
     const span = new Span(Atom.render(context, this.body), { type: 'mord' });
 
     if (this.caret) span.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
     // as if `captureSelection === true`
-    this.bind(context, span);
-    return [span];
+    return this.bind(context, span);
   }
 
   toLatex(_options: ToLatexOptions): string {
