@@ -30,13 +30,9 @@ export function requestUpdate(
     mathfield.dirty = true;
     requestAnimationFrame(() => {
       if (isValidMathfield(mathfield) && mathfield.dirty) {
-        let hadCache = true;
-        if (!mathfield._atomBoundsCache) {
-          hadCache = false;
-          mathfield._atomBoundsCache = new Map<string, Rect>();
-        }
+        mathfield._atomBoundsCache = new Map<string, Rect>();
         render(mathfield, options);
-        if (!hadCache) mathfield._atomBoundsCache = undefined;
+        mathfield._atomBoundsCache = undefined;
       }
     });
   }
