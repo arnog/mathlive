@@ -68,7 +68,10 @@ function makeStyleWrap(
       (options.classes ?? '') + ' style-wrap ' + fromStyle.adjustTo(toStyle),
   });
 
-  const multiplier = toStyle.sizeMultiplier / fromStyle.sizeMultiplier;
+  const multiplier =
+    (SIZING_MULTIPLIER[options.style?.fontSize] ?? 1) *
+    (toStyle.sizeMultiplier / fromStyle.sizeMultiplier);
+
   result.height *= multiplier;
   result.depth *= multiplier;
   result.maxFontSize = multiplier; /** @revisit: shouldn't that be `multiplier` ? */
