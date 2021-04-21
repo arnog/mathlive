@@ -13,7 +13,7 @@ import type {
 
 import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
-import { coalesce, makeStruts } from './core/span';
+import { coalesce, makeStruts, Span } from './core/span';
 import { MACROS, MacroDictionary } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
 import AutoRender, { AutoRenderOptionsPrivate } from './addons/auto-render';
@@ -102,6 +102,7 @@ export function convertLatexToMarkup(
       new Context({
         mathstyle: MATHSTYLES[options.mathstyle],
         letterShapeStyle: options.letterShapeStyle,
+        renderPlaceholder: (_context: Context) => new Span(null),
       })
     )
   );

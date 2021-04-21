@@ -26,6 +26,7 @@ export interface ContextInterface {
     seed: string | number;
   };
   mathstyle?: Mathstyle;
+  renderPlaceholder?: (context: Context) => Span;
   parentMathstyle?: Mathstyle;
   size?: FontSize | 'auto';
   parentSize?: FontSize;
@@ -80,6 +81,7 @@ export class Context implements ContextInterface {
   letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
   opacity?: number;
   color?: string;
+  renderPlaceholder?: (context: Context) => Span;
   smartFence?: boolean;
   phantomBase?: Span[]; // The spans to use to calculate the placement of the sup/sub
   // Used by 'msubsup' scaffolding atoms
@@ -99,6 +101,7 @@ export class Context implements ContextInterface {
     }
 
     this.parentMathstyle = from.parentMathstyle ?? this.mathstyle;
+    this.renderPlaceholder = from.renderPlaceholder;
     this.parentSize = from.parentSize ?? this.size;
 
     this.opacity = from.opacity;

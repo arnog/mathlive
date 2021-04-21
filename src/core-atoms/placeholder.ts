@@ -14,6 +14,9 @@ export class PlaceholderAtom extends Atom {
   }
 
   render(context: Context): Span {
+    if (typeof context.renderPlaceholder === 'function') {
+      return context.renderPlaceholder(context);
+    }
     return this.makeSpan(context, '⬚', {
       classes: this.caret ? 'ML__placeholder-selected' : '',
     });
