@@ -103,7 +103,10 @@ export function render(
   //
   const base = model.root.render(
     new Context({
-      mathstyle: MATHSTYLES.displaystyle,
+      mathstyle:
+        mathfield.options.defaultMode === 'inline-math'
+          ? MATHSTYLES.textstyle
+          : MATHSTYLES.displaystyle,
       letterShapeStyle: mathfield.options.letterShapeStyle,
       atomIdsSettings: {
         // Using the hash as a seed for the ID

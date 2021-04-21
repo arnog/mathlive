@@ -32,6 +32,7 @@ import { moveAfterParent } from '../editor-model/commands-move';
 import { range } from '../editor-model/selection-utils';
 import { insertSmartFence } from './mode-editor-math';
 import { ModeEditor } from './mode-editor';
+import { effectiveMode } from '../editor/options';
 
 export function showKeystroke(
   mathfield: MathfieldPrivate,
@@ -129,7 +130,7 @@ export function onKeystroke(
         const context: Atom[] = mathfield.keystrokeBufferStates[i]
           ? parseLatex(
               mathfield.keystrokeBufferStates[i].latex,
-              mathfield.options.defaultMode,
+              effectiveMode(mathfield.options),
               null,
               mathfield.options.macros
             )

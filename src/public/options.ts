@@ -757,7 +757,13 @@ export type EditingOptions = {
 };
 
 export type LayoutOptions = {
-  defaultMode: 'math' | 'text';
+  /**
+   * The mode of the element when it is empty:
+   * - `'math'`: equivalent to `\displaystyle` (display math mode)
+   * - `'inline-math'`: equivalent to `\inlinestyle` (inline math mode)
+   * - `'text'`: text mode
+   */
+  defaultMode: 'inline-math' | 'math' | 'text';
   /**
  *A dictionary of LaTeX macros to be used to interpret and render the content.
  *

@@ -22,6 +22,9 @@
   Dominik!
 - Simplified the specification of virtual keyboards: the `keycap` class no
   longer needs to be specified for each keycap.
+- The `defaultMode` property or the `default-mode` attribute can be set to a
+  value of `inline-math` to set the mathfield in inline math `\textstyle` by
+  default.
 
 ### Bug Fixes
 

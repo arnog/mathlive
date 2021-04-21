@@ -363,3 +363,10 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onError: (): void => {},
   };
 }
+
+export function effectiveMode(
+  options: MathfieldOptionsPrivate
+): 'math' | 'text' {
+  if (options.defaultMode === 'inline-math') return 'math';
+  return options.defaultMode;
+}

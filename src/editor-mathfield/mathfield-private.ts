@@ -38,6 +38,7 @@ import {
   update as updateOptions,
   getDefault as getDefaultOptions,
   get as getOptions,
+  effectiveMode,
 } from '../editor/options';
 import {
   removeComposition,
@@ -372,7 +373,7 @@ export class MathfieldPrivate implements Mathfield {
     // It is often identical to getAnchorMode() since changing the selection
     // changes the mode, but sometimes it is not, for example when a user
     // enters a mode changing command.
-    this.mode = this.options.defaultMode;
+    this.mode = effectiveMode(this.options);
     this.smartModeSuppressed = false;
     // Current style (color, weight, italic, etc...):
     // reflects the style to be applied on next insertion.
@@ -444,7 +445,7 @@ export class MathfieldPrivate implements Mathfield {
     // Setup the model
     this.model = new ModelPrivate(
       {
-        mode: this.options.defaultMode,
+        mode: effectiveMode(this.options),
         macros: this.options.macros,
         removeExtraneousParentheses: this.options.removeExtraneousParentheses,
       },
@@ -1289,7 +1290,7 @@ export class MathfieldPrivate implements Mathfield {
     // Adjust mode
     {
       const cursor = this.model.at(this.model.position);
-      const newMode = cursor.mode ?? this.options.defaultMode;
+      const newMode = cursor.mode ?? effectiveMode(this.options);
       if (this.mode !== newMode) {
         if (this.mode === 'latex') {
           complete(this, 'accept', { mode: newMode });
