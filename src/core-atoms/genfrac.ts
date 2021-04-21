@@ -88,9 +88,7 @@ export class GenfracAtom extends Atom {
     numer = numer.concat(
       Atom.render(newContext.clone({ mathstyle: numeratorStyle }), this.above)
     );
-    const numerSpans = makeHlist(numer, {
-      classes: context.mathstyle.adjustTo(numeratorStyle),
-    });
+    const numerSpans = makeHlist(numer);
 
     const denominatorStyle = this.continuousFraction
       ? outerstyle
@@ -102,9 +100,7 @@ export class GenfracAtom extends Atom {
     denom = denom.concat(
       Atom.render(newContext.clone({ mathstyle: denominatorStyle }), this.below)
     );
-    const denomSpans = makeHlist(denom, {
-      classes: context.mathstyle.adjustTo(denominatorStyle),
-    });
+    const denomSpans = makeHlist(denom);
     const ruleWidth = !this.hasBarLine
       ? 0
       : FONTMETRICS.defaultRuleThickness / outerstyle.sizeMultiplier;

@@ -69,17 +69,13 @@ export class OverunderAtom extends Atom {
     if (this.svgAbove) {
       above = makeSVGSpan(this.svgAbove);
     } else if (this.above) {
-      above = new Span(Atom.render(annotationStyle, this.above), {
-        classes: context.mathstyle.adjustTo(annotationStyle.mathstyle),
-      });
+      above = new Span(Atom.render(annotationStyle, this.above));
     }
 
     if (this.svgBelow) {
       below = makeSVGSpan(this.svgBelow);
     } else if (this.below) {
-      below = new Span(Atom.render(annotationStyle, this.below), {
-        classes: context.mathstyle.adjustTo(annotationStyle.mathstyle),
-      });
+      below = new Span(Atom.render(annotationStyle, this.below));
     }
 
     if (above && below) {

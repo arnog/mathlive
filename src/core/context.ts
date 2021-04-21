@@ -134,11 +134,12 @@ export class Context implements ContextInterface {
       // `'auto'` (or undefined) to indicate that the mathstyle should in
       // fact not be changed. This is used when specifying the mathstyle
       // for some environments.
+      const previousMathstyle = this.mathstyle;
       Object.assign(result, override);
       if (!override.mathstyle) {
-        result.mathstyle = this.mathstyle;
+        result.mathstyle = previousMathstyle;
       } else {
-        result.parentMathstyle = this.mathstyle;
+        result.parentMathstyle = previousMathstyle;
         if (typeof override.mathstyle === 'string') {
           result.mathstyle = MATHSTYLES[override.mathstyle];
         }

@@ -897,10 +897,14 @@ export class Atom {
   render(context: Context): Span | null {
     // Render the body branch if present, even if it's empty (need to
     // render the 'first' atom to render the caret in an empty branch)
+    let classes = '';
+    if (this.containsCaret) classes += 'ML__contains';
+    if (this.type === 'root') classes += ' ML__base';
+    if (this.type !== 'first') {
+      classes += context.parentMathstyle.adjustTo(context.mathstyle);
+    }
     let result: Span = this.makeSpan(context, this.body ?? this.value, {
-      classes:
-        (this.containsCaret ? 'ML__contains-caret' : '') +
-        (this.type === 'root' ? ' ML__base' : ''),
+      classes,
     });
     if (!result) return null;
 
@@ -927,13 +931,11 @@ export class Atom {
     let supmid: Span = null;
     let submid: Span = null;
     if (this.superscript) {
-      const sup = Atom.render(context.sup(), this.superscript);
-      supmid = new Span(sup, { classes: mathstyle.adjustTo(mathstyle.sup()) });
+      supmid = new Span(Atom.render(context.sup(), this.superscript));
     }
 
     if (this.subscript) {
-      const sub = Atom.render(context.sub(), this.subscript);
-      submid = new Span(sub, { classes: mathstyle.adjustTo(mathstyle.sub()) });
+      submid = new Span(Atom.render(context.sub(), this.subscript));
     }
 
     // Rule 18a, p445
@@ -1036,14 +1038,10 @@ export class Atom {
     slant: number
   ): Span {
     const limitAbove = this.superscript
-      ? new Span(Atom.render(context.sup(), this.superscript), {
-          classes: context.mathstyle.adjustTo(context.mathstyle.sup()),
-        })
+      ? new Span(Atom.render(context.sup(), this.superscript))
       : null;
     const limitBelow = this.subscript
-      ? new Span(Atom.render(context.sub(), this.subscript), {
-          classes: context.mathstyle.adjustTo(context.mathstyle.sub()),
-        })
+      ? new Span(Atom.render(context.sub(), this.subscript))
       : null;
     return makeLimitsStack(
       context,

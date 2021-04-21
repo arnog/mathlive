@@ -116,9 +116,7 @@ export class SurdAtom extends Atom {
     const newcontext = context.clone({
       mathstyle: MATHSTYLES.scriptscriptstyle,
     });
-    const root = new Span(Atom.render(newcontext, this.above), {
-      classes: mathstyle.adjustTo(MATHSTYLES.scriptscriptstyle),
-    });
+    const root = new Span(Atom.render(newcontext, this.above));
     // Figure out the height and depth of the inner part
     const innerRootHeight = Math.max(delim.height, body.height);
     const innerRootDepth = Math.max(delim.depth, body.depth);
