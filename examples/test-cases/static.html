@@ -488,6 +488,44 @@ surface is zero.
             },
             {
                 
+                title: '<kbd>cases</kbd> Spacing',
+                latex: `\\left|
+    \\begin{cases}
+        \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+        \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+    \\end{cases}
+\\right|`,
+            },
+            {
+                
+                title: 'Cases',
+                latex: `f(n) = \\begin{cases}
+    \\frac{n}{2}, &
+        \\text{if } n\\text{ is even} \\\\
+    3n+1, &
+        \\text{if } n\\text{ is odd}
+\\end{cases}`,
+            },
+
+            {
+                
+                title: '<kbd>cases</kbd> is <kbd>\\textstyle</kbd>',
+                latex: `= \\begin{cases}
+    \\sum_n^{100} \\\\
+    \\displaystyle \\sum_n^{100}
+\\end{cases}`,
+            },
+            {
+                
+                title: '<kbd>dcases</kbd> is <kbd>\\displaystyle</kbd>',
+                latex: `= \\begin{dcases}
+    \\sum_n^{100} \\\\
+    \\textstyle\\sum_n^{100} 
+\\end{dcases}`,
+            },
+
+            {
+                
                 title: 'Matrix with Fractions',
                 comment: 'The cells of the matrix should be in textstyle.',
                 latex: `\\begin{pmatrix}
@@ -772,16 +810,7 @@ d & -b \\\\
 
             
 
-            {
-                
-                title: 'Cases',
-                latex: `f(n) = \\begin{cases}
-    \\frac{n}{2}, &
-        \\text{if } n\\text{ is even} \\\\
-    3n+1, &
-        \\text{if } n\\text{ is odd}
-\\end{cases}`,
-            },
+
             {
                 
                 title: 'Array with column format',
@@ -890,16 +919,6 @@ d & -b \\\\
         \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
         \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
     \\end{matrix*}
-\\right|`,
-            },
-            {
-                
-                title: '<kbd>cases</kbd> Spacing',
-                latex: `\\left|
-    \\begin{cases}
-        \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-        \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
-    \\end{cases}
 \\right|`,
             },
 

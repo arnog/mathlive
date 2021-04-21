@@ -229,6 +229,10 @@ describe('ENVIRONMENTS', function () {
     '\\begin{bmatrix}a & b & c\\\\ d \\end{bmatrix}',
     '\\begin{bmatrix}a & b & c\\\\ d \\\\ g & h & i & j\\end{bmatrix}',
     '\\begin{array}{ll}xyz & abc & 123 \\\\ cde & fgh \\end{array}',
+    '\\begin{Bmatrix}a & b & c\\end{Bmatrix}',
+    '\\begin{pmatrix}a & b & c\\end{pmatrix}',
+    '\\begin{cases}\\sum_n^{100}+\\frac{x-y}{4}=\\frac{4-y}{8}\\\\-\\frac{y+3}{8}=\\frac{1-2x}{8}+\\sum_n^{100}\\end{cases}',
+    '\\begin{dcases}\\sum_n^{100}+\\frac{x-y}{4}=\\frac{4-y}{8}\\\\-\\frac{y+3}{8}=\\frac{1-2x}{8}+\\sum_n^{100}\\end{dcases}',
   ])('%#/ %s renders correctly', (x) => {
     expect(markupAndError(x)).toMatchSnapshot();
   });

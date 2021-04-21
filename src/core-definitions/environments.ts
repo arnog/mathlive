@@ -372,8 +372,10 @@ defineTabularEnvironment(
   }
 );
 
+// \cases is standard LaTeX
+// \dcases is from the mathtools package
 defineTabularEnvironment(
-  'cases',
+  ['cases', 'dcases'],
   '',
   (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
     // From amstex.sty:
@@ -387,6 +389,7 @@ defineTabularEnvironment(
     //   \def\arraystretch{1.2}%
     //   \array{@{}l@{\quad}l@{}}%
     return new ArrayAtom(name, array, rowGaps, {
+      mathStyleName: name === 'dcases' ? 'displaystyle' : 'textstyle',
       arraystretch: 1.2,
       leftDelim: '\\lbrace',
       rightDelim: '.',

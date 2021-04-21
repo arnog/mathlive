@@ -10,6 +10,8 @@
   browsers support `woff2` at this point.
 - Apply sizing commands (e.g. `\Huge`) to math mode. TeX is inconsistent in how
   it handles those. We choose to always apply them in math mode.
+- Added support for `dcases` environment: like `cases` but in `displaystyle` by
+  default.
 
 ### New Features
 
@@ -56,6 +58,7 @@
   button would not be vertically centered in the field.
 - Correctly layout superscripts after `\overset` (they are adjacent, not over,
   unlike `\overbrace`).
+- The `cases` environment should be in inline mode (`textstyle`) by default.
 
 ## 0.60.1 (2021-04-13)
 
