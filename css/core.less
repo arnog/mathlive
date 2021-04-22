@@ -318,98 +318,39 @@ body.ML__fonts-loading .ML__base {
     }
   }
 
-  .rspace {
-    &.negativethinspace {
-      margin-right: -@thinspace;
-    }
-
-    &.thinspace {
-      margin-right: @thinspace;
-    }
-
-    &.negativemediumspace {
-      margin-right: -@mediumspace;
-    }
-
-    &.mediumspace {
-      margin-right: @mediumspace;
-    }
-
-    &.thickspace {
-      margin-right: @thickspace;
-    }
-
-    &.sixmuspace {
-      margin-right: 0.333333em;
-    }
-
-    &.eightmuspace {
-      margin-right: 0.444444em;
-    }
-
-    &.enspace {
-      margin-right: 0.5em;
-    }
-
-    &.twelvemuspace {
-      margin-right: 0.666667em;
-    }
-
-    &.quad {
-      margin-right: 1em;
-    }
-
-    &.qquad {
-      margin-right: 2em;
-    }
+  .negativethinspace {
+    display: inline-block;
+    margin-left: -@thinspace;
   }
 
-  .mspace {
+  .thinspace {
     display: inline-block;
+    width: @thinspace;
+  }
 
-    &.negativethinspace {
-      margin-left: -@thinspace;
-    }
+  .mediumspace {
+    display: inline-block;
+    width: @mediumspace;
+  }
 
-    &.thinspace {
-      width: @thinspace;
-    }
+  .thickspace {
+    display: inline-block;
+    width: @thickspace;
+  }
 
-    &.negativemediumspace {
-      margin-left: -@mediumspace;
-    }
+  .enspace {
+    display: inline-block;
+    width: 0.5em;
+  }
 
-    &.mediumspace {
-      width: @mediumspace;
-    }
+  .quad {
+    display: inline-block;
+    width: 1em;
+  }
 
-    &.thickspace {
-      width: @thickspace;
-    }
-
-    &.sixmuspace {
-      width: 0.333333em;
-    }
-
-    &.eightmuspace {
-      width: 0.444444em;
-    }
-
-    &.enspace {
-      width: 0.5em;
-    }
-
-    &.twelvemuspace {
-      width: 0.666667em;
-    }
-
-    &.quad {
-      width: 1em;
-    }
-
-    &.qquad {
-      width: 2em;
-    }
+  .qquad {
+    display: inline-block;
+    width: 2em;
   }
 
   .llap,
