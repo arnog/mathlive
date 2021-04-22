@@ -11,20 +11,10 @@ export class SpacingAtom extends Atom {
     this.width = width;
   }
 
-  render(context: Context): Span {
+  render(_context: Context): Span {
     let result: Span;
-    // A spacing command (\quad, etc...)
-    // @revisit: is value needed? Is it ever set?
-    if (this.value === '\u200B') {
-      // ZERO-WIDTH SPACE
-      result = this.makeSpan(context, '\u200B');
-    } else if (this.value === '\u00A0') {
-      result =
-        this.mode === 'math'
-          ? this.makeSpan(context, ' ')
-          : this.makeSpan(context, '\u00A0');
-    } else if (Number.isFinite(this.width)) {
-      result = new Span('\u200B', { classes: 'mspace' });
+    if (Number.isFinite(this.width)) {
+      result = new Span(null, { classes: 'mspace' });
       result.left = this.width;
     } else {
       const spacingCls: string =
@@ -37,7 +27,7 @@ export class SpacingAtom extends Atom {
           '\\,': 'thinspace',
           '\\!': 'negativethinspace',
         }[this.command] ?? 'mediumspace';
-      result = new Span('\u200B', { classes: 'mspace ' + spacingCls });
+      result = new Span(null, { classes: spacingCls });
     }
 
     if (this.caret) result.caret = this.caret;
