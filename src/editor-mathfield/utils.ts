@@ -215,10 +215,10 @@ export function getRangeBounds(
       if (rects.has(id)) {
         const r = rects.get(id);
         rects.set(id, {
-          top: Math.min(r.top, bounds.top),
-          bottom: Math.max(r.bottom, bounds.bottom),
           left: Math.min(r.left, bounds.left),
           right: Math.max(r.right, bounds.right),
+          top: Math.min(r.top, bounds.top),
+          bottom: Math.max(r.bottom, bounds.bottom),
         });
       } else {
         rects.set(id, bounds);
