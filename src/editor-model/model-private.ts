@@ -32,6 +32,7 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
+import { parseLatex } from '../core/parser';
 
 export type GetAtomOptions = {
   includeChildren?: boolean;
@@ -370,7 +371,17 @@ export class ModelPrivate implements Model {
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
     } else if (format === 'json') {
       console.log('deprecated format. Use MathJSON');
-      const json = atomtoMathJson(atom);
+      // note: atomToMathJson is destructive (it filters out presentation atoms)
+      // So, don't pass in the current atoms, but create a new set based on the
+      // current Latex
+      const json = atomtoMathJson(
+        parseLatex(
+          Atom.toLatex(atom, { expandMacro: false }),
+          'math',
+          null,
+          this.mathfield.options.macros
+        )
+      );
       result = JSON.stringify(json);
     } else if (format === 'json-2') {
       console.log('deprecated format. Use MathJSON');
