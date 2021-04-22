@@ -23,6 +23,7 @@ defineFunction(
       new OverunderAtom(command, {
         body: args[0] as Atom[],
         subsupPlacement: 'over-under',
+        skipBoundary: false,
         style,
         // Set the "svgAbove" to the name of a SVG object (which is the same
         // as the command name)
@@ -46,6 +47,7 @@ defineFunction(
       new OverunderAtom(command, {
         body: args[0] as Atom[],
         subsupPlacement: 'over-under',
+        skipBoundary: false,
         style,
         // Set the "svgBelow" to the name of a SVG object (which is the same
         // as the command name)

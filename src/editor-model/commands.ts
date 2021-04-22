@@ -334,24 +334,30 @@ export function move(
     // 1. Handle `captureSelection` and `skipBoundary`
     //
     if (direction === 'forward') {
-      const atom = model.at(model.position + 1);
-      if (atom?.parent?.captureSelection) {
-        // When going forward, if in a capture selection, jump to
+      let atom = model.at(model.position + 1);
+      if (atom?.inCaptureSelection) {
+        // If in a capture selection, while going forward jump to
         // after
-        pos = model.offsetOf(atom?.parent.lastChild) + 1;
-      } else if (atom?.parent?.skipBoundary) {
+        while (!atom.captureSelection) atom = atom.parent;
+        pos = model.offsetOf(atom.parent.lastChild) + 1;
+      } else if (atom?.isLastSibling && atom?.parent?.skipBoundary) {
         // When going forward if next is skipboundary, move 2
-        model.position = pos + 1;
-        return move(model, 'forward', options);
+        if (pos + 1 === model.lastOffset) {
+          pos = pos + 1;
+        } else {
+          model.position = pos + 1;
+          return move(model, 'forward', options);
+        }
       } else if (atom instanceof LatexAtom && atom.isSuggestion) {
         atom.isSuggestion = false;
       }
     } else if (direction === 'backward') {
-      const atom = model.at(model.position - 1);
-      if (atom?.parent?.captureSelection) {
-        // When going backward, if in a capture selection, jump to
+      let atom = model.at(model.position - 1);
+      if (atom?.inCaptureSelection) {
+        // If in a capture selection while going backward, jump to
         // before
-        pos = Math.max(0, model.offsetOf(atom?.parent.firstChild) - 1);
+        while (!atom.captureSelection) atom = atom.parent;
+        pos = Math.max(0, model.offsetOf(atom.parent.firstChild) - 1);
       } else if (atom?.isFirstSibling && atom.parent?.skipBoundary) {
         // When going backward, if land on first of group and previous is
         // skipbounday,  move -2

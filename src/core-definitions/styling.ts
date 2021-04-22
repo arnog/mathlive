@@ -746,6 +746,7 @@ defineFunction('overset', '{annotation:auto}{symbol:auto}', {
     new OverunderAtom(name, {
       body: args[1] as Atom[],
       above: args[0] as Atom[],
+      skipBoundary: false,
       style,
       toLatexOverride: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${atom.command}{${atom.aboveToLatex(options)}}` +
@@ -758,6 +759,7 @@ defineFunction('underset', '{annotation:auto}{symbol:auto}', {
     new OverunderAtom(name, {
       body: args[1] as Atom[],
       below: args[0] as Atom[],
+      skipBoundary: false,
       style,
       toLatexOverride: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${name}{${atom.belowToLatex(options)}}` +
@@ -773,6 +775,7 @@ defineFunction(['stackrel', 'stackbin'], '{annotation:auto}{symbol:auto}', {
     new OverunderAtom(name, {
       body: args[1] as Atom[],
       above: args[0] as Atom[],
+      skipBoundary: false,
       style,
       toLatexOverride: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${atom.command}{${atom.aboveToLatex(options)}}` +

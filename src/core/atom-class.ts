@@ -533,6 +533,20 @@ export class Atom {
     return result;
   }
 
+  get inCaptureSelection(): boolean {
+    let result = false;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let atom: Atom = this;
+    while (atom) {
+      if (atom.captureSelection) {
+        result = true;
+        break;
+      }
+      atom = atom.parent;
+    }
+    return result;
+  }
+
   /**
    * Return the atoms in the branch, if it exists, otherwise null
    */

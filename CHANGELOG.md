@@ -79,6 +79,7 @@
 - Correctly layout superscripts after `\overset` (they are adjacent, not over,
   unlike `\overbrace`).
 - The `cases` environment should be in inline mode (`textstyle`) by default.
+- Fixed keyboard navigation of `\overbrace`, `\underbrace`, etc...
 
 ## 0.60.1 (2021-04-13)
 
