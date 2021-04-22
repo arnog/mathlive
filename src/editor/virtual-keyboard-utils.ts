@@ -5,7 +5,6 @@ import { LINE_COLORS, AREA_COLORS } from '../core/color';
 import { l10n as l10nOptions, localize as l10n } from './l10n';
 import { MATHSTYLES } from '../core/mathstyle';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
-import { releaseSharedElement } from '../editor-mathfield/utils';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
 
@@ -26,6 +25,153 @@ import { isArray } from '../common/types';
 import { COMMANDS, SelectorPrivate } from './commands';
 import { ExecuteCommandFunction } from './commands-definitions';
 import { MACROS } from '../core-definitions/definitions';
+import { Scrim } from './scrim';
+
+let gScrim: Scrim = null;
+
+export function showAlternateKeys(
+  keyboard: VirtualKeyboard,
+  altKeysetName: string,
+  altKeys: (string | any)[]
+): boolean {
+  const altContainer = document.createElement('div');
+  altContainer.setAttribute('aria-hidden', 'true');
+  altContainer.className =
+    'ML__keyboard alternate-keys' +
+    (keyboard.element.classList.contains('material') ? ' material' : '');
+  altContainer.id = 'mathlive-alternate-keys-panel';
+
+  if (altKeys.length >= 7) {
+    // Width 4
+    altContainer.style.width = '286px';
+  } else if (altKeys.length === 4 || altKeys.length === 2) {
+    // Width 2
+    altContainer.style.width = '146px';
+  } else if (altKeys.length === 1) {
+    // Width 1
+    altContainer.style.width = '86px';
+  } else {
+    // Width 3
+    altContainer.style.width = '146px';
+  }
+
+  // Reset container height
+  altContainer.style.height = 'auto';
+  let markup = '';
+  for (const altKey of altKeys) {
+    markup += '<li';
+    if (typeof altKey === 'string') {
+      markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
+    } else {
+      if (altKey.latex) {
+        markup += ' data-latex="' + altKey.latex.replace(/"/g, '&quot;') + '"';
+      }
+
+      if (altKey.content) {
+        markup +=
+          ' data-content="' + altKey.content.replace(/"/g, '&quot;') + '"';
+      }
+
+      if (altKey.insert) {
+        markup +=
+          ' data-insert="' + altKey.insert.replace(/"/g, '&quot;') + '"';
+      }
+
+      if (altKey.command) {
+        markup +=
+          " data-command='" + altKey.command.replace(/"/g, '&quot;') + "'";
+      }
+
+      if (altKey.aside) {
+        markup += ' data-aside="' + altKey.aside.replace(/"/g, '&quot;') + '"';
+      }
+
+      if (altKey.classes) {
+        markup += ' data-classes="' + altKey.classes + '"';
+      }
+    }
+
+    markup += '>';
+    markup += altKey.label || '';
+    markup += '</li>';
+  }
+
+  markup = '<ul>' + markup + '</ul>';
+  altContainer.innerHTML = keyboard.options.createHTML(markup);
+
+  //
+  // Associate a command which each of the alternate keycaps
+  //
+  makeKeycap(
+    keyboard,
+    [...altContainer.querySelectorAll('li')],
+    'performAlternateKeys'
+  );
+
+  //
+  // Create the scrim and attach the alternate key panel to it
+  //
+  if (gScrim === null) gScrim = new Scrim();
+  gScrim.open({
+    root: keyboard.options.virtualKeyboardContainer,
+    child: altContainer,
+  });
+
+  //
+  // Position the alternate panel
+  //
+
+  const keycapElement = keyboard?.element.querySelector(
+    'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
+      altKeysetName +
+      '"]'
+  );
+  const position = keycapElement.getBoundingClientRect();
+  if (position) {
+    if (position.top - altContainer.clientHeight < 0) {
+      // AltContainer.style.maxWidth = '320px';  // Up to six columns
+      altContainer.style.width = 'auto';
+      if (altKeys.length <= 6) {
+        altContainer.style.height = '56px'; // 1 row
+      } else if (altKeys.length <= 12) {
+        altContainer.style.height = '108px'; // 2 rows
+      } else if (altKeys.length <= 18) {
+        altContainer.style.height = '205px'; // 3 rows
+      } else {
+        altContainer.classList.add('compact');
+      }
+    }
+
+    const top =
+      (position.top - altContainer.clientHeight + 5).toString() + 'px';
+    const left =
+      Math.max(
+        0,
+        Math.min(
+          window.innerWidth - altContainer.offsetWidth,
+          (position.left + position.right - altContainer.offsetWidth) / 2
+        )
+      ) + 'px';
+    altContainer.style.transform = 'translate(' + left + ',' + top + ')';
+    altContainer.classList.add('is-visible');
+  }
+
+  return false;
+}
+
+export function hideAlternateKeys(): boolean {
+  const altContainer = document.querySelector<HTMLElement>(
+    '#mathlive-alternate-keys-panel'
+  );
+  if (altContainer) {
+    altContainer.classList.remove('is-visible');
+    altContainer.innerHTML = '';
+  }
+
+  gScrim.close();
+
+  return false;
+}
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
@@ -129,10 +275,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   dispose(): void {
+    hideAlternateKeys();
     this.visible = false;
-    releaseSharedElement(
-      document.querySelector('#mathlive-alternate-keys-panel')
-    );
     window.removeEventListener('mouseup', this);
     window.removeEventListener('blur', this);
     window.removeEventListener('touchend', this);
@@ -1813,19 +1957,6 @@ export function makeKeyboardElement(
   layerElements[0]?.classList.add('is-visible');
 
   return result;
-}
-
-export function hideAlternateKeys(): boolean {
-  const altContainer = document.querySelector<HTMLElement>(
-    '#mathlive-alternate-keys-panel'
-  );
-  if (altContainer) {
-    altContainer.classList.remove('is-visible');
-    altContainer.innerHTML = '';
-    releaseSharedElement(altContainer);
-  }
-
-  return false;
 }
 
 /*

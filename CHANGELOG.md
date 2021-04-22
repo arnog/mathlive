@@ -1,3 +1,20 @@
+## [Unreleased]
+
+### New Features
+
+### Improvements
+
+- **#794** When a keycap on the virtual keyboard with associated alternate keys
+  is long pressed, the other UI elements on the screen are ignored (a scrim
+  element is inserted behind the panel to capture events). This also adresses an
+  issue on iPad OS where the document selection could be altered after
+  long-pressing an alternate key in some cases.
+
+### Bug Fixes
+
+- A `\chi13` (0.1em) gap between the nucleus and the above element was missing
+  in `OverUnder` atoms (`\overset`, etc...).
+
 ## 0.61.0 (2021-04-22)
 
 ### Breaking Changes
