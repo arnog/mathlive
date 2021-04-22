@@ -31,9 +31,12 @@ export class OverlapAtom extends Atom {
       classes: 'inner',
     }); // @revisit
     if (this.caret) inner.caret = this.caret;
-    return new Span([inner, new Span(null, { classes: 'fix' })], {
-      classes: this.align === 'left' ? 'llap' : 'rlap',
-      type: this.spanType,
-    });
+    return this.bind(
+      context,
+      new Span([inner, new Span(null, { classes: 'fix' })], {
+        classes: this.align === 'left' ? 'llap' : 'rlap',
+        type: this.spanType,
+      })
+    );
   }
 }

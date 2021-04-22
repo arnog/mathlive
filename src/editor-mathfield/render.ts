@@ -180,7 +180,7 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
     element.remove();
   }
 
-  for (const x of uniqueRects(getSelectionBounds(mathfield))) {
+  for (const x of unionRects(getSelectionBounds(mathfield))) {
     const selectionElement = document.createElement('div');
     selectionElement.classList.add('ML__selection');
     selectionElement.style.position = 'absolute';
@@ -198,8 +198,26 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
 /**
  * Return the rects that are not entirely contained by other rects.
  */
-function uniqueRects(rects: Rect[]): Rect[] {
+function unionRects(rects: Rect[]): Rect[] {
   const result = [];
+
+  // Remove duplicate rects
+  for (const rect of rects) {
+    let found = false;
+    for (const rect2 of result) {
+      if (
+        rect.left === rect2.left &&
+        rect.right === rect2.right &&
+        rect.top === rect2.top &&
+        rect.bottom === rect2.bottom
+      ) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) result.push(rect);
+  }
+
   for (const rect of rects) {
     let count = 0;
     for (const rect2 of rects) {

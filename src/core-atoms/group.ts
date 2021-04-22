@@ -3,7 +3,7 @@ import { ParseMode, Style } from '../public/core';
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { MATHSTYLES, MathStyleName } from '../core/mathstyle';
-import { Span } from '../core/span';
+import { Span, SpanType } from '../core/span';
 
 export class GroupAtom extends Atom {
   latexOpen?: string;
@@ -12,9 +12,11 @@ export class GroupAtom extends Atom {
   htmlData?: string;
   customClass?: string;
   mathStyleName: MathStyleName;
+  spanType: SpanType;
   constructor(
     arg: Atom[],
     options?: {
+      spanType?: SpanType;
       mathStyleName?: MathStyleName;
       latexOpen?: string;
       latexClose?: string;
@@ -23,6 +25,7 @@ export class GroupAtom extends Atom {
       customClass?: string;
       mode?: ParseMode;
       style?: Style;
+      captureSelection?: boolean;
       toLatexOverride?: (atom: GroupAtom, options: ToLatexOptions) => string;
     }
   ) {
@@ -40,7 +43,9 @@ export class GroupAtom extends Atom {
     this.htmlData = options?.htmlData;
     this.customClass = options?.customClass;
 
+    this.spanType = options?.spanType;
     this.skipBoundary = true;
+    this.captureSelection = options?.captureSelection;
   }
 
   render(context: Context): Span {
@@ -56,7 +61,7 @@ export class GroupAtom extends Atom {
         : undefined,
     });
     const span = new Span(Atom.render(localContext, this.body), {
-      type: 'mord',
+      type: this.spanType ?? 'mord',
       classes: this.customClass,
       mode: this.mode,
       style: {

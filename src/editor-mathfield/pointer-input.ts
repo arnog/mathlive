@@ -360,7 +360,22 @@ export function offsetFromPoint(
 
   // Try to find the deepest element that is near the point that was
   // clicked on (the point could be outside of the element)
-  const atom = nearestAtomFromPoint(mathfield, x, y);
+  let atom = nearestAtomFromPoint(mathfield, x, y);
+
+  // Find the first parent from root that doesn't have a `captureSelection` flag
+  const parents: Atom[] = [];
+  let parent = atom;
+  while (parent) {
+    parents.unshift(parent);
+    parent = parent.parent;
+  }
+  for (const x of parents) {
+    if (x.captureSelection) {
+      atom = x;
+      break;
+    }
+  }
+
   let result = mathfield.model.offsetOf(atom);
 
   if (result < 0) return -1;
@@ -372,10 +387,10 @@ export function offsetFromPoint(
     // preceding atom)
     const bounds = getAtomBounds(mathfield, atom);
     if (x < (bounds.left + bounds.right) / 2 && atom.type !== 'placeholder') {
-      result = Math.min(mathfield.model.lastOffset, result - 1);
+      result = mathfield.model.offsetOf(atom.leftSibling);
     }
   } else if (options.bias < 0) {
-    result = Math.max(0, result - 1);
+    result = mathfield.model.offsetOf(atom.leftSibling);
   }
 
   return result;
