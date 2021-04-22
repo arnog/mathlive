@@ -1347,7 +1347,7 @@ d & -b \\\\
                     //     onError: (err) =>
                     //         errors.push(err.code + (err.arg ? ' ' + err.arg : '')),
                     // });
-                    const mathAscci = mf.getValue('ASCIIMath');
+                    const mathAscci = mf.getValue('ascii-math');
                 } catch (e) {
                     console.error("Error converting %c " + latex + '%c ' +
                         e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
@@ -1414,7 +1414,11 @@ d & -b \\\\
                                     '</code></p>'; */
                 }
                 if (x.pic) {
-                    result += `<p><img style="transform: translate(-33%,-33%) scale(.33)" src="${x.pic}"></p>`;
+                  // const transform = /small/.test(x.class ?? '') ? 
+                  //     "translate(-33%,-33%) scale(.33)" :
+                  //     "translate(-25%, -25%) scale(.50)" ;
+                    const transform = "translate(-33%,-33%) scale(.33)";
+                    result += `<p><img style="transform: ${transform}" src="${x.pic}"></p>`;
                 }
                 return result;
             }).join('');

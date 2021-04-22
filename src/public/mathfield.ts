@@ -7,35 +7,35 @@ import {
 import { ParseMode, MacroDictionary, Style } from './core';
 
 /**
- * | Format              | Description             |
-| :------------------ | :---------------------- |
-| `"latex"`             |LaTeX rendering of the content, with LaTeX macros not expanded|
-| `"latex-expanded"`    |All macros are recursively expanded to their definition|
-| `"json"`              | A {@tutorial math-json | MathJSON }abstract syntax tree, as an object literal formated as a JSON string|
-| `"spoken"`            |Spoken text rendering, using the default format defined in config, which could be either text or SSML markup.|
-| `"spoken-text"`       |A plain spoken text rendering of the content.|
-| `"spoken-ssml"`       |A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS|
-| `"spoken-ssml-withHighlighting"`|Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud)|
-| `"mathML"`            | A string of MathML markup|
+ *
+| Format                | Description             |
+| :-------------------- | :---------------------- |
+| `"ascii-math"`        | A string of [ASCIIMath](http://asciimath.org/). |
+| `"latex"`             | LaTeX rendering of the content, with LaTeX macros not expanded. |
+| `"latex-expanded"`    | All macros are recursively expanded to their definition. |
+| `"math-json"`         | A MathJSON abstract syntax tree, as an object literal formated as a JSON string. |
+| `"math-ml"`           | A string of MathML markup. |
+| `"spoken"`            | Spoken text rendering, using the default format defined in config, which could be either text or SSML markup. |
+| `"spoken-text"`       | A plain spoken text rendering of the content. |
+| `"spoken-ssml"`       | A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS. |
+| `"spoken-ssml-with-highlighting"`| Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud). |
 */
 export type OutputFormat =
+  | 'ascii-math'
   | 'latex'
   | 'latex-expanded'
-  | 'mathjson' // Work progress next generation MathJson
-  | 'json'
-  | 'json-2'
+  | 'math-json'
+  | 'math-ml'
   | 'spoken'
   | 'spoken-text'
   | 'spoken-ssml'
-  | 'spoken-ssml-withHighlighting'
-  | 'mathML'
-  | 'ASCIIMath';
+  | 'spoken-ssml-with-highlighting';
 
 export type InsertOptions = {
   /** If `"auto"` or omitted, the current mode is used */
   mode?: ParseMode | 'auto';
   /**
-     * The format of the input string:
+     * The format of the input string: 
      *
     | <!-- -->    | <!-- -->    |
     |:------------|:------------|
@@ -60,7 +60,7 @@ export type InsertOptions = {
     |`"item"`| The inserted text will be selected|
     */
   selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
-  placeholder?: string;
+
   suppressChangeNotifications?: boolean;
   style?: Style;
   /**

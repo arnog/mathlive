@@ -45,7 +45,7 @@ export function parseMathString(
   // Nothing to do if a single character
   if (s.length <= 1) return ['latex', s];
 
-  if (!options || options.format !== 'ASCIIMath') {
+  if (!options || options.format !== 'ascii-math') {
     // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
 
     // If the strings is surrounded by `$..$` or `$$..$$`, assumes it is LaTeX
@@ -84,7 +84,7 @@ export function parseMathString(
   s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
   return [
-    options?.format ?? 'ASCIIMath',
+    options?.format ?? 'ascii-math',
     parseMathExpression(s, options ?? {}),
   ];
 }

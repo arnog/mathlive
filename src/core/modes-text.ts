@@ -160,20 +160,32 @@ export class TextMode extends Mode {
     return new TextAtom(command, value, style);
   }
 
-  toLatex(run: Atom[], options: ToLatexOptions): string {
-    const result = emitColorRun(run, options);
-
-    const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
-      (x: Atom) => x.style.fontSeries || x.style.fontShape || x.style.fontFamily
-    );
-    if (!allAtomsHaveShapeOrSeriesOrFontFamily) {
-      // Wrap in text, only if there isn't a shape or series on
-      // all the atoms, because if so, it will be wrapped in a
-      // \\textbf, \\textit, etc... and the \\text would be redundant
-      return `\\text{${result}}`;
+  toLatex(inRun: Atom[], options: ToLatexOptions): string {
+    const run = [...inRun];
+    let prefix = '';
+    while (run[0]?.changeMode ?? false) {
+      prefix += emitColorRun([run[0]], options);
+      run.shift();
     }
+    let suffix = '';
+    if (run.length > 0) {
+      suffix += emitColorRun(run, options);
+    }
+    if (options.skipModeCommand ?? false) return prefix + suffix;
 
-    return result;
+    if (suffix) {
+      const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
+        (x: Atom) =>
+          x.style.fontSeries || x.style.fontShape || x.style.fontFamily
+      );
+      if (!allAtomsHaveShapeOrSeriesOrFontFamily) {
+        // Wrap in text, only if there isn't a shape or series on
+        // all the atoms, because if so, it will be wrapped in a
+        // \\textbf, \\textit, etc... and the \\text would be redundant
+        suffix = `\\text{${suffix}}`;
+      }
+    }
+    return prefix + suffix;
   }
 
   /**

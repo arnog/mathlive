@@ -121,7 +121,7 @@ function convertLastAtomsToMath(
 //                 : 'math';
 //         let convertedSelection = mathfield.getValue(
 //             mathfield.selection,
-//             'ASCIIMath'
+//             'ascii-math'
 //         );
 //         if (targetMode === 'math' && /^"[^"]+"$/.test(convertedSelection)) {
 //             convertedSelection = convertedSelection.slice(1, -1);
@@ -129,7 +129,7 @@ function convertLastAtomsToMath(
 //         mathfield.insert(convertedSelection, {
 //             mode: targetMode,
 //             selectionMode: 'item',
-//             format: targetMode === 'text' ? 'text' : 'ASCIIMath',
+//             format: targetMode === 'text' ? 'text' : 'ascii-math',
 //         });
 //         mathfield.mode = targetMode;
 //         const [groupStart, groupEnd] = model.getSiblingsRange(

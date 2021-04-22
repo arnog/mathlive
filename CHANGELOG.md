@@ -1,10 +1,25 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- Some format options have been renamed:
+
+  | Before                           | Now                               |
+  | :------------------------------- | :-------------------------------- |
+  | `"spoken-ssml-withHighlighting"` | `"spoken-ssml-with-highlighting"` |
+  | `"mathML"`                       | `"math-ml"`                       |
+  | `"ASCIIMath"`                    | `"ascii-math"`                    |
+
+  The old spelling is still accepted at runtime but it has been deprecated and
+  you will be removed in a future update.
+
 ### Improvements
 
 - In many cases, the layout of the formula is closer to the TeX layout.
 - Improved performance of hit testing, selection tracking and selection
   rendering for complex formulas.
+- Improved accuracy of hit-testing. Prevent children of elements with a
+  `captureSelection` flag from being selectable.
 - More efficient rendering by generating simpler markup in some cases.
 - Dropped `woff` fonts. This change should be transparent, as all supported
   browsers support `woff2` at this point.
@@ -12,6 +27,8 @@
   it handles those. We choose to always apply them in math mode.
 - Added support for `dcases` environment: like `cases` but in `displaystyle` by
   default.
+- Correctly round trip `\mbox` by avoiding wrapping it with an unnecessary
+  `\text` command.
 
 ### New Features
 

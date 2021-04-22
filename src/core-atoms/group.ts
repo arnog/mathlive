@@ -17,6 +17,7 @@ export class GroupAtom extends Atom {
     arg: Atom[],
     options?: {
       spanType?: SpanType;
+      changeMode?: boolean;
       mathStyleName?: MathStyleName;
       latexOpen?: string;
       latexClose?: string;
@@ -46,6 +47,7 @@ export class GroupAtom extends Atom {
     this.spanType = options?.spanType;
     this.skipBoundary = true;
     this.captureSelection = options?.captureSelection;
+    this.changeMode = options?.changeMode ?? false;
   }
 
   render(context: Context): Span {

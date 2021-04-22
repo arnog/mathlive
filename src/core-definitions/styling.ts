@@ -464,12 +464,16 @@ defineFunction('mathscr', '{:math*}', {
  */
 defineFunction('mbox', '{:text}', {
   ifMode: 'math',
-  createAtom: (name: string, args: Argument[], style: Style): Atom =>
+  createAtom: (_name: string, args: Argument[], style: Style): Atom =>
     new GroupAtom(args[0] as Atom[], {
-      latexOpen: name + '{',
-      latexClose: '}',
+      changeMode: true,
       style,
       mode: 'text',
+      toLatexOverride: (atom: GroupAtom, options: ToLatexOptions) =>
+        `\\mbox{${atom.bodyToLatex({
+          ...options,
+          skipModeCommand: true,
+        })}}`,
     }),
 });
 
@@ -818,7 +822,7 @@ defineFunction(['phantom', 'vphantom', 'hphantom'], '{:auto*}', {
 
 defineFunction('not', '{:math}', {
   createAtom: (name: string, args: Argument[], style: Style): Atom => {
-    if (!args || args.length < 1 || args[0] === null) {
+    if (args.length < 1 || args[0] === null) {
       return new Atom('mrel', { command: name, style, value: '\ue020' });
     }
     const arg = args[0] as Atom[];
@@ -832,6 +836,8 @@ defineFunction('not', '{:math}', {
         ...arg,
       ],
       {
+        spanType: 'mrel',
+        captureSelection: true,
         toLatexOverride: (atom: GroupAtom, options) => {
           const argLatex = Atom.toLatex(arg, options);
           if (argLatex.length === 1 && !/[a-zA-Z]/.test(argLatex)) {
@@ -845,7 +851,7 @@ defineFunction('not', '{:math}', {
 });
 
 defineFunction(['ne', 'neq'], '', {
-  createAtom: (name: string, args: Argument[], style: Style): Atom =>
+  createAtom: (name: string, _args: Argument[], style: Style): Atom =>
     new GroupAtom(
       [
         new OverlapAtom(name, '\ue020', {
@@ -855,7 +861,7 @@ defineFunction(['ne', 'neq'], '', {
         }),
         new Atom('mrel', { style, value: '=' }),
       ],
-      { toLatexOverride: () => name }
+      { spanType: 'mrel', captureSelection: true, toLatexOverride: () => name }
     ),
 });
 

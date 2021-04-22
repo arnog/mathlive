@@ -1012,8 +1012,8 @@ export function makeVlist(
   });
 
   // Fix the final height and depth
-  result.height = Math.max(maxPos, result.depth ?? 0);
   result.depth = Math.max(-minPos, result.depth ?? 0);
+  result.height = Math.max(pos, result.height ?? 0);
 
   return result;
 }

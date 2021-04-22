@@ -340,14 +340,17 @@ export class ModelPrivate implements Model {
     return range[0];
   }
 
-  atomToString(atom: Atom, format: OutputFormat): string {
-    format = format ?? 'latex';
+  atomToString(atom: Atom, inFormat: OutputFormat): string {
+    const format: string = inFormat ?? 'latex';
     let result = '';
     if (format === 'latex' || format === 'latex-expanded') {
       result = Atom.toLatex(atom, {
         expandMacro: format === 'latex-expanded',
       });
-    } else if (format === 'mathML') {
+    } else if (format === 'mathML' /* @deprecated */ || format === 'math-ml') {
+      if (format === 'mathML') {
+        console.error("'mathML is deprecated. Use 'math-ml' instead");
+      }
       result = atomsToMathML(atom, this.mathfield.options);
     } else if (format === 'spoken') {
       result = atomToSpeakableText(atom, this.mathfield.options);
@@ -358,12 +361,18 @@ export class ModelPrivate implements Model {
       this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
     } else if (
       format === 'spoken-ssml' ||
-      format === 'spoken-ssml-withHighlighting'
+      format === 'spoken-ssml-with-highlighting' ||
+      format === 'spoken-ssml-withHighlighting' // @deprecated
     ) {
+      if (format === 'spoken-ssml-withHighlighting') {
+        console.error(
+          "'spoken-ssml-withHighlighting is deprecated. Use 'spoken-ssml-with-highlighting' instead"
+        );
+      }
       const saveTextToSpeechMarkup = this.mathfield.options.textToSpeechMarkup;
       // Const savedAtomIdsSettings = this.config.atomIdsSettings;    // @revisit
       this.mathfield.options.textToSpeechMarkup = 'ssml';
-      // If (format === 'spoken-ssml-withHighlighting') {     // @revisit
+      // If (format === 'spoken-ssml-with-highlighting') {     // @revisit
       //     this.config.atomIdsSettings = { seed: 'random' };
       // }
       result = atomToSpeakableText(atom, this.mathfield.options);
@@ -390,7 +399,13 @@ export class ModelPrivate implements Model {
       //     form: 'canonical',
       // });
       result = JSON.stringify(json, null, 2);
-    } else if (format === 'ASCIIMath') {
+    } else if (
+      format === 'ASCIIMath' /* @deprecated */ ||
+      format === 'ascii-math'
+    ) {
+      if (format === 'ASCIIMath') {
+        console.error("'ASCIIMath' is deprecated. Use 'ascii-math' instead");
+      }
       result = atomToAsciiMath(atom);
     } else {
       console.warn('Unknown format :', format);

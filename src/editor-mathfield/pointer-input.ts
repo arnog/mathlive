@@ -344,8 +344,11 @@ export function offsetFromPoint(
   mathfield: MathfieldPrivate,
   x: number,
   y: number,
-  options?: { bias?: number }
+  options?: { bias?: -1 | 0 | 1 }
 ): Offset {
+  //
+  // 1/ Check if we're inside the mathfield bounding box
+  //
   const bounds = mathfield.fieldContent.getBoundingClientRect();
   if (x > bounds.right || y > bounds.bottom + 8) {
     return mathfield.model.lastOffset;
@@ -358,11 +361,16 @@ export function offsetFromPoint(
   options = options ?? {};
   options.bias = options.bias ?? 0;
 
-  // Try to find the deepest element that is near the point that was
+  //
+  // 2/ Find the deepest element that is near the point that was
   // clicked on (the point could be outside of the element)
+  //
   let atom = nearestAtomFromPoint(mathfield, x, y);
 
-  // Find the first parent from root that doesn't have a `captureSelection` flag
+  //
+  // 3/ Find the first parent from root that doesn't have a `captureSelection`
+  //    flag
+  //
   const parents: Atom[] = [];
   let parent = atom;
   while (parent) {
@@ -380,17 +388,21 @@ export function offsetFromPoint(
 
   if (result < 0) return -1;
 
-  // (There should be exactly one atom that matches this ID...)
-  if (options.bias === 0) {
-    // If the point clicked is to the left of the vertical midline,
-    // adjust the offset to *before* the atom (i.e. after the
-    // preceding atom)
-    const bounds = getAtomBounds(mathfield, atom);
-    if (x < (bounds.left + bounds.right) / 2 && atom.type !== 'placeholder') {
+  //
+  // 4/ Account for the desired biad
+  //
+  if (atom.leftSibling) {
+    if (options.bias === 0 && atom.type !== 'placeholder') {
+      // If the point clicked is to the left of the vertical midline,
+      // adjust the offset to *before* the atom (i.e. after the
+      // preceding atom)
+      const bounds = getAtomBounds(mathfield, atom);
+      if (x < (bounds.left + bounds.right) / 2) {
+        result = mathfield.model.offsetOf(atom.leftSibling);
+      }
+    } else if (options.bias < 0) {
       result = mathfield.model.offsetOf(atom.leftSibling);
     }
-  } else if (options.bias < 0) {
-    result = mathfield.model.offsetOf(atom.leftSibling);
   }
 
   return result;

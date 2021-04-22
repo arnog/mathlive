@@ -32,7 +32,7 @@ export function latexToAsciiMath(
 }
 
 export function asciiMathToLatex(ascii: string): string {
-  const [, result] = parseMathString(ascii, { format: 'ASCIIMath' });
+  const [, result] = parseMathString(ascii, { format: 'ascii-math' });
   return result;
 }
 

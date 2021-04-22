@@ -52,6 +52,8 @@ export type Branches = {
 
 export type ToLatexOptions = {
   expandMacro?: boolean;
+  // If true, don't emit a mode command such as `\text`
+  skipModeCommand?: boolean;
 };
 
 export type AtomType =
@@ -111,7 +113,8 @@ export type BBoxParameter = {
 export class Atom {
   parent: Atom | null;
   // An atom can have multiple "branches" of children,
-  // e.g. `body` and `superscript`
+  // e.g. `body` and `superscript`.
+  //
   // The `treeBranch` property indicate which branch of the parent this
   // atom belongs to or if in an array, the row and column
   treeBranch: Branch;
@@ -144,33 +147,6 @@ export class Atom {
   containsCaret: boolean;
   caret: ParseMode | '';
 
-  // How to display "limits" (i.e. superscript/subscript) for example
-  // with `\sum`:
-  // - 'over-under': directly above and below the symbol
-  // - 'adjacent': to the right, above and below the baseline (for example
-  // for operators in `textstyle` style)
-  // - 'auto': 'over-under' in \displaystyle, 'adjacent' otherwise
-  subsupPlacement?: 'auto' | 'over-under' | 'adjacent';
-
-  // True if the subsupPlacement was set by `\limits` or `\nolimits`.
-  // Necessary so the propert latex can be output
-  explicitSubsupPlacement?: boolean;
-
-  // If true, the atom is an operator such as `\int` or `\sum`
-  // (affects layout of supsub)
-  isExtensibleSymbol: boolean;
-
-  // If true, when the caret reaches the
-  // first position in this element's body, it automatically moves to the
-  // outside of the element. Conversely, when the caret reaches the position
-  // right after this element, it automatically moves to the last position
-  // inside this element.
-  skipBoundary?: boolean;
-
-  // If true, this atom does not let its children be selected. Used by the
-  // `\enclose` annotations, for example.
-  captureSelection?: boolean;
-
   // If true, some structural changes have been made to the atom
   // (insertion or removal of children) or one of its children is dirty
   private _isDirty: boolean;
@@ -185,6 +161,37 @@ export class Atom {
   toLatexOverride?: (atom: Atom, options: ToLatexOptions) => string;
 
   private _branches: Branches;
+
+  // If true, the atom is an operator such as `\int` or `\sum`
+  // (affects layout of supsub)
+  isExtensibleSymbol: boolean;
+
+  // How to display "limits" (i.e. superscript/subscript) for example
+  // with `\sum`:
+  // - 'over-under': directly above and below the symbol
+  // - 'adjacent': to the right, above and below the baseline (for example
+  // for operators in `textstyle` style)
+  // - 'auto': 'over-under' in \displaystyle, 'adjacent' otherwise
+  subsupPlacement?: 'auto' | 'over-under' | 'adjacent';
+
+  // True if the subsupPlacement was set by `\limits` or `\nolimits`.
+  // Necessary so the propert latex can be output
+  explicitSubsupPlacement?: boolean;
+
+  // If true, when the caret reaches the first position in this element's body,
+  // it automatically moves to the outside of the element. Conversely, when the
+  // caret reaches the position right after this element, it automatically
+  // moves to the last position inside this element.
+  skipBoundary?: boolean;
+
+  // If true, the children of this atom cannot be selected and should be handled
+  // as a unit. Used by the `\enclose` annotations, for example.
+  captureSelection?: boolean;
+
+  // This atom causes the parsemode to change. Use by commands such as
+  // `\mbox` to indicate that it is not necessary to wrap them in a mode
+  // changing command (`\text`).
+  changeMode?: boolean;
 
   constructor(
     type: AtomType,
@@ -224,17 +231,18 @@ export class Atom {
 
   set isDirty(dirty: boolean) {
     this._isDirty = dirty;
-    this._changeCounter++;
     if (dirty) {
+      this._changeCounter++;
       this.latex = undefined;
       this._children = null;
-      this._changeCounter++;
+
       let { parent } = this;
       while (parent) {
         parent._isDirty = true;
         parent._changeCounter++;
-        parent._children = null;
         parent.latex = undefined;
+        parent._children = null;
+
         parent = parent.parent;
       }
     }

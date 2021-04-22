@@ -403,7 +403,7 @@ export type AutoRenderOptions = {
    * ```javascript
    *      elem.innerHTML = elem.dataset.originalContent;
    * ```
-   * @deprecatd
+   * @deprecated
    *
    */
   preserveOriginalContent?: boolean;

@@ -71,11 +71,11 @@ export class MathModeEditor extends ModeEditor {
     );
     ev.clipboardData.setData(
       'application/json',
-      mathfield.getValue(value, 'json')
+      mathfield.getValue(value, 'math-json')
     );
     ev.clipboardData.setData(
       'application/xml',
-      mathfield.getValue(value, 'mathML')
+      mathfield.getValue(value, 'math-ml')
     );
     // Prevent the current document selection from being written to the clipboard.
     ev.preventDefault();
@@ -126,7 +126,7 @@ export class MathModeEditor extends ModeEditor {
     //
     const args: string[] = [];
     args[0] = model.getValue(model.selection);
-    args['?'] = options.placeholder ?? '\\placeholder{}';
+    args['?'] = '\\placeholder{}';
     args['@'] = args['?'];
 
     //
@@ -267,8 +267,8 @@ function convertStringToAtoms(
   options: InsertOptions
 ): Atom[] {
   let result = [];
-  if (options.format === 'ASCIIMath') {
-    [, s] = parseMathString(s, { format: 'ASCIIMath' });
+  if (options.format === 'ascii-math') {
+    [, s] = parseMathString(s, { format: 'ascii-math' });
     result = parseLatex(
       s,
       'math',
