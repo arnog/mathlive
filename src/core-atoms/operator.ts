@@ -58,10 +58,14 @@ export class OperatorAtom extends Atom {
         mathstyle.size === MATHSTYLES.displaystyle.size &&
         this.value !== '\\smallint';
 
-      base = makeSymbol(large ? 'Size2-Regular' : 'Size1-Regular', this.value, {
-        classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
-        type: 'mop',
-      });
+      base = makeSymbol(
+        large ? 'Size2-Regular' : 'Size1-Regular',
+        this.value.codePointAt(0),
+        {
+          classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
+          type: 'mop',
+        }
+      );
 
       // Shift the symbol so its center lies on the axis (rule 13). It
       // appears that our fonts have the centers of the symbols already

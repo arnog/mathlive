@@ -146,7 +146,7 @@ function makeOverunderStack(
   let result = null;
   const wrappedNucleus = new Span([
     makeNullFence(context, 'mopen'),
-    ...nucleus,
+    ...(nucleus ?? []),
     makeNullFence(context, 'mclose'),
   ]);
 
@@ -176,12 +176,17 @@ function makeOverunderStack(
   } else if (above && !below) {
     result = makeVlist(
       context,
-      [wrappedNucleus.depth, wrappedNucleus, aboveShift, above],
+      [
+        wrappedNucleus.depth,
+        wrappedNucleus,
+        Math.max(FONTMETRICS.bigOpSpacing2, aboveShift), // TeXBook 13a, p.444
+        above,
+      ],
       'bottom',
       { initialPos: wrappedNucleus.depth }
     );
-    result.height = result.height - wrappedNucleus.depth;
-    result.depth = wrappedNucleus.depth;
+    // result.height = result.height - wrappedNucleus.depth;
+    // result.depth = wrappedNucleus.depth;
   }
 
   return new Span(result, { classes: 'op-over-under', type });

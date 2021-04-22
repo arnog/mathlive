@@ -65,7 +65,11 @@
         class="mathfield" style="max-width: 640px; width:100%" 
         onfocus='console.log("focusing")'
         smart-fence="true"
-        virtual-keyboard-mode="manual">\dbinom{n}{k}
+        virtual-keyboard-mode="manual"> \overset{\frac{0}{0}}{=}
+        <!-- z = \overbrace{
+          \underbrace{x}_\text{real} + i
+          \underbrace{y}_\text{imaginary}
+      }^\text{complex number} -->
         <!-- z = \overbrace{\frac12}^\text{complex number} -->
 
       <!-- z = \overbrace{
@@ -330,13 +334,13 @@
 
                 document.getElementById(
                     'mathascii'
-                ).innerHTML = escapeHtml(mf.getValue('ASCIIMath'));
+                ).innerHTML = escapeHtml(mf.getValue('ascii-math'));
                 document.getElementById(
                     'mathml'
-                ).innerHTML = escapeHtml(mf.getValue('mathML'));
+                ).innerHTML = escapeHtml(mf.getValue('math-ml'));
                 document.getElementById(
                     'maston'
-                ).innerHTML = escapeHtml(mf.getValue('json'));
+                ).innerHTML = escapeHtml(mf.getValue('math-json'));
             } catch (e) {
                 console.error("Error converting %c " + latex + '%c ' +
                     e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');

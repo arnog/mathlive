@@ -272,7 +272,7 @@ export class Span {
       this.italic = 0;
       for (let i = 0; i < this.value.length; i++) {
         const metrics = getCharacterMetrics(
-          this.value.charAt(i),
+          this.value.codePointAt(i),
           fontName ?? 'Main-Regular'
         );
         // If we were able to get metrics info for this character, store it.
@@ -732,13 +732,13 @@ export function italic(spans: Span | Span[]): number {
 
 export function makeSymbol(
   fontFamily: string,
-  symbol: string,
+  symbol: number,
   options?: {
     classes?: string;
     type?: SpanType;
   }
 ): Span {
-  const base = new Span(symbol, options);
+  const base = new Span(String.fromCodePoint(symbol), options);
 
   const metrics = getCharacterMetrics(symbol, fontFamily);
   base.height = metrics.height;

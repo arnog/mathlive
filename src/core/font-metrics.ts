@@ -239,18 +239,41 @@ const extraCharacterMap = {
  * @param fontName e.g. 'Main-Regular', 'Typewriter-Regular', etc...
  */
 export function getCharacterMetrics(
-  character: string,
+  codepoint: number,
   fontName: string
 ): CharacterMetrics {
   // Console.assert(character.length === 1);
   console.assert(METRICS_MAP[fontName], 'Unknown font "' + fontName + '"');
 
-  let ch = character.charCodeAt(0);
+  const metrics = METRICS_MAP[fontName][codepoint];
 
-  if (character[0] in extraCharacterMap) {
-    ch = extraCharacterMap[character[0]].charCodeAt(0);
-  } else if (cjkRegex.test(character[0])) {
-    ch = 77; // 'M'.charCodeAt(0);
+  if (metrics) {
+    return {
+      defaultMetrics: false,
+      depth: metrics[0],
+      height: metrics[1],
+      italic: metrics[2],
+      skew: metrics[3],
+    };
+  }
+
+  if (codepoint === 11034) {
+    // Placeholder character
+    return {
+      defaultMetrics: true,
+      depth: 0.2,
+      height: 0.8,
+      italic: 0,
+      skew: 0,
+    };
+  }
+
+  const char = String.fromCodePoint(codepoint);
+
+  if (char in extraCharacterMap) {
+    codepoint = extraCharacterMap[char].codePointAt(0);
+  } else if (cjkRegex.test(codepoint[0])) {
+    codepoint = 77; // 'M'.codepointAt(0);
     return {
       defaultMetrics: true,
       depth: 0.2,
@@ -259,42 +282,19 @@ export function getCharacterMetrics(
       skew: 0,
     };
   }
-
-  const metrics = METRICS_MAP[fontName][ch];
-
-  if (!metrics) {
-    // Console.warn(
-    //     'No metrics for ' +
-    //     '"' + character + '" (U+' + ('000000' + ch.toString(16)).substr(-6) + ')' +
-    //     ' in font "' + fontName + '"');
-    // Assume default values.
-    // depth + height should be less than 1.0 em
-    if (ch === 11034) {
-      // Placeholder character
-      return {
-        defaultMetrics: true,
-        depth: 0,
-        height: 1,
-        italic: 0,
-        skew: 0,
-      };
-    }
-
-    return {
-      defaultMetrics: true,
-      depth: 0.2,
-      height: 0.7,
-      italic: 0,
-      skew: 0,
-    };
-  }
+  // Console.warn(
+  //     'No metrics for ' +
+  //     '"' + character + '" (U+' + ('000000' + ch.toString(16)).substr(-6) + ')' +
+  //     ' in font "' + fontName + '"');
+  // Assume default values.
+  // depth + height should be less than 1.0 em
 
   return {
-    defaultMetrics: false,
-    depth: metrics[0],
-    height: metrics[1],
-    italic: metrics[2],
-    skew: metrics[3],
+    defaultMetrics: true,
+    depth: 0.2,
+    height: 0.7,
+    italic: 0,
+    skew: 0,
   };
 }
 

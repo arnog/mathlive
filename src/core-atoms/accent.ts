@@ -12,12 +12,12 @@ import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import { Style } from '../public/core';
 
 export class AccentAtom extends Atom {
-  private readonly accent?: string;
+  private readonly accent?: number;
   private readonly svgAccent?: string;
   constructor(
     command: string,
     body: Atom[],
-    options: { accentChar?: string; svgAccent?: string; style: Style }
+    options: { accentChar?: number; svgAccent?: string; style: Style }
   ) {
     super('accent', { command, style: options.style });
     if (options.accentChar) {
@@ -68,7 +68,7 @@ export class AccentAtom extends Atom {
       // The \vec character that the fonts use is a combining character, and
       // thus shows up much too far to the left. To account for this, we add a
       // specific class which shifts the accent over to where we want it.
-      const vecClass = this.accent === '\u20D7' ? ' accent-vec' : '';
+      const vecClass = this.accent === 0x20d7 ? ' accent-vec' : '';
       accentBody = new Span(new Span(accent), {
         classes: 'accent-body' + vecClass,
       });

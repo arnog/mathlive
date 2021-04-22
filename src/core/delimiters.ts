@@ -79,50 +79,50 @@ function makeStyleWrap(
   return result;
 }
 
-function getSymbolValue(symbol: string): string {
+function getSymbolValue(symbol: string): number {
   return (
     {
-      '[': '[',
-      ']': ']',
-      '(': '(',
-      ')': ')',
-      '\\mid': '\u2223',
-      '|': '\u2223',
-      '\u2223': '\u2223', // DIVIDES
-      '\u2225': '\u2225', // PARALLEL TO
-      '\\|': '\u2223',
-      '\\{': '{',
-      '\\}': '}',
-      '\\lbrace': '{',
-      '\\rbrace': '}',
-      '\\lbrack': '[',
-      '\\rbrack': ']',
-      '\\vert': '\u2223',
-      '\\lvert': '\u2223',
-      '\\mvert': '\u2223',
-      '\\rvert': '\u2223',
-      '\\Vert': '\u2225',
-      '\\lVert': '\u2225',
-      '\\mVert': '\u2225',
-      '\\rVert': '\u2225',
-      '\\parallel': '\u2225',
-      '\\shortparallel': '\u2225',
-      '\\langle': '\u27E8',
-      '\\rangle': '\u27E9',
-      '\\lfloor': '\u230A',
-      '\\rfloor': '\u230B',
-      '\\lceil': '\u2308',
-      '\\rceil': '\u2309',
-      '\\ulcorner': '\u250C',
-      '\\urcorner': '\u2510',
-      '\\llcorner': '\u2514',
-      '\\lrcorner': '\u2518',
-      '\\lgroup': '\u27EE',
-      '\\rgroup': '\u27EF',
-      '\\lmoustache': '\u23B0',
-      '\\rmoustache': '\u23B1',
-      '\\surd': '\u221A',
-    }[symbol] ?? symbol
+      '[': 0x5b, // '[',
+      ']': 0x5d, // ']',
+      '(': 0x28, // '(',
+      ')': 0x29, // ')',
+      '\\mid': 0x2223,
+      '|': 0x2223,
+      '\u2223': 0x2223, // DIVIDES
+      '\u2225': 0x2225, // PARALLEL TO
+      '\\|': 0x2223,
+      '\\{': 0x7b, // '{',
+      '\\}': 0x7d, // '}',
+      '\\lbrace': 0x7b, // '{',
+      '\\rbrace': 0x7d, // '}',
+      '\\lbrack': 0x5b, // '[',
+      '\\rbrack': 0x5d, // ']',
+      '\\vert': 0x2223,
+      '\\lvert': 0x2223,
+      '\\mvert': 0x2223,
+      '\\rvert': 0x2223,
+      '\\Vert': 0x2225,
+      '\\lVert': 0x2225,
+      '\\mVert': 0x2225,
+      '\\rVert': 0x2225,
+      '\\parallel': 0x2225,
+      '\\shortparallel': 0x2225,
+      '\\langle': 0x27e8,
+      '\\rangle': 0x27e9,
+      '\\lfloor': 0x230a,
+      '\\rfloor': 0x230b,
+      '\\lceil': 0x2308,
+      '\\rceil': 0x2309,
+      '\\ulcorner': 0x250c,
+      '\\urcorner': 0x2510,
+      '\\llcorner': 0x2514,
+      '\\lrcorner': 0x2518,
+      '\\lgroup': 0x27ee,
+      '\\rgroup': 0x27ef,
+      '\\lmoustache': 0x23b0,
+      '\\rmoustache': 0x23b1,
+      '\\surd': 0x221a,
+    }[symbol] ?? symbol.codePointAt(0)
   );
 }
 
@@ -222,17 +222,17 @@ function makeStackedDelim(
 ): Span {
   // There are four parts, the top, an optional middle, a repeated part, and a
   // bottom.
-  let top: string;
-  let middle: string;
-  let repeat: string;
-  let bottom: string;
+  let top: number;
+  let middle: number;
+  let repeat: number;
+  let bottom: number;
   top = repeat = bottom = getSymbolValue(delim);
   middle = null;
   // Also keep track of what font the delimiters are in
   let font = 'Size1-Regular';
 
   // We set the parts and font based on the symbol. Note that we use
-  // '\u23d0' instead of '|' and '\u2016' instead of '\\|' for the
+  // 0x23d0 instead of '|' and 0x2016 instead of '\\|' for the
   // repeats of the arrows
   if (
     delim === '\\vert' ||
@@ -241,7 +241,7 @@ function makeStackedDelim(
     delim === '\\mvert' ||
     delim === '\\mid'
   ) {
-    repeat = top = bottom = '\u2223';
+    repeat = top = bottom = 0x2223;
   } else if (
     delim === '\\Vert' ||
     delim === '\\lVert' ||
@@ -249,121 +249,121 @@ function makeStackedDelim(
     delim === '\\mVert' ||
     delim === '\\|'
   ) {
-    repeat = top = bottom = '\u2225';
+    repeat = top = bottom = 0x2225;
   } else if (delim === '\\uparrow') {
-    repeat = bottom = '\u23D0';
+    repeat = bottom = 0x23d0;
   } else if (delim === '\\Uparrow') {
-    repeat = bottom = '\u2016';
+    repeat = bottom = 0x2016;
   } else if (delim === '\\downarrow') {
-    top = repeat = '\u23D0';
+    top = repeat = 0x23d0;
   } else if (delim === '\\Downarrow') {
-    top = repeat = '\u2016';
+    top = repeat = 0x2016;
   } else if (delim === '\\updownarrow') {
-    top = '\u2191';
-    repeat = '\u23D0';
-    bottom = '\u2193';
+    top = 0x2191;
+    repeat = 0x23d0;
+    bottom = 0x2193;
   } else if (delim === '\\Updownarrow') {
-    top = '\u21D1';
-    repeat = '\u2016';
-    bottom = '\u21D3';
+    top = 0x21d1;
+    repeat = 0x2016;
+    bottom = 0x21d3;
   } else if (delim === '[' || delim === '\\lbrack') {
-    top = '\u23A1';
-    repeat = '\u23A2';
-    bottom = '\u23A3';
+    top = 0x23a1;
+    repeat = 0x23a2;
+    bottom = 0x23a3;
     font = 'Size4-Regular';
   } else if (delim === ']' || delim === '\\rbrack') {
-    top = '\u23A4';
-    repeat = '\u23A5';
-    bottom = '\u23A6';
+    top = 0x23a4;
+    repeat = 0x23a5;
+    bottom = 0x23a6;
     font = 'Size4-Regular';
   } else if (delim === '\\lfloor') {
-    repeat = top = '\u23A2';
-    bottom = '\u23A3';
+    repeat = top = 0x23a2;
+    bottom = 0x23a3;
     font = 'Size4-Regular';
   } else if (delim === '\\lceil') {
-    top = '\u23A1';
-    repeat = bottom = '\u23A2';
+    top = 0x23a1;
+    repeat = bottom = 0x23a2;
     font = 'Size4-Regular';
   } else if (delim === '\\rfloor') {
-    repeat = top = '\u23A5';
-    bottom = '\u23A6';
+    repeat = top = 0x23a5;
+    bottom = 0x23a6;
     font = 'Size4-Regular';
   } else if (delim === '\\rceil') {
-    top = '\u23A4';
-    repeat = bottom = '\u23A5';
+    top = 0x23a4;
+    repeat = bottom = 0x23a5;
     font = 'Size4-Regular';
   } else if (delim === '(') {
-    top = '\u239B';
-    repeat = '\u239C';
-    bottom = '\u239D';
+    top = 0x239b;
+    repeat = 0x239c;
+    bottom = 0x239d;
     font = 'Size4-Regular';
   } else if (delim === ')') {
-    top = '\u239E';
-    repeat = '\u239F';
-    bottom = '\u23A0';
+    top = 0x239e;
+    repeat = 0x239f;
+    bottom = 0x23a0;
     font = 'Size4-Regular';
   } else if (delim === '\\{' || delim === '\\lbrace') {
-    top = '\u23A7';
-    middle = '\u23A8';
-    bottom = '\u23A9';
-    repeat = '\u23AA';
+    top = 0x23a7;
+    middle = 0x23a8;
+    bottom = 0x23a9;
+    repeat = 0x23aa;
     font = 'Size4-Regular';
   } else if (delim === '\\}' || delim === '\\rbrace') {
-    top = '\u23AB';
-    middle = '\u23AC';
-    bottom = '\u23AD';
-    repeat = '\u23AA';
+    top = 0x23ab;
+    middle = 0x23ac;
+    bottom = 0x23ad;
+    repeat = 0x23aa;
     font = 'Size4-Regular';
   } else if (delim === '\\lgroup') {
-    top = '\u23A7';
-    bottom = '\u23A9';
-    repeat = '\u23AA';
+    top = 0x23a7;
+    bottom = 0x23a9;
+    repeat = 0x23aa;
     font = 'Size4-Regular';
   } else if (delim === '\\rgroup') {
-    top = '\u23AB';
-    bottom = '\u23AD';
-    repeat = '\u23AA';
+    top = 0x23ab;
+    bottom = 0x23ad;
+    repeat = 0x23aa;
     font = 'Size4-Regular';
   } else if (delim === '\\lmoustache') {
-    top = '\u23A7';
-    bottom = '\u23AD';
-    repeat = '\u23AA';
+    top = 0x23a7;
+    bottom = 0x23ad;
+    repeat = 0x23aa;
     font = 'Size4-Regular';
   } else if (delim === '\\rmoustache') {
-    top = '\u23AB';
-    bottom = '\u23A9';
-    repeat = '\u23AA';
+    top = 0x23ab;
+    bottom = 0x23a9;
+    repeat = 0x23aa;
     font = 'Size4-Regular';
   } else if (delim === '\\surd') {
-    top = '\uE001';
-    bottom = '\u23B7';
-    repeat = '\uE000';
+    top = 0xe001;
+    bottom = 0x23b7;
+    repeat = 0xe000;
     font = 'Size4-Regular';
   } else if (delim === '\\ulcorner') {
-    top = '\u250C';
-    repeat = bottom = ' ';
+    top = 0x250c;
+    repeat = bottom = 0x20;
   } else if (delim === '\\urcorner') {
-    top = '\u2510';
-    repeat = bottom = ' ';
+    top = 0x2510;
+    repeat = bottom = 0x20;
   } else if (delim === '\\llcorner') {
-    bottom = '\u2514';
-    repeat = top = ' ';
+    bottom = 0x2514;
+    repeat = top = 0x20;
   } else if (delim === '\\lrcorner') {
-    top = '\u2518';
-    repeat = top = ' ';
+    top = 0x2518;
+    repeat = top = 0x20;
   }
 
   // Get the metrics of the four sections
-  const topMetrics = getCharacterMetrics(getSymbolValue(top), font);
+  const topMetrics = getCharacterMetrics(top, font);
   const topHeightTotal = topMetrics.height + topMetrics.depth;
-  const repeatMetrics = getCharacterMetrics(getSymbolValue(repeat), font);
+  const repeatMetrics = getCharacterMetrics(repeat, font);
   const repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
-  const bottomMetrics = getCharacterMetrics(getSymbolValue(bottom), font);
+  const bottomMetrics = getCharacterMetrics(bottom, font);
   const bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
   let middleHeightTotal = 0;
   let middleFactor = 1;
   if (middle !== null) {
-    const middleMetrics = getCharacterMetrics(getSymbolValue(middle), font);
+    const middleMetrics = getCharacterMetrics(middle, font);
     middleHeightTotal = middleMetrics.height + middleMetrics.depth;
     middleFactor = 2; // Repeat symmetrically above and below middle
   }
@@ -410,9 +410,9 @@ function makeStackedDelim(
   }
 
   // Add the bottom symbol
-  inners.push(makeSymbol(font, getSymbolValue(bottom)));
+  inners.push(makeSymbol(font, bottom));
 
-  const repeatSpan = makeSymbol(font, getSymbolValue(repeat));
+  const repeatSpan = makeSymbol(font, repeat);
 
   if (middle === null) {
     // Add that many symbols
@@ -426,7 +426,7 @@ function makeStackedDelim(
       inners.push(repeatSpan);
     }
 
-    inners.push(makeSymbol(font, getSymbolValue(middle)));
+    inners.push(makeSymbol(font, middle));
 
     for (let i = 0; i < repeatCount; i++) {
       inners.push(repeatSpan);
@@ -434,7 +434,7 @@ function makeStackedDelim(
   }
 
   // Add the top symbol
-  inners.push(makeSymbol(font, getSymbolValue(top)));
+  inners.push(makeSymbol(font, top));
 
   // Finally, build the vlist
   const inner = makeVlist(context, inners, 'bottom', {
@@ -640,7 +640,7 @@ function delimTypeToFont(info: DelimiterInfo): string {
  * @param delim - a character value (not a command)
  */
 function traverseSequence(
-  delim: string,
+  delim: number,
   height: number,
   sequence: DelimiterInfo[],
   context: Context

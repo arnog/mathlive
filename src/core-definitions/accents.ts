@@ -9,17 +9,17 @@ import { OverunderAtom } from '../core-atoms/overunder';
 import { Style } from '../public/core';
 
 const ACCENTS = {
-  acute: '\u02CA',
-  grave: '\u02CB',
-  dot: '\u02D9',
-  ddot: '\u00A8',
-  mathring: '\u02DA',
-  tilde: '\u007E',
-  bar: '\u02C9',
-  breve: '\u02D8',
-  check: '\u02C7',
-  hat: '\u005E',
-  vec: '\u20D7',
+  acute: 0x02ca,
+  grave: 0x02cb,
+  dot: 0x02d9,
+  ddot: 0x00a8,
+  mathring: 0x02da,
+  tilde: 0x007e,
+  bar: 0x02c9,
+  breve: 0x02d8,
+  check: 0x02c7,
+  hat: 0x005e,
+  vec: 0x20d7,
 };
 
 defineFunction(Object.keys(ACCENTS), '{body:auto}', {
