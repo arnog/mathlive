@@ -1347,9 +1347,9 @@ class Parser {
 
     // Parse the arguments.
     //
-    // If explicitGroup is not empty, an explicit group is expected
-    // to follow the command and will be parsed *after* the
-    // command has been processed.
+    // If `deferredArg` is not empty, the content after the command
+    // will be parsed *after* the command has been initially processed
+    // (atom creation or style application) and passed to
     //
     // This is used for commands such as \textcolor{color}{content}
     // that need to apply the color to the content *after* the
@@ -1364,7 +1364,7 @@ class Parser {
     }
 
     const initialIndex = this.index;
-    const [explicitGroup, args] = this.parseArguments(info);
+    const [deferredArg, args] = this.parseArguments(info);
     this.parseMode = savedMode;
 
     if (!args) return null; // Some required arguments were missing...
@@ -1387,8 +1387,8 @@ class Parser {
     //  Invoke the createAtom() function if present
     if (typeof info.createAtom === 'function') {
       result = info.createAtom(command, args, this.style);
-      if (explicitGroup) {
-        result.body = this.parseArgument(explicitGroup);
+      if (deferredArg) {
+        result.body = this.parseArgument(deferredArg);
       }
     } else if (typeof info.applyStyle === 'function') {
       const style = info.applyStyle(command, args);
@@ -1400,12 +1400,12 @@ class Parser {
         this.parseMode = info.applyMode;
       }
 
-      // If an explicit group is expected, process it now
-      if (explicitGroup) {
+      // If a deferred arg is expected, process it now
+      if (deferredArg) {
         // Create a temporary style
         const saveStyle = this.style;
         this.style = { ...this.style, ...style };
-        const atoms = this.parseArgument(explicitGroup);
+        const atoms = this.parseArgument(deferredArg);
         this.style = saveStyle;
         this.parseMode = savedMode;
         return atoms;
@@ -1421,15 +1421,12 @@ class Parser {
       if (info.variant) {
         style.variant = info.variant;
       }
-      result =
-        info.type === 'spacing'
-          ? new SpacingAtom(command, this.style)
-          : new Atom(info.type ?? 'mop', {
-              command,
-              style,
-              value: info.value ?? command,
-              mode: info.applyMode ?? this.parseMode,
-            });
+      result = new Atom(info.type ?? 'mop', {
+        command,
+        style,
+        value: info.value ?? command,
+        mode: info.applyMode ?? this.parseMode,
+      });
     }
 
     if (
@@ -1609,11 +1606,8 @@ export function parseLatex(
   let atoms = [];
   while (!parser.end()) {
     const more = parser.parse();
-    if (more) {
-      atoms = atoms.concat(more);
-    } else {
-      break;
-    }
+    if (!more) break;
+    atoms = atoms.concat(more);
   }
 
   return atoms;

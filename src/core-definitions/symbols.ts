@@ -1,7 +1,11 @@
+import { SpacingAtom } from '../core-atoms/spacing';
+import { Atom } from '../core/atom';
+import { Style } from '../public/core';
 import {
   defineSymbol,
   defineSymbols,
   defineSymbolRange,
+  defineFunction,
 } from './definitions-utils';
 
 // Simple characters allowed in math mode
@@ -558,15 +562,11 @@ defineSymbol('\\ ', '\u00A0', 'space');
 defineSymbol('~', '\u00A0', 'space');
 defineSymbol('\\space', '\u00A0', 'space');
 
-defineSymbol('\\!', null, 'spacing');
-defineSymbol('\\,', null, 'spacing');
-defineSymbol('\\:', null, 'spacing');
-defineSymbol('\\;', null, 'spacing');
-defineSymbol('\\enskip', null, 'spacing');
 // \enspace is a TeX command (not LaTeX) equivalent to a \skip
-defineSymbol('\\enspace', null, 'spacing');
-defineSymbol('\\quad', null, 'spacing');
-defineSymbol('\\qquad', null, 'spacing');
+defineFunction(['!', ',', ':', ';', 'enskip', 'enspace', 'quad', 'qquad'], '', {
+  createAtom: (command: string, _args, style: Style): Atom =>
+    new SpacingAtom(command, style),
+});
 
 // Punctuation
 
