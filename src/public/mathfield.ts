@@ -35,7 +35,7 @@ export type InsertOptions = {
   /** If `"auto"` or omitted, the current mode is used */
   mode?: ParseMode | 'auto';
   /**
-     * The format of the input string: 
+     * The format of the input string:
      *
     | <!-- -->    | <!-- -->    |
     |:------------|:------------|
