@@ -407,7 +407,7 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
   // Iterate backward, as we will be replacing childNode with a documentfragment
   // which may insert multiple nodes (one for the accessible markup, one for
   // the formula)
-  for (let i = element.childNodes.length - 1; i > 0; i--) {
+  for (let i = element.childNodes.length - 1; i >= 0; i--) {
     const childNode = element.childNodes[i];
     if (childNode.nodeType === 3) {
       // A text node

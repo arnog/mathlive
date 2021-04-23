@@ -18,6 +18,8 @@
 - **#907** When using `renderMathInElement()` or `renderMathInDocument()`,
   formulas containing styling information would get too aggressively coalesced,
   dropping some styling.
+- **#910** Fixed an issue introduced in 0.61.0 where some content would not get
+  rendered when calling `renderMathInElement()` or `renderMathInDocument()`.
 
 ## 0.61.0 (2021-04-22)
 
