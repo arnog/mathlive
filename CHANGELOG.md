@@ -1,6 +1,11 @@
-## 0.62.0 (2021-04-23)
+## [Unreleased]
 
-### New Features
+### Bug Fixes
+
+- **#708** Pressing on the bottom part of the virtual keyboard keycap did not
+  trigger the key action.
+
+## 0.62.0 (2021-04-23)
 
 ### Improvements
 

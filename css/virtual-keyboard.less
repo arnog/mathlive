@@ -1,5 +1,6 @@
 @keyboard-zindex: 105;
 @keyboard-height: 276px;
+@keycap-height: 52px;
 @system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
   'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif;
@@ -38,7 +39,7 @@
   --keyboard-alternate-key-aside-font-size: 12px;
 
   --keyboard-height: @keyboard-height;
-  --keycap-height: 52px;
+  --keycap-height: @keycap-height;
   --keycap-font-size: 20px;
   --keycap-small-font-size: calc(var(--keycap-font-size) * 0.8);
   --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
@@ -476,7 +477,11 @@
         &.keycap.is-active,
         &.action:active,
         &.action.is-active {
-          transform: translateY(-20px) scale(1.4, 1.4);
+          // -0.2 = 1.0 - 1.4
+          transform: translateY(
+              calc(-0.2 * var(--keycap-height, @keycap-height))
+            )
+            scale(1.4, 1.4);
           z-index: calc(var(--keyboard-zindex, @keyboard-zindex) - 5);
           color: var(--keyboard-text-active);
         }
@@ -600,9 +605,9 @@
     /* Tablet size */
     @media only screen and (min-width: 768px) and (max-width: 1024px) {
       & > ul {
-        height: var(--keycap-height, 52px);
+        height: var(--keycap-height, @keycap-height);
         & > li {
-          height: var(--keycap-height, 52px);
+          height: var(--keycap-height, @keycap-height);
           width: 51px;
           margin-right: 4px;
         }
@@ -623,9 +628,9 @@
     /* Desktop size */
     @media only screen and (min-width: 1025px) {
       & > ul {
-        height: var(--keycap-height, 52px);
+        height: var(--keycap-height, @keycap-height);
         & > li {
-          height: var(--keycap-height, 52px);
+          height: var(--keycap-height, @keycap-height);
           width: 66px;
           margin-right: 6px;
         }
@@ -792,7 +797,7 @@ div.ML__keyboard.material {
         width: 19.5px;
         margin-right: 10px;
         margin-left: 10px;
-        transform: translateY(-20px) scale(2, 2);
+        transform: translateY(-10px) scale(2, 2);
         // transition: .07s cubic-bezier(.4, 0, .2, 1);
         transition: none;
         justify-content: flex-start;
