@@ -53,7 +53,7 @@ export class LatexGroupAtom extends Atom {
   }
 
   render(context: Context): Span {
-    const span = new Span(Atom.render(context, this.body), { type: 'mord' });
+    const span = Atom.render(context, this.body);
 
     if (this.caret) span.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched

@@ -3,8 +3,8 @@ import { isArray } from '../common/types';
 import { Context, ContextInterface } from './context';
 import { Style, ParseMode } from '../public/core';
 import { MATHSTYLES } from './mathstyle';
-import { METRICS as FONTMETRICS, SIZING_MULTIPLIER } from './font-metrics';
-import { makeVlist, SpanType, isSpanType, Span } from './span';
+import { METRICS as FONTMETRICS } from './font-metrics';
+import { makeVlist, SpanType, isSpanType, Span, makeHlist } from './span';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
@@ -260,8 +260,14 @@ export class Atom {
    */
   static render(
     inputContext: ContextInterface,
-    atoms: Atom[] | undefined
-  ): Span[] | null {
+    atoms: Atom[] | undefined,
+    options?: {
+      type?: SpanType;
+      classes?: string;
+      style?: Style;
+      mode?: ParseMode;
+    }
+  ): Span | null {
     function isDigit(atom: Atom): boolean {
       return (
         atom.type === 'mord' &&
@@ -274,11 +280,10 @@ export class Atom {
       return atom.mode === 'text';
     }
 
-    if (!atoms) return null;
-    if (atoms.length === 0) return [];
+    if (!atoms || atoms.length === 0) return null;
 
-    // We can be passed either a Context object, or
-    // a ContextInterface objectl literal.
+    // We can be passed either a `Context` object, or a `ContextInterface`
+    // object literal.
     const context: Context =
       inputContext instanceof Context
         ? inputContext
@@ -290,13 +295,13 @@ export class Atom {
     const displaySelection =
       !context.atomIdsSettings || !context.atomIdsSettings.groupNumbers;
 
-    let result: Span[] | null = [];
+    let spans: Span[] | null = [];
     if (atoms.length === 1) {
       const span = atoms[0].render(context);
       if (span && displaySelection && atoms[0].isSelected) {
         span.selected(true);
       }
-      if (span) result = [span];
+      if (span) spans = [span];
     } else {
       let selection: Span[] = [];
       let digitOrTextStringID = '';
@@ -347,45 +352,54 @@ export class Atom {
             if (selection.length > 0) {
               // There was a selection, but we're out of it now
               // Append the selection
-              result = [...result, ...selection];
+              spans = [...spans, ...selection];
               selection = [];
             }
 
-            result.push(span);
+            spans.push(span);
           }
         }
       }
 
       // Is there a leftover selection?
       if (selection.length > 0) {
-        result = [...result, ...selection];
+        spans = [...spans, ...selection];
         selection = [];
       }
     }
 
-    if (!result || result.length === 0) return null;
+    if (!spans || spans.length === 0) return null;
 
     // If the mathstyle changed between the parent and the current atom,
     // account for the size difference
-    if (context.mathstyle.id !== context.parentMathstyle.id) {
-      const factor =
-        context.mathstyle.sizeMultiplier /
-        context.parentMathstyle.sizeMultiplier;
-      for (const span of result) {
-        span.height *= factor;
-        span.depth *= factor;
-      }
+    // if (context.mathstyle.id !== context.parentMathstyle.id) {
+    //   const factor =
+    //     context.mathstyle.sizeMultiplier /
+    //     context.parentMathstyle.sizeMultiplier;
+    //   for (const span of result) {
+    //     span.height *= factor;
+    //     span.depth *= factor;
+    //   }
+    // }
+
+    let result: Span = spans[0];
+    if (options || spans.length > 1) {
+      result = makeHlist(spans, options);
     }
 
     // If the size changed between the parent and the current group,
     // account for the size difference
     if (context.size !== context.parentSize) {
       const factor =
-        SIZING_MULTIPLIER[context.size] / SIZING_MULTIPLIER[context.parentSize];
-      for (const span of result) {
-        span.height *= factor;
-        span.depth *= factor;
-      }
+        context.mathstyle.sizeMultiplier /
+        context.parentMathstyle.sizeMultiplier;
+      // SIZING_MULTIPLIER[context.size] / SIZING_MULTIPLIER[context.parentSize];
+      // for (const span of spans) {
+      //   span.height *= factor;
+      //   span.depth *= factor;
+      // }
+      result.height *= factor;
+      result.depth *= factor;
     }
 
     return result;
@@ -953,11 +967,11 @@ export class Atom {
     let supmid: Span = null;
     let submid: Span = null;
     if (this.superscript) {
-      supmid = new Span(Atom.render(context.sup(), this.superscript));
+      supmid = Atom.render(context.sup(), this.superscript);
     }
 
     if (this.subscript) {
-      submid = new Span(Atom.render(context.sub(), this.subscript));
+      submid = Atom.render(context.sub(), this.subscript);
     }
 
     // Rule 18a, p445
@@ -1060,10 +1074,10 @@ export class Atom {
     slant: number
   ): Span {
     const limitAbove = this.superscript
-      ? new Span(Atom.render(context.sup(), this.superscript))
+      ? Atom.render(context.sup(), this.superscript)
       : null;
     const limitBelow = this.subscript
-      ? new Span(Atom.render(context.sub(), this.subscript))
+      ? Atom.render(context.sub(), this.subscript)
       : null;
     return makeLimitsStack(
       context,
@@ -1134,10 +1148,20 @@ export class Atom {
       classes += ' ' + context.size;
     }
 
-    const result = new Span(
-      typeof value === 'string' ? value : Atom.render(context, value),
-      { type, mode: this.mode, style, classes }
-    );
+    const result =
+      typeof value === 'string' || value === undefined
+        ? new Span((value as string | undefined) ?? null, {
+            type,
+            mode: this.mode,
+            style,
+            classes,
+          })
+        : Atom.render(context, value, {
+            type,
+            mode: this.mode,
+            style,
+            classes,
+          });
 
     /** @revisit: If maxFontSize is changed, it should be applied to height/depth */
     result.maxFontSize = Math.max(

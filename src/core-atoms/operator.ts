@@ -82,7 +82,7 @@ export class OperatorAtom extends Atom {
       base.setStyle('backgroundColor', this.style.backgroundColor);
     } else if (this.body) {
       // If this is a list, decompose that list.
-      base = new Span(Atom.render(context, this.body), { type: 'mop' });
+      base = Atom.render(context, this.body, { type: 'mop' });
       base.setStyle('color', this.style.color);
       base.setStyle('backgroundColor', this.style.backgroundColor);
     } else {

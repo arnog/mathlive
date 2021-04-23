@@ -81,26 +81,34 @@ export class GenfracAtom extends Atom {
     const numeratorStyle = this.continuousFraction
       ? outerstyle
       : outerstyle.fracNum();
-    let numer = [];
-    if (this.numerPrefix) {
-      numer.push(new Span(this.numerPrefix, { type: 'mord' }));
-    }
-    numer = numer.concat(
-      Atom.render(newContext.clone({ mathstyle: numeratorStyle }), this.above)
-    );
-    const numerSpans = makeHlist(numer);
+    const numer = this.numerPrefix
+      ? makeHlist([
+          new Span(this.numerPrefix, { type: 'mord' }),
+          Atom.render(
+            newContext.clone({ mathstyle: numeratorStyle }),
+            this.above
+          ),
+        ])
+      : Atom.render(
+          newContext.clone({ mathstyle: numeratorStyle }),
+          this.above
+        ) ?? new Span(null);
 
     const denominatorStyle = this.continuousFraction
       ? outerstyle
       : outerstyle.fracDen();
-    let denom = [];
-    if (this.denomPrefix) {
-      denom.push(new Span(this.denomPrefix, { type: 'mord' }));
-    }
-    denom = denom.concat(
-      Atom.render(newContext.clone({ mathstyle: denominatorStyle }), this.below)
-    );
-    const denomSpans = makeHlist(denom);
+    const denom = this.denomPrefix
+      ? makeHlist([
+          new Span(this.denomPrefix, { type: 'mord' }),
+          Atom.render(
+            newContext.clone({ mathstyle: denominatorStyle }),
+            this.below
+          ),
+        ])
+      : Atom.render(
+          newContext.clone({ mathstyle: denominatorStyle }),
+          this.below
+        ) ?? new Span(null);
     const ruleWidth = !this.hasBarLine
       ? 0
       : FONTMETRICS.defaultRuleThickness / outerstyle.sizeMultiplier;
@@ -131,8 +139,8 @@ export class GenfracAtom extends Atom {
       denomShift = outerstyle.metrics.denom2; // V ← σ12
     }
 
-    const numerDepth = numerSpans.depth;
-    const denomHeight = denomSpans.height;
+    const numerDepth = numer.depth;
+    const denomHeight = denom.height;
     let frac: Span;
     if (ruleWidth === 0) {
       // Rule 15c from Appendix G
@@ -147,8 +155,8 @@ export class GenfracAtom extends Atom {
       frac = makeVlist(
         newContext,
         [
-          [numerSpans, -numerShift],
-          [denomSpans, denomShift],
+          [numer, -numerShift],
+          [denom, denomShift],
         ],
         'individualShift',
         { classes: 'mfrac' }
@@ -180,9 +188,9 @@ export class GenfracAtom extends Atom {
       frac = makeVlist(
         newContext,
         [
-          [denomSpans, denomShift],
+          [denom, denomShift],
           [fracLine, -denomLine],
-          [numerSpans, -numerShift],
+          [numer, -numerShift],
         ],
         'individualShift',
         { classes: 'mfrac' }

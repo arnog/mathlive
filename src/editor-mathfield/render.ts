@@ -1,4 +1,4 @@
-import { makeStruts } from '../core/span';
+import { makeStruts, Span } from '../core/span';
 import { MATHSTYLES } from '../core/mathstyle';
 
 import { Rect, getSelectionBounds, isValidMathfield } from './utils';
@@ -101,7 +101,7 @@ export function render(
   //
   // 3. Render spans
   //
-  const base = model.root.render(
+  const base: Span = model.root.render(
     new Context({
       mathstyle:
         mathfield.options.defaultMode === 'inline-math'

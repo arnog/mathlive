@@ -38,7 +38,7 @@ export class AccentAtom extends Atom {
     // Accents are handled in the TeXbook pg. 443, rule 12.
     const { mathstyle } = context;
     // Build the base atom
-    const base = new Span(Atom.render(context.cramp(), this.body));
+    const base = Atom.render(context.cramp(), this.body) ?? new Span(null);
     // Calculate the skew of the accent. This is based on the line "If the
     // nucleus is not a single character, let s = 0; otherwise set s to the
     // kern amount for the nucleus followed by the \skewchar of its font."

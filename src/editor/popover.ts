@@ -1,6 +1,6 @@
 import { isArray } from '../common/types';
 
-import { MATHSTYLES, Span, makeStruts, parseLatex, Atom } from '../core/core';
+import { MATHSTYLES, makeStruts, parseLatex, Atom } from '../core/core';
 
 import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
@@ -269,20 +269,16 @@ function getNote(symbol: string): string {
 }
 
 function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
-  const parse = parseLatex(latex, 'math', null, mf.options.macros);
-  const spans = Atom.render(
+  const span = Atom.render(
     {
       mathstyle: MATHSTYLES.displaystyle,
       macros: mf.options.macros,
     },
-    parse
+    parseLatex(latex, 'math', null, mf.options.macros),
+    { classes: 'ML__base' }
   );
 
-  const wrapper = makeStruts(new Span(spans, { classes: 'ML__base' }), {
-    classes: 'ML__mathlive',
-  });
-
-  return wrapper.toMarkup();
+  return makeStruts(span, { classes: 'ML__mathlive' }).toMarkup();
 }
 
 export function showPopoverWithLatex(

@@ -47,7 +47,7 @@ export class BoxAtom extends Atom {
       typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
 
     // Base is the main content "inside" the box
-    const content = new Span(Atom.render(context, this.body));
+    const content = Atom.render(context, this.body);
     content.setStyle('vertical-align', -content.height, 'em');
     const base = new Span(content, { type: 'mord' });
 

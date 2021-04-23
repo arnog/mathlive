@@ -58,8 +58,8 @@ export class OverunderAtom extends Atom {
   }
 
   render(context: Context): Span {
-    const body: Span[] = this.svgBody
-      ? [makeSVGSpan(this.svgBody)]
+    const body: Span = this.svgBody
+      ? makeSVGSpan(this.svgBody)
       : Atom.render(context, this.body);
     const annotationStyle = context.clone({
       mathstyle: MATHSTYLES.scriptstyle,
@@ -69,13 +69,13 @@ export class OverunderAtom extends Atom {
     if (this.svgAbove) {
       above = makeSVGSpan(this.svgAbove);
     } else if (this.above) {
-      above = new Span(Atom.render(annotationStyle, this.above));
+      above = Atom.render(annotationStyle, this.above);
     }
 
     if (this.svgBelow) {
       below = makeSVGSpan(this.svgBelow);
     } else if (this.below) {
-      below = new Span(Atom.render(annotationStyle, this.below));
+      below = Atom.render(annotationStyle, this.below);
     }
 
     if (above && below) {
@@ -113,7 +113,7 @@ export class OverunderAtom extends Atom {
  */
 function makeOverunderStack(
   context: Context,
-  nucleus: Span[],
+  nucleus: Span,
   above: Span,
   below: Span,
   type: SpanType
@@ -128,7 +128,7 @@ function makeOverunderStack(
   let belowShift = 0;
 
   if (above) {
-    above.height += FONTMETRICS.bigOpSpacing5;
+    // above.depth += FONTMETRICS.bigOpSpacing5;
     aboveShift = Math.max(
       FONTMETRICS.bigOpSpacing1,
       FONTMETRICS.bigOpSpacing3 - above.depth
@@ -136,7 +136,7 @@ function makeOverunderStack(
   }
 
   if (below) {
-    below.height += FONTMETRICS.bigOpSpacing5;
+    // below.height += FONTMETRICS.bigOpSpacing5;
     belowShift = Math.max(
       FONTMETRICS.bigOpSpacing2,
       FONTMETRICS.bigOpSpacing4 - below.height
@@ -146,47 +146,58 @@ function makeOverunderStack(
   let result = null;
   const wrappedNucleus = new Span([
     makeNullFence(context, 'mopen'),
-    ...(nucleus ?? []),
+    nucleus ?? new Span(null),
     makeNullFence(context, 'mclose'),
   ]);
 
+  const nucleusShift = 0;
+  // (wrappedNucleus.height - wrappedNucleus.depth) / 2 -
+  // context.mathstyle.metrics.axisHeight;
+
   if (below && above) {
-    const bottom = below.height + below.depth + wrappedNucleus.depth;
+    const bottom =
+      FONTMETRICS.bigOpSpacing5 +
+      below.height +
+      below.depth +
+      wrappedNucleus.depth +
+      nucleusShift;
 
     result = makeVlist(
       context,
       [
-        0,
+        FONTMETRICS.bigOpSpacing5,
         below,
         belowShift,
         wrappedNucleus,
         aboveShift,
         above,
-        FONTMETRICS.bigOpSpacing2,
+        FONTMETRICS.bigOpSpacing5,
       ],
       'bottom',
       { initialPos: bottom }
     );
-    // result.height = result.height - belowShift;
-    // result.depth = belowShift;
-  } else if (below && !above) {
-    result = makeVlist(context, [0, below, belowShift, wrappedNucleus], 'top', {
-      initialPos: wrappedNucleus.height,
-    });
-  } else if (above && !below) {
+  } else if (below) {
+    result = makeVlist(
+      context,
+      [FONTMETRICS.bigOpSpacing5, below, belowShift, wrappedNucleus],
+      'top',
+      {
+        initialPos: wrappedNucleus.height - nucleusShift,
+      }
+    );
+  } else if (above) {
     result = makeVlist(
       context,
       [
-        wrappedNucleus.depth,
+        // wrappedNucleus.depth,
         wrappedNucleus,
-        Math.max(FONTMETRICS.bigOpSpacing2, aboveShift), // TeXBook 13a, p.444
+        aboveShift,
         above,
+        FONTMETRICS.bigOpSpacing5,
       ],
       'bottom',
-      { initialPos: wrappedNucleus.depth }
+      { initialPos: wrappedNucleus.depth + nucleusShift }
     );
-    // result.height = result.height - wrappedNucleus.depth;
-    // result.depth = wrappedNucleus.depth;
   }
 
   return new Span(result, { classes: 'op-over-under', type });

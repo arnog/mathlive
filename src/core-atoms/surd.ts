@@ -40,8 +40,7 @@ export class SurdAtom extends Atom {
     const { mathstyle } = context;
     // First, we do the same steps as in overline to build the inner group
     // and line
-    const inner =
-      new Span(Atom.render(context.cramp(), this.body)) ?? new Span('');
+    const inner = Atom.render(context.cramp(), this.body) ?? new Span('');
     const ruleWidth =
       FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     let phi = ruleWidth;
@@ -116,7 +115,7 @@ export class SurdAtom extends Atom {
     const newcontext = context.clone({
       mathstyle: MATHSTYLES.scriptscriptstyle,
     });
-    const root = new Span(Atom.render(newcontext, this.above));
+    const root = Atom.render(newcontext, this.above);
     // Figure out the height and depth of the inner part
     const innerRootHeight = Math.max(delim.height, body.height);
     const innerRootDepth = Math.max(delim.depth, body.depth);

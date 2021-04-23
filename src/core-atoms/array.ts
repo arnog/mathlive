@@ -5,12 +5,7 @@ import {
   isNamedBranch,
   ToLatexOptions,
 } from '../core/atom-class';
-import {
-  makeVlist,
-  depth as spanDepth,
-  height as spanHeight,
-  Span,
-} from '../core/span';
+import { makeVlist, Span } from '../core/span';
 import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import { makeLeftRightDelim } from '../core/delimiters';
 import { MathStyleName, MATHSTYLES } from '../core/mathstyle';
@@ -42,7 +37,7 @@ export type ArrayAtomConstructorOptions = {
 };
 
 type ArrayRow = {
-  cells: Span[][];
+  cells: Span[];
   height: number;
   depth: number;
   pos: number;
@@ -326,12 +321,9 @@ export class ArrayAtom extends Atom {
         mathstyle: MATHSTYLES[this.mathStyleName],
       });
       for (const element of inrow) {
-        const elt = [
-          new Span(null, { type: 'mord' }),
-          ...(Atom.render(rowContext, element) ?? []),
-        ];
-        depth = Math.max(depth, spanDepth(elt));
-        height = Math.max(height, spanHeight(elt));
+        const elt = Atom.render(rowContext, element) ?? new Span(null);
+        depth = Math.max(depth, elt.depth);
+        height = Math.max(height, elt.height);
         outrow.cells.push(elt);
       }
 
@@ -362,14 +354,11 @@ export class ArrayAtom extends Atom {
     for (let colIndex = 0; colIndex < nc; colIndex++) {
       const col: [Span, number][] = [];
       for (const row of body) {
-        let element = row.cells[colIndex];
-        if (element) {
-          element = new Span(element);
-          element.depth = row.depth;
-          element.height = row.height;
+        const element = row.cells[colIndex];
+        element.depth = row.depth;
+        element.height = row.height;
 
-          col.push([element, row.pos - offset]);
-        }
+        col.push([element, row.pos - offset]);
       }
 
       if (col.length > 0) {
@@ -612,7 +601,7 @@ function makeColOfRepeatingElements(
 ): Span {
   const col = [];
   for (const row of rows) {
-    const cell = new Span(Atom.render(context, element));
+    const cell = Atom.render(context, element);
     cell.depth = row.depth;
     cell.height = row.height;
     col.push([cell, row.pos - offset]);

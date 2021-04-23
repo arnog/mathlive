@@ -115,7 +115,7 @@ export class EncloseAtom extends Atom {
   }
 
   render(context: Context): Span {
-    const base = new Span(Atom.render(context, this.body), { type: 'mord' });
+    const base = Atom.render(context, this.body);
 
     // Account for the padding
     const padding =

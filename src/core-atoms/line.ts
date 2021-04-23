@@ -21,7 +21,7 @@ export class LineAtom extends Atom {
   render(context: Context): Span {
     const { mathstyle } = context;
     // TeXBook:443. Rule 9 and 10
-    const inner = new Span(Atom.render(context.cramp(), this.body));
+    const inner = Atom.render(context.cramp(), this.body);
     const ruleWidth =
       FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
     const line = new Span(null, {

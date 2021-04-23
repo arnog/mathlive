@@ -62,7 +62,7 @@ export class GroupAtom extends Atom {
         ? MATHSTYLES[this.mathStyleName]
         : undefined,
     });
-    const span = new Span(Atom.render(localContext, this.body), {
+    const span = Atom.render(localContext, this.body, {
       type: this.spanType ?? 'mord',
       classes: this.customClass,
       mode: this.mode,

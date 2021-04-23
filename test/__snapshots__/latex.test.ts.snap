@@ -2,14 +2,14 @@
 
 exports[`ARGUMENTS 0/ "\\\\frac" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter\\"></span><span class=\\"vlist mfrac\\"><span><span class=\\"frac-line\\"></span></span></span><span class=\\"nulldelimiter\\"></span></span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.68em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.37em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"></span></span><span class=\\"nulldelimiter\\"></span></span></span></span>",
   "no-error",
 ]
 `;
 
 exports[`ARGUMENTS 1/ "\\\\frac{}" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter\\"></span><span class=\\"vlist mfrac\\"><span><span class=\\"frac-line\\"></span></span></span><span class=\\"nulldelimiter\\"></span></span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.68em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1.37em;vertical-align:-0.68em\\"></span><span class=\\"ML__base\\"><span><span class=\\"nulldelimiter\\"></span><span class=\\"vlist mfrac\\"><span style=\\"top:0.69em\\"></span><span style=\\"top:-0.22em\\"><span class=\\"frac-line\\"></span></span><span style=\\"top:-0.67em\\"></span></span><span class=\\"nulldelimiter\\"></span></span></span></span>",
   "no-error",
 ]
 `;
@@ -72,7 +72,7 @@ Array [
 
 exports[`BASIC PARSING 7/ "1234|/@.\`abcdefgzABCDEFGZ" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">1234∣/@.‘</span><span class=\\"ML__mathit\\">abcdefgzABCDEFGZ</span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.75em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:1em;vertical-align:-0.25em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__cmr\\">1234∣/@.‘</span><span class=\\"ML__mathit\\">abcde</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.11em\\">f</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.04em\\">g</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.05em\\">z</span><span class=\\"ML__mathit\\">A</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">B</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.08em\\">C</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.03em\\">D</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.06em\\">E</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.14em\\">F</span><span class=\\"ML__mathit\\">G</span><span class=\\"ML__mathit\\" style=\\"margin-right:0.08em\\">Z</span></span></span>",
   "no-error",
 ]
 `;

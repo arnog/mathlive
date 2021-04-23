@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { depth as spanDepth, height as spanHeight, Span } from '../core/span';
+import { Span } from '../core/span';
 import { makeLeftRightDelim } from '../core/delimiters';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
@@ -80,18 +80,19 @@ export class LeftRightAtom extends Atom {
     // The scope of the context is this group, so make a copy of it
     // so that any changes to it will be discarded when finished
     // with this group.
-    const inner = Atom.render(context.clone(), this.body);
+    const inner: Span = Atom.render(context.clone(), this.body);
     const localContext = context.clone({
       size: this.style?.fontSize ?? 'size5',
     });
     const { mathstyle } = localContext;
-    let spans: Span[] = [];
+    const spans: Span[] = [];
+
     // Calculate its height and depth
     // The size of delimiters is the same, regardless of what mathstyle we are
     // in. Thus, to correctly calculate the size of delimiter we need around
     // a group, we scale down the inner size based on the size.
-    const innerHeight = spanHeight(inner) * mathstyle.sizeMultiplier;
-    const innerDepth = spanDepth(inner) * mathstyle.sizeMultiplier;
+    const innerHeight = inner.height * mathstyle.sizeMultiplier;
+    const innerDepth = inner.depth * mathstyle.sizeMultiplier;
 
     // Add the left delimiter to the beginning of the expression
     if (this.leftDelim) {
@@ -118,24 +119,24 @@ export class LeftRightAtom extends Atom {
     if (inner) {
       // Replace the delim (\middle) spans with proper ones now that we know
       // the height/depth
-      for (let i = 0; i < inner.length; i++) {
-        if (inner[i].delim) {
-          const savedCaret = inner[i].caret;
-          inner[i] = this.bind(
+      for (let i = 0; i < inner.children?.length; i++) {
+        if (inner.children[i].delim) {
+          const savedCaret = inner.children[i].caret;
+          inner.children[i] = this.bind(
             context,
             makeLeftRightDelim(
               'minner',
-              inner[i].delim,
+              inner.children[i].delim,
               innerHeight,
               innerDepth,
               localContext
             )
           );
-          inner[i].caret = savedCaret;
+          inner.children[i].caret = savedCaret;
         }
       }
 
-      spans = spans.concat(inner);
+      spans.push(inner);
     }
 
     // Add the right delimiter to the end of the expression.

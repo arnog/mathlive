@@ -65,7 +65,12 @@
         class="mathfield" style="max-width: 640px; width:100%" 
         onfocus='console.log("focusing")'
         smart-fence="true"
-        virtual-keyboard-mode="manual"> \overset{\frac{0}{0}}{=}
+        virtual-keyboard-mode="manual"> x
+        <!-- =\mathop{operator}^{above}_{below} -->
+        
+        <!-- \sqrt[\Huge 3]{29}=\mathop{operator}^{above}_{below}\sum_{P_i \in Paths(I)}=\sum_{n=0}^5=\frac12=\overset{+}{=}
+        \underset{under}{\overset{\frac{0}{0}}{=}}
+        -\colorbox{BurntOrange}{\ensuremath{x\frac{1}{\colorbox{yellow}{\ensuremath{x}}}}}= -->
         <!-- z = \overbrace{
           \underbrace{x}_\text{real} + i
           \underbrace{y}_\text{imaginary}
@@ -111,6 +116,8 @@
 
         <h2 style='margin-top: 1em'>Selection</h2>
         <div class="output" id="selection"></div>
+
+        $$\text{hello world}$$
 
         <!-- <math-field class="mathfield" style="width:100%" tabindex="4" virtual-keyboard-mode="manual">f_{4}(x) =
         </math-field>
@@ -164,10 +171,12 @@
         <div class="output" id="mathml"></div>
         <h2>MASTON</h2>
         <div class="output" id="maston"></div>
-    </main>
+
+      </main>
 
     <script type="module">
-        import { convertLatexToMarkup } from '/dist/mathlive.mjs';
+        import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
+        renderMathInDocument();
 
       //  console.log( convertLatexToMarkup('\\int _{x}^{\\infty }'));
 
