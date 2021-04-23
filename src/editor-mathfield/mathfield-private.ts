@@ -517,6 +517,19 @@ export class MathfieldPrivate implements Mathfield {
     requestUpdate(this);
   }
 
+  get virtualKeyboardState(): 'hidden' | 'visible' {
+    if (this.virtualKeyboard.visible) return 'visible';
+    return 'hidden';
+  }
+
+  set virtualKeyboardState(value: 'hidden' | 'visible') {
+    if (value === 'hidden') {
+      this.virtualKeyboard.executeCommand('hideVirtualKeyboard');
+    } else if (value === 'visible') {
+      this.virtualKeyboard.executeCommand('showVirtualKeyboard');
+    }
+  }
+
   get keybindings(): Keybinding[] {
     if (this._keybindings) return this._keybindings;
     this._keybindings = normalizeKeybindings(

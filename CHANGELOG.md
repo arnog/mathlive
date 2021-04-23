@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### New Features
+
+- **#788** Added `virtualKeyboardState` property to indicate if the virtual
+  keyboard is currently visible or hidden. The property can also be modified to
+  change the state of they virtual keyboard.
+
 ### Bug Fixes
 
 - **#708** Pressing on the bottom part of the virtual keyboard keycap did not

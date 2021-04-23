@@ -480,6 +480,8 @@ export interface Mathfield {
     replacement: string | ReplacementFunction,
     options?: FindOptions
   ): void;
+
+  virtualKeyboardState: 'visible' | 'hidden';
 }
 
 export interface Model {

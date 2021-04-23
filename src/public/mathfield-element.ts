@@ -795,6 +795,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield?.hasFocus() ?? false;
   }
 
+  get virtualKeyboardState(): 'hidden' | 'visible' {
+    return this._mathfield?.virtualKeyboardState ?? 'hidden';
+  }
+
+  set virtualKeyboardState(value: 'hidden' | 'visible') {
+    if (this._mathfield) {
+      this._mathfield.virtualKeyboardState = value;
+    }
+  }
+
   /**
    * Sets the focus to the mathfield (will respond to keyboard input).
    *
