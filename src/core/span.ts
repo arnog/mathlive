@@ -590,9 +590,26 @@ export class Span {
     if (hasChildren || spanHasChildren) return false;
 
     // If they have a different number of styles, can't coalesce
-    const thisStyleCount = this.cssProperties ? this.cssProperties.length : 0;
-    const spanStyleCount = span.cssProperties ? span.cssProperties.length : 0;
+    const thisStyleCount = this.cssProperties
+      ? Object.keys(this.cssProperties).length
+      : 0;
+    const spanStyleCount = span.cssProperties
+      ? Object.keys(span.cssProperties).length
+      : 0;
     if (thisStyleCount !== spanStyleCount) return false;
+
+    // If the styles are different, can't coalesce
+    if (thisStyleCount > 0) {
+      for (const style in this.cssProperties) {
+        if (Object.prototype.hasOwnProperty.call(span.cssProperties, style)) {
+          if (this.cssProperties[style] !== span.cssProperties[style]) {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+    }
 
     // For the purpose of our comparison,
     // any 'empty' classes (whitespace)
@@ -611,20 +628,6 @@ export class Span {
       // (used in column formating with {l||r} for example
       if (class_ === 'vertical-separator') return false;
       if (class_ !== spanClasses[i]) return false;
-    }
-
-    // If the styles are different, can't coalesce
-    if (this.cssProperties && span.cssProperties) {
-      for (const style in this.cssProperties) {
-        if (
-          Object.prototype.hasOwnProperty.call(this.cssProperties, style) &&
-          Object.prototype.hasOwnProperty.call(span.cssProperties, style)
-        ) {
-          if (this.cssProperties[style] !== span.cssProperties[style]) {
-            return false;
-          }
-        }
-      }
     }
 
     // OK, the attributes of those spans are compatible.

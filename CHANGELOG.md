@@ -15,6 +15,9 @@
 - A `\chi13` (0.1em) gap between the nucleus and the above element was missing
   in `OverUnder` atoms (`\overset`, etc...).
 - On Safari iOS, correctly display the keyboard toggle glyph.
+- **#907** When using `renderMathInElement()` or `renderMathInDocument()`,
+  formulas containing styling information would get too aggressively coalesced,
+  dropping some styling.
 
 ## 0.61.0 (2021-04-22)
 
