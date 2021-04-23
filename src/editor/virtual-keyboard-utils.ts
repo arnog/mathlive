@@ -168,7 +168,7 @@ export function hideAlternateKeys(): boolean {
     altContainer.innerHTML = '';
   }
 
-  gScrim.close();
+  gScrim?.close();
 
   return false;
 }
@@ -236,6 +236,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       case 'blur':
       case 'touchend':
       case 'touchcancel':
+        // Safari on iOS will aggressively attempt to select when there is a long
+        // press. Restore the userSelect on mouse up
+        document.body.style.userSelect = '';
+
         unshiftKeyboardLayer(this);
         break;
     }
