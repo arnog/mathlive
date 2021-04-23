@@ -569,7 +569,12 @@ export class Span {
   tryCoalesceWith(span: Span): boolean {
     // Don't coalesce if the types are different
     if (this.type !== span.type) return false;
-
+    if (
+      !/ML__text/.test(this.classes) &&
+      !['mord', 'mbin', 'mrel'].includes(this.type)
+    ) {
+      return false;
+    }
     // Don't coalesce consecutive errors, placeholders or raw latex
     if (
       this.type === 'error' ||
@@ -600,12 +605,8 @@ export class Span {
 
     // If the styles are different, can't coalesce
     if (thisStyleCount > 0) {
-      for (const style in this.cssProperties) {
-        if (Object.prototype.hasOwnProperty.call(span.cssProperties, style)) {
-          if (this.cssProperties[style] !== span.cssProperties[style]) {
-            return false;
-          }
-        } else {
+      for (const prop of Object.keys(this.cssProperties)) {
+        if (this.cssProperties[prop] !== span.cssProperties[prop]) {
           return false;
         }
       }
