@@ -1,187 +1,187 @@
 @system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
 
 /* The element that display info while in latex mode */
 .ML__popover {
-    visibility: hidden;
-    min-width: 160px;
-    background-color: rgba(97, 97, 97, 0.95);
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    // padding: 8px 8px;
-    position: fixed;
-    z-index: 1;
+  visibility: hidden;
+  min-width: 160px;
+  background-color: rgba(97, 97, 97, 0.95);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  // padding: 8px 8px;
+  position: fixed;
+  z-index: 1;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
-    transition: all 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  transition: all 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
 
-    /* The 'tip' of the popover panel */
-    &::after {
-        content: '';
-        position: absolute;
-        top: -5px;
-        left: calc(50% - 3px);
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
+  /* The 'tip' of the popover panel */
+  &::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: calc(50% - 3px);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
 
-        font-size: 1rem;
+    font-size: 1rem;
 
-        border-bottom: 5px solid rgba(97, 97, 97, 0.9);
-    }
+    border-bottom: 5px solid rgba(97, 97, 97, 0.9);
+  }
 }
 
 .ML__popover--reverse-direction {
-    &::after {
-        top: auto;
-        bottom: -5px;
-        border-top: 5px solid rgba(97, 97, 97, 0.9);
-        border-bottom: 0;
-    }
+  &::after {
+    top: auto;
+    bottom: -5px;
+    border-top: 5px solid rgba(97, 97, 97, 0.9);
+    border-bottom: 0;
+  }
 }
 
 div.ML__popover.is-visible {
-    visibility: inherit;
-    animation: ML__fade-in cubic-bezier(0, 0, 0.2, 1) 0.15s;
+  visibility: inherit;
+  animation: ML__fade-in cubic-bezier(0, 0, 0.2, 1) 0.15s;
 }
 @keyframes ML__fade-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* The wrapper class for the entire content of the popover panel */
 .ML__popover__content {
-    border-radius: 6px;
-    padding: 2px;
-    cursor: pointer;
-    min-height: 100px;
+  border-radius: 6px;
+  padding: 2px;
+  cursor: pointer;
+  min-height: 100px;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-left: 8px;
-    margin-right: 8px;
-    a {
-        color: #5ea6fd;
-        padding-top: 0.3em;
-        margin-top: 0.4em;
-        display: block;
-        &:hover {
-            color: #5ea6fd;
-            text-decoration: underline;
-        }
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 8px;
+  margin-right: 8px;
+  a {
+    color: #5ea6fd;
+    padding-top: 0.3em;
+    margin-top: 0.4em;
+    display: block;
+    &:hover {
+      color: #5ea6fd;
+      text-decoration: underline;
     }
-    /* Since the content can be clicked on, provide feedback on hover */
-    &:hover,
-    &.pressed,
-    &.active {
-        background: rgba(255, 255, 255, 0.1);
-    }
+  }
+  /* Since the content can be clicked on, provide feedback on hover */
+  &:hover,
+  &.is-pressed,
+  &.is-active {
+    background: rgba(255, 255, 255, 0.1);
+  }
 }
 
 /* The command inside a popover (inside a ML__popover-content) */
 .ML__popover__command {
-    font-size: 1.6rem;
-    font-family: KaTeX_Main;
+  font-size: 1.6rem;
+  font-family: KaTeX_Main;
 }
 
 .ML__popover__prev-shortcut {
-    height: 31px;
-    opacity: 0.1;
-    cursor: pointer;
+  height: 31px;
+  opacity: 0.1;
+  cursor: pointer;
 
-    margin-left: 8px;
-    margin-right: 8px;
-    padding-top: 4px;
-    padding-bottom: 2px;
+  margin-left: 8px;
+  margin-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 2px;
 }
 
 .ML__popover__prev-shortcut:hover,
 .ML__popover__next-shortcut:hover {
-    opacity: 0.3;
+  opacity: 0.3;
 }
 
-.ML__popover__prev-shortcut.pressed,
-.ML__popover__next-shortcut.pressed {
-    opacity: 1;
+.ML__popover__prev-shortcut.is-pressed,
+.ML__popover__next-shortcut.is-pressed {
+  opacity: 1;
 }
 
-.ML__popover__prev-shortcut.active,
-.ML__popover__next-shortcut.active {
-    opacity: 1;
+.ML__popover__prev-shortcut.is-active,
+.ML__popover__next-shortcut.is-active {
+  opacity: 1;
 }
 
 .ML__popover__prev-shortcut > span,
 .ML__popover__next-shortcut > span {
-    padding: 5px;
-    border-radius: 8px;
-    width: 20px;
-    height: 20px;
-    display: inline-block;
+  padding: 5px;
+  border-radius: 8px;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
 }
 
 .ML__popover__prev-shortcut > span > span {
-    margin-top: -2px;
-    display: block;
+  margin-top: -2px;
+  display: block;
 }
 
 .ML__popover__next-shortcut > span > span {
-    margin-top: +2px;
-    display: block;
+  margin-top: +2px;
+  display: block;
 }
 
 .ML__popover__prev-shortcut:hover > span,
 .ML__popover__next-shortcut:hover > span {
-    background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .ML__popover__next-shortcut {
-    height: 34px;
-    opacity: 0.1;
-    cursor: pointer;
+  height: 34px;
+  opacity: 0.1;
+  cursor: pointer;
 
-    margin-left: 8px;
-    margin-right: 8px;
-    padding-top: 2px;
-    padding-bottom: 4px;
+  margin-left: 8px;
+  margin-right: 8px;
+  padding-top: 2px;
+  padding-bottom: 4px;
 }
 
 /* The keyboard shortcuts for a symbol as displayed in the popover */
 .ML__popover__shortcut {
-    font-family: @system;
-    font-size: 0.8em;
-    opacity: 0.7;
+  font-family: @system;
+  font-size: 0.8em;
+  opacity: 0.7;
 
-    margin-top: 0.25em;
-    padding-top: 0.25em;
+  margin-top: 0.25em;
+  padding-top: 0.25em;
 }
 
 /* The field in a popover that provides some info about the symbol */
 .ML__popover__note {
-    font-family: @system;
-    font-size: 0.8rem;
-    opacity: 0.7;
+  font-family: @system;
+  font-size: 0.8rem;
+  opacity: 0.7;
 
-    line-height: 1em;
+  line-height: 1em;
 
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    padding-top: 0.25em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.25em;
 }
 
 /* Style for the character that joins the modifiers of a keyboard shortcut 
 (usually a "+" sign)*/
 .ML__shortcut-join {
-    opacity: 0.5;
+  opacity: 0.5;
 }
