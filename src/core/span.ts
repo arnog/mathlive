@@ -803,6 +803,8 @@ export function makeStruts(
     type?: SpanType;
   }
 ): Span {
+  if (!content) return new Span(null, options);
+
   const topStrut = new Span(null, { classes: 'ML__strut' });
   topStrut.setStyle('height', Math.max(0, content.height), 'em');
   const struts = [topStrut];

@@ -178,16 +178,22 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   _visible: boolean;
   _element?: HTMLDivElement;
   _executeCommand: ExecuteCommandFunction;
+  private readonly _focus: () => void;
+  private readonly _blur: () => void;
 
   constructor(
     options: VirtualKeyboardOptions & CoreOptions,
     alt?: {
       executeCommand: ExecuteCommandFunction;
+      focus: () => void;
+      blur: () => void;
     }
   ) {
     this.options = options;
     this.visible = false;
     this._executeCommand = alt?.executeCommand;
+    this._focus = alt?.focus;
+    this._blur = alt?.blur;
     // Listen to know when the mouse has been released without being
     // captured to remove the alternate keys panel and the shifted state of the
     // keyboard.
@@ -245,9 +251,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     }
   }
 
-  focusMathfield(): void {}
+  focusMathfield(): void {
+    this._focus();
+  }
 
-  blurMathfield(): void {}
+  blurMathfield(): void {
+    this._blur();
+  }
 
   enable(): void {}
 

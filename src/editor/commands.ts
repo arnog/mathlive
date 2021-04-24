@@ -141,7 +141,7 @@ export function perform(
     dirty = true;
     handled = true;
   } else if (commandTarget === 'virtual-keyboard') {
-    dirty = mathfield.virtualKeyboard.executeCommand(command);
+    dirty = mathfield.virtualKeyboard?.executeCommand(command);
     handled = true;
   } else if (COMMANDS[selector]) {
     dirty = COMMANDS[selector].fn(mathfield, ...args);

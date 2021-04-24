@@ -166,7 +166,7 @@ export class MathfieldPrivate implements Mathfield {
     this.options = updateOptions(
       getDefaultOptions(),
       options.readOnly
-        ? options
+        ? { ...options, virtualKeyboardMode: 'off' }
         : {
             plonkSound: 'plonk.wav',
             keypressSound: {
@@ -184,20 +184,24 @@ export class MathfieldPrivate implements Mathfield {
     // to the document. This is useful for example when using
     // mathfield in iframes so that all the mathfields share the keyboard
     // at the document level (rather than having one in each iframe)
-    this.virtualKeyboard = options.useSharedVirtualKeyboard
-      ? new VirtualKeyboardDelegate({
-          targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
-          focus: () => this.focus(),
-          blur: () => this.blur(),
-          executeCommand: (command) => this.executeCommand(command),
-          originValidator: this.options.originValidator,
-        })
-      : new VirtualKeyboard(this.options, {
-          executeCommand: (command) => this.executeCommand(command),
-        });
-
+    if (!this.options.readOnly) {
+      this.virtualKeyboard = options.useSharedVirtualKeyboard
+        ? new VirtualKeyboardDelegate({
+            targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
+            focus: () => this.focus(),
+            blur: () => this.blur(),
+            executeCommand: (command) => this.executeCommand(command),
+            originValidator: this.options.originValidator,
+          })
+        : new VirtualKeyboard(this.options, {
+            focus: () => this.focus(),
+            blur: () => this.blur(),
+            executeCommand: (command) => this.executeCommand(command),
+          });
+    }
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (
+      this.options.keypressSound &&
       typeof this.options.keypressSound !== 'string' &&
       !(this.options.keypressSound instanceof HTMLAudioElement)
     ) {
@@ -523,11 +527,12 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   get virtualKeyboardState(): 'hidden' | 'visible' {
-    if (this.virtualKeyboard.visible) return 'visible';
+    if (this.virtualKeyboard?.visible) return 'visible';
     return 'hidden';
   }
 
   set virtualKeyboardState(value: 'hidden' | 'visible') {
+    if (!this.virtualKeyboard) return;
     if (value === 'hidden') {
       this.virtualKeyboard.executeCommand('hideVirtualKeyboard');
     } else if (value === 'visible') {
@@ -604,7 +609,7 @@ export class MathfieldPrivate implements Mathfield {
       this.onBlur();
     }
 
-    this.virtualKeyboard.setOptions(this.options);
+    this.virtualKeyboard?.setOptions(this.options);
 
     if (this.options.virtualKeyboardMode === 'manual') {
       this.virtualKeyboardToggle.classList.add('is-visible');
@@ -1041,7 +1046,7 @@ export class MathfieldPrivate implements Mathfield {
           complete(this, 'accept');
 
           // Switch to the command mode keyboard layer
-          if (this.virtualKeyboard.visible) {
+          if (this.virtualKeyboard?.visible) {
             this.executeCommand(['switchKeyboardLayer', 'latex-lower']);
           }
 
@@ -1235,7 +1240,7 @@ export class MathfieldPrivate implements Mathfield {
     this.undoManager.snapshot({
       ...this.options,
       onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard.executeCommand([
+        this.virtualKeyboard?.executeCommand([
           'onUndoStateChanged',
           this.canUndo(),
           this.canRedo(),
@@ -1249,7 +1254,7 @@ export class MathfieldPrivate implements Mathfield {
     this.undoManager.snapshotAndCoalesce({
       ...this.options,
       onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard.executeCommand([
+        this.virtualKeyboard?.executeCommand([
           'onUndoStateChanged',
           this.canUndo(),
           this.canRedo(),
@@ -1288,7 +1293,7 @@ export class MathfieldPrivate implements Mathfield {
     return this.undoManager.redo({
       ...this.options,
       onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard.executeCommand([
+        this.virtualKeyboard?.executeCommand([
           'onUndoStateChanged',
           this.canUndo(),
           this.canRedo(),
@@ -1331,7 +1336,7 @@ export class MathfieldPrivate implements Mathfield {
       this.blurred = false;
       this.keyboardDelegate.focus();
 
-      this.virtualKeyboard.enable();
+      this.virtualKeyboard?.enable();
 
       if (this.options.virtualKeyboardMode === 'onfocus') {
         this.executeCommand('showVirtualKeyboard');
@@ -1364,7 +1369,7 @@ export class MathfieldPrivate implements Mathfield {
         this.options.onBlur(this);
       }
 
-      this.virtualKeyboard.disable();
+      this.virtualKeyboard?.disable();
 
       if (
         typeof this.options.onCommit === 'function' &&

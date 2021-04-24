@@ -300,7 +300,7 @@ function getOriginalContent(
 }
 
 // This SDK_VERSION variable will be replaced during the build process.
-const version = '{{SDK_VERSION}}';
+export const version = '{{SDK_VERSION}}';
 
 function deprecated(method: string, remedy: string) {
   console.warn(`"${method}" is deprecated. 

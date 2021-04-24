@@ -4,12 +4,18 @@
 
 - **#788** Added `virtualKeyboardState` property to indicate if the virtual
   keyboard is currently visible or hidden. The property can also be modified to
-  change the state of they virtual keyboard.
+  show or hide the virtual keyboard.
+- In read-only mode, do not attempt to load the sounds and do not allow the
+  virtual keyboard to be shown.
+- Export `version` (previously available as `MathLive.version`).
 
 ### Bug Fixes
 
 - **#708** Pressing on the bottom part of the virtual keyboard keycap did not
   trigger the key action.
+- The asset directory (fonts/sounds) was not properly located in some browsers
+  when using a CDN to load Mathlive.
+- Correctly focus the mathfield when the virtual keyboard is invoked.
 
 ## 0.62.0 (2021-04-23)
 
@@ -23,8 +29,8 @@
 
 ### Bug Fixes
 
-- A `\chi13` (0.1em) gap between the nucleus and the above element was missing
-  in `OverUnder` atoms (`\overset`, etc...).
+- A $$\chi_{13}$$ (0.1em) gap between the nucleus and the above element was
+  missing in `OverUnder` atoms (`\overset`, etc...).
 - On Safari iOS, correctly display the keyboard toggle glyph.
 - **#907** When using `renderMathInElement()` or `renderMathInDocument()`,
   formulas containing styling information would get too aggressively coalesced,
