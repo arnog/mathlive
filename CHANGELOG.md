@@ -8,6 +8,7 @@
 - In read-only mode, do not attempt to load the sounds and do not allow the
   virtual keyboard to be shown.
 - Export `version` (previously available as `MathLive.version`).
+- **#199** Added `infty` and `int` inline shortcuts.
 
 ### Bug Fixes
 

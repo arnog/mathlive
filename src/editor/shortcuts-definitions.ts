@@ -42,6 +42,8 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   'grad': { mode: 'math', value: '\\nabla' },
   'del': { mode: 'math', value: '\\partial' },
 
+  'infty': { mode: 'math', value: '\\infty' },
+
   '\u221E': '\\infty', // @TODO: doesn't work
   // '&infin;': '\\infty',
   // '&#8734;': '\\infty',
@@ -55,6 +57,7 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   // Big operators
   '∑': { mode: 'math', value: '\\sum' },
   'sum': { mode: 'math', value: '\\sum_{#?}^{#?}' },
+  'int': { mode: 'math', value: '\\int_{#?}^{#?}' },
   'prod': { mode: 'math', value: '\\prod_{#?}^{#?}' },
   'sqrt': { mode: 'math', value: '\\sqrt{#?}' },
   // '∫':                    '\\int',             // There's a alt-B command for this
