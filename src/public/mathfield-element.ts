@@ -675,7 +675,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     } else if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
         value: gDeferredState.get(this).value,
-        selection: { ranges: [[0, -1]] },
+        selection: { ranges: options.readOnly ? [[0, 0]] : [[0, -1]] },
         options: {
           ...gDeferredState.get(this).options,
           ...options,
@@ -771,7 +771,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
         value,
-        selection: { ranges: [[0, -1]], direction: 'forward' },
+        selection: {
+          ranges: gDeferredState.get(this).options.readOnly
+            ? [[0, 0]]
+            : [[0, -1]],
+          direction: 'forward',
+        },
         options: gDeferredState.get(this).options,
       });
       return;
@@ -779,7 +784,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     gDeferredState.set(this, {
       value,
-      selection: { ranges: [[0, -1]], direction: 'forward' },
+      selection: {
+        ranges: getOptionsFromAttributes(this).readOnly ? [[0, 0]] : [[0, -1]],
+        direction: 'forward',
+      },
       options: getOptionsFromAttributes(this),
     });
   }

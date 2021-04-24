@@ -446,6 +446,10 @@ export class MathfieldPrivate implements Mathfield {
       on(this.field, 'touchstart:active mousedown', this);
     }
 
+    if (this.options.readOnly) {
+      this.element.classList.add('ML__isReadOnly');
+    }
+
     // Request notification for when the window is resized (
     // or the device switched from portrait to landscape) to adjust
     // the UI (popover, etc...)

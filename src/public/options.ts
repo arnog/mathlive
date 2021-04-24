@@ -168,8 +168,8 @@ export type Keybinding = {
  * shortcut apply in all modes.
  *
  * The `'after'` key, if present, indicate in what context (surrounding characters)
- * the shortcut will apply. One or more values can be specified, separated by a '+'
- * sign. If any of the values match, the shortcut will be applicable.
+ * the shortcut will apply. One or more values can be specified, separated by a '|'
+ * character. If any of the values match, the shortcut will be applicable.
  *
  *
  * Possible values are:
