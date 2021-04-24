@@ -128,7 +128,7 @@ Array [
 
 exports[`BASIC PARSING 15/ "a-" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.59em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.67em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\" style=\\"margin-left:0.23em\\">−</span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0.59em\\"></span><span class=\\"ML__strut--bottom\\" style=\\"height:0.67em;vertical-align:-0.08em\\"></span><span class=\\"ML__base\\"><span class=\\"ML__mathit\\">a</span><span class=\\"ML__cmr\\">−</span></span></span>",
   "no-error",
 ]
 `;
