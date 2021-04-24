@@ -155,6 +155,12 @@ function testLeftRightDelimiter(openDel, closeDel) {
   });
 }
 
+describe('SUPERSCRIPT/SUBSCRIPT', () => {
+  test('-1-\\frac56-1-x^{2-\\frac34}', () => {
+    expect(markupAndError('-1-\\frac56-1-x^{2-\\frac34}')).toMatchSnapshot();
+  });
+});
+
 // ////////////////////////////////////////////////////////////////////////////////
 describe('LEFT/RIGHT', () => {
   [

@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- The size and spacing of fractions in superscript did not match the TeX layout.
+
 ## 0.63.1 (2021-04-24)
 
 ### Bug Fixes

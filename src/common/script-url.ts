@@ -27,6 +27,13 @@ function getFileUrl() {
 
   m = callerFrame.match(/(http.*(\.mjs|\.js))[\?:]/);
   if (!m) {
+    // We might be running under node, in which case we have a file path, not a URL
+    m = callerFrame.match(/at (.*(\.ts))[\?:]/);
+    if (!m) {
+      m = callerFrame.match(/at (.*(\.mjs|\.js))[\?:]/);
+    }
+  }
+  if (!m) {
     console.error(stackTraceFrames);
     console.error(
       "Can't use relative paths to specify assets location because the source " +

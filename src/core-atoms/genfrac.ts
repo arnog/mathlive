@@ -76,19 +76,23 @@ export class GenfracAtom extends Atom {
         ? context.mathstyle
         : MATHSTYLES[this.mathStyleName];
     const newContext = context.clone({ mathstyle: outerstyle });
+    const isTight = newContext.mathstyle.isTight();
     const style = this.computedStyle;
 
     const numeratorStyle = this.continuousFraction
       ? outerstyle
       : outerstyle.fracNum();
     const numer = this.numerPrefix
-      ? makeHlist([
-          new Span(this.numerPrefix, { type: 'mord' }),
-          Atom.render(
-            newContext.clone({ mathstyle: numeratorStyle }),
-            this.above
-          ),
-        ])
+      ? makeHlist(
+          [
+            new Span(this.numerPrefix, { type: 'mord', isTight }),
+            Atom.render(
+              newContext.clone({ mathstyle: numeratorStyle }),
+              this.above
+            ),
+          ],
+          { isTight }
+        )
       : Atom.render(
           newContext.clone({ mathstyle: numeratorStyle }),
           this.above
@@ -159,7 +163,10 @@ export class GenfracAtom extends Atom {
           [denom, denomShift],
         ],
         'individualShift',
-        { classes: 'mfrac' }
+        {
+          classes:
+            'mfrac' + context.parentMathstyle.adjustTo(newContext.mathstyle),
+        }
       );
     } else {
       // Rule 15d from Appendix G
@@ -193,7 +200,10 @@ export class GenfracAtom extends Atom {
           [numer, -numerShift],
         ],
         'individualShift',
-        { classes: 'mfrac' }
+        {
+          classes:
+            'mfrac' + context.parentMathstyle.adjustTo(newContext.mathstyle),
+        }
       );
     }
 
@@ -229,13 +239,13 @@ export class GenfracAtom extends Atom {
             { style, mode: this.mode, classes: delimSizingClass }
           )
         )
-      : makeNullFence(context, 'mopen');
+      : new Span(null);
 
     let rightDelim: Span;
     if (this.continuousFraction) {
-      rightDelim = new Span(null);
-    } else if (!this.rightDelim) {
       rightDelim = makeNullFence(context, 'mclose');
+    } else if (!this.rightDelim) {
+      rightDelim = new Span(null);
     } else {
       rightDelim = this.bind(
         context,
@@ -256,11 +266,12 @@ export class GenfracAtom extends Atom {
       new Span(
         [leftDelim, frac, rightDelim],
         {
+          isTight,
           classes:
             context.parentSize !== context.size
               ? 'sizing reset-' + context.parentSize + ' ' + context.size
               : '',
-          type: 'mord',
+          type: 'minner', // TexBook p. 170 "fractions are treated as type Inner."
         }
         // )
       )

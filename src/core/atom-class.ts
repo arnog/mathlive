@@ -78,7 +78,7 @@ export type AtomType =
   | 'macro'
   | 'mbin' // Binary operator: `+`, `*`, etc...
   | 'mclose' // Closing fence: `)`, `\rangle`, etc...
-  | 'minner' // Special layout cases, overlap, `\left...\right`
+  | 'minner' // Special layout cases, fraction, overlap, `\left...\right`
   | 'mop' // `mop`: operators, including special functions, `\sin`, `\sum`, `\cap`.
   | 'mopen' // Opening fence: `(`, `\langle`, etc...
   | 'mord' // Ordinary symbol, e.g. `x`, `\alpha`
@@ -384,7 +384,10 @@ export class Atom {
 
     let result: Span = spans[0];
     if (options || spans.length > 1) {
-      result = makeHlist(spans, options);
+      result = makeHlist(spans, {
+        isTight: context.mathstyle.isTight(),
+        ...options,
+      });
     }
 
     // If the size changed between the parent and the current group,

@@ -43,6 +43,22 @@ export function isSpanType(type: string): type is SpanType {
  * typesetting conventions for mathematical physics (units, etc...)
  */
 
+/**
+ * TeXBook, p. 170
+ *
+ * In fact, TEX’s rules for spacing in formulas are fairly simple. A formula is
+ * converted to a math list as described at the end of Chapter 17, and the math
+ * list consists chiefly of “atoms” of eight basic types: Ord (ordinary),
+ * Op (large operator), Bin (binary operation), Rel (relation), Open (opening),
+ * Close (closing), Punct (punctuation), and Inner (a delimited subformula).
+ * Other kinds of atoms, which arise from commands like \overline or
+ * \mathaccent or \vcenter, etc., are all treated as type Ord; fractions are
+ * treated as type Inner.
+ *
+ * The following table is used to determine the spacing between pair of adjacent
+ * atoms.
+ */
+
 const INTER_ATOM_SPACING = {
   'mord+mop': 3,
   'mord+mbin': 4,
@@ -51,7 +67,7 @@ const INTER_ATOM_SPACING = {
 
   'mop+mord': 3,
   'mop+mop': 3,
-  'mop+mbin': 5,
+  'mop+rel': 5,
   'mop+minner': 3,
 
   'mbin+mord': 4,
@@ -71,11 +87,18 @@ const INTER_ATOM_SPACING = {
 
   'mpunct+mord': 3,
   'mpunct+mop': 3,
-  'mpunct+mbin': 4,
-  'mpunct+mrel': 5,
+  'mpunct+mrel': 3,
   'mpunct+mopen': 3,
   'mpunct+mpunct': 3,
   'mpunct+minner': 3,
+
+  'minner+mord': 3,
+  'minner+mop': 3,
+  'minner+mbin': 4,
+  'minner+mrel': 5,
+  'minner+mopen': 3,
+  'minner+mpunct': 3,
+  'minner+minner': 3,
 };
 
 const INTER_ATOM_TIGHT_SPACING = {
@@ -187,6 +210,7 @@ export class Span {
       type?: SpanType;
       mode?: ParseMode;
       style?: Style;
+      isTight?: boolean;
     }
   ) {
     if (typeof content === 'string') {
@@ -201,6 +225,7 @@ export class Span {
     this.type = options?.type;
     this.isSelected = false;
     this.maxFontSize = 0;
+    this.isTight = options?.isTight ?? false;
 
     // CSS style, as a set of key value pairs.
     // Use `Span.setStyle()` to modify it.
@@ -656,15 +681,23 @@ function getEffectiveType(xs: Span[], i: number): SpanType {
   if (result === 'first') return 'none';
 
   if (result === 'mbin') {
+    // Handle proper spacing of, e.g. "-4" vs "1-4"
+    //
+    // TexBook p. 442:
+    //
+    // > If the current item is a Bin atom, and if this was the first
+    // > atom in the list, or if the most recent previous atom was Bin,
+    // > Op, Rel, Open, or Punct, change the current Bin to Ord and
+    // > continue with Rule 14. Otherwise continue with Rule 17.
+    // >
+    // > If the current item is a Rel or Close or Punct atom, and
+    // > if the most recent previous atom was Bin, change that previous
+    // > Bin to Ord. Continue with Rule 17.
     const previousType: SpanType = xs[i - 1]?.type ?? 'none';
-    const nextType = xs[i + 1]?.type ?? 'none';
-
-    // If a `mbin` span, i.e. "+" is after or before spans
-    // of a certain type, consider it to be a `mord` instead.
-    // This is to handle proper spacing of, e.g. "-4" vs "1-4"
+    const nextType: SpanType = xs[i + 1]?.type ?? 'none';
     if (
-      /first|none|mrel|mpunct|mopen|mbin|mop/.test(previousType) ||
-      /none|mrel|mpunct|mclose/.test(nextType)
+      /first|none|mbin|mop|mrel|mopen|mpunct/.test(previousType) ||
+      /none|mrel|mclose|mpunct/.test(nextType)
     ) {
       result = 'mord';
     }
@@ -840,6 +873,7 @@ export function makeHlist(
     type?: SpanType;
     mode?: ParseMode;
     style?: Style;
+    isTight?: boolean;
   }
 ): Span {
   // Note: do not try to optimize and avoid creating the span below
