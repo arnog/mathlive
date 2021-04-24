@@ -18,14 +18,14 @@ function getFileUrl() {
   let callerFrame = stackTraceFrames[1];
 
   // Extract the script's complete url
-  let m = callerFrame.match(/[^(@ ]+\.ts[\?:]/);
+  let m = callerFrame.match(/http.*\.ts[\?:]/);
   if (m) {
     // This is a Typescript file, therefore there's a source map that's
     // remapping to the source file. Use an entry further in the stack trace.
     callerFrame = stackTraceFrames[2];
   }
 
-  m = callerFrame.match(/([^(@ ]+js)[\?:]/);
+  m = callerFrame.match(/(http.*(\.mjs|\.js))[\?:]/);
   if (!m) {
     console.error(stackTraceFrames);
     console.error(
