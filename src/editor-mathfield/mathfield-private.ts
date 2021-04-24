@@ -163,16 +163,21 @@ export class MathfieldPrivate implements Mathfield {
     options: Partial<MathfieldOptionsPrivate>
   ) {
     // Setup default config options
-    this.options = updateOptions(getDefaultOptions(), {
-      plonkSound: 'plonk.wav',
-      keypressSound: {
-        spacebar: 'keypress-spacebar.wav',
-        return: 'keypress-return.wav',
-        delete: 'keypress-delete.wav',
-        default: 'keypress-standard.wav',
-      },
-      ...options,
-    });
+    this.options = updateOptions(
+      getDefaultOptions(),
+      options.readOnly
+        ? options
+        : {
+            plonkSound: 'plonk.wav',
+            keypressSound: {
+              spacebar: 'keypress-spacebar.wav',
+              return: 'keypress-return.wav',
+              delete: 'keypress-delete.wav',
+              default: 'keypress-standard.wav',
+            },
+            ...options,
+          }
+    );
 
     // The virtual keyboard can be either attached to this mathfield
     // or a delegate that mirrors a global virtual keyboard attached
