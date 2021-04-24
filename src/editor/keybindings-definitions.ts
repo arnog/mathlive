@@ -230,7 +230,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: ['insert', '$$\\sum_{i=#?}^{#?}$$'],
   },
-  // { key: 'alt+b', command: ['insert', '$$\\int_{#?}^{#?}$$'] },
+  { key: 'alt+b', command: ['insert', '$$\\int_{#?}^{#?}$$'] },
   { key: 'alt+u', ifMode: 'math', command: ['insert', '$$\\cup$$'] },
   { key: 'alt+n', ifMode: 'math', command: ['insert', '$$\\cap$$'] },
   { key: 'alt+o', ifMode: 'math', command: ['insert', '$$\\emptyset$$'] },
