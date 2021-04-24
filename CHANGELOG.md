@@ -1,3 +1,13 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- On the UK QWERTY keyboard, pressing the `\` key did not switch to Latex mode.
+  This key, although it looks like an ordinary key, is unique to the UK QWERTY
+  keyboard and distinct from the `\` on any other keyboard. Its official name is
+  `IntlBackslash`, while the other, visually identical `\` key, is the
+  `Backslash` key.
+
 ## 0.63.0 (2021-04-24)
 
 ### New Features
