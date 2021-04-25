@@ -426,11 +426,13 @@ export type VirtualKeyboardOptions = {
    *     well.
    *
    * The value of the properties should be either a string, the name of an
-   * audio file in the `soundsDirectory` directory, or an `HTMLAudioElement`.
+   * audio file in the `soundsDirectory` directory, an `HTMLAudioElement` or
+   * null to supress the sound.
    */
   keypressSound:
     | string
     | HTMLAudioElement
+    | null
     | {
         spacebar?: string | HTMLAudioElement;
         return?: string | HTMLAudioElement;
@@ -441,10 +443,12 @@ export type VirtualKeyboardOptions = {
    * Sound played to provide feedback when a command has no effect, for example
    * when pressing the spacebar at the root level.
    *
-   * The property is either a string, the name of an audio file in the
-   * `soundsDirectory` directory, or an `HTMLAudioElement`.
+   * The property is either:
+   * - a string, the name of an audio file in the `soundsDirectory` directory
+   * - an `HTMLAudioElement`
+   * - null to turn off the sound
    */
-  plonkSound?: string | HTMLAudioElement;
+  plonkSound?: string | HTMLAudioElement | null;
 
   /**
    * The right hand side toolbar configuration.
