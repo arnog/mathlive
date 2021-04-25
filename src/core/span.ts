@@ -60,53 +60,30 @@ export function isSpanType(type: string): type is SpanType {
  */
 
 const INTER_ATOM_SPACING = {
-  'mord+mop': 3,
-  'mord+mbin': 4,
-  'mord+mrel': 5,
-  'mord+minner': 3,
+  mord: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
 
-  'mop+mord': 3,
-  'mop+mop': 3,
-  'mop+rel': 5,
-  'mop+minner': 3,
+  mop: { mord: 3, mop: 3, rel: 5, minner: 3 },
 
-  'mbin+mord': 4,
-  'mbin+mop': 4,
-  'mbin+mopen': 4,
-  'mbin+minner': 4,
+  mbin: { mord: 4, mop: 4, mopen: 4, minner: 4 },
 
-  'mrel+mord': 5,
-  'mrel+mop': 5,
-  'mrel+mopen': 5,
-  'mrel+minner': 5,
+  mrel: { mord: 5, mop: 5, mopen: 5, minner: 5 },
 
-  'mclose+mop': 3,
-  'mclose+mbin': 4,
-  'mclose+mrel': 5,
-  'mclose+minner': 3,
+  mclose: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
 
-  'mpunct+mord': 3,
-  'mpunct+mop': 3,
-  'mpunct+mrel': 3,
-  'mpunct+mopen': 3,
-  'mpunct+mpunct': 3,
-  'mpunct+minner': 3,
+  mpunct: { mord: 3, mop: 3, mrel: 3, mopen: 3, mpunct: 3, minner: 3 },
 
-  'minner+mord': 3,
-  'minner+mop': 3,
-  'minner+mbin': 4,
-  'minner+mrel': 5,
-  'minner+mopen': 3,
-  'minner+mpunct': 3,
-  'minner+minner': 3,
+  minner: { mord: 3, mop: 3, mbin: 4, mrel: 5, mopen: 3, mpunct: 3, minner: 3 },
 };
 
+/**
+ * This table is used when the mathstyle is 'tight' (scriptstyle or
+ * scriptscriptstyle).
+ */
 const INTER_ATOM_TIGHT_SPACING = {
-  'mord+mop': 3,
-  'mop+mord': 3,
-  'mop+mop': 3,
-  'mclose+mop': 3,
-  'minner+mop': 3,
+  mord: { mop: 3 },
+  mop: { mord: 3, mop: 3 },
+  mclose: { mop: 3 },
+  minner: { mop: 3 },
 };
 
 /**
@@ -411,41 +388,49 @@ export class Span {
     // (`mord`, `mbin`, `mrel`, etc...)
     //
     if (this.children) {
-      let previousType: SpanType = 'none';
-      for (let i = 0; i < this.children.length; i++) {
-        const child = this.children[i];
-        let spacing = 0;
-        const type = getEffectiveType(this.children, i);
-        const combinedType = `${previousType}+${type}`;
-        spacing = child.isTight
-          ? INTER_ATOM_TIGHT_SPACING[combinedType] ?? 0
-          : INTER_ATOM_SPACING[combinedType] ?? 0;
-        body += child.toMarkup({
-          hskip: spacing,
+      // Adjust to `mord` according to TeX spacing rules
+      adjustTypeForSpacing(this.children);
+
+      // Apply spacing and create markup for each span
+      let prevType: SpanType = 'none';
+      for (const span of this.children) {
+        const table = span.isTight
+          ? INTER_ATOM_TIGHT_SPACING[prevType] ?? 0
+          : INTER_ATOM_SPACING[prevType] ?? 0;
+        body += span.toMarkup({
+          hskip: table ? table[span.type] : 0,
           hscale: options.hscale,
         });
-        if (type !== 'supsub') previousType = type;
+        if (span.type !== 'supsub' && span.type !== 'spacing') {
+          prevType = span.type;
+        }
       }
     }
 
+    //
+    // 2. If a `hskip` value was provided, add it to the `margin-left`
+    //
+    if (options.hskip) {
+      this.left += options.hskip / 18;
+    }
+
+    //
+    // 3. Markup for props and SVG
+    //
     if (
-      (body === '\u200B' || (!body && !this.svgBody)) &&
-      !this.classes &&
-      !this.cssId &&
-      !this.htmlData &&
-      !this.cssProperties &&
-      !this.svgOverlay
+      (body && body !== '\u200B') ||
+      this.classes ||
+      this.cssId ||
+      this.htmlData ||
+      this.cssProperties ||
+      this.svgBody ||
+      this.svgOverlay
     ) {
-      // 2a. Collapse 'empty' spans
-      result = '';
-    } else {
-      // Note: We can't omit the tag, even if it has no class and no style,
-      // as some layouts (vlist) depends on the presence of the tag to function
-      result = '<span';
+      let props = '';
 
       if (this.cssId) {
         // A (HTML5) CSS id may not contain a space
-        result += ` id=${this.cssId.replace(/ /g, '-')} `;
+        props += ` id=${this.cssId.replace(/ /g, '-')} `;
       }
 
       if (this.htmlData) {
@@ -455,19 +440,19 @@ export class Span {
           if (matched) {
             const key = matched[1].trim().replace(/ /g, '-');
             if (key) {
-              result += ` data-${key}=${matched[2]} `;
+              props += ` data-${key}=${matched[2]} `;
             }
           } else {
             const key = entry.trim().replace(/ /g, '-');
             if (key) {
-              result += ` data-${key} `;
+              props += ` data-${key} `;
             }
           }
         }
       }
 
       if (this.attributes) {
-        result +=
+        props +=
           ' ' +
           Object.keys(this.attributes)
             .map((x) => `${x}="${this.attributes[x]}"`)
@@ -476,7 +461,6 @@ export class Span {
 
       const classes = this.classes.split(' ');
 
-      // Add the type (mbin, mrel, etc...) if specified
       classes.push(
         {
           latex: 'ML__latex',
@@ -489,23 +473,15 @@ export class Span {
       }
 
       // Remove duplicate and empty classes
-      let classList = '';
-      classList =
-        classes.length > 1
-          ? classes
-              .filter((x, e, a) => {
-                return x.length > 0 && a.indexOf(x) === e;
-              })
-              .join(' ')
-          : classes[0];
+      const classList =
+        classes.length === 1
+          ? classes[0]
+          : classes
+              .filter((x, e, a) => x.length > 0 && a.indexOf(x) === e)
+              .join(' ');
 
       if (classList.length > 0) {
-        result += ` class="${classList}"`;
-      }
-
-      // If a `hskip` value was provided, add it to the margin-left
-      if (options.hskip) {
-        this.left += options.hskip / 18;
+        props += ` class="${classList}"`;
       }
 
       if (this.cssProperties) {
@@ -522,56 +498,51 @@ export class Span {
           .join(';');
 
         if (styleString.length > 0) {
-          result += ' style="' + styleString + '"';
+          props += ' style="' + styleString + '"';
         }
       }
 
-      result += '>';
-
+      //
       // If there is some SVG markup associated with this span,
       // include it now
+      //
+      let svgMarkup = '';
       if (this.svgBody) {
-        result += svgBodyToMarkup(this.svgBody);
+        svgMarkup = svgBodyToMarkup(this.svgBody);
       } else if (this.svgOverlay) {
-        result += '<span style="';
-        result += 'display: inline-block;';
-        result += `height:${this.height + this.depth}em;`;
-        result += `vertical-align:${this.depth}em;`;
-        result += '">';
-        result += body;
-        result += '</span>';
-        result += '<svg ';
-        result += 'style="position:absolute;';
-        result += 'overflow:overlay;';
-        result += `height:${this.height + this.depth}em;`;
+        svgMarkup = '<span style="';
+        svgMarkup += 'display: inline-block;';
+        svgMarkup += `height:${this.height + this.depth}em;`;
+        svgMarkup += `vertical-align:${this.depth}em;`;
+        svgMarkup += '">';
+        svgMarkup += body;
+        svgMarkup += '</span>';
+        svgMarkup += '<svg style="position:absolute;overflow:overlay;';
+        svgMarkup += `height:${this.height + this.depth}em;`;
         if (this.cssProperties?.padding) {
-          result += `top:${this.cssProperties.padding};`;
-          result += `left:{this.style.padding};`;
-          result += `width:calc(100% - 2 * ${this.cssProperties.padding} );`;
+          svgMarkup += `top:${this.cssProperties.padding}em;`;
+          svgMarkup += `left:${this.cssProperties.padding}em;`;
+          svgMarkup += `width:calc(100% - 2 * ${this.cssProperties.padding}em );`;
         } else {
-          result += 'top:0;';
-          result += 'left:0;';
-          result += 'width:100%;';
+          svgMarkup += 'top:0;left:0;width:100%;';
         }
 
-        result += 'z-index:2;';
-        result += '"';
+        svgMarkup += 'z-index:2;';
+        svgMarkup += '"';
         if (this.svgStyle) {
-          result += ' style="' + this.svgStyle + '"';
+          svgMarkup += ` style="${this.svgStyle}"`;
         }
 
-        result += '>';
-        result += this.svgOverlay;
-        result += '</svg>';
-      } else {
-        result += body;
+        svgMarkup += `>${this.svgOverlay}</svg>`;
       }
 
-      result += '</span>';
+      // Note: We can't omit the tag, even if it has no props,
+      // as some layouts (vlist) depends on the presence of the tag to function
+      result = `<span${props}>${body}${svgMarkup}</span>`;
     }
 
     //
-    // Add markup for the caret
+    // 4. Add markup for the caret
     //
     if (this.caret === 'text') {
       result += '<span class="ML__text-caret"></span>';
@@ -587,24 +558,18 @@ export class Span {
    * This is used to 'coalesce' (i.e. group together) a series of spans that are
    * identical except for their value, and to avoid generating redundant spans.
    * That is: '12' ->
-   *      "<span class='mord mathrm'>12</span>"
+   *      "<span class='crm'>12</span>"
    * rather than:
-   *      "<span class='mord mathrm'>1</span><span class='mord mathrm'>2</span>"
+   *      "<span class='crm'>1</span><span class='crm'>2</span>"
    */
   tryCoalesceWith(span: Span): boolean {
     // Don't coalesce if the types are different
     if (this.type !== span.type) return false;
+
+    // Only coalesce some types
     if (
       !/ML__text/.test(this.classes) &&
       !['mord', 'mbin', 'mrel'].includes(this.type)
-    ) {
-      return false;
-    }
-    // Don't coalesce consecutive errors, placeholders or raw latex
-    if (
-      this.type === 'error' ||
-      this.type === 'placeholder' ||
-      this.type === 'latex'
     ) {
       return false;
     }
@@ -669,43 +634,6 @@ export class Span {
   }
 }
 
-function getEffectiveType(xs: Span[], i: number): SpanType {
-  if (i < 0 || i >= xs.length) return 'none';
-
-  let result: SpanType = xs[i].type ?? 'none';
-
-  // The effective type of a 'supsub' span is 'supsub':
-  // it attaches directly to its left sibling
-  if (result === 'supsub') return 'supsub';
-
-  if (result === 'first') return 'none';
-
-  if (result === 'mbin') {
-    // Handle proper spacing of, e.g. "-4" vs "1-4"
-    //
-    // TexBook p. 442:
-    //
-    // > If the current item is a Bin atom, and if this was the first
-    // > atom in the list, or if the most recent previous atom was Bin,
-    // > Op, Rel, Open, or Punct, change the current Bin to Ord and
-    // > continue with Rule 14. Otherwise continue with Rule 17.
-    // >
-    // > If the current item is a Rel or Close or Punct atom, and
-    // > if the most recent previous atom was Bin, change that previous
-    // > Bin to Ord. Continue with Rule 17.
-    const previousType: SpanType = xs[i - 1]?.type ?? 'none';
-    const nextType: SpanType = xs[i + 1]?.type ?? 'none';
-    if (
-      /first|none|mbin|mop|mrel|mopen|mpunct/.test(previousType) ||
-      /none|mrel|mclose|mpunct/.test(nextType)
-    ) {
-      result = 'mord';
-    }
-  }
-
-  return result;
-}
-
 /**
  * Attempts to coalesce (merge) spans, for example consecutive text spans.
  * Return a new tree with coalesced spans.
@@ -730,6 +658,41 @@ function coalesceRecursive(spans: Span[]): Span[] {
 export function coalesce(span: Span): Span {
   if (span.children) span.children = coalesceRecursive(span.children);
   return span;
+}
+
+// Handle proper spacing of, e.g. "-4" vs "1-4", by adjusting some span type
+//
+// TexBook p. 442:
+//
+// > If the current item is a Bin atom, and if this was the first
+// > atom in the list, or if the most recent previous atom was Bin,
+// > Op, Rel, Open, or Punct, change the current Bin to Ord and
+// > continue with Rule 14. Otherwise continue with Rule 17.
+// >
+// > If the current item is a Rel or Close or Punct atom, and
+// > if the most recent previous atom was Bin, change that previous
+// > Bin to Ord. Continue with Rule 17.
+//
+function adjustTypeForSpacing(spans: Span[]) {
+  let prevSpan: Span = null;
+  for (const span of spans) {
+    if (
+      span.type === 'mbin' &&
+      (!prevSpan || /first|none|mbin|mop|mrel|mopen|mpunct/.test(prevSpan.type))
+    ) {
+      span.type = 'mord';
+    }
+    if (
+      prevSpan &&
+      prevSpan.type === 'mbin' &&
+      /mrel|mclose|mpunct/.test(span.type)
+    ) {
+      prevSpan.type = 'mord';
+    }
+    if (span.type !== 'spacing' && span.type !== 'supsub') {
+      prevSpan = span;
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -806,7 +769,7 @@ function makeFontSizer(context: Context, fontSize: number): Span | null {
   const fontSizeAdjustment = fontSize
     ? fontSize / context.mathstyle.sizeMultiplier
     : 0;
-  const fontSizeInner = new Span('\u200B'); // ZERO WIDTH SPACE
+  const fontSizeInner = new Span('\u200B');
   fontSizeInner.depth = 0;
   fontSizeInner.height = 0;
   if (fontSizeAdjustment !== 1) {

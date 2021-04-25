@@ -143,12 +143,6 @@ export function attachButtonHandlers(
   );
   on(element, 'mouseleave touchcancel', () => {
     element.classList.remove('is-pressed');
-    // Let command = el.getAttribute('data-' + config.namespace +
-    //     'command-pressAndHoldEnd');
-    // const now = Date.now();
-    // if (command && now > pressHoldStart + 300) {
-    //     executeCommand(JSON.parse(command));
-    // }
   });
   on(
     element,

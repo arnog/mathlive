@@ -62,7 +62,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'latex'] },
 
   { key: '\\', ifMode: 'math', command: ['switchMode', 'latex'] },
-  { key: '[Backslash]', ifMode: 'math', command: ['switchMode', 'latex'] },
+  // { key: '[Backslash]', ifMode: 'math', command: ['switchMode', 'latex'] },
   { key: '[IntlBackslash]', ifMode: 'math', command: ['switchMode', 'latex'] }, // On UK QWERTY keyboards
 
   {

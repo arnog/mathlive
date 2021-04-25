@@ -130,6 +130,7 @@ describe('SPACING AND KERN', () => {
     'a\\kern 3em b',
     'a\\hspace{3em} b',
     'a\\hskip 3em b',
+    '+-a+b=c+-d=x^{2-\\frac{1}{2}}',
   ])('%#/ %s renders correctly', (x) => {
     expect(markupAndError(x)).toMatchSnapshot();
   });

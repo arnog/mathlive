@@ -3,6 +3,9 @@
 ### Bug Fixes
 
 - The size and spacing of fractions in superscript did not match the TeX layout.
+- Correctly apply TeX inter-atom spacing rules as per TeXBook p. 270. The
+  spacing of two consecutive binary atoms (e.g. `+-`) was incorrect, as well as
+  some other combinations.
 
 ## 0.63.1 (2021-04-24)
 

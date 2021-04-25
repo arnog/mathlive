@@ -91,7 +91,7 @@ export class BoxAtom extends Atom {
     base.setStyle('vertical-align', -padding, 'em');
 
     // The result is a span that encloses the box and the base
-    const result = new Span([box, base], { type: 'mord' });
+    const result = new Span([box, base]);
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');
