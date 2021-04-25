@@ -103,8 +103,7 @@ export class SurdAtom extends Atom {
 
     if (!this.above) {
       const result = new Span([delim, body], {
-        classes:
-          className + context.parentMathstyle.adjustTo(context.mathstyle),
+        classes: className + context.classes(),
         type: 'mord',
       });
       if (this.caret) result.caret = this.caret;
@@ -134,8 +133,7 @@ export class SurdAtom extends Atom {
     const result = new Span(
       [new Span(rootVlist, { classes: 'root' }), delim, body],
       {
-        classes:
-          className + context.parentMathstyle.adjustTo(context.mathstyle),
+        classes: className + context.classes(),
         type: 'mord',
       }
     );

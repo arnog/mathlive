@@ -939,9 +939,8 @@ export class Atom {
     let classes = '';
     if (this.containsCaret) classes += 'ML__contains';
     if (this.type === 'root') classes += ' ML__base';
-    if (this.type !== 'first') {
-      classes += context.parentMathstyle.adjustTo(context.mathstyle);
-    }
+    if (this.type !== 'first') classes += context.classes();
+
     let result: Span = this.makeSpan(context, this.body ?? this.value, {
       classes,
     });

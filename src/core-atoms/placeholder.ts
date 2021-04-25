@@ -19,8 +19,7 @@ export class PlaceholderAtom extends Atom {
     }
     return this.makeSpan(context, '⬚', {
       classes:
-        context.parentMathstyle.adjustTo(context.mathstyle) +
-        (this.caret ? 'ML__placeholder-selected' : ''),
+        context.classes() + (this.caret ? 'ML__placeholder-selected' : ''),
     });
   }
 

@@ -172,4 +172,15 @@ export class Context implements ContextInterface {
   sub(): Context {
     return this.clone({ mathstyle: this.mathstyle.sub() });
   }
+
+  classes(): string {
+    const result = [
+      ['', '', 'sz-10-7', 'sz-10-5'],
+      ['', '', 'sz-10-7', 'sz-10-5'],
+      ['sz-7-10', 'sz-7-10', '', 'sz-7-5'],
+      ['sz-5-10', 'sz-5-10', 'sz-5-7', ''],
+    ][this.parentMathstyle.size][this.mathstyle.size];
+    if (result.length === 0) return '';
+    return ' ' + result;
+  }
 }
