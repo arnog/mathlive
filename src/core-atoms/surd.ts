@@ -114,9 +114,7 @@ export class SurdAtom extends Atom {
     // Handle the optional root index
     // The index is always in scriptscript style
     const root = Atom.render(
-      context.clone({
-        mathstyle: MATHSTYLES.scriptscriptstyle,
-      }),
+      context.withMathstyle('scriptscriptstyle'),
       this.above
     );
     // Figure out the height and depth of the inner part

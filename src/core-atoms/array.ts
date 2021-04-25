@@ -317,9 +317,7 @@ export class ArrayAtom extends Atom {
       let height = arstrutHeight; // \@array adds an \@arstrut
       let depth = arstrutDepth; // To each row (via the template)
       const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
-      const rowContext = context.clone({
-        mathstyle: MATHSTYLES[this.mathStyleName],
-      });
+      const rowContext = context.withMathstyle(this.mathStyleName);
       for (const element of inrow) {
         const elt = Atom.render(rowContext, element) ?? new Span(null);
         depth = Math.max(depth, elt.depth);

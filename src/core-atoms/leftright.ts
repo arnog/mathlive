@@ -81,9 +81,7 @@ export class LeftRightAtom extends Atom {
     // so that any changes to it will be discarded when finished
     // with this group.
     const inner: Span = Atom.render(context.clone(), this.body);
-    const localContext = context.clone({
-      size: this.style?.fontSize ?? 'size5',
-    });
+    const localContext = context.withFontsize(this.style?.fontSize ?? 'size5');
     const { mathstyle } = localContext;
     const spans: Span[] = [];
 

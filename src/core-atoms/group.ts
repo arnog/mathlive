@@ -57,11 +57,7 @@ export class GroupAtom extends Atom {
     // Note that the mathstyle property is optional and could be undefined
     // If that's the case, clone() returns a clone of the
     // context with the same mathstyle.
-    const localContext = context.clone({
-      mathstyle: this.mathStyleName
-        ? MATHSTYLES[this.mathStyleName]
-        : undefined,
-    });
+    const localContext = context.withMathstyle(this.mathStyleName);
     const span = Atom.render(localContext, this.body, {
       type: this.spanType ?? 'mord',
       classes: this.customClass,

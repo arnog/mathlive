@@ -1,5 +1,5 @@
 import { FontSize, MacroDictionary, ParseMode } from '../public/core';
-import { Mathstyle, MATHSTYLES } from './mathstyle';
+import { Mathstyle, MathStyleName, MATHSTYLES } from './mathstyle';
 import { Span } from './span';
 
 export type ArgumentType =
@@ -152,20 +152,13 @@ export class Context implements ContextInterface {
     return result;
   }
 
-  /**
-   * Change the mathstyle of this context
-   * @param value - `'auto'` to indicate that the mathstyle should in
-   * fact not be changed. This is used when specifying the mathstyle for some
-   * environments.
-   */
-  setMathstyle(value: string): void {
-    if (value && value !== 'auto') {
-      this.mathstyle = MATHSTYLES[value];
-    }
-  }
-
   withFontsize(size: FontSize | 'auto'): Context {
     return this.clone({ size: size === 'auto' ? 'size5' : size });
+  }
+
+  withMathstyle(mathstyle: MathStyleName): Context {
+    if (!mathstyle) return this;
+    return this.clone({ mathstyle: MATHSTYLES[mathstyle] });
   }
 
   cramp(): Context {

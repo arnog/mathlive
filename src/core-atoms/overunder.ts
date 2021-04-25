@@ -61,9 +61,7 @@ export class OverunderAtom extends Atom {
     const body: Span = this.svgBody
       ? makeSVGSpan(this.svgBody)
       : Atom.render(context, this.body);
-    const annotationStyle = context.clone({
-      mathstyle: MATHSTYLES.scriptstyle,
-    });
+    const annotationStyle = context.withMathstyle('scriptstyle');
     let above: Span;
     let below: Span;
     if (this.svgAbove) {
