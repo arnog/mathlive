@@ -103,7 +103,8 @@ export class SurdAtom extends Atom {
 
     if (!this.above) {
       const result = new Span([delim, body], {
-        classes: className,
+        classes:
+          className + context.parentMathstyle.adjustTo(context.mathstyle),
         type: 'mord',
       });
       if (this.caret) result.caret = this.caret;
@@ -112,10 +113,12 @@ export class SurdAtom extends Atom {
 
     // Handle the optional root index
     // The index is always in scriptscript style
-    const newcontext = context.clone({
-      mathstyle: MATHSTYLES.scriptscriptstyle,
-    });
-    const root = Atom.render(newcontext, this.above);
+    const root = Atom.render(
+      context.clone({
+        mathstyle: MATHSTYLES.scriptscriptstyle,
+      }),
+      this.above
+    );
     // Figure out the height and depth of the inner part
     const innerRootHeight = Math.max(delim.height, body.height);
     const innerRootDepth = Math.max(delim.depth, body.depth);
@@ -133,7 +136,8 @@ export class SurdAtom extends Atom {
     const result = new Span(
       [new Span(rootVlist, { classes: 'root' }), delim, body],
       {
-        classes: className,
+        classes:
+          className + context.parentMathstyle.adjustTo(context.mathstyle),
         type: 'mord',
       }
     );

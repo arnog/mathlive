@@ -1279,7 +1279,7 @@ export function makeKeycap(
     if (element.getAttribute('data-latex')) {
       html = latexToMarkup(
         element.getAttribute('data-latex').replace(/&quot;/g, '"'),
-        { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
+        { '?': '\\placeholder{}' }
       );
     } else if (
       element.getAttribute('data-insert') &&
@@ -1287,7 +1287,7 @@ export function makeKeycap(
     ) {
       html = latexToMarkup(
         element.getAttribute('data-insert').replace(/&quot;/g, '"'),
-        { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
+        { '?': '\\placeholder{}' }
       );
     } else if (element.getAttribute('data-content')) {
       html = element.getAttribute('data-content').replace(/&quot;/g, '"');

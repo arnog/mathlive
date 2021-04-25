@@ -6,6 +6,8 @@
 - Correctly apply TeX inter-atom spacing rules as per TeXBook p. 270. The
   spacing of two consecutive binary atoms (e.g. `+-`) was incorrect, as well as
   some other combinations.
+- Fixed layout of `\sqrt` when a style is applied
+- Fixed display of `\placeholder` when a style is applied
 
 ## 0.63.1 (2021-04-24)
 

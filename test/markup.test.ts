@@ -131,6 +131,7 @@ describe('SPACING AND KERN', () => {
     'a\\hspace{3em} b',
     'a\\hskip 3em b',
     '+-a+b=c+-d=x^{2-\\frac{1}{2}}',
+    '\\sqrt[\\placeholder{}]{x}\\scriptstyle \\sqrt[\\placeholder{}]{x}',
   ])('%#/ %s renders correctly', (x) => {
     expect(markupAndError(x)).toMatchSnapshot();
   });
