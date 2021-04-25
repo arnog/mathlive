@@ -353,7 +353,7 @@ export type AutoRenderOptions = {
    *  not be scanned for delimiters (unless their class matches the `processClass`
    * pattern below.
    *
-   * **Default:** `['noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
+   * **Default:** `['math-field', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
    */
   skipTags?: string[];
 

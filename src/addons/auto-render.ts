@@ -476,6 +476,7 @@ const defaultOptions: AutoRenderOptions = {
 
   // Name of tags whose content will not be scanned for math delimiters
   skipTags: [
+    'math-field',
     'noscript',
     'style',
     'textarea',
