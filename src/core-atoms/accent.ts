@@ -79,8 +79,12 @@ export class AccentAtom extends Atom {
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.
     accentBody.children[accentBody.children.length - 1].left = 2 * skew;
-    const result = new Span(accentBody, { classes: 'accent', type: 'mord' });
+    const result = new Span(accentBody, {
+      classes: 'accent' + context.classes(),
+      type: 'mord',
+    });
     if (this.caret) result.caret = this.caret;
+    this.bind(context, result);
     return this.attachSupsub(context, result, result.type);
   }
 }
