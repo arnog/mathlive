@@ -6,8 +6,17 @@
 - Correctly apply TeX inter-atom spacing rules as per TeXBook p. 270. The
   spacing of two consecutive binary atoms (e.g. `+-`) was incorrect, as well as
   some other combinations.
-- Fixed layout of `\sqrt` when a style is applied
-- Fixed display of `\placeholder` when a style is applied
+- Correctly render `\sqrt` when a mathstyle is applied
+- Correctly render `\placeholder` when a mathstyle is applied
+- Correctly render selection rectangle of accent commands (`\widehat`).
+- If a document called `renderMathInDocument()` and the document contained a
+  mathfield with a value that contained exclusively an environment, the
+  mathfield would not render (the `\begin()` would be incorrectly rendered by
+  `renderMathInDocument()`).
+- Fixed verbatim latex: when the value of the mathfield is set, if it is not
+  modified, `getValue('latex')` will return exactly what was input.
+- Fixed latex output of `\exponentialE`: when a superscript/subscript was
+  applied to a macro, the latex output would become blank.
 
 ## 0.63.1 (2021-04-24)
 
