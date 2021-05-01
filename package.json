@@ -120,7 +120,7 @@
     "Dominik Janković (https://github.com/djankovic)"
   ],
   "devDependencies": {
-    "@babel/types": "^7.13.14",
+    "@babel/types": "^7.14.0",
     "@cortex-js/prettier-config": "^1.1.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
     "@types/css-font-loading-module": "0.0.4",
