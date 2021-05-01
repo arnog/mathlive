@@ -334,13 +334,17 @@ export function move(
     // 1. Handle `captureSelection` and `skipBoundary`
     //
     if (direction === 'forward') {
-      let atom = model.at(model.position + 1);
+      let atom = model.at(pos);
       if (atom?.inCaptureSelection) {
         // If in a capture selection, while going forward jump to
         // after
         while (!atom.captureSelection) atom = atom.parent;
         pos = model.offsetOf(atom) + 1;
-      } else if (atom?.isLastSibling && atom?.parent?.skipBoundary) {
+      } else if (
+        !atom?.isFirstSibling &&
+        atom?.isLastSibling &&
+        atom.parent?.skipBoundary
+      ) {
         // When going forward if next is skipboundary, move 2
         if (pos + 1 === model.lastOffset) {
           pos = pos + 1;
@@ -352,16 +356,20 @@ export function move(
         atom.isSuggestion = false;
       }
     } else if (direction === 'backward') {
-      let atom = model.at(model.position - 1);
+      let atom = model.at(pos);
       if (atom?.inCaptureSelection) {
         // If in a capture selection while going backward, jump to
         // before
         while (!atom.captureSelection) atom = atom.parent;
         pos = Math.max(0, model.offsetOf(atom.leftSibling));
-      } else if (atom?.isFirstSibling && atom.parent?.skipBoundary) {
+      } else if (
+        !atom?.isLastSibling &&
+        atom?.isFirstSibling &&
+        atom.parent?.skipBoundary
+      ) {
         // When going backward, if land on first of group and previous is
         // skipbounday,  move -2
-        pos -= 1;
+        pos = Math.max(0, pos - 1);
       }
     }
 
