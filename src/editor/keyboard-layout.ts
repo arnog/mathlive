@@ -1,3 +1,4 @@
+import { osPlatform } from '../common/capabilities';
 import type { KeyboardLayoutName as KeyboardLayoutId } from '../public/options';
 
 type KeystrokeModifiers = {
@@ -495,22 +496,17 @@ const gKeyboardLayouts: KeyboardLayout[] = [];
 let gKeyboardLayout: KeyboardLayout;
 
 export function platform(): 'apple' | 'windows' | 'linux' {
-  let result: 'apple' | 'windows' | 'linux' = 'linux';
-  if (navigator?.platform && navigator?.userAgent) {
-    if (/^(mac)/i.test(navigator.platform)) {
-      result = 'apple';
-    } else if (/^(win)/i.test(navigator.platform)) {
-      result = 'windows';
-    } else if (/(android)/i.test(navigator.userAgent)) {
-      result = 'linux';
-    } else if (/(iphone|ipod|ipad)/i.test(navigator.userAgent)) {
-      result = 'apple';
-    } else if (/\bcros\b/i.test(navigator.userAgent)) {
-      result = 'linux';
-    }
+  switch (osPlatform()) {
+    case 'macos':
+    case 'ios':
+      return 'apple';
+    case 'windows':
+      return 'windows';
+    // case 'android':
+    // case 'chromeos':
   }
 
-  return result;
+  return 'linux';
 }
 
 export function register(layout: KeyboardLayout): void {

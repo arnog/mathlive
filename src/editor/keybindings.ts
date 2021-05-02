@@ -11,35 +11,14 @@ import {
 } from './keyboard-layout';
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
 import type { ParseMode } from '../public/core';
-
-type KeybindingPlatform =
-  | 'macos'
-  | 'windows'
-  | 'android'
-  | 'ios'
-  | 'chromeos'
-  | 'other';
+import { osPlatform } from '../common/capabilities';
 
 /**
  * @param p The platform to test against.
  */
 function matchPlatform(p: string): boolean {
   if (navigator?.platform && navigator?.userAgent) {
-    let plat: KeybindingPlatform;
-    if (/^(mac)/i.test(navigator.platform)) {
-      plat = 'macos';
-      // WebKit on iPad OS 14 looks like macOS.
-      // Use the number of touch points to distinguish between macOS and iPad OS
-      if (navigator.maxTouchPoints === 5) plat = 'ios';
-    } else if (/^(win)/i.test(navigator.platform)) {
-      plat = 'windows';
-    } else if (/(android)/i.test(navigator.userAgent)) {
-      plat = 'android';
-    } else if (/(iphone|ipod|ipad)/i.test(navigator.userAgent)) {
-      plat = 'ios';
-    } else if (/\bcros\b/i.test(navigator.userAgent)) {
-      plat = 'chromeos';
-    }
+    const plat = osPlatform();
     const isNeg = p.startsWith('!');
     const isMatch = p.endsWith(plat);
     if (isNeg && !isMatch) return true;
@@ -133,7 +112,7 @@ export function getKeybindingsForCommand(
  * @revisit
  */
 export function getKeybindingMarkup(keystroke: string): string {
-  const useSymbol = matchPlatform('macos') || matchPlatform('ios');
+  const useSymbol = /macos|ios|/.test(osPlatform());
   const segments = keystroke.split('+');
   let result = '';
   for (const segment of segments) {
@@ -247,7 +226,7 @@ function normalizeKeybinding(
     }
 
     if (!platform) {
-      platform = matchPlatform('ios') ? 'ios' : 'macos';
+      platform = osPlatform() === 'ios' ? 'ios' : 'macos';
     }
 
     modifiers.win = false;

@@ -1,3 +1,4 @@
+import { osPlatform } from '../common/capabilities';
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
 import { ExecuteCommandFunction } from '../editor/commands-definitions';
 import { DEFAULT_KEYBOARD_TOGGLE_GLYPH } from '../editor/options';
@@ -176,9 +177,9 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
       virtualKeyboardLayout: 'auto',
       customVirtualKeyboardLayers: {},
       customVirtualKeyboards: {},
-      virtualKeyboardTheme: /android|cros/i.test(navigator?.userAgent)
-        ? 'material'
-        : 'apple',
+      virtualKeyboardTheme: /macos|ios/.test(osPlatform())
+        ? 'apple'
+        : 'material',
       keypressVibration: true,
       keypressSound: null,
       plonkSound: null,
