@@ -1348,13 +1348,16 @@ class Parser {
         codepoint = 0x2753; // BLACK QUESTION MARK
       }
 
+      const verbatimLatex =
+        '\\char' + tokensToString(this.tokens.slice(initialIndex, this.index));
       result = new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
         command: '\\char',
         mode: this.parseMode,
         value: String.fromCodePoint(codepoint),
+        toLatexOverride: () => verbatimLatex,
       });
-      result.verbatimLatex =
-        '\\char' + tokensToString(this.tokens.slice(initialIndex, this.index));
+      result.verbatimLatex = verbatimLatex;
+
       return [result];
     }
 
