@@ -224,9 +224,6 @@ export class Span {
     content: null | number | string | Span | (Span | null)[],
     options?: SpanOptions
   ) {
-    if (options?.type === 'first') {
-      console.log('in first');
-    }
     if (typeof content === 'number') {
       this.value = String.fromCodePoint(content);
     } else if (typeof content === 'string') {
@@ -291,6 +288,8 @@ export class Span {
       this.depth = -Infinity;
       this.skew = -Infinity;
       this.italic = -Infinity;
+      // @revisit: when this.value has more than one char it can be for
+      // a string like "cos", but sometimes it can be a multi-code-point grapheme
       for (let i = 0; i < this.value.length; i++) {
         const metrics = getCharacterMetrics(
           this.value.codePointAt(i),
