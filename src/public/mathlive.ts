@@ -416,6 +416,13 @@ export type AutoRenderOptions = {
    */
   readAloud?: boolean;
 
+  asciiMath?: {
+    delimiters?: {
+      display?: [openDelim: string, closeDelim: string][];
+      inline?: [openDelim: string, closeDelim: string][];
+    };
+  };
+
   TeX?: {
     /** If false, math expression
      * that start with `\begin{` will not automatically be rendered.

@@ -7,6 +7,7 @@ import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
+import { parseMathString } from '../editor/parse-math-string';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   /** A function that will convert any LaTeX found to
@@ -90,7 +91,8 @@ function splitAtDelimiters(
   startData,
   leftDelim: string,
   rightDelim: string,
-  mathstyle
+  mathstyle: string,
+  format: 'latex' | 'ascii-math' = 'latex'
 ): {
   type: string;
   data: string;
@@ -147,10 +149,13 @@ function splitAtDelimiters(
             done = true;
             break;
           }
-
+          let formula = text.slice(currIndex + leftDelim.length, nextIndex);
+          if (format === 'ascii-math') {
+            [, formula] = parseMathString(formula, { format: 'ascii-math' });
+          }
           finalData.push({
             type: 'math',
-            data: text.slice(currIndex + leftDelim.length, nextIndex),
+            data: formula,
             rawData: text.slice(currIndex, nextIndex + rightDelim.length),
             mathstyle,
           });
@@ -177,9 +182,13 @@ function splitAtDelimiters(
 
 function splitWithDelimiters(
   text: string,
-  delimiters: {
-    display: [openDelim: string, closeDelim: string][];
-    inline: [openDelim: string, closeDelim: string][];
+  texDelimiters: {
+    display?: [openDelim: string, closeDelim: string][];
+    inline?: [openDelim: string, closeDelim: string][];
+  },
+  mathAsciiDelimiters: {
+    display?: [openDelim: string, closeDelim: string][];
+    inline?: [openDelim: string, closeDelim: string][];
   }
 ): {
   type: string;
@@ -188,15 +197,39 @@ function splitWithDelimiters(
   mathstyle?: string;
 }[] {
   let data = [{ type: 'text', data: text }];
-  if (delimiters.inline) {
-    delimiters.inline.forEach(([openDelim, closeDelim]) => {
+  if (texDelimiters.inline) {
+    texDelimiters.inline.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
     });
   }
 
-  if (delimiters.display) {
-    delimiters.display.forEach(([openDelim, closeDelim]) => {
+  if (texDelimiters.display) {
+    texDelimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'displaystyle');
+    });
+  }
+
+  if (mathAsciiDelimiters.inline) {
+    mathAsciiDelimiters.inline.forEach(([openDelim, closeDelim]) => {
+      data = splitAtDelimiters(
+        data,
+        openDelim,
+        closeDelim,
+        'textstyle',
+        'ascii-math'
+      );
+    });
+  }
+
+  if (mathAsciiDelimiters.display) {
+    mathAsciiDelimiters.display.forEach(([openDelim, closeDelim]) => {
+      data = splitAtDelimiters(
+        data,
+        openDelim,
+        closeDelim,
+        'displaystyle',
+        'ascii-math'
+      );
     });
   }
   return data;
@@ -237,15 +270,6 @@ function createMarkupNode(
   // This node is made invisible to AT (screen readers)
   let span: HTMLSpanElement | Text = document.createElement('span');
   span.setAttribute('aria-hidden', 'true');
-  if (options.preserveOriginalContent) {
-    span.setAttribute('data-' + options.namespace + 'original-content', text);
-    if (mathstyle) {
-      span.setAttribute(
-        'data-' + options.namespace + 'original-mathstyle',
-        mathstyle
-      );
-    }
-  }
 
   try {
     void loadFonts(options.fontsDirectory);
@@ -269,7 +293,7 @@ function createMarkupNode(
 }
 
 function createAccessibleMarkupPair(
-  text: string,
+  latex: string,
   mathstyle: 'displaystyle' | 'textstyle' | string,
   options: AutoRenderOptionsPrivate,
   createNodeOnFailure: boolean
@@ -278,7 +302,7 @@ function createAccessibleMarkupPair(
   // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
   //   'null' is returned or an accessible node with the text used.
   const markupNode = createMarkupNode(
-    text,
+    latex,
     options,
     mathstyle as 'displaystyle' | 'textstyle',
     createNodeOnFailure
@@ -293,7 +317,7 @@ function createAccessibleMarkupPair(
       /\bmathml\b/i.test(options.renderAccessibleContent) &&
       options.renderToMathML
     ) {
-      fragment.append(createMathMLNode(text, options));
+      fragment.append(createMathMLNode(latex, options));
     }
 
     if (
@@ -301,7 +325,7 @@ function createAccessibleMarkupPair(
       options.renderToSpeakableText
     ) {
       const span = document.createElement('span');
-      const html = options.renderToSpeakableText(text, options);
+      const html = options.renderToSpeakableText(latex, options);
       span.innerHTML = options.createHTML ? options.createHTML(html) : html;
       span.className = 'ML__sr-only';
       fragment.append(span);
@@ -325,7 +349,11 @@ function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
     );
   } else {
     if (!text.trim()) return null;
-    const data = splitWithDelimiters(text, options.TeX.delimiters);
+    const data = splitWithDelimiters(
+      text,
+      options.TeX.delimiters,
+      options.asciiMath.delimiters
+    );
     if (data.length === 1 && data[0].type === 'text') {
       // This text contains no math. No need to continue processing
       return null;
@@ -381,7 +409,11 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
       return;
     }
 
-    const data = splitWithDelimiters(text, options.TeX.delimiters);
+    const data = splitWithDelimiters(
+      text,
+      options.TeX.delimiters,
+      options.asciiMath.delimiters
+    );
     if (data.length === 1 && data[0].type === 'math') {
       // The entire content is a math expression: we can replace the content
       // with the latex markup without creating additional wrappers.
@@ -503,6 +535,14 @@ const defaultOptions: AutoRenderOptions = {
 
   // Indicate the format to use to render accessible content
   renderAccessibleContent: 'mathml',
+
+  asciiMath: {
+    delimiters: {
+      display: [
+        ['`', '`'], // ASCII Math delimiters
+      ],
+    },
+  },
 
   TeX: {
     processEnvironments: true,

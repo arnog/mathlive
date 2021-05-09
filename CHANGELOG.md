@@ -54,6 +54,10 @@
   per the
   [stackrel package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/oberdiek/stackrel.pdf)
 
+- When using `renderMathInDocument()` or `renderMathInElement()`, ASCII Math
+  format can be used. The default delimiters for ASCII Math are
+  "`" (backtick) and can be changed with the `asciiMath.delimiters` option.
+
 ### Layout Improvements
 
 - Substantial rewrite of the stacked layout algorithm (fractions, superscripts,
@@ -145,6 +149,7 @@
   of nothing, which helps preserve a more accurate layout in some cases (for
   example in `\sqrt[\placeholder{}}{x}`
 - Rules (e.g. from `\rule{}{}`) were not clickable and did not appear selected.
+- Correctly roundtrip `\char` command when using `latex-expanded` format.
 
 ## 0.63.1 (2021-04-24)
 
