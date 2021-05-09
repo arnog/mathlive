@@ -47,7 +47,7 @@ function convertLastAtomsToText(
     if (!done) {
       atom.mode = 'text';
       atom.command = atom.value;
-      atom.latex = undefined;
+      atom.verbatimLatex = undefined;
     }
 
     i -= 1;
@@ -328,7 +328,7 @@ export function smartMode(
       atom.value = '⋅'; // Centered dot
       atom.style.variant = 'normal'; // @revisit. Was 'auto'. Check for proper conversion.
       atom.command = '\\cdot';
-      atom.latex = undefined;
+      atom.verbatimLatex = undefined;
       contentDidChange(model);
       return true;
     }

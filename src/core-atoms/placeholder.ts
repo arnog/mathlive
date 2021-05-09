@@ -11,15 +11,15 @@ export class PlaceholderAtom extends Atom {
       value: options?.value,
     });
     this.captureSelection = true;
+    this.value = '⬚';
   }
 
   render(context: Context): Span {
     if (typeof context.renderPlaceholder === 'function') {
       return context.renderPlaceholder(context);
     }
-    return this.makeSpan(context, '⬚', {
-      classes:
-        context.classes() + (this.caret ? 'ML__placeholder-selected' : ''),
+    return this.makeSpan(context, {
+      classes: this.caret ? 'ML__placeholder-selected' : '',
     });
   }
 

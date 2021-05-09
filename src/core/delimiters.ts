@@ -21,14 +21,16 @@
  * @summary   Handling of delimiters surrounds symbols.
  */
 
-import { makeSymbol, makeVlist, SpanType, Span, makeHlist } from './span';
-import { Mathstyle, MATHSTYLES } from './mathstyle';
+import { SpanType, Span } from './span';
+import { StackChild, Stack } from './stack';
+import { MathstyleName } from './mathstyle';
 import {
   getCharacterMetrics,
-  METRICS,
-  SIZING_MULTIPLIER,
+  PT_PER_EM,
+  AXIS_HEIGHT,
+  FONT_SCALE,
 } from './font-metrics';
-import type { Context } from './context';
+import { Context } from './context';
 import { ParseMode, Style } from '../public/core';
 export const RIGHT_DELIM = {
   '(': ')',
@@ -36,6 +38,7 @@ export const RIGHT_DELIM = {
   '[': ']',
   '|': '|',
   '\\lbrace': '\\rbrace',
+  '\\lparen': '\\rparen',
   '\\{': '\\}',
   '\\langle': '\\rangle',
   '\\lfloor': '\\rfloor',
@@ -50,34 +53,6 @@ export const RIGHT_DELIM = {
   '\\lgroup': '\\rgroup',
   '\\lmoustache': '\\rmoustache',
 };
-
-function makeStyleWrap(
-  children: Span | Span[],
-  fromStyle: Mathstyle,
-  toStyle: Mathstyle,
-  options: {
-    classes?: string;
-    type?: SpanType;
-    mode?: ParseMode;
-    style?: Style;
-  }
-): Span {
-  const result = makeHlist(children, {
-    ...options,
-    classes:
-      (options.classes ?? '') + ' style-wrap ' + fromStyle.adjustTo(toStyle),
-  });
-
-  const multiplier =
-    (SIZING_MULTIPLIER[options.style?.fontSize] ?? 1) *
-    (toStyle.sizeMultiplier / fromStyle.sizeMultiplier);
-
-  result.height *= multiplier;
-  result.depth *= multiplier;
-  result.maxFontSize = multiplier; /** @revisit: shouldn't that be `multiplier` ? */
-
-  return result;
-}
 
 function getSymbolValue(symbol: string): number {
   return (
@@ -95,6 +70,8 @@ function getSymbolValue(symbol: string): number {
       '\\}': 0x7d, // '}',
       '\\lbrace': 0x7b, // '{',
       '\\rbrace': 0x7d, // '}',
+      '\\lparen': 0x28, // '('
+      '\\rparen': 0x29, // ')'
       '\\lbrack': 0x5b, // '[',
       '\\rbrack': 0x5d, // ']',
       '\\vert': 0x2223,
@@ -133,31 +110,19 @@ function getSymbolValue(symbol: string): number {
  */
 function makeSmallDelim(
   delim: string,
-  mathstyle: Mathstyle,
-  center: boolean,
   context: Context,
+  center: boolean,
   options: {
     classes: string;
-    type: 'mopen' | 'mclose' | 'minner';
-    mode?: ParseMode;
-    style?: Style;
+    type: '' | 'mopen' | 'mclose' | 'minner';
   }
 ): Span {
-  const text = makeSymbol('Main-Regular', getSymbolValue(delim));
+  const text = new Span(getSymbolValue(delim), { fontFamily: 'Main-Regular' });
 
-  const span = makeStyleWrap(text, context.mathstyle, mathstyle, options);
+  const span = text.wrap(context, options);
 
   if (center) {
-    span.setTop(
-      (1 - context.mathstyle.sizeMultiplier / mathstyle.sizeMultiplier) *
-        context.mathstyle.metrics.axisHeight *
-        SIZING_MULTIPLIER[context.size]
-    );
-  }
-
-  span.setStyle('color', context.color);
-  if (typeof context.opacity === 'number') {
-    span.setStyle('opacity', context.opacity);
+    span.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
   }
 
   return span;
@@ -165,40 +130,29 @@ function makeSmallDelim(
 
 /**
  * Makes a large delimiter. This is a delimiter that comes in the Size1, Size2,
- * Size3, or Size4 fonts. It is always rendered in textstyle.
+ * Size3, or Size4 fonts.
  */
 function makeLargeDelim(
   delim: string,
   size: number,
   center: boolean,
-  context: Context,
+  parentContext: Context,
   options: {
     classes?: string;
-    type?: 'mopen' | 'mclose' | 'minner';
+    type?: '' | 'mopen' | 'mclose' | 'minner';
     mode?: ParseMode;
     style?: Style;
   }
 ): Span {
-  const result = makeStyleWrap(
-    makeSymbol('Size' + size + '-Regular', getSymbolValue(delim), {
-      classes: 'delimsizing size' + size,
-    }),
-    context.mathstyle,
-    MATHSTYLES.textstyle,
-    options
-  );
+  // Delimiters ignore the mathstyle, so use a 'textstyle' context.
+  const context = new Context(parentContext, options?.style, 'textstyle');
+  const result = new Span(getSymbolValue(delim), {
+    fontFamily: 'Size' + size + '-Regular',
+    classes: 'ML__delim-size' + size,
+  }).wrap(context);
 
   if (center) {
-    result.setTop(
-      (1 - context.mathstyle.sizeMultiplier) *
-        context.mathstyle.metrics.axisHeight *
-        SIZING_MULTIPLIER[context.size]
-    );
-  }
-
-  result.setStyle('color', context.color);
-  if (typeof context.opacity === 'number') {
-    result.setStyle('opacity', context.opacity);
+    result.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
   }
 
   return result;
@@ -229,7 +183,7 @@ function makeStackedDelim(
   top = repeat = bottom = getSymbolValue(delim);
   middle = null;
   // Also keep track of what font the delimiters are in
-  let font = 'Size1-Regular';
+  let fontFamily = 'Size1-Regular';
 
   // We set the parts and font based on the symbol. Note that we use
   // 0x23d0 instead of '|' and 0x2016 instead of '\\|' for the
@@ -270,75 +224,75 @@ function makeStackedDelim(
     top = 0x23a1;
     repeat = 0x23a2;
     bottom = 0x23a3;
-    font = 'Size4-Regular';
+    fontFamily = 'Size4-Regular';
   } else if (delim === ']' || delim === '\\rbrack') {
     top = 0x23a4;
     repeat = 0x23a5;
     bottom = 0x23a6;
-    font = 'Size4-Regular';
-  } else if (delim === '\\lfloor') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '\\lfloor' || delim === '\u230a') {
     repeat = top = 0x23a2;
     bottom = 0x23a3;
-    font = 'Size4-Regular';
-  } else if (delim === '\\lceil') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '\\lceil' || delim === '\u2308') {
     top = 0x23a1;
     repeat = bottom = 0x23a2;
-    font = 'Size4-Regular';
-  } else if (delim === '\\rfloor') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '\\rfloor' || delim === '\u230b') {
     repeat = top = 0x23a5;
     bottom = 0x23a6;
-    font = 'Size4-Regular';
-  } else if (delim === '\\rceil') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '\\rceil' || delim === '\u2309') {
     top = 0x23a4;
     repeat = bottom = 0x23a5;
-    font = 'Size4-Regular';
-  } else if (delim === '(') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '(' || delim === '\\lparen') {
     top = 0x239b;
     repeat = 0x239c;
     bottom = 0x239d;
-    font = 'Size4-Regular';
-  } else if (delim === ')') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === ')' || delim === '\\rparen') {
     top = 0x239e;
     repeat = 0x239f;
     bottom = 0x23a0;
-    font = 'Size4-Regular';
+    fontFamily = 'Size4-Regular';
   } else if (delim === '\\{' || delim === '\\lbrace') {
     top = 0x23a7;
     middle = 0x23a8;
     bottom = 0x23a9;
     repeat = 0x23aa;
-    font = 'Size4-Regular';
+    fontFamily = 'Size4-Regular';
   } else if (delim === '\\}' || delim === '\\rbrace') {
     top = 0x23ab;
     middle = 0x23ac;
     bottom = 0x23ad;
     repeat = 0x23aa;
-    font = 'Size4-Regular';
-  } else if (delim === '\\lgroup') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '\\lgroup' || delim === '\u27ee') {
     top = 0x23a7;
     bottom = 0x23a9;
     repeat = 0x23aa;
-    font = 'Size4-Regular';
-  } else if (delim === '\\rgroup') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '\\rgroup' || delim === '\u27ef') {
     top = 0x23ab;
     bottom = 0x23ad;
     repeat = 0x23aa;
-    font = 'Size4-Regular';
-  } else if (delim === '\\lmoustache') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '\\lmoustache' || delim === '\u23b0') {
     top = 0x23a7;
     bottom = 0x23ad;
     repeat = 0x23aa;
-    font = 'Size4-Regular';
-  } else if (delim === '\\rmoustache') {
+    fontFamily = 'Size4-Regular';
+  } else if (delim === '\\rmoustache' || delim === '\u23b1') {
     top = 0x23ab;
     bottom = 0x23a9;
     repeat = 0x23aa;
-    font = 'Size4-Regular';
+    fontFamily = 'Size4-Regular';
   } else if (delim === '\\surd') {
     top = 0xe001;
     bottom = 0x23b7;
     repeat = 0xe000;
-    font = 'Size4-Regular';
+    fontFamily = 'Size4-Regular';
   } else if (delim === '\\ulcorner') {
     top = 0x250c;
     repeat = bottom = 0x20;
@@ -354,16 +308,16 @@ function makeStackedDelim(
   }
 
   // Get the metrics of the four sections
-  const topMetrics = getCharacterMetrics(top, font);
+  const topMetrics = getCharacterMetrics(top, fontFamily);
   const topHeightTotal = topMetrics.height + topMetrics.depth;
-  const repeatMetrics = getCharacterMetrics(repeat, font);
+  const repeatMetrics = getCharacterMetrics(repeat, fontFamily);
   const repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
-  const bottomMetrics = getCharacterMetrics(bottom, font);
+  const bottomMetrics = getCharacterMetrics(bottom, fontFamily);
   const bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
   let middleHeightTotal = 0;
   let middleFactor = 1;
   if (middle !== null) {
-    const middleMetrics = getCharacterMetrics(middle, font);
+    const middleMetrics = getCharacterMetrics(middle, fontFamily);
     middleHeightTotal = middleMetrics.height + middleMetrics.depth;
     middleFactor = 2; // Repeat symmetrically above and below middle
   }
@@ -373,8 +327,9 @@ function makeStackedDelim(
   const minHeight = topHeightTotal + bottomHeightTotal + middleHeightTotal;
 
   // Compute the number of copies of the repeat symbol we will need
-  const repeatCount = Math.ceil(
-    (heightTotal - minHeight) / (middleFactor * repeatHeightTotal)
+  const repeatCount = Math.max(
+    0,
+    Math.ceil((heightTotal - minHeight) / (middleFactor * repeatHeightTotal))
   );
 
   // Compute the total height of the delimiter including all the symbols
@@ -385,13 +340,10 @@ function makeStackedDelim(
   // that in this context, 'center' means that the delimiter should be
   // centered around the axis in the current style, while normally it is
   // centered around the axis in textstyle.
-  let { axisHeight } = context.mathstyle.metrics;
+  let axisHeight = AXIS_HEIGHT;
 
   if (center) {
-    axisHeight =
-      axisHeight *
-      context.mathstyle.sizeMultiplier *
-      SIZING_MULTIPLIER[context.size];
+    axisHeight = axisHeight * context.scalingFactor;
   }
 
   // Calculate the depth
@@ -399,66 +351,66 @@ function makeStackedDelim(
 
   // Now, we start building the pieces that will go into the vlist
 
+  const OVERLAP = 0.008; // Overlap between segments, in em
+
   // Keep a list of the inner pieces
-  const inners = [];
-  let sizeClass = '';
-  // Apply the correct CSS class to choose the right font.
-  if (font === 'Size1-Regular') {
-    sizeClass = ' delim-size1';
-  } else if (font === 'Size4-Regular') {
-    sizeClass = ' delim-size4';
-  }
+  const stack: StackChild[] = [];
 
   // Add the bottom symbol
-  inners.push(makeSymbol(font, bottom));
+  stack.push({ span: new Span(bottom, { fontFamily }) });
+  stack.push(-OVERLAP);
 
-  const repeatSpan = makeSymbol(font, repeat);
+  const repeatSpan = new Span(repeat, { fontFamily });
 
   if (middle === null) {
     // Add that many symbols
     for (let i = 0; i < repeatCount; i++) {
-      inners.push(repeatSpan);
+      stack.push({ span: repeatSpan });
     }
   } else {
     // When there is a middle bit, we need the middle part and two repeated
     // sections
     for (let i = 0; i < repeatCount; i++) {
-      inners.push(repeatSpan);
+      stack.push({ span: repeatSpan });
     }
-
-    inners.push(makeSymbol(font, middle));
+    stack.push(-OVERLAP);
+    stack.push({ span: new Span(middle, { fontFamily }) });
+    stack.push(-OVERLAP);
 
     for (let i = 0; i < repeatCount; i++) {
-      inners.push(repeatSpan);
+      stack.push({ span: repeatSpan });
     }
   }
 
   // Add the top symbol
-  inners.push(makeSymbol(font, top));
+  stack.push(-OVERLAP);
+  stack.push({ span: new Span(top, { fontFamily }) });
 
   // Finally, build the vlist
-  const inner = makeVlist(context, inners, 'bottom', {
-    initialPos: depth,
-    classes: 'delimsizinginner' + sizeClass,
-  });
-  inner.setStyle('color', context.color);
-  if (typeof context.opacity === 'number') {
-    inner.setStyle('opacity', context.opacity);
+
+  let sizeClass = '';
+  // Apply the correct CSS class to choose the right font.
+  if (fontFamily === 'Size1-Regular') {
+    sizeClass = ' delim-size1';
+  } else if (fontFamily === 'Size4-Regular') {
+    sizeClass = ' delim-size4';
   }
 
-  const result = new Span(inner, { classes: 'delimsizing mult' });
-  result.setStyle(
-    'vertical-align',
-    -context.mathstyle.metrics.axisHeight * SIZING_MULTIPLIER[context.size],
-    'em'
+  const inner = new Stack(
+    {
+      bottom: depth,
+      children: stack,
+    },
+    { classes: sizeClass }
   );
 
-  return makeStyleWrap(
-    result,
-    context.mathstyle,
-    MATHSTYLES.textstyle,
-    options
-  );
+  const result = new Span(inner, {
+    ...(options ?? {}),
+    classes: (options?.classes ?? '') + ' ML__delim-mult',
+  });
+  // result.setStyle('vertical-align', (result.depth + axisHeight) / 2, 'em');
+
+  return result;
 }
 
 // There are three kinds of delimiters, delimiters that stack when they become
@@ -466,19 +418,25 @@ function makeStackedDelim(
 const stackLargeDelimiters = new Set([
   '(',
   ')',
+  '\\lparen',
+  '\\rparen',
   '[',
-  '\\lbrack',
   ']',
+  '\\lbrack',
   '\\rbrack',
   '\\{',
-  '\\lbrace',
   '\\}',
+  '\\lbrace',
   '\\rbrace',
   '\\lfloor',
   '\\rfloor',
   '\\lceil',
   '\\rceil',
   '\\surd',
+  '\u230a',
+  '\u230b',
+  '\u2308',
+  '\u2309',
 ]);
 
 // Delimiters that always stack
@@ -503,6 +461,10 @@ const stackAlwaysDelimiters = new Set([
   '\\rgroup',
   '\\lmoustache',
   '\\rmoustache',
+  '\u27ee',
+  '\u27ef',
+  '\u23b0',
+  '\u23b1',
 ]);
 
 // And delimiters that never stack
@@ -539,13 +501,13 @@ export function makeSizedDelim(
   if (delim === undefined || delim === '.') {
     // Empty delimiters still count as elements, even though they don't
     // show anything.
-    return makeNullFence(context, options.type, options.classes);
+    return makeNullDelimiter(context, options.type, options.classes);
   }
 
   // < and > turn into \langle and \rangle in delimiters
-  if (delim === '<' || delim === '\\lt') {
+  if (delim === '<' || delim === '\\lt' || delim === '\u27e8') {
     delim = '\\langle';
-  } else if (delim === '>' || delim === '\\gt') {
+  } else if (delim === '>' || delim === '\\gt' || delim === '\u27e9') {
     delim = '\\rangle';
   }
 
@@ -582,15 +544,15 @@ export function makeSizedDelim(
 
 interface DelimiterInfo {
   type: 'small' | 'large' | 'stack';
-  mathstyle?: Mathstyle;
+  mathstyle?: MathstyleName;
   size?: 1 | 2 | 3 | 4;
 }
 
 // Delimiters that never stack try small delimiters and large delimiters only
 const stackNeverDelimiterSequence: DelimiterInfo[] = [
-  { type: 'small', mathstyle: MATHSTYLES.scriptscriptstyle },
-  { type: 'small', mathstyle: MATHSTYLES.scriptstyle },
-  { type: 'small', mathstyle: MATHSTYLES.textstyle },
+  { type: 'small', mathstyle: 'scriptscriptstyle' },
+  { type: 'small', mathstyle: 'scriptstyle' },
+  { type: 'small', mathstyle: 'textstyle' },
   { type: 'large', size: 1 },
   { type: 'large', size: 2 },
   { type: 'large', size: 3 },
@@ -599,18 +561,18 @@ const stackNeverDelimiterSequence: DelimiterInfo[] = [
 
 // Delimiters that always stack try the small delimiters first, then stack
 const stackAlwaysDelimiterSequence: DelimiterInfo[] = [
-  { type: 'small', mathstyle: MATHSTYLES.scriptscriptstyle },
-  { type: 'small', mathstyle: MATHSTYLES.scriptstyle },
-  { type: 'small', mathstyle: MATHSTYLES.textstyle },
+  { type: 'small', mathstyle: 'scriptscriptstyle' },
+  { type: 'small', mathstyle: 'scriptscriptstyle' },
+  { type: 'small', mathstyle: 'textstyle' },
   { type: 'stack' },
 ];
 
 // Delimiters that stack when large try the small and then large delimiters, and
 // stack afterwards
 const stackLargeDelimiterSequence: DelimiterInfo[] = [
-  { type: 'small', mathstyle: MATHSTYLES.scriptscriptstyle },
-  { type: 'small', mathstyle: MATHSTYLES.scriptstyle },
-  { type: 'small', mathstyle: MATHSTYLES.textstyle },
+  { type: 'small', mathstyle: 'scriptscriptstyle' },
+  { type: 'small', mathstyle: 'scriptstyle' },
+  { type: 'small', mathstyle: 'textstyle' },
   { type: 'large', size: 1 },
   { type: 'large', size: 2 },
   { type: 'large', size: 3 },
@@ -647,9 +609,11 @@ function traverseSequence(
 ): DelimiterInfo {
   // Here, we choose the index we should start at in the sequences. In smaller
   // sizes (which correspond to larger numbers in style.size) we start earlier
-  // in the sequence. Thus, scriptscript starts at index 3-3=0, script starts
-  // at index 3-2=1, text starts at 3-1=2, and display starts at min(2,3-0)=2
-  const start = Math.min(2, 3 - context.mathstyle.size);
+  // in the sequence. Thus:
+  // - scriptscript starts at index 0,
+  // - script starts at index 1,
+  // - text and display start at 2
+  const start = { '-4': 0, '-3': 1, '0': 2 }[context.mathstyle.sizeDelta];
   for (let i = start; i < sequence.length; i++) {
     if (sequence[i].type === 'stack') {
       // This is always the last delimiter, so we just break the loop now.
@@ -660,7 +624,7 @@ function traverseSequence(
     if (metrics.defaultMetrics) {
       // If we don't have metrics info for this character,
       // assume we'll construct as a small delimiter
-      return { type: 'small', mathstyle: MATHSTYLES.scriptstyle };
+      return { type: 'small', mathstyle: 'scriptstyle' };
     }
 
     let heightDepth = metrics.height + metrics.depth;
@@ -669,7 +633,11 @@ function traverseSequence(
     // account for the style change size.
 
     if (sequence[i].type === 'small') {
-      heightDepth *= sequence[i].mathstyle.sizeMultiplier;
+      if (sequence[i].mathstyle === 'scriptscriptstyle') {
+        heightDepth *= FONT_SCALE[Math.max(1, context.size - 2)];
+      } else if (sequence[i].mathstyle === 'scriptstyle') {
+        heightDepth *= FONT_SCALE[Math.max(1, context.size - 1)];
+      }
     }
 
     // Check if the delimiter at this size works for the given height.
@@ -687,7 +655,7 @@ function traverseSequence(
  * traverse the sequences, and create a delimiter that the sequence tells us to.
  */
 export function makeCustomSizedDelim(
-  type: 'mopen' | 'mclose' | 'minner',
+  type: '' | 'mopen' | 'mclose' | 'minner',
   delim: string,
   height: number,
   center: boolean,
@@ -699,7 +667,7 @@ export function makeCustomSizedDelim(
   }
 ): Span {
   if (!delim || delim.length === 0 || delim === '.') {
-    return makeNullFence(context, type, type);
+    return makeNullDelimiter(context, type, type);
   }
 
   if (delim === '<' || delim === '\\lt') {
@@ -725,25 +693,29 @@ export function makeCustomSizedDelim(
     sequence,
     context
   );
-
+  const delimContext = new Context(
+    context,
+    options?.style,
+    delimType.mathstyle
+  );
   // Depending on the sequence element we decided on,
   // call the appropriate function.
   if (delimType.type === 'small') {
-    return makeSmallDelim(delim, delimType.mathstyle, center, context, {
+    return makeSmallDelim(delim, delimContext, center, {
       type,
       classes: 'ML__small-delim ' + (options?.classes ?? ''),
     });
   }
 
   if (delimType.type === 'large') {
-    return makeLargeDelim(delim, delimType.size, center, context, {
+    return makeLargeDelim(delim, delimType.size, center, delimContext, {
       ...options,
       type,
     });
   }
 
   console.assert(delimType.type === 'stack');
-  return makeStackedDelim(delim, height, center, context, {
+  return makeStackedDelim(delim, height, center, delimContext, {
     ...options,
     type,
   });
@@ -764,22 +736,19 @@ export function makeLeftRightDelim(
 ): Span {
   // If this is the empty delimiter, return a null fence
   if (delim === '.') {
-    return makeNullFence(context, type, options?.classes);
+    return makeNullDelimiter(context, type, options?.classes);
   }
 
   // We always center \left/\right delimiters, so the axis is always shifted
-  const axisHeight =
-    context.mathstyle.metrics.axisHeight *
-    context.mathstyle.sizeMultiplier *
-    SIZING_MULTIPLIER[context.size];
+  const axisHeight = AXIS_HEIGHT * context.scalingFactor;
   // Taken from TeX source, tex.web, function make_left_right
   const delimiterFactor = 901; // Plain.tex:327, texboox:152
-  const delimiterShortfall = 5 / METRICS.ptPerEm; // Plain.tex:345, texboox:152
+  const delimiterExtend = 5 / PT_PER_EM; // Plain.tex:345, texboox:152
 
   const maxDistFromAxis = Math.max(height - axisHeight, depth + axisHeight);
   const totalHeight = Math.max(
     (maxDistFromAxis / 500) * delimiterFactor,
-    2 * maxDistFromAxis - delimiterShortfall
+    2 * maxDistFromAxis - delimiterExtend
   );
 
   // Finally, we defer to `makeCustomSizedDelim` with our calculated total
@@ -787,24 +756,17 @@ export function makeLeftRightDelim(
   return makeCustomSizedDelim(type, delim, totalHeight, true, context, options);
 }
 
-export function makeNullFence(
-  context: Context,
-  type: 'mopen' | 'mclose' | 'minner',
+export function makeNullDelimiter(
+  parentContext: Context,
+  type: '' | 'mopen' | 'mclose' | 'minner',
   classes?: string
 ): Span {
-  let sizeAdjust = '';
-  if (context.size !== 'size5') {
-    sizeAdjust = `sizing reset-${context.size} size5`;
-  }
+  // The null delimiter has a width, specified by class 'nulldelimiter'
+
+  // The size of the null delimiter is independent of the current mathstyle
+  const context = new Context(parentContext, null, 'textstyle');
   return new Span(null, {
-    // Reset the font-size to the default (size5)
-    classes:
-      sizeAdjust +
-      // Correct from scriptstyle/scriptscriptstyle to textstyle if necessary
-      context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
-      // The null delimiter has a width, specified by class 'nulldelimiter'
-      ' nulldelimiter ' +
-      (classes ?? ''),
+    classes: ' nulldelimiter ' + (classes ?? ''),
     type,
-  });
+  }).wrap(context);
 }

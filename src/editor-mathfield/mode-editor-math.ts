@@ -1,5 +1,5 @@
 /* eslint-disable no-new */
-import { InsertOptions, Offset, Range } from '../public/mathfield';
+import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
 import { jsonToLatex } from '../addons/math-json';
 import { requestUpdate } from './render';
@@ -10,7 +10,10 @@ import { ModelPrivate } from '../editor-model/model-private';
 import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 
-import { parseMathString } from '../editor/parse-math-string';
+import {
+  parseMathString,
+  trimModeShiftCommand,
+} from '../editor/parse-math-string';
 
 import type { Style } from '../public/core';
 import { LeftRightAtom } from '../core-atoms/leftright';
@@ -29,12 +32,14 @@ export class MathModeEditor extends ModeEditor {
 
   onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
     let text = '';
+    let format: 'auto' | OutputFormat = 'auto';
 
     // Try to get a MathJSON data type
     const json = ev.clipboardData.getData('application/json');
     if (json) {
       try {
         text = jsonToLatex(JSON.parse(json), {});
+        format = 'latex';
       } catch {
         text = '';
       }
@@ -46,9 +51,13 @@ export class MathModeEditor extends ModeEditor {
     }
 
     if (text) {
+      mathfield.snapshot();
       if (
         this.insert(mathfield.model, text, {
           smartFence: mathfield.options.smartFence,
+          colorMap: mathfield.colorMap,
+          backgroundColorMap: mathfield.backgroundColorMap,
+          format,
         })
       ) {
         requestUpdate(mathfield);
@@ -61,27 +70,14 @@ export class MathModeEditor extends ModeEditor {
     return true;
   }
 
-  onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
-    const value: Range = mathfield.model.selectionIsCollapsed
-      ? [0, mathfield.model.lastOffset]
-      : range(mathfield.selection);
-    ev.clipboardData.setData(
-      'text/plain',
-      '$$' + mathfield.getValue(value, 'latex-expanded') + '$$'
-    );
-    ev.clipboardData.setData(
-      'application/json',
-      mathfield.getValue(value, 'math-json')
-    );
-    ev.clipboardData.setData(
-      'application/xml',
-      mathfield.getValue(value, 'math-ml')
-    );
-    // Prevent the current document selection from being written to the clipboard.
-    ev.preventDefault();
-  }
-
-  insert(model: ModelPrivate, text: string, options: InsertOptions): boolean {
+  insert(
+    model: ModelPrivate,
+    text: string,
+    options: InsertOptions & {
+      colorMap: (name: string) => string;
+      backgroundColorMap: (name: string) => string;
+    }
+  ): boolean {
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
     if (!options.format) options.format = 'auto';
@@ -124,7 +120,7 @@ export class MathModeEditor extends ModeEditor {
     //
     // Save the content of the selection, if any
     //
-    const args: string[] = [];
+    const args: Record<string, string> = {};
     args[0] = model.getValue(model.selection);
     args['?'] = '\\placeholder{}';
     args['@'] = args['?'];
@@ -179,7 +175,18 @@ export class MathModeEditor extends ModeEditor {
 
     if (!args[0]) args[0] = args['?'];
 
-    const newAtoms = convertStringToAtoms(model, text, args, options);
+    let usedArg = false;
+    const argFunction = (arg: string): string => {
+      usedArg = true;
+      return args[arg];
+    };
+
+    const [format, newAtoms] = convertStringToAtoms(
+      model,
+      text,
+      argFunction,
+      options
+    );
     if (!newAtoms) return false;
 
     //
@@ -188,7 +195,7 @@ export class MathModeEditor extends ModeEditor {
     const { parent } = model.at(model.position);
     // Are we inserting a fraction inside a lefright?
     if (
-      options.format !== 'latex' &&
+      format !== 'latex' &&
       model.options.removeExtraneousParentheses &&
       parent instanceof LeftRightAtom &&
       parent.leftDelim === '(' &&
@@ -202,20 +209,23 @@ export class MathModeEditor extends ModeEditor {
       const branch = parent.treeBranch;
       newParent.removeChild(parent);
       newParent.setChildren(newAtoms, branch);
-    } else {
-      if (options.format === 'latex' && args.length === 1 && !args[0]) {
-        // If we are given a latex string with no arguments, store it verbatim
-        // Caution: we can only do this if the toLatex() for this parent
-        // would return an empty string. If the latex is generated using other
-        // properties than parent.body, for example by adding '\left.' and
-        // '\right.' with a 'leftright' type, we can't use this shortcut.
-        if (parent.type === 'root' && parent.hasEmptyBranch('body')) {
-          parent.latex = text;
-        }
-      }
+    }
 
-      const cursor = model.at(model.position);
-      cursor.parent.addChildrenAfter(newAtoms, cursor);
+    const hadEmptyBody = parent.hasEmptyBranch('body');
+
+    const cursor = model.at(model.position);
+    cursor.parent.addChildrenAfter(newAtoms, cursor);
+
+    if (format === 'latex') {
+      // If we are given a latex string with no arguments, store it as
+      // "verbatim latex".
+      // Caution: we can only do this if the toLatex() for this parent
+      // would return an empty string. If the latex is generated using other
+      // properties than parent.body, for example by adding '\left.' and
+      // '\right.' with a 'leftright' type, we can't use this shortcut.
+      if (parent.type === 'root' && hadEmptyBody && !usedArg) {
+        parent.verbatimLatex = text;
+      }
     }
 
     // Prepare to dispatch notifications
@@ -263,43 +273,51 @@ export class MathModeEditor extends ModeEditor {
 function convertStringToAtoms(
   model: ModelPrivate,
   s: string,
-  args: string[],
-  options: InsertOptions
-): Atom[] {
+  args: (arg: string) => string,
+  options: InsertOptions & {
+    colorMap: (name: string) => string;
+    backgroundColorMap: (name: string) => string;
+  }
+): [OutputFormat, Atom[]] {
+  let format: OutputFormat;
   let result = [];
   if (options.format === 'ascii-math') {
-    [, s] = parseMathString(s, { format: 'ascii-math' });
-    result = parseLatex(
-      s,
-      'math',
-      null,
-      options?.macros,
-      false,
-      model.listeners.onError
-    );
+    [format, s] = parseMathString(s, {
+      format: 'ascii-math',
+      inlineShortcuts: model.mathfield.options.inlineShortcuts,
+    });
+    result = parseLatex(s, {
+      parseMode: 'math',
+      macros: options?.macros,
+      onError: model.listeners.onError,
+      colorMap: options.colorMap,
+      backgroundColorMap: options.backgroundColorMap,
+    });
 
     // Simplify result.
-    if (model.options.removeExtraneousParentheses) {
+    if (format !== 'latex' && model.options.removeExtraneousParentheses) {
       simplifyParen(result);
     }
   } else if (options.format === 'auto' || options.format === 'latex') {
     if (options.format === 'auto') {
-      [options.format, s] = parseMathString(s);
+      [format, s] = parseMathString(s, {
+        format: 'auto',
+        inlineShortcuts: model.mathfield.options.inlineShortcuts,
+      });
     }
 
     // If the whole string is bracketed by a mode shift command, remove it
-    if (/^\$\$(.*)\$\$$/.test(s)) {
-      s = s.substring(2, s.length - 2);
-    }
+    if (options.format === 'latex') [, s] = trimModeShiftCommand(s);
 
-    result = parseLatex(
-      s,
-      'math',
-      args,
-      options.macros,
-      options.smartFence ?? false,
-      model.listeners.onError
-    );
+    result = parseLatex(s, {
+      parseMode: 'math',
+      args: args,
+      macros: options.macros,
+      smartFence: options.smartFence,
+      onError: model.listeners.onError,
+      colorMap: options.colorMap,
+      backgroundColorMap: options.backgroundColorMap,
+    });
 
     // Simplify result.
     if (
@@ -310,13 +328,15 @@ function convertStringToAtoms(
     }
   }
 
+  //
   // Some atoms may already have a style (for example if there was an
   // argument, i.e. the selection, that this was applied to).
   // So, don't apply style to atoms that are already styled, but *do*
   // apply it to newly created atoms that have no style yet.
+  //
   applyStyleToUnstyledAtoms(result, options.style);
 
-  return result;
+  return [format ?? 'latex', result];
 }
 
 function removeParen(atoms: Atom[]): Atom[] | null {
@@ -447,6 +467,7 @@ export function insertSmartFence(
     parent instanceof LeftRightAtom ? parent.leftDelim + parent.rightDelim : '';
   if (delims === '\\lbrace\\rbrace') delims = '{}';
   if (delims === '\\{\\}') delims = '{}';
+  if (delims === '\\lparen\\rparen') delims = '()';
 
   //
   // 1. Are we inserting a middle fence?

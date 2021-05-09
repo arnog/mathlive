@@ -1,9 +1,13 @@
 import { Atom } from '../core/atom';
-import { Span, makeStruts } from '../core/span';
+import {
+  Span,
+  makeStruts,
+  coalesce,
+  adjustInterAtomSpacing,
+} from '../core/span';
 import { parseLatex } from '../core/parser';
-import { LINE_COLORS, AREA_COLORS } from '../core/color';
+import { BACKGROUND_COLORS, FOREGROUND_COLORS } from '../core/color';
 import { l10n as l10nOptions, localize as l10n } from './l10n';
-import { MATHSTYLES } from '../core/mathstyle';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
@@ -26,6 +30,7 @@ import { COMMANDS, SelectorPrivate } from './commands';
 import { ExecuteCommandFunction } from './commands-definitions';
 import { MACROS } from '../core-definitions/definitions';
 import { Scrim } from './scrim';
+import { Context } from '../core/context';
 
 let gScrim: Scrim = null;
 
@@ -41,7 +46,10 @@ export function showAlternateKeys(
     (keyboard.element.classList.contains('material') ? ' material' : '');
   altContainer.id = 'mathlive-alternate-keys-panel';
 
-  if (altKeys.length >= 7) {
+  if (altKeys.length >= 14) {
+    // Width 5: 5 key wide
+    altContainer.style.width = '236px';
+  } else if (altKeys.length >= 7) {
     // Width 4
     altContainer.style.width = '286px';
   } else if (altKeys.length === 4 || altKeys.length === 2) {
@@ -803,8 +811,8 @@ const LAYERS = {
                 <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'>&#x232b;</li></ul>
             </ul>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"red"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"yellow"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>
                 <li class='separator w5'></li>
                 <row name='numpad-4'/>
                 <li class='separator w5'></li>
@@ -1108,12 +1116,12 @@ const LAYERS = {
   'style': `
         <div class='rows'>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"red"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"yellow"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
                 <li class='separator w5'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"size3"}]' data-latex='\\scriptsize\\text{small}'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"size5"}]' data-latex='\\scriptsize\\text{normal}'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"size9"}]' data-latex='\\huge\\text{big}'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"3"}]' data-latex='\\scriptsize\\text{small}'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"5"}]' data-latex='\\scriptsize\\text{normal}'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"9"}]' data-latex='\\huge\\text{big}'></li>
                 <li class='separator w5'></li>
                 <li class='keycap' data-latex='\\langle' data-command='["insert", "\\\\langle", {"smartFence":true}]'></li>
             </ul>
@@ -1146,20 +1154,27 @@ const LAYERS = {
         </div>`,
 };
 
-function latexToMarkup(latex: string, arg): string {
+function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
-  return makeStruts(
-    new Span(
-      Atom.render(
-        { mathstyle: MATHSTYLES.displaystyle },
-        parseLatex(latex, 'math', arg, MACROS)
-      ),
-      { classes: 'ML__base' }
-    ),
-    { classes: 'ML__mathlive' }
-  ).toMarkup();
+  const span = coalesce(
+    adjustInterAtomSpacing(
+      new Span(
+        Atom.render(
+          new Context(
+            { macros: MACROS, smartFence: false },
+            null,
+            'displaystyle'
+          ),
+          parseLatex(latex, { parseMode: 'math', args: arg, macros: MACROS })
+        ),
+        { classes: 'ML__base' }
+      )
+    )
+  );
+
+  return makeStruts(span, { classes: 'ML__mathlive' }).toMarkup();
 }
 
 /**
@@ -1279,7 +1294,7 @@ export function makeKeycap(
     if (element.getAttribute('data-latex')) {
       html = latexToMarkup(
         element.getAttribute('data-latex').replace(/&quot;/g, '"'),
-        { '?': '\\placeholder{}' }
+        () => '\\placeholder{}'
       );
     } else if (
       element.getAttribute('data-insert') &&
@@ -1287,7 +1302,7 @@ export function makeKeycap(
     ) {
       html = latexToMarkup(
         element.getAttribute('data-insert').replace(/&quot;/g, '"'),
-        { '?': '\\placeholder{}' }
+        () => '\\placeholder{}'
       );
     } else if (element.getAttribute('data-content')) {
       html = element.getAttribute('data-content').replace(/&quot;/g, '"');
@@ -1630,24 +1645,24 @@ export function makeKeyboardElement(
 
   // Auto-populate the ALT_KEYS table
   ALT_KEYS_BASE['foreground-color'] = [];
-  for (const color of LINE_COLORS) {
+  for (const color of Object.keys(FOREGROUND_COLORS)) {
     ALT_KEYS_BASE['foreground-color'].push({
       classes: 'small-button',
       content:
         '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
-        color +
+        FOREGROUND_COLORS[color] +
         '"></span>',
       command: '["applyStyle",{"color":"' + color + '"}]',
     });
   }
 
   ALT_KEYS_BASE['background-color'] = [];
-  for (const color of AREA_COLORS) {
+  for (const color of Object.keys(BACKGROUND_COLORS)) {
     ALT_KEYS_BASE['background-color'].push({
       classes: 'small-button',
       content:
         '<span style="border-radius:50%;width:32px;height:32px; background:' +
-        color +
+        BACKGROUND_COLORS[color] +
         '"></span>',
       command: '["applyStyle",{"backgroundColor":"' + color + '"}]',
     });

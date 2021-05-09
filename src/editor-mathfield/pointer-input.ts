@@ -1,6 +1,6 @@
 import { on, off, getAtomBounds, Rect } from './utils';
 import type { MathfieldPrivate } from './mathfield-private';
-import { renderSelection, requestUpdate } from './render';
+import { requestUpdate } from './render';
 import { Offset } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
@@ -121,17 +121,8 @@ export function onPointerDown(
     }
 
     if (actualAnchor >= 0 && focus >= 0) {
-      const wasCollapsed = mathfield.model.selectionIsCollapsed;
       that.model.extendSelectionTo(actualAnchor, focus);
-      if (
-        acceptCommandSuggestion(mathfield.model) ||
-        wasCollapsed ||
-        mathfield.model.selectionIsCollapsed
-      ) {
-        requestUpdate(mathfield);
-      } else {
-        renderSelection(mathfield);
-      }
+      requestUpdate(mathfield);
     }
 
     // Prevent synthetic mouseMove event when this is a touch event
@@ -261,11 +252,7 @@ export function onPointerDown(
 
   if (dirty !== 'none') {
     if (mathfield.model.selectionIsCollapsed) dirty = 'all';
-    if (dirty === 'all') {
-      requestUpdate(mathfield);
-    } else {
-      renderSelection(mathfield);
-    }
+    requestUpdate(mathfield);
   }
 
   // Prevent the browser from handling. In particular when this is a

@@ -4,20 +4,33 @@ import { Span } from '../core/span';
 
 export class MacroAtom extends Atom {
   macroLatex: string;
+  expand: boolean;
 
-  constructor(macro: string, args: string, body: Atom[]) {
+  constructor(
+    macro: string,
+    options: {
+      expand?: boolean;
+      args: string;
+      body: Atom[];
+      captureSelection?: boolean;
+    }
+  ) {
     super('macro', { command: macro });
-    this.body = body;
+    this.body = options.body;
     // Set the `captureSelection` attribute so that the atom is handled
     // as an unbreakable unit
-    this.captureSelection = true;
+    this.captureSelection = options.captureSelection ?? true;
     // Don't use verbatimLatex to save the macro, as it can get wiped when
     // the atom is modified (adding super/subscript, for example).
-    this.macroLatex = macro + args;
+    this.macroLatex = macro + options.args;
+
+    this.expand = options.expand ?? false;
   }
 
   toLatex(options: ToLatexOptions): string {
-    return options.expandMacro ? this.bodyToLatex(options) : this.macroLatex;
+    return options.expandMacro && this.expand
+      ? this.bodyToLatex(options)
+      : this.macroLatex;
   }
 
   render(context: Context): Span {

@@ -7,6 +7,7 @@ import { Atom } from '../core/atom-class';
 import { AccentAtom } from '../core-atoms/accent';
 import { OverunderAtom } from '../core-atoms/overunder';
 import { Style } from '../public/core';
+import { binRelType } from './styling';
 
 const ACCENTS = {
   acute: 0x02ca,
@@ -57,6 +58,7 @@ defineFunction('utilde', '{body:auto}', {
       body: args[0] as Atom[],
       svgBelow: accent,
       style,
+      spanType: binRelType(args[0] as Atom[]),
     });
   },
 });

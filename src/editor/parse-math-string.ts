@@ -36,44 +36,17 @@ import { InlineShortcutDefinition, getInlineShortcut } from './shortcuts';
 export function parseMathString(
   s: string,
   options?: {
-    format?: OutputFormat;
+    format?: 'auto' | OutputFormat;
     inlineShortcuts?: Record<string, InlineShortcutDefinition>;
   }
 ): [OutputFormat, string] {
-  if (!s) return ['latex', ''];
+  let format: OutputFormat;
+  [format, s] = inferFormat(s);
 
-  // Nothing to do if a single character
-  if (s.length <= 1) return ['latex', s];
+  if (format === 'latex') return ['latex', s];
 
-  if (!options || options.format !== 'ascii-math') {
-    // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
-
-    // If the strings is surrounded by `$..$` or `$$..$$`, assumes it is LaTeX
-    const trimedString = s.trim();
-    if (
-      (trimedString.startsWith('$$') && trimedString.endsWith('$$')) ||
-      (trimedString.startsWith('\\[') && trimedString.endsWith('\\]')) ||
-      (trimedString.startsWith('\\(') && trimedString.endsWith('\\)'))
-    ) {
-      return ['latex', trimedString.substring(2, trimedString.length - 2)];
-    }
-
-    if (trimedString.startsWith('$') && trimedString.endsWith('$')) {
-      return ['latex', trimedString.substring(1, trimedString.length - 1)];
-    }
-
-    // Replace double-backslash (coming from JavaScript) to a single one
-    s = s.replace(/\\\\([^\s\n])/g, '\\$1');
-
-    if (s.includes('\\')) {
-      // If the string includes a '\' it's probably a LaTeX string
-      // (that's not completely true, it could be a UnicodeMath string, since
-      // UnicodeMath supports some LaTeX commands. However, we need to pick
-      // one in order to correctly interpret {} (which are argument delimiters
-      // in LaTeX, and are fences in UnicodeMath)
-      return ['latex', s];
-    }
-  }
+  // It wasn't Latex. Let's assume it's ASCII Math
+  format = 'ascii-math';
 
   s = s.replace(/\u2061/gu, ''); // Remove function application
   s = s.replace(/\u3016/gu, '{'); // WHITE LENTICULAR BRACKET (grouping)
@@ -83,10 +56,7 @@ export function parseMathString(
   s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // Common typo
   s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
-  return [
-    options?.format ?? 'ascii-math',
-    parseMathExpression(s, options ?? {}),
-  ];
+  return [format, parseMathExpression(s, { ...(options ?? {}), format })];
 }
 
 function parseMathExpression(
@@ -350,4 +320,75 @@ function paddedShortcut(s: string, options: { format?: string }): string {
   }
 
   return result;
+}
+
+export const MODE_SHIFT_COMMANDS = [
+  ['\\[', '\\]'],
+  ['\\(', '\\)'],
+  ['$$', '$$'],
+  ['$', '$'], // Must be *after* $$..$$
+  ['\\begin{math}', '\\end{math}'],
+  ['\\begin{displaymath}', '\\end{displaymath}'],
+  ['\\begin{equation}', '\\end{equation}'],
+  ['\\begin{equation*}', '\\end{equation*}'],
+];
+
+export function trimModeShiftCommand(s: string): [boolean, string] {
+  const trimedString = s.trim();
+
+  for (const mode of MODE_SHIFT_COMMANDS) {
+    if (trimedString.startsWith(mode[0]) && trimedString.endsWith(mode[1])) {
+      return [
+        true,
+        trimedString.substring(
+          mode[0].length,
+          trimedString.length - mode[1].length
+        ),
+      ];
+    }
+  }
+
+  return [false, s];
+}
+
+function inferFormat(s: string): [OutputFormat, string] {
+  s = s.trim();
+
+  if (!s) return ['latex', ''];
+
+  // Assume Latex if a single char
+  if (s.length <= 1) return ['latex', s];
+
+  // Replace double-backslash (coming from JavaScript) to a single one
+  s = s.replace(/\\\\([^\s\n])/g, '\\$1');
+
+  // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
+  let hasLatexModeShiftCommand: boolean;
+  [hasLatexModeShiftCommand, s] = trimModeShiftCommand(s);
+  if (hasLatexModeShiftCommand) return ['latex', s];
+
+  // The backtick is the default delimiter used by MathJAX for
+  // ASCII Math
+  if (s.startsWith('`') && s.endsWith('`')) {
+    s = s.substring(1, s.length - 1);
+    return ['ascii-math', s];
+  }
+
+  if (s.includes('\\')) {
+    // If the string includes a '\' it's probably a LaTeX string
+    // (that's not completely true, it could be a UnicodeMath string, since
+    // UnicodeMath supports some LaTeX commands. However, we need to pick
+    // one in order to correctly interpret {} (which are argument delimiters
+    // in LaTeX, and are fences in UnicodeMath)
+    return ['latex', s];
+  }
+
+  if (/\$(.+)\$/.test(s)) {
+    // If there's a pair of $ (or possibly $$) signs, assume it's a string
+    // such as `if $x<0$ then`, in which case it's Latex, but with some text
+    // around it
+    return ['latex', `\\text{${s}}`];
+  }
+
+  return [undefined, s];
 }

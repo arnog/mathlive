@@ -1,6 +1,5 @@
 import type { MathfieldOptions } from '../public/options';
 import { Atom } from '../core/atom';
-import { stringToColor } from '../core/color';
 const SPECIAL_OPERATORS = {
   '\\pm': '&#177;',
   '\\times': '&#215;',
@@ -10,6 +9,8 @@ const SPECIAL_OPERATORS = {
   '\\mid': '\u2223',
   '\\lbrace': '{',
   '\\rbrace': '}',
+  '\\lparen': '(',
+  '\\rparen': ')',
   '\\langle': '\u27E8',
   '\\rangle': '\u27E9',
   '\\lfloor': '\u230A',
@@ -1041,8 +1042,7 @@ function atomToMathML(atom, options): string {
       case 'box':
         result = '<menclose notation="box"';
         if (atom.backgroundcolor) {
-          result +=
-            ' mathbackground="' + stringToColor(atom.backgroundcolor) + '"';
+          result += ' mathbackground="' + atom.backgroundcolor + '"';
         }
 
         result +=

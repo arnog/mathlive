@@ -285,6 +285,12 @@ export class ModelPrivate implements Model {
     const first = Math.min(start, end) + 1;
     const last = Math.max(start, end);
 
+    if (first === 1 && last === this.lastOffset) {
+      // This is the entire selection,
+      // return the root
+      return [this.root];
+    }
+
     let result: Atom[] = [];
     for (let i = first; i <= last; i++) {
       const atom = this.atoms[i];
@@ -330,7 +336,10 @@ export class ModelPrivate implements Model {
   }
 
   extractAtoms(range: Range): Atom[] {
-    const result = this.getAtoms(range);
+    let result = this.getAtoms(range);
+    if (result.length === 1 && result[0].type === 'root') {
+      result = result[0].children;
+    }
     for (const child of result) child.parent.removeChild(child);
     return result;
   }
@@ -346,6 +355,7 @@ export class ModelPrivate implements Model {
     if (format === 'latex' || format === 'latex-expanded') {
       result = Atom.toLatex(atom, {
         expandMacro: format === 'latex-expanded',
+        defaultMode: this.mathfield.options.defaultMode,
       });
     } else if (format === 'mathML' /* @deprecated */ || format === 'math-ml') {
       if (format === 'mathML') {
@@ -385,10 +395,11 @@ export class ModelPrivate implements Model {
       // current Latex
       const json = atomtoMathJson(
         parseLatex(
-          Atom.toLatex(atom, { expandMacro: false }),
-          'math',
-          null,
-          this.mathfield.options.macros
+          Atom.toLatex(atom, { expandMacro: false, defaultMode: 'math' }),
+          {
+            parseMode: 'math',
+            macros: this.mathfield.options.macros,
+          }
         )
       );
       result = JSON.stringify(json);
@@ -451,6 +462,7 @@ export class ModelPrivate implements Model {
     if (format === 'latex' || format === 'latex-expanded') {
       const options: ToLatexOptions = {
         expandMacro: format === 'latex-expanded',
+        defaultMode: this.mathfield.options.defaultMode,
       };
       return joinLatex(
         ranges.map((range) => Atom.toLatex(this.getAtoms(range), options))

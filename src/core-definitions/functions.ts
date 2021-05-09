@@ -112,7 +112,6 @@ defineFunction(
   {
     createAtom: (command: string, args: Argument[], style: Style): Atom => {
       const options: GenfracOptions = {
-        mathStyleName: 'auto',
         style,
       };
       switch (command) {
@@ -137,11 +136,11 @@ defineFunction(
       switch (command) {
         case '\\dfrac':
         case '\\dbinom':
-          options.mathStyleName = 'displaystyle';
+          options.mathstyleName = 'displaystyle';
           break;
         case '\\tfrac':
         case '\\tbinom':
-          options.mathStyleName = 'textstyle';
+          options.mathstyleName = 'textstyle';
           break;
         case '\\cfrac':
           options.hasBarLine = true;

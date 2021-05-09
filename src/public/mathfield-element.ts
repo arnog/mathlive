@@ -381,11 +381,14 @@ export interface MathfieldElementAttributes {
  * |:---|:---|
  * | `--hue` | Hue of the highlight color and the caret |
  * | `--highlight` | Color of the selection |
+ * | `--contains-highlight` | Backround property for items that contain the caret |
  * | `--highlight-inactive` | Color of the selection, when the mathfield is not focused |
  * | `--caret` | Color of the caret/insertion point |
  * | `--primary` | Primary accent color, used for example in the virtual keyboard |
  * | `--text-font-family` | The font stack used in text mode |
  * | `--keyboard-zindex` | The z-index attribute of the virtual keyboard panel |
+ * | `--smart-fence-opacity` | Opacity of a smart gence (default is 50%) |
+ * | `--smart-fence-color` | Color of a smart fence (default is current color) |
  *
  * ### CSS Parts
  *

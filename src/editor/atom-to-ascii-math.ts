@@ -44,6 +44,9 @@ const SPECIAL_IDENTIFIERS = {
   '\\Phi': 'Phi',
   '\\Psi': 'Psi',
   '\\Omega': 'Omega',
+  '\\exponentialE': 'e',
+  '\\imaginaryI': 'i',
+  '\\imaginaryJ': 'j',
 };
 
 const SPECIAL_OPERATORS = {
@@ -55,6 +58,8 @@ const SPECIAL_OPERATORS = {
   '\\mid': '|',
   '\\lbrace': '{',
   '\\rbrace': '}',
+  '\\lparen': '(',
+  '\\rparen': ')',
   '\\langle': '(:',
   '\\rangle': ':)',
   // '\\lfloor': '\u230a',
@@ -117,6 +122,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
   switch (atom.type) {
     case 'first':
       return '';
+
     case 'group':
     case 'root':
       result = atomToAsciiMath(atom.body);
@@ -192,38 +198,30 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
       break;
 
     case 'mord':
-      // @todo, deal with some special identifiers: \alpha, etc...
       result =
         SPECIAL_IDENTIFIERS[command] ??
         command ??
         (typeof atom.value === 'string' ? atom.value : '');
-      if (result.startsWith('\\')) result = String(result);
+      if (result.startsWith('\\')) result += ' ';
       m = command ? command.match(/{?\\char"([\dabcdefABCDEF]*)}?/) : null;
       if (m) {
         // It's a \char command
-        result = String.fromCharCode(Number.parseInt('0x' + m[1]));
+        result = String.fromCodePoint(Number.parseInt('0x' + m[1]));
       } else if (result.length > 0 && result.startsWith('\\')) {
         // Atom is an identifier with no special handling. Use the
         // Unicode value
         result =
           typeof atom.value === 'string' ? atom.value.charAt(0) : atom.command;
       }
-
-      // Result = '<mi' + variant + makeID(atom.id, options) + '>' + xmlEscape(result) + '</mi>';
       break;
 
     case 'mbin':
     case 'mrel':
     case 'minner':
-      if (command && SPECIAL_IDENTIFIERS[command]) {
-        // Some 'textord' are actually identifiers. Check them here.
-        result = SPECIAL_IDENTIFIERS[command];
-      } else if (command && SPECIAL_OPERATORS[command]) {
-        result = SPECIAL_OPERATORS[command];
-      } else {
-        result = atom.value;
-      }
-
+      result =
+        SPECIAL_IDENTIFIERS[command] ??
+        SPECIAL_OPERATORS[command] ??
+        atom.value;
       break;
 
     case 'mopen':
@@ -232,7 +230,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
       break;
 
     case 'mpunct':
-      result = SPECIAL_OPERATORS[command] || command;
+      result = SPECIAL_OPERATORS[command] ?? command;
       break;
 
     case 'mop':
@@ -278,6 +276,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
       break;
 
     case 'enclose':
+      result = '(' + atomToAsciiMath(atom.body) + ')';
       break;
 
     case 'space':
@@ -286,6 +285,13 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
 
     case 'msubsup':
       result = '';
+      break;
+
+    case 'macro':
+      result =
+        SPECIAL_IDENTIFIERS[command] ??
+        SPECIAL_OPERATORS[command] ??
+        atomToAsciiMath(atom.body);
       break;
   }
 

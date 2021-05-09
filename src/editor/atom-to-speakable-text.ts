@@ -5,6 +5,7 @@ import { Atom } from '../core/atom';
 import { atomsToMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
+import { osPlatform } from '../common/capabilities';
 
 declare global {
   interface Window {
@@ -102,6 +103,8 @@ const PRONUNCIATION: Record<string, string> = {
 
   '\\Rightarrow': 'implies ',
 
+  '\\lparen': '<break time="150ms"/>open paren<break time="150ms"/>',
+  '\\rparen': '<break time="150ms"/>close paren<break time="150ms"/>',
   '\\lbrace': '<break time="150ms"/>open brace<break time="150ms"/>',
   '\\{': '<break time="150ms"/>open brace<break time="150ms"/>',
   '\\rbrace': '<break time="150ms"/>close brace<break time="150ms"/>',
@@ -139,25 +142,6 @@ function getSpokenName(latex: string): string {
   }
 
   return result;
-}
-
-function platform(p: string): string {
-  let result = 'other';
-  if (navigator?.platform && navigator?.userAgent) {
-    if (/^(mac)/i.test(navigator.platform)) {
-      result = 'mac';
-    } else if (/^(win)/i.test(navigator.platform)) {
-      result = 'win';
-    } else if (/(android)/i.test(navigator.userAgent)) {
-      result = 'android';
-    } else if (/(iphone|ipad|ipod)/i.test(navigator.userAgent)) {
-      result = 'ios';
-    } else if (/\bcros\b/i.test(navigator.userAgent)) {
-      result = 'chromeos';
-    }
-  }
-
-  return result === p ? p : '!' + p;
 }
 
 function isAtomic(atoms: Atom[]): boolean {
@@ -594,6 +578,7 @@ function atomToSpeakableFragment(
 
       case 'space':
       case 'spacing':
+      case 'macro':
         // @todo
         break;
     }
@@ -702,10 +687,7 @@ export function atomToSpeakableText(
       (prosody ? '</prosody>' : '') +
       '</amazon:auto-breaths>' +
       '</speak>';
-  } else if (
-    options.textToSpeechMarkup === 'mac' &&
-    platform('mac') === 'mac'
-  ) {
+  } else if (options.textToSpeechMarkup === 'mac' && osPlatform() === 'macos') {
     // Convert SSML to Mac markup
     result = result
       .replace(/<mark([^/]*)\/>/g, '')

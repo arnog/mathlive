@@ -1,9 +1,9 @@
-import { ParseMode, Style } from '../public/core';
+import type { ParseMode, Style } from '../public/core';
 
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { MATHSTYLES, MathStyleName } from '../core/mathstyle';
-import { Span, SpanType } from '../core/span';
+import type { MathstyleName } from '../core/mathstyle';
+import type { Span, SpanType } from '../core/span';
 
 export class GroupAtom extends Atom {
   latexOpen?: string;
@@ -11,14 +11,14 @@ export class GroupAtom extends Atom {
   cssId?: string;
   htmlData?: string;
   customClass?: string;
-  mathStyleName: MathStyleName;
+  mathstyleName: MathstyleName;
   spanType: SpanType;
   constructor(
     arg: Atom[],
     options?: {
       spanType?: SpanType;
       changeMode?: boolean;
-      mathStyleName?: MathStyleName;
+      mathstyleName?: MathstyleName;
       latexOpen?: string;
       latexClose?: string;
       cssId?: string;
@@ -34,9 +34,10 @@ export class GroupAtom extends Atom {
       mode: options?.mode ?? 'math',
       toLatexOverride: options?.toLatexOverride,
       style: options?.style,
+      displayContainsHighlight: true,
     });
     this.body = arg;
-    this.mathStyleName = options?.mathStyleName;
+    this.mathstyleName = options?.mathstyleName;
 
     this.latexOpen = options?.latexOpen;
     this.latexClose = options?.latexClose;
@@ -57,15 +58,16 @@ export class GroupAtom extends Atom {
     // Note that the mathstyle property is optional and could be undefined
     // If that's the case, clone() returns a clone of the
     // context with the same mathstyle.
-    const localContext = context.withMathstyle(this.mathStyleName);
+    const localContext = new Context(context, this.style, this.mathstyleName);
     const span = Atom.render(localContext, this.body, {
-      type: this.spanType ?? 'mord',
+      type: this.spanType,
       classes: this.customClass,
       mode: this.mode,
       style: {
         backgroundColor: this.style.backgroundColor,
       },
-    }); // @revisit
+    });
+    if (!span) return span;
     if (this.cssId) span.cssId = this.cssId;
     if (this.htmlData) span.htmlData = this.htmlData;
     if (this.caret) span.caret = this.caret;

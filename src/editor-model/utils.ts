@@ -2,12 +2,12 @@ import type { ParseMode } from '../public/core';
 import type { Mathfield, Offset, Range, Selection } from '../public/mathfield';
 import { ModelPrivate } from './model-private';
 
-import type { MacroDictionary } from '../core-definitions/definitions';
 import type { Atom } from '../core/atom';
+import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
 export type ModelOptions = {
   mode: ParseMode;
-  macros: MacroDictionary;
+  macros: NormalizedMacroDictionary;
   removeExtraneousParentheses: boolean;
 };
 

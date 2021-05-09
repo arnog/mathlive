@@ -8,8 +8,7 @@ export function hashCode(s: string): number {
     const char = s.charCodeAt(i);
     hash = (hash << 5) - hash + char;
     hash &= hash; // Convert to 32bit integer
-    // hash &= hash; // Convert to 32bit integer
   }
 
-  return hash;
+  return Math.abs(hash);
 }

@@ -1,8 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import { addSVGOverlay, Span } from '../core/span';
 import { Context } from '../core/context';
-import { colorToString } from '../core/color';
 import { Style } from '../public/core';
 
 export type EncloseAtomOptions = {
@@ -87,8 +85,7 @@ export class EncloseAtom extends Atom {
       let style = '';
       let sep = '';
       if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
-        style +=
-          sep + 'mathbackground="' + colorToString(this.backgroundcolor) + '"';
+        style += sep + 'mathbackground="' + this.backgroundcolor + '"';
         sep = ',';
       }
 
@@ -101,7 +98,7 @@ export class EncloseAtom extends Atom {
         style += sep + this.borderStyle;
         sep = ',';
       } else if (this.strokeColor && this.strokeColor !== 'currentColor') {
-        style += sep + 'mathcolor="' + colorToString(this.strokeColor) + '"';
+        style += sep + 'mathcolor="' + this.strokeColor + '"';
         sep = ',';
       }
 
@@ -114,12 +111,14 @@ export class EncloseAtom extends Atom {
     return result;
   }
 
-  render(context: Context): Span {
+  render(parentContext: Context): Span {
+    const context = new Context(parentContext, this.style);
+
     const base = Atom.render(context, this.body);
 
     // Account for the padding
     const padding =
-      typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
+      typeof this.padding === 'number' ? this.padding : context.metrics.fboxSep;
 
     // The 'ML__notation' class is required to prevent the span from being omitted
     // during rendering (it looks like an empty, no-op span)
@@ -305,6 +304,6 @@ export class EncloseAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return result;
+    return result.wrap(context);
   }
 }

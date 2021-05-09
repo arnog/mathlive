@@ -1,6 +1,15 @@
 import { isArray } from '../common/types';
 
-import { MATHSTYLES, makeStruts, parseLatex, Atom } from '../core/core';
+import {
+  makeStruts,
+  parseLatex,
+  Atom,
+  coalesce,
+  Span,
+  Context,
+  MACROS,
+  adjustInterAtomSpacing,
+} from '../core/core';
 
 import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
@@ -268,14 +277,21 @@ function getNote(symbol: string): string {
   return result;
 }
 
-function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
-  const span = Atom.render(
-    {
-      mathstyle: MATHSTYLES.displaystyle,
-      macros: mf.options.macros,
-    },
-    parseLatex(latex, 'math', null, mf.options.macros),
-    { classes: 'ML__base' }
+function latexToMarkup(latex: string): string {
+  const span = coalesce(
+    adjustInterAtomSpacing(
+      new Span(
+        Atom.render(
+          new Context(
+            { macros: MACROS, smartFence: false },
+            null,
+            'displaystyle'
+          ),
+          parseLatex(latex, { parseMode: 'math', macros: MACROS })
+        ),
+        { classes: 'ML__base' }
+      )
+    )
   );
 
   return makeStruts(span, { classes: 'ML__mathlive' }).toMarkup();
@@ -292,7 +308,7 @@ export function showPopoverWithLatex(
   }
 
   const command = latex;
-  const commandMarkup = latexToMarkup(latex, mf);
+  const commandMarkup = latexToMarkup(latex);
   const commandNote = getNote(command);
   const keybinding = getKeybindingsForCommand(mf.keybindings, command).join(
     '<br>'

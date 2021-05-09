@@ -1368,8 +1368,8 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
       } else {
         expr.ast = { text: '?' };
         expr.ast.error = 'Unexpected token ' + "'" + atom.type + "'";
-        if (atom.latex) {
-          expr.ast.latex = atom.latex;
+        if (atom.verbatimLatex) {
+          expr.ast.latex = atom.verbatimLatex;
         }
       }
 
@@ -1704,10 +1704,10 @@ export function atomToMathJson(
         m = command.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
         if (m) {
           lhs = m[1].length === 1 ? m[1] : m[1].substr(1, m[1].length - 2);
-          lhs = parseLatex(lhs, 'math', null, options.macros);
+          lhs = parseLatex(lhs, { parseMode: 'math', onError: options.macros });
 
           rhs = m[2].length === 1 ? m[2] : m[2].substr(1, m[2].length - 2);
-          rhs = parseLatex(rhs, 'math', null, options.macros);
+          rhs = parseLatex(rhs, { parseMode: 'math', onError: options.macros });
 
           result = wrapFn('divide', parse(lhs, options), parse(rhs, options));
         } else {

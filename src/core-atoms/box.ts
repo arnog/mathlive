@@ -1,5 +1,4 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
 import { Span } from '../core/span';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
@@ -41,13 +40,15 @@ export class BoxAtom extends Atom {
     this.border = options.border;
   }
 
-  render(context: Context): Span {
+  render(parentContext: Context): Span {
+    const context = new Context(parentContext, this.style);
+
     // The padding extends outside of the base
     const padding =
-      typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
+      typeof this.padding === 'number' ? this.padding : context.metrics.fboxSep;
 
     // Base is the main content "inside" the box
-    const content = Atom.render(context, this.body);
+    const content = Atom.render(parentContext, this.body);
     content.setStyle('vertical-align', -content.height, 'em');
     const base = new Span(content, { type: 'mord' });
 
@@ -66,7 +67,7 @@ export class BoxAtom extends Atom {
       box.setStyle('width', '100%');
     } else {
       box.setStyle('width', `calc(100% + ${2 * padding}em)`);
-      box.setStyle('top', FONTMETRICS.fboxsep, 'em'); // empirical
+      box.setStyle('top', context.metrics.fboxSep, 'em'); // empirical
       box.setStyle('left', -padding, 'em');
     }
 
@@ -79,7 +80,7 @@ export class BoxAtom extends Atom {
     if (this.framecolor) {
       box.setStyle(
         'border',
-        `${FONTMETRICS.fboxrule}em solid ${this.framecolor}`
+        `${context.metrics.fboxRule}em solid ${this.framecolor}`
       );
     }
 
@@ -96,6 +97,7 @@ export class BoxAtom extends Atom {
     // over the base
     result.setStyle('position', 'relative');
     result.setStyle('display', 'inline-block');
+    result.setStyle('line-height', 0);
 
     // The padding adds to the width and height of the pod
     result.height = base.height + padding;
@@ -108,6 +110,6 @@ export class BoxAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return this.attachSupsub(context, result, result.type);
+    return this.attachSupsub(parentContext, { base: result });
   }
 }

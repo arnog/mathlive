@@ -91,9 +91,13 @@ import './mode-editor-text';
 
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
+import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
+import { hasPhysicalKeyboard } from '../common/capabilities';
+import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
 export class MathfieldPrivate implements Mathfield {
   model: ModelPrivate;
+  macros: NormalizedMacroDictionary;
   options: Required<MathfieldOptionsPrivate>;
 
   dirty: boolean; // If true, need to be redrawn
@@ -130,6 +134,9 @@ export class MathfieldPrivate implements Mathfield {
 
   mode: ParseMode;
   style: Style;
+
+  colorMap: (name: string) => string;
+  backgroundColorMap: (name: string) => string;
 
   keypressSound: HTMLAudioElement;
   spacebarKeypressSound: HTMLAudioElement;
@@ -178,6 +185,29 @@ export class MathfieldPrivate implements Mathfield {
             ...options,
           }
     );
+    this.macros = this.options.macros as NormalizedMacroDictionary;
+
+    this.colorMap = (name: string): string => {
+      let result: string;
+      if (typeof this.options.colorMap === 'function') {
+        result = this.options.colorMap(name);
+      }
+      if (!result) result = defaultColorMap(name);
+
+      return result ?? name;
+    };
+    this.backgroundColorMap = (name: string): string => {
+      let result: string;
+      if (typeof this.options.backgroundColorMap === 'function') {
+        result = this.options.backgroundColorMap(name);
+      }
+      if (!result && typeof this.options.colorMap === 'function') {
+        result = this.options.colorMap(name);
+      }
+      if (!result) result = defaultBackgroundColorMap(name);
+
+      return result ?? name;
+    };
 
     // The virtual keyboard can be either attached to this mathfield
     // or a delegate that mirrors a global virtual keyboard attached
@@ -242,12 +272,10 @@ export class MathfieldPrivate implements Mathfield {
     //         screen reader to read it
     // 5.1/ The aria-live region for announcements
     let markup = '';
-    const isTouchDevice =
-      globalThis.window?.matchMedia?.('(any-pointer: coarse)').matches ?? false;
     if (!this.options.substituteTextArea) {
-      // On Android, iOS or iPadOS don't use a `<textarea>`, which has the side
-      // effect of bringing up the OS virtual keyboard
-      markup += isTouchDevice
+      // If the device doesn't have a physical keyboard don't use a
+      // `<textarea>`, which has the side effect of bringing up the OS virtual keyboard
+      markup += !hasPhysicalKeyboard()
         ? `<span class='ML__textarea'>
                 <span class='ML__textarea__textarea'
                     tabindex="-1" role="textbox"
@@ -416,8 +444,7 @@ export class MathfieldPrivate implements Mathfield {
             requestUpdate(this);
           }, 0);
         },
-        copy: (ev: ClipboardEvent) =>
-          ModeEditor.onCopy(this.model.at(this.model.position).mode, this, ev),
+        copy: (ev: ClipboardEvent) => ModeEditor.onCopy(this, ev),
         paste: (ev: ClipboardEvent) => {
           // Ignore if in read-only mode
           if (this.options.readOnly) {
@@ -459,7 +486,7 @@ export class MathfieldPrivate implements Mathfield {
     this.model = new ModelPrivate(
       {
         mode: effectiveMode(this.options),
-        macros: this.options.macros,
+        macros: this.macros,
         removeExtraneousParentheses: this.options.removeExtraneousParentheses,
       },
       {
@@ -621,9 +648,34 @@ export class MathfieldPrivate implements Mathfield {
       this.virtualKeyboardToggle.classList.remove('is-visible');
     }
 
+    this.colorMap = (name: string): string => {
+      let result: string;
+      if (typeof this.options.colorMap === 'function') {
+        result = this.options.colorMap(name);
+      }
+      if (!result) result = defaultColorMap(name);
+
+      return result ?? name;
+    };
+    this.backgroundColorMap = (name: string): string => {
+      let result: string;
+      if (typeof this.options.backgroundColorMap === 'function') {
+        result = this.options.backgroundColorMap(name);
+      }
+      if (!result && typeof this.options.colorMap === 'function') {
+        result = this.options.colorMap(name);
+      }
+      if (!result) result = defaultBackgroundColorMap(name);
+
+      return result ?? name;
+    };
+
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
-    const content = Atom.toLatex(this.model.root, { expandMacro: false });
+    const content = Atom.toLatex(this.model.root, {
+      expandMacro: false,
+      defaultMode: this.options.defaultMode,
+    });
     if (this.model.getValue() !== content) {
       ModeEditor.insert('math', this.model, content, {
         insertionMode: 'replaceAll',
@@ -842,7 +894,13 @@ export class MathfieldPrivate implements Mathfield {
       mode = getMode(this.model, this.model.position);
     }
 
-    if (ModeEditor.insert(mode, this.model, value, options)) {
+    if (
+      ModeEditor.insert(mode, this.model, value, {
+        ...options,
+        colorMap: this.colorMap,
+        backgroundColorMap: this.backgroundColorMap,
+      })
+    ) {
       this.undoManager.snapshot(this.options);
       requestUpdate(this);
     }
@@ -901,6 +959,7 @@ export class MathfieldPrivate implements Mathfield {
     if (typeof text === 'string') {
       const oldValue = Atom.toLatex(this.model.root, {
         expandMacro: false,
+        defaultMode: this.options.defaultMode,
       });
       if (text !== oldValue) {
         options = options ?? { mode: 'math' };
@@ -920,7 +979,10 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     // Return the content as LaTeX
-    return Atom.toLatex(this.model.root, { expandMacro: false });
+    return Atom.toLatex(this.model.root, {
+      expandMacro: false,
+      defaultMode: this.options.defaultMode,
+    });
   }
 
   /** @deprecated */
@@ -1027,12 +1089,9 @@ export class MathfieldPrivate implements Mathfield {
         this.smartModeSuppressed =
           /text|math/.test(this.mode) && /text|math/.test(mode);
         if (prefix) {
-          const atoms = parseLatex(
-            prefix,
-            { math: 'text', text: 'math' }[mode],
-            null,
-            null
-          );
+          const atoms = parseLatex(prefix, {
+            parseMode: { math: 'text', text: 'math' }[mode],
+          });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
@@ -1067,6 +1126,7 @@ export class MathfieldPrivate implements Mathfield {
                 .filter((x) => !(x instanceof PlaceholderAtom)),
               {
                 expandMacro: false,
+                defaultMode: this.options.defaultMode,
               }
             );
             cursor = model.at(selRange[0]);
@@ -1090,12 +1150,9 @@ export class MathfieldPrivate implements Mathfield {
         }
 
         if (suffix) {
-          const atoms = parseLatex(
-            suffix,
-            { math: 'text', text: 'math' }[mode],
-            null,
-            null
-          );
+          const atoms = parseLatex(suffix, {
+            parseMode: { math: 'text', text: 'math' }[mode],
+          });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(

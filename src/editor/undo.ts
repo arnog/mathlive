@@ -102,7 +102,10 @@ export class UndoManager {
     this.stack.splice(this.index + 1, this.stack.length - this.index - 1);
     // Add a new entry
     this.stack.push({
-      latex: Atom.toLatex(this.model.root, { expandMacro: false }),
+      latex: Atom.toLatex(this.model.root, {
+        expandMacro: false,
+        defaultMode: this.model.mathfield.options.defaultMode,
+      }),
       selection: this.model.selection,
     });
 
@@ -136,7 +139,10 @@ export class UndoManager {
    */
   save(): UndoRecord {
     return {
-      latex: Atom.toLatex(this.model.root, { expandMacro: false }),
+      latex: Atom.toLatex(this.model.root, {
+        expandMacro: false,
+        defaultMode: this.model.mathfield.options.defaultMode,
+      }),
       selection: this.model.selection,
     };
   }

@@ -1,22 +1,150 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The `FontSize` type is now an integer between 1 and 10. It previously was
+  `size1`, `size2`, etc... The default font size is `5`, the smallest is `1`.
+  However, when using `applyStyle()`, the size can still be specified with
+  `size1`, etc... The following size values can also be used: `tiny`,
+  `scriptsize`, `footnotesize`, `small`, `normal` or `normalSize`, `large`,
+  `Large`, `LARGE`, `huge`, `Huge`.
+- Previously, named colors (`yellow`, `red`...) mapped to the `dvips` color set.
+  They can now map to different values to improve their legibility. To ensure
+  that a particular color is used, specify the colors as a hex triplet
+  (`#dd2233`). See also the `colorMap` option.
+
+  The following color names are recommended: they will map to values that have
+  been optimized for legibility as a foreground or background color, they cover
+  all the hues of the color circle and have been adjusted to provide similar
+  apparent brightness and intensity:
+
+  - colors: `orange`, `yellow`, `lime`, `green`, `teal`, `blue`, `indigo`,
+    `purple`, `magenta`
+  - shades of grey: `black`, `dark-grey`, `grey`, `light-grey`, `white`
+
+### New Features
+
+- The background of fractions, radicals and parentheses group (`\left`/`\right`
+  commands) is now highlited when they contain the caret. This makes it easier
+  to distinguish some cases when the cursor is at the edge of the element and
+  could be either inside or outside. The appearance of the highliting can be
+  controlled with the `--contains-highlight` CSS variable. Set it to
+  `transparent` to restore the previous behavior.
+
+- **`colorMap` option**. To map a color name such as "yellow" to a custom RGB
+  color, set the `colorMap` or `backgroundColorMap` option to a function that
+  takes the color name as an argument and return a matching CSS RGB string.
+  Return `undefined` to proceed with the default mapping.
+
+- In macro dictionary, added option to expand or not the macro when using the
+  `latex-expanded` output format (when copying to the clipboard, for example).
+
+- Added the `\overunderset{}{}{}` command.
+
+- Added the `\lparen` and `\rparen` delimiters.
+
+- Added the `\mod`, `\pmod` and `\bmod` commands, defined as macros.
+
+- Added support for dashed column separators in matrix, using ":" in the matrix
+  preamble. See the
+  [arydshln](https://mirrors.ircam.fr/pub/CTAN/macros/latex/contrib/arydshln/arydshln.pdf)
+  package.
+
+- Added support for optional below argument to `\stackrel` and `\stackbin` as
+  per the
+  [stackrel package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/oberdiek/stackrel.pdf)
+
+### Layout Improvements
+
+- Substantial rewrite of the stacked layout algorithm (fractions, superscripts,
+  etc...). The previous algorithm did not work correctly when mixing absolute
+  sizing commands (`\Huge`) and relative ones (`\scriptstyle`) and had various
+  issues and inconsistenceis with what TeX produced. The result is now close to
+  TeX.
+
+![](assets/mathlive-0.64.jpg)
+
+- Display the placeholder symbol using the caret color.
+
+- Added the `--smart-fence-opacity` and `--smart-fence-color` CSS variables.
+
+- In the layout of superscript/subscript and accents, use the correct font
+  metrics for spacing and layout (previously, the font metric for the base size
+  was always used). This may result in very slightly different placement of
+  superscripts, subscripts and limits (but closer to TeX).
+
+- Fixed cases where the inter-atom spacing was incorrect (when spacing atoms or
+  super/subscripts were used with a binary atom, or when some other atom types
+  were used, such as BoxAtom and more).
+
+### Clipboard Improvements
+
+- When pasting from the clipboard, recognize text bracketed with
+  `\begin{math}`...`\end{math}` or `\begin{displaymath}`...`\end{displaymath}`
+  as LaTeX (in additon to `$`, `$$`, `\[`...`\]` and `\(`...`\)` which were
+  recognized before). Also, recognize text that may contain a Latex expression
+  surrounded by regular text (i.e. "if $x > 0$").
+
+- When pasting ASCIIMath, recognize more expression using standard functions
+  such as the trig functions.
+
+- Recognize text content surrounded with "`" (backtick) delimiters as ASCII
+  Math.
+
+- When copying to the clipboard, roundtrip verbatim latex when available, i.e.
+  the content of the clipboard will be exactly what has been pasted in if the
+  formula has not been edited.
+
+### Other Improvements
+
+- The default color mapping function now returns different values when used as a
+  line color or as a background color. This improves the legibility of colors.
+  See
+  [MathLive Guide: Customizing](https://cortexjs.io/mathlive/guides/customizing/).
+
+- Paste operations are now undoable.
+
+### Architecture
+
+- Avoid generating unnecessary empty span for limits and other constructs.
+
+- Avoid repeating color attributes on child elements by lifting them to an
+  appropriate parent. As a consequence, when a background color is applied it is
+  displayed more uniformly than previously.
+
+- Reduced the size of the font-metrics table.
+
+- Increased the number of automated and static tests.
+
 ### Bug Fixes
 
 - The size and spacing of fractions in superscript did not match the TeX layout.
 - Correctly apply TeX inter-atom spacing rules as per TeXBook p. 270. The
   spacing of two consecutive binary atoms (e.g. `+-`) was incorrect, as well as
   some other combinations.
-- Correctly render `\sqrt` when a mathstyle is applied
-- Correctly render `\placeholder` when a mathstyle is applied
+- Correctly render `\sqrt`, `\placeholder` and many other atoms when a mathstyle
+  is applied with commands such as `\textstyle`, `\scriptstyle`, etc...
 - Correctly render selection rectangle of accent commands (`\widehat`).
 - If a document called `renderMathInDocument()` and the document contained a
   mathfield with a value that contained exclusively an environment, the
-  mathfield would not render (the `\begin()` would be incorrectly rendered by
+  mathfield would not render (the `\begin{}` would be incorrectly rendered by
   `renderMathInDocument()`).
+- When using `renderMathInElement()` or `renderMathInDocument()` use the same
+  default `letterShapeStyle` as when using a mathfield, that is, `french` if the
+  locale is French, `tex` otherwise.
 - Fixed verbatim latex: when the value of the mathfield is set, if it is not
   modified, `getValue('latex')` will return exactly what was input.
 - Fixed latex output of `\exponentialE`: when a superscript/subscript was
   applied to a macro, the latex output would become blank.
+- Math characters with a bold italic style were displayed in regular italic.
+- An input consisting of only `\scriptstyle` would crash.
+- Allow navigation inside an empty `skipBoundary` atom.
+- After a copy (command/control+C) command, the content of clipboard was
+  incorrect if the end of the selection included some content in text mode.
+- When rendering a placeholder in static mode, use a non-breaking space instead
+  of nothing, which helps preserve a more accurate layout in some cases (for
+  example in `\sqrt[\placeholder{}}{x}`
+- Rules (e.g. from `\rule{}{}`) were not clickable and did not appear selected.
 
 ## 0.63.1 (2021-04-24)
 

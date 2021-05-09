@@ -3,6 +3,8 @@ import type { ModelPrivate } from './model-private';
 import { Range } from '../public/mathfield';
 import { Style } from '../public/core';
 import { isArray } from '../common/types';
+import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
+import { PrivateStyle } from '../core/context';
 
 export function applyStyleToUnstyledAtoms(
   atom: Atom | Atom[],
@@ -44,15 +46,17 @@ export function applyStyleToUnstyledAtoms(
 export function applyStyle(
   model: ModelPrivate,
   range: Range,
-  style: Style,
+  style: PrivateStyle,
   options: { operation: 'set' | 'toggle' }
 ): boolean {
-  function everyStyle(property, value): boolean {
-    let result = true;
+  function everyStyle(
+    property: keyof PrivateStyle,
+    value: string | number
+  ): boolean {
     for (const atom of atoms) {
-      result = result && atom.style[property] === value;
+      if (atom.style[property] !== value) return false;
     }
-    return result;
+    return true;
   }
 
   range = model.normalizeRange(range);
@@ -64,6 +68,7 @@ export function applyStyle(
     if (style.color && everyStyle('color', style.color)) {
       // If the selection already has this color, turn it off
       style.color = 'none';
+      style.verbatimColor = undefined;
     }
 
     if (
@@ -72,6 +77,7 @@ export function applyStyle(
     ) {
       // If the selection already has this color, turn it off
       style.backgroundColor = 'none';
+      style.verbatimBackgroundColor = undefined;
     }
 
     if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
@@ -94,7 +100,7 @@ export function applyStyle(
     // If (style.size) style.fontSize = style.size;
     if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
       // If the selection already has this size, reset it to default size
-      style.fontSize = 'size5';
+      style.fontSize = DEFAULT_FONT_SIZE;
     }
   }
 

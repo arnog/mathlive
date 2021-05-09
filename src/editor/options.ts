@@ -3,7 +3,10 @@ import type { MathfieldOptions } from '../public/options';
 import { isArray } from '../common/types';
 
 import type { Atom } from '../core/atom';
-import { MACROS } from '../core-definitions/definitions';
+import {
+  MACROS,
+  normalizeMacroDictionary,
+} from '../core-definitions/definitions';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { l10n } from './l10n';
@@ -11,6 +14,7 @@ import { defaultAnnounceHook } from './a11y';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { resolveRelativeUrl } from '../common/script-url';
+import { isTouchCapable } from '../common/capabilities';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -100,6 +104,7 @@ export function update(
         }
 
         break;
+
       case 'locale':
         result.locale =
           updates.locale === 'auto'
@@ -107,23 +112,23 @@ export function update(
             : updates.locale;
         l10n.locale = result.locale;
         break;
+
       case 'strings':
         l10n.merge(updates.strings);
         result.strings = l10n.strings;
         break;
+
       case 'virtualKeyboardLayout':
         result.virtualKeyboardLayout = updates.virtualKeyboardLayout;
         break;
+
       case 'virtualKeyboardMode':
-        {
-          const isTouchDevice = window.matchMedia?.('(any-pointer: coarse)')
-            .matches;
-          if (updates.virtualKeyboardMode === 'auto') {
-            result.virtualKeyboardMode = isTouchDevice ? 'onfocus' : 'off';
-          } else {
-            result.virtualKeyboardMode = updates.virtualKeyboardMode;
-          }
+        if (updates.virtualKeyboardMode === 'auto') {
+          result.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
+        } else {
+          result.virtualKeyboardMode = updates.virtualKeyboardMode;
         }
+
         break;
 
       case 'customVirtualKeyboardLayers':
@@ -153,10 +158,12 @@ export function update(
         }
 
         break;
+
       case 'plonkSound':
         unloadSound(result.plonkSound);
         result.plonkSound = loadSound(soundsDirectory, updates.plonkSound);
         break;
+
       case 'keypressSound':
         if (
           typeof result.keypressSound === 'object' &&
@@ -211,6 +218,11 @@ export function update(
       case 'virtualKeyboardContainer':
         result.virtualKeyboardContainer = updates.virtualKeyboardContainer;
         break;
+
+      case 'macros':
+        result.macros = normalizeMacroDictionary(updates.macros);
+        break;
+
       case 'onBlur':
       case 'onFocus':
       case 'onContentWillChange':
@@ -302,8 +314,10 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
     defaultMode: 'math',
     macros: MACROS,
+    colorMap: null,
+    backgroundColorMap: null,
     horizontalSpacingScale: 1,
-    letterShapeStyle: 'auto',
+    letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
 
     smartMode: false,
     smartFence: true,

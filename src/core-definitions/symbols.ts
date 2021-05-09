@@ -262,6 +262,8 @@ defineSymbol('\\gimel', '\u2137', 'mord', 'ams');
 
 defineSymbol('\\lbrace', '{', 'mopen');
 defineSymbol('\\rbrace', '}', 'mclose');
+defineSymbol('\\lparen', '(', 'mopen');
+defineSymbol('\\rparen', ')', 'mclose');
 defineSymbol('\\langle', '\u27E8', 'mopen');
 defineSymbol('\\rangle', '\u27E9', 'mclose');
 defineSymbol('\\lfloor', '\u230A', 'mopen');

@@ -29,11 +29,14 @@ class ChemAtom extends Atom {
     );
 
     this.body = parseLatex(tex);
-    this.latex = command + '{' + arg + '}';
+    this.verbatimLatex = command + '{' + arg + '}';
     this.captureSelection = true;
   }
   render(context: Context): Span {
-    const span = Atom.render(context, this.body, { type: 'chem' });
+    const span = Atom.render(context, this.body, {
+      type: 'chem',
+      newList: true,
+    });
 
     if (this.caret) span.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
@@ -42,7 +45,7 @@ class ChemAtom extends Atom {
     return this.bind(context, span);
   }
   toLatex(_options: ToLatexOptions): string {
-    return this.latex;
+    return this.verbatimLatex;
   }
 }
 

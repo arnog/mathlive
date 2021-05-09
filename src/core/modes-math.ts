@@ -1,5 +1,4 @@
 /* eslint-disable no-new */
-import { colorToString } from './color';
 import {
   getInfo,
   mathVariantToUnicode,
@@ -9,6 +8,7 @@ import { joinLatex } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import { Style } from '../public/core';
 import { Span } from './span';
+import { BoxAtom } from '../core-atoms/box';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -18,7 +18,7 @@ const VARIANTS: Record<string, [string, string]> = {
   'main': ['Main-Regular', 'ML__cmr'],
   'main-italic': ['Main-Italic', 'ML__cmr ML__it'],
   'main-bold': ['Main-Bold', 'ML__cmr ML__bold'],
-  'main-bolditalic': ['Main-BoldItalic', 'ML__cmr ML_bold ML__it'],
+  'main-bolditalic': ['Main-BoldItalic', 'ML__cmr ML__bold ML__it'],
 
   'normal': ['Main-Regular', 'ML__cmr'], // 'main' font. There is no 'math' regular (upright)
   'normal-bold': ['Main-Bold', 'ML__mathbf'], // 'main' font. There is no 'math' bold
@@ -112,7 +112,7 @@ export class MathMode extends Mode {
     }
 
     if (command.startsWith('\\')) {
-      result.latex = command;
+      result.verbatimLatex = command;
     }
 
     return result;
@@ -120,14 +120,72 @@ export class MathMode extends Mode {
 
   toLatex(run: Atom[], options: ToLatexOptions): string {
     const { parent } = run[0];
+    const contextFontsize = parent?.computedStyle.fontSize;
+    return joinLatex(
+      getPropertyRuns(run, 'fontSize').map((x) => {
+        const result = this.emitBackgroundColorRun(x, options);
+        const fontsize = x[0].computedStyle.fontSize;
+        if (fontsize && (!parent || contextFontsize !== fontsize)) {
+          return (
+            '\\' +
+            [
+              '',
+              'tiny',
+              'scriptsize',
+              'footnotesize',
+              'small',
+              'normalsize',
+              'large',
+              'Large',
+              'LARGE',
+              'huge',
+              'Huge',
+            ][fontsize] +
+            ' ' +
+            result
+          );
+        }
+        return result;
+      })
+    );
+  }
+
+  emitBackgroundColorRun(run: Atom[], options: ToLatexOptions): string {
+    const { parent } = run[0];
+    const parentColor = parent?.computedStyle.backgroundColor;
+    return joinLatex(
+      getPropertyRuns(run, 'backgroundColor').map((x) => {
+        let result = this.emitColorRun(x, options);
+        const style = x[0].computedStyle;
+        if (
+          style.backgroundColor &&
+          (!parent || parentColor !== style.backgroundColor) &&
+          (x.length > 0 || !(x[0] instanceof BoxAtom))
+        ) {
+          if (options.defaultMode === 'inline-math') {
+            result = `\\( ${result} \\)`;
+          } else {
+            result = `\\[ ${result} \\]`;
+          }
+          result = `\\colorbox{${
+            style.verbatimBackgroundColor ?? style.backgroundColor
+          }}{${result}}`;
+        }
+        return result;
+      })
+    );
+  }
+
+  emitColorRun(run: Atom[], options: ToLatexOptions): string {
+    const { parent } = run[0];
     const parentMode = parent?.mode ?? 'math';
-    const contextValue = variantString(parent);
+    const contextVariant = variantString(parent);
     const contextColor = parent?.computedStyle.color;
     return joinLatex(
       getPropertyRuns(run, 'color').map((x) => {
         const result = joinLatex(
           getPropertyRuns(x, 'variant').map((x) => {
-            const value = variantString(x[0]);
+            const variant = variantString(x[0]);
             // Check if all the atoms in this run have a base
             // variant identical to the current variant
             // If so, we can skip wrapping them
@@ -136,14 +194,14 @@ export class MathMode extends Mode {
                 const info = getInfo(x.command, parentMode, null);
                 if (!info || !info.variant) return false;
 
-                return variantString(x) === value;
+                return variantString(x) === variant;
               })
             ) {
               return joinLatex(x.map((x) => Atom.toLatex(x, options)));
             }
 
             let command = '';
-            if (value && value !== contextValue) {
+            if (variant && variant !== contextVariant) {
               command = {
                 'calligraphic': '\\mathcal{',
                 'fraktur': '\\mathfrak{',
@@ -168,7 +226,7 @@ export class MathMode extends Mode {
                 // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
                 // In addition, the 'main' and 'math' font technically
                 // map to \mathnormal{}
-              }[value];
+              }[variant];
               console.assert(command !== undefined);
             }
 
@@ -181,7 +239,11 @@ export class MathMode extends Mode {
         const style = x[0].computedStyle;
         if (style.color && (!parent || contextColor !== style.color)) {
           return (
-            '\\textcolor{' + colorToString(style.color) + '}{' + result + '}'
+            '\\textcolor{' +
+            (style.verbatimColor ?? style.color) +
+            '}{' +
+            result +
+            '}'
           );
         }
 

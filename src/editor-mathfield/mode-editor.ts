@@ -1,9 +1,13 @@
 import { TextAtom } from '../core-atoms/text';
 import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
+import { MODE_SHIFT_COMMANDS } from '../editor/parse-math-string';
 import { ParseMode } from '../public/core';
 import { InsertOptions, Range } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
+
+const CLIPBOARD_LATEX_BEGIN = '\\begin{equation*}';
+const CLIPBOARD_LATEX_END = '\\end{equation*}';
 
 export class ModeEditor {
   static _registry: Record<string, ModeEditor> = {};
@@ -47,16 +51,30 @@ export class ModeEditor {
           .join('')
       );
     } else {
-      ev.clipboardData.setData(
-        'text/plain',
-        '\\[ ' + mathfield.getValue(value, 'latex-expanded') + ' \\]'
-      );
+      let content: string;
+      if (atoms.length === 1 && atoms[0].verbatimLatex) {
+        content = atoms[0].verbatimLatex;
+      }
+      if (!content) {
+        content = mathfield.getValue(value, 'latex-expanded');
+      }
+
+      ev.clipboardData.setData('application/x-latex', content);
+      // Add a wrapper around the Latex, if necessary
+      if (
+        !MODE_SHIFT_COMMANDS.some(
+          (x) => content.startsWith(x[0]) && content.endsWith(x[1])
+        )
+      ) {
+        content = `${CLIPBOARD_LATEX_BEGIN} ${content} ${CLIPBOARD_LATEX_END}`;
+      }
+      ev.clipboardData.setData('text/plain', content);
       ev.clipboardData.setData(
         'application/json',
         mathfield.getValue(value, 'math-json')
       );
       ev.clipboardData.setData(
-        'application/xml',
+        'application/mathml+xml',
         mathfield.getValue(value, 'math-ml')
       );
     }

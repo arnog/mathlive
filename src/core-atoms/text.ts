@@ -6,19 +6,19 @@ import { charToLatex } from '../core-definitions/definitions-utils';
 
 export class TextAtom extends Atom {
   constructor(command: string, value: string, style: Style) {
-    super('text', { command, mode: 'text' });
+    super('text', { command, mode: 'text', displayContainsHighlight: true });
     this.value = value;
-    this.latex = value;
+    this.verbatimLatex = value;
     this.applyStyle(style);
   }
 
   render(context: Context): Span {
-    const result = this.makeSpan(context, this.value);
+    const result = this.makeSpan(context);
     if (this.caret) result.caret = this.caret;
     return result;
   }
 
   toLatex(_options: ToLatexOptions): string {
-    return this.latex ?? charToLatex('text', this.value);
+    return this.verbatimLatex ?? charToLatex('text', this.value);
   }
 }

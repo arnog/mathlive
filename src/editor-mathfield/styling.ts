@@ -2,12 +2,13 @@ import { Style, FontSeries, FontShape, FontSize } from '../public/core';
 import { MathfieldPrivate } from './mathfield-private';
 import { applyStyle as applyStyleToModel } from '../editor-model/styling';
 import { register as registerCommand } from '../editor/commands';
+import { PrivateStyle } from '../core/context';
 
 export function applyStyle(
   mathfield: MathfieldPrivate,
   inStyle: Style
 ): boolean {
-  const style = validateStyle(inStyle);
+  const style = validateStyle(mathfield, inStyle);
   mathfield.resetKeystrokeBuffer();
   const { model } = mathfield;
   if (model.selectionIsCollapsed) {
@@ -58,15 +59,24 @@ registerCommand({ applyStyle }, { target: 'mathfield' });
 /**
  * Validate a style specification object
  */
-function validateStyle(style: Record<string, any>): Style {
-  const result: Style = {};
+function validateStyle(
+  mathfield: MathfieldPrivate,
+  style: Record<string, any>
+): PrivateStyle {
+  const result: PrivateStyle = {};
 
   if (typeof style.color === 'string') {
-    result.color = style.color;
+    if (!result.verbatimColor) result.verbatimColor = style.color;
+    result.color = mathfield.colorMap(style.color);
   }
 
   if (typeof style.backgroundColor === 'string') {
-    result.backgroundColor = style.backgroundColor;
+    if (!result.verbatimBackgroundColor) {
+      result.verbatimBackgroundColor = style.backgroundColor;
+    }
+    result.backgroundColor = mathfield.backgroundColorMap(
+      style.backgroundColor
+    );
   }
 
   if (typeof style.fontFamily === 'string') {
@@ -108,34 +118,37 @@ function validateStyle(style: Record<string, any>): Style {
       }[result.fontShape] || result.fontShape;
   }
 
-  if (typeof style.size === 'string') {
-    result.fontSize = style.size as FontSize;
-  } else if (typeof style.size === 'number') {
-    result.fontSize = `size${Math.min(
-      0,
-      Math.max(10, style.size)
-    )}` as FontSize;
-  }
+  const size = style.size ?? style.fontSize;
 
-  if (typeof style.fontSize === 'string') {
-    result.fontSize = style.fontSize.toLowerCase() as FontSize;
-  }
-
-  if (result.fontSize) {
+  if (typeof size === 'number') {
+    result.fontSize = Math.min(1, Math.max(10, size)) as FontSize;
+  } else if (typeof size === 'string') {
     result.fontSize =
-      {
-        tiny: 'size1',
-        scriptsize: 'size2',
-        footnotesize: 'size3',
-        small: 'size4',
-        normal: 'size5',
-        normalsize: 'size5',
-        large: 'size6',
-        Large: 'size7',
-        LARGE: 'size8',
-        huge: 'size9',
-        Huge: 'size10',
-      }[result.fontSize] || result.fontSize;
+      ({
+        size1: 1,
+        size2: 2,
+        size3: 3,
+        size4: 4,
+        size5: 5,
+        size6: 6,
+        size7: 7,
+        size8: 8,
+        size9: 9,
+        size10: 10,
+      }[size.toLowerCase()] as FontSize) ??
+      ({
+        tiny: 1,
+        scriptsize: 2,
+        footnotesize: 3,
+        small: 4,
+        normal: 5,
+        normalsize: 5,
+        large: 6,
+        Large: 7,
+        LARGE: 8,
+        huge: 9,
+        Huge: 10,
+      }[size] as FontSize);
   }
 
   return result;

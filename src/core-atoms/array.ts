@@ -5,33 +5,51 @@ import {
   isNamedBranch,
   ToLatexOptions,
 } from '../core/atom-class';
-import { makeVlist, Span } from '../core/span';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
+import { Span } from '../core/span';
+import { Stack, StackElementAndShift } from '../core/stack';
 import { makeLeftRightDelim } from '../core/delimiters';
-import { MathStyleName, MATHSTYLES } from '../core/mathstyle';
+import { MathstyleName } from '../core/mathstyle';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
 import { PlaceholderAtom } from './placeholder';
+import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
 
-/** `Colspec` defines the format of a column */
-export type Colspec = {
-  // The width of a gap between columns, or a Latex expression between columns
-  gap?: number | Atom[];
-  // 'm' is a special alignement for multline: left on first row, right on last
-  // row, centered otherwise
-  align?: 'l' | 'c' | 'r' | 'm';
-  rule?: boolean;
-};
+export type ColumnFormat =
+  | {
+      // A regular content column, with the specified alignment.
+      // 'm' is a special alignement for multline: left on first row, right on last
+      // row, centered otherwise
+      align?: 'l' | 'c' | 'r' | 'm';
+    }
+  | {
+      // The width of a gap between columns, or a Latex expression between columns
+      gap?: number | Atom[];
+    }
+  | {
+      // A rule (line) separating columns
+      separator?: 'solid' | 'dashed';
+    };
+
+export type ColSeparationType =
+  | 'align'
+  | 'alignat'
+  | 'gather'
+  | 'small'
+  | 'CD'
+  | undefined;
 
 export type ArrayAtomConstructorOptions = {
   // Params: FunctionArgumentDefiniton[];
   // parser: ParseFunction;
-  mathStyleName?: MathStyleName;
-  colFormat?: Colspec[];
+  mathstyleName?: MathstyleName;
+  columns?: ColumnFormat[];
+  colSeparationType?: ColSeparationType;
   leftDelim?: string;
   rightDelim?: string;
-  jot?: number; // Jot is an extra gap between lines of numbered equation.
+  // Jot is an extra gap between lines of numbered equation.
   // It's 3pt by default in LaTeX (ltmath.dtx:181)
+  jot?: number;
+  // A multiplication factor applied to the spacing between rows and columns
   arraystretch?: number;
   arraycolsep?: number;
 };
@@ -80,7 +98,7 @@ type ArrayRow = {
 function normalizeArray(
   atom: ArrayAtom,
   array: Atom[][][],
-  colFormat: Colspec[]
+  colFormat: ColumnFormat[]
 ): Atom[][][] {
   //
   // 1/
@@ -93,7 +111,7 @@ function normalizeArray(
   // The number of column is determined by the colFormat
   let maxColCount = 0;
   for (const colSpec of colFormat) {
-    if (colSpec.align) maxColCount += 1;
+    if ('align' in colSpec) maxColCount += 1;
   }
   // Actual number of columns (at most `maxColCount`)
   let colCount = 0;
@@ -169,17 +187,19 @@ function normalizeArray(
   return result;
 }
 
+// See http://ctan.math.utah.edu/ctan/tex-archive/macros/latex/base/lttab.dtx
 export class ArrayAtom extends Atom {
   array: Atom[][][];
   environmentName: string;
   rowGaps: number[];
-  colFormat: Colspec[];
+  colFormat: ColumnFormat[];
   arraystretch?: number;
   arraycolsep?: number;
+  colSeparationType?: ColSeparationType;
   jot?: number;
   leftDelim?: string;
   rightDelim?: string;
-  mathStyleName?: MathStyleName;
+  mathstyleName?: MathstyleName;
 
   constructor(
     envName: string,
@@ -190,13 +210,13 @@ export class ArrayAtom extends Atom {
     super('array');
     this.environmentName = envName;
     this.rowGaps = rowGaps;
-    if (options.mathStyleName) this.mathStyleName = options.mathStyleName;
+    if (options.mathstyleName) this.mathstyleName = options.mathstyleName;
 
-    if (options.colFormat) {
-      if (options.colFormat.length === 0) {
+    if (options.columns) {
+      if (options.columns.length === 0) {
         this.colFormat = [{ align: 'l' }];
       } else {
-        this.colFormat = options.colFormat;
+        this.colFormat = options.columns;
       }
     }
     // The TeX definition is that arrays by default have a maximum
@@ -222,6 +242,9 @@ export class ArrayAtom extends Atom {
     if (options.rightDelim) this.rightDelim = options.rightDelim;
     if (options.jot !== undefined) this.jot = options.jot;
     if (options.arraycolsep) this.arraycolsep = options.arraycolsep;
+    this.colSeparationType = options.colSeparationType;
+    // Default \arraystretch from lttab.dtx
+    this.arraystretch = options.arraystretch ?? 1.0;
   }
 
   branch(cell: Branch): Atom[] | null {
@@ -292,75 +315,90 @@ export class ArrayAtom extends Atom {
   render(context: Context): Span | null {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
     // and http://tug.ctan.org/macros/latex/base/lttab.dtx
-    const { colFormat } = this;
 
-    const mathstyle = this.mathStyleName
-      ? MATHSTYLES[this.mathStyleName]
-      : context.mathstyle;
+    const innerContext = new Context(context, this.style, this.mathstyleName);
+
     // Row spacing
-    // Default \arraystretch from lttab.dtx
-    const arraystretch = this.arraystretch || 1;
-    const arraycolsep =
+    const arraystretch = this.arraystretch;
+    let arraycolsep =
       typeof this.arraycolsep === 'number'
         ? this.arraycolsep
-        : FONTMETRICS.arraycolsep;
-    const arrayskip = arraystretch * FONTMETRICS.baselineskip;
+        : context.metrics.arrayColSep;
+    if (this.colSeparationType === 'small') {
+      // We're in a {smallmatrix}. Default column space is \thickspace,
+      // i.e. 5/18em = 0.2778em, per amsmath.dtx for {smallmatrix}.
+      // But that needs adjustment because LaTeX applies \scriptstyle to the
+      // entire array, including the colspace, but this function applies
+      // \scriptstyle only inside each element.
+      const localMultiplier = new Context(context, null, 'scriptstyle')
+        .scalingFactor;
+      arraycolsep = 0.2778 * (localMultiplier / context.scalingFactor);
+    }
+    const arrayskip = arraystretch * BASELINE_SKIP;
     const arstrutHeight = 0.7 * arrayskip;
     const arstrutDepth = 0.3 * arrayskip; // \@arstrutbox in lttab.dtx
     let totalHeight = 0;
-    let nc = 0;
     const body = [];
+    let nc = 0;
     const nr = this.array.length;
     for (let r = 0; r < nr; ++r) {
       const inrow = this.array[r];
       nc = Math.max(nc, inrow.length);
-      let height = arstrutHeight; // \@array adds an \@arstrut
-      let depth = arstrutDepth; // To each row (via the template)
+      // The "inner" is in mathstyleName. Create a **new** context for the
+      // cells, with the same mathstyleName, but this will prevent the
+      // style correction from being applied twice
+      const cellContext = new Context(
+        innerContext,
+        this.style,
+        this.mathstyleName
+      );
+      let height = arstrutHeight / cellContext.scalingFactor; // \@array adds an \@arstrut
+      let depth = arstrutDepth / cellContext.scalingFactor; // To each row (via the template)
       const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
-      const rowContext = context.withMathstyle(this.mathStyleName);
       for (const element of inrow) {
-        const elt = Atom.render(rowContext, element) ?? new Span(null);
+        const elt =
+          Atom.render(cellContext, element, { newList: true }) ??
+          new Span(null, { newList: true });
         depth = Math.max(depth, elt.depth);
         height = Math.max(height, elt.height);
         outrow.cells.push(elt);
       }
 
-      let jot = r === nr - 1 ? 0 : this.jot ?? 0;
-      if (this.rowGaps?.[r]) {
-        jot = this.rowGaps[r];
-        if (jot > 0) {
-          // \@argarraycr
-          jot += arstrutDepth;
-          if (depth < jot) {
-            depth = jot; // \@xargarraycr
-          }
+      let gap = this.rowGaps[r] ?? 0;
+      if (gap > 0) {
+        // \@argarraycr
+        gap += arstrutDepth;
+        depth = Math.max(depth, gap); // \@xargarraycr
 
-          jot = 0;
-        }
+        gap = 0;
+      }
+
+      if (this.jot !== undefined) {
+        depth += this.jot;
       }
 
       outrow.height = height;
       outrow.depth = depth;
       totalHeight += height;
       outrow.pos = totalHeight;
-      totalHeight += depth + jot; // \@yargarraycr
+      totalHeight += depth + gap; // \@yargarraycr
       body.push(outrow);
     }
 
-    const offset = totalHeight / 2 + mathstyle.metrics.axisHeight;
+    const offset = totalHeight / 2 + AXIS_HEIGHT;
     const contentCols = [];
     for (let colIndex = 0; colIndex < nc; colIndex++) {
-      const col: [Span, number][] = [];
+      const stack: StackElementAndShift[] = [];
       for (const row of body) {
         const element = row.cells[colIndex];
         element.depth = row.depth;
         element.height = row.height;
 
-        col.push([element, row.pos - offset]);
+        stack.push({ span: element, shift: row.pos - offset });
       }
 
-      if (col.length > 0) {
-        contentCols.push(makeVlist(context, col, 'individualShift'));
+      if (stack.length > 0) {
+        contentCols.push(new Stack({ individualShift: stack }));
       }
     }
 
@@ -372,10 +410,13 @@ export class ArrayAtom extends Atom {
     let previousColRule = false;
     let currentContentCol = 0;
     let firstColumn = !this.leftDelim;
+    const { colFormat } = this;
     for (const colDesc of colFormat) {
-      if (colDesc.align && currentContentCol >= contentCols.length) {
+      if ('align' in colDesc && currentContentCol >= contentCols.length) {
+        // If there are more column format than content, we're done
         break;
-      } else if (colDesc.align && currentContentCol < contentCols.length) {
+      }
+      if ('align' in colDesc) {
         // If an alignment is specified, insert a column of content
         if (previousColContent) {
           // If no gap was provided, insert a default gap between
@@ -396,14 +437,16 @@ export class ArrayAtom extends Atom {
         previousColContent = true;
         previousColRule = false;
         firstColumn = false;
-      } else if (colDesc.gap !== undefined) {
+      } else if ('gap' in colDesc) {
+        //
         // Something to insert in between columns of content
+        //
         if (typeof colDesc.gap === 'number') {
           // It's a number, indicating how much space, in em,
           // to leave in between columns
           cols.push(makeColGap(colDesc.gap));
         } else {
-          // It's a mathlist
+          // It's a list of atoms.
           // Create a column made up of the mathlist
           // as many times as there are rows.
           cols.push(
@@ -414,26 +457,29 @@ export class ArrayAtom extends Atom {
         previousColContent = false;
         previousColRule = false;
         firstColumn = false;
-      } else if (colDesc.rule) {
-        // It's a rule.
+      } else if ('separator' in colDesc) {
+        //
+        // It's a column separator.
+        //
+
         const separator = new Span(null, { classes: 'vertical-separator' });
         separator.setStyle('height', totalHeight, 'em');
-        // Result.setTop((1 - context.mathstyle.sizeMultiplier) *
-        //     context.mathstyle.metrics.axisHeight);
         separator.setStyle(
-          'margin-top',
-          3 * context.mathstyle.metrics.axisHeight - offset,
-          'em'
+          'border-right',
+          `${context.metrics.arrayRuleWidth}em ${colDesc.separator} currentColor`
         );
-        separator.setStyle('vertical-align', 'top');
-        // Separator.setStyle('display', 'inline-block');
+        // We have box-sizing border-box, no need to correct the margin
+        // separator.setStyle(
+        //   'margin',
+        //   `0 -${context.metrics.arrayRuleWidth / 2}em`
+        // );
+        separator.setStyle('vertical-align', -(totalHeight - offset), 'em');
         let gap = 0;
         if (previousColRule) {
-          gap = FONTMETRICS.doubleRuleSep - FONTMETRICS.arrayrulewidth;
+          gap = context.metrics.doubleRuleSep - context.metrics.arrayRuleWidth;
         } else if (previousColContent) {
-          gap = arraycolsep - FONTMETRICS.arrayrulewidth;
+          gap = arraycolsep - context.metrics.arrayRuleWidth;
         }
-
         separator.left = gap;
         cols.push(separator);
         previousColContent = false;
@@ -447,19 +493,19 @@ export class ArrayAtom extends Atom {
       cols.push(makeColGap(arraycolsep));
     }
 
+    const inner = new Span(cols, { classes: 'mtable' });
+
     if (
       (!this.leftDelim || this.leftDelim === '.') &&
       (!this.rightDelim || this.rightDelim === '.')
     ) {
       // There are no delimiters around the array, just return what
       // we've built so far.
-      return new Span(cols, { classes: 'mtable', type: 'mord' });
+      return inner;
     }
 
-    // There is at least one delimiter. Wrap the core of the array with
+    // There is at least one delimiter. Wrap the inner of the array with
     // appropriate left and right delimiters
-    // const inner = new Span(new Span(cols, 'mtable'), 'mord');
-    const inner = new Span(cols, { classes: 'mtable' });
     const innerHeight = inner.height;
     const innerDepth = inner.depth;
     const result = this.bind(
@@ -473,7 +519,7 @@ export class ArrayAtom extends Atom {
               this.leftDelim,
               innerHeight,
               innerDepth,
-              context
+              innerContext
             )
           ),
           inner,
@@ -484,7 +530,7 @@ export class ArrayAtom extends Atom {
               this.rightDelim,
               innerHeight,
               innerDepth,
-              context
+              innerContext
             )
           ),
         ],
@@ -493,7 +539,7 @@ export class ArrayAtom extends Atom {
     );
     if (this.caret) result.caret = this.caret;
 
-    return this.attachSupsub(context, result, result.type);
+    return this.attachSupsub(context, { base: result });
   }
 
   toLatex(options: ToLatexOptions): string {
@@ -501,11 +547,13 @@ export class ArrayAtom extends Atom {
     if (this.environmentName === 'array') {
       result += '{';
       if (this.colFormat !== undefined) {
-        for (let i = 0; i < this.colFormat.length; i++) {
-          if (this.colFormat[i].align) {
-            result += this.colFormat[i].align;
-          } else if (this.colFormat[i].rule) {
+        for (const format of this.colFormat) {
+          if ('align' in format) {
+            result += format.align;
+          } else if ('separator' in format && format.separator === 'solid') {
             result += '|';
+          } else if ('separator' in format && format.separator === 'dashed') {
+            result += ':';
           }
         }
       }
@@ -583,7 +631,7 @@ export class ArrayAtom extends Atom {
  *
  */
 function makeColGap(width: number): Span {
-  const separator = new Span('\u200B', { classes: 'arraycolsep' });
+  const separator = new Span(null, { classes: 'arraycolsep' });
   separator.width = width;
   return separator;
 }
@@ -597,13 +645,13 @@ function makeColOfRepeatingElements(
   offset: number,
   element: Atom[]
 ): Span {
-  const col = [];
+  const col: StackElementAndShift[] = [];
   for (const row of rows) {
-    const cell = Atom.render(context, element);
+    const cell = Atom.render(context, element, { newList: true });
     cell.depth = row.depth;
     cell.height = row.height;
-    col.push([cell, row.pos - offset]);
+    col.push({ span: cell, shift: row.pos - offset });
   }
 
-  return makeVlist(context, col, 'individualShift');
+  return new Stack({ individualShift: col }).wrap(context);
 }

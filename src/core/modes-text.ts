@@ -1,12 +1,12 @@
 /* eslint-disable no-new */
 import { ErrorListener, Style, ParserErrorCode } from '../public/core';
 import { Mode, ParseTokensOptions, getPropertyRuns } from './modes-utils';
-import { colorToString } from './color';
 import { joinLatex, Token } from './tokenizer';
 import { Span } from './span';
 import { Atom, ToLatexOptions } from './atom';
 import { getInfo, charToLatex } from '../core-definitions/definitions';
 import { TextAtom } from '../core-atoms/text';
+import { BoxAtom } from '../core-atoms/box';
 
 function emitStringTextRun(run: Atom[], options: ToLatexOptions): string {
   return joinLatex(run.map((x: Atom) => Atom.toLatex(x, options)));
@@ -73,18 +73,19 @@ function emitSizeTextRun(run: Atom[], options: ToLatexOptions): string {
     getPropertyRuns(run, 'fontSize').map((x: Atom[]) => {
       const result = emitFontSeriesTextRun(x, options);
       const command: string =
-        {
-          size1: 'tiny',
-          size2: 'scriptsize',
-          size3: 'footnotesize',
-          size4: 'small',
-          size5: 'normalsize',
-          size6: 'large',
-          size7: 'Large',
-          size8: 'LARGE',
-          size9: 'huge',
-          size10: 'Huge',
-        }[x[0].style.fontSize] || '';
+        [
+          '',
+          'tiny',
+          'scriptsize',
+          'footnotesize',
+          'small',
+          'normalsize',
+          'large',
+          'Large',
+          'LARGE',
+          'huge',
+          'Huge',
+        ][x[0].style.fontSize] ?? '';
       if (command) {
         return `\\${command} ${result}`;
       }
@@ -119,6 +120,27 @@ function emitStyledTextRun(run: Atom[], options: ToLatexOptions): string {
   return emitFontFamilyTextRun(run, options);
 }
 
+function emitBackgroundColorRun(run: Atom[], options: ToLatexOptions): string {
+  const { parent } = run[0];
+  const parentColor = parent?.computedStyle.backgroundColor;
+  return joinLatex(
+    getPropertyRuns(run, 'backgroundColor').map((x) => {
+      let result = emitColorRun(x, options);
+      const style = x[0].computedStyle;
+      if (
+        style.backgroundColor &&
+        (!parent || parentColor !== style.backgroundColor) &&
+        (x.length > 0 || !(x[0] instanceof BoxAtom))
+      ) {
+        result = `\\colorbox{${
+          style.verbatimBackgroundColor ?? style.backgroundColor
+        }}{${result}}`;
+      }
+      return result;
+    })
+  );
+}
+
 function emitColorRun(run: Atom[], options: ToLatexOptions): string {
   if (!run || run.length === 0) return '';
   const parentColor = run[0].parent?.style.color;
@@ -134,7 +156,11 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
         // If there is a color specified, and it is different
         // from our context color, output a command
         return (
-          '\\textcolor{' + colorToString(x[0].style.color) + '}{' + result + '}'
+          '\\textcolor{' +
+          (x[0].style.verbatimColor ?? x[0].style.color) +
+          '}{' +
+          result +
+          '}'
         );
       }
 
@@ -164,12 +190,12 @@ export class TextMode extends Mode {
     const run = [...inRun];
     let prefix = '';
     while (run[0]?.changeMode ?? false) {
-      prefix += emitColorRun([run[0]], options);
+      prefix += emitBackgroundColorRun([run[0]], options);
       run.shift();
     }
     let suffix = '';
     if (run.length > 0) {
-      suffix += emitColorRun(run, options);
+      suffix += emitBackgroundColorRun(run, options);
     }
     if (options.skipModeCommand ?? false) return prefix + suffix;
 
@@ -291,7 +317,7 @@ export class TextMode extends Mode {
           error({ code: 'unexpected-token' });
         } else {
           atom = new TextAtom(token, info.value, options.style);
-          atom.latex = charToLatex('text', token);
+          atom.verbatimLatex = charToLatex('text', token);
           result.push(atom);
         }
       }

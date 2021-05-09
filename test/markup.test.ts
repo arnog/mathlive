@@ -18,6 +18,15 @@ function error(expression: string) {
   return markupAndError(expression)[1];
 }
 
+describe('MODE SHIFT', () => {
+  test.each(['\\text{\\ensuremath \\frac34}'])(
+    '%#/ %s renders correctly',
+    (a) => {
+      expect(markupAndError(a)).toMatchSnapshot();
+    }
+  );
+});
+
 describe('FONTS', () => {
   test.each([
     '\\alpha + x - 1 - \\Gamma',
@@ -132,6 +141,8 @@ describe('SPACING AND KERN', () => {
     'a\\hskip 3em b',
     '+-a+b=c+-d=x^{2-\\frac{1}{2}}',
     '\\sqrt[\\placeholder{}]{x}\\scriptstyle \\sqrt[\\placeholder{}]{x}',
+    'x \\scriptstyle x',
+    '\\vec{x} \\scriptstyle \\vec{x}',
   ])('%#/ %s renders correctly', (x) => {
     expect(markupAndError(x)).toMatchSnapshot();
   });

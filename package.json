@@ -120,7 +120,7 @@
     "Dominik Janković (https://github.com/djankovic)"
   ],
   "devDependencies": {
-    "@babel/types": "^7.13.14",
+    "@babel/types": "7.13.14",
     "@cortex-js/prettier-config": "^1.1.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
     "@types/css-font-loading-module": "0.0.4",
@@ -145,7 +145,7 @@
     "postcss": "^8.2.4",
     "postcss-cli": "^8.3.1",
     "prettier": "^2.2.1",
-    "rollup": "^2.45.2",
+    "rollup": "^2.47.0",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-eslint": "^7.0.0",
     "rollup-plugin-postcss": "^4.0.0",

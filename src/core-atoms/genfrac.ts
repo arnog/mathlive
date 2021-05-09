@@ -1,13 +1,12 @@
+import type { Style } from '../public/core';
+
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { MATHSTYLES, MathStyleName } from '../core/mathstyle';
-import { Span, makeHlist, makeVlist } from '../core/span';
-import { makeCustomSizedDelim, makeNullFence } from '../core/delimiters';
+import type { MathstyleName } from '../core/mathstyle';
+import { Span } from '../core/span';
+import { Stack } from '../core/stack';
+import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { Context } from '../core/context';
-import { Style } from '../public/core';
-import {
-  METRICS as FONTMETRICS,
-  SIZING_MULTIPLIER,
-} from '../core/font-metrics';
+import { AXIS_HEIGHT } from '../core/font-metrics';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;
@@ -16,30 +15,30 @@ export type GenfracOptions = {
   leftDelim?: string;
   rightDelim?: string;
   hasBarLine?: boolean;
-  mathStyleName?: MathStyleName | 'auto';
+  mathstyleName?: MathstyleName;
   style?: Style;
   toLatexOverride?: (atom: GenfracAtom, options: ToLatexOptions) => string;
 };
 
 /**
- * Gengrac -- Generalized fraction
+ * Genfrac -- Generalized Fraction
  *
  * Decompose fractions, binomials, and in general anything made
- * of two expressions on top of each other, optionally separated by a bar,
- * and optionally surrounded by fences (parentheses, brackets, etc...)
+ * of a numerator and denominator, optionally separated by a fraction bar,
+ * and optionally surrounded by delimiters (parentheses, brackets, etc...).
  *
  * Depending on the type of fraction the mathstyle is either
- * display math or inline math (which is indicated by 'textstyle'). This value can
- * also be set to 'auto', which indicates it should use the current mathstyle
+ * displaystyle or textstyle. This value can also be set to 'auto',
+ * to indicate it should use the current mathstyle
  */
 export class GenfracAtom extends Atom {
+  hasBarLine: boolean;
   leftDelim?: string;
   rightDelim?: string;
-  hasBarLine: boolean;
   private readonly continuousFraction: boolean;
   private readonly numerPrefix?: string;
   private readonly denomPrefix?: string;
-  private readonly mathStyleName: MathStyleName | 'auto';
+  private readonly mathstyleName: MathstyleName;
   constructor(
     command: string,
     above: Atom[],
@@ -50,6 +49,7 @@ export class GenfracAtom extends Atom {
       style: options.style,
       command,
       toLatexOverride: options.toLatexOverride,
+      displayContainsHighlight: true,
     });
     this.above = above;
     this.below = below;
@@ -57,7 +57,7 @@ export class GenfracAtom extends Atom {
     this.continuousFraction = options?.continuousFraction ?? false;
     this.numerPrefix = options?.numerPrefix;
     this.denomPrefix = options?.denomPrefix;
-    this.mathStyleName = options?.mathStyleName ?? 'auto';
+    this.mathstyleName = options?.mathstyleName;
     this.leftDelim = options?.leftDelim;
     this.rightDelim = options?.rightDelim;
   }
@@ -71,51 +71,37 @@ export class GenfracAtom extends Atom {
   }
 
   render(context: Context): Span {
-    const outerstyle =
-      this.mathStyleName === 'auto'
-        ? context.mathstyle
-        : MATHSTYLES[this.mathStyleName];
-    const newContext = context.clone({ mathstyle: outerstyle });
-    const isTight = newContext.mathstyle.isTight();
-    const style = this.computedStyle;
+    const fracContext = new Context(context, this.style, this.mathstyleName);
+    const metrics = fracContext.metrics;
 
-    const numeratorStyle = this.continuousFraction
-      ? outerstyle
-      : outerstyle.fracNum();
-    const numer = this.numerPrefix
-      ? makeHlist(
-          [
-            new Span(this.numerPrefix, { type: 'mord', isTight }),
-            Atom.render(
-              newContext.clone({ mathstyle: numeratorStyle }),
-              this.above
-            ),
-          ],
-          { isTight }
+    const numContext = new Context(
+      fracContext,
+      this.style,
+      this.continuousFraction ? '' : 'numerator'
+    );
+    const numerSpan = this.numerPrefix
+      ? new Span(
+          [new Span(this.numerPrefix), Atom.render(numContext, this.above)],
+          { isTight: numContext.isTight, newList: true }
         )
-      : Atom.render(
-          newContext.clone({ mathstyle: numeratorStyle }),
-          this.above
-        ) ?? new Span(null);
+      : Atom.render(numContext, this.above, { newList: true }) ??
+        new Span(null, { newList: true });
 
-    const denominatorStyle = this.continuousFraction
-      ? outerstyle
-      : outerstyle.fracDen();
-    const denom = this.denomPrefix
-      ? makeHlist([
-          new Span(this.denomPrefix, { type: 'mord' }),
-          Atom.render(
-            newContext.clone({ mathstyle: denominatorStyle }),
-            this.below
-          ),
+    const denomContext = new Context(
+      fracContext,
+      this.style,
+      this.continuousFraction ? '' : 'denominator'
+    );
+    const denomSpan = this.denomPrefix
+      ? new Span([
+          new Span(this.denomPrefix),
+          Atom.render(denomContext, this.below, { newList: true }),
         ])
-      : Atom.render(
-          newContext.clone({ mathstyle: denominatorStyle }),
-          this.below
-        ) ?? new Span(null);
-    const ruleWidth = !this.hasBarLine
-      ? 0
-      : FONTMETRICS.defaultRuleThickness / outerstyle.sizeMultiplier;
+      : Atom.render(denomContext, this.below, { newList: true }) ??
+        new Span(null, { newList: true });
+
+    const ruleWidth = this.hasBarLine ? metrics.defaultRuleThickness : 0;
+
     // Rule 15b from TeXBook Appendix G, p.444
     //
     // 15b. If C > T, set u ← σ8 and v ← σ11. Otherwise set u ← σ9 or σ10,according
@@ -126,27 +112,26 @@ export class GenfracAtom extends Atom {
     let numerShift: number;
     let clearance = 0;
     let denomShift: number;
-    if (outerstyle.size === MATHSTYLES.displaystyle.size) {
-      numerShift = outerstyle.metrics.num1; // Set u ← σ8
-      clearance =
-        ruleWidth > 0 ? 3 * ruleWidth : 7 * FONTMETRICS.defaultRuleThickness;
-      denomShift = outerstyle.metrics.denom1; // V ← σ11
+    if (fracContext.isDisplayStyle) {
+      numerShift = metrics.num1; // Set u ← σ8
+      clearance = ruleWidth > 0 ? 3 * ruleWidth : 7 * ruleWidth;
+      denomShift = metrics.denom1; // V ← σ11
     } else {
       if (ruleWidth > 0) {
-        numerShift = outerstyle.metrics.num2; // U ← σ9
+        numerShift = metrics.num2; // U ← σ9
         clearance = ruleWidth; //  Φ ← θ
       } else {
-        numerShift = outerstyle.metrics.num3; // U ← σ10
-        clearance = 3 * FONTMETRICS.defaultRuleThickness; // Φ ← 3 ξ8
+        numerShift = metrics.num3; // U ← σ10
+        clearance = 3 * ruleWidth; // Φ ← 3 ξ8
       }
 
-      denomShift = outerstyle.metrics.denom2; // V ← σ12
+      denomShift = metrics.denom2; // V ← σ12
     }
 
-    const numerDepth = numer.depth;
-    const denomHeight = denom.height;
+    const numerDepth = numerSpan.depth;
+    const denomHeight = denomSpan.height;
     let frac: Span;
-    if (ruleWidth === 0) {
+    if (ruleWidth <= 0) {
       // Rule 15c from Appendix G
       // No bar line between numerator and denominator
       const candidateClearance =
@@ -156,25 +141,25 @@ export class GenfracAtom extends Atom {
         denomShift += (clearance - candidateClearance) / 2;
       }
 
-      frac = makeVlist(
-        newContext,
-        [
-          [numer, -numerShift],
-          [denom, denomShift],
+      frac = new Stack({
+        individualShift: [
+          {
+            span: numerSpan,
+            shift: -numerShift,
+            wrapperClasses: ['ML__center'],
+          },
+          {
+            span: denomSpan,
+            shift: denomShift,
+            wrapperClasses: ['ML__center'],
+          },
         ],
-        'individualShift',
-        {
-          classes:
-            'mfrac' + context.parentMathstyle.adjustTo(newContext.mathstyle),
-        }
-      );
+      }).wrap(fracContext);
     } else {
-      // Rule 15d from Appendix G
+      // Rule 15d from Appendix G of the TeXBook.
       // There is a bar line between the numerator and the denominator
-      let { axisHeight } = outerstyle.metrics;
-      axisHeight *= SIZING_MULTIPLIER[this.style?.fontSize ?? 'size5'];
-      const numerLine = axisHeight + ruleWidth / 2;
-      const denomLine = axisHeight - ruleWidth / 2;
+      const numerLine = AXIS_HEIGHT + ruleWidth / 2;
+      const denomLine = AXIS_HEIGHT - ruleWidth / 2;
       if (numerShift < clearance + numerDepth + numerLine) {
         numerShift = clearance + numerDepth + numerLine;
       }
@@ -184,47 +169,35 @@ export class GenfracAtom extends Atom {
       }
 
       const fracLine = new Span(null, {
-        classes: 'frac-line',
+        classes: 'ML__frac-line',
         mode: this.mode,
-        style,
+        style: this.style,
       });
       // Manually set the height of the frac line because its height is
       // created in CSS
       fracLine.height = ruleWidth / 2;
       fracLine.depth = ruleWidth / 2;
-      frac = makeVlist(
-        newContext,
-        [
-          [denom, denomShift],
-          [fracLine, -denomLine],
-          [numer, -numerShift],
+      frac = new Stack({
+        individualShift: [
+          {
+            span: denomSpan,
+            shift: denomShift,
+            wrapperClasses: ['ML__center'],
+          },
+          { span: fracLine, shift: -denomLine },
+          {
+            span: numerSpan,
+            shift: -numerShift,
+            wrapperClasses: ['ML__center'],
+          },
         ],
-        'individualShift',
-        {
-          classes:
-            'mfrac' + context.parentMathstyle.adjustTo(newContext.mathstyle),
-        }
-      );
+      }).wrap(fracContext);
     }
 
-    // Since we manually change the style sometimes (with \dfrac or \tfrac),
-    // account for the possible size change here.
-    frac.height *= outerstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-    frac.depth *= outerstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-
     // Rule 15e of Appendix G
-    const delimSize =
-      outerstyle.size === MATHSTYLES.displaystyle.size
-        ? outerstyle.metrics.delim1
-        : outerstyle.metrics.delim2;
-    const delimContext = context.clone({
-      mathstyle: outerstyle,
-      size: this.style?.fontSize ?? 'size5',
-    });
-    const delimSizingClass =
-      context.parentSize !== delimContext.size
-        ? 'sizing reset-' + context.parentSize + ' ' + delimContext.size
-        : '';
+    const delimSize = fracContext.isDisplayStyle
+      ? metrics.delim1
+      : metrics.delim2;
 
     // Optional delimiters
     const leftDelim = this.leftDelim
@@ -235,17 +208,18 @@ export class GenfracAtom extends Atom {
             this.leftDelim,
             delimSize,
             true,
-            delimContext,
-            { style, mode: this.mode, classes: delimSizingClass }
+            context,
+            { style: this.style, mode: this.mode }
           )
         )
-      : new Span(null);
+      : makeNullDelimiter(fracContext, 'mopen');
 
     let rightDelim: Span;
     if (this.continuousFraction) {
-      rightDelim = makeNullFence(context, 'mclose');
+      // Zero width for `\cfrac`
+      rightDelim = new Span(null, { type: 'mclose' });
     } else if (!this.rightDelim) {
-      rightDelim = new Span(null);
+      rightDelim = makeNullDelimiter(fracContext, 'mclose');
     } else {
       rightDelim = this.bind(
         context,
@@ -254,31 +228,24 @@ export class GenfracAtom extends Atom {
           this.rightDelim,
           delimSize,
           true,
-          context.clone({ mathstyle: outerstyle }),
-          { style, mode: this.mode, classes: delimSizingClass }
+          context,
+          { style: this.style, mode: this.mode }
         )
       );
     }
 
+    // TeXBook p. 170 "fractions are treated as type Inner."
+    // However, we add the nullDelimiter above which effectively account for this.
     const result = this.bind(
       context,
-      // MakeStruts(
-      new Span(
-        [leftDelim, frac, rightDelim],
-        {
-          isTight,
-          classes:
-            context.parentSize !== context.size
-              ? 'sizing reset-' + context.parentSize + ' ' + context.size
-              : '',
-          type: 'minner', // TexBook p. 170 "fractions are treated as type Inner."
-        }
-        // )
-      )
+      new Span([leftDelim, frac, rightDelim], {
+        isTight: fracContext.isTight,
+        type: 'mord',
+      })
     );
 
     if (this.caret) result.caret = this.caret;
 
-    return this.attachSupsub(context, result, result.type);
+    return this.attachSupsub(context, { base: result });
   }
 }

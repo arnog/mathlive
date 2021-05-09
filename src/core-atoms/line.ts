@@ -1,7 +1,6 @@
 import { Atom } from '../core/atom-class';
-import { MATHSTYLES } from '../core/mathstyle';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import { Span, makeVlist } from '../core/span';
+import { Span } from '../core/span';
+import { Stack } from '../core/stack';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -18,34 +17,32 @@ export class LineAtom extends Atom {
     this.position = options.position;
   }
 
-  render(context: Context): Span {
-    const { mathstyle } = context;
+  render(parentContext: Context): Span {
     // TeXBook:443. Rule 9 and 10
-    const inner = Atom.render(context.cramp(), this.body);
+    const context = new Context(parentContext, this.style, 'cramp');
+    const inner = Atom.render(context, this.body);
     const ruleWidth =
-      FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-    const line = new Span(null, {
-      classes:
-        context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
-        ' ' +
-        this.position +
-        '-line',
-    });
+      context.metrics.defaultRuleThickness / context.scalingFactor;
+    const line = new Span(null, { classes: this.position + '-line' });
     line.height = ruleWidth;
-    line.maxFontSize = 1;
-    let vlist: Span;
+    line.maxFontSize = ruleWidth * 1.125 * context.scalingFactor;
+    let stack: Span;
     if (this.position === 'overline') {
-      vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
+      stack = new Stack({
+        shift: 0,
+        children: [{ span: inner }, 3 * ruleWidth, { span: line }, ruleWidth],
+      });
     } else {
-      vlist = makeVlist(
-        context,
-        [ruleWidth, line, 3 * ruleWidth, inner],
-        'top',
-        { initialPos: inner.height }
-      );
+      stack = new Stack({
+        top: inner.height,
+        children: [ruleWidth, { span: line }, 3 * ruleWidth, { span: inner }],
+      });
     }
 
-    if (this.caret) vlist.caret = this.caret;
-    return new Span(vlist, { classes: this.position, type: 'mord' });
+    if (this.caret) stack.caret = this.caret;
+    return new Span(stack, {
+      classes: this.position,
+      type: 'mord',
+    });
   }
 }

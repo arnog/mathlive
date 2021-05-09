@@ -120,17 +120,8 @@ export type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
 
 export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
 
-export type FontSize =
-  | 'size1'
-  | 'size2'
-  | 'size3'
-  | 'size4'
-  | 'size5'
-  | 'size6'
-  | 'size7'
-  | 'size8'
-  | 'size9'
-  | 'size10';
+export type FontSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+
 export interface Style {
   color?: string;
   backgroundColor?: string;
@@ -148,7 +139,12 @@ export interface Style {
  * * [Macros Example](/mathlive/examples/macros/)
  *
  */
-export type MacroDefinition = { def: string; args?: number };
+export type MacroDefinition = {
+  def: string;
+  args?: number;
+  expand?: boolean;
+  captureSelection?: boolean;
+};
 
 /**
  * A dictionary of LaTeX macros to be used to interpret and render the content.

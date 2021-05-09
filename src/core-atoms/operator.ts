@@ -1,9 +1,9 @@
 import { Atom, AtomType, ToLatexOptions } from '../core/atom-class';
-import { MATHSTYLES } from '../core/mathstyle';
-import { makeSymbol, Span } from '../core/span';
+import { Span } from '../core/span';
 import { Context } from '../core/context';
 import { Style, Variant, VariantStyle } from '../public/core';
 import { joinLatex } from '../core/tokenizer';
+import { AXIS_HEIGHT } from '../core/font-metrics';
 
 /**
  * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
@@ -47,25 +47,20 @@ export class OperatorAtom extends Atom {
   }
 
   render(context: Context): Span {
-    const { mathstyle } = context;
     let base: Span;
     let baseShift = 0;
     let slant = 0;
     if (this.isExtensibleSymbol) {
       // Most symbol operators get larger in displaystyle (rule 13)
       // except `\smallint`
-      const large =
-        mathstyle.size === MATHSTYLES.displaystyle.size &&
-        this.value !== '\\smallint';
+      const large = context.isDisplayStyle && this.value !== '\\smallint';
 
-      base = makeSymbol(
-        large ? 'Size2-Regular' : 'Size1-Regular',
-        this.value.codePointAt(0),
-        {
-          classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
-          type: 'mop',
-        }
-      );
+      base = new Span(this.value, {
+        fontFamily: large ? 'Size2-Regular' : 'Size1-Regular',
+        classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
+        type: 'mop',
+        maxFontSize: context.scalingFactor,
+      });
 
       // Shift the symbol so its center lies on the axis (rule 13). It
       // appears that our fonts have the centers of the symbols already
@@ -73,25 +68,27 @@ export class OperatorAtom extends Atom {
       // don't actually apply this here, but instead it is used either in
       // the vlist creation or separately when there are no limits.
       baseShift =
-        (base.height - base.depth) / 2 -
-        mathstyle.metrics.axisHeight * mathstyle.sizeMultiplier;
+        (base.height - base.depth) / 2 - AXIS_HEIGHT * context.scalingFactor;
 
       // The slant of the symbol is just its italic correction.
       slant = base.italic;
       base.setStyle('color', this.style.color);
-      base.setStyle('backgroundColor', this.style.backgroundColor);
+      base.setStyle('background-color', this.style.backgroundColor);
     } else if (this.body) {
       // If this is a list, decompose that list.
-      base = Atom.render(context, this.body, { type: 'mop' });
+      base = Atom.render(context, this.body, { newList: true });
       base.setStyle('color', this.style.color);
-      base.setStyle('backgroundColor', this.style.backgroundColor);
+      base.setStyle('background-color', this.style.backgroundColor);
     } else {
       // Otherwise, this is a text operator. Build the text from the
       // operator's name.
       console.assert(this.type === 'mop');
       // Not all styles are applied, since the operators have a distinct
       // appearance (for example, can't override their font family)
-      base = this.makeSpan(context, this.value, {
+      base = new Span(this.value, {
+        type: 'mop',
+        mode: 'math',
+        maxFontSize: context.scalingFactor,
         style: {
           color: this.style.color,
           backgroundColor: this.style.backgroundColor,
@@ -107,17 +104,16 @@ export class OperatorAtom extends Atom {
     if (this.superscript || this.subscript) {
       const limits = this.subsupPlacement ?? 'auto';
       result =
-        limits === 'over-under' ||
-        (limits === 'auto' && mathstyle.size === MATHSTYLES.displaystyle.size)
-          ? this.attachLimits(context, base, baseShift, slant)
-          : this.attachSupsub(context, base, 'mop');
+        limits === 'over-under' || (limits === 'auto' && context.isDisplayStyle)
+          ? this.attachLimits(context, { base, baseShift, slant })
+          : this.attachSupsub(context, { base });
     }
 
     if (this.caret) result.caret = this.caret;
 
     // Bind the generated span with its limits so they
     // can all be selected as one
-    return this.bind(context, result);
+    return new Span(this.bind(context, result), { type: 'mop' });
   }
 
   toLatex(options: ToLatexOptions): string {
@@ -130,11 +126,11 @@ export class OperatorAtom extends Atom {
           : this.command;
     }
 
-    result = joinLatex([result, this.supsubToLatex(options)]);
     if (this.explicitSubsupPlacement) {
       if (this.subsupPlacement === 'over-under') result += '\\limits';
       if (this.subsupPlacement === 'adjacent') result += '\\nolimits';
     }
+    result = joinLatex([result, this.supsubToLatex(options)]);
 
     return result;
   }

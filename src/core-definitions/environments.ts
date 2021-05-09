@@ -3,7 +3,7 @@ import {
   defineTabularEnvironment,
 } from './definitions-utils';
 import type { Atom } from '../core/atom-class';
-import { ArrayAtom, Colspec } from '../core-atoms/array';
+import { ArrayAtom, ColumnFormat } from '../core-atoms/array';
 
 /*
 
@@ -153,14 +153,14 @@ defineEnvironment(
   'math',
   '',
   (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, { mathStyleName: 'textstyle' })
+    new ArrayAtom(name, array, rowGaps, { mathstyleName: 'textstyle' })
 );
 
 defineEnvironment(
   'displaymath',
   '',
   (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, { mathStyleName: 'textstyle' })
+    new ArrayAtom(name, array, rowGaps, { mathstyleName: 'textstyle' })
 );
 
 defineTabularEnvironment(
@@ -168,8 +168,8 @@ defineTabularEnvironment(
   '{columns:colspec}',
   (name: string, array: Atom[][][], rowGaps: number[], args): Atom =>
     new ArrayAtom(name, array, rowGaps, {
-      colFormat: args[0] as Colspec[],
-      mathStyleName: 'textstyle',
+      columns: args[0] as ColumnFormat[],
+      mathstyleName: 'textstyle',
     })
 );
 
@@ -178,7 +178,7 @@ defineTabularEnvironment(
   '',
   (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
     new ArrayAtom(name, array, rowGaps, {
-      colFormat: [{ align: 'c' }],
+      columns: [{ align: 'c' }],
     })
 );
 
@@ -188,7 +188,7 @@ defineTabularEnvironment(
   '',
   (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
     new ArrayAtom(name, array, rowGaps, {
-      colFormat: [{ align: 'm' }],
+      columns: [{ align: 'm' }],
     })
 );
 
@@ -209,7 +209,7 @@ defineTabularEnvironment(
       colCount = Math.max(colCount, row.length);
     }
 
-    const colFormat: Colspec[] = [
+    const colFormat: ColumnFormat[] = [
       { gap: 0 },
       { align: 'r' },
       { gap: 0 },
@@ -228,7 +228,8 @@ defineTabularEnvironment(
 
     return new ArrayAtom(name, array, rowGaps, {
       arraycolsep: 0,
-      colFormat,
+      columns: colFormat,
+      colSeparationType: 'align',
       jot: 0.3,
     });
   }
@@ -251,7 +252,7 @@ defineTabularEnvironment(
   '',
   (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
     new ArrayAtom(name, array, rowGaps, {
-      colFormat: [{ align: 'r' }, { align: 'l' }],
+      columns: [{ align: 'r' }, { align: 'l' }],
     })
 );
 
@@ -271,7 +272,8 @@ defineTabularEnvironment(
     //   \ifinany@\else\openup\jot\fi\ialign
     //   \bgroup\hfil\strut@$\m@th\displaystyle##$\hfil\crcr
     new ArrayAtom(name, array, rowGaps, {
-      colFormat: [{ gap: 0.25 }, { align: 'c' }, { gap: 0 }],
+      columns: [{ gap: 0.25 }, { align: 'c' }, { gap: 0 }],
+      colSeparationType: 'gather',
     })
 );
 
@@ -293,14 +295,12 @@ defineTabularEnvironment(
     'Bmatrix',
     'vmatrix',
     'Vmatrix',
-    'smallmatrix',
     'matrix*',
     'pmatrix*',
     'bmatrix*',
     'Bmatrix*',
     'vmatrix*',
     'Vmatrix*',
-    'smallmatrix*',
   ],
   '[columns:colspec]',
   (name: string, array: Atom[][][], rowGaps: number[], args): Atom => {
@@ -351,12 +351,10 @@ defineTabularEnvironment(
     }
 
     return new ArrayAtom(name, array, rowGaps, {
-      mathStyleName: name.startsWith('smallmatrix')
-        ? 'scriptstyle'
-        : 'textstyle',
+      mathstyleName: 'textstyle',
       leftDelim,
       rightDelim,
-      colFormat: (args[0] as Colspec[]) ?? [
+      columns: (args[0] as ColumnFormat[]) ?? [
         { align: 'c' },
         { align: 'c' },
         { align: 'c' },
@@ -368,6 +366,30 @@ defineTabularEnvironment(
         { align: 'c' },
         { align: 'c' },
       ],
+    });
+  }
+);
+
+defineTabularEnvironment(
+  ['smallmatrix', 'smallmatrix*'],
+  '[columns:colspec]',
+  (name: string, array: Atom[][][], rowGaps: number[], args): Atom => {
+    return new ArrayAtom(name, array, rowGaps, {
+      mathstyleName: 'scriptstyle',
+      columns: (args[0] as ColumnFormat[]) ?? [
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+        { align: 'c' },
+      ],
+      colSeparationType: 'small',
+      arraystretch: 0.5,
     });
   }
 );
@@ -389,15 +411,16 @@ defineTabularEnvironment(
     //   \def\arraystretch{1.2}%
     //   \array{@{}l@{\quad}l@{}}%
     return new ArrayAtom(name, array, rowGaps, {
-      mathStyleName: name === 'dcases' ? 'displaystyle' : 'textstyle',
+      mathstyleName: name === 'dcases' ? 'displaystyle' : 'textstyle',
       arraystretch: 1.2,
       leftDelim: '\\lbrace',
       rightDelim: '.',
-      colFormat: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
+      columns: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
     });
   }
 );
 
+// \rcases is from the mathtools package
 defineTabularEnvironment(
   'rcases',
   '',
@@ -406,7 +429,7 @@ defineTabularEnvironment(
       arraystretch: 1.2,
       leftDelim: '.',
       rightDelim: '\\rbrace',
-      colFormat: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
+      columns: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
     });
   }
 );
@@ -426,5 +449,5 @@ defineEnvironment(
   'center',
   '',
   (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, { colFormat: [{ align: 'c' }] })
+    new ArrayAtom(name, array, rowGaps, { columns: [{ align: 'c' }] })
 );

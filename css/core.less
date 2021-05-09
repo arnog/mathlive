@@ -25,6 +25,18 @@ body.ML__fonts-loading .ML__base {
   display: inline-block;
   position: relative;
   cursor: text;
+  padding: 0;
+  margin: 0;
+  box-sizing: content-box;
+  border: 0;
+  outline: 0;
+  vertical-align: baseline;
+  font-weight: inherit;
+  font-family: inherit;
+  font-style: inherit;
+  text-decoration: none;
+  // Fix width of containers of negative spaces, working around Chrome bug.
+  width: min-content;
 }
 
 .ML__strut,
@@ -51,10 +63,9 @@ body.ML__fonts-loading .ML__base {
 
 .ML__mathit {
   font-family: KaTeX_Math;
-  /* The KaTeX_Math font is italic 
-        by default, so the font-style below is only 
-        useful when a fallback font is used
-    */
+  /* The KaTeX_Math font is italic by default, so the font-style below is only 
+     useful when a fallback font is used
+  */
   font-style: italic;
 }
 
@@ -63,7 +74,7 @@ body.ML__fonts-loading .ML__base {
   font-weight: bold;
 }
 
-/* lowercase greek symbols should stick to math font when \mathbf is applied 
+/* Lowercase greek symbols should stick to math font when \mathbf is applied 
    to match TeX idiosyncratic behavior */
 .lcGreek.ML__mathbf {
   font-family: KaTeX_Math;
@@ -189,10 +200,112 @@ body.ML__fonts-loading .ML__base {
   background: #edd1b0; // Peach
 }
 
+.ML__center {
+  text-align: center;
+}
+
+.ML__frac-line {
+  width: 100%;
+  min-height: 1px;
+
+  &:after {
+    content: '';
+    display: block;
+    margin-top: -0.04em;
+    min-height: 0.04em;
+    /* There's a bug since Chrome 62 where 
+            sub-pixel border lines don't draw at some zoom 
+            levels (110%, 90%). 
+            Setting the min-height used to work around it, but that workaround
+            broke in Chrome 84 or so.
+            Setting the background (and the min-height) seems to work for now.
+            */
+    background: currentColor;
+    box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
+            causes the fraction line to not draw at all sizes (see #26) */
+    /* On some versions of Firefox on Windows, the line fails to 
+            draw at some zoom levels, but setting the transform triggers
+            the hardware accelerated path, which works */
+    transform: translate(0, 0);
+  }
+}
+
+.ML__sqrt {
+  display: inline-block;
+}
+
+.ML__sqrt-sign {
+  display: inline-block;
+  font-family: KaTeX_Main;
+  position: relative;
+}
+
+.ML__sqrt-line {
+  display: inline-block;
+  height: 0.04em;
+  width: 100%;
+
+  &:before {
+    content: '';
+    display: block;
+    margin-top: -0.04em;
+    min-height: 0.04em;
+    background: currentColor;
+  }
+
+  &:after {
+    border-bottom-width: 1px;
+    content: ' ';
+    display: block;
+    margin-top: -0.1em;
+    /* On some versions of Firefox on Windows, the line fails to 
+              draw at some zoom levels, but setting the transform triggers
+              the hardware accelerated path, which works */
+    transform: translate(0, 0);
+  }
+}
+
+.ML__sqrt-index {
+  // These values are taken from the definition of `\r@@t`,
+  // `\mkern 5mu` and `\mkern -10mu`.
+  margin-left: 5 * (@mu);
+  margin-right: -10 * (@mu);
+}
+
+.ML__delim-size1 {
+  font-family: KaTeX_Size1;
+}
+.ML__delim-size2 {
+  font-family: KaTeX_Size2;
+}
+.ML__delim-size3 {
+  font-family: KaTeX_Size3;
+}
+.ML__delim-size4 {
+  font-family: KaTeX_Size4;
+}
+
+.ML__delim-mult {
+  .delim-size1 > span {
+    font-family: KaTeX_Size1;
+  }
+  .delim-size4 > span {
+    font-family: KaTeX_Size4;
+  }
+}
+
+.ML__accent-body > span {
+  font-family: KaTeX_Main;
+  width: 0;
+}
+
+.ML__accent-vec > span {
+  position: relative;
+  left: 0.38em;
+}
+
 .ML__mathlive {
-  // This value is also used in font-metrics.js, if you change it make sure the
-  // values match.
-  @ptperem: 10;
+  @ptperem: 10; // This value should equal PT_PER_EM om `font-metrics.ts`
   @nulldelimiterspace: 0.12em;
 
   @thinspace: 0.16667em; // 3mu
@@ -201,16 +314,17 @@ body.ML__fonts-loading .ML__base {
 
   display: inline-block;
 
-  line-height: 0;
-
   direction: ltr;
 
   text-align: left;
   text-indent: 0;
+  // Prevent a rendering bug that misplaces \vec in Chrome.
   text-rendering: auto;
   font-family: KaTeX_Main;
   font-style: normal;
   font-size-adjust: none;
+  font-stretch: normal;
+  font-variant-caps: normal;
   letter-spacing: normal;
 
   word-wrap: normal;
@@ -227,95 +341,60 @@ body.ML__fonts-loading .ML__base {
   // layer for this element.
   transform: translateZ(0);
 
-  .sz-10-7 {
-    font-size: 0.7em;
-  }
-
-  .sz-10-5 {
-    font-size: 0.5em;
-  }
-
-  .sz-7-10 {
-    font-size: 1.428571429em;
-  }
-
-  .sz-7-5 {
-    font-size: 0.714285714em;
-  }
-
-  .sz-5-10 {
-    font-size: 2em;
-  }
-
-  .sz-5-7 {
-    font-size: 1.4em;
-  }
-
   .style-wrap {
     position: relative;
   }
+
+  .vlist-t {
+    display: inline-table;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+  .vlist-r {
+    display: table-row;
+  }
+
   .vlist {
-    display: inline-block;
+    display: table-cell;
+    vertical-align: bottom;
+    position: relative;
 
     > span {
       display: block;
       height: 0;
       position: relative;
-      line-height: 0;
-
-      // display: flex;
-      // flex-direction: row;
-      // position: relative;
-      // height: 0;
 
       > span {
         display: inline-block;
       }
-    }
-  }
-
-  .msubsup {
-    text-align: left;
-  }
-
-  .mfrac {
-    // line-height: 0;
-    > span {
-      // justify-content: center;
-      text-align: center;
-    }
-
-    .frac-line {
-      width: 100%;
-
-      // &:before {
-      //     border-bottom-style: solid;
-      //     border-bottom-width: 1px;
-      //     content: "";
-      //     display: block;
-      // }
-
-      &:after {
-        content: '';
-        display: block;
-        margin-top: -0.04em;
-        min-height: 0.04em;
-        /* There's a bug since Chrome 62 where 
-                sub-pixel border lines don't draw at some zoom 
-                levels (110%, 90%). 
-                Setting the min-height used to work around it, but that workaround
-                broke in Chrome 84 or so.
-                Setting the background (and the min-height) seems to work for now.
-                */
-        background: currentColor;
-        box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
-                causes the fraction line to not draw at all sizes (see #26) */
-        /* On some versions of Firefox on Windows, the line fails to 
-                draw at some zoom levels, but setting the transform triggers
-                the hardware accelerated path, which works */
-        transform: translate(0, 0);
+      > .pstrut {
+        overflow: hidden;
+        width: 0;
       }
     }
+  }
+
+  .vlist-t2 {
+    margin-right: -2px;
+  }
+
+  .vlist-s {
+    // This cell solves Safari rendering problems. It has text content, so
+    // its baseline is used for the table. A very small font avoids line-box
+    // issues; absolute units prevent user font-size overrides from breaking
+    // rendering. Safari refuses to make the box zero-width, so we give it
+    // a known width and compensate with negative right margin on the
+    // inline-table. To prevent the "width: min-content" Chrome workaround
+    // from shrinking this box, we also set min-width.
+    display: table-cell;
+    vertical-align: bottom;
+    font-size: 1px;
+    width: 2px;
+    min-width: 2px;
+  }
+  .msubsup {
+    text-align: left;
   }
 
   .negativethinspace {
@@ -357,6 +436,7 @@ body.ML__fonts-loading .ML__base {
   .rlap {
     width: 0;
     position: relative;
+    display: inline-block;
 
     > .inner {
       position: absolute;
@@ -379,6 +459,7 @@ body.ML__fonts-loading .ML__base {
     display: inline-block;
     border: solid 0;
     position: relative;
+    box-sizing: border-box;
   }
 
   .overline .overline-line,
@@ -477,111 +558,6 @@ body.ML__fonts-loading .ML__base {
     overflow: hidden;
   }
 
-  .sqrt {
-    display: inline-block;
-
-    > .sqrt-sign {
-      font-family: KaTeX_Main;
-      position: relative;
-    }
-
-    .sqrt-line {
-      // line-height: 0;
-      height: 0.04em;
-      width: 100%;
-
-      &:before {
-        content: '';
-        display: block;
-        margin-top: -0.04em;
-        min-height: 0.04em;
-        background: currentColor;
-      }
-
-      &:after {
-        border-bottom-width: 1px;
-        content: ' ';
-        display: block;
-        margin-top: -0.1em;
-        /* On some versions of Firefox on Windows, the line fails to 
-                draw at some zoom levels, but setting the transform triggers
-                the hardware accelerated path, which works */
-        transform: translate(0, 0);
-      }
-    }
-
-    > .root {
-      // These values are taken from the definition of `\r@@t`,
-      // `\mkern 5mu` and `\mkern -10mu`.
-      margin-left: 5 * (@mu);
-      margin-right: -10 * (@mu);
-    }
-  }
-
-  .sizing,
-  .sz-set {
-    // display: inline-block;
-
-    @size1: 0.5;
-    @size2: 0.7;
-    @size3: 0.8;
-    @size4: 0.9;
-    @size5: 1;
-    @size6: 1.2;
-    @size7: 1.44;
-    @size8: 1.73;
-    @size9: 2.07;
-    @size10: 2.49;
-
-    .generate-size-change(@from, @to) {
-      &.reset-size@{from}.size@{to} {
-        @sizeFromVariable: ~'size@{from}';
-        @sizeToVariable: ~'size@{to}';
-        font-size: (@@sizeToVariable / @@sizeFromVariable) * 1em;
-      }
-    }
-
-    .generate-to-size-change(@from, @currTo) when (@currTo =< 10) {
-      .generate-size-change(@from, @currTo);
-
-      .generate-to-size-change(@from, (@currTo + 1));
-    }
-
-    .generate-from-size-change(@currFrom) when (@currFrom =< 10) {
-      .generate-to-size-change(@currFrom, 1);
-
-      .generate-from-size-change((@currFrom + 1));
-    }
-
-    .generate-from-size-change(1);
-  }
-
-  .delimsizing {
-    &.size1 {
-      font-family: KaTeX_Size1;
-    }
-    &.size2 {
-      font-family: KaTeX_Size2;
-    }
-    &.size3 {
-      font-family: KaTeX_Size3;
-    }
-    &.size4 {
-      font-family: KaTeX_Size4;
-    }
-
-    &.mult {
-      .delim-size1 {
-        font-family: KaTeX_Size1;
-        vertical-align: top;
-      }
-      .delim-size4 {
-        font-family: KaTeX_Size4;
-        vertical-align: top;
-      }
-    }
-  }
-
   .nulldelimiter {
     width: @nulldelimiterspace;
     display: inline-block;
@@ -598,61 +574,37 @@ body.ML__fonts-loading .ML__base {
     }
   }
 
-  .op-limits {
-    .vlist > span {
-      text-align: center;
-    }
-  }
-  .op-over-under {
-    position: relative;
-  }
-  .op-over-under > .vlist > span:first-child,
-  .op-over-under > .vlist > span:last-child {
-    text-align: center;
-  }
-
   .accent {
     > .vlist > span {
       text-align: center;
-    }
-
-    .accent-body > span {
-      font-family: KaTeX_Main;
-      width: 0;
-    }
-
-    .accent-body.accent-vec > span {
-      position: relative;
-      // This value is half of the value that the MathJax's makeFF shifts
-      // it left. We center it by shifting it half way right again.
-      left: 0.326em;
     }
   }
 
   .mtable {
     .vertical-separator {
       display: inline-block;
-      margin: 0 -0.025em;
-      border-right: 0.05em solid currentColor;
+      // margin and border-right are set in Javascript
+      min-width: 1px; // Prevent Chrome from omitting a line.
+      box-sizing: border-box;
     }
 
     .arraycolsep {
       display: inline-block;
     }
 
-    .col-align-m > .vlist {
+    .col-align-m > .vlist-t {
       text-align: center;
     }
 
-    .col-align-c > .vlist {
+    .col-align-c > .vlist-t {
       text-align: center;
     }
 
-    .col-align-l > .vlist {
+    .col-align-l > .vlist-t {
       text-align: left;
     }
 
-    .col-align-r > .vlist {
+    .col-align-r > .vlist-t {
       text-align: right;
     }
   }
@@ -685,7 +637,7 @@ body.ML__fonts-loading .ML__base {
 }
 
 .ML__placeholder {
-  opacity: 0.7;
+  color: var(--caret, hsl(var(--hue, 212), 40%, 49%));
   padding-left: 0.4ex;
   padding-right: 0.4ex;
   font-family: @system;

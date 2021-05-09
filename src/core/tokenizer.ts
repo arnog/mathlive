@@ -10,8 +10,8 @@ import { splitGraphemes } from './grapheme-splitter';
 // The 'special' tokens must be of length > 1 to distinguish
 // them from literals.
 // '<space>': whitespace
-// '<$$>'   : display mode shift
-// '<$>'    : inline mode shift
+// '<$$>'   : display math mode shift
+// '<$>'    : inline math mode shift
 // '<{>'    : begin group
 // '<}>'    : end group
 // '#0'-'#9': argument
@@ -197,7 +197,7 @@ class Tokenizer {
 
 // Some primitive commands need to be handled in the expansion phase
 // (the 'gullet')
-function expand(lex: Tokenizer, args: string[]): Token[] {
+function expand(lex: Tokenizer, args: (arg: string) => string): Token[] {
   let result: Token[] = [];
   let token = lex.next();
   if (token) {
@@ -254,7 +254,7 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
             // Expand parameters (but not commands)
             const parameter = lex.get().slice(1);
             tokens = tokenize(
-              args?.[parameter] ?? args?.['?'] ?? '\\placeholder{}',
+              args?.(parameter) ?? args?.('?') ?? '\\placeholder{}',
               args
             );
             token = tokens[0];
@@ -295,7 +295,7 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
       // It's a parameter to expand
       const parameter = token.slice(1);
       result = result.concat(
-        tokenize(args?.[parameter] ?? args?.['?'] ?? '\\placeholder{}', args)
+        tokenize(args?.(parameter) ?? args?.('?') ?? '\\placeholder{}', args)
       );
     } else {
       result.push(token);
@@ -311,7 +311,7 @@ function expand(lex: Tokenizer, args: string[]): Token[] {
  * @param s - A string of LaTeX. It can include comments (with the `%`
  * marker) and multiple lines.
  */
-export function tokenize(s: string, args: string[]): Token[] {
+export function tokenize(s: string, args: (arg: string) => string): Token[] {
   // Merge multiple lines into one, and remove comments
   const lines = s.toString().split(/\r?\n/);
   let stream = '';

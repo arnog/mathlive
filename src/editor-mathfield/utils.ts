@@ -126,7 +126,8 @@ export function getCaretPoint(
 }
 
 function branchId(atom: Atom): string {
-  let result = atom.parent ? atom.parent.id : 'root';
+  if (!atom.parent) return 'root';
+  let result = atom.parent.id;
   result +=
     typeof atom.treeBranch === 'string'
       ? '-' + atom.treeBranch
@@ -134,7 +135,7 @@ function branchId(atom: Atom): string {
   return result;
 }
 
-function adjustForScrolling(
+export function adjustForScrolling(
   mathfield: MathfieldPrivate,
   rect: Rect | null
 ): Rect | null {
@@ -185,6 +186,9 @@ export function getAtomBounds(
   let result = mathfield._atomBoundsCache?.get(atom.id);
   if (result !== undefined) return result;
   const node = mathfield.field.querySelector(`[data-atom-id="${atom.id}"]`);
+  if (!node) {
+    console.log(atom.id);
+  }
   result = node ? getNodeBounds(node) : null;
   if (mathfield._atomBoundsCache) {
     mathfield._atomBoundsCache.set(atom.id, result);
@@ -196,9 +200,10 @@ export function getAtomBounds(
  * Return an array of bounds for the specified range, at most
  * one rect per branch.
  */
-export function getRangeBounds(
+function getRangeBounds(
   mathfield: MathfieldPrivate,
-  range: Range
+  range: Range,
+  options?: { excludeAtomsWithBackground?: boolean }
 ): Rect[] {
   // The key of the map is a 'branchId', i.e. "atom id + branch"
   const rects = new Map<string, Rect>();
@@ -206,6 +211,9 @@ export function getRangeBounds(
   for (const atom of mathfield.model.getAtoms(range, {
     includeChildren: true,
   })) {
+    if (options?.excludeAtomsWithBackground && atom.style.backgroundColor) {
+      break;
+    }
     const bounds = adjustForScrolling(
       mathfield,
       getAtomBounds(mathfield, atom)
@@ -229,9 +237,12 @@ export function getRangeBounds(
   return [...rects.values()];
 }
 
-export function getSelectionBounds(mathfield: MathfieldPrivate): Rect[] {
+export function getSelectionBounds(
+  mathfield: MathfieldPrivate,
+  options?: { excludeAtomsWithBackground?: boolean }
+): Rect[] {
   return mathfield.model.selection.ranges.reduce(
-    (acc, x) => acc.concat(...getRangeBounds(mathfield, x)),
+    (acc, x) => acc.concat(...getRangeBounds(mathfield, x, options)),
     []
   );
 }

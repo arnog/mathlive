@@ -1,6 +1,5 @@
 import {
   ErrorListener,
-  MacroDefinition,
   Style,
   ParserErrorCode,
   MacroDictionary,
@@ -9,7 +8,6 @@ import {
 
 import { isArray } from '../common/types';
 
-import { stringToColor } from './color';
 import { convertDimenToEm } from './font-metrics';
 import { Token, tokenize, tokensToString } from './tokenizer';
 import { Atom, BBoxParameter } from './atom-class';
@@ -19,9 +17,11 @@ import {
   FunctionDefinition,
   getEnvironmentDefinition,
   getInfo,
+  NormalizedMacroDictionary,
+  normalizeMacroDictionary,
   SymbolDefinition,
 } from '../core-definitions/definitions-utils';
-import { Colspec } from '../core-atoms/array';
+import { ColumnFormat } from '../core-atoms/array';
 import { GroupAtom } from '../core-atoms/group';
 import { SpacingAtom } from '../core-atoms/spacing';
 import { LeftRightAtom } from '../core-atoms/leftright';
@@ -29,8 +29,23 @@ import { SubsupAtom } from '../core-atoms/subsup';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { ErrorAtom } from '../core-atoms/error';
 import { MacroAtom } from '../core-atoms/macro';
-import { ArgumentType } from './context';
 import { TextAtom } from '../core-atoms/text';
+import { defaultBackgroundColorMap, defaultColorMap } from './color';
+
+export type ArgumentType =
+  | ParseMode
+  | (
+      | 'auto'
+      | 'bbox'
+      | 'colspec' // Formating of a column in tabular environment, e.g. `'r@{.}l'`
+      | 'delim'
+      | 'dimen' // `'25mu'`, `'2pt'`
+      | 'number' // `+/-12.56`
+      | 'rest' // `{\foo \textsize ...}` to capture "..."
+      | 'skip' // `'25mu plus 2em minus fiLll'`, `'2pt'`
+      | 'string' // The string will end on the first non-literal token, e.g. `<}>`
+      | 'balanced-string' // Delimiter is a balanced closing brace
+    );
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
 
@@ -65,12 +80,14 @@ class Parser {
   tokens: Token[];
   index = 0;
 
-  args: null | (string | Atom[])[];
-  macros: MacroDictionary;
-
-  style: Style = {};
-  parseMode: ParseMode = 'math';
+  macros: NormalizedMacroDictionary;
   smartFence = false;
+  style: Style = {};
+  args: null | ((arg: string) => string);
+  colorMap: (name: string) => string;
+  backgroundColorMap: (name: string) => string;
+
+  parseMode: ParseMode = 'math';
   tabularMode = false; // For arrays, matrix, etc.: ifferent parsing rules apply.
 
   atoms: Atom[] = [];
@@ -86,15 +103,21 @@ class Parser {
    */
   constructor(
     tokens: Token[],
-    args: null | (string | Atom[])[],
-    macros: MacroDictionary,
-    onError: ErrorListener<ParserErrorCode>
+    options: {
+      args: null | ((arg: string) => string);
+      macros: NormalizedMacroDictionary;
+      onError: ErrorListener<ParserErrorCode>;
+      colorMap: (name: string) => string;
+      backgroundColorMap: (name: string) => string;
+    }
   ) {
     this.tokens = tokens;
-    this.args = args;
-    this.macros = macros;
+    this.args = options.args;
+    this.macros = options.macros;
+    this.colorMap = options.colorMap;
+    this.backgroundColorMap = options.backgroundColorMap;
     this.onError = (err): void =>
-      onError({
+      options.onError({
         before: tokensToString(this.tokens.slice(this.index, this.index + 10)),
         after: tokensToString(
           this.tokens.slice(Math.max(0, this.index - 10), this.index)
@@ -163,10 +186,10 @@ class Parser {
 
       // An atom can have superscript/subscript attached to it if it accepts
       // limits (`\sum`, `\vec`...)
-      if (atom?.subsupPlacement !== undefined) return atom;
+      if (atom.subsupPlacement !== undefined) return atom;
     }
     // Create a new `subsup` atom and return it
-    atom = new SubsupAtom();
+    atom = new SubsupAtom({ style: this.style });
     this.atoms.push(atom);
     return atom;
   }
@@ -221,7 +244,8 @@ class Parser {
    * one, or if a value was provided for #? via args, that value.
    */
   placeholder(): Atom[] {
-    if (!this.args || this.args['?'] === undefined) {
+    const placeHolderArg = this.args?.('?');
+    if (!placeHolderArg) {
       return [
         new PlaceholderAtom({
           mode: this.parseMode,
@@ -230,29 +254,16 @@ class Parser {
       ];
     }
 
-    if (typeof this.args?.['?'] === 'string') {
-      // If there is a specific value defined for the placeholder,
-      // use it.
-      return parseLatex(
-        this.args['?'],
-        this.parseMode,
-        null,
-        this.macros,
-        false,
-        this.onError
-      );
-    }
-
-    return this.args['?'];
+    // If there is a specific value defined for the placeholder,
+    // use it.
+    return parseLatex(placeHolderArg, {
+      parseMode: this.parseMode,
+      onError: this.onError,
+      colorMap: this.colorMap,
+      backgroundColorMap: this.backgroundColorMap,
+    });
   }
 
-  // MatchToken(type: string): boolean {
-  //     if (this.hasToken(type)) {
-  //         this.index++;
-  //         return true;
-  //     }
-  //     return false;
-  // }
   matchWhitespace(): boolean {
     let found = false;
     while (this.match('<space>')) {
@@ -327,15 +338,15 @@ class Parser {
    */
   scanString(): string {
     let result = '';
-    let done = this.end();
-    while (!done) {
+    while (!this.end()) {
       if (this.match('<space>')) {
         result += ' ';
       } else {
         const token = this.peek();
-        if (token === ']') {
-          done = true;
-        } else if (isLiteral(token)) {
+
+        if (token === ']') break;
+
+        if (isLiteral(token)) {
           result += this.get();
         } else if (token.startsWith('\\')) {
           // TeX will give a 'Missing \endcsname inserted' error
@@ -345,11 +356,9 @@ class Parser {
           result += this.get();
         } else {
           // It's '<{>', '<}>', '<$>' or '<$$>
-          done = true;
+          break;
         }
       }
-
-      done = done || this.end();
     }
 
     return result;
@@ -427,24 +436,17 @@ class Parser {
   }
 
   /**
-   * Return a CSS color (#rrggbb)
-   */
-  scanColor(): string {
-    return stringToColor(this.scanString());
-  }
-
-  /**
    * Return as a number a group of characters representing a
    * numerical quantity.
    *
    * From TeX:8695 (scan_int):
-   * An integer number can be preceded by any number of spaces and `+' or
-   * `-' signs. Then comes either a decimal constant (i.e., radix 10), an
-   * octal constant (i.e., radix 8, preceded by '), a hexadecimal constant
-   * (radix 16, preceded by "), an alphabetic constant (preceded by `), or
-   * an internal variable.
+   * > An integer number can be preceded by any number of spaces and `+' or
+   * > `-' signs. Then comes either a decimal constant (i.e., radix 10), an
+   * > octal constant (i.e., radix 8, preceded by '), a hexadecimal constant
+   * > (radix 16, preceded by "), an alphabetic constant (preceded by `), or
+   * > an internal variable.
    */
-  scanNumber(isInteger = true): number {
+  scanNumber(isInteger = true): null | number {
     let negative = false;
     let token = this.peek();
     while (token === '<space>' || token === '+' || token === '-') {
@@ -481,7 +483,7 @@ class Parser {
         return (negative ? -1 : 1) * (token.codePointAt(0) ?? 0);
       }
 
-      return Number.NaN;
+      return null;
     }
 
     let value = '';
@@ -497,9 +499,10 @@ class Parser {
       }
     }
 
-    const result = isInteger
+    const result: number = isInteger
       ? Number.parseInt(value, radix)
       : Number.parseFloat(value);
+    if (Number.isNaN(result)) return null;
     return negative ? -result : result;
   }
 
@@ -511,8 +514,9 @@ class Parser {
    * better to return a dimen struct with the value + unit and resolve
    * later when we have a font context....
    */
-  scanDimen(): number {
+  scanDimen(): number | null {
     const value = this.scanNumber(false);
+    if (value === null) return null;
     this.matchWhitespace();
     let result: number;
     if (this.matchKeyword('pt')) {
@@ -546,8 +550,9 @@ class Parser {
     return result;
   }
 
-  scanSkip(): number {
+  scanSkip(): number | null {
     const result = this.scanDimen();
+    if (result === null) return null;
     // We parse, but ignore, the optional 'plus' and 'minus'
     // arguments.
     this.matchWhitespace();
@@ -568,15 +573,17 @@ class Parser {
     return result;
   }
 
-  scanColspec(): Colspec[] {
+  scanColspec(): ColumnFormat[] | null {
     this.matchWhitespace();
-    const result: Colspec[] = [];
+    const result: ColumnFormat[] = [];
     while (!this.end() && !(this.peek() === '<}>' || this.peek() === ']')) {
       const literal = this.get();
       if (literal === 'c' || literal === 'r' || literal === 'l') {
         result.push({ align: literal });
       } else if (literal === '|') {
-        result.push({ rule: true });
+        result.push({ separator: 'solid' });
+      } else if (literal === ':') {
+        result.push({ separator: 'dashed' });
       } else if (literal === '@') {
         if (this.match('<{>')) {
           const savedParsemode = this.swapParseMode('math');
@@ -608,9 +615,10 @@ class Parser {
     const result = new GroupAtom(
       this.parse((token) => token === final),
       {
-        mathStyleName: final === '\\)' ? 'textstyle' : 'displaystyle',
+        mathstyleName: final === '\\)' ? 'textstyle' : 'displaystyle',
         latexOpen: final === '\\]' ? '\\[' : '\\(',
         latexClose: final,
+        spanType: 'mord',
       }
     );
     if (!this.match(final)) {
@@ -637,9 +645,9 @@ class Parser {
     const result = new GroupAtom(
       this.parse((token: Token) => token === final),
       {
-        mathStyleName: final === '<$>' ? 'textstyle' : 'displaystyle',
-        latexOpen: final === '<$>' ? '$' : '$$',
-        latexClose: final === '<$>' ? '$' : '$$',
+        mathstyleName: final === '<$>' ? 'textstyle' : 'displaystyle',
+        latexOpen: final === '<$>' ? '$ ' : '$$ ',
+        latexClose: final === '<$>' ? ' $' : ' $$',
       }
     );
     if (!this.match(final)) {
@@ -821,7 +829,12 @@ class Parser {
       console.assert(Boolean(infixInfo));
       infixArgs.unshift(this.swapAtoms(saveAtoms)); // Suffix
       if (prefix) infixArgs.unshift(prefix);
-      result = [infixInfo.createAtom(infix, infixArgs, this.style)];
+      result = [
+        infixInfo.createAtom(infix, infixArgs, this.style, {
+          colorMap: this.colorMap,
+          backgroundColorMap: this.backgroundColorMap,
+        }),
+      ];
     } else {
       result = this.swapAtoms(saveAtoms);
     }
@@ -1037,23 +1050,31 @@ class Parser {
    * `displaystyle` prefers `\limits`).
    */
   parseLimits(): boolean {
-    // Note: technically, `\limits` and `\nolimits` are only applicable
-    // after an operator. However, we apply them in all cases. They
-    // will simply be ignored when not applicable (i.e. on a literal)
-    // which is actually consistent with TeX.
-    if (this.match('\\limits')) {
-      const lastAtom = this.lastSubsupAtom();
-      lastAtom.subsupPlacement = 'over-under';
+    // Note: `\limits` and `\nolimits` are only applicable after an operator.
+    // We skip them and ignore them if they are after something other
+    // than an operator (TeX throws an error)
+
+    const isLimits = this.match('\\limits');
+    const isNoLimits = !isLimits && this.match('\\nolimits');
+
+    if (!isLimits && !isNoLimits) return false;
+
+    const opAtom =
+      this.atoms.length > 0 ? this.atoms[this.atoms.length - 1] : null;
+
+    if (opAtom.type !== 'mop') return false;
+
+    if (isLimits) {
+      opAtom.subsupPlacement = 'over-under';
       // Record that the limits was set through an explicit command
       // so we can generate the appropriate LaTeX later
-      lastAtom.explicitSubsupPlacement = true;
+      opAtom.explicitSubsupPlacement = true;
       return true;
     }
 
-    if (this.match('\\nolimits')) {
-      const lastAtom = this.lastSubsupAtom();
-      lastAtom.subsupPlacement = 'adjacent';
-      lastAtom.explicitSubsupPlacement = true;
+    if (isNoLimits) {
+      opAtom.subsupPlacement = 'adjacent';
+      opAtom.explicitSubsupPlacement = true;
       return true;
     }
 
@@ -1088,12 +1109,34 @@ class Parser {
         explicitGroup = parameter.type.slice(0, -1) as ParseMode;
       } else {
         const arg = this.parseArgument(parameter.type);
-        if (arg !== undefined) {
+        if (arg !== null) {
           args.push(arg);
         } else {
           // Report an error
           this.onError({ code: 'missing-argument' });
-          args.push(this.placeholder());
+          switch (parameter.type) {
+            case 'number':
+              args.push(0);
+              break;
+            case 'colspec':
+              args.push('llllllllll');
+              break;
+            case 'dimen':
+            case 'skip':
+              args.push('0mu');
+              break;
+            case 'string':
+            case 'balanced-string':
+              args.push('');
+              break;
+            case 'delim':
+              args.push('.');
+              break;
+            case 'auto':
+            default:
+              args.push(this.placeholder());
+              break;
+          }
         }
       }
 
@@ -1110,21 +1153,20 @@ class Parser {
    * in braces.
    *
    */
-  parseArgument(argType: 'auto'): Atom[];
-  parseArgument(argType: ParseMode): Atom[];
-  parseArgument(argType: 'balanced-string'): string;
-  parseArgument(argType: 'color'): string;
-  parseArgument(argType: 'colspec'): Colspec[];
-  parseArgument(argType: 'delim'): string;
-  parseArgument(argType: 'dimen'): number;
-  parseArgument(argType: 'number'): number;
-  parseArgument(argType: 'skip'): number;
-  parseArgument(argType: 'string'): string;
-  parseArgument(argType: ArgumentType): Argument;
-  parseArgument(argType: ArgumentType): Argument {
+  parseArgument(argType: 'auto'): null | Atom[];
+  parseArgument(argType: ParseMode): null | Atom[];
+  parseArgument(argType: 'balanced-string'): null | string;
+  parseArgument(argType: 'colspec'): null | ColumnFormat[];
+  parseArgument(argType: 'delim'): null | string;
+  parseArgument(argType: 'dimen'): null | number;
+  parseArgument(argType: 'number'): null | number;
+  parseArgument(argType: 'skip'): null | number;
+  parseArgument(argType: 'string'): null | string;
+  parseArgument(argType: ArgumentType): null | Argument;
+  parseArgument(argType: ArgumentType): null | Argument {
     this.skipFiller();
     argType = argType === 'auto' ? this.parseMode : argType;
-    let result: string | number | Atom[] | Colspec[];
+    let result: string | number | Atom[] | ColumnFormat[];
     // An argument (which is called a 'math field' in TeX)
     // could be a single character or symbol, as in `\frac12`
     // Note that ``\frac\sqrt{-1}\alpha\beta`` is equivalent to
@@ -1171,12 +1213,13 @@ class Parser {
             tokens: Token[],
             options
           ): [Atom[], Token[]] => {
-            const parser = new Parser(
-              tokens,
-              options.args,
-              options.macros,
-              this.onError
-            );
+            const parser = new Parser(tokens, {
+              args: options.args,
+              macros: options.macros,
+              colorMap: this.colorMap,
+              backgroundColorMap: this.backgroundColorMap,
+              onError: this.onError,
+            });
             parser.parseMode = mode;
             parser.style = options.style;
             result = parser.parse();
@@ -1200,16 +1243,18 @@ class Parser {
         result = this.scanBalancedString();
       } else if (argType === 'number') {
         result = this.scanNumber();
+      } else if (argType === 'colspec') {
+        result = this.scanColspec();
       } else if (argType === 'dimen') {
         result = this.scanDimen();
       } else if (argType === 'skip') {
         result = this.scanSkip();
-      } else if (argType === 'colspec') {
-        result = this.scanColspec();
-      } else if (argType === 'color') {
-        result = this.scanColor() || '#ffffff';
       } else if (argType === 'delim') {
-        result = this.scanDelim() || '.';
+        result = this.scanDelim() ?? '.';
+      }
+      if (result === null) {
+        this.swapAtoms(saveAtoms);
+        return null;
       }
 
       this.skipUntilToken('<}>');
@@ -1237,8 +1282,6 @@ class Parser {
         result = this.scanSkip();
       } else if (parseMode === 'colspec') {
         result = this.scanColspec();
-      } else if (parseMode === 'color') {
-        result = this.scanColor() ?? '#ffffff';
       } else if (parseMode === 'bbox') {
         // The \bbox command takes a very particular argument:
         // a comma delimited list of up to three arguments:
@@ -1252,7 +1295,7 @@ class Parser {
           .split(/,(?![^(]*\)(?:(?:[^(]*\)){2})*[^"]*$)/);
         const bboxParameter: BBoxParameter = {};
         for (const element of list) {
-          const color = stringToColor(element);
+          const color = this.backgroundColorMap(element);
           if (color) {
             bboxParameter.backgroundcolor = color;
           } else {
@@ -1310,7 +1353,7 @@ class Parser {
         mode: this.parseMode,
         value: String.fromCodePoint(codepoint),
       });
-      result.latex =
+      result.verbatimLatex =
         '\\char' + tokensToString(this.tokens.slice(initialIndex, this.index));
       return [result];
     }
@@ -1386,12 +1429,18 @@ class Parser {
 
     //  Invoke the createAtom() function if present
     if (typeof info.createAtom === 'function') {
-      result = info.createAtom(command, args, this.style);
+      result = info.createAtom(command, args, this.style, {
+        colorMap: this.colorMap,
+        backgroundColorMap: this.backgroundColorMap,
+      });
       if (deferredArg) {
         result.body = this.parseArgument(deferredArg);
       }
     } else if (typeof info.applyStyle === 'function') {
-      const style = info.applyStyle(command, args);
+      const style = info.applyStyle(command, args, {
+        colorMap: this.colorMap,
+        backgroundColorMap: this.backgroundColorMap,
+      });
       // No type provided -> the parse function will modify
       // the current style rather than create a new Atom.
       const savedMode = this.parseMode;
@@ -1437,7 +1486,7 @@ class Parser {
         this.tokens.slice(initialIndex, this.index)
       );
       if (argString && result.command) {
-        result.latex = result.command + argString;
+        result.verbatimLatex = result.command + argString;
       }
 
       if (result.isFunction && this.smartFence) {
@@ -1504,26 +1553,10 @@ class Parser {
     const macroName = macro.slice(1);
     if (!this.macros || !this.macros[macroName]) return null;
     const initialIndex = this.index;
-    const args: (string | Atom[])[] = [];
-    let def: string;
-    let argCount = 0;
-    if (typeof this.macros[macroName] === 'string') {
-      def = this.macros[macroName] as string;
-      // Let's see if there are arguments in the definition.
-      if (/(^|[^\\])#1/.test(def)) argCount = 1;
-      if (/(^|[^\\])#2/.test(def)) argCount = 2;
-      if (/(^|[^\\])#3/.test(def)) argCount = 3;
-      if (/(^|[^\\])#4/.test(def)) argCount = 4;
-      if (/(^|[^\\])#5/.test(def)) argCount = 5;
-      if (/(^|[^\\])#6/.test(def)) argCount = 6;
-      if (/(^|[^\\])#7/.test(def)) argCount = 7;
-      if (/(^|[^\\])#8/.test(def)) argCount = 8;
-      if (/(^|[^\\])#9/.test(def)) argCount = 9;
-    } else {
-      def = (this.macros[macroName] as MacroDefinition).def;
-      argCount = (this.macros[macroName] as MacroDefinition).args || 0;
-    }
+    const def = this.macros[macroName].def;
+    const argCount = this.macros[macroName].args;
 
+    const args: Record<string, string> = {};
     for (let i = 1; i <= argCount; i++) {
       // Parse each argument as a string. We don't know yet
       // what the proper parse mode is, so defer parsing till later
@@ -1532,14 +1565,22 @@ class Parser {
     }
 
     // Carry forward the placeholder argument, if any.
-    args['?'] = this.args?.['?'];
+    args['?'] = this.args?.('?');
 
     // Group the result of the macro expansion
-    return new MacroAtom(
-      macro,
-      tokensToString(this.tokens.slice(initialIndex, this.index)),
-      parseLatex(def, this.parseMode, args, this.macros, false, this.onError)
-    );
+    return new MacroAtom(macro, {
+      expand: this.macros[macroName].expand,
+      captureSelection: this.macros[macroName].captureSelection,
+      args: tokensToString(this.tokens.slice(initialIndex, this.index)),
+      body: parseLatex(def, {
+        parseMode: this.parseMode,
+        args: (arg) => args[arg],
+        macros: this.macros,
+        colorMap: this.colorMap,
+        backgroundColorMap: this.backgroundColorMap,
+        onError: this.onError,
+      }),
+    });
   }
 
   /**
@@ -1553,8 +1594,11 @@ class Parser {
       this.parseModeSet() ||
       this.parseGroup() ||
       this.parseLeftRight();
-    if (!result && (this.parseSupSub() || this.parseLimits())) return true;
-    if (!result) result = this.parseSimpleToken();
+    if (!result) {
+      if (this.parseSupSub()) return true;
+      if (this.parseLimits()) return true;
+      result = this.parseSimpleToken();
+    }
     // If we have an atom to add, push it at the end of the current math list
     // We could have no atom for tokens that were skipped, a ' ' in math mode
     // for example
@@ -1577,19 +1621,27 @@ class Parser {
  */
 export function parseLatex(
   s: string,
-  parseMode: ParseMode,
-  args: null | (string | Atom[])[] = null,
-  macros: null | MacroDictionary = null,
-  smartFence = false,
-  onError?: ErrorListener<ParserErrorCode>
+  options?: {
+    parseMode?: ParseMode;
+    args?: null | ((arg: string) => string);
+    macros?: null | MacroDictionary;
+    smartFence?: boolean;
+    onError?: ErrorListener<ParserErrorCode>;
+    colorMap?: (name: string) => string;
+    backgroundColorMap?: (name: string) => string;
+  }
 ): Atom[] {
-  const parser = new Parser(
-    tokenize(s, args as string[]),
-    args,
-    macros,
-    (err) => {
-      if (typeof onError === 'function') {
-        onError({ ...err, latex: s });
+  const parser = new Parser(tokenize(s, options?.args ?? null), {
+    args: options?.args ?? null,
+    macros: normalizeMacroDictionary(options?.macros ?? null),
+    colorMap: options?.colorMap ?? defaultColorMap,
+    backgroundColorMap:
+      options?.backgroundColorMap ??
+      options?.colorMap ??
+      defaultBackgroundColorMap,
+    onError: (err) => {
+      if (typeof options?.onError === 'function') {
+        options.onError({ ...err, latex: s });
       } else {
         // Console.warn(
         //     'MathLive parsing error: ' +
@@ -1598,10 +1650,10 @@ export function parseLatex(
         //     'in "' + s + '"'
         // );
       }
-    }
-  );
-  parser.parseMode = parseMode ?? 'math';
-  if (smartFence) parser.smartFence = true;
+    },
+  });
+  parser.parseMode = options?.parseMode ?? 'math';
+  if (options?.smartFence ?? false) parser.smartFence = true;
 
   let atoms = [];
   while (!parser.end()) {

@@ -1,21 +1,37 @@
-import type { ArgumentType } from '../core/context';
+import type { ArgumentType } from '../core/parser';
 import type { Atom, AtomType, BBoxParameter } from '../core/atom-class';
-import type { Colspec } from '../core-atoms/array';
+import type { ColumnFormat } from '../core-atoms/array';
 import type {
-  Variant,
-  // VariantStyle,
-  MacroDictionary,
-  Style,
   ParseMode,
+  Variant,
   VariantStyle,
+  MacroDictionary,
+  MacroDefinition,
 } from '../public/core';
+import { supportRegexPropertyEscape } from '../common/capabilities';
+import { PrivateStyle } from '../core/context';
 
 export type FunctionArgumentDefiniton = {
   isOptional: boolean;
   type: ArgumentType;
 };
 
-export type Argument = string | number | BBoxParameter | Colspec[] | Atom[];
+export type Argument =
+  | string
+  | number
+  | BBoxParameter
+  | ColumnFormat[]
+  | Atom[];
+
+export type CreateAtomOptions = {
+  colorMap: (name: string) => string;
+  backgroundColorMap: (name: string) => string;
+};
+
+export type ApplyStyleDefinitionOptions = {
+  colorMap: (name: string) => string;
+  backgroundColorMap: (name: string) => string;
+};
 
 export type FunctionDefinition = {
   params: FunctionArgumentDefiniton[];
@@ -23,8 +39,17 @@ export type FunctionDefinition = {
   isFunction: boolean;
   ifMode: ParseMode;
   applyMode: ParseMode;
-  createAtom: (command: string, args: Argument[], style: Style) => Atom;
-  applyStyle: (command: string, args: Argument[]) => Style;
+  createAtom: (
+    command: string,
+    args: Argument[],
+    style: PrivateStyle,
+    options: CreateAtomOptions
+  ) => Atom;
+  applyStyle: (
+    command: string,
+    args: Argument[],
+    options: ApplyStyleDefinitionOptions
+  ) => PrivateStyle;
 
   frequency?: number;
   category?: string;
@@ -64,8 +89,8 @@ export const REVERSE_MATH_SYMBOLS = {
     '>': '>',   // Also \gt
     'o': 'o',    // Also \omicron
     '&': '\\&',  // Also \And
-    '{': '\\{',  // Also \lbrace
-    '}': '\\}',  // Also \rbrace
+    '{': '\\lbrace',
+    '}': '\\rbrace',
     '[': '\\lbrack',
     ']': '\\rbrack',
     ':': '\\colon', // Also :
@@ -162,6 +187,8 @@ type EnvironmentConstructor = (
   args: Argument[]
 ) => Atom;
 
+export type NormalizedMacroDictionary = Record<string, MacroDefinition>;
+
 export const MACROS: MacroDictionary = {
   iff: '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
   nicefrac: '^{#1}\\!\\!/\\!_{#2}',
@@ -175,6 +202,57 @@ export const MACROS: MacroDictionary = {
   Ket: '\\left|#1\\right\\rangle',
   Braket: '\\left\\langle{#1}\\right\\rangle',
   Set: '\\left\\lbrace #1 \\right\\rbrace',
+
+  // From http://tug.ctan.org/macros/latex/required/amsmath/amsmath.dtx
+  // > \newcommand{\pod}[1]{
+  // >    \allowbreak
+  // >    \if@display
+  // >      \mkern18mu
+  // >    \else
+  // >      \mkern8mu
+  // >    \fi
+  // >    (#1)
+  // > }
+  // 18mu = \quad
+  // > \renewcommand{\pmod}[1]{
+  // >  \pod{{\operator@font mod}\mkern6mu#1}
+  // > }
+
+  pmod: {
+    def: '\\quad(\\operatorname{mod}\\ #1)',
+    args: 1,
+    expand: false,
+    captureSelection: false,
+  },
+
+  // > \newcommand{\mod}[1]{
+  // >    \allowbreak
+  // >    \if@display
+  // >      \mkern18mu
+  // >    \else
+  // >      \mkern12mu
+  // >    \fi
+  //>     {\operator@font mod}\,\,#1}
+
+  mod: {
+    def: '\\quad\\operatorname{mod}\\,\\,#1',
+    args: 1,
+    expand: false,
+    captureSelection: false,
+  },
+
+  // > \renewcommand{\bmod}{
+  // >  \nonscript\mskip-\medmuskip\mkern5mu
+  // >  \mathbin{\operator@font mod}
+  // >  \penalty900 \mkern5mu
+  // >  \nonscript\mskip-\medmuskip
+  // > }
+  // 5mu = \;
+
+  bmod: {
+    def: '\\;\\mathbin{\\operatorname{mod }}',
+    expand: false,
+  },
 
   // Proof Wiki
   rd: '\\mathrm{d}',
@@ -259,22 +337,15 @@ export const TEXT_SYMBOLS = {
 
 export const COMMAND_MODE_CHARACTERS = /[\w!@*()-=+{}[\]\\';:?/.,~<>`|$%#&^" ]/;
 
-// Word boundaries for Cyrillic, Polish, French, German, Italian
-// and Spanish. We use \p{L} (Unicode property escapes: "Letter")
-// but Firefox doesn't support it
-// (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
-// See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
-export const LETTER =
-  navigator !== undefined && /firefox|edge|trident/i.test(navigator.userAgent)
-    ? /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/
-    : /* eslint-disable-next-line prefer-regex-literals */
-      new RegExp('\\p{Letter}', 'u');
+export const LETTER = supportRegexPropertyEscape()
+  ? /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/
+  : /* eslint-disable-next-line prefer-regex-literals */
+    new RegExp('\\p{Letter}', 'u');
 
-export const LETTER_AND_DIGITS =
-  navigator !== undefined && /firefox|edge|trident/i.test(navigator.userAgent)
-    ? /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/
-    : /* eslint-disable-next-line prefer-regex-literals */
-      new RegExp('[0-9\\p{Letter}]', 'u');
+export const LETTER_AND_DIGITS = supportRegexPropertyEscape()
+  ? /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/
+  : /* eslint-disable-next-line prefer-regex-literals */
+    new RegExp('[0-9\\p{Letter}]', 'u');
 
 /**
  * @param symbol    The LaTeX command for this symbol, for
@@ -646,7 +717,7 @@ export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
 export function getInfo(
   symbol: string,
   parseMode: ArgumentType,
-  macros?: MacroDictionary
+  macros?: NormalizedMacroDictionary
 ): FunctionDefinition & SymbolDefinition {
   if (!symbol || symbol.length === 0) return null;
 
@@ -671,22 +742,7 @@ export function getInfo(
       // Maybe it's a macro
       const command = symbol.slice(1);
       if (macros?.[command]) {
-        let def = macros[command];
-        if (typeof def === 'object') {
-          def = def.def;
-        }
-
-        let argCount = 0;
-        // Let's see if there are arguments in the definition.
-        if (/(^|[^\\])#1/.test(def)) argCount = 1;
-        if (/(^|[^\\])#2/.test(def)) argCount = 2;
-        if (/(^|[^\\])#3/.test(def)) argCount = 3;
-        if (/(^|[^\\])#4/.test(def)) argCount = 4;
-        if (/(^|[^\\])#5/.test(def)) argCount = 5;
-        if (/(^|[^\\])#6/.test(def)) argCount = 6;
-        if (/(^|[^\\])#7/.test(def)) argCount = 7;
-        if (/(^|[^\\])#8/.test(def)) argCount = 8;
-        if (/(^|[^\\])#9/.test(def)) argCount = 9;
+        let argCount = macros[command].args;
         info = {
           type: 'group',
           mode: 'math',
@@ -894,8 +950,17 @@ export function defineFunction(
     applyMode?: ParseMode;
     infix?: boolean;
     isFunction?: boolean;
-    createAtom?: (name: string, args: Argument[], style: Style) => Atom;
-    applyStyle?: (name: string, args: Argument[]) => Style;
+    createAtom?: (
+      name: string,
+      args: Argument[],
+      style: PrivateStyle,
+      options: CreateAtomOptions
+    ) => Atom;
+    applyStyle?: (
+      name: string,
+      args: Argument[],
+      options: ApplyStyleDefinitionOptions
+    ) => PrivateStyle;
   }
 ): void {
   if (typeof names === 'string') {
@@ -918,4 +983,42 @@ export function defineFunction(
     applyStyle: options.applyStyle,
   };
   for (const name of names) FUNCTIONS['\\' + name] = data;
+}
+
+export function normalizeMacroDictionary(
+  macros: MacroDictionary | null
+): NormalizedMacroDictionary | null {
+  if (!macros) return null;
+  const result: NormalizedMacroDictionary = {};
+  for (const macro of Object.keys(macros)) {
+    if (typeof macros[macro] === 'string') {
+      // It's a shorthand definition, let's expand it
+      let argCount = 0;
+      const def: string = macros[macro] as string;
+      // Let's see if there are arguments in the definition.
+      if (/(^|[^\\])#1/.test(def)) argCount = 1;
+      if (/(^|[^\\])#2/.test(def)) argCount = 2;
+      if (/(^|[^\\])#3/.test(def)) argCount = 3;
+      if (/(^|[^\\])#4/.test(def)) argCount = 4;
+      if (/(^|[^\\])#5/.test(def)) argCount = 5;
+      if (/(^|[^\\])#6/.test(def)) argCount = 6;
+      if (/(^|[^\\])#7/.test(def)) argCount = 7;
+      if (/(^|[^\\])#8/.test(def)) argCount = 8;
+      if (/(^|[^\\])#9/.test(def)) argCount = 9;
+      result[macro] = {
+        def: def,
+        args: argCount,
+        expand: true,
+        captureSelection: true,
+      };
+    } else {
+      result[macro] = {
+        expand: true,
+        captureSelection: true,
+        args: 0,
+        ...(macros[macro] as MacroDefinition),
+      };
+    }
+  }
+  return result;
 }

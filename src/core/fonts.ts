@@ -1,3 +1,4 @@
+import { supportLocalFontEnumeration } from '../common/capabilities';
 import { resolveRelativeUrl } from '../common/script-url';
 import { ErrorListener, MathfieldErrorCode } from '../public/core';
 
@@ -48,10 +49,7 @@ export async function loadFonts(
     ];
     let fontsLoaded = false;
 
-    // Firefox and Safari return true for fonts that are not loaded...
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1252821 🤦‍♂️
-    // So, if on Firefox, always assume that the fonts are not loaded.
-    if (!/firefox|safari/i.test(navigator.userAgent)) {
+    if (supportLocalFontEnumeration()) {
       try {
         fontsLoaded = fontFamilies.every((x) =>
           document.fonts.check('16px ' + x)

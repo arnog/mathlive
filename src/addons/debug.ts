@@ -27,13 +27,12 @@ export function latexToAsciiMath(
   mode: ParseMode = 'math'
 ): string {
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(latex, mode, null, null);
+  root.body = parseLatex(latex, { parseMode: mode });
   return atomToAsciiMath(root);
 }
 
 export function asciiMathToLatex(ascii: string): string {
-  const [, result] = parseMathString(ascii, { format: 'ascii-math' });
-  return result;
+  return parseMathString(ascii, { format: 'ascii-math' })[1];
 }
 
 /**

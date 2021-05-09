@@ -11,7 +11,7 @@
     <!-- <link rel="stylesheet" href="/dist/mathlive-static.css" /> -->
     <style>
       math-field {
-        font-size: 48px;
+        font-size: 32px;
       }
       math-field:not(:defined) {
           display: none;
@@ -67,16 +67,57 @@
         tabindex="0" 
         class="mathfield" style="max-width: 640px; width:100%" 
         smart-fence="true"
-        virtual-keyboard-mode="manual"> +-a+b=c +- d=x^{2-\frac{1}{2}}
-        <!-- =\mathop{operator}^{above}_{below} -->
+        horizontal-spacing-scale="1.2"
+        virtual-keyboard-mode="manual"> 
+
+
+        <!-- 
+            - excessive spacing between brace and text 
+              -> may be due to special handling of limit placements with underbrace
+          -->
+          \overbrace{xyz}\underbrace{xyz}\underset{\text{complex}}{z}
+
+          <!-- \underset{\rule{1em}{1em}}{\underbrace{0000000}} -->
+
+          <!-- does not display box --> 
+         <!-- \frac1c + \bbox[border:solid 1px red]{\sqrt[3]{x}} = \binom{C}{k} -->
+
+          <!-- box positioned incorrectly (lineheight issue) --> 
+         <!-- \boxed{\frac{\frac12}{x^{3^x}}}+a=\left[\frac{\frac12}{x^{3^x}}\right] -->
+
+        <!-- -\frac{-\frac{1}{2}}{-\frac{3}{4}} -->
+
+
+          <!-- Incorrect spacing before -7, disappears if caret is there -->
+         <!-- -1\frac{-7}{5}  -->
+
+
+
+        <!-- \textcolor{blue}{\sqrt{\smash[t]{\frac{a}{b}}}=\sqrt{\smash[b]{\frac{a}{b}}}} -->
+
+
+        <!-- \textcolor{blue}{\overset{=}{x}} -->
+
+        <!-- \textcolor{blue}{\overline{x}=\overline{x+\frac34}=\underline{x}=\underline{x+\frac34}} -->
+
+        <!-- \textcolor{blue}{\vec{x}=\vec{\frac34}=\widehat{x}=\widehat{x+y}} -->
+
+        <!-- \textcolor{blue}{\int_0^\infty\smallint_0^\infty\oint_0^\infty} -->
+
+        <!-- \textcolor{blue}{\Large \frac34=\frac{3}{x+1}=\binom34=\sqrt{2}=\sqrt[3]{2}} -->
+
+        <!-- \textcolor{blue}{\Large \sqrt{2}=\sqrt[3]{2}} -->
+
+        <!-- \textcolor{blue}{x=\sqrt[3]{x}=\frac{x^2}{x^2}=\left(\frac34\right)=\int_0^\infty} -->
+        <!-- -a-b=-1 -->
+
+        <!-- \scriptstyle is not cummulative. 'm' are the same size -->
+        <!-- m {\scriptstyle w \scriptstyle w}  \LARGE M {\scriptstyle m \scriptstyle m}  -->
+
+        <!-- Sizing commands are not cumulative, 'm' are the same size. --> 
+        <!-- \Huge m \Huge m -->
+
         
-        <!-- \sqrt[\Huge 3]{29}=\mathop{operator}^{above}_{below}\sum_{P_i \in Paths(I)}=\sum_{n=0}^5=\frac12=\overset{+}{=}
-        \underset{under}{\overset{\frac{0}{0}}{=}}
-        -\colorbox{BurntOrange}{\ensuremath{x\frac{1}{\colorbox{yellow}{\ensuremath{x}}}}}= -->
-        <!-- z = \overbrace{
-          \underbrace{x}_\text{real} + i
-          \underbrace{y}_\text{imaginary}
-      }^\text{complex number} -->
         <!-- z = \overbrace{\frac12}^\text{complex number} -->
 
       <!-- z = \overbrace{
@@ -118,8 +159,6 @@
 
         <h2 style='margin-top: 1em'>Selection</h2>
         <div class="output" id="selection"></div>
-
-        $$\text{hello world}$$
 
         <!-- <math-field class="mathfield" style="width:100%" tabindex="4" virtual-keyboard-mode="manual">f_{4}(x) =
         </math-field>
@@ -359,7 +398,7 @@
         //     });
         // }
         function updateContent(mf) {
-            const latex = mf.getValue('latex-expanded');
+            const latex = mf.getValue('latex');
             try {
 
                 document.getElementById('latex').innerHTML = escapeHtml(

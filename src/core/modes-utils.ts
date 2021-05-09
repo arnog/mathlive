@@ -1,22 +1,22 @@
 import {
   ErrorListener,
   Style,
-  MacroDictionary,
   ParserErrorCode,
   ParseMode,
 } from '../public/core';
 
 import type { Span } from './span';
 import type { Token } from './tokenizer';
-import type { ArgumentType } from './context';
+import { ArgumentType } from './parser';
 import type { GroupAtom } from '../core-atoms/group';
 import { Atom, ToLatexOptions } from './atom';
+import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
 export interface ParseTokensOptions {
-  args: (string | Atom[])[];
-  macros: MacroDictionary;
+  macros: NormalizedMacroDictionary;
   smartFence: boolean;
   style: Style;
+  args: (arg: string) => string;
   parse: (
     mode: ArgumentType,
     tokens: Token[],
@@ -108,13 +108,16 @@ export function getModeRuns(atoms: Atom[]): Atom[][] {
  * Return an array of runs (array of atoms with the same value
  *   for the specified property)
  */
-export function getPropertyRuns(atoms: Atom[], property: string): Atom[][] {
+export function getPropertyRuns(
+  atoms: Atom[],
+  property: keyof Style | 'cssClass'
+): Atom[][] {
   const result = [];
   let run = [];
-  let currentValue: string;
+  let currentValue: string | number;
   for (const atom of atoms) {
     if (atom.type !== 'first') {
-      let value: string;
+      let value: string | number;
       if (property === 'variant') {
         value = atom.style.variant;
         if (atom.style.variantStyle && atom.style.variantStyle !== 'up') {

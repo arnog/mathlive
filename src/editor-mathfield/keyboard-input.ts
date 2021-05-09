@@ -128,12 +128,10 @@ export function onKeystroke(
       let i = 0;
       while (!shortcut && i < candidate.length) {
         const context: Atom[] = mathfield.keystrokeBufferStates[i]
-          ? parseLatex(
-              mathfield.keystrokeBufferStates[i].latex,
-              effectiveMode(mathfield.options),
-              null,
-              mathfield.options.macros
-            )
+          ? parseLatex(mathfield.keystrokeBufferStates[i].latex, {
+              parseMode: effectiveMode(mathfield.options),
+              macros: mathfield.options.macros,
+            })
           : // The context is from the start of the group to the current position
             model.getAtoms(
               model.offsetOf(model.at(model.position).firstSibling),

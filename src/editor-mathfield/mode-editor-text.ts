@@ -1,7 +1,6 @@
 /* eslint-disable no-new */
-import { Range, InsertOptions } from '../public/mathfield';
+import type { InsertOptions } from '../public/mathfield';
 import { ModeEditor } from './mode-editor';
-import { TextAtom } from '../core-atoms/text';
 import { MathfieldPrivate } from './mathfield-private';
 import { requestUpdate } from './render';
 
@@ -21,6 +20,7 @@ export class TextModeEditor extends ModeEditor {
     const text = ev.clipboardData.getData('text/plain');
 
     if (text) {
+      mathfield.snapshot();
       if (this.insert(mathfield.model, text)) {
         requestUpdate(mathfield);
       }
@@ -31,22 +31,6 @@ export class TextModeEditor extends ModeEditor {
     }
 
     return false;
-  }
-
-  onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
-    const r: Range = mathfield.model.selectionIsCollapsed
-      ? [0, mathfield.model.lastOffset]
-      : range(mathfield.selection);
-    ev.clipboardData.setData(
-      'text/plain',
-      mathfield.model
-        .getAtoms(r)
-        .filter((x) => x instanceof TextAtom)
-        .map((x) => x.value)
-        .join('')
-    );
-    // Prevent the current document selection from being written to the clipboard.
-    ev.preventDefault();
   }
 
   insert(
@@ -134,7 +118,7 @@ function convertStringToAtoms(s: string): Atom[] {
   s = s.replace(/~/g, '\\textasciitilde ');
   s = s.replace(/£/g, '\\textsterling ');
 
-  return parseLatex(s, 'text');
+  return parseLatex(s, { parseMode: 'text' });
 }
 
 new TextModeEditor();

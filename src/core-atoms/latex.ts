@@ -19,7 +19,7 @@ export class LatexAtom extends Atom {
     super('latex', { value, mode: 'latex' });
     this.isSuggestion = options?.isSuggestion ?? false;
     this.isError = false;
-    this.latex = value;
+    this.verbatimLatex = value;
   }
 
   get computedStyle(): Style {
@@ -34,6 +34,7 @@ export class LatexAtom extends Atom {
         ? 'ML__error'
         : '',
       type: 'latex',
+      maxFontSize: 1.0,
     });
     if (this.caret) result.caret = this.caret;
     return this.bind(context, result);
@@ -53,7 +54,7 @@ export class LatexGroupAtom extends Atom {
   }
 
   render(context: Context): Span {
-    const span = Atom.render(context, this.body);
+    const span = Atom.render(context, this.body, { newList: true });
 
     if (this.caret) span.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
