@@ -68,16 +68,7 @@
         class="mathfield" style="max-width: 640px; width:100%" 
         smart-fence="true"
         horizontal-spacing-scale="1.2"
-        virtual-keyboard-mode="manual"> 
-
-
-        <!-- 
-            - excessive spacing between brace and text 
-              -> may be due to special handling of limit placements with underbrace
-          -->
-          \overbrace{xyz}\underbrace{xyz}\underset{\text{complex}}{z}
-
-          <!-- \underset{\rule{1em}{1em}}{\underbrace{0000000}} -->
+        virtual-keyboard-mode="manual">
 
           <!-- does not display box --> 
          <!-- \frac1c + \bbox[border:solid 1px red]{\sqrt[3]{x}} = \binom{C}{k} -->
@@ -398,7 +389,7 @@
         //     });
         // }
         function updateContent(mf) {
-            const latex = mf.getValue('latex');
+            const latex = mf.getValue('latex-expanded');
             try {
 
                 document.getElementById('latex').innerHTML = escapeHtml(

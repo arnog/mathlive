@@ -63,7 +63,7 @@
 
         // import { emitLatex, parseLatex } from '../dist/math-json.js';
 
-
+        
         // prettier-ignore
         const TESTING_SAMPLES = {
           "Ordinary Symbols": [
@@ -107,9 +107,11 @@
                 
                 title: 'Unicode symbols',
                 class: 'fail',
-                comment:
-                    'man (U+1F468)+ light skin tone (U+1F3FB) + person role (U+200D) + microphone (U+1F3A4) & rocket (U+1F680) & astronaut (U+1F9D1 U+1F3FB U+200D U+1F680)' + 
-                    'Fail: doesnt parse/roundtrip \\char',
+                comment: [
+                    'man (U+1F468)+ light skin tone (U+1F3FB) + person role (U+200D) + microphone (U+1F3A4)',
+                    ' rocket (U+1F680)', 
+                    'astronaut (U+1F9D1 U+1F3FB U+200D U+1F680)' 
+                ],
                 latex: `\\Large \\unicode{"1F468}\\unicode{"1F3FB}\\unicode{"200D}\\unicode{"1F3A4} \\char"1F680 🧑🏻‍🚀`,
             },
             {
