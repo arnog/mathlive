@@ -31,6 +31,7 @@ import { ExecuteCommandFunction } from './commands-definitions';
 import { MACROS } from '../core-definitions/definitions';
 import { Scrim } from './scrim';
 import { Context } from '../core/context';
+import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 
 let gScrim: Scrim = null;
 
@@ -1158,16 +1159,24 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
+  const root = new Atom('root', { mode: 'math' });
+  root.body = parseLatex(latex, {
+    parseMode: 'math',
+    args: arg,
+    macros: MACROS,
+  });
+
   const span = coalesce(
     adjustInterAtomSpacing(
       new Span(
-        Atom.render(
+        root.render(
           new Context(
             { macros: MACROS, smartFence: false },
-            null,
+            {
+              fontSize: DEFAULT_FONT_SIZE,
+            },
             'displaystyle'
-          ),
-          parseLatex(latex, { parseMode: 'math', args: arg, macros: MACROS })
+          )
         ),
         { classes: 'ML__base' }
       )

@@ -9,6 +9,7 @@ import {
   Context,
   MACROS,
   adjustInterAtomSpacing,
+  DEFAULT_FONT_SIZE,
 } from '../core/core';
 
 import { getKeybindingsForCommand } from './keybindings';
@@ -278,16 +279,20 @@ function getNote(symbol: string): string {
 }
 
 function latexToMarkup(latex: string): string {
+  const root = new Atom('root', { mode: 'math' });
+  root.body = parseLatex(latex, { parseMode: 'math', macros: MACROS });
+
   const span = coalesce(
     adjustInterAtomSpacing(
       new Span(
-        Atom.render(
+        root.render(
           new Context(
             { macros: MACROS, smartFence: false },
-            null,
+            {
+              fontSize: DEFAULT_FONT_SIZE,
+            },
             'displaystyle'
-          ),
-          parseLatex(latex, { parseMode: 'math', macros: MACROS })
+          )
         ),
         { classes: 'ML__base' }
       )
