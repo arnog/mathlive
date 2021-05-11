@@ -241,6 +241,7 @@ export class GenfracAtom extends Atom {
       new Span([leftDelim, frac, rightDelim], {
         isTight: fracContext.isTight,
         type: 'mord',
+        classes: 'mfrac',
       })
     );
 

@@ -167,11 +167,16 @@ function getNodeBounds(node: Element): Rect {
   if (node.children.length > 0 && node.tagName.toUpperCase() !== 'SVG') {
     for (const child of node.children) {
       if (child.nodeType === 1) {
-        const r: Rect = getNodeBounds(child);
-        result.left = Math.min(result.left, r.left);
-        result.right = Math.max(result.right, r.right);
-        result.top = Math.min(result.top, r.top);
-        result.bottom = Math.max(result.bottom, r.bottom);
+        if (
+          'atom-id' in (child as HTMLElement).dataset &&
+          !child.classList.contains('pstrut')
+        ) {
+          const r: Rect = getNodeBounds(child);
+          result.left = Math.min(result.left, r.left);
+          result.right = Math.max(result.right, r.right);
+          result.top = Math.min(result.top, r.top);
+          result.bottom = Math.max(result.bottom, r.bottom);
+        }
       }
     }
   }

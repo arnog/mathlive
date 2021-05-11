@@ -113,7 +113,10 @@ export class OperatorAtom extends Atom {
 
     // Bind the generated span with its limits so they
     // can all be selected as one
-    return new Span(this.bind(context, result), { type: 'mop' });
+    return new Span(this.bind(context, result), {
+      type: 'mop',
+      classes: 'op-group',
+    });
   }
 
   toLatex(options: ToLatexOptions): string {

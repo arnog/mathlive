@@ -874,7 +874,7 @@ export class Atom {
    *
    */
   render(parentContext: Context, options?: { newList: boolean }): Span | null {
-    if (this.type === 'first' && !this.caret) return null;
+    if (this.type === 'first' && !parentContext.atomIdsSettings) return null;
 
     //
     // 1. Render the body or value
@@ -1072,7 +1072,7 @@ export class Atom {
     // Don't bind to phantom spans (they won't be interactive, so no need for the id)
     if (context.isPhantom) return span;
 
-    if (!span || this.type === 'first' || this.value === '\u200B') return span;
+    if (!span || this.value === '\u200B') return span;
 
     if (!this.id) this.id = context.makeID();
     span.atomID = this.id;
@@ -1143,8 +1143,7 @@ export class Atom {
     result.right = result.italic; // Italic correction
 
     // To retrieve the atom from a span, for example when the span is clicked
-    // on, attach a randomly generated ID to the span and associate it
-    // with the atom.
+    // on, attach a unique ID to the span and associate it with the atom.
     this.bind(context, result);
     if (this.caret) {
       // If this has a super/subscript, the caret will be attached

@@ -184,10 +184,14 @@ export class Context implements ContextInterface {
 
     this._mathstyle = mathstyle;
 
-    this.atomIdsSettings = from.atomIdsSettings;
+    this.atomIdsSettings = parent.atomIdsSettings;
     this.macros = from.macros ?? {};
     this.smartFence = from.smartFence ?? false;
     this.renderPlaceholder = from.renderPlaceholder;
+    console.assert(
+      !(parent instanceof Context) ||
+        this.atomIdsSettings === parent.atomIdsSettings
+    );
   }
 
   get mathstyle(): Mathstyle {

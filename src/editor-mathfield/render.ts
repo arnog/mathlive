@@ -169,25 +169,45 @@ export function render(
   );
 
   //
-  // 6. Render the selection
+  // 6. Render the selection/caret
   //
-  if (!model.selectionIsCollapsed) {
-    renderSelection(mathfield);
-    if (!(renderOptions.interactive ?? false)) {
-      // (re-render a bit later because the layout, sometimes, is not
-      // up to date by now)
-      setTimeout(() => renderSelection(mathfield), 32);
-    }
-  } else {
-    // The popover is relative to the location of the caret
+  renderSelection(mathfield);
+  if (!(renderOptions.interactive ?? false)) {
+    // (re-render a bit later because the layout may not be up to date right
+    //  now. This happens in particular when first loading and the fonts are
+    //  not yet available. )
+    setTimeout(() => renderSelection(mathfield), 32);
+  }
+}
+
+export function renderSelection(mathfield: MathfieldPrivate): void {
+  // Remove existing selection
+  for (const element of mathfield.field.querySelectorAll(
+    '.ML__selection, .ML__contains-highlight'
+  )) {
+    element.remove();
+  }
+
+  if (!mathfield.hasFocus() || mathfield.options.readOnly) return;
+
+  const model = mathfield.model;
+
+  if (model.selectionIsCollapsed) {
+    //
+    // 1.1. Display the popover relative to the location of the caret
+    //
     setTimeout(() => updatePopoverPosition(mathfield), 32);
 
+    //
+    // 1.2. Display the 'contains' highlight
+    //
     let atom = model.at(model.position);
     while (atom && !(atom.containsCaret && atom.displayContainsHighlight)) {
       atom = atom.parent;
     }
     if (atom?.containsCaret && atom.displayContainsHighlight) {
       let bounds = getAtomBounds(mathfield, atom);
+      console.log(bounds);
       if (bounds) {
         bounds = adjustForScrolling(mathfield, bounds);
         const element = document.createElement('div');
@@ -200,14 +220,13 @@ export function render(
         mathfield.field.insertBefore(element, mathfield.field.childNodes[0]);
       }
     }
-    //
-  }
-}
 
-export function renderSelection(mathfield: MathfieldPrivate): void {
-  for (const element of mathfield.field.querySelectorAll('.ML__selection')) {
-    element.remove();
+    return;
   }
+
+  //
+  // 2. Display the non-collapsed selection
+  //
 
   for (const x of unionRects(
     getSelectionBounds(mathfield, { excludeAtomsWithBackground: true })
