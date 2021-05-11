@@ -21,8 +21,8 @@
  * @summary   Handling of delimiters surrounds symbols.
  */
 
-import { SpanType, Span } from './span';
-import { StackChild, Stack } from './stack';
+import { BoxType, Box } from './box';
+import { VBoxChild, VBox } from './v-box';
 import { MathstyleName } from './mathstyle';
 import {
   getCharacterMetrics,
@@ -116,16 +116,16 @@ function makeSmallDelim(
     classes: string;
     type: '' | 'mopen' | 'mclose' | 'minner';
   }
-): Span {
-  const text = new Span(getSymbolValue(delim), { fontFamily: 'Main-Regular' });
+): Box {
+  const text = new Box(getSymbolValue(delim), { fontFamily: 'Main-Regular' });
 
-  const span = text.wrap(context, options);
+  const box = text.wrap(context, options);
 
   if (center) {
-    span.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
+    box.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
   }
 
-  return span;
+  return box;
 }
 
 /**
@@ -143,10 +143,10 @@ function makeLargeDelim(
     mode?: ParseMode;
     style?: Style;
   }
-): Span {
+): Box {
   // Delimiters ignore the mathstyle, so use a 'textstyle' context.
   const context = new Context(parentContext, options?.style, 'textstyle');
-  const result = new Span(getSymbolValue(delim), {
+  const result = new Box(getSymbolValue(delim), {
     fontFamily: 'Size' + size + '-Regular',
     classes: 'ML__delim-size' + size,
   }).wrap(context);
@@ -169,11 +169,11 @@ function makeStackedDelim(
   context: Context,
   options: {
     classes?: string;
-    type?: SpanType;
+    type?: BoxType;
     mode?: ParseMode;
     style?: Style;
   }
-): Span {
+): Box {
   // There are four parts, the top, an optional middle, a repeated part, and a
   // bottom.
   let top: number;
@@ -354,37 +354,37 @@ function makeStackedDelim(
   const OVERLAP = 0.008; // Overlap between segments, in em
 
   // Keep a list of the inner pieces
-  const stack: StackChild[] = [];
+  const stack: VBoxChild[] = [];
 
   // Add the bottom symbol
-  stack.push({ span: new Span(bottom, { fontFamily }) });
+  stack.push({ box: new Box(bottom, { fontFamily }) });
   stack.push(-OVERLAP);
 
-  const repeatSpan = new Span(repeat, { fontFamily });
+  const repeatBox = new Box(repeat, { fontFamily });
 
   if (middle === null) {
     // Add that many symbols
     for (let i = 0; i < repeatCount; i++) {
-      stack.push({ span: repeatSpan });
+      stack.push({ box: repeatBox });
     }
   } else {
     // When there is a middle bit, we need the middle part and two repeated
     // sections
     for (let i = 0; i < repeatCount; i++) {
-      stack.push({ span: repeatSpan });
+      stack.push({ box: repeatBox });
     }
     stack.push(-OVERLAP);
-    stack.push({ span: new Span(middle, { fontFamily }) });
+    stack.push({ box: new Box(middle, { fontFamily }) });
     stack.push(-OVERLAP);
 
     for (let i = 0; i < repeatCount; i++) {
-      stack.push({ span: repeatSpan });
+      stack.push({ box: repeatBox });
     }
   }
 
   // Add the top symbol
   stack.push(-OVERLAP);
-  stack.push({ span: new Span(top, { fontFamily }) });
+  stack.push({ box: new Box(top, { fontFamily }) });
 
   // Finally, build the vlist
 
@@ -396,7 +396,7 @@ function makeStackedDelim(
     sizeClass = ' delim-size4';
   }
 
-  const inner = new Stack(
+  const inner = new VBox(
     {
       bottom: depth,
       children: stack,
@@ -404,7 +404,7 @@ function makeStackedDelim(
     { classes: sizeClass }
   );
 
-  const result = new Span(inner, {
+  const result = new Box(inner, {
     ...(options ?? {}),
     classes: (options?.classes ?? '') + ' ML__delim-mult',
   });
@@ -497,7 +497,7 @@ export function makeSizedDelim(
     mode?: ParseMode;
     style?: Style;
   }
-): Span {
+): Box {
   if (delim === undefined || delim === '.') {
     // Empty delimiters still count as elements, even though they don't
     // show anything.
@@ -665,7 +665,7 @@ export function makeCustomSizedDelim(
     mode?: ParseMode;
     style?: Style;
   }
-): Span {
+): Box {
   if (!delim || delim.length === 0 || delim === '.') {
     return makeNullDelimiter(context, type, type);
   }
@@ -733,7 +733,7 @@ export function makeLeftRightDelim(
   depth: number,
   context: Context,
   options?: { classes?: string; style?: Style; mode?: ParseMode }
-): Span {
+): Box {
   // If this is the empty delimiter, return a null fence
   if (delim === '.') {
     return makeNullDelimiter(context, type, options?.classes);
@@ -760,12 +760,12 @@ export function makeNullDelimiter(
   parentContext: Context,
   type: '' | 'mopen' | 'mclose' | 'minner',
   classes?: string
-): Span {
+): Box {
   // The null delimiter has a width, specified by class 'nulldelimiter'
 
   // The size of the null delimiter is independent of the current mathstyle
   const context = new Context(parentContext, null, 'textstyle');
-  return new Span(null, {
+  return new Box(null, {
     classes: ' nulldelimiter ' + (classes ?? ''),
     type,
   }).wrap(context);

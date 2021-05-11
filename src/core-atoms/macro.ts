@@ -1,6 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 
 export class MacroAtom extends Atom {
   macroLatex: string;
@@ -27,14 +27,14 @@ export class MacroAtom extends Atom {
     this.expand = options.expand ?? false;
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     return options.expandMacro && this.expand
       ? this.bodyToLatex(options)
       : this.macroLatex;
   }
 
-  render(context: Context): Span {
-    const result = Atom.render(context, this.body);
+  render(context: Context): Box {
+    const result = Atom.createBox(context, this.body);
     if (this.caret) result.caret = this.caret;
     return this.bind(context, result);
   }

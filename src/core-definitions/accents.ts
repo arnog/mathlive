@@ -58,7 +58,7 @@ defineFunction('utilde', '{body:auto}', {
       body: args[0] as Atom[],
       svgBelow: accent,
       style,
-      spanType: binRelType(args[0] as Atom[]),
+      boxType: binRelType(args[0] as Atom[]),
     });
   },
 });

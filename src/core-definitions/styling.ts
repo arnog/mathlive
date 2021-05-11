@@ -18,7 +18,7 @@ import { GenfracAtom } from '../core-atoms/genfrac';
 import { RuleAtom } from '../core-atoms/rule';
 import { OperatorAtom } from '../core-atoms/operator';
 import { MathstyleName } from '../core/mathstyle';
-import { SpanType } from '../core/span';
+import { BoxType } from '../core/box';
 import { PrivateStyle } from '../core/context';
 
 defineFunction('ensuremath', '{:math}', {
@@ -76,24 +76,6 @@ defineFunction('boxed', '{content:math}', {
     }),
 });
 
-// defineFunction('colorbox', '{background-color:string}{content:auto}', {
-//   createAtom: (
-//     name: string,
-//     args: Argument[],
-//     style: PrivateStyle,
-//     options: CreateAtomOptions
-//   ): Atom =>
-//     new BoxAtom(name, args[1] as Atom[], {
-//       backgroundcolor: options.backgroundColorMap(args[0] as string),
-//       verbatimBackgroundcolor: args[0] as string, // Save this value to restore it verbatim later
-//       style,
-//       toLatexOverride: (atom: BoxAtom, options: ToLatexOptions) =>
-//         `${atom.command}{${
-//           atom.verbatimBackgroundcolor ?? atom.backgroundcolor
-//         }}{${atom.bodyToLatex(options)}}`,
-//     }),
-// });
-
 // Technically, using a BoxAtom is more correct (there is a small margin around it)
 // However, just changing the background color makes editing easier
 defineFunction('colorbox', '{:string}{content:auto*}', {
@@ -127,7 +109,7 @@ defineFunction(
         verbatimBackgroundcolor: args[1] as string, // Save this value to restore it verbatim later
         backgroundcolor: options.backgroundColorMap(args[1] as string),
         style,
-        toLatexOverride: (atom: BoxAtom, options: ToLatexOptions) =>
+        serialize: (atom: BoxAtom, options: ToLatexOptions) =>
           `${atom.command}{${atom.verbatimFramecolor ?? atom.framecolor}{${
             atom.verbatimBackgroundcolor ?? atom.backgroundcolor
           }}{${atom.bodyToLatex(options)}}`,
@@ -152,7 +134,7 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
         border: arg.border,
         backgroundcolor: arg.backgroundcolor,
         style,
-        toLatexOverride: (atom: BoxAtom, options: ToLatexOptions) => {
+        serialize: (atom: BoxAtom, options: ToLatexOptions) => {
           let result = name;
           if (
             Number.isFinite(atom.padding) ||
@@ -527,7 +509,7 @@ defineFunction('mbox', '{:text}', {
       changeMode: true,
       style,
       mode: 'text',
-      toLatexOverride: (atom: GroupAtom, options: ToLatexOptions) =>
+      serialize: (atom: GroupAtom, options: ToLatexOptions) =>
         `\\mbox{${atom.bodyToLatex({
           ...options,
           skipModeCommand: true,
@@ -762,7 +744,7 @@ class UnicodeAtom extends Atom {
     this.codepoint = codepoint;
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     return (
       '\\unicode"' +
       ('000000' + this.codepoint.toString(16)).toUpperCase().slice(-6)
@@ -803,7 +785,7 @@ defineFunction('underline', '{:auto}', {
     }),
 });
 
-export function binRelType(atoms: Atom[]): SpanType {
+export function binRelType(atoms: Atom[]): BoxType {
   if (atoms.length === 1) {
     const atom = atoms[0];
     if (atom.type === 'mbin') return 'mbin';
@@ -819,8 +801,8 @@ defineFunction('overset', '{above:auto}{base:auto}', {
       body: args[1] as Atom[],
       skipBoundary: false,
       style,
-      spanType: binRelType(args[1] as Atom[]),
-      toLatexOverride: (atom: OverunderAtom, options: ToLatexOptions) =>
+      boxType: binRelType(args[1] as Atom[]),
+      serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${atom.command}{${atom.aboveToLatex(options)}}` +
         `{${atom.bodyToLatex(options)}}`,
     }),
@@ -833,8 +815,8 @@ defineFunction('underset', '{below:auto}{base:auto}', {
       body: args[1] as Atom[],
       skipBoundary: false,
       style,
-      spanType: binRelType(args[1] as Atom[]),
-      toLatexOverride: (atom: OverunderAtom, options: ToLatexOptions) =>
+      boxType: binRelType(args[1] as Atom[]),
+      serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${name}{${atom.belowToLatex(options)}}` +
         `{${atom.bodyToLatex(options)}}`,
     }),
@@ -848,8 +830,8 @@ defineFunction('overunderset', '{above:auto}{below:auto}{base:auto}', {
       body: args[2] as Atom[],
       skipBoundary: false,
       style,
-      spanType: binRelType(args[2] as Atom[]),
-      toLatexOverride: (atom: OverunderAtom, options: ToLatexOptions) =>
+      boxType: binRelType(args[2] as Atom[]),
+      serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${atom.command}{${atom.aboveToLatex(options)}}` +
         `{${atom.bodyToLatex(options)}}`,
     }),
@@ -870,8 +852,8 @@ defineFunction(
         below: args[0] as Atom[],
         skipBoundary: false,
         style,
-        spanType: name === '\\stackrel' ? 'mrel' : 'mbin',
-        toLatexOverride: (atom: OverunderAtom, options: ToLatexOptions) =>
+        boxType: name === '\\stackrel' ? 'mrel' : 'mbin',
+        serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
           `${atom.command}{${atom.aboveToLatex(options)}}` +
           `{${atom.bodyToLatex(options)}}`,
       }),
@@ -889,7 +871,7 @@ defineFunction(
         rightDelim: args[3] as string,
         hasBarLine: false,
         style,
-        toLatexOverride: (atom: GenfracAtom, options: ToLatexOptions) =>
+        serialize: (atom: GenfracAtom, options: ToLatexOptions) =>
           `${atom.aboveToLatex(options)} ${atom.command}${atom.leftDelim}${
             atom.rightDelim
           }${atom.belowToLatex(options)}`,
@@ -953,15 +935,15 @@ defineFunction('not', '{:math}', {
         new OverlapAtom(name, '\ue020', {
           align: 'right',
           style,
-          spanType: 'mrel',
+          boxType: 'mrel',
         }),
         ...arg,
       ],
       {
-        spanType: 'mrel',
+        boxType: 'mrel',
         captureSelection: true,
-        toLatexOverride: (atom: GroupAtom, options) => {
-          const argLatex = Atom.toLatex(arg, options);
+        serialize: (atom: GroupAtom, options) => {
+          const argLatex = Atom.serialize(arg, options);
           if (argLatex.length === 1 && !/[a-zA-Z]/.test(argLatex)) {
             return '\\not' + argLatex;
           }
@@ -979,11 +961,11 @@ defineFunction(['ne', 'neq'], '', {
         new OverlapAtom(name, '\ue020', {
           align: 'right',
           style,
-          spanType: 'mrel',
+          boxType: 'mrel',
         }),
         new Atom('mrel', { style, value: '=' }),
       ],
-      { spanType: 'mrel', captureSelection: true, toLatexOverride: () => name }
+      { boxType: 'mrel', captureSelection: true, serialize: () => name }
     ),
 });
 

@@ -1,20 +1,19 @@
 This guide is for developers who want to contribute code to the project, or who
 need to modify or debug it.
 
-If you simply want to use MathLive in your project, see the [Usage
-Guide](tutorials/USAGE_GUIDE.md).
+If you simply want to use MathLive in your project, see the
+[Usage Guide](tutorials/USAGE_GUIDE.md).
 
 ## Table of Contents
 
--   [Getting Started: Setting up Your Development
-    Environment](#getting-started-setting-up-your-development-environment)
--   [Deploy / Publish](#deploy--publish)
--   [Code Structure](#code-structure)
--   [Language and Coding Style](#language-and-coding-style)
--   [Bundling](#bundling)
--   [Browser Support](#browser-support)
--   [Accessibility](#accessibility-a11y)
--   [Architecture](#architecture)
+- [Getting Started: Setting up Your Development Environment](#getting-started-setting-up-your-development-environment)
+- [Deploy / Publish](#deploy--publish)
+- [Code Structure](#code-structure)
+- [Language and Coding Style](#language-and-coding-style)
+- [Bundling](#bundling)
+- [Browser Support](#browser-support)
+- [Accessibility](#accessibility-a11y)
+- [Architecture](#architecture)
 
 ## Getting Started: Setting up Your Development Environment
 
@@ -129,31 +128,30 @@ These commands will:
 **Note on versioning:** Use the [semver](http://semver.org/) convention for
 versions:
 
--   `npm version patch`: bug fixes and other minor changes. Last number of the
-    version is incremented, e.g. `1.2.41` → `1.2.42`
--   `npm version minor`: new features which don't break existing features.
-    Middle number of the version is incremented, e.g. `1.2.42` → `1.3.0`
--   `npm version major`: changes which break backward compatibility of the API.
-    Increment the first number, e.g. `1.3.56` → `2.0.0`
+- `npm version patch`: bug fixes and other minor changes. Last number of the
+  version is incremented, e.g. `1.2.41` → `1.2.42`
+- `npm version minor`: new features which don't break existing features. Middle
+  number of the version is incremented, e.g. `1.2.42` → `1.3.0`
+- `npm version major`: changes which break backward compatibility of the API.
+  Increment the first number, e.g. `1.3.56` → `2.0.0`
 
 ## Code Structure
 
 The MathLive SDK consists of the following key directories:
 
--   `css/` the stylesheets and fonts
--   `sounds/` the default sound files
--   `src/core`, `src/core-atoms`, `src/core-definitions` the core JavaScript
-    code needed to render math. This module depends on the `css/` module.
--   `src/editor`, `src/editor-mathfield`, `src/editor-model` the JavaScript code
-    needed for the editor. This module depends on the `src/core*` modules.
--   `src/addons` some optional modules that provide additional functionality
+- `css/` the stylesheets and fonts
+- `sounds/` the default sound files
+- `src/core`, `src/core-atoms`, `src/core-definitions` the core JavaScript code
+  needed to render math. This module depends on the `css/` module.
+- `src/editor`, `src/editor-mathfield`, `src/editor-model` the JavaScript code
+  needed for the editor. This module depends on the `src/core*` modules.
+- `src/addons` some optional modules that provide additional functionality
 
--   the `dist/` directory contains executable build artifacts. If a file named
-    "DEVELOPMENT_BUILD" is present in the directory, the content of the
-    directory is suitable only for development purposes, not for production.
-    This means the files have not been minified and compiled, and include
-    additional .map files referencing back to the source file for ease of
-    debugging.
+- the `dist/` directory contains executable build artifacts. If a file named
+  "DEVELOPMENT_BUILD" is present in the directory, the content of the directory
+  is suitable only for development purposes, not for production. This means the
+  files have not been minified and compiled, and include additional .map files
+  referencing back to the source file for ease of debugging.
 
 The content of the `dist/` directory are entirely generated as part of the build
 process. No other directory should contain intermediated files generated as part
@@ -169,21 +167,21 @@ can also run it manually using `npm run lint`.
 
 The code base attempts to follow these general guidelines:
 
--   **Consistency** All code in the codebase should look as if it had been
-    written by a single person. Don't write code for yourself, but for the many
-    people who will read it later.
--   **Clarity before performance** Write code that is easy to read, and avoid
-    obscure constructs that may obfuscate the code to improve performance. For
-    example, RegEx are crazy fast in all modern browsers, and trying to roll out
-    your own pattern matching will result in more code and less performance. If
-    you think something could be made faster, use
-    [http://jsben.ch/](http://jsben.ch/) to try out options in various
-    browsers and compare the results. You might be surprised.
--   **Follow Postel's Law, the Robustness Principle** "Be conservative in what
-    you do, be liberal in what you accept from others". For example, functions
-    that are invoked internally do not need to check that the input parameters
-    are valid. However, public APIs should check the validity of parameters, and
-    behave reasonably when they aren't.
+- **Consistency** All code in the codebase should look as if it had been written
+  by a single person. Don't write code for yourself, but for the many people who
+  will read it later.
+- **Clarity before performance** Write code that is easy to read, and avoid
+  obscure constructs that may obfuscate the code to improve performance. For
+  example, RegEx are crazy fast in all modern browsers, and trying to roll out
+  your own pattern matching will result in more code and less performance. If
+  you think something could be made faster, use
+  [http://jsben.ch/](http://jsben.ch/) to try out options in various browsers
+  and compare the results. You might be surprised.
+- **Follow Postel's Law, the Robustness Principle** "Be conservative in what you
+  do, be liberal in what you accept from others". For example, functions that
+  are invoked internally do not need to check that the input parameters are
+  valid. However, public APIs should check the validity of parameters, and
+  behave reasonably when they aren't.
 
 ## Bundling
 
@@ -226,12 +224,12 @@ readers.
 However, in addition to the "visual" HTML+CSS representation that MathLive
 outputs, it can also generate alternate renditions, including:
 
--   **LaTeX**: a string of LaTeX code equivalent to the formula.
--   **Spoken Text**: a text representation of the formula as someone would speak
-    it, for example: `f(x) = x^2` → "f of x equals x squared"
--   **Annotated Spoken Text**: as above, but in addition prosody hints are
-    inserted for a more natural rendition by text to speech systems (breathing
-    pauses, variation in pitch, etc...).
+- **LaTeX**: a string of LaTeX code equivalent to the formula.
+- **Spoken Text**: a text representation of the formula as someone would speak
+  it, for example: `f(x) = x^2` → "f of x equals x squared"
+- **Annotated Spoken Text**: as above, but in addition prosody hints are
+  inserted for a more natural rendition by text to speech systems (breathing
+  pauses, variation in pitch, etc...).
 
 Those alternate renditions are rendered as an ARIA-label, or as an element that
 is not visually rendered, but visible to screen readers.
@@ -242,18 +240,18 @@ Although MathLive works with screen readers, since math is its own language
 MathLive has its own built-in text to speech renderer. With the speech interface
 it is possible to:
 
--   read the current group (numerator or subscript, for example)
-    -   Mac: `Ctrl + Command + Down`
-    -   Windows/Linux/ChromeOS: `Ctrl + Alt + Down`
--   read what's before or after the selection
-    -   Mac: `Ctrl + Command + Left/Right`
-    -   Windows/Linux/ChromeOS: `Ctrl + Alt + Left/Right`
--   read the parent of the current group
-    -   Mac: `Ctrl + Command + Up`
-    -   Windows/Linux/ChromeOS: `Ctrl + Alt + Up`
--   read the current selection
-    -   Mac: `Ctrl + Command + Shift + Down`
-    -   Windows/Linux/ChromeOS: `Ctrl + Alt + Shift + Down`
+- read the current group (numerator or subscript, for example)
+  - Mac: `Ctrl + Command + Down`
+  - Windows/Linux/ChromeOS: `Ctrl + Alt + Down`
+- read what's before or after the selection
+  - Mac: `Ctrl + Command + Left/Right`
+  - Windows/Linux/ChromeOS: `Ctrl + Alt + Left/Right`
+- read the parent of the current group
+  - Mac: `Ctrl + Command + Up`
+  - Windows/Linux/ChromeOS: `Ctrl + Alt + Up`
+- read the current selection
+  - Mac: `Ctrl + Command + Shift + Down`
+  - Windows/Linux/ChromeOS: `Ctrl + Alt + Shift + Down`
 
 With these convenient keyboard shortcuts, it is possible to aurally navigate and
 understand even complex formulas.
@@ -288,9 +286,9 @@ in-memory data structure to represent a math expression while it is being edited
 
 MathLive is divided into two main components:
 
--   Core: handles rendering of Latex to HTML markup
--   Editor: handles the user interaction with the formula, using Core for the
-    rendering.
+- Core: handles rendering of Latex to HTML markup
+- Editor: handles the user interaction with the formula, using Core for the
+  rendering.
 
 ### Core
 
@@ -307,9 +305,9 @@ optionally a bar separating the two, and some optionally some opening and
 closing fences. It is used by the `\frac` command, but also `\choose`, `\pdiff`
 and others.
 
-The `Atom[]` are then turned into `Span[]` which are virtual markup elements.
+The `Atom[]` are then turned into `Box[]` which are virtual markup elements.
 
-Eventually, the `Span[]` get rendered into HTML/SVG markup.
+Eventually, the `Box[]` get rendered into HTML/SVG markup.
 
 ![Core Architecture](./assets/mathlive-core.png)
 
@@ -321,21 +319,21 @@ the parser.
 ### Parser
 
 The **parser** turns a stream of tokens generated by the lexer into **math
-atoms**. Those atoms then can be rendered into **spans**, or back into LaTeX or
+atoms**. Those atoms then can be rendered into **boxes**, or back into LaTeX or
 into spoken text.
 
-### Span
+### Box
 
-A span is an virtal DOM node that is used to represent an element displayed in a
+A box is virtual DOM node that is used to represent an element displayed in a
 web page: a symbol such as _x_ or _=_, an open brace, a line separating the
 numerator and denominator of a fraction, etc...
 
-The basic layout strategy is to calculate the vertical placement of the spans
+The basic layout strategy is to calculate the vertical placement of the boxes
 and position them accordingly, while letting the HTML rendering engine position
 and display the horizontal items. When horizontal adjustments need to be made,
 such as additional space between items the CSS margin are adjusted.
 
-**Spans** can be rendered to HTML markup with `Span.toMarkup()` before being
+**boxes** can be rendered to HTML markup with `Box.toMarkup()` before being
 displayed on the page.
 
 ### Atom
@@ -345,20 +343,20 @@ fraction, a delimiter, etc...
 
 There are several different classes of Atom (subclass of the base `Atom` class).
 Each class represents different layout algorithm (different ways of generating
-spans in their `render()` method) as well as different ways to generate Latex to
-represent the atom (in their `toLatex()` method)
+boxes in their `render()` method) as well as different ways to generate Latex to
+represent the atom (in their `serialize()` method)
 
 It can be of one of the following classes:
 
--   **Atom**: the base class is used for the simplest symbol, e.g. `x`, `1`,
-    `\alpha`
--   **AccentAtom**: a diacritic mark above a symbol
--   **ArrayAtom**: "environments" in TeX parlance, a matrix, vector or other
-    array-like structure
--   **BoxAtom**: a decoration around a "nucleus", including a color background,
-    lines, etc...
--   **DelimAtom** and **SizedDelimAtom** delimiters and extensible delimiters
--   see `src/core-atoms` for more.
+- **Atom**: the base class is used for the simplest symbol, e.g. `x`, `1`,
+  `\alpha`
+- **AccentAtom**: a diacritic mark above a symbol
+- **ArrayAtom**: "environments" in TeX parlance, a matrix, vector or other
+  array-like structure
+- **BoxAtom**: a decoration around a "nucleus", including a color background,
+  lines, etc...
+- **DelimAtom** and **SizedDelimAtom** delimiters and extensible delimiters
+- see `src/core-atoms` for more.
 
 ### Editor
 
@@ -372,7 +370,7 @@ the selection to the `model`.
 
 The `model` keep track of the state of the formula, including its content (a
 tree of `Atom`) and the selection and interacts with the core to turn the `Atom`
-into `Span` and into markup.
+into `Box` and into markup.
 
 ![Editor Architecture](./assets/mathlive-editor.png)
 

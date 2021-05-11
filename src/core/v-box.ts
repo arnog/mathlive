@@ -1,72 +1,72 @@
 import { Style } from '../public/core';
 import { Context } from './context';
-import { Span, SpanType } from './span';
+import { Box, BoxType } from './box';
 
-export type StackElement = {
-  span: Span;
+export type VBoxElement = {
+  box: Box;
   marginLeft?: number;
   marginRight?: number;
-  wrapperClasses?: string[];
-  wrapperStyle?: Style;
+  classes?: string[];
+  style?: Style;
 };
 
-export type StackElementAndShift = StackElement & { shift: number };
+export type VBoxElementAndShift = VBoxElement & { shift: number };
 
 // A list of child or kern nodes to be stacked on top of each other (i.e. the
 // first element will be at the bottom, and the last at the top).
-export type StackChild = StackElement | number;
+export type VBoxChild = VBoxElement | number;
 
-type StackParam =
+type VBoxParam =
   | {
       // Each child contains how much it should be shifted downward.
-      individualShift: StackElementAndShift[];
+      individualShift: VBoxElementAndShift[];
     }
   | {
       // "top": The positionData specifies the topmost point of the vlist (note this
       //        is expected to be a height, so positive values move up).
       top: number;
-      children: StackChild[];
+      children: VBoxChild[];
     }
   | {
       // "bottom": The positionData specifies the bottommost point of the vlist (note
       //           this is expected to be a depth, so positive values move down).
       bottom: number;
-      children: StackChild[];
+      children: VBoxChild[];
     }
   | {
       // "shift": The vlist will be positioned such that its baseline is positionData
       //          away from the baseline of the first child which MUST be an
       //          "elem". Positive values move downwards.
       shift: number;
-      children: StackChild[];
+      children: VBoxChild[];
     }
   | {
       // The vlist is positioned so that its baseline is aligned with the baseline
       // of the first child which MUST be an "elem". This is equivalent to "shift"
       // with positionData=0.
-      firstBaseline: StackChild[];
+      firstBaseline: VBoxChild[];
     };
 
 // Computes the updated `children` list and the overall depth.
 function getVListChildrenAndDepth(
-  params: StackParam
+  params: VBoxParam
 ): [
-  children: (StackChild | StackElementAndShift)[] | StackChild[],
+  children: (VBoxChild | VBoxElementAndShift)[] | VBoxChild[],
   depth: number
 ] {
   if ('individualShift' in params) {
     const oldChildren = params.individualShift;
     let prevChild = oldChildren[0];
-    const children: (StackChild | StackElementAndShift)[] = [prevChild];
+    const children: (VBoxChild | VBoxElementAndShift)[] = [prevChild];
 
     // Add in kerns to the list of params.children to get each element to be
     // shifted to the correct specified shift
-    const depth = -prevChild.shift - prevChild.span.depth;
+    const depth = -prevChild.shift - prevChild.box.depth;
     let currPos = depth;
     for (let i = 1; i < oldChildren.length; i++) {
       const child = oldChildren[i];
-      const diff = -child.shift - currPos - child.span.depth;
-      const size = diff - (prevChild.span.height + prevChild.span.depth);
+      const diff = -child.shift - currPos - child.box.depth;
+      const size = diff - (prevChild.box.height + prevChild.box.depth);
 
       currPos = currPos + diff;
 
@@ -85,9 +85,7 @@ function getVListChildrenAndDepth(
     let bottom = params.top;
     for (const child of params.children) {
       bottom -=
-        typeof child === 'number'
-          ? child
-          : child.span.height + child.span.depth;
+        typeof child === 'number' ? child : child.box.height + child.box.depth;
     }
     return [params.children, bottom];
   } else if ('bottom' in params) {
@@ -97,13 +95,13 @@ function getVListChildrenAndDepth(
     if (typeof firstChild === 'number') {
       throw new Error('First child must be an element.');
     }
-    return [params.firstBaseline, -firstChild.span.depth];
+    return [params.firstBaseline, -firstChild.box.depth];
   } else if ('shift' in params) {
     const firstChild = params.children[0];
     if (typeof firstChild === 'number') {
       throw new Error('First child must be an element.');
     }
-    return [params.children, -firstChild.span.depth - params.shift];
+    return [params.children, -firstChild.box.depth - params.shift];
   }
   return [null, 0];
 }
@@ -119,8 +117,8 @@ function getVListChildrenAndDepth(
  * This is necessary to workaround a Safari... behavior (see vlist-s and vlist-t2)
  */
 function makeRows(
-  params: StackParam
-): [rows: Span[], height: number, depth: number] {
+  params: VBoxParam
+): [rows: Box[], height: number, depth: number] {
   const [children, depth] = getVListChildrenAndDepth(params);
 
   // Create a strut that is taller than any list item. The strut is added to
@@ -133,12 +131,12 @@ function makeRows(
   let pstrutSize = 0;
   for (const child of children) {
     if (typeof child !== 'number') {
-      const span = child.span;
-      pstrutSize = Math.max(pstrutSize, span.maxFontSize, span.height);
+      const box = child.box;
+      pstrutSize = Math.max(pstrutSize, box.maxFontSize, box.height);
     }
   }
   pstrutSize += 2;
-  const pstrut = new Span(null, { classes: 'pstrut' });
+  const pstrut = new Box(null, { classes: 'pstrut' });
   pstrut.setStyle('height', pstrutSize, 'em');
 
   // Create a new list of actual children at the correct offsets
@@ -150,14 +148,14 @@ function makeRows(
     if (typeof child === 'number') {
       currPos += child;
     } else {
-      const span = child.span;
-      const classes = child.wrapperClasses ?? [];
+      const box = child.box;
+      const classes = child.classes ?? [];
 
-      const childWrap = new Span([pstrut, span], {
+      const childWrap = new Box([pstrut, box], {
         classes: classes.join(' '),
-        style: child.wrapperStyle,
+        style: child.style,
       });
-      childWrap.setStyle('top', -pstrutSize - currPos - span.depth, 'em');
+      childWrap.setStyle('top', -pstrutSize - currPos - box.depth, 'em');
       if (child.marginLeft) {
         childWrap.setStyle('margin-left', child.marginLeft, 'em');
       }
@@ -166,7 +164,7 @@ function makeRows(
       }
 
       realChildren.push(childWrap);
-      currPos += span.height + span.depth;
+      currPos += box.height + box.depth;
     }
     minPos = Math.min(minPos, currPos);
     maxPos = Math.max(maxPos, currPos);
@@ -175,23 +173,23 @@ function makeRows(
   // The vlist contents go in a table-cell with `vertical-align:bottom`.
   // This cell's bottom edge will determine the containing table's baseline
   // without overly expanding the containing line-box.
-  const vlist = new Span(realChildren, { classes: 'vlist' });
+  const vlist = new Box(realChildren, { classes: 'vlist' });
   vlist.setStyle('height', maxPos, 'em');
 
   // A second row is used if necessary to represent the vlist's depth.
-  let rows: Span[];
+  let rows: Box[];
   if (minPos < 0) {
-    // We will define depth in an empty span with display: table-cell.
+    // We will define depth in an empty box with display: table-cell.
     // It should render with the height that we define. But Chrome, in
-    // contenteditable mode only, treats that span as if it contains some
+    // contenteditable mode only, treats that box as if it contains some
     // text content. And that min-height over-rides our desired height.
-    // So we put another empty span inside the depth strut span.
-    const depthStrut = new Span(new Span(null), { classes: 'vlist' });
+    // So we put another empty box inside the depth strut box.
+    const depthStrut = new Box(new Box(null), { classes: 'vlist' });
     depthStrut.setStyle('height', -minPos, 'em');
 
     // Safari wants the first row to have inline content; otherwise it
     // puts the bottom of the *second* row on the baseline.
-    const topStrut = new Span(0x200b, {
+    const topStrut = new Box(0x200b, {
       classes: 'vlist-s',
       maxFontSize: 0,
       height: 0,
@@ -199,20 +197,20 @@ function makeRows(
     });
 
     rows = [
-      new Span([vlist, topStrut], { classes: 'vlist-r' }),
-      new Span(depthStrut, { classes: 'vlist-r' }),
+      new Box([vlist, topStrut], { classes: 'vlist-r' }),
+      new Box(depthStrut, { classes: 'vlist-r' }),
     ];
   } else {
-    rows = [new Span(vlist, { classes: 'vlist-r' })];
+    rows = [new Box(vlist, { classes: 'vlist-r' })];
   }
 
   return [rows, maxPos, -minPos];
 }
 
-export class Stack extends Span {
+export class VBox extends Box {
   constructor(
-    content: StackParam,
-    options?: { classes?: string; type?: SpanType }
+    content: VBoxParam,
+    options?: { classes?: string; type?: BoxType }
   ) {
     const [rows, height, depth] = makeRows(content);
     super(rows.length === 1 ? rows[0] : rows, {
@@ -241,19 +239,19 @@ export class Stack extends Span {
 export function makeLimitsStack(
   context: Context,
   options: {
-    base: Span;
+    base: Box;
     baseShift?: number;
     slant?: number;
-    above: Span;
+    above: Box;
     aboveShift?: number;
-    below: Span;
+    below: Box;
     belowShift?: number;
-    type?: SpanType;
+    type?: BoxType;
   }
-): Span {
+): Box {
   // If nothing above and nothing below, nothing to do.
   // if (!options.above && !options.below) {
-  //   return new Span(options.base, { type: options.spanType ?? 'mop' }).wrap(
+  //   return new Span(options.base, { type: options.boxType ?? 'mop' }).wrap(
   //     context
   //   );
   //   // return options.base;
@@ -261,9 +259,9 @@ export function makeLimitsStack(
   const metrics = context.metrics;
 
   // IE8 clips \int if it is in a display: inline-block. We wrap it
-  // in a new span so it is an inline, and works.
+  // in a new box so it is an inline, and works.
   // @todo: revisit
-  const base = new Span(options.base);
+  const base = new Box(options.base);
 
   const baseShift = options.baseShift ?? 0;
   const slant = options.slant ?? 0;
@@ -289,7 +287,7 @@ export function makeLimitsStack(
       );
   }
 
-  let result: Span | null = null;
+  let result: Box | null = null;
 
   if (options.below && options.above) {
     const bottom =
@@ -304,65 +302,65 @@ export function makeLimitsStack(
     // that we are supposed to shift the limits by 1/2 of the slant,
     // but since we are centering the limits adding a full slant of
     // margin will shift by 1/2 that.
-    result = new Stack({
+    result = new VBox({
       bottom,
       children: [
         metrics.bigOpSpacing5,
         {
-          span: options.below,
+          box: options.below,
           marginLeft: -slant,
-          wrapperClasses: ['ML__center'],
+          classes: ['ML__center'],
         },
         belowShift,
         //  We need to center the base to account for the case where the
         // above/below is wider
-        { span: base, wrapperClasses: ['ML__center'] },
+        { box: base, classes: ['ML__center'] },
         aboveShift,
         {
-          span: options.above,
+          box: options.above,
           marginLeft: slant,
-          wrapperClasses: ['ML__center'],
+          classes: ['ML__center'],
         },
         metrics.bigOpSpacing5,
       ],
     }).wrap(context);
   } else if (options.below && !options.above) {
-    result = new Stack({
+    result = new VBox({
       top: base.height - baseShift,
       children: [
         metrics.bigOpSpacing5,
         {
-          span: options.below,
+          box: options.below,
           marginLeft: -slant,
-          wrapperClasses: ['ML__center'],
+          classes: ['ML__center'],
         },
         belowShift,
-        { span: base, wrapperClasses: ['ML__center'] },
+        { box: base, classes: ['ML__center'] },
       ],
     }).wrap(context);
   } else if (!options.below && options.above) {
     const bottom = base.depth + baseShift;
 
-    result = new Stack({
+    result = new VBox({
       bottom,
       children: [
-        { span: base, wrapperClasses: ['ML__center'] },
+        { box: base, classes: ['ML__center'] },
         aboveShift,
         {
-          span: options.above,
+          box: options.above,
           marginLeft: slant,
-          wrapperClasses: ['ML__center'],
+          classes: ['ML__center'],
         },
         metrics.bigOpSpacing5,
       ],
     }).wrap(context);
   } else {
     const bottom = base.depth + baseShift;
-    result = new Stack({
+    result = new VBox({
       bottom,
-      children: [{ span: base }, metrics.bigOpSpacing5],
+      children: [{ box: base }, metrics.bigOpSpacing5],
     }).wrap(context);
   }
   console.assert(options.type !== undefined);
-  return new Span(result, { type: options.type ?? 'mop' });
+  return new Box(result, { type: options.type ?? 'mop' });
 }

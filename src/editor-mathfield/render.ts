@@ -1,4 +1,4 @@
-import { adjustInterAtomSpacing, makeStruts } from '../core/span';
+import { adjustInterAtomSpacing, makeStruts } from '../core/box';
 
 import {
   Rect,
@@ -97,7 +97,7 @@ export function render(
   }
 
   //
-  // 3. Render spans
+  // 3. Render boxes
   //
   const base = model.root.render(
     new Context(
@@ -107,13 +107,13 @@ export function render(
           // Using the hash as a seed for the ID
           // keeps the IDs the same until the content of the field changes.
           seed: hash(
-            Atom.toLatex(model.root, {
+            Atom.serialize(model.root, {
               expandMacro: false,
               defaultMode: mathfield.options.defaultMode,
             })
           ),
-          // The `groupNumbers` flag indicates that extra spans should be generated
-          // to represent group of atoms, for example, a span to group
+          // The `groupNumbers` flag indicates that extra boxes should be generated
+          // to represent group of atoms, for example, a box to group
           // consecutive digits to represent a number.
           groupNumbers: renderOptions.forHighlighting,
         },
@@ -132,7 +132,7 @@ export function render(
   );
 
   //
-  // 4. Construct struts around the spans
+  // 4. Construct struts around the boxes
   //
   const wrapper = makeStruts(
     adjustInterAtomSpacing(base, mathfield.options.horizontalSpacingScale),

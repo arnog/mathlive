@@ -2,14 +2,14 @@
 import { ErrorListener, Style, ParserErrorCode } from '../public/core';
 import { Mode, ParseTokensOptions, getPropertyRuns } from './modes-utils';
 import { joinLatex, Token } from './tokenizer';
-import { Span } from './span';
+import { Box } from './box';
 import { Atom, ToLatexOptions } from './atom';
 import { getInfo, charToLatex } from '../core-definitions/definitions';
 import { TextAtom } from '../core-atoms/text';
 import { BoxAtom } from '../core-atoms/box';
 
 function emitStringTextRun(run: Atom[], options: ToLatexOptions): string {
-  return joinLatex(run.map((x: Atom) => Atom.toLatex(x, options)));
+  return joinLatex(run.map((x: Atom) => Atom.serialize(x, options)));
 }
 
 function emitFontShapeTextRun(run: Atom[], options: ToLatexOptions): string {
@@ -186,7 +186,7 @@ export class TextMode extends Mode {
     return new TextAtom(command, value, style);
   }
 
-  toLatex(inRun: Atom[], options: ToLatexOptions): string {
+  serialize(inRun: Atom[], options: ToLatexOptions): string {
     const run = [...inRun];
     let prefix = '';
     while (run[0]?.changeMode ?? false) {
@@ -217,19 +217,19 @@ export class TextMode extends Mode {
   /**
    * Return the font-family name
    */
-  applyStyle(span: Span, style: Style): string {
+  applyStyle(box: Box, style: Style): string {
     const { fontFamily } = style;
 
     if (TEXT_FONT_CLASS[fontFamily]) {
-      span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
+      box.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
     } else if (fontFamily) {
       // Not a well-known family. Use a style.
-      span.setStyle('font-family', fontFamily);
+      box.setStyle('font-family', fontFamily);
     }
 
     if (style.fontShape) {
-      span.classes += ' ';
-      span.classes +=
+      box.classes += ' ';
+      box.classes +=
         {
           it: 'ML__it',
           sl: 'ML__shape_sl', // Slanted
@@ -241,8 +241,8 @@ export class TextMode extends Mode {
     if (style.fontSeries) {
       const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
       if (m) {
-        span.classes += ' ';
-        span.classes +=
+        box.classes += ' ';
+        box.classes +=
           {
             ul: 'ML__series_ul',
             el: 'ML__series_el',
@@ -254,8 +254,8 @@ export class TextMode extends Mode {
             eb: 'ML__series_eb',
             ub: 'ML__series_ub',
           }[m[1] ?? ''] ?? '';
-        span.classes += ' ';
-        span.classes +=
+        box.classes += ' ';
+        box.classes +=
           {
             uc: 'ML__series_uc',
             ec: 'ML__series_ec',

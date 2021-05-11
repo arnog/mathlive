@@ -5,8 +5,8 @@ import {
   isNamedBranch,
   ToLatexOptions,
 } from '../core/atom-class';
-import { Span } from '../core/span';
-import { Stack, StackElementAndShift } from '../core/stack';
+import { Box } from '../core/box';
+import { VBox, VBoxElementAndShift } from '../core/v-box';
 import { makeLeftRightDelim } from '../core/delimiters';
 import { MathstyleName } from '../core/mathstyle';
 import { Context } from '../core/context';
@@ -55,7 +55,7 @@ export type ArrayAtomConstructorOptions = {
 };
 
 type ArrayRow = {
-  cells: Span[];
+  cells: Box[];
   height: number;
   depth: number;
   pos: number;
@@ -312,7 +312,7 @@ export class ArrayAtom extends Atom {
     return [...result, ...super.children];
   }
 
-  render(context: Context): Span | null {
+  render(context: Context): Box | null {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
     // and http://tug.ctan.org/macros/latex/base/lttab.dtx
 
@@ -357,8 +357,8 @@ export class ArrayAtom extends Atom {
       const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
       for (const element of inrow) {
         const elt =
-          Atom.render(cellContext, element, { newList: true }) ??
-          new Span(null, { newList: true });
+          Atom.createBox(cellContext, element, { newList: true }) ??
+          new Box(null, { newList: true });
         depth = Math.max(depth, elt.depth);
         height = Math.max(height, elt.height);
         outrow.cells.push(elt);
@@ -388,17 +388,17 @@ export class ArrayAtom extends Atom {
     const offset = totalHeight / 2 + AXIS_HEIGHT;
     const contentCols = [];
     for (let colIndex = 0; colIndex < nc; colIndex++) {
-      const stack: StackElementAndShift[] = [];
+      const stack: VBoxElementAndShift[] = [];
       for (const row of body) {
         const element = row.cells[colIndex];
         element.depth = row.depth;
         element.height = row.height;
 
-        stack.push({ span: element, shift: row.pos - offset });
+        stack.push({ box: element, shift: row.pos - offset });
       }
 
       if (stack.length > 0) {
-        contentCols.push(new Stack({ individualShift: stack }));
+        contentCols.push(new VBox({ individualShift: stack }));
       }
     }
 
@@ -429,7 +429,7 @@ export class ArrayAtom extends Atom {
         }
 
         cols.push(
-          new Span(contentCols[currentContentCol], {
+          new Box(contentCols[currentContentCol], {
             classes: 'col-align-' + colDesc.align,
           })
         );
@@ -462,7 +462,7 @@ export class ArrayAtom extends Atom {
         // It's a column separator.
         //
 
-        const separator = new Span(null, { classes: 'vertical-separator' });
+        const separator = new Box(null, { classes: 'vertical-separator' });
         separator.setStyle('height', totalHeight, 'em');
         separator.setStyle(
           'border-right',
@@ -493,7 +493,7 @@ export class ArrayAtom extends Atom {
       cols.push(makeColGap(arraycolsep));
     }
 
-    const inner = new Span(cols, { classes: 'mtable' });
+    const inner = new Box(cols, { classes: 'mtable' });
 
     if (
       (!this.leftDelim || this.leftDelim === '.') &&
@@ -510,7 +510,7 @@ export class ArrayAtom extends Atom {
     const innerDepth = inner.depth;
     const result = this.bind(
       context,
-      new Span(
+      new Box(
         [
           this.bind(
             context,
@@ -542,7 +542,7 @@ export class ArrayAtom extends Atom {
     return this.attachSupsub(context, { base: result });
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     let result = '\\begin{' + this.environmentName + '}';
     if (this.environmentName === 'array') {
       result += '{';
@@ -566,7 +566,7 @@ export class ArrayAtom extends Atom {
         if (col > 0) result += ' & ';
         result = joinLatex([
           result,
-          Atom.toLatex(this.array[row][col], options),
+          Atom.serialize(this.array[row][col], options),
         ]);
       }
 
@@ -627,11 +627,11 @@ export class ArrayAtom extends Atom {
   }
 }
 /**
- * Create a column separator span.
+ * Create a column separator box.
  *
  */
-function makeColGap(width: number): Span {
-  const separator = new Span(null, { classes: 'arraycolsep' });
+function makeColGap(width: number): Box {
+  const separator = new Box(null, { classes: 'arraycolsep' });
   separator.width = width;
   return separator;
 }
@@ -644,14 +644,14 @@ function makeColOfRepeatingElements(
   rows: ArrayRow[],
   offset: number,
   element: Atom[]
-): Span {
-  const col: StackElementAndShift[] = [];
+): Box {
+  const col: VBoxElementAndShift[] = [];
   for (const row of rows) {
-    const cell = Atom.render(context, element, { newList: true });
+    const cell = Atom.createBox(context, element, { newList: true });
     cell.depth = row.depth;
     cell.height = row.height;
-    col.push({ span: cell, shift: row.pos - offset });
+    col.push({ box: cell, shift: row.pos - offset });
   }
 
-  return new Stack({ individualShift: col }).wrap(context);
+  return new VBox({ individualShift: col }).wrap(context);
 }

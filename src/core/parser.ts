@@ -618,7 +618,7 @@ class Parser {
         mathstyleName: final === '\\)' ? 'textstyle' : 'displaystyle',
         latexOpen: final === '\\]' ? '\\[' : '\\(',
         latexClose: final,
-        spanType: 'mord',
+        boxType: 'mord',
       }
     );
     if (!this.match(final)) {
@@ -1354,7 +1354,7 @@ class Parser {
         command: '\\char',
         mode: this.parseMode,
         value: String.fromCodePoint(codepoint),
-        toLatexOverride: () => verbatimLatex,
+        serialize: () => verbatimLatex,
       });
       result.verbatimLatex = verbatimLatex;
 

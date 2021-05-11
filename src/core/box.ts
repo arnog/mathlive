@@ -2,7 +2,7 @@ import { isArray } from '../common/types';
 
 import { Style, ParseMode } from '../public/core';
 import { getCharacterMetrics } from './font-metrics';
-import { svgBodyToMarkup, svgBodyHeight } from './svg-span';
+import { svgBodyToMarkup, svgBodyHeight } from './svg-box';
 import { Mode } from './modes-utils';
 import { Context } from './context';
 
@@ -16,7 +16,7 @@ import { Context } from './context';
  * 'vcent'
  */
 
-const SPAN_TYPE = [
+const BOX_TYPE = [
   '',
   'chem',
   'mord', // > is an ordinary atom like ‘x’ ;
@@ -36,10 +36,10 @@ const SPAN_TYPE = [
   'supsub',
   'none',
 ] as const; // The const assertion prevents widening to string[]
-export type SpanType = typeof SPAN_TYPE[number];
+export type BoxType = typeof BOX_TYPE[number];
 
-export function isSpanType(type: string): type is SpanType {
-  return ((SPAN_TYPE as unknown) as string[]).includes(type);
+export function isBoxType(type: string): type is BoxType {
+  return ((BOX_TYPE as unknown) as string[]).includes(type);
 }
 
 /*
@@ -107,7 +107,7 @@ function toString(arg1?: number | string, arg2?: string): string {
   return '';
 }
 
-export type SpanCSSProperties =
+export type BoxCSSProperties =
   | 'background-color'
   | 'border'
   | 'border-bottom'
@@ -138,11 +138,11 @@ export type SpanCSSProperties =
   | 'width'
   | 'z-index';
 
-type SpanOptions = {
+type BoxOptions = {
   classes?: string;
-  properties?: Partial<Record<SpanCSSProperties, string>>;
+  properties?: Partial<Record<BoxCSSProperties, string>>;
   attributes?: Record<string, string>;
-  type?: SpanType;
+  type?: BoxType;
   isTight?: boolean;
   height?: number;
   depth?: number;
@@ -157,12 +157,12 @@ type SpanOptions = {
 };
 
 //----------------------------------------------------------------------------
-// SPAN
+// BOX
 //----------------------------------------------------------------------------
 /**
- * A span is the most elementary element that can be rendered.
+ * A box is the most elementary element that can be rendered.
  * It is composed of an optional body of text and an optional list
- * of children (other spans). Each span can be decorated with
+ * of children (other boxes). Each box can be decorated with
  * CSS classes and style attributes.
  *
  * @param content the items 'contained' by this node
@@ -172,23 +172,23 @@ type SpanOptions = {
  * @property  type - For example, `'latex'`, `'mrel'`, etc...
  * @property classes - A string of space separated CSS classes
  * associated with this element
- * @property cssId - A CSS ID assigned to this span (optional)
- * @property htmlData - data fields assigned to this span (optional)
- * @property children - An array, potentially empty, of spans which
- * this span encloses
+ * @property cssId - A CSS ID assigned to this box (optional)
+ * @property htmlData - data fields assigned to this box (optional)
+ * @property children - An array, potentially empty, of boxes which
+ * this box encloses
  * @property cssProperties - A set of key/value pairs specifying CSS properties
  * associated with this element.
  * @property height - The measurement from baseline to top, in em.
  * @property depth - The measurement from baseline to bottom, in em.
  */
-export class Span {
-  type: SpanType;
+export class Box {
+  type: BoxType;
 
-  children?: Span[];
+  children?: Box[];
   // If true, this atom (and its children) should be considered as part of
   // a 'new list', in the TeX sense. That happens when a new branch
   // (superscript, etc...) is begun. This is important to correctly adjust
-  // the 'type' of spans, and calculate their interspacing correctly.
+  // the 'type' of boxes, and calculate their interspacing correctly.
   newList: boolean;
   value: string;
 
@@ -218,19 +218,19 @@ export class Span {
 
   private attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
 
-  private cssProperties: Partial<Record<SpanCSSProperties, string>>;
+  private cssProperties: Partial<Record<BoxCSSProperties, string>>;
 
   constructor(
-    content: null | number | string | Span | (Span | null)[],
-    options?: SpanOptions
+    content: null | number | string | Box | (Box | null)[],
+    options?: BoxOptions
   ) {
     if (typeof content === 'number') {
       this.value = String.fromCodePoint(content);
     } else if (typeof content === 'string') {
       this.value = content;
-    } else if (isArray<Span | null>(content)) {
+    } else if (isArray<Box | null>(content)) {
       this.children = content.filter((x) => x !== null);
-    } else if (content && content instanceof Span) {
+    } else if (content && content instanceof Box) {
       this.children = [content];
     }
 
@@ -240,10 +240,10 @@ export class Span {
     this.newList = options?.newList ?? false;
 
     // CSS style, as a set of key value pairs.
-    // Use `Span.setStyle()` to modify it.
+    // Use `Box.setStyle()` to modify it.
     if (options?.properties) {
       for (const prop of Object.keys(options.properties)) {
-        this.setStyle(prop as SpanCSSProperties, options.properties[prop]);
+        this.setStyle(prop as BoxCSSProperties, options.properties[prop]);
       }
     }
 
@@ -264,7 +264,7 @@ export class Span {
     this.maxFontSize = 0;
 
     //
-    // Calculate the dimensions of this span
+    // Calculate the dimensions of this box
     //
     if (typeof content === 'number') {
       //
@@ -309,7 +309,7 @@ export class Span {
       this.depth = 0.2;
     } else if (this.children && this.children.length > 0) {
       //
-      // A sequence of spans
+      // A sequence of boxes
       //
 
       if (this.children.length === 1) {
@@ -368,16 +368,16 @@ export class Span {
   }
 
   /**
-   * Set the value of a CSS property associated with this span.
+   * Set the value of a CSS property associated with this box.
    * For example, setStyle('border-right', 5.6, 'em');
    *
    * @param prop the CSS property to set
    * @param value a series of strings and numbers that will be concatenated.
    */
-  setStyle(prop: SpanCSSProperties, value: string): void;
-  setStyle(prop: SpanCSSProperties, value: number, unit?: string): void;
+  setStyle(prop: BoxCSSProperties, value: string): void;
+  setStyle(prop: BoxCSSProperties, value: number, unit?: string): void;
   setStyle(
-    prop: SpanCSSProperties,
+    prop: BoxCSSProperties,
     value: string | number,
     unit?: string
   ): void {
@@ -434,7 +434,7 @@ export class Span {
   }
 
   /**
-   * If necessary wrap this span with another one that adjust the font-size
+   * If necessary wrap this box with another one that adjust the font-size
    * to account for a change in size between the context and its parent.
    * Also, apply color and background-color attributes.
    */
@@ -444,7 +444,7 @@ export class Span {
       classes: string;
       type: '' | 'mopen' | 'mclose' | 'minner';
     }
-  ): Span {
+  ): Box {
     const parent = context.parent;
 
     // If we're at the root, nothing to do
@@ -460,7 +460,7 @@ export class Span {
         : context.color;
 
     //
-    // Apply color changes to the span
+    // Apply color changes to the box
     //
     this.setStyle('color', newColor);
 
@@ -475,7 +475,7 @@ export class Span {
         : context.backgroundColor;
 
     //
-    // Wrap the span if necessary.
+    // Wrap the box if necessary.
     //
     // Note that when the size changes, the font-size should be applied to
     // the wrapper, not to the nucleus, otherwise the size of the element
@@ -489,14 +489,14 @@ export class Span {
       return this;
     }
 
-    let result: Span;
+    let result: Box;
     if (newBackgroundColor) {
       result = makeStruts(this, options);
       result.selected(this.isSelected);
       result.setStyle('background-color', newBackgroundColor);
       result.setStyle('display', 'inline-block');
     } else {
-      result = new Span(this, options);
+      result = new Box(this, options);
     }
     //
     // Adjust the dimensions to account for the size variations
@@ -513,7 +513,7 @@ export class Span {
   }
 
   /**
-   * Generate the HTML markup to represent this span.
+   * Generate the HTML markup to represent this box.
    */
 
   toMarkup(): string {
@@ -523,13 +523,13 @@ export class Span {
     // 1. Render the children
     //
     if (this.children) {
-      for (const span of this.children) {
-        body += span.toMarkup();
+      for (const box of this.children) {
+        body += box.toMarkup();
       }
     }
 
     //
-    // 2. Calculate the classes associated with this span
+    // 2. Calculate the classes associated with this box
     //
     const classes = this.classes.split(' ');
 
@@ -614,7 +614,7 @@ export class Span {
       }
 
       //
-      // If there is some SVG markup associated with this span,
+      // If there is some SVG markup associated with this box,
       // include it now
       //
       let svgMarkup = '';
@@ -665,17 +665,17 @@ export class Span {
   }
 
   /**
-   * Can this span be coalesced with 'span'?
-   * This is used to 'coalesce' (i.e. group together) a series of spans that are
-   * identical except for their value, and to avoid generating redundant spans.
+   * Can this box be coalesced with 'box'?
+   * This is used to 'coalesce' (i.e. group together) a series of boxes that are
+   * identical except for their value, and to avoid generating redundant boxes.
    * That is: '12' ->
    *      "<span class='crm'>12</span>"
    * rather than:
    *      "<span class='crm'>1</span><span class='crm'>2</span>"
    */
-  tryCoalesceWith(span: Span): boolean {
+  tryCoalesceWith(box: Box): boolean {
     // Don't coalesce if the types are different
-    if (this.type !== span.type) return false;
+    if (this.type !== box.type) return false;
 
     // Only coalesce some types
     if (
@@ -687,27 +687,27 @@ export class Span {
 
     // Don't coalesce if some of the content is SVG
     if (this.svgBody || !this.value) return false;
-    if (span.svgBody || !span.value) return false;
+    if (box.svgBody || !box.value) return false;
 
-    // If this span or the candidate span have children, we can't
+    // If this box or the candidate box have children, we can't
     // coalesce them, but we'll try to coalesce their children
     const hasChildren = this.children && this.children.length > 0;
-    const spanHasChildren = span.children && span.children.length > 0;
-    if (hasChildren || spanHasChildren) return false;
+    const boxHasChildren = box.children && box.children.length > 0;
+    if (hasChildren || boxHasChildren) return false;
 
     // If they have a different number of styles, can't coalesce
     const thisStyleCount = this.cssProperties
       ? Object.keys(this.cssProperties).length
       : 0;
-    const spanStyleCount = span.cssProperties
-      ? Object.keys(span.cssProperties).length
+    const boxStyleCount = box.cssProperties
+      ? Object.keys(box.cssProperties).length
       : 0;
-    if (thisStyleCount !== spanStyleCount) return false;
+    if (thisStyleCount !== boxStyleCount) return false;
 
     // If the styles are different, can't coalesce
     if (thisStyleCount > 0) {
       for (const prop of Object.keys(this.cssProperties)) {
-        if (this.cssProperties[prop] !== span.cssProperties[prop]) {
+        if (this.cssProperties[prop] !== box.cssProperties[prop]) {
           return false;
         }
       }
@@ -716,66 +716,66 @@ export class Span {
     // For the purpose of our comparison,
     // any 'empty' classes (whitespace)
     const classes = this.classes.trim().replace(/\s+/g, ' ').split(' ');
-    const spanClasses = span.classes.trim().replace(/\s+/g, ' ').split(' ');
+    const boxClasses = box.classes.trim().replace(/\s+/g, ' ').split(' ');
 
     // If they have a different number of classes, can't coalesce
-    if (classes.length !== spanClasses.length) return false;
+    if (classes.length !== boxClasses.length) return false;
 
     // OK, let's do the more expensive comparison now.
     // If they have different classes, can't coalesce
     classes.sort();
-    spanClasses.sort();
+    boxClasses.sort();
     for (const [i, class_] of classes.entries()) {
       // Don't coalesce vertical separators
       // (used in column formating with {l||r} for example
       if (class_ === 'vertical-separator') return false;
-      if (class_ !== spanClasses[i]) return false;
+      if (class_ !== boxClasses[i]) return false;
     }
 
-    // OK, the attributes of those spans are compatible.
-    // Merge span into this
-    this.value += span.value;
-    this.height = Math.max(this.height, span.height);
-    this.depth = Math.max(this.depth, span.depth);
-    this.maxFontSize = Math.max(this.maxFontSize, span.maxFontSize);
-    // The italic correction for the coalesced spans is the
-    // italic correction of the last span.
-    this.italic = span.italic;
+    // OK, the attributes of those boxes are compatible.
+    // Merge box into this
+    this.value += box.value;
+    this.height = Math.max(this.height, box.height);
+    this.depth = Math.max(this.depth, box.depth);
+    this.maxFontSize = Math.max(this.maxFontSize, box.maxFontSize);
+    // The italic correction for the coalesced boxes is the
+    // italic correction of the last box.
+    this.italic = box.italic;
     return true;
   }
 }
 
 /**
- * Attempts to coalesce (merge) spans, for example consecutive text spans.
- * Return a new tree with coalesced spans.
+ * Attempts to coalesce (merge) boxes, for example consecutive text boxes.
+ * Return a new tree with coalesced boxes.
  *
  */
-function coalesceRecursive(spans: Span[]): Span[] {
-  if (!spans || spans.length === 0) return [];
+function coalesceRecursive(boxes: Box[]): Box[] {
+  if (!boxes || boxes.length === 0) return [];
 
-  spans[0].children = coalesceRecursive(spans[0].children);
-  const result = [spans[0]];
+  boxes[0].children = coalesceRecursive(boxes[0].children);
+  const result = [boxes[0]];
 
-  for (let i = 1; i < spans.length; i++) {
-    if (!result[result.length - 1].tryCoalesceWith(spans[i])) {
-      spans[i].children = coalesceRecursive(spans[i].children);
-      result.push(spans[i]);
+  for (let i = 1; i < boxes.length; i++) {
+    if (!result[result.length - 1].tryCoalesceWith(boxes[i])) {
+      boxes[i].children = coalesceRecursive(boxes[i].children);
+      result.push(boxes[i]);
     }
   }
 
   return result;
 }
 
-export function coalesce(span: Span): Span {
-  if (span.children) span.children = coalesceRecursive(span.children);
-  return span;
+export function coalesce(box: Box): Box {
+  if (box.children) box.children = coalesceRecursive(box.children);
+  return box;
 }
 
 /**
- *  Handle proper spacing of, e.g. "-4" vs "1-4", by adjusting some span type
+ *  Handle proper spacing of, e.g. "-4" vs "1-4", by adjusting some box type
  */
-function adjustType(root: Span): void {
-  forEachSpan(root, (prevSpan: Span, span: Span) => {
+function adjustType(root: Box): void {
+  forEachBox(root, (prevBox: Box, box: Box) => {
     // TexBook p. 442:
     // > 5. If the current item is a Bin atom, and if this was the first atom in the
     // >   list, or if the most recent previous atom was Bin, Op, Rel, Open, or
@@ -783,98 +783,98 @@ function adjustType(root: Span): void {
     // >   Otherwise continue with Rule 17.
 
     if (
-      span.type === 'mbin' &&
-      (!prevSpan || /first|none|mbin|mop|mrel|mopen|mpunct/.test(prevSpan.type))
+      box.type === 'mbin' &&
+      (!prevBox || /first|none|mbin|mop|mrel|mopen|mpunct/.test(prevBox.type))
     ) {
-      span.type = 'mord';
+      box.type = 'mord';
     }
     // > 6. If the current item is a Rel or Close or Punct atom, and if the most
     // >   recent previous atom was Bin, change that previous Bin to Ord. Continue
     // >   with Rule 17.
     if (
-      prevSpan &&
-      prevSpan.type === 'mbin' &&
-      /mrel|mclose|mpunct|placeholder/.test(span.type)
+      prevBox &&
+      prevBox.type === 'mbin' &&
+      /mrel|mclose|mpunct|placeholder/.test(box.type)
     ) {
-      prevSpan.type = 'mord';
+      prevBox.type = 'mord';
     }
   });
 }
 
 //
-// Adjust the atom(/span) types according to the TeX rules
+// Adjust the atom(/box) types according to the TeX rules
 //
-function applyInterAtomSpacing(root: Span, scale: number): void {
-  forEachSpan(root, (prevSpan: Span, span: Span) => {
-    const prevType: SpanType = prevSpan?.type ?? 'none';
-    const table = span.isTight
+function applyInterAtomSpacing(root: Box, scale: number): void {
+  forEachBox(root, (prevBox: Box, box: Box) => {
+    const prevType: BoxType = prevBox?.type ?? 'none';
+    const table = box.isTight
       ? INTER_ATOM_TIGHT_SPACING[prevType] ?? null
       : INTER_ATOM_SPACING[prevType] ?? null;
-    const hskip = table ? table[span.type] ?? 0 : 0;
+    const hskip = table ? table[box.type] ?? 0 : 0;
 
-    if (hskip) span.left += scale * (hskip / 18);
+    if (hskip) box.left += scale * (hskip / 18);
   });
 }
 
 /*
- * Iterate over each spans, mimicking the TeX atom list walking logic
+ * Iterate over each box, mimicking the TeX atom list walking logic
  * used to demote bin atoms to ord.
  *
- * Our spans don't map one to one with atoms, since we may include
- * "construction" spans that should be ignored. This function takes care
+ * Our boxes don't map one to one with atoms, since we may include
+ * "construction" boxes that should be ignored. This function takes care
  * of that.
  *
  */
 
-function forEachSpanRecursive(
-  prevSpan: Span,
-  span: Span,
-  f: (prevSpan: Span, curSpan: Span) => void
-): Span {
+function forEachBoxRecursive(
+  prevBox: Box,
+  box: Box,
+  f: (prevBox: Box, curBox: Box) => void
+): Box {
   // The TeX algorithms scan each elements, and consider them to be part
   // of the same list of atoms, until they reach some branch points (superscript,
-  // numerator,etc..). The spans that indicate the start of a new list have
+  // numerator,etc..). The boxes that indicate the start of a new list have
   // the `newList` property set.
-  if (span.newList) prevSpan = null;
-  const type = span.type;
+  if (box.newList) prevBox = null;
+  const type = box.type;
 
   if (type === 'first') {
-    console.assert(span.newList === true);
+    console.assert(box.newList === true);
     return null;
   }
 
   // Skip over first and spacing atoms
   if (type === 'spacing') {
-    return prevSpan;
+    return prevBox;
   }
 
-  f(prevSpan, span);
+  f(prevBox, box);
 
-  if (span.children) {
-    let childPrev: Span = null;
+  if (box.children) {
+    let childPrev: Box = null;
     if (type === undefined || type.length === 0) {
-      childPrev = prevSpan;
+      childPrev = prevBox;
     }
-    for (const child of span.children) {
-      childPrev = forEachSpanRecursive(childPrev, child, f);
+    for (const child of box.children) {
+      childPrev = forEachBoxRecursive(childPrev, child, f);
     }
     if (type === undefined || type.length === 0) {
-      prevSpan = childPrev;
+      prevBox = childPrev;
     }
   }
 
   if (type !== 'supsub' && type !== undefined && type.length > 0) {
-    prevSpan = span;
+    prevBox = box;
   }
 
-  return prevSpan;
+  return prevBox;
 }
 
-function forEachSpan(span: Span, f: (prevSpan: Span, curSpan: Span) => void) {
-  forEachSpanRecursive(null, span, f);
+function forEachBox(box: Box, f: (prevBox: Box, curBox: Box) => void) {
+  forEachBoxRecursive(null, box, f);
 }
 
-export function adjustInterAtomSpacing(root: Span, scale = 1.0): Span {
+export function adjustInterAtomSpacing(root: Box, scale = 1.0): Box {
   adjustType(root);
   applyInterAtomSpacing(root, scale);
   return root;
@@ -901,21 +901,21 @@ export function adjustInterAtomSpacing(root: Span, scale = 1.0): Span {
 //----------------------------------------------------------------------------
 
 export function makeStruts(
-  content: Span,
+  content: Box,
   options: {
     classes: string;
-    type?: SpanType;
+    type?: BoxType;
     attributes?: Record<string, string>;
   }
-): Span {
-  if (!content) return new Span(null, options);
+): Box {
+  if (!content) return new Box(null, options);
 
-  const topStrut = new Span(null, { classes: 'ML__strut' });
+  const topStrut = new Box(null, { classes: 'ML__strut' });
   topStrut.setStyle('height', Math.max(0, content.height), 'em');
   const struts = [topStrut];
 
   if (content.depth !== 0) {
-    const bottomStrut = new Span(null, { classes: 'ML__strut--bottom' });
+    const bottomStrut = new Box(null, { classes: 'ML__strut--bottom' });
     bottomStrut.setStyle('height', content.height + content.depth, 'em');
     bottomStrut.setStyle('vertical-align', -content.depth, 'em');
     struts.push(bottomStrut);
@@ -923,32 +923,32 @@ export function makeStruts(
 
   struts.push(content);
 
-  return new Span(struts, options);
+  return new Box(struts, options);
 }
 
 /**
- * Add some SVG markup to be overlaid on top of the span
+ * Add some SVG markup to be overlaid on top of the box
  */
 export function addSVGOverlay(
-  body: Span,
+  body: Box,
   svgMarkup: string,
   svgStyle: string
-): Span {
+): Box {
   body.svgOverlay = svgMarkup;
   body.svgStyle = svgStyle;
   return body;
 }
 
 /**
- * Create a span that consist of a (stretchy) SVG element
+ * Create a box that consist of a (stretchy) SVG element
  */
-export function makeSVGSpan(svgBodyName: string): Span {
+export function makeSVGBox(svgBodyName: string): Box {
   const height = svgBodyHeight(svgBodyName) / 2;
-  const span = new Span(null, {
+  const box = new Box(null, {
     height: height + 0.166,
     depth: height - 0.166,
     maxFontSize: 0,
   });
-  span.svgBody = svgBodyName;
-  return span;
+  box.svgBody = svgBodyName;
+  return box;
 }

@@ -14,12 +14,7 @@ import type {
 
 import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
-import {
-  adjustInterAtomSpacing,
-  coalesce,
-  makeStruts,
-  Span,
-} from './core/span';
+import { adjustInterAtomSpacing, coalesce, makeStruts, Box } from './core/box';
 import { MACROS } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
 import AutoRender, { AutoRenderOptionsPrivate } from './addons/auto-render';
@@ -106,15 +101,15 @@ export function convertLatexToMarkup(
   });
 
   //
-  // 2. Transform the math atoms into elementary spans
-  // for example from genfrac to vlist.
+  // 2. Transform the math atoms into elementary boxes
+  // for example from genfrac to VBox.
   //
-  const span = root.render(
+  const box = root.render(
     new Context(
       {
         macros: options.macros,
         smartFence: false,
-        renderPlaceholder: () => new Span(0xa0, { maxFontSize: 1.0 }),
+        renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
       },
       {
         fontSize: DEFAULT_FONT_SIZE,
@@ -127,19 +122,19 @@ export function convertLatexToMarkup(
   //
   // 3. Adjust to `mord` according to TeX spacing rules
   //
-  adjustInterAtomSpacing(span);
+  adjustInterAtomSpacing(box);
 
   //
-  // 2. Simplify by coalescing adjacent nodes
+  // 2. Simplify by coalescing adjacent boxes
   //    for example, from <span>1</span><span>2</span>
   //    to <span>12</span>
   //
-  coalesce(span);
+  coalesce(box);
 
   //
   // 4. Wrap the expression with struts
   //
-  const wrapper = makeStruts(span, { classes: 'ML__mathlive' });
+  const wrapper = makeStruts(box, { classes: 'ML__mathlive' });
 
   //
   // 5. Generate markup
@@ -363,10 +358,6 @@ use
 }
 
 export const debug = {
-  // getStyle: MathLiveDebug.getStyle,
-  getType: MathLiveDebug.getType,
-  // spanToString: MathLiveDebug.spanToString,
-  // hasClass: MathLiveDebug.hasClass,
   latexToAsciiMath,
   asciiMathToLatex,
   FUNCTIONS: MathLiveDebug.FUNCTIONS,

@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### Architecture
+
+- Renamed `Span` to `Box`.
+
+### Bug Fixes
+
+- When using Firefox on Windows, the layout of the formula could shift by a
+  fraction of a pixel when moving the caret.
+
 ## 0.64.0 (2021-05-09)
 
 ### Breaking Changes
@@ -524,7 +533,7 @@
   Each 'kind' of atom (fraction, extensible symbol, boxed expression, etc...) is
   now represented by a separate class extending the `Atom` base class (for
   example `GenfracAtom`). Each of those classes have a `render()` method that
-  generates a set of DOM virtual nodes representing the Atom and a `toLatex()`
+  generates a set of DOM virtual nodes representing the Atom and a `serialize()`
   method which generates a Latex string representing the atom.
 
   Previously the handling of the different kind of atoms was done procedurally

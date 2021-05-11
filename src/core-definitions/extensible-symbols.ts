@@ -28,7 +28,7 @@ defineFunction(
         skipBoundary: false,
         supsubPlacement: 'over-under',
         padded: true,
-        spanType: 'mrel',
+        boxType: 'mrel',
         style,
         // Set the "svgAbove" to the name of a SVG object (which is the same
         // as the command name)
@@ -43,7 +43,7 @@ defineFunction('overbrace', '{:auto}', {
       skipBoundary: false,
       supsubPlacement: 'over-under',
       padded: true,
-      spanType: 'mord',
+      boxType: 'mord',
       style,
       svgAbove: command.slice(1),
     }),
@@ -69,7 +69,7 @@ defineFunction(
         skipBoundary: false,
         supsubPlacement: 'over-under',
         padded: true,
-        spanType: 'mrel',
+        boxType: 'mrel',
         style,
         // Set the "svgBelow" to the name of a SVG object (which is the same
         // as the command name)
@@ -84,7 +84,7 @@ defineFunction(['underbrace'], '{:auto}', {
       skipBoundary: false,
       supsubPlacement: 'over-under',
       padded: true,
-      spanType: 'mord',
+      boxType: 'mord',
       style,
       svgBelow: command.slice(1),
     }),
@@ -133,8 +133,8 @@ defineFunction(
         skipBoundary: false,
         supsubPlacement: 'over-under',
         padded: true,
-        spanType: 'mrel',
-        toLatexOverride: (atom: OverunderAtom, options: ToLatexOptions) =>
+        boxType: 'mrel',
+        serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
           command +
           (!atom.hasEmptyBranch('below')
             ? `[${atom.belowToLatex(options)}]`

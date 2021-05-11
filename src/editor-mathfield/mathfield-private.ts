@@ -672,7 +672,7 @@ export class MathfieldPrivate implements Mathfield {
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
-    const content = Atom.toLatex(this.model.root, {
+    const content = Atom.serialize(this.model.root, {
       expandMacro: false,
       defaultMode: this.options.defaultMode,
     });
@@ -957,7 +957,7 @@ export class MathfieldPrivate implements Mathfield {
   $latex(text?: string, options?: InsertOptions): string {
     deprecated('$latex');
     if (typeof text === 'string') {
-      const oldValue = Atom.toLatex(this.model.root, {
+      const oldValue = Atom.serialize(this.model.root, {
         expandMacro: false,
         defaultMode: this.options.defaultMode,
       });
@@ -979,7 +979,7 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     // Return the content as LaTeX
-    return Atom.toLatex(this.model.root, {
+    return Atom.serialize(this.model.root, {
       expandMacro: false,
       defaultMode: this.options.defaultMode,
     });
@@ -1120,7 +1120,7 @@ export class MathfieldPrivate implements Mathfield {
             latex = '\\';
           } else {
             const selRange = range(model.selection);
-            latex = Atom.toLatex(
+            latex = Atom.serialize(
               model
                 .extractAtoms(selRange)
                 .filter((x) => !(x instanceof PlaceholderAtom)),

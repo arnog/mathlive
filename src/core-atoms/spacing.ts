@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -11,10 +11,10 @@ export class SpacingAtom extends Atom {
     this.width = width;
   }
 
-  render(_context: Context): Span {
-    let result: Span;
+  render(_context: Context): Box {
+    let result: Box;
     if (Number.isFinite(this.width)) {
-      result = new Span(null, { classes: 'mspace' });
+      result = new Box(null, { classes: 'mspace' });
       result.left = this.width;
     } else {
       const spacingCls: string =
@@ -27,14 +27,14 @@ export class SpacingAtom extends Atom {
           '\\,': 'thinspace',
           '\\!': 'negativethinspace',
         }[this.command] ?? 'mediumspace';
-      result = new Span(null, { classes: spacingCls });
+      result = new Box(null, { classes: spacingCls });
     }
 
     if (this.caret) result.caret = this.caret;
     return result;
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     // Three kinds of spacing commands:
     // \hskip and \kern which take one implicit parameter
     // \hspace and hspace* with take one *explicit* parameter

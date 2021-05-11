@@ -1,7 +1,7 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { X_HEIGHT } from '../core/font-metrics';
-import { Span } from '../core/span';
-import { Stack } from '../core/stack';
+import { Box } from '../core/box';
+import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 
 import { makeCustomSizedDelim } from '../core/delimiters';
@@ -22,7 +22,7 @@ export class SurdAtom extends Atom {
     this.above = options.index;
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     let args = '';
     if (this.above) {
       args += `[${this.aboveToLatex(options)}]`;
@@ -32,23 +32,23 @@ export class SurdAtom extends Atom {
     return this.command + args;
   }
 
-  render(parentContext: Context): Span {
+  render(parentContext: Context): Box {
     // See the TeXbook pg. 443, Rule 11.
     // http://www.ctex.org/documents/shredder/src/texbook.pdf
 
     //
-    // 1. Render the inner span
+    // 1. Render the inner box
     //
     // > 11. If the current item is a Rad atom (from \radical, e.g., \sqrt),
     // > set box x to the nucleus in style C′
     // TeXBook p.443
 
     const innerContext = new Context(parentContext, this.style, 'cramp');
-    const innerSpan: Span =
-      Atom.render(innerContext, this.body, {
+    const innerBox: Box =
+      Atom.createBox(innerContext, this.body, {
         style: this.style,
         newList: true,
-      }) ?? new Span(null);
+      }) ?? new Box(null);
 
     //
     // 2. Render the radical line
@@ -60,7 +60,7 @@ export class SurdAtom extends Atom {
     // > let φ=σ5 if C>T (TeXBook p. 443)
     const phi = parentContext.isDisplayStyle ? X_HEIGHT : ruleWidth;
 
-    const line = new Span(null, {
+    const line = new Box(null, {
       classes: 'ML__sqrt-line',
       style: this.style,
       height: ruleWidth,
@@ -75,14 +75,14 @@ export class SurdAtom extends Atom {
     let lineClearance = factor * (ruleWidth + phi / 4);
     const innerTotalHeight = Math.max(
       factor * 2 * phi,
-      innerSpan.height + innerSpan.depth
+      innerBox.height + innerBox.depth
     );
 
     const minDelimiterHeight = innerTotalHeight + lineClearance + ruleWidth;
     const delimContext = new Context(parentContext, this.style);
-    const delimSpan = this.bind(
+    const delimBox = this.bind(
       delimContext,
-      new Span(
+      new Box(
         makeCustomSizedDelim(
           '',
           '\\surd',
@@ -94,28 +94,28 @@ export class SurdAtom extends Atom {
       )
     );
 
-    const delimDepth = delimSpan.height + delimSpan.depth - ruleWidth;
+    const delimDepth = delimBox.height + delimBox.depth - ruleWidth;
 
     // Adjust the clearance based on the delimiter size
-    if (delimDepth > innerSpan.height + innerSpan.depth + lineClearance) {
+    if (delimDepth > innerBox.height + innerBox.depth + lineClearance) {
       lineClearance =
-        (lineClearance + delimDepth - (innerSpan.height + innerSpan.depth)) / 2;
+        (lineClearance + delimDepth - (innerBox.height + innerBox.depth)) / 2;
     }
 
     // Shift the delimiter so that its top lines up with the top of the line
-    delimSpan.setTop(
-      delimSpan.height - innerSpan.height - (lineClearance + ruleWidth)
+    delimBox.setTop(
+      delimBox.height - innerBox.height - (lineClearance + ruleWidth)
     );
 
     //
     // 4. Render the body (inner + line)
     //
 
-    const bodySpan = new Stack({
+    const bodyBox = new VBox({
       firstBaseline: [
-        { span: new Span(innerSpan) }, // Need to wrap the inner for proper selection bound calculation
-        lineClearance,
-        { span: line },
+        { box: new Box(innerBox) }, // Need to wrap the inner for proper selection bound calculation
+        lineClearance - 2 * ruleWidth,
+        { box: line },
         ruleWidth,
       ],
     }).wrap(parentContext);
@@ -131,7 +131,7 @@ export class SurdAtom extends Atom {
     // TeXBook p. 360:
     // > \def\root#1\of{\setbox\rootbox=
     // > \hbox{$\m@th \scriptscriptstyle{#1}$}\mathpalette\r@@t}
-    const indexSpan = Atom.render(
+    const indexBox = Atom.createBox(
       new Context(parentContext, this.style, 'scriptscriptstyle'),
       this.above,
       {
@@ -140,11 +140,11 @@ export class SurdAtom extends Atom {
       }
     );
 
-    if (!indexSpan) {
+    if (!indexBox) {
       //
       // 5.2. There's no root index (sqrt)
       //
-      const result = new Span([delimSpan, bodySpan], {
+      const result = new Box([delimBox, bodyBox], {
         classes: this.containsCaret ? 'ML__contains-caret' : '',
         type: 'mord',
       });
@@ -155,26 +155,22 @@ export class SurdAtom extends Atom {
     // Build a stack with the index shifted up correctly.
     // The amount the index is shifted by is taken from the TeX
     // source, in the definition of `\r@@t`.
-    const indexStack = new Stack({
+    const indexStack = new VBox({
       shift:
         -0.6 *
-        (Math.max(delimSpan.height, bodySpan.height) -
-          Math.max(delimSpan.depth, bodySpan.depth)),
-      children: [{ span: indexSpan }],
+        (Math.max(delimBox.height, bodyBox.height) -
+          Math.max(delimBox.depth, bodyBox.depth)),
+      children: [{ box: indexBox }],
     });
 
     // Add a class surrounding it so we can add on the appropriate
     // kerning
-    const result = new Span(
-      [
-        new Span(indexStack, { classes: 'ML__sqrt-index' }),
-        delimSpan,
-        bodySpan,
-      ],
+    const result = new Box(
+      [new Box(indexStack, { classes: 'ML__sqrt-index' }), delimBox, bodyBox],
       { type: 'mord', classes: this.containsCaret ? 'ML__contains-caret' : '' }
     );
-    result.height = delimSpan.height;
-    result.depth = delimSpan.depth;
+    result.height = delimBox.height;
+    result.depth = delimBox.depth;
 
     if (this.caret) result.caret = this.caret;
     return this.bind(parentContext, result.wrap(parentContext));

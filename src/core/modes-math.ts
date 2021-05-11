@@ -7,7 +7,7 @@ import { Atom, ToLatexOptions } from './atom';
 import { joinLatex } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import { Style } from '../public/core';
-import { Span } from './span';
+import { Box } from './box';
 import { BoxAtom } from '../core-atoms/box';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
@@ -118,7 +118,7 @@ export class MathMode extends Mode {
     return result;
   }
 
-  toLatex(run: Atom[], options: ToLatexOptions): string {
+  serialize(run: Atom[], options: ToLatexOptions): string {
     const { parent } = run[0];
     const contextFontsize = parent?.computedStyle.fontSize;
     return joinLatex(
@@ -197,7 +197,7 @@ export class MathMode extends Mode {
                 return variantString(x) === variant;
               })
             ) {
-              return joinLatex(x.map((x) => Atom.toLatex(x, options)));
+              return joinLatex(x.map((x) => Atom.serialize(x, options)));
             }
 
             let command = '';
@@ -231,8 +231,10 @@ export class MathMode extends Mode {
             }
 
             return (
-              joinLatex([command, ...x.map((x) => Atom.toLatex(x, options))]) +
-              (command ? '}' : '')
+              joinLatex([
+                command,
+                ...x.map((x) => Atom.serialize(x, options)),
+              ]) + (command ? '}' : '')
             );
           })
         );
@@ -252,7 +254,7 @@ export class MathMode extends Mode {
     );
   }
 
-  applyStyle(span: Span, style: Style): string {
+  applyStyle(box: Box, style: Style): string {
     // If no variant specified, don't change the font
     if (style.variant === undefined) return '';
 
@@ -279,7 +281,7 @@ export class MathMode extends Mode {
     if (
       variant === 'normal' &&
       !variantStyle &&
-      /[\u00A3\u0131\u0237]/.test(span.value)
+      /[\u00A3\u0131\u0237]/.test(box.value)
     ) {
       variant = 'main';
       variantStyle = 'italic';
@@ -287,10 +289,10 @@ export class MathMode extends Mode {
 
     // 2. If no explicit variant style, auto-italicize some symbols,
     // depending on the letterShapeStyle
-    if (variant === 'normal' && !variantStyle && span.value.length === 1) {
+    if (variant === 'normal' && !variantStyle && box.value.length === 1) {
       LETTER_SHAPE_RANGES.forEach((x, i) => {
         if (
-          x.test(span.value) &&
+          x.test(box.value) &&
           LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it'
         ) {
           variantStyle = 'italic';
@@ -313,23 +315,23 @@ export class MathMode extends Mode {
     // (return NULL to use default metrics)
     if (
       VARIANT_REPERTOIRE[variant] &&
-      !VARIANT_REPERTOIRE[variant].test(span.value)
+      !VARIANT_REPERTOIRE[variant].test(box.value)
     ) {
       // Map to unicode character
-      span.value = mathVariantToUnicode(span.value, variant, variantStyle);
+      box.value = mathVariantToUnicode(box.value, variant, variantStyle);
       // Return NULL to use default metrics
       return null;
     }
 
     // Lowercase greek letters have an incomplete repertoire (no bold)
     // so, for \mathbf to behave correctly, add a 'lcGreek' class.
-    if (GREEK_LOWERCASE.test(span.value)) {
-      span.classes += ' lcGreek';
+    if (GREEK_LOWERCASE.test(box.value)) {
+      box.classes += ' lcGreek';
     }
 
     // 5. Assign classes based on the font
     if (classes) {
-      span.classes += ' ' + classes;
+      box.classes += ' ' + classes;
     }
 
     return fontName;

@@ -2,8 +2,8 @@ import type { Style } from '../public/core';
 
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import type { MathstyleName } from '../core/mathstyle';
-import { Span } from '../core/span';
-import { Stack } from '../core/stack';
+import { Box } from '../core/box';
+import { VBox } from '../core/v-box';
 import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { Context } from '../core/context';
 import { AXIS_HEIGHT } from '../core/font-metrics';
@@ -17,7 +17,7 @@ export type GenfracOptions = {
   hasBarLine?: boolean;
   mathstyleName?: MathstyleName;
   style?: Style;
-  toLatexOverride?: (atom: GenfracAtom, options: ToLatexOptions) => string;
+  serialize?: (atom: GenfracAtom, options: ToLatexOptions) => string;
 };
 
 /**
@@ -48,7 +48,7 @@ export class GenfracAtom extends Atom {
     super('genfrac', {
       style: options.style,
       command,
-      toLatexOverride: options.toLatexOverride,
+      serialize: options.serialize,
       displayContainsHighlight: true,
     });
     this.above = above;
@@ -62,7 +62,7 @@ export class GenfracAtom extends Atom {
     this.rightDelim = options?.rightDelim;
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     return (
       this.command +
       `{${this.aboveToLatex(options)}}` +
@@ -70,7 +70,7 @@ export class GenfracAtom extends Atom {
     );
   }
 
-  render(context: Context): Span {
+  render(context: Context): Box {
     const fracContext = new Context(context, this.style, this.mathstyleName);
     const metrics = fracContext.metrics;
 
@@ -79,26 +79,26 @@ export class GenfracAtom extends Atom {
       this.style,
       this.continuousFraction ? '' : 'numerator'
     );
-    const numerSpan = this.numerPrefix
-      ? new Span(
-          [new Span(this.numerPrefix), Atom.render(numContext, this.above)],
+    const numerBox = this.numerPrefix
+      ? new Box(
+          [new Box(this.numerPrefix), Atom.createBox(numContext, this.above)],
           { isTight: numContext.isTight, newList: true }
         )
-      : Atom.render(numContext, this.above, { newList: true }) ??
-        new Span(null, { newList: true });
+      : Atom.createBox(numContext, this.above, { newList: true }) ??
+        new Box(null, { newList: true });
 
     const denomContext = new Context(
       fracContext,
       this.style,
       this.continuousFraction ? '' : 'denominator'
     );
-    const denomSpan = this.denomPrefix
-      ? new Span([
-          new Span(this.denomPrefix),
-          Atom.render(denomContext, this.below, { newList: true }),
+    const denomBox = this.denomPrefix
+      ? new Box([
+          new Box(this.denomPrefix),
+          Atom.createBox(denomContext, this.below, { newList: true }),
         ])
-      : Atom.render(denomContext, this.below, { newList: true }) ??
-        new Span(null, { newList: true });
+      : Atom.createBox(denomContext, this.below, { newList: true }) ??
+        new Box(null, { newList: true });
 
     const ruleWidth = this.hasBarLine ? metrics.defaultRuleThickness : 0;
 
@@ -128,9 +128,9 @@ export class GenfracAtom extends Atom {
       denomShift = metrics.denom2; // V ← σ12
     }
 
-    const numerDepth = numerSpan.depth;
-    const denomHeight = denomSpan.height;
-    let frac: Span;
+    const numerDepth = numerBox.depth;
+    const denomHeight = denomBox.height;
+    let frac: Box;
     if (ruleWidth <= 0) {
       // Rule 15c from Appendix G
       // No bar line between numerator and denominator
@@ -141,17 +141,17 @@ export class GenfracAtom extends Atom {
         denomShift += (clearance - candidateClearance) / 2;
       }
 
-      frac = new Stack({
+      frac = new VBox({
         individualShift: [
           {
-            span: numerSpan,
+            box: numerBox,
             shift: -numerShift,
-            wrapperClasses: ['ML__center'],
+            classes: ['ML__center'],
           },
           {
-            span: denomSpan,
+            box: denomBox,
             shift: denomShift,
-            wrapperClasses: ['ML__center'],
+            classes: ['ML__center'],
           },
         ],
       }).wrap(fracContext);
@@ -168,7 +168,7 @@ export class GenfracAtom extends Atom {
         denomShift = clearance + denomHeight - denomLine;
       }
 
-      const fracLine = new Span(null, {
+      const fracLine = new Box(null, {
         classes: 'ML__frac-line',
         mode: this.mode,
         style: this.style,
@@ -177,18 +177,18 @@ export class GenfracAtom extends Atom {
       // created in CSS
       fracLine.height = ruleWidth / 2;
       fracLine.depth = ruleWidth / 2;
-      frac = new Stack({
+      frac = new VBox({
         individualShift: [
           {
-            span: denomSpan,
+            box: denomBox,
             shift: denomShift,
-            wrapperClasses: ['ML__center'],
+            classes: ['ML__center'],
           },
-          { span: fracLine, shift: -denomLine },
+          { box: fracLine, shift: -denomLine },
           {
-            span: numerSpan,
+            box: numerBox,
             shift: -numerShift,
-            wrapperClasses: ['ML__center'],
+            classes: ['ML__center'],
           },
         ],
       }).wrap(fracContext);
@@ -214,10 +214,10 @@ export class GenfracAtom extends Atom {
         )
       : makeNullDelimiter(fracContext, 'mopen');
 
-    let rightDelim: Span;
+    let rightDelim: Box;
     if (this.continuousFraction) {
       // Zero width for `\cfrac`
-      rightDelim = new Span(null, { type: 'mclose' });
+      rightDelim = new Box(null, { type: 'mclose' });
     } else if (!this.rightDelim) {
       rightDelim = makeNullDelimiter(fracContext, 'mclose');
     } else {
@@ -238,7 +238,7 @@ export class GenfracAtom extends Atom {
     // However, we add the nullDelimiter above which effectively account for this.
     const result = this.bind(
       context,
-      new Span([leftDelim, frac, rightDelim], {
+      new Box([leftDelim, frac, rightDelim], {
         isTight: fracContext.isTight,
         type: 'mord',
         classes: 'mfrac',

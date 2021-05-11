@@ -3,7 +3,7 @@ import { highlight } from './color';
 
 import { FontMetrics, FONT_SCALE } from './font-metrics';
 import { D, Dc, Mathstyle, MathstyleName, MATHSTYLES } from './mathstyle';
-import { Span } from './span';
+import { Box } from './box';
 
 export interface ContextInterface {
   macros?: MacroDictionary;
@@ -14,7 +14,7 @@ export interface ContextInterface {
   };
   smartFence?: boolean;
   isSelected?: boolean;
-  renderPlaceholder?: (context: Context) => Span;
+  renderPlaceholder?: (context: Context) => Box;
 }
 
 export type PrivateStyle = Style & {
@@ -33,8 +33,8 @@ export type PrivateStyle = Style & {
  * When a new context is entered, a clone of the context is created with
  * `new()` so that any further changes remain local to the scope.
  *
- * When a context is exited, a 'wrapper' spand is created to adjust the
- * fontsize on entry, and adjust the height/depth of the span to account for
+ * When a context is exited, a 'wrapper' box is created to adjust the
+ * fontsize on entry, and adjust the height/depth of the box to account for
  * the new fontsize (if applicable).
  *
  * The effective font size is determined by:
@@ -54,12 +54,12 @@ export type PrivateStyle = Style & {
 export class Context implements ContextInterface {
   macros: MacroDictionary;
 
-  // If not undefined, unique IDs should be
-  // generated for each span so they can be mapped back to an atom.
+  // If not undefined, unique IDs should be generated for each box so they can
+  // be mapped back to an atom.
   // The `seed` field should be a number to generate a specific range of
   // IDs or the string "random" to generate a random number.
-  //  Optionally, if a `groupNumbers` property is set to true, an additional
-  // span will enclose strings of digits. This is used by read aloud to properly
+  // Optionally, if a `groupNumbers` property is set to true, an additional
+  // box will enclose strings of digits. This is used by read aloud to properly
   // pronounce (and highlight) numbers in expressions.
 
   atomIdsSettings?: {
@@ -68,11 +68,11 @@ export class Context implements ContextInterface {
     seed: string | number;
   };
   smartFence: boolean;
-  renderPlaceholder?: (context: Context) => Span;
+  renderPlaceholder?: (context: Context) => Box;
 
   isSelected: boolean;
 
-  // Rendering to construct a phantom: don't bind the spand.
+  // Rendering to construct a phantom: don't bind the box.
   readonly isPhantom: boolean;
 
   // Inherithed from `Style`: size, letterShapeStyle, color and backgroundColor.

@@ -5,7 +5,7 @@ import {
   ParseMode,
 } from '../public/core';
 
-import type { Span } from './span';
+import type { Box } from './box';
 import type { Token } from './tokenizer';
 import { ArgumentType } from './parser';
 import type { GroupAtom } from '../core-atoms/group';
@@ -45,14 +45,14 @@ export class Mode {
 
   // `run` should be a run (sequence) of atoms all with the same
   // mode
-  static toLatex(run: Atom[], options: ToLatexOptions): string {
+  static serialize(run: Atom[], options: ToLatexOptions): string {
     console.assert(run.length > 0);
     const mode = Mode._registry[run[0].mode];
-    return mode.toLatex(run, options);
+    return mode.serialize(run, options);
   }
 
-  static applyStyle(mode: ParseMode, span: Span, style: Style): string {
-    return Mode._registry[mode].applyStyle(span, style);
+  static applyStyle(mode: ParseMode, box: Box, style: Style): string {
+    return Mode._registry[mode].applyStyle(box, style);
   }
 
   createAtom(_command: string, _style: Style): Atom | null {
@@ -67,16 +67,16 @@ export class Mode {
     return null;
   }
 
-  toLatex(_run: Atom[], _options: ToLatexOptions): string {
+  serialize(_run: Atom[], _options: ToLatexOptions): string {
     return '';
   }
 
   /*
-   * Apply the styling (bold, italic, etc..) as classes to the span, and return
+   * Apply the styling (bold, italic, etc..) as classes to the box, and return
    * the effective font name to be used for metrics
    * ('Main-Regular', 'Caligraphic-Regualr' etc...)
    */
-  applyStyle(_span: Span, _style: Style): string {
+  applyStyle(_box: Box, _style: Style): string {
     return '';
   }
 }

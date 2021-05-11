@@ -1,5 +1,5 @@
 import { Atom, AtomType, ToLatexOptions } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { Style, Variant, VariantStyle } from '../public/core';
 import { joinLatex } from '../core/tokenizer';
@@ -46,8 +46,8 @@ export class OperatorAtom extends Atom {
     this.isExtensibleSymbol = options?.isExtensibleSymbol ?? false;
   }
 
-  render(context: Context): Span {
-    let base: Span;
+  render(context: Context): Box {
+    let base: Box;
     let baseShift = 0;
     let slant = 0;
     if (this.isExtensibleSymbol) {
@@ -55,7 +55,7 @@ export class OperatorAtom extends Atom {
       // except `\smallint`
       const large = context.isDisplayStyle && this.value !== '\\smallint';
 
-      base = new Span(this.value, {
+      base = new Box(this.value, {
         fontFamily: large ? 'Size2-Regular' : 'Size1-Regular',
         classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
         type: 'mop',
@@ -76,7 +76,7 @@ export class OperatorAtom extends Atom {
       base.setStyle('background-color', this.style.backgroundColor);
     } else if (this.body) {
       // If this is a list, decompose that list.
-      base = Atom.render(context, this.body, { newList: true });
+      base = Atom.createBox(context, this.body, { newList: true });
       base.setStyle('color', this.style.color);
       base.setStyle('background-color', this.style.backgroundColor);
     } else {
@@ -85,7 +85,7 @@ export class OperatorAtom extends Atom {
       console.assert(this.type === 'mop');
       // Not all styles are applied, since the operators have a distinct
       // appearance (for example, can't override their font family)
-      base = new Span(this.value, {
+      base = new Box(this.value, {
         type: 'mop',
         mode: 'math',
         maxFontSize: context.scalingFactor,
@@ -111,15 +111,15 @@ export class OperatorAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    // Bind the generated span with its limits so they
+    // Bind the generated box with its limits so they
     // can all be selected as one
-    return new Span(this.bind(context, result), {
+    return new Box(this.bind(context, result), {
       type: 'mop',
       classes: 'op-group',
     });
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     let result = '';
     if (this.value !== '\u200B') {
       // Not ZERO-WIDTH

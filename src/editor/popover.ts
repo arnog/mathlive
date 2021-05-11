@@ -5,7 +5,7 @@ import {
   parseLatex,
   Atom,
   coalesce,
-  Span,
+  Box,
   Context,
   MACROS,
   adjustInterAtomSpacing,
@@ -282,9 +282,9 @@ function latexToMarkup(latex: string): string {
   const root = new Atom('root', { mode: 'math' });
   root.body = parseLatex(latex, { parseMode: 'math', macros: MACROS });
 
-  const span = coalesce(
+  const box = coalesce(
     adjustInterAtomSpacing(
-      new Span(
+      new Box(
         root.render(
           new Context(
             { macros: MACROS, smartFence: false },
@@ -299,7 +299,7 @@ function latexToMarkup(latex: string): string {
     )
   );
 
-  return makeStruts(span, { classes: 'ML__mathlive' }).toMarkup();
+  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
 }
 
 export function showPopoverWithLatex(

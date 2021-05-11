@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { addSVGOverlay, Span } from '../core/span';
+import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -76,7 +76,7 @@ export class EncloseAtom extends Atom {
     this.captureSelection = true; // Do not let children be selected
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     let result = this.command;
     if (this.command === '\\enclose') {
       result += '{' + Object.keys(this.notation).join(' ') + '}';
@@ -111,18 +111,18 @@ export class EncloseAtom extends Atom {
     return result;
   }
 
-  render(parentContext: Context): Span {
+  render(parentContext: Context): Box {
     const context = new Context(parentContext, this.style);
 
-    const base = Atom.render(context, this.body);
+    const base = Atom.createBox(context, this.body);
 
     // Account for the padding
     const padding =
       typeof this.padding === 'number' ? this.padding : context.metrics.fboxSep;
 
-    // The 'ML__notation' class is required to prevent the span from being omitted
-    // during rendering (it looks like an empty, no-op span)
-    const notation = new Span(null, { classes: 'ML__notation' });
+    // The 'ML__notation' class is required to prevent the box from being omitted
+    // during rendering (it looks like an empty, no-op box)
+    const notation = new Box(null, { classes: 'ML__notation' });
     notation.setStyle('position', 'absolute');
     notation.setStyle('height', base.height + base.depth + 2 * padding, 'em');
     notation.height = base.height + padding;
@@ -290,7 +290,7 @@ export class EncloseAtom extends Atom {
       addSVGOverlay(notation, svg, svgStyle);
     }
 
-    const result = new Span([notation, base]);
+    const result = new Box([notation, base]);
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');

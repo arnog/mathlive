@@ -1,10 +1,5 @@
 import { Atom } from '../core/atom';
-import {
-  Span,
-  makeStruts,
-  coalesce,
-  adjustInterAtomSpacing,
-} from '../core/span';
+import { Box, makeStruts, coalesce, adjustInterAtomSpacing } from '../core/box';
 import { parseLatex } from '../core/parser';
 import { BACKGROUND_COLORS, FOREGROUND_COLORS } from '../core/color';
 import { l10n as l10nOptions, localize as l10n } from './l10n';
@@ -1166,9 +1161,9 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
     macros: MACROS,
   });
 
-  const span = coalesce(
+  const box = coalesce(
     adjustInterAtomSpacing(
-      new Span(
+      new Box(
         root.render(
           new Context(
             { macros: MACROS, smartFence: false },
@@ -1183,7 +1178,7 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
     )
   );
 
-  return makeStruts(span, { classes: 'ML__mathlive' }).toMarkup();
+  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
 }
 
 /**

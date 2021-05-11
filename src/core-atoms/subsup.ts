@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -8,16 +8,16 @@ export class SubsupAtom extends Atom {
     super('msubsup', { style: options?.style });
   }
 
-  render(context: Context): Span {
+  render(context: Context): Box {
     // The caret for this atom type is handled by its elements
     console.assert(!this.subsupPlacement);
 
-    // The span type of a `subsup` atom is 'supsub' as it doesn't
-    // have any special INTER_ATOM_SPACING with its attached atom (previous span)
+    // The box type of a `subsup` atom is 'supsub' as it doesn't
+    // have any special INTER_ATOM_SPACING with its attached atom (previous box)
 
     const phantomContex = new Context(context, { isPhantom: true });
-    const base = this.leftSibling.render(phantomContex) ?? new Span(null);
-    const phantom = new Span(null, { height: base.height, depth: base.depth });
+    const base = this.leftSibling.render(phantomContex) ?? new Box(null);
+    const phantom = new Box(null, { height: base.height, depth: base.depth });
     return this.attachSupsub(context, {
       base: phantom,
       isCharacterBox: this.leftSibling.isCharacterBox(),
@@ -27,7 +27,7 @@ export class SubsupAtom extends Atom {
     });
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     return this.supsubToLatex(options);
   }
 }

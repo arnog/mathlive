@@ -5,5 +5,5 @@ edit it).
 
 It uses the definitions of Latex commands in the `core-definitions/` directory
 to interpret the commands in the Latex input, and the layout primitives in
-`core-atoms/` to render it to `Span` objects (virtual DOM nodes) which are
-then renderer to HTML/SVG markup.
+`core-atoms/` to render it to `Box` objects (virtual DOM nodes) which are then
+renderer to HTML/SVG markup.

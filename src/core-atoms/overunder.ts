@@ -1,6 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span, SpanType, makeSVGSpan } from '../core/span';
-import { Stack } from '../core/stack';
+import { Box, BoxType, makeSVGBox } from '../core/box';
+import { VBox } from '../core/v-box';
 import { Context, PrivateStyle } from '../core/context';
 import { makeNullDelimiter } from '../core/delimiters';
 
@@ -15,7 +15,7 @@ export class OverunderAtom extends Atom {
   svgAbove?: string;
   svgBelow?: string;
   svgBody?: string;
-  spanType: SpanType;
+  boxType: BoxType;
   padded?: boolean;
   constructor(
     command: string,
@@ -28,18 +28,15 @@ export class OverunderAtom extends Atom {
       svgBelow?: string;
       skipBoundary?: boolean;
       style: PrivateStyle;
-      spanType?: SpanType;
+      boxType?: BoxType;
       supsubPlacement?: 'over-under' | 'adjacent';
       padded?: boolean;
-      toLatexOverride?: (
-        atom: OverunderAtom,
-        options: ToLatexOptions
-      ) => string;
+      serialize?: (atom: OverunderAtom, options: ToLatexOptions) => string;
     }
   ) {
     super('overunder', {
       command,
-      toLatexOverride: options.toLatexOverride,
+      serialize: options.serialize,
       style: options.style,
     });
     this.skipBoundary = options.skipBoundary ?? true;
@@ -51,7 +48,7 @@ export class OverunderAtom extends Atom {
     this.svgBody = options.svgBody;
     this.above = options.above;
     this.below = options.below;
-    this.spanType = options.spanType ?? 'mord';
+    this.boxType = options.boxType ?? 'mord';
     this.padded = options.padded ?? false;
   }
 
@@ -65,38 +62,38 @@ export class OverunderAtom extends Atom {
    *
    */
 
-  render(parentContext: Context): Span {
-    let body: Span = this.svgBody
-      ? makeSVGSpan(this.svgBody)
-      : Atom.render(parentContext, this.body, { newList: true });
+  render(parentContext: Context): Box {
+    let body: Box = this.svgBody
+      ? makeSVGBox(this.svgBody)
+      : Atom.createBox(parentContext, this.body, { newList: true });
     const annotationContext = new Context(
       parentContext,
       this.style,
       'scriptstyle'
     );
-    let above: Span;
+    let above: Box;
     // let aboveShift: number;
     if (this.svgAbove) {
-      above = makeSVGSpan(this.svgAbove);
+      above = makeSVGBox(this.svgAbove);
       // aboveShift = 0;
       // aboveShift = -above.depth;
     } else if (this.above) {
-      above = Atom.render(annotationContext, this.above, { newList: true });
+      above = Atom.createBox(annotationContext, this.above, { newList: true });
     }
 
-    let below: Span;
+    let below: Box;
     // let belowShift: number;
     if (this.svgBelow) {
-      below = makeSVGSpan(this.svgBelow);
+      below = makeSVGBox(this.svgBelow);
       // belowShift = 0;
       // belowShift = below.height;
     } else if (this.below) {
-      below = Atom.render(annotationContext, this.below, { newList: true });
+      below = Atom.createBox(annotationContext, this.below, { newList: true });
     }
 
     if (this.padded) {
       // The base of \overset are padded, but \overbrace aren't
-      body = new Span(
+      body = new Box(
         [
           makeNullDelimiter(parentContext, 'mopen'),
           body,
@@ -115,8 +112,8 @@ export class OverunderAtom extends Atom {
       below,
       // belowShift,
       type:
-        this.spanType === 'mbin' || this.spanType === 'mrel'
-          ? this.spanType
+        this.boxType === 'mbin' || this.boxType === 'mrel'
+          ? this.boxType
           : 'mord',
     });
     // base.height += parentContext.metrics.bigOpSpacing1;
@@ -131,7 +128,7 @@ export class OverunderAtom extends Atom {
     }
     if (this.caret) base.caret = this.caret;
 
-    // Bind the generated span so its components can be selected
+    // Bind the generated box so its components can be selected
     return this.bind(parentContext, base);
   }
 }
@@ -147,17 +144,17 @@ export class OverunderAtom extends Atom {
 function makeOverunderStack(
   context: Context,
   options: {
-    base: Span;
-    above: Span;
-    below: Span;
-    type: SpanType;
+    base: Box;
+    above: Box;
+    below: Box;
+    type: BoxType;
   }
-): Span {
+): Box {
   // If nothing above and nothing below, nothing to do.
   if (!options.above && !options.below) {
-    const span = new Span(options.base, { type: options.type });
-    span.setStyle('position', 'relative');
-    return span;
+    const box = new Box(options.base, { type: options.type });
+    box.setStyle('position', 'relative');
+    return box;
   }
 
   let aboveShift = 0;
@@ -181,38 +178,38 @@ function makeOverunderStack(
       base.depth +
       baseShift;
 
-    result = new Stack({
+    result = new VBox({
       bottom,
       children: [
         context.metrics.bigOpSpacing5,
-        { span: options.below, wrapperClasses: ['ML__center'] },
-        { span: base, wrapperClasses: ['ML__center'] },
+        { box: options.below, classes: ['ML__center'] },
+        { box: base, classes: ['ML__center'] },
         aboveShift,
-        { span: options.above, wrapperClasses: ['ML__center'] },
+        { box: options.above, classes: ['ML__center'] },
         context.metrics.bigOpSpacing5,
       ],
     });
   } else if (options.below) {
-    result = new Stack({
+    result = new VBox({
       top: base.height - baseShift,
       children: [
         context.metrics.bigOpSpacing5,
-        { span: options.below, wrapperClasses: ['ML__center'] },
-        { span: base, wrapperClasses: ['ML__center'] },
+        { box: options.below, classes: ['ML__center'] },
+        { box: base, classes: ['ML__center'] },
       ],
     });
   } else if (options.above) {
-    result = new Stack({
+    result = new VBox({
       bottom: base.depth + baseShift,
       children: [
         // base.depth,
-        { span: base, wrapperClasses: ['ML__center'] },
+        { box: base, classes: ['ML__center'] },
         aboveShift,
-        { span: options.above, wrapperClasses: ['ML__center'] },
+        { box: options.above, classes: ['ML__center'] },
         context.metrics.bigOpSpacing5,
       ],
     });
   }
 
-  return new Span(result, { type: options.type });
+  return new Box(result, { type: options.type });
 }

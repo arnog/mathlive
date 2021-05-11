@@ -1,6 +1,6 @@
 import { Atom } from '../core/atom-class';
-import { Span } from '../core/span';
-import { Stack } from '../core/stack';
+import { Box } from '../core/box';
+import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -17,30 +17,30 @@ export class LineAtom extends Atom {
     this.position = options.position;
   }
 
-  render(parentContext: Context): Span {
+  render(parentContext: Context): Box {
     // TeXBook:443. Rule 9 and 10
     const context = new Context(parentContext, this.style, 'cramp');
-    const inner = Atom.render(context, this.body);
+    const inner = Atom.createBox(context, this.body);
     const ruleWidth =
       context.metrics.defaultRuleThickness / context.scalingFactor;
-    const line = new Span(null, { classes: this.position + '-line' });
+    const line = new Box(null, { classes: this.position + '-line' });
     line.height = ruleWidth;
     line.maxFontSize = ruleWidth * 1.125 * context.scalingFactor;
-    let stack: Span;
+    let stack: Box;
     if (this.position === 'overline') {
-      stack = new Stack({
+      stack = new VBox({
         shift: 0,
-        children: [{ span: inner }, 3 * ruleWidth, { span: line }, ruleWidth],
+        children: [{ box: inner }, 3 * ruleWidth, { box: line }, ruleWidth],
       });
     } else {
-      stack = new Stack({
+      stack = new VBox({
         top: inner.height,
-        children: [ruleWidth, { span: line }, 3 * ruleWidth, { span: inner }],
+        children: [ruleWidth, { box: line }, 3 * ruleWidth, { box: inner }],
       });
     }
 
     if (this.caret) stack.caret = this.caret;
-    return new Span(stack, {
+    return new Box(stack, {
       classes: this.position,
       type: 'mord',
     });

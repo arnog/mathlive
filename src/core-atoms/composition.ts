@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { ParseMode, Style } from '../public/core';
 
@@ -12,11 +12,11 @@ export class CompositionAtom extends Atom {
     return {};
   }
 
-  render(context: Context): Span {
+  render(context: Context): Box {
     // In theory one would like to be able to draw the clauses
     // in an active composition. Unfortunately, there are
     // no API to give access to those clauses :(
-    const result = new Span(this.value, {
+    const result = new Box(this.value, {
       classes: 'ML__composition',
       type: 'composition',
     });
@@ -25,7 +25,7 @@ export class CompositionAtom extends Atom {
     return result;
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     return '';
   }
 }

@@ -13,7 +13,7 @@ export class LatexMode extends Mode {
     return new LatexAtom(command);
   }
 
-  toLatex(run: Atom[], _options: ToLatexOptions): string {
+  serialize(run: Atom[], _options: ToLatexOptions): string {
     return run
       .filter((x) => x instanceof LatexAtom && !x.isSuggestion)
       .map((x) => x.value)

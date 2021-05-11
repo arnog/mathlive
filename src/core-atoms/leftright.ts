@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { makeLeftRightDelim } from '../core/delimiters';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
@@ -37,7 +37,7 @@ export class LeftRightAtom extends Atom {
     this.rightDelim = options.rightDelim;
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     let segments: string[] = [];
     if (this.inner) {
       segments = [
@@ -66,25 +66,25 @@ export class LeftRightAtom extends Atom {
     return joinLatex(segments);
   }
 
-  render(parentContext: Context): Span {
+  render(parentContext: Context): Box {
     const context = new Context(parentContext, this.style);
 
     if (!this.body) {
       // No body, only a delimiter
-      const spans: Span[] = [];
+      const boxes: Box[] = [];
       if (this.leftDelim) {
-        spans.push(
+        boxes.push(
           new Atom('mopen', { value: this.leftDelim }).render(context)
         );
       }
 
       if (this.rightDelim) {
-        spans.push(
+        boxes.push(
           new Atom('mclose', { value: this.rightDelim }).render(context)
         );
       }
-      if (spans.length === 0) return null;
-      return new Span(spans, { type: 'minner' });
+      if (boxes.length === 0) return null;
+      return new Box(boxes, { type: 'minner' });
     }
 
     // Calculate its height and depth
@@ -92,16 +92,19 @@ export class LeftRightAtom extends Atom {
     // in. Thus, to correctly calculate the size of delimiter we need around
     // a group, we scale down the inner size based on the size.
     const delimContext = new Context(parentContext, this.style, 'textstyle');
-    const inner: Span =
-      Atom.render(context, this.body, { newList: true }) ??
-      new Span(null, { newList: true });
+    const inner: Box =
+      Atom.createBox(context, this.body, { newList: true }) ??
+      new Box(null, { newList: true });
     const innerHeight = inner.height / delimContext.scalingFactor;
     const innerDepth = inner.depth / delimContext.scalingFactor;
 
-    const spans: Span[] = [];
+    const boxes: Box[] = [];
     // Add the left delimiter to the beginning of the expression
+    // @revisit: we call bind() on three difference boxes. Each box should
+    // have a different ID. We should have a Box.hitTest() method to properly
+    // handle the different boxes.
     if (this.leftDelim) {
-      spans.push(
+      boxes.push(
         this.bind(
           delimContext,
           makeLeftRightDelim(
@@ -122,7 +125,7 @@ export class LeftRightAtom extends Atom {
     }
 
     if (inner) {
-      // Replace the delim (\middle) spans with proper ones now that we know
+      // Replace the delim (\middle) boxes with proper ones now that we know
       // the height/depth
       for (let i = 0; i < inner.children?.length; i++) {
         if (inner.children[i].delim) {
@@ -141,7 +144,7 @@ export class LeftRightAtom extends Atom {
         }
       }
 
-      spans.push(inner);
+      boxes.push(inner);
     }
 
     // Add the right delimiter to the end of the expression.
@@ -177,7 +180,7 @@ export class LeftRightAtom extends Atom {
         }
       }
 
-      spans.push(
+      boxes.push(
         this.bind(
           delimContext,
           makeLeftRightDelim(
@@ -201,7 +204,10 @@ export class LeftRightAtom extends Atom {
     // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the
     // behavior for `\mleft...\mright`, which allows for tighter spacing
     // for example in `\sin\mleft(x\mright)`
-    const result = new Span(spans, { type: this.inner ? 'minner' : 'mclose' });
+    const result = new Box(boxes, {
+      type: this.inner ? 'minner' : 'mclose',
+      classes: 'left-right',
+    });
 
     if (this.caret) result.caret = this.caret;
 

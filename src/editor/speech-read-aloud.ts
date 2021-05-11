@@ -18,7 +18,7 @@ function removeHighlight(element: Element): void {
 }
 
 /**
- * Highlights the span corresponding to the specified atomID.
+ * Highlights the box corresponding to the specified atomID.
  *
  * This is used for text-to-speech with synchronized highlighting (read aloud)
  *

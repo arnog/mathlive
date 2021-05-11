@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { ParseMode, Style } from '../public/core';
 
@@ -14,16 +14,16 @@ export class PlaceholderAtom extends Atom {
     this.value = '⬚';
   }
 
-  render(context: Context): Span {
+  render(context: Context): Box {
     if (typeof context.renderPlaceholder === 'function') {
       return context.renderPlaceholder(context);
     }
-    return this.makeSpan(context, {
+    return this.createBox(context, {
       classes: this.caret ? 'ML__placeholder-selected' : '',
     });
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     return `\\placeholder{${this.value ?? ''}}`;
   }
 }

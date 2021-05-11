@@ -219,7 +219,7 @@ export class MathModeEditor extends ModeEditor {
     if (format === 'latex') {
       // If we are given a latex string with no arguments, store it as
       // "verbatim latex".
-      // Caution: we can only do this if the toLatex() for this parent
+      // Caution: we can only do this if the `serialize()` for this parent
       // would return an empty string. If the latex is generated using other
       // properties than parent.body, for example by adding '\left.' and
       // '\right.' with a 'leftright' type, we can't use this shortcut.

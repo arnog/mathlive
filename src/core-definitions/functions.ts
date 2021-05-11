@@ -175,7 +175,7 @@ defineFunction(['over', 'atop', 'choose'], '', {
       leftDelim,
       rightDelim,
       style,
-      toLatexOverride: (atom: GenfracAtom, options: ToLatexOptions) =>
+      serialize: (atom: GenfracAtom, options: ToLatexOptions) =>
         `{${atom.aboveToLatex(options)}${atom.command} ${atom.belowToLatex(
           options
         )}}`,

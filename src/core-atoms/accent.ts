@@ -1,8 +1,8 @@
 import { Context } from '../core/context';
 import { Atom } from '../core/atom-class';
 
-import { makeSVGSpan, Span } from '../core/span';
-import { Stack } from '../core/stack';
+import { makeSVGBox, Box } from '../core/box';
+import { VBox } from '../core/v-box';
 import { Style } from '../public/core';
 import { X_HEIGHT } from '../core/font-metrics';
 
@@ -29,14 +29,14 @@ export class AccentAtom extends Atom {
     // (any non-null value would do)
   }
 
-  render(parentContext: Context): Span {
+  render(parentContext: Context): Box {
     const context = new Context(parentContext, this.style, 'cramp');
     // Accents are handled in the TeXbook pg. 443, rule 12.
 
     //
     // 1. Build the base atom
     //
-    const base = Atom.render(context, this.body) ?? new Span(null);
+    const base = Atom.createBox(context, this.body) ?? new Box(null);
 
     //
     // 2. Skew
@@ -64,13 +64,13 @@ export class AccentAtom extends Atom {
     //
     // 4. Build the accent
     //
-    let accentSpan: Span;
+    let accentBox: Box;
     if (this.svgAccent) {
-      accentSpan = makeSVGSpan(this.svgAccent);
+      accentBox = makeSVGBox(this.svgAccent);
       clearance = context.metrics.bigOpSpacing1 - clearance;
     } else {
       // Build the accent
-      const accent = new Span(this.accent, { fontFamily: 'Main-Regular' });
+      const accent = new Box(this.accent, { fontFamily: 'Main-Regular' });
       // Remove the italic correction of the accent, because it only serves to
       // shift the accent over to a place we don't want.
       accent.italic = 0;
@@ -78,7 +78,7 @@ export class AccentAtom extends Atom {
       // thus shows up much too far to the left. To account for this, we add a
       // specific class which shifts the accent over to where we want it.
       const vecClass = this.accent === 0x20d7 ? ' ML__accent-vec' : '';
-      accentSpan = new Span(new Span(accent), {
+      accentBox = new Box(new Box(accent), {
         classes: 'ML__accent-body' + vecClass,
       });
     }
@@ -90,20 +90,20 @@ export class AccentAtom extends Atom {
     // Shift the accent over by the skew. Note we shift by twice the skew
     // because we are centering the accent, so by adding 2*skew to the left,
     // we shift it to the right by 1*skew.
-    accentSpan = new Stack({
+    accentBox = new VBox({
       shift: 0,
       children: [
-        { span: new Span(base) },
+        { box: new Box(base) },
         -clearance,
         {
-          span: accentSpan,
+          box: accentBox,
           marginLeft: base.left + 2 * skew,
-          wrapperClasses: ['ML__center'],
+          classes: ['ML__center'],
         },
       ],
     });
 
-    const result = new Span(accentSpan, { newList: true, type: 'mord' });
+    const result = new Box(accentBox, { newList: true, type: 'mord' });
     if (this.caret) result.caret = this.caret;
     this.bind(context, result.wrap(context));
     return this.attachSupsub(context, { base: result });

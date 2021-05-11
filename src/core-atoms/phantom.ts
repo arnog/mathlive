@@ -1,6 +1,6 @@
 import { Atom } from '../core/atom-class';
-import { Span } from '../core/span';
-import { Stack } from '../core/stack';
+import { Box } from '../core/box';
+import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 import type { Style } from '../public/core';
 
@@ -29,22 +29,22 @@ export class PhantomAtom extends Atom {
     this.smashWidth = options.smashWidth ?? false;
   }
 
-  render(context: Context): Span {
+  render(context: Context): Box {
     const phantom = new Context(context, { isPhantom: true });
 
     if (!this.smashDepth && !this.smashHeight && !this.smashWidth) {
       console.assert(this.isInvisible);
-      return Atom.render(phantom, this.body, { classes: 'inner' });
+      return Atom.createBox(phantom, this.body, { classes: 'inner' });
     }
 
-    const content = Atom.render(
+    const content = Atom.createBox(
       this.isInvisible ? phantom : context,
       this.body
     );
 
     if (this.smashWidth) {
-      const fix = new Span(null, { classes: 'fix' });
-      return new Span([content, fix], { classes: 'rlap' }).wrap(context);
+      const fix = new Box(null, { classes: 'fix' });
+      return new Box([content, fix], { classes: 'rlap' }).wrap(context);
     }
 
     if (!this.smashHeight && !this.smashDepth) return content;
@@ -52,16 +52,16 @@ export class PhantomAtom extends Atom {
     if (this.smashHeight) content.height = 0;
     if (this.smashDepth) content.depth = 0;
 
-    for (const span of content.children) {
-      if (this.smashHeight) span.height = 0;
-      if (this.smashDepth) span.depth = 0;
+    for (const box of content.children) {
+      if (this.smashHeight) box.height = 0;
+      if (this.smashDepth) box.depth = 0;
     }
 
     // We create a stack to suppress the HTML line height by setting
     // the display to 'table-cell' which prevents the browser from
     // acting on that height.
-    return new Stack(
-      { firstBaseline: [{ span: content }] },
+    return new VBox(
+      { firstBaseline: [{ box: content }] },
       { type: 'mord' }
     ).wrap(context);
   }

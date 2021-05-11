@@ -397,7 +397,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
 };
 
 /**
- * Generate the HTML markup to represent a SVG span.
+ * Generate the HTML markup to represent a SVG box.
  *
  */
 export function svgBodyToMarkup(svgBodyName: string): string {

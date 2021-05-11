@@ -1,6 +1,6 @@
 import { Style } from '../public/core';
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { charToLatex } from '../core-definitions/definitions-utils';
 
@@ -12,13 +12,13 @@ export class TextAtom extends Atom {
     this.applyStyle(style);
   }
 
-  render(context: Context): Span {
-    const result = this.makeSpan(context);
+  render(context: Context): Box {
+    const result = this.createBox(context);
     if (this.caret) result.caret = this.caret;
     return result;
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     return this.verbatimLatex ?? charToLatex('text', this.value);
   }
 }

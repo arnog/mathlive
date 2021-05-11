@@ -1,6 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Style } from '../public/core';
 
 export class RuleAtom extends Atom {
@@ -22,7 +22,7 @@ export class RuleAtom extends Atom {
     this.width = options.width;
   }
 
-  render(parentContext: Context): Span {
+  render(parentContext: Context): Box {
     // The mathstyle sizing corrections (size delta) do not
     // apply to the dimensions of rules. Create a 'textstyle'
     // context to do the measurements without accounting for the mathstyle.
@@ -31,7 +31,7 @@ export class RuleAtom extends Atom {
     const shift = Number.isFinite(this.shift) ? this.shift : 0;
     const width = this.width;
     const height = this.height;
-    const result = new Span(null, { classes: 'rule', type: 'mord' });
+    const result = new Box(null, { classes: 'rule', type: 'mord' });
     result.setStyle('border-right-width', width, 'em');
     result.setStyle('border-top-width', height, 'em');
     result.setStyle('border-color', this.style.color);
@@ -45,15 +45,15 @@ export class RuleAtom extends Atom {
     return result.wrap(context);
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     let result = this.command;
     if (this.shift) {
-      result += `[${Atom.toLatex(this.shift, options)}em]`;
+      result += `[${Atom.serialize(this.shift, options)}em]`;
     }
 
     result +=
-      `{${Atom.toLatex(this.width, options)}em}` +
-      `{${Atom.toLatex(this.height, options)}em}`;
+      `{${Atom.serialize(this.width, options)}em}` +
+      `{${Atom.serialize(this.height, options)}em}`;
     return result;
   }
 }
