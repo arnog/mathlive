@@ -985,19 +985,6 @@ export type MathfieldOptions = LayoutOptions &
      *
      */
     onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
-
-    /**
-     * This function provides the option of substituting the focusable DOM
-     * element used to capture keyboard input.
-     *
-     * An (invisible) DOM element is used to capture the keyboard events. By
-     * default, this element is a `<textarea>` on desktop and a `<span>` on
-     * mobile devices, to prevent the device virtual keyboard from being
-     * displayed.
-     *
-     * Alternatively, the ID of a DOM element can be provided.
-     */
-    substituteTextArea: string | (() => HTMLElement);
   };
 
 /**

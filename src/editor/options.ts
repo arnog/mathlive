@@ -306,7 +306,6 @@ export const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<span style="width: 21px; margin-t
 export function getDefault(): Required<MathfieldOptionsPrivate> {
   return {
     namespace: '',
-    substituteTextArea: undefined,
     readOnly: false,
     createHTML: (s: string): any => s,
     fontsDirectory: './fonts',

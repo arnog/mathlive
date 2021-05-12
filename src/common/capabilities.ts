@@ -1,7 +1,3 @@
-export function hasPhysicalKeyboard(): boolean {
-  return !isTouchCapable();
-}
-
 export function isTouchCapable(): boolean {
   return window.matchMedia?.('(any-pointer: coarse)').matches ?? false;
 }

@@ -24,6 +24,7 @@
  * - https://github.com/microsoft/vscode/wiki/Keybinding-Issues
  */
 
+import { isTouchCapable } from '../common/capabilities';
 import { normalizeKeyboardEvent } from './keyboard-layout';
 
 const PRINTABLE_KEYCODE = new Set([
@@ -245,6 +246,11 @@ export function delegateKeyboardEvents(
       if (!handlers.keystroke(keyboardEventToString(event), event)) {
         keydownEvent = null;
         textarea.value = '';
+      } else if (isTouchCapable()) {
+        // If we did not create a text-area because we're on a mobile
+        // device and we don't want to use the OS virtual keyboard, capture
+        // the key events possibly coming from an attached hardware keyboard
+        handlers.typedText(event.key);
       }
     },
     true

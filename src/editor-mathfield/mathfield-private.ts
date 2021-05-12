@@ -92,7 +92,7 @@ import './mode-editor-text';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
-import { hasPhysicalKeyboard } from '../common/capabilities';
+import { isTouchCapable } from '../common/capabilities';
 import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
 export class MathfieldPrivate implements Mathfield {
@@ -262,55 +262,40 @@ export class MathfieldPrivate implements Mathfield {
 
     // Additional elements used for UI.
     // They are retrieved in order a bit later, so they need to be kept in sync
-    // 1.0/ The field, where the math equation will be displayed
-    // 1.1/ The virtual keyboard toggle
-    // 2/ The popover panel which displays info in command mode
-    // 3/ The keystroke caption panel (option+shift+K)
-    // 4/ The virtual keyboard
-    // 5.0/ The area to stick MathML for screen reading larger exprs (not used right now)
-    //      The for the area is that focus would bounce their and then back triggering the
-    //         screen reader to read it
-    // 5.1/ The aria-live region for announcements
     let markup = '';
-    if (!this.options.substituteTextArea) {
-      // If the device doesn't have a physical keyboard don't use a
-      // `<textarea>`, which has the side effect of bringing up the OS virtual keyboard
-      markup += !hasPhysicalKeyboard()
-        ? `<span class='ML__textarea'>
-                <span class='ML__textarea__textarea'
-                    tabindex="-1" role="textbox"
-                    style='display:inline-block;height:1px;width:1px' >
-                </span>
-            </span>`
-        : '<span class="ML__textarea">' +
-          '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
-          `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${
-            element.tabIndex ?? 0
-          }">` +
-          '</textarea>' +
-          '</span>';
-    } else if (typeof this.options.substituteTextArea === 'string') {
-      markup += this.options.substituteTextArea;
-    } else {
-      // We don't really need this one, but we keep it here so that the
-      // indexes below remain the same whether a substituteTextArea is
-      // provided or not.
-      markup += '<span></span>';
-    }
 
+    // 1/ The keyboard event capture element.
+    // On touch capable device, we do not create a textarea to capture keyboard
+    // events as this has the side effect of triggering the OS virtual keyboard
+    // which we want to avoid
+    markup += "<span class='ML__textarea'>";
+    markup += isTouchCapable()
+      ? `<span class='ML__textarea__textarea' tabindex="-1" role="textbox"></span>`
+      : '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
+        `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${
+          element.tabIndex ?? 0
+        }"></textarea>`;
+    markup += '</span>';
+
+    // 2/ The field, where the math equation will be displayed
     markup +=
-      '<span class="ML__fieldcontainer">' +
-      '<span class="ML__fieldcontainer__field"></span>';
+      '<span class="ML__fieldcontainer"><span class="ML__fieldcontainer__field"></span>';
 
+    // 2.1/ The virtual keyboard toggle
     markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
       'tooltip.toggle virtual keyboard'
     )}">`;
-    // Data-ML__tooltip='Toggle Virtual Keyboard'
     markup +=
       this.options.virtualKeyboardToggleGlyph ?? DEFAULT_KEYBOARD_TOGGLE_GLYPH;
     markup += '</div>';
 
     markup += '</span>';
+
+    // 3.1/ The aria-live region for announcements
+    // 3.1/ The area to stick MathML for screen reading larger exprs
+    // (not used right now). The idea for the area is that focus would bounce
+    // their and then back triggering the screen reader to read it
+
     markup +=
       '<div class="ML__sr-only">' +
       '<span aria-live="assertive" aria-atomic="true"></span>' +
@@ -333,10 +318,8 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     let iChild = 0; // Index of child -- used to make changes below easier
-    const textarea: HTMLElement =
-      typeof this.options.substituteTextArea === 'function'
-        ? this.options.substituteTextArea()
-        : (this.element.children[iChild++].firstElementChild as HTMLElement);
+    const textarea: HTMLElement = this.element.children[iChild++]
+      .firstElementChild as HTMLElement;
     this.field = this.element.children[iChild].children[0] as HTMLElement;
     // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
     this.field.addEventListener(
@@ -344,7 +327,7 @@ export class MathfieldPrivate implements Mathfield {
       (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        const wheelDelta = ev.deltaX === undefined ? ev.detail : -ev.deltaX;
+        const wheelDelta = ev.detail ?? -ev.deltaX;
         if (Number.isFinite(wheelDelta)) {
           this.field.scroll({
             top: 0,
@@ -354,12 +337,6 @@ export class MathfieldPrivate implements Mathfield {
       },
       { passive: false }
     );
-
-    // When fonts are done loading, re-render
-    // (the selection state may be out of date)
-    document.fonts.ready.then(() => {
-      render(this);
-    });
 
     iChild++;
 
@@ -384,6 +361,7 @@ export class MathfieldPrivate implements Mathfield {
       .children[0] as HTMLElement;
     this.accessibleNode = this.element.children[iChild++]
       .children[1] as HTMLElement;
+
     // Some panels are shared amongst instances of mathfield
     // (there's a single instance in the document)
     this.popover = getSharedElement('mathlive-popover-panel', 'ML__popover');
@@ -394,15 +372,18 @@ export class MathfieldPrivate implements Mathfield {
       'ML__keystroke-caption'
     );
     this.stylesheets.push(injectStylesheet(null, keystrokeCaptionStylesheet));
+
     // The keystroke caption panel and the command bar are
     // initially hidden
     this.keystrokeCaptionVisible = false;
     this.keystrokeBuffer = '';
     this.keystrokeBufferStates = [];
     this.keystrokeBufferResetTimer = null;
+
     // This index indicates which of the suggestions available to
     // display in the popover panel
     this.suggestionIndex = 0;
+
     // The input mode (text, math, command)
     // While model.getMode() represent the mode of the current selection,
     // this.mode is the mode chosen by the user. It indicates the mode the
@@ -412,13 +393,16 @@ export class MathfieldPrivate implements Mathfield {
     // enters a mode changing command.
     this.mode = effectiveMode(this.options);
     this.smartModeSuppressed = false;
+
     // Current style (color, weight, italic, etc...):
     // reflects the style to be applied on next insertion.
     this.style = {};
+
     // Focus/blur state
     this.blurred = true;
     on(this.element, 'focus', this);
     on(this.element, 'blur', this);
+
     // Capture clipboard events
     // Delegate keyboard events
     this.keyboardDelegate = delegateKeyboardEvents(
@@ -465,16 +449,16 @@ export class MathfieldPrivate implements Mathfield {
       }
     );
 
+    if (this.options.readOnly) {
+      this.element.classList.add('ML__isReadOnly');
+    }
+
     // Delegate mouse and touch events
     if (window.PointerEvent) {
       // Use modern pointer events if available
       on(this.field, 'pointerdown', this);
     } else {
       on(this.field, 'touchstart:active mousedown', this);
-    }
-
-    if (this.options.readOnly) {
-      this.element.classList.add('ML__isReadOnly');
     }
 
     // Request notification for when the window is resized (
@@ -555,6 +539,11 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     requestUpdate(this);
+
+    // When fonts are done loading, re-render
+    // (the selection highlighting may be out of date due to the HTML layout
+    // having been updated with the new font metrics)
+    document.fonts.ready.then(() => render(this));
   }
 
   get virtualKeyboardState(): 'hidden' | 'visible' {
