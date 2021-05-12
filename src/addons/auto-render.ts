@@ -182,11 +182,11 @@ function splitAtDelimiters(
 
 function splitWithDelimiters(
   text: string,
-  texDelimiters: {
+  texDelimiters?: {
     display?: [openDelim: string, closeDelim: string][];
     inline?: [openDelim: string, closeDelim: string][];
   },
-  mathAsciiDelimiters: {
+  mathAsciiDelimiters?: {
     display?: [openDelim: string, closeDelim: string][];
     inline?: [openDelim: string, closeDelim: string][];
   }
@@ -197,19 +197,19 @@ function splitWithDelimiters(
   mathstyle?: string;
 }[] {
   let data = [{ type: 'text', data: text }];
-  if (texDelimiters.inline) {
+  if (texDelimiters?.inline) {
     texDelimiters.inline.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
     });
   }
 
-  if (texDelimiters.display) {
+  if (texDelimiters?.display) {
     texDelimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'displaystyle');
     });
   }
 
-  if (mathAsciiDelimiters.inline) {
+  if (mathAsciiDelimiters?.inline) {
     mathAsciiDelimiters.inline.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(
         data,
@@ -221,7 +221,7 @@ function splitWithDelimiters(
     });
   }
 
-  if (mathAsciiDelimiters.display) {
+  if (mathAsciiDelimiters?.display) {
     mathAsciiDelimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(
         data,
@@ -351,8 +351,8 @@ function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
     if (!text.trim()) return null;
     const data = splitWithDelimiters(
       text,
-      options.TeX.delimiters,
-      options.asciiMath.delimiters
+      options.TeX?.delimiters,
+      options.asciiMath?.delimiters
     );
     if (data.length === 1 && data[0].type === 'text') {
       // This text contains no math. No need to continue processing
@@ -411,8 +411,8 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
 
     const data = splitWithDelimiters(
       text,
-      options.TeX.delimiters,
-      options.asciiMath.delimiters
+      options.TeX?.delimiters,
+      options.asciiMath?.delimiters
     );
     if (data.length === 1 && data[0].type === 'math') {
       // The entire content is a math expression: we can replace the content
