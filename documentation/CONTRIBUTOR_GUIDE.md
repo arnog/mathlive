@@ -2,7 +2,7 @@ This guide is for developers who want to contribute code to the project, or who
 need to modify or debug it.
 
 If you simply want to use MathLive in your project, see the
-[Usage Guide](tutorials/USAGE_GUIDE.md).
+[Getting Started](https://cortexjs.io/guides/mathfield-getting-started/) guide.
 
 ## Table of Contents
 

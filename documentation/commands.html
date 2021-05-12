@@ -1,0 +1,173 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <title>MathLive Reference - LaTeX Commands</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+
+    <style>
+        .testIdentifier {
+            text-shadow: 2px 2px 5px #aaa;
+        }
+
+        #testIdentifier {
+            background: lightyellow;
+        }
+
+        #testIdentifier:hover {
+            background: lightsteelblue;
+        }
+
+        table.compact-definition-table {
+            width: auto;
+        }
+
+        table.compact-definition-table .mathlive {
+            font-size: 300%;
+            /* color: #444; */
+        }
+
+        table.compact-definition-table td {
+            border: none;
+            border-radius: 16px;
+            width: 178px;
+            max-width: 178px;
+            height: 122px;
+            min-height: 122px;
+            overflow: hidden;
+            text-align: center;
+            padding: 0;
+            font-size: 24px;
+            display: inline-flex;
+            flex-flow: column;
+            align-items: center;
+            padding-top: 42px;
+
+        }
+
+        table.compact-definition-table tbody tr:nth-child(even) td {
+            background: transparent;
+        }
+
+        table.compact-definition-table tbody tr td:hover {
+            background: #eee;
+            overflow: visible;
+        }
+
+        div#reference table.compact-definition-table td>span {
+            margin-bottom: 8px;
+        }
+
+        div#reference table.compact-definition-table td kbd {
+            font-size: 14px;
+            font-family: var(--monospace);
+            font-weight: bold;
+            text-shadow: none;
+            margin: 0;
+            padding: 0;
+            color: var(--primary);
+            opacity: 1;
+        }
+
+        table tt {
+            font-family: var(--monospace);
+            color: var(--primary);
+        }
+
+        div#reference kbd {
+            opacity: 1;
+
+            font-family: var(--monospace);
+            font-weight: bold;
+            text-shadow: none;
+            color: var(--primary);
+
+            font-size: 16px;
+            box-shadow: none;
+            border: none;
+            background: transparent;
+        }
+
+        div#reference table {
+            table-layout: auto;
+        }
+
+        @media screen and (max-width: 600px) {
+            div#reference table.compact-definition-table {
+                width: 100%;
+                margin: auto;
+            }
+
+            ;
+
+            div#reference table.compact-definition-table tbody tr {
+                width: 100vw;
+            }
+
+            div#reference table.compact-definition-table tbody tr td:first-child,
+            div#reference table.compact-definition-table tbody tr td {
+                display: inline-flex;
+                width: 100vw;
+                padding-left: 0;
+                padding-right: 0;
+                margin-top: 0;
+                max-width: 100vw;
+                empty-cells: hide;
+                font-size: 200%;
+            }
+
+        }
+
+
+        .star-rating {
+            font-size: 12px;
+            opacity: .7;
+        }
+    </style>
+
+
+</head>
+
+<body>
+  <script type='module'>
+      import {
+          MathLive,
+          generateMacrosDocumentation,
+          generateCommandsDocumentation
+      } from './js/documentation.js';
+      function update() {
+          const frequency = 0;
+          const format = "mat";
+
+          document.getElementById('macros').innerHTML =
+             generateMacrosDocumentation();
+
+          document.getElementById('reference').innerHTML =
+            generateCommandsDocumentation('', 0);
+
+          // MathLive.renderMathInDocument({
+          //     fontsDirectory: "../fonts",
+          //     renderAccessibleContent: '',
+          //     preserveOriginalContent: false,
+          //     asciiMath: null
+          // });
+      }
+      update();
+  </script>
+
+
+
+  <header>
+    <h1 role='banner'>LaTeX Commands</h1>
+  </header>
+  <section id='main-content'>
+    <div id='macros'></div>
+    <div id='reference'></div>
+  </section>
+</body>
+
+</html>

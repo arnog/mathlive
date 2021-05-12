@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8" />
+    <title>MathLive Reference - Keybindings</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+    <style>
+        table.compact-definition-table .mathlive {
+            font-size: 300%;
+            /* color: #444; */
+        }
+
+        table.compact-definition-table td {
+            border: none;
+            padding-bottom: 24px;
+            /* border-bottom: .5px solid rgba(0, 0, 0, 0.07); */
+        }
+
+        div#reference kbd {
+            /* color: #999; */
+            opacity: 0.5;
+            font-size: 12px;
+        }
+
+        .keystroke-table table {
+            table-layout: fixed;
+        }
+
+        .keystroke-table table td {
+            vertical-align: middle;
+        }
+
+        /* OS Column */
+        .keystroke-table table th:last-of-type {
+            width: 60px;
+        }
+
+        .keystroke-table table td:last-of-type {
+            text-align: center;
+        }
+
+        /* OS icon */
+        .keystroke-table table tr td svg {
+            width: 21px;
+            height: 21px;
+            opacity: 0.5;
+        }
+
+        .keystroke-table table th:first-of-type {
+            width: 210px;
+            text-align: right;
+        }
+
+        .keystroke-table table tr td:first-of-type {
+            text-align: right;
+        }
+
+        .shortcut-table table th:first-of-type,
+        .shortcut-table table td:first-of-type {
+            text-align: right;
+        }
+
+        .ML__mathlive {
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import {
+            MathLive,
+            generateKeybindingsDocumentation,
+            generateInlineShortcutsDocumentation
+        } from "./js/documentation.js";
+
+        document.getElementById(
+            "keybindings-all-documentation"
+        ).innerHTML = generateKeybindingsDocumentation();
+        document.getElementById(
+            "keybindings-math-documentation"
+        ).innerHTML = generateKeybindingsDocumentation(
+            "math"
+        );
+        document.getElementById(
+            "keybindings-command-documentation"
+        ).innerHTML = generateKeybindingsDocumentation(
+            "command"
+        );
+
+        document.getElementById(
+            "inline-shortcuts-documentation"
+        ).innerHTML = generateInlineShortcutsDocumentation();
+
+        document.getElementById(
+            "mathascii-shortcuts-documentation"
+        ).innerHTML = generateInlineShortcutsDocumentation({
+            "@": "\\star",
+            $: "\\$", // make it easy to type $
+            "%": "\\%", // make it easy to type %
+            "#": "\\#", // make it easy to type #
+            // Binary operation symbols
+            "*": "\\cdot",
+            "**": "\\ast",
+            "***": "\\star",
+            "//": "\\slash",
+            "\\\\": "\\backslash",
+            setminus: "\\backslash",
+            "|><": "\\ltimes",
+            "><|": "\\rtimes",
+            "|><|": "\\bowtie",
+            "-:": "\\div",
+            divide: "\\div",
+            "@": "\\circ",
+            "o+": "\\oplus",
+            ox: "\\otimes",
+            "o.": "\\odot",
+            "^^": "\\wedge",
+            "^^^": "\\bigwedge",
+            vv: "\\vee",
+            vvv: "\\bigvee",
+            nn: "\\cap",
+            nnn: "\\bigcap",
+            uu: "\\cup",
+            uuu: "\\bigcup",
+
+            // Binary relation symbols
+            "-=": "\\equiv",
+            "~=": "\\cong",
+            lt: "<",
+            "lt=": "\\leq",
+            gt: ">",
+            "gt=": "\\geq",
+            "-<": "\\prec",
+            "-lt": "\\prec",
+            "-<=": "\\preceq",
+            // '>-':                   '\\succ',
+            ">-=": "\\succeq",
+            prop: "\\propto",
+            diamond: "\\diamond",
+            square: "\\square",
+            iff: "\\iff",
+
+            sub: "\\subset",
+            sup: "\\supset",
+            sube: "\\subseteq",
+            supe: "\\supseteq",
+            uarr: "\\uparrow",
+            darr: "\\downarrow",
+            rarr: "\\rightarrow",
+            rArr: "\\Rightarrow",
+            larr: "\\leftarrow",
+            lArr: "\\Leftarrow",
+            harr: "\\leftrightarrow",
+            hArr: "\\Leftrightarrow",
+            aleph: "\\aleph",
+
+            // Logic
+            and: "\\land",
+            or: "\\lor",
+            not: "\\neg",
+            "_|_": "\\bot",
+            TT: "\\top",
+            "|--": "\\vdash",
+            "|==": "\\models",
+
+            // Other functions
+            "|__": "\\lfloor",
+            "__|": "\\rfloor",
+
+            "|~": "\\lceiling",
+            "~|": "\\rceiling",
+
+            // Arrows
+            ">->": "\\rightarrowtail",
+            "->>": "\\twoheadrightarrow",
+            ">->>": "\\twoheadrightarrowtail",
+        });
+
+        // MathLive.renderMathInDocument({ fontsDirectory: "../fonts" });
+    </script>
+
+
+  <section id="main-content">
+      <h2>Keybindings</h2>
+      <p>
+          Commands to edit and modify a formula can be invoked by
+          pressing some key combinations.
+      </p>
+      <p>
+          Some of these shortcuts only apply when editing math (math
+          mode) some while editing a command, i.e. after pressing the
+          <kbd>\</kbd> key (command mode), and some apply in all
+          modes.
+      </p>
+      <h3>All Modes</h3>
+      <div id="keybindings-all-documentation" class="keystroke-table"></div>
+      <h3>Math Mode Only</h3>
+      <div id="keybindings-math-documentation" class="keystroke-table"></div>
+      <h3>Command Mode Only</h3>
+      <div id="keybindings-command-documentation" class="keystroke-table"></div>
+
+      <h2>Inline Shortcuts</h2>
+      <p>
+          Some sequence of characters can be automatically translated
+          to symbols. For example, typing <kbd>p</kbd> followed by
+          <kbd>i</kbd> will result in "π".
+      </p>
+      <p>
+          If the conversion was not desired, for example you actually
+          meant "pi", type <kbd>ctrl/⌘ Z</kbd> to undo it.
+      </p>
+      <div id="inline-shortcuts-documentation" class="shortcut-table"></div>
+
+      <h3>MathASCII</h3>
+      <div id="mathascii-shortcuts-documentation" class="shortcut-table"></div>
+  </section>
+</body>
+
+</html>
