@@ -367,6 +367,7 @@ export const debug = {
   MACROS: MathLiveDebug.MACROS,
   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
+  INLINE_SHORTCUTS: MathLiveDebug.INLINE_SHORTCUTS,
 };
 
 export default {

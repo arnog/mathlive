@@ -100,11 +100,10 @@ export class MathMode extends Mode {
 
   createAtom(command: string, style: Style): Atom | null {
     const info = getInfo(command, 'math');
-    const value = info?.value ?? command;
     const result = new Atom(info?.type ?? 'mord', {
       mode: 'math',
       command,
-      value,
+      value: info?.codepoint ? String.fromCodePoint(info?.codepoint) : command,
       style,
     });
     if (info?.isFunction ?? false) {

@@ -529,7 +529,7 @@ function getCanonicalName(latex: string): string {
   if (!result) {
     if (/^\\[^{}]+$/.test(latex)) {
       const info = getInfo(latex, 'math', {});
-      result = info ? info.value || latex.slice(1) : latex.slice(1);
+      result = info ? info.codepoint || latex.slice(1) : latex.slice(1);
     } else {
       result = latex;
     }

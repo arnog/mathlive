@@ -76,7 +76,7 @@ function isLiteral(token: Token): boolean {
  * @property endCount - Counter to prevent deadlock. If `end()` is
  * called too many times (1,000) in a row for the same token, bail.
  */
-class Parser {
+export class Parser {
   tokens: Token[];
   index = 0;
 
@@ -1476,7 +1476,7 @@ class Parser {
       result = new Atom(info.type ?? 'mop', {
         command,
         style,
-        value: info.value ?? command,
+        value: info.codepoint ? String.fromCodePoint(info.codepoint) : command,
         mode: info.applyMode ?? this.parseMode,
       });
     }

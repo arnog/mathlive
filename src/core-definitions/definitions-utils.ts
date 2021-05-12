@@ -1,4 +1,4 @@
-import type { ArgumentType } from '../core/parser';
+import type { ArgumentType, Parser } from '../core/parser';
 import type { Atom, AtomType, BBoxParameter } from '../core/atom-class';
 import type { ColumnFormat } from '../core-atoms/array';
 import type {
@@ -10,6 +10,7 @@ import type {
 } from '../public/core';
 import { supportRegexPropertyEscape } from '../common/capabilities';
 import { PrivateStyle } from '../core/context';
+import { MathstyleName } from '../core/mathstyle';
 
 export type FunctionArgumentDefiniton = {
   isOptional: boolean;
@@ -31,6 +32,19 @@ export type CreateAtomOptions = {
 export type ApplyStyleDefinitionOptions = {
   colorMap: (name: string) => string;
   backgroundColorMap: (name: string) => string;
+};
+
+export type ParseResult =
+  | Atom
+  | PrivateStyle
+  | ParseMode
+  | MathstyleName
+  | {
+      error: string;
+    };
+
+export type CommandDefinition = {
+  parse: (parser: Parser) => ParseResult;
 };
 
 export type FunctionDefinition = {
@@ -66,7 +80,7 @@ type EnvironmentDefinition = {
 
 export type SymbolDefinition = {
   type: AtomType;
-  value: string;
+  codepoint: number;
   variant: Variant;
   // VariantStyle: VariantStyle;
 
@@ -84,99 +98,101 @@ export const MATH_SYMBOLS: Record<string, SymbolDefinition> = {};
 // The table will also be populated by any registered symbol
 // from MATH_SYMBOLS
 // prettier-ignore
-export const REVERSE_MATH_SYMBOLS = {
-    '<': '<',   // Also \lt
-    '>': '>',   // Also \gt
-    'o': 'o',    // Also \omicron
-    '&': '\\&',  // Also \And
-    '{': '\\lbrace',
-    '}': '\\rbrace',
-    '[': '\\lbrack',
-    ']': '\\rbrack',
-    ':': '\\colon', // Also :
+const REVERSE_MATH_SYMBOLS = {
+    0x003C: '<',   // Also \lt
+    0x003E: '>',   // Also \gt
+    0x006F: 'o',    // Also \omicron
+    0x0026: '\\&',  // Also \And
+    0x007B: '\\lbrace',
+    0x007D: '\\rbrace',
+    0x005B: '\\lbrack',
+    0x005D: '\\rbrack',
+    0x003A: '\\colon', // Also :
     
-    '\u00A0': '~', // Also \space
-    '\u00AC': '\\neg',  // Also \lnot
+    0x00A0: '~', // Also \space
+    0x00AC: '\\neg',  // Also \lnot
 
-    '\u00B7': '\\cdot',
-    '\u00BC': '\\frac{1}{4}',
-    '\u00BD': '\\frac{1}{2}',
-    '\u00BE': '\\frac{3}{4}',
-    '\u2070': '^{0}',
-    '\u2071': '^{i}',
-    '\u00B9': '^{1}',
-    '\u00B2': '^{2}',
-    '\u00B3': '^{3}',
+    0x00B7: '\\cdot',
+    0x00BC: '\\frac{1}{4}',
+    0x00BD: '\\frac{1}{2}',
+    0x00BE: '\\frac{3}{4}',
+    0x2070: '^{0}',
+    0x2071: '^{i}',
+    0x00B9: '^{1}',
+    0x00B2: '^{2}',
+    0x00B3: '^{3}',
 
-    '\u2020': '\\dagger', // Also \dag
-    '\u2021': '\\ddagger', // Also \ddag
-    '\u2026': '\\ldots',    // Also \mathellipsis
+    0x2020: '\\dagger', // Also \dag
+    0x2021: '\\ddagger', // Also \ddag
+    0x2026: '\\ldots',    // Also \mathellipsis
 
-    '\u2074': '^{4}',
-    '\u2075': '^{5}',
-    '\u2076': '^{6}',
-    '\u2077': '^{7}',
-    '\u2078': '^{8}',
-    '\u2079': '^{9}',
-    '\u207A': '^{+}',
-    '\u207B': '^{-}',
-    '\u207C': '^{=}',
-    '\u207F': '^{n}',
-    '\u2080': '_{0}',
-    '\u2081': '_{1}',
-    '\u2082': '_{2}',
-    '\u2083': '_{3}',
-    '\u2084': '_{4}',
-    '\u2085': '_{5}',
-    '\u2086': '_{6}',
-    '\u2087': '_{7}',
-    '\u2088': '_{8}',
-    '\u2089': '_{9}',
-    '\u208A': '_{+}',
-    '\u208B': '_{-}',
-    '\u208C': '_{=}',
-    '\u2090': '_{a}',
-    '\u2091': '_{e}',
-    '\u2092': '_{o}',
-    '\u2093': '_{x}',
+    0x2074: '^{4}',
+    0x2075: '^{5}',
+    0x2076: '^{6}',
+    0x2077: '^{7}',
+    0x2078: '^{8}',
+    0x2079: '^{9}',
+    0x207A: '^{+}',
+    0x207B: '^{-}',
+    0x207C: '^{=}',
+    0x207F: '^{n}',
+    0x2080: '_{0}',
+    0x2081: '_{1}',
+    0x2082: '_{2}',
+    0x2083: '_{3}',
+    0x2084: '_{4}',
+    0x2085: '_{5}',
+    0x2086: '_{6}',
+    0x2087: '_{7}',
+    0x2088: '_{8}',
+    0x2089: '_{9}',
+    0x208A: '_{+}',
+    0x208B: '_{-}',
+    0x208C: '_{=}',
+    0x2090: '_{a}',
+    0x2091: '_{e}',
+    0x2092: '_{o}',
+    0x2093: '_{x}',
 
-    '\u2032': '\\prime',
-    '\'': '\\prime',
+    0x2032: '\\prime',
+    0x0027: '\\prime',
 
-    '\u2190': '\\gets', // Also \leftarrow
-    '\u2192': '\\to',   // Also \rightarrow
+    0x2190: '\\gets', // Also \leftarrow
+    0x2192: '\\to',   // Also \rightarrow
 
-    '\u25B3': '\\triangle', // Also \bigtriangleup, \vartriangle
-    '\u25BD': '\\triangledown',
+    0x25B3: '\\triangle', // Also \bigtriangleup, \vartriangle
+    0x25BD: '\\triangledown',
 
-    '\u220B': '\\owns', // Also \ni
-    '\u2217': '\\ast',  // Also *
-    '\u2223': '\\vert',  // Also |, \mvert, \lvert, \rvert
-    '\u2225': '\\Vert',  // Also \parallel \shortparallel
+    0x220B: '\\owns', // Also \ni
+    0x2217: '\\ast',  // Also *
+    0x2223: '\\vert',  // Also |, \mvert, \lvert, \rvert
+    0x2225: '\\Vert',  // Also \parallel \shortparallel
 
-    '\u2227': '\\land', // Also \wedge
-    '\u2228': '\\lor', // Also \vee
+    0x2227: '\\land', // Also \wedge
+    0x2228: '\\lor', // Also \vee
 
-    '\u22C5': '\\cdot', // Also \centerdot, \cdotp
-    '\u22C8': '\\bowtie', // Also \Joint
+    0x22C5: '\\cdot', // Also \centerdot, \cdotp
+    0x22C8: '\\bowtie', // Also \Joint
 
-    '\u2260': '\\ne',   // Also \neq
-    '\u2264': '\\le',   // Also \leq
-    '\u2265': '\\ge',   // Also \geq
-    '\u22A5': '\\bot', // Also \perp
+    0x2260: '\\ne',   // Also \neq
+    0x2264: '\\le',   // Also \leq
+    0x2265: '\\ge',   // Also \geq
+    0x22A5: '\\bot', // Also \perp
 
-    '\u27F7': '\\biconditional',    // Also longleftrightarrow
-    '\u27F8': '\\impliedby', // Also \Longleftarrow
-    '\u27F9': '\\implies', // Also \Longrightarrow
+    0x27F7: '\\biconditional',    // Also longleftrightarrow
+    0x27F8: '\\impliedby', // Also \Longleftarrow
+    0x27F9: '\\implies', // Also \Longrightarrow
 
-    '\u2102': '\\C',    // Also \doubleStruckCapitalC
-    '\u2115': '\\N',    // Also \doubleStruckCapitalN
-    '\u2119': '\\P',    // Also \doubleStruckCapitalP
-    '\u211A': '\\Q',    // Also \doubleStruckCapitalQ
-    '\u211D': '\\R',    // Also \doubleStruckCapitalR
-    '\u2124': '\\Z',    // Also \doubleStruckCapitalZ
+    0x2102: '\\C',    // Also \doubleStruckCapitalC
+    0x2115: '\\N',    // Also \doubleStruckCapitalN
+    0x2119: '\\P',    // Also \doubleStruckCapitalP
+    0x211A: '\\Q',    // Also \doubleStruckCapitalQ
+    0x211D: '\\R',    // Also \doubleStruckCapitalR
+    0x2124: '\\Z',    // Also \doubleStruckCapitalZ
 };
-export const FUNCTIONS: Record<string, FunctionDefinition> = {};
+export const LEGACY_COMMANDS: Record<string, FunctionDefinition> = {};
+
+export const COMMANDS: Record<string, CommandDefinition> = {};
 
 export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 
@@ -284,55 +300,55 @@ export const MACROS: MacroDictionary = {
 // Body-text symbols
 // See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
 
-export const TEXT_SYMBOLS = {
-  ' ': ' ',
-  '\\#': '\u0023',
-  '\\&': '\u0026',
-  '\\$': '$',
-  '\\%': '%',
-  '\\_': '_',
-  '\\euro': '\u20AC',
-  '\\maltese': '\u2720',
-  '\\{': '{',
-  '\\}': '}',
-  '\\nobreakspace': '\u00A0',
-  '\\ldots': '\u2026',
-  '\\textellipsis': '\u2026',
-  '\\backslash': '\\',
-  '`': '\u2018',
-  "'": '\u2019',
-  '``': '\u201C',
-  "''": '\u201D',
-  '\\degree': '\u00B0',
-  '\\textasciicircum': '^',
-  '\\textasciitilde': '~',
-  '\\textasteriskcentered': '*',
-  '\\textbackslash': '\\',
-  '\\textbraceleft': '{',
-  '\\textbraceright': '}',
-  '\\textbullet': '•',
-  '\\textdollar': '$',
-  '\\textsterling': '£',
-  '\\textdagger': '\u2020',
-  '\\textdaggerdbl': '\u2021',
+export const TEXT_SYMBOLS: Record<string, number> = {
+  ' ': 0x0020,
+  '\\#': 0x0023,
+  '\\&': 0x0026,
+  '\\$': 0x0024,
+  '\\%': 0x0025,
+  '\\_': 0x005f,
+  '\\euro': 0x20ac,
+  '\\maltese': 0x2720,
+  '\\{': 0x007b,
+  '\\}': 0x007d,
+  '\\nobreakspace': 0x00a0,
+  '\\ldots': 0x2026,
+  '\\textellipsis': 0x2026,
+  '\\backslash': 0x005c,
+  '`': 0x2018,
+  "'": 0x2019,
+  '``': 0x201c,
+  "''": 0x201d,
+  '\\degree': 0x00b0,
+  '\\textasciicircum': 0x005e,
+  '\\textasciitilde': 0x007e,
+  '\\textasteriskcentered': 0x002a,
+  '\\textbackslash': 0x005c,
+  '\\textbraceleft': 0x007b,
+  '\\textbraceright': 0x007d,
+  '\\textbullet': 0x2022,
+  '\\textdollar': 0x0024,
+  '\\textsterling': 0x00a3,
+  '\\textdagger': 0x2020,
+  '\\textdaggerdbl': 0x2021,
 
-  '–': '\u2013', // EN DASH
-  '—': '\u2014', // EM DASH
-  '‘': '\u2018', // LEFT SINGLE QUOTATION MARK
-  '’': '\u2019', // RIGHT SINGLE QUOTATION MARK
-  '“': '\u201C', // LEFT DOUBLE QUOTATION MARK
-  '”': '\u201D', // RIGHT DOUBLE QUOTATION MARK
-  '"': '\u201D', // DOUBLE PRIME
-  '\\ss': '\u00DF', // LATIN SMALL LETTER SHARP S
-  '\\ae': '\u00E6', // LATIN SMALL LETTER AE
-  '\\oe': '\u0153', // LATIN SMALL LIGATURE OE
-  '\\AE': '\u00C6', // LATIN CAPITAL LETTER AE
-  '\\OE': '\u0152', // LATIN CAPITAL LIGATURE OE
-  '\\O': '\u00D8', // LATIN CAPITAL LETTER O WITH STROKE
-  '\\i': '\u0131', // LATIN SMALL LETTER DOTLESS I
-  '\\j': '\u0237', // LATIN SMALL LETTER DOTLESS J
-  '\\aa': '\u00E5', // LATIN SMALL LETTER A WITH RING ABOVE
-  '\\AA': '\u00C5', // LATIN CAPITAL LETTER A WITH RING ABOVE
+  '–': 0x2013, // EN DASH
+  '—': 0x2014, // EM DASH
+  '‘': 0x2018, // LEFT SINGLE QUOTATION MARK
+  '’': 0x2019, // RIGHT SINGLE QUOTATION MARK
+  '“': 0x201c, // LEFT DOUBLE QUOTATION MARK
+  '”': 0x201d, // RIGHT DOUBLE QUOTATION MARK
+  '"': 0x201d, // DOUBLE PRIME
+  '\\ss': 0x00df, // LATIN SMALL LETTER SHARP S
+  '\\ae': 0x00e6, // LATIN SMALL LETTER AE
+  '\\oe': 0x0153, // LATIN SMALL LIGATURE OE
+  '\\AE': 0x00c6, // LATIN CAPITAL LETTER AE
+  '\\OE': 0x0152, // LATIN CAPITAL LIGATURE OE
+  '\\O': 0x00d8, // LATIN CAPITAL LETTER O WITH STROKE
+  '\\i': 0x0131, // LATIN SMALL LETTER DOTLESS I
+  '\\j': 0x0237, // LATIN SMALL LETTER DOTLESS J
+  '\\aa': 0x00e5, // LATIN SMALL LETTER A WITH RING ABOVE
+  '\\AA': 0x00c5, // LATIN CAPITAL LETTER A WITH RING ABOVE
 };
 
 export const COMMAND_MODE_CHARACTERS = /[\w!@*()-=+{}[\]\\';:?/.,~<>`|$%#&^" ]/;
@@ -351,16 +367,16 @@ export const LETTER_AND_DIGITS = supportRegexPropertyEscape()
  * @param symbol    The LaTeX command for this symbol, for
  * example `\alpha` or `+`
  */
-export function defineSymbol(
+function newSymbol(
   symbol: string,
-  value: string,
+  value: number,
   type: AtomType = 'mord',
   variant?: Variant
 ): void {
   MATH_SYMBOLS[symbol] = {
     type,
     variant,
-    value,
+    codepoint: value,
   };
   if (!REVERSE_MATH_SYMBOLS[value] && !variant) {
     REVERSE_MATH_SYMBOLS[value] = symbol;
@@ -368,17 +384,31 @@ export function defineSymbol(
 
   // We accept all math symbols in text mode as well
   // which is a bit more permissive than TeX
-  TEXT_SYMBOLS[symbol] = value;
+  if (!TEXT_SYMBOLS[symbol]) {
+    TEXT_SYMBOLS[symbol] = value;
+  }
 }
 
 /**
- * Define a set of single-character symbols as 'mord' symbols.
- * @param string a string of single character symbols
+ * Define a set of single-character symbols
  */
-export function defineSymbols(string: string): void {
-  for (let i = 0; i < string.length; i++) {
-    const ch = string.charAt(i);
-    defineSymbol(ch, ch);
+export function newSymbols(
+  value:
+    | string
+    | [symbol: string, codepoint: number, type?: AtomType, variant?: Variant][],
+  inType?: AtomType,
+  inVariant?: Variant
+): void {
+  if (typeof value === 'string') {
+    for (let i = 0; i < value.length; i++) {
+      const ch = value.charAt(i);
+      newSymbol(ch, ch.codePointAt(0));
+    }
+    return;
+  }
+
+  for (const [symbol, val, type, variant] of value) {
+    newSymbol(symbol, val, type ?? inType, variant ?? inVariant);
   }
 }
 
@@ -387,35 +417,37 @@ export function defineSymbols(string: string): void {
  * @param from First Unicode codepoint
  * @param to Last Unicode codepoint
  */
-export function defineSymbolRange(from: number, to: number): void {
+export function newSymbolRange(from: number, to: number): void {
   for (let i = from; i <= to; i++) {
-    const ch = String.fromCodePoint(i);
-    defineSymbol(ch, ch);
+    newSymbol(String.fromCodePoint(i), i);
   }
 }
 
 /**
- * Given a character, return a LaTeX expression matching its Unicode codepoint.
- * If there is a matching symbol (e.g. \alpha) it is returned.
+ * Given a codepoint, return a matching LaTeX expression.
+ * If there is a matching command (e.g. `\alpha`) it is returned.
  */
-export function charToLatex(parseMode: ArgumentType, s: string): string {
-  if (parseMode === 'math') {
-    return REVERSE_MATH_SYMBOLS[s] || s;
+export function charToLatex(
+  parseMode: ArgumentType,
+  codepoint: number
+): string {
+  if (parseMode === 'math' && REVERSE_MATH_SYMBOLS[codepoint]) {
+    return REVERSE_MATH_SYMBOLS[codepoint];
   }
 
   if (parseMode === 'text') {
     let textSymbol = Object.keys(TEXT_SYMBOLS).find(
-      (x) => TEXT_SYMBOLS[x] === s
+      (x) => TEXT_SYMBOLS[x] === codepoint
     );
     if (!textSymbol) {
-      const hex = s.codePointAt(0).toString(16);
+      const hex = codepoint.toString(16);
       textSymbol = '^'.repeat(hex.length) + hex;
     }
 
     return textSymbol;
   }
 
-  return s;
+  return String.fromCodePoint(codepoint);
 }
 
 /* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS block had
@@ -643,14 +675,14 @@ export function unicodeCharToLatex(
   char: string
 ): string {
   if (parseMode === 'text') {
-    return charToLatex(parseMode, char) || char;
+    return charToLatex(parseMode, char.codePointAt(0)) ?? char;
   }
 
   let result: string;
   // Codepoint shortcuts have priority over variants
   // That is, "\N" vs "\mathbb{N}"
   // if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
-  result = charToLatex(parseMode, char);
+  result = charToLatex(parseMode, char.codePointAt(0));
   if (result) return result;
 
   const cp = char.codePointAt(0);
@@ -725,7 +757,7 @@ export function getInfo(
 
   if (symbol.startsWith('\\')) {
     // This could be a function or a symbol
-    info = FUNCTIONS[symbol];
+    info = LEGACY_COMMANDS[symbol];
     if (info) {
       // We've got a match
       return info;
@@ -787,9 +819,9 @@ export function suggest(s: string): { match: string; frequency: number }[] {
   const result = [];
 
   // Iterate over items in the dictionary
-  for (const p in FUNCTIONS) {
-    if (p.startsWith(s) && !FUNCTIONS[p].infix) {
-      result.push({ match: p, frequency: FUNCTIONS[p].frequency });
+  for (const p in LEGACY_COMMANDS) {
+    if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix) {
+      result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency });
     }
   }
 
@@ -935,6 +967,22 @@ export function defineTabularEnvironment(
 }
 
 /**
+ * Define one of more commands.
+ * The name of the commands should not include the leading `\`
+ */
+
+export function newCommand(
+  name: string | string[],
+  parse: (parser: Parser) => ParseResult
+): void {
+  if (typeof name === 'string') {
+    COMMANDS[name] = { parse };
+    return;
+  }
+  for (const x of name) COMMANDS[x] = { parse };
+}
+
+/**
  * Define one of more functions.
  *
  * @param names
@@ -963,10 +1011,6 @@ export function defineFunction(
     ) => PrivateStyle;
   }
 ): void {
-  if (typeof names === 'string') {
-    names = [names];
-  }
-
   if (!options) options = {};
 
   // Set default values of functions
@@ -982,7 +1026,11 @@ export function defineFunction(
     createAtom: options.createAtom,
     applyStyle: options.applyStyle,
   };
-  for (const name of names) FUNCTIONS['\\' + name] = data;
+  if (typeof names === 'string') {
+    LEGACY_COMMANDS['\\' + names] = data;
+  } else {
+    for (const name of names) LEGACY_COMMANDS['\\' + name] = data;
+  }
 }
 
 export function normalizeMacroDictionary(

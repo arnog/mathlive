@@ -182,8 +182,11 @@ export class TextMode extends Mode {
 
   createAtom(command: string, style: Style): Atom | null {
     const info = getInfo(command, 'text');
-    const value = info?.value ?? command;
-    return new TextAtom(command, value, style);
+    return new TextAtom(
+      command,
+      info?.codepoint ? String.fromCodePoint(info?.codepoint) : command,
+      style
+    );
   }
 
   serialize(inRun: Atom[], options: ToLatexOptions): string {
@@ -316,8 +319,12 @@ export class TextMode extends Mode {
         if (!info || (info.ifMode && !info.ifMode.includes('text'))) {
           error({ code: 'unexpected-token' });
         } else {
-          atom = new TextAtom(token, info.value, options.style);
-          atom.verbatimLatex = charToLatex('text', token);
+          atom = new TextAtom(
+            token,
+            String.fromCodePoint(info.codepoint),
+            options.style
+          );
+          atom.verbatimLatex = charToLatex('text', token.codePointAt(0));
           result.push(atom);
         }
       }

@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The `substituteTextArea` option has been removed. This option was in fact not
+  working so removing it will presumably have no impact.
+
+### Improvements
+
+- On iPad OS and relevant Windows devices, support the detachable keyboard.
+
 ### Architecture
 
 - Renamed `Span` to `Box`.
@@ -67,7 +76,8 @@
 
 - When using `renderMathInDocument()` or `renderMathInElement()`, ASCII Math
   format can be used. The default delimiters for ASCII Math are
-  "`" (backtick) and can be changed with the `asciiMath.delimiters` option.
+  "`" (backtick) and can be changed with the `asciiMath.delimiters`option. To turn off this conversion and revert to the previous behavior, call `renderMathInDocument({
+  asciiMath: null })`
 
 ### Layout Improvements
 
