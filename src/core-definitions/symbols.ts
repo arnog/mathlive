@@ -394,6 +394,7 @@ newSymbols(
     ['\\ddagger', 0x2021],
     ['\\ast', 0x2217],
     ['\\star', 0x22c6],
+    ['\\bigstar', 0x2605],
     ['\\diamond', 0x22c4],
   ],
   'mbin'
