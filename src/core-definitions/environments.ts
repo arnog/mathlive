@@ -174,7 +174,7 @@ defineTabularEnvironment(
 );
 
 defineTabularEnvironment(
-  ['equation', 'equation', 'subequations'],
+  ['equation', 'equation*', 'subequations'],
   '',
   (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
     new ArrayAtom(name, array, rowGaps, {
