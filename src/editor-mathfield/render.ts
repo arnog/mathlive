@@ -207,7 +207,6 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
     }
     if (atom?.containsCaret && atom.displayContainsHighlight) {
       let bounds = getAtomBounds(mathfield, atom);
-      console.log(bounds);
       if (bounds) {
         bounds = adjustForScrolling(mathfield, bounds);
         const element = document.createElement('div');
