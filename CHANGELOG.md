@@ -5,11 +5,18 @@
 - The `substituteTextArea` option has been removed. This option was in fact not
   working so removing it will presumably have no impact.
 
+### New Features
+
+- **#939** Added access to `\underline`, `\underbrace`, `\xleftarrow`, etc... to
+  the virtual keyboard.
+
 ### Improvements
 
 - On iPad OS and relevant Windows devices, support the detachable keyboard.
 - In Latex mode, don't consider `\\` (double-dash, i.e. end of line in tabular
   mode) as a valid command prefix.
+- In Latex mode, don't recommend `\{` as a command by default.
+- Added `\bigstar` symbol
 
 ### Architecture
 

@@ -345,7 +345,7 @@ const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {
     // doing a simple layer switch, as we want to enter latex mode
     // when the keyboard is activated
     command: ['switchMode', 'latex'],
-    label: `<svg><use xlink:href='#svg-command' /></svg>`,
+    label: `<svg class="svg-glyph"><use xlink:href='#svg-command' /></svg>`,
     layers: ['latex-lower', 'latex-upper', 'latex-symbols'],
   },
   style: {
@@ -543,12 +543,11 @@ const ALT_KEYS_BASE = {
     '\\gtrdot',
   ],
 
-  'set': ['\\in', '\\owns', '\\subset', '\\nsubset', '\\supset', '\\nsupset'],
+  'in': ['\\owns'],
+  '!in': ['\\backepsilon'],
 
-  '!set': ['\\notin', '\\backepsilon'],
-
-  'subset': [],
-  'supset': [],
+  'subset': ['\\subseteq', '\\nsubset', '\\nsubseteq'],
+  'superset': ['\\supseteq', '\\nsupset', '\\nsupseteq'],
 
   'infinity': ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
 
@@ -590,6 +589,53 @@ const ALT_KEYS_BASE = {
     '\\tilde{#@}',
     '\\grave{#@}',
   ],
+  'underline': [
+    '\\underbrace{#@}',
+    '\\underlinesegment{#@}',
+    '\\underleftrightarrow{#@}',
+    '\\underrightarrow{#@}',
+    '\\underleftarrow{#@}',
+    '\\undergroup{#@}',
+  ],
+  'overline': [
+    '\\overbrace{#@}',
+    '\\overlinesegment{#@}',
+    '\\overleftrightarrow{#@}',
+    '\\overrightarrow{#@}',
+    '\\overleftarrow{#@}',
+    '\\overgroup{#@}',
+  ],
+
+  'xleftarrows': [
+    '\\xlongequal{}',
+    '\\xleftrightarrow{}',
+    '\\xLeftrightarrow{}',
+    '\\xleftrightharpoons{}',
+    '\\xLeftarrow{}',
+    '\\xleftharpoonup{}',
+    '\\xleftharpoondown{}',
+    '\\xtwoheadleftarrow{}',
+    '\\xhookleftarrow{}',
+    '\\xtofrom{}',
+    '\\xleftequilibrium{}', // From mhchem.sty package
+    '\\xrightleftarrows{}', // From mhchem.sty package
+  ],
+  'xrightarrows': [
+    '\\xlongequal{}',
+    '\\xleftrightarrow{}',
+    '\\xLeftrightarrow{}',
+    '\\xleftrightharpoons{}',
+    '\\xRightarrow{}',
+    '\\xrightharpoonup{}',
+    '\\xrightharpoondown{}',
+    '\\xtwoheadrightarrow{}',
+    '\\xrightleftharpoons{}',
+    '\\xhookrightarrow{}',
+    '\\xmapsto{}',
+    '\\xrightequilibrium{}', // From mhchem.sty package
+    '\\xrightleftarrows{}', // From mhchem.sty package
+  ],
+
   // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},
   //     {latex:'\\lvert #@ \\rvert', aside:'determinant'},
   //     {latex:'\\begin{cardinality} #@ \\end{cardinality}', aside:'cardinality'},
@@ -763,7 +809,7 @@ const ALT_KEYS_BASE = {
   'delete': [
     {
       label:
-        '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>',
+        '<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>',
       command: '"deleteAll"',
     },
   ],
@@ -833,7 +879,7 @@ const LAYERS = {
             <ul>
                 <row name='numpad-4' class='if-wide'/>
                 <li class='keycap' >;</li>
-                <li class='keycap' data-alt-keys=','>,</li>
+                <li class='keycap' >,</li>
                 <li class='keycap w50' data-key=' ' data-alt-keys='space'>&nbsp;</li>
                 <arrows/>
             </ul>
@@ -867,8 +913,8 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrace '>{</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrace '>}</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='set' data-insert='\\in '>&#x2208;</li>
-                <li class='keycap tex' data-alt-keys='!set' data-insert='\\notin '>&#x2209;</li>
+                <li class='keycap tex' data-alt-keys='in' data-insert='\\in '>&#x2208;</li>
+                <li class='keycap tex' data-alt-keys='!in' data-insert='\\notin '>&#x2209;</li>
                 <li class='keycap tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>
                 <li class='keycap tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>
                 <li class='keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>
@@ -882,7 +928,7 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrack '>]</li>
                 <li class='separator w5'></li>
                 <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
-                <li class='keycap tex' data-alt-keys='supset' data-insert='\\supset '>&#x2283;</li>
+                <li class='keycap tex' data-alt-keys='superset' data-insert='\\supset '>&#x2283;</li>
                 <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
                 <li class='keycap' data-insert='$$^{\\prime} $$'><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
                 <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
@@ -895,15 +941,15 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='\\subseteq '>&#x2286;</li>
-                <li class='keycap tex' data-insert='\\supseteq '>&#x2287;</li>
-                <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\vec{#@}$$' data-latex='\\vec{#?}' data-aside='vector'></li>
-                <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\bar{#@}$$' data-latex='\\bar{#?}' data-aside='bar'></li>
+                <li class='keycap tex' data-alt-keys='overline' data-latex='\\overline{#?}' data-aside='overline'></li>
+                <li class='keycap tex' data-alt-keys='underline' data-latex='\\underline{#?}' data-aside='underline'></li>
+                <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
+                <li class='keycap tex small' data-alt-keys='xleftarrows' data-latex='\\xleftarrow{}' ></li>
+                <li class='keycap tex small' data-alt-keys='xrightarrows' data-latex='\\xrightarrow{}' ></li>
                 <li class='keycap tex' data-alt-keys='absnorm' data-insert='$$\\left| #0 \\right|$$' data-latex='\\left| #? \\right|' data-aside='abs'></li>
-                <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>
 
                 <li class='action font-glyph bottom right w15'
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
@@ -952,7 +998,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='\\nu '><i>&nu;</i></li>
                 <li class='keycap tex' data-insert='\\mu '><i>&mu;</i></li>
                 <li class='action font-glyph bottom right w15'
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
@@ -1050,7 +1096,7 @@ const LAYERS = {
                 <li class='keycap tt'>'</li>
                 <li class='keycap tt'>"</li>
                 <li class='action font-glyph bottom right'
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
@@ -1496,17 +1542,17 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
     /<arrows\/>/g,
     `
         <li class='action' data-command='["performWithFeedback","moveToPreviousChar"]'
-            data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>'
+            data-shifted='<svg class="svg-glyph"><use xlink:href="#svg-angle-double-left" /></svg>'
             data-shifted-command='["performWithFeedback","extendToPreviousChar"]'>
-            <svg><use xlink:href='#svg-arrow-left' /></svg>
+            <svg class="svg-glyph"><use xlink:href='#svg-arrow-left' /></svg>
         </li>
         <li class='action' data-command='["performWithFeedback","moveToNextChar"]'
-            data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>'
+            data-shifted='<svg class="svg-glyph"><use xlink:href="#svg-angle-double-right" /></svg>'
             data-shifted-command='["performWithFeedback","extendToNextChar"]'>
-            <svg><use xlink:href='#svg-arrow-right' /></svg>
+            <svg class="svg-glyph"><use xlink:href='#svg-arrow-right' /></svg>
         </li>
         <li class='action' data-command='["performWithFeedback","moveToNextPlaceholder"]'>
-        <svg><use xlink:href='#svg-tab' /></svg></li>`
+        <svg class="svg-glyph"><use xlink:href='#svg-tab' /></svg></li>`
   );
 
   let m: string[] = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
@@ -1533,7 +1579,7 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
             keys.length - (keys.match(/ /g) || []).length / 2 === 10
               ? 'w10'
               : 'w15';
-          row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+          row += `' data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
                         data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                         >&#x232b;</li>`;
