@@ -1109,15 +1109,8 @@ export class MathfieldPrivate implements Mathfield {
             latex = '\\';
           } else {
             const selRange = range(model.selection);
-            latex = Atom.serialize(
-              model
-                .extractAtoms(selRange)
-                .filter((x) => !(x instanceof PlaceholderAtom)),
-              {
-                expandMacro: false,
-                defaultMode: this.options.defaultMode,
-              }
-            );
+            latex = this.model.getValue(selRange, 'latex');
+            this.model.extractAtoms(selRange);
             cursor = model.at(selRange[0]);
           }
 
