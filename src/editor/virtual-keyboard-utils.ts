@@ -1224,8 +1224,9 @@ function makeKeyboardToolbar(
         if (typeof keyboards[keyboard].command === 'string') {
           result += `data-command='"${keyboards[keyboard].command as string}"'`;
         } else if (Array.isArray(keyboards[keyboard].command)) {
-          result += `data-command='"${(keyboards[keyboard]
-            .command as string[]).join('')}"'`;
+          result += `data-command='"${(
+            keyboards[keyboard].command as string[]
+          ).join('')}"'`;
         }
 
         if (keyboards[keyboard].layer) {
@@ -1470,17 +1471,19 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
 
     if (!layoutName || layoutName === 'auto') {
       layoutName =
-        ({
-          fr: 'azerty',
-          be: 'azerty',
-          al: 'qwertz',
-          ba: 'qwertz',
-          cz: 'qwertz',
-          de: 'qwertz',
-          hu: 'qwertz',
-          sk: 'qwertz',
-          ch: 'qwertz',
-        } as const)[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
+        (
+          {
+            fr: 'azerty',
+            be: 'azerty',
+            al: 'qwertz',
+            ba: 'qwertz',
+            cz: 'qwertz',
+            de: 'qwertz',
+            hu: 'qwertz',
+            sk: 'qwertz',
+            ch: 'qwertz',
+          } as const
+        )[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
     }
   }
 

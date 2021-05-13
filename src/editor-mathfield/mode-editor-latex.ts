@@ -66,8 +66,8 @@ export class LatexModeEditor extends ModeEditor {
       model.collapseSelection('forward');
     }
 
+    // Short-circuit the tokenizer and parser when in Latex mode
     const newAtoms: Atom[] = [];
-    // Short-circuit the tokenizer and parser if in command mode
     for (const c of text) {
       if (COMMAND_MODE_CHARACTERS.test(c)) {
         newAtoms.push(new LatexAtom(c));

@@ -81,7 +81,8 @@ export interface FontMetrics<T = number> {
 // - CJK ideograms: [\u4E00-\u9FAF]
 // - Hangul syllables: [\uAC00-\uD7AF]
 // Notably missing are half width Katakana and Romaji glyphs.
-const CJK_REGEX = /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
+const CJK_REGEX =
+  /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\uAC00-\uD7AF]/;
 
 // This value determines how large a pt is, for metrics which are defined
 // in terms of pts.

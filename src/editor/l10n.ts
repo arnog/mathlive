@@ -106,11 +106,13 @@ Object.defineProperty(l10n, 'ordinal', {
       l10n._ordinalEnglish = new Intl.PluralRules('en', {
         type: 'ordinal',
       });
-      l10n._ordinalEnglishPluralCategories = l10n._ordinalEnglish.resolvedOptions().pluralCategories;
+      l10n._ordinalEnglishPluralCategories =
+        l10n._ordinalEnglish.resolvedOptions().pluralCategories;
       l10n._ordinal = new Intl.PluralRules(l10n.locale, {
         type: 'ordinal',
       });
-      l10n._ordinalPluralCategories = l10n._ordinal.resolvedOptions().pluralCategories;
+      l10n._ordinalPluralCategories =
+        l10n._ordinal.resolvedOptions().pluralCategories;
       //    "zero", "one", "two", "few", "many" and "other"
     }
 
@@ -124,11 +126,13 @@ Object.defineProperty(l10n, 'cardinal', {
       l10n._cardinalEnglish = new Intl.PluralRules('en', {
         type: 'cardinal',
       });
-      l10n._cardinalEnglishPluralCategories = l10n._cardinalEnglish.resolvedOptions().pluralCategories;
+      l10n._cardinalEnglishPluralCategories =
+        l10n._cardinalEnglish.resolvedOptions().pluralCategories;
       l10n._cardinal = new Intl.PluralRules(l10n.locale, {
         type: 'cardinal',
       });
-      l10n._cardinalPluralCategories = l10n._ordinal.resolvedOptions().pluralCategories;
+      l10n._cardinalPluralCategories =
+        l10n._ordinal.resolvedOptions().pluralCategories;
     }
 
     return l10n._cardinal;

@@ -89,7 +89,6 @@ import './mode-editor-math';
 import { getLatexGroupBody } from './mode-editor-latex';
 import './mode-editor-text';
 
-import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import { isTouchCapable } from '../common/capabilities';

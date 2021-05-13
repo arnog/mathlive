@@ -587,9 +587,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       true
     );
 
-    const slot = this.shadowRoot.querySelector<HTMLSlotElement>(
-      'slot:not([name])'
-    );
+    const slot =
+      this.shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
     this._slotValue = slot
       .assignedNodes()
       .map((x) => (x.nodeType === 3 ? x.textContent : ''))
@@ -666,7 +665,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *  @category Options
    */
   getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K] {
-    return (this.getOptions([key]) as unknown) as MathfieldOptions[K];
+    return this.getOptions([key]) as unknown as MathfieldOptions[K];
   }
 
   /**
@@ -1128,9 +1127,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       );
     }
 
-    const slot = this.shadowRoot.querySelector<HTMLSlotElement>(
-      'slot:not([name])'
-    );
+    const slot =
+      this.shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
     slot.addEventListener('slotchange', (event) => {
       if (event.target !== slot) return;
       const value = slot

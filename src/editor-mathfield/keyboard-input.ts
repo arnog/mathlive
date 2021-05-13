@@ -472,11 +472,13 @@ export function onTypedText(
       // This is important to handle synthetic text input and
       // non-US keyboards, on which, fop example, the '^' key is
       // not mapped to 'Shift-Digit6'.
-      let selector: SelectorPrivate | [SelectorPrivate, ...unknown[]] = ({
-        '^': 'moveToSuperscript',
-        '_': 'moveToSubscript',
-        ' ': 'moveAfterParent',
-      } as const)[c];
+      let selector: SelectorPrivate | [SelectorPrivate, ...unknown[]] = (
+        {
+          '^': 'moveToSuperscript',
+          '_': 'moveToSubscript',
+          ' ': 'moveAfterParent',
+        } as const
+      )[c];
       if (c === ' ' && mathfield.options.mathModeSpace) {
         selector = ['insert', mathfield.options.mathModeSpace];
       }

@@ -482,11 +482,7 @@ function hueToRgbChannel(t1: number, t2: number, hue: number): number {
   return t1;
 }
 
-function hslToRgb(hsl: {
-  h: number;
-  s: number;
-  l: number;
-}): {
+function hslToRgb(hsl: { h: number; s: number; l: number }): {
   r: number;
   g: number;
   b: number;
@@ -531,11 +527,7 @@ function rgbToHexstring(rgb: { r: number; g: number; b: number }): string {
   return '#' + hexString;
 }
 
-function rgbToHsl(rgb: {
-  r: number;
-  g: number;
-  b: number;
-}): {
+function rgbToHsl(rgb: { r: number; g: number; b: number }): {
   h: number;
   s: number;
   l: number;

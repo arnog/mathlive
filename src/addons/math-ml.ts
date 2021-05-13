@@ -94,10 +94,18 @@ function scanIdentifier(stream, final, options) {
 
     if (superscript >= 0 && subscript >= 0) {
       mathML = '<msubsup>' + body;
-      mathML += toMathML(stream.atoms[subscript].subscript, 0, 0, options)
-        .mathML;
-      mathML += toMathML(stream.atoms[superscript].superscript, 0, 0, options)
-        .mathML;
+      mathML += toMathML(
+        stream.atoms[subscript].subscript,
+        0,
+        0,
+        options
+      ).mathML;
+      mathML += toMathML(
+        stream.atoms[superscript].superscript,
+        0,
+        0,
+        options
+      ).mathML;
       mathML += '</msubsup>';
     } else if (superscript >= 0) {
       mathML = '<msup>' + body;
@@ -127,15 +135,23 @@ function scanIdentifier(stream, final, options) {
           mathML += sup;
         }
       } else {
-        mathML += toMathML(stream.atoms[superscript].superscript, 0, 0, options)
-          .mathML;
+        mathML += toMathML(
+          stream.atoms[superscript].superscript,
+          0,
+          0,
+          options
+        ).mathML;
       }
 
       mathML += '</msup>';
     } else if (subscript >= 0) {
       mathML = '<msub>' + body;
-      mathML += toMathML(stream.atoms[subscript].subscript, 0, 0, options)
-        .mathML;
+      mathML += toMathML(
+        stream.atoms[subscript].subscript,
+        0,
+        0,
+        options
+      ).mathML;
       mathML += '</msub>';
     } else {
       mathML = body;
@@ -315,8 +331,12 @@ function scanNumber(stream, final, options) {
 
     if (superscript >= 0) {
       mathML = '<msup>' + mathML;
-      mathML += toMathML(stream.atoms[superscript].superscript, 0, 0, options)
-        .mathML;
+      mathML += toMathML(
+        stream.atoms[superscript].superscript,
+        0,
+        0,
+        options
+      ).mathML;
       mathML += '</msup>';
     }
 
@@ -359,8 +379,12 @@ function scanFence(stream, final, options) {
       mathML = '<mrow>';
       mathML += toMo(stream.atoms[openIndex], options);
 
-      mathML += toMathML(stream.atoms, openIndex + 1, closeIndex, options)
-        .mathML;
+      mathML += toMathML(
+        stream.atoms,
+        openIndex + 1,
+        closeIndex,
+        options
+      ).mathML;
 
       // TODO: could add attribute indicating it's a fence (fence=true)
       mathML += toMo(stream.atoms[closeIndex], options);

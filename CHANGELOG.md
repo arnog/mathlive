@@ -8,6 +8,8 @@
 ### Improvements
 
 - On iPad OS and relevant Windows devices, support the detachable keyboard.
+- In Latex mode, don't consider `\\` (double-dash, i.e. end of line in tabular
+  mode) as a valid command prefix.
 
 ### Architecture
 
@@ -17,6 +19,7 @@
 
 - When using Firefox on Windows, the layout of the formula could shift by a
   fraction of a pixel when moving the caret.
+- In Latex mode with nested expressions, the edited Latex was incorrect.
 
 ## 0.64.0 (2021-05-09)
 

@@ -144,5 +144,5 @@ function deepActiveElement(): HTMLOrSVGElement | null {
     a = a.shadowRoot.activeElement;
   }
 
-  return (a as unknown) as HTMLOrSVGElement;
+  return a as unknown as HTMLOrSVGElement;
 }

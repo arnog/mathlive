@@ -602,9 +602,11 @@ const MATH_UNICODE_BLOCKS: {
   { start: 0x1d7f6, len: 10, offset: 48, variant: 'monospace' },
 ];
 
-function unicodeToMathVariant(
-  codepoint: number
-): { char: string; variant?: Variant; style?: string } {
+function unicodeToMathVariant(codepoint: number): {
+  char: string;
+  variant?: Variant;
+  style?: string;
+} {
   if (
     (codepoint < 0x1d400 || codepoint > 0x1d7ff) &&
     (codepoint < 0x2100 || codepoint > 0x214f)

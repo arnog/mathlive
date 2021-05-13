@@ -235,7 +235,7 @@ defineFunction(
 defineFunction('fontseries', '{:string}', {
   ifMode: 'text',
   applyStyle: (_name, args): PrivateStyle => {
-    return { fontSeries: (args[0] as string) as FontSeries };
+    return { fontSeries: args[0] as string as FontSeries };
   },
 });
 // SHAPE: italic, small caps
@@ -668,15 +668,17 @@ defineFunction(
       style: PrivateStyle
     ): Atom =>
       new OperatorAtom(command, args[0] as Atom[], {
-        type: ({
-          '\\mathbin': 'mbin',
-          '\\mathrel': 'mrel',
-          '\\mathopen': 'mopen',
-          '\\mathclose': 'mclose',
-          '\\mathpunct': 'mpunct',
-          '\\mathord': 'mord',
-          '\\mathinner': 'minner',
-        } as const)[command],
+        type: (
+          {
+            '\\mathbin': 'mbin',
+            '\\mathrel': 'mrel',
+            '\\mathopen': 'mopen',
+            '\\mathclose': 'mclose',
+            '\\mathpunct': 'mpunct',
+            '\\mathord': 'mord',
+            '\\mathinner': 'minner',
+          } as const
+        )[command],
         captureSelection: true,
         style,
       }),
