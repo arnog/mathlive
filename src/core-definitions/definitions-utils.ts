@@ -818,10 +818,13 @@ export function getInfo(
  * Infix operators are excluded, since they are deprecated commands.
  */
 export function suggest(s: string): { match: string; frequency: number }[] {
+  if (s === '\\') return [];
+
   const result = [];
 
   // Iterate over items in the dictionary
   for (const p in LEGACY_COMMANDS) {
+    // Avoid recommended infix commands
     if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix) {
       result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency });
     }
