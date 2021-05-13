@@ -36,7 +36,7 @@ export function updateAutocomplete(
   }
 
   // The current command is the sequence of atom around the insertion point
-  // that ends on the left with a '\\' and on the right with a non-command
+  // that ends on the left with a '\' and on the right with a non-command
   // character.
   const command = [];
   let atom = model.at(model.position);
@@ -45,7 +45,13 @@ export function updateAutocomplete(
     atom = atom.leftSibling;
   }
 
-  if (atom && atom instanceof LatexAtom && atom.value === '\\') {
+  const leftSibling = atom?.leftSibling;
+  if (
+    atom &&
+    atom instanceof LatexAtom &&
+    atom.value === '\\' &&
+    !(leftSibling instanceof LatexAtom && atom.value === '\\')
+  ) {
     // We found the beginning of a command, include the atoms after the
     // insertion point
     command.unshift(atom);
@@ -59,8 +65,10 @@ export function updateAutocomplete(
   const commandString = command.map((x) => x.value).join('');
   const suggestions = commandString ? suggest(commandString) : [];
 
+  console.log('Suggest: ', commandString, suggestions[0]);
+
   if (suggestions.length === 0) {
-    if (/^\\[a-zA-Z\\*]+$/.test(commandString)) {
+    if (/^\\[a-zA-Z\*]+$/.test(commandString)) {
       // This looks like a command name, but not a known one
       command.forEach((x) => {
         x.isError = true;
@@ -106,7 +114,7 @@ export function acceptCommandSuggestion(model: ModelPrivate): boolean {
 }
 
 /**
- * When in latex mode, insert the latex being edited and leave latex mode
+ * When in Latex mode, insert the Latex being edited and leave latex mode
  *
  */
 export function complete(
@@ -147,6 +155,7 @@ export function complete(
   ModeEditor.insert('math', mathfield.model, latex, {
     macros: mathfield.options.macros,
     selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
+    format: 'latex',
   });
 
   mathfield.snapshot();
