@@ -17,6 +17,8 @@
   mode) as a valid command prefix.
 - In Latex mode, don't recommend `\{` as a command by default.
 - Added `\bigstar` symbol
+- Improved performance of `renderMathInDocument()` when there are many formulas
+  on the page.
 
 ### Architecture
 

@@ -272,8 +272,6 @@ function createMarkupNode(
   span.setAttribute('aria-hidden', 'true');
 
   try {
-    void loadFonts(options.fontsDirectory);
-    injectStylesheet(null, coreStylesheet);
     const html = options.renderToMarkup(text, {
       mathstyle: mathstyle ?? 'displaystyle',
       format: 'html',
@@ -579,6 +577,9 @@ function renderMathInElement(
         options.namespace += '-';
       }
     }
+
+    void loadFonts(options.fontsDirectory);
+    injectStylesheet(null, coreStylesheet);
 
     scanElement(element, options);
   } catch (error: unknown) {
