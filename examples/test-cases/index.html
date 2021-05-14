@@ -50,6 +50,9 @@
       .label {
           font-weight: 700;
       }
+      .math {
+        display: none;
+      }
     </style>
 </head>
 
@@ -58,7 +61,9 @@
         <h1>MathLive Testing Playground</h1>
     </header>
     <main class='centered' tabindex="0">
-      $$x\xleftarrow{b}c$$
+      
+      <span class='math'>$$\dfrac{\unicode{"2B1A}}{\unicode{"2B1A}}$$</span>
+
       <!-- <math-field 
         class="mathfield" style="max-width: 640px; width:100%" 
         virtual-keyboard-mode="manual"
@@ -217,7 +222,14 @@
 
     <script type="module">
         import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
-        renderMathInDocument();
+        renderMathInDocument({ 
+        renderAccessibleContent: false,
+        TeX: { 
+          delimiters: { display: [ ['$$', '$$'] ] },
+          processEnvironments : false 
+        },
+        asciiMath: null,
+      });
 
       //  console.log( convertLatexToMarkup('\\int _{x}^{\\infty }'));
 

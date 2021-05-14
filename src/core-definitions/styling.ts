@@ -632,7 +632,7 @@ defineFunction(
     // \hspace* inserts a non-breakable space, but since we don't line break...
     // it's the same as \hspace.
   ],
-  '{width:skip}',
+  '{width:glue}',
   {
     createAtom: (name: string, args: Argument[], style: PrivateStyle): Atom =>
       new SpacingAtom(name, style, (args[0] as number) ?? 0),

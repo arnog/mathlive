@@ -2,7 +2,7 @@ import type { Style, ParseMode, FontSize } from '../public/core';
 
 import { isArray } from '../common/types';
 
-import { Context, PrivateStyle } from './context';
+import { Context, Glue, PrivateStyle } from './context';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { BoxType, isBoxType, Box } from './box';
@@ -117,6 +117,7 @@ export type BBoxParameter = {
  */
 export class Atom {
   parent: Atom | null;
+
   // An atom can have multiple "branches" of children,
   // e.g. `body` and `superscript`.
   //
@@ -145,12 +146,9 @@ export class Atom {
   // e.g. "f" or "\sin"
   isFunction: boolean;
 
-  isSelected: boolean;
-
-  // If the atom or one of its descendant includes the caret
-  // (used to highligth surd or fences to make clearer where the caret is
-  containsCaret: boolean;
-  caret: ParseMode | '';
+  // If true, the atom is an operator such as `\int` or `\sum`
+  // (affects layout of supsub)
+  isExtensibleSymbol: boolean;
 
   // If true, some structural changes have been made to the atom
   // (insertion or removal of children) or one of its children is dirty
@@ -166,10 +164,6 @@ export class Atom {
   serializeOverride?: (atom: Atom, options: ToLatexOptions) => string;
 
   private _branches: Branches;
-
-  // If true, the atom is an operator such as `\int` or `\sum`
-  // (affects layout of supsub)
-  isExtensibleSymbol: boolean;
 
   // How to display "limits" (i.e. superscript/subscript) for example
   // with `\sum`:
@@ -202,6 +196,27 @@ export class Atom {
   // `\mbox` to indicate that it is not necessary to wrap them in a mode
   // changing command (`\text`).
   changeMode?: boolean;
+
+  // The amount of glue (expandable/shrinkable kern) to the right of this atom
+  glue?: Glue;
+
+  //
+  // The following properties are reset and updated through each rendering loop.
+  //
+
+  // The type the item should be considered before typesetting it.
+  // This account the atoms that surrounds it, so that a '-' between two
+  // ordinary atoms will have more space around it than a '-' with no
+  // atom to its left, i.e. `12 + 3` vs `-123`.
+  kernType: BoxType;
+
+  // True if the item currently part of the selection
+  isSelected: boolean;
+
+  // If the atom or one of its descendant includes the caret
+  // (used to highligth surd or fences to make clearer where the caret is
+  containsCaret: boolean;
+  caret: ParseMode | '';
 
   constructor(
     type: AtomType,
@@ -258,6 +273,14 @@ export class Atom {
         parent = parent.parent;
       }
     }
+  }
+
+  // Kern to the right of this atom
+  get kern(): number {
+    if (this.glue) {
+      return this.glue.value;
+    }
+    return 0;
   }
 
   /**

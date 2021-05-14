@@ -20,7 +20,7 @@ interface CharacterMetrics {
 }
 
 // See http://www.ntg.nl/maps/38/03.pdf for an explanation of the metrics
-// and how they relate to the OpenFont math   metrics
+// and how they relate to the OpenFont math metrics
 export interface FontMetrics<T = number> {
   slant: T;
   space: T;

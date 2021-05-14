@@ -424,8 +424,11 @@ export type AutoRenderOptions = {
   };
 
   TeX?: {
-    /** If false, math expression
-     * that start with `\begin{` will not automatically be rendered.
+    /**
+     * If true, math expression that start with `\begin{` will automatically be
+     * rendered.
+     *
+     * **Default**: true.
      */
 
     processEnvironments?: boolean;
