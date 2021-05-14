@@ -124,7 +124,7 @@
     "@cortex-js/prettier-config": "^1.1.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
     "@types/css-font-loading-module": "0.0.4",
-    "@types/jest": "^26.0.22",
+    "@types/jest": "^26.0.23",
     "@types/node": "^14.14.41",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
