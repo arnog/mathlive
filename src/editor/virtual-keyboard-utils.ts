@@ -1262,7 +1262,9 @@ function makeKeyboardToolbar(
 
       if (keyboards[keyboard].tooltip) {
         result +=
-          "data-ML__tooltip='" + l10n(keyboards[keyboard].tooltip) + "' ";
+          "data-ML__tooltip='" +
+          (l10n(keyboards[keyboard].tooltip) ?? keyboards[keyboard].tooltip) +
+          "' ";
         result += "data-placement='top' data-delay='1s'";
       }
 
