@@ -107,7 +107,7 @@
     "eslint-plugin-no-unsanitized": "^3.1.5",
     "eslint-plugin-prettier": "^3.4.0",
     "http-server": "^0.12.3",
-    "husky": "^4.3.8",
+    "husky": "^5.1.2",
     "jest": "^26.6.3",
     "jest-silent-reporter": "^0.5.0",
     "less": "^4.1.1",
