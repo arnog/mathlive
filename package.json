@@ -142,7 +142,7 @@
     "jest-silent-reporter": "^0.5.0",
     "less": "^4.1.1",
     "lint-staged": "^10.5.4",
-    "postcss": "^8.2.4",
+    "postcss": "^8.2.15",
     "postcss-cli": "^8.3.1",
     "prettier": "2.3.0",
     "rollup": "^2.47.0",
