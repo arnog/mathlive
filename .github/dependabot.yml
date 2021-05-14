@@ -13,10 +13,6 @@ updates:
   - dependency-name: husky
     versions:
     - ">= 6.a, < 7"
-  - dependency-name: xo
-    versions:
-    - 0.38.2
-    - 0.39.1
   - dependency-name: postcss
     versions:
     - 8.2.10

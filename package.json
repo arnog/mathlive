@@ -18,7 +18,6 @@
     "dist": "bash ./scripts/build.sh production; bash ./scripts/test.sh",
     "prepare": "bash ./scripts/build.sh production",
     "lint": "eslint --fix src/",
-    "xo": "xo --prettier --fix src/",
     "start": "bash ./scripts/build.sh watch",
     "test": "bash ./scripts/test.sh",
     "version": "bash ./scripts/version.sh",
@@ -44,31 +43,6 @@
     "tabWidth": 2,
     "trailingComma": "es5",
     "useTabs": false
-  },
-  "xo": {
-    "prettier": true,
-    "rules": {
-      "import/no-unassigned-import": "off",
-      "import/no-anonymous-default-export": "off",
-      "accessor-pairs": "off",
-      "no-negated-condition": "off",
-      "radix": "off",
-      "default-case": "off",
-      "no-anonymous-default-import": "off",
-      "eslint-comments/no-unused-disable": "warn",
-      "unicorn/no-abusive-eslint-disable": "off",
-      "unicorn/prefer-node-remove": "off",
-      "unicorn/no-reduce": "off",
-      "unicorn/prefer-query-selector": "off",
-      "unicorn/no-fn-reference-in-iterator": "off",
-      "unicorn/no-object-as-default-parameter": "off",
-      "unicorn/prefer-node-append": "off",
-      "@typescript-eslint/prefer-regexp-exec": "off",
-      "@typescript-eslint/no-empty-function": "off",
-      "@typescript-eslint/unified-signatures": "off",
-      "@typescript-eslint/array-type": "off",
-      "prefer-math-trunc": "off"
-    }
   },
   "husky": {
     "hooks": {
@@ -120,20 +94,16 @@
     "Dominik Janković (https://github.com/djankovic)"
   ],
   "devDependencies": {
-    "@babel/types": "7.13.14",
     "@cortex-js/prettier-config": "^1.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.1",
+    "@rollup/plugin-node-resolve": "^13.0.0",
     "@types/css-font-loading-module": "0.0.4",
     "@types/jest": "^26.0.22",
-    "@types/node": "^14.14.41",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "@typescript-eslint/typescript-estree": "^4.22.0",
-    "autoprefixer": "10.2.4",
+    "autoprefixer": "10.2.5",
     "check-node-version": "^4.1.0",
-    "cssnano": "^4.1.10",
-    "eslint": "^7.19.0",
-    "eslint-config-prettier": "^8.2.0",
+    "cssnano": "^5.0.2",
+    "eslint": "^7.26.0",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-no-unsanitized": "^3.1.5",
     "eslint-plugin-prettier": "^3.4.0",
     "http-server": "^0.12.3",
@@ -141,8 +111,8 @@
     "jest": "^26.6.3",
     "jest-silent-reporter": "^0.5.0",
     "less": "^4.1.1",
-    "lint-staged": "^10.5.4",
-    "postcss": "^8.2.4",
+    "lint-staged": "^11.0.0",
+    "postcss": "^8.2.15",
     "postcss-cli": "^8.3.1",
     "prettier": "2.3.0",
     "rollup": "^2.47.0",
@@ -151,9 +121,8 @@
     "rollup-plugin-postcss": "^4.0.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.30.0",
-    "ts-jest": "^26.5.5",
-    "typescript": "^4.2.4",
-    "xo": "^0.39.1"
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.2.4"
   },
   "keywords": [
     "math",
