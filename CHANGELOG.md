@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### New Features
+
+- Added the following attributes to `<math-field>`: `plonk-sound`,
+  `keypress-sound`. Setting them to 'none' turn off these sounds.
+
 ## 0.65.0 (2021-05-14)
 
 ### Breaking Changes

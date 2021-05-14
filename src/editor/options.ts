@@ -33,11 +33,14 @@ function loadSound(
   soundDirectory: string,
   sound: string | HTMLAudioElement | null
 ): HTMLAudioElement | null {
-  if (sound === null) return null;
+  if (sound === null || sound === 'none' || sound === 'null') return null;
   if (sound instanceof HTMLAudioElement) {
     sound.load();
     return sound;
   }
+
+  sound = sound.trim();
+  if (sound.length === 0) return null;
 
   const url = resolveRelativeUrl(
     (soundDirectory === undefined || soundDirectory.length === 0

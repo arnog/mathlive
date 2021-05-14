@@ -189,6 +189,24 @@ export interface MathfieldElementAttributes {
    */
   'inline-shortcut-timeout': string;
   'keypress-vibration': boolean;
+  /**
+   * When a key on the virtual keyboard is pressed, produce a short audio
+   * feedback.
+   *
+   * The value of the properties should a string, the name of an audio file in
+   * the `soundsDirectory` directory or 'none' to supress the sound.
+   */
+  'keypress-sound': string;
+  /**
+   * Sound played to provide feedback when a command has no effect, for example
+   * when pressing the spacebar at the root level.
+   *
+   * The property is either:
+   * - a string, the name of an audio file in the `soundsDirectory` directory
+   * - 'none' to turn off the sound
+   */
+  'plonk-sound': string;
+
   'letter-shape-style': string;
   /**
    * The locale (language + region) to use for string localization.
@@ -445,6 +463,8 @@ export interface MathfieldElementAttributes {
  * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
  * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
  * | `keypress-vibration` | `options.keypressVibration` |
+ * | `keypress-sound` | `options.keypressSound` |
+ * | `plonk-sound` | `options.plonkSound` |
  * | `letter-shape-style` | `options.letterShapeStyle` |
  * | `locale` | `options.locale` |
  * | `math-mode-space` | `options.mathModeSpace` |
@@ -516,6 +536,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'math-mode-space': 'string',
       'inline-shortcut-timeout': 'string',
       'keypress-vibration': 'boolean',
+      'keypress-sound': 'string',
+      'plonk-vibration': 'string',
       'letter-shape-style': 'string',
       'locale': 'string',
       'read-only': 'boolean',
@@ -556,14 +578,18 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * To create programmatically a new mahfield use:
      * ```javascript
     let mfe = new MathfieldElement();
+
     // Set initial value and options
     mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
+
     // Options can be set either as an attribute (for simple options)...
     mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
+
     // ... or using `setOptions()`
     mfe.setOptions({
         virtualKeyboardMode: 'manual',
     });
+
     // Attach the element to the DOM
     document.body.appendChild(mfe);
     * ```
@@ -823,12 +849,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   focus(): void {
     super.focus();
-    // If (this._mathfield) {
-    //     // Don't call this._mathfield.focus(): it checks the focus state,
-    //     // but super.focus() just changed it...
-    //     this._mathfield.keyboardDelegate.focus();
-    //     this._mathfield.model.announce('line');
-    // }
   }
 
   /**
@@ -840,11 +860,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   blur(): void {
     super.blur();
-    // If (this._mathfield) {
-    //     // Don't call this._mathfield.focs(): it checks the focus state,
-    //     // but super.blur() just changed it...
-    //     this._mathfield.keyboardDelegate.blur();
-    // }
   }
 
   /**
@@ -958,6 +973,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   connectedCallback(): void {
     if (!this.hasAttribute('role')) this.setAttribute('role', 'textbox');
+
     // This.setAttribute('aria-multiline', 'false');
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
@@ -1104,17 +1120,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._mathfield = null;
       return;
     }
-
-    // This._mathfield.field.parentElement.addEventListener(
-    //     'focus',
-    //     (_event) => this._mathfield.focus(),
-    //     true
-    // );
-    // this._mathfield.field.parentElement.addEventListener(
-    //     'blur',
-    //     (_event) => this._mathfield.blur(),
-    //     true
-    // );
 
     if (gDeferredState.has(this)) {
       this._mathfield.model.deferNotifications(
