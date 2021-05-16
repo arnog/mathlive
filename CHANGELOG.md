@@ -4,6 +4,78 @@
 
 - Added the following attributes to `<math-field>`: `plonk-sound`,
   `keypress-sound`. Setting them to 'none' turn off these sounds.
+- Added support for MediaWiki commands:
+
+* `\darr`
+* `\dArr`
+* `\Darr`
+* `\lang`
+* `\rang`
+* `\uarr`
+* `\uArr`
+* `\Uarr`
+* `\N`
+* `\R`
+* `\Z`
+* `\alef`
+* `\alefsym`
+* `\Alpha`
+* `\Beta`
+* `\bull`
+* `\Chi`
+* `\clubs`
+* `\cnums`
+* `\Complex`
+* `\Dagger`
+* `\diamonds`
+* `\empty`
+* `\Epsilon`
+* `\Eta`
+* `\exist`
+* `\harr`
+* `\hArr`
+* `\Harr`
+* `\hearts`
+* `\image`
+* `\infin`
+* `\Iota`
+* `\isin`
+* `\Kappa`
+* `\larr`
+* `\lArr`
+* `\Larr`
+* `\lrarr`
+* `\lrArr`
+* `\Lrarr`
+* `\Mu`
+* `\natnums`
+* `\Nu`
+* `\Omicron`
+* `\plusmn`
+* `\rarr`
+* `\rArr`
+* `\Rarr`
+* `\real`
+* `\reals`
+* `\Reals`
+* `\Rho`
+* `\sdot`
+* `\sect`
+* `\spades`
+* `\sub`
+* `\sube`
+* `\supe`
+* `\Tau`
+* `\thetasym`
+* `\weierp`
+* `\Zeta`
+
+### Bug Fixes
+
+- **#943** When a tooltip is provided for a custom virtual keyboard was
+  provided, the label was set to "undefined".
+- The DVIPS colors are case sensitive (i.e. `LimeGreen` is ok, `Limegreen` is
+  not)
 
 ## 0.65.0 (2021-05-14)
 

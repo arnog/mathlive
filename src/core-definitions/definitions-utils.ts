@@ -295,6 +295,97 @@ export const MACROS: MacroDictionary = {
   exponentialE: '\\mathrm{e}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
   differentialD: '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
   capitalDifferentialD: '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+
+  //////////////////////////////////////////////////////////////////////
+  // texvc.sty
+
+  // The texvc package contains macros available in mediawiki pages.
+  // We omit the functions deprecated at
+  // https://en.wikipedia.org/wiki/Help:Displaying_a_formula#Deprecated_syntax
+
+  // We also omit texvc's \O, which conflicts with \text{\O}
+
+  darr: { def: '\\downarrow', expand: false },
+  dArr: { def: '\\Downarrow', expand: false },
+  Darr: { def: '\\Downarrow', expand: false },
+  lang: { def: '\\langle', expand: false },
+  rang: { def: '\\rangle', expand: false },
+  uarr: { def: '\\uparrow', expand: false },
+  uArr: { def: '\\Uparrow', expand: false },
+  Uarr: { def: '\\Uparrow', expand: false },
+  N: { def: '\\mathbb{N}', expand: false },
+  R: { def: '\\mathbb{R}', expand: false },
+  Z: { def: '\\mathbb{Z}', expand: false },
+  alef: { def: '\\aleph', expand: false },
+  alefsym: { def: '\\aleph', expand: false },
+  Alpha: { def: '\\mathrm{A}', expand: false },
+  Beta: { def: '\\mathrm{B}', expand: false },
+  bull: { def: '\\bullet', expand: false },
+  Chi: { def: '\\mathrm{X}', expand: false },
+  clubs: { def: '\\clubsuit', expand: false },
+  cnums: { def: '\\mathbb{C}', expand: false },
+  Complex: { def: '\\mathbb{C}', expand: false },
+  Dagger: { def: '\\ddagger', expand: false },
+  diamonds: { def: '\\diamondsuit', expand: false },
+  empty: { def: '\\emptyset', expand: false },
+  Epsilon: { def: '\\mathrm{E}', expand: false },
+  Eta: { def: '\\mathrm{H}', expand: false },
+  exist: { def: '\\exists', expand: false },
+  harr: { def: '\\leftrightarrow', expand: false },
+  hArr: { def: '\\Leftrightarrow', expand: false },
+  Harr: { def: '\\Leftrightarrow', expand: false },
+  hearts: { def: '\\heartsuit', expand: false },
+  image: { def: '\\Im', expand: false },
+  infin: { def: '\\infty', expand: false },
+  Iota: { def: '\\mathrm{I}', expand: false },
+  isin: { def: '\\in', expand: false },
+  Kappa: { def: '\\mathrm{K}', expand: false },
+  larr: { def: '\\leftarrow', expand: false },
+  lArr: { def: '\\Leftarrow', expand: false },
+  Larr: { def: '\\Leftarrow', expand: false },
+  lrarr: { def: '\\leftrightarrow', expand: false },
+  lrArr: { def: '\\Leftrightarrow', expand: false },
+  Lrarr: { def: '\\Leftrightarrow', expand: false },
+  Mu: { def: '\\mathrm{M}', expand: false },
+  natnums: { def: '\\mathbb{N}', expand: false },
+  Nu: { def: '\\mathrm{N}', expand: false },
+  Omicron: { def: '\\mathrm{O}', expand: false },
+  plusmn: { def: '\\pm', expand: false },
+  rarr: { def: '\\rightarrow', expand: false },
+  rArr: { def: '\\Rightarrow', expand: false },
+  Rarr: { def: '\\Rightarrow', expand: false },
+  real: { def: '\\Re', expand: false },
+  reals: { def: '\\mathbb{R}', expand: false },
+  Reals: { def: '\\mathbb{R}', expand: false },
+  Rho: { def: '\\mathrm{P}', expand: false },
+  sdot: { def: '\\cdot', expand: false },
+  sect: { def: '\\S', expand: false },
+  spades: { def: '\\spadesuit', expand: false },
+  sub: { def: '\\subset', expand: false },
+  sube: { def: '\\subseteq', expand: false },
+  supe: { def: '\\supseteq', expand: false },
+  Tau: { def: '\\mathrm{T}', expand: false },
+  thetasym: { def: '\\vartheta', expand: false },
+  // TODO: varcoppa: { def: "\\\mbox{\\coppa}", expand: false },
+  weierp: { def: '\\wp', expand: false },
+  Zeta: { def: '\\mathrm{Z}', expand: false },
+
+  // amsmath.sty
+  // http://mirrors.concertpass.com/tex-archive/macros/latex/required/amsmath/amsmath.pdf
+
+  // Italic Greek capital letters.  AMS defines these with \DeclareMathSymbol,
+  // but they are equivalent to \mathit{\Letter}.
+  varGamma: '\\mathit{\\Gamma}',
+  varDelta: '\\mathit{\\Delta}',
+  varTheta: '\\mathit{\\Theta}',
+  varLambda: '\\mathit{\\Lambda}',
+  varXi: '\\mathit{\\Xi}',
+  varPi: '\\mathit{\\Pi}',
+  varSigma: '\\mathit{\\Sigma}',
+  varUpsilon: '\\mathit{\\Upsilon}',
+  varPhi: '\\mathit{\\Phi}',
+  varPsi: '\\mathit{\\Psi}',
+  varOmega: '\\mathit{\\Omega}',
 };
 
 // Body-text symbols
