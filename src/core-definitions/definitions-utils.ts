@@ -375,17 +375,17 @@ export const MACROS: MacroDictionary = {
 
   // Italic Greek capital letters.  AMS defines these with \DeclareMathSymbol,
   // but they are equivalent to \mathit{\Letter}.
-  varGamma: '\\mathit{\\Gamma}',
-  varDelta: '\\mathit{\\Delta}',
-  varTheta: '\\mathit{\\Theta}',
-  varLambda: '\\mathit{\\Lambda}',
-  varXi: '\\mathit{\\Xi}',
-  varPi: '\\mathit{\\Pi}',
-  varSigma: '\\mathit{\\Sigma}',
-  varUpsilon: '\\mathit{\\Upsilon}',
-  varPhi: '\\mathit{\\Phi}',
-  varPsi: '\\mathit{\\Psi}',
-  varOmega: '\\mathit{\\Omega}',
+  varGamma: { def: '\\mathit{\\Gamma}', expand: false },
+  varDelta: { def: '\\mathit{\\Delta}', expand: false },
+  varTheta: { def: '\\mathit{\\Theta}', expand: false },
+  varLambda: { def: '\\mathit{\\Lambda}', expand: false },
+  varXi: { def: '\\mathit{\\Xi}', expand: false },
+  varPi: { def: '\\mathit{\\Pi}', expand: false },
+  varSigma: { def: '\\mathit{\\Sigma}', expand: false },
+  varUpsilon: { def: '\\mathit{\\Upsilon}', expand: false },
+  varPhi: { def: '\\mathit{\\Phi}', expand: false },
+  varPsi: { def: '\\mathit{\\Psi}', expand: false },
+  varOmega: { def: '\\mathit{\\Omega}', expand: false },
 };
 
 // Body-text symbols
