@@ -86,6 +86,8 @@
 * `\varPsi`
 * `\varOmega`
 
+- Added support for the `\displaylimits` command
+
 ### Bug Fixes
 
 - **#943** When a tooltip for a custom virtual keyboard was provided, the label
@@ -96,6 +98,8 @@
   `<span>` when using Text Style (inline math).
 - **#945** Preserve more aggresively verbatim Latex. Also, avoid serializing
   superfluous spaces in Spacing atoms.
+- **#770** Correctly handle attaching limits to `\int` command using the
+  keyboard.
 
 ## 0.65.0 (2021-05-14)
 
