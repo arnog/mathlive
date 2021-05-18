@@ -271,8 +271,10 @@ function createMarkupNode(
   //   sometimes a text node is desired and sometimes not.
   //   'createTextNodeOnFailure' controls this and null is returned when no node is created.
   // This node is made invisible to AT (screen readers)
-  let span: HTMLSpanElement | Text = document.createElement('span');
-  span.setAttribute('aria-hidden', 'true');
+  const element = document.createElement(
+    mathstyle === 'displaystyle' ? 'div' : 'span'
+  );
+  element.setAttribute('aria-hidden', 'true');
 
   try {
     const html = options.renderToMarkup(text, {
@@ -280,17 +282,16 @@ function createMarkupNode(
       format: 'html',
       macros: options.macros,
     });
-    span.innerHTML = options.createHTML ? options.createHTML(html) : html;
+    element.innerHTML = options.createHTML ? options.createHTML(html) : html;
   } catch (error: unknown) {
     console.error("Could not parse'" + text + "' with ", error);
     if (createNodeOnFailure) {
-      span = document.createTextNode(text);
-    } else {
-      return null;
+      return document.createTextNode(text);
     }
+    return null;
   }
 
-  return span;
+  return element;
 }
 
 function createAccessibleMarkupPair(

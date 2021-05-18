@@ -90,6 +90,8 @@
   was set to "undefined".
 - The DVIPS colors are case sensitive (i.e. `LimeGreen` is ok, `Limegreen` is
   not)
+- `renderMathInDocument()` now creates a `<div>` when using Display Style, and a
+  `<span>` when using Text Style (inline math).
 
 ## 0.65.0 (2021-05-14)
 
