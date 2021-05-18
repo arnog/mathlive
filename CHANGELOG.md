@@ -2,6 +2,8 @@
 
 ### New Features
 
+- **#946** Support addding a custom stylesheet to a `<math-field>` when using
+  the `\class` command.
 - Added the following attributes to `<math-field>`: `plonk-sound`,
   `keypress-sound`. Setting them to 'none' turn off these sounds.
 - Added support for MediaWiki commands:

@@ -568,11 +568,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   private _mathfield: MathfieldPrivate;
-  // The original text content of the slot
-  // Recored at construction to avoid reacting to it if a
-  // slotchange event gets fired as part of the construction
-  // (different browsers behave differently).
+  // The original text content of the slot.
+  // Recorded at construction to avoid reacting to it if a `slotchange` event
+  // gets fired as part of the construction (different browsers behave
+  // differently).
   private _slotValue: string;
+
+  // The content of <style> tags inside the element.
+  private _style: string;
 
   /**
      * To create programmatically a new mahfield use:
@@ -626,7 +629,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         .assignedElements()
         .filter(
           (x) =>
-            x.tagName === 'SCRIPT' &&
+            x.tagName.toLowerCase() === 'script' &&
             (x as HTMLScriptElement).type === 'application/json'
         )
         .map((x) => x.textContent)
@@ -634,6 +637,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       if (json) {
         this.setOptions(JSON.parse(json));
       }
+    } catch (error: unknown) {
+      console.log(error);
+    }
+
+    try {
+      this._style = slot
+        .assignedElements()
+        .filter((x) => x.tagName.toLowerCase() === 'style')
+        .map((x) => x.textContent)
+        .join('');
     } catch (error: unknown) {
       console.log(error);
     }
@@ -976,6 +989,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // This.setAttribute('aria-multiline', 'false');
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
+
+    // Add shadowed stylesheet if one was provided
+    if (this._style) {
+      const styleElement = document.createElement('style');
+      styleElement.textContent = this._style;
+      this.shadowRoot.appendChild(styleElement);
+    }
 
     this._mathfield = new MathfieldPrivate(
       this.shadowRoot.querySelector(':host > div'),
