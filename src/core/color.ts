@@ -75,13 +75,10 @@ export const FOREGROUND_COLORS = {
   'orange': '#fe8a2b',
   'yellow': '#ffc02b', // <- 600, 500 -> '#ffcf33',
   'lime': '#63b215',
-  'limegreen': '#63b215', // DVIPS color
   'green': '#21ba3a',
   'teal': '#17cfcf',
-  'tealblue': '#17cfcf', // DVIPS color
   'blue': '#0d80f2',
   'indigo': '#63c',
-  'violet': '#63c', // DVIPS color
   'purple': '#a219e6',
   'magenta': '#eb4799',
   'black': '#000',
@@ -89,6 +86,23 @@ export const FOREGROUND_COLORS = {
   'grey': '#A6A6A6',
   'light-grey': '#d4d5d2',
   'white': '#ffffff',
+};
+
+// Map some of the DVIPS color names to Chromatic
+const DVIPS_TO_CHROMATIC = {
+  Red: 'red',
+  Orange: 'orange',
+  Yellow: 'yellow',
+  LimeGreen: 'lime',
+  Green: 'green',
+  TealBlue: 'teal',
+  Blue: 'blue',
+  Violet: 'indigo',
+  Purple: 'purple',
+  Magenta: 'magenta',
+  Black: 'black',
+  Gray: 'grey',
+  White: 'white',
 };
 
 /**
@@ -377,6 +391,7 @@ export function defaultColorMap(s: string): string {
 
     const color =
       FOREGROUND_COLORS[lcColorName] ??
+      FOREGROUND_COLORS[DVIPS_TO_CHROMATIC[colorName]] ??
       MATLAB_COLORS[colorName] ??
       DVIPS_COLORS[colorName] ??
       MATHEMATICA_COLORS[colorName] ??
@@ -444,7 +459,11 @@ export function defaultColorMap(s: string): string {
 }
 
 export function defaultBackgroundColorMap(s: string): string {
-  return BACKGROUND_COLORS[s.toLowerCase()] ?? defaultColorMap(s);
+  return (
+    BACKGROUND_COLORS[s.toLowerCase()] ??
+    BACKGROUND_COLORS[DVIPS_TO_CHROMATIC[s]] ??
+    defaultColorMap(s)
+  );
 }
 
 function parseHex(
