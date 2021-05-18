@@ -77,10 +77,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
 
   let target = model.at(model.position);
 
-  if (
-    target.subsupPlacement !== 'over-under' &&
-    target.subsupPlacement !== 'auto'
-  ) {
+  if (target.subsupPlacement === undefined) {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
     if (target.rightSibling?.type !== 'msubsup') {
@@ -115,10 +112,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
 
   let target = model.at(model.position);
 
-  if (
-    target.subsupPlacement !== 'over-under' &&
-    target.subsupPlacement !== 'auto'
-  ) {
+  if (target.subsupPlacement === undefined) {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'msubsup') {

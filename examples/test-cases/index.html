@@ -75,8 +75,9 @@
         smart-fence="true"
         horizontal-spacing-scale="1.2"
         virtual-keyboard-mode="manual">
-
-        \htmlData{partid=14}{\left(} 3 + 5 \htmlData{partid=15}{\right)} = \htmlData{partid=16}{\left(} 2x + 5 \htmlData{partid=17}{\right)}    
+        123\,456
+        
+        <!-- \htmlData{partid=14}{\left(} 3 + 5 \htmlData{partid=15}{\right)} = \htmlData{partid=16}{\left(} 2x + 5 \htmlData{partid=17}{\right)}     -->
         
         <!-- \begin{bmatrix}a\\b\\c\\d\\e\\f\end{bmatrix} -->
 
@@ -216,13 +217,11 @@
         <h2>MASTON</h2>
         <div class="output" id="maston"></div>
 
-        <div id='clock'></div>
-
       </main>
 
     <script type="module">
-        import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
-        renderMathInDocument({ 
+      import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
+      renderMathInDocument({ 
         renderAccessibleContent: false,
         TeX: { 
           delimiters: { display: [ ['$$', '$$'] ] },
@@ -233,227 +232,224 @@
 
       //  console.log( convertLatexToMarkup('\\int _{x}^{\\infty }'));
 
-        let gSearchLatex;
 
-        setInterval(() => {
-          document.getElementById('clock').innerHTML = (new Date()).toString()
-        }, 1000);
+      let gSearchLatex;
 
-        function applySearchTerm() {
-            if (!gSearchLatex) {
-                document.getElementById('search-results').classList.add('hidden');
-                return;
-            }
-            document.getElementById('search-results').classList.remove('hidden');
-            const mf = document.getElementById('mf');
+      function applySearchTerm() {
+          if (!gSearchLatex) {
+              document.getElementById('search-results').classList.add('hidden');
+              return;
+          }
+          document.getElementById('search-results').classList.remove('hidden');
+          const mf = document.getElementById('mf');
 
-            mf.applyStyle({ color: "none", backgroundColor: "none" }, {
-                range: [0, -1], suppressChangeNotifications: true
-            });
+          mf.applyStyle({ color: "none", backgroundColor: "none" }, {
+              range: [0, -1], suppressChangeNotifications: true
+          });
 
-            const searchResults = mf.find(gSearchLatex.startsWith('/') ?
-                new RegExp(gSearchLatex.slice(1, -1)) :
-                gSearchLatex);
+          const searchResults = mf.find(gSearchLatex.startsWith('/') ?
+              new RegExp(gSearchLatex.slice(1, -1)) :
+              gSearchLatex);
 
-            document.getElementById('search-results-output').innerHTML =
-                searchResults.
-                    map(range => `${range[0]}, ${range[1]} = "${mf.getValue(range)}"`).
-                    join('<br>');
-            searchResults.forEach((x) =>
-                mf.applyStyle({ color: "red", backgroundColor: "yellow" }, x, {
-                    suppressChangeNotifications: true
-                }
-                )
-            );
-        }
-        function applyReplace() {
-            document.getElementById('search-results').classList.add('hidden');
-            if (!gSearchLatex) {
-                return;
-            }
-
-            const mf = document.getElementById('mf');
-
-            mf.applyStyle({ color: "none", backgroundColor: "none" }, {
-                range: [0, -1], suppressChangeNotifications: true
-            });
-            const replacement = replaceInput.value;
-            const searchResults = mf.replace(gSearchLatex.startsWith('/') ?
-                new RegExp(gSearchLatex.slice(1, -1)) :
-                gSearchLatex, replacement /* (args) => {
-                    console.log(args);
-                    return replacement;
-                }*/);
-        }
-
-        const ta = document.getElementById('find-input');
-        ta.addEventListener('change', (ev) => {
-            gSearchLatex = ta.value;
-            applySearchTerm();
-        });
-
-        const replaceInput = document.getElementById('replace-input');
-        replaceInput.addEventListener('change', (ev) => {
-            applyReplace();
-        });
-
-        const mf = document.getElementById('mf');
-
-
-
-        mf.setOptions({
-            inlineShortcuts: {
-                in: {
-                    mode: 'math',
-                    after: 'space+letter+digit+symbol+fence',
-                    value: '\\in',
-                },
-            },
-            // onBlur: () => { console.log('blurring') },
-            onKeystroke: (mf, keystroke, ev) => {
-              if (keystroke === 'alt+[KeyS]') {
-                mf.insert('\\sum^\\infty_{n=0}');
-                return false; // Stop propagation
-              } else if (keystroke === 'meta+[KeyK]') {
-                mf.executeCommand('toggleVirtualKeyboard');
-                return false;
+          document.getElementById('search-results-output').innerHTML =
+              searchResults.
+                  map(range => `${range[0]}, ${range[1]} = "${mf.getValue(range)}"`).
+                  join('<br>');
+          searchResults.forEach((x) =>
+              mf.applyStyle({ color: "red", backgroundColor: "yellow" }, x, {
+                  suppressChangeNotifications: true
               }
-              console.log('options keystroke', keystroke); 
-              return true;
-            },
-            // inlineShortcuts: {
-            //     // ㄱ: '\\sqrt',
-            //     sq: '\\sqrt{#0}',
-            //     // ㄱㄴ: '\\sqrt{#0}',
-            //     "ㄱㄴ": '\\sqrt{#0}',
-            // },
-            macros: {
-                'rcases': `\\left.
+              )
+          );
+      }
+      function applyReplace() {
+          document.getElementById('search-results').classList.add('hidden');
+          if (!gSearchLatex) {
+              return;
+          }
+
+          const mf = document.getElementById('mf');
+
+          mf.applyStyle({ color: "none", backgroundColor: "none" }, {
+              range: [0, -1], suppressChangeNotifications: true
+          });
+          const replacement = replaceInput.value;
+          const searchResults = mf.replace(gSearchLatex.startsWith('/') ?
+              new RegExp(gSearchLatex.slice(1, -1)) :
+              gSearchLatex, replacement /* (args) => {
+                  console.log(args);
+                  return replacement;
+              }*/);
+      }
+
+      const ta = document.getElementById('find-input');
+      ta.addEventListener('change', (ev) => {
+          gSearchLatex = ta.value;
+          applySearchTerm();
+      });
+
+      const replaceInput = document.getElementById('replace-input');
+      replaceInput.addEventListener('change', (ev) => {
+          applyReplace();
+      });
+
+      const mf = document.getElementById('mf');
+
+
+
+      mf.setOptions({
+          inlineShortcuts: {
+              in: {
+                  mode: 'math',
+                  after: 'space+letter+digit+symbol+fence',
+                  value: '\\in',
+              },
+          },
+          // onBlur: () => { console.log('blurring') },
+          onKeystroke: (mf, keystroke, ev) => {
+            if (keystroke === 'alt+[KeyS]') {
+              mf.insert('\\sum^\\infty_{n=0}');
+              return false; // Stop propagation
+            } else if (keystroke === 'meta+[KeyK]') {
+              mf.executeCommand('toggleVirtualKeyboard');
+              return false;
+            }
+            console.log('options keystroke', keystroke); 
+            return true;
+          },
+          // inlineShortcuts: {
+          //     // ㄱ: '\\sqrt',
+          //     sq: '\\sqrt{#0}',
+          //     // ㄱㄴ: '\\sqrt{#0}',
+          //     "ㄱㄴ": '\\sqrt{#0}',
+          // },
+          macros: {
+              'rcases': `\\left.
 \\begin{array}{ll}
 #0
 \\end{array}
 \\right\\}`
-            },
-            onError: (ev) => { console.log('Error :' + ev.code); }
-        });
+          },
+          onError: (ev) => { console.log('Error :' + ev.code); }
+      });
 
-        // mf.selection = [2, 5];
-        // mf.addEventListener('blur', (ev) => {
-        //     console.log('blur event');
-        // });
-        // mf.addEventListener('keystroke', (ev) => {
-        //     console.log('keystroke event', ev.detail.keystroke);
-        // });
-        // mf.addEventListener('focus', (ev) => {
-        //     console.log('focus event');
-        // });
-        mf.addEventListener('input', (ev) => {
-            updateContent(mf);
-            applySearchTerm();
-        });
-        // mf.addEventListener('change', (ev) => {
-        // });
-        mf.addEventListener('selection-change', (ev) => {
-            const selection = mf.selection;
-            // console.assert(selection.ranges[0][0] !== 2 || selection.ranges[0][1] !== 3);
-            document.getElementById('selection').innerHTML =
-                // label("anchor    ") + mf.anchor + "<br>" +
-                label("position  ") + mf.position + "<br>" +
-                label("start     ") + selection.ranges[0][0] + "<br>" +
-                label("end       ") + selection.ranges[0][1] + "<br>" +
-                label("direction ") + '\"' + selection.direction + "\"<br>" +
-                label("value     ") + '\"' + mf.getValue(selection) + '"'
-        });
-        mf.addEventListener('math-error', (ev) => {
-            console.log('Error :' + ev.detail.code);
-        });
-        updateContent(mf);
-        applySearchTerm();
-
-
+      // mf.selection = [2, 5];
+      // mf.addEventListener('blur', (ev) => {
+      //     console.log('blur event');
+      // });
+      // mf.addEventListener('keystroke', (ev) => {
+      //     console.log('keystroke event', ev.detail.keystroke);
+      // });
+      // mf.addEventListener('focus', (ev) => {
+      //     console.log('focus event');
+      // });
+      mf.addEventListener('input', (ev) => {
+          updateContent(mf);
+          applySearchTerm();
+      });
+      // mf.addEventListener('change', (ev) => {
+      // });
+      mf.addEventListener('selection-change', (ev) => {
+          const selection = mf.selection;
+          // console.assert(selection.ranges[0][0] !== 2 || selection.ranges[0][1] !== 3);
+          document.getElementById('selection').innerHTML =
+              // label("anchor    ") + mf.anchor + "<br>" +
+              label("position  ") + mf.position + "<br>" +
+              label("start     ") + selection.ranges[0][0] + "<br>" +
+              label("end       ") + selection.ranges[0][1] + "<br>" +
+              label("direction ") + '\"' + selection.direction + "\"<br>" +
+              label("value     ") + '\"' + mf.getValue(selection) + '"'
+      });
+      mf.addEventListener('math-error', (ev) => {
+          console.log('Error :' + ev.detail.code);
+      });
+      updateContent(mf);
+      applySearchTerm();
 
 
-        // let mathfieldContainer = document.getElementById('mathfield-container');
-        // if (mathfieldContainer) {
-        //     let mfe = new MathfieldElement();
-        //     // Deferred assignments
-        //     mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
-        //     mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
-        //     mfe.setOptions({
-        //         virtualKeyboardMode: 'manual',
-        //     });
-        //     // mfe.setAttribute('disabled', '');   // sets to true
-
-        //     // Attach the element (and use the attached values);
-        //     mathfieldContainer.appendChild(mfe);
-
-        //     mathfieldContainer.removeChild(mfe);
-
-        //     mathfieldContainer.appendChild(mfe);
-        // }
-        // if (document.getElementById('oldschool-mf')) {
-        //     MathLive.makeMathField('oldschool-mf', {
-        //         smartFence: true,
-        //         smartMode: true,
-        //         virtualKeyboardMode: 'manual',
-        //         // onContentDidChange: (mf) => {
-        //         //     updateContent(mf)
-        //         // },
-        //         onError: (err) => {
-        //             console.error(
-        //                 err.latex,
-        //                 err.code + ' ' + (err.arg ?? '')
-        //             );
-        //         },
-        //     });
-        // }
-        function updateContent(mf) {
-            const latex = mf.getValue('latex-expanded');
-            try {
-
-                document.getElementById('latex').innerHTML = escapeHtml(
-                    latex
-                );
-
-                document.getElementById(
-                    'mathascii'
-                ).innerHTML = escapeHtml(mf.getValue('ascii-math'));
-                document.getElementById(
-                    'mathml'
-                ).innerHTML = escapeHtml(mf.getValue('math-ml'));
-                document.getElementById(
-                    'maston'
-                ).innerHTML = escapeHtml(mf.getValue('math-json'));
-            } catch (e) {
-                console.error("Error converting %c " + latex + '%c ' +
-                    e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
-            }
-        }
 
 
-        function label(s) {
-            return `<span class='label'>${s}</span>`;
-        }
+      // let mathfieldContainer = document.getElementById('mathfield-container');
+      // if (mathfieldContainer) {
+      //     let mfe = new MathfieldElement();
+      //     // Deferred assignments
+      //     mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
+      //     mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
+      //     mfe.setOptions({
+      //         virtualKeyboardMode: 'manual',
+      //     });
+      //     // mfe.setAttribute('disabled', '');   // sets to true
 
-        function escapeHtml(string) {
-            return String(string).replace(/[&<>"'`= /\u200b]/g, function (
-                s
-            ) {
-                return (
-                    {
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#39;',
-                        '/': '&#x2F;',
-                        '`': '&#x60;',
-                        '=': '&#x3D;',
-                        '\u200b': '&amp;#zws;',
-                    }[s] || s
-                );
-            });
-        }
+      //     // Attach the element (and use the attached values);
+      //     mathfieldContainer.appendChild(mfe);
+
+      //     mathfieldContainer.removeChild(mfe);
+
+      //     mathfieldContainer.appendChild(mfe);
+      // }
+      // if (document.getElementById('oldschool-mf')) {
+      //     MathLive.makeMathField('oldschool-mf', {
+      //         smartFence: true,
+      //         smartMode: true,
+      //         virtualKeyboardMode: 'manual',
+      //         // onContentDidChange: (mf) => {
+      //         //     updateContent(mf)
+      //         // },
+      //         onError: (err) => {
+      //             console.error(
+      //                 err.latex,
+      //                 err.code + ' ' + (err.arg ?? '')
+      //             );
+      //         },
+      //     });
+      // }
+      function updateContent(mf) {
+          const latex = mf.getValue('latex-expanded');
+          try {
+
+              document.getElementById('latex').innerHTML = escapeHtml(
+                  latex
+              );
+
+              document.getElementById(
+                  'mathascii'
+              ).innerHTML = escapeHtml(mf.getValue('ascii-math'));
+              document.getElementById(
+                  'mathml'
+              ).innerHTML = escapeHtml(mf.getValue('math-ml'));
+              document.getElementById(
+                  'maston'
+              ).innerHTML = escapeHtml(mf.getValue('math-json'));
+          } catch (e) {
+              console.error("Error converting %c " + latex + '%c ' +
+                  e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
+          }
+      }
+
+
+      function label(s) {
+          return `<span class='label'>${s}</span>`;
+      }
+
+      function escapeHtml(string) {
+          return String(string).replace(/[&<>"'`= /\u200b]/g, function (
+              s
+          ) {
+              return (
+                  {
+                      '&': '&amp;',
+                      '<': '&lt;',
+                      '>': '&gt;',
+                      '"': '&quot;',
+                      "'": '&#39;',
+                      '/': '&#x2F;',
+                      '`': '&#x60;',
+                      '=': '&#x3D;',
+                      '\u200b': '&amp;#zws;',
+                  }[s] || s
+              );
+          });
+      }
     </script>
 </body>
 

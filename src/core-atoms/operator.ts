@@ -120,21 +120,22 @@ export class OperatorAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let result = '';
+    const result = [];
     if (this.value !== '\u200B') {
       // Not ZERO-WIDTH
-      result +=
+      result.push(
         this.command === '\\mathop' || this.command === '\\operatorname'
           ? this.command + `{${this.bodyToLatex(options)}}`
-          : this.command;
+          : this.command
+      );
+      if (this.explicitSubsupPlacement) {
+        if (this.subsupPlacement === 'over-under') result.push('\\limits');
+        if (this.subsupPlacement === 'adjacent') result.push('\\nolimits');
+        if (this.subsupPlacement === 'auto') result.push('\\displaylimits');
+      }
     }
 
-    if (this.explicitSubsupPlacement) {
-      if (this.subsupPlacement === 'over-under') result += '\\limits';
-      if (this.subsupPlacement === 'adjacent') result += '\\nolimits';
-    }
-    result = joinLatex([result, this.supsubToLatex(options)]);
-
-    return result;
+    result.push(this.supsubToLatex(options));
+    return joinLatex(result);
   }
 }

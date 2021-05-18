@@ -1177,14 +1177,17 @@ export class Parser {
    * `displaystyle` prefers `\limits`).
    */
   parseLimits(): boolean {
-    // Note: `\limits` and `\nolimits` are only applicable after an operator.
+    // Note: `\limits`, `\nolimits` and `\displaylimits` are only applicable \
+    // after an operator.
     // We skip them and ignore them if they are after something other
     // than an operator (TeX throws an error)
 
     const isLimits = this.match('\\limits');
     const isNoLimits = !isLimits && this.match('\\nolimits');
+    const isDisplayLimits =
+      !isNoLimits && !isLimits && this.match('\\displaylimits');
 
-    if (!isLimits && !isNoLimits) return false;
+    if (!isLimits && !isNoLimits && !isDisplayLimits) return false;
 
     const opAtom =
       this.mathlist.length > 0 ? this.mathlist[this.mathlist.length - 1] : null;
@@ -1201,6 +1204,12 @@ export class Parser {
 
     if (isNoLimits) {
       opAtom.subsupPlacement = 'adjacent';
+      opAtom.explicitSubsupPlacement = true;
+      return true;
+    }
+
+    if (isDisplayLimits) {
+      opAtom.subsupPlacement = 'auto';
       opAtom.explicitSubsupPlacement = true;
       return true;
     }

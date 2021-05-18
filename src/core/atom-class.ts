@@ -171,10 +171,12 @@ export class Atom {
   // - 'adjacent': to the right, above and below the baseline (for example
   // for operators in `textstyle` style)
   // - 'auto': 'over-under' in \displaystyle, 'adjacent' otherwise
+  // If `undefined`, the subsup should be placed on a separate `msubsup` atom.
   subsupPlacement?: 'auto' | 'over-under' | 'adjacent';
 
-  // True if the subsupPlacement was set by `\limits` or `\nolimits`.
-  // Necessary so the propert latex can be output
+  // True if the subsupPlacement was set by `\limits`, `\nolimits` or
+  // `\displaylimits`.
+  // Necessary so the proper LaTeX can be output.
   explicitSubsupPlacement?: boolean;
 
   // If true, when the caret reaches the first position in this element's body,
