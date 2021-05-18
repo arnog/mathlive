@@ -280,7 +280,10 @@ function getNote(symbol: string): string {
 
 function latexToMarkup(latex: string): string {
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(latex, { parseMode: 'math', macros: MACROS });
+  root.body = parseLatex(latex, {
+    parseMode: 'math',
+    macros: MACROS,
+  });
 
   const box = coalesce(
     adjustInterAtomSpacing(

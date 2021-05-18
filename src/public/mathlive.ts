@@ -25,7 +25,12 @@ import {
   RemoteVirtualKeyboardOptions,
   TextToSpeechOptions,
 } from './options';
-import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
+import {
+  MacroDictionary,
+  ErrorListener,
+  ParserErrorCode,
+  Registers,
+} from './core';
 
 export { Mathfield };
 export { MathfieldOptions as MathfieldConfig };
@@ -143,13 +148,14 @@ export declare function convertLatexToMarkup(
     mathstyle?: 'displaystyle' | 'textstyle';
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
     macros?: MacroDictionary;
+    registers?: Registers;
     onError?: ErrorListener<ParserErrorCode>;
   }
 ): string;
 
 /**
- * @deprecated Use [[`convertLatexToMarkup`]]
  * @category Converting
+ * @deprecated Use [[`convertLatexToMarkup`]]
  */
 export declare function latexToMarkup(
   text: string,
@@ -178,6 +184,7 @@ export declare function convertLatexToMathMl(
   latex: string,
   options?: {
     macros?: MacroDictionary;
+    registers?: Registers;
     generateID: boolean;
     onError?: ErrorListener<ParserErrorCode>;
   }
@@ -275,6 +282,7 @@ export declare function convertLatexToSpeakableText(
   latex: string,
   options: TextToSpeechOptions & {
     macros?: MacroDictionary;
+    registers?: Registers;
     onError?: ErrorListener<ParserErrorCode>;
   }
 ): string;
@@ -287,6 +295,7 @@ export declare function latexToSpeakableText(
   latex: string,
   options: TextToSpeechOptions & {
     macros?: MacroDictionary;
+    registers?: Registers;
     onError?: ErrorListener<ParserErrorCode>;
   }
 ): string;
@@ -348,6 +357,9 @@ export type AutoRenderOptions = {
 
   /** Custom LaTeX macros */
   macros?: MacroDictionary;
+
+  /** LaTeX global register overrides */
+  registers?: Registers;
 
   /** An array of tag names whose content will
    *  not be scanned for delimiters (unless their class matches the `processClass`

@@ -147,6 +147,65 @@ export type MacroDefinition = {
 };
 
 /**
+ * Glue represents flexible spacing, that is a dimension that
+ * can grow (by the `grow` property) or shrink (by the `shrink` property).
+ */
+export type Glue = {
+  glue: Dimension;
+  shrink: Dimension;
+  grow: Dimension;
+};
+
+/**
+ *
+ */
+export type DimensionUnit =
+  | 'pt'
+  | 'mm'
+  | 'cm'
+  | 'ex'
+  | 'px'
+  | 'em'
+  | 'bp'
+  | 'dd'
+  | 'pc'
+  | 'in'
+  | 'mu'
+  | 'fil'
+  | 'fill'
+  | 'filll';
+
+/**
+ * A dimension is used to specify the size of things
+ *
+ */
+export type Dimension =
+  | number
+  | {
+      dimension: number;
+      unit?: DimensionUnit; // If missing, assumes 'pt'
+    };
+
+export type RegisterValue = Dimension | Glue | number | string;
+
+/**
+ * TeX registers represent 'variables' and 'constants'.
+ *
+ * Changing the values of some registers can modify the layout
+ * of math expressions.
+ *
+ * The following registers might be of interest:
+ *
+ * - `thinmuskip`
+ * - `medmuskip`
+ * - `thickmuskip`
+ * - `nulldelimiterspace`
+ * - `delimitershortfall`
+ * - `jot`
+ */
+export type Registers = Record<string, RegisterValue>;
+
+/**
  * A dictionary of LaTeX macros to be used to interpret and render the content.
  *
  * For example:

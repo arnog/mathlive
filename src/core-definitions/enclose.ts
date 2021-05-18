@@ -1,5 +1,5 @@
 import { Argument, defineFunction } from './definitions-utils';
-import { convertDimenToPx } from '../core/font-metrics';
+import { convertDimensionToPixel } from '../core/font-metrics';
 import type { Atom } from '../core/atom-class';
 import { EncloseAtom, EncloseAtomOptions } from '../core-atoms/enclose';
 import { Style } from '../public/core';
@@ -33,7 +33,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
       for (const s of styles) {
         const shorthand = s.match(/\s*(\S+)\s+(\S+)\s+(.*)/);
         if (shorthand) {
-          options.strokeWidth = convertDimenToPx(shorthand[1], 'px');
+          options.strokeWidth = convertDimensionToPixel(shorthand[1]);
           if (!Number.isFinite(options.strokeWidth)) {
             options.strokeWidth = 1;
           }
@@ -48,7 +48,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
             } else if (attribute[1] === 'mathcolor') {
               options.strokeColor = attribute[2];
             } else if (attribute[1] === 'padding') {
-              options.padding = convertDimenToPx(attribute[2], 'px');
+              options.padding = convertDimensionToPixel(attribute[2]);
             } else if (attribute[1] === 'shadow') {
               options.shadow = attribute[2];
             }

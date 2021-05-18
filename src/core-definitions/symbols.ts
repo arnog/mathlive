@@ -52,11 +52,8 @@ newSymbols([
   ['\\ell', 0x2113],
 
   ['\\hbar', 0x210f],
-  ['\\N', 0x004e, 'mord', 'double-struck'], // NOTE: Check if standard Latex
-  ['\\R', 0x0052, 'mord', 'double-struck'], // NOTE: Check if standard Latex
   ['\\Q', 0x0051, 'mord', 'double-struck'], // NOTE: Check if standard Latex
   ['\\C', 0x0043, 'mord', 'double-struck'], // NOTE: Check if standard Latex
-  ['\\Z', 0x005a, 'mord', 'double-struck'], // NOTE: Check if standard Latex
   ['\\P', 0x0050, 'mord', 'double-struck'], // NOTE: Check if standard Latex
 
   ['\\pounds', 0x00a3],

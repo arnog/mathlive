@@ -4,6 +4,7 @@ import {
   ParseMode,
   ParserErrorCode,
   MathfieldErrorCode,
+  Registers,
 } from './core';
 import type { Mathfield } from './mathfield';
 import type { Selector } from './commands';
@@ -769,10 +770,10 @@ export type LayoutOptions = {
    */
   defaultMode: 'inline-math' | 'math' | 'text';
   /**
- *A dictionary of LaTeX macros to be used to interpret and render the content.
- *
- *For example, to add a new macro to the default macro dictionary:
- *
+   * A dictionary of LaTeX macros to be used to interpret and render the content.
+   *
+   * For example, to add a new macro to the default macro dictionary:
+   *
 ```javascript
 mf.setConfig({
     macros: {
@@ -781,17 +782,22 @@ mf.setConfig({
     },
 });
 ```
- *
- * Note that `getOption()` is called to keep the existing macros and add to them.
- * Otherwise, all the macros are replaced with the new definition.
- *
- * The code above will support the following notation:
- *
-```tex
-\smallfrac{5}{16}
-```
- */
+   *
+   * Note that `getOption()` is called to keep the existing macros and add to them.
+   * Otherwise, all the macros are replaced with the new definition.
+   *
+   * The code above will support the following notation:
+   *
+    ```tex
+    \smallfrac{5}{16}
+    ```
+   */
   macros: MacroDictionary;
+
+  /**
+   * LaTeX global registers override.
+   */
+  registers: Registers;
 
   /**
    * Map a color name as used in commands such as `\textcolor{}{}` or

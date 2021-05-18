@@ -4,6 +4,7 @@
  * TeX, TeX font metrics, and the TTF files. These data are then exposed via the
  * `metrics` variable and the getCharacterMetrics function.
  */
+import { RegisterValue, Glue, DimensionUnit, Dimension } from '../public/core';
 import CHARACTER_METRICS_MAP from './font-metrics-data';
 
 // This CHARACTER_METRICS_MAP contains a mapping from font name and character
@@ -348,23 +349,55 @@ export function getCharacterMetrics(
   };
 }
 
-/**
- *
- * @param value If value is a string, it may be suffixed
- * with a unit, which will override the `unit` paramter
- */
-export function convertDimenToEm(
-  value: number | string,
-  unit: string,
-  precision = Number.NaN
+export function convertToGlue(value: RegisterValue): Glue {
+  // If it's already a Glue, return it.
+  if (typeof value === 'object' && 'glue' in value) return value;
+
+  if (typeof value === 'object' && 'dimension' in value) {
+    return { glue: value, shrink: 0, grow: 0 };
+  }
+
+  if (typeof value === 'number') return { glue: value, shrink: 0, grow: 0 };
+
+  const m = value.match(/^([-+]?[\d\.]+)\s*([a-zA-Z]+)(.*)/);
+  if (!m) return { glue: 0, shrink: 0, grow: 0 };
+
+  const dim = convertToDimension(m[0]);
+
+  const growMatch = m[3].match(/plus\s([+-]?[\d\.]+\s*[a-zA-Z]*)/);
+  const grow = growMatch ? convertToDimension(growMatch[1]) : 0;
+
+  const shrinkMatch = m[3].match(/minus\s([+-]?[\d\.]+\s*[a-zA-Z]*)/);
+  const shrink = shrinkMatch ? convertToDimension(shrinkMatch[1]) : 0;
+
+  return { glue: dim, grow, shrink };
+}
+
+/**  Return a dimension, in pt. */
+export function convertToDimension(
+  value: RegisterValue,
+  precision?: number
 ): number {
+  let unit: DimensionUnit = 'pt';
+
+  if (typeof value === 'number') return value;
+
+  if (typeof value === 'object' && 'glue' in value) {
+    value = value.glue;
+  }
+
+  if (typeof value === 'object' && 'dimension' in value) {
+    unit = value.unit;
+    value = value.dimension;
+  }
+
   if (typeof value === 'string') {
-    const m = value.match(/([-+]?[\d.]*)\s*([a-zA-Z]+)/);
+    const m = value.match(/([-+]?[\d\.]+)([a-zA-Z]+)/);
     if (!m) {
       value = Number.parseFloat(value);
     } else {
       value = Number.parseFloat(m[1]);
-      unit = m[2].toLowerCase();
+      unit = m[2].toLowerCase() as DimensionUnit;
     }
   }
 
@@ -382,16 +415,23 @@ export function convertDimenToEm(
       pc: 12,
       in: 72.27,
       mu: 10 / 18,
-    }[unit] || 1;
+    }[unit] ?? 1;
 
   if (Number.isFinite(precision)) {
     const factor = 10 ** precision;
     return Math.round((value / PT_PER_EM) * f * factor) / factor;
   }
 
-  return (value / PT_PER_EM) * f;
+  return value * f;
 }
 
-export function convertDimenToPx(value: string | number, unit: string): number {
-  return convertDimenToEm(value, unit) * (4 / 3) * PT_PER_EM;
+export function convertDimensionToEm(
+  value: Dimension | string,
+  precision?: number
+): number {
+  return convertToDimension(value, precision) / PT_PER_EM;
+}
+
+export function convertDimensionToPixel(value: Dimension | string): number {
+  return convertDimensionToEm(value) * (4 / 3) * PT_PER_EM;
 }

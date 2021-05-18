@@ -70,10 +70,24 @@
 * `\weierp`
 * `\Zeta`
 
+- Added support for some additional `amsmath` commands:
+
+* `\varGamma`
+* `\varDelta`
+* `\varTheta`
+* `\varLambda`
+* `\varXi`
+* `\varPi`
+* `\varSigma`
+* `\varUpsilon`
+* `\varPhi`
+* `\varPsi`
+* `\varOmega`
+
 ### Bug Fixes
 
-- **#943** When a tooltip is provided for a custom virtual keyboard was
-  provided, the label was set to "undefined".
+- **#943** When a tooltip for a custom virtual keyboard was provided, the label
+  was set to "undefined".
 - The DVIPS colors are case sensitive (i.e. `LimeGreen` is ok, `Limegreen` is
   not)
 

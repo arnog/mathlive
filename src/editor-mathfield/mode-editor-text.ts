@@ -118,7 +118,7 @@ function convertStringToAtoms(s: string): Atom[] {
   s = s.replace(/~/g, '\\textasciitilde ');
   s = s.replace(/£/g, '\\textsterling ');
 
-  return parseLatex(s, { parseMode: 'text' });
+  return parseLatex(s, { parseMode: 'text', registers: {} });
 }
 
 new TextModeEditor();

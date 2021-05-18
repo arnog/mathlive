@@ -372,7 +372,7 @@ export function defaultColorMap(s: string): string {
     baseGreen = green;
     baseBlue = blue;
 
-    const colorName = colorSpec[i].match(/([a-z\d]*)/)?.[1];
+    const colorName = colorSpec[i].match(/([A-Za-z\d]*)/)?.[1];
     const lcColorName = colorName.toLowerCase();
 
     const color =

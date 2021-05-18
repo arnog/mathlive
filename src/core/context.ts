@@ -1,24 +1,78 @@
-import { FontSize, MacroDictionary, Style } from '../public/core';
+import {
+  FontSize,
+  MacroDictionary,
+  Registers,
+  RegisterValue,
+  Style,
+} from '../public/core';
 import { highlight } from './color';
 
-import { FontMetrics, FONT_SCALE } from './font-metrics';
+import {
+  convertToDimension,
+  convertToGlue,
+  FontMetrics,
+  FONT_SCALE,
+} from './font-metrics';
 import { D, Dc, Mathstyle, MathstyleName, MATHSTYLES } from './mathstyle';
 import { Box } from './box';
 
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf
 
-export type Glue = {
-  value: number;
-  shrink: number;
-  grow: number;
-};
+/**
+ * Registers
+ *
+ * Registers are scoped to the current group.
+ *
+ * - When accessing a register, the scope chain is used to resolve it.
+ * Unless `\global` is used, in which case the global register is returned.
+ *
+ * - When modifying a register, the local one is modified and all the parent
+ * ones, except for the global one are cleared.
+ *
+```tex
+\newcount\R
+global $R = $\the\abc  ~ (default value is 0)
+
+{
+  \par
+  before top $R =$ \the\R ~ ($= 0$ access global)
+  \R=1
+  \par
+  local top $R =$ \the\R ~ ($ = 1$ modifies local register)
+  {
+    \par
+    inner before $R = $ \the\R ~ ($= 1$ access parent register)
+    \abc=2
+    \par
+    inner after $R = $ \the\R ~ ($= 2$ local value)
+    
+    global R $R = $ \the\global\R ~ ($= 0$ global value)
+
+    \global\R=1000
+    
+    $R = $ \the\R  ~ ($=1000 $ sets global and clear all locals)
+    
+  }
+  \par
+  after top $R = $ \the\R ~($= 1000$ local cleared)
+}
+
+\par
+global $R = $\the\R ~($= 1000$)
+```
+ *
+ *
+ */
 
 // From TeXBook p.348
-export const DEFAULT_REGISTERS: Record<string, number | string> = {
-  'p@': 'pt ',
-  'z@': '0',
-  'z@skip': 0,
+// See also https://ctan.math.washington.edu/tex-archive/info/macros2e/macros2e.pdf
+export const DEFAULT_REGISTERS: Registers = {
+  'p@': '1pt ',
+  'z@': 0, // 0pt
+  'z@skip': convertToGlue('0pt plust0pt minus0pt'),
+  'hideskip': convertToGlue('-1000pt plust 1fill'), // LaTeX
+  '@flushglue': convertToGlue('0pt plust 1fill'), // LaTeX
   // 'voidb@x'
 
   'maxdimen': 16383.99999, // In pt.
@@ -58,32 +112,44 @@ export const DEFAULT_REGISTERS: Record<string, number | string> = {
   'maxdepth': 4, // In pt.
   'splitmaxdepth': '\\maxdimen',
   'boxmaxdepth': '\\maxdimen',
-  'delimitershortfall': 5, // In pt.
-  'nulldelimiterspace': 1.2, // In pt.
+  'delimitershortfall': 5, // In pt.        @todo used in makeLeftRightDelim()
+  'nulldelimiterspace': 1.2, // In pt.      @todo use in makeNullDelimiter
   'scriptspace': 0.5, //    // In pt.
-  'parskip': '0pt plus 1pt',
-  'abovedisplayskip': '12pt plus 3pt minus 9pt',
-  'abovedisplayshortskip': '0pt plus 3pt',
-  'belowdisplayskip': '12pt plus 3pt minus 9pt',
-  'belowdisplayshortskip': '7pt plus 3pt minus 4pt',
+  'parskip': convertToGlue('0pt plus 1pt'),
 
-  'topskip': '10pt',
-  'splittopskip': '10pt',
-  'parfillskip': '0pt plus 1fil',
+  // @todo  the "shortskip" are used if the formula starts to the right of the
+  // line before (i.e. centered and short line before)
+  'abovedisplayskip': convertToGlue('12pt plus 3pt minus 9pt'),
+  'abovedisplayshortskip': convertToGlue('0pt plus 3pt'),
+  'belowdisplayskip': convertToGlue('12pt plus 3pt minus 9pt'),
+  'belowdisplayshortskip': convertToGlue('7pt plus 3pt minus 4pt'),
 
-  'thinmuskip': '3mu',
-  'medmuskip': '4mu plus 2mu minus 4mu',
-  'thickmuskip': '5mu plus 5mu',
+  'topskip': convertToDimension('10pt'),
+  'splittopskip': convertToDimension('10pt'),
+  'parfillskip': convertToGlue('0pt plus 1fil'),
 
-  'smallskipamount': '3pt plus1pt minus1pt',
-  'medskipamount': '6pt plus2pt minus2pt',
-  'bigskipamount': '12pt plus4pt minus4pt',
-  'normalbaselineskip': '12pt',
-  'normallineskip': '1pt',
-  'normallineskiplimit': '0pt',
+  'thinmuskip': convertToGlue('3mu'), //  @todo for inter atom spacing
+  'medmuskip': convertToGlue('4mu plus 2mu minus 4mu'), // @todo for inter atom spacing
+  'thickmuskip': convertToGlue('5mu plus 5mu'), //  @todo for inter atom spacing
+
+  'smallskipamount': convertToGlue('3pt plus1pt minus1pt'),
+  'medskipamount': convertToGlue('6pt plus2pt minus2pt'),
+  'bigskipamount': convertToGlue('12pt plus4pt minus4pt'),
+  'normalbaselineskip': convertToDimension('12pt'),
+  'normallineskip': convertToDimension('1pt'),
+  'normallineskiplimit': convertToDimension('0pt'),
+  // @todo: The vertical space between thelines for all math expressions which
+  // allow multiple lines (see array, multline)
   'jot': '3pt',
   'interdisplaylinepenalty': '100',
   'interfootnotelinepenalty': '100',
+
+  // @todo:
+  'arraystretch': '',
+
+  'month': new Date().getMonth() + 1,
+  'day': new Date().getDate(),
+  'year': new Date().getFullYear(),
 };
 
 export interface ContextInterface {
@@ -164,7 +230,7 @@ export class Context implements ContextInterface {
 
   readonly _size?: FontSize;
   private _mathstyle?: Mathstyle;
-  private _registers?: Record<string, string | number | Glue>;
+  private _registers?: Registers;
 
   parent?: Context;
 
@@ -286,23 +352,23 @@ export class Context implements ContextInterface {
     return result;
   }
 
-  getRegister(name: string): undefined | string | number | Glue {
+  getRegister(name: string): RegisterValue {
     if (this._registers?.[name]) return this._registers[name];
     if (this.parent) return this.parent.getRegister(name);
     return undefined;
   }
 
-  setRegister(name: string, value: undefined | string | number | Glue): void {
+  setRegister(name: string, value: RegisterValue | undefined): void {
     this._registers[name] = value;
   }
 
-  setGlobalRegister(
-    name: string,
-    value: undefined | string | number | Glue
-  ): void {
+  setGlobalRegister(name: string, value: RegisterValue): void {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let root: Context = this;
-    while (root.parent) root = root.parent;
+    while (root.parent) {
+      root.setRegister(name, undefined);
+      root = root.parent;
+    }
     root.setRegister(name, value);
   }
 

@@ -2,7 +2,7 @@
 import '../core/atom';
 import { MACROS, MacroDictionary } from '../core-definitions/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
-import { ErrorListener, ParserErrorCode } from '../public/core';
+import { ErrorListener, ParserErrorCode, Registers } from '../public/core';
 import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
 // @ts-ignore-error
@@ -19,6 +19,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: 'displaystyle' | 'textstyle';
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
       macros?: MacroDictionary;
+      registers?: Registers;
       onError?: ErrorListener<ParserErrorCode>;
       format?: string;
     }
@@ -34,6 +35,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: string;
       format?: string;
       macros?: MacroDictionary;
+      registers?: Registers;
     }
   ) => string;
 
@@ -45,6 +47,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: string;
       format?: string;
       macros?: MacroDictionary;
+      registers?: Registers;
     }
   ) => string;
   ignoreClassPattern?: RegExp;

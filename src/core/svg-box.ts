@@ -402,12 +402,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
  */
 export function svgBodyToMarkup(svgBodyName: string): string {
   if (SVG_ACCENTS[svgBodyName]) {
-    const height = SVG_ACCENTS[svgBodyName][2];
+    const [vbWidth, vbHeight, height] = SVG_ACCENTS[svgBodyName];
     const result =
       `<span class="stretchy" style="height:${height}em">` +
-      `<svg width="100%" height="${height}em"` +
-      `viewBox="0 0 ${SVG_ACCENTS[svgBodyName][0]} ${SVG_ACCENTS[svgBodyName][1]}"` +
-      `preserveAspectRatio="none">` +
+      `<svg width="100%" height="${height}em" ` +
+      `viewBox="0 0 ${vbWidth} ${vbHeight}" ` +
+      `preserveAspectRatio="none" >` +
       `<path d="${PATHS[svgBodyName]}"></path>` +
       `</svg></span>`;
     return `<span style="height:${height}em;min-width:0">${result}</span>`;

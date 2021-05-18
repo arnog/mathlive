@@ -10,6 +10,7 @@ import type {
   ParserErrorCode,
   MathfieldErrorCode,
   MacroDictionary,
+  Registers,
 } from './public/core';
 
 import { Atom } from './core/atom-class';
@@ -70,6 +71,7 @@ export function convertLatexToMarkup(
     mathstyle?: 'displaystyle' | 'textstyle';
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
     macros?: MacroDictionary;
+    registers?: Registers;
     colorMap?: (name: string) => string;
     backgroundColorMap?: (name: string) => string;
     onError?: ErrorListener<ParserErrorCode>;
@@ -95,6 +97,8 @@ export function convertLatexToMarkup(
   root.body = parseLatex(text, {
     parseMode: 'math',
     macros: options.macros,
+    registers: options.registers,
+    mathstyle: options.mathstyle,
     onError: options.onError,
     colorMap: options.colorMap,
     backgroundColorMap: options.backgroundColorMap,
@@ -147,6 +151,7 @@ export function convertLatexToMathMl(
   latex: string,
   options: Partial<{
     macros: MacroDictionary;
+    registers?: Registers;
     colorMap?: (name: string) => string;
     backgroundColorMap?: (name: string) => string;
     onError: ErrorListener<ParserErrorCode>;
@@ -163,6 +168,8 @@ export function convertLatexToMathMl(
       parseMode: 'math',
       args: () => '',
       macros: options.macros,
+      registers: options.registers,
+      mathstyle: 'displaystyle',
       onError: options.onError,
       colorMap: options.colorMap,
       backgroundColorMap: options.backgroundColorMap,
@@ -221,6 +228,7 @@ export function convertLatexToSpeakableText(
   options: Partial<
     TextToSpeechOptions & {
       macros?: MacroDictionary;
+      registers?: Registers;
       colorMap?: (name: string) => string;
       backgroundColorMap?: (name: string) => string;
       onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
@@ -233,6 +241,8 @@ export function convertLatexToSpeakableText(
   const atoms = parseLatex(latex, {
     parseMode: 'math',
     macros: options.macros,
+    registers: options.registers,
+    mathstyle: 'displaystyle',
     onError: options.onError,
     colorMap: options.colorMap,
     backgroundColorMap: options.backgroundColorMap,

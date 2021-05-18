@@ -743,6 +743,7 @@ export function makeLeftRightDelim(
   const axisHeight = AXIS_HEIGHT * context.scalingFactor;
   // Taken from TeX source, tex.web, function make_left_right
   const delimiterFactor = 901; // Plain.tex:327, texboox:152
+  // @todo: use register `\delimitershortfall`
   const delimiterExtend = 5 / PT_PER_EM; // Plain.tex:345, texboox:152
 
   const maxDistFromAxis = Math.max(height - axisHeight, depth + axisHeight);

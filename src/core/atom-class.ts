@@ -1,10 +1,10 @@
-import type { Style, ParseMode, FontSize } from '../public/core';
+import type { Style, ParseMode, FontSize, Glue } from '../public/core';
 
 import { isArray } from '../common/types';
 
-import { Context, Glue, PrivateStyle } from './context';
+import { Context, PrivateStyle } from './context';
 
-import { PT_PER_EM, X_HEIGHT } from './font-metrics';
+import { convertDimensionToEm, PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { BoxType, isBoxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
@@ -278,7 +278,7 @@ export class Atom {
   // Kern to the right of this atom
   get kern(): number {
     if (this.glue) {
-      return this.glue.value;
+      return convertDimensionToEm(this.glue.glue);
     }
     return 0;
   }
