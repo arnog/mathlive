@@ -19,7 +19,7 @@ function error(expression: string) {
 }
 
 describe('MODE SHIFT', () => {
-  test.each(['\\text{\\ensuremath \\frac34}'])(
+  test.each(['\\text{\\ensuremath{\\frac34}}'])(
     '%#/ %s renders correctly',
     (a) => {
       expect(markupAndError(a)).toMatchSnapshot();
@@ -339,19 +339,62 @@ describe('COLORS', function () {
     'a+\\colorbox{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a}',
     'a{b\\color{#f00} c}d',
     'a\\left(b\\color{#f00} c\\right)d',
-    '{\\color{apricot}\\blacksquare}{\\color{aquamarine}\\blacksquare}{\\color{bittersweet}\\blacksquare}{\\color{black}\\blacksquare}{\\color{blue}\\blacksquare}{\\color{blueGreen}\\blacksquare}{\\color{blueviolet}\\blacksquare}{\\color{brickred}\\blacksquare}{\\color{brown}\\blacksquare}{\\color{burntorange}\\blacksquare}{\\color{cadetblue}\\blacksquare}{\\color{carnationpink}\\blacksquare}{\\color{cerulean}\\blacksquare}{\\color{cornflowerblue}\\blacksquare}{\\color{cyan}\\blacksquare}{\\color{dandelion}\\blacksquare}{\\color{darkorchid}\\blacksquare}{\\color{emerald}\\blacksquare}{\\color{forestgreen}\\blacksquare}{\\color{fuchsia}\\blacksquare}{\\color{goldenrod}\\blacksquare}{\\color{gray}\\blacksquare}{\\color{green}\\blacksquare}{\\color{greenyellow}\\blacksquare}{\\color{junglegreen}\\blacksquare}{\\color{lavender}\\blacksquare}{\\color{limegreen}\\blacksquare}{\\color{magenta}\\blacksquare}{\\color{mahogany}\\blacksquare}{\\color{maroon}\\blacksquare}{\\color{melon}\\blacksquare}{\\color{midnightblue}\\blacksquare}{\\color{mulberry}\\blacksquare}{\\color{navyblue}\\blacksquare}{\\color{olivegreen}\\blacksquare}{\\color{orange}\\blacksquare}{\\color{orangered}\\blacksquare}{\\color{orchid}\\blacksquare}{\\color{peach}\\blacksquare}{\\color{periwinkle}\\blacksquare}{\\color{pinegreen}\\blacksquare}{\\color{plum}\\blacksquare}{\\color{processblue}\\blacksquare}{\\color{purple}\\blacksquare}{\\color{rawsienna}\\blacksquare}{\\color{red}\\blacksquare}{\\color{redorange}\\blacksquare}{\\color{redviolet}\\blacksquare}{\\color{rhodamine}\\blacksquare}{\\color{royalblue}\\blacksquare}{\\color{royalpurple}\\blacksquare}{\\color{rubinered}\\blacksquare}{\\color{salmon}\\blacksquare}{\\color{seagreen}\\blacksquare}{\\color{sepia}\\blacksquare}{\\color{skyblue}\\blacksquare}{\\color{springgreen}\\blacksquare}{\\color{tan}\\blacksquare}{\\color{tealblue}\\blacksquare}{\\color{thistle}\\blacksquare}{\\color{turquoise}\\blacksquare}{\\color{violet}\\blacksquare}{\\color{violetred}\\blacksquare}{\\color{white}\\blacksquare}{\\color{wildstrawberry}\\blacksquare}{\\color{yellow}\\blacksquare}{\\color{yellowgreen}\\blacksquare}{\\color{yelloworange}\\blacksquare}',
+    `{\\color{Apricot}\\blacksquare}{\\color{Aquamarine}\\blacksquare}
+    {\\color{Bittersweet}\\blacksquare}{\\color{Black}\\blacksquare}
+    {\\color{Blue}\\blacksquare}{\\color{BlueGreen}\\blacksquare}
+    {\\color{BlueViolet}\\blacksquare}{\\color{BrickRed}\\blacksquare}
+  
+    {\\color{Brown}\\blacksquare}{\\color{BurntOrange}\\blacksquare}
+    {\\color{CadetBlue}\\blacksquare}{\\color{CarnationPink}\\blacksquare}
+    {\\color{Cerulean}\\blacksquare}{\\color{CornflowerBlue}\\blacksquare}
+    {\\color{Cyan}\\blacksquare}{\\color{Dandelion}\\blacksquare}
+  
+  
+    {\\color{DarkOrchid}\\blacksquare}{\\color{Emerald}\\blacksquare}
+    {\\color{ForestGreen}\\blacksquare}{\\color{Fuchsia}\\blacksquare}
+    {\\color{Goldenrod}\\blacksquare}{\\color{Gray}\\blacksquare}
+    {\\color{Green}\\blacksquare}{\\color{GreenYellow}\\blacksquare}
+  
+    {\\color{JungleGreen}\\blacksquare}{\\color{Lavender}\\blacksquare}
+    {\\color{LimeGreen}\\blacksquare}{\\color{Magenta}\\blacksquare}
+    {\\color{Mahogany}\\blacksquare}{\\color{Maroon}\\blacksquare}
+    {\\color{Melon}\\blacksquare}{\\color{MidnightBlue}\\blacksquare}
+  
+    {\\color{Mulberry}\\blacksquare}{\\color{NavyBlue}\\blacksquare}
+    {\\color{OliveGreen}\\blacksquare}{\\color{Orange}\\blacksquare}
+    {\\color{OrangeRed}\\blacksquare}{\\color{Orchid}\\blacksquare}
+    {\\color{Peach}\\blacksquare}{\\color{Periwinkle}\\blacksquare}
+  
+    {\\color{PineGreen}\\blacksquare}{\\color{Plum}\\blacksquare}
+    {\\color{ProcessBlue}\\blacksquare}{\\color{Purple}\\blacksquare}
+    {\\color{RawSienna}\\blacksquare}{\\color{Red}\\blacksquare}
+    {\\color{RedOrange}\\blacksquare}{\\color{RedViolet}\\blacksquare}
+  
+    {\\color{Rhodamine}\\blacksquare}{\\color{RoyalBlue}\\blacksquare}
+    {\\color{RoyalPurple}\\blacksquare}{\\color{RubineRed}\\blacksquare}
+    {\\color{Salmon}\\blacksquare}{\\color{SeaGreen}\\blacksquare}
+    {\\color{Sepia}\\blacksquare}{\\color{SkyBlue}\\blacksquare}
+  
+    {\\color{SpringGreen}\\blacksquare}{\\color{Tan}\\blacksquare}
+    {\\color{TealBlue}\\blacksquare}{\\color{Thistle}\\blacksquare}
+    {\\color{Turquoise}\\blacksquare}{\\color{Violet}\\blacksquare}
+    {\\color{VioletRed}\\blacksquare}{\\color{White}\\blacksquare}
+  
+    {\\color{WildStrawberry}\\blacksquare}{\\color{Yellow}\\blacksquare}
+    {\\color{YellowGreen}\\blacksquare}{\\color{YellowOrange}\\blacksquare}
+`,
   ])('%#/ %s renders correctly', (x) => {
     expect(markupAndError(x)).toMatchSnapshot();
   });
 
   test.each([
-    'aquamarine',
+    'aquamarine', // Not a valid color name (lowercase)
     'rgb(240, 10, 200)',
     '#33d',
     '#3130da',
     'white',
-    'AquaMarine',
-    'M5',
+    'Aquamarine',
+    'm5',
     '#fff',
     '#ffffff',
     '#fCFcfC',
