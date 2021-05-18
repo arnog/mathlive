@@ -94,6 +94,8 @@
   not)
 - `renderMathInDocument()` now creates a `<div>` when using Display Style, and a
   `<span>` when using Text Style (inline math).
+- **#945** Preserve more aggresively verbatim Latex. Also, avoid serializing
+  superfluous spaces in Spacing atoms.
 
 ## 0.65.0 (2021-05-14)
 

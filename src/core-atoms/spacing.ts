@@ -41,15 +41,14 @@ export class SpacingAtom extends Atom {
     // \quad, etc... which take no parameters.
     let result = this.command;
     if (this.command === '\\hspace' || this.command === '\\hspace*') {
-      result += '{';
-      result += Number.isFinite(this.width)
-        ? Number(this.width).toString() + 'em'
-        : '0em';
-      result += '}';
-    } else {
-      result += ' ';
       if (Number.isFinite(this.width)) {
-        result += Number(this.width).toString() + 'em ';
+        result += `{${this.width}em'}`;
+      } else {
+        result += `{0pt}`;
+      }
+    } else {
+      if (Number.isFinite(this.width)) {
+        result += ` ${this.width}em`;
       }
     }
 

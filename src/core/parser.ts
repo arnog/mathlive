@@ -1616,12 +1616,9 @@ export class Parser {
       result instanceof Atom &&
       !/^\\(llap|rlap|class|cssId|htmlData)$/.test(command)
     ) {
-      const argString = tokensToString(
-        this.tokens.slice(initialIndex, this.index)
-      );
-      if (argString && result.command) {
-        result.verbatimLatex = result.command + argString;
-      }
+      result.verbatimLatex =
+        result.command +
+        tokensToString(this.tokens.slice(initialIndex, this.index));
 
       if (result.isFunction && this.smartFence) {
         // The command was a function that may be followed by
