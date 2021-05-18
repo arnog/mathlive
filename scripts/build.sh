@@ -5,6 +5,13 @@ set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 # set -x    # for debuging, trace what is being executed.
 
+export RESET="\033[0m"
+export DOT="\033[32m\033[1K ● \033[0m"
+export CHECK="\033[32m\033[1K ✔ \033[0m"
+export ERROR="\033[31m ❌ ERROR \033[0m"
+export EMPH="\033[33m"
+export LINECLEAR="\033[1G\033[2K" # position to column 1; erase whole line
+
 # Note on the `sed` command:
 # On Linux, the -i switch can be used without an extension argument
 # On macOS, the -i switch must be followed by an extension argument (which can be empty)
@@ -17,7 +24,7 @@ export -f sedi
 cd "$(dirname "$0")/.."
 
 if [ "$#" -gt 1 ]; then
-    echo -e "\033[40m`basename "$0"`\033[0m\033[31m ERROR \033[0m Expected at most one argument: 'development' (default), 'watch' or 'production'"
+    echo -e "\033[40m`basename "$0"`${RESET}${ERROR} Expected at most one argument: 'development' (default), 'watch' or 'production'"
     exit 1
 fi
 
@@ -26,9 +33,9 @@ npx check-node-version --package
 
 # If no "node_modules" directory, do an install first
 if [ ! -d "./node_modules" ]; then
-    printf "\033[32m\033[1K ● \033[0Installing dependencies"
+    printf "${DOT}Installing dependencies"
     npm install
-    echo -e "\033[32m\033[1K ✔ \033[0m Dependencies installed"
+    echo -e "${LINECLEAR}${CHECK} Dependencies installed"
 fi
 
 # Read the first argument, set it to "development" if not set
@@ -44,7 +51,7 @@ export SDK_VERSION=$(cat package.json \
 | tr -d '[[:space:]]')
 
 # Clean output directories
-printf "\033[32m ● \033[0m Cleaning output directories"
+printf "${DOT} Cleaning output directories"
 rm -rf ./dist
 rm -rf ./declarations
 rm -rf ./build
@@ -52,7 +59,7 @@ rm -rf ./coverage
 
 mkdir -p dist
 mkdir -p declarations
-echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Output directories cleaned out"
+echo -e "${LINECLEAR}${CHECK} Output directories cleaned out"
 
 if [ "$BUILD" != "production" ]; then
     # Write sentinel file. It will be checked in the pre-push.sh script
@@ -63,49 +70,49 @@ fi
 # Bundle declaration files (.d.ts)
 # Even though we only generate declaration file, the target must be set high-enough
 # to prevent tsc from complaining (!)
-printf "\033[32m ● \033[0m Building declaration files (.d.ts)"
+printf "${DOT} Building declaration files (.d.ts)"
 npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
 mv ./declarations/public ./dist
 # mv ./declarations/math-json/ ./dist
 rm -rf ./declarations
-echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Declaration files built"
+echo -e "${LINECLEAR}{$CHECK} Declaration files built"
 
-# Copy fonts
-printf "\033[32m ● \033[0m Copying static assets (fonts, sounds)"
+# Copy static assets
+printf "${DOT} Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
 cp -f -R sounds dist/
-echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static assets copied"
+echo -e "${LINECLEAR}${CHECK} Static assets copied"
 
 # Build CSS
-printf "\033[32m ● \033[0m Building static CSS"
+printf "${DOT} Building static CSS"
 npx lessc css/mathlive-static.less dist/mathlive-static.css
 npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
-echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Static CSS built"
+echo -e "${LINECLEAR}${CHECK} Static CSS built"
 
 if [ "$BUILD" = "watch" ]; then
     # Do dev build and watch
-    printf "\033[32m ● \033[0m Making a \033[33mdevelopment\033[0m build"
+    printf "${DOT} Making a ${EMPH}watch${RESET} build"
     npx rollup --silent --config --watch
-    echo -e "\033[2K\033[80D\033[32m ✔ \033[33mdevelopment\033[0m build done"
+    echo -e "${LINECLEAR}${CHECK} ${EMPH}watch${RESET} build done"
 else
     # Do build (development or production)
-    printf "\033[32m ● \033[0m Making a \033[33m%s\033[0m build" "$BUILD"
+    printf "${DOT} Making a ${EMPH}{$BUILD}${RESET} build"
     npx rollup --silent --config 
-    echo -e "\033[2K\033[80D\033[32m ✔ \033[33m" $BUILD "\033[0m build done"
+    echo -e "${LINECLEAR}${CHECK} ${EMPH}${BUILD}${RESET} build done"
 
     if [ "$BUILD" = "production" ]; then
         # Optimize CSS
-        printf "\033[32m ● \033[0m Optimizing CSS"
+        printf "${DOT} Optimizing CSS"
         npx postcss dist/*.css -d dist
-        echo -e "\033[2K\033[80D\033[32m ✔ \033[0m CSS Optimized"
+        echo -e "${LINECLEAR}${CHECK} CSS Optimized"
 
         # Stamp the SDK version number
-        printf "\033[32m ● \033[0m Stamping output files"
+        printf "${DOT} Stamping output files"
         find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
         find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
         find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
         find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
-        echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Output files stamped"
+        echo -e "${LINECLEAR}${CHECK} Output files stamped"
     fi
 fi
 
