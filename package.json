@@ -4,8 +4,8 @@
   "description": "Render and edit beautifully typeset math",
   "license": "MIT",
   "funding": {
-    "type": "patreon",
-    "url": "https://patreon.com/arnog"
+    "type": "individual",
+    "url": "paypal.me/arnogourdol"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,8 @@
     "start": "bash ./scripts/build.sh watch",
     "test": "bash ./scripts/test.sh",
     "version": "bash ./scripts/version.sh",
-    "postversion": "bash ./scripts/github-release.sh"
+    "postversion": "bash ./scripts/github-release.sh",
+    "postinstall": "git config core.hooksPath ./git-hooks"
   },
   "main": "./dist/mathlive.js",
   "module": "./dist/mathlive.mjs",
@@ -43,23 +44,6 @@
     "tabWidth": 2,
     "trailingComma": "es5",
     "useTabs": false
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && bash ./scripts/pre-commit.sh",
-      "pre-push": "npm test"
-    }
-  },
-  "lint-staged": {
-    "/src/**/*.ts": [
-      "eslint --fix"
-    ],
-    "/src/**/*.{ts,css,json,less}": [
-      "prettier --write"
-    ],
-    "/*.md": [
-      "prettier --write"
-    ]
   },
   "engines": {
     "npm": ">=6.14.8",
@@ -107,11 +91,9 @@
     "eslint-plugin-no-unsanitized": "^3.1.5",
     "eslint-plugin-prettier": "^3.4.0",
     "http-server": "^0.12.3",
-    "husky": "^4.3.8",
     "jest": "^26.6.3",
     "jest-silent-reporter": "^0.5.0",
     "less": "^4.1.1",
-    "lint-staged": "^11.0.0",
     "postcss": "^8.2.15",
     "postcss-cli": "^8.3.1",
     "prettier": "2.3.0",
