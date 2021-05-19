@@ -366,7 +366,7 @@ yellowgreen	rgb(154, 205, 50)
  * @param s - An expression representing a color value
  * @return An RGB color expressed as a hex-triplet preceded by `#`
  */
-export function defaultColorMap(s: string): string {
+export function defaultColorMap(s: string): string | null {
   const colorSpec = s.split('!');
 
   let baseRed: number;
@@ -386,8 +386,8 @@ export function defaultColorMap(s: string): string {
     baseGreen = green;
     baseBlue = blue;
 
-    const colorName = colorSpec[i].match(/([A-Za-z\d]*)/)?.[1];
-    const lcColorName = colorName.toLowerCase();
+    const colorName = colorSpec[i].trim().match(/^([A-Za-z\d]+)/)?.[1];
+    const lcColorName = colorName?.toLowerCase();
 
     const color =
       FOREGROUND_COLORS[lcColorName] ??
@@ -395,7 +395,7 @@ export function defaultColorMap(s: string): string {
       MATLAB_COLORS[colorName] ??
       DVIPS_COLORS[colorName] ??
       MATHEMATICA_COLORS[colorName] ??
-      colorSpec[i];
+      colorSpec[i].trim();
 
     let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
     if (m?.[1] && m[2] && m[3]) {
@@ -458,7 +458,8 @@ export function defaultColorMap(s: string): string {
   );
 }
 
-export function defaultBackgroundColorMap(s: string): string {
+export function defaultBackgroundColorMap(s: string): string | null {
+  s = s.trim();
   return (
     BACKGROUND_COLORS[s.toLowerCase()] ??
     BACKGROUND_COLORS[DVIPS_TO_CHROMATIC[s]] ??
