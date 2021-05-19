@@ -1,9 +1,19 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- Deprecated `horizontalSpacingScale` option. It will be replaced in a future
+  version by the TeX registers `\thinmuskip`, `\medmuskip` and `\thickmuskip`.
+
 ### New Features
 
 - **#946** Support addding a custom stylesheet to a `<math-field>` when using
   the `\class` command.
+- The mathfield options which are reflected as attributes (e.g.
+  `virtual-keyboard-mode`) are now reflected as a property on the element
+  `mf.virtualKeyboardMode` as a shortcut to
+  `mf.setOptions({virtualKeyboardMode:...}`. This also allows to set these
+  properties before the component is connected to the document.
 - Added the following attributes to `<math-field>`: `plonk-sound`,
   `keypress-sound`. Setting them to 'none' turn off these sounds.
 - Added support for definition of macro packages (see `MacroPackageDefinition`)
@@ -105,6 +115,8 @@
   superfluous spaces in Spacing atoms.
 - **#770** Correctly handle attaching limits to `\int` command using the
   keyboard.
+- Return the correct `value` for the mathfield element when it is not attached
+  yet, even if the format is not specified.
 
 ## 0.65.0 (2021-05-14)
 
