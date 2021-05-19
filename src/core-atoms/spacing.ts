@@ -1,12 +1,13 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { Style } from '../public/core';
+import { convertGlueToEm } from '../core/registers-utils';
+import { Glue, Style } from '../public/core';
 
 export class SpacingAtom extends Atom {
-  private readonly width: number;
+  private readonly width: Glue;
 
-  constructor(command: string, style: Style, width?: number) {
+  constructor(command: string, style: Style, width?: Glue) {
     super('spacing', { command, style });
     this.width = width;
   }
@@ -15,7 +16,7 @@ export class SpacingAtom extends Atom {
     let result: Box;
     if (Number.isFinite(this.width)) {
       result = new Box(null, { classes: 'mspace' });
-      result.left = this.width;
+      result.left = convertGlueToEm(this.width);
     } else {
       const spacingCls: string =
         {

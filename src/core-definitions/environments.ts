@@ -4,6 +4,7 @@ import {
 } from './definitions-utils';
 import type { Atom } from '../core/atom-class';
 import { ArrayAtom, ColumnFormat } from '../core-atoms/array';
+import { Dimension } from '../public/core';
 
 /*
 
@@ -152,21 +153,21 @@ in a parenthesis
 defineEnvironment(
   'math',
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
     new ArrayAtom(name, array, rowGaps, { mathstyleName: 'textstyle' })
 );
 
 defineEnvironment(
   'displaymath',
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
     new ArrayAtom(name, array, rowGaps, { mathstyleName: 'textstyle' })
 );
 
 defineTabularEnvironment(
   'array',
   '{columns:colspec}',
-  (name: string, array: Atom[][][], rowGaps: number[], args): Atom =>
+  (name: string, array: Atom[][][], rowGaps: Dimension[], args): Atom =>
     new ArrayAtom(name, array, rowGaps, {
       columns: args[0] as ColumnFormat[],
       mathstyleName: 'textstyle',
@@ -176,7 +177,7 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['equation', 'equation*', 'subequations'],
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
     new ArrayAtom(name, array, rowGaps, {
       columns: [{ align: 'c' }],
     })
@@ -186,7 +187,7 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   'multline',
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
     new ArrayAtom(name, array, rowGaps, {
       columns: [{ align: 'm' }],
     })
@@ -203,7 +204,7 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['align', 'align*', 'aligned', 'eqnarray'],
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom => {
     let colCount = 0;
     for (const row of array) {
       colCount = Math.max(colCount, row.length);
@@ -250,7 +251,7 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   'split',
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
     new ArrayAtom(name, array, rowGaps, {
       columns: [{ align: 'r' }, { align: 'l' }],
     })
@@ -259,7 +260,7 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['gather', 'gathered'],
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
     // An AMS-Math environment
     // %    The \env{gathered} environment is for several lines that are
     // %    centered independently.
@@ -303,7 +304,7 @@ defineTabularEnvironment(
     'Vmatrix*',
   ],
   '[columns:colspec]',
-  (name: string, array: Atom[][][], rowGaps: number[], args): Atom => {
+  (name: string, array: Atom[][][], rowGaps: Dimension[], args): Atom => {
     // From amstex.sty:
     // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
     // \def\endmatrix{\endarray \hskip -\arraycolsep}
@@ -373,7 +374,7 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['smallmatrix', 'smallmatrix*'],
   '[columns:colspec]',
-  (name: string, array: Atom[][][], rowGaps: number[], args): Atom => {
+  (name: string, array: Atom[][][], rowGaps: Dimension[], args): Atom => {
     return new ArrayAtom(name, array, rowGaps, {
       mathstyleName: 'scriptstyle',
       columns: (args[0] as ColumnFormat[]) ?? [
@@ -399,7 +400,7 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['cases', 'dcases'],
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom => {
     // From amstex.sty:
     // \def\cases{\left\{\def\arraystretch{1.2}\hskip-\arraycolsep
     //   \array{l@{\quad}l}}
@@ -424,7 +425,7 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   'rcases',
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom => {
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom => {
     return new ArrayAtom(name, array, rowGaps, {
       arraystretch: 1.2,
       leftDelim: '.',
@@ -448,6 +449,6 @@ is a continuous function.
 defineEnvironment(
   'center',
   '',
-  (name: string, array: Atom[][][], rowGaps: number[]): Atom =>
+  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
     new ArrayAtom(name, array, rowGaps, { columns: [{ align: 'c' }] })
 );

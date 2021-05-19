@@ -163,6 +163,8 @@ export interface MathfieldElementAttributes {
    * the formula. A value greater than 1.0 can be used to improve the
    * legibility.
    *
+   * @deprecated Use registers `\thinmuskip`, `\medmuskip` and `\thickmuskip`
+   *
    */
   'horizontal-spacing-scale': string;
   /**
@@ -537,7 +539,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'inline-shortcut-timeout': 'string',
       'keypress-vibration': 'boolean',
       'keypress-sound': 'string',
-      'plonk-vibration': 'string',
+      'plonk-sound': 'string',
       'letter-shape-style': 'string',
       'locale': 'string',
       'read-only': 'boolean',
@@ -792,7 +794,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         format = arg1 as OutputFormat;
       }
 
-      if (format === 'latex' && start === 0 && end === -1) {
+      if (
+        (format === undefined || format === 'latex') &&
+        start === 0 &&
+        end === -1
+      ) {
         return gDeferredState.get(this).value;
       }
     }
@@ -1134,6 +1140,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     );
 
     this.upgradeProperty('disabled');
+    for (const prop of Object.keys(MathfieldElement.optionsAttributes)) {
+      this.upgradeProperty(toCamelCase(prop));
+    }
 
     // The mathfield creation could have failed
     if (!this._mathfield || !this._mathfield.model) {
@@ -1276,6 +1285,187 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   set value(value: string) {
     this.setValue(value);
+  }
+
+  get defaultMode(): 'inline-math' | 'math' | 'text' {
+    return this.getOption('defaultMode');
+  }
+  set defaultMode(value: 'inline-math' | 'math' | 'text') {
+    this.setOptions({ defaultMode: value });
+  }
+  get fontsDirectory(): string {
+    return this.getOption('fontsDirectory');
+  }
+  set fontsDirectory(value: string) {
+    this.setOptions({ fontsDirectory: value });
+  }
+  get mathModeSpace(): string {
+    return this.getOption('fontsDirectory');
+  }
+  set mathModeSpace(value: string) {
+    this.setOptions({ mathModeSpace: value });
+  }
+  get inlineShortcutTimeout(): number {
+    return this.getOption('inlineShortcutTimeout');
+  }
+  set inlineShortcutTimeout(value: number) {
+    this.setOptions({ inlineShortcutTimeout: value });
+  }
+  get keypressVibration(): boolean {
+    return this.getOption('keypressVibration');
+  }
+  set keypressVibration(value: boolean) {
+    this.setOptions({ keypressVibration: value });
+  }
+  get keypressSound():
+    | string
+    | HTMLAudioElement
+    | null
+    | {
+        spacebar?: string | HTMLAudioElement;
+        return?: string | HTMLAudioElement;
+        delete?: string | HTMLAudioElement;
+        default: string | HTMLAudioElement;
+      } {
+    return this.getOption('keypressSound');
+  }
+  set keypressSound(
+    value:
+      | string
+      | HTMLAudioElement
+      | null
+      | {
+          spacebar?: string | HTMLAudioElement;
+          return?: string | HTMLAudioElement;
+          delete?: string | HTMLAudioElement;
+          default: string | HTMLAudioElement;
+        }
+  ) {
+    this.setOptions({ keypressSound: value });
+  }
+  get plonkSound(): string | HTMLAudioElement | null {
+    return this.getOption('plonkSound');
+  }
+  set plonkSound(value: string | HTMLAudioElement) {
+    this.setOptions({ plonkSound: value });
+  }
+  get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
+    return this.getOption('letterShapeStyle');
+  }
+  set letterShapeStyle(value: 'auto' | 'tex' | 'iso' | 'french' | 'upright') {
+    this.setOptions({ letterShapeStyle: value });
+  }
+  get locale(): string {
+    return this.getOption('locale');
+  }
+  set locale(value: string) {
+    this.setOptions({ locale: value });
+  }
+  get readOnly(): boolean {
+    return this.getOption('readOnly');
+  }
+  set readOnly(value: boolean) {
+    this.setOptions({ readOnly: value });
+  }
+  get removeExtraneousParentheses(): boolean {
+    return this.getOption('removeExtraneousParentheses');
+  }
+  set removeExtraneousParentheses(value: boolean) {
+    this.setOptions({ removeExtraneousParentheses: value });
+  }
+  get smartFence(): boolean {
+    return this.getOption('smartFence');
+  }
+  set smartFence(value: boolean) {
+    this.setOptions({ smartFence: value });
+  }
+  get smartMode(): boolean {
+    return this.getOption('smartMode');
+  }
+  set smartMode(value: boolean) {
+    this.setOptions({ smartMode: value });
+  }
+  get smartSuperscript(): boolean {
+    return this.getOption('smartSuperscript');
+  }
+  set smartSuperscript(value: boolean) {
+    this.setOptions({ smartSuperscript: value });
+  }
+
+  get speechEngine(): 'local' | 'amazon' {
+    return this.getOption('speechEngine');
+  }
+  set speechEngine(value: 'local' | 'amazon') {
+    this.setOptions({ speechEngine: value });
+  }
+  get speechEngineRate(): string {
+    return this.getOption('speechEngineRate');
+  }
+  set speechEngineRate(value: string) {
+    this.setOptions({ speechEngineRate: value });
+  }
+  get speechEngineVoice(): string {
+    return this.getOption('speechEngineVoice');
+  }
+  set speechEngineVoice(value: string) {
+    this.setOptions({ speechEngineVoice: value });
+  }
+  get textToSpeechMarkup(): '' | 'ssml' | 'ssml_step' | 'mac' {
+    return this.getOption('textToSpeechMarkup');
+  }
+  set textToSpeechMarkup(value: '' | 'ssml' | 'ssml_step' | 'mac') {
+    this.setOptions({ textToSpeechMarkup: value });
+  }
+  get textToSpeechRules(): 'mathlive' | 'sre' {
+    return this.getOption('textToSpeechRules');
+  }
+  set textToSpeechRule(value: 'mathlive' | 'sre') {
+    this.setOptions({ textToSpeechRules: value });
+  }
+
+  get virtualKeyboardLayout():
+    | 'auto'
+    | 'qwerty'
+    | 'azerty'
+    | 'qwertz'
+    | 'dvorak'
+    | 'colemak' {
+    return this.getOption('virtualKeyboardLayout');
+  }
+  set virtualKeyboardLayout(
+    value: 'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak'
+  ) {
+    this.setOptions({ virtualKeyboardLayout: value });
+  }
+  get virtualKeyboardMode(): 'auto' | 'manual' | 'onfocus' | 'off' {
+    return this.getOption('virtualKeyboardMode');
+  }
+  set virtualKeyboardMode(value: 'auto' | 'manual' | 'onfocus' | 'off') {
+    this.setOptions({ virtualKeyboardMode: value });
+  }
+  get virtualKeyboardTheme(): 'material' | 'apple' | '' {
+    return this.getOption('virtualKeyboardTheme');
+  }
+  set virtualKeyboardTheme(value: 'material' | 'apple' | '') {
+    this.setOptions({ virtualKeyboardTheme: value });
+  }
+  get virtualKeyboars(): string {
+    return this.getOption('virtualKeyboards');
+  }
+  set virtualKeyboars(value: string) {
+    this.setOptions({ virtualKeyboards: value });
+  }
+  get useSharedVirtualKeyboard(): boolean {
+    return this.getOption('useSharedVirtualKeyboard');
+  }
+  set useSharedVirtualKeyboard(value: boolean) {
+    this.setOptions({ useSharedVirtualKeyboard: value });
+  }
+  get sharedVirtualKeyboardTargetOrigin(): string {
+    return this.getOption('sharedVirtualKeyboardTargetOrigin');
+  }
+  set sharedVirtualKeyboardTargetOrigin(value: string) {
+    this.setOptions({ sharedVirtualKeyboardTargetOrigin: value });
   }
 
   /**

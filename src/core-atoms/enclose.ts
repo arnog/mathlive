@@ -1,16 +1,18 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
+import { convertToDimension } from '../core/parser';
+import { convertDimensionToEm } from '../core/registers-utils';
 import { Style } from '../public/core';
 
 export type EncloseAtomOptions = {
   shadow?: string;
-  strokeWidth?: number;
+  strokeWidth?: string;
   strokeStyle?: string;
   svgStrokeStyle?: string;
   strokeColor?: string;
   borderStyle?: string;
-  padding?: string | number;
+  padding?: string;
   backgroundcolor?: string;
   style: Style;
 };
@@ -29,6 +31,9 @@ export type Notations = {
   madruwb?: boolean;
   actuarial?: boolean;
   box?: boolean;
+  // phasorangle?: boolean;
+  // radical?: boolean;
+  // longdiv?: boolean;
 };
 
 export class EncloseAtom extends Atom {
@@ -37,13 +42,13 @@ export class EncloseAtom extends Atom {
 
   private readonly notation: Notations;
   private readonly shadow?: string;
-  private readonly strokeWidth?: number;
+  private readonly strokeWidth?: string;
   private readonly strokeStyle?: string;
   private readonly svgStrokeStyle?: string;
   private readonly strokeColor?: string;
   private readonly borderStyle?: string;
 
-  private readonly padding?: string | number;
+  private readonly padding?: string;
   constructor(
     command: string,
     body: Atom[],
@@ -94,7 +99,7 @@ export class EncloseAtom extends Atom {
         sep = ',';
       }
 
-      if (this.strokeWidth !== 1 || this.strokeStyle !== 'solid') {
+      if (this.strokeWidth || this.strokeStyle !== 'solid') {
         style += sep + this.borderStyle;
         sep = ',';
       } else if (this.strokeColor && this.strokeColor !== 'currentColor') {
@@ -117,8 +122,11 @@ export class EncloseAtom extends Atom {
     const base = Atom.createBox(context, this.body);
 
     // Account for the padding
-    const padding =
-      typeof this.padding === 'number' ? this.padding : context.metrics.fboxSep;
+    const padding = convertDimensionToEm(
+      this.padding
+        ? convertToDimension(this.padding, parentContext.registers)
+        : context.getRegisterAsDimension('fboxsep')
+    );
 
     // The 'ML__notation' class is required to prevent the box from being omitted
     // during rendering (it looks like an empty, no-op box)
@@ -224,59 +232,67 @@ export class EncloseAtom extends Atom {
       svg += '/>';
     }
 
-    // If (this.notation.updiagonalarrow) {
-    //     const t = 1;
-    //     const length = Math.sqrt(w * w + h * h);
-    //     const f = 1 / length / 0.075 * t;
-    //     const wf = w * f;
-    //     const hf = h * f;
-    //     const x = w - t / 2;
-    //     let y = t / 2;
-    //     if (y + hf - .4 * wf < 0 ) y = 0.4 * wf - hf;
-    //     svg += '<line ';
-    //     svg += `x1="1" y1="${h - 1}px" x2="${x - .7 * wf}px" y2="${y + .7 * hf}px"`;
-    //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-    //     svg += ' stroke-linecap="round"';
-    //     if (this.svgStrokeStyle) {
-    //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-    //     }
-    //     svg += '/>';
-    //     svg += '<polygon points="';
-    //     svg += `${x},${y} ${x - wf - .4 * hf},${y + hf - .4 * wf} `;
-    //     svg += `${x - .7 * wf},${y + .7 * hf} ${x - wf + .4 * hf},${y + hf + .4 * wf} `;
-    //     svg += `${x},${y}`;
-    //     svg += `" stroke='none' fill="${this.strokeColor}"`;
-    //     svg += '/>';
+    // if (this.notation.updiagonalarrow) {
+    //   const t = 1;
+    //   const length = Math.sqrt(w * w + h * h);
+    //   const f = (1 / length / 0.075) * t;
+    //   const wf = w * f;
+    //   const hf = h * f;
+    //   const x = w - t / 2;
+    //   let y = t / 2;
+    //   if (y + hf - 0.4 * wf < 0) y = 0.4 * wf - hf;
+    //   svg += '<line ';
+    //   svg += `x1="1" y1="${h - 1}px" x2="${x - 0.7 * wf}px" y2="${
+    //     y + 0.7 * hf
+    //   }px"`;
+    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+    //   svg += ' stroke-linecap="round"';
+    //   if (this.svgStrokeStyle) {
+    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //   }
+    //   svg += '/>';
+    //   svg += '<polygon points="';
+    //   svg += `${x},${y} ${x - wf - 0.4 * hf},${y + hf - 0.4 * wf} `;
+    //   svg += `${x - 0.7 * wf},${y + 0.7 * hf} ${x - wf + 0.4 * hf},${
+    //     y + hf + 0.4 * wf
+    //   } `;
+    //   svg += `${x},${y}`;
+    //   svg += `" stroke='none' fill="${this.strokeColor}"`;
+    //   svg += '/>';
     // }
     // if (this.notation.phasorangle) {
-    //     svg += '<path d="';
-    //     svg += `M ${h / 2},1 L1,${h} L${w},${h} "`;
-    //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-    //     if (this.svgStrokeStyle) {
-    //         svg += ' stroke-linecap="round"';
-    //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-    //     }
-    //     svg += '/>';
+    //   svg += '<path d="';
+    //   svg += `M ${h / 2},1 L1,${h} L${w},${h} "`;
+    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+    //   if (this.svgStrokeStyle) {
+    //     svg += ' stroke-linecap="round"';
+    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //   }
+    //   svg += '/>';
     // }
     // if (this.notation.radical) {
-    //     svg += '<path d="';
-    //     svg += `M 0,${.6 * h} L1,${h} L${emToPx(padding) * 2},1 "`;
-    //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-    //     if (this.svgStrokeStyle) {
-    //         svg += ' stroke-linecap="round"';
-    //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-    //     }
-    //     svg += '/>';
+    //   svg += '<path d="';
+    //   svg += `M 0,${0.6 * h} L1,${h} L${
+    //     convertDimensionToPixel(padding) * 2
+    //   },1 "`;
+    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+    //   if (this.svgStrokeStyle) {
+    //     svg += ' stroke-linecap="round"';
+    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //   }
+    //   svg += '/>';
     // }
     // if (this.notation.longdiv) {
-    //     svg += '<path d="';
-    //     svg += `M ${w} 1 L1 1 a${emToPx(padding)} ${h / 2}, 0, 0, 1, 1 ${h} "`;
-    //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-    //     if (this.svgStrokeStyle) {
-    //         svg += ' stroke-linecap="round"';
-    //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-    //     }
-    //     svg += '/>';
+    //   svg += '<path d="';
+    //   svg += `M ${w} 1 L1 1 a${convertDimensionToPixel(padding)} ${
+    //     h / 2
+    //   }, 0, 0, 1, 1 ${h} "`;
+    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+    //   if (this.svgStrokeStyle) {
+    //     svg += ' stroke-linecap="round"';
+    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //   }
+    //   svg += '/>';
     // }
     if (svg) {
       let svgStyle;

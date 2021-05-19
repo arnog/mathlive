@@ -17,6 +17,8 @@ import { attachButtonHandlers } from '../editor-mathfield/buttons';
 import { getCaretPoint } from '../editor-mathfield/utils';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { typeset } from '../core/typeset';
+import { getDefaultRegisters } from '../core/registers';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
@@ -280,17 +282,24 @@ function getNote(symbol: string): string {
 
 function latexToMarkup(latex: string): string {
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(latex, {
-    parseMode: 'math',
-    macros: getMacros(),
-  });
+  root.body = typeset(
+    parseLatex(latex, {
+      parseMode: 'math',
+      macros: getMacros(),
+      registers: getDefaultRegisters(),
+    })
+  );
 
   const box = coalesce(
     adjustInterAtomSpacing(
       new Box(
         root.render(
           new Context(
-            { macros: getMacros(), smartFence: false },
+            {
+              macros: getMacros(),
+              registers: getDefaultRegisters(),
+              smartFence: false,
+            },
             {
               fontSize: DEFAULT_FONT_SIZE,
             },

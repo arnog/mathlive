@@ -4,7 +4,7 @@ import { isArray } from '../common/types';
 
 import { Context, PrivateStyle } from './context';
 
-import { convertDimensionToEm, PT_PER_EM, X_HEIGHT } from './font-metrics';
+import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { BoxType, isBoxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
@@ -104,7 +104,7 @@ export type AtomType =
 
 export type BBoxParameter = {
   backgroundcolor?: string;
-  padding?: number;
+  padding?: string;
   border?: string;
 };
 
@@ -199,8 +199,8 @@ export class Atom {
   // changing command (`\text`).
   changeMode?: boolean;
 
-  // The amount of glue (expandable/shrinkable kern) to the right of this atom
-  glue?: Glue;
+  // The kern to the right of this atom
+  kern?: Glue;
 
   //
   // The following properties are reset and updated through each rendering loop.
@@ -210,7 +210,10 @@ export class Atom {
   // This account the atoms that surrounds it, so that a '-' between two
   // ordinary atoms will have more space around it than a '-' with no
   // atom to its left, i.e. `12 + 3` vs `-123`.
-  kernType: BoxType;
+  interAtomType: BoxType;
+  // The amount of glue between this atom and the one to the right
+  // based on the calculated kernType
+  interAtomKern: Glue;
 
   // True if the item currently part of the selection
   isSelected: boolean;
@@ -275,14 +278,6 @@ export class Atom {
         parent = parent.parent;
       }
     }
-  }
-
-  // Kern to the right of this atom
-  get kern(): number {
-    if (this.glue) {
-      return convertDimensionToEm(this.glue.glue);
-    }
-    return 0;
   }
 
   /**

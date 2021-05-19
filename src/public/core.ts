@@ -158,8 +158,8 @@ export type MacroPackageDefinition = {
  */
 export type Glue = {
   glue: Dimension;
-  shrink: Dimension;
-  grow: Dimension;
+  shrink?: Dimension;
+  grow?: Dimension;
 };
 
 /**
@@ -185,12 +185,10 @@ export type DimensionUnit =
  * A dimension is used to specify the size of things
  *
  */
-export type Dimension =
-  | number
-  | {
-      dimension: number;
-      unit?: DimensionUnit; // If missing, assumes 'pt'
-    };
+export type Dimension = {
+  dimension: number;
+  unit?: DimensionUnit; // If missing, assumes 'pt'
+};
 
 export type RegisterValue = Dimension | Glue | number | string;
 

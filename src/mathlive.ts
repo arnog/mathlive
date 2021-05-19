@@ -50,6 +50,8 @@ import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboar
 import { Context } from './core/context';
 import { DEFAULT_FONT_SIZE } from './core/font-metrics';
 import { l10n } from './editor/l10n';
+import { typeset } from './core/typeset';
+import { getDefaultRegisters } from './core/registers';
 
 export { MathfieldElement } from './public/mathfield-element';
 
@@ -94,15 +96,18 @@ export function convertLatexToMarkup(
   //
 
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(text, {
-    parseMode: 'math',
-    macros: options.macros,
-    registers: options.registers,
-    mathstyle: options.mathstyle,
-    onError: options.onError,
-    colorMap: options.colorMap,
-    backgroundColorMap: options.backgroundColorMap,
-  });
+  root.body = typeset(
+    parseLatex(text, {
+      parseMode: 'math',
+      macros: options.macros,
+      registers: options.registers,
+      mathstyle: options.mathstyle,
+      onError: options.onError,
+      colorMap: options.colorMap,
+      backgroundColorMap: options.backgroundColorMap,
+    }),
+    { registers: options.registers }
+  );
 
   //
   // 2. Transform the math atoms into elementary boxes
@@ -112,6 +117,7 @@ export function convertLatexToMarkup(
     new Context(
       {
         macros: options.macros,
+        registers: getDefaultRegisters(),
         smartFence: false,
         renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
       },
@@ -202,6 +208,7 @@ function latexToAST(
     parseLatex(latex, {
       parseMode: 'math',
       macros: options.macros,
+      registers: getDefaultRegisters(),
       onError: options.onError,
     }),
     options

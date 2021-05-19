@@ -1,4 +1,4 @@
-import {
+import type {
   ErrorListener,
   Style,
   ParserErrorCode,
@@ -6,25 +6,25 @@ import {
   ParseMode,
   Registers,
   RegisterValue,
-  DimensionUnit,
+  Dimension,
+  Glue,
 } from '../public/core';
 
 import { isArray } from '../common/types';
 
-import { convertDimensionToEm } from './font-metrics';
 import { Token, tokenize, tokensToString } from './tokenizer';
 import { Atom, BBoxParameter } from './atom-class';
 import { Mode } from './modes-utils';
 import {
   Argument,
   FunctionDefinition,
+  NormalizedMacroDictionary,
+  SymbolDefinition,
   getEnvironmentDefinition,
   getInfo,
   getMacros,
-  NormalizedMacroDictionary,
-  SymbolDefinition,
 } from '../core-definitions/definitions-utils';
-import { ColumnFormat } from '../core-atoms/array';
+import type { ColumnFormat } from '../core-atoms/array';
 import { GroupAtom } from '../core-atoms/group';
 import { SpacingAtom } from '../core-atoms/spacing';
 import { LeftRightAtom } from '../core-atoms/leftright';
@@ -34,8 +34,7 @@ import { ErrorAtom } from '../core-atoms/error';
 import { MacroAtom } from '../core-atoms/macro';
 import { TextAtom } from '../core-atoms/text';
 import { defaultBackgroundColorMap, defaultColorMap } from './color';
-import { MathstyleName } from './mathstyle';
-import { DEFAULT_REGISTERS } from './context';
+import type { MathstyleName } from './mathstyle';
 
 export type ArgumentType =
   | ParseMode
@@ -118,36 +117,40 @@ export class Parser {
   constructor(
     tokens: Token[],
     options: {
-      args: null | ((arg: string) => string);
-      macros: NormalizedMacroDictionary;
+      args?: null | ((arg: string) => string);
+      macros?: NormalizedMacroDictionary;
       registers: Registers;
-      onError: ErrorListener<ParserErrorCode>;
-      colorMap: (name: string) => string;
-      backgroundColorMap: (name: string) => string;
-      parseMode: ParseMode;
-      mathstyle: MathstyleName;
-      smartFence: boolean;
+      onError?: ErrorListener<ParserErrorCode>;
+      colorMap?: (name: string) => string;
+      backgroundColorMap?: (name: string) => string | null;
+      parseMode?: ParseMode;
+      mathstyle?: MathstyleName;
+      smartFence?: boolean;
       style?: Style;
     }
   ) {
     this.tokens = tokens;
-    this.args = options.args;
+    this.args = options.args ?? null;
     this.macros = options.macros;
     this.colorMap = options.colorMap;
-    this.backgroundColorMap = options.backgroundColorMap;
+    this.backgroundColorMap = options.backgroundColorMap ?? this.colorMap;
     this.smartFence = options.smartFence ?? false;
-    this.onError = (err): void =>
-      options.onError({
-        before: tokensToString(this.tokens.slice(this.index, this.index + 10)),
-        after: tokensToString(
-          this.tokens.slice(Math.max(0, this.index - 10), this.index)
-        ),
-        ...err,
-      });
+    this.onError = options.onError
+      ? (err): void =>
+          options.onError({
+            before: tokensToString(
+              this.tokens.slice(this.index, this.index + 10)
+            ),
+            after: tokensToString(
+              this.tokens.slice(Math.max(0, this.index - 10), this.index)
+            ),
+            ...err,
+          })
+      : () => {};
     this._parsingContexts = [
       {
-        parseMode: options.parseMode,
-        mathstyle: options.mathstyle,
+        parseMode: options.parseMode ?? 'math',
+        mathstyle: options.mathstyle ?? 'displaystyle',
         registers: options.registers,
         tabular: false,
         style: options.style ?? {},
@@ -230,6 +233,7 @@ export class Parser {
   }
 
   getRegister(name: string): RegisterValue {
+    console.assert(name[0] !== '\\');
     if (name.startsWith('global ')) {
       return this._parsingContexts[0].registers[name.slice(7)] ?? 0;
     }
@@ -237,9 +241,9 @@ export class Parser {
     let registers = this._parsingContexts[i].registers;
     while (i >= 0 && registers[name] === undefined) {
       i -= 1;
-      registers = this._parsingContexts[i].registers;
+      registers = this._parsingContexts[i]?.registers;
     }
-    return registers[name] ?? 0;
+    return registers?.[name] ?? 0;
   }
 
   setRegister(name: string, value: RegisterValue): void {
@@ -381,7 +385,7 @@ export class Parser {
     return parseLatex(placeHolderArg, {
       parseMode: this.parseMode,
       onError: this.onError,
-      registers: { ...DEFAULT_REGISTERS },
+      registers: this.currentContext.registers,
       mathstyle: 'textstyle',
       colorMap: this.colorMap,
       backgroundColorMap: this.backgroundColorMap,
@@ -631,55 +635,72 @@ export class Parser {
   }
 
   /**
-   * Return as a floating point number a dimension in pt (1 em = 10 pt)
+   * Return a dimension
    *
    * See TeX:8831
-   * @todo: note that some units depend on the font (em, ex). So it might be
-   * better to return a dimen struct with the value + unit and resolve
-   * later when we have a font context....
    */
-  scanDimen(): number | null {
-    const dimension = this.scanNumber(false);
-    if (dimension === null) return null;
+  scanDimen(): Dimension | null {
+    let value = this.scanNumber(false);
+    if (value === null) {
+      // This wasn't a number, but perhaps it's a register name?
+      if (this.peek().startsWith('\\')) {
+        value = 1;
+      } else {
+        return null;
+      }
+    }
     this.matchWhitespace();
-    let result: number;
+    let result: Dimension;
     if (this.matchKeyword('pt')) {
-      result = convertDimensionToEm({ dimension, unit: 'pt' });
+      result = { dimension: value, unit: 'pt' };
     } else if (this.matchKeyword('mm')) {
-      result = convertDimensionToEm({ dimension, unit: 'mm' });
+      result = { dimension: value, unit: 'mm' };
     } else if (this.matchKeyword('cm')) {
-      result = convertDimensionToEm({ dimension, unit: 'cm' });
+      result = { dimension: value, unit: 'cm' };
     } else if (this.matchKeyword('ex')) {
-      result = convertDimensionToEm({ dimension, unit: 'ex' });
+      result = { dimension: value, unit: 'ex' };
     } else if (this.matchKeyword('px')) {
-      result = convertDimensionToEm({ dimension, unit: 'px' });
+      result = { dimension: value, unit: 'px' };
     } else if (this.matchKeyword('em')) {
-      result = convertDimensionToEm({ dimension, unit: 'em' });
+      result = { dimension: value, unit: 'em' };
     } else if (this.matchKeyword('bp')) {
-      result = convertDimensionToEm({ dimension, unit: 'bp' });
+      result = { dimension: value, unit: 'bp' };
     } else if (this.matchKeyword('dd')) {
-      result = convertDimensionToEm({ dimension, unit: 'dd' });
+      result = { dimension: value, unit: 'dd' };
     } else if (this.matchKeyword('pc')) {
-      result = convertDimensionToEm({ dimension, unit: 'pc' });
+      result = { dimension: value, unit: 'pc' };
     } else if (this.matchKeyword('in')) {
-      result = convertDimensionToEm({ dimension, unit: 'in' });
+      result = { dimension: value, unit: 'in' };
     } else if (this.matchKeyword('mu')) {
-      result = convertDimensionToEm({ dimension, unit: 'mu' });
+      result = { dimension: value, unit: 'mu' };
     } else {
-      // If the units are missing, TeX assumes 'pt'
-      this.onError({ code: 'missing-unit' });
-      result = convertDimensionToEm({ dimension, unit: 'pt' });
+      if (this.peek().startsWith('\\')) {
+        result = convertToDimension(
+          this.getRegister(this.get().slice(1)),
+          this.currentContext.registers
+        );
+        result.dimension *= value;
+      } else {
+        if (!this.match('\\relax')) {
+          // If the units are missing, TeX assumes 'pt'
+          this.onError({ code: 'missing-unit' });
+        }
+        result = { dimension: value, unit: 'pt' };
+      }
     }
 
     return result;
   }
 
-  scanGlue(): number | null {
-    const result = this.scanDimen();
-    if (result === null) return null;
+  scanGlue(): Glue | null {
+    const result = { glue: this.scanDimen() };
+    if (result.glue === null) return null;
     // We parse, but ignore, the optional 'plus' and 'minus'
     // arguments.
+
     this.matchWhitespace();
+    if (this.match('\\relax')) return result;
+
     // 'plus', optionally followed by 'minus'
     // ('minus' cannot come before 'plus')
     // dimen or 'hfill'
@@ -687,6 +708,9 @@ export class Parser {
       // @todo there could also be a \hFilLlL command here
       this.scanDimen();
     }
+
+    this.matchWhitespace();
+    if (this.match('\\relax')) return result;
 
     this.matchWhitespace();
     if (this.matchKeyword('minus')) {
@@ -838,7 +862,7 @@ export class Parser {
     this.beginContext({ tabular: def.tabular });
 
     const array: Atom[][][] = [];
-    const rowGaps: number[] = [];
+    const rowGaps: Dimension[] = [];
     let row: Atom[][] = [];
     let done = false;
     do {
@@ -865,7 +889,7 @@ export class Parser {
         } else if (this.matchRowSeparator()) {
           row.push(this.mathlist);
           this.mathlist = [];
-          let gap = 0;
+          let gap: Dimension = { dimension: 0 };
           this.matchWhitespace();
           if (this.match('[')) {
             gap = this.scanDimen();
@@ -873,7 +897,7 @@ export class Parser {
             this.match(']');
           }
 
-          rowGaps.push(gap || 0);
+          rowGaps.push(gap ?? { dimension: 0 });
           array.push(row);
           row = [];
         } else {
@@ -1304,7 +1328,7 @@ export class Parser {
   parseArgument(argType: ArgumentType): null | Argument {
     this.skipFiller();
     argType = argType === 'auto' ? this.parseMode : argType;
-    let result: string | number | Atom[] | ColumnFormat[];
+    let result: Argument;
     // An argument (which is called a 'math field' in TeX)
     // could be a single character or symbol, as in `\frac12`
     // Note that ``\frac\sqrt{-1}\alpha\beta`` is equivalent to
@@ -1439,10 +1463,7 @@ export class Parser {
           } else {
             const m = element.match(/^\s*([\d.]+)\s*([a-z]{2})/);
             if (m) {
-              bboxParameter.padding = convertDimensionToEm({
-                dimension: parseFloat(m[1]),
-                unit: m[2] as DimensionUnit,
-              });
+              bboxParameter.padding = m[0];
             } else {
               const m = element.match(/^\s*border\s*:\s*(.*)/);
               if (m) {
@@ -1778,7 +1799,7 @@ export function parseLatex(
   const parser = new Parser(tokenize(s, options?.args ?? null), {
     args: options?.args ?? null,
     macros: getMacros(options?.macros),
-    registers: options?.registers ?? { ...DEFAULT_REGISTERS },
+    registers: options?.registers,
     mathstyle: options?.mathstyle ?? 'displaystyle',
     colorMap: options?.colorMap ?? defaultColorMap,
     parseMode: options?.parseMode ?? 'math',
@@ -1809,4 +1830,43 @@ export function parseLatex(
   }
 
   return atoms;
+}
+
+export function convertToGlue(
+  value: RegisterValue,
+  registers: Registers | null
+): Glue {
+  // If it's already a Glue, return it.
+  if (typeof value === 'object' && 'glue' in value) return value;
+
+  if (typeof value === 'object' && 'dimension' in value) {
+    return { glue: value };
+  }
+
+  if (typeof value === 'number') return { glue: { dimension: value } };
+
+  // It's a string, attempt to parse it.
+  const parser = new Parser(tokenize(value), { registers });
+  return parser.scanGlue();
+}
+
+/**  Return a dimension. */
+export function convertToDimension(
+  value: RegisterValue,
+  registers: Registers | null
+): Dimension {
+  if (typeof value === 'number') return { dimension: value, unit: 'pt' };
+
+  if (typeof value === 'object' && 'glue' in value) {
+    value = value.glue;
+  }
+
+  if (typeof value === 'object' && 'dimension' in value) {
+    return value;
+  }
+
+  // It's a string
+
+  const parser = new Parser(tokenize(value), { registers });
+  return parser.scanDimen();
 }

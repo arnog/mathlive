@@ -1,14 +1,15 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
+import { convertToDimension } from '../core/parser';
 import { Style } from '../public/core';
-
+import { convertDimensionToEm } from '../core/registers-utils';
 export class BoxAtom extends Atom {
   readonly framecolor?: string;
   readonly verbatimFramecolor?: string;
   readonly backgroundcolor?: string;
   readonly verbatimBackgroundcolor?: string;
-  readonly padding?: number;
+  readonly padding?: string;
   readonly border?: string;
 
   constructor(
@@ -19,7 +20,7 @@ export class BoxAtom extends Atom {
       verbatimFramecolor?: string;
       backgroundcolor?: string;
       verbatimBackgroundcolor?: string;
-      padding?: number;
+      padding?: string;
       border?: string;
       style: Style;
       serialize?: (atom: BoxAtom, options: ToLatexOptions) => string;
@@ -43,10 +44,16 @@ export class BoxAtom extends Atom {
   render(parentContext: Context): Box {
     const context = new Context(parentContext, this.style);
 
+    const fboxsep = convertDimensionToEm(
+      context.getRegisterAsDimension('fboxsep')
+    );
     // The padding extends outside of the base
     const padding =
-      typeof this.padding === 'number' ? this.padding : context.metrics.fboxSep;
-
+      this.padding === undefined
+        ? fboxsep
+        : convertDimensionToEm(
+            convertToDimension(this.padding, parentContext.registers)
+          );
     // Base is the main content "inside" the box
     const content = Atom.createBox(parentContext, this.body);
     content.setStyle('vertical-align', -content.height, 'em');
@@ -67,7 +74,7 @@ export class BoxAtom extends Atom {
       box.setStyle('width', '100%');
     } else {
       box.setStyle('width', `calc(100% + ${2 * padding}em)`);
-      box.setStyle('top', context.metrics.fboxSep, 'em'); // empirical
+      box.setStyle('top', fboxsep, 'em'); // empirical
       box.setStyle('left', -padding, 'em');
     }
 
@@ -80,7 +87,9 @@ export class BoxAtom extends Atom {
     if (this.framecolor) {
       box.setStyle(
         'border',
-        `${context.metrics.fboxRule}em solid ${this.framecolor}`
+        `${convertDimensionToEm(
+          context.getRegisterAsDimension('fboxrule')
+        )}em solid ${this.framecolor}`
       );
     }
 

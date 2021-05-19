@@ -827,6 +827,7 @@ mf.setConfig({
    * the formula. A value greater than 1.0 can be used to improve the
    * legibility.
    *
+   * @deprecated Use registers `\thinmuskip`, `\medmuskip` and `\thickmuskip`
    */
   horizontalSpacingScale: number;
   /**

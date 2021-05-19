@@ -186,16 +186,16 @@ export class MathfieldPrivate implements Mathfield {
     );
     this.macros = this.options.macros as NormalizedMacroDictionary;
 
-    this.colorMap = (name: string): string => {
+    this.colorMap = (name: string): string | null => {
       let result: string;
       if (typeof this.options.colorMap === 'function') {
         result = this.options.colorMap(name);
       }
       if (!result) result = defaultColorMap(name);
 
-      return result ?? name;
+      return result;
     };
-    this.backgroundColorMap = (name: string): string => {
+    this.backgroundColorMap = (name: string): string | null => {
       let result: string;
       if (typeof this.options.backgroundColorMap === 'function') {
         result = this.options.backgroundColorMap(name);
@@ -205,7 +205,7 @@ export class MathfieldPrivate implements Mathfield {
       }
       if (!result) result = defaultBackgroundColorMap(name);
 
-      return result ?? name;
+      return result;
     };
 
     // The virtual keyboard can be either attached to this mathfield
@@ -636,16 +636,16 @@ export class MathfieldPrivate implements Mathfield {
       this.virtualKeyboardToggle.classList.remove('is-visible');
     }
 
-    this.colorMap = (name: string): string => {
+    this.colorMap = (name: string): string | null => {
       let result: string;
       if (typeof this.options.colorMap === 'function') {
         result = this.options.colorMap(name);
       }
       if (!result) result = defaultColorMap(name);
 
-      return result ?? name;
+      return result;
     };
-    this.backgroundColorMap = (name: string): string => {
+    this.backgroundColorMap = (name: string): string | null => {
       let result: string;
       if (typeof this.options.backgroundColorMap === 'function') {
         result = this.options.backgroundColorMap(name);
@@ -655,7 +655,7 @@ export class MathfieldPrivate implements Mathfield {
       }
       if (!result) result = defaultBackgroundColorMap(name);
 
-      return result ?? name;
+      return result;
     };
 
     // Changing some config options (i.e. `macros`) may

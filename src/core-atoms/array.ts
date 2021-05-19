@@ -13,6 +13,8 @@ import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
 import { PlaceholderAtom } from './placeholder';
 import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
+import { Dimension } from '../public/core';
+import { convertDimensionToEm } from '../core/registers-utils';
 
 export type ColumnFormat =
   | {
@@ -191,7 +193,7 @@ function normalizeArray(
 export class ArrayAtom extends Atom {
   array: Atom[][][];
   environmentName: string;
-  rowGaps: number[];
+  rowGaps: Dimension[];
   colFormat: ColumnFormat[];
   arraystretch?: number;
   arraycolsep?: number;
@@ -204,7 +206,7 @@ export class ArrayAtom extends Atom {
   constructor(
     envName: string,
     array: Atom[][][],
-    rowGaps: number[],
+    rowGaps: Dimension[],
     options: ArrayAtomConstructorOptions = {}
   ) {
     super('array');
@@ -318,12 +320,14 @@ export class ArrayAtom extends Atom {
 
     const innerContext = new Context(context, this.style, this.mathstyleName);
 
+    const arrayRuleWidth = innerContext.getRegisterAsEm('arrayrulewidth');
+    const arrayColSep = innerContext.getRegisterAsEm('arraycolsep');
+    const doubleRuleSep = innerContext.getRegisterAsEm('doublerulesep');
+
     // Row spacing
     const arraystretch = this.arraystretch;
     let arraycolsep =
-      typeof this.arraycolsep === 'number'
-        ? this.arraycolsep
-        : context.metrics.arrayColSep;
+      typeof this.arraycolsep === 'number' ? this.arraycolsep : arrayColSep;
     if (this.colSeparationType === 'small') {
       // We're in a {smallmatrix}. Default column space is \thickspace,
       // i.e. 5/18em = 0.2778em, per amsmath.dtx for {smallmatrix}.
@@ -364,7 +368,7 @@ export class ArrayAtom extends Atom {
         outrow.cells.push(elt);
       }
 
-      let gap = this.rowGaps[r] ?? 0;
+      let gap: number = convertDimensionToEm(this.rowGaps[r]) ?? 0;
       if (gap > 0) {
         // \@argarraycr
         gap += arstrutDepth;
@@ -466,7 +470,7 @@ export class ArrayAtom extends Atom {
         separator.setStyle('height', totalHeight, 'em');
         separator.setStyle(
           'border-right',
-          `${context.metrics.arrayRuleWidth}em ${colDesc.separator} currentColor`
+          `${arrayRuleWidth}em ${colDesc.separator} currentColor`
         );
         // We have box-sizing border-box, no need to correct the margin
         // separator.setStyle(
@@ -476,9 +480,9 @@ export class ArrayAtom extends Atom {
         separator.setStyle('vertical-align', -(totalHeight - offset), 'em');
         let gap = 0;
         if (previousColRule) {
-          gap = context.metrics.doubleRuleSep - context.metrics.arrayRuleWidth;
+          gap = doubleRuleSep - arrayRuleWidth;
         } else if (previousColContent) {
-          gap = arraycolsep - context.metrics.arrayRuleWidth;
+          gap = arraycolsep - arrayRuleWidth;
         }
         separator.left = gap;
         cols.push(separator);

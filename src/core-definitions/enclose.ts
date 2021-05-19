@@ -1,5 +1,4 @@
 import { Argument, defineFunction } from './definitions-utils';
-import { convertDimensionToPixel } from '../core/font-metrics';
 import type { Atom } from '../core/atom-class';
 import { EncloseAtom, EncloseAtomOptions } from '../core-atoms/enclose';
 import { Style } from '../public/core';
@@ -12,7 +11,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom => {
     const options: EncloseAtomOptions = {
       strokeColor: 'currentColor',
-      strokeWidth: 1,
+      strokeWidth: '',
       strokeStyle: 'solid',
       backgroundcolor: 'transparent',
       padding: 'auto',
@@ -33,11 +32,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
       for (const s of styles) {
         const shorthand = s.match(/\s*(\S+)\s+(\S+)\s+(.*)/);
         if (shorthand) {
-          options.strokeWidth = convertDimensionToPixel(shorthand[1]);
-          if (!Number.isFinite(options.strokeWidth)) {
-            options.strokeWidth = 1;
-          }
-
+          options.strokeWidth = shorthand[1];
           options.strokeStyle = shorthand[2];
           options.strokeColor = shorthand[3];
         } else {
@@ -48,7 +43,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
             } else if (attribute[1] === 'mathcolor') {
               options.strokeColor = attribute[2];
             } else if (attribute[1] === 'padding') {
-              options.padding = convertDimensionToPixel(attribute[2]);
+              options.padding = attribute[2];
             } else if (attribute[1] === 'shadow') {
               options.shadow = attribute[2];
             }
@@ -86,7 +81,7 @@ defineFunction('cancel', '{body:auto}', {
       { updiagonalstrike: true },
       {
         strokeColor: 'currentColor',
-        strokeWidth: 1,
+        strokeWidth: '',
         strokeStyle: 'solid',
         borderStyle: '1px solid currentColor',
         backgroundcolor: 'transparent',
@@ -105,7 +100,7 @@ defineFunction('bcancel', '{body:auto}', {
       { downdiagonalstrike: true },
       {
         strokeColor: 'currentColor',
-        strokeWidth: 1,
+        strokeWidth: '',
         strokeStyle: 'solid',
         borderStyle: '1px solid currentColor',
         backgroundcolor: 'transparent',
@@ -124,7 +119,7 @@ defineFunction('xcancel', '{body:auto}', {
       { updiagonalstrike: true, downdiagonalstrike: true },
       {
         strokeColor: 'currentColor',
-        strokeWidth: 1,
+        strokeWidth: '',
         strokeStyle: 'solid',
         borderStyle: '1px solid currentColor',
         backgroundcolor: 'transparent',

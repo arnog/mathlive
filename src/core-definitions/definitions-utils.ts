@@ -8,6 +8,8 @@ import type {
   MacroDictionary,
   MacroDefinition,
   MacroPackageDefinition,
+  Dimension,
+  Glue,
 } from '../public/core';
 import { supportRegexPropertyEscape } from '../common/capabilities';
 import { PrivateStyle } from '../core/context';
@@ -21,6 +23,8 @@ export type FunctionArgumentDefiniton = {
 export type Argument =
   | string
   | number
+  | Dimension
+  | Glue
   | BBoxParameter
   | ColumnFormat[]
   | Atom[];
@@ -205,7 +209,7 @@ export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 type EnvironmentConstructor = (
   name: string,
   array: Atom[][][],
-  rowGaps: number[],
+  rowGaps: Dimension[],
   args: Argument[]
 ) => Atom;
 

@@ -27,6 +27,8 @@ import { getMacros } from '../core-definitions/definitions';
 import { Scrim } from './scrim';
 import { Context } from '../core/context';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
+import { typeset } from '../core/typeset';
+import { getDefaultRegisters } from '../core/registers';
 
 let gScrim: Scrim = null;
 
@@ -1201,18 +1203,25 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(latex, {
-    parseMode: 'math',
-    args: arg,
-    macros: getMacros(),
-  });
+  root.body = typeset(
+    parseLatex(latex, {
+      parseMode: 'math',
+      args: arg,
+      macros: getMacros(),
+      registers: getDefaultRegisters(),
+    })
+  );
 
   const box = coalesce(
     adjustInterAtomSpacing(
       new Box(
         root.render(
           new Context(
-            { macros: getMacros(), smartFence: false },
+            {
+              macros: getMacros(),
+              registers: getDefaultRegisters(),
+              smartFence: false,
+            },
             {
               fontSize: DEFAULT_FONT_SIZE,
             },

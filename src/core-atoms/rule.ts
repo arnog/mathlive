@@ -1,23 +1,27 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
-import { Style } from '../public/core';
+import { Dimension, Style } from '../public/core';
+import {
+  convertDimensionToEm,
+  serializeDimension,
+} from '../core/registers-utils';
 
 export class RuleAtom extends Atom {
-  private readonly height: number;
-  private readonly width: number;
-  private readonly shift: number;
+  private readonly height: Dimension;
+  private readonly width: Dimension;
+  private readonly shift: Dimension;
   constructor(
     command: string,
     options: {
-      height: number;
-      width: number;
-      shift?: number | null;
+      height: Dimension;
+      width: Dimension;
+      shift?: Dimension | null;
       style: Style;
     }
   ) {
     super('rule', { command, style: options.style });
-    this.shift = options.shift ?? 0;
+    this.shift = options.shift ?? { dimension: 0 };
     this.height = options.height;
     this.width = options.width;
   }
@@ -28,9 +32,9 @@ export class RuleAtom extends Atom {
     // context to do the measurements without accounting for the mathstyle.
     const context = new Context(parentContext, this.style, 'textstyle');
 
-    const shift = Number.isFinite(this.shift) ? this.shift : 0;
-    const width = this.width;
-    const height = this.height;
+    const shift = convertDimensionToEm(this.shift);
+    const width = convertDimensionToEm(this.width);
+    const height = convertDimensionToEm(this.height);
     const result = new Box(null, { classes: 'rule', type: 'mord' });
     result.setStyle('border-right-width', width, 'em');
     result.setStyle('border-top-width', height, 'em');
@@ -45,15 +49,15 @@ export class RuleAtom extends Atom {
     return result.wrap(context);
   }
 
-  serialize(options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     let result = this.command;
     if (this.shift) {
-      result += `[${Atom.serialize(this.shift, options)}em]`;
+      result += `[${serializeDimension(this.shift)}]`;
     }
 
-    result +=
-      `{${Atom.serialize(this.width, options)}em}` +
-      `{${Atom.serialize(this.height, options)}em}`;
+    result += `{${serializeDimension(this.width)}}{${serializeDimension(
+      this.height
+    )}}`;
     return result;
   }
 }

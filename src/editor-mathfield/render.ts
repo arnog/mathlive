@@ -103,6 +103,7 @@ export function render(
     new Context(
       {
         macros: mathfield.options.macros,
+        registers: mathfield.options.registers,
         atomIdsSettings: {
           // Using the hash as a seed for the ID
           // keeps the IDs the same until the content of the field changes.

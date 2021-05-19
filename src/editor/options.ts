@@ -15,7 +15,7 @@ import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { resolveRelativeUrl } from '../common/script-url';
 import { isTouchCapable } from '../common/capabilities';
-import { DEFAULT_REGISTERS } from '../core/context';
+import { getDefaultRegisters } from '../core/registers';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -317,7 +317,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
     defaultMode: 'math',
     macros: getMacros(),
-    registers: { ...DEFAULT_REGISTERS },
+    registers: { ...getDefaultRegisters() },
     colorMap: null,
     backgroundColorMap: null,
     horizontalSpacingScale: 1,

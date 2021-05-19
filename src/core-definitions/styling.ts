@@ -5,7 +5,13 @@ import {
   defineFunction,
 } from './definitions-utils';
 import { Atom, BBoxParameter, ToLatexOptions } from '../core/atom-class';
-import { FontShape, FontSeries, FontSize } from '../public/core';
+import {
+  FontShape,
+  FontSeries,
+  FontSize,
+  Dimension,
+  Glue,
+} from '../public/core';
 import { GroupAtom } from '../core-atoms/group';
 import { BoxAtom } from '../core-atoms/box';
 import { PhantomAtom } from '../core-atoms/phantom';
@@ -142,8 +148,8 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
             atom.backgroundcolor !== undefined
           ) {
             const bboxParameters = [];
-            if (Number.isFinite(atom.padding)) {
-              bboxParameters.push(`${Math.floor(1e2 * atom.padding) / 1e2}em`);
+            if (atom.padding) {
+              bboxParameters.push(atom.padding);
             }
 
             if (atom.border) {
@@ -635,7 +641,11 @@ defineFunction(
   '{width:glue}',
   {
     createAtom: (name: string, args: Argument[], style: PrivateStyle): Atom =>
-      new SpacingAtom(name, style, (args[0] as number) ?? 0),
+      new SpacingAtom(
+        name,
+        style,
+        (args[0] as Glue) ?? { glue: { dimension: 0 } }
+      ),
   }
 );
 
@@ -763,9 +773,9 @@ defineFunction('unicode', '{charcode:number}', {
 defineFunction('rule', '[raise:dimen]{width:dimen}{thickness:dimen}', {
   createAtom: (name: string, args: Argument[], style: PrivateStyle): Atom =>
     new RuleAtom(name, {
-      shift: args[0] as number,
-      width: args[1] as number,
-      height: args[2] as number,
+      shift: args[0] as Dimension,
+      width: args[1] as Dimension,
+      height: args[2] as Dimension,
       style,
     }),
 });
