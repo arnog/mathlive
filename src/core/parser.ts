@@ -20,8 +20,8 @@ import {
   FunctionDefinition,
   getEnvironmentDefinition,
   getInfo,
+  getMacros,
   NormalizedMacroDictionary,
-  normalizeMacroDictionary,
   SymbolDefinition,
 } from '../core-definitions/definitions-utils';
 import { ColumnFormat } from '../core-atoms/array';
@@ -1777,7 +1777,7 @@ export function parseLatex(
 ): Atom[] {
   const parser = new Parser(tokenize(s, options?.args ?? null), {
     args: options?.args ?? null,
-    macros: normalizeMacroDictionary(options?.macros ?? null),
+    macros: getMacros(options?.macros),
     registers: options?.registers ?? { ...DEFAULT_REGISTERS },
     mathstyle: options?.mathstyle ?? 'displaystyle',
     colorMap: options?.colorMap ?? defaultColorMap,

@@ -23,7 +23,7 @@ import { loadFonts } from '../core/fonts';
 import { isArray } from '../common/types';
 import { COMMANDS, SelectorPrivate } from './commands';
 import { ExecuteCommandFunction } from './commands-definitions';
-import { MACROS } from '../core-definitions/definitions';
+import { getMacros } from '../core-definitions/definitions';
 import { Scrim } from './scrim';
 import { Context } from '../core/context';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
@@ -1204,7 +1204,7 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   root.body = parseLatex(latex, {
     parseMode: 'math',
     args: arg,
-    macros: MACROS,
+    macros: getMacros(),
   });
 
   const box = coalesce(
@@ -1212,7 +1212,7 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
       new Box(
         root.render(
           new Context(
-            { macros: MACROS, smartFence: false },
+            { macros: getMacros(), smartFence: false },
             {
               fontSize: DEFAULT_FONT_SIZE,
             },

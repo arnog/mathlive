@@ -16,9 +16,12 @@ import type {
 import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
 import { adjustInterAtomSpacing, coalesce, makeStruts, Box } from './core/box';
-import { MACROS } from './core-definitions/definitions';
+import { getMacros } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
-import AutoRender, { AutoRenderOptionsPrivate } from './addons/auto-render';
+import {
+  AutoRenderOptionsPrivate,
+  autoRenderMathInElement,
+} from './addons/auto-render';
 import {
   MathJsonLatexOptions,
   MathJson,
@@ -84,10 +87,7 @@ export function convertLatexToMarkup(
   if (letterShapeStyle === 'auto') {
     letterShapeStyle = l10n.locale.startsWith('fr') ? 'french' : 'tex';
   }
-  options.macros = {
-    ...MACROS,
-    ...(options.macros ?? {}),
-  };
+  options.macros = getMacros(options?.macros);
 
   //
   // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
@@ -158,10 +158,7 @@ export function convertLatexToMathMl(
     generateID: boolean;
   }> = {}
 ): string {
-  options.macros = {
-    ...MACROS,
-    ...(options.macros ?? {}),
-  };
+  options.macros = getMacros(options?.macros);
 
   return atomsToMathML(
     parseLatex(latex, {
@@ -199,7 +196,7 @@ function latexToAST(
   }
 ): MathJson {
   options = options ?? {};
-  options.macros = { ...MACROS, ...(options.macros ?? {}) };
+  options.macros = getMacros(options?.macros);
 
   return atomtoMathJson(
     parseLatex(latex, {
@@ -235,8 +232,7 @@ export function convertLatexToSpeakableText(
     }
   > = {}
 ): string {
-  options.macros = options.macros ?? {};
-  Object.assign(options.macros, MACROS);
+  options.macros = getMacros(options?.macros);
 
   const atoms = parseLatex(latex, {
     parseMode: 'math',
@@ -283,15 +279,14 @@ function getElement(element: string | HTMLElement): HTMLElement {
 
 export function renderMathInElement(
   element: HTMLElement,
-  options: AutoRenderOptionsPrivate
+  options?: AutoRenderOptionsPrivate
 ): void {
   options = options ?? {};
   options.renderToMarkup = options.renderToMarkup ?? convertLatexToMarkup;
   options.renderToMathML = options.renderToMathML ?? convertLatexToMathMl;
   options.renderToSpeakableText =
     options.renderToSpeakableText ?? convertLatexToSpeakableText;
-  options.macros = options.macros ?? MACROS;
-  AutoRender.renderMathInElement(getElement(element), options);
+  autoRenderMathInElement(getElement(element), options);
 }
 
 function validateNamespace(options): void {
@@ -374,7 +369,6 @@ export const debug = {
   MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
   TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
   ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
-  MACROS: MathLiveDebug.MACROS,
   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
   INLINE_SHORTCUTS: MathLiveDebug.INLINE_SHORTCUTS,

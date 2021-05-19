@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
 import '../core/atom';
-import { MACROS, MacroDictionary } from '../core-definitions/definitions';
+import { MacroDictionary, getMacros } from '../core-definitions/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
 import { ErrorListener, ParserErrorCode, Registers } from '../public/core';
 import { loadFonts } from '../core/fonts';
@@ -504,7 +504,7 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
   }
 }
 
-const defaultOptions: AutoRenderOptions = {
+const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
   // Optional namespace for the `data-` attributes.
   namespace: '',
 
@@ -558,16 +558,16 @@ const defaultOptions: AutoRenderOptions = {
   },
 };
 
-function renderMathInElement(
+export function autoRenderMathInElement(
   element: HTMLElement | string,
-  options: AutoRenderOptionsPrivate
+  options?: AutoRenderOptionsPrivate
 ): void {
   try {
-    options = { ...defaultOptions, ...options };
+    options = { ...DEFAULT_AUTO_RENDER_OPTIONS, ...options };
     options.ignoreClassPattern = new RegExp(options.ignoreClass);
     options.processClassPattern = new RegExp(options.processClass);
     options.processScriptTypePattern = new RegExp(options.processScriptType);
-    options.macros = MACROS;
+    options.macros = getMacros(options.macros);
 
     // Validate the namespace (used for `data-` attributes)
     if (options.namespace) {
@@ -582,6 +582,9 @@ function renderMathInElement(
       }
     }
 
+    // Load the fonts and inject the stylesheet once to
+    // avoid having to do it many times in the case of a `renderMathInDocument()`
+    // call.
     void loadFonts(options.fontsDirectory);
     injectStylesheet(null, coreStylesheet);
 
@@ -597,7 +600,3 @@ function renderMathInElement(
     }
   }
 }
-
-export default {
-  renderMathInElement,
-};

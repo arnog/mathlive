@@ -7,7 +7,6 @@
 import { ParseMode } from '../public/core';
 import { parseLatex } from '../core/parser';
 import {
-  MACROS,
   LEGACY_COMMANDS,
   MATH_SYMBOLS,
   TEXT_SYMBOLS,
@@ -41,7 +40,6 @@ const MathliveDebug = {
   MATH_SYMBOLS,
   TEXT_SYMBOLS,
   ENVIRONMENTS,
-  MACROS,
 
   INLINE_SHORTCUTS,
   DEFAULT_KEYBINDINGS,

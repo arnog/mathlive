@@ -4,7 +4,7 @@ import { isArray } from '../common/types';
 
 import type { Atom } from '../core/atom';
 import {
-  MACROS,
+  getMacros,
   normalizeMacroDictionary,
 } from '../core-definitions/definitions';
 
@@ -316,7 +316,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     soundsDirectory: './sounds',
 
     defaultMode: 'math',
-    macros: MACROS,
+    macros: getMacros(),
     registers: { ...DEFAULT_REGISTERS },
     colorMap: null,
     backgroundColorMap: null,

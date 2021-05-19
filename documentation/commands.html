@@ -136,15 +136,11 @@
   <script type='module'>
       import {
           MathLive,
-          generateMacrosDocumentation,
           generateCommandsDocumentation
       } from './js/documentation.js';
       function update() {
           const frequency = 0;
           const format = "mat";
-
-          document.getElementById('macros').innerHTML =
-             generateMacrosDocumentation();
 
           document.getElementById('reference').innerHTML =
             generateCommandsDocumentation('', 0);

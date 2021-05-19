@@ -146,6 +146,12 @@ export type MacroDefinition = {
   captureSelection?: boolean;
 };
 
+export type MacroPackageDefinition = {
+  package: Record<string, string | MacroDefinition>;
+  expand?: boolean;
+  captureSelection?: boolean;
+};
+
 /**
  * Glue represents flexible spacing, that is a dimension that
  * can grow (by the `grow` property) or shrink (by the `shrink` property).
@@ -223,4 +229,7 @@ The code above will support the following notation:
  * **See Also**
  * * [Macros Example](/mathlive/examples/macros/)
  */
-export type MacroDictionary = Record<string, string | MacroDefinition>;
+export type MacroDictionary = Record<
+  string,
+  string | MacroDefinition | MacroPackageDefinition
+>;

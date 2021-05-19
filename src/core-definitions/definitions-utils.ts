@@ -7,6 +7,7 @@ import type {
   VariantStyle,
   MacroDictionary,
   MacroDefinition,
+  MacroPackageDefinition,
 } from '../public/core';
 import { supportRegexPropertyEscape } from '../common/capabilities';
 import { PrivateStyle } from '../core/context';
@@ -71,8 +72,9 @@ export type FunctionDefinition = {
 };
 
 type EnvironmentDefinition = {
-  /* If true, the 'content' of the environment is parsed in tabular mode,
-        i.e. wiht '&' creating a new column and '\\' creating a new row */
+  /** If true, the 'content' of the environment is parsed in tabular mode,
+   *  i.e. wiht '&' creating a new column and '\\' creating a new row.
+   */
   tabular: boolean;
   params: FunctionArgumentDefiniton[];
   createAtom: EnvironmentConstructor;
@@ -90,13 +92,16 @@ export type SymbolDefinition = {
 };
 
 export const MATH_SYMBOLS: Record<string, SymbolDefinition> = {};
-// Map a character to some corresponding Latex
+
+// Map a character to some corresponding Latex.
+//
 // This is used for some characters such as ² SUPERSCRIPT TWO.
 // This is also an opportunity to specify the prefered form when
 // a unicode character is encountered that maps to multiple commands,
-// for example ≠ could map either to \ne or \neq
-// The table will also be populated by any registered symbol
-// from MATH_SYMBOLS
+// for example ≠ could map either to \ne or \neq.
+// The table will also be populated by any registered symbol from MATH_SYMBOLS,
+//  so an explicit entry is only needed in case of ambiguous mappings.
+//
 // prettier-ignore
 const REVERSE_MATH_SYMBOLS = {
     0x003C: '<',   // Also \lt
@@ -182,6 +187,7 @@ const REVERSE_MATH_SYMBOLS = {
     0x27F7: '\\biconditional',    // Also longleftrightarrow
     0x27F8: '\\impliedby', // Also \Longleftarrow
     0x27F9: '\\implies', // Also \Longrightarrow
+    0x27fa: '\\iff',
 
     0x2102: '\\C',    // Also \doubleStruckCapitalC
     0x2115: '\\N',    // Also \doubleStruckCapitalN
@@ -205,19 +211,99 @@ type EnvironmentConstructor = (
 
 export type NormalizedMacroDictionary = Record<string, MacroDefinition>;
 
-export const MACROS: MacroDictionary = {
-  iff: '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
-  nicefrac: '^{#1}\\!\\!/\\!_{#2}',
+export const TEXVC_MACROS: MacroDictionary = {
+  //////////////////////////////////////////////////////////////////////
+  // texvc.sty
 
-  // From bracket.sty, Dirac notation
-  bra: '\\mathinner{\\langle{#1}|}',
-  ket: '\\mathinner{|{#1}\\rangle}',
-  braket: '\\mathinner{\\langle{#1}\\rangle}',
-  set: '\\mathinner{\\lbrace #1 \\rbrace}',
-  Bra: '\\left\\langle #1\\right|',
-  Ket: '\\left|#1\\right\\rangle',
-  Braket: '\\left\\langle{#1}\\right\\rangle',
-  Set: '\\left\\lbrace #1 \\right\\rbrace',
+  // The texvc package contains macros available in mediawiki pages.
+  // We omit the functions deprecated at
+  // https://en.wikipedia.org/wiki/Help:Displaying_a_formula#Deprecated_syntax
+
+  // We also omit texvc's \O, which conflicts with \text{\O}
+
+  darr: '\\downarrow',
+  dArr: '\\Downarrow',
+  Darr: '\\Downarrow',
+  lang: '\\langle',
+  rang: '\\rangle',
+  uarr: '\\uparrow',
+  uArr: '\\Uparrow',
+  Uarr: '\\Uparrow',
+  N: '\\mathbb{N}',
+  R: '\\mathbb{R}',
+  Z: '\\mathbb{Z}',
+  alef: '\\aleph',
+  alefsym: '\\aleph',
+  Alpha: '\\mathrm{A}',
+  Beta: '\\mathrm{B}',
+  bull: '\\bullet',
+  Chi: '\\mathrm{X}',
+  clubs: '\\clubsuit',
+  cnums: '\\mathbb{C}',
+  Complex: '\\mathbb{C}',
+  Dagger: '\\ddagger',
+  diamonds: '\\diamondsuit',
+  empty: '\\emptyset',
+  Epsilon: '\\mathrm{E}',
+  Eta: '\\mathrm{H}',
+  exist: '\\exists',
+  harr: '\\leftrightarrow',
+  hArr: '\\Leftrightarrow',
+  Harr: '\\Leftrightarrow',
+  hearts: '\\heartsuit',
+  image: '\\Im',
+  infin: '\\infty',
+  Iota: '\\mathrm{I}',
+  isin: '\\in',
+  Kappa: '\\mathrm{K}',
+  larr: '\\leftarrow',
+  lArr: '\\Leftarrow',
+  Larr: '\\Leftarrow',
+  lrarr: '\\leftrightarrow',
+  lrArr: '\\Leftrightarrow',
+  Lrarr: '\\Leftrightarrow',
+  Mu: '\\mathrm{M}',
+  natnums: '\\mathbb{N}',
+  Nu: '\\mathrm{N}',
+  Omicron: '\\mathrm{O}',
+  plusmn: '\\pm',
+  rarr: '\\rightarrow',
+  rArr: '\\Rightarrow',
+  Rarr: '\\Rightarrow',
+  real: '\\Re',
+  reals: '\\mathbb{R}',
+  Reals: '\\mathbb{R}',
+  Rho: '\\mathrm{P}',
+  sdot: '\\cdot',
+  sect: '\\S',
+  spades: '\\spadesuit',
+  sub: '\\subset',
+  sube: '\\subseteq',
+  supe: '\\supseteq',
+  Tau: '\\mathrm{T}',
+  thetasym: '\\vartheta',
+  // TODO: varcoppa: { def: "\\\mbox{\\coppa}", expand: false },
+  weierp: '\\wp',
+  Zeta: '\\mathrm{Z}',
+};
+
+export const AMSMATH_MACROS: MacroDictionary = {
+  // amsmath.sty
+  // http://mirrors.concertpass.com/tex-archive/macros/latex/required/amsmath/amsmath.pdf
+
+  // Italic Greek capital letters.  AMS defines these with \DeclareMathSymbol,
+  // but they are equivalent to \mathit{\Letter}.
+  varGamma: '\\mathit{\\Gamma}',
+  varDelta: '\\mathit{\\Delta}',
+  varTheta: '\\mathit{\\Theta}',
+  varLambda: '\\mathit{\\Lambda}',
+  varXi: '\\mathit{\\Xi}',
+  varPi: '\\mathit{\\Pi}',
+  varSigma: '\\mathit{\\Sigma}',
+  varUpsilon: '\\mathit{\\Upsilon}',
+  varPhi: '\\mathit{\\Phi}',
+  varPsi: '\\mathit{\\Psi}',
+  varOmega: '\\mathit{\\Omega}',
 
   // From http://tug.ctan.org/macros/latex/required/amsmath/amsmath.dtx
   // > \newcommand{\pod}[1]{
@@ -269,123 +355,59 @@ export const MACROS: MacroDictionary = {
     def: '\\;\\mathbin{\\operatorname{mod }}',
     expand: false,
   },
+};
+
+// From `braket.sty`, Dirac notation
+export const BRAKET_MACROS: MacroDictionary = {
+  bra: '\\mathinner{\\langle{#1}|}',
+  ket: '\\mathinner{|{#1}\\rangle}',
+  braket: '\\mathinner{\\langle{#1}\\rangle}',
+  set: '\\mathinner{\\lbrace #1 \\rbrace}',
+  Bra: '\\left\\langle #1\\right|',
+  Ket: '\\left|#1\\right\\rangle',
+  Braket: '\\left\\langle{#1}\\right\\rangle',
+  Set: '\\left\\lbrace #1 \\right\\rbrace',
+};
+
+const DEFAULT_MACROS: MacroDictionary = {
+  'iff': '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
+  'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
   // Proof Wiki
-  rd: '\\mathrm{d}',
-  rD: '\\mathrm{D}',
+  'rd': '\\mathrm{d}',
+  'rD': '\\mathrm{D}',
 
   // From Wolfram Alpha
-  doubleStruckCapitalN: '\\mathbb{N}',
-  doubleStruckCapitalR: '\\mathbb{R}',
-  doubleStruckCapitalQ: '\\mathbb{Q}',
-  doubleStruckCapitalZ: '\\mathbb{Z}',
-  doubleStruckCapitalP: '\\mathbb{P}',
+  'doubleStruckCapitalN': '\\mathbb{N}',
+  'doubleStruckCapitalR': '\\mathbb{R}',
+  'doubleStruckCapitalQ': '\\mathbb{Q}',
+  'doubleStruckCapitalZ': '\\mathbb{Z}',
+  'doubleStruckCapitalP': '\\mathbb{P}',
 
-  scriptCapitalE: '\\mathscr{E}',
-  scriptCapitalH: '\\mathscr{H}',
-  scriptCapitalL: '\\mathscr{L}',
-  gothicCapitalC: '\\mathfrak{C}',
-  gothicCapitalH: '\\mathfrak{H}',
-  gothicCapitalI: '\\mathfrak{I}',
-  gothicCapitalR: '\\mathfrak{R}',
+  'scriptCapitalE': '\\mathscr{E}',
+  'scriptCapitalH': '\\mathscr{H}',
+  'scriptCapitalL': '\\mathscr{L}',
+  'gothicCapitalC': '\\mathfrak{C}',
+  'gothicCapitalH': '\\mathfrak{H}',
+  'gothicCapitalI': '\\mathfrak{I}',
+  'gothicCapitalR': '\\mathfrak{R}',
 
-  imaginaryI: '\\mathrm{i}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
-  imaginaryJ: '\\mathrm{j}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'imaginaryI': '\\mathrm{i}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'imaginaryJ': '\\mathrm{j}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
 
-  exponentialE: '\\mathrm{e}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
-  differentialD: '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
-  capitalDifferentialD: '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'exponentialE': '\\mathrm{e}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'differentialD': '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'capitalDifferentialD': '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
 
-  //////////////////////////////////////////////////////////////////////
-  // texvc.sty
-
-  // The texvc package contains macros available in mediawiki pages.
-  // We omit the functions deprecated at
-  // https://en.wikipedia.org/wiki/Help:Displaying_a_formula#Deprecated_syntax
-
-  // We also omit texvc's \O, which conflicts with \text{\O}
-
-  darr: { def: '\\downarrow', expand: false },
-  dArr: { def: '\\Downarrow', expand: false },
-  Darr: { def: '\\Downarrow', expand: false },
-  lang: { def: '\\langle', expand: false },
-  rang: { def: '\\rangle', expand: false },
-  uarr: { def: '\\uparrow', expand: false },
-  uArr: { def: '\\Uparrow', expand: false },
-  Uarr: { def: '\\Uparrow', expand: false },
-  N: { def: '\\mathbb{N}', expand: false },
-  R: { def: '\\mathbb{R}', expand: false },
-  Z: { def: '\\mathbb{Z}', expand: false },
-  alef: { def: '\\aleph', expand: false },
-  alefsym: { def: '\\aleph', expand: false },
-  Alpha: { def: '\\mathrm{A}', expand: false },
-  Beta: { def: '\\mathrm{B}', expand: false },
-  bull: { def: '\\bullet', expand: false },
-  Chi: { def: '\\mathrm{X}', expand: false },
-  clubs: { def: '\\clubsuit', expand: false },
-  cnums: { def: '\\mathbb{C}', expand: false },
-  Complex: { def: '\\mathbb{C}', expand: false },
-  Dagger: { def: '\\ddagger', expand: false },
-  diamonds: { def: '\\diamondsuit', expand: false },
-  empty: { def: '\\emptyset', expand: false },
-  Epsilon: { def: '\\mathrm{E}', expand: false },
-  Eta: { def: '\\mathrm{H}', expand: false },
-  exist: { def: '\\exists', expand: false },
-  harr: { def: '\\leftrightarrow', expand: false },
-  hArr: { def: '\\Leftrightarrow', expand: false },
-  Harr: { def: '\\Leftrightarrow', expand: false },
-  hearts: { def: '\\heartsuit', expand: false },
-  image: { def: '\\Im', expand: false },
-  infin: { def: '\\infty', expand: false },
-  Iota: { def: '\\mathrm{I}', expand: false },
-  isin: { def: '\\in', expand: false },
-  Kappa: { def: '\\mathrm{K}', expand: false },
-  larr: { def: '\\leftarrow', expand: false },
-  lArr: { def: '\\Leftarrow', expand: false },
-  Larr: { def: '\\Leftarrow', expand: false },
-  lrarr: { def: '\\leftrightarrow', expand: false },
-  lrArr: { def: '\\Leftrightarrow', expand: false },
-  Lrarr: { def: '\\Leftrightarrow', expand: false },
-  Mu: { def: '\\mathrm{M}', expand: false },
-  natnums: { def: '\\mathbb{N}', expand: false },
-  Nu: { def: '\\mathrm{N}', expand: false },
-  Omicron: { def: '\\mathrm{O}', expand: false },
-  plusmn: { def: '\\pm', expand: false },
-  rarr: { def: '\\rightarrow', expand: false },
-  rArr: { def: '\\Rightarrow', expand: false },
-  Rarr: { def: '\\Rightarrow', expand: false },
-  real: { def: '\\Re', expand: false },
-  reals: { def: '\\mathbb{R}', expand: false },
-  Reals: { def: '\\mathbb{R}', expand: false },
-  Rho: { def: '\\mathrm{P}', expand: false },
-  sdot: { def: '\\cdot', expand: false },
-  sect: { def: '\\S', expand: false },
-  spades: { def: '\\spadesuit', expand: false },
-  sub: { def: '\\subset', expand: false },
-  sube: { def: '\\subseteq', expand: false },
-  supe: { def: '\\supseteq', expand: false },
-  Tau: { def: '\\mathrm{T}', expand: false },
-  thetasym: { def: '\\vartheta', expand: false },
-  // TODO: varcoppa: { def: "\\\mbox{\\coppa}", expand: false },
-  weierp: { def: '\\wp', expand: false },
-  Zeta: { def: '\\mathrm{Z}', expand: false },
-
-  // amsmath.sty
-  // http://mirrors.concertpass.com/tex-archive/macros/latex/required/amsmath/amsmath.pdf
-
-  // Italic Greek capital letters.  AMS defines these with \DeclareMathSymbol,
-  // but they are equivalent to \mathit{\Letter}.
-  varGamma: { def: '\\mathit{\\Gamma}', expand: false },
-  varDelta: { def: '\\mathit{\\Delta}', expand: false },
-  varTheta: { def: '\\mathit{\\Theta}', expand: false },
-  varLambda: { def: '\\mathit{\\Lambda}', expand: false },
-  varXi: { def: '\\mathit{\\Xi}', expand: false },
-  varPi: { def: '\\mathit{\\Pi}', expand: false },
-  varSigma: { def: '\\mathit{\\Sigma}', expand: false },
-  varUpsilon: { def: '\\mathit{\\Upsilon}', expand: false },
-  varPhi: { def: '\\mathit{\\Phi}', expand: false },
-  varPsi: { def: '\\mathit{\\Psi}', expand: false },
-  varOmega: { def: '\\mathit{\\Omega}', expand: false },
+  'braket.sty': { package: BRAKET_MACROS } as MacroPackageDefinition,
+  'amsmath.sty': {
+    package: AMSMATH_MACROS,
+    expand: false,
+  } as MacroPackageDefinition,
+  'texvc.sty': {
+    package: TEXVC_MACROS,
+    expand: false,
+  } as MacroPackageDefinition,
 };
 
 // Body-text symbols
@@ -1064,6 +1086,7 @@ export function defineTabularEnvironment(
 
 /**
  * Define one of more commands.
+ *
  * The name of the commands should not include the leading `\`
  */
 
@@ -1129,39 +1152,72 @@ export function defineFunction(
   }
 }
 
+let _DEFAULT_MACROS: NormalizedMacroDictionary;
+
+export function getMacros(
+  otherMacros?: MacroDictionary
+): NormalizedMacroDictionary {
+  if (!_DEFAULT_MACROS) {
+    _DEFAULT_MACROS = normalizeMacroDictionary(DEFAULT_MACROS);
+  }
+  if (!otherMacros) return _DEFAULT_MACROS;
+  return { ..._DEFAULT_MACROS, ...normalizeMacroDictionary(otherMacros) };
+}
+
+function normalizeMacroDefinition(
+  def: string | MacroDefinition,
+  options?: { expand?: boolean; captureSelection?: boolean }
+): MacroDefinition {
+  if (typeof def === 'string') {
+    // It's a shorthand definition, let's expand it
+    let argCount = 0;
+    const defString: string = def as string;
+    // Let's see if there are arguments in the definition.
+    if (/(^|[^\\])#1/.test(defString)) argCount = 1;
+    if (/(^|[^\\])#2/.test(defString)) argCount = 2;
+    if (/(^|[^\\])#3/.test(defString)) argCount = 3;
+    if (/(^|[^\\])#4/.test(defString)) argCount = 4;
+    if (/(^|[^\\])#5/.test(defString)) argCount = 5;
+    if (/(^|[^\\])#6/.test(defString)) argCount = 6;
+    if (/(^|[^\\])#7/.test(defString)) argCount = 7;
+    if (/(^|[^\\])#8/.test(defString)) argCount = 8;
+    if (/(^|[^\\])#9/.test(defString)) argCount = 9;
+    return {
+      expand: options?.expand ?? true,
+      captureSelection: options?.captureSelection ?? true,
+      args: argCount,
+      def: defString,
+    };
+  }
+  return {
+    expand: options?.expand ?? true,
+    captureSelection: options?.captureSelection ?? true,
+    args: 0,
+    ...(def as MacroDefinition),
+  };
+}
+
 export function normalizeMacroDictionary(
   macros: MacroDictionary | null
 ): NormalizedMacroDictionary | null {
   if (!macros) return null;
   const result: NormalizedMacroDictionary = {};
   for (const macro of Object.keys(macros)) {
-    if (typeof macros[macro] === 'string') {
-      // It's a shorthand definition, let's expand it
-      let argCount = 0;
-      const def: string = macros[macro] as string;
-      // Let's see if there are arguments in the definition.
-      if (/(^|[^\\])#1/.test(def)) argCount = 1;
-      if (/(^|[^\\])#2/.test(def)) argCount = 2;
-      if (/(^|[^\\])#3/.test(def)) argCount = 3;
-      if (/(^|[^\\])#4/.test(def)) argCount = 4;
-      if (/(^|[^\\])#5/.test(def)) argCount = 5;
-      if (/(^|[^\\])#6/.test(def)) argCount = 6;
-      if (/(^|[^\\])#7/.test(def)) argCount = 7;
-      if (/(^|[^\\])#8/.test(def)) argCount = 8;
-      if (/(^|[^\\])#9/.test(def)) argCount = 9;
-      result[macro] = {
-        def: def,
-        args: argCount,
-        expand: true,
-        captureSelection: true,
-      };
+    const macroDef = macros[macro];
+    if (macroDef === undefined || macroDef === null) {
+      delete result[macro];
+    } else if (typeof macroDef === 'object' && 'package' in macroDef) {
+      for (const packageMacro of Object.keys(macroDef.package)) {
+        result[macro] = normalizeMacroDefinition(
+          macroDef.package[packageMacro],
+          {
+            expand: macroDef.expand,
+            captureSelection: macroDef.captureSelection,
+          }
+        );
+      }
     } else {
-      result[macro] = {
-        expand: true,
-        captureSelection: true,
-        args: 0,
-        ...(macros[macro] as MacroDefinition),
-      };
+      result[macro] = normalizeMacroDefinition(macroDef);
     }
   }
   return result;

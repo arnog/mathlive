@@ -7,9 +7,9 @@ import {
   coalesce,
   Box,
   Context,
-  MACROS,
   adjustInterAtomSpacing,
   DEFAULT_FONT_SIZE,
+  getMacros,
 } from '../core/core';
 
 import { getKeybindingsForCommand } from './keybindings';
@@ -282,7 +282,7 @@ function latexToMarkup(latex: string): string {
   const root = new Atom('root', { mode: 'math' });
   root.body = parseLatex(latex, {
     parseMode: 'math',
-    macros: MACROS,
+    macros: getMacros(),
   });
 
   const box = coalesce(
@@ -290,7 +290,7 @@ function latexToMarkup(latex: string): string {
       new Box(
         root.render(
           new Context(
-            { macros: MACROS, smartFence: false },
+            { macros: getMacros(), smartFence: false },
             {
               fontSize: DEFAULT_FONT_SIZE,
             },

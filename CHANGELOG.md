@@ -6,6 +6,11 @@
   the `\class` command.
 - Added the following attributes to `<math-field>`: `plonk-sound`,
   `keypress-sound`. Setting them to 'none' turn off these sounds.
+- Added support for definition of macro packages (see `MacroPackageDefinition`)
+- Added support to selectively expand macro definitions. This avoid expanding
+  common macro definitions (for example from `amsmath.sty`) when
+  copying/pasting, while still expanding custom macros for improved
+  compatibility.
 - Added support for MediaWiki commands:
 
 * `\darr`
