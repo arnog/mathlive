@@ -33,6 +33,7 @@ import { range } from '../editor-model/selection-utils';
 import { insertSmartFence } from './mode-editor-math';
 import { ModeEditor } from './mode-editor';
 import { effectiveMode } from '../editor/options';
+import { canVibrate } from '../common/capabilities';
 
 export function showKeystroke(
   mathfield: MathfieldPrivate,
@@ -405,7 +406,7 @@ export function onTypedText(
   }
 
   if (options.feedback) {
-    if (mathfield.options.keypressVibration && navigator?.vibrate) {
+    if (mathfield.options.keypressVibration && canVibrate()) {
       navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
 

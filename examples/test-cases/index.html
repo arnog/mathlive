@@ -10,7 +10,7 @@
 
     <!-- <link rel="stylesheet" href="/dist/mathlive-static.css" /> -->
     <style>
-      math-field {
+      .mathfield {
         font-size: 32px;
       }
       math-field:not(:defined) {
@@ -139,18 +139,18 @@
 $$        \frac1c + \bbox[2em, yellow,border:solid 5px red]{\sqrt[3]{x}} = \binom{C}{k}$$
       
 
-      <!-- <math-field 
+      <math-field 
         class="mathfield" style="max-width: 640px; width:100%" 
         virtual-keyboard-mode="manual"
-        read-only>x+\left(\sqrt{x+1}+1\right)+\sum_0^4n^2</math-field> -->
-      <math-field 
+        read-only>x+\left(\sqrt{x+1}+1\right)+\sum_0^4n^2</math-field>
+      <!-- <math-field 
         id=mf 
         tabindex="0" 
         class="mathfield" style="max-width: 640px; width:100%" 
         smart-fence="true"
         horizontal-spacing-scale="1.2"
         virtual-keyboard-mode="manual">
-        \frac1c + \bbox[2em,yellow,border:solid 5px red]{\sqrt[3]{x}} = \binom{C}{k}
+        \frac1c + \bbox[2em,yellow,border:solid 5px red]{\sqrt[3]{x}} = \binom{C}{k} -->
         <!-- -0-0=-0(0) -->
         
         <!-- \htmlData{partid=14}{\left(} 3 + 5 \htmlData{partid=15}{\right)} = \htmlData{partid=16}{\left(} 2x + 5 \htmlData{partid=17}{\right)}     -->
@@ -299,7 +299,13 @@ $$        \frac1c + \bbox[2em, yellow,border:solid 5px red]{\sqrt[3]{x}} = \bino
           <button id='mf-button-show'>Show</button>
         </div>
   
+        <div class='buttonbar'>
+
+          <div id='tooltip'>Look At Me</div>
+        </div>
   
+        <p>The answer is <math-field default-mode="inline-math" read-only>\sum_n^\infty=0=x^2+3x+5</math-field></p>
+
 
       </main>
 
@@ -317,20 +323,32 @@ $$        \frac1c + \bbox[2em, yellow,border:solid 5px red]{\sqrt[3]{x}} = \bino
       //  console.log( convertLatexToMarkup('\\int _{x}^{\\infty }'));
 
 
-      const mfi = new MathfieldElement();
-      mfi.value = 'f(x) = \\frac{1}{x}';
-      mfi.virtualKeyboardMode = 'manual';
-      document.getElementById('insertion-point').appendChild(mfi);
+      tippy('#tooltip', {
+        content: 'The answer is <math-field default-mode="inline-math" read-only>\\sum_n^\\infty=0=x^2+3x+5</math-field>',
+        interactive: true,
+      });
 
-      document.getElementById('mf-button-hide').addEventListener('click', () => {
-        mfi.remove();
-        console.log(mfi.value);
-      });
-      document.getElementById('mf-button-show').addEventListener('click', () => {
-        console.log('before ', mfi.value);
-        document.getElementById('insertion-point').appendChild(mfi);
-        console.log('after ', mfi.value);
-      });
+
+      // const frag = document.createDocumentFragment();
+      // const mfi = new MathfieldElement();
+      // mfi.value = 'f(x) = \\frac{1}{x}';
+      // mfi.virtualKeyboardMode = 'manual';
+      // mfi.readOnly = true;
+      // mfi.setOptions({readOnly: true});
+      // console.log('Has Focus', mfi.hasFocus());
+      // frag.appendChild(mfi);
+
+      // document.getElementById('insertion-point').appendChild(frag);
+
+      // document.getElementById('mf-button-hide').addEventListener('click', () => {
+      //   mfi.remove();
+      //   console.log(mfi.value);
+      // });
+      // document.getElementById('mf-button-show').addEventListener('click', () => {
+      //   console.log('before ', mfi.value);
+      //   document.getElementById('insertion-point').appendChild(mfi);
+      //   console.log('after ', mfi.value);
+      // });
 
       let gSearchLatex;
 
@@ -394,9 +412,7 @@ $$        \frac1c + \bbox[2em, yellow,border:solid 5px red]{\sqrt[3]{x}} = \bino
 
       const mf = document.getElementById('mf');
 
-
-
-      mf.setOptions({
+      mf?.setOptions({
           inlineShortcuts: {
               in: {
                   mode: 'math',
@@ -442,13 +458,13 @@ $$        \frac1c + \bbox[2em, yellow,border:solid 5px red]{\sqrt[3]{x}} = \bino
       // mf.addEventListener('focus', (ev) => {
       //     console.log('focus event');
       // });
-      mf.addEventListener('input', (ev) => {
+      mf?.addEventListener('input', (ev) => {
           updateContent(mf);
           applySearchTerm();
       });
       // mf.addEventListener('change', (ev) => {
       // });
-      mf.addEventListener('selection-change', (ev) => {
+      mf?.addEventListener('selection-change', (ev) => {
           const selection = mf.selection;
           // console.assert(selection.ranges[0][0] !== 2 || selection.ranges[0][1] !== 3);
           document.getElementById('selection').innerHTML =
@@ -459,12 +475,13 @@ $$        \frac1c + \bbox[2em, yellow,border:solid 5px red]{\sqrt[3]{x}} = \bino
               label("direction ") + '\"' + selection.direction + "\"<br>" +
               label("value     ") + '\"' + mf.getValue(selection) + '"'
       });
-      mf.addEventListener('math-error', (ev) => {
+      mf?.addEventListener('math-error', (ev) => {
           console.log('Error :' + ev.detail.code);
       });
-      updateContent(mf);
-      applySearchTerm();
-
+      if (mf) {
+        updateContent(mf);
+        applySearchTerm();
+      }
 
 
 
@@ -550,6 +567,8 @@ $$        \frac1c + \bbox[2em, yellow,border:solid 5px red]{\sqrt[3]{x}} = \bino
           });
       }
     </script>
+<script src="https://unpkg.com/popper.js@1"></script>
+<script src="https://unpkg.com/tippy.js@5"></script>
 </body>
 
 </html>

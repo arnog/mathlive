@@ -91,7 +91,7 @@ import './mode-editor-text';
 
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
-import { isTouchCapable } from '../common/capabilities';
+import { canVibrate, isBrowser, isTouchCapable } from '../common/capabilities';
 import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
 export class MathfieldPrivate implements Mathfield {
@@ -347,6 +347,16 @@ export class MathfieldPrivate implements Mathfield {
     } else {
       this.virtualKeyboardToggle.classList.remove('is-visible');
     }
+    if (this.options.readOnly) {
+      this.element.classList.add('ML__isReadOnly');
+    } else {
+      this.element.classList.remove('ML__isReadOnly');
+    }
+    if (this.options.defaultMode === 'inline-math') {
+      this.element.classList.add('ML__isInline');
+    } else {
+      this.element.classList.remove('ML__isInline');
+    }
     attachButtonHandlers(
       (command) => this.executeCommand(command),
       this.virtualKeyboardToggle,
@@ -448,10 +458,6 @@ export class MathfieldPrivate implements Mathfield {
       }
     );
 
-    if (this.options.readOnly) {
-      this.element.classList.add('ML__isReadOnly');
-    }
-
     // Delegate mouse and touch events
     if (window.PointerEvent) {
       // Use modern pointer events if available
@@ -542,7 +548,9 @@ export class MathfieldPrivate implements Mathfield {
     // When fonts are done loading, re-render
     // (the selection highlighting may be out of date due to the HTML layout
     // having been updated with the new font metrics)
-    document.fonts.ready.then(() => render(this));
+    if (isBrowser()) {
+      document.fonts.ready.then(() => render(this));
+    }
   }
 
   get virtualKeyboardState(): 'hidden' | 'visible' {
@@ -634,6 +642,17 @@ export class MathfieldPrivate implements Mathfield {
       this.virtualKeyboardToggle.classList.add('is-visible');
     } else {
       this.virtualKeyboardToggle.classList.remove('is-visible');
+    }
+
+    if (this.options.readOnly) {
+      this.element.classList.add('ML__isReadOnly');
+    } else {
+      this.element.classList.remove('ML__isReadOnly');
+    }
+    if (this.options.defaultMode === 'inline-math') {
+      this.element.classList.add('ML__isInline');
+    } else {
+      this.element.classList.remove('ML__isInline');
     }
 
     this.colorMap = (name: string): string | null => {
@@ -748,10 +767,10 @@ export class MathfieldPrivate implements Mathfield {
         break;
       case 'resize': {
         if (this.resizeTimer) {
-          window.cancelAnimationFrame(this.resizeTimer);
+          cancelAnimationFrame(this.resizeTimer);
         }
 
-        this.resizeTimer = window.requestAnimationFrame(
+        this.resizeTimer = requestAnimationFrame(
           () => isValidMathfield(this) && this.onResize()
         );
         break;
@@ -1033,7 +1052,7 @@ export class MathfieldPrivate implements Mathfield {
       }
 
       if (options.feedback) {
-        if (this.options.keypressVibration && navigator?.vibrate) {
+        if (this.options.keypressVibration && canVibrate()) {
           navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
 
@@ -1160,7 +1179,9 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   hasFocus(): boolean {
-    return document.hasFocus() && this.keyboardDelegate.hasFocus();
+    return (
+      isBrowser() && document.hasFocus() && this.keyboardDelegate.hasFocus()
+    );
   }
 
   focus(): void {
@@ -1373,7 +1394,6 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   private onFocus(): void {
-    if (this.options.readOnly) return;
     if (this.blurred) {
       this.blurred = false;
       this.keyboardDelegate.focus();

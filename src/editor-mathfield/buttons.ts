@@ -132,7 +132,7 @@ export function attachButtonHandlers(
             clearTimeout(pressAndHoldTimer);
           }
 
-          pressAndHoldTimer = window.setTimeout(() => {
+          pressAndHoldTimer = setTimeout(() => {
             if (element.classList.contains('is-pressed')) {
               executeCommand(JSON.parse(pressAndHoldStartCommand));
             }

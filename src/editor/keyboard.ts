@@ -24,7 +24,7 @@
  * - https://github.com/microsoft/vscode/wiki/Keybinding-Issues
  */
 
-import { isTouchCapable } from '../common/capabilities';
+import { isBrowser, isTouchCapable } from '../common/capabilities';
 import { normalizeKeyboardEvent } from './keyboard-layout';
 
 const PRINTABLE_KEYCODE = new Set([
@@ -432,6 +432,7 @@ export function delegateKeyboardEvents(
 }
 
 function deepActiveElement(): Element | null {
+  if (!isBrowser()) return null;
   let a = document.activeElement;
   while (a?.shadowRoot?.activeElement) {
     a = a.shadowRoot.activeElement;

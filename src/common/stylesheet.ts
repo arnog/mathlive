@@ -1,9 +1,12 @@
 import type { Releasable } from './releasable';
 import { hashCode } from './hash-code';
+import { throwIfNotInBrowser } from './capabilities';
 
 export type Stylesheet = Releasable;
 
 export function inject(element: HTMLElement, css: string): Releasable {
+  throwIfNotInBrowser();
+
   if (!css) return null;
 
   let root = element?.getRootNode() ?? document?.head;

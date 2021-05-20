@@ -68,7 +68,7 @@ const DEFAULT_DIMENSION_REGISTERS: Registers = {
   'normalbaselineskip': '12pt',
   'normallineskip': '1pt',
   'normallineskiplimit': '0pt',
-  // @todo: The vertical space between thelines for all math expressions which
+  // @todo: The vertical space between the lines for all math expressions which
   // allow multiple lines (see array, multline)
   'jot': '3pt',
 
@@ -76,8 +76,7 @@ const DEFAULT_DIMENSION_REGISTERS: Registers = {
   // From article.cls.txt:455
   'doublerulesep': '2pt',
 
-  // The width of separator lines in {array} environments. From
-  // `\showthe\arrayrulewidth` in LaTeX. Equals 0.4 / ptPerEm.
+  // The width of separator lines in {array} environments.
   'arrayrulewidth': '0.4pt',
   'arraycolsep': '5pt',
 

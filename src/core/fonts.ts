@@ -1,4 +1,4 @@
-import { supportLocalFontEnumeration } from '../common/capabilities';
+import { isBrowser, supportLocalFontEnumeration } from '../common/capabilities';
 import { resolveRelativeUrl } from '../common/script-url';
 import { ErrorListener, MathfieldErrorCode } from '../public/core';
 
@@ -19,7 +19,7 @@ export async function loadFonts(
   onError?: ErrorListener<MathfieldErrorCode>
 ): Promise<void> {
   // If we're already loading the fonts, we're done.
-  if (document.body.classList.contains('ML__fonts-loading')) {
+  if (!isBrowser() || document.body.classList.contains('ML__fonts-loading')) {
     return;
   }
 

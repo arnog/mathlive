@@ -52,6 +52,7 @@ import { DEFAULT_FONT_SIZE } from './core/font-metrics';
 import { l10n } from './editor/l10n';
 import { typeset } from './core/typeset';
 import { getDefaultRegisters } from './core/registers';
+import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 
 export { MathfieldElement } from './public/mathfield-element';
 
@@ -268,11 +269,12 @@ function latexToSpeakableText(
 }
 
 export function renderMathInDocument(options: AutoRenderOptionsPrivate): void {
+  throwIfNotInBrowser();
   renderMathInElement(document.body, options);
 }
 
 function getElement(element: string | HTMLElement): HTMLElement {
-  if (typeof element === 'string') {
+  if (typeof element === 'string' && isBrowser()) {
     const result: HTMLElement = document.getElementById(element);
     if (result === null) {
       throw new Error(`The element with ID "${element}" could not be found.`);
@@ -281,7 +283,7 @@ function getElement(element: string | HTMLElement): HTMLElement {
     return result;
   }
 
-  return element;
+  return typeof element === 'string' ? null : element;
 }
 
 export function renderMathInElement(

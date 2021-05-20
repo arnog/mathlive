@@ -8,6 +8,7 @@ import { inject as injectStylesheet } from '../common/stylesheet';
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
 import { parseMathString } from '../editor/parse-math-string';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   /** A function that will convert any LaTeX found to
@@ -242,6 +243,8 @@ function createMathMLNode(
   latex: string,
   options: AutoRenderOptionsPrivate
 ): HTMLElement {
+  throwIfNotInBrowser();
+
   // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
   // This node has a style that makes it be invisible to display but is seen by AT
   const span = document.createElement('span');
@@ -266,6 +269,8 @@ function createMarkupNode(
   mathstyle: 'displaystyle' | 'textstyle',
   createNodeOnFailure: boolean
 ): HTMLSpanElement | Text {
+  throwIfNotInBrowser();
+
   // Create a node for displaying math.
   //   This is slightly ugly because in the case of failure to create the markup,
   //   sometimes a text node is desired and sometimes not.
@@ -314,6 +319,7 @@ function createAccessibleMarkupPair(
     markupNode &&
     /\b(mathml|speakable-text)\b/i.test(options.renderAccessibleContent)
   ) {
+    throwIfNotInBrowser();
     const fragment = document.createElement('span');
     if (
       /\bmathml\b/i.test(options.renderAccessibleContent) &&
@@ -341,8 +347,9 @@ function createAccessibleMarkupPair(
 }
 
 function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
-  // If the text starts with '\begin'...
-  // (this is a MathJAX behavior)
+  throwIfNotInBrowser();
+
+  // If the text starts with '\begin'... (this is a MathJAX behavior)
   let fragment: Node = null;
   if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
     fragment = document.createDocumentFragment();

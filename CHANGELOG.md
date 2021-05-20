@@ -9,6 +9,10 @@
 
 - **#946** Support addding a custom stylesheet to a `<math-field>` when using
   the `\class` command.
+- When the `default-mode` attribute (or the `defaultMode` property) of a
+  `<math-field>` element is set to `"inline-math"`, the element will be
+  displayed as an inline element. Previously, the `defaultMode` affected the
+  layout of the math content, but the element still behaved as a block.
 - The mathfield options which are reflected as attributes (e.g.
   `virtual-keyboard-mode`) are now reflected as a property on the element
   `mf.virtualKeyboardMode` as a shortcut to

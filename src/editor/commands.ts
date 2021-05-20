@@ -5,6 +5,7 @@ import { SelectorPrivate, CommandRegistry } from './commands-definitions';
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { requestUpdate } from '../editor-mathfield/render';
 import { updateAutocomplete, complete } from '../editor-mathfield/autocomplete';
+import { canVibrate } from '../common/capabilities';
 
 export { SelectorPrivate };
 
@@ -188,7 +189,7 @@ export function performWithFeedback(
 ): boolean {
   // @revisit: have a registry of commands -> sound
   mathfield.focus();
-  if (mathfield.options.keypressVibration && navigator?.vibrate) {
+  if (mathfield.options.keypressVibration && canVibrate()) {
     navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
   }
 

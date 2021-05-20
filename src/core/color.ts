@@ -345,8 +345,8 @@ yellowgreen	rgb(154, 205, 50)
  * Return a CSS color (#rrggbb) from a string.
  *
  * Possible formats include:
- * - named colors from the DVI color set: 'Yellow', 'red'... Case insensitive.
- * - colors from the Mathematica set: 'm1'...'m9'
+ * - named colors from the DVI color set: 'Yellow', 'red'... Case sensitive.
+ * - colors from the Mathematica set: 'M1'...'M9'
  * - 3-digit hex: `'#d50'`
  * - 6-digit hex: `'#dd5500'`
  * - RGB functional: `'rgb(240, 20, 10)'`
@@ -354,9 +354,9 @@ yellowgreen	rgb(154, 205, 50)
  * In addition, colors can be mixed using the following syntax:
  * `<mix> = <color>![<value>][!<mix>]`
  * For example:
- * - `'blue!20'`  = 20% blue + 80% white
- * - `'blue!20!black'` = 20% + 80% black
- * - `'blue!20!black!30!green'` = (20% + 80% black) * 30 % + 70% green
+ * - `'Blue!20'`  = 20% blue + 80% white
+ * - `'Blue!20!Black'` = 20% + 80% black
+ * - `'Blue!20!Black!30!Green'` = (20% + 80% black) * 30 % + 70% green
  *
  * If the input string is prefixed with a dash, the complementary color
  * of the expression is returned.

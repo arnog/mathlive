@@ -29,6 +29,7 @@ import { Context } from '../core/context';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { typeset } from '../core/typeset';
 import { getDefaultRegisters } from '../core/registers';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 let gScrim: Scrim = null;
 
@@ -37,6 +38,8 @@ export function showAlternateKeys(
   altKeysetName: string,
   altKeys: (string | any)[]
 ): boolean {
+  throwIfNotInBrowser();
+
   const altContainer = document.createElement('div');
   altContainer.setAttribute('aria-hidden', 'true');
   altContainer.className =
@@ -166,6 +169,8 @@ export function showAlternateKeys(
 }
 
 export function hideAlternateKeys(): boolean {
+  throwIfNotInBrowser();
+
   const altContainer = document.querySelector<HTMLElement>(
     '#mathlive-alternate-keys-panel'
   );
@@ -1652,6 +1657,8 @@ export function makeKeyboardElement(
   keyboard: VirtualKeyboard,
   theme: 'apple' | 'material' | ''
 ): HTMLDivElement {
+  throwIfNotInBrowser();
+
   const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
             <symbol id="svg-command" viewBox="0 0 640 512">

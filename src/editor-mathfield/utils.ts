@@ -1,3 +1,4 @@
+import { throwIfNotInBrowser } from '../common/capabilities';
 import { Atom } from '../core/atom-class';
 import type { Range } from '../public/mathfield';
 import { OriginValidator } from '../public/options';
@@ -59,6 +60,8 @@ export function off(
 }
 
 export function getSharedElement(id: string, cls: string): HTMLElement {
+  throwIfNotInBrowser();
+
   let result = document.getElementById(id);
   if (result) {
     result.dataset.refcount = Number(

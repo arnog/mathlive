@@ -19,6 +19,7 @@ import {
 } from '../editor/options';
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { isOffset, isRange, isSelection } from '../editor/model';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 //
 // Custom Events
@@ -114,9 +115,6 @@ declare global {
 
 const MATHFIELD_TEMPLATE = document.createElement('template');
 MATHFIELD_TEMPLATE.innerHTML = `<style>
-:host {
-    display: block;
-}
 :host([hidden]) {
     display: none;
 }
@@ -600,6 +598,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     * ```
     */
   constructor(options?: Partial<MathfieldOptions>) {
+    throwIfNotInBrowser();
     super();
 
     this.attachShadow({ mode: 'open' });
@@ -1182,10 +1181,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Notify listeners that we're mounted and ready
     this.dispatchEvent(
-      new Event('mount', {
-        cancelable: false,
-        bubbles: true,
-      })
+      new Event('mount', { cancelable: false, bubbles: true })
     );
   }
 
@@ -1196,10 +1192,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   disconnectedCallback(): void {
     // Notify listeners that we're about to be unmounted
     this.dispatchEvent(
-      new Event('unmount', {
-        cancelable: false,
-        bubbles: true,
-      })
+      new Event('unmount', { cancelable: false, bubbles: true })
     );
 
     if (!this._mathfield) return;

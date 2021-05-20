@@ -16,8 +16,8 @@
   border: 0;
 }
 
-body.ML__fonts-loading .ML__base {
-  visibility: hidden;
+.ML__isInline {
+  display: inline-block;
 }
 
 .ML__base {
@@ -37,6 +37,10 @@ body.ML__fonts-loading .ML__base {
   text-decoration: none;
   // Fix width of containers of negative spaces, working around Chrome bug.
   width: min-content;
+}
+
+body.ML__fonts-loading .ML__base {
+  visibility: hidden;
 }
 
 .ML__strut,
