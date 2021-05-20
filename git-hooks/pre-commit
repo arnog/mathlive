@@ -8,41 +8,48 @@ export LINECLEAR="\033[1G\033[2K" # position to column 1; erase whole line
 export ERROR="\033[31m ❌ ERROR \033[0m"
 export RESET="\033[0m"
 
+
+git config advice.addEmptyPathspec false
+
+echo "${LINECLEAR}${CHECK} Linting Typescript files"
 exit_code=1
-all_ts_files=$(git diff --cached --diff-filter=d --name-only | grep .ts$)
-npx eslint $all_ts_files --quiet --fix
-exit_code=$?
+export all_ts_files=$(git diff --cached --diff-filter=d --name-only | grep .ts$)
 
-# Add to the commit list any filed updated by the linter
-git add -f $all_ts_files
+if [ ${#all_ts_files} -gt 0 ]; then
+  npx eslint ${all_ts_files} --quiet --fix
+  exit_code=$?
 
-if [ $exit_code -ne 0 ]
-then
-  echo "${ERROR} eslint failed${RESET}"
-  exit 1
-else
-  echo "${CHECK} eslint passed${RESET}"
-  exit 0
+  # Add to the commit list any filed updated by the linter
+  git add -f ${all_ts_files}
+
+  if [ $exit_code -ne 0 ]
+  then
+    echo "${LINECLEAR}${ERROR} eslint failed${RESET}"
+    exit 1
+  else
+    echo "${LINECLEAR}${CHECK} eslint passed${RESET}"
+  fi
 fi
 
 
+echo "${LINECLEAR}${CHECK} Linting other files"
 exit_code=1
-all_other_files=$(git diff --cached --diff-filter=d --name-only | grep -E '(.css|.json|.less|.md)$')
-npx prettier $all_other_files --write
-exit_code=$?
+export all_other_files=$(git diff --cached --diff-filter=d --name-only | grep -E '(.css|.json|.less|.md)$')
+if [ ${#all_other_files} -gt 0 ]; then
+  npx prettier ${all_other_files} --write
+  exit_code=$?
 
-# Add to the commit list any filed updated by prettier
-git add -f $all_other_files
+  # Add to the commit list any filed updated by prettier
+  git add -f ${all_other_files}
 
-if [ $exit_code -ne 0 ]
-then
-  echo "${ERROR} prettier failed${RESET}"
-  exit 1
-else
-  echo "${CHECK} prettier passed${RESET}"
-  exit 0
+  if [ $exit_code -ne 0 ]
+  then
+    echo "${LINECLEAR}${ERROR} prettier failed${RESET}"
+    exit 1
+  else
+    echo "${LINECLEAR}${CHECK} prettier passed${RESET}"
+  fi
 fi
-
 
 exit_code=1
 npm run test
@@ -50,10 +57,10 @@ exit_code=$?
 
 if [ $exit_code -ne 0 ]
 then
-  echo "${ERROR} Unit testing failed${RESET}"
+  echo "${LINECLEAR}${ERROR} Unit testing failed${RESET}"
   exit 1
 else
-  echo "${CHECK} Unit testing passed${RESET}"
+  echo "${LINECLEAR}${CHECK} Unit testing passed${RESET}"
   exit 0
 fi
 
