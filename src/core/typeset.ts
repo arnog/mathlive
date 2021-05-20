@@ -29,30 +29,30 @@ import { getDefaultRegisters } from './registers';
  *
  */
 
-const INTER_ATOM_SPACING = {
-  mord: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
-  mop: { mord: 3, mop: 3, rel: 5, minner: 3 },
-  mbin: { mord: 4, mop: 4, mopen: 4, minner: 4 },
-  mrel: { mord: 5, mop: 5, mopen: 5, minner: 5 },
-  mclose: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
-  mpunct: { mord: 3, mop: 3, mrel: 3, mopen: 3, mpunct: 3, minner: 3 },
-  minner: { mord: 3, mop: 3, mbin: 4, mrel: 5, mopen: 3, mpunct: 3, minner: 3 },
-};
+// const INTER_ATOM_SPACING = {
+//   mord: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
+//   mop: { mord: 3, mop: 3, rel: 5, minner: 3 },
+//   mbin: { mord: 4, mop: 4, mopen: 4, minner: 4 },
+//   mrel: { mord: 5, mop: 5, mopen: 5, minner: 5 },
+//   mclose: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
+//   mpunct: { mord: 3, mop: 3, mrel: 3, mopen: 3, mpunct: 3, minner: 3 },
+//   minner: { mord: 3, mop: 3, mbin: 4, mrel: 5, mopen: 3, mpunct: 3, minner: 3 },
+// };
 
-/**
- * This table is used when the mathstyle is 'tight' (scriptstyle or
- * scriptscriptstyle).
- */
-const INTER_ATOM_TIGHT_SPACING = {
-  mord: { mop: 3 },
-  mop: { mord: 3, mop: 3 },
-  mclose: { mop: 3 },
-  minner: { mop: 3 },
-};
+// /**
+//  * This table is used when the mathstyle is 'tight' (scriptstyle or
+//  * scriptscriptstyle).
+//  */
+// const INTER_ATOM_TIGHT_SPACING = {
+//   mord: { mop: 3 },
+//   mop: { mord: 3, mop: 3 },
+//   mclose: { mop: 3 },
+//   minner: { mop: 3 },
+// };
 
 function typesetRecursive(
   atoms: Atom[],
-  options: { registers: Registers }
+  _options: { registers: Registers }
 ): Atom[] {
   // 1. Apply inter-atom spacing rules
   return atoms;
