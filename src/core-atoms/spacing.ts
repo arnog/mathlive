@@ -14,7 +14,7 @@ export class SpacingAtom extends Atom {
 
   render(_context: Context): Box {
     let result: Box;
-    if (Number.isFinite(this.width)) {
+    if (this.width) {
       result = new Box(null, { classes: 'mspace' });
       result.left = convertGlueToEm(this.width);
     } else {

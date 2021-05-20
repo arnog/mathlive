@@ -2,17 +2,23 @@
 
 ### Breaking Changes
 
-- Deprecated `horizontalSpacingScale` option. It will be replaced in a future
-  version by the TeX registers `\thinmuskip`, `\medmuskip` and `\thickmuskip`.
+- The `horizontalSpacingScale` option is deprecated. It will be removed in an
+  upcoming version and replaced by the standard TeX registers `\thinmuskip`,
+  `\medmuskip` and `\thickmuskip`.
+
+### Improvements
+
+- When the `default-mode` attribute (or the `defaultMode` property) of a
+  `<math-field>` element is set to `"inline-math"`, the element will be
+  displayed as an inline element. Previously, the `defaultMode` affected the
+  layout of the math content, but the element still behaved as a block.
+- `renderMathInDocument()` now creates a `<div>` when using Display Style, and a
+  `<span>` when using Text Style (inline math).
 
 ### New Features
 
 - **#946** Support addding a custom stylesheet to a `<math-field>` when using
   the `\class` command.
-- When the `default-mode` attribute (or the `defaultMode` property) of a
-  `<math-field>` element is set to `"inline-math"`, the element will be
-  displayed as an inline element. Previously, the `defaultMode` affected the
-  layout of the math content, but the element still behaved as a block.
 - The mathfield options which are reflected as attributes (e.g.
   `virtual-keyboard-mode`) are now reflected as a property on the element
   `mf.virtualKeyboardMode` as a shortcut to
@@ -107,20 +113,24 @@
 
 - Added support for the `\displaylimits` command
 
+See
+[Supported TeX/LaTeX Commands](https://cortexjs.io/mathlive/reference/commands/)
+for more details.
+
 ### Bug Fixes
 
 - **#943** When a tooltip for a custom virtual keyboard was provided, the label
   was set to "undefined".
-- The DVIPS colors are case sensitive (i.e. `LimeGreen` is ok, `Limegreen` is
-  not)
-- `renderMathInDocument()` now creates a `<div>` when using Display Style, and a
-  `<span>` when using Text Style (inline math).
+- The DVIPS colors were case sensitive, they should be case sensitive. (i.e.
+  `LimeGreen` is a valid color, `Limegreen` is not)
 - **#945** Preserve more aggresively verbatim Latex. Also, avoid serializing
   superfluous spaces in Spacing atoms.
 - **#770** Correctly handle attaching limits to `\int` command using the
   keyboard.
 - Return the correct `value` for the mathfield element when it is not attached
-  yet, even if the format is not specified.
+  yet, even if the output format is not specified.
+- Color specified with the `rgb()` function would not render correctly if the
+  arguments contained some spaces, e.g.`rgb ( 255 , 255 , 255 )`.
 
 ## 0.65.0 (2021-05-14)
 

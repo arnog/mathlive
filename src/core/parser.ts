@@ -643,7 +643,7 @@ export class Parser {
     let value = this.scanNumber(false);
     if (value === null) {
       // This wasn't a number, but perhaps it's a register name?
-      if (this.peek().startsWith('\\')) {
+      if (this.peek()?.startsWith('\\')) {
         value = 1;
       } else {
         return null;
@@ -674,7 +674,7 @@ export class Parser {
     } else if (this.matchKeyword('mu')) {
       result = { dimension: value, unit: 'mu' };
     } else {
-      if (this.peek().startsWith('\\')) {
+      if (this.peek()?.startsWith('\\')) {
         result = convertToDimension(
           this.getRegister(this.get().slice(1)),
           this.currentContext.registers
@@ -1281,8 +1281,10 @@ export class Parser {
               args.push(0);
               break;
             case 'dimen':
+              args.push({ dimension: 0, unit: 'pt' });
+              break;
             case 'glue':
-              args.push('0mu');
+              args.push({ glue: { dimension: 0, unit: 'pt' } });
               break;
             case 'string':
             case 'balanced-string':
@@ -1526,7 +1528,7 @@ export class Parser {
       // \hskip and \kern have a special syntax and requires a non-braced
       // 'skip' argument
       const width = this.scanGlue();
-      if (!Number.isFinite(width)) return null;
+      if (!width) return null;
       return [new SpacingAtom(command, this.style, width)];
     }
 

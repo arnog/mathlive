@@ -564,7 +564,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * @internal
    */
   static get observedAttributes(): string[] {
-    return [...Object.keys(MathfieldElement.optionsAttributes), 'disabled'];
+    return [
+      ...Object.keys(MathfieldElement.optionsAttributes),
+      'disabled',
+      'readonly',
+    ];
   }
 
   private _mathfield: MathfieldPrivate;
@@ -1139,6 +1143,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     );
 
     this.upgradeProperty('disabled');
+    this.upgradeProperty('readonly');
     for (const prop of Object.keys(MathfieldElement.optionsAttributes)) {
       this.upgradeProperty(toCamelCase(prop));
     }
@@ -1245,8 +1250,24 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       case 'disabled':
         this.disabled = hasValue;
         break;
+      case 'readonly':
+        this.readOnly = hasValue;
+        break;
       default:
     }
+  }
+
+  get readonly(): boolean {
+    return this.hasAttribute('readonly') || this.hasAttribute('read-only');
+  }
+
+  set readonly(value: boolean) {
+    const isDisabled = Boolean(value);
+    if (isDisabled) this.setAttribute('disabled', '');
+    else this.removeAttribute('disabled');
+
+    this.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
+    this.setOptions({ readOnly: isDisabled });
   }
 
   get disabled(): boolean {

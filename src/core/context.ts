@@ -122,6 +122,7 @@ export class Context implements ContextInterface {
     console.assert(parent instanceof Context || inMathstyle !== undefined);
 
     if (parent instanceof Context) this.parent = parent;
+    if (!(parent instanceof Context)) this.registers = parent.registers;
 
     this.isSelected = style?.isSelected ?? parent?.isSelected ?? false;
     this.isPhantom = style?.isPhantom ?? this.parent?.isPhantom ?? false;
