@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.66.0 (2021-05-20)
 
 ### Breaking Changes
 
