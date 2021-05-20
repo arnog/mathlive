@@ -57,6 +57,7 @@ export function render(
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
   throwIfNotInBrowser();
+  if (!isValidMathfield(mathfield)) return;
 
   renderOptions = renderOptions ?? {};
   mathfield.dirty = false;

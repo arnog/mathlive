@@ -119,6 +119,11 @@ for more details.
 
 ### Bug Fixes
 
+- When a mathfield is created, then immediately removed from the document, do
+  not crash. The creation of the mathfield triggered an asynchronous rendering
+  and by the time the rendering was executed the mathfield was no longer valid.
+  This situattion happened when using "tippyjs" and possibly other libraries.
+- When a mathfield is read-only, do not display the focus outline.
 - **#943** When a tooltip for a custom virtual keyboard was provided, the label
   was set to "undefined".
 - The DVIPS colors were case sensitive, they should be case sensitive. (i.e.

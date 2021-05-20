@@ -122,8 +122,11 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
     opacity:  .5;
 }
 :host(:focus), :host(:focus-within) {
-    outline: Highlight auto 1px;    /* For Firefox */
-    outline: -webkit-focus-ring-color auto 1px;
+  outline: Highlight auto 1px;    /* For Firefox */
+  outline: -webkit-focus-ring-color auto 1px;
+}
+:host([readonly]), :host([read-only]) {
+  outline: none;
 }
 </style>
 <div></div><slot style="display:none"></slot>`;
@@ -1142,10 +1145,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       }
     );
 
-    this.upgradeProperty('disabled');
-    this.upgradeProperty('readonly');
-    for (const prop of Object.keys(MathfieldElement.optionsAttributes)) {
-      this.upgradeProperty(toCamelCase(prop));
+    if (!gDeferredState.has(this)) {
+      this.upgradeProperty('disabled');
+      this.upgradeProperty('readonly');
+      for (const prop of Object.keys(MathfieldElement.optionsAttributes)) {
+        this.upgradeProperty(toCamelCase(prop));
+      }
     }
 
     // The mathfield creation could have failed
