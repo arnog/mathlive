@@ -135,6 +135,13 @@
     </header>
     <main class='centered' tabindex="0">
 
+      <!-- <button id="tip-trigger">hover over me</button>
+        <div id="tip-content">
+          <h3>Header</h3>
+          <math-field read-only id="mf-elt">\frac{3}{1+\sqrt{x}}</math-field>
+          <p>after math-field</p>
+        </div> -->
+      
       <math-field 
         class="mathfield" style="max-width: 640px; width:100%" 
         virtual-keyboard-mode="manual"
@@ -222,7 +229,7 @@
             <!--  $$x+\left(\sqrt{x+1}+1\right)+\sum_0^4n^2+\frac{1+x}{x-1}\int^{\infty}_0x\mathrm{d}x+\boxed{\frac{1}{x}}\colorbox{yellow}{\sqrt{\frac{1}{x}}}\cancel{x^2+1}\xRightarrow[\text{above}]{\text{below}}$$
             -->
             <!-- x=x^2_{b+1}+\frac{1}{2_{56}}^{34}_{56}+\sqrt{23}+\sqrt[45]{67}+\box{x+1}+\xRightarrow[below]{above}^2+\begin{matrix}1&2&3\\4\\5&6\end{matrix} -->
-        </math-field>
+        <!-- </math-field> -->
 
         <div class="centered"><input id='find-input' placeholder="Find Latex"></input></div>
         <div class="centered" style="margin-top: .5em"><input id='replace-input' placeholder="Replace With..."></input>
@@ -300,7 +307,7 @@
           <div id='tooltip'>Look At Me</div>
         </div>
   
-        <p>The answer is <math-field default-mode="inline-math" read-only>\sum_n^\infty=0=x^2+3x+5</math-field></p>
+        <!-- <p>The answer is <math-field default-mode="inline-math" read-only>\sum_n^\infty=0=x^2+3x+5</math-field></p> -->
 
 
       </main>
@@ -319,10 +326,11 @@
       //  console.log( convertLatexToMarkup('\\int _{x}^{\\infty }'));
 
 
-      tippy('#tooltip', {
-        content: 'The answer is <math-field default-mode="inline-math" read-only>\\sum_n^\\infty=0=x^2+3x+5</math-field>',
-        interactive: true,
-      });
+      // const elt = document.getElementById("tip-content");
+      //     tippy("#tip-trigger", {
+      //       content: elt,
+      //       interactive: true,
+      //     });
 
 
       // const frag = document.createDocumentFragment();
