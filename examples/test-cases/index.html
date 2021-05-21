@@ -116,36 +116,15 @@
 <body>
     <header><h1>MathLive Testing Playground</h1></header>
     <main class='centered' tabindex="0">
-      <math-field 
+      <!-- <math-field 
         id=mf 
         class="mathfield" style="font-size: 32px;max-width: 640px; width:100%" 
         virtual-keyboard-mode="manual">
-        \darr \Alpha
-      </math-field>
-        <!-- -0-0=-0(0) -->
-        
-        <!-- \htmlData{partid=14}{\left(} 3 + 5 \htmlData{partid=15}{\right)} = \htmlData{partid=16}{\left(} 2x + 5 \htmlData{partid=17}{\right)}     -->
-        
-        <!-- \begin{bmatrix}a\\b\\c\\d\\e\\f\end{bmatrix} -->
-
-        <!-- \begin{equation*} {}^8 x^2\sum^{5}_{n=0}\left(\frac1\frac34\right)^2\int _{x}^{\infty } \sum^{5}_{n=0}\nolimits  \vec{x}^2 \overset{+}{=}^n = \overbrace{xyz}^2 \end{equation*} -->
-
-        <!-- does not display box --> 
-         <!-- \frac1c + \bbox[border:solid 1px red]{\sqrt[3]{x}} = \binom{C}{k} -->
-
-          <!-- box positioned incorrectly (lineheight issue) --> 
-         <!-- \boxed{\frac{\frac12}{x^{3^x}}}+a=\left[\frac{\frac12}{x^{3^x}}\right] -->
-
-        <!-- -\frac{-\frac{1}{2}}{-\frac{3}{4}} -->
-
-
-          <!-- Incorrect spacing before -7, disappears if caret is there -->
-         <!-- -1\frac{-7}{5}  -->
-
-
+         -0-0=-0(0)
+      </math-field> -->
+      <math-field id="mf" read-only smart-fence smart-superscript value="20">2x</math-field>
 
         <!-- \textcolor{blue}{\sqrt{\smash[t]{\frac{a}{b}}}=\sqrt{\smash[b]{\frac{a}{b}}}} -->
-
 
         <!-- \textcolor{blue}{\overset{=}{x}} -->
 
@@ -162,35 +141,6 @@
         <!-- \textcolor{blue}{x=\sqrt[3]{x}=\frac{x^2}{x^2}=\left(\frac34\right)=\int_0^\infty} -->
         <!-- -a-b=-1 -->
 
-        <!-- \scriptstyle is not cummulative. 'm' are the same size -->
-        <!-- m {\scriptstyle w \scriptstyle w}  \LARGE M {\scriptstyle m \scriptstyle m}  -->
-
-        <!-- Sizing commands are not cumulative, 'm' are the same size. --> 
-        <!-- \Huge m \Huge m -->
-
-        
-        <!-- z = \overbrace{\frac12}^\text{complex number} -->
-
-      <!-- z = \overbrace{
-          \underbrace{x}_\text{real} + i
-          \underbrace{y}_\text{imaginary}
-      }^\text{complex number} -->
-      
-      <!-- {}^8 x^2\sum^{5}_{n=0}\left(\frac12\right)^2\int _{x}^{\infty } \sum^{5}_{n=0}\nolimits  \vec{x}^2 \overset{+}{=}^2  \overbrace{xyz}^2      -->
-        
-        <!-- {}^8 x^2\sum^{5}_{n=0}\left(\frac12\right)^2\int _{x}^{\infty } \sum^{5}_{n=0}\nolimits  \vec{x}^2 \overset{+}{=}^2  \overbrace{xyz}^2      -->
-        <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
-        <!-- \binom{1}{2}{\textstyle \binom{3}{4}}{\scriptstyle \binom{5}{6}}{\displaystyle \binom{7}{8}}{\scriptstyle \binom{9}{0}}$$ -->
-
-       <!-- \Huge \overset{\left[\frac00\right]}{\underset{\mathop{H}}{=}} -->
-        <!-- \binom34  \huge \binom56 x \text{huge} -->
-        <!-- $$\boxed{\frac{\frac{1}{2}}{x^{3^x}}}+a=\left[\frac{\frac{1}{2}}{x^{3^x}}\right]$$ -->
-        
-         <!-- $$-\bbox[4em,border: 5px solid red]{\sqrt{\frac{\frac{2}{\frac{3}{\frac{4}{\frac{5}{\frac{6}{\frac{7}{\frac{8}{\frac{9}{\frac{a}{\frac{b}{\frac{x}{\frac{s}{d}}}}}}}}}}}}}{1+x}}}-$$  -->
-
-        <!-- a\ne b - c -->
-        <!-- -\begin{bmatrix}2 & 3 \\ 4 \\ 6 & 7 & 8 \\ \end{bmatrix}=0 -->
-        <!-- -->
             <!--30\operatorname{cm}^2+4\operatorname{mm}^2-->
             <!--f(x)=\frac{x+1}{x-1}+x+1 -->
             <!--x=\begin{bmatrix}x+1&b&c\\\alpha&\\beta\end{bmatrix}^T+x+1 -->
@@ -218,11 +168,6 @@
         <!-- i, 2i, -i -->
         <!-- 2{xy} should create group -->
 
-
-        <!-- \huge x \text{y} -->
-        <!-- \scriptscriptstyle x \text{y} -->
-        <!-- \sqrt[\Huge 3]{29} -->
-        <!-- x^{\binom{n}{k}} -->
         <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
         <!-- \int^b_a x^2 dx -->
         <!-- \int^b_a\int^c_d x^2 dx dy -->
@@ -253,8 +198,13 @@
         <div class="output" id="maston"></div>
 
       </main>
+      <script type="module">
+        import '/dist/mathlive.mjs';
+        const mf = document.getElementById("mf");
+        console.warn("mf readonly?", mf.readOnly);
+      </script>
 
-    <script type="module">
+    <!-- <script type="module">
       import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
       renderMathInDocument({ 
         renderAccessibleContent: false,
@@ -266,13 +216,6 @@
       });
 
 
-      const elt = document.getElementById("tip-content");
-          tippy("#tip-trigger", {
-            content: elt,
-            interactive: true,
-          });
-
-
       let gSearchLatex;
 
       function applySearchTerm() {
@@ -282,6 +225,7 @@
           }
           document.getElementById('search-results').classList.remove('hidden');
           const mf = document.getElementById('mf');
+
 
           mf.applyStyle({ color: "none", backgroundColor: "none" }, {
               range: [0, -1], suppressChangeNotifications: true
@@ -335,6 +279,186 @@
 
       const mf = document.getElementById('mf');
 
+      console.warn("Read only?", mf.readOnly);
+
+
+      const VIRTUAL_KEYBOARD_LAYERS = {
+        "secondary-layer": {
+          rows: [
+            [
+              {class: "w15", latex: "\\sin\\mleft( #0 \\mright)"}, 
+              {class: "w15", latex: "\\cos\\mleft( #0 \\mright)"}, 
+              {class: "w15", latex: "\\tan\\mleft( #0 \\mright)"}, 
+              { class: "separator w5" },
+              { latex: "\\land" },
+              { latex: "\\lor" },
+              { latex: "\\lnot" },
+              { class: "separator w5" },
+              { latex: "\\approx" },
+            ],
+            [
+              {class: "w15", latex: "\\sin^{-1}\\mleft( #0 \\mright)"}, 
+              {class: "w15", latex: "\\cos^{-1}\\mleft( #0 \\mright)"}, 
+              {class: "w15", latex: "\\tan^{-1}\\mleft( #0 \\mright)"}, 
+              { class: "separator w5" },
+              { class: "w15", latex: "#@^{#?}" },
+              { class: "w15", latex: "#@^2" },
+              { class: "separator w5" },
+              { latex: "\\cong" },
+            ],
+            [
+              {class: "w15", latex: "\\begin{vmatrix}#?&#?\\\\#?&#?\\end{vmatrix}"},
+              {latex: "\\sqrt{#@}"},
+              {latex: "\\pm"},
+              {latex: "\\overarc{#@}"},
+              {latex: "\\sim"},
+              { class: "w15", latex: "#@_{#?}" },
+            ],
+            [
+            { class: "separator w20" },
+            { class: "separator w20" },
+            { class: "separator w20" },
+            { class: "separator w15" },
+            {
+              class: "action",
+              label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+              command: ["performWithFeedback", "moveToPreviousChar"]
+            },
+            {
+              class: "action",
+              label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+              command: ["performWithFeedback", "moveToNextChar"]
+            },
+        ]
+          ]
+        },
+      "geometry-layer": {
+        rows: [
+          [
+            {latex: "\\vert"}, 
+            {latex: "\\not{\\vert}"}, 
+            {latex: "\\parallel"},
+            {latex: "\\bot"},
+            {latex: "\\overrightarrow{#@}"},
+            {latex: "\\begin{pmatrix}#0\\\\#0\\end{pmatrix}"}
+          ],
+          [
+            {latex: "\\measuredangle"},
+            {latex: ";"},
+            {latex: "\\longmapsto"},
+            {latex: "\\left\\lvert #0 \\right\\rvert"},
+            {latex: "\\left\\lvert \\overline{#0} \\right\\rvert"},
+            {latex: "\\overline{#@}"},
+            
+          ],
+          [],
+          [
+            { class: "separator w20" },
+            { class: "separator w20" },
+            { class: "separator w20" },
+            { class: "separator w15" },
+            {
+              class: "action",
+              label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+              command: ["performWithFeedback", "moveToPreviousChar"]
+            },
+            {
+              class: "action",
+              label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+              command: ["performWithFeedback", "moveToNextChar"]
+            },
+        ]
+        ]
+      },
+      "basic-layer": {
+        styles: "",
+        rows: [
+          [
+            { label: "7", key: "7" },
+            { label: "8", key: "8" },
+            { label: "9", key: "9" },
+            { label: "+", key: "+" },
+            { class: "separator w5" },
+            { class: "small", latex: "\\frac{#0}{#0}" },
+            { latex: "\\varnothing" },
+            { latex: "\\infty" },
+            { latex: "\\in" },
+            { latex: "\\notin" },
+            { class: "separator w10" },
+          ],
+          [
+            { label: "4", latex:"4" },
+            { label: "5", key: "5" },
+            { label: "6", key: "6" },
+            { label: "-", key: "-" },
+            { class: "separator w5" },
+            { label: "(", key: "(" },
+            { label: ")", key: ")" },
+            { latex: "\\lt" },
+            { latex: "\\le" },
+            { latex: "\\hat{=}" },
+            { class: "separator w10" },
+          ],
+          [
+            { label: "1", key: "1" },
+            { label: "2", key: "2" },
+            { label: "3", key: "3" },
+            { latex: "\\cdot" },
+            { class: "separator w5" },
+            { label: "[", key: "[" },
+            { label: "]", key: "]" },
+            { latex: "\\gt" },
+            { latex: "\\ge" },
+            { class: "separator w10" },
+            {
+              class: "action font-glyph bottom right",
+              label: "&#x232b;",
+              command: ["performWithFeedback", "deleteBackward"]
+            }
+          ],
+          [
+            { class:  "w20", label: "0", key: "0" },
+            { latex: "," },
+            { latex: "\\colon" },
+            { class: "separator w5" },
+            { latex: "\\lbrace" },
+            { latex: "\\rbrace" },
+            { latex: "=" },
+            { latex: "\\ne" },
+            {
+              class: "action",
+              label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+              command: ["performWithFeedback", "moveToPreviousChar"]
+            },
+            {
+              class: "action",
+              label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+              command: ["performWithFeedback", "moveToNextChar"]
+            },
+          ]
+        ]
+      }
+    };
+
+    const KEYBOARDS = {
+      "basic": {
+        "label": "Basic", 
+        "tooltip": "Basic",
+        "layer": "basic-layer"
+      },
+      "geometry": {
+        "label": "Geometry",
+        "tooltip": "Geometry",
+        "layer": "geometry-layer"
+      },
+      "secondary": {
+        "label": "Secondary",
+        "tooltip": "Secondary",
+        "layer": "secondary-layer"
+      }
+    };
+
+
       mf?.setOptions({
           inlineShortcuts: {
               in: {
@@ -343,6 +467,9 @@
                   value: '\\in',
               },
           },
+          "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
+          "customVirtualKeyboards": KEYBOARDS,
+          "virtualKeyboards": "basic greek secondary geometry",
           // onBlur: () => { console.log('blurring') },
           onKeystroke: (mf, keystroke, ev) => {
             if (keystroke === 'alt+[KeyS]') {
@@ -442,9 +569,7 @@
               );
           });
       }
-    </script>
-<script src="https://unpkg.com/popper.js@1"></script>
-<script src="https://unpkg.com/tippy.js@5"></script>
+    </script> -->
 </body>
 
 </html>

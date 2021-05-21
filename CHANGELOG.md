@@ -4,6 +4,11 @@
 
 - Added `\overarc`, `\underarc`, `\overparen` and `\underparen` commands.
 
+### Improvements
+
+- When replacing a selected range, snapshot in the undo state the collapsed
+  selection before inserting the replacement
+
 ### Bug Fixes
 
 - Correctly calculate the padding for enclose atoms (broken in 0.66)
@@ -11,6 +16,11 @@
   it to the string `"null"` did, though.
 - An `input` event would incorrectly bubble out of the mathfield, even in
   read-only mode.
+- When calling `getOption()`, or when examining a property on
+  `MathFieldElement`, return the actual value, rather than an object literal
+  that contains the value.
+- If the mathlive module was loaded before the `<math-field>` element was parsed
+  in the document, the attributes of the mathfield would be ignored.
 
 ## 0.66.1 (2021-05-21)
 
