@@ -255,7 +255,7 @@ export class MathfieldPrivate implements Mathfield {
 
     // Save existing content
     this.originalContent = element.innerHTML;
-    let elementText = this.element.textContent;
+    let elementText = options.value ?? this.element.textContent;
     if (elementText) {
       elementText = elementText.trim();
     }

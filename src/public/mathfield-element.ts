@@ -658,19 +658,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (options) {
       this.setOptions(options);
     }
-
-    // Check if there is a `value` attribute and set the initial value
-    // of the mathfield from it
-    if (this.hasAttribute('value')) {
-      this.value = this.getAttribute('value');
-    } else {
-      this.value =
-        slot
-          ?.assignedNodes()
-          .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-          .join('')
-          .trim() ?? '';
-    }
   }
 
   get mode(): ParseMode {
@@ -1005,6 +992,23 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this.shadowRoot.appendChild(styleElement);
     }
 
+    const slot =
+      this.shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
+
+    let value = '';
+    // Check if there is a `value` attribute and set the initial value
+    // of the mathfield from it
+    if (this.hasAttribute('value')) {
+      value = this.getAttribute('value');
+    } else {
+      value =
+        slot
+          ?.assignedNodes()
+          .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+          .join('')
+          .trim() ?? '';
+    }
+
     this._mathfield = new MathfieldPrivate(
       this.shadowRoot.querySelector(':host > div'),
       {
@@ -1151,6 +1155,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         ...(gDeferredState.has(this)
           ? gDeferredState.get(this).options
           : getOptionsFromAttributes(this)),
+        value,
       }
     );
 
@@ -1179,8 +1184,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       );
     }
 
-    const slot =
-      this.shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
     slot.addEventListener('slotchange', (event) => {
       if (event.target !== slot) return;
       const value = slot

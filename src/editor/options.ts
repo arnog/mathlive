@@ -27,7 +27,8 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
     command: string, // Verb
     previousPosition: number,
     atoms: Atom[] // Object of the command
-  ) => void; // @revisit 1.0: rename announceHook
+  ) => void; // @revisit 1.0: rename announceHook,
+  value: string;
 };
 
 function loadSound(
@@ -385,6 +386,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onCommit: NO_OP_LISTENER,
 
     onError: (): void => {},
+    value: undefined,
   };
 }
 
