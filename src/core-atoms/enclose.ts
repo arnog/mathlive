@@ -123,7 +123,7 @@ export class EncloseAtom extends Atom {
 
     // Account for the padding
     const padding = convertDimensionToEm(
-      this.padding
+      this.padding && this.padding !== 'auto'
         ? convertToDimension(this.padding, parentContext.registers)
         : context.getRegisterAsDimension('fboxsep')
     );
