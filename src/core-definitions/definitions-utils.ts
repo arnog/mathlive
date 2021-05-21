@@ -1212,7 +1212,7 @@ export function normalizeMacroDictionary(
       delete result[macro];
     } else if (typeof macroDef === 'object' && 'package' in macroDef) {
       for (const packageMacro of Object.keys(macroDef.package)) {
-        result[macro] = normalizeMacroDefinition(
+        result[packageMacro] = normalizeMacroDefinition(
           macroDef.package[packageMacro],
           {
             expand: macroDef.expand,
