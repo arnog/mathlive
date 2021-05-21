@@ -122,6 +122,18 @@ export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
 
 export type FontSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
+/**
+ * Use a `Style` object  literal to modify the visual appearance of a
+ * mathfield or a portion of a mathfield.
+ *
+ * You can control the color ("ink") and background color ("paper"),
+ * the font variant, weight (`FontSeries`), size and more.
+ *
+ * **See Also**
+ * * [`applyStyle`](http://cortexjs.io/docs/mathlive/?q=applyStyle)
+ * * [Interacting with a Mathfield](/mathlive/guides/interacting/)
+ */
+
 export interface Style {
   color?: string;
   backgroundColor?: string;
@@ -136,7 +148,7 @@ export interface Style {
 /**
  * **See Also**
  * * [[`MacroDictionary`]]
- * * [Macros Example](/mathlive/examples/macros/)
+ * * [Macros](/mathlive/guides/macros/)
  *
  */
 export type MacroDefinition = {
@@ -225,7 +237,7 @@ The code above will support the following notation:
 \smallfrac{5}{16}
 ```
  * **See Also**
- * * [Macros Example](/mathlive/examples/macros/)
+ * * [Macros Example](/mathlive/guides/macros/)
  */
 export type MacroDictionary = Record<
   string,
