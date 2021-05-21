@@ -83,6 +83,8 @@ const SVG_ACCENTS: Record<string, [number, number, number]> = {
   widetilde2: [1033, 286, 0.286],
   widetilde3: [2339, 306, 0.306],
   widetilde4: [2340, 312, 0.34],
+  overarc: [1061, 159, 0.3],
+  underarc: [1061, 159, 0.3],
 };
 
 // From https://github.com/KaTeX/KaTeX/blob/master/src/svgGeometry.js
@@ -127,6 +129,24 @@ c-10 4-16 7.7-18 11 0 8.7 6 14.3 18 17 47.3 18.7 87.8 47 121.5 85S196 441.3 208
  35.313 51.3 80.813 93.8 136.5 127.5 55.688 33.7 117.188 55.8 184.5 66.5.688
  0 2 .3 4 1 18.688 2.7 76 4.3 172 5h399450v120H429l-6-1c-124.688-8-235-61.7
 -331-161C60.687 138.7 32.312 99.3 7 54L0 41V6z`,
+
+  overarc: `M529 0c179 0 524 115 524 115 5 1 9 5 9 10 0 1-1 2-1 3l-4 22c-1 5-5 9-11 9h-2s-338-93-512-92c-174 0-513 92-513 92h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13 0 0 342-115 520-115z`,
+  underarc: `m 529 160
+  c -179 0 -524 -115 -524 -115
+  c -5 -1 -9 -5 -9 -10
+  c 0 -1 1 -2 1 -3
+  l 4 -22
+  c 1 -5 5 -9 11 -9
+  h 2
+  s 338 93 512 92
+  c 174 0 513 -92 513 -92
+  h 2
+  c 5 0 9 4 11 9
+  l 5 22
+  c 1 6 -2 12 -8 13
+  c 0 0 -342 115 -520 115
+  z
+  `,
 
   // Overgroup is from the MnSymbol package (public domain)
   leftgroup: `M400000 80
@@ -410,7 +430,9 @@ export function svgBodyToMarkup(svgBodyName: string): string {
       `preserveAspectRatio="none" >` +
       `<path d="${PATHS[svgBodyName]}"></path>` +
       `</svg></span>`;
-    return `<span style="height:${height}em;min-width:0">${result}</span>`;
+    return `<span style="display:inline-block;height:${
+      height / 2
+    }em;min-width:0">${result}</span>`;
   }
 
   const [paths, minWidth, viewBoxHeight, align] = SVG_BODY[svgBodyName];

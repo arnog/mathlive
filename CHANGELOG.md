@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### New Features
+
+- Added `\overarc`, `\underarc`, `\overparen` and `\underparen` commands.
+
 ## 0.66.1 (2021-05-21)
 
 ### Bug Fixes

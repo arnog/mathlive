@@ -46,6 +46,24 @@ defineFunction(['widehat', 'widecheck', 'widetilde'], '{body:auto}', {
   },
 });
 
+defineFunction(['overarc', 'overparen'], '{body:auto}', {
+  createAtom: (command: string, args: Argument[], style: Style): Atom => {
+    return new AccentAtom(command, args[0] as Atom[], {
+      style,
+      svgAccent: 'overarc',
+    });
+  },
+});
+defineFunction(['underarc', 'underpar'], '{body:auto}', {
+  createAtom: (command: string, args: Argument[], style: Style): Atom => {
+    return new OverunderAtom(command, {
+      body: args[0] as Atom[],
+      style,
+      svgBelow: 'underarc',
+    });
+  },
+});
+
 defineFunction('utilde', '{body:auto}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom => {
     const baseString = parseArgAsString(args[0] as Atom[]);
