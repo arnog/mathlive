@@ -382,6 +382,10 @@ export function delegateKeyboardEvents(
     }
 
     defer(handleTypedText);
+
+    // Do not propagate the event (it crosses the shadow dom barrier)
+    ev.preventDefault();
+    ev.stopPropagation();
   });
 
   return {

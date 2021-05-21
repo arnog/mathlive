@@ -39,6 +39,8 @@ export function showKeystroke(
   mathfield: MathfieldPrivate,
   keystroke: string
 ): void {
+  if (mathfield.options.readOnly) return;
+
   const vb = mathfield.keystrokeCaption;
   if (vb && mathfield.keystrokeCaptionVisible) {
     const bounds = mathfield.element.getBoundingClientRect();
@@ -93,6 +95,7 @@ export function onKeystroke(
 
   // 4. Give a chance to the custom keystroke handler to intercept the event
   if (
+    !mathfield.options.readOnly &&
     mathfield.options.onKeystroke &&
     !mathfield.options.onKeystroke(mathfield, keystroke, evt)
   ) {

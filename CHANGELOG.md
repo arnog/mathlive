@@ -4,6 +4,14 @@
 
 - Added `\overarc`, `\underarc`, `\overparen` and `\underparen` commands.
 
+### Bug Fixes
+
+- Correctly calculate the padding for enclose atoms (broken in 0.66)
+- Setting the `keypressSound` to `null` would not turn off the sounds. Setting
+  it to the string `"null"` did, though.
+- An `input` event would incorrectly bubble out of the mathfield, even in
+  read-only mode.
+
 ## 0.66.1 (2021-05-21)
 
 ### Bug Fixes

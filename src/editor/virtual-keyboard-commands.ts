@@ -245,6 +245,7 @@ function toggleVirtualKeyboard(
       new Event('virtual-keyboard-toggle', {
         bubbles: true,
         cancelable: false,
+        composed: true,
       })
     );
     // Remove the element from the DOM

@@ -1013,6 +1013,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('blur', {
               cancelable: false,
               bubbles: false, // DOM 'focus' and 'blur' don't bubble
+              composed: true,
             })
           );
         },
@@ -1021,6 +1022,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('input', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1042,6 +1044,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               },
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1050,6 +1053,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('focus', {
               cancelable: false,
               bubbles: false, // DOM 'focus' and 'blur' don't bubble
+              composed: true,
             })
           );
         },
@@ -1066,6 +1070,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               },
               cancelable: true,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1074,6 +1079,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('mode-change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1085,6 +1091,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1097,6 +1104,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               detail: { direction },
               cancelable: true,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1109,6 +1117,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               detail: { direction },
               cancelable: true,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1117,6 +1126,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('read-aloud-status-change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1125,6 +1135,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('selection-change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1133,6 +1144,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('undo-state-change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1188,7 +1200,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Notify listeners that we're mounted and ready
     this.dispatchEvent(
-      new Event('mount', { cancelable: false, bubbles: true })
+      new Event('mount', { cancelable: false, bubbles: true, composed: true })
     );
   }
 
@@ -1199,7 +1211,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   disconnectedCallback(): void {
     // Notify listeners that we're about to be unmounted
     this.dispatchEvent(
-      new Event('unmount', { cancelable: false, bubbles: true })
+      new Event('unmount', { cancelable: false, bubbles: true, composed: true })
     );
 
     if (!this._mathfield) return;
