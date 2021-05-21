@@ -93,6 +93,7 @@ import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import { canVibrate, isBrowser, isTouchCapable } from '../common/capabilities';
 import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
+import { validateStyle } from './styling';
 
 export class MathfieldPrivate implements Mathfield {
   model: ModelPrivate;
@@ -1224,7 +1225,7 @@ export class MathfieldPrivate implements Mathfield {
     deleteRange(this.model, range(this.model.selection));
   }
 
-  applyStyle(style: Style, inOptions: Range | ApplyStyleOptions = {}): void {
+  applyStyle(inStyle: Style, inOptions: Range | ApplyStyleOptions = {}): void {
     const options: ApplyStyleOptions = {
       operation: 'set',
       suppressChangeNotifications: false,
@@ -1236,7 +1237,7 @@ export class MathfieldPrivate implements Mathfield {
       options.suppressChangeNotifications =
         inOptions.suppressChangeNotifications ?? false;
     }
-
+    const style = validateStyle(this, inStyle);
     const operation = options.operation ?? 'set';
     this.model.deferNotifications(
       { content: !options.suppressChangeNotifications },
