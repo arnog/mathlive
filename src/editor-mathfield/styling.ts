@@ -59,7 +59,7 @@ registerCommand({ applyStyle }, { target: 'mathfield' });
 /**
  * Validate a style specification object
  */
-function validateStyle(
+export function validateStyle(
   mathfield: MathfieldPrivate,
   style: Record<string, any>
 ): PrivateStyle {
@@ -121,7 +121,7 @@ function validateStyle(
   const size = style.size ?? style.fontSize;
 
   if (typeof size === 'number') {
-    result.fontSize = Math.min(1, Math.max(10, size)) as FontSize;
+    result.fontSize = Math.max(1, Math.min(10, size)) as FontSize;
   } else if (typeof size === 'string') {
     result.fontSize =
       ({
