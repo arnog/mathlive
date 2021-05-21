@@ -115,19 +115,14 @@ declare global {
 
 const MATHFIELD_TEMPLATE = document.createElement('template');
 MATHFIELD_TEMPLATE.innerHTML = `<style>
-:host([hidden]) {
-    display: none;
-}
-:host([disabled]) {
-    opacity:  .5;
-}
+:host { display: block; }
+:host([hidden]) { display: none; }
+:host([disabled]) { opacity:  .5; }
 :host(:focus), :host(:focus-within) {
   outline: Highlight auto 1px;    /* For Firefox */
   outline: -webkit-focus-ring-color auto 1px;
 }
-:host([readonly]), :host([read-only]) {
-  outline: none;
-}
+:host([readonly]), :host([read-only]) { outline: none; }
 </style>
 <div></div><slot style="display:none"></slot>`;
 
@@ -569,8 +564,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static get observedAttributes(): string[] {
     return [
       ...Object.keys(MathfieldElement.optionsAttributes),
-      'disabled',
-      'readonly',
+      'disabled', // Global attribute
+      'readonly', // A semi-global attribute (not all standard elements support it, but some do)
     ];
   }
 
@@ -722,13 +717,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (this._mathfield) {
       this._mathfield.setOptions(options);
     } else if (gDeferredState.has(this)) {
+      const mergedOptions = {
+        ...gDeferredState.get(this).options,
+        ...options,
+      };
       gDeferredState.set(this, {
         value: gDeferredState.get(this).value,
-        selection: { ranges: options.readOnly ? [[0, 0]] : [[0, -1]] },
-        options: {
-          ...gDeferredState.get(this).options,
-          ...options,
-        },
+        selection: { ranges: mergedOptions.readOnly ? [[0, 0]] : [[0, -1]] },
+        options: mergedOptions,
       });
     } else {
       gDeferredState.set(this, {
@@ -822,26 +818,26 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     if (gDeferredState.has(this)) {
+      const options = gDeferredState.get(this).options;
       gDeferredState.set(this, {
         value,
         selection: {
-          ranges: gDeferredState.get(this).options.readOnly
-            ? [[0, 0]]
-            : [[0, -1]],
+          ranges: options.readOnly ? [[0, 0]] : [[0, -1]],
           direction: 'forward',
         },
-        options: gDeferredState.get(this).options,
+        options,
       });
       return;
     }
 
+    const attrOptions = getOptionsFromAttributes(this);
     gDeferredState.set(this, {
       value,
       selection: {
-        ranges: getOptionsFromAttributes(this).readOnly ? [[0, 0]] : [[0, -1]],
+        ranges: attrOptions.readOnly ? [[0, 0]] : [[0, -1]],
         direction: 'forward',
       },
-      options: getOptionsFromAttributes(this),
+      options: attrOptions,
     });
   }
 
@@ -1140,16 +1136,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             })
           );
         },
-        ...getOptionsFromAttributes(this),
-        ...(gDeferredState.has(this) ? gDeferredState.get(this).options : {}),
+        ...(gDeferredState.has(this)
+          ? gDeferredState.get(this).options
+          : getOptionsFromAttributes(this)),
       }
     );
 
     if (!gDeferredState.has(this)) {
       this.upgradeProperty('disabled');
       this.upgradeProperty('readonly');
-      for (const prop of Object.keys(MathfieldElement.optionsAttributes)) {
-        this.upgradeProperty(toCamelCase(prop));
+      for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
+        this.upgradeProperty(toCamelCase(attr));
       }
     }
 
@@ -1207,13 +1204,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     if (!this._mathfield) return;
 
-    // Save the state (in case the elements get reconnected later)
+    // Save the state (in case the element gets reconnected later)
     const options = {};
-    Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-      options[toCamelCase(x)] = this._mathfield.getOption(
-        toCamelCase(x) as any
-      );
-    });
+    for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
+      const prop = toCamelCase(attr);
+      options[prop] = this._mathfield.getOption(prop as any);
+    }
     gDeferredState.set(this, {
       value: this._mathfield.getValue(),
       selection: this._mathfield.selection,
@@ -1236,6 +1232,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       // the element was connected: delete the property (after saving its value)
       // and use the setter to (re-)set its value.
       delete this[prop];
+      if (prop === 'readonly') prop = 'readOnly';
       this[prop] = value;
     }
   }

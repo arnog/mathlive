@@ -1,3 +1,17 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- Revert improvements where the `display` property of the mathfield would change
+  depending on the `default-mode` property. This had unintended consequences in
+  some cases. To control the layout of the mathfield, use
+  `style="display:inline-block;"` instead.
+- When using `applyStyle()`, if a non-RGB color (e.g. `"yellow"`) was used, it
+  would not be applied to the selection.
+- When using `applyStyle()` if the font size was changed, it was always set to
+  font size 1 (tiny).
+- Macro packages were incorrectly parsed
+
 ## 0.66.0 (2021-05-20)
 
 ### Breaking Changes

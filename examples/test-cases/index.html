@@ -1,159 +1,127 @@
 <!DOCTYPE html>
 <html lang="en-US">
-
 <head>
-    <meta charset="utf-8" />
-    <title>MathLive Testing Playground</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="../style.css" />
-    <link rel="stylesheet" href="/dist/mathlive-fonts.css" />
+  <meta charset="utf-8" />
+  <title>MathLive Testing Playground</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .mathfield { font-size: 32px; }
+    math-field:not(:defined) { display: none;}
+    code { white-space: pre-wrap; }
 
-    <!-- <link rel="stylesheet" href="/dist/mathlive-static.css" /> -->
-    <style>
-      .mathfield {
-        font-size: 32px;
-      }
-      math-field:not(:defined) {
-          display: none;
-      }
-      code {
-          white-space: pre-wrap;
-      }
+    h2 {
+        font-size: 1em;
+        padding: 0;
+        margin: 0;
+        color: #666;
+    }
 
-      h2 {
-          font-size: 1em;
-          padding: 0;
-          margin: 0;
-          color: #666;
-      }
+    #mathfield-container {
+        padding: 8px;
+        min-width: 50px;
+        border: 1px solid #ddd;
+    }
 
+    #ta {
+        font-size: 1.5em;
+        font-weight: 700;
+    }
 
-      #mathfield-container {
-          padding: 8px;
-          min-width: 50px;
-          border: 1px solid #ddd;
-      }
+    #find-input , #replace-input{
+      width: 320px;
+    }
 
-      #ta {
-          font-size: 1.5em;
-          font-weight: 700;
-      }
+    .hidden { display: none; }
 
-      #find-input , #replace-input{
-        width: 320px;
-      }
+    .label { font-weight: 700; }
+    .math { display: none; }
 
-      .hidden {
-          display: none;
-      }
+    /* .buttonbar button { */
+    button {
+        background: none;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 4px;
+        color: #0066ce;
+        fill: currentColor;
+        position: relative;
+        height: 36px;
+        line-height: 36px;
+        margin: 0 18px 0 0;
+        min-width: 64px;
+        padding: 0 16px;
+        display: inline-block;
+        overflow: hidden;
+        will-change: box-shadow;
+        transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+            background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+            color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        user-select: none;
 
-      .label {
-          font-weight: 700;
-      }
-      .math {
-        display: none;
-      }
-      /* .buttonbar button { */
-      button {
-          background: none;
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          border-radius: 4px;
-          color: #0066ce;
-          fill: currentColor;
-          position: relative;
-          height: 36px;
-          line-height: 36px;
-          margin: 0 18px 0 0;
-          min-width: 64px;
-          padding: 0 16px;
-          display: inline-block;
-          overflow: hidden;
-          will-change: box-shadow;
-          transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
-              background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          outline: none;
-          cursor: pointer;
-          text-decoration: none;
-          text-align: center;
-          vertical-align: middle;
-          -webkit-user-select: none;
-          user-select: none;
+        font-size: 16px;
+        letter-spacing: 0.08929em;
+        text-transform: uppercase;
+        box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2),
+            0 2px 2px 0 rgba(0, 0, 0, 0.14),
+            0 3px 1px -2px rgba(0, 0, 0, 0.12);
+    }
 
-          font-size: 16px;
-          letter-spacing: 0.08929em;
-          text-transform: uppercase;
-          box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2),
-              0 2px 2px 0 rgba(0, 0, 0, 0.14),
-              0 3px 1px -2px rgba(0, 0, 0, 0.12);
-      }
+    button:first-child {
+        margin-left: 0;
+    }
 
-      button:first-child {
-          margin-left: 0;
-      }
+    button:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+    }
 
-      button:hover {
-          background-color: rgba(0, 0, 0, 0.08);
-      }
+    button:active {
+        background-color: white;
+    }
 
-      button:active {
-          background-color: white;
-      }
+    button.primary,
+    button.active {
+        color: white;
+        fill: currentColor;
+        background: #0066ce;
+    }
 
-      button.primary,
-      button.active {
-          color: white;
-          fill: currentColor;
-          background: #0066ce;
-      }
+    button.primary:hover {
+        background-color: rgba(0, 102, 206, 0.58);
+    }
 
-      button.primary:hover {
-          background-color: rgba(0, 102, 206, 0.58);
-      }
+    button.primary:active {
+        color: #0066ce;
+        fill: currentColor;
+        background-color: white;
+    }
 
-      button.primary:active {
-          color: #0066ce;
-          fill: currentColor;
-          background-color: white;
-      }
+    button.round {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+    }
 
-      button.round {
-          width: 64px;
-          height: 64px;
-          border-radius: 50%;
-      }
-
-      .buttonbar {
-          margin-top: 1em;
-      }    
+    .buttonbar {
+        margin-top: 1em;
+    }    
   </style>
 </head>
 
 <body>
-    <header>
-        <h1>MathLive Testing Playground</h1>
-    </header>
+    <header><h1>MathLive Testing Playground</h1></header>
     <main class='centered' tabindex="0">
-
-      <!-- <button id="tip-trigger">hover over me</button>
-        <div id="tip-content">
-          <h3>Header</h3>
-          <math-field read-only id="mf-elt">\frac{3}{1+\sqrt{x}}</math-field>
-          <p>after math-field</p>
-        </div> -->
-      
       <math-field 
-        class="mathfield" style="max-width: 640px; width:100%" 
-        virtual-keyboard-mode="manual"
-        >a\hskip 3em b</math-field>
-      <!-- <math-field 
         id=mf 
-        tabindex="0" 
-        class="mathfield" style="max-width: 640px; width:100%" 
-        smart-fence="true"
-        horizontal-spacing-scale="1.2"
+        class="mathfield" style="font-size: 32px;max-width: 640px; width:100%" 
         virtual-keyboard-mode="manual">
-        \frac1c + \bbox[2em,yellow,border:solid 5px red]{\sqrt[3]{x}} = \binom{C}{k} -->
+        \darr \Alpha
+      </math-field>
         <!-- -0-0=-0(0) -->
         
         <!-- \htmlData{partid=14}{\left(} 3 + 5 \htmlData{partid=15}{\right)} = \htmlData{partid=16}{\left(} 2x + 5 \htmlData{partid=17}{\right)}     -->
@@ -229,31 +197,6 @@
             <!--  $$x+\left(\sqrt{x+1}+1\right)+\sum_0^4n^2+\frac{1+x}{x-1}\int^{\infty}_0x\mathrm{d}x+\boxed{\frac{1}{x}}\colorbox{yellow}{\sqrt{\frac{1}{x}}}\cancel{x^2+1}\xRightarrow[\text{above}]{\text{below}}$$
             -->
             <!-- x=x^2_{b+1}+\frac{1}{2_{56}}^{34}_{56}+\sqrt{23}+\sqrt[45]{67}+\box{x+1}+\xRightarrow[below]{above}^2+\begin{matrix}1&2&3\\4\\5&6\end{matrix} -->
-        <!-- </math-field> -->
-
-        <div class="centered"><input id='find-input' placeholder="Find Latex"></input></div>
-        <div class="centered" style="margin-top: .5em"><input id='replace-input' placeholder="Replace With..."></input>
-        </div>
-
-        <div id="search-results" class='centered'>
-            <h2 style='margin-top: 1em'>Search Results</h2>
-            <div class="output" id="search-results-output"></div>
-        </div>
-
-        <h2 style='margin-top: 1em'>Selection</h2>
-        <div class="output" id="selection"></div>
-
-        <!-- <math-field class="mathfield" style="width:100%" tabindex="4" virtual-keyboard-mode="manual">f_{4}(x) =
-        </math-field>
-
-        <math-field class="mathfield" style="width:100%" tabindex="-1" virtual-keyboard-mode="manual">f_{-1}(x) =
-        </math-field>
-
-
-        <div class="mathfield" id="oldschool-mf" tabindex=' 0'>f_0(x) = </div>
-
-        <section id='mathfield-container'></section> -->
-
         <!-- (x,,2) -->
         <!-- -123, 456.789, -->
         <!-- x_5 -->
@@ -287,6 +230,19 @@
         <!-- \int x^2 + x dx = 0 -->
         <!-- \int (x^2 + x) dx = 0 -->
 
+        <div class="centered"><input id='find-input' placeholder="Find Latex"></input></div>
+        <div class="centered" style="margin-top: .5em"><input id='replace-input' placeholder="Replace With..."></input>
+        </div>
+
+        <div id="search-results" class='centered'>
+            <h2 style='margin-top: 1em'>Search Results</h2>
+            <div class="output" id="search-results-output"></div>
+        </div>
+
+        <h2 style='margin-top: 1em'>Selection</h2>
+        <div class="output" id="selection"></div>
+
+
         <h2>Latex</h2>
         <div class="output" id="latex"></div>
         <h2>MathASCII</h2>
@@ -295,20 +251,6 @@
         <div class="output" id="mathml"></div>
         <h2>MASTON</h2>
         <div class="output" id="maston"></div>
-
-        <div id='insertion-point'></div>
-        <div class='buttonbar'>
-          <button class='button' id='mf-button-hide'>Hide</button>
-          <button id='mf-button-show'>Show</button>
-        </div>
-  
-        <div class='buttonbar'>
-
-          <div id='tooltip'>Look At Me</div>
-        </div>
-  
-        <!-- <p>The answer is <math-field default-mode="inline-math" read-only>\sum_n^\infty=0=x^2+3x+5</math-field></p> -->
-
 
       </main>
 
@@ -323,36 +265,13 @@
         asciiMath: null,
       });
 
-      //  console.log( convertLatexToMarkup('\\int _{x}^{\\infty }'));
 
+      const elt = document.getElementById("tip-content");
+          tippy("#tip-trigger", {
+            content: elt,
+            interactive: true,
+          });
 
-      // const elt = document.getElementById("tip-content");
-      //     tippy("#tip-trigger", {
-      //       content: elt,
-      //       interactive: true,
-      //     });
-
-
-      // const frag = document.createDocumentFragment();
-      // const mfi = new MathfieldElement();
-      // mfi.value = 'f(x) = \\frac{1}{x}';
-      // mfi.virtualKeyboardMode = 'manual';
-      // mfi.readOnly = true;
-      // mfi.setOptions({readOnly: true});
-      // console.log('Has Focus', mfi.hasFocus());
-      // frag.appendChild(mfi);
-
-      // document.getElementById('insertion-point').appendChild(frag);
-
-      // document.getElementById('mf-button-hide').addEventListener('click', () => {
-      //   mfi.remove();
-      //   console.log(mfi.value);
-      // });
-      // document.getElementById('mf-button-show').addEventListener('click', () => {
-      //   console.log('before ', mfi.value);
-      //   document.getElementById('insertion-point').appendChild(mfi);
-      //   console.log('after ', mfi.value);
-      // });
 
       let gSearchLatex;
 
@@ -443,25 +362,11 @@
           //     "ㄱㄴ": '\\sqrt{#0}',
           // },
           macros: {
-              'rcases': `\\left.
-\\begin{array}{ll}
-#0
-\\end{array}
-\\right\\}`
           },
           onError: (ev) => { console.log('Error :' + ev.code); }
       });
 
-      // mf.selection = [2, 5];
-      // mf.addEventListener('blur', (ev) => {
-      //     console.log('blur event');
-      // });
-      // mf.addEventListener('keystroke', (ev) => {
-      //     console.log('keystroke event', ev.detail.keystroke);
-      // });
-      // mf.addEventListener('focus', (ev) => {
-      //     console.log('focus event');
-      // });
+
       mf?.addEventListener('input', (ev) => {
           updateContent(mf);
           applySearchTerm();
@@ -489,40 +394,7 @@
 
 
 
-      // let mathfieldContainer = document.getElementById('mathfield-container');
-      // if (mathfieldContainer) {
-      //     let mfe = new MathfieldElement();
-      //     // Deferred assignments
-      //     mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
-      //     mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
-      //     mfe.setOptions({
-      //         virtualKeyboardMode: 'manual',
-      //     });
-      //     // mfe.setAttribute('disabled', '');   // sets to true
 
-      //     // Attach the element (and use the attached values);
-      //     mathfieldContainer.appendChild(mfe);
-
-      //     mathfieldContainer.removeChild(mfe);
-
-      //     mathfieldContainer.appendChild(mfe);
-      // }
-      // if (document.getElementById('oldschool-mf')) {
-      //     MathLive.makeMathField('oldschool-mf', {
-      //         smartFence: true,
-      //         smartMode: true,
-      //         virtualKeyboardMode: 'manual',
-      //         // onContentDidChange: (mf) => {
-      //         //     updateContent(mf)
-      //         // },
-      //         onError: (err) => {
-      //             console.error(
-      //                 err.latex,
-      //                 err.code + ' ' + (err.arg ?? '')
-      //             );
-      //         },
-      //     });
-      // }
       function updateContent(mf) {
           const latex = mf.getValue('latex-expanded');
           try {
