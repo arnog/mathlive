@@ -230,7 +230,12 @@ export class MathfieldPrivate implements Mathfield {
           });
     }
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
-    if (
+    if (!this.options.keypressSound) {
+      this.keypressSound = null;
+      this.spacebarKeypressSound = null;
+      this.returnKeypressSound = null;
+      this.deleteKeypressSound = null;
+    } else if (
       this.options.keypressSound &&
       typeof this.options.keypressSound !== 'string' &&
       !(this.options.keypressSound instanceof HTMLAudioElement)
@@ -620,6 +625,7 @@ export class MathfieldPrivate implements Mathfield {
 
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (
+      this.options.keypressSound &&
       typeof this.options.keypressSound !== 'string' &&
       !(this.options.keypressSound instanceof HTMLAudioElement)
     ) {
