@@ -448,6 +448,7 @@ export function onTypedText(
   };
   if (!model.selectionIsCollapsed) {
     model.position = model.deleteAtoms(range(model.selection));
+    mathfield.snapshot();
   }
 
   // Decompose the string into an array of graphemes.
