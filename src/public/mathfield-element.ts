@@ -707,7 +707,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *  @category Options
    */
   getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K] {
-    return this.getOptions([key]) as unknown as MathfieldOptions[K];
+    return this.getOptions([key])[key];
   }
 
   /**

@@ -734,7 +734,7 @@ export class MathfieldPrivate implements Mathfield {
   getOption<K extends keyof MathfieldOptionsPrivate>(
     key: K
   ): MathfieldOptionsPrivate[K] {
-    return getOptions(this.options, key);
+    return getOptions(this.options, key)[key];
   }
 
   /*
