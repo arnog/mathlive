@@ -85,7 +85,7 @@ export function defaultReadAloudHook(
 
   const parameters = {
     OutputFormat: 'json',
-    VoiceId: config.speechEngineVoice || 'Joanna',
+    VoiceId: config.speechEngineVoice ?? 'Joanna',
     Engine: 'standard', // The neural engine does not appear to support ssml marks
     Text: text,
     TextType: 'ssml',
@@ -96,7 +96,7 @@ export function defaultReadAloudHook(
   window.mathlive.readAloudElement = element;
 
   const statusHook =
-    config.onReadAloudStatus || window.mathlive.onReadAloudStatus;
+    config.onReadAloudStatus ?? window.mathlive.onReadAloudStatus;
 
   // Request the mark points
   polly.synthesizeSpeech(parameters, (err, data) => {

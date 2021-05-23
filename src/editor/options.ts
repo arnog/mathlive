@@ -16,6 +16,8 @@ import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { resolveRelativeUrl } from '../common/script-url';
 import { isTouchCapable } from '../common/capabilities';
 import { getDefaultRegisters } from '../core/registers';
+import { defaultSpeakHook } from './speech';
+import { defaultReadAloudHook } from './speech-read-aloud';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -365,8 +367,8 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     speechEngine: 'local',
     speechEngineVoice: 'Joanna',
     speechEngineRate: '100%',
-    speakHook: NO_OP_LISTENER,
-    readAloudHook: NO_OP_LISTENER,
+    speakHook: defaultSpeakHook,
+    readAloudHook: defaultReadAloudHook,
 
     onAnnounce: defaultAnnounceHook,
     onKeystroke: (): boolean => true,

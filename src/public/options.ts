@@ -266,7 +266,7 @@ export type TextToSpeechOptions = {
    * twice the default rate.
    */
   speechEngineRate: string;
-  speakHook: (text: string, config: Partial<MathfieldOptions>) => void; // @revisit 1.0: rename speakHook
+  speakHook: (text: string, config: Partial<MathfieldOptions>) => void;
   readAloudHook: (
     element: HTMLElement,
     text: string,

@@ -40,7 +40,6 @@ export function speakableText(
  * highlighting of speech will happen (if possible). Default is false.
  */
 
-// @revisit: register 'speak' command with mathfield (to get access to SpeechOptions, which need to be passed down)
 registerCommand(
   {
     speak: (
@@ -61,18 +60,20 @@ function speak(
 ): boolean {
   speakOptions = speakOptions ?? { withHighlighting: false };
   const { model } = mathfield;
-  function getAtoms(mathfield: MathfieldPrivate, scope: SpeechScope): Atom[] {
-    let result = null;
+  function getAtoms(scope: SpeechScope): Atom | Atom[] | null {
+    let result: Atom | Atom[] | null = null;
     switch (scope) {
       case 'all':
         result = model.root;
         break;
+
       case 'selection':
         result = model.getAtoms(model.selection);
         break;
+
       case 'left': {
         result = model.getAtoms(
-          model.offsetOf(model.at(model.position).firstSibling),
+          model.offsetOf(model.at(model.position).leftSibling),
           model.position
         );
         break;
@@ -81,7 +82,7 @@ function speak(
       case 'right': {
         result = model.getAtoms(
           model.position,
-          model.offsetOf(model.at(model.position).lastSibling)
+          model.offsetOf(model.at(model.position).rightSibling)
         );
         break;
       }
@@ -89,27 +90,24 @@ function speak(
       case 'group':
         result = model.getAtoms(model.getSiblingsRange(model.position));
         break;
+
       case 'parent': {
         const { parent } = model.at(model.position);
         if (parent && parent.type !== 'root') {
           result = parent;
+        } else {
+          result = model.root;
         }
-
         break;
       }
-
-      // Case 'start':
-      // case 'end':
-      // not yet implemented
-      // break;
       default:
-        break;
+        result = model.root;
     }
 
     return result;
   }
 
-  function getFailedSpeech(scope: string): string {
+  function getFailedSpeech(scope: SpeechScope): string {
     let result = '';
     switch (scope) {
       case 'all':
@@ -138,9 +136,9 @@ function speak(
     return result;
   }
 
-  const atoms = getAtoms(mathfield, scope);
+  const atoms = getAtoms(scope);
   if (atoms === null) {
-    mathfield.options.speakHook(getFailedSpeech(scope), mathfield.options);
+    mathfield.options.speakHook?.(getFailedSpeech(scope), mathfield.options);
     return false;
   }
 
@@ -192,7 +190,7 @@ export function defaultSpeakHook(
       const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
       const parameters = {
         OutputFormat: 'mp3',
-        VoiceId: config.speechEngineVoice,
+        VoiceId: config.speechEngineVoice ?? 'Joanna',
         Engine: [
           'Amy',
           'Emma',
@@ -205,7 +203,7 @@ export function defaultSpeakHook(
           'Joey',
           'Justin',
           'Matthew',
-        ].includes(config.speechEngineVoice)
+        ].includes(config.speechEngineVoice ?? 'Joanna')
           ? 'neural'
           : 'standard',
         // SampleRate: '24000',
