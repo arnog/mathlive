@@ -1377,7 +1377,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   get plonkSound(): string | HTMLAudioElement | null {
     return this.getOption('plonkSound');
   }
-  set plonkSound(value: string | HTMLAudioElement) {
+  set plonkSound(value: string | HTMLAudioElement | null) {
     this.setOptions({ plonkSound: value });
   }
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
