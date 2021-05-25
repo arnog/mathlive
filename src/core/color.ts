@@ -126,7 +126,7 @@ const DVIPS_COLORS: Record<string, string> = {
   Blue: '#2D2F92',
   BlueGreen: '#00B3B8',
   BlueViolet: '#473992',
-  Brickred: '#B6321C',
+  BrickRed: '#B6321C',
   Brown: '#792500',
   BurntOrange: '#F7921D',
   CadetBlue: '#74729A',
@@ -159,7 +159,7 @@ const DVIPS_COLORS: Record<string, string> = {
   Orchid: '#AF72B0',
   Peach: '#F7965A',
   Periwinkle: '#7977B8',
-  Pinegreen: '#008B72',
+  PineGreen: '#008B72',
   Plum: '#92268F',
   ProcessBlue: '#00B0F0',
   Purple: '#99479B',
@@ -366,7 +366,7 @@ yellowgreen	rgb(154, 205, 50)
  * @param s - An expression representing a color value
  * @return An RGB color expressed as a hex-triplet preceded by `#`
  */
-export function defaultColorMap(s: string): string | null {
+export function defaultColorMap(s: string): string | undefined {
   const colorSpec = s.split('!');
 
   let baseRed: number;
@@ -389,13 +389,14 @@ export function defaultColorMap(s: string): string | null {
     const colorName = colorSpec[i].trim().match(/^([A-Za-z\d]+)/)?.[1];
     const lcColorName = colorName?.toLowerCase();
 
-    const color =
-      FOREGROUND_COLORS[lcColorName] ??
-      FOREGROUND_COLORS[DVIPS_TO_CHROMATIC[colorName]] ??
-      MATLAB_COLORS[colorName] ??
-      DVIPS_COLORS[colorName] ??
-      MATHEMATICA_COLORS[colorName] ??
-      colorSpec[i].trim();
+    const color = !colorName
+      ? colorSpec[i].trim()
+      : FOREGROUND_COLORS[lcColorName!] ??
+        FOREGROUND_COLORS[DVIPS_TO_CHROMATIC[colorName]] ??
+        MATLAB_COLORS[colorName] ??
+        DVIPS_COLORS[colorName] ??
+        MATHEMATICA_COLORS[colorName] ??
+        colorSpec[i].trim();
 
     let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
     if (m?.[1] && m[2] && m[3]) {
@@ -421,7 +422,7 @@ export function defaultColorMap(s: string): string | null {
           green = Math.max(0, Math.min(255, Number.parseInt(m[2])));
           blue = Math.max(0, Math.min(255, Number.parseInt(m[3])));
         } else {
-          return null;
+          return undefined;
         }
       }
     }
@@ -439,9 +440,9 @@ export function defaultColorMap(s: string): string | null {
   }
 
   if (mix >= 0) {
-    red = mix * red + (1 - mix) * baseRed;
-    green = mix * green + (1 - mix) * baseGreen;
-    blue = mix * blue + (1 - mix) * baseBlue;
+    red = mix * red + (1 - mix) * baseRed!;
+    green = mix * green + (1 - mix) * baseGreen!;
+    blue = mix * blue + (1 - mix) * baseBlue!;
   }
 
   if (complementary) {
@@ -458,7 +459,7 @@ export function defaultColorMap(s: string): string | null {
   );
 }
 
-export function defaultBackgroundColorMap(s: string): string | null {
+export function defaultBackgroundColorMap(s: string): string | undefined {
   s = s.trim();
   return (
     BACKGROUND_COLORS[s.toLowerCase()] ??
@@ -591,7 +592,10 @@ function rgbToHsl(rgb: { r: number; g: number; b: number }): {
 
 export function highlight(color: string): string {
   // eslint-disable-next-line prefer-const
-  let { h, s, l } = rgbToHsl(parseHex(color));
+  let rgb = parseHex(color);
+  if (!rgb) return color;
+  // eslint-disable-next-line prefer-const
+  let { h, s, l } = rgbToHsl(rgb);
   s += 0.1;
   l -= 0.1;
   return rgbToHexstring(hslToRgb({ h, s, l }));

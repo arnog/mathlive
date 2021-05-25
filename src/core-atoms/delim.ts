@@ -9,8 +9,8 @@ export class DelimAtom extends Atom {
   constructor(
     command: string,
     delim: string,
-    options?: {
-      size?: 1 | 2 | 3 | 4;
+    options: {
+      size: 1 | 2 | 3 | 4;
       style: Style;
     }
   ) {
@@ -52,13 +52,14 @@ export class SizedDelimAtom extends Atom {
     this.size = options.size;
   }
 
-  render(context: Context): Box {
+  render(context: Context): Box | null {
     const result = this.bind(
       context,
       makeSizedDelim(this.value, this.size, context, {
         classes: this.delimClass,
       })
     );
+    if (!result) return null;
     if (this.caret) result.caret = this.caret;
     return result;
   }

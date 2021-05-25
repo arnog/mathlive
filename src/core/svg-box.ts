@@ -447,7 +447,7 @@ export function svgBodyToMarkup(svgBodyName: string): string {
     aligns = ['xMinYMin', 'xMaxYMin'];
   } else {
     widthClasses = ['slice-1-of-1'];
-    aligns = [align];
+    aligns = [align!];
   }
 
   const body = paths

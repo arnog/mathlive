@@ -75,7 +75,7 @@ class Tokenizer {
       return execResult[0];
     }
 
-    return null;
+    return '';
   }
 
   /**
@@ -249,7 +249,7 @@ function expand(
 
       let command = '';
       let done = false;
-      let tokens = [];
+      let tokens: Token[] = [];
       do {
         if (tokens.length === 0) {
           // We're out of tokens to look at, get some more
@@ -279,7 +279,9 @@ function expand(
             token === '<$$>' ||
             token === '<{>' ||
             token === '<}>' ||
-            (token.length > 1 && token.startsWith('\\'));
+            (typeof token === 'string' &&
+              token.length > 1 &&
+              token.startsWith('\\'));
         }
 
         if (!done) {

@@ -153,7 +153,11 @@ function speak(
     window.mathlive.readAloudMathField = mathfield;
     render(mathfield, { forHighlighting: true });
     if (mathfield.options.readAloudHook) {
-      mathfield.options.readAloudHook(mathfield.field, text, mathfield.options);
+      mathfield.options.readAloudHook(
+        mathfield.field!,
+        text,
+        mathfield.options
+      );
     }
   } else if (mathfield.options.speakHook) {
     mathfield.options.speakHook(text, options);

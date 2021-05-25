@@ -33,8 +33,9 @@ export class MacroAtom extends Atom {
       : this.macroLatex;
   }
 
-  render(context: Context): Box {
+  render(context: Context): Box | null {
     const result = Atom.createBox(context, this.body);
+    if (!result) return null;
     if (this.caret) result.caret = this.caret;
     return this.bind(context, result);
   }

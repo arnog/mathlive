@@ -29,7 +29,7 @@ export class PhantomAtom extends Atom {
     this.smashWidth = options.smashWidth ?? false;
   }
 
-  render(context: Context): Box {
+  render(context: Context): Box | null {
     const phantom = new Context(context, { isPhantom: true });
 
     if (!this.smashDepth && !this.smashHeight && !this.smashWidth) {
@@ -42,6 +42,8 @@ export class PhantomAtom extends Atom {
       this.body
     );
 
+    if (!content) return null;
+
     if (this.smashWidth) {
       const fix = new Box(null, { classes: 'fix' });
       return new Box([content, fix], { classes: 'rlap' }).wrap(context);
@@ -51,12 +53,12 @@ export class PhantomAtom extends Atom {
 
     if (this.smashHeight) content.height = 0;
     if (this.smashDepth) content.depth = 0;
-
-    for (const box of content.children) {
-      if (this.smashHeight) box.height = 0;
-      if (this.smashDepth) box.depth = 0;
+    if (content.children) {
+      for (const box of content.children) {
+        if (this.smashHeight) box.height = 0;
+        if (this.smashDepth) box.depth = 0;
+      }
     }
-
     // We create a stack to suppress the HTML line height by setting
     // the display to 'table-cell' which prevents the browser from
     // acting on that height.

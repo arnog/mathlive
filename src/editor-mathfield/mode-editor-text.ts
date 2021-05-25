@@ -17,6 +17,7 @@ export class TextModeEditor extends ModeEditor {
   }
 
   onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
+    if (!ev.clipboardData) return false;
     const text = ev.clipboardData.getData('text/plain');
 
     if (text) {
@@ -77,7 +78,7 @@ export class TextModeEditor extends ModeEditor {
     if (!newAtoms) return false;
 
     const cursor = model.at(model.position);
-    const lastNewAtom = cursor.parent.addChildrenAfter(newAtoms, cursor);
+    const lastNewAtom = cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
     // Prepare to dispatch notifications
     // (for selection changes, then content change)

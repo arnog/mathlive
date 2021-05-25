@@ -1,58 +1,58 @@
 {
-    "compilerOptions": {
-        "rootDir": ".",
-        "outDir": "build",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "build",
 
-        "incremental": true,
-        "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo",
+    "incremental": true,
+    "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo",
 
-        "lib": [
-            "es2018",
-            "es2020.string",
-            "dom",
-            "dom.iterable",
-            "scripthost"
-            // "esnext.bigint"
-        ],
-        // Do not include all the type definitions in `node_modules/@types`,
-        // which include NodeJS definitions that are not applicable to a web app
-        // but only those type definitions that are required
-        "types": [
-            "./node_modules/@types/jest",
-            "./node_modules/@types/css-font-loading-module"
-        ],
+    "lib": [
+      "es2020",
+      "es2020.string",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+      // "esnext.bigint"
+    ],
+    // Do not include all the type definitions in `node_modules/@types`,
+    // which include NodeJS definitions that are not applicable to a web app
+    // but only those type definitions that are required
+    "types": [
+      "./node_modules/@types/jest",
+      "./node_modules/@types/css-font-loading-module"
+    ],
 
-        // "declaration": true,
-        // "allowJs": true,
-        // "checkJs": true,
+    // "declaration": true,
+    // "allowJs": true,
+    // "checkJs": true,
 
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
 
-        "target": "es2019",
-        "module": "esnext",
-        "esModuleInterop": true,
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
+    "target": "es2019",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
 
-        "strictNullChecks": false,
-        "noImplicitAny": false,
-        "noLib": false,
-        // We'll strip the comments with rollup.
-        // Need them for the declaration files
-        "removeComments": false,
-        "sourceMap": true
-    },
-    "exclude": [
-        "coverage",
-        // "test",
-        "node_modules",
-        "**/*.spec.ts",
-        "dist",
-        "build",
-        "examples",
-        "docs",
-        "tutorials",
-        "**/*.config.js"
-    ]
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "noLib": false,
+    // We'll strip the comments with rollup.
+    // Need them for the declaration files
+    "removeComments": false,
+    "sourceMap": true
+  },
+  "exclude": [
+    "coverage",
+    // "test",
+    "node_modules",
+    "**/*.spec.ts",
+    "dist",
+    "build",
+    "examples",
+    "docs",
+    "tutorials",
+    "**/*.config.js"
+  ]
 }

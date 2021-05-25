@@ -353,7 +353,7 @@ export type AutoRenderOptions = {
    * by injecting a string of HTML, allowing that string to be sanitized
    * according to a policy defined by the host.
    */
-  createHTML?: (html: string) => any;
+  createHTML?: (html: string) => string; // or TrustedHTML. See https://github.com/microsoft/TypeScript/issues/30024
 
   /** Custom LaTeX macros */
   macros?: MacroDictionary;

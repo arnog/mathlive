@@ -54,7 +54,7 @@ export function register(
 
 export function getCommandTarget(
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
-): CommandTarget {
+): CommandTarget | undefined {
   let selector: SelectorPrivate;
 
   selector = isArray(command) ? command[0] : command;
@@ -127,7 +127,7 @@ export function perform(
       mathfield.snapshot();
     }
 
-    COMMANDS[selector].fn(mathfield.model, ...args);
+    COMMANDS[selector]!.fn(mathfield.model, ...args);
     if (
       /^(delete|transpose|add)/.test(selector) &&
       mathfield.mode !== 'latex'
@@ -142,10 +142,10 @@ export function perform(
     dirty = true;
     handled = true;
   } else if (commandTarget === 'virtual-keyboard') {
-    dirty = mathfield.virtualKeyboard?.executeCommand(command);
+    dirty = mathfield.virtualKeyboard?.executeCommand(command) ?? false;
     handled = true;
   } else if (COMMANDS[selector]) {
-    dirty = COMMANDS[selector].fn(mathfield, ...args);
+    dirty = COMMANDS[selector]!.fn(mathfield, ...args);
     handled = true;
   } else {
     throw new Error('Unknown command "' + selector + '"');

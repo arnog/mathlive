@@ -44,9 +44,10 @@ defineFunction('color', '{:string}', {
     args,
     options: ApplyStyleDefinitionOptions
   ): PrivateStyle => {
+    const color = args[0] as string;
     return {
       verbatimColor: args[0] as string,
-      color: options.colorMap(args[0] as string),
+      color: options.colorMap?.(color) ?? color,
     };
   },
 });
@@ -60,9 +61,10 @@ defineFunction('textcolor', '{:string}{content:auto*}', {
     args,
     options: ApplyStyleDefinitionOptions
   ): PrivateStyle => {
+    const color = args[0] as string;
     return {
-      verbatimColor: args[0] as string,
-      color: options.colorMap(args[0] as string),
+      verbatimColor: color,
+      color: options.colorMap?.(color) ?? color,
     };
   },
 });
@@ -91,9 +93,10 @@ defineFunction('colorbox', '{:string}{content:auto*}', {
     args,
     options: ApplyStyleDefinitionOptions
   ): PrivateStyle => {
+    const color = args[0] as string;
     return {
       verbatimBackgroundColor: args[0] as string,
-      backgroundColor: options.backgroundColorMap(args[0] as string),
+      backgroundColor: options.backgroundColorMap?.(color) ?? color,
     };
   },
 });
@@ -108,18 +111,21 @@ defineFunction(
       args: Argument[],
       style: PrivateStyle,
       options: CreateAtomOptions
-    ): Atom =>
-      new BoxAtom(name, args[2] as Atom[], {
-        verbatimFramecolor: args[0] as string, // Save this value to restore it verbatim later
-        framecolor: options.colorMap(args[0] as string),
+    ): Atom => {
+      const color = args[0] as string;
+      const bgColor = args[1] as string;
+      return new BoxAtom(name, args[2] as Atom[], {
+        verbatimFramecolor: color, // Save this value to restore it verbatim later
+        framecolor: options.colorMap?.(color) ?? color,
         verbatimBackgroundcolor: args[1] as string, // Save this value to restore it verbatim later
-        backgroundcolor: options.backgroundColorMap(args[1] as string),
+        backgroundcolor: options.backgroundColorMap?.(bgColor) ?? bgColor,
         style,
         serialize: (atom: BoxAtom, options: ToLatexOptions) =>
           `${atom.command}{${atom.verbatimFramecolor ?? atom.framecolor}{${
             atom.verbatimBackgroundcolor ?? atom.backgroundcolor
           }}{${atom.bodyToLatex(options)}}`,
-      }),
+      });
+    },
   }
 );
 
@@ -147,18 +153,18 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
             atom.border !== undefined ||
             atom.backgroundcolor !== undefined
           ) {
-            const bboxParameters = [];
+            const bboxParameters: string[] = [];
             if (atom.padding) {
-              bboxParameters.push(atom.padding);
+              bboxParameters.push(atom.padding!);
             }
 
             if (atom.border) {
-              bboxParameters.push(`border: ${atom.border}`);
+              bboxParameters.push(`border: ${atom.border!}`);
             }
 
             if (atom.verbatimBackgroundcolor || atom.backgroundcolor) {
               bboxParameters.push(
-                atom.verbatimBackgroundcolor ?? atom.backgroundcolor
+                atom.verbatimBackgroundcolor! ?? atom.backgroundcolor!
               );
             }
 
@@ -725,21 +731,22 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
 
         */
 
-    result.body.forEach((x) => {
-      if (x.type !== 'first') {
-        x.type = 'mord';
-        x.value = { '\u2217': '*', '\u2212': '-' }[x.value] ?? x.value;
-        x.isFunction = false;
-        if (!x.style.variant && !x.style.variantStyle) {
-          // No variant as been specified (as it could have been with
-          // \operatorname{\mathit{lim}} for example)
-          // Bypass the default auto styling by specifing an upright style
-          x.style.variant = 'main';
-          x.style.variantStyle = 'up';
+    if (result.body) {
+      result.body.forEach((x) => {
+        if (x.type !== 'first') {
+          x.type = 'mord';
+          x.value = { '\u2217': '*', '\u2212': '-' }[x.value] ?? x.value;
+          x.isFunction = false;
+          if (!x.style.variant && !x.style.variantStyle) {
+            // No variant as been specified (as it could have been with
+            // \operatorname{\mathit{lim}} for example)
+            // Bypass the default auto styling by specifing an upright style
+            x.style.variant = 'main';
+            x.style.variantStyle = 'up';
+          }
         }
-      }
-    });
-
+      });
+    }
     return result;
   },
 });

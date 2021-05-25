@@ -13,7 +13,7 @@ import { AnnounceVerb } from '../editor-model/utils';
  * and its siblings and their parent.
  */
 function relationName(atom: Atom): string {
-  let result: string;
+  let result: string | undefined = undefined;
   if (atom.treeBranch === 'body') {
     result = {
       enclose: 'cross out',
@@ -21,8 +21,8 @@ function relationName(atom: Atom): string {
       surd: 'square root',
       root: 'math field',
       mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
-    }[atom.parent.type];
-  } else if (atom.parent.type === 'genfrac') {
+    }[atom.parent!.type];
+  } else if (atom.parent!.type === 'genfrac') {
     if (atom.treeBranch === 'above') {
       return 'numerator';
     }
@@ -30,7 +30,7 @@ function relationName(atom: Atom): string {
     if (atom.treeBranch === 'below') {
       return 'denominator';
     }
-  } else if (atom.parent.type === 'surd') {
+  } else if (atom.parent!.type === 'surd') {
     if (atom.treeBranch === 'above') {
       result = 'index';
     }
@@ -40,7 +40,7 @@ function relationName(atom: Atom): string {
     result = 'subscript';
   }
 
-  if (!result) {
+  if (!result!) {
     console.log('unknown relationship');
   }
 
@@ -70,7 +70,7 @@ export function defaultAnnounceHook(
     // As a side effect, reset the keystroke buffer
     mathfield.resetKeystrokeBuffer();
   } else if (action === 'delete') {
-    liveText = speakableText(mathfield.options, 'deleted: ', atoms);
+    liveText = speakableText(mathfield.options, 'deleted: ', atoms!);
     //* ** FIX: could also be moveUp or moveDown -- do something different like provide context???
   } else if (action === 'focus' || action.includes('move')) {
     //* ** FIX -- should be xxx selected/unselected */
@@ -94,7 +94,7 @@ export function defaultAnnounceHook(
     // );
 
     liveText = speakableText(mathfield.options, '', mathfield.model.root);
-    mathfield.keyboardDelegate.setAriaLabel('after: ' + liveText);
+    mathfield.keyboardDelegate!.setAriaLabel('after: ' + liveText);
 
     /** * FIX -- testing hack for setting braille ***/
     // mathfield.accessibleNode.focus();
@@ -111,12 +111,12 @@ export function defaultAnnounceHook(
 
   // Aria-live regions are only spoken when it changes; force a change by
   // alternately using nonbreaking space or narrow nonbreaking space
-  const ariaLiveChangeHack = mathfield.ariaLiveText.textContent.includes(
+  const ariaLiveChangeHack = mathfield.ariaLiveText!.textContent!.includes(
     '\u00a0'
   )
     ? ' \u202F '
     : ' \u00A0 ';
-  mathfield.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
+  mathfield.ariaLiveText!.textContent = liveText + ariaLiveChangeHack;
   // This.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 
@@ -125,7 +125,7 @@ function getRelationshipAsSpokenText(
   previousOffset?: number
 ): string {
   if (Number.isNaN(previousOffset)) return '';
-  const previous = model.at(previousOffset);
+  const previous = model.at(previousOffset!);
   if (!previous) return '';
   if (previous.treeDepth <= model.at(model.position).treeDepth) {
     return '';
@@ -135,8 +135,8 @@ function getRelationshipAsSpokenText(
   let ancestor = previous.parent;
   const newParent = model.at(model.position).parent;
   while (ancestor !== model.root && ancestor !== newParent) {
-    result += `out of ${relationName(ancestor)};`;
-    ancestor = ancestor.parent;
+    result += `out of ${relationName(ancestor!)};`;
+    ancestor = ancestor!.parent;
   }
 
   return result;

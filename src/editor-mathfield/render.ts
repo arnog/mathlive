@@ -73,11 +73,11 @@ export function render(
   //
   // 2. Update selection state and blinking cursor (caret)
   //
-  model.root.caret = undefined;
+  model.root.caret = '';
   model.root.isSelected = false;
   model.root.containsCaret = true;
   for (const atom of model.atoms) {
-    atom.caret = undefined;
+    atom.caret = '';
     atom.isSelected = false;
     atom.containsCaret = false;
   }
@@ -120,7 +120,7 @@ export function render(
           // The `groupNumbers` flag indicates that extra boxes should be generated
           // to represent group of atoms, for example, a box to group
           // consecutive digits to represent a number.
-          groupNumbers: renderOptions.forHighlighting,
+          groupNumbers: renderOptions.forHighlighting ?? false,
         },
         smartFence: mathfield.options.smartFence,
         renderPlaceholder: undefined,
@@ -140,7 +140,7 @@ export function render(
   // 4. Construct struts around the boxes
   //
   const wrapper = makeStruts(
-    adjustInterAtomSpacing(base, mathfield.options.horizontalSpacingScale),
+    adjustInterAtomSpacing(base!, mathfield.options.horizontalSpacingScale),
     {
       classes: 'ML__mathlive',
       attributes: {
@@ -157,17 +157,18 @@ export function render(
   //
   // 5. Generate markup and accessible node
   //
-  const isFocused = mathfield.field.classList.contains('ML__focused');
+  const field = mathfield.field!;
+  const isFocused = field!.classList.contains('ML__focused');
   if (isFocused && !hasFocus) {
-    mathfield.field.classList.remove('ML__focused');
+    field!.classList.remove('ML__focused');
   } else if (!isFocused && hasFocus) {
-    mathfield.field.classList.add('ML__focused');
+    field!.classList.add('ML__focused');
   }
 
-  mathfield.field.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
-  mathfield.fieldContent = mathfield.field.querySelector('.ML__mathlive');
+  field!.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
+  mathfield.fieldContent = field.querySelector('.ML__mathlive');
 
-  mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
+  mathfield.accessibleNode!.innerHTML = mathfield.options.createHTML(
     '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
       atomsToMathML(model.root, mathfield.options) +
       '</math>'
@@ -214,12 +215,14 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
     //
     let atom = model.at(model.position);
     while (atom && !(atom.containsCaret && atom.displayContainsHighlight)) {
-      atom = atom.parent;
+      atom = atom.parent!;
     }
     if (atom?.containsCaret && atom.displayContainsHighlight) {
-      let bounds = getAtomBounds(mathfield, atom);
+      const bounds = adjustForScrolling(
+        mathfield,
+        getAtomBounds(mathfield, atom)
+      );
       if (bounds) {
-        bounds = adjustForScrolling(mathfield, bounds);
         const element = document.createElement('div');
         element.classList.add('ML__contains-highlight');
         element.style.position = 'absolute';
@@ -259,7 +262,7 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
  * Return the rects that are not entirely contained by other rects.
  */
 function unionRects(rects: Rect[]): Rect[] {
-  const result = [];
+  const result: Rect[] = [];
 
   // Remove duplicate rects
   for (const rect of rects) {

@@ -350,9 +350,9 @@ export function showPopoverWithLatex(
     ? '<div class="ML__popover__next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>'
     : '';
 
-  mf.popover.innerHTML = mf.options.createHTML(template);
+  mf.popover!.innerHTML = mf.options.createHTML(template);
 
-  let element = mf.popover.querySelectorAll<HTMLElement>(
+  let element = mf.popover!.querySelectorAll<HTMLElement>(
     '.ML__popover__content'
   );
   if (element && element.length > 0) {
@@ -361,7 +361,7 @@ export function showPopoverWithLatex(
     });
   }
 
-  element = mf.popover.querySelectorAll('.ML__popover__prev-shortcut');
+  element = mf.popover!.querySelectorAll('.ML__popover__prev-shortcut');
   if (element && element.length > 0) {
     attachButtonHandlers(
       (command) => mf.executeCommand(command),
@@ -370,7 +370,7 @@ export function showPopoverWithLatex(
     );
   }
 
-  element = mf.popover.querySelectorAll('.ML__popover__next-shortcut');
+  element = mf.popover!.querySelectorAll('.ML__popover__next-shortcut');
   if (element && element.length > 0) {
     attachButtonHandlers(
       (command) => mf.executeCommand(command),
@@ -380,10 +380,10 @@ export function showPopoverWithLatex(
   }
 
   setTimeout(() => {
-    const caretPoint = getCaretPoint(mf.field);
+    const caretPoint = getCaretPoint(mf.field!);
     if (caretPoint) setPopoverPosition(mf, caretPoint);
 
-    mf.popover.classList.add('is-visible');
+    mf.popover!.classList.add('is-visible');
   }, 32);
 }
 
@@ -397,7 +397,7 @@ export function updatePopoverPosition(
   if (!mf.element || mf.element.mathfield !== mf) return;
 
   // If the popover pane is visible...
-  if (!mf.popover.classList.contains('is-visible')) return;
+  if (!mf.popover!.classList.contains('is-visible')) return;
   if (options?.deferred) {
     // Call ourselves again later, typically after the
     // rendering/layout of the DOM has been completed
@@ -410,7 +410,7 @@ export function updatePopoverPosition(
     hidePopover(mf);
   } else {
     // ... get the caret position
-    const caretPoint = getCaretPoint(mf.field);
+    const caretPoint = getCaretPoint(mf.field!);
     if (caretPoint) setPopoverPosition(mf, caretPoint);
   }
 }
@@ -435,30 +435,30 @@ function setPopoverPosition(
     window.innerWidth - document.documentElement.clientWidth;
   const scrollbarHeight =
     window.innerHeight - document.documentElement.clientHeight;
-  const virtualkeyboardHeight = mf.virtualKeyboard.height;
+  const virtualkeyboardHeight = mf.virtualKeyboard!.height;
   // Prevent screen overflow horizontal.
-  if (position.x + mf.popover.offsetWidth / 2 > screenWidth - scrollbarWidth) {
-    mf.popover.style.left = `${
-      screenWidth - mf.popover.offsetWidth - scrollbarWidth
+  if (position.x + mf.popover!.offsetWidth / 2 > screenWidth - scrollbarWidth) {
+    mf.popover!.style.left = `${
+      screenWidth - mf.popover!.offsetWidth - scrollbarWidth
     }px`;
-  } else if (position.x - mf.popover.offsetWidth / 2 < 0) {
-    mf.popover.style.left = '0';
+  } else if (position.x - mf.popover!.offsetWidth / 2 < 0) {
+    mf.popover!.style.left = '0';
   } else {
-    mf.popover.style.left = `${position.x - mf.popover.offsetWidth / 2}px`;
+    mf.popover!.style.left = `${position.x - mf.popover!.offsetWidth / 2}px`;
   }
 
   // And position the popover right below or above the caret
   if (
-    position.y + mf.popover.offsetHeight + 5 >
+    position.y + mf.popover!.offsetHeight + 5 >
     screenHeight - scrollbarHeight - virtualkeyboardHeight
   ) {
-    mf.popover.classList.add('ML__popover--reverse-direction');
-    mf.popover.style.top = `${
-      position.y - position.height - mf.popover.offsetHeight - 5
+    mf.popover!.classList.add('ML__popover--reverse-direction');
+    mf.popover!.style.top = `${
+      position.y - position.height - mf.popover!.offsetHeight - 5
     }px`;
   } else {
-    mf.popover.classList.remove('ML__popover--reverse-direction');
-    mf.popover.style.top = `${position.y + 5}px`;
+    mf.popover!.classList.remove('ML__popover--reverse-direction');
+    mf.popover!.style.top = `${position.y + 5}px`;
   }
 }
 

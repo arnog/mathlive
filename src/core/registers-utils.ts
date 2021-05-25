@@ -7,23 +7,22 @@ export function convertDimensionToPt(
 ): number {
   if (!value) return 0;
   // If the units are missing, TeX assumes 'pt'
-  const f =
-    {
-      pt: 1,
-      mm: 7227 / 2540,
-      cm: 7227 / 254,
-      ex: 35271 / 8192,
-      px: 3 / 4,
-      em: PT_PER_EM,
-      bp: 803 / 800,
-      dd: 1238 / 1157,
-      pc: 12,
-      in: 72.27,
-      mu: 10 / 18,
-    }[value.unit] ?? 1;
+  const f = {
+    pt: 1,
+    mm: 7227 / 2540,
+    cm: 7227 / 254,
+    ex: 35271 / 8192,
+    px: 3 / 4,
+    em: PT_PER_EM,
+    bp: 803 / 800,
+    dd: 1238 / 1157,
+    pc: 12,
+    in: 72.27,
+    mu: 10 / 18,
+  }[value.unit ?? 'pt']!;
 
   if (Number.isFinite(precision)) {
-    const factor = 10 ** precision;
+    const factor = 10 ** precision!;
     return Math.round((value.dimension / PT_PER_EM) * f * factor) / factor;
   }
 
@@ -31,9 +30,10 @@ export function convertDimensionToPt(
 }
 
 export function convertDimensionToEm(
-  value?: Dimension,
+  value?: Dimension | null,
   precision?: number
 ): number {
+  if (value === null) return 0;
   return convertDimensionToPt(value, precision) / PT_PER_EM;
 }
 

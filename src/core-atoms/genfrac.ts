@@ -38,12 +38,12 @@ export class GenfracAtom extends Atom {
   private readonly continuousFraction: boolean;
   private readonly numerPrefix?: string;
   private readonly denomPrefix?: string;
-  private readonly mathstyleName: MathstyleName;
+  private readonly mathstyleName?: MathstyleName;
   constructor(
     command: string,
     above: Atom[],
     below: Atom[],
-    options?: GenfracOptions
+    options: GenfracOptions
   ) {
     super('genfrac', {
       style: options.style,
@@ -70,7 +70,7 @@ export class GenfracAtom extends Atom {
     );
   }
 
-  render(context: Context): Box {
+  render(context: Context): Box | null {
     const fracContext = new Context(context, this.style, this.mathstyleName);
     const metrics = fracContext.metrics;
 
@@ -214,7 +214,7 @@ export class GenfracAtom extends Atom {
         )
       : makeNullDelimiter(fracContext, 'mopen');
 
-    let rightDelim: Box;
+    let rightDelim: Box | null = null;
     if (this.continuousFraction) {
       // Zero width for `\cfrac`
       rightDelim = new Box(null, { type: 'mclose' });
@@ -244,7 +244,7 @@ export class GenfracAtom extends Atom {
         classes: 'mfrac',
       })
     );
-
+    if (!result) return null;
     if (this.caret) result.caret = this.caret;
 
     return this.attachSupsub(context, { base: result });

@@ -161,16 +161,15 @@ export function getDefaultRegisters(): Registers {
     ...DEFAULT_NUMBER_REGISTERS,
   };
   for (const reg of Object.keys(DEFAULT_DIMENSION_REGISTERS)) {
-    _DEFAULT_REGISTERS[reg] = convertToDimension(
-      DEFAULT_DIMENSION_REGISTERS[reg],
-      _DEFAULT_REGISTERS
-    );
+    _DEFAULT_REGISTERS[reg] =
+      convertToDimension(
+        DEFAULT_DIMENSION_REGISTERS[reg],
+        _DEFAULT_REGISTERS
+      ) ?? 0;
   }
   for (const reg of Object.keys(DEFAULT_GLUE_REGISTERS)) {
-    _DEFAULT_REGISTERS[reg] = convertToGlue(
-      DEFAULT_GLUE_REGISTERS[reg],
-      _DEFAULT_REGISTERS
-    );
+    _DEFAULT_REGISTERS[reg] =
+      convertToGlue(DEFAULT_GLUE_REGISTERS[reg], _DEFAULT_REGISTERS) ?? 0;
   }
   return _DEFAULT_REGISTERS;
 }

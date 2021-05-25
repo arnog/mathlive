@@ -128,7 +128,8 @@ defineFunction(
         // as the command name)
         svgBody: command.slice(1),
         // The overscript is optional, i.e. `\xtofrom` is valid
-        above: (args[1] as Atom[])?.length === 0 ? null : (args[1] as Atom[]),
+        above:
+          (args[1] as Atom[])?.length === 0 ? undefined : (args[1] as Atom[]),
         below: (args[0] as Atom[]) ?? null,
         skipBoundary: false,
         supsubPlacement: 'over-under',

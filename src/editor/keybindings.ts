@@ -73,7 +73,7 @@ export function getKeybindingsForCommand(
   keybindings: Keybinding[],
   command: string
 ): string[] {
-  let result = [];
+  let result: string[] = [];
 
   if (typeof command === 'string') {
     const candidate = REVERSE_KEYBINDINGS[command];
@@ -100,7 +100,7 @@ export function getKeybindingsForCommand(
   );
   for (const keybinding of keybindings) {
     if (regex.test(commandToString(keybinding.command))) {
-      result.push(keybinding);
+      result.push(keybinding.key);
     }
   }
 
@@ -199,7 +199,7 @@ export function getKeybindingMarkup(keystroke: string): string {
 function normalizeKeybinding(
   keybinding: Keybinding,
   layout: KeyboardLayout
-): Keybinding {
+): Keybinding | undefined {
   if (
     keybinding.ifPlatform &&
     !/^!?(macos|windows|android|ios|chromeos|other)$/.test(
@@ -314,7 +314,7 @@ export function normalizeKeybindings(
   onError: (error: string[]) => void
 ): Keybinding[] {
   const result: Keybinding[] = [];
-  const errors = [];
+  const errors: string[] = [];
 
   for (const x of keybindings) {
     try {

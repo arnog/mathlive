@@ -310,7 +310,10 @@ export function move(
   options = options ?? { extend: false };
 
   if (direction !== 'forward') {
-    model.deleteAtoms(getCommandSuggestionRange(model));
+    const [from, to] = getCommandSuggestionRange(model);
+    if (from !== undefined && to !== undefined) {
+      model.deleteAtoms([from, to]);
+    }
   }
 
   if (direction === 'upward') return moveUpward(model, options);
@@ -338,7 +341,7 @@ export function move(
       if (atom?.inCaptureSelection) {
         // If in a capture selection, while going forward jump to
         // after
-        while (!atom.captureSelection) atom = atom.parent;
+        while (!atom.captureSelection) atom = atom.parent!;
         pos = model.offsetOf(atom) + 1;
       } else if (
         !atom?.isFirstSibling &&
@@ -360,7 +363,7 @@ export function move(
       if (atom?.inCaptureSelection) {
         // If in a capture selection while going backward, jump to
         // before
-        while (!atom.captureSelection) atom = atom.parent;
+        while (!atom.captureSelection) atom = atom.parent!;
         pos = Math.max(0, model.offsetOf(atom.leftSibling));
       } else if (
         !atom?.isLastSibling &&
@@ -425,19 +428,19 @@ function moveUpward(
   // branch, but one of its ancestor does.
   let atom = model.at(model.position);
   while (atom && atom.treeBranch !== 'below') {
-    atom = atom.parent;
+    atom = atom.parent!;
   }
 
   if (atom) {
     if (extend) {
       model.setSelection(
-        model.offsetOf(atom.parent.leftSibling),
-        model.offsetOf(atom.parent)
+        model.offsetOf(atom.parent!.leftSibling),
+        model.offsetOf(atom.parent!)
       );
     } else {
       // If branch doesn't exist, create it
       const branch =
-        atom.parent.branch('above') ?? atom.parent.createBranch('above');
+        atom.parent!.branch('above') ?? atom.parent!.createBranch('above');
 
       // Move to the last atom of the branch
       setPositionHandlingPlaceholder(
@@ -482,19 +485,19 @@ function moveDownward(
   model.collapseSelection('forward');
   let atom = model.at(model.position);
   while (atom && atom.treeBranch !== 'above') {
-    atom = atom.parent;
+    atom = atom.parent!;
   }
 
   if (atom) {
     if (extend) {
       model.setSelection(
-        model.offsetOf(atom.parent.leftSibling),
-        model.offsetOf(atom.parent)
+        model.offsetOf(atom.parent!.leftSibling),
+        model.offsetOf(atom.parent!)
       );
     } else {
       // If branch doesn't exist, create it
       const branch =
-        atom.parent.branch('below') ?? atom.parent.createBranch('below');
+        atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
 
       // Move to the last atom of the branch
       setPositionHandlingPlaceholder(

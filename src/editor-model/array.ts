@@ -17,7 +17,7 @@ export function arrayJoinColumns(
 ): Atom[] {
   if (!row) return [];
   let result: Atom[] = [new Atom('first')];
-  let sep: Atom;
+  let sep: Atom | null = null;
   for (let cell of row) {
     if (cell && cell.length > 0 && cell[0].type === 'first') {
       // Remove the 'first' atom, if present
@@ -47,7 +47,7 @@ export function arrayJoinRows(
   style?: Style
 ): Atom[] {
   let result: Atom[] = [new Atom('first')];
-  let sep: Atom;
+  let sep: Atom | null = null;
   for (const row of array) {
     if (sep) {
       result.push(sep);

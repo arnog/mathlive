@@ -3,9 +3,12 @@ import type { ParseMode } from '../public/core';
 
 import { ModelPrivate } from './model-private';
 
-export function getMode(model: ModelPrivate, offset: Offset): ParseMode {
+export function getMode(
+  model: ModelPrivate,
+  offset: Offset
+): ParseMode | undefined {
   const atom = model.at(offset);
-  let result: ParseMode;
+  let result: ParseMode | undefined;
   if (atom) {
     result = atom.mode;
     let ancestor = atom.parent;

@@ -15,7 +15,7 @@ export function getInlineShortcutsStartingWith(
   s: string,
   config: MathfieldOptionsPrivate
 ): string[] {
-  const result = [];
+  const result: string[] = [];
 
   const skipDefaultShortcuts = config.overrideDefaultInlineShortcuts;
 
@@ -35,7 +35,7 @@ export function getInlineShortcutsStartingWith(
     if (customInlineShortcuts) {
       for (const key of Object.keys(customInlineShortcuts)) {
         if (key.startsWith(s2)) {
-          result.push(key);
+          result.push(key!);
         }
       }
     }
@@ -49,7 +49,7 @@ export function getInlineShortcutsStartingWith(
  * @param siblings atoms preceding this potential shortcut
  */
 function validateShortcut(
-  siblings: Atom[],
+  siblings: null | Atom[],
   shortcut: InlineShortcutDefinition
 ): string {
   if (!shortcut) return '';
@@ -141,7 +141,7 @@ function validateShortcut(
  * @return A replacement string matching the shortcut (e.g. `'\pi'`)
  */
 export function getInlineShortcut(
-  context: Atom[],
+  context: null | Atom[],
   s: string,
   shortcuts?: Record<string, InlineShortcutDefinition>
 ): string {

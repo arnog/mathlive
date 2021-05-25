@@ -308,8 +308,8 @@ defineTabularEnvironment(
     // From amstex.sty:
     // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
     // \def\endmatrix{\endarray \hskip -\arraycolsep}
-    let leftDelim: string;
-    let rightDelim: string;
+    let leftDelim = '.';
+    let rightDelim = '.';
     switch (name) {
       case 'pmatrix':
       case 'pmatrix*':

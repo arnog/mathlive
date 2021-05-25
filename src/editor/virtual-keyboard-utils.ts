@@ -31,7 +31,7 @@ import { typeset } from '../core/typeset';
 import { getDefaultRegisters } from '../core/registers';
 import { throwIfNotInBrowser } from '../common/capabilities';
 
-let gScrim: Scrim = null;
+let gScrim: Scrim | null = null;
 
 export function showAlternateKeys(
   keyboard: VirtualKeyboard,
@@ -44,7 +44,7 @@ export function showAlternateKeys(
   altContainer.setAttribute('aria-hidden', 'true');
   altContainer.className =
     'ML__keyboard alternate-keys' +
-    (keyboard.element.classList.contains('material') ? ' material' : '');
+    (keyboard.element!.classList.contains('material') ? ' material' : '');
   altContainer.id = 'mathlive-alternate-keys-panel';
 
   if (altKeys.length >= 14) {
@@ -130,12 +130,12 @@ export function showAlternateKeys(
   // Position the alternate panel
   //
 
-  const keycapElement = keyboard?.element.querySelector(
+  const keycapElement = keyboard?.element!.querySelector(
     'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
       altKeysetName +
       '"]'
   );
-  const position = keycapElement.getBoundingClientRect();
+  const position = keycapElement?.getBoundingClientRect();
   if (position) {
     if (position.top - altContainer.clientHeight < 0) {
       // AltContainer.style.maxWidth = '320px';  // Up to six columns
@@ -188,9 +188,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
   _visible: boolean;
   _element?: HTMLDivElement;
-  _executeCommand: ExecuteCommandFunction;
-  private readonly _focus: () => void;
-  private readonly _blur: () => void;
+  _executeCommand?: ExecuteCommandFunction;
+  private readonly _focus?: () => void;
+  private readonly _blur?: () => void;
 
   constructor(
     options: VirtualKeyboardOptions & CoreOptions,
@@ -225,10 +225,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this.options = options;
   }
 
-  get element(): HTMLDivElement {
+  get element(): HTMLDivElement | undefined {
     return this._element;
   }
-  set element(val: HTMLDivElement) {
+  set element(val: HTMLDivElement | undefined) {
     this._element?.remove();
     this._element = val;
   }
@@ -263,11 +263,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   focusMathfield(): void {
-    this._focus();
+    if (this._focus) this._focus();
   }
 
   blurMathfield(): void {
-    this._blur();
+    if (this._blur) this._blur();
   }
 
   enable(): void {}
@@ -293,7 +293,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       m[1].toUpperCase()
     ) as SelectorPrivate;
     if (COMMANDS[selector]?.target === 'virtual-keyboard') {
-      return COMMANDS[selector].fn(this, ...args);
+      return COMMANDS[selector]!.fn(this, ...args);
     }
 
     return this._executeCommand?.(command) ?? false;
@@ -1356,11 +1356,11 @@ export function makeKeycap(
   chainedCommand?: string | any[]
 ): void {
   for (const element of elementList) {
-    let html: string;
+    let html: string | undefined = undefined;
     // Display
     if (element.getAttribute('data-latex')) {
       html = latexToMarkup(
-        element.getAttribute('data-latex').replace(/&quot;/g, '"'),
+        element.getAttribute('data-latex')!.replace(/&quot;/g, '"'),
         () => '\\placeholder{}'
       );
     } else if (
@@ -1368,18 +1368,18 @@ export function makeKeycap(
       element.innerHTML === ''
     ) {
       html = latexToMarkup(
-        element.getAttribute('data-insert').replace(/&quot;/g, '"'),
+        element.getAttribute('data-insert')!.replace(/&quot;/g, '"'),
         () => '\\placeholder{}'
       );
     } else if (element.getAttribute('data-content')) {
-      html = element.getAttribute('data-content').replace(/&quot;/g, '"');
+      html = element.getAttribute('data-content')!.replace(/&quot;/g, '"');
     }
 
     if (element.getAttribute('data-aside')) {
       html =
         (html ?? '') +
         '<aside>' +
-        element.getAttribute('data-aside').replace(/&quot;/g, '"') +
+        element.getAttribute('data-aside')!.replace(/&quot;/g, '"') +
         '</aside>';
     }
 
@@ -1388,7 +1388,7 @@ export function makeKeycap(
     }
 
     if (element.getAttribute('data-classes')) {
-      element.classList.add(element.getAttribute('data-classes'));
+      element.classList.add(element.getAttribute('data-classes')!);
     }
 
     const key = element.getAttribute('data-insert')?.replace(/&quot;/g, '"');
@@ -1403,7 +1403,7 @@ export function makeKeycap(
     // Commands
     let handlers;
     if (element.getAttribute('data-command')) {
-      handlers = JSON.parse(element.getAttribute('data-command'));
+      handlers = JSON.parse(element.getAttribute('data-command')!);
     } else if (element.getAttribute('data-insert')) {
       handlers = [
         'insert',
@@ -1431,7 +1431,7 @@ export function makeKeycap(
     } else {
       handlers = [
         'typedText',
-        element.getAttribute('data-key') || element.textContent,
+        element.getAttribute('data-key') ?? element.textContent,
         { focus: true, feedback: true, simulateKeystroke: true },
       ];
     }
@@ -1441,7 +1441,7 @@ export function makeKeycap(
     }
 
     if (element.getAttribute('data-alt-keys')) {
-      const altKeys = ALT_KEYS[element.getAttribute('data-alt-keys')];
+      const altKeys = ALT_KEYS[element.getAttribute('data-alt-keys')!];
       if (altKeys) {
         handlers = {
           default: handlers,
@@ -1576,9 +1576,13 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
     row = '';
     const attributesArray = m[2].match(/[a-zA-Z][a-zA-Z\d-]*=(['"])(.*?)\1/g);
     const attributes: Record<string, string> = {};
-    for (const attribute of attributesArray) {
-      const m2 = attribute.match(/([a-zA-Z][a-zA-Z\d-]*)=(['"])(.*?)\2/);
-      attributes[m2[1]] = m2[3];
+    if (attributesArray) {
+      for (const attribute of attributesArray) {
+        const m2 = attribute.match(/([a-zA-Z][a-zA-Z\d-]*)=(['"])(.*?)\2/);
+        if (m2) {
+          attributes[m2[1]] = m2[3];
+        }
+      }
     }
 
     let keys = layout[attributes.name] as string;
@@ -1874,7 +1878,7 @@ export function makeKeyboardElement(
     // and make sure the list of layers is uniquified.
     let keyboardLayers = keyboards[keyboardName].layers ?? [];
     if (keyboards[keyboardName].layer) {
-      keyboardLayers.push(keyboards[keyboardName].layer);
+      keyboardLayers.push(keyboards[keyboardName].layer!);
     }
 
     keyboardLayers = [...new Set(keyboardLayers)];
@@ -1908,7 +1912,7 @@ export function makeKeyboardElement(
             temporaryLayer += `<ul>`;
             for (const keycap of row) {
               temporaryLayer += `<li`;
-              if (/separator/.test(keycap.class)) {
+              if (keycap.class && /separator/.test(keycap.class)) {
                 temporaryLayer += ` class="${keycap.class}"`;
               } else if (keycap.class) {
                 temporaryLayer += ` class="keycap ${keycap.class}"`;
@@ -2067,7 +2071,7 @@ export function makeKeyboardElement(
 export function unshiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
   hideAlternateKeys();
 
-  const keycaps = keyboard.element.querySelectorAll<HTMLElement>(
+  const keycaps = keyboard.element!.querySelectorAll<HTMLElement>(
     'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
   );
   if (keycaps) {

@@ -516,12 +516,12 @@ function scanOperator(stream, final, options) {
  * @param final last index of the input to stop conversion to
  */
 function toMathML(
-  input: number | boolean | string | Atom | Atom[],
+  input: number | boolean | string | Atom | Atom[] | undefined,
   initial: number,
   final: number,
   options: Partial<MathfieldOptions>
 ): {
-  atoms: number | boolean | string | Atom | Atom[];
+  atoms: number | boolean | string | Atom | Atom[] | undefined;
   index: number;
   mathML: string;
   lastType: string;
@@ -553,18 +553,18 @@ function toMathML(
       ) {
         count += 1;
       } else if (result.index < final) {
-        let mathML = atomToMathML(result.atoms[result.index], options);
+        let mathML = atomToMathML(result.atoms![result.index], options);
         if (
           result.lastType === 'mn' &&
           mathML.length > 0 &&
-          result.atoms[result.index].type === 'genfrac'
+          result.atoms![result.index].type === 'genfrac'
         ) {
           // If this is a fraction preceded by a number (e.g. 2 1/2),
           // add an "invisible plus" (U+0264) character in front of it
           mathML = '<mo>&#x2064;</mo>' + mathML;
         }
 
-        if (result.atoms[result.index].type === 'genfrac') {
+        if (result.atoms![result.index].type === 'genfrac') {
           result.lastType = 'mfrac';
         } else {
           result.lastType = '';

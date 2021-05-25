@@ -18,6 +18,7 @@ import { isTouchCapable } from '../common/capabilities';
 import { getDefaultRegisters } from '../core/registers';
 import { defaultSpeakHook } from './speech';
 import { defaultReadAloudHook } from './speech-read-aloud';
+import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -27,7 +28,7 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
   onAnnounce: (
     target: MathfieldPrivate,
     command: string, // Verb
-    previousPosition: number,
+    previousPosition: number | undefined,
     atoms: Atom[] // Object of the command
   ) => void; // @revisit 1.0: rename announceHook,
   value: string;
@@ -35,9 +36,16 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
 
 function loadSound(
   soundDirectory: string,
-  sound: string | HTMLAudioElement | null
+  sound?: string | HTMLAudioElement | null
 ): HTMLAudioElement | null {
-  if (sound === null || sound === 'none' || sound === 'null') return null;
+  if (
+    sound === null ||
+    sound === undefined ||
+    sound === 'none' ||
+    sound === 'null'
+  ) {
+    return null;
+  }
   if (sound instanceof HTMLAudioElement) {
     sound.load();
     return sound;
@@ -98,16 +106,16 @@ export function update(
         break;
       case 'namespace':
         // Validate the namespace (used for `data-` attributes)
-        if (!/^[a-z]*-?$/.test(updates.namespace)) {
+        if (!/^[a-z]*-?$/.test(updates.namespace!)) {
           throw new Error(
             'namespace must be a string of lowercase characters only'
           );
         }
 
-        if (!updates.namespace.endsWith('-')) {
+        if (!updates.namespace!.endsWith('-')) {
           result.namespace = updates.namespace + '-';
         } else {
-          result.namespace = updates.namespace;
+          result.namespace = updates.namespace!;
         }
 
         break;
@@ -116,24 +124,24 @@ export function update(
         result.locale =
           updates.locale === 'auto'
             ? navigator?.language.slice(0, 5) ?? 'en'
-            : updates.locale;
+            : updates.locale!;
         l10n.locale = result.locale;
         break;
 
       case 'strings':
-        l10n.merge(updates.strings);
+        l10n.merge(updates.strings!);
         result.strings = l10n.strings;
         break;
 
       case 'virtualKeyboardLayout':
-        result.virtualKeyboardLayout = updates.virtualKeyboardLayout;
+        result.virtualKeyboardLayout = updates.virtualKeyboardLayout!;
         break;
 
       case 'virtualKeyboardMode':
         if (updates.virtualKeyboardMode === 'auto') {
           result.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
         } else {
-          result.virtualKeyboardMode = updates.virtualKeyboardMode;
+          result.virtualKeyboardMode = updates.virtualKeyboardMode!;
         }
 
         break;
@@ -161,14 +169,14 @@ export function update(
             result.letterShapeStyle = 'tex';
           }
         } else {
-          result.letterShapeStyle = updates.letterShapeStyle;
+          result.letterShapeStyle = updates.letterShapeStyle!;
         }
 
         break;
 
       case 'plonkSound':
-        unloadSound(result.plonkSound);
-        result.plonkSound = loadSound(soundsDirectory, updates.plonkSound);
+        unloadSound(result.plonkSound!);
+        result.plonkSound = loadSound(soundsDirectory, updates.plonkSound!);
         break;
 
       case 'keypressSound':
@@ -177,10 +185,10 @@ export function update(
           result.keypressSound !== null &&
           'default' in result.keypressSound
         ) {
-          unloadSound(result.keypressSound.default);
-          unloadSound(result.keypressSound.delete);
-          unloadSound(result.keypressSound.return);
-          unloadSound(result.keypressSound.spacebar);
+          unloadSound(result.keypressSound.default!);
+          unloadSound(result.keypressSound.delete!);
+          unloadSound(result.keypressSound.return!);
+          unloadSound(result.keypressSound.spacebar!);
         }
         if (updates.keypressSound === null) {
           result.keypressSound = {
@@ -204,30 +212,33 @@ export function update(
             spacebar: updates.keypressSound,
             default: updates.keypressSound,
           };
-        } else {
+        } else if (
+          typeof updates.keypressSound === 'object' &&
+          'default' in updates.keypressSound!
+        ) {
           result.keypressSound = { ...updates.keypressSound };
-          result.keypressSound.default = loadSound(
+          result.keypressSound!.default = loadSound(
             soundsDirectory,
-            result.keypressSound.default
+            result.keypressSound!.default
           );
-          result.keypressSound.delete =
-            loadSound(soundsDirectory, result.keypressSound.delete) ??
-            updates.keypressSound.default;
-          result.keypressSound.return =
-            loadSound(soundsDirectory, result.keypressSound.return) ??
-            updates.keypressSound.default;
-          result.keypressSound.spacebar =
-            loadSound(soundsDirectory, result.keypressSound.spacebar) ??
-            updates.keypressSound.default;
+          result.keypressSound!.delete =
+            loadSound(soundsDirectory, result.keypressSound!.delete) ??
+            updates.keypressSound!.default!;
+          result.keypressSound!.return =
+            loadSound(soundsDirectory, result.keypressSound!.return) ??
+            updates.keypressSound!.default!;
+          result.keypressSound!.spacebar =
+            loadSound(soundsDirectory, result.keypressSound!.spacebar) ??
+            updates.keypressSound!.default!;
         }
 
         break;
       case 'virtualKeyboardContainer':
-        result.virtualKeyboardContainer = updates.virtualKeyboardContainer;
+        result.virtualKeyboardContainer = updates.virtualKeyboardContainer!;
         break;
 
       case 'macros':
-        result.macros = normalizeMacroDictionary(updates.macros);
+        result.macros = normalizeMacroDictionary(updates.macros!) ?? {};
         break;
 
       case 'onBlur':
@@ -265,7 +276,7 @@ export function update(
   // property
   if (updates.overrideDefaultInlineShortcuts !== undefined) {
     if (updates.overrideDefaultInlineShortcuts) {
-      result.inlineShortcuts = updates.inlineShortcuts;
+      result.inlineShortcuts = updates.inlineShortcuts ?? {};
     } else {
       result.inlineShortcuts = {
         ...INLINE_SHORTCUTS,
@@ -321,8 +332,8 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     defaultMode: 'math',
     macros: getMacros(),
     registers: { ...getDefaultRegisters() },
-    colorMap: null,
-    backgroundColorMap: null,
+    colorMap: defaultColorMap,
+    backgroundColorMap: defaultBackgroundColorMap,
     horizontalSpacingScale: 1,
     letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
 
@@ -333,7 +344,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     removeExtraneousParentheses: true,
     mathModeSpace: '',
 
-    locale: l10n.locale,
+    locale: l10n.locale ?? 'en',
     strings: l10n.strings,
 
     keybindings: DEFAULT_KEYBINDINGS,
@@ -388,7 +399,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onCommit: NO_OP_LISTENER,
 
     onError: (): void => {},
-    value: undefined,
+    value: '',
   };
 }
 

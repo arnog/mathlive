@@ -144,7 +144,7 @@ function getSpokenName(latex: string): string {
   return result;
 }
 
-function isAtomic(atoms: Atom[]): boolean {
+function isAtomic(atoms: undefined | Atom[]): boolean {
   let count = 0;
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
@@ -157,7 +157,7 @@ function isAtomic(atoms: Atom[]): boolean {
   return count === 1;
 }
 
-function atomicID(atoms: Atom[]): string {
+function atomicID(atoms: undefined | Atom[]): string {
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
       if (atom.type !== 'first' && atom.id) {
@@ -169,7 +169,7 @@ function atomicID(atoms: Atom[]): string {
   return '';
 }
 
-function atomicValue(atoms: Atom[]): string {
+function atomicValue(atoms: undefined | Atom[]): string {
   let result = '';
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
@@ -184,7 +184,7 @@ function atomicValue(atoms: Atom[]): string {
 
 function atomToSpeakableFragment(
   mode: 'text' | 'math',
-  atom: Atom | Atom[],
+  atom: undefined | Atom | Atom[],
   options: TextToSpeechOptions
 ): string {
   function letter(c: string): string {
@@ -365,9 +365,15 @@ function atomToSpeakableFragment(
       case 'leftright':
         {
           const delimAtom = atom as LeftRightAtom;
-          result += PRONUNCIATION[delimAtom.leftDelim] || delimAtom.leftDelim;
+          result +=
+            (delimAtom.leftDelim
+              ? PRONUNCIATION[delimAtom.leftDelim]
+              : undefined) ?? delimAtom.leftDelim;
           result += atomToSpeakableFragment('math', atom.body, options);
-          result += PRONUNCIATION[delimAtom.rightDelim] || delimAtom.rightDelim;
+          result +=
+            (delimAtom.rightDelim
+              ? PRONUNCIATION[delimAtom.rightDelim]
+              : undefined) ?? delimAtom.rightDelim;
         }
 
         break;
@@ -557,7 +563,8 @@ function atomToSpeakableFragment(
             }
           } else if (typeof atom.value === 'string') {
             const value =
-              PRONUNCIATION[atom.value] ?? PRONUNCIATION[atom.command];
+              PRONUNCIATION[atom.value] ??
+              (atom.command ? PRONUNCIATION[atom.command] : undefined);
             result += value ? value : ' ' + atom.value;
           } else if (atom.command) {
             result += atom.command.startsWith('\\')

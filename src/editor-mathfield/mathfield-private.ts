@@ -103,27 +103,27 @@ export class MathfieldPrivate implements Mathfield {
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
 
-  element: HTMLElement & {
+  element?: HTMLElement & {
     mathfield?: MathfieldPrivate;
   };
 
   /** @deprecated */
   readonly originalContent: string;
 
-  keyboardDelegate: KeyboardDelegate;
-  field: HTMLElement;
-  fieldContent: HTMLElement;
-  virtualKeyboardToggle: HTMLElement;
-  ariaLiveText: HTMLElement;
-  accessibleNode: HTMLElement;
-  popover: HTMLElement;
+  keyboardDelegate?: KeyboardDelegate;
+  field?: HTMLElement;
+  fieldContent?: Element | null;
+  virtualKeyboardToggle?: HTMLElement;
+  ariaLiveText?: HTMLElement;
+  accessibleNode?: HTMLElement;
+  popover?: HTMLElement;
 
   keystrokeCaptionVisible: boolean;
-  keystrokeCaption: HTMLElement;
+  keystrokeCaption?: HTMLElement;
 
-  virtualKeyboard: VirtualKeyboardInterface;
+  virtualKeyboard?: VirtualKeyboardInterface;
 
-  _keybindings: Keybinding[]; // Normalized keybindings (raw ones in config)
+  _keybindings?: Keybinding[]; // Normalized keybindings (raw ones in config)
   keyboardLayout: KeyboardLayoutName;
 
   keystrokeBuffer: string;
@@ -135,14 +135,14 @@ export class MathfieldPrivate implements Mathfield {
   mode: ParseMode;
   style: Style;
 
-  colorMap: (name: string) => string;
-  backgroundColorMap: (name: string) => string;
+  colorMap: (name: string) => string | undefined;
+  backgroundColorMap: (name: string) => string | undefined;
 
-  keypressSound: HTMLAudioElement;
-  spacebarKeypressSound: HTMLAudioElement;
-  returnKeypressSound: HTMLAudioElement;
-  deleteKeypressSound: HTMLAudioElement;
-  plonkSound: HTMLAudioElement;
+  keypressSound: null | HTMLAudioElement;
+  spacebarKeypressSound: null | HTMLAudioElement;
+  returnKeypressSound: null | HTMLAudioElement;
+  deleteKeypressSound: null | HTMLAudioElement;
+  plonkSound: null | HTMLAudioElement;
 
   private readonly undoManager: UndoManager;
 
@@ -152,10 +152,10 @@ export class MathfieldPrivate implements Mathfield {
   // the `onCommit` listener is triggered
   private valueOnFocus: string;
   private eventHandlingInProgress = '';
-  private readonly stylesheets: Stylesheet[] = [];
+  private readonly stylesheets: (null | Stylesheet)[] = [];
   private resizeTimer: number; // Timer handle
 
-  _atomBoundsCache: Map<string, Rect>;
+  _atomBoundsCache?: Map<string, Rect>;
 
   /**
    * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
@@ -187,8 +187,8 @@ export class MathfieldPrivate implements Mathfield {
     );
     this.macros = this.options.macros as NormalizedMacroDictionary;
 
-    this.colorMap = (name: string): string | null => {
-      let result: string;
+    this.colorMap = (name: string): string | undefined => {
+      let result: string | undefined = undefined;
       if (typeof this.options.colorMap === 'function') {
         result = this.options.colorMap(name);
       }
@@ -196,8 +196,8 @@ export class MathfieldPrivate implements Mathfield {
 
       return result;
     };
-    this.backgroundColorMap = (name: string): string | null => {
-      let result: string;
+    this.backgroundColorMap = (name: string): string | undefined => {
+      let result: string | undefined = undefined;
       if (typeof this.options.backgroundColorMap === 'function') {
         result = this.options.backgroundColorMap(name);
       }
@@ -334,9 +334,9 @@ export class MathfieldPrivate implements Mathfield {
         ev.stopPropagation();
         const wheelDelta = ev.detail ?? -ev.deltaX;
         if (Number.isFinite(wheelDelta)) {
-          this.field.scroll({
+          this.field!.scroll({
             top: 0,
-            left: this.field.scrollLeft - wheelDelta * 5,
+            left: this.field!.scrollLeft - wheelDelta * 5,
           });
         }
       },
@@ -345,9 +345,9 @@ export class MathfieldPrivate implements Mathfield {
 
     iChild++;
 
-    this.virtualKeyboardToggle = this.element.querySelector(
+    this.virtualKeyboardToggle = this.element.querySelector<HTMLElement>(
       '.ML__virtual-keyboard-toggle'
-    );
+    )!;
     if (this.options.virtualKeyboardMode === 'manual') {
       this.virtualKeyboardToggle.classList.add('is-visible');
     } else {
@@ -393,7 +393,9 @@ export class MathfieldPrivate implements Mathfield {
     this.keystrokeCaptionVisible = false;
     this.keystrokeBuffer = '';
     this.keystrokeBufferStates = [];
-    this.keystrokeBufferResetTimer = null;
+    this.keystrokeBufferResetTimer = 0 as unknown as ReturnType<
+      typeof setTimeout
+    >;
 
     // This index indicates which of the suggestions available to
     // display in the popover panel
@@ -538,8 +540,12 @@ export class MathfieldPrivate implements Mathfield {
       onError: this.options.onError,
     });
     this.model.setHooks({
-      announce: (_sender: Mathfield, command, previousPosition, atoms) =>
-        this.options.onAnnounce?.(this, command, previousPosition, atoms),
+      announce: (
+        _sender: Mathfield,
+        command: string,
+        previousPosition: number | undefined,
+        atoms: Atom[]
+      ) => this.options.onAnnounce?.(this, command, previousPosition, atoms),
       moveOut: (_sender, direction) =>
         this.options.onMoveOutOf(this, direction),
       tabOut: (_sender, direction) => this.options.onTabOutOf(this, direction),
@@ -646,24 +652,24 @@ export class MathfieldPrivate implements Mathfield {
     this.virtualKeyboard?.setOptions(this.options);
 
     if (this.options.virtualKeyboardMode === 'manual') {
-      this.virtualKeyboardToggle.classList.add('is-visible');
+      this.virtualKeyboardToggle?.classList.add('is-visible');
     } else {
-      this.virtualKeyboardToggle.classList.remove('is-visible');
+      this.virtualKeyboardToggle?.classList.remove('is-visible');
     }
 
     if (this.options.readOnly) {
-      this.element.classList.add('ML__isReadOnly');
+      this.element!.classList.add('ML__isReadOnly');
     } else {
-      this.element.classList.remove('ML__isReadOnly');
+      this.element!.classList.remove('ML__isReadOnly');
     }
     if (this.options.defaultMode === 'inline-math') {
-      this.element.classList.add('ML__isInline');
+      this.element!.classList.add('ML__isInline');
     } else {
-      this.element.classList.remove('ML__isInline');
+      this.element!.classList.remove('ML__isInline');
     }
 
-    this.colorMap = (name: string): string | null => {
-      let result: string;
+    this.colorMap = (name: string): string | undefined => {
+      let result: string | undefined = undefined;
       if (typeof this.options.colorMap === 'function') {
         result = this.options.colorMap(name);
       }
@@ -671,8 +677,8 @@ export class MathfieldPrivate implements Mathfield {
 
       return result;
     };
-    this.backgroundColorMap = (name: string): string | null => {
-      let result: string;
+    this.backgroundColorMap = (name: string): string | undefined => {
+      let result: string | undefined = undefined;
       if (typeof this.options.backgroundColorMap === 'function') {
         result = this.options.backgroundColorMap(name);
       }
@@ -792,18 +798,24 @@ export class MathfieldPrivate implements Mathfield {
   $revertToOriginalContent(): void {
     deprecated('$revertToOriginalContent');
     this.dispose();
-    this.element.innerHTML = this.options.createHTML(this.originalContent);
+    this.element!.innerHTML = this.options.createHTML(this.originalContent);
   }
 
   dispose(): void {
-    this.element.innerHTML = '$$' + this.getValue() + '$$';
-    delete this.element.mathfield;
+    if (!isValidMathfield(this)) return;
+
+    this.stylesheets.forEach((x) => {
+      if (x) x.release();
+    });
+
+    this.element!.innerHTML = this.getValue();
+    delete this.element!.mathfield;
     delete this.accessibleNode;
     delete this.ariaLiveText;
     delete this.field;
     delete this.fieldContent;
     delete this.keyboardDelegate;
-    this.virtualKeyboardToggle.remove();
+    this.virtualKeyboardToggle!.remove();
     delete this.virtualKeyboardToggle;
     releaseSharedElement(this.popover);
     delete this.popover;
@@ -814,13 +826,12 @@ export class MathfieldPrivate implements Mathfield {
       delete this.virtualKeyboard;
     }
 
-    off(this.element, 'pointerdown', this);
-    off(this.element, 'touchstart:active mousedown', this);
-    off(this.element, 'focus', this);
-    off(this.element, 'blur', this);
+    off(this.element!, 'pointerdown', this);
+    off(this.element!, 'touchstart:active mousedown', this);
+    off(this.element!, 'focus', this);
+    off(this.element!, 'blur', this);
     off(window, 'resize', this);
     delete this.element;
-    this.stylesheets.forEach((x) => x.release());
   }
 
   resetKeystrokeBuffer(options?: { defer: boolean }): void {
@@ -857,7 +868,7 @@ export class MathfieldPrivate implements Mathfield {
     command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
   ): boolean {
     if (getCommandTarget(command) === 'virtual-keyboard') {
-      return this.virtualKeyboard?.executeCommand(command);
+      return this.virtualKeyboard?.executeCommand(command) ?? false;
     }
 
     return perform(this, command);
@@ -905,7 +916,7 @@ export class MathfieldPrivate implements Mathfield {
 
     let mode: ParseMode = 'math';
     if (options.mode === undefined || options.mode === 'auto') {
-      mode = getMode(this.model, this.model.position);
+      mode = getMode(this.model, this.model.position) ?? 'math';
     }
 
     if (
@@ -920,7 +931,7 @@ export class MathfieldPrivate implements Mathfield {
     }
   }
 
-  find(value: string | RegExp, options: FindOptions): Range[] {
+  find(value: string | RegExp, options?: FindOptions): Range[] {
     return find(this.model, value, options);
   }
 
@@ -1002,7 +1013,7 @@ export class MathfieldPrivate implements Mathfield {
   /** @deprecated */
   $el(): HTMLElement {
     deprecated('$el');
-    return this.element;
+    return this.element!;
   }
 
   scrollIntoView(): void {
@@ -1012,10 +1023,10 @@ export class MathfieldPrivate implements Mathfield {
       render(this);
     }
 
-    const fieldBounds = this.field.getBoundingClientRect();
-    let caretPoint: number;
+    const fieldBounds = this.field!.getBoundingClientRect();
+    let caretPoint: number | undefined = undefined;
     if (this.model.selectionIsCollapsed) {
-      caretPoint = getCaretPoint(this.field)?.x;
+      caretPoint = getCaretPoint(this.field!)?.x;
     } else {
       const selectionBounds = getSelectionBounds(this);
       if (selectionBounds.length > 0) {
@@ -1023,22 +1034,22 @@ export class MathfieldPrivate implements Mathfield {
         for (const r of selectionBounds) {
           if (r.right > maxRight) maxRight = r.right;
         }
-        caretPoint = maxRight + fieldBounds.left - this.field.scrollLeft;
+        caretPoint = maxRight + fieldBounds.left - this.field!.scrollLeft;
       }
     }
 
     if (caretPoint !== undefined) {
       const x = caretPoint - window.scrollX;
       if (x < fieldBounds.left) {
-        this.field.scroll({
+        this.field!.scroll({
           top: 0,
-          left: x - fieldBounds.left + this.field.scrollLeft - 20,
+          left: x - fieldBounds.left + this.field!.scrollLeft - 20,
           behavior: 'smooth',
         });
       } else if (x > fieldBounds.right) {
-        this.field.scroll({
+        this.field!.scroll({
           top: 0,
-          left: x - fieldBounds.right + this.field.scrollLeft + 20,
+          left: x - fieldBounds.right + this.field!.scrollLeft + 20,
           behavior: 'smooth',
         });
       }
@@ -1109,7 +1120,7 @@ export class MathfieldPrivate implements Mathfield {
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
-            cursor.parent.addChildrenAfter(atoms, cursor)
+            cursor.parent!.addChildrenAfter(atoms, cursor)
           );
           contentChanged = true;
         }
@@ -1140,7 +1151,7 @@ export class MathfieldPrivate implements Mathfield {
           }
 
           const atom = new LatexGroupAtom(latex);
-          cursor.parent.addChildAfter(atom, cursor);
+          cursor.parent!.addChildAfter(atom, cursor);
           if (wasCollapsed) {
             model.position = model.offsetOf(atom.lastChild);
           } else {
@@ -1163,7 +1174,7 @@ export class MathfieldPrivate implements Mathfield {
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
-            cursor.parent.addChildrenAfter(atoms, cursor)
+            cursor.parent!.addChildrenAfter(atoms, cursor)
           );
           contentChanged = true;
         }
@@ -1187,20 +1198,20 @@ export class MathfieldPrivate implements Mathfield {
 
   hasFocus(): boolean {
     return (
-      isBrowser() && document.hasFocus() && this.keyboardDelegate.hasFocus()
+      isBrowser() && document.hasFocus() && this.keyboardDelegate!.hasFocus()
     );
   }
 
   focus(): void {
     if (!this.hasFocus()) {
-      this.keyboardDelegate.focus();
+      this.keyboardDelegate!.focus();
       this.model.announce('line');
     }
   }
 
   blur(): void {
     if (this.hasFocus()) {
-      this.keyboardDelegate.blur();
+      this.keyboardDelegate!.blur();
     }
   }
 
@@ -1280,7 +1291,7 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   getCaretPoint(): { x: number; y: number } | null {
-    const caretOffset = getCaretPoint(this.field);
+    const caretOffset = getCaretPoint(this.field!);
     return caretOffset ? { x: caretOffset.x, y: caretOffset.y } : null;
   }
 
@@ -1349,7 +1360,7 @@ export class MathfieldPrivate implements Mathfield {
     return this.undoManager.undo({
       ...this.options,
       onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard.executeCommand([
+        this.virtualKeyboard!.executeCommand([
           'onUndoStateChanged',
           this.canUndo(),
           this.canRedo(),
@@ -1376,7 +1387,7 @@ export class MathfieldPrivate implements Mathfield {
   private _onSelectionDidChange(): void {
     // Keep the content of the textarea in sync wiht the selection.
     // This will allow cut/copy to work.
-    this.keyboardDelegate.setValue(
+    this.keyboardDelegate!.setValue(
       this.getValue(this.model.selection, 'latex-expanded')
     );
 
@@ -1403,7 +1414,7 @@ export class MathfieldPrivate implements Mathfield {
   private onFocus(): void {
     if (this.blurred) {
       this.blurred = false;
-      this.keyboardDelegate.focus();
+      this.keyboardDelegate!.focus();
 
       this.virtualKeyboard?.enable();
 
@@ -1426,7 +1437,7 @@ export class MathfieldPrivate implements Mathfield {
   private onBlur(): void {
     if (!this.blurred) {
       this.blurred = true;
-      this.ariaLiveText.textContent = '';
+      this.ariaLiveText!.textContent = '';
 
       if (/onfocus|manual/.test(this.options.virtualKeyboardMode)) {
         this.executeCommand('hideVirtualKeyboard');
@@ -1456,9 +1467,9 @@ export class MathfieldPrivate implements Mathfield {
       render(this); // Recalculate the position of the caret
       // Synchronize the location and style of textarea
       // so that the IME candidate window can align with the composition
-      const caretPoint = getCaretPoint(this.field);
+      const caretPoint = getCaretPoint(this.field!);
       if (!caretPoint) return;
-      this.keyboardDelegate.moveTo(caretPoint.x, caretPoint.y);
+      this.keyboardDelegate!.moveTo(caretPoint.x, caretPoint.y);
     });
   }
 
@@ -1475,17 +1486,18 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   private onResize(): void {
-    this.element.classList.remove(
+    if (!isValidMathfield(this)) return;
+    this.element!.classList.remove(
       'ML__isNarrowWidth',
       'ML__isWideWidth',
       'ML__isExtendedWidth'
     );
     if (window.innerWidth >= 1024) {
-      this.element.classList.add('ML__isExtendedWidth');
+      this.element!.classList.add('ML__isExtendedWidth');
     } else if (window.innerWidth >= 768) {
-      this.element.classList.add('ML__isWideWidth');
+      this.element!.classList.add('ML__isWideWidth');
     } else {
-      this.element.classList.add('ML__isNarrowWidth');
+      this.element!.classList.add('ML__isNarrowWidth');
     }
 
     updatePopoverPosition(this);

@@ -65,7 +65,7 @@ defineFunction(['liminf', 'limsup'], '', {
   createAtom: (command: string, _args: Argument[], style: Style): Atom =>
     new OperatorAtom(
       command,
-      { '\\liminf': 'lim inf', '\\limsup': 'lim sup' }[command],
+      { '\\liminf': 'lim inf', '\\limsup': 'lim sup' }[command]!,
       {
         limits: 'over-under',
         variant: 'main',
@@ -162,8 +162,8 @@ defineFunction(
 defineFunction(['over', 'atop', 'choose'], '', {
   infix: true,
   createAtom: (command: string, args: Argument[], style: Style): Atom => {
-    let leftDelim: string;
-    let rightDelim: string;
+    let leftDelim: string | undefined = undefined;
+    let rightDelim: string | undefined = undefined;
 
     if (command === '\\choose') {
       leftDelim = '(';
@@ -236,7 +236,7 @@ defineFunction(
           bigodot: '\u2A00',
           bigsqcup: '\u2A06',
           smallint: '\u222B',
-        }[command.slice(1)],
+        }[command.slice(1)]!,
         {
           isExtensibleSymbol: true,
           limits: 'auto',
@@ -284,17 +284,21 @@ defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
 
 defineFunction(['Re', 'Im'], '', {
   createAtom: (command: string, _args: Argument[], style: Style): Atom =>
-    new OperatorAtom(command, { '\\Re': '\u211C', '\\Im': '\u2111' }[command], {
-      limits: 'adjacent',
-      style,
-      isFunction: true,
-      variant: 'fraktur',
-    }),
+    new OperatorAtom(
+      command,
+      { '\\Re': '\u211C', '\\Im': '\u2111' }[command]!,
+      {
+        limits: 'adjacent',
+        style,
+        isFunction: true,
+        variant: 'fraktur',
+      }
+    ),
 });
 
 defineFunction('middle', '{:delim}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom =>
-    new DelimAtom(command, args[0] as string, { style }),
+    new DelimAtom(command, args[0] as string, { size: 1, style }),
 });
 
 // TODO

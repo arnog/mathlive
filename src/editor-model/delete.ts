@@ -92,7 +92,7 @@ function onDelete(
   atom: Atom,
   branch?: Branch
 ): boolean {
-  const { parent } = atom;
+  const parent = atom.parent!;
   if (atom instanceof LeftRightAtom) {
     //
     // 'leftright': \left\right
@@ -158,7 +158,7 @@ function onDelete(
         model.position = model.offsetOf(atom.leftSibling);
       } else {
         // Above last
-        model.position = model.offsetOf(atom.body[0]);
+        model.position = model.offsetOf(atom.body![0]);
       }
     }
 
@@ -228,12 +228,12 @@ function onDelete(
     if (!branch && direction === 'forward') return false;
     if (!branch) {
       if (atom.subscript || atom.superscript) {
-        const pos: Atom =
+        const pos: Atom | undefined =
           direction === 'forward'
             ? atom.superscript?.[0] ?? atom.subscript?.[0]
             : atom.subscript?.[0].lastSibling ??
               atom.superscript?.[0].lastSibling;
-        model.position = model.offsetOf(pos);
+        if (pos) model.position = model.offsetOf(pos);
         return true;
       }
 
@@ -250,7 +250,7 @@ function onDelete(
         direction === 'forward'
           ? model.offsetOf(atom)
           : Math.max(0, model.offsetOf(atom) - 1);
-      atom.parent.removeChild(atom);
+      atom.parent!.removeChild(atom);
       model.position = pos;
       return true;
     }
@@ -293,12 +293,12 @@ export function deleteBackward(model: ModelPrivate): boolean {
   }
 
   return model.deferNotifications({ content: true, selection: true }, () => {
-    let target = model.at(model.position);
+    let target: Atom | null = model.at(model.position);
 
     if (target && onDelete(model, 'backward', target)) return;
 
     if (target?.isFirstSibling) {
-      if (onDelete(model, 'backward', target.parent, target.treeBranch)) {
+      if (onDelete(model, 'backward', target.parent!, target.treeBranch)) {
         return;
       }
 
@@ -312,8 +312,8 @@ export function deleteBackward(model: ModelPrivate): boolean {
     }
 
     const offset = model.offsetOf(target.leftSibling);
-    target.parent.removeChild(target);
-    model.announce('delete', null, [target]);
+    target.parent!.removeChild(target);
+    model.announce('delete', undefined, [target]);
     model.position = offset;
   });
 }
@@ -328,7 +328,7 @@ export function deleteForward(model: ModelPrivate): boolean {
   }
 
   return model.deferNotifications({ content: true, selection: true }, () => {
-    let target = model.at(model.position).rightSibling;
+    let target: Atom | null = model.at(model.position).rightSibling;
 
     if (target && onDelete(model, 'forward', target)) return;
 
@@ -336,7 +336,7 @@ export function deleteForward(model: ModelPrivate): boolean {
       target = model.at(model.position);
       if (
         target.isLastSibling &&
-        onDelete(model, 'forward', target.parent, target.treeBranch)
+        onDelete(model, 'forward', target.parent!, target.treeBranch)
       ) {
         return;
       }
@@ -344,7 +344,7 @@ export function deleteForward(model: ModelPrivate): boolean {
       target = null;
     } else if (
       model.at(model.position).isLastSibling &&
-      onDelete(model, 'forward', target.parent, target.treeBranch)
+      onDelete(model, 'forward', target.parent!, target.treeBranch)
     ) {
       return;
     }
@@ -354,14 +354,14 @@ export function deleteForward(model: ModelPrivate): boolean {
       return;
     }
 
-    target.parent.removeChild(target);
+    target.parent!.removeChild(target);
     let sibling = model.at(model.position)?.rightSibling;
     while (sibling?.type === 'msubsup') {
-      sibling.parent.removeChild(sibling);
+      sibling.parent!.removeChild(sibling);
       sibling = model.at(model.position)?.rightSibling;
     }
 
-    model.announce('delete', null, [target]);
+    model.announce('delete', undefined, [target]);
   });
 }
 

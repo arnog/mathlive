@@ -21,12 +21,12 @@ registerCommand({
     return true;
   },
   scrollToStart: (mathfield: MathfieldPrivate) => {
-    mathfield.field.scroll(0, 0);
+    mathfield.field!.scroll(0, 0);
     return true;
   },
   scrollToEnd: (mathfield: MathfieldPrivate) => {
-    const fieldBounds = mathfield.field.getBoundingClientRect();
-    mathfield.field.scroll(fieldBounds.left - window.scrollX, 0);
+    const fieldBounds = mathfield.field!.getBoundingClientRect();
+    mathfield.field!.scroll(fieldBounds.left - window.scrollX, 0);
     return true;
   },
   enterLatexMode: (mathfield: MathfieldPrivate) => {
@@ -35,9 +35,9 @@ registerCommand({
   },
   toggleKeystrokeCaption: (mathfield: MathfieldPrivate) => {
     mathfield.keystrokeCaptionVisible = !mathfield.keystrokeCaptionVisible;
-    mathfield.keystrokeCaption.innerHTML = '';
+    mathfield.keystrokeCaption!.innerHTML = '';
     if (!mathfield.keystrokeCaptionVisible) {
-      mathfield.keystrokeCaption.style.visibility = 'hidden';
+      mathfield.keystrokeCaption!.style.visibility = 'hidden';
     }
 
     return false;

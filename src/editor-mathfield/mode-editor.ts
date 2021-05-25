@@ -24,6 +24,7 @@ export class ModeEditor {
   }
 
   static onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
+    if (!ev.clipboardData) return;
     const model = mathfield.model;
     const value: Range = model.selectionIsCollapsed
       ? [0, model.lastOffset]
@@ -51,7 +52,7 @@ export class ModeEditor {
           .join('')
       );
     } else {
-      let content: string;
+      let content = '';
       if (atoms.length === 1 && atoms[0].verbatimLatex) {
         content = atoms[0].verbatimLatex;
       }
@@ -87,8 +88,8 @@ export class ModeEditor {
     model: ModelPrivate,
     text: string,
     options: InsertOptions & {
-      colorMap?: (name: string) => string;
-      backgroundColorMap?: (name: string) => string;
+      colorMap?: (name: string) => string | undefined;
+      backgroundColorMap?: (name: string) => string | undefined;
     } = {}
   ): boolean {
     return ModeEditor._registry[mode].insert(model, text, options);

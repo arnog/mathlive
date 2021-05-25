@@ -41,7 +41,7 @@ export class BoxAtom extends Atom {
     this.border = options.border;
   }
 
-  render(parentContext: Context): Box {
+  render(parentContext: Context): Box | null {
     const context = new Context(parentContext, this.style);
 
     const fboxsep = convertDimensionToEm(
@@ -56,6 +56,7 @@ export class BoxAtom extends Atom {
           );
     // Base is the main content "inside" the box
     const content = Atom.createBox(parentContext, this.body);
+    if (!content) return null;
     content.setStyle('vertical-align', -content.height, 'em');
     const base = new Box(content, { type: 'mord' });
 

@@ -1,7 +1,7 @@
 /* eslint-disable no-new */
 import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
-import { jsonToLatex } from '../addons/math-json';
+import { serialize as serializeMathJson } from '../../submodules/math-json/src/math-json';
 import { requestUpdate } from './render';
 import { range } from '../editor-model/selection-utils';
 import { ModeEditor } from './mode-editor';
@@ -31,6 +31,7 @@ export class MathModeEditor extends ModeEditor {
   }
 
   onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
+    if (!ev.clipboardData) return false;
     let text = '';
     let format: 'auto' | OutputFormat = 'auto';
 
@@ -38,7 +39,7 @@ export class MathModeEditor extends ModeEditor {
     const json = ev.clipboardData.getData('application/json');
     if (json) {
       try {
-        text = jsonToLatex(JSON.parse(json), {});
+        text = serializeMathJson(JSON.parse(json), {});
         format = 'latex';
       } catch {
         text = '';
@@ -74,8 +75,8 @@ export class MathModeEditor extends ModeEditor {
     model: ModelPrivate,
     text: string,
     options: InsertOptions & {
-      colorMap: (name: string) => string;
-      backgroundColorMap: (name: string) => string;
+      colorMap: (name: string) => string | undefined;
+      backgroundColorMap: (name: string) => string | undefined;
     }
   ): boolean {
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
@@ -205,16 +206,16 @@ export class MathModeEditor extends ModeEditor {
     ) {
       // Remove the leftright
       // i.e. `\left(\frac{}{}\right))` -> `\frac{}{}`
-      const newParent = parent.parent;
-      const branch = parent.treeBranch;
+      const newParent = parent.parent!;
+      const branch = parent.treeBranch!;
       newParent.removeChild(parent);
       newParent.setChildren(newAtoms, branch);
     }
 
-    const hadEmptyBody = parent.hasEmptyBranch('body');
+    const hadEmptyBody = parent!.hasEmptyBranch('body');
 
     const cursor = model.at(model.position);
-    cursor.parent.addChildrenAfter(newAtoms, cursor);
+    cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
     if (format === 'latex') {
       // If we are given a latex string with no arguments, store it as
@@ -223,8 +224,8 @@ export class MathModeEditor extends ModeEditor {
       // would return an empty string. If the latex is generated using other
       // properties than parent.body, for example by adding '\left.' and
       // '\right.' with a 'leftright' type, we can't use this shortcut.
-      if (parent.type === 'root' && hadEmptyBody && !usedArg) {
-        parent.verbatimLatex = text;
+      if (parent!.type === 'root' && hadEmptyBody && !usedArg) {
+        parent!.verbatimLatex = text;
       }
     }
 
@@ -275,12 +276,12 @@ function convertStringToAtoms(
   s: string,
   args: (arg: string) => string,
   options: InsertOptions & {
-    colorMap: (name: string) => string;
-    backgroundColorMap: (name: string) => string;
+    colorMap: (name: string) => string | undefined;
+    backgroundColorMap: (name: string) => string | undefined;
   }
 ): [OutputFormat, Atom[]] {
-  let format: OutputFormat;
-  let result = [];
+  let format: OutputFormat | undefined = undefined;
+  let result: Atom[] = [];
   if (options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {
       format: 'ascii-math',
@@ -371,8 +372,8 @@ function simplifyParen(atoms: Atom[]): void {
       let genFracCount = 0;
       let genFracIndex = 0;
       let nonGenFracCount = 0;
-      for (let j = 0; atom.body[j]; j++) {
-        if (atom.body[j].type === 'genfrac') {
+      for (let j = 0; atom.body![j]; j++) {
+        if (atom.body![j].type === 'genfrac') {
           genFracCount++;
           genFracIndex = j;
         }
@@ -382,7 +383,7 @@ function simplifyParen(atoms: Atom[]): void {
 
       if (nonGenFracCount === 0 && genFracCount === 1) {
         // This is a single frac inside a leftright: remove the leftright
-        atoms[i] = atom.body[genFracIndex];
+        atoms[i] = atom.body![genFracIndex];
       }
     }
   }
@@ -390,8 +391,8 @@ function simplifyParen(atoms: Atom[]): void {
   for (const atom of atoms) {
     for (const branch of atom.branches) {
       if (!atom.hasEmptyBranch(branch)) {
-        simplifyParen(atom.branch(branch));
-        const newChildren = removeParen(atom.branch(branch));
+        simplifyParen(atom.branch(branch)!);
+        const newChildren = removeParen(atom.branch(branch)!);
         if (newChildren) atom.setChildren(newChildren, branch);
       }
     }
@@ -458,13 +459,15 @@ function isImplicitArg(atom: Atom): boolean {
 export function insertSmartFence(
   model: ModelPrivate,
   fence: string,
-  style: Style
+  style?: Style
 ): boolean {
   console.assert(model.selectionIsCollapsed);
   const atom = model.at(model.position);
   const { parent } = atom;
   let delims =
-    parent instanceof LeftRightAtom ? parent.leftDelim + parent.rightDelim : '';
+    parent instanceof LeftRightAtom
+      ? parent.leftDelim! + parent.rightDelim!
+      : '';
   if (delims === '\\lbrace\\rbrace') delims = '{}';
   if (delims === '\\{\\}') delims = '{}';
   if (delims === '\\lparen\\rparen') delims = '()';
@@ -522,7 +525,7 @@ export function insertSmartFence(
   //
   // 3. Is it a close fence?
   //
-  let lDelim: string;
+  let lDelim = '';
   Object.keys(RIGHT_DELIM).forEach((delim) => {
     if (fence === RIGHT_DELIM[delim]) lDelim = delim;
   });
@@ -556,7 +559,7 @@ export function insertSmartFence(
       match.rightDelim = fence;
       match.addChildren(
         model.extractAtoms([i, model.position]),
-        atom.treeBranch
+        atom.treeBranch!
       );
       model.position = i;
       contentDidChange(model);
@@ -569,9 +572,9 @@ export function insertSmartFence(
     if (parent instanceof LeftRightAtom && parent.rightDelim === '?') {
       parent.rightDelim = fence;
 
-      parent.parent.addChildren(
+      parent.parent!.addChildren(
         model.extractAtoms([model.position, model.offsetOf(atom.lastSibling)]),
-        parent.treeBranch
+        parent.treeBranch!
       );
       model.position = model.offsetOf(parent);
       contentDidChange(model);
@@ -582,7 +585,7 @@ export function insertSmartFence(
     // Is our grand-parent a 'leftright'?
     // If `\left(\frac{1}{x|}\right?` with the cursor at `|`
     // go up to the 'leftright' and apply it there instead
-    const grandparent = parent.parent;
+    const grandparent = parent!.parent;
     if (
       grandparent instanceof LeftRightAtom &&
       grandparent.rightDelim === '?' &&

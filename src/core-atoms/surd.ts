@@ -32,7 +32,7 @@ export class SurdAtom extends Atom {
     return this.command + args;
   }
 
-  render(parentContext: Context): Box {
+  render(parentContext: Context): Box | null {
     // See the TeXbook pg. 443, Rule 11.
     // http://www.ctex.org/documents/shredder/src/texbook.pdf
 
@@ -93,6 +93,8 @@ export class SurdAtom extends Atom {
         { classes: 'ML__sqrt-sign', style: this.style }
       )
     );
+
+    if (!delimBox) return null;
 
     const delimDepth = delimBox.height + delimBox.depth - ruleWidth;
 

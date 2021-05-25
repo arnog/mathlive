@@ -99,7 +99,7 @@ function getSymbolValue(symbol: string): number {
       '\\lmoustache': 0x23b0,
       '\\rmoustache': 0x23b1,
       '\\surd': 0x221a,
-    }[symbol] ?? symbol.codePointAt(0)
+    }[symbol] ?? symbol.codePointAt(0)!
   );
 }
 
@@ -177,7 +177,7 @@ function makeStackedDelim(
   // There are four parts, the top, an optional middle, a repeated part, and a
   // bottom.
   let top: number;
-  let middle: number;
+  let middle: number | null;
   let repeat: number;
   let bottom: number;
   top = repeat = bottom = getSymbolValue(delim);
@@ -492,16 +492,20 @@ export function makeSizedDelim(
   size: 1 | 2 | 3 | 4,
   context: Context,
   options: {
-    classes: string;
+    classes?: string;
     type?: 'mopen' | 'mclose';
     mode?: ParseMode;
     style?: Style;
   }
-): Box {
+): Box | null {
   if (delim === undefined || delim === '.') {
     // Empty delimiters still count as elements, even though they don't
     // show anything.
-    return makeNullDelimiter(context, options.type, options.classes);
+    return makeNullDelimiter(
+      context,
+      options.type ?? 'minner',
+      options.classes
+    );
   }
 
   // < and > turn into \langle and \rangle in delimiters
@@ -708,7 +712,7 @@ export function makeCustomSizedDelim(
   }
 
   if (delimType.type === 'large') {
-    return makeLargeDelim(delim, delimType.size, center, delimContext, {
+    return makeLargeDelim(delim, delimType.size!, center, delimContext, {
       ...options,
       type,
     });
@@ -765,7 +769,7 @@ export function makeNullDelimiter(
   // The null delimiter has a width, specified by class 'nulldelimiter'
 
   // The size of the null delimiter is independent of the current mathstyle
-  const context = new Context(parentContext, null, 'textstyle');
+  const context = new Context(parentContext, undefined, 'textstyle');
   return new Box(null, {
     classes: ' nulldelimiter ' + (classes ?? ''),
     type,

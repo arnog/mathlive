@@ -1,3 +1,45 @@
+## [Unreleased]
+
+### Breaking Changes
+
+**#500** MathJSON support. The legacy MASTON/JSON format has been removed.  
+ The new MathJSON format is now integrated into the library 🚀 🎆 🥳
+
+To get the MathJSON representation of a formula, use `mf.getValue('math-json')`.
+
+The `latexToAST()` and `astToLatex()` functions have been replaced by
+[parseMathJson()](<https://cortexjs.io/docs/mathjson/#(parse%3Afunction)>) and
+[serializeMathJson()](<https://cortexjs.io/docs/mathjson/#(serialize%3Afunction)>).
+
+```js
+import { parseMathJson, serializeMathJson } from 'mathlive';
+```
+
+MathJSON has an extensive API that supports parsing and serializing of custom
+Latex expressions. You can use it to define your own Latex "vocabulary" and
+"grammar" and transform it into MathJSON.
+
+You can also convert MathJSON expressions into several canonical forms, do
+symbolic computation with MathJSON expressions, for example to compare them, and
+more.
+
+Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
+
+### Architecture
+
+- The library is now null-safe, i.e. it compiles with `strictNullChecks`.
+
+### Improvements
+
+- The `SpeechScope` argument of the `speak` command is now optional.
+
+### Bug Fixes
+
+- **#948** The Typescript declaration of `set plonkSound` failed when compiled
+  with `strictNullChecks`.
+- When using a mathfield as a web component, the `speak` command would be
+  inoperational.
+
 ## 0.67.0 (2021-05-21)
 
 ### New Features
@@ -7,7 +49,7 @@
 ### Improvements
 
 - When replacing a selected range, snapshot in the undo state the collapsed
-  selection before inserting the replacement
+  selection before inserting the replacement.
 
 ### Bug Fixes
 

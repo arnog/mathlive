@@ -6,7 +6,7 @@ import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
 import { selectGroup } from '../editor-model/commands-select';
 
-let gLastTap: { x: number; y: number; time: number };
+let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;
 
 function isTouchEvent(evt: Event): evt is TouchEvent {
@@ -41,30 +41,35 @@ export function onPointerDown(
   const anchorX = isTouchEvent(evt) ? evt.touches[0].clientX : evt.clientX;
   const anchorY = isTouchEvent(evt) ? evt.touches[0].clientY : evt.clientY;
   const anchorTime = Date.now();
+  const field = that.field!;
   const scrollInterval = setInterval(() => {
     if (scrollLeft) {
-      that.field.scroll({ top: 0, left: that.field.scrollLeft - 16 });
+      field.scroll({ top: 0, left: field.scrollLeft - 16 });
     } else if (scrollRight) {
-      that.field.scroll({ top: 0, left: that.field.scrollLeft + 16 });
+      field.scroll({ top: 0, left: field.scrollLeft + 16 });
     }
   }, 32);
-  function endPointerTracking(evt?: PointerEvent | TouchEvent): void {
+  function endPointerTracking(evt: null | PointerEvent | TouchEvent): void {
     if (window.PointerEvent) {
-      off(that.field, 'pointermove', onPointerMove);
-      off(that.field, 'pointerup pointercancel', endPointerTracking);
+      off(field, 'pointermove', onPointerMove);
+      off(
+        field,
+        'pointerup pointercancel',
+        endPointerTracking as EventListener
+      );
       if (evt instanceof PointerEvent) {
-        that.field.releasePointerCapture(evt.pointerId);
+        field.releasePointerCapture(evt.pointerId);
       }
     } else {
-      off(that.field, 'touchmove', onPointerMove);
-      off(that.field, 'touchcancel touchend', endPointerTracking);
+      off(field, 'touchmove', onPointerMove);
+      off(field, 'touchcancel touchend', endPointerTracking as EventListener);
       off(window, 'mousemove', onPointerMove);
-      off(window, 'mouseup blur', endPointerTracking);
+      off(window, 'mouseup blur', endPointerTracking as EventListener);
     }
 
     trackingPointer = false;
     clearInterval(scrollInterval);
-    mathfield.element.classList.remove('tracking');
+    mathfield.element!.classList.remove('tracking');
     if (evt) {
       evt.preventDefault();
       evt.stopPropagation();
@@ -74,7 +79,7 @@ export function onPointerDown(
   function onPointerMove(evt: PointerEvent | TouchEvent): void {
     // If we've somehow lost focus, end tracking
     if (!that.hasFocus()) {
-      endPointerTracking();
+      endPointerTracking(null);
       return;
     }
 
@@ -94,7 +99,7 @@ export function onPointerDown(
       return;
     }
 
-    const fieldBounds = that.field.getBoundingClientRect();
+    const fieldBounds = field.getBoundingClientRect();
     scrollRight = x > fieldBounds.right;
     scrollLeft = x < fieldBounds.left;
     let actualAnchor: Offset = anchor;
@@ -148,7 +153,7 @@ export function onPointerDown(
     gTapCount = 1;
   }
 
-  const bounds = mathfield.field.getBoundingClientRect();
+  const bounds = field.getBoundingClientRect();
   if (
     anchorX >= bounds.left &&
     anchorX <= bounds.right &&
@@ -158,7 +163,7 @@ export function onPointerDown(
     // Focus the mathfield
     if (!mathfield.hasFocus()) {
       dirty = 'all';
-      mathfield.keyboardDelegate.focus();
+      mathfield.keyboardDelegate!.focus();
     }
 
     // Clicking or tapping the field resets the keystroke buffer and
@@ -172,7 +177,7 @@ export function onPointerDown(
     if (anchor >= 0) {
       // Set a `tracking` class to avoid triggering the hover of the virtual
       // keyboard toggle, for example
-      mathfield.element.classList.add('tracking');
+      mathfield.element!.classList.add('tracking');
 
       if (evt.shiftKey) {
         // If the Shift key is down, extend the selection
@@ -218,23 +223,31 @@ export function onPointerDown(
       } else if (!trackingPointer) {
         trackingPointer = true;
         if (window.PointerEvent) {
-          on(that.field, 'pointermove', onPointerMove);
-          on(that.field, 'pointerup pointercancel', endPointerTracking);
+          on(field, 'pointermove', onPointerMove);
+          on(
+            field,
+            'pointerup pointercancel',
+            endPointerTracking as EventListener
+          );
           if (evt instanceof PointerEvent) {
-            that.field.setPointerCapture(evt.pointerId);
+            field.setPointerCapture(evt.pointerId);
           }
         } else {
-          on(window, 'blur', endPointerTracking);
+          on(window, 'blur', endPointerTracking as EventListener);
           if (isTouchEvent(evt) && evt.touches) {
             // This is a touchstart event (and PointerEvent is not supported)
             // To receive the subsequent touchmove/touch, need to
             // listen to this evt.target.
             // This was a touch event
-            on(evt.target, 'touchmove', onPointerMove);
-            on(evt.target, 'touchcancel touchend', endPointerTracking);
+            on(evt.target!, 'touchmove', onPointerMove);
+            on(
+              evt.target!,
+              'touchcancel touchend',
+              endPointerTracking as EventListener
+            );
           } else {
             on(window, 'mousemove', onPointerMove);
-            on(window, 'mouseup', endPointerTracking);
+            on(window, 'mouseup', endPointerTracking as EventListener);
           }
         }
 
@@ -274,7 +287,7 @@ function nearestAtomFromPointRecursive(
   y: number
 ): [distance: number, atom: Atom | null] {
   if (!atom.id) return [Infinity, null];
-  if (cache.has(atom.id)) return cache.get(atom.id);
+  if (cache.has(atom.id)) return cache.get(atom.id)!;
 
   const bounds = getAtomBounds(mathfield, atom);
   if (!bounds) return [Infinity, null];
@@ -313,13 +326,14 @@ function nearestAtomFromPoint(
   x: number,
   y: number
 ): Atom {
-  return nearestAtomFromPointRecursive(
+  const [, atom] = nearestAtomFromPointRecursive(
     mathfield,
     new Map(),
     mathfield.model.root,
     x,
     y
-  )[1];
+  )!;
+  return atom!;
 }
 
 /**
@@ -336,7 +350,7 @@ export function offsetFromPoint(
   //
   // 1/ Check if we're inside the mathfield bounding box
   //
-  const bounds = mathfield.fieldContent.getBoundingClientRect();
+  const bounds = mathfield.fieldContent!.getBoundingClientRect();
   if (x > bounds.right || y > bounds.bottom + 8) {
     return mathfield.model.lastOffset;
   }
@@ -362,7 +376,7 @@ export function offsetFromPoint(
   let parent = atom;
   while (parent) {
     parents.unshift(parent);
-    parent = parent.parent;
+    parent = parent.parent!;
   }
   for (const x of parents) {
     if (x.captureSelection) {
@@ -384,7 +398,7 @@ export function offsetFromPoint(
       // adjust the offset to *before* the atom (i.e. after the
       // preceding atom)
       const bounds = getAtomBounds(mathfield, atom);
-      if (x < (bounds.left + bounds.right) / 2) {
+      if (bounds && x < (bounds.left + bounds.right) / 2) {
         result = mathfield.model.offsetOf(atom.leftSibling);
       }
     } else if (options.bias < 0) {

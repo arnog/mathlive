@@ -12,7 +12,7 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
 
-import { atomtoMathJson } from '../addons/math-json';
+import { parse as parseMathJson } from '../../submodules/math-json/src/math-json';
 import { atomsToMathML } from '../addons/math-ml';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
@@ -32,7 +32,6 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
-import { parseLatex } from '../core/parser';
 
 export type GetAtomOptions = {
   includeChildren?: boolean;
@@ -52,16 +51,12 @@ export class ModelPrivate implements Model {
   private _position: Offset;
 
   constructor(
-    options?: ModelOptions,
-    listeners?: ModelListeners,
-    hooks?: ModelHooks,
-    target?: Mathfield
+    options: ModelOptions,
+    listeners: ModelListeners,
+    hooks: ModelHooks,
+    target: Mathfield
   ) {
-    this.options = {
-      mode: 'math',
-      removeExtraneousParentheses: false,
-      ...options,
-    };
+    this.options = options;
     this.root = new Atom('root', { mode: this.options.mode });
     this.root.body = [];
     this._selection = { ranges: [[0, 0]], direction: 'none' };
@@ -223,12 +218,12 @@ export class ModelPrivate implements Model {
     const atom: Atom = this.at(offset);
     const { parent } = atom;
     if (!parent) return [0, this.lastOffset];
-    const branch = atom.parent.branch(atom.treeBranch);
+    const branch = atom.parent!.branch(atom.treeBranch!)!;
     return [this.offsetOf(branch[0]), this.offsetOf(branch[branch.length - 1])];
   }
 
   getBranchRange(offset: Offset, branchName: Branch): Range {
-    const branch = this.at(offset).branch(branchName);
+    const branch = this.at(offset).branch(branchName)!;
     return [this.offsetOf(branch[0]), this.offsetOf(branch[branch.length - 1])];
   }
 
@@ -340,7 +335,7 @@ export class ModelPrivate implements Model {
     if (result.length === 1 && result[0].type === 'root') {
       result = result[0].children;
     }
-    for (const child of result) child.parent.removeChild(child);
+    for (const child of result) child.parent!.removeChild(child);
     return result;
   }
 
@@ -388,28 +383,11 @@ export class ModelPrivate implements Model {
       result = atomToSpeakableText(atom, this.mathfield.options);
       this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
-    } else if (format === 'json') {
-      console.log('deprecated format. Use MathJSON');
-      // note: atomToMathJson is destructive (it filters out presentation atoms)
-      // So, don't pass in the current atoms, but create a new set based on the
-      // current Latex
-      const json = atomtoMathJson(
-        parseLatex(
-          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }),
-          {
-            parseMode: 'math',
-            macros: this.mathfield.options.macros,
-          }
-        )
+    } else if (format === 'math-json') {
+      const json = parseMathJson(
+        Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
       );
       result = JSON.stringify(json);
-    } else if (format === 'json-2') {
-      console.log('deprecated format. Use MathJSON');
-      const json = atomtoMathJson(atom);
-      // Const json = parseLatex(root.serialize(true), {
-      //     form: 'canonical',
-      // });
-      result = JSON.stringify(json, null, 2);
     } else if (
       format === 'ASCIIMath' /* @deprecated */ ||
       format === 'ascii-math'
@@ -425,7 +403,7 @@ export class ModelPrivate implements Model {
     return result;
   }
 
-  // GetValue(): string;
+  // getValue(): string;
   // getValue(format: OutputFormat): string;
   // getValue(start: Offset, end: Offset, format?: OutputFormat): string;
   // getValue(range: Range, format?: OutputFormat): string;
@@ -449,16 +427,18 @@ export class ModelPrivate implements Model {
     let format: OutputFormat;
     if (isOffset(arg1) && isOffset(arg2)) {
       ranges = [this.normalizeRange([arg1, arg2])];
-      format = arg3;
+      format = arg3 ?? 'latex';
     } else if (isRange(arg1)) {
       ranges = [this.normalizeRange(arg1)];
       format = arg2 as OutputFormat;
     } else if (isSelection(arg1)) {
       ranges = arg1.ranges;
       format = arg2 as OutputFormat;
+    } else {
+      ranges = [];
+      format = 'latex';
     }
 
-    format = format ?? 'latex';
     if (format === 'latex' || format === 'latex-expanded') {
       const options: ToLatexOptions = {
         expandMacro: format === 'latex-expanded',
@@ -491,8 +471,8 @@ export class ModelPrivate implements Model {
         if (atom?.inCaptureSelection) {
           // When going forward, if in a capture selection, jump to
           // after
-          while (!atom.captureSelection) atom = atom.parent;
-          pos = this.offsetOf(atom?.parent.lastChild) + 1;
+          while (!atom.captureSelection) atom = atom.parent!;
+          pos = this.offsetOf(atom?.parent!.lastChild) + 1;
         } else {
           pos += 1;
         }
@@ -517,8 +497,8 @@ export class ModelPrivate implements Model {
       if (atom?.inCaptureSelection) {
         // When going backward, if in a capture selection, jump to
         // before
-        while (!atom.captureSelection) atom = atom.parent;
-        pos = this.offsetOf(atom?.parent.firstChild) - 1;
+        while (!atom.captureSelection) atom = atom.parent!;
+        pos = this.offsetOf(atom?.parent!.firstChild) - 1;
       } else {
         pos -= 1;
       }
@@ -552,19 +532,19 @@ export class ModelPrivate implements Model {
       let { parent } = this.at(end);
       while (
         parent !== this.root &&
-        childrenInRange(this, parent, [start, end])
+        childrenInRange(this, parent!, [start, end])
       ) {
-        end = this.offsetOf(parent);
-        parent = parent.parent;
+        end = this.offsetOf(parent!);
+        parent = parent!.parent;
       }
 
       parent = this.at(start).parent;
       while (
         parent !== this.root &&
-        childrenInRange(this, parent, [start, end])
+        childrenInRange(this, parent!, [start, end])
       ) {
-        start = this.offsetOf(parent.leftSibling);
-        parent = parent.parent;
+        start = this.offsetOf(parent!.leftSibling);
+        parent = parent!.parent;
       }
 
       // Now that the start has potentially changed, check again
@@ -572,11 +552,11 @@ export class ModelPrivate implements Model {
       parent = this.at(end).parent;
       while (
         parent !== this.root &&
-        childrenInRange(this, parent, [start, end])
+        childrenInRange(this, parent!, [start, end])
       ) {
-        end = this.offsetOf(parent);
+        end = this.offsetOf(parent!);
         console.assert(end >= 0);
-        parent = parent.parent;
+        parent = parent!.parent;
       }
 
       this._position = this.normalizeOffset(position);
@@ -587,7 +567,7 @@ export class ModelPrivate implements Model {
     });
   }
 
-  setListeners(listeners?: ModelListeners): void {
+  setListeners(listeners: ModelListeners): void {
     this.listeners = listeners;
   }
 
@@ -698,7 +678,7 @@ export class ModelPrivate implements Model {
     value: Offset | Range | Selection,
     value2?: Offset
   ): Selection {
-    let result: Selection;
+    let result: Selection | undefined = undefined;
     if (isOffset(value)) {
       const offset = this.normalizeOffset(value);
       if (isOffset(value2)) {
@@ -726,8 +706,8 @@ export class ModelPrivate implements Model {
         direction: value.direction ?? 'none',
       };
     }
-
-    return result;
+    console.assert(result !== undefined);
+    return result!;
   }
 }
 

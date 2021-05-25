@@ -20,11 +20,11 @@ function findInBranch(
   atom: Atom,
   branchName: Branch,
   value: string | RegExp,
-  options: FindOptions
+  options?: FindOptions
 ): Range[] {
   const branch = atom.branch(branchName);
   if (!branch) return [];
-  const result = [];
+  const result: Range[] = [];
   let { length } = branch;
   // For each length...
   while (length > 0) {
@@ -56,7 +56,7 @@ function findInAtom(
   model: ModelPrivate,
   atom: Atom,
   value: string | RegExp,
-  options: FindOptions
+  options?: FindOptions
 ): Range[] {
   if (atom.type === 'first') return [];
 
@@ -71,7 +71,7 @@ function findInAtom(
 export function find(
   model: ModelPrivate,
   value: string | RegExp,
-  options: FindOptions
+  options?: FindOptions
 ): Range[] {
   return findInBranch(model, model.root, 'body', value, options).sort(
     (a, b) => {
@@ -90,7 +90,7 @@ function replaceInBranch(
   branchName: Branch,
   pattern: string | RegExp,
   replacement: string | ReplacementFunction,
-  options: FindOptions
+  options?: FindOptions
 ): void {
   const branch = atom.branch(branchName);
   if (!branch) return;
@@ -177,7 +177,7 @@ function replaceInAtom(
   atom: Atom,
   pattern: string | RegExp,
   replacement: string | ReplacementFunction,
-  options: FindOptions
+  options?: FindOptions
 ): void {
   if (atom.type === 'first') return;
 
@@ -193,7 +193,7 @@ export function replace(
   model: ModelPrivate,
   pattern: string | RegExp,
   replacement: string | ReplacementFunction,
-  options: FindOptions
+  options?: FindOptions
 ): void {
   replaceInBranch(model, model.root, 'body', pattern, replacement, options);
 

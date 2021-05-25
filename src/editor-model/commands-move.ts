@@ -12,14 +12,14 @@ export function moveAfterParent(model: ModelPrivate): boolean {
     return false;
   }
 
-  model.position = model.offsetOf(model.at(model.position).parent);
+  model.position = model.offsetOf(model.at(model.position).parent!);
   model.announce('move', previousPosition);
   return true;
 }
 
 function superscriptDepth(model: ModelPrivate): number {
   let result = 0;
-  let atom = model.at(model.position);
+  let atom: Atom | undefined = model.at(model.position);
   let wasSuperscript = false;
   while (atom) {
     if (
@@ -43,7 +43,7 @@ function superscriptDepth(model: ModelPrivate): number {
 
 function subscriptDepth(model: ModelPrivate): number {
   let result = 0;
-  let atom = model.at(model.position);
+  let atom: Atom | undefined = model.at(model.position);
   let wasSubscript = false;
   while (atom) {
     if (
@@ -82,7 +82,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
     if (target.rightSibling?.type !== 'msubsup') {
-      target.parent.addChildAfter(
+      target.parent!.addChildAfter(
         new SubsupAtom({ style: target.computedStyle }),
         target
       );
@@ -94,7 +94,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
   // Ensure there is a superscript branch
   target.createBranch('superscript');
   model.setSelection(
-    model.getSiblingsRange(model.offsetOf(target.superscript[0]))
+    model.getSiblingsRange(model.offsetOf(target.superscript![0]))
   );
 
   return true;
@@ -117,7 +117,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'msubsup') {
-      target.parent.addChildAfter(
+      target.parent!.addChildAfter(
         new Atom('msubsup', {
           mode: target.mode,
           value: '\u200B',
@@ -133,7 +133,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
   // Ensure there is a subscript branch
   target.createBranch('subscript');
   model.setSelection(
-    model.getSiblingsRange(model.offsetOf(target.subscript[0]))
+    model.getSiblingsRange(model.offsetOf(target.subscript![0]))
   );
   return true;
 }
@@ -146,8 +146,12 @@ function moveToSubscript(model: ModelPrivate): boolean {
  */
 function getTabbableElements(): HTMLElement[] {
   function tabbable(element: HTMLElement) {
-    const regularTabbables = [];
-    const orderedTabbables = [];
+    const regularTabbables: HTMLElement[] = [];
+    const orderedTabbables: {
+      documentOrder: number;
+      tabIndex: number;
+      node: HTMLElement;
+    }[] = [];
 
     const candidates = [
       ...element.querySelectorAll<HTMLElement>(`input, select, textarea, a[href], button, 
@@ -203,7 +207,10 @@ function getTabbableElements(): HTMLElement[] {
   }
 
   function getTabindex(node: HTMLElement): number {
-    const tabindexAttr = Number.parseInt(node.getAttribute('tabindex'), 10);
+    const tabindexAttr = Number.parseInt(
+      node.getAttribute('tabindex') ?? 'NaN',
+      10
+    );
 
     if (!Number.isNaN(tabindexAttr)) {
       return tabindexAttr;
@@ -253,7 +260,7 @@ function getTabbableElements(): HTMLElement[] {
       return true;
     }
 
-    const radioScope = node.form || node.ownerDocument;
+    const radioScope = node.form ?? node.ownerDocument;
     const radioSet = radioScope.querySelectorAll(
       'input[type="radio"][name="' + node.name + '"]'
     );
@@ -280,7 +287,7 @@ function getTabbableElements(): HTMLElement[] {
 
     while (element) {
       if (getComputedStyle(element).display === 'none') return true;
-      element = element.parentElement;
+      element = element.parentElement!;
     }
 
     return false;
@@ -383,7 +390,7 @@ register(
       }
 
       const relation = cursor.treeBranch;
-      let oppositeRelation: BranchName;
+      let oppositeRelation: BranchName | undefined;
       if (typeof relation === 'string') {
         oppositeRelation = OPPOSITE_RELATIONS[relation];
       }

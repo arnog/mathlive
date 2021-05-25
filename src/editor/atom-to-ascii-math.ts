@@ -79,7 +79,7 @@ const SPECIAL_OPERATORS = {
   // '\\hat': '&#x005e;'
 };
 
-export function atomToAsciiMath(atom: Atom | Atom[]): string {
+export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
   if (!atom) return '';
   if (isArray<Atom>(atom)) {
     let result = '';
@@ -199,7 +199,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
 
     case 'mord':
       result =
-        SPECIAL_IDENTIFIERS[command] ??
+        SPECIAL_IDENTIFIERS[command!] ??
         command ??
         (typeof atom.value === 'string' ? atom.value : '');
       if (result.startsWith('\\')) result += ' ';
@@ -211,7 +211,9 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
         // Atom is an identifier with no special handling. Use the
         // Unicode value
         result =
-          typeof atom.value === 'string' ? atom.value.charAt(0) : atom.command;
+          typeof atom.value === 'string'
+            ? atom.value.charAt(0)!
+            : atom.command!;
       }
       break;
 
@@ -219,8 +221,8 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
     case 'mrel':
     case 'minner':
       result =
-        SPECIAL_IDENTIFIERS[command] ??
-        SPECIAL_OPERATORS[command] ??
+        SPECIAL_IDENTIFIERS[command!] ??
+        SPECIAL_OPERATORS[command!] ??
         atom.value;
       break;
 
@@ -230,7 +232,7 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
       break;
 
     case 'mpunct':
-      result = SPECIAL_OPERATORS[command] ?? command;
+      result = SPECIAL_OPERATORS[command!] ?? command;
       break;
 
     case 'mop':
@@ -252,9 +254,9 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
         'bmatrix': ['[', ']'],
         'bmatrix*': ['[', ']'],
       }[environment] ?? ['(', ')'];
-      const rows = [];
+      const rows: string[] = [];
       for (const row of array) {
-        const cells = [];
+        const cells: string[] = [];
         for (const cell of row) {
           cells.push(rowDelim[0] + atomToAsciiMath(cell) + rowDelim[1]);
         }
@@ -289,8 +291,8 @@ export function atomToAsciiMath(atom: Atom | Atom[]): string {
 
     case 'macro':
       result =
-        SPECIAL_IDENTIFIERS[command] ??
-        SPECIAL_OPERATORS[command] ??
+        SPECIAL_IDENTIFIERS[command!] ??
+        SPECIAL_OPERATORS[command!] ??
         atomToAsciiMath(atom.body);
       break;
   }

@@ -62,8 +62,8 @@ export class OverunderAtom extends Atom {
    *
    */
 
-  render(parentContext: Context): Box {
-    let body: Box = this.svgBody
+  render(parentContext: Context): Box | null {
+    let body = this.svgBody
       ? makeSVGBox(this.svgBody)
       : Atom.createBox(parentContext, this.body, { newList: true });
     const annotationContext = new Context(
@@ -71,7 +71,7 @@ export class OverunderAtom extends Atom {
       this.style,
       'scriptstyle'
     );
-    let above: Box;
+    let above: Box | null = null;
     // let aboveShift: number;
     if (this.svgAbove) {
       above = makeSVGBox(this.svgAbove);
@@ -81,7 +81,7 @@ export class OverunderAtom extends Atom {
       above = Atom.createBox(annotationContext, this.above, { newList: true });
     }
 
-    let below: Box;
+    let below: Box | null = null;
     // let belowShift: number;
     if (this.svgBelow) {
       below = makeSVGBox(this.svgBelow);
@@ -116,10 +116,8 @@ export class OverunderAtom extends Atom {
           ? this.boxType
           : 'mord',
     });
-    // base.height += parentContext.metrics.bigOpSpacing1;
-    // base.depth += parentContext.metrics.bigOpSpacing1;
 
-    // this.bind(parentContext, result);
+    if (!base) return null;
 
     if (this.subsupPlacement === 'over-under') {
       base = this.attachLimits(parentContext, { base, type: base.type });
@@ -144,12 +142,14 @@ export class OverunderAtom extends Atom {
 function makeOverunderStack(
   context: Context,
   options: {
-    base: Box;
-    above: Box;
-    below: Box;
+    base: Box | null;
+    above: Box | null;
+    below: Box | null;
     type: BoxType;
   }
-): Box {
+): Box | null {
+  // If no base, nothing to do
+  if (!options.base) return null;
   // If nothing above and nothing below, nothing to do.
   if (!options.above && !options.below) {
     const box = new Box(options.base, { type: options.type });
@@ -163,7 +163,7 @@ function makeOverunderStack(
     aboveShift = -options.above.depth + context.metrics.bigOpSpacing2; // Empirical
   }
 
-  let result = null;
+  let result: Box | null = null;
   const base = options.base;
 
   const baseShift = 0;

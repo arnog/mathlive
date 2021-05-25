@@ -264,14 +264,10 @@ const extraCharacterMap = {
  * @param fontName e.g. 'Main-Regular', 'Typewriter-Regular', etc...
  */
 export function getCharacterMetrics(
-  codepoint: number,
+  codepoint: number | undefined,
   fontName: string
 ): CharacterMetrics {
-  console.assert(
-    CHARACTER_METRICS_MAP[fontName],
-    'Unknown font "' + fontName + '"'
-  );
-
+  if (codepoint === undefined) codepoint = 77; // 'M'
   const metrics = CHARACTER_METRICS_MAP[fontName][codepoint];
 
   if (metrics) {
@@ -299,7 +295,7 @@ export function getCharacterMetrics(
 
   if (char in extraCharacterMap) {
     codepoint = extraCharacterMap[char].codePointAt(0);
-  } else if (CJK_REGEX.test(codepoint[0])) {
+  } else if (CJK_REGEX.test(char)) {
     codepoint = 77; // 'M'.codepointAt(0);
     return {
       defaultMetrics: true,

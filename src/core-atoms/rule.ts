@@ -26,7 +26,7 @@ export class RuleAtom extends Atom {
     this.width = options.width;
   }
 
-  render(parentContext: Context): Box {
+  render(parentContext: Context): Box | null {
     // The mathstyle sizing corrections (size delta) do not
     // apply to the dimensions of rules. Create a 'textstyle'
     // context to do the measurements without accounting for the mathstyle.
@@ -50,7 +50,7 @@ export class RuleAtom extends Atom {
   }
 
   serialize(_options: ToLatexOptions): string {
-    let result = this.command;
+    let result = this.command ?? '';
     if (this.shift) {
       result += `[${serializeDimension(this.shift)}]`;
     }

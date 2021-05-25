@@ -39,7 +39,7 @@ export function arrayColRow(
     return { col: index[0], row: index[1] };
   }
 
-  let i: number;
+  let i = 0;
   if (typeof index === 'string') {
     const m = index.match(/cell(\d*)$/);
     if (m) i = Number.parseInt(m[1]);
@@ -73,7 +73,7 @@ export function arrayCell(
     | number
     | { col: number; row: number }
     | [col: number, row: number]
-): Atom[] {
+): null | Atom[] {
   if (
     typeof colrow === 'number' ||
     typeof colrow === 'string' ||
@@ -82,7 +82,7 @@ export function arrayCell(
     colrow = arrayColRow(array, colrow);
   }
 
-  let result: Atom[];
+  let result: Atom[] | null = null;
   if (isArray<number>(array[colrow.row])) {
     result = array[colrow.row][colrow.col] ?? null;
     console.assert(result.length > 0);
@@ -117,7 +117,7 @@ export function arrayAdjustRow(
   array: Atom[][][],
   colRow: { col: number; row: number },
   dir: number
-): { col: number; row: number } {
+): null | { col: number; row: number } {
   const result = { ...colRow };
   result.row += dir;
   if (result.row < 0) {

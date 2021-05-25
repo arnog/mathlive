@@ -7,8 +7,8 @@ import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { PrivateStyle } from '../core/context';
 
 export function applyStyleToUnstyledAtoms(
-  atom: Atom | Atom[],
-  style: Style
+  atom: Atom | Atom[] | undefined,
+  style?: Style
 ): void {
   if (!atom || !style) return;
   if (isArray<Atom>(atom)) {

@@ -97,7 +97,7 @@ const INTER_ATOM_TIGHT_SPACING = {
  *
  */
 function toString(value: string | number): string;
-function toString(value: number, unit: string): string;
+function toString(value: number, unit?: string): string;
 function toString(arg1?: number | string, arg2?: string): string {
   if (typeof arg1 === 'string') {
     return arg1;
@@ -235,12 +235,12 @@ export class Box {
     } else if (typeof content === 'string') {
       this.value = content;
     } else if (isArray<Box | null>(content)) {
-      this.children = content.filter((x) => x !== null);
+      this.children = content.filter((x) => x !== null) as Box[];
     } else if (content && content instanceof Box) {
       this.children = [content];
     }
 
-    this.type = options?.type;
+    this.type = options?.type ?? '';
     this.isSelected = false;
     this.isTight = options?.isTight ?? false;
     this.newList = options?.newList ?? false;
@@ -258,9 +258,11 @@ export class Box {
     // Set initial classes
     this.classes = options?.classes ?? '';
 
-    let fontName = options?.fontFamily ?? 'Main-Regular';
+    let fontName: string | null = options?.fontFamily ?? 'Main-Regular';
     if (options?.style && this.value) {
-      fontName = Mode.applyStyle(options.mode ?? 'math', this, options.style);
+      fontName =
+        Mode.applyStyle(options.mode ?? 'math', this, options.style) ??
+        'Main-Regular';
     }
 
     this.height = 0;
@@ -380,16 +382,16 @@ export class Box {
    * @param prop the CSS property to set
    * @param value a series of strings and numbers that will be concatenated.
    */
-  setStyle(prop: BoxCSSProperties, value: string): void;
+  setStyle(prop: BoxCSSProperties, value: string | undefined): void;
   setStyle(prop: BoxCSSProperties, value: number, unit?: string): void;
   setStyle(
     prop: BoxCSSProperties,
-    value: string | number,
+    value: string | number | undefined,
     unit?: string
   ): void {
-    if (prop === 'height' && value < 0) {
-      console.log('negative height: ', value);
-    }
+    // console.assert(
+    //   prop !== 'height' || typeof value !== 'number' || value >= 0
+    // );
     const v = toString(value as number, unit);
     if (v.length > 0) {
       if (!this.cssProperties) this.cssProperties = {};
@@ -601,7 +603,7 @@ export class Box {
         props +=
           ' ' +
           Object.keys(this.attributes)
-            .map((x) => `${x}="${this.attributes[x]}"`)
+            .map((x) => `${x}="${this.attributes![x]}"`)
             .join(' ');
       }
 
@@ -756,7 +758,7 @@ export class Box {
  * Return a new tree with coalesced boxes.
  *
  */
-function coalesceRecursive(boxes: Box[]): Box[] {
+function coalesceRecursive(boxes: undefined | Box[]): Box[] {
   if (!boxes || boxes.length === 0) return [];
 
   boxes[0].children = coalesceRecursive(boxes[0].children);
@@ -780,7 +782,7 @@ export function coalesce(box: Box): Box {
 /**
  *  Handle proper spacing of, e.g. "-4" vs "1-4", by adjusting some box type
  */
-function adjustType(root: Box): void {
+function adjustType(root: Box | null): void {
   forEachBox(root, (prevBox: Box, box: Box) => {
     // TexBook p. 442:
     // > 5. If the current item is a Bin atom, and if this was the first atom in the
@@ -810,7 +812,7 @@ function adjustType(root: Box): void {
 //
 // Adjust the atom(/box) types according to the TeX rules
 //
-function applyInterAtomSpacing(root: Box, scale: number): void {
+function applyInterAtomSpacing(root: Box | null, scale: number): void {
   forEachBox(root, (prevBox: Box, box: Box) => {
     const prevType: BoxType = prevBox?.type ?? 'none';
     const table = box.isTight
@@ -833,10 +835,10 @@ function applyInterAtomSpacing(root: Box, scale: number): void {
  */
 
 function forEachBoxRecursive(
-  prevBox: Box,
+  prevBox: Box | null,
   box: Box,
-  f: (prevBox: Box, curBox: Box) => void
-): Box {
+  f: (prevBox: Box | null, curBox: Box) => void
+): Box | null {
   // The TeX algorithms scan each elements, and consider them to be part
   // of the same list of atoms, until they reach some branch points (superscript,
   // numerator,etc..). The boxes that indicate the start of a new list have
@@ -857,7 +859,7 @@ function forEachBoxRecursive(
   f(prevBox, box);
 
   if (box.children) {
-    let childPrev: Box = null;
+    let childPrev: Box | null = null;
     if (type === undefined || type.length === 0) {
       childPrev = prevBox;
     }
@@ -876,7 +878,8 @@ function forEachBoxRecursive(
   return prevBox;
 }
 
-function forEachBox(box: Box, f: (prevBox: Box, curBox: Box) => void) {
+function forEachBox(box: Box | null, f: (prevBox: Box, curBox: Box) => void) {
+  if (!box) return;
   forEachBoxRecursive(null, box, f);
 }
 
@@ -908,8 +911,8 @@ export function adjustInterAtomSpacing(root: Box, scale = 1.0): Box {
 
 export function makeStruts(
   content: Box,
-  options: {
-    classes: string;
+  options?: {
+    classes?: string;
     type?: BoxType;
     attributes?: Record<string, string>;
   }

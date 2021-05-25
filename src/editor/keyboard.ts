@@ -132,7 +132,7 @@ export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
 function keyboardEventToString(evt: KeyboardEvent): string {
   evt = normalizeKeyboardEvent(evt);
 
-  const modifiers = [];
+  const modifiers: string[] = [];
 
   if (evt.ctrlKey) modifiers.push('ctrl');
   if (evt.metaKey) modifiers.push('meta');
@@ -189,15 +189,15 @@ export function delegateKeyboardEvents(
     copy: (ev: ClipboardEvent) => void;
     paste: (ev: ClipboardEvent) => void;
     keystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
-    focus: () => void;
-    blur: () => void;
+    focus: null | (() => void);
+    blur: null | (() => void);
     compositionStart: (composition: string) => void;
     compositionUpdate: (composition: string) => void;
     compositionEnd: (composition: string) => void;
   }
 ): KeyboardDelegate {
-  let keydownEvent = null;
-  let keypressEvent = null;
+  let keydownEvent: KeyboardEvent | null = null;
+  let keypressEvent: KeyboardEvent | null = null;
   let compositionInProgress = false;
   let focusInProgress = false;
   let blurInProgress = false;
@@ -445,9 +445,9 @@ function deepActiveElement(): Element | null {
   return a;
 }
 
-export function eventToChar(evt: KeyboardEvent): string {
+export function eventToChar(evt?: KeyboardEvent): string {
   if (!evt) return '';
-  let result: string;
+  let result = '';
   if (evt.key === 'Unidentified') {
     // On Android, the evt.key seems to always be 'Unidentified'.
     // Get the value entered in the event target

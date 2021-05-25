@@ -26,7 +26,7 @@ export class LatexAtom extends Atom {
     return {};
   }
 
-  render(context: Context): Box {
+  render(context: Context): Box | null {
     const result = new Box(this.value, {
       classes: this.isSuggestion
         ? 'ML__suggestion'
@@ -36,6 +36,7 @@ export class LatexAtom extends Atom {
       type: 'latex',
       maxFontSize: 1.0,
     });
+    if (!result) return null;
     if (this.caret) result.caret = this.caret;
     return this.bind(context, result);
   }
@@ -53,9 +54,9 @@ export class LatexGroupAtom extends Atom {
     this.skipBoundary = false;
   }
 
-  render(context: Context): Box {
+  render(context: Context): Box | null {
     const box = Atom.createBox(context, this.body, { newList: true });
-
+    if (!box) return null;
     if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
@@ -64,6 +65,6 @@ export class LatexGroupAtom extends Atom {
   }
 
   serialize(_options: ToLatexOptions): string {
-    return this.body.map((x) => x.value).join('');
+    return this.body?.map((x) => x.value).join('') ?? '';
   }
 }

@@ -68,14 +68,14 @@ if [ "$BUILD" != "production" ]; then
 fi
 
 # Bundle declaration files (.d.ts)
-# Even though we only generate declaration file, the target must be set high-enough
-# to prevent tsc from complaining (!)
+# Even though we only generate declaration files, the target must be set 
+# high-enough to prevent `tsc` from complaining (!)
 printf "${DOT} Building declaration files (.d.ts)"
 npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
-mv ./declarations/public ./dist
-# mv ./declarations/math-json/ ./dist
+mv ./declarations/src/public ./dist
+mv ./declarations/submodules/math-json/src/ ./dist/public/math-json/
 rm -rf ./declarations
-echo -e "${LINECLEAR}{$CHECK} Declaration files built"
+echo -e "${LINECLEAR}${CHECK} Declaration files built"
 
 # Copy static assets
 printf "${DOT} Copying static assets (fonts, sounds)"

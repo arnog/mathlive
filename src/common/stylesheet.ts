@@ -4,7 +4,10 @@ import { throwIfNotInBrowser } from './capabilities';
 
 export type Stylesheet = Releasable;
 
-export function inject(element: HTMLElement, css: string): Releasable {
+export function inject(
+  element: HTMLElement | null,
+  css: string
+): null | Releasable {
   throwIfNotInBrowser();
 
   if (!css) return null;

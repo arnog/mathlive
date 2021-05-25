@@ -17,10 +17,11 @@ export class LineAtom extends Atom {
     this.position = options.position;
   }
 
-  render(parentContext: Context): Box {
+  render(parentContext: Context): Box | null {
     // TeXBook:443. Rule 9 and 10
     const context = new Context(parentContext, this.style, 'cramp');
     const inner = Atom.createBox(context, this.body);
+    if (!inner) return null;
     const ruleWidth =
       context.metrics.defaultRuleThickness / context.scalingFactor;
     const line = new Box(null, { classes: this.position + '-line' });

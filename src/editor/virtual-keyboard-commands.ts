@@ -45,7 +45,7 @@ export function switchKeyboardLayer(
     // If we were in a temporarily shifted state (shift-key held down)
     // restore our state before switching to a new layer.
     unshiftKeyboardLayer(keyboard);
-    const layers = keyboard?.element.querySelectorAll('.keyboard-layer');
+    const layers = keyboard?.element!.querySelectorAll('.keyboard-layer');
     // Search for the requested layer
     let found = false;
     for (const layer_ of layers) {
@@ -74,7 +74,7 @@ export function switchKeyboardLayer(
 }
 
 export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
-  const keycaps = keyboard?.element.querySelectorAll<HTMLElement>(
+  const keycaps = keyboard?.element!.querySelectorAll<HTMLElement>(
     'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
   );
   if (keycaps) {
@@ -177,7 +177,7 @@ export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
     colemak: 'qwerty',
   }[keyboard.options.virtualKeyboardLayout];
   const layer =
-    keyboard?.element.querySelector('div.keyboard-layer.is-visible').id ?? '';
+    keyboard?.element!.querySelector('div.keyboard-layer.is-visible')?.id ?? '';
   if (keyboard) {
     keyboard.dispose();
   }
@@ -226,12 +226,12 @@ function toggleVirtualKeyboard(
       keyboard.element.classList.add('is-visible');
     } else {
       // Construct the virtual keyboard
-      keyboard.element = makeKeyboardElement(keyboard, theme);
+      keyboard.element = makeKeyboardElement(keyboard, theme ?? '');
       // Let's make sure that tapping on the keyboard focuses the field
       on(keyboard.element, 'touchstart:passive mousedown', () =>
         keyboard.focusMathfield()
       );
-      keyboard.options.virtualKeyboardContainer.appendChild(keyboard.element);
+      keyboard.options.virtualKeyboardContainer!.appendChild(keyboard.element);
     }
 
     // For the transition effect to work, the property has to be changed

@@ -9,8 +9,8 @@ import { AXIS_HEIGHT } from '../core/font-metrics';
  * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
  */
 export class OperatorAtom extends Atom {
-  private readonly variant: Variant;
-  private readonly variantStyle: VariantStyle;
+  private readonly variant?: Variant;
+  private readonly variantStyle?: VariantStyle;
 
   constructor(
     command: string,
@@ -46,8 +46,8 @@ export class OperatorAtom extends Atom {
     this.isExtensibleSymbol = options?.isExtensibleSymbol ?? false;
   }
 
-  render(context: Context): Box {
-    let base: Box;
+  render(context: Context): Box | null {
+    let base: Box | null;
     let baseShift = 0;
     let slant = 0;
     if (this.isExtensibleSymbol) {
@@ -61,6 +61,8 @@ export class OperatorAtom extends Atom {
         type: 'mop',
         maxFontSize: context.scalingFactor,
       });
+
+      if (!base) return null;
 
       // Shift the symbol so its center lies on the axis (rule 13). It
       // appears that our fonts have the centers of the symbols already
@@ -77,6 +79,9 @@ export class OperatorAtom extends Atom {
     } else if (this.body) {
       // If this is a list, decompose that list.
       base = Atom.createBox(context, this.body, { newList: true });
+
+      if (!base) return null;
+
       base.setStyle('color', this.style.color);
       base.setStyle('background-color', this.style.backgroundColor);
     } else {
@@ -120,13 +125,13 @@ export class OperatorAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    const result = [];
+    const result: string[] = [];
     if (this.value !== '\u200B') {
       // Not ZERO-WIDTH
       result.push(
         this.command === '\\mathop' || this.command === '\\operatorname'
           ? this.command + `{${this.bodyToLatex(options)}}`
-          : this.command
+          : this.command ?? ''
       );
       if (this.explicitSubsupPlacement) {
         if (this.subsupPlacement === 'over-under') result.push('\\limits');

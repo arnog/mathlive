@@ -20,7 +20,7 @@ export function keystrokeModifiersFromString(key: string): KeystrokeModifiers {
     win: false,
     meta: false,
     ctrl: false,
-    key: segments.pop(),
+    key: segments.pop()!,
   };
   if (segments.includes('shift')) result.shift = true;
   if (segments.includes('alt')) result.alt = true;
@@ -493,7 +493,7 @@ const BASE_LAYOUT_MAPPING = {
 
 const gKeyboardLayouts: KeyboardLayout[] = [];
 
-let gKeyboardLayout: KeyboardLayout;
+let gKeyboardLayout: KeyboardLayout | undefined;
 
 export function platform(): 'apple' | 'windows' | 'linux' {
   switch (osPlatform()) {
@@ -565,21 +565,21 @@ export function getCodeForKey(
   if (!k) return result;
 
   for (const [key, value] of Object.entries(layout.mapping)) {
-    if (value[0] === k) {
+    if (value![0] === k) {
       result.key = `[${key}]`;
       return result;
     }
-    if (value[1] === k) {
+    if (value![1] === k) {
       result.shift = true;
       result.key = `[${key}]`;
       return result;
     }
-    if (value[2] === k) {
+    if (value![2] === k) {
       result.alt = true;
       result.key = `[${key}]`;
       return result;
     }
-    if (value[3] === k) {
+    if (value![3] === k) {
       result.shift = true;
       result.alt = true;
       result.key = `[${key}]`;
@@ -600,10 +600,10 @@ export function normalizeKeyboardEvent(evt: KeyboardEvent): KeyboardEvent {
     const mapping = Object.entries(getActiveKeyboardLayout().mapping);
     let altKey = false;
     let shiftKey = false;
-    let code: string;
+    let code = '';
     for (let index = 0; index < 4; index++) {
       for (const [key, value] of mapping) {
-        if (value[index] === evt.key) {
+        if (value![index] === evt.key) {
           code = key;
           if (index === 3) {
             altKey = true;
@@ -631,7 +631,8 @@ export function normalizeKeyboardEvent(evt: KeyboardEvent): KeyboardEvent {
 // in it, increase the score of layouts that do match it.
 // Calling repeatedly this function will improve the accuracy of the
 // keyboard layout estimate.
-export function validateKeyboardLayout(evt: KeyboardEvent): void {
+export function validateKeyboardLayout(evt?: KeyboardEvent): void {
+  if (!evt) return;
   const index =
     evt.shiftKey && evt.altKey ? 3 : evt.altKey ? 2 : evt.shiftKey ? 1 : 0;
 
@@ -662,7 +663,7 @@ export function setKeyboardLayoutLocale(locale: string): void {
 
 export function setKeyboardLayout(
   name: KeyboardLayoutId | 'auto'
-): KeyboardLayout {
+): KeyboardLayout | undefined {
   // If name is 'auto', the layout is not found, and set to undefined
   gKeyboardLayout = gKeyboardLayouts.find((x) => x.id === name);
   return gKeyboardLayout;

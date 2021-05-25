@@ -15,8 +15,8 @@ After doing a check-out of the parent project, for example.
 git submodule init
 ```
 
-Alternatively, use the `--recursive` option when cloning:
-(`--jobs 8` requests parallel installs to take place)
+Alternatively, use the `--recursive` option when cloning: (`--jobs 8` requests
+parallel installs to take place)
 
 ```
 git clone --recursive --jobs 8 <URL TO GIT REPO>

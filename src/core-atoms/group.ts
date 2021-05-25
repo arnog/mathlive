@@ -11,8 +11,8 @@ export class GroupAtom extends Atom {
   cssId?: string;
   htmlData?: string;
   customClass?: string;
-  mathstyleName: MathstyleName;
-  boxType: BoxType;
+  mathstyleName?: MathstyleName;
+  boxType?: BoxType;
   constructor(
     arg: Atom[],
     options?: {
@@ -51,7 +51,7 @@ export class GroupAtom extends Atom {
     this.changeMode = options?.changeMode ?? false;
   }
 
-  render(context: Context): Box {
+  render(context: Context): Box | null {
     // The scope of the context is this group, so clone it
     // so that any changes to it will be discarded when finished
     // with this group.

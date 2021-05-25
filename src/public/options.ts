@@ -435,10 +435,10 @@ export type VirtualKeyboardOptions = {
     | HTMLAudioElement
     | null
     | {
-        spacebar?: string | HTMLAudioElement;
-        return?: string | HTMLAudioElement;
-        delete?: string | HTMLAudioElement;
-        default: string | HTMLAudioElement;
+        spacebar?: null | string | HTMLAudioElement;
+        return?: null | string | HTMLAudioElement;
+        delete?: null | string | HTMLAudioElement;
+        default: null | string | HTMLAudioElement;
       };
   /**
    * Sound played to provide feedback when a command has no effect, for example
@@ -449,14 +449,14 @@ export type VirtualKeyboardOptions = {
    * - an `HTMLAudioElement`
    * - null to turn off the sound
    */
-  plonkSound?: string | HTMLAudioElement | null;
+  plonkSound: string | HTMLAudioElement | null;
 
   /**
    * The right hand side toolbar configuration.
    *
    * Use `none` to disable right hand side toolbar of virtual keyboard.
    */
-  virtualKeyboardToolbar?: VirtualKeyboardToolbarOptions;
+  virtualKeyboardToolbar: VirtualKeyboardToolbarOptions;
 
   /**
    * Markup for  the virtual keyboard toggle glyph.
@@ -487,7 +487,7 @@ export type VirtualKeyboardOptions = {
    *
    * **Default**: `document.body`
    */
-  virtualKeyboardContainer?: HTMLElement;
+  virtualKeyboardContainer: null | HTMLElement;
 };
 
 /**
@@ -508,7 +508,7 @@ export interface MathfieldHooks {
   onKeystroke: (
     sender: Mathfield,
     keystroke: string,
-    ev: KeyboardEvent
+    ev?: KeyboardEvent
   ) => boolean;
   /**
    * A hook invoked when keyboard navigation would cause the insertion

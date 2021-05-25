@@ -37,7 +37,7 @@ export type Notations = {
 };
 
 export class EncloseAtom extends Atom {
-  backgroundcolor: string;
+  backgroundcolor?: string;
   border: string;
 
   private readonly notation: Notations;
@@ -82,7 +82,7 @@ export class EncloseAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let result = this.command;
+    let result = this.command ?? '';
     if (this.command === '\\enclose') {
       result += '{' + Object.keys(this.notation).join(' ') + '}';
 
@@ -116,17 +116,20 @@ export class EncloseAtom extends Atom {
     return result;
   }
 
-  render(parentContext: Context): Box {
+  render(parentContext: Context): Box | null {
     const context = new Context(parentContext, this.style);
 
     const base = Atom.createBox(context, this.body);
 
+    if (!base) return null;
+
     // Account for the padding
-    const padding = convertDimensionToEm(
-      this.padding && this.padding !== 'auto'
-        ? convertToDimension(this.padding, parentContext.registers)
-        : context.getRegisterAsDimension('fboxsep')
-    );
+    const padding =
+      convertDimensionToEm(
+        this.padding && this.padding !== 'auto'
+          ? convertToDimension(this.padding, parentContext.registers)
+          : context.getRegisterAsDimension('fboxsep')
+      ) ?? 0;
 
     // The 'ML__notation' class is required to prevent the box from being omitted
     // during rendering (it looks like an empty, no-op box)

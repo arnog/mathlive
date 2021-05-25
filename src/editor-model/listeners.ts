@@ -62,17 +62,17 @@ export class EventEmitter {
     options = options ?? {};
     if (options.once ?? false) {
       listener = (...payload: any[]): void => {
-        this.events.get(event).filter((x) => x !== listener);
+        this.events.get(event)?.filter((x) => x !== listener);
         listener.apply(this, ...payload);
       };
     }
 
-    this.events.get(event).push(listener);
+    this.events.get(event)?.push(listener);
     return {
       dispose: (): void => {
         this.events.set(
           event,
-          this.events.get(event).filter((x) => x !== listener)
+          this.events.get(event)!.filter((x) => x !== listener)
         );
       },
     };

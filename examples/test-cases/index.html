@@ -116,13 +116,13 @@
 <body>
     <header><h1>MathLive Testing Playground</h1></header>
     <main class='centered' tabindex="0">
-      <!-- <math-field 
+      <math-field 
         id=mf 
         class="mathfield" style="font-size: 32px;max-width: 640px; width:100%" 
         virtual-keyboard-mode="manual">
-         -0-0=-0(0)
-      </math-field> -->
-      <math-field id="mf" read-only smart-fence smart-superscript value="20">2x</math-field>
+        -\bbox[border:solid 1px red]{\sqrt{\frac{2}{1+x}}}-
+        <!-- -0-0=-0(0) -->
+      </math-field>
 
         <!-- \textcolor{blue}{\sqrt{\smash[t]{\frac{a}{b}}}=\sqrt{\smash[b]{\frac{a}{b}}}} -->
 
@@ -194,8 +194,8 @@
         <div class="output" id="mathascii"></div>
         <h2>MathML</h2>
         <div class="output" id="mathml"></div>
-        <h2>MASTON</h2>
-        <div class="output" id="maston"></div>
+        <h2>MathJSON</h2>
+        <div class="output" id="math-json"></div>
 
       </main>
       <script type="module">
@@ -204,7 +204,7 @@
         console.warn("mf readonly?", mf.readOnly);
       </script>
 
-    <!-- <script type="module">
+    <script type="module">
       import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
       renderMathInDocument({ 
         renderAccessibleContent: false,
@@ -467,9 +467,9 @@
                   value: '\\in',
               },
           },
-          "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
-          "customVirtualKeyboards": KEYBOARDS,
-          "virtualKeyboards": "basic greek secondary geometry",
+          // "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
+          // "customVirtualKeyboards": KEYBOARDS,
+          // "virtualKeyboards": "basic greek secondary geometry",
           // onBlur: () => { console.log('blurring') },
           onKeystroke: (mf, keystroke, ev) => {
             if (keystroke === 'alt+[KeyS]') {
@@ -537,7 +537,7 @@
                   'mathml'
               ).innerHTML = escapeHtml(mf.getValue('math-ml'));
               document.getElementById(
-                  'maston'
+                  'math-json'
               ).innerHTML = escapeHtml(mf.getValue('math-json'));
           } catch (e) {
               console.error("Error converting %c " + latex + '%c ' +
@@ -569,7 +569,7 @@
               );
           });
       }
-    </script> -->
+    </script>
 </body>
 
 </html>

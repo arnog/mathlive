@@ -65,7 +65,7 @@ export function getSharedElement(id: string, cls: string): HTMLElement {
   let result = document.getElementById(id);
   if (result) {
     result.dataset.refcount = Number(
-      Number.parseInt(result.getAttribute('data-refcount')) + 1
+      Number.parseInt(result.getAttribute('data-refcount') ?? '0') + 1
     ).toString();
   } else {
     result = document.createElement('div');
@@ -80,9 +80,11 @@ export function getSharedElement(id: string, cls: string): HTMLElement {
 }
 
 // @revisit: check the elements are correctly released
-export function releaseSharedElement(element: HTMLElement): void {
+export function releaseSharedElement(element?: HTMLElement): void {
   if (!element) return;
-  const refcount = Number.parseInt(element.getAttribute('data-refcount'));
+  const refcount = Number.parseInt(
+    element.getAttribute('data-refcount') ?? '0'
+  );
   if (refcount <= 1) {
     element.remove();
   } else {
@@ -98,13 +100,13 @@ export function releaseSharedElement(element: HTMLElement): void {
  * need to ensure the mathfield is still valid by the time they're executed.
  */
 export function isValidMathfield(mf: MathfieldPrivate): boolean {
-  return mf.element && mf.element.mathfield === mf;
+  return mf.element !== undefined && mf.element.mathfield === mf;
 }
 
 /**
  * Return the element which has the caret
  */
-function findElementWithCaret(element: Element): Element {
+function findElementWithCaret(element: Element): Element | null {
   return (
     element.querySelector('.ML__caret') ??
     element.querySelector('.ML__text-caret') ??
@@ -130,11 +132,11 @@ export function getCaretPoint(
 
 function branchId(atom: Atom): string {
   if (!atom.parent) return 'root';
-  let result = atom.parent.id;
+  let result = atom.parent.id ?? '';
   result +=
     typeof atom.treeBranch === 'string'
       ? '-' + atom.treeBranch
-      : `-${atom.treeBranch[0]}/${atom.treeBranch[0]}`;
+      : `-${atom.treeBranch![0]}/${atom.treeBranch![0]}`;
   return result;
 }
 
@@ -143,11 +145,11 @@ export function adjustForScrolling(
   rect: Rect | null
 ): Rect | null {
   if (!rect) return null;
-  const fieldRect = mathfield.field.getBoundingClientRect();
+  const fieldRect = mathfield.field!.getBoundingClientRect();
   const w = rect.right - rect.left;
   const h = rect.bottom - rect.top;
   const left = Math.ceil(
-    rect.left - fieldRect.left + mathfield.field.scrollLeft
+    rect.left - fieldRect.left + mathfield.field!.scrollLeft
   );
   const top = Math.ceil(rect.top - fieldRect.top);
   return {
@@ -191,17 +193,21 @@ export function getAtomBounds(
   atom: Atom
 ): Rect | null {
   if (!atom.id) return null;
-  let result = mathfield._atomBoundsCache?.get(atom.id);
-  if (result !== undefined) return result;
-  const node = mathfield.field.querySelector(`[data-atom-id="${atom.id}"]`);
+  let result: Rect | null = mathfield._atomBoundsCache?.get(atom.id) ?? null;
+  if (result !== null) return result;
+  const node = mathfield.field!.querySelector(`[data-atom-id="${atom.id}"]`);
   if (!node) {
     console.log(atom.id);
   }
   result = node ? getNodeBounds(node) : null;
   if (mathfield._atomBoundsCache) {
-    mathfield._atomBoundsCache.set(atom.id, result);
+    if (result) {
+      mathfield._atomBoundsCache.set(atom.id, result);
+    } else {
+      mathfield._atomBoundsCache.delete(atom.id);
+    }
   }
-  return result;
+  return result ?? null;
 }
 
 /*
@@ -229,7 +235,7 @@ function getRangeBounds(
     if (bounds) {
       const id = branchId(atom);
       if (rects.has(id)) {
-        const r = rects.get(id);
+        const r = rects.get(id)!;
         rects.set(id, {
           left: Math.min(r.left, bounds.left),
           right: Math.max(r.right, bounds.right),
@@ -250,7 +256,7 @@ export function getSelectionBounds(
   options?: { excludeAtomsWithBackground?: boolean }
 ): Rect[] {
   return mathfield.model.selection.ranges.reduce(
-    (acc, x) => acc.concat(...getRangeBounds(mathfield, x, options)),
+    (acc: Rect[], x) => acc.concat(...getRangeBounds(mathfield, x, options)),
     []
   );
 }

@@ -569,7 +569,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     ];
   }
 
-  private _mathfield: MathfieldPrivate;
+  private _mathfield: null | MathfieldPrivate;
   // The original text content of the slot.
   // Recorded at construction to avoid reacting to it if a `slotchange` event
   // gets fired as part of the construction (different browsers behave
@@ -604,31 +604,31 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     super();
 
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.append(MATHFIELD_TEMPLATE.content.cloneNode(true));
+    this.shadowRoot!.append(MATHFIELD_TEMPLATE.content.cloneNode(true));
 
     // When the elements get focused (through tabbing for example)
     // focus the mathfield
-    this.shadowRoot.host.addEventListener(
+    this.shadowRoot!.host.addEventListener(
       'focus',
       (_event) => this._mathfield?.focus(),
       true
     );
-    this.shadowRoot.host.addEventListener(
+    this.shadowRoot!.host.addEventListener(
       'blur',
       (_event) => this._mathfield?.blur(),
       true
     );
 
     const slot =
-      this.shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
-    this._slotValue = slot
+      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
+    this._slotValue = slot!
       .assignedNodes()
       .map((x) => (x.nodeType === 3 ? x.textContent : ''))
       .join('')
       .trim();
     // Inline options (as a JSON structure in the markup)
     try {
-      const json = slot
+      const json = slot!
         .assignedElements()
         .filter(
           (x) =>
@@ -645,7 +645,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     try {
-      this._style = slot
+      this._style = slot!
         .assignedElements()
         .filter((x) => x.tagName.toLowerCase() === 'style')
         .map((x) => x.textContent)
@@ -661,7 +661,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   get mode(): ParseMode {
-    return this._mathfield?.mode;
+    return this._mathfield?.mode ?? 'math';
   }
 
   set mode(value: ParseMode) {
@@ -685,7 +685,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     if (!gDeferredState.has(this)) return null;
     return getOptions(
-      updateOptions(getDefaultOptions(), gDeferredState.get(this).options),
+      updateOptions(getDefaultOptions(), gDeferredState.get(this)!.options),
       keys
     );
   }
@@ -705,11 +705,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._mathfield.setOptions(options);
     } else if (gDeferredState.has(this)) {
       const mergedOptions = {
-        ...gDeferredState.get(this).options,
+        ...gDeferredState.get(this)!.options,
         ...options,
       };
       gDeferredState.set(this, {
-        value: gDeferredState.get(this).value,
+        value: gDeferredState.get(this)!.value,
         selection: { ranges: mergedOptions.readOnly ? [[0, 0]] : [[0, -1]] },
         options: mergedOptions,
       });
@@ -766,7 +766,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (gDeferredState.has(this)) {
       let start: Offset;
       let end: Offset;
-      let format: OutputFormat;
+      let format: OutputFormat | undefined = undefined;
       if (isSelection(arg1)) {
         [start, end] = arg1.ranges[0];
         format = arg2 as OutputFormat;
@@ -788,11 +788,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         start === 0 &&
         end === -1
       ) {
-        return gDeferredState.get(this).value;
+        return gDeferredState.get(this)!.value;
       }
     }
 
-    return undefined;
+    return '';
   }
 
   /**
@@ -800,14 +800,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   setValue(value?: string, options?: InsertOptions): void {
     if (this._mathfield) {
-      this._mathfield.setValue(value, options);
+      this._mathfield.setValue(value ?? '', options);
       return;
     }
 
     if (gDeferredState.has(this)) {
-      const options = gDeferredState.get(this).options;
+      const options = gDeferredState.get(this)!.options;
       gDeferredState.set(this, {
-        value,
+        value: value ?? '',
         selection: {
           ranges: options.readOnly ? [[0, 0]] : [[0, -1]],
           direction: 'forward',
@@ -819,7 +819,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     const attrOptions = getOptionsFromAttributes(this);
     gDeferredState.set(this, {
-      value,
+      value: value ?? '',
       selection: {
         ranges: attrOptions.readOnly ? [[0, 0]] : [[0, -1]],
         direction: 'forward',
@@ -929,11 +929,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * See also [[`setCaretPoint`]]
    * @category Selection
    */
-  get caretPoint(): { x: number; y: number } {
+  get caretPoint(): null | { x: number; y: number } {
     return this._mathfield?.getCaretPoint() ?? null;
   }
 
-  set caretPoint(point: { x: number; y: number }) {
+  set caretPoint(point: null | { x: number; y: number }) {
+    if (!point) return;
     this._mathfield?.setCaretPoint(point.x, point.y);
   }
 
@@ -989,17 +990,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (this._style) {
       const styleElement = document.createElement('style');
       styleElement.textContent = this._style;
-      this.shadowRoot.appendChild(styleElement);
+      this.shadowRoot!.appendChild(styleElement);
     }
 
     const slot =
-      this.shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
+      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
 
     let value = '';
     // Check if there is a `value` attribute and set the initial value
     // of the mathfield from it
     if (this.hasAttribute('value')) {
-      value = this.getAttribute('value');
+      value = this.getAttribute('value') ?? '';
     } else {
       value =
         slot
@@ -1010,7 +1011,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     this._mathfield = new MathfieldPrivate(
-      this.shadowRoot.querySelector(':host > div'),
+      this.shadowRoot!.querySelector(':host > div')!,
       {
         onBlur: () => {
           this.dispatchEvent(
@@ -1153,7 +1154,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
           );
         },
         ...(gDeferredState.has(this)
-          ? gDeferredState.get(this).options
+          ? gDeferredState.get(this)!.options
           : getOptionsFromAttributes(this)),
         value,
       }
@@ -1177,16 +1178,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._mathfield.model.deferNotifications(
         { content: false, selection: false },
         () => {
-          this._mathfield.setValue(gDeferredState.get(this).value);
-          this._mathfield.selection = gDeferredState.get(this).selection;
+          this._mathfield!.setValue(gDeferredState.get(this)!.value);
+          this._mathfield!.selection = gDeferredState.get(this)!.selection;
           gDeferredState.delete(this);
         }
       );
     }
 
-    slot.addEventListener('slotchange', (event) => {
+    slot!.addEventListener('slotchange', (event) => {
       if (event.target !== slot) return;
-      const value = slot
+      const value = slot!
         .assignedNodes()
         .map((x) => (x.nodeType === 3 ? x.textContent : ''))
         .join('')
@@ -1353,10 +1354,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     | HTMLAudioElement
     | null
     | {
-        spacebar?: string | HTMLAudioElement;
-        return?: string | HTMLAudioElement;
-        delete?: string | HTMLAudioElement;
-        default: string | HTMLAudioElement;
+        spacebar?: null | string | HTMLAudioElement;
+        return?: null | string | HTMLAudioElement;
+        delete?: null | string | HTMLAudioElement;
+        default: null | string | HTMLAudioElement;
       } {
     return this.getOption('keypressSound');
   }
@@ -1366,16 +1367,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       | HTMLAudioElement
       | null
       | {
-          spacebar?: string | HTMLAudioElement;
-          return?: string | HTMLAudioElement;
-          delete?: string | HTMLAudioElement;
-          default: string | HTMLAudioElement;
+          spacebar?: null | string | HTMLAudioElement;
+          return?: null | string | HTMLAudioElement;
+          delete?: null | string | HTMLAudioElement;
+          default: null | string | HTMLAudioElement;
         }
   ) {
     this.setOptions({ keypressSound: value });
   }
   get plonkSound(): string | HTMLAudioElement | null {
-    return this.getOption('plonkSound');
+    return this.getOption('plonkSound') ?? null;
   }
   set plonkSound(value: string | HTMLAudioElement | null) {
     this.setOptions({ plonkSound: value });
@@ -1514,7 +1515,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     if (gDeferredState.has(this)) {
-      return gDeferredState.get(this).selection;
+      return gDeferredState.get(this)!.selection;
     }
 
     return { ranges: [[0, 0]], direction: 'forward' };
@@ -1527,13 +1528,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   set selection(value: Selection) {
     if (this._mathfield) {
       this._mathfield.selection = value;
+      return;
     }
 
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
-        value: gDeferredState.get(this).value,
+        value: gDeferredState.get(this)!.value,
         selection: value,
-        options: gDeferredState.get(this).options,
+        options: gDeferredState.get(this)!.options,
       });
       return;
     }
@@ -1552,14 +1554,37 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    */
   get position(): Offset {
-    return this._mathfield.model.position;
+    if (this._mathfield) {
+      return this._mathfield.model.position;
+    }
+    if (gDeferredState.has(this)) {
+      return gDeferredState.get(this)!.selection.ranges[0][0];
+    }
+
+    return 0;
   }
 
   /**
    * @category Selection
    */
   set position(offset: Offset) {
-    this._mathfield.model.position = offset;
+    if (this._mathfield) {
+      this._mathfield.model.position = offset;
+    }
+    if (gDeferredState.has(this)) {
+      gDeferredState.set(this, {
+        value: gDeferredState.get(this)!.value,
+        selection: { ranges: [[offset, offset]] },
+        options: gDeferredState.get(this)!.options,
+      });
+      return;
+    }
+
+    gDeferredState.set(this, {
+      value: '',
+      selection: { ranges: [[offset, offset]] },
+      options: getOptionsFromAttributes(this),
+    });
   }
 
   /**
@@ -1617,7 +1642,7 @@ function getOptionsFromAttributes(
       if (attribs[x] === 'boolean') {
         result[toCamelCase(x)] = true;
       } else if (attribs[x] === 'number') {
-        result[toCamelCase(x)] = Number.parseFloat(value);
+        result[toCamelCase(x)] = Number.parseFloat(value ?? '0');
       } else {
         result[toCamelCase(x)] = value;
       }

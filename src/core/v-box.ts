@@ -51,7 +51,7 @@ type VBoxParam =
 function getVListChildrenAndDepth(
   params: VBoxParam
 ): [
-  children: (VBoxChild | VBoxElementAndShift)[] | VBoxChild[],
+  children: null | (VBoxChild | VBoxElementAndShift)[] | VBoxChild[],
   depth: number
 ] {
   if ('individualShift' in params) {
@@ -120,6 +120,7 @@ function makeRows(
   params: VBoxParam
 ): [rows: Box[], height: number, depth: number] {
   const [children, depth] = getVListChildrenAndDepth(params);
+  if (!children) return [[], 0, 0];
 
   // Create a strut that is taller than any list item. The strut is added to
   // each item, where it will determine the item's baseline. Since it has
@@ -140,7 +141,7 @@ function makeRows(
   pstrut.setStyle('height', pstrutSize, 'em');
 
   // Create a new list of actual children at the correct offsets
-  const realChildren = [];
+  const realChildren: Box[] = [];
   let minPos = depth;
   let maxPos = depth;
   let currPos = depth;
@@ -242,9 +243,9 @@ export function makeLimitsStack(
     base: Box;
     baseShift?: number;
     slant?: number;
-    above: Box;
+    above: Box | null;
     aboveShift?: number;
-    below: Box;
+    below: Box | null;
     belowShift?: number;
     type?: BoxType;
   }

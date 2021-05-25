@@ -30,13 +30,13 @@ export type Argument =
   | Atom[];
 
 export type CreateAtomOptions = {
-  colorMap: (name: string) => string;
-  backgroundColorMap: (name: string) => string;
+  colorMap?: (name: string) => string | undefined;
+  backgroundColorMap?: (name: string) => string | undefined;
 };
 
 export type ApplyStyleDefinitionOptions = {
-  colorMap: (name: string) => string;
-  backgroundColorMap: (name: string) => string;
+  colorMap?: (name: string) => string | undefined;
+  backgroundColorMap?: (name: string) => string | undefined;
 };
 
 export type ParseResult =
@@ -56,17 +56,17 @@ export type FunctionDefinition = {
   params: FunctionArgumentDefiniton[];
   infix: boolean;
   isFunction: boolean;
-  ifMode: ParseMode;
-  applyMode: ParseMode;
-  createAtom: (
+  ifMode?: ParseMode;
+  applyMode?: ParseMode;
+  createAtom?: (
     command: string,
-    args: Argument[],
+    args: (null | Argument)[],
     style: PrivateStyle,
     options: CreateAtomOptions
   ) => Atom;
-  applyStyle: (
+  applyStyle?: (
     command: string,
-    args: Argument[],
+    args: (null | Argument)[],
     options: ApplyStyleDefinitionOptions
   ) => PrivateStyle;
 
@@ -87,7 +87,7 @@ type EnvironmentDefinition = {
 export type SymbolDefinition = {
   type: AtomType;
   codepoint: number;
-  variant: Variant;
+  variant?: Variant;
   // VariantStyle: VariantStyle;
 
   frequency?: number;
@@ -210,8 +210,8 @@ type EnvironmentConstructor = (
   name: string,
   array: Atom[][][],
   rowGaps: Dimension[],
-  args: Argument[]
-) => Atom;
+  args: (null | Argument)[]
+) => Atom | null;
 
 export type NormalizedMacroDictionary = Record<string, MacroDefinition>;
 
@@ -486,10 +486,11 @@ export const LETTER_AND_DIGITS = supportRegexPropertyEscape()
  */
 function newSymbol(
   symbol: string,
-  value: number,
+  value: number | undefined,
   type: AtomType = 'mord',
   variant?: Variant
 ): void {
+  if (value === undefined) return;
   MATH_SYMBOLS[symbol] = {
     type,
     variant,
@@ -546,8 +547,9 @@ export function newSymbolRange(from: number, to: number): void {
  */
 export function charToLatex(
   parseMode: ArgumentType,
-  codepoint: number
+  codepoint: number | undefined
 ): string {
+  if (codepoint === undefined) return '';
   if (parseMode === 'math' && REVERSE_MATH_SYMBOLS[codepoint]) {
     return REVERSE_MATH_SYMBOLS[codepoint];
   }
@@ -764,12 +766,13 @@ function unicodeToMathVariant(codepoint: number): {
 export function mathVariantToUnicode(
   char: string,
   variant: string,
-  style: string
+  style?: string
 ): string {
   if (!/[A-Za-z\d]/.test(char)) return char;
   if (!variant && !style) return char;
 
   const codepoint = char.codePointAt(0);
+  if (codepoint === undefined) return char;
 
   for (const MATH_UNICODE_BLOCK of MATH_UNICODE_BLOCKS) {
     if (!variant || MATH_UNICODE_BLOCK.variant === variant) {
@@ -804,7 +807,7 @@ export function unicodeCharToLatex(
   result = charToLatex(parseMode, char.codePointAt(0));
   if (result) return result;
 
-  const cp = char.codePointAt(0);
+  const cp = char.codePointAt(0)!;
   const v = unicodeToMathVariant(cp);
   if (!v.style && !v.variant) return '';
 
@@ -869,14 +872,15 @@ export function getInfo(
   symbol: string,
   parseMode: ArgumentType,
   macros?: NormalizedMacroDictionary
-): FunctionDefinition & SymbolDefinition {
+): (Partial<FunctionDefinition> & Partial<SymbolDefinition>) | null {
   if (!symbol || symbol.length === 0) return null;
 
-  let info = null;
+  let info: (Partial<FunctionDefinition> & Partial<SymbolDefinition>) | null =
+    null;
 
   if (symbol.startsWith('\\')) {
     // This could be a function or a symbol
-    info = LEGACY_COMMANDS[symbol];
+    info = LEGACY_COMMANDS[symbol] ?? null;
     if (info) {
       // We've got a match
       return info;
@@ -886,22 +890,21 @@ export function getInfo(
     if (parseMode === 'math') {
       info = MATH_SYMBOLS[symbol];
     } else if (TEXT_SYMBOLS[symbol]) {
-      info = { value: TEXT_SYMBOLS[symbol] };
+      info = { type: 'mord', codepoint: TEXT_SYMBOLS[symbol] };
     }
 
     if (!info) {
       // Maybe it's a macro
       const command = symbol.slice(1);
       if (macros?.[command]) {
-        let argCount = macros[command].args;
+        let argCount = macros[command].args ?? 0;
         info = {
           type: 'group',
-          mode: 'math',
           params: [],
           infix: false,
         };
         while (argCount >= 1) {
-          info.params.push({
+          info!.params!.push({
             isOptional: false,
             type: 'math',
           });
@@ -912,17 +915,20 @@ export function getInfo(
   } else if (parseMode === 'math') {
     info = MATH_SYMBOLS[symbol];
   } else if (TEXT_SYMBOLS[symbol]) {
-    info = { value: TEXT_SYMBOLS[symbol] };
+    info = { codepoint: TEXT_SYMBOLS[symbol], type: 'mord' };
   } else if (parseMode === 'text') {
-    info = { value: symbol };
+    info = { codepoint: symbol.codePointAt(0)!, type: 'mord' };
   }
 
   // Special case `f`, `g` and `h` are recognized as functions.
   if (
     info &&
     info.type === 'mord' &&
-    (info.value === 'f' || info.value === 'g' || info.value === 'h')
+    (info.codepoint === 0x66 ||
+      info.codepoint === 0x67 ||
+      info.codepoint === 0x68)
   ) {
+    // "f", "g" or "h"
     info.isFunction = true;
   }
 
@@ -937,19 +943,19 @@ export function getInfo(
 export function suggest(s: string): { match: string; frequency: number }[] {
   if (s === '\\') return [];
 
-  const result = [];
+  const result: { match: string; frequency: number }[] = [];
 
   // Iterate over items in the dictionary
   for (const p in LEGACY_COMMANDS) {
     // Avoid recommended infix commands
     if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix) {
-      result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency });
+      result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency ?? 0 });
     }
   }
 
   for (const p in MATH_SYMBOLS) {
     if (p.startsWith(s)) {
-      result.push({ match: p, frequency: MATH_SYMBOLS[p].frequency });
+      result.push({ match: p, frequency: MATH_SYMBOLS[p].frequency ?? 0 });
     }
   }
 
@@ -994,7 +1000,7 @@ function parseParameterTemplate(
 ): FunctionArgumentDefiniton[] {
   if (!parameterTemplate) return [];
 
-  let result = [];
+  let result: FunctionArgumentDefiniton[] = [];
   let parameters = parameterTemplate.split(']');
   if (parameters[0].startsWith('[')) {
     // We found at least one optional parameter.
@@ -1123,13 +1129,13 @@ export function defineFunction(
     isFunction?: boolean;
     createAtom?: (
       name: string,
-      args: Argument[],
+      args: (null | Argument)[],
       style: PrivateStyle,
       options: CreateAtomOptions
     ) => Atom;
     applyStyle?: (
       name: string,
-      args: Argument[],
+      args: (null | Argument)[],
       options: ApplyStyleDefinitionOptions
     ) => PrivateStyle;
   }
@@ -1159,7 +1165,7 @@ export function defineFunction(
 let _DEFAULT_MACROS: NormalizedMacroDictionary;
 
 export function getMacros(
-  otherMacros?: MacroDictionary
+  otherMacros?: MacroDictionary | null
 ): NormalizedMacroDictionary {
   if (!_DEFAULT_MACROS) {
     _DEFAULT_MACROS = normalizeMacroDictionary(DEFAULT_MACROS);
@@ -1203,8 +1209,8 @@ function normalizeMacroDefinition(
 
 export function normalizeMacroDictionary(
   macros: MacroDictionary | null
-): NormalizedMacroDictionary | null {
-  if (!macros) return null;
+): NormalizedMacroDictionary {
+  if (!macros) return {};
   const result: NormalizedMacroDictionary = {};
   for (const macro of Object.keys(macros)) {
     const macroDef = macros[macro];

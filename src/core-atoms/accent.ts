@@ -38,6 +38,8 @@ export class AccentAtom extends Atom {
     //
     const base = Atom.createBox(context, this.body) ?? new Box(null);
 
+    if (!this.accent) return base;
+
     //
     // 2. Skew
     //
@@ -50,8 +52,8 @@ export class AccentAtom extends Atom {
     let skew = 0;
     if (
       !this.hasEmptyBranch('body') &&
-      this.body.length === 2 &&
-      this.body[1].isCharacterBox()
+      this.body!.length === 2 &&
+      this.body![1].isCharacterBox()
     ) {
       skew = base.skew;
     }

@@ -91,8 +91,8 @@ export class Context implements ContextInterface {
   // Inherithed from `Style`: size, letterShapeStyle, color and backgroundColor.
   // Size is the "base" font size (need to add mathstyle.sizeDelta to get effective size)
   readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
-  readonly color: string;
-  readonly backgroundColor: string;
+  readonly color?: string;
+  readonly backgroundColor?: string;
 
   readonly _size?: FontSize;
   private _mathstyle?: Mathstyle;
@@ -122,7 +122,7 @@ export class Context implements ContextInterface {
     console.assert(parent instanceof Context || inMathstyle !== undefined);
 
     if (parent instanceof Context) this.parent = parent;
-    if (!(parent instanceof Context)) this.registers = parent.registers;
+    if (!(parent instanceof Context)) this.registers = parent.registers ?? {};
 
     this.isSelected = style?.isSelected ?? parent?.isSelected ?? false;
     this.isPhantom = style?.isPhantom ?? this.parent?.isPhantom ?? false;
@@ -130,8 +130,8 @@ export class Context implements ContextInterface {
     const from: { -readonly [key in keyof Context]?: Context[key] } = {
       ...parent,
     };
-    let size: FontSize;
     if (style) {
+      let size: FontSize | undefined = undefined;
       if (
         style.fontSize &&
         style.fontSize !== 'auto' &&
@@ -150,13 +150,13 @@ export class Context implements ContextInterface {
           ? highlight(style.backgroundColor)
           : style.backgroundColor;
       }
+      this._size = size;
     }
-    this._size = size;
-    this.letterShapeStyle = from.letterShapeStyle;
+    this.letterShapeStyle = from.letterShapeStyle ?? 'tex';
     this.color = from.color;
     this.backgroundColor = from.backgroundColor;
 
-    let mathstyle: Mathstyle;
+    let mathstyle: Mathstyle | undefined;
 
     if (typeof inMathstyle === 'string') {
       if (parent instanceof Context) {
@@ -213,13 +213,13 @@ export class Context implements ContextInterface {
     let result = this._mathstyle;
     let parent = this.parent;
     while (!result) {
-      result = parent._mathstyle;
-      parent = parent.parent;
+      result = parent!._mathstyle;
+      parent = parent!.parent;
     }
     return result;
   }
 
-  getRegister(name: string): RegisterValue {
+  getRegister(name: string): undefined | RegisterValue {
     if (this.registers?.[name]) return this.registers[name];
     if (this.parent) return this.parent.getRegister(name);
     return undefined;
@@ -262,6 +262,10 @@ export class Context implements ContextInterface {
   }
 
   setRegister(name: string, value: RegisterValue | undefined): void {
+    if (value === undefined) {
+      delete this.registers[name];
+      return;
+    }
     this.registers[name] = value;
   }
 
@@ -279,8 +283,8 @@ export class Context implements ContextInterface {
     let result = this._size;
     let parent = this.parent;
     while (!result) {
-      result = parent._size;
-      parent = parent.parent;
+      result = parent!._size;
+      parent = parent!.parent;
     }
     return result;
   }
@@ -334,25 +338,25 @@ export class Context implements ContextInterface {
   }
 
   get computedColor(): string {
-    let result: string = this.color;
+    let result = this.color;
     let parent = this.parent;
     if (!result && parent) {
       result = parent.color;
       parent = parent.parent;
     }
 
-    return result;
+    return result ?? '';
   }
 
   get computedBackgroundColor(): string {
-    let result: string = this.backgroundColor;
+    let result = this.backgroundColor;
     let parent = this.parent;
     if (!result && parent) {
       result = parent.backgroundColor;
       parent = parent.parent;
     }
 
-    return result;
+    return result ?? '';
   }
 
   get metrics(): FontMetrics {

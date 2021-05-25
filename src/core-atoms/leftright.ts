@@ -51,9 +51,9 @@ export class LeftRightAtom extends Atom {
       // with other LaTeX renderers), drop the `\mleft(` and `\mright`)
       // commands
       segments = [
-        this.leftDelim === '.' ? '' : this.leftDelim,
+        !this.leftDelim || this.leftDelim === '.' ? '' : this.leftDelim,
         this.bodyToLatex(options),
-        this.rightDelim === '.' ? '' : this.rightDelim,
+        !this.rightDelim || this.rightDelim === '.' ? '' : this.rightDelim,
       ];
     } else {
       segments = [
@@ -66,7 +66,7 @@ export class LeftRightAtom extends Atom {
     return joinLatex(segments);
   }
 
-  render(parentContext: Context): Box {
+  render(parentContext: Context): Box | null {
     const context = new Context(parentContext, this.style);
 
     if (!this.body) {
@@ -74,13 +74,13 @@ export class LeftRightAtom extends Atom {
       const boxes: Box[] = [];
       if (this.leftDelim) {
         boxes.push(
-          new Atom('mopen', { value: this.leftDelim }).render(context)
+          new Atom('mopen', { value: this.leftDelim }).render(context)!
         );
       }
 
       if (this.rightDelim) {
         boxes.push(
-          new Atom('mclose', { value: this.rightDelim }).render(context)
+          new Atom('mclose', { value: this.rightDelim }).render(context)!
         );
       }
       if (boxes.length === 0) return null;
@@ -120,30 +120,32 @@ export class LeftRightAtom extends Atom {
               style: this.style,
             }
           )
-        )
+        )!
       );
     }
 
     if (inner) {
       // Replace the delim (\middle) boxes with proper ones now that we know
       // the height/depth
-      for (let i = 0; i < inner.children?.length; i++) {
-        if (inner.children[i].delim) {
-          const savedCaret = inner.children[i].caret;
-          inner.children[i] = this.bind(
-            context,
-            makeLeftRightDelim(
-              'minner',
-              inner.children[i].delim,
-              innerHeight,
-              innerDepth,
-              context
-            )
-          );
-          inner.children[i].caret = savedCaret;
+      if (inner.children) {
+        for (let i = 0; i < inner.children.length; i++) {
+          const child = inner.children![i];
+          if (child.delim) {
+            const savedCaret = child.caret;
+            inner.children![i] = this.bind(
+              context,
+              makeLeftRightDelim(
+                'minner',
+                child.delim,
+                innerHeight,
+                innerDepth,
+                context
+              )
+            )!;
+            inner.children![i].caret = savedCaret;
+          }
         }
       }
-
       boxes.push(inner);
     }
 
@@ -173,7 +175,9 @@ export class LeftRightAtom extends Atom {
               '\\llcorner': '\\lrcorner',
               '\\lgroup': '\\rgroup',
               '\\lmoustache': '\\rmoustache',
-            }[this.leftDelim] ?? this.leftDelim;
+            }[this.leftDelim ?? '.'] ??
+            this.leftDelim ??
+            '.';
           classes += ' ML__smart-fence__close';
         } else {
           delim = '.';
@@ -195,7 +199,7 @@ export class LeftRightAtom extends Atom {
               style: this.style,
             }
           )
-        )
+        )!
       );
     }
 

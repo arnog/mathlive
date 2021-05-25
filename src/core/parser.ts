@@ -19,7 +19,6 @@ import {
   Argument,
   FunctionDefinition,
   NormalizedMacroDictionary,
-  SymbolDefinition,
   getEnvironmentDefinition,
   getInfo,
   getMacros,
@@ -76,7 +75,7 @@ export type ParsingContext = {
   // influence the parsing, e.g. the `\mathchoice` command
   parseMode: ParseMode;
   mathstyle: MathstyleName;
-  registers?: Registers;
+  registers: Registers | null;
 
   // When in tabular mode, `'&'` is interpreted as a column separator and
   // `'\\'` as a row separator. Used for matrixes, etc...
@@ -94,14 +93,14 @@ export class Parser {
   // The current token to be parsed: index in `this.tokens`
   index = 0;
 
-  macros: NormalizedMacroDictionary;
+  macros?: NormalizedMacroDictionary;
   smartFence = false;
 
   // Optional arguments to substitute the `#` token.
   args: null | ((arg: string) => string);
 
-  colorMap: (name: string) => string;
-  backgroundColorMap: (name: string) => string;
+  colorMap?: (name: string) => string | undefined;
+  backgroundColorMap?: (name: string) => string | undefined;
 
   // Counter to prevent deadlock. If `end()` is called too many times (1,000)
   // in a row for the same token, bail.
@@ -119,10 +118,10 @@ export class Parser {
     options: {
       args?: null | ((arg: string) => string);
       macros?: NormalizedMacroDictionary;
-      registers: Registers;
+      registers: Registers | null;
       onError?: ErrorListener<ParserErrorCode>;
-      colorMap?: (name: string) => string;
-      backgroundColorMap?: (name: string) => string | null;
+      colorMap?: (name: string) => string | undefined;
+      backgroundColorMap?: (name: string) => string | undefined;
       parseMode?: ParseMode;
       mathstyle?: MathstyleName;
       smartFence?: boolean;
@@ -137,7 +136,7 @@ export class Parser {
     this.smartFence = options.smartFence ?? false;
     this.onError = options.onError
       ? (err): void =>
-          options.onError({
+          options.onError!({
             before: tokensToString(
               this.tokens.slice(this.index, this.index + 10)
             ),
@@ -183,7 +182,7 @@ export class Parser {
     this._parsingContexts.push({
       parseMode: options?.mode ?? this.currentContext.parseMode,
       mathstyle: options?.mathstyle ?? this.currentContext.mathstyle,
-      registers: undefined,
+      registers: null,
       style: { ...this.currentContext.style },
       tabular: options?.tabular ?? false,
       mathlist: [],
@@ -235,11 +234,11 @@ export class Parser {
   getRegister(name: string): RegisterValue {
     console.assert(name[0] !== '\\');
     if (name.startsWith('global ')) {
-      return this._parsingContexts[0].registers[name.slice(7)] ?? 0;
+      return this._parsingContexts[0].registers?.[name.slice(7)] ?? 0;
     }
     let i = this._parsingContexts.length - 1;
     let registers = this._parsingContexts[i].registers;
-    while (i >= 0 && registers[name] === undefined) {
+    while (i >= 0 && registers && registers[name] === undefined) {
       i -= 1;
       registers = this._parsingContexts[i]?.registers;
     }
@@ -252,15 +251,19 @@ export class Parser {
       name = name.slice(7);
       let i = this._parsingContexts.length - 1;
       while (i > 0) {
-        this._parsingContexts[i].registers[name] = undefined;
+        if (this._parsingContexts[i].registers) {
+          delete this._parsingContexts[i].registers![name];
+        }
         i -= 1;
       }
-      this._parsingContexts[0].registers[name] = value;
-
+      this._parsingContexts[0].registers![name] = value;
       return;
     }
     // Set the local register
-    this._parsingContexts[this._parsingContexts.length - 1].registers[name] =
+    if (!this._parsingContexts[this._parsingContexts.length - 1].registers) {
+      this._parsingContexts[this._parsingContexts.length - 1].registers = {};
+    }
+    this._parsingContexts[this._parsingContexts.length - 1].registers![name] =
       value;
   }
 
@@ -336,7 +339,7 @@ export class Parser {
         return false;
       }
 
-      return info.infix;
+      return info.infix ?? false;
     }
 
     return false;
@@ -678,7 +681,7 @@ export class Parser {
         result = convertToDimension(
           this.getRegister(this.get().slice(1)),
           this.currentContext.registers
-        );
+        ) ?? { dimension: 0 };
         result.dimension *= value;
       } else {
         if (!this.match('\\relax')) {
@@ -693,8 +696,9 @@ export class Parser {
   }
 
   scanGlue(): Glue | null {
-    const result = { glue: this.scanDimen() };
-    if (result.glue === null) return null;
+    const dimen = this.scanDimen();
+    if (dimen === null) return null;
+    const result: Glue = { glue: dimen };
     // We parse, but ignore, the optional 'plus' and 'minus'
     // arguments.
 
@@ -835,7 +839,7 @@ export class Parser {
     }
 
     // If the environment has some arguments, parse them
-    const args: Argument[] = [];
+    const args: (null | Argument)[] = [];
     if (def.params) {
       for (const parameter of def.params) {
         // Parse an argument
@@ -846,7 +850,7 @@ export class Parser {
           // optional value by the command parse function.
           args.push(this.parseOptionalArgument(parameter.type));
         } else {
-          const arg: Argument = this.parseArgument(parameter.type);
+          const arg: Argument | null = this.parseArgument(parameter.type);
           if (!arg) {
             this.onError({
               code: 'missing-argument',
@@ -889,7 +893,7 @@ export class Parser {
         } else if (this.matchRowSeparator()) {
           row.push(this.mathlist);
           this.mathlist = [];
-          let gap: Dimension = { dimension: 0 };
+          let gap: Dimension | null = null;
           this.matchWhitespace();
           if (this.match('[')) {
             gap = this.scanDimen();
@@ -943,7 +947,7 @@ export class Parser {
     // To handle infix commands, we'll keep track of their prefix
     // (tokens coming before them) and their arguments
     let infix: Token = '';
-    let infixInfo: (FunctionDefinition & SymbolDefinition) | null = null;
+    let infixInfo: FunctionDefinition | null = null;
     let infixArgs: Atom[][] = [];
     let prefix: Atom[] | null = null;
     const saveAtoms = this.mathlist;
@@ -957,7 +961,7 @@ export class Parser {
         // it had when we encountered the infix. However, since all infix are
         // only defined in 'math' mode, we can use the 'math' constant
         // for the parseMode
-        infixInfo = getInfo(infix, 'math', this.macros);
+        infixInfo = getInfo(infix, 'math', this.macros) as FunctionDefinition;
         if (infixInfo) {
           infixArgs = this.parseArguments(infixInfo)[1] as Atom[][];
         }
@@ -977,7 +981,7 @@ export class Parser {
       this.mathlist = saveAtoms;
       if (prefix) infixArgs.unshift(prefix);
       result = [
-        infixInfo.createAtom(infix, infixArgs, this.style, {
+        infixInfo!.createAtom!(infix, infixArgs, this.style, {
           colorMap: this.colorMap,
           backgroundColorMap: this.backgroundColorMap,
         }),
@@ -1125,7 +1129,7 @@ export class Parser {
     // If we've reached the end and there was no `\right` or
     // there isn't a valid delimiter after `\right`, we'll
     // consider the `\right` missing and set the `rightDelim` to undefined
-    const rightDelim = this.scanDelim();
+    const rightDelim = this.scanDelim() ?? '.';
 
     return new LeftRightAtom(body, {
       leftDelim,
@@ -1216,7 +1220,7 @@ export class Parser {
     const opAtom =
       this.mathlist.length > 0 ? this.mathlist[this.mathlist.length - 1] : null;
 
-    if (opAtom.type !== 'mop') return false;
+    if (opAtom === null || opAtom.type !== 'mop') return false;
 
     if (isLimits) {
       opAtom.subsupPlacement = 'over-under';
@@ -1241,10 +1245,12 @@ export class Parser {
     return false;
   }
 
-  parseArguments(info: FunctionDefinition): [ParseMode, Argument[]] {
+  parseArguments(
+    info: Partial<FunctionDefinition>
+  ): [ParseMode | undefined, (null | Argument)[]] {
     if (!info || !info.params) return [undefined, []];
-    let explicitGroup: ParseMode;
-    const args: Argument[] = [];
+    let explicitGroup: ParseMode | undefined = undefined;
+    const args: (null | Argument)[] = [];
     let i = info.infix ? 2 : 0;
     while (i < info.params.length) {
       const parameter = info.params[i];
@@ -1330,7 +1336,7 @@ export class Parser {
   parseArgument(argType: ArgumentType): null | Argument {
     this.skipFiller();
     argType = argType === 'auto' ? this.parseMode : argType;
-    let result: Argument;
+    let result: Argument | null = null;
     // An argument (which is called a 'math field' in TeX)
     // could be a single character or symbol, as in `\frac12`
     // Note that ``\frac\sqrt{-1}\alpha\beta`` is equivalent to
@@ -1366,8 +1372,8 @@ export class Parser {
         this.tokens.slice(initialIndex, this.index - 1),
         this.onError,
         {
-          args: this.args,
-          macros: this.macros,
+          args: this.args ?? (() => ''),
+          macros: this.macros ?? {},
           smartFence: this.smartFence,
           style: this.style,
           parse: (
@@ -1430,11 +1436,11 @@ export class Parser {
     return result ?? atoms;
   }
 
-  parseOptionalArgument(argType: ArgumentType): Argument {
+  parseOptionalArgument(argType: ArgumentType): Argument | null {
     argType = argType === 'auto' ? this.parseMode : argType;
     this.matchWhitespace();
     if (!this.match('[')) return null;
-    let result: Argument;
+    let result: Argument | null = null;
     while (!this.end() && !this.match(']')) {
       if (argType === 'string') {
         result = this.scanString();
@@ -1459,7 +1465,7 @@ export class Parser {
           .split(/,(?![^(]*\)(?:(?:[^(]*\)){2})*[^"]*$)/);
         const bboxParameter: BBoxParameter = {};
         for (const element of list) {
-          const color = this.backgroundColorMap(element);
+          const color = this.backgroundColorMap?.(element);
           if (color) {
             bboxParameter.backgroundcolor = color;
           } else {
@@ -1486,13 +1492,13 @@ export class Parser {
     return result;
   }
 
-  parseCommand(command: string): Atom[] {
-    let result: Atom = null;
+  parseCommand(command: string): Atom[] | null {
+    let result: Atom | null = null;
     if (command === '\\placeholder') {
       return [
         new PlaceholderAtom({
           mode: this.parseMode,
-          value: this.parseArgument('string'),
+          value: this.parseArgument('string') ?? undefined,
           style: this.style,
         }),
       ];
@@ -1502,7 +1508,7 @@ export class Parser {
       // \char has a special syntax and requires a non-braced integer
       // argument
       const initialIndex = this.index;
-      let codepoint = Math.floor(this.scanNumber(true));
+      let codepoint = Math.floor(this.scanNumber(true) ?? Number.NaN);
       if (
         !Number.isFinite(codepoint) ||
         codepoint < 0 ||
@@ -1600,7 +1606,7 @@ export class Parser {
         backgroundColorMap: this.backgroundColorMap,
       });
       if (deferredArg) {
-        result.body = this.parseArgument(deferredArg);
+        result!.body = this.parseArgument(deferredArg) ?? undefined;
       }
     } else if (typeof info.applyStyle === 'function') {
       const style = info.applyStyle(command, args, {
@@ -1664,10 +1670,11 @@ export class Parser {
     return [result];
   }
 
-  parseLiteral(literal: string): Atom[] {
+  parseLiteral(literal: string): Atom[] | null {
     const result = Mode.createAtom(this.parseMode, literal, {
       ...this.style,
     });
+    if (!result) return null;
 
     if (result.isFunction && this.smartFence) {
       // The atom was a function that may be followed by
@@ -1679,7 +1686,7 @@ export class Parser {
     return [result];
   }
 
-  parseSimpleToken(): Atom[] {
+  parseSimpleToken(): Atom[] | null {
     const token = this.get();
     if (!token) return null;
 
@@ -1712,14 +1719,14 @@ export class Parser {
    * Attempt to scan the macro name and return an atom list if successful.
    * Otherwise, it wasn't a macro.
    */
-  scanMacro(macro: string): Atom {
+  scanMacro(macro: string): Atom | null {
     const macroName = macro.slice(1);
     if (!this.macros || !this.macros[macroName]) return null;
     const initialIndex = this.index;
     const def = this.macros[macroName].def;
-    const argCount = this.macros[macroName].args;
+    const argCount = this.macros[macroName].args!;
 
-    const args: Record<string, string> = {};
+    const args: Record<string, string | undefined> = {};
     for (let i = 1; i <= argCount; i++) {
       // Parse each argument as a string. We don't know yet
       // what the proper parse mode is, so defer parsing till later
@@ -1737,9 +1744,9 @@ export class Parser {
       args: tokensToString(this.tokens.slice(initialIndex, this.index)),
       body: parseLatex(def, {
         parseMode: this.parseMode,
-        args: (arg) => args[arg],
+        args: (arg: string): string => args[arg]!,
         macros: this.macros,
-        registers: this.currentContext.registers,
+        registers: this.currentContext.registers ?? null,
         mathstyle: this.currentContext.mathstyle,
         colorMap: this.colorMap,
         backgroundColorMap: this.backgroundColorMap,
@@ -1753,11 +1760,11 @@ export class Parser {
    * add it to the parser's mathlist
    */
   parseToken(): boolean {
-    let result: Atom | Atom[] =
-      this.parseEnvironment() ||
-      this.parseModeShift() ||
-      this.parseModeSet() ||
-      this.parseGroup() ||
+    let result: null | Atom | Atom[] =
+      this.parseEnvironment() ??
+      this.parseModeShift() ??
+      this.parseModeSet() ??
+      this.parseGroup() ??
       this.parseLeftRight();
     if (!result) {
       if (this.parseSupSub()) return true;
@@ -1790,18 +1797,18 @@ export function parseLatex(
     parseMode?: ParseMode;
     args?: null | ((arg: string) => string);
     macros?: null | MacroDictionary;
-    registers?: Registers;
+    registers?: Registers | null;
     mathstyle?: MathstyleName;
     smartFence?: boolean;
     onError?: ErrorListener<ParserErrorCode>;
-    colorMap?: (name: string) => string;
-    backgroundColorMap?: (name: string) => string;
+    colorMap?: (name: string) => string | undefined;
+    backgroundColorMap?: (name: string) => string | undefined;
   }
 ): Atom[] {
   const parser = new Parser(tokenize(s, options?.args ?? null), {
     args: options?.args ?? null,
     macros: getMacros(options?.macros),
-    registers: options?.registers,
+    registers: options?.registers ?? null,
     mathstyle: options?.mathstyle ?? 'displaystyle',
     colorMap: options?.colorMap ?? defaultColorMap,
     parseMode: options?.parseMode ?? 'math',
@@ -1824,7 +1831,7 @@ export function parseLatex(
     },
   });
 
-  let atoms = [];
+  let atoms: Atom[] = [];
   while (!parser.end()) {
     const more = parser.parse();
     if (!more) break;
@@ -1837,7 +1844,7 @@ export function parseLatex(
 export function convertToGlue(
   value: RegisterValue,
   registers: Registers | null
-): Glue {
+): null | Glue {
   // If it's already a Glue, return it.
   if (typeof value === 'object' && 'glue' in value) return value;
 
@@ -1856,7 +1863,7 @@ export function convertToGlue(
 export function convertToDimension(
   value: RegisterValue,
   registers: Registers | null
-): Dimension {
+): null | Dimension {
   if (typeof value === 'number') return { dimension: value, unit: 'pt' };
 
   if (typeof value === 'object' && 'glue' in value) {

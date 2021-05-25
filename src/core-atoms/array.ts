@@ -123,7 +123,7 @@ function normalizeArray(
     let colIndex = 0;
     colCount = Math.max(colCount, Math.min(row.length, maxColCount));
     while (colIndex < row.length) {
-      const newRow = [];
+      const newRow: Atom[][] = [];
       const lastCol = Math.min(row.length, colIndex + maxColCount);
       while (colIndex < lastCol) {
         if (row[colIndex].length > 0 && row[colIndex][0].type !== 'first') {
@@ -191,7 +191,7 @@ function normalizeArray(
 
 // See http://ctan.math.utah.edu/ctan/tex-archive/macros/latex/base/lttab.dtx
 export class ArrayAtom extends Atom {
-  array: Atom[][][];
+  array: (undefined | Atom[])[][];
   environmentName: string;
   rowGaps: Dimension[];
   colFormat: ColumnFormat[];
@@ -249,9 +249,9 @@ export class ArrayAtom extends Atom {
     this.arraystretch = options.arraystretch ?? 1.0;
   }
 
-  branch(cell: Branch): Atom[] | null {
-    if (!isColRowBranch(cell)) return null;
-    return this.array[cell[0]][cell[1]];
+  branch(cell: Branch): Atom[] | undefined {
+    if (!isColRowBranch(cell)) return undefined;
+    return this.array[cell[0]][cell[1]] ?? undefined;
   }
 
   get branches(): Branch[] {
@@ -284,10 +284,10 @@ export class ArrayAtom extends Atom {
       return super.removeBranch(name);
     }
 
-    const children = this.branch(name);
-    this.array[name[0]][name[1]] = null;
+    const children = this.branch(name)!;
+    this.array[name[0]][name[1]] = undefined;
     children.forEach((x) => {
-      x.parent = null;
+      x.parent = undefined;
       x.treeBranch = undefined;
     });
     // Drop the 'first' element
@@ -302,15 +302,17 @@ export class ArrayAtom extends Atom {
   }
 
   get children(): Atom[] {
-    const result = [];
-    this.array.forEach((row) => {
-      row.forEach((col) => {
-        col.forEach((x) => {
-          result.push(...x.children);
-          result.push(x);
-        });
-      });
-    });
+    const result: Atom[] = [];
+    for (const row of this.array) {
+      for (const cell of row) {
+        if (cell) {
+          for (const atom of cell) {
+            result.push(...atom.children);
+            result.push(atom);
+          }
+        }
+      }
+    }
     return [...result, ...super.children];
   }
 
@@ -325,7 +327,7 @@ export class ArrayAtom extends Atom {
     const doubleRuleSep = innerContext.getRegisterAsEm('doublerulesep');
 
     // Row spacing
-    const arraystretch = this.arraystretch;
+    const arraystretch = this.arraystretch ?? 1.0;
     let arraycolsep =
       typeof this.arraycolsep === 'number' ? this.arraycolsep : arrayColSep;
     if (this.colSeparationType === 'small') {
@@ -334,7 +336,7 @@ export class ArrayAtom extends Atom {
       // But that needs adjustment because LaTeX applies \scriptstyle to the
       // entire array, including the colspace, but this function applies
       // \scriptstyle only inside each element.
-      const localMultiplier = new Context(context, null, 'scriptstyle')
+      const localMultiplier = new Context(context, undefined, 'scriptstyle')
         .scalingFactor;
       arraycolsep = 0.2778 * (localMultiplier / context.scalingFactor);
     }
@@ -342,7 +344,7 @@ export class ArrayAtom extends Atom {
     const arstrutHeight = 0.7 * arrayskip;
     const arstrutDepth = 0.3 * arrayskip; // \@arstrutbox in lttab.dtx
     let totalHeight = 0;
-    const body = [];
+    const body: ArrayRow[] = [];
     let nc = 0;
     const nr = this.array.length;
     for (let r = 0; r < nr; ++r) {
@@ -390,7 +392,7 @@ export class ArrayAtom extends Atom {
     }
 
     const offset = totalHeight / 2 + AXIS_HEIGHT;
-    const contentCols = [];
+    const contentCols: Box[] = [];
     for (let colIndex = 0; colIndex < nc; colIndex++) {
       const stack: VBoxElementAndShift[] = [];
       for (const row of body) {
@@ -409,7 +411,7 @@ export class ArrayAtom extends Atom {
     // Iterate over each column description.
     // Each `colDesc` will indicate whether to insert a gap, a rule or
     // a column from 'contentCols'
-    const cols = [];
+    const cols: Box[] = [];
     let previousColContent = false;
     let previousColRule = false;
     let currentContentCol = 0;
@@ -453,9 +455,13 @@ export class ArrayAtom extends Atom {
           // It's a list of atoms.
           // Create a column made up of the mathlist
           // as many times as there are rows.
-          cols.push(
-            makeColOfRepeatingElements(context, body, offset, colDesc.gap)
+          const col = makeColOfRepeatingElements(
+            context,
+            body,
+            offset,
+            colDesc.gap
           );
+          if (col) cols.push(col);
         }
 
         previousColContent = false;
@@ -520,7 +526,7 @@ export class ArrayAtom extends Atom {
             context,
             makeLeftRightDelim(
               'mopen',
-              this.leftDelim,
+              this.leftDelim ?? '.',
               innerHeight,
               innerDepth,
               innerContext
@@ -531,7 +537,7 @@ export class ArrayAtom extends Atom {
             context,
             makeLeftRightDelim(
               'mclose',
-              this.rightDelim,
+              this.rightDelim ?? '.',
               innerHeight,
               innerDepth,
               innerContext
@@ -541,6 +547,7 @@ export class ArrayAtom extends Atom {
         { type: 'mord' }
       )
     );
+    if (!result) return null;
     if (this.caret) result.caret = this.caret;
 
     return this.attachSupsub(context, { base: result });
@@ -585,7 +592,7 @@ export class ArrayAtom extends Atom {
     return result;
   }
 
-  getCell(row: number, col: number): Atom[] {
+  getCell(row: number, col: number): Atom[] | undefined {
     return this.array[row][col];
   }
 
@@ -619,14 +626,12 @@ export class ArrayAtom extends Atom {
   }
 
   get cells(): Atom[][] {
-    const result = [];
-    this.array.forEach((row) => {
-      row.forEach((cell) => {
-        cell.forEach((x) => {
-          result.push(x);
-        });
-      });
-    });
+    const result: Atom[][] = [];
+    for (const row of this.array) {
+      for (const cell of row) {
+        if (cell) result.push(cell);
+      }
+    }
     return result;
   }
 }
@@ -647,14 +652,17 @@ function makeColOfRepeatingElements(
   context: Context,
   rows: ArrayRow[],
   offset: number,
-  element: Atom[]
-): Box {
+  element: Atom[] | undefined
+): Box | null {
+  if (!element) return null;
   const col: VBoxElementAndShift[] = [];
   for (const row of rows) {
     const cell = Atom.createBox(context, element, { newList: true });
-    cell.depth = row.depth;
-    cell.height = row.height;
-    col.push({ box: cell, shift: row.pos - offset });
+    if (cell) {
+      cell.depth = row.depth;
+      cell.height = row.height;
+      col.push({ box: cell, shift: row.pos - offset });
+    }
   }
 
   return new VBox({ individualShift: col }).wrap(context);

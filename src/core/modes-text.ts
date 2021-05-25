@@ -85,7 +85,7 @@ function emitSizeTextRun(run: Atom[], options: ToLatexOptions): string {
           'LARGE',
           'huge',
           'Huge',
-        ][x[0].style.fontSize] ?? '';
+        ][x[0].style.fontSize ?? ''] ?? '';
       if (command) {
         return `\\${command} ${result}`;
       }
@@ -104,7 +104,7 @@ function emitFontFamilyTextRun(run: Atom[], options: ToLatexOptions): string {
           'roman': 'textrm',
           'monospace': 'texttt',
           'sans-serif': 'textsf',
-        }[x[0].style.fontFamily] || '';
+        }[x[0].style.fontFamily ?? ''] ?? '';
       if (command) return `\\${command}{${result}}`;
 
       if (x[0].style.fontFamily) {
@@ -205,7 +205,9 @@ export class TextMode extends Mode {
     if (suffix) {
       const allAtomsHaveShapeOrSeriesOrFontFamily = run.every(
         (x: Atom) =>
-          x.style.fontSeries || x.style.fontShape || x.style.fontFamily
+          x.style.fontSeries !== undefined ||
+          x.style.fontShape !== undefined ||
+          x.style.fontFamily !== undefined
       );
       if (!allAtomsHaveShapeOrSeriesOrFontFamily) {
         // Wrap in text, only if there isn't a shape or series on
@@ -220,11 +222,11 @@ export class TextMode extends Mode {
   /**
    * Return the font-family name
    */
-  applyStyle(box: Box, style: Style): string {
+  applyStyle(box: Box, style: Style): string | null {
     const { fontFamily } = style;
 
-    if (TEXT_FONT_CLASS[fontFamily]) {
-      box.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
+    if (TEXT_FONT_CLASS[fontFamily!]) {
+      box.classes += ' ' + TEXT_FONT_CLASS[fontFamily!] ?? '';
     } else if (fontFamily) {
       // Not a well-known family. Use a style.
       box.setStyle('font-family', fontFamily);
@@ -288,14 +290,14 @@ export class TextMode extends Mode {
     error: ErrorListener<ParserErrorCode>,
     options: ParseTokensOptions
   ): [Atom[], Token[]] {
-    let result = [];
+    let result: Atom[] = [];
     let atom: Atom;
 
     while (tokens.length > 0) {
       const token = tokens.shift();
       if (token === '<space>') {
         result.push(new TextAtom(' ', ' ', options.style));
-      } else if (token.startsWith('\\')) {
+      } else if (!!token && token.startsWith('\\')) {
         // Invoke the 'main' parser to handle the command
         tokens.unshift(token);
         let atoms: Atom[];
@@ -314,11 +316,11 @@ export class TextMode extends Mode {
         // Spurious braces are ignored by TeX in text mode
         // In text mode, braces are sometimes used to separate adjacent
         // commands without inserting a space, e.g. "\backlash{}command"
-      } else {
+      } else if (token) {
         const info = getInfo(token, 'text', options.macros);
         if (!info || (info.ifMode && !info.ifMode.includes('text'))) {
           error({ code: 'unexpected-token' });
-        } else {
+        } else if (info.codepoint) {
           atom = new TextAtom(
             token,
             String.fromCodePoint(info.codepoint),

@@ -221,7 +221,7 @@ export function attachButtonHandlers(
       // not the button that started the press and hold, don't consider
       // it a press-and-hold.
       if (element !== pressHoldElement || now < pressHoldStart + 300) {
-        command = undefined;
+        command = null;
       }
 
       if (!command && ev.altKey && ev.shiftKey) {

@@ -40,7 +40,7 @@ export function parseMathString(
     inlineShortcuts?: Record<string, InlineShortcutDefinition>;
   }
 ): [OutputFormat, string] {
-  let format: OutputFormat;
+  let format: OutputFormat | undefined;
   [format, s] = inferFormat(s);
 
   if (format === 'latex') return ['latex', s];
@@ -351,7 +351,7 @@ export function trimModeShiftCommand(s: string): [boolean, string] {
   return [false, s];
 }
 
-function inferFormat(s: string): [OutputFormat, string] {
+function inferFormat(s: string): [OutputFormat | undefined, string] {
   s = s.trim();
 
   if (!s) return ['latex', ''];

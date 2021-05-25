@@ -30,7 +30,11 @@ export class Mode {
     Mode._registry[name] = this;
   }
 
-  static createAtom(mode: ParseMode, command: string, style: Style): Atom {
+  static createAtom(
+    mode: ParseMode,
+    command: string,
+    style: Style
+  ): Atom | null {
     return Mode._registry[mode].createAtom(command, style);
   }
 
@@ -39,7 +43,7 @@ export class Mode {
     tokens: Token[],
     onError: ErrorListener<ParserErrorCode>,
     options: ParseTokensOptions
-  ): Atom[] {
+  ): Atom[] | null {
     return Mode._registry[mode].parseTokens(tokens, onError, options);
   }
 
@@ -51,7 +55,7 @@ export class Mode {
     return mode.serialize(run, options);
   }
 
-  static applyStyle(mode: ParseMode, box: Box, style: Style): string {
+  static applyStyle(mode: ParseMode, box: Box, style: Style): string | null {
     return Mode._registry[mode].applyStyle(box, style);
   }
 
@@ -76,7 +80,7 @@ export class Mode {
    * the effective font name to be used for metrics
    * ('Main-Regular', 'Caligraphic-Regualr' etc...)
    */
-  applyStyle(_box: Box, _style: Style): string {
+  applyStyle(_box: Box, _style: Style): string | null {
     return '';
   }
 }
@@ -85,8 +89,8 @@ export class Mode {
  * Return an array of runs with the same mode
  */
 export function getModeRuns(atoms: Atom[]): Atom[][] {
-  const result = [];
-  let run = [];
+  const result: Atom[][] = [];
+  let run: Atom[] = [];
   let currentMode = 'NONE';
   for (const atom of atoms) {
     if (atom.type !== 'first') {
@@ -112,12 +116,12 @@ export function getPropertyRuns(
   atoms: Atom[],
   property: keyof Style | 'cssClass'
 ): Atom[][] {
-  const result = [];
-  let run = [];
-  let currentValue: string | number;
+  const result: Atom[][] = [];
+  let run: Atom[] = [];
+  let currentValue: string | number | undefined = undefined;
   for (const atom of atoms) {
     if (atom.type !== 'first') {
-      let value: string | number;
+      let value: string | number | undefined;
       if (property === 'variant') {
         value = atom.style.variant;
         if (atom.style.variantStyle && atom.style.variantStyle !== 'up') {

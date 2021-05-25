@@ -1,94 +1,31 @@
 // Import { Keys } from '../types-utils';
 import { STRINGS } from './l10n-strings';
 
-export const l10n: {
-  locale?: string;
-  _ordinalEnglishPluralCategories?: string[];
-  _ordinalPluralCategories?: string[];
-  _ordinalEnglish?: Intl.PluralRules;
-  _ordinal?: Intl.PluralRules;
-  _cardinalPluralCategories?: string[];
-  _cardinalEnglishPluralCategories?: string[];
-  _cardinalEnglish?: Intl.PluralRules;
-  _cardinal?: Intl.PluralRules;
-  _locale?: string;
-  strings?: Record<string, Record<string, string>>;
-  plural?(value, s, options): Intl.PluralRules;
-  ordinal?(value, s, options): Intl.PluralRules;
-  cardinal?(value, s, options): Intl.PluralRules;
-  merge?(
+interface L10n {
+  locale: string;
+  _locale: string;
+  strings: Record<string, Record<string, string>>;
+
+  merge(
     locale: string | Record<string, Record<string, string>>,
     strings?: Record<string, string>
   ): void;
-} = {};
+}
 
-l10n.plural = function (value: number, s: string, options): Intl.PluralRules {
-  options = options ?? {};
-  options.type = options.type ?? 'cardinal';
-  const language = l10n.locale.slice(0, 2);
-  const rules = options.type === 'ordinal' ? l10n._ordinal : l10n._cardinal;
-  let rule =
-    options.type === 'ordinal'
-      ? l10n._ordinalPluralCategories.indexOf(rules.select(value))
-      : l10n._cardinalPluralCategories.indexOf(rules.select(value));
+// Type '{ strings: { en: { 'keyboard.tooltip.functions': string;
+// 'keyboard.tooltip.symbols': string; 'keyboard.tooltip.greek': string;
+// 'keyboard.tooltip.command': string; 'keyboard.tooltip.numeric': string; ... 4
+// more ...; 'tooltip.undo': string; }; ... 9 more ...; ru: { ...; }; }; ... 8
+// more ...; merge(locale: string | Rec...' is missing the following properties
+// from type 'L10n': _ordinal, _cardinalPluralCategories,
+// _cardinalEnglishPluralCategories, _cardinal, _locale
 
-  let result;
-  if (l10n.strings[l10n.locale]) result = l10n.strings[l10n.locale][s];
-  if (!result && l10n.strings[language]) result = l10n.strings[language][s];
-  if (!result) {
-    result = l10n.strings.en[s];
-    if (!result) result = s;
-    rule =
-      options.type === 'ordinal'
-        ? l10n._ordinalPluralCategories.indexOf(
-            l10n._ordinalEnglish.select(value)
-          )
-        : l10n._cardinalPluralCategories.indexOf(
-            l10n._cardinalEnglish.select(value)
-          );
-  }
+export const l10n: L10n = {
+  strings: STRINGS,
+  _locale: 'en',
 
-  return result.split(';')[rule] || result.split(';')[0];
-};
-
-/*
- * Two forms for this function:
- * - merge(locale, strings)
- * Merge a dictionary of keys -> values for the specified locale
- * - merge(strings)
- * Merge a dictionary of locale code -> dictionary of keys -> values
- *
- */
-l10n.merge = function (
-  locale: string | Record<string, Record<string, string>>,
-  strings?: Record<string, string>
-): void {
-  if (locale && strings) {
-    const savedLocale = l10n._locale;
-    l10n.locale = locale as string; // Load the necessary json file
-
-    l10n.strings[locale as string] = {
-      ...l10n.strings[locale as string],
-      ...strings,
-    };
-    l10n.locale = savedLocale;
-  } else if (locale && !strings) {
-    for (const l of Object.keys(
-      locale as Record<string, Record<string, string>>
-    )) {
-      l10n.merge(l, locale[l]);
-    }
-  }
-};
-
-// Add getter and setter for the _locale property of l10n
-Object.defineProperty(l10n, 'locale', {
-  set(locale) {
-    l10n._locale = locale;
-    l10n._ordinal = null;
-    l10n._cardinal = null;
-  },
-  get() {
+  // Add getter and setter for the _locale property of l10n
+  get locale(): string {
     // Use the browser defined language as the default language,
     // "english" if not running in a browser (node.js)
     if (!l10n._locale) {
@@ -98,53 +35,48 @@ Object.defineProperty(l10n, 'locale', {
 
     return l10n._locale;
   },
-});
 
-Object.defineProperty(l10n, 'ordinal', {
-  get() {
-    if (!l10n._ordinal) {
-      l10n._ordinalEnglish = new Intl.PluralRules('en', {
-        type: 'ordinal',
-      });
-      l10n._ordinalEnglishPluralCategories =
-        l10n._ordinalEnglish.resolvedOptions().pluralCategories;
-      l10n._ordinal = new Intl.PluralRules(l10n.locale, {
-        type: 'ordinal',
-      });
-      l10n._ordinalPluralCategories =
-        l10n._ordinal.resolvedOptions().pluralCategories;
-      //    "zero", "one", "two", "few", "many" and "other"
-    }
-
-    return l10n._ordinal;
+  set locale(value: string) {
+    l10n._locale = value;
   },
-});
 
-Object.defineProperty(l10n, 'cardinal', {
-  get() {
-    if (!l10n._cardinal) {
-      l10n._cardinalEnglish = new Intl.PluralRules('en', {
-        type: 'cardinal',
-      });
-      l10n._cardinalEnglishPluralCategories =
-        l10n._cardinalEnglish.resolvedOptions().pluralCategories;
-      l10n._cardinal = new Intl.PluralRules(l10n.locale, {
-        type: 'cardinal',
-      });
-      l10n._cardinalPluralCategories =
-        l10n._ordinal.resolvedOptions().pluralCategories;
+  /*
+   * Two forms for this function:
+   * - merge(locale, strings)
+   * Merge a dictionary of keys -> values for the specified locale
+   * - merge(strings)
+   * Merge a dictionary of locale code -> dictionary of keys -> values
+   *
+   */
+  merge(
+    locale: string | Record<string, Record<string, string>>,
+    strings?: Record<string, string>
+  ): void {
+    if (locale && strings) {
+      const savedLocale = l10n._locale;
+      l10n.locale = locale as string; // Load the necessary json file
+
+      l10n.strings[locale as string] = {
+        ...l10n.strings[locale as string],
+        ...strings,
+      };
+      l10n.locale = savedLocale;
+    } else if (locale && !strings) {
+      for (const l of Object.keys(
+        locale as Record<string, Record<string, string>>
+      )) {
+        l10n.merge(l, locale[l]);
+      }
     }
-
-    return l10n._cardinal;
   },
-});
-
-l10n.strings = STRINGS;
+};
 
 /**
  * Return a localised string for the `key`.
  */
-export function localize(key: string): string {
+export function localize(key?: string): string | undefined {
+  if (key === undefined) return undefined;
+
   const language = l10n.locale.slice(0, 2);
 
   let result = '';

@@ -181,7 +181,7 @@ export class MathMode extends Mode {
   emitColorRun(run: Atom[], options: ToLatexOptions): string {
     const { parent } = run[0];
     const parentMode = parent?.mode ?? 'math';
-    const contextVariant = variantString(parent);
+    const contextVariant = variantString(parent!);
     const contextColor = parent?.computedStyle.color;
     return joinLatex(
       getPropertyRuns(run, 'color').map((x) => {
@@ -193,7 +193,7 @@ export class MathMode extends Mode {
             // If so, we can skip wrapping them
             if (
               x.every((x) => {
-                const info = getInfo(x.command, parentMode, null);
+                const info = getInfo(x.command!, parentMode);
                 if (!info || !info.variant) return false;
 
                 return variantString(x) === variant;
@@ -228,7 +228,7 @@ export class MathMode extends Mode {
                 // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
                 // In addition, the 'main' and 'math' font technically
                 // map to \mathnormal{}
-              }[variant];
+              }[variant!]!;
               console.assert(command !== undefined);
             }
 
@@ -256,7 +256,7 @@ export class MathMode extends Mode {
     );
   }
 
-  applyStyle(box: Box, style: Style): string {
+  applyStyle(box: Box, style: Style): string | null {
     // If no variant specified, don't change the font
     if (style.variant === undefined) return '';
 

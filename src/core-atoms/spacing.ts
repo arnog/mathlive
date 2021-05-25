@@ -5,7 +5,7 @@ import { convertGlueToEm } from '../core/registers-utils';
 import { Glue, Style } from '../public/core';
 
 export class SpacingAtom extends Atom {
-  private readonly width: Glue;
+  private readonly width?: Glue;
 
   constructor(command: string, style: Style, width?: Glue) {
     super('spacing', { command, style });
@@ -27,7 +27,7 @@ export class SpacingAtom extends Atom {
           '\\:': 'mediumspace',
           '\\,': 'thinspace',
           '\\!': 'negativethinspace',
-        }[this.command] ?? 'mediumspace';
+        }[this.command!] ?? 'mediumspace';
       result = new Box(null, { classes: spacingCls });
     }
 
@@ -40,7 +40,7 @@ export class SpacingAtom extends Atom {
     // \hskip and \kern which take one implicit parameter
     // \hspace and hspace* with take one *explicit* parameter
     // \quad, etc... which take no parameters.
-    let result = this.command;
+    let result = this.command ?? '';
     if (this.command === '\\hspace' || this.command === '\\hspace*') {
       if (Number.isFinite(this.width)) {
         result += `{${this.width}em'}`;
