@@ -322,7 +322,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
 
   {
     key: 'alt+ctrl+[ArrowUp]',
-    command: ['speak', 'all', { withHighlighting: true }],
+    command: ['speak', 'all', { withHighlighting: false }],
   },
   {
     key: 'alt+ctrl+[ArrowDown]',
