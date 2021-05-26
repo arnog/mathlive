@@ -22,7 +22,7 @@ import { deleteRange, getMode, isRange, ModelPrivate } from '../editor/model';
 import { applyStyle } from '../editor-model/styling';
 import { delegateKeyboardEvents, KeyboardDelegate } from '../editor/keyboard';
 import { UndoRecord, UndoManager } from '../editor/undo';
-import { updatePopoverPosition } from '../editor/popover';
+import { disposePopover, updatePopoverPosition } from '../editor/popover';
 import { localize as l10n } from '../editor/l10n';
 import {
   HAPTIC_FEEDBACK_DURATION,
@@ -54,8 +54,6 @@ import './styling';
 import {
   getCaretPoint,
   getSelectionBounds,
-  getSharedElement,
-  releaseSharedElement,
   isValidMathfield,
   on,
   off,
@@ -74,13 +72,9 @@ import {
 import { VirtualKeyboard } from '../editor/virtual-keyboard';
 
 // @ts-ignore-error
-import mathfieldStylesheet from '../../css/mathfield.less';
+import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
 // @ts-ignore-error
-import coreStylesheet from '../../css/core.less';
-// @ts-ignore-error
-import popoverStylesheet from '../../css/popover.less';
-// @ts-ignore-error
-import keystrokeCaptionStylesheet from '../../css/keystroke-caption.less';
+import CORE_STYLESHEET from '../../css/core.less';
 import { range } from '../editor-model/selection-utils';
 import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex } from '../core/parser';
@@ -94,7 +88,11 @@ import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import { canVibrate, isBrowser, isTouchCapable } from '../common/capabilities';
 import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 import { validateStyle } from './styling';
+import { hashCode } from '../common/hash-code';
+import { disposeKeystrokeCaption } from './keystroke-caption';
 
+let CORE_STYLESHEET_HASH: string | undefined = undefined;
+let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
 export class MathfieldPrivate implements Mathfield {
   model: ModelPrivate;
   macros: NormalizedMacroDictionary;
@@ -116,6 +114,8 @@ export class MathfieldPrivate implements Mathfield {
   virtualKeyboardToggle?: HTMLElement;
   ariaLiveText?: HTMLElement;
   accessibleNode?: HTMLElement;
+
+  popoverVisible: boolean;
   popover?: HTMLElement;
 
   keystrokeCaptionVisible: boolean;
@@ -262,8 +262,18 @@ export class MathfieldPrivate implements Mathfield {
 
     // Load the fonts, inject the core and mathfield stylesheets
     void loadFonts(this.options.fontsDirectory, this.options.onError);
-    this.stylesheets.push(injectStylesheet(element, coreStylesheet));
-    this.stylesheets.push(injectStylesheet(element, mathfieldStylesheet));
+    if (!CORE_STYLESHEET_HASH) {
+      CORE_STYLESHEET_HASH = hashCode(CORE_STYLESHEET).toString(36);
+    }
+    this.stylesheets.push(
+      injectStylesheet(element, CORE_STYLESHEET, CORE_STYLESHEET_HASH)
+    );
+    if (!MATHFIELD_STYLESHEET_HASH) {
+      MATHFIELD_STYLESHEET_HASH = hashCode(MATHFIELD_STYLESHEET).toString(36);
+    }
+    this.stylesheets.push(
+      injectStylesheet(element, MATHFIELD_STYLESHEET, MATHFIELD_STYLESHEET_HASH)
+    );
 
     // Additional elements used for UI.
     // They are retrieved in order a bit later, so they need to be kept in sync
@@ -377,29 +387,19 @@ export class MathfieldPrivate implements Mathfield {
     this.accessibleNode = this.element.children[iChild++]
       .children[1] as HTMLElement;
 
-    // Some panels are shared amongst instances of mathfield
-    // (there's a single instance in the document)
-    this.popover = getSharedElement('mathlive-popover-panel', 'ML__popover');
-    this.stylesheets.push(injectStylesheet(null, coreStylesheet));
-    this.stylesheets.push(injectStylesheet(null, popoverStylesheet));
-    this.keystrokeCaption = getSharedElement(
-      'mathlive-keystroke-caption-panel',
-      'ML__keystroke-caption'
-    );
-    this.stylesheets.push(injectStylesheet(null, keystrokeCaptionStylesheet));
-
-    // The keystroke caption panel and the command bar are
-    // initially hidden
+    // The keystroke caption panel and the popover are initially hidden
     this.keystrokeCaptionVisible = false;
+    this.popoverVisible = false;
+
+    // This index indicates which of the suggestions available to
+    // display in the popover panel
+    this.suggestionIndex = 0;
+
     this.keystrokeBuffer = '';
     this.keystrokeBufferStates = [];
     this.keystrokeBufferResetTimer = 0 as unknown as ReturnType<
       typeof setTimeout
     >;
-
-    // This index indicates which of the suggestions available to
-    // display in the popover panel
-    this.suggestionIndex = 0;
 
     // The input mode (text, math, command)
     // While model.getMode() represent the mode of the current selection,
@@ -804,12 +804,15 @@ export class MathfieldPrivate implements Mathfield {
   dispose(): void {
     if (!isValidMathfield(this)) return;
 
-    this.stylesheets.forEach((x) => {
-      if (x) x.release();
-    });
+    off(this.element!, 'pointerdown', this);
+    off(this.element!, 'touchstart:active mousedown', this);
+    off(this.element!, 'focus', this);
+    off(this.element!, 'blur', this);
+    off(window, 'resize', this);
 
     this.element!.innerHTML = this.getValue();
     delete this.element!.mathfield;
+
     delete this.accessibleNode;
     delete this.ariaLiveText;
     delete this.field;
@@ -817,21 +820,16 @@ export class MathfieldPrivate implements Mathfield {
     delete this.keyboardDelegate;
     this.virtualKeyboardToggle!.remove();
     delete this.virtualKeyboardToggle;
-    releaseSharedElement(this.popover);
-    delete this.popover;
-    releaseSharedElement(this.keystrokeCaption);
-    delete this.keystrokeCaption;
     if (this.virtualKeyboard) {
       this.virtualKeyboard.dispose();
       delete this.virtualKeyboard;
     }
+    disposePopover(this);
+    disposeKeystrokeCaption(this);
 
-    off(this.element!, 'pointerdown', this);
-    off(this.element!, 'touchstart:active mousedown', this);
-    off(this.element!, 'focus', this);
-    off(this.element!, 'blur', this);
-    off(window, 'resize', this);
     delete this.element;
+
+    this.stylesheets.forEach((x) => x?.release());
   }
 
   resetKeystrokeBuffer(options?: { defer: boolean }): void {

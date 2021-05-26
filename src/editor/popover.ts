@@ -14,12 +14,28 @@ import {
 
 import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
-import { getCaretPoint } from '../editor-mathfield/utils';
+import {
+  getCaretPoint,
+  getSharedElement,
+  releaseSharedElement,
+} from '../editor-mathfield/utils';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { typeset } from '../core/typeset';
 import { getDefaultRegisters } from '../core/registers';
 import { throwIfNotInBrowser } from '../common/capabilities';
+
+import { hashCode } from '../common/hash-code';
+import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
+
+// @ts-ignore-error
+import POPOVER_STYLESHEET from '../../css/popover.less';
+// @ts-ignore-error
+import CORE_STYLESHEET from '../../css/core.less';
+
+let POPOVER_STYLESHEET_HASH: string | undefined = undefined;
+let gPopoverStylesheet: Stylesheet | null = null;
+let gCoreStylesheet: Stylesheet | null = null;
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
@@ -324,7 +340,6 @@ export function showPopoverWithLatex(
     hidePopover(mf);
     return;
   }
-
   const command = latex;
   const commandMarkup = latexToMarkup(latex);
   const commandNote = getNote(command);
@@ -350,9 +365,9 @@ export function showPopoverWithLatex(
     ? '<div class="ML__popover__next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>'
     : '';
 
-  mf.popover!.innerHTML = mf.options.createHTML(template);
+  mf.popover = createPopover(mf, template);
 
-  let element = mf.popover!.querySelectorAll<HTMLElement>(
+  let element = mf.popover.querySelectorAll<HTMLElement>(
     '.ML__popover__content'
   );
   if (element && element.length > 0) {
@@ -361,7 +376,7 @@ export function showPopoverWithLatex(
     });
   }
 
-  element = mf.popover!.querySelectorAll('.ML__popover__prev-shortcut');
+  element = mf.popover.querySelectorAll('.ML__popover__prev-shortcut');
   if (element && element.length > 0) {
     attachButtonHandlers(
       (command) => mf.executeCommand(command),
@@ -370,7 +385,7 @@ export function showPopoverWithLatex(
     );
   }
 
-  element = mf.popover!.querySelectorAll('.ML__popover__next-shortcut');
+  element = mf.popover.querySelectorAll('.ML__popover__next-shortcut');
   if (element && element.length > 0) {
     attachButtonHandlers(
       (command) => mf.executeCommand(command),
@@ -382,8 +397,10 @@ export function showPopoverWithLatex(
   setTimeout(() => {
     const caretPoint = getCaretPoint(mf.field!);
     if (caretPoint) setPopoverPosition(mf, caretPoint);
-
-    mf.popover!.classList.add('is-visible');
+    if (mf.popover) {
+      mf.popover.classList.add('is-visible');
+      mf.popoverVisible = true;
+    }
   }, 32);
 }
 
@@ -396,8 +413,9 @@ export function updatePopoverPosition(
   // could have gotten destroyed
   if (!mf.element || mf.element.mathfield !== mf) return;
 
+  if (!mf.popover || !mf.popoverVisible) return;
+
   // If the popover pane is visible...
-  if (!mf.popover!.classList.contains('is-visible')) return;
   if (options?.deferred) {
     // Call ourselves again later, typically after the
     // rendering/layout of the DOM has been completed
@@ -420,6 +438,9 @@ function setPopoverPosition(
   position: { x: number; y: number; height: number }
 ): void {
   throwIfNotInBrowser();
+
+  if (!mf.popover || !mf.popoverVisible) return;
+
   // Get screen width & height (browser compatibility)
   const screenHeight =
     window.innerHeight ||
@@ -437,35 +458,69 @@ function setPopoverPosition(
     window.innerHeight - document.documentElement.clientHeight;
   const virtualkeyboardHeight = mf.virtualKeyboard!.height;
   // Prevent screen overflow horizontal.
-  if (position.x + mf.popover!.offsetWidth / 2 > screenWidth - scrollbarWidth) {
-    mf.popover!.style.left = `${
-      screenWidth - mf.popover!.offsetWidth - scrollbarWidth
+  if (position.x + mf.popover.offsetWidth / 2 > screenWidth - scrollbarWidth) {
+    mf.popover.style.left = `${
+      screenWidth - mf.popover.offsetWidth - scrollbarWidth
     }px`;
-  } else if (position.x - mf.popover!.offsetWidth / 2 < 0) {
-    mf.popover!.style.left = '0';
+  } else if (position.x - mf.popover.offsetWidth / 2 < 0) {
+    mf.popover.style.left = '0';
   } else {
-    mf.popover!.style.left = `${position.x - mf.popover!.offsetWidth / 2}px`;
+    mf.popover.style.left = `${position.x - mf.popover.offsetWidth / 2}px`;
   }
 
   // And position the popover right below or above the caret
   if (
-    position.y + mf.popover!.offsetHeight + 5 >
+    position.y + mf.popover.offsetHeight + 5 >
     screenHeight - scrollbarHeight - virtualkeyboardHeight
   ) {
-    mf.popover!.classList.add('ML__popover--reverse-direction');
-    mf.popover!.style.top = `${
-      position.y - position.height - mf.popover!.offsetHeight - 5
+    mf.popover.classList.add('ML__popover--reverse-direction');
+    mf.popover.style.top = `${
+      position.y - position.height - mf.popover.offsetHeight - 5
     }px`;
   } else {
-    mf.popover!.classList.remove('ML__popover--reverse-direction');
-    mf.popover!.style.top = `${position.y + 5}px`;
+    mf.popover.classList.remove('ML__popover--reverse-direction');
+    mf.popover.style.top = `${position.y + 5}px`;
   }
 }
 
 export function hidePopover(mf: MathfieldPrivate): void {
   mf.suggestionIndex = 0;
+  mf.popoverVisible = false;
   if (mf.popover) {
     mf.popover.classList.remove('is-visible');
     mf.popover.innerHTML = '';
   }
+}
+
+export function createPopover(mf: MathfieldPrivate, html: string): HTMLElement {
+  if (mf.popover) {
+    mf.popover.innerHTML = mf.options.createHTML(html);
+    return mf.popover;
+  }
+
+  mf.popover = getSharedElement('mathlive-popover-panel');
+  if (POPOVER_STYLESHEET_HASH === undefined) {
+    POPOVER_STYLESHEET_HASH = hashCode(POPOVER_STYLESHEET).toString(36);
+  }
+  gPopoverStylesheet = injectStylesheet(
+    null,
+    POPOVER_STYLESHEET,
+    POPOVER_STYLESHEET_HASH
+  );
+  gCoreStylesheet = injectStylesheet(
+    null,
+    CORE_STYLESHEET,
+    hashCode(CORE_STYLESHEET).toString(36)
+  );
+
+  mf.popover.innerHTML = mf.options.createHTML(html);
+
+  return mf.popover;
+}
+
+export function disposePopover(mf: MathfieldPrivate): void {
+  releaseSharedElement(mf.popover);
+  if (gPopoverStylesheet) gPopoverStylesheet.release();
+  if (gCoreStylesheet) gCoreStylesheet.release();
+  delete mf.popover;
 }

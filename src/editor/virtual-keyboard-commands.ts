@@ -240,7 +240,6 @@ function toggleVirtualKeyboard(
       keyboard?.element?.classList.add('is-visible');
     }, 1);
   } else if (keyboard.element) {
-    keyboard.element.classList.remove('is-visible');
     keyboard.element.dispatchEvent(
       new Event('virtual-keyboard-toggle', {
         bubbles: true,
@@ -249,8 +248,7 @@ function toggleVirtualKeyboard(
       })
     );
     // Remove the element from the DOM
-    keyboard.element.remove();
-    keyboard.element = undefined;
+    keyboard.dispose();
   }
 
   keyboard.stateChanged();

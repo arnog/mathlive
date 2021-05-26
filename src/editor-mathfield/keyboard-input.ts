@@ -9,10 +9,7 @@ import {
   getInlineShortcutsStartingWith,
   getInlineShortcut,
 } from '../editor/shortcuts';
-import {
-  getCommandForKeybinding,
-  getKeybindingMarkup,
-} from '../editor/keybindings';
+import { getCommandForKeybinding } from '../editor/keybindings';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate } from '../editor/commands';
 import { updateAutocomplete } from './autocomplete';
@@ -34,36 +31,7 @@ import { insertSmartFence } from './mode-editor-math';
 import { ModeEditor } from './mode-editor';
 import { effectiveMode } from '../editor/options';
 import { canVibrate } from '../common/capabilities';
-
-export function showKeystroke(
-  mathfield: MathfieldPrivate,
-  keystroke: string
-): void {
-  if (mathfield.options.readOnly) return;
-
-  const vb = mathfield.keystrokeCaption;
-  if (vb && mathfield.keystrokeCaptionVisible) {
-    const bounds = mathfield.element!.getBoundingClientRect();
-    vb.style.left = `${bounds.left}px`;
-    vb.style.top = `${bounds.top - 64}px`;
-    vb.innerHTML = mathfield.options.createHTML(
-      '<span>' +
-        (getKeybindingMarkup(keystroke) || keystroke) +
-        '</span>' +
-        vb.innerHTML
-    );
-    vb.style.visibility = 'visible';
-    setTimeout(() => {
-      if (vb.childNodes.length > 0) {
-        vb.childNodes[vb.childNodes.length - 1].remove();
-      }
-
-      if (vb.childNodes.length === 0) {
-        vb.style.visibility = 'hidden';
-      }
-    }, 3000);
-  }
-}
+import { showKeystroke } from './keystroke-caption';
 
 /**
  * @param evt - An Event corresponding to the keystroke.

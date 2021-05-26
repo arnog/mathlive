@@ -9,6 +9,7 @@ import { inject as injectStylesheet } from '../common/stylesheet';
 import coreStylesheet from '../../css/core.less';
 import { parseMathString } from '../editor/parse-math-string';
 import { throwIfNotInBrowser } from '../common/capabilities';
+import { hashCode } from '../common/hash-code';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   /** A function that will convert any LaTeX found to
@@ -598,7 +599,11 @@ export function autoRenderMathInElement(
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
     void loadFonts(options.fontsDirectory);
-    injectStylesheet(null, coreStylesheet);
+    injectStylesheet(
+      null,
+      coreStylesheet,
+      hashCode(coreStylesheet).toString(36)
+    );
 
     scanElement(element, options);
   } catch (error: unknown) {

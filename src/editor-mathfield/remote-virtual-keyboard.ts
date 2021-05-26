@@ -65,6 +65,8 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     // options should be set on it
   }
 
+  public create(): void {}
+
   public dispose(): void {
     this.disable();
   }

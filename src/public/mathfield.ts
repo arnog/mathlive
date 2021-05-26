@@ -159,6 +159,7 @@ export type Selection = {
 export interface VirtualKeyboardInterface {
   visible: boolean;
   height: number;
+  create(): void;
   dispose(): void;
   executeCommand(command: string | [string, ...any[]]): boolean;
   focusMathfield(): void;

@@ -3,6 +3,7 @@ import { register as registerCommand } from '../editor/commands';
 import { complete } from './autocomplete';
 import type { MathfieldPrivate } from './mathfield-private';
 import { onTypedText } from './keyboard-input';
+import { toggleKeystrokeCaption } from './keystroke-caption';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
@@ -33,15 +34,7 @@ registerCommand({
     mathfield.switchMode('latex');
     return true;
   },
-  toggleKeystrokeCaption: (mathfield: MathfieldPrivate) => {
-    mathfield.keystrokeCaptionVisible = !mathfield.keystrokeCaptionVisible;
-    mathfield.keystrokeCaption!.innerHTML = '';
-    if (!mathfield.keystrokeCaptionVisible) {
-      mathfield.keystrokeCaption!.style.visibility = 'hidden';
-    }
-
-    return false;
-  },
+  toggleKeystrokeCaption: toggleKeystrokeCaption,
   switchMode: (mathfield: MathfieldPrivate, mode: ParseMode) => {
     mathfield.switchMode(mode);
     return true;

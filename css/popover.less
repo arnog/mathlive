@@ -3,7 +3,7 @@
   sans-serif;
 
 /* The element that display info while in latex mode */
-.ML__popover {
+#mathlive-popover-panel {
   visibility: hidden;
   min-width: 160px;
   background-color: rgba(97, 97, 97, 0.95);
@@ -47,7 +47,7 @@
   }
 }
 
-div.ML__popover.is-visible {
+#mathlive-popover-panel.is-visible {
   visibility: inherit;
   animation: ML__fade-in cubic-bezier(0, 0, 0.2, 1) 0.15s;
 }
@@ -90,7 +90,7 @@ div.ML__popover.is-visible {
   }
 }
 
-/* The command inside a popover (inside a ML__popover-content) */
+/* The command inside a popover (inside a #mathlive-popover-panel) */
 .ML__popover__command {
   font-size: 1.6rem;
   font-family: KaTeX_Main;

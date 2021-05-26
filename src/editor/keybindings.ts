@@ -120,8 +120,12 @@ export function getKeybindingMarkup(keystroke: string): string {
       result += '<span class="ML__shortcut-join">+</span>';
     }
 
-    if (segment.startsWith('Key')) {
+    if (segment.startsWith('[Key')) {
+      result += segment.slice(4, 5);
+    } else if (segment.startsWith('Key')) {
       result += segment.slice(3, 4);
+    } else if (segment.startsWith('[Digit')) {
+      result += segment.slice(6, 7);
     } else if (segment.startsWith('Digit')) {
       result += segment.slice(5, 6);
     } else {
@@ -149,6 +153,7 @@ export function getKeybindingMarkup(keystroke: string): string {
           '[equal]': '=',
           '[minus]': '-',
           '[comma]': ',',
+          '[slash]': '/',
           '[backslash]': '\\',
           '[bracketleft]': '[',
           '[bracketright]': ']',

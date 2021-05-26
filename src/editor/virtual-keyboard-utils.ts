@@ -5,12 +5,12 @@ import { BACKGROUND_COLORS, FOREGROUND_COLORS } from '../core/color';
 import { l10n as l10nOptions, localize as l10n } from './l10n';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
 
-import { inject as injectStylesheet } from '../common/stylesheet';
+import { inject as injectStylesheet, Stylesheet } from '../common/stylesheet';
 
 // @ts-ignore-error
-import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
+import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
 // @ts-ignore-error
-import coreStylesheet from '../../css/core.less';
+import CORE_STYLESHEET from '../../css/core.less';
 import {
   CoreOptions,
   VirtualKeyboardDefinition,
@@ -30,8 +30,11 @@ import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { typeset } from '../core/typeset';
 import { getDefaultRegisters } from '../core/registers';
 import { throwIfNotInBrowser } from '../common/capabilities';
+import { hashCode } from '../common/hash-code';
 
 let gScrim: Scrim | null = null;
+
+let VIRTUAL_KEYBOARD_STYLESHEET_HASH: string | undefined = undefined;
 
 export function showAlternateKeys(
   keyboard: VirtualKeyboard,
@@ -192,6 +195,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   private readonly _focus?: () => void;
   private readonly _blur?: () => void;
 
+  coreStylesheet: Stylesheet | null;
+  virtualKeyboardStylesheet: Stylesheet | null;
+
   constructor(
     options: VirtualKeyboardOptions & CoreOptions,
     alt?: {
@@ -205,6 +211,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this._executeCommand = alt?.executeCommand;
     this._focus = alt?.focus;
     this._blur = alt?.blur;
+    this.coreStylesheet = null;
+    this.virtualKeyboardStylesheet = null;
+
     // Listen to know when the mouse has been released without being
     // captured to remove the alternate keys panel and the shifted state of the
     // keyboard.
@@ -299,13 +308,41 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     return this._executeCommand?.(command) ?? false;
   }
 
+  create(): void {
+    if (!VIRTUAL_KEYBOARD_STYLESHEET_HASH) {
+      VIRTUAL_KEYBOARD_STYLESHEET_HASH = hashCode(
+        VIRTUAL_KEYBOARD_STYLESHEET
+      ).toString(36);
+    }
+    this.virtualKeyboardStylesheet = this.virtualKeyboardStylesheet =
+      injectStylesheet(
+        null,
+        VIRTUAL_KEYBOARD_STYLESHEET,
+        VIRTUAL_KEYBOARD_STYLESHEET_HASH
+      );
+
+    this.coreStylesheet = injectStylesheet(
+      null,
+      CORE_STYLESHEET,
+      hashCode(CORE_STYLESHEET).toString(36)
+    );
+
+    void loadFonts(this.options.fontsDirectory);
+  }
+
   dispose(): void {
-    hideAlternateKeys();
-    this.visible = false;
     window.removeEventListener('mouseup', this);
     window.removeEventListener('blur', this);
     window.removeEventListener('touchend', this);
     window.removeEventListener('touchcancel', this);
+
+    hideAlternateKeys();
+    this.visible = false;
+
+    this.coreStylesheet?.release();
+    this.coreStylesheet = null;
+    this.virtualKeyboardStylesheet?.release();
+    this.virtualKeyboardStylesheet = null;
 
     this._element?.remove();
     this._element = undefined;
@@ -1713,10 +1750,7 @@ export function makeKeyboardElement(
 
   let markup = svgIcons;
 
-  injectStylesheet(null, virtualKeyboardStylesheet);
-
-  void loadFonts(keyboard.options.fontsDirectory);
-  injectStylesheet(null, coreStylesheet);
+  keyboard.create();
 
   // Auto-populate the ALT_KEYS table
   ALT_KEYS_BASE['foreground-color'] = [];

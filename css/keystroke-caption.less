@@ -5,7 +5,7 @@
 @shadow1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 
 /* The element that displays the keys as the user type them */
-.ML__keystroke-caption {
+#mathlive-keystroke-caption-panel {
   visibility: hidden;
   /*min-width: 160px;*/
   /*background-color: rgba(97, 97, 200, .95);*/
@@ -19,7 +19,7 @@
   z-index: 1;
 
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
   justify-content: center;
 
   // For keystroke caption
@@ -28,19 +28,19 @@
   --keystroke-border: #f7f7f7;
 }
 @media (prefers-color-scheme: dark) {
-  body:not([theme='light']) .ML__keystroke-caption {
+  body:not([theme='light']) #mathlive-keystroke-caption-panel {
     --keystroke: hsl(var(--hue, 212), 50%, 30%);
     --on-keystroke: hsl(0, 0%, 98%);
     --keystroke-border: hsl(var(--hue, 212), 50%, 25%);
   }
 }
 
-body[theme='dark'] .ML__keystroke-caption {
+body[theme='dark'] #mathlive-keystroke-caption-panel {
   --keystroke: hsl(var(--hue, 212), 50%, 30%);
   --on-keystroke: hsl(0, 0%, 98%);
   --keystroke-border: hsl(var(--hue, 212), 50%, 25%);
 }
-.ML__keystroke-caption > span {
+#mathlive-keystroke-caption-panel > span {
   min-width: 14px;
   /*height: 8px;*/
   margin: 0 8px 0 0;

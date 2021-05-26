@@ -59,7 +59,7 @@ export function off(
   }
 }
 
-export function getSharedElement(id: string, cls: string): HTMLElement {
+export function getSharedElement(id: string): HTMLElement {
   throwIfNotInBrowser();
 
   let result = document.getElementById(id);
@@ -71,7 +71,6 @@ export function getSharedElement(id: string, cls: string): HTMLElement {
     result = document.createElement('div');
     result.setAttribute('aria-hidden', 'true');
     result.dataset.refcount = '1';
-    result.className = cls;
     result.id = id;
     document.body.append(result);
   }

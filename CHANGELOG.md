@@ -32,6 +32,10 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 ### Improvements
 
 - The `SpeechScope` argument of the `speak` command is now optional.
+- Display the keys in the keystroke caption panel (alt/option+shift+K) in
+  chronologically order from left to right.
+- Do not inject stylesheets or placeholder elements for the popover, keystroke
+  caption or virtual keyboard until actually needed.
 
 ### Bug Fixes
 
