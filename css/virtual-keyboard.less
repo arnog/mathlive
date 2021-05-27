@@ -31,8 +31,12 @@
   --keycap-modifier-border-bottom: #989da6;
 
   --keyboard-alternate-background: #fff;
-  --keyboard-alternate-background-active: #e5e5e5;
-  --keyboard-alternate-text: #000;
+  --keyboard-alternate-background-active: var(
+    --primary,
+    hsl(var(--hue, 212), 40%, 50%)
+  );
+  --keyboard-alternate-text: var(--keycap-text, #000);
+  --keyboard-alternate-text-active: #fff;
 
   --keyboard-alternate-key-length: 70px;
   --keyboard-alternate-key-font-size: 30px;
@@ -181,9 +185,9 @@
         &:hover,
         &.is-pressed,
         &.is-active {
-          box-shadow: @shadow3;
+          // box-shadow: @shadow3;
           background: var(--keyboard-alternate-background-active);
-          color: var(--keyboard-text-active);
+          color: var(--keyboard-alternate-text-active);
         }
         &.small {
           font-size: var(--keycap-small-font-size, 16px);
@@ -674,8 +678,6 @@
     --keycap-modifier-border-bottom: hsl(var(--hue, 212), 35%, 42%);
 
     --keyboard-alternate-background: hsl(var(--hue, 212), 19%, 38%);
-    --keyboard-alternate-background-active: hsl(var(--hue, 212), 35%, 42%);
-    --keyboard-alternate-text: hsl(0, 0%, 82%);
   }
 }
 /* Same as the media query, but with a class */
@@ -698,8 +700,6 @@ body[theme='dark'] .ML__keyboard {
   --keycap-modifier-border-bottom: hsl(var(--hue, 212), 35%, 42%);
 
   --keyboard-alternate-background: hsl(var(--hue, 212), 19%, 38%);
-  --keyboard-alternate-background-active: hsl(var(--hue, 212), 35%, 42%);
-  --keyboard-alternate-text: hsl(0, 0%, 82%);
 }
 
 /* The 'material' theme for the virtual keyboard */
