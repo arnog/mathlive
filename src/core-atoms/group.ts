@@ -85,13 +85,13 @@ export class GroupAtom extends Atom {
     }
 
     if (this.htmlData) {
-      result = `\\htmlData{${this.htmlData}}${result}`;
+      result = `\\htmlData{${this.htmlData}}{${result}}`;
     }
     if (this.customClass) {
-      result = `\\class{${this.customClass}}${result}`;
+      result = `\\class{${this.customClass}}{${result}}`;
     }
     if (this.cssId) {
-      result = `\\cssId{${this.cssId}}${result}`;
+      result = `\\cssId{${this.cssId}}{${result}}`;
     }
 
     return result;
