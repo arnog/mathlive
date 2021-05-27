@@ -281,7 +281,7 @@ export interface VirtualKeyboardKeycap {
   /**
    * The HTML markup displayed for the keycap
    */
-  label?: string;
+  label: string;
   /**
    * Command to perform when the keycap is pressed
    */
@@ -290,17 +290,17 @@ export interface VirtualKeyboardKeycap {
    * Latex fragment to insert when the keycap is pressed
    * (ignored if command is specified)
    */
-  insert?: string;
+  insert: string;
   /**
    * Label of the key as a Latex expression, also the Latex
    * inserted if no `command` or `insert` property is specified.
    */
-  latex?: string;
+  latex: string;
   /**
    * Key to insert when keycap is pressed
    * (ignored if `command`, `insert` or `latex` is specified)
    */
-  key?: string;
+  key: string;
 
   /**
    * CSS classes to apply to the keycap.
@@ -317,26 +317,43 @@ export interface VirtualKeyboardKeycap {
    * - `bottom`, `left`, `right`: alignment of the label
    *
    */
-  class?: string;
+  class: string;
+
+  /**
+   * HTML markup to represent the keycap.
+   *
+   * This property is only useful when using a custom keycap shape or appearance.
+   * Usually, setting the `label` property is sufficient.
+   */
+  content: string;
 
   /**
    * Markup displayed with the key label (for example to explain what the
    * symbol of the key is)
    */
-  aside?: string;
+  aside: string;
 
   /**
-   * A named set of alternate keys to display when there is a long press on the key.
+   * A set of keycap variants displayed on a long press
+   *
+   * ```js
+   * variants: [
+   *  '\\alpha',    // Same label as value inserted
+   *  { latex: '\\beta', label: 'beta' }
+   * ]
+   *
+   * ```
    */
-  altKeys?: string;
+  variants: (string | Partial<VirtualKeyboardKeycap>)[];
+
   /**
    * Markup for the label of the key when the shift key is pressed
    */
-  shifted?: string;
+  shifted: string;
   /**
    * Command to perform when the shifted key is pressed
    */
-  shiftedCommand?: Selector | [Selector, ...any[]];
+  shiftedCommand: Selector | [Selector, ...any[]];
 }
 
 export interface VirtualKeyboardDefinition {
@@ -350,13 +367,13 @@ export interface VirtualKeyboardDefinition {
 
 export interface VirtualKeyboardLayer {
   /** The CSS stylesheet associated with this layer */
-  styles?: string;
+  styles: string;
   /** A CSS class name to customize the appearance of the background of the layer */
-  backdrop?: string;
+  backdrop: string;
   /** A CSS class name to customize the appearance of the container the layer */
-  container?: string;
+  container: string;
   /** The rows of keycaps in this layer */
-  rows?: VirtualKeyboardKeycap[][];
+  rows: Partial<VirtualKeyboardKeycap>[][];
 }
 
 export type VirtualKeyboardToolbarOptions = 'none' | 'default';
@@ -397,7 +414,10 @@ export type VirtualKeyboardOptions = {
    *
    *
    */
-  customVirtualKeyboardLayers: Record<string, string | VirtualKeyboardLayer>;
+  customVirtualKeyboardLayers: Record<
+    string,
+    string | Partial<VirtualKeyboardLayer>
+  >;
   customVirtualKeyboards: Record<string, VirtualKeyboardDefinition>;
   /**
    * The visual theme of the virtual keyboard.

@@ -2,6 +2,7 @@ import { Keys } from '../public/types-utils';
 
 import { Selector } from '../public/commands';
 import { VirtualKeyboardInterface } from '../public/mathfield';
+import { VirtualKeyboard } from './virtual-keyboard-utils';
 
 export type ExecuteCommandFunction = (
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
@@ -10,6 +11,10 @@ export type ExecuteCommandFunction = (
 // Commands return true if they resulted in a dirty state
 // @revisit: maybe a command attribute instead?
 export interface CommandsPrivate {
+  showAlternateKeys: (
+    keyboard: VirtualKeyboard,
+    altKeysetId: string
+  ) => boolean;
   hideAlternateKeys: (keyboard: VirtualKeyboardInterface) => boolean;
   /**
    * The command invoked when an alternate key is pressed.
@@ -22,6 +27,7 @@ export interface CommandsPrivate {
   ) => boolean;
 
   switchKeyboardLayer: (keyboard: VirtualKeyboardInterface, layer) => boolean;
+  shiftKeyboardLayer: (keyboard: VirtualKeyboardInterface) => boolean;
   unshiftKeyboardLayer: (keyboard: VirtualKeyboardInterface) => boolean;
   insertAndUnshiftKeyboardLayer: (
     keyboard: VirtualKeyboardInterface,

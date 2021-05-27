@@ -1,5 +1,21 @@
 import { on } from './utils';
-import { ExecuteCommandFunction } from '../editor/commands-definitions';
+import {
+  ExecuteCommandFunction,
+  SelectorPrivate,
+} from '../editor/commands-definitions';
+
+export type ButtonHandlers =
+  | SelectorPrivate
+  | [SelectorPrivate, ...any[]]
+  | {
+      default: SelectorPrivate | [SelectorPrivate, ...any[]];
+      pressed?: SelectorPrivate | [SelectorPrivate, ...any[]];
+      alt?: SelectorPrivate | [SelectorPrivate, ...any[]];
+      altshift?: SelectorPrivate | [SelectorPrivate, ...any[]];
+      shift?: SelectorPrivate | [SelectorPrivate, ...any[]];
+      pressAndHoldStart?: SelectorPrivate | [SelectorPrivate, ...any[]];
+      pressAndHoldEnd?: SelectorPrivate | [SelectorPrivate, ...any[]];
+    };
 
 /**
  * Attach event handlers to an element so that it will react by executing
@@ -29,19 +45,12 @@ import { ExecuteCommandFunction } from '../editor/commands-definitions';
 export function attachButtonHandlers(
   executeCommand: ExecuteCommandFunction,
   element: HTMLElement,
-  command:
-    | string
-    | {
-        default: string | any[];
-        pressed?: string | any[];
-        alt?: string | any[];
-        altshift?: string | any[];
-        shift?: string | any[];
-        pressAndHoldStart?: string | any[];
-        pressAndHoldEnd?: string | any[];
-      }
+  command: ButtonHandlers
 ): void {
-  if (typeof command === 'object' && (command.default || command.pressed)) {
+  if (
+    typeof command === 'object' &&
+    ('default' in command || 'pressed' in command)
+  ) {
     // Attach the default (no modifiers pressed) command to the element
     if (command.default) {
       element.dataset.command = JSON.stringify(command.default);

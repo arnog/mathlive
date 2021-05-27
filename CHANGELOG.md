@@ -25,9 +25,10 @@ more.
 
 Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 
-### Architecture
+### New Features
 
-- The library is now null-safe, i.e. it compiles with `strictNullChecks`.
+- **#952** It is now possible to define variants with keycaps in a custom
+  keyboard. These variants are displayed with a long press on the keycap.
 
 ### Improvements
 
@@ -36,6 +37,10 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
   chronologically order from left to right.
 - Do not inject stylesheets or placeholder elements for the popover, keystroke
   caption or virtual keyboard until actually needed.
+
+### Architecture
+
+- The library is now null-safe, i.e. it compiles with `strictNullChecks`.
 
 ### Bug Fixes
 

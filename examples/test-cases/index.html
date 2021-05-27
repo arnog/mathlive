@@ -208,10 +208,10 @@
       import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
       renderMathInDocument({ 
         renderAccessibleContent: false,
-        TeX: { 
-          delimiters: { display: [ ['$$', '$$'] ] },
-          processEnvironments : false 
-        },
+        // TeX: { 
+        //   delimiters: { inline: display: [ ['$$', '$$'] ] },
+        //   processEnvironments : false 
+        // },
         asciiMath: null,
       });
 
@@ -374,7 +374,10 @@
         styles: "",
         rows: [
           [
-            { label: "7", key: "7" },
+            { label: "7", key: "7", variants: [
+              "\\alpha", "\\beta"
+              ]
+             },
             { label: "8", key: "8" },
             { label: "9", key: "9" },
             { label: "+", key: "+" },
@@ -467,9 +470,9 @@
                   value: '\\in',
               },
           },
-          // "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
-          // "customVirtualKeyboards": KEYBOARDS,
-          // "virtualKeyboards": "basic greek secondary geometry",
+          "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
+          "customVirtualKeyboards": KEYBOARDS,
+          "virtualKeyboards": "basic greek secondary geometry",
           // onBlur: () => { console.log('blurring') },
           onKeystroke: (mf, keystroke, ev) => {
             if (keystroke === 'alt+[KeyS]') {
