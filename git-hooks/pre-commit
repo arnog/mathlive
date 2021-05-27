@@ -2,11 +2,18 @@
 
 set -e  # exit immediately on error
 
-export DOT="\033[32m ● \033[0m"
-export CHECK="\033[32m ✔ \033[0m"
-export LINECLEAR="\033[1G\033[2K" # position to column 1; erase whole line
-export ERROR="\033[31m ❌ ERROR \033[0m"
-export RESET="\033[0m"
+# export DOT="\033[32m ● \033[0m"
+# export CHECK="\033[32m ✔ \033[0m"
+# export LINECLEAR="\033[1G\033[2K" # position to column 1; erase whole line
+# export ERROR="\033[31m ❌ ERROR \033[0m"
+# export RESET="\033[0m"
+
+# The hook is usually executed in environment that doesn't support ANSI codes
+export DOT="●"
+export CHECK="✔"
+export LINECLEAR="" # position to column 1; erase whole line
+export ERROR="❌ ERROR"
+export RESET=""
 
 
 git config advice.addEmptyPathspec false
