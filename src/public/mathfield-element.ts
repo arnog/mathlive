@@ -129,7 +129,7 @@ declare global {
    * Map the custom event names to types
    * @internal
    */
-  interface DocumentEventMap {
+  interface HTMLElementEventMap {
     ['math-error']: CustomEvent<MathErrorEvent>;
     ['keystroke']: CustomEvent<KeystrokeEvent>;
     ['focus-out']: CustomEvent<FocusOutEvent>;
@@ -683,6 +683,21 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (options) {
       this.setOptions(options);
     }
+  }
+
+  addEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: (this: MathfieldElement, ev: HTMLElementEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions
+  ): void {
+    return super.addEventListener(type, listener, options);
+  }
+  removeEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: (this: MathfieldElement, ev: HTMLElementEventMap[K]) => any,
+    options?: boolean | EventListenerOptions
+  ): void {
+    super.removeEventListener(type, listener, options);
   }
 
   get mode(): ParseMode {
