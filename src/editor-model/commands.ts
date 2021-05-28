@@ -463,7 +463,7 @@ function moveUpward(
     //     } else {
     //         move(model, 'backward', options);
     //     }
-  } else if (!model.at(model.position).parent?.parent) {
+  } else {
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result = model.hooks?.moveOut(model, 'upward');
@@ -519,7 +519,7 @@ function moveDownward(
     //     } else {
     //         move(model, 'forward', options);
     //     }
-  } else if (!model.at(model.position).parent?.parent) {
+  } else {
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result = model.hooks?.moveOut(model, 'downward');

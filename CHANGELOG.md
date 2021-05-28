@@ -3,7 +3,7 @@
 ### Breaking Changes
 
 **#500** MathJSON support. The legacy MASTON/JSON format has been removed.  
- The new MathJSON format is now integrated into the library 🚀 🎆 🥳
+ The MathJSON format is now integrated into Mathlive 🚀 🎆 🥳
 
 To get the MathJSON representation of a formula, use `mf.getValue('math-json')`.
 
@@ -29,6 +29,14 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 
 - **#952** It is now possible to define variants with keycaps in a custom
   keyboard. These variants are displayed with a long press on the keycap.
+- **#955** When navigating with the arrow keys but there is nowhere to go, a
+  `move-out` event is dispatched (or the lower-level `onMoveOutOf` hook is
+  invoked, but using the event is recommended). This is an opportunity to handle
+  this situation, for example by changing the focus to another element. To get
+  the default behavior, which is to play a "plonk" sound, do not cancel the
+  event. To prevent the "plonk" sound from playing, use `evt.preventDefault()`.
+  Note tha previously a `focus-out` event was dispatched in this case, but since
+  the focus is actually not changed by default, this was incorrect.
 
 ### Improvements
 
@@ -40,11 +48,14 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 
 ### Architecture
 
-- The library is now null-safe, i.e. it compiles with `strictNullChecks`.
+- The library is now null-safe, i.e. it compiles with the Typescript flag
+  `strictNullChecks`. This will ensure that the public Typescript declaration
+  file also compile with `strictNullChecks` if you make use of it in your own
+  project.
 
 ### Bug Fixes
 
-- **#948** The Typescript declaration of `set plonkSound` failed when compiled
+- **#948** The Typescript declaration of `set plonkSound()` failed when compiled
   with `strictNullChecks`.
 - When using a mathfield as a web component, the `speak` command would be
   inoperational.

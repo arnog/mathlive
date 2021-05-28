@@ -537,10 +537,9 @@ export interface MathfieldHooks {
    * - <var>direction</var> indicates the direction of the navigation, either
    * `"forward"` or `"backward"` or `"upward"` or `"downward"`.
    *
-   * Return `false` to prevent the move, `true` to wrap around to the
-   * start of the field.
+   * Return `false` if the move has been handled by the hook.
    *
-   * By default, the insertion point will wrap around.
+   * Return `true` for the default behavior, which is playing a "plonk" sound.
    */
   onMoveOutOf: (
     sender: Mathfield,

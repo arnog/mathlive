@@ -84,12 +84,20 @@ export type KeystrokeEvent = {
 
 /**
  * The `focus-out` event signals that the mathfield has lost focus through keyboard
- * navigation with arrow keys or the tab key.
+ * navigation with the **tab** key.
  *
- * The event `detail.direction` property indicates the direction the cursor
- * was moving which can be useful to decide which element to focus next.
+ * The event `detail.direction` property indicates if **tab**
+ * (`direction === "forward"`) or **shift+tab** (`direction === "backward") was
+ * pressed which can be useful to decide which element to focus next.
  *
- * The event is cancelable, which will prevent the field from losing focus.
+ * If the event is canceled by calling `ev.preventDefault()`, no change of
+ * focus will occur (but you can manually change the focus in your event
+ * handler: this gives you an opportunity to override the default behavior
+ * and selects which element should get the focus, or to prevent from a change
+ * of focus altogether).
+ *
+ * If the event is not canceled, the default behavior will take place, which is
+ * to change the focus to the next/previous focusable element.
  *
  * ```javascript
  * mfe.addEventListener('focus-out', (ev) => {
@@ -98,6 +106,21 @@ export type KeystrokeEvent = {
  * ```
  */
 export type FocusOutEvent = {
+  direction: 'forward' | 'backward';
+};
+
+/**
+ * The `move-out` event signals that the user pressed an **arrow** key but
+ * there was no navigation possible inside the mathfield.
+ *
+ * This event provides an opportunity to handle this situation, for example
+ * by focusing an element adjacent to the mathfield.
+ *
+ * If the event is canceled (i.e. `evt.preventDefault()` is called inside your
+ * event handler), the default behavior is to play a "plonk" sound.
+ *
+ */
+export type MoveOutEvent = {
   direction: 'forward' | 'backward' | 'upward' | 'downward';
 };
 
@@ -110,6 +133,7 @@ declare global {
     ['math-error']: CustomEvent<MathErrorEvent>;
     ['keystroke']: CustomEvent<KeystrokeEvent>;
     ['focus-out']: CustomEvent<FocusOutEvent>;
+    ['move-out']: CustomEvent<MoveOutEvent>;
   }
 }
 
@@ -511,7 +535,8 @@ export interface MathfieldElementAttributes {
  * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
- * | `focus-out` | The user is navigating out of the mathfield, typically using the keyboard<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
+ * | `focus-out` | The user is navigating out of the mathfield, typically using the **tab** key<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
+ * | `move-out` | The user has pressed an **arrow** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
  * | `math-error` | A parsing or configuration error happened <br> `detail: ErrorListener<ParserErrorCode | MathfieldErrorCode>` |
  * | `keystroke` | The user typed a keystroke with a physical keyboard <br> `detail: {keystroke: string, event: KeyboardEvent}` |
  * | `mount` | The element has been attached to the DOM |
@@ -1105,7 +1130,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
           direction: 'forward' | 'backward' | 'upward' | 'downward'
         ): boolean => {
           return this.dispatchEvent(
-            new CustomEvent<FocusOutEvent>('focus-out', {
+            new CustomEvent<MoveOutEvent>('move-out', {
               detail: { direction },
               cancelable: true,
               bubbles: true,
