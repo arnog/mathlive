@@ -59,6 +59,10 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
   with `strictNullChecks`.
 - When using a mathfield as a web component, the `speak` command would be
   inoperational.
+- In Chrome/Blink, when a mathfield was in a `contentEditable` block, inserting
+  a line before the component would make the component crash. Now the component
+  is correctly disconnected, then reconnected and preserve its state across the
+  disconnection.
 
 ## 0.67.0 (2021-05-21)
 

@@ -116,6 +116,18 @@
 <body>
     <header><h1>MathLive Testing Playground</h1></header>
     <main class='centered' tabindex="0">
+
+      <div contenteditable="true">
+
+        <p style="color: rgb(0, 0, 0);">This is plain text.
+        <span style="display: inline-block;">
+        
+        <math-field role="textbox" tabindex="0">\frac{1}{3}+\frac{1}{2}=\frac{1}{5}</math-field>
+        </span>This is more plain text.
+        </p>
+        </div>
+
+
       <math-field 
         id=mf 
         class="mathfield" style="font-size: 32px;max-width: 640px; width:100%" 
@@ -198,11 +210,6 @@
         <div class="output" id="math-json"></div>
 
       </main>
-      <script type="module">
-        import '/dist/mathlive.mjs';
-        const mf = document.getElementById("mf");
-        console.warn("mf readonly?", mf.readOnly);
-      </script>
 
     <script type="module">
       import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
@@ -501,6 +508,13 @@
           updateContent(mf);
           applySearchTerm();
       });
+      mf?.addEventListener('focus-out', (ev) => {
+            console.log(ev.detail);
+      });
+      mf?.addEventListener('move-out', (ev) => {
+            console.log(ev.detail);
+      });
+
       // mf.addEventListener('change', (ev) => {
       // });
       mf?.addEventListener('selection-change', (ev) => {
