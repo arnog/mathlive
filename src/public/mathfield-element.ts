@@ -1261,11 +1261,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (!this._mathfield) return;
 
     // Save the state (in case the element gets reconnected later)
-    const options = {};
-    for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
-      const prop = toCamelCase(attr);
-      options[prop] = this._mathfield.getOption(prop as any);
-    }
+    const options = getOptions(
+      this._mathfield.options,
+      Object.keys(MathfieldElement.optionsAttributes).map((x) => toCamelCase(x))
+    );
     gDeferredState.set(this, {
       value: this._mathfield.getValue(),
       selection: this._mathfield.selection,
