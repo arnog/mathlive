@@ -90,18 +90,20 @@ export class MathModeEditor extends ModeEditor {
     if (!(options.smartFence ?? false)) {
       // When smartFence is turned off, only do a "smart" fence insert
       // if we're inside a `leftright`, at the last char
-      const { parent } = model.at(model.position);
-      if (
-        parent instanceof LeftRightAtom &&
-        parent.rightDelim === '?' &&
-        model.at(model.position).isLastSibling &&
-        /^[)}\]|]$/.test(text)
-      ) {
-        parent.rightDelim = text;
-        model.position += 1;
-        selectionDidChange(model);
-        contentDidChange(model);
-        return true;
+      if (options.insertionMode !== 'replaceAll') {
+        const { parent } = model.at(model.position);
+        if (
+          parent instanceof LeftRightAtom &&
+          parent.rightDelim === '?' &&
+          model.at(model.position).isLastSibling &&
+          /^[)}\]|]$/.test(text)
+        ) {
+          parent.rightDelim = text;
+          model.position += 1;
+          selectionDidChange(model);
+          contentDidChange(model);
+          return true;
+        }
       }
     } else if (
       model.selectionIsCollapsed &&

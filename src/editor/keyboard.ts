@@ -447,7 +447,7 @@ function deepActiveElement(): Element | null {
 
 export function eventToChar(evt?: KeyboardEvent): string {
   if (!evt) return '';
-  let result = '';
+  let result: string | undefined;
   if (evt.key === 'Unidentified') {
     // On Android, the evt.key seems to always be 'Unidentified'.
     // Get the value entered in the event target

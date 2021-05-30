@@ -118,9 +118,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
     // add an adjacent `msubsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'msubsup') {
       target.parent!.addChildAfter(
-        new Atom('msubsup', {
-          mode: target.mode,
-          value: '\u200B',
+        new SubsupAtom({
           style: model.at(model.position).computedStyle,
         }),
         target

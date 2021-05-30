@@ -1185,6 +1185,10 @@ export class Parser {
             arg,
             token === '_' ? 'subscript' : 'superscript'
           );
+        } else {
+          this.lastSubsupAtom().createBranch(
+            token === '_' ? 'subscript' : 'superscript'
+          );
         }
       }
 

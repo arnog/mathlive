@@ -365,7 +365,7 @@ export class Atom {
   ): string {
     let result = '';
     if (isArray<Atom>(value)) {
-      if (value.length > 0) result = atomsToLatex(value, options);
+      result = atomsToLatex(value, options);
     } else if (typeof value === 'number' || typeof value === 'boolean') {
       result = value.toString();
     } else if (typeof value === 'string') {
@@ -451,22 +451,30 @@ export class Atom {
   }
 
   bodyToLatex(options: ToLatexOptions): string {
-    return Atom.serialize(this.body, options);
+    return atomsToLatex(this.body, options);
   }
 
   aboveToLatex(options: ToLatexOptions): string {
-    return Atom.serialize(this.above, options);
+    return atomsToLatex(this.above, options);
   }
 
   belowToLatex(options: ToLatexOptions): string {
-    return Atom.serialize(this.below, options);
+    return atomsToLatex(this.below, options);
   }
 
   supsubToLatex(options: ToLatexOptions): string {
+    console.log('supsubtoLatex');
     let result = '';
-    if (!this.hasEmptyBranch('superscript')) {
-      let sup = Atom.serialize(this.superscript, options);
-      if (sup.length === 1) {
+    // Note: **important** we must check only for the existence of the branch
+    // not if it is non-empty (`hasEmptyBranch`) because we must serialize
+    // e.g. `x^`. If we don't do this correctly, weird things will happen
+    // like inline shortcuts (which rely on the undo buffer and serialization)
+    // will fail, for example in `e^pi`.
+    if (this.branch('superscript') !== undefined) {
+      let sup = atomsToLatex(this.superscript, options);
+      if (sup.length === 0) {
+        result += '^';
+      } else if (sup.length === 1) {
         if (sup === '\u2032') {
           sup = '\\prime ';
         } else if (sup === '\u2033') {
@@ -479,9 +487,13 @@ export class Atom {
       }
     }
 
-    if (!this.hasEmptyBranch('subscript')) {
-      const sub = Atom.serialize(this.subscript, options);
-      result += sub.length === 1 ? '_' + sub : '_{' + sub + '}';
+    if (this.branch('subscript') !== undefined) {
+      const sub = atomsToLatex(this.subscript, options);
+      if (sub.length === 0) {
+        result += '_';
+      } else {
+        result += sub.length === 1 ? '_' + sub : '_{' + sub + '}';
+      }
     }
 
     return result;
@@ -1192,7 +1204,11 @@ export class Atom {
  * @param options.expandMacro true if macros should be expanded
  * @result a LaTeX string
  */
-function atomsToLatex(atoms: Atom[], options: ToLatexOptions): string {
+function atomsToLatex(
+  atoms: undefined | Atom[],
+  options: ToLatexOptions
+): string {
+  if (!atoms || atoms.length === 0) return '';
   if (atoms[0].type === 'first') {
     if (atoms.length === 1) return '';
     // Remove the 'first' atom, if present

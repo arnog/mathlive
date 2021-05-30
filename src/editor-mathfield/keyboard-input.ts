@@ -284,7 +284,7 @@ export function onKeystroke(
         style,
       });
       // Create a snapshot with the inserted character
-      mathfield.snapshotAndCoalesce();
+      mathfield.snapshot();
       // Revert to the state before the beginning of the shortcut
       // (restore doesn't change the undo stack)
       mathfield.restoreToUndoRecord(
