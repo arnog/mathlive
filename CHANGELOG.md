@@ -64,6 +64,7 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
   is correctly disconnected, then reconnected and preserve its state across the
   disconnection.
 - **#960** Typing "e^pi" would result in `e\pi` instead of `e^\pi`.
+- **#951** `2^3` was not serializing the superscript in MathML.
 
 ## 0.67.0 (2021-05-21)
 

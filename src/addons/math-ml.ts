@@ -273,8 +273,8 @@ function scanText(stream, final, options) {
   const initial = stream.index;
   let mathML = '';
   while (stream.index < final && stream.atoms[stream.index].mode === 'text') {
-    mathML += stream.atoms[stream.index].body
-      ? stream.atoms[stream.index].body
+    mathML += stream.atoms[stream.index].value
+      ? stream.atoms[stream.index].value
       : ' ';
     stream.index += 1;
   }
@@ -309,9 +309,9 @@ function scanNumber(stream, final, options) {
   while (
     stream.index < final &&
     stream.atoms[stream.index].type === 'mord' &&
-    '0123456789,.'.includes(stream.atoms[stream.index].body)
+    '0123456789,.'.includes(stream.atoms[stream.index].value)
   ) {
-    mathML += stream.atoms[stream.index].body;
+    mathML += stream.atoms[stream.index].value;
     stream.index += 1;
   }
 
