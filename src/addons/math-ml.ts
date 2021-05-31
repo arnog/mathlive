@@ -57,8 +57,6 @@ function scanIdentifier(stream, final, options) {
   final = final || stream.atoms.length;
   let mathML = '';
   let body = '';
-  let superscript = -1;
-  let subscript = -1;
   const atom: Atom = stream.atoms[stream.index];
 
   if (
@@ -67,95 +65,12 @@ function scanIdentifier(stream, final, options) {
     !'0123456789,.'.includes(atom.value)
   ) {
     body = atomToMathML(atom, options);
-    if (atom.superscript) {
-      superscript = stream.index;
-    }
-
-    if (atom.subscript) {
-      subscript = stream.index;
-    }
-
     stream.index += 1;
   }
 
   if (body.length > 0) {
     result = true;
-
-    // If there are separate atoms for sub/sup, record them
-    if (isSuperscriptAtom(stream)) {
-      superscript = stream.index;
-      stream.index += 1;
-    }
-
-    if (isSubscriptAtom(stream)) {
-      subscript = stream.index;
-      stream.index += 1;
-    }
-
-    if (superscript >= 0 && subscript >= 0) {
-      mathML = '<msubsup>' + body;
-      mathML += toMathML(
-        stream.atoms[subscript].subscript,
-        0,
-        0,
-        options
-      ).mathML;
-      mathML += toMathML(
-        stream.atoms[superscript].superscript,
-        0,
-        0,
-        options
-      ).mathML;
-      mathML += '</msubsup>';
-    } else if (superscript >= 0) {
-      mathML = '<msup>' + body;
-      if (isSuperscriptAtom(stream)) {
-        // There's another superscript after this one. Maybe double-prime?
-        const sup = toMathML(
-          stream.atoms[superscript].superscript,
-          0,
-          0,
-          options
-        ).mathML;
-
-        const sup2 = toMathML(
-          stream.atoms[superscript + 1].superscript,
-          0,
-          0,
-          options
-        ).mathML;
-        if (
-          (sup === '<mi>\u2032</mi>' || sup === '<mi>&#x2032;</mi>') &&
-          (sup2 === '<mi>\u2032</mi>' || sup2 === '<mi>&#x2032;</mi>')
-        ) {
-          mathML += '<mi>&#x2033;</mi>';
-        } else if (sup === '<mi>\u2032</mi>' || sup === '<mi>&#x2032;</mi>') {
-          mathML += '<mi>&#x2032;</mi>';
-        } else {
-          mathML += sup;
-        }
-      } else {
-        mathML += toMathML(
-          stream.atoms[superscript].superscript,
-          0,
-          0,
-          options
-        ).mathML;
-      }
-
-      mathML += '</msup>';
-    } else if (subscript >= 0) {
-      mathML = '<msub>' + body;
-      mathML += toMathML(
-        stream.atoms[subscript].subscript,
-        0,
-        0,
-        options
-      ).mathML;
-      mathML += '</msub>';
-    } else {
-      mathML = body;
-    }
+    mathML = body;
 
     if (
       (stream.lastType === 'mi' ||
@@ -173,8 +88,9 @@ function scanIdentifier(stream, final, options) {
     } else {
       stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
     }
-
-    stream.mathML += mathML;
+    if (!parseSubsup(body, stream, options)) {
+      stream.mathML += mathML;
+    }
   }
 
   return result;
@@ -228,9 +144,7 @@ function parseSubsup(base, stream, options) {
   let mathML = '';
   let atom: Atom = stream.atoms[stream.index - 1];
 
-  if (!atom) {
-    return false;
-  }
+  if (!atom) return false;
 
   if (!atom.superscript && !atom.subscript) {
     if (isSuperscriptAtom(stream) || isSubscriptAtom(stream)) {
@@ -239,23 +153,17 @@ function parseSubsup(base, stream, options) {
     }
   }
 
-  if (!atom) {
-    return false;
-  }
+  if (!atom) return false;
 
-  if (atom.superscript && atom.subscript) {
-    mathML = '<msubsup>' + base;
-    mathML += toMathML(atom.subscript, 0, 0, options).mathML;
-    mathML += toMathML(atom.superscript, 0, 0, options).mathML;
-    mathML += '</msubsup>';
-  } else if (atom.superscript) {
-    mathML = '<msup>' + base;
-    mathML += toMathML(atom.superscript, 0, 0, options).mathML;
-    mathML += '</msup>';
-  } else if (atom.subscript) {
-    mathML = '<msub>' + base;
-    mathML += toMathML(atom.subscript, 0, 0, options).mathML;
-    mathML += '</msub>';
+  const superscript = toMathML(atom.subscript, 0, 0, options).mathML;
+  const subscript = toMathML(atom.subscript, 0, 0, options).mathML;
+
+  if (superscript && subscript) {
+    mathML = `<msubsup>${base}${subscript}${superscript}</msubsup>`;
+  } else if (superscript) {
+    mathML = `<msup>${base}${superscript}</msup>`;
+  } else if (subscript) {
+    mathML = `<msub>${base}${subscript}</msub>`;
   }
 
   if (mathML.length > 0) {
@@ -329,19 +237,10 @@ function scanNumber(stream, final, options) {
       stream.index += 1;
     }
 
-    if (superscript >= 0) {
-      mathML = '<msup>' + mathML;
-      mathML += toMathML(
-        stream.atoms[superscript].superscript,
-        0,
-        0,
-        options
-      ).mathML;
-      mathML += '</msup>';
+    if (!parseSubsup(mathML, stream, options)) {
+      stream.mathML += mathML;
+      stream.lastType = 'mn';
     }
-
-    stream.mathML += mathML;
-    stream.lastType = 'mn';
   }
 
   return result;
@@ -498,11 +397,12 @@ function scanOperator(stream, final, options) {
 
     stream.index += 1;
   }
-
-  if (mathML.length > 0) {
-    result = true;
-    stream.mathML += mathML;
-    stream.lastType = lastType;
+  if (!parseSubsup(mathML, stream, options)) {
+    if (mathML.length > 0) {
+      result = true;
+      stream.mathML += mathML;
+      stream.lastType = lastType;
+    }
   }
 
   return result;
