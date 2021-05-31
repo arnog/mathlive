@@ -67,17 +67,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: '[IntlBackslash]', ifMode: 'math', command: ['switchMode', 'latex'] }, // On UK QWERTY keyboards
 
   {
-    key: 'alt+[Equal]',
-    ifMode: 'math',
-    command: ['applyStyle', { mode: 'text' }],
-  },
-  {
-    key: 'alt+[Equal]',
-    ifMode: 'text',
-    command: ['applyStyle', { mode: 'math' }],
-  },
-
-  {
     key: '[Escape]',
     ifMode: 'latex',
     command: ['complete', 'complete', { selectItem: 'true' }],
@@ -174,17 +163,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'ctrl+l', ifPlatform: 'macos', command: 'scrollIntoView' },
   // { key: 'ctrl+t', ifPlatform: 'macos', command: 'transpose' },
 
-  {
-    key: 'shift+[Quote]',
-    ifMode: 'math',
-    command: ['switchMode', 'text', '', '“'],
-  }, // ??
-  {
-    key: 'shift+[Quote]',
-    ifMode: 'text',
-    command: ['switchMode', 'math', '”', ''],
-  }, // ??
-
   // WOLFRAM MATHEMATICA BINDINGS
   {
     key: 'ctrl+[Digit2]',
@@ -193,31 +171,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   },
   { key: 'ctrl+[Digit5]', ifMode: 'math', command: 'moveToOpposite' },
   { key: 'ctrl+[Digit6]', ifMode: 'math', command: 'moveToSuperscript' },
-  { key: 'ctrl+[Minus]', ifMode: 'math', command: 'moveToSubscript' }, // ??
-  {
-    key: 'alt+[BracketLeft]',
-    ifMode: 'math',
-    command: ['insert', '$$\\left\\lbrack #0 \\right\\rbrack$$'],
-  }, // ??
-  {
-    key: 'shift+alt+[BracketLeft]',
-    ifMode: 'math',
-    command: ['insert', '$$\\left\\lbrace #0 \\right\\rbrace$$'],
-  }, // ??
 
   { key: 'ctrl+[Return]', ifMode: 'math', command: 'addRowAfter' },
   { key: 'ctrl+[Enter]', ifMode: 'math', command: 'addRowAfter' },
   { key: 'cmd+[Return]', ifMode: 'math', command: 'addRowAfter' },
   { key: 'cmd+[Enter]', ifMode: 'math', command: 'addRowAfter' },
-  { key: 'ctrl+;', ifMode: 'math', command: 'addRowAfter' },
-  { key: 'cmd+;', ifMode: 'math', command: 'addRowAfter' },
-  { key: 'shift+ctrl+;', ifMode: 'math', command: 'addRowBefore' },
-  { key: 'shift+cmd+;', ifMode: 'math', command: 'addRowBefore' },
-
-  { key: 'ctrl+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
-  { key: 'cmd+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
-  { key: 'shift+ctrl+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
-  { key: 'shift+cmd+[Comma]', ifMode: 'math', command: 'addColumnAfter' },
 
   // Excel keybindings:
   // shift+space: select entire row, ctrl+space: select an entire column
@@ -261,33 +219,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'shift+alt+n', ifMode: 'math', command: ['insert', '$$\\bigcap$$'] },
   { key: 'shift+alt+a', ifMode: 'math', command: ['insert', '$$\\forall$$'] },
   { key: 'shift+alt+e', ifMode: 'math', command: ['insert', '$$\\exists$$'] },
-  { key: 'alt+[Digit5]', ifMode: 'math', command: ['insert', '$\\infty$$'] }, // "%" key
-  { key: 'alt+[Digit6]', ifMode: 'math', command: ['insert', '$$\\wedge$$'] }, // "^" key
-  {
-    key: 'shift+alt+[Digit6]',
-    ifMode: 'math',
-    command: ['insert', '$$\\vee$$'],
-  }, // "^" key
-  { key: 'alt+[Digit9]', ifMode: 'math', command: ['insert', '('] }, // "(" key} override smartFence
-  { key: 'alt+[Digit0]', ifMode: 'math', command: ['insert', ')'] }, // ")" key} override smartFence
-
-  { key: 'alt+|', ifMode: 'math', command: ['insert', '|'] }, // "|" key} override smartFence
   {
     key: 'alt+[Backslash]',
     ifMode: 'math',
     command: ['insert', '$$\\backslash$$'],
   }, // "|" key} override command mode
-
-  {
-    key: '/',
-    ifMode: 'math',
-    command: ['insert', '$$\\frac{#@}{#?}$$'],
-  },
-  {
-    key: 'alt+/',
-    ifMode: 'math',
-    command: ['insert', '$$\\/$$'],
-  },
 
   {
     key: '[NumpadDivide]',
@@ -298,11 +234,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'alt+[NumpadDivide]',
     ifMode: 'math',
     command: ['insert', '\\frac{#?}{#@}'],
-  }, // ??
-  {
-    key: 'shift+[Backquote]',
-    ifMode: 'math',
-    command: ['insert', '$$\\~$$'],
   }, // ??
 
   // Accessibility
@@ -328,6 +259,158 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'alt+ctrl+[ArrowDown]',
     command: ['speak', 'selection', { withHighlighting: false }],
   },
+
+  //
+  // Punctuations and some non-alpha key combinations
+  // only work with specific keyboard layouts
+  //
+  {
+    key: 'alt+[Equal]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['applyStyle', { mode: 'text' }],
+  },
+  {
+    key: 'alt+[Equal]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'text',
+    command: ['applyStyle', { mode: 'math' }],
+  },
+  {
+    key: 'shift+[Quote]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['switchMode', 'text', '', '“'],
+  }, // ??
+  {
+    key: 'shift+[Quote]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'text',
+    command: ['switchMode', 'math', '”', ''],
+  }, // ??
+  {
+    key: '/',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '$$\\frac{#@}{#?}$$'],
+  },
+  {
+    key: 'alt+/',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '$$\\/$$'],
+  },
+  {
+    key: 'alt+[BracketLeft]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '$$\\left\\lbrack #0 \\right\\rbrack$$'],
+  }, // ??
+  {
+    key: 'ctrl+[Minus]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'moveToSubscript',
+  }, // ??
+  {
+    key: 'shift+alt+[BracketLeft]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '$$\\left\\lbrace #0 \\right\\rbrace$$'],
+  }, // ??
+  {
+    key: 'ctrl+;',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'addRowAfter',
+  },
+  {
+    key: 'cmd+;',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'addRowAfter',
+  },
+  {
+    key: 'shift+ctrl+;',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'addRowBefore',
+  },
+  {
+    key: 'shift+cmd+;',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'addRowBefore',
+  },
+
+  {
+    key: 'ctrl+[Comma]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'addColumnAfter',
+  },
+  {
+    key: 'cmd+[Comma]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'addColumnAfter',
+  },
+  {
+    key: 'shift+ctrl+[Comma]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'addColumnAfter',
+  },
+  {
+    key: 'shift+cmd+[Comma]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: 'addColumnAfter',
+  },
+  {
+    key: 'alt+[Digit5]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '$\\infty$$'],
+  }, // "%" key
+  {
+    key: 'alt+[Digit6]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '$$\\wedge$$'],
+  }, // "^" key
+  {
+    key: 'shift+alt+[Digit6]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+
+    ifMode: 'math',
+    command: ['insert', '$$\\vee$$'],
+  }, // "^" key
+  {
+    key: 'alt+[Digit9]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '('],
+  }, // "(" key} override smartFence
+  {
+    key: 'alt+[Digit0]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', ')'],
+  }, // ")" key} override smartFence
+
+  {
+    key: 'alt+|',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '|'],
+  }, // "|" key} override smartFence
+  {
+    key: 'shift+[Backquote]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '$$\\~$$'],
+  }, // ??
 ];
 
 /**

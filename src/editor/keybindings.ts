@@ -216,6 +216,13 @@ function normalizeKeybinding(
     );
   }
 
+  if (
+    keybinding.ifLayout !== undefined &&
+    (layout.score === 0 || !keybinding.ifLayout.includes(layout.id))
+  ) {
+    return undefined;
+  }
+
   const modifiers = keystrokeModifiersFromString(keybinding.key);
   let platform = keybinding.ifPlatform;
 

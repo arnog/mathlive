@@ -1,3 +1,13 @@
+## [Unreleased]
+
+### Improvements
+
+- Keybindings: keybindings can now be associated with specific keyboard layouts.
+  By default, the keybindings that are specific to the US keyboard layout are no
+  longer applied with other keyboard layouts. This makes it easier to use
+  punctuation with some keyboard layouts and prevent some error messages from
+  being throw (addresses **#962**).
+
 ## 0.68.0 (2021-05-31)
 
 ### Breaking Changes

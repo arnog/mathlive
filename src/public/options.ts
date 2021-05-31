@@ -141,6 +141,10 @@ export type Keybinding = {
     | '!android'
     | 'chromeos'
     | '!chromeos';
+
+  // An array of ids of a keyboard layout that this keybinding
+  // is applicable to. If undefined, applies to all keyboard layouts.
+  ifLayout?: string[];
 };
 
 /**
