@@ -1,327 +1,334 @@
 <!DOCTYPE html>
 <html lang="en-US">
+
 <head>
   <meta charset="utf-8" />
   <title>MathLive Testing Playground</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="../style.css" />
   <style>
-    .mathfield { font-size: 32px; }
-    math-field:not(:defined) { display: none;}
-    code { white-space: pre-wrap; }
+    .mathfield {
+      font-size: 32px;
+    }
+
+    math-field:not(:defined) {
+      display: none;
+    }
+
+    code {
+      white-space: pre-wrap;
+    }
 
     h2 {
-        font-size: 1em;
-        padding: 0;
-        margin: 0;
-        color: #666;
+      font-size: 1em;
+      padding: 0;
+      margin: 0;
+      color: #666;
     }
 
     #mathfield-container {
-        padding: 8px;
-        min-width: 50px;
-        border: 1px solid #ddd;
+      padding: 8px;
+      min-width: 50px;
+      border: 1px solid #ddd;
     }
 
     #ta {
-        font-size: 1.5em;
-        font-weight: 700;
+      font-size: 1.5em;
+      font-weight: 700;
     }
 
-    #find-input , #replace-input{
+    #find-input,
+    #replace-input {
       width: 320px;
     }
 
-    .hidden { display: none; }
+    .hidden {
+      display: none;
+    }
 
-    .label { font-weight: 700; }
-    .math { display: none; }
+    .label {
+      font-weight: 700;
+    }
+
+    .math {
+      display: none;
+    }
 
     /* .buttonbar button { */
     button {
-        background: none;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        border-radius: 4px;
-        color: #0066ce;
-        fill: currentColor;
-        position: relative;
-        height: 36px;
-        line-height: 36px;
-        margin: 0 18px 0 0;
-        min-width: 64px;
-        padding: 0 16px;
-        display: inline-block;
-        overflow: hidden;
-        will-change: box-shadow;
-        transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
-            background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-            color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        outline: none;
-        cursor: pointer;
-        text-decoration: none;
-        text-align: center;
-        vertical-align: middle;
-        -webkit-user-select: none;
-        user-select: none;
+      background: none;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 4px;
+      color: #0066ce;
+      fill: currentColor;
+      position: relative;
+      height: 36px;
+      line-height: 36px;
+      margin: 0 18px 0 0;
+      min-width: 64px;
+      padding: 0 16px;
+      display: inline-block;
+      overflow: hidden;
+      will-change: box-shadow;
+      transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+        background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      vertical-align: middle;
+      -webkit-user-select: none;
+      user-select: none;
 
-        font-size: 16px;
-        letter-spacing: 0.08929em;
-        text-transform: uppercase;
-        box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2),
-            0 2px 2px 0 rgba(0, 0, 0, 0.14),
-            0 3px 1px -2px rgba(0, 0, 0, 0.12);
+      font-size: 16px;
+      letter-spacing: 0.08929em;
+      text-transform: uppercase;
+      box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 3px 1px -2px rgba(0, 0, 0, 0.12);
     }
 
     button:first-child {
-        margin-left: 0;
+      margin-left: 0;
     }
 
     button:hover {
-        background-color: rgba(0, 0, 0, 0.08);
+      background-color: rgba(0, 0, 0, 0.08);
     }
 
     button:active {
-        background-color: white;
+      background-color: white;
     }
 
     button.primary,
     button.active {
-        color: white;
-        fill: currentColor;
-        background: #0066ce;
+      color: white;
+      fill: currentColor;
+      background: #0066ce;
     }
 
     button.primary:hover {
-        background-color: rgba(0, 102, 206, 0.58);
+      background-color: rgba(0, 102, 206, 0.58);
     }
 
     button.primary:active {
-        color: #0066ce;
-        fill: currentColor;
-        background-color: white;
+      color: #0066ce;
+      fill: currentColor;
+      background-color: white;
     }
 
     button.round {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
     }
 
     .buttonbar {
-        margin-top: 1em;
-    }    
+      margin-top: 1em;
+    }
   </style>
 </head>
 
 <body>
-    <header><h1>MathLive Testing Playground</h1></header>
-    <main class='centered' tabindex="0">
+  <header>
+    <h1>MathLive Testing Playground</h1>
+  </header>
+  <main class='centered' tabindex="0">
 
-      <div contenteditable="true">
+    <math-field id=mf class="mathfield" style="font-size: 32px;max-width: 640px; width:100%"
+      virtual-keyboard-mode="manual">
+      f^{\prime\prime}(x)
+      <!-- x=\frac{{-b\pm\sqrt{b^2-4ac}}}{{2a}} -->
+      <!-- -0-0=-0(0) -->
+    </math-field>
 
-        <p style="color: rgb(0, 0, 0);">This is plain text.
-        <span style="display: inline-block;">
-        
-        <math-field role="textbox" tabindex="0">\frac{1}{3}+\frac{1}{2}=\frac{1}{5}</math-field>
-        </span>This is more plain text.
-        </p>
-        </div>
+    <!-- \textcolor{blue}{\sqrt{\smash[t]{\frac{a}{b}}}=\sqrt{\smash[b]{\frac{a}{b}}}} -->
 
+    <!-- \textcolor{blue}{\overset{=}{x}} -->
 
-      <math-field 
-        id=mf 
-        class="mathfield" style="font-size: 32px;max-width: 640px; width:100%" 
-        virtual-keyboard-mode="manual">
-        f(x)=\sin(\frac{x}{2})
-        <!-- -0-0=-0(0) -->
-      </math-field>
+    <!-- \textcolor{blue}{\overline{x}=\overline{x+\frac34}=\underline{x}=\underline{x+\frac34}} -->
 
-        <!-- \textcolor{blue}{\sqrt{\smash[t]{\frac{a}{b}}}=\sqrt{\smash[b]{\frac{a}{b}}}} -->
+    <!-- \textcolor{blue}{\vec{x}=\vec{\frac34}=\widehat{x}=\widehat{x+y}} -->
 
-        <!-- \textcolor{blue}{\overset{=}{x}} -->
+    <!-- \textcolor{blue}{\int_0^\infty\smallint_0^\infty\oint_0^\infty} -->
 
-        <!-- \textcolor{blue}{\overline{x}=\overline{x+\frac34}=\underline{x}=\underline{x+\frac34}} -->
+    <!-- \textcolor{blue}{\Large \frac34=\frac{3}{x+1}=\binom34=\sqrt{2}=\sqrt[3]{2}} -->
 
-        <!-- \textcolor{blue}{\vec{x}=\vec{\frac34}=\widehat{x}=\widehat{x+y}} -->
+    <!-- \textcolor{blue}{\Large \sqrt{2}=\sqrt[3]{2}} -->
 
-        <!-- \textcolor{blue}{\int_0^\infty\smallint_0^\infty\oint_0^\infty} -->
+    <!-- \textcolor{blue}{x=\sqrt[3]{x}=\frac{x^2}{x^2}=\left(\frac34\right)=\int_0^\infty} -->
+    <!-- -a-b=-1 -->
 
-        <!-- \textcolor{blue}{\Large \frac34=\frac{3}{x+1}=\binom34=\sqrt{2}=\sqrt[3]{2}} -->
-
-        <!-- \textcolor{blue}{\Large \sqrt{2}=\sqrt[3]{2}} -->
-
-        <!-- \textcolor{blue}{x=\sqrt[3]{x}=\frac{x^2}{x^2}=\left(\frac34\right)=\int_0^\infty} -->
-        <!-- -a-b=-1 -->
-
-            <!--30\operatorname{cm}^2+4\operatorname{mm}^2-->
-            <!--f(x)=\frac{x+1}{x-1}+x+1 -->
-            <!--x=\begin{bmatrix}x+1&b&c\\\alpha&\\beta\end{bmatrix}^T+x+1 -->
-            <!--  $$x+\left(\sqrt{x+1}+1\right)+\sum_0^4n^2+\frac{1+x}{x-1}\int^{\infty}_0x\mathrm{d}x+\boxed{\frac{1}{x}}\colorbox{yellow}{\sqrt{\frac{1}{x}}}\cancel{x^2+1}\xRightarrow[\text{above}]{\text{below}}$$
+    <!--30\operatorname{cm}^2+4\operatorname{mm}^2-->
+    <!--f(x)=\frac{x+1}{x-1}+x+1 -->
+    <!--x=\begin{bmatrix}x+1&b&c\\\alpha&\\beta\end{bmatrix}^T+x+1 -->
+    <!--  $$x+\left(\sqrt{x+1}+1\right)+\sum_0^4n^2+\frac{1+x}{x-1}\int^{\infty}_0x\mathrm{d}x+\boxed{\frac{1}{x}}\colorbox{yellow}{\sqrt{\frac{1}{x}}}\cancel{x^2+1}\xRightarrow[\text{above}]{\text{below}}$$
             -->
-            <!-- x=x^2_{b+1}+\frac{1}{2_{56}}^{34}_{56}+\sqrt{23}+\sqrt[45]{67}+\box{x+1}+\xRightarrow[below]{above}^2+\begin{matrix}1&2&3\\4\\5&6\end{matrix} -->
-        <!-- (x,,2) -->
-        <!-- -123, 456.789, -->
-        <!-- x_5 -->
-        <!-- -5-3-2 -->
-        <!-- 12+ -->
-        <!-- \lbrack\rbrack -->
-        <!-- \foo  -->
-        <!-- (a,,b) -->
-        <!--       a\le b \overline{z} \overrightarrow{ABC} -->
-        <!-- $$(deadbeef)_{16}$$ -->
-        <!-- \partial^2_{x,y} f(x,y) -->
-        <!-- |(a+|b|+1)| -->
-        <!-- -0+0(\frac{0}{\frac{0}{0}}-0)+x^\pi -->
-        <!-- -0+0(\frac{0}{\frac{0}{0}}-0) -->
-        <!-- x_0 + x_{0} +  x_n + x_{n+1}-->
-        <!-- -2x5z\sqrt{y}\frac{3}{4}3\pi y} -->
-        <!-- \sin^{-1}\prime(x)      \sin^{-1}'(x) -->
-        <!-- "\begin{align*}\dot{x} & =\sigma(y-x) \\ \dot{y} & =\rho x-y-xz \\ \dot{z} & =-\beta z+xy\end{align*}" -->
-        <!-- i, 2i, -i -->
-        <!-- 2{xy} should create group -->
+    <!-- x=x^2_{b+1}+\frac{1}{2_{56}}^{34}_{56}+\sqrt{23}+\sqrt[45]{67}+\box{x+1}+\xRightarrow[below]{above}^2+\begin{matrix}1&2&3\\4\\5&6\end{matrix} -->
+    <!-- (x,,2) -->
+    <!-- -123, 456.789, -->
+    <!-- x_5 -->
+    <!-- -5-3-2 -->
+    <!-- 12+ -->
+    <!-- \lbrack\rbrack -->
+    <!-- \foo  -->
+    <!-- (a,,b) -->
+    <!--       a\le b \overline{z} \overrightarrow{ABC} -->
+    <!-- $$(deadbeef)_{16}$$ -->
+    <!-- \partial^2_{x,y} f(x,y) -->
+    <!-- |(a+|b|+1)| -->
+    <!-- -0+0(\frac{0}{\frac{0}{0}}-0)+x^\pi -->
+    <!-- -0+0(\frac{0}{\frac{0}{0}}-0) -->
+    <!-- x_0 + x_{0} +  x_n + x_{n+1}-->
+    <!-- -2x5z\sqrt{y}\frac{3}{4}3\pi y} -->
+    <!-- \sin^{-1}\prime(x)      \sin^{-1}'(x) -->
+    <!-- "\begin{align*}\dot{x} & =\sigma(y-x) \\ \dot{y} & =\rho x-y-xz \\ \dot{z} & =-\beta z+xy\end{align*}" -->
+    <!-- i, 2i, -i -->
+    <!-- 2{xy} should create group -->
 
-        <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
-        <!-- \int^b_a x^2 dx -->
-        <!-- \int^b_a\int^c_d x^2 dx dy -->
-        <!-- \int x^2 + x = 0 -->
-        <!-- \int x^2 + x dx = 0 -->
-        <!-- \int (x^2 + x) dx = 0 -->
+    <!-- \binom12 \textstyle \binom34 \scriptstyle \binom56 \displaystyle \binom78 \scriptstyle \binom90 -->
+    <!-- \int^b_a x^2 dx -->
+    <!-- \int^b_a\int^c_d x^2 dx dy -->
+    <!-- \int x^2 + x = 0 -->
+    <!-- \int x^2 + x dx = 0 -->
+    <!-- \int (x^2 + x) dx = 0 -->
 
-        <div class="centered"><input id='find-input' placeholder="Find Latex"></input></div>
-        <div class="centered" style="margin-top: .5em"><input id='replace-input' placeholder="Replace With..."></input>
-        </div>
+    <div class="centered"><input id='find-input' placeholder="Find Latex"></input></div>
+    <div class="centered" style="margin-top: .5em"><input id='replace-input' placeholder="Replace With..."></input>
+    </div>
 
-        <div id="search-results" class='centered'>
-            <h2 style='margin-top: 1em'>Search Results</h2>
-            <div class="output" id="search-results-output"></div>
-        </div>
+    <div id="search-results" class='centered'>
+      <h2 style='margin-top: 1em'>Search Results</h2>
+      <div class="output" id="search-results-output"></div>
+    </div>
 
-        <h2 style='margin-top: 1em'>Selection</h2>
-        <div class="output" id="selection"></div>
-
-
-        <h2>Latex</h2>
-        <div class="output" id="latex"></div>
-        <h2>MathASCII</h2>
-        <div class="output" id="mathascii"></div>
-        <h2>MathML</h2>
-        <div class="output" id="mathml"></div>
-        <h2>MathJSON</h2>
-        <div class="output" id="math-json"></div>
-
-      </main>
-
-    <script type="module">
-      import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
-      renderMathInDocument({ 
-        renderAccessibleContent: false,
-        // TeX: { 
-        //   delimiters: { inline: display: [ ['$$', '$$'] ] },
-        //   processEnvironments : false 
-        // },
-        asciiMath: null,
-      });
+    <h2 style='margin-top: 1em'>Selection</h2>
+    <div class="output" id="selection"></div>
 
 
-      let gSearchLatex;
+    <h2>Latex</h2>
+    <div class="output" id="latex"></div>
+    <h2>MathASCII</h2>
+    <div class="output" id="mathascii"></div>
+    <h2>MathML</h2>
+    <div class="output" id="mathml"></div>
+    <h2>MathJSON</h2>
+    <div class="output" id="math-json"></div>
 
-      function applySearchTerm() {
-          if (!gSearchLatex) {
-              document.getElementById('search-results').classList.add('hidden');
-              return;
-          }
-          document.getElementById('search-results').classList.remove('hidden');
-          const mf = document.getElementById('mf');
+  </main>
+
+  <script type="module">
+    import { convertLatexToMarkup, renderMathInDocument } from '/dist/mathlive.mjs';
+    renderMathInDocument({
+      renderAccessibleContent: false,
+      // TeX: { 
+      //   delimiters: { inline: display: [ ['$$', '$$'] ] },
+      //   processEnvironments : false 
+      // },
+      asciiMath: null,
+    });
 
 
-          mf.applyStyle({ color: "none", backgroundColor: "none" }, {
-              range: [0, -1], suppressChangeNotifications: true
-          });
+    let gSearchLatex;
 
-          const searchResults = mf.find(gSearchLatex.startsWith('/') ?
-              new RegExp(gSearchLatex.slice(1, -1)) :
-              gSearchLatex);
-
-          document.getElementById('search-results-output').innerHTML =
-              searchResults.
-                  map(range => `${range[0]}, ${range[1]} = "${mf.getValue(range)}"`).
-                  join('<br>');
-          searchResults.forEach((x) =>
-              mf.applyStyle({ color: "red", backgroundColor: "yellow" }, x, {
-                  suppressChangeNotifications: true
-              }
-              )
-          );
+    function applySearchTerm() {
+      if (!gSearchLatex) {
+        document.getElementById('search-results').classList.add('hidden');
+        return;
       }
-      function applyReplace() {
-          document.getElementById('search-results').classList.add('hidden');
-          if (!gSearchLatex) {
-              return;
-          }
+      document.getElementById('search-results').classList.remove('hidden');
+      const mf = document.getElementById('mf');
 
-          const mf = document.getElementById('mf');
 
-          mf.applyStyle({ color: "none", backgroundColor: "none" }, {
-              range: [0, -1], suppressChangeNotifications: true
-          });
-          const replacement = replaceInput.value;
-          const searchResults = mf.replace(gSearchLatex.startsWith('/') ?
-              new RegExp(gSearchLatex.slice(1, -1)) :
-              gSearchLatex, replacement /* (args) => {
-                  console.log(args);
-                  return replacement;
-              }*/);
+      mf.applyStyle({ color: "none", backgroundColor: "none" }, {
+        range: [0, -1], suppressChangeNotifications: true
+      });
+
+      const searchResults = mf.find(gSearchLatex.startsWith('/') ?
+        new RegExp(gSearchLatex.slice(1, -1)) :
+        gSearchLatex);
+
+      document.getElementById('search-results-output').innerHTML =
+        searchResults.
+          map(range => `${range[0]}, ${range[1]} = "${mf.getValue(range)}"`).
+          join('<br>');
+      searchResults.forEach((x) =>
+        mf.applyStyle({ color: "red", backgroundColor: "yellow" }, x, {
+          suppressChangeNotifications: true
+        }
+        )
+      );
+    }
+    function applyReplace() {
+      document.getElementById('search-results').classList.add('hidden');
+      if (!gSearchLatex) {
+        return;
       }
-
-      const ta = document.getElementById('find-input');
-      ta.addEventListener('change', (ev) => {
-          gSearchLatex = ta.value;
-          applySearchTerm();
-      });
-
-      const replaceInput = document.getElementById('replace-input');
-      replaceInput.addEventListener('change', (ev) => {
-          applyReplace();
-      });
 
       const mf = document.getElementById('mf');
 
-      console.warn("Read only?", mf.readOnly);
+      mf.applyStyle({ color: "none", backgroundColor: "none" }, {
+        range: [0, -1], suppressChangeNotifications: true
+      });
+      const replacement = replaceInput.value;
+      const searchResults = mf.replace(gSearchLatex.startsWith('/') ?
+        new RegExp(gSearchLatex.slice(1, -1)) :
+        gSearchLatex, replacement /* (args) => {
+                  console.log(args);
+                  return replacement;
+              }*/);
+    }
+
+    const ta = document.getElementById('find-input');
+    ta.addEventListener('change', (ev) => {
+      gSearchLatex = ta.value;
+      applySearchTerm();
+    });
+
+    const replaceInput = document.getElementById('replace-input');
+    replaceInput.addEventListener('change', (ev) => {
+      applyReplace();
+    });
+
+    const mf = document.getElementById('mf');
+
+    console.warn("Read only?", mf.readOnly);
 
 
-      const VIRTUAL_KEYBOARD_LAYERS = {
-        "secondary-layer": {
-          rows: [
-            [
-              {class: "w15", latex: "\\sin\\mleft( #0 \\mright)"}, 
-              {class: "w15", latex: "\\cos\\mleft( #0 \\mright)"}, 
-              {class: "w15", latex: "\\tan\\mleft( #0 \\mright)"}, 
-              { class: "separator w5" },
-              { latex: "\\land" },
-              { latex: "\\lor" },
-              { latex: "\\lnot" },
-              { class: "separator w5" },
-              { latex: "\\approx" },
-            ],
-            [
-              {class: "w15", latex: "\\sin^{-1}\\mleft( #0 \\mright)"}, 
-              {class: "w15", latex: "\\cos^{-1}\\mleft( #0 \\mright)"}, 
-              {class: "w15", latex: "\\tan^{-1}\\mleft( #0 \\mright)"}, 
-              { class: "separator w5" },
-              { class: "w15", latex: "#@^{#?}" },
-              { class: "w15", latex: "#@^2" },
-              { class: "separator w5" },
-              { latex: "\\cong" },
-            ],
-            [
-              {class: "w15", latex: "\\begin{vmatrix}#?&#?\\\\#?&#?\\end{vmatrix}"},
-              {latex: "\\sqrt{#@}"},
-              {latex: "\\pm"},
-              {latex: "\\overarc{#@}"},
-              {latex: "\\sim"},
-              { class: "w15", latex: "#@_{#?}" },
-            ],
-            [
+    const VIRTUAL_KEYBOARD_LAYERS = {
+      "secondary-layer": {
+        rows: [
+          [
+            { class: "w15", latex: "\\sin\\mleft( #0 \\mright)" },
+            { class: "w15", latex: "\\cos\\mleft( #0 \\mright)" },
+            { class: "w15", latex: "\\tan\\mleft( #0 \\mright)" },
+            { class: "separator w5" },
+            { latex: "\\land" },
+            { latex: "\\lor" },
+            { latex: "\\lnot" },
+            { class: "separator w5" },
+            { latex: "\\approx" },
+          ],
+          [
+            { class: "w15", latex: "\\sin^{-1}\\mleft( #0 \\mright)" },
+            { class: "w15", latex: "\\cos^{-1}\\mleft( #0 \\mright)" },
+            { class: "w15", latex: "\\tan^{-1}\\mleft( #0 \\mright)" },
+            { class: "separator w5" },
+            { class: "w15", latex: "#@^{#?}" },
+            { class: "w15", latex: "#@^2" },
+            { class: "separator w5" },
+            { latex: "\\cong" },
+          ],
+          [
+            { class: "w15", latex: "\\begin{vmatrix}#?&#?\\\\#?&#?\\end{vmatrix}" },
+            { latex: "\\sqrt{#@}" },
+            { latex: "\\pm" },
+            { latex: "\\overarc{#@}" },
+            { latex: "\\sim" },
+            { class: "w15", latex: "#@_{#?}" },
+          ],
+          [
             { class: "separator w20" },
             { class: "separator w20" },
             { class: "separator w20" },
@@ -336,27 +343,27 @@
               label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
               command: ["performWithFeedback", "moveToNextChar"]
             },
-        ]
           ]
-        },
+        ]
+      },
       "geometry-layer": {
         rows: [
           [
-            {latex: "\\vert"}, 
-            {latex: "\\not{\\vert}"}, 
-            {latex: "\\parallel"},
-            {latex: "\\bot"},
-            {latex: "\\overrightarrow{#@}"},
-            {latex: "\\begin{pmatrix}#0\\\\#0\\end{pmatrix}"}
+            { latex: "\\vert" },
+            { latex: "\\not{\\vert}" },
+            { latex: "\\parallel" },
+            { latex: "\\bot" },
+            { latex: "\\overrightarrow{#@}" },
+            { latex: "\\begin{pmatrix}#0\\\\#0\\end{pmatrix}" }
           ],
           [
-            {latex: "\\measuredangle"},
-            {latex: ";"},
-            {latex: "\\longmapsto"},
-            {latex: "\\left\\lvert #0 \\right\\rvert"},
-            {latex: "\\left\\lvert \\overline{#0} \\right\\rvert"},
-            {latex: "\\overline{#@}"},
-            
+            { latex: "\\measuredangle" },
+            { latex: ";" },
+            { latex: "\\longmapsto" },
+            { latex: "\\left\\lvert #0 \\right\\rvert" },
+            { latex: "\\left\\lvert \\overline{#0} \\right\\rvert" },
+            { latex: "\\overline{#@}" },
+
           ],
           [],
           [
@@ -374,17 +381,18 @@
               label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
               command: ["performWithFeedback", "moveToNextChar"]
             },
-        ]
+          ]
         ]
       },
       "basic-layer": {
         styles: "",
         rows: [
           [
-            { label: "7", key: "7", variants: [
-              "\\alpha", "\\beta"
+            {
+              label: "7", key: "7", variants: [
+                "\\alpha", "\\beta"
               ]
-             },
+            },
             { label: "8", key: "8" },
             { label: "9", key: "9" },
             { label: "+", key: "+" },
@@ -397,7 +405,7 @@
             { class: "separator w10" },
           ],
           [
-            { label: "4", latex:"4" },
+            { label: "4", latex: "4" },
             { label: "5", key: "5" },
             { label: "6", key: "6" },
             { label: "-", key: "-" },
@@ -427,7 +435,7 @@
             }
           ],
           [
-            { class:  "w20", label: "0", key: "0" },
+            { class: "w20", label: "0", key: "0" },
             { latex: "," },
             { latex: "\\colon" },
             { class: "separator w5" },
@@ -452,7 +460,7 @@
 
     const KEYBOARDS = {
       "basic": {
-        "label": "Basic", 
+        "label": "Basic",
         "tooltip": "Basic",
         "layer": "basic-layer"
       },
@@ -469,124 +477,127 @@
     };
 
 
-      mf?.setOptions({
-          inlineShortcuts: {
-              in: {
-                  mode: 'math',
-                  after: 'space+letter+digit+symbol+fence',
-                  value: '\\in',
-              },
-          },
-          "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
-          "customVirtualKeyboards": KEYBOARDS,
-          "virtualKeyboards": "basic greek secondary geometry",
-          // onBlur: () => { console.log('blurring') },
-          onKeystroke: (mf, keystroke, ev) => {
-            if (keystroke === 'alt+[KeyS]') {
-              mf.insert('\\sum^\\infty_{n=0}');
-              return false; // Stop propagation
-            } else if (keystroke === 'meta+[KeyK]') {
-              mf.executeCommand('toggleVirtualKeyboard');
-              return false;
-            }
-            console.log('options keystroke', keystroke); 
-            return true;
-          },
-          // inlineShortcuts: {
-          //     // ㄱ: '\\sqrt',
-          //     sq: '\\sqrt{#0}',
-          //     // ㄱㄴ: '\\sqrt{#0}',
-          //     "ㄱㄴ": '\\sqrt{#0}',
-          // },
-          macros: {
-          },
-          onError: (ev) => { console.log('Error :' + ev.code); }
-      });
+    mf?.setOptions({
+      // inlineShortcuts: {
+      //   in: {
+      //     mode: 'math',
+      //     after: 'space+letter+digit+symbol+fence',
+      //     value: '\\in',
+      //   },
+      // },
+      // "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
+      // "customVirtualKeyboards": KEYBOARDS,
+      // "virtualKeyboards": "basic greek secondary geometry",
+      // onBlur: () => { console.log('blurring') },
+      // onKeystroke: (mf, keystroke, ev) => {
+      //   if (keystroke === 'alt+[KeyS]') {
+      //     mf.insert('\\sum^\\infty_{n=0}');
+      //     return false; // Stop propagation
+      //   } else if (keystroke === 'meta+[KeyK]') {
+      //     mf.executeCommand('toggleVirtualKeyboard');
+      //     return false;
+      //   }
+      //   console.log('options keystroke', keystroke);
+      //   return true;
+      // },
+      // inlineShortcuts: {
+      //     // ㄱ: '\\sqrt',
+      //     sq: '\\sqrt{#0}',
+      //     // ㄱㄴ: '\\sqrt{#0}',
+      //     "ㄱㄴ": '\\sqrt{#0}',
+      // },
+      // macros: {
+      // },
+      onError: (ev) => { console.log('Error :' + ev.code); }
+    });
 
 
-      mf?.addEventListener('input', (ev) => {
-          updateContent(mf);
-          applySearchTerm();
-      });
-      mf?.addEventListener('focus-out', (ev) => {
-            console.log(ev.detail);
-      });
-      mf?.addEventListener('move-out', (ev) => {
-            console.log(ev.detail);
-      });
+    mf?.addEventListener('click', (ev) => {
+      console.log('something was clicked');
+    });
+    mf?.addEventListener('input', (ev) => {
+      updateContent(mf);
+      applySearchTerm();
+    });
+    mf?.addEventListener('focus-out', (ev) => {
+      console.log(ev.detail);
+    });
+    mf?.addEventListener('move-out', (ev) => {
+      console.log(ev.detail);
+    });
 
-      // mf.addEventListener('change', (ev) => {
-      // });
-      mf?.addEventListener('selection-change', (ev) => {
-          const selection = mf.selection;
-          // console.assert(selection.ranges[0][0] !== 2 || selection.ranges[0][1] !== 3);
-          document.getElementById('selection').innerHTML =
-              // label("anchor    ") + mf.anchor + "<br>" +
-              label("position  ") + mf.position + "<br>" +
-              label("start     ") + selection.ranges[0][0] + "<br>" +
-              label("end       ") + selection.ranges[0][1] + "<br>" +
-              label("direction ") + '\"' + selection.direction + "\"<br>" +
-              label("value     ") + '\"' + mf.getValue(selection) + '"'
-      });
-      mf?.addEventListener('math-error', (ev) => {
-          console.log('Error :' + ev.detail.code);
-      });
-      if (mf) {
-        updateContent(mf);
-        applySearchTerm();
+    // mf.addEventListener('change', (ev) => {
+    // });
+    mf?.addEventListener('selection-change', (ev) => {
+      const selection = mf.selection;
+      // console.assert(selection.ranges[0][0] !== 2 || selection.ranges[0][1] !== 3);
+      document.getElementById('selection').innerHTML =
+        // label("anchor    ") + mf.anchor + "<br>" +
+        label("position  ") + mf.position + "<br>" +
+        label("start     ") + selection.ranges[0][0] + "<br>" +
+        label("end       ") + selection.ranges[0][1] + "<br>" +
+        label("direction ") + '\"' + selection.direction + "\"<br>" +
+        label("value     ") + '\"' + mf.getValue(selection) + '"'
+    });
+    mf?.addEventListener('math-error', (ev) => {
+      console.log('Error :' + ev.detail.code);
+    });
+    if (mf) {
+      updateContent(mf);
+      applySearchTerm();
+    }
+
+
+
+
+    function updateContent(mf) {
+      const latex = mf.getValue('latex-expanded');
+      try {
+
+        document.getElementById('latex').innerHTML = escapeHtml(
+          latex
+        );
+
+        document.getElementById(
+          'mathascii'
+        ).innerHTML = escapeHtml(mf.getValue('ascii-math'));
+        document.getElementById(
+          'mathml'
+        ).innerHTML = escapeHtml(mf.getValue('math-ml'));
+        document.getElementById(
+          'math-json'
+        ).innerHTML = escapeHtml(mf.getValue('math-json'));
+      } catch (e) {
+        console.error("Error converting %c " + latex + '%c ' +
+          e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
       }
+    }
 
 
+    function label(s) {
+      return `<span class='label'>${s}</span>`;
+    }
 
-
-      function updateContent(mf) {
-          const latex = mf.getValue('latex-expanded');
-          try {
-
-              document.getElementById('latex').innerHTML = escapeHtml(
-                  latex
-              );
-
-              document.getElementById(
-                  'mathascii'
-              ).innerHTML = escapeHtml(mf.getValue('ascii-math'));
-              document.getElementById(
-                  'mathml'
-              ).innerHTML = escapeHtml(mf.getValue('math-ml'));
-              document.getElementById(
-                  'math-json'
-              ).innerHTML = escapeHtml(mf.getValue('math-json'));
-          } catch (e) {
-              console.error("Error converting %c " + latex + '%c ' +
-                  e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
-          }
-      }
-
-
-      function label(s) {
-          return `<span class='label'>${s}</span>`;
-      }
-
-      function escapeHtml(string) {
-          return String(string).replace(/[&<>"'`= /\u200b]/g, function (
-              s
-          ) {
-              return (
-                  {
-                      '&': '&amp;',
-                      '<': '&lt;',
-                      '>': '&gt;',
-                      '"': '&quot;',
-                      "'": '&#39;',
-                      '/': '&#x2F;',
-                      '`': '&#x60;',
-                      '=': '&#x3D;',
-                      '\u200b': '&amp;#zws;',
-                  }[s] || s
-              );
-          });
-      }
-    </script>
+    function escapeHtml(string) {
+      return String(string).replace(/[&<>"'`= /\u200b]/g, function (
+        s
+      ) {
+        return (
+          {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;',
+            '\u200b': '&amp;#zws;',
+          }[s] || s
+        );
+      });
+    }
+  </script>
 </body>
 
 </html>

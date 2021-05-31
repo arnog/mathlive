@@ -463,7 +463,6 @@ export class Atom {
   }
 
   supsubToLatex(options: ToLatexOptions): string {
-    console.log('supsubtoLatex');
     let result = '';
     // Note: **important** we must check only for the existence of the branch
     // not if it is non-empty (`hasEmptyBranch`) because we must serialize
