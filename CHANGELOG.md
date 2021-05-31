@@ -8,6 +8,9 @@
   punctuation with some keyboard layouts and prevent some error messages from
   being throw (addresses **#962**).
 
+- MathML: improved MathML output, especially for formulas with unbalanced
+  delimiters
+
 ## 0.68.0 (2021-05-31)
 
 ### Breaking Changes

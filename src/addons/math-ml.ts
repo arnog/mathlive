@@ -756,7 +756,7 @@ function atomToMathML(atom, options): string {
             '<mo' +
             makeID(atom.id, options) +
             '>' +
-            (SPECIAL_OPERATORS[atom.leftDelim] || atom.leftDelim) +
+            (SPECIAL_OPERATORS[atom.leftDelim] ?? atom.leftDelim) +
             '</mo>';
         }
 
@@ -769,7 +769,7 @@ function atomToMathML(atom, options): string {
             '<mo' +
             makeID(atom.id, options) +
             '>' +
-            (SPECIAL_OPERATORS[atom.rightDelim] || atom.rightDelim) +
+            (SPECIAL_OPERATORS[atom.rightDelim] ?? atom.rightDelim) +
             '</mo>';
         }
 
@@ -1030,10 +1030,10 @@ function atomToMathML(atom, options): string {
       case 'chem':
         break;
       case 'mopen':
-        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        result += toMo(atom, options);
         break;
       case 'mclose':
-        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        result += toMo(atom, options);
         break;
       case 'macro':
         console.log('In conversion to MathML, unknown type : ' + atom.type);
