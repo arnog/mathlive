@@ -155,7 +155,7 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 //
 // Methods such as `setOptions()` or `getOptions()` could be called before
 // the element has been connected (i.e. `mf = new MathfieldElement(); mf.setConfig()`...)
-// and therefore before the matfield instance has been created.
+// and therefore before the mathfield instance has been created.
 // So we'll stash any deferred operations on options (and value) here, and
 // will apply them to the element when it gets connected to the DOM.
 //
