@@ -1,15 +1,14 @@
 {
-    "extends": "./tsconfig.json",
-    "include": [
-        "./src",
-        "./test",
-        "./tutorials",
-        "./*.js",
-        "**/*.js",
-        "**/*.test.ts",
-        "**/*.spec.ts",
-        "**/*.less",
-        "./submodules"
-    ],
-    "exclude": ["coverage", "node_modules", "dist", "build", "examples"]
+  "extends": "./tsconfig.json",
+  "include": [
+    "./src",
+    "./test",
+    "./tutorials",
+    "./*.js",
+    "**/*.js",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.less"
+  ],
+  "exclude": ["coverage", "node_modules", "dist", "build", "examples"]
 }

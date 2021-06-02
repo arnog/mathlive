@@ -65,8 +65,6 @@ export function updateAutocomplete(
   const commandString = command.map((x) => x.value).join('');
   const suggestions = commandString ? suggest(commandString) : [];
 
-  console.log('Suggest: ', commandString, suggestions[0]);
-
   if (suggestions.length === 0) {
     if (/^\\[a-zA-Z\*]+$/.test(commandString)) {
       // This looks like a command name, but not a known one

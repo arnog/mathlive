@@ -53,7 +53,7 @@ export { MathfieldElement } from './public/mathfield-element';
 export {
   serialize as serializeMathJson,
   parse as parseMathJson,
-} from '../submodules/math-json/src/math-json';
+} from '@cortex-js/math-json';
 export type {
   LatexDictionary,
   LatexDictionaryEntry,
@@ -64,7 +64,7 @@ export type {
   ParserFunction,
   SerializeLatexOptions,
   SerializerFunction,
-} from '../submodules/math-json/src/latex-syntax/public';
+} from '@cortex-js/math-json/dist/types/latex-syntax/public';
 export function makeMathField(
   element: HTMLElement,
   options: Partial<MathfieldOptions> = {}

@@ -12,7 +12,7 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
 
-import { parse as parseMathJson } from '../../submodules/math-json/src/math-json';
+import { parse as parseMathJson } from '@cortex-js/math-json';
 import { atomsToMathML } from '../addons/math-ml';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
@@ -385,7 +385,10 @@ export class ModelPrivate implements Model {
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
     } else if (format === 'math-json') {
       const json = parseMathJson(
-        Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
+        Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }),
+        {
+          onError: this.mathfield.options.onError,
+        }
       );
       result = JSON.stringify(json);
     } else if (
