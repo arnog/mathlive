@@ -132,4 +132,16 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Переключить виртуальную клавиатуру',
     'tooltip.undo': 'расстегивать',
   },
+  nl: {
+    'keyboard.tooltip.functions': 'Functies',
+    'keyboard.tooltip.symbols': 'Symbolen',
+    'keyboard.tooltip.greek': 'Griekse letters',
+    'keyboard.tooltip.command': 'LaTeX commando mode',
+    'keyboard.tooltip.numeric': 'Numeriek',
+    'keyboard.tooltip.roman': 'Romeinse letters',
+    'tooltip.copy to clipboard': 'Kopiëren naar klembord',
+    'tooltip.redo': 'Opnieuw',
+    'tooltip.toggle virtual keyboard': 'Schakel naar virtueel toetsenbord',
+    'tooltip.undo': 'Ongedaan maken',
+  },
 };
