@@ -35,8 +35,8 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Bytt virtuelt tastatur',
     'tooltip.undo': 'Angre',
   },
-  
-   sv: {
+
+  sv: {
     'keyboard.tooltip.functions': 'Funktioner',
     'keyboard.tooltip.symbols': 'Symboler',
     'keyboard.tooltip.greek': 'Grekiska bokstäver',

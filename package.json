@@ -16,7 +16,7 @@
     "build": "bash ./scripts/build.sh",
     "clean": "bash ./scripts/clean.sh",
     "dist": "bash ./scripts/build.sh production; bash ./scripts/test.sh",
-    "postinstall": "if git rev-parse --git-dir > /dev/null 2>&1; then git config core.hooksPath ./git-hooks; fi",
+    "postinstall": "bash ./scripts/postinstall.sh",
     "lint": "eslint --fix src/",
     "prepare": "bash ./scripts/build.sh production",
     "start": "bash ./scripts/build.sh watch",
@@ -80,7 +80,6 @@
   "devDependencies": {
     "@cortex-js/prettier-config": "^1.1.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
-    "@rollup/plugin-typescript": "^8.2.1",
     "@types/css-font-loading-module": "0.0.4",
     "@types/jest": "^26.0.23",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
