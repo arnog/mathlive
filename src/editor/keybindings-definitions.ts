@@ -290,7 +290,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   }, // ??
   {
     key: '/',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
     command: ['insert', '$$\\frac{#@}{#?}$$'],
   },
