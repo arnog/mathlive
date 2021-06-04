@@ -1,12 +1,79 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The following deprecated functions have been removed: `latexToMathML()` &rarr;
+  `convertLatexToMathMl()`, `latexToSpeakableText` &rarr;
+  `convertLatexToSpeakableText`, `latexToMarkup()` &rarr;
+  `convertLatexToMarkup()`,
+- All the default imports have been removed. Instead of
+
+```js
+import MathLive from 'mathlive';
+MathLive.renderMathInDocument();
+```
+
+use:
+
+```js
+import { renderMathInDocument } from 'mathlive';
+renderMathInDocument();
+```
+
+- The deprecated `revertToOriginalContent` functionality has been removed.
+- The deprecated `overrideDefaultInlineShortcuts` property has been removed.
+  Instead, use:
+
+```javascript
+mf.setConfig('inlineShortcuts', {
+  ...mf.getConfig('inlineShortcuts'),
+  ...newShortcuts,
+});
+```
+
+- The following Mathfield functions have been removed: `$setConfig()` &rarr;
+  `setOptions()`, `getConfig()` &rarr; `getOptions()`, `$perform()` &rarr;
+  `executeCommand()`, `$text()` &rarr; `getValue()`, `$selectedText()` &rarr;
+  `getValue()`, `$selectionIsCollapsed()`, `$selectionDepth()`,
+  `$selectionAtStart()`, `$selectionAtEnd()`, `$latex()` &rarr;
+  `getValue()`and`setValue()`, `$el`, `$insert()` &rarr; `insert()`,
+  `$hasFocus()` &rarr; `hasFocus()`, `$focus()` &rarr; `focus()`, `$blur()`
+  &rarr; `blur()`, `$select()` &rarr; `select()`, `$clearSelection()` &rarr;
+  `executeCommand('delete-backward')`, `$applyStyle()` &rarr; `applyStyle()`,
+  `$keystroke()`, `$typedText()`
+
+- The `makeMathField()` function has been removed. Use `new MathfieldElement()`
+  or the `<math-field>` tag instead:
+
+```javascript
+// Before
+let mf = MathLive.makeMathField(document.createElement('div'), {
+  virtualKeyboardMode: 'manual',
+});
+mf.$latex('f(x) = \\sin x');
+document.body.appendChild(mf.$el());
+
+// After
+let mfe = new MathfieldElement({
+  virtualKeyboardMode: 'manual',
+});
+mfe.value = 'f(x) = \\sin x';
+document.body.appendChild(mfe);
+```
+
+or:
+
+```html
+<math-field virtual-keyboard-mode="manual">f(x) = \sin x</math-field>
+```
+
 ### Improvements
 
 - Keybindings: keybindings can now be associated with specific keyboard layouts.
   By default, the keybindings that are specific to the US keyboard layout are no
   longer applied with other keyboard layouts. This makes it easier to use
   punctuation with some keyboard layouts and prevent some error messages from
-  being throw (addresses **#962**).
+  being thrown (addresses **#962**).
 
 - MathML: improved MathML output, especially for formulas with unbalanced
   delimiters
@@ -55,9 +122,10 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 
 - The `SpeechScope` argument of the `speak` command is now optional.
 - Display the keys in the keystroke caption panel (alt/option+shift+K) in
-  chronologically order from left to right.
-- Do not inject stylesheets or placeholder elements for the popover, keystroke
-  caption or virtual keyboard until actually needed.
+  chronological order from left to right.
+- Do not inject stylesheets or placeholder elements for the popover panel,
+  keystroke caption panel or virtual keyboard until actually needed, which may
+  be never and thus result in a smaller DOM.
 
 ### Architecture
 
@@ -74,9 +142,11 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
   inoperational.
 - In Chrome/Blink, when a mathfield was in a `contentEditable` block, inserting
   a line before the component would make the component crash. Now the component
-  is correctly disconnected, then reconnected and preserve its state across the
+  is correctly disconnected, then reconnected and preserves its state across the
   disconnection.
-- **#960** Typing "e^pi" would result in `e\pi` instead of `e^\pi`.
+- **#960** Typing "e^pi" would result in `e\pi` instead of `e^\pi`. Also,
+  serializing some partial formulas, such as "e^" would result in incorrect
+  Latex (e.g. "e").
 - In MathML serialization, `2^3` was not serializing the superscript (**#951** )
   and subscripts were not serialized for various constructs( **#534**).
 
@@ -866,7 +936,7 @@ for more details.
 ### Bug Fixes
 
 - Inline shortcuts would not always be triggered correctly, for example `x=sin`
-  -> `x\sin` instead of `x=\sin`
+  &rarr; `x\sin` instead of `x=\sin`
 - The text in tooltip was not vertically centered in narrow layouts (mobile
   devices)
 - **#668** Extensible symbols, such as `\xrightarrow` were incorrectly treated
@@ -886,7 +956,7 @@ release.
 Support for `MathfieldElement` custom element/web component and `<math-field>`
 tag.
 
-The `makeMathField()` method is still supported, but it will be removed in an
+The `makeMathField()` function is still supported, but it will be removed in an
 upcoming version. You should transition to using `<math-field>` or
 `MathfieldElement` instead.
 
@@ -2139,11 +2209,11 @@ to account for the new info.
 
 For example, when typing "if x >0":
 
-- "i" -> math mode, imaginary unit
-- "if" -> text mode, english word "if"
-- "if x" -> all in text mode, maybe the next word is xylophone?
-- "if x >" -> "if" stays in text mode, but now "x >" is in math mode
-- "if x > 0" -> "if" in text mode, "x > 0" in math mode
+- "i" &rarr; math mode, imaginary unit
+- "if" &rarr; text mode, english word "if"
+- "if x" &rarr; all in text mode, maybe the next word is xylophone?
+- "if x >" &rarr; "if" stays in text mode, but now "x >" is in math mode
+- "if x > 0" &rarr; "if" in text mode, "x > 0" in math mode
 
 Smart Mode is off by default.
 
@@ -2547,7 +2617,7 @@ MathLive.makeMathField(/*...*/);
 - MASTON: Use Unicode to represent math-variant letters (e.g. ℂ)
 - Convert math-variant letters encoded in Unicode to Latex when pasting (e.g. ℂ
   becomes `\C`, 𝕰 becomes `\mathord{\mathbf{\mathfrak{E}}}`
-- MASTON: Commutativity support. a + b + c -> add(a, b, c)
+- MASTON: Commutativity support. a + b + c &rarr; add(a, b, c)
 - MASTON: Right and left-associativity support ('=' and '=>' are right
   associative)
 - Improvements to the delete behavior: when to the right of a `\left...\right`

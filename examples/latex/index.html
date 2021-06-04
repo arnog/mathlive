@@ -102,6 +102,20 @@
             color: #333;
             opacity: 1;
         }
+
+        math-field {
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 5px;
+            background: #fff;
+            font-size: 24px;
+        }
+
+        h2 {
+            margin: 1em 0 0.5em 0;
+            padding: 0;
+
+        }
     </style>
 </head>
 
@@ -111,9 +125,9 @@
     </header>
     <main>
         <div id="inputs">
-            <label>Formula</label>
-            <div class="mathfield" id="mf"></div>
-            <label>Latex</label>
+            <h2>Formula</h2>
+            <math-field id="mf"></math-field>
+            <h2>Latex</h2>
             <textarea class="output" id="latex" autocapitalize="off" autocomplete="off" autocorrect="off"
                 spellcheck="false"></textarea></textarea>
         </div>
@@ -122,29 +136,18 @@
         </div>
     </main>
 
-    <footer>
-        <a href="https://github.com/arnog/mathlive/tree/master/examples/basic"><svg class="fa-w-24" height="24px"
-                style="vertical-align: -3px; margin-right: 6px;">
-                <use xlink:href="../icons.svg#github" /></svg>View source&nbsp;<svg class="fa-w-24" height="24px">
-                <use xlink:href="../icons.svg#angle-right" /></svg></a>
-        <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px">
-                <use xlink:href="../icons.svg#angle-right" /></svg></a>
-        <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px">
-                <use xlink:href="../icons.svg#angle-right" /></svg></a>
-    </footer>
-
     <script type="module">
-        import { makeMathField } from '/dist/mathlive.mjs';
+        import '/dist/mathlive.mjs';
+        // import  'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
         import * as htmlToImage from './html-to-image/index.mjs';
-        // import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.mjs';
 
-        const mf = makeMathField('mf', {
+        const mf = document.getElementById('mf');
+        mf.setOptions({
             smartMode: true,
-            virtualKeyboardMode: 'manual',
-            onContentDidChange: (mf) => {
-                const latex = mf.getValue();
-                document.getElementById('latex').value = latex;
-            },
+            virtualKeyboardMode: 'manual'
+        });
+        mf.addEventListener('input', (evt) => {
+            document.getElementById('latex').value = mf.getValue();
         });
 
         document.getElementById('latex').addEventListener('input', (ev) => {

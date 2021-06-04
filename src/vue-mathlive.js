@@ -1,6 +1,6 @@
 export default {
   name: 'mathlive-mathfield',
-  template: '<div class="mathfield" :id="id"><slot></slot></div>',
+  template: '<math-field :id="id"><slot></slot></math-field>',
   props: {
     id: {
       type: String,
@@ -63,9 +63,9 @@ export default {
       // When the `value` prop (from the model) is modified
       // update the mathfield to stay in sync, but don't send back content
       // change notifications, to avoid infinite loops.
-      const oldMathfieldValue = this.$el.mathfield.getValue();
+      const oldMathfieldValue = this.$el.getValue();
       if (newValue !== oldMathfieldValue) {
-        this.$el.mathfield.setValue(newValue, {
+        this.$el.setValue(newValue, {
           suppressChangeNotifications: true,
         });
       }
@@ -74,7 +74,7 @@ export default {
       deep: true,
       handler(newValue, oldValue) {
         if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
-          this.$el.mathfield.setOptions(newValue);
+          this.$el.setOptions(newValue);
         }
       },
     },
@@ -83,8 +83,8 @@ export default {
     // A new instance is being created
     // Wait until the DOM has been constructed...
     this.$nextTick(() => {
-      // ... then make the Mathfield
-      this.$mathlive.makeMathField(this.$el, {
+      // ... then configure the mathfield
+      this.$el.setOptions({
         ...this.options,
         // To support the 'model' directive, this handler will connect
         // the content of the mathfield to the ViewModel
@@ -92,7 +92,7 @@ export default {
           // When the mathfield is updated, notify the model.
           // The initial input value is generated from the <slot>
           // content, so it may need to be updated.
-          this.$emit('input', this.$el.mathfield.getValue());
+          this.$emit('input', this.$el.getValue());
         },
         // Those asynchronous notification handlers are translated to events
         onFocus: (_) => {
@@ -128,32 +128,28 @@ export default {
      * @param {string} selector
      */
     executeCommand(selector) {
-      this.$el.mathfield.executeCommand(selector);
+      this.$el.executeCommand(selector);
     },
     /*
      * @return {boolean}
      */
     hasFocus() {
-      return this.$el.mathfield.hasFocus();
+      return this.$el.hasFocus();
     },
     focus() {
-      this.$el.mathfield.focus();
+      this.$el.focus();
     },
     blur() {
-      this.$el.mathfield.blur();
+      this.$el.blur();
     },
     getValue(format) {
-      return this.$el.mathfield.getValue(format);
-    },
-    /** @deprecated */
-    selectedText(format) {
-      return this.$el.mathfield.$selectedText(format);
+      return this.$el.getValue(format);
     },
     insert(text, options) {
-      this.$el.mathfield.insert(text, options);
+      this.$el.insert(text, options);
     },
     select() {
-      this.$el.mathfield.select();
+      this.$el.select();
     },
   },
 };

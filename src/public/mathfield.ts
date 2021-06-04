@@ -173,46 +173,13 @@ export interface VirtualKeyboardInterface {
 export interface Mathfield {
   mode: ParseMode;
 
-  /**
-   * @deprecated Use [[`getOptions`]]
-   */
-  getConfig?<K extends keyof MathfieldOptions>(
-    keys: K[]
-  ): Pick<MathfieldOptions, K>;
-  /**
-   * @deprecated Use [[`getOptions`]]
-   */
-  getConfig?<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
-  /**
-   * @deprecated Use [[`getOptions`]]
-   */
-  getConfig?(): MathfieldOptions;
-
   getOptions(): MathfieldOptions;
   getOptions<K extends keyof MathfieldOptions>(
     keys: K[]
   ): Pick<MathfieldOptions, K>;
   getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
 
-  /**
-   * @deprecated Use [[`setOptions`]]
-   */
-  setConfig?(options: Partial<MathfieldOptions>): void;
-
   setOptions(options: Partial<MathfieldOptions>): void;
-
-  /**
-   * Reverts this mathfield to its original content.
-   *
-   * After this method has been called, no other methods can be called on
-   * the object.
-   *
-   * To turn the element back into a mathfield, call
-   * `makeMathField()` on the element again to get a new mathfield object.
-   *
-   * @deprecated
-   */
-  $revertToOriginalContent?(): void;
 
   /**
    * Execute a [[`Commands`|command]] defined by a selector.
@@ -235,11 +202,6 @@ export interface Mathfield {
   executeCommand(command: Selector | [Selector, ...any[]]): boolean;
 
   /**
-   * @deprecated Use [[`executeCommand`]]
-   */
-  $perform?(command: Selector | [Selector, ...any[]]): boolean;
-
-  /**
    * Returns a textual representation of the mathfield.
    *
    * @param format - The format of the result.
@@ -255,70 +217,7 @@ export interface Mathfield {
     arg3?: OutputFormat
   ): string;
 
-  /**
-   * @deprecated Use [[`getValue`]]
-   */
-  $text?(format?: OutputFormat): string;
-
-  /**
-   * Returns a textual representation of the selection in the mathfield.
-   *
-   * @param format - The format of the result.
-   * **Default** = `"latex"`
-   * @category Accessing the Content
-   * @deprecated Use `mfe.getValue(mfe.selection)`
-   */
-  $selectedText?(format?: OutputFormat): string;
-
   select(): void;
-
-  /**
-   * @deprecated Use [[`select`]]
-   */
-  $select?(): void;
-
-  /**
-   * @deprecated Use [[`executeCommand`]]
-   */
-  $clearSelection?(): void;
-
-  /**
-   * Checks if the selection is collapsed.
-   *
-   * @return True if the length of the selection is 0, that is, if it is a single
-   * insertion point.
-   *
-   * @deprecated Use `mfe.selection[0].collapsed`
-   */
-  $selectionIsCollapsed?(): boolean;
-
-  /**
-   * Returns the depth of the selection group.
-   *
-   * If the selection is at the root level, returns 0.
-   *
-   * If the selection is a portion of the numerator of a fraction
-   * which is at the root level, return 1. Note that in that case, the numerator
-   * would be the "selection group".
-   *
-   * @deprecated Use `mfe.selection[0].depth`
-   */
-  $selectionDepth?(): number;
-
-  /**
-   * Checks if the selection starts at the beginning of the selection group.
-   *
-   * @deprecated
-   *
-   */
-  $selectionAtStart?(): boolean;
-
-  /**
-   * Checks if the selection extends to the end of the selection group.
-   *
-   * @deprecated
-   */
-  $selectionAtEnd?(): boolean;
 
   /**
    * Sets the content of the mathfield to the
@@ -327,30 +226,6 @@ export interface Mathfield {
    * @category Accessing the Content
    */
   setValue(latex?: string, options?: InsertOptions): void;
-
-  /**
-   * Sets or gets the content of the mathfield.
-   *
-   * If `text` is not empty, sets the content of the mathfield to the
-   * text interpreted as a LaTeX expression.
-   *
-   * If `text` is empty (or omitted), return the content of the mathfield as a
-   * LaTeX expression.
-   *
-   * @category Accessing the Content
-   *
-   * @deprecated Use [[`setValue`]] and [[`getValue`]]
-   */
-  $latex?(text?: string, options?: InsertOptions): string;
-
-  /**
-   * Return the DOM element associated with this mathfield.
-   *
-   * Note that `this.$el().mathfield === this`
-   *
-   * @deprecated
-   */
-  $el?(): HTMLElement;
 
   /**
    * Inserts a block of text at the current insertion point.
@@ -367,32 +242,10 @@ export interface Mathfield {
   insert(s: string, options?: InsertOptions): boolean;
 
   /**
-   *
-   * @deprecated Use [[`insert`]]
-   */
-  $insert?(s: string, options?: InsertOptions): boolean;
-
-  /**
-   * @category Focus
-   *
-   * @deprecated Use [[`hasFocus`]]
-   */
-  $hasFocus?(): boolean;
-  /**
    * @category Focus
    *
    */
   hasFocus(): boolean;
-  /**
-   * @category Focus
-   * @deprecated Use [[`focus`]]
-   */
-  $focus?(): void;
-  /**
-   * @category Focus
-   * @deprecated Use [[`blur`]]
-   */
-  $blur?(): void;
 
   /**
    * @category Focus
@@ -425,37 +278,6 @@ export interface Mathfield {
    *
    */
   applyStyle(style: Style, options?: ApplyStyleOptions): void;
-  /**
-   * @deprecated Use [[`applyStyle`]]
-   */
-  $applyStyle?(style: Style): void;
-
-  /**
-   * @param keys - A string representation of a key combination.
-   *
-   * For example `"Alt-KeyU"`.
-   *
-   * See [W3C UIEvents](https://www.w3.org/TR/uievents/#code-virtual-keyboards)
-   * for more information on the format of the descriptor.
-   *
-   * @param evt - An event corresponding to the keystroke. Pass this
-   * event if the keystroke originated from a user interaction that produced it.
-   * If the keystroke is synthetic (for example, triggered in response to a
-   * click or other event not involving a keyboard), omit it.
-   * @return Return true if the field need to be re-rendered
-   * @category Changing the Content
-   * @deprecated Use [[`executeCommand`]] or [[`setValue`]]
-   */
-  $keystroke?(keys: string, evt?: KeyboardEvent): boolean;
-
-  /**
-   * Simulates a user typing the keys indicated by text.
-   *
-   * @param text - A sequence of one or more characters.
-   * @category Changing the Content
-   * @deprecated Use [[`executeCommand`]] or [[`setValue`]]
-   */
-  $typedText?(text: string): void;
 
   getCaretPoint?(): { x: number; y: number } | null;
   setCaretPoint(x: number, y: number): boolean;

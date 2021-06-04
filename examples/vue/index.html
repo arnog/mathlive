@@ -11,11 +11,10 @@
     <script type="module">
         import Vue from 'https://cdn.jsdelivr.net/npm/vue/dist/vue.esm.browser.js';
         import * as MathLive from '/dist/mathlive.mjs';
-        //   import Mathfield from "./node_modules/mathlive/dist/vue-mathlive.mjs";
-        import MathfieldComponent from '../../dist/vue-mathlive.mjs';
+        import VueMathfield from '../../dist/vue-mathlive.mjs';
         Vue.config.devtools = true;
 
-        Vue.use(MathfieldComponent, MathLive);
+        Vue.use(VueMathfield, MathLive);
         // The default tag for mathfields is <mathlive-mathfield>
         // A custom tag can be defined using:
         // ```Vue.component("custom-tag", Mathfield);```
@@ -30,7 +29,7 @@
             },
             methods: {
                 sayIt: function (event) {
-                    this.$refs['mathfield'].$el.mathfield.executeCommand([
+                    this.$refs['mathfield'].$el.executeCommand([
                         'speak',
                         'all',
                     ]);
@@ -48,8 +47,7 @@
                 asSpokenText: function () {
                     return (
                         (this.$refs['mathfield'] &&
-                            this.$refs['mathfield'].$el.mathfield &&
-                            this.$refs['mathfield'].$el.mathfield.getValue(
+                            this.$refs['mathfield'].$el.getValue(
                                 'spoken'
                             )) ||
                         ''
@@ -58,13 +56,6 @@
             },
         });
     </script>
-    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-        <symbol id="svg-angle-right" viewBox="0 0 192 512">
-            <path fill="currentColor"
-                d="M187.8 264.5L41 412.5c-4.7 4.7-12.3 4.7-17 0L4.2 392.7c-4.7-4.7-4.7-12.3 0-17L122.7 256 4.2 136.3c-4.7-4.7-4.7-12.3 0-17L24 99.5c4.7-4.7 12.3-4.7 17 0l146.8 148c4.7 4.7 4.7 12.3 0 17z">
-            </path>
-        </symbol>
-    </svg>
 
     <header>
         <h1>MathLive with Vue.js</h1>
@@ -81,16 +72,6 @@
             <button v-on:click="setIt">Set It</button>
         </div>
     </main>
-    <footer>
-        <a href="https://github.com/arnog/mathlive/tree/master/examples/basic"><svg class="fa-w-24" height="24px"
-                style="vertical-align: -3px; margin-right: 6px;">
-                <use xlink:href="../icons.svg#github" /></svg>View source&nbsp;<svg class="fa-w-24" height="24px">
-                <use xlink:href="../icons.svg#angle-right" /></svg></a>
-        <a href="../">More examples&nbsp;<svg class="fa-w-24" height="24px">
-                <use xlink:href="../icons.svg#angle-right" /></svg></a>
-        <a href="/">Return to the homepage&nbsp;<svg class="fa-w-24" height="24px">
-                <use xlink:href="../icons.svg#angle-right" /></svg></a>
-    </footer>
 </body>
 
 </html>

@@ -542,10 +542,6 @@ const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
   // be processed when they appear inside ones that are ignored.
   processClass: 'tex2jax_process',
 
-  // Indicate whether to preserve or discard the original content of the
-  // elements being rendered in a 'data-original-content' attribute.
-  preserveOriginalContent: true,
-
   // Indicate the format to use to render accessible content
   renderAccessibleContent: 'mathml',
 

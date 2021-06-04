@@ -352,10 +352,7 @@ export class ModelPrivate implements Model {
         expandMacro: format === 'latex-expanded',
         defaultMode: this.mathfield.options.defaultMode,
       });
-    } else if (format === 'mathML' /* @deprecated */ || format === 'math-ml') {
-      if (format === 'mathML') {
-        console.error("'mathML is deprecated. Use 'math-ml' instead");
-      }
+    } else if (format === 'math-ml') {
       result = atomsToMathML(atom, this.mathfield.options);
     } else if (format === 'spoken') {
       result = atomToSpeakableText(atom, this.mathfield.options);
@@ -366,14 +363,8 @@ export class ModelPrivate implements Model {
       this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
     } else if (
       format === 'spoken-ssml' ||
-      format === 'spoken-ssml-with-highlighting' ||
-      format === 'spoken-ssml-withHighlighting' // @deprecated
+      format === 'spoken-ssml-with-highlighting'
     ) {
-      if (format === 'spoken-ssml-withHighlighting') {
-        console.error(
-          "'spoken-ssml-withHighlighting is deprecated. Use 'spoken-ssml-with-highlighting' instead"
-        );
-      }
       const saveTextToSpeechMarkup = this.mathfield.options.textToSpeechMarkup;
       // Const savedAtomIdsSettings = this.config.atomIdsSettings;    // @revisit
       this.mathfield.options.textToSpeechMarkup = 'ssml';
@@ -388,13 +379,7 @@ export class ModelPrivate implements Model {
         Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
       );
       result = JSON.stringify(json);
-    } else if (
-      format === 'ASCIIMath' /* @deprecated */ ||
-      format === 'ascii-math'
-    ) {
-      if (format === 'ASCIIMath') {
-        console.error("'ASCIIMath' is deprecated. Use 'ascii-math' instead");
-      }
+    } else if (format === 'ascii-math') {
       result = atomToAsciiMath(atom);
     } else {
       console.warn('Unknown format :', format);
