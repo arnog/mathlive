@@ -11,6 +11,18 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',
   },
+  fi: {
+    'keyboard.tooltip.functions': 'Toiminnot',
+    'keyboard.tooltip.symbols': 'Symbolit',
+    'keyboard.tooltip.greek': 'Kreikkalaiset kirjeet',
+    'keyboard.tooltip.command': 'LaTeX-komentotila',
+    'keyboard.tooltip.numeric': 'Numeerinen',
+    'keyboard.tooltip.roman': 'Roomalaiset kirjeet',
+    'tooltip.copy to clipboard': 'Kopioi leikepöydälle',
+    'tooltip.redo': 'Tee uudelleen',
+    'tooltip.toggle virtual keyboard': 'Vaihda virtuaalinäppäimistö',
+    'tooltip.undo': 'Kumoa',
+  },
   da: {
     'keyboard.tooltip.functions': 'Funktioner',
     'keyboard.tooltip.symbols': 'Symboler',
