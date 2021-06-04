@@ -1640,6 +1640,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
+   * The depth of an offset represent the depth in the expression tree.
+   */
+  getOffsetDepth(offset: Offset): number {
+    if (this._mathfield) {
+      return this._mathfield.model.at(offset)?.treeDepth - 2 ?? 0;
+    }
+    return 0;
+  }
+
+  /**
    * The last valid offset.
    * @category Selection
    */

@@ -2,6 +2,13 @@
 
 ### Breaking Changes
 
+- This release requires TypeScript 4.3 or later. If you are using VSCode, you
+  may need to change the version of TypeScript used by the editor for language
+  services (syntax checking). To do so, with a TypeScript file open, click the
+  Typescript version in the bottom bar, then choose "Select TypeScript Version",
+  then "Use Workspace Version" (see
+  https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-newer-typescript-versions)
+
 - The following deprecated functions have been removed: `latexToMathML()` &rarr;
   `convertLatexToMathMl()`, `latexToSpeakableText` &rarr;
   `convertLatexToSpeakableText`, `latexToMarkup()` &rarr;
@@ -67,10 +74,27 @@ or:
 <math-field virtual-keyboard-mode="manual">f(x) = \sin x</math-field>
 ```
 
+## Improvements
+
+- Added localization for Dutch (contributed by @harrisnl), Swedish, Danish and
+  Norwegian (contributed by @physedo).
+- The selection can now be set using an offset, i.e. `mf.selection = 0` instead
+  of `mf.selection = { ranges:[[0, 0]] }`.
+
+## New Features
+
+- The `getOffsetDepth()` method can be used to query the depth of a specific
+  offset. Use `mf.getOffsetDepth(mf.position)` for the depth of the current
+  position.
+
 ### Bug Fixes
 
 - Actually change the keyboard toggle glyph when changed with `setOptions`
 - Reparse the formula when the `macros` dictionary is updated
+- **#971** In some browsers, when mathfield elements are contained in a
+  container with `overflow: scroll`, the dimensions of the viewport would be
+  incorrectly affected.
+- **#974** With non-US keyboard layout, always map the "/" key to a fraction.
 
 ## 0.68.1 (2021-06-02)
 
