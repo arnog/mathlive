@@ -1661,7 +1661,12 @@ function reflectAttributes(element: MathfieldElement) {
         }
       } else {
         // Set attribute (as string)
-        element.setAttribute(x, options[prop].toString());
+        if (
+          typeof options[prop] === 'string' ||
+          typeof options[prop] === 'number'
+        ) {
+          element.setAttribute(x, options[prop].toString());
+        }
       }
     }
   });
