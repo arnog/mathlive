@@ -143,9 +143,13 @@ declare global {
   }
 }
 
+//
+// Note: the `position: relative` is required to fix https://github.com/arnog/mathlive/issues/971
+//
+
 const MATHFIELD_TEMPLATE = document.createElement('template');
 MATHFIELD_TEMPLATE.innerHTML = `<style>
-:host { display: block; }
+:host { display: block; position: relative; }
 :host([hidden]) { display: none; }
 :host([disabled]) { opacity:  .5; }
 :host(:focus), :host(:focus-within) {
