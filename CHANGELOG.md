@@ -67,6 +67,10 @@ or:
 <math-field virtual-keyboard-mode="manual">f(x) = \sin x</math-field>
 ```
 
+### Bug Fixes
+
+- Actually change the keyboard toggle glyph when changed with `setOptions`
+
 ## 0.68.1 (2021-06-02)
 
 ### Improvements

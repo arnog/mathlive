@@ -633,6 +633,15 @@ export class MathfieldPrivate implements Mathfield {
 
     if (this.options.readOnly) {
       this.onBlur();
+      this.element!.classList.add('ML__isReadOnly');
+    } else {
+      this.element!.classList.remove('ML__isReadOnly');
+    }
+
+    if (this.options.defaultMode === 'inline-math') {
+      this.element!.classList.add('ML__isInline');
+    } else {
+      this.element!.classList.remove('ML__isInline');
     }
 
     this.virtualKeyboard?.setOptions(this.options);
@@ -643,15 +652,15 @@ export class MathfieldPrivate implements Mathfield {
       this.virtualKeyboardToggle?.classList.remove('is-visible');
     }
 
-    if (this.options.readOnly) {
-      this.element!.classList.add('ML__isReadOnly');
-    } else {
-      this.element!.classList.remove('ML__isReadOnly');
-    }
-    if (this.options.defaultMode === 'inline-math') {
-      this.element!.classList.add('ML__isInline');
-    } else {
-      this.element!.classList.remove('ML__isInline');
+    if ('virtualKeyboardToggleGlyph' in config) {
+      const toggle = this.element?.querySelector(
+        '.ML__virtual-keyboard-toggle'
+      );
+      if (toggle) {
+        toggle.innerHTML = this.options.createHTML(
+          this.options.virtualKeyboardToggleGlyph
+        );
+      }
     }
 
     this.colorMap = (name: string): string | undefined => {
