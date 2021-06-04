@@ -48,8 +48,8 @@
     </main>
 
     <script type="module">
-        import { makeMathField } from '/dist/mathlive.mjs';
-        // import {makeMathField} from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+        import '/dist/mathlive.mjs';
+        // import 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
         document.getElementById('mf').addEventListener('input', (ev) => {
             document.getElementById('output').innerHTML = ev.target.getValue();
         });

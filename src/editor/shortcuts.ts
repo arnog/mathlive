@@ -17,15 +17,11 @@ export function getInlineShortcutsStartingWith(
 ): string[] {
   const result: string[] = [];
 
-  const skipDefaultShortcuts = config.overrideDefaultInlineShortcuts;
-
   for (let i = 0; i <= s.length - 1; i++) {
     const s2 = s.slice(Math.max(0, i));
-    if (!skipDefaultShortcuts) {
-      for (const key of Object.keys(INLINE_SHORTCUTS)) {
-        if (key.startsWith(s2) && !result.includes(key)) {
-          result.push(key);
-        }
+    for (const key of Object.keys(INLINE_SHORTCUTS)) {
+      if (key.startsWith(s2) && !result.includes(key)) {
+        result.push(key);
       }
     }
 

@@ -1,7 +1,5 @@
-![Screencast](screencast.gif)
-
 The MathLive Vue wrapper provides a Vue component that implements a
-`<mathfield>` HTML tag.
+`<mathlive-mathfield>` HTML tag.
 
 The component can be used to edit formulas using the MathLive library. The
 editor provides a rich, accessible, editing UI, including virtual keyboards for
@@ -16,10 +14,10 @@ Next, the wrapper should be imported, then the two connected using `Vue.use()`
 
 ```html
 <script type="module">
-  import MathLive from './mathlive.js';
-  import Mathfield from './vue-mathlive.mjs';
+  import * as MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+  import VueMathfield from 'https://unpkg.com/mathlive/dist/vue-mathlive.mjs';
 
-  Vue.use(Mathfield, MathLive);
+  Vue.use(VueMathfield, MathLive);
 </script>
 ```
 
@@ -50,7 +48,7 @@ The textual content of the element is used as the initial value of the editor.
 | Name          | Type                                      | Description                                                                                                                                                                                                                                                                                                                            |
 | ------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `value`       | `string`                                  | The content of the mathfield, represented as a LaTeX string.                                                                                                                                                                                                                                                                           |
-| `options`     | `object`                                  | Configuration options for the mathfield. See [documentation](http://docs.mathlive.io/module-mathlive.html#makeMathField)                                                                                                                                                                                                               |
+| `options`     | `object`                                  | Configuration options for the mathfield.                                                                                                                                                                                                                                                                                               |
 | `onKeystroke` | `(keystroke:string, ev:Event) => boolean` | A callback invoked when a key is pressed. `keystroke` is a string describing the keystroke, `ev` is the native keyboard event. Return false to stop handling of the event                                                                                                                                                              |
 | `onMoveOutOf` | `(string) => boolean`                     | A callback invoked when keyboard navigation would cause the insertion point to leave the mathfield. The argument indicates the direction of the navigation, either "forward" or "backward". Return false to prevent the move, true to wrap around to the start of the field. By default, the insertion point will wrap around.         |
 | `onTabOutOf`  | `(string) => boolean`                     | A callback invoked when pressing tab (or shift-tab) would cause the insertion point to leave the mathfield. The argument indicates the direction of the navigation, either "forward" or "backward". Return false to prevent the move, true to wrap around to the start of the field. By default, the insertion point will wrap around. |

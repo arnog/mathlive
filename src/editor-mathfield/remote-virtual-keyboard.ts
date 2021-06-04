@@ -168,7 +168,6 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
 
   static get defaultOptions(): RemoteVirtualKeyboardOptions {
     return {
-      namespace: '',
       createHTML: (s: string): any => s,
       fontsDirectory: './fonts',
       soundsDirectory: './sounds',

@@ -105,9 +105,6 @@ export class MathfieldPrivate implements Mathfield {
     mathfield?: MathfieldPrivate;
   };
 
-  /** @deprecated */
-  readonly originalContent: string;
-
   keyboardDelegate?: KeyboardDelegate;
   field?: HTMLElement;
   fieldContent?: Element | null;
@@ -158,9 +155,6 @@ export class MathfieldPrivate implements Mathfield {
   _atomBoundsCache?: Map<string, Rect>;
 
   /**
-   * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
-   * instead of invoking directly this constructor.
-   *
    *
    * @param element - The DOM element that this mathfield is attached to.
    * Note that `element.mathfield` is this object.
@@ -253,8 +247,6 @@ export class MathfieldPrivate implements Mathfield {
     this.element = element;
     element.mathfield = this;
 
-    // Save existing content
-    this.originalContent = element.innerHTML;
     let elementText = options.value ?? this.element.textContent;
     if (elementText) {
       elementText = elementText.trim();
@@ -598,12 +590,6 @@ export class MathfieldPrivate implements Mathfield {
     return this._keybindings;
   }
 
-  /** @deprecated */
-  $setConfig(config: Partial<MathfieldOptionsPrivate>): void {
-    deprecated('$setConfig');
-    this.setOptions(config);
-  }
-
   setOptions(config: Partial<MathfieldOptionsPrivate>): void {
     this.options = updateOptions(this.options, config);
     this.model.setListeners({
@@ -709,24 +695,6 @@ export class MathfieldPrivate implements Mathfield {
     requestUpdate(this);
   }
 
-  /** @deprecated */
-  getConfig<K extends keyof MathfieldOptionsPrivate>(
-    keys: K[]
-  ): Pick<MathfieldOptionsPrivate, K>;
-  /** @deprecated */
-  getConfig<K extends keyof MathfieldOptionsPrivate>(
-    key: K
-  ): MathfieldOptionsPrivate[K];
-  /** @deprecated */
-  getConfig(): MathfieldOptionsPrivate;
-  /** @deprecated */
-  getConfig(
-    keys?: keyof MathfieldOptionsPrivate | (keyof MathfieldOptionsPrivate)[]
-  ): any | Partial<MathfieldOptionsPrivate> {
-    deprecated('getConfig');
-    return getOptions(this.options, keys);
-  }
-
   getOptions<K extends keyof MathfieldOptionsPrivate>(
     keys: K[]
   ): Pick<MathfieldOptionsPrivate, K>;
@@ -794,13 +762,6 @@ export class MathfieldPrivate implements Mathfield {
     }
   }
 
-  /** @deprecated */
-  $revertToOriginalContent(): void {
-    deprecated('$revertToOriginalContent');
-    this.dispose();
-    this.element!.innerHTML = this.options.createHTML(this.originalContent);
-  }
-
   dispose(): void {
     if (!isValidMathfield(this)) return;
 
@@ -854,14 +815,6 @@ export class MathfieldPrivate implements Mathfield {
     clearTimeout(this.keystrokeBufferResetTimer);
   }
 
-  /** @deprecated */
-  $perform(
-    command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
-  ): boolean {
-    deprecated('$perform');
-    return this.executeCommand(command);
-  }
-
   executeCommand(
     command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
   ): boolean {
@@ -882,11 +835,6 @@ export class MathfieldPrivate implements Mathfield {
 
   set selection(value: Selection) {
     this.model.selection = value;
-  }
-
-  /** @deprecated */
-  $text(format: OutputFormat): string {
-    return this.getValue(format);
   }
 
   getValue(): string;
@@ -941,79 +889,6 @@ export class MathfieldPrivate implements Mathfield {
     replace(this.model, searchValue, newValue, options);
   }
 
-  /** @deprecated */
-  $selectedText(format: OutputFormat): string {
-    deprecated('$selectedText');
-
-    return this.getValue(this.model.selection, format);
-  }
-
-  /** @deprecated */
-  $selectionIsCollapsed(): boolean {
-    deprecated('$selectionIsCollapsed');
-    return this.model.selectionIsCollapsed;
-  }
-
-  /** @deprecated */
-  $selectionDepth(): number {
-    deprecated('$selectionDepth');
-    return this.model.at(this.model.position).treeDepth;
-  }
-
-  /**
-   * Checks if the selection starts at the beginning of the selection group.
-   *
-   * @deprecated
-   */
-  $selectionAtStart(): boolean {
-    deprecated('$selectionAtStart');
-    return false;
-  }
-
-  /** @deprecated */
-  $selectionAtEnd(): boolean {
-    deprecated('$selectionAtEnd');
-    return false;
-  }
-
-  /** @deprecated */
-  $latex(text?: string, options?: InsertOptions): string {
-    deprecated('$latex');
-    if (typeof text === 'string') {
-      const oldValue = Atom.serialize(this.model.root, {
-        expandMacro: false,
-        defaultMode: this.options.defaultMode,
-      });
-      if (text !== oldValue) {
-        options = options ?? { mode: 'math' };
-        ModeEditor.insert('math', this.model, text, {
-          insertionMode: 'replaceAll',
-          selectionMode: 'after',
-          format: 'latex',
-          mode: 'math',
-          suppressChangeNotifications: options.suppressChangeNotifications,
-          macros: this.options.macros,
-        });
-        this.undoManager.snapshot(this.options);
-        requestUpdate(this);
-      }
-
-      return text;
-    }
-
-    // Return the content as LaTeX
-    return Atom.serialize(this.model.root, {
-      expandMacro: false,
-      defaultMode: this.options.defaultMode,
-    });
-  }
-
-  /** @deprecated */
-  $el(): HTMLElement {
-    deprecated('$el');
-    return this.element!;
-  }
-
   scrollIntoView(): void {
     // If a render is pending, do it now to make sure we have correct layout
     // and caret position
@@ -1052,12 +927,6 @@ export class MathfieldPrivate implements Mathfield {
         });
       }
     }
-  }
-
-  /** @deprecated */
-  $insert(s: string, options?: InsertOptions): boolean {
-    deprecated('$insert');
-    return this.insert(s, options);
   }
 
   insert(s: string, options?: InsertOptions): boolean {
@@ -1188,12 +1057,6 @@ export class MathfieldPrivate implements Mathfield {
     );
   }
 
-  /** @deprecated */
-  $hasFocus(): boolean {
-    deprecated('$hasFocus');
-    return this.hasFocus();
-  }
-
   hasFocus(): boolean {
     return (
       isBrowser() && document.hasFocus() && this.keyboardDelegate!.hasFocus()
@@ -1213,31 +1076,8 @@ export class MathfieldPrivate implements Mathfield {
     }
   }
 
-  /** @deprecated */
-  $focus(): void {
-    deprecated('$focus');
-    return this.focus();
-  }
-
-  /** @deprecated */
-  $blur(): void {
-    deprecated('$blur');
-    return this.blur();
-  }
-
-  /** @deprecated */
-  $select(): void {
-    this.select();
-  }
-
   select(): void {
     this.model.selection = { ranges: [[0, this.model.lastOffset]] };
-  }
-
-  /** @deprecated */
-  $clearSelection(): void {
-    deprecated('$clearSelection');
-    deleteRange(this.model, range(this.model.selection));
   }
 
   applyStyle(inStyle: Style, inOptions: Range | ApplyStyleOptions = {}): void {
@@ -1267,25 +1107,6 @@ export class MathfieldPrivate implements Mathfield {
       }
     );
     requestUpdate(this);
-  }
-
-  /** @deprecated */
-  $applyStyle(style: Style): void {
-    this.model.selection.ranges.forEach((range) =>
-      applyStyle(this.model, range, style, { operation: 'toggle' })
-    );
-  }
-
-  /** @deprecated */
-  $keystroke(keys: string, evt?: KeyboardEvent): boolean {
-    deprecated('$keystroke');
-    return onKeystroke(this, keys, evt);
-  }
-
-  /** @deprecated */
-  $typedText(text: string): void {
-    deprecated('$typedText');
-    onTypedText(this, text);
   }
 
   getCaretPoint(): { x: number; y: number } | null {
@@ -1500,8 +1321,4 @@ export class MathfieldPrivate implements Mathfield {
 
     updatePopoverPosition(this);
   }
-}
-
-function deprecated(method: string) {
-  console.warn(`Method "${method}" is deprecated`);
 }

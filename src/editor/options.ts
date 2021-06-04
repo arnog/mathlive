@@ -11,7 +11,6 @@ import {
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { l10n } from './l10n';
 import { defaultAnnounceHook } from './a11y';
-import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { resolveRelativeUrl } from '../common/script-url';
 import { isTouchCapable } from '../common/capabilities';
@@ -101,21 +100,6 @@ export function update(
           result.scriptDepth = [updates.scriptDepth, updates.scriptDepth];
         } else {
           throw new TypeError('Unexpected value for scriptDepth');
-        }
-
-        break;
-      case 'namespace':
-        // Validate the namespace (used for `data-` attributes)
-        if (!/^[a-z]*-?$/.test(updates.namespace!)) {
-          throw new Error(
-            'namespace must be a string of lowercase characters only'
-          );
-        }
-
-        if (!updates.namespace!.endsWith('-')) {
-          result.namespace = updates.namespace + '-';
-        } else {
-          result.namespace = updates.namespace!;
         }
 
         break;
@@ -272,19 +256,6 @@ export function update(
     }
   }
 
-  // @revisit 1.0: for backward compatibility, interprets the overrideDefaultInlineShortcuts
-  // property
-  if (updates.overrideDefaultInlineShortcuts !== undefined) {
-    if (updates.overrideDefaultInlineShortcuts) {
-      result.inlineShortcuts = updates.inlineShortcuts ?? {};
-    } else {
-      result.inlineShortcuts = {
-        ...INLINE_SHORTCUTS,
-        ...updates.inlineShortcuts,
-      };
-    }
-  }
-
   return result;
 }
 
@@ -329,7 +300,6 @@ export const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<span style="width: 21px; margin-t
 
 export function getDefault(): Required<MathfieldOptionsPrivate> {
   return {
-    namespace: '',
     readOnly: false,
     createHTML: (s: string): any => s,
     fontsDirectory: './fonts',
@@ -355,7 +325,6 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
     keybindings: DEFAULT_KEYBINDINGS,
 
-    overrideDefaultInlineShortcuts: false, // @revisit: don't need this if we return the actual shortcuts
     inlineShortcuts: {}, // @revisit: return the actual shortcuts
     inlineShortcutTimeout: 0,
 

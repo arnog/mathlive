@@ -1,7 +1,5 @@
 /* eslint-disable no-new */
-import type { Mathfield } from './public/mathfield';
 import type {
-  MathfieldOptions,
   RemoteVirtualKeyboardOptions,
   TextToSpeechOptions,
 } from './public/options';
@@ -17,7 +15,6 @@ import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
 import { adjustInterAtomSpacing, coalesce, makeStruts, Box } from './core/box';
 import { getMacros } from './core-definitions/definitions';
-import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
 import {
   AutoRenderOptionsPrivate,
   autoRenderMathInElement,
@@ -26,14 +23,6 @@ import MathLiveDebug, {
   asciiMathToLatex,
   latexToAsciiMath,
 } from './addons/debug';
-import { defaultSpeakHook } from './editor/speech';
-import {
-  defaultReadAloudHook,
-  readAloudStatus,
-  pauseReadAloud,
-  resumeReadAloud,
-  playReadAloud,
-} from './editor/speech-read-aloud';
 import { atomToSpeakableText } from './editor/atom-to-speakable-text';
 import { atomsToMathML } from './addons/math-ml';
 
@@ -65,16 +54,6 @@ export type {
   SerializeLatexOptions,
   SerializerFunction,
 } from '@cortex-js/math-json/dist/types/latex-syntax/public';
-export function makeMathField(
-  element: HTMLElement,
-  options: Partial<MathfieldOptions> = {}
-): Mathfield | null {
-  options.speakHook = options.speakHook ?? defaultSpeakHook;
-  options.readAloudHook = options.readAloudHook ?? defaultReadAloudHook;
-  const el = getElement(element);
-  if (!el) return null;
-  return new MathfieldPrivate(el, options);
-}
 
 export function makeSharedVirtualKeyboard(
   options: Partial<RemoteVirtualKeyboardOptions>
@@ -195,18 +174,6 @@ export function convertLatexToMathMl(
   );
 }
 
-/** @deprecated */
-function latexToMathML(
-  latex: string,
-  options?: Partial<{
-    macros: MacroDictionary;
-    onError: ErrorListener<ParserErrorCode>;
-    generateID: boolean;
-  }>
-): string {
-  return convertLatexToMathMl(latex, options);
-}
-
 export function convertLatexToSpeakableText(
   latex: string,
   options: Partial<
@@ -232,19 +199,6 @@ export function convertLatexToSpeakableText(
   });
 
   return atomToSpeakableText(atoms, options as Required<TextToSpeechOptions>);
-}
-
-/** @deprecated */
-function latexToSpeakableText(
-  latex: string,
-  options?: Partial<
-    TextToSpeechOptions & {
-      macros?: MacroDictionary;
-      onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
-    }
-  >
-): string {
-  return convertLatexToSpeakableText(latex, options);
 }
 
 export function renderMathInDocument(options?: AutoRenderOptionsPrivate): void {
@@ -279,69 +233,8 @@ export function renderMathInElement(
   autoRenderMathInElement(el, options);
 }
 
-function validateNamespace(options): void {
-  if (typeof options.namespace === 'string') {
-    if (!/^[a-z]+-?$/.test(options.namespace)) {
-      throw new Error(
-        'options.namespace must be a string of lowercase characters only'
-      );
-    }
-
-    if (!options.namespace.endsWith('-')) {
-      options.namespace += '-';
-    }
-  }
-}
-
-/** @deprecated */
-function revertToOriginalContent(
-  element: string | HTMLElement,
-  options: AutoRenderOptionsPrivate
-): void {
-  deprecatedDefaultImport('revertToOriginalContent');
-  element = getElement(element)?.children[1] as HTMLElement;
-  options = options ?? {};
-  validateNamespace(options);
-  const html =
-    element.getAttribute(
-      'data-' + (options.namespace ?? '') + 'original-content'
-    ) ?? '';
-  element.innerHTML =
-    typeof options.createHTML === 'function' ? options.createHTML(html) : html;
-}
-
-/** @deprecated */
-function getOriginalContent(
-  element: string | HTMLElement,
-  options: AutoRenderOptionsPrivate
-): string | null {
-  deprecatedDefaultImport('getOriginalContent');
-  if (element instanceof MathfieldPrivate) {
-    return element.originalContent;
-  }
-
-  // Element is a pair: accessible span, math -- set it to the math part
-  element = getElement(element)?.children[1] as HTMLElement;
-  options = options ?? {};
-  validateNamespace(options);
-  return element?.getAttribute(
-    'data-' + (options.namespace ?? '') + 'original-content'
-  );
-}
-
 // This SDK_VERSION variable will be replaced during the build process.
 export const version = '{{SDK_VERSION}}';
-
-function deprecatedDefaultImport(method: string) {
-  console.warn(`Using "${method}" as a default import is deprecated.
-Instead of
-    import Mathlive from 'mathlive';
-    ${method}(...);
-use
-   import ${method} from 'mathlive;
-   ${method}(...)  
-`);
-}
 
 export const debug = {
   latexToAsciiMath,
@@ -353,104 +246,4 @@ export const debug = {
   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
   INLINE_SHORTCUTS: MathLiveDebug.INLINE_SHORTCUTS,
-};
-
-export default {
-  version: (): string => {
-    deprecatedDefaultImport('version');
-    return version;
-  },
-  latexToMarkup: (
-    text: string,
-    options?: {
-      mathstyle?: 'displaystyle' | 'textstyle';
-      letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-      macros?: MacroDictionary;
-      onError?: ErrorListener<ParserErrorCode>;
-      format?: string;
-    }
-  ): string => {
-    deprecatedDefaultImport('latexToMarkup');
-    return convertLatexToMarkup(text, options);
-  },
-  latexToMathML: (
-    latex: string,
-    options?: Partial<{
-      macros: MacroDictionary;
-      onError: ErrorListener<ParserErrorCode>;
-      generateID: boolean;
-    }>
-  ): string => {
-    deprecatedDefaultImport('latexToMathML');
-    return latexToMathML(latex, options);
-  },
-  latexToSpeakableText: (
-    latex: string,
-    options: Partial<
-      TextToSpeechOptions & {
-        macros?: MacroDictionary;
-        onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
-      }
-    >
-  ): string => {
-    deprecatedDefaultImport('latexToSpeakableText');
-    return latexToSpeakableText(latex, options);
-  },
-  makeMathField: (
-    element: HTMLElement,
-    options: Partial<MathfieldOptions>
-  ): Mathfield | null => {
-    deprecatedDefaultImport('makeMathField');
-    return makeMathField(element, options);
-  },
-  renderMathInDocument: (options?: AutoRenderOptionsPrivate): void => {
-    deprecatedDefaultImport('renderMathInDocument');
-    renderMathInDocument(options);
-  },
-  renderMathInElement: (
-    element: HTMLElement,
-    options: AutoRenderOptionsPrivate
-  ): void => {
-    deprecatedDefaultImport('renderMathInElement');
-    renderMathInElement(element, options);
-  },
-  revertToOriginalContent: (
-    element: string | HTMLElement,
-    options: AutoRenderOptionsPrivate
-  ): void => {
-    deprecatedDefaultImport('revertToOriginalContent');
-    revertToOriginalContent(element, options);
-  },
-  getOriginalContent: (
-    element: string | HTMLElement,
-    options: AutoRenderOptionsPrivate
-  ): void => {
-    deprecatedDefaultImport('getOriginalContent');
-    getOriginalContent(element, options);
-  },
-
-  readAloud: (
-    element: HTMLElement,
-    text: string,
-    config: Partial<MathfieldOptions>
-  ): void => {
-    deprecatedDefaultImport('readAloud');
-    return defaultReadAloudHook(element, text, config);
-  },
-  readAloudStatus: (): string => {
-    deprecatedDefaultImport('readAloudStatus');
-    return readAloudStatus();
-  },
-  pauseReadAloud: (): void => {
-    deprecatedDefaultImport('pauseReadAloud');
-    pauseReadAloud();
-  },
-  resumeReadAloud: (): void => {
-    deprecatedDefaultImport('resumeReadAloud');
-    resumeReadAloud();
-  },
-  playReadAloud: (token: string, count: number): void => {
-    deprecatedDefaultImport('playReadAloud');
-    playReadAloud(token, count);
-  },
 };

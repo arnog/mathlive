@@ -623,17 +623,6 @@ export type KeyboardOptions = {
 };
 
 export type InlineShortcutsOptions = {
-  /** @deprecated Use:
-   * ```javascript
-   * mf.setConfig(
-   *      'inlineShortcuts',
-   *      {   ...mf.getConfig('inlineShortcuts'),
-   *          ...newShortcuts
-   *      }
-   * )
-   * ```
-   * to add `newShortcuts` to the default ones */
-  overrideDefaultInlineShortcuts: boolean;
   /**
    * The keys of this object literal indicate the sequence of characters
    * that will trigger an inline shortcut.
@@ -889,17 +878,6 @@ mf.setConfig({
 
 export type CoreOptions = {
   /**
-   * Namespace that is added to `data-` attributes to avoid collisions
-   * with other libraries.
-   *
-   * The namespace should be a string of lowercase letters.
-   *
-   * It is empty by default.
-   *
-   * @deprecated
-   */
-  namespace: string;
-  /**
    * A URL fragment pointing to the directory containing the fonts
    * necessary to render a formula.
    *
@@ -1019,11 +997,6 @@ export type MathfieldOptions = LayoutOptions &
       ParserErrorCode | MathfieldErrorCode | MathJsonErrorCode
     >;
   };
-
-/**
- * @deprecated Use [[`MathfieldOptions`]]
- */
-export type MathfieldConfig = MathfieldOptions;
 
 /**
  * See [[`setKeyboardLayout`]].
