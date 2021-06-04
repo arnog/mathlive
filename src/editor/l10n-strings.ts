@@ -11,6 +11,18 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',
   },
+   hr: {
+    'keyboard.tooltip.functions': 'Funkcije',
+    'keyboard.tooltip.symbols': 'Simboli',
+    'keyboard.tooltip.greek': 'Grčka slova',
+    'keyboard.tooltip.command': 'LaTeX naredbeni način',
+    'keyboard.tooltip.numeric': 'Numerički',
+    'keyboard.tooltip.roman': 'Rimska slova',
+    'tooltip.copy to clipboard': 'Kopirati u međuspremnik',
+    'tooltip.redo': 'Ponovi',
+    'tooltip.toggle virtual keyboard': 'Uključi / isključi virtualnu tipkovnicu',
+    'tooltip.undo': 'Poništi',
+  },
   da: {
     'keyboard.tooltip.functions': 'Funktioner',
     'keyboard.tooltip.symbols': 'Symboler',
