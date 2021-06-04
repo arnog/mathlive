@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "build",
 
-    // "incremental": true,
-    // "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo",
+    "incremental": true,
+    "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo",
 
     "lib": [
       "es2020",

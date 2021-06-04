@@ -1,6 +1,5 @@
 import { terser } from 'rollup-plugin-terser';
-// import typescript from 'rollup-plugin-typescript2';
-import typescript from '@rollup/plugin-typescript';
+import typescript from 'rollup-plugin-typescript2';
 import resolve from '@rollup/plugin-node-resolve';
 import { eslint } from 'rollup-plugin-eslint';
 import postcss from 'rollup-plugin-postcss';
@@ -47,7 +46,6 @@ const TERSER_OPTIONS = {
     ascii_only: true, // The project has some characters (”) which can
     // confuse Safari when the charset is not set to UTF-8 on the page.
     // This workaround that.
-    dir: 'build',
   },
 };
 
