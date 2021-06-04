@@ -1574,7 +1574,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    * @category Selection
    */
-  set selection(value: Selection) {
+  set selection(value: Selection | Offset) {
+    if (typeof value === 'number') {
+      value = { ranges: [[value, value]] };
+    }
     if (this._mathfield) {
       this._mathfield.selection = value;
       return;
