@@ -691,7 +691,7 @@ export class MathfieldPrivate implements Mathfield {
       expandMacro: false,
       defaultMode: this.options.defaultMode,
     });
-    if (this.model.getValue() !== content) {
+    if ('macros' in config || this.model.getValue() !== content) {
       ModeEditor.insert('math', this.model, content, {
         insertionMode: 'replaceAll',
         selectionMode: 'after',

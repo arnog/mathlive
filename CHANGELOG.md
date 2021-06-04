@@ -70,6 +70,7 @@ or:
 ### Bug Fixes
 
 - Actually change the keyboard toggle glyph when changed with `setOptions`
+- Reparse the formula when the `macros` dictionary is updated
 
 ## 0.68.1 (2021-06-02)
 
