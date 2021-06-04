@@ -19,7 +19,7 @@ export const STRINGS = {
     'keyboard.tooltip.numeric': 'Numerisk',
     'keyboard.tooltip.roman': 'Romerska bokstäver',
     'tooltip.copy to clipboard': 'Kopiera till Urklipp',
-    'tooltip.redo': 'Gör om',
+    'tooltip.redo': 'Göra om',
     'tooltip.toggle virtual keyboard': 'Växla virtuellt tangentbord',
     'tooltip.undo': 'Ångra',
   },
