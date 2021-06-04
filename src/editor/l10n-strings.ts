@@ -134,7 +134,7 @@ export const STRINGS = {
   },
   nl: {
     'keyboard.tooltip.functions': 'Functies',
-    'keyboard.tooltip.symbols': 'Sybolen',
+    'keyboard.tooltip.symbols': 'Symbolen',
     'keyboard.tooltip.greek': 'Griekse letters',
     'keyboard.tooltip.command': 'LaTeX commando mode',
     'keyboard.tooltip.numeric': 'Numeriek',
