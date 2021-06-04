@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## 0.68.1 (2021-06-02)
+
 ### Improvements
 
 - Keybindings: keybindings can now be associated with specific keyboard layouts.
@@ -961,30 +963,30 @@ The goals are:
 
 The following `Mathfield` methods have been renamed as indicated:
 
-| Before                       | After                                    |
-| :--------------------------- | :--------------------------------------- |
-| `$setConfig()`               | `setOptions()`                           |
-| `getConfig()`                | `getOptions()` and `getOption()`         |
-| `$text()`                    | `getValue()`                             |
-| `$latex()`                   | `value`, `getValue()` and `setValue()`   |
-| `$insert()`                  | `insert()`                               |
-| `$hasFocus()`                | `hasFocus()`                             |
-| `$focus()`                   | `focus()`                                |
-| `$blur()`                    | `blur()`                                 |
-| `$selectedText()`            | `mf.getValue(mf.selection)`              |
-| `$selectionIsCollapsed()`    | `mf.selection[0].collapsed`              |
-| `$selectionDepth()`          | `mf.selection[0].depth`                  |
-| `$selectionAtStart()`        | `mf.position === 0`                      |
-| `$selectionAtEnd()`          | `mf.position === mf.lastPosition`        |
-| `$select()`                  | `select()`                               |
-| `$clearSelection()`          | `executeCommand('delete-previous-char')` |
-| `$keystroke()`               | `executeCommand()`                       |
-| `$typedText()`               | `executeCommand('typed-text')`           |
-| `$perform()`                 | `executeCommand()`                       |
-| `$revertToOriginalContent()` | n/a                                      |
-| `$el()`                      | n/a                                      |
-| n/a                          | `selection`                              |
-| n/a                          | `position`                               |
+| Before                       | After                                  |
+| :--------------------------- | :------------------------------------- |
+| `$setConfig()`               | `setOptions()`                         |
+| `getConfig()`                | `getOptions()` and `getOption()`       |
+| `$text()`                    | `getValue()`                           |
+| `$latex()`                   | `value`, `getValue()` and `setValue()` |
+| `$insert()`                  | `insert()`                             |
+| `$hasFocus()`                | `hasFocus()`                           |
+| `$focus()`                   | `focus()`                              |
+| `$blur()`                    | `blur()`                               |
+| `$selectedText()`            | `mf.getValue(mf.selection)`            |
+| `$selectionIsCollapsed()`    | `mf.selection[0].collapsed`            |
+| `$selectionDepth()`          | `mf.selection[0].depth`                |
+| `$selectionAtStart()`        | `mf.position === 0`                    |
+| `$selectionAtEnd()`          | `mf.position === mf.lastPosition`      |
+| `$select()`                  | `select()`                             |
+| `$clearSelection()`          | `executeCommand('delete-backward')`    |
+| `$keystroke()`               | `executeCommand()`                     |
+| `$typedText()`               | `executeCommand('typed-text')`         |
+| `$perform()`                 | `executeCommand()`                     |
+| `$revertToOriginalContent()` | n/a                                    |
+| `$el()`                      | n/a                                    |
+| n/a                          | `selection`                            |
+| n/a                          | `position`                             |
 
 The methods indicated with "n/a" in the **After** column have been dropped.
 
@@ -1358,9 +1360,10 @@ The following functions have been renamed:
 - **#459**: Add a placeholder for incomplete commands, for example entering
   `\frac` in command mode
 
-- Added some missing commands: `deleteNextChar`, `deletePreviousChar`,
-  `deleteNextWord`, `deletePreviousWord`, `deleteToGroupStart`,
-  `deleteToGroupEnd`, `deleteToMathFieldEnd`, `moveToSubscript`, `applyStyle`,
+- Added some missing commands: <del>`deleteNextChar`</del> `deleteForward`,
+  <del>`deletePreviousChar`</del> `deleteBackward`, `deleteNextWord`,
+  `deletePreviousWord`, `deleteToGroupStart`, `deleteToGroupEnd`,
+  `deleteToMathFieldEnd`, `moveToSubscript`, `applyStyle`,
   `toggleVirtualKeyboard`, `hideVirtualKeyboard`, `showVirtualKeyboard`
 
 - In some cases, the top of the placeholder character could be cut off
