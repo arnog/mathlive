@@ -5,6 +5,8 @@
 /node_modules
 /coverage
 /dist
+/declarations
+.rollup.cache/
 
 babel.babel
 TODO.md

@@ -39,6 +39,8 @@ import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 
 export { MathfieldElement } from './public/mathfield-element';
 
+// version as mathJsonVersion,
+
 export {
   serialize as serializeMathJson,
   parse as parseMathJson,
@@ -234,7 +236,10 @@ export function renderMathInElement(
 }
 
 // This SDK_VERSION variable will be replaced during the build process.
-export const version = '{{SDK_VERSION}}';
+export const version = {
+  mathlive: '{{SDK_VERSION}}',
+  mathJson: '', // mathJsonVersion,
+};
 
 export const debug = {
   latexToAsciiMath,

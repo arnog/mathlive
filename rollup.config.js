@@ -1,5 +1,6 @@
 import { terser } from 'rollup-plugin-terser';
-import typescript from 'rollup-plugin-typescript2';
+// import typescript from 'rollup-plugin-typescript2';
+import typescript from '@rollup/plugin-typescript';
 import resolve from '@rollup/plugin-node-resolve';
 import { eslint } from 'rollup-plugin-eslint';
 import postcss from 'rollup-plugin-postcss';
@@ -19,14 +20,9 @@ const BUILD_DIRECTORY = 'dist';
 
 const TYPESCRIPT_OPTIONS = {
   // typescript: require('typescript'),
-  clean: PRODUCTION,
+  // clean: PRODUCTION,
   // verbosity: 3,
   include: ['*.ts+(|x)', '**/*.ts+(|x)', '*.js+(|x)', '**/*.js+(|x)'],
-  tsconfigOverride: {
-    compilerOptions: {
-      // declaration: false,
-    },
-  },
 };
 
 const SDK_VERSION = pkg.version || 'v?.?.?';
@@ -51,6 +47,7 @@ const TERSER_OPTIONS = {
     ascii_only: true, // The project has some characters (”) which can
     // confuse Safari when the charset is not set to UTF-8 on the page.
     // This workaround that.
+    dir: 'build',
   },
 };
 
@@ -65,6 +62,13 @@ function timestamp() {
       '0' + now.getSeconds()
     ).slice(-2)}`
   );
+}
+
+function clearLine() {
+  if (process.stdout.isTTY && typeof process.stdout.clearLine === 'function') {
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+  }
 }
 
 // Rollup plugin to display build progress and launch server
@@ -90,41 +94,27 @@ function buildProgress() {
         console.log(chalk.grey(file));
       }
     },
+    watchChange(_id, _change) {
+      // watchChange: (id: string, change: {event: 'create' | 'update' | 'delete'}) => void
+    },
     buildEnd() {
+      clearLine();
       if (process.env.BUILD === 'watch' || process.env.BUILD === 'watching') {
-        if (
-          process.stdout.isTTY &&
-          typeof process.stdout.clearLine === 'function'
-        ) {
-          process.stdout.clearLine();
-          process.stdout.cursorTo(0);
+        if (process.stdout.isTTY) {
           process.stdout.write(
             timestamp() +
               (process.env.BUILD === 'watching'
-                ? ' Build updated'
+                ? ' Build updated, watching for changes...'
                 : ' Build done')
           );
-        }
-      } else {
-        if (
-          process.stdout.isTTY &&
-          typeof process.stdout.clearLine === 'function'
-        ) {
-          process.stdout.clearLine();
-          process.stdout.cursorTo(0);
         }
       }
       if (process.env.BUILD === 'watch') {
         process.env.BUILD = 'watching';
-        if (
-          process.stdout.isTTY &&
-          typeof process.stdout.clearLine === 'function'
-        ) {
-          process.stdout.clearLine();
-          process.stdout.cursorTo(0);
-        }
+        clearLine();
         console.log(chalk.green(' ✔') + '  Build complete ');
         console.log(' 🚀 Launching server');
+        console.log('    https://localhost:8080/examples/test-cases/');
         exec(
           "npx http-server . -s -c-1 --cors='*' -o /examples/test-cases/index.html",
           (error, stdout, stderr) => {
@@ -149,9 +139,6 @@ const ROLLUP = [
       if (warning.code === 'THIS_IS_UNDEFINED') return;
       warn(warning);
     },
-    // @todo: generate multiple flavors (i.e. no-editor, renderer only)
-    // by specifying multiple inputs:
-    // input: [ 'mathlive': 'src/mathlive.ts', 'mathlive-render': 'src/mathlive-render.ts' ]
     input: 'src/mathlive.ts',
     plugins: [
       buildProgress(),
@@ -167,36 +154,27 @@ const ROLLUP = [
       resolve(),
       typescript(TYPESCRIPT_OPTIONS),
     ],
-    output: true
-      ? [
-          // JavaScript native module
-          // (stricly speaking not necessary, since the UMD output is module
-          // compatible, but this gives us a "clean" module)
-          {
-            format: 'es',
-            file: `${BUILD_DIRECTORY}/mathlive.mjs`,
-            sourcemap: !PRODUCTION,
-            exports: 'named',
-          },
-          // UMD file, suitable for import, <script> and require()
-          {
-            format: 'umd',
-            name: 'MathLive',
-            file: `${BUILD_DIRECTORY}/mathlive.js`,
-            sourcemap: !PRODUCTION,
-            exports: 'named',
-          },
-        ]
-      : [
-          {
-            format: 'es',
-            file: `${BUILD_DIRECTORY}/mathlive.mjs`,
-            sourcemap: !PRODUCTION,
-          },
-        ],
+    output: [
+      // JavaScript native module
+      // (stricly speaking not necessary, since the UMD output is module
+      // compatible, but this gives us a "clean" module)
+      {
+        format: 'es',
+        file: `${BUILD_DIRECTORY}/mathlive.mjs`,
+        sourcemap: !PRODUCTION,
+        exports: 'named',
+      },
+      // UMD file, suitable for import, <script> and require()
+      {
+        format: 'umd',
+        name: 'MathLive',
+        file: `${BUILD_DIRECTORY}/mathlive.js`,
+        sourcemap: !PRODUCTION,
+        exports: 'named',
+      },
+    ],
     watch: {
-      clearScreen: true,
-      exclude: ['node_modules/**'],
+      exclude: ['./node_modules/**'],
     },
   },
 ];
