@@ -164,11 +164,7 @@ const ROLLUP = [
         plugins: [],
         minimize: PRODUCTION,
       }),
-      resolve({
-        customResolveOptions: {
-          moduleDirectories: ['submodules/math-json/src'],
-        },
-      }),
+      resolve(),
       typescript(TYPESCRIPT_OPTIONS),
     ],
     output: true

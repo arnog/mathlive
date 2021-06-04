@@ -1,5 +1,6 @@
 import type { MathfieldOptions } from '../public/options';
 import { Atom } from '../core/atom';
+import { MacroAtom } from '../core-atoms/macro';
 const SPECIAL_OPERATORS = {
   '\\pm': '&#177;',
   '\\times': '&#215;',
@@ -1036,7 +1037,12 @@ function atomToMathML(atom, options): string {
         result += toMo(atom, options);
         break;
       case 'macro':
-        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        {
+          const body = toString((atom as MacroAtom).macroLatex);
+          if (body) {
+            result += `<mo ${makeID(atom.id, options)}>${body}</mo>`;
+          }
+        }
         break;
       case 'error':
         console.log('In conversion to MathML, unknown type : ' + atom.type);

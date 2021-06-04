@@ -342,7 +342,7 @@ export function move(
         // If in a capture selection, while going forward jump to
         // after
         while (!atom.captureSelection) atom = atom.parent!;
-        pos = model.offsetOf(atom) + 1;
+        pos = model.offsetOf(atom);
       } else if (
         !atom?.isFirstSibling &&
         atom?.isLastSibling &&

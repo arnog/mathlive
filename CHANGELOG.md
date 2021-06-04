@@ -78,6 +78,13 @@ or:
 - MathML: improved MathML output, especially for formulas with unbalanced
   delimiters
 
+### Bug Fixes
+
+- **#969** and **#967** Changed the way the build is done so that Mathlive does
+  not use MathJSON as a submodule but as a regular npm dependency, and builds
+  correctly even in non-git environments.
+- **#968** navigating with arrow keys cannot navigate past a macro
+
 ## 0.68.0 (2021-05-31)
 
 ### Breaking Changes

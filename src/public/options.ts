@@ -8,6 +8,7 @@ import {
 } from './core';
 import type { Mathfield } from './mathfield';
 import type { Selector } from './commands';
+import type { ErrorCode as MathJsonErrorCode } from '@cortex-js/math-json';
 
 /**
  * Specify behaviour for origin validation.
@@ -992,7 +993,9 @@ export type MathfieldOptions = LayoutOptions &
      * This could also be another kind of error, such as an invalid keybinding.
      *
      */
-    onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
+    onError: ErrorListener<
+      ParserErrorCode | MathfieldErrorCode | MathJsonErrorCode
+    >;
   };
 
 /**

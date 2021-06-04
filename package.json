@@ -16,16 +16,16 @@
     "build": "bash ./scripts/build.sh",
     "clean": "bash ./scripts/clean.sh",
     "dist": "bash ./scripts/build.sh production; bash ./scripts/test.sh",
-    "prepare": "bash ./scripts/build.sh production",
+    "postinstall": "if git rev-parse --git-dir > /dev/null 2>&1; then git config core.hooksPath ./git-hooks; fi",
     "lint": "eslint --fix src/",
+    "prepare": "bash ./scripts/build.sh production",
     "start": "bash ./scripts/build.sh watch",
     "test": "bash ./scripts/test.sh",
     "version": "bash ./scripts/version.sh",
-    "postversion": "bash ./scripts/github-release.sh",
-    "postinstall": "git config core.hooksPath ./git-hooks"
+    "postversion": "bash ./scripts/github-release.sh"
   },
-  "main": "./dist/mathlive.js",
-  "module": "./dist/mathlive.mjs",
+  "main": "./dist/mathlive.min.js",
+  "module": "./dist/mathlive.min.mjs",
   "types": "./dist/public/mathlive.d.ts",
   "files": [
     "/dist"
@@ -106,6 +106,9 @@
     "rollup-plugin-typescript2": "^0.30.0",
     "ts-jest": "^27.0.1",
     "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "@cortex-js/math-json": "^0.2.1"
   },
   "keywords": [
     "math",

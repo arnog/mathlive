@@ -38,6 +38,7 @@ if [ ! -d "./node_modules" ]; then
     echo -e "${LINECLEAR}${CHECK} Dependencies installed"
 fi
 
+
 # Read the first argument, set it to "development" if not set
 export BUILD="${1-development}"
 
@@ -61,33 +62,36 @@ mkdir -p dist
 mkdir -p declarations
 echo -e "${LINECLEAR}${CHECK} Output directories cleaned out"
 
-if [ "$BUILD" != "production" ]; then
-    # Write sentinel file. It will be checked in the pre-push.sh script
-    # to prevent commiting a dev build to the repo.
-    touch dist/DEVELOPMENT-BUILD
-fi
-
-# Bundle declaration files (.d.ts)
-# Even though we only generate declaration files, the target must be set 
-# high-enough to prevent `tsc` from complaining (!)
-printf "${DOT} Building declaration files (.d.ts)"
-npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
-mv ./declarations/src/public ./dist
-mv ./declarations/submodules/math-json/src/ ./dist/public/math-json/
-rm -rf ./declarations
-echo -e "${LINECLEAR}${CHECK} Declaration files built"
-
 # Copy static assets
 printf "${DOT} Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
 cp -f -R sounds dist/
 echo -e "${LINECLEAR}${CHECK} Static assets copied"
 
+
 # Build CSS
 printf "${DOT} Building static CSS"
 npx lessc css/mathlive-static.less dist/mathlive-static.css
 npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
 echo -e "${LINECLEAR}${CHECK} Static CSS built"
+
+if [ "$BUILD" = "production" ]; then
+    # Optimize CSS
+    printf "${DOT} Optimizing CSS"
+    npx postcss dist/*.css -d dist
+    echo -e "${LINECLEAR}${CHECK} CSS Optimized"
+fi
+
+# Bundle Typescript declaration files (.d.ts).
+# Even though we only generate declaration files, the target must be set 
+# high-enough to prevent `tsc` from complaining (!)
+printf "${DOT} Building declaration files (.d.ts)"
+npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
+mv ./declarations/public ./dist
+rm -rf ./declarations
+echo -e "${LINECLEAR}${CHECK} Declaration files built"
+
+
 
 if [ "$BUILD" = "watch" ]; then
     # Do dev build and watch
@@ -96,16 +100,11 @@ if [ "$BUILD" = "watch" ]; then
     echo -e "${LINECLEAR}${CHECK} ${EMPH}watch${RESET} build done"
 else
     # Do build (development or production)
-    printf "${DOT} Making a ${EMPH}{$BUILD}${RESET} build"
+    printf "${DOT} Making a ${EMPH}${BUILD}${RESET} build"
     npx rollup --silent --config 
     echo -e "${LINECLEAR}${CHECK} ${EMPH}${BUILD}${RESET} build done"
 
     if [ "$BUILD" = "production" ]; then
-        # Optimize CSS
-        printf "${DOT} Optimizing CSS"
-        npx postcss dist/*.css -d dist
-        echo -e "${LINECLEAR}${CHECK} CSS Optimized"
-
         # Stamp the SDK version number
         printf "${DOT} Stamping output files"
         find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
