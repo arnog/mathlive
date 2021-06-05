@@ -99,6 +99,7 @@ const PRONUNCIATION: Record<string, string> = {
 
   '\\partial': 'partial derivative of ',
 
+  '\\cdot': 'times ',
   '\\cdots': 'dot dot dot ',
 
   '\\Rightarrow': 'implies ',

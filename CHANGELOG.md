@@ -89,6 +89,7 @@ or:
   @physedo).
 - The selection can now be set using an offset, i.e. `mf.selection = 0` instead
   of `mf.selection = { ranges:[[0, 0]] }`.
+- Map `\cdot` to "times" in `spoken-text` format.
 
 ## New Features
 
