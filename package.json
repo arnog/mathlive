@@ -93,7 +93,7 @@
     "eslint-plugin-no-unsanitized": "^3.1.5",
     "eslint-plugin-prettier": "^3.4.0",
     "http-server": "^0.12.3",
-    "jest": "^27.0.1",
+    "jest": "^27.0.4",
     "jest-silent-reporter": "^0.5.0",
     "less": "^4.1.1",
     "postcss": "^8.3.0",
