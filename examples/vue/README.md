@@ -12,6 +12,11 @@ specific version of the library to be used by the wrapper.
 
 Next, the wrapper should be imported, then the two connected using `Vue.use()`
 
+**Caution**: If you are getting runtime errors when instantiating a mathfield
+component and a warning in the console from Vue about "You are using the
+runtime-only build of Vue..." make sure to add `runtimeCompiler: true` to your
+Vue configuration.
+
 ```html
 <script type="module">
   import * as MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
@@ -34,7 +39,7 @@ The textual content of the element is used as the initial value of the editor.
 
 ```html
 <mathlive-mathfield
-  :config="{smartFence:false}"
+  :options="{smartFence:false}"
   @focus="ping"
   :on-keystroke="displayKeystroke"
   v-model="formula"

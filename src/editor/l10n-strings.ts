@@ -11,7 +11,7 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',
   },
-   bs: {
+  bs: {
     'keyboard.tooltip.functions': 'Funkcije',
     'keyboard.tooltip.symbols': 'Simboli',
     'keyboard.tooltip.greek': 'Grčka slova',
@@ -20,10 +20,11 @@ export const STRINGS = {
     'keyboard.tooltip.roman': 'Rimska slova',
     'tooltip.copy to clipboard': 'Kopirati u clipboard',
     'tooltip.redo': 'Ponovi',
-    'tooltip.toggle virtual keyboard': 'Uključi / isključi virtualnu tipkovnicu',
+    'tooltip.toggle virtual keyboard':
+      'Uključi / isključi virtualnu tipkovnicu',
     'tooltip.undo': 'Poništi',
   },
-   hr: {
+  hr: {
     'keyboard.tooltip.functions': 'Funkcije',
     'keyboard.tooltip.symbols': 'Simboli',
     'keyboard.tooltip.greek': 'Grčka slova',
@@ -32,10 +33,11 @@ export const STRINGS = {
     'keyboard.tooltip.roman': 'Rimska slova',
     'tooltip.copy to clipboard': 'Kopirati u međuspremnik',
     'tooltip.redo': 'Ponovi',
-    'tooltip.toggle virtual keyboard': 'Uključi / isključi virtualnu tipkovnicu',
+    'tooltip.toggle virtual keyboard':
+      'Uključi / isključi virtualnu tipkovnicu',
     'tooltip.undo': 'Poništi',
-   },
-   sr: {
+  },
+  sr: {
     'keyboard.tooltip.functions': 'Функције',
     'keyboard.tooltip.symbols': 'Симболи',
     'keyboard.tooltip.greek': 'Греек Леттерс',
@@ -46,7 +48,7 @@ export const STRINGS = {
     'tooltip.redo': 'Понови',
     'tooltip.toggle virtual keyboard': 'Укључи / искључи виртуелну тастатуру',
     'tooltip.undo': 'Опозови',
-   },
+  },
   fi: {
     'keyboard.tooltip.functions': 'Toiminnot',
     'keyboard.tooltip.symbols': 'Symbolit',

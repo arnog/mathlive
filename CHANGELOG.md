@@ -2,17 +2,14 @@
 
 ### Breaking Changes
 
-- This release requires TypeScript 4.3 or later. If you are using VSCode, you
-  may need to change the version of TypeScript used by the editor for language
-  services (syntax checking). To do so, with a TypeScript file open, click the
-  Typescript version in the bottom bar, then choose "Select TypeScript Version",
-  then "Use Workspace Version" (see
+- This release requires TypeScript 4.3 or later (the API uses assymetric
+  getters/setters). If you are using VSCode, you may need to change the version
+  of TypeScript used by the editor for language services (syntax checking). To
+  do so, with a TypeScript file open, click the Typescript version in the bottom
+  bar, then choose "Select TypeScript Version", then "Use Workspace Version"
+  (see
   https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-newer-typescript-versions)
 
-- The following deprecated functions have been removed: `latexToMathML()` &rarr;
-  `convertLatexToMathMl()`, `latexToSpeakableText` &rarr;
-  `convertLatexToSpeakableText`, `latexToMarkup()` &rarr;
-  `convertLatexToMarkup()`,
 - All the default imports have been removed. Instead of
 
 ```js
@@ -27,6 +24,17 @@ import { renderMathInDocument } from 'mathlive';
 renderMathInDocument();
 ```
 
+If you are not calling a specific Mathlive function and just need to use the
+`<math-field>` tag, use:
+
+```js
+import from 'mathlive';
+```
+
+- The following deprecated functions have been removed: `latexToMathML()` &rarr;
+  `convertLatexToMathMl()`, `latexToSpeakableText` &rarr;
+  `convertLatexToSpeakableText`, `latexToMarkup()` &rarr;
+  `convertLatexToMarkup()`,
 - The deprecated `revertToOriginalContent` functionality has been removed.
 - The deprecated `overrideDefaultInlineShortcuts` property has been removed.
   Instead, use:
@@ -76,8 +84,9 @@ or:
 
 ## Improvements
 
-- Added localization for Dutch (contributed by @harrisnl), Swedish, Danish and
-  Norwegian (contributed by @physedo).
+- Added localization for Dutch (contributed by @harrisnl), Swedish, Danish,
+  Norwegian, Slovenian, Finnish, Serbian, Croatian, Bosnian (contributed by
+  @physedo).
 - The selection can now be set using an offset, i.e. `mf.selection = 0` instead
   of `mf.selection = { ranges:[[0, 0]] }`.
 
