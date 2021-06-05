@@ -19,7 +19,7 @@
     "postinstall": "bash ./scripts/postinstall.sh",
     "lint": "eslint --fix src/",
     "prepare": "bash ./scripts/build.sh production",
-    "start": "bash ./scripts/build.sh watch",
+    "start": "bash ./scripts/start.sh",
     "test": "bash ./scripts/test.sh",
     "version": "bash ./scripts/version.sh",
     "postversion": "bash ./scripts/github-release.sh"
@@ -86,6 +86,7 @@
     "autoprefixer": "10.2.6",
     "check-node-version": "^4.1.0",
     "cssnano": "^5.0.4",
+    "esbuild": "^0.12.6",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.3",

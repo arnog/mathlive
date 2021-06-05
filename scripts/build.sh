@@ -93,25 +93,17 @@ echo -e "${LINECLEAR}${CHECK} Declaration files built"
 
 
 
-if [ "$BUILD" = "watch" ]; then
-    # Do dev build and watch
-    printf "${DOT} Making a ${EMPH}watch${RESET} build"
-    npx rollup --silent --config --watch
-    echo -e "${LINECLEAR}${CHECK} ${EMPH}watch${RESET} build done"
-else
-    # Do build (development or production)
-    printf "${DOT} Making a ${EMPH}${BUILD}${RESET} build"
-    npx rollup --silent --config 
-    echo -e "${LINECLEAR}${CHECK} ${EMPH}${BUILD}${RESET} build done"
+# Do build (development or production)
+printf "${DOT} Making a ${EMPH}${BUILD}${RESET} build"
+npx rollup --silent --config 
+echo -e "${LINECLEAR}${CHECK} ${EMPH}${BUILD}${RESET} build done"
 
-    if [ "$BUILD" = "production" ]; then
-        # Stamp the SDK version number
-        printf "${DOT} Stamping output files"
-        find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
-        find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
-        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
-        find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
-        echo -e "${LINECLEAR}${CHECK} Output files stamped"
-    fi
+if [ "$BUILD" = "production" ]; then
+    # Stamp the SDK version number
+    printf "${DOT} Stamping output files"
+    find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
+    find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
+    find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
+    find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
+    echo -e "${LINECLEAR}${CHECK} Output files stamped"
 fi
-
