@@ -11,6 +11,18 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',
   },
+   bs: {
+    'keyboard.tooltip.functions': 'Funkcije',
+    'keyboard.tooltip.symbols': 'Simboli',
+    'keyboard.tooltip.greek': 'Grčka slova',
+    'keyboard.tooltip.command': 'LaTeX naredbeni način',
+    'keyboard.tooltip.numeric': 'Numerički',
+    'keyboard.tooltip.roman': 'Rimska slova',
+    'tooltip.copy to clipboard': 'Kopirati u clipboard',
+    'tooltip.redo': 'Ponovi',
+    'tooltip.toggle virtual keyboard': 'Uključi / isključi virtualnu tipkovnicu',
+    'tooltip.undo': 'Poništi',
+  },
    hr: {
     'keyboard.tooltip.functions': 'Funkcije',
     'keyboard.tooltip.symbols': 'Simboli',
@@ -22,6 +34,7 @@ export const STRINGS = {
     'tooltip.redo': 'Ponovi',
     'tooltip.toggle virtual keyboard': 'Uključi / isključi virtualnu tipkovnicu',
     'tooltip.undo': 'Poništi',
+   },
    sr: {
     'keyboard.tooltip.functions': 'Функције',
     'keyboard.tooltip.symbols': 'Симболи',
@@ -33,6 +46,7 @@ export const STRINGS = {
     'tooltip.redo': 'Понови',
     'tooltip.toggle virtual keyboard': 'Укључи / искључи виртуелну тастатуру',
     'tooltip.undo': 'Опозови',
+   },
   fi: {
     'keyboard.tooltip.functions': 'Toiminnot',
     'keyboard.tooltip.symbols': 'Symbolit',
@@ -44,6 +58,7 @@ export const STRINGS = {
     'tooltip.redo': 'Tee uudelleen',
     'tooltip.toggle virtual keyboard': 'Vaihda virtuaalinäppäimistö',
     'tooltip.undo': 'Kumoa',
+  },
   sl: {
     'keyboard.tooltip.functions': 'Funkcije',
     'keyboard.tooltip.symbols': 'Simboli',
@@ -80,7 +95,6 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Bytt virtuelt tastatur',
     'tooltip.undo': 'Angre',
   },
-
   sv: {
     'keyboard.tooltip.functions': 'Funktioner',
     'keyboard.tooltip.symbols': 'Symboler',
