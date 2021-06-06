@@ -11,7 +11,7 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',
   },
-   is: {
+  is: {
     'keyboard.tooltip.functions': 'Aðgerðir',
     'keyboard.tooltip.symbols': 'Tákn',
     'keyboard.tooltip.greek': 'Grísk bréf',
@@ -22,6 +22,7 @@ export const STRINGS = {
     'tooltip.redo': 'Endurtaka',
     'tooltip.toggle virtual keyboard': 'Skiptu um sýndarlyklaborð',
     'tooltip.undo': 'Afturkalla',
+  },
   pt: {
     'keyboard.tooltip.functions': 'Functions',
     'keyboard.tooltip.symbols': 'Símbolos',
