@@ -11,6 +11,17 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',
   },
+   is: {
+    'keyboard.tooltip.functions': 'Aðgerðir',
+    'keyboard.tooltip.symbols': 'Tákn',
+    'keyboard.tooltip.greek': 'Grísk bréf',
+    'keyboard.tooltip.command': 'LaTeX stjórnunarstilling',
+    'keyboard.tooltip.numeric': 'Tölulegt',
+    'keyboard.tooltip.roman': 'Rómversk bréf',
+    'tooltip.copy to clipboard': 'Afritaðu á klemmuspjald',
+    'tooltip.redo': 'Endurtaka',
+    'tooltip.toggle virtual keyboard': 'Skiptu um sýndarlyklaborð',
+    'tooltip.undo': 'Afturkalla',
   pt: {
     'keyboard.tooltip.functions': 'Functions',
     'keyboard.tooltip.symbols': 'Símbolos',
