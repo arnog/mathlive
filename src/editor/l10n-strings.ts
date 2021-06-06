@@ -11,6 +11,18 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',
   },
+   tr: {
+    'keyboard.tooltip.functions': 'Fonksiyonlar',
+    'keyboard.tooltip.symbols': 'Semboller',
+    'keyboard.tooltip.greek': 'Yunan harfleri',
+    'keyboard.tooltip.command': 'LaTeX Komut Modu',
+    'keyboard.tooltip.numeric': 'Sayısal',
+    'keyboard.tooltip.roman': 'Roma Harfleri',
+    'tooltip.copy to clipboard': 'Panoya kopyala',
+    'tooltip.redo': 'Yeniden yap',
+    'tooltip.toggle virtual keyboard': 'Sanal Klavyeyi Aç/Kapat',
+    'tooltip.undo': 'Geri alma',
+  },
    is: {
     'keyboard.tooltip.functions': 'Aðgerðir',
     'keyboard.tooltip.symbols': 'Tákn',
