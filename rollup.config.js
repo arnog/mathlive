@@ -8,8 +8,6 @@ import pkg from './package.json';
 import path from 'path';
 import chalk from 'chalk';
 
-const { exec } = require('child_process');
-
 process.env.BUILD = process.env.BUILD || 'development';
 const PRODUCTION = process.env.BUILD === 'production';
 const BUILD_ID =
@@ -53,15 +51,6 @@ function normalizePath(id) {
   return path.relative(process.cwd(), id).split(path.sep).join('/');
 }
 
-function timestamp() {
-  const now = new Date();
-  return chalk.green(
-    `${now.getHours()}:${('0' + now.getMinutes()).slice(-2)}:${(
-      '0' + now.getSeconds()
-    ).slice(-2)}`
-  );
-}
-
 function clearLine() {
   if (process.stdout.isTTY && typeof process.stdout.clearLine === 'function') {
     process.stdout.clearLine();
@@ -92,39 +81,8 @@ function buildProgress() {
         console.log(chalk.grey(file));
       }
     },
-    watchChange(_id, _change) {
-      // watchChange: (id: string, change: {event: 'create' | 'update' | 'delete'}) => void
-    },
     buildEnd() {
       clearLine();
-      if (process.env.BUILD === 'watch' || process.env.BUILD === 'watching') {
-        if (process.stdout.isTTY) {
-          process.stdout.write(
-            timestamp() +
-              (process.env.BUILD === 'watching'
-                ? ' Build updated, watching for changes...'
-                : ' Build done')
-          );
-        }
-      }
-      if (process.env.BUILD === 'watch') {
-        process.env.BUILD = 'watching';
-        clearLine();
-        console.log(chalk.green(' ✔') + '  Build complete ');
-        console.log(' 🚀 Launching server');
-        console.log('    https://localhost:8080/examples/test-cases/');
-        exec(
-          "npx http-server . -s -c-1 --cors='*' -o /examples/test-cases/index.html",
-          (error, stdout, stderr) => {
-            if (error) {
-              console.error(`http-server error: ${error}`);
-              return;
-            }
-            console.log(stdout);
-            console.error(stderr);
-          }
-        );
-      }
     },
   };
 }
@@ -171,9 +129,6 @@ const ROLLUP = [
         exports: 'named',
       },
     ],
-    watch: {
-      exclude: ['./node_modules/**'],
-    },
   },
 ];
 

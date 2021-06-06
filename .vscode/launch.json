@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:8080/examples/test-cases",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "start"
+    },
+    {
       "name": "Debug Jest Tests",
       "type": "node",
       "request": "launch",

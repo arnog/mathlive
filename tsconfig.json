@@ -41,7 +41,8 @@
     // We'll strip the comments with rollup.
     // Need them for the declaration files
     "removeComments": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": "src"
   },
   "exclude": [
     "coverage",

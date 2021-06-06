@@ -43,7 +43,7 @@ export SDK_VERSION=$(cat package.json \
 | tr -d '[[:space:]]')
 
 # Clean output directories
-printf "${DOT} Cleaning output directories"
+printf "${LINECLEAR}${DOT} Cleaning output directories"
 rm -rf ./dist
 rm -rf ./declarations
 rm -rf ./build
@@ -51,15 +51,14 @@ rm -rf ./coverage
 
 mkdir -p dist
 mkdir -p declarations
-echo -e "${LINECLEAR}${CHECK} Output directories cleaned out"
 
 # Copy static assets
-printf "${DOT} Copying static assets (fonts, sounds)"
+printf "${LINECLEAR}${DOT} Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
 cp -f -R sounds dist/
-echo -e "${LINECLEAR}${CHECK} Static assets copied"
+echo -e "${LINECLEAR}"
 
 
 
 # Do dev build and watch
-node ./scripts/start.mjs 
+node ./scripts/start.js

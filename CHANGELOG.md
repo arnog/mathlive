@@ -85,8 +85,8 @@ or:
 ## Improvements
 
 - Added localization for Dutch (contributed by @harrisnl), Swedish, Danish,
-  Norwegian, Slovenian, Finnish, Serbian, Croatian, Bosnian (contributed by
-  @physedo).
+  Norwegian, Slovenian, Finnish, Serbian, Croatian, Bosnian, Portuguese,
+  Icelandic (contributed by @physedo).
 - The selection can now be set using an offset, i.e. `mf.selection = 0` instead
   of `mf.selection = { ranges:[[0, 0]] }`.
 - Map `\cdot` to "times" in `spoken-text` format.
