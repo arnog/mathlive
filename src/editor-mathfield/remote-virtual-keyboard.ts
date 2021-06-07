@@ -189,7 +189,7 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
       virtualKeyboardToggleGlyph: DEFAULT_KEYBOARD_TOGGLE_GLYPH,
       virtualKeyboardMode: 'auto',
 
-      virtualKeyboardContainer: null,
+      virtualKeyboardContainer: globalThis.document?.body ?? null,
     };
   }
 

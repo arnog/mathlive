@@ -219,6 +219,8 @@ function toggleVirtualKeyboard(
   keyboard: VirtualKeyboard,
   theme?: 'apple' | 'material' | ''
 ): boolean {
+  if (!keyboard.options.virtualKeyboardContainer) return false;
+
   keyboard.visible = !keyboard.visible;
   if (keyboard.visible) {
     keyboard.focusMathfield();
@@ -231,7 +233,7 @@ function toggleVirtualKeyboard(
       on(keyboard.element, 'touchstart:passive mousedown', () =>
         keyboard.focusMathfield()
       );
-      keyboard.options.virtualKeyboardContainer!.appendChild(keyboard.element);
+      keyboard.options.virtualKeyboardContainer.appendChild(keyboard.element);
     }
 
     // For the transition effect to work, the property has to be changed

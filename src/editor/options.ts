@@ -342,7 +342,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     keypressSound: null,
     plonkSound: null,
     virtualKeyboardToolbar: 'default',
-    virtualKeyboardContainer: globalThis.document?.body,
+    virtualKeyboardContainer: globalThis.document?.body ?? null,
 
     useSharedVirtualKeyboard: false,
     sharedVirtualKeyboardTargetOrigin: globalThis.window?.origin,

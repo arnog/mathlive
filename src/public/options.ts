@@ -504,7 +504,9 @@ export type VirtualKeyboardOptions = {
    */
   virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
   /**
-   * Element the virtual keyboard element gets appended to.
+   * Element the virtual keyboard element gets appended to. The `position`
+   * attribute of this element should be `relative` so that the virtual keyboard
+   * can correctly be placed relative to this element.
    *
    * When using [full screen elements](https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API)
    * that contain mathfield, set this property to the full screen element to

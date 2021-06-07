@@ -2040,7 +2040,14 @@ export function makeKeyboardElement(
     result.classList.add(keyboard.options.virtualKeyboardTheme);
   }
 
-  result.innerHTML = keyboard.options.createHTML(markup);
+  // We have a separate 'plate' element to support positioning the keyboard
+  // inside custom `virtualKeyboardContainer`
+
+  const plate = document.createElement('div');
+  plate.className = 'ML__keyboard--plate';
+  plate.innerHTML = keyboard.options.createHTML(markup);
+
+  result.appendChild(plate);
 
   // Attach the element handlers
   const keycaps = result.querySelectorAll<HTMLElement>(

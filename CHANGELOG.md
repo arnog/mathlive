@@ -90,6 +90,9 @@ or:
 - The selection can now be set using an offset, i.e. `mf.selection = 0` instead
   of `mf.selection = { ranges:[[0, 0]] }`.
 - Map `\cdot` to "times" in `spoken-text` format.
+- **#994** When using `virtualKeyboardContainer`, the virtual keyboard is now
+  displayed **inside** the container. The container should have a `position` of
+  `relative`.
 
 ## New Features
 
