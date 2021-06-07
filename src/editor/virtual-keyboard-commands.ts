@@ -160,7 +160,7 @@ export function toggleVirtualKeyboardAlt(keyboard: VirtualKeyboard): boolean {
   let hadAltTheme = false;
   if (keyboard?.element) {
     hadAltTheme = keyboard?.element.classList.contains('material');
-    keyboard.dispose();
+    keyboard.disable();
   }
 
   showVirtualKeyboard(keyboard, hadAltTheme ? '' : 'material');
@@ -179,7 +179,7 @@ export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
   const layer =
     keyboard?.element!.querySelector('div.keyboard-layer.is-visible')?.id ?? '';
   if (keyboard) {
-    keyboard.dispose();
+    keyboard.disable();
   }
 
   showVirtualKeyboard(keyboard);
@@ -250,7 +250,7 @@ function toggleVirtualKeyboard(
       })
     );
     // Remove the element from the DOM
-    keyboard.dispose();
+    keyboard.disable();
   }
 
   keyboard.stateChanged();

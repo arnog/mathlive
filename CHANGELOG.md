@@ -93,6 +93,8 @@ or:
 - **#994** When using `virtualKeyboardContainer`, the virtual keyboard is now
   displayed **inside** the container. The container should have a `position` of
   `relative`.
+- When replacing a placeholder with a Latex command in Latex mode (by pressing
+  the `\` key), remove the `\placeholder{}` command.
 
 ## New Features
 

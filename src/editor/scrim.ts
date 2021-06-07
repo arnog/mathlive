@@ -112,7 +112,11 @@ export class Scrim {
     document.body.style.marginRight = this.savedMarginRight ?? '';
 
     // Restore the previously focused element
-    this.savedActiveElement?.focus?.();
+    if (
+      document.activeElement !== (this.savedActiveElement as unknown as Element)
+    ) {
+      this.savedActiveElement?.focus?.();
+    }
 
     // Remove all children
     element.innerHTML = '';

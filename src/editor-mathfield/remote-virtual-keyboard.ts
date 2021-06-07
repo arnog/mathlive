@@ -71,17 +71,6 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     this.disable();
   }
 
-  public executeCommand(
-    command: SelectorPrivate | [SelectorPrivate, ...any[]]
-  ): boolean {
-    if (getCommandTarget(command) === 'virtual-keyboard') {
-      this.sendMessage('executeCommand', { command });
-      return false;
-    }
-
-    return this._executeCommand(command);
-  }
-
   public enable(): void {
     if (!this.enabled) {
       this.enabled = true;
@@ -94,6 +83,17 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
       window.removeEventListener('message', this);
       this.enabled = false;
     }
+  }
+
+  public executeCommand(
+    command: SelectorPrivate | [SelectorPrivate, ...any[]]
+  ): boolean {
+    if (getCommandTarget(command) === 'virtual-keyboard') {
+      this.sendMessage('executeCommand', { command });
+      return false;
+    }
+
+    return this._executeCommand(command);
   }
 
   focusMathfield(): void {}
