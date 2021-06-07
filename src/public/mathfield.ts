@@ -159,7 +159,11 @@ export type Selection = {
 export interface VirtualKeyboardInterface {
   visible: boolean;
   height: number;
+  /** Called once when the keyboard is created */
   create(): void;
+  /** After calling dispose() the Virtual Keyboard is no longer valid and
+   * cannot be brought back. Use disable() for temporarily deactivating the
+   * keboard. */
   dispose(): void;
   executeCommand(command: string | [string, ...any[]]): boolean;
   focusMathfield(): void;

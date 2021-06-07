@@ -222,18 +222,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this._blur = alt?.blur;
     this.coreStylesheet = null;
     this.virtualKeyboardStylesheet = null;
-
-    // Listen to know when the mouse has been released without being
-    // captured to remove the alternate keys panel and the shifted state of the
-    // keyboard.
-    // Note that we need to listen on the window to capture events happening
-    // outside the virtual keyboard.
-    // @todo should use a scrim instead (to prevent elements underneat the alt
-    // layer from reacting while the alt layer is up)
-    window.addEventListener('mouseup', this);
-    window.addEventListener('blur', this);
-    window.addEventListener('touchend', this);
-    window.addEventListener('touchcancel', this);
   }
 
   setOptions(options: VirtualKeyboardOptions & CoreOptions): void {
@@ -288,10 +276,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     if (this._blur) this._blur();
   }
 
-  enable(): void {}
-
-  disable(): void {}
-
   stateChanged(): void {}
 
   executeCommand(
@@ -339,7 +323,21 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     void loadFonts(this.options.fontsDirectory);
   }
 
-  dispose(): void {
+  enable(): void {
+    // Listen to know when the mouse has been released without being
+    // captured to remove the alternate keys panel and the shifted state of the
+    // keyboard.
+    // Note that we need to listen on the window to capture events happening
+    // outside the virtual keyboard.
+    // @todo should use a scrim instead (to prevent elements underneat the alt
+    // layer from reacting while the alt layer is up)
+    window.addEventListener('mouseup', this);
+    window.addEventListener('blur', this);
+    window.addEventListener('touchend', this);
+    window.addEventListener('touchcancel', this);
+  }
+
+  disable(): void {
     window.removeEventListener('mouseup', this);
     window.removeEventListener('blur', this);
     window.removeEventListener('touchend', this);
@@ -356,6 +354,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this._element?.remove();
     this._element = undefined;
   }
+
+  dispose(): void {}
 }
 
 const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {

@@ -127,6 +127,18 @@
     .buttonbar {
       margin-top: 1em;
     }
+
+    #keyboard-container {
+      display: block;
+      position: relative;
+
+      height: 600px;
+      width: 1024px;
+      background: palegreen;
+      overflow: hidden;
+      border: 5px solid red;
+    }
+
   </style>
 </head>
 
@@ -135,7 +147,7 @@
     <h1>MathLive Testing Playground</h1>
   </header>
   <main class='centered' tabindex="0">
-
+    <!-- <div id='keyboard-container'> -->
     <math-field id=mf class="mathfield" style="font-size: 32px;max-width: 640px; width:100%"
       virtual-keyboard-mode="manual">
       x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}\smolfrac{1}{2}
@@ -143,7 +155,9 @@
       <!-- x=\frac{{-b\pm\sqrt{b^2-4ac}}}{{2a}} -->
       <!-- -0-0=-0(0) -->
     </math-field>
-
+   <!-- </div> -->
+   <!-- <button id='toggle-fullscreen'>Toggle fullscreen</button> -->
+  
     <!-- \textcolor{blue}{\sqrt{\smash[t]{\frac{a}{b}}}=\sqrt{\smash[b]{\frac{a}{b}}}} -->
 
     <!-- \textcolor{blue}{\overset{=}{x}} -->
@@ -199,10 +213,13 @@
     <div class="centered" style="margin-top: .5em"><input id='replace-input' placeholder="Replace With..."></input>
     </div>
 
+
     <div id="search-results" class='centered'>
       <h2 style='margin-top: 1em'>Search Results</h2>
       <div class="output" id="search-results-output"></div>
     </div>
+
+
 
     <h2 style='margin-top: 1em'>Selection</h2>
     <div class="output" id="selection"></div>
@@ -292,6 +309,11 @@
       applyReplace();
     });
 
+    // const container = document.getElementById('keyboard-container')
+    // document.getElementById('toggle-fullscreen')
+    //   .addEventListener('click', () => container.requestFullscreen())
+
+
     const mf = document.getElementById('mf');
 
     mf.setOptions({
@@ -307,7 +329,8 @@
       onExport: (mf, latex, range) => {
         console.log(latex);
         return `$${mf.getValue(range, 'latex-expanded')}$`;
-      }
+      },
+      // virtualKeyboardContainer: document.getElementById('keyboard-container')
     });
 
 
@@ -523,7 +546,7 @@
       // },
       // macros: {
       // },
-      onError: (ev) => { console.log('Error :' + ev.code); }
+      onError: (ev) => { console.log('Error :' + ev.code); },
     });
 
 
