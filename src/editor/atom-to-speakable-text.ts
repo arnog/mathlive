@@ -183,6 +183,14 @@ function atomicValue(atoms: undefined | Atom[]): string {
   return result;
 }
 
+function atomsAsText(
+  atoms: Atom[] | undefined,
+  _options: TextToSpeechOptions
+): string {
+  if (!atoms) return '';
+  return atoms.map((atom) => atom.value).join('');
+}
+
 function atomToSpeakableFragment(
   mode: 'text' | 'math',
   atom: undefined | Atom | Atom[],
@@ -568,9 +576,15 @@ function atomToSpeakableFragment(
               (atom.command ? PRONUNCIATION[atom.command] : undefined);
             result += value ? value : ' ' + atom.value;
           } else if (atom.command) {
-            result += atom.command.startsWith('\\')
-              ? ' ' + atom.command.slice(1)
-              : ' ' + atom.command;
+            if (atom.command === '\\mathop') {
+              result += atomToSpeakableFragment('math', atom.body, options);
+            } else if (atom.command === '\\operatorname') {
+              result += atomsAsText(atom.body, options);
+            } else {
+              result += atom.command.startsWith('\\')
+                ? ' ' + atom.command.slice(1)
+                : ' ' + atom.command;
+            }
           }
         }
 

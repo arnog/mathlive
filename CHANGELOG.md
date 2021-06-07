@@ -95,6 +95,7 @@ or:
   `relative`.
 - When replacing a placeholder with a Latex command in Latex mode (by pressing
   the `\` key), remove the `\placeholder{}` command.
+- In spoken text, correctly handle `\mathop` and `\operatorname`.
 
 ## New Features
 
