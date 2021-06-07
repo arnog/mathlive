@@ -90,6 +90,7 @@ import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils
 import { validateStyle } from './styling';
 import { hashCode } from '../common/hash-code';
 import { disposeKeystrokeCaption } from './keystroke-caption';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -989,9 +990,9 @@ export class MathfieldPrivate implements Mathfield {
         // This prevents switching to/from command mode from suppressing smart mode.
         this.smartModeSuppressed =
           /text|math/.test(this.mode) && /text|math/.test(mode);
-        if (prefix) {
+        if (prefix && mode !== 'latex') {
           const atoms = parseLatex(prefix, {
-            parseMode: { math: 'text', text: 'math' }[mode],
+            parseMode: { math: 'text', text: 'math' }[mode as ParseMode],
           });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
@@ -1004,7 +1005,7 @@ export class MathfieldPrivate implements Mathfield {
         this.mode = mode;
 
         if (mode === 'latex') {
-          const wasCollapsed = model.selectionIsCollapsed;
+          let wasCollapsed = model.selectionIsCollapsed;
           // We can have only a single latex group at a time.
           // If a latex group is open, close it first
           complete(this, 'accept');
@@ -1022,7 +1023,16 @@ export class MathfieldPrivate implements Mathfield {
           } else {
             const selRange = range(model.selection);
             latex = this.model.getValue(selRange, 'latex');
-            this.model.extractAtoms(selRange);
+            const extractedAtoms = this.model.extractAtoms(selRange);
+            if (
+              extractedAtoms.length === 1 &&
+              extractedAtoms[0] instanceof PlaceholderAtom
+            ) {
+              // If we just had a placeholder selected, pretend we had an empty
+              // selection
+              latex = prefix;
+              wasCollapsed = true;
+            }
             cursor = model.at(selRange[0]);
           }
 

@@ -35,8 +35,13 @@ registerCommand({
     return true;
   },
   toggleKeystrokeCaption: toggleKeystrokeCaption,
-  switchMode: (mathfield: MathfieldPrivate, mode: ParseMode) => {
-    mathfield.switchMode(mode);
+  switchMode: (
+    mathfield: MathfieldPrivate,
+    mode: ParseMode,
+    prefix: string,
+    suffix: string
+  ) => {
+    mathfield.switchMode(mode, prefix, suffix);
     return true;
   },
   insert: (mathfield: MathfieldPrivate, s: string, options) =>
