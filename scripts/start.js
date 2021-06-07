@@ -35,11 +35,7 @@ build({
   silent: false,
   quiet: true,
   clear: false,
-  onStart: () => {
-    console.log('Starting something');
-  },
   onEnd: (_config, buildResult, _ctx) => {
-    // console.log('buildResult ', buildResult.errors);
     if (server === null && buildResult.errors.length === 0) {
       const url = `http://localhost:8080/examples/test-cases/`;
       console.log(` 🚀 Server ready:\u001b[1;35m ${url}\u001b[0m`);

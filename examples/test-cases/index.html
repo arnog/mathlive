@@ -300,11 +300,15 @@
     });
 
     mf.setOptions({
-    macros: {
-        ...mf.getOptions('macros'),
-        smolfrac: '{}^{#1}\\!\\!/\\!{}_{#2}',
-    }
-});
+      macros: {
+          ...mf.getOptions('macros'),
+          smolfrac: '{}^{#1}\\!\\!/\\!{}_{#2}',
+      },
+      onExport: (mf, latex, range) => {
+        console.log(latex);
+        return `$${mf.getValue(range, 'latex-expanded')}$`;
+      }
+    });
 
 
     const VIRTUAL_KEYBOARD_LAYERS = {
