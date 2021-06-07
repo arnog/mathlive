@@ -96,6 +96,8 @@ or:
 - The `getOffsetDepth()` method can be used to query the depth of a specific
   offset. Use `mf.getOffsetDepth(mf.position)` for the depth of the current
   position.
+- the `onExport()` hook provides an oppturnity to customize the format exported
+  to the Clipboard.
 
 ### Bug Fixes
 

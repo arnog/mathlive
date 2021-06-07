@@ -6,7 +6,7 @@ import {
   MathfieldErrorCode,
   Registers,
 } from './core';
-import type { Mathfield } from './mathfield';
+import type { Mathfield, Range } from './mathfield';
 import type { Selector } from './commands';
 import type { ErrorCode as MathJsonErrorCode } from '@cortex-js/math-json';
 
@@ -516,10 +516,10 @@ export type VirtualKeyboardOptions = {
 };
 
 /**
- * These methods provide an opportunity to intercept or modify an action.
- * Their return value indicate whether the default handling should proceed.
+ * These hooks provide an opportunity to intercept or modify an action.
+ * When their return value is a boolean, it indicates if the default handling
+ * should proceed.
  *
- * @deprecated Use corresponding events of `MathfieldEvent` instead
  */
 export interface MathfieldHooks {
   /**
@@ -529,6 +529,9 @@ export interface MathfieldHooks {
    * -   <var>ev</var>: the native keyboard event
    *
    * Return `false` to stop the handling of the event.
+   *
+   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   *
    */
   onKeystroke: (
     sender: Mathfield,
@@ -545,13 +548,16 @@ export interface MathfieldHooks {
    * Return `false` if the move has been handled by the hook.
    *
    * Return `true` for the default behavior, which is playing a "plonk" sound.
+   *
+   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   *
    */
   onMoveOutOf: (
     sender: Mathfield,
     direction: 'forward' | 'backward' | 'upward' | 'downward'
   ) => boolean;
   /**
-   * A hook invoked when pressing tab (or shift-tab) would cause the
+   * This hook is invoked when pressing tab (or shift-tab) would cause the
    * insertion point to leave the mathfield.
    *
    * <var>direction</var> indicates the direction of the navigation.
@@ -559,8 +565,30 @@ export interface MathfieldHooks {
    * By default, the insertion point jumps to the next/previous focussable
    * element.
    *
+   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   *
+   *
    */
   onTabOutOf: (sender: Mathfield, direction: 'forward' | 'backward') => boolean;
+
+  /**
+   * This hooks is invoked when the user has requested to export the content
+   * of the mathfield, for example when pressing ctrl/command+C.
+   *
+   * This hook should return as a string what should be exported.
+   *
+   * The `range` argument indicates which portion of the mathfield should be
+   * exported. It is not always equal to the current selection, but it can
+   * be used to export a format other than Latex.
+   *
+   * By default this is:
+   *
+   * ```
+   *  return `\\begin{equation*}${latex}\\end{equation*}`;
+   * ```
+   *
+   */
+  onExport: (from: Mathfield, latex: string, range: Range) => string;
 }
 
 export type RemoteVirtualKeyboardOptions = CoreOptions &

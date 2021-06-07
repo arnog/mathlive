@@ -18,6 +18,7 @@ import { getDefaultRegisters } from '../core/registers';
 import { defaultSpeakHook } from './speech';
 import { defaultReadAloudHook } from './speech-read-aloud';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
+import { defaultExportHook } from '../editor-mathfield/mode-editor';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -372,6 +373,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onModeChange: NO_OP_LISTENER,
     onReadAloudStatus: NO_OP_LISTENER,
     onCommit: NO_OP_LISTENER,
+    onExport: defaultExportHook,
 
     onError: (): void => {},
     value: '',

@@ -9,6 +9,22 @@ import { MathfieldPrivate } from './mathfield-private';
 const CLIPBOARD_LATEX_BEGIN = '\\begin{equation*}';
 const CLIPBOARD_LATEX_END = '\\end{equation*}';
 
+export const defaultExportHook = (
+  _from: MathfieldPrivate,
+  latex: string,
+  _range: Range
+): string => {
+  // Add a wrapper around the Latex to be exported, if necessary
+  if (
+    !MODE_SHIFT_COMMANDS.some(
+      (x) => latex.startsWith(x[0]) && latex.endsWith(x[1])
+    )
+  ) {
+    latex = `${CLIPBOARD_LATEX_BEGIN} ${latex} ${CLIPBOARD_LATEX_END}`;
+  }
+  return latex;
+};
+
 export class ModeEditor {
   static _registry: Record<string, ModeEditor> = {};
   constructor(name: string) {
@@ -26,13 +42,13 @@ export class ModeEditor {
   static onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
     if (!ev.clipboardData) return;
     const model = mathfield.model;
-    const value: Range = model.selectionIsCollapsed
+    const exportRange: Range = model.selectionIsCollapsed
       ? [0, model.lastOffset]
-      : range(mathfield.selection);
+      : range(model.selection);
 
-    const atoms = model.getAtoms(value);
+    const atoms = model.getAtoms(exportRange);
     if (atoms.every((x) => x.mode === 'text' || !x.mode)) {
-      // If the entire selection is in text mode, simply put some plain
+      // If the entire selection is in text mode, put the selection as plain
       // text on the clipboard
       ev.clipboardData.setData(
         'text/plain',
@@ -42,41 +58,52 @@ export class ModeEditor {
           .join('')
       );
     } else if (atoms.every((x) => x.mode === 'latex')) {
-      // If the entire selection is in latex mode, simply put some plain
+      // If the entire selection is in Latex mode, put the selection as plain
       // text on the clipboard
       ev.clipboardData.setData(
         'text/plain',
         model
-          .getAtoms(value, { includeChildren: true })
+          .getAtoms(exportRange, { includeChildren: true })
           .map((x) => x.value ?? '')
           .join('')
       );
     } else {
-      let content = '';
+      //
+      // 1. Put text flavor on the clipboard
+      //
+      let latex = '';
       if (atoms.length === 1 && atoms[0].verbatimLatex) {
-        content = atoms[0].verbatimLatex;
+        latex = atoms[0].verbatimLatex;
       }
-      if (!content) {
-        content = mathfield.getValue(value, 'latex-expanded');
+      if (!latex) {
+        latex = model.getValue(exportRange, 'latex-expanded');
       }
 
-      ev.clipboardData.setData('application/x-latex', content);
-      // Add a wrapper around the Latex, if necessary
-      if (
-        !MODE_SHIFT_COMMANDS.some(
-          (x) => content.startsWith(x[0]) && content.endsWith(x[1])
-        )
-      ) {
-        content = `${CLIPBOARD_LATEX_BEGIN} ${content} ${CLIPBOARD_LATEX_END}`;
-      }
-      ev.clipboardData.setData('text/plain', content);
+      //
+      // 2. Put latex flavor on clipboard
+      //
+      ev.clipboardData.setData('application/x-latex', latex);
+
+      //
+      // 3. Put text flavor on clipboard
+      // (see defaultExportHook)
+      //
+
+      ev.clipboardData.setData(
+        'text/plain',
+        mathfield.options.onExport(mathfield, latex, exportRange)
+      );
+
+      //
+      // 3. Put other flavors on the clipboard
+      //
       ev.clipboardData.setData(
         'application/json',
-        mathfield.getValue(value, 'math-json')
+        model.getValue(exportRange, 'math-json')
       );
       ev.clipboardData.setData(
         'application/mathml+xml',
-        mathfield.getValue(value, 'math-ml')
+        model.getValue(exportRange, 'math-ml')
       );
     }
     // Prevent the current document selection from being written to the clipboard.
