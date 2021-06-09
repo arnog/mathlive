@@ -39,12 +39,10 @@ import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 
 export { MathfieldElement } from './public/mathfield-element';
 
-// version as mathJsonVersion,
-
 export {
   serialize as serializeMathJson,
   parse as parseMathJson,
-} from '@cortex-js/math-json';
+} from '@cortex-js/math-json'; // version as mathJsonVersion,
 export type {
   LatexDictionary,
   LatexDictionaryEntry,

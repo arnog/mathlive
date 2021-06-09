@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Improvements
+
+- Attempt to fix installation of the npm package on some Windows configurations
+
 ## 0.69.0 (2021-06-09)
 
 ### Breaking Changes
@@ -102,7 +108,7 @@ or:
 - The `getOffsetDepth()` method can be used to query the depth of a specific
   offset. Use `mf.getOffsetDepth(mf.position)` for the depth of the current
   position.
-- the `onExport()` hook provides an oppturnity to customize the format exported
+- the `onExport()` hook provides an opportunity to customize the format exported
   to the Clipboard.
 
 ### Bug Fixes
