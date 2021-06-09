@@ -33,15 +33,6 @@ if [ ! -d "./node_modules" ]; then
     echo -e "${LINECLEAR}${CHECK} Dependencies installed"
 fi
 
-# export GIT_VERSION=`git describe --long --dirty`
-
-export SDK_VERSION=$(cat package.json \
-| grep version \
-| head -1 \
-| awk -F: '{ print $2 }' \
-| sed 's/[",]//g' \
-| tr -d '[[:space:]]')
-
 # Clean output directories
 printf "${LINECLEAR}${DOT} Cleaning output directories"
 rm -rf ./dist
@@ -50,7 +41,6 @@ rm -rf ./build
 rm -rf ./coverage
 
 mkdir -p dist
-mkdir -p declarations
 
 # Copy static assets
 printf "${LINECLEAR}${DOT} Copying static assets (fonts, sounds)"

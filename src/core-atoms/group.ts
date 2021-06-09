@@ -49,6 +49,7 @@ export class GroupAtom extends Atom {
     this.skipBoundary = true;
     this.captureSelection = options?.captureSelection;
     this.changeMode = options?.changeMode ?? false;
+    this.displayContainsHighlight = false;
   }
 
   render(context: Context): Box | null {

@@ -1656,10 +1656,11 @@ export class Parser {
 
     if (
       result instanceof Atom &&
+      !result.verbatimLatex &&
       !/^\\(llap|rlap|class|cssId|htmlData)$/.test(command)
     ) {
       result.verbatimLatex =
-        result.command +
+        (result.command ?? '') +
         tokensToString(this.tokens.slice(initialIndex, this.index));
 
       if (result.isFunction && this.smartFence) {
@@ -1770,7 +1771,7 @@ export class Parser {
       this.parseModeSet() ??
       this.parseGroup() ??
       this.parseLeftRight();
-    if (!result) {
+    if (result === null) {
       if (this.parseSupSub()) return true;
       if (this.parseLimits()) return true;
       result = this.parseSimpleToken();
