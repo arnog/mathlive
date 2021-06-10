@@ -166,7 +166,7 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Afficher/Masquer le clavier virtuel',
     'tooltip.undo': 'Annuler',
   },
-  
+
   // Irish
   ga: {
     'keyboard.tooltip.functions': 'Feidhmeanna',
@@ -180,7 +180,7 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Méarchláir Fíorúil a Fháil',
     'tooltip.undo': 'Undo',
   },
-  
+
   // Croatian
   hr: {
     'keyboard.tooltip.functions': 'Funkcije',
