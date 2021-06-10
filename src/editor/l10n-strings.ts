@@ -166,7 +166,21 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Afficher/Masquer le clavier virtuel',
     'tooltip.undo': 'Annuler',
   },
-
+  
+  // Irish
+  ga: {
+    'keyboard.tooltip.functions': 'Feidhmeanna',
+    'keyboard.tooltip.symbols': 'Siombailí',
+    'keyboard.tooltip.greek': 'Litreacha na Gréige',
+    'keyboard.tooltip.command': 'Mód Ordú LaTeX',
+    'keyboard.tooltip.numeric': 'Uimhriúil',
+    'keyboard.tooltip.roman': 'Litreacha Rómhánacha',
+    'tooltip.copy to clipboard': 'Cóipeáil chuig an Ghearrthaisce',
+    'tooltip.redo': 'Athdhéan',
+    'tooltip.toggle virtual keyboard': 'Méarchláir Fíorúil a Fháil',
+    'tooltip.undo': 'Undo',
+  },
+  
   // Croatian
   hr: {
     'keyboard.tooltip.functions': 'Funkcije',
