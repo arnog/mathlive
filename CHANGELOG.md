@@ -8,6 +8,8 @@
 
 - **#1000** When serializing subscripts and superscripts, serialize the
   subscript first: `\int_0^{\infty}` instead of `\int^{\infty}_0`.
+- In some page layouts, the virtual keyboard could be displayed at an incorrect
+  location, or scroll with the page.
 
 ## 0.69.1 (2021-06-09)
 
