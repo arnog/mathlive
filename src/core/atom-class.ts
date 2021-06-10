@@ -469,29 +469,32 @@ export class Atom {
     // e.g. `x^`. If we don't do this correctly, weird things will happen
     // like inline shortcuts (which rely on the undo buffer and serialization)
     // will fail, for example in `e^pi`.
-    if (this.branch('superscript') !== undefined) {
-      let sup = atomsToLatex(this.superscript, options);
-      if (sup.length === 0) {
-        result += '^';
-      } else if (sup.length === 1) {
-        if (sup === '\u2032') {
-          sup = '\\prime ';
-        } else if (sup === '\u2033') {
-          sup = '\\doubleprime ';
-        }
-
-        result += '^' + sup;
-      } else {
-        result += '^{' + sup + '}';
-      }
-    }
 
     if (this.branch('subscript') !== undefined) {
       const sub = atomsToLatex(this.subscript, options);
       if (sub.length === 0) {
         result += '_';
+      } else if (sub.length === 1) {
+        result += '_' + sub;
       } else {
-        result += sub.length === 1 ? '_' + sub : '_{' + sub + '}';
+        result += `_{${sub}}`;
+      }
+    }
+
+    if (this.branch('superscript') !== undefined) {
+      const sup = atomsToLatex(this.superscript, options);
+      if (sup.length === 0) {
+        result += '^';
+      } else if (sup.length === 1) {
+        if (sup === '\u2032') {
+          result += '^\\prime ';
+        } else if (sup === '\u2033') {
+          result += '^\\doubleprime ';
+        } else {
+          result += '^' + sup;
+        }
+      } else {
+        result += `^{${sup}}`;
       }
     }
 
