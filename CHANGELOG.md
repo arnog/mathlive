@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Improvements
+
+- Added localization for Lithuanian (contributed by @physedo).
+
 ## 0.69.3 (2021-06-10)
 
 ### Improvements
