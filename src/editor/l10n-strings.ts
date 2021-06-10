@@ -294,7 +294,7 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': '仮想キーボードの切り替え',
     'tooltip.undo': '元に戻す',
   },
-  
+
   // Lithuanian
   lt: {
     'keyboard.tooltip.functions': 'Funkcijos',
@@ -308,7 +308,7 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Perjungti virtualiąją klaviatūrą',
     'tooltip.undo': 'Atšaukti',
   },
-  
+
   // Dutch
   nl: {
     'keyboard.tooltip.functions': 'Functies',
