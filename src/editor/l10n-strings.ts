@@ -178,7 +178,7 @@ export const STRINGS = {
     'tooltip.copy to clipboard': 'Cóipeáil chuig an Ghearrthaisce',
     'tooltip.redo': 'Athdhéan',
     'tooltip.toggle virtual keyboard': 'Méarchláir Fíorúil a Fháil',
-    'tooltip.undo': 'Undo',
+    'tooltip.undo': 'Cealaigh',
   },
 
   // Croatian
