@@ -1,4 +1,5 @@
-import { convertLatexToMarkup } from '../dist/mathlive';
+import { convertLatexToMarkup } from '../src/mathlive';
+
 
 function markupAndError(formula: string): [string, string] {
   let errorCode = 'no-error';
