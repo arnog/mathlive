@@ -220,7 +220,7 @@ export const STRINGS = {
     'tooltip.copy to clipboard': 'Cóipeáil chuig an Ghearrthaisce',
     'tooltip.redo': 'Athdhéan',
     'tooltip.toggle virtual keyboard': 'Méarchláir Fíorúil a Fháil',
-    'tooltip.undo': 'Undo',
+    'tooltip.undo': 'Cealaigh',
   },
 
   // Croatian
@@ -294,7 +294,21 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': '仮想キーボードの切り替え',
     'tooltip.undo': '元に戻す',
   },
-
+  
+  // Lithuanian
+  lt: {
+    'keyboard.tooltip.functions': 'Funkcijos',
+    'keyboard.tooltip.symbols': 'Simboliai',
+    'keyboard.tooltip.greek': 'Graikiškos raidės',
+    'keyboard.tooltip.command': 'LaTeX komandų režimas',
+    'keyboard.tooltip.numeric': 'Skaitmeninis',
+    'keyboard.tooltip.roman': 'Romos laiškai',
+    'tooltip.copy to clipboard': 'Nukopijuoti į iškarpinę',
+    'tooltip.redo': 'Perdaryti',
+    'tooltip.toggle virtual keyboard': 'Perjungti virtualiąją klaviatūrą',
+    'tooltip.undo': 'Atšaukti',
+  },
+  
   // Dutch
   nl: {
     'keyboard.tooltip.functions': 'Functies',
