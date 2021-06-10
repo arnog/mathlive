@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Improvements
+
+- Added localization for Irish (contributed by @physedo).
+
 ### Bug Fixes
 
 - **#1000** When serializing subscripts and superscripts, serialize the

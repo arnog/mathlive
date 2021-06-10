@@ -10,6 +10,20 @@ export const STRINGS = {
     'tooltip.redo': 'Redo',
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',
+    'menu.insert matrix': 'Insert Matrix',
+    'menu.insert vector': 'Insert Vector',
+    'submenu.array.matrix delimiters': 'Matrix Delimiters',
+    'menu.array.add row above': 'Add Row After',
+    'menu.array.add row below': 'Add Row Before',
+    'menu.array.add column after': 'Add Column After',
+    'menu.array.add column before': 'Add Column Before',
+    'menu.array.delete row': 'Delete Row',
+    'menu.array.delete rows': 'Delete Selected Rows',
+    'menu.array.delete column': 'Delete Column',
+    'menu.array.delete columns': 'Delete Selected Columns',
+    'submenu.array.insert separator': 'Insert Separator',
+    'menu.insert table': 'Insert Table',
+    'submenu.table style': 'Table Style',
   },
 
   // Arabic
@@ -109,6 +123,20 @@ export const STRINGS = {
     'tooltip.redo': 'Rehacer',
     'tooltip.toggle virtual keyboard': 'Alternar teclado virtual',
     'tooltip.undo': 'Deshacer',
+    'menu.insert matrix': 'Añadir Matriz',
+    'menu.insert vector': 'Añadir vector',
+    'submenu.array.matrix delimiters': 'Delimitadores de Matriz',
+    'menu.array.add row above': 'Añadir Línea Antes',
+    'menu.array.add row below': 'Añadir Línea Despues',
+    'menu.array.add column after': 'Añadir Columna Despues',
+    'menu.array.add column before': 'Añadir Columna Antes',
+    'menu.array.delete row': 'Borrar Línea',
+    'menu.array.delete rows': 'Borrar Líneas Seleccionadas',
+    'menu.array.delete column': 'Borrar Columna',
+    'menu.array.delete columns': 'Borrar Columnas Seleccionadas',
+    'submenu.array.insert separator': 'Insertar un Separador',
+    'menu.insert table': 'Insertar Tabla',
+    'submenu.table style': 'Estilo de Tabla',
   },
 
   // Estonian
@@ -165,8 +193,22 @@ export const STRINGS = {
     'tooltip.redo': 'Rétablir',
     'tooltip.toggle virtual keyboard': 'Afficher/Masquer le clavier virtuel',
     'tooltip.undo': 'Annuler',
+    'menu.insert matrix': 'Insérer une Matrice',
+    'menu.insert vector': 'Insérer un Vecteur',
+    'submenu.array.matrix delimiters': 'Délimiteurs de la Matrice',
+    'menu.array.add row above': 'Ajouter une Ligne Avant',
+    'menu.array.add row below': 'Ajouter une Ligne Après',
+    'menu.array.add column before': 'Ajouter une Colonne Avant',
+    'menu.array.add column after': 'Ajouter une Colonne Après',
+    'menu.array.delete row': 'Enlever une Ligne',
+    'menu.array.delete rows': 'Enlever les Lignes Sélectionées',
+    'menu.array.delete column': 'Enlever une Colone',
+    'menu.array.delete columns': 'Enlever les Colonnes Sélectionées',
+    'submenu.array.insert separator': 'Insérer un Séparateur',
+    'menu.insert table': 'Insérer une Table',
+    'submenu.table style': 'Style de la  Table',
   },
-  
+
   // Irish
   ga: {
     'keyboard.tooltip.functions': 'Feidhmeanna',
@@ -180,7 +222,7 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Méarchláir Fíorúil a Fháil',
     'tooltip.undo': 'Undo',
   },
-  
+
   // Croatian
   hr: {
     'keyboard.tooltip.functions': 'Funkcije',
@@ -209,6 +251,20 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard':
       'Attiva / disattiva la tastiera virtuale',
     'tooltip.undo': 'Disfare',
+    'menu.insert matrix': 'Inserisci una Matrice',
+    'menu.insert vector': 'Inserisci Vettore',
+    'submenu.array.matrix delimiters': 'Delimitatori di Matrice',
+    'menu.array.add row above': 'Aggiungi una Riga Prima',
+    'menu.array.add row below': 'Aggiungi una Riga Dopo',
+    'menu.array.add column before': 'Aggiungi una Colonna Prima',
+    'menu.array.add column after': 'Aggiungi una Colonna Dopo',
+    'menu.array.delete row': 'Rimuovi una Riga',
+    'menu.array.delete rows': 'Rimuovi le Righe Selezionate',
+    'menu.array.delete column': 'Rimuovi una Colonna',
+    'menu.array.delete columns': 'Rimuovi le Colonne Selezionate',
+    'submenu.array.insert separator': 'Inserisci un Separatore',
+    'menu.insert table': 'Inserisci Tabella',
+    'submenu.table style': 'Stile tabella',
   },
 
   // Icelandic
