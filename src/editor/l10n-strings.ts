@@ -286,7 +286,7 @@ export const STRINGS = {
     'keyboard.tooltip.functions': '関数',
     'keyboard.tooltip.symbols': 'シンボル',
     'keyboard.tooltip.greek': 'ギリシャ文字',
-    'keyboard.tooltip.command': 'LaTeXコマンドモード',
+    'keyboard.tooltip.command': 'ラテックスコマンドモード',
     'keyboard.tooltip.numeric': '数値',
     'keyboard.tooltip.roman': 'ローマ字',
     'tooltip.copy to clipboard': 'クリップボードにコピー',
