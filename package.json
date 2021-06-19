@@ -113,7 +113,7 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "@cortex-js/math-json": "^0.2.3"
+    "@cortex-js/math-json": "^0.3.0"
   },
   "keywords": [
     "math",
