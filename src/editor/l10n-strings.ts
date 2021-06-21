@@ -251,6 +251,35 @@ export const STRINGS = {
       'Uključi / isključi virtualnu tipkovnicu',
     'tooltip.undo': 'Poništi',
   },
+  
+  // Hindi
+   in: {
+    'keyboard.tooltip.functions': 'कार्यों',
+    'keyboard.tooltip.symbols': 'प्रतीक',
+    'keyboard.tooltip.greek': 'ग्रीक अक्षर',
+    'keyboard.tooltip.command': 'लाटेक्स कमांड मोड',
+    'keyboard.tooltip.numeric': 'संख्यात्मक',
+    'keyboard.tooltip.roman': 'रोमन पत्र',
+    'tooltip.copy to clipboard': 'क्लिपबोर्ड पर कॉपी करें',
+    'tooltip.redo': 'फिर से करें',
+    'tooltip.toggle virtual keyboard': 'वर्चुअल कीबोर्ड टॉगल करें',
+    'tooltip.undo': 'पूर्ववत',
+    'menu.insert matrix': 'मैट्रिक्स डालें',
+    'menu.insert vector': 'वेक्टर डालें',
+    'submenu.array.matrix delimiters': 'मैट्रिक्स सीमांकक',
+    'menu.array.add row above': 'बाद में पंक्ति जोड़ें',
+    'menu.array.add row below': 'पहले पंक्ति जोड़ें',
+    'menu.array.add column after': 'बाद में कॉलम जोड़ें',
+    'menu.array.add column before': 'पहले कॉलम जोड़ें',
+    'menu.array.delete row': 'पंक्ति को हटाएं',
+    'menu.array.delete rows': 'चयनित पंक्तियों को हटाएं',
+    'menu.array.delete column': 'कॉलम हटाएं',
+    'menu.array.delete columns': 'चयनित कॉलम हटाएं',
+    'submenu.array.insert separator': 'विभाजक डालें',
+    'menu.insert table': 'टेबल इंसर्ट करें',
+    'submenu.table style': 'टेबल स्टाइल',
+  },
+
 
   // Italian
   it: {
@@ -307,6 +336,34 @@ export const STRINGS = {
     'tooltip.redo': 'やり直し',
     'tooltip.toggle virtual keyboard': '仮想キーボードの切り替え',
     'tooltip.undo': '元に戻す',
+  },
+  
+  // Lettish
+  lv: {
+    'keyboard.tooltip.functions': 'Funkcijas',
+    'keyboard.tooltip.symbols': 'Simboli',
+    'keyboard.tooltip.greek': 'Grieķu burti',
+    'keyboard.tooltip.command': 'LaTeX komandu režīms',
+    'keyboard.tooltip.numeric': 'Ciparu skaitlis',
+    'keyboard.tooltip.roman': 'Romiešu vēstules',
+    'tooltip.copy to clipboard': 'Kopēt starpliktuvē',
+    'tooltip.redo': 'Pārtaisīt',
+    'tooltip.toggle virtual keyboard': 'Pārslēgt virtuālo tastatūru',
+    'tooltip.undo': 'Atsaukt',
+    'menu.insert matrix': 'Ievietojiet matricu',
+    'menu.insert vector': 'Ievietot vektoru',
+    'submenu.array.matrix delimiters': 'Matricas norobežotāji',
+    'menu.array.add row above': 'Pievienot rindu pēc',
+    'menu.array.add row below': 'Pievienot rindu pirms',
+    'menu.array.add column after': 'Pievienot kolonnu pēc',
+    'menu.array.add column before': 'Pievienot kolonnu pirms',
+    'menu.array.delete row': 'Dzēst rindu',
+    'menu.array.delete rows': 'Dzēst atlasītās rindas',
+    'menu.array.delete column': 'Dzēst kolonnu',
+    'menu.array.delete columns': 'Dzēst atlasītās kolonnas',
+    'submenu.array.insert separator': 'Ievietojiet atdalītāju',
+    'menu.insert table': 'Ievietojiet tabulu',
+    'submenu.table style': 'Galda stils',
   },
 
   // Lithuanian
