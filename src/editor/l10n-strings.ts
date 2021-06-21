@@ -352,6 +352,32 @@ export const STRINGS = {
     'tooltip.undo': '元に戻す',
   },
   
+  //Korean
+   ko: {
+    'keyboard.tooltip.functions': '기능',
+    'keyboard.tooltip.symbols': '기호',
+    'keyboard.tooltip.greek': '그리스 문자',
+    'keyboard.tooltip.command': '유액 명령 모드',
+    'keyboard.tooltip.numeric': '숫자',
+    'keyboard.tooltip.roman': '로마 문자',
+    'tooltip.copy to clipboard': '클립 보드에 복사',
+    'tooltip.redo': '다시 하다',
+    'tooltip.toggle virtual keyboard': '가상 키보드 전환',
+    'tooltip.undo': '실행 취소',
+    'menu.insert matrix': '매트릭스 삽입',
+    'menu.insert vector': '벡터 삽입',
+    'submenu.array.matrix delimiters': '행렬 구분 기호',
+    'menu.array.add row above': '뒤에 행 추가',
+    'menu.array.add row below': '앞에 행 추가',
+    'menu.array.add column after': '뒤에 열 추가',
+    'menu.array.add column before': '앞에 열 추가',
+    'menu.array.delete row': '행 삭제',
+    'menu.array.delete rows': '선택한 행 삭제',
+    'menu.array.delete column': '열 삭제',
+    'menu.array.delete columns': '선택한 열 삭제',
+    'submenu.array.insert separator': '구분자 삽입',
+    'menu.insert table': '표 삽입',
+    'submenu.table style': '테이블 스타일',
   // Lettish
   lv: {
     'keyboard.tooltip.functions': 'Funkcijas',
