@@ -53,6 +53,20 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard':
       'Uključi / isključi virtualnu tipkovnicu',
     'tooltip.undo': 'Poništi',
+    'menu.insert matrix': 'Umetni matricu',
+    'menu.insert vector': 'Umetni vektor',
+    'submenu.array.matrix delimiters': 'Matrični razdjelnici',
+    'menu.array.add row above': 'Dodaj redak nakon',
+    'menu.array.add row below': 'Dodaj red prije',
+    'menu.array.add column after': 'Dodaj stupac nakon',
+    'menu.array.add column before': 'Dodaj stupac prije',
+    'menu.array.delete row': 'Izbriši red',
+    'menu.array.delete rows': 'Izbriši odabrane redove',
+    'menu.array.delete column': 'Izbriši stupac',
+    'menu.array.delete columns': 'Izbriši odabrane stupce',
+    'submenu.array.insert separator': 'Umetni separator',
+    'menu.insert table': 'Ubaci tabelu',
+    'submenu.table style': 'Stil tabele',
   },
 
   // Czech
