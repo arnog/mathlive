@@ -38,7 +38,7 @@ export const STRINGS = {
     'tooltip.redo': 'الإعادة',
     'tooltip.toggle virtual keyboard': 'تبديل لوحة المفاتيح الإفتراضية',
     'tooltip.undo': 'إلغاء',
-     'menu.insert matrix': 'أدخل المصفوفة',
+    'menu.insert matrix': 'أدخل المصفوفة',
     'menu.insert vector': 'أدخل متجه',
     'submenu.array.matrix delimiters': 'محددات المصفوفة',
     'menu.array.add row above': 'أضف صفًا بعد ذلك',
@@ -363,9 +363,9 @@ export const STRINGS = {
       'Uključi / isključi virtualnu tipkovnicu',
     'tooltip.undo': 'Poništi',
   },
-  
+
   // Hindi
-   in: {
+  in: {
     'keyboard.tooltip.functions': 'कार्यों',
     'keyboard.tooltip.symbols': 'प्रतीक',
     'keyboard.tooltip.greek': 'ग्रीक अक्षर',
@@ -391,7 +391,6 @@ export const STRINGS = {
     'menu.insert table': 'टेबल इंसर्ट करें',
     'submenu.table style': 'टेबल स्टाइल',
   },
-
 
   // Italian
   it: {
@@ -463,9 +462,9 @@ export const STRINGS = {
     'menu.insert table': 'テーブルを挿入',
     'submenu.table style': 'テーブルスタイル',
   },
-  
+
   //Korean
-   ko: {
+  ko: {
     'keyboard.tooltip.functions': '기능',
     'keyboard.tooltip.symbols': '기호',
     'keyboard.tooltip.greek': '그리스 문자',
@@ -490,6 +489,7 @@ export const STRINGS = {
     'submenu.array.insert separator': '구분자 삽입',
     'menu.insert table': '표 삽입',
     'submenu.table style': '테이블 스타일',
+  },
   // Lettish
   lv: {
     'keyboard.tooltip.functions': 'Funkcijas',
@@ -685,7 +685,7 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Sanal Klavyeyi Aç/Kapat',
     'tooltip.undo': 'Geri alma',
   },
-  
+
   // Simplified Chinese
   zh_cn: {
     'keyboard.tooltip.functions': '职能',
