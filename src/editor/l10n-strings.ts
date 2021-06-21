@@ -323,6 +323,34 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': '仮想キーボードの切り替え',
     'tooltip.undo': '元に戻す',
   },
+  
+  // Lettish
+  lv: {
+    'keyboard.tooltip.functions': 'Funkcijas',
+    'keyboard.tooltip.symbols': 'Simboli',
+    'keyboard.tooltip.greek': 'Grieķu burti',
+    'keyboard.tooltip.command': 'LaTeX komandu režīms',
+    'keyboard.tooltip.numeric': 'Ciparu skaitlis',
+    'keyboard.tooltip.roman': 'Romiešu vēstules',
+    'tooltip.copy to clipboard': 'Kopēt starpliktuvē',
+    'tooltip.redo': 'Pārtaisīt',
+    'tooltip.toggle virtual keyboard': 'Pārslēgt virtuālo tastatūru',
+    'tooltip.undo': 'Atsaukt',
+    'menu.insert matrix': 'Ievietojiet matricu',
+    'menu.insert vector': 'Ievietot vektoru',
+    'submenu.array.matrix delimiters': 'Matricas norobežotāji',
+    'menu.array.add row above': 'Pievienot rindu pēc',
+    'menu.array.add row below': 'Pievienot rindu pirms',
+    'menu.array.add column after': 'Pievienot kolonnu pēc',
+    'menu.array.add column before': 'Pievienot kolonnu pirms',
+    'menu.array.delete row': 'Dzēst rindu',
+    'menu.array.delete rows': 'Dzēst atlasītās rindas',
+    'menu.array.delete column': 'Dzēst kolonnu',
+    'menu.array.delete columns': 'Dzēst atlasītās kolonnas',
+    'submenu.array.insert separator': 'Ievietojiet atdalītāju',
+    'menu.insert table': 'Ievietojiet tabulu',
+    'submenu.table style': 'Galda stils',
+  },
 
   // Lithuanian
   lt: {
