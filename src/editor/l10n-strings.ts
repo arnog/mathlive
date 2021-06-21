@@ -237,6 +237,35 @@ export const STRINGS = {
       'Uključi / isključi virtualnu tipkovnicu',
     'tooltip.undo': 'Poništi',
   },
+  
+  // Hindi
+   in: {
+    'keyboard.tooltip.functions': 'कार्यों',
+    'keyboard.tooltip.symbols': 'प्रतीक',
+    'keyboard.tooltip.greek': 'ग्रीक अक्षर',
+    'keyboard.tooltip.command': 'लाटेक्स कमांड मोड',
+    'keyboard.tooltip.numeric': 'संख्यात्मक',
+    'keyboard.tooltip.roman': 'रोमन पत्र',
+    'tooltip.copy to clipboard': 'क्लिपबोर्ड पर कॉपी करें',
+    'tooltip.redo': 'फिर से करें',
+    'tooltip.toggle virtual keyboard': 'वर्चुअल कीबोर्ड टॉगल करें',
+    'tooltip.undo': 'पूर्ववत',
+    'menu.insert matrix': 'मैट्रिक्स डालें',
+    'menu.insert vector': 'वेक्टर डालें',
+    'submenu.array.matrix delimiters': 'मैट्रिक्स सीमांकक',
+    'menu.array.add row above': 'बाद में पंक्ति जोड़ें',
+    'menu.array.add row below': 'पहले पंक्ति जोड़ें',
+    'menu.array.add column after': 'बाद में कॉलम जोड़ें',
+    'menu.array.add column before': 'पहले कॉलम जोड़ें',
+    'menu.array.delete row': 'पंक्ति को हटाएं',
+    'menu.array.delete rows': 'चयनित पंक्तियों को हटाएं',
+    'menu.array.delete column': 'कॉलम हटाएं',
+    'menu.array.delete columns': 'चयनित कॉलम हटाएं',
+    'submenu.array.insert separator': 'विभाजक डालें',
+    'menu.insert table': 'टेबल इंसर्ट करें',
+    'submenu.table style': 'टेबल स्टाइल',
+  },
+
 
   // Italian
   it: {
