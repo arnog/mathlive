@@ -165,7 +165,7 @@ export const STRINGS = {
     'tooltip.redo': 'Tee uuesti',
     'tooltip.toggle virtual keyboard': 'Lülitage sisse virtuaalne klaviatuur',
     'tooltip.undo': 'Võta tagasi',
-     'menu.insert matrix': 'Sisesta maatriks',
+    'menu.insert matrix': 'Sisesta maatriks',
     'menu.insert vector': 'Sisesta vektor',
     'submenu.array.matrix delimiters': 'Maatriksi eraldajad',
     'menu.array.add row above': 'Lisa rida pärast',
