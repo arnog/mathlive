@@ -1,4 +1,4 @@
-import { debug } from '../dist/mathlive';
+import { debug } from '../src/mathlive';
 
 function equalASCIIMath(latex: string, ascii: string) {
   test(latex, () => {
