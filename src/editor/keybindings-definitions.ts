@@ -175,7 +175,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   {
     key: 'ctrl+[Digit2]',
     ifMode: 'math',
-    command: ['insert', '$$\\sqrt{#0}$$'],
+    command: ['insert', '\\sqrt{#0}'],
   },
   { key: 'ctrl+[Digit5]', ifMode: 'math', command: 'moveToOpposite' },
   { key: 'ctrl+[Digit6]', ifMode: 'math', command: 'moveToSuperscript' },
@@ -191,52 +191,52 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // ctrl+- to delete a row or columns
 
   // MATHLIVE BINDINGS
-  // { key: 'alt+a', command: ['insert', '$$\\theta$$'] },
-  { key: 'alt+p', ifMode: 'math', command: ['insert', '$$\\pi$$'] },
-  { key: 'alt+v', ifMode: 'math', command: ['insert', '$$\\sqrt{#0}$$'] },
+  // { key: 'alt+a', command: ['insert', '\\theta'] },
+  { key: 'alt+p', ifMode: 'math', command: ['insert', '\\pi'] },
+  { key: 'alt+v', ifMode: 'math', command: ['insert', '\\sqrt{#0}'] },
   {
     key: 'alt+w',
     ifMode: 'math',
-    command: ['insert', '$$\\sum_{i=#?}^{#?}$$'],
+    command: ['insert', '\\sum_{i=#?}^{#?}'],
   },
-  { key: 'alt+b', command: ['insert', '$$\\int_{#?}^{#?}$$'] },
-  { key: 'alt+u', ifMode: 'math', command: ['insert', '$$\\cup$$'] },
-  { key: 'alt+n', ifMode: 'math', command: ['insert', '$$\\cap$$'] },
-  { key: 'alt+o', ifMode: 'math', command: ['insert', '$$\\emptyset$$'] },
+  { key: 'alt+b', command: ['insert', '\\int_{#?}^{#?}'] },
+  { key: 'alt+u', ifMode: 'math', command: ['insert', '\\cup'] },
+  { key: 'alt+n', ifMode: 'math', command: ['insert', '\\cap'] },
+  { key: 'alt+o', ifMode: 'math', command: ['insert', '\\emptyset'] },
   {
     key: 'alt+d',
     ifMode: 'math',
-    command: ['insert', '$$\\differentialD$$'],
+    command: ['insert', '\\differentialD'],
   },
   {
     key: 'shift+alt+o',
     ifMode: 'math',
-    command: ['insert', '$$\\varnothing$$'],
+    command: ['insert', '\\varnothing'],
   },
   {
     key: 'shift+alt+d',
     ifMode: 'math',
-    command: ['insert', '$$\\partial$$'],
+    command: ['insert', '\\partial'],
   },
   {
     key: 'shift+alt+p',
     ifMode: 'math',
-    command: ['insert', '$$\\prod_{i=#?}^{#?}$$'],
+    command: ['insert', '\\prod_{i=#?}^{#?}'],
   },
-  { key: 'shift+alt+u', ifMode: 'math', command: ['insert', '$$\\bigcup$$'] },
-  { key: 'shift+alt+n', ifMode: 'math', command: ['insert', '$$\\bigcap$$'] },
-  { key: 'shift+alt+a', ifMode: 'math', command: ['insert', '$$\\forall$$'] },
-  { key: 'shift+alt+e', ifMode: 'math', command: ['insert', '$$\\exists$$'] },
+  { key: 'shift+alt+u', ifMode: 'math', command: ['insert', '\\bigcup'] },
+  { key: 'shift+alt+n', ifMode: 'math', command: ['insert', '\\bigcap'] },
+  { key: 'shift+alt+a', ifMode: 'math', command: ['insert', '\\forall'] },
+  { key: 'shift+alt+e', ifMode: 'math', command: ['insert', '\\exists'] },
   {
     key: 'alt+[Backslash]',
     ifMode: 'math',
-    command: ['insert', '$$\\backslash$$'],
+    command: ['insert', '\\backslash'],
   }, // "|" key} override command mode
 
   {
     key: '[NumpadDivide]',
     ifMode: 'math',
-    command: ['insert', '$$\\frac{#@}{#?}$$'],
+    command: ['insert', '\\frac{#@}{#?}'],
   }, // ??
   {
     key: 'alt+[NumpadDivide]',
@@ -299,19 +299,19 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   {
     key: '/',
     ifMode: 'math',
-    command: ['insert', '$$\\frac{#@}{#?}$$'],
+    command: ['insert', '\\frac{#@}{#?}'],
   },
   {
     key: 'alt+/',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['insert', '$$\\/$$'],
+    command: ['insert', '\\/'],
   },
   {
     key: 'alt+[BracketLeft]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['insert', '$$\\left\\lbrack #0 \\right\\rbrack$$'],
+    command: ['insert', '\\left\\lbrack #0 \\right\\rbrack'],
   }, // ??
   {
     key: 'ctrl+[Minus]',
@@ -323,7 +323,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'shift+alt+[BracketLeft]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['insert', '$$\\left\\lbrace #0 \\right\\rbrace$$'],
+    command: ['insert', '\\left\\lbrace #0 \\right\\rbrace'],
   }, // ??
   {
     key: 'ctrl+;',
@@ -378,20 +378,20 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'alt+[Digit5]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['insert', '$\\infty$$'],
+    command: ['insert', '$\\infty'],
   }, // "%" key
   {
     key: 'alt+[Digit6]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['insert', '$$\\wedge$$'],
+    command: ['insert', '\\wedge'],
   }, // "^" key
   {
     key: 'shift+alt+[Digit6]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
 
     ifMode: 'math',
-    command: ['insert', '$$\\vee$$'],
+    command: ['insert', '\\vee'],
   }, // "^" key
   {
     key: 'alt+[Digit9]',
@@ -416,7 +416,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'shift+[Backquote]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['insert', '$$\\~$$'],
+    command: ['insert', '\\~'],
   }, // ??
 ];
 
