@@ -2,7 +2,13 @@
 
 ### Improvements
 
-- Added localization for Lithuanian (contributed by @physedo).
+- Updated to ComputeEngine 0.4.2 for better parsing of Latex.
+- When copying or cutting to the clipboard, if the MathJSON parsing fails,
+  ignore the MathJSON and fallback to Latex. Previously, if there was a failure
+  during parsing an empty MathJSON expression would be put on the clipboard,
+  which result in subsequent attempts at pasting the content into a mathfield to
+  fail.
+- Updated various localizations (contributed by @physedo).
 
 ## 0.69.3 (2021-06-10)
 
