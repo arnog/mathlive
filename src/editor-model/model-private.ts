@@ -12,7 +12,8 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
 
-import { parse as parseMathJson } from '@cortex-js/math-json';
+import { parse as parseMathJson } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
+
 import { atomsToMathML } from '../addons/math-ml';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
@@ -375,13 +376,17 @@ export class ModelPrivate implements Model {
       this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
     } else if (format === 'math-json') {
-      const json = parseMathJson(
-        Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }),
-        {
-          onError: this.mathfield.options.onError,
-        }
-      );
-      result = JSON.stringify(json);
+      try {
+        const json = parseMathJson(
+          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }),
+          {
+            onError: this.mathfield.options.onError,
+          }
+        );
+        result = JSON.stringify(json);
+      } catch (e) {
+        return '';
+      }
     } else if (format === 'ascii-math') {
       result = atomToAsciiMath(atom);
     } else {

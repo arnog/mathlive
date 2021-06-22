@@ -39,21 +39,21 @@ import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 
 export { MathfieldElement } from './public/mathfield-element';
 
+import { version as computeEngineVersion } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
+
+// LatexDictionary,
+// LatexDictionaryEntry,
+// LatexString,
+// LatexToken,
+// NumberFormattingOptions,
+// ParseLatexOptions,
+// ParserFunction,
+// SerializeLatexOptions,
+// SerializerFunction,
 export {
   serialize as serializeMathJson,
   parse as parseMathJson,
-} from '@cortex-js/math-json'; // version as mathJsonVersion,
-export type {
-  LatexDictionary,
-  LatexDictionaryEntry,
-  LatexString,
-  LatexToken,
-  NumberFormattingOptions,
-  ParseLatexOptions,
-  ParserFunction,
-  SerializeLatexOptions,
-  SerializerFunction,
-} from '@cortex-js/math-json/dist/types/latex-syntax/public';
+} from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
 
 export function makeSharedVirtualKeyboard(
   options: Partial<RemoteVirtualKeyboardOptions>
@@ -236,7 +236,7 @@ export function renderMathInElement(
 // This SDK_VERSION variable will be replaced during the build process.
 export const version = {
   mathlive: '{{SDK_VERSION}}',
-  mathJson: '', // mathJsonVersion,
+  computeEngine: computeEngineVersion,
 };
 
 export const debug = {

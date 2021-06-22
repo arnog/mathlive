@@ -97,14 +97,14 @@ export class ModeEditor {
       //
       // 3. Put other flavors on the clipboard
       //
-      ev.clipboardData.setData(
-        'application/json',
-        model.getValue(exportRange, 'math-json')
-      );
-      ev.clipboardData.setData(
-        'application/mathml+xml',
-        model.getValue(exportRange, 'math-ml')
-      );
+      const mathJson = model.getValue(exportRange, 'math-json');
+      if (mathJson) {
+        ev.clipboardData.setData('application/json', mathJson);
+      }
+      const mathMl = model.getValue(exportRange, 'math-ml');
+      if (mathMl) {
+        ev.clipboardData.setData('application/mathml+xml', mathMl);
+      }
     }
     // Prevent the current document selection from being written to the clipboard.
     ev.preventDefault();

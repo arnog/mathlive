@@ -1,7 +1,8 @@
 /* eslint-disable no-new */
 import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
-import { serialize as serializeMathJson } from '@cortex-js/math-json';
+import { serialize as serializeMathJson } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
+
 import { requestUpdate } from './render';
 import { range } from '../editor-model/selection-utils';
 import { ModeEditor } from './mode-editor';
