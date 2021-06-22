@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.69.4 (2021-06-22)
 
 ### Improvements
 
