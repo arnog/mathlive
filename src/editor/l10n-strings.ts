@@ -348,6 +348,35 @@ export const STRINGS = {
     'tooltip.toggle virtual keyboard': 'Méarchláir Fíorúil a Fháil',
     'tooltip.undo': 'Cealaigh',
   },
+  
+    //Hebrew
+   he: {
+    'keyboard.tooltip.functions': 'פונקציות',
+    'keyboard.tooltip.symbols': 'סמלים',
+    'keyboard.tooltip.greek': 'אותיות יווניות',
+    'keyboard.tooltip.command': 'מצב פקודה לטקס',
+    'keyboard.tooltip.numeric': 'מספרי',
+    'keyboard.tooltip.roman': 'מכתבים רומיים',
+    'tooltip.copy to clipboard': 'העתק ללוח',
+    'tooltip.redo': 'לַעֲשׂוֹת שׁוּב',
+    'tooltip.toggle virtual keyboard': 'החלף את המקלדת הווירטואלית',
+    'tooltip.undo': 'לבטל',
+    'menu.insert matrix': 'הכנס מטריקס',
+    'menu.insert vector': 'הכנס וקטור',
+    'submenu.array.matrix delimiters': 'מפרידי מטריקס',
+    'menu.array.add row above': 'הוסף שורה אחרי',
+    'menu.array.add row below': 'הוסף שורה לפני',
+    'menu.array.add column after': 'הוסף עמודה אחרי',
+    'menu.array.add column before': 'הוסף עמודה לפני',
+    'menu.array.delete row': 'מחק שורה',
+    'menu.array.delete rows': 'מחק שורות שנבחרו',
+    'menu.array.delete column': 'מחק עמודה',
+    'menu.array.delete columns': 'מחק עמודות שנבחרו',
+    'submenu.array.insert separator': 'הכנס מפריד',
+    'menu.insert table': 'הכנס טבלה',
+    'submenu.table style': 'טבלה סִגְנוֹן',
+  },
+  
 
   // Croatian
   hr: {
