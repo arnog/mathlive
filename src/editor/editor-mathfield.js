@@ -166,7 +166,7 @@ function MathField(element, config) {
     // 5.1/ The aria-live region for announcements
     let markup = ''
     if (!this.config.substituteTextArea) {
-        if (isMobileDevice()) {
+        if (isMobileDevice() && !this.config.isNativeMobileKeyboardEnabled) {
             // On Android or iOS, don't use a textarea, which has the side effect of
             // bringing up the OS virtual keyboard
             markup += `<span class='ML__textarea'>
@@ -204,7 +204,7 @@ function MathField(element, config) {
 
     // Only display the virtual keyboard toggle if the virtual keyboard mode is
     // 'manual'
-    if (this.config.virtualKeyboardMode === 'manual') {
+    if (this.config.virtualKeyboardMode === 'manual' || this.config.showVirtualKeyboardButton) {
         const title = l10n('tooltip.toggle virtual keyboard');
         markup += `<button class="ML__virtual-keyboard-toggle" data-tooltip="${title}">`;
                     // data-tooltip='Toggle Virtual Keyboard'
@@ -732,13 +732,13 @@ MathField.prototype._onPointerDown = function(evt) {
             div.className = 'ML__scroller';
             this.element.appendChild(div);
             div.style.left = '-200px';
-            div.style.top = -bounds.top + 'px';
+            // div.style.top = -bounds.top + 'px';
 
             div = document.createElement('div');
             div.className = 'ML__scroller';
             this.element.appendChild(div);
             div.style.left = bounds.width + 'px';
-            div.style.top = -bounds.top + 'px';
+            // div.style.top = -bounds.top + 'px';
 
             if (evt.shiftKey) {
                 // Extend the selection if the shift-key is down
@@ -1907,6 +1907,8 @@ MathField.prototype._requestUpdate = function() {
  */
 MathField.prototype._render = function(renderOptions) {
     renderOptions = renderOptions || {};
+
+    console.log('_render');
 
     this.dirty = false;
 
