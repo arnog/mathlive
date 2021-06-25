@@ -607,12 +607,20 @@ MathField.prototype._onPointerDown = function(evt) {
     // If a mouse button other than the main one was pressed, return
     if (evt.pointerType === 'mouse' && evt.buttons !== 1) return;
 
+    let scrollLeft = false;
+    let scrollRight = false;
+    const scrollInterval = setInterval(() => {
+        if (scrollLeft) {
+            that.field.scroll({top: 0, left: that.field.scrollLeft - 16});
+        } else if (scrollRight) {
+            that.field.scroll({top: 0, left: that.field.scrollLeft + 16});
+        }
+    }, 32);
+
     function endPointerTracking(evt) {
         if (window.PointerEvent) {
             off(that.field, 'pointermove', onPointerMove);
-            off(that.field, 'pointerend pointerleave pointercancel', endPointerTracking);
-            // off(window, 'pointermove', onPointerMove);
-            // off(window, 'pointerup blur', endPointerTracking);
+            off(that.field, 'pointerend pointercancel pointerup', endPointerTracking);
             that.field.releasePointerCapture(evt.pointerId);
         } else {
             off(that.field, 'touchmove', onPointerMove);
@@ -631,19 +639,6 @@ MathField.prototype._onPointerDown = function(evt) {
         evt.preventDefault();
         evt.stopPropagation();
     }
-
-    let scrollLeft = false;
-    let scrollRight = false;
-    const scrollInterval = setInterval(() => {
-        if (scrollLeft) {
-            that.field.scroll({top: 0, left: that.field.scrollLeft - 16});
-        } else if (scrollRight) {
-            that.field.scroll({top: 0, left: that.field.scrollLeft + 16});
-        }
-    }, 32);
-
-
-
 
     function onPointerMove(evt) {
         const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
