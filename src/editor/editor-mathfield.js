@@ -166,7 +166,7 @@ function MathField(element, config) {
     // 5.1/ The aria-live region for announcements
     let markup = ''
     if (!this.config.substituteTextArea) {
-        if (isMobileDevice()) {
+        if (isMobileDevice() && !this.config.isNativeMobileKeyboardEnabled) {
             // On Android or iOS, don't use a textarea, which has the side effect of
             // bringing up the OS virtual keyboard
             markup += `<span class='ML__textarea'>
@@ -204,7 +204,7 @@ function MathField(element, config) {
 
     // Only display the virtual keyboard toggle if the virtual keyboard mode is
     // 'manual'
-    if (this.config.virtualKeyboardMode === 'manual') {
+    if (this.config.virtualKeyboardMode === 'manual' || this.config.showVirtualKeyboardButton) {
         const title = l10n('tooltip.toggle virtual keyboard');
         markup += `<button class="ML__virtual-keyboard-toggle" data-tooltip="${title}">`;
                     // data-tooltip='Toggle Virtual Keyboard'
@@ -607,12 +607,20 @@ MathField.prototype._onPointerDown = function(evt) {
     // If a mouse button other than the main one was pressed, return
     if (evt.pointerType === 'mouse' && evt.buttons !== 1) return;
 
+    let scrollLeft = false;
+    let scrollRight = false;
+    const scrollInterval = setInterval(() => {
+        if (scrollLeft) {
+            that.field.scroll({top: 0, left: that.field.scrollLeft - 16});
+        } else if (scrollRight) {
+            that.field.scroll({top: 0, left: that.field.scrollLeft + 16});
+        }
+    }, 32);
+
     function endPointerTracking(evt) {
         if (window.PointerEvent) {
             off(that.field, 'pointermove', onPointerMove);
-            off(that.field, 'pointerend pointerleave pointercancel', endPointerTracking);
-            // off(window, 'pointermove', onPointerMove);
-            // off(window, 'pointerup blur', endPointerTracking);
+            off(that.field, 'pointerend pointercancel pointerup', endPointerTracking);
             that.field.releasePointerCapture(evt.pointerId);
         } else {
             off(that.field, 'touchmove', onPointerMove);
@@ -631,19 +639,6 @@ MathField.prototype._onPointerDown = function(evt) {
         evt.preventDefault();
         evt.stopPropagation();
     }
-
-    let scrollLeft = false;
-    let scrollRight = false;
-    const scrollInterval = setInterval(() => {
-        if (scrollLeft) {
-            that.field.scroll({top: 0, left: that.field.scrollLeft - 16});
-        } else if (scrollRight) {
-            that.field.scroll({top: 0, left: that.field.scrollLeft + 16});
-        }
-    }, 32);
-
-
-
 
     function onPointerMove(evt) {
         const x = evt.touches ? evt.touches[0].clientX : evt.clientX;
