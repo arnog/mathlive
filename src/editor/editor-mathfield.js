@@ -1908,8 +1908,6 @@ MathField.prototype._requestUpdate = function() {
 MathField.prototype._render = function(renderOptions) {
     renderOptions = renderOptions || {};
 
-    console.log('_render');
-
     this.dirty = false;
 
     //
