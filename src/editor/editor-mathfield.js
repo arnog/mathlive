@@ -727,13 +727,13 @@ MathField.prototype._onPointerDown = function(evt) {
             div.className = 'ML__scroller';
             this.element.appendChild(div);
             div.style.left = '-200px';
-            // div.style.top = -bounds.top + 'px';
+            div.style.top = -bounds.top + 'px';
 
             div = document.createElement('div');
             div.className = 'ML__scroller';
             this.element.appendChild(div);
             div.style.left = bounds.width + 'px';
-            // div.style.top = -bounds.top + 'px';
+            div.style.top = -bounds.top + 'px';
 
             if (evt.shiftKey) {
                 // Extend the selection if the shift-key is down
