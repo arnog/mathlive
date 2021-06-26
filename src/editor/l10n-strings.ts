@@ -364,8 +364,8 @@ export const STRINGS = {
     'tooltip.undo': 'Poništi',
   },
 
-  // Hindi
-  in: {
+  // Hindi (India)
+  hi_in: {
     'keyboard.tooltip.functions': 'कार्यों',
     'keyboard.tooltip.symbols': 'प्रतीक',
     'keyboard.tooltip.greek': 'ग्रीक अक्षर',
