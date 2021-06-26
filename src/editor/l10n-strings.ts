@@ -349,8 +349,8 @@ export const STRINGS = {
     'tooltip.undo': 'Cealaigh',
   },
   
-    //Hebrew
-   he: {
+    //Hebrew (Isreal)
+   he_il: {
     'keyboard.tooltip.functions': 'פונקציות',
     'keyboard.tooltip.symbols': 'סמלים',
     'keyboard.tooltip.greek': 'אותיות יווניות',
