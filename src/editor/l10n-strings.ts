@@ -350,7 +350,7 @@ export const STRINGS = {
   },
   
     //Hebrew (Isreal)
-   he_il: {
+   he: {
     'keyboard.tooltip.functions': 'פונקציות',
     'keyboard.tooltip.symbols': 'סמלים',
     'keyboard.tooltip.greek': 'אותיות יווניות',
