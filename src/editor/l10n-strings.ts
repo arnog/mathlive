@@ -365,7 +365,7 @@ export const STRINGS = {
   },
 
   // Hindi (India)
-  hi_in: {
+  hi: {
     'keyboard.tooltip.functions': 'कार्यों',
     'keyboard.tooltip.symbols': 'प्रतीक',
     'keyboard.tooltip.greek': 'ग्रीक अक्षर',
