@@ -367,7 +367,9 @@ export class Span {
                         spacing = Math.floor(hscale * spacing);
                     }
                 }
-                body += child.toMarkup(spacing, hscale);
+                if (child.toMarkup) {
+                    body += child.toMarkup(spacing, hscale);
+                }
                 previousType = lastSpanType(child);
                 previousBody = child.body
             }
