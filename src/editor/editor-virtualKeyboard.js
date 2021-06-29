@@ -842,16 +842,17 @@ function makeKeycap(mf, elList, chainedCommand) {
         if (chainedCommand) {
             handlers = [chainedCommand, handlers];
         }
-        if (el.getAttribute('data-alt-keys')) {
-            const altKeys = ALT_KEYS[el.getAttribute('data-alt-keys')];
+        const altKeysValue = el.getAttribute('data-alt-keys');
+        if (altKeysValue) {
+            const altKeys = ALT_KEYS[altKeysValue];
             if (altKeys) {
                 handlers = {
                     default: handlers,
-                    pressAndHoldStart: ['showAlternateKeys', el.getAttribute('data-alt-keys'), altKeys],
+                    pressAndHoldStart: ['showAlternateKeys', altKeysValue, altKeys],
                     pressAndHoldEnd: 'hideAlternateKeys'
                 }
             } else {
-                console.warn('Unknown alt key set: "' + el.getAttribute('data-alt-keys'));
+                console.warn('Unknown alt key set: ', altKeysValue);
             }
         }
 
