@@ -247,8 +247,8 @@ export const STRINGS = {
     'menu.array.delete column': 'Kustuta veerg',
     'menu.array.delete columns': 'Kustuta valitud veerud',
     'submenu.array.insert separator': 'Sisestage eraldaja',
-    'menu.insert table': 'Sisesta tabel',
-    'submenu.table style': 'Laua stiil',
+    'menu.insert table': 'Sisesta tabeli',
+    'submenu.table style': 'Tabeli stiilis',
   },
 
   // Farsi
