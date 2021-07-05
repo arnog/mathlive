@@ -390,6 +390,34 @@ export const STRINGS = {
     'menu.insert table': 'Umetni tablicu',
     'submenu.table style': 'Stil tabele',
   },
+  
+  ///Indonesian
+  id: {
+    'keyboard.tooltip.functions': 'Fungsi',
+    'keyboard.tooltip.symbols': 'Simbol',
+    'keyboard.tooltip.greek': 'Huruf Yunani',
+    'keyboard.tooltip.command': 'Mode Perintah LaTeX',
+    'keyboard.tooltip.numeric': 'Numerik',
+    'keyboard.tooltip.roman': 'Surat Romawi',
+    'tooltip.copy to clipboard': 'Menyalin ke clipboard',
+    'tooltip.redo': 'Mengulangi',
+    'tooltip.toggle virtual keyboard': 'Alihkan Keyboard Virtual',
+    'tooltip.undo': 'Membuka',
+    'menu.insert matrix': 'Sisipkan Matriks',
+    'menu.insert vector': 'Sisipkan Vektor',
+    'submenu.array.matrix delimiters': 'Pembatas Matriks',
+    'menu.array.add row above': 'Tambahkan Baris Setelah',
+    'menu.array.add row below': 'Tambahkan Baris Sebelumnya',
+    'menu.array.add column after': 'Tambahkan Kolom Setelah',
+    'menu.array.add column before': 'Tambahkan Kolom Sebelumnya',
+    'menu.array.delete row': 'Hapus Baris',
+    'menu.array.delete rows': 'Hapus Baris yang Dipilih',
+    'menu.array.delete column': 'Hapus Kolom',
+    'menu.array.delete columns': 'Hapus Kolom yang Dipilih',
+    'submenu.array.insert separator': 'Sisipkan Pemisah',
+    'menu.insert table': 'Sisipkan Tabel',
+    'submenu.table style': 'Gaya Tabel',
+  },
 
   // Hindi
   in: {
