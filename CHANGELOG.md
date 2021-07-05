@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Improvements
+
+- When using keybindings or virtual keyboard keys, insert the content in the 
+  current math style, rather than forcing display style.
+
 ## 0.69.4 (2021-06-22)
 
 ### Improvements

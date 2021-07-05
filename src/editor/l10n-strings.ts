@@ -362,9 +362,9 @@ export const STRINGS = {
     'menu.insert table': 'Ionsáigh Tábla',
     'submenu.table style': 'Stíl Tábla',
   },
-  
-    //Hebrew (Isreal)
-   he: {
+
+  //Hebrew (Israel)
+  he: {
     'keyboard.tooltip.functions': 'פונקציות',
     'keyboard.tooltip.symbols': 'סמלים',
     'keyboard.tooltip.greek': 'אותיות יווניות',
@@ -390,7 +390,6 @@ export const STRINGS = {
     'menu.insert table': 'הכנס טבלה',
     'submenu.table style': 'טבלה סִגְנוֹן',
   },
-  
 
   // Croatian
   hr: {
@@ -402,7 +401,8 @@ export const STRINGS = {
     'keyboard.tooltip.roman': 'Rimska slova',
     'tooltip.copy to clipboard': 'Kopirati u međuspremnik',
     'tooltip.redo': 'Ponovi',
-    'tooltip.toggle virtual keyboard': 'Uključi / isključi virtualnu tipkovnicu',
+    'tooltip.toggle virtual keyboard':
+      'Uključi / isključi virtualnu tipkovnicu',
     'tooltip.undo': 'Poništi',
     'menu.insert matrix': 'Umetni matricu',
     'menu.insert vector': 'Umetni vektor',
@@ -419,7 +419,7 @@ export const STRINGS = {
     'menu.insert table': 'Umetni tablicu',
     'submenu.table style': 'Stil tabele',
   },
-  
+
   ///Indonesian
   id: {
     'keyboard.tooltip.functions': 'Fungsi',
@@ -588,6 +588,7 @@ export const STRINGS = {
     'menu.insert table': '표 삽입',
     'submenu.table style': '테이블 스타일',
   },
+
   // Lettish
   lv: {
     'keyboard.tooltip.functions': 'Funkcijas',
