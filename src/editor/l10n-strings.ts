@@ -419,8 +419,8 @@ export const STRINGS = {
     'submenu.table style': 'Gaya Tabel',
   },
 
-  // Hindi
-  in: {
+  // Hindi (India)
+  hi: {
     'keyboard.tooltip.functions': 'कार्यों',
     'keyboard.tooltip.symbols': 'प्रतीक',
     'keyboard.tooltip.greek': 'ग्रीक अक्षर',
