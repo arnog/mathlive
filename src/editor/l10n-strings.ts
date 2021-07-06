@@ -475,6 +475,34 @@ export const STRINGS = {
     'menu.insert table': 'टेबल इंसर्ट करें',
     'submenu.table style': 'टेबल स्टाइल',
   },
+  
+  //Hungarian
+  hu: {
+    'keyboard.tooltip.functions': 'Funkciók',
+    'keyboard.tooltip.symbols': 'Szimbólumok',
+    'keyboard.tooltip.greek': 'Görög levelek',
+    'keyboard.tooltip.command': 'LaTeX Parancs mód',
+    'keyboard.tooltip.numeric': 'Numerikus',
+    'keyboard.tooltip.roman': 'Római levelek',
+    'tooltip.copy to clipboard': 'Másolja a vágólapra',
+    'tooltip.redo': 'Újra',
+    'tooltip.toggle virtual keyboard': 'Váltás a virtuális billentyűzetre',
+    'tooltip.undo': 'Visszavonás',
+    'menu.insert matrix': 'Helyezze be a Mátrixot',
+    'menu.insert vector': 'Vektor beszúrása',
+    'submenu.array.matrix delimiters': 'Mátrixhatárolók',
+    'menu.array.add row above': 'Sor hozzáadása után',
+    'menu.array.add row below': 'Add Add Sor előtt',
+    'menu.array.add column after': 'Oszlop hozzáadása után',
+    'menu.array.add column before': 'Add oszlop előtt',
+    'menu.array.delete row': 'Sor törlése',
+    'menu.array.delete rows': 'Kijelölt sorok törlése,
+    'menu.array.delete column': 'Oszlop törlése',
+    'menu.array.delete columns': 'A kijelölt oszlopok törlése',
+    'submenu.array.insert separator': 'Helyezze be az elválasztót',
+    'menu.insert table': 'Helyezze be a táblázatot',
+    'submenu.table style': 'Táblázatos stílus',
+  },
 
   // Italian
   it: {
@@ -756,6 +784,34 @@ export const STRINGS = {
     'menu.insert table': 'Insira a tabela',
     'submenu.table style': 'Estilo tabela',
   },
+  
+  // Russian
+  ru: {
+    'keyboard.tooltip.functions': 'Функции',
+    'keyboard.tooltip.symbols': 'Символы',
+    'keyboard.tooltip.greek': 'Греческие буквы',
+    'keyboard.tooltip.command': 'Режим командной строки Латекс',
+    'keyboard.tooltip.numeric': 'числовой',
+    'keyboard.tooltip.roman': 'Латинские буквы',
+    'tooltip.copy to clipboard': 'Скопировать в буфер обмена',
+    'tooltip.redo': 'переделывать',
+    'tooltip.toggle virtual keyboard': 'Переключить виртуальную клавиатуру',
+    'tooltip.undo': 'расстегивать',
+    'menu.insert matrix': 'Вставить матрицу',
+    'menu.insert vector': 'Вставить вектор',
+    'submenu.array.matrix delimiters': 'Матричные разделители',
+    'menu.array.add row above': 'Добавить строку после',
+    'menu.array.add row below': 'Добавить строку перед',
+    'menu.array.add column after': 'Добавить столбец после',
+    'menu.array.add column before': 'Добавить столбец перед',
+    'menu.array.delete row': 'Удалить строку',
+    'menu.array.delete rows': 'Удалить выбранные строки',
+    'menu.array.delete column': 'Удалить столбец',
+    'menu.array.delete columns': 'Удалить выбранные столбцы',
+    'submenu.array.insert separator': 'Вставить разделитель',
+    'menu.insert table': 'Вставить таблицу',
+    'submenu.table style': 'Табличный стиль',
+  },
 
   // Slovak
   sk: {
@@ -869,33 +925,6 @@ export const STRINGS = {
     'submenu.table style': 'Tabellstil',
   },
 
-  // Russian
-  ru: {
-    'keyboard.tooltip.functions': 'Функции',
-    'keyboard.tooltip.symbols': 'Символы',
-    'keyboard.tooltip.greek': 'Греческие буквы',
-    'keyboard.tooltip.command': 'Режим командной строки Латекс',
-    'keyboard.tooltip.numeric': 'числовой',
-    'keyboard.tooltip.roman': 'Латинские буквы',
-    'tooltip.copy to clipboard': 'Скопировать в буфер обмена',
-    'tooltip.redo': 'переделывать',
-    'tooltip.toggle virtual keyboard': 'Переключить виртуальную клавиатуру',
-    'tooltip.undo': 'расстегивать',
-    'menu.insert matrix': 'Вставить матрицу',
-    'menu.insert vector': 'Вставить вектор',
-    'submenu.array.matrix delimiters': 'Матричные разделители',
-    'menu.array.add row above': 'Добавить строку после',
-    'menu.array.add row below': 'Добавить строку перед',
-    'menu.array.add column after': 'Добавить столбец после',
-    'menu.array.add column before': 'Добавить столбец перед',
-    'menu.array.delete row': 'Удалить строку',
-    'menu.array.delete rows': 'Удалить выбранные строки',
-    'menu.array.delete column': 'Удалить столбец',
-    'menu.array.delete columns': 'Удалить выбранные столбцы',
-    'submenu.array.insert separator': 'Вставить разделитель',
-    'menu.insert table': 'Вставить таблицу',
-    'submenu.table style': 'Табличный стиль',
-  },
 
   // Turkish
   tr: {
@@ -923,6 +952,34 @@ export const STRINGS = {
     'submenu.array.insert separator': 'Ayırıcı Ekle',
     'menu.insert table': 'Tablo Ekle',
     'submenu.table style': 'Tablo Stili',
+  },
+  
+  //Vietnamese
+   vi: {
+    'keyboard.tooltip.functions': 'Chức năng',
+    'keyboard.tooltip.symbols': 'Ký hiệu',
+    'keyboard.tooltip.greek': 'Chữ Hy Lạp',
+    'keyboard.tooltip.command': 'Chế độ lệnh LaTeX',
+    'keyboard.tooltip.numeric': 'Số',
+    'keyboard.tooltip.roman': 'Chữ cái La mã',
+    'tooltip.copy to clipboard': 'Sao chép vào clipboard',
+    'tooltip.redo': 'Làm lại',
+    'tooltip.toggle virtual keyboard': 'Chuyển đổi bàn phím ảo',
+    'tooltip.undo': 'Hoàn tác',
+    'menu.insert matrix': 'Chèn ma trận',
+    'menu.insert vector': 'Insert Vector',
+    'submenu.array.matrix delimiters': 'Dấu phân cách ma trận',
+    'menu.array.add row above': 'Thêm hàng sau',
+    'menu.array.add row below': 'Thêm hàng trước',
+    'menu.array.add column after': 'Thêm cột sau',
+    'menu.array.add column before': 'Thêm cột trước',
+    'menu.array.delete row': 'Xóa hàng',
+    'menu.array.delete rows': 'Xóa hàng đã chọn',
+    'menu.array.delete column': 'Xóa cột',
+    'menu.array.delete columns': 'Xóa các cột đã chọn',
+    'submenu.array.insert separator': 'Chèn dấu phân cách',
+    'menu.insert table': 'Chèn bảng',
+    'submenu.table style': 'Kiểu bảng',
   },
 
   // Simplified Chinese
