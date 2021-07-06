@@ -896,6 +896,34 @@ export const STRINGS = {
     'menu.insert table': 'Вставить таблицу',
     'submenu.table style': 'Табличный стиль',
   },
+  
+  //Thai
+   th: {
+    'keyboard.tooltip.functions': 'ฟังก์ชั่น',
+    'keyboard.tooltip.symbols': 'สัญลักษณ์',
+    'keyboard.tooltip.greek': 'อักษรกรีก',
+    'keyboard.tooltip.command': 'โหมดคำสั่ง LaTeX',
+    'keyboard.tooltip.numeric': 'ตัวเลข',
+    'keyboard.tooltip.roman': 'อักษรโรมัน',
+    'tooltip.copy to clipboard': 'คัดลอกไปที่คลิปบอร์ด',
+    'tooltip.redo': 'ทำซ้ำ',
+    'tooltip.toggle virtual keyboard': 'สลับแป้นพิมพ์เสมือน',
+    'tooltip.undo': 'เลิกทำ',
+    'menu.insert matrix': 'แทรกเมทริกซ์',
+    'menu.insert vector': 'แทรกเวกเตอร์',
+    'submenu.array.matrix delimiters': 'ตัวคั่นเมทริกซ์',
+    'menu.array.add row above': 'เพิ่มแถวหลัง',
+    'menu.array.add row below': 'เพิ่มแถวก่อน',
+    'menu.array.add column after': 'เพิ่มคอลัมน์หลัง',
+    'menu.array.add column before': 'เพิ่มคอลัมน์ก่อน',
+    'menu.array.delete row': 'ลบแถว',
+    'menu.array.delete rows': 'ลบแถวที่เลือก',
+    'menu.array.delete column': 'ลบคอลัมน์',
+    'menu.array.delete columns': 'ลบคอลัมน์ที่เลือก',
+    'submenu.array.insert separator': 'ตัวคั่นแทรก',
+    'menu.insert table': 'แทรกตาราง',
+    'submenu.table style': 'สไตล์ตาราง',
+  },
 
   // Turkish
   tr: {
