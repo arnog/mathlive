@@ -902,7 +902,7 @@ export const STRINGS = {
     'keyboard.tooltip.functions': 'ฟังก์ชั่น',
     'keyboard.tooltip.symbols': 'สัญลักษณ์',
     'keyboard.tooltip.greek': 'อักษรกรีก',
-    'keyboard.tooltip.command': 'โหมดคำสั่ง LaTeX',
+    'keyboard.tooltip.command': 'โหมดคำสั่ง น้ำยาง',
     'keyboard.tooltip.numeric': 'ตัวเลข',
     'keyboard.tooltip.roman': 'อักษรโรมัน',
     'tooltip.copy to clipboard': 'คัดลอกไปที่คลิปบอร์ด',
