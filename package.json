@@ -83,7 +83,7 @@
     "@rollup/plugin-node-resolve": "^13.0.0",
     "@types/css-font-loading-module": "0.0.5",
     "@types/jest": "^26.0.23",
-    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.1",
     "autoprefixer": "10.2.6",
     "check-node-version": "^4.1.0",
