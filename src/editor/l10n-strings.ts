@@ -644,6 +644,34 @@ export const STRINGS = {
     'menu.insert table': 'Ievietojiet tabulu',
     'submenu.table style': 'Tabulas stili',
   },
+  
+  ///Luxembourgish
+  lu: {
+    'keyboard.tooltip.functions': 'Funktiounen',
+    'keyboard.tooltip.symbols': 'Symboler',
+    'keyboard.tooltip.greek': 'Griichesch Bréiwer',
+    'keyboard.tooltip.command': 'Latex Kommando Modus',
+    'keyboard.tooltip.numeric': 'Numeresch',
+    'keyboard.tooltip.roman': 'Réimesch Bréiwer',
+    'tooltip.copy to clipboard': 'Kopéiert op Clipboard',
+    'tooltip.redo': 'Nees nei maachen',
+    'tooltip.toggle virtual keyboard': 'Wiesselt Virtuell Tastatur',
+    'tooltip.undo': 'Undoen',
+    'menu.insert matrix': 'Matrix asetzen',
+    'menu.insert vector': 'Insert Vector',
+    'submenu.array.matrix delimiters': 'Matrix Ofgrenzer',
+    'menu.array.add row above': 'Dobäizemaachen Rei No',
+    'menu.array.add row below': 'Füügt Rei vir',
+    'menu.array.add column after': 'Dobäizemaachen Kolonn No',
+    'menu.array.add column before': 'Kolonn derbäi Virun',
+    'menu.array.delete row': 'Rad läschen',
+    'menu.array.delete rows': 'Läscht Ausgewielte Reien',
+    'menu.array.delete column': 'Läscht Kolonn',
+    'menu.array.delete columns': 'Läscht Ausgewielte Kolonnen',
+    'submenu.array.insert separator': 'Insert Separator',
+    'menu.insert table': 'Dësch anzeginn',
+    'submenu.table style': 'Dësch Style',
+  },
 
   // Dutch
   nl: {
