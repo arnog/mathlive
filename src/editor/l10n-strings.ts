@@ -475,6 +475,34 @@ export const STRINGS = {
     'menu.insert table': 'टेबल इंसर्ट करें',
     'submenu.table style': 'टेबल स्टाइल',
   },
+  
+  //Hungarian
+  hu: {
+    'keyboard.tooltip.functions': 'Funkciók',
+    'keyboard.tooltip.symbols': 'Szimbólumok',
+    'keyboard.tooltip.greek': 'Görög levelek',
+    'keyboard.tooltip.command': 'LaTeX Parancs mód',
+    'keyboard.tooltip.numeric': 'Numerikus',
+    'keyboard.tooltip.roman': 'Római levelek',
+    'tooltip.copy to clipboard': 'Másolja a vágólapra',
+    'tooltip.redo': 'Újra',
+    'tooltip.toggle virtual keyboard': 'Váltás a virtuális billentyűzetre',
+    'tooltip.undo': 'Visszavonás',
+    'menu.insert matrix': 'Helyezze be a Mátrixot',
+    'menu.insert vector': 'Vektor beszúrása',
+    'submenu.array.matrix delimiters': 'Mátrixhatárolók',
+    'menu.array.add row above': 'Sor hozzáadása után',
+    'menu.array.add row below': 'Add Add Sor előtt',
+    'menu.array.add column after': 'Oszlop hozzáadása után',
+    'menu.array.add column before': 'Add oszlop előtt',
+    'menu.array.delete row': 'Sor törlése',
+    'menu.array.delete rows': 'Kijelölt sorok törlése,
+    'menu.array.delete column': 'Oszlop törlése',
+    'menu.array.delete columns': 'A kijelölt oszlopok törlése',
+    'submenu.array.insert separator': 'Helyezze be az elválasztót',
+    'menu.insert table': 'Helyezze be a táblázatot',
+    'submenu.table style': 'Táblázatos stílus',
+  },
 
   // Italian
   it: {
@@ -701,7 +729,7 @@ export const STRINGS = {
     'submenu.table style': 'Tabellstil',
   },
   
-  //Macedonian
+  // Macedonian
   mk: {
     'keyboard.tooltip.functions': 'Функции',
     'keyboard.tooltip.symbols': 'Симболи',
@@ -783,6 +811,34 @@ export const STRINGS = {
     'submenu.array.insert separator': 'Inserir Separador',
     'menu.insert table': 'Insira a tabela',
     'submenu.table style': 'Estilo tabela',
+  },
+  
+  // Russian
+  ru: {
+    'keyboard.tooltip.functions': 'Функции',
+    'keyboard.tooltip.symbols': 'Символы',
+    'keyboard.tooltip.greek': 'Греческие буквы',
+    'keyboard.tooltip.command': 'Режим командной строки Латекс',
+    'keyboard.tooltip.numeric': 'числовой',
+    'keyboard.tooltip.roman': 'Латинские буквы',
+    'tooltip.copy to clipboard': 'Скопировать в буфер обмена',
+    'tooltip.redo': 'переделывать',
+    'tooltip.toggle virtual keyboard': 'Переключить виртуальную клавиатуру',
+    'tooltip.undo': 'расстегивать',
+    'menu.insert matrix': 'Вставить матрицу',
+    'menu.insert vector': 'Вставить вектор',
+    'submenu.array.matrix delimiters': 'Матричные разделители',
+    'menu.array.add row above': 'Добавить строку после',
+    'menu.array.add row below': 'Добавить строку перед',
+    'menu.array.add column after': 'Добавить столбец после',
+    'menu.array.add column before': 'Добавить столбец перед',
+    'menu.array.delete row': 'Удалить строку',
+    'menu.array.delete rows': 'Удалить выбранные строки',
+    'menu.array.delete column': 'Удалить столбец',
+    'menu.array.delete columns': 'Удалить выбранные столбцы',
+    'submenu.array.insert separator': 'Вставить разделитель',
+    'menu.insert table': 'Вставить таблицу',
+    'submenu.table style': 'Табличный стиль',
   },
 
   // Slovak
@@ -923,6 +979,33 @@ export const STRINGS = {
     'submenu.array.insert separator': 'Vendos Ndarësin',
     'menu.insert table': 'Vendos tabelën',
     'submenu.table style': 'Stili tabelën',
+
+  //Romaninan
+  ro: {
+    'keyboard.tooltip.functions': 'Funcții',
+    'keyboard.tooltip.symbols': 'Simboluri',
+    'keyboard.tooltip.greek': 'Scrisori grecești',
+    'keyboard.tooltip.command': 'Modul de comandă latex',
+    'keyboard.tooltip.numeric': 'Numeric',
+    'keyboard.tooltip.roman': 'Scrisori romane',
+    'tooltip.copy to clipboard': 'Copiați în clipboard',
+    'tooltip.redo': 'A reface',
+    'tooltip.toggle virtual keyboard': 'Comutați tastatura virtuală',
+    'tooltip.undo': 'Anula',
+    'menu.insert matrix': 'Introduceți Matrix',
+    'menu.insert vector': 'Inserați Vector',
+    'submenu.array.matrix delimiters': 'Delimitatori de matrice',
+    'menu.array.add row above': 'Adăugați rândul după',
+    'menu.array.add row below': 'Adăugați rândul înainte',
+    'menu.array.add column after': 'Adăugați o coloană după',
+    'menu.array.add column before': 'Adăugați o coloană înainte',
+    'menu.array.delete row': 'Ștergeți rândul',
+    'menu.array.delete rows': 'Ștergeți rândurile selectate',
+    'menu.array.delete column': 'Ștergeți coloana',
+    'menu.array.delete columns': 'Ștergeți coloanele selectate',
+    'submenu.array.insert separator': 'Introduceți separatorul',
+    'menu.insert table': 'Introduceți tabelul',
+    'submenu.table style': 'Table style',
   },
 
   // Russian
@@ -952,6 +1035,34 @@ export const STRINGS = {
     'menu.insert table': 'Вставить таблицу',
     'submenu.table style': 'Табличный стиль',
   },
+  
+  //Thai
+   th: {
+    'keyboard.tooltip.functions': 'ฟังก์ชั่น',
+    'keyboard.tooltip.symbols': 'สัญลักษณ์',
+    'keyboard.tooltip.greek': 'อักษรกรีก',
+    'keyboard.tooltip.command': 'โหมดคำสั่ง น้ำยาง',
+    'keyboard.tooltip.numeric': 'ตัวเลข',
+    'keyboard.tooltip.roman': 'อักษรโรมัน',
+    'tooltip.copy to clipboard': 'คัดลอกไปที่คลิปบอร์ด',
+    'tooltip.redo': 'ทำซ้ำ',
+    'tooltip.toggle virtual keyboard': 'สลับแป้นพิมพ์เสมือน',
+    'tooltip.undo': 'เลิกทำ',
+    'menu.insert matrix': 'แทรกเมทริกซ์',
+    'menu.insert vector': 'แทรกเวกเตอร์',
+    'submenu.array.matrix delimiters': 'ตัวคั่นเมทริกซ์',
+    'menu.array.add row above': 'เพิ่มแถวหลัง',
+    'menu.array.add row below': 'เพิ่มแถวก่อน',
+    'menu.array.add column after': 'เพิ่มคอลัมน์หลัง',
+    'menu.array.add column before': 'เพิ่มคอลัมน์ก่อน',
+    'menu.array.delete row': 'ลบแถว',
+    'menu.array.delete rows': 'ลบแถวที่เลือก',
+    'menu.array.delete column': 'ลบคอลัมน์',
+    'menu.array.delete columns': 'ลบคอลัมน์ที่เลือก',
+    'submenu.array.insert separator': 'ตัวคั่นแทรก',
+    'menu.insert table': 'แทรกตาราง',
+    'submenu.table style': 'สไตล์ตาราง',
+  },
 
   // Turkish
   tr: {
@@ -980,6 +1091,34 @@ export const STRINGS = {
     'menu.insert table': 'Tablo Ekle',
     'submenu.table style': 'Tablo Stili',
   },
+  
+  //Vietnamese
+   vi: {
+    'keyboard.tooltip.functions': 'Chức năng',
+    'keyboard.tooltip.symbols': 'Ký hiệu',
+    'keyboard.tooltip.greek': 'Chữ Hy Lạp',
+    'keyboard.tooltip.command': 'Chế độ lệnh LaTeX',
+    'keyboard.tooltip.numeric': 'Số',
+    'keyboard.tooltip.roman': 'Chữ cái La mã',
+    'tooltip.copy to clipboard': 'Sao chép vào clipboard',
+    'tooltip.redo': 'Làm lại',
+    'tooltip.toggle virtual keyboard': 'Chuyển đổi bàn phím ảo',
+    'tooltip.undo': 'Hoàn tác',
+    'menu.insert matrix': 'Chèn ma trận',
+    'menu.insert vector': 'Insert Vector',
+    'submenu.array.matrix delimiters': 'Dấu phân cách ma trận',
+    'menu.array.add row above': 'Thêm hàng sau',
+    'menu.array.add row below': 'Thêm hàng trước',
+    'menu.array.add column after': 'Thêm cột sau',
+    'menu.array.add column before': 'Thêm cột trước',
+    'menu.array.delete row': 'Xóa hàng',
+    'menu.array.delete rows': 'Xóa hàng đã chọn',
+    'menu.array.delete column': 'Xóa cột',
+    'menu.array.delete columns': 'Xóa các cột đã chọn',
+    'submenu.array.insert separator': 'Chèn dấu phân cách',
+    'menu.insert table': 'Chèn bảng',
+    'submenu.table style': 'Kiểu bảng',
+  },
 
   // Simplified Chinese
   zh_cn: {
@@ -1007,5 +1146,33 @@ export const STRINGS = {
     'submenu.array.insert separator': '插入分隔符',
     'menu.insert table': '插入表格',
     'submenu.table style': '表格样式',
+  },
+  
+  // Traditional Chinese
+  zh_tw: {
+    'keyboard.tooltip.functions': '職能',
+    'keyboard.tooltip.symbols': '符號',
+    'keyboard.tooltip.greek': '希臘字母',
+    'keyboard.tooltip.command': '乳膠命令模式',
+    'keyboard.tooltip.numeric': '數字',
+    'keyboard.tooltip.roman': '羅馬字母',
+    'tooltip.copy to clipboard': '複製到剪貼板',
+    'tooltip.redo': '重做',
+    'tooltip.toggle virtual keyboard': '切換虛擬鍵盤',
+    'tooltip.undo': '撤消',
+    'menu.insert matrix': '插入矩陣',
+    'menu.insert vector': '插入向量',
+    'submenu.array.matrix delimiters': '矩陣分隔符',
+    'menu.array.add row above': '在後面添加行',
+    'menu.array.add row below': '在前面添加行',
+    'menu.array.add column after': '在後面添加列',
+    'menu.array.add column before': '在前面添加列',
+    'menu.array.delete row': '刪除行',
+    'menu.array.delete rows': '刪除選定行',
+    'menu.array.delete column': '刪除列',
+    'menu.array.delete columns': '刪除選定的列',
+    'submenu.array.insert separator': '插入分隔符',
+    'menu.insert table': '插入表格',
+    'submenu.table style': '表格樣式',
   },
 };
