@@ -729,8 +729,7 @@ export const STRINGS = {
     'submenu.table style': 'Tabellstil',
   },
   
-   //Macedonian
-  
+  // Macedonian
   mk: {
     'keyboard.tooltip.functions': 'Функции',
     'keyboard.tooltip.symbols': 'Симболи',
@@ -752,39 +751,10 @@ export const STRINGS = {
     'menu.array.delete row': 'Избриши го редот',
     'menu.array.delete rows': 'Избришете ги избраните редови',
     'menu.array.delete column': 'Избриши ја колоната',
-    'menu.array.delete columns': 'Избришете ги избраните колони',
+    'menu.array.delete columns': 'Избриши ја колоната',
     'submenu.array.insert separator': 'Вметнете сепаратор',
     'menu.insert table': 'Вметни табела',
-    'submenu.table style': 'табела Стил',
-  },
-  
-  //Maltese
-  
-  mt: {
-    'keyboard.tooltip.functions': 'Funzjonijiet',
-    'keyboard.tooltip.symbols': 'Simboli',
-    'keyboard.tooltip.greek': 'Ittri Griegi',
-    'keyboard.tooltip.command': 'Modalità tal-Kmand tal-Latex',
-    'keyboard.tooltip.numeric': 'Numeriku',
-    'keyboard.tooltip.roman': 'Ittri Rumani',
-    'tooltip.copy to clipboard': 'Ikkopja lill-Clipboard',
-    'tooltip.redo': "Erġa 'għamel",
-    'tooltip.toggle virtual keyboard': 'Toggle Tastiera Virtwali',
-    'tooltip.undo': 'Ħoll',
-    'menu.insert matrix': 'Daħħal Matrix',
-    'menu.insert vector': 'Daħħal Vector',
-    'submenu.array.matrix delimiters': 'Matrix Delimiters',
-    'menu.array.add row above': 'Żid Ringiela Wara',
-    'menu.array.add row below': 'Żid Ringiela Qabel',
-    'menu.array.add column after': 'Żid Kolonna Wara',
-    'menu.array.add column before': 'Żid Kolonna Qabel',
-    'menu.array.delete row': 'Ħassar Ringiela',
-    'menu.array.delete rows': 'Ħassar Ringieli Magħżula',
-    'menu.array.delete column': 'Ħassar Kolonna',
-    'menu.array.delete columns': 'Ħassar Kolonni Magħżula',
-    'submenu.array.insert separator': 'Daħħal is-Separatur',
-    'menu.insert table': 'Daħħal it-Tabella',
-    'submenu.table style': 'Tabella stil',
+    'submenu.table style': 'Табела стил',
   },
 
   // Polish
@@ -983,6 +953,33 @@ export const STRINGS = {
     'submenu.table style': 'Tabellstil',
   },
   
+  ///Albanian
+   sq: {
+    'keyboard.tooltip.functions': 'Funksione',
+    'keyboard.tooltip.symbols': 'Simbolet',
+    'keyboard.tooltip.greek': 'Letrat Greke',
+    'keyboard.tooltip.command': 'Modaliteti i komandës latex',
+    'keyboard.tooltip.numeric': 'Numerike',
+    'keyboard.tooltip.roman': 'Letrat romake',
+    'tooltip.copy to clipboard': 'Kopjoni në Clipboard',
+    'tooltip.redo': 'Riparo',
+    'tooltip.toggle virtual keyboard': 'Aktivizo tastierën virtuale',
+    'tooltip.undo': 'Zhbëj',
+    'menu.insert matrix': 'Vendosni Matricën',
+    'menu.insert vector': 'Vendos vektorin',
+    'submenu.array.matrix delimiters': 'Përcaktuesit e matricës',
+    'menu.array.add row above': 'Shto Rreshtin Pas',
+    'menu.array.add row below': 'Shto Rreshtin Para',
+    'menu.array.add column after': 'Shto kolonën pas',
+    'menu.array.add column before': 'Shto kolonën para',
+    'menu.array.delete row': 'Fshi Rreshtin',
+    'menu.array.delete rows': 'Fshi rreshtat e zgjedhur',
+    'menu.array.delete column': 'Fshi kolonën',
+    'menu.array.delete columns': 'Fshi kolonat e zgjedhura',
+    'submenu.array.insert separator': 'Vendos Ndarësin',
+    'menu.insert table': 'Vendos tabelën',
+    'submenu.table style': 'Stili tabelën',
+
   //Romaninan
   ro: {
     'keyboard.tooltip.functions': 'Funcții',
