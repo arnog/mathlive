@@ -53,6 +53,34 @@ export const STRINGS = {
     'menu.insert table': 'إدراج جدول',
     'submenu.table style': 'نمط الجدول',
   },
+  
+   //Bulgarian
+   bg: {
+    'keyboard.tooltip.functions': 'Функции',
+    'keyboard.tooltip.symbols': 'Символи',
+    'keyboard.tooltip.greek': 'Гръцки букви',
+    'keyboard.tooltip.command': 'Команден режим на латекс',
+    'keyboard.tooltip.numeric': 'Числови',
+    'keyboard.tooltip.roman': 'Римски букви',
+    'tooltip.copy to clipboard': 'Копиране в клипборда',
+    'tooltip.redo': 'Повторно',
+    'tooltip.toggle virtual keyboard': 'Превключване на виртуална клавиатура',
+    'tooltip.undo': 'Отмяна',
+    'menu.insert matrix': 'Вмъкване на матрица',
+    'menu.insert vector': 'Вмъкване на вектор',
+    'submenu.array.matrix delimiters': 'Матрични разделители',
+    'menu.array.add row above': 'Добавяне на ред след',
+    'menu.array.add row below': 'Добавяне на ред преди',
+    'menu.array.add column after': 'Добавяне на колона след',
+    'menu.array.add column before': 'Добавяне на колона преди',
+    'menu.array.delete row': 'Изтриване на реда',
+    'menu.array.delete rows': 'Изтриване на избраните редове',
+    'menu.array.delete column': 'Изтриване на колона',
+    'menu.array.delete columns': 'Изтриване на избраните колони',
+    'submenu.array.insert separator': 'Поставете разделител',
+    'menu.insert table': 'Вмъкване на таблица',
+    'submenu.table style': 'Табличен стил',
+  },
 
   // Bosnian
   bs: {
