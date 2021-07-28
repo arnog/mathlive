@@ -80,7 +80,7 @@
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.0.2",
     "@cortex-js/prettier-config": "^1.1.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.4",
     "@types/css-font-loading-module": "0.0.5",
     "@types/jest": "^26.0.23",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
