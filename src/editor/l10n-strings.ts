@@ -53,9 +53,9 @@ export const STRINGS = {
     'menu.insert table': 'إدراج جدول',
     'submenu.table style': 'نمط الجدول',
   },
-  
-   //Bulgarian
-   bg: {
+
+  //Bulgarian
+  bg: {
     'keyboard.tooltip.functions': 'Функции',
     'keyboard.tooltip.symbols': 'Символи',
     'keyboard.tooltip.greek': 'Гръцки букви',
@@ -1120,9 +1120,9 @@ export const STRINGS = {
     'menu.insert table': 'Tablo Ekle',
     'submenu.table style': 'Tablo Stili',
   },
-  
+
   //Ukrainian
-   uk: {
+  uk: {
     'keyboard.tooltip.functions': 'Функції',
     'keyboard.tooltip.symbols': 'Символи',
     'keyboard.tooltip.greek': 'Грецькі літери',
@@ -1148,7 +1148,6 @@ export const STRINGS = {
     'menu.insert table': 'Вставити таблицю',
     'submenu.table style': 'Стиль таблиці',
   },
-
 
   //Vietnamese
   vi: {
