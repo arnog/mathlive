@@ -1092,6 +1092,35 @@ export const STRINGS = {
     'menu.insert table': 'Tablo Ekle',
     'submenu.table style': 'Tablo Stili',
   },
+  
+  //Ukrainian
+   uk: {
+    'keyboard.tooltip.functions': 'Функції',
+    'keyboard.tooltip.symbols': 'Символи',
+    'keyboard.tooltip.greek': 'Грецькі літери',
+    'keyboard.tooltip.command': 'Командний режим латексу',
+    'keyboard.tooltip.numeric': 'Числовий',
+    'keyboard.tooltip.roman': 'Римські літери',
+    'tooltip.copy to clipboard': 'Копіювати в буфер обміну',
+    'tooltip.redo': 'Повторити',
+    'tooltip.toggle virtual keyboard': 'Переключити віртуальну клавіатуру',
+    'tooltip.undo': 'Скасувати',
+    'menu.insert matrix': 'Вставити матрицю',
+    'menu.insert vector': 'Вставити вектор',
+    'submenu.array.matrix delimiters': 'Матричні роздільники',
+    'menu.array.add row above': 'Додати рядок після',
+    'menu.array.add row below': 'Додати рядок до',
+    'menu.array.add column after': 'Додати стовпець після',
+    'menu.array.add column before': 'Додати стовпець перед',
+    'menu.array.delete row': 'Видалити рядок',
+    'menu.array.delete rows': 'Видалити вибрані рядки',
+    'menu.array.delete column': 'Видалити стовпець',
+    'menu.array.delete columns': 'Видалити вибрані стовпці',
+    'submenu.array.insert separator': 'Вставте роздільник',
+    'menu.insert table': 'Вставити таблицю',
+    'submenu.table style': 'Стиль таблиці',
+  },
+
 
   //Vietnamese
   vi: {
