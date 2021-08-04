@@ -1,5 +1,6 @@
 // Import { Keys } from '../types-utils';
 import { STRINGS } from './l10n-strings';
+import { isBrowser } from '../common/capabilities';
 
 interface L10n {
   locale: string;
@@ -30,7 +31,8 @@ export const l10n: L10n = {
     // "english" if not running in a browser (node.js)
     if (!l10n._locale) {
       // Use the setter, which will load the necessary .json files.
-      l10n._locale = navigator?.language.slice(0, 5) ?? 'en';
+      l10n._locale =
+        (isBrowser() ? navigator?.language.slice(0, 5) : null) ?? 'en';
     }
 
     return l10n._locale;

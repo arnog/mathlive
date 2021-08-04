@@ -13,7 +13,7 @@ import { l10n } from './l10n';
 import { defaultAnnounceHook } from './a11y';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { resolveRelativeUrl } from '../common/script-url';
-import { isTouchCapable } from '../common/capabilities';
+import { isBrowser, isTouchCapable } from '../common/capabilities';
 import { getDefaultRegisters } from '../core/registers';
 import { defaultSpeakHook } from './speech';
 import { defaultReadAloudHook } from './speech-read-aloud';
@@ -108,7 +108,7 @@ export function update(
       case 'locale':
         result.locale =
           updates.locale === 'auto'
-            ? navigator?.language.slice(0, 5) ?? 'en'
+            ? (isBrowser() ? navigator?.language.slice(0, 5) : null) ?? 'en'
             : updates.locale!;
         l10n.locale = result.locale;
         break;
@@ -335,7 +335,9 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     virtualKeyboardLayout: 'auto',
     customVirtualKeyboardLayers: {},
     customVirtualKeyboards: {},
-    virtualKeyboardTheme: /android|cros/i.test(navigator?.userAgent)
+    virtualKeyboardTheme: /android|cros/i.test(
+      isBrowser() ? navigator?.userAgent : ''
+    )
       ? 'material'
       : 'apple',
     keypressVibration: true,
