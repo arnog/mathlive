@@ -31,6 +31,10 @@ export function osPlatform():
   | 'ios'
   | 'chromeos'
   | 'other' {
+  if (!isBrowser()) {
+    return 'other';
+  }
+
   const platform = navigator.platform;
 
   if (/^(mac)/i.test(platform)) {
