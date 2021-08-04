@@ -3,17 +3,13 @@
     "rootDir": ".",
     "outDir": "build",
 
-    "incremental": true,
-    "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo",
+    "target": "es2020",
+    "module": "es2020", // es2020 includes support for dynamic imports, and import.meta
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
 
-    "lib": [
-      "es2020",
-      "es2020.string",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-      // "esnext.bigint"
-    ],
+    "lib": ["es2020", "dom", "dom.iterable", "scripthost"],
     // Do not include all the type definitions in `node_modules/@types`,
     // which include NodeJS definitions that are not applicable to a web app
     // but only those type definitions that are required
@@ -22,27 +18,24 @@
       "./node_modules/@types/css-font-loading-module"
     ],
 
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
+
     // "declaration": true,
     // "allowJs": true,
     // "checkJs": true,
 
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-
-    "target": "es2019",
-    "module": "esnext",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-
     "strictNullChecks": true,
     "noImplicitAny": false,
     "noLib": false,
-    // We'll strip the comments with rollup.
-    // Need them for the declaration files
+
+    // We'll strip the comments with rollup but we need them for the declaration files
     "removeComments": false,
+    "baseUrl": "src",
     "sourceMap": true,
-    "baseUrl": "src"
+
+    "incremental": true,
+    "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo"
   },
   "exclude": [
     "coverage",
