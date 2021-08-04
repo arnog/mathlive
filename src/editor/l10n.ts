@@ -32,7 +32,7 @@ export const l10n: L10n = {
     if (!l10n._locale) {
       // Use the setter, which will load the necessary .json files.
       l10n._locale =
-        (isBrowser() ? navigator?.language.slice(0, 5) : null) ?? 'en';
+        (isBrowser() ? navigator.language.slice(0, 5) : null) ?? 'en';
     }
 
     return l10n._locale;

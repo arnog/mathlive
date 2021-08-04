@@ -108,7 +108,7 @@ export function update(
       case 'locale':
         result.locale =
           updates.locale === 'auto'
-            ? (isBrowser() ? navigator?.language.slice(0, 5) : null) ?? 'en'
+            ? (isBrowser() ? navigator.language.slice(0, 5) : null) ?? 'en'
             : updates.locale!;
         l10n.locale = result.locale;
         break;
@@ -335,11 +335,10 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     virtualKeyboardLayout: 'auto',
     customVirtualKeyboardLayers: {},
     customVirtualKeyboards: {},
-    virtualKeyboardTheme: /android|cros/i.test(
-      isBrowser() ? navigator?.userAgent : ''
-    )
-      ? 'material'
-      : 'apple',
+    virtualKeyboardTheme:
+      isBrowser() && /android|cros/i.test(navigator.userAgent)
+        ? 'material'
+        : 'apple',
     keypressVibration: true,
     keypressSound: null,
     plonkSound: null,
