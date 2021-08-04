@@ -60,7 +60,7 @@ export function defaultReadAloudHook(
   text: string,
   config: Partial<MathfieldOptions>
 ): void {
-  if (!window) {
+  if (typeof window === 'undefined') {
     return;
   }
 
@@ -229,7 +229,7 @@ export function readAloudStatus():
   | 'playing'
   | 'paused'
   | 'unavailable' {
-  if (!window) return 'unavailable';
+  if (typeof window === 'undefined') return 'unavailable';
   window.mathlive = window.mathlive ?? {};
 
   if (!window.mathlive.readAloudAudio) return 'ready';
@@ -245,7 +245,7 @@ export function readAloudStatus():
  * **See** {@linkcode speak}
  */
 export function pauseReadAloud(): void {
-  if (!window) return;
+  if (typeof window === 'undefined') return;
   window.mathlive = window.mathlive ?? {};
   if (window.mathlive.readAloudAudio) {
     if (window.mathlive.onReadAloudStatus) {
@@ -265,7 +265,7 @@ export function pauseReadAloud(): void {
  * **See** {@linkcode speak}
  */
 export function resumeReadAloud(): void {
-  if (!window) return;
+  if (typeof window === 'undefined') return;
   window.mathlive = window.mathlive ?? {};
   if (window.mathlive.readAloudAudio) {
     if (window.mathlive.onReadAloudStatus) {
@@ -287,7 +287,7 @@ export function resumeReadAloud(): void {
  * @param count The number of tokens to read.
  */
 export function playReadAloud(token: string, count: number): void {
-  if (!window) return;
+  if (typeof window === 'undefined') return;
   window.mathlive = window.mathlive ?? {};
   if (window.mathlive.readAloudAudio) {
     let timeIndex = 0;

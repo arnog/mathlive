@@ -19,7 +19,7 @@ import {
 } from '../editor/options';
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { isOffset, isRange, isSelection } from '../editor/model';
-import { throwIfNotInBrowser } from '../common/capabilities';
+import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 
 //
 // Custom Events
@@ -1729,7 +1729,7 @@ declare global {
   }
 }
 
-if (!window.customElements?.get('math-field')) {
+if (isBrowser() && !window.customElements?.get('math-field')) {
   window.MathfieldElement = MathfieldElement;
   window.customElements?.define('math-field', MathfieldElement);
 }
