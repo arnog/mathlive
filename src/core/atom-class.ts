@@ -1206,7 +1206,7 @@ export class Atom {
  * @param options.expandMacro true if macros should be expanded
  * @result a LaTeX string
  */
-function atomsToLatex(
+export function atomsToLatex(
   atoms: undefined | Atom[],
   options: ToLatexOptions
 ): string {

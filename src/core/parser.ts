@@ -107,7 +107,7 @@ export class Parser {
   endCount = 0;
 
   onError: ErrorListener<ParserErrorCode>;
-
+  onPlaceholderFound: (placeholder: PlaceholderAtom) => void;
   _parsingContexts: ParsingContext[];
 
   /**
@@ -122,6 +122,7 @@ export class Parser {
       onError?: ErrorListener<ParserErrorCode>;
       colorMap?: (name: string) => string | undefined;
       backgroundColorMap?: (name: string) => string | undefined;
+      onPlaceholderFound?: (placeholder: PlaceholderAtom) => void;
       parseMode?: ParseMode;
       mathstyle?: MathstyleName;
       smartFence?: boolean;
@@ -145,6 +146,9 @@ export class Parser {
             ),
             ...err,
           })
+      : () => {};
+    this.onPlaceholderFound = options.onPlaceholderFound
+      ? options.onPlaceholderFound
       : () => {};
     this._parsingContexts = [
       {
@@ -1017,7 +1021,6 @@ export class Parser {
     if (!this.match('<}>')) {
       this.onError({ code: 'unbalanced-braces' });
     }
-
     return result;
   }
 
@@ -1499,13 +1502,15 @@ export class Parser {
   parseCommand(command: string): Atom[] | null {
     let result: Atom | null = null;
     if (command === '\\placeholder') {
-      return [
-        new PlaceholderAtom({
-          mode: this.parseMode,
-          value: this.parseArgument('string') ?? undefined,
-          style: this.style,
-        }),
-      ];
+      const placeholder = new PlaceholderAtom({
+        mode: this.parseMode,
+        placeholderId: this.parseOptionalArgument('string') as string,
+        default: this.parseOptionalArgument('math') as Atom[],
+        value: this.parseArgument('string') ?? undefined,
+        style: this.style,
+      });
+      this.onPlaceholderFound(placeholder);
+      return [placeholder];
     }
 
     if (command === '\\char') {
@@ -1808,6 +1813,7 @@ export function parseLatex(
     onError?: ErrorListener<ParserErrorCode>;
     colorMap?: (name: string) => string | undefined;
     backgroundColorMap?: (name: string) => string | undefined;
+    onPlaceholderFound?: (placeholder: PlaceholderAtom) => void;
   }
 ): Atom[] {
   const parser = new Parser(tokenize(s, options?.args ?? null), {
@@ -1822,6 +1828,7 @@ export function parseLatex(
       options?.backgroundColorMap ??
       options?.colorMap ??
       defaultBackgroundColorMap,
+    onPlaceholderFound: options?.onPlaceholderFound,
     onError: (err) => {
       if (typeof options?.onError === 'function') {
         options.onError({ ...err, latex: s });
@@ -1842,7 +1849,6 @@ export function parseLatex(
     if (!more) break;
     atoms = atoms.concat(more);
   }
-
   return atoms;
 }
 

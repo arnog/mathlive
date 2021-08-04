@@ -101,7 +101,7 @@ export class MathfieldPrivate implements Mathfield {
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
-
+  _placeholders: Map<string, PlaceholderAtom>;
   element?: HTMLElement & {
     mathfield?: MathfieldPrivate;
   };
@@ -181,7 +181,7 @@ export class MathfieldPrivate implements Mathfield {
           }
     );
     this.macros = this.options.macros as NormalizedMacroDictionary;
-
+    this._placeholders = new Map();
     this.colorMap = (name: string): string | undefined => {
       let result: string | undefined = undefined;
       if (typeof this.options.colorMap === 'function') {

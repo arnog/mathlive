@@ -320,6 +320,14 @@ function convertStringToAtoms(
       smartFence: options.smartFence,
       onError: model.listeners.onError,
       colorMap: options.colorMap,
+      onPlaceholderFound: (placeholder) => {
+        if (placeholder.placeholderId) {
+          model.mathfield._placeholders.set(
+            placeholder.placeholderId,
+            placeholder
+          );
+        }
+      },
       backgroundColorMap: options.backgroundColorMap,
     });
 
