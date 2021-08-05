@@ -2,8 +2,12 @@
 
 ### Improvements
 
-- When using keybindings or virtual keyboard keys, insert the content in the 
+- When using keybindings or virtual keyboard keys, insert the content in the
   current math style, rather than forcing display style.
+
+- Correctly handle loading Mathlive in a non-browser context (e.g. Node)
+
+- Updated localization strings
 
 ## 0.69.4 (2021-06-22)
 
