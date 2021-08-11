@@ -1,9 +1,13 @@
 ## Description
 
-[Description of the bug or feature.]
+[Describe the bug or feature]
 
-[Include screenshots, screen recordings, code fragments or CodePen if
-applicable]
+[Include screenshots, screen recordings, code fragments or CodePen. If you get
+an error message, include the text of the error message, not a screen capture of
+it.]
+
+[If you use Vue, React or some other framework, include a link to a minimal
+project demonstrating the issue.]
 
 [To quickly build a demo project, consider
 
@@ -12,22 +16,23 @@ applicable]
 
 ## Steps to Reproduce
 
-[Provide steps that are specific and repeatable, if possible]
+[Provide steps that are specific and repeatable]
 
 1. [First Step]
 2. [Second Step]
-3. [and so on...]
+3. [And so on...]
 
 ### Actual Behavior
 
-[What happens when you follow the steps above]
+[What happens when you follow the steps above?]
 
-[If there are any error messages, include the exact text shown, or upload a
-screenshot. Some error messages may be displayed in the Javascript console.]
+[If there are any error messages, include the exact text shown. Some error
+messages may be displayed in the Javascript console. Copy and paste them. Do not
+include a screenshot of the error messages.]
 
 ### Expected Behavior
 
-[What did you expect to happen insteead]
+[What did you expect to happen insteead?]
 
 [Is this a regression: did it use to work in a previous version?]
 
@@ -35,6 +40,8 @@ screenshot. Some error messages may be displayed in the Javascript console.]
 
 **MathLive version**
 
-**Operating System** [macOS, Windows, iOS. Include the version if possible]
+**Operating System** [macOS, Windows, iOS. Include the version]
 
-**Browser** [Safari, Chrome, IE, Firefox, etc...]
+**Browser** [Safari, Chrome, IE, Firefox, etc... Try several browsers and note
+if there are differences between browsers. Include the version number of the
+browsers.]
