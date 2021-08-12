@@ -35,10 +35,15 @@ export function requestUpdate(
   if (!mathfield.dirty) {
     mathfield.dirty = true;
     requestAnimationFrame(() => {
-      if (isValidMathfield(mathfield) && mathfield.dirty) {
+      if (
+        isValidMathfield(mathfield) &&
+        mathfield.dirty &&
+        !mathfield.options.readOnly
+      ) {
         mathfield._atomBoundsCache = new Map<string, Rect>();
         render(mathfield, options);
         mathfield._atomBoundsCache = undefined;
+        mathfield.attachNestedMathfield();
       }
     });
   }
@@ -123,7 +128,16 @@ export function render(
           groupNumbers: renderOptions.forHighlighting ?? false,
         },
         smartFence: mathfield.options.smartFence,
-        renderPlaceholder: undefined,
+        renderPlaceholder: mathfield.options.readOnly
+          ? (context, p) => {
+              console.log(context);
+              const field = mathfield.getPlaceholderField(p.placeholderId!);
+              return p.createMathfieldBox(context, {
+                placeholderId: p.placeholderId!,
+                element: field!,
+              });
+            }
+          : undefined,
         isSelected: model.root.isSelected,
       },
       {
@@ -178,6 +192,7 @@ export function render(
   // 6. Render the selection/caret
   //
   renderSelection(mathfield);
+  mathfield.attachNestedMathfield();
   if (!(renderOptions.interactive ?? false)) {
     // (re-render a bit later because the layout may not be up to date right
     //  now. This happens in particular when first loading and the fonts are

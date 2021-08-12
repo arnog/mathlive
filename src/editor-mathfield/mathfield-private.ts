@@ -91,6 +91,7 @@ import { validateStyle } from './styling';
 import { hashCode } from '../common/hash-code';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
+import MathfieldElement from '../public/mathfield-element';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -101,7 +102,10 @@ export class MathfieldPrivate implements Mathfield {
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
-  _placeholders: Map<string, PlaceholderAtom>;
+  _placeholders: Map<
+    string,
+    { atom: PlaceholderAtom; field: MathfieldElement }
+  >;
   element?: HTMLElement & {
     mathfield?: MathfieldPrivate;
   };
@@ -491,6 +495,10 @@ export class MathfieldPrivate implements Mathfield {
         onSelectionWillChange: (): void =>
           this.options.onSelectionWillChange(this),
         onError: this.options.onError,
+        onPlaceholderDidChange: (
+          _sender: ModelPrivate,
+          placeholderId: string
+        ): void => this.options.onPlaceholderDidChange(this, placeholderId),
       },
       {
         announce: (
@@ -534,6 +542,8 @@ export class MathfieldPrivate implements Mathfield {
       onContentWillChange: () => this.options.onContentWillChange(this),
       onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onError: this.options.onError,
+      onPlaceholderDidChange: (_sender, placeholderId) =>
+        this.options.onPlaceholderDidChange(this, placeholderId),
     });
     this.model.setHooks({
       announce: (
@@ -604,6 +614,8 @@ export class MathfieldPrivate implements Mathfield {
       onContentWillChange: () => this.options.onContentWillChange(this),
       onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onError: this.options.onError,
+      onPlaceholderDidChange: (_sender, placeholderId) =>
+        this.options.onPlaceholderDidChange(this, placeholderId),
     });
     this.model.setHooks({
       announce: (_sender: Mathfield, command, previousPosition, atoms) =>
@@ -905,6 +917,9 @@ export class MathfieldPrivate implements Mathfield {
     replace(this.model, searchValue, newValue, options);
   }
 
+  getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
+    return this._placeholders.get(placeholderId)?.field;
+  }
   scrollIntoView(): void {
     // If a render is pending, do it now to make sure we have correct layout
     // and caret position
@@ -1147,6 +1162,17 @@ export class MathfieldPrivate implements Mathfield {
     this.model.announce('move', previousPosition);
     requestUpdate(this);
     return true;
+  }
+
+  attachNestedMathfield(): void {
+    this._placeholders.forEach((v) => {
+      const container = this.field?.querySelector(
+        `[data-placeholder-id=${v.atom.placeholderId}]`
+      );
+      if (container) {
+        container.appendChild(v.field);
+      }
+    });
   }
 
   canUndo(): boolean {

@@ -107,7 +107,6 @@ export class Parser {
   endCount = 0;
 
   onError: ErrorListener<ParserErrorCode>;
-  onPlaceholderFound: (placeholder: PlaceholderAtom) => void;
   _parsingContexts: ParsingContext[];
 
   /**
@@ -122,7 +121,6 @@ export class Parser {
       onError?: ErrorListener<ParserErrorCode>;
       colorMap?: (name: string) => string | undefined;
       backgroundColorMap?: (name: string) => string | undefined;
-      onPlaceholderFound?: (placeholder: PlaceholderAtom) => void;
       parseMode?: ParseMode;
       mathstyle?: MathstyleName;
       smartFence?: boolean;
@@ -146,9 +144,6 @@ export class Parser {
             ),
             ...err,
           })
-      : () => {};
-    this.onPlaceholderFound = options.onPlaceholderFound
-      ? options.onPlaceholderFound
       : () => {};
     this._parsingContexts = [
       {
@@ -1509,7 +1504,6 @@ export class Parser {
         value: this.parseArgument('string') ?? undefined,
         style: this.style,
       });
-      this.onPlaceholderFound(placeholder);
       return [placeholder];
     }
 
@@ -1813,7 +1807,6 @@ export function parseLatex(
     onError?: ErrorListener<ParserErrorCode>;
     colorMap?: (name: string) => string | undefined;
     backgroundColorMap?: (name: string) => string | undefined;
-    onPlaceholderFound?: (placeholder: PlaceholderAtom) => void;
   }
 ): Atom[] {
   const parser = new Parser(tokenize(s, options?.args ?? null), {
@@ -1828,7 +1821,6 @@ export function parseLatex(
       options?.backgroundColorMap ??
       options?.colorMap ??
       defaultBackgroundColorMap,
-    onPlaceholderFound: options?.onPlaceholderFound,
     onError: (err) => {
       if (typeof options?.onError === 'function') {
         options.onError({ ...err, latex: s });

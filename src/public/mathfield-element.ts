@@ -679,16 +679,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       console.log(error);
     }
 
-    try {
-      this._style = slot!
-        .assignedElements()
-        .filter((x) => x.tagName.toLowerCase() === 'style')
-        .map((x) => x.textContent)
-        .join('');
-    } catch (error: unknown) {
-      console.log(error);
-    }
-
     // Record the (optional) configuration options, as a deferred state
     if (options) {
       this.setOptions(options);
@@ -1036,15 +1026,25 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     // This.setAttribute('aria-multiline', 'false');
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
+    const slot =
+      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
+
+    try {
+      this._style = slot!
+        .assignedElements()
+        .filter((x) => x.tagName.toLowerCase() === 'style')
+        .map((x) => x.textContent)
+        .join('');
+    } catch (error: unknown) {
+      console.log(error);
+    }
     // Add shadowed stylesheet if one was provided
     if (this._style) {
+      console.log(this._style, 'style');
       const styleElement = document.createElement('style');
       styleElement.textContent = this._style;
       this.shadowRoot!.appendChild(styleElement);
     }
-
-    const slot =
-      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
 
     let value = '';
     // Check if there is a `value` attribute and set the initial value

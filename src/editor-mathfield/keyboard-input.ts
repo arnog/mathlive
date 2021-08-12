@@ -361,7 +361,7 @@ export function onTypedText(
   }
 ): void {
   const { model } = mathfield;
-  if (mathfield.options.readOnly && !model.selectionIsPlaceholder) {
+  if (mathfield.options.readOnly) {
     return;
   }
   options = options ?? {};
@@ -410,7 +410,7 @@ export function onTypedText(
     // Variant: 'main',
     ...mathfield.style,
   };
-  if (!model.selectionIsCollapsed && !model.selectionIsPlaceholder) {
+  if (!model.selectionIsCollapsed) {
     model.position = model.deleteAtoms(range(model.selection));
     mathfield.snapshot();
   }

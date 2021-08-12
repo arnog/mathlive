@@ -1,4 +1,3 @@
-import { atomsToLatex } from 'core/atom';
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
@@ -27,9 +26,8 @@ export class PlaceholderAtom extends Atom {
 
   render(context: Context): Box {
     if (typeof context.renderPlaceholder === 'function') {
-      return context.renderPlaceholder(context);
+      return context.renderPlaceholder(context, this);
     }
-
     return this.createBox(context, {
       classes: this.caret ? 'ML__placeholder-selected' : '',
     });
@@ -38,7 +36,7 @@ export class PlaceholderAtom extends Atom {
   serialize(_options: ToLatexOptions): string {
     const id = this.placeholderId ? `[${this.placeholderId}]` : '';
     const defaultValue = this.defaultValue
-      ? `[${atomsToLatex(this.defaultValue, _options)}}]`
+      ? `[${Atom.serialize(this.defaultValue, _options)}}]`
       : '';
     return `\\placeholder${id}${defaultValue}{${this.value ?? ''}}`;
   }

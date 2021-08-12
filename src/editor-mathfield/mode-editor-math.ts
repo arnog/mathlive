@@ -22,9 +22,12 @@ import { RIGHT_DELIM } from '../core/delimiters';
 import {
   contentDidChange,
   selectionDidChange,
+  placeholderDidChange,
 } from '../editor-model/listeners';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import { parseLatex } from '../core/parser';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
+import MathfieldElement from '../public/mathfield-element';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -193,6 +196,38 @@ export class MathModeEditor extends ModeEditor {
     );
     if (!newAtoms) return false;
 
+    const newPlaceholders = findPlaceholders(newAtoms);
+    newPlaceholders.forEach((placeholder) => {
+      if (
+        placeholder.placeholderId &&
+        !model.mathfield._placeholders.has(placeholder.placeholderId)
+      ) {
+        const element = new MathfieldElement();
+        element.classList.add('mathfield');
+        element.style.display = 'inline-block';
+        element.style.zIndex = '1001';
+        element.style.fontSize = '60%';
+        element.style.margin = '1px';
+        element.style.minWidth = '30px';
+        const style = document.createElement('style');
+        style.innerHTML = `.mathfield {
+          border: 1px solid black;
+        }
+          .ML__fieldcontainer{
+            min-height:auto !important;
+          };`;
+        element.appendChild(style);
+        element.addEventListener('input', () => {
+          placeholderDidChange(model, placeholder.placeholderId!);
+        });
+
+        model.mathfield._placeholders.set(placeholder.placeholderId, {
+          atom: placeholder,
+          field: element,
+        });
+      }
+    });
+
     //
     // Insert the new atoms
     //
@@ -320,14 +355,6 @@ function convertStringToAtoms(
       smartFence: options.smartFence,
       onError: model.listeners.onError,
       colorMap: options.colorMap,
-      onPlaceholderFound: (placeholder) => {
-        if (placeholder.placeholderId) {
-          model.mathfield._placeholders.set(
-            placeholder.placeholderId,
-            placeholder
-          );
-        }
-      },
       backgroundColorMap: options.backgroundColorMap,
     });
 
@@ -412,6 +439,25 @@ function simplifyParen(atoms: Atom[]): void {
       for (const x of atom.cells) simplifyParen(x);
     }
   }
+}
+
+function findPlaceholders(atoms: Atom[]): PlaceholderAtom[] {
+  if (!atoms) return [];
+  let result: PlaceholderAtom[] = [];
+  for (const atom of atoms) {
+    for (const branch of atom.branches) {
+      if (!atom.hasEmptyBranch(branch)) {
+        const branchPlaceholder = findPlaceholders(atom.branch(branch)!);
+        result = result.concat(branchPlaceholder);
+      }
+    }
+
+    if (atom instanceof PlaceholderAtom) {
+      result.push(atom);
+    }
+  }
+
+  return result;
 }
 
 /**
