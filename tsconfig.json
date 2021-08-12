@@ -3,7 +3,7 @@
     "rootDir": ".",
     "outDir": "build",
 
-    "target": "es2020",
+    "target": "es2019", // vue-cli depends on webpack4 which doesn't support es2020. webpack 5 does.
     "module": "es2020", // es2020 includes support for dynamic imports, and import.meta
     "esModuleInterop": true,
     "moduleResolution": "node",

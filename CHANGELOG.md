@@ -1,3 +1,16 @@
+## [Unreleased]
+
+### Improvements
+
+- `vue-cli` does not support optional chaining (see
+  https://github.com/vuejs/vue-loader/issues/1697) There are workarounds for
+  this, but debugging and fixing this is too difficult for many users.
+  Therefore, sadly, this releases rolls back emiting code including optional
+  chaining, despite the fact its supported in every targeted browser, until the
+  `vue` toolchain gets its act together. To be clear MathLive does not use or
+  depend on `Vue`, but some users are integrating MathLive in projects that do
+  use it, and this is sufficient to break MathLive.
+
 ## 0.69.5 (2021-08-05)
 
 ### Improvements
