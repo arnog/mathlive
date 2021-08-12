@@ -351,7 +351,10 @@ export class MathfieldPrivate implements Mathfield {
     this.virtualKeyboardToggle = this.element.querySelector<HTMLElement>(
       '.ML__virtual-keyboard-toggle'
     )!;
-    if (this.options.virtualKeyboardMode === 'manual') {
+    if (
+      !this.options.readOnly &&
+      this.options.virtualKeyboardMode === 'manual'
+    ) {
       this.virtualKeyboardToggle.classList.add('is-visible');
     } else {
       this.virtualKeyboardToggle.classList.remove('is-visible');
@@ -647,7 +650,10 @@ export class MathfieldPrivate implements Mathfield {
 
     this.virtualKeyboard?.setOptions(this.options);
 
-    if (this.options.virtualKeyboardMode === 'manual') {
+    if (
+      !this.options.readOnly &&
+      this.options.virtualKeyboardMode === 'manual'
+    ) {
       this.virtualKeyboardToggle?.classList.add('is-visible');
     } else {
       this.virtualKeyboardToggle?.classList.remove('is-visible');
@@ -979,7 +985,7 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
-    if (this.mode === mode) return;
+    if (this.mode === mode || this.options.readOnly) return;
     const { model } = this;
     model.deferNotifications(
       { content: Boolean(suffix) || Boolean(prefix), selection: true },
