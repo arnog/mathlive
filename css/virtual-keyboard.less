@@ -54,6 +54,12 @@
   height: 100%;
   width: 100%;
 
+  // The pointer events should pass through the "ML__keyboard" element
+  // which is covering the entire screen, and be captured by the ML__keyboard--plate
+  // otherwise this elements gets focus and the mathfield gets blured, causing
+  // the virtual keyboard get hidden.
+  pointer-events: none;
+
   &.is-visible .ML__keyboard--plate {
     transform: translate(
       0,
