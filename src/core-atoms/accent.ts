@@ -38,8 +38,6 @@ export class AccentAtom extends Atom {
     //
     const base = Atom.createBox(context, this.body) ?? new Box(null);
 
-    if (!this.accent) return base;
-
     //
     // 2. Skew
     //
@@ -70,7 +68,7 @@ export class AccentAtom extends Atom {
     if (this.svgAccent) {
       accentBox = makeSVGBox(this.svgAccent);
       clearance = context.metrics.bigOpSpacing1 - clearance;
-    } else {
+    } else if (this.accent) {
       // Build the accent
       const accent = new Box(this.accent, { fontFamily: 'Main-Regular' });
       // Remove the italic correction of the accent, because it only serves to
@@ -98,7 +96,7 @@ export class AccentAtom extends Atom {
         { box: new Box(base) },
         -clearance,
         {
-          box: accentBox,
+          box: accentBox!,
           marginLeft: base.left + 2 * skew,
           classes: ['ML__center'],
         },

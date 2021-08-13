@@ -17,6 +17,10 @@
 
 - **#1124** when setting the `inlineShortcuts` options to empty, don't fallback
   to the default shortcuts.
+- **#1119** `\overarc` and the `AccentAtom` family would not display their
+  accent.
+- **#1115** Clicking in the mathfield when virtual keyboard is displayed closed
+  the keyboard
 
 ## 0.69.5 (2021-08-05)
 
