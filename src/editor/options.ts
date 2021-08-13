@@ -19,6 +19,7 @@ import { defaultSpeakHook } from './speech';
 import { defaultReadAloudHook } from './speech-read-aloud';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
+import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -326,7 +327,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
     keybindings: DEFAULT_KEYBINDINGS,
 
-    inlineShortcuts: {}, // @revisit: return the actual shortcuts
+    inlineShortcuts: INLINE_SHORTCUTS,
     inlineShortcutTimeout: 0,
 
     virtualKeyboardToggleGlyph: DEFAULT_KEYBOARD_TOGGLE_GLYPH,

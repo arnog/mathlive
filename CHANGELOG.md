@@ -11,6 +11,13 @@
   depend on `Vue`, but some users are integrating MathLive in projects that do
   use it, and this is sufficient to break MathLive.
 
+- **#1125** don't enable switching to Latex mode for read-only mathfields
+
+### Bug Fixes
+
+- **#1124** when setting the `inlineShortcuts` options to empty, don't fallback
+  to the default shortcuts.
+
 ## 0.69.5 (2021-08-05)
 
 ### Improvements

@@ -12,7 +12,6 @@ import {
   TEXT_SYMBOLS,
   ENVIRONMENTS,
 } from '../core-definitions/definitions';
-import { INLINE_SHORTCUTS } from '../editor/shortcuts';
 import { DEFAULT_KEYBINDINGS } from '../editor/keybindings-definitions';
 import { getKeybindingMarkup } from '../editor/keybindings';
 
@@ -41,7 +40,6 @@ const MathliveDebug = {
   TEXT_SYMBOLS,
   ENVIRONMENTS,
 
-  INLINE_SHORTCUTS,
   DEFAULT_KEYBINDINGS,
 
   getKeybindingMarkup,

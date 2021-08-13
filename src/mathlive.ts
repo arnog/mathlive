@@ -248,5 +248,4 @@ export const debug = {
   ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
-  INLINE_SHORTCUTS: MathLiveDebug.INLINE_SHORTCUTS,
 };

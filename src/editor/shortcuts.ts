@@ -3,10 +3,8 @@ import { LETTER } from '../core-definitions/definitions';
 import type { Atom } from '../core/atom';
 
 import { MathfieldOptionsPrivate } from './options';
-import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 export { InlineShortcutDefinition };
-export { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 /**
  * Return an array of potential shortcuts
@@ -19,20 +17,9 @@ export function getInlineShortcutsStartingWith(
 
   for (let i = 0; i <= s.length - 1; i++) {
     const s2 = s.slice(Math.max(0, i));
-    for (const key of Object.keys(INLINE_SHORTCUTS)) {
+    for (const key of Object.keys(config.inlineShortcuts)) {
       if (key.startsWith(s2) && !result.includes(key)) {
-        result.push(key);
-      }
-    }
-
-    const customInlineShortcuts = config?.inlineShortcuts
-      ? config.inlineShortcuts
-      : null;
-    if (customInlineShortcuts) {
-      for (const key of Object.keys(customInlineShortcuts)) {
-        if (key.startsWith(s2)) {
-          result.push(key!);
-        }
+        result.push(key!);
       }
     }
   }
@@ -141,5 +128,6 @@ export function getInlineShortcut(
   s: string,
   shortcuts?: Record<string, InlineShortcutDefinition>
 ): string {
-  return validateShortcut(context, shortcuts?.[s] ?? INLINE_SHORTCUTS[s]);
+  if (!shortcuts) return '';
+  return validateShortcut(context, shortcuts[s]);
 }

@@ -1,5 +1,6 @@
 import { OutputFormat } from '../public/mathfield';
 import { InlineShortcutDefinition, getInlineShortcut } from './shortcuts';
+import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 /**
  * Attempts to parse and interpret a string in an unknown format, possibly
@@ -56,13 +57,15 @@ export function parseMathString(
   s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // Common typo
   s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
-  return [format, parseMathExpression(s, { ...(options ?? {}), format })];
+  return [
+    format,
+    parseMathExpression(s, { inlineShortcuts: options?.inlineShortcuts }),
+  ];
 }
 
 function parseMathExpression(
   s: string,
   options: {
-    format?: string;
     inlineShortcuts?: Record<string, InlineShortcutDefinition>;
   }
 ): string {
@@ -70,12 +73,11 @@ function parseMathExpression(
   let done = false;
   let m;
 
+  const inlineShortcuts = options.inlineShortcuts ?? INLINE_SHORTCUTS;
+
   if (!done && (s.startsWith('^') || s.startsWith('_'))) {
     // Superscript and subscript
-    m = parseMathArgument(s.slice(1), {
-      inlineShortcuts: options?.inlineShortcuts ?? {},
-      noWrap: true,
-    });
+    m = parseMathArgument(s.slice(1), { inlineShortcuts, noWrap: true });
     s = s[0] + '{' + m.match + '}';
     s += parseMathExpression(m.rest, options);
     done = true;
@@ -85,10 +87,7 @@ function parseMathExpression(
     m = s.match(/^(sqrt|\u221A)(.*)/);
     if (m) {
       // Square root
-      m = parseMathArgument(m[2], {
-        inlineShortcuts: options?.inlineShortcuts ?? {},
-        noWrap: true,
-      });
+      m = parseMathArgument(m[2], { inlineShortcuts, noWrap: true });
       const sqrtArgument = m.match ?? '\\placeholder{}';
       s = '\\sqrt{' + sqrtArgument + '}';
       s += parseMathExpression(m.rest, options);
@@ -100,10 +99,7 @@ function parseMathExpression(
     m = s.match(/^(\\cbrt|\u221B)(.*)/);
     if (m) {
       // Cube root
-      m = parseMathArgument(m[2], {
-        inlineShortcuts: options?.inlineShortcuts ?? {},
-        noWrap: true,
-      });
+      m = parseMathArgument(m[2], { inlineShortcuts, noWrap: true });
       const sqrtArgument = m.match ?? '\\placeholder{}';
       s = '\\sqrt[3]{' + sqrtArgument + '}';
       s += parseMathExpression(m.rest, options);
@@ -115,10 +111,7 @@ function parseMathExpression(
     m = s.match(/^abs(.*)/);
     if (m) {
       // Absolute value
-      m = parseMathArgument(m[1], {
-        inlineShortcuts: options?.inlineShortcuts ?? {},
-        noWrap: true,
-      });
+      m = parseMathArgument(m[1], { inlineShortcuts, noWrap: true });
       s = '\\left|' + m.match + '\\right|';
       s += parseMathExpression(m.rest, options);
       done = true;
@@ -140,7 +133,7 @@ function parseMathExpression(
     // A string of symbols...
     // Could be a binary or relational operator, etc...
     if (m) {
-      s = paddedShortcut(m[1], options);
+      s = paddedShortcut(m[1], inlineShortcuts);
       s += parseMathExpression(m[2], options);
       done = true;
     }
@@ -148,10 +141,7 @@ function parseMathExpression(
 
   if (!done && /^([fgh])[^a-zA-Z]/.test(s)) {
     // This could be a function...
-    m = parseMathArgument(s.slice(1), {
-      inlineShortcuts: options.inlineShortcuts ?? {},
-      noWrap: true,
-    });
+    m = parseMathArgument(s.slice(1), { inlineShortcuts, noWrap: true });
     s =
       s[1] === '(' ? s[0] + '\\mleft(' + m.match + '\\mright)' : s[0] + m.match;
     s += parseMathExpression(m.rest, options);
@@ -163,21 +153,18 @@ function parseMathExpression(
     if (m) {
       // Some alphabetical string...
       // Could be a function name (sin) or symbol name (alpha)
-      s = paddedShortcut(m[1], options);
+      s = paddedShortcut(m[1], inlineShortcuts);
       s += parseMathExpression(m[2], options);
       done = true;
     }
   }
 
   if (!done) {
-    m = parseMathArgument(s, {
-      inlineShortcuts: options.inlineShortcuts ?? {},
-      noWrap: true,
-    });
+    m = parseMathArgument(s, { inlineShortcuts, noWrap: true });
     if (m.match && m.rest[0] === '/') {
       // Fraction
       const m2 = parseMathArgument(m.rest.slice(1), {
-        inlineShortcuts: options.inlineShortcuts ?? {},
+        inlineShortcuts,
         noWrap: true,
       });
       if (m2.match) {
@@ -229,7 +216,6 @@ function parseMathArgument(
   s: string,
   options: {
     noWrap?: boolean;
-    format?: string;
     inlineShortcuts?: Record<string, InlineShortcutDefinition>;
   }
 ): { match: string; rest: string } {
@@ -309,8 +295,11 @@ function parseMathArgument(
   return { match, rest };
 }
 
-function paddedShortcut(s: string, options: { format?: string }): string {
-  let result = getInlineShortcut(null, s, options);
+function paddedShortcut(
+  s: string,
+  shortcuts?: Record<string, InlineShortcutDefinition>
+): string {
+  let result = getInlineShortcut(null, s, shortcuts);
   if (result) {
     result = result.replace('_{#?}', '');
     result = result.replace('^{#?}', '');
