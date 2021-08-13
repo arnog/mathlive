@@ -21,6 +21,8 @@
   accent.
 - **#1115** Clicking in the mathfield when virtual keyboard is displayed closed
   the keyboard
+- **#1117** and **#1118** Replacing a subset of a mathfield with a pattern that
+  contains the target lead to an infinite loop
 
 ## 0.69.5 (2021-08-05)
 
