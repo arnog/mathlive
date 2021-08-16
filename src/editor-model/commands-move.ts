@@ -152,7 +152,7 @@ function getTabbableElements(): HTMLElement[] {
     }[] = [];
 
     const candidates = [
-      ...element.querySelectorAll<HTMLElement>(`input, select, textarea, a[href], button, 
+      ...element.querySelectorAll<HTMLElement>(`input, select, textarea, a[href], button,
         [tabindex], audio[controls], video[controls],
         [contenteditable]:not([contenteditable="false"]), details>summary`),
     ].filter(isNodeMatchingSelectorTabbable);

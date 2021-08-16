@@ -362,6 +362,7 @@ export function onTypedText(
 ): void {
   const { model } = mathfield;
   if (mathfield.options.readOnly) {
+    model.announce('plonk');
     return;
   }
   options = options ?? {};

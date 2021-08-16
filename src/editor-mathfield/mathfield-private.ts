@@ -301,6 +301,9 @@ export class MathfieldPrivate implements Mathfield {
       this.options.virtualKeyboardToggleGlyph ?? DEFAULT_KEYBOARD_TOGGLE_GLYPH;
     markup += '</div>';
 
+    if (this.options.readOnly) {
+      markup += "<div class='ML__placeholdercontainer'></div>";
+    }
     markup += '</span>';
 
     // 3.1/ The aria-live region for announcements
@@ -1168,9 +1171,18 @@ export class MathfieldPrivate implements Mathfield {
     this._placeholders.forEach((v) => {
       const container = this.field?.querySelector(
         `[data-placeholder-id=${v.atom.placeholderId}]`
-      );
+      ) as HTMLElement;
+
       if (container) {
-        container.appendChild(v.field);
+        const placeholderPosition = container.getBoundingClientRect();
+        const parentPosition = this.field?.getBoundingClientRect();
+        v.field.style.fontSize = window.getComputedStyle(container).fontSize;
+        v.field.style.top = `${
+          (placeholderPosition?.top ?? 0) - (parentPosition?.top ?? 0)
+        }px`;
+        v.field.style.left = `${
+          (placeholderPosition?.left ?? 0) - (parentPosition?.left ?? 0)
+        }px`;
       }
     });
   }
@@ -1260,7 +1272,16 @@ export class MathfieldPrivate implements Mathfield {
     this.keyboardDelegate!.setValue(
       this.getValue(this.model.selection, 'latex-expanded')
     );
-
+    const selectedAtoms = this.model.getAtoms(this.model.selection);
+    if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
+      console.log('placeholderselected');
+      const placeholder = selectedAtoms[0] as PlaceholderAtom;
+      if (this.model.mathfield._placeholders.has(placeholder.placeholderId!)) {
+        this.model.mathfield._placeholders
+          .get(placeholder.placeholderId!)
+          ?.field.focus();
+      }
+    }
     // Adjust mode
     {
       const cursor = this.model.at(this.model.position);

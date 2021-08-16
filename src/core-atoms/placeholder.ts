@@ -36,7 +36,7 @@ export class PlaceholderAtom extends Atom {
   serialize(_options: ToLatexOptions): string {
     const id = this.placeholderId ? `[${this.placeholderId}]` : '';
     const defaultValue = this.defaultValue
-      ? `[${Atom.serialize(this.defaultValue, _options)}}]`
+      ? `[${Atom.serialize(this.defaultValue, _options)}]`
       : '';
     return `\\placeholder${id}${defaultValue}{${this.value ?? ''}}`;
   }

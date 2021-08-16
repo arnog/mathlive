@@ -202,14 +202,26 @@ export class MathModeEditor extends ModeEditor {
         placeholder.placeholderId &&
         !model.mathfield._placeholders.has(placeholder.placeholderId)
       ) {
-        const element = new MathfieldElement();
+        const element = new MathfieldElement({
+          virtualKeyboardMode: 'onfocus',
+          readOnly: false,
+        });
+        const container = model.mathfield.element?.querySelector(
+          '.ML__placeholdercontainer'
+        );
+
+        element.value = placeholder.defaultValue?.length
+          ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'text' })
+          : '';
         element.classList.add('mathfield');
         element.style.display = 'inline-block';
         element.style.zIndex = '1001';
-        element.style.fontSize = '60%';
-        element.style.margin = '1px';
+        element.style.position = 'absolute';
+        element.style.margin = '4px';
+
         element.style.minWidth = '30px';
         const style = document.createElement('style');
+
         style.innerHTML = `.mathfield {
           border: 1px solid black;
         }
@@ -217,9 +229,13 @@ export class MathModeEditor extends ModeEditor {
             min-height:auto !important;
           };`;
         element.appendChild(style);
+
         element.addEventListener('input', () => {
           placeholderDidChange(model, placeholder.placeholderId!);
+          model.mathfield.attachNestedMathfield();
+          requestUpdate(model.mathfield);
         });
+        container?.appendChild(element);
 
         model.mathfield._placeholders.set(placeholder.placeholderId, {
           atom: placeholder,

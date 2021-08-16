@@ -661,23 +661,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       .map((x) => (x.nodeType === 3 ? x.textContent : ''))
       .join('')
       .trim();
-    // Inline options (as a JSON structure in the markup)
-    try {
-      const json = slot!
-        .assignedElements()
-        .filter(
-          (x) =>
-            x.tagName.toLowerCase() === 'script' &&
-            (x as HTMLScriptElement).type === 'application/json'
-        )
-        .map((x) => x.textContent)
-        .join('');
-      if (json) {
-        this.setOptions(JSON.parse(json));
-      }
-    } catch (error: unknown) {
-      console.log(error);
-    }
 
     // Record the (optional) configuration options, as a deferred state
     if (options) {
@@ -743,6 +726,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   setOptions(options: Partial<MathfieldOptions>): void {
     if (this._mathfield) {
       this._mathfield.setOptions(options);
+      this._mathfield._placeholders.forEach((placeholder) => {
+        placeholder.field.setOptions({
+          ...options,
+          virtualKeyboardMode: 'onfocus',
+          readOnly: false,
+        });
+      });
     } else if (gDeferredState.has(this)) {
       const mergedOptions = {
         ...gDeferredState.get(this)!.options,
@@ -1040,10 +1030,26 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
     // Add shadowed stylesheet if one was provided
     if (this._style) {
-      console.log(this._style, 'style');
       const styleElement = document.createElement('style');
       styleElement.textContent = this._style;
       this.shadowRoot!.appendChild(styleElement);
+    }
+    // Inline options (as a JSON structure in the markup)
+    try {
+      const json = slot!
+        .assignedElements()
+        .filter(
+          (x) =>
+            x.tagName.toLowerCase() === 'script' &&
+            (x as HTMLScriptElement).type === 'application/json'
+        )
+        .map((x) => x.textContent)
+        .join('');
+      if (json) {
+        this.setOptions(JSON.parse(json));
+      }
+    } catch (error: unknown) {
+      console.log(error);
     }
 
     let value = '';

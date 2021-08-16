@@ -35,11 +35,7 @@ export function requestUpdate(
   if (!mathfield.dirty) {
     mathfield.dirty = true;
     requestAnimationFrame(() => {
-      if (
-        isValidMathfield(mathfield) &&
-        mathfield.dirty &&
-        !mathfield.options.readOnly
-      ) {
+      if (isValidMathfield(mathfield) && mathfield.dirty) {
         mathfield._atomBoundsCache = new Map<string, Rect>();
         render(mathfield, options);
         mathfield._atomBoundsCache = undefined;
@@ -130,7 +126,6 @@ export function render(
         smartFence: mathfield.options.smartFence,
         renderPlaceholder: mathfield.options.readOnly
           ? (context, p) => {
-              console.log(context);
               const field = mathfield.getPlaceholderField(p.placeholderId!);
               return p.createMathfieldBox(context, {
                 placeholderId: p.placeholderId!,

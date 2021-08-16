@@ -13,6 +13,7 @@ export class MathfieldBox extends Box {
     this.placeholderId = placeholderId;
     this.element = element;
     this.htmlData = `placeholder-id=${placeholderId}`;
+    this.height = element.clientHeight / parseInt(element.style.fontSize);
   }
   toMarkup(): string {
     let props = '';
@@ -59,17 +60,8 @@ export class MathfieldBox extends Box {
       props += ` class="${classList}"`;
     }
 
-    if (this.cssProperties) {
-      const styleString = Object.keys(this.cssProperties)
-        .map((x) => `${x}:${this.cssProperties[x]}`)
-        .join(';');
+    props += ` style="display: inline-block;margin:4px;border:1px solid black; width:${this.element.clientWidth}px; height:${this.element.clientHeight}px; "`;
 
-      if (styleString.length > 0) {
-        props += ` style="${styleString}"`;
-      }
-    }
-
-    console.log(props);
     return `<span ${props}></span>`;
   }
 }

@@ -11,7 +11,7 @@ import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 import MathfieldElement from '../public/mathfield-element';
-import { MathfieldBox } from './matfield-box';
+import { MathfieldBox } from './mathfield-box';
 
 export const ATOM_REGISTRY = {};
 
@@ -1149,7 +1149,6 @@ export class Atom {
     // which italicizes some characters, but which can be overridden
 
     const classes = options?.classes ?? '';
-    console.log(context.mathstyle);
     const result = new MathfieldBox(options.placeholderId, options.element, {
       type,
       mode: this.mode,

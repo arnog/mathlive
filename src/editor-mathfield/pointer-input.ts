@@ -19,12 +19,7 @@ export function onPointerDown(
 ): void {
   //Reset the atom bounds cache
   mathfield._atomBoundsCache = new Map<string, Rect>();
-  if (
-    (evt.target as HTMLElement).tagName === 'MATH-FIELD' &&
-    mathfield.options.readOnly
-  ) {
-    return;
-  }
+
   const that = mathfield;
   let anchor: Offset;
   let trackingPointer = false;
