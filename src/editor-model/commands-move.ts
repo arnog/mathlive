@@ -4,6 +4,7 @@ import { Atom, BranchName } from '../core/atom';
 import { SubsupAtom } from '../core-atoms/subsup';
 import { move, skip } from './commands';
 import { isBrowser } from '../common/capabilities';
+import MathfieldElement from '../public/mathfield-element';
 
 export function moveAfterParent(model: ModelPrivate): boolean {
   const previousPosition = model.position;
@@ -156,7 +157,6 @@ function getTabbableElements(): HTMLElement[] {
         [tabindex], audio[controls], video[controls],
         [contenteditable]:not([contenteditable="false"]), details>summary`),
     ].filter(isNodeMatchingSelectorTabbable);
-
     candidates.forEach((candidate, i) => {
       const candidateTabindex = getTabindex(candidate);
       if (candidateTabindex === 0) {
@@ -338,8 +338,25 @@ function leap(
     }
 
     let index = tabbable.indexOf(document.activeElement as HTMLElement) + dist;
+
+    if (
+      document.activeElement instanceof MathfieldElement &&
+      moveToNextNestedMathfield(
+        document.activeElement as MathfieldElement,
+        dir,
+        dist
+      )
+    ) {
+      return true;
+    }
     if (index < 0) index = tabbable.length - 1;
     if (index >= tabbable.length) index = 0;
+    if (
+      tabbable[index] instanceof MathfieldElement &&
+      moveToNextNestedMathfield(tabbable[index] as MathfieldElement, dir, dist)
+    ) {
+      return true;
+    }
     tabbable[index].focus();
 
     if (index === 0) {
@@ -348,6 +365,42 @@ function leap(
     }
 
     return true;
+  }
+  /**
+   *
+   */
+  function moveToNextNestedMathfield(
+    element: MathfieldElement,
+    dir: 'forward' | 'backward',
+    dist: 1 | -1
+  ): boolean {
+    const nestedMathfield = [
+      ...(element.shadowRoot?.querySelectorAll<HTMLElement>('math-field') ??
+        []),
+    ];
+    if (nestedMathfield.length) {
+      const activeMathfield = element.shadowRoot?.activeElement;
+      console.log(activeMathfield);
+      const activeIndex = nestedMathfield.indexOf(
+        activeMathfield as HTMLElement
+      );
+      let newMathfieldIndex = activeIndex + dist;
+      console.log(activeIndex);
+      if (activeIndex < 0 && dir === 'backward') {
+        newMathfieldIndex = nestedMathfield.length - 1;
+      }
+
+      if (
+        newMathfieldIndex >= 0 &&
+        newMathfieldIndex < nestedMathfield.length
+      ) {
+        console.log(newMathfieldIndex, nestedMathfield, 'forward');
+        nestedMathfield[newMathfieldIndex].focus();
+        return true;
+      }
+    }
+
+    return false;
   }
 
   // Set the selection to the next placeholder
