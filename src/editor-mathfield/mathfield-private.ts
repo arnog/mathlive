@@ -1178,7 +1178,7 @@ export class MathfieldPrivate implements Mathfield {
         const parentPosition = this.field?.getBoundingClientRect();
         v.field.style.fontSize = window.getComputedStyle(container).fontSize;
         v.field.style.top = `${
-          (placeholderPosition?.top ?? 0) - (parentPosition?.top ?? 0)
+          (placeholderPosition?.top ?? 0) - (parentPosition?.top ?? 0) + 4
         }px`;
         v.field.style.left = `${
           (placeholderPosition?.left ?? 0) - (parentPosition?.left ?? 0)
@@ -1274,7 +1274,6 @@ export class MathfieldPrivate implements Mathfield {
     );
     const selectedAtoms = this.model.getAtoms(this.model.selection);
     if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
-      console.log('placeholderselected');
       const placeholder = selectedAtoms[0] as PlaceholderAtom;
       if (this.model.mathfield._placeholders.has(placeholder.placeholderId!)) {
         this.model.mathfield._placeholders
