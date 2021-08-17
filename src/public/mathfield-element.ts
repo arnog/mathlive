@@ -643,16 +643,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // When the elements get focused (through tabbing for example)
     // focus the mathfield
-    this.shadowRoot!.host.addEventListener(
-      'focus',
-      (_event) => this._mathfield?.focus(),
-      true
-    );
-    this.shadowRoot!.host.addEventListener(
-      'blur',
-      (_event) => this._mathfield?.blur(),
-      true
-    );
 
     const slot =
       this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
@@ -666,6 +656,24 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (options) {
       this.setOptions(options);
     }
+    this.shadowRoot!.host.addEventListener(
+      'focus',
+      (_event) => {
+        if (!this.readOnly) {
+          this._mathfield?.focus();
+        }
+      },
+      true
+    );
+    this.shadowRoot!.host.addEventListener(
+      'blur',
+      (_event) => {
+        if (!this.readOnly) {
+          this._mathfield?.blur();
+        }
+      },
+      true
+    );
   }
 
   addEventListener<K extends keyof HTMLElementEventMap>(
