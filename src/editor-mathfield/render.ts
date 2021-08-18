@@ -125,12 +125,15 @@ export function render(
         },
         smartFence: mathfield.options.smartFence,
         renderPlaceholder: mathfield.options.readOnly
-          ? (context, p) => {
-              const field = mathfield.getPlaceholderField(p.placeholderId!);
-              return p.createMathfieldBox(context, {
-                placeholderId: p.placeholderId!,
-                element: field!,
-              });
+          ? (context: Context, p) => {
+              if (p.placeholderId) {
+                const field = mathfield.getPlaceholderField(p.placeholderId!);
+                return p.createMathfieldBox(context, {
+                  placeholderId: p.placeholderId!,
+                  element: field!,
+                });
+              }
+              return p.createBox(context);
             }
           : undefined,
         isSelected: model.root.isSelected,
