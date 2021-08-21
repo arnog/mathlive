@@ -86,7 +86,7 @@
     "@typescript-eslint/parser": "^4.29.0",
     "autoprefixer": "10.3.1",
     "check-node-version": "^4.1.0",
-    "cssnano": "^5.0.7",
+    "cssnano": "^5.0.8",
     "esbuild": "^0.12.17",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
