@@ -39,7 +39,6 @@ export function requestUpdate(
         mathfield._atomBoundsCache = new Map<string, Rect>();
         render(mathfield, options);
         mathfield._atomBoundsCache = undefined;
-        mathfield.attachNestedMathfield();
       }
     });
   }
@@ -190,7 +189,9 @@ export function render(
   // 6. Render the selection/caret
   //
   renderSelection(mathfield);
-  mathfield.attachNestedMathfield();
+  if (mathfield.options.readOnly) {
+    mathfield.attachNestedMathfield();
+  }
   if (!(renderOptions.interactive ?? false)) {
     // (re-render a bit later because the layout may not be up to date right
     //  now. This happens in particular when first loading and the fonts are
