@@ -675,6 +675,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       true
     );
   }
+  getPlaceholderField(placeholderId: string): Mathfield | undefined {
+    return this._mathfield?.getPlaceholderField(placeholderId);
+  }
 
   addEventListener<K extends keyof HTMLElementEventMap>(
     type: K,
