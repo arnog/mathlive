@@ -63,7 +63,7 @@ export class MathfieldBox extends Box {
       props += ` class="${classList}"`;
     }
 
-    props += ` style="display: inline-block;margin:4px; width:${this.element.clientWidth}px; height:${this.element.clientHeight}px; "`;
+    props += ` style="display: inline-block; width:${this.element.clientWidth}px; height:${this.element.clientHeight}px; "`;
 
     return `<span ${props}></span>`;
   }
