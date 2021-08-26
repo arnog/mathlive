@@ -1168,23 +1168,37 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   attachNestedMathfield(): void {
+    let fontSizeChanged = false;
     this._placeholders.forEach((v) => {
       const container = this.field?.querySelector(
         `[data-placeholder-id=${v.atom.placeholderId}]`
       ) as HTMLElement;
-
       if (container) {
         const placeholderPosition = container.getBoundingClientRect();
         const parentPosition = this.field?.getBoundingClientRect();
-        v.field.style.fontSize = window.getComputedStyle(container).fontSize;
+
+        const scaleDownFontsize =
+          parseInt(window.getComputedStyle(container).fontSize) * 0.6;
+        if (v.field.style.fontSize !== `${scaleDownFontsize}px`) {
+          fontSizeChanged = true;
+        }
+        v.field.style.fontSize = `${scaleDownFontsize}px`;
         v.field.style.top = `${
-          (placeholderPosition?.top ?? 0) - (parentPosition?.top ?? 0) + 4
+          (placeholderPosition?.top ?? 0) -
+          (parentPosition?.top ?? 0) +
+          (this.element?.offsetTop ?? 0)
         }px`;
         v.field.style.left = `${
-          (placeholderPosition?.left ?? 0) - (parentPosition?.left ?? 0)
+          (placeholderPosition?.left ?? 0) -
+          (parentPosition?.left ?? 0) +
+          (this.element?.offsetLeft ?? 0)
         }px`;
       }
     });
+
+    if (fontSizeChanged) {
+      requestUpdate(this);
+    }
   }
 
   canUndo(): boolean {
