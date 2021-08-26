@@ -16,7 +16,7 @@ export class MathfieldBox extends Box {
     this.height =
       element.style.fontSize === ''
         ? 1
-        : element.clientHeight / parseInt(element.style.fontSize);
+        : (element.clientHeight / parseInt(element.style.fontSize)) * 0.6;
   }
   toMarkup(): string {
     let props = '';
