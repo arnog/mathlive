@@ -205,6 +205,7 @@ export class MathModeEditor extends ModeEditor {
         const element = new MathfieldElement({
           virtualKeyboardMode: 'onfocus',
           readOnly: false,
+          fontsDirectory: model.mathfield.options.fontsDirectory,
         });
         const container = model.mathfield.element?.querySelector(
           '.ML__placeholdercontainer'
@@ -213,27 +214,31 @@ export class MathModeEditor extends ModeEditor {
         element.value = placeholder.defaultValue?.length
           ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'text' })
           : '';
-        element.classList.add('mathfield');
+        element.classList.add('nested-mathfield');
         element.style.display = 'inline-block';
         element.style.zIndex = '1001';
         element.style.position = 'absolute';
-        element.style.margin = '4px';
-
         element.style.minWidth = '30px';
         const style = document.createElement('style');
 
-        style.innerHTML = `.mathfield {
+        style.innerHTML = `.nested-mathfield {
           border: 1px solid black;
         }
           .ML__fieldcontainer{
             min-height:auto !important;
-          };`;
-        element.appendChild(style);
+          }
 
+          `;
+        element.appendChild(style);
         element.addEventListener('input', () => {
           placeholderDidChange(model, placeholder.placeholderId!);
-          model.mathfield.attachNestedMathfield();
-          requestUpdate(model.mathfield);
+          /**
+           * this timeout give some time when is a placeholder to render properly
+           * before rendering the main field.
+           */
+          setTimeout(() => {
+            requestUpdate(model.mathfield);
+          });
         });
         container?.appendChild(element);
 
