@@ -3,7 +3,10 @@
     "rootDir": ".",
     "outDir": "build",
 
-    "target": "es2019", // vue-cli depends on webpack4 which doesn't support es2020. webpack 5 does.
+    // vue-cli depends on webpack4 which doesn't support es2020. webpack 5 does.
+    // so, to support version of vue-cli that are in use (August 2021),
+    // downgrade target to es2019.
+    "target": "es2019",
     "module": "es2020", // es2020 includes support for dynamic imports, and import.meta
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -13,10 +16,7 @@
     // Do not include all the type definitions in `node_modules/@types`,
     // which include NodeJS definitions that are not applicable to a web app
     // but only those type definitions that are required
-    "types": [
-      "./node_modules/@types/jest",
-      "./node_modules/@types/css-font-loading-module"
-    ],
+    "types": ["./node_modules/@types/css-font-loading-module"],
 
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
