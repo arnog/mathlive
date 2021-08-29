@@ -74,7 +74,7 @@
     "paosder <denjaraos@gmail.com>",
     "Ben Eater (https://github.com/beneater)",
     "Dominik Janković (https://github.com/djankovic)",
-    "Edin (https://github.com/physedo)"
+    "Edin Adilagić (https://github.com/physedo)"
   ],
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.0.2",
