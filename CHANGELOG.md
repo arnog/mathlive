@@ -5,18 +5,25 @@
 - `vue-cli` does not support optional chaining (see
   https://github.com/vuejs/vue-loader/issues/1697) There are workarounds for
   this, but debugging and fixing this is too difficult for many users.
-  Therefore, sadly, this releases rolls back emiting code including optional
-  chaining, despite the fact its supported in every targeted browser, until the
+  Therefore, sadly, this release rolls back emitting code including optional
+  chaining, despite the fact it's supported in every targeted browser, until the
   `vue` toolchain gets its act together. To be clear MathLive does not use or
   depend on `Vue`, but some users are integrating MathLive in projects that do
-  use it, and this is sufficient to break MathLive.
+  use it, and this is sufficient to break MathLive. It appears that this isse
+  affects also the React toolchain.
 
 - **#1125** don't enable switching to Latex mode for read-only mathfields
 
 ### Bug Fixes
 
 - **#1124** when setting the `inlineShortcuts` options to empty, don't fallback
-  to the default shortcuts.
+  to the default shortcuts
+- **#1119** `\overarc` and the `AccentAtom` family would not display their
+  accent
+- **#1115** Clicking in the mathfield when virtual keyboard is displayed closed
+  the keyboard
+- **#1117** and **#1118** Replacing a subset of a mathfield with a pattern that
+  contains the target led to an infinite loop
 
 ## 0.69.5 (2021-08-05)
 
