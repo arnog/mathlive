@@ -363,7 +363,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onKeystroke: (): boolean => true,
     onMoveOutOf: (): boolean => true,
     onTabOutOf: (): boolean => true,
-
+    onPlaceholderDidChange: () => {},
     onBlur: NO_OP_LISTENER,
     onFocus: NO_OP_LISTENER,
     onContentWillChange: NO_OP_LISTENER,

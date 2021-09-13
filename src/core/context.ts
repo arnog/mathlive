@@ -13,6 +13,7 @@ import { FontMetrics, FONT_SCALE } from './font-metrics';
 import { D, Dc, Mathstyle, MathstyleName, MATHSTYLES } from './mathstyle';
 import { Box } from './box';
 import { convertDimensionToEm } from './registers-utils';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf
@@ -27,7 +28,7 @@ export interface ContextInterface {
   };
   smartFence?: boolean;
   isSelected?: boolean;
-  renderPlaceholder?: (context: Context) => Box;
+  renderPlaceholder?: (context: Context, placeholder: PlaceholderAtom) => Box;
 }
 
 export type PrivateStyle = Style & {
@@ -81,7 +82,7 @@ export class Context implements ContextInterface {
     seed: string | number;
   };
   smartFence: boolean;
-  renderPlaceholder?: (context: Context) => Box;
+  renderPlaceholder?: (context: Context, placholder: PlaceholderAtom) => Box;
 
   isSelected: boolean;
 

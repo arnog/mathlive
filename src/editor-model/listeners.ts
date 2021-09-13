@@ -10,6 +10,7 @@ export type ModelListeners = {
   onContentDidChange: (sender: ModelPrivate) => void;
   onSelectionWillChange: (sender: ModelPrivate) => void;
   onSelectionDidChange: (sender: ModelPrivate) => void;
+  onPlaceholderDidChange: (sender: ModelPrivate, placeholderId: string) => void;
   onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
 };
 
@@ -35,6 +36,19 @@ export function contentDidChange(model: ModelPrivate): void {
   }
 }
 
+export function placeholderDidChange(
+  model: ModelPrivate,
+  placeholderId: string
+): void {
+  if (
+    typeof model.listeners?.onPlaceholderDidChange === 'function' &&
+    !model.suppressChangeNotifications
+  ) {
+    model.suppressChangeNotifications = true;
+    model.listeners.onPlaceholderDidChange(model, placeholderId);
+    model.suppressChangeNotifications = false;
+  }
+}
 /// ///
 
 export interface Disposable {
