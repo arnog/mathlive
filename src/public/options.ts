@@ -646,6 +646,7 @@ export interface MathfieldListeners {
   onCommit: (sender: Mathfield) => void;
   onModeChange: (sender: Mathfield, mode: ParseMode) => void;
   onReadAloudStatus: (sender: Mathfield) => void;
+  onPlaceholderDidChange: (sender: Mathfield, placeholderId: string) => void;
 }
 
 export type KeyboardOptions = {

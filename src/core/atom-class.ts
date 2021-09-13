@@ -10,6 +10,8 @@ import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
+import MathfieldElement from '../public/mathfield-element';
+import { MathfieldBox } from './mathfield-box';
 
 export const ATOM_REGISTRY = {};
 
@@ -1119,6 +1121,63 @@ export class Atom {
     box.atomID = this.id!;
 
     return box;
+  }
+
+  /**
+   * Create a box with the specified body.
+   */
+  createMathfieldBox(
+    context: Context,
+    options: {
+      classes?: string;
+      newList?: boolean;
+      placeholderId: string;
+      element: MathfieldElement;
+    }
+  ): MathfieldBox {
+    // Ensure that the atom type is a valid Box type
+    const type: BoxType = 'mathfield';
+
+    // The font family is determined by:
+    // - the base font family associated with this atom (optional). For example,
+    // some atoms such as some functions ('\sin', '\cos', etc...) or some
+    // symbols ('\Z') have an explicit font family. This overrides any
+    // other font family
+    // - the user-specified font family that has been explicitly applied to
+    // this atom
+    // - the font family determined automatically in math mode, for example
+    // which italicizes some characters, but which can be overridden
+
+    const classes = options?.classes ?? '';
+    const result = new MathfieldBox(options.placeholderId, options.element, {
+      type,
+      mode: this.mode,
+      maxFontSize: context.scalingFactor,
+      style: {
+        variant: 'normal', // Will auto-italicize
+        ...this.style,
+        letterShapeStyle: context.letterShapeStyle,
+        fontSize: Math.max(
+          1,
+          context.size + context.mathstyle.sizeDelta
+        ) as FontSize,
+      },
+      classes,
+      newList: options?.newList,
+    });
+
+    // Set other attributes
+    if (context.isTight) result.isTight = true;
+
+    // The italic correction applies only in math mode
+    if (this.mode !== 'math') result.italic = 0;
+    result.right = result.italic; // Italic correction
+
+    // To retrieve the atom from a box, for example when the box is clicked
+    // on, attach a unique ID to the box and associate it with the atom.
+    this.bind(context, result);
+
+    return result;
   }
 
   /**

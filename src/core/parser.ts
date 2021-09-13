@@ -107,7 +107,6 @@ export class Parser {
   endCount = 0;
 
   onError: ErrorListener<ParserErrorCode>;
-
   _parsingContexts: ParsingContext[];
 
   /**
@@ -1017,7 +1016,6 @@ export class Parser {
     if (!this.match('<}>')) {
       this.onError({ code: 'unbalanced-braces' });
     }
-
     return result;
   }
 
@@ -1499,13 +1497,14 @@ export class Parser {
   parseCommand(command: string): Atom[] | null {
     let result: Atom | null = null;
     if (command === '\\placeholder') {
-      return [
-        new PlaceholderAtom({
-          mode: this.parseMode,
-          value: this.parseArgument('string') ?? undefined,
-          style: this.style,
-        }),
-      ];
+      const placeholder = new PlaceholderAtom({
+        mode: this.parseMode,
+        placeholderId: this.parseOptionalArgument('string') as string,
+        default: this.parseOptionalArgument('math') as Atom[],
+        value: this.parseArgument('string') ?? undefined,
+        style: this.style,
+      });
+      return [placeholder];
     }
 
     if (command === '\\char') {
@@ -1842,7 +1841,6 @@ export function parseLatex(
     if (!more) break;
     atoms = atoms.concat(more);
   }
-
   return atoms;
 }
 

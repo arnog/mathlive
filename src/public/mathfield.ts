@@ -309,6 +309,12 @@ export interface Mathfield {
     options?: FindOptions
   ): void;
 
+  /**
+   * Returns a nested mathfield element that match the provided `placeholderId`
+   * @param placeholderId
+   */
+  getPlaceholderField(placeholderId: string): Mathfield | undefined;
+
   virtualKeyboardState: 'visible' | 'hidden';
 }
 

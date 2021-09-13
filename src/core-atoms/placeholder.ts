@@ -4,7 +4,15 @@ import { Context } from '../core/context';
 import { ParseMode, Style } from '../public/core';
 
 export class PlaceholderAtom extends Atom {
-  constructor(options?: { value?: string; mode?: ParseMode; style?: Style }) {
+  placeholderId?: string;
+  defaultValue?: Atom[];
+  constructor(options?: {
+    value?: string;
+    mode?: ParseMode;
+    style?: Style;
+    placeholderId?: string;
+    default?: Atom[];
+  }) {
     super('placeholder', {
       mode: options?.mode,
       style: options?.style,
@@ -12,11 +20,13 @@ export class PlaceholderAtom extends Atom {
     });
     this.captureSelection = true;
     this.value = '⬚';
+    this.placeholderId = options?.placeholderId;
+    this.defaultValue = options?.default;
   }
 
   render(context: Context): Box {
     if (typeof context.renderPlaceholder === 'function') {
-      return context.renderPlaceholder(context);
+      return context.renderPlaceholder(context, this);
     }
     return this.createBox(context, {
       classes: this.caret ? 'ML__placeholder-selected' : '',
@@ -24,6 +34,10 @@ export class PlaceholderAtom extends Atom {
   }
 
   serialize(_options: ToLatexOptions): string {
-    return `\\placeholder{${this.value ?? ''}}`;
+    const id = this.placeholderId ? `[${this.placeholderId}]` : '';
+    const defaultValue = this.defaultValue
+      ? `[${Atom.serialize(this.defaultValue, _options)}]`
+      : '';
+    return `\\placeholder${id}${defaultValue}{${this.value ?? ''}}`;
   }
 }

@@ -35,6 +35,7 @@ const BOX_TYPE = [
   'placeholder',
   'supsub',
   'none',
+  'mathfield',
 ] as const; // The const assertion prevents widening to string[]
 export type BoxType = typeof BOX_TYPE[number];
 
@@ -144,7 +145,7 @@ export type BoxCSSProperties =
   | 'width'
   | 'z-index';
 
-type BoxOptions = {
+export type BoxOptions = {
   classes?: string;
   properties?: Partial<Record<BoxCSSProperties, string>>;
   attributes?: Record<string, string>;
@@ -222,9 +223,9 @@ export class Box {
 
   delim?: string; // @revisit
 
-  private attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
+  protected attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
 
-  private cssProperties: Partial<Record<BoxCSSProperties, string>>;
+  protected cssProperties: Partial<Record<BoxCSSProperties, string>>;
 
   constructor(
     content: null | number | string | Box | (Box | null)[],

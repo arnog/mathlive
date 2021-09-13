@@ -192,7 +192,6 @@ export function onKeystroke(
       return false;
     }
   }
-
   // No shortcut :( We're done.
   if (!shortcut && !selector) {
     return true;
@@ -366,7 +365,6 @@ export function onTypedText(
     model.announce('plonk');
     return;
   }
-
   options = options ?? {};
 
   //
@@ -375,7 +373,6 @@ export function onTypedText(
   if (options.focus) {
     mathfield.focus();
   }
-
   if (options.feedback) {
     if (mathfield.options.keypressVibration && canVibrate()) {
       navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
@@ -427,6 +424,7 @@ export function onTypedText(
   // compound emojis such as the professional emojis, including the
   // David Bowie emoji: 👨🏻‍🎤
   const graphemes = splitGraphemes(text);
+
   if (mathfield.mode === 'latex') {
     model.deferNotifications({ content: true, selection: true }, () => {
       for (const c of graphemes) {
