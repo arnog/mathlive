@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.69.7 (2021-09-13)
 
 ### New Feature
 
