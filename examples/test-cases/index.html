@@ -250,6 +250,19 @@
     });
 
 
+    const mathfield = new MathfieldElement();
+    mathfield.readOnly = true;
+    mathfield.setAttribute("style", "display: inline-block;");
+    mathfield.defaultMode = "inline-math";
+    mathfield.value = "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}";
+    document.body.appendChild(mathfield);
+
+    console.log(mathfield.offsetWidth);
+    setTimeout(() => {
+      console.log(mathfield.offsetWidth)
+    }, 0);
+
+
     let gSearchLatex;
 
     function applySearchTerm() {
