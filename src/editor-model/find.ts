@@ -95,6 +95,8 @@ function replaceInBranch(
   const branch = atom.branch(branchName);
   if (!branch) return;
 
+  branch.forEach((x) => replaceInAtom(model, x, pattern, replacement, options));
+
   let i = 1;
   while (i < branch.length) {
     let length = branch.length - i;
@@ -168,8 +170,6 @@ function replaceInBranch(
 
     i++;
   }
-
-  branch.forEach((x) => replaceInAtom(model, x, pattern, replacement, options));
 }
 
 function replaceInAtom(

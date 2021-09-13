@@ -1547,10 +1547,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   set virtualKeyboardTheme(value: 'material' | 'apple' | '') {
     this.setOptions({ virtualKeyboardTheme: value });
   }
-  get virtualKeyboars(): string {
+  get virtualKeyboards(): string {
     return this.getOption('virtualKeyboards');
   }
-  set virtualKeyboars(value: string) {
+  set virtualKeyboards(value: string) {
     this.setOptions({ virtualKeyboards: value });
   }
   get useSharedVirtualKeyboard(): boolean {
