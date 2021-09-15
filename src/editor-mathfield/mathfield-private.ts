@@ -217,16 +217,10 @@ export class MathfieldPrivate implements Mathfield {
       this.virtualKeyboard = options.useSharedVirtualKeyboard
         ? new VirtualKeyboardDelegate({
             targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
-            focus: () => this.focus(),
-            blur: () => this.blur(),
-            executeCommand: (command) => this.executeCommand(command),
             originValidator: this.options.originValidator,
+            mathfield: this,
           })
-        : new VirtualKeyboard(this.options, {
-            focus: () => this.focus(),
-            blur: () => this.blur(),
-            executeCommand: (command) => this.executeCommand(command),
-          });
+        : new VirtualKeyboard(this.options, this);
     }
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (!this.options.keypressSound) {

@@ -130,16 +130,17 @@ declare global {
    * @internal
    */
   interface HTMLElementEventMap {
+    'focus-out': CustomEvent<FocusOutEvent>;
+    'keystroke': CustomEvent<KeystrokeEvent>;
+    'math-error': CustomEvent<MathErrorEvent>;
+    'mode-change': Event;
+    'mount': Event;
+    'move-out': CustomEvent<MoveOutEvent>;
+    'unmount': Event;
+    'read-aloud-status-change': Event;
     'selection-change': Event;
     'undo-state-change': Event;
-    'mode-change': Event;
-    'read-aloud-status-change': Event;
-    'mount': Event;
-    'unmount': Event;
-    'math-error': CustomEvent<MathErrorEvent>;
-    'keystroke': CustomEvent<KeystrokeEvent>;
-    'focus-out': CustomEvent<FocusOutEvent>;
-    'move-out': CustomEvent<MoveOutEvent>;
+    'virtual-keyboard-toggle': Event;
   }
 }
 

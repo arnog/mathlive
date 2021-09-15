@@ -242,13 +242,6 @@ function toggleVirtualKeyboard(
       keyboard?.element?.classList.add('is-visible');
     }, 1);
   } else if (keyboard.element) {
-    keyboard.element.dispatchEvent(
-      new Event('virtual-keyboard-toggle', {
-        bubbles: true,
-        cancelable: false,
-        composed: true,
-      })
-    );
     // Remove the element from the DOM
     keyboard.disable();
   }

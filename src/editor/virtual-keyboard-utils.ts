@@ -21,12 +21,11 @@ import {
   VirtualKeyboardLayer,
   VirtualKeyboardOptions,
 } from '../public/options';
-import { VirtualKeyboardInterface } from '../public/mathfield';
+import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
 import { getActiveKeyboardLayout } from './keyboard-layout';
 import { loadFonts } from '../core/fonts';
 import { isArray } from '../common/types';
 import { COMMANDS, SelectorPrivate } from './commands';
-import { ExecuteCommandFunction } from './commands-definitions';
 import { getMacros } from '../core-definitions/definitions';
 import { Scrim } from './scrim';
 import { Context } from '../core/context';
@@ -35,6 +34,8 @@ import { typeset } from '../core/typeset';
 import { getDefaultRegisters } from '../core/registers';
 import { throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
+import { Selector } from 'public/commands';
+import { MathfieldPrivate } from './mathfield';
 
 let gScrim: Scrim | null = null;
 
@@ -200,26 +201,18 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
   _visible: boolean;
   _element?: HTMLDivElement;
-  _executeCommand?: ExecuteCommandFunction;
-  private readonly _focus?: () => void;
-  private readonly _blur?: () => void;
+  private readonly _mathfield?: MathfieldPrivate;
 
   coreStylesheet: Stylesheet | null;
   virtualKeyboardStylesheet: Stylesheet | null;
 
   constructor(
     options: VirtualKeyboardOptions & CoreOptions,
-    alt?: {
-      executeCommand: ExecuteCommandFunction;
-      focus: () => void;
-      blur: () => void;
-    }
+    mathfield?: Mathfield
   ) {
     this.options = options;
     this.visible = false;
-    this._executeCommand = alt?.executeCommand;
-    this._focus = alt?.focus;
-    this._blur = alt?.blur;
+    this._mathfield = mathfield as MathfieldPrivate;
     this.coreStylesheet = null;
     this.virtualKeyboardStylesheet = null;
   }
@@ -269,14 +262,22 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   focusMathfield(): void {
-    if (this._focus) this._focus();
+    this._mathfield?.focus?.();
   }
 
   blurMathfield(): void {
-    if (this._blur) this._blur();
+    this._mathfield?.blur?.();
   }
 
-  stateChanged(): void {}
+  stateChanged(): void {
+    this._mathfield?.element?.dispatchEvent(
+      new Event('virtual-keyboard-toggle', {
+        bubbles: true,
+        cancelable: false,
+        composed: true,
+      })
+    );
+  }
 
   executeCommand(
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
@@ -298,7 +299,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       return COMMANDS[selector]!.fn(this, ...args);
     }
 
-    return this._executeCommand?.(command) ?? false;
+    return (
+      this._mathfield?.executeCommand(
+        command as Selector | [Selector, ...any[]]
+      ) ?? false
+    );
   }
 
   create(): void {
