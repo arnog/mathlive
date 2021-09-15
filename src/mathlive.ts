@@ -39,7 +39,7 @@ import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 
 export { MathfieldElement } from './public/mathfield-element';
 
-import { version as computeEngineVersion } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
+import { version as computeEngineVersion } from '@cortex-js/compute-engine';
 
 // LatexDictionary,
 // LatexDictionaryEntry,
@@ -53,7 +53,7 @@ import { version as computeEngineVersion } from '@cortex-js/compute-engine/dist/
 export {
   serialize as serializeMathJson,
   parse as parseMathJson,
-} from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
+} from '@cortex-js/compute-engine';
 
 export function makeSharedVirtualKeyboard(
   options: Partial<RemoteVirtualKeyboardOptions>
