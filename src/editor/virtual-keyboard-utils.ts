@@ -34,7 +34,7 @@ import { typeset } from '../core/typeset';
 import { getDefaultRegisters } from '../core/registers';
 import { throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
-import { Selector } from 'public/commands';
+import { Selector } from '../public/commands';
 import { MathfieldPrivate } from './mathfield';
 
 let gScrim: Scrim | null = null;
