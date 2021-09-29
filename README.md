@@ -72,7 +72,7 @@ its internal state changes.
 ## Documentation
 
 <dl>
-  <dt><a href="https://cortexjs.io/mathlive/guides/introduction">Quick Start</a></dt>
+  <dt><a href="https://cortexjs.io/mathlive/guides/getting-started/">Quick Start</a></dt>
   <dd>Quick introduction to using MathLive in your project</dd>  
   <dt><a href="https://cortexjs.io/mathlive/guides/interacting">Interact with a mathfield</a></dt>
   <dd>Receive input and change the value of a mathfield</dd>
@@ -91,7 +91,7 @@ its internal state changes.
   <dt><a href="https://cortexjs.io/mathlive/guides/virtual-keyboards">Define custom virtual keyboards</a></dt>
   <dd>Customize or create new virtual (on-screen) keyboards</dd>
   <hr>
-  <dt><a href="https://cortexjs.io/guides/mathfield-getting-started">Getting Started</a></dt>
+  <dt><a href="https://cortexjs.io/mathlive/guides/integration/">Getting Started</a></dt>
   <dd>Everything you need to integrate the MathLive library to your project</dd>  
   <dt><a href="https://cortexjs.io/docs/mathlive">MathLive SDK</a></dt>
   <dd>Reference documentation of the MathLive API</dd>
