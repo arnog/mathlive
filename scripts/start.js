@@ -3,15 +3,8 @@
 const { build } = require('estrella');
 const open = require('open');
 const less = require('@arnog/esbuild-plugin-less');
+const { exec } = require('child_process');
 
-// function getOutputFilename(rootName, format) {
-//   switch (format) {
-//     case 'esm':
-//       return `${rootName}.mjs`;
-//     default:
-//       return `${rootName}.js`;
-//   }
-// }
 
 let server = null;
 
@@ -39,51 +32,18 @@ build({
     if (server === null && buildResult.errors.length === 0) {
       const url = `http://localhost:8080/examples/test-cases/`;
       console.log(` 🚀 Server ready:\u001b[1;35m ${url}\u001b[0m`);
+      exec(
+        "npx http-server . -s -c-1 --cors='*' --port 8080",
+        (error, stdout, stderr) => {
+          if (error) {
+            throw Error(error)
+          }
+          console.log(stdout);
+          console.error(stderr);
+        }
+      );
 
-      server = require('serve-http').createServer({
-        host: 'localhost',
-        port: 8080,
-        pubdir: '.',
-        quiet: true,
-        defaultMimeType: 'text/javascript',
-        // livereload: { disable: true },
-      });
       open(url);
     }
   },
 });
-
-// } else {
-//   ['esm', 'iife'].forEach((format) => {
-//     const outputFilename = getOutputFilename('mathlive', format);
-//     build({
-//       watch:
-//         process.env.BUILD !== 'watch'
-//           ? false
-//           : {
-//               onRebuild(error) {
-//                 if (!error) {
-//                   console.log('Build succeeded');
-//                 }
-//               },
-//             },
-//       entryPoints: ['./src/mathlive.ts'],
-//       bundle: true,
-//       format,
-//       globalName: 'MathLive',
-//       // outdir: path.resolve(__dirname, 'build'),
-//       outfile: `./dist/${outputFilename}`,
-//       plugins: [cssFilePlugin()],
-//       loader: {
-//         '.ts': 'ts',
-//       },
-//     })
-//       .then(() => {
-//         console.info(`— ${outputFilename} was built`);
-//       })
-//       .catch((e) => {
-//         console.info(`🚨 ${outputFilename} build error:`);
-//         console.error(e);
-//       });
-//   });
-// }
