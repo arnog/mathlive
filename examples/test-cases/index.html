@@ -150,7 +150,7 @@
     <!-- <div id='keyboard-container'> -->
     <math-field id=mf class="mathfield" style="font-size: 32px;max-width: 640px; width:100%"
       virtual-keyboard-mode="manual">
-      {\displaystyle \int^{\infin}_0\frac{x}{2}e^{-x}\;dx}
+      x=\placeholder[bar][baz]{}+1+\placeholder[foo][\frac34]{x3}
       <!-- x=\frac{-b\pm\sqrt{b^2-4ac}}{2a} -->
       <!-- \smolfrac{1}{2} -->
       <!-- f^{\prime\prime}(x) -->
@@ -348,6 +348,10 @@
       // virtualKeyboardContainer: document.getElementById('keyboard-container')
     });
 
+    mf.addEventListener("virtual-keyboard-toggle", () => {
+      // Doesn't fire
+      console.log("Virtual keyboard toggled");
+    });
 
     const VIRTUAL_KEYBOARD_LAYERS = {
       "secondary-layer": {

@@ -41,15 +41,6 @@ export { MathfieldElement } from './public/mathfield-element';
 
 import { version as computeEngineVersion } from '@cortex-js/compute-engine';
 
-// LatexDictionary,
-// LatexDictionaryEntry,
-// LatexString,
-// LatexToken,
-// NumberFormattingOptions,
-// ParseLatexOptions,
-// ParserFunction,
-// SerializeLatexOptions,
-// SerializerFunction,
 export {
   serialize as serializeMathJson,
   parse as parseMathJson,
