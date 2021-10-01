@@ -99,7 +99,7 @@
     "jest-silent-reporter": "^0.5.0",
     "less": "^4.1.1",
     "open": "^8.2.1",
-    "postcss": "^8.3.6",
+    "postcss": "^8.3.8",
     "postcss-cli": "^8.3.1",
     "prettier": "2.3.2",
     "rollup": "^2.56.3",
