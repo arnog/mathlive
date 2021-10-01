@@ -45,7 +45,7 @@ export class Scrim {
     element.style.left = '0';
     element.style.right = '0';
     element.style.bottom = '0';
-    element.style.zIndex = '9999';
+    element.style.zIndex = 'var(--scrim-zindex, 10099)'; // Bootstrap modals are at 10050 (see #1201)
     element.style.outline = 'none';
     if (this.translucent) {
       element.style.background = 'rgba(255, 255, 255, .2)';
