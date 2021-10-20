@@ -1,6 +1,6 @@
 {
   "name": "mathlive",
-  "version": "0.69.5",
+  "version": "0.69.7",
   "description": "Render and edit beautifully typeset math",
   "license": "MIT",
   "funding": {
@@ -93,6 +93,7 @@
     "eslint-plugin-no-unsanitized": "^3.1.5",
     "eslint-plugin-prettier": "^3.4.1",
     "estrella": "^1.4.1",
+    "http-server": "^13.0.2",
     "husky": "^7.0.2",
     "jest": "^27.1.0",
     "jest-silent-reporter": "^0.5.0",
@@ -107,7 +108,6 @@
     "rollup-plugin-postcss": "^4.0.1",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.30.0",
-    "serve-http": "^1.0.6",
     "ts-jest": "^27.0.5",
     "typescript": "^4.4.2"
   },

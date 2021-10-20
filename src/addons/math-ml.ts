@@ -156,7 +156,7 @@ function parseSubsup(base, stream, options) {
 
   if (!atom) return false;
 
-  const superscript = toMathML(atom.subscript, 0, 0, options).mathML;
+  const superscript = toMathML(atom.superscript, 0, 0, options).mathML;
   const subscript = toMathML(atom.subscript, 0, 0, options).mathML;
 
   if (superscript && subscript) {

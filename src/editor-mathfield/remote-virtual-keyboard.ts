@@ -1,10 +1,9 @@
 import { osPlatform } from '../common/capabilities';
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
-import { ExecuteCommandFunction } from '../editor/commands-definitions';
 import { DEFAULT_KEYBOARD_TOGGLE_GLYPH } from '../editor/options';
 import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { Selector } from '../public/commands';
-import { VirtualKeyboardInterface } from '../public/mathfield';
+import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
 import {
   CoreOptions,
   OriginValidator,
@@ -35,9 +34,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   private readonly originValidator: OriginValidator;
   private enabled: boolean;
 
-  private readonly _focus: () => void;
-  private readonly _blur: () => void;
-  private readonly _executeCommand: ExecuteCommandFunction;
+  private readonly _mathfield: Mathfield;
 
   /**
    * @param targetOrigin only virtual keyboards in a frame (or document) with this
@@ -47,16 +44,12 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
    */
   constructor(options: {
     targetOrigin: string;
-    focus: () => void;
-    blur: () => void;
-    executeCommand: ExecuteCommandFunction;
+    mathfield: Mathfield;
     originValidator: OriginValidator;
   }) {
     this.targetOrigin = options.targetOrigin ?? window.origin;
     this.originValidator = options.originValidator ?? 'same-origin';
-    this._focus = options.focus;
-    this._blur = options.blur;
-    this._executeCommand = options.executeCommand;
+    this._mathfield = options.mathfield;
     this.enable();
   }
 
@@ -93,7 +86,9 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
       return false;
     }
 
-    return this._executeCommand(command);
+    return this._mathfield?.executeCommand(
+      command as Selector | [Selector, ...any[]]
+    );
   }
 
   focusMathfield(): void {}
@@ -122,9 +117,9 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
         this.visible = event.data.state!.visible;
         this.height = event.data.state!.height;
       } else if (action === 'focus') {
-        this._focus();
+        this._mathfield?.focus?.();
       } else if (action === 'blur') {
-        this._blur();
+        this._mathfield?.blur?.();
       }
     }
   }
@@ -157,7 +152,7 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
   private readonly canUndoState: boolean;
   private readonly canRedoState: boolean;
 
-  constructor(options?: Partial<RemoteVirtualKeyboardOptions>) {
+  constructor(options: Partial<RemoteVirtualKeyboardOptions>) {
     super({
       ...RemoteVirtualKeyboard.defaultOptions,
       ...(options ?? {}),

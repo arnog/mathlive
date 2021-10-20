@@ -123,7 +123,18 @@ export function render(
           groupNumbers: renderOptions.forHighlighting ?? false,
         },
         smartFence: mathfield.options.smartFence,
-        renderPlaceholder: undefined,
+        renderPlaceholder: mathfield.options.readOnly
+          ? (context: Context, p) => {
+              if (p.placeholderId) {
+                const field = mathfield.getPlaceholderField(p.placeholderId!);
+                return p.createMathfieldBox(context, {
+                  placeholderId: p.placeholderId!,
+                  element: field!,
+                });
+              }
+              return p.createBox(context);
+            }
+          : undefined,
         isSelected: model.root.isSelected,
       },
       {
@@ -178,6 +189,9 @@ export function render(
   // 6. Render the selection/caret
   //
   renderSelection(mathfield);
+  if (mathfield.options.readOnly) {
+    mathfield.attachNestedMathfield();
+  }
   if (!(renderOptions.interactive ?? false)) {
     // (re-render a bit later because the layout may not be up to date right
     //  now. This happens in particular when first loading and the fonts are
