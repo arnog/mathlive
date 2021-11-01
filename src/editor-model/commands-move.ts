@@ -322,7 +322,6 @@ function leap(
       (atom.treeDepth > 2 && atom.isFirstSibling && atom.isLastSibling)
   );
 
-
   // If no placeholders were found, call handler or move to the next focusable
   // element in the document
   if (placeholders.length === 0) {
