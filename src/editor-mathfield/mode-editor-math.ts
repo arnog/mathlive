@@ -196,7 +196,26 @@ export class MathModeEditor extends ModeEditor {
     );
     if (!newAtoms) return false;
 
-    const newPlaceholders = findPlaceholders(newAtoms);
+    const placeholdersFound = findPlaceholders(newAtoms);
+
+    const newPlaceholders = placeholdersFound.filter(
+      (atom) =>
+        atom.placeholderId &&
+        !model.mathfield._placeholders.has(atom.placeholderId)
+    );
+    const idsFound = placeholdersFound.map((atom) => atom.placeholderId);
+    const removedPlaceholder = [...model.mathfield._placeholders.keys()].filter(
+      (placeholderId) => !idsFound.includes(placeholderId)
+    );
+
+    removedPlaceholder.forEach((placeholderId) => {
+      if (model.mathfield._placeholders.has(placeholderId)) {
+        model.mathfield._placeholders.get(placeholderId)?.field.remove();
+
+        model.mathfield._placeholders.delete(placeholderId);
+      }
+    });
+
     newPlaceholders.forEach((placeholder) => {
       if (
         placeholder.placeholderId &&
