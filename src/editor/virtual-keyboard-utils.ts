@@ -1458,6 +1458,7 @@ export function makeKeycap(
         {
           focus: true,
           feedback: true,
+          scrollIntoView: true,
           mode: 'math',
           format: 'latex',
           resetStyle: true,
@@ -1470,6 +1471,7 @@ export function makeKeycap(
         {
           focus: true,
           feedback: true,
+          scrollIntoView: true,
           mode: 'math',
           format: 'latex',
           resetStyle: true,

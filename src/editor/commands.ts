@@ -218,7 +218,9 @@ export function performWithFeedback(
     mathfield.keypressSound?.play().catch(console.warn);
   }
 
-  return mathfield.executeCommand(selector);
+  const result = mathfield.executeCommand(selector);
+  mathfield.scrollIntoView();
+  return result;
 }
 
 register({
