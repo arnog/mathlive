@@ -77,6 +77,9 @@ export type InsertOptions = {
   /** If true, provide audio and haptic feedback
    */
   feedback?: boolean;
+  /** If true, scroll the caret into view after insertion
+   */
+  scrollIntoView?: boolean;
   /** If true, the style after the insertion
    * is the same as the style before. If false, the style after the
    * insertion is the style of the last inserted atom.

@@ -971,6 +971,10 @@ export class MathfieldPrivate implements Mathfield {
         void this.keypressSound?.play().catch(console.warn);
       }
 
+      if (options.scrollIntoView) {
+        this.scrollIntoView();
+      }
+
       if (s === '\\\\') {
         // This string is interpreted as an "insert row after" command
         addRowAfter(this.model);
