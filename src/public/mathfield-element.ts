@@ -566,6 +566,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return {
       'default-mode': 'string',
       'fonts-directory': 'string',
+      'sounds-directory': 'string',
       'horizontal-spacing-scale': 'string',
       'math-mode-space': 'string',
       'inline-shortcut-timeout': 'string',
