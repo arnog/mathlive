@@ -1,7 +1,7 @@
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import resolve from '@rollup/plugin-node-resolve';
-import { eslint } from 'rollup-plugin-eslint';
+// import { eslint } from 'rollup-plugin-eslint';
 import postcss from 'rollup-plugin-postcss';
 
 import pkg from './package.json';
@@ -98,7 +98,7 @@ const ROLLUP = [
     input: 'src/mathlive.ts',
     plugins: [
       buildProgress(),
-      PRODUCTION && eslint({ exclude: ['**/*.less'] }),
+      // PRODUCTION && eslint({ exclude: ['**/*.less'] }),
       postcss({
         extract: false, // extract: path.resolve('dist/mathlive.css')
         modules: false,
