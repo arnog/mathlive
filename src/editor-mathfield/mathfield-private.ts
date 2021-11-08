@@ -295,9 +295,8 @@ export class MathfieldPrivate implements Mathfield {
       this.options.virtualKeyboardToggleGlyph ?? DEFAULT_KEYBOARD_TOGGLE_GLYPH;
     markup += '</div>';
 
-    if (this.options.readOnly) {
-      markup += "<div class='ML__placeholdercontainer'></div>";
-    }
+    markup += "<div class='ML__placeholdercontainer'></div>";
+
     markup += '</span>';
 
     // 3.1/ The aria-live region for announcements
@@ -1162,7 +1161,7 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   attachNestedMathfield(): void {
-    let fontSizeChanged = false;
+    let needsUpdate = false;
     this._placeholders.forEach((v) => {
       const container = this.field?.querySelector(
         `[data-placeholder-id=${v.atom.placeholderId}]`
@@ -1173,24 +1172,43 @@ export class MathfieldPrivate implements Mathfield {
 
         const scaleDownFontsize =
           parseInt(window.getComputedStyle(container).fontSize) * 0.6;
-        if (v.field.style.fontSize !== `${scaleDownFontsize}px`) {
-          fontSizeChanged = true;
+
+        if (
+          !v.field.style.fontSize ||
+          Math.abs(scaleDownFontsize - parseFloat(v.field.style.fontSize)) >=
+            0.2
+        ) {
+          needsUpdate = true;
+          v.field.style.fontSize = `${scaleDownFontsize}px`;
         }
-        v.field.style.fontSize = `${scaleDownFontsize}px`;
-        v.field.style.top = `${
+        const newTop =
           (placeholderPosition?.top ?? 0) -
           (parentPosition?.top ?? 0) +
-          (this.element?.offsetTop ?? 0)
-        }px`;
-        v.field.style.left = `${
+          (this.element?.offsetTop ?? 0);
+        const newLeft =
           (placeholderPosition?.left ?? 0) -
           (parentPosition?.left ?? 0) +
-          (this.element?.offsetLeft ?? 0)
-        }px`;
+          (this.element?.offsetLeft ?? 0);
+        if (
+          !v.field.style.left ||
+          Math.abs(newLeft - parseFloat(v.field.style.left)) >= 1
+        ) {
+          needsUpdate = true;
+          v.field.style.left = `${newLeft}px`;
+        }
+
+        if (
+          !v.field.style.top ||
+          Math.abs(newTop - parseFloat(v.field.style.top)) >= 1
+        ) {
+          needsUpdate = true;
+          v.field.style.top = `${newTop}px`;
+        }
+        console.log('attaching', !!v.field.style.left, !!v.field.style.top);
       }
     });
 
-    if (fontSizeChanged) {
+    if (needsUpdate) {
       requestUpdate(this);
     }
   }
