@@ -333,14 +333,14 @@ export class MathfieldPrivate implements Mathfield {
     this.field.addEventListener(
       'wheel',
       (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const wheelDelta = ev.detail ?? -ev.deltaX;
-        if (Number.isFinite(wheelDelta)) {
-          this.field!.scroll({
+        const wheelDelta = -ev.deltaX;
+        if (Number.isFinite(wheelDelta) && wheelDelta !== 0) {
+          this.field!.scrollBy({
             top: 0,
-            left: this.field!.scrollLeft - wheelDelta * 5,
+            left: -wheelDelta * 5,
           });
+          ev.preventDefault();
+          ev.stopPropagation();
         }
       },
       { passive: false }
