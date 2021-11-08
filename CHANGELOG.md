@@ -1,3 +1,25 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1146** When the pointer was over a mathfield, using the scrollwheel or
+  scroll gesture to scroll the page was not possible
+- **#1201** In some cases, the scrim layer (used to display alternate keys in
+  the virtual keyboard) was at the wrong depth
+- **#951** Fixed production of sup/sub in MathML
+- **#1174** The `virtual-keyboard-toggle` event was not dispatched
+- **#1087** When using the virtual keyboard, the mathfield would not scroll when
+  necessary
+
+### Improvements
+
+- Added `sounds-directory` as list of valid attributes (contributed by
+  @bengolds)
+- Improvements to handling of nested mathfields ("fill-in-the-blank")
+  (contributed by @caleb-flores)
+- Use `serve-http` instead of `http-serve` for improved Linux compatibility
+  (contributed by @AceGentile)
+
 ## 0.69.7 (2021-09-13)
 
 ### New Feature

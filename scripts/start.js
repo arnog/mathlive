@@ -5,9 +5,6 @@ const open = require('open');
 const less = require('@arnog/esbuild-plugin-less');
 const { exec } = require('child_process');
 
-
-let server = null;
-
 build({
   entry: './src/mathlive.ts',
   outfile: './dist/mathlive.mjs',
@@ -29,14 +26,14 @@ build({
   quiet: true,
   clear: false,
   onEnd: (_config, buildResult, _ctx) => {
-    if (server === null && buildResult.errors.length === 0) {
+    if (buildResult.errors.length === 0) {
       const url = `http://localhost:8080/examples/test-cases/`;
       console.log(` 🚀 Server ready:\u001b[1;35m ${url}\u001b[0m`);
       exec(
         "npx http-server . -s -c-1 --cors='*' --port 8080",
         (error, stdout, stderr) => {
           if (error) {
-            throw Error(error)
+            throw Error(error);
           }
           console.log(stdout);
           console.error(stderr);

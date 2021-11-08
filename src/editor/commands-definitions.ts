@@ -49,6 +49,6 @@ export interface CommandsPrivate {
 
 export type SelectorPrivate = Selector | Keys<CommandsPrivate>;
 
-export type CommandRegistry<T> = Partial<
-  { [K in SelectorPrivate]: { fn: (...args: any[]) => boolean } & T }
->;
+export type CommandRegistry<T> = Partial<{
+  [K in SelectorPrivate]: { fn: (...args: any[]) => boolean } & T;
+}>;
