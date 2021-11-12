@@ -314,12 +314,12 @@ function leap(
   // Candidate placeholders are atom of type 'placeholder'
   // or empty children list (except for the root: if the root is empty,
   // it is not a valid placeholder)
-  const atoms = model.getAllAtoms(model.position + dist);
+  const atoms = model.getAllAtoms(Math.max(model.position + dist, 0));
   if (dir === 'backward') atoms.reverse();
   const placeholders = atoms.filter(
     (atom) =>
       atom.type === 'placeholder' ||
-      (atom.treeDepth > 0 && atom.isFirstSibling && atom.isLastSibling)
+      (atom.treeDepth > 2 && atom.isFirstSibling && atom.isLastSibling)
   );
 
   // If no placeholders were found, call handler or move to the next focusable
