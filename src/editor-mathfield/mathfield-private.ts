@@ -153,7 +153,7 @@ export class MathfieldPrivate implements Mathfield {
   // If this value is different when the field is blured
   // the `onCommit` listener is triggered
   private valueOnFocus: string;
-  private eventHandlingInProgress = '';
+  private focusBlurInProgress = false;
   private readonly stylesheets: (null | Stylesheet)[] = [];
   private resizeTimer: number; // Timer handle
 
@@ -330,21 +330,7 @@ export class MathfieldPrivate implements Mathfield {
       .firstElementChild as HTMLElement;
     this.field = this.element.children[iChild].children[0] as HTMLElement;
     // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
-    this.field.addEventListener(
-      'wheel',
-      (ev) => {
-        const wheelDelta = -ev.deltaX;
-        if (Number.isFinite(wheelDelta) && wheelDelta !== 0) {
-          this.field!.scrollBy({
-            top: 0,
-            left: -wheelDelta * 5,
-          });
-          ev.preventDefault();
-          ev.stopPropagation();
-        }
-      },
-      { passive: false }
-    );
+    this.field.addEventListener('wheel', this, { passive: false });
 
     iChild++;
 
@@ -747,30 +733,32 @@ export class MathfieldPrivate implements Mathfield {
   handleEvent(evt: Event): void {
     switch (evt.type) {
       case 'focus':
-        if (!this.eventHandlingInProgress) {
-          this.eventHandlingInProgress = 'focus';
+        if (!this.focusBlurInProgress) {
+          this.focusBlurInProgress = true;
           this.onFocus();
-          this.eventHandlingInProgress = '';
+          this.focusBlurInProgress = false;
         }
-
         break;
+
       case 'blur':
-        if (!this.eventHandlingInProgress) {
-          this.eventHandlingInProgress = 'blur';
+        if (!this.focusBlurInProgress) {
+          this.focusBlurInProgress = true;
           this.onBlur();
-          this.eventHandlingInProgress = '';
+          this.focusBlurInProgress = false;
         }
-
         break;
+
       case 'touchstart':
       case 'mousedown':
-        // IOS <=13 Safari and Firefox on Android
+        // iOS <=13 Safari and Firefox on Android
         onPointerDown(this, evt as PointerEvent);
         break;
+
       case 'pointerdown':
         onPointerDown(this, evt as PointerEvent);
         break;
-      case 'resize': {
+
+      case 'resize':
         if (this.resizeTimer) {
           cancelAnimationFrame(this.resizeTimer);
         }
@@ -779,7 +767,10 @@ export class MathfieldPrivate implements Mathfield {
           () => isValidMathfield(this) && this.onResize()
         );
         break;
-      }
+
+      case 'wheel':
+        this.onWheel(evt as WheelEvent);
+        break;
 
       default:
         console.warn('Unexpected event type', evt.type);
@@ -789,14 +780,17 @@ export class MathfieldPrivate implements Mathfield {
   dispose(): void {
     if (!isValidMathfield(this)) return;
 
-    off(this.element!, 'pointerdown', this);
-    off(this.element!, 'touchstart:active mousedown', this);
-    off(this.element!, 'focus', this);
-    off(this.element!, 'blur', this);
-    off(window, 'resize', this);
+    const element = this.element!;
+    delete this.element;
+    delete element.mathfield;
 
-    this.element!.innerHTML = this.getValue();
-    delete this.element!.mathfield;
+    element.innerHTML = this.getValue();
+
+    off(element, 'pointerdown', this);
+    off(element, 'touchstart:active mousedown', this);
+    off(element, 'focus', this);
+    off(element, 'blur', this);
+    off(window, 'resize', this);
 
     delete this.accessibleNode;
     delete this.ariaLiveText;
@@ -811,8 +805,6 @@ export class MathfieldPrivate implements Mathfield {
     }
     disposePopover(this);
     disposeKeystrokeCaption(this);
-
-    delete this.element;
 
     this.stylesheets.forEach((x) => x?.release());
   }
@@ -1421,5 +1413,24 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     updatePopoverPosition(this);
+  }
+
+  private onWheel(ev: WheelEvent): void {
+    const wheelDelta = 5 * ev.deltaX;
+    if (!Number.isFinite(wheelDelta) || wheelDelta === 0) return;
+
+    const field = this.field!;
+
+    if (wheelDelta < 0 && field.scrollLeft === 0) return;
+
+    if (
+      wheelDelta > 0 &&
+      field.offsetWidth + field.scrollLeft >= field.scrollWidth
+    )
+      return;
+
+    field.scrollBy({ top: 0, left: wheelDelta });
+    ev.preventDefault();
+    ev.stopPropagation();
   }
 }
