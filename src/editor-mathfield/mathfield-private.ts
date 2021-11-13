@@ -1426,8 +1426,9 @@ export class MathfieldPrivate implements Mathfield {
     if (
       wheelDelta > 0 &&
       field.offsetWidth + field.scrollLeft >= field.scrollWidth
-    )
+    ) {
       return;
+    }
 
     field.scrollBy({ top: 0, left: wheelDelta });
     ev.preventDefault();
