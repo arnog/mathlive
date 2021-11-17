@@ -78,7 +78,11 @@ export class LatexModeEditor extends ModeEditor {
     //
     // Insert the new atoms
     //
-    const cursor = model.at(model.position);
+    let cursor = model.at(model.position);
+    // In some cases (after a SelectAll command, for example), the cursor
+    // can be positoned *after* the LatexGroup. In that case, adjust to be
+    // the last atom inside the LatexGroup.
+    if (cursor instanceof LatexGroupAtom) cursor = cursor.lastChild;
     const lastNewAtom = cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
     // Prepare to dispatch notifications

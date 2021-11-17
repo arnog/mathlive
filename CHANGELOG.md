@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1240** After a Select All (or other selection adjusting commands),
+  inserting characters in Latex mode may result in unresponsive input.
+
 ## 0.69.8 (2021-11-08)
 
 ### Bug Fixes
