@@ -76,7 +76,7 @@
     "Edin Adilagić (https://github.com/physedo)"
   ],
   "devDependencies": {
-    "@arnog/esbuild-plugin-less": "^1.0.2",
+    "@arnog/esbuild-plugin-less": "^1.1.0",
     "@cortex-js/prettier-config": "^1.1.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@types/css-font-loading-module": "0.0.7",
