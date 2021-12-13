@@ -268,7 +268,9 @@ export class ArrayAtom extends Atom {
 
   createBranch(cell: Branch): Atom[] {
     if (!isColRowBranch(cell)) return [];
-    return [];
+    const branch = this.branch(cell);
+    this.isDirty = true;
+    return branch || [];
   }
 
   get rowCount(): number {
