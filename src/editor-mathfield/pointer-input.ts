@@ -296,6 +296,18 @@ function nearestAtomFromPointRecursive(
     distance(x, y, bounds),
     atom,
   ];
+  /**
+  let latex = String.raw`\begin{bmatrix}
+    {\placeholder{}} &{\placeholder{}}   \\
+    {\placeholder{}} &{\placeholder{}}   \\
+    {\placeholder{}} &{\placeholder{}}   
+  \end{bmatrix}`
+
+  when a latex with placeholder like this, the group atom's distance less than it's children. so ignore the gourp distance
+   */
+  if (atom.type === 'group') {
+    result[0] = Infinity;
+  }
   //
   // 1. Consider any children within the horizontal bounds
   //
