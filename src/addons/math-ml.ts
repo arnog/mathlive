@@ -387,6 +387,7 @@ function scanOperator(stream, final, options) {
         lastType = isUnit ? 'mi' : 'mo';
       }
     }
+    // MathML += '</mrow>';
 
     if (
       (stream.lastType === 'mi' || stream.lastType === 'mn') &&
@@ -403,40 +404,6 @@ function scanOperator(stream, final, options) {
       stream.mathML += mathML;
       stream.lastType = lastType;
     }
-  }
-
-  return result;
-}
-
-// Code looks a little clumsy, but it's okay for now
-function scanGroup(stream, final, options) {
-  let result = false;
-  final = final || stream.atoms.length;
-  let mathML = '';
-  const atom: Atom = stream.atoms[stream.index];
-  const nextAtom = stream.atoms[stream.index + 1];
-
-  if (
-    atom.type === 'group' &&
-    nextAtom.type === 'msubsup' &&
-    stream.index < final
-  ) {
-    const atomBody = atom.body[1];
-    if (atomBody) {
-      const extractGroup = new Atom('mord', {
-        command: atomBody.command,
-        value: atomBody.value,
-        mode: atomBody.mode,
-      });
-      mathML += atomToMathML(extractGroup, options);
-      mathML = '<mrow>' + mathML + '</mrow>';
-      stream.index += 1;
-    }
-  }
-  if (parseSubsup(mathML, stream, options)) {
-    result = true;
-    stream.lastType = '';
-    mathML = '';
   }
 
   return result;
@@ -479,7 +446,6 @@ function toMathML(
 
     while (result.index < final) {
       if (
-        scanGroup(result, final, options) ||
         scanText(result, final, options) ||
         scanNumber(result, final, options) ||
         scanIdentifier(result, final, options) ||
@@ -515,7 +481,7 @@ function toMathML(
     }
 
     // If there are more than a single element, wrap them in a mrow tag.
-    if (count > 1 || input.length > 2) {
+    if (count > 1) {
       result.mathML = '<mrow>' + result.mathML + '</mrow>';
     }
   }
