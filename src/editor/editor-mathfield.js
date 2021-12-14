@@ -358,6 +358,8 @@ function MathField(element, config) {
     // Now start recording potentially undoable actions
     this.undoManager.startRecording();
     this.undoManager.snapshot(this.config);
+
+    console.log('MathField init', this)
 }
 
 /**
@@ -785,6 +787,8 @@ MathField.prototype._onPointerDown = function(evt) {
                     on(that.field, 'pointerend pointercancel pointerup', endPointerTracking);
                     if (document.body.contains(that.field)) {
                         that.field.setPointerCapture(evt.pointerId);
+                    } else {
+                        console.log('could not setPointerCapture, field not in DOM (caught)')
                     }
                 } else  {
                     on(window, 'blur', endPointerTracking);
