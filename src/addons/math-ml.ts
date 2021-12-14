@@ -421,7 +421,8 @@ function scanGroup(stream, final, options) {
     nextAtom.type === 'msubsup' &&
     stream.index < final
   ) {
-    const atomBody = atom.body[1];
+    //@ts-ignore
+    const atomBody = atom.body && atom.body[1];
     if (atomBody) {
       const extractGroup = new Atom('mord', {
         command: atomBody.command,
