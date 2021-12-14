@@ -480,7 +480,7 @@ function toMathML(
 
     while (result.index < final) {
       if (
-        scanGroup(result, final, options) ||
+        // scanGroup(result, final, options) ||
         scanText(result, final, options) ||
         scanNumber(result, final, options) ||
         scanIdentifier(result, final, options) ||
@@ -516,7 +516,7 @@ function toMathML(
     }
 
     // If there are more than a single element, wrap them in a mrow tag.
-    if (count > 1 || input.length > 2) {
+    if (count > 1) {
       result.mathML = '<mrow>' + result.mathML + '</mrow>';
     }
   }
