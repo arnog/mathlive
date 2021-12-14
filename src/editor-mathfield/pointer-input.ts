@@ -293,7 +293,7 @@ function nearestAtomFromPointRecursive(
   if (!bounds) return [Infinity, null];
 
   let result: [distance: number, atom: Atom | null] = [
-    distance(x, y, bounds),
+    atom.type === 'group' ? Infinity : distance(x, y, bounds),
     atom,
   ];
   //
