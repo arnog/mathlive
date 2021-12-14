@@ -38,7 +38,6 @@ import type { MathstyleName } from './mathstyle';
 export type ArgumentType =
   | ParseMode
   | (
-      | 'auto'
       | 'bbox'
       | 'colspec' // Formating of a column in tabular environment, e.g. `'r@{.}l'`
       | 'delim'
@@ -48,6 +47,7 @@ export type ArgumentType =
       | 'glue' // `'25mu plus 2em minus fiLll'`, `'2pt'`
       | 'string' // The string will end on the first non-literal token, e.g. `<}>`
       | 'balanced-string' // Delimiter is a balanced closing brace
+      | 'auto'
     );
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
