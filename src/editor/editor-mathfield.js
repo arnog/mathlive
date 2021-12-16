@@ -311,7 +311,7 @@ function MathField(element, config) {
     on(this.textarea, 'paste', this);
 
     // Delegate keyboard events
-    Keyboard.delegateKeyboardEvents(this.textarea, {
+    this.removeDelegatedKeyboardEvents = Keyboard.delegateKeyboardEvents(this.textarea, {
         container:      this.element,
         allowDeadKey:   () => this.mode === 'text',
         typedText:      this._onTypedText.bind(this),
@@ -320,8 +320,6 @@ function MathField(element, config) {
         focus:          this._onFocus.bind(this),
         blur:           this._onBlur.bind(this),
     })
-
-
 
     // Delegate mouse and touch events
     if (window.PointerEvent) {
@@ -335,7 +333,6 @@ function MathField(element, config) {
     // or the device switched from portrait to landscape) to adjust
     // the UI (popover, etc...)
     on(window, 'resize', this);
-
 
     // Override some handlers in the config
     const localConfig = {...config};
@@ -361,6 +358,8 @@ function MathField(element, config) {
     // Now start recording potentially undoable actions
     this.undoManager.startRecording();
     this.undoManager.snapshot(this.config);
+
+    console.log('MathField init', this)
 }
 
 /**
@@ -422,6 +421,29 @@ MathField.prototype.$revertToOriginalContent = function() {
     off(this.element, 'touchstart:active mousedown', this);
     off(this.element, 'focus', this);
     off(this.element, 'blur', this);
+    off(window, 'resize', this);
+}
+
+MathField.prototype.$removeEventListeners = function() {
+    console.log('$removeEventListeners', this);
+
+    off(this.element, 'focus', this);
+    off(this.element, 'blur', this);
+
+    off(this.textarea, 'cut', this);
+    off(this.textarea, 'copy', this);
+    off(this.textarea, 'paste', this);
+
+    if (this.removeDelegatedKeyboardEvents) {
+        this.removeDelegatedKeyboardEvents()
+    }
+
+    if (window.PointerEvent) {
+        off(this.field, 'pointerdown', this);
+    } else {
+        off(this.field, 'touchstart:active mousedown', this);
+    }
+
     off(window, 'resize', this);
 }
 
@@ -624,7 +646,7 @@ MathField.prototype._onPointerDown = function(evt) {
             that.field.releasePointerCapture(evt.pointerId);
         } else {
             off(that.field, 'touchmove', onPointerMove);
-            off(that.field, 'touchend touchleave', endPointerTracking);
+            off(that.field, 'touchend', endPointerTracking);
             off(window, 'mousemove', onPointerMove);
             off(window, 'mouseup blur', endPointerTracking);
         }
@@ -763,7 +785,11 @@ MathField.prototype._onPointerDown = function(evt) {
                 if (window.PointerEvent) {
                     on(that.field, 'pointermove', onPointerMove);
                     on(that.field, 'pointerend pointercancel pointerup', endPointerTracking);
-                    that.field.setPointerCapture(evt.pointerId);
+                    if (document.body.contains(that.field)) {
+                        that.field.setPointerCapture(evt.pointerId);
+                    } else {
+                        console.log('could not setPointerCapture, field not in DOM (caught)')
+                    }
                 } else  {
                     on(window, 'blur', endPointerTracking);
                     if (evt.touches) {
