@@ -199,7 +199,9 @@ function delegateKeyboardEvents(textarea, handlers) {
     let callbackTimeoutID;
 
     function defer(cb) {
-        clearTimeout(callbackTimeoutID);
+        if (callbackTimeoutID) {
+            clearTimeout(callbackTimeoutID);
+        }
         callbackTimeoutID = setTimeout(function() {
             clearTimeout(callbackTimeoutID);
             cb();
@@ -290,30 +292,26 @@ function delegateKeyboardEvents(textarea, handlers) {
         keypressEvent = null;
         if (handlers.blur) handlers.blur();
     }
+
     function onFocus() {
         if (handlers.focus) {
             handlers.focus();
         }
     }
 
-    const target = textarea || handlers.container;
+    function onCompositionStart() {
+        compositionInProgress = true
+    }
 
-    target.addEventListener('keydown', onKeydown, true);
-    target.addEventListener('keypress', onKeypress, true);
-    target.addEventListener('keyup', onKeyup, true);
-    target.addEventListener('paste', onPaste, true);
-    target.addEventListener('copy', onCopy, true);
-    target.addEventListener('cut', onCut, true);
-    target.addEventListener('blur', onBlur, true);
-    target.addEventListener('focus', onFocus, true);
-    target.addEventListener('compositionstart', 
-        () => { compositionInProgress = true }, true);
-    target.addEventListener('compositionend', 
-        () => { compositionInProgress = false; defer(handleTypedText); }, true);
+    function onCompositionEnd() { 
+        compositionInProgress = false; 
+        defer(handleTypedText); 
+    }
 
     // The `input` handler gets called when the field is changed, for example 
     // with input methods or emoji input...
-    target.addEventListener('input', () => { 
+
+    function inputEventListener() { 
         if (deadKey) { 
             const savedBlur = handlers.blur;
             const savedFocus = handlers.focus;
@@ -329,8 +327,41 @@ function delegateKeyboardEvents(textarea, handlers) {
         } else if (!compositionInProgress) {
             defer(handleTypedText); 
         }
-    });
+    }
 
+    const target = textarea || handlers.container;
+
+    target.addEventListener('keydown', onKeydown, true);
+    target.addEventListener('keypress', onKeypress, true);
+    target.addEventListener('keyup', onKeyup, true);
+    target.addEventListener('paste', onPaste, true);
+    target.addEventListener('copy', onCopy, true);
+    target.addEventListener('cut', onCut, true);
+    target.addEventListener('blur', onBlur, true);
+    target.addEventListener('focus', onFocus, true);
+    target.addEventListener('compositionstart', onCompositionStart, true);
+    target.addEventListener('compositionend', onCompositionEnd, true);
+    target.addEventListener('input', inputEventListener);
+
+    function removeDelegatedKeyboardEvents() {
+        if (callbackTimeoutID) {
+            clearTimeout(callbackTimeoutID);
+        }
+
+        target.removeEventListener('keydown', onKeydown, true);
+        target.removeEventListener('keypress', onKeypress, true);
+        target.removeEventListener('keyup', onKeyup, true);
+        target.removeEventListener('paste', onPaste, true);
+        target.removeEventListener('copy', onCopy, true);
+        target.removeEventListener('cut', onCut, true);
+        target.removeEventListener('blur', onBlur, true);
+        target.removeEventListener('focus', onFocus, true);
+        target.removeEventListener('compositionstart', onCompositionStart, true);
+        target.removeEventListener('compositionend', onCompositionEnd, true);
+        target.removeEventListener('input', inputEventListener);
+    }
+
+    return removeDelegatedKeyboardEvents
 }
 
 function hasSelection(textarea) {
