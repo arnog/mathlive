@@ -80,7 +80,7 @@
     "@cortex-js/prettier-config": "^1.1.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@types/css-font-loading-module": "0.0.7",
-    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.5.0",
     "autoprefixer": "10.4.0",
     "check-node-version": "^4.2.1",
