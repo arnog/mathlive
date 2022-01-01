@@ -86,7 +86,7 @@
     "check-node-version": "^4.2.1",
     "cssnano": "^5.0.12",
     "esbuild": "^0.14.2",
-    "eslint": "^8.4.0",
+    "eslint": "^8.6.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-no-unsanitized": "^4.0.0",
