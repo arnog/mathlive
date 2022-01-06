@@ -53,6 +53,7 @@
   top: 0;
   height: 100%;
   width: 100%;
+  z-index: var(--keyboard-zindex, @keyboard-zindex);
 
   // The pointer events should pass through the "ML__keyboard" element
   // which is covering the entire screen, and be captured by the ML__keyboard--plate
@@ -207,7 +208,6 @@
     left: 0;
     bottom: calc(-1 * var(--keyboard-height, @keyboard-height));
     width: 100%;
-    z-index: var(--keyboard-zindex, @keyboard-zindex);
 
     padding-top: 5px;
 
