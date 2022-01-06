@@ -82,7 +82,7 @@
     "@types/css-font-loading-module": "0.0.7",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
-    "autoprefixer": "10.4.0",
+    "autoprefixer": "10.4.1",
     "check-node-version": "^4.2.1",
     "cssnano": "^5.0.12",
     "esbuild": "^0.14.2",
