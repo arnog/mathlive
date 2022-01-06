@@ -15,6 +15,11 @@
       display: none;
     }
 
+    math-field:focus-within {
+      outline: none;
+      background: red;
+    }
+
     code {
       white-space: pre-wrap;
     }
@@ -150,7 +155,11 @@
     <!-- <div id='keyboard-container'> -->
     <math-field id=mf class="mathfield" style="font-size: 32px;max-width: 640px; width:100%"
       virtual-keyboard-mode="manual">
-      x=\placeholder[bar][baz]{}+1+\placeholder[foo][\frac34]{x3}
+      \begin{bmatrix}
+        {\placeholder{}} &{\placeholder{}}   \\
+        {\placeholder{}} &{\placeholder{}}   \\
+        {\placeholder{}} &{\placeholder{}}   
+      \end{bmatrix}
       <!-- x=\frac{-b\pm\sqrt{b^2-4ac}}{2a} -->
       <!-- \smolfrac{1}{2} -->
       <!-- f^{\prime\prime}(x) -->

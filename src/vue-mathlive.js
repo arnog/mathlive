@@ -56,12 +56,11 @@ export default {
     // This allows the user of the component to control which version of
     // the MathLive module gets used.
 
-    // Vue 3.x
-    if (vue?.version && +(vue?.version.split('.')[0]) >= 3) {
+    if (vue?.version && +vue.version.split('.')[0] >= 3) {
+      // Vue >= 3.x
       vue.config.globalProperties.$mathlive = mathlive;
-    }
-    // other versions
-    else {
+    } else {
+      // Vue < 3.x
       Object.defineProperty(vue.prototype, '$mathlive', { value: mathlive });
     }
 

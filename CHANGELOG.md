@@ -1,9 +1,16 @@
 ## [Unreleased]
 
+### Features
+
+- Support for Vue 3.x
+
 ### Bug Fixes
 
 - **#1240** After a Select All (or other selection adjusting commands),
   inserting characters in Latex mode may result in unresponsive input.
+- The z-index of the virtual keyboard `--keyboard-zindex` would not always be
+  applied to the keyboard, resulting in some elements overlaping the virtual
+  keyboard in some situations.
 
 ## 0.69.8 (2021-11-08)
 
