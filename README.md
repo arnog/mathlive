@@ -10,24 +10,23 @@
 [![Maintenance](https://img.shields.io/maintenance/yes/2022.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 [![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
-[![David](https://img.shields.io/david/dev/arnog/mathlive.svg)]()
 
-- [x] A **Web Component** easy to integrate in your project, regardless of the
-      framework you use, or even if you use no framework
+- [x] A **Web Component**, easy to integrate in your project, regardless of the
+      framework you use, or even if you just use plain JavaScript
 - [x] Edit **math formulas** with an easy to use interface
-- [x] Beautiful, **TeX-quality** typesetting: over 800 LaTex commands built-in
+- [x] Beautiful, **TeX-quality** typesetting: over 800 LaTeX commands built-in
 - [x] Designed for **mobile devices** with an extensive set of **virtual
-      keyboards**
+      keyboards** for math input
 - [x] Compatible with **screen readers**, and includes custom math-to-speech
       support for improved **accessibility**
-- [x] Output to **LaTeX**, **MathML** or **MathJSON** (Abstract Syntax Tree)
+- [x] Output to **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
       formats
 - [x] And it is easy to **customize** to your needs!
 
 Reference documentation and guides at
 [cortexjs.io/mathlive](https://cortexjs.io/mathlive/).
 
-Try it at [mathlive.io](https://mathlive.io).
+Try it at [cortexjs.io/mathlive/demo/](https://cortexjs.io/mathlive/demo/).
 
 <table align="center" >
     <tr>
@@ -53,7 +52,7 @@ Try it at [mathlive.io](https://mathlive.io).
 
 ## Using MathLive
 
-To add a mathfield element in your page use a `<math-field>` tag.
+To add a mathfield element to your page use a `<math-field>` tag.
 
 It works just like a `<textarea>` or `<button>`. You can manipulate the
 mathfield using methods of the element and listen for events to be notified when
