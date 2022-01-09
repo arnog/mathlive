@@ -561,6 +561,7 @@ defineFunction('htmlData', '{data:string}{content:auto}', {
     }),
 });
 
+/* assign CSS styles to the element */
 defineFunction('htmlStyle', '{data:string}{content:auto}', {
   createAtom: (command: string, args: Argument[], style: PrivateStyle): Atom =>
     new GroupAtom(args[1] as Atom[], {
