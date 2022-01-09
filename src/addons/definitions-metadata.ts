@@ -189,6 +189,7 @@ metadata(
     '\\class',
     '\\cssId',
     '\\htmlData',
+    '\\htmlStyle',
   ],
   RARE,
   '{$0 Don Knuth}'
