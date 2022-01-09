@@ -561,6 +561,14 @@ defineFunction('htmlData', '{data:string}{content:auto}', {
     }),
 });
 
+defineFunction('htmlStyle', '{data:string}{content:auto}', {
+  createAtom: (command: string, args: Argument[], style: PrivateStyle): Atom =>
+    new GroupAtom(args[1] as Atom[], {
+      htmlStyle: args[0] as string,
+      style,
+    }),
+});
+
 /* Note: in TeX, \em is restricted to text mode. We extend it to math
  * This is the 'switch' variant of \emph, i.e:
  * `\emph{important text}`

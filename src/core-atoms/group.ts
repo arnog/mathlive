@@ -10,6 +10,7 @@ export class GroupAtom extends Atom {
   latexClose?: string;
   cssId?: string;
   htmlData?: string;
+  htmlStyle?: string;
   customClass?: string;
   mathstyleName?: MathstyleName;
   boxType?: BoxType;
@@ -23,6 +24,7 @@ export class GroupAtom extends Atom {
       latexClose?: string;
       cssId?: string;
       htmlData?: string;
+      htmlStyle?: string;
       customClass?: string;
       mode?: ParseMode;
       style?: Style;
@@ -43,6 +45,7 @@ export class GroupAtom extends Atom {
     this.latexClose = options?.latexClose;
     this.cssId = options?.cssId;
     this.htmlData = options?.htmlData;
+    this.htmlStyle = options?.htmlStyle;
     this.customClass = options?.customClass;
 
     this.boxType = options?.boxType;
@@ -71,6 +74,7 @@ export class GroupAtom extends Atom {
     if (!box) return box;
     if (this.cssId) box.cssId = this.cssId;
     if (this.htmlData) box.htmlData = this.htmlData;
+    if (this.htmlStyle) box.htmlStyle = this.htmlStyle;
     if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
@@ -87,6 +91,9 @@ export class GroupAtom extends Atom {
 
     if (this.htmlData) {
       result = `\\htmlData{${this.htmlData}}{${result}}`;
+    }
+    if (this.htmlStyle) {
+      result = `\\htmlStyle{${this.htmlStyle}}{${result}}`;
     }
     if (this.customClass) {
       result = `\\class{${this.customClass}}{${result}}`;

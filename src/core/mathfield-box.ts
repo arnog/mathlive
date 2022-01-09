@@ -51,6 +51,23 @@ export class MathfieldBox extends Box {
       }
     }
 
+    if (this.htmlStyle) {
+      const entries = this.htmlStyle.split(';');
+      let styleString = '';
+      for (const entry of entries) {
+        const matched = entry.match(/([^=]+):(.+$)/);
+        if (matched) {
+          const key = matched[1].trim().replace(/ /g, '-');
+          if (key) {
+            styleString += `${key}:${matched[2]};`;
+          }
+        }
+      }
+      if (styleString) {
+        props += ` style="${styleString}"`;
+      }
+    }
+
     if (this.attributes) {
       props +=
         ' ' +

@@ -216,6 +216,7 @@ export class Box {
 
   cssId?: string;
   htmlData?: string;
+  htmlStyle?: string;
 
   svgBody?: string;
   svgOverlay?: string;
@@ -570,6 +571,7 @@ export class Box {
       classList.length > 0 ||
       this.cssId ||
       this.htmlData ||
+      this.htmlStyle ||
       this.attributes ||
       this.cssProperties ||
       this.svgBody ||
@@ -581,7 +583,6 @@ export class Box {
         // A (HTML5) CSS id may not contain a space
         props += ` id=${this.cssId.replace(/ /g, '-')} `;
       }
-
       if (this.htmlData) {
         const entries = this.htmlData.split(',');
         for (const entry of entries) {
@@ -597,6 +598,22 @@ export class Box {
               props += ` data-${key} `;
             }
           }
+        }
+      }
+      if (this.htmlStyle) {
+        const entries = this.htmlStyle.split(';');
+        let styleString = '';
+        for (const entry of entries) {
+          const matched = entry.match(/([^=]+):(.+$)/);
+          if (matched) {
+            const key = matched[1].trim().replace(/ /g, '-');
+            if (key) {
+              styleString += `${key}:${matched[2]};`;
+            }
+          }
+        }
+        if (styleString) {
+          props += ` style="${styleString}"`;
         }
       }
 
