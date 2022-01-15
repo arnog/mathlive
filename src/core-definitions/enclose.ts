@@ -58,7 +58,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
       }
     }
 
-    options.borderStyle = `${options.strokeWidth}px ${options.strokeStyle} ${options.strokeColor}`;
+    options.borderStyle = `${options.strokeWidth} ${options.strokeStyle} ${options.strokeColor}`;
 
     // Normalize the list of notations.
     const notation = {};
