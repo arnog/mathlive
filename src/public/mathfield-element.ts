@@ -603,6 +603,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       ...Object.keys(MathfieldElement.optionsAttributes),
       'disabled', // Global attribute
       'readonly', // A semi-global attribute (not all standard elements support it, but some do)
+      'read-only',
     ];
   }
 
@@ -1336,6 +1337,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       case 'disabled':
         this.disabled = hasValue;
         break;
+      case 'read-only':
       case 'readonly':
         this.readOnly = hasValue;
         break;
