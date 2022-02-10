@@ -1138,6 +1138,7 @@ export function defineFunction(
       args: (null | Argument)[],
       options: ApplyStyleDefinitionOptions
     ) => PrivateStyle;
+    command?: string,
   }
 ): void {
   if (!options) options = {};
