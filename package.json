@@ -92,7 +92,7 @@
     "eslint-plugin-no-unsanitized": "^4.0.0",
     "eslint-plugin-prettier": "^4.0.0",
     "estrella": "^1.4.1",
-    "http-server": "^14.0.0",
+    "http-server": "^14.1.0",
     "husky": "^7.0.4",
     "jest": "^27.4.3",
     "jest-silent-reporter": "^0.5.0",
