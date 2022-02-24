@@ -15,10 +15,10 @@
       display: none;
     }
 
-    math-field:focus-within {
+    /* math-field:focus-within {
       outline: none;
       background: red;
-    }
+    } */
 
     code {
       white-space: pre-wrap;
@@ -151,9 +151,9 @@
   <header>
     <h1>MathLive Testing Playground</h1>
   </header>
-  <main class='centered' tabindex="0">
+  <main class="centered" tabindex="0">
     <!-- <div id='keyboard-container'> -->
-    <math-field id=mf class="mathfield" style="font-size: 32px;max-width: 640px; width:100%"
+    <math-field id="mf" class="mathfield" style="font-size: 32px;max-width: 640px; width:100%"
       virtual-keyboard-mode="manual">
       \begin{bmatrix}
         {\placeholder{}} &{\placeholder{}}   \\
@@ -220,19 +220,19 @@
     <!-- \int x^2 + x dx = 0 -->
     <!-- \int (x^2 + x) dx = 0 -->
 
-    <div class="centered"><input id='find-input' placeholder="Find Latex"></input></div>
-    <div class="centered" style="margin-top: .5em"><input id='replace-input' placeholder="Replace With..."></input>
+    <div class="centered"><input id="find-input" placeholder="Find Latex"><input /></div>
+    <div class="centered" style="margin-top: .5em"><input id="replace-input" placeholder="Replace With..."><input />
     </div>
 
 
-    <div id="search-results" class='centered'>
-      <h2 style='margin-top: 1em'>Search Results</h2>
+    <div id="search-results" class="centered">
+      <h2 style="margin-top: 1em">Search Results</h2>
       <div class="output" id="search-results-output"></div>
     </div>
 
 
 
-    <h2 style='margin-top: 1em'>Selection</h2>
+    <h2 style="margin-top: 1em">Selection</h2>
     <div class="output" id="selection"></div>
 
 
@@ -362,12 +362,48 @@
       console.log("Virtual keyboard toggled");
     });
 
+    // Example of Alt-Keys
+//     const VIRTUAL_KEYBOARD_LAYERS = {
+//       "secondary-layer": {
+//         rows: [
+//           [
+//             { class: "tex", label: "x", key: "x", insert: "y", 
+//               variants: [    'y',
+//     'z',
+//     't',
+//     'r',
+//     { latex: 'f(#?)', class: 'small' },
+//     { latex: 'g(#?)', class: 'small' },
+//     'x^2',
+//     'x^n',
+//     'x_n',
+//     'x_{n+1}',
+//     'x_i',
+//     'x_{i+1}',
+// ] 
+//             },
+//           ],
+//         ]
+//       }
+//     }
+
     const VIRTUAL_KEYBOARD_LAYERS = {
       "secondary-layer": {
         rows: [
           [
-            { class: "w15", latex: "\\sin\\mleft( #0 \\mright)" },
-            { class: "w15", latex: "\\cos\\mleft( #0 \\mright)" },
+          {
+            label: "&#x21e7;", 
+            class:'shift modifier font-glyph bottom left w15 layer-switch', 
+           layer: 'geometry-layer' 
+          },
+          { class: "tex", label: "x", key: "x", insert: "y", 
+            altKeys: [{ class: "w15", latex: "\\cos\\mleft( #0 \\mright)" }] 
+          },
+              // { class: "w15", latex: "\\sin\\mleft( #0 \\mright)" },
+            { class: "w15", label: "cos(x)" ,
+            shifted: "sin (x)", 
+          
+          },
             { class: "w15", latex: "\\tan\\mleft( #0 \\mright)" },
             { class: "separator w5" },
             { latex: "\\land" },
@@ -415,6 +451,8 @@
       "geometry-layer": {
         rows: [
           [
+          // <ul><li class='shift modifier font-glyph bottom left selected w15 layer-switch' data-layer='lower-greek'>&#x21e7;</li>
+
             { latex: "\\vert" },
             { latex: "\\not{\\vert}" },
             { latex: "\\parallel" },
@@ -530,16 +568,17 @@
         "tooltip": "Basic",
         "layer": "basic-layer"
       },
-      "geometry": {
-        "label": "Geometry",
-        "tooltip": "Geometry",
-        "layer": "geometry-layer"
-      },
+      // "geometry": {
+      //   "label": "Geometry",
+      //   "tooltip": "Geometry",
+      //   "layer": "geometry-layer"
+      // },
       "secondary": {
         "label": "Secondary",
         "tooltip": "Secondary",
-        "layer": "secondary-layer"
-      }
+        "layer": "secondary-layer",
+        "layers": ["secondary-layer", "geometry-layer"] 
+        }
     };
 
 
@@ -551,8 +590,9 @@
       //     value: '\\in',
       //   },
       // },
-      // "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
-      // "customVirtualKeyboards": KEYBOARDS,
+      "customVirtualKeyboardLayers": VIRTUAL_KEYBOARD_LAYERS,
+      "customVirtualKeyboards": KEYBOARDS,
+      "virtualKeyboards": "basic secondary",
       // "virtualKeyboards": "basic greek secondary geometry",
       // onBlur: () => { console.log('blurring') },
       // onKeystroke: (mf, keystroke, ev) => {

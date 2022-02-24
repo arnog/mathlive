@@ -1,3 +1,20 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1024** `\ne` and `\neq` render correctly (fix contributed by @AceGentile)
+- Changes to the `read-only` attribute are now properly detected (fix
+  contributed by @LuisMesa)
+- Boxes in `\enclose` command render correctly (fix contributed by @Zahara-Nour
+- **#1357** Alternate (shifted) layers described in the virtual keyboard defined
+  with an object literal would not trigger.
+
+# Features
+
+- Support for the `\htmlStyle` command (feature contributed by @neokazemi)
+- Pressing the `\` key after a trigonometric function will not include the
+  function in the numerator of the fraction.
+
 ## 0.69.9 (2022-01-06)
 
 ### Features

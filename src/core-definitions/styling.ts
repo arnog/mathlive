@@ -993,7 +993,12 @@ defineFunction(['ne', 'neq'], '', {
         }),
         new Atom('mrel', { style, value: '=' }),
       ],
-      { boxType: 'mrel', captureSelection: true, serialize: () => name, command: name }
+      {
+        boxType: 'mrel',
+        captureSelection: true,
+        serialize: () => name,
+        command: name,
+      }
     ),
 });
 

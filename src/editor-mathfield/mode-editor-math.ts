@@ -543,6 +543,8 @@ function isImplicitArg(atom: Atom): boolean {
   if (/^(mord|surd|msubsup|leftright|mop)$/.test(atom.type)) {
     // Exclude `\int`, \`sum`, etc...
     if (atom.isExtensibleSymbol) return false;
+    // Exclude trig functions (they can be written as `\sin \frac\pi3` without parens)
+    if (atom.isFunction) return false;
     return true;
   }
 

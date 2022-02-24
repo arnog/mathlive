@@ -1954,10 +1954,14 @@ export function makeKeyboardElement(
             layerMarkup += `<ul>`;
             for (const keycap of row) {
               layerMarkup += `<li`;
-              if (keycap.class && /separator/.test(keycap.class)) {
-                layerMarkup += ` class="${keycap.class}"`;
-              } else if (keycap.class) {
-                layerMarkup += ` class="keycap ${keycap.class}"`;
+              if (keycap.class) {
+                let cls = keycap.class;
+                if (keycap.layer && !/layer-switch/.test(cls)) {
+                  cls += ' layer-switch';
+                }
+                if (!/separator/.test(cls)) cls += ' keycap';
+
+                layerMarkup += ` class="${cls}"`;
               } else {
                 layerMarkup += ` class="keycap"`;
               }
@@ -2003,6 +2007,10 @@ export function makeKeyboardElement(
 
               if (keycap.shiftedCommand) {
                 layerMarkup += ` data-shifted-command="${keycap.shiftedCommand}"`;
+              }
+
+              if (keycap.layer) {
+                layerMarkup += ` data-layer="${keycap.layer}"`;
               }
 
               layerMarkup += `>${keycap.label ? keycap.label : ''}</li>`;
@@ -2138,11 +2146,13 @@ export function unshiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
       const content = keycap.getAttribute('data-unshifted-content');
       if (content) {
         keycap.innerHTML = keyboard.options.createHTML(content);
+        keycap.dataset.unshiftedContent = '';
       }
 
       const command = keycap.getAttribute('data-unshifted-command');
       if (command) {
         keycap.dataset.command = command;
+        keycap.dataset.unshiftedCommand = '';
       }
     }
   }

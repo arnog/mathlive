@@ -26,7 +26,7 @@ registerCommand(
 
 export function switchKeyboardLayer(
   keyboard: VirtualKeyboard,
-  layer: string
+  layer: string | null
 ): boolean {
   // TODO This check are really required?
   if (keyboard.options.virtualKeyboardMode !== 'off') {
@@ -79,6 +79,10 @@ export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
   );
   if (keycaps) {
     for (const keycap of keycaps) {
+      // If there's already an unshiftedContent attribute, we're already in
+      // shifted mode. Don't do it twice.
+      if (keycap.dataset.unshiftedContent) return false;
+
       let shiftedContent = keycap.getAttribute('data-shifted');
       if (shiftedContent || /^[a-z]$/.test(keycap.innerHTML)) {
         keycap.dataset.unshiftedContent = keycap.innerHTML;

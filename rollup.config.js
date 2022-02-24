@@ -1,7 +1,6 @@
+import resolve from '@rollup/plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
-import resolve from '@rollup/plugin-node-resolve';
-// import { eslint } from 'rollup-plugin-eslint';
 import postcss from 'rollup-plugin-postcss';
 
 import pkg from './package.json';
@@ -9,41 +8,48 @@ import path from 'path';
 import chalk from 'chalk';
 
 process.env.BUILD = process.env.BUILD || 'development';
-const PRODUCTION = process.env.BUILD === 'production';
+const PRODUCTION = process.env.BUILD.toLowerCase() === 'production';
 const BUILD_ID =
   Date.now().toString(36).slice(-2) +
   Math.floor(Math.random() * 0x186a0).toString(36);
 const BUILD_DIRECTORY = 'dist';
 
 const TYPESCRIPT_OPTIONS = {
+  clean: PRODUCTION,
   // typescript: require('typescript'),
-  // clean: PRODUCTION,
   // verbosity: 3,
   include: ['*.ts+(|x)', '**/*.ts+(|x)', '*.js+(|x)', '**/*.js+(|x)'],
 };
 
 const SDK_VERSION = pkg.version || 'v?.?.?';
 
+function preamble() {
+  return `/** MathLive ${SDK_VERSION} ${
+    process.env.GIT_VERSION ? ' -- ' + process.env.GIT_VERSION : ''
+  }*/`;
+}
+
 const TERSER_OPTIONS = {
+  ecma: 2017, // Use "5" to support older browsers
   compress: {
     drop_console: true,
     drop_debugger: true,
-    ecma: 8, // Use "5" to support older browsers
-    module: true,
-    warnings: true,
-    passes: 4,
     global_defs: {
       ENV: JSON.stringify(process.env.BUILD),
       SDK_VERSION: SDK_VERSION,
       BUILD_ID: JSON.stringify(BUILD_ID),
       GIT_VERSION: process.env.GIT_VERSION || '?.?.?',
     },
+    module: true,
+    passes: 4,
+    warnings: true,
   },
-  output: {
-    preamble: '/* MathLive ' + SDK_VERSION + '  */',
+  format: {
     ascii_only: true, // The project has some characters (”) which can
     // confuse Safari when the charset is not set to UTF-8 on the page.
     // This workaround that.
+    comments: false,
+    preamble: preamble(),
   },
 };
 
@@ -58,6 +64,10 @@ function clearLine() {
   }
 }
 
+function basename() {
+  return '\u001b[40m MathLive \u001b[0;0m ';
+}
+
 // Rollup plugin to display build progress and launch server
 function buildProgress() {
   return {
@@ -68,14 +78,10 @@ function buildProgress() {
         return;
       }
 
-      if (
-        process.stdout.isTTY &&
-        typeof process.stdout.clearLine === 'function'
-      ) {
-        process.stdout.clearLine();
-        process.stdout.cursorTo(0);
+      clearLine();
+      if (process.stdout.isTTY) {
         process.stdout.write(
-          chalk.green(' ●') + '  Building ' + chalk.grey(file)
+          basename() + chalk.green(' 羽') + ' Building ' + chalk.grey(file)
         );
       } else {
         console.log(chalk.grey(file));
@@ -87,50 +93,53 @@ function buildProgress() {
   };
 }
 
-const ROLLUP = [
-  // MathLive main module
-  {
-    onwarn(warning, warn) {
-      // The use of #private class variables seem to trigger this warning.
-      if (warning.code === 'THIS_IS_UNDEFINED') return;
-      warn(warning);
-    },
-    input: 'src/mathlive.ts',
-    plugins: [
-      buildProgress(),
-      // PRODUCTION && eslint({ exclude: ['**/*.less'] }),
-      postcss({
-        extract: false, // extract: path.resolve('dist/mathlive.css')
-        modules: false,
-        inject: false,
-        extensions: ['.css', '.less'],
-        plugins: [],
-        minimize: PRODUCTION,
-      }),
-      resolve(),
-      typescript(TYPESCRIPT_OPTIONS),
-    ],
-    output: [
-      // JavaScript native module
-      // (stricly speaking not necessary, since the UMD output is module
-      // compatible, but this gives us a "clean" module)
-      {
-        format: 'es',
-        file: `${BUILD_DIRECTORY}/mathlive.mjs`,
-        sourcemap: !PRODUCTION,
-        exports: 'named',
-      },
-      // UMD file, suitable for import, <script> and require()
-      {
-        format: 'umd',
-        name: 'MathLive',
-        file: `${BUILD_DIRECTORY}/mathlive.js`,
-        sourcemap: !PRODUCTION,
-        exports: 'named',
-      },
-    ],
+const ROLLUP = [];
+export default ROLLUP;
+
+// MathLive main module
+ROLLUP.push({
+  onwarn(warning, warn) {
+    // The use of #private class variables seem to trigger this warning.
+    if (warning.code === 'THIS_IS_UNDEFINED') return;
+    warn(warning);
   },
-];
+  input: 'src/mathlive.ts',
+  plugins: [
+    buildProgress(),
+    // PRODUCTION && eslint({ exclude: ['**/*.less'] }),
+    postcss({
+      extract: false, // extract: path.resolve('dist/mathlive.css')
+      modules: false,
+      inject: false,
+      extensions: ['.css', '.less'],
+      plugins: [],
+      minimize: PRODUCTION,
+    }),
+    resolve(),
+    typescript(TYPESCRIPT_OPTIONS),
+  ],
+  output: [
+    // JavaScript native module
+    // (stricly speaking not necessary, since the UMD output is module
+    // compatible, but this gives us a "clean" module)
+    {
+      format: 'es',
+      file: `${BUILD_DIRECTORY}/mathlive.mjs`,
+      sourcemap: !PRODUCTION,
+      exports: 'named',
+      banner: preamble(),
+    },
+    // UMD file, suitable for import, <script> and require()
+    {
+      format: 'umd',
+      name: 'MathLive',
+      file: `${BUILD_DIRECTORY}/mathlive.js`,
+      sourcemap: !PRODUCTION,
+      exports: 'named',
+      banner: preamble(),
+    },
+  ],
+});
 
 // MathLive Vue-js adapter
 ROLLUP.push({
@@ -175,6 +184,7 @@ if (PRODUCTION) {
         format: 'es',
         file: `${BUILD_DIRECTORY}/mathlive.min.mjs`,
         sourcemap: false,
+        banner: preamble(),
       },
       // UMD file, suitable for import, <script> and require()
       {
@@ -182,9 +192,8 @@ if (PRODUCTION) {
         name: 'MathLive',
         file: `${BUILD_DIRECTORY}/mathlive.min.js`,
         sourcemap: false,
+        banner: preamble(),
       },
     ],
   });
 }
-
-export default ROLLUP;

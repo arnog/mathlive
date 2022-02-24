@@ -5,12 +5,16 @@ set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 # set -x    # for debuging, trace what is being executed.
 
-export RESET="\033[0m"
-export DOT="\033[32m\033[1K ● \033[0m"
-export CHECK="\033[32m\033[1K ✔ \033[0m"
-export ERROR="\033[31m ❌ ERROR \033[0m"
 export EMPH="\033[33m"
+
+export BASENAME="\033[40m MathLive \033[0;0m " # `basename "$0"`
+export DOT="\033[32m 羽 \033[0;0m" # Hourglass
+export CHECK="\033[32m ✔ \033[0;0m"
+export DIM="\033[0;2m"
+export RESET="\033[0;0m"
+export ERROR="\033[31;7m ERROR \033[0;0m"
 export LINECLEAR="\033[1G\033[2K" # position to column 1; erase whole line
+
 
 # Note on the `sed` command:
 # On Linux, the -i switch can be used without an extension argument
@@ -24,7 +28,7 @@ export -f sedi
 cd "$(dirname "$0")/.."
 
 if [ "$#" -gt 1 ]; then
-    echo -e "\033[40m`basename "$0"`${RESET}${ERROR} Expected at most one argument: 'development' (default), 'watch' or 'production'"
+    echo -e "$BASENAME${ERROR} Expected at most one argument: 'development' (default), 'watch' or 'production'"
     exit 1
 fi
 
@@ -33,14 +37,14 @@ npx check-node-version --package
 
 # If no "node_modules" directory, do an install first
 if [ ! -d "./node_modules" ]; then
-    printf "${DOT}Installing dependencies"
+    printf "$BASENAME${DOT}Installing dependencies"
     npm install
-    echo -e "${LINECLEAR}${CHECK} Dependencies installed"
+    echo -e "${LINECLEAR}$BASENAME${CHECK}Dependencies installed"
 fi
 
 
-# Read the first argument, set it to "development" if not set
-export BUILD="${1-development}"
+# Read the first argument, set it to "production" if not set
+export BUILD="${1-production}"
 
 # export GIT_VERSION=`git describe --long --dirty`
 
@@ -52,7 +56,7 @@ export SDK_VERSION=$(cat package.json \
 | tr -d '[[:space:]]')
 
 # Clean output directories
-printf "${DOT} Cleaning output directories"
+printf "$BASENAME${DOT}Cleaning output directories"
 rm -rf ./dist
 rm -rf ./declarations
 rm -rf ./build
@@ -60,50 +64,50 @@ rm -rf ./coverage
 
 mkdir -p dist
 mkdir -p declarations
-echo -e "${LINECLEAR}${CHECK} Output directories cleaned out"
+echo -e  $LINECLEAR$BASENAME$CHECK${DIM}"Cleaning output directories"$RESET
 
 # Copy static assets
-printf "${DOT} Copying static assets (fonts, sounds)"
+printf "$BASENAME${DOT}Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
 cp -f -R sounds dist/
-echo -e "${LINECLEAR}${CHECK} Static assets copied"
+echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Static assets copied${RESET}"
 
 
 # Build CSS
-printf "${DOT} Building static CSS"
+printf "$BASENAME${DOT}Building static CSS"
 npx lessc css/mathlive-static.less dist/mathlive-static.css
 npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
-echo -e "${LINECLEAR}${CHECK} Static CSS built"
+echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Static CSS built${RESET}"
 
 if [ "$BUILD" = "production" ]; then
     # Optimize CSS
-    printf "${DOT} Optimizing CSS"
+    printf "$BASENAME${DOT}Optimizing CSS"
     npx postcss dist/*.css -d dist
-    echo -e "${LINECLEAR}${CHECK} CSS Optimized"
+    echo -e "$LINECLEAR$BASENAME$CHECK${DIM}CSS Optimized${RESET}"
 fi
 
 # Bundle Typescript declaration files (.d.ts).
 # Even though we only generate declaration files, the target must be set 
 # high-enough to prevent `tsc` from complaining (!)
-printf "${DOT} Building declaration files (.d.ts)"
+printf "$BASENAME${DOT}Building TypeScript declaration files (.d.ts)"
 npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
 mv ./declarations/public ./dist
 rm -rf ./declarations
-echo -e "${LINECLEAR}${CHECK} Declaration files built"
+echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESET}"
 
 
 
 # Do build (development or production)
-printf "${DOT} Making a ${EMPH}${BUILD}${RESET} build"
+printf "$BASENAME${DOT}Making a ${EMPH}${BUILD}${RESET} build"
 npx rollup --silent --config 
-echo -e "${LINECLEAR}${CHECK} ${EMPH}${BUILD}${RESET} build done"
+echo -e "$LINECLEAR$BASENAME$CHECK${EMPH}${BUILD}${RESET}${DIM} build done${RESET}"
 
 if [ "$BUILD" = "production" ]; then
     # Stamp the SDK version number
-    printf "${DOT} Stamping output files"
+    printf "$BASENAME${DOT}Stamping output files"
     find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
     find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
     find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
     find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
-    echo -e "${LINECLEAR}${CHECK} Output files stamped"
+    echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Output files stamped${RESET}"
 fi
