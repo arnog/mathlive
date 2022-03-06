@@ -72,7 +72,6 @@ export function onPointerDown(
     mathfield.element!.classList.remove('tracking');
     if (evt) {
       evt.preventDefault();
-      evt.stopPropagation();
     }
   }
 
