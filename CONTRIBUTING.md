@@ -31,7 +31,7 @@ test case that demonstrates the issue, if applicable.
 Sure! Have a look at the issue report, and make sure no one is already working
 on it. If the issue is assigned to someone, they're on it! Otherwise, add a
 comment in the issue indicating you'd like to work on resolving the issue and go
-for it! See the [Contributor Guide](CONTRIBUTOR_GUIDE.md) for coding guidelines.
+for it! See the [Contributor Guide](documentation/CONTRIBUTOR_GUIDE.md) for coding guidelines.
 
 ## Contributing Test Cases
 

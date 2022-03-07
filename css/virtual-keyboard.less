@@ -238,6 +238,8 @@
 
     box-shadow: @shadow2;
 
+    pointer-events:all;
+
     .tex {
       font-family: 'KaTeX_Math', KaTeX_Main, 'Cambria Math', 'Asana Math',
         OpenSymbol, Symbola, STIX, Times, serif !important;
@@ -304,7 +306,6 @@
         align-items: baseline;
         justify-content: center;
 
-        pointer-events: all;
         color: var(--keyboard-text);
         fill: currentColor;
         background: 0;
@@ -394,7 +395,6 @@
           border: 1px solid var(--keycap-background-border);
           border-bottom-color: var(--keycap-background-border-bottom);
           border-radius: 5px;
-          pointer-events: all;
 
           /* Last key should be flush against the border */
           &:last-child {
