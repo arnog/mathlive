@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8" />
+    <title>MathLive Rendering Test</title>
+    <link rel="stylesheet" href="../style.css" />
+    <style>
+        body {
+            font-family: sans-serif;
+            color: #444;
+            background-color: #f9f9f9;
+        }
+
+        main {
+            max-width: 820px;
+            margin: auto;
+        }
+
+        math-field {
+            border: 1px solid #ddd;
+            padding: 5px;
+            margin: 10px 0 10px 0;
+            border-radius: 5px;
+            background-color: #fff;
+            width: 100%;
+        }
+
+        #output {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #000;
+
+            color: #ddd;
+            background: #35434e;
+
+            font-family: monospace;
+        }
+
+        #size {
+            display: inline-block;
+            text-align: center;
+            width: 64px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>MathLive Rendering Test</h1>
+    </header>
+
+    <main>
+        <div>
+            <input type="number" value="1" step="0.01" id="size"/>&nbsp;em
+        </div>
+        <math-field id="mf" virtual-keyboard-mode="manual">x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}</math-field>
+        <div id="output"></div>
+    </main>
+
+    <script type="module">
+        import '/dist/mathlive.mjs';
+        const mf = document.getElementById('mf');
+        const output = document.getElementById('output');
+        output.innerHTML = mf.getValue();
+        mf.addEventListener('input', (ev) => {
+            output.innerHTML = ev.target.getValue();
+        });
+
+        const size = document.getElementById('size');
+
+        size.addEventListener('input', (ev) => {
+            mf.style.fontSize = ev.target.value + "em";
+        });
+    </script>
+</body>
+
+</html>
