@@ -5,6 +5,7 @@ import type { InlineShortcutDefinition } from '../public/options';
  * without requiring an escape sequence or command.
  */
 export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
+  '&': '\\&',
   '%': '\\%',
 
   // Primes

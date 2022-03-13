@@ -3,6 +3,7 @@
 ### Bug Fixes
 
 - **#934** Improved display of the root horizontal bar in some browsers
+- **#1385** Typing `&` is correctly interpreted as `\\&` (and not `&`)
 
 ### Improvements
 
