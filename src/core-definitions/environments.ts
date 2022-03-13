@@ -213,14 +213,14 @@ defineTabularEnvironment(
     const colFormat: ColumnFormat[] = [
       { gap: 0 },
       { align: 'r' },
-      { gap: 0 },
+      { gap: 0.25 },
       { align: 'l' },
     ];
     let i = 2;
     while (i < colCount) {
       colFormat.push({ gap: 1 });
       colFormat.push({ align: 'r' });
-      colFormat.push({ gap: 0 });
+      colFormat.push({ gap: 0.25 });
       colFormat.push({ align: 'l' });
       i += 2;
     }

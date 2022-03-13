@@ -255,6 +255,10 @@ body.ML__fonts-loading .ML__base {
     margin-top: -0.04em;
     min-height: 0.04em;
     background: currentColor;
+    /* On some versions of Firefox on Windows, the line fails to 
+            draw at some zoom levels, but setting the transform triggers
+            the hardware accelerated path, which works */
+    transform: translate(0, 0);
   }
 
   &:after {
@@ -262,10 +266,6 @@ body.ML__fonts-loading .ML__base {
     content: ' ';
     display: block;
     margin-top: -0.1em;
-    /* On some versions of Firefox on Windows, the line fails to 
-              draw at some zoom levels, but setting the transform triggers
-              the hardware accelerated path, which works */
-    transform: translate(0, 0);
   }
 }
 
