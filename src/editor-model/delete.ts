@@ -184,7 +184,14 @@ function onDelete(
     //
     if (!branch) {
       // After or before atom
-      if (!atom.hasChildren) return false;
+      if (atom.type === 'overunder' && atom.hasEmptyBranch('body'))
+        return false;
+      if (
+        atom.type === 'genfrac' &&
+        atom.hasEmptyBranch('below') &&
+        atom.hasEmptyBranch('above')
+      )
+        return false;
       model.position = model.offsetOf(
         direction === 'forward' ? atom.firstChild : atom.lastChild
       );
