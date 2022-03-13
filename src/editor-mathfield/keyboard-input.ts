@@ -1,12 +1,11 @@
 import type { Selector } from '../public/commands';
-import { Atom } from '../core/atom-class';
 import { parseLatex } from '../core/parser';
 import {
   mightProducePrintableCharacter,
   eventToChar,
 } from '../editor/keyboard';
 import {
-  getInlineShortcutsStartingWith,
+  countInlineShortcutsStartingWith,
   getInlineShortcut,
 } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
@@ -99,7 +98,7 @@ export function onKeystroke(
       const candidate = mathfield.keystrokeBuffer + c;
       let i = 0;
       while (!shortcut && i < candidate.length) {
-        const context: Atom[] = mathfield.keystrokeBufferStates[i]
+        const context = mathfield.keystrokeBufferStates[i]
           ? parseLatex(mathfield.keystrokeBufferStates[i].latex, {
               parseMode: effectiveMode(mathfield.options),
               macros: mathfield.options.macros,
@@ -121,9 +120,7 @@ export function onKeystroke(
         mathfield.keystrokeBufferStates.length - (candidate.length - i);
       mathfield.keystrokeBuffer += c;
       mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
-      if (
-        getInlineShortcutsStartingWith(candidate, mathfield.options).length <= 1
-      ) {
+      if (countInlineShortcutsStartingWith(candidate, mathfield.options) <= 1) {
         // There's only a single shortcut matching this sequence.
         // We can confidently reset the keystroke buffer
         resetKeystrokeBuffer = true;

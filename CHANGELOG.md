@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#934** Improved display of the root horizontal bar in some browsers
+- Improved layout of `aligned` environment by adding missing gap between columns
+
 ## 0.69.10 (2022-02-23)
 
 ### Bug Fixes
