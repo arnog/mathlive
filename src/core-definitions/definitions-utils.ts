@@ -14,6 +14,7 @@ import type {
 import { supportRegexPropertyEscape } from '../common/capabilities';
 import { PrivateStyle } from '../core/context';
 import { MathstyleName } from '../core/mathstyle';
+import { MathfieldPrivate } from 'editor-mathfield/mathfield-private';
 
 export type FunctionArgumentDefiniton = {
   isOptional: boolean;
@@ -937,17 +938,17 @@ export function getInfo(
 
 /**
  * Return an array of suggestion for completing string 's'.
- * For example, for 'si', it could return ['sin', 'sinh', 'sim', 'simeq', 'sigma']
+ * For example, for '\si', it could return ['\sin', '\sinh', '\sim', 'simeq', '\sigma']
  * Infix operators are excluded, since they are deprecated commands.
  */
-export function suggest(s: string): { match: string; frequency: number }[] {
+export function suggest(mf: MathfieldPrivate, s: string): string[] {
   if (s === '\\') return [];
 
   const result: { match: string; frequency: number }[] = [];
 
   // Iterate over items in the dictionary
   for (const p in LEGACY_COMMANDS) {
-    // Avoid recommended infix commands
+    // Don't recommend infix commands
     if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix) {
       result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency ?? 0 });
     }
@@ -959,10 +960,16 @@ export function suggest(s: string): { match: string; frequency: number }[] {
     }
   }
 
+  // Consider macros
+  const command = s.substring(1);
+  for (const p of Object.keys(mf.options.macros)) {
+    if (p.startsWith(command)) result.push({ match: '\\' + p, frequency: 0 });
+  }
+
   result.sort((a, b) => {
     if (a.frequency === b.frequency) {
       if (a.match.length === b.match.length) {
-        return a.match.localeCompare(b.match);
+        return a.match < b.match ? -1 : +1;
       }
 
       return a.match.length - b.match.length;
@@ -971,7 +978,7 @@ export function suggest(s: string): { match: string; frequency: number }[] {
     return (b.frequency ?? 0) - (a.frequency ?? 0);
   });
 
-  return result;
+  return result.map((x) => x.match);
 }
 
 /**
@@ -1172,7 +1179,7 @@ export function getMacros(
     _DEFAULT_MACROS = normalizeMacroDictionary(DEFAULT_MACROS);
   }
   if (!otherMacros) return _DEFAULT_MACROS;
-  return { ..._DEFAULT_MACROS, ...normalizeMacroDictionary(otherMacros) };
+  return normalizeMacroDictionary({ ..._DEFAULT_MACROS, ...otherMacros });
 }
 
 function normalizeMacroDefinition(
@@ -1209,7 +1216,7 @@ function normalizeMacroDefinition(
 }
 
 export function normalizeMacroDictionary(
-  macros: MacroDictionary | null
+  macros: MacroDictionary
 ): NormalizedMacroDictionary {
   if (!macros) return {};
   const result: NormalizedMacroDictionary = {};

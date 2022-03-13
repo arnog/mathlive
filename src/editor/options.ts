@@ -224,7 +224,7 @@ export function update(
         break;
 
       case 'macros':
-        result.macros = normalizeMacroDictionary(updates.macros!) ?? {};
+        result.macros = normalizeMacroDictionary(updates.macros!);
         break;
 
       case 'onBlur':

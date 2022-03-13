@@ -63,14 +63,12 @@ export function updateAutocomplete(
   }
 
   const commandString = command.map((x) => x.value).join('');
-  const suggestions = commandString ? suggest(commandString) : [];
+  const suggestions = commandString ? suggest(mathfield, commandString) : [];
 
   if (suggestions.length === 0) {
     if (/^\\[a-zA-Z\*]+$/.test(commandString)) {
       // This looks like a command name, but not a known one
-      command.forEach((x) => {
-        x.isError = true;
-      });
+      command.forEach((x) => (x.isError = true));
     }
 
     hidePopover(mathfield);
@@ -83,7 +81,7 @@ export function updateAutocomplete(
   }
 
   const suggestion =
-    suggestions[mathfield.suggestionIndex % suggestions.length].match;
+    suggestions[mathfield.suggestionIndex % suggestions.length];
   if (suggestion !== commandString) {
     const lastAtom = command[command.length - 1];
     lastAtom.parent!.addChildrenAfter(

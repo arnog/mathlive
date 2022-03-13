@@ -97,7 +97,6 @@ let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
 export class MathfieldPrivate implements Mathfield {
   model: ModelPrivate;
-  macros: NormalizedMacroDictionary;
   options: Required<MathfieldOptionsPrivate>;
 
   dirty: boolean; // If true, need to be redrawn
@@ -184,7 +183,6 @@ export class MathfieldPrivate implements Mathfield {
             ...options,
           }
     );
-    this.macros = this.options.macros as NormalizedMacroDictionary;
     this._placeholders = new Map();
     this.colorMap = (name: string): string | undefined => {
       let result: string | undefined = undefined;
@@ -465,7 +463,7 @@ export class MathfieldPrivate implements Mathfield {
     this.model = new ModelPrivate(
       {
         mode: effectiveMode(this.options),
-        macros: this.macros,
+        macros: this.options.macros as NormalizedMacroDictionary,
         removeExtraneousParentheses: this.options.removeExtraneousParentheses,
       },
       {
