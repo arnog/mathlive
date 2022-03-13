@@ -33,7 +33,7 @@ export class Mode {
   static createAtom(
     mode: ParseMode,
     command: string,
-    style: Style
+    style?: Style
   ): Atom | null {
     return Mode._registry[mode].createAtom(command, style);
   }
@@ -59,7 +59,7 @@ export class Mode {
     return Mode._registry[mode].applyStyle(box, style);
   }
 
-  createAtom(_command: string, _style: Style): Atom | null {
+  createAtom(_command: string, _style?: Style): Atom | null {
     return null;
   }
 

@@ -1,6 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { makeLeftRightDelim } from '../core/delimiters';
+import { makeLeftRightDelim, RIGHT_DELIM } from '../core/delimiters';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
 import { Style } from '../public/core';
@@ -156,28 +156,7 @@ export class LeftRightAtom extends Atom {
       if (delim === '?') {
         if (context.smartFence) {
           // Use a placeholder delimiter matching the open delimiter
-          delim =
-            {
-              '(': ')',
-              '[': '\\rbrack',
-              '\\{': '\\}',
-              '\\lbrace': '\\rbrace',
-              '\\lparen': '\\rparen',
-              '\\langle': '\\rangle',
-              '\\lfloor': '\\rfloor',
-              '\\lceil': '\\rceil',
-              '\\vert': '\\vert',
-              '\\lvert': '\\rvert',
-              '\\Vert': '\\Vert',
-              '\\lVert': '\\rVert',
-              '\\lbrack': '\\rbrack',
-              '\\ulcorner': '\\urcorner',
-              '\\llcorner': '\\lrcorner',
-              '\\lgroup': '\\rgroup',
-              '\\lmoustache': '\\rmoustache',
-            }[this.leftDelim ?? '.'] ??
-            this.leftDelim ??
-            '.';
+          delim = RIGHT_DELIM[this.leftDelim ?? '.'] ?? this.leftDelim ?? '.';
           classes += ' ML__smart-fence__close';
         } else {
           delim = '.';

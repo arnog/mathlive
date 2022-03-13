@@ -238,21 +238,18 @@ export class Atom {
       serialize?: (atom: Atom, options: ToLatexOptions) => string;
     }
   ) {
-    this.command = options?.command;
-    this.type = type;
-    if (typeof options?.value === 'string') {
-      this.value = options.value;
-    }
-
     this._isDirty = false;
     this._changeCounter = 0;
 
+    this.type = type;
+    this.command = options?.command;
     this.mode = options?.mode ?? 'math';
+    if (typeof options?.value === 'string') this.value = options.value;
     this.isFunction = options?.isFunction ?? false;
     this.subsupPlacement = options?.limits;
     this.style = options?.style ?? {};
-    this.serializeOverride = options?.serialize;
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
+    this.serializeOverride = options?.serialize;
   }
 
   get changeCounter(): number {

@@ -101,7 +101,7 @@ export class MathMode extends Mode {
     super('math');
   }
 
-  createAtom(command: string, style: Style): Atom | null {
+  createAtom(command: string, style?: Style): Atom {
     const info = getInfo(command, 'math');
     const result = new Atom(info?.type ?? 'mord', {
       mode: 'math',

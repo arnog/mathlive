@@ -1,3 +1,4 @@
+import { Mode } from 'core/modes';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { Atom, Branch } from '../core/atom';
 import type { Range } from '../public/mathfield';
@@ -105,13 +106,10 @@ function onDelete(
       : model.offsetOf(atom.lastChild);
     if (!atStart && atom.leftDelim !== '?' && atom.leftDelim !== '.') {
       // Insert open fence
-      parent.addChildBefore(new Atom('mopen', { value: atom.leftDelim }), atom);
+      parent.addChildBefore(Mode.createAtom('math', atom.leftDelim!)!, atom);
     } else if (atStart && atom.rightDelim !== '?' && atom.rightDelim !== '.') {
       // Insert closing fence
-      parent.addChildAfter(
-        new Atom('mclose', { value: atom.rightDelim }),
-        atom
-      );
+      parent.addChildAfter(Mode.createAtom('math', atom.rightDelim!)!, atom);
     }
 
     // Hoist body

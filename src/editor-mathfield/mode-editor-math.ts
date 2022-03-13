@@ -102,6 +102,7 @@ export class MathModeEditor extends ModeEditor {
           model.at(model.position).isLastSibling &&
           /^[)}\]|]$/.test(text)
         ) {
+          parent.isDirty = true;
           parent.rightDelim = text;
           model.position += 1;
           selectionDidChange(model);
@@ -637,6 +638,7 @@ export function insertSmartFence(
     // If we're the last atom inside a 'leftright',
     // update the parent
     if (parent instanceof LeftRightAtom && atom.isLastSibling) {
+      parent.isDirty = true;
       parent.rightDelim = fence;
       model.position += 1;
       contentDidChange(model);
@@ -671,6 +673,7 @@ export function insertSmartFence(
     // and the `leftright` right delim is indeterminate
     // adjust the body (put everything after the insertion point outside)
     if (parent instanceof LeftRightAtom && parent.rightDelim === '?') {
+      parent.isDirty = true;
       parent.rightDelim = fence;
 
       parent.parent!.addChildren(
