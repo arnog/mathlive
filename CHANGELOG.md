@@ -4,6 +4,7 @@
 
 - **#934** Improved display of the root horizontal bar in some browsers
 - **#1385** Typing `&` is correctly interpreted as `\\&` (and not `&`)
+- **#1363** Commands in the `\overrightarrow{}` family can be deleted
 - **#1375** Inserting a smartfence which was not followed by some content would
   trigger some asserts
 - Correctly handle deletion of the closing fence of a smartfence
