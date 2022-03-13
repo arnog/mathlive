@@ -14,7 +14,7 @@ import type {
 import { supportRegexPropertyEscape } from '../common/capabilities';
 import { PrivateStyle } from '../core/context';
 import { MathstyleName } from '../core/mathstyle';
-import { MathfieldPrivate } from 'editor-mathfield/mathfield-private';
+import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 export type FunctionArgumentDefiniton = {
   isOptional: boolean;

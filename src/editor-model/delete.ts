@@ -1,4 +1,4 @@
-import { Mode } from 'core/modes';
+import { Mode } from '../core/modes';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { Atom, Branch } from '../core/atom';
 import type { Range } from '../public/mathfield';
