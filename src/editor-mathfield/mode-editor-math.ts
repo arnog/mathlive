@@ -609,15 +609,17 @@ export function insertSmartFence(
       ? `\\mleft${fence}\\mright${rDelim}`
       : `\\left${fence}\\right?`;
 
-    const lastSiblingOffset = model.offsetOf(atom.lastSibling);
-    const content = model.extractAtoms([model.position, lastSiblingOffset]);
     ModeEditor.insert('math', model, s, {
       format: 'latex',
       style,
     });
-    // Move everything that was after the anchor into the leftright
-    model.at(model.position).body = content;
-    model.position -= 1;
+    // If there is content after the anchor, move it into the `leftright` atom
+    if (atom.lastSibling.type !== 'first') {
+      const lastSiblingOffset = model.offsetOf(atom.lastSibling);
+      const content = model.extractAtoms([model.position, lastSiblingOffset]);
+      model.at(model.position).body = content;
+      model.position -= 1;
+    }
     return true;
   }
 
