@@ -111,7 +111,7 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@cortex-js/compute-engine": "^0.4.2"
+    "@cortex-js/compute-engine": "^0.4.3"
   },
   "keywords": [
     "math",
