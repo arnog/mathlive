@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>MathLive Custom Virtual Keyboard</title>
+    <link rel="stylesheet" href="../style.css" />
+    <style>
+      .mathfield {
+        font-size: 32px;
+      }
+
+      math-field:not(:defined) {
+        display: none;
+      }
+
+      /* math-field:focus-within {
+      outline: none;
+      background: red;
+    } */
+
+      code {
+        white-space: pre-wrap;
+      }
+
+      h2 {
+        font-size: 1em;
+        padding: 0;
+        margin: 0;
+        color: #666;
+      }
+
+      #mathfield-container {
+        padding: 8px;
+        min-width: 50px;
+        border: 1px solid #ddd;
+      }
+
+      #ta {
+        font-size: 1.5em;
+        font-weight: 700;
+      }
+
+      #find-input,
+      #replace-input {
+        width: 320px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .label {
+        font-weight: 700;
+      }
+
+      .math {
+        display: none;
+      }
+
+      #keyboard-container {
+        display: block;
+        position: relative;
+
+        height: 600px;
+        width: 1024px;
+        background: palegreen;
+        overflow: hidden;
+        border: 5px solid red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header><h1>MathLive Custom Virtual Keyboard</h1></header>
+    <main class="centered" tabindex="0">
+      <!-- <div id='keyboard-container'> -->
+      <math-field
+        id="mf"
+        class="mathfield"
+        style="font-size: 32px; max-width: 640px; width: 100%"
+        virtual-keyboard-mode="manual"
+        >a+b</math-field
+      >
+
+      <h2>Latex</h2>
+      <div class="output" id="latex"></div>
+    </main>
+
+    <script type="module">
+      import { convertLatexToMarkup } from '/dist/mathlive.mjs';
+
+      const mf = document.getElementById('mf');
+
+      mf.setOptions({
+        virtualKeyboardMode: 'manual',
+        virtualKeyboardToggleGlyph: `<span style="width: 21px;"><svg style="width: 21px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M192 288H32c-18 0-32 14-32 32v160c0 18 14 32 32 32h160c18 0 32-14 32-32V320c0-18-14-32-32-32zm-29 140c3 3 3 8 0 12l-11 11c-4 3-9 3-12 0l-28-28-28 28c-3 3-8 3-12 0l-11-11c-3-4-3-9 0-12l28-28-28-28c-3-3-3-8 0-12l11-11c4-3 9-3 12 0l28 28 28-28c3-3 8-3 12 0l11 11c3 4 3 9 0 12l-28 28 28 28zM480 0H320c-18 0-32 14-32 32v160c0 18 14 32 32 32h160c18 0 32-14 32-32V32c0-18-14-32-32-32zm-16 120c0 4-4 8-8 8h-40v40c0 4-4 8-8 8h-16c-4 0-8-4-8-8v-40h-40c-4 0-8-4-8-8v-16c0-4 4-8 8-8h40V56c0-4 4-8 8-8h16c4 0 8 4 8 8v40h40c4 0 8 4 8 8v16zm16 168H320c-18 0-32 14-32 32v160c0 18 14 32 32 32h160c18 0 32-14 32-32V320c0-18-14-32-32-32zm-16 152c0 4-4 8-8 8H344c-4 0-8-4-8-8v-16c0-4 4-8 8-8h112c4 0 8 4 8 8v16zm0-64c0 4-4 8-8 8H344c-4 0-8-4-8-8v-16c0-4 4-8 8-8h112c4 0 8 4 8 8v16zM192 0H32C14 0 0 14 0 32v160c0 18 14 32 32 32h160c18 0 32-14 32-32V32c0-18-14-32-32-32zm-16 120c0 4-4 8-8 8H56c-4 0-8-4-8-8v-16c0-4 4-8 8-8h112c4 0 8 4 8 8v16z"/></svg></span>`,
+        smartFence: true,
+        // virtualKeyboardContainer: document.getElementById('keyboard-container')
+      });
+
+      // Example of Alt-Keys
+      //     const VIRTUAL_KEYBOARD_LAYERS = {
+      //       "secondary-layer": {
+      //         rows: [
+      //           [
+      //             { class: "tex", label: "x", key: "x", insert: "y",
+      //               variants: [    'y',
+      //     'z',
+      //     't',
+      //     'r',
+      //     { latex: 'f(#?)', class: 'small' },
+      //     { latex: 'g(#?)', class: 'small' },
+      //     'x^2',
+      //     'x^n',
+      //     'x_n',
+      //     'x_{n+1}',
+      //     'x_i',
+      //     'x_{i+1}',
+      // ]
+      //             },
+      //           ],
+      //         ]
+      //       }
+      //     }
+
+      const VIRTUAL_KEYBOARD_LAYERS = {
+        'secondary-layer': {
+          rows: [
+            [
+              {
+                label: '&#x21e7;',
+                class: 'shift modifier font-glyph bottom left w15 layer-switch',
+                layer: 'geometry-layer',
+              },
+              {
+                class: 'tex',
+                label: 'x',
+                key: 'x',
+                insert: 'y',
+                altKeys: [
+                  { class: 'w15', latex: '\\cos\\mleft( #0 \\mright)' },
+                ],
+              },
+              // { class: "w15", latex: "\\sin\\mleft( #0 \\mright)" },
+              { class: 'w15', label: 'cos(x)', shifted: 'sin (x)' },
+              { class: 'w15', latex: '\\tan\\mleft( #0 \\mright)' },
+              { class: 'separator w5' },
+              { latex: '\\land' },
+              { latex: '\\lor' },
+              { latex: '\\lnot' },
+              { class: 'separator w5' },
+              { latex: '\\approx' },
+            ],
+            [
+              { class: 'w15', latex: '\\sin^{-1}\\mleft( #0 \\mright)' },
+              { class: 'w15', latex: '\\cos^{-1}\\mleft( #0 \\mright)' },
+              { class: 'w15', latex: '\\tan^{-1}\\mleft( #0 \\mright)' },
+              { class: 'separator w5' },
+              { class: 'w15', latex: '#@^{#?}' },
+              { class: 'w15', latex: '#@^2' },
+              { class: 'separator w5' },
+              { latex: '\\cong' },
+            ],
+            [
+              {
+                class: 'w15',
+                latex: '\\begin{vmatrix}#?&#?\\\\#?&#?\\end{vmatrix}',
+              },
+              { latex: '\\sqrt{#@}' },
+              { latex: '\\pm' },
+              { latex: '\\overarc{#@}' },
+              { latex: '\\sim' },
+              { class: 'w15', latex: '#@_{#?}' },
+            ],
+            [
+              { class: 'separator w20' },
+              { class: 'separator w20' },
+              { class: 'separator w20' },
+              { class: 'separator w15' },
+              {
+                class: 'action',
+                label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+                command: ['performWithFeedback', 'moveToPreviousChar'],
+              },
+              {
+                class: 'action',
+                label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+                command: ['performWithFeedback', 'moveToNextChar'],
+              },
+            ],
+          ],
+        },
+        'geometry-layer': {
+          rows: [
+            [
+              // <ul><li class='shift modifier font-glyph bottom left selected w15 layer-switch' data-layer='lower-greek'>&#x21e7;</li>
+
+              { latex: '\\vert' },
+              { latex: '\\not{\\vert}' },
+              { latex: '\\parallel' },
+              { latex: '\\bot' },
+              { latex: '\\overrightarrow{#@}' },
+              { latex: '\\begin{pmatrix}#0\\\\#0\\end{pmatrix}' },
+            ],
+            [
+              { latex: '\\measuredangle' },
+              { latex: ';' },
+              { latex: '\\longmapsto' },
+              { latex: '\\left\\lvert #0 \\right\\rvert' },
+              { latex: '\\left\\lvert \\overline{#0} \\right\\rvert' },
+              { latex: '\\overline{#@}' },
+            ],
+            [],
+            [
+              { class: 'separator w20' },
+              { class: 'separator w20' },
+              { class: 'separator w20' },
+              { class: 'separator w15' },
+              {
+                class: 'action',
+                label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+                command: ['performWithFeedback', 'moveToPreviousChar'],
+              },
+              {
+                class: 'action',
+                label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+                command: ['performWithFeedback', 'moveToNextChar'],
+              },
+            ],
+          ],
+        },
+        'basic-layer': {
+          styles: '',
+          rows: [
+            [
+              {
+                label: '7',
+                key: '7',
+                variants: ['\\alpha', '\\beta'],
+              },
+              { label: '8', key: '8' },
+              { label: '9', key: '9' },
+              { label: '+', key: '+' },
+              { class: 'separator w5' },
+              { class: 'small', latex: '\\frac{#0}{#0}' },
+              { latex: '\\varnothing' },
+              { latex: '\\infty' },
+              { latex: '\\in' },
+              { latex: '\\notin' },
+              { class: 'separator w10' },
+            ],
+            [
+              { label: '4', latex: '4' },
+              { label: '5', key: '5' },
+              { label: '6', key: '6' },
+              { label: '-', key: '-' },
+              { class: 'separator w5' },
+              { label: '(', key: '(' },
+              { label: ')', key: ')' },
+              { latex: '\\lt' },
+              { latex: '\\le' },
+              { latex: '\\hat{=}' },
+              { class: 'separator w10' },
+            ],
+            [
+              { label: '1', key: '1' },
+              { label: '2', key: '2' },
+              { label: '3', key: '3' },
+              { latex: '\\cdot' },
+              { class: 'separator w5' },
+              { label: '[', key: '[' },
+              { label: ']', key: ']' },
+              { latex: '\\gt' },
+              { latex: '\\ge' },
+              { class: 'separator w10' },
+              {
+                class: 'action font-glyph bottom right',
+                label: '&#x232b;',
+                command: ['performWithFeedback', 'deleteBackward'],
+              },
+            ],
+            [
+              { class: 'w20', label: '0', key: '0' },
+              { latex: ',' },
+              { latex: '\\colon' },
+              { class: 'separator w5' },
+              { latex: '\\lbrace' },
+              { latex: '\\rbrace' },
+              { latex: '=' },
+              { latex: '\\ne' },
+              {
+                class: 'action',
+                label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+                command: ['performWithFeedback', 'moveToPreviousChar'],
+              },
+              {
+                class: 'action',
+                label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+                command: ['performWithFeedback', 'moveToNextChar'],
+              },
+            ],
+          ],
+        },
+      };
+
+      const KEYBOARDS = {
+        basic: {
+          label: 'Basic',
+          tooltip: 'Basic',
+          layer: 'basic-layer',
+        },
+        // "geometry": {
+        //   "label": "Geometry",
+        //   "tooltip": "Geometry",
+        //   "layer": "geometry-layer"
+        // },
+        secondary: {
+          label: 'Secondary',
+          tooltip: 'Secondary',
+          layer: 'secondary-layer',
+          layers: ['secondary-layer', 'geometry-layer'],
+        },
+      };
+
+      mf?.setOptions({
+        customVirtualKeyboardLayers: VIRTUAL_KEYBOARD_LAYERS,
+        customVirtualKeyboards: KEYBOARDS,
+        virtualKeyboards: 'basic secondary',
+      });
+
+      mf?.addEventListener('input', (ev) => updateContent(mf));
+      mf?.addEventListener('math-error', (ev) =>
+        console.log('Error :' + ev.detail.code)
+      );
+
+      if (mf) updateContent(mf);
+
+      function updateContent(mf) {
+        const latex = mf.getValue('latex-expanded');
+        try {
+          document.getElementById('latex').innerHTML = escapeHtml(latex);
+        } catch (e) {
+          console.error(
+            'Error converting %c ' + latex + '%c ' + e.toString(),
+            'color: red;  background: hsla(0, 60%, 90%)',
+            'background: transparent'
+          );
+        }
+      }
+
+      function escapeHtml(string) {
+        return String(string).replace(/[&<>"'`= /\u200b]/g, function (s) {
+          return (
+            {
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;',
+              '/': '&#x2F;',
+              '`': '&#x60;',
+              '=': '&#x3D;',
+              '\u200b': '&amp;#zws;',
+            }[s] || s
+          );
+        });
+      }
+    </script>
+  </body>
+</html>
