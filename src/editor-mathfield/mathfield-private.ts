@@ -604,6 +604,8 @@ export class MathfieldPrivate implements Mathfield {
         this.options.onMoveOutOf(this, direction),
       tabOut: (_sender, direction) => this.options.onTabOutOf(this, direction),
     });
+    this.model.options.macros = this.options
+      .macros as NormalizedMacroDictionary;
 
     if (!this.options.locale.startsWith(getActiveKeyboardLayout().locale)) {
       setKeyboardLayoutLocale(this.options.locale);
