@@ -8,7 +8,7 @@
  * @example
  * <script type="module">
  * // Load the `Mathlive` module from a CDN
- * import { convertLatexToSpeakableText } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ * import { convertLatexToSpeakableText } from 'https://unpkg.com/mathlive?module';
  *
  * console.log(convertLatexToSpeakableText('e^{i\\pi}+1=0'));
  * </script>
@@ -62,13 +62,13 @@ export declare const version: string;
  *      <math-field virtual-keyboard-mode="onfocus" use-shared-virtual-keyboard />
  *
  *      <script type="module">
- *          import 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ *          import 'https://unpkg.com/mathlive?module';
  *      </script>
  * </iframe>
  * ```
  *
  * ```javascript
- *  import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ *  import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive?module';
  *
  *  makeSharedVirtualKeyboard({});
  * ```
@@ -88,8 +88,9 @@ export declare function makeSharedVirtualKeyboard(
  * in the document. To get the output of this function to correctly display
  * in a document, use the mathlive static style sheet by adding the following
  * to the `<head>` of the document:
+ *
  * ```html
- *     <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive-static.css" />
+ * <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive-static.css" />
  * ```
  *
  * ---
@@ -335,7 +336,7 @@ export type AutoRenderOptions = {
  * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @example
- * import { renderMathInDocument } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ * import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
  * document.addEventListener("load", () => {
  *     renderMathInDocument();
  * });

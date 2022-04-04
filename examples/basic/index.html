@@ -1,54 +1,53 @@
 <!DOCTYPE html>
 <html lang="en-US">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>MathLive Basic Example</title>
     <style>
-        body {
-            color: #444;
-            background-color: #f9f9f9;
-        }
+      body {
+        color: #444;
+        background-color: #f9f9f9;
+      }
 
-        main {
-            max-width: 820px;
-            margin: auto;
-        }
+      main {
+        max-width: 820px;
+        margin: auto;
+      }
 
-        math-field {
-            border: 1px solid #ddd;
-            padding: 5px;
-            margin: 10px 0 10px 0;
-            border-radius: 5px;
-            background-color: #fff;
-        }
+      math-field {
+        border: 1px solid #ddd;
+        padding: 5px;
+        margin: 10px 0 10px 0;
+        border-radius: 5px;
+        background-color: #fff;
+      }
 
-        #output {
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #000;
+      #output {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #000;
 
-            color: #ddd;
-            background: #35434e;
+        color: #ddd;
+        background: #35434e;
 
-            font-family: monospace;
-        }
+        font-family: monospace;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <main>
-        <h2>MathLive Basic Example</h2>
-        <math-field id="mf" virtual-keyboard-mode="manual">f(x)=</math-field>
-        <div id="output"></div>
+      <h2>MathLive Basic Example</h2>
+      <math-field id="mf" virtual-keyboard-mode="manual">f(x)=</math-field>
+      <div id="output"></div>
     </main>
 
     <script type="module">
-        import '/dist/mathlive.mjs';
-        document.getElementById('mf').addEventListener('input', (ev) => {
-            document.getElementById('output').innerHTML = ev.target.getValue();
-        });
+      // import '/dist/mathlive.mjs';
+      import 'https://unpkg.com/mathlive?module';
+      document.getElementById('mf').addEventListener('input', (ev) => {
+        document.getElementById('output').innerHTML = ev.target.getValue();
+      });
     </script>
-</body>
-
+  </body>
 </html>

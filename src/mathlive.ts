@@ -41,11 +41,6 @@ export { MathfieldElement } from './public/mathfield-element';
 
 import { version as computeEngineVersion } from '@cortex-js/compute-engine';
 
-export {
-  serialize as serializeMathJson,
-  parse as parseMathJson,
-} from '@cortex-js/compute-engine';
-
 export function makeSharedVirtualKeyboard(
   options: Partial<RemoteVirtualKeyboardOptions>
 ): void {

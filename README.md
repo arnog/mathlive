@@ -63,7 +63,7 @@ its internal state changes.
 <html lang="en-US">
   <body>
     <math-field>f(x)=</math-field>
-    <script src="https://unpkg.com/mathlive/dist/mathlive.min.js"></script>
+    <script src="https://unpkg.com/mathlive"></script>
   </body>
 </html>
 ```
