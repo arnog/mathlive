@@ -392,7 +392,7 @@ function convertStringToAtoms(
     result = parseLatex(s, {
       parseMode: 'math',
       args: args,
-      macros: options.macros,
+      macros: { ...model.options.macros, ...(options.macros ?? {}) },
       smartFence: options.smartFence,
       onError: model.listeners.onError,
       colorMap: options.colorMap,
