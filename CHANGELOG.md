@@ -19,6 +19,7 @@
 - **#1362** and **#726** Correctly handle backspacing over a multi-character
   operator, e.g. `<=`.
 - **#1366** `pointerup` events in a mathfield would not bubble
+- In Dark Mode, correctly display SVG shapes, such as `\overrightarrow{ABC}.`
 
 ### Improvements
 

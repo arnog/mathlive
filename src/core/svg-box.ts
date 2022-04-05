@@ -428,7 +428,7 @@ export function svgBodyToMarkup(svgBodyName: string): string {
       `<svg width="100%" height="${height}em" ` +
       `viewBox="0 0 ${vbWidth} ${vbHeight}" ` +
       `preserveAspectRatio="none" >` +
-      `<path d="${PATHS[svgBodyName]}"></path>` +
+      `<path fill="currentcolor" d="${PATHS[svgBodyName]}"></path>` +
       `</svg></span>`;
     return `<span style="display:inline-block;height:${
       height / 2
@@ -457,7 +457,7 @@ export function svgBodyToMarkup(svgBodyName: string): string {
         `<svg width=400em height=${height}em ` +
         `viewBox="0 0 400000 ${viewBoxHeight}" ` +
         `preserveAspectRatio="${aligns[i]} slice">` +
-        `<path d="${PATHS[path]}"></path>` +
+        `<path fill="currentcolor" d="${PATHS[path]}"></path>` +
         `</svg></span>`
     )
     .join('');
