@@ -1,7 +1,6 @@
 /* eslint-disable no-new */
 import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
-import { serialize as serializeMathJson } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
 
 import { requestUpdate } from './render';
 import { range } from '../editor-model/selection-utils';
@@ -43,7 +42,7 @@ export class MathModeEditor extends ModeEditor {
     const json = ev.clipboardData.getData('application/json');
     if (json) {
       try {
-        text = serializeMathJson(JSON.parse(json), {});
+        text = mathfield.computeEngine.box(JSON.parse(json)).latex;
         format = 'latex';
       } catch {
         text = '';
