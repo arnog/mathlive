@@ -639,7 +639,7 @@ body.ML__fonts-loading .ML__base {
 .ML__composition {
   background: #fff1c2;
   color: black;
-  text-decoration: underline var(--caret, hsl(var(--hue, 212), 40%, 49%));
+  text-decoration: underline var(--caret, var(--ML__caret));
 }
 
 @media (prefers-color-scheme: dark) {
@@ -650,7 +650,7 @@ body.ML__fonts-loading .ML__base {
 }
 
 .ML__placeholder {
-  color: var(--caret, hsl(var(--hue, 212), 40%, 49%));
+  color: var(--caret, var(--ML__caret));
   padding-left: 0.4ex;
   padding-right: 0.4ex;
   font-family: @system;
