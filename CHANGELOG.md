@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Improvements
+
+- **#1415** Atoms inside parentheses are now considered as implicit arguments,
+  for example when inserting a fraction.
+
 ## 0.70.0 (2022-04-05)
 
 ### Features
