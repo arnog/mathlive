@@ -126,7 +126,9 @@ function normalizeArray(
       const newRow: Atom[][] = [];
       const lastCol = Math.min(row.length, colIndex + maxColCount);
       while (colIndex < lastCol) {
-        if (row[colIndex].length > 0 && row[colIndex][0].type !== 'first') {
+        if (row[colIndex].length === 0) {
+          newRow.push([new Atom('first', { mode: atom.mode })]);
+        } else if (row[colIndex][0].type !== 'first') {
           newRow.push([
             new Atom('first', { mode: atom.mode }),
             ...row[colIndex],
