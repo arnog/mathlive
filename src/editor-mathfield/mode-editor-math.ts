@@ -488,7 +488,7 @@ function findPlaceholders(atoms: Atom[]): PlaceholderAtom[] {
     for (const branch of atom.branches) {
       if (!atom.hasEmptyBranch(branch)) {
         const branchPlaceholder = findPlaceholders(atom.branch(branch)!);
-        result = result.concat(branchPlaceholder);
+        result.push(...branchPlaceholder);
       }
     }
 
@@ -532,9 +532,9 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
       delimiterStack.unshift(atom.value);
     }
     if (
-      atom.type === 'mopen'
-      && delimiterStack.length > 0
-      && atom.value === LEFT_DELIM[delimiterStack[0]]
+      atom.type === 'mopen' &&
+      delimiterStack.length > 0 &&
+      atom.value === LEFT_DELIM[delimiterStack[0]]
     ) {
       delimiterStack.shift();
     }

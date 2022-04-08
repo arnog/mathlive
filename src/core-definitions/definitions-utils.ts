@@ -1017,7 +1017,7 @@ function parseParameterTemplate(
     });
     // Parse the rest
     for (let i = 1; i <= parameters.length; i++) {
-      result = result.concat(parseParameterTemplate(parameters[i]));
+      result.push(...parseParameterTemplate(parameters[i]));
     }
   } else {
     parameters = parameterTemplate.split('}');
@@ -1029,7 +1029,7 @@ function parseParameterTemplate(
       });
       // Parse the rest
       for (let i = 1; i <= parameters.length; i++) {
-        result = result.concat(parseParameterTemplate(parameters[i]));
+        result.push(...parseParameterTemplate(parameters[i]));
       }
     }
   }

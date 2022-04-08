@@ -904,8 +904,8 @@ export class Parser {
           array.push(row);
           row = [];
         } else {
-          this.mathlist = this.mathlist.concat(
-            this.parse(
+          this.mathlist.push(
+            ...this.parse(
               (token: Token) =>
                 token === '<}>' ||
                 token === '&' ||
@@ -1405,7 +1405,7 @@ export class Parser {
         // No mode-specific result. Try again from the start
         this.index = initialIndex;
         do {
-          this.mathlist = this.mathlist.concat(this.parse());
+          this.mathlist.push(...this.parse());
         } while (!this.match('<}>') && !this.end());
       }
     } else {
@@ -1779,7 +1779,7 @@ export class Parser {
     // We could have no atom for tokens that were skipped, a ' ' in math mode
     // for example
     if (isArray<Atom>(result)) {
-      this.mathlist = this.mathlist.concat(result);
+      this.mathlist.push(...result);
     } else if (result) {
       this.mathlist.push(result);
     }
@@ -1839,7 +1839,7 @@ export function parseLatex(
   while (!parser.end()) {
     const more = parser.parse();
     if (!more) break;
-    atoms = atoms.concat(more);
+    atoms.push(...more);
   }
   return atoms;
 }

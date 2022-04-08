@@ -293,14 +293,14 @@ function expand(
         result.push('\\' + command);
       }
 
-      result = result.concat(tokens);
+      result.push(...tokens);
     } else if (token === '\\endcsname') {
       // Unexpected \endcsname are ignored
     } else if (token.length > 1 && token.startsWith('#')) {
       // It's a parameter to expand
       const parameter = token.slice(1);
-      result = result.concat(
-        tokenize(args?.(parameter) ?? args?.('?') ?? '\\placeholder{}', args)
+      result.push(
+        ...tokenize(args?.(parameter) ?? args?.('?') ?? '\\placeholder{}', args)
       );
     } else {
       result.push(token);
@@ -336,7 +336,7 @@ export function tokenize(
   const tokenizer = new Tokenizer(stream);
   let result: Token[] = [];
   do {
-    result = result.concat(expand(tokenizer, args));
+    result.push(...expand(tokenizer, args));
   } while (!tokenizer.end());
 
   return result;

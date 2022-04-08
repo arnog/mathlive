@@ -31,7 +31,7 @@ export function arrayJoinColumns(
         sep = new Atom('mpunct', { value: separator, style });
       }
 
-      result = result.concat(cell);
+      result.push(...cell);
     }
   }
 
@@ -55,7 +55,7 @@ export function arrayJoinRows(
       sep = new Atom('mpunct', { value: separators[0], style });
     }
 
-    result = result.concat(arrayJoinColumns(row, separators[1]));
+    result.push(...arrayJoinColumns(row, separators[1]));
   }
 
   return result;
