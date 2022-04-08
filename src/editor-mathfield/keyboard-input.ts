@@ -269,9 +269,7 @@ export function onKeystroke(
       ...model.at(model.position).computedStyle,
       ...mathfield.style,
     };
-    if (
-      !/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(shortcut)
-    ) {
+    if (!/^\\({|}|\[|]|@|#|\$|%|&|\^|_|backslash)$/.test(shortcut)) {
       // To enable the substitution to be undoable,
       // insert the character before applying the substitution
       const saveMode = mathfield.mode;
