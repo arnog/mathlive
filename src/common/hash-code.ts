@@ -1,14 +1,7 @@
 export function hashCode(s: string): number {
   let hash = 0;
-  if (s.length === 0) {
-    return hash;
-  }
-
-  for (let i = 0; i < s.length; i++) {
-    const char = s.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash &= hash; // Convert to 32bit integer
-  }
+  for (let i = 0; i < s.length; i++)
+    hash = (Math.imul(31, hash) + s.charCodeAt(i)) | 0; // | 0 to convert to 32-bit int
 
   return Math.abs(hash);
 }

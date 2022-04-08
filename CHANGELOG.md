@@ -1,5 +1,17 @@
 ## [Unreleased]
 
+### Improvements
+
+- **#1415** Atoms inside parentheses are now considered as implicit arguments,
+  for example when inserting a fraction.
+
+## 0.70.0 (2022-04-05)
+
+### Features
+
+- Uses new version of Compute Engine for serialization to MathJSON and parsing
+  of LaTeX from MathJSON.
+
 ### Bug Fixes
 
 - **#934** Improved display of the root horizontal bar in some browsers
@@ -8,11 +20,21 @@
 - **#1375** Inserting a smartfence which was not followed by some content would
   trigger some asserts
 - Correctly handle deletion of the closing fence of a smartfence
+- **#1412** Correctly handle insertion of custom macros with `executeCommand`
+- On Windows/Linux with an AZERTY keyboard, the ² (supersript 2) is now handled
+  correctly
+- **#1362** and **#726** Correctly handle backspacing over a multi-character
+  operator, e.g. `<=`.
+- **#1366** `pointerup` events in a mathfield would not bubble
+- In Dark Mode, correctly display SVG shapes, such as `\overrightarrow{ABC}.`
 
 ### Improvements
 
-- Improved layout of `aligned` environment by adding missing gap between columns
+- **#934** Improved layout of `aligned` environment by adding missing gap
+  between columns
 - Added macros to the command popover
+- Improved visual appearance when using dark mode. Also, added more CSS
+  variables to customize the apperance of the mathfield.
 
 ## 0.69.10 (2022-02-23)
 

@@ -19,7 +19,7 @@ Vue configuration.
 
 ```html
 <script type="module">
-  import * as MathLive from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+  import * as MathLive from 'https://unpkg.com/mathlive?module';
   import VueMathfield from 'https://unpkg.com/mathlive/dist/vue-mathlive.mjs';
 
   Vue.use(VueMathfield, MathLive);

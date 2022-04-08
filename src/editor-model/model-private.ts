@@ -12,7 +12,7 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
 
-import { parse as parseMathJson } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
+import { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { atomsToMathML } from '../addons/math-ml';
 
@@ -347,22 +347,29 @@ export class ModelPrivate implements Model {
 
   atomToString(atom: Atom, inFormat: OutputFormat): string {
     const format: string = inFormat ?? 'latex';
-    let result = '';
+
     if (format === 'latex' || format === 'latex-expanded') {
-      result = Atom.serialize(atom, {
+      return Atom.serialize(atom, {
         expandMacro: format === 'latex-expanded',
         defaultMode: this.mathfield.options.defaultMode,
       });
-    } else if (format === 'math-ml') {
-      result = atomsToMathML(atom, this.mathfield.options);
-    } else if (format === 'spoken') {
-      result = atomToSpeakableText(atom, this.mathfield.options);
-    } else if (format === 'spoken-text') {
+    }
+
+    if (format === 'math-ml')
+      return atomsToMathML(atom, this.mathfield.options);
+
+    if (format === 'spoken')
+      return atomToSpeakableText(atom, this.mathfield.options);
+
+    if (format === 'spoken-text') {
       const saveTextToSpeechMarkup = this.mathfield.options.textToSpeechMarkup;
       this.mathfield.options.textToSpeechMarkup = '';
-      result = atomToSpeakableText(atom, this.mathfield.options);
+      const result = atomToSpeakableText(atom, this.mathfield.options);
       this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
-    } else if (
+      return result;
+    }
+
+    if (
       format === 'spoken-ssml' ||
       format === 'spoken-ssml-with-highlighting'
     ) {
@@ -372,28 +379,27 @@ export class ModelPrivate implements Model {
       // If (format === 'spoken-ssml-with-highlighting') {     // @revisit
       //     this.config.atomIdsSettings = { seed: 'random' };
       // }
-      result = atomToSpeakableText(atom, this.mathfield.options);
+      const result = atomToSpeakableText(atom, this.mathfield.options);
       this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
-    } else if (format === 'math-json') {
-      try {
-        const json = parseMathJson(
-          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }),
-          {
-            onError: this.mathfield.options.onError,
-          }
-        );
-        result = JSON.stringify(json);
-      } catch (e) {
-        return '';
-      }
-    } else if (format === 'ascii-math') {
-      result = atomToAsciiMath(atom);
-    } else {
-      console.warn('Unknown format :', format);
+      return result;
     }
 
-    return result;
+    if (format === 'math-json') {
+      try {
+        const expr = this.mathfield.computeEngine.parse(
+          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
+        );
+        return JSON.stringify(expr.json);
+      } catch (e) {
+        return JSON.stringify(['Error', 'Nothing', `'${e.toString()}'`]);
+      }
+    }
+
+    if (format === 'ascii-math') return atomToAsciiMath(atom);
+
+    console.warn('Unknown format :', format);
+    return '';
   }
 
   // getValue(): string;

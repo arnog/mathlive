@@ -92,10 +92,12 @@ import { hashCode } from '../common/hash-code';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import MathfieldElement from '../public/mathfield-element';
+import { ComputeEngine } from '@cortex-js/compute-engine';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
 export class MathfieldPrivate implements Mathfield {
+  _computeEngine: ComputeEngine;
   model: ModelPrivate;
   options: Required<MathfieldOptionsPrivate>;
 
@@ -160,12 +162,22 @@ export class MathfieldPrivate implements Mathfield {
 
   /**
    *
+   * - `options.computeEngine`: An instance of a `ComputeEngine`. It is used to parse and serialize
+   * LaTeX strings, using the information contained in the dictionaries
+   * of the Compute Engine to determine, for example, which symbols are
+   * numbers or which are functions, and therefore corectly interpret
+   * `bf(x)` as `b \\times f(x)`.
+   *
+   * If no instance is provided, a new, default, one is created.
+   *
    * @param element - The DOM element that this mathfield is attached to.
    * Note that `element.mathfield` is this object.
    */
   constructor(
     element: HTMLElement & { mathfield?: MathfieldPrivate },
-    options: Partial<MathfieldOptionsPrivate>
+    options: Partial<MathfieldOptionsPrivate> & {
+      computeEngine?: ComputeEngine;
+    }
   ) {
     // Setup default config options
     this.options = updateOptions(
@@ -183,7 +195,10 @@ export class MathfieldPrivate implements Mathfield {
             ...options,
           }
     );
+    if (options.computeEngine) this._computeEngine = options.computeEngine;
+
     this._placeholders = new Map();
+
     this.colorMap = (name: string): string | undefined => {
       let result: string | undefined = undefined;
       if (typeof this.options.colorMap === 'function') {
@@ -551,6 +566,11 @@ export class MathfieldPrivate implements Mathfield {
     }
   }
 
+  get computeEngine(): ComputeEngine {
+    if (!this._computeEngine) this._computeEngine = new ComputeEngine();
+    return this._computeEngine;
+  }
+
   get virtualKeyboardState(): 'hidden' | 'visible' {
     if (this.virtualKeyboard?.visible) return 'visible';
     return 'hidden';
@@ -604,6 +624,8 @@ export class MathfieldPrivate implements Mathfield {
         this.options.onMoveOutOf(this, direction),
       tabOut: (_sender, direction) => this.options.onTabOutOf(this, direction),
     });
+    this.model.options.macros = this.options
+      .macros as NormalizedMacroDictionary;
 
     if (!this.options.locale.startsWith(getActiveKeyboardLayout().locale)) {
       setKeyboardLayoutLocale(this.options.locale);

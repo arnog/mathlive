@@ -418,6 +418,12 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: ['insert', '\\~'],
   }, // ??
+  {
+    key: '[Backquote]',
+    ifLayout: ['windows.french', 'linux.french'],
+    ifMode: 'math',
+    command: ['insert', '^2'],
+  },
 ];
 
 /**

@@ -12,7 +12,7 @@ Initialize a mathfield element as usual, just pass an option
 `use-shared-virtual-keyboard` attribute.
 
 ```html
-<script src="https://unpkg.com/mathlive/dist/mathlive.min.js"></script>
+<script src="https://unpkg.com/mathlive/"></script>
 
 <math-field
   virtual-keyboard-mode="onfocus"
@@ -28,7 +28,7 @@ keyboard.
 
 ```html
 <script type="module">
-  import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+  import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive?module';
 
   makeSharedVirtualKeyboard({});
 </script>

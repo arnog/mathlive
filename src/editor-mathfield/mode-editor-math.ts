@@ -1,7 +1,6 @@
 /* eslint-disable no-new */
 import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
-import { serialize as serializeMathJson } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
 
 import { requestUpdate } from './render';
 import { range } from '../editor-model/selection-utils';
@@ -18,7 +17,7 @@ import {
 
 import type { Style } from '../public/core';
 import { LeftRightAtom } from '../core-atoms/leftright';
-import { RIGHT_DELIM } from '../core/delimiters';
+import { RIGHT_DELIM, LEFT_DELIM } from '../core/delimiters';
 import {
   contentDidChange,
   selectionDidChange,
@@ -43,7 +42,7 @@ export class MathModeEditor extends ModeEditor {
     const json = ev.clipboardData.getData('application/json');
     if (json) {
       try {
-        text = serializeMathJson(JSON.parse(json), {});
+        text = mathfield.computeEngine.box(JSON.parse(json)).latex;
         format = 'latex';
       } catch {
         text = '';
@@ -392,7 +391,7 @@ function convertStringToAtoms(
     result = parseLatex(s, {
       parseMode: 'math',
       args: args,
-      macros: options.macros,
+      macros: { ...model.options.macros, ...(options.macros ?? {}) },
       smartFence: options.smartFence,
       onError: model.listeners.onError,
       colorMap: options.colorMap,
@@ -519,16 +518,32 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
     return model.offsetOf(atom);
   }
 
-  if (!isImplicitArg(atom)) {
-    return -1;
-  }
+  // Find the first 'mrel', 'mbin', etc... to the left of the insertion point
+  // until the first sibling.
+  // Terms inside of delimiters (parens, brackets, etc) are grouped and kept together.
+  const atomAtCursor = atom;
+  const delimiterStack: string[] = [];
 
-  // Find the first 'mrel', etc... to the left of the insertion point
-  // until the first sibling
-  while (!atom.isFirstSibling && isImplicitArg(atom)) {
+  while (
+    !atom.isFirstSibling &&
+    (isImplicitArg(atom) || delimiterStack.length > 0)
+  ) {
+    if (atom.type === 'mclose') {
+      delimiterStack.unshift(atom.value);
+    }
+    if (
+      atom.type === 'mopen'
+      && delimiterStack.length > 0
+      && atom.value === LEFT_DELIM[delimiterStack[0]]
+    ) {
+      delimiterStack.shift();
+    }
     atom = atom.leftSibling;
   }
 
+  if (atomAtCursor == atom) {
+    return -1;
+  }
   return model.offsetOf(atom);
 }
 
@@ -541,7 +556,7 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
  * be included as the numerator
  */
 function isImplicitArg(atom: Atom): boolean {
-  if (/^(mord|surd|msubsup|leftright|mop)$/.test(atom.type)) {
+  if (/^(mord|surd|msubsup|leftright|mop|mclose)$/.test(atom.type)) {
     // Exclude `\int`, \`sum`, etc...
     if (atom.isExtensibleSymbol) return false;
     // Exclude trig functions (they can be written as `\sin \frac\pi3` without parens)

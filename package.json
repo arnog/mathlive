@@ -1,6 +1,6 @@
 {
   "name": "mathlive",
-  "version": "0.69.11",
+  "version": "0.70.0",
   "description": "Render and edit beautifully typeset math",
   "license": "MIT",
   "funding": {
@@ -44,8 +44,8 @@
     "useTabs": false
   },
   "engines": {
-    "npm": ">=6.14.8",
-    "node": ">=12.0.0"
+    "npm": ">=8.5.0",
+    "node": ">=16.14.2"
   },
   "browserslist": [
     "> 1%",
@@ -82,7 +82,7 @@
     "@types/css-font-loading-module": "0.0.7",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
-    "autoprefixer": "10.4.0",
+    "autoprefixer": "10.4.4",
     "check-node-version": "^4.2.1",
     "cssnano": "^5.0.12",
     "esbuild": "^0.14.2",
@@ -100,7 +100,7 @@
     "open": "^8.4.0",
     "postcss": "^8.4.4",
     "postcss-cli": "^9.0.2",
-    "prettier": "2.5.1",
+    "prettier": "^2.5.1",
     "rollup": "^2.60.2",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-eslint": "^7.0.0",
@@ -111,7 +111,7 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@cortex-js/compute-engine": "^0.4.2"
+    "@cortex-js/compute-engine": "^0.5.0"
   },
   "keywords": [
     "math",

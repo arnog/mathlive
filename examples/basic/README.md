@@ -2,7 +2,7 @@
 
 This example shows how to interact with a MathLive mathfield.
 
-Read more at [MathLive Documentation](https://cortexjs.io/docs/#mathlive).
+Read more at [MathLive Documentation](https://cortexjs.io/mathlive).
 
 ES Modules, also known as JavaScript Modules, are the recommended way to load
 JavaScript libraries. The library is loaded asynchronously, improving loading
@@ -10,7 +10,7 @@ performance, and it does not pollute the global environment.
 
 ```html
 <script type="module">
-  import 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+  import 'https://unpkg.com/mathlive?module';
   // ...
 </script>
 ```

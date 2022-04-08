@@ -1,48 +1,46 @@
 <!DOCTYPE html>
 <html lang="en-US">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>MathLive IFrame Example</title>
     <link rel="stylesheet" href="../style.css" />
     <style>
-        body {
-            font-family: sans-serif;
-            color: #444;
-            background-color: #f9f9f9;
-        }
+      body {
+        font-family: sans-serif;
+        color: #444;
+        background-color: #f9f9f9;
+      }
 
-        main {
-            max-width: 820px;
-            margin: auto;
-        }
+      main {
+        max-width: 820px;
+        margin: auto;
+      }
 
-        iframe {
-            display: block;
-            width: 100%;
-            min-height: 230px;
-            margin: 20px 0;
-            border: 2px dashed #999;
-        }
+      iframe {
+        display: block;
+        width: 100%;
+        min-height: 230px;
+        margin: 20px 0;
+        border: 2px dashed #999;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <header>
-        <h1>MathLive IFrame Example</h1>
+      <h1>MathLive IFrame Example</h1>
     </header>
 
     <main>
-        <iframe src="child.html"></iframe>
-        <iframe src="child2.html"></iframe>
+      <iframe src="child.html"></iframe>
+      <iframe src="child2.html"></iframe>
     </main>
 
     <script type="module">
-        import { makeSharedVirtualKeyboard } from '/dist/mathlive.mjs';
-        // import {makeSharedVirtualKeyboard} from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+      import { makeSharedVirtualKeyboard } from '/dist/mathlive.mjs';
+      // import {makeSharedVirtualKeyboard} from 'https://unpkg.com/mathlive?module';
 
-        makeSharedVirtualKeyboard({});
+      makeSharedVirtualKeyboard({});
     </script>
-</body>
-
+  </body>
 </html>
