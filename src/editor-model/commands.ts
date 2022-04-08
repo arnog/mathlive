@@ -431,14 +431,19 @@ function moveUpward(
   // branch, but one of its ancestor does.
   let atom = model.at(model.position);
 
-  while (atom && (atom.treeBranch !== 'below' && !(atom.treeBranch instanceof Array && atom.parent instanceof ArrayAtom))) {
+  while (
+    atom &&
+    atom.treeBranch !== 'below' &&
+    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
+  ) {
     atom = atom.parent!;
   }
 
   // handle navigating through matrices and such
-  if (atom.treeBranch instanceof Array && atom.parent instanceof ArrayAtom) {
+  if (Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    const currentIndex = arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
+    const currentIndex =
+      arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
     const rowAbove = Math.max(0, atom.treeBranch[0] - 1);
     const cell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
     const targetIndex = Math.min(cell.length - 1, currentIndex);
@@ -452,13 +457,13 @@ function moveUpward(
         // extending selection upwards
         newSelection = {
           ranges: [[targetSelection, right]],
-          direction: 'backward'
+          direction: 'backward',
         };
       } else {
         // reducing selection upwards
         newSelection = {
           ranges: [[left, targetSelection]],
-          direction: 'forward'
+          direction: 'forward',
         };
       }
       model.setSelection(newSelection);
@@ -476,10 +481,7 @@ function moveUpward(
       // );
     } else {
       // move cursor to row above
-      setPositionHandlingPlaceholder(
-        model,
-        targetSelection
-      );
+      setPositionHandlingPlaceholder(model, targetSelection);
     }
 
     model.announce('move up');
@@ -530,55 +532,48 @@ function moveDownward(
   // branch, but one of its ancestor does.
   let atom = model.at(model.position);
 
-  while (atom && (atom.treeBranch !== 'above' && !(atom.treeBranch instanceof Array && atom.parent instanceof ArrayAtom))) {
+  while (
+    atom &&
+    atom.treeBranch !== 'above' &&
+    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
+  ) {
     atom = atom.parent!;
   }
 
   // handle navigating through matrices and such
-  if (atom.treeBranch instanceof Array && atom.parent instanceof ArrayAtom) {
+  if (Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    const currentIndex = arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
-    const rowBelow = Math.min(arrayAtom.array.length - 1, atom.treeBranch[0] + 1);
+    const currentIndex =
+      arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
+    const rowBelow = Math.min(
+      arrayAtom.array.length - 1,
+      atom.treeBranch[0] + 1
+    );
     const cell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
     const targetIndex = Math.min(cell.length - 1, currentIndex);
     const targetSelection = model.offsetOf(cell[targetIndex]);
     if (extend) {
       const [left, right] = model.selection.ranges[0];
 
-      // doesn't highlight
       let newSelection: Selection;
       if (targetSelection < right) {
         // reducing selection downwards
         newSelection = {
           ranges: [[targetSelection, right]],
-          direction: 'backward'
+          direction: 'backward',
         };
       } else {
         // extending selection downwards
         newSelection = {
           ranges: [[left, targetSelection]],
-          direction: 'forward'
+          direction: 'forward',
         };
       }
+      // @todo: setSelection doesn't correctly handle this
       model.setSelection(newSelection);
-
-      // does highlight, has direction error
-      // model.extendSelectionTo(
-      //   targetSelection < right ? right : left,
-      //   targetSelection
-      // );
-
-      // doesn't highlight, doesn't continue selection
-      // model.extendSelectionTo(
-      //   targetSelection,
-      //   targetSelection < right ? right : left
-      // );
     } else {
       // move cursor to row below
-      setPositionHandlingPlaceholder(
-        model,
-        targetSelection
-      );
+      setPositionHandlingPlaceholder(model, targetSelection);
     }
 
     model.announce('move down');
