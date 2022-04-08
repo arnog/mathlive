@@ -4,6 +4,11 @@
 
 - **#1415** Atoms inside parentheses are now considered as implicit arguments,
   for example when inserting a fraction.
+- **#1389** Keyboard navigation inside tabular data (matrices, etc...)
+- **#1387** A matrix with an empty cell would result in error messages in the
+  console in some cases
+
+### Bug Fixes
 
 ## 0.70.0 (2022-04-05)
 
