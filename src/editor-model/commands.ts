@@ -174,7 +174,7 @@ export function skip(
       while (
         atom &&
         atom instanceof LatexAtom &&
-        /[a-zA-Z*]/.test(atom.value)
+        /[a-zA-Z\*]/.test(atom.value)
       ) {
         offset = model.offsetOf(atom);
         atom = atom.rightSibling;
@@ -190,7 +190,7 @@ export function skip(
       while (
         atom &&
         atom instanceof LatexAtom &&
-        /[a-zA-Z*]/.test(atom.value)
+        /[a-zA-Z\*]/.test(atom.value)
       ) {
         offset = model.offsetOf(atom);
         atom = atom.leftSibling;

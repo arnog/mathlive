@@ -40,7 +40,7 @@ export function updateAutocomplete(
   // character.
   const command: LatexAtom[] = [];
   let atom = model.at(model.position);
-  while (atom && atom instanceof LatexAtom && /[a-zA-Z*]$/.test(atom.value)) {
+  while (atom && atom instanceof LatexAtom && /[a-zA-Z\*]$/.test(atom.value)) {
     command.unshift(atom);
     atom = atom.leftSibling;
   }
@@ -56,7 +56,11 @@ export function updateAutocomplete(
     // insertion point
     command.unshift(atom);
     atom = model.at(model.position).rightSibling;
-    while (atom && atom instanceof LatexAtom && /[a-zA-Z*]$/.test(atom.value)) {
+    while (
+      atom &&
+      atom instanceof LatexAtom &&
+      /[a-zA-Z\*]$/.test(atom.value)
+    ) {
       command.push(atom);
       atom = atom.rightSibling;
     }

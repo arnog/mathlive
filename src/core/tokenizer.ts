@@ -16,7 +16,7 @@ import { splitGraphemes } from './grapheme-splitter';
 // '<}>'    : end group
 // '#0'-'#9': argument
 // '#?'     : placeholder
-// '\' + ([a-zA-Z*]+)|([^a-zAz*])  : command
+// '\' + ([a-zA-Z\*]+)|([^a-zAz\*])  : command
 // other (length = 1)   : literal
 //  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
 export type Token = string;
@@ -115,7 +115,7 @@ class Tokenizer {
     if (next === '\\') {
       if (!this.end()) {
         // A command is either a string of letters and asterisks...
-        let command = this.match(/^[a-zA-Z*]+/);
+        let command = this.match(/^[a-zA-Z\*]+/);
         if (command) {
           // Spaces after a 'control word' are ignored
           // (but not after a 'control symbol' (single char)
@@ -347,7 +347,7 @@ export function joinLatex(segments: string[]): string {
   let result = '';
   for (const segment of segments) {
     if (segment) {
-      if (/[a-zA-Z*]/.test(segment[0])) {
+      if (/[a-zA-Z\*]/.test(segment[0])) {
         // If the segment begins with a char that *could* be in a command
         // name... insert a separator (if one was needed for the previous segment)
         result += sep;

@@ -9,6 +9,11 @@
   console in some cases
 - Documentation: some of the data structures were not publicly exported and did
   not appear in the documentation (https://cortexjs.io/docs/mathlive/)
+- When pasting content that included a double-backslash (e.g. as a row
+  separator) immediately followed by a character, all double-backslash would be
+  interpreted as a single backslash (this allowed pasting LaTeX that had been
+  escaped in JavaScript). However, this cases some legitimate LaTeX to not be
+  interpreted correctly. The double-backslash are no longer "simplified".
 
 ### Bug Fixes
 

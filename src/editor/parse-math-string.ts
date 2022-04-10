@@ -129,7 +129,7 @@ function parseMathExpression(
   }
 
   if (!done) {
-    m = s.match(/^([^a-zA-Z({[_^\\\s"]+)(.*)/);
+    m = s.match(/^([^a-zA-Z\(\{\[\_\^\\\s"]+)(.*)/);
     // A string of symbols...
     // Could be a binary or relational operator, etc...
     if (m) {
@@ -343,13 +343,8 @@ export function trimModeShiftCommand(s: string): [boolean, string] {
 function inferFormat(s: string): [OutputFormat | undefined, string] {
   s = s.trim();
 
-  if (!s) return ['latex', ''];
-
   // Assume Latex if a single char
   if (s.length <= 1) return ['latex', s];
-
-  // Replace double-backslash (coming from JavaScript) to a single one
-  s = s.replace(/\\\\([^\s\n])/g, '\\$1');
 
   // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
   let hasLatexModeShiftCommand: boolean;
