@@ -36,6 +36,7 @@ export type GetAtomOptions = {
   includeChildren?: boolean;
 };
 
+/** @internal */
 export class ModelPrivate implements Model {
   readonly mathfield: MathfieldPrivate;
   readonly options: ModelOptions;

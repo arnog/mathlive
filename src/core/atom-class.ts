@@ -154,17 +154,21 @@ export class Atom {
 
   // If true, some structural changes have been made to the atom
   // (insertion or removal of children) or one of its children is dirty
+  /** @internal */
   private _isDirty: boolean;
 
   // A monotonically increasing counter to detect structural changes
+  /** @internal */
   private _changeCounter: number;
 
   // Cached list of children, invalidated when isDirty = true
+  /** @internal */
   private _children: Atom[] | undefined;
 
   // Optional, per instance, override of the `serialize()` method
   serializeOverride?: (atom: Atom, options: ToLatexOptions) => string;
 
+  /** @internal */
   private _branches: Branches;
 
   // How to display "limits" (i.e. superscript/subscript) for example

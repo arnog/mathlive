@@ -607,14 +607,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     ];
   }
 
+  /** @internal */
   private _mathfield: null | MathfieldPrivate;
   // The original text content of the slot.
   // Recorded at construction to avoid reacting to it if a `slotchange` event
   // gets fired as part of the construction (different browsers behave
   // differently).
+  /** @internal */
   private _slotValue: string;
 
   // The content of <style> tags inside the element.
+  /** @internal */
   private _style: string;
 
   /**

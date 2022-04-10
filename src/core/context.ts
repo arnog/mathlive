@@ -95,7 +95,9 @@ export class Context implements ContextInterface {
   readonly color?: string;
   readonly backgroundColor?: string;
 
+  /** @internal */
   readonly _size?: FontSize;
+  /** @internal */
   private _mathstyle?: Mathstyle;
   registers: Registers;
 

@@ -96,6 +96,7 @@ import { ComputeEngine } from '@cortex-js/compute-engine';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
+/** @internal */
 export class MathfieldPrivate implements Mathfield {
   _computeEngine: ComputeEngine;
   model: ModelPrivate;

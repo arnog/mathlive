@@ -1,7 +1,6 @@
 /* eslint no-console:0 */
 import '../core/atom';
 import { MacroDictionary, getMacros } from '../core-definitions/definitions';
-import { AutoRenderOptions } from '../public/mathlive';
 import { ErrorListener, ParserErrorCode, Registers } from '../public/core';
 import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
@@ -11,6 +10,154 @@ import { parseMathString } from '../editor/parse-math-string';
 import { throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
 
+export type AutoRenderOptions = {
+  /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.
+   *
+   * It is empty by default.
+   *
+   * The namespace should be a string of lowercase letters.
+   */
+  namespace?: string;
+
+  /**
+   * A URL fragment pointing to the directory containing the fonts
+   * necessary to render a formula.
+   *
+   * These fonts are available in the `/dist/fonts` directory of the SDK.
+   *
+   * Customize this value to reflect where you have copied these fonts,
+   * or to use the CDN version.
+   *
+   * The default value is './fonts'.
+   *
+   * Changing this setting after the mathfield has been created will have
+   * no effect.
+   *
+   * ```javascript
+   * {
+   *      // Use the CDN version
+   *      fontsDirectory: ''
+   * }
+   * ```
+   * ```javascript
+   * {
+   *      // Use a directory called 'fonts', located next to the
+   *      // `mathlive.js` (or `mathlive.mjs`) file.
+   *      fontsDirectory: './fonts'
+   * }
+   * ```
+   * ```javascript
+   * {
+   *      // Use a directory located at the top your website
+   *      fontsDirectory: 'https://example.com/fonts'
+   * }
+   * ```
+   *
+   */
+  fontsDirectory?: string;
+
+  /**
+   * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+   *
+   * This optional function will be called whenever the DOM is modified
+   * by injecting a string of HTML, allowing that string to be sanitized
+   * according to a policy defined by the host.
+   */
+  createHTML?: (html: string) => string; // or TrustedHTML. See https://github.com/microsoft/TypeScript/issues/30024
+
+  /** Custom LaTeX macros */
+  macros?: MacroDictionary;
+
+  /** LaTeX global register overrides */
+  registers?: Registers;
+
+  /** An array of tag names whose content will
+   *  not be scanned for delimiters (unless their class matches the `processClass`
+   * pattern below.
+   *
+   * **Default:** `['math-field', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
+   */
+  skipTags?: string[];
+
+  /**
+   * A string used as a regular expression of class names of elements whose content will not be
+   * scanned for delimiter
+   *
+   * **Default**: `'tex2jax_ignore'`
+   */
+  ignoreClass?: string;
+
+  /**
+   * A string used as a
+   * regular expression of class names of elements whose content **will** be
+   * scanned for delimiters,  even if their tag name or parent class name would
+   * have prevented them from doing so.
+   *
+   * **Default**: `'tex2jax_process'`
+   *
+   * */
+  processClass?: string;
+
+  /**
+   * `<script>` tags of the
+   * indicated type will be processed while others will be ignored.
+   *
+   * **Default**: `'math/tex'`
+   */
+  processScriptType?: string;
+
+  /** The format(s) in
+   * which to render the math for screen readers:
+   * - `'mathml'` MathML
+   * - `'speakable-text'` Spoken representation
+   *
+   * You can pass an empty string to turn off the rendering of accessible content.
+   * You can pass multiple values separated by spaces, e.g `'mathml speakable-text'`
+   *
+   * **Default**: `'mathml'`
+   */
+  renderAccessibleContent?: string;
+
+  /**
+   * If true, generate markup that can
+   * be read aloud later using {@linkcode speak}
+   *
+   * **Default**: `false`
+   */
+  readAloud?: boolean;
+
+  asciiMath?: {
+    delimiters?: {
+      display?: [openDelim: string, closeDelim: string][];
+      inline?: [openDelim: string, closeDelim: string][];
+    };
+  };
+
+  TeX?: {
+    /**
+     * If true, math expression that start with `\begin{` will automatically be
+     * rendered.
+     *
+     * **Default**: true.
+     */
+
+    processEnvironments?: boolean;
+
+    /**
+     * Delimiter pairs that will trigger a render of the content in
+     * display style or inline, respectively.
+     *
+     * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ] ], inline: [ ['\\(','\\)'] ] ]}`
+     *
+     */
+    delimiters?: {
+      display: [openDelim: string, closeDelim: string][];
+      inline: [openDelim: string, closeDelim: string][];
+    };
+  };
+};
+
+/** @internal */
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   /** A function that will convert any LaTeX found to
    * HTML markup. This is only useful to override the default MathLive renderer
@@ -567,41 +714,48 @@ const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
 
 export function autoRenderMathInElement(
   element: HTMLElement | string,
-  options?: AutoRenderOptionsPrivate
+  options?: AutoRenderOptions
 ): void {
   try {
-    options = { ...DEFAULT_AUTO_RENDER_OPTIONS, ...options };
-    options.ignoreClassPattern = new RegExp(options.ignoreClass ?? '');
-    options.processClassPattern = new RegExp(options.processClass ?? '');
-    options.processScriptTypePattern = new RegExp(
-      options.processScriptType ?? ''
+    const optionsPrivate: AutoRenderOptionsPrivate = {
+      ...DEFAULT_AUTO_RENDER_OPTIONS,
+      ...options,
+    };
+    optionsPrivate.ignoreClassPattern = new RegExp(
+      optionsPrivate.ignoreClass ?? ''
     );
-    options.macros = getMacros(options.macros);
+    optionsPrivate.processClassPattern = new RegExp(
+      optionsPrivate.processClass ?? ''
+    );
+    optionsPrivate.processScriptTypePattern = new RegExp(
+      optionsPrivate.processScriptType ?? ''
+    );
+    optionsPrivate.macros = getMacros(optionsPrivate.macros);
 
     // Validate the namespace (used for `data-` attributes)
-    if (options.namespace) {
-      if (!/^[a-z]+-?$/.test(options.namespace)) {
+    if (optionsPrivate.namespace) {
+      if (!/^[a-z]+-?$/.test(optionsPrivate.namespace)) {
         throw new Error(
           'options.namespace must be a string of lowercase characters only'
         );
       }
 
-      if (!options.namespace.endsWith('-')) {
-        options.namespace += '-';
+      if (!optionsPrivate.namespace.endsWith('-')) {
+        optionsPrivate.namespace += '-';
       }
     }
 
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
-    void loadFonts(options.fontsDirectory);
+    void loadFonts(optionsPrivate.fontsDirectory);
     injectStylesheet(
       null,
       coreStylesheet,
       hashCode(coreStylesheet).toString(36)
     );
 
-    scanElement(element, options);
+    scanElement(element, optionsPrivate);
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error('renderMathInElement(): ' + error.message);

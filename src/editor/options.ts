@@ -25,6 +25,7 @@ const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
 const NO_OP_LISTENER = (): void => {};
 
+/** @internal */
 export type MathfieldOptionsPrivate = MathfieldOptions & {
   onAnnounce: (
     target: MathfieldPrivate,
