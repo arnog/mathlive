@@ -7,6 +7,8 @@
 - **#1389** Keyboard navigation inside tabular data (matrices, etc...)
 - **#1387** A matrix with an empty cell would result in error messages in the
   console in some cases
+- Documentation: some of the data structures were not publicly exported and did
+  not appear in the documentation (https://cortexjs.io/docs/mathlive/)
 
 ### Bug Fixes
 

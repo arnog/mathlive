@@ -37,7 +37,7 @@ import { typeset } from './core/typeset';
 import { getDefaultRegisters } from './core/registers';
 import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 
-export { MathfieldElement } from './public/mathfield-element';
+export * from './public/mathlive';
 
 import { version as computeEngineVersion } from '@cortex-js/compute-engine';
 

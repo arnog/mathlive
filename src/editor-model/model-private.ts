@@ -12,8 +12,6 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
 
-import { ComputeEngine } from '@cortex-js/compute-engine';
-
 import { atomsToMathML } from '../addons/math-ml';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';

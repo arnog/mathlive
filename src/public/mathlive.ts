@@ -20,11 +20,7 @@
 
 import { Mathfield } from './mathfield';
 import { MathfieldElement } from './mathfield-element';
-import {
-  MathfieldOptions,
-  RemoteVirtualKeyboardOptions,
-  TextToSpeechOptions,
-} from './options';
+import { RemoteVirtualKeyboardOptions, TextToSpeechOptions } from './options';
 import {
   MacroDictionary,
   ErrorListener,
@@ -32,8 +28,9 @@ import {
   Registers,
 } from './core';
 
+export * from './options';
+
 export { Mathfield };
-export { MathfieldOptions as MathfieldConfig };
 export { MathfieldElement };
 
 /**
