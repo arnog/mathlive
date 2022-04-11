@@ -32,7 +32,7 @@ import { Context } from '../core/context';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { typeset } from '../core/typeset';
 import { getDefaultRegisters } from '../core/registers';
-import { throwIfNotInBrowser } from '../common/capabilities';
+import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
 import { Selector } from '../public/commands';
 import { MathfieldPrivate } from './mathfield';
@@ -336,18 +336,21 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     // outside the virtual keyboard.
     // @todo should use a scrim instead (to prevent elements underneat the alt
     // layer from reacting while the alt layer is up)
-    window.addEventListener('mouseup', this);
-    window.addEventListener('blur', this);
-    window.addEventListener('touchend', this);
-    window.addEventListener('touchcancel', this);
+    if (isBrowser()) {
+      window.addEventListener('mouseup', this);
+      window.addEventListener('blur', this);
+      window.addEventListener('touchend', this);
+      window.addEventListener('touchcancel', this);
+    }
   }
 
   disable(): void {
-    window.removeEventListener('mouseup', this);
-    window.removeEventListener('blur', this);
-    window.removeEventListener('touchend', this);
-    window.removeEventListener('touchcancel', this);
-
+    if (isBrowser()) {
+      window.removeEventListener('mouseup', this);
+      window.removeEventListener('blur', this);
+      window.removeEventListener('touchend', this);
+      window.removeEventListener('touchcancel', this);
+    }
     hideAlternateKeys();
     this.visible = false;
 

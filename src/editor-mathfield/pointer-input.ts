@@ -5,16 +5,19 @@ import { Offset } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
 import { selectGroup } from '../editor-model/commands-select';
+import { isBrowser } from '../common/capabilities';
 
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;
 
 function isTouchEvent(evt: Event): evt is TouchEvent {
-  return globalThis.TouchEvent !== undefined && evt instanceof TouchEvent;
+  return isBrowser() && 'TouchEvent' in globalThis && evt instanceof TouchEvent;
 }
 
 function isPointerEvent(evt: Event): evt is PointerEvent {
-  return globalThis.PointerEvent !== undefined && evt instanceof PointerEvent;
+  return (
+    isBrowser() && 'PointerEvent' in globalThis && evt instanceof PointerEvent
+  );
 }
 
 export function onPointerDown(
@@ -54,7 +57,7 @@ export function onPointerDown(
     }
   }, 32);
   function endPointerTracking(evt: null | PointerEvent | TouchEvent): void {
-    if (window.PointerEvent) {
+    if (isBrowser() && 'PointerEvent' in window) {
       off(field, 'pointermove', onPointerMove);
       off(
         field,
@@ -225,7 +228,7 @@ export function onPointerDown(
         }
       } else if (!trackingPointer) {
         trackingPointer = true;
-        if (window.PointerEvent) {
+        if (isBrowser() && 'PointerEvent' in window) {
           on(field, 'pointermove', onPointerMove);
           on(
             field,

@@ -221,9 +221,7 @@ export function attachButtonHandlers(
 
       // Since we want the active state to be visible for a while,
       // use a timer to remove it after a short delay
-      window.setTimeout(() => {
-        element.classList.remove('is-active');
-      }, 150);
+      setTimeout(() => element.classList.remove('is-active'), 150);
       let command = element.getAttribute('data-command-press-and-hold-end');
       const now = Date.now();
       // If the button has not been pressed for very long or if we were

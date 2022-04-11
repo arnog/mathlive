@@ -1,3 +1,4 @@
+import { isBrowser } from '../common/capabilities';
 import { render } from '../editor-mathfield/render';
 import { MathfieldOptions } from '../public/options';
 
@@ -60,9 +61,7 @@ export function defaultReadAloudHook(
   text: string,
   config: Partial<MathfieldOptions>
 ): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
+  if (!isBrowser()) return;
 
   if (!config && window.mathlive) {
     config = window.mathlive.config;
@@ -229,7 +228,7 @@ export function readAloudStatus():
   | 'playing'
   | 'paused'
   | 'unavailable' {
-  if (typeof window === 'undefined') return 'unavailable';
+  if (!isBrowser()) return 'unavailable';
   window.mathlive = window.mathlive ?? {};
 
   if (!window.mathlive.readAloudAudio) return 'ready';
@@ -245,7 +244,7 @@ export function readAloudStatus():
  * **See** {@linkcode speak}
  */
 export function pauseReadAloud(): void {
-  if (typeof window === 'undefined') return;
+  if (!isBrowser()) return;
   window.mathlive = window.mathlive ?? {};
   if (window.mathlive.readAloudAudio) {
     if (window.mathlive.onReadAloudStatus) {
@@ -265,7 +264,7 @@ export function pauseReadAloud(): void {
  * **See** {@linkcode speak}
  */
 export function resumeReadAloud(): void {
-  if (typeof window === 'undefined') return;
+  if (!isBrowser()) return;
   window.mathlive = window.mathlive ?? {};
   if (window.mathlive.readAloudAudio) {
     if (window.mathlive.onReadAloudStatus) {
@@ -287,7 +286,7 @@ export function resumeReadAloud(): void {
  * @param count The number of tokens to read.
  */
 export function playReadAloud(token: string, count: number): void {
-  if (typeof window === 'undefined') return;
+  if (!isBrowser()) return;
   window.mathlive = window.mathlive ?? {};
   if (window.mathlive.readAloudAudio) {
     let timeIndex = 0;

@@ -71,7 +71,7 @@ export function supportRegexPropertyEscape(): boolean {
     const m = navigator.userAgent.match(/edg\/(\d+)/i);
     if (!m) return false;
     const version = parseInt(m[1]);
-    return version >= 79; // https://www.mozilla.org/en-US/firefox/78.0/releasenotes/
+    return version >= 79;
   }
 
   return true;

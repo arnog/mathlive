@@ -55,7 +55,7 @@ export interface Disposable {
   dispose(): void;
 }
 
-export type EventListener = (...payload: any[]) => void;
+export type EventListener = (...payload: unknown[]) => void;
 
 export class EventEmitter {
   events: Map<string, EventListener[]>;
@@ -75,7 +75,7 @@ export class EventEmitter {
 
     options = options ?? {};
     if (options.once ?? false) {
-      listener = (...payload: any[]): void => {
+      listener = (...payload: unknown[]): void => {
         this.events.get(event)?.filter((x) => x !== listener);
         listener.apply(this, ...payload);
       };
@@ -100,7 +100,7 @@ export class EventEmitter {
     return this.addListener(event, listener, { once: true });
   }
 
-  emit(event: string, ...payload: any[]): boolean {
+  emit(event: string, ...payload: unknown[]): boolean {
     const listeners = this.events.get(event);
     if (listeners && listeners.length > 0) {
       for (const listener of listeners) listener.apply(this, ...payload);

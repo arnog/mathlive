@@ -12,7 +12,7 @@
 - When pasting content that included a double-backslash (e.g. as a row
   separator) immediately followed by a character, all double-backslash would be
   interpreted as a single backslash (this allowed pasting LaTeX that had been
-  escaped in JavaScript). However, this cases some legitimate LaTeX to not be
+  escaped in JavaScript). However, this caused some legitimate LaTeX to not be
   interpreted correctly. The double-backslash are no longer "simplified".
 
 ### Bug Fixes

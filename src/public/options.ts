@@ -588,7 +588,7 @@ export interface MathfieldHooks {
    *
    * By default this is:
    *
-   * ```
+   * ```js
    *  return `\\begin{equation*}${latex}\\end{equation*}`;
    * ```
    *

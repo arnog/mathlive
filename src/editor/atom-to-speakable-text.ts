@@ -5,7 +5,7 @@ import { Atom } from '../core/atom';
 import { atomsToMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
-import { osPlatform } from '../common/capabilities';
+import { isBrowser, osPlatform } from '../common/capabilities';
 
 declare global {
   interface Window {
@@ -665,7 +665,7 @@ export function atomToSpeakableText(
     textToSpeechRulesOptions: { ...speechOptions.textToSpeechRulesOptions },
   };
 
-  if (window.sre && options.textToSpeechRules === 'sre') {
+  if (options.textToSpeechRules === 'sre' && isBrowser() && 'sre' in window) {
     const mathML = atomsToMathML(atoms, options);
     if (mathML) {
       if (options.textToSpeechMarkup) {

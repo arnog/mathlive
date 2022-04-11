@@ -718,7 +718,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   getOptions(): MathfieldOptions;
   getOptions(
     keys?: keyof MathfieldOptions | (keyof MathfieldOptions)[]
-  ): any | Partial<MathfieldOptions> {
+  ): unknown | Partial<MathfieldOptions> {
     if (this._mathfield) {
       return getOptions(this._mathfield.options, keys);
     }
@@ -1376,7 +1376,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /**
    * The content of the mathfield as a Latex expression.
-   * ```
+   * ```js
    * document.querySelector('mf').value = '\\frac{1}{\\pi}'
    * ```
    *  @category Accessing and changing the content

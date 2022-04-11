@@ -8,6 +8,7 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { render } from '../editor-mathfield/render';
+import { isBrowser } from '../common/capabilities';
 
 declare global {
   interface Window {
@@ -145,11 +146,13 @@ function speak(
   const options = { ...mathfield.options };
   if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
     options.textToSpeechMarkup =
-      window.sre && options.textToSpeechRules === 'sre' ? 'ssml_step' : 'ssml';
+      isBrowser() && window.sre && options.textToSpeechRules === 'sre'
+        ? 'ssml_step'
+        : 'ssml';
   }
 
   const text = atomToSpeakableText(atoms, options);
-  if (speakOptions.withHighlighting) {
+  if (isBrowser() && speakOptions.withHighlighting) {
     window.mathlive.readAloudMathField = mathfield;
     render(mathfield, { forHighlighting: true });
     if (mathfield.options.readAloudHook) {
@@ -170,23 +173,23 @@ export function defaultSpeakHook(
   text: string,
   config?: Partial<MathfieldOptions>
 ): void {
-  if (!config && window?.mathlive) {
+  if (!config && isBrowser() && 'mathlive' in window) {
     config = window.mathlive.config;
   }
 
   config = config ?? {};
 
   if (!config.speechEngine || config.speechEngine === 'local') {
-    // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
-    // See also https://developer.chrome.com/apps/tts
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (window) {
+    if (isBrowser()) {
+      // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
+      // See also https://developer.chrome.com/apps/tts
+      const utterance = new SpeechSynthesisUtterance(text);
       window.speechSynthesis.speak(utterance);
     } else {
       console.log('Speak:', text);
     }
   } else if (config.speechEngine === 'amazon') {
-    if (!window || !window.AWS) {
+    if (!isBrowser() || !('AWS' in window)) {
       console.warn(
         'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
       );

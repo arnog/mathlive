@@ -463,7 +463,7 @@ export class MathfieldPrivate implements Mathfield {
     );
 
     // Delegate mouse and touch events
-    if (window.PointerEvent) {
+    if (isBrowser() && 'PointerEvent' in window) {
       // Use modern pointer events if available
       on(this.field, 'pointerdown', this);
     } else {
@@ -739,7 +739,7 @@ export class MathfieldPrivate implements Mathfield {
   getOption<K extends keyof MathfieldOptionsPrivate>(
     key: K
   ): MathfieldOptionsPrivate[K] {
-    return getOptions(this.options, key);
+    return getOptions(this.options, key) as MathfieldOptionsPrivate[K];
   }
 
   /*

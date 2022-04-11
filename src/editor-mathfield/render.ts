@@ -12,7 +12,7 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { atomsToMathML } from '../addons/math-ml';
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
-import { throwIfNotInBrowser } from '../common/capabilities';
+import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -66,7 +66,7 @@ export function render(
   //
   // 1. Stop and reset read aloud state
   //
-  if (window.mathlive === undefined) {
+  if (isBrowser() && !('mathlive' in window)) {
     window.mathlive = {};
   }
 
