@@ -1,72 +1,58 @@
 <!DOCTYPE html>
 <html lang="en-US">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>MathLive Static Test Cases</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="../style.css" />
 
     <!-- <link rel="stylesheet" href="/dist/mathlive-static.css" /> -->
     <style>
-        h1 {
-            font-size: 64px;
-            margin-left: -1em;
-        }
+      .formula {
+        background: white;
+        border: 1px solid #ddd;
+        font-family: fantasy;
+        margin: 4px;
+        font-size: 32px;
+      }
 
-        .formula {
-            background: white;
-            border: 1px solid #ddd;
-            font-family: fantasy;
-            margin: 4px;
-            font-size: 32px;
-        }
+      .small {
+        font-size: 16px;
+      }
 
-        .small {
-            font-size: 16px;
-        }
+      .fail {
+        color: #dd3333;
+      }
 
-        .fail {
-            color: #dd3333;
-        }
-
-        code {
-            white-space: pre-wrap;
-            word-break: break-all;
-            font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', 'Source Code Pro', monospace;
-        }
-
-        h2 {
-            margin-top: 1.5em;
-            margin-left: -1em;
-            border-top: 1px solid #ddd;
-            line-height: 1;
-        }
+      code {
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code',
+          'Source Code Pro', monospace;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <header>
-        <h1>MathLive Static Test Cases</h1>
+      <h1>MathLive Static Test Cases</h1>
     </header>
     <main>
-        <!-- This div is only needed to test setting the content (and any error that might be caught) -->
-        <math-field id='mf' style='visibility: hidden'></math-field>
-        <!-- The test cases are populated here -->
-        <div id="examples"></div>
+      <!-- This div is only needed to test setting the content (and any error that might be caught) -->
+      <math-field id="mf" style="visibility: hidden"></math-field>
+      <!-- The test cases are populated here -->
+      <div id="examples"></div>
     </main>
 
     <script type="module">
-        import {
-            renderMathInDocument,
-            renderMathInElement,
-        } from '/dist/mathlive.mjs';
+      import {
+        renderMathInDocument,
+        renderMathInElement,
+      } from '/dist/mathlive.mjs';
 
-        // import { emitLatex, parseLatex } from '../dist/math-json.min.esm.js';
+      // import { emitLatex, parseLatex } from '../dist/math-json.min.esm.js';
 
-
-        // prettier-ignore
-        const TESTING_SAMPLES = {
+      // prettier-ignore
+      const TESTING_SAMPLES = {
             "Ordinary Symbols": [
                 {
                     title: 'Ordinary Symbols and <kbd>letterShapeStyle</kbd>',
@@ -1499,162 +1485,167 @@ surface is zero.
                 },
             ]
         };
-        const mf = document.getElementById('mf');
+      const mf = document.getElementById('mf');
+      mf.setOptions({
+        // fontsDirectory: '/dist/fonts/',
+        // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
+        smartFence: true,
+        smartMode: true,
+        virtualKeyboardMode: 'manual',
+        onContentDidChange: (mf) => {
+          const latex = mf.getValue('latex-expanded');
+          try {
+            // let errors = [];
+            // let expr = parseLatex(latex, {
+            //     form: 'canonical',
+            //     onError: (err) =>
+            //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+            // });
+            // let jsonLatex = emitLatex(expr, {
+            //     precision: 100, onError: (err) =>
+            //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+            // });
+            // errors = [];
+            // expr = parseLatex(latex, {
+            //     form: 'full',
+            //     preserveLatex: true,
+            //     onError: (err) =>
+            //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+            // });
+            // jsonLatex = emitLatex(expr, {
+            //     precision: 100, onError: (err) =>
+            //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+            // });
+            // errors = [];
+            // expr = parseLatex(latex, {
+            //     form: 'full',
+            //     invisibleOperator: '',
+            //     superscriptOperator: '',
+            //     subscriptOperator: '',
+            //     // parseArgumentsOfUnknownLatexCommands: false,
+            //     invisiblePlusOperator: '',
+            //     dictionary: [],
+            //     promoteUnknownSymbols: /./,
+
+            //     parseArgumentsOfUnknownLatexCommands: true,
+            //     parseNumbers: true,
+
+            //     onError: (err) =>
+            //         errors.push(err.code + (err.arg ? ' ' + err.arg : '')),
+            // });
+            const mathAscci = mf.getValue('ascii-math');
+          } catch (e) {
+            console.error(
+              'Error converting %c ' + latex + '%c ' + e.toString(),
+              'color: red;  background: hsla(0, 60%, 90%)',
+              'background: transparent'
+            );
+          }
+        },
+        onError: (err) => {
+          console.error(err.latex, err.code + ' ' + (err.arg ?? ''));
+        },
+      });
+      // renderMathInDocument({
+      //     onError: (err) => {
+      //         console.error(err.latex, err.code + ' ' + (err.arg ?? ''));
+      //     },
+      // });
+      if (true) {
+        let error = [];
         mf.setOptions({
-            // fontsDirectory: '/dist/fonts/',
-            // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
-            smartFence: true,
-            smartMode: true,
-            virtualKeyboardMode: 'manual',
-            onContentDidChange: (mf) => {
-                const latex = mf.getValue('latex-expanded');
-                try {
-                    // let errors = [];
-                    // let expr = parseLatex(latex, {
-                    //     form: 'canonical',
-                    //     onError: (err) =>
-                    //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-                    // });
-                    // let jsonLatex = emitLatex(expr, {
-                    //     precision: 100, onError: (err) =>
-                    //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-                    // });
-                    // errors = [];
-                    // expr = parseLatex(latex, {
-                    //     form: 'full',
-                    //     preserveLatex: true,
-                    //     onError: (err) =>
-                    //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-                    // });
-                    // jsonLatex = emitLatex(expr, {
-                    //     precision: 100, onError: (err) =>
-                    //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-                    // });
-                    // errors = [];
-                    // expr = parseLatex(latex, {
-                    //     form: 'full',
-                    //     invisibleOperator: '',
-                    //     superscriptOperator: '',
-                    //     subscriptOperator: '',
-                    //     // parseArgumentsOfUnknownLatexCommands: false,
-                    //     invisiblePlusOperator: '',
-                    //     dictionary: [],
-                    //     promoteUnknownSymbols: /./,
-
-                    //     parseArgumentsOfUnknownLatexCommands: true,
-                    //     parseNumbers: true,
-
-                    //     onError: (err) =>
-                    //         errors.push(err.code + (err.arg ? ' ' + err.arg : '')),
-                    // });
-                    const mathAscci = mf.getValue('ascii-math');
-                } catch (e) {
-                    console.error("Error converting %c " + latex + '%c ' +
-                        e.toString(), 'color: red;  background: hsla(0, 60%, 90%)', 'background: transparent');
-                }
-            },
-            onError: (err) => {
-                console.error(
-                    err.latex,
-                    err.code + ' ' + (err.arg ?? '')
-                );
-            },
+          onError: (err) =>
+            error.push(
+              'At "' +
+                err.after +
+                '<span style="color:#999">' +
+                err.before +
+                '</span>" ' +
+                err.code +
+                ' ' +
+                (err.arg ?? '')
+            ),
         });
-        // renderMathInDocument({
-        //     onError: (err) => {
-        //         console.error(err.latex, err.code + ' ' + (err.arg ?? ''));
-        //     },
-        // });
-        if (true) {
-            let error = [];
-            mf.setOptions({
-                onError: (err) =>
-                    error.push(
-                        'At "' +
-                        err.after +
-                        '<span style="color:#999">' +
-                        err.before +
-                        '</span>" ' +
-                        err.code +
-                        ' ' +
-                        (err.arg ?? '')
-                    ),
-            });
-            document.getElementById(
-                'examples'
-            ).innerHTML = Object.keys(TESTING_SAMPLES).map((cat) => {
-                return `<h1>${cat}</h1>` +
-                    TESTING_SAMPLES[cat].map((x) => {
-                        const titleClass = (x.class && x.class.includes('fail')) ? 'fail' : '';
-                        let comment = '';
-                        if (typeof x.comment === 'string') {
-                            comment = x.comment;
-                        } else if (Array.isArray(x.comment)) {
-                            comment = '<ul><li>' + x.comment.join('</li><li>') + '</li></ul>';
-                        }
-                        let result =
-                            `<h2 class="${titleClass}">${x.title}</h2><p>${comment}</p>
+        document.getElementById('examples').innerHTML = Object.keys(
+          TESTING_SAMPLES
+        )
+          .map((cat) => {
+            return (
+              `<h1>${cat}</h1>` +
+              TESTING_SAMPLES[cat]
+                .map((x) => {
+                  const titleClass =
+                    x.class && x.class.includes('fail') ? 'fail' : '';
+                  let comment = '';
+                  if (typeof x.comment === 'string') {
+                    comment = x.comment;
+                  } else if (Array.isArray(x.comment)) {
+                    comment =
+                      '<ul><li>' + x.comment.join('</li><li>') + '</li></ul>';
+                  }
+                  let result =
+                    `<h2 class="${titleClass}">${x.title}</h2><p>${comment}</p>
                   <code>${escapeHtml(x.latex)}</code>
                   <p class="formula ${x.class ?? ''}">
-                    <script type='math/tex'>${x.latex}</`
-                            + 'script></p>';
-                        error = [];
-                        //
-                        // Parse and report any errors
-                        //
-                        if (true) {
-                            mf.setValue(x.latex);
-                            if (error.length > 0) {
-                                result +=
-                                    '<p><code style="color: red">Parsing Errors:</code>';
-                                result +=
-                                    '<p><code style="color: red">' +
-                                    error.join('<br>') +
-                                    '</code>';
-                            }
-                            result +=
-                                '<p><code style="color: #0066ce">' +
-                                escapeHtml(mf.getValue('latex-expanded')) +
-                                '</code></p>';
-                            /* result +=
+                    <script type='math/tex'>${x.latex}</` + 'script></p>';
+                  error = [];
+                  //
+                  // Parse and report any errors
+                  //
+                  if (true) {
+                    mf.setValue(x.latex);
+                    if (error.length > 0) {
+                      result +=
+                        '<p><code style="color: red">Parsing Errors:</code>';
+                      result +=
+                        '<p><code style="color: red">' +
+                        error.join('<br>') +
+                        '</code>';
+                    }
+                    result +=
+                      '<p><code style="color: #0066ce">' +
+                      escapeHtml(mf.getValue('latex-expanded')) +
+                      '</code></p>';
+                    /* result +=
                                             '<p><code style="color: #0066ce">' +
                                             escapeHtml(mf.getValue('json-2')) +
                                             '</code></p>'; */
-                        }
-                        if (x.pic) {
-                            // const transform = /small/.test(x.class ?? '') ? 
-                            //     "translate(-33%,-33%) scale(.33)" :
-                            //     "translate(-25%, -25%) scale(.50)" ;
-                            const transform = x.pic.endsWith('.png') ? "transform:translate(-33%,-33%) scale(.33);" : '';
-                            result += `<p><img style="${transform}" src="${x.pic}"></p>`;
-                        }
-                        return result;
-                    }).join('');
-            }).join('');
+                  }
+                  if (x.pic) {
+                    // const transform = /small/.test(x.class ?? '') ?
+                    //     "translate(-33%,-33%) scale(.33)" :
+                    //     "translate(-25%, -25%) scale(.50)" ;
+                    const transform = x.pic.endsWith('.png')
+                      ? 'transform:translate(-33%,-33%) scale(.33);'
+                      : '';
+                    result += `<p><img style="${transform}" src="${x.pic}"></p>`;
+                  }
+                  return result;
+                })
+                .join('')
+            );
+          })
+          .join('');
 
-            renderMathInElement('examples', { processClass: 'formula' });
-
-        }
-        function escapeHtml(string) {
-            return String(string).replace(/[&<>"'`=/\u200b]/g, function (
-                s
-            ) {
-                return (
-                    {
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#39;',
-                        '/': '&#x2F;',
-                        '`': '&#x60;',
-                        '=': '&#x3D;',
-                        '\u200b': '&amp;#zws;',
-                    }[s] || s
-                );
-            });
-        }
+        renderMathInElement('examples', { processClass: 'formula' });
+      }
+      function escapeHtml(string) {
+        return String(string).replace(/[&<>"'`=/\u200b]/g, function (s) {
+          return (
+            {
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;',
+              '/': '&#x2F;',
+              '`': '&#x60;',
+              '=': '&#x3D;',
+              '\u200b': '&amp;#zws;',
+            }[s] || s
+          );
+        });
+      }
     </script>
-</body>
-
+  </body>
 </html>

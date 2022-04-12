@@ -1,0 +1,419 @@
+body {
+  margin: 0;
+}
+
+html {
+  fill: currentColor;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  --hue: 210;
+  --on-primary: hsl(var(--hue, 212), 0%, 95%);
+  --primary: hsl(var(--hue, 212), 40%, 50%);
+  --surface: #fafafa;
+  --surface-border: #fff;
+  --on-surface: hsl(var(--hue, 212), 19%, 26%);
+
+  --secondary-surface: hsl(0, 0%, 99.5%);
+  --secondary-surface-border: hsl(0, 0%, 93%);
+  --link: hsl(var(--hue, 212), 100%, 40%);
+
+  --editable: #fff;
+  --editable-border: #ddd;
+  --on-editable: #333;
+
+  background: var(--surface);
+  color: var(--on-surface);
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 0.7;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  border: none;
+}
+h3 {
+  font-weight: 600;
+  line-height: 0.7;
+  margin-top: 3em;
+  margin-bottom: 2em;
+}
+
+h4 {
+  margin-top: 2em;
+  margin-bottom: 1.5em;
+}
+
+h3 strong,
+h4 strong {
+  color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+}
+
+h4 {
+  font-weight: 400;
+}
+/* h2, h3 {
+  background: linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+} */
+main {
+  padding-top: 3rem;
+  width: 640px;
+  max-width: 100vw;
+  display: flex;
+  align-items: flex-start;
+  flex-flow: column wrap;
+  margin: auto;
+}
+main > div {
+  width: 100%;
+}
+
+main > div.frame {
+  margin-top: 2em;
+  padding-left: 1em;
+  padding-right: 1em;
+  width: calc(100% - 2em);
+  margin-bottom: 4em;
+  background: var(--secondary-surface);
+  border: 1px solid var(--secondary-surface-border);
+  border-radius: 8px;
+}
+
+kbd {
+  font-family: Consolas, Monaco, 'Andale Mono', monospace;
+  background: #f4f4f4;
+  color: #333;
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+
+.centered {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.links {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 1em;
+  padding-bottom: 2em;
+  width: 100%;
+  font-size: 24px;
+}
+@media (max-width: 512px) {
+  .links {
+    font-size: 16px;
+  }
+}
+
+.output {
+  margin: 10px 0 10px 0;
+  border-radius: 5px;
+  border: 1px solid #333;
+
+  min-height: 1em;
+  padding: 5px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  width: calc(100% - 10px); /* Subtract horizontal padding */
+
+  font-family: 'IBM Plex mono', 'Source Code Pro', Menlo,
+    'Bitstream Vera Sans Mono', Monaco, Courier, 'Andale Mono', monospace;
+  color: #f0c674;
+
+  background: #35434e;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+math-field {
+  border: 1px solid var(--editable-border);
+  padding: 5px;
+  margin: 10px 0 10px 0;
+  border-radius: 5px;
+  background: var(--editable);
+  color: var(--on-editable);
+  font-size: 32px;
+  max-width: 640px;
+  width: 100%;
+}
+
+input,
+textarea {
+  border: 1px solid var(--editable-border);
+  border-radius: 5px;
+  background: var(--editable);
+  color: var(--on-editable);
+  padding: 5px;
+}
+
+input::placeholder {
+  opacity: 0.5;
+}
+
+.fa-w-24 {
+  width: 24px;
+  vertical-align: -5px;
+}
+
+a,
+a:visited,
+a:active {
+  text-decoration: none;
+  color: var(--link);
+  border-radius: 1em;
+  border: 1px solid transparent;
+}
+
+.links a {
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.links a:visited:hover,
+.links a:hover {
+  border: 1px solid var(--secondary-surface-border);
+  background: var(--surface);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+.links a:hover {
+  text-decoration: none;
+}
+
+body > header {
+  background-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+  height: 130px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  box-shadow: 16px 6px 24px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+  font-family: 'Futura', 'Open Sans', system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+  /* font-size: 3rem; */
+  color: var(--on-primary);
+  text-transform: uppercase;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1024px;
+  letter-spacing: -0.04ex;
+  text-rendering: optimizeLegibility;
+  line-height: 0.9;
+  width: 640px;
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.004em;
+  margin: auto;
+}
+
+footer {
+  margin-top: 5em;
+  margin-bottom: 5em;
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  flex-flow: column wrap;
+}
+
+footer a,
+footer a:visited,
+footer a:active {
+  font-size: 18px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.mathfield {
+  font-size: 32px;
+}
+
+math-field:not(:defined) {
+  display: none;
+}
+
+/* math-field:focus-within {
+outline: none;
+background: red;
+} */
+
+code {
+  white-space: pre-wrap;
+}
+
+h2 {
+  font-size: 1em;
+  padding: 0;
+  margin: 0;
+  color: #666;
+}
+
+#mathfield-container {
+  padding: 8px;
+  min-width: 50px;
+  border: 1px solid #ddd;
+}
+
+#ta {
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+#find-input,
+#replace-input {
+  width: 320px;
+}
+
+.hidden {
+  display: none;
+}
+
+.label {
+  font-weight: 700;
+}
+
+.math {
+  display: none;
+}
+
+/* .buttonbar button { */
+button {
+  background: none;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  color: #0066ce;
+  fill: currentColor;
+  position: relative;
+  height: 36px;
+  line-height: 36px;
+  margin: 0 18px 0 0;
+  min-width: 64px;
+  padding: 0 16px;
+  display: inline-block;
+  overflow: hidden;
+  will-change: box-shadow;
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  user-select: none;
+
+  font-size: 16px;
+  letter-spacing: 0.08929em;
+  text-transform: uppercase;
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.12);
+}
+
+button:first-child {
+  margin-left: 0;
+}
+
+button:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+button:active {
+  background-color: white;
+}
+
+button.primary,
+button.active {
+  color: white;
+  fill: currentColor;
+  background: #0066ce;
+}
+
+button.primary:hover {
+  background-color: rgba(0, 102, 206, 0.58);
+}
+
+button.primary:active {
+  color: #0066ce;
+  fill: currentColor;
+  background-color: white;
+}
+
+button.round {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.buttonbar {
+  margin-top: 1em;
+}
+
+#keyboard-container {
+  display: block;
+  position: relative;
+
+  height: 600px;
+  width: 1024px;
+  background: palegreen;
+  overflow: hidden;
+  border: 5px solid red;
+}
+
+@media only screen and (max-width: 512px) {
+  header {
+    height: 100px;
+  }
+
+  header h1 {
+    max-width: 320px;
+    width: auto;
+    font-size: 2rem;
+  }
+
+  .examples {
+    width: 320px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    --surface: hsl(var(--hue, 212), 19%, 26%);
+    --surface-border: hsl(0, 0%, 20%);
+    --on-surface: hsl(0, 0%, 98%);
+    --primary: hsl(var(--hue, 212), 100%, 50%);
+
+    --secondary-surface: hsl(0, 0%, 19%, 0.3);
+    --secondary-surface-border: hsl(0, 0%, 22%);
+    --link: hsl(var(--hue, 212), 100%, 63%);
+
+    --editable: #333;
+    --editable-border: hsl(0, 0%, 13%);
+    --on-editable: #fff;
+  }
+  h2,
+  h3 {
+    color: hsl(var(--hue, 212), 20%, 90%);
+  }
+}

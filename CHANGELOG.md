@@ -1,12 +1,18 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- Removed the `find` and `replace` methods. These methods were difficult to use,
+  since they were based on LaTeX serialization and the mapping from atom to
+  LaTeX is not always intuitive. To replace them it is recommended to extract
+  the MathJSON representation of the value, and manipulate it using the CortexJS
+  Compute Engine.
+
 ### Improvements
 
 - **#1415** Atoms inside parentheses are now considered as implicit arguments,
   for example when inserting a fraction.
 - **#1389** Keyboard navigation inside tabular data (matrices, etc...)
-- **#1387** A matrix with an empty cell would result in error messages in the
-  console in some cases
 - Documentation: some of the data structures were not publicly exported and did
   not appear in the documentation (https://cortexjs.io/docs/mathlive/)
 - When pasting content that included a double-backslash (e.g. as a row
@@ -16,6 +22,11 @@
   interpreted correctly. The double-backslash are no longer "simplified".
 
 ### Bug Fixes
+
+- A style applied to a an atom using `applyStyle()` was not propagated to its
+  children
+- **#1387** A matrix with an empty cell would result in error messages in the
+  console in some cases
 
 ## 0.70.0 (2022-04-05)
 
