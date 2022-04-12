@@ -87,17 +87,6 @@ export type InsertOptions = {
   resetStyle?: boolean;
 };
 
-export type FindOptions = {
-  mode?: ParseMode;
-};
-
-export type ReplacementFunction = (args: {
-  range: Range;
-  match: string;
-  latex: string;
-  p: string[];
-}) => string;
-
 export type ApplyStyleOptions = {
   range?: Range;
   operation?: 'set' | 'toggle';
@@ -303,29 +292,6 @@ export interface Mathfield {
    */
   getCaretPoint?(): { x: number; y: number } | null;
   setCaretPoint(x: number, y: number): boolean;
-
-  /**
-   * Search the mathfield for items matching the **pattern** as a Latex string or
-   * as a regular expression matching a Latex string.
-   *
-   * Results are returned as a `Range` array. If no results are found
-   * an empty array is returned.
-   */
-  find(pattern: string | RegExp, options?: FindOptions): Range[];
-
-  /**
-   * Replace the pattern items matching the **pattern** with the
-   * **replacement** value.
-   *
-   * If **replacement** is a function, the function is called
-   * for each match and the function return value will be
-   * used as the replacement.
-   */
-  replace(
-    pattern: string | RegExp,
-    replacement: string | ReplacementFunction,
-    options?: FindOptions
-  ): void;
 
   /**
    * Return a nested mathfield element that match the provided `placeholderId`

@@ -7,9 +7,7 @@ import type {
   Offset,
   Range,
   Selection,
-  FindOptions,
   ApplyStyleOptions,
-  ReplacementFunction,
   VirtualKeyboardInterface,
 } from '../public/mathfield';
 
@@ -30,7 +28,6 @@ import {
   perform,
   getCommandTarget,
 } from '../editor/commands';
-import { find, replace } from '../editor-model/find';
 import { complete } from './autocomplete';
 import { requestUpdate, render } from './render';
 import {
@@ -912,18 +909,6 @@ export class MathfieldPrivate implements Mathfield {
       this.undoManager.snapshot(this.options);
       requestUpdate(this);
     }
-  }
-
-  find(value: string | RegExp, options?: FindOptions): Range[] {
-    return find(this.model, value, options);
-  }
-
-  replace(
-    searchValue: string | RegExp,
-    newValue: string | ReplacementFunction,
-    options?: FindOptions
-  ): void {
-    replace(this.model, searchValue, newValue, options);
   }
 
   getPlaceholderField(placeholderId: string): MathfieldElement | undefined {

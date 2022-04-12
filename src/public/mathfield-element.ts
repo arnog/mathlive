@@ -7,8 +7,6 @@ import {
   Offset,
   Range,
   Selection,
-  FindOptions,
-  ReplacementFunction,
 } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
 
@@ -961,24 +959,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   setCaretPoint(x: number, y: number): boolean {
     return this._mathfield?.setCaretPoint(x, y) ?? false;
-  }
-
-  /**
-   * @inheritdoc Mathfield.find
-   */
-  find(pattern: string | RegExp, options?: FindOptions): Range[] {
-    return this._mathfield?.find(pattern, options) ?? [];
-  }
-
-  /**
-   * @inheritdoc Mathfield.replace
-   */
-  replace(
-    pattern: string | RegExp,
-    replacement: string | ReplacementFunction,
-    options?: FindOptions
-  ): void {
-    this._mathfield?.replace(pattern, replacement, options);
   }
 
   /**
