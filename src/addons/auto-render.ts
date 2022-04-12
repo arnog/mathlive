@@ -712,6 +712,7 @@ const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
   },
 };
 
+/** @internal */
 export function autoRenderMathInElement(
   element: HTMLElement | string,
   options?: AutoRenderOptions

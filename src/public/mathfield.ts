@@ -154,10 +154,10 @@ export type Selection = {
 
 /**
  * This interface is implemented by:
- * - VirtualKeyboard
- * - VirtualKeyboardDelegate (used when the virtual keyboard is shared amongst
+ * - `VirtualKeyboard`
+ * - `VirtualKeyboardDelegate` (used when the virtual keyboard is shared amongst
  * mathfield instances)
- * - RemoteVirtualKeyboard (the shared virtual keyboard instance)
+ * - `RemoteVirtualKeyboard` (the shared virtual keyboard instance)
  */
 export interface VirtualKeyboardInterface {
   visible: boolean;
@@ -209,15 +209,20 @@ export interface Mathfield {
   executeCommand(command: Selector | [Selector, ...any[]]): boolean;
 
   /**
-   * Returns a textual representation of the mathfield.
+   * Return a textual representation of the content of the mathfield.
    *
-   * @param format - The format of the result.
-   * **Default** = `"latex"`
+   * @param format - The format of the result
+   *
+   * **Default:** `"latex"`
+   *
    * @category Accessing the Content
    */
   getValue(format?: OutputFormat): string;
+  /** Return the value of the mathfield from `start` to `end` */
   getValue(start: Offset, end: Offset, format?: OutputFormat): string;
+  /** Return the value of the mathfield in `range` */
   getValue(range: Range | Selection, format?: OutputFormat): string;
+  /** @internal */
   getValue(
     arg1?: Offset | OutputFormat | Range | Selection,
     arg2?: Offset | OutputFormat,
@@ -227,15 +232,15 @@ export interface Mathfield {
   select(): void;
 
   /**
-   * Sets the content of the mathfield to the
-   * text interpreted as a LaTeX expression.
+   * Set the content of the mathfield to the text interpreted as a
+   * LaTeX expression.
    *
    * @category Accessing the Content
    */
   setValue(latex?: string, options?: InsertOptions): void;
 
   /**
-   * Inserts a block of text at the current insertion point.
+   * Insert a block of text at the current insertion point.
    *
    * This method can be called explicitly or invoked as a selector with
    * `executeCommand("insert")`.
@@ -249,6 +254,9 @@ export interface Mathfield {
   insert(s: string, options?: InsertOptions): boolean;
 
   /**
+   * Return true if the mathfield is currently focused (responds to keyboard
+   * input).
+   *
    * @category Focus
    *
    */
@@ -264,7 +272,7 @@ export interface Mathfield {
   blur?(): void;
 
   /**
-   * Updates the style (color, bold, italic, etc...) of the selection or sets
+   * Update the style (color, bold, italic, etc...) of the selection or sets
    * the style to be applied to future input.
    *
    * If there is no selection and no range is specified, the style will
@@ -273,24 +281,31 @@ export interface Mathfield {
    * If a range is specified, the style is applied to the range, otherwise,
    * if there is a selection, the style is applied to the selection.
    *
-   * If the operation is 'toggle' and the range already has this style,
+   * If the operation is `"toggle"` and the range already has this style,
    * remove it. If the range
    * has the style partially applied (i.e. only some sections), remove it from
    * those sections, and apply it to the entire range.
    *
-   * If the operation is 'set', the style is applied to the range,
+   * If the operation is `"set"`, the style is applied to the range,
    * whether it already has the style or not.
    *
-   * The default operation is 'set'.
+   * The default operation is `"set"`.
    *
    */
   applyStyle(style: Style, options?: ApplyStyleOptions): void;
 
+  /**
+   * The bottom location of the caret (insertion point) in viewport
+   * coordinates.
+   *
+   * See also [[`setCaretPoint`]]
+   * @category Selection
+   */
   getCaretPoint?(): { x: number; y: number } | null;
   setCaretPoint(x: number, y: number): boolean;
 
   /**
-   * Search the formula for items matching the **pattern** as a Latex string or
+   * Search the mathfield for items matching the **pattern** as a Latex string or
    * as a regular expression matching a Latex string.
    *
    * Results are returned as a `Range` array. If no results are found
@@ -313,7 +328,7 @@ export interface Mathfield {
   ): void;
 
   /**
-   * Returns a nested mathfield element that match the provided `placeholderId`
+   * Return a nested mathfield element that match the provided `placeholderId`
    * @param placeholderId
    */
   getPlaceholderField(placeholderId: string): Mathfield | undefined;

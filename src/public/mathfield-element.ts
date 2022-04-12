@@ -421,7 +421,8 @@ export interface MathfieldElementAttributes {
  * ### CSS Variables
  *
  * To customize the appearance of the mathfield, declare the following CSS
- * variables (custom properties) in a ruleset that applied to the mathfield.
+ * variables (custom properties) in a ruleset that appliee to the mathfield.
+ *
  * ```css
  * math-field {
  *  --hue: 10       // Set the highlight color and caret to a reddish hue
@@ -466,7 +467,8 @@ export interface MathfieldElementAttributes {
  *
  * The property can be changed either directly on the
  * `MathfieldElement` object, or using `setOptions()` if it is prefixed with
- * `options.`, for example
+ * `options.`, for example:
+ *
  * ```javascript
  *  getElementById('mf').value = '\\sin x';
  *  getElementById('mf').setOptions({horizontalSpacingScale: 1.1});
@@ -474,6 +476,7 @@ export interface MathfieldElementAttributes {
  *
  * The values of attributes and properties are reflected, which means you can change one or the
  * other, for example:
+ *
  * ```javascript
  * getElementById('mf').setAttribute('virtual-keyboard-mode',  'manual');
  * console.log(getElementById('mf').getOption('virtualKeyboardMode'));
@@ -622,6 +625,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /**
      * To create programmatically a new mahfield use:
+     * 
      * ```javascript
     let mfe = new MathfieldElement();
 
@@ -773,28 +777,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Execute a [[`Commands`|command]] defined by a selector.
-   * ```javascript
-   * mfe.executeCommand('add-column-after');
-   * mfe.executeCommand(['switch-mode', 'math']);
-   * ```
-   *
-   * @param command - A selector, or an array whose first element
-   * is a selector, and whose subsequent elements are arguments to the selector.
-   *
-   * Selectors can be passed either in camelCase or kebab-case.
-   *
-   * ```javascript
-   * // Both calls do the same thing
-   * mfe.executeCommand('selectAll');
-   * mfe.executeCommand('select-all');
-   * ```
+   * @inheritdoc Mathfield.executeCommand
    */
   executeCommand(command: Selector | [Selector, ...any[]]): boolean {
     return this._mathfield?.executeCommand(command) ?? false;
   }
 
   /**
+   * @inheritdoc Mathfield.getValue
    *  @category Accessing and changing the content
    */
   getValue(format?: OutputFormat): string;
@@ -843,7 +833,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   *  @category Accessing and changing the content
+   * @inheritdoc Mathfield.setValue
+   * @category Accessing and changing the content
    */
   setValue(value?: string, options?: InsertOptions): void {
     if (this._mathfield) {
@@ -876,8 +867,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Return true if the mathfield is currently focused (responds to keyboard
-   * input).
+   * @inheritdoc Mathfield.hasFocus
    *
    * @category Focus
    *
@@ -926,14 +916,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Inserts a block of text at the current insertion point.
-   *
-   * This method can be called explicitly or invoked as a selector with
-   * `executeCommand("insert")`.
-   *
-   * After the insertion, the selection will be set according to the
-   * `options.selectionMode`.
-   *
+   * @inheritdoc Mathfield.insert
+
    *  @category Accessing and changing the content
    */
   insert(s: string, options?: InsertOptions): boolean {
@@ -941,24 +925,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Updates the style (color, bold, italic, etc...) of the selection or sets
-   * the style to be applied to future input.
-   *
-   * If there is no selection and no range is specified, the style will
-   * apply to the next character typed.
-   *
-   * If a range is specified, the style is applied to the range, otherwise,
-   * if there is a selection, the style is applied to the selection.
-   *
-   * If the operation is 'toggle' and the range already has this style,
-   * remove it. If the range
-   * has the style partially applied (i.e. only some sections), remove it from
-   * those sections, and apply it to the entire range.
-   *
-   * If the operation is 'set', the style is applied to the range,
-   * whether it already has the style or not.
-   *
-   * The default operation is 'set'.
+   * @inheritdoc Mathfield.applyStyle
    *
    * @category Accessing and changing the content
    */
@@ -973,7 +940,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * The bottom location of the caret (insertion point) in viewport
    * coordinates.
    *
-   * See also [[`setCaretPoint`]]
    * @category Selection
    */
   get caretPoint(): null | { x: number; y: number } {
@@ -998,22 +964,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   *  Return an array of ranges matching the argument.
-   *
-   * An array is always returned, but it has no element if there are no
-   * matching items.
+   * @inheritdoc Mathfield.find
    */
   find(pattern: string | RegExp, options?: FindOptions): Range[] {
     return this._mathfield?.find(pattern, options) ?? [];
   }
 
   /**
-   * Replace the pattern items matching the **pattern** with the
-   * **replacement** value.
-   *
-   * If **replacement** is a function, the function is called
-   * for each match and the function return value will be
-   * used as the replacement.
+   * @inheritdoc Mathfield.replace
    */
   replace(
     pattern: string | RegExp,

@@ -293,13 +293,11 @@ export function convertLatexToSpeakableText(
  * To render a specific element, use {@linkcode renderMathInElement | renderMathInElement()}
  * ---
  *
- * Read {@tutorial mathfield-getting-started | Getting Started}.
+ * Read {@tutorial getting-started | Getting Started}.
  *
  * @example
  * import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
- * document.addEventListener("load", () => {
- *     renderMathInDocument();
- * });
+ * document.addEventListener("load", () => renderMathInDocument());
  *
  * @category Rendering
  * @keywords render, document, autorender
@@ -337,7 +335,7 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
  */
 
 export function renderMathInElement(
-  element: HTMLElement,
+  element: string | HTMLElement,
   options?: AutoRenderOptions
 ): void {
   const el = getElement(element);

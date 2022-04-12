@@ -30,7 +30,15 @@ export type SpeechScope =
 
 // @revisit: maybe a command attribute instead?
 /**
- * Commands return true if they resulted in a dirty state
+ * Use with [[Mathfield.executeCommand]] or [[MathfieldElement.executeCommand]].
+ *
+ * ```ts
+ * const mf = document.getElementById('mathfield');
+ * mf.executeCommand('selectAll');
+ * mf.executeCommand('copyToClipboard');
+ * ```
+ *
+ * Commands return true if they resulted in a dirty state.
  * @command executeCommand
  */
 export interface Commands {

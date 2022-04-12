@@ -18,11 +18,8 @@
  *
  */
 
-import { Mathfield } from './mathfield';
-import { MathfieldElement } from './mathfield-element';
-import { MacroDictionary, Registers } from './core';
-
+export * from './commands';
+export * from './core';
 export * from './options';
-
-export { Mathfield };
-export { MathfieldElement };
+export * from './mathfield';
+export * from './mathfield-element';
