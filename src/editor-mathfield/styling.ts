@@ -8,8 +8,9 @@ export function applyStyle(
   mathfield: MathfieldPrivate,
   inStyle: Style
 ): boolean {
-  const style = validateStyle(mathfield, inStyle);
   mathfield.resetKeystrokeBuffer();
+
+  const style = validateStyle(mathfield, inStyle);
   const { model } = mathfield;
   if (model.selectionIsCollapsed) {
     // No selection, let's update the 'current' style
@@ -66,17 +67,14 @@ export function validateStyle(
   const result: PrivateStyle = {};
 
   if (typeof style.color === 'string') {
-    if (!result.verbatimColor) result.verbatimColor = style.color;
-    result.color = mathfield.colorMap(style.color);
+    result.verbatimColor = style.color;
+    result.color = mathfield.colorMap(style.color) ?? 'none';
   }
 
   if (typeof style.backgroundColor === 'string') {
-    if (!result.verbatimBackgroundColor) {
-      result.verbatimBackgroundColor = style.backgroundColor;
-    }
-    result.backgroundColor = mathfield.backgroundColorMap(
-      style.backgroundColor
-    );
+    result.verbatimBackgroundColor = style.backgroundColor;
+    result.backgroundColor =
+      mathfield.backgroundColorMap(style.backgroundColor) ?? 'none';
   }
 
   if (typeof style.fontFamily === 'string') {
@@ -97,7 +95,7 @@ export function validateStyle(
         bold: 'b',
         medium: 'm',
         normal: 'm',
-      }[result.fontSeries] || result.fontSeries;
+      }[result.fontSeries] ?? result.fontSeries;
   }
 
   if (typeof style.shape === 'string') {
@@ -115,7 +113,7 @@ export function validateStyle(
         up: 'n',
         upright: 'n',
         normal: 'n',
-      }[result.fontShape] || result.fontShape;
+      }[result.fontShape] ?? result.fontShape;
   }
 
   const size = style.size ?? style.fontSize;

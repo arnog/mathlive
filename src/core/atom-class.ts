@@ -670,6 +670,10 @@ export class Atom {
     if (this.style.fontSize === 'auto') {
       delete this.style.fontSize;
     }
+
+    for (const child of this.children) {
+      child.applyStyle(style);
+    }
   }
 
   getInitialBaseElement(): Atom {

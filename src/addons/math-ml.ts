@@ -46,11 +46,11 @@ function xmlEscape(string: string): string {
   );
 }
 
-function makeID(id, options) {
+function makeID(id: string, options): string {
   if (!id || !options.generateID) return '';
   // Note: the 'extid' attribute is recognized by SRE as an attribute
   // to be passed to SSML as a <mark> tag.
-  return ' extid="' + id + '"';
+  return ` extid="${id}"`;
 }
 
 function scanIdentifier(stream, final, options) {
@@ -176,9 +176,8 @@ function parseSubsup(base, stream, options) {
   return result;
 }
 
-function scanText(stream, final, options) {
-  let result = false;
-  final = final || stream.atoms.length;
+function scanText(stream, final: number, options) {
+  final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
   while (stream.index < final && stream.atoms[stream.index].mode === 'text') {
@@ -189,19 +188,13 @@ function scanText(stream, final, options) {
   }
 
   if (mathML.length > 0) {
-    result = true;
-    mathML =
-      '<mtext' +
-      makeID(stream.atoms[initial].id, options) +
-      '>' +
-      mathML +
-      '</mtext>';
-
-    stream.mathML += mathML;
+    stream.mathML += `<mtext ${makeID(stream.atoms[initial].id, options)}
+      >${mathML}</mtext>`;
     stream.lastType = 'mtext';
+    return true;
   }
 
-  return result;
+  return false;
 }
 
 function scanNumber(stream, final, options) {
@@ -611,14 +604,14 @@ function atomToMathML(atom, options): string {
   let underscript;
   let overscript;
   let body;
-  let variant = MATH_VARIANTS[atom.fontFamily || atom.font] || '';
+  let variant = MATH_VARIANTS[atom.fontFamily ?? atom.font] ?? '';
   if (variant) {
-    variant = ' mathvariant="' + variant + '"';
+    variant = ` mathvariant="${variant}"`;
   }
 
   const { command } = atom;
   if (atom.mode === 'text') {
-    result = '<mi' + makeID(atom.id, options) + '>' + atom.value + '</mi>';
+    result = `<mi${makeID(atom.id, options)}>${atom.value}</mi>`;
   } else {
     switch (atom.type) {
       case 'first':
@@ -895,16 +888,9 @@ function atomToMathML(atom, options): string {
         }
 
         const tag = /\d/.test(result) ? 'mn' : 'mi';
-        result =
-          '<' +
-          tag +
-          variant +
-          makeID(atom.id, options) +
-          '>' +
-          xmlEscape(result) +
-          '</' +
-          tag +
-          '>';
+        result = `<${tag}${variant}${makeID(atom.id, options)}>${xmlEscape(
+          result
+        )}</${tag}>`;
         break;
       }
 
@@ -1045,6 +1031,10 @@ function atomToMathML(atom, options): string {
         break;
       case 'error':
         console.log('In conversion to MathML, unknown type : ' + atom.type);
+        break;
+      case 'latex':
+        result +=
+          '<mtext' + makeID(atom.id, options) + '>' + atom.value + '</mtext>';
         break;
       default:
         console.log('In conversion to MathML, unknown type : ' + atom.type);

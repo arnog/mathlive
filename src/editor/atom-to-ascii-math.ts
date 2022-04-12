@@ -82,11 +82,13 @@ const SPECIAL_OPERATORS = {
 export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
   if (!atom) return '';
   if (isArray<Atom>(atom)) {
-    let result = '';
     if (atom.length === 0) return '';
     if (atom[0].type === 'first') atom = atom.slice(1);
     if (atom.length === 0) return '';
-    if (atom[0].mode === 'text') {
+    let result = '';
+    if (atom[0].mode === 'latex') {
+      for (const x of atom) result += atomToAsciiMath(x);
+    } else if (atom[0].mode === 'text') {
       // Text mode... put it in (ASCII) quotes
       let i = 0;
       result = '"';
@@ -168,6 +170,10 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
           atomToAsciiMath(atom.body) +
           ')'
         : 'sqrt(' + atomToAsciiMath(atom.body) + ')';
+      break;
+
+    case 'latex':
+      result = atom.value;
       break;
 
     case 'leftright':
