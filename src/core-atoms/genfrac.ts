@@ -184,7 +184,7 @@ export class GenfracAtom extends Atom {
             shift: denomShift,
             classes: ['ML__center'],
           },
-          { box: fracLine, shift: -denomLine },
+          { box: fracLine, shift: -denomLine + ruleWidth / 2 },
           {
             box: numerBox,
             shift: -numerShift,
