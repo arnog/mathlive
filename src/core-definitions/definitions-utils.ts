@@ -194,12 +194,12 @@ const REVERSE_MATH_SYMBOLS = {
     0x27F9: '\\implies', // Also \Longrightarrow
     0x27fa: '\\iff',
 
-    0x2102: '\\C',    // Also \doubleStruckCapitalC
-    0x2115: '\\N',    // Also \doubleStruckCapitalN
-    0x2119: '\\P',    // Also \doubleStruckCapitalP
-    0x211A: '\\Q',    // Also \doubleStruckCapitalQ
-    0x211D: '\\R',    // Also \doubleStruckCapitalR
-    0x2124: '\\Z',    // Also \doubleStruckCapitalZ
+    0x2102: '\\mathbb{C}',    // Also \doubleStruckCapitalC
+    0x2115: '\\mathbb{N}',    // Also \doubleStruckCapitalN
+    0x2119: '\\mathbb{P}',    // Also \doubleStruckCapitalP
+    0x211A: '\\mathbb{Q}',    // Also \doubleStruckCapitalQ
+    0x211D: '\\mathbb{R}',    // Also \doubleStruckCapitalR
+    0x2124: '\\mathbb{Z}',    // Also \doubleStruckCapitalZ
 };
 export const LEGACY_COMMANDS: Record<string, FunctionDefinition> = {};
 

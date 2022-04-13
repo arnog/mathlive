@@ -727,11 +727,11 @@ const ALT_KEYS_BASE: {
   'i': [{ latex: '\\imaginaryI', aside: 'imaginary i' }],
   'j': [{ latex: '\\imaginaryJ', aside: 'imaginary j' }],
   'l': [{ latex: '\\ell', aside: 'ell' }],
-  'n': [{ latex: '\\N', aside: 'set of natural numbers' }],
-  'p': [{ latex: '\\P', aside: 'set of primes' }],
-  'q': [{ latex: '\\Q', aside: 'set of rational numbers' }],
-  'r': [{ latex: '\\R', aside: 'set of real numbers' }],
-  'z': [{ latex: '\\Z', aside: 'set of integers' }],
+  'n': [{ latex: '\\mathbb{N}', aside: 'set of natural numbers' }],
+  'p': [{ latex: '\\mathbb{P}', aside: 'set of primes' }],
+  'q': [{ latex: '\\mathbb{Q}', aside: 'set of rational numbers' }],
+  'r': [{ latex: '\\mathbb{R}', aside: 'set of real numbers' }],
+  'z': [{ latex: '\\mathbb{Z}', aside: 'set of integers' }],
 
   'x-var': [
     'y',

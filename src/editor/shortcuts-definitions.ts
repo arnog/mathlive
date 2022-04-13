@@ -124,20 +124,22 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   '!in': { mode: 'math', value: '\\notin' },
 
   // Sets
-  'NN': '\\N', // Natural numbers
-  'ZZ': '\\Z', // Integers
-  'QQ': '\\Q', // Rational numbers
-  'RR': '\\R', // Real numbers
-  'CC': '\\C', // Complex numbers
-  'PP': '\\P', // Prime numbers
+  'NN': { mode: 'math', value: '\\mathbb{N}' }, // Natural numbers
+  'ZZ': { mode: 'math', value: '\\Z' }, // Integers
+  'QQ': { mode: 'math', value: '\\Q' }, // Rational numbers
+  'RR': { mode: 'math', value: '\\R' }, // Real numbers
+  'CC': { mode: 'math', value: '\\C' }, // Complex numbers
 
   // Operators
   'xx': { mode: 'math', value: '\\times' },
   '+-': { mode: 'math', value: '\\pm' },
 
   // Relational operators
+  '≠': { mode: 'math', value: '\\ne' },
   '!=': { mode: 'math', value: '\\ne' },
+  '\u2265': { mode: 'math', value: '\\ge' },
   '>=': { mode: 'math', value: '\\ge' },
+  '\u2264': { mode: 'math', value: '\\le' },
   '<=': { mode: 'math', value: '\\le' },
   '<<': { mode: 'math', value: '\\ll' },
   '>>': { mode: 'math', value: '\\gg' },

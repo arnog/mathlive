@@ -4,6 +4,12 @@
 
 - **#1017** Display tooltip over buttons of virtual keyboard button bar
 - **#1356** In inline mode, the fraction bar appeared too close to the numerator
+- **#1222** When multiple `\ne` commands were entered, older ones would
+  disappear.
+
+### Improvements
+
+- Use more standard `\mathbb{N}`, etc... for `NN` shortcut
 
 ## 0.71.0 (2022-04-12)
 
