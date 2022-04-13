@@ -1661,6 +1661,7 @@ export class Parser {
       result.verbatimLatex =
         (result.command ?? '') +
         tokensToString(this.tokens.slice(initialIndex, this.index));
+      if (result.verbatimLatex.length === 0) result.verbatimLatex = undefined;
 
       if (result.isFunction && this.smartFence) {
         // The command was a function that may be followed by
