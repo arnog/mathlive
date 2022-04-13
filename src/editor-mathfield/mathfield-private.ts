@@ -419,7 +419,7 @@ export class MathfieldPrivate implements Mathfield {
       textarea as HTMLTextAreaElement,
       {
         typedText: (text: string): void => onTypedText(this, text),
-        cut: (_ev: ClipboardEvent) => {
+        cut: (ev: ClipboardEvent) => {
           // Ignore if in read-only mode
           if (this.options.readOnly) {
             this.model.announce('plonk');
@@ -429,9 +429,12 @@ export class MathfieldPrivate implements Mathfield {
           // Snapshot the undo state
           this.snapshot();
 
+          // Copy to the clipboard
+          ModeEditor.onCopy(this, ev);
+
           // Clearing the selection will have the side effect of clearing the
           // content of the textarea. However, the textarea value is what will
-          // be copied to the clipboard, so defer the clearing of the selection
+          // be copied to the clipboard (in some cases), so defer the clearing of the selection
           // to later, after the cut operation has been handled.
           setTimeout(() => {
             deleteRange(this.model, range(this.model.selection));
