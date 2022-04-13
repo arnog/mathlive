@@ -3,6 +3,7 @@
 ### Bug Fixes
 
 - **#1017** Display tooltip over buttons of virtual keyboard button bar
+- **#1356** In inline mode, the fraction bar appeared too close to the numerator
 
 ## 0.71.0 (2022-04-12)
 
