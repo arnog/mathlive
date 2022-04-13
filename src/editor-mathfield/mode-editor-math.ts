@@ -27,6 +27,7 @@ import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import { parseLatex } from '../core/parser';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import MathfieldElement from '../public/mathfield-element';
+import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -76,7 +77,7 @@ export class MathModeEditor extends ModeEditor {
 
   insert(
     model: ModelPrivate,
-    text: string,
+    input: string | Expression,
     options: InsertOptions & {
       colorMap: (name: string) => string | undefined;
       backgroundColorMap: (name: string) => string | undefined;
@@ -99,10 +100,11 @@ export class MathModeEditor extends ModeEditor {
           parent instanceof LeftRightAtom &&
           parent.rightDelim === '?' &&
           model.at(model.position).isLastSibling &&
-          /^[)}\]|]$/.test(text)
+          typeof input === 'string' &&
+          /^[)}\]|]$/.test(input)
         ) {
           parent.isDirty = true;
-          parent.rightDelim = text;
+          parent.rightDelim = input;
           model.position += 1;
           selectionDidChange(model);
           contentDidChange(model);
@@ -111,7 +113,8 @@ export class MathModeEditor extends ModeEditor {
       }
     } else if (
       model.selectionIsCollapsed &&
-      insertSmartFence(model, text, options.style)
+      typeof input === 'string' &&
+      insertSmartFence(model, input, options.style)
     ) {
       return true;
     }
@@ -170,7 +173,7 @@ export class MathModeEditor extends ModeEditor {
     if (args[0]) {
       // There was a selection, we'll use it for #@
       args['@'] = args[0];
-    } else if (/(^|[^\\])#@/.test(text)) {
+    } else if (typeof input === 'string' && /(^|[^\\])#@/.test(input)) {
       // We'll use the preceding `mord`s or text mode atoms for it (implicit argument)
       const offset = getImplicitArgOffset(model);
       if (offset >= 0) {
@@ -190,7 +193,7 @@ export class MathModeEditor extends ModeEditor {
 
     const [format, newAtoms] = convertStringToAtoms(
       model,
-      text,
+      input,
       argFunction,
       options
     );
@@ -295,7 +298,7 @@ export class MathModeEditor extends ModeEditor {
     const cursor = model.at(model.position);
     cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
-    if (format === 'latex') {
+    if (format === 'latex' && typeof input === 'string') {
       // If we are given a latex string with no arguments, store it as
       // "verbatim latex".
       // Caution: we can only do this if the `serialize()` for this parent
@@ -303,7 +306,7 @@ export class MathModeEditor extends ModeEditor {
       // properties than parent.body, for example by adding '\left.' and
       // '\right.' with a 'leftright' type, we can't use this shortcut.
       if (parent!.type === 'root' && hadEmptyBody && !usedArg) {
-        parent!.verbatimLatex = text;
+        parent!.verbatimLatex = input;
       }
     }
 
@@ -351,7 +354,7 @@ export class MathModeEditor extends ModeEditor {
 
 function convertStringToAtoms(
   model: ModelPrivate,
-  s: string,
+  s: string | Expression,
   args: (arg: string) => string,
   options: InsertOptions & {
     colorMap: (name: string) => string | undefined;
@@ -360,7 +363,20 @@ function convertStringToAtoms(
 ): [OutputFormat, Atom[]] {
   let format: OutputFormat | undefined = undefined;
   let result: Atom[] = [];
-  if (options.format === 'ascii-math') {
+
+  if (typeof s !== 'string' || options.format === 'math-json') {
+    [format, s] = [
+      'latex',
+      model.mathfield.computeEngine.box(s as Expression).latex,
+    ];
+    result = parseLatex(s, {
+      parseMode: 'math',
+      macros: options?.macros,
+      onError: model.listeners.onError,
+      colorMap: options.colorMap,
+      backgroundColorMap: options.backgroundColorMap,
+    });
+  } else if (typeof s === 'string' && options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {
       format: 'ascii-math',
       inlineShortcuts: model.mathfield.options.inlineShortcuts,

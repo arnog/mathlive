@@ -8,6 +8,10 @@
   the MathJSON representation of the value, and manipulate it using the CortexJS
   Compute Engine.
 
+### New Features
+
+- `"math-json"` can be used as a format for `setValue()`
+
 ### Improvements
 
 - **#1415** Atoms inside parentheses are now considered as implicit arguments,
