@@ -366,6 +366,7 @@ export const version = {
   computeEngine: computeEngineVersion,
 };
 
+/** @internal */
 export const debug = {
   latexToAsciiMath,
   asciiMathToLatex,
