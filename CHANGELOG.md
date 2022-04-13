@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1017** Display tooltip over buttons of virtual keyboard button bar
+
 ## 0.71.0 (2022-04-12)
 
 ### Breaking Changes

@@ -1326,10 +1326,9 @@ function makeKeyboardToolbar(
 
       if (keyboards[keyboard].tooltip) {
         result +=
-          "data-ML__tooltip='" +
+          "data-tooltip='" +
           (l10n(keyboards[keyboard].tooltip) ?? keyboards[keyboard].tooltip) +
           "' ";
-        result += "data-placement='top' data-delay='1s'";
       }
 
       if (keyboard !== currentKeyboard) {
@@ -1360,27 +1359,21 @@ function makeKeyboardToolbar(
     copyToClipboard: `
             <div class='action'
                 data-command='"copyToClipboard"'
-                data-ML__tooltip='${l10n(
-                  'tooltip.copy to clipboard'
-                )}' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.copy to clipboard')}'>
                 <svg><use xlink:href='#svg-copy' /></svg>
             </div>
         `,
     undo: `
             <div class='action disabled'
                 data-command='"undo"'
-                data-ML__tooltip='${l10n(
-                  'tooltip.undo'
-                )}' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.undo')}'>
                 <svg><use xlink:href='#svg-undo' /></svg>
             </div>
         `,
     redo: `
             <div class='action disabled'
                 data-command='"redo"'
-                data-ML__tooltip='${l10n(
-                  'tooltip.redo'
-                )}' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.redo')}'>
                 <svg><use xlink:href='#svg-redo' /></svg>
             </div>
         `,
