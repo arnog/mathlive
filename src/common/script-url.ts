@@ -46,13 +46,17 @@ function getFileUrl() {
 }
 
 export function resolveRelativeUrl(url: string): string {
-  let result = '';
   try {
-    result = new URL(url, gScriptUrl).toString();
+    var request = new XMLHttpRequest();
+    request.open('GET', gScriptUrl, false);
+    request.send(null);
+    if (request.status === 200) {
+      return new URL(url, request.responseURL).href;
+    }
   } catch (e) {
     console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
   }
-  return result;
+  return '';
 }
 
 // The URL of the bundled MathLive library. Used later to locate the `fonts`

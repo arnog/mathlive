@@ -52,24 +52,25 @@ function loadSound(
     sound.load();
     return sound;
   }
+  if (typeof sound === 'string') {
+    sound = sound.trim();
+    if (sound.length === 0) return null;
 
-  sound = sound.trim();
-  if (sound.length === 0) return null;
+    const result: HTMLAudioElement = new Audio();
+    result.src = resolveRelativeUrl(
+      (soundDirectory === undefined || soundDirectory.length === 0
+        ? './sounds'
+        : soundDirectory) +
+        '/' +
+        sound
+    );
+    // Note that on iOS the volume property is read-only
+    result.volume = AUDIO_FEEDBACK_VOLUME;
+    result.load();
+    return result;
+  }
 
-  const url = resolveRelativeUrl(
-    (soundDirectory === undefined || soundDirectory.length === 0
-      ? './sounds'
-      : soundDirectory) +
-      '/' +
-      sound
-  ).toString();
-
-  const result: HTMLAudioElement = new Audio();
-  result.src = url;
-  // Note that on iOS the volume property is read-only
-  result.volume = AUDIO_FEEDBACK_VOLUME;
-  result.load();
-  return result;
+  return null;
 }
 
 function unloadSound(
@@ -162,8 +163,9 @@ export function update(
         break;
 
       case 'plonkSound':
-        unloadSound(result.plonkSound!);
-        result.plonkSound = loadSound(soundsDirectory, updates.plonkSound!);
+        if (result.plonkSound instanceof HTMLAudioElement)
+          unloadSound(result.plonkSound);
+        result.plonkSound = loadSound(soundsDirectory, updates.plonkSound);
         break;
 
       case 'keypressSound':
