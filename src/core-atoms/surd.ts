@@ -105,9 +105,7 @@ export class SurdAtom extends Atom {
     }
 
     // Shift the delimiter so that its top lines up with the top of the line
-    delimBox.setTop(
-      delimBox.height - innerBox.height - (lineClearance + ruleWidth)
-    );
+    delimBox.setTop(delimBox.height - innerBox.height - lineClearance);
 
     //
     // 4. Render the body (inner + line)
