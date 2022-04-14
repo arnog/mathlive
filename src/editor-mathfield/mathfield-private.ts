@@ -588,7 +588,7 @@ export class MathfieldPrivate implements Mathfield {
 
   get keybindings(): Keybinding[] {
     if (this._keybindings) return this._keybindings;
-    this._keybindings = normalizeKeybindings(
+    const keybindings = normalizeKeybindings(
       this.options.keybindings,
       getActiveKeyboardLayout() ?? DEFAULT_KEYBOARD_LAYOUT,
       (e) => {
@@ -602,7 +602,10 @@ export class MathfieldPrivate implements Mathfield {
         console.error(e.join('\n'));
       }
     );
-    return this._keybindings;
+    if (getActiveKeyboardLayout()?.score > 0) {
+      this._keybindings = keybindings;
+    }
+    return keybindings;
   }
 
   setOptions(config: Partial<MathfieldOptionsPrivate>): void {
