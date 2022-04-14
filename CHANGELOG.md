@@ -7,7 +7,13 @@
 - **#1222**, **#1024** When multiple `\ne` commands were entered, older ones
   would disappear.
 - **#1013** Cutting the content of the matfield would not work in some cases
-- **#1149** Improved placement of the horizontal bar above square roots
+- **#1149** Improved placement of the horizontal bar above square roots =
+  **#1070** The `\mod` command (and `\pmod` and `\bmod`) no longer captures the
+  cursor or allow its content to be selected
+- When navigating with the arrow keys backward, if landing on a group atom (e.g.
+  a macro), allow the cursor to be positioned right after the atom.
+- In some rare cases (if no keys but keybinding were entered in a mathfield),
+  some keybindings would stop functioning
 
 ### Improvements
 
