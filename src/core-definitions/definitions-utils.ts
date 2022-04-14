@@ -329,7 +329,6 @@ export const AMSMATH_MACROS: MacroDictionary = {
     def: '\\quad(\\operatorname{mod}\\ #1)',
     args: 1,
     expand: false,
-    captureSelection: false,
   },
 
   // > \newcommand{\mod}[1]{
@@ -345,7 +344,6 @@ export const AMSMATH_MACROS: MacroDictionary = {
     def: '\\quad\\operatorname{mod}\\,\\,#1',
     args: 1,
     expand: false,
-    captureSelection: false,
   },
 
   // > \renewcommand{\bmod}{
