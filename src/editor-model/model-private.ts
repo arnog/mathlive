@@ -470,7 +470,7 @@ export class ModelPrivate implements Model {
           // When going forward, if in a capture selection, jump to
           // after
           while (!atom.captureSelection) atom = atom.parent!;
-          pos = this.offsetOf(atom?.parent!.lastChild) + 1;
+          pos = this.offsetOf(atom?.lastChild) + 1;
         } else {
           pos += 1;
         }
@@ -528,14 +528,15 @@ export class ModelPrivate implements Model {
 
       // Include the parent if all the chidlren are selected
       let { parent } = this.at(end);
-      while (
-        parent !== this.root &&
-        childrenInRange(this, parent!, [start, end])
-      ) {
-        end = this.offsetOf(parent!);
-        parent = parent!.parent;
+      if (parent?.type === 'genfrac') {
+        while (
+          parent !== this.root &&
+          childrenInRange(this, parent!, [start, end])
+        ) {
+          end = this.offsetOf(parent!);
+          parent = parent!.parent;
+        }
       }
-
       parent = this.at(start).parent;
       while (
         parent !== this.root &&
@@ -548,15 +549,16 @@ export class ModelPrivate implements Model {
       // Now that the start has potentially changed, check again
       // if end needs to be updated
       parent = this.at(end).parent;
-      while (
-        parent !== this.root &&
-        childrenInRange(this, parent!, [start, end])
-      ) {
-        end = this.offsetOf(parent!);
-        console.assert(end >= 0);
-        parent = parent!.parent;
+      if (parent?.type === 'genfrac') {
+        while (
+          parent !== this.root &&
+          childrenInRange(this, parent!, [start, end])
+        ) {
+          end = this.offsetOf(parent!);
+          console.assert(end >= 0);
+          parent = parent!.parent;
+        }
       }
-
       this._position = this.normalizeOffset(position);
       this._selection = {
         ranges: [[start, end]],

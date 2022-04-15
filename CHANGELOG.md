@@ -14,6 +14,10 @@
   a macro), allow the cursor to be positioned right after the atom.
 - In some rare cases (if no keys but keybinding were entered in a mathfield),
   some keybindings would stop functioning
+- **#1327** Selecting the expression under a square root also selected the
+  squared root.
+- Extendion the selection forward when including some atoms such as
+  `\operatorname` jumped to the end of the expression.
 
 ### Improvements
 
