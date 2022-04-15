@@ -313,7 +313,6 @@ function latexToMarkup(latex: string): string {
         root.render(
           new Context(
             {
-              macros: getMacros(),
               registers: getDefaultRegisters(),
               smartFence: false,
             },

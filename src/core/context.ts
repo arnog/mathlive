@@ -19,7 +19,6 @@ import { PlaceholderAtom } from '../core-atoms/placeholder';
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf
 
 export interface ContextInterface {
-  macros?: MacroDictionary;
   registers: Registers;
   atomIdsSettings?: {
     overrideID?: string;
@@ -66,8 +65,6 @@ export type PrivateStyle = Style & {
  *
  */
 export class Context implements ContextInterface {
-  macros: MacroDictionary;
-
   // If not undefined, unique IDs should be generated for each box so they can
   // be mapped back to an atom.
   // The `seed` field should be a number to generate a specific range of
@@ -203,7 +200,6 @@ export class Context implements ContextInterface {
     this._mathstyle = mathstyle;
 
     this.atomIdsSettings = parent.atomIdsSettings;
-    this.macros = from.macros ?? {};
     this.smartFence = from.smartFence ?? false;
     this.renderPlaceholder = from.renderPlaceholder;
     console.assert(

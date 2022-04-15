@@ -722,7 +722,6 @@ export class MathfieldPrivate implements Mathfield {
         selectionMode: 'after',
         format: 'latex',
         suppressChangeNotifications: true,
-        macros: this.options.macros,
       });
     }
 

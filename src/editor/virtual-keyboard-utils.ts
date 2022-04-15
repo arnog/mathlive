@@ -1273,7 +1273,6 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
         root.render(
           new Context(
             {
-              macros: getMacros(),
               registers: getDefaultRegisters(),
               smartFence: false,
             },

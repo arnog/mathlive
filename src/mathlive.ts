@@ -156,7 +156,6 @@ export function convertLatexToMarkup(
   const box = root.render(
     new Context(
       {
-        macros: options.macros,
         registers: getDefaultRegisters(),
         smartFence: false,
         renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),

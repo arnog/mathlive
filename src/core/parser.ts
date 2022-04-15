@@ -22,6 +22,7 @@ import {
   getEnvironmentDefinition,
   getInfo,
   getMacros,
+  normalizeMacroDictionary,
 } from '../core-definitions/definitions-utils';
 import type { ColumnFormat } from '../core-atoms/array';
 import { GroupAtom } from '../core-atoms/group';
@@ -1812,7 +1813,7 @@ export function parseLatex(
 ): Atom[] {
   const parser = new Parser(tokenize(s, options?.args ?? null), {
     args: options?.args ?? null,
-    macros: getMacros(options?.macros),
+    macros: normalizeMacroDictionary(options?.macros ?? {}),
     registers: options?.registers ?? null,
     mathstyle: options?.mathstyle ?? 'displaystyle',
     colorMap: options?.colorMap ?? defaultColorMap,
