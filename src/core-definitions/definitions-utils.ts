@@ -941,6 +941,7 @@ export function getInfo(
  */
 export function suggest(mf: MathfieldPrivate, s: string): string[] {
   if (s === '\\') return [];
+  if (!s.startsWith('\\')) return [];
 
   const result: { match: string; frequency: number }[] = [];
 

@@ -16,12 +16,14 @@
   some keybindings would stop functioning
 - **#1327** Selecting the expression under a square root also selected the
   squared root.
-- Extendion the selection forward when including some atoms such as
+- Extending the selection forward when including some atoms such as
   `\operatorname` jumped to the end of the expression.
+- **#1422** Turning off macros would still fallback to default macros.
 
 ### Improvements
 
 - Use more standard `\mathbb{N}`, etc... for `NN` shortcut
+- Improved display of command popover when editing raw LaTeX
 
 ## 0.71.0 (2022-04-12)
 
