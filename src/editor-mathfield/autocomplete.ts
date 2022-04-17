@@ -60,10 +60,6 @@ export function updateAutocomplete(
   }
 
   const commandString = command.map((x) => x.value).join('');
-  console.log(commandString);
-  if (!commandString.startsWith('\\')) {
-    console.log('stop');
-  }
   const suggestions = commandString ? suggest(mathfield, commandString) : [];
 
   if (suggestions.length === 0) {
