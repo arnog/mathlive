@@ -11,6 +11,7 @@ import { AXIS_HEIGHT } from '../core/font-metrics';
 export class OperatorAtom extends Atom {
   private readonly variant?: Variant;
   private readonly variantStyle?: VariantStyle;
+  private readonly hasArgument: boolean;
 
   constructor(
     command: string,
@@ -19,6 +20,7 @@ export class OperatorAtom extends Atom {
       type?: AtomType;
       isExtensibleSymbol?: boolean;
       isFunction?: boolean;
+      hasArgument?: boolean;
       captureSelection?: boolean;
       // Unlike `style`, `variant` and `variantStyle` are applied to the
       // content of this atom, but not propagated to the next atom
@@ -38,6 +40,8 @@ export class OperatorAtom extends Atom {
     } else {
       this.body = symbol;
     }
+
+    this.hasArgument = options.hasArgument ?? false;
 
     this.captureSelection = options.captureSelection;
     this.variant = options?.variant;
@@ -125,19 +129,17 @@ export class OperatorAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
+    // ZERO-WIDTH?
+    if (this.value === '\u200B') return this.supsubToLatex(options);
+
     const result: string[] = [];
-    if (this.value !== '\u200B') {
-      // Not ZERO-WIDTH
-      result.push(
-        this.command === '\\mathop' || this.command === '\\operatorname'
-          ? this.command + `{${this.bodyToLatex(options)}}`
-          : this.command ?? ''
-      );
-      if (this.explicitSubsupPlacement) {
-        if (this.subsupPlacement === 'over-under') result.push('\\limits');
-        if (this.subsupPlacement === 'adjacent') result.push('\\nolimits');
-        if (this.subsupPlacement === 'auto') result.push('\\displaylimits');
-      }
+    result.push(
+      this.command! + this.hasArgument ? `{${this.bodyToLatex(options)}}` : ''
+    );
+    if (this.explicitSubsupPlacement) {
+      if (this.subsupPlacement === 'over-under') result.push('\\limits');
+      if (this.subsupPlacement === 'adjacent') result.push('\\nolimits');
+      if (this.subsupPlacement === 'auto') result.push('\\displaylimits');
     }
 
     result.push(this.supsubToLatex(options));

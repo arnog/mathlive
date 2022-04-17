@@ -671,6 +671,7 @@ defineFunction('mathop', '{:auto}', {
       captureSelection: true,
       limits: 'over-under',
       isFunction: true,
+      hasArgument: true,
       style,
     }),
 });
@@ -705,6 +706,7 @@ defineFunction(
           } as const
         )[command],
         captureSelection: true,
+        hasArgument: true,
         style,
       }),
   }
@@ -717,6 +719,7 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
   createAtom: (name: string, args: Argument[], style: PrivateStyle): Atom => {
     const result = new OperatorAtom(name, args[0] as Atom[], {
       isFunction: true,
+      hasArgument: true,
       limits: name === '\\operatorname' ? 'adjacent' : 'over-under',
       style,
     });

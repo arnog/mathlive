@@ -19,6 +19,7 @@
 - Extending the selection forward when including some atoms such as
   `\operatorname` jumped to the end of the expression.
 - **#1422** Turning off macros would still fallback to default macros.
+- **#1037** Correctly serialize `\mathord`, `\mathbin`, etc...
 
 ### Improvements
 
