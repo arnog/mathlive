@@ -442,7 +442,7 @@ function moveUpward(
   }
 
   // handle navigating through matrices and such
-  if (Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom) {
+  if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
     const currentIndex =
       arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
@@ -543,7 +543,7 @@ function moveDownward(
   }
 
   // handle navigating through matrices and such
-  if (Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom) {
+  if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
     const currentIndex =
       arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);

@@ -20,6 +20,8 @@
   `\operatorname` jumped to the end of the expression.
 - **#1422** Turning off macros would still fallback to default macros.
 - **#1037** Correctly serialize `\mathord`, `\mathbin`, etc...
+- **#1425** Using the up/down keys to navigate could produce an error in some
+  cases
 
 ### Improvements
 
