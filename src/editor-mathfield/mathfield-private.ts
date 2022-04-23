@@ -313,11 +313,11 @@ export class MathfieldPrivate implements Mathfield {
     // 3.1/ The aria-live region for announcements
     // 3.1/ The area to stick MathML for screen reading larger exprs
     // (not used right now). The idea for the area is that focus would bounce
-    // their and then back triggering the screen reader to read it
+    // there and then back triggering the screen reader to read it
 
     markup +=
       '<div class="ML__sr-only">' +
-      '<span aria-live="assertive" aria-atomic="true"></span>' +
+      '<span aria-role="status" aria-live="assertive" aria-atomic="true"></span>' +
       '<span></span>' +
       '</div>';
 
@@ -361,11 +361,6 @@ export class MathfieldPrivate implements Mathfield {
     } else {
       this.element.classList.remove('ML__isReadOnly');
     }
-    if (this.options.defaultMode === 'inline-math') {
-      this.element.classList.add('ML__isInline');
-    } else {
-      this.element.classList.remove('ML__isInline');
-    }
     attachButtonHandlers(
       (command) => this.executeCommand(command),
       this.virtualKeyboardToggle,
@@ -407,6 +402,12 @@ export class MathfieldPrivate implements Mathfield {
     // Current style (color, weight, italic, etc...):
     // reflects the style to be applied on next insertion.
     this.style = {};
+
+    if (this.options.defaultMode === 'inline-math') {
+      this.element.classList.add('ML__isInline');
+    } else {
+      this.element.classList.remove('ML__isInline');
+    }
 
     // Focus/blur state
     this.blurred = true;

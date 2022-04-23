@@ -366,28 +366,23 @@ export class Atom {
     value: boolean | number | string | Atom | Atom[] | undefined,
     options: ToLatexOptions
   ): string {
-    let result = '';
-    if (isArray<Atom>(value)) {
-      result = atomsToLatex(value, options);
-    } else if (typeof value === 'number' || typeof value === 'boolean') {
-      result = value.toString();
-    } else if (typeof value === 'string') {
-      result = value.replace(/\s/g, '~');
-    } else if (value !== undefined) {
-      // If we have some verbatim latex for this atom, use it.
-      // This allow non-significant punctuation to be preserved when possible.
-      if (!options.expandMacro && typeof value.verbatimLatex === 'string') {
-        return value.verbatimLatex;
-      }
+    if (isArray<Atom>(value)) return atomsToLatex(value, options);
 
-      if (value.serializeOverride) {
-        return value.serializeOverride(value, options);
-      }
+    if (typeof value === 'number' || typeof value === 'boolean')
+      return value.toString();
 
-      result = value.serialize(options);
-    }
+    if (typeof value === 'string') return value.replace(/\s/g, '~');
 
-    return result;
+    if (value === undefined) return '';
+
+    // If we have some verbatim latex for this atom, use it.
+    // This allow non-significant punctuation to be preserved when possible.
+    if (!options.expandMacro && typeof value.verbatimLatex === 'string')
+      return value.verbatimLatex;
+
+    if (value.serializeOverride) return value.serializeOverride(value, options);
+
+    return value.serialize(options);
   }
 
   /**
