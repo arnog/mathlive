@@ -17,11 +17,11 @@ function relationName(atom: Atom): string {
   if (atom.treeBranch === 'body') {
     result = {
       enclose: 'cross out',
-      leftright: 'fence',
+      leftright: 'delimiter',
       surd: 'square root',
       root: 'math field',
       mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
-    }[atom.parent!.type];
+    }[atom.type];
   } else if (atom.parent!.type === 'genfrac') {
     if (atom.treeBranch === 'above') {
       return 'numerator';
@@ -40,7 +40,7 @@ function relationName(atom: Atom): string {
     result = 'subscript';
   }
 
-  if (!result!) {
+  if (!result) {
     console.log('unknown relationship');
   }
 
@@ -117,6 +117,7 @@ export function defaultAnnounceHook(
     ? ' \u202F '
     : ' \u00A0 ';
   mathfield.ariaLiveText!.textContent = liveText + ariaLiveChangeHack;
+  console.log(liveText + ariaLiveChangeHack);
   // This.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 
