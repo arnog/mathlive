@@ -140,9 +140,7 @@ function indexOfSuperscriptInNumber(stream) {
   return result;
 }
 
-function parseSubsup(base, stream, options) {
-  let result = false;
-  let mathML = '';
+function parseSubsup(base: string, stream, options): boolean {
   let atom: Atom = stream.atoms[stream.index - 1];
 
   if (!atom) return false;
@@ -159,21 +157,18 @@ function parseSubsup(base, stream, options) {
   const superscript = toMathML(atom.superscript, 0, 0, options).mathML;
   const subscript = toMathML(atom.subscript, 0, 0, options).mathML;
 
-  if (superscript && subscript) {
+  if (!superscript && !subscript) return false;
+
+  let mathML = '';
+  if (superscript && subscript)
     mathML = `<msubsup>${base}${subscript}${superscript}</msubsup>`;
-  } else if (superscript) {
-    mathML = `<msup>${base}${superscript}</msup>`;
-  } else if (subscript) {
-    mathML = `<msub>${base}${subscript}</msub>`;
-  }
+  else if (superscript) mathML = `<msup>${base}${superscript}</msup>`;
+  else if (subscript) mathML = `<msub>${base}${subscript}</msub>`;
 
-  if (mathML.length > 0) {
-    result = true;
-    stream.mathML += mathML;
-    stream.lastType = '';
-  }
+  stream.mathML += mathML;
+  stream.lastType = '';
 
-  return result;
+  return true;
 }
 
 function scanText(stream, final: number, options) {
@@ -198,8 +193,7 @@ function scanText(stream, final: number, options) {
 }
 
 function scanNumber(stream, final, options) {
-  let result = false;
-  final = final || stream.atoms.length;
+  final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
 
@@ -217,27 +211,22 @@ function scanNumber(stream, final, options) {
     stream.index += 1;
   }
 
-  if (mathML.length > 0) {
-    result = true;
-    mathML =
-      '<mn' +
-      makeID(stream.atoms[initial].id, options) +
-      '>' +
-      mathML +
-      '</mn>';
+  if (mathML.length <= 0) return false;
 
-    if (superscript < 0 && isSuperscriptAtom(stream)) {
-      superscript = stream.index;
-      stream.index += 1;
-    }
+  mathML =
+    '<mn' + makeID(stream.atoms[initial].id, options) + '>' + mathML + '</mn>';
 
-    if (!parseSubsup(mathML, stream, options)) {
-      stream.mathML += mathML;
-      stream.lastType = 'mn';
-    }
+  if (superscript < 0 && isSuperscriptAtom(stream)) {
+    superscript = stream.index;
+    stream.index += 1;
   }
 
-  return result;
+  if (!parseSubsup(mathML, stream, options)) {
+    stream.mathML += mathML;
+    stream.lastType = 'mn';
+  }
+
+  return true;
 }
 
 function scanFence(stream, final, options) {
@@ -364,14 +353,6 @@ function scanOperator(stream, final, options) {
           '</mi>'
         : toMo(atom, options);
       mathML += op;
-      stream.index += 1;
-      if (parseSubsup(mathML, stream, options)) {
-        result = true;
-        stream.lastType = '';
-        mathML = '';
-      }
-
-      stream.index -= 1;
       if (!isUnit && !/^<mo>(.*)<\/mo>$/.test(op)) {
         mathML += `<mo>${APPLY_FUNCTION}</mo>`; // APPLY FUNCTION
         // mathML += scanArgument(stream);

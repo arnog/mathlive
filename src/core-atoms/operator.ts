@@ -133,9 +133,8 @@ export class OperatorAtom extends Atom {
     if (this.value === '\u200B') return this.supsubToLatex(options);
 
     const result: string[] = [];
-    result.push(
-      this.command! + this.hasArgument ? `{${this.bodyToLatex(options)}}` : ''
-    );
+    result.push(this.command!);
+    if (this.hasArgument) result.push(`{${this.bodyToLatex(options)}}`);
     if (this.explicitSubsupPlacement) {
       if (this.subsupPlacement === 'over-under') result.push('\\limits');
       if (this.subsupPlacement === 'adjacent') result.push('\\nolimits');

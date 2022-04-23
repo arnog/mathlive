@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1427** An issue introduced in the previous release: the serialization to
+  LaTeX of some functions (e.g. `\log`) failed.
+- Serialization to MathML of subscripts/superscripts was incorrect in some cases
+
 ## 0.72.0 (2022-04-18)
 
 ### Bug Fixes
