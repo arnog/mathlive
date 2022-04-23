@@ -117,7 +117,6 @@ export function defaultAnnounceHook(
     ? ' \u202F '
     : ' \u00A0 ';
   mathfield.ariaLiveText!.textContent = liveText + ariaLiveChangeHack;
-  console.log(liveText + ariaLiveChangeHack);
   // This.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
 }
 

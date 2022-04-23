@@ -163,7 +163,7 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 // Deferred State
 //
 // Methods such as `setOptions()` or `getOptions()` could be called before
-// the element has been connected (i.e. `mf = new MathfieldElement(); mf.setConfig()`...)
+// the element has been connected (i.e. `mf = new MathfieldElement(); mf.setOptions()`...)
 // and therefore before the mathfield instance has been created.
 // So we'll stash any deferred operations on options (and value) here, and
 // will apply them to the element when it gets connected to the DOM.
@@ -171,7 +171,7 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 const gDeferredState = new WeakMap<
   MathfieldElement,
   {
-    value: string;
+    value: string | undefined;
     selection: Selection;
     options: Partial<MathfieldOptions>;
   }
@@ -758,13 +758,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         ...options,
       };
       gDeferredState.set(this, {
-        value: gDeferredState.get(this)!.value,
+        ...gDeferredState.get(this)!,
         selection: { ranges: mergedOptions.readOnly ? [[0, 0]] : [[0, -1]] },
         options: mergedOptions,
       });
     } else {
       gDeferredState.set(this, {
-        value: '',
+        value: undefined,
         selection: { ranges: [[0, 0]] },
         options,
       });
@@ -783,7 +783,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /**
    * @inheritdoc Mathfield.getValue
-   *  @category Accessing and changing the content
+   * @category Accessing and changing the content
    */
   getValue(format?: OutputFormat): string;
   getValue(start: Offset, end: Offset, format?: OutputFormat): string;
@@ -823,7 +823,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         start === 0 &&
         end === -1
       ) {
-        return gDeferredState.get(this)!.value;
+        return gDeferredState.get(this)!.value ?? this.textContent ?? '';
       }
     }
 
@@ -835,15 +835,15 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * @category Accessing and changing the content
    */
   setValue(value?: string, options?: InsertOptions): void {
-    if (this._mathfield) {
-      this._mathfield.setValue(value ?? '', options);
+    if (this._mathfield && value !== undefined) {
+      this._mathfield.setValue(value, options);
       return;
     }
 
     if (gDeferredState.has(this)) {
       const options = gDeferredState.get(this)!.options;
       gDeferredState.set(this, {
-        value: value ?? '',
+        value,
         selection: {
           ranges: options.readOnly ? [[0, 0]] : [[0, -1]],
           direction: 'forward',
@@ -855,7 +855,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     const attrOptions = getOptionsFromAttributes(this);
     gDeferredState.set(this, {
-      value: value ?? '',
+      value,
       selection: {
         ranges: attrOptions.readOnly ? [[0, 0]] : [[0, -1]],
         direction: 'forward',
@@ -1189,7 +1189,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._mathfield.model.deferNotifications(
         { content: false, selection: false },
         () => {
-          this._mathfield!.setValue(gDeferredState.get(this)!.value);
+          const value = gDeferredState.get(this)!.value;
+          if (value !== undefined) this._mathfield!.setValue(value);
           this._mathfield!.selection = gDeferredState.get(this)!.selection;
           gDeferredState.delete(this);
         }
@@ -1258,7 +1259,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       // the element was connected: delete the property (after saving its value)
       // and use the setter to (re-)set its value.
       delete this[prop];
-      if (prop === 'readonly') prop = 'readOnly';
+      if (prop === 'readonly' || prop === 'read-only') prop = 'readOnly';
       this[prop] = value;
     }
   }
@@ -1291,12 +1292,18 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   set readonly(value: boolean) {
-    const isDisabled = Boolean(value);
-    if (isDisabled) this.setAttribute('disabled', '');
+    const isReadonly = Boolean(value);
+    if (isReadonly) this.setAttribute('readonly', '');
+    else {
+      this.removeAttribute('readonly');
+      this.removeAttribute('read-only');
+    }
+
+    if (isReadonly) this.setAttribute('disabled', '');
     else this.removeAttribute('disabled');
 
-    this.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
-    this.setOptions({ readOnly: isDisabled });
+    this.setAttribute('aria-disabled', isReadonly ? 'true' : 'false');
+    this.setOptions({ readOnly: isReadonly });
   }
 
   get disabled(): boolean {
@@ -1536,27 +1543,26 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    * @category Selection
    */
-  set selection(value: Selection | Offset) {
-    if (typeof value === 'number') {
-      value = { ranges: [[value, value]] };
+  set selection(sel: Selection | Offset) {
+    if (typeof sel === 'number') {
+      sel = { ranges: [[sel, sel]] };
     }
     if (this._mathfield) {
-      this._mathfield.selection = value;
+      this._mathfield.selection = sel;
       return;
     }
 
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
-        value: gDeferredState.get(this)!.value,
-        selection: value,
-        options: gDeferredState.get(this)!.options,
+        ...gDeferredState.get(this)!,
+        selection: sel,
       });
       return;
     }
 
     gDeferredState.set(this, {
-      value: '',
-      selection: value,
+      value: undefined,
+      selection: sel,
       options: getOptionsFromAttributes(this),
     });
   }
@@ -1587,15 +1593,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
-        value: gDeferredState.get(this)!.value,
+        ...gDeferredState.get(this)!,
         selection: { ranges: [[offset, offset]] },
-        options: gDeferredState.get(this)!.options,
       });
       return;
     }
 
     gDeferredState.set(this, {
-      value: '',
+      value: undefined,
       selection: { ranges: [[offset, offset]] },
       options: getOptionsFromAttributes(this),
     });

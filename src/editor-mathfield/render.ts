@@ -81,7 +81,7 @@ export function render(
     atom.isSelected = false;
     atom.containsCaret = false;
   }
-  const hasFocus = mathfield.hasFocus() && !mathfield.options.readOnly;
+  const hasFocus = !mathfield.options.readOnly && mathfield.hasFocus();
   if (model.selectionIsCollapsed) {
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
   } else {
