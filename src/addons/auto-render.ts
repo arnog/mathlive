@@ -618,10 +618,10 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
       ) {
         let style = 'displaystyle';
         for (const l of childNode.type.split(';')) {
-          const v = l.split('=');
+          const v: string[] = l.split('=');
           if (v[0].toLowerCase() === 'mode') {
             style =
-              v[1].toLoweCase() === 'display' ? 'displaystyle' : 'textstyle';
+              v[1].toLowerCase() === 'display' ? 'displaystyle' : 'textstyle';
           }
         }
 
