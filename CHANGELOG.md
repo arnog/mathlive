@@ -7,6 +7,9 @@
 - Serialization to MathML of subscripts/superscripts was incorrect in some cases
 - In Chrome, setting the `readonly` attribute on mathfield caused the content of
   the mathfield to be set to empty.
+- **#1431** AutoRender of static math expressions would not render correctly
+  when using `<script type='math/tex; mode=text'>`. Auto-render could also fail
+  catastrophically in some cases.
 
 ## 0.72.0 (2022-04-18)
 

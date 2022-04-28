@@ -421,7 +421,7 @@ function createMarkupNode(
   options: AutoRenderOptionsPrivate,
   mathstyle: 'displaystyle' | 'textstyle',
   createNodeOnFailure: boolean
-): HTMLSpanElement | Text | null {
+): HTMLElement | Text | null {
   throwIfNotInBrowser();
 
   // Create a node for displaying math.
@@ -429,32 +429,32 @@ function createMarkupNode(
   //   sometimes a text node is desired and sometimes not.
   //   'createTextNodeOnFailure' controls this and null is returned when no node is created.
   // This node is made invisible to AT (screen readers)
-  const element = document.createElement(
-    mathstyle === 'displaystyle' ? 'div' : 'span'
-  );
-  element.setAttribute('aria-hidden', 'true');
 
   try {
     const html = options.renderToMarkup!(text, {
-      mathstyle: mathstyle ?? 'displaystyle',
+      mathstyle: mathstyle,
       format: 'html',
       macros: options.macros,
     });
+    const element = document.createElement(
+      mathstyle === 'displaystyle' ? 'div' : 'span'
+    );
+    element.setAttribute('aria-hidden', 'true');
     element.innerHTML = options.createHTML ? options.createHTML(html) : html;
+    return element;
   } catch (error: unknown) {
     console.error("Could not parse'" + text + "' with ", error);
     if (createNodeOnFailure) {
       return document.createTextNode(text);
     }
-    return null;
   }
 
-  return element;
+  return null;
 }
 
 function createAccessibleMarkupPair(
   latex: string,
-  mathstyle: 'displaystyle' | 'textstyle' | string,
+  mathstyle: 'displaystyle' | 'textstyle' | '',
   options: AutoRenderOptionsPrivate,
   createNodeOnFailure: boolean
 ): Node | null {
@@ -464,7 +464,7 @@ function createAccessibleMarkupPair(
   const markupNode = createMarkupNode(
     latex,
     options,
-    mathstyle as 'displaystyle' | 'textstyle',
+    mathstyle ? mathstyle : 'displaystyle',
     createNodeOnFailure
   );
   const accessibleContent = options.renderAccessibleContent ?? '';
@@ -525,7 +525,7 @@ function scanText(
       } else {
         const node = createAccessibleMarkupPair(
           datum.data,
-          datum.mathstyle ?? '',
+          datum.mathstyle === 'textstyle' ? 'textstyle' : 'displaystyle',
           options,
           true
         );
@@ -537,35 +537,18 @@ function scanText(
   return fragment;
 }
 
-function scanElement(element, options: AutoRenderOptionsPrivate): void {
-  const originalContent = element.getAttribute(
-    'data-' + options.namespace + 'original-content'
-  );
-  if (originalContent) {
-    const mathstyle = element.getAttribute(
-      'data-' + options.namespace + 'mathstyle'
-    );
-    const span = createAccessibleMarkupPair(
-      originalContent,
-      mathstyle,
-      options,
-      false
-    );
-    if (span !== null) {
-      element.textContent = '';
-      element.append(span);
-    }
-
-    return;
-  }
-
+function scanElement(
+  element: HTMLElement,
+  options: AutoRenderOptionsPrivate
+): void {
   if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
     // This is a node with textual content only. Perhaps an opportunity
     // to simplify and avoid creating extra nested elements...
-    const text = element.childNodes[0].textContent;
+    const text = element.childNodes[0].textContent ?? '';
     if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text)) {
       element.textContent = '';
-      element.append(createAccessibleMarkupPair(text, '', options, true));
+      const node = createAccessibleMarkupPair(text, '', options, true);
+      if (node) element.append(node);
       return;
     }
 
@@ -578,14 +561,13 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
       // The entire content is a math expression: we can replace the content
       // with the latex markup without creating additional wrappers.
       element.textContent = '';
-      element.append(
-        createAccessibleMarkupPair(
-          data[0].data,
-          data[0].mathstyle ?? '',
-          options,
-          true
-        )
+      const node = createAccessibleMarkupPair(
+        data[0].data,
+        data[0].mathstyle === 'textstyle' ? 'textstyle' : 'displaystyle',
+        options,
+        true
       );
+      if (node) element.append(node);
       return;
     }
 
@@ -604,42 +586,43 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
     if (childNode.nodeType === 3) {
       // A text node
       // Look for math mode delimiters inside the text
-      const frag = scanText(childNode.textContent, options);
+      const frag = scanText(childNode.textContent ?? '', options);
       if (frag) {
         i += frag.childNodes.length - 1;
         childNode.replaceWith(frag);
       }
     } else if (childNode.nodeType === 1) {
+      const el = childNode as HTMLElement;
       // An element node
       const tag = childNode.nodeName.toLowerCase();
-      if (
-        tag === 'script' &&
-        options.processScriptTypePattern?.test(childNode.type)
-      ) {
-        let style = 'displaystyle';
-        for (const l of childNode.type.split(';')) {
-          const v: string[] = l.split('=');
-          if (v[0].toLowerCase() === 'mode') {
-            style =
-              v[1].toLowerCase() === 'display' ? 'displaystyle' : 'textstyle';
+      if (tag === 'script') {
+        const scriptNode = childNode as HTMLScriptElement;
+        if (options.processScriptTypePattern?.test(scriptNode.type)) {
+          let style: 'displaystyle' | 'textstyle' = 'displaystyle';
+          for (const l of scriptNode.type.split(';')) {
+            const v = l.split('=');
+            if (v[0].toLowerCase() === 'mode') {
+              style =
+                v[1].toLowerCase() === 'display' ? 'displaystyle' : 'textstyle';
+            }
           }
-        }
 
-        const span = createAccessibleMarkupPair(
-          childNode.textContent,
-          style,
-          options,
-          true
-        );
-        childNode.parentNode.replaceChild(span, childNode);
-      } else if (tag !== 'script') {
+          const span = createAccessibleMarkupPair(
+            scriptNode.textContent ?? '',
+            style,
+            options,
+            true
+          );
+          if (span) scriptNode.parentNode!.replaceChild(span, scriptNode);
+        }
+      } else {
         // Element node
         // console.assert(childNode.className !== 'formula');
         const shouldRender =
-          (options.processClassPattern?.test(childNode.className) ?? false) ||
+          (options.processClassPattern?.test(el.className) ?? false) ||
           !(
             (options.skipTags?.includes(tag) ?? false) ||
-            (options.ignoreClassPattern?.test(childNode.className) ?? false)
+            (options.ignoreClassPattern?.test(el.className) ?? false)
           );
 
         if (shouldRender) {
@@ -649,11 +632,15 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
           ) {
             const formula = element.textContent;
             element.textContent = '';
-            element.append(
-              createAccessibleMarkupPair(formula, 'displaystyle', options, true)
+            const node = createAccessibleMarkupPair(
+              formula ?? '',
+              'displaystyle',
+              options,
+              true
             );
+            if (node) element.append(node);
           } else {
-            scanElement(childNode, options);
+            scanElement(el, options);
           }
         }
       }
@@ -714,7 +701,7 @@ const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
 
 /** @internal */
 export function autoRenderMathInElement(
-  element: HTMLElement | string,
+  element: HTMLElement,
   options?: AutoRenderOptions
 ): void {
   try {
