@@ -10,6 +10,11 @@
 - **#1431** AutoRender of static math expressions would not render correctly
   when using `<script type='math/tex; mode=text'>`. Auto-render could also fail
   catastrophically in some cases.
+- Cortexjs.io **#15** When loading the fonts (and sounds), the origin of the
+  library needs to be resolved to determine the relative location of those
+  files. This was done with a http `GET` for each font, which caused the entire
+  library to be redownloaded multiple times. It is now only done once, and with
+  a `HEAD`, to bypass the download.
 
 ## 0.72.0 (2022-04-18)
 

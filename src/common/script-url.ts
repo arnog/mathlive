@@ -45,17 +45,26 @@ function getFileUrl() {
   return m[1];
 }
 
+// When using a CDN, there might be some indirections (i.e. to deal
+// with version numbers) before finding the actual location of the library.
+// When resolving relative (to find fonts/sounds), we need to have the resolved
+// URL
+let gResolvedScriptUrl: string | null = null;
+
 export function resolveRelativeUrl(url: string): string {
-  try {
-    var request = new XMLHttpRequest();
-    request.open('GET', gScriptUrl, false);
-    request.send(null);
-    if (request.status === 200) {
-      return new URL(url, request.responseURL).href;
+  if (gResolvedScriptUrl === null)
+    try {
+      var request = new XMLHttpRequest();
+      // Do a `HEAD` request, we don't care about the body
+      request.open('HEAD', gScriptUrl, false);
+      request.send(null);
+      if (request.status === 200) gResolvedScriptUrl = request.responseURL;
+    } catch (e) {
+      console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
     }
-  } catch (e) {
-    console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
-  }
+
+  if (gResolvedScriptUrl) return new URL(url, gResolvedScriptUrl).href;
+
   return '';
 }
 
