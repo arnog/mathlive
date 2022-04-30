@@ -12,9 +12,11 @@
   catastrophically in some cases.
 - Cortexjs.io **#15** When loading the fonts (and sounds), the origin of the
   library needs to be resolved to determine the relative location of those
-  files. This was done with a http `GET` for each font, which caused the entire
-  library to be redownloaded multiple times. It is now only done once, and with
-  a `HEAD`, to bypass the download.
+  files. This was done with a http `GET` for each font file, which caused the
+  entire library to be redownloaded multiple times. The base URL resolution is
+  now only done once, and with a `HEAD` request to avoid the download. As a
+  result, getting the MathLive library ready, especially when using a CDN and a
+  slow network, is an order of magnitude faster.
 
 ## 0.72.0 (2022-04-18)
 
