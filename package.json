@@ -82,7 +82,7 @@
     "@rollup/plugin-node-resolve": "^13.2.1",
     "@types/css-font-loading-module": "0.0.7",
     "@typescript-eslint/eslint-plugin": "^5.20.0",
-    "@typescript-eslint/parser": "^5.20.0",
+    "@typescript-eslint/parser": "^5.21.0",
     "autoprefixer": "10.4.4",
     "check-node-version": "^4.2.1",
     "cssnano": "^5.1.7",
