@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- When extending the selection backward over a `captureSelection` group, do not
+  extend more than necessary
+
 ## 0.72.2 (2022-04-30)
 
 ### Bug Fixes

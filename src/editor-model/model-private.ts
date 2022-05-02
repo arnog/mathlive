@@ -496,7 +496,7 @@ export class ModelPrivate implements Model {
         // When going backward, if in a capture selection, jump to
         // before
         while (!atom.captureSelection) atom = atom.parent!;
-        pos = this.offsetOf(atom?.parent!.firstChild) - 1;
+        pos = this.offsetOf(atom.firstChild) - 1;
       } else {
         pos -= 1;
       }
