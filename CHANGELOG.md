@@ -4,6 +4,9 @@
 
 - When extending the selection backward over a `captureSelection` group, do not
   extend more than necessary
+- **#1354** Correctly render `{,}`, which is used for French decimal point. Also
+  correctly handle navigating with the keyboard, that is, handle it as a single
+  character, not a group. Also correctly render it to MathML (as a `.`).
 
 ## 0.72.2 (2022-04-30)
 
