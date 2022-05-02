@@ -25,7 +25,7 @@ function getFileUrl() {
     callerFrame = stackTraceFrames[2];
   }
 
-  m = callerFrame.match(/(https?:[^:]*)/);
+  m = callerFrame.match(/(https?:.*):[0-9]+:[0-9]+/);
   if (!m) {
     // We might be running under node, in which case we have a file path, not a URL
     m = callerFrame.match(/at (.*(\.ts))[\?:]/);
