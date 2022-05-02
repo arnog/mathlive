@@ -339,7 +339,6 @@ export class Atom {
         color: run[0].style?.color,
         backgroundColor: run[0].style?.backgroundColor,
         fontSize: run[0].style?.fontSize,
-        isSelected: run[0].isSelected,
       });
       const box = renderStyleRun(context, run, { newList });
 
@@ -1257,6 +1256,24 @@ export class Atom {
 
     return result;
   }
+
+  /** Return true if a digit, or a decimal point, or a french decimal `{,}` */
+  isDigit(): boolean {
+    if (this.type === 'mord' && this.value) return /^[\d,.]$/.test(this.value);
+    if (this.type === 'group' && this.body?.length === 2) {
+      return this.body![0].type === 'first' && this.body![1].value === ',';
+    }
+    return false;
+  }
+  asDigit(): string {
+    if (this.type === 'mord' && this.value && /^[\d,.]$/.test(this.value))
+      return this.value;
+    if (this.type === 'group' && this.body?.length === 2) {
+      if (this.body![0].type === 'first' && this.body![1].value === ',')
+        return '.';
+    }
+    return '';
+  }
 }
 
 /**
@@ -1291,7 +1308,6 @@ function atomsToLatex(
 
 function getStyleRuns(atoms: Atom[]): Atom[][] {
   let style: Style | undefined = undefined;
-  let selected;
   const runs: Atom[][] = [];
   let run: Atom[] = [];
   for (const atom of atoms) {
@@ -1300,7 +1316,6 @@ function getStyleRuns(atoms: Atom[]): Atom[][] {
       run.push(atom);
     } else if (
       style &&
-      selected === atom.isSelected &&
       atomStyle.color === style.color &&
       atomStyle.backgroundColor === style.backgroundColor &&
       atomStyle.fontSize === style.fontSize
@@ -1312,7 +1327,6 @@ function getStyleRuns(atoms: Atom[]): Atom[][] {
       if (run.length > 0) runs.push(run);
       run = [atom];
       style = atom.computedStyle;
-      selected = atom.isSelected;
     }
   }
 
@@ -1335,12 +1349,6 @@ function renderStyleRun(
     newList?: boolean;
   }
 ): Box | null {
-  function isDigit(atom: Atom): boolean {
-    return (
-      atom.type === 'mord' && Boolean(atom.value) && /^[\d,.]$/.test(atom.value)
-    );
-  }
-
   function isText(atom: Atom): boolean {
     return atom.mode === 'text';
   }
@@ -1355,48 +1363,51 @@ function renderStyleRun(
   const displaySelection =
     !context.atomIdsSettings || !context.atomIdsSettings.groupNumbers;
 
-  let boxes: Box[] | null = [];
+  let boxes: Box[] = [];
+  let newList = options?.newList ?? false;
   if (atoms.length === 1) {
-    const box = atoms[0].render(context, {
-      newList: options?.newList ?? false,
-    });
-    if (box && displaySelection && atoms[0].isSelected) {
-      box.selected(true);
+    const atom = atoms[0];
+    let box = atom.render(context, { newList });
+    if (box) {
+      if (displaySelection && atom.isSelected) {
+        box.selected(true);
+        box = box.wrapSelect(context);
+      }
+      boxes = [box];
     }
-    if (box) boxes = [box];
   } else {
-    let selection: Box[] = [];
     let digitOrTextStringID = '';
     let lastWasDigit = true;
-    let isNewList = options?.newList ?? false;
     for (const atom of atoms) {
       if (
         context.atomIdsSettings?.groupNumbers &&
         digitOrTextStringID &&
-        ((lastWasDigit && isDigit(atom)) || (!lastWasDigit && isText(atom)))
+        ((lastWasDigit && atom.isDigit()) || (!lastWasDigit && isText(atom)))
       ) {
         context.atomIdsSettings.overrideID = digitOrTextStringID;
       }
 
-      const box = atom.render(context, { newList: isNewList });
-      if (context.atomIdsSettings) {
+      let box = atom.render(context, { newList });
+
+      if (context.atomIdsSettings)
         context.atomIdsSettings.overrideID = undefined;
-      }
 
       if (box) {
-        isNewList = false;
+        // Groups (i.e. `{}`) restart a new list (for spacing purposes)
+        newList = atom.type === 'group';
+
         // If this is a digit or text run, keep track of it
         if (context.atomIdsSettings?.groupNumbers) {
-          if (isDigit(atom) || isText(atom)) {
-            if (!digitOrTextStringID || lastWasDigit !== isDigit(atom)) {
+          if (atom.isDigit() || isText(atom)) {
+            if (!digitOrTextStringID || lastWasDigit !== atom.isDigit()) {
               // Changed from text to digits or vice-versa
-              lastWasDigit = isDigit(atom);
+              lastWasDigit = atom.isDigit();
               digitOrTextStringID = atom.id ?? '';
             }
           }
 
           if (
-            (!(isDigit(atom) || isText(atom)) ||
+            (!(atom.isDigit() || isText(atom)) ||
               !atom.hasEmptyBranch('superscript') ||
               !atom.hasEmptyBranch('subscript')) &&
             digitOrTextStringID
@@ -1407,38 +1418,24 @@ function renderStyleRun(
         }
 
         if (displaySelection && atom.isSelected) {
-          selection.push(box);
-          for (const box of selection) box.selected(true);
-        } else {
-          if (selection.length > 0) {
-            // There was a selection, but we're out of it now
-            // Append the selection
-            boxes = [...boxes, ...selection];
-            selection = [];
-          }
-
-          boxes.push(box);
+          box.selected(true);
+          box = box.wrapSelect(context);
         }
+        boxes.push(box);
       }
     }
-
-    // Is there a leftover selection?
-    if (selection.length > 0) {
-      boxes = [...boxes, ...selection];
-      selection = [];
-    }
   }
 
-  if (!boxes || boxes.length === 0) return null;
+  if (boxes.length === 0) return null;
 
-  let result: Box = boxes[0];
-  if (options || boxes.length > 1) {
+  let result: Box;
+  if (options || context.isTight || boxes.length > 1) {
     result = new Box(boxes, {
       isTight: context.isTight,
-      ...options,
+      ...(options ?? {}),
     });
-    result.selected(boxes[0].isSelected);
-  }
+    result.isSelected = boxes.every((x) => x.isSelected);
+  } else result = boxes[0];
 
   // Apply size correction
   return result.wrap(context).wrap(parentContext);

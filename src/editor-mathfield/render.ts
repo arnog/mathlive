@@ -134,7 +134,6 @@ export function render(
               return p.createBox(context);
             }
           : undefined,
-        isSelected: model.root.isSelected,
       },
       {
         fontSize: DEFAULT_FONT_SIZE,

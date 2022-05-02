@@ -31,6 +31,13 @@ const SPECIAL_OPERATORS = {
   '\\hat': '&#x005e;',
 };
 
+export type MathMLSteam = {
+  atoms: Atom[];
+  index: number;
+  mathML: string;
+  lastType: string;
+};
+
 const APPLY_FUNCTION = '&#x2061;';
 
 const INVISIBLE_TIMES = '&#8290;';
@@ -46,24 +53,24 @@ function xmlEscape(string: string): string {
   );
 }
 
-function makeID(id: string, options): string {
+function makeID(id: string | undefined, options): string {
   if (!id || !options.generateID) return '';
   // Note: the 'extid' attribute is recognized by SRE as an attribute
   // to be passed to SSML as a <mark> tag.
   return ` extid="${id}"`;
 }
 
-function scanIdentifier(stream, final, options) {
+function scanIdentifier(stream: MathMLSteam, final: number, options) {
   let result = false;
-  final = final || stream.atoms.length;
+  final = final ?? stream.atoms.length;
   let mathML = '';
   let body = '';
   const atom: Atom = stream.atoms[stream.index];
 
   if (
     stream.index < final &&
-    atom.type === 'mord' &&
-    !'0123456789,.'.includes(atom.value)
+    (atom.type === 'mord' || atom.type === 'macro') &&
+    !atom.isDigit()
   ) {
     body = atomToMathML(atom, options);
     stream.index += 1;
@@ -104,7 +111,7 @@ function scanIdentifier(stream, final, options) {
  * or as a standalone, empty, atom following the one to which it applies.
  * @param {object} stream
  */
-function isSuperscriptAtom(stream) {
+function isSuperscriptAtom(stream: MathMLSteam) {
   return (
     stream.index < stream.atoms.length &&
     stream.atoms[stream.index].superscript &&
@@ -112,7 +119,7 @@ function isSuperscriptAtom(stream) {
   );
 }
 
-function isSubscriptAtom(stream) {
+function isSubscriptAtom(stream: MathMLSteam) {
   return (
     stream.index < stream.atoms.length &&
     stream.atoms[stream.index].subscript &&
@@ -120,16 +127,15 @@ function isSubscriptAtom(stream) {
   );
 }
 
-function indexOfSuperscriptInNumber(stream) {
+function indexOfSuperscriptInNumber(stream: MathMLSteam) {
   let result = -1;
   let i = stream.index;
   let done = false;
   let found = false;
   while (i < stream.atoms.length && !done && !found) {
-    done =
-      stream.atoms[i].type !== 'mord' ||
-      !'0123456789,.'.includes(stream.atoms[i].body);
-    found = !done && stream.atoms[i].superscript;
+    const atom = stream.atoms[i];
+    done = !atom.isDigit();
+    found = !done && atom.superscript !== undefined;
     i++;
   }
 
@@ -140,7 +146,7 @@ function indexOfSuperscriptInNumber(stream) {
   return result;
 }
 
-function parseSubsup(base: string, stream, options): boolean {
+function parseSubsup(base: string, stream: MathMLSteam, options): boolean {
   let atom: Atom = stream.atoms[stream.index - 1];
 
   if (!atom) return false;
@@ -171,7 +177,7 @@ function parseSubsup(base: string, stream, options): boolean {
   return true;
 }
 
-function scanText(stream, final: number, options) {
+function scanText(stream: MathMLSteam, final: number, options) {
   final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
@@ -192,7 +198,7 @@ function scanText(stream, final: number, options) {
   return false;
 }
 
-function scanNumber(stream, final, options) {
+function scanNumber(stream: MathMLSteam, final, options) {
   final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
@@ -202,12 +208,8 @@ function scanNumber(stream, final, options) {
     final = superscript;
   }
 
-  while (
-    stream.index < final &&
-    stream.atoms[stream.index].type === 'mord' &&
-    '0123456789,.'.includes(stream.atoms[stream.index].value)
-  ) {
-    mathML += stream.atoms[stream.index].value;
+  while (stream.index < final && stream.atoms[stream.index].isDigit()) {
+    mathML += stream.atoms[stream.index].asDigit();
     stream.index += 1;
   }
 
@@ -229,9 +231,9 @@ function scanNumber(stream, final, options) {
   return true;
 }
 
-function scanFence(stream, final, options) {
+function scanFence(stream: MathMLSteam, final: number, options) {
   let result = false;
-  final = final || stream.atoms.length;
+  final = final ?? stream.atoms.length;
   let mathML = '';
   let lastType = '';
 
@@ -302,9 +304,9 @@ function scanFence(stream, final, options) {
   return result;
 }
 
-function scanOperator(stream, final, options) {
+function scanOperator(stream: MathMLSteam, final: number, options) {
   let result = false;
-  final = final || stream.atoms.length;
+  final = final ?? stream.atoms.length;
   let mathML = '';
   let lastType = '';
   const atom: Atom = stream.atoms[stream.index];
@@ -344,7 +346,7 @@ function scanOperator(stream, final, options) {
       lastType = 'mo';
     } else {
       const atom = stream.atoms[stream.index];
-      const isUnit = atom.symbol === '\\operatorname';
+      const isUnit = atom.value === '\\operatorname';
       const op = isUnit
         ? '<mi class="MathML-Unit"' +
           makeID(atom.id, options) +
@@ -394,14 +396,9 @@ function toMathML(
   initial: number,
   final: number,
   options: Partial<MathfieldOptions>
-): {
-  atoms: number | boolean | string | Atom | Atom[] | undefined;
-  index: number;
-  mathML: string;
-  lastType: string;
-} {
-  const result = {
-    atoms: input,
+): MathMLSteam {
+  const result: MathMLSteam = {
+    atoms: [],
     index: initial ?? 0,
     mathML: '',
     lastType: '',
@@ -414,6 +411,7 @@ function toMathML(
   } else if (input instanceof Atom) {
     result.mathML = atomToMathML(input, options);
   } else if (Array.isArray(input)) {
+    result.atoms = input;
     let count = 0;
     final = final ? final : input ? input.length : 0;
 
@@ -431,14 +429,14 @@ function toMathML(
         if (
           result.lastType === 'mn' &&
           mathML.length > 0 &&
-          result.atoms![result.index].type === 'genfrac'
+          result.atoms[result.index].type === 'genfrac'
         ) {
           // If this is a fraction preceded by a number (e.g. 2 1/2),
           // add an "invisible plus" (U+0264) character in front of it
           mathML = '<mo>&#x2064;</mo>' + mathML;
         }
 
-        if (result.atoms![result.index].type === 'genfrac') {
+        if (result.atoms[result.index].type === 'genfrac') {
           result.lastType = 'mfrac';
         } else {
           result.lastType = '';

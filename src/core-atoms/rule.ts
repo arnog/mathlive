@@ -40,7 +40,7 @@ export class RuleAtom extends Atom {
     result.setStyle('border-top-width', height, 'em');
     result.setStyle('border-color', this.style.color);
     result.setStyle('vertical-align', shift, 'em');
-    if (context.isSelected) result.setStyle('opacity', '50%');
+    if (this.isSelected) result.setStyle('opacity', '50%');
     result.width = width;
     result.height = height + shift;
     result.depth = -shift;

@@ -197,24 +197,17 @@ function atomToSpeakableFragment(
   options: TextToSpeechOptions
 ): string {
   function letter(c: string): string {
-    let result = '';
     if (!options.textToSpeechMarkup) {
-      if (/[a-z]/.test(c)) {
-        result += " '" + c.toUpperCase() + "'";
-      } else if (/[A-Z]/.test(c)) {
-        result += " 'capital " + c.toUpperCase() + "'";
-      } else {
-        result += c;
-      }
-    } else if (/[a-z]/.test(c)) {
-      result += ' <say-as interpret-as="character">' + c + '</say-as>';
-    } else if (/[A-Z]/.test(c)) {
-      result += String('capital ' + c.toLowerCase());
-    } else {
-      result += c;
+      if (/[a-z]/.test(c)) return " '" + c.toUpperCase() + "'";
+      if (/[A-Z]/.test(c)) return " 'capital " + c.toUpperCase() + "'";
+      return c;
     }
 
-    return result;
+    if (/[a-z]/.test(c))
+      return ` <say-as interpret-as="character">${c}</say-as>`;
+    if (/[A-Z]/.test(c))
+      return `capital <say-as interpret-as="character">${c.toLowerCase()}</say-as>`;
+    return c;
   }
 
   function emph(s: string): string {
@@ -252,12 +245,9 @@ function atomToSpeakableFragment(
         // '.' and ',' should only be allowed if prev/next entry is a digit
         // However, if that isn't the case, this still works because 'toSpeakableFragment' is called in either case.
         // Note: the first char in a digit/text run potentially needs to have a 'mark', hence the call to 'toSpeakableFragment'
-      } else if (
-        atom[i].type === 'mord' &&
-        /[0123456789,.]/.test(atom[i].value)
-      ) {
+      } else if (atom[i].isDigit()) {
         if (isInDigitRun) {
-          result += atom[i].value;
+          result += atom[i].asDigit();
         } else {
           isInDigitRun = true;
           result += atomToSpeakableFragment(mode, atom[i], options);
@@ -421,7 +411,7 @@ function atomToSpeakableFragment(
           break;
         }
 
-        let atomValue = atom.value;
+        let atomValue = atom.isDigit() ? atom.asDigit() : atom.value;
         let latexValue = atom.command;
         if (atom.type === 'delim' || atom.type === 'sizeddelim') {
           latexValue = atom.value;

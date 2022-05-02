@@ -23,7 +23,7 @@ export interface ContextInterface {
   atomIdsSettings?: {
     overrideID?: string;
     groupNumbers: boolean;
-    seed: string | number;
+    seed: 'random' | number;
   };
   smartFence?: boolean;
   isSelected?: boolean;
@@ -65,10 +65,12 @@ export type PrivateStyle = Style & {
  *
  */
 export class Context implements ContextInterface {
-  // If not undefined, unique IDs should be generated for each box so they can
-  // be mapped back to an atom.
-  // The `seed` field should be a number to generate a specific range of
-  // IDs or the string "random" to generate a random number.
+  // **overrideID** If not undefined, unique IDs should be generated for each
+  // box so they can be mapped back to an atom.
+  //
+  // **seed** A number to generate a specific range of IDs or the string
+  // "random" to generate a random number.
+  //
   // Optionally, if a `groupNumbers` property is set to true, an additional
   // box will enclose strings of digits. This is used by read aloud to properly
   // pronounce (and highlight) numbers in expressions.
@@ -76,12 +78,10 @@ export class Context implements ContextInterface {
   atomIdsSettings?: {
     overrideID?: string;
     groupNumbers: boolean;
-    seed: string | number;
+    seed: 'random' | number;
   };
   smartFence: boolean;
   renderPlaceholder?: (context: Context, placholder: PlaceholderAtom) => Box;
-
-  isSelected: boolean;
 
   // Rendering to construct a phantom: don't bind the box.
   readonly isPhantom: boolean;
@@ -103,7 +103,6 @@ export class Context implements ContextInterface {
   constructor(
     parent: Context | ContextInterface,
     style?: Style & {
-      isSelected?: boolean;
       isPhantom?: boolean;
     },
     inMathstyle?:
@@ -124,33 +123,27 @@ export class Context implements ContextInterface {
     if (parent instanceof Context) this.parent = parent;
     if (!(parent instanceof Context)) this.registers = parent.registers ?? {};
 
-    this.isSelected = style?.isSelected ?? parent?.isSelected ?? false;
     this.isPhantom = style?.isPhantom ?? this.parent?.isPhantom ?? false;
 
     const from: { -readonly [key in keyof Context]?: Context[key] } = {
       ...parent,
     };
     if (style) {
-      let size: FontSize | undefined = undefined;
+      if (style.letterShapeStyle && style.letterShapeStyle !== 'auto')
+        from.letterShapeStyle = style.letterShapeStyle;
+
+      if (style.color && style.color !== 'none') from.color = style.color;
+
+      if (style.backgroundColor && style.backgroundColor !== 'none')
+        from.backgroundColor = style.backgroundColor;
+
       if (
         style.fontSize &&
         style.fontSize !== 'auto' &&
         style.fontSize !== this.parent?._size
       ) {
-        size = style.fontSize;
+        this._size = style.fontSize;
       }
-      if (style.letterShapeStyle && style.letterShapeStyle !== 'auto') {
-        from.letterShapeStyle = style.letterShapeStyle;
-      }
-
-      if (style.color && style.color !== 'none') from.color = style.color;
-
-      if (style.backgroundColor && style.backgroundColor !== 'none') {
-        from.backgroundColor = this.isSelected
-          ? highlight(style.backgroundColor)
-          : style.backgroundColor;
-      }
-      this._size = size;
     }
     this.letterShapeStyle = from.letterShapeStyle ?? 'tex';
     this.color = from.color;
@@ -354,6 +347,8 @@ export class Context implements ContextInterface {
       result = parent.backgroundColor;
       parent = parent.parent;
     }
+
+    // if (result && this.isSelected) result = highlight(result);
 
     return result ?? '';
   }

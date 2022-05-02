@@ -322,9 +322,7 @@ export function move(
 
   const previousPosition = model.position;
 
-  if (options.extend) {
-    return model.extendSelection(direction);
-  }
+  if (options.extend) return model.extendSelection(direction);
 
   if (model.selectionIsPlaceholder) {
     model.collapseSelection(direction);

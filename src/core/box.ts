@@ -5,6 +5,7 @@ import { getCharacterMetrics } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-box';
 import { Mode } from './modes-utils';
 import { Context } from './context';
+import { highlight } from './color';
 
 /*
  * See https://tex.stackexchange.com/questions/81752/
@@ -369,11 +370,10 @@ export class Box {
   }
 
   selected(isSelected: boolean): void {
+    if (this.isSelected === isSelected) return;
     this.isSelected = isSelected;
     if (this.children) {
-      for (const child of this.children) {
-        child.selected(isSelected);
-      }
+      for (const child of this.children) child.selected(isSelected);
     }
   }
 
@@ -460,14 +460,10 @@ export class Box {
     // If we're at the root, nothing to do
     if (!parent) return this;
 
-    if (context.isPhantom) {
-      this.setStyle('opacity', 0);
-    }
+    if (context.isPhantom) this.setStyle('opacity', 0);
 
-    const newColor =
-      context.computedColor === parent.computedColor
-        ? undefined
-        : context.color;
+    let newColor = context.computedColor;
+    if (newColor === parent.computedColor) newColor = '';
 
     //
     // Apply color changes to the box
@@ -479,10 +475,11 @@ export class Box {
         ? undefined
         : context.effectiveFontSize;
 
-    const newBackgroundColor =
-      context.computedBackgroundColor === parent.computedBackgroundColor
-        ? undefined
-        : context.backgroundColor;
+    let newBackgroundColor = context.computedBackgroundColor;
+    if (this.isSelected) newBackgroundColor = highlight(newBackgroundColor);
+
+    if (newBackgroundColor === parent.computedBackgroundColor)
+      newBackgroundColor = '';
 
     //
     // Wrap the box if necessary.
@@ -508,6 +505,7 @@ export class Box {
     } else {
       result = new Box(this, options);
     }
+
     //
     // Adjust the dimensions to account for the size variations
     //
@@ -519,6 +517,26 @@ export class Box {
       result.italic *= factor;
       result.skew *= factor;
     }
+    return result;
+  }
+
+  /** If necessary, wrap this box in another that accounts for
+   * selected backgroundColor
+   */
+  wrapSelect(context: Context): Box {
+    if (!this.isSelected) return this;
+
+    const parent = context.parent;
+
+    // If we're at the root, nothing to do
+    if (!parent) return this;
+
+    let newBackgroundColor = highlight(context.computedBackgroundColor);
+
+    let result = makeStruts(this);
+    result.selected(true);
+    result.setStyle('background-color', newBackgroundColor);
+    result.setStyle('display', 'inline-block');
     return result;
   }
 

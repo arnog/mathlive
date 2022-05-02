@@ -55,6 +55,11 @@ export class GroupAtom extends Atom {
     this.captureSelection = options?.captureSelection;
     this.changeMode = options?.changeMode ?? false;
     this.displayContainsHighlight = false;
+
+    if (arg.length === 1 && arg[0].command === ',') {
+      // French decimal point
+      this.captureSelection = true;
+    }
   }
 
   render(context: Context): Box | null {
@@ -72,6 +77,7 @@ export class GroupAtom extends Atom {
       style: {
         backgroundColor: this.style.backgroundColor,
       },
+      newList: true,
     });
     if (!box) return box;
     if (this.cssId) box.cssId = this.cssId;
