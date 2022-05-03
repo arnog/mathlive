@@ -244,11 +244,8 @@ function scanFence(stream: MathMLSteam, final: number, options) {
     let closeIndex = -1;
     let index = openIndex + 1;
     while (index < final && !found) {
-      if (stream.atoms[index].type === 'mopen') {
-        depth += 1;
-      } else if (stream.atoms[index].type === 'mclose') {
-        depth -= 1;
-      }
+      if (stream.atoms[index].type === 'mopen') depth += 1;
+      else if (stream.atoms[index].type === 'mclose') depth -= 1;
 
       if (depth === -1) {
         found = true;
@@ -259,7 +256,6 @@ function scanFence(stream: MathMLSteam, final: number, options) {
     }
 
     if (found) {
-      // TODO: could add attribute indicating it's a fence (fence=true)
       mathML = '<mrow>';
       mathML += toMo(stream.atoms[openIndex], options);
 
@@ -270,7 +266,6 @@ function scanFence(stream: MathMLSteam, final: number, options) {
         options
       ).mathML;
 
-      // TODO: could add attribute indicating it's a fence (fence=true)
       mathML += toMo(stream.atoms[closeIndex], options);
       mathML += '</mrow>';
 
