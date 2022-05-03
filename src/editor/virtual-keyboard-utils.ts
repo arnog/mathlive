@@ -460,6 +460,7 @@ const ALT_KEYS_BASE: {
   '2': ['\\frac{1}{2}', { latex: '#?^2', insert: '#@^2' }],
   '3': ['\\frac{1}{3}', { latex: '#?^3', insert: '#@^3' }],
   '.': [
+    '.',
     ',',
     ';',
     '\\colon',
@@ -1510,7 +1511,10 @@ export function makeKeycap(
 /**
  * Expand the shortcut tags (e.g. <row>) inside a layer.
  */
-function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
+function expandLayerMarkup(
+  options: VirtualKeyboardOptions,
+  layer: string
+): string {
   const ROWS = {
     // First row should be 10 key wide
     // Second row should be 10 key wide
@@ -1611,7 +1615,7 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
         <svg class="svg-glyph"><use xlink:href='#svg-tab' /></svg></li>`
   );
 
-  let m: string[] = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
+  let m: string[] | null = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
   while (m) {
     row = '';
     const attributesArray = m[2].match(/[a-zA-Z][a-zA-Z\d-]*=(['"])(.*?)\1/g);
@@ -1666,7 +1670,14 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
           row +=
             "<li class='keycap" +
             cls +
-            "' data-alt-keys='-' data-key='-' data-alt-keys='-'>&#x2212;</li>";
+            "' data-alt-keys='-' data-key='-'>&#x2212;</li>";
+        } else if (c === '.') {
+          row +=
+            "<li class='keycap" +
+              cls +
+              "' data-alt-keys='.' data-command='\"insertDecimalSeparator\"'>" +
+              options['decimalSeparator'] ?? '.';
+          ('</li>');
         } else if (cls.includes('tt')) {
           row +=
             `<li class='keycap${cls}' data-alt-keys='${c}' ` +
@@ -2037,7 +2048,8 @@ export function makeKeyboardElement(
       const layerMarkup = layers[layerName];
       // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
       // be expanded
-      markup += expandLayerMarkup(keyboard.options, layerMarkup);
+      if (typeof layerMarkup === 'string')
+        markup += expandLayerMarkup(keyboard.options, layerMarkup);
       markup += '</div>';
     }
   }

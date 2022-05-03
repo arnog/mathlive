@@ -50,6 +50,22 @@ registerCommand({
     onTypedText(mathfield, text, options);
     return true;
   },
+  insertDecimalSeparator: (mathfield: MathfieldPrivate) => {
+    if (
+      mathfield.mode === 'math' &&
+      mathfield.options.decimalSeparator === ','
+    ) {
+      const model = mathfield.model;
+      const child = model.at(Math.max(model.position, model.anchor));
+      if (child.isDigit()) {
+        mathfield.snapshot();
+        mathfield.insert('{,}', { format: 'latex' });
+        return true;
+      }
+    }
+    mathfield.insert('.');
+    return true;
+  },
   commit: (mathfield: MathfieldPrivate) => {
     if (typeof mathfield.options.onCommit === 'function') {
       mathfield.options.onCommit(mathfield);

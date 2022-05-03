@@ -719,7 +719,11 @@ export type LocalizationOptions = {
 };
 
 export type EditingOptions = {
-  /** When true, the user cannot edit the mathfield. */
+  /** When `true`, the user cannot edit the mathfield. The mathfield can still
+   * be modified programatically.
+   *
+   * **Default**: `false`
+   */
   readOnly: boolean;
   /**
    * When true, during text input the field will switch automatically between
@@ -731,13 +735,13 @@ export type EditingOptions = {
    *
    * | Type  | Interpretation |
    * |---:|:---|
-   * | "i" | math mode, imaginary unit |
-   * | "if" | text mode, english word "if" |
-   * | "if x" | all in text mode, maybe the next word is xylophone? |
-   * | "if x >" | "if" stays in text mode, but now "x >" is in math mode |
-   * | "if x > 0" | "if" in text mode, "x > 0" in math mode |
+   * | `i` | math mode, imaginary unit |
+   * | `if` | text mode, english word "if" |
+   * | `if x` | all in text mode, maybe the next word is xylophone? |
+   * | `if x >` | "if" stays in text mode, but now "x >" is in math mode |
+   * | `if x > 0` | "if" in text mode, "x > 0" in math mode |
    *
-   * Smart Mode is off by default.
+   * **Default**: `false`
    *
    * Manually switching mode (by typing `alt/option+=`) will temporarily turn
    * off smart mode.
@@ -745,16 +749,16 @@ export type EditingOptions = {
    *
    * **Examples**
    *
-   * -   slope = rise/run
-   * -   If x > 0, then f(x) = sin(x)
-   * -   x^2 + sin (x) when x > 0
-   * -   When x<0, x^{2n+1}<0
-   * -   Graph x^2 -x+3 =0 for 0<=x<=5
-   * -   Divide by x-3 and then add x^2-1 to both sides
-   * -   Given g(x) = 4x – 3, when does g(x)=0?
-   * -   Let D be the set {(x,y)|0<=x<=1 and 0<=y<=x}
-   * -   \int\_{the unit square} f(x,y) dx dy
-   * -   For all n in NN
+   * - `slope = rise/run`
+   * - `If x > 0, then f(x) = sin(x)`
+   * - `x^2 + sin (x) when x > 0`
+   * - `When x<0, x^{2n+1}<0`
+   * - `Graph x^2 -x+3 =0 for 0<=x<=5`
+   * - `Divide by x-3 and then add x^2-1 to both sides`
+   * - `Given g(x) = 4x – 3, when does g(x)=0?`
+   * - `Let D be the set {(x,y)|0<=x<=1 and 0<=y<=x}`
+   * - `\int\_{the unit square} f(x,y) dx dy`
+   * - `For all n in NN`
    *
    */
   smartMode: boolean;
@@ -798,14 +802,39 @@ export type EditingOptions = {
   /**
    * If `true`, extra parentheses around a numerator or denominator are
    * removed automatically.
+   *
+   * **Default**: `true`
    */
   removeExtraneousParentheses: boolean;
   /**
    * The Latex string to insert when the spacebar is pressed (on the physical or
-   * virtual keyboard). Empty by default. Use `\;` for a thick space, `\:` for
-   * a medium space, `\,` for a thin space.
+   * virtual keyboard).
+   *
+   * Use `\;` for a thick space, `\:` for a medium space, `\,` for a thin space.
+   *
+   * Do not use ` ` (a regular space), as whitespace is skipped by LaTeX so this
+   * will do nothing.
+   *
+   * **Default**: `""` (empty string)
    */
   mathModeSpace: string;
+
+  /**
+   * The symbol used to separate the integer part from the fractional part of a
+   * number.
+   *
+   * When `","` is used, the corresponding LaTeX string is `{,}`, in order
+   * to ensure proper spacing (otherwise an extra gap is displayed after the
+   * comma).
+   *
+   * This affects:
+   * - what happens when the `,` key is pressed (if `decimalSeparator` is
+   * `","`, the `{,}` LaTeX string is inserted when following some digits)
+   * - the label and behavior of the "." key in the default virtual keyboard
+   *
+   * **Default**: `"."`
+   */
+  decimalSeparator: ',' | '.';
 };
 
 export type LayoutOptions = {

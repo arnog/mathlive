@@ -173,6 +173,9 @@ export function onKeystroke(
     );
   }
 
+  const child = model.at(Math.max(model.position, model.anchor));
+
+  // 5.4 Handle the return/enter key
   if (
     !shortcut &&
     !selector &&
@@ -189,6 +192,43 @@ export function onKeystroke(
       return false;
     }
   }
+
+  //
+  // 5.5 If this is the Space bar and we're just before or right after
+  // a text zone, or if `mathModeSpace` is enabled, insert the space
+  //
+  if (mathfield.mode === 'math' && keystroke === '[Space]' && !shortcut) {
+    if (mathfield.options.mathModeSpace) {
+      mathfield.snapshot();
+      ModeEditor.insert('math', model, mathfield.options.mathModeSpace, {
+        format: 'latex',
+      });
+      selector = '';
+      mathfield.dirty = true;
+      mathfield.scrollIntoView();
+      if (evt?.preventDefault) {
+        evt.preventDefault();
+        evt.stopPropagation();
+      }
+      return true;
+    } else {
+      const nextSibling = model.at(model.position + 1);
+      const previousSibling = model.at(model.position - 1);
+      if (nextSibling?.mode === 'text' || previousSibling?.mode === 'text') {
+        mathfield.snapshot();
+        ModeEditor.insert('text', model, ' ');
+        mathfield.dirty = true;
+      }
+    }
+  }
+
+  //
+  // 5.6 Handle the decimal separator
+  //
+  if (mathfield.mode === 'math' && !shortcut && eventToChar(evt) === ',') {
+    selector = 'insertDecimalSeparator';
+  }
+
   // No shortcut :( We're done.
   if (!shortcut && !selector) {
     return true;
@@ -203,7 +243,6 @@ export function onKeystroke(
   // `spacebar), and we're at the end of a smart fence, close the fence with
   // an empty (.) right delimiter
   //
-  const child = model.at(Math.max(model.position, model.anchor));
   const { parent } = child;
   if (
     selector === 'moveAfterParent' &&
@@ -220,37 +259,13 @@ export function onKeystroke(
   }
 
   //
-  // 6.2 If this is the Space bar and we're just before or right after
-  // a text zone, or if `mathModeSpace` is enabled, insert the space
-  //
-  if (mathfield.mode === 'math' && keystroke === '[Space]' && !shortcut) {
-    if (mathfield.options.mathModeSpace) {
-      mathfield.snapshot();
-      ModeEditor.insert('math', model, mathfield.options.mathModeSpace);
-      selector = '';
-      mathfield.dirty = true;
-    } else {
-      const nextSibling = model.at(model.position + 1);
-      const previousSibling = model.at(model.position - 1);
-      if (
-        (nextSibling && nextSibling.mode === 'text') ||
-        (previousSibling && previousSibling.mode === 'text')
-      ) {
-        mathfield.snapshot();
-        ModeEditor.insert('text', model, ' ');
-        mathfield.dirty = true;
-      }
-    }
-  }
-
-  //
-  // 6.3 If there's a selector, perform it.
+  // 6.2 If there's a selector, perform it.
   //
   if (selector) {
     mathfield.executeCommand(selector);
   } else if (shortcut) {
     //
-    // 6.5 Cancel the (upcoming) composition
+    // 6.3 Cancel the (upcoming) composition
 
     // This is to prevent starting a composition when the keyboard event
     // has already been handled.
@@ -260,7 +275,7 @@ export function onKeystroke(
     mathfield.keyboardDelegate!.cancelComposition();
 
     //
-    // 6.6 Insert the shortcut
+    // 6.4 Insert the shortcut
     // If the shortcut is a mandatory escape sequence (\}, etc...)
     // don't make it undoable, this would result in syntactically incorrect
     // formulas

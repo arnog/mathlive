@@ -324,6 +324,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     scriptDepth: [Infinity, Infinity],
     removeExtraneousParentheses: true,
     mathModeSpace: '',
+    decimalSeparator: '.',
 
     locale: l10n.locale ?? 'en',
     strings: l10n.strings,

@@ -1,5 +1,18 @@
 ## [Unreleased]
 
+## New Features
+
+- Handle input of alternative decimal separator, i.e. `,`.
+
+  New `options.decimalSeparator` value can be set to `.` or `,` (`.` by default,
+  which corresponds to the current behavior). When set to `,`, pressing the `,`
+  key on the keyboard will insert a `{,}` LaTeX string, if in math mode and if
+  before a digit. The virtual keyboard will also be modified so that the `.` key
+  is `,` instead and also contextually insert a `{,}` when appropriate. A new
+  command `insertDecimalSeparator` has also been added, which inserts either
+  `{,}` if in math mode, right after a digit, and when `decimalSeparator` is set
+  to `","`. Otherwise, it inserts a "."
+
 ### Bug Fixes
 
 - When extending the selection backward over a `captureSelection` group, do not
