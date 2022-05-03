@@ -569,7 +569,11 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   get computeEngine(): ComputeEngine {
-    if (!this._computeEngine) this._computeEngine = new ComputeEngine();
+    if (!this._computeEngine) {
+      this._computeEngine = new ComputeEngine();
+      if (this.options.decimalSeparator === ',')
+        this._computeEngine.latexOptions.decimalMarker = '{,}';
+    }
     return this._computeEngine;
   }
 
@@ -611,6 +615,10 @@ export class MathfieldPrivate implements Mathfield {
 
   setOptions(config: Partial<MathfieldOptionsPrivate>): void {
     this.options = updateOptions(this.options, config);
+    if (this._computeEngine && 'decimalSeparator' in config) {
+      this._computeEngine.latexOptions.decimalMarker =
+        this.options.decimalSeparator === ',' ? '{,}' : '.';
+    }
     this.model.setListeners({
       onContentDidChange: (_sender: ModelPrivate) =>
         this.options.onContentDidChange(this),
