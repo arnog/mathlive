@@ -6,18 +6,6 @@ import { getMode } from './selection';
 import { move, skip } from './commands';
 
 /**
- * Return true if the atom could be a part of a number
- * i.e. "-12354.568"
- */
-function isNumber(atom: Atom): boolean {
-  if (!atom) return false;
-  return (
-    (atom.type === 'mord' && /[\d.]/.test(atom.value)) ||
-    (atom.type === 'mpunct' && atom.value === ',')
-  );
-}
-
-/**
  * Select all the atoms in the current group, that is all the siblings.
  * When the selection is in a numerator, the group is the numerator. When
  * the selection is a superscript or subscript, the group is the supsub.
@@ -62,19 +50,44 @@ export function selectGroup(model: ModelPrivate): boolean {
   } else {
     const atom = model.at(model.position);
     // In a math zone, select all the sibling nodes
-    if (isNumber(atom)) {
+    if (atom.isDigit()) {
       // In a number, select all the digits
       let start = Math.min(model.anchor, model.position);
       let end = Math.max(model.anchor, model.position);
       //
-      while (isNumber(model.at(start))) start -= 1;
-      while (isNumber(model.at(end))) end += 1;
+      while (model.at(start)?.isDigit()) start -= 1;
+      while (model.at(end)?.isDigit()) end += 1;
       model.setSelection(start, end - 1);
     } else {
-      model.setSelection(
-        model.offsetOf(atom.firstSibling),
-        model.offsetOf(atom.lastSibling)
-      );
+      if (atom.style.variant || atom.style.variantStyle) {
+        let start = Math.min(model.anchor, model.position);
+        let end = Math.max(model.anchor, model.position);
+        let x = model.at(start)?.style;
+        while (
+          x &&
+          x.variant === atom.style.variant &&
+          x.variantStyle === atom.style.variantStyle
+        ) {
+          start -= 1;
+          x = model.at(start)?.style;
+        }
+
+        x = model.at(end)?.style;
+        while (
+          x &&
+          x.variant === atom.style.variant &&
+          x.variantStyle === atom.style.variantStyle
+        ) {
+          end += 1;
+          x = model.at(end)?.style;
+        }
+
+        model.setSelection(start, end - 1);
+      } else
+        model.setSelection(
+          model.offsetOf(atom.firstSibling),
+          model.offsetOf(atom.lastSibling)
+        );
     }
   }
 
