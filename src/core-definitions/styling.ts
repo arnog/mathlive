@@ -417,7 +417,16 @@ defineFunction('mathbf', '{:math*}', {
   },
 });
 
+// `\mathnormal` includes italic correction, `\mathit` doesn't
 defineFunction('mathit', '{:math*}', {
+  applyMode: 'math',
+  applyStyle: (_name, _args): PrivateStyle => {
+    return { variant: 'main', variantStyle: 'italic' };
+  },
+});
+
+// `\mathnormal` includes italic correction, `\mathit` doesn't
+defineFunction('mathnormal', '{:math*}', {
   applyMode: 'math',
   applyStyle: (_name, _args): PrivateStyle => {
     return { variant: 'normal', variantStyle: 'italic' };
@@ -428,7 +437,7 @@ defineFunction('mathit', '{:math*}', {
 defineFunction('mathbfit', '{:math*}', {
   applyMode: 'math',
   applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'normal', variantStyle: 'bolditalic' };
+    return { variant: 'main', variantStyle: 'bolditalic' };
   },
 });
 
