@@ -38,7 +38,7 @@ import { showKeystroke } from './keystroke-caption';
 export function onKeystroke(
   mathfield: MathfieldPrivate,
   keystroke: string,
-  evt?: KeyboardEvent
+  evt: KeyboardEvent
 ): boolean {
   const { model } = mathfield;
 
@@ -61,12 +61,14 @@ export function onKeystroke(
   clearTimeout(mathfield.keystrokeBufferResetTimer);
 
   // 4. Give a chance to the custom keystroke handler to intercept the event
+  // (note that in readonly mode, while you can't modify the content, you
+  // can use navigation keys)
   if (
     !mathfield.options.readOnly &&
     mathfield.options.onKeystroke &&
     !mathfield.options.onKeystroke(mathfield, keystroke, evt)
   ) {
-    if (evt?.preventDefault) {
+    if (evt.preventDefault) {
       evt.preventDefault();
       evt.stopPropagation();
     }
@@ -76,43 +78,65 @@ export function onKeystroke(
 
   // 5. Let's try to find a matching shortcut or command
   let shortcut: string | undefined;
-  let stateIndex: number;
   let selector: Selector | '' | [Selector, ...any[]] = '';
+  let stateIndex: number;
   let resetKeystrokeBuffer = false;
+
   // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
   // would match a long shortcut (i.e. '~~')
-  // Ignore the key if command or control is pressed (it may be a keybinding,
+  // Ignore the key if Command or Control is pressed (it may be a keybinding,
   // see 5.3)
-  if (mathfield.mode !== 'latex' && (!evt || (!evt.ctrlKey && !evt.metaKey))) {
+  if (mathfield.mode !== 'latex' && !evt.ctrlKey && !evt.metaKey) {
     if (keystroke === '[Backspace]') {
-      // Special case for backspace
+      // Special case for backspace to correctly handle undoing
       mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
       mathfield.keystrokeBufferStates.pop();
       mathfield.resetKeystrokeBuffer({ defer: true });
-    } else if (evt && !mightProducePrintableCharacter(evt)) {
+    } else if (!mightProducePrintableCharacter(evt)) {
       // It was a non-alpha character (PageUp, End, etc...)
       mathfield.resetKeystrokeBuffer();
     } else {
       const c = eventToChar(evt);
       // Find the longest substring that matches a shortcut
       const candidate = mathfield.keystrokeBuffer + c;
+
+      // The context may be from the start of the group to the current position
+      const localContext = model.getAtoms(
+        model.offsetOf(model.at(model.position).firstSibling),
+        model.position
+      );
+
+      let multicharSymbol = false;
+      const multicharEligible =
+        mathfield.mode === 'math' &&
+        (localContext.length === 0 || localContext[0].type !== 'mord');
+
+      // Loop  over possible candidates, from the longest possible, to the shortest
       let i = 0;
       while (!shortcut && i < candidate.length) {
-        const context = mathfield.keystrokeBufferStates[i]
-          ? parseLatex(mathfield.keystrokeBufferStates[i].latex, {
-              parseMode: effectiveMode(mathfield.options),
-              macros: mathfield.options.macros,
-            })
-          : // The context is from the start of the group to the current position
-            model.getAtoms(
-              model.offsetOf(model.at(model.position).firstSibling),
-              model.position
-            );
-        shortcut = getInlineShortcut(
-          context,
-          candidate.slice(i),
-          mathfield.options.inlineShortcuts
-        );
+        // Could this be interpreted as a multichar symbol?
+        if (multicharEligible) {
+          shortcut = mathfield.options.onMulticharSymbol(
+            mathfield,
+            candidate.slice(i)
+          );
+          multicharSymbol = !!shortcut;
+        }
+        if (!multicharSymbol) {
+          // Not a multichar symbol. Perhaps an inline shortcut?
+          const context = mathfield.keystrokeBufferStates[i]
+            ? parseLatex(mathfield.keystrokeBufferStates[i].latex, {
+                parseMode: effectiveMode(mathfield.options),
+                macros: mathfield.options.macros,
+              })
+            : localContext;
+
+          shortcut = getInlineShortcut(
+            context,
+            candidate.slice(i),
+            mathfield.options.inlineShortcuts
+          );
+        }
         i += 1;
       }
 
@@ -120,24 +144,31 @@ export function onKeystroke(
         mathfield.keystrokeBufferStates.length - (candidate.length - i);
       mathfield.keystrokeBuffer += c;
       mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
-      if (countInlineShortcutsStartingWith(candidate, mathfield.options) <= 1) {
+
+      if (
+        !multicharSymbol &&
+        countInlineShortcutsStartingWith(candidate, mathfield.options) <= 1
+      ) {
         // There's only a single shortcut matching this sequence.
         // We can confidently reset the keystroke buffer
         resetKeystrokeBuffer = true;
       } else {
-        // There are several potential shortcuts matching this sequence
-        // Don't reset the keystroke buffer yet, in case some
-        // keys typed later disambiguate the desirted shortcut,
-        // but schedule a defered reset. This handles the case if there
-        // was a shortcut for "sin" and "sinh", to avoid the detecting
-        // of the "sin" shortcut from ever having the "sinh" shortcut
-        // triggered.
+        // There are several potential shortcuts matching this sequence.
+        //
+        // Don't reset the keystroke buffer yet, but schedule a defered reset,
+        // in case some keys typed later disambiguate the desired shortcut.
+        //
+        // This handles the case with two shortcuts for "sin" and "sinh", to
+        // avoid the detecting of the "sin" shortcut from preventing the "sinh"
+        // shortcut from ever being triggered.
         mathfield.resetKeystrokeBuffer({ defer: true });
       }
     }
   }
 
+  //
   // 5.2. Should we switch mode?
+  //
   // Need to check this before determing if there's a valid shortcut
   // since if we switch to math mode, we may want to apply the shortcut
   // e.g. "slope = rise/run"
@@ -161,78 +192,76 @@ export function onKeystroke(
     }
   }
 
-  // 5.3 Check if this matches a keybinding
+  // 5.3 Check if this matches a keybinding.
+  //
   // Need to check this **after** checking for inline shortcuts because
-  // shift+backquote is a keybinding that inserts "\~"", but "~~" is a
-  // shortcut for "\approx" and needs to have priority over shift+backquote
-  if (!shortcut && !selector) {
-    selector = getCommandForKeybinding(
-      mathfield.keybindings,
-      mathfield.mode,
-      keystroke
-    );
-  }
+  // Shift+Backquote is a keybinding that inserts "\~"", but "~~" is a
+  // shortcut for "\approx" and needs to have priority over Shift+Backquote
+  if (!shortcut) {
+    if (!selector) {
+      selector = getCommandForKeybinding(
+        mathfield.keybindings,
+        mathfield.mode,
+        keystroke
+      );
+    }
 
-  const child = model.at(Math.max(model.position, model.anchor));
+    // 5.4 Handle the return/enter key
+    if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
+      // No matching keybinding: trigger a commit
+      if (typeof mathfield.options.onCommit === 'function') {
+        mathfield.options.onCommit(mathfield);
+        if (evt.preventDefault) {
+          evt.preventDefault();
+          evt.stopPropagation();
+        }
 
-  // 5.4 Handle the return/enter key
-  if (
-    !shortcut &&
-    !selector &&
-    (keystroke === '[Enter]' || keystroke === '[Return]')
-  ) {
-    // No matching keybinding: trigger a commit
-    if (typeof mathfield.options.onCommit === 'function') {
-      mathfield.options.onCommit(mathfield);
-      if (evt?.preventDefault) {
-        evt.preventDefault();
-        evt.stopPropagation();
+        return false;
+      }
+    }
+
+    if (mathfield.mode === 'math') {
+      //
+      // 5.5 If this is the Space bar and we're just before or right after
+      // a text zone, or if `mathModeSpace` is enabled, insert the space
+      //
+      if (keystroke === '[Space]') {
+        if (mathfield.options.mathModeSpace) {
+          mathfield.snapshot();
+          ModeEditor.insert('math', model, mathfield.options.mathModeSpace, {
+            format: 'latex',
+          });
+          selector = '';
+          mathfield.dirty = true;
+          mathfield.scrollIntoView();
+          if (evt.preventDefault) {
+            evt.preventDefault();
+            evt.stopPropagation();
+          }
+          return true;
+        } else {
+          const nextSibling = model.at(model.position + 1);
+          const previousSibling = model.at(model.position - 1);
+          if (
+            nextSibling?.mode === 'text' ||
+            previousSibling?.mode === 'text'
+          ) {
+            mathfield.snapshot();
+            ModeEditor.insert('text', model, ' ');
+            mathfield.dirty = true;
+          }
+        }
       }
 
-      return false;
+      //
+      // 5.6 Handle the decimal separator
+      //
+      if (eventToChar(evt) === ',') selector = 'insertDecimalSeparator';
     }
   }
 
-  //
-  // 5.5 If this is the Space bar and we're just before or right after
-  // a text zone, or if `mathModeSpace` is enabled, insert the space
-  //
-  if (mathfield.mode === 'math' && keystroke === '[Space]' && !shortcut) {
-    if (mathfield.options.mathModeSpace) {
-      mathfield.snapshot();
-      ModeEditor.insert('math', model, mathfield.options.mathModeSpace, {
-        format: 'latex',
-      });
-      selector = '';
-      mathfield.dirty = true;
-      mathfield.scrollIntoView();
-      if (evt?.preventDefault) {
-        evt.preventDefault();
-        evt.stopPropagation();
-      }
-      return true;
-    } else {
-      const nextSibling = model.at(model.position + 1);
-      const previousSibling = model.at(model.position - 1);
-      if (nextSibling?.mode === 'text' || previousSibling?.mode === 'text') {
-        mathfield.snapshot();
-        ModeEditor.insert('text', model, ' ');
-        mathfield.dirty = true;
-      }
-    }
-  }
-
-  //
-  // 5.6 Handle the decimal separator
-  //
-  if (mathfield.mode === 'math' && !shortcut && eventToChar(evt) === ',') {
-    selector = 'insertDecimalSeparator';
-  }
-
-  // No shortcut :( We're done.
-  if (!shortcut && !selector) {
-    return true;
-  }
+  // No shortcut, no selector. We're done.
+  if (!shortcut && !selector) return true;
 
   //
   // 6. Perform the action matching this selector or insert the shortcut
@@ -243,11 +272,11 @@ export function onKeystroke(
   // `spacebar), and we're at the end of a smart fence, close the fence with
   // an empty (.) right delimiter
   //
+  const child = model.at(Math.max(model.position, model.anchor));
   const { parent } = child;
   if (
     selector === 'moveAfterParent' &&
-    parent &&
-    parent.type === 'leftright' &&
+    parent?.type === 'leftright' &&
     child.isLastSibling &&
     mathfield.options.smartFence &&
     insertSmartFence(model, '.', mathfield.style)
@@ -341,7 +370,7 @@ export function onKeystroke(
   // 8. Keystroke has been handled, if it wasn't caught in the default
   // case, so prevent propagation
   //
-  if (evt?.preventDefault) {
+  if (evt.preventDefault) {
     evt.preventDefault();
     evt.stopPropagation();
   }
@@ -415,10 +444,9 @@ export function onTypedText(
   // 4/ Insert the specified text at the current insertion point.
   // If the selection is not collapsed, the content will be deleted first.
   //
-
+  const atom = model.at(model.position);
   const style: Style = {
-    ...model.at(model.position).computedStyle,
-    // Variant: 'main',
+    ...atom.computedStyle,
     ...mathfield.style,
   };
   if (!model.selectionIsCollapsed) {
@@ -480,6 +508,19 @@ export function onTypedText(
         ModeEditor.insert('math', model, c, { style });
         moveAfterParent(model);
       } else {
+        // If adding an alphabetic character, and the leftmost atom is an
+        // ordinary character, use the same variant/variantStyle (\mathit, \mathrm...)
+        if (
+          atom.type === 'mord' &&
+          /[a-zA-Z]/.test(atom.value) &&
+          /[a-zA-Z]/.test(c)
+        ) {
+          if (atom.style.variant) style.variant = atom.style.variant;
+          if (atom.style.variantStyle)
+            style.variantStyle = atom.style.variantStyle;
+        }
+
+        // General purpose character insertion
         ModeEditor.insert('math', model, c, {
           style,
           smartFence: mathfield.options.smartFence,

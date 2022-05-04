@@ -616,18 +616,17 @@ export class Atom {
   }
 
   get computedStyle(): PrivateStyle {
-    const style = { ...this.style };
+    if (!this.parent) return { ...(this.style ?? {}) };
+
     const hadVerbatimColor = this.style.verbatimColor !== undefined;
     const hadVerbatimBackgroundColor =
       this.style.verbatimBackgroundColor !== undefined;
-    if (style) {
-      // Variant are not included in the computed style (they're not inherited)
-      delete style.variant;
-      delete style.variantStyle;
-    }
 
-    if (!this.parent) return style ?? {};
-    const result = { ...this.parent.computedStyle, ...style };
+    const result = { ...this.parent.computedStyle, ...this.style };
+
+    // Variant are not included in the computed style (they're not inherited)
+    delete result.variant;
+    delete result.variantStyle;
 
     if (!hadVerbatimBackgroundColor) delete result.verbatimBackgroundColor;
     if (!hadVerbatimColor) delete result.verbatimColor;
@@ -1241,7 +1240,7 @@ export class Atom {
 
     // The italic correction applies only in math mode
     if (this.mode !== 'math') result.italic = 0;
-    result.right = result.italic; // Italic correction
+    result.right = 0; // result.italic; // Italic correction
 
     // To retrieve the atom from a box, for example when the box is clicked
     // on, attach a unique ID to the box and associate it with the atom.
@@ -1294,6 +1293,10 @@ function atomsToLatex(
   }
 
   if (atoms.length === 0) return '';
+
+  if (atoms.map((x) => x.value).join('') === 'speed') {
+    console.log('stop');
+  }
 
   return joinLatex(
     getPropertyRuns(atoms, 'cssClass').map((x) =>

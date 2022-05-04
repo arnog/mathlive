@@ -261,7 +261,7 @@ export class Box {
     // Set initial classes
     this.classes = options?.classes ?? '';
 
-    let fontName: string | null = options?.fontFamily ?? 'Main-Regular';
+    let fontName = options?.fontFamily || 'Main-Regular';
     if (options?.style && this.value) {
       fontName =
         Mode.applyStyle(options.mode ?? 'math', this, options.style) ??

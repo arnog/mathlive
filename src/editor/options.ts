@@ -364,10 +364,11 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     readAloudHook: defaultReadAloudHook,
 
     onAnnounce: defaultAnnounceHook,
-    onKeystroke: (): boolean => true,
-    onMoveOutOf: (): boolean => true,
-    onTabOutOf: (): boolean => true,
+    onKeystroke: () => true,
+    onMoveOutOf: () => true,
+    onTabOutOf: () => true,
     onPlaceholderDidChange: () => {},
+    onMulticharSymbol: () => '',
     onBlur: NO_OP_LISTENER,
     onFocus: NO_OP_LISTENER,
     onContentWillChange: NO_OP_LISTENER,
@@ -381,7 +382,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onCommit: NO_OP_LISTENER,
     onExport: defaultExportHook,
 
-    onError: (): void => {},
+    onError: NO_OP_LISTENER,
     value: '',
   };
 }

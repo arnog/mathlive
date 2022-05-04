@@ -128,7 +128,7 @@ export function onPointerDown(
       bias: x <= anchorX ? (x === anchorX ? 0 : -1) : +1,
     });
     if (trackingWords) {
-      // @revisit: extend focus, actualAnchor to word boundary
+      // @todo: extend focus, actualAnchor to word boundary
     }
 
     if (actualAnchor >= 0 && focus >= 0) {

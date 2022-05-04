@@ -541,8 +541,20 @@ export interface MathfieldHooks {
   onKeystroke: (
     sender: Mathfield,
     keystroke: string,
-    ev?: KeyboardEvent
+    ev: KeyboardEvent
   ) => boolean;
+
+  /**
+   * A hook invoked when a string of characters that could be
+   * interpreted as a multichar symbol has been typed.
+   *
+   * If not a multichar symbol, return the empty string `""`.
+   *
+   * If a multichar symbol, return the symbol wrapped appropriately,
+   * for example `\mathrm{${symbol}}`.
+   */
+  onMulticharSymbol: (sender: Mathfield, symbol: string) => string;
+
   /**
    * A hook invoked when keyboard navigation would cause the insertion
    * point to leave the mathfield.
@@ -561,6 +573,7 @@ export interface MathfieldHooks {
     sender: Mathfield,
     direction: 'forward' | 'backward' | 'upward' | 'downward'
   ) => boolean;
+
   /**
    * This hook is invoked when pressing tab (or shift-tab) would cause the
    * insertion point to leave the mathfield.

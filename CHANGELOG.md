@@ -13,6 +13,16 @@
   `{,}` if in math mode, right after a digit, and when `decimalSeparator` is set
   to `","`. Otherwise, it inserts a "."
 
+- The `onMulticharSymbol()` hook provides an opportunity to recognize multi
+  character symbols and wrap them in an appropriate command, e.g. `speed` ->
+  `\mathrm{speed}`
+
+- Added support for the `\mathnormal{}` command, which displays text in italic
+  and includes italic correction. As opposed to `\mathit{}` which displays text
+  in italic, but without italic correction.
+
+- Correctly handle double-clicking words styled in `\mathrm` or `\mathit`
+
 ### Bug Fixes
 
 - When extending the selection backward over a `captureSelection` group, do not

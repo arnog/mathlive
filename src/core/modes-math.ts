@@ -212,7 +212,7 @@ export class MathMode extends Mode {
                 'monospace': '\\mathtt{',
                 'sans-serif': '\\mathsf{',
                 'normal': '\\mathrm{',
-                'normal-italic': '\\mathit{',
+                'normal-italic': '\\mathnormal{',
                 'normal-bold': '\\mathbf{',
                 'normal-bolditalic': '\\mathbfit{',
                 'ams': '',
