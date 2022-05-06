@@ -982,7 +982,7 @@ defineFunction('not', '{:math}', {
       {
         boxType: 'mrel',
         captureSelection: true,
-        serialize: (atom: GroupAtom, options) => {
+        serialize: (_atom: GroupAtom, options) => {
           const argLatex = Atom.serialize(arg, options);
           if (argLatex.length === 1 && !/[a-zA-Z]/.test(argLatex)) {
             return '\\not' + argLatex;
