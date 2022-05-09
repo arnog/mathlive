@@ -57,7 +57,9 @@ export function onPointerDown(
     }
   }, 32);
   function endPointerTracking(evt: null | PointerEvent | TouchEvent): void {
-    if (isBrowser() && 'PointerEvent' in window) {
+    if (!isBrowser()) return;
+
+    if ('PointerEvent' in window) {
       off(field, 'pointermove', onPointerMove);
       off(
         field,
