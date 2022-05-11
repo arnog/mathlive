@@ -967,8 +967,15 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   connectedCallback(): void {
     if (!this.hasAttribute('role')) this.setAttribute('role', 'textbox');
+    this.setAttribute('dir', 'ltr');
+    if (!this.hasAttribute('aria-label'))
+      this.setAttribute('aria-label', 'math input field');
 
-    // This.setAttribute('aria-multiline', 'false');
+    // NVDA on Firefox seems to require this attribute
+    this.setAttribute('contenteditable', 'true');
+
+    this.setAttribute('aria-multiline', 'false');
+
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
     const slot =
@@ -1293,14 +1300,19 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   set readonly(value: boolean) {
     const isReadonly = Boolean(value);
-    if (isReadonly) this.setAttribute('readonly', '');
-    else {
+
+    // Note that `readonly` and `disabled` are "boolean attributes" as
+    // per the HTML5 spec. Their value must be the empty string to indicate
+    // a value of true, or they must be absent to indicate a value of false.
+    // https://html.spec.whatwg.org/#boolean-attribute
+    if (isReadonly) {
+      this.setAttribute('readonly', '');
+      this.setAttribute('disabled', '');
+    } else {
       this.removeAttribute('readonly');
       this.removeAttribute('read-only');
+      this.removeAttribute('disabled');
     }
-
-    if (isReadonly) this.setAttribute('disabled', '');
-    else this.removeAttribute('disabled');
 
     this.setAttribute('aria-disabled', isReadonly ? 'true' : 'false');
     this.setOptions({ readOnly: isReadonly });
