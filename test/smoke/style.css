@@ -112,7 +112,7 @@ kbd {
   width: 100%;
   font-size: 24px;
 }
-@media (max-width: 512px) {
+@media only screen and (max-width: 512px) {
   .links {
     font-size: 16px;
   }
