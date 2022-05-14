@@ -172,7 +172,7 @@ function getNodeBounds(node: Element): Rect {
     for (const child of node.children) {
       if (child.nodeType === 1) {
         if (
-          'atom-id' in (child as HTMLElement).dataset &&
+          'atomId' in (child as HTMLElement).dataset &&
           !child.classList.contains('pstrut')
         ) {
           const r: Rect = getNodeBounds(child);
@@ -195,9 +195,6 @@ export function getAtomBounds(
   let result: Rect | null = mathfield._atomBoundsCache?.get(atom.id) ?? null;
   if (result !== null) return result;
   const node = mathfield.field!.querySelector(`[data-atom-id="${atom.id}"]`);
-  if (!node) {
-    console.log(atom.id);
-  }
   result = node ? getNodeBounds(node) : null;
   if (mathfield._atomBoundsCache) {
     if (result) {
