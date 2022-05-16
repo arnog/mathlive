@@ -122,7 +122,6 @@ export function onKeystroke(
           candidate.slice(i),
           mathfield.options.inlineShortcuts
         );
-        console.log(candidate.slice(i), shortcut);
 
         // If not a shortcut, could this be interpreted as a multichar symbol?
         if (!shortcut && mathfield.mode === 'math') {
