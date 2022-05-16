@@ -42,7 +42,7 @@ export class LeftRightAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): LeftRightAtom {
-    return new LeftRightAtom(json.variant ?? '', [], json as any);
+    return new LeftRightAtom(json.variant ?? '', json.body, json as any);
   }
 
   toJson(): AtomJson {

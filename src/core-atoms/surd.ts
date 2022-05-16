@@ -23,7 +23,7 @@ export class SurdAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): SurdAtom {
-    return new SurdAtom(json.command, json as any);
+    return new SurdAtom(json.command, { ...(json as any), index: json.above });
   }
 
   toJson(): AtomJson {
@@ -32,9 +32,7 @@ export class SurdAtom extends Atom {
 
   serialize(options: ToLatexOptions): string {
     let args = '';
-    if (this.above) {
-      args += `[${this.aboveToLatex(options)}]`;
-    }
+    if (this.above) args += `[${this.aboveToLatex(options)}]`;
 
     args += `{${this.bodyToLatex(options)}}`;
     return this.command + args;

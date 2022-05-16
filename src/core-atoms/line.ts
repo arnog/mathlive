@@ -18,7 +18,7 @@ export class LineAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): LineAtom {
-    return new LineAtom(json.command, [], json as any);
+    return new LineAtom(json.command, json.body, json as any);
   }
 
   toJson(): AtomJson {

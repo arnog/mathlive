@@ -64,7 +64,12 @@ export class GenfracAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): GenfracAtom {
-    return new GenfracAtom(json.command, [], [], json as any as GenfracOptions);
+    return new GenfracAtom(
+      json.command,
+      json.above,
+      json.below,
+      json as any as GenfracOptions
+    );
   }
 
   toJson(): AtomJson {

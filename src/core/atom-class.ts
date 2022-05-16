@@ -376,7 +376,11 @@ export class Atom {
   }
 
   static fromJson(json: AtomJson): Atom {
-    return new Atom(json.type, json as any);
+    const result = new Atom(json.type, json as any);
+    // Restore the branches
+    for (const branch of NAMED_BRANCHES)
+      if (json[branch]) result.setChildren(json[branch], branch);
+    return result;
   }
 
   toJson(): AtomJson {

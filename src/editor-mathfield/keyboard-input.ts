@@ -94,7 +94,7 @@ export function onKeystroke(
     } else if (!mightProducePrintableCharacter(evt)) {
       // It was a non-alpha character (PageUp, End, etc...)
       mathfield.resetKeystrokeBuffer();
-      // mathfield.snapshot();
+      mathfield.snapshot();
     } else {
       const c = eventToChar(evt);
 
@@ -131,10 +131,8 @@ export function onKeystroke(
               mathfield,
               candidate.slice(i)
             );
-            console.log('eligible', context, candidate.slice(i), shortcut);
             multicharSymbol = !!shortcut;
-          } else
-            console.log('not eligible', context, candidate.slice(i), shortcut);
+          }
         }
         i += 1;
       }

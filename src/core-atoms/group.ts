@@ -68,7 +68,7 @@ export class GroupAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): GroupAtom {
-    return new GroupAtom([], json as any);
+    return new GroupAtom(json.body, json as any);
   }
 
   toJson(): AtomJson {

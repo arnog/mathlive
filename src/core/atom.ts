@@ -34,13 +34,17 @@ export function fromJson(json: AtomJson[]): Atom[];
 export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (isArray<AtomJson>(json)) return json.map((x) => fromJson(x));
 
+  json = { ...json };
+
+  // Restore the branches
+  for (const branch of NAMED_BRANCHES)
+    if (json[branch]) json[branch] = fromJson(json[branch] as AtomJson[]);
+  if (json.array) json.array = fromJson(json.array);
+
   const type: AtomType = json.type;
   let result: Atom | undefined = undefined;
   if (type === 'accent') result = AccentAtom.fromJson(json);
-  if (type === 'array') {
-    json.array = fromJson(json.array);
-    result = ArrayAtom.fromJson(json);
-  }
+  if (type === 'array') result = ArrayAtom.fromJson(json);
   if (type === 'box') result = BoxAtom.fromJson(json);
   if (type === 'composition') result = CompositionAtom.fromJson(json);
   if (type === 'chem') result = ChemAtom.fromJson(json);
@@ -55,7 +59,10 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (type === 'macro') result = MacroAtom.fromJson(json);
   if (type === 'overlap') result = OverlapAtom.fromJson(json);
   if (type === 'overunder') result = OverunderAtom.fromJson(json);
-  if (type === 'placeholder') result = PlaceholderAtom.fromJson(json);
+  if (type === 'placeholder') {
+    if (json.defaultValue) json.defaultValue = fromJson(json.defaultValue);
+    result = PlaceholderAtom.fromJson(json);
+  }
   if (type === 'phantom') result = PhantomAtom.fromJson(json);
   if (type === 'rule') result = RuleAtom.fromJson(json);
   if (type === 'sizeddelim') result = SizedDelimAtom.fromJson(json);
@@ -85,11 +92,6 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (json.captureSelection) result.captureSelection = true;
   if (json.pruneEmptyBranches) result.pruneEmptyBranches = true;
   if (json.pruneEmptySelf) result.pruneEmptySelf = true;
-
-  // Restore the branches
-  for (const branch of NAMED_BRANCHES)
-    if (json[branch])
-      result.setChildren(fromJson(json[branch] as AtomJson[]), branch);
 
   return result;
 }

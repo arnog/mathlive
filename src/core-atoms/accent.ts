@@ -30,7 +30,7 @@ export class AccentAtom extends Atom {
   }
 
   static fromJson(json: { [key: string]: any }): AccentAtom {
-    return new AccentAtom(json.command, [], {
+    return new AccentAtom(json.command, json.body, {
       accentChar: json.accentChar,
       svgAccent: json.svgAccent,
       style: json.style,

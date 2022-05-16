@@ -23,7 +23,7 @@ export class OverlapAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): OverlapAtom {
-    return new OverlapAtom(json.command, [], json as any);
+    return new OverlapAtom(json.command, json.body, json as any);
   }
 
   toJson(): AtomJson {

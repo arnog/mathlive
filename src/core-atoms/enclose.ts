@@ -84,7 +84,7 @@ export class EncloseAtom extends Atom {
   static fromJson(json: AtomJson): EncloseAtom {
     return new EncloseAtom(
       json.command,
-      [],
+      json.body,
       json.notation,
       json as any as EncloseAtomOptions
     );

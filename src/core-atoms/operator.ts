@@ -35,11 +35,8 @@ export class OperatorAtom extends Atom {
       style: options.style,
       isFunction: options?.isFunction,
     });
-    if (typeof symbol === 'string') {
-      this.value = symbol;
-    } else {
-      this.body = symbol;
-    }
+    if (typeof symbol === 'string') this.value = symbol;
+    else this.body = symbol;
 
     this.captureSelection = options.captureSelection ?? false;
 
@@ -53,7 +50,7 @@ export class OperatorAtom extends Atom {
   static fromJson(json: AtomJson): OperatorAtom {
     return new OperatorAtom(
       json.command,
-      json.value ? json.value : [],
+      json.body ? json.body : json.value,
       json as any
     );
   }

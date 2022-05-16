@@ -40,8 +40,9 @@ export class BoxAtom extends Atom {
     this.padding = options.padding;
     this.border = options.border;
   }
+
   static fromJson(json: { [key: string]: any }): BoxAtom {
-    return new BoxAtom(json.command, [], json as any);
+    return new BoxAtom(json.command, json.body, json as any);
   }
 
   toJson(): AtomJson {

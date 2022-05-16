@@ -30,7 +30,7 @@ export class PhantomAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): PhantomAtom {
-    return new PhantomAtom(json.command, [], json as any);
+    return new PhantomAtom(json.command, json.body, json as any);
   }
 
   toJson(): AtomJson {

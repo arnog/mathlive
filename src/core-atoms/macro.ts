@@ -28,7 +28,7 @@ export class MacroAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): MacroAtom {
-    return new MacroAtom(json.command, { ...(json as any), body: [] });
+    return new MacroAtom(json.command, json as any);
   }
 
   toJson(): AtomJson {

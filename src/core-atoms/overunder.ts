@@ -53,12 +53,7 @@ export class OverunderAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): OverunderAtom {
-    return new OverunderAtom(json.command, {
-      ...(json as any),
-      body: [],
-      above: [],
-      below: [],
-    });
+    return new OverunderAtom(json.command, json as any);
   }
 
   toJson(): AtomJson {

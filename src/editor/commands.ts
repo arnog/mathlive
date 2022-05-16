@@ -112,10 +112,11 @@ export function perform(
       return false;
     }
 
-    if (/^(delete|transpose|add)/.test(selector)) {
-      if (selector !== 'deleteBackward') {
-        mathfield.resetKeystrokeBuffer();
-      }
+    if (
+      /^(delete|transpose|add)/.test(selector) &&
+      selector !== 'deleteBackward'
+    ) {
+      mathfield.resetKeystrokeBuffer();
     }
 
     if (
@@ -145,6 +146,7 @@ export function perform(
     dirty = mathfield.virtualKeyboard?.executeCommand(command) ?? false;
     handled = true;
   } else if (COMMANDS[selector]) {
+    if (/^(undo|redo)/.test(selector)) mathfield.resetKeystrokeBuffer();
     dirty = COMMANDS[selector]!.fn(mathfield, ...args);
     handled = true;
   } else {

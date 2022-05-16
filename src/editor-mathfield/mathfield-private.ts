@@ -1221,7 +1221,6 @@ export class MathfieldPrivate implements Mathfield {
           needsUpdate = true;
           v.field.style.top = `${newTop}px`;
         }
-        console.log('attaching', !!v.field.style.left, !!v.field.style.top);
       }
     });
 

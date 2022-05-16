@@ -37,6 +37,8 @@ export class PlaceholderAtom extends Atom {
     const result = super.toJson();
     if (this.placeholderId) result.placeholderId = this.placeholderId;
     if (this.value === PLACEHOLDER_STRING) delete result.value;
+    if (this.defaultValue)
+      result.defaultValue = this.defaultValue.map((x) => x.toJson());
     return result;
   }
 
