@@ -85,6 +85,9 @@ export class OperatorAtom extends Atom {
 
       if (!base) return null;
 
+      // Apply italic correction
+      base.right = base.italic;
+
       // Shift the symbol so its center lies on the axis (rule 13). It
       // appears that our fonts have the centers of the symbols already
       // almost on the axis, so these numbers are very small. Note we
