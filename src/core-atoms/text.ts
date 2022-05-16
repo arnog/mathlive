@@ -1,5 +1,5 @@
 import { Style } from '../public/core';
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { charToLatex } from '../core-definitions/definitions-utils';
@@ -10,6 +10,14 @@ export class TextAtom extends Atom {
     this.value = value;
     this.verbatimLatex = value;
     this.applyStyle(style);
+  }
+
+  static fromJson(json: AtomJson): TextAtom {
+    return new TextAtom(json.command, json.value, json.style);
+  }
+
+  toJson(): AtomJson {
+    return super.toJson();
   }
 
   render(context: Context): Box {

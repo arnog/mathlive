@@ -1,4 +1,4 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { ParseMode, Style } from '../public/core';
@@ -6,6 +6,14 @@ import { ParseMode, Style } from '../public/core';
 export class CompositionAtom extends Atom {
   constructor(value: string, options?: { mode: ParseMode }) {
     super('composition', { mode: options?.mode ?? 'math', value });
+  }
+
+  static fromJson(json: { [key: string]: any }): CompositionAtom {
+    return new CompositionAtom(json.value, json as any);
+  }
+
+  toJson(): AtomJson {
+    return super.toJson();
   }
 
   get computedStyle(): Style {

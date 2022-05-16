@@ -1,4 +1,4 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { convertToDimension } from '../core/parser';
@@ -39,6 +39,21 @@ export class BoxAtom extends Atom {
     this.verbatimBackgroundcolor = options.verbatimBackgroundcolor;
     this.padding = options.padding;
     this.border = options.border;
+  }
+  static fromJson(json: { [key: string]: any }): BoxAtom {
+    return new BoxAtom(json.command, [], json as any);
+  }
+
+  toJson(): AtomJson {
+    return {
+      ...super.toJson(),
+      framecolor: this.framecolor,
+      verbatimFramecolor: this.verbatimFramecolor,
+      backgroundcolor: this.backgroundcolor,
+      verbatimBackgroundcolor: this.verbatimBackgroundcolor,
+      padding: this.padding,
+      border: this.border,
+    };
   }
 
   render(parentContext: Context): Box | null {

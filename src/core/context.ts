@@ -2,12 +2,10 @@ import {
   Dimension,
   FontSize,
   Glue,
-  MacroDictionary,
   Registers,
   RegisterValue,
   Style,
 } from '../public/core';
-import { highlight } from './color';
 
 import { FontMetrics, FONT_SCALE } from './font-metrics';
 import { D, Dc, Mathstyle, MathstyleName, MATHSTYLES } from './mathstyle';
@@ -26,7 +24,6 @@ export interface ContextInterface {
     seed: 'random' | number;
   };
   smartFence?: boolean;
-  isSelected?: boolean;
   renderPlaceholder?: (context: Context, placeholder: PlaceholderAtom) => Box;
 }
 
@@ -347,8 +344,6 @@ export class Context implements ContextInterface {
       result = parent.backgroundColor;
       parent = parent.parent;
     }
-
-    // if (result && this.isSelected) result = highlight(result);
 
     return result ?? '';
   }

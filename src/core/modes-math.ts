@@ -13,7 +13,7 @@ import { BoxAtom } from '../core-atoms/box';
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
 // variant combinations.
-const VARIANTS: Record<string, [string, string]> = {
+const VARIANTS: Record<string, [fontName: string, cssClas: string]> = {
   // Handle some special characters which are only available in "main" font (not "math")
   'main': ['Main-Regular', 'ML__cmr'],
   'main-italic': ['Main-Italic', 'ML__cmr ML__it'],
@@ -199,7 +199,7 @@ export class MathMode extends Mode {
                 return variantString(x) === variant;
               })
             ) {
-              return joinLatex(x.map((x) => Atom.serialize(x, options)));
+              return joinLatex(x.map((x) => x.serialize(options)));
             }
 
             let command = '';
@@ -231,12 +231,9 @@ export class MathMode extends Mode {
               }[variant!]!;
               console.assert(command !== undefined);
             }
-
+            if (!command) return joinLatex(x.map((x) => x.serialize(options)));
             return (
-              joinLatex([
-                command,
-                ...x.map((x) => Atom.serialize(x, options)),
-              ]) + (command ? '}' : '')
+              command + joinLatex(x.map((x) => x.serialize(options))) + '}'
             );
           })
         );

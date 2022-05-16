@@ -1,6 +1,6 @@
 import type { ParseMode, Style } from '../public/core';
 
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import type { MathstyleName } from '../core/mathstyle';
 import type { Box, BoxType } from '../core/box';
@@ -14,8 +14,13 @@ export class GroupAtom extends Atom {
   customClass?: string;
   mathstyleName?: MathstyleName;
   boxType?: BoxType;
+  // This atom causes the parsemode to change. Use by commands such as
+  // `\mbox` to indicate that it is not necessary to wrap them in a mode
+  // changing command (`\text`).
+  changeMode: boolean;
+
   constructor(
-    arg: Atom[],
+    arg: Atom[] | undefined,
     options?: {
       boxType?: BoxType;
       changeMode?: boolean;
@@ -34,12 +39,12 @@ export class GroupAtom extends Atom {
     }
   ) {
     super('group', {
+      command: options?.command,
       mode: options?.mode ?? 'math',
       serialize: options?.serialize,
       style: options?.style,
       displayContainsHighlight: true,
     });
-    this.command = options?.command;
     this.body = arg;
     this.mathstyleName = options?.mathstyleName;
 
@@ -52,14 +57,34 @@ export class GroupAtom extends Atom {
 
     this.boxType = options?.boxType;
     this.skipBoundary = true;
-    this.captureSelection = options?.captureSelection;
+    this.captureSelection = options?.captureSelection ?? false;
     this.changeMode = options?.changeMode ?? false;
     this.displayContainsHighlight = false;
 
-    if (arg.length === 1 && arg[0].command === ',') {
+    if (arg && arg.length === 1 && arg[0].command === ',') {
       // French decimal point
       this.captureSelection = true;
     }
+  }
+
+  static fromJson(json: AtomJson): GroupAtom {
+    return new GroupAtom([], json as any);
+  }
+
+  toJson(): AtomJson {
+    const options: { [key: string]: any } = {};
+    if (this.mathstyleName) options.mathstyleName = this.mathstyleName;
+    if (this.latexOpen) options.latexOpen = this.latexOpen;
+    if (this.latexClose) options.latexClose = this.latexClose;
+    if (this.cssId) options.cssId = this.cssId;
+    if (this.htmlData) options.htmlData = this.htmlData;
+    if (this.htmlStyle) options.htmlStyle = this.htmlStyle;
+    if (this.customClass) options.customClass = this.customClass;
+    if (this.boxType) options.boxType = this.boxType;
+    if (this.captureSelection) options.captureSelection = true;
+    if (this.changeMode) options.changeMode = true;
+
+    return { ...super.toJson(), ...options };
   }
 
   render(context: Context): Box | null {
@@ -74,10 +99,8 @@ export class GroupAtom extends Atom {
       type: this.boxType,
       classes: this.customClass,
       mode: this.mode,
-      style: {
-        backgroundColor: this.style.backgroundColor,
-      },
-      newList: true,
+      style: { backgroundColor: this.style.backgroundColor },
+      newList: this.boxType ? false : true,
     });
     if (!box) return box;
     if (this.cssId) box.cssId = this.cssId;

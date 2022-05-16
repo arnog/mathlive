@@ -54,11 +54,12 @@ export const RIGHT_DELIM = {
   '\\lmoustache': '\\rmoustache',
 };
 
-export const LEFT_DELIM =
-  Object.fromEntries(
-    Object.entries(RIGHT_DELIM)
-      .map(([leftDelim, rightDelim]) => [rightDelim, leftDelim])
-  );
+export const LEFT_DELIM = Object.fromEntries(
+  Object.entries(RIGHT_DELIM).map(([leftDelim, rightDelim]) => [
+    rightDelim,
+    leftDelim,
+  ])
+);
 
 function getSymbolValue(symbol: string): number {
   return (

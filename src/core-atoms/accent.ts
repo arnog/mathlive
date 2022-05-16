@@ -1,5 +1,5 @@
 import { Context } from '../core/context';
-import { Atom } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 
 import { makeSVGBox, Box } from '../core/box';
 import { VBox } from '../core/v-box';
@@ -29,6 +29,21 @@ export class AccentAtom extends Atom {
     // (any non-null value would do)
   }
 
+  static fromJson(json: { [key: string]: any }): AccentAtom {
+    return new AccentAtom(json.command, [], {
+      accentChar: json.accentChar,
+      svgAccent: json.svgAccent,
+      style: json.style,
+    });
+  }
+
+  toJson(): AtomJson {
+    return {
+      ...super.toJson(),
+      accentChar: this.accent,
+      svgAccent: this.svgAccent,
+    };
+  }
   render(parentContext: Context): Box {
     const context = new Context(parentContext, this.style, 'cramp');
     // Accents are handled in the TeXbook pg. 443, rule 12.

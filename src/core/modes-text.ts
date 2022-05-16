@@ -7,9 +7,10 @@ import { Atom, ToLatexOptions } from './atom';
 import { getInfo, charToLatex } from '../core-definitions/definitions';
 import { TextAtom } from '../core-atoms/text';
 import { BoxAtom } from '../core-atoms/box';
+import { GroupAtom } from '../core-atoms/group';
 
 function emitStringTextRun(run: Atom[], options: ToLatexOptions): string {
-  return joinLatex(run.map((x: Atom) => Atom.serialize(x, options)));
+  return joinLatex(run.map((x: Atom) => x.serialize(options)));
 }
 
 function emitFontShapeTextRun(run: Atom[], options: ToLatexOptions): string {
@@ -192,7 +193,7 @@ export class TextMode extends Mode {
   serialize(inRun: Atom[], options: ToLatexOptions): string {
     const run = [...inRun];
     let prefix = '';
-    while (run[0]?.changeMode ?? false) {
+    while (run[0] && (!(run[0] instanceof GroupAtom) || run[0].changeMode)) {
       prefix += emitBackgroundColorRun([run[0]], options);
       run.shift();
     }

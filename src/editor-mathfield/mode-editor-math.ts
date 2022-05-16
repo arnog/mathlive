@@ -632,16 +632,7 @@ export function insertSmartFence(
     !(parent instanceof LeftRightAtom && parent.leftDelim === '|')
   ) {
     // We have a valid open fence as input
-    let s = '';
-
-    // If we're before a function (e.g. `\sin`, or 'f'):  this is an
-    // argument list: Use `\mleft...\mright'.
-
-    s = atom.isFunction
-      ? `\\mleft${fence}\\mright${rDelim}`
-      : `\\left${fence}\\right?`;
-
-    ModeEditor.insert('math', model, s, {
+    ModeEditor.insert('math', model, `\\left${fence}\\right?`, {
       format: 'latex',
       style,
     });

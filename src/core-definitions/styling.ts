@@ -525,11 +525,12 @@ defineFunction('mathscr', '{:math*}', {
  */
 defineFunction('mbox', '{:text}', {
   ifMode: 'math',
-  createAtom: (_name: string, args: Argument[], style: PrivateStyle): Atom =>
+  createAtom: (command: string, args: Argument[], style: PrivateStyle): Atom =>
     new GroupAtom(args[0] as Atom[], {
       changeMode: true,
       style,
       mode: 'text',
+      command,
       serialize: (atom: GroupAtom, options: ToLatexOptions) =>
         `\\mbox{${atom.bodyToLatex({
           ...options,
@@ -982,6 +983,7 @@ defineFunction('not', '{:math}', {
       {
         boxType: 'mrel',
         captureSelection: true,
+        command: '\\not',
         serialize: (_atom: GroupAtom, options) => {
           const argLatex = Atom.serialize(arg, options);
           if (argLatex.length === 1 && !/[a-zA-Z]/.test(argLatex)) {

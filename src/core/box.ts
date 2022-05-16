@@ -99,11 +99,10 @@ const INTER_ATOM_TIGHT_SPACING = {
  *
  */
 function toString(value: string | number): string;
-function toString(value: number, unit?: string): string;
-function toString(arg1?: number | string, arg2?: string): string {
-  if (typeof arg1 === 'string') {
-    return arg1;
-  }
+function toString(value: number, unit: string): string;
+function toString(value: number | string, unit?: string): string;
+function toString(arg1: number | string, arg2?: string): string {
+  if (typeof arg1 === 'string') return arg1;
 
   if (typeof arg1 === 'number') {
     console.assert(Number.isFinite(arg1));
@@ -264,7 +263,7 @@ export class Box {
     let fontName = options?.fontFamily || 'Main-Regular';
     if (options?.style && this.value) {
       fontName =
-        Mode.applyStyle(options.mode ?? 'math', this, options.style) ??
+        Mode.applyStyle(options.mode ?? 'math', this, options.style) ||
         'Main-Regular';
     }
 
@@ -277,7 +276,13 @@ export class Box {
     //
     // Calculate the dimensions of this box
     //
-    if (typeof content === 'number') {
+    if (this.type === 'latex') {
+      //
+      // Fixed width (and height) characters from "latex mode"
+      //
+      this.height = 0.8;
+      this.depth = 0.2;
+    } else if (typeof content === 'number') {
       //
       // A codepoint, as used by delimiters
       //
@@ -286,9 +291,6 @@ export class Box {
       this.depth = metrics.depth;
       this.skew = metrics.skew;
       this.italic = metrics.italic;
-      // Account for the italic slant in the right margin
-      // This is required for symbols (big parentheses, integral, etc...)
-      this.right = metrics.italic;
     } else if (this.value) {
       //
       // A regular symbol
@@ -304,20 +306,13 @@ export class Box {
       for (let i = 0; i < this.value.length; i++) {
         const metrics = getCharacterMetrics(
           this.value.codePointAt(i),
-          fontName ?? 'Main-Regular'
+          fontName || 'Main-Regular'
         );
         this.height = Math.max(this.height, metrics.height);
         this.depth = Math.max(this.depth, metrics.depth);
         this.skew = metrics.skew;
         this.italic = metrics.italic;
       }
-      this.right = this.italic;
-    } else if (this.type === 'latex') {
-      //
-      // Fixed width (and height) characters from "latex mode"
-      //
-      this.height = 0.8;
-      this.depth = 0.2;
     } else if (this.children && this.children.length > 0) {
       //
       // A sequence of boxes
@@ -363,8 +358,8 @@ export class Box {
     }
   }
 
-  set atomID(id: string) {
-    if (id === undefined) return;
+  set atomID(id: string | undefined) {
+    if (id === undefined || id.length === 0) return;
     if (!this.attributes) this.attributes = {};
     this.attributes['data-atom-id'] = id;
   }
@@ -394,7 +389,8 @@ export class Box {
     // console.assert(
     //   prop !== 'height' || typeof value !== 'number' || value >= 0
     // );
-    const v = toString(value as number, unit);
+    if (value === undefined) return;
+    const v = toString(value, unit);
     if (v.length > 0) {
       if (!this.cssProperties) this.cssProperties = {};
       this.cssProperties[prop] = v;
@@ -420,27 +416,32 @@ export class Box {
 
   set left(value: number) {
     if (!Number.isFinite(value)) return;
-    if (!this.cssProperties) this.cssProperties = {};
     if (value === 0) {
-      delete this.cssProperties['margin-left'];
+      if (this.cssProperties) delete this.cssProperties['margin-left'];
     } else {
+      if (!this.cssProperties) this.cssProperties = {};
       this.cssProperties['margin-left'] = toString(value, 'em');
     }
   }
 
   set right(value: number) {
     if (!Number.isFinite(value)) return;
-    if (!this.cssProperties) this.cssProperties = {};
     if (value === 0) {
-      delete this.cssProperties['margin-right'];
+      if (this.cssProperties) delete this.cssProperties['margin-right'];
     } else {
+      if (!this.cssProperties) this.cssProperties = {};
       this.cssProperties['margin-right'] = toString(value, 'em');
     }
   }
 
   set width(value: number) {
-    if (!this.cssProperties) this.cssProperties = {};
-    this.cssProperties.width = toString(value, 'em');
+    if (!Number.isFinite(value)) return;
+    if (value === 0) {
+      if (this.cssProperties) delete this.cssProperties.width;
+    } else {
+      if (!this.cssProperties) this.cssProperties = {};
+      this.cssProperties.width = toString(value, 'em');
+    }
   }
 
   /**

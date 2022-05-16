@@ -1,11 +1,16 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { ParseMode, Style } from '../public/core';
 
+const PLACEHOLDER_STRING = '■';
+//'■' U+25A0 BLACK SQUARE
+//'▢' U+25A2 WHITE SQUARE WITH ROUNDED CORNERS
+//'⬚' U+2B1A DOTTED SQUARE
+
 export class PlaceholderAtom extends Atom {
-  placeholderId?: string;
-  defaultValue?: Atom[];
+  readonly placeholderId?: string;
+  readonly defaultValue?: Atom[];
   constructor(options?: {
     value?: string;
     mode?: ParseMode;
@@ -13,15 +18,26 @@ export class PlaceholderAtom extends Atom {
     placeholderId?: string;
     default?: Atom[];
   }) {
+    const value = options?.value || PLACEHOLDER_STRING;
     super('placeholder', {
-      mode: options?.mode,
+      mode: options?.mode ?? 'math',
       style: options?.style,
-      value: options?.value,
+      value: value,
     });
     this.captureSelection = true;
-    this.value = '⬚';
     this.placeholderId = options?.placeholderId;
     this.defaultValue = options?.default;
+  }
+
+  static fromJson(json: AtomJson): PlaceholderAtom {
+    return new PlaceholderAtom(json as any);
+  }
+
+  toJson(): AtomJson {
+    const result = super.toJson();
+    if (this.placeholderId) result.placeholderId = this.placeholderId;
+    if (this.value === PLACEHOLDER_STRING) delete result.value;
+    return result;
   }
 
   render(context: Context): Box {
@@ -33,11 +49,13 @@ export class PlaceholderAtom extends Atom {
     });
   }
 
-  serialize(_options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
+    let value = this.value ?? '';
+    if (value === PLACEHOLDER_STRING) value = '';
     const id = this.placeholderId ? `[${this.placeholderId}]` : '';
     const defaultValue = this.defaultValue
-      ? `[${Atom.serialize(this.defaultValue, _options)}]`
+      ? `[${Atom.serialize(this.defaultValue, options)}]`
       : '';
-    return `\\placeholder${id}${defaultValue}{${this.value ?? ''}}`;
+    return `\\placeholder${id}${defaultValue}{${value}}`;
   }
 }

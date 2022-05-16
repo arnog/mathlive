@@ -1,10 +1,10 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
 
 export class MacroAtom extends Atom {
-  macroLatex: string;
-  expand: boolean;
+  readonly macroArgs: string;
+  private readonly expand: boolean;
 
   constructor(
     macro: string,
@@ -22,15 +22,27 @@ export class MacroAtom extends Atom {
     this.captureSelection = options.captureSelection ?? true;
     // Don't use verbatimLatex to save the macro, as it can get wiped when
     // the atom is modified (adding super/subscript, for example).
-    this.macroLatex = macro + options.args;
+    this.macroArgs = options.args;
 
     this.expand = options.expand ?? false;
+  }
+
+  static fromJson(json: AtomJson): MacroAtom {
+    return new MacroAtom(json.command, { ...(json as any), body: [] });
+  }
+
+  toJson(): AtomJson {
+    const options: { [key: string]: any } = {};
+    if (this.expand) options.expand = true;
+    if (!this.captureSelection) options.captureSelection = false;
+    if (this.macroArgs) options.args = this.macroArgs;
+    return { ...super.toJson(), ...options };
   }
 
   serialize(options: ToLatexOptions): string {
     return options.expandMacro && this.expand
       ? this.bodyToLatex(options)
-      : this.macroLatex;
+      : this.command + this.macroArgs;
   }
 
   render(context: Context): Box | null {

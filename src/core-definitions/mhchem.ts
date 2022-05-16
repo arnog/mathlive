@@ -14,13 +14,15 @@
  * See https://mhchem.github.io/MathJax-mhchem/
  */
 
-import { defineFunction } from './definitions-utils';
+import { Argument, defineFunction } from './definitions-utils';
 import { parseLatex } from '../core/parser';
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
+import { Style } from 'public/core';
 
-class ChemAtom extends Atom {
+export class ChemAtom extends Atom {
+  private arg: string;
   constructor(command: string, arg: string) {
     super('chem', { command, mode: 'math' });
     const tex = texify.go(
@@ -30,22 +32,32 @@ class ChemAtom extends Atom {
 
     this.body = parseLatex(tex);
     this.verbatimLatex = command + '{' + arg + '}';
+    this.arg = arg;
     this.captureSelection = true;
   }
+
+  static fromJson(json: AtomJson): ChemAtom {
+    return new ChemAtom(json.command, json.arg);
+  }
+
+  toJson(): AtomJson {
+    return { ...super.toJson(), arg: this.arg };
+  }
+
   render(context: Context): Box {
     const box = Atom.createBox(context, this.body, {
       type: 'chem',
       newList: true,
-    });
+    })!;
 
     if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
     // as if `captureSelection === true`
-    return this.bind(context, box);
+    return this.bind(context, box)!;
   }
   serialize(_options: ToLatexOptions): string {
-    return this.verbatimLatex;
+    return this.verbatimLatex!;
   }
 }
 
@@ -251,11 +263,14 @@ var mhchemParser = {
       'x': /^x/,
       'x$': /^x$/,
       'i$': /^i$/,
-      'letters': /^(?:[a-zA-Z\u03B1-\u03C9\u0391-\u03A9?@]|(?:\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)(?:\s+|\{\}|(?![a-zA-Z]))))+/,
-      '\\greek': /^\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)(?:\s+|\{\}|(?![a-zA-Z]))/,
+      'letters':
+        /^(?:[a-zA-Z\u03B1-\u03C9\u0391-\u03A9?@]|(?:\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)(?:\s+|\{\}|(?![a-zA-Z]))))+/,
+      '\\greek':
+        /^\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)(?:\s+|\{\}|(?![a-zA-Z]))/,
       'one lowercase latin letter $': /^(?:([a-z])(?:$|[^a-zA-Z]))$/,
       '$one lowercase latin letter$ $': /^\$(?:([a-z])(?:$|[^a-zA-Z]))\$$/,
-      'one lowercase greek letter $': /^(?:\$?[\u03B1-\u03C9]\$?|\$?\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega)\s*\$?)(?:\s+|\{\}|(?![a-zA-Z]))$/,
+      'one lowercase greek letter $':
+        /^(?:\$?[\u03B1-\u03C9]\$?|\$?\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega)\s*\$?)(?:\s+|\{\}|(?![a-zA-Z]))$/,
       'digits': /^[0-9]+/,
       '-9.,9': /^[+\-]?(?:[0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))/,
       '-9.,9 no missing 0': /^[+\-]?[0-9]+(?:[.,][0-9]+)?/,
@@ -432,7 +447,8 @@ var mhchemParser = {
       '- orbital overlap': /^-(?=(?:[spd]|sp)(?:$|[\s,;\)\]\}]))/,
       '-': /^-/,
       'pm-operator': /^(?:\\pm|\$\\pm\$|\+-|\+\/-)/,
-      'operator': /^(?:\+|(?:[\-=<>]|<<|>>|\\approx|\$\\approx\$)(?=\s|$|-?[0-9]))/,
+      'operator':
+        /^(?:\+|(?:[\-=<>]|<<|>>|\\approx|\$\\approx\$)(?=\s|$|-?[0-9]))/,
       'arrowUpDown': /^(?:v|\(v\)|\^|\(\^\))(?=$|[\s,;\)\]\}])/,
       '\\bond{(...)}': function (input) {
         return mhchemParser.patterns.findObserveGroups(
@@ -835,7 +851,7 @@ var mhchemParser = {
     },
     '1/2': function (buffer, m) {
       /** @type {ParserOutput[]} */
-      var ret = [];
+      var ret: any[] = [];
       if (m.match(/^[+\-]/)) {
         ret.push(m.substr(0, 1));
         m = m.substr(1);
@@ -1978,7 +1994,7 @@ mhchemParser.stateMachines = {
     actions: {
       'enumber': function (buffer, m) {
         /** @type {ParserOutput[]} */
-        var ret = [];
+        var ret: any[] = [];
         if (m[0] === '+-' || m[0] === '+/-') {
           ret.push('\\pm ');
         } else if (m[0]) {

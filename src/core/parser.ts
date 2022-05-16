@@ -21,7 +21,6 @@ import {
   NormalizedMacroDictionary,
   getEnvironmentDefinition,
   getInfo,
-  getMacros,
   normalizeMacroDictionary,
 } from '../core-definitions/definitions-utils';
 import type { ColumnFormat } from '../core-atoms/array';
@@ -777,9 +776,8 @@ export class Parser {
         boxType: 'mord',
       }
     );
-    if (!this.match(final)) {
-      this.onError({ code: 'unbalanced-mode-shift' });
-    }
+
+    if (!this.match(final)) this.onError({ code: 'unbalanced-mode-shift' });
 
     this.endContext();
     if (result.hasEmptyBranch('body')) return null;
@@ -809,9 +807,8 @@ export class Parser {
         latexClose: final === '<$>' ? ' $' : ' $$',
       }
     );
-    if (!this.match(final)) {
-      this.onError({ code: 'unbalanced-mode-shift' });
-    }
+
+    if (!this.match(final)) this.onError({ code: 'unbalanced-mode-shift' });
 
     this.endContext();
     if (result.hasEmptyBranch('body')) return null;
@@ -1007,23 +1004,23 @@ export class Parser {
   parseGroup(): Atom | null {
     if (!this.match('<{>')) return null;
     const result = new GroupAtom(
-      this.parse((token: Token) => token === '<}>'),
+      this.parse((token) => token === '<}>'),
       {
         mode: this.parseMode,
         latexOpen: '{',
         latexClose: '}',
       }
     );
-    if (!this.match('<}>')) {
-      this.onError({ code: 'unbalanced-braces' });
-    }
+
+    if (!this.match('<}>')) this.onError({ code: 'unbalanced-braces' });
+
     return result;
   }
 
   scanSmartFence(): Atom | null {
     this.matchWhitespace();
     if (!this.match('(')) return null;
-    // We've found an open paren... Convert to a `\mleft...\mright`
+    // We've found an open paren... Convert to a `\left...\right`
     this.beginContext();
     let nestLevel = 1;
     while (!this.end() && nestLevel !== 0) {
@@ -1033,8 +1030,7 @@ export class Parser {
     }
 
     if (nestLevel === 0) this.match(')');
-    const result = new LeftRightAtom(this.mathlist, {
-      inner: false,
+    const result = new LeftRightAtom('', this.mathlist, {
       leftDelim: '(',
       rightDelim: nestLevel === 0 ? ')' : '?',
     });
@@ -1118,9 +1114,7 @@ export class Parser {
 
     this.beginContext();
 
-    while (!this.end() && !this.match(close)) {
-      this.parseToken();
-    }
+    while (!this.end() && !this.match(close)) this.parseToken();
 
     const body = this.mathlist;
     this.endContext();
@@ -1130,12 +1124,15 @@ export class Parser {
     // consider the `\right` missing and set the `rightDelim` to undefined
     const rightDelim = this.scanDelim() ?? '.';
 
-    return new LeftRightAtom(body, {
-      leftDelim,
-      rightDelim,
-      inner: close === '\\right',
-      style: this.style,
-    });
+    return new LeftRightAtom(
+      close === '\\right' ? 'left...right' : 'mleft...mright',
+      body,
+      {
+        leftDelim,
+        rightDelim,
+        style: this.style,
+      }
+    );
   }
 
   /**
@@ -1496,17 +1493,17 @@ export class Parser {
   }
 
   parseCommand(command: string): Atom[] | null {
-    let result: Atom | null = null;
     if (command === '\\placeholder') {
       const placeholder = new PlaceholderAtom({
         mode: this.parseMode,
         placeholderId: this.parseOptionalArgument('string') as string,
-        default: this.parseOptionalArgument('math') as Atom[],
         value: this.parseArgument('string') ?? undefined,
         style: this.style,
       });
       return [placeholder];
     }
+
+    let result: Atom | null = null;
 
     if (command === '\\char') {
       // \char has a special syntax and requires a non-braced integer
@@ -1656,7 +1653,7 @@ export class Parser {
 
     if (
       result instanceof Atom &&
-      !result.verbatimLatex &&
+      result.verbatimLatex === undefined &&
       !/^\\(llap|rlap|class|cssId|htmlData)$/.test(command)
     ) {
       result.verbatimLatex =

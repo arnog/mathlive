@@ -64,23 +64,22 @@ export type InsertOptions = {
   suppressChangeNotifications?: boolean;
   style?: Style;
   /**
-   *  If true, promote plain fences, e.g. `(`,
-   * as `\left...\right` or `\mleft...\mright`
+   *  If `true`, promote plain fences, e.g. `(...)`,  as `\left()...\right)`
    */
   smartFence?: boolean;
   macros?: MacroDictionary;
   registers?: Registers;
-  /** If true, the mathfield will be focused after
+  /** If `true`, the mathfield will be focused after
    * the insertion
    */
   focus?: boolean;
-  /** If true, provide audio and haptic feedback
+  /** If `true`, provide audio and haptic feedback
    */
   feedback?: boolean;
-  /** If true, scroll the caret into view after insertion
+  /** If `true`, scroll the caret into view after insertion
    */
   scrollIntoView?: boolean;
-  /** If true, the style after the insertion
+  /** If `true`, the style after the insertion
    * is the same as the style before. If false, the style after the
    * insertion is the style of the last inserted atom.
    */

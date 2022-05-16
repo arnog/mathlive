@@ -1,6 +1,6 @@
 import type { Style } from '../public/core';
 
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import type { MathstyleName } from '../core/mathstyle';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
@@ -32,13 +32,14 @@ export type GenfracOptions = {
  * to indicate it should use the current mathstyle
  */
 export class GenfracAtom extends Atom {
-  hasBarLine: boolean;
-  leftDelim?: string;
-  rightDelim?: string;
+  readonly hasBarLine: boolean;
+  readonly leftDelim?: string;
+  readonly rightDelim?: string;
   private readonly continuousFraction: boolean;
   private readonly numerPrefix?: string;
   private readonly denomPrefix?: string;
   private readonly mathstyleName?: MathstyleName;
+
   constructor(
     command: string,
     above: Atom[],
@@ -60,6 +61,22 @@ export class GenfracAtom extends Atom {
     this.mathstyleName = options?.mathstyleName;
     this.leftDelim = options?.leftDelim;
     this.rightDelim = options?.rightDelim;
+  }
+
+  static fromJson(json: AtomJson): GenfracAtom {
+    return new GenfracAtom(json.command, [], [], json as any as GenfracOptions);
+  }
+
+  toJson(): AtomJson {
+    const options: GenfracOptions = {};
+    if (this.continuousFraction) options.continuousFraction = true;
+    if (this.numerPrefix) options.numerPrefix = this.numerPrefix;
+    if (this.denomPrefix) options.denomPrefix = this.denomPrefix;
+    if (this.leftDelim) options.leftDelim = this.leftDelim;
+    if (this.rightDelim) options.rightDelim = this.rightDelim;
+    if (this.hasBarLine) options.hasBarLine = true;
+    if (this.mathstyleName) options.mathstyleName = this.mathstyleName;
+    return { ...super.toJson(), ...options };
   }
 
   serialize(options: ToLatexOptions): string {

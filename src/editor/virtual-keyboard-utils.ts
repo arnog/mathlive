@@ -1258,7 +1258,7 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
-  const root = new Atom('root', { mode: 'math' });
+  const root = new Atom('root');
   root.body = typeset(
     parseLatex(latex, {
       parseMode: 'math',

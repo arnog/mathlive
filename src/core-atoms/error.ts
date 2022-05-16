@@ -1,4 +1,4 @@
-import { Atom } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 
@@ -9,6 +9,14 @@ export class ErrorAtom extends Atom {
   constructor(value: string) {
     super('error', { value, command: value, mode: 'math' });
     this.verbatimLatex = value;
+  }
+
+  static fromJson(json: AtomJson): ErrorAtom {
+    return new ErrorAtom(json.command);
+  }
+
+  toJson(): AtomJson {
+    return super.toJson();
   }
 
   render(context: Context): Box {

@@ -1,4 +1,4 @@
-import { Atom } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 import { Box, BoxType } from '../core/box';
 import { Context } from '../core/context';
 import type { Style } from '../public/core';
@@ -20,6 +20,17 @@ export class OverlapAtom extends Atom {
     }
     this.align = options?.align ?? 'left';
     this.boxType = options?.boxType ?? 'mord';
+  }
+
+  static fromJson(json: AtomJson): OverlapAtom {
+    return new OverlapAtom(json.command, [], json as any);
+  }
+
+  toJson(): AtomJson {
+    const options: { [key: string]: any } = {};
+    if (this.align) options.align = this.align;
+    if (this.boxType) options.boxType = this.boxType;
+    return { ...super.toJson(), ...options };
   }
 
   render(context: Context): Box | null {

@@ -1,4 +1,4 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
 import { Dimension, Style } from '../public/core';
@@ -24,6 +24,19 @@ export class RuleAtom extends Atom {
     this.shift = options.shift ?? { dimension: 0 };
     this.height = options.height;
     this.width = options.width;
+  }
+
+  static fromJson(json: AtomJson): RuleAtom {
+    return new RuleAtom(json.command, json as any);
+  }
+
+  toJson(): AtomJson {
+    const options: { [key: string]: any } = {
+      height: this.height,
+      width: this.width,
+    };
+    if (this.shift) options.shift = this.shift;
+    return { ...super.toJson(), ...options };
   }
 
   render(parentContext: Context): Box | null {

@@ -142,8 +142,7 @@ function parseMathExpression(
   if (!done && /^([fgh])[^a-zA-Z]/.test(s)) {
     // This could be a function...
     m = parseMathArgument(s.slice(1), { inlineShortcuts, noWrap: true });
-    s =
-      s[1] === '(' ? s[0] + '\\mleft(' + m.match + '\\mright)' : s[0] + m.match;
+    s = s[1] === '(' ? s[0] + '\\left(' + m.match + '\\right)' : s[0] + m.match;
     s += parseMathExpression(m.rest, options);
     done = true;
   }

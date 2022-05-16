@@ -111,7 +111,7 @@ export function render(
           // Using the hash as a seed for the ID
           // keeps the IDs the same until the content of the field changes.
           seed: hash(
-            Atom.serialize(model.root, {
+            model.root.serialize({
               expandMacro: false,
               defaultMode: mathfield.options.defaultMode,
             })
@@ -274,7 +274,7 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
  * Return the rects that are not entirely contained by other rects.
  */
 function unionRects(rects: Rect[]): Rect[] {
-  const result: Rect[] = [];
+  let result: Rect[] = [];
 
   // Remove duplicate rects
   for (const rect of rects) {
@@ -292,7 +292,8 @@ function unionRects(rects: Rect[]): Rect[] {
     }
     if (!found) result.push(rect);
   }
-
+  rects = result;
+  result = [];
   for (const rect of rects) {
     let count = 0;
     for (const rect2 of rects) {

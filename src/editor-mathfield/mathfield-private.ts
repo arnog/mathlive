@@ -523,6 +523,7 @@ export class MathfieldPrivate implements Mathfield {
         selectionMode: 'after',
         format: 'latex',
         suppressChangeNotifications: true,
+        smartFence: this.options.smartFence,
         macros: this.options.macros,
       });
     }
@@ -721,7 +722,7 @@ export class MathfieldPrivate implements Mathfield {
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
-    const content = Atom.serialize(this.model.root, {
+    const content = this.model.root.serialize({
       expandMacro: false,
       defaultMode: this.options.defaultMode,
     });

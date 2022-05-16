@@ -12,8 +12,9 @@ import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 import MathfieldElement from '../public/mathfield-element';
 import { MathfieldBox } from './mathfield-box';
+import { GroupAtom } from 'core-atoms/group';
 
-export const ATOM_REGISTRY = {};
+export type AtomJson = { type: AtomType; [key: string]: any };
 
 export type BranchName =
   | 'above'
@@ -25,7 +26,7 @@ export type Branch = BranchName | [row: number, col: number];
 /**
  * The order of these branches specify the keyboard navigation order
  */
-const NAMED_BRANCHES: BranchName[] = [
+export const NAMED_BRANCHES: BranchName[] = [
   'above',
   'body',
   'below',
@@ -125,21 +126,23 @@ export class Atom {
   //
   // The `treeBranch` property indicate which branch of the parent this
   // atom belongs to or if in an array, the row and column
-  treeBranch?: Branch;
+  treeBranch: Branch | undefined;
 
   value: string; // If no branches
 
   // Used to match a DOM element to an Atom
   // (the corresponding DOM element has a `data-atom-id` attribute)
-  id?: string;
+  id: string | undefined = undefined;
 
   type: AtomType;
 
   // Latex command ('\sin') or character ('a')
-  command?: string;
+  command: string;
 
-  // Verbatim Latex of the command and its arguments
-  verbatimLatex?: string;
+  // Verbatim LaTeX of the command and its arguments
+  // Note that the empty string is a valid verbatim LaTeX , so it's important
+  // to distinguish between `verbatimLatex === undefined` and `typeof verbatimeLatex === 'string'`
+  verbatimLatex: string | undefined = undefined;
 
   style: PrivateStyle;
   mode: ParseMode;
@@ -155,18 +158,15 @@ export class Atom {
   // If true, some structural changes have been made to the atom
   // (insertion or removal of children) or one of its children is dirty
   /** @internal */
-  private _isDirty: boolean;
+  private _isDirty = false;
 
   // A monotonically increasing counter to detect structural changes
   /** @internal */
-  private _changeCounter: number;
+  private _changeCounter = 0;
 
   // Cached list of children, invalidated when isDirty = true
   /** @internal */
   private _children: Atom[] | undefined;
-
-  // Optional, per instance, override of the `serialize()` method
-  serializeOverride?: (atom: Atom, options: ToLatexOptions) => string;
 
   /** @internal */
   private _branches: Branches;
@@ -178,12 +178,12 @@ export class Atom {
   // for operators in `textstyle` style)
   // - 'auto': 'over-under' in \displaystyle, 'adjacent' otherwise
   // If `undefined`, the subsup should be placed on a separate `msubsup` atom.
-  subsupPlacement?: 'auto' | 'over-under' | 'adjacent';
+  subsupPlacement: 'auto' | 'over-under' | 'adjacent' | undefined = undefined;
 
   // True if the subsupPlacement was set by `\limits`, `\nolimits` or
   // `\displaylimits`.
   // Necessary so the proper LaTeX can be output.
-  explicitSubsupPlacement?: boolean;
+  explicitSubsupPlacement = false;
 
   // If true, when the caret reaches the first position in this element's body,
   // (moving right to left) it automatically moves to the outside of the
@@ -191,35 +191,28 @@ export class Atom {
   // Conversely, when the caret reaches the last position inside
   // this element, (moving left to right) it automatically moves to the one
   // outside the element.
-  skipBoundary?: boolean;
+  skipBoundary = false;
 
   // If true, the children of this atom cannot be selected and should be handled
   // as a unit. Used by the `\enclose` annotations, for example.
-  captureSelection?: boolean;
+  captureSelection = false;
 
   // If true, this atom should be highlited when it contains the caret
   displayContainsHighlight: boolean;
 
-  // This atom causes the parsemode to change. Use by commands such as
-  // `\mbox` to indicate that it is not necessary to wrap them in a mode
-  // changing command (`\text`).
-  changeMode?: boolean;
+  // If true, when a branch becomes empty, it is removed
+  pruneEmptyBranches = false;
+
+  // If true, if after an edit operation the atom branches are empty, remove
+  // the atom.
+  pruneEmptySelf = false;
 
   // The kern to the right of this atom
-  kern?: Glue;
+  // kern?: Glue;
 
   //
   // The following properties are reset and updated through each rendering loop.
   //
-
-  // The type the item should be considered before typesetting it.
-  // This account the atoms that surrounds it, so that a '-' between two
-  // ordinary atoms will have more space around it than a '-' with no
-  // atom to its left, i.e. `12 + 3` vs `-123`.
-  interAtomType: BoxType;
-  // The amount of glue between this atom and the one to the right
-  // based on the calculated kernType
-  interAtomKern: Glue;
 
   // True if the item currently part of the selection
   isSelected: boolean;
@@ -242,46 +235,23 @@ export class Atom {
       serialize?: (atom: Atom, options: ToLatexOptions) => string;
     }
   ) {
-    this._isDirty = false;
-    this._changeCounter = 0;
-
     this.type = type;
-    this.command = options?.command;
+    this.command = options?.command ?? '';
     this.mode = options?.mode ?? 'math';
     if (typeof options?.value === 'string') this.value = options.value;
     this.isFunction = options?.isFunction ?? false;
     this.subsupPlacement = options?.limits;
     this.style = options?.style ?? {};
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
-    this.serializeOverride = options?.serialize;
-  }
-
-  get changeCounter(): number {
-    return this._changeCounter;
-  }
-
-  get isDirty(): boolean {
-    return this._isDirty;
-  }
-
-  set isDirty(dirty: boolean) {
-    this._isDirty = dirty;
-    if (dirty) {
-      this._changeCounter++;
-      this.verbatimLatex = undefined;
-      this._children = undefined;
-
-      let { parent } = this;
-      while (parent) {
-        parent._isDirty = true;
-        parent._changeCounter++;
-        parent.verbatimLatex = undefined;
-        parent._children = undefined;
-
-        parent = parent.parent;
-      }
+    if (options?.serialize) {
+      console.assert(typeof options.command === 'string');
+      Atom.customSerializer[options.command!] = options.serialize;
     }
   }
+
+  private static customSerializer: {
+    [command: string]: (atom: Atom, options: ToLatexOptions) => string;
+  } = {};
 
   /**
    * Return a list of boxes equivalent to atoms.
@@ -365,7 +335,7 @@ export class Atom {
     value: boolean | number | string | Atom | Atom[] | undefined,
     options: ToLatexOptions
   ): string {
-    if (isArray<Atom>(value)) return atomsToLatex(value, options);
+    if (isArray<Atom>(value)) return serializeAtoms(value, options);
 
     if (typeof value === 'number' || typeof value === 'boolean')
       return value.toString();
@@ -374,13 +344,6 @@ export class Atom {
 
     if (value === undefined) return '';
 
-    // If we have some verbatim latex for this atom, use it.
-    // This allow non-significant punctuation to be preserved when possible.
-    if (!options.expandMacro && typeof value.verbatimLatex === 'string')
-      return value.verbatimLatex;
-
-    if (value.serializeOverride) return value.serializeOverride(value, options);
-
     return value.serialize(options);
   }
 
@@ -388,10 +351,10 @@ export class Atom {
    * The common ancestor between two atoms
    */
   static commonAncestor(a: Atom, b: Atom): Atom | undefined {
-    if (a === b) return a.parent;
+    if (a === b) return a.parent!;
 
     // Short-circuit a common case
-    if (a.parent === b.parent) return a.parent;
+    if (a.parent === b.parent) return a.parent!;
 
     // Accumulate all the parents of `a`
     const parents = new WeakSet<Atom>();
@@ -405,21 +368,93 @@ export class Atom {
     // `a`, it's the common ancestor
     parent = b.parent;
     while (parent) {
-      if (parents.has(parent)) return parent;
-      parent = parent.parent;
+      if (parents.has(parent!)) return parent!;
+      parent = parent!.parent;
     }
 
     console.assert(Boolean(parent)); // Never reached
-    return undefined;
+  }
+
+  static fromJson(json: AtomJson): Atom {
+    return new Atom(json.type, json as any);
+  }
+
+  toJson(): AtomJson {
+    const result: AtomJson = { type: this.type };
+
+    if (this.mode !== 'math') result.mode = this.mode;
+    if (this.command) result.command = this.command;
+    if (this.value !== undefined) result.value = this.value;
+    if (this.style) result.style = { ...this.style };
+
+    if (this.verbatimLatex !== undefined)
+      result.verbatimLatex = this.verbatimLatex;
+
+    if (this.subsupPlacement) result.subsupPlacement = this.subsupPlacement;
+    if (this.explicitSubsupPlacement) result.explicitSubsupPlacement = true;
+
+    if (this.isFunction) result.isFunction = true;
+    if (this.displayContainsHighlight) result.displayContainsHighlight = true;
+    if (this.isExtensibleSymbol) result.isExtensibleSymbol = true;
+    if (this.skipBoundary) result.skipBoundary = true;
+    if (this.captureSelection) result.captureSelection = true;
+    if (this.pruneEmptyBranches) result.pruneEmptyBranches = true;
+    if (this.pruneEmptySelf) result.pruneEmptySelf = true;
+
+    if (this._branches) {
+      // for (const branch of NAMED_BRANCHES)
+      //   if (this._branches[branch])
+      //     result[branch] = this._branches[branch]?.map((x) => x.toJson);
+      //isNamedBranch
+      for (const branch of Object.keys(this._branches))
+        if (this._branches[branch])
+          result[branch] = this._branches[branch]
+            .filter((x) => x.type !== 'first')
+            .map((x) => x.toJson());
+    }
+
+    return result;
+  }
+
+  get changeCounter(): number {
+    return this._changeCounter;
+  }
+
+  get isDirty(): boolean {
+    return this._isDirty;
+  }
+
+  set isDirty(dirty: boolean) {
+    this._isDirty = dirty;
+    if (dirty) {
+      this._changeCounter++;
+      this.verbatimLatex = undefined;
+      this._children = undefined;
+
+      let { parent } = this;
+      while (parent) {
+        parent._isDirty = true;
+        parent._changeCounter++;
+        parent.verbatimLatex = undefined;
+        parent._children = undefined;
+
+        parent = parent.parent;
+      }
+    }
   }
 
   /**
-   * Default Latex emmiter.
-   * Avoid calling directly, instead call `Atom.serialize(atom)`
-   * to correctly call per-definition emitters and use the cached verbatim
-   * latex when applicable.
+   * Serialize the atom  to LaTeX
    */
   serialize(options: ToLatexOptions): string {
+    // If we have some verbatim latex for this atom, use it.
+    // This allow non-significant punctuation to be preserved when possible.
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+      return this.verbatimLatex;
+
+    if (this.command && Atom.customSerializer[this.command])
+      return Atom.customSerializer[this.command](this, options);
+
     if (this.body && this.command) {
       // There's a command and body
       return joinLatex([
@@ -448,53 +483,36 @@ export class Atom {
   }
 
   bodyToLatex(options: ToLatexOptions): string {
-    return atomsToLatex(this.body, options);
+    return serializeAtoms(this.body, options);
   }
 
   aboveToLatex(options: ToLatexOptions): string {
-    return atomsToLatex(this.above, options);
+    return serializeAtoms(this.above, options);
   }
 
   belowToLatex(options: ToLatexOptions): string {
-    return atomsToLatex(this.below, options);
+    return serializeAtoms(this.below, options);
   }
 
   supsubToLatex(options: ToLatexOptions): string {
     let result = '';
-    // Note: **important** we must check only for the existence of the branch
-    // not if it is non-empty (`hasEmptyBranch`) because we must serialize
-    // e.g. `x^`. If we don't do this correctly, weird things will happen
-    // like inline shortcuts (which rely on the undo buffer and serialization)
-    // will fail, for example in `e^pi`.
 
     if (this.branch('subscript') !== undefined) {
-      const sub = atomsToLatex(this.subscript, options);
-      if (sub.length === 0) {
-        result += '_';
-      } else if (sub.length === 1) {
-        result += '_' + sub;
-      } else {
-        result += `_{${sub}}`;
-      }
+      const sub = serializeAtoms(this.subscript, options);
+      if (sub.length === 0) result += '_{}';
+      else if (sub.length === 1) result += '_' + sub;
+      else result += `_{${sub}}`;
     }
 
     if (this.branch('superscript') !== undefined) {
-      const sup = atomsToLatex(this.superscript, options);
-      if (sup.length === 0) {
-        result += '^';
-      } else if (sup.length === 1) {
-        if (sup === '\u2032') {
-          result += '^\\prime ';
-        } else if (sup === '\u2033') {
-          result += '^\\doubleprime ';
-        } else {
-          result += '^' + sup;
-        }
-      } else {
-        result += `^{${sup}}`;
-      }
+      const sup = serializeAtoms(this.superscript, options);
+      if (sup.length === 0) result += '^{}';
+      else if (sup.length === 1) {
+        if (sup === '\u2032') result += '^\\prime ';
+        else if (sup === '\u2033') result += '^\\doubleprime ';
+        else result += '^' + sup;
+      } else result += `^{${sup}}`;
     }
-
     return result;
   }
 
@@ -539,11 +557,9 @@ export class Atom {
   get branches(): Branch[] {
     if (!this._branches) return [];
     const result: Branch[] = [];
-    for (const branch of NAMED_BRANCHES) {
-      if (this._branches[branch]) {
-        result.push(branch);
-      }
-    }
+    for (const branch of NAMED_BRANCHES)
+      if (this._branches[branch]) result.push(branch);
+
     return result;
   }
 
@@ -713,13 +729,9 @@ export class Atom {
     console.assert(children[0]?.type !== 'first');
 
     // Update the parent
-    if (this._branches) {
-      this._branches[branch] = [this.makeFirstAtom(branch), ...children];
-    } else {
-      this._branches = {
-        [branch]: [this.makeFirstAtom(branch), ...children],
-      };
-    }
+    const newBranch = [this.makeFirstAtom(branch), ...children];
+    if (this._branches) this._branches[branch] = newBranch;
+    else this._branches = { [branch]: newBranch };
 
     this.isDirty = true;
 
@@ -794,9 +806,8 @@ export class Atom {
 
   removeBranch(name: Branch): Atom[] {
     const children = this.branch(name);
-    if (isNamedBranch(name)) {
-      this._branches[name] = undefined;
-    }
+    if (isNamedBranch(name)) this._branches[name] = undefined;
+
     if (!children) return [];
 
     for (const child of children) {
@@ -1108,15 +1119,21 @@ export class Atom {
    * Add an ID attribute to both the box and this atom so that the atom
    * can be retrieved from the box later on, e.g. when the box is clicked on.
    */
+  bind(context: Context, box: null): null;
+  bind(context: Context, box: Box): Box;
   bind(context: Context, box: Box | null): Box | null {
-    if (!box) return null;
-    // Don't bind to phantom boxes (they won't be interactive, so no need for the id)
-    if (context.isPhantom) return box;
+    // Don't bind to phantom boxes or "empty" atoms (\u200b)
+    // (they won't be interactive, so no need for the id)
+    if (!box || context.isPhantom || this.value === '\u200B') return box;
 
-    if (!box || this.value === '\u200B') return box;
+    let captureSelection = false;
+    let parent = this.parent;
+    while (parent && !parent.captureSelection) parent = parent.parent;
+    if (parent && parent.captureSelection) captureSelection = true;
+    if (captureSelection) return box;
 
     if (!this.id) this.id = context.makeID();
-    box.atomID = this.id!;
+    box.atomID = this.id;
 
     return box;
   }
@@ -1168,8 +1185,9 @@ export class Atom {
     if (context.isTight) result.isTight = true;
 
     // The italic correction applies only in math mode
-    if (this.mode !== 'math') result.italic = 0;
-    result.right = result.italic; // Italic correction
+    if (this.mode !== 'math' || this.style.variant === 'main')
+      result.italic = 0;
+    result.right = result.italic;
 
     // To retrieve the atom from a box, for example when the box is clicked
     // on, attach a unique ID to the box and associate it with the atom.
@@ -1239,8 +1257,9 @@ export class Atom {
     if (context.isTight) result.isTight = true;
 
     // The italic correction applies only in math mode
-    if (this.mode !== 'math') result.italic = 0;
-    result.right = 0; // result.italic; // Italic correction
+    if (this.mode !== 'math' || this.style.variant === 'main')
+      result.italic = 0;
+    result.right = result.italic;
 
     // To retrieve the atom from a box, for example when the box is clicked
     // on, attach a unique ID to the box and associate it with the atom.
@@ -1281,7 +1300,7 @@ export class Atom {
  * @param options.expandMacro true if macros should be expanded
  * @result a LaTeX string
  */
-function atomsToLatex(
+function serializeAtoms(
   atoms: undefined | Atom[],
   options: ToLatexOptions
 ): string {
@@ -1293,10 +1312,6 @@ function atomsToLatex(
   }
 
   if (atoms.length === 0) return '';
-
-  if (atoms.map((x) => x.value).join('') === 'speed') {
-    console.log('stop');
-  }
 
   return joinLatex(
     getPropertyRuns(atoms, 'cssClass').map((x) =>
@@ -1372,10 +1387,7 @@ function renderStyleRun(
     const atom = atoms[0];
     let box = atom.render(context, { newList });
     if (box) {
-      if (displaySelection && atom.isSelected) {
-        box.selected(true);
-        box = box.wrapSelect(context);
-      }
+      if (displaySelection && atom.isSelected) box.selected(true);
       boxes = [box];
     }
   } else {
@@ -1396,8 +1408,9 @@ function renderStyleRun(
         context.atomIdsSettings.overrideID = undefined;
 
       if (box) {
-        // Groups (i.e. `{}`) restart a new list (for spacing purposes)
-        newList = atom.type === 'group';
+        // Groups (i.e. `{}`) without a specific boxType restart a new list
+        // (for spacing purposes)
+        newList = atom.type === 'group' && !atom['boxType'];
 
         // If this is a digit or text run, keep track of it
         if (context.atomIdsSettings?.groupNumbers) {
@@ -1410,20 +1423,17 @@ function renderStyleRun(
           }
 
           if (
+            digitOrTextStringID &&
             (!(atom.isDigit() || isText(atom)) ||
               !atom.hasEmptyBranch('superscript') ||
-              !atom.hasEmptyBranch('subscript')) &&
-            digitOrTextStringID
+              !atom.hasEmptyBranch('subscript'))
           ) {
             // Done with digits/text
             digitOrTextStringID = '';
           }
         }
 
-        if (displaySelection && atom.isSelected) {
-          box.selected(true);
-          box = box.wrapSelect(context);
-        }
+        if (displaySelection && atom.isSelected) box.selected(true);
         boxes.push(box);
       }
     }

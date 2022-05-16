@@ -1,4 +1,4 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box, BoxType, makeSVGBox } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context, PrivateStyle } from '../core/context';
@@ -50,6 +50,27 @@ export class OverunderAtom extends Atom {
     this.below = options.below;
     this.boxType = options.boxType ?? 'mord';
     this.padded = options.padded ?? false;
+  }
+
+  static fromJson(json: AtomJson): OverunderAtom {
+    return new OverunderAtom(json.command, {
+      ...(json as any),
+      body: [],
+      above: [],
+      below: [],
+    });
+  }
+
+  toJson(): AtomJson {
+    const options: { [key: string]: any } = {};
+    if (!this.skipBoundary) options.skipBoundary = false;
+    if (this.subsupPlacement) options.subsupPlacement = this.subsupPlacement;
+    if (this.svgAbove) options.svgAbove = this.svgAbove;
+    if (this.svgBelow) options.svgBelow = this.svgBelow;
+    if (this.svgBody) options.svgBody = this.svgBody;
+    if (this.boxType !== 'mord') options.boxType = this.boxType;
+    if (this.padded) options.padded = true;
+    return { ...super.toJson(), ...options };
   }
 
   /**

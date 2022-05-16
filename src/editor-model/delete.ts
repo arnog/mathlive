@@ -380,6 +380,27 @@ export function deleteForward(model: ModelPrivate): boolean {
  */
 
 export function deleteRange(model: ModelPrivate, range: Range): boolean {
+  let result = model.getAtoms(range);
+  if (result.length > 0 && result[0].parent) {
+    let firstChild = result[0].parent!.firstChild;
+    if (firstChild.type === 'first') firstChild = firstChild.rightSibling;
+    const lastChild = result[result.length - 1].parent!.lastChild;
+
+    let firstSelected = result[0];
+    if (firstSelected.type === 'first')
+      firstSelected = firstSelected.rightSibling;
+    const lastSelected = result[result.length - 1];
+
+    // If we're deleting all the children, also delete the parent
+    // (for example for surd/\sqrt)
+    if (firstSelected === firstChild && lastSelected === lastChild) {
+      const parent = result[0].parent!;
+      range = [
+        model.offsetOf(parent.leftSibling),
+        model.offsetOf(parent.rightSibling),
+      ];
+    }
+  }
   return model.deferNotifications({ content: true, selection: true }, () => {
     model.deleteAtoms(range);
     model.position = range[0];

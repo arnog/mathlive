@@ -57,7 +57,7 @@ export class ModelPrivate implements Model {
     target: Mathfield
   ) {
     this.options = options;
-    this.root = new Atom('root', { mode: this.options.mode });
+    this.root = new Atom('root', { mode: options.mode });
     this.root.body = [];
     this._selection = { ranges: [[0, 0]], direction: 'none' };
     this._anchor = 0;
@@ -333,6 +333,8 @@ export class ModelPrivate implements Model {
   extractAtoms(range: Range): Atom[] {
     let result = this.getAtoms(range);
     if (result.length === 1 && result[0].type === 'root') {
+      // We're trying to delete the root.
+      // Don't actually delete the root, delete all the children of the root.
       result = result[0].children;
     }
     for (const child of result) child.parent!.removeChild(child);
@@ -348,7 +350,7 @@ export class ModelPrivate implements Model {
     const format: string = inFormat ?? 'latex';
 
     if (format === 'latex' || format === 'latex-expanded') {
-      return Atom.serialize(atom, {
+      return atom.serialize({
         expandMacro: format === 'latex-expanded',
         defaultMode: this.mathfield.options.defaultMode,
       });
@@ -387,7 +389,7 @@ export class ModelPrivate implements Model {
     if (format === 'math-json') {
       try {
         const expr = this.mathfield.computeEngine.parse(
-          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
+          atom.serialize({ expandMacro: false, defaultMode: 'math' })
         );
         return JSON.stringify(expr.json);
       } catch (e) {

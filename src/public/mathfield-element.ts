@@ -562,7 +562,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   static get optionsAttributes(): Record<
     string,
-    'number' | 'boolean' | 'string'
+    'number' | 'boolean' | 'string' | 'on/off'
   > {
     return {
       'default-mode': 'string',
@@ -571,16 +571,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'horizontal-spacing-scale': 'string',
       'math-mode-space': 'string',
       'inline-shortcut-timeout': 'string',
-      'keypress-vibration': 'boolean',
+      'keypress-vibration': 'on/off',
       'keypress-sound': 'string',
       'plonk-sound': 'string',
       'letter-shape-style': 'string',
       'locale': 'string',
       'read-only': 'boolean',
-      'remove-extraneous-parentheses': 'boolean',
-      'smart-fence': 'boolean',
-      'smart-mode': 'boolean',
-      'smart-superscript': 'boolean',
+      'remove-extraneous-parentheses': 'on/off',
+      'smart-fence': 'on/off',
+      'smart-mode': 'on/off',
+      'smart-superscript': 'on/off',
       'speech-engine': 'string',
       'speech-engine-rate': 'string',
       'speech-engine-voice': 'string',
@@ -1181,9 +1181,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (!gDeferredState.has(this)) {
       this.upgradeProperty('disabled');
       this.upgradeProperty('readonly');
-      for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
+      for (const attr of Object.keys(MathfieldElement.optionsAttributes))
         this.upgradeProperty(toCamelCase(attr));
-      }
     }
 
     // The mathfield creation could have failed
@@ -1646,7 +1645,11 @@ function reflectAttributes(element: MathfieldElement) {
   const options = element.getOptions();
   Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
     const prop = toCamelCase(x);
-    if (defaultOptions[prop] !== options[prop]) {
+    if (MathfieldElement.optionsAttributes[x] === 'on/off') {
+      if (defaultOptions[prop] !== options[prop])
+        element.setAttribute(x, options[prop] ? 'on' : 'off');
+      else element.removeAttribute(x);
+    } else if (defaultOptions[prop] !== options[prop]) {
       if (MathfieldElement.optionsAttributes[x] === 'boolean') {
         if (options[prop]) {
           // Add attribute
@@ -1687,6 +1690,10 @@ function getOptionsFromAttributes(
       const value = mfe.getAttribute(x);
       if (attribs[x] === 'boolean') {
         result[toCamelCase(x)] = true;
+      } else if (attribs[x] === 'on/off') {
+        if (value === 'on') result[toCamelCase(x)] = true;
+        else if (value === 'off') result[toCamelCase(x)] = false;
+        else result[toCamelCase(x)] = undefined;
       } else if (attribs[x] === 'number') {
         result[toCamelCase(x)] = Number.parseFloat(value ?? '0');
       } else {

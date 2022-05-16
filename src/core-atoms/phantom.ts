@@ -1,4 +1,4 @@
-import { Atom } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
@@ -27,6 +27,19 @@ export class PhantomAtom extends Atom {
     this.smashDepth = options.smashDepth ?? false;
     this.smashHeight = options.smashHeight ?? false;
     this.smashWidth = options.smashWidth ?? false;
+  }
+
+  static fromJson(json: AtomJson): PhantomAtom {
+    return new PhantomAtom(json.command, [], json as any);
+  }
+
+  toJson(): AtomJson {
+    const options: { [key: string]: any } = {};
+    if (this.isInvisible) options.isInvisible = true;
+    if (this.smashDepth) options.smashDepth = true;
+    if (this.smashHeight) options.smashHeight = true;
+    if (this.smashWidth) options.smashWidth = true;
+    return { ...super.toJson(), ...options };
   }
 
   render(context: Context): Box | null {

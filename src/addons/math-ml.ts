@@ -997,7 +997,7 @@ function atomToMathML(atom, options): string {
         break;
       case 'macro':
         {
-          const body = toString((atom as MacroAtom).macroLatex);
+          const body = atom.command + toString((atom as MacroAtom).macroArgs);
           if (body) {
             result += `<mo ${makeID(atom.id, options)}>${body}</mo>`;
           }

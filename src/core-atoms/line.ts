@@ -1,4 +1,4 @@
-import { Atom } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
@@ -15,6 +15,14 @@ export class LineAtom extends Atom {
     this.skipBoundary = true;
     this.body = body;
     this.position = options.position;
+  }
+
+  static fromJson(json: AtomJson): LineAtom {
+    return new LineAtom(json.command, [], json as any);
+  }
+
+  toJson(): AtomJson {
+    return { ...super.toJson(), position: this.position };
   }
 
   render(parentContext: Context): Box | null {

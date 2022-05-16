@@ -289,9 +289,7 @@ function expand(
         }
       } while (!done);
 
-      if (command) {
-        result.push('\\' + command);
-      }
+      if (command) result.push('\\' + command);
 
       result.push(...tokens);
     } else if (token === '\\endcsname') {
@@ -321,19 +319,18 @@ export function tokenize(
   args: null | ((arg: string) => string) = null
 ): Token[] {
   // Merge multiple lines into one, and remove comments
-  const lines = s.toString().split(/\r?\n/);
-  let stream = '';
+  let stream: string[] = [];
   let sep = '';
-  for (const line of lines) {
-    stream += sep;
+  for (const line of s.toString().split(/\r?\n/)) {
+    if (sep) stream.push(sep);
     sep = ' ';
     // Remove everything after a % (comment marker)
     // (but \% should be preserved...)
     const m = line.match(/((?:\\%)|[^%])*/);
-    if (m !== null) stream += m[0];
+    if (m !== null) stream.push(m[0]);
   }
 
-  const tokenizer = new Tokenizer(stream);
+  const tokenizer = new Tokenizer(stream.join(''));
   let result: Token[] = [];
   do {
     result.push(...expand(tokenizer, args));
@@ -344,26 +341,24 @@ export function tokenize(
 
 export function joinLatex(segments: string[]): string {
   let sep = '';
-  let result = '';
+  let result: string[] = [];
   for (const segment of segments) {
     if (segment) {
-      if (/[a-zA-Z\*]/.test(segment[0])) {
-        // If the segment begins with a char that *could* be in a command
-        // name... insert a separator (if one was needed for the previous segment)
-        result += sep;
-      }
+      // If the segment begins with a char that *could* be in a command
+      // name... insert a separator (if one was needed for the previous segment)
+      if (/[a-zA-Z\*]/.test(segment[0])) result.push(sep);
 
       // If the segment ends in a command...
       sep = /\\[a-zA-Z]+\*?$/.test(segment) ? ' ' : '';
-      result += segment;
+      result.push(segment);
     }
   }
 
-  return result;
+  return result.join('');
 }
 
 export function tokensToString(tokens: Token[]): string {
-  const result = joinLatex(
+  return joinLatex(
     tokens.map((token) => {
       return (
         {
@@ -376,5 +371,4 @@ export function tokensToString(tokens: Token[]): string {
       );
     })
   );
-  return result;
 }

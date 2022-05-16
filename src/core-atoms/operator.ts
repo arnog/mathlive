@@ -1,4 +1,4 @@
-import { Atom, AtomType, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, AtomType, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { Style, Variant, VariantStyle } from '../public/core';
@@ -41,13 +41,33 @@ export class OperatorAtom extends Atom {
       this.body = symbol;
     }
 
-    this.hasArgument = options.hasArgument ?? false;
+    this.captureSelection = options.captureSelection ?? false;
 
-    this.captureSelection = options.captureSelection;
+    this.hasArgument = options.hasArgument ?? false;
     this.variant = options?.variant;
     this.variantStyle = options?.variantStyle;
     this.subsupPlacement = options?.limits;
     this.isExtensibleSymbol = options?.isExtensibleSymbol ?? false;
+  }
+
+  static fromJson(json: AtomJson): OperatorAtom {
+    return new OperatorAtom(
+      json.command,
+      json.value ? json.value : [],
+      json as any
+    );
+  }
+
+  toJson(): AtomJson {
+    const result = super.toJson();
+
+    if (this.hasArgument) result.hasArgument = true;
+    if (this.variant) result.variant = this.variant;
+    if (this.variantStyle) result.variantStyle = this.variantStyle;
+    if (this.subsupPlacement) result.limits = this.subsupPlacement;
+    if (this.isExtensibleSymbol) result.isExtensibleSymbol = true;
+    if (this.value) result.symbol = this.value;
+    return result;
   }
 
   render(context: Context): Box | null {

@@ -1,4 +1,4 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { makeLeftRightDelim, RIGHT_DELIM } from '../core/delimiters';
 import { Context } from '../core/context';
@@ -17,11 +17,15 @@ import { Style } from '../public/core';
 export class LeftRightAtom extends Atom {
   readonly leftDelim?: string;
   rightDelim?: string;
-  private readonly inner: boolean; // Indicate if it's a `\mleft` (false), or a `\left`
+
+  // Indicate which command should the delimiters be serialized to:
+  // regular delimiter, `\left...\right` or `\mleft...mright`.
+  private readonly variant: '' | 'left...right' | 'mleft...mright';
+
   constructor(
+    variant: '' | 'left...right' | 'mleft...mright',
     body: Atom[],
     options: {
-      inner?: boolean;
       leftDelim: string;
       rightDelim: string;
       style?: Style;
@@ -31,61 +35,60 @@ export class LeftRightAtom extends Atom {
       style: options.style,
       displayContainsHighlight: true,
     });
+    this.variant = variant;
     this.body = body;
-    this.inner = options.inner ?? false;
     this.leftDelim = options.leftDelim;
     this.rightDelim = options.rightDelim;
   }
 
+  static fromJson(json: AtomJson): LeftRightAtom {
+    return new LeftRightAtom(json.variant ?? '', [], json as any);
+  }
+
+  toJson(): AtomJson {
+    const result = super.toJson();
+    if (this.variant) result.variant = this.variant;
+    if (this.leftDelim) result.leftDelim = this.leftDelim;
+    if (this.rightDelim) result.rightDelim = this.rightDelim;
+    return result;
+  }
+
   serialize(options: ToLatexOptions): string {
-    let segments: string[] = [];
-    if (this.inner) {
-      segments = [
+    const rightDelim = this.matchingRightDelim();
+
+    if (this.variant === 'left...right') {
+      return joinLatex([
         '\\left' + (this.leftDelim ?? '.'),
         this.bodyToLatex(options),
-        '\\right' + (this.rightDelim ?? '.'),
-      ];
-    } else if (options.expandMacro) {
-      // If we're in 'expandMacro' mode (i.e. interchange format
-      // used, e.g., on the clipboard for maximum compatibility
-      // with other LaTeX renderers), drop the `\mleft(` and `\mright`)
-      // commands
-      segments = [
-        !this.leftDelim || this.leftDelim === '.' ? '' : this.leftDelim,
-        this.bodyToLatex(options),
-        !this.rightDelim || this.rightDelim === '.' ? '' : this.rightDelim,
-      ];
-    } else {
-      segments = [
-        '\\mleft' + (this.leftDelim ?? '.'),
-        this.bodyToLatex(options),
-        '\\mright' + (this.rightDelim ?? '.'),
-      ];
+        '\\right' + rightDelim,
+      ]);
     }
 
-    return joinLatex(segments);
+    if (this.variant === 'mleft...mright') {
+      return joinLatex([
+        '\\mleft' + (this.leftDelim ?? '.'),
+        this.bodyToLatex(options),
+        '\\mright' + rightDelim,
+      ]);
+    }
+
+    return joinLatex([
+      !this.leftDelim || this.leftDelim === '.' ? '' : this.leftDelim,
+      this.bodyToLatex(options),
+      rightDelim,
+    ]);
+  }
+
+  matchingRightDelim(): string {
+    if (this.rightDelim && this.rightDelim !== '?') return this.rightDelim;
+    const leftDelim = this.leftDelim ?? '.';
+    return RIGHT_DELIM[leftDelim] ?? leftDelim;
   }
 
   render(parentContext: Context): Box | null {
     const context = new Context(parentContext, this.style);
 
-    if (!this.body) {
-      // No body, only a delimiter
-      const boxes: Box[] = [];
-      if (this.leftDelim) {
-        boxes.push(
-          new Atom('mopen', { value: this.leftDelim }).render(context)!
-        );
-      }
-
-      if (this.rightDelim) {
-        boxes.push(
-          new Atom('mclose', { value: this.rightDelim }).render(context)!
-        );
-      }
-      if (boxes.length === 0) return null;
-      return new Box(boxes, { type: 'minner' });
-    }
+    console.assert(this.body !== undefined);
 
     // Calculate its height and depth
     // The size of delimiters is the same, regardless of what mathstyle we are
@@ -95,10 +98,12 @@ export class LeftRightAtom extends Atom {
     const inner: Box =
       Atom.createBox(context, this.body, { newList: true }) ??
       new Box(null, { newList: true });
+
     const innerHeight = inner.height / delimContext.scalingFactor;
     const innerDepth = inner.depth / delimContext.scalingFactor;
 
     const boxes: Box[] = [];
+
     // Add the left delimiter to the beginning of the expression
     // @revisit: we call bind() on three difference boxes. Each box should
     // have a different ID. We should have a Box.hitTest() method to properly
@@ -151,12 +156,12 @@ export class LeftRightAtom extends Atom {
 
     // Add the right delimiter to the end of the expression.
     if (this.rightDelim) {
-      let delim = this.rightDelim;
       let classes = this.containsCaret ? ' ML__contains-caret' : '';
+      let delim = this.rightDelim;
       if (delim === '?') {
         if (context.smartFence) {
           // Use a placeholder delimiter matching the open delimiter
-          delim = RIGHT_DELIM[this.leftDelim ?? '.'] ?? this.leftDelim ?? '.';
+          delim = this.matchingRightDelim();
           classes += ' ML__smart-fence__close';
         } else {
           delim = '.';
@@ -182,13 +187,15 @@ export class LeftRightAtom extends Atom {
       );
     }
 
-    // If the `inner` flag is set, return the `inner` element (that's the
-    // behavior for the regular `\left...\right`
-    // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the
-    // behavior for `\mleft...\mright`, which allows for tighter spacing
-    // for example in `\sin\mleft(x\mright)`
+    // If the left sibling is a function (e.g. `\sin`, `f`...)
+    // or we use the `mleft...mright` variant,
+    // use a tighter spacing
+    const tightSpacing =
+      (this.variant === 'mleft...mright' || this.leftSibling?.isFunction) ??
+      false;
+
     const result = new Box(boxes, {
-      type: this.inner ? 'minner' : 'mclose',
+      type: tightSpacing ? 'mclose' : 'minner',
       classes: 'left-right',
     });
 

@@ -1,6 +1,6 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { X_HEIGHT } from '../core/font-metrics';
-import { Box } from '../core/box';
+import { Box, makeStruts } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 
@@ -20,6 +20,14 @@ export class SurdAtom extends Atom {
     });
     this.body = options.body;
     this.above = options.index;
+  }
+
+  static fromJson(json: AtomJson): SurdAtom {
+    return new SurdAtom(json.command, json as any);
+  }
+
+  toJson(): AtomJson {
+    return super.toJson();
   }
 
   serialize(options: ToLatexOptions): string {
@@ -111,14 +119,17 @@ export class SurdAtom extends Atom {
     // 4. Render the body (inner + line)
     //
 
-    const bodyBox = new VBox({
-      firstBaseline: [
-        { box: new Box(innerBox) }, // Need to wrap the inner for proper selection bound calculation
-        lineClearance - 2 * ruleWidth,
-        { box: line },
-        ruleWidth,
-      ],
-    }).wrap(parentContext);
+    const bodyBox = this.bind(
+      parentContext,
+      new VBox({
+        firstBaseline: [
+          { box: new Box(innerBox) }, // Need to wrap the inner for proper selection bound calculation
+          lineClearance - 2 * ruleWidth,
+          { box: line },
+          ruleWidth,
+        ],
+      }).wrap(parentContext)
+    );
 
     //
     //  5. Assemble the body and the delimiter

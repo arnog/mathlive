@@ -1,5 +1,6 @@
 import {
   Atom,
+  AtomJson,
   Branch,
   isColRowBranch,
   isNamedBranch,
@@ -249,6 +250,26 @@ export class ArrayAtom extends Atom {
     this.colSeparationType = options.colSeparationType;
     // Default \arraystretch from lttab.dtx
     this.arraystretch = options.arraystretch ?? 1.0;
+  }
+
+  static fromJson(json: AtomJson): ArrayAtom {
+    return new ArrayAtom(
+      json.environmentName,
+      json.array,
+      json.rowGaps,
+      json as any
+    );
+  }
+
+  toJson(): AtomJson {
+    return {
+      ...super.toJson(),
+      environmentName: this.environmentName,
+      array: this.array.map((row) =>
+        row.map((col) => col!.map((x) => x.toJson()))
+      ),
+      rowGaps: this.rowGaps,
+    };
   }
 
   branch(cell: Branch): Atom[] | undefined {

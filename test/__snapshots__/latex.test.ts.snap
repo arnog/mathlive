@@ -37,14 +37,14 @@ Array [
 
 exports[`BASIC PARSING 2/ "%" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0\\"></span><span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0\\"></span></span>",
   "no-error",
 ]
 `;
 
 exports[`BASIC PARSING 3/ "% comment" renders correctly 1`] = `
 Array [
-  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0\\"></span><span></span></span>",
+  "<span class=\\"ML__mathlive\\"><span class=\\"ML__strut\\" style=\\"height:0\\"></span></span>",
   "no-error",
 ]
 `;

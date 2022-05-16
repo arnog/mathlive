@@ -1,4 +1,4 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { convertGlueToEm } from '../core/registers-utils';
@@ -10,6 +10,16 @@ export class SpacingAtom extends Atom {
   constructor(command: string, style: Style, width?: Glue) {
     super('spacing', { command, style });
     this.width = width;
+  }
+
+  static fromJson(json: AtomJson): SpacingAtom {
+    return new SpacingAtom(json.command, json.style, json.width);
+  }
+
+  toJson(): AtomJson {
+    const options: { [key: string]: any } = {};
+    if (this.width) options.width = this.width;
+    return { ...super.toJson(), ...options };
   }
 
   render(_context: Context): Box {

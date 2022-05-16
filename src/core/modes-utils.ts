@@ -81,7 +81,7 @@ export class Mode {
    * ('Main-Regular', 'Caligraphic-Regualr' etc...)
    */
   applyStyle(_box: Box, _style: Style): string | null {
-    return '';
+    return null;
   }
 }
 

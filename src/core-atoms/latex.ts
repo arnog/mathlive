@@ -2,14 +2,15 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 
 /**
  * Atom for raw latex character, while in Latex editing mode
  */
 export class LatexAtom extends Atom {
-  isSuggestion: boolean; // This atom is a suggestion
-  isError: boolean;
+  isSuggestion: boolean; // Display suggestions with reduced opacity
+  isError: boolean; // Display errors with wavy red line
+
   constructor(
     value: string,
     options?: {
@@ -20,6 +21,17 @@ export class LatexAtom extends Atom {
     this.isSuggestion = options?.isSuggestion ?? false;
     this.isError = false;
     this.verbatimLatex = value;
+  }
+
+  static fromJson(json: AtomJson): LatexAtom {
+    return new LatexAtom(json.command);
+  }
+
+  toJson(): AtomJson {
+    const options: { [key: string]: any } = {};
+    if (this.isSuggestion) options.isSuggestion = true;
+    if (this.isError) options.isError = true;
+    return { ...super.toJson(), ...options };
   }
 
   get computedStyle(): Style {

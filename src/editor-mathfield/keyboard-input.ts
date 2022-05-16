@@ -1,5 +1,4 @@
 import type { Selector } from '../public/commands';
-import { parseLatex } from '../core/parser';
 import {
   mightProducePrintableCharacter,
   eventToChar,
@@ -28,9 +27,9 @@ import { moveAfterParent } from '../editor-model/commands-move';
 import { range } from '../editor-model/selection-utils';
 import { insertSmartFence } from './mode-editor-math';
 import { ModeEditor } from './mode-editor';
-import { effectiveMode } from '../editor/options';
 import { canVibrate } from '../common/capabilities';
 import { showKeystroke } from './keystroke-caption';
+import { Atom } from '../core/atom';
 
 /**
  * @param evt - An Event corresponding to the keystroke.
@@ -95,47 +94,47 @@ export function onKeystroke(
     } else if (!mightProducePrintableCharacter(evt)) {
       // It was a non-alpha character (PageUp, End, etc...)
       mathfield.resetKeystrokeBuffer();
+      // mathfield.snapshot();
     } else {
       const c = eventToChar(evt);
-      // Find the longest substring that matches a shortcut
-      const candidate = mathfield.keystrokeBuffer + c;
 
-      // The context may be from the start of the group to the current position
-      const localContext = model.getAtoms(
-        model.offsetOf(model.at(model.position).firstSibling),
-        model.position
-      );
+      // Determine the context to interpret the shortcut, i.e.
+      // the set of atoms to the left of the insertion point
+      const context = getLeftSiblings(mathfield);
 
       let multicharSymbol = false;
-      const multicharEligible =
-        mathfield.mode === 'math' &&
-        (localContext.length === 0 || localContext[0].type !== 'mord');
+
+      // Find the longest substring that matches a shortcut
+      const candidate = mathfield.keystrokeBuffer + c;
 
       // Loop  over possible candidates, from the longest possible, to the shortest
       let i = 0;
       while (!shortcut && i < candidate.length) {
-        // Could this be interpreted as a multichar symbol?
-        if (multicharEligible) {
-          shortcut = mathfield.options.onMulticharSymbol(
-            mathfield,
-            candidate.slice(i)
-          );
-          multicharSymbol = !!shortcut;
-        }
-        if (!multicharSymbol) {
-          // Not a multichar symbol. Perhaps an inline shortcut?
-          const context = mathfield.keystrokeBufferStates[i]
-            ? parseLatex(mathfield.keystrokeBufferStates[i].latex, {
-                parseMode: effectiveMode(mathfield.options),
-                macros: mathfield.options.macros,
-              })
-            : localContext;
+        // At this length (i), what are the left siblings?
+        const leftSiblings = getLeftSiblings(
+          mathfield,
+          mathfield.keystrokeBufferStates.length - (candidate.length - i)
+        );
 
-          shortcut = getInlineShortcut(
-            context,
-            candidate.slice(i),
-            mathfield.options.inlineShortcuts
-          );
+        // Is this an inline shortcut?
+        shortcut = getInlineShortcut(
+          leftSiblings,
+          candidate.slice(i),
+          mathfield.options.inlineShortcuts
+        );
+        console.log(candidate.slice(i), shortcut);
+
+        // If not a shortcut, could this be interpreted as a multichar symbol?
+        if (!shortcut && mathfield.mode === 'math') {
+          if (context.every((x) => x.type === 'mord')) {
+            shortcut = mathfield.options.onMulticharSymbol(
+              mathfield,
+              candidate.slice(i)
+            );
+            console.log('eligible', context, candidate.slice(i), shortcut);
+            multicharSymbol = !!shortcut;
+          } else
+            console.log('not eligible', context, candidate.slice(i), shortcut);
         }
         i += 1;
       }
@@ -541,4 +540,22 @@ export function onTypedText(
 
   // Render and make sure the insertion point is visible
   mathfield.scrollIntoView();
+}
+
+function getLeftSiblings(mf: MathfieldPrivate, index = -1): Atom[] {
+  const model = mf.model;
+
+  const savedState = mf.getUndoRecord();
+  if (index >= 0) mf.restoreToUndoRecord(mf.keystrokeBufferStates[index]);
+
+  let atom = model.at(Math.min(model.position, model.anchor));
+  const result: Atom[] = [];
+  while (atom.type !== 'first') {
+    result.push(atom);
+    atom = atom.leftSibling;
+  }
+
+  if (index >= 0) mf.restoreToUndoRecord(savedState);
+
+  return result;
 }

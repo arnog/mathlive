@@ -23,7 +23,7 @@ describe('ASCII MATH', function () {
   expect(debug.latexToAsciiMath('(x + 1)')).toBe('(x+1)');
   expect(debug.asciiMathToLatex('(x + 1)')).toBe('\\left(x +1\\right)');
 
-  equalASCIIMath('f\\mleft(x\\mright)=\\sin x', 'f(x)=sin x');
+  equalASCIIMath('f\\left(x\\right)=\\sin x', 'f(x)=sin x');
 
   equalASCIIMath('x^{2}', 'x^2');
   equalASCIIMath('x^{234}', 'x^(234)');
@@ -55,7 +55,7 @@ describe('ASCII MATH', function () {
 
   equalASCIIMath('\\text{if }x>0', '"if "x>0');
   equalASCIIMath(
-    '\\text{if }x>0\\text{ then }f\\mleft(x\\mright)=x^{2}',
+    '\\text{if }x>0\\text{ then }f\\left(x\\right)=x^{2}',
     '"if "x>0" then "f(x)=x^2'
   );
   // equalASCIIMath('\\begin{pmatrix}a & b & c\\end{pmatrix}', '((a),(b),(c))');

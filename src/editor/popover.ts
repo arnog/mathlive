@@ -298,7 +298,7 @@ function getNote(symbol: string): string {
 }
 
 function latexToMarkup(latex: string): string {
-  const root = new Atom('root', { mode: 'math' });
+  const root = new Atom('root');
   root.body = typeset(
     parseLatex(latex, {
       parseMode: 'math',

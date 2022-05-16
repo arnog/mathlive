@@ -1,4 +1,4 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
 import { convertToDimension } from '../core/parser';
@@ -47,8 +47,8 @@ export class EncloseAtom extends Atom {
   private readonly svgStrokeStyle?: string;
   private readonly strokeColor?: string;
   private readonly borderStyle?: string;
-
   private readonly padding?: string;
+
   constructor(
     command: string,
     body: Atom[],
@@ -79,6 +79,45 @@ export class EncloseAtom extends Atom {
     this.padding = options.padding;
 
     this.captureSelection = true; // Do not let children be selected
+  }
+
+  static fromJson(json: AtomJson): EncloseAtom {
+    return new EncloseAtom(
+      json.command,
+      [],
+      json.notation,
+      json as any as EncloseAtomOptions
+    );
+  }
+
+  toJson(): AtomJson {
+    const notation: Notations = {};
+    if (this.notation.downdiagonalstrike) notation.downdiagonalstrike = true;
+    if (this.notation.updiagonalstrike) notation.downdiagonalstrike = true;
+    if (this.notation.verticalstrike) notation.downdiagonalstrike = true;
+    if (this.notation.horizontalstrike) notation.downdiagonalstrike = true;
+    if (this.notation.updiagonalarrow) notation.downdiagonalstrike = true;
+    if (this.notation.right) notation.downdiagonalstrike = true;
+    if (this.notation.bottom) notation.downdiagonalstrike = true;
+    if (this.notation.left) notation.downdiagonalstrike = true;
+    if (this.notation.top) notation.downdiagonalstrike = true;
+    if (this.notation.circle) notation.downdiagonalstrike = true;
+    if (this.notation.roundedbox) notation.downdiagonalstrike = true;
+    if (this.notation.madruwb) notation.downdiagonalstrike = true;
+    if (this.notation.actuarial) notation.downdiagonalstrike = true;
+    if (this.notation.box) notation.downdiagonalstrike = true;
+
+    return {
+      ...super.toJson(),
+      notation: notation,
+      shadow: this.shadow,
+      strokeWidth: this.strokeWidth,
+      strokeStyle: this.strokeStyle,
+      svgStrokeStyle: this.svgStrokeStyle,
+      strokeColor: this.strokeColor,
+      borderStyle: this.borderStyle,
+      padding: this.padding,
+    };
   }
 
   serialize(options: ToLatexOptions): string {

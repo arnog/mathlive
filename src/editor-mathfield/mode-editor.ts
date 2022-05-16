@@ -72,7 +72,7 @@ export class ModeEditor {
       // 1. Put text flavor on the clipboard
       //
       let latex = '';
-      if (atoms.length === 1 && atoms[0].verbatimLatex) {
+      if (atoms.length === 1 && atoms[0].verbatimLatex !== undefined) {
         latex = atoms[0].verbatimLatex;
       }
       if (!latex) {

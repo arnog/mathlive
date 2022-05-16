@@ -23,7 +23,7 @@ export function latexToAsciiMath(
   latex: string,
   mode: ParseMode = 'math'
 ): string {
-  const root = new Atom('root', { mode: 'math' });
+  const root = new Atom('root');
   root.body = parseLatex(latex, { parseMode: mode });
   return atomToAsciiMath(root);
 }

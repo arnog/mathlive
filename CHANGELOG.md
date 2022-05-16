@@ -1,27 +1,63 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The following attributes of the `<math-field>` element that were previously
+  "boolean attributes" are now "enumerated attributes".
+
+  A boolean attribute has a value of true if present and false if absent.
+
+  An enumerated attribute has an explicit value.
+
+  As a result of this change the default value of some attributes may have
+  changed from `false` to `true`.
+
+  - `keypress-vibration`: `"on"` | `"off"` | `""` (default `"on"`)
+  - `remove-extraneous-parentheses`: `"on"` | `"off"` | `""` (default `"on"`)
+  - `smart-fence`: `"on"` | `"off"` | `""` (default`on`)
+  - `smart-superscript`: `"on"` | `"off"` | `""` (default `"on"`)
+  - `smart-mode`: `"on"` | `"off"` | `""` (default`off`)
+
+- The commands `\mleft` and `\mright` are no longer generated automatically.
+  Previously, when using `()` or `\left(...\right)`, a `\mleft(...\mright)`
+  could be substituted when `smart-fence` was turned on. Now the
+  `\left...\right` command automatically adjust its left spacing based on the
+  symbol to its left. If the symbol to its left is a function, the spacing will
+  be tighter.
+
 ## New Features
 
-- Handle input of alternative decimal separator, i.e. `,`.
+- **Comma `,` as decimal separator is now supported.**
 
   New `options.decimalSeparator` value can be set to `.` or `,` (`.` by default,
-  which corresponds to the current behavior). When set to `,`, pressing the `,`
-  key on the keyboard will insert a `{,}` LaTeX string, if in math mode and if
-  before a digit. The virtual keyboard will also be modified so that the `.` key
-  is `,` instead and also contextually insert a `{,}` when appropriate. A new
-  command `insertDecimalSeparator` has also been added, which inserts either
-  `{,}` if in math mode, right after a digit, and when `decimalSeparator` is set
-  to `","`. Otherwise, it inserts a "."
+  which corresponds to the current behavior).
 
-- The `onMulticharSymbol()` hook provides an opportunity to recognize multi
-  character symbols and wrap them in an appropriate command, e.g. `speed` ->
-  `\mathrm{speed}`
+  When set to `,`, pressing the `,` key on the keyboard will insert a `{,}`
+  LaTeX string, if in math mode and if before a digit.
+
+  The virtual keyboard is also changed so that the `.` key is `,` instead and
+  also contextually insert a `{,}` when appropriate.
+
+  A new command `insertDecimalSeparator` has also been added, which inserts
+  either `{,}` if in math mode, right after a digit, and when `decimalSeparator`
+  is set to `","`. Otherwise, it inserts a "."
+
+- **Multi character symbols**
+
+  The `onMulticharSymbol()` hook provides an opportunity to recognize multi
+  character symbols and wrap them in an appropriate command.
+
+  For example typing `speed` -> `\mathrm{speed}`
 
 - Added support for the `\mathnormal{}` command, which displays text in italic
   and includes italic correction. As opposed to `\mathit{}` which displays text
   in italic, but without italic correction.
 
 - Correctly handle double-clicking words styled in `\mathrm` or `\mathit`
+
+- The appearance of the placeholder symbol has changed to stand out more. Also,
+  the LaTeX generated for the default placeholder is now simply
+  `\placeholder{}`.
 
 ### Bug Fixes
 
@@ -30,6 +66,16 @@
 - **#1354** Correctly render `{,}`, which is used for French decimal point. Also
   correctly handle navigating with the keyboard, that is, handle it as a single
   character, not a group. Also correctly render it to MathML (as a `.`).
+- The "contains highlight" and selection rectangles would not always account for
+  the children of the expression, for example with `\sqrt{\frac12}`.
+- The LaTeX output of subscript or superscripts was incorrect when no value for
+  the superscript/subscript was provided. For example, typing `x`, `^`,
+  `right arrow`, `2`, would incorrectly serialize `x^2`. It now serializes
+  `x^{}2`
+- Improved parsing and layout of functions with arguments, i.e.
+  `\sin\left(x\right)`. Previously, there would be an excessive amount of white
+  space beween the `\sin` and `(`. The expression is now correctly interpreted
+  as a function.
 
 ## 0.72.2 (2022-04-30)
 
