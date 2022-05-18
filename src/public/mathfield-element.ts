@@ -122,6 +122,11 @@ export type MoveOutEvent = {
   direction: 'forward' | 'backward' | 'upward' | 'downward';
 };
 
+/**
+ * See documentation for the `virtual-keyboard-mode` option.
+ */
+export type VirtualKeyboardMode = 'auto' | 'manual' | 'onfocus' | 'off';
+
 declare global {
   /**
    * Map the custom event names to types
@@ -327,7 +332,7 @@ export interface MathfieldElementAttributes {
    * devices and to `'off'` otherwise.
    *
    */
-  'virtual-keyboard-mode': 'auto' | 'manual' | 'onfocus' | 'off';
+  'virtual-keyboard-mode': VirtualKeyboardMode;
   /**
    * The visual theme used for the virtual keyboard.
    *
@@ -623,7 +628,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /**
      * To create programmatically a new mahfield use:
-     * 
+     *
      * ```javascript
     let mfe = new MathfieldElement();
 
@@ -1498,10 +1503,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   ) {
     this.setOptions({ virtualKeyboardLayout: value });
   }
-  get virtualKeyboardMode(): 'auto' | 'manual' | 'onfocus' | 'off' {
+  get virtualKeyboardMode(): VirtualKeyboardMode {
     return this.getOption('virtualKeyboardMode');
   }
-  set virtualKeyboardMode(value: 'auto' | 'manual' | 'onfocus' | 'off') {
+  set virtualKeyboardMode(value: VirtualKeyboardMode) {
     this.setOptions({ virtualKeyboardMode: value });
   }
   get virtualKeyboardTheme(): 'material' | 'apple' | '' {
