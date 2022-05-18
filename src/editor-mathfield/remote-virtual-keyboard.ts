@@ -111,6 +111,14 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
       const { action } = event.data;
 
       if (action === 'executeCommand') {
+        // Avoid an infinite messages loop if within one window
+        if (
+          getCommandTarget(event.data.command!) === 'virtual-keyboard' &&
+          window === window.parent
+        ) {
+          return;
+        }
+
         this.executeCommand(event.data.command!);
       } else if (action === 'updateState') {
         this.visible = event.data.state!.visible;
@@ -204,6 +212,12 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
         const { command } = event.data;
         this.sourceFrame = event.source as Window;
 
+        // Avoid an infinite messages loop if within one window
+        const commandTarget = getCommandTarget(command!);
+        if (commandTarget !== 'virtual-keyboard' && window === window.parent) {
+          return;
+        }
+
         this.executeCommand(command!);
       }
     }
@@ -227,7 +241,6 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
     }
 
     this.sendMessage('executeCommand', { command });
-
     return false;
   }
 
