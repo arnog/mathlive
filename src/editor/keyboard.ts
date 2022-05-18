@@ -262,9 +262,8 @@ export function delegateKeyboardEvents(
       // If this is not the first keypress after a keydown, that is,
       // if this is a repeated keystroke, call the keystroke handler.
       if (!compositionInProgress) {
-        if (keydownEvent && keypressEvent) {
+        if (keydownEvent && keypressEvent)
           handlers.keystroke(keyboardEventToString(keydownEvent), keydownEvent);
-        }
 
         keypressEvent = event;
         defer(handleTypedText);
@@ -278,9 +277,7 @@ export function delegateKeyboardEvents(
       if (compositionInProgress) return;
       // If we've received a keydown, but no keypress, check what's in the
       // textarea field.
-      if (keydownEvent && !keypressEvent) {
-        handleTypedText();
-      }
+      if (keydownEvent && !keypressEvent) handleTypedText();
     },
     true
   );
@@ -338,9 +335,7 @@ export function delegateKeyboardEvents(
       compositionInProgress = true;
       textarea.value = '';
 
-      if (handlers.compositionStart) {
-        handlers.compositionStart(event.data);
-      }
+      if (handlers.compositionStart) handlers.compositionStart(event.data);
     },
     true
   );
@@ -400,14 +395,10 @@ export function delegateKeyboardEvents(
       handlers.focus = savedFocus;
     },
     blur: (): void => {
-      if (typeof textarea.blur === 'function') {
-        textarea.blur();
-      }
+      if (typeof textarea.blur === 'function') textarea.blur();
     },
     focus: (): void => {
-      if (typeof textarea.focus === 'function') {
-        textarea.focus();
-      }
+      if (typeof textarea.focus === 'function') textarea.focus();
     },
     hasFocus: (): boolean => {
       return deepActiveElement() === textarea;
@@ -417,9 +408,8 @@ export function delegateKeyboardEvents(
         textarea.value = value;
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
-        if (deepActiveElement() === textarea && textarea.select) {
+        if (deepActiveElement() === textarea && textarea.select)
           textarea.select();
-        }
       } else {
         textarea.value = '';
         textarea.setAttribute('aria-label', '');
@@ -438,9 +428,7 @@ export function delegateKeyboardEvents(
 function deepActiveElement(): Element | null {
   if (!isBrowser()) return null;
   let a = document.activeElement;
-  while (a?.shadowRoot?.activeElement) {
-    a = a.shadowRoot.activeElement;
-  }
+  while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
 
   return a;
 }
@@ -451,9 +439,7 @@ export function eventToChar(evt?: KeyboardEvent): string {
   if (evt.key === 'Unidentified') {
     // On Android, the evt.key seems to always be 'Unidentified'.
     // Get the value entered in the event target
-    if (evt.target) {
-      result = (evt.target as HTMLInputElement).value;
-    }
+    if (evt.target) result = (evt.target as HTMLInputElement).value;
   }
 
   result = result ?? evt.key ?? evt.code;
@@ -461,9 +447,8 @@ export function eventToChar(evt?: KeyboardEvent): string {
     /^(Dead|Return|Enter|Tab|Escape|Delete|PageUp|PageDown|Home|End|Help|ArrowLeft|ArrowRight|ArrowUp|ArrowDown)$/.test(
       result
     )
-  ) {
+  )
     result = '';
-  }
 
   return result;
 }

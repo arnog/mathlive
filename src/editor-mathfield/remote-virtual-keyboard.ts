@@ -111,16 +111,12 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
 
       const { action } = event.data;
 
-      if (action === 'executeCommand') {
-        this.executeCommand(event.data.command!);
-      } else if (action === 'updateState') {
+      if (action === 'executeCommand') this.executeCommand(event.data.command!);
+      else if (action === 'updateState') {
         this.visible = event.data.state!.visible;
         this.height = event.data.state!.height;
-      } else if (action === 'focus') {
-        this._mathfield?.focus?.();
-      } else if (action === 'blur') {
-        this._mathfield?.blur?.();
-      }
+      } else if (action === 'focus') this._mathfield?.focus?.();
+      else if (action === 'blur') this._mathfield?.blur?.();
     }
   }
 
@@ -223,9 +219,8 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
     const commandTarget = getCommandTarget(command);
 
     // Virtual keyboard commands must be handled at local window
-    if (commandTarget === 'virtual-keyboard') {
+    if (commandTarget === 'virtual-keyboard')
       return super.executeCommand(command);
-    }
 
     this.sendMessage('executeCommand', { command });
 

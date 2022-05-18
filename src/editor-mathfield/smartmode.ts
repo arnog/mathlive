@@ -25,9 +25,7 @@ function convertLastAtomsToText(
     count = Infinity;
   }
 
-  if (count === undefined) {
-    count = Infinity;
-  }
+  if (count === undefined) count = Infinity;
 
   let i = model.position;
   let done = false;
@@ -73,9 +71,7 @@ function convertLastAtomsToMath(
     count = Infinity;
   }
 
-  if (count === undefined) {
-    count = Infinity;
-  }
+  if (count === undefined) count = Infinity;
 
   let i = model.position;
   let done = false;
@@ -88,9 +84,7 @@ function convertLastAtomsToMath(
       atom.mode !== 'text' ||
       atom.value === ' ' ||
       (until && !until(atom));
-    if (!done) {
-      atom.mode = 'math';
-    }
+    if (!done) atom.mode = 'math';
 
     i -= 1;
     count -= 1;
@@ -171,9 +165,7 @@ function convertLastAtomsToMath(
  */
 export function removeIsolatedSpace(model: ModelPrivate): void {
   let i = model.position - 1;
-  while (i >= 0 && model.at(i)?.mode === 'math') {
-    i -= 1;
-  }
+  while (i >= 0 && model.at(i)?.mode === 'math') i -= 1;
 
   if (i < 0) return;
   // If the atom before the last one converted is a
@@ -213,9 +205,7 @@ function getTextBeforePosition(model: ModelPrivate): string {
       (atom.mode === 'text' ||
         (atom.mode === 'math' && /mord|textord|mpunct/.test(atom.type)))
     );
-    if (!done) {
-      result = atom.value + result;
-    }
+    if (!done) result = atom.value + result;
 
     i -= 1;
   }
@@ -236,30 +226,22 @@ export function smartMode(
   keystroke: string,
   evt?: KeyboardEvent
 ): boolean {
-  if (mathfield.smartModeSuppressed) {
-    return false;
-  }
+  if (mathfield.smartModeSuppressed) return false;
 
   const { model } = mathfield;
   // Are we at the end of a group?
-  if (!model.at(model.position).isLastSibling) {
-    return false;
-  }
+  if (!model.at(model.position).isLastSibling) return false;
 
   // Is there an event that would produce a printable char?
   // (i.e. not an arrow key, etc...)
-  if (!evt || !mightProducePrintableCharacter(evt)) {
-    return false;
-  }
+  if (!evt || !mightProducePrintableCharacter(evt)) return false;
 
   const c = eventToChar(evt);
   if (!model.selectionIsCollapsed) {
     // There is a selection
     if (mathfield.mode === 'text') {
       // If the character is '/' or '_' or '^', switch to 'math'
-      if (/[/_^]/.test(c)) {
-        return true;
-      }
+      if (/[/_^]/.test(c)) return true;
     }
 
     return false;
@@ -295,9 +277,8 @@ export function smartMode(
       lFence &&
       parent instanceof LeftRightAtom &&
       parent.leftDelim === lFence
-    ) {
+    )
       return true;
-    }
 
     if (/(^|[^a-zA-Z])(a|I) $/.test(context)) {
       // Single letters that are valid words in the current language

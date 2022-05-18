@@ -623,7 +623,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /**
      * To create programmatically a new mahfield use:
-     * 
+     *
      * ```javascript
     let mfe = new MathfieldElement();
 
@@ -661,24 +661,19 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       .trim();
 
     // Record the (optional) configuration options, as a deferred state
-    if (options) {
-      this.setOptions(options);
-    }
+    if (options) this.setOptions(options);
+
     this.shadowRoot!.host.addEventListener(
       'focus',
       (_event) => {
-        if (!this.readOnly) {
-          this._mathfield?.focus();
-        }
+        if (!this.readOnly) this._mathfield?.focus();
       },
       true
     );
     this.shadowRoot!.host.addEventListener(
       'blur',
       (_event) => {
-        if (!this.readOnly) {
-          this._mathfield?.blur();
-        }
+        if (!this.readOnly) this._mathfield?.blur();
       },
       true
     );
@@ -721,9 +716,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   getOptions(
     keys?: keyof MathfieldOptions | (keyof MathfieldOptions)[]
   ): unknown | Partial<MathfieldOptions> {
-    if (this._mathfield) {
-      return getOptions(this._mathfield.options, keys);
-    }
+    if (this._mathfield) return getOptions(this._mathfield.options, keys);
 
     if (!gDeferredState.has(this)) return null;
     return getOptions(
@@ -794,9 +787,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     arg2?: Offset | OutputFormat,
     arg3?: OutputFormat
   ): string {
-    if (this._mathfield) {
+    if (this._mathfield)
       return this._mathfield.getValue(arg1 as any, arg2 as any, arg3);
-    }
 
     if (gDeferredState.has(this)) {
       let start: Offset;
@@ -822,9 +814,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         (format === undefined || format === 'latex') &&
         start === 0 &&
         end === -1
-      ) {
+      )
         return gDeferredState.get(this)!.value ?? this.textContent ?? '';
-      }
     }
 
     return '';
@@ -879,9 +870,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   set virtualKeyboardState(value: 'hidden' | 'visible') {
-    if (this._mathfield) {
-      this._mathfield.virtualKeyboardState = value;
-    }
+    if (this._mathfield) this._mathfield.virtualKeyboardState = value;
   }
 
   /**
@@ -1007,9 +996,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         )
         .map((x) => x.textContent)
         .join('');
-      if (json) {
-        this.setOptions(JSON.parse(json));
-      }
+      if (json) this.setOptions(JSON.parse(json));
     } catch (error: unknown) {
       console.log(error);
     }
@@ -1017,9 +1004,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     let value = '';
     // Check if there is a `value` attribute and set the initial value
     // of the mathfield from it
-    if (this.hasAttribute('value')) {
-      value = this.getAttribute('value') ?? '';
-    } else {
+    if (this.hasAttribute('value')) value = this.getAttribute('value') ?? '';
+    else {
       value =
         slot
           ?.assignedNodes()
@@ -1211,9 +1197,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         .join('')
         .trim();
       if (value === this._slotValue) return;
-      if (!this._mathfield) {
-        this.value = value;
-      } else {
+      if (!this._mathfield) this.value = value;
+      else {
         // Don't suppress notification changes. We need to know
         // if the value has changed indirectly through slot manipulation
         this._mathfield.setValue(value);
@@ -1539,13 +1524,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    */
   get selection(): Selection {
-    if (this._mathfield) {
-      return this._mathfield.selection;
-    }
+    if (this._mathfield) return this._mathfield.selection;
 
-    if (gDeferredState.has(this)) {
-      return gDeferredState.get(this)!.selection;
-    }
+    if (gDeferredState.has(this)) return gDeferredState.get(this)!.selection;
 
     return { ranges: [[0, 0]], direction: 'forward' };
   }
@@ -1555,9 +1536,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * @category Selection
    */
   set selection(sel: Selection | Offset) {
-    if (typeof sel === 'number') {
-      sel = { ranges: [[sel, sel]] };
-    }
+    if (typeof sel === 'number') sel = { ranges: [[sel, sel]] };
+
     if (this._mathfield) {
       this._mathfield.selection = sel;
       return;
@@ -1585,12 +1565,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    */
   get position(): Offset {
-    if (this._mathfield) {
-      return this._mathfield.model.position;
-    }
-    if (gDeferredState.has(this)) {
+    if (this._mathfield) return this._mathfield.model.position;
+
+    if (gDeferredState.has(this))
       return gDeferredState.get(this)!.selection.ranges[0][0];
-    }
 
     return 0;
   }
@@ -1599,9 +1577,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * @category Selection
    */
   set position(offset: Offset) {
-    if (this._mathfield) {
-      this._mathfield.model.position = offset;
-    }
+    if (this._mathfield) this._mathfield.model.position = offset;
+
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
         ...gDeferredState.get(this)!,
@@ -1621,9 +1598,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * The depth of an offset represent the depth in the expression tree.
    */
   getOffsetDepth(offset: Offset): number {
-    if (this._mathfield) {
+    if (this._mathfield)
       return this._mathfield.model.at(offset)?.treeDepth - 2 ?? 0;
-    }
+
     return 0;
   }
 
@@ -1663,9 +1640,8 @@ function reflectAttributes(element: MathfieldElement) {
         if (
           typeof options[prop] === 'string' ||
           typeof options[prop] === 'number'
-        ) {
+        )
           element.setAttribute(x, options[prop].toString());
-        }
       }
     }
   });
@@ -1688,20 +1664,15 @@ function getOptionsFromAttributes(
   Object.keys(attribs).forEach((x) => {
     if (mfe.hasAttribute(x)) {
       const value = mfe.getAttribute(x);
-      if (attribs[x] === 'boolean') {
-        result[toCamelCase(x)] = true;
-      } else if (attribs[x] === 'on/off') {
+      if (attribs[x] === 'boolean') result[toCamelCase(x)] = true;
+      else if (attribs[x] === 'on/off') {
         if (value === 'on') result[toCamelCase(x)] = true;
         else if (value === 'off') result[toCamelCase(x)] = false;
         else result[toCamelCase(x)] = undefined;
-      } else if (attribs[x] === 'number') {
+      } else if (attribs[x] === 'number')
         result[toCamelCase(x)] = Number.parseFloat(value ?? '0');
-      } else {
-        result[toCamelCase(x)] = value;
-      }
-    } else if (attribs[x] === 'boolean') {
-      result[toCamelCase(x)] = false;
-    }
+      else result[toCamelCase(x)] = value;
+    } else if (attribs[x] === 'boolean') result[toCamelCase(x)] = false;
   });
   return result;
 }

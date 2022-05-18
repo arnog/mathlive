@@ -18,6 +18,7 @@ export class PlaceholderAtom extends Atom {
     placeholderId?: string;
     default?: Atom[];
   }) {
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     const value = options?.value || PLACEHOLDER_STRING;
     super('placeholder', {
       mode: options?.mode ?? 'math',
@@ -39,13 +40,14 @@ export class PlaceholderAtom extends Atom {
     if (this.value === PLACEHOLDER_STRING) delete result.value;
     if (this.defaultValue)
       result.defaultValue = this.defaultValue.map((x) => x.toJson());
+
     return result;
   }
 
   render(context: Context): Box {
-    if (typeof context.renderPlaceholder === 'function') {
+    if (typeof context.renderPlaceholder === 'function')
       return context.renderPlaceholder(context, this);
-    }
+
     return this.createBox(context, {
       classes: this.caret ? 'ML__placeholder-selected' : '',
     });

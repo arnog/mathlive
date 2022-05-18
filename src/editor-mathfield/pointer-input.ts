@@ -38,9 +38,7 @@ export function onPointerDown(
   // PointerEvent) the touchstart event is sent with event.buttons = 0
   // which for a mouse event would normally be an invalid button.
   // Accept this button 0.
-  if (isPointerEvent(evt) && evt.buttons > 1) {
-    return;
-  }
+  if (isPointerEvent(evt) && evt.buttons > 1) return;
 
   let scrollLeft = false;
   let scrollRight = false;
@@ -50,11 +48,8 @@ export function onPointerDown(
   const anchorTime = Date.now();
   const field = that.field!;
   const scrollInterval = setInterval(() => {
-    if (scrollLeft) {
-      field.scroll({ top: 0, left: field.scrollLeft - 16 });
-    } else if (scrollRight) {
-      field.scroll({ top: 0, left: field.scrollLeft + 16 });
-    }
+    if (scrollLeft) field.scroll({ top: 0, left: field.scrollLeft - 16 });
+    else if (scrollRight) field.scroll({ top: 0, left: field.scrollLeft + 16 });
   }, 32);
   function endPointerTracking(evt: null | PointerEvent | TouchEvent): void {
     if (!isBrowser()) return;
@@ -66,9 +61,8 @@ export function onPointerDown(
         'pointerup pointercancel',
         endPointerTracking as EventListener
       );
-      if (evt instanceof PointerEvent) {
+      if (evt instanceof PointerEvent)
         field.releasePointerCapture(evt.pointerId);
-      }
     } else {
       off(field, 'touchmove', onPointerMove);
       off(field, 'touchcancel touchend', endPointerTracking as EventListener);
@@ -79,9 +73,7 @@ export function onPointerDown(
     trackingPointer = false;
     clearInterval(scrollInterval);
     mathfield.element!.classList.remove('tracking');
-    if (evt) {
-      evt.preventDefault();
-    }
+    if (evt) evt.preventDefault();
   }
 
   function onPointerMove(evt: PointerEvent | TouchEvent): void {
@@ -192,11 +184,9 @@ export function onPointerDown(
         // (in that case, 'anchor' is actually the focus
         const wasCollapsed = mathfield.model.selectionIsCollapsed;
         mathfield.model.extendSelectionTo(mathfield.model.anchor, anchor);
-        if (acceptCommandSuggestion(mathfield.model) || wasCollapsed) {
+        if (acceptCommandSuggestion(mathfield.model) || wasCollapsed)
           dirty = 'all';
-        } else {
-          dirty = 'selection';
-        }
+        else dirty = 'selection';
       } else if (mathfield.model.at(anchor).type === 'placeholder') {
         mathfield.model.setSelection(anchor - 1, anchor);
         dirty = 'selection';
@@ -207,11 +197,8 @@ export function onPointerDown(
         dirty = 'selection';
       } else {
         mathfield.model.position = anchor;
-        if (acceptCommandSuggestion(mathfield.model)) {
-          dirty = 'all';
-        } else {
-          dirty = 'selection';
-        }
+        if (acceptCommandSuggestion(mathfield.model)) dirty = 'all';
+        else dirty = 'selection';
       }
 
       // Reset any user-specified style
@@ -237,9 +224,8 @@ export function onPointerDown(
             'pointerup pointercancel',
             endPointerTracking as EventListener
           );
-          if (evt instanceof PointerEvent) {
+          if (evt instanceof PointerEvent)
             field.setPointerCapture(evt.pointerId);
-          }
         } else {
           on(window, 'blur', endPointerTracking as EventListener);
           if (isTouchEvent(evt) && evt.touches) {
@@ -267,9 +253,7 @@ export function onPointerDown(
         }
       }
     }
-  } else {
-    gLastTap = null;
-  }
+  } else gLastTap = null;
 
   if (dirty !== 'none') {
     if (mathfield.model.selectionIsCollapsed) dirty = 'all';
@@ -322,9 +306,8 @@ function nearestAtomFromPointRecursive(
   //
   // 2. If no children matched, this atom matches
   //
-  if (!result[1]) {
-    result = [distance(x, y, bounds), atom];
-  }
+  if (!result[1]) result = [distance(x, y, bounds), atom];
+
   cache.set(atom.id, result);
   return result;
 }
@@ -359,13 +342,10 @@ export function offsetFromPoint(
   // 1/ Check if we're inside the mathfield bounding box
   //
   const bounds = mathfield.fieldContent!.getBoundingClientRect();
-  if (x > bounds.right || y > bounds.bottom + 8) {
+  if (x > bounds.right || y > bounds.bottom + 8)
     return mathfield.model.lastOffset;
-  }
 
-  if (x < bounds.left || y < bounds.top - 8) {
-    return 0;
-  }
+  if (x < bounds.left || y < bounds.top - 8) return 0;
 
   options = options ?? {};
   options.bias = options.bias ?? 0;
@@ -406,12 +386,10 @@ export function offsetFromPoint(
       // adjust the offset to *before* the atom (i.e. after the
       // preceding atom)
       const bounds = getAtomBounds(mathfield, atom);
-      if (bounds && x < (bounds.left + bounds.right) / 2) {
+      if (bounds && x < (bounds.left + bounds.right) / 2)
         result = mathfield.model.offsetOf(atom.leftSibling);
-      }
-    } else if (options.bias < 0) {
+    } else if (options.bias < 0)
       result = mathfield.model.offsetOf(atom.leftSibling);
-    }
   }
 
   return result;

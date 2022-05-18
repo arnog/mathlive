@@ -126,9 +126,9 @@ export function convertLatexToMarkup(
   options = options ?? {};
   options.mathstyle = options.mathstyle ?? 'displaystyle';
   let letterShapeStyle = options.letterShapeStyle ?? 'auto';
-  if (letterShapeStyle === 'auto') {
+  if (letterShapeStyle === 'auto')
     letterShapeStyle = l10n.locale!.startsWith('fr') ? 'french' : 'tex';
-  }
+
   options.macros = getMacros(options?.macros);
 
   //
@@ -310,9 +310,8 @@ export function renderMathInDocument(options?: AutoRenderOptions): void {
 function getElement(element: string | HTMLElement): HTMLElement | null {
   if (typeof element === 'string' && isBrowser()) {
     const result = document.getElementById(element);
-    if (result === null) {
+    if (result === null)
       throw new Error(`The element with ID "${element}" could not be found.`);
-    }
 
     return result;
   }

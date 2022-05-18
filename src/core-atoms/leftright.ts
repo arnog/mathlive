@@ -163,9 +163,7 @@ export class LeftRightAtom extends Atom {
           // Use a placeholder delimiter matching the open delimiter
           delim = this.matchingRightDelim();
           classes += ' ML__smart-fence__close';
-        } else {
-          delim = '.';
-        }
+        } else delim = '.';
       }
 
       boxes.push(

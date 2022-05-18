@@ -206,9 +206,7 @@ defineTabularEnvironment(
   '',
   (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom => {
     let colCount = 0;
-    for (const row of array) {
-      colCount = Math.max(colCount, row.length);
-    }
+    for (const row of array) colCount = Math.max(colCount, row.length);
 
     const colFormat: ColumnFormat[] = [
       { gap: 0 },

@@ -113,9 +113,8 @@ function normalizeArray(
 
   // The number of column is determined by the colFormat
   let maxColCount = 0;
-  for (const colSpec of colFormat) {
-    if ('align' in colSpec) maxColCount += 1;
-  }
+  for (const colSpec of colFormat) if ('align' in colSpec) maxColCount += 1;
+
   // Actual number of columns (at most `maxColCount`)
   let colCount = 0;
   const rows: Atom[][][] = [];
@@ -127,16 +126,15 @@ function normalizeArray(
       const newRow: Atom[][] = [];
       const lastCol = Math.min(row.length, colIndex + maxColCount);
       while (colIndex < lastCol) {
-        if (row[colIndex].length === 0) {
+        if (row[colIndex].length === 0)
           newRow.push([new Atom('first', { mode: atom.mode })]);
-        } else if (row[colIndex][0].type !== 'first') {
+        else if (row[colIndex][0].type !== 'first') {
           newRow.push([
             new Atom('first', { mode: atom.mode }),
             ...row[colIndex],
           ]);
-        } else {
-          newRow.push(row[colIndex]);
-        }
+        } else newRow.push(row[colIndex]);
+
         colIndex += 1;
       }
 
@@ -150,9 +148,8 @@ function normalizeArray(
   if (
     rows[rows.length - 1].length === 1 &&
     rows[rows.length - 1][0].length === 0
-  ) {
+  )
     rows.pop();
-  }
 
   //
   // 3/ Fill out any missing cells
@@ -218,11 +215,8 @@ export class ArrayAtom extends Atom {
     if (options.mathstyleName) this.mathstyleName = options.mathstyleName;
 
     if (options.columns) {
-      if (options.columns.length === 0) {
-        this.colFormat = [{ align: 'l' }];
-      } else {
-        this.colFormat = options.columns;
-      }
+      if (options.columns.length === 0) this.colFormat = [{ align: 'l' }];
+      else this.colFormat = options.columns;
     }
     // The TeX definition is that arrays by default have a maximum
     // of 10, left-aligned, columns.
@@ -281,9 +275,7 @@ export class ArrayAtom extends Atom {
     const result = super.branches;
     this.array.forEach((_, col) => {
       this.array[col].forEach((_, row) => {
-        if (this.array[col][row]) {
-          result.push([col, row]);
-        }
+        if (this.array[col][row]) result.push([col, row]);
       });
     });
     return result;
@@ -304,9 +296,7 @@ export class ArrayAtom extends Atom {
   }
 
   removeBranch(name: Branch): Atom[] {
-    if (isNamedBranch(name)) {
-      return super.removeBranch(name);
-    }
+    if (isNamedBranch(name)) return super.removeBranch(name);
 
     const children = this.branch(name)!;
     this.array[name[0]][name[1]] = undefined;
@@ -403,9 +393,7 @@ export class ArrayAtom extends Atom {
         gap = 0;
       }
 
-      if (this.jot !== undefined) {
-        depth += this.jot;
-      }
+      if (this.jot !== undefined) depth += this.jot;
 
       outrow.height = height;
       outrow.depth = depth;
@@ -427,9 +415,8 @@ export class ArrayAtom extends Atom {
         stack.push({ box: element, shift: row.pos - offset });
       }
 
-      if (stack.length > 0) {
+      if (stack.length > 0)
         contentCols.push(new VBox({ individualShift: stack }));
-      }
     }
 
     // Iterate over each column description.
@@ -509,11 +496,9 @@ export class ArrayAtom extends Atom {
         // );
         separator.setStyle('vertical-align', -(totalHeight - offset), 'em');
         let gap = 0;
-        if (previousColRule) {
-          gap = doubleRuleSep - arrayRuleWidth;
-        } else if (previousColContent) {
-          gap = arraycolsep - arrayRuleWidth;
-        }
+        if (previousColRule) gap = doubleRuleSep - arrayRuleWidth;
+        else if (previousColContent) gap = arraycolsep - arrayRuleWidth;
+
         separator.left = gap;
         cols.push(separator);
         previousColContent = false;
@@ -583,13 +568,11 @@ export class ArrayAtom extends Atom {
       result += '{';
       if (this.colFormat !== undefined) {
         for (const format of this.colFormat) {
-          if ('align' in format) {
-            result += format.align;
-          } else if ('separator' in format && format.separator === 'solid') {
+          if ('align' in format) result += format.align;
+          else if ('separator' in format && format.separator === 'solid')
             result += '|';
-          } else if ('separator' in format && format.separator === 'dashed') {
+          else if ('separator' in format && format.separator === 'dashed')
             result += ':';
-          }
         }
       }
 
@@ -606,9 +589,7 @@ export class ArrayAtom extends Atom {
       }
 
       // Adds a separator between rows (but not after the last row)
-      if (row < this.array.length - 1) {
-        result += ' \\\\ ';
-      }
+      if (row < this.array.length - 1) result += ' \\\\ ';
     }
 
     result += '\\end{' + this.environmentName + '}';
@@ -651,11 +632,9 @@ export class ArrayAtom extends Atom {
 
   get cells(): Atom[][] {
     const result: Atom[][] = [];
-    for (const row of this.array) {
-      for (const cell of row) {
-        if (cell) result.push(cell);
-      }
-    }
+    for (const row of this.array)
+      for (const cell of row) if (cell) result.push(cell);
+
     return result;
   }
 }

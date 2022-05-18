@@ -96,9 +96,7 @@ export class ModelPrivate implements Model {
       //
       const value = this.normalizeSelection(arg1, arg2);
 
-      if (value === undefined) {
-        throw new TypeError('Invalid selection');
-      }
+      if (value === undefined) throw new TypeError('Invalid selection');
 
       //
       // 2/ Short-circuit a common case...
@@ -118,11 +116,9 @@ export class ModelPrivate implements Model {
         // (smallest, largest offsets, oriented as per `direction`)
         //
         const selRange = range(value);
-        if (value.direction === 'backward') {
+        if (value.direction === 'backward')
           [this._position, this._anchor] = selRange;
-        } else {
-          [this._anchor, this._position] = selRange;
-        }
+        else [this._anchor, this._position] = selRange;
 
         const first = this.at(selRange[0]);
         const last = this.at(selRange[1]);
@@ -143,11 +139,9 @@ export class ModelPrivate implements Model {
             direction: value.direction,
           };
           // 3b.3/ Adjust the position to match the selection
-          if (value.direction === 'backward') {
+          if (value.direction === 'backward')
             this._position = this._selection.ranges[0][0];
-          } else {
-            this._position = this._selection.ranges[0][1];
-          }
+          else this._position = this._selection.ranges[0][1];
 
           console.assert(
             this._position >= 0 && this._position <= this.lastOffset
@@ -193,11 +187,9 @@ export class ModelPrivate implements Model {
 
   collapseSelection(direction: 'forward' | 'backward' = 'forward'): boolean {
     if (this._anchor === this._position) return false;
-    if (direction === 'backward') {
+    if (direction === 'backward')
       this.position = Math.min(this._anchor, this._position);
-    } else {
-      this.position = Math.max(this._anchor, this._position);
-    }
+    else this.position = Math.max(this._anchor, this._position);
 
     return true;
   }
@@ -271,9 +263,7 @@ export class ModelPrivate implements Model {
 
     if (!Number.isFinite(start)) return [];
 
-    if (options.includeChildren === undefined) {
-      options.includeChildren = false;
-    }
+    if (options.includeChildren === undefined) options.includeChildren = false;
 
     if (start < 0) start = this.lastOffset - start + 1;
     if (end < 0) end = this.lastOffset - end + 1;
@@ -289,9 +279,7 @@ export class ModelPrivate implements Model {
     let result: Atom[] = [];
     for (let i = first; i <= last; i++) {
       const atom = this.atoms[i];
-      if (atomIsInRange(this, atom, first, last)) {
-        result.push(atom);
-      }
+      if (atomIsInRange(this, atom, first, last)) result.push(atom);
     }
 
     if (!options.includeChildren) {
@@ -319,13 +307,9 @@ export class ModelPrivate implements Model {
   getAllAtoms(startingIndex: number): Atom[] {
     const result: Atom[] = [];
     const last = this.lastOffset;
-    for (let i = startingIndex; i <= last; i++) {
-      result.push(this.atoms[i]);
-    }
+    for (let i = startingIndex; i <= last; i++) result.push(this.atoms[i]);
 
-    for (let i = 0; i < startingIndex; i++) {
-      result.push(this.atoms[i]);
-    }
+    for (let i = 0; i < startingIndex; i++) result.push(this.atoms[i]);
 
     return result;
   }
@@ -473,14 +457,10 @@ export class ModelPrivate implements Model {
           // after
           while (!atom.captureSelection) atom = atom.parent!;
           pos = this.offsetOf(atom?.lastChild) + 1;
-        } else {
-          pos += 1;
-        }
+        } else pos += 1;
       } while (pos <= this.lastOffset && this.at(pos).isFirstSibling);
 
-      if (pos === anchor - 1 && this.at(anchor).type === 'first') {
-        pos = anchor;
-      }
+      if (pos === anchor - 1 && this.at(anchor).type === 'first') pos = anchor;
 
       return this.extendSelectionTo(anchor, pos);
     }
@@ -499,16 +479,12 @@ export class ModelPrivate implements Model {
         // before
         while (!atom.captureSelection) atom = atom.parent!;
         pos = this.offsetOf(atom.firstChild) - 1;
-      } else {
-        pos -= 1;
-      }
+      } else pos -= 1;
     }
 
     if (pos < 0) pos = 0;
 
-    if (pos === anchor + 1 && this.at(pos).type === 'first') {
-      anchor = pos;
-    }
+    if (pos === anchor + 1 && this.at(pos).type === 'first') anchor = pos;
 
     return this.extendSelectionTo(anchor, pos);
   }
@@ -631,32 +607,24 @@ export class ModelPrivate implements Model {
       oldAnchor !== this._anchor ||
       oldPosition !== this._position ||
       compareSelection(this._selection, oldSelection) === 'different'
-    ) {
+    )
       selectionChanged = true;
-    }
 
     this.suppressChangeNotifications = saved;
     if (!this.suppressChangeNotifications) {
       // Notify of content change, if requested
-      if (options.content && contentChanged) {
-        contentDidChange(this);
-      }
+      if (options.content && contentChanged) contentDidChange(this);
 
       // If the selection has effectively changed, notify
-      if (options.selection && selectionChanged) {
-        selectionDidChange(this);
-      }
+      if (options.selection && selectionChanged) selectionDidChange(this);
     }
 
     return contentChanged || selectionChanged;
   }
 
   normalizeOffset(value: Offset): Offset {
-    if (value > 0) {
-      value = Math.min(value, this.lastOffset);
-    } else if (value < 0) {
-      value = this.lastOffset + value + 1;
-    }
+    if (value > 0) value = Math.min(value, this.lastOffset);
+    else if (value < 0) value = this.lastOffset + value + 1;
 
     return value;
   }
@@ -692,9 +660,7 @@ export class ModelPrivate implements Model {
                 ranges: [[offset2, offset]],
                 direction: 'backward',
               };
-      } else {
-        result = { ranges: [[offset, offset]], direction: 'none' };
-      }
+      } else result = { ranges: [[offset, offset]], direction: 'none' };
     } else if (isRange(value)) {
       const start = this.normalizeOffset(value[0]);
       const end = this.normalizeOffset(value[1]);
@@ -720,18 +686,14 @@ function atomIsInRange(
   last: Offset
 ): boolean {
   const offset = model.offsetOf(atom);
-  if (offset < first || offset > last) {
-    return false;
-  }
+  if (offset < first || offset > last) return false;
 
   if (!atom.hasChildren) return true;
 
   const firstOffset = model.offsetOf(atom.firstChild);
   if (firstOffset >= first && firstOffset <= last) {
     const lastOffset = model.offsetOf(atom.lastChild);
-    if (lastOffset >= first && lastOffset <= last) {
-      return true;
-    }
+    if (lastOffset >= first && lastOffset <= last) return true;
   }
 
   return false;
@@ -746,9 +708,8 @@ function childrenInRange(
   const [start, end] = range;
   const first = model.offsetOf(atom.firstChild);
   const last = model.offsetOf(atom.lastChild);
-  if (first >= start && first <= end && last >= first && last <= end) {
+  if (first >= start && first <= end && last >= first && last <= end)
     return true;
-  }
 
   return false;
 }

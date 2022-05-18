@@ -52,28 +52,22 @@ export function attachButtonHandlers(
     ('default' in command || 'pressed' in command)
   ) {
     // Attach the default (no modifiers pressed) command to the element
-    if (command.default) {
+    if (command.default)
       element.dataset.command = JSON.stringify(command.default);
-    }
 
-    if (command.alt) {
-      element.dataset.commandAlt = JSON.stringify(command.alt);
-    }
+    if (command.alt) element.dataset.commandAlt = JSON.stringify(command.alt);
 
-    if (command.altshift) {
+    if (command.altshift)
       element.dataset.commandAltshift = JSON.stringify(command.altshift);
-    }
 
-    if (command.shift) {
+    if (command.shift)
       element.dataset.commandShift = JSON.stringify(command.shift);
-    }
 
     // .pressed: command to perform when the button is pressed (i.e.
     // on mouse down/touch). Otherwise the command is performed when
     // the button is released
-    if (command.pressed) {
+    if (command.pressed)
       element.dataset.commandPressed = JSON.stringify(command.pressed);
-    }
 
     if (command.pressAndHoldStart) {
       element.dataset.commandPressAndHoldStart = JSON.stringify(
@@ -106,9 +100,7 @@ export function attachButtonHandlers(
         // The primary button was pressed or the screen was tapped.
         ev.stopPropagation();
         // Can't preventDefault() in a passive listener
-        if (ev.type !== 'touchstart') {
-          ev.preventDefault();
-        }
+        if (ev.type !== 'touchstart') ev.preventDefault();
 
         // Safari on iOS will aggressively attempt to select when there is a long
         // press. Prevent userSelect for the entire document.
@@ -119,16 +111,12 @@ export function attachButtonHandlers(
         element.classList.add('is-pressed');
         pressHoldStart = Date.now();
         // Record the ID of the primary touch point for tracking on touchmove
-        if (ev.type === 'touchstart') {
-          touchID = ev.changedTouches[0].identifier;
-        }
+        if (ev.type === 'touchstart') touchID = ev.changedTouches[0].identifier;
 
         // Parse the JSON to get the command (and its optional arguments)
         // and perform it immediately
         const command = element.getAttribute('data-command-pressed');
-        if (command) {
-          executeCommand(JSON.parse(command));
-        }
+        if (command) executeCommand(JSON.parse(command));
 
         // If there is a `press and hold start` command, perform it
         // after a delay, if we're still pressed by then.
@@ -137,14 +125,11 @@ export function attachButtonHandlers(
         );
         if (pressAndHoldStartCommand) {
           pressHoldElement = element;
-          if (pressAndHoldTimer) {
-            clearTimeout(pressAndHoldTimer);
-          }
+          if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
 
           pressAndHoldTimer = setTimeout(() => {
-            if (element.classList.contains('is-pressed')) {
+            if (element.classList.contains('is-pressed'))
               executeCommand(JSON.parse(pressAndHoldStartCommand));
-            }
           }, 300);
         }
       }
@@ -190,9 +175,7 @@ export function attachButtonHandlers(
     }
   );
   on(element, 'mouseenter', (ev: MouseEvent & TouchEvent & PointerEvent) => {
-    if (ev.buttons === 1) {
-      element.classList.add('is-pressed');
-    }
+    if (ev.buttons === 1) element.classList.add('is-pressed');
   });
   on(
     element,
@@ -227,25 +210,19 @@ export function attachButtonHandlers(
       // If the button has not been pressed for very long or if we were
       // not the button that started the press and hold, don't consider
       // it a press-and-hold.
-      if (element !== pressHoldElement || now < pressHoldStart + 300) {
+      if (element !== pressHoldElement || now < pressHoldStart + 300)
         command = null;
-      }
 
-      if (!command && ev.altKey && ev.shiftKey) {
+      if (!command && ev.altKey && ev.shiftKey)
         command = element.getAttribute('data-command-altshift');
-      }
 
-      if (!command && ev.altKey) {
+      if (!command && ev.altKey)
         command = element.getAttribute('data-command-alt');
-      }
 
-      if (!command && ev.shiftKey) {
+      if (!command && ev.shiftKey)
         command = element.getAttribute('data-command-shift');
-      }
 
-      if (!command) {
-        command = element.getAttribute('data-command');
-      }
+      if (!command) command = element.getAttribute('data-command');
 
       if (command) {
         // Parse the JSON to get the command (and its optional arguments)

@@ -465,9 +465,7 @@ export function svgBodyToMarkup(svgBodyName: string): string {
 }
 
 export function svgBodyHeight(svgBodyName: string): number {
-  if (SVG_BODY[svgBodyName]) {
-    return SVG_BODY[svgBodyName][2] / 1000;
-  }
+  if (SVG_BODY[svgBodyName]) return SVG_BODY[svgBodyName][2] / 1000;
 
   return SVG_ACCENTS[svgBodyName][2];
 }

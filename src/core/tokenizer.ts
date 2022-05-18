@@ -173,9 +173,7 @@ class Tokenizer {
           }
         }
 
-        if (isParameter) {
-          return '#' + this.get();
-        }
+        if (isParameter) return '#' + this.get();
 
         return '#';
       }
@@ -201,7 +199,7 @@ function expand(
   lex: Tokenizer,
   args: null | ((arg: string) => string)
 ): Token[] {
-  let result: Token[] = [];
+  const result: Token[] = [];
   let token = lex.next();
   if (token) {
     if (token === '\\relax') {
@@ -209,12 +207,9 @@ function expand(
     } else if (token === '\\noexpand') {
       // Do not expand the next token
       token = lex.next();
-      if (token) {
-        result.push(token);
-      }
-    } else if (token === '\\obeyspaces') {
-      lex.obeyspaces = true;
-    } else if (token === '\\space' || token === '~') {
+      if (token) result.push(token);
+    } else if (token === '\\obeyspaces') lex.obeyspaces = true;
+    else if (token === '\\space' || token === '~') {
       // The `\space` command is equivalent to a single space
       // The ~ is an 'active character' (a single character macro)
       // that maps to <space>
@@ -229,23 +224,15 @@ function expand(
       // Turn the next token into a string
       token = lex.next();
       if (token) {
-        if (token.startsWith('\\')) {
-          for (const x of token) {
-            result.push(x === '\\' ? '\\backslash' : x);
-          }
-        } else if (token === '<{>') {
-          result.push('\\{');
-        } else if (token === '<space>') {
-          result.push('~');
-        } else if (token === '<}>') {
-          result.push('\\}');
-        }
+        if (token.startsWith('\\'))
+          for (const x of token) result.push(x === '\\' ? '\\backslash' : x);
+        else if (token === '<{>') result.push('\\{');
+        else if (token === '<space>') result.push('~');
+        else if (token === '<}>') result.push('\\}');
       }
     } else if (token === '\\csname') {
       // Turn the next tokens, until `\endcsname`, into a command
-      while (lex.peek() === '<space>') {
-        lex.next();
-      }
+      while (lex.peek() === '<space>') lex.next();
 
       let command = '';
       let done = false;
@@ -284,9 +271,7 @@ function expand(
               token.startsWith('\\'));
         }
 
-        if (!done) {
-          command += tokens.shift();
-        }
+        if (!done) command += tokens.shift();
       } while (!done);
 
       if (command) result.push('\\' + command);
@@ -300,9 +285,7 @@ function expand(
       result.push(
         ...tokenize(args?.(parameter) ?? args?.('?') ?? '\\placeholder{}', args)
       );
-    } else {
-      result.push(token);
-    }
+    } else result.push(token);
   }
 
   return result;
@@ -319,7 +302,7 @@ export function tokenize(
   args: null | ((arg: string) => string) = null
 ): Token[] {
   // Merge multiple lines into one, and remove comments
-  let stream: string[] = [];
+  const stream: string[] = [];
   let sep = '';
   for (const line of s.toString().split(/\r?\n/)) {
     if (sep) stream.push(sep);
@@ -331,17 +314,16 @@ export function tokenize(
   }
 
   const tokenizer = new Tokenizer(stream.join(''));
-  let result: Token[] = [];
-  do {
-    result.push(...expand(tokenizer, args));
-  } while (!tokenizer.end());
+  const result: Token[] = [];
+  do result.push(...expand(tokenizer, args));
+  while (!tokenizer.end());
 
   return result;
 }
 
 export function joinLatex(segments: string[]): string {
   let sep = '';
-  let result: string[] = [];
+  const result: string[] = [];
   for (const segment of segments) {
     if (segment) {
       // If the segment begins with a char that *could* be in a command

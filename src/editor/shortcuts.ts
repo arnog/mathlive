@@ -15,9 +15,8 @@ export function countInlineShortcutsStartingWith(
 ): number {
   let count = 0;
 
-  for (const key of Object.keys(config.inlineShortcuts)) {
+  for (const key of Object.keys(config.inlineShortcuts))
     if (key.startsWith(s)) count += 1;
-  }
 
   return count;
 }
@@ -62,9 +61,8 @@ function validateShortcut(
 
   nothing = !sibling || sibling.type === 'first'; // Start of a group
   if (sibling) {
-    if (shortcut.mode !== undefined && sibling.mode !== shortcut.mode) {
+    if (shortcut.mode !== undefined && sibling.mode !== shortcut.mode)
       return '';
-    }
 
     text = sibling.mode === 'text';
     letter = !text && sibling.type === 'mord' && LETTER.test(sibling.value);
@@ -100,9 +98,8 @@ function validateShortcut(
       (shortcut.after.includes('closefence') && closefence) ||
       (shortcut.after.includes('text') && text) ||
       (shortcut.after.includes('space') && space)
-    ) {
+    )
       return shortcut.value;
-    }
 
     return '';
   }

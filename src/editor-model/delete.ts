@@ -129,9 +129,8 @@ function onDelete(
     ) {
       // Before fwd or body 1st bwd: Demote body
       const pos = atom.leftSibling;
-      if (atom.hasChildren) {
+      if (atom.hasChildren)
         parent.addChildrenAfter(atom.removeBranch('body'), atom);
-      }
 
       parent.removeChild(atom);
       model.position = model.offsetOf(pos);
@@ -140,16 +139,13 @@ function onDelete(
       model.position = model.offsetOf(atom);
     } else if (!branch && direction === 'backward') {
       // After bwd: move to last of body
-      if (atom.hasChildren) {
-        model.position = model.offsetOf(atom.lastChild);
-      } else {
+      if (atom.hasChildren) model.position = model.offsetOf(atom.lastChild);
+      else {
         model.position = Math.max(model.offsetOf(atom) - 1);
         parent.removeChild(atom);
       }
     } else if (branch === 'above') {
-      if (atom.hasEmptyBranch('above')) {
-        atom.removeBranch('above');
-      }
+      if (atom.hasEmptyBranch('above')) atom.removeBranch('above');
 
       if (direction === 'backward') {
         // Above 1st
@@ -245,9 +241,7 @@ function onDelete(
       return false;
     }
 
-    if (branch && atom.hasEmptyBranch(branch)) {
-      atom.removeBranch(branch);
-    }
+    if (branch && atom.hasEmptyBranch(branch)) atom.removeBranch(branch);
 
     if (!atom.hasChildren) {
       // We've removed the last branch of a msubsup
@@ -265,11 +259,9 @@ function onDelete(
         const pos = model.offsetOf(atom.firstChild) - 1;
         console.assert(pos >= 0);
         model.position = pos;
-      } else if (atom.subscript) {
+      } else if (atom.subscript)
         model.position = model.offsetOf(atom.subscript[0]);
-      } else {
-        model.position = model.offsetOf(atom);
-      }
+      else model.position = model.offsetOf(atom);
     } else if (branch === 'subscript') {
       if (direction === 'backward' && atom.superscript) {
         // Subscript first: move to superscript end
@@ -293,9 +285,8 @@ function onDelete(
  * Delete the item at the current position
  */
 export function deleteBackward(model: ModelPrivate): boolean {
-  if (!model.selectionIsCollapsed) {
+  if (!model.selectionIsCollapsed)
     return deleteRange(model, range(model.selection));
-  }
 
   return model.deferNotifications({ content: true, selection: true }, () => {
     let target: Atom | null = model.at(model.position);
@@ -303,9 +294,8 @@ export function deleteBackward(model: ModelPrivate): boolean {
     if (target && onDelete(model, 'backward', target)) return;
 
     if (target?.isFirstSibling) {
-      if (onDelete(model, 'backward', target.parent!, target.treeBranch)) {
+      if (onDelete(model, 'backward', target.parent!, target.treeBranch))
         return;
-      }
 
       target = null;
     }
@@ -328,9 +318,8 @@ export function deleteBackward(model: ModelPrivate): boolean {
  * send notifications
  */
 export function deleteForward(model: ModelPrivate): boolean {
-  if (!model.selectionIsCollapsed) {
+  if (!model.selectionIsCollapsed)
     return deleteRange(model, range(model.selection));
-  }
 
   return model.deferNotifications({ content: true, selection: true }, () => {
     let target: Atom | null = model.at(model.position).rightSibling;
@@ -342,17 +331,15 @@ export function deleteForward(model: ModelPrivate): boolean {
       if (
         target.isLastSibling &&
         onDelete(model, 'forward', target.parent!, target.treeBranch)
-      ) {
+      )
         return;
-      }
 
       target = null;
     } else if (
       model.at(model.position).isLastSibling &&
       onDelete(model, 'forward', target.parent!, target.treeBranch)
-    ) {
+    )
       return;
-    }
 
     if (model.position === model.lastOffset || !target) {
       model.announce('plonk');
@@ -380,7 +367,7 @@ export function deleteForward(model: ModelPrivate): boolean {
  */
 
 export function deleteRange(model: ModelPrivate, range: Range): boolean {
-  let result = model.getAtoms(range);
+  const result = model.getAtoms(range);
   if (result.length > 0 && result[0].parent) {
     let firstChild = result[0].parent!.firstChild;
     if (firstChild.type === 'first') firstChild = firstChild.rightSibling;

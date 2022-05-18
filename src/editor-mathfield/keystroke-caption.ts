@@ -33,22 +33,18 @@ export function showKeystroke(
   );
   vb.style.visibility = 'visible';
   setTimeout(() => {
-    if (vb.childNodes.length > 0) {
+    if (vb.childNodes.length > 0)
       vb.childNodes[vb.childNodes.length - 1].remove();
-    }
 
-    if (vb.childNodes.length === 0) {
-      vb.style.visibility = 'hidden';
-    }
+    if (vb.childNodes.length === 0) vb.style.visibility = 'hidden';
   }, 3000);
 }
 
 export function toggleKeystrokeCaption(mathfield: MathfieldPrivate): boolean {
   mathfield.keystrokeCaptionVisible = !mathfield.keystrokeCaptionVisible;
   if (!mathfield.keystrokeCaptionVisible) {
-    if (mathfield.keystrokeCaption) {
+    if (mathfield.keystrokeCaption)
       mathfield.keystrokeCaption.style.visibility = 'hidden';
-    }
   } else {
     mathfield.keystrokeCaption = createKeystrokeCaption(mathfield);
     mathfield.keystrokeCaption.innerHTML = '';

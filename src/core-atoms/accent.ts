@@ -15,11 +15,8 @@ export class AccentAtom extends Atom {
     options: { accentChar?: number; svgAccent?: string; style: Style }
   ) {
     super('accent', { command, style: options.style });
-    if (options.accentChar) {
-      this.accent = options.accentChar;
-    } else {
-      this.svgAccent = options?.svgAccent;
-    }
+    if (options.accentChar) this.accent = options.accentChar;
+    else this.svgAccent = options?.svgAccent;
 
     this.body = body;
     this.skipBoundary = true;
@@ -67,9 +64,8 @@ export class AccentAtom extends Atom {
       !this.hasEmptyBranch('body') &&
       this.body!.length === 2 &&
       this.body![1].isCharacterBox()
-    ) {
+    )
       skew = base.skew;
-    }
 
     //
     // 3. Calculate the amount of space between the base and the accent

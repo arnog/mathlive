@@ -11,11 +11,8 @@ declare global {
 
 function removeHighlight(element: Element): void {
   element.classList.remove('ML__highlight');
-  if (element.children) {
-    for (const child of element.children) {
-      removeHighlight(child);
-    }
-  }
+  if (element.children)
+    for (const child of element.children) removeHighlight(child);
 }
 
 /**
@@ -32,18 +29,14 @@ function highlightAtomID(element: HTMLElement, atomID?: string): void {
     element.classList.add('ML__highlight');
     if (element.children && element.children.length > 0) {
       [...element.children].forEach((x) => {
-        if (x instanceof HTMLElement) {
-          highlightAtomID(x);
-        }
+        if (x instanceof HTMLElement) highlightAtomID(x);
       });
     }
   } else {
     element.classList.remove('ML__highlight');
     if (element.children && element.children.length > 0) {
       [...element.children].forEach((x) => {
-        if (x instanceof HTMLElement) {
-          highlightAtomID(x, atomID);
-        }
+        if (x instanceof HTMLElement) highlightAtomID(x, atomID);
       });
     }
   }
@@ -63,9 +56,7 @@ export function defaultReadAloudHook(
 ): void {
   if (!isBrowser()) return;
 
-  if (!config && window.mathlive) {
-    config = window.mathlive.config;
-  }
+  if (!config && window.mathlive) config = window.mathlive.config;
 
   if (config.speechEngine !== 'amazon') {
     console.warn('Use Amazon TTS Engine for synchronized highlighting');
@@ -116,11 +107,8 @@ export function defaultReadAloudHook(
       .split('\n')
       .map((x) => (x ? JSON.parse(x) : {}));
     window.mathlive.readAloudTokens = [];
-    for (const mark of window.mathlive.readAloudMarks) {
-      if (mark.value) {
-        window.mathlive.readAloudTokens.push(mark.value);
-      }
-    }
+    for (const mark of window.mathlive.readAloudMarks)
+      if (mark.value) window.mathlive.readAloudTokens.push(mark.value);
 
     window.mathlive.readAloudCurrentMark = '';
 
@@ -139,9 +127,7 @@ export function defaultReadAloudHook(
         return;
       }
 
-      if (!data || !data.AudioStream) {
-        return;
-      }
+      if (!data || !data.AudioStream) return;
 
       const uInt8Array = new Uint8Array(data.AudioStream);
       const blob = new Blob([uInt8Array.buffer], {
@@ -153,9 +139,7 @@ export function defaultReadAloudHook(
         window.mathlive.readAloudAudio = new Audio();
         window.mathlive.readAloudAudio.addEventListener('ended', () => {
           const mathfield = window.mathlive.readAloudMathField;
-          if (statusHook) {
-            statusHook(mathfield, 'ended');
-          }
+          if (statusHook) statusHook(mathfield, 'ended');
 
           if (mathfield) {
             render(mathfield);
@@ -164,9 +148,7 @@ export function defaultReadAloudHook(
             window.mathlive.readAloudTokens = [];
             window.mathlive.readAloudMarks = [];
             window.mathlive.readAloudCurrentMark = '';
-          } else {
-            removeHighlight(window.mathlive.readAloudElement);
-          }
+          } else removeHighlight(window.mathlive.readAloudElement);
         });
         window.mathlive.readAloudAudio.addEventListener('timeupdate', () => {
           let value = '';
@@ -177,17 +159,14 @@ export function defaultReadAloudHook(
             window.mathlive.readAloudAudio.currentTime * 1000 + 100;
 
           // Find the smallest element which is bigger than the target time
-          for (const mark of window.mathlive.readAloudMarks) {
-            if (mark.time < target) {
-              value = mark.value;
-            }
-          }
+          for (const mark of window.mathlive.readAloudMarks)
+            if (mark.time < target) value = mark.value;
 
           if (window.mathlive.readAloudCurrentMark !== value) {
             window.mathlive.readAloudCurrentToken = value;
-            if (value && value === window.mathlive.readAloudFinalToken) {
+            if (value && value === window.mathlive.readAloudFinalToken)
               window.mathlive.readAloudAudio.pause();
-            } else {
+            else {
               window.mathlive.readAloudCurrentMark = value;
               highlightAtomID(
                 window.mathlive.readAloudElement,
@@ -196,14 +175,10 @@ export function defaultReadAloudHook(
             }
           }
         });
-      } else {
-        window.mathlive.readAloudAudio.pause();
-      }
+      } else window.mathlive.readAloudAudio.pause();
 
       window.mathlive.readAloudAudio.src = url;
-      if (statusHook) {
-        statusHook(window.mathlive.readAloudMathField, 'playing');
-      }
+      if (statusHook) statusHook(window.mathlive.readAloudMathField, 'playing');
 
       window.mathlive.readAloudAudio.play();
     });
@@ -293,18 +268,14 @@ export function playReadAloud(token: string, count: number): void {
     window.mathlive.readAloudFinalToken = null;
     if (token) {
       window.mathlive.readAloudMarks = window.mathlive.readAloudMarks || [];
-      for (const mark of window.mathlive.readAloudMarks) {
-        if (mark.value === token) {
-          timeIndex = mark.time / 1000;
-        }
-      }
+      for (const mark of window.mathlive.readAloudMarks)
+        if (mark.value === token) timeIndex = mark.time / 1000;
 
       let tokenIndex = window.mathlive.readAloudTokens.indexOf(token);
       if (tokenIndex >= 0) {
         tokenIndex += count;
-        if (tokenIndex < window.mathlive.readAloudTokens.length) {
+        if (tokenIndex < window.mathlive.readAloudTokens.length)
           window.mathlive.readAloudFinalToken = tokenIndex;
-        }
       }
     }
 

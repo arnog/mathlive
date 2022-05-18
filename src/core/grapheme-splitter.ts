@@ -48,11 +48,8 @@ const REGIONAL_INDICATOR = [0x1f1e6, 0x1f1ff];
 function isEmojiCombinator(code: number): boolean {
   if (emojiCombinator === undefined) {
     emojiCombinator = {};
-    for (const x of EMOJI_COMBINATOR) {
-      for (let i = x[0]; i <= x[0] + x[1] - 1; i++) {
-        emojiCombinator[i] = true;
-      }
-    }
+    for (const x of EMOJI_COMBINATOR)
+      for (let i = x[0]; i <= x[0] + x[1] - 1; i++) emojiCombinator[i] = true;
   }
 
   return emojiCombinator[code] ?? false;
@@ -93,9 +90,7 @@ export function splitGraphemes(string: string): string | string[] {
       // ZWJ_SEQUENCE := (CHAR + ZWJ)+
       const baseIndex = index - 1;
       index += 2;
-      while (codePoints[index] === ZWJ) {
-        index += 2;
-      }
+      while (codePoints[index] === ZWJ) index += 2;
 
       result.push(
         String.fromCodePoint(
@@ -106,9 +101,8 @@ export function splitGraphemes(string: string): string | string[] {
       // Combine emoji sequences
       // See http://unicode.org/reports/tr51/#def_emoji_tag_sequence
       const baseIndex = index - 1; // The previous character is the 'base'
-      while (isEmojiCombinator(codePoints[index])) {
+      while (isEmojiCombinator(codePoints[index]))
         index += codePoints[index] === ZWJ ? 2 : 1;
-      }
 
       result.push(
         String.fromCodePoint(
@@ -120,9 +114,7 @@ export function splitGraphemes(string: string): string | string[] {
       // "regional indicators" codepoints.
       index += 1;
       result.push(String.fromCodePoint(...codePoints.slice(index - 2, 2)));
-    } else {
-      result.push(String.fromCodePoint(code));
-    }
+    } else result.push(String.fromCodePoint(code));
   }
 
   return result;

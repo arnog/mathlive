@@ -59,11 +59,9 @@ export function switchKeyboardLayer(
     // If we didn't find it, do nothing and keep the current layer
     if (found) {
       for (const layer_ of layers) {
-        if ((layer_ as HTMLElement).dataset.layer === layer) {
+        if ((layer_ as HTMLElement).dataset.layer === layer)
           layer_.classList.add('is-visible');
-        } else {
-          layer_.classList.remove('is-visible');
-        }
+        else layer_.classList.remove('is-visible');
       }
     }
 
@@ -86,22 +84,18 @@ export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
       let shiftedContent = keycap.getAttribute('data-shifted');
       if (shiftedContent || /^[a-z]$/.test(keycap.innerHTML)) {
         keycap.dataset.unshiftedContent = keycap.innerHTML;
-        if (!shiftedContent) {
-          shiftedContent = keycap.innerHTML.toUpperCase();
-        }
+        if (!shiftedContent) shiftedContent = keycap.innerHTML.toUpperCase();
 
         keycap.innerHTML = keyboard.options.createHTML(shiftedContent);
         const command = keycap.getAttribute('data-command');
         if (command) {
           keycap.dataset.unshiftedCommand = command;
           const shifteCommand = keycap.getAttribute('data-shifted-command');
-          if (shifteCommand) {
-            keycap.dataset.command = shifteCommand;
-          } else {
+          if (shifteCommand) keycap.dataset.command = shifteCommand;
+          else {
             const commandObject = JSON.parse(command);
-            if (isArray(commandObject)) {
+            if (isArray(commandObject))
               commandObject[1] = commandObject[1].toUpperCase();
-            }
 
             keycap.dataset.command = JSON.stringify(commandObject);
           }
@@ -182,14 +176,10 @@ export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
   }[keyboard.options.virtualKeyboardLayout];
   const layer =
     keyboard?.element!.querySelector('div.keyboard-layer.is-visible')?.id ?? '';
-  if (keyboard) {
-    keyboard.disable();
-  }
+  if (keyboard) keyboard.disable();
 
   showVirtualKeyboard(keyboard);
-  if (layer) {
-    switchKeyboardLayer(keyboard, layer);
-  }
+  if (layer) switchKeyboardLayer(keyboard, layer);
 
   return false;
 }
@@ -228,9 +218,8 @@ function toggleVirtualKeyboard(
   keyboard.visible = !keyboard.visible;
   if (keyboard.visible) {
     keyboard.focusMathfield();
-    if (keyboard.element) {
-      keyboard.element.classList.add('is-visible');
-    } else {
+    if (keyboard.element) keyboard.element.classList.add('is-visible');
+    else {
       // Construct the virtual keyboard
       keyboard.element = makeKeyboardElement(keyboard, theme ?? '');
       // Let's make sure that tapping on the keyboard focuses the field

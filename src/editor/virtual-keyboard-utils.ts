@@ -76,12 +76,11 @@ export function showAlternateKeys(
   let markup = '';
   for (const altKey of altKeys) {
     markup += '<li';
-    if (typeof altKey === 'string') {
+    if (typeof altKey === 'string')
       markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
-    } else {
-      if (altKey.latex) {
+    else {
+      if (altKey.latex)
         markup += ' data-latex="' + altKey.latex.replace(/"/g, '&quot;') + '"';
-      }
 
       if (altKey.content) {
         markup +=
@@ -94,9 +93,9 @@ export function showAlternateKeys(
       }
 
       if (altKey.command) {
-        if (typeof altKey.command === 'string') {
+        if (typeof altKey.command === 'string')
           markup += ` data-command="${altKey.command.replace(/"/g, '&quot;')}"`;
-        } else {
+        else {
           markup +=
             " data-command='" +
             JSON.stringify(altKey.command).replace(/"/g, '&quot;') +
@@ -104,13 +103,10 @@ export function showAlternateKeys(
         }
       }
 
-      if (altKey.aside) {
+      if (altKey.aside)
         markup += ` data-aside="${altKey.aside.replace(/"/g, '&quot;')}"`;
-      }
 
-      if (altKey.class) {
-        markup += ` data-classes="${altKey.class}"`;
-      }
+      if (altKey.class) markup += ` data-classes="${altKey.class}"`;
     }
 
     markup += '>';
@@ -153,15 +149,12 @@ export function showAlternateKeys(
     if (position.top - altContainer.clientHeight < 0) {
       // AltContainer.style.maxWidth = '320px';  // Up to six columns
       altContainer.style.width = 'auto';
-      if (altKeys.length <= 6) {
-        altContainer.style.height = '56px'; // 1 row
-      } else if (altKeys.length <= 12) {
+      if (altKeys.length <= 6) altContainer.style.height = '56px'; // 1 row
+      else if (altKeys.length <= 12)
         altContainer.style.height = '108px'; // 2 rows
-      } else if (altKeys.length <= 18) {
+      else if (altKeys.length <= 18)
         altContainer.style.height = '205px'; // 3 rows
-      } else {
-        altContainer.classList.add('compact');
-      }
+      else altContainer.classList.add('compact');
     }
 
     const top =
@@ -243,9 +236,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   handleEvent(evt: Event): void {
-    if (!this.element) {
-      return;
-    }
+    if (!this.element) return;
 
     switch (evt.type) {
       case 'mouseup':
@@ -287,17 +278,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     if (isArray(command)) {
       selector = command[0];
       args = command.slice(1);
-    } else {
-      selector = command;
-    }
+    } else selector = command;
 
     // Convert kebab case (like-this) to camel case (likeThis).
     selector = selector.replace(/-\w/g, (m) =>
       m[1].toUpperCase()
     ) as SelectorPrivate;
-    if (COMMANDS[selector]?.target === 'virtual-keyboard') {
+    if (COMMANDS[selector]?.target === 'virtual-keyboard')
       return COMMANDS[selector]!.fn(this, ...args);
-    }
 
     return (
       this._mathfield?.executeCommand(
@@ -1314,13 +1302,9 @@ function makeKeyboardToolbar(
       }
 
       result += "<div class='";
-      if (keyboard === currentKeyboard) {
-        result += 'selected ';
-      } else if (keyboards[keyboard].command) {
-        result += 'action ';
-      } else {
-        result += 'layer-switch ';
-      }
+      if (keyboard === currentKeyboard) result += 'selected ';
+      else if (keyboards[keyboard].command) result += 'action ';
+      else result += 'layer-switch ';
 
       result += (keyboards[keyboard].classes ?? '') + "'";
 
@@ -1332,17 +1316,16 @@ function makeKeyboardToolbar(
       }
 
       if (keyboard !== currentKeyboard) {
-        if (typeof keyboards[keyboard].command === 'string') {
+        if (typeof keyboards[keyboard].command === 'string')
           result += `data-command='"${keyboards[keyboard].command as string}"'`;
-        } else if (Array.isArray(keyboards[keyboard].command)) {
+        else if (Array.isArray(keyboards[keyboard].command)) {
           result += `data-command='"${(
             keyboards[keyboard].command as string[]
           ).join('')}"'`;
         }
 
-        if (keyboards[keyboard].layer) {
+        if (keyboards[keyboard].layer)
           result += "data-layer='" + keyboards[keyboard].layer + "'";
-        }
       }
 
       result += '>' + keyboards[keyboard].label + '</div>';
@@ -1414,9 +1397,8 @@ export function makeKeycap(
         element.getAttribute('data-insert')!.replace(/&quot;/g, '"'),
         () => '\\placeholder{}'
       );
-    } else if (element.getAttribute('data-content')) {
+    } else if (element.getAttribute('data-content'))
       html = element.getAttribute('data-content')!.replace(/&quot;/g, '"');
-    }
 
     if (element.getAttribute('data-aside')) {
       html =
@@ -1426,13 +1408,11 @@ export function makeKeycap(
         '</aside>';
     }
 
-    if (html !== undefined) {
+    if (html !== undefined)
       element.innerHTML = keyboard.options.createHTML(html);
-    }
 
-    if (element.getAttribute('data-classes')) {
+    if (element.getAttribute('data-classes'))
       element.classList.add(element.getAttribute('data-classes')!);
-    }
 
     const key = element.getAttribute('data-insert')?.replace(/&quot;/g, '"');
     if (key && SHIFTED_KEYS[key]) {
@@ -1445,9 +1425,9 @@ export function makeKeycap(
 
     // Commands
     let selector: SelectorPrivate | [SelectorPrivate, ...any[]];
-    if (element.getAttribute('data-command')) {
+    if (element.getAttribute('data-command'))
       selector = JSON.parse(element.getAttribute('data-command')!);
-    } else if (element.getAttribute('data-insert')) {
+    else if (element.getAttribute('data-insert')) {
       selector = [
         'insert',
         element.getAttribute('data-insert')!,
@@ -1481,9 +1461,7 @@ export function makeKeycap(
       ];
     }
 
-    if (chainedCommand) {
-      selector = [chainedCommand, selector];
-    }
+    if (chainedCommand) selector = [chainedCommand, selector];
 
     let handlers: ButtonHandlers = selector;
     const altKeysetId = element.getAttribute('data-alt-keys');
@@ -1571,9 +1549,7 @@ function expandLayerMarkup(
   let layoutName = options.virtualKeyboardLayout;
   if (layoutName === 'auto') {
     const activeLayout = getActiveKeyboardLayout();
-    if (activeLayout) {
-      layoutName = activeLayout.virtualLayout;
-    }
+    if (activeLayout) layoutName = activeLayout.virtualLayout;
 
     if (!layoutName || layoutName === 'auto') {
       layoutName =
@@ -1623,17 +1599,14 @@ function expandLayerMarkup(
     if (attributesArray) {
       for (const attribute of attributesArray) {
         const m2 = attribute.match(/([a-zA-Z][a-zA-Z\d-]*)=(['"])(.*?)\2/);
-        if (m2) {
-          attributes[m2[1]] = m2[3];
-        }
+        if (m2) attributes[m2[1]] = m2[3];
       }
     }
 
     let keys = layout[attributes.name] as string;
     if (!keys) keys = ROWS.qwerty[attributes.name];
-    if (!keys) {
-      console.warn('Unknown roman keyboard row:', attributes.name);
-    } else {
+    if (!keys) console.warn('Unknown roman keyboard row:', attributes.name);
+    else {
       for (const c of keys) {
         let cls: string = attributes.class ?? '';
         if (cls) cls = ` ${cls}`;
@@ -1674,10 +1647,10 @@ function expandLayerMarkup(
         } else if (c === '.') {
           row +=
             "<li class='keycap" +
-              cls +
-              "' data-alt-keys='.' data-command='\"insertDecimalSeparator\"'>" +
-              options['decimalSeparator'] ?? '.';
-          ('</li>');
+            cls +
+            "' data-alt-keys='.' data-command='\"insertDecimalSeparator\"'>" +
+            (options['decimalSeparator'] ?? '.') +
+            '</li>';
         } else if (cls.includes('tt')) {
           row +=
             `<li class='keycap${cls}' data-alt-keys='${c}' ` +
@@ -1792,9 +1765,8 @@ export function makeKeyboardElement(
   }
 
   ALT_KEYS = { ...ALT_KEYS_BASE };
-  for (const key of Object.keys(ALT_KEYS)) {
+  for (const key of Object.keys(ALT_KEYS))
     ALT_KEYS[key] = ALT_KEYS[key].slice();
-  }
 
   const UPPER_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
@@ -1897,9 +1869,7 @@ export function makeKeyboardElement(
   }
 
   let keyboardIDs = keyboard.options.virtualKeyboards;
-  if (!keyboardIDs) {
-    keyboardIDs = 'all';
-  }
+  if (!keyboardIDs) keyboardIDs = 'all';
 
   keyboardIDs = keyboardIDs.replace(
     /\ball\b/i,
@@ -1925,9 +1895,8 @@ export function makeKeyboardElement(
     // Add the default layer to the list of layers,
     // and make sure the list of layers is uniquified.
     let keyboardLayers = keyboards[keyboardName].layers ?? [];
-    if (keyboards[keyboardName].layer) {
+    if (keyboards[keyboardName].layer)
       keyboardLayers.push(keyboards[keyboardName].layer!);
-    }
 
     keyboardLayers = [...new Set(keyboardLayers)];
 
@@ -1942,17 +1911,11 @@ export function makeKeyboardElement(
         // Process JSON layer to web element based layer.
 
         let layerMarkup = '';
-        if (layer.styles) {
-          layerMarkup += `<style>${layer.styles}</style>`;
-        }
+        if (layer.styles) layerMarkup += `<style>${layer.styles}</style>`;
 
-        if (layer.backdrop) {
-          layerMarkup += `<div class='${layer.backdrop}'>`;
-        }
+        if (layer.backdrop) layerMarkup += `<div class='${layer.backdrop}'>`;
 
-        if (layer.container) {
-          layerMarkup += `<div class='${layer.container}'>`;
-        }
+        if (layer.container) layerMarkup += `<div class='${layer.container}'>`;
 
         if (layer.rows) {
           layerMarkup += `<div class='rows'>`;
@@ -1962,41 +1925,32 @@ export function makeKeyboardElement(
               layerMarkup += `<li`;
               if (keycap.class) {
                 let cls = keycap.class;
-                if (keycap.layer && !/layer-switch/.test(cls)) {
+                if (keycap.layer && !/layer-switch/.test(cls))
                   cls += ' layer-switch';
-                }
+
                 if (!/separator/.test(cls)) cls += ' keycap';
 
                 layerMarkup += ` class="${cls}"`;
-              } else {
-                layerMarkup += ` class="keycap"`;
-              }
+              } else layerMarkup += ` class="keycap"`;
 
-              if (keycap.key) {
-                layerMarkup += ` data-key="${keycap.key}"`;
-              }
+              if (keycap.key) layerMarkup += ` data-key="${keycap.key}"`;
 
               if (keycap.command) {
-                if (typeof keycap.command === 'string') {
+                if (typeof keycap.command === 'string')
                   layerMarkup += ` data-command='"${keycap.command}"'`;
-                } else {
+                else {
                   layerMarkup += ` data-command='`;
                   layerMarkup += JSON.stringify(keycap.command);
                   layerMarkup += `'`;
                 }
               }
 
-              if (keycap.insert) {
+              if (keycap.insert)
                 layerMarkup += ` data-insert="${keycap.insert}"`;
-              }
 
-              if (keycap.latex) {
-                layerMarkup += ` data-latex="${keycap.latex}"`;
-              }
+              if (keycap.latex) layerMarkup += ` data-latex="${keycap.latex}"`;
 
-              if (keycap.aside) {
-                layerMarkup += ` data-aside="${keycap.aside}"`;
-              }
+              if (keycap.aside) layerMarkup += ` data-aside="${keycap.aside}"`;
 
               if (keycap.variants) {
                 const keysetId =
@@ -2007,17 +1961,13 @@ export function makeKeyboardElement(
                 layerMarkup += ` data-alt-keys="${keysetId}"`;
               }
 
-              if (keycap.shifted) {
+              if (keycap.shifted)
                 layerMarkup += ` data-shifted="${keycap.shifted}"`;
-              }
 
-              if (keycap.shiftedCommand) {
+              if (keycap.shiftedCommand)
                 layerMarkup += ` data-shifted-command="${keycap.shiftedCommand}"`;
-              }
 
-              if (keycap.layer) {
-                layerMarkup += ` data-layer="${keycap.layer}"`;
-              }
+              if (keycap.layer) layerMarkup += ` data-layer="${keycap.layer}"`;
 
               layerMarkup += `>${keycap.label ? keycap.label : ''}</li>`;
             }
@@ -2028,13 +1978,9 @@ export function makeKeyboardElement(
           layerMarkup += `</div>`;
         }
 
-        if (layer.container) {
-          layerMarkup += '</div>';
-        }
+        if (layer.container) layerMarkup += '</div>';
 
-        if (layer.backdrop) {
-          layerMarkup += '</div>';
-        }
+        if (layer.backdrop) layerMarkup += '</div>';
 
         layers[layerName] = layerMarkup;
       }
@@ -2056,11 +2002,9 @@ export function makeKeyboardElement(
 
   const result = document.createElement('div');
   result.className = 'ML__keyboard';
-  if (theme) {
-    result.classList.add(theme);
-  } else if (keyboard.options.virtualKeyboardTheme) {
+  if (theme) result.classList.add(theme);
+  else if (keyboard.options.virtualKeyboardTheme)
     result.classList.add(keyboard.options.virtualKeyboardTheme);
-  }
 
   // We have a separate 'plate' element to support positioning the keyboard
   // inside custom `virtualKeyboardContainer`
@@ -2179,19 +2123,13 @@ export function onUndoStateChanged(
   const redoButton = toolbar.querySelector('[data-command=\'"redo"\']');
 
   if (redoButton) {
-    if (canRedoState) {
-      redoButton.classList.remove('disabled');
-    } else {
-      redoButton.classList.add('disabled');
-    }
+    if (canRedoState) redoButton.classList.remove('disabled');
+    else redoButton.classList.add('disabled');
   }
 
   if (undoButton) {
-    if (canUndoState) {
-      undoButton.classList.remove('disabled');
-    } else {
-      undoButton.classList.add('disabled');
-    }
+    if (canUndoState) undoButton.classList.remove('disabled');
+    else undoButton.classList.add('disabled');
   }
 
   return false;

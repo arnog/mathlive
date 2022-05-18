@@ -50,9 +50,7 @@ export class Scrim {
     if (this.translucent) {
       element.style.background = 'rgba(255, 255, 255, .2)';
       element.style['backdropFilter' as any] = 'contrast(40%)';
-    } else {
-      element.style.background = 'transparent';
-    }
+    } else element.style.background = 'transparent';
 
     this._element = element;
     return element;
@@ -87,9 +85,7 @@ export class Scrim {
 
     document.body.style.marginRight = `${marginRight + scrollbarWidth}px`;
 
-    if (options?.child) {
-      element.append(options.child);
-    }
+    if (options?.child) element.append(options.child);
 
     this.state = 'open';
   }
@@ -114,9 +110,8 @@ export class Scrim {
     // Restore the previously focused element
     if (
       document.activeElement !== (this.savedActiveElement as unknown as Element)
-    ) {
+    )
       this.savedActiveElement?.focus?.();
-    }
 
     // Remove all children
     element.innerHTML = '';
@@ -144,9 +139,7 @@ export class Scrim {
 
 function deepActiveElement(): HTMLOrSVGElement | null {
   let a = document.activeElement;
-  while (a?.shadowRoot?.activeElement) {
-    a = a.shadowRoot.activeElement;
-  }
+  while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
 
   return a as unknown as HTMLOrSVGElement;
 }

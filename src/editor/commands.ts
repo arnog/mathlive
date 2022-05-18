@@ -71,9 +71,7 @@ export function perform(
   mathfield: MathfieldPrivate,
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
 ): boolean {
-  if (!command) {
-    return false;
-  }
+  if (!command) return false;
 
   let selector: SelectorPrivate;
   let args: string[] = [];
@@ -83,9 +81,7 @@ export function perform(
   if (isArray(command)) {
     selector = command[0];
     args = command.slice(1);
-  } else {
-    selector = command;
-  }
+  } else selector = command;
 
   // Convert kebab case (like-this) to camel case (likeThis).
   selector = selector.replace(/-\w/g, (m) =>
@@ -115,9 +111,8 @@ export function perform(
     if (
       /^(delete|transpose|add)/.test(selector) &&
       selector !== 'deleteBackward'
-    ) {
+    )
       mathfield.resetKeystrokeBuffer();
-    }
 
     if (
       /^(delete|transpose|add)/.test(selector) &&
@@ -129,16 +124,10 @@ export function perform(
     }
 
     COMMANDS[selector]!.fn(mathfield.model, ...args);
-    if (
-      /^(delete|transpose|add)/.test(selector) &&
-      mathfield.mode !== 'latex'
-    ) {
+    if (/^(delete|transpose|add)/.test(selector) && mathfield.mode !== 'latex')
       mathfield.snapshot();
-    }
 
-    if (mathfield.mode === 'latex') {
-      updateAutocomplete(mathfield);
-    }
+    if (mathfield.mode === 'latex') updateAutocomplete(mathfield);
 
     dirty = true;
     handled = true;
@@ -149,9 +138,7 @@ export function perform(
     if (/^(undo|redo)/.test(selector)) mathfield.resetKeystrokeBuffer();
     dirty = COMMANDS[selector]!.fn(mathfield, ...args);
     handled = true;
-  } else {
-    throw new Error('Unknown command "' + selector + '"');
-  }
+  } else throw new Error('Unknown command "' + selector + '"');
 
   // Virtual keyboard commands do not update mathfield state
   if (commandTarget !== 'virtual-keyboard') {
@@ -170,9 +157,7 @@ export function perform(
   }
 
   // Render the mathlist
-  if (dirty) {
-    requestUpdate(mathfield);
-  }
+  if (dirty) requestUpdate(mathfield);
 
   return handled;
 }
@@ -191,9 +176,8 @@ export function performWithFeedback(
 ): boolean {
   // @revisit: have a registry of commands -> sound
   mathfield.focus();
-  if (mathfield.options.keypressVibration && canVibrate()) {
+  if (mathfield.options.keypressVibration && canVibrate())
     navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
-  }
 
   // Convert kebab case to camel case.
   selector = selector.replace(/-\w/g, (m) =>
@@ -203,9 +187,9 @@ export function performWithFeedback(
     selector === 'moveToNextPlaceholder' ||
     selector === 'moveToPreviousPlaceholder' ||
     selector === 'complete'
-  ) {
+  )
     mathfield.returnKeypressSound?.play().catch(console.warn);
-  } else if (
+  else if (
     selector === 'deleteBackward' ||
     selector === 'deleteForward' ||
     selector === 'deletePreviousWord' ||
@@ -214,11 +198,9 @@ export function performWithFeedback(
     selector === 'deleteToGroupEnd' ||
     selector === 'deleteToMathFieldStart' ||
     selector === 'deleteToMathFieldEnd'
-  ) {
+  )
     mathfield.deleteKeypressSound?.play().catch(console.warn);
-  } else {
-    mathfield.keypressSound?.play().catch(console.warn);
-  }
+  else mathfield.keypressSound?.play().catch(console.warn);
 
   const result = mathfield.executeCommand(selector);
   mathfield.scrollIntoView();

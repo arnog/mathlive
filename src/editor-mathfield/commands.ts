@@ -67,9 +67,8 @@ registerCommand({
     return true;
   },
   commit: (mathfield: MathfieldPrivate) => {
-    if (typeof mathfield.options.onCommit === 'function') {
+    if (typeof mathfield.options.onCommit === 'function')
       mathfield.options.onCommit(mathfield);
-    }
 
     return true;
   },
@@ -81,9 +80,7 @@ registerCommand(
       mathfield.focus();
       // If the selection is empty, select the entire field before
       // copying it.
-      if (mathfield.model.selectionIsCollapsed) {
-        mathfield.select();
-      }
+      if (mathfield.model.selectionIsCollapsed) mathfield.select();
 
       document.execCommand('copy');
       return false;

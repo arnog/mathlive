@@ -17,28 +17,23 @@ export function applyStyle(
     if (
       mathfield.style.fontSeries &&
       style.fontSeries === mathfield.style.fontSeries
-    ) {
+    )
       style.fontSeries = 'auto';
-    }
 
-    if (style.fontShape && style.fontShape === mathfield.style.fontShape) {
+    if (style.fontShape && style.fontShape === mathfield.style.fontShape)
       style.fontShape = 'auto';
-    }
 
-    if (style.color && style.color === mathfield.style.color) {
+    if (style.color && style.color === mathfield.style.color)
       style.color = 'none';
-    }
 
     if (
       style.backgroundColor &&
       style.backgroundColor === mathfield.style.backgroundColor
-    ) {
+    )
       style.backgroundColor = 'none';
-    }
 
-    if (style.fontSize && style.fontSize === mathfield.style.fontSize) {
+    if (style.fontSize && style.fontSize === mathfield.style.fontSize)
       style.fontSize = 'auto';
-    }
 
     // This global style will be used the next time an atom is inserted
     mathfield.style = { ...mathfield.style, ...style };
@@ -77,17 +72,14 @@ export function validateStyle(
       mathfield.backgroundColorMap(style.backgroundColor) ?? 'none';
   }
 
-  if (typeof style.fontFamily === 'string') {
+  if (typeof style.fontFamily === 'string')
     result.fontFamily = style.fontFamily;
-  }
 
-  if (typeof style.series === 'string') {
+  if (typeof style.series === 'string')
     result.fontSeries = style.series as FontSeries;
-  }
 
-  if (typeof style.fontSeries === 'string') {
+  if (typeof style.fontSeries === 'string')
     result.fontSeries = style.fontSeries.toLowerCase() as FontSeries;
-  }
 
   if (result.fontSeries) {
     result.fontSeries =
@@ -98,13 +90,11 @@ export function validateStyle(
       }[result.fontSeries] ?? result.fontSeries;
   }
 
-  if (typeof style.shape === 'string') {
+  if (typeof style.shape === 'string')
     result.fontShape = style.shape as FontShape;
-  }
 
-  if (typeof style.fontShape === 'string') {
+  if (typeof style.fontShape === 'string')
     result.fontShape = style.fontShape.toLowerCase() as FontShape;
-  }
 
   if (result.fontShape) {
     result.fontShape =
@@ -118,9 +108,9 @@ export function validateStyle(
 
   const size = style.size ?? style.fontSize;
 
-  if (typeof size === 'number') {
+  if (typeof size === 'number')
     result.fontSize = Math.max(1, Math.min(10, size)) as FontSize;
-  } else if (typeof size === 'string') {
+  else if (typeof size === 'string') {
     result.fontSize =
       ({
         size1: 1,

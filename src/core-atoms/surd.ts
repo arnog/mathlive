@@ -1,6 +1,6 @@
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { X_HEIGHT } from '../core/font-metrics';
-import { Box, makeStruts } from '../core/box';
+import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 

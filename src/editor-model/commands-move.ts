@@ -26,15 +26,11 @@ function superscriptDepth(model: ModelPrivate): number {
     if (
       !atom.hasEmptyBranch('superscript') ||
       !atom.hasEmptyBranch('subscript')
-    ) {
+    )
       result += 1;
-    }
 
-    if (!atom.hasEmptyBranch('superscript')) {
-      wasSuperscript = true;
-    } else if (!atom.hasEmptyBranch('subscript')) {
-      wasSuperscript = false;
-    }
+    if (!atom.hasEmptyBranch('superscript')) wasSuperscript = true;
+    else if (!atom.hasEmptyBranch('subscript')) wasSuperscript = false;
 
     atom = atom.parent;
   }
@@ -50,15 +46,11 @@ function subscriptDepth(model: ModelPrivate): number {
     if (
       !atom.hasEmptyBranch('superscript') ||
       !atom.hasEmptyBranch('subscript')
-    ) {
+    )
       result += 1;
-    }
 
-    if (!atom.hasEmptyBranch('superscript')) {
-      wasSubscript = false;
-    } else if (!atom.hasEmptyBranch('subscript')) {
-      wasSubscript = true;
-    }
+    if (!atom.hasEmptyBranch('superscript')) wasSubscript = false;
+    else if (!atom.hasEmptyBranch('subscript')) wasSubscript = true;
 
     atom = atom.parent;
   }
@@ -159,9 +151,8 @@ function getTabbableElements(): HTMLElement[] {
     ].filter(isNodeMatchingSelectorTabbable);
     candidates.forEach((candidate, i) => {
       const candidateTabindex = getTabindex(candidate);
-      if (candidateTabindex === 0) {
-        regularTabbables.push(candidate);
-      } else {
+      if (candidateTabindex === 0) regularTabbables.push(candidate);
+      else {
         orderedTabbables.push({
           documentOrder: i,
           tabIndex: candidateTabindex,
@@ -185,9 +176,8 @@ function getTabbableElements(): HTMLElement[] {
       !isNodeMatchingSelectorFocusable(element) ||
       isNonTabbableRadio(element) ||
       getTabindex(element) < 0
-    ) {
+    )
       return false;
-    }
 
     return true;
   }
@@ -197,9 +187,8 @@ function getTabbableElements(): HTMLElement[] {
       node.disabled ||
       (node.type === 'hidden' && node.tagName.toUpperCase() === 'INPUT') ||
       isHidden(node)
-    ) {
+    )
       return false;
-    }
 
     return true;
   }
@@ -210,15 +199,11 @@ function getTabbableElements(): HTMLElement[] {
       10
     );
 
-    if (!Number.isNaN(tabindexAttr)) {
-      return tabindexAttr;
-    }
+    if (!Number.isNaN(tabindexAttr)) return tabindexAttr;
 
     // Browsers do not return `tabIndex` correctly for contentEditable nodes;
     // so if they don't have a tabindex attribute specifically set, assume it's 0.
-    if (node.contentEditable === 'true') {
-      return 0;
-    }
+    if (node.contentEditable === 'true') return 0;
 
     // In Chrome, <audio controls/> and <video controls/> elements get a default
     //  `tabIndex` of -1 when the 'tabindex' attribute isn't specified in the DOM,
@@ -228,9 +213,8 @@ function getTabbableElements(): HTMLElement[] {
     if (
       (node.nodeName === 'AUDIO' || node.nodeName === 'VIDEO') &&
       node.getAttribute('tabindex') === null
-    ) {
+    )
       return 0;
-    }
 
     return node.tabIndex;
   }
@@ -244,19 +228,14 @@ function getTabbableElements(): HTMLElement[] {
   }
 
   function getCheckedRadio(nodes, form) {
-    for (const node of nodes) {
-      if (node.checked && node.form === form) {
-        return node;
-      }
-    }
+    for (const node of nodes)
+      if (node.checked && node.form === form) return node;
 
     return null;
   }
 
   function isTabbableRadio(node: HTMLInputElement): boolean {
-    if (!node.name) {
-      return true;
-    }
+    if (!node.name) return true;
 
     const radioScope = node.form ?? node.ownerDocument;
     const radioSet = radioScope.querySelectorAll(
@@ -271,9 +250,8 @@ function getTabbableElements(): HTMLElement[] {
       !isBrowser() ||
       element === document.activeElement ||
       element.contains(document.activeElement)
-    ) {
+    )
       return false;
-    }
 
     if (getComputedStyle(element).visibility === 'hidden') return true;
 
@@ -346,17 +324,17 @@ function leap(
         dir,
         dist
       )
-    ) {
+    )
       return true;
-    }
+
     if (index < 0) index = tabbable.length - 1;
     if (index >= tabbable.length) index = 0;
     if (
       tabbable[index] instanceof MathfieldElement &&
       moveToNextNestedMathfield(tabbable[index] as MathfieldElement, dir, dist)
-    ) {
+    )
       return true;
-    }
+
     tabbable[index].focus();
 
     if (index === 0) {
@@ -386,9 +364,8 @@ function leap(
       );
       let newMathfieldIndex = activeIndex + dist;
       console.log(activeIndex);
-      if (activeIndex < 0 && dir === 'backward') {
+      if (activeIndex < 0 && dir === 'backward')
         newMathfieldIndex = nestedMathfield.length - 1;
-      }
 
       if (
         newMathfieldIndex >= 0 &&
@@ -406,11 +383,9 @@ function leap(
   // Set the selection to the next placeholder
   const previousPosition = model.position;
   const newPosition = model.offsetOf(placeholders[0]);
-  if (placeholders[0].type === 'placeholder') {
+  if (placeholders[0].type === 'placeholder')
     model.setSelection(newPosition - 1, newPosition);
-  } else {
-    model.position = newPosition;
-  }
+  else model.position = newPosition;
 
   model.announce('move', previousPosition);
   return true;
@@ -442,14 +417,11 @@ register(
 
       const relation = cursor.treeBranch;
       let oppositeRelation: BranchName | undefined;
-      if (typeof relation === 'string') {
+      if (typeof relation === 'string')
         oppositeRelation = OPPOSITE_RELATIONS[relation];
-      }
 
       if (!oppositeRelation) {
-        if (!cursor.subsupPlacement) {
-          return moveToSuperscript(model);
-        }
+        if (!cursor.subsupPlacement) return moveToSuperscript(model);
 
         return moveToSubscript(model);
       }

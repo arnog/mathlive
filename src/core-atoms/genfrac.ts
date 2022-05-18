@@ -182,13 +182,11 @@ export class GenfracAtom extends Atom {
       // There is a bar line between the numerator and the denominator
       const numerLine = AXIS_HEIGHT + ruleWidth / 2;
       const denomLine = AXIS_HEIGHT - ruleWidth / 2;
-      if (numerShift < clearance + numerDepth + numerLine) {
+      if (numerShift < clearance + numerDepth + numerLine)
         numerShift = clearance + numerDepth + numerLine;
-      }
 
-      if (denomShift < clearance + denomHeight - denomLine) {
+      if (denomShift < clearance + denomHeight - denomLine)
         denomShift = clearance + denomHeight - denomLine;
-      }
 
       const fracLine = new Box(null, {
         classes: 'ML__frac-line',
@@ -240,9 +238,9 @@ export class GenfracAtom extends Atom {
     if (this.continuousFraction) {
       // Zero width for `\cfrac`
       rightDelim = new Box(null, { type: 'mclose' });
-    } else if (!this.rightDelim) {
+    } else if (!this.rightDelim)
       rightDelim = makeNullDelimiter(fracContext, 'mclose');
-    } else {
+    else {
       rightDelim = this.bind(
         context,
         makeCustomSizedDelim(

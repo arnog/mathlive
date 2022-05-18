@@ -51,9 +51,7 @@ export class MathModeEditor extends ModeEditor {
     }
 
     // If that didn't work, try some plain text
-    if (!text) {
-      text = ev.clipboardData.getData('text/plain');
-    }
+    if (!text) text = ev.clipboardData.getData('text/plain');
 
     if (text) {
       mathfield.snapshot();
@@ -64,9 +62,8 @@ export class MathModeEditor extends ModeEditor {
           backgroundColorMap: mathfield.backgroundColorMap,
           format,
         })
-      ) {
+      )
         requestUpdate(mathfield);
-      }
 
       ev.preventDefault();
       ev.stopPropagation();
@@ -115,14 +112,12 @@ export class MathModeEditor extends ModeEditor {
       model.selectionIsCollapsed &&
       typeof input === 'string' &&
       insertSmartFence(model, input, options.style)
-    ) {
+    )
       return true;
-    }
 
     const { suppressChangeNotifications } = model;
-    if (options.suppressChangeNotifications) {
+    if (options.suppressChangeNotifications)
       model.suppressChangeNotifications = true;
-    }
 
     const contentWasChanging = model.suppressChangeNotifications;
     model.suppressChangeNotifications = true;
@@ -141,16 +136,15 @@ export class MathModeEditor extends ModeEditor {
     if (
       options.insertionMode === 'replaceSelection' &&
       !model.selectionIsCollapsed
-    ) {
+    )
       model.position = model.deleteAtoms(range(model.selection));
-    } else if (options.insertionMode === 'replaceAll') {
+    else if (options.insertionMode === 'replaceAll') {
       model.root.setChildren([], 'body');
       model.position = 0;
-    } else if (options.insertionMode === 'insertBefore') {
+    } else if (options.insertionMode === 'insertBefore')
       model.collapseSelection('backward');
-    } else if (options.insertionMode === 'insertAfter') {
+    else if (options.insertionMode === 'insertAfter')
       model.collapseSelection('forward');
-    }
 
     //
     // Delete any placeholders before or after the insertion point
@@ -305,9 +299,8 @@ export class MathModeEditor extends ModeEditor {
       // would return an empty string. If the latex is generated using other
       // properties than parent.body, for example by adding '\left.' and
       // '\right.' with a 'leftright' type, we can't use this shortcut.
-      if (parent!.type === 'root' && hadEmptyBody && !usedArg) {
+      if (parent!.type === 'root' && hadEmptyBody && !usedArg)
         parent!.verbatimLatex = input;
-      }
     }
 
     // Prepare to dispatch notifications
@@ -337,12 +330,9 @@ export class MathModeEditor extends ModeEditor {
     } else if (options.selectionMode === 'before') {
       // Do nothing: don't change the position.
     } else if (options.selectionMode === 'after') {
-      if (lastNewAtom) {
-        model.position = model.offsetOf(lastNewAtom);
-      }
-    } else if (options.selectionMode === 'item') {
+      if (lastNewAtom) model.position = model.offsetOf(lastNewAtom);
+    } else if (options.selectionMode === 'item')
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
-    }
 
     contentDidChange(model);
 
@@ -390,9 +380,8 @@ function convertStringToAtoms(
     });
 
     // Simplify result.
-    if (format !== 'latex' && model.options.removeExtraneousParentheses) {
+    if (format !== 'latex' && model.options.removeExtraneousParentheses)
       simplifyParen(result);
-    }
   } else if (options.format === 'auto' || options.format === 'latex') {
     if (options.format === 'auto') {
       [format, s] = parseMathString(s, {
@@ -415,12 +404,8 @@ function convertStringToAtoms(
     });
 
     // Simplify result.
-    if (
-      options.format !== 'latex' &&
-      model.options.removeExtraneousParentheses
-    ) {
+    if (options.format !== 'latex' && model.options.removeExtraneousParentheses)
       simplifyParen(result);
-    }
   }
 
   //
@@ -445,9 +430,8 @@ function removeParen(atoms: Atom[]): Atom[] | null {
     atom instanceof LeftRightAtom &&
     atom.leftDelim === '(' &&
     atom.rightDelim === ')'
-  ) {
+  )
     return atom.removeBranch('body');
-  }
 
   return null;
 }
@@ -491,15 +475,13 @@ function simplifyParen(atoms: Atom[]): void {
       }
     }
 
-    if (atom instanceof ArrayAtom) {
-      for (const x of atom.cells) simplifyParen(x);
-    }
+    if (atom instanceof ArrayAtom) for (const x of atom.cells) simplifyParen(x);
   }
 }
 
 function findPlaceholders(atoms: Atom[]): PlaceholderAtom[] {
   if (!atoms) return [];
-  let result: PlaceholderAtom[] = [];
+  const result: PlaceholderAtom[] = [];
   for (const atom of atoms) {
     for (const branch of atom.branches) {
       if (!atom.hasEmptyBranch(branch)) {
@@ -508,9 +490,7 @@ function findPlaceholders(atoms: Atom[]): PlaceholderAtom[] {
       }
     }
 
-    if (atom instanceof PlaceholderAtom) {
-      result.push(atom);
-    }
+    if (atom instanceof PlaceholderAtom) result.push(atom);
   }
 
   return result;
@@ -527,9 +507,8 @@ function findPlaceholders(atoms: Atom[]): PlaceholderAtom[] {
 function getImplicitArgOffset(model: ModelPrivate): Offset {
   let atom = model.at(model.position);
   if (atom.mode === 'text') {
-    while (!atom.isFirstSibling && atom.mode === 'text') {
+    while (!atom.isFirstSibling && atom.mode === 'text')
       atom = atom.leftSibling;
-    }
 
     return model.offsetOf(atom);
   }
@@ -544,22 +523,20 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
     !atom.isFirstSibling &&
     (isImplicitArg(atom) || delimiterStack.length > 0)
   ) {
-    if (atom.type === 'mclose') {
-      delimiterStack.unshift(atom.value);
-    }
+    if (atom.type === 'mclose') delimiterStack.unshift(atom.value);
+
     if (
       atom.type === 'mopen' &&
       delimiterStack.length > 0 &&
       atom.value === LEFT_DELIM[delimiterStack[0]]
-    ) {
+    )
       delimiterStack.shift();
-    }
+
     atom = atom.leftSibling;
   }
 
-  if (atomAtCursor == atom) {
-    return -1;
-  }
+  if (atomAtCursor === atom) return -1;
+
   return model.offsetOf(atom);
 }
 
@@ -674,9 +651,7 @@ export function insertSmartFence(
     let i: number;
     for (i = model.position; i >= firstSibling; i--) {
       const atom = model.at(i);
-      if (atom instanceof LeftRightAtom && atom.rightDelim === '?') {
-        break;
-      }
+      if (atom instanceof LeftRightAtom && atom.rightDelim === '?') break;
     }
 
     const match = model.at(i);

@@ -86,9 +86,9 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
     if (atom[0].type === 'first') atom = atom.slice(1);
     if (atom.length === 0) return '';
     let result = '';
-    if (atom[0].mode === 'latex') {
+    if (atom[0].mode === 'latex')
       for (const x of atom) result += atomToAsciiMath(x);
-    } else if (atom[0].mode === 'text') {
+    else if (atom[0].mode === 'text') {
       // Text mode... put it in (ASCII) quotes
       let i = 0;
       result = '"';
@@ -106,16 +106,12 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
       }
 
       result += atomToAsciiMath(atom.slice(i));
-    } else {
-      console.warn('toASCIIMath: Unexpected mode');
-    }
+    } else console.warn('toASCIIMath: Unexpected mode');
 
     return result.trim();
   }
 
-  if (atom.mode === 'text') {
-    return '"' + atom.value + '"'; // Text -- add in (ASCII) quotes
-  }
+  if (atom.mode === 'text') return '"' + atom.value + '"'; // Text -- add in (ASCII) quotes
 
   let result = '';
   const { command } = atom;
@@ -263,9 +259,9 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
       const rows: string[] = [];
       for (const row of array) {
         const cells: string[] = [];
-        for (const cell of row) {
+        for (const cell of row)
           cells.push(rowDelim[0] + atomToAsciiMath(cell) + rowDelim[1]);
-        }
+
         rows.push(cells.join(','));
       }
 

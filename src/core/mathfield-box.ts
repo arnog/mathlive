@@ -39,14 +39,10 @@ export class MathfieldBox extends Box {
         const matched = entry.match(/([^=]+)=(.+$)/);
         if (matched) {
           const key = matched[1].trim().replace(/ /g, '-');
-          if (key) {
-            props += ` data-${key}=${matched[2]} `;
-          }
+          if (key) props += ` data-${key}=${matched[2]} `;
         } else {
           const key = entry.trim().replace(/ /g, '-');
-          if (key) {
-            props += ` data-${key} `;
-          }
+          if (key) props += ` data-${key} `;
         }
       }
     }
@@ -58,14 +54,10 @@ export class MathfieldBox extends Box {
         const matched = entry.match(/([^=]+):(.+$)/);
         if (matched) {
           const key = matched[1].trim().replace(/ /g, '-');
-          if (key) {
-            styleString += `${key}:${matched[2]};`;
-          }
+          if (key) styleString += `${key}:${matched[2]};`;
         }
       }
-      if (styleString) {
-        props += ` style="${styleString}"`;
-      }
+      if (styleString) props += ` style="${styleString}"`;
     }
 
     if (this.attributes) {
@@ -76,9 +68,7 @@ export class MathfieldBox extends Box {
           .join(' ');
     }
 
-    if (classList.length > 0) {
-      props += ` class="${classList}"`;
-    }
+    if (classList.length > 0) props += ` class="${classList}"`;
 
     props += ` style="display: inline-block; width:${this.element.clientWidth}px; height:${this.element.clientHeight}px; "`;
 

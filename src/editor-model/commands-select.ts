@@ -1,6 +1,5 @@
 import { register } from '../editor/commands';
 import type { ModelPrivate } from './model-private';
-import { Atom } from '../core/atom';
 import { LETTER_AND_DIGITS } from '../core-definitions/definitions';
 import { getMode } from './selection';
 import { move, skip } from './commands';
@@ -19,26 +18,19 @@ export function selectGroup(model: ModelPrivate): boolean {
     let done = false;
     while (!done && start > 0) {
       const atom = model.at(start);
-      if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
+      if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value))
         start -= 1;
-      } else {
-        done = true;
-      }
+      else done = true;
     }
 
     done = false;
     while (!done && end <= model.lastOffset) {
       const atom = model.at(end);
-      if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) {
-        end += 1;
-      } else {
-        done = true;
-      }
+      if (atom.mode === 'text' && LETTER_AND_DIGITS.test(atom.value)) end += 1;
+      else done = true;
     }
 
-    if (done) {
-      end -= 1;
-    }
+    if (done) end -= 1;
 
     if (start >= end) {
       // No word found. Select a single character
@@ -83,11 +75,12 @@ export function selectGroup(model: ModelPrivate): boolean {
         }
 
         model.setSelection(start, end - 1);
-      } else
+      } else {
         model.setSelection(
           model.offsetOf(atom.firstSibling),
           model.offsetOf(atom.lastSibling)
         );
+      }
     }
   }
 

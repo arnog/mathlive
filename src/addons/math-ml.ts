@@ -86,19 +86,15 @@ function scanIdentifier(stream: MathMLSteam, final: number, options) {
         stream.lastType === 'mtext' ||
         stream.lastType === 'fence') &&
       !/^<mo>(.*)<\/mo>$/.test(mathML)
-    ) {
+    )
       mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
-    }
 
     if (body.endsWith('>f</mi>') || body.endsWith('>g</mi>')) {
       mathML += `<mo>${APPLY_FUNCTION}</mo>`; // &ApplyFunction;
       stream.lastType = 'applyfunction';
-    } else {
-      stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
-    }
-    if (!parseSubsup(body, stream, options)) {
-      stream.mathML += mathML;
-    }
+    } else stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
+
+    if (!parseSubsup(body, stream, options)) stream.mathML += mathML;
   }
 
   return result;
@@ -139,9 +135,7 @@ function indexOfSuperscriptInNumber(stream: MathMLSteam) {
     i++;
   }
 
-  if (found) {
-    result = i - 1;
-  }
+  if (found) result = i - 1;
 
   return result;
 }
@@ -204,9 +198,7 @@ function scanNumber(stream: MathMLSteam, final, options) {
   let mathML = '';
 
   let superscript = indexOfSuperscriptInNumber(stream);
-  if (superscript >= 0 && superscript < final) {
-    final = superscript;
-  }
+  if (superscript >= 0 && superscript < final) final = superscript;
 
   while (stream.index < final && stream.atoms[stream.index].isDigit()) {
     mathML += stream.atoms[stream.index].asDigit();
@@ -274,9 +266,8 @@ function scanFence(stream: MathMLSteam, final: number, options) {
         stream.lastType === 'mn' ||
         stream.lastType === 'mfrac' ||
         stream.lastType === 'fence'
-      ) {
+      )
         mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
-      }
 
       stream.index = closeIndex + 1;
 
@@ -354,17 +345,14 @@ function scanOperator(stream: MathMLSteam, final: number, options) {
         mathML += `<mo>${APPLY_FUNCTION}</mo>`; // APPLY FUNCTION
         // mathML += scanArgument(stream);
         lastType = 'applyfunction';
-      } else {
-        lastType = isUnit ? 'mi' : 'mo';
-      }
+      } else lastType = isUnit ? 'mi' : 'mo';
     }
 
     if (
       (stream.lastType === 'mi' || stream.lastType === 'mn') &&
       !/^<mo>(.*)<\/mo>$/.test(mathML)
-    ) {
+    )
       mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
-    }
 
     stream.index += 1;
   }
@@ -399,13 +387,11 @@ function toMathML(
     lastType: '',
   };
 
-  if (typeof input === 'number' || typeof input === 'boolean') {
+  if (typeof input === 'number' || typeof input === 'boolean')
     result.mathML = input.toString();
-  } else if (typeof input === 'string') {
-    result.mathML = input;
-  } else if (input instanceof Atom) {
-    result.mathML = atomToMathML(input, options);
-  } else if (Array.isArray(input)) {
+  else if (typeof input === 'string') result.mathML = input;
+  else if (input instanceof Atom) result.mathML = atomToMathML(input, options);
+  else if (Array.isArray(input)) {
     result.atoms = input;
     let count = 0;
     final = final ? final : input ? input.length : 0;
@@ -417,9 +403,9 @@ function toMathML(
         scanIdentifier(result, final, options) ||
         scanOperator(result, final, options) ||
         scanFence(result, final, options)
-      ) {
+      )
         count += 1;
-      } else if (result.index < final) {
+      else if (result.index < final) {
         let mathML = atomToMathML(result.atoms![result.index], options);
         if (
           result.lastType === 'mn' &&
@@ -431,11 +417,9 @@ function toMathML(
           mathML = '<mo>&#x2064;</mo>' + mathML;
         }
 
-        if (result.atoms[result.index].type === 'genfrac') {
+        if (result.atoms[result.index].type === 'genfrac')
           result.lastType = 'mfrac';
-        } else {
-          result.lastType = '';
-        }
+        else result.lastType = '';
 
         if (mathML.length > 0) {
           result.mathML += mathML;
@@ -447,9 +431,7 @@ function toMathML(
     }
 
     // If there are more than a single element, wrap them in a mrow tag.
-    if (count > 1) {
-      result.mathML = '<mrow>' + result.mathML + '</mrow>';
-    }
+    if (count > 1) result.mathML = '<mrow>' + result.mathML + '</mrow>';
   }
 
   return result;
@@ -458,9 +440,7 @@ function toMathML(
 function toMo(atom, options) {
   let result = '';
   const body = toString(atom.value);
-  if (body) {
-    result = '<mo' + makeID(atom.id, options) + '>' + body + '</mo>';
-  }
+  if (body) result = '<mo' + makeID(atom.id, options) + '>' + body + '</mo>';
 
   return result;
 }
@@ -468,16 +448,12 @@ function toMo(atom, options) {
 function toString(atoms) {
   if (!atoms) return '';
   if (typeof atoms === 'string') return xmlEscape(atoms);
-  if (!Array.isArray(atoms) && typeof atoms.body === 'string') {
+  if (!Array.isArray(atoms) && typeof atoms.body === 'string')
     return xmlEscape(atoms.body);
-  }
 
   let result = '';
-  for (const atom of atoms) {
-    if (typeof atom.value === 'string') {
-      result += atom.value;
-    }
-  }
+  for (const atom of atoms)
+    if (typeof atom.value === 'string') result += atom.value;
 
   return xmlEscape(result);
 }
@@ -579,14 +555,12 @@ function atomToMathML(atom, options): string {
   let overscript;
   let body;
   let variant = MATH_VARIANTS[atom.fontFamily ?? atom.font] ?? '';
-  if (variant) {
-    variant = ` mathvariant="${variant}"`;
-  }
+  if (variant) variant = ` mathvariant="${variant}"`;
 
   const { command } = atom;
-  if (atom.mode === 'text') {
+  if (atom.mode === 'text')
     result = `<mi${makeID(atom.id, options)}>${atom.value}</mi>`;
-  } else {
+  else {
     switch (atom.type) {
       case 'first':
         break; // Nothing to do
@@ -656,9 +630,7 @@ function atomToMathML(atom, options): string {
         break;
 
       case 'genfrac':
-        if (atom.leftDelim || atom.rightDelim) {
-          result += '<mrow>';
-        }
+        if (atom.leftDelim || atom.rightDelim) result += '<mrow>';
 
         if (atom.leftDelim && atom.leftDelim !== '.') {
           result +=
@@ -695,9 +667,7 @@ function atomToMathML(atom, options): string {
             '</mo>';
         }
 
-        if (atom.leftDelim || atom.rightDelim) {
-          result += '</mrow>';
-        }
+        if (atom.leftDelim || atom.rightDelim) result += '</mrow>';
 
         break;
 
@@ -727,9 +697,7 @@ function atomToMathML(atom, options): string {
             '</mo>';
         }
 
-        if (atom.body) {
-          result += toMathML(atom.body, 0, 0, options).mathML;
-        }
+        if (atom.body) result += toMathML(atom.body, 0, 0, options).mathML;
 
         if (atom.rightDelim && atom.rightDelim !== '.') {
           result +=
@@ -768,9 +736,9 @@ function atomToMathML(atom, options): string {
       case 'overunder':
         overscript = atom.above;
         underscript = atom.below;
-        if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript)) {
+        if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript))
           body = atom.body;
-        } else if (overscript && overscript.length > 0) {
+        else if (overscript && overscript.length > 0) {
           body = atom.body;
           if (atom.body?.[0]?.below) {
             underscript = atom.body[0].below;
@@ -853,9 +821,9 @@ function atomToMathML(atom, options): string {
               '&#x' +
               ('000000' + atom.value.charCodeAt(0).toString(16)).slice(-4) +
               ';';
-          } else if (typeof atom.value === 'string') {
+          } else if (typeof atom.value === 'string')
             result = atom.value.charAt(0);
-          } else {
+          else {
             console.log('Did not expect this');
             result = '';
           }
@@ -886,9 +854,7 @@ function atomToMathML(atom, options): string {
             '>' +
             SPECIAL_OPERATORS[command] +
             '</mo>';
-        } else {
-          result = toMo(atom, options);
-        }
+        } else result = toMo(atom, options);
 
         break;
 
@@ -925,9 +891,8 @@ function atomToMathML(atom, options): string {
 
       case 'box':
         result = '<menclose notation="box"';
-        if (atom.backgroundcolor) {
+        if (atom.backgroundcolor)
           result += ' mathbackground="' + atom.backgroundcolor + '"';
-        }
 
         result +=
           makeID(atom.id, options) +
@@ -998,9 +963,7 @@ function atomToMathML(atom, options): string {
       case 'macro':
         {
           const body = atom.command + toString((atom as MacroAtom).macroArgs);
-          if (body) {
-            result += `<mo ${makeID(atom.id, options)}>${body}</mo>`;
-          }
+          if (body) result += `<mo ${makeID(atom.id, options)}>${body}</mo>`;
         }
         break;
       case 'error':
