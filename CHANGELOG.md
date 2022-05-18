@@ -3,37 +3,48 @@
 ### Breaking Changes
 
 - The following attributes of the `<math-field>` element that were previously
-  "boolean attributes" are now "enumerated attributes".
+  **boolean attributes** are now **enumerated attributes**.
 
-  A boolean attribute has a value of true if present and false if absent.
+  A **boolean attribute** has a value of true if present and false if absent
+  (it's an HTML standard thing).
 
-  An enumerated attribute has an explicit value.
+  An **enumerated attribute** has an explicit value, usually a string.
 
-  As a result of this change the default value of some attributes may have
+  As a result of this change the default value of some mathfield attributes have
   changed from `false` to `true`.
 
   - `keypress-vibration`: `"on"` | `"off"` | `""` (default `"on"`)
   - `remove-extraneous-parentheses`: `"on"` | `"off"` | `""` (default `"on"`)
-  - `smart-fence`: `"on"` | `"off"` | `""` (default`on`)
+  - `smart-fence`: `"on"` | `"off"` | `""` (default `"on"`)
   - `smart-superscript`: `"on"` | `"off"` | `""` (default `"on"`)
-  - `smart-mode`: `"on"` | `"off"` | `""` (default`off`)
+  - `smart-mode`: `"on"` | `"off"` | `""` (default`"off"`)
 
 - The commands `\mleft` and `\mright` are no longer generated automatically.
-  Previously, when using `()` or `\left(...\right)`, a `\mleft(...\mright)`
-  could be substituted when `smart-fence` was turned on. Now the
-  `\left...\right` command automatically adjust its left spacing based on the
-  symbol to its left. If the symbol to its left is a function, the spacing will
-  be tighter.
+  Previously, when using `smart-fence` mode, `()` or `\left(...\right)`, could
+  be replaced with a `\mleft(...\mright)` command. This was done to ensure the
+  proper spacing of delimiters after a function, e.g. `\sin(x)`. Without it,
+  there is excessive space between the function and the delimiter.
+
+  Now the `\left...\right` command automatically adjust its left spacing based
+  on the symbol to its left. If the symbol to its left is a function, the
+  spacing will be tighter. Therefore, `\mleft...\mright` are no longer required,
+  although they are still recognized as valid commands.
+
+  This change was made because not every LaTeX environment recognize the
+  `\mleft...\mright` commands, and this caused interoperability issues.
 
 ## New Features
 
 - **Comma `,` as decimal separator is now supported.**
 
-  New `options.decimalSeparator` value can be set to `.` or `,` (`.` by default,
-  which corresponds to the current behavior).
+  New `options.decimalSeparator` value can be set to `.` or `,`. The default
+  value is `.` which corresponds to the current behavior.
 
   When set to `,`, pressing the `,` key on the keyboard will insert a `{,}`
-  LaTeX string, if in math mode and if before a digit.
+  LaTeX string, if in math mode and if before a digit. The LaTeX sequence `{,}`
+  is traditionally used to correctly typeset the comma and ensure the correct
+  amount of space around it. Without the `{}`, the `,` is interpreted as a
+  delimiter and has excessive amount of space around it.
 
   The virtual keyboard is also changed so that the `.` key is `,` instead and
   also contextually insert a `{,}` when appropriate.
@@ -47,17 +58,27 @@
   The `onMulticharSymbol()` hook provides an opportunity to recognize multi
   character symbols and wrap them in an appropriate command.
 
-  For example typing `speed` -> `\mathrm{speed}`
+  For example typing `speed` [\ \to \] `\mathrm{speed}`
+
+  While conventionally `\mathrm{}` is frequently used to denote multicharacter
+  symbols in LaTeX, in some contexts `\mathit` can also be used, for example
+  using `\mathrm` to indicate multicharacter function names, but `\mathit` for
+  multicharacter variable names.
+
+  By default, the hook does nothing and multicharacter symbols are not
+  recognized.
 
 - Added support for the `\mathnormal{}` command, which displays text in italic
   and includes italic correction. As opposed to `\mathit{}` which displays text
   in italic, but without italic correction.
 
-- Correctly handle double-clicking words styled in `\mathrm` or `\mathit`
+- Correctly handle double-clicking words styled with `\mathrm` or `\mathit`
 
 - The appearance of the placeholder symbol has changed to stand out more. Also,
   the LaTeX generated for the default placeholder is now simply
-  `\placeholder{}`.
+  `\placeholder{}`. The argument of `\placeholder{}` was always optional, and is
+  still supported. Only the default serialization of the `\placeholder{}` has
+  changed.
 
 ### Bug Fixes
 
@@ -67,7 +88,7 @@
   correctly handle navigating with the keyboard, that is, handle it as a single
   character, not a group. Also correctly render it to MathML (as a `.`).
 - The "contains highlight" and selection rectangles would not always account for
-  the children of the expression, for example with `\sqrt{\frac12}`.
+  the children of the expression, for example with `\sqrt{\frac12}`
 - The LaTeX output of subscript or superscripts was incorrect when no value for
   the superscript/subscript was provided. For example, typing `x`, `^`,
   `right arrow`, `2`, would incorrectly serialize `x^2`. It now serializes
