@@ -1,10 +1,15 @@
 {
   "eslint.options": {
-    "configFile": ".eslintrc.json"
+    "overrideConfigFile": ".eslintrc.json"
   },
   "cSpell.allowCompoundWords": true,
   "cSpell.words": ["assistive", "grapheme", "latexify", "mathrm"],
   "cSpell.enabled": false,
   "liveServer.settings.port": 5501,
-  "typescript.tsdk": "./node_modules/typescript/lib"
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "eslint.alwaysShowStatus": true,
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true
 }
