@@ -1006,7 +1006,7 @@ function parseParameterTemplate(
 ): FunctionArgumentDefiniton[] {
   if (!parameterTemplate) return [];
 
-  let result: FunctionArgumentDefiniton[] = [];
+  const result: FunctionArgumentDefiniton[] = [];
   let parameters = parameterTemplate.split(']');
   if (parameters[0].startsWith('[')) {
     // We found at least one optional parameter.

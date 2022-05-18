@@ -38,11 +38,12 @@ export function updateAutocomplete(
   // The current command is the sequence of atoms around the insertion point
   // that ends on the left with a '\' and on the right with a non-command
   // character.
-  let command: LatexAtom[] = [];
+  const command: LatexAtom[] = [];
   let atom = model.at(model.position);
 
-  while (atom && atom instanceof LatexAtom && /^[a-zA-Z\*]$/.test(atom.value))
+  while (atom && atom instanceof LatexAtom && /^[a-zA-Z\*]$/.test(atom.value)) {
     atom = atom.leftSibling;
+  }
 
   if (atom && atom instanceof LatexAtom && atom.value === '\\') {
     // We've found the start of a command.
@@ -64,8 +65,9 @@ export function updateAutocomplete(
 
   if (suggestions.length === 0) {
     // This looks like a command name, but not a known one
-    if (/^\\[a-zA-Z\*]+$/.test(commandString))
+    if (/^\\[a-zA-Z\*]+$/.test(commandString)) {
       command.forEach((x) => (x.isError = true));
+    }
 
     hidePopover(mathfield);
     return;

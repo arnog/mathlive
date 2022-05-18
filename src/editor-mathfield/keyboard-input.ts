@@ -235,17 +235,13 @@ export function onKeystroke(
             evt.stopPropagation();
           }
           return true;
-        } else {
-          const nextSibling = model.at(model.position + 1);
-          const previousSibling = model.at(model.position - 1);
-          if (
-            nextSibling?.mode === 'text' ||
-            previousSibling?.mode === 'text'
-          ) {
-            mathfield.snapshot();
-            ModeEditor.insert('text', model, ' ');
-            mathfield.dirty = true;
-          }
+        }
+        const nextSibling = model.at(model.position + 1);
+        const previousSibling = model.at(model.position - 1);
+        if (nextSibling?.mode === 'text' || previousSibling?.mode === 'text') {
+          mathfield.snapshot();
+          ModeEditor.insert('text', model, ' ');
+          mathfield.dirty = true;
         }
       }
 
@@ -512,8 +508,9 @@ export function onTypedText(
           /[a-zA-Z]/.test(c)
         ) {
           if (atom.style.variant) style.variant = atom.style.variant;
-          if (atom.style.variantStyle)
+          if (atom.style.variantStyle) {
             style.variantStyle = atom.style.variantStyle;
+          }
         }
 
         // General purpose character insertion

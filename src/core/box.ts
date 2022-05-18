@@ -479,8 +479,9 @@ export class Box {
     let newBackgroundColor = context.computedBackgroundColor;
     if (this.isSelected) newBackgroundColor = highlight(newBackgroundColor);
 
-    if (newBackgroundColor === parent.computedBackgroundColor)
+    if (newBackgroundColor === parent.computedBackgroundColor) {
       newBackgroundColor = '';
+    }
 
     //
     // Wrap the box if necessary.
@@ -532,9 +533,9 @@ export class Box {
     // If we're at the root, nothing to do
     if (!parent) return this;
 
-    let newBackgroundColor = highlight(context.computedBackgroundColor);
+    const newBackgroundColor = highlight(context.computedBackgroundColor);
 
-    let result = makeStruts(this);
+    const result = makeStruts(this);
     result.selected(true);
     result.setStyle('background-color', newBackgroundColor);
     result.setStyle('display', 'inline-block');

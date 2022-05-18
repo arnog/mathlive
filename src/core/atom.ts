@@ -37,8 +37,9 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   json = { ...json };
 
   // Restore the branches
-  for (const branch of NAMED_BRANCHES)
+  for (const branch of NAMED_BRANCHES) {
     if (json[branch]) json[branch] = fromJson(json[branch] as AtomJson[]);
+  }
   if (json.array) json.array = fromJson(json.array);
 
   const type: AtomType = json.type;
@@ -79,8 +80,9 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
 
   // Restore properties
 
-  if (json.verbatimLatex !== undefined)
+  if (json.verbatimLatex !== undefined) {
     result.verbatimLatex = json.verbatimLatex;
+  }
 
   if (json.isExtensibleSymbol) result.isExtensibleSymbol = true;
   if (json.subsupPlacement) result.subsupPlacement = json.subsupPlacement;

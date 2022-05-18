@@ -623,7 +623,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /**
      * To create programmatically a new mahfield use:
-     * 
+     *
      * ```javascript
     let mfe = new MathfieldElement();
 
@@ -968,8 +968,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   connectedCallback(): void {
     if (!this.hasAttribute('role')) this.setAttribute('role', 'textbox');
     this.setAttribute('dir', 'ltr');
-    if (!this.hasAttribute('aria-label'))
+    if (!this.hasAttribute('aria-label')) {
       this.setAttribute('aria-label', 'math input field');
+    }
 
     // NVDA on Firefox seems to require this attribute
     this.setAttribute('contenteditable', 'true');
@@ -1181,8 +1182,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (!gDeferredState.has(this)) {
       this.upgradeProperty('disabled');
       this.upgradeProperty('readonly');
-      for (const attr of Object.keys(MathfieldElement.optionsAttributes))
+      for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
         this.upgradeProperty(toCamelCase(attr));
+      }
     }
 
     // The mathfield creation could have failed
@@ -1646,9 +1648,9 @@ function reflectAttributes(element: MathfieldElement) {
   Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
     const prop = toCamelCase(x);
     if (MathfieldElement.optionsAttributes[x] === 'on/off') {
-      if (defaultOptions[prop] !== options[prop])
+      if (defaultOptions[prop] !== options[prop]) {
         element.setAttribute(x, options[prop] ? 'on' : 'off');
-      else element.removeAttribute(x);
+      } else element.removeAttribute(x);
     } else if (defaultOptions[prop] !== options[prop]) {
       if (MathfieldElement.optionsAttributes[x] === 'boolean') {
         if (options[prop]) {

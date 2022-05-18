@@ -100,7 +100,7 @@ export class GroupAtom extends Atom {
       classes: this.customClass,
       mode: this.mode,
       style: { backgroundColor: this.style.backgroundColor },
-      newList: this.boxType ? false : true,
+      newList: !this.boxType,
     });
     if (!box) return box;
     if (this.cssId) box.cssId = this.cssId;

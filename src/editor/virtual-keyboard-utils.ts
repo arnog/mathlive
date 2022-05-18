@@ -2048,8 +2048,9 @@ export function makeKeyboardElement(
       const layerMarkup = layers[layerName];
       // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
       // be expanded
-      if (typeof layerMarkup === 'string')
+      if (typeof layerMarkup === 'string') {
         markup += expandLayerMarkup(keyboard.options, layerMarkup);
+      }
       markup += '</div>';
     }
   }

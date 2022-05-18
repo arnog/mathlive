@@ -52,9 +52,9 @@ function getFileUrl() {
 let gResolvedScriptUrl: string | null = null;
 
 export function resolveRelativeUrl(url: string): string {
-  if (gResolvedScriptUrl === null)
+  if (gResolvedScriptUrl === null) {
     try {
-      var request = new XMLHttpRequest();
+      const request = new XMLHttpRequest();
       // Do a `HEAD` request, we don't care about the body
       request.open('HEAD', gScriptUrl, false);
       request.send(null);
@@ -62,6 +62,7 @@ export function resolveRelativeUrl(url: string): string {
     } catch (e) {
       console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
     }
+  }
 
   if (gResolvedScriptUrl) return new URL(url, gResolvedScriptUrl).href;
 

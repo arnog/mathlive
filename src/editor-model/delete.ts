@@ -184,14 +184,16 @@ function onDelete(
     //
     if (!branch) {
       // After or before atom
-      if (atom.type === 'overunder' && atom.hasEmptyBranch('body'))
+      if (atom.type === 'overunder' && atom.hasEmptyBranch('body')) {
         return false;
+      }
       if (
         atom.type === 'genfrac' &&
         atom.hasEmptyBranch('below') &&
         atom.hasEmptyBranch('above')
-      )
+      ) {
         return false;
+      }
       model.position = model.offsetOf(
         direction === 'forward' ? atom.firstChild : atom.lastChild
       );
@@ -380,15 +382,16 @@ export function deleteForward(model: ModelPrivate): boolean {
  */
 
 export function deleteRange(model: ModelPrivate, range: Range): boolean {
-  let result = model.getAtoms(range);
+  const result = model.getAtoms(range);
   if (result.length > 0 && result[0].parent) {
     let firstChild = result[0].parent!.firstChild;
     if (firstChild.type === 'first') firstChild = firstChild.rightSibling;
     const lastChild = result[result.length - 1].parent!.lastChild;
 
     let firstSelected = result[0];
-    if (firstSelected.type === 'first')
+    if (firstSelected.type === 'first') {
       firstSelected = firstSelected.rightSibling;
+    }
     const lastSelected = result[result.length - 1];
 
     // If we're deleting all the children, also delete the parent

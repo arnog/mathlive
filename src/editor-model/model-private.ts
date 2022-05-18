@@ -356,11 +356,13 @@ export class ModelPrivate implements Model {
       });
     }
 
-    if (format === 'math-ml')
+    if (format === 'math-ml') {
       return atomsToMathML(atom, this.mathfield.options);
+    }
 
-    if (format === 'spoken')
+    if (format === 'spoken') {
       return atomToSpeakableText(atom, this.mathfield.options);
+    }
 
     if (format === 'spoken-text') {
       const saveTextToSpeechMarkup = this.mathfield.options.textToSpeechMarkup;

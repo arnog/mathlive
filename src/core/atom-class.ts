@@ -337,8 +337,9 @@ export class Atom {
   ): string {
     if (isArray<Atom>(value)) return serializeAtoms(value, options);
 
-    if (typeof value === 'number' || typeof value === 'boolean')
+    if (typeof value === 'number' || typeof value === 'boolean') {
       return value.toString();
+    }
 
     if (typeof value === 'string') return value.replace(/\s/g, '~');
 
@@ -378,8 +379,9 @@ export class Atom {
   static fromJson(json: AtomJson): Atom {
     const result = new Atom(json.type, json as any);
     // Restore the branches
-    for (const branch of NAMED_BRANCHES)
+    for (const branch of NAMED_BRANCHES) {
       if (json[branch]) result.setChildren(json[branch], branch);
+    }
     return result;
   }
 
@@ -391,8 +393,9 @@ export class Atom {
     if (this.value !== undefined) result.value = this.value;
     if (this.style) result.style = { ...this.style };
 
-    if (this.verbatimLatex !== undefined)
+    if (this.verbatimLatex !== undefined) {
       result.verbatimLatex = this.verbatimLatex;
+    }
 
     if (this.subsupPlacement) result.subsupPlacement = this.subsupPlacement;
     if (this.explicitSubsupPlacement) result.explicitSubsupPlacement = true;
@@ -410,11 +413,13 @@ export class Atom {
       //   if (this._branches[branch])
       //     result[branch] = this._branches[branch]?.map((x) => x.toJson);
       //isNamedBranch
-      for (const branch of Object.keys(this._branches))
-        if (this._branches[branch])
+      for (const branch of Object.keys(this._branches)) {
+        if (this._branches[branch]) {
           result[branch] = this._branches[branch]
             .filter((x) => x.type !== 'first')
             .map((x) => x.toJson());
+        }
+      }
     }
 
     return result;
@@ -453,11 +458,13 @@ export class Atom {
   serialize(options: ToLatexOptions): string {
     // If we have some verbatim latex for this atom, use it.
     // This allow non-significant punctuation to be preserved when possible.
-    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string') {
       return this.verbatimLatex;
+    }
 
-    if (this.command && Atom.customSerializer[this.command])
+    if (this.command && Atom.customSerializer[this.command]) {
       return Atom.customSerializer[this.command](this, options);
+    }
 
     if (this.body && this.command) {
       // There's a command and body
@@ -561,8 +568,9 @@ export class Atom {
   get branches(): Branch[] {
     if (!this._branches) return [];
     const result: Branch[] = [];
-    for (const branch of NAMED_BRANCHES)
+    for (const branch of NAMED_BRANCHES) {
       if (this._branches[branch]) result.push(branch);
+    }
 
     return result;
   }
@@ -1189,8 +1197,9 @@ export class Atom {
     if (context.isTight) result.isTight = true;
 
     // The italic correction applies only in math mode
-    if (this.mode !== 'math' || this.style.variant === 'main')
+    if (this.mode !== 'math' || this.style.variant === 'main') {
       result.italic = 0;
+    }
     result.right = result.italic;
 
     // To retrieve the atom from a box, for example when the box is clicked
@@ -1261,8 +1270,9 @@ export class Atom {
     if (context.isTight) result.isTight = true;
 
     // The italic correction applies only in math mode
-    if (this.mode !== 'math' || this.style.variant === 'main')
+    if (this.mode !== 'math' || this.style.variant === 'main') {
       result.italic = 0;
+    }
     result.right = result.italic;
 
     // To retrieve the atom from a box, for example when the box is clicked
@@ -1288,11 +1298,13 @@ export class Atom {
     return false;
   }
   asDigit(): string {
-    if (this.type === 'mord' && this.value && /^[\d,.]$/.test(this.value))
+    if (this.type === 'mord' && this.value && /^[\d,.]$/.test(this.value)) {
       return this.value;
+    }
     if (this.type === 'group' && this.body?.length === 2) {
-      if (this.body![0].type === 'first' && this.body![1].value === ',')
+      if (this.body![0].type === 'first' && this.body![1].value === ',') {
         return '.';
+      }
     }
     return '';
   }
@@ -1389,7 +1401,7 @@ function renderStyleRun(
   let newList = options?.newList ?? false;
   if (atoms.length === 1) {
     const atom = atoms[0];
-    let box = atom.render(context, { newList });
+    const box = atom.render(context, { newList });
     if (box) {
       if (displaySelection && atom.isSelected) box.selected(true);
       boxes = [box];
@@ -1406,10 +1418,11 @@ function renderStyleRun(
         context.atomIdsSettings.overrideID = digitOrTextStringID;
       }
 
-      let box = atom.render(context, { newList });
+      const box = atom.render(context, { newList });
 
-      if (context.atomIdsSettings)
+      if (context.atomIdsSettings) {
         context.atomIdsSettings.overrideID = undefined;
+      }
 
       if (box) {
         // Groups (i.e. `{}`) without a specific boxType restart a new list

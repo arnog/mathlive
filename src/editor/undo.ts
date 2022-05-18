@@ -51,28 +51,32 @@ export class UndoManager {
 
   undo(options: UndoOptions): void {
     if (!this.canUndo()) return;
-    if (typeof options?.onUndoStateWillChange === 'function')
+    if (typeof options?.onUndoStateWillChange === 'function') {
       options.onUndoStateWillChange(this.model.mathfield, 'undo');
+    }
 
     this.restore(this.stack[this.index - 1], options);
     this.index -= 1;
 
-    if (options && typeof options.onUndoStateDidChange === 'function')
+    if (options && typeof options.onUndoStateDidChange === 'function') {
       options.onUndoStateDidChange(this.model.mathfield, 'undo');
+    }
 
     this.canCoalesce = false;
   }
 
   redo(options: UndoOptions): void {
     if (!this.canRedo()) return;
-    if (typeof options?.onUndoStateWillChange === 'function')
+    if (typeof options?.onUndoStateWillChange === 'function') {
       options.onUndoStateWillChange(this.model.mathfield, 'redo');
+    }
 
     this.index += 1;
     this.restore(this.stack[this.index], options);
 
-    if (options && typeof options.onUndoStateDidChange === 'function')
+    if (options && typeof options.onUndoStateDidChange === 'function') {
       options.onUndoStateDidChange(this.model.mathfield, 'redo');
+    }
 
     this.canCoalesce = false;
   }
@@ -90,8 +94,9 @@ export class UndoManager {
   snapshot(options?: UndoOptions): void {
     if (!this.recording) return;
 
-    if (typeof options?.onUndoStateWillChange === 'function')
+    if (typeof options?.onUndoStateWillChange === 'function') {
       options.onUndoStateWillChange(this.model.mathfield, 'snapshot');
+    }
 
     // Drop any entries that are part of the redo stack
     this.stack.splice(this.index + 1, this.stack.length - this.index - 1);
@@ -108,8 +113,9 @@ export class UndoManager {
     // oldest one.
     if (this.stack.length > this.maximumDepth) this.stack.shift();
 
-    if (typeof options?.onUndoStateDidChange === 'function')
+    if (typeof options?.onUndoStateDidChange === 'function') {
       options.onUndoStateDidChange(this.model.mathfield, 'snapshot');
+    }
 
     this.canCoalesce = false;
   }

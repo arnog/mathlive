@@ -83,11 +83,12 @@ export function selectGroup(model: ModelPrivate): boolean {
         }
 
         model.setSelection(start, end - 1);
-      } else
+      } else {
         model.setSelection(
           model.offsetOf(atom.firstSibling),
           model.offsetOf(atom.lastSibling)
         );
+      }
     }
   }
 

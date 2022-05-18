@@ -572,8 +572,9 @@ export class MathfieldPrivate implements Mathfield {
   get computeEngine(): ComputeEngine {
     if (!this._computeEngine) {
       this._computeEngine = new ComputeEngine();
-      if (this.options.decimalSeparator === ',')
+      if (this.options.decimalSeparator === ',') {
         this._computeEngine.latexOptions.decimalMarker = '{,}';
+      }
     }
     return this._computeEngine;
   }

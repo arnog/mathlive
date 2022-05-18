@@ -1834,7 +1834,7 @@ export function parseLatex(
     },
   });
 
-  let atoms: Atom[] = [];
+  const atoms: Atom[] = [];
   while (!parser.end()) {
     const more = parser.parse();
     if (!more) break;

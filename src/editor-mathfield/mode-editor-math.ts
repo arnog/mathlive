@@ -499,7 +499,7 @@ function simplifyParen(atoms: Atom[]): void {
 
 function findPlaceholders(atoms: Atom[]): PlaceholderAtom[] {
   if (!atoms) return [];
-  let result: PlaceholderAtom[] = [];
+  const result: PlaceholderAtom[] = [];
   for (const atom of atoms) {
     for (const branch of atom.branches) {
       if (!atom.hasEmptyBranch(branch)) {

@@ -203,10 +203,12 @@ function atomToSpeakableFragment(
       return c;
     }
 
-    if (/[a-z]/.test(c))
+    if (/[a-z]/.test(c)) {
       return ` <say-as interpret-as="character">${c}</say-as>`;
-    if (/[A-Z]/.test(c))
+    }
+    if (/[A-Z]/.test(c)) {
       return `capital <say-as interpret-as="character">${c.toLowerCase()}</say-as>`;
+    }
     return c;
   }
 

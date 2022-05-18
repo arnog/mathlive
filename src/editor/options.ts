@@ -163,8 +163,9 @@ export function update(
         break;
 
       case 'plonkSound':
-        if (result.plonkSound instanceof HTMLAudioElement)
+        if (result.plonkSound instanceof HTMLAudioElement) {
           unloadSound(result.plonkSound);
+        }
         result.plonkSound = loadSound(soundsDirectory, updates.plonkSound);
         break;
 

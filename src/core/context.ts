@@ -126,13 +126,15 @@ export class Context implements ContextInterface {
       ...parent,
     };
     if (style) {
-      if (style.letterShapeStyle && style.letterShapeStyle !== 'auto')
+      if (style.letterShapeStyle && style.letterShapeStyle !== 'auto') {
         from.letterShapeStyle = style.letterShapeStyle;
+      }
 
       if (style.color && style.color !== 'none') from.color = style.color;
 
-      if (style.backgroundColor && style.backgroundColor !== 'none')
+      if (style.backgroundColor && style.backgroundColor !== 'none') {
         from.backgroundColor = style.backgroundColor;
+      }
 
       if (
         style.fontSize &&

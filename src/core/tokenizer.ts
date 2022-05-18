@@ -201,7 +201,7 @@ function expand(
   lex: Tokenizer,
   args: null | ((arg: string) => string)
 ): Token[] {
-  let result: Token[] = [];
+  const result: Token[] = [];
   let token = lex.next();
   if (token) {
     if (token === '\\relax') {
@@ -319,7 +319,7 @@ export function tokenize(
   args: null | ((arg: string) => string) = null
 ): Token[] {
   // Merge multiple lines into one, and remove comments
-  let stream: string[] = [];
+  const stream: string[] = [];
   let sep = '';
   for (const line of s.toString().split(/\r?\n/)) {
     if (sep) stream.push(sep);
@@ -331,7 +331,7 @@ export function tokenize(
   }
 
   const tokenizer = new Tokenizer(stream.join(''));
-  let result: Token[] = [];
+  const result: Token[] = [];
   do {
     result.push(...expand(tokenizer, args));
   } while (!tokenizer.end());
@@ -341,7 +341,7 @@ export function tokenize(
 
 export function joinLatex(segments: string[]): string {
   let sep = '';
-  let result: string[] = [];
+  const result: string[] = [];
   for (const segment of segments) {
     if (segment) {
       // If the segment begins with a char that *could* be in a command

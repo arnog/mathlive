@@ -166,9 +166,9 @@ function parseSubsup(base: string, stream: MathMLSteam, options): boolean {
   if (!superscript && !subscript) return false;
 
   let mathML = '';
-  if (superscript && subscript)
+  if (superscript && subscript) {
     mathML = `<msubsup>${base}${subscript}${superscript}</msubsup>`;
-  else if (superscript) mathML = `<msup>${base}${superscript}</msup>`;
+  } else if (superscript) mathML = `<msup>${base}${superscript}</msup>`;
   else if (subscript) mathML = `<msub>${base}${subscript}</msub>`;
 
   stream.mathML += mathML;
