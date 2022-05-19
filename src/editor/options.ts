@@ -127,11 +127,9 @@ export function update(
       case 'virtualKeyboardMode':
         const keyboardMode =
           updates.virtualKeyboardMode!.toLowerCase() as VirtualKeyboardMode;
-        if (keyboardMode === 'auto') {
+        if (keyboardMode === 'auto')
           result.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
-        } else {
-          result.virtualKeyboardMode = keyboardMode;
-        }
+        else result.virtualKeyboardMode = keyboardMode;
 
         break;
 

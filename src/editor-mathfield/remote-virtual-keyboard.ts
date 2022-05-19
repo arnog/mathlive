@@ -115,19 +115,15 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
         if (
           getCommandTarget(event.data.command!) === 'virtual-keyboard' &&
           window === window.parent
-        ) {
+        )
           return;
-        }
 
         this.executeCommand(event.data.command!);
       } else if (action === 'updateState') {
         this.visible = event.data.state!.visible;
         this.height = event.data.state!.height;
-      } else if (action === 'focus') {
-        this._mathfield?.focus?.();
-      } else if (action === 'blur') {
-        this._mathfield?.blur?.();
-      }
+      } else if (action === 'focus') this._mathfield?.focus?.();
+      else if (action === 'blur') this._mathfield?.blur?.();
     }
   }
 
@@ -214,9 +210,8 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
 
         // Avoid an infinite messages loop if within one window
         const commandTarget = getCommandTarget(command!);
-        if (commandTarget !== 'virtual-keyboard' && window === window.parent) {
+        if (commandTarget !== 'virtual-keyboard' && window === window.parent)
           return;
-        }
 
         this.executeCommand(command!);
       }
