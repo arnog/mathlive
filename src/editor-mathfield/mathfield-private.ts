@@ -350,7 +350,7 @@ export class MathfieldPrivate implements Mathfield {
     )!;
     if (
       !this.options.readOnly &&
-      this.options.virtualKeyboardMode.toLowerCase() === 'manual'
+      this.options.virtualKeyboardMode === 'manual'
     ) {
       this.virtualKeyboardToggle.classList.add('is-visible');
     } else {
@@ -680,7 +680,7 @@ export class MathfieldPrivate implements Mathfield {
 
     if (
       !this.options.readOnly &&
-      this.options.virtualKeyboardMode.toLowerCase() === 'manual'
+      this.options.virtualKeyboardMode === 'manual'
     ) {
       this.virtualKeyboardToggle?.classList.add('is-visible');
     } else {
@@ -1350,7 +1350,7 @@ export class MathfieldPrivate implements Mathfield {
 
       this.virtualKeyboard?.enable();
 
-      if (this.options.virtualKeyboardMode.toLowerCase() === 'onfocus') {
+      if (this.options.virtualKeyboardMode === 'onfocus') {
         this.executeCommand('showVirtualKeyboard');
       }
 
@@ -1372,7 +1372,7 @@ export class MathfieldPrivate implements Mathfield {
       this.ariaLiveText!.textContent = '';
 
       if (
-        /onfocus|manual/.test(this.options.virtualKeyboardMode.toLowerCase())
+        /onfocus|manual/.test(this.options.virtualKeyboardMode)
       ) {
         this.executeCommand('hideVirtualKeyboard');
       }

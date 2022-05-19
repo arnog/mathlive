@@ -20,6 +20,7 @@ import { defaultReadAloudHook } from './speech-read-aloud';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
+import { VirtualKeyboardMode } from '../public/mathfield-element';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -126,10 +127,12 @@ export function update(
         break;
 
       case 'virtualKeyboardMode':
-        if (updates.virtualKeyboardMode === 'auto') {
+        const keyboardMode =
+          updates.virtualKeyboardMode!.toLowerCase() as VirtualKeyboardMode;
+        if (keyboardMode === 'auto') {
           result.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
         } else {
-          result.virtualKeyboardMode = updates.virtualKeyboardMode!;
+          result.virtualKeyboardMode = keyboardMode;
         }
 
         break;
