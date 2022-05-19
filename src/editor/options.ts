@@ -20,6 +20,7 @@ import { defaultReadAloudHook } from './speech-read-aloud';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
+import { VirtualKeyboardMode } from '../public/mathfield-element';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -107,10 +108,9 @@ export function update(
         break;
 
       case 'locale':
-        result.locale =
-          updates.locale === 'auto'
-            ? (isBrowser() ? navigator.language.slice(0, 5) : null) ?? 'en'
-            : updates.locale!;
+        if (updates.locale === 'auto')
+          result.locale = isBrowser() ? navigator.language.slice(0, 5) : 'en';
+        else result.locale = updates.locale!;
         l10n.locale = result.locale;
         break;
 
@@ -124,9 +124,11 @@ export function update(
         break;
 
       case 'virtualKeyboardMode':
-        if (updates.virtualKeyboardMode === 'auto')
+        const keyboardMode =
+          updates.virtualKeyboardMode!.toLowerCase() as VirtualKeyboardMode;
+        if (keyboardMode === 'auto')
           result.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
-        else result.virtualKeyboardMode = updates.virtualKeyboardMode!;
+        else result.virtualKeyboardMode = keyboardMode;
 
         break;
 
@@ -302,7 +304,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     mathModeSpace: '',
     decimalSeparator: '.',
 
-    locale: l10n.locale ?? 'en',
+    locale: l10n.locale,
     strings: l10n.strings,
 
     keybindings: DEFAULT_KEYBINDINGS,

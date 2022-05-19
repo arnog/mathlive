@@ -64,6 +64,7 @@ import {
   setKeyboardLayoutLocale,
   getActiveKeyboardLayout,
   DEFAULT_KEYBOARD_LAYOUT,
+  gKeyboardLayout,
 } from '../editor/keyboard-layout';
 
 import { VirtualKeyboard } from '../editor/virtual-keyboard';
@@ -543,7 +544,10 @@ export class MathfieldPrivate implements Mathfield {
       tabOut: (_sender, direction) => this.options.onTabOutOf(this, direction),
     });
 
-    if (!this.options.locale.startsWith(getActiveKeyboardLayout().locale))
+    if (
+      gKeyboardLayout &&
+      !this.options.locale.startsWith(gKeyboardLayout.locale)
+    )
       setKeyboardLayoutLocale(this.options.locale);
 
     requestUpdate(this);
@@ -624,7 +628,10 @@ export class MathfieldPrivate implements Mathfield {
     this.model.options.macros = this.options
       .macros as NormalizedMacroDictionary;
 
-    if (!this.options.locale.startsWith(getActiveKeyboardLayout().locale))
+    if (
+      gKeyboardLayout &&
+      !this.options.locale.startsWith(gKeyboardLayout.locale)
+    )
       setKeyboardLayoutLocale(this.options.locale);
 
     this._keybindings = undefined;

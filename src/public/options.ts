@@ -7,6 +7,7 @@ import {
   Registers,
 } from './core';
 import type { Mathfield, Range } from './mathfield';
+import { VirtualKeyboardMode } from './mathfield-element';
 import type { Selector } from './commands';
 import type { ErrorCode as MathJsonErrorCode } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
 
@@ -505,7 +506,7 @@ export type VirtualKeyboardOptions = {
    *    (**default**).
    *
    */
-  virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
+  virtualKeyboardMode: VirtualKeyboardMode;
   /**
    * Element the virtual keyboard element gets appended to. The `position`
    * attribute of this element should be `relative` so that the virtual keyboard
