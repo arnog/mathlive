@@ -36,6 +36,7 @@ import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
 import { Selector } from '../public/commands';
 import { MathfieldPrivate } from './mathfield';
+import { on } from '../editor-mathfield/utils';
 
 let gScrim: Scrim | null = null;
 
@@ -233,6 +234,15 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
 
   get height(): number {
     return this.element?.offsetHeight ?? 0;
+  }
+
+  buildAndAttachElement(theme?: 'apple' | 'material' | ''): void {
+    this.element = makeKeyboardElement(this, theme ?? '');
+    on(this.element, 'touchstart:passive mousedown', () =>
+      this.focusMathfield()
+    );
+    this.options.virtualKeyboardContainer?.appendChild(this.element);
+    this.element.classList.add('is-visible');
   }
 
   handleEvent(evt: Event): void {
