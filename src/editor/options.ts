@@ -46,9 +46,9 @@ function loadSound(
     sound === undefined ||
     sound === 'none' ||
     sound === 'null'
-  ) {
+  )
     return null;
-  }
+
   if (sound instanceof HTMLAudioElement) {
     sound.load();
     return sound;
@@ -99,13 +99,11 @@ export function update(
   for (const key of Object.keys(updates)) {
     switch (key) {
       case 'scriptDepth':
-        if (isArray<number>(updates.scriptDepth)) {
+        if (isArray<number>(updates.scriptDepth))
           result.scriptDepth = [updates.scriptDepth[0], updates.scriptDepth[1]];
-        } else if (typeof updates.scriptDepth === 'number') {
+        else if (typeof updates.scriptDepth === 'number')
           result.scriptDepth = [updates.scriptDepth, updates.scriptDepth];
-        } else {
-          throw new TypeError('Unexpected value for scriptDepth');
-        }
+        else throw new TypeError('Unexpected value for scriptDepth');
 
         break;
 
@@ -154,14 +152,9 @@ export function update(
       case 'letterShapeStyle':
         if (updates.letterShapeStyle === 'auto') {
           // Letter shape style (locale dependent)
-          if (l10n.locale.startsWith('fr')) {
-            result.letterShapeStyle = 'french';
-          } else {
-            result.letterShapeStyle = 'tex';
-          }
-        } else {
-          result.letterShapeStyle = updates.letterShapeStyle!;
-        }
+          if (l10n.locale.startsWith('fr')) result.letterShapeStyle = 'french';
+          else result.letterShapeStyle = 'tex';
+        } else result.letterShapeStyle = updates.letterShapeStyle!;
 
         break;
 
@@ -245,22 +238,17 @@ export function update(
       case 'onCommit':
       case 'onReadAloudStatus':
       case 'onError':
-        if (updates[key] === null) {
-          result[key] = NO_OP_LISTENER;
-        } else if (typeof updates[key] !== 'function') {
+        if (updates[key] === null) result[key] = NO_OP_LISTENER;
+        else if (typeof updates[key] !== 'function')
           throw new TypeError(key + ' must be a function or null');
-        }
 
         result[key] = updates[key] as any;
         break;
       default:
-        if (isArray(updates[key])) {
-          result[key] = [...updates[key]];
-        } else if (typeof updates[key] === 'object') {
+        if (isArray(updates[key])) result[key] = [...updates[key]];
+        else if (typeof updates[key] === 'object')
           result[key] = { ...updates[key] };
-        } else {
-          result[key] = updates[key];
-        }
+        else result[key] = updates[key];
     }
   }
 
@@ -272,34 +260,24 @@ export function get(
   keys?: keyof MathfieldOptionsPrivate | string[]
 ): any | Partial<MathfieldOptionsPrivate> {
   let resolvedKeys: string[];
-  if (typeof keys === 'string') {
-    resolvedKeys = [keys];
-  } else if (keys === undefined) {
-    resolvedKeys = Object.keys(config);
-  } else {
-    resolvedKeys = keys;
-  }
+  if (typeof keys === 'string') resolvedKeys = [keys];
+  else if (keys === undefined) resolvedKeys = Object.keys(config);
+  else resolvedKeys = keys;
 
   const result: Partial<MathfieldOptionsPrivate> = {};
   for (const x of resolvedKeys) {
-    if (isArray(config[x])) {
-      result[x] = [...config[x]];
-    } else if (config[x] instanceof HTMLElement) {
+    if (isArray(config[x])) result[x] = [...config[x]];
+    else if (config[x] instanceof HTMLElement) {
       //For 'plonksound', it's a AudioElement
       result[x] = config[x];
-    } else if (config[x] === null) {
-      result[x] = null;
-    } else if (typeof config[x] === 'object') {
+    } else if (config[x] === null) result[x] = null;
+    else if (typeof config[x] === 'object') {
       // Some object literal, make a copy (for keypressSound)
       result[x] = { ...config[x] };
-    } else {
-      result[x] = config[x];
-    }
+    } else result[x] = config[x];
   }
   // If requested a single key, return its value
-  if (typeof keys === 'string') {
-    return result[keys];
-  }
+  if (typeof keys === 'string') return result[keys];
 
   return result;
 }

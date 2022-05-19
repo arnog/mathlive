@@ -421,9 +421,7 @@ export function defaultColorMap(s: string): string | undefined {
           red = Math.max(0, Math.min(255, Number.parseInt(m[1])));
           green = Math.max(0, Math.min(255, Number.parseInt(m[2])));
           blue = Math.max(0, Math.min(255, Number.parseInt(m[3])));
-        } else {
-          return undefined;
-        }
+        } else return undefined;
       }
     }
 
@@ -434,9 +432,8 @@ export function defaultColorMap(s: string): string | undefined {
       mix = -1;
     }
 
-    if (i + 1 < colorSpec.length) {
+    if (i + 1 < colorSpec.length)
       mix = Math.max(0, Math.min(100, Number.parseInt(colorSpec[++i]))) / 100;
-    }
   }
 
   if (mix >= 0) {
@@ -481,18 +478,14 @@ function parseHex(
       g: parseInt(hex[1] + hex[1], 16),
       b: parseInt(hex[2] + hex[2], 16),
     };
-    if (hex.length === 4) {
-      result.a = parseInt(hex[3] + hex[3], 16) / 255;
-    }
+    if (hex.length === 4) result.a = parseInt(hex[3] + hex[3], 16) / 255;
   } else {
     result = {
       r: parseInt(hex[0] + hex[1], 16),
       g: parseInt(hex[2] + hex[3], 16),
       b: parseInt(hex[4] + hex[5], 16),
     };
-    if (hex.length === 8) {
-      result.a = parseInt(hex[6] + hex[7], 16) / 255;
-    }
+    if (hex.length === 8) result.a = parseInt(hex[6] + hex[7], 16) / 255;
   }
   if (result && result.a === undefined) result.a = 1.0;
   return result;
@@ -546,9 +539,9 @@ function rgbToHexstring(rgb: { r: number; g: number; b: number }): string {
     hexString[2] === hexString[3] &&
     hexString[4] === hexString[5] &&
     hexString[6] === hexString[7]
-  ) {
+  )
     hexString = hexString[0] + hexString[2] + hexString[4];
-  }
+
   return '#' + hexString;
 }
 
@@ -566,27 +559,19 @@ function rgbToHsl(rgb: { r: number; g: number; b: number }): {
   const delta = max - min;
   let h;
   let s;
-  if (max === min) {
-    h = 0;
-  } else if (r === max) {
-    h = (g - b) / delta;
-  } else if (g === max) {
-    h = 2 + (b - r) / delta;
-  } else if (b === max) {
-    h = 4 + (r - g) / delta;
-  }
+  if (max === min) h = 0;
+  else if (r === max) h = (g - b) / delta;
+  else if (g === max) h = 2 + (b - r) / delta;
+  else if (b === max) h = 4 + (r - g) / delta;
+
   h = Math.min(h * 60, 360);
-  if (h < 0) {
-    h += 360;
-  }
+  if (h < 0) h += 360;
+
   const l = (min + max) / 2;
-  if (max === min) {
-    s = 0;
-  } else if (l <= 0.5) {
-    s = delta / (max + min);
-  } else {
-    s = delta / (2 - max - min);
-  }
+  if (max === min) s = 0;
+  else if (l <= 0.5) s = delta / (max + min);
+  else s = delta / (2 - max - min);
+
   return { h: h, s: s, l: l };
 }
 

@@ -235,9 +235,9 @@ function parseMathArgument(
 
     if (level === 0) {
       // We've found the matching closing fence
-      if (options.noWrap && lFence === '(') {
+      if (options.noWrap && lFence === '(')
         match = parseMathExpression(s.substring(1, i - 1), options);
-      } else {
+      else {
         if (lFence === '{' && rFence === '}') {
           lFence = '\\{';
           rFence = '\\}';
@@ -303,9 +303,7 @@ function paddedShortcut(
     result = result.replace('_{#?}', '');
     result = result.replace('^{#?}', '');
     result += ' ';
-  } else {
-    result = s;
-  }
+  } else result = s;
 
   return result;
 }

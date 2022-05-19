@@ -38,24 +38,18 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
         } else {
           const attribute = s.match(/\s*([a-z]*)\s*=\s*"(.*)"/);
           if (attribute) {
-            if (attribute[1] === 'mathbackground') {
+            if (attribute[1] === 'mathbackground')
               options.backgroundcolor = attribute[2];
-            } else if (attribute[1] === 'mathcolor') {
+            else if (attribute[1] === 'mathcolor')
               options.strokeColor = attribute[2];
-            } else if (attribute[1] === 'padding') {
-              options.padding = attribute[2];
-            } else if (attribute[1] === 'shadow') {
-              options.shadow = attribute[2];
-            }
+            else if (attribute[1] === 'padding') options.padding = attribute[2];
+            else if (attribute[1] === 'shadow') options.shadow = attribute[2];
           }
         }
       }
 
-      if (options.strokeStyle === 'dashed') {
-        options.svgStrokeStyle = '5,5';
-      } else if (options.strokeStyle === 'dotted') {
-        options.svgStrokeStyle = '1,5';
-      }
+      if (options.strokeStyle === 'dashed') options.svgStrokeStyle = '5,5';
+      else if (options.strokeStyle === 'dotted') options.svgStrokeStyle = '1,5';
     }
 
     options.borderStyle = `${options.strokeWidth} ${options.strokeStyle} ${options.strokeColor}`;

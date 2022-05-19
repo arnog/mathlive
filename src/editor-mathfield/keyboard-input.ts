@@ -32,7 +32,27 @@ import { showKeystroke } from './keystroke-caption';
 import { Atom } from '../core/atom';
 
 /**
- * @param evt - An Event corresponding to the keystroke.
+ * Handler in response to a keystroke event.
+ *
+ * Return `false` if the event has been handled as a shortcut or command and
+ * need no further processing. Return `true` if the event should be handled as
+ * a regular textual input.
+ *
+ *
+ * Theory of Operation
+ *
+ * When the user type on the keyboard, printable keys (i.e. not arrows, shift,
+ * escape, etc...) are captured in a `keystrokeBuffer`.
+ *
+ * The buffer is used to determine if the user intended to type an
+ * inline shortcut (e.g. "pi" for `\pi`), a multichar symbol, or some keybinding
+ * (i.e.g "command+a" to "seletc all").
+ *
+ * Characters are added to this buffer while the user type printable characters
+ * consecutively. If the user change selection (with the mouse, or by
+ * navigating with the keyboard), if an unambiguous match for the buffer is
+ * found, the buffer is cleared.
+ *
  */
 export function onKeystroke(
   mathfield: MathfieldPrivate,
@@ -50,6 +70,7 @@ export function onKeystroke(
   if (mathfield.keyboardLayout !== activeLayout.id) {
     // console.log('Switching to keyboard layout ' + activeLayout.id);
     mathfield.keyboardLayout = activeLayout.id;
+    // If we changed keyboard layout, we'll have to recache the keybindings
     mathfield._keybindings = undefined;
   }
 
@@ -75,7 +96,7 @@ export function onKeystroke(
     return false;
   }
 
-  // 5. Let's try to find a matching shortcut or command
+  // 5. Let's try to find a matching inline shortcut or keybinding
   let shortcut: string | undefined;
   let selector: Selector | '' | [Selector, ...any[]] = '';
   let stateIndex: number;
@@ -146,7 +167,12 @@ export function onKeystroke(
         countInlineShortcutsStartingWith(candidate, mathfield.options) <= 1
       ) {
         // There's only a single shortcut matching this sequence.
-        // We can confidently reset the keystroke buffer
+        // We can confidently reset the keystroke buffer\
+        console.log(
+          candidate,
+          mathfield.keystrokeBuffer,
+          mathfield.keystrokeBufferStates
+        );
         resetKeystrokeBuffer = true;
       } else {
         // There are several potential shortcuts matching this sequence.
@@ -183,9 +209,8 @@ export function onKeystroke(
     if (
       mathfield.mode !== previousMode &&
       typeof mathfield.options.onModeChange === 'function'
-    ) {
+    )
       mathfield.options.onModeChange(mathfield, mathfield.mode);
-    }
   }
 
   // 5.3 Check if this matches a keybinding.
@@ -235,17 +260,13 @@ export function onKeystroke(
             evt.stopPropagation();
           }
           return true;
-        } else {
-          const nextSibling = model.at(model.position + 1);
-          const previousSibling = model.at(model.position - 1);
-          if (
-            nextSibling?.mode === 'text' ||
-            previousSibling?.mode === 'text'
-          ) {
-            mathfield.snapshot();
-            ModeEditor.insert('text', model, ' ');
-            mathfield.dirty = true;
-          }
+        }
+        const nextSibling = model.at(model.position + 1);
+        const previousSibling = model.at(model.position - 1);
+        if (nextSibling?.mode === 'text' || previousSibling?.mode === 'text') {
+          mathfield.snapshot();
+          ModeEditor.insert('text', model, ' ');
+          mathfield.dirty = true;
         }
       }
 
@@ -286,9 +307,8 @@ export function onKeystroke(
   //
   // 6.2 If there's a selector, perform it.
   //
-  if (selector) {
-    mathfield.executeCommand(selector);
-  } else if (shortcut) {
+  if (selector) mathfield.executeCommand(selector);
+  else if (shortcut) {
     //
     // 6.3 Cancel the (upcoming) composition
 
@@ -301,6 +321,7 @@ export function onKeystroke(
 
     //
     // 6.4 Insert the shortcut
+    //
     // If the shortcut is a mandatory escape sequence (\}, etc...)
     // don't make it undoable, this would result in syntactically incorrect
     // formulas
@@ -351,10 +372,9 @@ export function onKeystroke(
     mathfield.snapshot();
     mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
     model.announce('replacement');
+
     // If we're done with the shortcuts (found a unique one), reset it.
-    if (resetKeystrokeBuffer) {
-      mathfield.resetKeystrokeBuffer();
-    }
+    if (resetKeystrokeBuffer) mathfield.resetKeystrokeBuffer();
   }
 
   //
@@ -405,13 +425,11 @@ export function onTypedText(
   //
   // 1/ Focus, then provide audio and haptic feedback
   //
-  if (options.focus) {
-    mathfield.focus();
-  }
+  if (options.focus) mathfield.focus();
+
   if (options.feedback) {
-    if (mathfield.options.keypressVibration && canVibrate()) {
+    if (mathfield.options.keypressVibration && canVibrate())
       navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
-    }
 
     mathfield.keypressSound?.play().catch(console.warn);
   }
@@ -419,9 +437,8 @@ export function onTypedText(
   //
   // 2/ Switch mode if requested
   //
-  if (typeof options.mode === 'string' && mathfield.mode !== options.mode) {
+  if (typeof options.mode === 'string' && mathfield.mode !== options.mode)
     mathfield.switchMode(options.mode);
-  }
 
   //
   // 3/ Simulate keystroke, if requested
@@ -430,9 +447,8 @@ export function onTypedText(
     // For (const c of text) {
     const c = text.charAt(0);
     const ev = new KeyboardEvent('keypress', { key: c });
-    if (!onKeystroke(mathfield, c, ev)) {
-      return;
-    }
+    if (!onKeystroke(mathfield, c, ev)) return;
+
     // }
   }
 
@@ -461,17 +477,13 @@ export function onTypedText(
 
   if (mathfield.mode === 'latex') {
     model.deferNotifications({ content: true, selection: true }, () => {
-      for (const c of graphemes) {
-        ModeEditor.insert('latex', model, c);
-      }
+      for (const c of graphemes) ModeEditor.insert('latex', model, c);
 
       updateAutocomplete(mathfield);
     });
-  } else if (mathfield.mode === 'text') {
-    for (const c of graphemes) {
-      ModeEditor.insert('text', model, c, { style });
-    }
-  } else if (mathfield.mode === 'math') {
+  } else if (mathfield.mode === 'text')
+    for (const c of graphemes) ModeEditor.insert('text', model, c, { style });
+  else if (mathfield.mode === 'math') {
     for (const c of graphemes) {
       // Some characters are mapped to commands. Handle them here.
       // This is important to handle synthetic text input and
@@ -487,12 +499,11 @@ export function onTypedText(
           ' ': 'moveAfterParent',
         } as const
       )[c];
-      if (c === ' ' && mathfield.options.mathModeSpace) {
+      if (c === ' ' && mathfield.options.mathModeSpace)
         selector = ['insert', mathfield.options.mathModeSpace];
-      }
-      if (selector) {
-        mathfield.executeCommand(selector);
-      } else if (
+
+      if (selector) mathfield.executeCommand(selector);
+      else if (
         /\d/.test(c) &&
         mathfield.options.smartSuperscript &&
         model.at(model.position).treeBranch === 'superscript' &&

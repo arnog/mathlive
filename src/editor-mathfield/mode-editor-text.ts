@@ -22,9 +22,7 @@ export class TextModeEditor extends ModeEditor {
 
     if (text) {
       mathfield.snapshot();
-      if (this.insert(mathfield.model, text)) {
-        requestUpdate(mathfield);
-      }
+      if (this.insert(mathfield.model, text)) requestUpdate(mathfield);
 
       ev.preventDefault();
       ev.stopPropagation();
@@ -45,9 +43,8 @@ export class TextModeEditor extends ModeEditor {
     options.macros = options.macros ?? model.options.macros;
 
     const { suppressChangeNotifications } = model;
-    if (options.suppressChangeNotifications) {
+    if (options.suppressChangeNotifications)
       model.suppressChangeNotifications = true;
-    }
 
     const contentWasChanging = model.suppressChangeNotifications;
     model.suppressChangeNotifications = true;
@@ -58,16 +55,15 @@ export class TextModeEditor extends ModeEditor {
     if (
       options.insertionMode === 'replaceSelection' &&
       !model.selectionIsCollapsed
-    ) {
+    )
       model.position = model.deleteAtoms(range(model.selection));
-    } else if (options.insertionMode === 'replaceAll') {
+    else if (options.insertionMode === 'replaceAll') {
       model.root.setChildren([], 'body');
       model.position = 0;
-    } else if (options.insertionMode === 'insertBefore') {
+    } else if (options.insertionMode === 'insertBefore')
       model.collapseSelection('backward');
-    } else if (options.insertionMode === 'insertAfter') {
+    else if (options.insertionMode === 'insertAfter')
       model.collapseSelection('forward');
-    }
 
     const newAtoms = convertStringToAtoms(text);
     // Some atoms may already have a style (for example if there was an
@@ -86,11 +82,9 @@ export class TextModeEditor extends ModeEditor {
 
     if (options.selectionMode === 'before') {
       // Do nothing: don't change the position.
-    } else if (options.selectionMode === 'item') {
+    } else if (options.selectionMode === 'item')
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
-    } else if (lastNewAtom) {
-      model.position = model.offsetOf(lastNewAtom);
-    }
+    else if (lastNewAtom) model.position = model.offsetOf(lastNewAtom);
 
     contentDidChange(model);
 

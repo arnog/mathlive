@@ -290,9 +290,7 @@ export const NOTES = {
 
 function getNote(symbol: string): string {
   let result = NOTES[symbol] ?? '';
-  if (isArray(result)) {
-    result = result.join('<br>');
-  }
+  if (isArray(result)) result = result.join('<br>');
 
   return result;
 }
@@ -351,13 +349,11 @@ export function showPopoverWithLatex(
     : '';
   template += '<span class="ML__popover__content" role="button">';
   template += '<div class="ML__popover__command">' + commandMarkup + '</div>';
-  if (commandNote) {
+  if (commandNote)
     template += '<div class="ML__popover__note">' + commandNote + '</div>';
-  }
 
-  if (keybinding) {
+  if (keybinding)
     template += '<div class="ML__popover__shortcut">' + keybinding + '</div>';
-  }
 
   template += '</span>';
   template += displayArrows
@@ -423,9 +419,8 @@ export function updatePopoverPosition(
     return;
   }
 
-  if (mf.model.at(mf.model.position)?.type !== 'latex') {
-    hidePopover(mf);
-  } else {
+  if (mf.model.at(mf.model.position)?.type !== 'latex') hidePopover(mf);
+  else {
     // ... get the caret position
     const caretPoint = getCaretPoint(mf.field!);
     if (caretPoint) setPopoverPosition(mf, caretPoint);
@@ -461,11 +456,9 @@ function setPopoverPosition(
     mf.popover.style.left = `${
       screenWidth - mf.popover.offsetWidth - scrollbarWidth
     }px`;
-  } else if (position.x - mf.popover.offsetWidth / 2 < 0) {
+  } else if (position.x - mf.popover.offsetWidth / 2 < 0)
     mf.popover.style.left = '0';
-  } else {
-    mf.popover.style.left = `${position.x - mf.popover.offsetWidth / 2}px`;
-  }
+  else mf.popover.style.left = `${position.x - mf.popover.offsetWidth / 2}px`;
 
   // And position the popover right below or above the caret
   if (
@@ -498,9 +491,9 @@ export function createPopover(mf: MathfieldPrivate, html: string): HTMLElement {
   }
 
   mf.popover = getSharedElement('mathlive-popover-panel');
-  if (POPOVER_STYLESHEET_HASH === undefined) {
+  if (POPOVER_STYLESHEET_HASH === undefined)
     POPOVER_STYLESHEET_HASH = hashCode(POPOVER_STYLESHEET).toString(36);
-  }
+
   gPopoverStylesheet = injectStylesheet(
     null,
     POPOVER_STYLESHEET,

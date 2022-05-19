@@ -18,25 +18,16 @@ function emitFontShapeTextRun(run: Atom[], options: ToLatexOptions): string {
     getPropertyRuns(run, 'fontShape').map((x: Atom[]) => {
       const result = emitStringTextRun(x, options);
       const { fontShape } = x[0].style;
-      if (fontShape === 'it') {
-        return '\\textit{' + result + '}';
-      }
+      if (fontShape === 'it') return '\\textit{' + result + '}';
 
-      if (fontShape === 'sl') {
-        return '\\textsl{' + result + '}';
-      }
+      if (fontShape === 'sl') return '\\textsl{' + result + '}';
 
-      if (fontShape === 'sc') {
-        return '\\textsc{' + result + '}';
-      }
+      if (fontShape === 'sc') return '\\textsc{' + result + '}';
 
-      if (fontShape === 'n') {
-        return '\\textup{' + result + '}';
-      }
+      if (fontShape === 'n') return '\\textup{' + result + '}';
 
-      if (fontShape) {
+      if (fontShape)
         return '\\fontshape{' + x[0].style.fontShape + '}' + result;
-      }
 
       return result;
     })
@@ -48,21 +39,13 @@ function emitFontSeriesTextRun(run: Atom[], options: ToLatexOptions): string {
     getPropertyRuns(run, 'fontSeries').map((x) => {
       const result = emitFontShapeTextRun(x, options);
       const { fontSeries } = x[0].style;
-      if (fontSeries === 'b') {
-        return '\\textbf{' + result + '}';
-      }
+      if (fontSeries === 'b') return '\\textbf{' + result + '}';
 
-      if (fontSeries === 'l') {
-        return '\\textlf{' + result + '}';
-      }
+      if (fontSeries === 'l') return '\\textlf{' + result + '}';
 
-      if (fontSeries === 'm') {
-        return '\\textmd{' + result + '}';
-      }
+      if (fontSeries === 'm') return '\\textmd{' + result + '}';
 
-      if (fontSeries) {
-        return '\\fontseries{' + fontSeries + '}' + result;
-      }
+      if (fontSeries) return '\\fontseries{' + fontSeries + '}' + result;
 
       return result;
     })
@@ -87,9 +70,7 @@ function emitSizeTextRun(run: Atom[], options: ToLatexOptions): string {
           'huge',
           'Huge',
         ][x[0].style.fontSize ?? ''] ?? '';
-      if (command) {
-        return `\\${command} ${result}`;
-      }
+      if (command) return `\\${command} ${result}`;
 
       return result;
     })
@@ -108,9 +89,8 @@ function emitFontFamilyTextRun(run: Atom[], options: ToLatexOptions): string {
         }[x[0].style.fontFamily ?? ''] ?? '';
       if (command) return `\\${command}{${result}}`;
 
-      if (x[0].style.fontFamily) {
+      if (x[0].style.fontFamily)
         return '\\fontfamily{' + x[0].style.fontFamily + '}' + result;
-      }
 
       return result;
     })
@@ -198,9 +178,8 @@ export class TextMode extends Mode {
       run.shift();
     }
     let suffix = '';
-    if (run.length > 0) {
-      suffix += emitBackgroundColorRun(run, options);
-    }
+    if (run.length > 0) suffix += emitBackgroundColorRun(run, options);
+
     if (options.skipModeCommand ?? false) return prefix + suffix;
 
     if (suffix) {
@@ -226,9 +205,9 @@ export class TextMode extends Mode {
   applyStyle(box: Box, style: Style): string | null {
     const { fontFamily } = style;
 
-    if (TEXT_FONT_CLASS[fontFamily!]) {
+    if (TEXT_FONT_CLASS[fontFamily!])
       box.classes += ' ' + TEXT_FONT_CLASS[fontFamily!] ?? '';
-    } else if (fontFamily) {
+    else if (fontFamily) {
       // Not a well-known family. Use a style.
       box.setStyle('font-family', fontFamily);
     }
@@ -296,9 +275,9 @@ export class TextMode extends Mode {
 
     while (tokens.length > 0) {
       const token = tokens.shift();
-      if (token === '<space>') {
+      if (token === '<space>')
         result.push(new TextAtom(' ', ' ', options.style));
-      } else if (!!token && token.startsWith('\\')) {
+      else if (!!token && token.startsWith('\\')) {
         // Invoke the 'main' parser to handle the command
         tokens.unshift(token);
         let atoms: Atom[];
@@ -319,9 +298,9 @@ export class TextMode extends Mode {
         // commands without inserting a space, e.g. "\backlash{}command"
       } else if (token) {
         const info = getInfo(token, 'text', options.macros);
-        if (!info || (info.ifMode && !info.ifMode.includes('text'))) {
+        if (!info || (info.ifMode && !info.ifMode.includes('text')))
           error({ code: 'unexpected-token' });
-        } else if (info.codepoint) {
+        else if (info.codepoint) {
           atom = new TextAtom(
             token,
             String.fromCodePoint(info.codepoint),

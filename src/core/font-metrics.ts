@@ -293,9 +293,9 @@ export function getCharacterMetrics(
 
   const char = String.fromCodePoint(codepoint);
 
-  if (char in extraCharacterMap) {
+  if (char in extraCharacterMap)
     codepoint = extraCharacterMap[char].codePointAt(0);
-  } else if (CJK_REGEX.test(char)) {
+  else if (CJK_REGEX.test(char)) {
     codepoint = 77; // 'M'.codepointAt(0);
     return {
       defaultMetrics: true,

@@ -81,9 +81,8 @@ export default {
     options: {
       deep: true,
       handler(newValue, oldValue) {
-        if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
+        if (JSON.stringify(newValue) !== JSON.stringify(oldValue))
           this.$el.setOptions(newValue);
-        }
       },
     },
   },

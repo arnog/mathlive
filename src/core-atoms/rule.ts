@@ -64,9 +64,7 @@ export class RuleAtom extends Atom {
 
   serialize(_options: ToLatexOptions): string {
     let result = this.command ?? '';
-    if (this.shift) {
-      result += `[${serializeDimension(this.shift)}]`;
-    }
+    if (this.shift) result += `[${serializeDimension(this.shift)}]`;
 
     result += `{${serializeDimension(this.width)}}{${serializeDimension(
       this.height

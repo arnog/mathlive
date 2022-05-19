@@ -58,9 +58,7 @@ export class EncloseAtom extends Atom {
     super('enclose', { command, style: options.style });
     this.body = body;
     this.backgroundcolor = options.backgroundcolor;
-    if (notation.updiagonalarrow) {
-      notation.updiagonalstrike = false;
-    }
+    if (notation.updiagonalarrow) notation.updiagonalstrike = false;
 
     if (notation.box) {
       notation.left = false;
@@ -146,9 +144,7 @@ export class EncloseAtom extends Atom {
         sep = ',';
       }
 
-      if (style) {
-        result += `[${style}]`;
-      }
+      if (style) result += `[${style}]`;
     }
 
     result += `{${this.bodyToLatex(options)}}`;
@@ -177,19 +173,16 @@ export class EncloseAtom extends Atom {
     notation.setStyle('height', base.height + base.depth + 2 * padding, 'em');
     notation.height = base.height + padding;
     notation.depth = base.depth + padding;
-    if (padding !== 0) {
+    if (padding !== 0)
       notation.setStyle('width', `calc(100% + ${2 * padding}em)`);
-    } else {
-      notation.setStyle('width', '100%');
-    }
+    else notation.setStyle('width', '100%');
 
     notation.setStyle('top', -base.height + 2 * padding, 'em');
     notation.setStyle('left', -padding, 'em');
     notation.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
     notation.setStyle('box-sizing', 'border-box');
-    if (this.backgroundcolor) {
+    if (this.backgroundcolor)
       notation.setStyle('background-color', this.backgroundcolor);
-    }
 
     if (this.notation.box) notation.setStyle('border', this.borderStyle);
     if (this.notation.actuarial) {
@@ -212,21 +205,15 @@ export class EncloseAtom extends Atom {
       notation.setStyle('border', this.borderStyle);
     }
 
-    if (this.notation.top) {
-      notation.setStyle('border-top', this.borderStyle);
-    }
+    if (this.notation.top) notation.setStyle('border-top', this.borderStyle);
 
-    if (this.notation.left) {
-      notation.setStyle('border-left', this.borderStyle);
-    }
+    if (this.notation.left) notation.setStyle('border-left', this.borderStyle);
 
-    if (this.notation.right) {
+    if (this.notation.right)
       notation.setStyle('border-right', this.borderStyle);
-    }
 
-    if (this.notation.bottom) {
+    if (this.notation.bottom)
       notation.setStyle('border-bottom', this.borderStyle);
-    }
 
     let svg = '';
 
@@ -234,9 +221,8 @@ export class EncloseAtom extends Atom {
       svg += '<line x1="3%"  y1="50%" x2="97%" y2="50%"';
       svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
       svg += ' stroke-linecap="round"';
-      if (this.svgStrokeStyle) {
+      if (this.svgStrokeStyle)
         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-      }
 
       svg += '/>';
     }
@@ -245,9 +231,8 @@ export class EncloseAtom extends Atom {
       svg += '<line x1="50%"  y1="3%" x2="50%" y2="97%"';
       svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
       svg += ' stroke-linecap="round"';
-      if (this.svgStrokeStyle) {
+      if (this.svgStrokeStyle)
         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-      }
 
       svg += '/>';
     }
@@ -256,9 +241,8 @@ export class EncloseAtom extends Atom {
       svg += '<line x1="3%"  y1="97%" x2="97%" y2="3%"';
       svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
       svg += ' stroke-linecap="round"';
-      if (this.svgStrokeStyle) {
+      if (this.svgStrokeStyle)
         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-      }
 
       svg += '/>';
     }
@@ -267,9 +251,8 @@ export class EncloseAtom extends Atom {
       svg += '<line x1="3%"  y1="3%" x2="97%" y2="97%"';
       svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
       svg += ' stroke-linecap="round"';
-      if (this.svgStrokeStyle) {
+      if (this.svgStrokeStyle)
         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-      }
 
       svg += '/>';
     }

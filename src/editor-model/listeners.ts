@@ -69,9 +69,7 @@ export class EventEmitter {
     listener: EventListener,
     options?: { once?: boolean }
   ): Disposable {
-    if (!this.events.has(event)) {
-      this.events.set(event, []);
-    }
+    if (!this.events.has(event)) this.events.set(event, []);
 
     options = options ?? {};
     if (options.once ?? false) {

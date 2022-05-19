@@ -19,9 +19,9 @@ export const defaultExportHook = (
     !MODE_SHIFT_COMMANDS.some(
       (x) => latex.startsWith(x[0]) && latex.endsWith(x[1])
     )
-  ) {
+  )
     latex = `${CLIPBOARD_LATEX_BEGIN} ${latex} ${CLIPBOARD_LATEX_END}`;
-  }
+
   return latex;
 };
 
@@ -72,12 +72,10 @@ export class ModeEditor {
       // 1. Put text flavor on the clipboard
       //
       let latex = '';
-      if (atoms.length === 1 && atoms[0].verbatimLatex !== undefined) {
+      if (atoms.length === 1 && atoms[0].verbatimLatex !== undefined)
         latex = atoms[0].verbatimLatex;
-      }
-      if (!latex) {
-        latex = model.getValue(exportRange, 'latex-expanded');
-      }
+
+      if (!latex) latex = model.getValue(exportRange, 'latex-expanded');
 
       //
       // 2. Put latex flavor on clipboard
@@ -98,13 +96,10 @@ export class ModeEditor {
       // 3. Put other flavors on the clipboard
       //
       const mathJson = model.getValue(exportRange, 'math-json');
-      if (mathJson) {
-        ev.clipboardData.setData('application/json', mathJson);
-      }
+      if (mathJson) ev.clipboardData.setData('application/json', mathJson);
+
       const mathMl = model.getValue(exportRange, 'math-ml');
-      if (mathMl) {
-        ev.clipboardData.setData('application/mathml+xml', mathMl);
-      }
+      if (mathMl) ev.clipboardData.setData('application/mathml+xml', mathMl);
     }
     // Prevent the current document selection from being written to the clipboard.
     ev.preventDefault();

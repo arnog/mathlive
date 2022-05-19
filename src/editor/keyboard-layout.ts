@@ -510,9 +510,8 @@ export function platform(): 'apple' | 'windows' | 'linux' {
 }
 
 export function register(layout: KeyboardLayout): void {
-  if (!layout.platform || layout.platform === platform()) {
+  if (!layout.platform || layout.platform === platform())
     gKeyboardLayouts.push(layout);
-  }
 }
 
 /** Given the current estimated keyboard layout,
@@ -608,11 +607,8 @@ export function normalizeKeyboardEvent(evt: KeyboardEvent): KeyboardEvent {
           if (index === 3) {
             altKey = true;
             shiftKey = true;
-          } else if (index === 2) {
-            altKey = true;
-          } else if (index === 1) {
-            shiftKey = true;
-          }
+          } else if (index === 2) altKey = true;
+          else if (index === 1) shiftKey = true;
 
           break;
         }

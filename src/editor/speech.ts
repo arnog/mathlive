@@ -94,11 +94,9 @@ function speak(
 
       case 'parent': {
         const { parent } = model.at(model.position);
-        if (parent && parent.type !== 'root') {
-          result = parent;
-        } else {
-          result = model.root;
-        }
+        if (parent && parent.type !== 'root') result = parent;
+        else result = model.root;
+
         break;
       }
       default:
@@ -162,9 +160,8 @@ function speak(
         mathfield.options
       );
     }
-  } else if (mathfield.options.speakHook) {
+  } else if (mathfield.options.speakHook)
     mathfield.options.speakHook(text, options);
-  }
 
   return false;
 }
@@ -173,9 +170,8 @@ export function defaultSpeakHook(
   text: string,
   config?: Partial<MathfieldOptions>
 ): void {
-  if (!config && isBrowser() && 'mathlive' in window) {
+  if (!config && isBrowser() && 'mathlive' in window)
     config = window.mathlive.config;
-  }
 
   config = config ?? {};
 
@@ -185,9 +181,7 @@ export function defaultSpeakHook(
       // See also https://developer.chrome.com/apps/tts
       const utterance = new SpeechSynthesisUtterance(text);
       window.speechSynthesis.speak(utterance);
-    } else {
-      console.log('Speak:', text);
-    }
+    } else console.log('Speak:', text);
   } else if (config.speechEngine === 'amazon') {
     if (!isBrowser() || !('AWS' in window)) {
       console.warn(
@@ -220,10 +214,10 @@ export function defaultSpeakHook(
       };
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Polly.html#synthesizeSpeech-property
       polly.synthesizeSpeech(parameters, (err, data) => {
-        if (err) {
+        if (err)
           console.warn('polly.synthesizeSpeech() error:', err, err.stack);
-          // Announce('plonk');
-        } else if (data?.AudioStream) {
+        // Announce('plonk');
+        else if (data?.AudioStream) {
           const uInt8Array = new Uint8Array(data.AudioStream);
           const blob = new Blob([uInt8Array.buffer], {
             type: 'audio/mpeg',
@@ -232,9 +226,7 @@ export function defaultSpeakHook(
 
           const audioElement = new Audio(url);
           audioElement.play().catch((error) => console.log(error));
-        } else {
-          console.log('polly.synthesizeSpeech():', data);
-        }
+        } else console.log('polly.synthesizeSpeech():', data);
       });
 
       // Can call AWS.Request() on the result of synthesizeSpeech()

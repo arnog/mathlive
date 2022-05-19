@@ -128,9 +128,7 @@ function makeSmallDelim(
 
   const box = text.wrap(context, options);
 
-  if (center) {
-    box.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
-  }
+  if (center) box.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
 
   return box;
 }
@@ -158,9 +156,7 @@ function makeLargeDelim(
     classes: 'ML__delim-size' + size,
   }).wrap(context);
 
-  if (center) {
-    result.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
-  }
+  if (center) result.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
 
   return result;
 }
@@ -201,25 +197,21 @@ function makeStackedDelim(
     delim === '\\rvert' ||
     delim === '\\mvert' ||
     delim === '\\mid'
-  ) {
+  )
     repeat = top = bottom = 0x2223;
-  } else if (
+  else if (
     delim === '\\Vert' ||
     delim === '\\lVert' ||
     delim === '\\rVert' ||
     delim === '\\mVert' ||
     delim === '\\|'
-  ) {
+  )
     repeat = top = bottom = 0x2225;
-  } else if (delim === '\\uparrow') {
-    repeat = bottom = 0x23d0;
-  } else if (delim === '\\Uparrow') {
-    repeat = bottom = 0x2016;
-  } else if (delim === '\\downarrow') {
-    top = repeat = 0x23d0;
-  } else if (delim === '\\Downarrow') {
-    top = repeat = 0x2016;
-  } else if (delim === '\\updownarrow') {
+  else if (delim === '\\uparrow') repeat = bottom = 0x23d0;
+  else if (delim === '\\Uparrow') repeat = bottom = 0x2016;
+  else if (delim === '\\downarrow') top = repeat = 0x23d0;
+  else if (delim === '\\Downarrow') top = repeat = 0x2016;
+  else if (delim === '\\updownarrow') {
     top = 0x2191;
     repeat = 0x23d0;
     bottom = 0x2193;
@@ -349,9 +341,7 @@ function makeStackedDelim(
   // centered around the axis in textstyle.
   let axisHeight = AXIS_HEIGHT;
 
-  if (center) {
-    axisHeight = axisHeight * context.scalingFactor;
-  }
+  if (center) axisHeight = axisHeight * context.scalingFactor;
 
   // Calculate the depth
   const depth = realHeightTotal / 2 - axisHeight;
@@ -371,22 +361,17 @@ function makeStackedDelim(
 
   if (middle === null) {
     // Add that many symbols
-    for (let i = 0; i < repeatCount; i++) {
-      stack.push({ box: repeatBox });
-    }
+    for (let i = 0; i < repeatCount; i++) stack.push({ box: repeatBox });
   } else {
     // When there is a middle bit, we need the middle part and two repeated
     // sections
-    for (let i = 0; i < repeatCount; i++) {
-      stack.push({ box: repeatBox });
-    }
+    for (let i = 0; i < repeatCount; i++) stack.push({ box: repeatBox });
+
     stack.push(-OVERLAP);
     stack.push({ box: new Box(middle, { fontFamily }) });
     stack.push(-OVERLAP);
 
-    for (let i = 0; i < repeatCount; i++) {
-      stack.push({ box: repeatBox });
-    }
+    for (let i = 0; i < repeatCount; i++) stack.push({ box: repeatBox });
   }
 
   // Add the top symbol
@@ -397,11 +382,8 @@ function makeStackedDelim(
 
   let sizeClass = '';
   // Apply the correct CSS class to choose the right font.
-  if (fontFamily === 'Size1-Regular') {
-    sizeClass = ' delim-size1';
-  } else if (fontFamily === 'Size4-Regular') {
-    sizeClass = ' delim-size4';
-  }
+  if (fontFamily === 'Size1-Regular') sizeClass = ' delim-size1';
+  else if (fontFamily === 'Size4-Regular') sizeClass = ' delim-size4';
 
   const inner = new VBox(
     {
@@ -516,16 +498,14 @@ export function makeSizedDelim(
   }
 
   // < and > turn into \langle and \rangle in delimiters
-  if (delim === '<' || delim === '\\lt' || delim === '\u27e8') {
+  if (delim === '<' || delim === '\\lt' || delim === '\u27e8')
     delim = '\\langle';
-  } else if (delim === '>' || delim === '\\gt' || delim === '\u27e9') {
+  else if (delim === '>' || delim === '\\gt' || delim === '\u27e9')
     delim = '\\rangle';
-  }
 
   // Sized delimiters are never centered.
-  if (stackLargeDelimiters.has(delim) || stackNeverDelimiters.has(delim)) {
+  if (stackLargeDelimiters.has(delim) || stackNeverDelimiters.has(delim))
     return makeLargeDelim(delim, size, false, context, options);
-  }
 
   if (stackAlwaysDelimiters.has(delim)) {
     return makeStackedDelim(
@@ -595,13 +575,9 @@ const stackLargeDelimiterSequence: DelimiterInfo[] = [
  * Get the font used in a delimiter based on what kind of delimiter it is.
  */
 function delimTypeToFont(info: DelimiterInfo): string {
-  if (info.type === 'small') {
-    return 'Main-Regular';
-  }
+  if (info.type === 'small') return 'Main-Regular';
 
-  if (info.type === 'large') {
-    return 'Size' + info.size + '-Regular';
-  }
+  if (info.type === 'large') return 'Size' + info.size + '-Regular';
 
   console.assert(info.type === 'stack');
   return 'Size4-Regular';
@@ -644,17 +620,14 @@ function traverseSequence(
     // account for the style change size.
 
     if (sequence[i].type === 'small') {
-      if (sequence[i].mathstyle === 'scriptscriptstyle') {
+      if (sequence[i].mathstyle === 'scriptscriptstyle')
         heightDepth *= FONT_SCALE[Math.max(1, context.size - 2)];
-      } else if (sequence[i].mathstyle === 'scriptstyle') {
+      else if (sequence[i].mathstyle === 'scriptstyle')
         heightDepth *= FONT_SCALE[Math.max(1, context.size - 1)];
-      }
     }
 
     // Check if the delimiter at this size works for the given height.
-    if (heightDepth > height) {
-      return sequence[i];
-    }
+    if (heightDepth > height) return sequence[i];
   }
 
   // If we reached the end of the sequence, return the last sequence element.
@@ -677,25 +650,18 @@ export function makeCustomSizedDelim(
     style?: Style;
   }
 ): Box {
-  if (!delim || delim.length === 0 || delim === '.') {
+  if (!delim || delim.length === 0 || delim === '.')
     return makeNullDelimiter(context, type, type);
-  }
 
-  if (delim === '<' || delim === '\\lt') {
-    delim = '\\langle';
-  } else if (delim === '>' || delim === '\\gt') {
-    delim = '\\rangle';
-  }
+  if (delim === '<' || delim === '\\lt') delim = '\\langle';
+  else if (delim === '>' || delim === '\\gt') delim = '\\rangle';
 
   // Decide what sequence to use
   let sequence: DelimiterInfo[];
-  if (stackNeverDelimiters.has(delim)) {
-    sequence = stackNeverDelimiterSequence;
-  } else if (stackLargeDelimiters.has(delim)) {
+  if (stackNeverDelimiters.has(delim)) sequence = stackNeverDelimiterSequence;
+  else if (stackLargeDelimiters.has(delim))
     sequence = stackLargeDelimiterSequence;
-  } else {
-    sequence = stackAlwaysDelimiterSequence;
-  }
+  else sequence = stackAlwaysDelimiterSequence;
 
   // Look through the sequence
   const delimType = traverseSequence(
@@ -746,9 +712,7 @@ export function makeLeftRightDelim(
   options?: { classes?: string; style?: Style; mode?: ParseMode }
 ): Box {
   // If this is the empty delimiter, return a null fence
-  if (delim === '.') {
-    return makeNullDelimiter(context, type, options?.classes);
-  }
+  if (delim === '.') return makeNullDelimiter(context, type, options?.classes);
 
   // We always center \left/\right delimiters, so the axis is always shifted
   const axisHeight = AXIS_HEIGHT * context.scalingFactor;

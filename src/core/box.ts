@@ -232,15 +232,11 @@ export class Box {
     content: null | number | string | Box | (Box | null)[],
     options?: BoxOptions
   ) {
-    if (typeof content === 'number') {
-      this.value = String.fromCodePoint(content);
-    } else if (typeof content === 'string') {
-      this.value = content;
-    } else if (isArray<Box | null>(content)) {
+    if (typeof content === 'number') this.value = String.fromCodePoint(content);
+    else if (typeof content === 'string') this.value = content;
+    else if (isArray<Box | null>(content))
       this.children = content.filter((x) => x !== null) as Box[];
-    } else if (content && content instanceof Box) {
-      this.children = [content];
-    }
+    else if (content && content instanceof Box) this.children = [content];
 
     this.type = options?.type ?? '';
     this.isSelected = false;
@@ -250,9 +246,8 @@ export class Box {
     // CSS style, as a set of key value pairs.
     // Use `Box.setStyle()` to modify it.
     if (options?.properties) {
-      for (const prop of Object.keys(options.properties)) {
+      for (const prop of Object.keys(options.properties))
         this.setStyle(prop as BoxCSSProperties, options.properties[prop]);
-      }
     }
 
     if (options?.attributes) this.attributes = options.attributes;
@@ -260,9 +255,11 @@ export class Box {
     // Set initial classes
     this.classes = options?.classes ?? '';
 
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     let fontName = options?.fontFamily || 'Main-Regular';
     if (options?.style && this.value) {
       fontName =
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         Mode.applyStyle(options.mode ?? 'math', this, options.style) ||
         'Main-Regular';
     }
@@ -353,9 +350,8 @@ export class Box {
     //
     if (options?.height !== undefined) this.height = options.height;
     if (options?.depth !== undefined) this.depth = options.depth;
-    if (options?.maxFontSize !== undefined) {
+    if (options?.maxFontSize !== undefined)
       this.maxFontSize = options.maxFontSize;
-    }
   }
 
   set atomID(id: string | undefined) {
@@ -367,9 +363,8 @@ export class Box {
   selected(isSelected: boolean): void {
     if (this.isSelected === isSelected) return;
     this.isSelected = isSelected;
-    if (this.children) {
+    if (this.children)
       for (const child of this.children) child.selected(isSelected);
-    }
   }
 
   /**
@@ -407,9 +402,8 @@ export class Box {
   }
 
   get left(): number {
-    if (this.cssProperties?.['margin-left']) {
+    if (this.cssProperties?.['margin-left'])
       return Number.parseFloat(this.cssProperties['margin-left']);
-    }
 
     return 0;
   }
@@ -493,9 +487,8 @@ export class Box {
       !newSize &&
       !newBackgroundColor &&
       !(options && (options.classes || options.type))
-    ) {
+    )
       return this;
-    }
 
     let result: Box;
     if (newBackgroundColor) {
@@ -503,9 +496,7 @@ export class Box {
       result.selected(this.isSelected);
       result.setStyle('background-color', newBackgroundColor);
       result.setStyle('display', 'inline-block');
-    } else {
-      result = new Box(this, options);
-    }
+    } else result = new Box(this, options);
 
     //
     // Adjust the dimensions to account for the size variations
@@ -532,9 +523,9 @@ export class Box {
     // If we're at the root, nothing to do
     if (!parent) return this;
 
-    let newBackgroundColor = highlight(context.computedBackgroundColor);
+    const newBackgroundColor = highlight(context.computedBackgroundColor);
 
-    let result = makeStruts(this);
+    const result = makeStruts(this);
     result.selected(true);
     result.setStyle('background-color', newBackgroundColor);
     result.setStyle('display', 'inline-block');
@@ -551,11 +542,7 @@ export class Box {
     //
     // 1. Render the children
     //
-    if (this.children) {
-      for (const box of this.children) {
-        body += box.toMarkup();
-      }
-    }
+    if (this.children) for (const box of this.children) body += box.toMarkup();
 
     //
     // 2. Calculate the classes associated with this box
@@ -569,9 +556,7 @@ export class Box {
         error: 'ML__error',
       }[this.type] ?? ''
     );
-    if (this.caret === 'latex') {
-      classes.push('ML__latex-caret');
-    }
+    if (this.caret === 'latex') classes.push('ML__latex-caret');
 
     // Remove duplicate and empty classes
     const classList =
@@ -608,14 +593,10 @@ export class Box {
           const matched = entry.match(/([^=]+)=(.+$)/);
           if (matched) {
             const key = matched[1].trim().replace(/ /g, '-');
-            if (key) {
-              props += ` data-${key}=${matched[2]} `;
-            }
+            if (key) props += ` data-${key}=${matched[2]} `;
           } else {
             const key = entry.trim().replace(/ /g, '-');
-            if (key) {
-              props += ` data-${key} `;
-            }
+            if (key) props += ` data-${key} `;
           }
         }
       }
@@ -626,14 +607,10 @@ export class Box {
           const matched = entry.match(/([^=]+):(.+$)/);
           if (matched) {
             const key = matched[1].trim().replace(/ /g, '-');
-            if (key) {
-              styleString += `${key}:${matched[2]};`;
-            }
+            if (key) styleString += `${key}:${matched[2]};`;
           }
         }
-        if (styleString) {
-          props += ` style="${styleString}"`;
-        }
+        if (styleString) props += ` style="${styleString}"`;
       }
 
       if (this.attributes) {
@@ -644,18 +621,14 @@ export class Box {
             .join(' ');
       }
 
-      if (classList.length > 0) {
-        props += ` class="${classList}"`;
-      }
+      if (classList.length > 0) props += ` class="${classList}"`;
 
       if (this.cssProperties) {
         const styleString = Object.keys(this.cssProperties)
           .map((x) => `${x}:${this.cssProperties[x]}`)
           .join(';');
 
-        if (styleString.length > 0) {
-          props += ` style="${styleString}"`;
-        }
+        if (styleString.length > 0) props += ` style="${styleString}"`;
       }
 
       //
@@ -663,9 +636,8 @@ export class Box {
       // include it now
       //
       let svgMarkup = '';
-      if (this.svgBody) {
-        svgMarkup = svgBodyToMarkup(this.svgBody);
-      } else if (this.svgOverlay) {
+      if (this.svgBody) svgMarkup = svgBodyToMarkup(this.svgBody);
+      else if (this.svgOverlay) {
         svgMarkup = '<span style="';
         svgMarkup += 'display: inline-block;';
         svgMarkup += `height:${this.height + this.depth}em;`;
@@ -679,15 +651,11 @@ export class Box {
           svgMarkup += `top:${this.cssProperties.padding}em;`;
           svgMarkup += `left:${this.cssProperties.padding}em;`;
           svgMarkup += `width:calc(100% - 2 * ${this.cssProperties.padding}em );`;
-        } else {
-          svgMarkup += 'top:0;left:0;width:100%;';
-        }
+        } else svgMarkup += 'top:0;left:0;width:100%;';
 
         svgMarkup += 'z-index:2;';
         svgMarkup += '"';
-        if (this.svgStyle) {
-          svgMarkup += ` style="${this.svgStyle}"`;
-        }
+        if (this.svgStyle) svgMarkup += ` style="${this.svgStyle}"`;
 
         svgMarkup += `>${this.svgOverlay}</svg>`;
       }
@@ -700,11 +668,8 @@ export class Box {
     //
     // 4. Add markup for the caret
     //
-    if (this.caret === 'text') {
-      result += '<span class="ML__text-caret"></span>';
-    } else if (this.caret === 'math') {
-      result += '<span class="ML__caret"></span>';
-    }
+    if (this.caret === 'text') result += '<span class="ML__text-caret"></span>';
+    else if (this.caret === 'math') result += '<span class="ML__caret"></span>';
 
     return result;
   }
@@ -726,9 +691,8 @@ export class Box {
     if (
       !/ML__text/.test(this.classes) &&
       !['mord', 'mbin', 'mrel'].includes(this.type)
-    ) {
+    )
       return false;
-    }
 
     // Don't coalesce if some of the content is SVG
     if (this.svgBody || !this.value) return false;
@@ -751,11 +715,8 @@ export class Box {
 
     // If the styles are different, can't coalesce
     if (thisStyleCount > 0) {
-      for (const prop of Object.keys(this.cssProperties)) {
-        if (this.cssProperties[prop] !== box.cssProperties[prop]) {
-          return false;
-        }
-      }
+      for (const prop of Object.keys(this.cssProperties))
+        if (this.cssProperties[prop] !== box.cssProperties[prop]) return false;
     }
 
     // For the purpose of our comparison,
@@ -830,9 +791,9 @@ function adjustType(root: Box | null): void {
     if (
       box.type === 'mbin' &&
       (!prevBox || /first|none|mbin|mop|mrel|mopen|mpunct/.test(prevBox.type))
-    ) {
+    )
       box.type = 'mord';
-    }
+
     // > 6. If the current item is a Rel or Close or Punct atom, and if the most
     // >   recent previous atom was Bin, change that previous Bin to Ord. Continue
     // >   with Rule 17.
@@ -840,9 +801,8 @@ function adjustType(root: Box | null): void {
       prevBox &&
       prevBox.type === 'mbin' &&
       /mrel|mclose|mpunct|placeholder/.test(box.type)
-    ) {
+    )
       prevBox.type = 'mord';
-    }
   });
 }
 
@@ -889,28 +849,21 @@ function forEachBoxRecursive(
   }
 
   // Skip over first and spacing atoms
-  if (type === 'spacing') {
-    return prevBox;
-  }
+  if (type === 'spacing') return prevBox;
 
   f(prevBox, box);
 
   if (box.children) {
     let childPrev: Box | null = null;
-    if (type === undefined || type.length === 0) {
-      childPrev = prevBox;
-    }
-    for (const child of box.children) {
+    if (type === undefined || type.length === 0) childPrev = prevBox;
+
+    for (const child of box.children)
       childPrev = forEachBoxRecursive(childPrev, child, f);
-    }
-    if (type === undefined || type.length === 0) {
-      prevBox = childPrev;
-    }
+
+    if (type === undefined || type.length === 0) prevBox = childPrev;
   }
 
-  if (type !== 'supsub' && type !== undefined && type.length > 0) {
-    prevBox = box;
-  }
+  if (type !== 'supsub' && type !== undefined && type.length > 0) prevBox = box;
 
   return prevBox;
 }

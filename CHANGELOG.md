@@ -19,7 +19,25 @@
   - `smart-superscript`: `"on"` | `"off"` | `""` (default `"on"`)
   - `smart-mode`: `"on"` | `"off"` | `""` (default`"off"`)
 
+If you previously used:
+
+```html
+<math-field></math-field>
+```
+
+in order to preserve the same settings, you would now use:
+
+```html
+<math-field
+  keypress-vibration="off"
+  remove-extraneous-parentheses="off"
+  smart-fence="off"
+  smart-superscript="off"
+></math-field>
+```
+
 - The commands `\mleft` and `\mright` are no longer generated automatically.
+
   Previously, when using `smart-fence` mode, `()` or `\left(...\right)`, could
   be replaced with a `\mleft(...\mright)` command. This was done to ensure the
   proper spacing of delimiters after a function, e.g. `\sin(x)`. Without it,

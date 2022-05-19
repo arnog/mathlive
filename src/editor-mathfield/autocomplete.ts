@@ -23,11 +23,8 @@ export function updateAutocomplete(
   const { model } = mathfield;
   // Remove any error indicator and any suggestions
   for (const atom of getLatexGroupBody(model)) {
-    if (atom.isSuggestion) {
-      atom.parent!.removeChild(atom);
-    } else {
-      atom.isError = false;
-    }
+    if (atom.isSuggestion) atom.parent!.removeChild(atom);
+    else atom.isError = false;
   }
 
   if (!model.selectionIsCollapsed) {
@@ -38,7 +35,7 @@ export function updateAutocomplete(
   // The current command is the sequence of atoms around the insertion point
   // that ends on the left with a '\' and on the right with a non-command
   // character.
-  let command: LatexAtom[] = [];
+  const command: LatexAtom[] = [];
   let atom = model.at(model.position);
 
   while (atom && atom instanceof LatexAtom && /^[a-zA-Z\*]$/.test(atom.value))
@@ -64,17 +61,19 @@ export function updateAutocomplete(
 
   if (suggestions.length === 0) {
     // This looks like a command name, but not a known one
-    if (/^\\[a-zA-Z\*]+$/.test(commandString))
-      command.forEach((x) => (x.isError = true));
+    if (/^\\[a-zA-Z\*]+$/.test(commandString)) {
+      command.forEach((x) => {
+        x.isError = true;
+      });
+    }
 
     hidePopover(mathfield);
     return;
   }
 
   mathfield.suggestionIndex = options?.atIndex ?? 0;
-  if (mathfield.suggestionIndex < 0) {
+  if (mathfield.suggestionIndex < 0)
     mathfield.suggestionIndex = suggestions.length - 1;
-  }
 
   const suggestion =
     suggestions[mathfield.suggestionIndex % suggestions.length];

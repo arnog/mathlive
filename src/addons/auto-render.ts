@@ -218,20 +218,12 @@ function findEndOfMath(delimiter, text, startIndex: number): number {
   while (index < text.length) {
     const character = text[index];
 
-    if (
-      braceLevel <= 0 &&
-      text.slice(index, index + delimLength) === delimiter
-    ) {
+    if (braceLevel <= 0 && text.slice(index, index + delimLength) === delimiter)
       return index;
-    }
 
-    if (character === '\\') {
-      index++;
-    } else if (character === '{') {
-      braceLevel++;
-    } else if (character === '}') {
-      braceLevel--;
-    }
+    if (character === '\\') index++;
+    else if (character === '{') braceLevel++;
+    else if (character === '}') braceLevel--;
 
     index++;
   }
@@ -307,9 +299,9 @@ function splitAtDelimiters(
             break;
           }
           let formula = text.slice(currIndex + leftDelim.length, nextIndex);
-          if (format === 'ascii-math') {
+          if (format === 'ascii-math')
             [, formula] = parseMathString(formula, { format: 'ascii-math' });
-          }
+
           finalData.push({
             type: 'math',
             data: formula,
@@ -329,9 +321,7 @@ function splitAtDelimiters(
           data: text.slice(currIndex),
         });
       }
-    } else {
-      finalData.push(startDatum);
-    }
+    } else finalData.push(startDatum);
   }
 
   return finalData;
@@ -444,9 +434,7 @@ function createMarkupNode(
     return element;
   } catch (error: unknown) {
     console.error("Could not parse'" + text + "' with ", error);
-    if (createNodeOnFailure) {
-      return document.createTextNode(text);
-    }
+    if (createNodeOnFailure) return document.createTextNode(text);
   }
 
   return null;
@@ -471,9 +459,8 @@ function createAccessibleMarkupPair(
   if (markupNode && /\b(mathml|speakable-text)\b/i.test(accessibleContent)) {
     throwIfNotInBrowser();
     const fragment = document.createElement('span');
-    if (/\bmathml\b/i.test(accessibleContent) && options.renderToMathML) {
+    if (/\bmathml\b/i.test(accessibleContent) && options.renderToMathML)
       fragment.append(createMathMLNode(latex, options));
-    }
 
     if (
       /\bspeakable-text\b/i.test(accessibleContent) &&
@@ -520,9 +507,9 @@ function scanText(
     fragment = document.createDocumentFragment();
 
     for (const datum of data) {
-      if (datum.type === 'text') {
+      if (datum.type === 'text')
         fragment.appendChild(document.createTextNode(datum.data));
-      } else {
+      else {
         const node = createAccessibleMarkupPair(
           datum.data,
           datum.mathstyle === 'textstyle' ? 'textstyle' : 'displaystyle',
@@ -639,9 +626,7 @@ function scanElement(
               true
             );
             if (node) element.append(node);
-          } else {
-            scanElement(el, options);
-          }
+          } else scanElement(el, options);
         }
       }
     }
@@ -728,9 +713,8 @@ export function autoRenderMathInElement(
         );
       }
 
-      if (!optionsPrivate.namespace.endsWith('-')) {
+      if (!optionsPrivate.namespace.endsWith('-'))
         optionsPrivate.namespace += '-';
-      }
     }
 
     // Load the fonts and inject the stylesheet once to
@@ -745,9 +729,9 @@ export function autoRenderMathInElement(
 
     scanElement(element, optionsPrivate);
   } catch (error: unknown) {
-    if (error instanceof Error) {
+    if (error instanceof Error)
       console.error('renderMathInElement(): ' + error.message);
-    } else {
+    else {
       console.error(
         'renderMathInElement(): Could not render math for element',
         element

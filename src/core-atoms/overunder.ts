@@ -89,23 +89,19 @@ export class OverunderAtom extends Atom {
     );
     let above: Box | null = null;
     // let aboveShift: number;
-    if (this.svgAbove) {
-      above = makeSVGBox(this.svgAbove);
-      // aboveShift = 0;
-      // aboveShift = -above.depth;
-    } else if (this.above) {
+    if (this.svgAbove) above = makeSVGBox(this.svgAbove);
+    // aboveShift = 0;
+    // aboveShift = -above.depth;
+    else if (this.above)
       above = Atom.createBox(annotationContext, this.above, { newList: true });
-    }
 
     let below: Box | null = null;
     // let belowShift: number;
-    if (this.svgBelow) {
-      below = makeSVGBox(this.svgBelow);
-      // belowShift = 0;
-      // belowShift = below.height;
-    } else if (this.below) {
+    if (this.svgBelow) below = makeSVGBox(this.svgBelow);
+    // belowShift = 0;
+    // belowShift = below.height;
+    else if (this.below)
       below = Atom.createBox(annotationContext, this.below, { newList: true });
-    }
 
     if (this.padded) {
       // The base of \overset are padded, but \overbrace aren't
@@ -135,11 +131,10 @@ export class OverunderAtom extends Atom {
 
     if (!base) return null;
 
-    if (this.subsupPlacement === 'over-under') {
+    if (this.subsupPlacement === 'over-under')
       base = this.attachLimits(parentContext, { base, type: base.type });
-    } else {
-      base = this.attachSupsub(parentContext, { base });
-    }
+    else base = this.attachSupsub(parentContext, { base });
+
     if (this.caret) base.caret = this.caret;
 
     // Bind the generated box so its components can be selected
@@ -175,9 +170,8 @@ function makeOverunderStack(
 
   let aboveShift = 0;
 
-  if (options.above) {
+  if (options.above)
     aboveShift = -options.above.depth + context.metrics.bigOpSpacing2; // Empirical
-  }
 
   let result: Box | null = null;
   const base = options.base;

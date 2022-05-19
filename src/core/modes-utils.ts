@@ -98,9 +98,7 @@ export function getModeRuns(atoms: Atom[]): Atom[][] {
         if (run.length > 0) result.push(run);
         run = [atom];
         currentMode = atom.mode;
-      } else {
-        run.push(atom);
-      }
+      } else run.push(atom);
     }
   }
   // Push whatever is left
@@ -124,16 +122,11 @@ export function getPropertyRuns(
       let value: string | number | undefined;
       if (property === 'variant') {
         value = atom.style.variant;
-        if (atom.style.variantStyle && atom.style.variantStyle !== 'up') {
+        if (atom.style.variantStyle && atom.style.variantStyle !== 'up')
           value += '-' + atom.style.variantStyle;
-        }
       } else if (property === 'cssClass') {
-        if (atom.type === 'group') {
-          value = (atom as GroupAtom).customClass;
-        }
-      } else {
-        value = atom.style[property];
-      }
+        if (atom.type === 'group') value = (atom as GroupAtom).customClass;
+      } else value = atom.style[property];
 
       if (value === currentValue) {
         // Same value, add it to the current run

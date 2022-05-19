@@ -45,11 +45,8 @@ export function inject(
         const refCount = Number.parseFloat(
           element_.getAttribute('data-refcount') ?? '0'
         );
-        if (refCount === 1) {
-          element_.remove();
-        } else {
-          element_.dataset.refcount = Number(refCount - 1).toString();
-        }
+        if (refCount === 1) element_.remove();
+        else element_.dataset.refcount = Number(refCount - 1).toString();
       }
     },
   };

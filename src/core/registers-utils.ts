@@ -51,12 +51,11 @@ export function serializeDimension(value: Dimension): string {
 
 export function serializeGlue(value: Glue): string {
   let result = serializeDimension(value.glue);
-  if (value.grow && value.grow.dimension !== 0) {
+  if (value.grow && value.grow.dimension !== 0)
     result += ` plus ${serializeDimension(value.grow)}`;
-  }
-  if (value.shrink && value.shrink.dimension !== 0) {
+
+  if (value.shrink && value.shrink.dimension !== 0)
     result += ` minus ${serializeDimension(value.shrink)}`;
-  }
 
   return result;
 }

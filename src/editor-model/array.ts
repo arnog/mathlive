@@ -16,7 +16,7 @@ export function arrayJoinColumns(
   style?: Style
 ): Atom[] {
   if (!row) return [];
-  let result: Atom[] = [new Atom('first')];
+  const result: Atom[] = [new Atom('first')];
   let sep: Atom | null = null;
   for (let cell of row) {
     if (cell && cell.length > 0 && cell[0].type === 'first') {
@@ -25,11 +25,8 @@ export function arrayJoinColumns(
     }
 
     if (cell && cell.length > 0) {
-      if (sep) {
-        result.push(sep);
-      } else {
-        sep = new Atom('mpunct', { value: separator, style });
-      }
+      if (sep) result.push(sep);
+      else sep = new Atom('mpunct', { value: separator, style });
 
       result.push(...cell);
     }
@@ -46,14 +43,11 @@ export function arrayJoinRows(
   separators = [';', ','],
   style?: Style
 ): Atom[] {
-  let result: Atom[] = [new Atom('first')];
+  const result: Atom[] = [new Atom('first')];
   let sep: Atom | null = null;
   for (const row of array) {
-    if (sep) {
-      result.push(sep);
-    } else {
-      sep = new Atom('mpunct', { value: separators[0], style });
-    }
+    if (sep) result.push(sep);
+    else sep = new Atom('mpunct', { value: separators[0], style });
 
     result.push(...arrayJoinColumns(row, separators[1]));
   }
@@ -72,9 +66,7 @@ export function arrayColumnCellCount(array: Atom[][][], col: number): number {
     if (cell && cell.length > 0) {
       let cellLength = cell.length;
       if (cell[0].type === 'first') cellLength -= 1;
-      if (cellLength > 0) {
-        result += 1;
-      }
+      if (cellLength > 0) result += 1;
     }
 
     colRow.row += 1;
@@ -89,9 +81,7 @@ export function arrayColumnCellCount(array: Atom[][][], col: number): number {
 export function arrayRemoveColumn(array: Atom[][][], col: number): void {
   let row = 0;
   while (row < array.length) {
-    if (array[row][col]) {
-      array[row].splice(col, 1);
-    }
+    if (array[row][col]) array[row].splice(col, 1);
 
     row += 1;
   }
@@ -109,9 +99,8 @@ export function arrayRemoveRow(array: Atom[][][], row: number): void {
  */
 export function arrayFirstCellByRow(array: Atom[][][]): string {
   const colRow = { col: 0, row: 0 };
-  while (colRow.row < array.length && !arrayCell(array, colRow)) {
+  while (colRow.row < array.length && !arrayCell(array, colRow))
     colRow.row += 1;
-  }
 
   return arrayCell(array, colRow) ? `cell${arrayIndex(array, colRow)}` : '';
 }

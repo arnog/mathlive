@@ -27,9 +27,7 @@ export class LatexModeEditor extends ModeEditor {
 
     if (text) {
       mathfield.snapshot();
-      if (this.insert(mathfield.model, text)) {
-        requestUpdate(mathfield);
-      }
+      if (this.insert(mathfield.model, text)) requestUpdate(mathfield);
 
       ev.preventDefault();
       ev.stopPropagation();
@@ -45,9 +43,8 @@ export class LatexModeEditor extends ModeEditor {
     if (!options.selectionMode) options.selectionMode = 'placeholder';
 
     const { suppressChangeNotifications } = model;
-    if (options.suppressChangeNotifications) {
+    if (options.suppressChangeNotifications)
       model.suppressChangeNotifications = true;
-    }
 
     const savedSuppressChangeNotifications = model.suppressChangeNotifications;
     model.suppressChangeNotifications = true;
@@ -56,24 +53,20 @@ export class LatexModeEditor extends ModeEditor {
     if (
       options.insertionMode === 'replaceSelection' &&
       !model.selectionIsCollapsed
-    ) {
+    )
       model.position = model.deleteAtoms(range(model.selection));
-    } else if (options.insertionMode === 'replaceAll') {
+    else if (options.insertionMode === 'replaceAll') {
       model.root.setChildren([], 'body');
       model.position = 0;
-    } else if (options.insertionMode === 'insertBefore') {
+    } else if (options.insertionMode === 'insertBefore')
       model.collapseSelection('backward');
-    } else if (options.insertionMode === 'insertAfter') {
+    else if (options.insertionMode === 'insertAfter')
       model.collapseSelection('forward');
-    }
 
     // Short-circuit the tokenizer and parser when in Latex mode
     const newAtoms: Atom[] = [];
-    for (const c of text) {
-      if (COMMAND_MODE_CHARACTERS.test(c)) {
-        newAtoms.push(new LatexAtom(c));
-      }
-    }
+    for (const c of text)
+      if (COMMAND_MODE_CHARACTERS.test(c)) newAtoms.push(new LatexAtom(c));
 
     //
     // Insert the new atoms
@@ -90,11 +83,9 @@ export class LatexModeEditor extends ModeEditor {
 
     if (options.selectionMode === 'before') {
       // Do nothing: don't change the position.
-    } else if (options.selectionMode === 'item') {
+    } else if (options.selectionMode === 'item')
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
-    } else if (lastNewAtom) {
-      model.position = model.offsetOf(lastNewAtom);
-    }
+    else if (lastNewAtom) model.position = model.offsetOf(lastNewAtom);
 
     contentDidChange(model);
 

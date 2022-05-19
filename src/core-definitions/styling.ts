@@ -154,13 +154,9 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
             atom.backgroundcolor !== undefined
           ) {
             const bboxParameters: string[] = [];
-            if (atom.padding) {
-              bboxParameters.push(atom.padding!);
-            }
+            if (atom.padding) bboxParameters.push(atom.padding!);
 
-            if (atom.border) {
-              bboxParameters.push(`border: ${atom.border!}`);
-            }
+            if (atom.border) bboxParameters.push(`border: ${atom.border!}`);
 
             if (atom.verbatimBackgroundcolor || atom.backgroundcolor) {
               bboxParameters.push(
@@ -967,9 +963,9 @@ defineFunction(['phantom'], '{:auto*}', {
 
 defineFunction('not', '{:math}', {
   createAtom: (name: string, args: Argument[], style: PrivateStyle): Atom => {
-    if (args.length < 1 || args[0] === null) {
+    if (args.length < 1 || args[0] === null)
       return new Atom('mrel', { command: name, style, value: '\ue020' });
-    }
+
     const arg = args[0] as Atom[];
     return new GroupAtom(
       [
@@ -986,9 +982,9 @@ defineFunction('not', '{:math}', {
         command: '\\not',
         serialize: (_atom: GroupAtom, options) => {
           const argLatex = Atom.serialize(arg, options);
-          if (argLatex.length === 1 && !/[a-zA-Z]/.test(argLatex)) {
+          if (argLatex.length === 1 && !/[a-zA-Z]/.test(argLatex))
             return '\\not' + argLatex;
-          }
+
           return `\\not{${argLatex}}`;
         },
       }

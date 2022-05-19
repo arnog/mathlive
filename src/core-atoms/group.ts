@@ -100,7 +100,7 @@ export class GroupAtom extends Atom {
       classes: this.customClass,
       mode: this.mode,
       style: { backgroundColor: this.style.backgroundColor },
-      newList: this.boxType ? false : true,
+      newList: !this.boxType,
     });
     if (!box) return box;
     if (this.cssId) box.cssId = this.cssId;
@@ -116,22 +116,16 @@ export class GroupAtom extends Atom {
   serialize(options: ToLatexOptions): string {
     let result = this.bodyToLatex(options);
 
-    if (typeof this.latexOpen === 'string') {
+    if (typeof this.latexOpen === 'string')
       result = this.latexOpen + result + this.latexClose;
-    }
 
-    if (this.htmlData) {
-      result = `\\htmlData{${this.htmlData}}{${result}}`;
-    }
-    if (this.htmlStyle) {
-      result = `\\htmlStyle{${this.htmlStyle}}{${result}}`;
-    }
-    if (this.customClass) {
-      result = `\\class{${this.customClass}}{${result}}`;
-    }
-    if (this.cssId) {
-      result = `\\cssId{${this.cssId}}{${result}}`;
-    }
+    if (this.htmlData) result = `\\htmlData{${this.htmlData}}{${result}}`;
+
+    if (this.htmlStyle) result = `\\htmlStyle{${this.htmlStyle}}{${result}}`;
+
+    if (this.customClass) result = `\\class{${this.customClass}}{${result}}`;
+
+    if (this.cssId) result = `\\cssId{${this.cssId}}{${result}}`;
 
     return result;
   }

@@ -232,9 +232,9 @@ export class Parser {
 
   getRegister(name: string): RegisterValue {
     console.assert(name[0] !== '\\');
-    if (name.startsWith('global ')) {
+    if (name.startsWith('global '))
       return this._parsingContexts[0].registers?.[name.slice(7)] ?? 0;
-    }
+
     let i = this._parsingContexts.length - 1;
     let registers = this._parsingContexts[i].registers;
     while (i >= 0 && registers && registers[name] === undefined) {
@@ -250,18 +250,18 @@ export class Parser {
       name = name.slice(7);
       let i = this._parsingContexts.length - 1;
       while (i > 0) {
-        if (this._parsingContexts[i].registers) {
+        if (this._parsingContexts[i].registers)
           delete this._parsingContexts[i].registers![name];
-        }
+
         i -= 1;
       }
       this._parsingContexts[0].registers![name] = value;
       return;
     }
     // Set the local register
-    if (!this._parsingContexts[this._parsingContexts.length - 1].registers) {
+    if (!this._parsingContexts[this._parsingContexts.length - 1].registers)
       this._parsingContexts[this._parsingContexts.length - 1].registers = {};
-    }
+
     this._parsingContexts[this._parsingContexts.length - 1].registers![name] =
       value;
   }
@@ -334,9 +334,7 @@ export class Parser {
     if (index < this.tokens.length && this.tokens[index].startsWith('\\')) {
       const info = getInfo(this.tokens[index], this.parseMode, this.macros);
       if (!info) return false;
-      if (info.ifMode && !info.ifMode.includes(this.parseMode)) {
-        return false;
-      }
+      if (info.ifMode && !info.ifMode.includes(this.parseMode)) return false;
 
       return info.infix ?? false;
     }
@@ -396,22 +394,16 @@ export class Parser {
 
   matchWhitespace(): boolean {
     let found = false;
-    while (this.match('<space>')) {
-      found = true;
-    }
+    while (this.match('<space>')) found = true;
 
     return found;
   }
 
   skipUntilToken(input: string): void {
     let token = this.tokens[this.index];
-    while (token && token !== input) {
-      token = this.tokens[++this.index];
-    }
+    while (token && token !== input) token = this.tokens[++this.index];
 
-    if (token === input) {
-      this.index++;
-    }
+    if (token === input) this.index++;
   }
 
   skipFiller(): void {
@@ -446,15 +438,11 @@ export class Parser {
       if (isLiteral(token)) {
         value += token;
         done = this.end() || value.length >= keyword.length;
-      } else {
-        done = true;
-      }
+      } else done = true;
     }
 
     const hasKeyword = keyword.toUpperCase() === value.toUpperCase();
-    if (!hasKeyword) {
-      this.index = savedIndex;
-    }
+    if (!hasKeyword) this.index = savedIndex;
 
     return hasKeyword;
   }
@@ -469,16 +457,14 @@ export class Parser {
   scanString(): string {
     let result = '';
     while (!this.end()) {
-      if (this.match('<space>')) {
-        result += ' ';
-      } else {
+      if (this.match('<space>')) result += ' ';
+      else {
         const token = this.peek();
 
         if (token === ']') break;
 
-        if (isLiteral(token)) {
-          result += this.get();
-        } else if (token.startsWith('\\')) {
+        if (isLiteral(token)) result += this.get();
+        else if (token.startsWith('\\')) {
           // TeX will give a 'Missing \endcsname inserted' error
           // if it encounters any command when expecting a string.
           // We're a bit more lax.
@@ -504,27 +490,19 @@ export class Parser {
     let done = this.end();
     let level = 1;
     while (!done) {
-      if (this.match('<space>')) {
-        result += ' ';
-      } else {
+      if (this.match('<space>')) result += ' ';
+      else {
         const token = this.get();
         if (token === '<{>') {
           result += '{';
           level += 1;
         } else if (token === '<}>') {
           level -= 1;
-          if (level > 0) {
-            result += '}';
-          } else {
-            this.index -= 1;
-          }
-        } else if (token === '<$>') {
-          result += '$';
-        } else if (token === '<$$>') {
-          result += '$$';
-        } else {
-          result += token;
-        }
+          if (level > 0) result += '}';
+          else this.index -= 1;
+        } else if (token === '<$>') result += '$';
+        else if (token === '<$$>') result += '$$';
+        else result += token;
       }
 
       done = level === 0 || this.end();
@@ -606,9 +584,8 @@ export class Parser {
       // A backtick indicates an alphabetic constant: a letter, or a single-letter command
       token = this.get();
       if (token) {
-        if (token.startsWith('\\') && token.length === 2) {
+        if (token.startsWith('\\') && token.length === 2)
           return (negative ? -1 : 1) * (token.codePointAt(1) ?? 0);
-        }
 
         return (negative ? -1 : 1) * (token.codePointAt(0) ?? 0);
       }
@@ -617,16 +594,12 @@ export class Parser {
     }
 
     let value = '';
-    while (this.hasPattern(digits)) {
-      value += this.get();
-    }
+    while (this.hasPattern(digits)) value += this.get();
 
     // Parse the fractional part, if applicable
     if (!isInteger && (this.match('.') || this.match(','))) {
       value += '.';
-      while (this.hasPattern(digits)) {
-        value += this.get();
-      }
+      while (this.hasPattern(digits)) value += this.get();
     }
 
     const result: number = isInteger
@@ -645,37 +618,23 @@ export class Parser {
     let value = this.scanNumber(false);
     if (value === null) {
       // This wasn't a number, but perhaps it's a register name?
-      if (this.peek()?.startsWith('\\')) {
-        value = 1;
-      } else {
-        return null;
-      }
+      if (this.peek()?.startsWith('\\')) value = 1;
+      else return null;
     }
     this.matchWhitespace();
     let result: Dimension;
-    if (this.matchKeyword('pt')) {
-      result = { dimension: value, unit: 'pt' };
-    } else if (this.matchKeyword('mm')) {
-      result = { dimension: value, unit: 'mm' };
-    } else if (this.matchKeyword('cm')) {
-      result = { dimension: value, unit: 'cm' };
-    } else if (this.matchKeyword('ex')) {
-      result = { dimension: value, unit: 'ex' };
-    } else if (this.matchKeyword('px')) {
-      result = { dimension: value, unit: 'px' };
-    } else if (this.matchKeyword('em')) {
-      result = { dimension: value, unit: 'em' };
-    } else if (this.matchKeyword('bp')) {
-      result = { dimension: value, unit: 'bp' };
-    } else if (this.matchKeyword('dd')) {
-      result = { dimension: value, unit: 'dd' };
-    } else if (this.matchKeyword('pc')) {
-      result = { dimension: value, unit: 'pc' };
-    } else if (this.matchKeyword('in')) {
-      result = { dimension: value, unit: 'in' };
-    } else if (this.matchKeyword('mu')) {
-      result = { dimension: value, unit: 'mu' };
-    } else {
+    if (this.matchKeyword('pt')) result = { dimension: value, unit: 'pt' };
+    else if (this.matchKeyword('mm')) result = { dimension: value, unit: 'mm' };
+    else if (this.matchKeyword('cm')) result = { dimension: value, unit: 'cm' };
+    else if (this.matchKeyword('ex')) result = { dimension: value, unit: 'ex' };
+    else if (this.matchKeyword('px')) result = { dimension: value, unit: 'px' };
+    else if (this.matchKeyword('em')) result = { dimension: value, unit: 'em' };
+    else if (this.matchKeyword('bp')) result = { dimension: value, unit: 'bp' };
+    else if (this.matchKeyword('dd')) result = { dimension: value, unit: 'dd' };
+    else if (this.matchKeyword('pc')) result = { dimension: value, unit: 'pc' };
+    else if (this.matchKeyword('in')) result = { dimension: value, unit: 'in' };
+    else if (this.matchKeyword('mu')) result = { dimension: value, unit: 'mu' };
+    else {
       if (this.peek()?.startsWith('\\')) {
         result = convertToDimension(
           this.getRegister(this.get().slice(1)),
@@ -729,13 +688,11 @@ export class Parser {
     const result: ColumnFormat[] = [];
     while (!this.end() && !(this.peek() === '<}>' || this.peek() === ']')) {
       const literal = this.get();
-      if (literal === 'c' || literal === 'r' || literal === 'l') {
+      if (literal === 'c' || literal === 'r' || literal === 'l')
         result.push({ align: literal });
-      } else if (literal === '|') {
-        result.push({ separator: 'solid' });
-      } else if (literal === ':') {
-        result.push({ separator: 'dashed' });
-      } else if (literal === '@') {
+      else if (literal === '|') result.push({ separator: 'solid' });
+      else if (literal === ':') result.push({ separator: 'dashed' });
+      else if (literal === '@') {
         if (this.match('<{>')) {
           this.beginContext({ mode: 'math' });
           result.push({
@@ -744,9 +701,7 @@ export class Parser {
           this.endContext();
         }
 
-        if (!this.match('<}>')) {
-          this.onError({ code: 'unbalanced-braces' });
-        }
+        if (!this.match('<}>')) this.onError({ code: 'unbalanced-braces' });
       }
     }
 
@@ -959,16 +914,13 @@ export class Parser {
         // only defined in 'math' mode, we can use the 'math' constant
         // for the parseMode
         infixInfo = getInfo(infix, 'math', this.macros) as FunctionDefinition;
-        if (infixInfo) {
+        if (infixInfo)
           infixArgs = this.parseArguments(infixInfo)[1] as Atom[][];
-        }
 
         // Save the math list so far and start a new one
         prefix = this.mathlist;
         this.mathlist = [];
-      } else {
-        this.parseToken();
-      }
+      } else this.parseToken();
     }
 
     let result: Atom[];
@@ -1053,9 +1005,7 @@ export class Parser {
     }
 
     let delim = '.';
-    if (token.startsWith('\\') || isLiteral(token)) {
-      delim = token;
-    }
+    if (token.startsWith('\\') || isLiteral(token)) delim = token;
 
     const info = getInfo(delim, 'math', this.macros);
     if (!info) {
@@ -1068,9 +1018,7 @@ export class Parser {
       return null;
     }
 
-    if (info.type === 'mopen' || info.type === 'mclose') {
-      return delim;
-    }
+    if (info.type === 'mopen' || info.type === 'mclose') return delim;
 
     // Some symbols are not of type mopen/mclose, but are still
     // valid delimiters...
@@ -1080,9 +1028,8 @@ export class Parser {
       /^(\.|\?|\||<|>|\\vert|\\Vert|\\\||\\surd|\\uparrow|\\downarrow|\\Uparrow|\\Downarrow|\\updownarrow|\\Updownarrow|\\mid|\\mvert|\\mVert)$/.test(
         delim
       )
-    ) {
+    )
       return delim;
-    }
 
     this.onError({ code: 'unexpected-delimiter', arg: delim });
     return null;
@@ -1266,18 +1213,17 @@ export class Parser {
               token === '\\\\'
           )
         );
-      } else if (parameter.isOptional) {
+      } else if (parameter.isOptional)
         args.push(this.parseOptionalArgument(parameter.type));
-      } else if (parameter.type.endsWith('*')) {
+      else if (parameter.type.endsWith('*')) {
         // For example 'math*'.
         // In this case, indicate that a 'yet-to-be-parsed'
         // argument (and 'explicit group') is present
         explicitGroup = parameter.type.slice(0, -1) as ParseMode;
       } else {
         const arg = this.parseArgument(parameter.type);
-        if (arg !== null) {
-          args.push(arg);
-        } else {
+        if (arg !== null) args.push(arg);
+        else {
           // Report an error
           this.onError({ code: 'missing-argument' });
           switch (parameter.type) {
@@ -1342,9 +1288,7 @@ export class Parser {
     // Note that ``\frac\sqrt{-1}\alpha\beta`` is equivalent to
     // ``\frac{\sqrt}{-1}{\beta}``
     if (!this.match('<{>')) {
-      if (argType === 'delim') {
-        return this.scanDelim() ?? '.';
-      }
+      if (argType === 'delim') return this.scanDelim() ?? '.';
 
       if (argType === 'text' || argType === 'math') {
         // Parse a single token.
@@ -1402,27 +1346,20 @@ export class Parser {
       if (!result) {
         // No mode-specific result. Try again from the start
         this.index = initialIndex;
-        do {
-          this.mathlist.push(...this.parse());
-        } while (!this.match('<}>') && !this.end());
+        do this.mathlist.push(...this.parse());
+        while (!this.match('<}>') && !this.end());
       }
     } else {
       this.beginContext();
-      if (argType === 'string') {
-        result = this.scanString();
-      } else if (argType === 'balanced-string') {
+      if (argType === 'string') result = this.scanString();
+      else if (argType === 'balanced-string')
         result = this.scanBalancedString();
-      } else if (argType === 'number') {
-        result = this.scanNumber();
-      } else if (argType === 'colspec') {
-        result = this.scanColspec();
-      } else if (argType === 'dimen') {
-        result = this.scanDimen();
-      } else if (argType === 'glue') {
-        result = this.scanGlue();
-      } else if (argType === 'delim') {
-        result = this.scanDelim() ?? '.';
-      }
+      else if (argType === 'number') result = this.scanNumber();
+      else if (argType === 'colspec') result = this.scanColspec();
+      else if (argType === 'dimen') result = this.scanDimen();
+      else if (argType === 'glue') result = this.scanGlue();
+      else if (argType === 'delim') result = this.scanDelim() ?? '.';
+
       if (result === null) {
         this.endContext();
         return null;
@@ -1442,17 +1379,12 @@ export class Parser {
     if (!this.match('[')) return null;
     let result: Argument | null = null;
     while (!this.end() && !this.match(']')) {
-      if (argType === 'string') {
-        result = this.scanString();
-      } else if (argType === 'number') {
-        result = this.scanNumber();
-      } else if (argType === 'dimen') {
-        result = this.scanDimen();
-      } else if (argType === 'glue') {
-        result = this.scanGlue();
-      } else if (argType === 'colspec') {
-        result = this.scanColspec();
-      } else if (argType === 'bbox') {
+      if (argType === 'string') result = this.scanString();
+      else if (argType === 'number') result = this.scanNumber();
+      else if (argType === 'dimen') result = this.scanDimen();
+      else if (argType === 'glue') result = this.scanGlue();
+      else if (argType === 'colspec') result = this.scanColspec();
+      else if (argType === 'bbox') {
         // The \bbox command takes a very particular argument:
         // a comma delimited list of up to three arguments:
         // a color, a dimension and a string.
@@ -1466,17 +1398,13 @@ export class Parser {
         const bboxParameter: BBoxParameter = {};
         for (const element of list) {
           const color = this.backgroundColorMap?.(element);
-          if (color) {
-            bboxParameter.backgroundcolor = color;
-          } else {
+          if (color) bboxParameter.backgroundcolor = color;
+          else {
             const m = element.match(/^\s*([\d.]+)\s*([a-z]{2})/);
-            if (m) {
-              bboxParameter.padding = m[0];
-            } else {
+            if (m) bboxParameter.padding = m[0];
+            else {
               const m = element.match(/^\s*border\s*:\s*(.*)/);
-              if (m) {
-                bboxParameter.border = m[1];
-              }
+              if (m) bboxParameter.border = m[1];
             }
           }
         }
@@ -1510,13 +1438,8 @@ export class Parser {
       // argument
       const initialIndex = this.index;
       let codepoint = Math.floor(this.scanNumber(true) ?? Number.NaN);
-      if (
-        !Number.isFinite(codepoint) ||
-        codepoint < 0 ||
-        codepoint > 0x10ffff
-      ) {
+      if (!Number.isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff)
         codepoint = 0x2753; // BLACK QUESTION MARK
-      }
 
       const verbatimLatex =
         '\\char' + tokensToString(this.tokens.slice(initialIndex, this.index));
@@ -1575,9 +1498,7 @@ export class Parser {
     // thats ends with a '*' ('math*', 'auto*').
 
     const savedMode = this.parseMode;
-    if (info.applyMode) {
-      this.parseMode = info.applyMode;
-    }
+    if (info.applyMode) this.parseMode = info.applyMode;
 
     const initialIndex = this.index;
     const [deferredArg, args] = this.parseArguments(info);
@@ -1585,9 +1506,8 @@ export class Parser {
 
     if (!args) return null; // Some required arguments were missing...
 
-    if (info.applyMode && !info.applyStyle && !info.createAtom) {
+    if (info.applyMode && !info.applyStyle && !info.createAtom)
       return args[0] as Atom[];
-    }
 
     if (info.infix) {
       // Infix commands should be handled in scanImplicitGroup
@@ -1606,9 +1526,8 @@ export class Parser {
         colorMap: this.colorMap,
         backgroundColorMap: this.backgroundColorMap,
       });
-      if (deferredArg) {
+      if (deferredArg)
         result!.body = this.parseArgument(deferredArg) ?? undefined;
-      }
     } else if (typeof info.applyStyle === 'function') {
       const style = info.applyStyle(command, args, {
         colorMap: this.colorMap,
@@ -1640,9 +1559,8 @@ export class Parser {
       // The new atom will inherit the current style
       const style = { ...this.style };
       // Override the variant if an explicit variant is provided
-      if (info.variant) {
-        style.variant = info.variant;
-      }
+      if (info.variant) style.variant = info.variant;
+
       result = new Atom(info.type ?? 'mop', {
         command,
         style,
@@ -1694,9 +1612,8 @@ export class Parser {
     if (!token) return null;
 
     if (token === '<space>') {
-      if (this.parseMode === 'text') {
+      if (this.parseMode === 'text')
         return [new TextAtom(' ', ' ', this.style)];
-      }
 
       return null;
     }
@@ -1705,9 +1622,8 @@ export class Parser {
 
     if (isLiteral(token)) return this.parseLiteral(token);
 
-    if (token === '<}>') {
-      this.onError({ latex: '', code: 'unbalanced-braces' });
-    } else {
+    if (token === '<}>') this.onError({ latex: '', code: 'unbalanced-braces' });
+    else {
       this.onError({
         latex: '',
         code: 'unexpected-token',
@@ -1777,11 +1693,8 @@ export class Parser {
     // If we have an atom to add, push it at the end of the current math list
     // We could have no atom for tokens that were skipped, a ' ' in math mode
     // for example
-    if (isArray<Atom>(result)) {
-      this.mathlist.push(...result);
-    } else if (result) {
-      this.mathlist.push(result);
-    }
+    if (isArray<Atom>(result)) this.mathlist.push(...result);
+    else if (result) this.mathlist.push(result);
 
     return result !== null;
   }
@@ -1821,9 +1734,9 @@ export function parseLatex(
       options?.colorMap ??
       defaultBackgroundColorMap,
     onError: (err) => {
-      if (typeof options?.onError === 'function') {
+      if (typeof options?.onError === 'function')
         options.onError({ ...err, latex: s });
-      } else {
+      else {
         // Console.warn(
         //     'MathLive parsing error: ' +
         //         err.code +
@@ -1834,7 +1747,7 @@ export function parseLatex(
     },
   });
 
-  let atoms: Atom[] = [];
+  const atoms: Atom[] = [];
   while (!parser.end()) {
     const more = parser.parse();
     if (!more) break;
@@ -1850,9 +1763,7 @@ export function convertToGlue(
   // If it's already a Glue, return it.
   if (typeof value === 'object' && 'glue' in value) return value;
 
-  if (typeof value === 'object' && 'dimension' in value) {
-    return { glue: value };
-  }
+  if (typeof value === 'object' && 'dimension' in value) return { glue: value };
 
   if (typeof value === 'number') return { glue: { dimension: value } };
 
@@ -1868,13 +1779,9 @@ export function convertToDimension(
 ): null | Dimension {
   if (typeof value === 'number') return { dimension: value, unit: 'pt' };
 
-  if (typeof value === 'object' && 'glue' in value) {
-    value = value.glue;
-  }
+  if (typeof value === 'object' && 'glue' in value) value = value.glue;
 
-  if (typeof value === 'object' && 'dimension' in value) {
-    return value;
-  }
+  if (typeof value === 'object' && 'dimension' in value) return value;
 
   // It's a string
 

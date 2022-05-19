@@ -88,19 +88,18 @@ function getVListChildrenAndDepth(
         typeof child === 'number' ? child : child.box.height + child.box.depth;
     }
     return [params.children, bottom];
-  } else if ('bottom' in params) {
-    return [params.children, -params.bottom];
-  } else if ('firstBaseline' in params) {
+  } else if ('bottom' in params) return [params.children, -params.bottom];
+  else if ('firstBaseline' in params) {
     const firstChild = params.firstBaseline[0];
-    if (typeof firstChild === 'number') {
+    if (typeof firstChild === 'number')
       throw new Error('First child must be an element.');
-    }
+
     return [params.firstBaseline, -firstChild.box.depth];
   } else if ('shift' in params) {
     const firstChild = params.children[0];
-    if (typeof firstChild === 'number') {
+    if (typeof firstChild === 'number')
       throw new Error('First child must be an element.');
-    }
+
     return [params.children, -firstChild.box.depth - params.shift];
   }
   return [null, 0];
@@ -146,9 +145,8 @@ function makeRows(
   let maxPos = depth;
   let currPos = depth;
   for (const child of children) {
-    if (typeof child === 'number') {
-      currPos += child;
-    } else {
+    if (typeof child === 'number') currPos += child;
+    else {
       const box = child.box;
       const classes = child.classes ?? [];
 
@@ -157,12 +155,11 @@ function makeRows(
         style: child.style,
       });
       childWrap.setStyle('top', -pstrutSize - currPos - box.depth, 'em');
-      if (child.marginLeft) {
+      if (child.marginLeft)
         childWrap.setStyle('margin-left', child.marginLeft, 'em');
-      }
-      if (child.marginRight) {
+
+      if (child.marginRight)
         childWrap.setStyle('margin-right', child.marginRight, 'em');
-      }
 
       realChildren.push(childWrap);
       currPos += box.height + box.depth;
@@ -201,9 +198,7 @@ function makeRows(
       new Box([vlist, topStrut], { classes: 'vlist-r' }),
       new Box(depthStrut, { classes: 'vlist-r' }),
     ];
-  } else {
-    rows = [new Box(vlist, { classes: 'vlist-r' })];
-  }
+  } else rows = [new Box(vlist, { classes: 'vlist-r' })];
 
   return [rows, maxPos, -minPos];
 }

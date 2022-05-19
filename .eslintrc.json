@@ -262,7 +262,7 @@
 
     "valid-typeof": "error",
     "consistent-return": "error",
-    "curly": ["warn", "multi-line"],
+    "curly": ["warn", "multi-or-nest"],
     "eqeqeq": ["error", "smart"],
     "guard-for-in": "warn",
     // "max-len": "warn",

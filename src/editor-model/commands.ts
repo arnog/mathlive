@@ -65,9 +65,8 @@ export function wordBoundaryOffset(
       model.at(i) &&
       model.at(i).mode === 'text' &&
       /\s/.test(model.at(i).value)
-    ) {
+    )
       i += dir;
-    }
 
     if (!model.at(i)) {
       // We've reached the end
@@ -89,9 +88,8 @@ export function wordBoundaryOffset(
       model.at(i) &&
       model.at(i).mode === 'text' &&
       !/\s/.test(model.at(i).value)
-    ) {
+    )
       i += dir;
-    }
 
     result = model.at(i) ? i : i - dir;
     let match = true;
@@ -123,20 +121,14 @@ export function skip(
 ): boolean {
   const previousPosition = model.position;
 
-  if (!(options?.extend ?? false)) {
-    model.collapseSelection(direction);
-  }
+  if (!(options?.extend ?? false)) model.collapseSelection(direction);
 
   let atom = model.at(model.position);
   if (direction === 'forward') {
     if (atom.type === 'msubsup') {
       atom = atom.rightSibling;
-      if (!atom) {
-        atom = model.at(model.position + 1);
-      }
-    } else {
-      atom = model.at(model.position + 1);
-    }
+      if (!atom) atom = model.at(model.position + 1);
+    } else atom = model.at(model.position + 1);
   }
 
   if (!atom) {
@@ -202,11 +194,8 @@ export function skip(
     //
     let level = 0;
     do {
-      if (atom.type === 'mopen') {
-        level += 1;
-      } else if (atom.type === 'mclose') {
-        level -= 1;
-      }
+      if (atom.type === 'mopen') level += 1;
+      else if (atom.type === 'mclose') level -= 1;
 
       atom = atom.rightSibling;
     } while (!atom.isLastSibling && level !== 0);
@@ -218,11 +207,8 @@ export function skip(
     //
     let level = 0;
     do {
-      if (atom.type === 'mopen') {
-        level += 1;
-      } else if (atom.type === 'mclose') {
-        level -= 1;
-      }
+      if (atom.type === 'mopen') level += 1;
+      else if (atom.type === 'mclose') level -= 1;
 
       atom = atom.leftSibling;
     } while (!atom.isFirstSibling && level !== 0);
@@ -251,11 +237,9 @@ export function skip(
       //     offset = model.offsetOf(model.at(offset).leftSibling);
       // }
       while (offset >= 0 && nextType === type) {
-        if (model.at(offset)?.type === 'msubsup') {
+        if (model.at(offset)?.type === 'msubsup')
           offset = model.offsetOf(model.at(offset).leftSibling);
-        } else {
-          offset -= 1;
-        }
+        else offset -= 1;
 
         nextType = model.at(offset).type;
       }
@@ -271,9 +255,8 @@ export function skip(
       offset <= lastOffset &&
       (nextType === type || nextType === 'msubsup')
     ) {
-      while (model.at(offset).rightSibling?.type === 'msubsup') {
+      while (model.at(offset).rightSibling?.type === 'msubsup')
         offset = model.offsetOf(model.at(offset).rightSibling);
-      }
 
       offset += 1;
       nextType = model.at(offset)?.type;
@@ -312,9 +295,7 @@ export function move(
 
   if (direction !== 'forward') {
     const [from, to] = getCommandSuggestionRange(model);
-    if (from !== undefined && to !== undefined) {
-      model.deleteAtoms([from, to]);
-    }
+    if (from !== undefined && to !== undefined) model.deleteAtoms([from, to]);
   }
 
   if (direction === 'upward') return moveUpward(model, options);
@@ -349,15 +330,13 @@ export function move(
           atom.parent?.skipBoundary
         ) {
           // When going forward if next is skipboundary, move 2
-          if (pos + 1 === model.lastOffset) {
-            pos = pos + 1;
-          } else {
+          if (pos + 1 === model.lastOffset) pos = pos + 1;
+          else {
             model.position = pos + 1;
             return move(model, 'forward', options);
           }
-        } else if (atom instanceof LatexAtom && atom.isSuggestion) {
+        } else if (atom instanceof LatexAtom && atom.isSuggestion)
           atom.isSuggestion = false;
-        }
       } else if (direction === 'backward') {
         let atom = model.at(pos);
         if (atom.parent?.inCaptureSelection) {
@@ -383,9 +362,8 @@ export function move(
     if (pos < 0 || pos > model.lastOffset) {
       // We're going out of bounds
       let result = true; // True => perform default handling
-      if (!model.suppressChangeNotifications) {
+      if (!model.suppressChangeNotifications)
         result = model.hooks?.moveOut(model, direction);
-      }
 
       if (result) model.announce('plonk');
       return result;
@@ -411,9 +389,7 @@ function setPositionHandlingPlaceholder(
   } else if (model.at(pos)?.rightSibling?.type === 'placeholder') {
     // We're going left of a placeholder: select it
     model.setSelection(pos, pos + 1);
-  } else {
-    model.position = pos;
-  }
+  } else model.position = pos;
 }
 
 function moveUpward(
@@ -422,9 +398,8 @@ function moveUpward(
 ): boolean {
   const extend = options?.extend ?? false;
 
-  if (!extend) {
-    model.collapseSelection('backward');
-  }
+  if (!extend) model.collapseSelection('backward');
+
   // Find a target branch
   // This is to handle the case: `\frac{x}{\sqrt{y}}`. If we're at `y`
   // we'd expect to move to `x`, even though `\sqrt` doesn't have an 'above'
@@ -435,9 +410,8 @@ function moveUpward(
     atom &&
     atom.treeBranch !== 'below' &&
     !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
-  ) {
+  )
     atom = atom.parent!;
-  }
 
   // handle navigating through matrices and such
   if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
@@ -506,9 +480,8 @@ function moveUpward(
     model.announce('move up');
   } else {
     let result = true; // True => perform default handling
-    if (!model.suppressChangeNotifications) {
+    if (!model.suppressChangeNotifications)
       result = model.hooks?.moveOut(model, 'upward');
-    }
 
     model.announce(result ? 'plonk' : 'line');
     return result;
@@ -523,9 +496,8 @@ function moveDownward(
 ): boolean {
   const extend = options?.extend ?? false;
 
-  if (!extend) {
-    model.collapseSelection('forward');
-  }
+  if (!extend) model.collapseSelection('forward');
+
   // Find a target branch
   // This is to handle the case: `\frac{\sqrt{x}}{y}`. If we're at `x`
   // we'd expect to move to `y`, even though `\sqrt` doesn't have a 'below'
@@ -536,9 +508,8 @@ function moveDownward(
     atom &&
     atom.treeBranch !== 'above' &&
     !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
-  ) {
+  )
     atom = atom.parent!;
-  }
 
   // handle navigating through matrices and such
   if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
@@ -598,9 +569,8 @@ function moveDownward(
     model.announce('move down');
   } else {
     let result = true; // True => perform default handling
-    if (!model.suppressChangeNotifications) {
+    if (!model.suppressChangeNotifications)
       result = model.hooks?.moveOut(model, 'downward');
-    }
 
     model.announce(result ? 'plonk' : 'line');
     return result;

@@ -23,26 +23,15 @@ function relationName(atom: Atom): string {
       mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
     }[atom.type];
   } else if (atom.parent!.type === 'genfrac') {
-    if (atom.treeBranch === 'above') {
-      return 'numerator';
-    }
+    if (atom.treeBranch === 'above') return 'numerator';
 
-    if (atom.treeBranch === 'below') {
-      return 'denominator';
-    }
+    if (atom.treeBranch === 'below') return 'denominator';
   } else if (atom.parent!.type === 'surd') {
-    if (atom.treeBranch === 'above') {
-      result = 'index';
-    }
-  } else if (atom.treeBranch === 'superscript') {
-    result = 'superscript';
-  } else if (atom.treeBranch === 'subscript') {
-    result = 'subscript';
-  }
+    if (atom.treeBranch === 'above') result = 'index';
+  } else if (atom.treeBranch === 'superscript') result = 'superscript';
+  else if (atom.treeBranch === 'subscript') result = 'subscript';
 
-  if (!result) {
-    console.log('unknown relationship');
-  }
+  if (!result) console.log('unknown relationship');
 
   return result ?? 'parent';
 }
@@ -69,10 +58,10 @@ export function defaultAnnounceHook(
     mathfield.plonkSound?.play().catch((error) => console.warn(error));
     // As a side effect, reset the keystroke buffer
     mathfield.resetKeystrokeBuffer();
-  } else if (action === 'delete') {
+  } else if (action === 'delete')
     liveText = speakableText(mathfield.options, 'deleted: ', atoms!);
-    //* ** FIX: could also be moveUp or moveDown -- do something different like provide context???
-  } else if (action === 'focus' || action.includes('move')) {
+  //* ** FIX: could also be moveUp or moveDown -- do something different like provide context???
+  else if (action === 'focus' || action.includes('move')) {
     //* ** FIX -- should be xxx selected/unselected */
     liveText =
       getRelationshipAsSpokenText(mathfield.model, previousPosition) +
@@ -127,9 +116,7 @@ function getRelationshipAsSpokenText(
   if (Number.isNaN(previousOffset)) return '';
   const previous = model.at(previousOffset!);
   if (!previous) return '';
-  if (previous.treeDepth <= model.at(model.position).treeDepth) {
-    return '';
-  }
+  if (previous.treeDepth <= model.at(model.position).treeDepth) return '';
 
   let result = '';
   let ancestor = previous.parent;
@@ -152,27 +139,22 @@ function getNextAtomAsSpokenText(
   model: ModelPrivate,
   options: TextToSpeechOptions
 ): string {
-  if (!model.selectionIsCollapsed) {
+  if (!model.selectionIsCollapsed)
     return speakableText(options, '', model.getAtoms(model.selection));
-  }
 
   let result = '';
 
   // Announce start of denominator, etc
   const cursor = model.at(model.position);
   const relation = relationName(cursor);
-  if (cursor.isFirstSibling) {
+  if (cursor.isFirstSibling)
     result = (relation ? 'start of ' + relation : 'unknown') + ': ';
-  }
 
   if (cursor.isLastSibling) {
     // Don't say both start and end
-    if (!cursor.isFirstSibling) {
+    if (!cursor.isFirstSibling)
       result += relation ? 'end of ' + relation : 'unknown';
-    }
-  } else {
-    result += speakableText(options, '', cursor);
-  }
+  } else result += speakableText(options, '', cursor);
 
   return result;
 }

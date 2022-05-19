@@ -66,9 +66,8 @@ export const l10n: L10n = {
     } else if (locale && !strings) {
       for (const l of Object.keys(
         locale as Record<string, Record<string, string>>
-      )) {
+      ))
         l10n.merge(l, locale[l]);
-      }
     }
   },
 };

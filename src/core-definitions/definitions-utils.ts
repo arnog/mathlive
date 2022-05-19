@@ -495,15 +495,12 @@ function newSymbol(
     variant,
     codepoint: value,
   };
-  if (!REVERSE_MATH_SYMBOLS[value] && !variant) {
+  if (!REVERSE_MATH_SYMBOLS[value] && !variant)
     REVERSE_MATH_SYMBOLS[value] = symbol;
-  }
 
   // We accept all math symbols in text mode as well
   // which is a bit more permissive than TeX
-  if (!TEXT_SYMBOLS[symbol]) {
-    TEXT_SYMBOLS[symbol] = value;
-  }
+  if (!TEXT_SYMBOLS[symbol]) TEXT_SYMBOLS[symbol] = value;
 }
 
 /**
@@ -524,9 +521,8 @@ export function newSymbols(
     return;
   }
 
-  for (const [symbol, val, type, variant] of value) {
+  for (const [symbol, val, type, variant] of value)
     newSymbol(symbol, val, type ?? inType, variant ?? inVariant);
-  }
 }
 
 /**
@@ -535,9 +531,7 @@ export function newSymbols(
  * @param to Last Unicode codepoint
  */
 export function newSymbolRange(from: number, to: number): void {
-  for (let i = from; i <= to; i++) {
-    newSymbol(String.fromCodePoint(i), i);
-  }
+  for (let i = from; i <= to; i++) newSymbol(String.fromCodePoint(i), i);
 }
 
 /**
@@ -549,9 +543,8 @@ export function charToLatex(
   codepoint: number | undefined
 ): string {
   if (codepoint === undefined) return '';
-  if (parseMode === 'math' && REVERSE_MATH_SYMBOLS[codepoint]) {
+  if (parseMode === 'math' && REVERSE_MATH_SYMBOLS[codepoint])
     return REVERSE_MATH_SYMBOLS[codepoint];
-  }
 
   if (parseMode === 'text') {
     let textSymbol = Object.keys(TEXT_SYMBOLS).find(
@@ -728,9 +721,8 @@ function unicodeToMathVariant(codepoint: number): {
   if (
     (codepoint < 0x1d400 || codepoint > 0x1d7ff) &&
     (codepoint < 0x2100 || codepoint > 0x214f)
-  ) {
+  )
     return { char: String.fromCodePoint(codepoint) };
-  }
 
   // Handle the 'gap' letters by converting them back into their logical range
   for (const c in MATH_LETTER_EXCEPTIONS) {
@@ -795,9 +787,8 @@ export function unicodeCharToLatex(
   parseMode: ArgumentType,
   char: string
 ): string {
-  if (parseMode === 'text') {
+  if (parseMode === 'text')
     return charToLatex(parseMode, char.codePointAt(0)) ?? char;
-  }
 
   let result: string;
   // Codepoint shortcuts have priority over variants
@@ -811,17 +802,11 @@ export function unicodeCharToLatex(
   if (!v.style && !v.variant) return '';
 
   result = v.char;
-  if (v.variant) {
-    result = '\\' + v.variant + '{' + result + '}';
-  }
+  if (v.variant) result = '\\' + v.variant + '{' + result + '}';
 
-  if (v.style === 'bold') {
-    result = '\\mathbf{' + result + '}';
-  } else if (v.style === 'italic') {
-    result = '\\mathit{' + result + '}';
-  } else if (v.style === 'bolditalic') {
-    result = '\\mathbfit{' + result + '}';
-  }
+  if (v.style === 'bold') result = '\\mathbf{' + result + '}';
+  else if (v.style === 'italic') result = '\\mathit{' + result + '}';
+  else if (v.style === 'bolditalic') result = '\\mathbfit{' + result + '}';
 
   return '\\mathord{' + result + '}';
 }
@@ -833,18 +818,14 @@ export function unicodeStringToLatex(
   let result = '';
   let needSpace = false;
   for (const c of s) {
-    if (needSpace) {
-      result += parseMode === 'text' ? '{}' : ' ';
-    }
+    if (needSpace) result += parseMode === 'text' ? '{}' : ' ';
 
     needSpace = false;
     const latex = unicodeCharToLatex(parseMode, c);
     if (latex) {
       result += latex;
       needSpace = /\\[a-zA-Z\d]+\*?$/.test(latex);
-    } else {
-      result += c;
-    }
+    } else result += c;
   }
 
   return result;
@@ -886,11 +867,9 @@ export function getInfo(
     }
 
     // It wasn't a function, maybe it's a symbol?
-    if (parseMode === 'math') {
-      info = MATH_SYMBOLS[symbol];
-    } else if (TEXT_SYMBOLS[symbol]) {
+    if (parseMode === 'math') info = MATH_SYMBOLS[symbol];
+    else if (TEXT_SYMBOLS[symbol])
       info = { type: 'mord', codepoint: TEXT_SYMBOLS[symbol] };
-    }
 
     if (!info) {
       // Maybe it's a macro
@@ -911,13 +890,11 @@ export function getInfo(
         }
       }
     }
-  } else if (parseMode === 'math') {
-    info = MATH_SYMBOLS[symbol];
-  } else if (TEXT_SYMBOLS[symbol]) {
+  } else if (parseMode === 'math') info = MATH_SYMBOLS[symbol];
+  else if (TEXT_SYMBOLS[symbol])
     info = { codepoint: TEXT_SYMBOLS[symbol], type: 'mord' };
-  } else if (parseMode === 'text') {
+  else if (parseMode === 'text')
     info = { codepoint: symbol.codePointAt(0)!, type: 'mord' };
-  }
 
   // Special case `f`, `g` and `h` are recognized as functions.
   if (
@@ -948,28 +925,23 @@ export function suggest(mf: MathfieldPrivate, s: string): string[] {
   // Iterate over items in the dictionary
   for (const p in LEGACY_COMMANDS) {
     // Don't recommend infix commands
-    if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix) {
+    if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix)
       result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency ?? 0 });
-    }
   }
 
   for (const p in MATH_SYMBOLS) {
-    if (p.startsWith(s)) {
+    if (p.startsWith(s))
       result.push({ match: p, frequency: MATH_SYMBOLS[p].frequency ?? 0 });
-    }
   }
 
   // Consider macros
   const command = s.substring(1);
-  for (const p of Object.keys(mf.options.macros)) {
+  for (const p of Object.keys(mf.options.macros))
     if (p.startsWith(command)) result.push({ match: '\\' + p, frequency: 0 });
-  }
 
   result.sort((a, b) => {
     if (a.frequency === b.frequency) {
-      if (a.match.length === b.match.length) {
-        return a.match < b.match ? -1 : +1;
-      }
+      if (a.match.length === b.match.length) return a.match < b.match ? -1 : +1;
 
       return a.match.length - b.match.length;
     }
@@ -1006,7 +978,7 @@ function parseParameterTemplate(
 ): FunctionArgumentDefiniton[] {
   if (!parameterTemplate) return [];
 
-  let result: FunctionArgumentDefiniton[] = [];
+  const result: FunctionArgumentDefiniton[] = [];
   let parameters = parameterTemplate.split(']');
   if (parameters[0].startsWith('[')) {
     // We found at least one optional parameter.
@@ -1015,9 +987,8 @@ function parseParameterTemplate(
       type: parseParameterTemplateArgument(parameters[0].slice(1)),
     });
     // Parse the rest
-    for (let i = 1; i <= parameters.length; i++) {
+    for (let i = 1; i <= parameters.length; i++)
       result.push(...parseParameterTemplate(parameters[i]));
-    }
   } else {
     parameters = parameterTemplate.split('}');
     if (parameters[0].startsWith('{')) {
@@ -1027,9 +998,8 @@ function parseParameterTemplate(
         type: parseParameterTemplateArgument(parameters[0].slice(1)),
       });
       // Parse the rest
-      for (let i = 1; i <= parameters.length; i++) {
+      for (let i = 1; i <= parameters.length; i++)
         result.push(...parseParameterTemplate(parameters[i]));
-      }
     }
   }
 
@@ -1045,11 +1015,8 @@ export function parseArgAsString(atoms: Atom[]): string {
   let result = '';
   let success = true;
   for (const atom of atoms) {
-    if (typeof atom.value === 'string') {
-      result += atom.value;
-    } else {
-      success = false;
-    }
+    if (typeof atom.value === 'string') result += atom.value;
+    else success = false;
   }
   return success ? result : '';
 }
@@ -1066,9 +1033,7 @@ export function defineEnvironment(
   parser: EnvironmentConstructor,
   isTabular = false
 ): void {
-  if (typeof names === 'string') {
-    names = [names];
-  }
+  if (typeof names === 'string') names = [names];
 
   const parsedParameters = parseParameterTemplate(parameters);
 
@@ -1082,9 +1047,7 @@ export function defineEnvironment(
     // Callback to create an atom
     createAtom: parser,
   };
-  for (const name of names) {
-    ENVIRONMENTS[name] = data;
-  }
+  for (const name of names) ENVIRONMENTS[name] = data;
 }
 
 /**
@@ -1162,11 +1125,8 @@ export function defineFunction(
     createAtom: options.createAtom,
     applyStyle: options.applyStyle,
   };
-  if (typeof names === 'string') {
-    LEGACY_COMMANDS['\\' + names] = data;
-  } else {
-    for (const name of names) LEGACY_COMMANDS['\\' + name] = data;
-  }
+  if (typeof names === 'string') LEGACY_COMMANDS['\\' + names] = data;
+  else for (const name of names) LEGACY_COMMANDS['\\' + name] = data;
 }
 
 let _DEFAULT_MACROS: NormalizedMacroDictionary;
@@ -1174,9 +1134,9 @@ let _DEFAULT_MACROS: NormalizedMacroDictionary;
 export function getMacros(
   otherMacros?: MacroDictionary | null
 ): NormalizedMacroDictionary {
-  if (!_DEFAULT_MACROS) {
+  if (!_DEFAULT_MACROS)
     _DEFAULT_MACROS = normalizeMacroDictionary(DEFAULT_MACROS);
-  }
+
   if (!otherMacros) return _DEFAULT_MACROS;
   return normalizeMacroDictionary({ ..._DEFAULT_MACROS, ...otherMacros });
 }
@@ -1221,9 +1181,8 @@ export function normalizeMacroDictionary(
   const result: NormalizedMacroDictionary = {};
   for (const macro of Object.keys(macros)) {
     const macroDef = macros[macro];
-    if (macroDef === undefined || macroDef === null) {
-      delete result[macro];
-    } else if (typeof macroDef === 'object' && 'package' in macroDef) {
+    if (macroDef === undefined || macroDef === null) delete result[macro];
+    else if (typeof macroDef === 'object' && 'package' in macroDef) {
       for (const packageMacro of Object.keys(macroDef.package)) {
         result[packageMacro] = normalizeMacroDefinition(
           macroDef.package[packageMacro],
@@ -1233,9 +1192,7 @@ export function normalizeMacroDictionary(
           }
         );
       }
-    } else {
-      result[macro] = normalizeMacroDefinition(macroDef);
-    }
+    } else result[macro] = normalizeMacroDefinition(macroDef);
   }
   return result;
 }

@@ -10,7 +10,7 @@ import {
 import type { MathfieldPrivate } from './mathfield-private';
 
 import { atomsToMathML } from '../addons/math-ml';
-import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
+import { Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
 import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 
@@ -66,9 +66,7 @@ export function render(
   //
   // 1. Stop and reset read aloud state
   //
-  if (isBrowser() && !('mathlive' in window)) {
-    window.mathlive = {};
-  }
+  if (isBrowser() && !('mathlive' in window)) window.mathlive = {};
 
   //
   // 2. Update selection state and blinking cursor (caret)
@@ -82,14 +80,13 @@ export function render(
     atom.containsCaret = false;
   }
   const hasFocus = !mathfield.options.readOnly && mathfield.hasFocus();
-  if (model.selectionIsCollapsed) {
+  if (model.selectionIsCollapsed)
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
-  } else {
+  else {
     for (const atom of model.getAtoms(model.selection, {
       includeChildren: true,
-    })) {
+    }))
       atom.isSelected = true;
-    }
   }
 
   if (hasFocus) {
@@ -168,11 +165,8 @@ export function render(
   //
   const field = mathfield.field!;
   const isFocused = field!.classList.contains('ML__focused');
-  if (isFocused && !hasFocus) {
-    field!.classList.remove('ML__focused');
-  } else if (!isFocused && hasFocus) {
-    field!.classList.add('ML__focused');
-  }
+  if (isFocused && !hasFocus) field!.classList.remove('ML__focused');
+  else if (!isFocused && hasFocus) field!.classList.add('ML__focused');
 
   field!.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
   mathfield.fieldContent = field.querySelector('.ML__mathlive');
@@ -187,9 +181,8 @@ export function render(
   // 6. Render the selection/caret
   //
   renderSelection(mathfield);
-  if (mathfield.options.readOnly) {
-    mathfield.attachNestedMathfield();
-  }
+  if (mathfield.options.readOnly) mathfield.attachNestedMathfield();
+
   if (!(renderOptions.interactive ?? false)) {
     // (re-render a bit later because the layout may not be up to date right
     //  now. This happens in particular when first loading and the fonts are
@@ -208,9 +201,8 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
   // Remove existing selection
   for (const element of mathfield.field.querySelectorAll(
     '.ML__selection, .ML__contains-highlight'
-  )) {
+  ))
     element.remove();
-  }
 
   if (!mathfield.hasFocus()) return;
 
@@ -226,9 +218,9 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
     // 1.2. Display the 'contains' highlight
     //
     let atom = model.at(model.position);
-    while (atom && !(atom.containsCaret && atom.displayContainsHighlight)) {
+    while (atom && !(atom.containsCaret && atom.displayContainsHighlight))
       atom = atom.parent!;
-    }
+
     if (atom?.containsCaret && atom.displayContainsHighlight) {
       const bounds = adjustForScrolling(
         mathfield,

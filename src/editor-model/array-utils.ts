@@ -11,11 +11,8 @@ export function arrayIndex(
 ): number {
   let result = 0;
 
-  for (let i = 0; i < rowCol.row; i++) {
-    for (let j = 0; j < array[i].length; j++) {
-      result += 1;
-    }
-  }
+  for (let i = 0; i < rowCol.row; i++)
+    for (let j = 0; j < array[i].length; j++) result += 1;
 
   result += rowCol.col;
 
@@ -35,17 +32,13 @@ export function arrayColRow(
   col: number;
   row: number;
 } {
-  if (isArray<number>(index)) {
-    return { col: index[0], row: index[1] };
-  }
+  if (isArray<number>(index)) return { col: index[0], row: index[1] };
 
   let i = 0;
   if (typeof index === 'string') {
     const m = index.match(/cell(\d*)$/);
     if (m) i = Number.parseInt(m[1]);
-  } else {
-    i = index;
-  }
+  } else i = index;
 
   const result = { row: 0, col: 0 };
   while (i > 0) {
@@ -78,9 +71,8 @@ export function arrayCell(
     typeof colrow === 'number' ||
     typeof colrow === 'string' ||
     isArray<number>(colrow)
-  ) {
+  )
     colrow = arrayColRow(array, colrow);
-  }
 
   let result: Atom[] | null = null;
   if (isArray<number>(array[colrow.row])) {
@@ -124,17 +116,14 @@ export function arrayAdjustRow(
     result.col += dir;
     result.row = array.length - 1;
     if (result.col < 0) return null;
-    while (result.row >= 0 && !arrayCell(array, result)) {
-      result.row -= 1;
-    }
+    while (result.row >= 0 && !arrayCell(array, result)) result.row -= 1;
 
     if (result.row < 0) return null;
   } else if (result.row >= array.length) {
     result.col += dir;
     result.row = 0;
-    while (result.row < array.length && !arrayCell(array, result)) {
+    while (result.row < array.length && !arrayCell(array, result))
       result.row += 1;
-    }
 
     if (result.row > array.length - 1) return null;
   }

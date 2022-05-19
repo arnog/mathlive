@@ -8,9 +8,7 @@ export function compareSelection(
     const l = a.ranges.length;
     if (b.ranges.length === l) {
       let i = 0;
-      while (i < l && compareRange(a.ranges[i], b.ranges[i]) === 'equal') {
-        i++;
-      }
+      while (i < l && compareRange(a.ranges[i], b.ranges[i]) === 'equal') i++;
 
       return i === l ? 'equal' : 'different';
     }

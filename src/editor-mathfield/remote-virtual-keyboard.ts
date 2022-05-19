@@ -236,9 +236,8 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
     const commandTarget = getCommandTarget(command);
 
     // Virtual keyboard commands must be handled at local window
-    if (commandTarget === 'virtual-keyboard') {
+    if (commandTarget === 'virtual-keyboard')
       return super.executeCommand(command);
-    }
 
     this.sendMessage('executeCommand', { command });
     return false;

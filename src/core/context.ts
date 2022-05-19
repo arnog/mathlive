@@ -138,9 +138,8 @@ export class Context implements ContextInterface {
         style.fontSize &&
         style.fontSize !== 'auto' &&
         style.fontSize !== this.parent?._size
-      ) {
+      )
         this._size = style.fontSize;
-      }
     }
     this.letterShapeStyle = from.letterShapeStyle ?? 'tex';
     this.color = from.color;
@@ -217,13 +216,11 @@ export class Context implements ContextInterface {
   getRegisterAsGlue(name: string): Glue | undefined {
     if (this.registers?.[name]) {
       const value = this.registers[name];
-      if (typeof value === 'object' && 'glue' in value) {
-        return value;
-      } else if (typeof value === 'object' && 'dimension' in value) {
+      if (typeof value === 'object' && 'glue' in value) return value;
+      else if (typeof value === 'object' && 'dimension' in value)
         return { glue: { dimension: value.dimension } };
-      } else if (typeof value === 'number') {
-        return { glue: { dimension: value } };
-      }
+      else if (typeof value === 'number') return { glue: { dimension: value } };
+
       return undefined;
     }
     if (this.parent) return this.parent.getRegisterAsGlue(name);
@@ -237,13 +234,10 @@ export class Context implements ContextInterface {
   getRegisterAsDimension(name: string): Dimension | undefined {
     if (this.registers?.[name]) {
       const value = this.registers[name];
-      if (typeof value === 'object' && 'glue' in value) {
-        return value.glue;
-      } else if (typeof value === 'object' && 'dimension' in value) {
-        return value;
-      } else if (typeof value === 'number') {
-        return { dimension: value };
-      }
+      if (typeof value === 'object' && 'glue' in value) return value.glue;
+      else if (typeof value === 'object' && 'dimension' in value) return value;
+      else if (typeof value === 'number') return { dimension: value };
+
       return undefined;
     }
     if (this.parent) return this.parent.getRegisterAsDimension(name);

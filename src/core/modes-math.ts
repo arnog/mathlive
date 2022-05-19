@@ -109,13 +109,9 @@ export class MathMode extends Mode {
       value: info?.codepoint ? String.fromCodePoint(info?.codepoint) : command,
       style,
     });
-    if (info?.isFunction ?? false) {
-      result.isFunction = true;
-    }
+    if (info?.isFunction ?? false) result.isFunction = true;
 
-    if (command.startsWith('\\')) {
-      result.verbatimLatex = command;
-    }
+    if (command.startsWith('\\')) result.verbatimLatex = command;
 
     return result;
   }
@@ -164,11 +160,10 @@ export class MathMode extends Mode {
           (!parent || parentColor !== style.backgroundColor) &&
           (x.length > 0 || !(x[0] instanceof BoxAtom))
         ) {
-          if (options.defaultMode === 'inline-math') {
+          if (options.defaultMode === 'inline-math')
             result = `\\( ${result} \\)`;
-          } else {
-            result = `\\[ ${result} \\]`;
-          }
+          else result = `\\[ ${result} \\]`;
+
           result = `\\colorbox{${
             style.verbatimBackgroundColor ?? style.backgroundColor
           }}{${result}}`;
@@ -198,9 +193,8 @@ export class MathMode extends Mode {
 
                 return variantString(x) === variant;
               })
-            ) {
+            )
               return joinLatex(x.map((x) => x.serialize(options)));
-            }
 
             let command = '';
             if (variant && variant !== contextVariant) {
@@ -293,16 +287,13 @@ export class MathMode extends Mode {
         if (
           x.test(box.value) &&
           LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it'
-        ) {
+        )
           variantStyle = 'italic';
-        }
       });
     }
 
     // 3. Map the variant + variantStyle to a font
-    if (variantStyle === 'up') {
-      variantStyle = undefined;
-    }
+    if (variantStyle === 'up') variantStyle = undefined;
 
     const styledVariant = variantStyle ? variant + '-' + variantStyle : variant;
 
@@ -324,14 +315,10 @@ export class MathMode extends Mode {
 
     // Lowercase greek letters have an incomplete repertoire (no bold)
     // so, for \mathbf to behave correctly, add a 'lcGreek' class.
-    if (GREEK_LOWERCASE.test(box.value)) {
-      box.classes += ' lcGreek';
-    }
+    if (GREEK_LOWERCASE.test(box.value)) box.classes += ' lcGreek';
 
     // 5. Assign classes based on the font
-    if (classes) {
-      box.classes += ' ' + classes;
-    }
+    if (classes) box.classes += ' ' + classes;
 
     return fontName;
   }
@@ -341,9 +328,8 @@ function variantString(atom: Atom): string {
   const { style } = atom;
   if (style.variant === undefined) return '';
   let result = style.variant;
-  if (style.variantStyle && style.variantStyle !== 'up') {
+  if (style.variantStyle && style.variantStyle !== 'up')
     result += '-' + style.variantStyle;
-  }
 
   return result;
 }

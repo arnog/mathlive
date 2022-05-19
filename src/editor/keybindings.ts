@@ -49,9 +49,8 @@ export function getCommandForKeybinding(
   // Try to match using a virtual keystroke
   for (let i = keybindings.length - 1; i >= 0; i--) {
     if (keybindings[i].key === keystroke) {
-      if (!keybindings[i].ifMode || keybindings[i].ifMode === mode) {
+      if (!keybindings[i].ifMode || keybindings[i].ifMode === mode)
         return keybindings[i].command;
-      }
     }
   }
 
@@ -77,11 +76,8 @@ export function getKeybindingsForCommand(
 
   if (typeof command === 'string') {
     const candidate = REVERSE_KEYBINDINGS[command];
-    if (isArray<string>(candidate)) {
-      result = candidate.slice();
-    } else if (candidate) {
-      result.push(candidate);
-    }
+    if (isArray<string>(candidate)) result = candidate.slice();
+    else if (candidate) result.push(candidate);
   }
 
   // A command can be either a simple selector, or a selector
@@ -99,9 +95,8 @@ export function getKeybindingsForCommand(
       '([^*a-zA-Z]|$)'
   );
   for (const keybinding of keybindings) {
-    if (regex.test(commandToString(keybinding.command))) {
+    if (regex.test(commandToString(keybinding.command)))
       result.push(keybinding.key);
-    }
   }
 
   return result.map(getKeybindingMarkup);
@@ -116,19 +111,14 @@ export function getKeybindingMarkup(keystroke: string): string {
   const segments = keystroke.split('+');
   let result = '';
   for (const segment of segments) {
-    if (!useSymbol && result) {
+    if (!useSymbol && result)
       result += '<span class="ML__shortcut-join">+</span>';
-    }
 
-    if (segment.startsWith('[Key')) {
-      result += segment.slice(4, 5);
-    } else if (segment.startsWith('Key')) {
-      result += segment.slice(3, 4);
-    } else if (segment.startsWith('[Digit')) {
-      result += segment.slice(6, 7);
-    } else if (segment.startsWith('Digit')) {
-      result += segment.slice(5, 6);
-    } else {
+    if (segment.startsWith('[Key')) result += segment.slice(4, 5);
+    else if (segment.startsWith('Key')) result += segment.slice(3, 4);
+    else if (segment.startsWith('[Digit')) result += segment.slice(6, 7);
+    else if (segment.startsWith('Digit')) result += segment.slice(5, 6);
+    else {
       result +=
         {
           'cmd': '\u2318',
@@ -219,9 +209,8 @@ function normalizeKeybinding(
   if (
     keybinding.ifLayout !== undefined &&
     (layout.score === 0 || !keybinding.ifLayout.includes(layout.id))
-  ) {
+  )
     return undefined;
-  }
 
   const modifiers = keystrokeModifiersFromString(keybinding.key);
   let platform = keybinding.ifPlatform;
@@ -237,9 +226,7 @@ function normalizeKeybinding(
       );
     }
 
-    if (!platform) {
-      platform = osPlatform() === 'ios' ? 'ios' : 'macos';
-    }
+    if (!platform) platform = osPlatform() === 'ios' ? 'ios' : 'macos';
 
     modifiers.win = false;
     modifiers.cmd = false;
@@ -269,9 +256,9 @@ function normalizeKeybinding(
     // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`).
     // Convert it to a key code.
     const code = getCodeForKey(modifiers.key, layout);
-    if (!code) {
+    if (!code)
       throw new Error('Invalid keybinding key "' + keybinding.key + '"');
-    }
+
     if ((code.shift && modifiers.shift) || (code.alt && modifiers.alt)) {
       throw new Error(
         `The keybinding ${keybinding.key} (${selectorToString(
@@ -347,9 +334,7 @@ export function normalizeKeybindings(
         result.push(keybinding);
       }
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        errors.push(error.message);
-      }
+      if (error instanceof Error) errors.push(error.message);
     }
   }
 

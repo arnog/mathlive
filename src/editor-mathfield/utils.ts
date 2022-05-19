@@ -22,16 +22,11 @@ export function on(
     const m = sel.match(/(.*):(.*)/);
     if (m) {
       const options2 = options ?? {};
-      if (m[2] === 'active') {
-        options2.passive = false;
-      } else {
-        options2[m[2]] = true;
-      }
+      if (m[2] === 'active') options2.passive = false;
+      else options2[m[2]] = true;
 
       element.addEventListener(m[1], listener, options2);
-    } else {
-      element.addEventListener(sel, listener, options);
-    }
+    } else element.addEventListener(sel, listener, options);
   }
 }
 
@@ -46,16 +41,11 @@ export function off(
     const m = sel.match(/(.*):(.*)/);
     if (m) {
       const options2 = options ?? {};
-      if (m[2] === 'active') {
-        options2.passive = false;
-      } else {
-        options2[m[2]] = true;
-      }
+      if (m[2] === 'active') options2.passive = false;
+      else options2[m[2]] = true;
 
       element.removeEventListener(m[1], listener, options2);
-    } else {
-      element.removeEventListener(sel, listener, options);
-    }
+    } else element.removeEventListener(sel, listener, options);
   }
 }
 
@@ -84,11 +74,8 @@ export function releaseSharedElement(element?: HTMLElement): void {
   const refcount = Number.parseInt(
     element.getAttribute('data-refcount') ?? '0'
   );
-  if (refcount <= 1) {
-    element.remove();
-  } else {
-    element.dataset.refcount = Number(refcount - 1).toString();
-  }
+  if (refcount <= 1) element.remove();
+  else element.dataset.refcount = Number(refcount - 1).toString();
 }
 
 /**
@@ -197,11 +184,8 @@ export function getAtomBounds(
   const node = mathfield.field!.querySelector(`[data-atom-id="${atom.id}"]`);
   result = node ? getNodeBounds(node) : null;
   if (mathfield._atomBoundsCache) {
-    if (result) {
-      mathfield._atomBoundsCache.set(atom.id, result);
-    } else {
-      mathfield._atomBoundsCache.delete(atom.id);
-    }
+    if (result) mathfield._atomBoundsCache.set(atom.id, result);
+    else mathfield._atomBoundsCache.delete(atom.id);
   }
   return result ?? null;
 }
@@ -221,9 +205,9 @@ function getRangeBounds(
   for (const atom of mathfield.model.getAtoms(range, {
     includeChildren: true,
   })) {
-    if (options?.excludeAtomsWithBackground && atom.style.backgroundColor) {
+    if (options?.excludeAtomsWithBackground && atom.style.backgroundColor)
       break;
-    }
+
     const bounds = adjustForScrolling(
       mathfield,
       getAtomBounds(mathfield, atom)
@@ -238,9 +222,7 @@ function getRangeBounds(
           top: Math.min(r.top, bounds.top),
           bottom: Math.max(r.bottom, bounds.bottom),
         });
-      } else {
-        rects.set(id, bounds);
-      }
+      } else rects.set(id, bounds);
     }
   }
 
@@ -261,17 +243,11 @@ export function validateOrigin(
   origin: string,
   originValidator: OriginValidator
 ): boolean {
-  if (originValidator === 'none') {
-    return true;
-  }
+  if (originValidator === 'none') return true;
 
-  if (originValidator === 'same-origin') {
-    return origin === window.origin;
-  }
+  if (originValidator === 'same-origin') return origin === window.origin;
 
-  if (typeof originValidator === 'function') {
-    return originValidator(origin);
-  }
+  if (typeof originValidator === 'function') return originValidator(origin);
 
   return false;
 }

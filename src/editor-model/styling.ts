@@ -53,9 +53,8 @@ export function applyStyle(
     property: keyof PrivateStyle,
     value: string | number
   ): boolean {
-    for (const atom of atoms) {
-      if (atom.style[property] !== value) return false;
-    }
+    for (const atom of atoms) if (atom.style[property] !== value) return false;
+
     return true;
   }
 

@@ -1,4 +1,4 @@
-import type { Style, ParseMode, FontSize, Glue } from '../public/core';
+import type { Style, ParseMode, FontSize } from '../public/core';
 
 import { isArray } from '../common/types';
 
@@ -12,7 +12,6 @@ import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 import MathfieldElement from '../public/mathfield-element';
 import { MathfieldBox } from './mathfield-box';
-import { GroupAtom } from 'core-atoms/group';
 
 export type AtomJson = { type: AtomType; [key: string]: any };
 
@@ -318,9 +317,9 @@ export class Atom {
       }
     }
     if (boxes.length === 0) return null;
-    if (boxes.length === 1 && !options?.classes && !options?.type) {
+    if (boxes.length === 1 && !options?.classes && !options?.type)
       return boxes[0].wrap(parentContext);
-    }
+
     return new Box(boxes, {
       classes: options?.classes,
       type: options?.type,
@@ -373,6 +372,7 @@ export class Atom {
     }
 
     console.assert(Boolean(parent)); // Never reached
+    return undefined;
   }
 
   static fromJson(json: AtomJson): Atom {
@@ -380,6 +380,7 @@ export class Atom {
     // Restore the branches
     for (const branch of NAMED_BRANCHES)
       if (json[branch]) result.setChildren(json[branch], branch);
+
     return result;
   }
 
@@ -410,11 +411,13 @@ export class Atom {
       //   if (this._branches[branch])
       //     result[branch] = this._branches[branch]?.map((x) => x.toJson);
       //isNamedBranch
-      for (const branch of Object.keys(this._branches))
-        if (this._branches[branch])
+      for (const branch of Object.keys(this._branches)) {
+        if (this._branches[branch]) {
           result[branch] = this._branches[branch]
             .filter((x) => x.type !== 'first')
             .map((x) => x.toJson());
+        }
+      }
     }
 
     return result;
@@ -577,9 +580,8 @@ export class Atom {
       this._branches = {
         [name]: [this.makeFirstAtom(name)],
       };
-    } else if (!this._branches[name]) {
+    } else if (!this._branches[name])
       this._branches[name] = [this.makeFirstAtom(name)];
-    }
 
     this.isDirty = true;
     return this._branches[name]!;
@@ -658,17 +660,11 @@ export class Atom {
     this.isDirty = true;
     this.style = { ...this.style, ...style };
 
-    if (this.style.fontFamily === 'none') {
-      delete this.style.fontFamily;
-    }
+    if (this.style.fontFamily === 'none') delete this.style.fontFamily;
 
-    if (this.style.fontShape === 'auto') {
-      delete this.style.fontShape;
-    }
+    if (this.style.fontShape === 'auto') delete this.style.fontShape;
 
-    if (this.style.fontSeries === 'auto') {
-      delete this.style.fontSeries;
-    }
+    if (this.style.fontSeries === 'auto') delete this.style.fontSeries;
 
     if (this.style.color === 'none') {
       delete this.style.color;
@@ -680,13 +676,9 @@ export class Atom {
       delete this.style.verbatimBackgroundColor;
     }
 
-    if (this.style.fontSize === 'auto') {
-      delete this.style.fontSize;
-    }
+    if (this.style.fontSize === 'auto') delete this.style.fontSize;
 
-    for (const child of this.children) {
-      child.applyStyle(style);
-    }
+    for (const child of this.children) child.applyStyle(style);
   }
 
   getInitialBaseElement(): Atom {
@@ -700,9 +692,8 @@ export class Atom {
   }
 
   getFinalBaseElement(): Atom {
-    if (!this.hasEmptyBranch('body')) {
+    if (!this.hasEmptyBranch('body'))
       return this.body![this.body!.length - 1].getFinalBaseElement();
-    }
 
     return this;
   }
@@ -962,9 +953,7 @@ export class Atom {
     const subscript = this.subscript;
 
     // If no superscript or subscript, nothing to do.
-    if (!superscript && !subscript) {
-      return base;
-    }
+    if (!superscript && !subscript) return base;
 
     // Superscript and subscripts are discussed in the TeXbook
     // on page 445-446, rules 18(a-f).
@@ -997,13 +986,11 @@ export class Atom {
 
     // Rule 18c, p445
     let minSupShift: number;
-    if (parentContext.isDisplayStyle) {
+    if (parentContext.isDisplayStyle)
       minSupShift = parentContext.metrics.sup1; // Sigma13
-    } else if (parentContext.isCramped) {
+    else if (parentContext.isCramped)
       minSupShift = parentContext.metrics.sup3; // Sigma15
-    } else {
-      minSupShift = parentContext.metrics.sup2; // Sigma14
-    }
+    else minSupShift = parentContext.metrics.sup2; // Sigma14
 
     // Scriptspace is a font-size-independent size, so scale it
     // appropriately
@@ -1078,9 +1065,7 @@ export class Atom {
     // Display the caret *following* the superscript and subscript,
     // so attach the caret to the 'msubsup' element.
     const supsubContainer = new Box(supsub, { classes: 'msubsup' });
-    if (this.caret) {
-      supsubContainer.caret = this.caret;
-    }
+    if (this.caret) supsubContainer.caret = this.caret;
 
     return new Box([base, supsubContainer], { type: options.type });
   }
@@ -1133,7 +1118,7 @@ export class Atom {
     let captureSelection = false;
     let parent = this.parent;
     while (parent && !parent.captureSelection) parent = parent.parent;
-    if (parent && parent.captureSelection) captureSelection = true;
+    if (parent?.captureSelection) captureSelection = true;
     if (captureSelection) return box;
 
     if (!this.id) this.id = context.makeID();
@@ -1191,6 +1176,7 @@ export class Atom {
     // The italic correction applies only in math mode
     if (this.mode !== 'math' || this.style.variant === 'main')
       result.italic = 0;
+
     result.right = result.italic;
 
     // To retrieve the atom from a box, for example when the box is clicked
@@ -1263,6 +1249,7 @@ export class Atom {
     // The italic correction applies only in math mode
     if (this.mode !== 'math' || this.style.variant === 'main')
       result.italic = 0;
+
     result.right = result.italic;
 
     // To retrieve the atom from a box, for example when the box is clicked
@@ -1271,9 +1258,7 @@ export class Atom {
     if (this.caret) {
       // If this has a super/subscript, the caret will be attached
       // to the 'msubsup' atom, so no need to have it here.
-      if (!this.superscript && !this.subscript) {
-        result.caret = this.caret;
-      }
+      if (!this.superscript && !this.subscript) result.caret = this.caret;
     }
 
     return result;
@@ -1282,14 +1267,15 @@ export class Atom {
   /** Return true if a digit, or a decimal point, or a french decimal `{,}` */
   isDigit(): boolean {
     if (this.type === 'mord' && this.value) return /^[\d,.]$/.test(this.value);
-    if (this.type === 'group' && this.body?.length === 2) {
+    if (this.type === 'group' && this.body?.length === 2)
       return this.body![0].type === 'first' && this.body![1].value === ',';
-    }
+
     return false;
   }
   asDigit(): string {
     if (this.type === 'mord' && this.value && /^[\d,.]$/.test(this.value))
       return this.value;
+
     if (this.type === 'group' && this.body?.length === 2) {
       if (this.body![0].type === 'first' && this.body![1].value === ',')
         return '.';
@@ -1334,9 +1320,8 @@ function getStyleRuns(atoms: Atom[]): Atom[][] {
   let run: Atom[] = [];
   for (const atom of atoms) {
     const atomStyle = atom.computedStyle;
-    if (!style && !atom.style) {
-      run.push(atom);
-    } else if (
+    if (!style && !atom.style) run.push(atom);
+    else if (
       style &&
       atomStyle.color === style.color &&
       atomStyle.backgroundColor === style.backgroundColor &&
@@ -1389,7 +1374,7 @@ function renderStyleRun(
   let newList = options?.newList ?? false;
   if (atoms.length === 1) {
     const atom = atoms[0];
-    let box = atom.render(context, { newList });
+    const box = atom.render(context, { newList });
     if (box) {
       if (displaySelection && atom.isSelected) box.selected(true);
       boxes = [box];
@@ -1402,11 +1387,10 @@ function renderStyleRun(
         context.atomIdsSettings?.groupNumbers &&
         digitOrTextStringID &&
         ((lastWasDigit && atom.isDigit()) || (!lastWasDigit && isText(atom)))
-      ) {
+      )
         context.atomIdsSettings.overrideID = digitOrTextStringID;
-      }
 
-      let box = atom.render(context, { newList });
+      const box = atom.render(context, { newList });
 
       if (context.atomIdsSettings)
         context.atomIdsSettings.overrideID = undefined;

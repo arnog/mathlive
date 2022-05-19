@@ -87,9 +87,8 @@ export class BoxAtom extends Atom {
     box.setStyle('position', 'absolute');
 
     box.setStyle('height', base.height + base.depth + 2 * padding, 'em');
-    if (padding === 0) {
-      box.setStyle('width', '100%');
-    } else {
+    if (padding === 0) box.setStyle('width', '100%');
+    else {
       box.setStyle('width', `calc(100% + ${2 * padding}em)`);
       box.setStyle('top', fboxsep, 'em'); // empirical
       box.setStyle('left', -padding, 'em');
@@ -97,9 +96,8 @@ export class BoxAtom extends Atom {
 
     box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
 
-    if (this.backgroundcolor) {
+    if (this.backgroundcolor)
       box.setStyle('background-color', this.backgroundcolor);
-    }
 
     if (this.framecolor) {
       box.setStyle(
