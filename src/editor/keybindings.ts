@@ -252,37 +252,37 @@ function normalizeKeybinding(
 
   if (platform && !matchPlatform(platform)) return undefined;
 
-  if (!/^\[(.*)]$/.test(modifiers.key)) {
-    // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`).
-    // Convert it to a key code.
-    const code = getCodeForKey(modifiers.key, layout);
-    if (!code)
-      throw new Error('Invalid keybinding key "' + keybinding.key + '"');
-
-    if ((code.shift && modifiers.shift) || (code.alt && modifiers.alt)) {
-      throw new Error(
-        `The keybinding ${keybinding.key} (${selectorToString(
-          keybinding.command
-        )}) is conflicting with the key combination ${keystrokeModifiersToString(
-          code
-        )} using the ${layout.displayName} keyboard layout`
-      );
-    }
-    code.shift = code.shift || modifiers.shift;
-    code.alt = code.alt || modifiers.alt;
-    code.meta = modifiers.meta;
-    code.ctrl = modifiers.ctrl;
+  if (/^\[.+\]$/.test(modifiers.key)) {
+    // This is a keybinding specified with a key code (e.g.  `[KeyW]`)
     return {
       ...keybinding,
       ifPlatform: platform,
-      key: keystrokeModifiersToString(code),
+      key: keystrokeModifiersToString(modifiers),
     };
   }
 
+  // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`).
+  // Convert it to a key code.
+  const code = getCodeForKey(modifiers.key, layout);
+  if (!code) throw new Error('Invalid keybinding key "' + keybinding.key + '"');
+
+  if ((code.shift && modifiers.shift) || (code.alt && modifiers.alt)) {
+    throw new Error(
+      `The keybinding ${keybinding.key} (${selectorToString(
+        keybinding.command
+      )}) is conflicting with the key combination ${keystrokeModifiersToString(
+        code
+      )} using the ${layout.displayName} keyboard layout`
+    );
+  }
+  code.shift = code.shift || modifiers.shift;
+  code.alt = code.alt || modifiers.alt;
+  code.meta = modifiers.meta;
+  code.ctrl = modifiers.ctrl;
   return {
     ...keybinding,
     ifPlatform: platform,
-    key: keystrokeModifiersToString(modifiers),
+    key: keystrokeModifiersToString(code),
   };
 }
 

@@ -108,10 +108,9 @@ export function update(
         break;
 
       case 'locale':
-        result.locale =
-          updates.locale === 'auto'
-            ? (isBrowser() ? navigator.language.slice(0, 5) : null) ?? 'en'
-            : updates.locale!;
+        if (updates.locale === 'auto')
+          result.locale = isBrowser() ? navigator.language.slice(0, 5) : 'en';
+        else result.locale = updates.locale!;
         l10n.locale = result.locale;
         break;
 
@@ -305,7 +304,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     mathModeSpace: '',
     decimalSeparator: '.',
 
-    locale: l10n.locale ?? 'en',
+    locale: l10n.locale,
     strings: l10n.strings,
 
     keybindings: DEFAULT_KEYBINDINGS,

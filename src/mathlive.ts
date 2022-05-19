@@ -41,6 +41,11 @@ import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 export * from './public/mathlive';
 export * from './addons/auto-render';
 
+export {
+  setKeyboardLayoutLocale,
+  setKeyboardLayout,
+} from './editor/keyboard-layout';
+
 import { version as computeEngineVersion } from '@cortex-js/compute-engine';
 
 /**
@@ -127,7 +132,7 @@ export function convertLatexToMarkup(
   options.mathstyle = options.mathstyle ?? 'displaystyle';
   let letterShapeStyle = options.letterShapeStyle ?? 'auto';
   if (letterShapeStyle === 'auto')
-    letterShapeStyle = l10n.locale!.startsWith('fr') ? 'french' : 'tex';
+    letterShapeStyle = l10n.locale.startsWith('fr') ? 'french' : 'tex';
 
   options.macros = getMacros(options?.macros);
 

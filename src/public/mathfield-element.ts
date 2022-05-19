@@ -1693,5 +1693,6 @@ declare global {
 
 if (isBrowser() && !window.customElements?.get('math-field')) {
   window.MathfieldElement = MathfieldElement;
+  window.mathlive = { version: '{{SDK_VERSION}}' };
   window.customElements?.define('math-field', MathfieldElement);
 }

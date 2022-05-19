@@ -23,17 +23,14 @@ interface L10n {
 
 export const l10n: L10n = {
   strings: STRINGS,
-  _locale: 'en',
+  _locale: '', //  Important! Set the locale to empty so it can be determined at runtime
 
   // Add getter and setter for the _locale property of l10n
   get locale(): string {
     // Use the browser defined language as the default language,
     // "english" if not running in a browser (node.js)
-    if (!l10n._locale) {
-      // Use the setter, which will load the necessary .json files.
-      l10n._locale =
-        (isBrowser() ? navigator.language.slice(0, 5) : null) ?? 'en';
-    }
+    if (!l10n._locale)
+      l10n._locale = isBrowser() ? navigator.language.slice(0, 5) : 'en';
 
     return l10n._locale;
   },

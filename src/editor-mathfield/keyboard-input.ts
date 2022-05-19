@@ -68,7 +68,6 @@ export function onKeystroke(
 
   const activeLayout = getActiveKeyboardLayout();
   if (mathfield.keyboardLayout !== activeLayout.id) {
-    // console.log('Switching to keyboard layout ' + activeLayout.id);
     mathfield.keyboardLayout = activeLayout.id;
     // If we changed keyboard layout, we'll have to recache the keybindings
     mathfield._keybindings = undefined;

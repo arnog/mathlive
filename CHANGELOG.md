@@ -115,6 +115,10 @@ in order to preserve the same settings, you would now use:
   `\sin\left(x\right)`. Previously, there would be an excessive amount of white
   space beween the `\sin` and `(`. The expression is now correctly interpreted
   as a function.
+- **#1459** When using a non-QWERTY physical keyboard layout, creating multiple
+  mathfields could result in the keyboard layout being erroneously reset to
+  QWERTY. This would manifest itself for example by the `/` keybinding no longer
+  inserting a fraction.
 
 ## 0.72.2 (2022-04-30)
 
