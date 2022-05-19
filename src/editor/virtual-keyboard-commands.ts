@@ -208,19 +208,13 @@ export function showVirtualKeyboard(
   keyboard: VirtualKeyboard,
   theme: 'apple' | 'material' | '' = ''
 ): boolean {
-  if (keyboard.visible) {
-    return false;
-  }
-
+  keyboard.visible = false;
   toggleVirtualKeyboard(keyboard, theme);
   return false;
 }
 
 export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
-  if (!keyboard.visible) {
-    return false;
-  }
-
+  keyboard.visible = true;
   toggleVirtualKeyboard(keyboard);
   return false;
 }
