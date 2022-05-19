@@ -191,6 +191,8 @@ export function hideAlternateKeys(): boolean {
   return false;
 }
 
+export type VirtualKeyboardTheme = 'apple' | 'material' | '';
+
 export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
   _visible: boolean;
@@ -237,7 +239,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     return this.element?.offsetHeight ?? 0;
   }
 
-  buildAndAttachElement(theme?: 'apple' | 'material' | ''): void {
+  buildAndAttachElement(theme?: VirtualKeyboardTheme): void {
     this.element = makeKeyboardElement(this, theme ?? '');
     on(this.element, 'touchstart:passive mousedown', () =>
       this.focusMathfield()
@@ -1694,7 +1696,7 @@ function expandLayerMarkup(
  */
 export function makeKeyboardElement(
   keyboard: VirtualKeyboard,
-  theme: 'apple' | 'material' | ''
+  theme: VirtualKeyboardTheme
 ): HTMLDivElement {
   throwIfNotInBrowser();
 

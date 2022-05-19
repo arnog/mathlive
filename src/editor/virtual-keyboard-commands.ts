@@ -6,6 +6,7 @@ import {
   showAlternateKeys,
   hideAlternateKeys,
   VirtualKeyboard,
+  VirtualKeyboardTheme,
 } from './virtual-keyboard-utils';
 import { register as registerCommand, SelectorPrivate } from './commands';
 export { unshiftKeyboardLayer };
@@ -194,7 +195,7 @@ registerCommand(
 
 export function showVirtualKeyboard(
   keyboard: VirtualKeyboard,
-  theme: 'apple' | 'material' | '' = ''
+  theme: VirtualKeyboardTheme = ''
 ): boolean {
   keyboard.visible = false;
   toggleVirtualKeyboard(keyboard, theme);
@@ -209,7 +210,7 @@ export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
 
 function toggleVirtualKeyboard(
   keyboard: VirtualKeyboard,
-  theme?: 'apple' | 'material' | ''
+  theme?: VirtualKeyboardTheme
 ): boolean {
   if (!keyboard.options.virtualKeyboardContainer) return false;
 
