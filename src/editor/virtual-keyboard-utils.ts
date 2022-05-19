@@ -36,6 +36,7 @@ import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
 import { Selector } from '../public/commands';
 import { MathfieldPrivate } from './mathfield';
+import { on } from '../editor-mathfield/utils';
 
 let gScrim: Scrim | null = null;
 
@@ -190,6 +191,8 @@ export function hideAlternateKeys(): boolean {
   return false;
 }
 
+export type VirtualKeyboardTheme = 'apple' | 'material' | '';
+
 export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
   _visible: boolean;
@@ -211,10 +214,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   setOptions(options: VirtualKeyboardOptions & CoreOptions): void {
-    this.visible = false;
     this._element?.remove();
     this._element = undefined;
     this.options = options;
+
+    if (this.visible) this.buildAndAttachElement(options.virtualKeyboardTheme);
   }
 
   get element(): HTMLDivElement | undefined {
@@ -233,6 +237,15 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
 
   get height(): number {
     return this.element?.offsetHeight ?? 0;
+  }
+
+  buildAndAttachElement(theme?: VirtualKeyboardTheme): void {
+    this.element = makeKeyboardElement(this, theme ?? '');
+    on(this.element, 'touchstart:passive mousedown', () =>
+      this.focusMathfield()
+    );
+    this.options.virtualKeyboardContainer?.appendChild(this.element);
+    this.element.classList.add('is-visible');
   }
 
   handleEvent(evt: Event): void {
@@ -1683,7 +1696,7 @@ function expandLayerMarkup(
  */
 export function makeKeyboardElement(
   keyboard: VirtualKeyboard,
-  theme: 'apple' | 'material' | ''
+  theme: VirtualKeyboardTheme
 ): HTMLDivElement {
   throwIfNotInBrowser();
 

@@ -1,15 +1,14 @@
 import { isArray } from '../common/types';
 
 import {
-  makeKeyboardElement,
   unshiftKeyboardLayer,
   onUndoStateChanged,
   showAlternateKeys,
   hideAlternateKeys,
   VirtualKeyboard,
+  VirtualKeyboardTheme,
 } from './virtual-keyboard-utils';
 import { register as registerCommand, SelectorPrivate } from './commands';
-import { on } from '../editor-mathfield/utils';
 export { unshiftKeyboardLayer };
 
 /*
@@ -196,7 +195,7 @@ registerCommand(
 
 export function showVirtualKeyboard(
   keyboard: VirtualKeyboard,
-  theme: 'apple' | 'material' | '' = ''
+  theme: VirtualKeyboardTheme = ''
 ): boolean {
   keyboard.visible = false;
   toggleVirtualKeyboard(keyboard, theme);
@@ -211,7 +210,7 @@ export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
 
 function toggleVirtualKeyboard(
   keyboard: VirtualKeyboard,
-  theme?: 'apple' | 'material' | ''
+  theme?: VirtualKeyboardTheme
 ): boolean {
   if (!keyboard.options.virtualKeyboardContainer) return false;
 
@@ -219,15 +218,7 @@ function toggleVirtualKeyboard(
   if (keyboard.visible) {
     keyboard.focusMathfield();
     if (keyboard.element) keyboard.element.classList.add('is-visible');
-    else {
-      // Construct the virtual keyboard
-      keyboard.element = makeKeyboardElement(keyboard, theme ?? '');
-      // Let's make sure that tapping on the keyboard focuses the field
-      on(keyboard.element, 'touchstart:passive mousedown', () =>
-        keyboard.focusMathfield()
-      );
-      keyboard.options.virtualKeyboardContainer.appendChild(keyboard.element);
-    }
+    else keyboard.buildAndAttachElement(theme);
 
     // For the transition effect to work, the property has to be changed
     // after the insertion in the DOM. Use setTimeout

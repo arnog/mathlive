@@ -7,6 +7,7 @@ import type {
   Model,
   VirtualKeyboardInterface,
 } from './mathfield';
+import { VirtualKeyboardTheme } from '../editor/virtual-keyboard-utils';
 
 /**
  * How much of the formula should be spoken:
@@ -323,7 +324,7 @@ export interface Commands {
    */
   toggleVirtualKeyboard: (
     keyboard: VirtualKeyboardInterface,
-    theme: 'apple' | 'material' | ''
+    theme: VirtualKeyboardTheme
   ) => boolean;
   /**
    * @category Virtual Keyboard
@@ -334,7 +335,7 @@ export interface Commands {
    */
   showVirtualKeyboard: (
     keyboard: VirtualKeyboardInterface,
-    theme: 'apple' | 'material' | ''
+    theme: VirtualKeyboardTheme
   ) => boolean;
 }
 
