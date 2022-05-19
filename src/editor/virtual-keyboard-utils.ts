@@ -212,10 +212,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   setOptions(options: VirtualKeyboardOptions & CoreOptions): void {
-    this.visible = false;
     this._element?.remove();
     this._element = undefined;
     this.options = options;
+
+    if (this.visible) this.buildAndAttachElement(options.virtualKeyboardTheme);
   }
 
   get element(): HTMLDivElement | undefined {
