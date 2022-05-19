@@ -493,7 +493,7 @@ const BASE_LAYOUT_MAPPING = {
 
 const gKeyboardLayouts: KeyboardLayout[] = [];
 
-let gKeyboardLayout: KeyboardLayout | undefined;
+export let gKeyboardLayout: KeyboardLayout | undefined;
 
 export function platform(): 'apple' | 'windows' | 'linux' {
   switch (osPlatform()) {
@@ -629,14 +629,15 @@ export function normalizeKeyboardEvent(evt: KeyboardEvent): KeyboardEvent {
 // keyboard layout estimate.
 export function validateKeyboardLayout(evt?: KeyboardEvent): void {
   if (!evt) return;
-  const index =
-    evt.shiftKey && evt.altKey ? 3 : evt.altKey ? 2 : evt.shiftKey ? 1 : 0;
 
   if (evt.key === 'Unidentified') return;
 
   // Dead keys do not have enough info to validate the keyboard
   // (we dont' know what char they could produce, only the physical key associated with them )
   if (evt.key === 'Dead') return;
+
+  const index =
+    evt.shiftKey && evt.altKey ? 3 : evt.altKey ? 2 : evt.shiftKey ? 1 : 0;
 
   for (const layout of gKeyboardLayouts) {
     if (layout.mapping[evt.code]?.[index] === evt.key) {
