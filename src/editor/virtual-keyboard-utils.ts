@@ -245,7 +245,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       this.focusMathfield()
     );
     this.options.virtualKeyboardContainer?.appendChild(this.element);
-    this.element.classList.add('is-visible');
   }
 
   handleEvent(evt: Event): void {
