@@ -192,9 +192,11 @@ export function hideAlternateKeys(): boolean {
 }
 
 export type VirtualKeyboardTheme = 'apple' | 'material' | '';
+export type CombinedVirtualKeyboardOptions = VirtualKeyboardOptions &
+  CoreOptions;
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
-  options: VirtualKeyboardOptions & CoreOptions;
+  options: CombinedVirtualKeyboardOptions;
   _visible: boolean;
   _element?: HTMLDivElement;
   private readonly _mathfield?: MathfieldPrivate;
@@ -203,7 +205,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   virtualKeyboardStylesheet: Stylesheet | null;
 
   constructor(
-    options: VirtualKeyboardOptions & CoreOptions,
+    options: CombinedVirtualKeyboardOptions,
     mathfield?: Mathfield
   ) {
     this.options = options;
@@ -213,7 +215,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this.virtualKeyboardStylesheet = null;
   }
 
-  setOptions(options: VirtualKeyboardOptions & CoreOptions): void {
+  setOptions(options: CombinedVirtualKeyboardOptions): void {
     this._element?.remove();
     this._element = undefined;
     this.options = options;
