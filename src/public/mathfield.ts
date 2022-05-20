@@ -1,10 +1,7 @@
 import { Selector } from './commands';
-import {
-  CoreOptions,
-  MathfieldOptions,
-  VirtualKeyboardOptions,
-} from './options';
+import { MathfieldOptions } from './options';
 import { ParseMode, MacroDictionary, Style, Registers } from './core';
+import { CombinedVirtualKeyboardOptions } from '../editor/virtual-keyboard-utils.js';
 
 /**
  *
@@ -162,7 +159,8 @@ export interface VirtualKeyboardInterface {
   enable(): void;
   disable(): void;
   stateChanged(): void;
-  setOptions(options: VirtualKeyboardOptions & CoreOptions): void;
+  currentOptions: CombinedVirtualKeyboardOptions;
+  setOptions(options: CombinedVirtualKeyboardOptions): void;
 }
 
 export interface Mathfield {
