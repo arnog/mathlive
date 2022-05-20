@@ -1,4 +1,9 @@
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import {
+  Atom,
+  AtomJson,
+  NAMED_BRANCHES,
+  ToLatexOptions,
+} from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
@@ -6,6 +11,18 @@ import { Style } from '../public/core';
 export class SubsupAtom extends Atom {
   constructor(options?: { style?: Style }) {
     super('msubsup', { style: options?.style });
+  }
+
+  static fromJson(json: { [key: string]: any }): SubsupAtom {
+    const result = new SubsupAtom(json as any);
+    for (const branch of NAMED_BRANCHES)
+      if (json[branch]) result.setChildren(json[branch], branch);
+
+    return result;
+  }
+
+  toJson(): AtomJson {
+    return super.toJson();
   }
 
   render(context: Context): Box {

@@ -26,6 +26,7 @@ import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 
 import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
+import { SubsupAtom } from 'core-atoms/subsup';
 
 export * from './atom-class';
 
@@ -57,6 +58,7 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (type === 'leftright') result = LeftRightAtom.fromJson(json);
   if (type === 'line') result = LineAtom.fromJson(json);
   if (type === 'macro') result = MacroAtom.fromJson(json);
+  if (type === 'msubsup') result = SubsupAtom.fromJson(json);
   if (type === 'overlap') result = OverlapAtom.fromJson(json);
   if (type === 'overunder') result = OverunderAtom.fromJson(json);
   if (type === 'placeholder') {
