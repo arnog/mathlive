@@ -26,7 +26,7 @@ import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 
 import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
-import { SubsupAtom } from 'core-atoms/subsup';
+import { SubsupAtom } from '../core-atoms/subsup';
 
 export * from './atom-class';
 
