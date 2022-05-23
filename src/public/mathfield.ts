@@ -159,7 +159,6 @@ export interface VirtualKeyboardInterface {
   enable(): void;
   disable(): void;
   stateChanged(): void;
-  currentOptions: CombinedVirtualKeyboardOptions;
   setOptions(options: CombinedVirtualKeyboardOptions): void;
 }
 
