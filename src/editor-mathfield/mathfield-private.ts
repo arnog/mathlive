@@ -1298,6 +1298,8 @@ export class MathfieldPrivate implements Mathfield {
       this.blurred = false;
       this.keyboardDelegate!.focus();
 
+      if (this.keyboardDelegate) this.virtualKeyboard?.setOptions(this.options);
+
       this.virtualKeyboard?.enable();
 
       if (this.options.virtualKeyboardMode === 'onfocus')

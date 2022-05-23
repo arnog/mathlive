@@ -1,14 +1,15 @@
 import { osPlatform } from '../common/capabilities';
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
 import { DEFAULT_KEYBOARD_TOGGLE_GLYPH } from '../editor/options';
-import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
+import {
+  CombinedVirtualKeyboardOptions,
+  VirtualKeyboard,
+} from '../editor/virtual-keyboard-utils';
 import { Selector } from '../public/commands';
 import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
 import {
-  CoreOptions,
   OriginValidator,
   RemoteVirtualKeyboardOptions,
-  VirtualKeyboardOptions,
 } from '../public/options';
 import { validateOrigin } from './utils';
 
@@ -16,12 +17,13 @@ const POST_MESSAGE_TYPE = 'ml#systemPostMessage';
 
 interface RemoteKeyboardMessageData {
   type: 'ml#systemPostMessage';
-  action: 'executeCommand' | 'focus' | 'blur' | 'updateState';
+  action: 'executeCommand' | 'focus' | 'blur' | 'updateState' | 'setOptions';
   state?: {
     visible: boolean;
     height: number;
   };
   command?: Selector | [Selector, ...any[]];
+  options?: string;
 }
 
 /**
@@ -30,10 +32,10 @@ interface RemoteKeyboardMessageData {
 export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   visible: boolean;
   height: number;
+
   private readonly targetOrigin: string;
   private readonly originValidator: OriginValidator;
   private enabled: boolean;
-
   private readonly _mathfield: Mathfield;
 
   /**
@@ -52,9 +54,8 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     this._mathfield = options.mathfield;
   }
 
-  setOptions(_options: VirtualKeyboardOptions & CoreOptions): void {
-    // The associated mathfield is using a keyboard delegate, and no keyboard
-    // options should be set on it
+  setOptions(_options: CombinedVirtualKeyboardOptions): void {
+    this.sendMessage('setOptions', { options: JSON.stringify(_options) });
   }
 
   public create(): void {}
@@ -214,6 +215,17 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
           return;
 
         this.executeCommand(command!);
+      } else if (action === 'setOptions') {
+        const parsedOptions = JSON.parse(
+          event.data.options!
+        ) as CombinedVirtualKeyboardOptions;
+
+        // We can't pass functions through and nor do we want to allow the
+        // caller to change the keyboard container
+        parsedOptions.createHTML = this.options.createHTML;
+        parsedOptions.virtualKeyboardContainer =
+          this.options.virtualKeyboardContainer;
+        this.setOptions(parsedOptions);
       }
     }
   }
