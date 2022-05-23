@@ -53,9 +53,9 @@ in order to preserve the same settings, you would now use:
 
 ## New Features
 
-- **Comma `,` as decimal separator is now supported.**
+- **Comma `,` as a decimal separator**
 
-  New `options.decimalSeparator` value can be set to `.` or `,`. The default
+  The `options.decimalSeparator` option can be set to `.` or `,`. The default
   value is `.` which corresponds to the current behavior.
 
   When set to `,`, pressing the `,` key on the keyboard will insert a `{,}`
@@ -86,9 +86,9 @@ in order to preserve the same settings, you would now use:
   By default, the hook does nothing and multicharacter symbols are not
   recognized.
 
-- Added support for the `\mathnormal{}` command, which displays text in italic
-  and includes italic correction. As opposed to `\mathit{}` which displays text
-  in italic, but without italic correction.
+- Support for the `\mathnormal{}` command, which displays text in italic and
+  includes italic correction. As opposed to `\mathit{}` which displays text in
+  italic, but without italic correction.
 
 - Correctly handle double-clicking words styled with `\mathrm` or `\mathit`
 
@@ -105,7 +105,7 @@ in order to preserve the same settings, you would now use:
 
 ### Bug Fixes
 
-- When extending the selection backward over a `captureSelection` group, do not
+- When extending the selection backwards over a `captureSelection` group, do not
   extend more than necessary
 - **#1354** Correctly render `{,}`, which is used for French decimal point. Also
   correctly handle navigating with the keyboard, that is, handle it as a single
