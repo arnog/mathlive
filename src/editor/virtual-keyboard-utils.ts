@@ -1922,7 +1922,10 @@ export function makeKeyboardElement(
         // Process JSON layer to web element based layer.
 
         let layerMarkup = '';
-        if (layer.styles) layerMarkup += `<style>${layer.styles}</style>`;
+        if (typeof layer.styles === 'string')
+          layerMarkup += `<style>${layer.styles}</style>`;
+        else if (typeof layer.styles === 'object')
+          layerMarkup += `<style>${jsonToCss(layer.styles)}</style>`;
 
         if (layer.backdrop) layerMarkup += `<div class='${layer.backdrop}'>`;
 
@@ -2144,4 +2147,19 @@ export function onUndoStateChanged(
   }
 
   return false;
+}
+
+function jsonToCssProps(json) {
+  if (typeof json === 'string') return json;
+  return Object.entries(json)
+    .map(([k, v]) => `${k}:${v}`)
+    .join(';');
+}
+
+function jsonToCss(json): string {
+  return Object.keys(json)
+    .map((k) => {
+      return `${k} {${jsonToCssProps(json[k])}}`;
+    })
+    .join(';');
 }

@@ -319,17 +319,17 @@ export interface MathfieldElementAttributes {
   'text-to-speech-rules': string;
   'virtual-keyboard-layout': string;
   /**
-   * -   `'manual'`: pressing the virtual keyboard toggle button will show or hide
+   * -   `"manual"`: pressing the virtual keyboard toggle button will show or hide
    *     the virtual keyboard. If hidden, the virtual keyboard is not shown when
    *     the field is focused until the toggle button is pressed.
-   * -   `'onfocus'`: the virtual keyboard will be displayed whenever the field is
+   * -   `"onfocus"`: the virtual keyboard will be displayed whenever the field is
    *     focused and hidden when the field loses focus. In that case, the virtual
    *     keyboard toggle button is not displayed.
-   * -   `'off'`: the virtual keyboard toggle button is not displayed, and the
+   * -   `"off"`: the virtual keyboard toggle button is not displayed, and the
    *     virtual keyboard is never triggered.
    *
-   * If the setting is empty, it will default to `'onfocus'` on touch-capable
-   * devices and to `'off'` otherwise.
+   * If the setting is `"auto"`, it will default to `"onfocus"` on touch-capable
+   * devices and to `"off"` otherwise.
    *
    */
   'virtual-keyboard-mode': VirtualKeyboardMode;

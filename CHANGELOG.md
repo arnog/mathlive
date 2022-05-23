@@ -98,6 +98,11 @@ in order to preserve the same settings, you would now use:
   still supported. Only the default serialization of the `\placeholder{}` has
   changed.
 
+### Improvements
+
+- The MathJSON which is exported to the clipboard during copy/cut operations now
+  include the verbatim LaTeX from the mathfield.
+
 ### Bug Fixes
 
 - When extending the selection backward over a `captureSelection` group, do not
@@ -119,6 +124,8 @@ in order to preserve the same settings, you would now use:
   mathfields could result in the keyboard layout being erroneously reset to
   QWERTY. This would manifest itself for example by the `/` keybinding no longer
   inserting a fraction.
+- **#1462** When copying and pasting an expression that could not be parsed with
+  the Compute Engine, the resulting pasted content was displayed as an error.
 
 ## 0.72.2 (2022-04-30)
 

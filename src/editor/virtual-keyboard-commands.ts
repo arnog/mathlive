@@ -27,45 +27,42 @@ export function switchKeyboardLayer(
   keyboard: VirtualKeyboard,
   layer: string | null
 ): boolean {
-  // TODO This check are really required?
-  if (keyboard.options.virtualKeyboardMode !== 'off') {
-    if (
-      layer !== 'lower-command' &&
-      layer !== 'upper-command' &&
-      layer !== 'symbols-command'
-    ) {
-      // If we switch to a non-command keyboard layer, first exit command mode.
-      keyboard.executeCommand('complete');
-    }
-
-    showVirtualKeyboard(keyboard);
-    // If the alternate keys panel was visible, hide it
-    hideAlternateKeys();
-    // If we were in a temporarily shifted state (shift-key held down)
-    // restore our state before switching to a new layer.
-    unshiftKeyboardLayer(keyboard);
-    const layers = keyboard?.element!.querySelectorAll('.keyboard-layer');
-    // Search for the requested layer
-    let found = false;
-    for (const layer_ of layers) {
-      if ((layer_ as HTMLElement).dataset.layer === layer) {
-        found = true;
-        break;
-      }
-    }
-
-    // We did find the layer, switch to it.
-    // If we didn't find it, do nothing and keep the current layer
-    if (found) {
-      for (const layer_ of layers) {
-        if ((layer_ as HTMLElement).dataset.layer === layer)
-          layer_.classList.add('is-visible');
-        else layer_.classList.remove('is-visible');
-      }
-    }
-
-    keyboard.focusMathfield();
+  if (
+    layer !== 'lower-command' &&
+    layer !== 'upper-command' &&
+    layer !== 'symbols-command'
+  ) {
+    // If we switch to a non-command keyboard layer, first exit command mode.
+    keyboard.executeCommand('complete');
   }
+
+  showVirtualKeyboard(keyboard);
+  // If the alternate keys panel was visible, hide it
+  hideAlternateKeys();
+  // If we were in a temporarily shifted state (shift-key held down)
+  // restore our state before switching to a new layer.
+  unshiftKeyboardLayer(keyboard);
+  const layers = keyboard?.element!.querySelectorAll('.keyboard-layer');
+  // Search for the requested layer
+  let found = false;
+  for (const layer_ of layers) {
+    if ((layer_ as HTMLElement).dataset.layer === layer) {
+      found = true;
+      break;
+    }
+  }
+
+  // We did find the layer, switch to it.
+  // If we didn't find it, do nothing and keep the current layer
+  if (found) {
+    for (const layer_ of layers) {
+      if ((layer_ as HTMLElement).dataset.layer === layer)
+        layer_.classList.add('is-visible');
+      else layer_.classList.remove('is-visible');
+    }
+  }
+
+  keyboard.focusMathfield();
 
   return true;
 }

@@ -324,12 +324,13 @@ body.ML__fonts-loading .ML__base {
   text-indent: 0;
   // Prevent a rendering bug that misplaces \vec in Chrome.
   text-rendering: auto;
-  font-family: KaTeX_Main;
+  font-family: KaTeX_Main, 'Times New Roman', serif;
   font-style: normal;
   font-size-adjust: none;
   font-stretch: normal;
   font-variant-caps: normal;
   letter-spacing: normal;
+  line-height: 1.2;
 
   word-wrap: normal;
   word-spacing: normal;
@@ -340,10 +341,6 @@ body.ML__fonts-loading .ML__base {
   user-select: none;
 
   width: min-content;
-
-  // Encourage browsers to consider allocating a hardware accelerated
-  // layer for this element.
-  transform: translateZ(0);
 
   .style-wrap {
     position: relative;

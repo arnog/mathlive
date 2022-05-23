@@ -95,8 +95,16 @@ export class ModeEditor {
       //
       // 3. Put other flavors on the clipboard
       //
-      const mathJson = model.getValue(exportRange, 'math-json');
-      if (mathJson) ev.clipboardData.setData('application/json', mathJson);
+      {
+        const ce = mathfield.computeEngine;
+        ce.jsonSerializationOptions = {
+          metadata: ['latex'],
+        };
+        const expr = ce.parse(latex);
+
+        const mathJson = JSON.stringify(expr.json);
+        if (mathJson) ev.clipboardData.setData('application/json', mathJson);
+      }
 
       const mathMl = model.getValue(exportRange, 'math-ml');
       if (mathMl) ev.clipboardData.setData('application/mathml+xml', mathMl);

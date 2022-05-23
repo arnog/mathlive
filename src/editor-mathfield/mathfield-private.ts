@@ -1318,25 +1318,24 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   private onBlur(): void {
-    if (!this.blurred) {
-      this.blurred = true;
-      this.ariaLiveText!.textContent = '';
+    if (this.blurred) return;
 
-      if (/onfocus|manual/.test(this.options.virtualKeyboardMode))
-        this.executeCommand('hideVirtualKeyboard');
+    this.blurred = true;
+    this.ariaLiveText!.textContent = '';
 
-      complete(this, 'accept');
-      requestUpdate(this);
-      if (typeof this.options.onBlur === 'function') this.options.onBlur(this);
+    complete(this, 'accept');
+    if (
+      typeof this.options.onCommit === 'function' &&
+      this.getValue() !== this.valueOnFocus
+    )
+      this.options.onCommit(this);
 
-      this.virtualKeyboard?.disable();
+    if (/onfocus|manual/.test(this.options.virtualKeyboardMode))
+      this.executeCommand('hideVirtualKeyboard');
 
-      if (
-        typeof this.options.onCommit === 'function' &&
-        this.getValue() !== this.valueOnFocus
-      )
-        this.options.onCommit(this);
-    }
+    if (typeof this.options.onBlur === 'function') this.options.onBlur(this);
+
+    requestUpdate(this);
   }
 
   private onCompositionStart(_composition: string): void {

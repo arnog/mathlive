@@ -390,7 +390,8 @@ export class Atom {
     if (this.mode !== 'math') result.mode = this.mode;
     if (this.command) result.command = this.command;
     if (this.value !== undefined) result.value = this.value;
-    if (this.style) result.style = { ...this.style };
+    if (this.style && Object.keys(this.style).length > 0)
+      result.style = { ...this.style };
 
     if (this.verbatimLatex !== undefined)
       result.verbatimLatex = this.verbatimLatex;

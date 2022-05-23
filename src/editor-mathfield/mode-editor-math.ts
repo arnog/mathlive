@@ -42,18 +42,28 @@ export class MathModeEditor extends ModeEditor {
     // Try to get a MathJSON data type
     const json = ev.clipboardData.getData('application/json');
     if (json) {
-      try {
-        text = mathfield.computeEngine.box(JSON.parse(json)).latex;
-        format = 'latex';
-      } catch {
-        text = '';
+      const expr = JSON.parse(json);
+      if (typeof expr === 'object' && 'latex' in expr && expr.latex)
+        text = expr.latex;
+      if (!text) {
+        try {
+          const box = mathfield.computeEngine.box(expr);
+          if (!box.has('Error')) text = box.latex;
+        } catch {
+          text = '';
+        }
       }
+      if (!text) format = 'latex';
     }
 
     // If that didn't work, try some plain text
+    // (could be LaTeX, could be MathASCII)
     if (!text) text = ev.clipboardData.getData('text/plain');
 
     if (text) {
+      let wasLatex: boolean;
+      [wasLatex, text] = trimModeShiftCommand(text);
+      if (format === 'auto' && wasLatex) format = 'latex';
       mathfield.snapshot();
       if (
         this.insert(mathfield.model, text, {
