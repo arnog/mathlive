@@ -2154,7 +2154,7 @@ export function onUndoStateChanged(
 function jsonToCssProps(json) {
   if (typeof json === 'string') return json;
   return Object.entries(json)
-    .map(([k, v]) => `${k}:${v}`)
+    .map(([k, v]) => `${k}:${v} !important`)
     .join(';');
 }
 
@@ -2163,5 +2163,5 @@ function jsonToCss(json): string {
     .map((k) => {
       return `${k} {${jsonToCssProps(json[k])}}`;
     })
-    .join(';');
+    .join('');
 }
