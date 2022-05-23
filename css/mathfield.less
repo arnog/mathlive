@@ -60,7 +60,7 @@
   flex-flow: row;
   justify-content: space-between;
   align-items: flex-end;
-  min-height: 39px; /* Need some room for the virtual keyboard toggle */
+  min-height: 12px;
 
   /* Prevent the browser from trying to interpret touch gestures in the field */
   /* "Disabling double-tap to zoom removes the need for browsers to
@@ -95,7 +95,7 @@
 .ML__fieldcontainer__field {
   display: flex;
   align-items: center;
-  align-self: center;
+  align-self: stretch; /* Always make as tall as parent */
   position: relative;
   overflow: hidden;
   padding: 2px 0 2px 1px;
