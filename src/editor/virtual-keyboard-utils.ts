@@ -204,10 +204,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   coreStylesheet: Stylesheet | null;
   virtualKeyboardStylesheet: Stylesheet | null;
 
-  constructor(
-    options: CombinedVirtualKeyboardOptions,
-    mathfield?: Mathfield
-  ) {
+  constructor(options: CombinedVirtualKeyboardOptions, mathfield?: Mathfield) {
     this.options = options;
     this.visible = false;
     this._mathfield = mathfield as MathfieldPrivate;
