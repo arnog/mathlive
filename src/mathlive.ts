@@ -41,11 +41,6 @@ import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 export * from './public/mathlive';
 export * from './addons/auto-render';
 
-export {
-  setKeyboardLayoutLocale,
-  setKeyboardLayout,
-} from './editor/keyboard-layout';
-
 import { version as computeEngineVersion } from '@cortex-js/compute-engine';
 
 /**

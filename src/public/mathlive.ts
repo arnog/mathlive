@@ -23,3 +23,5 @@ export * from './core';
 export * from './options';
 export * from './mathfield';
 export * from './mathfield-element';
+
+export * from '../mathlive';
