@@ -1333,6 +1333,8 @@ export class MathfieldPrivate implements Mathfield {
     if (/onfocus|manual/.test(this.options.virtualKeyboardMode))
       this.executeCommand('hideVirtualKeyboard');
 
+    this.virtualKeyboard?.disable();
+
     if (typeof this.options.onBlur === 'function') this.options.onBlur(this);
 
     requestUpdate(this);

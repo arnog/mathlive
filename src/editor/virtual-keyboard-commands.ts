@@ -223,6 +223,16 @@ function toggleVirtualKeyboard(
   } else if (keyboard.element) {
     // Remove the element from the DOM
     keyboard.disable();
+    hideAlternateKeys();
+    keyboard.visible = false;
+
+    keyboard.coreStylesheet?.release();
+    keyboard.coreStylesheet = null;
+    keyboard.virtualKeyboardStylesheet?.release();
+    keyboard.virtualKeyboardStylesheet = null;
+
+    keyboard._element?.remove();
+    keyboard._element = undefined;
   }
 
   keyboard.stateChanged();
