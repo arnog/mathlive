@@ -32,11 +32,11 @@ export class MacroAtom extends Atom {
   }
 
   toJson(): AtomJson {
-    const options: { [key: string]: any } = {};
+    const options = super.toJson();
     if (this.expand) options.expand = true;
     if (!this.captureSelection) options.captureSelection = false;
     if (this.macroArgs) options.args = this.macroArgs;
-    return { ...super.toJson(), ...options };
+    return options;
   }
 
   serialize(options: ToLatexOptions): string {

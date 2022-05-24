@@ -54,8 +54,8 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     this._mathfield = options.mathfield;
   }
 
-  setOptions(_options: CombinedVirtualKeyboardOptions): void {
-    this.sendMessage('setOptions', { options: JSON.stringify(_options) });
+  setOptions(options: CombinedVirtualKeyboardOptions): void {
+    this.sendMessage('setOptions', { options: JSON.stringify(options) });
   }
 
   public create(): void {}
