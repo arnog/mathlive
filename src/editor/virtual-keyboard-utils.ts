@@ -213,11 +213,36 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   setOptions(options: CombinedVirtualKeyboardOptions): void {
+    let currentKeyboardName = '';
+    if (this._element) {
+      const currentKeyboard = this._element.querySelector(
+        'div.keyboard-layer.is-visible'
+      );
+      if (currentKeyboard)
+        currentKeyboardName = currentKeyboard.getAttribute('data-layer') ?? '';
+      console.log(currentKeyboardName);
+    }
     this._element?.remove();
     this._element = undefined;
     this.options = options;
 
-    if (this.visible) this.buildAndAttachElement(options.virtualKeyboardTheme);
+    if (this.visible) {
+      this.buildAndAttachElement(options.virtualKeyboardTheme);
+      if (this.element) {
+        this.element.classList.add('is-visible');
+        // Restore the active keyboard
+        const newActive = this.element.querySelector(
+          `.keyboard-layer[data-layer="${currentKeyboardName}"]`
+        );
+        if (newActive) {
+          const oldActive = this.element.querySelector(
+            '.keyboard-layer.is-visible'
+          );
+          if (oldActive) oldActive.classList.remove('is-visible');
+          newActive.classList.add('is-visible');
+        }
+      }
+    }
   }
 
   get element(): HTMLDivElement | undefined {
@@ -311,12 +336,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
         VIRTUAL_KEYBOARD_STYLESHEET
       ).toString(36);
     }
-    this.virtualKeyboardStylesheet = this.virtualKeyboardStylesheet =
-      injectStylesheet(
-        null,
-        VIRTUAL_KEYBOARD_STYLESHEET,
-        VIRTUAL_KEYBOARD_STYLESHEET_HASH
-      );
+    this.virtualKeyboardStylesheet = injectStylesheet(
+      null,
+      VIRTUAL_KEYBOARD_STYLESHEET,
+      VIRTUAL_KEYBOARD_STYLESHEET_HASH
+    );
 
     this.coreStylesheet = injectStylesheet(
       null,
