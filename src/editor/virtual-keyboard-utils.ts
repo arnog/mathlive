@@ -374,16 +374,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       window.removeEventListener('touchend', this);
       window.removeEventListener('touchcancel', this);
     }
-    hideAlternateKeys();
-    this.visible = false;
-
-    this.coreStylesheet?.release();
-    this.coreStylesheet = null;
-    this.virtualKeyboardStylesheet?.release();
-    this.virtualKeyboardStylesheet = null;
-
-    this._element?.remove();
-    this._element = undefined;
   }
 
   dispose(): void {}
