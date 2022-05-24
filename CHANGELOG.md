@@ -5,6 +5,8 @@
 - Using macros without arguments (e.g. `\RR`) could result in incorrect LaTeX
 - The virtual keyboard could become invisible when re-focusing a mathfield
 - Typing a `,` (comma) would be rendered as a `.` (dot)
+- Export Typescript definitions for some static functions, e.g.
+  `useSharedVirtualKeyboard`
 
 ## 0.73.0 (2022-05-23)
 
