@@ -272,7 +272,12 @@ export function onKeystroke(
       //
       // 5.6 Handle the decimal separator
       //
-      if (eventToChar(evt) === ',') selector = 'insertDecimalSeparator';
+      if (
+        model.at(model.position).leftSibling?.isDigit() &&
+        mathfield.options.decimalSeparator === ',' &&
+        eventToChar(evt) === ','
+      )
+        selector = 'insertDecimalSeparator';
     }
   }
 
@@ -505,8 +510,8 @@ export function onTypedText(
       else if (
         /\d/.test(c) &&
         mathfield.options.smartSuperscript &&
-        model.at(model.position).treeBranch === 'superscript' &&
-        model.at(model.position).hasNoSiblings
+        atom.treeBranch === 'superscript' &&
+        atom.hasNoSiblings
       ) {
         // We are inserting a digit into an empty superscript
         // If smartSuperscript is on, insert the digit, and
