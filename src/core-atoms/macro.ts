@@ -10,7 +10,7 @@ export class MacroAtom extends Atom {
     macro: string,
     options: {
       expand?: boolean;
-      args: string;
+      args?: string;
       body: Atom[];
       captureSelection?: boolean;
     }
@@ -22,7 +22,7 @@ export class MacroAtom extends Atom {
     this.captureSelection = options.captureSelection ?? true;
     // Don't use verbatimLatex to save the macro, as it can get wiped when
     // the atom is modified (adding super/subscript, for example).
-    this.macroArgs = options.args;
+    this.macroArgs = options.args ?? '';
 
     this.expand = options.expand ?? false;
   }
