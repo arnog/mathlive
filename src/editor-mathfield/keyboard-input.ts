@@ -167,11 +167,11 @@ export function onKeystroke(
       ) {
         // There's only a single shortcut matching this sequence.
         // We can confidently reset the keystroke buffer\
-        console.log(
-          candidate,
-          mathfield.keystrokeBuffer,
-          mathfield.keystrokeBufferStates
-        );
+        // console.log(
+        //   candidate,
+        //   mathfield.keystrokeBuffer,
+        //   mathfield.keystrokeBufferStates
+        // );
         resetKeystrokeBuffer = true;
       } else {
         // There are several potential shortcuts matching this sequence.

@@ -729,13 +729,13 @@ export class Atom {
     if (this._branches) this._branches[branch] = newBranch;
     else this._branches = { [branch]: newBranch };
 
-    this.isDirty = true;
-
     // Update the children
     for (const child of children) {
       child.parent = this;
       child.treeBranch = branch;
     }
+
+    this.isDirty = true;
   }
 
   makeFirstAtom(branch: Branch): Atom {

@@ -79,6 +79,9 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
 
   if (!result) result = Atom.fromJson(json);
 
+  for (const branch of NAMED_BRANCHES)
+    if (json[branch]) result.setChildren(json[branch], branch);
+
   // Restore properties
 
   if (json.verbatimLatex !== undefined)
