@@ -13,6 +13,14 @@ import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 import MathfieldElement from '../public/mathfield-element';
 import { MathfieldBox } from './mathfield-box';
 
+/**
+ * This data type is used as a serialized representation of the  atom tree.
+ * This is used by the Undo Manager to store the state of the mathfield.
+ * While in many cases the LaTeX representation of the mathfield could be used
+ * there are a few cases where the atom will carry additional information
+ * that is difficult/impossible to represent in pure LaTeX, for example
+ * the state/content of empty branches.
+ */
 export type AtomJson = { type: AtomType; [key: string]: any };
 
 export type BranchName =
@@ -21,7 +29,7 @@ export type BranchName =
   | 'below'
   | 'superscript'
   | 'subscript';
-export type Branch = BranchName | [row: number, col: number];
+
 /**
  * The order of these branches specify the keyboard navigation order
  */
@@ -33,12 +41,14 @@ export const NAMED_BRANCHES: BranchName[] = [
   'subscript',
 ];
 
+export type Branch = BranchName | [row: number, col: number];
+
 /**
  * A _branch_ is a set of children of an atom.
  *
  * There are two kind of branches:
- * - **colRow** branches are adressed with a column and row number and are
- * used with ArrayAtom
+ * - **cell branches** are adressed with a column and row number and are
+ * used by `ArrayAtom`
  * - **named branches** used with other kind of atoms. There is a fixed set of
  * possible named branches.
  */
@@ -46,7 +56,7 @@ export function isNamedBranch(branch: Branch): branch is BranchName {
   return typeof branch === 'string' && NAMED_BRANCHES.includes(branch);
 }
 
-export function isColRowBranch(branch?: Branch): branch is [number, number] {
+export function isCellBranch(branch?: Branch): branch is [number, number] {
   return branch !== undefined && Array.isArray(branch) && branch.length === 2;
 }
 
@@ -408,10 +418,6 @@ export class Atom {
     if (this.pruneEmptySelf) result.pruneEmptySelf = true;
 
     if (this._branches) {
-      // for (const branch of NAMED_BRANCHES)
-      //   if (this._branches[branch])
-      //     result[branch] = this._branches[branch]?.map((x) => x.toJson);
-      //isNamedBranch
       for (const branch of Object.keys(this._branches)) {
         if (this._branches[branch]) {
           result[branch] = this._branches[branch]
@@ -589,12 +595,12 @@ export class Atom {
   }
 
   get row(): number {
-    if (!isColRowBranch(this.treeBranch)) return -1;
+    if (!isCellBranch(this.treeBranch)) return -1;
     return this.treeBranch[0];
   }
 
   get col(): number {
-    if (!isColRowBranch(this.treeBranch)) return -1;
+    if (!isCellBranch(this.treeBranch)) return -1;
     return this.treeBranch[1];
   }
 

@@ -2,7 +2,7 @@ import {
   Atom,
   AtomJson,
   Branch,
-  isColRowBranch,
+  isCellBranch,
   isNamedBranch,
   ToLatexOptions,
 } from '../core/atom-class';
@@ -256,18 +256,28 @@ export class ArrayAtom extends Atom {
   }
 
   toJson(): AtomJson {
-    return {
+    const result: AtomJson = {
       ...super.toJson(),
       environmentName: this.environmentName,
       array: this.array.map((row) =>
         row.map((col) => col!.map((x) => x.toJson()))
       ),
       rowGaps: this.rowGaps,
+      columns: this.colFormat,
+      colSeparationType: this.colSeparationType,
     };
+
+    if (this.arraystretch !== 1.0) result.arraystretch = this.arraystretch;
+    if (this.arraycolsep) result.arraycolsep = this.arraycolsep;
+    if (this.leftDelim) result.leftDelim = this.leftDelim;
+    if (this.rightDelim) result.rightDelim = this.rightDelim;
+    if (this.jot !== undefined) result.jot = this.jot;
+
+    return result;
   }
 
   branch(cell: Branch): Atom[] | undefined {
-    if (!isColRowBranch(cell)) return undefined;
+    if (!isCellBranch(cell)) return undefined;
     return this.array[cell[0]][cell[1]] ?? undefined;
   }
 
@@ -282,7 +292,7 @@ export class ArrayAtom extends Atom {
   }
 
   createBranch(cell: Branch): Atom[] {
-    if (!isColRowBranch(cell)) return [];
+    if (!isCellBranch(cell)) return [];
     this.isDirty = true;
     return this.branch(cell) ?? [];
   }
