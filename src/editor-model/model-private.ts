@@ -31,7 +31,7 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
-import { Mode } from 'core/modes';
+import { Mode } from '../core/modes';
 
 export type GetAtomOptions = {
   includeChildren?: boolean;
