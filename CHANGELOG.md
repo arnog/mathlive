@@ -9,6 +9,11 @@
   could change, for example when pasting some content.
 - **#1465** The bounds of large operators (integral, sum) would not accept any
   content.
+- When setting the background color of an entire equation, the color command
+  would not be generated.
+- **#1445** Improve the `\colorbox` command, and other text mode commands, to be
+  more interoperable when they contain math content (use `$` and `$$` rather
+  than `\\(` and `\\[`))
 
 ## 0.73.1 (2022-05-24)
 
