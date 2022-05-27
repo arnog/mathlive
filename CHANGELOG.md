@@ -14,6 +14,8 @@
 - **#1445** Improve the `\colorbox` command, and other text mode commands, to be
   more interoperable when they contain math content (use `$` and `$$` rather
   than `\\(` and `\\[`))
+- **#1443** On mobile, prevent the focus from changing while the alternate key
+  panel is up
 
 ## 0.73.1 (2022-05-24)
 
