@@ -31,6 +31,7 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
+import { Mode } from 'core/modes';
 
 export type GetAtomOptions = {
   includeChildren?: boolean;
@@ -334,7 +335,7 @@ export class ModelPrivate implements Model {
     const format: string = inFormat ?? 'latex';
 
     if (format === 'latex' || format === 'latex-expanded') {
-      return atom.serialize({
+      return Mode.serialize([atom], {
         expandMacro: format === 'latex-expanded',
         defaultMode: this.mathfield.options.defaultMode,
       });
@@ -397,15 +398,11 @@ export class ModelPrivate implements Model {
     arg2?: Offset | OutputFormat,
     arg3?: OutputFormat
   ): string {
-    if (arg1 === undefined) {
-      // GetValue()
-      return this.atomToString(this.root, 'latex');
-    }
+    // GetValue()
+    if (arg1 === undefined) return this.atomToString(this.root, 'latex');
 
-    if (typeof arg1 === 'string') {
-      // GetValue(format): Output format only
-      return this.atomToString(this.root, arg1);
-    }
+    // GetValue(format): Output format only
+    if (typeof arg1 === 'string') return this.atomToString(this.root, arg1);
 
     let ranges: Range[];
     let format: OutputFormat;

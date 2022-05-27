@@ -13,12 +13,12 @@
       <h1>MathLive Smoke Testing Playground</h1>
     </header>
     <main class="centered" tabindex="0">
-      <math-field id="mf" virtual-keyboard-mode="manual"> </math-field>
+      <math-field id="mf" virtual-keyboard-mode="manual">2</math-field>
 
       <h2 style="margin-top: 1em">Selection</h2>
       <div class="output" id="selection"></div>
 
-      <h2>Latex</h2>
+      <h2>LaTeX</h2>
       <div class="output" id="latex"></div>
 
       <h2>MathJSON</h2>
@@ -56,9 +56,10 @@
       }
 
       function escapeHtml(string) {
-        return String(string).replace(/[&<>"'`= /\u200b]/g, function (s) {
-          return (
-            {
+        return String(string).replace(
+          /[&<>"'`= /\u200b]/g,
+          (s) =>
+            ({
               '&': '&amp;',
               '<': '&lt;',
               '>': '&gt;',
@@ -68,9 +69,8 @@
               '`': '&#x60;',
               '=': '&#x3D;',
               '\u200b': '&amp;#zws;',
-            }[s] || s
-          );
-        });
+            }[s] ?? s)
+        );
       }
 
       const mf = document.getElementById('mf');
@@ -91,38 +91,33 @@
         },
       });
 
-      document.addEventListener('click', () => console.log('global click'));
-
-      mf.addEventListener('click', () => console.log('mf click'));
-
       mf.addEventListener('input', (ev) => updateContent(mf));
 
       mf.addEventListener('selection-change', (ev) => {
         const selection = mf.selection;
         document.getElementById('selection').innerHTML =
-          label('position  ') +
-          mf.position +
-          '<br>' +
+          `${label('value     ')}"${escapeHtml(
+            mf.getValue(selection, 'latex-expanded')
+          )}"<br>` +
           label('start     ') +
           selection.ranges[0][0] +
           '<br>' +
           label('end       ') +
           selection.ranges[0][1] +
           '<br>' +
+          label('position  ') +
+          mf.position +
+          '<br>' +
           label('direction ') +
           '"' +
           selection.direction +
           '"<br>' +
-          label('value     ') +
-          '"' +
-          escapeHtml(mf.getValue(selection, 'latex-expanded')) +
-          '"<br>' +
           label('depth     ') +
           mf.getOffsetDepth(mf.position);
       });
-      mf.addEventListener('math-error', (ev) => {
-        console.log('Error event :' + ev.detail.code);
-      });
+      mf.addEventListener('math-error', (ev) =>
+        console.log('Error event :' + ev.detail.code)
+      );
 
       // First time update
       updateContent(mf);

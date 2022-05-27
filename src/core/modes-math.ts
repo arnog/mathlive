@@ -156,13 +156,13 @@ export class MathMode extends Mode {
         let result = this.emitColorRun(x, options);
         const style = x[0].computedStyle;
         if (
+          result.trim() &&
           style.backgroundColor &&
           (!parent || parentColor !== style.backgroundColor) &&
           (x.length > 0 || !(x[0] instanceof BoxAtom))
         ) {
-          if (options.defaultMode === 'inline-math')
-            result = `\\( ${result} \\)`;
-          else result = `\\[ ${result} \\]`;
+          if (options.defaultMode === 'inline-math') result = `$${result}$`;
+          else result = `$$${result}$$`;
 
           result = `\\colorbox{${
             style.verbatimBackgroundColor ?? style.backgroundColor
