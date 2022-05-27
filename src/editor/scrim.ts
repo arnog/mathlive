@@ -1,4 +1,6 @@
 export class Scrim {
+  static scrim: Scrim;
+
   private _element?: HTMLElement;
 
   private readonly preventOverlayClose: boolean;
@@ -9,7 +11,7 @@ export class Scrim {
 
   private savedActiveElement?: HTMLOrSVGElement | null;
 
-  private state: 'closed' | 'opening' | 'open' | 'closing';
+  state: 'closed' | 'opening' | 'open' | 'closing';
 
   private readonly translucent: boolean;
 
@@ -108,9 +110,7 @@ export class Scrim {
     document.body.style.marginRight = this.savedMarginRight ?? '';
 
     // Restore the previously focused element
-    if (
-      document.activeElement !== (this.savedActiveElement as unknown as Element)
-    )
+    if (deepActiveElement() !== this.savedActiveElement)
       this.savedActiveElement?.focus?.();
 
     // Remove all children

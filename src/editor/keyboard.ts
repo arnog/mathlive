@@ -26,6 +26,7 @@
 
 import { isBrowser, isTouchCapable } from '../common/capabilities';
 import { normalizeKeyboardEvent } from './keyboard-layout';
+import { Scrim } from './scrim';
 
 const PRINTABLE_KEYCODE = new Set([
   'Backquote', // Japanese keyboard: hankaku/zenkaku/kanji key, which is non-printable
@@ -297,6 +298,14 @@ export function delegateKeyboardEvents(
   target.addEventListener(
     'blur',
     (event) => {
+      // If the scrim is up, ignore blur (while the alternate key panel is up)
+      const scrimState = Scrim.scrim.state;
+      if (scrimState === 'open' || scrimState === 'opening') {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
       // If the relatedTarget (the element that is gaining the focus)
       // is contained in our shadow host, ignore the blur event
       if (

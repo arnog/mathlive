@@ -38,8 +38,6 @@ import { Selector } from '../public/commands';
 import { MathfieldPrivate } from './mathfield';
 import { on } from '../editor-mathfield/utils';
 
-let gScrim: Scrim | null = null;
-
 let VIRTUAL_KEYBOARD_STYLESHEET_HASH: string | undefined = undefined;
 
 export function showAlternateKeys(
@@ -130,8 +128,8 @@ export function showAlternateKeys(
   //
   // Create the scrim and attach the alternate key panel to it
   //
-  if (gScrim === null) gScrim = new Scrim();
-  gScrim.open({
+  if (!Scrim.scrim) Scrim.scrim = new Scrim();
+  Scrim.scrim.open({
     root: keyboard.options.virtualKeyboardContainer,
     child: altContainer,
   });
@@ -186,7 +184,7 @@ export function hideAlternateKeys(): boolean {
     altContainer.innerHTML = '';
   }
 
-  gScrim?.close();
+  Scrim.scrim?.close();
 
   return false;
 }
