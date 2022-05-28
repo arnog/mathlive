@@ -7,6 +7,7 @@
 - While in LaTeX mode, doing a Select All (cmd+A) with a partial command
   followed by an auto-complete suggestion would render the mathfield
   unresponsive
+- **#1467** Improvements to the Typescript public declarations
 
 ## 0.73.4 (2022-05-27)
 
