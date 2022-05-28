@@ -299,7 +299,7 @@ export function delegateKeyboardEvents(
     'blur',
     (event) => {
       // If the scrim is up, ignore blur (while the alternate key panel is up)
-      const scrimState = Scrim.scrim.state;
+      const scrimState = Scrim.scrim?.state;
       if (scrimState === 'open' || scrimState === 'opening') {
         event.preventDefault();
         event.stopPropagation();
