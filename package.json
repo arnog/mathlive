@@ -70,7 +70,7 @@
     "@types/css-font-loading-module": "0.0.7",
     "@types/jest": "^27.5.1",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
-    "@typescript-eslint/parser": "^5.25.0",
+    "@typescript-eslint/parser": "^5.26.0",
     "autoprefixer": "^10.4.7",
     "check-node-version": "^4.2.1",
     "cssnano": "^5.1.8",
