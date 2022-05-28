@@ -6,9 +6,9 @@ import {
   showAlternateKeys,
   hideAlternateKeys,
   VirtualKeyboard,
-  VirtualKeyboardTheme,
 } from './virtual-keyboard-utils';
 import { register as registerCommand, SelectorPrivate } from './commands';
+import { VirtualKeyboardTheme } from '../public/options';
 export { unshiftKeyboardLayer };
 
 /*

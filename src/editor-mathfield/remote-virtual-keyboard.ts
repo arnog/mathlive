@@ -1,13 +1,11 @@
 import { osPlatform } from '../common/capabilities';
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
 import { DEFAULT_KEYBOARD_TOGGLE_GLYPH } from '../editor/options';
-import {
-  CombinedVirtualKeyboardOptions,
-  VirtualKeyboard,
-} from '../editor/virtual-keyboard-utils';
+import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { Selector } from '../public/commands';
 import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
 import {
+  CombinedVirtualKeyboardOptions,
   OriginValidator,
   RemoteVirtualKeyboardOptions,
 } from '../public/options';

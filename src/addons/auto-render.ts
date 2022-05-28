@@ -9,7 +9,7 @@ import coreStylesheet from '../../css/core.less';
 import { parseMathString } from '../editor/parse-math-string';
 import { throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
-import { AutoRenderOptions } from 'public/options';
+import { AutoRenderOptions } from '../public/options';
 
 /** @internal */
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
