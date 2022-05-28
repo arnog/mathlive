@@ -90,6 +90,7 @@ export type AtomType =
   // by an optional line, and surrounded by optional fences
   | 'group' // A simple group of atoms, for example from a `{...}`
   | 'latex' // A raw latex atom
+  | 'latexgroup' // A string of raw latex atoms
   | 'leftright' // Used by the `\left` and `\right` commands
   | 'line' // Used by `\overline` and `\underline`
   | 'macro'

@@ -10,7 +10,7 @@ import {
 import { getCommandForKeybinding } from '../editor/keybindings';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate } from '../editor/commands';
-import { updateAutocomplete } from './autocomplete';
+import { removeSuggestion, updateAutocomplete } from './autocomplete';
 
 import { requestUpdate } from './render';
 
@@ -466,7 +466,7 @@ export function onTypedText(
     ...mathfield.style,
   };
   if (!model.selectionIsCollapsed) {
-    model.position = model.deleteAtoms(range(model.selection));
+    model.deleteAtoms(range(model.selection));
     mathfield.snapshot();
   }
 
@@ -481,6 +481,8 @@ export function onTypedText(
 
   if (mathfield.mode === 'latex') {
     model.deferNotifications({ content: true, selection: true }, () => {
+      removeSuggestion(mathfield);
+
       for (const c of graphemes) ModeEditor.insert('latex', model, c);
 
       updateAutocomplete(mathfield);

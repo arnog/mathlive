@@ -315,6 +315,9 @@ export class ModelPrivate implements Model {
     return result;
   }
 
+  /** Remove the specified atoms from the tree.
+   * **WARNING** upon return the selection may now be invalid
+   */
   extractAtoms(range: Range): Atom[] {
     let result = this.getAtoms(range);
     if (result.length === 1 && result[0].type === 'root') {
@@ -326,9 +329,9 @@ export class ModelPrivate implements Model {
     return result;
   }
 
-  deleteAtoms(range: Range): Offset {
+  deleteAtoms(range: Range): void {
     this.extractAtoms(range);
-    return range[0];
+    this.position = range[0];
   }
 
   atomToString(atom: Atom, inFormat: OutputFormat): string {

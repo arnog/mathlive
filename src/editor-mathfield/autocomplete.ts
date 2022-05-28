@@ -16,16 +16,23 @@ import {
 } from './mode-editor-latex';
 import { ModeEditor } from './mode-editor';
 
+export function removeSuggestion(mathfield: MathfieldPrivate): void {
+  const group = getLatexGroupBody(mathfield.model).filter(
+    (x) => x.isSuggestion
+  );
+  if (group.length === 0) return;
+  mathfield.model.position = mathfield.model.offsetOf(group[0].leftSibling);
+  for (const atom of group) atom.parent!.removeChild(atom);
+}
+
 export function updateAutocomplete(
   mathfield: MathfieldPrivate,
   options?: { atIndex?: number }
 ): void {
   const { model } = mathfield;
   // Remove any error indicator and any suggestions
-  for (const atom of getLatexGroupBody(model)) {
-    if (atom.isSuggestion) atom.parent!.removeChild(atom);
-    else atom.isError = false;
-  }
+  removeSuggestion(mathfield);
+  for (const atom of getLatexGroupBody(model)) atom.isError = false;
 
   if (!model.selectionIsCollapsed) {
     hidePopover(mathfield);

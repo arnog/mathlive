@@ -24,7 +24,10 @@ export class LatexAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): LatexAtom {
-    return new LatexAtom(json.command);
+    const result = new LatexAtom(json.command);
+    if (json.isSuggestion) result.isSuggestion = true;
+    if (json.isError) result.isError = true;
+    return result;
   }
 
   toJson(): AtomJson {
@@ -60,10 +63,18 @@ export class LatexAtom extends Atom {
  */
 export class LatexGroupAtom extends Atom {
   constructor(latex: string) {
-    super('group', { mode: 'latex' });
+    super('latexgroup', { mode: 'latex' });
     this.body = [...latex].map((x) => new LatexAtom(x));
 
     this.skipBoundary = false;
+  }
+
+  static fromJson(_json: AtomJson): LatexGroupAtom {
+    return new LatexGroupAtom('');
+  }
+
+  toJson(): AtomJson {
+    return super.toJson();
   }
 
   render(context: Context): Box | null {

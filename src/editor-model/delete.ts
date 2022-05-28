@@ -141,7 +141,7 @@ function onDelete(
       // After bwd: move to last of body
       if (atom.hasChildren) model.position = model.offsetOf(atom.lastChild);
       else {
-        model.position = Math.max(model.offsetOf(atom) - 1);
+        model.position = Math.max(0, model.offsetOf(atom) - 1);
         parent.removeChild(atom);
       }
     } else if (branch === 'above') {
@@ -306,10 +306,9 @@ export function deleteBackward(model: ModelPrivate): boolean {
       return;
     }
 
-    const offset = model.offsetOf(target.leftSibling);
+    model.position = model.offsetOf(target.leftSibling);
     target.parent!.removeChild(target);
     model.announce('delete', undefined, [target]);
-    model.position = offset;
   });
 }
 
@@ -390,6 +389,5 @@ export function deleteRange(model: ModelPrivate, range: Range): boolean {
   }
   return model.deferNotifications({ content: true, selection: true }, () => {
     model.deleteAtoms(range);
-    model.position = range[0];
   });
 }

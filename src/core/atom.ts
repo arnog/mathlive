@@ -10,7 +10,7 @@ import { EncloseAtom } from '../core-atoms/enclose';
 import { ErrorAtom } from '../core-atoms/error';
 import { GenfracAtom } from '../core-atoms/genfrac';
 import { GroupAtom } from '../core-atoms/group';
-import { LatexAtom } from '../core-atoms/latex';
+import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { LineAtom } from '../core-atoms/line';
 import { MacroAtom } from '../core-atoms/macro';
@@ -55,6 +55,7 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (type === 'genfrac') result = GenfracAtom.fromJson(json);
   if (type === 'group') result = GroupAtom.fromJson(json);
   if (type === 'latex') result = LatexAtom.fromJson(json);
+  if (type === 'latexgroup') result = LatexGroupAtom.fromJson(json);
   if (type === 'leftright') result = LeftRightAtom.fromJson(json);
   if (type === 'line') result = LineAtom.fromJson(json);
   if (type === 'macro') result = MacroAtom.fromJson(json);

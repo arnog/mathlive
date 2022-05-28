@@ -54,7 +54,7 @@ export class LatexModeEditor extends ModeEditor {
       options.insertionMode === 'replaceSelection' &&
       !model.selectionIsCollapsed
     )
-      model.position = model.deleteAtoms(range(model.selection));
+      model.deleteAtoms(range(model.selection));
     else if (options.insertionMode === 'replaceAll') {
       model.root.setChildren([], 'body');
       model.position = 0;
@@ -76,6 +76,15 @@ export class LatexModeEditor extends ModeEditor {
     // can be positoned *after* the LatexGroup. In that case, adjust to be
     // the last atom inside the LatexGroup.
     if (cursor instanceof LatexGroupAtom) cursor = cursor.lastChild;
+
+    // If there is no LatexGroup (for example, it was deleted, but we're still
+    // in LaTeX mode), insert one.
+    if (!(cursor.parent instanceof LatexGroupAtom)) {
+      const group = new LatexGroupAtom('');
+      cursor.parent!.addChildAfter(group, cursor);
+      cursor = group.firstChild;
+    }
+
     const lastNewAtom = cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
     // Prepare to dispatch notifications

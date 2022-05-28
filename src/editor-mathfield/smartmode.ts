@@ -177,7 +177,7 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
     model.at(i - 1).mode === 'math'
   ) {
     model.at(i - 1).parent!.removeChild(model.at(i - 1));
-    contentDidChange(model);
+
     // We need to adjust the selection after doing some surgery on the atoms list
     // But we don't want to receive selection notification changes
     // which could have a side effect of changing the mode :(
@@ -185,6 +185,8 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
     model.suppressChangeNotifications = true;
     model.position -= 1;
     model.suppressChangeNotifications = save;
+
+    contentDidChange(model);
   }
 }
 

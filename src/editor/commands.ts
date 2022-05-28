@@ -4,7 +4,11 @@ import { SelectorPrivate, CommandRegistry } from './commands-definitions';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { requestUpdate } from '../editor-mathfield/render';
-import { updateAutocomplete, complete } from '../editor-mathfield/autocomplete';
+import {
+  updateAutocomplete,
+  complete,
+  removeSuggestion,
+} from '../editor-mathfield/autocomplete';
 import { canVibrate } from '../common/capabilities';
 
 export { SelectorPrivate };
@@ -123,8 +127,11 @@ export function perform(
       mathfield.snapshot();
     }
 
+    if (mathfield.mode === 'latex' && !/^(complete)/.test(selector))
+      removeSuggestion(mathfield);
+
     COMMANDS[selector]!.fn(mathfield.model, ...args);
-    if (/^(delete|transpose|add)/.test(selector) && mathfield.mode !== 'latex')
+    if (mathfield.mode !== 'latex' && /^(delete|transpose|add)/.test(selector))
       mathfield.snapshot();
 
     if (mathfield.mode === 'latex') updateAutocomplete(mathfield);

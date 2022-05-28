@@ -56,7 +56,7 @@ export class TextModeEditor extends ModeEditor {
       options.insertionMode === 'replaceSelection' &&
       !model.selectionIsCollapsed
     )
-      model.position = model.deleteAtoms(range(model.selection));
+      model.deleteAtoms(range(model.selection));
     else if (options.insertionMode === 'replaceAll') {
       model.root.setChildren([], 'body');
       model.position = 0;

@@ -147,7 +147,7 @@ export class MathModeEditor extends ModeEditor {
       options.insertionMode === 'replaceSelection' &&
       !model.selectionIsCollapsed
     )
-      model.position = model.deleteAtoms(range(model.selection));
+      model.deleteAtoms(range(model.selection));
     else if (options.insertionMode === 'replaceAll') {
       model.root.setChildren([], 'body');
       model.position = 0;
@@ -168,7 +168,6 @@ export class MathModeEditor extends ModeEditor {
     } else if (model.at(model.position).type === 'placeholder') {
       // After a `placeholder`
       model.deleteAtoms([model.position - 1, model.position]);
-      model.position -= 1;
     }
 
     //
@@ -183,7 +182,6 @@ export class MathModeEditor extends ModeEditor {
       if (offset >= 0) {
         args['@'] = model.getValue(offset, model.position);
         model.deleteAtoms([offset, model.position]);
-        model.position = offset;
       }
     }
 

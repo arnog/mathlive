@@ -1342,7 +1342,7 @@ export class MathfieldPrivate implements Mathfield {
 
   private onCompositionStart(_composition: string): void {
     // Clear the selection if there is one
-    this.model.position = this.model.deleteAtoms(range(this.model.selection));
+    this.model.deleteAtoms(range(this.model.selection));
     requestAnimationFrame(() => {
       render(this); // Recalculate the position of the caret
       // Synchronize the location and style of textarea
