@@ -9,7 +9,6 @@ import {
 import type { Mathfield, Range } from './mathfield';
 import { VirtualKeyboardMode } from './mathfield-element';
 import type { Selector } from './commands';
-import type { ErrorCode as MathJsonErrorCode } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
 
 /**
  * Specify behaviour for origin validation.
@@ -610,6 +609,11 @@ export interface MathfieldHooks {
   onExport: (from: Mathfield, latex: string, range: Range) => string;
 }
 
+export type VirtualKeyboardTheme = 'apple' | 'material' | '';
+
+export type CombinedVirtualKeyboardOptions = VirtualKeyboardOptions &
+  CoreOptions;
+
 export type RemoteVirtualKeyboardOptions = CoreOptions &
   VirtualKeyboardOptions & {
     /**
@@ -1070,9 +1074,7 @@ export type MathfieldOptions = LayoutOptions &
      * This could also be another kind of error, such as an invalid keybinding.
      *
      */
-    onError: ErrorListener<
-      ParserErrorCode | MathfieldErrorCode | MathJsonErrorCode
-    >;
+    onError: ErrorListener<ParserErrorCode | MathfieldErrorCode | string>;
   };
 
 /**
@@ -1126,3 +1128,150 @@ export declare function setKeyboardLayout(
  *
  */
 export declare function setKeyboardLayoutLocale(locale: string): void;
+
+export type AutoRenderOptions = {
+  /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.
+   *
+   * It is empty by default.
+   *
+   * The namespace should be a string of lowercase letters.
+   */
+  namespace?: string;
+
+  /**
+   * A URL fragment pointing to the directory containing the fonts
+   * necessary to render a formula.
+   *
+   * These fonts are available in the `/dist/fonts` directory of the SDK.
+   *
+   * Customize this value to reflect where you have copied these fonts,
+   * or to use the CDN version.
+   *
+   * The default value is './fonts'.
+   *
+   * Changing this setting after the mathfield has been created will have
+   * no effect.
+   *
+   * ```javascript
+   * {
+   *      // Use the CDN version
+   *      fontsDirectory: ''
+   * }
+   * ```
+   * ```javascript
+   * {
+   *      // Use a directory called 'fonts', located next to the
+   *      // `mathlive.js` (or `mathlive.mjs`) file.
+   *      fontsDirectory: './fonts'
+   * }
+   * ```
+   * ```javascript
+   * {
+   *      // Use a directory located at the top your website
+   *      fontsDirectory: 'https://example.com/fonts'
+   * }
+   * ```
+   *
+   */
+  fontsDirectory?: string;
+
+  /**
+   * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+   *
+   * This optional function will be called whenever the DOM is modified
+   * by injecting a string of HTML, allowing that string to be sanitized
+   * according to a policy defined by the host.
+   */
+  createHTML?: (html: string) => string; // or TrustedHTML. See https://github.com/microsoft/TypeScript/issues/30024
+
+  /** Custom LaTeX macros */
+  macros?: MacroDictionary;
+
+  /** LaTeX global register overrides */
+  registers?: Registers;
+
+  /** An array of tag names whose content will
+   *  not be scanned for delimiters (unless their class matches the `processClass`
+   * pattern below.
+   *
+   * **Default:** `['math-field', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
+   */
+  skipTags?: string[];
+
+  /**
+   * A string used as a regular expression of class names of elements whose content will not be
+   * scanned for delimiter
+   *
+   * **Default**: `'tex2jax_ignore'`
+   */
+  ignoreClass?: string;
+
+  /**
+   * A string used as a
+   * regular expression of class names of elements whose content **will** be
+   * scanned for delimiters,  even if their tag name or parent class name would
+   * have prevented them from doing so.
+   *
+   * **Default**: `'tex2jax_process'`
+   *
+   * */
+  processClass?: string;
+
+  /**
+   * `<script>` tags of the
+   * indicated type will be processed while others will be ignored.
+   *
+   * **Default**: `'math/tex'`
+   */
+  processScriptType?: string;
+
+  /** The format(s) in
+   * which to render the math for screen readers:
+   * - `'mathml'` MathML
+   * - `'speakable-text'` Spoken representation
+   *
+   * You can pass an empty string to turn off the rendering of accessible content.
+   * You can pass multiple values separated by spaces, e.g `'mathml speakable-text'`
+   *
+   * **Default**: `'mathml'`
+   */
+  renderAccessibleContent?: string;
+
+  /**
+   * If true, generate markup that can
+   * be read aloud later using {@linkcode speak}
+   *
+   * **Default**: `false`
+   */
+  readAloud?: boolean;
+
+  asciiMath?: {
+    delimiters?: {
+      display?: [openDelim: string, closeDelim: string][];
+      inline?: [openDelim: string, closeDelim: string][];
+    };
+  };
+
+  TeX?: {
+    /**
+     * If true, math expression that start with `\begin{` will automatically be
+     * rendered.
+     *
+     * **Default**: true.
+     */
+
+    processEnvironments?: boolean;
+
+    /**
+     * Delimiter pairs that will trigger a render of the content in
+     * display style or inline, respectively.
+     *
+     * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ] ], inline: [ ['\\(','\\)'] ] ]}`
+     *
+     */
+    delimiters?: {
+      display: [openDelim: string, closeDelim: string][];
+      inline: [openDelim: string, closeDelim: string][];
+    };
+  };
+};

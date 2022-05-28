@@ -1,7 +1,6 @@
 import { Selector } from './commands';
-import { MathfieldOptions } from './options';
+import { CombinedVirtualKeyboardOptions, MathfieldOptions } from './options';
 import { ParseMode, MacroDictionary, Style, Registers } from './core';
-import { CombinedVirtualKeyboardOptions } from '../editor/virtual-keyboard-utils.js';
 
 /**
  *

@@ -15,11 +15,12 @@ import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
 // @ts-ignore-error
 import CORE_STYLESHEET from '../../css/core.less';
 import {
-  CoreOptions,
+  CombinedVirtualKeyboardOptions,
   VirtualKeyboardDefinition,
   VirtualKeyboardKeycap,
   VirtualKeyboardLayer,
   VirtualKeyboardOptions,
+  VirtualKeyboardTheme,
 } from '../public/options';
 import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
 import { getActiveKeyboardLayout } from './keyboard-layout';
@@ -188,10 +189,6 @@ export function hideAlternateKeys(): boolean {
 
   return false;
 }
-
-export type VirtualKeyboardTheme = 'apple' | 'material' | '';
-export type CombinedVirtualKeyboardOptions = VirtualKeyboardOptions &
-  CoreOptions;
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: CombinedVirtualKeyboardOptions;

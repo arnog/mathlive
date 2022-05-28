@@ -34,8 +34,6 @@ export * from './options';
 export * from './mathfield';
 export * from './mathfield-element';
 
-export * from '../mathlive';
-
 /**
  * Initialize remote client for mathfield elements rendered in child frames.
  * This client instance control focus between multiple frames and mathfield elements and

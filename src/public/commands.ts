@@ -7,7 +7,7 @@ import type {
   Model,
   VirtualKeyboardInterface,
 } from './mathfield';
-import { VirtualKeyboardTheme } from '../editor/virtual-keyboard-utils';
+import { VirtualKeyboardTheme } from './options';
 
 /**
  * How much of the formula should be spoken:

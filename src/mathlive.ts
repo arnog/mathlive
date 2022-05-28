@@ -1,5 +1,6 @@
 /* eslint-disable no-new */
 import type {
+  AutoRenderOptions,
   RemoteVirtualKeyboardOptions,
   TextToSpeechOptions,
 } from './public/options';
@@ -18,7 +19,6 @@ import { getMacros } from './core-definitions/definitions';
 import {
   AutoRenderOptionsPrivate,
   autoRenderMathInElement,
-  AutoRenderOptions,
 } from './addons/auto-render';
 import MathLiveDebug, {
   asciiMathToLatex,
