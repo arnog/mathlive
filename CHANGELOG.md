@@ -1,3 +1,19 @@
+## [Unreleased]
+
+### Improvements
+
+- Preferably use serialized atoms for clipboard copy/paste operations. This
+  internal format captures more of the editing state than the LaTeX
+  representation.
+- Change the default textual output to clipboard to use `$$` as a format
+  indicator.
+
+### Bug Fixes
+
+- **#1467** Improvements to the Typescript public declarations
+- **#1475** Copying a formula containing a matrix could render the mathfield
+  unresponsive
+
 ## 0.73.6 (2022-05-28)
 
 ### Bug Fixes
@@ -7,7 +23,6 @@
 - While in LaTeX mode, doing a Select All (cmd+A) with a partial command
   followed by an auto-complete suggestion would render the mathfield
   unresponsive
-- **#1467** Improvements to the Typescript public declarations
 
 ## 0.73.4 (2022-05-27)
 

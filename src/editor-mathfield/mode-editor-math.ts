@@ -1,34 +1,37 @@
 /* eslint-disable no-new */
-import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
+
 import { MathfieldPrivate } from './mathfield-private';
 
-import { requestUpdate } from './render';
-import { range } from '../editor-model/selection-utils';
-import { ModeEditor } from './mode-editor';
-import { ModelPrivate } from '../editor-model/model-private';
-
-import { Atom } from '../core/atom-class';
-import { ArrayAtom } from '../core-atoms/array';
-
-import {
-  parseMathString,
-  trimModeShiftCommand,
-} from '../editor/parse-math-string';
-
+import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import type { Style } from '../public/core';
-import { LeftRightAtom } from '../core-atoms/leftright';
-import { RIGHT_DELIM, LEFT_DELIM } from '../core/delimiters';
+import MathfieldElement from '../public/mathfield-element';
+
+import { requestUpdate } from './render';
+
+import { range } from '../editor-model/selection-utils';
+import { ModelPrivate } from '../editor-model/model-private';
+import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import {
   contentDidChange,
   selectionDidChange,
   placeholderDidChange,
 } from '../editor-model/listeners';
-import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
+import {
+  parseMathString,
+  trimModeShiftCommand,
+} from '../editor/parse-math-string';
+
+import { ModeEditor } from './mode-editor';
+
+import { RIGHT_DELIM, LEFT_DELIM } from '../core/delimiters';
 import { parseLatex } from '../core/parser';
+import { fromJson } from '../core/atom';
+import { Atom } from '../core/atom-class';
+import { ArrayAtom } from '../core-atoms/array';
+import { LeftRightAtom } from '../core-atoms/leftright';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
-import MathfieldElement from '../public/mathfield-element';
+
 import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
-import { fromJson } from 'core/atom';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
