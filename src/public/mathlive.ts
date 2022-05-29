@@ -18,7 +18,6 @@
  *
  */
 
-import { AutoRenderOptions } from '../mathlive';
 import {
   MacroDictionary,
   Registers,
@@ -26,7 +25,11 @@ import {
   ParserErrorCode,
   MathfieldErrorCode,
 } from './core';
-import { RemoteVirtualKeyboardOptions, TextToSpeechOptions } from './options';
+import {
+  RemoteVirtualKeyboardOptions,
+  TextToSpeechOptions,
+  AutoRenderOptions,
+} from './options';
 
 export * from './commands';
 export * from './core';
