@@ -79,7 +79,7 @@ export class GenfracAtom extends Atom {
     if (this.denomPrefix) options.denomPrefix = this.denomPrefix;
     if (this.leftDelim) options.leftDelim = this.leftDelim;
     if (this.rightDelim) options.rightDelim = this.rightDelim;
-    if (this.hasBarLine) options.hasBarLine = true;
+    if (!this.hasBarLine) options.hasBarLine = false;
     if (this.mathstyleName) options.mathstyleName = this.mathstyleName;
     return { ...super.toJson(), ...options };
   }

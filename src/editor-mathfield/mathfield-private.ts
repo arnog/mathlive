@@ -91,6 +91,7 @@ import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import MathfieldElement from '../public/mathfield-element';
 import { ComputeEngine } from '@cortex-js/compute-engine';
+// import { ComputeEngine } from '@cortex-js/compute-engine/dist/compute-engine.esm.js';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;

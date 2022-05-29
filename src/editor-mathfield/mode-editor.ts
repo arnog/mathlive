@@ -6,8 +6,8 @@ import { ParseMode } from '../public/core';
 import { InsertOptions, Range } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
 
-const CLIPBOARD_LATEX_BEGIN = '\\begin{equation*}';
-const CLIPBOARD_LATEX_END = '\\end{equation*}';
+const CLIPBOARD_LATEX_BEGIN = '$$';
+const CLIPBOARD_LATEX_END = '$$';
 
 export const defaultExportHook = (
   _from: MathfieldPrivate,
@@ -46,7 +46,7 @@ export class ModeEditor {
       ? [0, model.lastOffset]
       : range(model.selection);
 
-    const atoms = model.getAtoms(exportRange);
+    let atoms = model.getAtoms(exportRange);
     if (atoms.every((x) => x.mode === 'text' || !x.mode)) {
       // If the entire selection is in text mode, put the selection as plain
       // text on the clipboard
@@ -69,7 +69,7 @@ export class ModeEditor {
       );
     } else {
       //
-      // 1. Put text flavor on the clipboard
+      // 1. Get LaTeX of selection
       //
       let latex = '';
       if (atoms.length === 1 && atoms[0].verbatimLatex !== undefined)
@@ -93,9 +93,22 @@ export class ModeEditor {
       );
 
       //
-      // 3. Put other flavors on the clipboard
+      // 4. Put serialized atoms on clipboard
       //
-      {
+      if (
+        (atoms.length === 1 && atoms[0].type === 'root') ||
+        atoms[0].type === 'group'
+      )
+        atoms = atoms[0].body!.filter((x) => x.type !== 'first');
+      ev.clipboardData.setData(
+        'application/json+mathlive',
+        JSON.stringify(atoms.map((x) => x.toJson()))
+      );
+
+      //
+      // 5. Put other flavors on the clipboard (MathJSON, MathML)
+      //
+      try {
         const ce = mathfield.computeEngine;
         ce.jsonSerializationOptions = {
           metadata: ['latex'],
@@ -104,7 +117,7 @@ export class ModeEditor {
 
         const mathJson = JSON.stringify(expr.json);
         if (mathJson) ev.clipboardData.setData('application/json', mathJson);
-      }
+      } catch {}
 
       const mathMl = model.getValue(exportRange, 'math-ml');
       if (mathMl) ev.clipboardData.setData('application/mathml+xml', mathMl);

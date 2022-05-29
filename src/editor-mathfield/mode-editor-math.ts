@@ -28,6 +28,7 @@ import { parseLatex } from '../core/parser';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import MathfieldElement from '../public/mathfield-element';
 import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
+import { fromJson } from 'core/atom';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -38,6 +39,29 @@ export class MathModeEditor extends ModeEditor {
     if (!ev.clipboardData) return false;
     let text = '';
     let format: 'auto' | OutputFormat = 'auto';
+
+    // Try to get serialized atoms
+    try {
+      const atomJson = JSON.parse(
+        ev.clipboardData.getData('application/json+mathlive')
+      );
+      if (atomJson && Array.isArray(atomJson)) {
+        const atoms = fromJson(atomJson);
+        const { model } = mathfield;
+        if (!model.selectionIsCollapsed)
+          model.deleteAtoms(range(model.selection));
+        const cursor = model.at(model.position);
+        cursor.parent!.addChildrenAfter(atoms, cursor);
+        model.position = model.offsetOf(atoms[atoms.length - 1]);
+
+        contentDidChange(model);
+        requestUpdate(mathfield);
+
+        ev.preventDefault();
+        ev.stopPropagation();
+        return true;
+      }
+    } catch {}
 
     // Try to get a MathJSON data type
     const json = ev.clipboardData.getData('application/json');
@@ -365,7 +389,7 @@ function convertStringToAtoms(
   if (typeof s !== 'string' || options.format === 'math-json') {
     [format, s] = [
       'latex',
-      model.mathfield.computeEngine.box(s as Expression).latex,
+      model.mathfield.computeEngine.box(s as Expression).latex as string,
     ];
     result = parseLatex(s, {
       parseMode: 'math',

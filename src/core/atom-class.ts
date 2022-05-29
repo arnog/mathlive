@@ -247,6 +247,7 @@ export class Atom {
   ) {
     this.type = type;
     this.command = options?.command ?? '';
+    if (!this.command && options?.value) this.command = options.value;
     this.mode = options?.mode ?? 'math';
     if (typeof options?.value === 'string') this.value = options.value;
     this.isFunction = options?.isFunction ?? false;
@@ -399,7 +400,8 @@ export class Atom {
     const result: AtomJson = { type: this.type };
 
     if (this.mode !== 'math') result.mode = this.mode;
-    if (this.command) result.command = this.command;
+    if (this.command && this.command !== this.value)
+      result.command = this.command;
     if (this.value !== undefined) result.value = this.value;
     if (this.style && Object.keys(this.style).length > 0)
       result.style = { ...this.style };
