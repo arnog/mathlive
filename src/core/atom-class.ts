@@ -247,10 +247,10 @@ export class Atom {
     this.subsupPlacement = options?.limits;
     this.style = options?.style ?? {};
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
-    // if (options?.serialize) {
-    //   console.assert(typeof options.command === 'string');
-    //   Atom.customSerializer[options.command!] = options.serialize;
-    // }
+    if (options?.serialize) {
+      console.assert(typeof options.command === 'string');
+      Atom.customSerializer[options.command!] = options.serialize;
+    }
   }
 
   private static customSerializer: {
