@@ -18,6 +18,7 @@ import {
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { isOffset, isRange, isSelection } from '../editor/model';
 import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
+// import { ComputeEngine } from '@cortex-js/compute-engine';
 
 //
 // Custom Events
@@ -709,6 +710,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   set mode(value: ParseMode) {
     if (!this._mathfield) return;
     this._mathfield.mode = value;
+  }
+
+  get computeEngine(): any {
+    if (!this._mathfield) return undefined;
+    return this._mathfield.computeEngine;
+  }
+
+  get expression(): any {
+    if (!this._mathfield) return undefined;
+    return this._mathfield.expression;
   }
 
   /**

@@ -90,8 +90,7 @@ import { hashCode } from '../common/hash-code';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import MathfieldElement from '../public/mathfield-element';
-import { ComputeEngine } from '@cortex-js/compute-engine';
-// import { ComputeEngine } from '@cortex-js/compute-engine/dist/compute-engine.esm.js';
+import { BoxedExpression, ComputeEngine } from '@cortex-js/compute-engine';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -899,6 +898,11 @@ export class MathfieldPrivate implements Mathfield {
       this.undoManager.snapshot(this.options);
       requestUpdate(this);
     }
+  }
+
+  get expression(): BoxedExpression {
+    const ce = this.computeEngine;
+    return ce.box(ce.parse(this.getValue()));
   }
 
   getPlaceholderField(placeholderId: string): MathfieldElement | undefined {

@@ -22,15 +22,17 @@
         background-color: #fff;
       }
 
-      #output {
+      #value,
+      #result {
         padding: 5px;
         border-radius: 5px;
         border: 1px solid #000;
 
-        color: #ddd;
+        color: rgb(241, 188, 91);
         background: #35434e;
 
         font-family: monospace;
+        margin-bottom: 1em;
       }
     </style>
   </head>
@@ -39,14 +41,21 @@
     <main>
       <h2>MathLive Basic Example</h2>
       <math-field id="mf" virtual-keyboard-mode="manual">f(x)=</math-field>
-      <div id="output"></div>
+      <div id="value"></div>
+      <div id="result"></div>
     </main>
 
     <script type="module">
-      // import '/dist/mathlive.mjs';
-      import 'https://unpkg.com/mathlive?module';
+      // import { renderMathInElement } from '/dist/mathlive.mjs';
+      import { renderMathInElement } from 'https://unpkg.com/mathlive?module';
       document.getElementById('mf').addEventListener('input', (ev) => {
-        document.getElementById('output').innerHTML = ev.target.getValue();
+        const mf = ev.target;
+        document.getElementById('value').innerHTML = mf.getValue();
+        document.getElementById('result').innerText = `$$${
+          mf.expression.evaluate().latex
+        }$$`;
+
+        renderMathInElement('result');
       });
     </script>
   </body>
