@@ -88,7 +88,6 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (json.verbatimLatex !== undefined)
     result.verbatimLatex = json.verbatimLatex;
 
-  if (json.isExtensibleSymbol) result.isExtensibleSymbol = true;
   if (json.subsupPlacement) result.subsupPlacement = json.subsupPlacement;
   if (json.explicitSubsupPlacement) result.explicitSubsupPlacement = true;
 
@@ -96,8 +95,6 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (json.isExtensibleSymbol) result.isExtensibleSymbol = true;
   if (json.skipBoundary) result.skipBoundary = true;
   if (json.captureSelection) result.captureSelection = true;
-  if (json.pruneEmptyBranches) result.pruneEmptyBranches = true;
-  if (json.pruneEmptySelf) result.pruneEmptySelf = true;
 
   return result;
 }

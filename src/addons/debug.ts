@@ -7,7 +7,7 @@
 import { ParseMode } from '../public/core';
 import { parseLatex } from '../core/parser';
 import {
-  LEGACY_COMMANDS,
+  LATEX_COMMANDS,
   MATH_SYMBOLS,
   TEXT_SYMBOLS,
   ENVIRONMENTS,
@@ -35,7 +35,7 @@ export function asciiMathToLatex(ascii: string): string {
 const MathliveDebug = {
   latexToAsciiMath,
   asciiMathToLatex,
-  FUNCTIONS: LEGACY_COMMANDS,
+  FUNCTIONS: LATEX_COMMANDS,
   MATH_SYMBOLS,
   TEXT_SYMBOLS,
   ENVIRONMENTS,

@@ -1,4 +1,4 @@
-import type { ArgumentType, Parser } from '../core/parser';
+import type { ArgumentType } from '../core/parser';
 import type { Atom, AtomType, BBoxParameter } from '../core/atom-class';
 import type { ColumnFormat } from '../core-atoms/array';
 import type {
@@ -48,10 +48,6 @@ export type ParseResult =
   | {
       error: string;
     };
-
-export type CommandDefinition = {
-  parse: (parser: Parser) => ParseResult;
-};
 
 export type FunctionDefinition = {
   params: FunctionArgumentDefiniton[];
@@ -201,9 +197,7 @@ const REVERSE_MATH_SYMBOLS = {
     0x211D: '\\mathbb{R}',    // Also \doubleStruckCapitalR
     0x2124: '\\mathbb{Z}',    // Also \doubleStruckCapitalZ
 };
-export const LEGACY_COMMANDS: Record<string, FunctionDefinition> = {};
-
-export const COMMANDS: Record<string, CommandDefinition> = {};
+export const LATEX_COMMANDS: Record<string, FunctionDefinition> = {};
 
 export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 
@@ -860,11 +854,8 @@ export function getInfo(
 
   if (symbol.startsWith('\\')) {
     // This could be a function or a symbol
-    info = LEGACY_COMMANDS[symbol] ?? null;
-    if (info) {
-      // We've got a match
-      return info;
-    }
+    info = LATEX_COMMANDS[symbol];
+    if (info) return info;
 
     // It wasn't a function, maybe it's a symbol?
     if (parseMode === 'math') info = MATH_SYMBOLS[symbol];
@@ -923,10 +914,10 @@ export function suggest(mf: MathfieldPrivate, s: string): string[] {
   const result: { match: string; frequency: number }[] = [];
 
   // Iterate over items in the dictionary
-  for (const p in LEGACY_COMMANDS) {
+  for (const p in LATEX_COMMANDS) {
     // Don't recommend infix commands
-    if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix)
-      result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency ?? 0 });
+    if (p.startsWith(s) && !LATEX_COMMANDS[p].infix)
+      result.push({ match: p, frequency: LATEX_COMMANDS[p].frequency ?? 0 });
   }
 
   for (const p in MATH_SYMBOLS) {
@@ -1064,27 +1055,10 @@ export function defineTabularEnvironment(
 }
 
 /**
- * Define one of more commands.
- *
- * The name of the commands should not include the leading `\`
- */
-
-export function newCommand(
-  name: string | string[],
-  parse: (parser: Parser) => ParseResult
-): void {
-  if (typeof name === 'string') {
-    COMMANDS[name] = { parse };
-    return;
-  }
-  for (const x of name) COMMANDS[x] = { parse };
-}
-
-/**
  * Define one of more functions.
  *
  * @param names
- * @param params The number and type of required and optional parameters.
+ * @param parameters The number and type of required and optional parameters.
  * For example: '{}' defines a single mandatory parameter
  * '[string]{auto}' defines two params, one optional, one required
  */
@@ -1125,8 +1099,8 @@ export function defineFunction(
     createAtom: options.createAtom,
     applyStyle: options.applyStyle,
   };
-  if (typeof names === 'string') LEGACY_COMMANDS['\\' + names] = data;
-  else for (const name of names) LEGACY_COMMANDS['\\' + name] = data;
+  if (typeof names === 'string') LATEX_COMMANDS['\\' + names] = data;
+  else for (const name of names) LATEX_COMMANDS['\\' + name] = data;
 }
 
 let _DEFAULT_MACROS: NormalizedMacroDictionary;

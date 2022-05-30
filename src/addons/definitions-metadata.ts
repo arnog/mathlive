@@ -1,5 +1,5 @@
 /// ^.*('\\.*').*
-import { LEGACY_COMMANDS, MATH_SYMBOLS } from '../core-definitions/definitions';
+import { LATEX_COMMANDS, MATH_SYMBOLS } from '../core-definitions/definitions';
 
 // Frequency of a symbol.
 // String constants corresponding to frequency values,
@@ -33,11 +33,11 @@ function metadata(
       MATH_SYMBOLS[symbol].template = template.replace(/\$0/g, symbol);
     }
 
-    if (LEGACY_COMMANDS[symbol]) {
+    if (LATEX_COMMANDS[symbol]) {
       // Make a copy of the entry, since it could be shared by multiple
       // symbols
-      LEGACY_COMMANDS[symbol] = {
-        ...LEGACY_COMMANDS[symbol],
+      LATEX_COMMANDS[symbol] = {
+        ...LATEX_COMMANDS[symbol],
         frequency,
         category,
         template: template.replace(/\$0/g, symbol),

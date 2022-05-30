@@ -157,14 +157,6 @@ export class Atom {
   style: PrivateStyle;
   mode: ParseMode;
 
-  // If true, the atom represents a function (which can be followed by parentheses)
-  // e.g. "f" or "\sin"
-  isFunction: boolean;
-
-  // If true, the atom is an operator such as `\int` or `\sum`
-  // (affects layout of supsub)
-  isExtensibleSymbol: boolean;
-
   // If true, some structural changes have been made to the atom
   // (insertion or removal of children) or one of its children is dirty
   /** @internal */
@@ -195,6 +187,14 @@ export class Atom {
   // Necessary so the proper LaTeX can be output.
   explicitSubsupPlacement = false;
 
+  // If true, the atom represents a function (which can be followed by parentheses)
+  // e.g. "f" or "\sin"
+  isFunction: boolean;
+
+  // If true, the atom is an operator such as `\int` or `\sum`
+  // (affects layout of supsub)
+  isExtensibleSymbol: boolean;
+
   // If true, when the caret reaches the first position in this element's body,
   // (moving right to left) it automatically moves to the outside of the
   // element.
@@ -210,13 +210,6 @@ export class Atom {
   // If true, this atom should be highlited when it contains the caret
   displayContainsHighlight: boolean;
 
-  // If true, when a branch becomes empty, it is removed
-  pruneEmptyBranches = false;
-
-  // If true, if after an edit operation the atom branches are empty, remove
-  // the atom.
-  pruneEmptySelf = false;
-
   // The kern to the right of this atom
   // kern?: Glue;
 
@@ -224,11 +217,11 @@ export class Atom {
   // The following properties are reset and updated through each rendering loop.
   //
 
-  // True if the item currently part of the selection
+  // True if the item is currently part of the selection
   isSelected: boolean;
 
   // If the atom or one of its descendant includes the caret
-  // (used to highligth surd or fences to make clearer where the caret is
+  // (used to highligth surd or fences to make clearer where the caret is)
   containsCaret: boolean;
   caret: ParseMode | '';
 
@@ -254,10 +247,10 @@ export class Atom {
     this.subsupPlacement = options?.limits;
     this.style = options?.style ?? {};
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
-    if (options?.serialize) {
-      console.assert(typeof options.command === 'string');
-      Atom.customSerializer[options.command!] = options.serialize;
-    }
+    // if (options?.serialize) {
+    //   console.assert(typeof options.command === 'string');
+    //   Atom.customSerializer[options.command!] = options.serialize;
+    // }
   }
 
   private static customSerializer: {
@@ -417,8 +410,6 @@ export class Atom {
     if (this.isExtensibleSymbol) result.isExtensibleSymbol = true;
     if (this.skipBoundary) result.skipBoundary = true;
     if (this.captureSelection) result.captureSelection = true;
-    if (this.pruneEmptyBranches) result.pruneEmptyBranches = true;
-    if (this.pruneEmptySelf) result.pruneEmptySelf = true;
 
     if (this._branches) {
       for (const branch of Object.keys(this._branches)) {
