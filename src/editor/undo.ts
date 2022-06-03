@@ -3,6 +3,7 @@ import { UndoStateChangeListener } from '../public/options';
 import type { ModelPrivate } from '../editor-model/model-private';
 import { AtomJson } from '../core/atom-class';
 import { fromJson } from '../core/atom';
+import { contentDidChange } from "../editor-model/listeners";
 
 export type UndoRecord = {
   content: AtomJson;
@@ -150,6 +151,8 @@ export class UndoManager {
     // Restore the content and selection
     this.model.root = fromJson(state.content);
     this.model.selection = state.selection;
+
+    contentDidChange(this.model);
 
     this.model.suppressChangeNotifications = wasSuppressing;
   }
