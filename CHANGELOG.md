@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **_#1477_** Undo/redo did not generate an `input` event
+
 ## 0.73.7 (2022-05-29)
 
 ### Improvements
