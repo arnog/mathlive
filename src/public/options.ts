@@ -611,28 +611,30 @@ export interface MathfieldHooks {
 
 export type VirtualKeyboardTheme = 'apple' | 'material' | '';
 
-export type CombinedVirtualKeyboardOptions = VirtualKeyboardOptions &
+export type CombinedVirtualKeyboardOptions = Omit<
+  VirtualKeyboardOptions,
+  'virtualKeyboardToggleGlyph' | 'virtualKeyboardMode'
+> &
   CoreOptions;
 
-export type RemoteVirtualKeyboardOptions = CoreOptions &
-  VirtualKeyboardOptions & {
-    /**
-     * Specify the `targetOrigin` parameter for [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
-     * to send control messages from parent to child frame to remote control of
-     * mathfield component.
-     *
-     * **Default**: `window.origin`
-     */
-    targetOrigin: string;
+export type RemoteVirtualKeyboardOptions = CombinedVirtualKeyboardOptions & {
+  /**
+   * Specify the `targetOrigin` parameter for [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+   * to send control messages from parent to child frame to remote control of
+   * mathfield component.
+   *
+   * **Default**: `window.origin`
+   */
+  targetOrigin: string;
 
-    /**
-     * Specify behaviour how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
-     * should be validated.
-     *
-     * **Default**: `'same-origin'`
-     */
-    originValidator: OriginValidator;
-  };
+  /**
+   * Specify behaviour how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+   * should be validated.
+   *
+   * **Default**: `'same-origin'`
+   */
+  originValidator: OriginValidator;
+};
 
 export type UndoStateChangeListener = (
   target: Mathfield,

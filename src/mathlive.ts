@@ -44,9 +44,13 @@ export * from './addons/auto-render';
 import { version as computeEngineVersion } from '@cortex-js/compute-engine';
 
 export function makeSharedVirtualKeyboard(
-  options: Partial<RemoteVirtualKeyboardOptions>
-): void {
-  new RemoteVirtualKeyboard(options);
+  options?: Partial<RemoteVirtualKeyboardOptions>
+): RemoteVirtualKeyboard {
+  if (!window.mathlive?.sharedVirtualKeyboard) {
+    if (!window.mathlive) window.mathlive = {};
+    window.mathlive.sharedVirtualKeyboard = new RemoteVirtualKeyboard(options);
+  }
+  return window.mathlive?.sharedVirtualKeyboard;
 }
 
 export function convertLatexToMarkup(

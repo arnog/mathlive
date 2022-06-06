@@ -1,8 +1,33 @@
 ## [Unreleased]
 
+### Improvements
+
+- Improved API/workflow to control the behavior of the virtual keyboard when
+  multiple mathfields are displayed in the page.
+
+  In order to get a coordinated behavior between the mathfields, it is now only
+  necessary to call `makeSharedVirtualKeyboard()`.
+
+  The `use-shared-virtual-keyboard` attribute is now only necessary when using a
+  mathfield in an iframe.
+
+  If the `virtual-keyboard-mode` attribute of ma athfield is set to `auto` or
+  `onfocus`, the virtual keyboard will activate and hide automatically. It is no
+  longer necessary to set the mode to `off` and to listen for focus change event
+  to show/hide the keyboard manually.
+
+  If the virtual keyboard is visible and the focus changes between two
+  mathfields, the virtual keyboard will stay visible (it will not hide with an
+  animation, then get revealed again).
+
+  If changing focus between two mathfields with identical keyboard
+  configurations the keyboard will not blink (previously the keyboard would get
+  destructed and reconstructed, even if its configuration was identical between
+  two mathfields).
+
 ### Bug Fixes
 
-- **_#1477_** Undo/redo did not generate an `input` event
+- **#1477** Undo/redo did not generate an `input` event
 
 ## 0.73.7 (2022-05-29)
 
@@ -654,7 +679,7 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 - An `input` event would incorrectly bubble out of the mathfield, even in
   read-only mode.
 - When calling `getOption()`, or when examining a property on
-  `MathFieldElement`, return the actual value, rather than an object literal
+  `MathfieldElement`, return the actual value, rather than an object literal
   that contains the value.
 - If the mathlive module was loaded before the `<math-field>` element was parsed
   in the document, the attributes of the mathfield would be ignored.

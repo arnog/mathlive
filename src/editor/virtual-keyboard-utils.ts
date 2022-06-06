@@ -19,7 +19,6 @@ import {
   VirtualKeyboardDefinition,
   VirtualKeyboardKeycap,
   VirtualKeyboardLayer,
-  VirtualKeyboardOptions,
   VirtualKeyboardTheme,
 } from '../public/options';
 import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
@@ -1303,7 +1302,7 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
  * Return a markup string for the keyboard toolbar for the specified layer.
  */
 function makeKeyboardToolbar(
-  options: VirtualKeyboardOptions,
+  options: CombinedVirtualKeyboardOptions,
   keyboardIDs: string,
   currentKeyboard: string
 ): string {
@@ -1510,7 +1509,7 @@ export function makeKeycap(
  * Expand the shortcut tags (e.g. <row>) inside a layer.
  */
 function expandLayerMarkup(
-  options: VirtualKeyboardOptions,
+  options: CombinedVirtualKeyboardOptions,
   layer: string
 ): string {
   const ROWS = {

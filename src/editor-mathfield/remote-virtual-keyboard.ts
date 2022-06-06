@@ -1,6 +1,6 @@
+import MathfieldElement from 'public/mathfield-element';
 import { osPlatform } from '../common/capabilities';
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
-import { DEFAULT_KEYBOARD_TOGGLE_GLYPH } from '../editor/options';
 import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { Selector } from '../public/commands';
 import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
@@ -11,10 +11,10 @@ import {
 } from '../public/options';
 import { validateOrigin } from './utils';
 
-const POST_MESSAGE_TYPE = 'ml#systemPostMessage';
+const POST_MESSAGE_TYPE = 'mathlive#remote-virtual-keyboard-message';
 
 interface RemoteKeyboardMessageData {
-  type: 'ml#systemPostMessage';
+  type: 'mathlive#remote-virtual-keyboard-message';
   action: 'executeCommand' | 'focus' | 'blur' | 'updateState' | 'setOptions';
   state?: {
     visible: boolean;
@@ -28,7 +28,6 @@ interface RemoteKeyboardMessageData {
  * Must be used on frame with mathfield editor
  */
 export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
-  visible: boolean;
   height: number;
 
   private readonly targetOrigin: string;
@@ -52,8 +51,18 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     this._mathfield = options.mathfield;
   }
 
+  get visible(): boolean {
+    return window.mathlive?.sharedVirtualKeyboard?.visible ?? false;
+  }
+
+  set visible(value: boolean) {
+    window.mathlive.sharedVirtualKeyboard.visible = value;
+  }
+
   setOptions(options: CombinedVirtualKeyboardOptions): void {
-    this.sendMessage('setOptions', { options: JSON.stringify(options) });
+    this.sendMessage('setOptions', {
+      options: JSON.stringify(getValidOptions(options)),
+    });
   }
 
   public create(): void {}
@@ -154,13 +163,48 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
   private readonly canUndoState: boolean;
   private readonly canRedoState: boolean;
 
-  constructor(options: Partial<RemoteVirtualKeyboardOptions>) {
-    super({
+  constructor(options?: Partial<RemoteVirtualKeyboardOptions>) {
+    const validOptions = {
       ...RemoteVirtualKeyboard.defaultOptions,
-      ...(options ?? {}),
-    });
+      ...getValidOptions(options),
+    };
+    if (options?.createHTML) validOptions.createHTML = options.createHTML;
+    if (options?.virtualKeyboardContainer)
+      validOptions.virtualKeyboardContainer = options.virtualKeyboardContainer;
+
+    super(validOptions);
 
     window.addEventListener('message', this);
+
+    document.body.addEventListener('focusin', (event: FocusEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        target?.isConnected &&
+        target.tagName?.toLowerCase() === 'math-field'
+      ) {
+        const mf = target as MathfieldElement;
+        if (
+          mf.virtualKeyboardMode === 'onfocus' &&
+          mf.virtualKeyboardState === 'hidden'
+        )
+          mf.virtualKeyboardState = 'visible';
+      }
+    });
+
+    document.addEventListener('focusout', (event: FocusEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        target?.isConnected &&
+        target.tagName?.toLowerCase() === 'math-field'
+      ) {
+        setTimeout(() => {
+          if (document.activeElement?.tagName?.toLowerCase() !== 'math-field') {
+            const mf = document.querySelector('math-field') as MathfieldElement;
+            if (mf) mf.virtualKeyboardState = 'hidden';
+          }
+        }, 300);
+      }
+    });
   }
 
   static get defaultOptions(): RemoteVirtualKeyboardOptions {
@@ -182,9 +226,6 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
       keypressSound: null,
       plonkSound: null,
       virtualKeyboardToolbar: 'default',
-
-      virtualKeyboardToggleGlyph: DEFAULT_KEYBOARD_TOGGLE_GLYPH,
-      virtualKeyboardMode: 'auto',
 
       virtualKeyboardContainer: globalThis.document?.body ?? null,
     };
@@ -214,16 +255,19 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
 
         this.executeCommand(command!);
       } else if (action === 'setOptions') {
-        const parsedOptions = JSON.parse(
-          event.data.options!
-        ) as CombinedVirtualKeyboardOptions;
+        const currentOptions = JSON.stringify(getValidOptions(this.options));
+        if (currentOptions !== event.data.options) {
+          const parsedOptions = getValidOptions(
+            JSON.parse(event.data.options!)
+          ) as CombinedVirtualKeyboardOptions;
 
-        // We can't pass functions through and nor do we want to allow the
-        // caller to change the keyboard container
-        parsedOptions.createHTML = this.options.createHTML;
-        parsedOptions.virtualKeyboardContainer =
-          this.options.virtualKeyboardContainer;
-        this.setOptions(parsedOptions);
+          // We can't pass functions through and nor do we want to allow the
+          // caller to change the keyboard container
+          parsedOptions.createHTML = this.options.createHTML;
+          parsedOptions.virtualKeyboardContainer =
+            this.options.virtualKeyboardContainer;
+          this.setOptions(parsedOptions);
+        }
       }
     }
   }
@@ -284,4 +328,39 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
       this.options.targetOrigin
     );
   }
+}
+
+function getValidOptions(options?: any): Partial<RemoteVirtualKeyboardOptions> {
+  if (typeof options !== 'object') return {};
+  const validOptions: Partial<RemoteVirtualKeyboardOptions> = {};
+  // Note: we explicitly exclude `virtualKeyboardContainer` and `createHhtml` (a function)
+  // as valid options
+  if (options.fontsDirectory)
+    validOptions.fontsDirectory = options.fontsDirectory;
+  if (options.soundsDirectory)
+    validOptions.soundsDirectory = options.soundsDirectory;
+  if (options.virtualKeyboards)
+    validOptions.virtualKeyboards = options.virtualKeyboards;
+  if (options.virtualKeyboardLayout)
+    validOptions.virtualKeyboardLayout = options.virtualKeyboardLayout;
+  if (options.customVirtualKeyboardLayers) {
+    validOptions.customVirtualKeyboardLayers =
+      options.customVirtualKeyboardLayers;
+  }
+  if (options.customVirtualKeyboards)
+    validOptions.customVirtualKeyboards = options.customVirtualKeyboards;
+  if (options.virtualKeyboardTheme)
+    validOptions.virtualKeyboardTheme = options.virtualKeyboardTheme;
+  if (options.keypressVibration)
+    validOptions.keypressVibration = options.keypressVibration;
+  if (options.keypressSound) validOptions.keypressSound = options.keypressSound;
+  if (options.plonkSound) validOptions.plonkSound = options.plonkSound;
+  if (options.virtualKeyboardToolbar)
+    validOptions.virtualKeyboardToolbar = options.virtualKeyboardToolbar;
+
+  if (options.targetOrigin) validOptions.targetOrigin = options.targetOrigin;
+  if (options.originValidator)
+    validOptions.originValidator = options.originValidator;
+
+  return validOptions;
 }

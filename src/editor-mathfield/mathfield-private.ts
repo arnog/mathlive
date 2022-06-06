@@ -123,7 +123,7 @@ export class MathfieldPrivate implements Mathfield {
   keystrokeCaptionVisible: boolean;
   keystrokeCaption?: HTMLElement;
 
-  virtualKeyboard?: VirtualKeyboardInterface;
+  _virtualKeyboard?: VirtualKeyboardInterface;
 
   _keybindings?: Keybinding[]; // Normalized keybindings (raw ones in config)
   keyboardLayout: KeyboardLayoutName;
@@ -220,20 +220,6 @@ export class MathfieldPrivate implements Mathfield {
       return result;
     };
 
-    // The virtual keyboard can be either attached to this mathfield
-    // or a delegate that mirrors a global virtual keyboard attached
-    // to the document. This is useful for example when using
-    // mathfield in iframes so that all the mathfields share the keyboard
-    // at the document level (rather than having one in each iframe)
-    if (!this.options.readOnly) {
-      this.virtualKeyboard = options.useSharedVirtualKeyboard
-        ? new VirtualKeyboardDelegate({
-            targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
-            originValidator: this.options.originValidator,
-            mathfield: this,
-          })
-        : new VirtualKeyboard(this.options, this);
-    }
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (!this.options.keypressSound) {
       this.keypressSound = null;
@@ -558,6 +544,32 @@ export class MathfieldPrivate implements Mathfield {
     if (isBrowser()) document.fonts.ready.then(() => render(this));
   }
 
+  get virtualKeyboard(): VirtualKeyboardInterface | undefined {
+    if (this.options.readOnly) return undefined;
+
+    // The virtual keyboard can be either attached to this mathfield
+    // or a delegate that mirrors a global virtual keyboard attached
+    // to the document. This is useful for example when using
+    // mathfield in iframes so that all the mathfields share the keyboard
+    // at the document level (rather than having one in each iframe)
+    // If there is a shared virtual keyboard attached to this document, use it
+    // even if `options.useSharedVirtualKeyboard` is false.
+
+    if (!this._virtualKeyboard) {
+      if (
+        window.mathlive?.sharedVirtualKeyboard ||
+        this.options.useSharedVirtualKeyboard
+      ) {
+        this._virtualKeyboard = new VirtualKeyboardDelegate({
+          targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
+          originValidator: this.options.originValidator,
+          mathfield: this,
+        });
+      } else this._virtualKeyboard = new VirtualKeyboard(this.options, this);
+    }
+    return this._virtualKeyboard;
+  }
+
   get computeEngine(): ComputeEngine {
     if (!this._computeEngine) {
       this._computeEngine = new ComputeEngine();
@@ -810,9 +822,9 @@ export class MathfieldPrivate implements Mathfield {
     delete this.keyboardDelegate;
     this.virtualKeyboardToggle!.remove();
     delete this.virtualKeyboardToggle;
-    if (this.virtualKeyboard) {
-      this.virtualKeyboard.dispose();
-      delete this.virtualKeyboard;
+    if (this._virtualKeyboard) {
+      this._virtualKeyboard.dispose();
+      delete this._virtualKeyboard;
     }
     disposePopover(this);
     disposeKeystrokeCaption(this);
@@ -1335,7 +1347,10 @@ export class MathfieldPrivate implements Mathfield {
     )
       this.options.onCommit(this);
 
-    if (/onfocus|manual/.test(this.options.virtualKeyboardMode))
+    if (
+      !window.mathlive?.sharedVirtualKeyboard &&
+      /onfocus|manual/.test(this.options.virtualKeyboardMode)
+    )
       this.executeCommand('hideVirtualKeyboard');
 
     this.virtualKeyboard?.disable();
