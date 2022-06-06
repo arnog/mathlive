@@ -1,14 +1,15 @@
-import MathfieldElement from 'public/mathfield-element';
-import { osPlatform } from '../common/capabilities';
-import { getCommandTarget, SelectorPrivate } from '../editor/commands';
-import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { Selector } from '../public/commands';
 import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
+import type { MathfieldElement } from '../public/mathfield-element';
 import {
   CombinedVirtualKeyboardOptions,
   OriginValidator,
   RemoteVirtualKeyboardOptions,
 } from '../public/options';
+
+import { osPlatform } from '../common/capabilities';
+import { getCommandTarget, SelectorPrivate } from '../editor/commands';
+import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { validateOrigin } from './utils';
 
 const POST_MESSAGE_TYPE = 'mathlive#remote-virtual-keyboard-message';
