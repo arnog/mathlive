@@ -106,7 +106,7 @@ export class ModeEditor {
       );
 
       //
-      // 5. Put other flavors on the clipboard (MathJSON, MathML)
+      // 5. Put other flavors on the clipboard (MathJSON)
       //
       try {
         const ce = mathfield.computeEngine;
@@ -118,9 +118,6 @@ export class ModeEditor {
         const mathJson = JSON.stringify(expr.json);
         if (mathJson) ev.clipboardData.setData('application/json', mathJson);
       } catch {}
-
-      const mathMl = model.getValue(exportRange, 'math-ml');
-      if (mathMl) ev.clipboardData.setData('application/mathml+xml', mathMl);
     }
     // Prevent the current document selection from being written to the clipboard.
     ev.preventDefault();
