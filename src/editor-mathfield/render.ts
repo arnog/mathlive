@@ -156,6 +156,7 @@ export function render(
         // Hint to screen readers to not attempt to read this <span>.
         // They should use instead the 'aria-label' attribute.
         'aria-hidden': 'true',
+        'inert': 'true',
       },
     }
   );

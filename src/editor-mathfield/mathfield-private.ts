@@ -274,7 +274,7 @@ export class MathfieldPrivate implements Mathfield {
     markup += isTouchCapable()
       ? `<span class='ML__textarea__textarea' tabindex="-1" role="textbox"></span>`
       : '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
-        `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${
+        `autocorrect="off" spellcheck="false" aria-hidden="true" inert tabindex="${
           element.tabIndex ?? 0
         }"></textarea>`;
     markup += '</span>';
@@ -924,6 +924,8 @@ export class MathfieldPrivate implements Mathfield {
     // If a render is pending, do it now to make sure we have correct layout
     // and caret position
     if (this.dirty) render(this);
+
+    this.field!.scrollIntoView();
 
     const fieldBounds = this.field!.getBoundingClientRect();
     let caretPoint: number | undefined = undefined;

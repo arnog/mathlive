@@ -40,9 +40,10 @@ export class Scrim {
 
     const element = document.createElement('div');
     element.setAttribute('role', 'presentation');
+    element.setAttribute('inert', 'true');
 
     element.style.position = 'fixed';
-    element.style['contain' as any] = 'content';
+    element.style.contain = 'content';
     element.style.top = '0';
     element.style.left = '0';
     element.style.right = '0';
