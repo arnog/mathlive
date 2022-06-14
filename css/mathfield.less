@@ -108,6 +108,7 @@
 
 .ML__virtual-keyboard-toggle {
   display: none;
+  box-sizing: border-box;
   & > span {
     display: flex;
     align-self: center;
@@ -126,7 +127,6 @@
     padding: 0;
     margin-right: 4px;
     cursor: pointer;
-    box-sizing: border-box;
     /* Avoid some weird blinking with :hover */
     border-radius: 8px;
     border: 1px solid transparent;
@@ -239,17 +239,6 @@ with this style */
   fill: currentColor;
 }
 
-/* Styling for an element which is overlaid
-to the left and right of the mathfield while
-scrolling to prevent the capture of hover events */
-.ML__scroller {
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  height: 100vh;
-  width: 200px;
-}
-
 /* Add an attribute 'data-ML__tooltip' to automatically show a
    tooltip over a element on hover.
    Use 'data-position="top"' to place the tooltip above the
@@ -263,25 +252,24 @@ scrolling to prevent the capture of hover events */
     bottom: 100%;
   }
   &::after {
+    content: attr(data-ML__tooltip);
     position: absolute;
     display: none;
-    content: attr(data-ML__tooltip);
+    z-index: 2;
 
-    top: 110%;
-    // left: -50%;
-    // height: 22px;
+    right: 110%;
     width: max-content;
     max-width: 200px;
     padding: 8px 8px;
+    border-radius: 2px;
+
     background: #616161; // Grey 700
     color: #fff;
-    text-align: center;
-    z-index: 2;
 
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12),
       0 3px 1px -2px rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
 
+    text-align: center;
     font-family: @system;
     font-weight: 400;
     font-size: 12px;
@@ -289,7 +277,7 @@ scrolling to prevent the capture of hover events */
     /* Phone */
     @media only screen and (max-width: 767px) {
       padding: 8px 16px;
-      font-size: 14px;
+      font-size: 16px;
     }
 
     opacity: 0;
