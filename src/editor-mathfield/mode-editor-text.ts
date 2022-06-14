@@ -22,7 +22,10 @@ export class TextModeEditor extends ModeEditor {
 
     if (text) {
       mathfield.snapshot();
-      if (this.insert(mathfield.model, text)) requestUpdate(mathfield);
+      if (this.insert(mathfield.model, text)) {
+        contentDidChange(mathfield.model);
+        requestUpdate(mathfield);
+      }
 
       ev.preventDefault();
       ev.stopPropagation();
