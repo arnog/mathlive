@@ -23,11 +23,15 @@ export class LatexModeEditor extends ModeEditor {
 
   onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
     if (!ev.clipboardData) return false;
-    const text = ev.clipboardData.getData('text/plain');
+    let text = ev.clipboardData.getData('text/x-latex');
+    if (!text) text = ev.clipboardData.getData('text/plain');
 
     if (text) {
       mathfield.snapshot();
-      if (this.insert(mathfield.model, text)) requestUpdate(mathfield);
+      if (this.insert(mathfield.model, text)) {
+        contentDidChange(mathfield.model);
+        requestUpdate(mathfield);
+      }
 
       ev.preventDefault();
       ev.stopPropagation();

@@ -213,13 +213,24 @@ function toggleVirtualKeyboard(
 
   keyboard.visible = !keyboard.visible;
   if (keyboard.visible) {
-    keyboard.focusMathfield();
     if (keyboard.element) keyboard.element.classList.add('is-visible');
     else keyboard.buildAndAttachElement(theme);
 
+    const padding =
+      keyboard.options.virtualKeyboardContainer.style.paddingBottom;
+    keyboard.originalContainerBottomPadding = padding;
+    if (padding)
+      keyboard.options.virtualKeyboardContainer.style.paddingBottom = `calc(${padding} + var(--keyboard-height, 276px))`;
+    else {
+      keyboard.options.virtualKeyboardContainer.style.paddingBottom =
+        'var(--keyboard-height, 276px)';
+    }
     // For the transition effect to work, the property has to be changed
     // after the insertion in the DOM. Use setTimeout
-    setTimeout(() => keyboard.element?.classList.add('is-visible'), 1);
+    setTimeout(() => {
+      keyboard.element?.classList.add('is-visible');
+      keyboard.focusMathfield();
+    }, 1);
   } else if (keyboard.element) {
     // Remove the element from the DOM
     keyboard.disable();
@@ -233,6 +244,9 @@ function toggleVirtualKeyboard(
 
     keyboard._element?.remove();
     keyboard._element = undefined;
+
+    keyboard.options.virtualKeyboardContainer.style.paddingBottom =
+      keyboard.originalContainerBottomPadding;
   }
 
   keyboard.stateChanged();

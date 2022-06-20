@@ -154,7 +154,7 @@ declare global {
 
 const MATHFIELD_TEMPLATE = document.createElement('template');
 MATHFIELD_TEMPLATE.innerHTML = `<style>
-:host { display: block; position: relative; }
+:host { display: block; position: relative; overflow: hidden auto;}
 :host([hidden]) { display: none; }
 :host([disabled]) { opacity:  .5; }
 :host(:focus), :host(:focus-within) {
@@ -671,16 +671,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     this.shadowRoot!.host.addEventListener(
       'focus',
-      (_event) => {
-        if (!this.readOnly) this._mathfield?.focus();
-      },
+      (_event) => this._mathfield?.focus(),
       true
     );
     this.shadowRoot!.host.addEventListener(
       'blur',
-      (_event) => {
-        if (!this.readOnly) this._mathfield?.blur();
-      },
+      (_event) => this._mathfield?.blur(),
       true
     );
   }
@@ -804,7 +800,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     arg3?: OutputFormat
   ): string {
     if (this._mathfield)
-      return this._mathfield.getValue(arg1 as any, arg2 as any, arg3);
+      return this._mathfield.model.getValue(arg1 as any, arg2 as any, arg3);
 
     if (gDeferredState.has(this)) {
       let start: Offset;
@@ -1199,7 +1195,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         () => {
           const value = gDeferredState.get(this)!.value;
           if (value !== undefined) this._mathfield!.setValue(value);
-          this._mathfield!.selection = gDeferredState.get(this)!.selection;
+          this._mathfield!.model.selection =
+            gDeferredState.get(this)!.selection;
           gDeferredState.delete(this);
         }
       );
@@ -1246,7 +1243,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     );
     gDeferredState.set(this, {
       value: this._mathfield.getValue(),
-      selection: this._mathfield.selection,
+      selection: this._mathfield.model.selection,
       options,
     });
 
@@ -1540,7 +1537,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    */
   get selection(): Selection {
-    if (this._mathfield) return this._mathfield.selection;
+    if (this._mathfield) return this._mathfield.model.selection;
 
     if (gDeferredState.has(this)) return gDeferredState.get(this)!.selection;
 
@@ -1555,7 +1552,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (typeof sel === 'number') sel = { ranges: [[sel, sel]] };
 
     if (this._mathfield) {
-      this._mathfield.selection = sel;
+      this._mathfield.model.selection = sel;
       return;
     }
 
@@ -1625,7 +1622,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * @category Selection
    */
   get lastOffset(): Offset {
-    return this._mathfield?.lastOffset ?? -1;
+    return this._mathfield?.model.lastOffset ?? -1;
   }
 }
 

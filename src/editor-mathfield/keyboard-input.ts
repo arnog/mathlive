@@ -382,7 +382,7 @@ export function onKeystroke(
   }
 
   //
-  // 7. Make sure the insertion point is scrolled into view
+  // 7. Make sure the mathfield and the insertion point is scrolled into view
   //
   mathfield.scrollIntoView();
 
@@ -427,7 +427,7 @@ export function onTypedText(
   options = options ?? {};
 
   //
-  // 1/ Focus, then provide audio and haptic feedback
+  // 1/ Focus (and scroll into view), then provide audio and haptic feedback
   //
   if (options.focus) mathfield.focus();
 
@@ -552,7 +552,7 @@ export function onTypedText(
   //
   mathfield.dirty = true;
 
-  // Render and make sure the insertion point is visible
+  // Render and make sure the mathfield and the insertion point is visible
   mathfield.scrollIntoView();
 }
 

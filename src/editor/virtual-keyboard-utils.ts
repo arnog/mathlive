@@ -193,6 +193,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: CombinedVirtualKeyboardOptions;
   _visible: boolean;
   _element?: HTMLDivElement;
+  originalContainerBottomPadding: string;
   private readonly _mathfield?: MathfieldPrivate;
 
   coreStylesheet: Stylesheet | null;
@@ -204,6 +205,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this._mathfield = mathfield as MathfieldPrivate;
     this.coreStylesheet = null;
     this.virtualKeyboardStylesheet = null;
+    this.originalContainerBottomPadding = '';
   }
 
   setOptions(options: CombinedVirtualKeyboardOptions): void {
@@ -214,28 +216,27 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       );
       if (currentKeyboard)
         currentKeyboardName = currentKeyboard.getAttribute('data-layer') ?? '';
-      console.log(currentKeyboardName);
+      this._element.remove();
+      this._element = undefined;
     }
-    this._element?.remove();
-    this._element = undefined;
     this.options = options;
 
     if (this.visible) {
       this.buildAndAttachElement(options.virtualKeyboardTheme);
-      if (this.element) {
-        this.element.classList.add('is-visible');
-        // Restore the active keyboard
-        const newActive = this.element.querySelector(
-          `.keyboard-layer[data-layer="${currentKeyboardName}"]`
-        );
-        if (newActive) {
-          const oldActive = this.element.querySelector(
-            '.keyboard-layer.is-visible'
-          );
-          if (oldActive) oldActive.classList.remove('is-visible');
-          newActive.classList.add('is-visible');
-        }
+
+      // Restore the active keyboard
+      const newActive = this.element!.querySelector(
+        `.keyboard-layer[data-layer="${currentKeyboardName}"]`
+      );
+      if (newActive) {
+        this.element!.querySelector(
+          '.keyboard-layer.is-visible'
+        )?.classList.remove('is-visible');
+        newActive.classList.add('is-visible');
       }
+
+      // Show the keyboard panel
+      this.element!.classList.add('is-visible');
     }
   }
 
@@ -243,6 +244,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     return this._element;
   }
   set element(val: HTMLDivElement | undefined) {
+    if (this._element === val) return;
     this._element?.remove();
     this._element = val;
   }

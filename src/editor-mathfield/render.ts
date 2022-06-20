@@ -12,7 +12,7 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { atomsToMathML } from '../addons/math-ml';
 import { Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
-import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -66,7 +66,7 @@ export function render(
   //
   // 1. Stop and reset read aloud state
   //
-  if (isBrowser() && !('mathlive' in window)) window.mathlive = {};
+  if (!('mathlive' in window)) window.mathlive = {};
 
   //
   // 2. Update selection state and blinking cursor (caret)
@@ -156,7 +156,6 @@ export function render(
         // Hint to screen readers to not attempt to read this <span>.
         // They should use instead the 'aria-label' attribute.
         'aria-hidden': 'true',
-        'inert': 'true',
       },
     }
   );
@@ -165,11 +164,11 @@ export function render(
   // 5. Generate markup and accessible node
   //
   const field = mathfield.field!;
-  const isFocused = field!.classList.contains('ML__focused');
-  if (isFocused && !hasFocus) field!.classList.remove('ML__focused');
-  else if (!isFocused && hasFocus) field!.classList.add('ML__focused');
+  const isFocused = field.classList.contains('ML__focused');
+  if (isFocused && !hasFocus) field.classList.remove('ML__focused');
+  else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
-  field!.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
+  field.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
   mathfield.fieldContent = field.querySelector('.ML__mathlive');
 
   mathfield.accessibleNode!.innerHTML = mathfield.options.createHTML(

@@ -72,7 +72,8 @@ export type InsertOptions = {
   /** If `true`, provide audio and haptic feedback
    */
   feedback?: boolean;
-  /** If `true`, scroll the caret into view after insertion
+  /** If `true`, scroll the mathfield into view after insertion such that the
+   * insertion point is visible
    */
   scrollIntoView?: boolean;
   /** If `true`, the style after the insertion

@@ -110,7 +110,7 @@ export class MathfieldPrivate implements Mathfield {
     mathfield?: MathfieldPrivate;
   };
 
-  keyboardDelegate?: KeyboardDelegate;
+  keyboardDelegate: KeyboardDelegate;
   field?: HTMLElement;
   fieldContent?: Element | null;
   virtualKeyboardToggle?: HTMLElement;
@@ -194,6 +194,10 @@ export class MathfieldPrivate implements Mathfield {
             ...options,
           }
     );
+
+    if (this.options.virtualKeyboardMode === 'auto')
+      this.options.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
+
     if (options.computeEngine) this._computeEngine = options.computeEngine;
 
     this._placeholders = new Map();
@@ -267,16 +271,19 @@ export class MathfieldPrivate implements Mathfield {
     let markup = '';
 
     // 1/ The keyboard event capture element.
-    // On touch capable device, we do not create a textarea to capture keyboard
+    // On touch capable devices, we do not create a textarea to capture keyboard
     // events as this has the side effect of triggering the OS virtual keyboard
     // which we want to avoid
     markup += "<span class='ML__textarea'>";
-    markup += isTouchCapable()
-      ? `<span class='ML__textarea__textarea' tabindex="-1" role="textbox"></span>`
-      : '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
-        `autocorrect="off" spellcheck="false" aria-hidden="true" inert tabindex="${
+    if (isTouchCapable())
+      markup += `<span class='ML__textarea__textarea' tabindex="-1" role="textbox"></span>`;
+    else {
+      markup +=
+        '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
+        `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${
           element.tabIndex ?? 0
         }"></textarea>`;
+    }
     markup += '</span>';
 
     // 2/ The field, where the math equation will be displayed
@@ -322,8 +329,8 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     let iChild = 0; // Index of child -- used to make changes below easier
-    const textarea: HTMLElement = this.element.children[iChild++]
-      .firstElementChild as HTMLElement;
+    const textarea: HTMLTextAreaElement = this.element.children[iChild++]
+      .firstElementChild as HTMLTextAreaElement;
     this.field = this.element.children[iChild].children[0] as HTMLElement;
     // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
     this.field.addEventListener('wheel', this, { passive: false });
@@ -393,52 +400,49 @@ export class MathfieldPrivate implements Mathfield {
 
     // Capture clipboard events
     // Delegate keyboard events
-    this.keyboardDelegate = delegateKeyboardEvents(
-      textarea as HTMLTextAreaElement,
-      {
-        typedText: (text: string): void => onTypedText(this, text),
-        cut: (ev: ClipboardEvent) => {
-          // Ignore if in read-only mode
-          if (this.options.readOnly) {
-            this.model.announce('plonk');
-            return;
-          }
+    this.keyboardDelegate = delegateKeyboardEvents(textarea, this.element, {
+      typedText: (text: string): void => onTypedText(this, text),
+      cut: (ev: ClipboardEvent) => {
+        // Ignore if in read-only mode
+        if (this.options.readOnly) {
+          this.model.announce('plonk');
+          return;
+        }
 
-          // Snapshot the undo state
-          this.snapshot();
+        // Snapshot the undo state
+        this.snapshot();
 
-          // Copy to the clipboard
-          ModeEditor.onCopy(this, ev);
+        // Copy to the clipboard
+        ModeEditor.onCopy(this, ev);
 
-          // Clearing the selection will have the side effect of clearing the
-          // content of the textarea. However, the textarea value is what will
-          // be copied to the clipboard (in some cases), so defer the clearing of the selection
-          // to later, after the cut operation has been handled.
-          setTimeout(() => {
-            deleteRange(this.model, range(this.model.selection));
-            requestUpdate(this);
-          }, 0);
-        },
-        copy: (ev: ClipboardEvent) => ModeEditor.onCopy(this, ev),
-        paste: (ev: ClipboardEvent) => {
-          // Ignore if in read-only mode
-          if (this.options.readOnly) {
-            this.model.announce('plonk');
-            return;
-          }
-          ModeEditor.onPaste(this.model.at(this.model.position).mode, this, ev);
-        },
-        keystroke: (keystroke, event) => onKeystroke(this, keystroke, event),
-        focus: () => this.onFocus(),
-        blur: () => this.onBlur(),
-        compositionStart: (composition: string) =>
-          this.onCompositionStart(composition),
-        compositionUpdate: (composition: string) =>
-          this.onCompositionUpdate(composition),
-        compositionEnd: (composition: string) =>
-          this.onCompositionEnd(composition),
-      }
-    );
+        // Clearing the selection will have the side effect of clearing the
+        // content of the textarea. However, the textarea value is what will
+        // be copied to the clipboard (in some cases), so defer the clearing of the selection
+        // to later, after the cut operation has been handled.
+        setTimeout(() => {
+          deleteRange(this.model, range(this.model.selection));
+          requestUpdate(this);
+        }, 0);
+      },
+      copy: (ev: ClipboardEvent) => ModeEditor.onCopy(this, ev),
+      paste: (ev: ClipboardEvent) => {
+        // Ignore if in read-only mode
+        if (this.options.readOnly) {
+          this.model.announce('plonk');
+          return;
+        }
+        ModeEditor.onPaste(this.model.at(this.model.position).mode, this, ev);
+      },
+      keystroke: (keystroke, event) => onKeystroke(this, keystroke, event),
+      focus: () => this.onFocus(),
+      blur: () => this.onBlur(),
+      compositionStart: (composition: string) =>
+        this.onCompositionStart(composition),
+      compositionUpdate: (composition: string) =>
+        this.onCompositionUpdate(composition),
+      compositionEnd: (composition: string) =>
+        this.onCompositionEnd(composition),
+    });
 
     // Delegate mouse and touch events
     if (isBrowser() && 'PointerEvent' in window) {
@@ -446,9 +450,8 @@ export class MathfieldPrivate implements Mathfield {
       on(this.field, 'pointerdown', this);
     } else on(this.field, 'touchstart:active mousedown', this);
 
-    // Request notification for when the window is resized (
-    // or the device switched from portrait to landscape) to adjust
-    // the UI (popover, etc...)
+    // Request notification for when the window is resized or the device
+    // switched from portrait to landscape, to adjust the UI (popover, etc...)
     on(window, 'resize', this);
 
     // Setup the model
@@ -756,21 +759,14 @@ export class MathfieldPrivate implements Mathfield {
    * to be able to properly remove the event handler later.
    */
   handleEvent(evt: Event): void {
+    if (!isValidMathfield(this)) return;
     switch (evt.type) {
       case 'focus':
-        if (!this.focusBlurInProgress) {
-          this.focusBlurInProgress = true;
-          this.onFocus();
-          this.focusBlurInProgress = false;
-        }
+        this.onFocus();
         break;
 
       case 'blur':
-        if (!this.focusBlurInProgress) {
-          this.focusBlurInProgress = true;
-          this.onBlur();
-          this.focusBlurInProgress = false;
-        }
+        this.onBlur();
         break;
 
       case 'touchstart':
@@ -807,7 +803,7 @@ export class MathfieldPrivate implements Mathfield {
     delete this.element;
     delete element.mathfield;
 
-    element.innerHTML = this.getValue();
+    element.innerHTML = this.model.getValue();
 
     off(element, 'pointerdown', this);
     off(element, 'touchstart:active mousedown', this);
@@ -819,7 +815,6 @@ export class MathfieldPrivate implements Mathfield {
     delete this.ariaLiveText;
     delete this.field;
     delete this.fieldContent;
-    delete this.keyboardDelegate;
     this.virtualKeyboardToggle!.remove();
     delete this.virtualKeyboardToggle;
     if (this._virtualKeyboard) {
@@ -863,18 +858,6 @@ export class MathfieldPrivate implements Mathfield {
     return perform(this, command);
   }
 
-  get lastOffset(): number {
-    return this.model.lastOffset;
-  }
-
-  get selection(): Selection {
-    return this.model.selection;
-  }
-
-  set selection(value: Selection) {
-    this.model.selection = value;
-  }
-
   getValue(): string;
   getValue(format: OutputFormat): string;
   getValue(start: Offset, end: Offset, format?: OutputFormat): string;
@@ -914,49 +897,86 @@ export class MathfieldPrivate implements Mathfield {
 
   get expression(): BoxedExpression {
     const ce = this.computeEngine;
-    return ce.box(ce.parse(this.getValue()));
+    return ce.box(ce.parse(this.model.getValue()));
   }
 
-  getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
-    return this._placeholders.get(placeholderId)?.field;
-  }
+  /** Make sure the caret is visible within the matfield.
+   * If the mathfield is inside a mathfield element, make sure the mathfield
+   * element is visible in the page
+   */
   scrollIntoView(): void {
-    // If a render is pending, do it now to make sure we have correct layout
+    if (!this.element) return;
+
+    //
+    // 1/ If inside a mathfield element, make sure that element is visible.
+    //
+    const host = (this.element.getRootNode() as any as ShadowRoot)?.host;
+    host?.scrollIntoView();
+
+    //
+    // 2/ If a render is pending, do it now to make sure we have correct layout
     // and caret position
-    if (this.dirty) render(this);
+    //
+    if (this.dirty) render(this, { interactive: true });
 
-    this.field!.scrollIntoView();
-
+    //
+    // 3/ Get the position of the caret
+    //
     const fieldBounds = this.field!.getBoundingClientRect();
-    let caretPoint: number | undefined = undefined;
+    let caretPoint: { x: number; y: number; height: number } | null = null;
     if (this.model.selectionIsCollapsed)
-      caretPoint = getCaretPoint(this.field!)?.x;
+      caretPoint = getCaretPoint(this.field!);
     else {
       const selectionBounds = getSelectionBounds(this);
       if (selectionBounds.length > 0) {
         let maxRight = -Infinity;
-        for (const r of selectionBounds)
+        let minTop = -Infinity;
+        for (const r of selectionBounds) {
           if (r.right > maxRight) maxRight = r.right;
+          if (r.top < minTop) minTop = r.top;
+        }
 
-        caretPoint = maxRight + fieldBounds.left - this.field!.scrollLeft;
+        caretPoint = {
+          x: maxRight + fieldBounds.left - this.field!.scrollLeft,
+          y: minTop + fieldBounds.top - this.field!.scrollTop,
+          height: 0,
+        };
       }
     }
 
-    if (caretPoint !== undefined) {
-      const x = caretPoint - window.scrollX;
-      if (x < fieldBounds.left) {
-        this.field!.scroll({
-          top: 0,
-          left: x - fieldBounds.left + this.field!.scrollLeft - 20,
-          behavior: 'smooth',
-        });
-      } else if (x > fieldBounds.right) {
-        this.field!.scroll({
-          top: 0,
-          left: x - fieldBounds.right + this.field!.scrollLeft + 20,
-          behavior: 'smooth',
-        });
-      }
+    //
+    // 4/ Make sure that the caret is vertically visible, but because
+    // vertical scrolling of the field occurs via a scroller that includes
+    // the field and the virtual keyboard toggle, we'll handle the horizontal
+    // scrolling separately
+    //
+    if (host && caretPoint) {
+      const hostBounds = host.getBoundingClientRect();
+
+      const y = caretPoint.y;
+      let top = host.scrollTop;
+      if (y < hostBounds.top) top = y - hostBounds.top + host.scrollTop;
+      else if (y > hostBounds.bottom)
+        top = y - hostBounds.bottom + host.scrollTop + caretPoint.height;
+      host.scroll({ top, left: 0 });
+    }
+
+    //
+    // 5/  Make sure the caret is horizontally visible within the field
+    //
+    if (caretPoint) {
+      const x = caretPoint.x - window.scrollX;
+
+      let left = this.field!.scrollLeft;
+      if (x < fieldBounds.left)
+        left = x - fieldBounds.left + this.field!.scrollLeft - 20;
+      else if (x > fieldBounds.right)
+        left = x - fieldBounds.right + this.field!.scrollLeft + 20;
+
+      this.field!.scroll({
+        top: this.field!.scrollTop, // should always be 0
+        left,
+      });
     }
   }
 
@@ -997,6 +1017,7 @@ export class MathfieldPrivate implements Mathfield {
 
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
     if (this.mode === mode || this.options.readOnly) return;
+    const currentMode = this.mode;
     const { model } = this;
     model.deferNotifications(
       { content: Boolean(suffix) || Boolean(prefix), selection: true },
@@ -1008,9 +1029,7 @@ export class MathfieldPrivate implements Mathfield {
         this.smartModeSuppressed =
           /text|math/.test(this.mode) && /text|math/.test(mode);
         if (prefix && mode !== 'latex') {
-          const atoms = parseLatex(prefix, {
-            parseMode: { math: 'text', text: 'math' }[mode as ParseMode],
-          });
+          const atoms = parseLatex(prefix, { parseMode: mode });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
@@ -1068,9 +1087,7 @@ export class MathfieldPrivate implements Mathfield {
         }
 
         if (suffix) {
-          const atoms = parseLatex(suffix, {
-            parseMode: { math: 'text', text: 'math' }[mode],
-          });
+          const atoms = parseLatex(suffix, { parseMode: currentMode });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
@@ -1081,29 +1098,32 @@ export class MathfieldPrivate implements Mathfield {
 
         // Notify of mode change
         if (typeof this.options.onModeChange === 'function')
-          this.options.onModeChange(this, this.mode);
+          this.options.onModeChange(this, mode);
 
         requestUpdate(this);
         return contentChanged;
       }
     );
+
+    this.mode = mode;
   }
 
   hasFocus(): boolean {
     return (
-      isBrowser() && document.hasFocus() && this.keyboardDelegate!.hasFocus()
+      isBrowser() && document.hasFocus() && this.keyboardDelegate.hasFocus()
     );
   }
 
-  focus(): void {
+  focus(options?: { scrollIntoView: boolean }): void {
     if (!this.hasFocus()) {
-      this.keyboardDelegate!.focus();
+      this.keyboardDelegate.focus();
       this.model.announce('line');
+      if (options?.scrollIntoView ?? true) this.scrollIntoView();
     }
   }
 
   blur(): void {
-    if (this.hasFocus()) this.keyboardDelegate!.blur();
+    if (this.hasFocus()) this.keyboardDelegate.blur();
   }
 
   select(): void {
@@ -1151,6 +1171,10 @@ export class MathfieldPrivate implements Mathfield {
     return true;
   }
 
+  getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
+    return this._placeholders.get(placeholderId)?.field;
+  }
+
   attachNestedMathfield(): void {
     let needsUpdate = false;
     this._placeholders.forEach((v) => {
@@ -1175,11 +1199,11 @@ export class MathfieldPrivate implements Mathfield {
         const newTop =
           (placeholderPosition?.top ?? 0) -
           (parentPosition?.top ?? 0) +
-          (this.element?.offsetTop ?? 0);
+          (this.element!.offsetTop ?? 0);
         const newLeft =
           (placeholderPosition?.left ?? 0) -
           (parentPosition?.left ?? 0) +
-          (this.element?.offsetLeft ?? 0);
+          (this.element!.offsetLeft ?? 0);
         if (
           !v.field.style.left ||
           Math.abs(newLeft - parseFloat(v.field.style.left)) >= 1
@@ -1283,8 +1307,8 @@ export class MathfieldPrivate implements Mathfield {
   private _onSelectionDidChange(): void {
     // Keep the content of the textarea in sync wiht the selection.
     // This will allow cut/copy to work.
-    this.keyboardDelegate!.setValue(
-      this.getValue(this.model.selection, 'latex-expanded')
+    this.keyboardDelegate.setValue(
+      this.model.getValue(this.model.selection, 'latex-expanded')
     );
     const selectedAtoms = this.model.getAtoms(this.model.selection);
     if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
@@ -1313,31 +1337,35 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   private onFocus(): void {
-    if (this.blurred) {
-      this.blurred = false;
-      this.keyboardDelegate!.focus();
+    if (this.focusBlurInProgress || !this.blurred) return;
+    this.focusBlurInProgress = true;
+    this.blurred = false;
+    this.keyboardDelegate.focus();
 
-      this.virtualKeyboard?.setOptions(this.options);
+    this.virtualKeyboard?.setOptions(this.options);
 
-      this.virtualKeyboard?.enable();
+    this.virtualKeyboard?.enable();
 
-      if (this.options.virtualKeyboardMode === 'onfocus')
-        this.executeCommand('showVirtualKeyboard');
+    if (this.options.virtualKeyboardMode === 'onfocus')
+      this.executeCommand('showVirtualKeyboard');
 
-      updatePopoverPosition(this);
-      this.options.onFocus?.(this);
+    updatePopoverPosition(this);
+    render(this, { interactive: true });
 
-      // Save the current value.
-      // It will be compared in `onBlur()` to see if the
-      // `onCommit` listener needs to be invoked. This
-      // mimic the `<input>` and `<textarea>` behavior
-      this.valueOnFocus = this.getValue();
-      requestUpdate(this);
-    }
+    if (typeof this.options.onFocus === 'function') this.options.onFocus(this);
+
+    // Save the current value.
+    // It will be compared in `onBlur()` to see if the
+    // `onCommit` listener needs to be invoked. This
+    // mimic the `<input>` and `<textarea>` behavior
+    this.valueOnFocus = this.model.getValue();
+
+    this.focusBlurInProgress = false;
   }
 
   private onBlur(): void {
-    if (this.blurred) return;
+    if (this.focusBlurInProgress || this.blurred) return;
+    this.focusBlurInProgress = true;
 
     this.blurred = true;
     this.ariaLiveText!.textContent = '';
@@ -1345,7 +1373,7 @@ export class MathfieldPrivate implements Mathfield {
     complete(this, 'accept');
     if (
       typeof this.options.onCommit === 'function' &&
-      this.getValue() !== this.valueOnFocus
+      this.model.getValue() !== this.valueOnFocus
     )
       this.options.onCommit(this);
 
@@ -1360,6 +1388,8 @@ export class MathfieldPrivate implements Mathfield {
     if (typeof this.options.onBlur === 'function') this.options.onBlur(this);
 
     requestUpdate(this);
+
+    this.focusBlurInProgress = false;
   }
 
   private onCompositionStart(_composition: string): void {
@@ -1371,7 +1401,7 @@ export class MathfieldPrivate implements Mathfield {
       // so that the IME candidate window can align with the composition
       const caretPoint = getCaretPoint(this.field!);
       if (!caretPoint) return;
-      this.keyboardDelegate!.moveTo(caretPoint.x, caretPoint.y);
+      this.keyboardDelegate.moveTo(caretPoint.x, caretPoint.y);
     });
   }
 
@@ -1388,18 +1418,6 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   private onResize(): void {
-    if (!isValidMathfield(this)) return;
-    this.element!.classList.remove(
-      'ML__isNarrowWidth',
-      'ML__isWideWidth',
-      'ML__isExtendedWidth'
-    );
-    if (window.innerWidth >= 1024)
-      this.element!.classList.add('ML__isExtendedWidth');
-    else if (window.innerWidth >= 768)
-      this.element!.classList.add('ML__isWideWidth');
-    else this.element!.classList.add('ML__isNarrowWidth');
-
     updatePopoverPosition(this);
   }
 

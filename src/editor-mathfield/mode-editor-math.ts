@@ -43,12 +43,16 @@ export class MathModeEditor extends ModeEditor {
     let text = '';
     let format: 'auto' | OutputFormat = 'auto';
 
-    // Try to get serialized atoms
+    //
+    // 1/ Try to get serialized atoms
+    //
     try {
       const atomJson = JSON.parse(
         ev.clipboardData.getData('application/json+mathlive')
       );
       if (atomJson && Array.isArray(atomJson)) {
+        mathfield.snapshot();
+
         const atoms = fromJson(atomJson);
         const { model } = mathfield;
         if (!model.selectionIsCollapsed)
@@ -66,7 +70,9 @@ export class MathModeEditor extends ModeEditor {
       }
     } catch {}
 
-    // Try to get a MathJSON data type
+    //
+    // 2/ Try to get a MathJSON data type
+    //
     const json = ev.clipboardData.getData('application/json');
     if (json) {
       const expr = JSON.parse(json);
@@ -83,15 +89,27 @@ export class MathModeEditor extends ModeEditor {
       if (!text) format = 'latex';
     }
 
-    // If that didn't work, try some plain text
+    //
+    // 3/ Try to get raw LaTeX
+    //
+
+    if (!text) {
+      text = ev.clipboardData.getData('application/x-latex');
+      if (text) format = 'latex';
+    }
+
+    //
+    // 4/ If that didn't work, try some plain text
     // (could be LaTeX, could be MathASCII)
+    //
     if (!text) text = ev.clipboardData.getData('text/plain');
 
     if (text) {
+      mathfield.snapshot();
+
       let wasLatex: boolean;
       [wasLatex, text] = trimModeShiftCommand(text);
       if (format === 'auto' && wasLatex) format = 'latex';
-      mathfield.snapshot();
       if (
         this.insert(mathfield.model, text, {
           smartFence: mathfield.options.smartFence,
@@ -99,14 +117,17 @@ export class MathModeEditor extends ModeEditor {
           backgroundColorMap: mathfield.backgroundColorMap,
           format,
         })
-      )
+      ) {
+        contentDidChange(mathfield.model);
         requestUpdate(mathfield);
+      }
 
       ev.preventDefault();
       ev.stopPropagation();
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   insert(
@@ -270,26 +291,17 @@ export class MathModeEditor extends ModeEditor {
         element.style.zIndex = '1001';
         element.style.position = 'absolute';
         element.style.minWidth = '30px';
+
         const style = document.createElement('style');
-
-        style.innerHTML = `.nested-mathfield {
-          border: 1px solid black;
-        }
-          .ML__fieldcontainer{
-            min-height:auto !important;
-          }
-
+        style.textContent = `.nested-mathfield { border: 1px solid black; }
+          .ML__fieldcontainer{ min-height:auto !important; }
           `;
         element.appendChild(style);
         element.addEventListener('input', () => {
           placeholderDidChange(model, placeholder.placeholderId!);
-          /**
-           * this timeout give some time when is a placeholder to render properly
-           * before rendering the main field.
-           */
-          setTimeout(() => {
-            requestUpdate(model.mathfield);
-          });
+          // this timeout gives some time for a placeholder to render properly
+          // before rendering the main field.
+          setTimeout(() => requestUpdate(model.mathfield));
         });
         container?.appendChild(element);
 

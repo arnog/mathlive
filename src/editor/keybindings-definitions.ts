@@ -288,14 +288,14 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'shift+[Quote]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['switchMode', 'text', '', '“'],
-  }, // ??
+    command: ['switchMode', 'text', '', ''],
+  },
   {
     key: 'shift+[Quote]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'text',
-    command: ['switchMode', 'math', '”', ''],
-  }, // ??
+    command: ['switchMode', 'math', '', ''],
+  },
   {
     key: '/',
     ifMode: 'math',

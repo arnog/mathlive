@@ -71,11 +71,10 @@ export class ModeEditor {
       //
       // 1. Get LaTeX of selection
       //
-      let latex = '';
+      let latex: string;
       if (atoms.length === 1 && atoms[0].verbatimLatex !== undefined)
         latex = atoms[0].verbatimLatex;
-
-      if (!latex) latex = model.getValue(exportRange, 'latex-expanded');
+      else latex = model.getValue(exportRange, 'latex-expanded');
 
       //
       // 2. Put latex flavor on clipboard
@@ -86,24 +85,27 @@ export class ModeEditor {
       // 3. Put text flavor on clipboard
       // (see defaultExportHook)
       //
-
-      ev.clipboardData.setData(
-        'text/plain',
-        mathfield.options.onExport(mathfield, latex, exportRange)
-      );
+      try {
+        ev.clipboardData.setData(
+          'text/plain',
+          mathfield.options.onExport(mathfield, latex, exportRange)
+        );
+      } catch {}
 
       //
       // 4. Put serialized atoms on clipboard
       //
       if (
-        (atoms.length === 1 && atoms[0].type === 'root') ||
-        atoms[0].type === 'group'
+        atoms.length === 1 &&
+        (atoms[0].type === 'root' || atoms[0].type === 'group')
       )
         atoms = atoms[0].body!.filter((x) => x.type !== 'first');
-      ev.clipboardData.setData(
-        'application/json+mathlive',
-        JSON.stringify(atoms.map((x) => x.toJson()))
-      );
+      try {
+        ev.clipboardData.setData(
+          'application/json+mathlive',
+          JSON.stringify(atoms.map((x) => x.toJson()))
+        );
+      } catch {}
 
       //
       // 5. Put other flavors on the clipboard (MathJSON)

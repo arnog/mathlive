@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <title>MathLive Testing Playground</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
     <link rel="stylesheet" href="./style.css" />
     <link rel="icon" href="data:," />
   </head>
@@ -12,10 +15,8 @@
     <header>
       <h1>MathLive Smoke Testing Playground</h1>
     </header>
-    <main class="centered" tabindex="0">
-      <math-field id="mf" virtual-keyboard-mode="manual"
-        >\begin{pmatrix}a&b\\c&d\end{pmatrix}</math-field
-      >
+    <main>
+      <div style="height: 80vh"></div>
 
       <h2 style="margin-top: 1em">Selection</h2>
       <div class="output" id="selection"></div>
@@ -31,6 +32,11 @@
 
       <h2>MathML</h2>
       <div class="output" id="mathml"></div>
+
+      <textarea>Sample Text</textarea>
+      <math-field theme="dark" id="mf" style="height: 100px"
+        >\begin{pmatrix}a&b\\c&d\\e&f\\g&h\end{pmatrix}</math-field
+      >
     </main>
 
     <script type="module">

@@ -163,7 +163,7 @@ export function onPointerDown(
     // Focus the mathfield
     if (!mathfield.hasFocus()) {
       dirty = 'all';
-      mathfield.keyboardDelegate!.focus();
+      mathfield.focus({ scrollIntoView: false });
     }
 
     // Clicking or tapping the field resets the keystroke buffer and

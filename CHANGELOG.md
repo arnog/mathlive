@@ -1,3 +1,36 @@
+## [Unreleased]
+
+### Features
+
+- **#970** It is now possible to vertically scroll the content of the mahtfield.
+
+### Improvements
+
+- If the layout of the page is such that a mathfield would appear behind a
+  virtual keyboard because there isn't enough space for the virtual keyboard and
+  the mathfield, the height of the page is now adjusted so that both the
+  mathfield and the virtual keyboard are visible (**#1358**)
+- When the virtual keyboard is invoked, if a mathfield was positioned at the
+  bottom of the page, it could get covered with the virtual keyboard and become
+  inaccessible.
+- When a mathfield is set to a fixed height and it contains content that doesn't
+  fit vertically, a scollbar will appear.
+- If the content of the mathfield was taller than could fit in the mathfield,
+  typing would not bring the content of the mathfield into view. (**#1310**)
+- When typing or using the virtual keyboard the mathfield would not always
+  scroll into view to become visible (**#1173**)
+- Propagate content change event on paste in text and LaTeX mode
+
+### Bug Fixes
+
+- **#1497** On iOS, tapping the edge of the mathfield could bring the native
+  virtual keyboard
+- **#1456** When multiple mathfields are present in a page, with
+  `makeSharedVirtualKeyboard()`, calling `setOptions()` to change the virtual
+  keyboard mode on those mathfields could cause the keyboards to not be shared.
+- **#1501** The keybindings to get into and out of text mode (`shift`+`quote`)
+  work again
+
 ## 0.74.0 (2022-06-06)
 
 ### Improvements

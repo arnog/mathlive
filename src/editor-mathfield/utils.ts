@@ -86,7 +86,7 @@ export function releaseSharedElement(element?: HTMLElement): void {
  * need to ensure the mathfield is still valid by the time they're executed.
  */
 export function isValidMathfield(mf: MathfieldPrivate): boolean {
-  return mf.element !== undefined && mf.element.mathfield === mf;
+  return mf.element?.mathfield === mf;
 }
 
 /**

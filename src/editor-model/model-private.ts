@@ -391,11 +391,16 @@ export class ModelPrivate implements Model {
     return '';
   }
 
-  // getValue(): string;
-  // getValue(format: OutputFormat): string;
-  // getValue(start: Offset, end: Offset, format?: OutputFormat): string;
-  // getValue(range: Range, format?: OutputFormat): string;
-  // getValue(selection: Selection, format?: OutputFormat): string;
+  getValue(): string;
+  getValue(format: OutputFormat): string;
+  getValue(start: Offset, end: Offset, format?: OutputFormat): string;
+  getValue(range: Range, format?: OutputFormat): string;
+  getValue(selection: Selection, format?: OutputFormat): string;
+  getValue(
+    arg1?: Offset | OutputFormat | Range | Selection,
+    arg2?: Offset | OutputFormat,
+    arg3?: OutputFormat
+  ): string;
   getValue(
     arg1?: Offset | OutputFormat | Range | Selection,
     arg2?: Offset | OutputFormat,
