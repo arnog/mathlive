@@ -597,6 +597,7 @@ export class Parser {
     while (this.hasPattern(digits)) value += this.get();
 
     // Parse the fractional part, if applicable
+    // Note: TeX does accept `,` as a decimal separator see TeX: `continental_point_token`
     if (!isInteger && (this.match('.') || this.match(','))) {
       value += '.';
       while (this.hasPattern(digits)) value += this.get();
