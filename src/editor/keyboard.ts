@@ -184,6 +184,7 @@ export interface KeyboardDelegate {
  */
 export function delegateKeyboardEvents(
   textarea: HTMLTextAreaElement,
+  element: HTMLElement,
   handlers: {
     typedText: (text: string) => void;
     cut: (ev: ClipboardEvent) => void;
@@ -298,6 +299,13 @@ export function delegateKeyboardEvents(
   target.addEventListener(
     'blur',
     (event) => {
+      // If we're attempting to focus the mathfield (which can happen on iOS if
+      // clicking right on the border of the mathfield) ignore it
+      // (preventDefault on the event doesn't work)
+      if (event['relatedTarget']?.['_mathfield']?.['element'] === element) {
+        textarea.focus();
+        return;
+      }
       // If the scrim is up, ignore blur (while the alternate key panel is up)
       const scrimState = Scrim.scrim?.state;
       if (scrimState === 'open' || scrimState === 'opening') {
@@ -417,7 +425,10 @@ export function delegateKeyboardEvents(
         textarea.value = value;
         // The textarea may be a span (on mobile, for example), so check that
         // it has a select() before calling it.
-        if (deepActiveElement() === textarea && textarea.select)
+        if (
+          deepActiveElement() === textarea &&
+          typeof textarea.select === 'function'
+        )
           textarea.select();
       } else {
         textarea.value = '';
