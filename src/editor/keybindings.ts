@@ -17,7 +17,7 @@ import { isBrowser, osPlatform } from '../common/capabilities';
  * @param p The platform to test against.
  */
 function matchPlatform(p: string): boolean {
-  if (isBrowser() && navigator.platform && navigator.userAgent) {
+  if (isBrowser()) {
     const plat = osPlatform();
     const isNeg = p.startsWith('!');
     const isMatch = p.endsWith(plat);

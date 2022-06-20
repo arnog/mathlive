@@ -33,9 +33,9 @@ export function osPlatform():
   | 'other' {
   if (!isBrowser()) return 'other';
 
-  const platform = navigator.platform;
+  const platform = navigator['userAgentData']?.platform ?? navigator.platform;
 
-  if (/^(mac)/i.test(platform)) {
+  if (/^mac/i.test(platform)) {
     // WebKit on iPad OS 14 looks like macOS.
     // Use the number of touch points to distinguish between macOS and iPad OS
     if (navigator.maxTouchPoints === 5) return 'ios';
@@ -43,11 +43,11 @@ export function osPlatform():
     return 'macos';
   }
 
-  if (/^(win)/i.test(platform)) return 'windows';
+  if (/^win/i.test(platform)) return 'windows';
 
-  if (/(android)/i.test(navigator.userAgent)) return 'android';
+  if (/android/i.test(navigator.userAgent)) return 'android';
 
-  if (/(iphone|ipod|ipad)/i.test(navigator.userAgent)) return 'ios';
+  if (/iphone|ipod|ipad/i.test(navigator.userAgent)) return 'ios';
 
   if (/\bcros\b/i.test(navigator.userAgent)) return 'chromeos';
 
