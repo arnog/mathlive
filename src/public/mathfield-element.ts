@@ -225,7 +225,7 @@ export interface MathfieldElementAttributes {
    * shortcuts.
    */
   'inline-shortcut-timeout': string;
-  'keypress-vibration': boolean;
+  'keypress-vibration': string;
   /**
    * When a key on the virtual keyboard is pressed, produce a short audio
    * feedback.
@@ -256,15 +256,15 @@ export interface MathfieldElementAttributes {
   'read-only': boolean;
   'remove-extraneous-parentheses': boolean;
   /**
-   * When `true` and an open fence is entered via `typedText()` it will
+   * When `on` and an open fence is entered via `typedText()` it will
    * generate a contextually appropriate markup, for example using
    * `\left...\right` if applicable.
    *
-   * When `false`, the literal value of the character will be inserted instead.
+   * When `off`, the literal value of the character will be inserted instead.
    */
-  'smart-fence': boolean;
+  'smart-fence': string;
   /**
-   * When true, during text input the field will switch automatically between
+   * When `on`, during text input the field will switch automatically between
    * 'math' and 'text' mode depending on what is typed and the context of the
    * formula. If necessary, what was previously typed will be 'fixed' to
    * account for the new info.
@@ -279,7 +279,7 @@ export interface MathfieldElementAttributes {
    * | "if x >" | "if" stays in text mode, but now "x >" is in math mode |
    * | "if x > 0" | "if" in text mode, "x > 0" in math mode |
    *
-   * Smart Mode is off by default.
+   * Smart Mode is `off` by default.
    *
    * Manually switching mode (by typing `alt/option+=`) will temporarily turn
    * off smart mode.
@@ -299,20 +299,20 @@ export interface MathfieldElementAttributes {
    * -   For all n in NN
    *
    */
-  'smart-mode': boolean;
+  'smart-mode': string;
   /**
-   * When `true`, when a digit is entered in an empty superscript, the cursor
+   * When `on`, when a digit is entered in an empty superscript, the cursor
    * leaps automatically out of the superscript. This makes entry of common
    * polynomials easier and faster. If entering other characters (for example
    * "n+1") the navigation out of the superscript must be done manually (by
    * using the cursor keys or the spacebar to leap to the next insertion
    * point).
    *
-   * When `false`, the navigation out of the superscript must always be done
+   * When `off`, the navigation out of the superscript must always be done
    * manually.
    *
    */
-  'smart-superscript': boolean;
+  'smart-superscript': string;
   'speech-engine': string;
   'speech-engine-rate': string;
   'speech-engine-voice': string;
