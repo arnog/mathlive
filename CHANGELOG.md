@@ -20,6 +20,8 @@
 - When typing or using the virtual keyboard the mathfield would not always
   scroll into view to become visible (**#1173**)
 - Propagate content change event on paste in text and LaTeX mode
+- Added the `container` and `content` CSS part to customize the inside of the
+  mathfield.
 
 ### Bug Fixes
 
@@ -33,6 +35,8 @@
 - **#1517** Text content was not correctly serialized
 - **#1503** A spurious `=` character was produced in the serialization of `\ne`.
   The MathML and ASCIIMath serialization of `\ne` were incorrect.
+- **#1513** Using the virtual keyboard to apply underline or overline to the
+  selection resulted in a placeholder being inserted instead.
 
 ## 0.74.0 (2022-06-06)
 

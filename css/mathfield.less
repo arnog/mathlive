@@ -55,7 +55,7 @@
   animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
-.ML__fieldcontainer {
+.ML__container {
   display: flex;
   flex-flow: row;
   justify-content: space-between;
@@ -83,7 +83,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .ML__fieldcontainer {
+  .ML__container {
     --ML__highlight: hsl(var(--hue, 212), 25%, 45%);
     --ML__highlight-text: hsla(var(--hue, 212), 40%, 50%, 0.2);
     --ML__contains-highlight: hsl(var(--hue, 212), 5%, 34%);
@@ -96,7 +96,7 @@
 }
 
 /* This is the actual field content (formula) */
-.ML__fieldcontainer__field {
+.ML__content {
   display: flex;
   align-items: center;
   align-self: center;

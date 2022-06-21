@@ -294,7 +294,7 @@ export class MathModeEditor extends ModeEditor {
 
         const style = document.createElement('style');
         style.textContent = `.nested-mathfield { border: 1px solid black; }
-          .ML__fieldcontainer{ min-height:auto !important; }
+          .ML__container{ min-height:auto !important; }
           `;
         element.appendChild(style);
         element.addEventListener('input', () => {

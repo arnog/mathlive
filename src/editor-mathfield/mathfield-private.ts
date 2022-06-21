@@ -288,7 +288,7 @@ export class MathfieldPrivate implements Mathfield {
 
     // 2/ The field, where the math equation will be displayed
     markup +=
-      '<span class="ML__fieldcontainer"><span class="ML__fieldcontainer__field"></span>';
+      '<span part="container" class="ML__container"><span part="content" class="ML__content"></span>';
 
     // 2.1/ The virtual keyboard toggle
     markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
