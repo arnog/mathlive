@@ -377,7 +377,7 @@ export class ModelPrivate implements Model {
     if (format === 'math-json') {
       try {
         const expr = this.mathfield.computeEngine.parse(
-          atom.serialize({ expandMacro: false, defaultMode: 'math' })
+          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
         );
         return JSON.stringify(expr.json);
       } catch (e) {

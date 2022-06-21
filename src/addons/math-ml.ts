@@ -2,6 +2,8 @@ import type { MathfieldOptions } from '../public/options';
 import { Atom } from '../core/atom';
 import { MacroAtom } from '../core-atoms/macro';
 const SPECIAL_OPERATORS = {
+  '\\ne': '<mo>&ne;</mo>',
+  '\\neq': '<mo>&neq;</mo>',
   '\\pm': '&#177;',
   '\\times': '&#215;',
   '\\colon': ':',
@@ -566,7 +568,9 @@ function atomToMathML(atom, options): string {
         break; // Nothing to do
       case 'group':
       case 'root':
-        result = toMathML(atom.body, 0, 0, options).mathML;
+        if (SPECIAL_OPERATORS[atom.command])
+          result = SPECIAL_OPERATORS[atom.command];
+        else result = toMathML(atom.body, 0, 0, options).mathML;
         break;
 
       case 'array':

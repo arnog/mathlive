@@ -10,7 +10,7 @@ import {
 import type { MathfieldPrivate } from './mathfield-private';
 
 import { atomsToMathML } from '../addons/math-ml';
-import { Context, DEFAULT_FONT_SIZE } from '../core/core';
+import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
 import { throwIfNotInBrowser } from '../common/capabilities';
 
@@ -108,7 +108,7 @@ export function render(
           // Using the hash as a seed for the ID
           // keeps the IDs the same until the content of the field changes.
           seed: hash(
-            model.root.serialize({
+            Atom.serialize(model.root, {
               expandMacro: false,
               defaultMode: mathfield.options.defaultMode,
             })

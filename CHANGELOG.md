@@ -31,6 +31,8 @@
 - **#1501** The keybindings to get into and out of text mode (`shift`+`quote`)
   work again
 - **#1517** Text content was not correctly serialized
+- **#1503** A spurious `=` character was produced in the serialization of `\ne`.
+  The MathML and ASCIIMath serialization of `\ne` were incorrect.
 
 ## 0.74.0 (2022-06-06)
 

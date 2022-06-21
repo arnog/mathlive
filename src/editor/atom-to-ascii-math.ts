@@ -6,6 +6,8 @@ import { LeftRightAtom } from '../core-atoms/leftright';
 import { ArrayAtom } from '../core-atoms/array';
 
 const SPECIAL_IDENTIFIERS = {
+  '\\ne': '≠',
+  '\\neq': '≠',
   '\u2212': '-', // MINUS SIGN
   '-': '-',
   '\\alpha': 'alpha',
@@ -123,7 +125,9 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
 
     case 'group':
     case 'root':
-      result = atomToAsciiMath(atom.body);
+      if (SPECIAL_IDENTIFIERS[atom.command])
+        result = SPECIAL_IDENTIFIERS[atom.command];
+      else result = atomToAsciiMath(atom.body);
       break;
 
     case 'genfrac':

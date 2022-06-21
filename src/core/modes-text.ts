@@ -22,7 +22,7 @@ function emitStringTextRun(
   run: Atom[],
   options: ToLatexOptions
 ): [string, boolean] {
-  return [joinLatex(run.map((x: Atom) => x.serialize(options))), true];
+  return [joinLatex(run.map((x: Atom) => Atom.serialize(x, options))), true];
 }
 
 function emitFontShapeTextRun(

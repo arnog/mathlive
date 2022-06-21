@@ -271,7 +271,7 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
               return variantString(x) === variant;
             })
           )
-            return joinLatex(x.map((x) => x.serialize(options)));
+            return joinLatex(x.map((x) => Atom.serialize(x, options)));
 
           let command = '';
           if (variant && variant !== contextVariant) {
@@ -302,8 +302,11 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
             }[variant!]!;
             console.assert(command !== undefined);
           }
-          if (!command) return joinLatex(x.map((x) => x.serialize(options)));
-          return command + joinLatex(x.map((x) => x.serialize(options))) + '}';
+          if (!command)
+            return joinLatex(x.map((x) => Atom.serialize(x, options)));
+          return (
+            command + joinLatex(x.map((x) => Atom.serialize(x, options))) + '}'
+          );
         })
       );
       const style = x[0].computedStyle;

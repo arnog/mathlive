@@ -348,6 +348,14 @@ export class Atom {
 
     if (value === undefined) return '';
 
+    // If we have some verbatim latex for this atom, use it.
+    // This allow non-significant punctuation to be preserved when possible.
+    if (!options.expandMacro && typeof value.verbatimLatex === 'string')
+      return value.verbatimLatex;
+
+    if (value.command && Atom.customSerializer[value.command])
+      return Atom.customSerializer[value.command](value, options);
+
     return value.serialize(options);
   }
 
@@ -455,14 +463,6 @@ export class Atom {
    * Serialize the atom  to LaTeX
    */
   serialize(options: ToLatexOptions): string {
-    // If we have some verbatim latex for this atom, use it.
-    // This allow non-significant punctuation to be preserved when possible.
-    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
-      return this.verbatimLatex;
-
-    if (this.command && Atom.customSerializer[this.command])
-      return Atom.customSerializer[this.command](this, options);
-
     if (this.body && this.command) {
       // There's a command and body
       return joinLatex([

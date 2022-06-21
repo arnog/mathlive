@@ -717,7 +717,7 @@ export class MathfieldPrivate implements Mathfield {
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
-    const content = this.model.root.serialize({
+    const content = Atom.serialize(this.model.root, {
       expandMacro: false,
       defaultMode: this.options.defaultMode,
     });
