@@ -1008,8 +1008,8 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='overline' data-latex='\\overline{#?}' data-aside='overline'></li>
-                <li class='keycap tex' data-alt-keys='underline' data-latex='\\underline{#?}' data-aside='underline'></li>
+                <li class='keycap tex' data-alt-keys='overline' data-latex='\\overline{#@}' data-aside='overline'></li>
+                <li class='keycap tex' data-alt-keys='underline' data-latex='\\underline{#@}' data-aside='underline'></li>
                 <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
                 <li class='keycap tex small' data-alt-keys='xleftarrows' data-latex='\\xleftarrow{}' ></li>
                 <li class='keycap tex small' data-alt-keys='xrightarrows' data-latex='\\xrightarrow{}' ></li>
@@ -1248,7 +1248,7 @@ const LAYERS = {
                 <li class='keycap' data-command='["applyStyle",{"shape":"sl"}]' data-latex='\\textsl{Ab}'></li>
                 <li class='keycap' data-command='["applyStyle",{"shape":"sc"}]' data-latex='\\textsc{Ab}'></li>
                 <li class='separator w5'></li>
-                <li class='keycap' data-insert='\\emph{#?} ' data-latex='\\text{\\emph{emph}}'></li>
+                <li class='keycap' data-insert='\\emph{#@} ' data-latex='\\text{\\emph{emph}}'></li>
             </ul>
             <ul>
                 <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmr"}]' data-latex='\\textrm{Az}'></li>
