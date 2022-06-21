@@ -12,7 +12,7 @@
   mathfield and the virtual keyboard are visible (**#1358**)
 - When the virtual keyboard is invoked, if a mathfield was positioned at the
   bottom of the page, it could get covered with the virtual keyboard and become
-  inaccessible.
+  inaccessible
 - When a mathfield is set to a fixed height and it contains content that doesn't
   fit vertically, a scollbar will appear.
 - If the content of the mathfield was taller than could fit in the mathfield,
@@ -30,6 +30,7 @@
   keyboard mode on those mathfields could cause the keyboards to not be shared.
 - **#1501** The keybindings to get into and out of text mode (`shift`+`quote`)
   work again
+- **#1517** Text content was not correctly serialized
 
 ## 0.74.0 (2022-06-06)
 

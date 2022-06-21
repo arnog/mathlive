@@ -121,7 +121,7 @@ export class MathMode extends Mode {
     const contextFontsize = parent?.computedStyle.fontSize;
     return joinLatex(
       getPropertyRuns(run, 'fontSize').map((x) => {
-        const result = this.emitBackgroundColorRun(x, options);
+        const result = emitBackgroundColorRun(x, options);
         const fontsize = x[0].computedStyle.fontSize;
         if (fontsize && (!parent || contextFontsize !== fontsize)) {
           return (
@@ -143,105 +143,6 @@ export class MathMode extends Mode {
             result
           );
         }
-        return result;
-      })
-    );
-  }
-
-  emitBackgroundColorRun(run: Atom[], options: ToLatexOptions): string {
-    const { parent } = run[0];
-    const parentColor = parent?.computedStyle.backgroundColor;
-    return joinLatex(
-      getPropertyRuns(run, 'backgroundColor').map((x) => {
-        let result = this.emitColorRun(x, options);
-        const style = x[0].computedStyle;
-        if (
-          result.trim() &&
-          style.backgroundColor &&
-          (!parent || parentColor !== style.backgroundColor) &&
-          (x.length > 0 || !(x[0] instanceof BoxAtom))
-        ) {
-          if (options.defaultMode === 'inline-math') result = `$${result}$`;
-          else result = `$$${result}$$`;
-
-          result = `\\colorbox{${
-            style.verbatimBackgroundColor ?? style.backgroundColor
-          }}{${result}}`;
-        }
-        return result;
-      })
-    );
-  }
-
-  emitColorRun(run: Atom[], options: ToLatexOptions): string {
-    const { parent } = run[0];
-    const parentMode = parent?.mode ?? 'math';
-    const contextVariant = variantString(parent!);
-    const contextColor = parent?.computedStyle.color;
-    return joinLatex(
-      getPropertyRuns(run, 'color').map((x) => {
-        const result = joinLatex(
-          getPropertyRuns(x, 'variant').map((x) => {
-            const variant = variantString(x[0]);
-            // Check if all the atoms in this run have a base
-            // variant identical to the current variant
-            // If so, we can skip wrapping them
-            if (
-              x.every((x) => {
-                const info = getInfo(x.command!, parentMode);
-                if (!info || !info.variant) return false;
-
-                return variantString(x) === variant;
-              })
-            )
-              return joinLatex(x.map((x) => x.serialize(options)));
-
-            let command = '';
-            if (variant && variant !== contextVariant) {
-              command = {
-                'calligraphic': '\\mathcal{',
-                'fraktur': '\\mathfrak{',
-                'double-struck': '\\mathbb{',
-                'script': '\\mathscr{',
-                'monospace': '\\mathtt{',
-                'sans-serif': '\\mathsf{',
-                'normal': '\\mathrm{',
-                'normal-italic': '\\mathnormal{',
-                'normal-bold': '\\mathbf{',
-                'normal-bolditalic': '\\mathbfit{',
-                'ams': '',
-                'ams-italic': '\\mathit{',
-                'ams-bold': '\\mathbf{',
-                'ams-bolditalic': '\\mathbfit{',
-                'main': '',
-                'main-italic': '\\mathit{',
-                'main-bold': '\\mathbf{',
-                'main-bolditalic': '\\mathbfit{',
-                // There are a few rare font families possible, which
-                // are not supported:
-                // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
-                // In addition, the 'main' and 'math' font technically
-                // map to \mathnormal{}
-              }[variant!]!;
-              console.assert(command !== undefined);
-            }
-            if (!command) return joinLatex(x.map((x) => x.serialize(options)));
-            return (
-              command + joinLatex(x.map((x) => x.serialize(options))) + '}'
-            );
-          })
-        );
-        const style = x[0].computedStyle;
-        if (style.color && (!parent || contextColor !== style.color)) {
-          return (
-            '\\textcolor{' +
-            (style.verbatimColor ?? style.color) +
-            '}{' +
-            result +
-            '}'
-          );
-        }
-
         return result;
       })
     );
@@ -323,6 +224,104 @@ export class MathMode extends Mode {
     return fontName;
   }
 }
+
+function emitBackgroundColorRun(run: Atom[], options: ToLatexOptions): string {
+  const { parent } = run[0];
+  const parentColor = parent?.computedStyle.backgroundColor;
+  return joinLatex(
+    getPropertyRuns(run, 'backgroundColor').map((x) => {
+      let result = emitColorRun(x, options);
+      const style = x[0].computedStyle;
+      if (
+        result.trim() &&
+        style.backgroundColor &&
+        (!parent || parentColor !== style.backgroundColor) &&
+        (x.length > 0 || !(x[0] instanceof BoxAtom))
+      ) {
+        if (options.defaultMode === 'inline-math') result = `$${result}$`;
+        else result = `$$${result}$$`;
+
+        result = `\\colorbox{${
+          style.verbatimBackgroundColor ?? style.backgroundColor
+        }}{${result}}`;
+      }
+      return result;
+    })
+  );
+}
+
+function emitColorRun(run: Atom[], options: ToLatexOptions): string {
+  const { parent } = run[0];
+  const parentMode = parent?.mode ?? 'math';
+  const contextVariant = variantString(parent!);
+  const contextColor = parent?.computedStyle.color;
+  return joinLatex(
+    getPropertyRuns(run, 'color').map((x) => {
+      const result = joinLatex(
+        getPropertyRuns(x, 'variant').map((x) => {
+          const variant = variantString(x[0]);
+          // Check if all the atoms in this run have a base
+          // variant identical to the current variant
+          // If so, we can skip wrapping them
+          if (
+            x.every((x) => {
+              const info = getInfo(x.command!, parentMode);
+              if (!info || !info.variant) return false;
+
+              return variantString(x) === variant;
+            })
+          )
+            return joinLatex(x.map((x) => x.serialize(options)));
+
+          let command = '';
+          if (variant && variant !== contextVariant) {
+            command = {
+              'calligraphic': '\\mathcal{',
+              'fraktur': '\\mathfrak{',
+              'double-struck': '\\mathbb{',
+              'script': '\\mathscr{',
+              'monospace': '\\mathtt{',
+              'sans-serif': '\\mathsf{',
+              'normal': '\\mathrm{',
+              'normal-italic': '\\mathnormal{',
+              'normal-bold': '\\mathbf{',
+              'normal-bolditalic': '\\mathbfit{',
+              'ams': '',
+              'ams-italic': '\\mathit{',
+              'ams-bold': '\\mathbf{',
+              'ams-bolditalic': '\\mathbfit{',
+              'main': '',
+              'main-italic': '\\mathit{',
+              'main-bold': '\\mathbf{',
+              'main-bolditalic': '\\mathbfit{',
+              // There are a few rare font families possible, which
+              // are not supported:
+              // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
+              // In addition, the 'main' and 'math' font technically
+              // map to \mathnormal{}
+            }[variant!]!;
+            console.assert(command !== undefined);
+          }
+          if (!command) return joinLatex(x.map((x) => x.serialize(options)));
+          return command + joinLatex(x.map((x) => x.serialize(options))) + '}';
+        })
+      );
+      const style = x[0].computedStyle;
+      if (style.color && (!parent || contextColor !== style.color)) {
+        return (
+          '\\textcolor{' +
+          (style.verbatimColor ?? style.color) +
+          '}{' +
+          result +
+          '}'
+        );
+      }
+
+      return result;
+    })
+  );
+}
+
 function variantString(atom: Atom): string {
   if (!atom) return '';
   const { style } = atom;

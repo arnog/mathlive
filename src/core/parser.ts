@@ -1282,13 +1282,15 @@ export class Parser {
   parseArgument(argType: ArgumentType): null | Argument;
   parseArgument(argType: ArgumentType): null | Argument {
     this.skipFiller();
-    argType = argType === 'auto' ? this.parseMode : argType;
+    if (argType === 'auto') argType = this.parseMode;
     let result: Argument | null = null;
+
     // An argument (which is called a 'math field' in TeX)
     // could be a single character or symbol, as in `\frac12`
     // Note that ``\frac\sqrt{-1}\alpha\beta`` is equivalent to
     // ``\frac{\sqrt}{-1}{\beta}``
-    if (!this.match('<{>')) {
+    const hasBrace = this.peek() === '<{>';
+    if (!hasBrace) {
       if (argType === 'delim') return this.scanDelim() ?? '.';
 
       if (argType === 'text' || argType === 'math') {
@@ -1300,56 +1302,12 @@ export class Parser {
       }
     }
 
+    if (hasBrace) this.get();
+
     if (argType === 'text' || argType === 'math') {
       this.beginContext({ mode: argType });
-
-      // Collect an array of tokens until a balanced "}"
-      const initialIndex = this.index;
-      let depth = 1;
-      do {
-        const token = this.get();
-        if (token === '<}>') depth -= 1;
-        if (token === '<{>') depth += 1;
-      } while (depth > 0 && !this.end());
-
-      result = Mode.parseTokens(
-        argType,
-        this.tokens.slice(initialIndex, this.index - 1),
-        this.onError,
-        {
-          args: this.args ?? (() => ''),
-          macros: this.macros ?? {},
-          smartFence: this.smartFence,
-          style: this.style,
-          parse: (
-            mode: ParseMode,
-            tokens: Token[],
-            options
-          ): [Atom[], Token[]] => {
-            const parser = new Parser(tokens, {
-              args: options.args,
-              parseMode: mode,
-              smartFence: this.smartFence,
-              macros: options.macros,
-              registers: this.currentContext.registers,
-              mathstyle: this.currentContext.mathstyle,
-              colorMap: this.colorMap,
-              backgroundColorMap: this.backgroundColorMap,
-              style: options.style,
-              onError: this.onError,
-            });
-            result = parser.parse();
-            return [result, tokens.slice(parser.index)];
-          },
-        }
-      );
-
-      if (!result) {
-        // No mode-specific result. Try again from the start
-        this.index = initialIndex;
-        do this.mathlist.push(...this.parse());
-        while (!this.match('<}>') && !this.end());
-      }
+      do this.mathlist.push(...this.parse());
+      while (!this.match('<}>') && !this.end());
     } else {
       this.beginContext();
       if (argType === 'string') result = this.scanString();
@@ -1361,12 +1319,12 @@ export class Parser {
       else if (argType === 'glue') result = this.scanGlue();
       else if (argType === 'delim') result = this.scanDelim() ?? '.';
 
+      if (hasBrace) this.skipUntilToken('<}>');
+
       if (result === null) {
         this.endContext();
         return null;
       }
-
-      this.skipUntilToken('<}>');
     }
 
     const atoms = this.mathlist;

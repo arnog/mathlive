@@ -19,6 +19,10 @@ export class LatexMode extends Mode {
       .map((x) => x.value)
       .join('');
   }
+
+  applyStyle(): string | null {
+    return null;
+  }
 }
 
 new LatexMode();

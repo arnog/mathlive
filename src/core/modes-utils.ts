@@ -1,9 +1,4 @@
-import {
-  ErrorListener,
-  Style,
-  ParserErrorCode,
-  ParseMode,
-} from '../public/core';
+import { Style, ParseMode } from '../public/core';
 
 import type { Box } from './box';
 import type { Token } from './tokenizer';
@@ -24,7 +19,7 @@ export interface ParseTokensOptions {
   ) => [Atom[], Token[]];
 }
 
-export class Mode {
+export abstract class Mode {
   static _registry: Record<string, Mode> = {};
   constructor(name: string) {
     Mode._registry[name] = this;
@@ -36,15 +31,6 @@ export class Mode {
     style?: Style
   ): Atom | null {
     return Mode._registry[mode].createAtom(command, style);
-  }
-
-  static parseTokens(
-    mode: ParseMode,
-    tokens: Token[],
-    onError: ErrorListener<ParserErrorCode>,
-    options: ParseTokensOptions
-  ): Atom[] | null {
-    return Mode._registry[mode].parseTokens(tokens, onError, options);
   }
 
   // `run` should be a run (sequence) of atoms all with the same
@@ -59,30 +45,16 @@ export class Mode {
     return Mode._registry[mode].applyStyle(box, style);
   }
 
-  createAtom(_command: string, _style?: Style): Atom | null {
-    return null;
-  }
+  abstract createAtom(_command: string, _style?: Style): Atom | null;
 
-  parseTokens(
-    _tokens: Token[],
-    _onError: ErrorListener<ParserErrorCode>,
-    _options: ParseTokensOptions
-  ): Atom[] | null {
-    return null;
-  }
-
-  serialize(_run: Atom[], _options: ToLatexOptions): string {
-    return '';
-  }
+  abstract serialize(_run: Atom[], _options: ToLatexOptions): string;
 
   /*
    * Apply the styling (bold, italic, etc..) as classes to the box, and return
    * the effective font name to be used for metrics
    * ('Main-Regular', 'Caligraphic-Regualr' etc...)
    */
-  applyStyle(_box: Box, _style: Style): string | null {
-    return null;
-  }
+  abstract applyStyle(_box: Box, _style: Style): string | null;
 }
 
 /*
