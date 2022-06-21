@@ -220,10 +220,10 @@ function toggleVirtualKeyboard(
       keyboard.options.virtualKeyboardContainer.style.paddingBottom;
     keyboard.originalContainerBottomPadding = padding;
     if (padding)
-      keyboard.options.virtualKeyboardContainer.style.paddingBottom = `calc(${padding} + var(--keyboard-height, 276px))`;
+      keyboard.options.virtualKeyboardContainer.style.paddingBottom = `calc(${padding} + var(--keyboard-height, 276px) - 1px)`;
     else {
       keyboard.options.virtualKeyboardContainer.style.paddingBottom =
-        'var(--keyboard-height, 276px)';
+        'calc(var(--keyboard-height, 276px) - 1px)';
     }
     // For the transition effect to work, the property has to be changed
     // after the insertion in the DOM. Use setTimeout
