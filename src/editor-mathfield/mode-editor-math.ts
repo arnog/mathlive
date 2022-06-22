@@ -184,7 +184,7 @@ export class MathModeEditor extends ModeEditor {
     // Save the content of the selection, if any
     //
     const args: Record<string, string> = {};
-    args[0] = model.getValue(model.selection);
+    args[0] = model.getValue(model.selection, 'latex-unstyled');
     args['?'] = '\\placeholder{}';
     args['@'] = args['?'];
 
@@ -228,7 +228,7 @@ export class MathModeEditor extends ModeEditor {
       // We'll use the preceding `mord`s or text mode atoms for it (implicit argument)
       const offset = getImplicitArgOffset(model);
       if (offset >= 0) {
-        args['@'] = model.getValue(offset, model.position);
+        args['@'] = model.getValue(offset, model.position, 'latex-unstyled');
         model.deleteAtoms([offset, model.position]);
       }
     }
@@ -251,65 +251,65 @@ export class MathModeEditor extends ModeEditor {
 
     const placeholdersFound = findPlaceholders(newAtoms);
 
-    const newPlaceholders = placeholdersFound.filter(
+    const fillInTheBlankPlaceholders = placeholdersFound.filter(
       (atom) =>
         atom.placeholderId &&
         !model.mathfield._placeholders.has(atom.placeholderId)
     );
+
+    // Remove placeholders that have a matching placeholder ID
+    // (those are placeholders used for "fill-in-the-blank")
     const idsFound = placeholdersFound.map((atom) => atom.placeholderId);
-    const removedPlaceholder = [...model.mathfield._placeholders.keys()].filter(
-      (placeholderId) => !idsFound.includes(placeholderId)
-    );
+    [...model.mathfield._placeholders.keys()]
+      .filter((placeholderId) => !idsFound.includes(placeholderId))
+      .forEach((placeholderId) => {
+        if (model.mathfield._placeholders.has(placeholderId)) {
+          model.mathfield._placeholders.get(placeholderId)?.field.remove();
 
-    removedPlaceholder.forEach((placeholderId) => {
-      if (model.mathfield._placeholders.has(placeholderId)) {
-        model.mathfield._placeholders.get(placeholderId)?.field.remove();
+          model.mathfield._placeholders.delete(placeholderId);
+        }
+      });
 
-        model.mathfield._placeholders.delete(placeholderId);
-      }
-    });
+    fillInTheBlankPlaceholders.forEach((placeholder) => {
+      console.assert(
+        !!placeholder.placeholderId &&
+          !model.mathfield._placeholders.has(placeholder.placeholderId)
+      );
+      const element = new MathfieldElement({
+        virtualKeyboardMode: 'onfocus',
+        readOnly: false,
+        fontsDirectory: model.mathfield.options.fontsDirectory,
+      });
+      const container = model.mathfield.element?.querySelector(
+        '.ML__placeholdercontainer'
+      );
 
-    newPlaceholders.forEach((placeholder) => {
-      if (
-        placeholder.placeholderId &&
-        !model.mathfield._placeholders.has(placeholder.placeholderId)
-      ) {
-        const element = new MathfieldElement({
-          virtualKeyboardMode: 'onfocus',
-          readOnly: false,
-          fontsDirectory: model.mathfield.options.fontsDirectory,
-        });
-        const container = model.mathfield.element?.querySelector(
-          '.ML__placeholdercontainer'
-        );
+      element.value = placeholder.defaultValue?.length
+        ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'text' })
+        : '';
+      element.classList.add('nested-mathfield');
+      element.style.display = 'inline-block';
+      element.style.zIndex = '1001';
+      element.style.position = 'absolute';
+      element.style.minWidth = '30px';
 
-        element.value = placeholder.defaultValue?.length
-          ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'text' })
-          : '';
-        element.classList.add('nested-mathfield');
-        element.style.display = 'inline-block';
-        element.style.zIndex = '1001';
-        element.style.position = 'absolute';
-        element.style.minWidth = '30px';
-
-        const style = document.createElement('style');
-        style.textContent = `.nested-mathfield { border: 1px solid black; }
+      const style = document.createElement('style');
+      style.textContent = `.nested-mathfield { border: 1px solid black; }
           .ML__container{ min-height:auto !important; }
           `;
-        element.appendChild(style);
-        element.addEventListener('input', () => {
-          placeholderDidChange(model, placeholder.placeholderId!);
-          // this timeout gives some time for a placeholder to render properly
-          // before rendering the main field.
-          setTimeout(() => requestUpdate(model.mathfield));
-        });
-        container?.appendChild(element);
+      element.appendChild(style);
+      element.addEventListener('input', () => {
+        placeholderDidChange(model, placeholder.placeholderId!);
+        // this timeout gives some time for a placeholder to render properly
+        // before rendering the main field.
+        setTimeout(() => requestUpdate(model.mathfield));
+      });
+      container?.appendChild(element);
 
-        model.mathfield._placeholders.set(placeholder.placeholderId, {
-          atom: placeholder,
-          field: element,
-        });
-      }
+      model.mathfield._placeholders.set(placeholder.placeholderId as string, {
+        atom: placeholder,
+        field: element,
+      });
     });
 
     //

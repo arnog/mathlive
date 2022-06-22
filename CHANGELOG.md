@@ -1,3 +1,22 @@
+## [Unreleased]
+
+### Improvements
+
+- In the second argument of the `\colorbox` command, use `\ensuremath` when
+  necessary to indicate that the content is math, rather than a mode shift
+  command.
+
+### Features
+
+- Added new `latex-unstyled` output format. Use it with `getValue()` to get a
+  LaTeX representation of the mathfield content, without any color or background
+  color styling command.
+
+### Bug Fixes
+
+- **#1489** In some cases, applying a background color, then entering some
+  equations, could result in incorrect LaTeX output.
+
 ## 0.75.0 (2022-06-21)
 
 ### Features

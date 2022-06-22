@@ -136,7 +136,11 @@ function emitBackgroundColorRun(
     getPropertyRuns(run, 'backgroundColor').map((x) => {
       const [s, needsWrap] = emitColorRun(x, options);
       const style = x[0].computedStyle;
-      if (style.backgroundColor && style.backgroundColor !== 'none') {
+      if (
+        !(options.skipStyles ?? false) &&
+        style.backgroundColor &&
+        style.backgroundColor !== 'none'
+      ) {
         return [
           `\\colorbox{${
             style.verbatimBackgroundColor ?? style.backgroundColor
@@ -157,6 +161,7 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): [string, boolean] {
       const [s, needsWrap] = emitStyledTextRun(x, options);
 
       if (
+        !(options.skipStyles ?? false) &&
         x[0].style.color &&
         x[0].style.color !== 'none' &&
         parentColor !== x[0].style.color

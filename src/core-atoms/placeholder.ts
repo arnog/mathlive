@@ -24,6 +24,9 @@ export class PlaceholderAtom extends Atom {
       mode: options?.mode ?? 'math',
       style: options?.style,
       value: value,
+      command: options?.value
+        ? `\\placeholder{${options.value}}`
+        : '\\placeholder{}',
     });
     this.captureSelection = true;
     this.placeholderId = options?.placeholderId;

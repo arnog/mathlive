@@ -68,6 +68,8 @@ export type ToLatexOptions = {
   expandMacro?: boolean;
   // If true, don't emit a mode command such as `\text`
   skipModeCommand?: boolean;
+  // If true, don't emit color, backgroundcolor, styling commands
+  skipStyles?: boolean;
   // Don't emit unnecessary style shift commands: you can assume we're in
   // this default mode.
   defaultMode: 'math' | 'text' | 'inline-math';

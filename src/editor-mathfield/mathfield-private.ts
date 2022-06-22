@@ -102,6 +102,7 @@ export class MathfieldPrivate implements Mathfield {
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
+  // Placeholders for 'fill-in-the-blank'
   _placeholders: Map<
     string,
     { atom: PlaceholderAtom; field: MathfieldElement }

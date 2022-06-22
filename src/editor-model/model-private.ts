@@ -428,9 +428,10 @@ export class ModelPrivate implements Model {
       format = 'latex';
     }
 
-    if (format === 'latex' || format === 'latex-expanded') {
+    if (format.startsWith('latex')) {
       const options: ToLatexOptions = {
         expandMacro: format === 'latex-expanded',
+        skipStyles: format === 'latex-unstyled',
         defaultMode: this.mathfield.options.defaultMode,
       };
       return joinLatex(
