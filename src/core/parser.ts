@@ -42,7 +42,7 @@ export type ArgumentType =
       | 'colspec' // Formating of a column in tabular environment, e.g. `'r@{.}l'`
       | 'delim'
       | 'dimen' // `'25mu'`, `'2pt'`
-      | 'number' // `+/-12.56`
+      | 'number' // `+/-12.56` (and some more exotic, like `"CAFE`, `'0808`...)
       | 'rest' // `{\foo \textsize ...}` to capture "..."
       | 'glue' // `'25mu plus 2em minus fiLll'`, `'2pt'`
       | 'string' // The string will end on the first non-literal token, e.g. `<}>`
@@ -56,7 +56,7 @@ function isLiteral(token: Token): boolean {
   return !/^<({|}|\$|\$\$|space)>$/.test(token);
 }
 
-// The `ParsinContext` is the set of properties that get 'reset' when a
+// The `ParsingContext` is the set of properties that get 'reset' when a
 // new context is entered, essentially within a `{...}` or `[...]`...
 // Their values are restored when the context is exited.
 
@@ -1393,8 +1393,6 @@ export class Parser {
     let result: Atom | null = null;
 
     if (command === '\\char') {
-      // \char has a special syntax and requires a non-braced integer
-      // argument
       const initialIndex = this.index;
       let codepoint = Math.floor(this.scanNumber(true) ?? Number.NaN);
       if (!Number.isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff)
@@ -1414,8 +1412,6 @@ export class Parser {
     }
 
     if (command === '\\hskip' || command === '\\kern') {
-      // \hskip and \kern have a special syntax and requires a non-braced
-      // 'skip' argument
       const width = this.scanGlue();
       if (!width) return null;
       return [new SpacingAtom(command, this.style, width)];

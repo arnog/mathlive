@@ -428,30 +428,30 @@ const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {
 const SHIFTED_KEYS = {
   '\\varphi ': ['&Phi;', '\\Phi '],
   '\\varsigma ': ['&Sigma;', '\\Sigma '],
-  '\\epsilon ': ['&#x0190;', '{\\char"0190}'],
-  '\\rho ': ['&#x3A1', '{\\char"3A1}'],
-  '\\tau ': ['&#x3A4;', '{\\char"3A4}'],
+  '\\epsilon ': ['&#x0190;', '\\char"0190'],
+  '\\rho ': ['&#x3A1', '\\char"3A1'],
+  '\\tau ': ['&#x3A4;', '\\char"3A4'],
   '\\upsilon ': ['&Upsilon;', '\\Upsilon '],
   '\\theta ': ['&Theta;', '\\Theta '],
-  '\\iota ': ['&Iota;', '{\\char"399}'],
-  '\\omicron ': ['&#x039F;', '{\\char"39F}'],
+  '\\iota ': ['&Iota;', '\\char"399'],
+  '\\omicron ': ['&#x039F;', '\\char"39F'],
   '\\pi ': ['&Pi;', '\\Pi '],
-  '\\alpha ': ['&Alpha;', '{\\char"391}'],
+  '\\alpha ': ['&Alpha;', '\\char"391'],
   '\\sigma ': ['&Sigma;', '\\Sigma '],
   '\\delta ': ['&Delta;', '\\Delta '],
   '\\phi ': ['&#x03a6;', '\\Phi '],
   '\\gamma ': ['&Gamma;', '\\Gamma '],
-  '\\eta ': ['&Eta;', '{\\char"397}'],
+  '\\eta ': ['&Eta;', '\\char"397'],
   '\\xi ': ['&Xi;', '\\Xi '],
-  '\\kappa ': ['&Kappa;', '{\\char"39A}'],
+  '\\kappa ': ['&Kappa;', '\\char"39A'],
   '\\lambda ': ['&Lambda;', '\\Lambda '],
-  '\\zeta ': ['&Zeta;', '{\\char"396}'],
-  '\\chi ': ['&Chi;', '{\\char"3A7}'],
+  '\\zeta ': ['&Zeta;', '\\char"396'],
+  '\\chi ': ['&Chi;', '\\char"3A7'],
   '\\psi ': ['&Psi;', '\\Psi '],
   '\\omega ': ['&Omega;', '\\Omega '],
-  '\\beta ': ['&Beta;', '{\\char"392}'],
-  '\\nu ': ['&Nu;', '{\\char"39D}'],
-  '\\mu ': ['&Mu;', '{\\char"39C}'],
+  '\\beta ': ['&Beta;', '\\char"392'],
+  '\\nu ': ['&Nu;', '\\char"39D'],
+  '\\mu ': ['&Mu;', '\\char"39C'],
 };
 
 const ALT_KEYS_BASE: {
@@ -1046,7 +1046,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='\\omicron '>&omicron;</i></li>
                 <li class='keycap tex' data-insert='\\pi '><i>&pi;</i></li>
             </ul>
-            <ul><li class='keycap tex' data-insert='\\alpha ' data-shifted='&Alpha;' data-shifted-command='["insert","{\\\\char\\"391}"]'><i>&alpha;</i></li>
+            <ul><li class='keycap tex' data-insert='\\alpha ' data-shifted='&Alpha;' data-shifted-command='["insert","\\\\char\\"391"]'><i>&alpha;</i></li>
                 <li class='keycap tex' data-insert='\\sigma '><i>&sigma;</i></li>
                 <li class='keycap tex' data-insert='\\delta '><i>&delta;</i></li>
                 <li class='keycap tex' data-insert='\\phi '><i>&#x03d5;</i></i></li>
@@ -1085,31 +1085,31 @@ const LAYERS = {
         <div class='rows'>
             <ul><li class='keycap tex' data-insert='\\Phi '>&Phi;<aside>phi</aside></li>
                 <li class='keycap tex' data-insert='\\Sigma '>&Sigma;<aside>sigma</aside></li>
-                <li class='keycap tex' data-insert='{\\char"0190}'>&#x0190;<aside>epsilon</aside></li>
-                <li class='keycap tex' data-insert='{\\char"3A1}'>&#x3A1;<aside>rho</aside></li>
-                <li class='keycap tex' data-insert='{\\char"3A4}'>&#x3A4;<aside>tau</aside></li>
+                <li class='keycap tex' data-insert='\\char"0190'>&#x0190;<aside>epsilon</aside></li>
+                <li class='keycap tex' data-insert='\\char"3A1'>&#x3A1;<aside>rho</aside></li>
+                <li class='keycap tex' data-insert='\\char"3A4'>&#x3A4;<aside>tau</aside></li>
                 <li class='keycap tex' data-insert='\\Upsilon '>&Upsilon;<aside>upsilon</aside></li>
                 <li class='keycap tex' data-insert='\\Theta '>&Theta;<aside>theta</aside></li>
-                <li class='keycap tex' data-insert='{\\char"399}'>&Iota;<aside>iota</aside></li>
-                <li class='keycap tex' data-insert='{\\char"39F}'>&#x039F;<aside>omicron</aside></li>
+                <li class='keycap tex' data-insert='\\char"399'>&Iota;<aside>iota</aside></li>
+                <li class='keycap tex' data-insert='\\char"39F'>&#x039F;<aside>omicron</aside></li>
                 <li class='keycap tex' data-insert='\\Pi '>&Pi;<aside>pi</aside></li></ul>
-            <ul><li class='keycap tex' data-insert='{\\char"391}'>&#x391;<aside>alpha</aside></li>
+            <ul><li class='keycap tex' data-insert='\\char"391'>&#x391;<aside>alpha</aside></li>
                 <li class='keycap tex' data-insert='\\Sigma '>&Sigma;<aside>sigma</aside></li>
                 <li class='keycap tex' data-insert='\\Delta '>&Delta;<aside>delta</aside></li>
                 <li class='keycap tex' data-insert='\\Phi '>&#x03a6;<aside>phi</aside></li>
                 <li class='keycap tex' data-insert='\\Gamma '>&Gamma;<aside>gamma</aside></li>
-                <li class='keycap tex' data-insert='{\\char"397}'>&Eta;<aside>eta</aside></li>
+                <li class='keycap tex' data-insert='\\char"397'>&Eta;<aside>eta</aside></li>
                 <li class='keycap tex' data-insert='\\Xi '>&Xi;<aside>xi</aside></li>
-                <li class='keycap tex' data-insert='{\\char"39A}'>&Kappa;<aside>kappa</aside></li>
+                <li class='keycap tex' data-insert='\\char"39A'>&Kappa;<aside>kappa</aside></li>
                 <li class='keycap tex' data-insert='\\Lambda '>&Lambda;<aside>lambda</aside></li></ul>
             <ul><li class='shift modifier font-glyph bottom left selected w15 layer-switch' data-layer='lower-greek'>&#x21e7;</li>
-                <li class='keycap tex' data-insert='{\\char"396}'>&Zeta;<aside>zeta</aside></li>
-                <li class='keycap tex' data-insert='{\\char"3A7}'>&Chi;<aside>chi</aside></li>
+                <li class='keycap tex' data-insert='\\char"396'>&Zeta;<aside>zeta</aside></li>
+                <li class='keycap tex' data-insert='\\char"3A7'>&Chi;<aside>chi</aside></li>
                 <li class='keycap tex' data-insert='\\Psi '>&Psi;<aside>psi</aside></li>
                 <li class='keycap tex' data-insert='\\Omega '>&Omega;<aside>omega</aside></li>
-                <li class='keycap tex' data-insert='{\\char"392}'>&Beta;<aside>beta</aside></li>
-                <li class='keycap tex' data-insert='{\\char"39D}'>&Nu;<aside>nu</aside></li>
-                <li class='keycap tex' data-insert='{\\char"39C}'>&Mu;<aside>mu</aside></li>
+                <li class='keycap tex' data-insert='\\char"392'>&Beta;<aside>beta</aside></li>
+                <li class='keycap tex' data-insert='\\char"39D'>&Nu;<aside>nu</aside></li>
+                <li class='keycap tex' data-insert='\\char"39C'>&Mu;<aside>mu</aside></li>
                 <li class='action font-glyph bottom right w15' data-command='["performWithFeedback","deleteBackward"]'>&#x232b;</li></ul>
             <ul>
                 <li class='separator w10'>&nbsp;</li>
