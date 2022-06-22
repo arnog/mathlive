@@ -16,6 +16,9 @@
 
 - **#1489** In some cases, applying a background color, then entering some
   equations, could result in incorrect LaTeX output.
+- Correct serialization for `\char"0040 4` (or in general any command with an
+  unbraced numeric argument followed by an ambiguous decimal or hexadecimal
+  character)
 
 ## 0.75.0 (2022-06-21)
 

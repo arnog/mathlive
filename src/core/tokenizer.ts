@@ -330,9 +330,12 @@ export function joinLatex(segments: string[]): string {
       // name... insert a separator (if one was needed for the previous segment)
       if (/[a-zA-Z\*]/.test(segment[0])) result.push(sep);
 
+      result.push(segment);
+
+      if (/\\[a-zA-Z]+\*?[\"\'][^\ ]+$/.test(segment)) result.push(' ');
+
       // If the segment ends in a command...
       sep = /\\[a-zA-Z]+\*?$/.test(segment) ? ' ' : '';
-      result.push(segment);
     }
   }
 
