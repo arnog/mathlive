@@ -47,7 +47,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     mathfield: Mathfield;
     originValidator: OriginValidator;
   }) {
-    this.targetOrigin = options.targetOrigin ?? window.origin;
+    this.targetOrigin = options.targetOrigin ?? window.origin ?? '*';
     this.originValidator = options.originValidator ?? 'same-origin';
     this._mathfield = options.mathfield;
   }
