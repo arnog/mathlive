@@ -9,7 +9,7 @@ import { Atom } from '../core/atom-class';
 import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
-import { contentDidChange } from '../editor-model/listeners';
+import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
 export class TextModeEditor extends ModeEditor {
   constructor() {
@@ -18,12 +18,19 @@ export class TextModeEditor extends ModeEditor {
 
   onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
     if (!ev.clipboardData) return false;
+
     const text = ev.clipboardData.getData('text/plain');
 
-    if (text) {
+    if (
+      text &&
+      contentWillChange(mathfield.model, {
+        inputType: 'insertFromPaste',
+        data: text,
+      })
+    ) {
       mathfield.snapshot();
       if (this.insert(mathfield.model, text)) {
-        contentDidChange(mathfield.model);
+        contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
         requestUpdate(mathfield);
       }
 
@@ -40,6 +47,8 @@ export class TextModeEditor extends ModeEditor {
     text: string,
     options: InsertOptions = {}
   ): boolean {
+    if (!contentWillChange(model, { data: text, inputType: 'insertText' }))
+      return false;
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
     if (!options.format) options.format = 'auto';
@@ -89,7 +98,7 @@ export class TextModeEditor extends ModeEditor {
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
     else if (lastNewAtom) model.position = model.offsetOf(lastNewAtom);
 
-    contentDidChange(model);
+    contentDidChange(model, { data: text, inputType: 'insertText' });
 
     model.suppressChangeNotifications = suppressChangeNotifications;
 

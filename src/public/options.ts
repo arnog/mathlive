@@ -641,6 +641,33 @@ export type UndoStateChangeListener = (
   action: 'undo' | 'redo' | 'snapshot'
 ) => void;
 
+//  Note that this can't be an arbitrary string (e.g. `insertMath`), as it will
+// get normalized when the event is dispatched. It has to be one of the strings
+// from here: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
+export type ContentChangeType =
+  | 'insertText'
+  | 'insertLineBreak'
+  | 'insertFromPaste'
+  | 'historyUndo'
+  | 'historyRedo'
+  | 'deleteByCut'
+  | 'deleteContent'
+  | 'deleteContentBackward'
+  | 'deleteContentForward'
+  | 'deleteWordBackward'
+  | 'deleteWordForward'
+  | 'deleteSoftLineBackward'
+  | 'deleteSoftLineForward'
+  | 'deleteHardLineBackward'
+  | 'deleteHardLineForward';
+
+export type ContentChangeOptions = {
+  data?: string | null;
+  dataTransfer?: DataTransfer | null;
+  inputType?: ContentChangeType;
+  isComposing?: boolean;
+};
+
 /**
  * The methods provide a notification that an event is about to occur or has
  * occured.
@@ -660,8 +687,14 @@ export interface MathfieldListeners {
   onBlur: (sender: Mathfield) => void;
   /** The mathfield has gained keyboard focus */
   onFocus: (sender: Mathfield) => void;
-  onContentWillChange: (sender: Mathfield) => void;
-  onContentDidChange: (sender: Mathfield) => void;
+  onContentWillChange: (
+    sender: Mathfield,
+    options: ContentChangeOptions
+  ) => boolean;
+  onContentDidChange: (
+    sender: Mathfield,
+    options: ContentChangeOptions
+  ) => void;
   onSelectionWillChange: (sender: Mathfield) => void;
   onSelectionDidChange: (sender: Mathfield) => void;
   onUndoStateWillChange: UndoStateChangeListener;

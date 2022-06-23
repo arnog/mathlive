@@ -16,7 +16,13 @@ import { Atom } from '../core/atom-class';
 import { loadFonts } from '../core/fonts';
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
-import { deleteRange, getMode, isRange, ModelPrivate } from '../editor/model';
+import {
+  contentWillChange,
+  deleteRange,
+  getMode,
+  isRange,
+  ModelPrivate,
+} from '../editor/model';
 import { applyStyle } from '../editor-model/styling';
 import { delegateKeyboardEvents, KeyboardDelegate } from '../editor/keyboard';
 import { UndoRecord, UndoManager } from '../editor/undo';
@@ -410,20 +416,22 @@ export class MathfieldPrivate implements Mathfield {
           return;
         }
 
-        // Snapshot the undo state
-        this.snapshot();
+        if (contentWillChange(this.model, { inputType: 'deleteByCut' })) {
+          // Snapshot the undo state
+          this.snapshot();
 
-        // Copy to the clipboard
-        ModeEditor.onCopy(this, ev);
+          // Copy to the clipboard
+          ModeEditor.onCopy(this, ev);
 
-        // Clearing the selection will have the side effect of clearing the
-        // content of the textarea. However, the textarea value is what will
-        // be copied to the clipboard (in some cases), so defer the clearing of the selection
-        // to later, after the cut operation has been handled.
-        setTimeout(() => {
-          deleteRange(this.model, range(this.model.selection));
-          requestUpdate(this);
-        }, 0);
+          // Clearing the selection will have the side effect of clearing the
+          // content of the textarea. However, the textarea value is what will
+          // be copied to the clipboard (in some cases), so defer the clearing of the selection
+          // to later, after the cut operation has been handled.
+          setTimeout(() => {
+            deleteRange(this.model, range(this.model.selection), 'deleteByCut');
+            requestUpdate(this);
+          }, 0);
+        }
       },
       copy: (ev: ClipboardEvent) => ModeEditor.onCopy(this, ev),
       paste: (ev: ClipboardEvent) => {
@@ -463,13 +471,13 @@ export class MathfieldPrivate implements Mathfield {
         removeExtraneousParentheses: this.options.removeExtraneousParentheses,
       },
       {
-        onContentDidChange: (_sender: ModelPrivate): void =>
-          this.options.onContentDidChange(this),
-        onSelectionDidChange: (_sender: ModelPrivate): void =>
-          this._onSelectionDidChange(),
-        onContentWillChange: (): void => this.options.onContentWillChange(this),
+        onContentWillChange: (_sender, options): boolean =>
+          this.options.onContentWillChange(this, options),
+        onContentDidChange: (_sender, options): void =>
+          this.options.onContentDidChange(this, options),
         onSelectionWillChange: (): void =>
           this.options.onSelectionWillChange(this),
+        onSelectionDidChange: (_sender): void => this._onSelectionDidChange(),
         onError: this.options.onError,
         onPlaceholderDidChange: (
           _sender: ModelPrivate,
@@ -512,12 +520,13 @@ export class MathfieldPrivate implements Mathfield {
     this.undoManager.snapshot(this.options);
 
     this.model.setListeners({
-      onContentDidChange: (_sender: ModelPrivate) =>
-        this.options.onContentDidChange(this),
+      onContentWillChange: (_sender, options) =>
+        this.options.onContentWillChange(this, options),
+      onContentDidChange: (_sender, options) =>
+        this.options.onContentDidChange(this, options),
+      onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onSelectionDidChange: (_sender: ModelPrivate) =>
         this._onSelectionDidChange(),
-      onContentWillChange: () => this.options.onContentWillChange(this),
-      onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onError: this.options.onError,
       onPlaceholderDidChange: (_sender, placeholderId) =>
         this.options.onPlaceholderDidChange(this, placeholderId),
@@ -624,12 +633,13 @@ export class MathfieldPrivate implements Mathfield {
         this.options.decimalSeparator === ',' ? '{,}' : '.';
     }
     this.model.setListeners({
-      onContentDidChange: (_sender: ModelPrivate) =>
-        this.options.onContentDidChange(this),
+      onContentWillChange: (_sender, options) =>
+        this.options.onContentWillChange(this, options),
+      onContentDidChange: (_sender, options) =>
+        this.options.onContentDidChange(this, options),
+      onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onSelectionDidChange: (_sender: ModelPrivate) =>
         this._onSelectionDidChange(),
-      onContentWillChange: () => this.options.onContentWillChange(this),
-      onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onError: this.options.onError,
       onPlaceholderDidChange: (_sender, placeholderId) =>
         this.options.onPlaceholderDidChange(this, placeholderId),
@@ -1021,7 +1031,11 @@ export class MathfieldPrivate implements Mathfield {
     const currentMode = this.mode;
     const { model } = this;
     model.deferNotifications(
-      { content: Boolean(suffix) || Boolean(prefix), selection: true },
+      {
+        content: Boolean(suffix) || Boolean(prefix),
+        selection: true,
+        type: 'insertText',
+      },
       (): boolean => {
         let contentChanged = false;
         this.resetKeystrokeBuffer();
@@ -1145,7 +1159,7 @@ export class MathfieldPrivate implements Mathfield {
     const style = validateStyle(this, inStyle);
     const operation = options.operation ?? 'set';
     this.model.deferNotifications(
-      { content: !options.suppressChangeNotifications },
+      { content: !options.suppressChangeNotifications, type: 'insertText' },
       () => {
         if (options.range === undefined) {
           this.model.selection.ranges.forEach((range) =>

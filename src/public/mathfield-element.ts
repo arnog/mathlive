@@ -1,4 +1,4 @@
-import { MathfieldOptions } from './options';
+import { ContentChangeOptions, MathfieldOptions } from './options';
 import { Selector } from './commands';
 import {
   Mathfield,
@@ -1038,9 +1038,20 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             })
           );
         },
-        onContentDidChange: () => {
+        onContentWillChange: (_sender, options: ContentChangeOptions) => {
+          return this.dispatchEvent(
+            new InputEvent('beforeinput', {
+              ...options,
+              cancelable: true,
+              bubbles: true,
+              composed: true,
+            })
+          );
+        },
+        onContentDidChange: (_sender, options: ContentChangeOptions) => {
           this.dispatchEvent(
-            new Event('input', {
+            new InputEvent('input', {
+              ...options,
               cancelable: false,
               bubbles: true,
               composed: true,

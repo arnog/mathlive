@@ -1,7 +1,7 @@
 // Import { getEnvironmentDefinition } from '../core/definitions';
 import { Atom } from '../core/atom';
 import type { ModelPrivate } from './model-private';
-import { contentDidChange } from './listeners';
+import { contentDidChange, contentWillChange } from './listeners';
 import { register as registerCommand } from '../editor/commands';
 import { arrayIndex, arrayCell } from './array-utils';
 import { Style } from '../public/core';
@@ -163,30 +163,34 @@ export function convertParentToArray(_model: ModelPrivate): void {
 }
 
 export function addRowAfter(model: ModelPrivate): boolean {
+  if (!contentWillChange(model, { inputType: 'insertText' })) return false;
   convertParentToArray(model);
   addCell(model, 'after row');
-  contentDidChange(model);
+  contentDidChange(model, { inputType: 'insertText' });
   return true;
 }
 
 export function addRowBefore(model: ModelPrivate): boolean {
+  if (!contentWillChange(model, { inputType: 'insertText' })) return false;
   convertParentToArray(model);
   addCell(model, 'before row');
-  contentDidChange(model);
+  contentDidChange(model, { inputType: 'insertText' });
   return true;
 }
 
 export function addColumnAfter(model: ModelPrivate): boolean {
+  if (!contentWillChange(model, { inputType: 'insertText' })) return false;
   convertParentToArray(model);
   addCell(model, 'after column');
-  contentDidChange(model);
+  contentDidChange(model, { inputType: 'insertText' });
   return true;
 }
 
 export function addColumnBefore(model: ModelPrivate): boolean {
+  if (!contentWillChange(model, { inputType: 'insertText' })) return false;
   convertParentToArray(model);
   addCell(model, 'before column');
-  contentDidChange(model);
+  contentDidChange(model, { inputType: 'insertText' });
   return true;
 }
 

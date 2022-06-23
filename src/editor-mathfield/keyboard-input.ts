@@ -30,6 +30,7 @@ import { ModeEditor } from './mode-editor';
 import { canVibrate } from '../common/capabilities';
 import { showKeystroke } from './keystroke-caption';
 import { Atom } from '../core/atom';
+import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
 /**
  * Handler in response to a keystroke event.
@@ -228,16 +229,24 @@ export function onKeystroke(
 
     // 5.4 Handle the return/enter key
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
-      // No matching keybinding: trigger a commit
-      if (typeof mathfield.options.onCommit === 'function') {
-        mathfield.options.onCommit(mathfield);
-        if (evt.preventDefault) {
-          evt.preventDefault();
-          evt.stopPropagation();
+      let result = true;
+      if (
+        contentWillChange(mathfield.model, { inputType: 'insertLineBreak' })
+      ) {
+        // No matching keybinding: trigger a commit
+        if (typeof mathfield.options.onCommit === 'function') {
+          mathfield.options.onCommit(mathfield);
+          if (evt.preventDefault) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            result = false;
+          }
         }
 
-        return false;
+        // Dispatch an 'input' event matching the behavior of `<textarea>`
+        contentDidChange(mathfield.model, { inputType: 'insertLineBreak' });
       }
+      return result;
     }
 
     if (mathfield.mode === 'math') {
@@ -353,7 +362,12 @@ export function onKeystroke(
     }
 
     model.deferNotifications(
-      { content: true, selection: true },
+      {
+        content: true,
+        selection: true,
+        data: shortcut ?? null,
+        type: 'insertText',
+      },
       (): boolean => {
         // Insert the substitute, possibly as a smart fence
         ModeEditor.insert(mathfield.mode, model, shortcut!, {
@@ -480,13 +494,16 @@ export function onTypedText(
   const graphemes = splitGraphemes(text);
 
   if (mathfield.mode === 'latex') {
-    model.deferNotifications({ content: true, selection: true }, () => {
-      removeSuggestion(mathfield);
+    model.deferNotifications(
+      { content: true, selection: true, data: text, type: 'insertText' },
+      () => {
+        removeSuggestion(mathfield);
 
-      for (const c of graphemes) ModeEditor.insert('latex', model, c);
+        for (const c of graphemes) ModeEditor.insert('latex', model, c);
 
-      updateAutocomplete(mathfield);
-    });
+        updateAutocomplete(mathfield);
+      }
+    );
   } else if (mathfield.mode === 'text')
     for (const c of graphemes) ModeEditor.insert('text', model, c, { style });
   else if (mathfield.mode === 'math') {

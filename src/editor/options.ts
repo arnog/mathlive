@@ -223,9 +223,16 @@ export function update(
         result.macros = normalizeMacroDictionary(updates.macros!);
         break;
 
+      case 'onContentWillChange':
+        if (updates[key] === null) result[key] = () => true;
+        else if (typeof updates[key] !== 'function')
+          throw new TypeError(key + ' must be a function or null');
+
+        result[key] = updates[key] as any;
+        break;
+
       case 'onBlur':
       case 'onFocus':
-      case 'onContentWillChange':
       case 'onContentDidChange':
       case 'onSelectionWillChange':
       case 'onSelectionDidChange':
@@ -241,6 +248,7 @@ export function update(
 
         result[key] = updates[key] as any;
         break;
+
       default:
         if (isArray(updates[key])) result[key] = [...updates[key]];
         else if (typeof updates[key] === 'object')
@@ -349,7 +357,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onMulticharSymbol: () => '',
     onBlur: NO_OP_LISTENER,
     onFocus: NO_OP_LISTENER,
-    onContentWillChange: NO_OP_LISTENER,
+    onContentWillChange: () => true,
     onContentDidChange: NO_OP_LISTENER,
     onSelectionWillChange: NO_OP_LISTENER,
     onSelectionDidChange: NO_OP_LISTENER,

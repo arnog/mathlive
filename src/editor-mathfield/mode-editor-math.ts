@@ -15,6 +15,7 @@ import {
   contentDidChange,
   selectionDidChange,
   placeholderDidChange,
+  contentWillChange,
 } from '../editor-model/listeners';
 import {
   parseMathString,
@@ -40,6 +41,15 @@ export class MathModeEditor extends ModeEditor {
 
   onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
     if (!ev.clipboardData) return false;
+
+    if (
+      !contentWillChange(mathfield.model, {
+        dataTransfer: ev.clipboardData,
+        inputType: 'insertFromPaste',
+      })
+    )
+      return false;
+
     let text = '';
     let format: 'auto' | OutputFormat = 'auto';
 
@@ -61,7 +71,7 @@ export class MathModeEditor extends ModeEditor {
         cursor.parent!.addChildrenAfter(atoms, cursor);
         model.position = model.offsetOf(atoms[atoms.length - 1]);
 
-        contentDidChange(model);
+        contentDidChange(model, { inputType: 'insertFromPaste' });
         requestUpdate(mathfield);
 
         ev.preventDefault();
@@ -117,10 +127,8 @@ export class MathModeEditor extends ModeEditor {
           backgroundColorMap: mathfield.backgroundColorMap,
           format,
         })
-      ) {
-        contentDidChange(mathfield.model);
+      )
         requestUpdate(mathfield);
-      }
 
       ev.preventDefault();
       ev.stopPropagation();
@@ -138,6 +146,12 @@ export class MathModeEditor extends ModeEditor {
       backgroundColorMap: (name: string) => string | undefined;
     }
   ): boolean {
+    const data =
+      typeof input === 'string'
+        ? input
+        : model.mathfield.computeEngine.box(input).latex;
+    if (!contentWillChange(model, { data, inputType: 'insertText' }))
+      return false;
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
     if (!options.format) options.format = 'auto';
@@ -162,7 +176,7 @@ export class MathModeEditor extends ModeEditor {
           parent.rightDelim = input;
           model.position += 1;
           selectionDidChange(model);
-          contentDidChange(model);
+          contentDidChange(model, { data, inputType: 'insertText' });
           return true;
         }
       }
@@ -381,7 +395,7 @@ export class MathModeEditor extends ModeEditor {
     } else if (options.selectionMode === 'item')
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
 
-    contentDidChange(model);
+    contentDidChange(model, { data, inputType: 'insertText' });
 
     model.suppressChangeNotifications = suppressChangeNotifications;
 
@@ -687,7 +701,7 @@ export function insertSmartFence(
       parent.isDirty = true;
       parent.rightDelim = fence;
       model.position += 1;
-      contentDidChange(model);
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
       return true;
     }
 
@@ -709,7 +723,7 @@ export function insertSmartFence(
         atom.treeBranch!
       );
       model.position = i;
-      contentDidChange(model);
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
       return true;
     }
 
@@ -725,7 +739,7 @@ export function insertSmartFence(
         parent.treeBranch!
       );
       model.position = model.offsetOf(parent);
-      contentDidChange(model);
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
 
       return true;
     }

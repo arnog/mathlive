@@ -16,6 +16,25 @@
 - Added new `latex-unstyled` output format. Use it with `getValue()` to get a
   LaTeX representation of the mathfield content, without any color or background
   color styling command.
+- **#1335** Added support for _Input Events Level 1_
+  (https://www.w3.org/TR/input-events-1/), which includes the `beforeinput` and
+  `input` events.
+
+  While an `input` event was dispatched before, it did not conform to the
+  `InputEvent` interface. The `input` event now includes an `inputType` property
+  detailing what caused the event to be dispatched, and in some cases a `data`
+  property.
+
+  The `beforeinput` event is dispatched before the content of the mathfield is
+  modified and is a cancelable event.
+
+  A pair of `beforeinput` and `input` events are also dispatched when content is
+  deleted, with an appropriate `inputType` value.
+
+  An `input` event with a `inputType` property of `"insertLineBreak"` is
+  displatched when the **Return** or **Enter** keys are pressed.
+
+  This matches more closely the behavior of the `<textarea>` element.
 
 ### Bug Fixes
 

@@ -1,3 +1,4 @@
+import { ContentChangeOptions } from '../public/options';
 import type {
   ErrorListener,
   ParserErrorCode,
@@ -6,9 +7,18 @@ import type {
 import { ModelPrivate } from './model-private';
 
 export type ModelListeners = {
-  onContentWillChange: (sender: ModelPrivate) => void;
-  onContentDidChange: (sender: ModelPrivate) => void;
-  onSelectionWillChange: (sender: ModelPrivate) => void;
+  onContentWillChange: (
+    sender: ModelPrivate,
+    options: ContentChangeOptions
+  ) => boolean;
+  onContentDidChange: (
+    sender: ModelPrivate,
+    options: ContentChangeOptions
+  ) => void;
+  onSelectionWillChange: (
+    sender: ModelPrivate,
+    options: ContentChangeOptions
+  ) => void;
   onSelectionDidChange: (sender: ModelPrivate) => void;
   onPlaceholderDidChange: (sender: ModelPrivate, placeholderId: string) => void;
   onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
@@ -25,13 +35,35 @@ export function selectionDidChange(model: ModelPrivate): void {
   }
 }
 
-export function contentDidChange(model: ModelPrivate): void {
+export function contentWillChange(
+  model: ModelPrivate,
+  options: ContentChangeOptions = {}
+): boolean {
+  let result = true;
+  if (
+    typeof model.listeners?.onContentWillChange === 'function' &&
+    !model.suppressChangeNotifications
+  ) {
+    model.suppressChangeNotifications = true;
+    result = model.listeners.onContentWillChange(
+      model,
+      options as ContentChangeOptions
+    );
+    model.suppressChangeNotifications = false;
+  }
+  return result;
+}
+
+export function contentDidChange(
+  model: ModelPrivate,
+  options: ContentChangeOptions
+): void {
   if (
     typeof model.listeners?.onContentDidChange === 'function' &&
     !model.suppressChangeNotifications
   ) {
     model.suppressChangeNotifications = true;
-    model.listeners.onContentDidChange(model);
+    model.listeners.onContentDidChange(model, options as ContentChangeOptions);
     model.suppressChangeNotifications = false;
   }
 }

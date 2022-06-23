@@ -4,6 +4,8 @@ import { Atom, Branch } from '../core/atom';
 import type { Range } from '../public/mathfield';
 import { ModelPrivate } from './model-private';
 import { range } from './selection-utils';
+import { ContentChangeType } from '../public/options';
+import { contentWillChange } from './listeners';
 // Import {
 //     arrayFirstCellByRow,
 //     arrayColRow,
@@ -285,31 +287,37 @@ function onDelete(
  * Delete the item at the current position
  */
 export function deleteBackward(model: ModelPrivate): boolean {
+  if (!contentWillChange(model, { inputType: 'deleteContentBackward' }))
+    return false;
+
   if (!model.selectionIsCollapsed)
-    return deleteRange(model, range(model.selection));
+    return deleteRange(model, range(model.selection), 'deleteContentBackward');
 
-  return model.deferNotifications({ content: true, selection: true }, () => {
-    let target: Atom | null = model.at(model.position);
+  return model.deferNotifications(
+    { content: true, selection: true, type: 'deleteContentBackward' },
+    () => {
+      let target: Atom | null = model.at(model.position);
 
-    if (target && onDelete(model, 'backward', target)) return;
+      if (target && onDelete(model, 'backward', target)) return;
 
-    if (target?.isFirstSibling) {
-      if (onDelete(model, 'backward', target.parent!, target.treeBranch))
+      if (target?.isFirstSibling) {
+        if (onDelete(model, 'backward', target.parent!, target.treeBranch))
+          return;
+
+        target = null;
+      }
+
+      // At the first position: nothing to delete...
+      if (!target) {
+        model.announce('plonk');
         return;
+      }
 
-      target = null;
+      model.position = model.offsetOf(target.leftSibling);
+      target.parent!.removeChild(target);
+      model.announce('delete', undefined, [target]);
     }
-
-    // At the first position: nothing to delete...
-    if (!target) {
-      model.announce('plonk');
-      return;
-    }
-
-    model.position = model.offsetOf(target.leftSibling);
-    target.parent!.removeChild(target);
-    model.announce('delete', undefined, [target]);
-  });
+  );
 }
 
 /**
@@ -317,43 +325,48 @@ export function deleteBackward(model: ModelPrivate): boolean {
  * send notifications
  */
 export function deleteForward(model: ModelPrivate): boolean {
+  if (!contentWillChange(model, { inputType: 'deleteContentForward' }))
+    return false;
   if (!model.selectionIsCollapsed)
-    return deleteRange(model, range(model.selection));
+    return deleteRange(model, range(model.selection), 'deleteContentForward');
 
-  return model.deferNotifications({ content: true, selection: true }, () => {
-    let target: Atom | null = model.at(model.position).rightSibling;
+  return model.deferNotifications(
+    { content: true, selection: true, type: 'deleteContentForward' },
+    () => {
+      let target: Atom | null = model.at(model.position).rightSibling;
 
-    if (target && onDelete(model, 'forward', target)) return;
+      if (target && onDelete(model, 'forward', target)) return;
 
-    if (!target) {
-      target = model.at(model.position);
-      if (
-        target.isLastSibling &&
+      if (!target) {
+        target = model.at(model.position);
+        if (
+          target.isLastSibling &&
+          onDelete(model, 'forward', target.parent!, target.treeBranch)
+        )
+          return;
+
+        target = null;
+      } else if (
+        model.at(model.position).isLastSibling &&
         onDelete(model, 'forward', target.parent!, target.treeBranch)
       )
         return;
 
-      target = null;
-    } else if (
-      model.at(model.position).isLastSibling &&
-      onDelete(model, 'forward', target.parent!, target.treeBranch)
-    )
-      return;
+      if (model.position === model.lastOffset || !target) {
+        model.announce('plonk');
+        return;
+      }
 
-    if (model.position === model.lastOffset || !target) {
-      model.announce('plonk');
-      return;
+      target.parent!.removeChild(target);
+      let sibling = model.at(model.position)?.rightSibling;
+      while (sibling?.type === 'msubsup') {
+        sibling.parent!.removeChild(sibling);
+        sibling = model.at(model.position)?.rightSibling;
+      }
+
+      model.announce('delete', undefined, [target]);
     }
-
-    target.parent!.removeChild(target);
-    let sibling = model.at(model.position)?.rightSibling;
-    while (sibling?.type === 'msubsup') {
-      sibling.parent!.removeChild(sibling);
-      sibling = model.at(model.position)?.rightSibling;
-    }
-
-    model.announce('delete', undefined, [target]);
-  });
+  );
 }
 
 /**
@@ -365,7 +378,11 @@ export function deleteForward(model: ModelPrivate): boolean {
  * user action.
  */
 
-export function deleteRange(model: ModelPrivate, range: Range): boolean {
+export function deleteRange(
+  model: ModelPrivate,
+  range: Range,
+  type: ContentChangeType
+): boolean {
   const result = model.getAtoms(range);
   if (result.length > 0 && result[0].parent) {
     let firstChild = result[0].parent!.firstChild;
@@ -389,7 +406,8 @@ export function deleteRange(model: ModelPrivate, range: Range): boolean {
       }
     }
   }
-  return model.deferNotifications({ content: true, selection: true }, () => {
-    model.deleteAtoms(range);
-  });
+  return model.deferNotifications(
+    { content: true, selection: true, type },
+    () => model.deleteAtoms(range)
+  );
 }

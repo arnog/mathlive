@@ -32,6 +32,7 @@ import {
 } from './utils';
 import { compareSelection, range } from './selection-utils';
 import { Mode } from '../core/modes';
+import { ContentChangeType } from '../public/options';
 
 export type GetAtomOptions = {
   includeChildren?: boolean;
@@ -598,35 +599,38 @@ export class ModelPrivate implements Model {
   // Suppress notification while scope is executed,
   // then notify of content change, and selection change (if actual change)
   deferNotifications(
-    options: { content?: boolean; selection?: boolean },
+    options: {
+      content?: boolean;
+      selection?: boolean;
+      data?: string;
+      type?: ContentChangeType;
+    },
     f: () => void
   ): boolean {
     const oldSelection = this._selection;
     const oldAnchor = this._anchor;
     const oldPosition = this._position;
-    let selectionChanged = false;
 
     const saved = this.suppressChangeNotifications;
     this.suppressChangeNotifications = true;
     const previousCounter = this.root.changeCounter;
+
     f();
 
     const contentChanged = this.root.changeCounter !== previousCounter;
-    if (
+    const selectionChanged =
       oldAnchor !== this._anchor ||
       oldPosition !== this._position ||
-      compareSelection(this._selection, oldSelection) === 'different'
-    )
-      selectionChanged = true;
+      compareSelection(this._selection, oldSelection) === 'different';
 
     this.suppressChangeNotifications = saved;
-    if (!this.suppressChangeNotifications) {
-      // Notify of content change, if requested
-      if (options.content && contentChanged) contentDidChange(this);
 
-      // If the selection has effectively changed, notify
-      if (options.selection && selectionChanged) selectionDidChange(this);
-    }
+    // Notify of content change, if requested
+    if (options.content && contentChanged)
+      contentDidChange(this, { data: options.data, inputType: options.type });
+
+    // If the selection has effectively changed, notify
+    if (options.selection && selectionChanged) selectionDidChange(this);
 
     return contentChanged || selectionChanged;
   }

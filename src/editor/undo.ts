@@ -1,9 +1,12 @@
 import type { Selection } from '../public/mathfield';
-import { UndoStateChangeListener } from '../public/options';
+import {
+  ContentChangeOptions,
+  UndoStateChangeListener,
+} from '../public/options';
 import type { ModelPrivate } from '../editor-model/model-private';
 import { AtomJson } from '../core/atom-class';
 import { fromJson } from '../core/atom';
-import { contentDidChange } from "../editor-model/listeners";
+import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
 export type UndoRecord = {
   content: AtomJson;
@@ -14,6 +17,7 @@ interface UndoOptions {
   onUndoStateWillChange?: UndoStateChangeListener;
   onUndoStateDidChange?: UndoStateChangeListener;
   suppressChangeNotifications?: boolean;
+  type?: 'redo' | 'undo';
 }
 
 export class UndoManager {
@@ -55,7 +59,7 @@ export class UndoManager {
     if (typeof options?.onUndoStateWillChange === 'function')
       options.onUndoStateWillChange(this.model.mathfield, 'undo');
 
-    this.restore(this.stack[this.index - 1], options);
+    this.restore(this.stack[this.index - 1], { ...options, type: 'undo' });
     this.index -= 1;
 
     if (options && typeof options.onUndoStateDidChange === 'function')
@@ -70,7 +74,7 @@ export class UndoManager {
       options.onUndoStateWillChange(this.model.mathfield, 'redo');
 
     this.index += 1;
-    this.restore(this.stack[this.index], options);
+    this.restore(this.stack[this.index], { ...options, type: 'redo' });
 
     if (options && typeof options.onUndoStateDidChange === 'function')
       options.onUndoStateDidChange(this.model.mathfield, 'redo');
@@ -147,12 +151,16 @@ export class UndoManager {
       this.model.suppressChangeNotifications =
         options.suppressChangeNotifications;
     }
+    let changeOption: ContentChangeOptions = {};
+    if (options.type === 'undo') changeOption = { inputType: 'historyUndo' };
+    if (options.type === 'redo') changeOption = { inputType: 'historyRedo' };
+    if (contentWillChange(this.model, changeOption)) {
+      // Restore the content and selection
+      this.model.root = fromJson(state.content);
+      this.model.selection = state.selection;
 
-    // Restore the content and selection
-    this.model.root = fromJson(state.content);
-    this.model.selection = state.selection;
-
-    contentDidChange(this.model);
+      contentDidChange(this.model, changeOption);
+    }
 
     this.model.suppressChangeNotifications = wasSuppressing;
   }

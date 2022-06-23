@@ -8,6 +8,7 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { ModelPrivate } from '../editor-model/model-private';
 import { Atom } from '../core/atom-class';
 import { LeftRightAtom } from '../core-atoms/leftright';
+import { joinLatex } from '../core/tokenizer';
 
 /**
  * Convert the atoms before the anchor to 'text' mode
@@ -29,6 +30,7 @@ function convertLastAtomsToText(
 
   let i = model.position;
   let done = false;
+  let text = '';
   while (!done) {
     const atom = model.at(i);
     done =
@@ -46,13 +48,14 @@ function convertLastAtomsToText(
       atom.mode = 'text';
       atom.command = atom.value;
       atom.verbatimLatex = undefined;
+      text += atom.value;
     }
 
     i -= 1;
     count -= 1;
   }
 
-  contentDidChange(model);
+  contentDidChange(model, { data: text, inputType: 'insertText' });
 }
 
 /**
@@ -75,6 +78,7 @@ function convertLastAtomsToMath(
 
   let i = model.position;
   let done = false;
+  const data: string[] = [];
   while (!done) {
     const atom = model.at(i);
     done =
@@ -84,14 +88,17 @@ function convertLastAtomsToMath(
       atom.mode !== 'text' ||
       atom.value === ' ' ||
       (until && !until(atom));
-    if (!done) atom.mode = 'math';
+    if (!done) {
+      data.push(atom.serialize({ defaultMode: 'math' }));
+      atom.mode = 'math';
+    }
 
     i -= 1;
     count -= 1;
   }
 
   removeIsolatedSpace(model);
-  contentDidChange(model);
+  contentDidChange(model, { data: joinLatex(data), inputType: 'insertText' });
 }
 
 // Export function applyMode(
@@ -186,7 +193,7 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
     model.position -= 1;
     model.suppressChangeNotifications = save;
 
-    contentDidChange(model);
+    contentDidChange(model, { inputType: 'deleteContent' });
   }
 }
 
@@ -312,7 +319,7 @@ export function smartMode(
       atom.style.variant = 'normal'; // @revisit. Was 'auto'. Check for proper conversion.
       atom.command = '\\cdot';
       atom.verbatimLatex = undefined;
-      contentDidChange(model);
+      contentDidChange(model, { data: '\\cdot', inputType: 'insertText' });
       return true;
     }
 

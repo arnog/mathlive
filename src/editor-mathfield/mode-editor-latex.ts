@@ -10,7 +10,7 @@ import { ModeEditor } from './mode-editor';
 
 import { COMMAND_MODE_CHARACTERS } from '../core/core';
 import { ModelPrivate } from '../editor-model/model-private';
-import { contentDidChange } from '../editor-model/listeners';
+import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
 export class LatexModeEditor extends ModeEditor {
   constructor() {
@@ -26,13 +26,18 @@ export class LatexModeEditor extends ModeEditor {
     let text = ev.clipboardData.getData('text/x-latex');
     if (!text) text = ev.clipboardData.getData('text/plain');
 
-    if (text) {
+    if (
+      text &&
+      contentWillChange(mathfield.model, {
+        inputType: 'insertFromPaste',
+        data: text,
+      })
+    ) {
       mathfield.snapshot();
       if (this.insert(mathfield.model, text)) {
-        contentDidChange(mathfield.model);
+        contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
         requestUpdate(mathfield);
       }
-
       ev.preventDefault();
       ev.stopPropagation();
       return true;
@@ -42,6 +47,8 @@ export class LatexModeEditor extends ModeEditor {
   }
 
   insert(model: ModelPrivate, text: string, options?: InsertOptions): boolean {
+    if (!contentWillChange(model, { data: text, inputType: 'insertText' }))
+      return false;
     if (!options) options = {};
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
@@ -100,7 +107,7 @@ export class LatexModeEditor extends ModeEditor {
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
     else if (lastNewAtom) model.position = model.offsetOf(lastNewAtom);
 
-    contentDidChange(model);
+    contentDidChange(model, { data: text, inputType: 'insertText' });
 
     model.suppressChangeNotifications = suppressChangeNotifications;
 
