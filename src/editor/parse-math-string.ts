@@ -41,8 +41,8 @@ export function parseMathString(
     inlineShortcuts?: Record<string, InlineShortcutDefinition>;
   }
 ): [OutputFormat, string] {
-  let format: OutputFormat | undefined;
-  [format, s] = inferFormat(s);
+  let format: OutputFormat | 'auto' | undefined = options?.format ?? 'auto';
+  if (format === 'auto') [format, s] = inferFormat(s);
 
   if (format === 'ascii-math') {
     s = s.replace(/\u2061/gu, ''); // Remove function application
@@ -54,7 +54,7 @@ export function parseMathString(
     s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
     return [
-      format,
+      'ascii-math',
       parseMathExpression(s, { inlineShortcuts: options?.inlineShortcuts }),
     ];
   }
