@@ -9,6 +9,7 @@
   superscript/subscript selected as well.
 - **#1041** When pasting textual content, if it can't be otherwise determined,
   assume the content to be LaTeX
+- Avoid excessive scrolling when bringing the mathfield into view.
 
 ### Features
 

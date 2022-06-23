@@ -912,7 +912,7 @@ export class MathfieldPrivate implements Mathfield {
     // 1/ If inside a mathfield element, make sure that element is visible.
     //
     const host = (this.element.getRootNode() as any as ShadowRoot)?.host;
-    host?.scrollIntoView();
+    host?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
     //
     // 2/ If a render is pending, do it now to make sure we have correct layout
