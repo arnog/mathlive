@@ -47,6 +47,9 @@
   root
 - **#1195** MathML output could be incorrect in some situations involving LaTeX
   groups followed by a superscript and subscript.
+- **#1120** If a MathField element had some hooks and listeners customized, then
+  was removed from the DOM and reinserted later, the hooks and listerner
+  functions would revert to their default implementation
 
 ## 0.75.0 (2022-06-21)
 
