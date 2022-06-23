@@ -107,12 +107,14 @@ export function render(
         atomIdsSettings: {
           // Using the hash as a seed for the ID
           // keeps the IDs the same until the content of the field changes.
-          seed: hash(
-            Atom.serialize(model.root, {
-              expandMacro: false,
-              defaultMode: mathfield.options.defaultMode,
-            })
-          ),
+          seed: renderOptions.forHighlighting
+            ? hash(
+                Atom.serialize(model.root, {
+                  expandMacro: false,
+                  defaultMode: mathfield.options.defaultMode,
+                })
+              )
+            : 'random',
           // The `groupNumbers` flag indicates that extra boxes should be generated
           // to represent group of atoms, for example, a box to group
           // consecutive digits to represent a number.

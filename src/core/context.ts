@@ -275,6 +275,8 @@ export class Context implements ContextInterface {
   makeID(): string | undefined {
     if (!this.atomIdsSettings) return undefined;
 
+    if (this.atomIdsSettings.overrideID) return this.atomIdsSettings.overrideID;
+
     if (typeof this.atomIdsSettings.seed !== 'number') {
       return (
         Date.now().toString(36).slice(-2) +
@@ -282,9 +284,7 @@ export class Context implements ContextInterface {
       );
     }
 
-    const result = this.atomIdsSettings.overrideID
-      ? this.atomIdsSettings.overrideID
-      : this.atomIdsSettings.seed.toString(36);
+    const result = this.atomIdsSettings.seed.toString(36);
     this.atomIdsSettings.seed += 1;
     return result;
   }
