@@ -375,6 +375,10 @@ export function delegateKeyboardEvents(
     true
   );
 
+  target.addEventListener('beforeinput', (ev: InputEvent) => {
+    ev.stopImmediatePropagation();
+  });
+
   // The `input` handler gets called when the field is changed,
   // but no other relevant events have been triggered
   // for example with emoji input...
