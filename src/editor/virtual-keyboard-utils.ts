@@ -1445,10 +1445,17 @@ export function makeKeycap(
     }
 
     // Commands
-    let selector: SelectorPrivate | [SelectorPrivate, ...any[]];
-    if (element.getAttribute('data-command'))
-      selector = JSON.parse(element.getAttribute('data-command')!);
-    else if (element.getAttribute('data-insert')) {
+    let selector: SelectorPrivate | [SelectorPrivate, ...any[]] | undefined =
+      undefined;
+    const command = element.getAttribute('data-command');
+    if (command) {
+      if (/^[a-zA-Z]+$/.test(command)) selector = command as SelectorPrivate;
+      else {
+        try {
+          selector = JSON.parse(command);
+        } catch (e) {}
+      }
+    } else if (element.getAttribute('data-insert')) {
       selector = [
         'insert',
         element.getAttribute('data-insert')!,
@@ -1482,28 +1489,30 @@ export function makeKeycap(
       ];
     }
 
-    if (chainedCommand) selector = [chainedCommand, selector];
+    if (selector) {
+      if (chainedCommand) selector = [chainedCommand, selector];
 
-    let handlers: ButtonHandlers = selector;
-    const altKeysetId = element.getAttribute('data-alt-keys');
-    if (altKeysetId) {
-      const altKeys = ALT_KEYS[altKeysetId];
-      if (altKeys) {
-        handlers = {
-          default: selector,
-          pressAndHoldStart: ['showAlternateKeys', altKeysetId],
-          pressAndHoldEnd: 'hideAlternateKeys',
-        };
-        // } else {
-        //   console.warn(`Unknown alt key set: "${altKeysetId}"`);
+      let handlers: ButtonHandlers = selector;
+      const altKeysetId = element.getAttribute('data-alt-keys');
+      if (altKeysetId) {
+        const altKeys = ALT_KEYS[altKeysetId];
+        if (altKeys) {
+          handlers = {
+            default: selector,
+            pressAndHoldStart: ['showAlternateKeys', altKeysetId],
+            pressAndHoldEnd: 'hideAlternateKeys',
+          };
+          // } else {
+          //   console.warn(`Unknown alt key set: "${altKeysetId}"`);
+        }
       }
-    }
 
-    attachButtonHandlers(
-      (command) => keyboard.executeCommand(command),
-      element,
-      handlers
-    );
+      attachButtonHandlers(
+        (command) => keyboard.executeCommand(command),
+        element,
+        handlers
+      );
+    }
   }
 }
 

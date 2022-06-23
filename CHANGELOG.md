@@ -50,6 +50,9 @@
 - **#1120** If a MathField element had some hooks and listeners customized, then
   was removed from the DOM and reinserted later, the hooks and listerner
   functions would revert to their default implementation
+- **#1302** Long press on the backspace key of the virtual keyboard would output
+  an error to the console. Long press on the backspace key is now a shortcut to
+  clear the entire mathfield.
 
 ## 0.75.0 (2022-06-21)
 
