@@ -1298,6 +1298,7 @@ function serializeAtoms(
   options: ToLatexOptions
 ): string {
   if (!atoms || atoms.length === 0) return '';
+
   if (atoms[0].type === 'first') {
     if (atoms.length === 1) return '';
     // Remove the 'first' atom, if present

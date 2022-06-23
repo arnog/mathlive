@@ -381,10 +381,12 @@ export function deleteRange(model: ModelPrivate, range: Range): boolean {
     // (for example for surd/\sqrt)
     if (firstSelected === firstChild && lastSelected === lastChild) {
       const parent = result[0].parent!;
-      range = [
-        model.offsetOf(parent.leftSibling),
-        model.offsetOf(parent.rightSibling),
-      ];
+      if (parent.type !== 'root') {
+        range = [
+          model.offsetOf(parent.leftSibling),
+          model.offsetOf(parent.rightSibling),
+        ];
+      }
     }
   }
   return model.deferNotifications({ content: true, selection: true }, () => {

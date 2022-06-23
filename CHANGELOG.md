@@ -5,6 +5,8 @@
 - In the second argument of the `\colorbox` command, use `\ensuremath` when
   necessary to indicate that the content is math, rather than a mode shift
   command.
+- When selecting all the children of a superscript or subscript, consider the
+  superscript/subscript selected as well.
 
 ### Features
 
@@ -19,6 +21,8 @@
 - Correct serialization for `\char"0040 4` (or in general any command with an
   unbraced numeric argument followed by an ambiguous decimal or hexadecimal
   character)
+- Avoid crashing when deleting a range that overlaps with all the atoms in the
+  root
 
 ## 0.75.0 (2022-06-21)
 

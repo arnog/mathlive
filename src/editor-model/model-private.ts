@@ -510,15 +510,17 @@ export class ModelPrivate implements Model {
       const range = this.normalizeRange([anchor, position]);
       let [start, end] = range;
 
-      // Include the parent if all the chidlren are selected
+      // Include the parent if all the children are selected
       let { parent } = this.at(end);
-      if (parent?.type === 'genfrac') {
-        while (
-          parent !== this.root &&
-          childrenInRange(this, parent!, [start, end])
-        ) {
-          end = this.offsetOf(parent!);
-          parent = parent!.parent;
+      if (parent) {
+        if (parent.type === 'genfrac' || parent.type === 'msubsup') {
+          while (
+            parent !== this.root &&
+            childrenInRange(this, parent!, [start, end])
+          ) {
+            end = this.offsetOf(parent!);
+            parent = parent!.parent;
+          }
         }
       }
       parent = this.at(start).parent;
