@@ -272,8 +272,8 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
 
   // MORE FUNCTIONS
   // 'arg': '\\arg',
-  'liminf': '\\operatorname*{lim~inf}_{#?}',
-  'limsup': '\\operatorname*{lim~sup}_{#?}',
+  'liminf': '\\liminf_{#?}',
+  'limsup': '\\limsup_{#?}',
   'argmin': '\\operatorname*{arg~min}_{#?}',
   'argmax': '\\operatorname*{arg~max}_{#?}',
   'det': '\\det',
