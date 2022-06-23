@@ -33,7 +33,7 @@ const SPECIAL_OPERATORS = {
   '\\hat': '&#x005e;',
 };
 
-export type MathMLSteam = {
+export type MathMLStream = {
   atoms: Atom[];
   index: number;
   mathML: string;
@@ -62,7 +62,7 @@ function makeID(id: string | undefined, options): string {
   return ` extid="${id}"`;
 }
 
-function scanIdentifier(stream: MathMLSteam, final: number, options) {
+function scanIdentifier(stream: MathMLStream, final: number, options) {
   let result = false;
   final = final ?? stream.atoms.length;
   let mathML = '';
@@ -109,7 +109,7 @@ function scanIdentifier(stream: MathMLSteam, final: number, options) {
  * or as a standalone, empty, atom following the one to which it applies.
  * @param {object} stream
  */
-function isSuperscriptAtom(stream: MathMLSteam) {
+function isSuperscriptAtom(stream: MathMLStream) {
   return (
     stream.index < stream.atoms.length &&
     stream.atoms[stream.index].superscript &&
@@ -117,7 +117,7 @@ function isSuperscriptAtom(stream: MathMLSteam) {
   );
 }
 
-function isSubscriptAtom(stream: MathMLSteam) {
+function isSubscriptAtom(stream: MathMLStream) {
   return (
     stream.index < stream.atoms.length &&
     stream.atoms[stream.index].subscript &&
@@ -125,7 +125,7 @@ function isSubscriptAtom(stream: MathMLSteam) {
   );
 }
 
-function indexOfSuperscriptInNumber(stream: MathMLSteam) {
+function indexOfSuperscriptInNumber(stream: MathMLStream) {
   let result = -1;
   let i = stream.index;
   let done = false;
@@ -142,7 +142,7 @@ function indexOfSuperscriptInNumber(stream: MathMLSteam) {
   return result;
 }
 
-function parseSubsup(base: string, stream: MathMLSteam, options): boolean {
+function parseSubsup(base: string, stream: MathMLStream, options): boolean {
   let atom: Atom = stream.atoms[stream.index - 1];
 
   if (!atom) return false;
@@ -173,7 +173,7 @@ function parseSubsup(base: string, stream: MathMLSteam, options): boolean {
   return true;
 }
 
-function scanText(stream: MathMLSteam, final: number, options) {
+function scanText(stream: MathMLStream, final: number, options) {
   final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
@@ -194,7 +194,7 @@ function scanText(stream: MathMLSteam, final: number, options) {
   return false;
 }
 
-function scanNumber(stream: MathMLSteam, final, options) {
+function scanNumber(stream: MathMLStream, final, options) {
   final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
@@ -225,7 +225,7 @@ function scanNumber(stream: MathMLSteam, final, options) {
   return true;
 }
 
-function scanFence(stream: MathMLSteam, final: number, options) {
+function scanFence(stream: MathMLStream, final: number, options) {
   let result = false;
   final = final ?? stream.atoms.length;
   let mathML = '';
@@ -292,7 +292,7 @@ function scanFence(stream: MathMLSteam, final: number, options) {
   return result;
 }
 
-function scanOperator(stream: MathMLSteam, final: number, options) {
+function scanOperator(stream: MathMLStream, final: number, options) {
   let result = false;
   final = final ?? stream.atoms.length;
   let mathML = '';
@@ -381,8 +381,8 @@ function toMathML(
   initial: number,
   final: number,
   options: Partial<MathfieldOptions>
-): MathMLSteam {
-  const result: MathMLSteam = {
+): MathMLStream {
+  const result: MathMLStream = {
     atoms: [],
     index: initial ?? 0,
     mathML: '',
@@ -423,12 +423,14 @@ function toMathML(
           result.lastType = 'mfrac';
         else result.lastType = '';
 
-        if (mathML.length > 0) {
-          result.mathML += mathML;
-          count += 1;
-        }
-
         result.index += 1;
+
+        if (!parseSubsup(mathML, result, options)) {
+          if (mathML.length > 0) {
+            result.mathML += mathML;
+            count += 1;
+          }
+        } else count += 2;
       }
     }
 
