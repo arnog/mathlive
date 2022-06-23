@@ -429,7 +429,7 @@ function convertStringToAtoms(
     // Simplify result.
     if (format !== 'latex' && model.options.removeExtraneousParentheses)
       simplifyParen(result);
-  } else if (options.format === 'auto' || options.format === 'latex') {
+  } else if (options.format === 'auto' || options.format?.startsWith('latex')) {
     if (options.format === 'auto') {
       [format, s] = parseMathString(s, {
         format: 'auto',

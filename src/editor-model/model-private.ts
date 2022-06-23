@@ -337,9 +337,10 @@ export class ModelPrivate implements Model {
   atomToString(atom: Atom, inFormat: OutputFormat): string {
     const format: string = inFormat ?? 'latex';
 
-    if (format === 'latex' || format === 'latex-expanded') {
+    if (format.startsWith('latex')) {
       return Mode.serialize([atom], {
         expandMacro: format === 'latex-expanded',
+        skipStyles: format === 'latex-unstyled',
         defaultMode: this.mathfield.options.defaultMode,
       });
     }

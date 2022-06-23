@@ -44,23 +44,22 @@ export function parseMathString(
   let format: OutputFormat | undefined;
   [format, s] = inferFormat(s);
 
-  if (format === 'latex') return ['latex', s];
+  if (format === 'ascii-math') {
+    s = s.replace(/\u2061/gu, ''); // Remove function application
+    s = s.replace(/\u3016/gu, '{'); // WHITE LENTICULAR BRACKET (grouping)
+    s = s.replace(/\u3017/gu, '}'); // WHITE LENTICULAR BRACKET (grouping)
 
-  // It wasn't Latex. Let's assume it's ASCII Math
-  format = 'ascii-math';
+    s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // Common typo
+    s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // Common typo
+    s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
 
-  s = s.replace(/\u2061/gu, ''); // Remove function application
-  s = s.replace(/\u3016/gu, '{'); // WHITE LENTICULAR BRACKET (grouping)
-  s = s.replace(/\u3017/gu, '}'); // WHITE LENTICULAR BRACKET (grouping)
+    return [
+      format,
+      parseMathExpression(s, { inlineShortcuts: options?.inlineShortcuts }),
+    ];
+  }
 
-  s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // Common typo
-  s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // Common typo
-  s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
-
-  return [
-    format,
-    parseMathExpression(s, { inlineShortcuts: options?.inlineShortcuts }),
-  ];
+  return ['latex', s];
 }
 
 function parseMathExpression(
@@ -364,7 +363,7 @@ function inferFormat(s: string): [OutputFormat | undefined, string] {
     return ['latex', s];
   }
 
-  if (/\$(.+)\$/.test(s)) {
+  if (/\$.+\$/.test(s)) {
     // If there's a pair of $ (or possibly $$) signs, assume it's a string
     // such as `if $x<0$ then`, in which case it's Latex, but with some text
     // around it

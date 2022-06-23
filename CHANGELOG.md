@@ -7,6 +7,8 @@
   command.
 - When selecting all the children of a superscript or subscript, consider the
   superscript/subscript selected as well.
+- **#1041** When pasting textual content, if it can't be otherwise determined,
+  assume the content to be LaTeX
 
 ### Features
 
@@ -23,6 +25,8 @@
   character)
 - Avoid crashing when deleting a range that overlaps with all the atoms in the
   root
+- **#1195** MathML output could be incorrect in some situations involving LaTeX
+  groups followed by a superscript and subscript.
 
 ## 0.75.0 (2022-06-21)
 
