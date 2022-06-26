@@ -1,4 +1,4 @@
-import { isBrowser, supportLocalFontEnumeration } from '../common/capabilities';
+import { isBrowser } from '../common/capabilities';
 import { resolveRelativeUrl } from '../common/script-url';
 import { ErrorListener, MathfieldErrorCode } from '../public/core';
 
@@ -48,14 +48,11 @@ export async function loadFonts(
     ];
     let fontsLoaded = false;
 
-    if (supportLocalFontEnumeration()) {
-      try {
-        fontsLoaded = fontFamilies.every((x) =>
-          document.fonts.check('16px ' + x)
-        );
-      } catch {
-        fontsLoaded = false;
-      }
+    try {
+      const fontsInDocument = Array.from(document.fonts).map((f) => f.family);
+      fontsLoaded = fontFamilies.every((x) => fontsInDocument.includes(x));
+    } catch {
+      fontsLoaded = false;
     }
 
     if (fontsLoaded) return;
