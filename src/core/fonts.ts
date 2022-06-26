@@ -41,21 +41,15 @@ export async function loadFonts(
       'KaTeX_Fraktur',
       'KaTeX_SansSerif',
       'KaTeX_Script',
+      'KaTeX_Typewriter',
       'KaTeX_Size1',
       'KaTeX_Size2',
       'KaTeX_Size3',
       'KaTeX_Size4',
     ];
-    let fontsLoaded = false;
 
-    try {
-      const fontsInDocument = Array.from(document.fonts).map((f) => f.family);
-      fontsLoaded = fontFamilies.every((x) => fontsInDocument.includes(x));
-    } catch {
-      fontsLoaded = false;
-    }
-
-    if (fontsLoaded) return;
+    const fontsInDocument = Array.from(document.fonts).map((f) => f.family);
+    if (fontFamilies.every((x) => fontsInDocument.includes(x))) return;
 
     // Locate the `fonts` folder relative to the script URL
     const fontsFolder = resolveRelativeUrl(fontsDirectory ?? './fonts');
@@ -107,14 +101,11 @@ export async function loadFonts(
       loadedFonts.forEach((font) => document.fonts.add(font));
     } catch (error: unknown) {
       console.error(
-        `The mathlive fonts could not be loaded from "${fontsFolder}" (${error})`
+        `The mathlive fonts could not be loaded from "${fontsFolder}"`,
+        { cause: error }
       );
-      if (typeof onError === 'function') {
-        onError({
-          code: 'font-not-found',
-          arg: error as string,
-        });
-      }
+      if (typeof onError === 'function')
+        onError({ code: 'font-not-found', arg: error as string });
     }
 
     // Event if an error occur, give up and pretend the fonts are

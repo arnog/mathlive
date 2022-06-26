@@ -74,10 +74,3 @@ export function supportRegexPropertyEscape(): boolean {
 
   return true;
 }
-
-export function supportLocalFontEnumeration(): boolean {
-  // Firefox and Safari return true for fonts that are not loaded...
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=1252821 🤦‍♂️
-  // So, if on Firefox, always assume that the fonts are not loaded.
-  return isBrowser() && !/firefox|safari/i.test(navigator.userAgent);
-}

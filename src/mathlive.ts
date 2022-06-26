@@ -42,6 +42,7 @@ export * from './public/mathlive';
 export * from './addons/auto-render';
 
 import { version as computeEngineVersion } from '@cortex-js/compute-engine';
+export * from '@cortex-js/compute-engine';
 
 export function makeSharedVirtualKeyboard(
   options?: Partial<RemoteVirtualKeyboardOptions>

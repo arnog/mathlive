@@ -10,6 +10,8 @@
 - **#1041** When pasting textual content, if it can't be otherwise determined,
   assume the content to be LaTeX
 - Avoid excessive scrolling when bringing the mathfield into view.
+- Fonts could get loaded multiple times when the virtual keyboard was displayed
+  or when static math was rendered.
 
 ### Features
 
