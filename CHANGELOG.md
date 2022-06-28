@@ -4,23 +4,20 @@
 
 - In the second argument of the `\colorbox` command, use `\ensuremath` when
   necessary to indicate that the content is math, rather than a mode shift
-  command.
+  command
 - When selecting all the children of a superscript or subscript, consider the
-  superscript/subscript selected as well.
+  superscript/subscript selected as well
 - **#1041** When pasting textual content, if it can't be otherwise determined,
   assume the content to be LaTeX
 - Avoid excessive scrolling when bringing the mathfield into view.
 - Fonts could get loaded multiple times when the virtual keyboard was displayed
-  or when static math was rendered.
+  or when static math was rendered
 
 ### Features
 
-- Added new `latex-unstyled` output format. Use it with `getValue()` to get a
-  LaTeX representation of the mathfield content, without any color or background
-  color styling command.
-- **#1335** Added support for _Input Events Level 1_
+- **#1335** Added support for [_Input Events Level 1_]
   (https://www.w3.org/TR/input-events-1/), which includes the `beforeinput` and
-  `input` events.
+  `input` events
 
   While an `input` event was dispatched before, it did not conform to the
   `InputEvent` interface. The `input` event now includes an `inputType` property
@@ -34,23 +31,27 @@
   deleted, with an appropriate `inputType` value.
 
   An `input` event with a `inputType` property of `"insertLineBreak"` is
-  displatched when the **Return** or **Enter** keys are pressed.
+  dispatched when the **Return** or **Enter** keys are pressed.
 
   This matches more closely the behavior of the `<textarea>` element.
+
+- Added new `latex-unstyled` output format. Use it with `getValue()` to get a
+  LaTeX representation of the mathfield content, without any color or background
+  color styling command
 
 ### Bug Fixes
 
 - **#1489** In some cases, applying a background color, then entering some
-  equations, could result in incorrect LaTeX output.
-- Correct serialization for `\char"0040 4` (or in general any command with an
+  equations, could result in incorrect LaTeX output
+- Correct serialization for `\char"0040 4`, or in general any command with an
   unbraced numeric argument followed by an ambiguous decimal or hexadecimal
-  character)
+  character
 - Avoid crashing when deleting a range that overlaps with all the atoms in the
   root
 - **#1195** MathML output could be incorrect in some situations involving LaTeX
-  groups followed by a superscript and subscript.
-- **#1120** If a MathField element had some hooks and listeners customized, then
-  was removed from the DOM and reinserted later, the hooks and listerner
+  groups followed by a superscript and subscript
+- **#1120** If a `<mathfield>` element had some hooks and listeners customized,
+  then was removed from the DOM and reinserted later, the hooks and listener
   functions would revert to their default implementation
 - **#1302** Long press on the backspace key of the virtual keyboard would output
   an error to the console. Long press on the backspace key is now a shortcut to
@@ -448,7 +449,7 @@ in order to preserve the same settings, you would now use:
 ### Bug Fixes
 
 - **#1240** After a Select All (or other selection adjusting commands),
-  inserting characters in Latex mode may result in unresponsive input.
+  inserting characters in LaTeX mode may result in unresponsive input.
 - The z-index of the virtual keyboard `--keyboard-zindex` would not always be
   applied to the keyboard, resulting in some elements overlaping the virtual
   keyboard in some situations.
@@ -495,7 +496,7 @@ in order to preserve the same settings, you would now use:
   use it, and this is sufficient to break MathLive. It appears that this isse
   affects also the React toolchain.
 
-- **#1125** don't enable switching to Latex mode for read-only mathfields
+- **#1125** don't enable switching to LaTeX mode for read-only mathfields
 
 ### Bug Fixes
 
@@ -523,9 +524,9 @@ in order to preserve the same settings, you would now use:
 
 ### Improvements
 
-- Updated to ComputeEngine 0.4.2 for better parsing of Latex.
+- Updated to ComputeEngine 0.4.2 for better parsing of LaTeX.
 - When copying or cutting to the clipboard, if the MathJSON parsing fails,
-  ignore the MathJSON and fallback to Latex. Previously, if there was a failure
+  ignore the MathJSON and fallback to LaTeX. Previously, if there was a failure
   during parsing an empty MathJSON expression would be put on the clipboard,
   which result in subsequent attempts at pasting the content into a mathfield to
   fail.
@@ -598,7 +599,7 @@ mf.setConfig('inlineShortcuts', {
 });
 ```
 
-- The following Mathfield functions have been removed: `$setConfig()` &rarr;
+- The following `MathField` functions have been removed: `$setConfig()` &rarr;
   `setOptions()`, `getConfig()` &rarr; `getOptions()`, `$perform()` &rarr;
   `executeCommand()`, `$text()` &rarr; `getValue()`, `$selectedText()` &rarr;
   `getValue()`, `$selectionIsCollapsed()`, `$selectionDepth()`,
@@ -645,7 +646,7 @@ or:
 - **#994** When using `virtualKeyboardContainer`, the virtual keyboard is now
   displayed **inside** the container. The container should have a `position` of
   `relative`.
-- When replacing a placeholder with a Latex command in Latex mode (by pressing
+- When replacing a placeholder with a LaTeX command in LaTeX mode (by pressing
   the `\` key), remove the `\placeholder{}` command.
 - In spoken text, correctly handle `\mathop` and `\operatorname`.
 
@@ -704,7 +705,7 @@ import { parseMathJson, serializeMathJson } from 'mathlive';
 ```
 
 MathJSON has an extensive API that supports parsing and serializing of custom
-Latex expressions. You can use it to define your own Latex "vocabulary" and
+LaTeX expressions. You can use it to define your own LaTeX "vocabulary" and
 "grammar" and transform it into MathJSON.
 
 You can also convert MathJSON expressions into several canonical forms, do
@@ -754,7 +755,7 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
   disconnection.
 - **#960** Typing "e^pi" would result in `e\pi` instead of `e^\pi`. Also,
   serializing some partial formulas, such as "e^" would result in incorrect
-  Latex (e.g. "e").
+  LaTeX (e.g. "e").
 - In MathML serialization, `2^3` was not serializing the superscript (**#951** )
   and subscripts were not serialized for various constructs( **#534**).
 
@@ -926,7 +927,7 @@ for more details.
   was set to "undefined".
 - The DVIPS colors were case sensitive, they should be case sensitive. (i.e.
   `LimeGreen` is a valid color, `Limegreen` is not)
-- **#945** Preserve more aggresively verbatim Latex. Also, avoid serializing
+- **#945** Preserve more aggresively verbatim LaTeX. Also, avoid serializing
   superfluous spaces in Spacing atoms.
 - **#770** Correctly handle attaching limits to `\int` command using the
   keyboard.
@@ -950,9 +951,9 @@ for more details.
 ### Improvements
 
 - On iPad OS and relevant Windows devices, support the detachable keyboard.
-- In Latex mode, don't consider `\\` (double-dash, i.e. end of line in tabular
+- In LaTeX mode, don't consider `\\` (double-dash, i.e. end of line in tabular
   mode) as a valid command prefix.
-- In Latex mode, don't recommend `\{` as a command by default.
+- In LaTeX mode, don't recommend `\{` as a command by default.
 - Added `\bigstar` symbol
 - Improved performance of `renderMathInDocument()` when there are many formulas
   on the page.
@@ -965,7 +966,7 @@ for more details.
 
 - When using Firefox on Windows, the layout of the formula could shift by a
   fraction of a pixel when moving the caret.
-- In Latex mode with nested expressions, the edited Latex was incorrect.
+- In LaTeX mode with nested expressions, the edited LaTeX was incorrect.
 
 ## 0.64.0 (2021-05-09)
 
@@ -1056,7 +1057,7 @@ for more details.
 - When pasting from the clipboard, recognize text bracketed with
   `\begin{math}`...`\end{math}` or `\begin{displaymath}`...`\end{displaymath}`
   as LaTeX (in additon to `$`, `$$`, `\[`...`\]` and `\(`...`\)` which were
-  recognized before). Also, recognize text that may contain a Latex expression
+  recognized before). Also, recognize text that may contain a LaTeX expression
   surrounded by regular text (i.e. "if $x > 0$").
 
 - When pasting ASCIIMath, recognize more expression using standard functions
@@ -1125,7 +1126,7 @@ for more details.
 
 ### Bug Fixes
 
-- On the UK QWERTY keyboard, pressing the `\` key did not switch to Latex mode.
+- On the UK QWERTY keyboard, pressing the `\` key did not switch to LaTeX mode.
   This key, although it looks like an ordinary key, is unique to the UK QWERTY
   keyboard and distinct from the `\` on any other keyboard. Its official name is
   `IntlBackslash`, while the other, visually identical `\` key, is the
@@ -1219,7 +1220,7 @@ for more details.
 
 ### Bug Fixes
 
-- Fixed Latex output of `\htmlData`, `\cssId` and `\class` commands.
+- Fixed LaTeX output of `\htmlData`, `\cssId` and `\class` commands.
 - Ignore commands that are only applicable in some modes when they are used in
   an incorrect mode.
 - Fixed styling of some characters, such as the ones from `\cdot`. The incorrect
@@ -1320,7 +1321,7 @@ for more details.
   the selection. Now it can either toggle or set the style, and modify the
   selection or a specific range.
 - **#387** `find()` method to search the fragments of an expression that match a
-  Latex string or regular expression.
+  LaTeX string or regular expression.
 
   For example the following code snippet will add a yellow background to the
   fractions in the expression:
@@ -1347,18 +1348,18 @@ for more details.
   mf.replace(/^\\frac{([^}]*)}{([^}]*)}$/, '\\frac{$2}{$1}');
   ```
 
-- New **Latex Mode**
+- New **LaTeX Mode**
 
   This mode replaces the previous **Command Mode**. While the **Command Mode**
   (triggered by pressing the **\\** or **ESC** key) was only intended to insert
-  a single Latex command (e.g. "\aleph"), the **Latex Mode** is a more
-  comprehensive Latex editing mode.
+  a single LaTeX command (e.g. "\aleph"), the **LaTeX Mode** is a more
+  comprehensive LaTeX editing mode.
 
-  To enter the **Latex Mode**, press the **ESC** key or the **\\** key. While in
-  this mode, a complex Latex expression can be edited. Press the **ESC** or
+  To enter the **LaTeX Mode**, press the **ESC** key or the **\\** key. While in
+  this mode, a complex LaTeX expression can be edited. Press the **ESC** or
   **Return** key to return to regular editing mode.
 
-  To quickly peek at the Latex code of an expression, select it, then press
+  To quickly peek at the LaTeX code of an expression, select it, then press
   **ESC**. Press **ESC** again to return to the regular editing mode.
 
   To insert a command, press the **\\** key, followed by the command name. Press
@@ -1403,7 +1404,7 @@ for more details.
 - **#697** When using the `<math-field>` element the command popover did not
   display correctly.
 - Fixed issues with copy/paste. Copying from a text zone will copy the text (and
-  not a latex representation of it). Copy from a Latex zone now works.
+  not a latex representation of it). Copy from a LaTeX zone now works.
 - **#816** Fixed some issues with keybindings on some keyboards, such as Swiss
   German. The physical keyboard layout was not always recognized, and some
   keybindings conflicted with each other.
@@ -1493,7 +1494,7 @@ for more details.
   now represented by a separate class extending the `Atom` base class (for
   example `GenfracAtom`). Each of those classes have a `render()` method that
   generates a set of DOM virtual nodes representing the Atom and a `serialize()`
-  method which generates a Latex string representing the atom.
+  method which generates a LaTeX string representing the atom.
 
   Previously the handling of the different kind of atoms was done procedurally
   and all over the code base. The core code is now much smaller and easier to
@@ -1753,7 +1754,7 @@ The following functions have been renamed:
 
 - Added support for `\phantom`, `\vphantom`, `\hphantom` and `\smash[]`
 - **#182** Added support for the mhchem package, with the commands `\ce` and
-  `\pu` to display chemical equations
+  `\pu`, to display chemical equations
 
 ## 0.55.0 (2020-08-17)
 
@@ -1835,7 +1836,7 @@ The following functions have been renamed:
   math spacing characters were used. However, these characters are not rendered
   consistently. Switched to using CSS margins instead.
 
-- The Latex generated for a `\left` command with another command as a fence was
+- The LaTeX generated for a `\left` command with another command as a fence was
   lacking a space, e.g. `\left\lbracka\right\rbrack` instead of
   `\left\lbrack a\right\rbrack`
 
@@ -1934,7 +1935,7 @@ The following functions have been renamed:
 - **#425** Added CSS variable `--ML_keyboard-zindex` to control the zindex of
   the virtual keyboard.
 
-- Add support for `^^` and `^^^^` constructs in Latex. See TexBook p. 56:
+- Add support for `^^` and `^^^^` constructs in LaTeX. See TexBook p. 56:
 
       There’s also a special convention in which ^^ is followed by two
       “lowercase hexadecimal digits,” 0–9 or a–f. With this convention, all 256 characters are
@@ -1957,7 +1958,7 @@ The following functions have been renamed:
 - **#469** The keyboard layout on Linux was not detected correctly, resulting in
   some keys (such as arrows and backspace) not working correctly.
 
-- Integers in a Latex stream would not always be parsed correctly. As per the
+- Integers in a LaTeX stream would not always be parsed correctly. As per the
   TeXBook, an integer can be preceded by an arbitrary number of "+", "-" or
   whitespace characters, so `\char -+ +- "4A` is valid and equivalent to
   `\char"4A`
@@ -2056,10 +2057,10 @@ The following functions have been renamed:
 
 - The Symbols keyboard is now a top-level keyboard. Previously it was accessible
   only from the Roman keyboard
-- Added some standard Latex commands: `\inf`, `\Pr`, `\liminf`, `\limsup`
+- Added some standard LaTeX commands: `\inf`, `\Pr`, `\liminf`, `\limsup`
 - Added inline shortcuts for some commands: `sinh`, `cosh`, `sec`, `csc`, `cot`,
   `arcsin`, `arccos`, `arctan`
-- When generating Latex output, only insert spaces when necessary (i.e. after
+- When generating LaTeX output, only insert spaces when necessary (i.e. after
   commands that are followed by a letter). Conversely, _always_ generate the
   space when necessary (`\rbrack a` would generate `\rbracka`)
 - Minor rendering performance improvement
@@ -2080,7 +2081,7 @@ The following functions have been renamed:
 
 - Do not trigger smart mode conversion with arrow keys
 
-- Fixed an issue on iOS 12 and Firefox/Android where the Mathfield could not be
+- Fixed an issue on iOS 12 and Firefox/Android where the mathfield could not be
   focused (fix contributed by (https://github.com/beneater)
 
 ## 0.50.7 (2020-05-11)
@@ -2138,7 +2139,7 @@ The following functions have been renamed:
 
 ### New Feature
 
-- A new option, `config.error` can be used to catch errors while parsing Latex.
+- A new option, `config.error` can be used to catch errors while parsing LaTeX.
 
   This is invoked both for the initial content of the mathfield, when the
   content of the mathfield is changed programmatically, and when the user pastes
@@ -2163,19 +2164,19 @@ The following functions have been renamed:
 - **Maintenance**: New math variant (bold, italic, etc...) subsytem matches
   LaTeX more closely
 - **Maintenance**: Reduced code size
-- **New feature**: Verbatim Latex
-- **New feature**: `Mathfield.getConfig()`
+- **New feature**: Verbatim LaTeX
+- **New feature**: `MathField.getConfig()`
 
 ### New Features
 
-- **"Verbatim Latex"**: the Latex provided as input (for example with
-  `insert()`) is preserved as long as it's not edited. Previously, the Latex
+- **"Verbatim LaTeX"**: the LaTeX provided as input (for example with
+  `insert()`) is preserved as long as it's not edited. Previously, the LaTeX
   would be normalized on input, and the output would not match character for
-  character, even though it produced equivalent Latex code. For example, extra
+  character, even though it produced equivalent LaTeX code. For example, extra
   spaces could be inserted, and the order of subscript and superscript was not
   preserved.
 
-  Now, the input Latex is preserved until editing operations cause it to be
+  Now, the input LaTeX is preserved until editing operations cause it to be
   modified. This also means that the arguments of macros are never modified
   (since the macros are not editable) and will be returned exactly as input
   (they were normalized before).
@@ -2197,7 +2198,7 @@ The following functions have been renamed:
   the `french` style will be used, `tex` otherwise. The previous behavior was to
   always use `tex` style lettershape.
 
-- New `Mathfield.getConfig()` method which gives access to the current
+- New `MathField.getConfig()` method which gives access to the current
   configuration settings.
 
   It can be invoked in three different ways:
@@ -2391,7 +2392,7 @@ and velocity of the project.
   previously possible for arguments to macros to contain other arguments. This
   is now allowed.
 
-- **Fix #395 (bis)**: Properly output Latex for macros when using 'latex' and
+- **Fix #395 (bis)**: Properly output LaTeX for macros when using 'latex' and
   'latex-expanded' formats.
 
 - Fixed numerous issues with LaTeX round-tripping. For example, `\mathfrak{C}`,
@@ -2571,7 +2572,7 @@ mf.setConfig({
   now split in multiple files instead of being all contained in
   `core/definitions.js`
 
-- Re-factored and isolated the metadata about LaTex commands (frequency and
+- Re-factored and isolated the metadata about LaTeX commands (frequency and
   category). This should reduce the amount of data carried by the core package.
   All the metadata is now in `definitions-metadata.js`. As a side effect, the
   examples displayed in the popover window might be less complete, but the
@@ -2630,7 +2631,7 @@ mf.setConfig({
 
 ### Bug Fixes
 
-- Fix #286 `\mathbb{}`s are missing in the Latex output
+- Fix #286 `\mathbb{}`s are missing in the LaTeX output
 
 ## 0.32.2 (2019-09-24)
 
@@ -2685,7 +2686,7 @@ mf.setConfig({
 - #195: (partial fix) improve support for Edge (still requires Babelization)
 - Fixed an issue while dragging to select across elements of different depths
 - Fixed issue with smartMode for expressions including "x^2", "xyz" and "\pi"
-- Fixed an issue with styling, where the Latex output could sometimes include
+- Fixed an issue with styling, where the LaTeX output could sometimes include
   the non-existent `\mathup` command. The correct command is `\upshape`
 - Fixed issues with enclose layout
 - Avoid triggering spurious notifications while inserting an inline shortcut
@@ -3200,7 +3201,7 @@ MathLive.makeMathField(/*...*/);
   can be adjusted to emphasize a portion of a formula
 - Smart Fences. When a fence ("(", "{", etc...) is inserted, a matching closing
   fence is automatically inserted, displayed as a greyed out placeholder.<br>
-  The Latex code inserted will vary depending on the context where the insertion
+  The LaTeX code inserted will vary depending on the context where the insertion
   is made, either standalone characters (`(`) or `\left...\right`. This feature
   is on by default and can be turned off with `config.smartFence`. <br>Option-9
   and Option-0, as well as `\(` and `\)` will override the setting and insert a
@@ -3224,7 +3225,7 @@ MathLive.makeMathField(/*...*/);
   parenthesized expressions and roots. In the case of parenthesized expressions,
   the parentheses are removed before being adoped for the numerator.
 - MASTON: Use Unicode to represent math-variant letters (e.g. ℂ)
-- Convert math-variant letters encoded in Unicode to Latex when pasting (e.g. ℂ
+- Convert math-variant letters encoded in Unicode to LaTeX when pasting (e.g. ℂ
   becomes `\C`, 𝕰 becomes `\mathord{\mathbf{\mathfrak{E}}}`
 - MASTON: Commutativity support. a + b + c &rarr; add(a, b, c)
 - MASTON: Right and left-associativity support ('=' and '=>' are right
@@ -3254,7 +3255,7 @@ MathLive.makeMathField(/*...*/);
 
 ### Major New Features
 
-- Basic support for Latex macros. Macros can be defined with
+- Basic support for LaTeX macros. Macros can be defined with
   `MathField.$setConfig({macros:'...')`
 - Display alternate keys when a key on the virtual keyboard is held down.
 - Support for AZERTY, QWERTZ, Dvorak and Colemak virtual keyboards. Can be setup
@@ -3271,7 +3272,7 @@ MathLive.makeMathField(/*...*/);
   `argmax`, `bessel`, `mean`, `median`, `fft`.
 - Added `\rd` command (synonym with `\differentialD` and used by Proof Wiki)
 - Added a format option (`latex-expanded`) to `MathField.text()` and
-  `MathField.selectedText()` to return Latex with macros expanded.
+  `MathField.selectedText()` to return LaTeX with macros expanded.
 - Removed restrictions on charset in `text`
 - Support shift + arrows to extend the selection with the virtual keyboard
 
@@ -3280,11 +3281,11 @@ MathLive.makeMathField(/*...*/);
 - More accurate operator precedence. Follow the
   [MathML](www.w3.org/TR/MathML3/appendixc.html) recommendation, except for
   arrows that are given a way too high priority in MathML.
-- Correctly output to Latex the `\unicode` command
+- Correctly output to LaTeX the `\unicode` command
 - When undoing, correctly restore the selection
 - Improved behavior when inserting superscript and subscript on a selected item
 - Fixed handling of unbalanced `\left`...`\right` sequences
-- Correctly output the minus sign to Latex (as U+002D not as U+2212)
+- Correctly output the minus sign to LaTeX (as U+002D not as U+2212)
 - Fixed some cases where the layout would shift by a couple of pixels as you
   navigated into the expression
 
@@ -3324,12 +3325,12 @@ MathLive.makeMathField(/*...*/);
 
 - MASTON: handle complex numbers and modulo
 - Added option for styling of keyboard glyph
-- Improved output to Latex for arrays
+- Improved output to LaTeX for arrays
 - Additional trig and long functions (`\lb`, `\arsinh`, `\arcosh`, `\artanh`,
   `\arcsech`, `\arccsh`, `\arcsec`, `\arccsc`)
 - MathML: more robust handling of complex `<mo>`
 - MathML: improved handling of fences
-- Improved Latex output
+- Improved LaTeX output
 
 ### Bug Fixes
 
@@ -3345,9 +3346,9 @@ MathLive.makeMathField(/*...*/);
 - MathML: don't insert `&invisibleTimes;` for factorial, but _do_ insert it
   before a fence.
 - Going up from a numerator longer than the denominator could hang.
-- MathML and Latex output: better handling of `\Big` (etc...) delimiters
+- MathML and LaTeX output: better handling of `\Big` (etc...) delimiters
 - MathML: do not render `\text` as `<mi>`
-- Latex output: handle the `\math...` (`\mathop`, `\mathbin`...) family of
+- LaTeX output: handle the `\math...` (`\mathop`, `\mathbin`...) family of
   functions
 - Properly parse custom operators
 - Commands with multiple keyboard shortcuts would not display correctly in the
@@ -3375,7 +3376,7 @@ MathLive.makeMathField(/*...*/);
 ### New Features
 
 - Improved accessibility support (major contribution from Neil Soiffer)
-- Support for MathML output and Latex to MathML conversion.
+- Support for MathML output and LaTeX to MathML conversion.
 
 ### Bug Fixes
 
@@ -3415,17 +3416,17 @@ MathLive.makeMathField(/*...*/);
 
 - Properly exported public API, including `renderMathInDocument()` and
   `renderMathInElement()`
-- Added \enclose command, implementing the
+- Added `\enclose` command, implementing the
   [MathML](https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose)
   equivalent.
-- Added \cancel, \bcancel and \xcancel commands
+- Added `\cancel`, `\bcancel` and `\xcancel` commands
 - Added `preserveOriginalContent` option to `MathLive.renderMathIn...()`
 - Made `\backslash` work in text mode, for example when an argument of `\rlap{}`
-- Added `MathField.revertToOriginalContent()` when a math field is no longer
-  needed for an element
+- Added `revertToOriginalContent()` when a math field is no longer needed for an
+  element
 - Added customization of the command bar. See `MathField.$setConfig()` and
   `config.commands`
-- Added `MathLive.revertToOriginalContent()` and `MathLive.getOriginalContent()`
+- Added `revertToOriginalContent()` and `getOriginalContent()`
 - Added optional namespacing of `data-` attributes
 - Added `onContentWillChange` and `onContentDidChange` handlers in the math
   field config object.
@@ -3437,8 +3438,8 @@ MathLive.makeMathField(/*...*/);
 - Dead keys (`´`, `^`, `¨`, `˜` and others on some keyboards) were not properly
   handled
 - Complex emojis (emojis made of multiple codepoints, such as emojis with skin
-  tone modifiers, or emojis with a ZERO WIDTH JOINER, such as the David Bowie
-  emoji) would be incorrectly recognized as multiple symbols
+  tone modifiers, or emojis with a **ZERO WIDTH JOINER**, such as the David
+  Bowie emoji) would be incorrectly recognized as multiple symbols
 - Fixed the `\color` command
 - Properly roundtrip to LaTeX `\rlap`, `\color` and many other commands. Now,
   copying content using these commands in a math field will result in the
