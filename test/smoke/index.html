@@ -32,10 +32,14 @@
 
       <h2>MathML</h2>
       <div class="output" id="mathml"></div>
+
+      <h2>Result</h2>
+      <div class="output" id="result"></div>
+      <div id="result-latex"></div>
     </main>
 
     <script type="module">
-      import '/dist/mathlive.mjs';
+      import { renderMathInElement } from '/dist/mathlive.mjs';
 
       // Handler called when the mathfield content has changed
       function updateContent(mf) {
@@ -45,6 +49,11 @@
           setHtml('mathascii', mf.getValue('ascii-math'));
           setHtml('mathml', mf.getValue('math-ml'));
           setHtml('math-json', mf.getValue('math-json'));
+          const result = mf.expression.evaluate().latex;
+          document.getElementById('result').innerText = result;
+          document.getElementById('result-latex').innerText = `$$${result}$$`;
+
+          renderMathInElement('result-latex');
         } catch (e) {
           console.error('Error converting', e.toString());
         }
