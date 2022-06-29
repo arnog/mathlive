@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1521** **Regression** In some cases a vertical scrollbar unexpectedly
+  appeared in the mathfield
+
 ## 0.76.0 (2022-06-28)
 
 ### Improvements
