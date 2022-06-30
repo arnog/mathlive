@@ -194,30 +194,14 @@ export function showVirtualKeyboard(
   keyboard: VirtualKeyboard,
   theme: VirtualKeyboardTheme = ''
 ): boolean {
-  keyboard.visible = false;
-  toggleVirtualKeyboard(keyboard, theme);
-  return false;
-}
-
-export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
-  keyboard.visible = true;
-  toggleVirtualKeyboard(keyboard);
-  return false;
-}
-
-function toggleVirtualKeyboard(
-  keyboard: VirtualKeyboard,
-  theme?: VirtualKeyboardTheme
-): boolean {
   if (!keyboard.options.virtualKeyboardContainer) return false;
 
-  keyboard.visible = !keyboard.visible;
-  if (keyboard.visible) {
-    if (keyboard.element) keyboard.element.classList.add('is-visible');
-    else keyboard.buildAndAttachElement(theme);
+  if (keyboard.element) keyboard.element.classList.add('is-visible');
+  else keyboard.buildAndAttachElement(theme);
 
-    const padding =
-      keyboard.options.virtualKeyboardContainer.style.paddingBottom;
+  if (!keyboard.visible) {
+      const padding =
+        keyboard.options.virtualKeyboardContainer.style.paddingBottom;
     keyboard.originalContainerBottomPadding = padding;
     if (padding)
       keyboard.options.virtualKeyboardContainer.style.paddingBottom = `calc(${padding} + var(--keyboard-height, 276px) - 1px)`;
@@ -225,13 +209,23 @@ function toggleVirtualKeyboard(
       keyboard.options.virtualKeyboardContainer.style.paddingBottom =
         'calc(var(--keyboard-height, 276px) - 1px)';
     }
-    // For the transition effect to work, the property has to be changed
-    // after the insertion in the DOM. Use setTimeout
-    setTimeout(() => {
-      keyboard.element?.classList.add('is-visible');
-      keyboard.focusMathfield();
-    }, 1);
-  } else if (keyboard.element) {
+  }
+  // For the transition effect to work, the property has to be changed
+  // after the insertion in the DOM. Use setTimeout
+  setTimeout(() => {
+    keyboard.element?.classList.add('is-visible');
+    keyboard.focusMathfield();
+  }, 1);
+
+  keyboard.visible=true
+  keyboard.stateChanged();
+  return false;
+}
+
+export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
+  if (!keyboard.options.virtualKeyboardContainer) return false;
+
+  if (keyboard.element) {
     // Remove the element from the DOM
     keyboard.disable();
     hideAlternateKeys();
@@ -249,7 +243,21 @@ function toggleVirtualKeyboard(
       keyboard.originalContainerBottomPadding;
   }
 
+  keyboard.visible=false
   keyboard.stateChanged();
+  return false;
+}
+
+function toggleVirtualKeyboard(
+  keyboard: VirtualKeyboard,
+  theme?: VirtualKeyboardTheme
+): boolean {
+  if (keyboard.visible) {
+    hideVirtualKeyboard(keyboard)
+  } else {
+    showVirtualKeyboard(keyboard, theme)
+  }
+
   return false;
 }
 
