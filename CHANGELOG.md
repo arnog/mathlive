@@ -22,9 +22,8 @@
 
 ### Features
 
-- **#1335** Added support for [_Input Events Level 1_]
-  (https://www.w3.org/TR/input-events-1/), which includes the `beforeinput` and
-  `input` events
+- **#1335** Added support for the `beforeinput` and `input` events from [_Input
+  Events Level 1_] (https://www.w3.org/TR/input-events-1/).
 
   While an `input` event was dispatched before, it did not conform to the
   `InputEvent` interface. The `input` event now includes an `inputType` property
@@ -68,7 +67,7 @@
 
 ### Features
 
-- **#970** It is now possible to vertically scroll the content of the mahtfield.
+- **#970** It is now possible to vertically scroll the content of the mathfield.
 
 ### Improvements
 
@@ -80,7 +79,7 @@
   bottom of the page, it could get covered with the virtual keyboard and become
   inaccessible
 - When a mathfield is set to a fixed height and it contains content that doesn't
-  fit vertically, a scollbar will appear.
+  fit vertically, a scrollbar will appear.
 - If the content of the mathfield was taller than could fit in the mathfield,
   typing would not bring the content of the mathfield into view. (**#1310**)
 - When typing or using the virtual keyboard the mathfield would not always
@@ -117,7 +116,7 @@
   The `use-shared-virtual-keyboard` attribute is now only necessary when using a
   mathfield in an iframe.
 
-  If the `virtual-keyboard-mode` attribute of ma athfield is set to `auto` or
+  If the `virtual-keyboard-mode` attribute of mathfield is set to `auto` or
   `onfocus`, the virtual keyboard will activate and hide automatically. It is no
   longer necessary to set the mode to `off` and to listen for focus change event
   to show/hide the keyboard manually.
@@ -306,7 +305,7 @@ in order to preserve the same settings, you would now use:
   `x^{}2`
 - Improved parsing and layout of functions with arguments, i.e.
   `\sin\left(x\right)`. Previously, there would be an excessive amount of white
-  space beween the `\sin` and `(`. The expression is now correctly interpreted
+  space between the `\sin` and `(`. The expression is now correctly interpreted
   as a function.
 - **#1459** When using a non-QWERTY physical keyboard layout, creating multiple
   mathfields could result in the keyboard layout being erroneously reset to
@@ -415,7 +414,7 @@ in order to preserve the same settings, you would now use:
   trigger some asserts
 - Correctly handle deletion of the closing fence of a smartfence
 - **#1412** Correctly handle insertion of custom macros with `executeCommand`
-- On Windows/Linux with an AZERTY keyboard, the ² (supersript 2) is now handled
+- On Windows/Linux with an AZERTY keyboard, the ² (superscript 2) is now handled
   correctly
 - **#1362** and **#726** Correctly handle backspacing over a multi-character
   operator, e.g. `<=`.
@@ -428,7 +427,7 @@ in order to preserve the same settings, you would now use:
   between columns
 - Added macros to the command popover
 - Improved visual appearance when using dark mode. Also, added more CSS
-  variables to customize the apperance of the mathfield.
+  variables to customize the appearance of the mathfield.
 
 ## 0.69.10 (2022-02-23)
 
@@ -500,7 +499,7 @@ in order to preserve the same settings, you would now use:
   chaining, despite the fact it's supported in every targeted browser, until the
   `vue` toolchain gets its act together. To be clear MathLive does not use or
   depend on `Vue`, but some users are integrating MathLive in projects that do
-  use it, and this is sufficient to break MathLive. It appears that this isse
+  use it, and this is sufficient to break MathLive. It appears that this issue
   affects also the React toolchain.
 
 - **#1125** don't enable switching to LaTeX mode for read-only mathfields
@@ -562,7 +561,7 @@ in order to preserve the same settings, you would now use:
 
 ### Breaking Changes
 
-- This release requires TypeScript 4.3 or later (the API uses assymetric
+- This release requires TypeScript 4.3 or later (the API uses asymmetric
   getters/setters). If you are using VSCode, you may need to change the version
   of TypeScript used by the editor for language services (syntax checking). To
   do so, with a TypeScript file open, click the Typescript version in the bottom
@@ -755,7 +754,7 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 - **#948** The Typescript declaration of `set plonkSound()` failed when compiled
   with `strictNullChecks`.
 - When using a mathfield as a web component, the `speak` command would be
-  inoperational.
+  inoperative.
 - In Chrome/Blink, when a mathfield was in a `contentEditable` block, inserting
   a line before the component would make the component crash. Now the component
   is correctly disconnected, then reconnected and preserves its state across the
@@ -934,7 +933,7 @@ for more details.
   was set to "undefined".
 - The DVIPS colors were case sensitive, they should be case sensitive. (i.e.
   `LimeGreen` is a valid color, `Limegreen` is not)
-- **#945** Preserve more aggresively verbatim LaTeX. Also, avoid serializing
+- **#945** Preserve more aggressively verbatim LaTeX. Also, avoid serializing
   superfluous spaces in Spacing atoms.
 - **#770** Correctly handle attaching limits to `\int` command using the
   keyboard.
@@ -1002,7 +1001,7 @@ for more details.
 ### New Features
 
 - The background of fractions, radicals and parentheses group (`\left`/`\right`
-  commands) is now highlited when they contain the caret. This makes it easier
+  commands) is now highlighted when they contain the caret. This makes it easier
   to distinguish some cases when the cursor is at the edge of the element and
   could be either inside or outside. The appearance of the highliting can be
   controlled with the `--contains-highlight` CSS variable. Set it to
@@ -1041,7 +1040,7 @@ for more details.
 - Substantial rewrite of the stacked layout algorithm (fractions, superscripts,
   etc...). The previous algorithm did not work correctly when mixing absolute
   sizing commands (`\Huge`) and relative ones (`\scriptstyle`) and had various
-  issues and inconsistenceis with what TeX produced. The result is now close to
+  issues and inconsistencies with what TeX produced. The result is now close to
   TeX.
 
 ![](assets/mathlive-0.64.jpg)
@@ -1063,7 +1062,7 @@ for more details.
 
 - When pasting from the clipboard, recognize text bracketed with
   `\begin{math}`...`\end{math}` or `\begin{displaymath}`...`\end{displaymath}`
-  as LaTeX (in additon to `$`, `$$`, `\[`...`\]` and `\(`...`\)` which were
+  as LaTeX (in addition to `$`, `$$`, `\[`...`\]` and `\(`...`\)` which were
   recognized before). Also, recognize text that may contain a LaTeX expression
   surrounded by regular text (i.e. "if $x > 0$").
 
@@ -1457,10 +1456,10 @@ for more details.
     which returns its results as an array of ranges. It is also possible now to
     query and change the current selection, and to apply styling to a portion of
     the expression other than the selection.
-  - The selection is represented as an _array_ of ranges to support discontinous
-    selections, which are useful to select for example all the cells in the
-    column of a matrix column. This kind of selection was not previously
-    possible.
+  - The selection is represented as an _array_ of ranges to support
+    discontinuous selections, which are useful to select for example all the
+    cells in the column of a matrix column. This kind of selection was not
+    previously possible.
   - Incidentally this fixes a circular dependency, which was a smell test that
     there was a problem with the previous architecture.
 
@@ -1469,7 +1468,7 @@ for more details.
   calls _nodes_), the TeX layout algorithm never needs to find the parent of an
   atom. The MathLive rendering engine was implemented in the same way. However,
   for interactive editing, being able to locate the parent of an atom is
-  frequetly necessary. The paths were a mechanism to maintain a separate data
+  frequently necessary. The paths were a mechanism to maintain a separate data
   structure from the one needed by the rendering engine. However, they were a
   complex and clumsy mechanism. Now, a `parent` property has been introduced in
   instance of `Atom`, even though it is not necessary for the rendering phase.
@@ -1533,11 +1532,12 @@ for more details.
 - **#225** Changed the keyboard shortcuts to add columns and rows:
 
   | Shortcut                                            | Command           |
-  | :-------------------------------------------------- | :---------------- | --- | ------------------------------ | ---------------- | --- |
-  | **ctrl**/**cmd** + **Return**/**Enter**             | `addRowAfter`     |     |
-  | **ctrl**/**cmd** + **shift** + **Return**/**Enter** | `addRowBefore`    |     |
-  | **ctrl**/**cmd** + **;**                            | `addRowAfter`     |     | **ctrl**/**cmd** + **shift** + |
-  | **;**                                               | `addRowBefore`    |     | **ctrl**/**cmd** + **,**       | `addColumnAfter` |     |
+  | :-------------------------------------------------- | :---------------- |
+  | **ctrl**/**cmd** + **Return**/**Enter**             | `addRowAfter`     |
+  | **ctrl**/**cmd** + **shift** + **Return**/**Enter** | `addRowBefore`    |
+  | **ctrl**/**cmd** + **;**                            | `addRowAfter`     |
+  | **ctrl**/**cmd** + **shift** + **;**                | `addRowBefore`    |
+  | **ctrl**/**cmd** + **,**                            | `addColumnAfter`  |
   | **ctrl**/**cmd** + **shift** + **,**                | `addColumnBefore` |
 
   Note that **Enter**/**Return** no longer create a matrix/vector when inside a
@@ -1738,7 +1738,7 @@ The following functions have been renamed:
 - **#599**: some characters, for example "ü", would not be correctly parsed or
   displayed. Note that technically, those characters are ignored by TeX, but
   it's a reasonable behavior nowadays to accept them as input.
-- **#628**: typing "e" repeatedly inside a matrix would corrupt the emited
+- **#628**: typing "e" repeatedly inside a matrix would corrupt the emitted
 - **#637**: in Chrome, thin lines, such as fraction bars or square root lines
   would not display at some zoom levels
 - The locale was not properly taking into account when it was set manually
@@ -1767,7 +1767,7 @@ The following functions have been renamed:
 
 ### New Features
 
-- **WebPack issues workaround and font loading configuation**
+- **WebPack issues workaround and font loading configuration**
 
   Follow up to **#508**. The fonts can now be loaded either statically or
   dynamically.
@@ -1862,7 +1862,7 @@ The following functions have been renamed:
 - **#508** In order to better support some deployment configurations, added a
   'mathlive-fonts.css' file to the distribution package.
 
-  This is intended to be used by build/bundle environements that have an asset
+  This is intended to be used by build/bundle environments that have an asset
   pipeline that can move/rename assets, including the font-files
 
   Note that this method is **not** recommended. It will result in some cases
@@ -1883,7 +1883,7 @@ The following functions have been renamed:
 - Ensure that the 'dt' inline shortcut does not trigger when writing "width" (it
   should only apply in the math mode)
 - **#492** Typing "/" to insert as fraction when some items were selected would
-  result in an eroneous output.
+  result in an erroneous output.
 
 ## 0.53.1 (2020-06-01)
 
@@ -1933,7 +1933,7 @@ The following functions have been renamed:
   In some rare cases, you may have used the CSS stylesheet without the Mathlive
   library, for example, after you may have saved the output of `latexToMarkup()`
   to a database and use it to render later in a page. In that case, you would
-  need to use the CSS styelsheet `dist/mathlive-static.css`, which is suitable
+  need to use the CSS stylesheet `dist/mathlive-static.css`, which is suitable
   for this use case. Note that it does reference a 'fonts' folder that may need
   to be adjusted. By default, the `fonts` folder should be placed next to the
   stylesheet. If you need a different location when using the static stylesheet,
@@ -2001,7 +2001,7 @@ The following functions have been renamed:
   improved interoperability
 
 - When an invalid keybinding is encountered, the `onError` listener is now
-  invoked with an erorr code of `invalid-keybinding`
+  invoked with an error code of `invalid-keybinding`
 
 - Added support for German keyboard layout.
 
@@ -2019,7 +2019,7 @@ The following functions have been renamed:
 
 ### New Features
 
-- **#450** Custom keybindings. A keybinding (also called keyboard shorcut)
+- **#450** Custom keybindings. A keybinding (also called keyboard shortcut)
   associate a keystroke combination on a physical keyboard with a command.
   Mathlive previously had some built-in keybindings, but now they can be
   extended or replaced.
@@ -2168,7 +2168,7 @@ The following functions have been renamed:
 ### Highlights
 
 - **Maintenance**: Migration to TypeScript
-- **Maintenance**: New math variant (bold, italic, etc...) subsytem matches
+- **Maintenance**: New math variant (bold, italic, etc...) subsystem matches
   LaTeX more closely
 - **Maintenance**: Reduced code size
 - **New feature**: Verbatim LaTeX
@@ -3272,7 +3272,7 @@ MathLive.makeMathField(/*...*/);
 ### Other New Features
 
 - Toggle the virtual keyboard layer when the shift key is pressed
-- New `onVirtualKeyboardToogle` handler will get called when the visibility of
+- New `onVirtualKeyboardToggle` handler will get called when the visibility of
   the virtual keyboard changes. Useful to scroll into view important content
   that might be obscured by the keyboard.
 - Some common functions added as inline shortcuts: `limsup`, `liminf`, `argmin`,
