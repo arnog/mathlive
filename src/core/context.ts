@@ -78,12 +78,12 @@ export class Context implements ContextInterface {
     seed: 'random' | number;
   };
   smartFence: boolean;
-  renderPlaceholder?: (context: Context, placholder: PlaceholderAtom) => Box;
+  renderPlaceholder?: (context: Context, placeholder: PlaceholderAtom) => Box;
 
   // Rendering to construct a phantom: don't bind the box.
   readonly isPhantom: boolean;
 
-  // Inherithed from `Style`: size, letterShapeStyle, color and backgroundColor.
+  // Inherited from `Style`: size, letterShapeStyle, color and backgroundColor.
   // Size is the "base" font size (need to add mathstyle.sizeDelta to get effective size)
   readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
   readonly color?: string;

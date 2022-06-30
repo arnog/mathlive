@@ -52,7 +52,7 @@ export abstract class Mode {
   /*
    * Apply the styling (bold, italic, etc..) as classes to the box, and return
    * the effective font name to be used for metrics
-   * ('Main-Regular', 'Caligraphic-Regualr' etc...)
+   * ('Main-Regular', 'Caligraphic-Regular' etc...)
    */
   abstract applyStyle(_box: Box, _style: Style): string | null;
 }

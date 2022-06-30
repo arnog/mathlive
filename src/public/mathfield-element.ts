@@ -25,11 +25,11 @@ import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 //
 
 /*
-    ## Event retargeting
+    ## Event re-targeting
     Some events bubble up through the DOM tree, so that they are detectable by
      any element on the page.
 
-    Bubbling events fired from within shadow DOM are retargeted so that, to any
+    Bubbling events fired from within shadow DOM are re-targeted so that, to any
     listener external to your component, they appear to come from your component itself.
 
     ## Custom Event Bubbling
@@ -67,8 +67,8 @@ export type MathErrorEvent = {
 };
 
 /**
- * The `keystroke` event is fired when a keystroke is about to be procesed.
- * The event is cancellable, which wills suprress further handling of the event.
+ * The `keystroke` event is fired when a keystroke is about to be processed.
+ * The event is cancellable, which wills suppress further handling of the event.
  *
  */
 export type KeystrokeEvent = {
@@ -231,7 +231,7 @@ export interface MathfieldElementAttributes {
    * feedback.
    *
    * The value of the properties should a string, the name of an audio file in
-   * the `soundsDirectory` directory or 'none' to supress the sound.
+   * the `soundsDirectory` directory or 'none' to suppress the sound.
    */
   'keypress-sound': string;
   /**
@@ -425,12 +425,18 @@ export interface MathfieldElementAttributes {
  * ### CSS Variables
  *
  * To customize the appearance of the mathfield, declare the following CSS
- * variables (custom properties) in a ruleset that appliee to the mathfield.
+ * variables (custom properties) in a ruleset that applies to the mathfield.
  *
  * ```css
  * math-field {
  *  --hue: 10       // Set the highlight color and caret to a reddish hue
  * }
+ * ```
+ *
+ * Alternatively you can set these CSS variables progamatically:
+ *
+ * ```js
+ *   document.body.style.setProperty("--keyboard-zindex", "3200");
  * ```
  *
  * | CSS Variable | Usage |
@@ -443,7 +449,7 @@ export interface MathfieldElementAttributes {
  * | `--primary` | Primary accent color, used for example in the virtual keyboard |
  * | `--text-font-family` | The font stack used in text mode |
  * | `--keyboard-zindex` | The z-index attribute of the virtual keyboard panel |
- * | `--smart-fence-opacity` | Opacity of a smart gence (default is 50%) |
+ * | `--smart-fence-opacity` | Opacity of a smart fence (default is 50%) |
  * | `--smart-fence-color` | Color of a smart fence (default is current color) |
  *
  * ### CSS Parts
@@ -540,12 +546,12 @@ export interface MathfieldElementAttributes {
  * ### Events
  *
  * Listen to these events by using `addEventListener()`. For events with additional
- * arguments, the arguments are availble in `event.detail`.
+ * arguments, the arguments are available in `event.detail`.
  *
  * | Event Name  | Description |
  * |:---|:---|
  * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield.  |
- * | `change` | The user has commited the value of the mathfield. This happens when the user presses **Return** or leaves the mathfield. |
+ * | `change` | The user has committed the value of the mathfield. This happens when the user presses **Return** or leaves the mathfield. |
  * | `selection-change` | The selection (or caret position) in the mathfield has changed |
  * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
  * | `undo-state-change` |  The state of the undo stack has changed |
@@ -628,7 +634,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   private _style: string;
 
   /**
-     * To create programmatically a new mahfield use:
+     * To create programmatically a new mathfield use:
      *
      * ```javascript
     let mfe = new MathfieldElement();

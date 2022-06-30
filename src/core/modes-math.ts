@@ -13,7 +13,7 @@ import { BoxAtom } from '../core-atoms/box';
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
 // variant combinations.
-const VARIANTS: Record<string, [fontName: string, cssClas: string]> = {
+const VARIANTS: Record<string, [fontName: string, cssClass: string]> = {
   // Handle some special characters which are only available in "main" font (not "math")
   'main': ['Main-Regular', 'ML__cmr'],
   'main-italic': ['Main-Italic', 'ML__cmr ML__it'],
@@ -80,7 +80,7 @@ const GREEK_UPPERCASE =
 
 const LETTER_SHAPE_RANGES = [
   /^[a-z]$/, // Lowercase latin
-  /^[A-Z]$/, // Upppercase latin
+  /^[A-Z]$/, // Uppercase latin
   GREEK_LOWERCASE,
   GREEK_UPPERCASE,
 ];

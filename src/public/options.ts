@@ -11,10 +11,10 @@ import { VirtualKeyboardMode } from './mathfield-element';
 import type { Selector } from './commands';
 
 /**
- * Specify behaviour for origin validation.
+ * Specify behavior for origin validation.
  * | Value | Description |
  * | ----- | ----------- |
- * | `'same-origin'` | The origin of received message must be the same of hosted window, instead exception will thow. |
+ * | `'same-origin'` | The origin of received message must be the same of hosted window, instead exception will throw. |
  * | `'(origin: string) => boolean` | The callback to verify origin to be expected validation. When callback return `false` value, message will rejected and exception will throw. |
  * | `'none'` | No origin validation for post messages. |
  */
@@ -456,7 +456,7 @@ export type VirtualKeyboardOptions = {
    *
    * The value of the properties should be either a string, the name of an
    * audio file in the `soundsDirectory` directory, an `HTMLAudioElement` or
-   * null to supress the sound.
+   * null to suppress the sound.
    */
   keypressSound:
     | string
@@ -628,7 +628,7 @@ export type RemoteVirtualKeyboardOptions = CombinedVirtualKeyboardOptions & {
   targetOrigin: string;
 
   /**
-   * Specify behaviour how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+   * Specify behavior how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
    * should be validated.
    *
    * **Default**: `'same-origin'`
@@ -670,7 +670,7 @@ export type ContentChangeOptions = {
 
 /**
  * The methods provide a notification that an event is about to occur or has
- * occured.
+ * occurred.
  *
  * In general instead of using this interface you should be listening to the
  * corresponding event on `MathfieldElement`, i.e.
@@ -1090,7 +1090,7 @@ export type MathfieldOptions = LayoutOptions &
     sharedVirtualKeyboardTargetOrigin: string;
 
     /**
-     * Specify behaviour how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
+     * Specify behavior how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
      * should be validated.
      *
      * **Default**: `'same-origin'`

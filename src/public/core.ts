@@ -13,7 +13,7 @@ export type ParseMode = 'math' | 'text' | 'latex';
     |  | |
     | ------------------ | ---      |
     | `font-not-found`              | A required font could not be loaded. The `fontDirectory` option may not be setup correctly or the 'fonts' directory is missing. |
-    | `invalid-keybinding`          | A keybinding includes a combinatino of keys which cannot be performed with the current keyboard layout. |
+    | `invalid-keybinding`          | A keybinding includes a combination of keys which cannot be performed with the current keyboard layout. |
     | `unknown-command`             | There is no definition available for this command, e.g. `\zin`  |
     | `unknown-environment`         | There is no definition available for this environment, e.g. `\begin{foo}`  |
     | `invalid-command`             | This command is not valid in the current mode (e.g. text command in math mode)  |

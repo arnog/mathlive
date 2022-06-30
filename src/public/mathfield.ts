@@ -15,7 +15,7 @@ import { ParseMode, MacroDictionary, Style, Registers } from './core';
 | `"spoken"`            | Spoken text rendering, using the default format defined in config, which could be either text or SSML markup. |
 | `"spoken-text"`       | A plain spoken text rendering of the content. |
 | `"spoken-ssml"`       | A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS. |
-| `"spoken-ssml-with-highlighting"`| Like `"spoken-ssml"` but with additional annotations necessary for synchronized higlighting (read aloud). |
+| `"spoken-ssml-with-highlighting"`| Like `"spoken-ssml"` but with additional annotations necessary for synchronized highlighting (read aloud). |
 */
 export type OutputFormat =
   | 'ascii-math'
@@ -97,7 +97,7 @@ export type ApplyStyleOptions = {
 export type Offset = number;
 
 /**
- * A pair of offests (boundary points) that can be used to denote a fragment
+ * A pair of offsets (boundary points) that can be used to denote a fragment
  * of an expression.
  *
  * A range is said to be collapsed when start and end are equal.
@@ -117,7 +117,7 @@ export type Offset = number;
 export type Range = [start: Offset, end: Offset];
 
 /**
- * A selection is a set of ranges (to support discontinous selection, for
+ * A selection is a set of ranges (to support discontinuous selection, for
  * example when selecting a column in a matrix).
  *
  * If there is a single range and that range is collapsed, the selection is
@@ -127,7 +127,7 @@ export type Range = [start: Offset, end: Offset];
  * to the direction, a few are. For example, when selecting a fragment of an
  * expression from left to right, the direction of this range will be "forward".
  * Pressing the left arrow key will sets the insertion at the start of the range.
- * Conversely, if the selectionis made from right to left, the direction is
+ * Conversely, if the selection is made from right to left, the direction is
  * "backward" and pressing the left arrow key will set the insertion point at
  * the end of the range.
  *
@@ -153,7 +153,7 @@ export interface VirtualKeyboardInterface {
   create(): void;
   /** After calling dispose() the Virtual Keyboard is no longer valid and
    * cannot be brought back. Use disable() for temporarily deactivating the
-   * keboard. */
+   * keyboard. */
   dispose(): void;
   executeCommand(command: string | [string, ...any[]]): boolean;
   focusMathfield(): void;

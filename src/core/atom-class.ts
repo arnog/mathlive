@@ -47,7 +47,7 @@ export type Branch = BranchName | [row: number, col: number];
  * A _branch_ is a set of children of an atom.
  *
  * There are two kind of branches:
- * - **cell branches** are adressed with a column and row number and are
+ * - **cell branches** are addressed with a column and row number and are
  * used by `ArrayAtom`
  * - **named branches** used with other kind of atoms. There is a fixed set of
  * possible named branches.
@@ -153,7 +153,7 @@ export class Atom {
 
   // Verbatim LaTeX of the command and its arguments
   // Note that the empty string is a valid verbatim LaTeX , so it's important
-  // to distinguish between `verbatimLatex === undefined` and `typeof verbatimeLatex === 'string'`
+  // to distinguish between `verbatimLatex === undefined` and `typeof verbatimLatex === 'string'`
   verbatimLatex: string | undefined = undefined;
 
   style: PrivateStyle;
@@ -209,7 +209,7 @@ export class Atom {
   // as a unit. Used by the `\enclose` annotations, for example.
   captureSelection = false;
 
-  // If true, this atom should be highlited when it contains the caret
+  // If true, this atom should be highlighted when it contains the caret
   displayContainsHighlight: boolean;
 
   // The kern to the right of this atom
@@ -223,7 +223,7 @@ export class Atom {
   isSelected: boolean;
 
   // If the atom or one of its descendant includes the caret
-  // (used to highligth surd or fences to make clearer where the caret is)
+  // (used to highlight surd or fences to make clearer where the caret is)
   containsCaret: boolean;
   caret: ParseMode | '';
 
