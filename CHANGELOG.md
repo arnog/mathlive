@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1523** When switching between keyboard layouts the body of the document was
+  getting erroneously enlarged vertically.
+
 ## 0.76.1 (2022-06-29)
 
 ### Bug Fixes

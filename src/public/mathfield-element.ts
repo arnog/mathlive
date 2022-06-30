@@ -581,7 +581,7 @@ export interface MathfieldElementAttributes {
  * | `unmount` | The element is about to be removed from the DOM |
  *
  * </div>
- * 
+ *
  * @keywords zindex, events, attribute, attributes, property, properties, parts, variables, css, mathfield, mathfieldelement
 
  */

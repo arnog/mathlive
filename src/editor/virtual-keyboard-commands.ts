@@ -86,8 +86,8 @@ export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
         const command = keycap.getAttribute('data-command');
         if (command) {
           keycap.dataset.unshiftedCommand = command;
-          const shifteCommand = keycap.getAttribute('data-shifted-command');
-          if (shifteCommand) keycap.dataset.command = shifteCommand;
+          const shiftedCommand = keycap.getAttribute('data-shifted-command');
+          if (shiftedCommand) keycap.dataset.command = shiftedCommand;
           else {
             const commandObject = JSON.parse(command);
             if (isArray(commandObject))
@@ -200,8 +200,8 @@ export function showVirtualKeyboard(
   else keyboard.buildAndAttachElement(theme);
 
   if (!keyboard.visible) {
-      const padding =
-        keyboard.options.virtualKeyboardContainer.style.paddingBottom;
+    const padding =
+      keyboard.options.virtualKeyboardContainer.style.paddingBottom;
     keyboard.originalContainerBottomPadding = padding;
     if (padding)
       keyboard.options.virtualKeyboardContainer.style.paddingBottom = `calc(${padding} + var(--keyboard-height, 276px) - 1px)`;
@@ -217,7 +217,7 @@ export function showVirtualKeyboard(
     keyboard.focusMathfield();
   }, 1);
 
-  keyboard.visible=true
+  keyboard.visible = true;
   keyboard.stateChanged();
   return false;
 }
@@ -243,7 +243,7 @@ export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
       keyboard.originalContainerBottomPadding;
   }
 
-  keyboard.visible=false
+  keyboard.visible = false;
   keyboard.stateChanged();
   return false;
 }
@@ -252,11 +252,8 @@ function toggleVirtualKeyboard(
   keyboard: VirtualKeyboard,
   theme?: VirtualKeyboardTheme
 ): boolean {
-  if (keyboard.visible) {
-    hideVirtualKeyboard(keyboard)
-  } else {
-    showVirtualKeyboard(keyboard, theme)
-  }
+  if (keyboard.visible) hideVirtualKeyboard(keyboard);
+  else showVirtualKeyboard(keyboard, theme);
 
   return false;
 }
