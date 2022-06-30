@@ -148,7 +148,7 @@ export class Atom {
 
   type: AtomType;
 
-  // Latex command ('\sin') or character ('a')
+  // LaTeX command ('\sin') or character ('a')
   command: string;
 
   // Verbatim LaTeX of the command and its arguments

@@ -71,8 +71,8 @@ export type ErrorListener<T> = (err: {
  * For example, the set ℂ should not be confused with the physical unit 𝖢 (Coulomb).
  *
  * When rendered, these variants can map to some built-in fonts.
- * Latex supports a limited set of characters. However, MathLive will
- * map characters not supported by Latex  fonts(double-stuck variant for digits
+ * LaTeX supports a limited set of characters. However, MathLive will
+ * map characters not supported by LaTeX  fonts(double-stuck variant for digits
  * for example) to a Unicode character (see [Mathematical Alphanumeric Symbols on Wikipedia](https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols) ).
  *
  * `normal` is a synthetic variant that maps either to `main` (roman) or

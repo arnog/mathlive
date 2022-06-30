@@ -30,7 +30,7 @@ keyboard.
 <script type="module">
   import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive?module';
 
-  makeSharedVirtualKeyboard({});
+  makeSharedVirtualKeyboard();
 </script>
 ```
 

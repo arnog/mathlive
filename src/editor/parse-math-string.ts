@@ -31,7 +31,7 @@ import { INLINE_SHORTCUTS } from './shortcuts-definitions';
  * lim_(n->\infty) n
  * \iint_(a=0)^\infty  a
  *
- * - "JavaScript Latex": a variant that is LaTeX, but with escaped backslashes
+ * - "JavaScript LaTeX": a variant that is LaTeX, but with escaped backslashes
  *  \\frac{1}{2} \\sin x
  */
 export function parseMathString(
@@ -339,7 +339,7 @@ export function trimModeShiftCommand(s: string): [boolean, string] {
 function inferFormat(s: string): [OutputFormat | undefined, string] {
   s = s.trim();
 
-  // Assume Latex if a single char
+  // Assume LaTeX if a single char
   if (s.length <= 1) return ['latex', s];
 
   // This is not explicitly ASCIIMath. Try to infer if this is LaTex...
@@ -365,7 +365,7 @@ function inferFormat(s: string): [OutputFormat | undefined, string] {
 
   if (/\$.+\$/.test(s)) {
     // If there's a pair of $ (or possibly $$) signs, assume it's a string
-    // such as `if $x<0$ then`, in which case it's Latex, but with some text
+    // such as `if $x<0$ then`, in which case it's LaTeX, but with some text
     // around it
     return ['latex', `\\text{${s}}`];
   }

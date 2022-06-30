@@ -11,19 +11,19 @@ defineFunction(
     'arccos',
     'arcsin',
     'arctan',
-    'arctg', // Not Latex standard. Used in France
-    'arcctg', // Not Latex standard. Used in France
+    'arctg', // Not LaTeX standard. Used in France
+    'arcctg', // Not LaTeX standard. Used in France
     'arg',
-    'ch', // Not Latex standard. \cosh
+    'ch', // Not LaTeX standard. \cosh
     'cos',
     'cosh',
     'cot',
     'coth',
-    'ctg', // Not Latex standard. Used in France
+    'ctg', // Not LaTeX standard. Used in France
     'cth',
-    'cotg', // Not Latex standard. Used in France
-    'csc', // Not Latex standard. \cth
-    'cosec', // Not Latex standard.
+    'cotg', // Not LaTeX standard. Used in France
+    'csc', // Not LaTeX standard. \cth
+    'cosec', // Not LaTeX standard.
     'deg',
     'dim',
     'exp',
@@ -31,21 +31,21 @@ defineFunction(
     'inf',
     'ker',
     'lg',
-    'lb', // Not Latex standard. US Dept of Commerce recommendation for log2
-    'lg', // Not Latex standard. In German and Russian literature,  log10.
+    'lb', // Not LaTeX standard. US Dept of Commerce recommendation for log2
+    'lg', // Not LaTeX standard. In German and Russian literature,  log10.
     // Sometimes used as the log2
     'ln',
     'log',
     'Pr',
     'sec',
-    'sh', // Not Latex standard. \sinh
+    'sh', // Not LaTeX standard. \sinh
     'sin',
     'sinh',
     'sup',
     'tan',
     'tanh',
-    'tg', // Not Latex standard. Used in France
-    'th', // Not Latex standard. \tanh
+    'tg', // Not LaTeX standard. Used in France
+    'th', // Not LaTeX standard. \tanh
   ],
   '',
   {

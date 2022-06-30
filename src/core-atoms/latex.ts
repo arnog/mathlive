@@ -5,7 +5,7 @@ import { Style } from '../public/core';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 
 /**
- * Atom for raw latex character, while in Latex editing mode
+ * Atom for raw latex character, while in LaTeX editing mode
  */
 export class LatexAtom extends Atom {
   isSuggestion: boolean; // Display suggestions with reduced opacity
@@ -58,7 +58,7 @@ export class LatexAtom extends Atom {
 }
 
 /**
- * A group that represents a raw Latex editing zone.
+ * A group that represents a raw LaTeX editing zone.
  * There is only one LatexGroupAtom at a time in an expression.
  */
 export class LatexGroupAtom extends Atom {

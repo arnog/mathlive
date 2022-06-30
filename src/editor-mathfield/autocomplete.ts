@@ -114,7 +114,7 @@ export function acceptCommandSuggestion(model: ModelPrivate): boolean {
 }
 
 /**
- * When in Latex mode, insert the Latex being edited and leave latex mode
+ * When in LaTeX mode, insert the LaTeX being edited and leave latex mode
  *
  */
 export function complete(

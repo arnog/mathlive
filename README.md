@@ -79,8 +79,8 @@ its internal state changes.
   <dd>Adapt the behavior and appearance of a mathfield to your needs</dd>
   <dt><a href="https://cortexjs.io/mathlive/guides/commands">Execute commands</a></dt>
   <dd>Send editing commands to a mathfield</dd>
-  <dt><a href="https://cortexjs.io/mathlive/guides/macros">Define custom Latex macros</a></dt>
-  <dd>Extend the Latex commands supported</dd>
+  <dt><a href="https://cortexjs.io/mathlive/guides/macros">Define custom LaTeX macros</a></dt>
+  <dd>Extend the LaTeX commands supported</dd>
   <dt><a href="https://cortexjs.io/mathlive/guides/shortcuts">Manage inline and keyboard shortcuts</a></dt>
   <dd>Add or modify editing keyboard shortcuts</dd>
   <dt><a href="https://cortexjs.io/mathlive/guides/speech">Control speech output</a></dt>

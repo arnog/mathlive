@@ -292,12 +292,12 @@ export interface VirtualKeyboardKeycap {
    */
   command: Selector | [Selector, ...any[]];
   /**
-   * Latex fragment to insert when the keycap is pressed
+   * LaTeX fragment to insert when the keycap is pressed
    * (ignored if command is specified)
    */
   insert: string;
   /**
-   * Label of the key as a Latex expression, also the Latex
+   * Label of the key as a LaTeX expression, also the LaTeX
    * inserted if no `command` or `insert` property is specified.
    */
   latex: string;
@@ -597,7 +597,7 @@ export interface MathfieldHooks {
    *
    * The `range` argument indicates which portion of the mathfield should be
    * exported. It is not always equal to the current selection, but it can
-   * be used to export a format other than Latex.
+   * be used to export a format other than LaTeX.
    *
    * By default this is:
    *
@@ -860,7 +860,7 @@ export type EditingOptions = {
    */
   removeExtraneousParentheses: boolean;
   /**
-   * The Latex string to insert when the spacebar is pressed (on the physical or
+   * The LaTeX string to insert when the spacebar is pressed (on the physical or
    * virtual keyboard).
    *
    * Use `\;` for a thick space, `\:` for a medium space, `\,` for a thin space.
@@ -1062,18 +1062,18 @@ export type MathfieldOptions = LayoutOptions &
   MathfieldHooks &
   MathfieldListeners & {
     /**
-     * When true, use a shared virtual keyboard for all the mathfield
-     * elements in the page, even across iframes.
+     * When `true`, use a shared virtual keyboard for all the mathfield
+     * elements in the page, even across _iframes_.
      *
-     * When setting this option to true, you must create the shared
-     * virtual keyboard in the the parent document:
+     * When setting this option to `true`, you must create the shared
+     * virtual keyboard in the the parent document. You should call
+     * `makeSharedVirtualKeyboard()` before changing the options of any
+     * mathfield or adding new mathfield elements to the DOM.
      *
      * ```javascript
      * import { makeSharedVirtualKeyboard } from 'mathlive';
      *
-     *     makeSharedVirtualKeyboard({
-     *         virtualKeyboardToolbar: 'none',
-     *     });
+     * makeSharedVirtualKeyboard();
      * ```
      *
      * **Default**: `false`
@@ -1098,10 +1098,10 @@ export type MathfieldOptions = LayoutOptions &
     originValidator: OriginValidator;
 
     /**
-     * An optional listener function that will be
-     * invoked when an error is encountered.
+     * An optional listener function that will be invoked when an error
+     * is encountered.
      *
-     * This could be a Latex parsing error, for the initial value of the
+     * This could be a LaTeX parsing error, for the initial value of the
      * mathfield, a value inserted programmatically later, or through a
      * user interaction (pasting in the mathfield for example).
      * See [[`ParserErrorCode`]] for the list of possible parsing errors.

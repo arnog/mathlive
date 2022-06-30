@@ -145,7 +145,7 @@ export function skip(
     offset = wordBoundaryOffset(model, offset, direction);
   } else if (atom instanceof LatexAtom) {
     //
-    // We're in a Latex mode zone, skip suggestion
+    // We're in a LaTeX mode zone, skip suggestion
     //
     if (atom.isSuggestion) {
       // Since suggestions are always at the end, this must be forward

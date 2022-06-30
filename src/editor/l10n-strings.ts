@@ -706,7 +706,7 @@ export const STRINGS = {
     'keyboard.tooltip.functions': 'Funktiounen',
     'keyboard.tooltip.symbols': 'Symboler',
     'keyboard.tooltip.greek': 'Griichesch Bréiwer',
-    'keyboard.tooltip.command': 'Latex Kommando Modus',
+    'keyboard.tooltip.command': 'LaTeX Kommando Modus',
     'keyboard.tooltip.numeric': 'Numeresch',
     'keyboard.tooltip.roman': 'Réimesch Bréiwer',
     'tooltip.copy to clipboard': 'Kopéiert op Clipboard',

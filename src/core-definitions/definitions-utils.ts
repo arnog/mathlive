@@ -94,7 +94,7 @@ export type SymbolDefinition = {
 
 export const MATH_SYMBOLS: Record<string, SymbolDefinition> = {};
 
-// Map a character to some corresponding Latex.
+// Map a character to some corresponding LaTeX.
 //
 // This is used for some characters such as ² SUPERSCRIPT TWO.
 // This is also an opportunity to specify the prefered form when

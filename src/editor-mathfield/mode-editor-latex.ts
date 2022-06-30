@@ -74,7 +74,7 @@ export class LatexModeEditor extends ModeEditor {
     else if (options.insertionMode === 'insertAfter')
       model.collapseSelection('forward');
 
-    // Short-circuit the tokenizer and parser when in Latex mode
+    // Short-circuit the tokenizer and parser when in LaTeX mode
     const newAtoms: Atom[] = [];
     for (const c of text)
       if (COMMAND_MODE_CHARACTERS.test(c)) newAtoms.push(new LatexAtom(c));

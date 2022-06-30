@@ -14,7 +14,7 @@ export const defaultExportHook = (
   latex: string,
   _range: Range
 ): string => {
-  // Add a wrapper around the Latex to be exported, if necessary
+  // Add a wrapper around the LaTeX to be exported, if necessary
   if (
     !MODE_SHIFT_COMMANDS.some(
       (x) => latex.startsWith(x[0]) && latex.endsWith(x[1])
@@ -58,7 +58,7 @@ export class ModeEditor {
           .join('')
       );
     } else if (atoms.every((x) => x.mode === 'latex')) {
-      // If the entire selection is in Latex mode, put the selection as plain
+      // If the entire selection is in LaTeX mode, put the selection as plain
       // text on the clipboard
       ev.clipboardData.setData(
         'text/plain',

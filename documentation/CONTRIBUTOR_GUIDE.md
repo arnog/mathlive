@@ -286,16 +286,16 @@ in-memory data structure to represent a math expression while it is being edited
 
 MathLive is divided into two main components:
 
-- Core: handles rendering of Latex to HTML markup
+- Core: handles rendering of LaTeX to HTML markup
 - Editor: handles the user interaction with the formula, using Core for the
   rendering.
 
 ### Core
 
-Core takes a Latex string as input. A `lexer` converts the string into `Token[]`
+Core takes a LaTeX string as input. A `lexer` converts the string into `Token[]`
 which are then passed on to a `parser`. The `parser` uses the information from
 `modes-*` to parse the tokens depending on the current mode (text, math,
-etc...). The Latex commands are defined in `definitions-*`, and used by the
+etc...). The LaTeX commands are defined in `definitions-*`, and used by the
 `parser` to properly interpret the commands it encounter and turn them into
 `Atom[]`.
 
@@ -343,7 +343,7 @@ fraction, a delimiter, etc...
 
 There are several different classes of Atom (subclass of the base `Atom` class).
 Each class represents different layout algorithm (different ways of generating
-boxes in their `render()` method) as well as different ways to generate Latex to
+boxes in their `render()` method) as well as different ways to generate LaTeX to
 represent the atom (in their `serialize()` method)
 
 It can be of one of the following classes:

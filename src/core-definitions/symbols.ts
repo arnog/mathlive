@@ -52,9 +52,9 @@ newSymbols([
   ['\\ell', 0x2113],
 
   ['\\hbar', 0x210f],
-  ['\\Q', 0x0051, 'mord', 'double-struck'], // NOTE: Check if standard Latex
-  ['\\C', 0x0043, 'mord', 'double-struck'], // NOTE: Check if standard Latex
-  ['\\P', 0x0050, 'mord', 'double-struck'], // NOTE: Check if standard Latex
+  ['\\Q', 0x0051, 'mord', 'double-struck'], // NOTE: Check if standard LaTeX
+  ['\\C', 0x0043, 'mord', 'double-struck'], // NOTE: Check if standard LaTeX
+  ['\\P', 0x0050, 'mord', 'double-struck'], // NOTE: Check if standard LaTeX
 
   ['\\pounds', 0x00a3],
   ['\\euro', 0x20ac], // NOTE: not TeX built-in, but textcomp package

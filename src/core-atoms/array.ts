@@ -25,7 +25,7 @@ export type ColumnFormat =
       align?: 'l' | 'c' | 'r' | 'm';
     }
   | {
-      // The width of a gap between columns, or a Latex expression between columns
+      // The width of a gap between columns, or a LaTeX expression between columns
       gap?: number | Atom[];
     }
   | {

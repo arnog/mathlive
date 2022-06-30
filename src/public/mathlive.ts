@@ -38,11 +38,20 @@ export * from './mathfield';
 export * from './mathfield-element';
 
 /**
- * Initialize remote client for mathfield elements rendered in child frames.
- * This client instance control focus between multiple frames and mathfield elements and
- * renders the virtual keyboard with required options passed by params of this method.
+ * Setup the document to use a single shared virtual keyboard amongst
+ * all `<math-field>` instances in the document, including those in _iframes_.
  *
- * @param options Options to configure virtual keyboard that will be rendered on this frame.
+ * `<math-field>` elements in an _iframe_ should have the `use-shared-virtual-keyboard` attribute.
+ *
+ * The shared virtual keyboard coordinates focus between multiple mathfield
+ * elements and renders the virtual keyboard with the options passed by param
+ * of this method.
+ *
+ * Calling `setOptions()` on a mathfield with options related to the keyboard
+ * will affect this shared virtual keyboard instance when the mathfield is
+ * focused.
+ *
+ * @param options Options to configure the shared virtual keyboard.
  *
  * ```html
  * <iframe src="...">
@@ -58,21 +67,25 @@ export * from './mathfield-element';
  * ```javascript
  *  import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive?module';
  *
- *  makeSharedVirtualKeyboard({});
+ *  makeSharedVirtualKeyboard();
  * ```
+ * Read more about [sharing virtual keyboards](https://cortexjs.io/mathlive/guides/virtual-keyboards/#shared-virtual-keyboard)
+ *
  * @keywords create, make, mathfield, iframe
  */
 export declare function makeSharedVirtualKeyboard(
-  options: Partial<RemoteVirtualKeyboardOptions>
+  options?: Partial<RemoteVirtualKeyboardOptions>
 ): void;
 /**
  * Convert a LaTeX string to a string of HTML markup.
  *
  * **(Note)**
  *
- * This function does not interact with the DOM. It can be used
- * on the server side. The function does not load fonts or inject stylesheets
- * in the document. To get the output of this function to correctly display
+ * This function does not interact with the DOM. The function does not load
+ * fonts or inject stylesheets in the document. It can be used
+ * on the server side.
+ *
+ * To get the output of this function to correctly display
  * in a document, use the mathlive static style sheet by adding the following
  * to the `<head>` of the document:
  *

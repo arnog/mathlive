@@ -37,8 +37,8 @@ export type InsertOptions = {
      *
     | <!-- -->    | <!-- -->    |
     |:------------|:------------|
-    |`"auto"`| The string is Latex fragment or command) (default)|
-    |`"latex"`| The string is a Latex fragment|
+    |`"auto"`| The string is LaTeX fragment or command) (default)|
+    |`"latex"`| The string is a LaTeX fragment|
     *
     */
   format?: OutputFormat | 'auto';

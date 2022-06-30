@@ -387,7 +387,7 @@ export interface MathfieldElementAttributes {
   'shared-virtual-keyboard-target-origin': string;
 
   /**
-   * The Latex string to insert when the spacebar is pressed (on the physical or
+   * The LaTeX string to insert when the spacebar is pressed (on the physical or
    * virtual keyboard). Empty by default. Use `\;` for a thick space, `\:` for
    * a medium space, `\,` for a thin space.
    */
@@ -1360,7 +1360,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * The content of the mathfield as a Latex expression.
+   * The content of the mathfield as a LaTeX expression.
    * ```js
    * document.querySelector('mf').value = '\\frac{1}{\\pi}'
    * ```
