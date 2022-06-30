@@ -98,11 +98,11 @@ export declare function makeSharedVirtualKeyboard(
  * @param text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
  *
- * @param options.mathstyle If `'displaystyle'` the "display" mode of TeX
+ * @param options.mathstyle If `"displaystyle"` the "display" mode of TeX
  * is used to typeset the formula, which is most appropriate for formulas that are
  * displayed in a standalone block.
  *
- * If `'textstyle'` is used, the "text" mode
+ * If `"textstyle"` is used, the "text" mode
  * of TeX is used, which is most appropriate when displaying math "inline"
  * with other text (on the same line).
  *

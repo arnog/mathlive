@@ -344,8 +344,8 @@ export interface MathfieldElementAttributes {
   'virtual-keyboard-theme': string;
   /**
    * A space separated list of the keyboards that should be available. The
-   * keyboard `'all'` is synonym with `'numeric'`, `'functions'``, `'symbols'``
-   * `'roman'` and `'greek'`,
+   * keyboard `"all"` is synonym with `"numeric"`, `"functions"``, `"symbols"``
+   * `"roman"` and `"greek"`,
    *
    * The keyboards will be displayed in the order indicated.
    */
@@ -433,11 +433,12 @@ export interface MathfieldElementAttributes {
  * }
  * ```
  *
- * Alternatively you can set these CSS variables progamatically:
+ * Alternatively you can set these CSS variables programatically:
  *
  * ```js
- *   document.body.style.setProperty("--keyboard-zindex", "3200");
+ *   document.body.style.setProperty("--hue", "10");
  * ```
+ * <div class='symbols-table' style='--first-col-width:25ex'>
  *
  * | CSS Variable | Usage |
  * |:---|:---|
@@ -448,9 +449,16 @@ export interface MathfieldElementAttributes {
  * | `--caret` | Color of the caret/insertion point |
  * | `--primary` | Primary accent color, used for example in the virtual keyboard |
  * | `--text-font-family` | The font stack used in text mode |
- * | `--keyboard-zindex` | The z-index attribute of the virtual keyboard panel |
  * | `--smart-fence-opacity` | Opacity of a smart fence (default is 50%) |
  * | `--smart-fence-color` | Color of a smart fence (default is current color) |
+ *
+ * </div>
+ *
+ * You can customize the appearance and zindex of the virtual keyboard panel
+ * with some CSS variables associated with a selector that applies to the
+ * virtual keyboard panel container.
+ *
+ * Read more about [customizing the virtual keyboard appearance](https://cortexjs.io/mathlive/guides/virtual-keyboards/#custom-appearance)
  *
  * ### CSS Parts
  *
@@ -472,8 +480,8 @@ export interface MathfieldElementAttributes {
  * <math-field locale="fr"></math-field>
  * ```
  *
- * The supported attributes are listed in the table below with their correspnding
- * property.
+ * The supported attributes are listed in the table below with their
+ * corresponding property.
  *
  * The property can be changed either directly on the
  * `MathfieldElement` object, or using `setOptions()` if it is prefixed with
@@ -500,6 +508,8 @@ export interface MathfieldElementAttributes {
  * attribute: the `value` attribute remains at its initial value.
  *
  *
+ * <div class='symbols-table' style='--first-col-width:32ex'>
+ *
  * | Attribute | Property |
  * |:---|:---|
  * | `disabled` | `disabled` |
@@ -524,11 +534,13 @@ export interface MathfieldElementAttributes {
  * | `speech-engine-voice` | `options.speechEngineVoice` |
  * | `text-to-speech-markup` | `options.textToSpeechMarkup` |
  * | `text-to-speech-rules` | `options.textToSpeechRules` |
- * | `value` | value |
+ * | `value` | `value` |
  * | `virtual-keyboard-layout` | `options.keyboardLayout` |
  * | `virtual-keyboard-mode` | `options.keyboardMode` |
  * | `virtual-keyboard-theme` | `options.keyboardTheme` |
  * | `virtual-keyboards` | `options.keyboards` |
+ *
+ * </div>
  *
  * See [[`MathfieldOptions`]] for more details about these options.
  *
@@ -548,6 +560,8 @@ export interface MathfieldElementAttributes {
  * Listen to these events by using `addEventListener()`. For events with additional
  * arguments, the arguments are available in `event.detail`.
  *
+ * <div class='symbols-table' style='--first-col-width:27ex'>
+ *
  * | Event Name  | Description |
  * |:---|:---|
  * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield.  |
@@ -566,6 +580,10 @@ export interface MathfieldElementAttributes {
  * | `mount` | The element has been attached to the DOM |
  * | `unmount` | The element is about to be removed from the DOM |
  *
+ * </div>
+ * 
+ * @keywords zindex, events, attribute, attributes, property, properties, parts, variables, css, mathfield, mathfieldelement
+
  */
 export class MathfieldElement extends HTMLElement implements Mathfield {
   /**

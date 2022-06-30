@@ -12,11 +12,17 @@ import type { Selector } from './commands';
 
 /**
  * Specify behavior for origin validation.
+ *
+ * <div class='symbols-table' style='--first-col-width:32ex'>
+ *
  * | Value | Description |
  * | ----- | ----------- |
- * | `'same-origin'` | The origin of received message must be the same of hosted window, instead exception will throw. |
- * | `'(origin: string) => boolean` | The callback to verify origin to be expected validation. When callback return `false` value, message will rejected and exception will throw. |
- * | `'none'` | No origin validation for post messages. |
+ * | `"same-origin"` | The origin of received message must be the same of hosted window, instead exception will throw. |
+ * | `(origin: string) => boolean` | The callback to verify origin to be expected validation. When callback return `false` value, message will rejected and exception will throw. |
+ * | `"none"` | No origin validation for post messages. |
+ *
+ * </div>
+ *
  */
 export type OriginValidator =
   | ((origin: string) => boolean)
@@ -170,10 +176,10 @@ export type Keybinding = {
  * shortcut substitution.
  *
  * The `mode` key, if present, indicate which mode this shortcut will
- * apply in, either `'math'` or `'text'`. If the key is not present the
+ * apply in, either `"math"` or `"text"`. If the key is not present the
  * shortcut apply in all modes.
  *
- * The `'after'` key, if present, indicate in what context (surrounding characters)
+ * The `"after"` key, if present, indicate in what context (surrounding characters)
  * the shortcut will apply. One or more values can be specified, separated by a '|'
  * character. If any of the values match, the shortcut will be applicable.
  *
@@ -182,20 +188,20 @@ export type Keybinding = {
  *
  *  | | |
  *  | :----- | :----- |
- *  | `'space'` |  A spacing command, such as `\quad` |
- *  | `'nothing'`|  The begining of a group |
- *  | `'surd'` |A square root or n-th root |
- *  | `'frac'` |A fraction|
- *  | `'function'` |A function such as `\sin` or `f`|
- *  | `'letter'` |A letter, such as `x` or `n`|
- *  | `'digit'` |`0` through `9`|
- *  | `'binop'` |A binary operator, such as `+`|
- *  | `'relop'` |A relational operator, such as `=`|
- *  | `'punct'` |A punctuation mark, such as `,`|
- *  | `'array'` |An array, such as a matrix or cases statement|
- *  | `'openfence'` |An opening fence, such as `(`|
- *  | `'closefence'` | A closing fence such as `}`|
- *  | `'text'`| Some plain text|
+ *  | `"space"` |  A spacing command, such as `\quad` |
+ *  | `"nothing"`|  The begining of a group |
+ *  | `"surd"` |A square root or n-th root |
+ *  | `"frac"` |A fraction|
+ *  | `"function"` |A function such as `\sin` or `f`|
+ *  | `"letter"` |A letter, such as `x` or `n`|
+ *  | `"digit"` |`0` through `9`|
+ *  | `"binop"` |A binary operator, such as `+`|
+ *  | `"relop"` |A relational operator, such as `=`|
+ *  | `"punct"` |A punctuation mark, such as `,`|
+ *  | `"array"` |An array, such as a matrix or cases statement|
+ *  | `"openfence"` |An opening fence, such as `(`|
+ *  | `"closefence"` | A closing fence such as `}`|
+ *  | `"text"`| Some plain text|
  */
 export type InlineShortcutDefinition =
   | string
@@ -389,8 +395,8 @@ export type VirtualKeyboardToolbarOptions = 'none' | 'default';
 export type VirtualKeyboardOptions = {
   /**
    * A space separated list of the keyboards that should be available. The
-   * keyboard `'all'` is synonym with `'numeric'`, `'functions'``, `'symbols'``
-   * `'roman'` and `'greek'`,
+   * keyboard `"all"` is synonym with `"numeric"`, `"functions"``, `"symbols"``
+   * `"roman"` and `"greek"`,
    *
    * The keyboards will be displayed in the order indicated.
    */
@@ -493,15 +499,15 @@ export type VirtualKeyboardOptions = {
    */
   virtualKeyboardToggleGlyph: string;
   /**
-   * -   `'manual'`: pressing the virtual keyboard toggle button will show or hide
+   * -   `"manual"`: pressing the virtual keyboard toggle button will show or hide
    *     the virtual keyboard. If hidden, the virtual keyboard is not shown when
    *     the field is focused until the toggle button is pressed.
-   * -   `'onfocus'`: the virtual keyboard will be displayed whenever the field is
+   * -   `"onfocus"`: the virtual keyboard will be displayed whenever the field is
    *     focused and hidden when the field loses focus. In that case, the virtual
    *     keyboard toggle button is not displayed.
-   * -   `'off'`: the virtual keyboard toggle button is not displayed, and the
+   * -   `"off"`: the virtual keyboard toggle button is not displayed, and the
    *     virtual keyboard is never triggered.
-   * -   '`auto'`:  `'onfocus'` on touch-capable devices and `'off'` otherwise
+   * -   '`auto'`:  `"onfocus"` on touch-capable devices and `"off"` otherwise
    *    (**default**).
    *
    */
@@ -631,7 +637,7 @@ export type RemoteVirtualKeyboardOptions = CombinedVirtualKeyboardOptions & {
    * Specify behavior how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
    * should be validated.
    *
-   * **Default**: `'same-origin'`
+   * **Default**: `"same-origin"`
    */
   originValidator: OriginValidator;
 };
@@ -893,9 +899,9 @@ export type EditingOptions = {
 export type LayoutOptions = {
   /**
    * The mode of the element when it is empty:
-   * - `'math'`: equivalent to `\displaystyle` (display math mode)
-   * - `'inline-math'`: equivalent to `\inlinestyle` (inline math mode)
-   * - `'text'`: text mode
+   * - `"math"`: equivalent to `\displaystyle` (display math mode)
+   * - `"inline-math"`: equivalent to `\inlinestyle` (inline math mode)
+   * - `"text"`: text mode
    */
   defaultMode: 'inline-math' | 'math' | 'text';
   /**
@@ -1093,7 +1099,7 @@ export type MathfieldOptions = LayoutOptions &
      * Specify behavior how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
      * should be validated.
      *
-     * **Default**: `'same-origin'`
+     * **Default**: `"same-origin"`
      */
     originValidator: OriginValidator;
 
@@ -1117,16 +1123,16 @@ export type MathfieldOptions = LayoutOptions &
  *
  *  | Name | Platform | Display name |
  *  | :----- | :----- | :----- |
- *  | `'apple.en-intl'`         |  Apple    | English (International) |
- *  | `'apple.french'`          |  Apple    | French (AZERTY) |
- *  | `'apple.german'`          |  Apple    | German (QWERTZ) |
- *  | `'dvorak'`                |           | English (Dvorak) |
- *  | `'windows.en-intl'`       |  Windows  | English (International) |
- *  | `'windows.french'`        |  Windows  | French (AZERTY) |
- *  | `'windows.german'`        |  Windows  | German (QWERTZ) |
- *  | `'linux.en'`              |  Linux    | English |
- *  | `'linux.french'`          |  Linux    | French (AZERTY) |
- *  | `'linux.german'`          |  Linux    | German (QWERTZ) |
+ *  | `"apple.en-intl"`         |  Apple    | English (International) |
+ *  | `"apple.french"`          |  Apple    | French (AZERTY) |
+ *  | `"apple.german"`          |  Apple    | German (QWERTZ) |
+ *  | `"dvorak"`                |           | English (Dvorak) |
+ *  | `"windows.en-intl"`       |  Windows  | English (International) |
+ *  | `"windows.french"`        |  Windows  | French (AZERTY) |
+ *  | `"windows.german"`        |  Windows  | German (QWERTZ) |
+ *  | `"linux.en"`              |  Linux    | English |
+ *  | `"linux.french"`          |  Linux    | French (AZERTY) |
+ *  | `"linux.german"`          |  Linux    | German (QWERTZ) |
  */
 export type KeyboardLayoutName =
   | 'apple.en-intl'
@@ -1237,7 +1243,7 @@ export type AutoRenderOptions = {
    * A string used as a regular expression of class names of elements whose content will not be
    * scanned for delimiter
    *
-   * **Default**: `'tex2jax_ignore'`
+   * **Default**: `"tex2jax_ignore"`
    */
   ignoreClass?: string;
 
@@ -1247,7 +1253,7 @@ export type AutoRenderOptions = {
    * scanned for delimiters,  even if their tag name or parent class name would
    * have prevented them from doing so.
    *
-   * **Default**: `'tex2jax_process'`
+   * **Default**: `"tex2jax_process"`
    *
    * */
   processClass?: string;
@@ -1256,19 +1262,19 @@ export type AutoRenderOptions = {
    * `<script>` tags of the
    * indicated type will be processed while others will be ignored.
    *
-   * **Default**: `'math/tex'`
+   * **Default**: `"math/tex"`
    */
   processScriptType?: string;
 
   /** The format(s) in
    * which to render the math for screen readers:
-   * - `'mathml'` MathML
-   * - `'speakable-text'` Spoken representation
+   * - `"mathml"` MathML
+   * - `"speakable-text"` Spoken representation
    *
    * You can pass an empty string to turn off the rendering of accessible content.
-   * You can pass multiple values separated by spaces, e.g `'mathml speakable-text'`
+   * You can pass multiple values separated by spaces, e.g `"mathml speakable-text"`
    *
-   * **Default**: `'mathml'`
+   * **Default**: `"mathml"`
    */
   renderAccessibleContent?: string;
 

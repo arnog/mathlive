@@ -717,7 +717,7 @@ export class Atom {
   /*
    * Setting `null` does nothing
    * Setting `[]` adds an empty list (the branch is created)
-   * The children should *not* start with a `'first'` atom:
+   * The children should *not* start with a `"first"` atom:
    * the `first` atom will be added if necessary
    */
   setChildren(children: Atom[] | undefined, branch: Branch): void {

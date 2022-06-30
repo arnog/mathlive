@@ -112,8 +112,8 @@ function validateShortcut(
  * @param context - atoms preceding the candidate, potentially used
  * to reduce which shortcuts are applicable. If 'null', no restrictions are
  * applied.
- * @param s - candidate inline shortcuts (e.g. `'pi'`)
- * @return A replacement string matching the shortcut (e.g. `'\pi'`)
+ * @param s - candidate inline shortcuts (e.g. `"pi"`)
+ * @return A replacement string matching the shortcut (e.g. `"\pi"`)
  */
 export function getInlineShortcut(
   context: null | Atom[],

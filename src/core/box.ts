@@ -176,7 +176,7 @@ export type BoxOptions = {
  * @param classes list of classes attributes associated with this node
 
 
- * @property  type - For example, `'latex'`, `'mrel'`, etc...
+ * @property  type - For example, `"latex"`, `"mrel"`, etc...
  * @property classes - A string of space separated CSS classes
  * associated with this element
  * @property cssId - A CSS ID assigned to this box (optional)

@@ -1475,21 +1475,21 @@ for more details.
   It does make the handling of the interactive manipulation of the formula much
   easier, though.
 
-- **Changes to the handling of sentinel atoms (type `'first'`)**
+- **Changes to the handling of sentinel atoms (type `"first"`)**
 
   This is an internal change that does not affect the public API.
 
-  Sentinel atoms are atoms of type `'first'` that are inserted as the first
+  Sentinel atoms are atoms of type `"first"` that are inserted as the first
   element in atom branches. Their purpose is to simplify the handling of "empty"
   lists, for example an empty numerator or superscript.
 
   Previously, these atoms where added when an editable atom tree was created,
   i.e. in the `editor` code branch, since they are not needed for pure
   rendering. However, this created situations where the tree had to be
-  'corrected' by inserting missing `'first'`. This code was complex and resulted
+  'corrected' by inserting missing `"first"`. This code was complex and resulted
   in some unexpected operations having the side effect of modifying the tree.
 
-  The `'first'` atoms are now created during parsing and are present in editable
+  The `"first"` atoms are now created during parsing and are present in editable
   and non-editable atom trees.
 
 - **Refactoring of Atom classes**
@@ -2869,35 +2869,35 @@ If there is no selection, the style will apply to the next character typed.
 
 - **style** an object with the following properties. All the properties are
   optional, but they can be combined.
-- **style.mode** - Either `'math'`, `'text'` or `'command'`
+- **style.mode** - Either `"math"`, `"text"` or `"command"`
 - **style.color** - The text/fill color, as a CSS RGB value or a string for some
   'well-known' colors, e.g. 'red', '#f00', etc...
 - **style.backgroundColor** - The background color.
 - **style.fontFamily** - The font family used to render text. This value can the
   name of a locally available font, or a CSS font stack, e.g. "Avenir",
   "Georgia, Times, serif", etc... This can also be one of the following
-  TeX-specific values: - `'cmr'`: Computer Modern Roman, serif - `'cmss'`:
-  Computer Modern Sans-serif, latin characters only - `'cmtt'`: Typewriter,
-  slab, latin characters only - `'cal'`: Calligraphic style, uppercase latin
-  letters and digits only - `'frak'`: Fraktur, gothic, uppercase, lowercase and
-  digits - `'bb'`: Blackboard bold, uppercase only - `'scr'`: Script style,
+  TeX-specific values: - `"cmr"`: Computer Modern Roman, serif - `"cmss"`:
+  Computer Modern Sans-serif, latin characters only - `"cmtt"`: Typewriter,
+  slab, latin characters only - `"cal"`: Calligraphic style, uppercase latin
+  letters and digits only - `"frak"`: Fraktur, gothic, uppercase, lowercase and
+  digits - `"bb"`: Blackboard bold, uppercase only - `"scr"`: Script style,
   uppercase only
 - **style.fontSeries** - The font 'series', i.e. weight and stretch ("series" is
   TeX terminology). The following values can be combined, for example: "ebc":
   extra-bold, condensed. These attributes may not have visible effect if the
-  font family does not support this style: - `'ul'` ultra-light weight
-  - `'el'`: extra-light - `'l'`: light - `'sl'`: semi-light - `'m'`: medium
-    (default) - `'sb'`: semi-bold - `'b'`: bold - `'eb'`: extra-bold - `'ub'`:
-    ultra-bold - `'uc'`: ultra-condensed - `'ec'`: extra-condensed - `'c'`:
-    condensed - `'sc'`: semi-condensed - `'n'`: normal (default) - `'sx'`:
-    semi-expanded - `'x'`: expanded - `'ex'`: extra-expanded - `'ux'`:
+  font family does not support this style: - `"ul"` ultra-light weight
+  - `"el"`: extra-light - `"l"`: light - `"sl"`: semi-light - `"m"`: medium
+    (default) - `"sb"`: semi-bold - `"b"`: bold - `"eb"`: extra-bold - `"ub"`:
+    ultra-bold - `"uc"`: ultra-condensed - `"ec"`: extra-condensed - `"c"`:
+    condensed - `"sc"`: semi-condensed - `"n"`: normal (default) - `"sx"`:
+    semi-expanded - `"x"`: expanded - `"ex"`: extra-expanded - `"ux"`:
     ultra-expanded
 - **style.fontShape** - The font 'shape' (again, TeX terminology), i.e. italic
   or condensed.
-  - `'it'`: italic
-  - `'sl'`: slanted or oblique (often the same as italic)
-  - `'sc'`: small caps
-  - `'ol'`: outline
+  - `"it"`: italic
+  - `"sl"`: slanted or oblique (often the same as italic)
+  - `"sc"`: small caps
+  - `"ol"`: outline
 
 #### Contextual Inline Shortcuts
 
@@ -2929,27 +2929,27 @@ config.inlineShortcuts = {
 The `value` key is required an indicate the shortcut substitution.
 
 The `mode` key, if present, indicate in which mode this shortcut should apply,
-either `'math'` or `'text'`. If the key is not present the shortcut apply in
+either `"math"` or `"text"`. If the key is not present the shortcut apply in
 both modes.
 
-The `'after'` key, if present, indicate in what context the shortcut should
+The `"after"` key, if present, indicate in what context the shortcut should
 apply. One or more values can be specified, separated by a '+' sign. If any of
 the values match, the shortcut will be applicable. Possible values are:
 
-- `'space'` A spacing command, such as `\quad`
-- `'nothing'` The begining of a group
-- `'surd'` A square root or n-th root
-- `'frac'` A fraction
-- `'function'` A function such as `\sin` or `f`
-- `'letter'` A letter, such as `x` or `n`
-- `'digit'` `0` through `9`
-- `'binop'` A binary operator, such as `+`
-- `'relop'` A relational operator, such as `=`
-- `'punct'` A punctuation mark, such as `,`
-- `'array'` An array, such as a matrix or cases statement
-- `'openfence'` An opening fence, such as `(`
-- `'closefence'` A closing fence such as `}`
-- `'text'` Some plain text
+- `"space"` A spacing command, such as `\quad`
+- `"nothing"` The begining of a group
+- `"surd"` A square root or n-th root
+- `"frac"` A fraction
+- `"function"` A function such as `\sin` or `f`
+- `"letter"` A letter, such as `x` or `n`
+- `"digit"` `0` through `9`
+- `"binop"` A binary operator, such as `+`
+- `"relop"` A relational operator, such as `=`
+- `"punct"` A punctuation mark, such as `,`
+- `"array"` An array, such as a matrix or cases statement
+- `"openfence"` An opening fence, such as `(`
+- `"closefence"` A closing fence such as `}`
+- `"text"` Some plain text
 
 #### Other Features
 

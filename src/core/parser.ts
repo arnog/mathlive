@@ -39,12 +39,12 @@ export type ArgumentType =
   | ParseMode
   | (
       | 'bbox'
-      | 'colspec' // Formating of a column in tabular environment, e.g. `'r@{.}l'`
+      | 'colspec' // Formating of a column in tabular environment, e.g. `"r@{.}l"`
       | 'delim'
-      | 'dimen' // `'25mu'`, `'2pt'`
+      | 'dimen' // `"25mu"`, `"2pt"`
       | 'number' // `+/-12.56` (and some more exotic, like `"CAFE`, `'0808`...)
       | 'rest' // `{\foo \textsize ...}` to capture "..."
-      | 'glue' // `'25mu plus 2em minus fiLll'`, `'2pt'`
+      | 'glue' // `"25mu plus 2em minus fiLll"`, `"2pt"`
       | 'string' // The string will end on the first non-literal token, e.g. `<}>`
       | 'balanced-string' // Delimiter is a balanced closing brace
       | 'auto'
@@ -77,8 +77,8 @@ export type ParsingContext = {
   mathstyle: MathstyleName;
   registers: Registers | null;
 
-  // When in tabular mode, `'&'` is interpreted as a column separator and
-  // `'\\'` as a row separator. Used for matrixes, etc...
+  // When in tabular mode, `"&"` is interpreted as a column separator and
+  // `"\\"` as a row separator. Used for matrixes, etc...
   tabular: boolean;
 };
 
@@ -1042,7 +1042,7 @@ export class Parser {
    * Note: the `/middle` command can occur multiple times inside a
    * `/left.../right` sequence, and is handled separately.
    *
-   * Return either an atom of type `'leftright'` or null
+   * Return either an atom of type `"leftright"` or null
    */
   parseLeftRight(): Atom | null {
     if (this.match('\\right') || this.match('\\mright')) {
