@@ -193,7 +193,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: CombinedVirtualKeyboardOptions;
   _visible: boolean;
   _element?: HTMLDivElement;
-  originalContainerBottomPadding: string;
   private readonly _mathfield?: MathfieldPrivate;
 
   coreStylesheet: Stylesheet | null;
@@ -205,7 +204,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this._mathfield = mathfield as MathfieldPrivate;
     this.coreStylesheet = null;
     this.virtualKeyboardStylesheet = null;
-    this.originalContainerBottomPadding = '';
   }
 
   setOptions(options: CombinedVirtualKeyboardOptions): void {
@@ -2181,4 +2179,27 @@ function jsonToCss(json): string {
       return `${k} {${jsonToCssProps(json[k])}}`;
     })
     .join('');
+}
+
+/*
+ * Add and remove extra padding for the virtual keyboard using a search pattern
+ */
+const paddingValue = 'calc(var(--keyboard-height, 276px) - 1px)';
+const searchPattern = paddingValue.replace(/\W/g, '\\$&');
+
+export function addKeyboardPadding(padding: string): string {
+  if (!padding) return paddingValue;
+  else if (new RegExp(searchPattern).test(padding)) return padding;
+
+  return `calc(${padding} + ${paddingValue})`;
+}
+
+export function removeKeyboardPadding(padding: string): string {
+  if (!new RegExp(searchPattern).test(padding)) return padding;
+  else if (padding === paddingValue) return '';
+
+  return padding.replace(
+    new RegExp(`calc\\((.+) \\+ ${searchPattern}\\)`),
+    '$1'
+  );
 }

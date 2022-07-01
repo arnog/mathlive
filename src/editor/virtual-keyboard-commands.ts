@@ -6,6 +6,8 @@ import {
   showAlternateKeys,
   hideAlternateKeys,
   VirtualKeyboard,
+  addKeyboardPadding,
+  removeKeyboardPadding
 } from './virtual-keyboard-utils';
 import { register as registerCommand, SelectorPrivate } from './commands';
 import { VirtualKeyboardTheme } from '../public/options';
@@ -200,16 +202,12 @@ export function showVirtualKeyboard(
   else keyboard.buildAndAttachElement(theme);
 
   if (!keyboard.visible) {
-    const padding =
-      keyboard.options.virtualKeyboardContainer.style.paddingBottom;
-    keyboard.originalContainerBottomPadding = padding;
-    if (padding)
-      keyboard.options.virtualKeyboardContainer.style.paddingBottom = `calc(${padding} + var(--keyboard-height, 276px) - 1px)`;
-    else {
-      keyboard.options.virtualKeyboardContainer.style.paddingBottom =
-        'calc(var(--keyboard-height, 276px) - 1px)';
-    }
+    keyboard.options.virtualKeyboardContainer.style.paddingBottom =
+      addKeyboardPadding(
+        keyboard.options.virtualKeyboardContainer.style.paddingBottom
+      );
   }
+
   // For the transition effect to work, the property has to be changed
   // after the insertion in the DOM. Use setTimeout
   setTimeout(() => {
@@ -240,7 +238,9 @@ export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
     keyboard._element = undefined;
 
     keyboard.options.virtualKeyboardContainer.style.paddingBottom =
-      keyboard.originalContainerBottomPadding;
+      removeKeyboardPadding(
+        keyboard.options.virtualKeyboardContainer.style.paddingBottom
+      );
   }
 
   keyboard.visible = false;
