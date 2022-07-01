@@ -193,7 +193,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: CombinedVirtualKeyboardOptions;
   _visible: boolean;
   _element?: HTMLDivElement;
-  originalContainerBottomPadding: string;
+  originalContainerBottomPadding: string | null = null;
   private readonly _mathfield?: MathfieldPrivate;
 
   coreStylesheet: Stylesheet | null;
@@ -205,7 +205,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this._mathfield = mathfield as MathfieldPrivate;
     this.coreStylesheet = null;
     this.virtualKeyboardStylesheet = null;
-    this.originalContainerBottomPadding = '';
   }
 
   setOptions(options: CombinedVirtualKeyboardOptions): void {

@@ -194,22 +194,25 @@ export function showVirtualKeyboard(
   keyboard: VirtualKeyboard,
   theme: VirtualKeyboardTheme = ''
 ): boolean {
-  if (!keyboard.options.virtualKeyboardContainer) return false;
+  const container = keyboard.options.virtualKeyboardContainer;
+  if (!container) return false;
 
   if (keyboard.element) keyboard.element.classList.add('is-visible');
   else keyboard.buildAndAttachElement(theme);
 
   if (!keyboard.visible) {
-    const padding =
-      keyboard.options.virtualKeyboardContainer.style.paddingBottom;
+    if (window.mathlive?.visibleVirtualKeyboard)
+      hideVirtualKeyboard(window.mathlive?.visibleVirtualKeyboard);
+    if (!window.mathlive) window.mathlive = {};
+    window.mathlive.visibleVirtualKeyboard = keyboard;
+
+    const padding = container.style.paddingBottom;
     keyboard.originalContainerBottomPadding = padding;
-    if (padding)
-      keyboard.options.virtualKeyboardContainer.style.paddingBottom = `calc(${padding} + var(--keyboard-height, 276px) - 1px)`;
-    else {
-      keyboard.options.virtualKeyboardContainer.style.paddingBottom =
-        'calc(var(--keyboard-height, 276px) - 1px)';
-    }
+    container.style.paddingBottom = padding
+      ? `calc(${padding} + var(--keyboard-height, 276px) - 1px)`
+      : 'calc(var(--keyboard-height, 276px) - 1px)';
   }
+
   // For the transition effect to work, the property has to be changed
   // after the insertion in the DOM. Use setTimeout
   setTimeout(() => {
@@ -223,9 +226,12 @@ export function showVirtualKeyboard(
 }
 
 export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
-  if (!keyboard.options.virtualKeyboardContainer) return false;
+  const container = keyboard.options.virtualKeyboardContainer;
+  if (!container) return false;
 
   if (keyboard.element) {
+    if (!window.mathlive) window.mathlive = {};
+    window.mathlive.visibleVirtualKeyboard = undefined;
     // Remove the element from the DOM
     keyboard.disable();
     hideAlternateKeys();
@@ -239,8 +245,8 @@ export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
     keyboard._element?.remove();
     keyboard._element = undefined;
 
-    keyboard.options.virtualKeyboardContainer.style.paddingBottom =
-      keyboard.originalContainerBottomPadding;
+    if (keyboard.originalContainerBottomPadding !== null)
+      container.style.paddingBottom = keyboard.originalContainerBottomPadding;
   }
 
   keyboard.visible = false;

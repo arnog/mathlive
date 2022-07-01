@@ -12,8 +12,8 @@ import { isBrowser } from '../common/capabilities';
 
 declare global {
   interface Window {
-    AWS: any;
-    mathlive: any;
+    AWS: { [key: string]: any };
+    mathlive: { [key: string]: any };
   }
 }
 

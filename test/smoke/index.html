@@ -16,7 +16,8 @@
       <h1>MathLive Smoke Testing Playground</h1>
     </header>
     <main>
-      <math-field theme="dark" id="mf">\ne</math-field>
+      <math-field id="mf">\ne</math-field>
+      <math-field virtual-keyboard-mode="manual">2</math-field>
 
       <h2 style="margin-top: 1em">Selection</h2>
       <div class="output" id="selection"></div>
@@ -39,7 +40,13 @@
     </main>
 
     <script type="module">
-      import { renderMathInElement } from '/dist/mathlive.mjs';
+      import {
+        renderMathInElement,
+        makeSharedVirtualKeyboard,
+        MathfieldElement,
+      } from '/dist/mathlive.mjs';
+
+      // makeSharedVirtualKeyboard();
 
       // Handler called when the mathfield content has changed
       function updateContent(mf) {

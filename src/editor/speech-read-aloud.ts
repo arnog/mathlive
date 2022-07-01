@@ -2,13 +2,6 @@ import { isBrowser } from '../common/capabilities';
 import { render } from '../editor-mathfield/render';
 import { MathfieldOptions } from '../public/options';
 
-declare global {
-  interface Window {
-    AWS: any;
-    mathlive: any;
-  }
-}
-
 function removeHighlight(element: Element): void {
   element.classList.remove('ML__highlight');
   if (element.children)
