@@ -359,8 +359,8 @@ export interface MathfieldElementAttributes {
     | 'latex'
     | string;
   /**
-   * When true, use a shared virtual keyboard for all the mathfield
-   * elements in the page, even across iframes.
+   * When `true`, use a shared virtual keyboard for all the mathfield
+   * elements in the page, even across _iframes_.
    *
    * When setting this option to true, you must create the shared
    * virtual keyboard in the the parent document:
@@ -372,6 +372,10 @@ export interface MathfieldElementAttributes {
    *         virtualKeyboardToolbar: 'none',
    *     });
    * ```
+   * You should call `makeSharedVirtualKeyboard()` as early as possible.
+   * `makeSharedVirtualKeyboard()` only applies to mathfield instances created
+   *  after it is called.
+   *
    *
    * **Default**: `false`
    */

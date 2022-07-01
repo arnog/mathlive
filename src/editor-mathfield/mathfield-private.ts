@@ -1295,7 +1295,7 @@ export class MathfieldPrivate implements Mathfield {
     return this.undoManager.undo({
       ...this.options,
       onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard!.executeCommand([
+        this.virtualKeyboard?.executeCommand([
           'onUndoStateChanged',
           this.canUndo(),
           this.canRedo(),

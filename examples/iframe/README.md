@@ -24,7 +24,9 @@ Initialize a mathfield element as usual, just pass an option
 
 In the parent frame you should also load Mathlive using a `<script>` tag and
 invoke `makeSharedVirtualKeyboard()` function to create the shared virtual
-keyboard.
+keyboard. Make sure to call `makeSharedVirtualKeyboard()` as early as possible,
+and before creating any mathfield element. `makeSharedVirtualKeyboard()` does
+not apply to previously created mathfield elements.
 
 ```html
 <script type="module">
