@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+### Improvements
+
+- Changed the key on the bottom right of the virtual keyboard from
+  `moveToNextPlaceholder` (equivalent to **Tab** key on physical keyboard) to
+  `commit` (equivalent to **Return** on physical keyboard). Pressing this key
+  (or the **Return** key on a physical keyboard) triggers a `change` event.
+
 ### Bug Fixes
 
 - **#1523** When switching between keyboard layouts the body of the document was
