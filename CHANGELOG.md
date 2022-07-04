@@ -11,6 +11,10 @@
 
 - **#1523** When switching between keyboard layouts the body of the document was
   getting erroneously enlarged vertically.
+- When using `makeSharedVirtualKeyboard()` if clicking directly on the virtual
+  keyboard toggle of a mathfield that is not focused, the keyboard would be
+  displayed with options that did not match the mathfield (it would have the
+  wrong custom keyboard for example).
 
 ## 0.76.1 (2022-06-29)
 

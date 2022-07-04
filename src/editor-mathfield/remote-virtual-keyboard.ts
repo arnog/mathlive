@@ -60,7 +60,9 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     window.mathlive.sharedVirtualKeyboard.visible = value;
   }
 
-  setOptions(options: CombinedVirtualKeyboardOptions): void {
+  setOptions(
+    options: CombinedVirtualKeyboardOptions | Record<string, never>
+  ): void {
     this.sendMessage('setOptions', {
       options: JSON.stringify(getValidOptions(options)),
     });
@@ -90,6 +92,14 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
   ): boolean {
     if (getCommandTarget(command) === 'virtual-keyboard') {
+      if (this._mathfield) {
+        this.setOptions(getValidOptions(this._mathfield.getOptions()));
+        if (
+          command === 'showVirtualKeyboard' ||
+          (command === 'toggleVirtualKeyboard' && this.visible === false)
+        )
+          this._mathfield.focus?.();
+      }
       this.sendMessage('executeCommand', { command });
       return false;
     }
@@ -331,7 +341,9 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
   }
 }
 
-function getValidOptions(options?: any): Partial<RemoteVirtualKeyboardOptions> {
+function getValidOptions(
+  options?: any
+): RemoteVirtualKeyboardOptions | Record<string, never> {
   if (typeof options !== 'object') return {};
   const validOptions: Partial<RemoteVirtualKeyboardOptions> = {};
   // Note: we explicitly exclude `virtualKeyboardContainer` and `createHhtml` (a function)
@@ -363,5 +375,5 @@ function getValidOptions(options?: any): Partial<RemoteVirtualKeyboardOptions> {
   if (options.originValidator)
     validOptions.originValidator = options.originValidator;
 
-  return validOptions;
+  return validOptions as RemoteVirtualKeyboardOptions;
 }
