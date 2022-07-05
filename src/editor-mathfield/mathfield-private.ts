@@ -1124,21 +1124,17 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   hasFocus(): boolean {
-    return (
-      isBrowser() && document.hasFocus() && this.keyboardDelegate.hasFocus()
-    );
+    return isBrowser() && this.keyboardDelegate.hasFocus();
   }
 
   focus(options?: { scrollIntoView: boolean }): void {
-    if (!this.hasFocus()) {
-      this.keyboardDelegate.focus();
-      this.model.announce('line');
-      if (options?.scrollIntoView ?? true) this.scrollIntoView();
-    }
+    this.keyboardDelegate.focus();
+    this.model.announce('line');
+    if (options?.scrollIntoView ?? true) this.scrollIntoView();
   }
 
   blur(): void {
-    if (this.hasFocus()) this.keyboardDelegate.blur();
+    this.keyboardDelegate.blur();
   }
 
   select(): void {

@@ -15,6 +15,8 @@
   keyboard toggle of a mathfield that is not focused, the keyboard would be
   displayed with options that did not match the mathfield (it would have the
   wrong custom keyboard for example).
+- **#1537** On Firefox, calling `blur()` on a `<math-field>` element resulted in
+  `document.activeElement` still being set to the mathfield.
 
 ## 0.76.1 (2022-06-29)
 

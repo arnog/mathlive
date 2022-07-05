@@ -931,6 +931,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    */
   blur(): void {
+    this._mathfield?.blur();
     super.blur();
   }
 
