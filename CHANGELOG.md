@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- When using the Chrome Device Toolbar to emulate a mobile device, typing on the
+  physical keyboard resulted in duplicate input.
+
 ## 0.77.0 (2022-07-05)
 
 ### Improvements
