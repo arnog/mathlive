@@ -993,6 +993,11 @@ export class MathfieldPrivate implements Mathfield {
 
   insert(s: string, options?: InsertOptions): boolean {
     if (typeof s === 'string' && s.length > 0) {
+      // This code path is used when inserting content from the virtual keyboard
+      // (i.e. inserting `\sin`). We need to ignore previous key combinations
+      // in this case
+      this.resetKeystrokeBuffer();
+
       options = options ?? { mode: 'math' };
       if (options.focus) this.focus();
 

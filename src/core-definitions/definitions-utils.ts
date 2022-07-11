@@ -50,6 +50,7 @@ export type ParseResult =
     };
 
 export type FunctionDefinition = {
+  params: FunctionArgumentDefiniton[];
   /** Infix commands are generally deprecated in LaTeX, but there are
    * a few that we might encounter (e.g. \choose).
    */
