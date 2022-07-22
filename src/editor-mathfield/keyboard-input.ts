@@ -259,6 +259,7 @@ export function onKeystroke(
           mathfield.snapshot();
           ModeEditor.insert('math', model, mathfield.options.mathModeSpace, {
             format: 'latex',
+            fractionNavigationOrder: mathfield.fractionNavigationOrder,
           });
           selector = '';
           mathfield.dirty = true;
@@ -349,6 +350,7 @@ export function onKeystroke(
       const saveMode = mathfield.mode;
       ModeEditor.insert(mathfield.mode, model, eventToChar(evt), {
         suppressChangeNotifications: true,
+        fractionNavigationOrder: mathfield.fractionNavigationOrder,
         style,
       });
       // Create a snapshot with the inserted character
@@ -374,6 +376,7 @@ export function onKeystroke(
           format: 'latex',
           style,
           smartFence: true,
+          fractionNavigationOrder: mathfield.fractionNavigationOrder,
         });
         // Check if as a result of the substitution there is now an isolated
         // (text mode) space (surrounded by math). In which case, remove it.

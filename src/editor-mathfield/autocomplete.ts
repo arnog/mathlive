@@ -156,6 +156,7 @@ export function complete(
     macros: mathfield.options.macros,
     selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
     format: 'latex',
+    fractionNavigationOrder: mathfield.fractionNavigationOrder,
   });
 
   mathfield.snapshot();

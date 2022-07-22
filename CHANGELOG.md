@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### Features
+
+- **#1556** Support for East-Asian fraction navigation, where the denominator is
+  read/written before the numerator. To use East Asian fraction navigation, set
+  the option `fractionNavigationOrder` to `"denominator-numerator"`.
+
 ### Bug Fixes
 
 - When using the Chrome Device Toolbar to emulate a mobile device, typing on the

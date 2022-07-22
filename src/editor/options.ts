@@ -311,6 +311,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     removeExtraneousParentheses: true,
     mathModeSpace: '',
     decimalSeparator: '.',
+    fractionNavigationOrder: 'numerator-denominator',
 
     locale: l10n.locale,
     strings: l10n.strings,

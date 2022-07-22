@@ -170,7 +170,7 @@ export class Atom {
 
   // Cached list of children, invalidated when isDirty = true
   /** @internal */
-  private _children: Atom[] | undefined;
+  protected _children: Atom[] | undefined;
 
   /** @internal */
   private _branches: Branches;

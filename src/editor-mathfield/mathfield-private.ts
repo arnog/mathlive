@@ -146,6 +146,7 @@ export class MathfieldPrivate implements Mathfield {
 
   colorMap: (name: string) => string | undefined;
   backgroundColorMap: (name: string) => string | undefined;
+  fractionNavigationOrder: 'numerator-denominator' | 'denominator-numerator';
 
   keypressSound: null | HTMLAudioElement;
   spacebarKeypressSound: null | HTMLAudioElement;
@@ -230,6 +231,9 @@ export class MathfieldPrivate implements Mathfield {
 
       return result;
     };
+
+    this.fractionNavigationOrder =
+      this.options.fractionNavigationOrder ?? 'numerator-denominator';
 
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (!this.options.keypressSound) {
@@ -512,6 +516,7 @@ export class MathfieldPrivate implements Mathfield {
         suppressChangeNotifications: true,
         smartFence: this.options.smartFence,
         macros: this.options.macros,
+        fractionNavigationOrder: this.fractionNavigationOrder,
       });
     }
 
@@ -726,6 +731,9 @@ export class MathfieldPrivate implements Mathfield {
       return result;
     };
 
+    this.fractionNavigationOrder =
+      this.options.fractionNavigationOrder ?? 'numerator-denominator';
+
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
     const content = Atom.serialize(this.model.root, {
@@ -738,6 +746,7 @@ export class MathfieldPrivate implements Mathfield {
         selectionMode: 'after',
         format: 'latex',
         suppressChangeNotifications: true,
+        fractionNavigationOrder: this.fractionNavigationOrder,
       });
     }
 
@@ -899,6 +908,7 @@ export class MathfieldPrivate implements Mathfield {
         ...options,
         colorMap: this.colorMap,
         backgroundColorMap: this.backgroundColorMap,
+        fractionNavigationOrder: this.fractionNavigationOrder,
       })
     ) {
       this.undoManager.snapshot(this.options);

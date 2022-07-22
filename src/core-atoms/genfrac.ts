@@ -17,6 +17,7 @@ export type GenfracOptions = {
   hasBarLine?: boolean;
   mathstyleName?: MathstyleName;
   style?: Style;
+  fractionNavigationOrder?: 'numerator-denominator' | 'denominator-numerator';
   serialize?: (atom: GenfracAtom, options: ToLatexOptions) => string;
 };
 
@@ -39,6 +40,9 @@ export class GenfracAtom extends Atom {
   private readonly numerPrefix?: string;
   private readonly denomPrefix?: string;
   private readonly mathstyleName?: MathstyleName;
+  private readonly fractionNavigationOrder:
+    | 'numerator-denominator'
+    | 'denominator-numerator';
 
   constructor(
     command: string,
@@ -61,6 +65,8 @@ export class GenfracAtom extends Atom {
     this.mathstyleName = options?.mathstyleName;
     this.leftDelim = options?.leftDelim;
     this.rightDelim = options?.rightDelim;
+    this.fractionNavigationOrder =
+      options?.fractionNavigationOrder ?? 'numerator-denominator';
   }
 
   static fromJson(json: AtomJson): GenfracAtom {
@@ -90,6 +96,36 @@ export class GenfracAtom extends Atom {
       `{${this.aboveToLatex(options)}}` +
       `{${this.belowToLatex(options)}}`
     );
+  }
+
+  // The order of the children, which is used for keyboard navigation order,
+  // may be customized for fractions...
+  get children(): Atom[] {
+    if (this._children) return this._children;
+
+    const result: Atom[] = [];
+    if (this.fractionNavigationOrder === 'numerator-denominator') {
+      for (const x of this.above!) {
+        result.push(...x.children);
+        result.push(x);
+      }
+      for (const x of this.below!) {
+        result.push(...x.children);
+        result.push(x);
+      }
+    } else {
+      for (const x of this.below!) {
+        result.push(...x.children);
+        result.push(x);
+      }
+      for (const x of this.above!) {
+        result.push(...x.children);
+        result.push(x);
+      }
+    }
+
+    this._children = result;
+    return result;
   }
 
   render(context: Context): Box | null {

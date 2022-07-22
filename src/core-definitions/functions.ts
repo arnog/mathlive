@@ -110,9 +110,19 @@ defineFunction(
   ['frac', 'dfrac', 'tfrac', 'cfrac', 'binom', 'dbinom', 'tbinom'],
   '{numerator}{denominator}',
   {
-    createAtom: (command: string, args: Argument[], style: Style): Atom => {
+    createAtom: (
+      command: string,
+      args: Argument[],
+      style: Style,
+      inOptions: {
+        fractionNavigationOrder:
+          | 'numerator-denominator'
+          | 'denominator-numerator';
+      }
+    ): Atom => {
       const options: GenfracOptions = {
         style,
+        fractionNavigationOrder: inOptions?.fractionNavigationOrder,
       };
       switch (command) {
         case '\\dfrac':

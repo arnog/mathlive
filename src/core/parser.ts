@@ -93,14 +93,15 @@ export class Parser {
   // The current token to be parsed: index in `this.tokens`
   index = 0;
 
-  macros?: NormalizedMacroDictionary;
-  smartFence = false;
-
   // Optional arguments to substitute the `#` token.
   args: null | ((arg: string) => string);
 
+  macros?: NormalizedMacroDictionary;
+  smartFence = false;
   colorMap?: (name: string) => string | undefined;
   backgroundColorMap?: (name: string) => string | undefined;
+  fractionNavigationOrder: 'numerator-denominator' | 'denominator-numerator' =
+    'numerator-denominator';
 
   // Counter to prevent deadlock. If `end()` is called too many times (1,000)
   // in a row for the same token, bail.
@@ -121,6 +122,9 @@ export class Parser {
       onError?: ErrorListener<ParserErrorCode>;
       colorMap?: (name: string) => string | undefined;
       backgroundColorMap?: (name: string) => string | undefined;
+      fractionNavigationOrder?:
+        | 'numerator-denominator'
+        | 'denominator-numerator';
       parseMode?: ParseMode;
       mathstyle?: MathstyleName;
       smartFence?: boolean;
@@ -129,10 +133,14 @@ export class Parser {
   ) {
     this.tokens = tokens;
     this.args = options.args ?? null;
+
     this.macros = options.macros;
     this.colorMap = options.colorMap;
     this.backgroundColorMap = options.backgroundColorMap ?? this.colorMap;
+    if (options.fractionNavigationOrder)
+      this.fractionNavigationOrder = options.fractionNavigationOrder;
     this.smartFence = options.smartFence ?? false;
+
     this.onError = options.onError
       ? (err): void =>
           options.onError!({
@@ -389,6 +397,7 @@ export class Parser {
       mathstyle: 'textstyle',
       colorMap: this.colorMap,
       backgroundColorMap: this.backgroundColorMap,
+      fractionNavigationOrder: this.fractionNavigationOrder,
     });
   }
 
@@ -934,6 +943,7 @@ export class Parser {
         infixInfo!.createAtom!(infix, infixArgs, this.style, {
           colorMap: this.colorMap,
           backgroundColorMap: this.backgroundColorMap,
+          fractionNavigationOrder: this.fractionNavigationOrder,
         }),
       ];
     } else {
@@ -1480,6 +1490,7 @@ export class Parser {
       result = info.createAtom(command, args, this.style, {
         colorMap: this.colorMap,
         backgroundColorMap: this.backgroundColorMap,
+        fractionNavigationOrder: this.fractionNavigationOrder,
       });
       if (deferredArg)
         result!.body = this.parseArgument(deferredArg) ?? undefined;
@@ -1624,6 +1635,7 @@ export class Parser {
         mathstyle: this.currentContext.mathstyle,
         colorMap: this.colorMap,
         backgroundColorMap: this.backgroundColorMap,
+        fractionNavigationOrder: this.fractionNavigationOrder,
         onError: this.onError,
       }),
     });
@@ -1674,6 +1686,7 @@ export function parseLatex(
     onError?: ErrorListener<ParserErrorCode>;
     colorMap?: (name: string) => string | undefined;
     backgroundColorMap?: (name: string) => string | undefined;
+    fractionNavigationOrder?: 'numerator-denominator' | 'denominator-numerator';
   }
 ): Atom[] {
   const parser = new Parser(tokenize(s, options?.args ?? null), {
@@ -1688,6 +1701,7 @@ export function parseLatex(
       options?.backgroundColorMap ??
       options?.colorMap ??
       defaultBackgroundColorMap,
+    fractionNavigationOrder: options?.fractionNavigationOrder,
     onError: (err) => {
       if (typeof options?.onError === 'function')
         options.onError({ ...err, latex: s });

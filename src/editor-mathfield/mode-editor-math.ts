@@ -125,6 +125,7 @@ export class MathModeEditor extends ModeEditor {
           smartFence: mathfield.options.smartFence,
           colorMap: mathfield.colorMap,
           backgroundColorMap: mathfield.backgroundColorMap,
+          fractionNavigationOrder: mathfield.fractionNavigationOrder,
           format,
         })
       )
@@ -144,6 +145,9 @@ export class MathModeEditor extends ModeEditor {
     options: InsertOptions & {
       colorMap: (name: string) => string | undefined;
       backgroundColorMap: (name: string) => string | undefined;
+      fractionNavigationOrder:
+        | 'numerator-denominator'
+        | 'denominator-numerator';
     }
   ): boolean {
     const data =
@@ -410,6 +414,7 @@ function convertStringToAtoms(
   options: InsertOptions & {
     colorMap: (name: string) => string | undefined;
     backgroundColorMap: (name: string) => string | undefined;
+    fractionNavigationOrder: 'numerator-denominator' | 'denominator-numerator';
   }
 ): [OutputFormat, Atom[]] {
   let format: OutputFormat | undefined = undefined;
@@ -426,6 +431,7 @@ function convertStringToAtoms(
       onError: model.listeners.onError,
       colorMap: options.colorMap,
       backgroundColorMap: options.backgroundColorMap,
+      fractionNavigationOrder: options.fractionNavigationOrder,
     });
   } else if (typeof s === 'string' && options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {
@@ -438,6 +444,7 @@ function convertStringToAtoms(
       onError: model.listeners.onError,
       colorMap: options.colorMap,
       backgroundColorMap: options.backgroundColorMap,
+      fractionNavigationOrder: options.fractionNavigationOrder,
     });
 
     // Simplify result.
@@ -462,6 +469,7 @@ function convertStringToAtoms(
       onError: model.listeners.onError,
       colorMap: options.colorMap,
       backgroundColorMap: options.backgroundColorMap,
+      fractionNavigationOrder: options.fractionNavigationOrder,
     });
 
     // Simplify result.

@@ -785,7 +785,7 @@ export type EditingOptions = {
    */
   readOnly: boolean;
   /**
-   * When true, during text input the field will switch automatically between
+   * When `true`, during text input the field will switch automatically between
    * 'math' and 'text' mode depending on what is typed and the context of the
    * formula. If necessary, what was previously typed will be 'fixed' to
    * account for the new info.
@@ -830,7 +830,7 @@ export type EditingOptions = {
    */
   smartFence: boolean;
   /**
-   * When `true`, when a digit is entered in an empty superscript, the cursor
+   * When `true` and a digit is entered in an empty superscript, the cursor
    * leaps automatically out of the superscript. This makes entry of common
    * polynomials easier and faster. If entering other characters (for example
    * "n+1") the navigation out of the superscript must be done manually (by
@@ -869,9 +869,9 @@ export type EditingOptions = {
    * The LaTeX string to insert when the spacebar is pressed (on the physical or
    * virtual keyboard).
    *
-   * Use `\;` for a thick space, `\:` for a medium space, `\,` for a thin space.
+   * Use `"\;"` for a thick space, `"\:"` for a medium space, `"\,"` for a thin space.
    *
-   * Do not use ` ` (a regular space), as whitespace is skipped by LaTeX so this
+   * Do not use `" "` (a regular space), as whitespace is skipped by LaTeX so this
    * will do nothing.
    *
    * **Default**: `""` (empty string)
@@ -894,6 +894,20 @@ export type EditingOptions = {
    * **Default**: `"."`
    */
   decimalSeparator: ',' | '.';
+
+  /**
+   * When navigation a fraction with the keyboard, the order in which the
+   * numerator and navigator are traversed:
+   * - "numerator-denominator": first the elements in the numerator, then
+   *   the elements in the denominator
+   * - "denominator-numerator": first the elements in the denominator, then
+   *   the elements in the numerator. In some East-Asian cultures, fractions
+   *   are read and written denominator first ("fēnzhī"). Using this
+   *   option allows the keyboard navigation to follow this convention.
+   *
+   * **Default**: `"numerator-denominator"`
+   */
+  fractionNavigationOrder: 'numerator-denominator' | 'denominator-numerator';
 };
 
 export type LayoutOptions = {

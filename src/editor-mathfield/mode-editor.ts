@@ -132,6 +132,9 @@ export class ModeEditor {
     options: InsertOptions & {
       colorMap?: (name: string) => string | undefined;
       backgroundColorMap?: (name: string) => string | undefined;
+      fractionNavigationOrder?:
+        | 'numerator-denominator'
+        | 'denominator-numerator';
     } = {}
   ): boolean {
     return ModeEditor._registry[mode].insert(model, text, options);

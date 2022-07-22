@@ -33,6 +33,7 @@ export type Argument =
 export type CreateAtomOptions = {
   colorMap?: (name: string) => string | undefined;
   backgroundColorMap?: (name: string) => string | undefined;
+  fractionNavigationOrder?: 'numerator-denominator' | 'denominator-numerator';
 };
 
 export type ApplyStyleDefinitionOptions = {
