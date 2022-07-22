@@ -30,6 +30,7 @@
   wrong custom keyboard for example).
 - **#1537** On Firefox, calling `blur()` on a `<math-field>` element resulted in
   `document.activeElement` still being set to the mathfield.
+- **#1544** Allow physical keyboard input to be turned off.
 
 ## 0.76.1 (2022-06-29)
 

@@ -47,7 +47,7 @@ import { contentDidChange, contentWillChange } from '../editor-model/listeners';
  *
  * The buffer is used to determine if the user intended to type an
  * inline shortcut (e.g. "pi" for `\pi`), a multichar symbol, or some keybinding
- * (i.e.g "command+a" to "seletc all").
+ * (i.e.g "command+a" to "select all").
  *
  * Characters are added to this buffer while the user type printable characters
  * consecutively. If the user change selection (with the mouse, or by
@@ -74,11 +74,14 @@ export function onKeystroke(
     mathfield._keybindings = undefined;
   }
 
-  // 2. Display the keystroke in the keystroke panel (if visible)
+  // 2. Reset the timer for the keystroke buffer reset
+  clearTimeout(mathfield.keystrokeBufferResetTimer);
+
+  // 3. Display the keystroke in the keystroke panel (if visible)
   showKeystroke(mathfield, keystroke);
 
-  // 3. Reset the timer for the keystroke buffer reset
-  clearTimeout(mathfield.keystrokeBufferResetTimer);
+  // If the event has already been handled, return
+  if (evt.defaultPrevented) return false;
 
   // 4. Give a chance to the custom keystroke handler to intercept the event
   // (note that in readonly mode, while you can't modify the content, you
