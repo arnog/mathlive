@@ -283,7 +283,7 @@ export function onKeystroke(
       // 5.6 Handle the decimal separator
       //
       if (
-        model.at(model.position).leftSibling?.isDigit() &&
+        model.at(model.position)?.isDigit() &&
         mathfield.options.decimalSeparator === ',' &&
         eventToChar(evt) === ','
       )
