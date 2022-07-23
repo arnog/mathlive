@@ -10,6 +10,9 @@
 
 - When using the Chrome Device Toolbar to emulate a mobile device, typing on the
   physical keyboard resulted in duplicate input.
+- **#1545** Switching from a tab with a focused mathfield to another tab, then
+  return to the tab with the matfield would lose the focus on the mathfield. The
+  focus is now restored, similarly to what happens with a textarea element
 
 ## 0.77.0 (2022-07-05)
 
