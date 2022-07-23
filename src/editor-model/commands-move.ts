@@ -358,12 +358,12 @@ function leap(
     ];
     if (nestedMathfield.length) {
       const activeMathfield = element.shadowRoot?.activeElement;
-      console.log(activeMathfield);
+
       const activeIndex = nestedMathfield.indexOf(
         activeMathfield as HTMLElement
       );
       let newMathfieldIndex = activeIndex + dist;
-      console.log(activeIndex);
+
       if (activeIndex < 0 && dir === 'backward')
         newMathfieldIndex = nestedMathfield.length - 1;
 
@@ -371,7 +371,6 @@ function leap(
         newMathfieldIndex >= 0 &&
         newMathfieldIndex < nestedMathfield.length
       ) {
-        console.log(newMathfieldIndex, nestedMathfield, 'forward');
         nestedMathfield[newMathfieldIndex].focus();
         return true;
       }

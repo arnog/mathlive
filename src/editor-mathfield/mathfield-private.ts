@@ -467,6 +467,30 @@ export class MathfieldPrivate implements Mathfield {
     // switched from portrait to landscape, to adjust the UI (popover, etc...)
     on(window, 'resize', this);
 
+    // When the window loses focus, the browser will restore the focus to a
+    // textarea element if it had the focus when the window was blured.
+    // But it doesn't restore the focus for math-field elements (and other
+    // custom elements, presumably). So, listen for when the window loses focus
+    // (during the capture phase, before the mathfield potentially loses focus)\
+    // then, if this mathfield has focus, listen for when the window regains
+    // focus, and restore the focus to this mathfield.
+
+    window.addEventListener(
+      'blur',
+      () => {
+        if (isValidMathfield(this) && this.hasFocus()) {
+          window.addEventListener(
+            'focus',
+            (evt) => {
+              if (evt.target === window && isValidMathfield(this)) this.focus();
+            },
+            { once: true }
+          );
+        }
+      },
+      { capture: true }
+    );
+
     // Setup the model
     this.model = new ModelPrivate(
       {
@@ -830,6 +854,7 @@ export class MathfieldPrivate implements Mathfield {
     off(element, 'focus', this);
     off(element, 'blur', this);
     off(window, 'resize', this);
+    window.removeEventListener('blur', this, { capture: true });
 
     delete this.accessibleNode;
     delete this.ariaLiveText;

@@ -24,7 +24,7 @@
  * - https://github.com/microsoft/vscode/wiki/Keybinding-Issues
  */
 
-import { isBrowser, isTouchCapable } from '../common/capabilities';
+import { isBrowser } from '../common/capabilities';
 import { normalizeKeyboardEvent } from './keyboard-layout';
 import { Scrim } from './scrim';
 
@@ -271,17 +271,19 @@ export function delegateKeyboardEvents(
 
         keypressEvent = event;
         defer(handleTypedText);
+        event.stopImmediatePropagation();
       }
     },
     true
   );
   target.addEventListener(
     'keyup',
-    () => {
+    (event) => {
       if (compositionInProgress) return;
       // If we've received a keydown, but no keypress, check what's in the
       // textarea field.
       if (keydownEvent && !keypressEvent) handleTypedText();
+      event.stopImmediatePropagation();
     },
     true
   );
@@ -293,6 +295,7 @@ export function delegateKeyboardEvents(
       textarea.focus();
       textarea.value = '';
       handlers.paste(event);
+      event.stopImmediatePropagation();
     },
     true
   );
@@ -306,6 +309,8 @@ export function delegateKeyboardEvents(
       // (preventDefault on the event doesn't work)
       if (event['relatedTarget']?.['_mathfield']?.['element'] === element) {
         textarea.focus();
+        event.preventDefault();
+        event.stopPropagation();
         return;
       }
       // If the scrim is up, ignore blur (while the alternate key panel is up)
@@ -334,17 +339,19 @@ export function delegateKeyboardEvents(
       keypressEvent = null;
       if (handlers.blur) handlers.blur();
       blurInProgress = false;
+      event.stopPropagation();
     },
     true
   );
   target.addEventListener(
     'focus',
-    (_ev) => {
+    (evt) => {
       if (blurInProgress || focusInProgress) return;
 
       focusInProgress = true;
       if (handlers.focus) handlers.focus();
       focusInProgress = false;
+      evt.stopPropagation();
     },
     true
   );

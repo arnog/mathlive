@@ -197,6 +197,7 @@
         },
         // smartFence: true,
         fractionNavigationOrder: 'denominator-numerator',
+        decimalSeparator: ',',
         virtualKeyboardMode: 'manual',
         macros: {
           ...mf.getOptions('macros'),
@@ -209,6 +210,20 @@
       mf.addEventListener('change', (ev) =>
         console.log('change event', mf.value)
       );
+
+      mf.addEventListener(
+        'keydown',
+        (ev, a) => {
+          ev.preventDefault();
+          return false;
+        },
+        true
+      );
+
+      // mf.addEventListener('keystroke', (ev, a) => {
+      //   ev.preventDefault();
+      //   return false;
+      // });
 
       mf.addEventListener('selection-change', (ev) => {
         const selection = mf.selection;
