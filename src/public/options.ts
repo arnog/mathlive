@@ -1184,15 +1184,7 @@ export declare function setKeyboardLayout(
  */
 export declare function setKeyboardLayoutLocale(locale: string): void;
 
-export type AutoRenderOptions = {
-  /** Namespace that is added to `data-`  attributes to avoid collisions with other libraries.
-   *
-   * It is empty by default.
-   *
-   * The namespace should be a string of lowercase letters.
-   */
-  namespace?: string;
-
+export type AutoRenderOptions = Partial<TextToSpeechOptions> & {
   /**
    * A URL fragment pointing to the directory containing the fonts
    * necessary to render a formula.

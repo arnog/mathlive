@@ -1,15 +1,22 @@
 /* eslint no-console:0 */
-import '../core/atom';
-import { MacroDictionary, getMacros } from '../core-definitions/definitions';
-import { ErrorListener, ParserErrorCode, Registers } from '../public/core';
-import { loadFonts } from '../core/fonts';
-import { inject as injectStylesheet } from '../common/stylesheet';
+
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
-import { parseMathString } from '../editor/parse-math-string';
+
+import {
+  ErrorListener,
+  MathfieldErrorCode,
+  ParserErrorCode,
+} from '../public/core';
+import { AutoRenderOptions, TextToSpeechOptions } from '../public/options';
+
+import { inject as injectStylesheet } from '../common/stylesheet';
 import { throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
-import { AutoRenderOptions } from '../public/options';
+
+import '../core/atom';
+import { loadFonts } from '../core/fonts';
+import { parseMathString } from '../editor/parse-math-string';
 
 /** @internal */
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
@@ -20,9 +27,6 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
     text: string,
     options: {
       mathstyle?: 'displaystyle' | 'textstyle';
-      letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-      macros?: MacroDictionary;
-      registers?: Registers;
       onError?: ErrorListener<ParserErrorCode>;
       format?: string;
     }
@@ -32,26 +36,17 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
    * A function that will convert any LaTeX found to
    * MathML markup.
    */
-  renderToMathML?: (
-    text: string,
-    options: {
-      mathstyle?: string;
-      format?: string;
-      macros?: MacroDictionary;
-      registers?: Registers;
-    }
-  ) => string;
+  renderToMathML?: (text: string) => string;
 
   /** A function that will convert any LaTeX found to
    * speakable text markup. */
   renderToSpeakableText?: (
     text: string,
-    options: {
-      mathstyle?: string;
-      format?: string;
-      macros?: MacroDictionary;
-      registers?: Registers;
-    }
+    options: Partial<
+      TextToSpeechOptions & {
+        onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
+      }
+    >
   ) => string;
   ignoreClassPattern?: RegExp;
   processClassPattern?: RegExp;
@@ -86,7 +81,7 @@ function findEndOfMath(delimiter, text, startIndex: number): number {
 }
 
 function splitAtDelimiters(
-  startData,
+  startData: { type: string; data: string }[],
   leftDelim: string,
   rightDelim: string,
   mathstyle: string,
@@ -248,7 +243,7 @@ function createMathMLNode(
   try {
     const html =
       "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-      options.renderToMathML!(latex, options) +
+      options.renderToMathML!(latex) +
       '</math>';
     span.innerHTML = options.createHTML ? options.createHTML(html) : html;
   } catch (error: unknown) {
@@ -278,7 +273,6 @@ function createMarkupNode(
     const html = options.renderToMarkup!(text, {
       mathstyle: mathstyle,
       format: 'html',
-      macros: options.macros,
     });
     const element = document.createElement(
       mathstyle === 'displaystyle' ? 'div' : 'span'
@@ -489,9 +483,6 @@ function scanElement(
 }
 
 const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
-  // Optional namespace for the `data-` attributes.
-  namespace: '',
-
   // Name of tags whose content will not be scanned for math delimiters
   skipTags: [
     'math-field',
@@ -557,19 +548,6 @@ export function autoRenderMathInElement(
     optionsPrivate.processScriptTypePattern = new RegExp(
       optionsPrivate.processScriptType ?? ''
     );
-    optionsPrivate.macros = getMacros(optionsPrivate.macros);
-
-    // Validate the namespace (used for `data-` attributes)
-    if (optionsPrivate.namespace) {
-      if (!/^[a-z]+-?$/.test(optionsPrivate.namespace)) {
-        throw new Error(
-          'options.namespace must be a string of lowercase characters only'
-        );
-      }
-
-      if (!optionsPrivate.namespace.endsWith('-'))
-        optionsPrivate.namespace += '-';
-    }
 
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`
