@@ -111,7 +111,10 @@ import './mode-editor-text';
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 import { validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
-import { defaultGetDefinition, getMacroDefinition } from 'core/context-utils';
+import {
+  defaultGetDefinition,
+  getMacroDefinition,
+} from '../core/context-utils';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;

@@ -1015,7 +1015,10 @@ export class Parser {
       return null;
     }
 
-    if (info.definitionType === 'symbol' && ('mopen' || info.type === 'mclose'))
+    if (
+      info.definitionType === 'symbol' &&
+      (info.type === 'mopen' || info.type === 'mclose')
+    )
       return delim;
 
     // Some symbols are not of type mopen/mclose, but are still
