@@ -66,6 +66,15 @@ mkdir -p dist
 mkdir -p declarations
 echo -e  $LINECLEAR$BASENAME$CHECK${DIM}"Cleaning output directories"$RESET
 
+# Bundle Typescript declaration files (.d.ts).
+# Even though we only generate declaration files, the target must be set 
+# high-enough to prevent `tsc` from complaining (!)
+printf "$BASENAME${DOT}Building TypeScript declaration files (.d.ts)"
+npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
+mv ./declarations/public ./dist
+rm -rf ./declarations
+echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESET}"
+
 # Copy static assets
 printf "$BASENAME${DOT}Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
@@ -86,14 +95,6 @@ if [ "$BUILD" = "production" ]; then
     echo -e "$LINECLEAR$BASENAME$CHECK${DIM}CSS Optimized${RESET}"
 fi
 
-# Bundle Typescript declaration files (.d.ts).
-# Even though we only generate declaration files, the target must be set 
-# high-enough to prevent `tsc` from complaining (!)
-printf "$BASENAME${DOT}Building TypeScript declaration files (.d.ts)"
-npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
-mv ./declarations/public ./dist
-rm -rf ./declarations
-echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESET}"
 
 
 
