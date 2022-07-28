@@ -2,7 +2,6 @@
 import { Style } from '../public/core';
 
 import { TextAtom } from '../core-atoms/text';
-import { getInfo } from '../core-definitions/definitions';
 
 import { Atom, ToLatexOptions } from './atom';
 import { Box } from './box';
@@ -196,13 +195,17 @@ export class TextMode extends Mode {
     context: GlobalContext,
     style?: Style
   ): Atom | null {
-    const info = getInfo(command, 'text');
-    return new TextAtom(
-      command,
-      info?.codepoint ? String.fromCodePoint(info.codepoint) : command,
-      style ?? {},
-      context
-    );
+    const info = context.getDefinition(command, 'text');
+    if (!info) return null;
+    if (info.definitionType === 'symbol') {
+      return new TextAtom(
+        command,
+        String.fromCodePoint(info.codepoint),
+        style ?? {},
+        context
+      );
+    }
+    return null;
   }
 
   serialize(run: Atom[], options: ToLatexOptions): string {

@@ -3,12 +3,13 @@ import {
   FontSize,
   Glue,
   MacroDefinition,
+  ParseMode,
   Registers,
   RegisterValue,
   Style,
 } from '../public/core';
 
-import { FunctionDefinition } from '../core-definitions/definitions';
+import { TokenDefinition } from '../core-definitions/definitions-utils';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 import { Box } from './box';
@@ -33,10 +34,8 @@ export interface GlobalContext {
     | 'denominator-numerator';
   colorMap: (name: string) => string | undefined;
   backgroundColorMap: (name: string) => string | undefined;
-  getCommandInfo(command: string): FunctionDefinition | null;
-  getMacroDefinition(command: string): MacroDefinition | null;
-
-  // @todo: add macros, registers, smartFence
+  getDefinition(token: string, parseMode: ParseMode): TokenDefinition | null;
+  getMacro(token: string): MacroDefinition | null;
 }
 
 export interface ContextInterface {

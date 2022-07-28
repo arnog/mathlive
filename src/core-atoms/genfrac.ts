@@ -39,9 +39,6 @@ export class GenfracAtom extends Atom {
   private readonly numerPrefix?: string;
   private readonly denomPrefix?: string;
   private readonly mathstyleName?: MathstyleName;
-  private readonly fractionNavigationOrder:
-    | 'numerator-denominator'
-    | 'denominator-numerator';
 
   constructor(
     command: string,
@@ -103,7 +100,7 @@ export class GenfracAtom extends Atom {
     if (this._children) return this._children;
 
     const result: Atom[] = [];
-    if (this.fractionNavigationOrder === 'numerator-denominator') {
+    if (this.context.fractionNavigationOrder === 'numerator-denominator') {
       for (const x of this.above!) {
         result.push(...x.children);
         result.push(x);

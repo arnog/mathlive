@@ -1,8 +1,5 @@
 /* eslint-disable no-new */
-import {
-  getInfo,
-  mathVariantToUnicode,
-} from '../core-definitions/definitions-utils';
+import { mathVariantToUnicode } from '../core-definitions/definitions-utils';
 import { Atom, ToLatexOptions } from './atom';
 import { joinLatex } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
@@ -103,14 +100,34 @@ export class MathMode extends Mode {
   }
 
   createAtom(command: string, context: GlobalContext, style?: Style): Atom {
-    const info = getInfo(command, 'math');
-    const result = new Atom(info?.type ?? 'mord', context, {
+    const info = context.getDefinition(command, 'math');
+    if (info === null) {
+      return new Atom('mord', context, {
+        mode: 'math',
+        command,
+        value: command,
+        style,
+      });
+    }
+    if (info.definitionType === 'symbol') {
+      const result = new Atom(info.type ?? 'mord', context, {
+        mode: 'math',
+        command,
+        value: String.fromCodePoint(info.codepoint),
+        style,
+      });
+      if (info.isFunction ?? false) result.isFunction = true;
+
+      if (command.startsWith('\\')) result.verbatimLatex = command;
+      return result;
+    }
+    const result = new Atom('mord', context, {
       mode: 'math',
       command,
-      value: info?.codepoint ? String.fromCodePoint(info?.codepoint) : command,
+      value: command,
       style,
     });
-    if (info?.isFunction ?? false) result.isFunction = true;
+    if (info.isFunction ?? false) result.isFunction = true;
 
     if (command.startsWith('\\')) result.verbatimLatex = command;
 
@@ -238,8 +255,9 @@ function emitVariantRun(run: Atom[], options: ToLatexOptions): string {
       // If so, we can skip wrapping them
       if (
         x.every((x) => {
-          const info = getInfo(x.command!, parentMode);
-          if (!info || !info.variant) return false;
+          const info = x.context.getDefinition(x.command!, parentMode);
+          if (!info || info.definitionType === 'function' || !info.variant)
+            return false;
 
           return variantString(x) === variant;
         })

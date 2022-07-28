@@ -148,7 +148,7 @@ export class MathModeEditor extends ModeEditor {
     //
     // Try to insert a smart fence.
     //
-    if (!(model.mathfield.smartFence ?? false)) {
+    if (!model.mathfield.smartFence) {
       // When smartFence is turned off, only do a "smart" fence insert
       // if we're inside a `leftright`, at the last char
       if (options.insertionMode !== 'replaceAll') {
@@ -186,7 +186,10 @@ export class MathModeEditor extends ModeEditor {
     // Save the content of the selection, if any
     //
     const args: Record<string, string> = {};
-    args[0] = model.getValue(model.selection, 'latex-unstyled');
+    args[0] =
+      options.insertionMode === 'replaceAll'
+        ? ''
+        : model.getValue(model.selection, 'latex-unstyled');
     args['?'] = '\\placeholder{}';
     args['@'] = args['?'];
 

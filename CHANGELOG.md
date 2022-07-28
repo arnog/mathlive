@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+### Improvements
+
+- Internal: introduction of `GlobalContext` to encapsulate information necessary
+  to parse and render: macro definitions, registers, definition of commands and
+  some optional settings. A mathfield is a `GlobalContext`, but it is also used
+  when rendering static LaTeX.
+
 ### Features
 
 - **#1556** Support for East-Asian fraction navigation, where the denominator is

@@ -33,9 +33,8 @@ import { loadFonts } from '../core/fonts';
 import { GlobalContext } from '../core/context';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
-  FunctionDefinition,
-  LATEX_COMMANDS,
   NormalizedMacroDictionary,
+  TokenDefinition,
 } from '../core-definitions/definitions-utils';
 import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex } from '../core/parser';
@@ -112,6 +111,7 @@ import './mode-editor-text';
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 import { validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
+import { defaultGetDefinition, getMacroDefinition } from 'core/context-utils';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -627,14 +627,18 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return this.options?.registers ?? {};
   }
 
-  getCommandInfo(command: string): FunctionDefinition | null {
-    console.assert(command.startsWith('\\'));
-
-    return LATEX_COMMANDS[command] ?? null;
+  getDefinition(
+    token: string,
+    parseMode: ParseMode = 'math'
+  ): TokenDefinition | null {
+    return defaultGetDefinition(token, parseMode);
   }
 
-  getMacroDefinition(command: string): MacroDefinition | null {
-    return (this.options.macros as NormalizedMacroDictionary)[command] ?? null;
+  getMacro(token: string): MacroDefinition | null {
+    return getMacroDefinition(
+      token,
+      this.options.macros as NormalizedMacroDictionary
+    );
   }
 
   get virtualKeyboard(): VirtualKeyboardInterface | undefined {

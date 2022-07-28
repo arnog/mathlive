@@ -59,17 +59,20 @@ export class ModelPrivate implements Model {
     target: Mathfield
   ) {
     this.options = options;
-    this.root = new Atom('root', this.mathfield, { mode: options.mode });
-    this.root.body = [];
     this._selection = { ranges: [[0, 0]], direction: 'none' };
     this._anchor = 0;
     this._position = 0;
 
+    this.mathfield = target as MathfieldPrivate;
+    this.suppressChangeNotifications = false;
+
+    this.root = new Atom('root', target as MathfieldPrivate, {
+      mode: options.mode,
+    });
+    this.root.body = [];
+
     this.setListeners(listeners);
     this.setHooks(hooks);
-    this.mathfield = target as MathfieldPrivate;
-
-    this.suppressChangeNotifications = false;
   }
 
   get atoms(): Atom[] {

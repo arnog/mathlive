@@ -152,6 +152,7 @@ export interface Style {
  *
  */
 export type MacroDefinition = {
+  /** Definition of the macro as a LaTeX expression */
   def: string;
   args?: number;
   expand?: boolean;
@@ -241,5 +242,5 @@ The code above will support the following notation:
  */
 export type MacroDictionary = Record<
   string,
-  string | MacroDefinition | MacroPackageDefinition
+  string | Partial<MacroDefinition> | MacroPackageDefinition
 >;

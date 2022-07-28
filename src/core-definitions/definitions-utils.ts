@@ -42,7 +42,10 @@ export type ParseResult =
       error: string;
     };
 
+export type TokenDefinition = FunctionDefinition | SymbolDefinition;
+
 export type FunctionDefinition = {
+  definitionType: 'function';
   params: FunctionArgumentDefinition[];
   /** Infix commands are generally deprecated in LaTeX, but there are
    * a few that we might encounter (e.g. \choose).
@@ -81,10 +84,12 @@ type EnvironmentDefinition = {
 };
 
 export type SymbolDefinition = {
+  definitionType: 'symbol';
   type: AtomType;
   codepoint: number;
   variant?: Variant;
-  // VariantStyle: VariantStyle;
+
+  isFunction?: boolean;
 
   frequency?: number;
   category?: string;
@@ -184,7 +189,7 @@ const REVERSE_MATH_SYMBOLS = {
     0x2265: '\\ge',   // Also \geq
     0x22A5: '\\bot', // Also \perp
 
-    0x27F7: '\\biconditional',    // Also longleftrightarrow
+    0x27F7: '\\biconditional',    // Also \longleftrightarrow
     0x27F8: '\\impliedby', // Also \Longleftarrow
     0x27F9: '\\implies', // Also \Longrightarrow
     0x27fa: '\\iff',
@@ -485,6 +490,7 @@ function newSymbol(
 ): void {
   if (value === undefined) return;
   MATH_SYMBOLS[symbol] = {
+    definitionType: 'symbol',
     type,
     variant,
     codepoint: value,
@@ -825,81 +831,8 @@ export function unicodeStringToLatex(
   return result;
 }
 
-/**
- * Gets the value of a symbol in math mode
- */
-// export function getSymbolValue(symbol: string): string {
-//     return MATH_SYMBOLS[symbol]?.value ?? symbol;
-// }
-
 export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
   return ENVIRONMENTS[name] ?? null;
-}
-
-/**
- * @param symbol    A command (e.g. '\alpha') or a character (e.g. 'a')
- * @param parseMode One of 'math' or 'text'
- * @param macros A macros dictionary
- * @return {object} An info structure about the symbol, or null
- */
-export function getInfo(
-  symbol: string,
-  parseMode: ParseMode,
-  macros?: NormalizedMacroDictionary
-): (Partial<FunctionDefinition> & Partial<SymbolDefinition>) | null {
-  if (!symbol || symbol.length === 0) return null;
-
-  let info: (Partial<FunctionDefinition> & Partial<SymbolDefinition>) | null =
-    null;
-
-  if (symbol.startsWith('\\')) {
-    // This could be a function or a symbol
-    info = LATEX_COMMANDS[symbol];
-    if (info) return info;
-
-    // It wasn't a function, maybe it's a symbol?
-    if (parseMode === 'math') info = MATH_SYMBOLS[symbol];
-    else if (TEXT_SYMBOLS[symbol])
-      info = { type: 'mord', codepoint: TEXT_SYMBOLS[symbol] };
-
-    if (!info) {
-      // Maybe it's a macro
-      const command = symbol.slice(1);
-      if (macros?.[command]) {
-        let argCount = macros[command].args ?? 0;
-        info = {
-          type: 'group',
-          params: [],
-          infix: false,
-        };
-        while (argCount >= 1) {
-          info!.params!.push({
-            isOptional: false,
-            type: 'math',
-          });
-          argCount -= 1;
-        }
-      }
-    }
-  } else if (parseMode === 'math') info = MATH_SYMBOLS[symbol];
-  else if (TEXT_SYMBOLS[symbol])
-    info = { codepoint: TEXT_SYMBOLS[symbol], type: 'mord' };
-  else if (parseMode === 'text')
-    info = { codepoint: symbol.codePointAt(0)!, type: 'mord' };
-
-  // Special case `f`, `g` and `h` are recognized as functions.
-  if (
-    info &&
-    info.type === 'mord' &&
-    (info.codepoint === 0x66 ||
-      info.codepoint === 0x67 ||
-      info.codepoint === 0x68)
-  ) {
-    // "f", "g" or "h"
-    info.isFunction = true;
-  }
-
-  return info;
 }
 
 /**
@@ -1088,6 +1021,7 @@ export function defineFunction(
 
   // Set default values of functions
   const data: FunctionDefinition = {
+    definitionType: 'function',
     // The parameters for this function, an array of
     // {optional, type}
     params: parseParameterTemplate(parameters),
@@ -1116,7 +1050,7 @@ export function getMacros(
 }
 
 function normalizeMacroDefinition(
-  def: string | MacroDefinition,
+  def: string | Partial<MacroDefinition>,
   options?: { expand?: boolean; captureSelection?: boolean }
 ): MacroDefinition {
   if (typeof def === 'string') {
