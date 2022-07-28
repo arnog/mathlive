@@ -1,7 +1,8 @@
+import { Style, Variant, VariantStyle } from '../public/core';
+
 import { Atom, AtomJson, AtomType, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context } from '../core/context';
-import { Style, Variant, VariantStyle } from '../public/core';
+import { Context, GlobalContext } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
 import { AXIS_HEIGHT } from '../core/font-metrics';
 
@@ -16,6 +17,7 @@ export class OperatorAtom extends Atom {
   constructor(
     command: string,
     symbol: string | Atom[],
+    context: GlobalContext,
     options: {
       type?: AtomType;
       isExtensibleSymbol?: boolean;
@@ -30,7 +32,7 @@ export class OperatorAtom extends Atom {
       style?: Style;
     }
   ) {
-    super(options.type ?? 'mop', {
+    super(options.type ?? 'mop', context, {
       command,
       style: options.style,
       isFunction: options?.isFunction,
@@ -47,10 +49,11 @@ export class OperatorAtom extends Atom {
     this.isExtensibleSymbol = options?.isExtensibleSymbol ?? false;
   }
 
-  static fromJson(json: AtomJson): OperatorAtom {
+  static fromJson(json: AtomJson, context: GlobalContext): OperatorAtom {
     return new OperatorAtom(
       json.command,
       json.body ? json.body : json.value,
+      context,
       json as any
     );
   }

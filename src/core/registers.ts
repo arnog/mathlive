@@ -1,4 +1,6 @@
-import { Registers } from '../public/core';
+import type { Registers } from '../public/core';
+
+import type { GlobalContext } from './context';
 import { convertToDimension, convertToGlue } from './parser';
 
 /**
@@ -155,21 +157,24 @@ const DEFAULT_NUMBER_REGISTERS: Registers = {
 
 let _DEFAULT_REGISTERS: Registers;
 
-export function getDefaultRegisters(): Registers {
+export function getDefaultRegisters(context: GlobalContext): Registers {
   if (_DEFAULT_REGISTERS) return _DEFAULT_REGISTERS;
-  _DEFAULT_REGISTERS = {
-    ...DEFAULT_NUMBER_REGISTERS,
-  };
+
+  _DEFAULT_REGISTERS = { ...DEFAULT_NUMBER_REGISTERS };
+
   for (const reg of Object.keys(DEFAULT_DIMENSION_REGISTERS)) {
     _DEFAULT_REGISTERS[reg] =
       convertToDimension(
         DEFAULT_DIMENSION_REGISTERS[reg],
+        context,
         _DEFAULT_REGISTERS
       ) ?? 0;
   }
+
   for (const reg of Object.keys(DEFAULT_GLUE_REGISTERS)) {
     _DEFAULT_REGISTERS[reg] =
-      convertToGlue(DEFAULT_GLUE_REGISTERS[reg], _DEFAULT_REGISTERS) ?? 0;
+      convertToGlue(DEFAULT_GLUE_REGISTERS[reg], context, _DEFAULT_REGISTERS) ??
+      0;
   }
   return _DEFAULT_REGISTERS;
 }

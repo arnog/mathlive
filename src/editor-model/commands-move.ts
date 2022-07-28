@@ -1,10 +1,13 @@
-import { register } from '../editor/commands';
-import type { ModelPrivate } from './model-private';
+import MathfieldElement from '../public/mathfield-element';
+
+import { isBrowser } from '../common/capabilities';
+
 import { Atom, BranchName } from '../core/atom';
 import { SubsupAtom } from '../core-atoms/subsup';
+import { register } from '../editor/commands';
+
 import { move, skip } from './commands';
-import { isBrowser } from '../common/capabilities';
-import MathfieldElement from '../public/mathfield-element';
+import type { ModelPrivate } from './model-private';
 
 export function moveAfterParent(model: ModelPrivate): boolean {
   const previousPosition = model.position;
@@ -76,7 +79,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
     // add an adjacent `msubsup` atom instead.
     if (target.rightSibling?.type !== 'msubsup') {
       target.parent!.addChildAfter(
-        new SubsupAtom({ style: target.computedStyle }),
+        new SubsupAtom(model.mathfield, { style: target.computedStyle }),
         target
       );
     }
@@ -111,7 +114,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
     // add an adjacent `msubsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'msubsup') {
       target.parent!.addChildAfter(
-        new SubsupAtom({
+        new SubsupAtom(model.mathfield, {
           style: model.at(model.position).computedStyle,
         }),
         target

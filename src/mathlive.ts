@@ -8,14 +8,11 @@ import type {
   ErrorListener,
   ParserErrorCode,
   MathfieldErrorCode,
-  MacroDictionary,
-  Registers,
 } from './public/core';
 
 import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
 import { adjustInterAtomSpacing, coalesce, makeStruts, Box } from './core/box';
-import { getMacros } from './core-definitions/definitions';
 import {
   AutoRenderOptionsPrivate,
   autoRenderMathInElement,
@@ -32,10 +29,8 @@ import './addons/definitions-metadata';
 import './editor/virtual-keyboard-commands';
 import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboard';
 import { Context } from './core/context';
+import { defaultGlobalContext } from './core/core';
 import { DEFAULT_FONT_SIZE } from './core/font-metrics';
-import { l10n } from './editor/l10n';
-import { typeset } from './core/typeset';
-import { getDefaultRegisters } from './core/registers';
 import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 
 export * from './public/mathlive';
@@ -149,40 +144,24 @@ export function convertLatexToMarkup(
   text: string,
   options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-    macros?: MacroDictionary;
-    registers?: Registers;
-    colorMap?: (name: string) => string | undefined;
-    backgroundColorMap?: (name: string) => string | undefined;
     onError?: ErrorListener<ParserErrorCode>;
     format?: string;
   }
 ): string {
   options = options ?? {};
   options.mathstyle = options.mathstyle ?? 'displaystyle';
-  let letterShapeStyle = options.letterShapeStyle ?? 'auto';
-  if (letterShapeStyle === 'auto')
-    letterShapeStyle = l10n.locale.startsWith('fr') ? 'french' : 'tex';
 
-  options.macros = getMacros(options?.macros);
+  const context = defaultGlobalContext();
 
   //
   // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
   //
-
-  const root = new Atom('root');
-  root.body = typeset(
-    parseLatex(text, {
-      parseMode: 'math',
-      macros: options.macros,
-      registers: options.registers,
-      mathstyle: options.mathstyle,
-      onError: options.onError,
-      colorMap: options.colorMap,
-      backgroundColorMap: options.backgroundColorMap,
-    }),
-    { registers: options.registers }
-  );
+  const root = new Atom('root', context);
+  root.body = parseLatex(text, context, {
+    parseMode: 'math',
+    mathstyle: options.mathstyle,
+    onError: options.onError,
+  });
 
   //
   // 2. Transform the math atoms into elementary boxes
@@ -191,13 +170,13 @@ export function convertLatexToMarkup(
   const box = root.render(
     new Context(
       {
-        registers: getDefaultRegisters(),
+        registers: context.registers,
         smartFence: false,
         renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
       },
       {
         fontSize: DEFAULT_FONT_SIZE,
-        letterShapeStyle: letterShapeStyle,
+        letterShapeStyle: context.letterShapeStyle,
       },
       options.mathstyle
     )
@@ -246,26 +225,16 @@ export function convertLatexToMarkup(
 export function convertLatexToMathMl(
   latex: string,
   options: Partial<{
-    macros: MacroDictionary;
-    registers?: Registers;
-    colorMap?: (name: string) => string | undefined;
-    backgroundColorMap?: (name: string) => string | undefined;
     onError: ErrorListener<ParserErrorCode>;
     generateID: boolean;
   }> = {}
 ): string {
-  options.macros = getMacros(options?.macros);
-
   return atomsToMathML(
-    parseLatex(latex, {
+    parseLatex(latex, defaultGlobalContext(), {
       parseMode: 'math',
       args: () => '',
-      macros: options.macros,
-      registers: options.registers,
       mathstyle: 'displaystyle',
       onError: options.onError,
-      colorMap: options.colorMap,
-      backgroundColorMap: options.backgroundColorMap,
     }),
     options
   );
@@ -292,24 +261,14 @@ export function convertLatexToSpeakableText(
   latex: string,
   options: Partial<
     TextToSpeechOptions & {
-      macros?: MacroDictionary;
-      registers?: Registers;
-      colorMap?: (name: string) => string | undefined;
-      backgroundColorMap?: (name: string) => string | undefined;
       onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
     }
   > = {}
 ): string {
-  options.macros = getMacros(options?.macros);
-
-  const atoms = parseLatex(latex, {
+  const atoms = parseLatex(latex, defaultGlobalContext(), {
     parseMode: 'math',
-    macros: options.macros,
-    registers: options.registers,
     mathstyle: 'displaystyle',
     onError: options.onError,
-    colorMap: options.colorMap,
-    backgroundColorMap: options.backgroundColorMap,
   });
 
   return atomToSpeakableText(atoms, options as Required<TextToSpeechOptions>);
@@ -374,12 +333,9 @@ export function renderMathInElement(
   const el = getElement(element);
   if (!el) return;
   const optionsPrivate: AutoRenderOptionsPrivate = options ?? {};
-  optionsPrivate.renderToMarkup =
-    optionsPrivate.renderToMarkup ?? convertLatexToMarkup;
-  optionsPrivate.renderToMathML =
-    optionsPrivate.renderToMathML ?? convertLatexToMathMl;
-  optionsPrivate.renderToSpeakableText =
-    optionsPrivate.renderToSpeakableText ?? convertLatexToSpeakableText;
+  optionsPrivate.renderToMarkup ??= convertLatexToMarkup;
+  optionsPrivate.renderToMathML ??= convertLatexToMathMl;
+  optionsPrivate.renderToSpeakableText ??= convertLatexToSpeakableText;
   autoRenderMathInElement(el, optionsPrivate);
 }
 

@@ -1,18 +1,20 @@
+import type { ParseMode, Style } from '../public/core';
+
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { X_HEIGHT } from '../core/font-metrics';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 
 import { makeCustomSizedDelim } from '../core/delimiters';
-import type { ParseMode, Style } from '../public/core';
 
 export class SurdAtom extends Atom {
   constructor(
     command: string,
+    context: GlobalContext,
     options: { mode?: ParseMode; body: Atom[]; index: Atom[]; style: Style }
   ) {
-    super('surd', {
+    super('surd', context, {
       command,
       mode: options.mode ?? 'math',
       style: options.style,
@@ -22,8 +24,11 @@ export class SurdAtom extends Atom {
     this.above = options.index;
   }
 
-  static fromJson(json: AtomJson): SurdAtom {
-    return new SurdAtom(json.command, { ...(json as any), index: json.above });
+  static fromJson(json: AtomJson, context: GlobalContext): SurdAtom {
+    return new SurdAtom(json.command, context, {
+      ...(json as any),
+      index: json.above,
+    });
   }
 
   toJson(): AtomJson {

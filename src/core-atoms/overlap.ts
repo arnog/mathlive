@@ -1,7 +1,8 @@
+import type { Style } from '../public/core';
+
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box, BoxType } from '../core/box';
-import { Context } from '../core/context';
-import type { Style } from '../public/core';
+import { Context, GlobalContext } from '../core/context';
 
 export class OverlapAtom extends Atom {
   private readonly align?: 'left' | 'right';
@@ -9,20 +10,21 @@ export class OverlapAtom extends Atom {
   constructor(
     command: string,
     body: string | Atom[],
+    context: GlobalContext,
     options?: { align?: 'left' | 'right'; boxType?: BoxType; style: Style }
   ) {
-    super('overlap', { command, style: options?.style });
+    super('overlap', context, { command, style: options?.style });
     this.skipBoundary = true;
     if (typeof body === 'string')
-      this.body = [new Atom('mord', { value: body })];
+      this.body = [new Atom('mord', context, { value: body })];
     else this.body = body;
 
     this.align = options?.align ?? 'left';
     this.boxType = options?.boxType ?? 'mord';
   }
 
-  static fromJson(json: AtomJson): OverlapAtom {
-    return new OverlapAtom(json.command, json.body, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): OverlapAtom {
+    return new OverlapAtom(json.command, json.body, context, json as any);
   }
 
   toJson(): AtomJson {

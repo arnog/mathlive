@@ -1,19 +1,10 @@
-import { Atom } from '../core/atom';
-import { Box, makeStruts, coalesce, adjustInterAtomSpacing } from '../core/box';
-import { parseLatex } from '../core/parser';
-import { BACKGROUND_COLORS, FOREGROUND_COLORS } from '../core/color';
-import { l10n as l10nOptions, localize as l10n } from './l10n';
-import {
-  attachButtonHandlers,
-  ButtonHandlers,
-} from '../editor-mathfield/buttons';
-
-import { inject as injectStylesheet, Stylesheet } from '../common/stylesheet';
-
 // @ts-ignore-error
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
 // @ts-ignore-error
 import CORE_STYLESHEET from '../../css/core.less';
+
+import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
+
 import {
   CombinedVirtualKeyboardOptions,
   VirtualKeyboardDefinition,
@@ -21,22 +12,34 @@ import {
   VirtualKeyboardLayer,
   VirtualKeyboardTheme,
 } from '../public/options';
-import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
-import { getActiveKeyboardLayout } from './keyboard-layout';
-import { loadFonts } from '../core/fonts';
+
+import { inject as injectStylesheet, Stylesheet } from '../common/stylesheet';
 import { isArray } from '../common/types';
-import { COMMANDS, SelectorPrivate } from './commands';
-import { getMacros } from '../core-definitions/definitions';
-import { Scrim } from './scrim';
-import { Context } from '../core/context';
-import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
-import { typeset } from '../core/typeset';
-import { getDefaultRegisters } from '../core/registers';
 import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
+
+import { loadFonts } from '../core/fonts';
+import { Context } from '../core/context';
+import { defaultGlobalContext } from '../core/core';
+import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
+
+import { Atom } from '../core/atom';
+import { Box, makeStruts, coalesce, adjustInterAtomSpacing } from '../core/box';
+import { parseLatex } from '../core/parser';
+import { BACKGROUND_COLORS, FOREGROUND_COLORS } from '../core/color';
+import { l10n as l10nOptions, localize as l10n } from '../core/l10n';
+import {
+  attachButtonHandlers,
+  ButtonHandlers,
+} from '../editor-mathfield/buttons';
+
 import { hashCode } from '../common/hash-code';
 import { Selector } from '../public/commands';
-import { MathfieldPrivate } from './mathfield';
 import { on } from '../editor-mathfield/utils';
+
+import { MathfieldPrivate } from './mathfield';
+import { getActiveKeyboardLayout } from './keyboard-layout';
+import { COMMANDS, SelectorPrivate } from './commands';
+import { Scrim } from './scrim';
 
 let VIRTUAL_KEYBOARD_STYLESHEET_HASH: string | undefined = undefined;
 
@@ -1266,28 +1269,18 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
-  const root = new Atom('root');
-  root.body = typeset(
-    parseLatex(latex, {
-      parseMode: 'math',
-      args: arg,
-      macros: getMacros(),
-      registers: getDefaultRegisters(),
-    })
-  );
+  const context = defaultGlobalContext();
+
+  const root = new Atom('root', context);
+  root.body = parseLatex(latex, context, { parseMode: 'math', args: arg });
 
   const box = coalesce(
     adjustInterAtomSpacing(
       new Box(
         root.render(
           new Context(
-            {
-              registers: getDefaultRegisters(),
-              smartFence: false,
-            },
-            {
-              fontSize: DEFAULT_FONT_SIZE,
-            },
+            { registers: context.registers, smartFence: false },
+            { fontSize: DEFAULT_FONT_SIZE },
             'displaystyle'
           )
         ),

@@ -1231,12 +1231,6 @@ export type AutoRenderOptions = Partial<TextToSpeechOptions> & {
    */
   createHTML?: (html: string) => string; // or TrustedHTML. See https://github.com/microsoft/TypeScript/issues/30024
 
-  /** Custom LaTeX macros */
-  macros?: MacroDictionary;
-
-  /** LaTeX global register overrides */
-  registers?: Registers;
-
   /** An array of tag names whose content will
    *  not be scanned for delimiters (unless their class matches the `processClass`
    * pattern below.

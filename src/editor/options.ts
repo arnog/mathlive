@@ -1,26 +1,27 @@
 import type { MathfieldOptions } from '../public/options';
+import { VirtualKeyboardMode } from '../public/mathfield-element';
 
 import { isArray } from '../common/types';
+import { resolveRelativeUrl } from '../common/script-url';
+import { isBrowser, isTouchCapable } from '../common/capabilities';
 
 import type { Atom } from '../core/atom';
+import { l10n } from '../core/l10n';
+import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
+
 import {
   getMacros,
   normalizeMacroDictionary,
 } from '../core-definitions/definitions';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { l10n } from './l10n';
-import { defaultAnnounceHook } from './a11y';
-import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
-import { resolveRelativeUrl } from '../common/script-url';
-import { isBrowser, isTouchCapable } from '../common/capabilities';
-import { getDefaultRegisters } from '../core/registers';
+import { defaultExportHook } from '../editor-mathfield/mode-editor';
+
 import { defaultSpeakHook } from './speech';
 import { defaultReadAloudHook } from './speech-read-aloud';
-import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
-import { defaultExportHook } from '../editor-mathfield/mode-editor';
+import { defaultAnnounceHook } from './a11y';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
-import { VirtualKeyboardMode } from '../public/mathfield-element';
+import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -298,7 +299,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
     defaultMode: 'math',
     macros: getMacros(),
-    registers: { ...getDefaultRegisters() },
+    registers: {},
     colorMap: defaultColorMap,
     backgroundColorMap: defaultBackgroundColorMap,
     horizontalSpacingScale: 1,

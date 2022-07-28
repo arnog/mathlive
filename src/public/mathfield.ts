@@ -1,6 +1,6 @@
 import { Selector } from './commands';
 import { CombinedVirtualKeyboardOptions, MathfieldOptions } from './options';
-import { ParseMode, MacroDictionary, Style, Registers } from './core';
+import { ParseMode, Style } from './core';
 
 /**
  *
@@ -61,12 +61,6 @@ export type InsertOptions = {
 
   suppressChangeNotifications?: boolean;
   style?: Style;
-  /**
-   *  If `true`, promote plain fences, e.g. `(...)`,  as `\left()...\right)`
-   */
-  smartFence?: boolean;
-  macros?: MacroDictionary;
-  registers?: Registers;
   /** If `true`, the mathfield will be focused after
    * the insertion
    */

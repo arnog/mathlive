@@ -1,15 +1,3 @@
-import { ContentChangeOptions, MathfieldOptions } from './options';
-import { Selector } from './commands';
-import {
-  Mathfield,
-  InsertOptions,
-  OutputFormat,
-  Offset,
-  Range,
-  Selection,
-} from './mathfield';
-import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
-
 import {
   get as getOptions,
   getDefault as getDefaultOptions,
@@ -18,7 +6,18 @@ import {
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { isOffset, isRange, isSelection } from '../editor/model';
 import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
-// import { ComputeEngine } from '@cortex-js/compute-engine';
+
+import { Selector } from './commands';
+import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
+import {
+  Mathfield,
+  InsertOptions,
+  OutputFormat,
+  Offset,
+  Range,
+  Selection,
+} from './mathfield';
+import { ContentChangeOptions, MathfieldOptions } from './options';
 
 //
 // Custom Events
@@ -778,7 +777,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   setOptions(options: Partial<MathfieldOptions>): void {
     if (this._mathfield) {
       this._mathfield.setOptions(options);
-      this._mathfield._placeholders.forEach((placeholder) => {
+      this._mathfield.placeholders.forEach((placeholder) => {
         placeholder.field.setOptions({
           ...options,
           virtualKeyboardMode: 'onfocus',

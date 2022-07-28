@@ -1,3 +1,5 @@
+import { Dimension } from '../public/core';
+
 import {
   Atom,
   AtomJson,
@@ -10,12 +12,12 @@ import { Box } from '../core/box';
 import { VBox, VBoxElementAndShift } from '../core/v-box';
 import { makeLeftRightDelim } from '../core/delimiters';
 import { MathstyleName } from '../core/mathstyle';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
-import { PlaceholderAtom } from './placeholder';
 import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
-import { Dimension } from '../public/core';
 import { convertDimensionToEm } from '../core/registers-utils';
+
+import { PlaceholderAtom } from './placeholder';
 
 export type ColumnFormat =
   | {
@@ -99,6 +101,7 @@ type ArrayRow = {
  */
 
 function normalizeArray(
+  context: GlobalContext,
   atom: ArrayAtom,
   array: Atom[][][],
   colFormat: ColumnFormat[]
@@ -127,10 +130,10 @@ function normalizeArray(
       const lastCol = Math.min(row.length, colIndex + maxColCount);
       while (colIndex < lastCol) {
         if (row[colIndex].length === 0)
-          newRow.push([new Atom('first', { mode: atom.mode })]);
+          newRow.push([new Atom('first', context, { mode: atom.mode })]);
         else if (row[colIndex][0].type !== 'first') {
           newRow.push([
-            new Atom('first', { mode: atom.mode }),
+            new Atom('first', context, { mode: atom.mode }),
             ...row[colIndex],
           ]);
         } else newRow.push(row[colIndex]);
@@ -159,8 +162,8 @@ function normalizeArray(
     if (row.length !== colCount) {
       for (let i = row.length; i < colCount; i++) {
         row.push([
-          new Atom('first', { mode: atom.mode }),
-          new PlaceholderAtom(),
+          new Atom('first', context, { mode: atom.mode }),
+          new PlaceholderAtom(context),
         ]);
       }
     }
@@ -204,12 +207,13 @@ export class ArrayAtom extends Atom {
   mathstyleName?: MathstyleName;
 
   constructor(
+    context: GlobalContext,
     envName: string,
     array: Atom[][][],
     rowGaps: Dimension[],
     options: ArrayAtomConstructorOptions = {}
   ) {
-    super('array');
+    super('array', context);
     this.environmentName = envName;
     this.rowGaps = rowGaps;
     if (options.mathstyleName) this.mathstyleName = options.mathstyleName;
@@ -235,7 +239,7 @@ export class ArrayAtom extends Atom {
       ];
     }
 
-    this.array = normalizeArray(this, array, this.colFormat);
+    this.array = normalizeArray(context, this, array, this.colFormat);
     // console.log(arrayToString(this.array));
     if (options.leftDelim) this.leftDelim = options.leftDelim;
     if (options.rightDelim) this.rightDelim = options.rightDelim;
@@ -246,8 +250,9 @@ export class ArrayAtom extends Atom {
     this.arraystretch = options.arraystretch ?? 1.0;
   }
 
-  static fromJson(json: AtomJson): ArrayAtom {
+  static fromJson(json: AtomJson, context: GlobalContext): ArrayAtom {
     return new ArrayAtom(
+      context,
       json.environmentName,
       json.array,
       json.rowGaps,

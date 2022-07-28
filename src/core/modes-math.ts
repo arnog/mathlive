@@ -9,6 +9,7 @@ import { getPropertyRuns, Mode } from './modes-utils';
 import { Style } from '../public/core';
 import { Box } from './box';
 import { BoxAtom } from '../core-atoms/box';
+import { GlobalContext } from './context';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -101,9 +102,9 @@ export class MathMode extends Mode {
     super('math');
   }
 
-  createAtom(command: string, style?: Style): Atom {
+  createAtom(command: string, context: GlobalContext, style?: Style): Atom {
     const info = getInfo(command, 'math');
-    const result = new Atom(info?.type ?? 'mord', {
+    const result = new Atom(info?.type ?? 'mord', context, {
       mode: 'math',
       command,
       value: info?.codepoint ? String.fromCodePoint(info?.codepoint) : command,

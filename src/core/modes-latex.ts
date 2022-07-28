@@ -1,6 +1,8 @@
 /* eslint-disable no-new */
 import { Mode } from './modes-utils';
 import { Atom, ToLatexOptions } from './atom';
+import { GlobalContext } from './context';
+
 import { LatexAtom } from '../core-atoms/latex';
 import { Style } from '../public/core';
 
@@ -9,8 +11,12 @@ export class LatexMode extends Mode {
     super('latex');
   }
 
-  createAtom(command: string, _style: Style): Atom | null {
-    return new LatexAtom(command);
+  createAtom(
+    command: string,
+    context: GlobalContext,
+    _style?: Style
+  ): Atom | null {
+    return new LatexAtom(command, context);
   }
 
   serialize(run: Atom[], _options: ToLatexOptions): string {

@@ -19,7 +19,7 @@ export function updateComposition(model: ModelPrivate, s: string): void {
     cursor.caret = '';
 
     // Create 'composition' atom, with caret
-    const atom = new CompositionAtom(s, { mode: cursor.mode });
+    const atom = new CompositionAtom(s, model.mathfield, { mode: cursor.mode });
     atom.caret = caret;
     cursor.parent!.addChildAfter(atom, cursor);
 

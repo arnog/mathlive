@@ -1,24 +1,26 @@
+import { Style } from '../public/core';
+
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
+import { Context, GlobalContext } from '../core/context';
 import { VBox } from '../core/v-box';
-import { Context } from '../core/context';
-import { Style } from '../public/core';
 
 export class LineAtom extends Atom {
   private readonly position: 'overline' | 'underline';
   constructor(
     command: string,
     body: Atom[],
+    context: GlobalContext,
     options: { position: 'overline' | 'underline'; style: Style }
   ) {
-    super('line', { command, style: options.style });
+    super('line', context, { command, style: options.style });
     this.skipBoundary = true;
     this.body = body;
     this.position = options.position;
   }
 
-  static fromJson(json: AtomJson): LineAtom {
-    return new LineAtom(json.command, json.body, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): LineAtom {
+    return new LineAtom(json.command, json.body, context, json as any);
   }
 
   toJson(): AtomJson {

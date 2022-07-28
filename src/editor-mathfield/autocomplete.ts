@@ -88,7 +88,7 @@ export function updateAutocomplete(
     const lastAtom = command[command.length - 1];
     lastAtom.parent!.addChildrenAfter(
       [...suggestion.slice(commandString.length - suggestion.length)].map(
-        (x) => new LatexAtom(x, { isSuggestion: true })
+        (x) => new LatexAtom(x, mathfield, { isSuggestion: true })
       ),
       lastAtom
     );
@@ -153,10 +153,8 @@ export function complete(
   if (completion === 'reject') return true;
 
   ModeEditor.insert('math', mathfield.model, latex, {
-    macros: mathfield.options.macros,
     selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
     format: 'latex',
-    fractionNavigationOrder: mathfield.fractionNavigationOrder,
   });
 
   mathfield.snapshot();

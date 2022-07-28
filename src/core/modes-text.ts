@@ -1,13 +1,14 @@
 /* eslint-disable no-new */
-import { ErrorListener, Style, ParserErrorCode } from '../public/core';
+import { Style } from '../public/core';
 
 import { TextAtom } from '../core-atoms/text';
-import { getInfo, charToLatex } from '../core-definitions/definitions';
+import { getInfo } from '../core-definitions/definitions';
 
 import { Atom, ToLatexOptions } from './atom';
 import { Box } from './box';
-import { Mode, ParseTokensOptions, getPropertyRuns } from './modes-utils';
-import { joinLatex, Token } from './tokenizer';
+import { Mode, getPropertyRuns } from './modes-utils';
+import { joinLatex } from './tokenizer';
+import { GlobalContext } from './context';
 
 function join(segments: [string, boolean][]): [string, boolean] {
   return [
@@ -190,12 +191,17 @@ export class TextMode extends Mode {
     super('text');
   }
 
-  createAtom(command: string, style: Style): Atom | null {
+  createAtom(
+    command: string,
+    context: GlobalContext,
+    style?: Style
+  ): Atom | null {
     const info = getInfo(command, 'text');
     return new TextAtom(
       command,
       info?.codepoint ? String.fromCodePoint(info.codepoint) : command,
-      style
+      style ?? {},
+      context
     );
   }
 
@@ -264,62 +270,6 @@ export class TextMode extends Mode {
 
     // Always use the metrics of 'Main-Regular' in text mode
     return 'Main-Regular';
-  }
-
-  // Given an array of tokens, return an array of atoms
-  // options.args
-  // options.macros
-  // options.smartFence
-  // options.style
-  // options.parser
-  parse(
-    tokens: Token[],
-    error: ErrorListener<ParserErrorCode>,
-    options: ParseTokensOptions
-  ): [Atom[], Token[]] {
-    let result: Atom[] = [];
-    let atom: Atom;
-
-    while (tokens.length > 0) {
-      const token = tokens.shift();
-      if (token === '<space>')
-        result.push(new TextAtom(' ', ' ', options.style));
-      else if (!!token && token.startsWith('\\')) {
-        // Invoke the 'main' parser to handle the command
-        tokens.unshift(token);
-        let atoms: Atom[];
-        [atoms, tokens] = options.parse('text', tokens, options);
-        result = [...result, ...atoms];
-      } else if (token === '<$>' || token === '<$$>') {
-        // Mode-shift
-        const subtokens = tokens.slice(
-          0,
-          tokens.findIndex((x: Token) => x === token)
-        );
-        tokens = tokens.slice(subtokens.length + 1);
-        const [atoms] = options.parse('math', subtokens, options);
-        result = [...result, ...atoms];
-      } else if (token === '<{>' || token === '<}>') {
-        // Spurious braces are ignored by TeX in text mode
-        // In text mode, braces are sometimes used to separate adjacent
-        // commands without inserting a space, e.g. "\backlash{}command"
-      } else if (token) {
-        const info = getInfo(token, 'text', options.macros);
-        if (!info || (info.ifMode && !info.ifMode.includes('text')))
-          error({ code: 'unexpected-token' });
-        else if (info.codepoint) {
-          atom = new TextAtom(
-            token,
-            String.fromCodePoint(info.codepoint),
-            options.style
-          );
-          atom.verbatimLatex = charToLatex('text', token.codePointAt(0));
-          result.push(atom);
-        }
-      }
-    }
-
-    return [result, tokens];
   }
 }
 

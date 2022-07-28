@@ -2,19 +2,42 @@ import {
   Dimension,
   FontSize,
   Glue,
+  MacroDefinition,
   Registers,
   RegisterValue,
   Style,
 } from '../public/core';
 
+import { FunctionDefinition } from '../core-definitions/definitions';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
+
+import { Box } from './box';
 import { FontMetrics, FONT_SCALE } from './font-metrics';
 import { D, Dc, Mathstyle, MathstyleName, MATHSTYLES } from './mathstyle';
-import { Box } from './box';
 import { convertDimensionToEm } from './registers-utils';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf
+
+/**
+ * The Global Context encapsulates information that atoms
+ * may require in order to render correctly. Unlike `ContextInterface`, these
+ * values do not depend of the location of the atom in the render tree.
+ */
+export interface GlobalContext {
+  readonly registers: Registers;
+  readonly smartFence: boolean;
+  readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+  readonly fractionNavigationOrder:
+    | 'numerator-denominator'
+    | 'denominator-numerator';
+  colorMap: (name: string) => string | undefined;
+  backgroundColorMap: (name: string) => string | undefined;
+  getCommandInfo(command: string): FunctionDefinition | null;
+  getMacroDefinition(command: string): MacroDefinition | null;
+
+  // @todo: add macros, registers, smartFence
+}
 
 export interface ContextInterface {
   registers: Registers;
@@ -346,3 +369,5 @@ export class Context implements ContextInterface {
     return this.mathstyle.metrics;
   }
 }
+
+export declare function defaultGlobalContext(): GlobalContext;

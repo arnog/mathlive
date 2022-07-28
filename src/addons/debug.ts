@@ -5,7 +5,7 @@
  */
 
 import { ParseMode } from '../public/core';
-import { parseLatex } from '../core/parser';
+
 import {
   LATEX_COMMANDS,
   MATH_SYMBOLS,
@@ -14,17 +14,20 @@ import {
 } from '../core-definitions/definitions';
 import { DEFAULT_KEYBINDINGS } from '../editor/keybindings-definitions';
 import { getKeybindingMarkup } from '../editor/keybindings';
-
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { parseMathString } from '../editor/parse-math-string';
+
 import { Atom } from '../core/atom';
+import { parseLatex } from '../core/parser';
+import { defaultGlobalContext } from '../core/core';
 
 export function latexToAsciiMath(
   latex: string,
   mode: ParseMode = 'math'
 ): string {
-  const root = new Atom('root');
-  root.body = parseLatex(latex, { parseMode: mode });
+  const context = defaultGlobalContext();
+  const root = new Atom('root', context);
+  root.body = parseLatex(latex, context, { parseMode: mode });
   return atomToAsciiMath(root);
 }
 

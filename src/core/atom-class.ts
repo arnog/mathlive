@@ -1,16 +1,17 @@
 import type { Style, ParseMode, FontSize } from '../public/core';
+import MathfieldElement from '../public/mathfield-element';
 
 import { isArray } from '../common/types';
 
-import { Context, PrivateStyle } from './context';
+import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
+
+import { GlobalContext, Context, PrivateStyle } from './context';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { BoxType, isBoxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
-import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
-import MathfieldElement from '../public/mathfield-element';
 import { MathfieldBox } from './mathfield-box';
 
 /**
@@ -23,6 +24,9 @@ import { MathfieldBox } from './mathfield-box';
  */
 export type AtomJson = { type: AtomType; [key: string]: any };
 
+/**
+ * Each atom can have one or more "branches" of child atoms.
+ */
 export type BranchName =
   | 'above'
   | 'body'
@@ -31,7 +35,8 @@ export type BranchName =
   | 'subscript';
 
 /**
- * The order of these branches specify the keyboard navigation order
+ * The order of these branches specify the default keyboard navigation order.
+ * It can be overriden in `get children()`
  */
 export const NAMED_BRANCHES: BranchName[] = [
   'above',
@@ -41,6 +46,10 @@ export const NAMED_BRANCHES: BranchName[] = [
   'subscript',
 ];
 
+/**
+ * In addition to a "named" branch, a branch can also be identified as a cell
+ * in a tabular atom (matrix, etc...) with a row and column number.
+ */
 export type Branch = BranchName | [row: number, col: number];
 
 /**
@@ -131,6 +140,8 @@ export type BBoxParameter = {
  * are tracked by Box objects which are created by the `createBox()` function.
  */
 export class Atom {
+  context: GlobalContext;
+
   parent: Atom | undefined;
 
   // An atom can have multiple "branches" of children,
@@ -229,6 +240,7 @@ export class Atom {
 
   constructor(
     type: AtomType,
+    context: GlobalContext,
     options?: {
       command?: string;
       mode?: ParseMode;
@@ -241,6 +253,7 @@ export class Atom {
     }
   ) {
     this.type = type;
+    this.context = context;
     this.command = options?.command ?? '';
     if (!this.command && options?.value) this.command = options.value;
     this.mode = options?.mode ?? 'math';
@@ -390,8 +403,8 @@ export class Atom {
     return undefined;
   }
 
-  static fromJson(json: AtomJson): Atom {
-    const result = new Atom(json.type, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): Atom {
+    const result = new Atom(json.type, context, json as any);
     // Restore the branches
     for (const branch of NAMED_BRANCHES)
       if (json[branch]) result.setChildren(json[branch], branch);
@@ -741,7 +754,7 @@ export class Atom {
   }
 
   makeFirstAtom(branch: Branch): Atom {
-    const result = new Atom('first', { mode: this.mode });
+    const result = new Atom('first', this.context, { mode: this.mode });
     result.parent = this;
     result.treeBranch = branch;
     return result;

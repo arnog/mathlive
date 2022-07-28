@@ -25,7 +25,7 @@ export function onPointerDown(
   evt: PointerEvent | TouchEvent
 ): void {
   //Reset the atom bounds cache
-  mathfield._atomBoundsCache = new Map<string, Rect>();
+  mathfield.atomBoundsCache = new Map<string, Rect>();
 
   const that = mathfield;
   let anchor: Offset;

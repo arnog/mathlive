@@ -1,24 +1,29 @@
 /* eslint-disable no-new */
 import { Offset, Range, InsertOptions } from '../public/mathfield';
-import { Atom } from '../core/atom-class';
-import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
-import { MathfieldPrivate } from './mathfield-private';
-import { requestUpdate } from './render';
-import { range } from '../editor-model/selection-utils';
 import { Style } from '../public/core';
-import { ModeEditor } from './mode-editor';
-
-import { COMMAND_MODE_CHARACTERS } from '../core/core';
+import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
+import { range } from '../editor-model/selection-utils';
+import { Atom } from '../core/atom-class';
+import { GlobalContext } from '../core/core';
 import { ModelPrivate } from '../editor-model/model-private';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
+
+import { MathfieldPrivate } from './mathfield-private';
+import { requestUpdate } from './render';
+import { ModeEditor } from './mode-editor';
+import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions';
 
 export class LatexModeEditor extends ModeEditor {
   constructor() {
     super('latex');
   }
 
-  createAtom(command: string, _style: Style): Atom | null {
-    return new LatexAtom(command);
+  createAtom(
+    command: string,
+    context: GlobalContext,
+    _style?: Style
+  ): Atom | null {
+    return new LatexAtom(command, context);
   }
 
   onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
@@ -76,8 +81,10 @@ export class LatexModeEditor extends ModeEditor {
 
     // Short-circuit the tokenizer and parser when in LaTeX mode
     const newAtoms: Atom[] = [];
-    for (const c of text)
-      if (COMMAND_MODE_CHARACTERS.test(c)) newAtoms.push(new LatexAtom(c));
+    for (const c of text) {
+      if (COMMAND_MODE_CHARACTERS.test(c))
+        newAtoms.push(new LatexAtom(c, model.mathfield));
+    }
 
     //
     // Insert the new atoms
@@ -91,7 +98,7 @@ export class LatexModeEditor extends ModeEditor {
     // If there is no LatexGroup (for example, it was deleted, but we're still
     // in LaTeX mode), insert one.
     if (!(cursor.parent instanceof LatexGroupAtom)) {
-      const group = new LatexGroupAtom('');
+      const group = new LatexGroupAtom('', model.mathfield);
       cursor.parent!.addChildAfter(group, cursor);
       cursor = group.firstChild;
     }

@@ -1,12 +1,20 @@
 /* eslint-disable no-new */
 
-import { MathfieldPrivate } from './mathfield-private';
+import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 
-import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import type { Style } from '../public/core';
+import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import MathfieldElement from '../public/mathfield-element';
 
 import { requestUpdate } from './render';
+
+import { RIGHT_DELIM, LEFT_DELIM } from '../core/delimiters';
+import { parseLatex } from '../core/parser';
+import { fromJson } from '../core/atom';
+import { Atom } from '../core/atom-class';
+import { ArrayAtom } from '../core-atoms/array';
+import { LeftRightAtom } from '../core-atoms/leftright';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 import { range } from '../editor-model/selection-utils';
 import { ModelPrivate } from '../editor-model/model-private';
@@ -22,17 +30,8 @@ import {
   trimModeShiftCommand,
 } from '../editor/parse-math-string';
 
+import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
-
-import { RIGHT_DELIM, LEFT_DELIM } from '../core/delimiters';
-import { parseLatex } from '../core/parser';
-import { fromJson } from '../core/atom';
-import { Atom } from '../core/atom-class';
-import { ArrayAtom } from '../core-atoms/array';
-import { LeftRightAtom } from '../core-atoms/leftright';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-
-import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -63,7 +62,7 @@ export class MathModeEditor extends ModeEditor {
       if (atomJson && Array.isArray(atomJson)) {
         mathfield.snapshot();
 
-        const atoms = fromJson(atomJson);
+        const atoms = fromJson(atomJson, mathfield);
         const { model } = mathfield;
         if (!model.selectionIsCollapsed)
           model.deleteAtoms(range(model.selection));
@@ -120,15 +119,7 @@ export class MathModeEditor extends ModeEditor {
       let wasLatex: boolean;
       [wasLatex, text] = trimModeShiftCommand(text);
       if (format === 'auto' && wasLatex) format = 'latex';
-      if (
-        this.insert(mathfield.model, text, {
-          smartFence: mathfield.options.smartFence,
-          colorMap: mathfield.colorMap,
-          backgroundColorMap: mathfield.backgroundColorMap,
-          fractionNavigationOrder: mathfield.fractionNavigationOrder,
-          format,
-        })
-      )
+      if (this.insert(mathfield.model, text, { format }))
         requestUpdate(mathfield);
 
       ev.preventDefault();
@@ -142,13 +133,7 @@ export class MathModeEditor extends ModeEditor {
   insert(
     model: ModelPrivate,
     input: string | Expression,
-    options: InsertOptions & {
-      colorMap: (name: string) => string | undefined;
-      backgroundColorMap: (name: string) => string | undefined;
-      fractionNavigationOrder:
-        | 'numerator-denominator'
-        | 'denominator-numerator';
-    }
+    options: InsertOptions
   ): boolean {
     const data =
       typeof input === 'string'
@@ -159,12 +144,11 @@ export class MathModeEditor extends ModeEditor {
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
     if (!options.format) options.format = 'auto';
-    options.macros = options.macros ?? model.options.macros;
 
     //
     // Try to insert a smart fence.
     //
-    if (!(options.smartFence ?? false)) {
+    if (!(model.mathfield.smartFence ?? false)) {
       // When smartFence is turned off, only do a "smart" fence insert
       // if we're inside a `leftright`, at the last char
       if (options.insertionMode !== 'replaceAll') {
@@ -272,26 +256,26 @@ export class MathModeEditor extends ModeEditor {
     const fillInTheBlankPlaceholders = placeholdersFound.filter(
       (atom) =>
         atom.placeholderId &&
-        !model.mathfield._placeholders.has(atom.placeholderId)
+        !model.mathfield.placeholders.has(atom.placeholderId)
     );
 
     // Remove placeholders that have a matching placeholder ID
     // (those are placeholders used for "fill-in-the-blank")
     const idsFound = placeholdersFound.map((atom) => atom.placeholderId);
-    [...model.mathfield._placeholders.keys()]
+    [...model.mathfield.placeholders.keys()]
       .filter((placeholderId) => !idsFound.includes(placeholderId))
       .forEach((placeholderId) => {
-        if (model.mathfield._placeholders.has(placeholderId)) {
-          model.mathfield._placeholders.get(placeholderId)?.field.remove();
+        if (model.mathfield.placeholders.has(placeholderId)) {
+          model.mathfield.placeholders.get(placeholderId)?.field.remove();
 
-          model.mathfield._placeholders.delete(placeholderId);
+          model.mathfield.placeholders.delete(placeholderId);
         }
       });
 
     fillInTheBlankPlaceholders.forEach((placeholder) => {
       console.assert(
         !!placeholder.placeholderId &&
-          !model.mathfield._placeholders.has(placeholder.placeholderId)
+          !model.mathfield.placeholders.has(placeholder.placeholderId)
       );
       const element = new MathfieldElement({
         virtualKeyboardMode: 'onfocus',
@@ -324,7 +308,7 @@ export class MathModeEditor extends ModeEditor {
       });
       container?.appendChild(element);
 
-      model.mathfield._placeholders.set(placeholder.placeholderId as string, {
+      model.mathfield.placeholders.set(placeholder.placeholderId as string, {
         atom: placeholder,
         field: element,
       });
@@ -411,11 +395,7 @@ function convertStringToAtoms(
   model: ModelPrivate,
   s: string | Expression,
   args: (arg: string) => string,
-  options: InsertOptions & {
-    colorMap: (name: string) => string | undefined;
-    backgroundColorMap: (name: string) => string | undefined;
-    fractionNavigationOrder: 'numerator-denominator' | 'denominator-numerator';
-  }
+  options: InsertOptions
 ): [OutputFormat, Atom[]] {
   let format: OutputFormat | undefined = undefined;
   let result: Atom[] = [];
@@ -425,26 +405,18 @@ function convertStringToAtoms(
       'latex',
       model.mathfield.computeEngine.box(s as Expression).latex as string,
     ];
-    result = parseLatex(s, {
+    result = parseLatex(s, model.mathfield, {
       parseMode: 'math',
-      macros: options?.macros,
       onError: model.listeners.onError,
-      colorMap: options.colorMap,
-      backgroundColorMap: options.backgroundColorMap,
-      fractionNavigationOrder: options.fractionNavigationOrder,
     });
   } else if (typeof s === 'string' && options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {
       format: 'ascii-math',
       inlineShortcuts: model.mathfield.options.inlineShortcuts,
     });
-    result = parseLatex(s, {
+    result = parseLatex(s, model.mathfield, {
       parseMode: 'math',
-      macros: options?.macros,
       onError: model.listeners.onError,
-      colorMap: options.colorMap,
-      backgroundColorMap: options.backgroundColorMap,
-      fractionNavigationOrder: options.fractionNavigationOrder,
     });
 
     // Simplify result.
@@ -461,15 +433,10 @@ function convertStringToAtoms(
     // If the whole string is bracketed by a mode shift command, remove it
     if (options.format === 'latex') [, s] = trimModeShiftCommand(s);
 
-    result = parseLatex(s, {
+    result = parseLatex(s, model.mathfield, {
       parseMode: 'math',
       args: args,
-      macros: { ...model.options.macros, ...(options.macros ?? {}) },
-      smartFence: options.smartFence,
       onError: model.listeners.onError,
-      colorMap: options.colorMap,
-      backgroundColorMap: options.backgroundColorMap,
-      fractionNavigationOrder: options.fractionNavigationOrder,
     });
 
     // Simplify result.

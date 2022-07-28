@@ -1,9 +1,10 @@
+import { Style } from '../public/core';
+
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { convertToDimension } from '../core/parser';
 import { convertDimensionToEm } from '../core/registers-utils';
-import { Style } from '../public/core';
 
 export type EncloseAtomOptions = {
   shadow?: string;
@@ -53,9 +54,10 @@ export class EncloseAtom extends Atom {
     command: string,
     body: Atom[],
     notation: Notations,
+    context: GlobalContext,
     options: EncloseAtomOptions
   ) {
-    super('enclose', { command, style: options.style });
+    super('enclose', context, { command, style: options.style });
     this.body = body;
     this.backgroundcolor = options.backgroundcolor;
     if (notation.updiagonalarrow) notation.updiagonalstrike = false;
@@ -79,11 +81,12 @@ export class EncloseAtom extends Atom {
     this.captureSelection = true; // Do not let children be selected
   }
 
-  static fromJson(json: AtomJson): EncloseAtom {
+  static fromJson(json: AtomJson, context: GlobalContext): EncloseAtom {
     return new EncloseAtom(
       json.command,
       json.body,
       json.notation,
+      context,
       json as any as EncloseAtomOptions
     );
   }
@@ -162,7 +165,10 @@ export class EncloseAtom extends Atom {
     const padding =
       convertDimensionToEm(
         this.padding && this.padding !== 'auto'
-          ? convertToDimension(this.padding, parentContext.registers)
+          ? convertToDimension(this.padding, {
+              ...this.context,
+              registers: parentContext.registers,
+            })
           : context.getRegisterAsDimension('fboxsep')
       ) ?? 0;
 

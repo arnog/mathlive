@@ -1,5 +1,5 @@
 // Import { Keys } from '../types-utils';
-import { STRINGS } from './l10n-strings';
+import { STRINGS } from '../editor/l10n-strings';
 import { isBrowser } from '../common/capabilities';
 
 interface L10n {
@@ -12,14 +12,6 @@ interface L10n {
     strings?: Record<string, string>
   ): void;
 }
-
-// Type '{ strings: { en: { 'keyboard.tooltip.functions': string;
-// 'keyboard.tooltip.symbols': string; 'keyboard.tooltip.greek': string;
-// 'keyboard.tooltip.command': string; 'keyboard.tooltip.numeric': string; ... 4
-// more ...; 'tooltip.undo': string; }; ... 9 more ...; ru: { ...; }; }; ... 8
-// more ...; merge(locale: string | Rec...' is missing the following properties
-// from type 'L10n': _ordinal, _cardinalPluralCategories,
-// _cardinalEnglishPluralCategories, _cardinal, _locale
 
 export const l10n: L10n = {
   strings: STRINGS,
@@ -70,7 +62,7 @@ export const l10n: L10n = {
 };
 
 /**
- * Return a localised string for the `key`.
+ * Return a localized string for the `key`.
  */
 export function localize(key?: string): string | undefined {
   if (key === undefined) return undefined;

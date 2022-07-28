@@ -18,13 +18,7 @@
  *
  */
 
-import {
-  MacroDictionary,
-  Registers,
-  ErrorListener,
-  ParserErrorCode,
-  MathfieldErrorCode,
-} from './core';
+import { ErrorListener, ParserErrorCode, MathfieldErrorCode } from './core';
 import {
   RemoteVirtualKeyboardOptions,
   TextToSpeechOptions,
@@ -45,11 +39,6 @@ export declare function convertLatexToMarkup(
   text: string,
   options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-    macros?: MacroDictionary;
-    registers?: Registers;
-    colorMap?: (name: string) => string | undefined;
-    backgroundColorMap?: (name: string) => string | undefined;
     onError?: ErrorListener<ParserErrorCode>;
     format?: string;
   }
@@ -58,10 +47,6 @@ export declare function convertLatexToMarkup(
 export declare function convertLatexToMathMl(
   latex: string,
   options?: Partial<{
-    macros: MacroDictionary;
-    registers?: Registers;
-    colorMap?: (name: string) => string | undefined;
-    backgroundColorMap?: (name: string) => string | undefined;
     onError: ErrorListener<ParserErrorCode>;
     generateID: boolean;
   }>
@@ -71,10 +56,6 @@ export declare function convertLatexToSpeakableText(
   latex: string,
   options?: Partial<
     TextToSpeechOptions & {
-      macros?: MacroDictionary;
-      registers?: Registers;
-      colorMap?: (name: string) => string | undefined;
-      backgroundColorMap?: (name: string) => string | undefined;
       onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
     }
   >

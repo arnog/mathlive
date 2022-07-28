@@ -1,19 +1,25 @@
+import { Glue, Style } from '../public/core';
+
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { convertGlueToEm } from '../core/registers-utils';
-import { Glue, Style } from '../public/core';
 
 export class SpacingAtom extends Atom {
   private readonly width?: Glue;
 
-  constructor(command: string, style: Style, width?: Glue) {
-    super('spacing', { command, style });
+  constructor(
+    command: string,
+    style: Style,
+    context: GlobalContext,
+    width?: Glue
+  ) {
+    super('spacing', context, { command, style });
     this.width = width;
   }
 
-  static fromJson(json: AtomJson): SpacingAtom {
-    return new SpacingAtom(json.command, json.style, json.width);
+  static fromJson(json: AtomJson, context: GlobalContext): SpacingAtom {
+    return new SpacingAtom(json.command, json.style, context, json.width);
   }
 
   toJson(): AtomJson {

@@ -36,9 +36,9 @@ export function requestUpdate(
     mathfield.dirty = true;
     requestAnimationFrame(() => {
       if (isValidMathfield(mathfield) && mathfield.dirty) {
-        mathfield._atomBoundsCache = new Map<string, Rect>();
+        mathfield.atomBoundsCache = new Map<string, Rect>();
         render(mathfield, options);
-        mathfield._atomBoundsCache = undefined;
+        mathfield.atomBoundsCache = undefined;
       }
     });
   }
@@ -104,7 +104,7 @@ export function render(
   const base = model.root.render(
     new Context(
       {
-        registers: mathfield.options.registers,
+        registers: mathfield.registers,
         atomIdsSettings: {
           // Using the hash as a seed for the ID
           // keeps the IDs the same until the content of the field changes.
@@ -166,15 +166,15 @@ export function render(
   //
   // 5. Generate markup and accessible node
   //
-  const field = mathfield.field!;
+  const field = mathfield.field;
   const isFocused = field.classList.contains('ML__focused');
   if (isFocused && !hasFocus) field.classList.remove('ML__focused');
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
   field.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
-  mathfield.fieldContent = field.querySelector('.ML__mathlive');
+  mathfield.fieldContent = field.querySelector('.ML__mathlive')!;
 
-  mathfield.accessibleNode!.innerHTML = mathfield.options.createHTML(
+  mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
     '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
       atomsToMathML(model.root, mathfield.options) +
       '</math>'

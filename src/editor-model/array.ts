@@ -1,22 +1,26 @@
-// Import { getEnvironmentDefinition } from '../core/definitions';
+import { Style } from '../public/core';
+
 import { Atom } from '../core/atom';
+import { GlobalContext } from '../core/context';
+
+import { register as registerCommand } from '../editor/commands';
+
 import type { ModelPrivate } from './model-private';
 import { contentDidChange, contentWillChange } from './listeners';
-import { register as registerCommand } from '../editor/commands';
 import { arrayIndex, arrayCell } from './array-utils';
-import { Style } from '../public/core';
 export * from './array-utils';
 
 /**
  * Join all the cells at the indicated row into a single list of atoms
  */
 export function arrayJoinColumns(
+  context: GlobalContext,
   row: Atom[][],
   separator = ',',
   style?: Style
 ): Atom[] {
   if (!row) return [];
-  const result: Atom[] = [new Atom('first')];
+  const result: Atom[] = [new Atom('first', context)];
   let sep: Atom | null = null;
   for (let cell of row) {
     if (cell && cell.length > 0 && cell[0].type === 'first') {
@@ -26,7 +30,7 @@ export function arrayJoinColumns(
 
     if (cell && cell.length > 0) {
       if (sep) result.push(sep);
-      else sep = new Atom('mpunct', { value: separator, style });
+      else sep = new Atom('mpunct', context, { value: separator, style });
 
       result.push(...cell);
     }
@@ -39,17 +43,18 @@ export function arrayJoinColumns(
  * Join all the rows into a single atom list
  */
 export function arrayJoinRows(
+  context: GlobalContext,
   array: Atom[][][],
   separators = [';', ','],
   style?: Style
 ): Atom[] {
-  const result: Atom[] = [new Atom('first')];
+  const result: Atom[] = [new Atom('first', context)];
   let sep: Atom | null = null;
   for (const row of array) {
     if (sep) result.push(sep);
-    else sep = new Atom('mpunct', { value: separators[0], style });
+    else sep = new Atom('mpunct', context, { value: separators[0], style });
 
-    result.push(...arrayJoinColumns(row, separators[1]));
+    result.push(...arrayJoinColumns(context, row, separators[1]));
   }
 
   return result;

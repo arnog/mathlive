@@ -6,11 +6,13 @@ import type {
   Selection,
   OutputFormat,
 } from '../public/mathfield';
+import { ContentChangeType } from '../public/options';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
+import { Mode } from '../core/modes';
 
 import { atomsToMathML } from '../addons/math-ml';
 
@@ -31,8 +33,6 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
-import { Mode } from '../core/modes';
-import { ContentChangeType } from '../public/options';
 
 export type GetAtomOptions = {
   includeChildren?: boolean;
@@ -59,7 +59,7 @@ export class ModelPrivate implements Model {
     target: Mathfield
   ) {
     this.options = options;
-    this.root = new Atom('root', { mode: options.mode });
+    this.root = new Atom('root', this.mathfield, { mode: options.mode });
     this.root.body = [];
     this._selection = { ranges: [[0, 0]], direction: 'none' };
     this._anchor = 0;

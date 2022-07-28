@@ -1,10 +1,13 @@
+import { Dimension } from '../public/core';
+
+import type { Atom } from '../core/atom-class';
+import { ArrayAtom, ColumnFormat } from '../core-atoms/array';
+import { GlobalContext } from '../core/context';
+
 import {
   defineEnvironment,
   defineTabularEnvironment,
 } from './definitions-utils';
-import type { Atom } from '../core/atom-class';
-import { ArrayAtom, ColumnFormat } from '../core-atoms/array';
-import { Dimension } from '../public/core';
 
 /*
 
@@ -153,22 +156,38 @@ in a parenthesis
 defineEnvironment(
   'math',
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, { mathstyleName: 'textstyle' })
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom =>
+    new ArrayAtom(context, name, array, rowGaps, { mathstyleName: 'textstyle' })
 );
 
 defineEnvironment(
   'displaymath',
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, { mathstyleName: 'textstyle' })
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom =>
+    new ArrayAtom(context, name, array, rowGaps, { mathstyleName: 'textstyle' })
 );
 
 defineTabularEnvironment(
   'array',
   '{columns:colspec}',
-  (name: string, array: Atom[][][], rowGaps: Dimension[], args): Atom =>
-    new ArrayAtom(name, array, rowGaps, {
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[],
+    args
+  ): Atom =>
+    new ArrayAtom(context, name, array, rowGaps, {
       columns: args[0] as ColumnFormat[],
       mathstyleName: 'textstyle',
     })
@@ -177,20 +196,26 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['equation', 'equation*', 'subequations'],
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, {
-      columns: [{ align: 'c' }],
-    })
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom =>
+    new ArrayAtom(context, name, array, rowGaps, { columns: [{ align: 'c' }] })
 );
 
 // Note spelling: MULTLINE, not multiline.
 defineTabularEnvironment(
   'multline',
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, {
-      columns: [{ align: 'm' }],
-    })
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom =>
+    new ArrayAtom(context, name, array, rowGaps, { columns: [{ align: 'm' }] })
 );
 
 // An AMS-Math environment
@@ -204,7 +229,12 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['align', 'align*', 'aligned', 'eqnarray'],
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom => {
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom => {
     let colCount = 0;
     for (const row of array) colCount = Math.max(colCount, row.length);
 
@@ -225,7 +255,7 @@ defineTabularEnvironment(
 
     colFormat.push({ gap: 0 });
 
-    return new ArrayAtom(name, array, rowGaps, {
+    return new ArrayAtom(context, name, array, rowGaps, {
       arraycolsep: 0,
       columns: colFormat,
       colSeparationType: 'align',
@@ -249,8 +279,13 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   'split',
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, {
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom =>
+    new ArrayAtom(context, name, array, rowGaps, {
       columns: [{ align: 'r' }, { align: 'l' }],
     })
 );
@@ -258,7 +293,12 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['gather', 'gathered'],
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom =>
     // An AMS-Math environment
     // %    The \env{gathered} environment is for several lines that are
     // %    centered independently.
@@ -270,7 +310,7 @@ defineTabularEnvironment(
     //   \bgroup\Let@\restore@math@cr
     //   \ifinany@\else\openup\jot\fi\ialign
     //   \bgroup\hfil\strut@$\m@th\displaystyle##$\hfil\crcr
-    new ArrayAtom(name, array, rowGaps, {
+    new ArrayAtom(context, name, array, rowGaps, {
       columns: [{ gap: 0.25 }, { align: 'c' }, { gap: 0 }],
       colSeparationType: 'gather',
     })
@@ -302,7 +342,13 @@ defineTabularEnvironment(
     'Vmatrix*',
   ],
   '[columns:colspec]',
-  (name: string, array: Atom[][][], rowGaps: Dimension[], args): Atom => {
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[],
+    args
+  ): Atom => {
     // From amstex.sty:
     // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
     // \def\endmatrix{\endarray \hskip -\arraycolsep}
@@ -349,7 +395,7 @@ defineTabularEnvironment(
       default:
     }
 
-    return new ArrayAtom(name, array, rowGaps, {
+    return new ArrayAtom(context, name, array, rowGaps, {
       mathstyleName: 'textstyle',
       leftDelim,
       rightDelim,
@@ -372,8 +418,14 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['smallmatrix', 'smallmatrix*'],
   '[columns:colspec]',
-  (name: string, array: Atom[][][], rowGaps: Dimension[], args): Atom => {
-    return new ArrayAtom(name, array, rowGaps, {
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[],
+    args
+  ): Atom => {
+    return new ArrayAtom(context, name, array, rowGaps, {
       mathstyleName: 'scriptstyle',
       columns: (args[0] as ColumnFormat[]) ?? [
         { align: 'c' },
@@ -398,7 +450,12 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['cases', 'dcases'],
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom => {
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom => {
     // From amstex.sty:
     // \def\cases{\left\{\def\arraystretch{1.2}\hskip-\arraycolsep
     //   \array{l@{\quad}l}}
@@ -409,7 +466,7 @@ defineTabularEnvironment(
     //   \left\lbrace
     //   \def\arraystretch{1.2}%
     //   \array{@{}l@{\quad}l@{}}%
-    return new ArrayAtom(name, array, rowGaps, {
+    return new ArrayAtom(context, name, array, rowGaps, {
       mathstyleName: name === 'dcases' ? 'displaystyle' : 'textstyle',
       arraystretch: 1.2,
       leftDelim: '\\lbrace',
@@ -423,8 +480,13 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   'rcases',
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom => {
-    return new ArrayAtom(name, array, rowGaps, {
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom => {
+    return new ArrayAtom(context, name, array, rowGaps, {
       arraystretch: 1.2,
       leftDelim: '.',
       rightDelim: '\\rbrace',
@@ -447,6 +509,11 @@ is a continuous function.
 defineEnvironment(
   'center',
   '',
-  (name: string, array: Atom[][][], rowGaps: Dimension[]): Atom =>
-    new ArrayAtom(name, array, rowGaps, { columns: [{ align: 'c' }] })
+  (
+    context: GlobalContext,
+    name: string,
+    array: Atom[][][],
+    rowGaps: Dimension[]
+  ): Atom =>
+    new ArrayAtom(context, name, array, rowGaps, { columns: [{ align: 'c' }] })
 );

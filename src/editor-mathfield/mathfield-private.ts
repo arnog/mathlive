@@ -1,4 +1,16 @@
-import type { ParseMode, Style } from '../public/core';
+import { BoxedExpression, ComputeEngine } from '@cortex-js/compute-engine';
+
+// @ts-ignore-error
+import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
+// @ts-ignore-error
+import CORE_STYLESHEET from '../../css/core.less';
+
+import type {
+  MacroDefinition,
+  ParseMode,
+  Registers,
+  Style,
+} from '../public/core';
 import type { Keybinding, KeyboardLayoutName } from '../public/options';
 import type {
   Mathfield,
@@ -10,11 +22,26 @@ import type {
   ApplyStyleOptions,
   VirtualKeyboardInterface,
 } from '../public/mathfield';
+import MathfieldElement from '../public/mathfield-element';
+
+import { canVibrate, isBrowser, isTouchCapable } from '../common/capabilities';
+import { hashCode } from '../common/hash-code';
+import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
 import { Atom } from '../core/atom-class';
-
 import { loadFonts } from '../core/fonts';
-import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
+import { GlobalContext } from '../core/context';
+import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
+import {
+  FunctionDefinition,
+  LATEX_COMMANDS,
+  NormalizedMacroDictionary,
+} from '../core-definitions/definitions-utils';
+import { LatexGroupAtom } from '../core-atoms/latex';
+import { parseLatex } from '../core/parser';
+import { getDefaultRegisters } from '../core/registers';
+
+import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 import {
   contentWillChange,
@@ -24,18 +51,23 @@ import {
   ModelPrivate,
 } from '../editor/model';
 import { applyStyle } from '../editor-model/styling';
+import { range } from '../editor-model/selection-utils';
+import {
+  removeComposition,
+  updateComposition,
+} from '../editor-model/composition';
+import { addRowAfter, addColumnAfter } from '../editor-model/array';
+
 import { delegateKeyboardEvents, KeyboardDelegate } from '../editor/keyboard';
 import { UndoRecord, UndoManager } from '../editor/undo';
 import { disposePopover, updatePopoverPosition } from '../editor/popover';
-import { localize as l10n } from '../editor/l10n';
+import { localize } from '../core/l10n';
 import {
   HAPTIC_FEEDBACK_DURATION,
   SelectorPrivate,
   perform,
   getCommandTarget,
 } from '../editor/commands';
-import { complete } from './autocomplete';
-import { requestUpdate, render } from './render';
 import {
   MathfieldOptionsPrivate,
   update as updateOptions,
@@ -44,12 +76,18 @@ import {
   effectiveMode,
   DEFAULT_KEYBOARD_TOGGLE_GLYPH,
 } from '../editor/options';
+import { normalizeKeybindings } from '../editor/keybindings';
 import {
-  removeComposition,
-  updateComposition,
-} from '../editor-model/composition';
-import { addRowAfter, addColumnAfter } from '../editor-model/array';
+  setKeyboardLayoutLocale,
+  getActiveKeyboardLayout,
+  DEFAULT_KEYBOARD_LAYOUT,
+  gKeyboardLayout,
+} from '../editor/keyboard-layout';
+import { VirtualKeyboard } from '../editor/virtual-keyboard';
+
 import { onTypedText, onKeystroke } from './keyboard-input';
+import { complete } from './autocomplete';
+import { requestUpdate, render } from './render';
 
 import './commands';
 import './styling';
@@ -65,72 +103,64 @@ import {
 
 import { attachButtonHandlers } from './buttons';
 import { onPointerDown, offsetFromPoint } from './pointer-input';
-import { normalizeKeybindings } from '../editor/keybindings';
-import {
-  setKeyboardLayoutLocale,
-  getActiveKeyboardLayout,
-  DEFAULT_KEYBOARD_LAYOUT,
-  gKeyboardLayout,
-} from '../editor/keyboard-layout';
 
-import { VirtualKeyboard } from '../editor/virtual-keyboard';
-
-// @ts-ignore-error
-import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
-// @ts-ignore-error
-import CORE_STYLESHEET from '../../css/core.less';
-import { range } from '../editor-model/selection-utils';
-import { LatexGroupAtom } from '../core-atoms/latex';
-import { parseLatex } from '../core/parser';
 import { ModeEditor } from './mode-editor';
-import './mode-editor-math';
 import { getLatexGroupBody } from './mode-editor-latex';
+import './mode-editor-math';
 import './mode-editor-text';
 
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
-import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
-import { canVibrate, isBrowser, isTouchCapable } from '../common/capabilities';
-import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 import { validateStyle } from './styling';
-import { hashCode } from '../common/hash-code';
 import { disposeKeystrokeCaption } from './keystroke-caption';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-import MathfieldElement from '../public/mathfield-element';
-import { BoxedExpression, ComputeEngine } from '@cortex-js/compute-engine';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
+
 /** @internal */
-export class MathfieldPrivate implements Mathfield {
-  _computeEngine: ComputeEngine;
-  model: ModelPrivate;
+export class MathfieldPrivate implements GlobalContext, Mathfield {
+  readonly model: ModelPrivate;
+
+  private readonly undoManager: UndoManager;
+
   options: Required<MathfieldOptionsPrivate>;
+
+  mode: ParseMode;
+  style: Style;
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
+
   // Placeholders for 'fill-in-the-blank'
-  _placeholders: Map<
+  readonly placeholders: Map<
     string,
     { atom: PlaceholderAtom; field: MathfieldElement }
   >;
-  element?: HTMLElement & {
-    mathfield?: MathfieldPrivate;
-  };
 
-  keyboardDelegate: KeyboardDelegate;
-  field?: HTMLElement;
-  fieldContent?: Element | null;
-  virtualKeyboardToggle?: HTMLElement;
-  ariaLiveText?: HTMLElement;
-  accessibleNode?: HTMLElement;
+  private _computeEngine: ComputeEngine;
 
-  popoverVisible: boolean;
+  readonly element:
+    | (HTMLElement & {
+        mathfield?: MathfieldPrivate;
+      })
+    | undefined;
+
+  readonly field: HTMLElement;
+  fieldContent: HTMLElement;
+  private virtualKeyboardToggle: HTMLElement;
+  readonly ariaLiveText: HTMLElement;
+  readonly accessibleNode: HTMLElement;
+
+  atomBoundsCache?: Map<string, Rect>;
+
   popover?: HTMLElement;
+  popoverVisible: boolean;
+  suggestionIndex: number;
 
-  keystrokeCaptionVisible: boolean;
   keystrokeCaption?: HTMLElement;
+  keystrokeCaptionVisible: boolean;
 
-  _virtualKeyboard?: VirtualKeyboardInterface;
+  readonly keyboardDelegate: KeyboardDelegate;
+  private _virtualKeyboard?: VirtualKeyboardInterface;
 
   _keybindings?: Keybinding[]; // Normalized keybindings (raw ones in config)
   keyboardLayout: KeyboardLayoutName;
@@ -139,33 +169,22 @@ export class MathfieldPrivate implements Mathfield {
   keystrokeBufferStates: UndoRecord[];
   keystrokeBufferResetTimer: ReturnType<typeof setTimeout>;
 
-  suggestionIndex: number;
-
-  mode: ParseMode;
-  style: Style;
-
-  colorMap: (name: string) => string | undefined;
-  backgroundColorMap: (name: string) => string | undefined;
-  fractionNavigationOrder: 'numerator-denominator' | 'denominator-numerator';
-
   keypressSound: null | HTMLAudioElement;
   spacebarKeypressSound: null | HTMLAudioElement;
   returnKeypressSound: null | HTMLAudioElement;
   deleteKeypressSound: null | HTMLAudioElement;
   plonkSound: null | HTMLAudioElement;
 
-  private readonly undoManager: UndoManager;
-
   private blurred: boolean;
+
   // The value of the mathfield when it is focussed.
   // If this value is different when the field is blured
   // the `onCommit` listener is triggered
   private valueOnFocus: string;
   private focusBlurInProgress = false;
-  private readonly stylesheets: (null | Stylesheet)[] = [];
-  private resizeTimer: number; // Timer handle
 
-  _atomBoundsCache?: Map<string, Rect>;
+  private readonly stylesheets: (null | Stylesheet)[] = [];
+  private resizeTimer: ReturnType<typeof requestAnimationFrame>;
 
   /**
    *
@@ -188,7 +207,7 @@ export class MathfieldPrivate implements Mathfield {
   ) {
     // Setup default config options
     this.options = updateOptions(
-      getDefaultOptions(),
+      { ...getDefaultOptions(), registers: getDefaultRegisters(this) },
       options.readOnly
         ? { ...options, virtualKeyboardMode: 'off' }
         : {
@@ -208,32 +227,7 @@ export class MathfieldPrivate implements Mathfield {
 
     if (options.computeEngine) this._computeEngine = options.computeEngine;
 
-    this._placeholders = new Map();
-
-    this.colorMap = (name: string): string | undefined => {
-      let result: string | undefined = undefined;
-      if (typeof this.options.colorMap === 'function')
-        result = this.options.colorMap(name);
-
-      if (!result) result = defaultColorMap(name);
-
-      return result;
-    };
-    this.backgroundColorMap = (name: string): string | undefined => {
-      let result: string | undefined = undefined;
-      if (typeof this.options.backgroundColorMap === 'function')
-        result = this.options.backgroundColorMap(name);
-
-      if (!result && typeof this.options.colorMap === 'function')
-        result = this.options.colorMap(name);
-
-      if (!result) result = defaultBackgroundColorMap(name);
-
-      return result;
-    };
-
-    this.fractionNavigationOrder =
-      this.options.fractionNavigationOrder ?? 'numerator-denominator';
+    this.placeholders = new Map();
 
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (!this.options.keypressSound) {
@@ -279,13 +273,12 @@ export class MathfieldPrivate implements Mathfield {
 
     // Additional elements used for UI.
     // They are retrieved in order a bit later, so they need to be kept in sync
-    let markup = '';
 
     // 1/ The keyboard event capture element.
     // On touch capable devices, we do not create a textarea to capture keyboard
     // events as this has the side effect of triggering the OS virtual keyboard
     // which we want to avoid
-    markup += "<span class='ML__textarea'>";
+    let markup = "<span class='ML__textarea'>";
     if (isTouchCapable())
       markup += `<span class='ML__textarea__textarea' tabindex="-1" role="textbox"></span>`;
     else {
@@ -302,7 +295,7 @@ export class MathfieldPrivate implements Mathfield {
       '<span part="container" class="ML__container"><span part="content" class="ML__content"></span>';
 
     // 2.1/ The virtual keyboard toggle
-    markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${l10n(
+    markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${localize(
       'tooltip.toggle virtual keyboard'
     )}">`;
     markup +=
@@ -343,30 +336,13 @@ export class MathfieldPrivate implements Mathfield {
     const textarea: HTMLTextAreaElement = this.element.children[iChild++]
       .firstElementChild as HTMLTextAreaElement;
     this.field = this.element.children[iChild].children[0] as HTMLElement;
-    // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
-    this.field.addEventListener('wheel', this, { passive: false });
 
     iChild++;
 
     this.virtualKeyboardToggle = this.element.querySelector<HTMLElement>(
       '.ML__virtual-keyboard-toggle'
     )!;
-    if (!this.options.readOnly && this.options.virtualKeyboardMode === 'manual')
-      this.virtualKeyboardToggle.classList.add('is-visible');
-    else this.virtualKeyboardToggle.classList.remove('is-visible');
 
-    if (this.options.readOnly) this.element.classList.add('ML__isReadOnly');
-    else this.element.classList.remove('ML__isReadOnly');
-
-    attachButtonHandlers(
-      (command) => this.executeCommand(command),
-      this.virtualKeyboardToggle,
-      {
-        default: 'toggleVirtualKeyboard',
-        alt: 'toggleVirtualKeyboardAlt',
-        shift: 'toggleVirtualKeyboardShift',
-      }
-    );
     this.ariaLiveText = this.element.children[iChild]
       .children[0] as HTMLElement;
     this.accessibleNode = this.element.children[iChild++]
@@ -400,9 +376,29 @@ export class MathfieldPrivate implements Mathfield {
     // reflects the style to be applied on next insertion.
     this.style = {};
 
+    if (!this.options.readOnly && this.options.virtualKeyboardMode === 'manual')
+      this.virtualKeyboardToggle.classList.add('is-visible');
+    else this.virtualKeyboardToggle.classList.remove('is-visible');
+
+    if (this.options.readOnly) this.element.classList.add('ML__isReadOnly');
+    else this.element.classList.remove('ML__isReadOnly');
+
     if (this.options.defaultMode === 'inline-math')
       this.element.classList.add('ML__isInline');
     else this.element.classList.remove('ML__isInline');
+
+    // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
+    this.field.addEventListener('wheel', this, { passive: false });
+
+    attachButtonHandlers(
+      (command) => this.executeCommand(command),
+      this.virtualKeyboardToggle,
+      {
+        default: 'toggleVirtualKeyboard',
+        alt: 'toggleVirtualKeyboardAlt',
+        shift: 'toggleVirtualKeyboardShift',
+      }
+    );
 
     // Focus/blur state
     this.blurred = true;
@@ -538,9 +534,6 @@ export class MathfieldPrivate implements Mathfield {
         selectionMode: 'after',
         format: 'latex',
         suppressChangeNotifications: true,
-        smartFence: this.options.smartFence,
-        macros: this.options.macros,
-        fractionNavigationOrder: this.fractionNavigationOrder,
       });
     }
 
@@ -584,6 +577,64 @@ export class MathfieldPrivate implements Mathfield {
     // (the selection highlighting may be out of date due to the HTML layout
     // having been updated with the new font metrics)
     if (isBrowser()) document.fonts.ready.then(() => render(this));
+  }
+
+  /** Global Context.
+   * These properties are accessed by the atom instances for rendering/layout
+   */
+  get colorMap(): (name: string) => string | undefined {
+    return (name: string): string | undefined => {
+      let result: string | undefined = undefined;
+      if (typeof this.options?.colorMap === 'function')
+        result = this.options.colorMap(name);
+
+      if (!result) result = defaultColorMap(name);
+
+      return result;
+    };
+  }
+
+  get backgroundColorMap(): (name: string) => string | undefined {
+    return (name: string): string | undefined => {
+      let result: string | undefined = undefined;
+      if (typeof this.options?.backgroundColorMap === 'function')
+        result = this.options.backgroundColorMap(name);
+
+      if (!result && typeof this.options.colorMap === 'function')
+        result = this.options.colorMap(name);
+
+      if (!result) result = defaultBackgroundColorMap(name);
+
+      return result;
+    };
+  }
+
+  get fractionNavigationOrder():
+    | 'numerator-denominator'
+    | 'denominator-numerator' {
+    return this.options?.fractionNavigationOrder ?? 'numerator-denominator';
+  }
+
+  get smartFence(): boolean {
+    return this.options?.smartFence ?? false;
+  }
+
+  get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
+    return this.options?.letterShapeStyle ?? 'tex';
+  }
+
+  get registers(): Registers {
+    return this.options?.registers ?? {};
+  }
+
+  getCommandInfo(command: string): FunctionDefinition | null {
+    console.assert(command.startsWith('\\'));
+
+    return LATEX_COMMANDS[command] ?? null;
+  }
+
+  getMacroDefinition(command: string): MacroDefinition | null {
+    return (this.options.macros as NormalizedMacroDictionary)[command] ?? null;
   }
 
   get virtualKeyboard(): VirtualKeyboardInterface | undefined {
@@ -719,8 +770,8 @@ export class MathfieldPrivate implements Mathfield {
     this.virtualKeyboard?.setOptions(this.options);
 
     if (!this.options.readOnly && this.options.virtualKeyboardMode === 'manual')
-      this.virtualKeyboardToggle?.classList.add('is-visible');
-    else this.virtualKeyboardToggle?.classList.remove('is-visible');
+      this.virtualKeyboardToggle.classList.add('is-visible');
+    else this.virtualKeyboardToggle.classList.remove('is-visible');
 
     if ('virtualKeyboardToggleGlyph' in config) {
       const toggle = this.element?.querySelector(
@@ -732,31 +783,6 @@ export class MathfieldPrivate implements Mathfield {
         );
       }
     }
-
-    this.colorMap = (name: string): string | undefined => {
-      let result: string | undefined = undefined;
-      if (typeof this.options.colorMap === 'function')
-        result = this.options.colorMap(name);
-
-      if (!result) result = defaultColorMap(name);
-
-      return result;
-    };
-    this.backgroundColorMap = (name: string): string | undefined => {
-      let result: string | undefined = undefined;
-      if (typeof this.options.backgroundColorMap === 'function')
-        result = this.options.backgroundColorMap(name);
-
-      if (!result && typeof this.options.colorMap === 'function')
-        result = this.options.colorMap(name);
-
-      if (!result) result = defaultBackgroundColorMap(name);
-
-      return result;
-    };
-
-    this.fractionNavigationOrder =
-      this.options.fractionNavigationOrder ?? 'numerator-denominator';
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
@@ -770,7 +796,6 @@ export class MathfieldPrivate implements Mathfield {
         selectionMode: 'after',
         format: 'latex',
         suppressChangeNotifications: true,
-        fractionNavigationOrder: this.fractionNavigationOrder,
       });
     }
 
@@ -844,7 +869,7 @@ export class MathfieldPrivate implements Mathfield {
     if (!isValidMathfield(this)) return;
 
     const element = this.element!;
-    delete this.element;
+    delete (this as any).element;
     delete element.mathfield;
 
     element.innerHTML = this.model.getValue();
@@ -856,12 +881,12 @@ export class MathfieldPrivate implements Mathfield {
     off(window, 'resize', this);
     window.removeEventListener('blur', this, { capture: true });
 
-    delete this.accessibleNode;
-    delete this.ariaLiveText;
-    delete this.field;
-    delete this.fieldContent;
-    this.virtualKeyboardToggle!.remove();
-    delete this.virtualKeyboardToggle;
+    delete (this as any).accessibleNode;
+    delete (this as any).ariaLiveText;
+    delete (this as any).field;
+    delete (this as any).fieldContent;
+    this.virtualKeyboardToggle.remove();
+    delete (this as any).virtualKeyboardToggle;
     if (this._virtualKeyboard) {
       this._virtualKeyboard.dispose();
       delete this._virtualKeyboard;
@@ -928,14 +953,7 @@ export class MathfieldPrivate implements Mathfield {
     if (options.mode === undefined || options.mode === 'auto')
       mode = getMode(this.model, this.model.position) ?? 'math';
 
-    if (
-      ModeEditor.insert(mode, this.model, value, {
-        ...options,
-        colorMap: this.colorMap,
-        backgroundColorMap: this.backgroundColorMap,
-        fractionNavigationOrder: this.fractionNavigationOrder,
-      })
-    ) {
+    if (ModeEditor.insert(mode, this.model, value, options)) {
       this.undoManager.snapshot(this.options);
       requestUpdate(this);
     }
@@ -1084,7 +1102,7 @@ export class MathfieldPrivate implements Mathfield {
         this.smartModeSuppressed =
           /text|math/.test(this.mode) && /text|math/.test(mode);
         if (prefix && mode !== 'latex') {
-          const atoms = parseLatex(prefix, { parseMode: mode });
+          const atoms = parseLatex(prefix, this, { parseMode: mode });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
@@ -1125,7 +1143,7 @@ export class MathfieldPrivate implements Mathfield {
             cursor = model.at(selRange[0]);
           }
 
-          const atom = new LatexGroupAtom(latex);
+          const atom = new LatexGroupAtom(latex, this);
           cursor.parent!.addChildAfter(atom, cursor);
           if (wasCollapsed) model.position = model.offsetOf(atom.lastChild);
           else {
@@ -1142,7 +1160,7 @@ export class MathfieldPrivate implements Mathfield {
         }
 
         if (suffix) {
-          const atoms = parseLatex(suffix, { parseMode: currentMode });
+          const atoms = parseLatex(suffix, this, { parseMode: currentMode });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
@@ -1223,12 +1241,12 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
-    return this._placeholders.get(placeholderId)?.field;
+    return this.placeholders.get(placeholderId)?.field;
   }
 
   attachNestedMathfield(): void {
     let needsUpdate = false;
-    this._placeholders.forEach((v) => {
+    this.placeholders.forEach((v) => {
       const container = this.field?.querySelector(
         `[data-placeholder-id=${v.atom.placeholderId}]`
       ) as HTMLElement;
@@ -1364,8 +1382,8 @@ export class MathfieldPrivate implements Mathfield {
     const selectedAtoms = this.model.getAtoms(this.model.selection);
     if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
       const placeholder = selectedAtoms[0] as PlaceholderAtom;
-      if (this.model.mathfield._placeholders.has(placeholder.placeholderId!)) {
-        this.model.mathfield._placeholders
+      if (this.model.mathfield.placeholders.has(placeholder.placeholderId!)) {
+        this.model.mathfield.placeholders
           .get(placeholder.placeholderId!)
           ?.field.focus();
       }

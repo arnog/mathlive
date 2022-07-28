@@ -5,7 +5,7 @@ import type { MathstyleName } from '../core/mathstyle';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
 import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { AXIS_HEIGHT } from '../core/font-metrics';
 
 export type GenfracOptions = {
@@ -17,7 +17,6 @@ export type GenfracOptions = {
   hasBarLine?: boolean;
   mathstyleName?: MathstyleName;
   style?: Style;
-  fractionNavigationOrder?: 'numerator-denominator' | 'denominator-numerator';
   serialize?: (atom: GenfracAtom, options: ToLatexOptions) => string;
 };
 
@@ -48,9 +47,10 @@ export class GenfracAtom extends Atom {
     command: string,
     above: Atom[],
     below: Atom[],
+    context: GlobalContext,
     options: GenfracOptions
   ) {
-    super('genfrac', {
+    super('genfrac', context, {
       style: options.style,
       command,
       serialize: options.serialize,
@@ -65,15 +65,14 @@ export class GenfracAtom extends Atom {
     this.mathstyleName = options?.mathstyleName;
     this.leftDelim = options?.leftDelim;
     this.rightDelim = options?.rightDelim;
-    this.fractionNavigationOrder =
-      options?.fractionNavigationOrder ?? 'numerator-denominator';
   }
 
-  static fromJson(json: AtomJson): GenfracAtom {
+  static fromJson(json: AtomJson, context: GlobalContext): GenfracAtom {
     return new GenfracAtom(
       json.command,
       json.above,
       json.below,
+      context,
       json as any as GenfracOptions
     );
   }

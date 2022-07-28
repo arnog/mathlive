@@ -1,4 +1,7 @@
+import { throwIfNotInBrowser } from '../common/capabilities';
 import { isArray } from '../common/types';
+import { hashCode } from '../common/hash-code';
+import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
 import {
   makeStruts,
@@ -9,24 +12,18 @@ import {
   Context,
   adjustInterAtomSpacing,
   DEFAULT_FONT_SIZE,
-  getMacros,
+  defaultGlobalContext,
 } from '../core/core';
 
-import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
 import {
   getCaretPoint,
   getSharedElement,
   releaseSharedElement,
 } from '../editor-mathfield/utils';
-
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { typeset } from '../core/typeset';
-import { getDefaultRegisters } from '../core/registers';
-import { throwIfNotInBrowser } from '../common/capabilities';
 
-import { hashCode } from '../common/hash-code';
-import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
+import { getKeybindingsForCommand } from './keybindings';
 
 // @ts-ignore-error
 import POPOVER_STYLESHEET from '../../css/popover.less';
@@ -296,27 +293,17 @@ function getNote(symbol: string): string {
 }
 
 function latexToMarkup(latex: string): string {
-  const root = new Atom('root');
-  root.body = typeset(
-    parseLatex(latex, {
-      parseMode: 'math',
-      macros: getMacros(),
-      registers: getDefaultRegisters(),
-    })
-  );
+  const context = defaultGlobalContext();
+  const root = new Atom('root', context);
+  root.body = parseLatex(latex, context, { parseMode: 'math' });
 
   const box = coalesce(
     adjustInterAtomSpacing(
       new Box(
         root.render(
           new Context(
-            {
-              registers: getDefaultRegisters(),
-              smartFence: false,
-            },
-            {
-              fontSize: DEFAULT_FONT_SIZE,
-            },
+            { registers: context.registers, smartFence: false },
+            { fontSize: DEFAULT_FONT_SIZE },
             'displaystyle'
           )
         ),

@@ -1,7 +1,8 @@
-import { Argument, defineFunction } from './definitions-utils';
 import type { Atom, ToLatexOptions } from '../core/atom-class';
 import { OverunderAtom } from '../core-atoms/overunder';
-import { PrivateStyle } from '../core/context';
+import { GlobalContext, PrivateStyle } from '../core/context';
+
+import { Argument, defineFunction } from './definitions-utils';
 
 // Extensible (horitontally stretchy) symbols
 
@@ -21,9 +22,10 @@ defineFunction(
     createAtom: (
       command: string,
       args: Argument[],
-      style: PrivateStyle
+      style: PrivateStyle,
+      context: GlobalContext
     ): Atom =>
-      new OverunderAtom(command, {
+      new OverunderAtom(command, context, {
         body: args[0] as Atom[],
         skipBoundary: false,
         supsubPlacement: 'over-under',
@@ -37,8 +39,13 @@ defineFunction(
   }
 );
 defineFunction('overbrace', '{:auto}', {
-  createAtom: (command: string, args: Argument[], style: PrivateStyle): Atom =>
-    new OverunderAtom(command, {
+  createAtom: (
+    command: string,
+    args: Argument[],
+    style: PrivateStyle,
+    context: GlobalContext
+  ): Atom =>
+    new OverunderAtom(command, context, {
       body: args[0] as Atom[],
       skipBoundary: false,
       supsubPlacement: 'over-under',
@@ -62,9 +69,10 @@ defineFunction(
     createAtom: (
       command: string,
       args: Argument[],
-      style: PrivateStyle
+      style: PrivateStyle,
+      context: GlobalContext
     ): Atom =>
-      new OverunderAtom(command, {
+      new OverunderAtom(command, context, {
         body: args[0] as Atom[],
         skipBoundary: false,
         supsubPlacement: 'over-under',
@@ -78,8 +86,13 @@ defineFunction(
   }
 );
 defineFunction(['underbrace'], '{:auto}', {
-  createAtom: (command: string, args: Argument[], style: PrivateStyle): Atom =>
-    new OverunderAtom(command, {
+  createAtom: (
+    command: string,
+    args: Argument[],
+    style: PrivateStyle,
+    context: GlobalContext
+  ): Atom =>
+    new OverunderAtom(command, context, {
       body: args[0] as Atom[],
       skipBoundary: false,
       supsubPlacement: 'over-under',
@@ -120,9 +133,10 @@ defineFunction(
     createAtom: (
       command: string,
       args: Argument[],
-      style: PrivateStyle
+      style: PrivateStyle,
+      context: GlobalContext
     ): Atom =>
-      new OverunderAtom(command, {
+      new OverunderAtom(command, context, {
         style,
         // Set the "svgBody" to the name of a SVG object (which is the same
         // as the command name)

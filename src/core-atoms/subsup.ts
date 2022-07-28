@@ -1,3 +1,5 @@
+import { Style } from '../public/core';
+
 import {
   Atom,
   AtomJson,
@@ -5,16 +7,18 @@ import {
   ToLatexOptions,
 } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context } from '../core/context';
-import { Style } from '../public/core';
+import { Context, GlobalContext } from '../core/context';
 
 export class SubsupAtom extends Atom {
-  constructor(options?: { style?: Style }) {
-    super('msubsup', { style: options?.style });
+  constructor(context: GlobalContext, options?: { style?: Style }) {
+    super('msubsup', context, { style: options?.style });
   }
 
-  static fromJson(json: { [key: string]: any }): SubsupAtom {
-    const result = new SubsupAtom(json as any);
+  static fromJson(
+    json: { [key: string]: any },
+    context: GlobalContext
+  ): SubsupAtom {
+    const result = new SubsupAtom(context, json as any);
     for (const branch of NAMED_BRANCHES)
       if (json[branch]) result.setChildren(json[branch], branch);
 

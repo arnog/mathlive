@@ -1,14 +1,22 @@
-import { Argument, defineFunction } from './definitions-utils';
+import { Style } from '../public/core';
+
 import type { Atom } from '../core/atom-class';
 import { EncloseAtom, EncloseAtomOptions } from '../core-atoms/enclose';
-import { Style } from '../public/core';
+import { GlobalContext } from '../core/context';
+
+import { Argument, defineFunction } from './definitions-utils';
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
 // The first argument is a comma delimited list of notations, as defined
 // here: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose
 // The second, optional, specifies the style to use for the notations.
 defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
-  createAtom: (command: string, args: Argument[], style: Style): Atom => {
+  createAtom: (
+    command: string,
+    args: Argument[],
+    style: Style,
+    context: GlobalContext
+  ): Atom => {
     const options: EncloseAtomOptions = {
       strokeColor: 'currentColor',
       strokeWidth: '',
@@ -63,16 +71,28 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
         notation[x.toLowerCase()] = true;
       });
 
-    return new EncloseAtom(command, args[2] as Atom[], notation, options);
+    return new EncloseAtom(
+      command,
+      args[2] as Atom[],
+      notation,
+      context,
+      options
+    );
   },
 });
 
 defineFunction('cancel', '{body:auto}', {
-  createAtom: (name: string, args: Argument[], style: Style): Atom =>
+  createAtom: (
+    name: string,
+    args: Argument[],
+    style: Style,
+    context: GlobalContext
+  ): Atom =>
     new EncloseAtom(
       name,
       args[0] as Atom[],
       { updiagonalstrike: true },
+      context,
       {
         strokeColor: 'currentColor',
         strokeWidth: '',
@@ -87,11 +107,17 @@ defineFunction('cancel', '{body:auto}', {
 });
 
 defineFunction('bcancel', '{body:auto}', {
-  createAtom: (name: string, args: Argument[], style: Style): Atom =>
+  createAtom: (
+    name: string,
+    args: Argument[],
+    style: Style,
+    context: GlobalContext
+  ): Atom =>
     new EncloseAtom(
       name,
       args[0] as Atom[],
       { downdiagonalstrike: true },
+      context,
       {
         strokeColor: 'currentColor',
         strokeWidth: '',
@@ -106,11 +132,17 @@ defineFunction('bcancel', '{body:auto}', {
 });
 
 defineFunction('xcancel', '{body:auto}', {
-  createAtom: (name: string, args: Argument[], style: Style): Atom =>
+  createAtom: (
+    name: string,
+    args: Argument[],
+    style: Style,
+    context: GlobalContext
+  ): Atom =>
     new EncloseAtom(
       name,
       args[0] as Atom[],
       { updiagonalstrike: true, downdiagonalstrike: true },
+      context,
       {
         strokeColor: 'currentColor',
         strokeWidth: '',

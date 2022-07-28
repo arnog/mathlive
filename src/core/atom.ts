@@ -22,63 +22,70 @@ import { PhantomAtom } from '../core-atoms/phantom';
 import { RuleAtom } from '../core-atoms/rule';
 import { SizedDelimAtom } from '../core-atoms/delim';
 import { SpacingAtom } from '../core-atoms/spacing';
+import { SubsupAtom } from '../core-atoms/subsup';
 import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 
 import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
-import { SubsupAtom } from '../core-atoms/subsup';
+import { GlobalContext } from './context';
 
 export * from './atom-class';
 
-export function fromJson(json: AtomJson): Atom;
-export function fromJson(json: AtomJson[]): Atom[];
-export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
-  if (isArray<AtomJson>(json)) return json.map((x) => fromJson(x));
+export function fromJson(json: AtomJson, context: GlobalContext): Atom;
+export function fromJson(json: AtomJson[], context: GlobalContext): Atom[];
+export function fromJson(
+  json: AtomJson | AtomJson[],
+  context: GlobalContext
+): Atom | Atom[] {
+  if (isArray<AtomJson>(json)) return json.map((x) => fromJson(x, context));
 
   json = { ...json };
 
   // Restore the branches
-  for (const branch of NAMED_BRANCHES)
-    if (json[branch]) json[branch] = fromJson(json[branch] as AtomJson[]);
-  if (json.array) json.array = fromJson(json.array);
+  for (const branch of NAMED_BRANCHES) {
+    if (json[branch])
+      json[branch] = fromJson(json[branch] as AtomJson[], context);
+  }
+  if (json.array) json.array = fromJson(json.array, context);
 
   const type: AtomType = json.type;
   let result: Atom | undefined = undefined;
-  if (type === 'accent') result = AccentAtom.fromJson(json);
-  if (type === 'array') result = ArrayAtom.fromJson(json);
-  if (type === 'box') result = BoxAtom.fromJson(json);
-  if (type === 'composition') result = CompositionAtom.fromJson(json);
-  if (type === 'chem') result = ChemAtom.fromJson(json);
-  if (type === 'delim') result = DelimAtom.fromJson(json);
-  if (type === 'enclose') result = EncloseAtom.fromJson(json);
-  if (type === 'error') result = ErrorAtom.fromJson(json);
-  if (type === 'genfrac') result = GenfracAtom.fromJson(json);
-  if (type === 'group') result = GroupAtom.fromJson(json);
-  if (type === 'latex') result = LatexAtom.fromJson(json);
-  if (type === 'latexgroup') result = LatexGroupAtom.fromJson(json);
-  if (type === 'leftright') result = LeftRightAtom.fromJson(json);
-  if (type === 'line') result = LineAtom.fromJson(json);
-  if (type === 'macro') result = MacroAtom.fromJson(json);
-  if (type === 'msubsup') result = SubsupAtom.fromJson(json);
-  if (type === 'overlap') result = OverlapAtom.fromJson(json);
-  if (type === 'overunder') result = OverunderAtom.fromJson(json);
+  if (type === 'accent') result = AccentAtom.fromJson(json, context);
+  if (type === 'array') result = ArrayAtom.fromJson(json, context);
+  if (type === 'box') result = BoxAtom.fromJson(json, context);
+  if (type === 'composition') result = CompositionAtom.fromJson(json, context);
+  if (type === 'chem') result = ChemAtom.fromJson(json, context);
+  if (type === 'delim') result = DelimAtom.fromJson(json, context);
+  if (type === 'enclose') result = EncloseAtom.fromJson(json, context);
+  if (type === 'error') result = ErrorAtom.fromJson(json, context);
+  if (type === 'genfrac') result = GenfracAtom.fromJson(json, context);
+  if (type === 'group') result = GroupAtom.fromJson(json, context);
+  if (type === 'latex') result = LatexAtom.fromJson(json, context);
+  if (type === 'latexgroup') result = LatexGroupAtom.fromJson(json, context);
+  if (type === 'leftright') result = LeftRightAtom.fromJson(json, context);
+  if (type === 'line') result = LineAtom.fromJson(json, context);
+  if (type === 'macro') result = MacroAtom.fromJson(json, context);
+  if (type === 'msubsup') result = SubsupAtom.fromJson(json, context);
+  if (type === 'overlap') result = OverlapAtom.fromJson(json, context);
+  if (type === 'overunder') result = OverunderAtom.fromJson(json, context);
   if (type === 'placeholder') {
-    if (json.defaultValue) json.defaultValue = fromJson(json.defaultValue);
-    result = PlaceholderAtom.fromJson(json);
+    if (json.defaultValue)
+      json.defaultValue = fromJson(json.defaultValue, context);
+    result = PlaceholderAtom.fromJson(json, context);
   }
-  if (type === 'phantom') result = PhantomAtom.fromJson(json);
-  if (type === 'rule') result = RuleAtom.fromJson(json);
-  if (type === 'sizeddelim') result = SizedDelimAtom.fromJson(json);
-  if (type === 'spacing') result = SpacingAtom.fromJson(json);
-  if (type === 'surd') result = SurdAtom.fromJson(json);
-  if (type === 'text') result = TextAtom.fromJson(json);
+  if (type === 'phantom') result = PhantomAtom.fromJson(json, context);
+  if (type === 'rule') result = RuleAtom.fromJson(json, context);
+  if (type === 'sizeddelim') result = SizedDelimAtom.fromJson(json, context);
+  if (type === 'spacing') result = SpacingAtom.fromJson(json, context);
+  if (type === 'surd') result = SurdAtom.fromJson(json, context);
+  if (type === 'text') result = TextAtom.fromJson(json, context);
 
-  if (type === 'mop') result = OperatorAtom.fromJson(json);
+  if (type === 'mop') result = OperatorAtom.fromJson(json, context);
 
   // @todo root;
   // @todo space;
 
-  if (!result) result = Atom.fromJson(json);
+  if (!result) result = Atom.fromJson(json, context);
 
   for (const branch of NAMED_BRANCHES)
     if (json[branch]) result.setChildren(json[branch], branch);

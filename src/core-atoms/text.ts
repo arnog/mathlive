@@ -1,19 +1,29 @@
 import { Style } from '../public/core';
+
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { charToLatex } from '../core-definitions/definitions-utils';
 
 export class TextAtom extends Atom {
-  constructor(command: string, value: string, style: Style) {
-    super('text', { command, mode: 'text', displayContainsHighlight: true });
+  constructor(
+    command: string,
+    value: string,
+    style: Style,
+    context: GlobalContext
+  ) {
+    super('text', context, {
+      command,
+      mode: 'text',
+      displayContainsHighlight: true,
+    });
     this.value = value;
     this.verbatimLatex = value;
     this.applyStyle(style);
   }
 
-  static fromJson(json: AtomJson): TextAtom {
-    return new TextAtom(json.command, json.value, json.style);
+  static fromJson(json: AtomJson, context: GlobalContext): TextAtom {
+    return new TextAtom(json.command, json.value, json.style, context);
   }
 
   toJson(): AtomJson {

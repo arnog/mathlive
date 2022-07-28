@@ -1,10 +1,11 @@
+import { ContentChangeType } from '../public/options';
+import type { Range } from '../public/mathfield';
+
 import { Mode } from '../core/modes';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { Atom, Branch } from '../core/atom';
-import type { Range } from '../public/mathfield';
 import { ModelPrivate } from './model-private';
 import { range } from './selection-utils';
-import { ContentChangeType } from '../public/options';
 import { contentWillChange } from './listeners';
 // Import {
 //     arrayFirstCellByRow,
@@ -108,10 +109,16 @@ function onDelete(
       : model.offsetOf(atom.lastChild);
     if (!atStart && atom.leftDelim !== '?' && atom.leftDelim !== '.') {
       // Insert open fence
-      parent.addChildBefore(Mode.createAtom('math', atom.leftDelim!)!, atom);
+      parent.addChildBefore(
+        Mode.createAtom('math', atom.leftDelim!, model.mathfield)!,
+        atom
+      );
     } else if (atStart && atom.rightDelim !== '?' && atom.rightDelim !== '.') {
       // Insert closing fence
-      parent.addChildAfter(Mode.createAtom('math', atom.rightDelim!)!, atom);
+      parent.addChildAfter(
+        Mode.createAtom('math', atom.rightDelim!, model.mathfield)!,
+        atom
+      );
     }
 
     // Hoist body

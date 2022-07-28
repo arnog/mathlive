@@ -1,9 +1,10 @@
+import { Style } from '../public/core';
+
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { makeLeftRightDelim, RIGHT_DELIM } from '../core/delimiters';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
-import { Style } from '../public/core';
 
 /**
  *  \left....\right
@@ -25,13 +26,14 @@ export class LeftRightAtom extends Atom {
   constructor(
     variant: '' | 'left...right' | 'mleft...mright',
     body: Atom[],
+    context: GlobalContext,
     options: {
       leftDelim: string;
       rightDelim: string;
       style?: Style;
     }
   ) {
-    super('leftright', {
+    super('leftright', context, {
       style: options.style,
       displayContainsHighlight: true,
     });
@@ -41,8 +43,13 @@ export class LeftRightAtom extends Atom {
     this.rightDelim = options.rightDelim;
   }
 
-  static fromJson(json: AtomJson): LeftRightAtom {
-    return new LeftRightAtom(json.variant ?? '', json.body, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): LeftRightAtom {
+    return new LeftRightAtom(
+      json.variant ?? '',
+      json.body,
+      context,
+      json as any
+    );
   }
 
   toJson(): AtomJson {

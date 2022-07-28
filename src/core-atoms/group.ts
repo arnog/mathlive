@@ -1,7 +1,7 @@
 import type { ParseMode, Style } from '../public/core';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import type { MathstyleName } from '../core/mathstyle';
 import type { Box, BoxType } from '../core/box';
 
@@ -21,6 +21,7 @@ export class GroupAtom extends Atom {
 
   constructor(
     arg: Atom[] | undefined,
+    context: GlobalContext,
     options?: {
       boxType?: BoxType;
       changeMode?: boolean;
@@ -38,7 +39,7 @@ export class GroupAtom extends Atom {
       command?: string;
     }
   ) {
-    super('group', {
+    super('group', context, {
       command: options?.command,
       mode: options?.mode ?? 'math',
       serialize: options?.serialize,
@@ -67,8 +68,8 @@ export class GroupAtom extends Atom {
     }
   }
 
-  static fromJson(json: AtomJson): GroupAtom {
-    return new GroupAtom(json.body, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): GroupAtom {
+    return new GroupAtom(json.body, context, json as any);
   }
 
   toJson(): AtomJson {

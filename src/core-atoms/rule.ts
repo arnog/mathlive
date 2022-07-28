@@ -1,7 +1,8 @@
-import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context } from '../core/context';
-import { Box } from '../core/box';
 import { Dimension, Style } from '../public/core';
+
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+import { Context, GlobalContext } from '../core/context';
+import { Box } from '../core/box';
 import {
   convertDimensionToEm,
   serializeDimension,
@@ -13,6 +14,7 @@ export class RuleAtom extends Atom {
   private readonly shift: Dimension;
   constructor(
     command: string,
+    context: GlobalContext,
     options: {
       height: Dimension;
       width: Dimension;
@@ -20,14 +22,14 @@ export class RuleAtom extends Atom {
       style: Style;
     }
   ) {
-    super('rule', { command, style: options.style });
+    super('rule', context, { command, style: options.style });
     this.shift = options.shift ?? { dimension: 0 };
     this.height = options.height;
     this.width = options.width;
   }
 
-  static fromJson(json: AtomJson): RuleAtom {
-    return new RuleAtom(json.command, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): RuleAtom {
+    return new RuleAtom(json.command, context, json as any);
   }
 
   toJson(): AtomJson {

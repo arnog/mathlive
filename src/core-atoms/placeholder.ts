@@ -1,7 +1,8 @@
+import { ParseMode, Style } from '../public/core';
+
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context } from '../core/context';
-import { ParseMode, Style } from '../public/core';
+import { Context, GlobalContext } from '../core/context';
 
 const PLACEHOLDER_STRING = '■';
 //'■' U+25A0 BLACK SQUARE
@@ -11,16 +12,19 @@ const PLACEHOLDER_STRING = '■';
 export class PlaceholderAtom extends Atom {
   readonly placeholderId?: string;
   readonly defaultValue?: Atom[];
-  constructor(options?: {
-    value?: string;
-    mode?: ParseMode;
-    style?: Style;
-    placeholderId?: string;
-    default?: Atom[];
-  }) {
+  constructor(
+    context: GlobalContext,
+    options?: {
+      value?: string;
+      mode?: ParseMode;
+      style?: Style;
+      placeholderId?: string;
+      default?: Atom[];
+    }
+  ) {
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     const value = options?.value || PLACEHOLDER_STRING;
-    super('placeholder', {
+    super('placeholder', context, {
       mode: options?.mode ?? 'math',
       style: options?.style,
       value: value,
@@ -31,8 +35,8 @@ export class PlaceholderAtom extends Atom {
     this.defaultValue = options?.default;
   }
 
-  static fromJson(json: AtomJson): PlaceholderAtom {
-    return new PlaceholderAtom(json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): PlaceholderAtom {
+    return new PlaceholderAtom(context, json as any);
   }
 
   toJson(): AtomJson {

@@ -1,9 +1,11 @@
+import { Style } from '../public/core';
+
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { convertToDimension } from '../core/parser';
-import { Style } from '../public/core';
 import { convertDimensionToEm } from '../core/registers-utils';
+
 export class BoxAtom extends Atom {
   readonly framecolor?: string;
   readonly verbatimFramecolor?: string;
@@ -15,6 +17,7 @@ export class BoxAtom extends Atom {
   constructor(
     command: string,
     body: Atom[],
+    context: GlobalContext,
     options: {
       framecolor?: string;
       verbatimFramecolor?: string;
@@ -26,7 +29,7 @@ export class BoxAtom extends Atom {
       serialize?: (atom: BoxAtom, options: ToLatexOptions) => string;
     }
   ) {
-    super('box', {
+    super('box', context, {
       command,
       serialize: options.serialize,
       style: options.style,
@@ -41,8 +44,11 @@ export class BoxAtom extends Atom {
     this.border = options.border;
   }
 
-  static fromJson(json: { [key: string]: any }): BoxAtom {
-    return new BoxAtom(json.command, json.body, json as any);
+  static fromJson(
+    json: { [key: string]: any },
+    context: GlobalContext
+  ): BoxAtom {
+    return new BoxAtom(json.command, json.body, context, json as any);
   }
 
   toJson(): AtomJson {
@@ -68,7 +74,10 @@ export class BoxAtom extends Atom {
       this.padding === undefined
         ? fboxsep
         : convertDimensionToEm(
-            convertToDimension(this.padding, parentContext.registers)
+            convertToDimension(this.padding, {
+              ...this.context,
+              registers: parentContext.registers,
+            })
           );
     // Base is the main content "inside" the box
     const content = Atom.createBox(parentContext, this.body);

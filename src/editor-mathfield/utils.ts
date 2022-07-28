@@ -179,13 +179,13 @@ export function getAtomBounds(
   atom: Atom
 ): Rect | null {
   if (!atom.id) return null;
-  let result: Rect | null = mathfield._atomBoundsCache?.get(atom.id) ?? null;
+  let result: Rect | null = mathfield.atomBoundsCache?.get(atom.id) ?? null;
   if (result !== null) return result;
   const node = mathfield.field!.querySelector(`[data-atom-id="${atom.id}"]`);
   result = node ? getNodeBounds(node) : null;
-  if (mathfield._atomBoundsCache) {
-    if (result) mathfield._atomBoundsCache.set(atom.id, result);
-    else mathfield._atomBoundsCache.delete(atom.id);
+  if (mathfield.atomBoundsCache) {
+    if (result) mathfield.atomBoundsCache.set(atom.id, result);
+    else mathfield.atomBoundsCache.delete(atom.id);
   }
   return result ?? null;
 }

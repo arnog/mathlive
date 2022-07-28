@@ -1,15 +1,16 @@
 /* eslint-disable no-new */
 import type { InsertOptions } from '../public/mathfield';
-import { ModeEditor } from './mode-editor';
-import { MathfieldPrivate } from './mathfield-private';
-import { requestUpdate } from './render';
 
-import { parseLatex } from '../core/core';
+import { GlobalContext, parseLatex } from '../core/core';
 import { Atom } from '../core/atom-class';
 import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
+
+import { MathfieldPrivate } from './mathfield-private';
+import { ModeEditor } from './mode-editor';
+import { requestUpdate } from './render';
 
 export class TextModeEditor extends ModeEditor {
   constructor() {
@@ -52,7 +53,6 @@ export class TextModeEditor extends ModeEditor {
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
     if (!options.format) options.format = 'auto';
-    options.macros = options.macros ?? model.options.macros;
 
     const { suppressChangeNotifications } = model;
     if (options.suppressChangeNotifications)
@@ -77,7 +77,7 @@ export class TextModeEditor extends ModeEditor {
     else if (options.insertionMode === 'insertAfter')
       model.collapseSelection('forward');
 
-    const newAtoms = convertStringToAtoms(text);
+    const newAtoms = convertStringToAtoms(text, model.mathfield);
     // Some atoms may already have a style (for example if there was an
     // argument, i.e. the selection, that this was applied to).
     // So, don't apply style to atoms that are already styled, but *do*
@@ -106,7 +106,7 @@ export class TextModeEditor extends ModeEditor {
   }
 }
 
-function convertStringToAtoms(s: string): Atom[] {
+function convertStringToAtoms(s: string, context: GlobalContext): Atom[] {
   // Map special TeX characters to alternatives
   // Must do this one first, since other replacements include backslash
   s = s.replace(/\\/g, '\\textbackslash ');
@@ -125,7 +125,7 @@ function convertStringToAtoms(s: string): Atom[] {
   s = s.replace(/~/g, '\\textasciitilde ');
   s = s.replace(/£/g, '\\textsterling ');
 
-  return parseLatex(s, { parseMode: 'text', registers: {} });
+  return parseLatex(s, context, { parseMode: 'text' });
 }
 
 new TextModeEditor();

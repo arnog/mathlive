@@ -1,10 +1,10 @@
-import { Context } from '../core/context';
-import { Atom, AtomJson } from '../core/atom-class';
-
-import { makeSVGBox, Box } from '../core/box';
-import { VBox } from '../core/v-box';
 import { Style } from '../public/core';
+
+import { Atom, AtomJson } from '../core/atom-class';
+import { makeSVGBox, Box } from '../core/box';
+import { Context, GlobalContext } from '../core/context';
 import { X_HEIGHT } from '../core/font-metrics';
+import { VBox } from '../core/v-box';
 
 export class AccentAtom extends Atom {
   private readonly accent?: number;
@@ -12,9 +12,10 @@ export class AccentAtom extends Atom {
   constructor(
     command: string,
     body: Atom[],
+    context: GlobalContext,
     options: { accentChar?: number; svgAccent?: string; style: Style }
   ) {
-    super('accent', { command, style: options.style });
+    super('accent', context, { command, style: options.style });
     if (options.accentChar) this.accent = options.accentChar;
     else this.svgAccent = options?.svgAccent;
 
@@ -26,8 +27,11 @@ export class AccentAtom extends Atom {
     // (any non-null value would do)
   }
 
-  static fromJson(json: { [key: string]: any }): AccentAtom {
-    return new AccentAtom(json.command, json.body, {
+  static fromJson(
+    json: { [key: string]: any },
+    context: GlobalContext
+  ): AccentAtom {
+    return new AccentAtom(json.command, json.body, context, {
       accentChar: json.accentChar,
       svgAccent: json.svgAccent,
       style: json.style,

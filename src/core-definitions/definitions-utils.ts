@@ -1,6 +1,3 @@
-import type { ArgumentType } from '../core/parser';
-import type { Atom, AtomType, BBoxParameter } from '../core/atom-class';
-import type { ColumnFormat } from '../core-atoms/array';
 import type {
   ParseMode,
   Variant,
@@ -11,12 +8,18 @@ import type {
   Dimension,
   Glue,
 } from '../public/core';
+
 import { supportRegexPropertyEscape } from '../common/capabilities';
-import { PrivateStyle } from '../core/context';
+
+import type { ArgumentType } from '../core/parser';
+import type { Atom, AtomType, BBoxParameter } from '../core/atom-class';
+import type { ColumnFormat } from '../core-atoms/array';
+import { GlobalContext, PrivateStyle } from '../core/context';
 import { MathstyleName } from '../core/mathstyle';
+
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
-export type FunctionArgumentDefiniton = {
+export type FunctionArgumentDefinition = {
   isOptional: boolean;
   type: ArgumentType;
 };
@@ -30,17 +33,6 @@ export type Argument =
   | ColumnFormat[]
   | Atom[];
 
-export type CreateAtomOptions = {
-  colorMap?: (name: string) => string | undefined;
-  backgroundColorMap?: (name: string) => string | undefined;
-  fractionNavigationOrder?: 'numerator-denominator' | 'denominator-numerator';
-};
-
-export type ApplyStyleDefinitionOptions = {
-  colorMap?: (name: string) => string | undefined;
-  backgroundColorMap?: (name: string) => string | undefined;
-};
-
 export type ParseResult =
   | Atom
   | PrivateStyle
@@ -51,7 +43,7 @@ export type ParseResult =
     };
 
 export type FunctionDefinition = {
-  params: FunctionArgumentDefiniton[];
+  params: FunctionArgumentDefinition[];
   /** Infix commands are generally deprecated in LaTeX, but there are
    * a few that we might encounter (e.g. \choose).
    */
@@ -66,12 +58,12 @@ export type FunctionDefinition = {
     command: string,
     args: (null | Argument)[],
     style: PrivateStyle,
-    options: CreateAtomOptions
+    context: GlobalContext
   ) => Atom;
   applyStyle?: (
     command: string,
     args: (null | Argument)[],
-    options: ApplyStyleDefinitionOptions
+    context: GlobalContext
   ) => PrivateStyle;
 
   frequency?: number;
@@ -81,10 +73,10 @@ export type FunctionDefinition = {
 
 type EnvironmentDefinition = {
   /** If true, the 'content' of the environment is parsed in tabular mode,
-   *  i.e. wiht '&' creating a new column and '\\' creating a new row.
+   *  i.e. with '&' creating a new column and '\\' creating a new row.
    */
   tabular: boolean;
-  params: FunctionArgumentDefiniton[];
+  params: FunctionArgumentDefinition[];
   createAtom: EnvironmentConstructor;
 };
 
@@ -209,6 +201,7 @@ export const LATEX_COMMANDS: Record<string, FunctionDefinition> = {};
 export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 
 type EnvironmentConstructor = (
+  context: GlobalContext,
   name: string,
   array: Atom[][][],
   rowGaps: Dimension[],
@@ -851,7 +844,7 @@ export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
  */
 export function getInfo(
   symbol: string,
-  parseMode: ArgumentType,
+  parseMode: ParseMode,
   macros?: NormalizedMacroDictionary
 ): (Partial<FunctionDefinition> & Partial<SymbolDefinition>) | null {
   if (!symbol || symbol.length === 0) return null;
@@ -973,10 +966,10 @@ function parseParameterTemplateArgument(argTemplate: string): ArgumentType {
 
 function parseParameterTemplate(
   parameterTemplate: string
-): FunctionArgumentDefiniton[] {
+): FunctionArgumentDefinition[] {
   if (!parameterTemplate) return [];
 
-  const result: FunctionArgumentDefiniton[] = [];
+  const result: FunctionArgumentDefinition[] = [];
   let parameters = parameterTemplate.split(']');
   if (parameters[0].startsWith('[')) {
     // We found at least one optional parameter.
@@ -1028,7 +1021,7 @@ export function parseArgAsString(atoms: Atom[]): string {
 export function defineEnvironment(
   names: string | string[],
   parameters: string,
-  parser: EnvironmentConstructor,
+  createAtom: EnvironmentConstructor,
   isTabular = false
 ): void {
   if (typeof names === 'string') names = [names];
@@ -1042,8 +1035,8 @@ export function defineEnvironment(
     // {optional, type}
     params: parsedParameters,
 
-    // Callback to create an atom
-    createAtom: parser,
+    // Handler to create an atom
+    createAtom,
   };
   for (const name of names) ENVIRONMENTS[name] = data;
 }
@@ -1056,9 +1049,9 @@ export function defineEnvironment(
 export function defineTabularEnvironment(
   names: string | string[],
   parameters: string,
-  parser: EnvironmentConstructor
+  createAtom: EnvironmentConstructor
 ): void {
-  defineEnvironment(names, parameters, parser, true);
+  defineEnvironment(names, parameters, createAtom, true);
 }
 
 /**
@@ -1081,12 +1074,12 @@ export function defineFunction(
       name: string,
       args: (null | Argument)[],
       style: PrivateStyle,
-      options: CreateAtomOptions
+      context: GlobalContext
     ) => Atom;
     applyStyle?: (
       name: string,
       args: (null | Argument)[],
-      options: ApplyStyleDefinitionOptions
+      context: GlobalContext
     ) => PrivateStyle;
     command?: string;
   }

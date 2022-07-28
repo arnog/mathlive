@@ -1,5 +1,5 @@
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { Box } from '../core/box';
 
 export class MacroAtom extends Atom {
@@ -8,6 +8,7 @@ export class MacroAtom extends Atom {
 
   constructor(
     macro: string,
+    context: GlobalContext,
     options: {
       expand?: boolean;
       args?: string;
@@ -15,7 +16,7 @@ export class MacroAtom extends Atom {
       captureSelection?: boolean;
     }
   ) {
-    super('macro', { command: macro });
+    super('macro', context, { command: macro });
     this.body = options.body;
     // Set the `captureSelection` attribute so that the atom is handled
     // as an unbreakable unit
@@ -27,8 +28,8 @@ export class MacroAtom extends Atom {
     this.expand = options.expand ?? false;
   }
 
-  static fromJson(json: AtomJson): MacroAtom {
-    return new MacroAtom(json.command, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): MacroAtom {
+    return new MacroAtom(json.command, context, json as any);
   }
 
   toJson(): AtomJson {

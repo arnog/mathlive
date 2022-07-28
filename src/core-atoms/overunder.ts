@@ -1,7 +1,7 @@
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box, BoxType, makeSVGBox } from '../core/box';
 import { VBox } from '../core/v-box';
-import { Context, PrivateStyle } from '../core/context';
+import { Context, GlobalContext, PrivateStyle } from '../core/context';
 import { makeNullDelimiter } from '../core/delimiters';
 
 // An `overunder` atom has the following attributes:
@@ -19,6 +19,7 @@ export class OverunderAtom extends Atom {
   padded?: boolean;
   constructor(
     command: string,
+    context: GlobalContext,
     options: {
       body?: Atom[];
       above?: Atom[];
@@ -34,7 +35,7 @@ export class OverunderAtom extends Atom {
       serialize?: (atom: OverunderAtom, options: ToLatexOptions) => string;
     }
   ) {
-    super('overunder', {
+    super('overunder', context, {
       command,
       serialize: options.serialize,
       style: options.style,
@@ -52,8 +53,8 @@ export class OverunderAtom extends Atom {
     this.padded = options.padded ?? false;
   }
 
-  static fromJson(json: AtomJson): OverunderAtom {
-    return new OverunderAtom(json.command, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): OverunderAtom {
+    return new OverunderAtom(json.command, context, json as any);
   }
 
   toJson(): AtomJson {

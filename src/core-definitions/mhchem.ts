@@ -14,17 +14,19 @@
  * See https://mhchem.github.io/MathJax-mhchem/
  */
 
-import { Argument, defineFunction } from './definitions-utils';
+import { Style } from '../public/core';
+
 import { parseLatex } from '../core/parser';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context } from '../core/context';
+import { Context, GlobalContext } from '../core/context';
 import { Box } from '../core/box';
-import { Style } from 'public/core';
+
+import { Argument, defineFunction } from './definitions-utils';
 
 export class ChemAtom extends Atom {
   private arg: string;
-  constructor(command: string, arg: string) {
-    super('chem', { command, mode: 'math' });
+  constructor(command: string, arg: string, context: GlobalContext) {
+    super('chem', context, { command, mode: 'math' });
     const tex = texify.go(
       mhchemParser.go(arg, command === '\\pu' ? 'pu' : 'ce'),
       false
@@ -36,8 +38,8 @@ export class ChemAtom extends Atom {
     this.captureSelection = true;
   }
 
-  static fromJson(json: AtomJson): ChemAtom {
-    return new ChemAtom(json.command, json.arg);
+  static fromJson(json: AtomJson, context: GlobalContext): ChemAtom {
+    return new ChemAtom(json.command, json.arg, context);
   }
 
   toJson(): AtomJson {

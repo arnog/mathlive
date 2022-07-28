@@ -1,8 +1,9 @@
+import type { Style } from '../public/core';
+
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
-import { Context } from '../core/context';
-import type { Style } from '../public/core';
+import { Context, GlobalContext } from '../core/context';
 
 export class PhantomAtom extends Atom {
   private readonly isInvisible: boolean;
@@ -12,6 +13,7 @@ export class PhantomAtom extends Atom {
   constructor(
     command: string,
     body: Atom[],
+    context: GlobalContext,
     options: {
       smashHeight?: boolean;
       smashDepth?: boolean;
@@ -20,7 +22,7 @@ export class PhantomAtom extends Atom {
       style: Style;
     }
   ) {
-    super('phantom', { command, style: options.style });
+    super('phantom', context, { command, style: options.style });
     this.captureSelection = true;
     this.body = body;
     this.isInvisible = options.isInvisible ?? false;
@@ -29,8 +31,8 @@ export class PhantomAtom extends Atom {
     this.smashWidth = options.smashWidth ?? false;
   }
 
-  static fromJson(json: AtomJson): PhantomAtom {
-    return new PhantomAtom(json.command, json.body, json as any);
+  static fromJson(json: AtomJson, context: GlobalContext): PhantomAtom {
+    return new PhantomAtom(json.command, json.body, context, json as any);
   }
 
   toJson(): AtomJson {

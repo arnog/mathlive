@@ -27,6 +27,7 @@ export const defaultExportHook = (
 
 export class ModeEditor {
   static _registry: Record<string, ModeEditor> = {};
+
   constructor(name: string) {
     ModeEditor._registry[name] = this;
   }
@@ -129,13 +130,7 @@ export class ModeEditor {
     mode: ParseMode,
     model: ModelPrivate,
     text: string,
-    options: InsertOptions & {
-      colorMap?: (name: string) => string | undefined;
-      backgroundColorMap?: (name: string) => string | undefined;
-      fractionNavigationOrder?:
-        | 'numerator-denominator'
-        | 'denominator-numerator';
-    } = {}
+    options: InsertOptions = {}
   ): boolean {
     return ModeEditor._registry[mode].insert(model, text, options);
   }

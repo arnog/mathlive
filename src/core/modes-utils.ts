@@ -1,11 +1,13 @@
 import { Style, ParseMode } from '../public/core';
 
-import type { Box } from './box';
-import type { Token } from './tokenizer';
-import { ArgumentType } from './parser';
 import type { GroupAtom } from '../core-atoms/group';
-import { Atom, ToLatexOptions } from './atom';
 import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
+
+import { Atom, ToLatexOptions } from './atom';
+import type { Box } from './box';
+import { GlobalContext } from './context';
+import { ArgumentType } from './parser';
+import type { Token } from './tokenizer';
 
 export interface ParseTokensOptions {
   macros: NormalizedMacroDictionary;
@@ -28,9 +30,10 @@ export abstract class Mode {
   static createAtom(
     mode: ParseMode,
     command: string,
+    context: GlobalContext,
     style?: Style
   ): Atom | null {
-    return Mode._registry[mode].createAtom(command, style);
+    return Mode._registry[mode].createAtom(command, context, style);
   }
 
   // `run` should be a run (sequence) of atoms all with the same
@@ -45,7 +48,11 @@ export abstract class Mode {
     return Mode._registry[mode].applyStyle(box, style);
   }
 
-  abstract createAtom(_command: string, _style?: Style): Atom | null;
+  abstract createAtom(
+    command: string,
+    context: GlobalContext,
+    style?: Style
+  ): Atom | null;
 
   abstract serialize(_run: Atom[], _options: ToLatexOptions): string;
 

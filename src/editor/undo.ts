@@ -3,9 +3,11 @@ import {
   ContentChangeOptions,
   UndoStateChangeListener,
 } from '../public/options';
-import type { ModelPrivate } from '../editor-model/model-private';
+
 import { AtomJson } from '../core/atom-class';
 import { fromJson } from '../core/atom';
+
+import type { ModelPrivate } from '../editor-model/model-private';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
 export type UndoRecord = {
@@ -156,7 +158,7 @@ export class UndoManager {
     if (options.type === 'redo') changeOption = { inputType: 'historyRedo' };
     if (contentWillChange(this.model, changeOption)) {
       // Restore the content and selection
-      this.model.root = fromJson(state.content);
+      this.model.root = fromJson(state.content, this.model.mathfield);
       this.model.selection = state.selection;
 
       contentDidChange(this.model, changeOption);

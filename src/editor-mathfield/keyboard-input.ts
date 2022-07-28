@@ -1,4 +1,11 @@
 import type { Selector } from '../public/commands';
+import { ParseMode, Style } from '../public/core';
+
+import { canVibrate } from '../common/capabilities';
+
+import { splitGraphemes } from '../core/grapheme-splitter';
+import { Atom } from '../core/atom';
+
 import {
   mightProducePrintableCharacter,
   eventToChar,
@@ -8,29 +15,23 @@ import {
   getInlineShortcut,
 } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
-import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate } from '../editor/commands';
-import { removeSuggestion, updateAutocomplete } from './autocomplete';
-
-import { requestUpdate } from './render';
-
-import type { MathfieldPrivate } from './mathfield-private';
-
-import { removeIsolatedSpace, smartMode } from './smartmode';
-
 import {
   getActiveKeyboardLayout,
   validateKeyboardLayout,
 } from '../editor/keyboard-layout';
-import { ParseMode, Style } from '../public/core';
+
 import { moveAfterParent } from '../editor-model/commands-move';
-import { range } from '../editor-model/selection-utils';
-import { insertSmartFence } from './mode-editor-math';
-import { ModeEditor } from './mode-editor';
-import { canVibrate } from '../common/capabilities';
-import { showKeystroke } from './keystroke-caption';
-import { Atom } from '../core/atom';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
+import { range } from '../editor-model/selection-utils';
+
+import { removeSuggestion, updateAutocomplete } from './autocomplete';
+import { requestUpdate } from './render';
+import type { MathfieldPrivate } from './mathfield-private';
+import { removeIsolatedSpace, smartMode } from './smartmode';
+import { showKeystroke } from './keystroke-caption';
+import { ModeEditor } from './mode-editor';
+import { insertSmartFence } from './mode-editor-math';
 
 /**
  * Handler in response to a keystroke event.
@@ -262,7 +263,6 @@ export function onKeystroke(
           mathfield.snapshot();
           ModeEditor.insert('math', model, mathfield.options.mathModeSpace, {
             format: 'latex',
-            fractionNavigationOrder: mathfield.fractionNavigationOrder,
           });
           selector = '';
           mathfield.dirty = true;
@@ -353,7 +353,6 @@ export function onKeystroke(
       const saveMode = mathfield.mode;
       ModeEditor.insert(mathfield.mode, model, eventToChar(evt), {
         suppressChangeNotifications: true,
-        fractionNavigationOrder: mathfield.fractionNavigationOrder,
         style,
       });
       // Create a snapshot with the inserted character
@@ -374,12 +373,10 @@ export function onKeystroke(
         type: 'insertText',
       },
       (): boolean => {
-        // Insert the substitute, possibly as a smart fence
+        // Insert the substitute
         ModeEditor.insert(mathfield.mode, model, shortcut!, {
           format: 'latex',
           style,
-          smartFence: true,
-          fractionNavigationOrder: mathfield.fractionNavigationOrder,
         });
         // Check if as a result of the substitution there is now an isolated
         // (text mode) space (surrounded by math). In which case, remove it.
@@ -557,10 +554,7 @@ export function onTypedText(
         }
 
         // General purpose character insertion
-        ModeEditor.insert('math', model, c, {
-          style,
-          smartFence: mathfield.options.smartFence,
-        });
+        ModeEditor.insert('math', model, c, { style });
       }
     }
   }
