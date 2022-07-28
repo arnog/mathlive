@@ -45,7 +45,6 @@ export interface ContextInterface {
     groupNumbers: boolean;
     seed: 'random' | number;
   };
-  smartFence?: boolean;
   renderPlaceholder?: (context: Context, placeholder: PlaceholderAtom) => Box;
 }
 
@@ -99,7 +98,6 @@ export class Context implements ContextInterface {
     groupNumbers: boolean;
     seed: 'random' | number;
   };
-  smartFence: boolean;
   renderPlaceholder?: (context: Context, placeholder: PlaceholderAtom) => Box;
 
   // Rendering to construct a phantom: don't bind the box.
@@ -211,7 +209,6 @@ export class Context implements ContextInterface {
     this._mathstyle = mathstyle;
 
     this.atomIdsSettings = parent.atomIdsSettings;
-    this.smartFence = from.smartFence ?? false;
     this.renderPlaceholder = from.renderPlaceholder;
     console.assert(
       !(parent instanceof Context) ||

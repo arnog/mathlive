@@ -166,7 +166,7 @@ export class LeftRightAtom extends Atom {
       let classes = this.containsCaret ? ' ML__contains-caret' : '';
       let delim = this.rightDelim;
       if (delim === '?') {
-        if (context.smartFence) {
+        if (this.context.smartFence) {
           // Use a placeholder delimiter matching the open delimiter
           delim = this.matchingRightDelim();
           classes += ' ML__smart-fence__close';

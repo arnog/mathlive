@@ -121,7 +121,6 @@ export function render(
           // consecutive digits to represent a number.
           groupNumbers: renderOptions.forHighlighting ?? false,
         },
-        smartFence: mathfield.options.smartFence,
         renderPlaceholder: mathfield.options.readOnly
           ? (context: Context, p) => {
               if (p.placeholderId) {

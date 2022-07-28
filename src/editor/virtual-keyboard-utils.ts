@@ -1279,7 +1279,7 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
       new Box(
         root.render(
           new Context(
-            { registers: context.registers, smartFence: false },
+            { registers: context.registers },
             { fontSize: DEFAULT_FONT_SIZE },
             'displaystyle'
           )

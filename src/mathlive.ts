@@ -171,7 +171,6 @@ export function convertLatexToMarkup(
     new Context(
       {
         registers: context.registers,
-        smartFence: false,
         renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
       },
       {
