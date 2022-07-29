@@ -20,6 +20,8 @@
 - **#1545** Switching from a tab with a focused mathfield to another tab, then
   return to the tab with the matfield would lose the focus on the mathfield. The
   focus is now restored, similarly to what happens with a textarea element
+- When repeatedly hiding/showing the virtual keyboard, the virtual keyboard
+  stylesheet would leak in the `<header>` of the document
 
 ## 0.77.0 (2022-07-05)
 

@@ -329,23 +329,25 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   create(): void {
-    if (!VIRTUAL_KEYBOARD_STYLESHEET_HASH) {
-      VIRTUAL_KEYBOARD_STYLESHEET_HASH = hashCode(
-        VIRTUAL_KEYBOARD_STYLESHEET
-      ).toString(36);
+    if (!this.virtualKeyboardStylesheet) {
+      if (!VIRTUAL_KEYBOARD_STYLESHEET_HASH) {
+        VIRTUAL_KEYBOARD_STYLESHEET_HASH = hashCode(
+          VIRTUAL_KEYBOARD_STYLESHEET
+        ).toString(36);
+      }
+      this.virtualKeyboardStylesheet = injectStylesheet(
+        null,
+        VIRTUAL_KEYBOARD_STYLESHEET,
+        VIRTUAL_KEYBOARD_STYLESHEET_HASH
+      );
     }
-    this.virtualKeyboardStylesheet = injectStylesheet(
-      null,
-      VIRTUAL_KEYBOARD_STYLESHEET,
-      VIRTUAL_KEYBOARD_STYLESHEET_HASH
-    );
-
-    this.coreStylesheet = injectStylesheet(
-      null,
-      CORE_STYLESHEET,
-      hashCode(CORE_STYLESHEET).toString(36)
-    );
-
+    if (!this.coreStylesheet) {
+      this.coreStylesheet = injectStylesheet(
+        null,
+        CORE_STYLESHEET,
+        hashCode(CORE_STYLESHEET).toString(36)
+      );
+    }
     void loadFonts(this.options.fontsDirectory);
   }
 
