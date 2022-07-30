@@ -55,47 +55,46 @@ export class MathModeEditor extends ModeEditor {
     //
     // 1/ Try to get serialized atoms
     //
-    try {
-      const atomJson = JSON.parse(
-        ev.clipboardData.getData('application/json+mathlive')
-      );
-      if (atomJson && Array.isArray(atomJson)) {
-        mathfield.snapshot();
+    let json = ev.clipboardData.getData('application/json+mathlive');
+    if (json) {
+      try {
+        const atomJson = JSON.parse(json);
+        if (atomJson && Array.isArray(atomJson)) {
+          mathfield.snapshot();
 
-        const atoms = fromJson(atomJson, mathfield);
-        const { model } = mathfield;
-        if (!model.selectionIsCollapsed)
-          model.deleteAtoms(range(model.selection));
-        const cursor = model.at(model.position);
-        cursor.parent!.addChildrenAfter(atoms, cursor);
-        model.position = model.offsetOf(atoms[atoms.length - 1]);
+          const atoms = fromJson(atomJson, mathfield);
+          const { model } = mathfield;
+          if (!model.selectionIsCollapsed)
+            model.deleteAtoms(range(model.selection));
+          const cursor = model.at(model.position);
+          cursor.parent!.addChildrenAfter(atoms, cursor);
+          model.position = model.offsetOf(atoms[atoms.length - 1]);
 
-        contentDidChange(model, { inputType: 'insertFromPaste' });
-        requestUpdate(mathfield);
+          contentDidChange(model, { inputType: 'insertFromPaste' });
+          requestUpdate(mathfield);
 
-        ev.preventDefault();
-        ev.stopPropagation();
-        return true;
-      }
-    } catch {}
+          ev.preventDefault();
+          ev.stopPropagation();
+          return true;
+        }
+      } catch {}
+    }
 
     //
     // 2/ Try to get a MathJSON data type
     //
-    const json = ev.clipboardData.getData('application/json');
+    json = ev.clipboardData.getData('application/json');
     if (json) {
-      const expr = JSON.parse(json);
-      if (typeof expr === 'object' && 'latex' in expr && expr.latex)
-        text = expr.latex;
-      if (!text) {
-        try {
+      try {
+        const expr = JSON.parse(json);
+        if (typeof expr === 'object' && 'latex' in expr && expr.latex)
+          text = expr.latex;
+        if (!text) {
           const box = mathfield.computeEngine.box(expr);
           if (!box.has('Error')) text = box.latex;
-        } catch {
-          text = '';
         }
-      }
-      if (!text) format = 'latex';
+        if (!text) format = 'latex';
+      } catch {}
     }
 
     //
