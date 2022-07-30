@@ -37,6 +37,12 @@ export class ModeEditor {
     mathfield: MathfieldPrivate,
     ev: ClipboardEvent
   ): boolean {
+    const redispatchedEvent = new ClipboardEvent('paste', {
+      clipboardData: ev.clipboardData,
+      cancelable: true,
+    });
+    if (!mathfield.eventSink?.dispatchEvent(redispatchedEvent)) return false;
+
     return ModeEditor._registry[mode].onPaste(mathfield, ev);
   }
 

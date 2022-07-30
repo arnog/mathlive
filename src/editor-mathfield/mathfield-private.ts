@@ -147,6 +147,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       })
     | undefined;
 
+  /** The element from which events are emitted, usually a MathfieldElement */
+  readonly eventSink: EventTarget | undefined;
+
   readonly field: HTMLElement;
   fieldContent: HTMLElement;
   private virtualKeyboardToggle: HTMLElement;
@@ -205,6 +208,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   constructor(
     element: HTMLElement & { mathfield?: MathfieldPrivate },
     options: Partial<MathfieldOptionsPrivate> & {
+      eventSink?: EventTarget;
       computeEngine?: ComputeEngine;
     }
   ) {
@@ -229,6 +233,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.options.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
 
     if (options.computeEngine) this._computeEngine = options.computeEngine;
+    if (options.eventSink) this.eventSink = options.eventSink;
 
     this.placeholders = new Map();
 
@@ -439,11 +444,18 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       copy: (ev: ClipboardEvent) => ModeEditor.onCopy(this, ev),
       paste: (ev: ClipboardEvent) => {
         // Ignore if in read-only mode
-        if (this.options.readOnly) {
-          this.model.announce('plonk');
-          return;
+        let result = true;
+        if (this.options.readOnly) result = false;
+        if (result) {
+          result = ModeEditor.onPaste(
+            this.model.at(this.model.position).mode,
+            this,
+            ev
+          );
         }
-        ModeEditor.onPaste(this.model.at(this.model.position).mode, this, ev);
+
+        if (!result) this.model.announce('plonk');
+        return result;
       },
       keystroke: (keystroke, event) => onKeystroke(this, keystroke, event),
       focus: () => this.onFocus(),

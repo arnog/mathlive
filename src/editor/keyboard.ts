@@ -189,7 +189,7 @@ export function delegateKeyboardEvents(
     typedText: (text: string) => void;
     cut: (ev: ClipboardEvent) => void;
     copy: (ev: ClipboardEvent) => void;
-    paste: (ev: ClipboardEvent) => void;
+    paste: (ev: ClipboardEvent) => boolean;
     keystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
     focus: null | (() => void);
     blur: null | (() => void);
@@ -294,7 +294,7 @@ export function delegateKeyboardEvents(
       // when doing a middle-click paste command.
       textarea.focus();
       textarea.value = '';
-      handlers.paste(event);
+      if (!handlers.paste(event)) event.preventDefault();
       event.stopImmediatePropagation();
     },
     true

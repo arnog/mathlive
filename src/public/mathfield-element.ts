@@ -1057,6 +1057,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._mathfield = new MathfieldPrivate(
       this.shadowRoot!.querySelector(':host > div')!,
       {
+        eventSink: this,
         onBlur: () => {
           this.dispatchEvent(
             new Event('blur', {
