@@ -73,6 +73,7 @@ export function defaultGetDefinition(
   // Special case `f`, `g` and `h` are recognized as functions.
   if (
     info &&
+    info.definitionType === 'symbol' &&
     info.type === 'mord' &&
     (info.codepoint === 0x66 ||
       info.codepoint === 0x67 ||
