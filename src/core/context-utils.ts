@@ -20,6 +20,7 @@ export function defaultGlobalContext(): GlobalContext {
     registers: {},
     smartFence: false,
     fractionNavigationOrder: 'numerator-denominator',
+    placeholderSymbol: '▢',
     letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
     colorMap: defaultColorMap,
     backgroundColorMap: defaultBackgroundColorMap,

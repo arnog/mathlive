@@ -10,13 +10,15 @@
     <link rel="stylesheet" href="./style.css" />
     <link rel="icon" href="data:," />
   </head>
-
   <body>
     <header>
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf">1+\frac{123}{4567}=x</math-field>
+      <math-field id="mf"
+        >{\sqrt{\sum_{n=1}^\infty {\frac{10}{n^4}}}} = {\int_0^\infty \frac{2x
+        dx}{e^x-1}} = \frac{\pi^2}{3} \in {\mathbb R}</math-field
+      >
 
       <h2 style="margin-top: 1em">Selection</h2>
       <div class="output" id="selection"></div>
@@ -196,8 +198,6 @@
           return '';
         },
         // smartFence: true,
-        fractionNavigationOrder: 'denominator-numerator',
-        decimalSeparator: ',',
         virtualKeyboardMode: 'manual',
         macros: {
           ...mf.getOptions('macros'),
@@ -206,6 +206,8 @@
       });
 
       mf.addEventListener('input', (ev) => updateContent(mf));
+
+      // mf.addEventListener('paste', (ev) => ev.preventDefault());
 
       mf.addEventListener('change', (ev) =>
         console.log('change event', mf.value)

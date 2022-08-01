@@ -32,6 +32,7 @@ export interface GlobalContext {
   readonly fractionNavigationOrder:
     | 'numerator-denominator'
     | 'denominator-numerator';
+  readonly placeholderSymbol: string;
   colorMap: (name: string) => string | undefined;
   backgroundColorMap: (name: string) => string | undefined;
   getDefinition(token: string, parseMode: ParseMode): TokenDefinition | null;

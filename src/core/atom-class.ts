@@ -942,8 +942,11 @@ export class Atom {
     // 1. Render the body or value
     //
     const context = new Context(parentContext, this.style);
+    let classes = '';
+    if (this.type === 'root') classes += ' ML__base';
+    if (this.isSelected) classes += ' ML__selected';
     let result: Box = this.createBox(context, {
-      classes: this.type === 'root' ? ' ML__base' : '',
+      classes,
       newList: options?.newList === true || this.type === 'first',
     });
     if (!result) return null;
@@ -1080,7 +1083,9 @@ export class Atom {
 
     // Display the caret *following* the superscript and subscript,
     // so attach the caret to the 'msubsup' element.
-    const supsubContainer = new Box(supsub, { classes: 'msubsup' });
+    const supsubContainer = new Box(supsub, {
+      classes: 'msubsup' + (this.isSelected ? ' ML__selected' : ''),
+    });
     if (this.caret) supsubContainer.caret = this.caret;
 
     return new Box([base, supsubContainer], { type: options.type });

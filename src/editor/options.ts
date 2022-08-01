@@ -313,6 +313,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     mathModeSpace: '',
     decimalSeparator: '.',
     fractionNavigationOrder: 'numerator-denominator',
+    placeholderSymbol: '▢',
 
     locale: l10n.locale,
     strings: l10n.strings,

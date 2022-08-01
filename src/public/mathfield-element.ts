@@ -420,9 +420,9 @@ export interface MathfieldElementAttributes {
  *
  * ```javascript
  * // Setting options during construction
- * const mfe = new MathfieldElement({smartFence: false});
+ * const mfe = new MathfieldElement({ smartFence: false });
  * // Modifying options after construction
- * mfe.setOptions({smartFence: true});
+ * mfe.setOptions({ smartFence: true });
  * ```
  *
  * ### CSS Variables
@@ -446,11 +446,8 @@ export interface MathfieldElementAttributes {
  * | CSS Variable | Usage |
  * |:---|:---|
  * | `--hue` | Hue of the highlight color and the caret |
- * | `--highlight` | Color of the selection |
- * | `--contains-highlight` | Backround property for items that contain the caret |
- * | `--highlight-inactive` | Color of the selection, when the mathfield is not focused |
- * | `--caret` | Color of the caret/insertion point |
- * | `--primary` | Primary accent color, used for example in the virtual keyboard |
+ * | `--contains-highlight-background-color` | Backround property for items that contain the caret |
+ * | `--primary-color` | Primary accent color, used for example in the virtual keyboard |
  * | `--text-font-family` | The font stack used in text mode |
  * | `--smart-fence-opacity` | Opacity of a smart fence (default is 50%) |
  * | `--smart-fence-color` | Color of a smart fence (default is current color) |

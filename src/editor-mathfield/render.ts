@@ -79,8 +79,7 @@ export function render(
     atom.isSelected = false;
     atom.containsCaret = false;
   }
-  const hasFocus =
-    !mathfield.options.readOnly && document.hasFocus() && mathfield.hasFocus();
+  const hasFocus = !mathfield.options.readOnly && mathfield.hasFocus();
   if (model.selectionIsCollapsed)
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
   else {
@@ -205,8 +204,6 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
     '.ML__selection, .ML__contains-highlight'
   ))
     element.remove();
-
-  if (!mathfield.hasFocus() || !document.hasFocus()) return;
 
   const model = mathfield.model;
 

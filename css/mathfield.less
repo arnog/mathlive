@@ -19,15 +19,10 @@
   content: '';
   border: none;
   border-radius: 2px;
-  border-right: 2px solid var(--caret, var(--ML__caret));
+  border-right: 2px solid var(--caret-color, var(--ML__caret-color));
   margin-right: -2px;
   position: relative;
   left: -1px;
-
-  // border: none;
-  // box-shadow: 0 0 0 2px var(--caret, hsl(var(--hue, 212), 40%, 49%));
-  // width: 0;
-  // min-height: 1em;
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
@@ -36,7 +31,7 @@
   content: '';
   border: none;
   border-radius: 1px;
-  border-right: 1px solid var(--caret, var(--ML__caret));
+  border-right: 1px solid var(--caret-color, var(--ML__caret-color));
   margin-right: -1px;
   position: relative;
   left: 0;
@@ -50,7 +45,7 @@
   margin-right: 0;
   margin-right: calc(-1ex - 2px);
   position: relative;
-  color: var(--caret, var(--ML__caret));
+  color: var(--caret-color, var(--ML__caret-color));
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
@@ -72,26 +67,26 @@
         delay the generation of click events when the user taps the screen." */
   touch-action: none;
 
-  --ML__highlight: hsl(var(--hue, 212), 97%, 85%);
-  --ML__highlight-text: hsla(var(--hue, 212), 40%, 50%, 0.1);
-  --ML__contains-highlight: hsl(var(--hue, 212), 40%, 95%);
-  --ML__highlight-inactive: #ccc;
-  --ML__on-highlight: currentColor;
-  --ML__caret: hsl(var(--hue, 212), 40%, 49%);
+  --ML__selection-background-color: hsl(var(--hue, 212), 97%, 85%);
+  --ML__text-highlight-background-color: hsla(var(--hue, 212), 40%, 50%, 0.1);
+  --ML__contains-highlight-background-color: hsl(var(--hue, 212), 40%, 95%);
+  --ML__selection-color: currentColor;
+  --ML__caret-color: hsl(var(--hue, 212), 40%, 49%);
   --ML__smart-fence-color: currentColor;
   --ML__latex-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+
+  --ML__placeholder-color: hsl(var(--hue, 212), 40%, 49%);
 }
 
 @media (prefers-color-scheme: dark) {
   .ML__container {
-    --ML__highlight: hsl(var(--hue, 212), 25%, 45%);
-    --ML__highlight-text: hsla(var(--hue, 212), 40%, 50%, 0.2);
-    --ML__contains-highlight: hsl(var(--hue, 212), 5%, 34%);
-    --ML__highlight-inactive: #334;
-    --ML__on-highlight: currentColor;
-    --ML__caret: hsl(var(--hue, 212), 60%, 69%);
-    --ML__smart-fence-color: currentColor;
+    --ML__selection-background-color: hsl(var(--hue, 212), 25%, 45%);
+    --ML__text-highlight-background-color: hsla(var(--hue, 212), 40%, 50%, 0.2);
+    --ML__contains-highlight-background-color: hsl(var(--hue, 212), 5%, 34%);
+    --ML__caret-color: hsl(var(--hue, 212), 60%, 69%);
     --ML__latex-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+
+    --ML__placeholder-color: hsl(var(--hue, 212), 60%, 69%);
   }
 }
 
@@ -173,7 +168,7 @@ to make sure it doesn't show. */
 }
 
 .ML__focused .ML__text {
-  background: var(--highlight-text, var(--ML__highlight-text));
+  background: var(--highlight-text, var(--ML__text-highlight-background-color));
 }
 
 /* When using smartFence, the anticipated closing fence is displayed
@@ -183,15 +178,36 @@ with this style */
   color: var(--smart-fence-color, var(--ML__smart-fence-color));
 }
 
-.ML__selection {
-  background: var(--highlight-inactive, var(--ML__highlight-inactive));
-  box-sizing: border-box;
+.ML__focused .ML__selection {
+  background: var(
+    --selection-background-color-focused,
+    var(--selection-background-color, var(--ML__selection-background-color))
+  ) !important;
+}
+.ML__focused .ML__selected,
+.ML__focused .ML__contains-caret .ML__selected,
+.ML__focused .ML__smart-fence__close.ML__selected,
+.ML__focused .ML__placeholder.ML__selected {
+  color: var(
+    --selection-color-focused,
+    var(--selection-color, var(--ML__selection-color))
+  ) !important;
 }
 
-.ML__focused .ML__selection {
-  background: var(--highlight, var(--ML__highlight)) !important;
-  color: var(--on-highlight, var(--ML_on-highlight));
-  // display:inline-block;
+.ML__selection {
+  box-sizing: border-box;
+  background: var(
+    --selection-background-color,
+    var(--ML__selection-background-color)
+  ) !important;
+}
+
+.ML__selected,
+.ML__contains-caret .ML__selected,
+.ML__smart-fence__close.ML__selected,
+.ML__placeholder.ML__selected {
+  color: var(--selection-color, var(--ML__selection-color));
+  opacity: 1;
 }
 
 .ML__contains-caret.ML__close,
@@ -200,11 +216,14 @@ with this style */
 .ML__contains-caret > .ML__open,
 .ML__contains-caret .ML__sqrt-sign,
 .ML__contains-caret .ML__sqrt-line {
-  color: var(--caret, var(--ML__caret));
+  color: var(--caret-color, var(--ML__caret-color));
 }
 
 .ML__contains-highlight {
-  background: var(--contains-highlight, var(--ML__contains-highlight));
+  background: var(
+    --contains-highlight-backround-color,
+    var(--ML__contains-highlight)
+  );
   box-sizing: border-box;
 }
 

@@ -908,6 +908,13 @@ export type EditingOptions = {
    * **Default**: `"numerator-denominator"`
    */
   fractionNavigationOrder: 'numerator-denominator' | 'denominator-numerator';
+
+  /**
+   * The symbol used to represent a placeholder in an expression.
+   *
+   * **Default**: `▢` `U+25A2 WHITE SQUARE WITH ROUNDED CORNERS`
+   */
+  placeholderSymbol: string;
 };
 
 export type LayoutOptions = {

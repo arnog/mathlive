@@ -91,6 +91,7 @@ export class SurdAtom extends Atom {
 
     const minDelimiterHeight = innerTotalHeight + lineClearance + ruleWidth;
     const delimContext = new Context(parentContext, this.style);
+    const selectClasses = this.isSelected ? ' ML__selected' : '';
     const delimBox = this.bind(
       delimContext,
       new Box(
@@ -99,9 +100,13 @@ export class SurdAtom extends Atom {
           '\\surd',
           minDelimiterHeight,
           false,
-          delimContext
+          delimContext,
+          { classes: selectClasses }
         ),
-        { classes: 'ML__sqrt-sign', style: this.style }
+        {
+          classes: 'ML__sqrt-sign' + selectClasses,
+          style: this.style,
+        }
       )
     );
 

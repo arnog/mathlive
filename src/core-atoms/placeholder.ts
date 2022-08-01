@@ -4,11 +4,6 @@ import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context, GlobalContext } from '../core/context';
 
-const PLACEHOLDER_STRING = '■';
-//'■' U+25A0 BLACK SQUARE
-//'▢' U+25A2 WHITE SQUARE WITH ROUNDED CORNERS
-//'⬚' U+2B1A DOTTED SQUARE
-
 export class PlaceholderAtom extends Atom {
   readonly placeholderId?: string;
   readonly defaultValue?: Atom[];
@@ -23,11 +18,11 @@ export class PlaceholderAtom extends Atom {
     }
   ) {
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    const value = options?.value || PLACEHOLDER_STRING;
+    const value = options?.value || context.placeholderSymbol;
     super('placeholder', context, {
       mode: options?.mode ?? 'math',
       style: options?.style,
-      value: value,
+      value,
       command: '\\placeholder',
     });
     this.captureSelection = true;
@@ -42,7 +37,7 @@ export class PlaceholderAtom extends Atom {
   toJson(): AtomJson {
     const result = super.toJson();
     if (this.placeholderId) result.placeholderId = this.placeholderId;
-    if (this.value === PLACEHOLDER_STRING) delete result.value;
+    if (this.value === this.context.placeholderSymbol) delete result.value;
     if (this.defaultValue)
       result.defaultValue = this.defaultValue.map((x) => x.toJson());
 
@@ -60,7 +55,7 @@ export class PlaceholderAtom extends Atom {
 
   serialize(options: ToLatexOptions): string {
     let value = this.value ?? '';
-    if (value === PLACEHOLDER_STRING) value = '';
+    if (value === this.context.placeholderSymbol) value = '';
     const id = this.placeholderId ? `[${this.placeholderId}]` : '';
     const defaultValue = this.defaultValue
       ? `[${Atom.serialize(this.defaultValue, options)}]`

@@ -148,7 +148,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     | undefined;
 
   /** The element from which events are emitted, usually a MathfieldElement */
-  readonly eventSink: EventTarget | undefined;
+  readonly host: HTMLElement | undefined;
 
   readonly field: HTMLElement;
   fieldContent: HTMLElement;
@@ -208,7 +208,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   constructor(
     element: HTMLElement & { mathfield?: MathfieldPrivate },
     options: Partial<MathfieldOptionsPrivate> & {
-      eventSink?: EventTarget;
+      eventSink?: HTMLElement;
       computeEngine?: ComputeEngine;
     }
   ) {
@@ -233,7 +233,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.options.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
 
     if (options.computeEngine) this._computeEngine = options.computeEngine;
-    if (options.eventSink) this.eventSink = options.eventSink;
+    if (options.eventSink) this.host = options.eventSink;
 
     this.placeholders = new Map();
 
@@ -628,6 +628,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     | 'numerator-denominator'
     | 'denominator-numerator' {
     return this.options?.fractionNavigationOrder ?? 'numerator-denominator';
+  }
+
+  get placeholderSymbol(): string {
+    return this.options?.placeholderSymbol ?? '▢';
   }
 
   get smartFence(): boolean {

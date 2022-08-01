@@ -41,7 +41,7 @@ export class ModeEditor {
       clipboardData: ev.clipboardData,
       cancelable: true,
     });
-    if (!mathfield.eventSink?.dispatchEvent(redispatchedEvent)) return false;
+    if (!mathfield.host?.dispatchEvent(redispatchedEvent)) return false;
 
     return ModeEditor._registry[mode].onPaste(mathfield, ev);
   }

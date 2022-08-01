@@ -182,6 +182,8 @@ export class GenfracAtom extends Atom {
       denomShift = metrics.denom2; // V ← σ12
     }
 
+    const classes: string[] = [];
+    if (this.isSelected) classes.push('ML__selected');
     const numerDepth = numerBox.depth;
     const denomHeight = denomBox.height;
     let frac: Box;
@@ -200,12 +202,12 @@ export class GenfracAtom extends Atom {
           {
             box: numerBox,
             shift: -numerShift,
-            classes: ['ML__center'],
+            classes: [...classes, 'ML__center'],
           },
           {
             box: denomBox,
             shift: denomShift,
-            classes: ['ML__center'],
+            classes: [...classes, 'ML__center'],
           },
         ],
       }).wrap(fracContext);
@@ -234,13 +236,13 @@ export class GenfracAtom extends Atom {
           {
             box: denomBox,
             shift: denomShift,
-            classes: ['ML__center'],
+            classes: [...classes, 'ML__center'],
           },
-          { box: fracLine, shift: -denomLine + ruleWidth / 2 },
+          { box: fracLine, shift: -denomLine + ruleWidth / 2, classes },
           {
             box: numerBox,
             shift: -numerShift,
-            classes: ['ML__center'],
+            classes: [...classes, 'ML__center'],
           },
         ],
       }).wrap(fracContext);
@@ -250,6 +252,8 @@ export class GenfracAtom extends Atom {
     const delimSize = fracContext.isDisplayStyle
       ? metrics.delim1
       : metrics.delim2;
+
+    const selectClasses = this.isSelected ? ' ML__selected' : '';
 
     // Optional delimiters
     const leftDelim = this.leftDelim
@@ -261,7 +265,7 @@ export class GenfracAtom extends Atom {
             delimSize,
             true,
             context,
-            { style: this.style, mode: this.mode }
+            { style: this.style, mode: this.mode, classes: selectClasses }
           )
         )
       : makeNullDelimiter(fracContext, 'mopen');
@@ -281,7 +285,7 @@ export class GenfracAtom extends Atom {
           delimSize,
           true,
           context,
-          { style: this.style, mode: this.mode }
+          { style: this.style, mode: this.mode, classes: selectClasses }
         )
       );
     }

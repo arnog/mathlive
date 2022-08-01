@@ -147,7 +147,7 @@ export class OperatorAtom extends Atom {
     // can all be selected as one
     return new Box(this.bind(context, result), {
       type: 'mop',
-      classes: 'op-group',
+      classes: 'op-group' + (this.isSelected ? ' ML__selected' : ''),
     });
   }
 

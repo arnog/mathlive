@@ -7,11 +7,31 @@
   some optional settings. A mathfield is a `GlobalContext`, but it is also used
   when rendering static LaTeX.
 
+- The symbol used to indicate a placeholder (i.e. `\placeholder{}`) can now be
+  customized with `mf.setOptions({ placeholderSymbol: '?' })`.
+
+  Some symbols that work pretty well:
+
+  - ■ **`U+25A0`** `BLACK SQUARE`
+  - ▢ **`U+25A2`** `WHITE SQUARE WITH ROUNDED CORNERS`
+  - ⬚ **`U+2B1A`** `DOTTED SQUARE`
+
+- The following CSS variables can be used to control the appearance of the
+  selection:
+
+  - `--selection-background-color-focused`
+  - `--selection-background-color`
+  - `--selection-color-focused`
+  - `--selection-color`
+  - `--caret-color`
+
 ### Features
 
 - **#1556** Support for East-Asian fraction navigation, where the denominator is
   read/written before the numerator. To use East Asian fraction navigation, set
   the option `fractionNavigationOrder` to `"denominator-numerator"`.
+- Paste in a mathfield can be prevented by listening for a `paste` event and
+  doing a `preventDefault()` on it
 
 ### Bug Fixes
 
@@ -1050,8 +1070,9 @@ for more details.
   commands) is now highlighted when they contain the caret. This makes it easier
   to distinguish some cases when the cursor is at the edge of the element and
   could be either inside or outside. The appearance of the highliting can be
-  controlled with the `--contains-highlight` CSS variable. Set it to
-  `transparent` to restore the previous behavior.
+  controlled with the <del>`--contains-highlight`</del>
+  `--contains-highlight-background-color` CSS variable. Set it to `transparent`
+  to restore the previous behavior.
 
 - **`colorMap` option**. To map a color name such as "yellow" to a custom RGB
   color, set the `colorMap` or `backgroundColorMap` option to a function that
