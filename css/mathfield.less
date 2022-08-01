@@ -185,9 +185,9 @@ with this style */
   ) !important;
 }
 .ML__focused .ML__selected,
-.ML__focused .ML__contains-caret .ML__selected,
-.ML__focused .ML__smart-fence__close.ML__selected,
-.ML__focused .ML__placeholder.ML__selected {
+.ML__focused .ML__selected .ML__contains-caret,
+.ML__focused .ML__selected .ML__smart-fence__close,
+.ML__focused .ML__selected .ML__placeholder {
   color: var(
     --selection-color-focused,
     var(--selection-color, var(--ML__selection-color))
@@ -203,9 +203,9 @@ with this style */
 }
 
 .ML__selected,
-.ML__contains-caret .ML__selected,
-.ML__smart-fence__close.ML__selected,
-.ML__placeholder.ML__selected {
+.ML__selected .ML__contains-caret,
+.ML__selected .ML__smart-fence__close,
+.ML__selected .ML__placeholder {
   color: var(--selection-color, var(--ML__selection-color));
   opacity: 1;
 }
