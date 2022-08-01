@@ -395,6 +395,14 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.element.classList.add('ML__isInline');
     else this.element.classList.remove('ML__isInline');
 
+    // Listen to 'click' events on the part of the field that doesn't have
+    // content, so we avoid sending two 'click' events
+    this.element
+      .querySelector('.ML__content')!
+      .addEventListener('click', (evt) => evt.stopImmediatePropagation(), {
+        capture: false,
+      });
+
     // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
     this.field.addEventListener('wheel', this, { passive: false });
 

@@ -32,6 +32,8 @@
   the option `fractionNavigationOrder` to `"denominator-numerator"`.
 - Paste in a mathfield can be prevented by listening for a `paste` event and
   doing a `preventDefault()` on it
+- **#1439** A synthetic `click` event is now dispatched when a click occurs
+  inside the mathfield.
 
 ### Bug Fixes
 

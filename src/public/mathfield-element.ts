@@ -694,16 +694,50 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (options) this.setOptions(options);
 
     this.shadowRoot!.host.addEventListener(
+      'pointerdown',
+      (_event) => this.onPointerDown(),
+      true
+    );
+    this.shadowRoot!.host.addEventListener(
       'focus',
-      (_event) => this._mathfield?.focus(),
+      () => this._mathfield?.focus(),
       true
     );
     this.shadowRoot!.host.addEventListener(
       'blur',
-      (_event) => this._mathfield?.blur(),
+      () => this._mathfield?.blur(),
       true
     );
   }
+
+  onPointerDown(): void {
+    window.addEventListener(
+      'pointerup',
+      (evt) => {
+        if (evt.target === this) {
+          this.dispatchEvent(
+            new MouseEvent('click', {
+              altKey: evt.altKey,
+              button: evt.button,
+              buttons: evt.buttons,
+              clientX: evt.clientX,
+              clientY: evt.clientY,
+              ctrlKey: evt.ctrlKey,
+              metaKey: evt.metaKey,
+              movementX: evt.movementX,
+              movementY: evt.movementY,
+              relatedTarget: evt.relatedTarget,
+              screenX: evt.screenX,
+              screenY: evt.screenY,
+              shiftKey: evt.shiftKey,
+            })
+          );
+        }
+      },
+      { once: true }
+    );
+  }
+
   getPlaceholderField(placeholderId: string): Mathfield | undefined {
     return this._mathfield?.getPlaceholderField(placeholderId);
   }
