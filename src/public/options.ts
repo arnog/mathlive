@@ -541,7 +541,7 @@ export interface MathfieldHooks {
    *
    * Return `false` to stop the handling of the event.
    *
-   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   * @deprecated Use corresponding events of `MathfieldElement` instead
    *
    */
   onKeystroke: (
@@ -572,7 +572,7 @@ export interface MathfieldHooks {
    *
    * Return `true` for the default behavior, which is playing a "plonk" sound.
    *
-   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   * @deprecated Use corresponding events of `MathfieldElement` instead
    *
    */
   onMoveOutOf: (
@@ -589,7 +589,7 @@ export interface MathfieldHooks {
    * By default, the insertion point jumps to the next/previous focussable
    * element.
    *
-   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   * @deprecated Use corresponding events of `MathfieldElement` instead
    *
    *
    */
@@ -685,7 +685,7 @@ mfe.addEventListener('input', (ev) => {
     console.log(ev.target.value);
 });
  * ```
- * @deprecated Use corresponding events of `MathfieldEvent` instead
+ * @deprecated Use corresponding events of `MathfieldElement` instead
  */
 
 export interface MathfieldListeners {
