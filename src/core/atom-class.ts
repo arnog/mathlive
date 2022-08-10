@@ -254,10 +254,9 @@ export class Atom {
   ) {
     this.type = type;
     this.context = context;
-    this.command = options?.command ?? '';
-    if (!this.command && options?.value) this.command = options.value;
-    this.mode = options?.mode ?? 'math';
     if (typeof options?.value === 'string') this.value = options.value;
+    this.command = options?.command ?? this.value ?? '';
+    this.mode = options?.mode ?? 'math';
     this.isFunction = options?.isFunction ?? false;
     this.subsupPlacement = options?.limits;
     this.style = options?.style ?? {};

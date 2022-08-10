@@ -49,6 +49,14 @@ const SPECIAL_IDENTIFIERS = {
   '\\exponentialE': 'e',
   '\\imaginaryI': 'i',
   '\\imaginaryJ': 'j',
+  '\\!': ' ',
+  '\\,': ' ',
+  '\\:': ' ',
+  '\\;': ' ',
+  '\\enskip': ' ',
+  '\\enspace': ' ',
+  '\\qquad': ' ',
+  '\\quad': ' ',
 };
 
 const SPECIAL_OPERATORS = {
@@ -125,9 +133,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
 
     case 'group':
     case 'root':
-      if (SPECIAL_IDENTIFIERS[atom.command])
-        result = SPECIAL_IDENTIFIERS[atom.command];
-      else result = atomToAsciiMath(atom.body);
+      result = SPECIAL_IDENTIFIERS[command] ?? atomToAsciiMath(atom.body);
       break;
 
     case 'genfrac':
@@ -281,6 +287,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
       break;
 
     case 'spacing':
+      result = SPECIAL_IDENTIFIERS[command] ?? ' ';
       break;
 
     case 'enclose':
@@ -297,8 +304,8 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
 
     case 'macro':
       result =
-        SPECIAL_IDENTIFIERS[command!] ??
-        SPECIAL_OPERATORS[command!] ??
+        SPECIAL_IDENTIFIERS[command] ??
+        SPECIAL_OPERATORS[command] ??
         atomToAsciiMath(atom.body);
       break;
   }

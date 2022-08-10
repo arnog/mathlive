@@ -43,6 +43,9 @@
   - `--selection-color`
   - `--caret-color`
 
+- Spacing commands (e.g. `\,`) now serialize a space when using the `ascii-math`
+  format
+
 ### Features
 
 - **#1556** Support for East-Asian fraction navigation, where the denominator is
