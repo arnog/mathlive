@@ -403,6 +403,12 @@ export function onKeystroke(
   //
   mathfield.scrollIntoView();
 
+  //
+  // 8. Keystroke has been handled, if it wasn't caught in the default
+  // case, so prevent default
+  //
+  if (evt.preventDefault) evt.preventDefault();
+
   return false;
 }
 
