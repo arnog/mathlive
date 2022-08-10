@@ -1,21 +1,16 @@
-import { convertLatexToMarkup } from '../src/mathlive';
+import { convertLatexToMarkup, validateLatex } from '../src/mathlive';
 
 function markupAndError(formula: string): [string, string] {
-  let errorCode = 'no-error';
-  const markup = convertLatexToMarkup(formula, {
-    mathstyle: 'displaystyle',
-    onError: (err) => {
-      if (errorCode === 'no-error') {
-        // Catch the first error only
-        errorCode = err.code;
-      }
-    },
-  });
-  return [markup, errorCode];
+  const markup = convertLatexToMarkup(formula, { mathstyle: 'displaystyle' });
+  const errors = validateLatex(formula);
+  if (errors.length === 0) return [markup, 'no-error'];
+  return [markup, errors[0].code];
 }
 
 function error(expression: string) {
-  return markupAndError(expression)[1];
+  const errors = validateLatex(expression);
+  if (errors.length === 0) return 'no-error';
+  return errors[0].code;
 }
 
 describe('MODE SHIFT', () => {

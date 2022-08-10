@@ -3,7 +3,6 @@
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
 
-import { ErrorListener } from '../public/core';
 import { AutoRenderOptions, TextToSpeechOptions } from '../public/options';
 
 import { inject as injectStylesheet } from '../common/stylesheet';

@@ -6,7 +6,10 @@ import type {
 } from './public/options';
 
 import { Atom } from './core/atom-class';
-import { parseLatex } from './core/parser';
+import {
+  parseLatex,
+  validateLatex as validateLatexInternal,
+} from './core/parser';
 import { adjustInterAtomSpacing, coalesce, makeStruts, Box } from './core/box';
 import {
   AutoRenderOptionsPrivate,
@@ -32,6 +35,7 @@ export * from './public/mathlive';
 export * from './addons/auto-render';
 
 import { version as computeEngineVersion } from '@cortex-js/compute-engine';
+import { LatexSyntaxError } from './public/mathlive';
 export * from '@cortex-js/compute-engine';
 
 /**
@@ -196,6 +200,10 @@ export function convertLatexToMarkup(
   //
 
   return wrapper.toMarkup();
+}
+
+export function validateLatex(s: string): LatexSyntaxError[] {
+  return validateLatexInternal(s, defaultGlobalContext());
 }
 
 /**

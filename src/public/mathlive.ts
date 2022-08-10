@@ -18,7 +18,6 @@
  *
  */
 
-import { ErrorListener } from './core';
 import {
   RemoteVirtualKeyboardOptions,
   TextToSpeechOptions,

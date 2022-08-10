@@ -792,7 +792,7 @@ export class Parser {
           // optional value by the command parse function.
           args.push(this.parseOptionalArgument(parameter.type));
         } else {
-          const arg: Argument | null = this.parseArgument(parameter.type);
+          const arg = this.parseArgument(parameter.type);
           if (!arg) {
             this.onError({
               code: 'missing-argument',
