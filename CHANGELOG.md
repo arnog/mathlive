@@ -65,6 +65,9 @@
   focus is now restored, similarly to what happens with a textarea element
 - When repeatedly hiding/showing the virtual keyboard, the virtual keyboard
   stylesheet would leak in the `<header>` of the document
+- **#1564** The `keydown` events are now propagated for non-printable keys.
+- **#1561** Last atom in group (atom with `skipBoundary` property) was skipped
+  when moving forward
 
 ## 0.77.0 (2022-07-05)
 
