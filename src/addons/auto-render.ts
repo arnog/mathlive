@@ -3,11 +3,7 @@
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
 
-import {
-  ErrorListener,
-  MathfieldErrorCode,
-  ParserErrorCode,
-} from '../public/core';
+import { ErrorListener } from '../public/core';
 import { AutoRenderOptions, TextToSpeechOptions } from '../public/options';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
@@ -27,7 +23,6 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
     text: string,
     options: {
       mathstyle?: 'displaystyle' | 'textstyle';
-      onError?: ErrorListener<ParserErrorCode>;
       format?: string;
     }
   ) => string;
@@ -38,15 +33,11 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
    */
   renderToMathML?: (text: string) => string;
 
-  /** A function that will convert any LaTeX found to
+  /** A function that will convert a LaTeX string to
    * speakable text markup. */
   renderToSpeakableText?: (
     text: string,
-    options: Partial<
-      TextToSpeechOptions & {
-        onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
-      }
-    >
+    options: Partial<TextToSpeechOptions>
   ) => string;
   ignoreClassPattern?: RegExp;
   processClassPattern?: RegExp;

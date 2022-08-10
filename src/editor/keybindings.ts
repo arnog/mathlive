@@ -309,9 +309,8 @@ function selectorToString(selector: Selector | [Selector, ...any[]]): string {
  */
 export function normalizeKeybindings(
   keybindings: Keybinding[],
-  layout: KeyboardLayout,
-  onError: (error: string[]) => void
-): Keybinding[] {
+  layout: KeyboardLayout
+): [result: Keybinding[], errors: string[]] {
   const result: Keybinding[] = [];
   const errors: string[] = [];
 
@@ -338,7 +337,5 @@ export function normalizeKeybindings(
     }
   }
 
-  if (errors.length > 0) onError(errors);
-
-  return result;
+  return [result, errors];
 }

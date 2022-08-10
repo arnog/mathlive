@@ -1,9 +1,4 @@
 import { ContentChangeOptions } from '../public/options';
-import type {
-  ErrorListener,
-  ParserErrorCode,
-  MathfieldErrorCode,
-} from '../public/core';
 import { ModelPrivate } from './model-private';
 
 export type ModelListeners = {
@@ -21,7 +16,6 @@ export type ModelListeners = {
   ) => void;
   onSelectionDidChange: (sender: ModelPrivate) => void;
   onPlaceholderDidChange: (sender: ModelPrivate, placeholderId: string) => void;
-  onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
 };
 
 export function selectionDidChange(model: ModelPrivate): void {
@@ -81,7 +75,6 @@ export function placeholderDidChange(
     model.suppressChangeNotifications = false;
   }
 }
-/// ///
 
 export interface Disposable {
   dispose(): void;

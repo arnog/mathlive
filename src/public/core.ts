@@ -12,11 +12,9 @@ export type ParseMode = 'math' | 'text' | 'latex';
  *
     |  | |
     | ------------------ | ---      |
-    | `font-not-found`              | A required font could not be loaded. The `fontDirectory` option may not be setup correctly or the 'fonts' directory is missing. |
-    | `invalid-keybinding`          | A keybinding includes a combination of keys which cannot be performed with the current keyboard layout. |
-    | `unknown-command`             | There is no definition available for this command, e.g. `\zin`  |
+    | `unknown-command`             | There is no definition available for this LaTeX command, e.g. `\zin`  |
     | `unknown-environment`         | There is no definition available for this environment, e.g. `\begin{foo}`  |
-    | `invalid-command`             | This command is not valid in the current mode (e.g. text command in math mode)  |
+    | `invalid-command`             | This command is not valid in the current context (e.g. text command in math mode)  |
     | `unbalanced-braces`           |  There are too many or too few `{` or `}`  |
     | `unbalanced-environment`      |  An environment was open but never closed (`\begin{array}`) or the `\end` command does not match the `\begin` command (`\begin{array*}\end{array}`)  |
     | `unbalanced-mode-shift`       |  A `$`, `$$`, `\(` or `\[` was not balanced  |
@@ -48,15 +46,17 @@ export type ParserErrorCode =
 // See https://ww2.eng.famu.fsu.edu/~dommelen/l2h/errors.html
 // for a reference of TeX errors.
 
-export type MathfieldErrorCode = 'invalid-keybinding' | 'font-not-found';
-
-export type ErrorListener<T> = (err: {
+export type LatexSyntaxError<T = ParserErrorCode> = {
   code: T;
   arg?: string;
   latex?: string;
   before?: string;
   after?: string;
-}) => void;
+};
+
+export type ErrorListener<T = ParserErrorCode> = (
+  err: LatexSyntaxError<T>
+) => void;
 
 /**
  * Variants indicate a stylistic alternate for some characters.

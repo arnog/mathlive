@@ -18,7 +18,7 @@
  *
  */
 
-import { ErrorListener, ParserErrorCode, MathfieldErrorCode } from './core';
+import { ErrorListener } from './core';
 import {
   RemoteVirtualKeyboardOptions,
   TextToSpeechOptions,
@@ -39,7 +39,6 @@ export declare function convertLatexToMarkup(
   text: string,
   options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
-    onError?: ErrorListener<ParserErrorCode>;
     format?: string;
   }
 ): string;
@@ -47,18 +46,13 @@ export declare function convertLatexToMarkup(
 export declare function convertLatexToMathMl(
   latex: string,
   options?: Partial<{
-    onError: ErrorListener<ParserErrorCode>;
     generateID: boolean;
   }>
 ): string;
 
 export declare function convertLatexToSpeakableText(
   latex: string,
-  options?: Partial<
-    TextToSpeechOptions & {
-      onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
-    }
-  >
+  options?: Partial<TextToSpeechOptions>
 ): string;
 
 export declare function renderMathInDocument(options?: AutoRenderOptions): void;

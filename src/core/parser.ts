@@ -1,12 +1,11 @@
 import type {
-  ErrorListener,
-  Style,
-  ParserErrorCode,
+  Dimension,
+  Glue,
+  LatexSyntaxError,
   ParseMode,
   Registers,
   RegisterValue,
-  Dimension,
-  Glue,
+  Style,
 } from '../public/core';
 
 import { isArray } from '../common/types';
@@ -92,6 +91,9 @@ export class Parser {
   // The current token to be parsed: index in `this.tokens`
   index = 0;
 
+  // Accumulated errors encountered while parsing
+  errors: LatexSyntaxError[];
+
   // Optional arguments to substitute the `#` token.
   args: null | ((arg: string) => string);
 
@@ -99,11 +101,10 @@ export class Parser {
   // in a row for the same token, bail.
   endCount = 0;
 
-  onError: ErrorListener<ParserErrorCode>;
   _currentParsingContext: ParsingContext;
 
   context: GlobalContext;
-  // smartFence  is also in GlobalContext, but it needs to be overriden in some
+  // smartFence  is also in GlobalContext, but it needs to be overridden in some
   // cases
   smartFence: boolean;
 
@@ -119,7 +120,6 @@ export class Parser {
     context: GlobalContext,
     options: {
       args?: null | ((arg: string) => string);
-      onError?: ErrorListener<ParserErrorCode>;
       parseMode?: ParseMode;
       mathstyle?: MathstyleName;
       style?: Style;
@@ -131,19 +131,8 @@ export class Parser {
     this.tokens = tokens;
     this.context = context;
 
+    this.errors = [];
     this.args = options.args ?? null;
-    this.onError = options.onError
-      ? (err): void =>
-          options.onError!({
-            before: tokensToString(
-              this.tokens.slice(this.index, this.index + 10)
-            ),
-            after: tokensToString(
-              this.tokens.slice(Math.max(0, this.index - 10), this.index)
-            ),
-            ...err,
-          })
-      : () => {};
     this.smartFence = options.smartFence ?? context.smartFence;
     this._currentParsingContext = {
       parent: undefined,
@@ -184,6 +173,16 @@ export class Parser {
 
   endContext(): void {
     this._currentParsingContext = this._currentParsingContext.parent!;
+  }
+
+  onError(err: LatexSyntaxError): void {
+    this.errors.push({
+      before: tokensToString(this.tokens.slice(this.index, this.index + 10)),
+      after: tokensToString(
+        this.tokens.slice(Math.max(0, this.index - 10), this.index)
+      ),
+      ...err,
+    });
   }
 
   get mathlist(): Atom[] {
@@ -376,7 +375,6 @@ export class Parser {
     // use it.
     return parseLatex(placeHolderArg, this.context, {
       parseMode: this.parseMode,
-      onError: this.onError,
       mathstyle: 'textstyle',
     });
   }
@@ -883,10 +881,9 @@ export class Parser {
    */
   parse(done?: (token: Token) => boolean): Atom[] {
     this.beginContext();
-    if (!done) {
-      // Default group end marker
-      done = (token: Token): boolean => token === '<}>';
-    }
+
+    // Default group end marker
+    if (!done) done = (token: Token) => token === '<}>';
 
     // To handle infix commands, we'll keep track of their prefix
     // (tokens coming before them) and their arguments
@@ -1608,7 +1605,7 @@ export class Parser {
     const args: Record<string, string | undefined> = { '?': this.args?.('?') };
     // Parse each argument as a string. We don't know yet
     // what the proper parse mode is, so defer parsing till later
-    // when invoking `parseString`
+    // when invoking `parseLatex`
     for (let i = 1; i <= argCount; i++) args[i] = this.matchLiteralArg();
 
     // Group the result of the macro expansion
@@ -1620,7 +1617,6 @@ export class Parser {
         parseMode: this.parseMode,
         args: (arg: string): string => args[arg]!,
         mathstyle: this.currentContext.mathstyle,
-        onError: this.onError,
       }),
     });
   }
@@ -1665,34 +1661,33 @@ export function parseLatex(
     parseMode?: ParseMode;
     args?: null | ((arg: string) => string);
     mathstyle?: MathstyleName;
-    onError?: ErrorListener<ParserErrorCode>;
   }
 ): Atom[] {
-  const parser = new Parser(tokenize(s, options?.args ?? null), context, {
-    args: options?.args ?? null,
+  const args = options?.args ?? null;
+  const parser = new Parser(tokenize(s, args), context, {
+    args,
     mathstyle: options?.mathstyle ?? 'displaystyle',
     parseMode: options?.parseMode ?? 'math',
-    onError: (err) => {
-      if (typeof options?.onError === 'function')
-        options.onError({ ...err, latex: s });
-      else {
-        // Console.warn(
-        //     'MathLive parsing error: ' +
-        //         err.code +
-        //         (err.arg ? ' ' + err.arg + ' ' : ''),
-        //     'in "' + s + '"'
-        // );
-      }
-    },
   });
 
   const atoms: Atom[] = [];
-  while (!parser.end()) {
-    const more = parser.parse();
-    if (!more) break;
-    atoms.push(...more);
-  }
+  while (!parser.end()) atoms.push(...parser.parse());
   return atoms;
+}
+
+export function validateLatex(
+  s: string,
+  context: GlobalContext,
+  options?: { parseMode?: ParseMode }
+): LatexSyntaxError[] {
+  const parser = new Parser(tokenize(s, null), context, {
+    args: null,
+    mathstyle: 'displaystyle',
+    parseMode: options?.parseMode ?? 'math',
+  });
+
+  while (!parser.end()) parser.parse();
+  return parser.errors;
 }
 
 export function convertToGlue(
@@ -1725,7 +1720,6 @@ export function convertToDimension(
   if (typeof value === 'object' && 'dimension' in value) return value;
 
   // It's a string
-
   const parser = new Parser(tokenize(value), context, { registers });
   return parser.scanDimen();
 }

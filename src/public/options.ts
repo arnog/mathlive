@@ -1,11 +1,4 @@
-import {
-  ErrorListener,
-  MacroDictionary,
-  ParseMode,
-  ParserErrorCode,
-  MathfieldErrorCode,
-  Registers,
-} from './core';
+import { MacroDictionary, ParseMode, Registers } from './core';
 import type { Mathfield, Range } from './mathfield';
 import { VirtualKeyboardMode } from './mathfield-element';
 import type { Selector } from './commands';
@@ -112,10 +105,6 @@ export type Keybinding = {
    * key on the keyboard which has the position of the `2` key on a US keyboard,
    * a key code should be used instead: `alt+[Digit2]`. This will correspond
    * to a key combination that can be generated on any keyboard.
-   *
-   * If a keybinding is invalid (impossible to produce or ambiguous) with the current
-   * keyboard layout, an error will be generated, and the `onError` listener
-   * will be called with a `invalid-keybinding` error code.
    *
    */
   key: string;
@@ -1123,20 +1112,6 @@ export type MathfieldOptions = LayoutOptions &
      * **Default**: `"same-origin"`
      */
     originValidator: OriginValidator;
-
-    /**
-     * An optional listener function that will be invoked when an error
-     * is encountered.
-     *
-     * This could be a LaTeX parsing error, for the initial value of the
-     * mathfield, a value inserted programmatically later, or through a
-     * user interaction (pasting in the mathfield for example).
-     * See [[`ParserErrorCode`]] for the list of possible parsing errors.
-     *
-     * This could also be another kind of error, such as an invalid keybinding.
-     *
-     */
-    onError: ErrorListener<ParserErrorCode | MathfieldErrorCode | string>;
   };
 
 /**

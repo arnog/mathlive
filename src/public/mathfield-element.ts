@@ -8,7 +8,7 @@ import { isOffset, isRange, isSelection } from '../editor/model';
 import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 
 import { Selector } from './commands';
-import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
+import { LatexSyntaxError, ParseMode, Style } from './core';
 import {
   Mathfield,
   InsertOptions,
@@ -39,31 +39,6 @@ import { ContentChangeOptions, MathfieldOptions } from './options';
     To make a custom event pass through shadow DOM boundaries, you must set
     both the `composed` and `bubbles` flags to true.
 */
-
-/**
- * The `math-error` custom event signals an error while parsing an expression.
- *
- * ```javascript
- * document.getElementById('mf').addEventListener('math-error', (ev) => {
- *  const err = ev.detail;
- *  console.warn(err.code + (err.arg ? ': ' + err.arg : '') +
- *         '\n%c|  ' + err.before + '%c' + err.after +
- *         '\n%c|  ' + String(' ').repeat(err.before.length) +
- *         '▲',
- *         'font-weight: bold',
- *         'font-weight: normal; color: rgba(160, 160, 160)',
- *         'font-weight: bold; color: hsl(4deg, 90%, 50%)'
- *     );
- * });
- * ```
- */
-export type MathErrorEvent = {
-  code: ParserErrorCode | MathfieldErrorCode;
-  arg?: string;
-  latex?: string;
-  before?: string;
-  after?: string;
-};
 
 /**
  * The `keystroke` event is fired when a keystroke is about to be processed.
@@ -135,7 +110,6 @@ declare global {
   interface HTMLElementEventMap {
     'focus-out': CustomEvent<FocusOutEvent>;
     'keystroke': CustomEvent<KeystrokeEvent>;
-    'math-error': CustomEvent<MathErrorEvent>;
     'mode-change': Event;
     'mount': Event;
     'move-out': CustomEvent<MoveOutEvent>;
@@ -776,6 +750,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield.expression;
   }
 
+  get errors(): LatexSyntaxError[] {
+    return this._mathfield?.errors ?? [];
+  }
+
   /**
    *  @category Options
    */
@@ -1118,28 +1096,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             })
           );
         },
-        onError: (err: {
-          code: ParserErrorCode | MathfieldErrorCode;
-          arg?: string;
-          latex?: string;
-          before?: string;
-          after?: string;
-        }) => {
-          this.dispatchEvent(
-            new CustomEvent<MathErrorEvent>('math-error', {
-              detail: {
-                code: err.code,
-                arg: err.arg,
-                latex: err.latex,
-                before: err.before,
-                after: err.after,
-              },
-              cancelable: false,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
         onFocus: () => {
           this.dispatchEvent(
             new Event('focus', {
@@ -1315,7 +1271,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'onBlur',
       'onContentWillChange',
       'onContentDidChange',
-      'onError',
       'onFocus',
       'onKeystroke',
       'onModeChange',

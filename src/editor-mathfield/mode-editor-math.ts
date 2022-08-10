@@ -407,19 +407,13 @@ function convertStringToAtoms(
       'latex',
       model.mathfield.computeEngine.box(s as Expression).latex as string,
     ];
-    result = parseLatex(s, model.mathfield, {
-      parseMode: 'math',
-      onError: model.listeners.onError,
-    });
+    result = parseLatex(s, model.mathfield, { parseMode: 'math' });
   } else if (typeof s === 'string' && options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {
       format: 'ascii-math',
       inlineShortcuts: model.mathfield.options.inlineShortcuts,
     });
-    result = parseLatex(s, model.mathfield, {
-      parseMode: 'math',
-      onError: model.listeners.onError,
-    });
+    result = parseLatex(s, model.mathfield, { parseMode: 'math' });
 
     // Simplify result.
     if (format !== 'latex' && model.options.removeExtraneousParentheses)
@@ -435,11 +429,7 @@ function convertStringToAtoms(
     // If the whole string is bracketed by a mode shift command, remove it
     if (options.format === 'latex') [, s] = trimModeShiftCommand(s);
 
-    result = parseLatex(s, model.mathfield, {
-      parseMode: 'math',
-      args: args,
-      onError: model.listeners.onError,
-    });
+    result = parseLatex(s, model.mathfield, { parseMode: 'math', args: args });
 
     // Simplify result.
     if (options.format !== 'latex' && model.options.removeExtraneousParentheses)

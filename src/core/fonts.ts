@@ -1,6 +1,5 @@
 import { isBrowser } from '../common/capabilities';
 import { resolveRelativeUrl } from '../common/script-url';
-import { ErrorListener, MathfieldErrorCode } from '../public/core';
 
 function makeFontFace(
   name: string,
@@ -14,10 +13,7 @@ function makeFontFace(
   );
 }
 
-export async function loadFonts(
-  fontsDirectory?: string,
-  onError?: ErrorListener<MathfieldErrorCode>
-): Promise<void> {
+export async function loadFonts(fontsDirectory?: string): Promise<void> {
   // If we're already loading the fonts, we're done.
   if (!isBrowser() || document.body.classList.contains('ML__fonts-loading'))
     return;
@@ -31,6 +27,8 @@ export async function loadFonts(
     ) ?? false;
 
   if (useStaticFonts) return;
+
+  document.body.classList.remove('ML__fonts-did-not-load');
 
   if ('fonts' in document) {
     const fontFamilies = [
@@ -104,8 +102,7 @@ export async function loadFonts(
         `The mathlive fonts could not be loaded from "${fontsFolder}"`,
         { cause: error }
       );
-      if (typeof onError === 'function')
-        onError({ code: 'font-not-found', arg: error as string });
+      document.body.classList.add('ML__fonts-did-not-load');
     }
 
     // Event if an error occur, give up and pretend the fonts are

@@ -18,9 +18,13 @@ export class MacroAtom extends Atom {
   ) {
     super('macro', context, { command: macro });
     this.body = options.body;
-    // Set the `captureSelection` attribute so that the atom is handled
+    // Set the `captureSelection` attribute to true so that the atom is handled
     // as an unbreakable unit
-    this.captureSelection = options.captureSelection ?? true;
+    if (options.captureSelection === undefined) {
+      if (options.args) this.captureSelection = false;
+      else this.captureSelection = true;
+    } else this.captureSelection = options.captureSelection;
+
     // Don't use verbatimLatex to save the macro, as it can get wiped when
     // the atom is modified (adding super/subscript, for example).
     this.macroArgs = options.args ?? '';
@@ -35,7 +39,8 @@ export class MacroAtom extends Atom {
   toJson(): AtomJson {
     const options = super.toJson();
     if (this.expand) options.expand = true;
-    if (!this.captureSelection) options.captureSelection = false;
+    if (this.captureSelection !== undefined)
+      options.captureSelection = this.captureSelection;
     if (this.macroArgs) options.args = this.macroArgs;
     return options;
   }

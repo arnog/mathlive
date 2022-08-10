@@ -380,7 +380,7 @@ function toMathML(
   input: number | boolean | string | Atom | Atom[] | undefined,
   initial: number,
   final: number,
-  options: Partial<MathfieldOptions>
+  options: Partial<MathfieldOptions> & { generateID?: boolean }
 ): MathMLStream {
   const result: MathMLStream = {
     atoms: [],
@@ -989,7 +989,7 @@ function atomToMathML(atom, options): string {
 
 export function atomsToMathML(
   atoms: Atom | Atom[],
-  options: Partial<MathfieldOptions>
+  options: Partial<MathfieldOptions> & { generateID?: boolean }
 ): string {
   return toMathML(atoms, 0, 0, options).mathML;
 }

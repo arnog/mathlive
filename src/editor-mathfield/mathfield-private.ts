@@ -7,6 +7,7 @@ import CORE_STYLESHEET from '../../css/core.less';
 
 import type {
   MacroDefinition,
+  LatexSyntaxError,
   ParseMode,
   Registers,
   Style,
@@ -37,7 +38,7 @@ import {
   TokenDefinition,
 } from '../core-definitions/definitions-utils';
 import { LatexGroupAtom } from '../core-atoms/latex';
-import { parseLatex } from '../core/parser';
+import { parseLatex, validateLatex } from '../core/parser';
 import { getDefaultRegisters } from '../core/registers';
 
 import { PlaceholderAtom } from '../core-atoms/placeholder';
@@ -265,7 +266,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (elementText) elementText = elementText.trim();
 
     // Load the fonts, inject the core and mathfield stylesheets
-    void loadFonts(this.options.fontsDirectory, this.options.onError);
+    void loadFonts(this.options.fontsDirectory);
     if (!CORE_STYLESHEET_HASH)
       CORE_STYLESHEET_HASH = hashCode(CORE_STYLESHEET).toString(36);
 
@@ -525,7 +526,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         onSelectionWillChange: (): void =>
           this.options.onSelectionWillChange(this),
         onSelectionDidChange: (_sender): void => this._onSelectionDidChange(),
-        onError: this.options.onError,
         onPlaceholderDidChange: (
           _sender: ModelPrivate,
           placeholderId: string
@@ -572,7 +572,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onSelectionDidChange: (_sender: ModelPrivate) =>
         this._onSelectionDidChange(),
-      onError: this.options.onError,
       onPlaceholderDidChange: (_sender, placeholderId) =>
         this.options.onPlaceholderDidChange(this, placeholderId),
     });
@@ -718,22 +717,22 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   get keybindings(): Keybinding[] {
     if (this._keybindings) return this._keybindings;
-    const keybindings = normalizeKeybindings(
+
+    const [keybindings, errors] = normalizeKeybindings(
       this.options.keybindings,
-      getActiveKeyboardLayout() ?? DEFAULT_KEYBOARD_LAYOUT,
-      (e) => {
-        if (typeof this.options.onError === 'function') {
-          this.options.onError({
-            code: 'invalid-keybinding',
-            arg: e.join('\n'),
-          });
-        }
-
-        console.error(e.join('\n'));
-      }
+      getActiveKeyboardLayout() ?? DEFAULT_KEYBOARD_LAYOUT
     );
-    if (getActiveKeyboardLayout()?.score > 0) this._keybindings = keybindings;
 
+    if (getActiveKeyboardLayout()?.score > 0) {
+      this._keybindings = keybindings;
+
+      if (errors.length > 0) {
+        console.error(
+          'invalid keybindings for current keyboard layout',
+          errors
+        );
+      }
+    }
     return keybindings;
   }
 
@@ -751,7 +750,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onSelectionDidChange: (_sender: ModelPrivate) =>
         this._onSelectionDidChange(),
-      onError: this.options.onError,
       onPlaceholderDidChange: (_sender, placeholderId) =>
         this.options.onPlaceholderDidChange(this, placeholderId),
     });
@@ -957,6 +955,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       return this.virtualKeyboard?.executeCommand(command) ?? false;
 
     return perform(this, command);
+  }
+
+  get errors(): LatexSyntaxError[] {
+    return validateLatex(this.model.getValue(), this);
   }
 
   getValue(): string;

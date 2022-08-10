@@ -1,5 +1,23 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- **The way errors are reported has changed.**
+
+  Previously a `math-error` event would be dispatched (or the `onError` listener
+  would be invoked). This made it difficult to find out when an error no longer
+  applied.
+
+  - `font-not-found`: If the fonts fail to load, a class of
+    `ML__fonts-did-not-load` is added to the document's body.
+  - `invalid-keybinding`: A message is output to the console if a keybinding
+    includes a combination of keys which cannot be performed with the current
+    keyboard layout
+  - Other errors are LaTeX syntax errors in the value of the mathfield. There
+    can be more than one such error in a given mathfield. These errors are
+    reported as `mf.errors`, an array of `LatexSyntaxError`. This property can
+    be consulted for example during the handler for a `change` event.
+
 ### Improvements
 
 - Internal: introduction of `GlobalContext` to encapsulate information necessary

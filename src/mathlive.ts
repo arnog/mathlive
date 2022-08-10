@@ -4,11 +4,6 @@ import type {
   RemoteVirtualKeyboardOptions,
   TextToSpeechOptions,
 } from './public/options';
-import type {
-  ErrorListener,
-  ParserErrorCode,
-  MathfieldErrorCode,
-} from './public/core';
 
 import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
@@ -134,8 +129,6 @@ export function makeSharedVirtualKeyboard(
  *
  * @param  options.macros A dictionary of LaTeX macros
  *
- * @param  options.onError A function invoked when a syntax error is encountered.
- * An attempt to recover will be made even when an error is reported.
  *
  * @category Converting
  * @keywords convert, latex, markup
@@ -144,7 +137,6 @@ export function convertLatexToMarkup(
   text: string,
   options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
-    onError?: ErrorListener<ParserErrorCode>;
     format?: string;
   }
 ): string {
@@ -160,7 +152,6 @@ export function convertLatexToMarkup(
   root.body = parseLatex(text, context, {
     parseMode: 'math',
     mathstyle: options.mathstyle,
-    onError: options.onError,
   });
 
   //
@@ -223,17 +214,13 @@ export function convertLatexToMarkup(
 
 export function convertLatexToMathMl(
   latex: string,
-  options: Partial<{
-    onError: ErrorListener<ParserErrorCode>;
-    generateID: boolean;
-  }> = {}
+  options: { generateID?: boolean } = {}
 ): string {
   return atomsToMathML(
     parseLatex(latex, defaultGlobalContext(), {
       parseMode: 'math',
       args: () => '',
       mathstyle: 'displaystyle',
-      onError: options.onError,
     }),
     options
   );
@@ -246,8 +233,6 @@ export function convertLatexToMathMl(
  * with a mode token such as a `$$` or `\(`.
  *
  * @param options {@inheritDoc TextToSpeechOptions}
- * @param options.onError Callback invoked when an error is encountered while
- * parsing the input string.
  *
  * @return The spoken representation of the input LaTeX.
  * @example
@@ -258,16 +243,11 @@ export function convertLatexToMathMl(
  */
 export function convertLatexToSpeakableText(
   latex: string,
-  options: Partial<
-    TextToSpeechOptions & {
-      onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
-    }
-  > = {}
+  options: Partial<TextToSpeechOptions> = {}
 ): string {
   const atoms = parseLatex(latex, defaultGlobalContext(), {
     parseMode: 'math',
     mathstyle: 'displaystyle',
-    onError: options.onError,
   });
 
   return atomToSpeakableText(atoms, options as Required<TextToSpeechOptions>);

@@ -242,7 +242,6 @@ export function update(
       case 'onModeChange':
       case 'onCommit':
       case 'onReadAloudStatus':
-      case 'onError':
         if (updates[key] === null) result[key] = NO_OP_LISTENER;
         else if (typeof updates[key] !== 'function')
           throw new TypeError(key + ' must be a function or null');
@@ -370,8 +369,6 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onReadAloudStatus: NO_OP_LISTENER,
     onCommit: NO_OP_LISTENER,
     onExport: defaultExportHook,
-
-    onError: NO_OP_LISTENER,
     value: '',
   };
 }
