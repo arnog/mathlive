@@ -82,7 +82,10 @@ export function onKeystroke(
   showKeystroke(mathfield, keystroke);
 
   // If the event has already been handled, return
-  if (evt.defaultPrevented) return false;
+  if (evt.defaultPrevented) {
+    mathfield.resetKeystrokeBuffer();
+    return false;
+  }
 
   // 4. Give a chance to the custom keystroke handler to intercept the event
   // (note that in readonly mode, while you can't modify the content, you
@@ -92,10 +95,7 @@ export function onKeystroke(
     mathfield.options.onKeystroke &&
     !mathfield.options.onKeystroke(mathfield, keystroke, evt)
   ) {
-    if (evt.preventDefault) {
-      evt.preventDefault();
-      evt.stopPropagation();
-    }
+    if (evt.preventDefault) evt.preventDefault();
 
     return false;
   }

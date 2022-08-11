@@ -254,7 +254,6 @@ export function delegateKeyboardEvents(
         // the key events possibly coming from an attached hardware keyboard
         handlers.typedText(event.key);
         event.preventDefault();
-        event.stopPropagation();
       }
     },
     true
@@ -265,25 +264,21 @@ export function delegateKeyboardEvents(
       if (compositionInProgress) return;
       // If this is not the first keypress after a keydown, that is,
       // if this is a repeated keystroke, call the keystroke handler.
-      if (!compositionInProgress) {
-        if (keydownEvent && keypressEvent)
-          handlers.keystroke(keyboardEventToString(keydownEvent), keydownEvent);
+      if (keydownEvent && keypressEvent)
+        handlers.keystroke(keyboardEventToString(keydownEvent), keydownEvent);
 
-        keypressEvent = event;
-        defer(handleTypedText);
-        event.stopImmediatePropagation();
-      }
+      keypressEvent = event;
+      defer(handleTypedText);
     },
     true
   );
   target.addEventListener(
     'keyup',
-    (event) => {
+    () => {
       if (compositionInProgress) return;
       // If we've received a keydown, but no keypress, check what's in the
       // textarea field.
       if (keydownEvent && !keypressEvent) handleTypedText();
-      event.stopImmediatePropagation();
     },
     true
   );
