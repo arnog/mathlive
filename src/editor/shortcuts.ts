@@ -35,7 +35,7 @@ function validateShortcut(
   if (typeof shortcut === 'string') return shortcut;
 
   // If we have no context, we assume all the shortcuts are valid
-  if (!siblings) return shortcut.value;
+  if (!siblings || shortcut.after === undefined) return shortcut.value;
 
   let nothing = false;
   let letter = false;
@@ -52,18 +52,17 @@ function validateShortcut(
   let closefence = false;
   let text = false;
   let space = false;
-  let sibling = siblings[siblings.length - 1];
-  let index = siblings.length - 1;
+
+  // Find first sibling left which is not a placeholder or subsup
+  let sibling = siblings[0]; // sibling immediately left
+  let index = 0;
   while (sibling && /msubsup|placeholder/.test(sibling.type)) {
-    index -= 1;
+    index += 1;
     sibling = siblings[index];
   }
 
   nothing = !sibling || sibling.type === 'first'; // Start of a group
   if (sibling) {
-    if (shortcut.mode !== undefined && sibling.mode !== shortcut.mode)
-      return '';
-
     text = sibling.mode === 'text';
     letter = !text && sibling.type === 'mord' && LETTER.test(sibling.value);
     digit = !text && sibling.type === 'mord' && /\d+$/.test(sibling.value);
@@ -80,31 +79,27 @@ function validateShortcut(
     space = sibling.type === 'space';
   }
 
-  if (shortcut.after !== undefined) {
-    // If this is a conditional shortcut, consider the conditions now
-    if (
-      (shortcut.after.includes('nothing') && nothing) ||
-      (shortcut.after.includes('letter') && letter) ||
-      (shortcut.after.includes('digit') && digit) ||
-      (shortcut.after.includes('function') && isFunction) ||
-      (shortcut.after.includes('frac') && frac) ||
-      (shortcut.after.includes('surd') && surd) ||
-      (shortcut.after.includes('binop') && binop) ||
-      (shortcut.after.includes('relop') && relop) ||
-      (shortcut.after.includes('operator') && operator) ||
-      (shortcut.after.includes('punct') && punct) ||
-      (shortcut.after.includes('array') && array) ||
-      (shortcut.after.includes('openfence') && openfence) ||
-      (shortcut.after.includes('closefence') && closefence) ||
-      (shortcut.after.includes('text') && text) ||
-      (shortcut.after.includes('space') && space)
-    )
-      return shortcut.value;
+  // If this is a conditional shortcut, consider the conditions now
+  if (
+    (shortcut.after.includes('nothing') && nothing) ||
+    (shortcut.after.includes('letter') && letter) ||
+    (shortcut.after.includes('digit') && digit) ||
+    (shortcut.after.includes('function') && isFunction) ||
+    (shortcut.after.includes('frac') && frac) ||
+    (shortcut.after.includes('surd') && surd) ||
+    (shortcut.after.includes('binop') && binop) ||
+    (shortcut.after.includes('relop') && relop) ||
+    (shortcut.after.includes('operator') && operator) ||
+    (shortcut.after.includes('punct') && punct) ||
+    (shortcut.after.includes('array') && array) ||
+    (shortcut.after.includes('openfence') && openfence) ||
+    (shortcut.after.includes('closefence') && closefence) ||
+    (shortcut.after.includes('text') && text) ||
+    (shortcut.after.includes('space') && space)
+  )
+    return shortcut.value;
 
-    return '';
-  }
-
-  return shortcut.value;
+  return '';
 }
 
 /**

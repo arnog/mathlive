@@ -9,15 +9,14 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   '%': '\\%',
 
   // Primes
-  "''": { mode: 'math', value: '^{\\doubleprime}' },
+  "''": '^{\\doubleprime}',
 
   // Greek letters
   'alpha': '\\alpha',
   'delta': '\\delta',
   'Delta': '\\Delta',
-  'pi': { mode: 'math', value: '\\pi' },
-  'pi ': { mode: 'text', value: '\\pi ' },
-  'Pi': { mode: 'math', value: '\\Pi' },
+  'pi': '\\pi',
+  'Pi': '\\Pi',
   'theta': '\\theta',
   'Theta': '\\Theta',
 
@@ -33,129 +32,122 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
     value: '\\imaginaryJ',
   },
   'ee': {
-    mode: 'math',
     after:
       'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
     value: '\\exponentialE',
   },
 
-  'nabla': { mode: 'math', value: '\\nabla' },
-  'grad': { mode: 'math', value: '\\nabla' },
-  'del': { mode: 'math', value: '\\partial' },
+  'nabla': '\\nabla',
+  'grad': '\\nabla',
+  'del': '\\partial',
 
-  'infty': { mode: 'math', value: '\\infty' },
+  'infty': '\\infty',
 
   '\u221E': '\\infty', // @TODO: doesn't work
   // '&infin;': '\\infty',
   // '&#8734;': '\\infty',
   'oo': {
-    mode: 'math',
     after:
       'nothing+digit+frac+surd+binop+relop+punct+array+openfence+closefence+space',
     value: '\\infty',
   },
 
   // Big operators
-  '∑': { mode: 'math', value: '\\sum' },
-  'sum': { mode: 'math', value: '\\sum_{#?}^{#?}' },
-  'int': { mode: 'math', value: '\\int_{#?}^{#?}' },
-  'prod': { mode: 'math', value: '\\prod_{#?}^{#?}' },
-  'sqrt': { mode: 'math', value: '\\sqrt{#?}' },
+  '∑': '\\sum',
+  'sum': '\\sum_{#?}^{#?}',
+  'int': '\\int_{#?}^{#?}',
+  'prod': '\\prod_{#?}^{#?}',
+  'sqrt': '\\sqrt{#?}',
   // '∫':                    '\\int',             // There's a alt-B command for this
-  '∆': { mode: 'math', value: '\\differentialD' }, // @TODO: is \\diffD most common?
-  '∂': { mode: 'math', value: '\\differentialD' },
+  '∆': '\\differentialD', // @TODO: is \\diffD most common?
+  '∂': '\\differentialD',
 
   // Functions
-  'arcsin': { mode: 'math', value: '\\arcsin' },
-  'arccos': { mode: 'math', value: '\\arccos' },
-  'arctan': { mode: 'math', value: '\\arctan' },
-  'sin': { mode: 'math', value: '\\sin' },
-  'sinh': { mode: 'math', value: '\\sinh' },
-  'cos': { mode: 'math', value: '\\cos' },
-  'cosh': { mode: 'math', value: '\\cosh' },
-  'tan': { mode: 'math', value: '\\tan' },
-  'tanh': { mode: 'math', value: '\\tanh' },
-  'sec': { mode: 'math', value: '\\sec' },
-  'csc': { mode: 'math', value: '\\csc' },
-  'cot': { mode: 'math', value: '\\cot' },
+  'arcsin': '\\arcsin',
+  'arccos': '\\arccos',
+  'arctan': '\\arctan',
+  'sin': '\\sin',
+  'sinh': '\\sinh',
+  'cos': '\\cos',
+  'cosh': '\\cosh',
+  'tan': '\\tan',
+  'tanh': '\\tanh',
+  'sec': '\\sec',
+  'csc': '\\csc',
+  'cot': '\\cot',
 
-  'log': { mode: 'math', value: '\\log' },
-  'ln': { mode: 'math', value: '\\ln' },
-  'exp': { mode: 'math', value: '\\exp' },
-  'lim': { mode: 'math', value: '\\lim_{#?}' },
+  'log': '\\log',
+  'ln': '\\ln',
+  'exp': '\\exp',
+  'lim': '\\lim_{#?}',
 
   // Differentials
   // According to ISO31/XI (ISO 80000-2), differentials should be upright
   'dx': {
-    mode: 'math',
     after:
       'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
     value: '\\differentialD x',
   },
   'dy': {
-    mode: 'math',
     after:
       'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
     value: '\\differentialD y',
   },
   'dt': {
-    mode: 'math',
     after:
       'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
     value: '\\differentialD t',
   },
 
   // Logic
-  'AA': { mode: 'math', value: '\\forall' },
-  'EE': { mode: 'math', value: '\\exists' },
-  '!EE': { mode: 'math', value: '\\nexists' },
-  '&&': { mode: 'math', value: '\\land' },
+  'AA': '\\forall',
+  'EE': '\\exists',
+  '!EE': '\\nexists',
+  '&&': '\\land',
   // The shortcut for the greek letter "xi" is interfering with "x in"
   'xin': {
-    mode: 'math',
     after: 'nothing+text+relop+punct+openfence+space',
     value: 'x \\in',
   },
   'in': {
-    mode: 'math',
     after: 'nothing+letter+closefence',
     value: '\\in',
   },
-  '!in': { mode: 'math', value: '\\notin' },
+  '!in': '\\notin',
 
   // Sets
-  'NN': { mode: 'math', value: '\\mathbb{N}' }, // Natural numbers
-  'ZZ': { mode: 'math', value: '\\Z' }, // Integers
-  'QQ': { mode: 'math', value: '\\Q' }, // Rational numbers
-  'RR': { mode: 'math', value: '\\R' }, // Real numbers
-  'CC': { mode: 'math', value: '\\C' }, // Complex numbers
+  'NN': '\\mathbb{N}', // Natural numbers
+  'ZZ': '\\Z', // Integers
+  'QQ': '\\Q', // Rational numbers
+  'RR': '\\R', // Real numbers
+  'CC': '\\C', // Complex numbers
 
   // Operators
-  'xx': { mode: 'math', value: '\\times' },
-  '+-': { mode: 'math', value: '\\pm' },
+  'xx': '\\times',
+  '+-': '\\pm',
 
   // Relational operators
-  '≠': { mode: 'math', value: '\\ne' },
-  '!=': { mode: 'math', value: '\\ne' },
-  '\u2265': { mode: 'math', value: '\\ge' },
-  '>=': { mode: 'math', value: '\\ge' },
-  '\u2264': { mode: 'math', value: '\\le' },
-  '<=': { mode: 'math', value: '\\le' },
-  '<<': { mode: 'math', value: '\\ll' },
-  '>>': { mode: 'math', value: '\\gg' },
-  '~~': { mode: 'math', value: '\\approx' },
+  '≠': '\\ne',
+  '!=': '\\ne',
+  '\u2265': '\\ge',
+  '>=': '\\ge',
+  '\u2264': '\\le',
+  '<=': '\\le',
+  '<<': '\\ll',
+  '>>': '\\gg',
+  '~~': '\\approx',
 
   // More operators
-  '≈': { mode: 'math', value: '\\approx' },
-  '?=': { mode: 'math', value: '\\questeq' },
-  '÷': { mode: 'math', value: '\\div' },
-  '¬': { mode: 'math', value: '\\neg' },
-  ':=': { mode: 'math', value: '\\coloneq' },
-  '::': { mode: 'math', value: '\\Colon' },
+  '≈': '\\approx',
+  '?=': '\\questeq',
+  '÷': '\\div',
+  '¬': '\\neg',
+  ':=': '\\coloneq',
+  '::': '\\Colon',
 
   // Fences
-  '(:': { mode: 'math', value: '\\langle' },
-  ':)': { mode: 'math', value: '\\rangle' },
+  '(:': '\\langle',
+  ':)': '\\rangle',
 
   // More Greek letters
   'beta': '\\beta',
@@ -163,16 +155,9 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   'epsilon': '\\epsilon',
   'varepsilon': '\\varepsilon',
   'eta': {
-    mode: 'math',
     after:
       'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
     value: '\\eta',
-  },
-  'eta ': {
-    mode: 'text',
-    after:
-      'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-    value: '\\eta ',
   },
   'gamma': '\\gamma',
   'Gamma': '\\Gamma',
@@ -181,28 +166,14 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   'lambda': '\\lambda',
   'Lambda': '\\Lambda',
   'mu': {
-    mode: 'math',
     after:
       'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
     value: '\\mu',
   },
-  'mu ': {
-    mode: 'text',
-    after:
-      'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-    value: '\\mu ',
-  },
   'nu': {
-    mode: 'math',
     after:
       'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
     value: '\\nu',
-  },
-  'nu ': {
-    mode: 'text',
-    after:
-      'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
-    value: '\\nu ',
   },
   'µ': '\\mu', // @TODO: or micro?
   'phi': {
@@ -242,7 +213,7 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   'upsilon': '\\upsilon',
   'xi': {
     after:
-      'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+      'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space',
     value: '\\xi',
   },
   'Xi': {
@@ -256,20 +227,10 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   'Ω': '\\omega', // @TODO: or ohm?
 
   // More Logic
-  'forall': { mode: 'math', value: '\\forall' },
-  'exists': {
-    mode: 'math',
-    value: '\\exists',
-  },
-  '!exists': {
-    mode: 'math',
-    value: '\\nexists',
-  },
-  ':.': {
-    mode: 'math',
-    value: '\\therefore',
-  },
-
+  'forall': '\\forall',
+  'exists': '\\exists',
+  '!exists': '\\nexists',
+  ':.': '\\therefore',
   // MORE FUNCTIONS
   // 'arg': '\\arg',
   'liminf': '\\liminf_{#?}',
@@ -277,73 +238,42 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   'argmin': '\\operatorname*{arg~min}_{#?}',
   'argmax': '\\operatorname*{arg~max}_{#?}',
   'det': '\\det',
-  'mod': {
-    mode: 'math',
-    value: '\\mod',
-  },
-  'max': {
-    mode: 'math',
-    value: '\\max',
-  },
-  'min': {
-    mode: 'math',
-    value: '\\min',
-  },
+  'mod': '\\mod',
+  'max': '\\max',
+  'min': '\\min',
+
   'erf': '\\operatorname{erf}',
   'erfc': '\\operatorname{erfc}',
-  'bessel': {
-    mode: 'math',
-    value: '\\operatorname{bessel}',
-  },
-  'mean': {
-    mode: 'math',
-    value: '\\operatorname{mean}',
-  },
-  'median': {
-    mode: 'math',
-    value: '\\operatorname{median}',
-  },
-  'fft': {
-    mode: 'math',
-    value: '\\operatorname{fft}',
-  },
-  'lcm': {
-    mode: 'math',
-    value: '\\operatorname{lcm}',
-  },
-  'gcd': {
-    mode: 'math',
-    value: '\\operatorname{gcd}',
-  },
+  'bessel': '\\operatorname{bessel}',
+  'mean': '\\operatorname{mean}',
+  'median': '\\operatorname{median}',
+
+  'fft': '\\operatorname{fft}',
+
+  'lcm': '\\operatorname{lcm}',
+
+  'gcd': '\\operatorname{gcd}',
+
   'randomReal': '\\operatorname{randomReal}',
   'randomInteger': '\\operatorname{randomInteger}',
-  'Re': {
-    mode: 'math',
-    value: '\\operatorname{Re}',
-  },
-  'Im': {
-    mode: 'math',
-    value: '\\operatorname{Im}',
-  },
+  'Re': '\\operatorname{Re}',
+
+  'Im': '\\operatorname{Im}',
 
   // UNITS
   'mm': {
-    mode: 'math',
     after: 'nothing+digit+operator',
     value: '\\operatorname{mm}', // Millimeter
   },
   'cm': {
-    mode: 'math',
     after: 'nothing+digit+operator',
     value: '\\operatorname{cm}', // Centimeter
   },
   'km': {
-    mode: 'math',
     after: 'nothing+digit+operator',
     value: '\\operatorname{km}', // Kilometer
   },
   'kg': {
-    mode: 'math',
     after: 'nothing+digit+operator',
     value: '\\operatorname{kg}', // Kilogram
   },

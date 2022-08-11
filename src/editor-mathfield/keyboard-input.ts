@@ -43,7 +43,7 @@ import { insertSmartFence } from './mode-editor-math';
  *
  * Theory of Operation
  *
- * When the user type on the keyboard, printable keys (i.e. not arrows, shift,
+ * When the user types on the keyboard, printable keys (i.e. not arrows, shift,
  * escape, etc...) are captured in a `keystrokeBuffer`.
  *
  * The buffer is used to determine if the user intended to type an
@@ -130,7 +130,9 @@ export function onKeystroke(
       let multicharSymbol = false;
 
       // Find the longest substring that matches a shortcut
-      const candidate = mathfield.keystrokeBuffer + c;
+      mathfield.keystrokeBuffer += c;
+      const candidate = mathfield.keystrokeBuffer;
+      mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
 
       // Loop  over possible candidates, from the longest possible, to the shortest
       let i = 0;
@@ -138,7 +140,7 @@ export function onKeystroke(
         // At this length (i), what are the left siblings?
         const leftSiblings = getLeftSiblings(
           mathfield,
-          mathfield.keystrokeBufferStates.length - (candidate.length - i)
+          mathfield.keystrokeBufferStates.length - 1 - i
         );
 
         // Is this an inline shortcut?
@@ -162,21 +164,14 @@ export function onKeystroke(
       }
 
       stateIndex =
-        mathfield.keystrokeBufferStates.length - (candidate.length - i);
-      mathfield.keystrokeBuffer += c;
-      mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
+        mathfield.keystrokeBufferStates.length - 1 - (candidate.length - i);
 
       if (
         !multicharSymbol &&
         countInlineShortcutsStartingWith(candidate, mathfield.options) <= 1
       ) {
         // There's only a single shortcut matching this sequence.
-        // We can confidently reset the keystroke buffer\
-        // console.log(
-        //   candidate,
-        //   mathfield.keystrokeBuffer,
-        //   mathfield.keystrokeBufferStates
-        // );
+        // We can confidently reset the keystroke buffer
         resetKeystrokeBuffer = true;
       } else {
         // There are several potential shortcuts matching this sequence.

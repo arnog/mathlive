@@ -18,6 +18,9 @@
     reported as `mf.errors`, an array of `LatexSyntaxError`. This property can
     be consulted for example during the handler for a `change` event.
 
+- Inline shortcuts now only apply in math mode. The `mode` property of
+  `InlineShortcutDefinition` has been removed.
+
 ### Improvements
 
 - Internal: introduction of `GlobalContext` to encapsulate information necessary
@@ -45,6 +48,10 @@
 
 - Spacing commands (e.g. `\,`) now serialize a space when using the `ascii-math`
   format
+
+- **#1572** Keyboard events (`keyup`, `keydown`, `keypress`) are now fired more
+  consistently. They can be intercepted by calling `preventDefault()` during the
+  capture phase.
 
 ### Features
 

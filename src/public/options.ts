@@ -151,22 +151,17 @@ export type Keybinding = {
  *     config.inlineShortcuts = {
  *      half: '\\frac{1}{2}',
  *      in: {
- *          mode: 'math',
  *          after: 'space+letter+digit+symbol+fence',
  *          value: '\\in',
  *      },
  *  };
  *```
  *
- * When using a string, the shortcut will apply in any mode, and regardless
- * of the characters surrounding it.
+ * When using a string, the shortcut applies regardless of the characters
+ * surrounding it.
  *
  * When using an object literal the `value` key is required an indicate the
  * shortcut substitution.
- *
- * The `mode` key, if present, indicate which mode this shortcut will
- * apply in, either `"math"` or `"text"`. If the key is not present the
- * shortcut apply in all modes.
  *
  * The `"after"` key, if present, indicate in what context (surrounding characters)
  * the shortcut will apply. One or more values can be specified, separated by a '|'
@@ -196,7 +191,6 @@ export type InlineShortcutDefinition =
   | string
   | {
       value: string;
-      mode?: ParseMode;
       after?: string;
     };
 
