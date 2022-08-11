@@ -15,10 +15,11 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf"
+      <math-field id="mf">{123}abc</math-field>
+      <!-- <math-field id="mf"
         >{\sqrt{\sum_{n=1}^\infty {\frac{10}{n^4}}}} = {\int_0^\infty \frac{2x
         dx}{e^x-1}} = \frac{\pi^2}{3} \in {\mathbb R}</math-field
-      >
+      > -->
 
       <h2 style="margin-top: 1em">Selection</h2>
       <div class="output" id="selection"></div>
@@ -191,7 +192,6 @@
       const mf = document.getElementById('mf');
 
       mf.setOptions({
-        onError: (ev) => console.log('Error :' + ev.code),
         onMulticharSymbol: (_mf, s) => {
           if (/^[A-Z][a-z]+$/.test(s)) return `\\mathrm{${s}}`;
           if (/^[a-z][a-z]+$/.test(s)) return `\\mathit{${s}}`;
@@ -201,28 +201,21 @@
         virtualKeyboardMode: 'manual',
         macros: {
           ...mf.getOptions('macros'),
-          smolfrac: '{}^{#1}\\!\\!/\\!{}_{#2}',
+          smolfrac: {
+            args: 2,
+            def: '{}^{#1}\\!\\!/\\!{}_{#2}',
+            captureSelection: false,
+          },
         },
       });
 
       mf.addEventListener('input', (ev) => updateContent(mf));
 
-      // mf.addEventListener('paste', (ev) => ev.preventDefault());
-
-      mf.addEventListener('change', (ev) =>
-        console.log('change event', mf.value)
-      );
-
-      // mf.addEventListener('keystroke', (ev, a) => {
-      //   ev.preventDefault();
-      //   return false;
-      // });
-
       mf.addEventListener('selection-change', (ev) => {
         const selection = mf.selection;
         document.getElementById('selection').innerHTML =
           `${label('value     ')}"${escapeHtml(
-            mf.getValue(selection, 'latex-expanded')
+            mf.getValue(selection, 'latex')
           )}"<br>` +
           label('start     ') +
           selection.ranges[0][0] +
@@ -240,9 +233,6 @@
           label('depth     ') +
           mf.getOffsetDepth(mf.position);
       });
-      mf.addEventListener('math-error', (ev) =>
-        console.log('Error event :' + ev.detail.code)
-      );
 
       // First time update
       updateContent(mf);
