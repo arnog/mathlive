@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.78.1 (2022-08-11)
 
 - **#1576** regression in 0.78.0: crash when entering Unicode characters with no
   special mapping, e.g. "°".
