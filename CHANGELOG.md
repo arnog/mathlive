@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1570** Multichar symbols (using `onMulticharSymbol`) would not always be
+  recgonized, for example when following a binary operator.
+
 ## 0.78.1 (2022-08-11)
 
 - **#1576** regression in 0.78.0: crash when entering Unicode characters with no
