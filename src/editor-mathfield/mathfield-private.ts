@@ -927,25 +927,26 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   resetKeystrokeBuffer(options?: { defer: boolean }): void {
-    options = options ?? { defer: false };
-    if (options.defer) {
-      // If there is a timeout greater than 0, defer the reset
-      // If the timeout is 0, never do the reset: regardless of the amount
-      // of time between keystrokes, consider them as candidates for
-      // a shortcut
-      if (this.options.inlineShortcutTimeout > 0) {
-        // Set a timer to reset the shortcut buffer
-        this.keystrokeBufferResetTimer = setTimeout(() => {
-          this.resetKeystrokeBuffer();
-        }, this.options.inlineShortcutTimeout);
-      }
-
+    options ??= { defer: false };
+    if (!options.defer) {
+      this.keystrokeBuffer = '';
+      this.keystrokeBufferStates = [];
+      clearTimeout(this.keystrokeBufferResetTimer);
+      this.keystrokeBufferResetTimer = 0;
       return;
     }
-
-    this.keystrokeBuffer = '';
-    this.keystrokeBufferStates = [];
-    clearTimeout(this.keystrokeBufferResetTimer);
+    // If there is a timeout greater than 0, defer the reset
+    // If the timeout is 0, never do the reset: regardless of the amount
+    // of time between keystrokes, consider them as candidates for
+    // a shortcut
+    if (this.options.inlineShortcutTimeout > 0) {
+      // Set a timer to reset the shortcut buffer
+      clearTimeout(this.keystrokeBufferResetTimer);
+      this.keystrokeBufferResetTimer = setTimeout(
+        () => this.resetKeystrokeBuffer(),
+        this.options.inlineShortcutTimeout
+      );
+    }
   }
 
   executeCommand(

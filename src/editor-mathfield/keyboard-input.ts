@@ -37,8 +37,9 @@ import { insertSmartFence } from './mode-editor-math';
  * Handler in response to a keystroke event.
  *
  * Return `false` if the event has been handled as a shortcut or command and
- * need no further processing. Return `true` if the event should be handled as
- * a regular textual input.
+ * need no further processing.
+ *
+ * Return `true` if the event should be handled as a regular textual input.
  *
  *
  * Theory of Operation
@@ -47,13 +48,14 @@ import { insertSmartFence } from './mode-editor-math';
  * escape, etc...) are captured in a `keystrokeBuffer`.
  *
  * The buffer is used to determine if the user intended to type an
- * inline shortcut (e.g. "pi" for `\pi`), a multichar symbol, or some keybinding
- * (i.e.g "command+a" to "select all").
+ * inline shortcut (e.g. "pi" for `\pi`) or a multichar symbol.
  *
  * Characters are added to this buffer while the user type printable characters
  * consecutively. If the user change selection (with the mouse, or by
  * navigating with the keyboard), if an unambiguous match for the buffer is
  * found, the buffer is cleared.
+ *
+ * Associated with this buffer are `states`
  *
  */
 export function onKeystroke(
@@ -75,8 +77,9 @@ export function onKeystroke(
     mathfield._keybindings = undefined;
   }
 
-  // 2. Reset the timer for the keystroke buffer reset
+  // 2. Clear the timer for the keystroke buffer reset
   clearTimeout(mathfield.keystrokeBufferResetTimer);
+  mathfield.keystrokeBufferResetTimer = 0;
 
   // 3. Display the keystroke in the keystroke panel (if visible)
   showKeystroke(mathfield, keystroke);
@@ -97,10 +100,11 @@ export function onKeystroke(
   ) {
     if (evt.preventDefault) evt.preventDefault();
 
+    mathfield.resetKeystrokeBuffer();
     return false;
   }
 
-  // 5. Let's try to find a matching inline shortcut or keybinding
+  // 5. Let's try to find a matching inline shortcut
   let shortcut: string | undefined;
   let selector: Selector | '' | [Selector, ...any[]] = '';
   let stateIndex: number;
@@ -110,7 +114,7 @@ export function onKeystroke(
   // would match a long shortcut (i.e. '~~')
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
   // see 5.3)
-  if (mathfield.mode !== 'latex' && !evt.ctrlKey && !evt.metaKey) {
+  if (mathfield.mode === 'math' && !evt.ctrlKey && !evt.metaKey) {
     if (keystroke === '[Backspace]') {
       // Special case for backspace to correctly handle undoing
       mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
@@ -123,48 +127,40 @@ export function onKeystroke(
     } else {
       const c = eventToChar(evt);
 
-      // Determine the context to interpret the shortcut, i.e.
-      // the set of atoms to the left of the insertion point
-      const context = getLeftSiblings(mathfield);
-
       let multicharSymbol = false;
 
       // Find the longest substring that matches a shortcut
       mathfield.keystrokeBuffer += c;
-      const candidate = mathfield.keystrokeBuffer;
       mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
 
       // Loop  over possible candidates, from the longest possible, to the shortest
       let i = 0;
-      while (!shortcut && i < candidate.length) {
+      const keystrokes = mathfield.keystrokeBuffer;
+      let candidate = '';
+      while (!shortcut && i < keystrokes.length) {
         // At this length (i), what are the left siblings?
-        const leftSiblings = getLeftSiblings(
-          mathfield,
-          mathfield.keystrokeBufferStates.length - 1 - i
-        );
+        candidate = keystrokes.slice(i);
+        stateIndex =
+          mathfield.keystrokeBufferStates.length - (keystrokes.length - i);
+        const leftSiblings = getLeftSiblings(mathfield, stateIndex);
 
         // Is this an inline shortcut?
         shortcut = getInlineShortcut(
           leftSiblings,
-          candidate.slice(i),
+          candidate,
           mathfield.options.inlineShortcuts
         );
 
         // If not a shortcut, could this be interpreted as a multichar symbol?
-        if (!shortcut && mathfield.mode === 'math') {
-          if (context.every((x) => x.type === 'mord')) {
-            shortcut = mathfield.options.onMulticharSymbol(
-              mathfield,
-              candidate.slice(i)
-            );
-            multicharSymbol = !!shortcut;
-          }
+        if (
+          !shortcut &&
+          /[a-zA-Z][a-zA-Z0-9]+'?([_\^][a-zA-Z0-9\*\+\-]'?)?/.test(candidate)
+        ) {
+          shortcut = mathfield.options.onMulticharSymbol(mathfield, candidate);
+          multicharSymbol = !!shortcut;
         }
         i += 1;
       }
-
-      stateIndex =
-        mathfield.keystrokeBufferStates.length - 1 - (candidate.length - i);
 
       if (
         !multicharSymbol &&
@@ -176,7 +172,7 @@ export function onKeystroke(
       } else {
         // There are several potential shortcuts matching this sequence.
         //
-        // Don't reset the keystroke buffer yet, but schedule a defered reset,
+        // Don't reset the keystroke buffer yet, but schedule a deferred reset,
         // in case some keys typed later disambiguate the desired shortcut.
         //
         // This handles the case with two shortcuts for "sin" and "sinh", to
@@ -367,7 +363,7 @@ export function onKeystroke(
         data: shortcut ?? null,
         type: 'insertText',
       },
-      (): boolean => {
+      () => {
         // Insert the substitute
         ModeEditor.insert(mathfield.mode, model, shortcut!, {
           format: 'latex',
