@@ -81,7 +81,7 @@ export function defaultGetDefinition(
   )
     info.isFunction = true;
 
-  return info;
+  return info ?? null;
 }
 
 export function getMacroDefinition(
