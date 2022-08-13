@@ -70,8 +70,8 @@ echo -e  $LINECLEAR$BASENAME$CHECK${DIM}"Cleaning output directories"$RESET
 # Even though we only generate declaration files, the target must be set 
 # high-enough to prevent `tsc` from complaining (!)
 printf "$BASENAME${DOT}Building TypeScript declaration files (.d.ts)"
-npx tsc --target "es2020" -d --moduleResolution "node" --emitDeclarationOnly --outDir ./declarations ./src/public/mathlive.ts 
-mv ./declarations/public ./dist
+npx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly --outDir ./declarations
+mv ./declarations/src/public ./dist
 rm -rf ./declarations
 echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESET}"
 

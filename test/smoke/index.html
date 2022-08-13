@@ -193,8 +193,9 @@
 
       mf.setOptions({
         onMulticharSymbol: (_mf, s) => {
-          if (/^[A-Z][a-z]+$/.test(s)) return `\\mathrm{${s}}`;
-          if (/^[a-z][a-z]+$/.test(s)) return `\\mathit{${s}}`;
+          if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+            return '\\mathrm{' + s + '}';
+          }
           return '';
         },
         // smartFence: true,
