@@ -345,6 +345,12 @@ export function delegateKeyboardEvents(
 
       focusInProgress = true;
       if (handlers.focus) handlers.focus();
+      if (
+        deepActiveElement() === textarea &&
+        typeof textarea.select === 'function'
+      )
+        textarea.select();
+
       focusInProgress = false;
       evt.stopPropagation();
     },

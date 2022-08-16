@@ -6,6 +6,11 @@
   commands are provided for improved compatibility with existing LaTeX content,
   but in general infix commands are not recommended to create new content.
 
+### Bug Fixed
+
+- **#1583** Changing the focus programatically could result in subsequent
+  keyboard input being incorrect
+
 ## 0.78.1 (2022-08-12)
 
 ### Bug Fixes
