@@ -163,9 +163,9 @@ export type Keybinding = {
  * When using an object literal the `value` key is required an indicate the
  * shortcut substitution.
  *
- * The `"after"` key, if present, indicate in what context (surrounding characters)
+ * The `"after"` key, if present, indicate in what context (preceding characters)
  * the shortcut will apply. One or more values can be specified, separated by a '|'
- * character. If any of the values match, the shortcut will be applicable.
+ * character. If any of the values match, the shortcut is applicable.
  *
  *
  * Possible values are:
@@ -174,16 +174,16 @@ export type Keybinding = {
  *  | :----- | :----- |
  *  | `"space"` |  A spacing command, such as `\quad` |
  *  | `"nothing"`|  The begining of a group |
- *  | `"surd"` |A square root or n-th root |
- *  | `"frac"` |A fraction|
- *  | `"function"` |A function such as `\sin` or `f`|
- *  | `"letter"` |A letter, such as `x` or `n`|
+ *  | `"surd"` | A square root or n-th root |
+ *  | `"frac"` | A fraction|
+ *  | `"function"` |A  function such as `\sin` or `f`|
+ *  | `"letter"` | A letter, such as `x` or `n`|
  *  | `"digit"` |`0` through `9`|
- *  | `"binop"` |A binary operator, such as `+`|
- *  | `"relop"` |A relational operator, such as `=`|
- *  | `"punct"` |A punctuation mark, such as `,`|
- *  | `"array"` |An array, such as a matrix or cases statement|
- *  | `"openfence"` |An opening fence, such as `(`|
+ *  | `"binop"` | A binary operator, such as `+`|
+ *  | `"relop"` | A relational operator, such as `=`|
+ *  | `"punct"` | A punctuation mark, such as `,`|
+ *  | `"array"` | An array, such as a matrix or cases statement|
+ *  | `"openfence"` | An opening fence, such as `(`|
  *  | `"closefence"` | A closing fence such as `}`|
  *  | `"text"`| Some plain text|
  */
