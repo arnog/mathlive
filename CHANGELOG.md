@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Features
+
+- **#1580** Added support for infix commands `\brace` and `\brack`. These
+  commands are provided for improved compatibility with existing LaTeX content,
+  but in general infix commands are not recommended to create new content.
+
 ## 0.78.1 (2022-08-12)
 
 ### Bug Fixes

@@ -1,6 +1,6 @@
 import { Style } from '../public/core';
 
-import type { Atom, ToLatexOptions } from '../core/atom-class';
+import type { Atom } from '../core/atom-class';
 import { GlobalContext } from '../core/context';
 import { OperatorAtom } from '../core-atoms/operator';
 import { SurdAtom } from '../core-atoms/surd';
@@ -8,6 +8,7 @@ import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
 import { DelimAtom } from '../core-atoms/delim';
 
 import { Argument, defineFunction } from './definitions-utils';
+import { joinLatex } from 'core/tokenizer';
 
 defineFunction(
   [
@@ -192,6 +193,28 @@ defineFunction(
   }
 );
 
+defineFunction(['brace', 'brack'], '', {
+  infix: true,
+  createAtom: (
+    command: string,
+    args: Argument[],
+    style: Style,
+    context: GlobalContext
+  ): Atom =>
+    new GenfracAtom(command, args[0] as Atom[], args[1] as Atom[], context, {
+      hasBarLine: false,
+      leftDelim: command === '\\brace' ? '\\lbrace' : '\\lbrack',
+      rightDelim: command === '\\brace' ? '\\rbrace' : '\\rbrack',
+      style,
+      serialize: (atom, options) =>
+        joinLatex([
+          atom.aboveToLatex(options),
+          atom.command,
+          atom.belowToLatex(options),
+        ]),
+    }),
+});
+
 defineFunction(['over', 'atop', 'choose'], '', {
   infix: true,
   createAtom: (
@@ -218,10 +241,12 @@ defineFunction(['over', 'atop', 'choose'], '', {
         leftDelim,
         rightDelim,
         style,
-        serialize: (atom: GenfracAtom, options: ToLatexOptions) =>
-          `{${atom.aboveToLatex(options)}${atom.command} ${atom.belowToLatex(
-            options
-          )}}`,
+        serialize: (atom, options) =>
+          joinLatex([
+            atom.aboveToLatex(options),
+            atom.command,
+            atom.belowToLatex(options),
+          ]),
       }
     );
   },
