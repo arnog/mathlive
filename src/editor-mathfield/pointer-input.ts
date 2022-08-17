@@ -126,8 +126,8 @@ export function onPointerDown(
     }
 
     // ts test
-    actualAnchor /= 2;
-    focus /= 2;
+    // actualAnchor /= 2;
+    // focus /= 2;
     // end ts test
 
     if (actualAnchor >= 0 && focus >= 0) {
