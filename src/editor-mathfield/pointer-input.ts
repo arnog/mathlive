@@ -118,12 +118,17 @@ export function onPointerDown(
       );
     }
 
-    const focus = offsetFromPoint(that, x, y, {
+    let focus = offsetFromPoint(that, x, y, {
       bias: x <= anchorX ? (x === anchorX ? 0 : -1) : +1,
     });
     if (trackingWords) {
       // @todo: extend focus, actualAnchor to word boundary
     }
+
+    // ts test
+    actualAnchor /= 2;
+    focus /= 2;
+    // end ts test
 
     if (actualAnchor >= 0 && focus >= 0) {
       that.model.extendSelectionTo(actualAnchor, focus);
