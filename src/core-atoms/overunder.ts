@@ -16,7 +16,8 @@ export class OverunderAtom extends Atom {
   svgBelow?: string;
   svgBody?: string;
   boxType: BoxType;
-  padded?: boolean;
+  paddedBody: boolean;
+  paddedLabels: boolean;
   constructor(
     command: string,
     context: GlobalContext,
@@ -31,7 +32,8 @@ export class OverunderAtom extends Atom {
       style: PrivateStyle;
       boxType?: BoxType;
       supsubPlacement?: 'over-under' | 'adjacent';
-      padded?: boolean;
+      paddedBody?: boolean;
+      paddedLabels?: boolean;
       serialize?: (atom: OverunderAtom, options: ToLatexOptions) => string;
     }
   ) {
@@ -50,7 +52,8 @@ export class OverunderAtom extends Atom {
     this.above = options.above;
     this.below = options.below;
     this.boxType = options.boxType ?? 'mord';
-    this.padded = options.padded ?? false;
+    this.paddedBody = options.paddedBody ?? false;
+    this.paddedLabels = options.paddedLabels ?? false;
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): OverunderAtom {
@@ -65,7 +68,8 @@ export class OverunderAtom extends Atom {
     if (this.svgBelow) options.svgBelow = this.svgBelow;
     if (this.svgBody) options.svgBody = this.svgBody;
     if (this.boxType !== 'mord') options.boxType = this.boxType;
-    if (this.padded) options.padded = true;
+    if (this.paddedBody) options.paddedBody = true;
+    if (this.paddedLabels) options.paddedLabels = true;
     return { ...super.toJson(), ...options };
   }
 
@@ -104,7 +108,7 @@ export class OverunderAtom extends Atom {
     else if (this.below)
       below = Atom.createBox(annotationContext, this.below, { newList: true });
 
-    if (this.padded) {
+    if (this.paddedBody) {
       // The base of \overset are padded, but \overbrace aren't
       body = new Box(
         [
@@ -128,6 +132,7 @@ export class OverunderAtom extends Atom {
         this.boxType === 'mbin' || this.boxType === 'mrel'
           ? this.boxType
           : 'mord',
+      paddedAboveBelow: this.paddedLabels,
     });
 
     if (!base) return null;
@@ -158,6 +163,7 @@ function makeOverunderStack(
     above: Box | null;
     below: Box | null;
     type: BoxType;
+    paddedAboveBelow: boolean;
   }
 ): Box | null {
   // If no base, nothing to do
@@ -181,6 +187,9 @@ function makeOverunderStack(
   // (wrappedNucleus.height - wrappedNucleus.depth) / 2 -
   // context.mathstyle.metrics.axisHeight;
 
+  const classes = ['ML__center'];
+  if (options.paddedAboveBelow) classes.push('ML__label_padding');
+
   if (options.below && options.above) {
     const bottom =
       context.metrics.bigOpSpacing5 +
@@ -193,10 +202,10 @@ function makeOverunderStack(
       bottom,
       children: [
         context.metrics.bigOpSpacing5,
-        { box: options.below, classes: ['ML__center'] },
+        { box: options.below, classes },
         { box: base, classes: ['ML__center'] },
         aboveShift,
-        { box: options.above, classes: ['ML__center'] },
+        { box: options.above, classes },
         context.metrics.bigOpSpacing5,
       ],
     });
@@ -205,7 +214,7 @@ function makeOverunderStack(
       top: base.height - baseShift,
       children: [
         context.metrics.bigOpSpacing5,
-        { box: options.below, classes: ['ML__center'] },
+        { box: options.below, classes },
         { box: base, classes: ['ML__center'] },
       ],
     });
@@ -216,7 +225,7 @@ function makeOverunderStack(
         // base.depth,
         { box: base, classes: ['ML__center'] },
         aboveShift,
-        { box: options.above, classes: ['ML__center'] },
+        { box: options.above, classes },
         context.metrics.bigOpSpacing5,
       ],
     });

@@ -4,7 +4,7 @@ import { GlobalContext, PrivateStyle } from '../core/context';
 
 import { Argument, defineFunction } from './definitions-utils';
 
-// Extensible (horitontally stretchy) symbols
+// Extensible (horizontally stretchy) symbols
 
 defineFunction(
   [
@@ -29,7 +29,7 @@ defineFunction(
         body: args[0] as Atom[],
         skipBoundary: false,
         supsubPlacement: 'over-under',
-        padded: true,
+        paddedBody: true,
         boxType: 'mrel',
         style,
         // Set the "svgAbove" to the name of a SVG object (which is the same
@@ -49,7 +49,7 @@ defineFunction('overbrace', '{:auto}', {
       body: args[0] as Atom[],
       skipBoundary: false,
       supsubPlacement: 'over-under',
-      padded: true,
+      paddedBody: true,
       boxType: 'mord',
       style,
       svgAbove: command.slice(1),
@@ -76,7 +76,7 @@ defineFunction(
         body: args[0] as Atom[],
         skipBoundary: false,
         supsubPlacement: 'over-under',
-        padded: true,
+        paddedBody: true,
         boxType: 'mrel',
         style,
         // Set the "svgBelow" to the name of a SVG object (which is the same
@@ -96,7 +96,7 @@ defineFunction(['underbrace'], '{:auto}', {
       body: args[0] as Atom[],
       skipBoundary: false,
       supsubPlacement: 'over-under',
-      padded: true,
+      paddedBody: true,
       boxType: 'mord',
       style,
       svgBelow: command.slice(1),
@@ -147,7 +147,8 @@ defineFunction(
         below: (args[0] as Atom[]) ?? null,
         skipBoundary: false,
         supsubPlacement: 'over-under',
-        padded: true,
+        paddedBody: true,
+        paddedLabels: true,
         boxType: 'mrel',
         serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
           command +

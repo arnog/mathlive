@@ -11,6 +11,9 @@
 - **#1583** Changing the focus programatically could result in subsequent
   keyboard input being incorrect
 
+- **#1581** Added padding to labels below and above extensible arrows (e.g. 
+  `\xrightarrow`)
+
 ## 0.78.1 (2022-08-12)
 
 ### Bug Fixes

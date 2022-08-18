@@ -32,7 +32,7 @@ export class ChemAtom extends Atom {
       false
     );
 
-    this.body = parseLatex(tex);
+    this.body = parseLatex(tex, context);
     this.verbatimLatex = command + '{' + arg + '}';
     this.arg = arg;
     this.captureSelection = true;
@@ -64,8 +64,12 @@ export class ChemAtom extends Atom {
 }
 
 defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', {
-  createAtom: (command: string, args: Argument[], _style: Style): Atom =>
-    new ChemAtom(command, args[0] as string),
+  createAtom: (
+    command: string,
+    args: Argument[],
+    _style: Style,
+    context: GlobalContext
+  ): Atom => new ChemAtom(command, args[0] as string, context),
 });
 
 /*************************************************************
