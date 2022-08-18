@@ -11,8 +11,10 @@
 - **#1583** Changing the focus programatically could result in subsequent
   keyboard input being incorrect
 
-- **#1581** Added padding to labels below and above extensible arrows (e.g. 
+- **#1581** Added padding to labels below and above extensible arrows (e.g.
   `\xrightarrow`)
+
+- The `\ce` command would not render chemical equations (regression).
 
 ## 0.78.1 (2022-08-12)
 
