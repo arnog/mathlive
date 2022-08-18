@@ -2,24 +2,7 @@ import type { InlineShortcutDefinition } from '../public/options';
 import { LETTER } from '../core-definitions/definitions';
 import type { Atom } from '../core/atom';
 
-import { MathfieldOptionsPrivate } from './options';
-
 export { InlineShortcutDefinition };
-
-/**
- * Return an array of potential shortcuts
- */
-export function countInlineShortcutsStartingWith(
-  s: string,
-  config: MathfieldOptionsPrivate
-): number {
-  let count = 0;
-
-  for (const key of Object.keys(config.inlineShortcuts))
-    if (key.startsWith(s)) count += 1;
-
-  return count;
-}
 
 /**
  *

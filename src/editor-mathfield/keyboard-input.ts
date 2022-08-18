@@ -10,10 +10,7 @@ import {
   mightProducePrintableCharacter,
   eventToChar,
 } from '../editor/keyboard';
-import {
-  countInlineShortcutsStartingWith,
-  getInlineShortcut,
-} from '../editor/shortcuts';
+import { getInlineShortcut } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
 import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate } from '../editor/commands';
 import {
@@ -108,7 +105,6 @@ export function onKeystroke(
   let shortcut: string | undefined;
   let selector: Selector | '' | [Selector, ...any[]] = '';
   let stateIndex: number;
-  let resetKeystrokeBuffer = false;
 
   // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
   // would match a long shortcut (i.e. '~~')
@@ -126,8 +122,6 @@ export function onKeystroke(
       mathfield.snapshot();
     } else {
       const c = eventToChar(evt);
-
-      let multicharSymbol = false;
 
       // Find the longest substring that matches a shortcut
       mathfield.keystrokeBuffer += c;
@@ -155,31 +149,19 @@ export function onKeystroke(
         if (
           !shortcut &&
           /[a-zA-Z][a-zA-Z0-9]+'?([_\^][a-zA-Z0-9\*\+\-]'?)?/.test(candidate)
-        ) {
+        )
           shortcut = mathfield.options.onMulticharSymbol(mathfield, candidate);
-          multicharSymbol = !!shortcut;
-        }
+
         i += 1;
       }
 
-      if (
-        !multicharSymbol &&
-        countInlineShortcutsStartingWith(candidate, mathfield.options) <= 1
-      ) {
-        // There's only a single shortcut matching this sequence.
-        // We can confidently reset the keystroke buffer
-        resetKeystrokeBuffer = true;
-      } else {
-        // There are several potential shortcuts matching this sequence.
-        //
-        // Don't reset the keystroke buffer yet, but schedule a deferred reset,
-        // in case some keys typed later disambiguate the desired shortcut.
-        //
-        // This handles the case with two shortcuts for "sin" and "sinh", to
-        // avoid the detecting of the "sin" shortcut from preventing the "sinh"
-        // shortcut from ever being triggered.
-        mathfield.resetKeystrokeBuffer({ defer: true });
-      }
+      // Don't reset the keystroke buffer yet, but schedule a deferred reset,
+      // in case some keys typed later disambiguate the desired shortcut.
+      //
+      // This handles the case with two shortcuts for "sin" and "sinh", to
+      // avoid the detecting of the "sin" shortcut from preventing the "sinh"
+      // shortcut from ever being triggered.
+      mathfield.resetKeystrokeBuffer({ defer: true });
     }
   }
 
@@ -250,6 +232,9 @@ export function onKeystroke(
       // a text zone, or if `mathModeSpace` is enabled, insert the space
       //
       if (keystroke === '[Space]') {
+        // The space bar can be used to separate inline shortcuts
+        mathfield.resetKeystrokeBuffer();
+
         if (mathfield.options.mathModeSpace) {
           mathfield.snapshot();
           ModeEditor.insert('math', model, mathfield.options.mathModeSpace, {
@@ -384,9 +369,6 @@ export function onKeystroke(
     mathfield.snapshot();
     mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
     model.announce('replacement');
-
-    // If we're done with the shortcuts (found a unique one), reset it.
-    if (resetKeystrokeBuffer) mathfield.resetKeystrokeBuffer();
   }
 
   //

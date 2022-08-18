@@ -94,7 +94,7 @@ export function perform(
 
   const commandTarget = COMMANDS[selector]?.target;
 
-  // TODO Refactor this method
+  // @todo Refactor this method
   // Actually using commands by this way increase code complexity,
   //  ideally all code must be moved under command code, maybe it is
   //  a good idea to implement new Command API with additional hooks
@@ -145,7 +145,7 @@ export function perform(
     if (/^(undo|redo)/.test(selector)) mathfield.resetKeystrokeBuffer();
     dirty = COMMANDS[selector]!.fn(mathfield, ...args);
     handled = true;
-  } else throw new Error('Unknown command "' + selector + '"');
+  } else throw new Error(`Unknown command "${selector}"`);
 
   // Virtual keyboard commands do not update mathfield state
   if (commandTarget !== 'virtual-keyboard') {

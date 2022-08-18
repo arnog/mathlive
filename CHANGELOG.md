@@ -1,3 +1,12 @@
+## [Unreleased]
+
+### Improvements
+
+- More inline shortcut patterns are now recognized, useful for multicharacter
+  symbols, e.g. `alpha2` -> `alpha_2`
+- Pressing the space bar will flush the inline shortcut buffer, allowing the
+  input of a key combination that would otherwise trigget a shorcut
+
 ## 0.78.2 (2022-08-18)
 
 ### Features

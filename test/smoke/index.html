@@ -194,6 +194,12 @@
       mf.setOptions({
         onMulticharSymbol: (_mf, s) => {
           if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+            const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
+            if (m) {
+              if (['alpha', 'beta', 'gamma'].includes(m[1]))
+                return `\\${m[1]}_{${m[2]}}`;
+              return `\\mathrm{${m[1]}}_{${m[2]}}`;
+            }
             return '\\mathrm{' + s + '}';
           }
           return '';
