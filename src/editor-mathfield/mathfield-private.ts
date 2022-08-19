@@ -59,7 +59,7 @@ import {
 import { addRowAfter, addColumnAfter } from '../editor-model/array';
 
 import { delegateKeyboardEvents, KeyboardDelegate } from '../editor/keyboard';
-import { UndoRecord, UndoManager } from '../editor/undo';
+import { UndoManager } from '../editor/undo';
 import { disposePopover, updatePopoverPosition } from '../editor/popover';
 import { localize } from '../core/l10n';
 import {
@@ -84,6 +84,7 @@ import {
   gKeyboardLayout,
 } from '../editor/keyboard-layout';
 import { VirtualKeyboard } from '../editor/virtual-keyboard';
+import { ModelState } from '../editor-model/model-private';
 
 import { onTypedText, onKeystroke } from './keyboard-input';
 import { complete } from './autocomplete';
@@ -173,7 +174,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   keyboardLayout: KeyboardLayoutName;
 
   inlineShortcutBuffer: {
-    state: UndoRecord;
+    state: ModelState;
     keystrokes: string;
     leftSiblings: Atom[];
   }[];
@@ -1320,17 +1321,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         })
       );
     }
-  }
-
-  getUndoRecord(): UndoRecord {
-    return this.undoManager.save();
-  }
-
-  restoreToUndoRecord(s: UndoRecord): void {
-    this.undoManager.restore(s, {
-      ...this.options,
-      suppressChangeNotifications: true,
-    });
   }
 
   undo(): void {

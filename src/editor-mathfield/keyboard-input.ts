@@ -114,7 +114,7 @@ export function onKeystroke(
           mathfield.inlineShortcutBuffer.length - 1
         ]?.keystrokes ?? '') + c;
       mathfield.inlineShortcutBuffer.push({
-        state: mathfield.getUndoRecord(),
+        state: model.getState(),
         keystrokes,
         leftSiblings: getLeftSiblings(mathfield),
       });
@@ -202,9 +202,7 @@ export function onKeystroke(
     // 4.4 Handle the return/enter key
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
       let result = true;
-      if (
-        contentWillChange(mathfield.model, { inputType: 'insertLineBreak' })
-      ) {
+      if (contentWillChange(model, { inputType: 'insertLineBreak' })) {
         // No matching keybinding: trigger a commit
 
         if (mathfield.host) {
@@ -224,12 +222,12 @@ export function onKeystroke(
         }
 
         // Dispatch an 'input' event matching the behavior of `<textarea>`
-        contentDidChange(mathfield.model, { inputType: 'insertLineBreak' });
+        contentDidChange(model, { inputType: 'insertLineBreak' });
       }
       return result;
     }
 
-    if (mathfield.mode === 'math') {
+    if (mode === 'math') {
       //
       // 4.5 If this is the Space bar and we're just before or right after
       // a text zone, or if `mathModeSpace` is enabled, insert the space
@@ -338,9 +336,7 @@ export function onKeystroke(
       mathfield.snapshot();
       // Revert to the state before the beginning of the shortcut
       // (restore doesn't change the undo stack)
-      mathfield.restoreToUndoRecord(
-        mathfield.inlineShortcutBuffer[stateIndex!].state
-      );
+      model.setState(mathfield.inlineShortcutBuffer[stateIndex!].state);
       mathfield.mode = saveMode;
     }
 

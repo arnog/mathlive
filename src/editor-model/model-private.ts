@@ -6,13 +6,14 @@ import type {
   Selection,
   OutputFormat,
 } from '../public/mathfield';
-import { ContentChangeType } from '../public/options';
+import { ContentChangeOptions, ContentChangeType } from '../public/options';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
 import { Mode } from '../core/modes';
+import { AtomJson, fromJson } from '../core/atom';
 
 import { atomsToMathML } from '../addons/math-ml';
 
@@ -22,6 +23,7 @@ import { defaultAnnounceHook } from '../editor/a11y';
 
 import {
   contentDidChange,
+  contentWillChange,
   ModelListeners,
   selectionDidChange,
 } from './listeners';
@@ -33,6 +35,11 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
+
+export type ModelState = {
+  content: AtomJson;
+  selection: Selection;
+};
 
 export type GetAtomOptions = {
   includeChildren?: boolean;
@@ -151,6 +158,37 @@ export class ModelPrivate implements Model {
         }
       }
     });
+  }
+
+  getState(): ModelState {
+    return {
+      content: this.root.toJson(),
+      selection: this.selection,
+    };
+  }
+
+  setState(
+    state: ModelState,
+    options?: {
+      suppressChangeNotifications?: boolean;
+      type?: 'redo' | 'undo';
+    }
+  ): void {
+    const wasSuppressing = this.suppressChangeNotifications;
+    this.suppressChangeNotifications =
+      options?.suppressChangeNotifications ?? true;
+    let changeOption: ContentChangeOptions = {};
+    if (options?.type === 'undo') changeOption = { inputType: 'historyUndo' };
+    if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
+    // Restore the content and selection
+    if (contentWillChange(this, changeOption)) {
+      this.root = fromJson(state.content, this.mathfield);
+      this.selection = state.selection;
+
+      contentDidChange(this, changeOption);
+    }
+
+    this.suppressChangeNotifications = wasSuppressing;
   }
 
   /**
