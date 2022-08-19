@@ -306,7 +306,18 @@ function leap(
   // If no placeholders were found, call handler or move to the next focusable
   // element in the document
   if (placeholders.length === 0) {
-    const handled = !callHooks || !model.hooks.tabOut?.(model, dir);
+    const handled =
+      !callHooks ||
+      !(
+        model.mathfield.host?.dispatchEvent(
+          new CustomEvent('focus-out', {
+            detail: { direction: dir },
+            cancelable: true,
+            bubbles: true,
+            composed: true,
+          })
+        ) ?? true
+      );
     if (handled) {
       model.announce('plonk');
       return false;

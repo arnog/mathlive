@@ -18,6 +18,7 @@ import { atomsToMathML } from '../addons/math-ml';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
+import { defaultAnnounceHook } from '../editor/a11y';
 
 import {
   contentDidChange,
@@ -26,7 +27,6 @@ import {
 } from './listeners';
 import {
   ModelOptions,
-  ModelHooks,
   isOffset,
   isSelection,
   isRange,
@@ -43,7 +43,6 @@ export class ModelPrivate implements Model {
   readonly mathfield: MathfieldPrivate;
   readonly options: ModelOptions;
   listeners: ModelListeners;
-  hooks: Required<ModelHooks>;
 
   root: Atom;
   suppressChangeNotifications: boolean;
@@ -55,7 +54,6 @@ export class ModelPrivate implements Model {
   constructor(
     options: ModelOptions,
     listeners: ModelListeners,
-    hooks: ModelHooks,
     target: Mathfield
   ) {
     this.options = options;
@@ -72,7 +70,6 @@ export class ModelPrivate implements Model {
     this.root.body = [];
 
     this.setListeners(listeners);
-    this.setHooks(hooks);
   }
 
   get atoms(): Atom[] {
@@ -562,21 +559,6 @@ export class ModelPrivate implements Model {
     this.listeners = listeners;
   }
 
-  setHooks(hooks?: ModelHooks): void {
-    this.hooks = {
-      announce: hooks?.announce
-        ? hooks.announce
-        : (
-            _target: Mathfield,
-            _command: string,
-            _previousPosition: number,
-            _atoms: Atom[]
-          ): void => {},
-      moveOut: hooks?.moveOut ? hooks.moveOut : (): boolean => true,
-      tabOut: hooks?.tabOut ? hooks.tabOut : (): boolean => true,
-    };
-  }
-
   /**
    * This method is called to provide feedback when using a screen reader
    * or other assistive device, for example when changing the selection or
@@ -596,7 +578,17 @@ export class ModelPrivate implements Model {
     previousPosition?: number,
     atoms: Atom[] = []
   ): void {
-    this.hooks.announce(this.mathfield, command, previousPosition, atoms);
+    const result =
+      this.mathfield.host?.dispatchEvent(
+        new CustomEvent('announce', {
+          detail: { command, previousPosition, atoms },
+          cancelable: true,
+          bubbles: true,
+          composed: true,
+        })
+      ) ?? true;
+    if (!result)
+      defaultAnnounceHook(this.mathfield, command, previousPosition, atoms);
   }
 
   // Suppress notification while scope is executed,

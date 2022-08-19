@@ -14,24 +14,6 @@ export default {
       type: Object,
       default: () => ({}),
     },
-    onKeystroke: {
-      type: Function,
-      default(_keystroke, _ev) {
-        return true;
-      },
-    },
-    onMoveOutOf: {
-      type: Function,
-      default(_direction) {
-        return true;
-      },
-    },
-    onTabOutOf: {
-      type: Function,
-      default(_direction) {
-        return true;
-      },
-    },
   },
   /*
    * To register this component, call:
@@ -89,45 +71,8 @@ export default {
   mounted() {
     // A new instance is being created
     // Wait until the DOM has been constructed...
-    this.$nextTick(() => {
-      // ... then configure the mathfield
-      this.$el.setOptions({
-        ...this.options,
-        // To support the 'model' directive, this handler will connect
-        // the content of the mathfield to the ViewModel
-        onContentDidChange: (_) => {
-          // When the mathfield is updated, notify the model.
-          // The initial input value is generated from the <slot>
-          // content, so it may need to be updated.
-          this.$emit('input', this.$el.getValue());
-        },
-        // Those asynchronous notification handlers are translated to events
-        onFocus: (_) => {
-          this.$emit('focus');
-        },
-        onBlur: (_) => {
-          this.$emit('blur');
-        },
-        onUndoStateDidChange: (_, command) => {
-          this.$emit('undo-state-did-change', command);
-        },
-        onReadAloudStatus: (_, status) => {
-          this.$emit('read-aloud-status-change', status);
-        },
-
-        // Those notification handlers expect an answer back, so translate
-        // them to callbacks via props
-        onKeystroke: (_, keystroke, ev) => {
-          return this.onKeystroke(keystroke, ev);
-        },
-        onMoveOutOf: (_, direction) => {
-          return this.onMoveOutOf(direction);
-        },
-        onTabOutOf: (_, direction) => {
-          return this.onTabOutOf(direction);
-        },
-      });
-    });
+    // ... then configure the mathfield
+    this.$nextTick(() => this.$el.setOptions(this.options));
   },
   methods: {
     /*

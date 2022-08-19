@@ -1,11 +1,25 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The `onMulticharSymbol` handler has been renamed to `onInlineShortcut`
+- The deprecated `modelHooks` have been removed. Use the corresponding events
+  instead: `move-out`, `focus-out`, `announce`.
+- The `onModeChange`, `onReadAloudStatusChange`, `onBlur`, `onFocus`,
+  `onContentWillChange`, `onContentDidChange`, `onSelectionDidChange`,
+  `onUndoStateWillChange`, `onUndoStateDidChange` and `onCommit` listeners have
+  been removed. Used the corresponding events `mode-change`,
+  `read-aloud-status-change`, `blur`, `focus`, `beforeinput`, `input`,
+  `selection-change`, `undo-state-change`, `change`
+- The `onKeystroke` handler has been removed. Instead use
+  `mf.addEventListener("keydown",...)`
+
 ### Improvements
 
-- More inline shortcut patterns are now recognized, useful for multicharacter
-  symbols, e.g. `alpha2` -> `alpha_2`
+- More inline shortcut patterns are now recognized, which can be useful for more
+  complex multicharacter symbols, e.g. `alpha2` -> `\alpha_{2}`
 - Pressing the space bar will flush the inline shortcut buffer, allowing the
-  input of a key combination that would otherwise trigget a shorcut
+  input of a key combination that would otherwise trigger a shortcut
 
 ## 0.78.2 (2022-08-18)
 

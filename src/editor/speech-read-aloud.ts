@@ -37,7 +37,7 @@ function highlightAtomID(element: HTMLElement, atomID?: string): void {
 
 /**
  * "Read Aloud" is an asynchronous operation that reads the
- * reading with synchronized highlighting
+ * formula with synchronized highlighting
  *
  * @param element - The DOM element to highlight
  * @param text - The text to speak
@@ -77,9 +77,6 @@ export function defaultReadAloudHook(
 
   window.mathlive = window.mathlive ?? {};
   window.mathlive.readAloudElement = element;
-
-  const statusHook =
-    config.onReadAloudStatus ?? window.mathlive.onReadAloudStatus;
 
   // Request the mark points
   polly.synthesizeSpeech(parameters, (err, data) => {
@@ -132,7 +129,14 @@ export function defaultReadAloudHook(
         window.mathlive.readAloudAudio = new Audio();
         window.mathlive.readAloudAudio.addEventListener('ended', () => {
           const mathfield = window.mathlive.readAloudMathField;
-          if (statusHook) statusHook(mathfield, 'ended');
+
+          window.mathlive.readAloudStatus = 'ended';
+          document.body.dispatchEvent(
+            new Event('read-aloud-status-change', {
+              bubbles: true,
+              composed: true,
+            })
+          );
 
           if (mathfield) {
             render(mathfield);
@@ -171,7 +175,14 @@ export function defaultReadAloudHook(
       } else window.mathlive.readAloudAudio.pause();
 
       window.mathlive.readAloudAudio.src = url;
-      if (statusHook) statusHook(window.mathlive.readAloudMathField, 'playing');
+
+      window.mathlive.readAloudStatus = 'playing';
+      document.body.dispatchEvent(
+        new Event('read-aloud-status-change', {
+          bubbles: true,
+          composed: true,
+        })
+      );
 
       window.mathlive.readAloudAudio.play();
     });
@@ -213,14 +224,16 @@ export function readAloudStatus():
  */
 export function pauseReadAloud(): void {
   if (!isBrowser()) return;
-  window.mathlive = window.mathlive ?? {};
+  window.mathlive ??= {};
   if (window.mathlive.readAloudAudio) {
-    if (window.mathlive.onReadAloudStatus) {
-      window.mathlive.onReadAloudStatus(
-        window.mathlive.readAloudMathField,
-        'paused'
-      );
-    }
+    window.mathlive.readAloudStatus = 'paused';
+
+    document.body.dispatchEvent(
+      new Event('read-aloud-status-change', {
+        bubbles: true,
+        composed: true,
+      })
+    );
 
     window.mathlive.readAloudAudio.pause();
   }
@@ -235,12 +248,14 @@ export function resumeReadAloud(): void {
   if (!isBrowser()) return;
   window.mathlive = window.mathlive ?? {};
   if (window.mathlive.readAloudAudio) {
-    if (window.mathlive.onReadAloudStatus) {
-      window.mathlive.onReadAloudStatus(
-        window.mathlive.readAloudMathField,
-        'playing'
-      );
-    }
+    window.mathlive.readAloudStatus = 'playing';
+
+    document.body.dispatchEvent(
+      new Event('read-aloud-status-change', {
+        bubbles: true,
+        composed: true,
+      })
+    );
 
     window.mathlive.readAloudAudio.play();
   }
@@ -273,12 +288,14 @@ export function playReadAloud(token: string, count: number): void {
     }
 
     window.mathlive.readAloudAudio.currentTime = timeIndex;
-    if (window.mathlive.onReadAloudStatus) {
-      window.mathlive.onReadAloudStatus(
-        window.mathlive.readAloudMathField,
-        'playing'
-      );
-    }
+
+    window.mathlive.readAloudStatus = 'playing';
+    document.body.dispatchEvent(
+      new Event('read-aloud-status-change', {
+        bubbles: true,
+        composed: true,
+      })
+    );
 
     window.mathlive.readAloudAudio.play();
   }

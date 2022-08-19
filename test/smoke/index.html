@@ -192,7 +192,7 @@
       const mf = document.getElementById('mf');
 
       mf.setOptions({
-        onMulticharSymbol: (_mf, s) => {
+        onInlineShortcut: (_mf, s) => {
           if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
             const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
             if (m) {
@@ -214,6 +214,14 @@
             captureSelection: false,
           },
         },
+      });
+
+      mf.addEventListener('keydown', (ev) => {
+        if (ev.ctrlKey === true && ev.code === 'KeyL') {
+          mf.insert('\\sqrt2');
+          ev.preventDefault();
+        }
+        console.log(ev);
       });
 
       mf.addEventListener('input', (ev) => updateContent(mf));

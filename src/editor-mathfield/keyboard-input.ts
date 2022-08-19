@@ -75,68 +75,59 @@ export function onKeystroke(
   }
 
   // 2. Clear the timer for the keystroke buffer reset
-  clearTimeout(mathfield.keystrokeBufferResetTimer);
-  mathfield.keystrokeBufferResetTimer = 0;
+  clearTimeout(mathfield.inlineShortcutBufferFlushTimer);
+  mathfield.inlineShortcutBufferFlushTimer = 0;
 
   // 3. Display the keystroke in the keystroke panel (if visible)
   showKeystroke(mathfield, keystroke);
 
   // If the event has already been handled, return
   if (evt.defaultPrevented) {
-    mathfield.resetKeystrokeBuffer();
+    mathfield.flushInlineShortcutBuffer();
     return false;
   }
 
-  // 4. Give a chance to the custom keystroke handler to intercept the event
-  // (note that in readonly mode, while you can't modify the content, you
-  // can use navigation keys)
-  if (
-    !mathfield.options.readOnly &&
-    mathfield.options.onKeystroke &&
-    !mathfield.options.onKeystroke(mathfield, keystroke, evt)
-  ) {
-    if (evt.preventDefault) evt.preventDefault();
-
-    mathfield.resetKeystrokeBuffer();
-    return false;
-  }
-
-  // 5. Let's try to find a matching inline shortcut
+  // 4. Let's try to find a matching inline shortcut
   let shortcut: string | undefined;
   let selector: Selector | '' | [Selector, ...any[]] = '';
   let stateIndex: number;
 
-  // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
+  // 4.1 Check if the keystroke, prefixed with the previously typed keystrokes,
   // would match a long shortcut (i.e. '~~')
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
-  // see 5.3)
+  // see 4.3)
   if (mathfield.mode === 'math' && !evt.ctrlKey && !evt.metaKey) {
     if (keystroke === '[Backspace]') {
       // Special case for backspace to correctly handle undoing
-      mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
-      mathfield.keystrokeBufferStates.pop();
-      mathfield.resetKeystrokeBuffer({ defer: true });
+      mathfield.inlineShortcutBuffer.pop();
+      mathfield.flushInlineShortcutBuffer({ defer: true });
     } else if (!mightProducePrintableCharacter(evt)) {
       // It was a non-alpha character (PageUp, End, etc...)
-      mathfield.resetKeystrokeBuffer();
+      mathfield.flushInlineShortcutBuffer();
       mathfield.snapshot();
     } else {
       const c = eventToChar(evt);
 
       // Find the longest substring that matches a shortcut
-      mathfield.keystrokeBuffer += c;
-      mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
+      const keystrokes =
+        (mathfield.inlineShortcutBuffer[
+          mathfield.inlineShortcutBuffer.length - 1
+        ]?.keystrokes ?? '') + c;
+      mathfield.inlineShortcutBuffer.push({
+        state: mathfield.getUndoRecord(),
+        keystrokes,
+        leftSiblings: getLeftSiblings(mathfield),
+      });
 
       // Loop  over possible candidates, from the longest possible, to the shortest
       let i = 0;
-      const keystrokes = mathfield.keystrokeBuffer;
       let candidate = '';
       while (!shortcut && i < keystrokes.length) {
-        // At this length (i), what are the left siblings?
-        candidate = keystrokes.slice(i);
         stateIndex =
-          mathfield.keystrokeBufferStates.length - (keystrokes.length - i);
-        const leftSiblings = getLeftSiblings(mathfield, stateIndex);
+          mathfield.inlineShortcutBuffer.length - (keystrokes.length - i);
+        candidate = keystrokes.slice(i);
+        const leftSiblings =
+          mathfield.inlineShortcutBuffer[stateIndex].leftSiblings;
 
         // Is this an inline shortcut?
         shortcut = getInlineShortcut(
@@ -145,28 +136,29 @@ export function onKeystroke(
           mathfield.options.inlineShortcuts
         );
 
-        // If not a shortcut, could this be interpreted as a multichar symbol?
+        // Could this be interpreted as a multichar symbol or other complex
+        // inline shortcut
         if (
           !shortcut &&
-          /[a-zA-Z][a-zA-Z0-9]+'?([_\^][a-zA-Z0-9\*\+\-]'?)?/.test(candidate)
+          /^[a-zA-Z][a-zA-Z0-9]+'?([_\^][a-zA-Z0-9\*\+\-]'?)?$/.test(candidate)
         )
-          shortcut = mathfield.options.onMulticharSymbol(mathfield, candidate);
+          shortcut = mathfield.options.onInlineShortcut(mathfield, candidate);
 
         i += 1;
       }
 
-      // Don't reset the keystroke buffer yet, but schedule a deferred reset,
-      // in case some keys typed later disambiguate the desired shortcut.
+      // Don't flush the inline shortcut buffer yet, but schedule a deferred
+      // flush, in case some keys typed later disambiguate the desired shortcut.
       //
       // This handles the case with two shortcuts for "sin" and "sinh", to
       // avoid the detecting of the "sin" shortcut from preventing the "sinh"
       // shortcut from ever being triggered.
-      mathfield.resetKeystrokeBuffer({ defer: true });
+      mathfield.flushInlineShortcutBuffer({ defer: true });
     }
   }
 
   //
-  // 5.2. Should we switch mode?
+  // 4.2. Should we switch mode?
   //
   // Need to check this before determing if there's a valid shortcut
   // since if we switch to math mode, we may want to apply the shortcut
@@ -183,14 +175,17 @@ export function onKeystroke(
     }
 
     // Notify of mode change
-    if (
-      mathfield.mode !== previousMode &&
-      typeof mathfield.options.onModeChange === 'function'
-    )
-      mathfield.options.onModeChange(mathfield, mathfield.mode);
+    if (mathfield.mode !== previousMode) {
+      mathfield.host?.dispatchEvent(
+        new Event('mode-change', {
+          bubbles: true,
+          composed: true,
+        })
+      );
+    }
   }
 
-  // 5.3 Check if this matches a keybinding.
+  // 4.3 Check if this matches a keybinding.
   //
   // Need to check this **after** checking for inline shortcuts because
   // Shift+Backquote is a keybinding that inserts "\~"", but "~~" is a
@@ -204,19 +199,27 @@ export function onKeystroke(
       );
     }
 
-    // 5.4 Handle the return/enter key
+    // 4.4 Handle the return/enter key
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
       let result = true;
       if (
         contentWillChange(mathfield.model, { inputType: 'insertLineBreak' })
       ) {
         // No matching keybinding: trigger a commit
-        if (typeof mathfield.options.onCommit === 'function') {
-          mathfield.options.onCommit(mathfield);
+
+        if (mathfield.host) {
+          result = mathfield.host.dispatchEvent(
+            new Event('change', {
+              bubbles: true,
+              composed: true,
+            })
+          );
+        }
+
+        if (!result) {
           if (evt.preventDefault) {
             evt.preventDefault();
             evt.stopPropagation();
-            result = false;
           }
         }
 
@@ -228,12 +231,12 @@ export function onKeystroke(
 
     if (mathfield.mode === 'math') {
       //
-      // 5.5 If this is the Space bar and we're just before or right after
+      // 4.5 If this is the Space bar and we're just before or right after
       // a text zone, or if `mathModeSpace` is enabled, insert the space
       //
       if (keystroke === '[Space]') {
         // The space bar can be used to separate inline shortcuts
-        mathfield.resetKeystrokeBuffer();
+        mathfield.flushInlineShortcutBuffer();
 
         if (mathfield.options.mathModeSpace) {
           mathfield.snapshot();
@@ -259,7 +262,7 @@ export function onKeystroke(
       }
 
       //
-      // 5.6 Handle the decimal separator
+      // 4.6 Handle the decimal separator
       //
       if (
         model.at(model.position)?.isDigit() &&
@@ -274,11 +277,11 @@ export function onKeystroke(
   if (!shortcut && !selector) return true;
 
   //
-  // 6. Perform the action matching this selector or insert the shortcut
+  // 5. Perform the action matching this selector or insert the shortcut
   //
 
   //
-  // 6.1 If we have a `moveAfterParent` selector (usually triggered with
+  // 5.1 If we have a `moveAfterParent` selector (usually triggered with
   // `spacebar), and we're at the end of a smart fence, close the fence with
   // an empty (.) right delimiter
   //
@@ -298,12 +301,12 @@ export function onKeystroke(
   }
 
   //
-  // 6.2 If there's a selector, perform it.
+  // 5.2 If there's a selector, perform it.
   //
   if (selector) mathfield.executeCommand(selector);
   else if (shortcut) {
     //
-    // 6.3 Cancel the (upcoming) composition
+    // 5.3 Cancel the (upcoming) composition
 
     // This is to prevent starting a composition when the keyboard event
     // has already been handled.
@@ -313,7 +316,7 @@ export function onKeystroke(
     mathfield.keyboardDelegate!.cancelComposition();
 
     //
-    // 6.4 Insert the shortcut
+    // 5.4 Insert the shortcut
     //
     // If the shortcut is a mandatory escape sequence (\}, etc...)
     // don't make it undoable, this would result in syntactically incorrect
@@ -336,7 +339,7 @@ export function onKeystroke(
       // Revert to the state before the beginning of the shortcut
       // (restore doesn't change the undo stack)
       mathfield.restoreToUndoRecord(
-        mathfield.keystrokeBufferStates[stateIndex!]
+        mathfield.inlineShortcutBuffer[stateIndex!].state
       );
       mathfield.mode = saveMode;
     }
@@ -372,12 +375,12 @@ export function onKeystroke(
   }
 
   //
-  // 7. Make sure the mathfield and the insertion point is scrolled into view
+  // 6. Make sure the mathfield and the insertion point is scrolled into view
   //
   mathfield.scrollIntoView();
 
   //
-  // 8. Keystroke has been handled, if it wasn't caught in the default
+  // 7. Keystroke has been handled, if it wasn't caught in the default
   // case, so prevent default
   //
   if (evt.preventDefault) evt.preventDefault();
@@ -543,20 +546,15 @@ export function onTypedText(
   mathfield.scrollIntoView();
 }
 
-function getLeftSiblings(mf: MathfieldPrivate, index = -1): Atom[] {
+function getLeftSiblings(mf: MathfieldPrivate): Atom[] {
   const model = mf.model;
 
-  const savedState = mf.getUndoRecord();
-  if (index >= 0) mf.restoreToUndoRecord(mf.keystrokeBufferStates[index]);
-
-  let atom = model.at(Math.min(model.position, model.anchor));
   const result: Atom[] = [];
+  let atom = model.at(Math.min(model.position, model.anchor));
   while (atom.type !== 'first') {
     result.push(atom);
     atom = atom.leftSibling;
   }
-
-  if (index >= 0) mf.restoreToUndoRecord(savedState);
 
   return result;
 }

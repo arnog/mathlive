@@ -172,9 +172,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   _keybindings?: Keybinding[]; // Normalized keybindings (raw ones in config)
   keyboardLayout: KeyboardLayoutName;
 
-  keystrokeBuffer: string;
-  keystrokeBufferStates: UndoRecord[];
-  keystrokeBufferResetTimer: ReturnType<typeof setTimeout>;
+  inlineShortcutBuffer: {
+    state: UndoRecord;
+    keystrokes: string;
+    leftSiblings: Atom[];
+  }[];
+  inlineShortcutBufferFlushTimer: ReturnType<typeof setTimeout>;
 
   keypressSound: null | HTMLAudioElement;
   spacebarKeypressSound: null | HTMLAudioElement;
@@ -186,7 +189,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   // The value of the mathfield when it is focussed.
   // If this value is different when the field is blured
-  // the `onCommit` listener is triggered
+  // the `change` event is dispatched
   private valueOnFocus: string;
   private focusBlurInProgress = false;
 
@@ -365,9 +368,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // display in the popover panel
     this.suggestionIndex = 0;
 
-    this.keystrokeBuffer = '';
-    this.keystrokeBufferStates = [];
-    this.keystrokeBufferResetTimer = 0 as unknown as ReturnType<
+    this.inlineShortcutBuffer = [];
+    this.inlineShortcutBufferFlushTimer = 0 as unknown as ReturnType<
       typeof setTimeout
     >;
 
@@ -519,30 +521,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         removeExtraneousParentheses: this.options.removeExtraneousParentheses,
       },
       {
-        onContentWillChange: (_sender, options): boolean =>
-          this.options.onContentWillChange(this, options),
-        onContentDidChange: (_sender, options): void =>
-          this.options.onContentDidChange(this, options),
-        onSelectionWillChange: (): void =>
-          this.options.onSelectionWillChange(this),
         onSelectionDidChange: (_sender): void => this._onSelectionDidChange(),
-        onPlaceholderDidChange: (
-          _sender: ModelPrivate,
-          placeholderId: string
-        ): void => this.options.onPlaceholderDidChange(this, placeholderId),
-      },
-      {
-        announce: (
-          _sender: Mathfield,
-          command: string,
-          previousPosition: number,
-          atoms: Atom[]
-        ): void =>
-          this.options.onAnnounce?.(this, command, previousPosition, atoms),
-        moveOut: (_sender, direction): boolean =>
-          this.options.onMoveOutOf(this, direction),
-        tabOut: (_sender, direction): boolean =>
-          this.options.onTabOutOf(this, direction),
       },
       this
     );
@@ -562,29 +541,11 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     // Now start recording potentially undoable actions
     this.undoManager.startRecording();
-    this.undoManager.snapshot(this.options);
+    this.undoManager.snapshot();
 
     this.model.setListeners({
-      onContentWillChange: (_sender, options) =>
-        this.options.onContentWillChange(this, options),
-      onContentDidChange: (_sender, options) =>
-        this.options.onContentDidChange(this, options),
-      onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onSelectionDidChange: (_sender: ModelPrivate) =>
         this._onSelectionDidChange(),
-      onPlaceholderDidChange: (_sender, placeholderId) =>
-        this.options.onPlaceholderDidChange(this, placeholderId),
-    });
-    this.model.setHooks({
-      announce: (
-        _sender: Mathfield,
-        command: string,
-        previousPosition: number | undefined,
-        atoms: Atom[]
-      ) => this.options.onAnnounce?.(this, command, previousPosition, atoms),
-      moveOut: (_sender, direction) =>
-        this.options.onMoveOutOf(this, direction),
-      tabOut: (_sender, direction) => this.options.onTabOutOf(this, direction),
     });
 
     if (
@@ -743,22 +704,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         this.options.decimalSeparator === ',' ? '{,}' : '.';
     }
     this.model.setListeners({
-      onContentWillChange: (_sender, options) =>
-        this.options.onContentWillChange(this, options),
-      onContentDidChange: (_sender, options) =>
-        this.options.onContentDidChange(this, options),
-      onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onSelectionDidChange: (_sender: ModelPrivate) =>
         this._onSelectionDidChange(),
-      onPlaceholderDidChange: (_sender, placeholderId) =>
-        this.options.onPlaceholderDidChange(this, placeholderId),
-    });
-    this.model.setHooks({
-      announce: (_sender: Mathfield, command, previousPosition, atoms) =>
-        this.options.onAnnounce?.(this, command, previousPosition, atoms),
-      moveOut: (_sender, direction) =>
-        this.options.onMoveOutOf(this, direction),
-      tabOut: (_sender, direction) => this.options.onTabOutOf(this, direction),
     });
     this.model.options.macros = this.options
       .macros as NormalizedMacroDictionary;
@@ -926,13 +873,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.stylesheets.forEach((x) => x?.release());
   }
 
-  resetKeystrokeBuffer(options?: { defer: boolean }): void {
+  flushInlineShortcutBuffer(options?: { defer: boolean }): void {
     options ??= { defer: false };
     if (!options.defer) {
-      this.keystrokeBuffer = '';
-      this.keystrokeBufferStates = [];
-      clearTimeout(this.keystrokeBufferResetTimer);
-      this.keystrokeBufferResetTimer = 0;
+      this.inlineShortcutBuffer = [];
+      clearTimeout(this.inlineShortcutBufferFlushTimer);
+      this.inlineShortcutBufferFlushTimer = 0;
       return;
     }
     // If there is a timeout greater than 0, defer the reset
@@ -941,9 +887,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // a shortcut
     if (this.options.inlineShortcutTimeout > 0) {
       // Set a timer to reset the shortcut buffer
-      clearTimeout(this.keystrokeBufferResetTimer);
-      this.keystrokeBufferResetTimer = setTimeout(
-        () => this.resetKeystrokeBuffer(),
+      clearTimeout(this.inlineShortcutBufferFlushTimer);
+      this.inlineShortcutBufferFlushTimer = setTimeout(
+        () => this.flushInlineShortcutBuffer(),
         this.options.inlineShortcutTimeout
       );
     }
@@ -988,7 +934,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       mode = getMode(this.model, this.model.position) ?? 'math';
 
     if (ModeEditor.insert(mode, this.model, value, options)) {
-      this.undoManager.snapshot(this.options);
+      this.undoManager.snapshot();
       requestUpdate(this);
     }
   }
@@ -1008,8 +954,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     //
     // 1/ If inside a mathfield element, make sure that element is visible.
     //
-    const host = (this.element.getRootNode() as any as ShadowRoot)?.host;
-    host?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    this.host?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
     //
     // 2/ If a render is pending, do it now to make sure we have correct layout
@@ -1048,15 +993,15 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // the field and the virtual keyboard toggle, we'll handle the horizontal
     // scrolling separately
     //
-    if (host && caretPoint) {
-      const hostBounds = host.getBoundingClientRect();
+    if (this.host && caretPoint) {
+      const hostBounds = this.host.getBoundingClientRect();
 
       const y = caretPoint.y;
-      let top = host.scrollTop;
-      if (y < hostBounds.top) top = y - hostBounds.top + host.scrollTop;
+      let top = this.host.scrollTop;
+      if (y < hostBounds.top) top = y - hostBounds.top + this.host.scrollTop;
       else if (y > hostBounds.bottom)
-        top = y - hostBounds.bottom + host.scrollTop + caretPoint.height;
-      host.scroll({ top, left: 0 });
+        top = y - hostBounds.bottom + this.host.scrollTop + caretPoint.height;
+      this.host.scroll({ top, left: 0 });
     }
 
     //
@@ -1083,7 +1028,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       // This code path is used when inserting content from the virtual keyboard
       // (i.e. inserting `\sin`). We need to ignore previous key combinations
       // in this case
-      this.resetKeystrokeBuffer();
+      this.flushInlineShortcutBuffer();
 
       options = options ?? { mode: 'math' };
       if (options.focus) this.focus();
@@ -1110,7 +1055,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         if (options.resetStyle) this.style = savedStyle;
       }
 
-      this.undoManager.snapshot(this.options);
+      this.undoManager.snapshot();
       requestUpdate(this);
       return true;
     }
@@ -1130,7 +1075,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       },
       (): boolean => {
         let contentChanged = false;
-        this.resetKeystrokeBuffer();
+        this.flushInlineShortcutBuffer();
         // Suppress (temporarily) smart mode if switching to/from text or math
         // This prevents switching to/from command mode from suppressing smart mode.
         this.smartModeSuppressed =
@@ -1204,9 +1149,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         }
 
         // Notify of mode change
-        if (typeof this.options.onModeChange === 'function')
-          this.options.onModeChange(this, mode);
-
+        this.host?.dispatchEvent(
+          new Event('mode-change', {
+            bubbles: true,
+            composed: true,
+          })
+        );
         requestUpdate(this);
         return contentChanged;
       }
@@ -1341,31 +1289,37 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   snapshot(): void {
-    this.undoManager.snapshot({
-      ...this.options,
-      onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard?.executeCommand([
-          'onUndoStateChanged',
-          this.canUndo(),
-          this.canRedo(),
-        ]);
-        this.options.onUndoStateDidChange(mf, reason);
-      },
-    });
+    if (this.undoManager.snapshot()) {
+      this.virtualKeyboard?.executeCommand([
+        'onUndoStateChanged',
+        this.canUndo(),
+        this.canRedo(),
+      ]);
+      this.host?.dispatchEvent(
+        new CustomEvent('undo-state-change', {
+          bubbles: true,
+          composed: true,
+          detail: { type: 'snapshot' },
+        })
+      );
+    }
   }
 
   snapshotAndCoalesce(): void {
-    this.undoManager.snapshotAndCoalesce({
-      ...this.options,
-      onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard?.executeCommand([
-          'onUndoStateChanged',
-          this.canUndo(),
-          this.canRedo(),
-        ]);
-        this.options.onUndoStateDidChange(mf, reason);
-      },
-    });
+    if (this.undoManager.snapshotAndCoalesce()) {
+      this.virtualKeyboard?.executeCommand([
+        'onUndoStateChanged',
+        this.canUndo(),
+        this.canRedo(),
+      ]);
+      this.host?.dispatchEvent(
+        new CustomEvent('undo-state-change', {
+          bubbles: true,
+          composed: true,
+          detail: { type: 'snapshot' },
+        })
+      );
+    }
   }
 
   getUndoRecord(): UndoRecord {
@@ -1380,35 +1334,39 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   undo(): void {
-    return this.undoManager.undo({
-      ...this.options,
-      onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard?.executeCommand([
-          'onUndoStateChanged',
-          this.canUndo(),
-          this.canRedo(),
-        ]);
-        this.options.onUndoStateDidChange(mf, reason);
-      },
-    });
+    if (!this.undoManager.undo()) return;
+    this.virtualKeyboard?.executeCommand([
+      'onUndoStateChanged',
+      this.canUndo(),
+      this.canRedo(),
+    ]);
+    this.host?.dispatchEvent(
+      new CustomEvent('undo-state-change', {
+        bubbles: true,
+        composed: true,
+        detail: { type: 'undo' },
+      })
+    );
   }
 
   redo(): void {
-    return this.undoManager.redo({
-      ...this.options,
-      onUndoStateDidChange: (mf, reason): void => {
-        this.virtualKeyboard?.executeCommand([
-          'onUndoStateChanged',
-          this.canUndo(),
-          this.canRedo(),
-        ]);
-        this.options.onUndoStateDidChange(mf, reason);
-      },
-    });
+    if (!this.undoManager.redo()) return;
+    this.virtualKeyboard?.executeCommand([
+      'onUndoStateChanged',
+      this.canUndo(),
+      this.canRedo(),
+    ]);
+    this.host?.dispatchEvent(
+      new CustomEvent('undo-state-change', {
+        bubbles: true,
+        composed: true,
+        detail: { type: 'undo' },
+      })
+    );
   }
 
   private _onSelectionDidChange(): void {
-    // Keep the content of the textarea in sync wiht the selection.
+    // Keep the content of the textarea in sync with the selection.
     // This will allow cut/copy to work.
     this.keyboardDelegate.setValue(
       this.model.getValue(this.model.selection, 'latex-expanded')
@@ -1434,9 +1392,13 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       }
     }
 
-    // Invoke client listeners, if provided.
-    if (typeof this.options.onSelectionDidChange === 'function')
-      this.options.onSelectionDidChange(this);
+    // Dispatch `selection-change` event
+    this.host?.dispatchEvent(
+      new Event('selection-change', {
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   private onFocus(): void {
@@ -1455,11 +1417,16 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     updatePopoverPosition(this);
     render(this, { interactive: true });
 
-    if (typeof this.options.onFocus === 'function') this.options.onFocus(this);
+    this.host?.dispatchEvent(
+      new Event('focus', {
+        bubbles: false, // DOM 'focus' and 'blur' don't bubble
+        composed: true,
+      })
+    );
 
     // Save the current value.
     // It will be compared in `onBlur()` to see if the
-    // `onCommit` listener needs to be invoked. This
+    // `change` event needs to be dispatched. This
     // mimic the `<input>` and `<textarea>` behavior
     this.valueOnFocus = this.model.getValue();
 
@@ -1474,11 +1441,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.ariaLiveText!.textContent = '';
 
     complete(this, 'accept');
-    if (
-      typeof this.options.onCommit === 'function' &&
-      this.model.getValue() !== this.valueOnFocus
-    )
-      this.options.onCommit(this);
+    if (this.model.getValue() !== this.valueOnFocus)
+      this.executeCommand('commit');
 
     if (
       !window.mathlive?.sharedVirtualKeyboard &&
@@ -1488,7 +1452,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     this.virtualKeyboard?.disable();
 
-    if (typeof this.options.onBlur === 'function') this.options.onBlur(this);
+    this.host?.dispatchEvent(
+      new Event('blur', {
+        bubbles: false, // DOM 'focus' and 'blur' don't bubble
+        composed: true,
+      })
+    );
 
     requestUpdate(this);
 

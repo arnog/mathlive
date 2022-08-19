@@ -357,9 +357,17 @@ export function move(
     if (pos < 0 || pos > model.lastOffset) {
       // We're going out of bounds
       let result = true; // True => perform default handling
-      if (!model.suppressChangeNotifications)
-        result = model.hooks?.moveOut(model, direction);
-
+      if (!model.suppressChangeNotifications) {
+        result =
+          model.mathfield.host?.dispatchEvent(
+            new CustomEvent('move-out', {
+              detail: { direction },
+              cancelable: true,
+              bubbles: true,
+              composed: true,
+            })
+          ) ?? true;
+      }
       if (result) model.announce('plonk');
       return result;
     }
@@ -475,9 +483,17 @@ function moveUpward(
     model.announce('move up');
   } else {
     let result = true; // True => perform default handling
-    if (!model.suppressChangeNotifications)
-      result = model.hooks?.moveOut(model, 'upward');
-
+    if (!model.suppressChangeNotifications) {
+      result =
+        model.mathfield.host?.dispatchEvent(
+          new CustomEvent('move-out', {
+            detail: { direction: 'upward' },
+            cancelable: true,
+            bubbles: true,
+            composed: true,
+          })
+        ) ?? true;
+    }
     model.announce(result ? 'plonk' : 'line');
     return result;
   }
@@ -563,10 +579,18 @@ function moveDownward(
 
     model.announce('move down');
   } else {
-    let result = true; // True => perform default handling
-    if (!model.suppressChangeNotifications)
-      result = model.hooks?.moveOut(model, 'downward');
-
+    let result = true; // `true` => perform default handling
+    if (!model.suppressChangeNotifications) {
+      result =
+        model.mathfield.host?.dispatchEvent(
+          new CustomEvent('move-out', {
+            detail: { direction: 'downward' },
+            cancelable: true,
+            bubbles: true,
+            composed: true,
+          })
+        ) ?? true;
+    }
     model.announce(result ? 'plonk' : 'line');
     return result;
   }

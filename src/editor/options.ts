@@ -5,7 +5,6 @@ import { isArray } from '../common/types';
 import { resolveRelativeUrl } from '../common/script-url';
 import { isBrowser, isTouchCapable } from '../common/capabilities';
 
-import type { Atom } from '../core/atom';
 import { l10n } from '../core/l10n';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 
@@ -14,30 +13,19 @@ import {
   normalizeMacroDictionary,
 } from '../core-definitions/definitions';
 
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
 
 import { defaultSpeakHook } from './speech';
 import { defaultReadAloudHook } from './speech-read-aloud';
-import { defaultAnnounceHook } from './a11y';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
-const NO_OP_LISTENER = (): void => {};
-
 /** @internal */
 export type MathfieldOptionsPrivate = MathfieldOptions & {
-  onAnnounce: (
-    target: MathfieldPrivate,
-    command: string, // Verb
-    previousPosition: number | undefined,
-    atoms: Atom[] // Object of the command
-  ) => void; // @revisit 1.0: rename announceHook,
   value: string;
 };
-
 function loadSound(
   soundDirectory: string,
   sound?: string | HTMLAudioElement | null
@@ -224,31 +212,6 @@ export function update(
         result.macros = normalizeMacroDictionary(updates.macros!);
         break;
 
-      case 'onContentWillChange':
-        if (updates[key] === null) result[key] = () => true;
-        else if (typeof updates[key] !== 'function')
-          throw new TypeError(key + ' must be a function or null');
-
-        result[key] = updates[key] as any;
-        break;
-
-      case 'onBlur':
-      case 'onFocus':
-      case 'onContentDidChange':
-      case 'onSelectionWillChange':
-      case 'onSelectionDidChange':
-      case 'onUndoStateWillChange':
-      case 'onUndoStateDidChange':
-      case 'onModeChange':
-      case 'onCommit':
-      case 'onReadAloudStatus':
-        if (updates[key] === null) result[key] = NO_OP_LISTENER;
-        else if (typeof updates[key] !== 'function')
-          throw new TypeError(key + ' must be a function or null');
-
-        result[key] = updates[key] as any;
-        break;
-
       default:
         if (isArray(updates[key])) result[key] = [...updates[key]];
         else if (typeof updates[key] === 'object')
@@ -351,31 +314,13 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     speakHook: defaultSpeakHook,
     readAloudHook: defaultReadAloudHook,
 
-    onAnnounce: defaultAnnounceHook,
-    onKeystroke: () => true,
-    onMoveOutOf: () => true,
-    onTabOutOf: () => true,
-    onPlaceholderDidChange: () => {},
-    onMulticharSymbol: () => '',
-    onBlur: NO_OP_LISTENER,
-    onFocus: NO_OP_LISTENER,
-    onContentWillChange: () => true,
-    onContentDidChange: NO_OP_LISTENER,
-    onSelectionWillChange: NO_OP_LISTENER,
-    onSelectionDidChange: NO_OP_LISTENER,
-    onUndoStateWillChange: NO_OP_LISTENER,
-    onUndoStateDidChange: NO_OP_LISTENER,
-    onModeChange: NO_OP_LISTENER,
-    onReadAloudStatus: NO_OP_LISTENER,
-    onCommit: NO_OP_LISTENER,
+    onInlineShortcut: () => '',
     onExport: defaultExportHook,
     value: '',
   };
 }
 
-export function effectiveMode(
-  options: MathfieldOptionsPrivate
-): 'math' | 'text' {
+export function effectiveMode(options: MathfieldOptions): 'math' | 'text' {
   if (options.defaultMode === 'inline-math') return 'math';
   return options.defaultMode;
 }

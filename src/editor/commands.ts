@@ -95,7 +95,7 @@ export function perform(
   const commandTarget = COMMANDS[selector]?.target;
 
   // @todo Refactor this method
-  // Actually using commands by this way increase code complexity,
+  // Using commands this way increases code complexity,
   //  ideally all code must be moved under command code, maybe it is
   //  a good idea to implement new Command API with additional hooks
   //  and callbacks to make command code more transparent. Now logic of
@@ -116,7 +116,7 @@ export function perform(
       /^(delete|transpose|add)/.test(selector) &&
       selector !== 'deleteBackward'
     )
-      mathfield.resetKeystrokeBuffer();
+      mathfield.flushInlineShortcutBuffer();
 
     if (
       /^(delete|transpose|add)/.test(selector) &&
@@ -142,7 +142,7 @@ export function perform(
     dirty = mathfield.virtualKeyboard?.executeCommand(command) ?? false;
     handled = true;
   } else if (COMMANDS[selector]) {
-    if (/^(undo|redo)/.test(selector)) mathfield.resetKeystrokeBuffer();
+    if (/^(undo|redo)/.test(selector)) mathfield.flushInlineShortcutBuffer();
     dirty = COMMANDS[selector]!.fn(mathfield, ...args);
     handled = true;
   } else throw new Error(`Unknown command "${selector}"`);
@@ -158,7 +158,7 @@ export function perform(
         selector
       )
     ) {
-      mathfield.resetKeystrokeBuffer();
+      mathfield.flushInlineShortcutBuffer();
       mathfield.style = {};
     }
   }

@@ -517,66 +517,15 @@ export type VirtualKeyboardOptions = {
  */
 export interface MathfieldHooks {
   /**
-   * A hook invoked when a keystroke is about to be processed.
-   *
-   * -   <var>keystroke</var>: a string describing the keystroke
-   * -   <var>ev</var>: the native keyboard event
-   *
-   * Return `false` to stop the handling of the event.
-   *
-   * @deprecated Use corresponding events of `MathfieldElement` instead
-   *
-   */
-  onKeystroke: (
-    sender: Mathfield,
-    keystroke: string,
-    ev: KeyboardEvent
-  ) => boolean;
-
-  /**
    * A hook invoked when a string of characters that could be
-   * interpreted as a multichar symbol has been typed.
+   * interpreted as shortcut has been typed.
    *
-   * If not a multichar symbol, return the empty string `""`.
+   * If not a special shortcut, return the empty string `""`.
    *
-   * If a multichar symbol, return the symbol wrapped appropriately,
+   * Use this handler to detect multi character symbols, and return them wrapped appropriately,
    * for example `\mathrm{${symbol}}`.
    */
-  onMulticharSymbol: (sender: Mathfield, symbol: string) => string;
-
-  /**
-   * A hook invoked when keyboard navigation would cause the insertion
-   * point to leave the mathfield.
-   *
-   * - <var>direction</var> indicates the direction of the navigation, either
-   * `"forward"` or `"backward"` or `"upward"` or `"downward"`.
-   *
-   * Return `false` if the move has been handled by the hook.
-   *
-   * Return `true` for the default behavior, which is playing a "plonk" sound.
-   *
-   * @deprecated Use corresponding events of `MathfieldElement` instead
-   *
-   */
-  onMoveOutOf: (
-    sender: Mathfield,
-    direction: 'forward' | 'backward' | 'upward' | 'downward'
-  ) => boolean;
-
-  /**
-   * This hook is invoked when pressing tab (or shift-tab) would cause the
-   * insertion point to leave the mathfield.
-   *
-   * <var>direction</var> indicates the direction of the navigation.
-   *
-   * By default, the insertion point jumps to the next/previous focussable
-   * element.
-   *
-   * @deprecated Use corresponding events of `MathfieldElement` instead
-   *
-   *
-   */
-  onTabOutOf: (sender: Mathfield, direction: 'forward' | 'backward') => boolean;
+  onInlineShortcut: (sender: Mathfield, symbol: string) => string;
 
   /**
    * This hooks is invoked when the user has requested to export the content
@@ -625,11 +574,6 @@ export type RemoteVirtualKeyboardOptions = CombinedVirtualKeyboardOptions & {
   originValidator: OriginValidator;
 };
 
-export type UndoStateChangeListener = (
-  target: Mathfield,
-  action: 'undo' | 'redo' | 'snapshot'
-) => void;
-
 //  Note that this can't be an arbitrary string (e.g. `insertMath`), as it will
 // get normalized when the event is dispatched. It has to be one of the strings
 // from here: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
@@ -656,43 +600,6 @@ export type ContentChangeOptions = {
   inputType?: ContentChangeType;
   isComposing?: boolean;
 };
-
-/**
- * The methods provide a notification that an event is about to occur or has
- * occurred.
- *
- * In general instead of using this interface you should be listening to the
- * corresponding event on `MathfieldElement`, i.e.
- * ```javascript
-mfe.addEventListener('input', (ev) => {
-    console.log(ev.target.value);
-});
- * ```
- * @deprecated Use corresponding events of `MathfieldElement` instead
- */
-
-export interface MathfieldListeners {
-  /** The mathfield has lost keyboard focus */
-  onBlur: (sender: Mathfield) => void;
-  /** The mathfield has gained keyboard focus */
-  onFocus: (sender: Mathfield) => void;
-  onContentWillChange: (
-    sender: Mathfield,
-    options: ContentChangeOptions
-  ) => boolean;
-  onContentDidChange: (
-    sender: Mathfield,
-    options: ContentChangeOptions
-  ) => void;
-  onSelectionWillChange: (sender: Mathfield) => void;
-  onSelectionDidChange: (sender: Mathfield) => void;
-  onUndoStateWillChange: UndoStateChangeListener;
-  onUndoStateDidChange: UndoStateChangeListener;
-  onCommit: (sender: Mathfield) => void;
-  onModeChange: (sender: Mathfield, mode: ParseMode) => void;
-  onReadAloudStatus: (sender: Mathfield) => void;
-  onPlaceholderDidChange: (sender: Mathfield, placeholderId: string) => void;
-}
 
 export type KeyboardOptions = {
   keybindings: Keybinding[];
@@ -1069,8 +976,7 @@ export type MathfieldOptions = LayoutOptions &
   VirtualKeyboardOptions &
   TextToSpeechOptions &
   CoreOptions &
-  MathfieldHooks &
-  MathfieldListeners & {
+  MathfieldHooks & {
     /**
      * When `true`, use a shared virtual keyboard for all the mathfield
      * elements in the page, even across _iframes_.

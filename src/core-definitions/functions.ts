@@ -1,5 +1,7 @@
 import { Style } from '../public/core';
 
+import { joinLatex } from '../core/tokenizer';
+
 import type { Atom } from '../core/atom-class';
 import { GlobalContext } from '../core/context';
 import { OperatorAtom } from '../core-atoms/operator';
@@ -8,7 +10,6 @@ import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
 import { DelimAtom } from '../core-atoms/delim';
 
 import { Argument, defineFunction } from './definitions-utils';
-import { joinLatex } from 'core/tokenizer';
 
 defineFunction(
   [

@@ -67,9 +67,12 @@ registerCommand({
     return true;
   },
   commit: (mathfield: MathfieldPrivate) => {
-    if (typeof mathfield.options.onCommit === 'function')
-      mathfield.options.onCommit(mathfield);
-
+    mathfield.host?.dispatchEvent(
+      new Event('change', {
+        bubbles: true,
+        composed: true,
+      })
+    );
     return true;
   },
 });

@@ -17,7 +17,7 @@ import {
   Range,
   Selection,
 } from './mathfield';
-import { ContentChangeOptions, MathfieldOptions } from './options';
+import { MathfieldOptions } from './options';
 
 //
 // Custom Events
@@ -1067,135 +1067,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this.shadowRoot!.querySelector(':host > div')!,
       {
         eventSink: this,
-        onBlur: () => {
-          this.dispatchEvent(
-            new Event('blur', {
-              cancelable: false,
-              bubbles: false, // DOM 'focus' and 'blur' don't bubble
-              composed: true,
-            })
-          );
-        },
-        onContentWillChange: (_sender, options: ContentChangeOptions) => {
-          return this.dispatchEvent(
-            new InputEvent('beforeinput', {
-              ...options,
-              cancelable: true,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onContentDidChange: (_sender, options: ContentChangeOptions) => {
-          this.dispatchEvent(
-            new InputEvent('input', {
-              ...options,
-              cancelable: false,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onFocus: () => {
-          this.dispatchEvent(
-            new Event('focus', {
-              cancelable: false,
-              bubbles: false, // DOM 'focus' and 'blur' don't bubble
-              composed: true,
-            })
-          );
-        },
-        onKeystroke: (
-          _sender: Mathfield,
-          keystroke: string,
-          ev: KeyboardEvent
-        ): boolean => {
-          return this.dispatchEvent(
-            new CustomEvent<KeystrokeEvent>('keystroke', {
-              detail: {
-                keystroke,
-                event: ev,
-              },
-              cancelable: true,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onModeChange: (_sender: Mathfield, _mode: ParseMode) => {
-          this.dispatchEvent(
-            new Event('mode-change', {
-              cancelable: false,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onCommit: (_sender: Mathfield) => {
-          // Match the DOM event sent by `<input>`, `<textarea>`, etc...
-          // Sent when the [Return] or [Enter] key is pressed, or on
-          // focus loss if the content has changed.
-          this.dispatchEvent(
-            new Event('change', {
-              cancelable: false,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onMoveOutOf: (
-          _sender: Mathfield,
-          direction: 'forward' | 'backward' | 'upward' | 'downward'
-        ): boolean => {
-          return this.dispatchEvent(
-            new CustomEvent<MoveOutEvent>('move-out', {
-              detail: { direction },
-              cancelable: true,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onTabOutOf: (
-          _sender: Mathfield,
-          direction: 'forward' | 'backward'
-        ): boolean => {
-          return this.dispatchEvent(
-            new CustomEvent<FocusOutEvent>('focus-out', {
-              detail: { direction },
-              cancelable: true,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onReadAloudStatus: () => {
-          this.dispatchEvent(
-            new Event('read-aloud-status-change', {
-              cancelable: false,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onSelectionDidChange: () => {
-          this.dispatchEvent(
-            new Event('selection-change', {
-              cancelable: false,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
-        onUndoStateDidChange: () => {
-          this.dispatchEvent(
-            new Event('undo-state-change', {
-              cancelable: false,
-              bubbles: true,
-              composed: true,
-            })
-          );
-        },
         ...(gDeferredState.has(this)
           ? gDeferredState.get(this)!.options
           : getOptionsFromAttributes(this)),
@@ -1264,23 +1135,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (!this._mathfield) return;
 
     // Save the state (in case the element gets reconnected later)
-    const options = getOptions(this._mathfield.options, [
-      ...Object.keys(MathfieldElement.optionsAttributes).map((x) =>
-        toCamelCase(x)
-      ),
-      'onBlur',
-      'onContentWillChange',
-      'onContentDidChange',
-      'onFocus',
-      'onKeystroke',
-      'onModeChange',
-      'onCommit',
-      'onMoveOutOf',
-      'onTabOutOf',
-      'onReadAloudStatus',
-      'onSelectionDidChange',
-      'onUndoStateDidChange',
-    ]);
+    const options = getOptions(
+      this._mathfield.options,
+      Object.keys(MathfieldElement.optionsAttributes).map((x) => toCamelCase(x))
+    );
     gDeferredState.set(this, {
       value: this._mathfield.getValue(),
       selection: this._mathfield.model.selection,

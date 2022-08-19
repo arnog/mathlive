@@ -57,7 +57,7 @@ export function defaultAnnounceHook(
     // example when an action has no effect.
     mathfield.plonkSound?.play().catch((error) => console.warn(error));
     // As a side effect, reset the keystroke buffer
-    mathfield.resetKeystrokeBuffer();
+    mathfield.flushInlineShortcutBuffer();
   } else if (action === 'delete')
     liveText = speakableText(mathfield.options, 'deleted: ', atoms!);
   //* ** FIX: could also be moveUp or moveDown -- do something different like provide context???

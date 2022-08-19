@@ -8,7 +8,7 @@ export function applyStyle(
   mathfield: MathfieldPrivate,
   inStyle: Style
 ): boolean {
-  mathfield.resetKeystrokeBuffer();
+  mathfield.flushInlineShortcutBuffer();
 
   const style = validateStyle(mathfield, inStyle);
   const { model } = mathfield;

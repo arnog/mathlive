@@ -2,20 +2,7 @@ import { ContentChangeOptions } from '../public/options';
 import { ModelPrivate } from './model-private';
 
 export type ModelListeners = {
-  onContentWillChange: (
-    sender: ModelPrivate,
-    options: ContentChangeOptions
-  ) => boolean;
-  onContentDidChange: (
-    sender: ModelPrivate,
-    options: ContentChangeOptions
-  ) => void;
-  onSelectionWillChange: (
-    sender: ModelPrivate,
-    options: ContentChangeOptions
-  ) => void;
   onSelectionDidChange: (sender: ModelPrivate) => void;
-  onPlaceholderDidChange: (sender: ModelPrivate, placeholderId: string) => void;
 };
 
 export function selectionDidChange(model: ModelPrivate): void {
@@ -33,18 +20,19 @@ export function contentWillChange(
   model: ModelPrivate,
   options: ContentChangeOptions = {}
 ): boolean {
-  let result = true;
-  if (
-    typeof model.listeners?.onContentWillChange === 'function' &&
-    !model.suppressChangeNotifications
-  ) {
-    model.suppressChangeNotifications = true;
-    result = model.listeners.onContentWillChange(
-      model,
-      options as ContentChangeOptions
-    );
-    model.suppressChangeNotifications = false;
-  }
+  if (model.suppressChangeNotifications || !model.mathfield.host) return true;
+
+  model.suppressChangeNotifications = true;
+  const result = model.mathfield.host.dispatchEvent(
+    new InputEvent('beforeinput', {
+      ...options,
+      cancelable: true,
+      bubbles: true,
+      composed: true,
+    })
+  );
+
+  model.suppressChangeNotifications = false;
   return result;
 }
 
@@ -52,28 +40,34 @@ export function contentDidChange(
   model: ModelPrivate,
   options: ContentChangeOptions
 ): void {
-  if (
-    typeof model.listeners?.onContentDidChange === 'function' &&
-    !model.suppressChangeNotifications
-  ) {
-    model.suppressChangeNotifications = true;
-    model.listeners.onContentDidChange(model, options as ContentChangeOptions);
-    model.suppressChangeNotifications = false;
-  }
+  if (model.suppressChangeNotifications || !model.mathfield.host) return;
+
+  model.suppressChangeNotifications = true;
+  model.mathfield.host.dispatchEvent(
+    new InputEvent('input', {
+      ...options,
+      bubbles: true,
+      composed: true,
+    })
+  );
+  model.suppressChangeNotifications = false;
 }
 
 export function placeholderDidChange(
   model: ModelPrivate,
   placeholderId: string
 ): void {
-  if (
-    typeof model.listeners?.onPlaceholderDidChange === 'function' &&
-    !model.suppressChangeNotifications
-  ) {
-    model.suppressChangeNotifications = true;
-    model.listeners.onPlaceholderDidChange(model, placeholderId);
-    model.suppressChangeNotifications = false;
-  }
+  if (model.suppressChangeNotifications || !model.mathfield.host) return;
+
+  model.suppressChangeNotifications = true;
+  model.mathfield.host.dispatchEvent(
+    new CustomEvent('placeholder-change', {
+      detail: { placeholderId },
+      bubbles: true,
+      composed: true,
+    })
+  );
+  model.suppressChangeNotifications = false;
 }
 
 export interface Disposable {
