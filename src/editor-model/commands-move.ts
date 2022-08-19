@@ -11,12 +11,14 @@ import type { ModelPrivate } from './model-private';
 
 export function moveAfterParent(model: ModelPrivate): boolean {
   const previousPosition = model.position;
-  if (!model.at(previousPosition).parent) {
+  const parent = model.at(previousPosition).parent;
+  // Do nothing if at the root.
+  if (!parent || parent.type === 'root') {
     model.announce('plonk');
     return false;
   }
 
-  model.position = model.offsetOf(model.at(model.position).parent!);
+  model.position = model.offsetOf(parent);
   model.announce('move', previousPosition);
   return true;
 }
