@@ -20,6 +20,9 @@
   complex multicharacter symbols, e.g. `alpha2` -> `\alpha_{2}`
 - Pressing the space bar will flush the inline shortcut buffer, allowing the
   input of a key combination that would otherwise trigger a shortcut
+- **#1584** Pressing the spacebar when at the root level now does nothing.
+  Previously it would jump at the end of the expression, which wasn't very
+  useful and potentially confusing.
 
 ## 0.78.2 (2022-08-18)
 
