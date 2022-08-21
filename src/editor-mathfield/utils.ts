@@ -155,22 +155,23 @@ function getNodeBounds(node: Element): Rect {
     left: bounds.left,
     right: bounds.right - 1 + marginRight,
   };
-  if (node.children.length > 0 && node.tagName.toUpperCase() !== 'SVG') {
-    for (const child of node.children) {
-      if (child.nodeType === 1) {
-        if (
-          'atomId' in (child as HTMLElement).dataset &&
-          !child.classList.contains('pstrut')
-        ) {
-          const r: Rect = getNodeBounds(child);
-          result.left = Math.min(result.left, r.left);
-          result.right = Math.max(result.right, r.right);
-          result.top = Math.min(result.top, r.top);
-          result.bottom = Math.max(result.bottom, r.bottom);
-        }
-      }
+  if (node.children.length === 0 || node.tagName.toUpperCase() === 'SVG')
+    return result;
+
+  for (const child of node.children) {
+    if (
+      child.nodeType === 1 &&
+      'atomId' in (child as HTMLElement).dataset &&
+      !child.classList.contains('pstrut')
+    ) {
+      const r: Rect = getNodeBounds(child);
+      result.left = Math.min(result.left, r.left);
+      result.right = Math.max(result.right, r.right);
+      result.top = Math.min(result.top, r.top);
+      result.bottom = Math.max(result.bottom, r.bottom);
     }
   }
+
   return result;
 }
 

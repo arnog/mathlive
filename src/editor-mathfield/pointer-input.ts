@@ -266,6 +266,7 @@ export function onPointerDown(
 }
 
 function distance(x: number, y: number, r: Rect): number {
+  if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return 0;
   const dx = x - (r.left + r.right) / 2;
   const dy = y - (r.top + r.bottom) / 2;
   return dx * dx + dy * dy;
@@ -299,14 +300,11 @@ function nearestAtomFromPointRecursive(
   ) {
     for (const child of atom.children) {
       const r = nearestAtomFromPointRecursive(mathfield, cache, child, x, y);
-      if (r[0] < result[0]) result = r;
+      if (r[0] <= result[0]) result = r;
     }
+    // 1.1. If no children matched, this atom matches
+    if (!result[1]) result = [distance(x, y, bounds), atom];
   }
-
-  //
-  // 2. If no children matched, this atom matches
-  //
-  if (!result[1]) result = [distance(x, y, bounds), atom];
 
   cache.set(atom.id, result);
   return result;
@@ -378,7 +376,7 @@ export function offsetFromPoint(
   if (result < 0) return -1;
 
   //
-  // 4/ Account for the desired biad
+  // 4/ Account for the desired bias
   //
   if (atom.leftSibling) {
     if (options.bias === 0 && atom.type !== 'placeholder') {

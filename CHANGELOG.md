@@ -23,6 +23,7 @@
 - **#1584** Pressing the spacebar when at the root level now does nothing.
   Previously it would jump at the end of the expression, which wasn't very
   useful and potentially confusing.
+- **#1585** In some situations, improve the accuracy of the hit testing
 
 ## 0.78.2 (2022-08-18)
 
