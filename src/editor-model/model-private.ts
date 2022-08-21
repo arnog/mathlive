@@ -129,7 +129,7 @@ export class ModelPrivate implements Model {
           [this._position, this._anchor] = selRange;
         else [this._anchor, this._position] = selRange;
 
-        const first = this.at(selRange[0]);
+        const first = this.at(selRange[0] + 1);
         const last = this.at(selRange[1]);
 
         const commonAncestor = Atom.commonAncestor(first, last);
@@ -142,20 +142,13 @@ export class ModelPrivate implements Model {
           // Make a rectangular selection based on the col/row of the anchor
           // and cursor
           // @todo array
-        } else {
-          this._selection = {
-            ranges: [[this.offsetOf(first), this.offsetOf(last)]],
-            direction: value.direction,
-          };
-          // 3b.3/ Adjust the position to match the selection
-          if (value.direction === 'backward')
-            this._position = this._selection.ranges[0][0];
-          else this._position = this._selection.ranges[0][1];
+          this._selection = { ranges: [selRange], direction: value.direction };
+        } else
+          this._selection = { ranges: [selRange], direction: value.direction };
 
-          console.assert(
-            this._position >= 0 && this._position <= this.lastOffset
-          );
-        }
+        console.assert(
+          this._position >= 0 && this._position <= this.lastOffset
+        );
       }
     });
   }
