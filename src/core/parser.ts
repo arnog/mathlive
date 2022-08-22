@@ -1520,7 +1520,7 @@ export class Parser {
         this.parseMode = savedMode;
       } else {
         result = new Atom('mop', this.context, {
-          command,
+          command: info.command ?? command,
           style: { ...this.style },
           value: command,
           mode: info.applyMode ?? this.parseMode,

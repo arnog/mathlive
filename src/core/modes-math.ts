@@ -112,7 +112,7 @@ export class MathMode extends Mode {
     if (info.definitionType === 'symbol') {
       const result = new Atom(info.type ?? 'mord', context, {
         mode: 'math',
-        command,
+        command: info.command ?? command,
         value: String.fromCodePoint(info.codepoint),
         style,
       });
@@ -123,7 +123,7 @@ export class MathMode extends Mode {
     }
     const result = new Atom('mord', context, {
       mode: 'math',
-      command,
+      command: info.command ?? command,
       value: command,
       style,
     });

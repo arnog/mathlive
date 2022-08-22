@@ -46,6 +46,7 @@ export type TokenDefinition = FunctionDefinition | SymbolDefinition;
 
 export type FunctionDefinition = {
   definitionType: 'function';
+  command?: string;
   params: FunctionArgumentDefinition[];
   /** Infix commands are generally deprecated in LaTeX, but there are
    * a few that we might encounter (e.g. \choose).
@@ -85,6 +86,7 @@ type EnvironmentDefinition = {
 
 export type SymbolDefinition = {
   definitionType: 'symbol';
+  command?: string;
   type: AtomType;
   codepoint: number;
   variant?: Variant;
@@ -101,7 +103,7 @@ export const MATH_SYMBOLS: Record<string, SymbolDefinition> = {};
 // Map a character to some corresponding LaTeX.
 //
 // This is used for some characters such as ² SUPERSCRIPT TWO.
-// This is also an opportunity to specify the prefered form when
+// This is also an opportunity to specify the preferred form when
 // a unicode character is encountered that maps to multiple commands,
 // for example ≠ could map either to \ne or \neq.
 // The table will also be populated by any registered symbol from MATH_SYMBOLS,
@@ -109,8 +111,8 @@ export const MATH_SYMBOLS: Record<string, SymbolDefinition> = {};
 //
 // prettier-ignore
 const REVERSE_MATH_SYMBOLS = {
-    0x003C: '<',   // Also \lt
-    0x003E: '>',   // Also \gt
+    0x003C: '\\lt',
+    0x003E: '\\gt',
     0x006F: 'o',    // Also \omicron
     0x0026: '\\&',  // Also \And
     0x007B: '\\lbrace',
@@ -200,6 +202,27 @@ const REVERSE_MATH_SYMBOLS = {
     0x211A: '\\mathbb{Q}',    // Also \doubleStruckCapitalQ
     0x211D: '\\mathbb{R}',    // Also \doubleStruckCapitalR
     0x2124: '\\mathbb{Z}',    // Also \doubleStruckCapitalZ
+    0x210d: '\\mathbb{H}',
+
+    0x211c: '\\Re',
+    0x2111: '\\Im',
+    0x002A: '\\ast',
+
+
+    0x2b1c: '\\square',
+    0x25a1: '\\square',
+    0x2210: '\\coprod',
+    0x220c: '\\not\\ni',
+    0x25c7: '\\diamond',
+    0x228e: '\\uplus',
+    0x2293: '\\sqcap',
+    0x2294: '\\sqcup',
+    0x2240: '\\wr',
+    0x222e: '\\oint',
+    0x2022: '\\textbullet',
+    0x2212: '-',
+
+    0x03d2 : '\\Upsilon',
 };
 export const LATEX_COMMANDS: Record<string, FunctionDefinition> = {};
 
@@ -495,8 +518,7 @@ function newSymbol(
     variant,
     codepoint: value,
   };
-  if (!REVERSE_MATH_SYMBOLS[value] && !variant)
-    REVERSE_MATH_SYMBOLS[value] = symbol;
+  if (!REVERSE_MATH_SYMBOLS[value]) REVERSE_MATH_SYMBOLS[value] = symbol;
 
   // We accept all math symbols in text mode as well
   // which is a bit more permissive than TeX

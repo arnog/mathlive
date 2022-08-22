@@ -1,6 +1,7 @@
 import { MacroDefinition, ParseMode } from '../public/core';
 
 import {
+  charToLatex,
   getMacros,
   LATEX_COMMANDS,
   MATH_SYMBOLS,
@@ -55,8 +56,16 @@ export function defaultGetDefinition(
         codepoint: TEXT_SYMBOLS[token],
       };
     }
-  } else if (parseMode === 'math') info = MATH_SYMBOLS[token];
-  else if (TEXT_SYMBOLS[token]) {
+  } else if (parseMode === 'math') {
+    info = MATH_SYMBOLS[token];
+    if (!info && token.length === 1) {
+      //Check if this is a Unicode character that has a definition
+      const command = charToLatex('math', token.codePointAt(0));
+      if (command.startsWith('\\'))
+        return { ...defaultGetDefinition(command, 'math')!, command };
+      return null;
+    }
+  } else if (TEXT_SYMBOLS[token]) {
     info = {
       definitionType: 'symbol',
       type: 'mord',

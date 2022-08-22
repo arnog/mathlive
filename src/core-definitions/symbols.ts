@@ -38,6 +38,7 @@ newSymbols([
   ['\\heartsuit', 0x2661],
   ['\\spadesuit', 0x2660],
   ['\\diamondsuit', 0x2662],
+  ['\\parallelogram', 0x25b1],
 ]);
 
 // DefineSymbol( '\\cross', 0xF4A0,  'mord',  MAIN], // NOTE: not a real TeX symbol, but Mathematica

@@ -24,6 +24,12 @@
   Previously it would jump at the end of the expression, which wasn't very
   useful and potentially confusing.
 - **#1585** In some situations, improve the accuracy of the hit testing
+- Upconvert unicode characters to corresponding LaTeX command when available.
+
+### Bug Fixes
+
+- **#1590** Improved selection of content inside tabular environments (matrix,
+  etc...)
 
 ## 0.78.2 (2022-08-18)
 
