@@ -207,6 +207,19 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
 
   const model = mathfield.model;
 
+  // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
+  // Without this, the selection indicator will not be in the right place.
+  // 1. Inquire how big the mathfield thinks it is
+  let supposedWidthStr = getComputedStyle(mathfield.field).width;
+  // 2. Take off the "px" and convert to number
+  supposedWidthStr = supposedWidthStr.substring(0, supposedWidthStr.length - 2);
+  const supposedWidth = Number(supposedWidthStr);
+  // 3. Get the actual screen width of the box
+  const actualWidth = mathfield.field.getBoundingClientRect().width;
+  // 4. Divide the two to get the scale factor
+  let scaleFactor = actualWidth / supposedWidth;
+  scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
+
   if (model.selectionIsCollapsed) {
     //
     // 1.1. Display the popover relative to the location of the caret
@@ -225,7 +238,13 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
         mathfield,
         getAtomBounds(mathfield, atom)
       );
+
       if (bounds) {
+        bounds.left /= scaleFactor;
+        bounds.right /= scaleFactor;
+        bounds.top /= scaleFactor;
+        bounds.bottom /= scaleFactor;
+
         const element = document.createElement('div');
         element.classList.add('ML__contains-highlight');
         element.style.position = 'absolute';
@@ -247,6 +266,11 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
   for (const x of unionRects(
     getSelectionBounds(mathfield, { excludeAtomsWithBackground: true })
   )) {
+    x.left /= scaleFactor;
+    x.right /= scaleFactor;
+    x.top /= scaleFactor;
+    x.bottom /= scaleFactor;
+
     const selectionElement = document.createElement('div');
     selectionElement.classList.add('ML__selection');
     selectionElement.style.position = 'absolute';
