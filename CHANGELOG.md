@@ -32,6 +32,9 @@
   etc...)
 - **#1591** Improved cursor order when deleting values in fraction on when
   `fractionNavigationOrder` mode is `denominator-numerator`.
+- **#1592** When applying color to some math content, the command `\mathcolor`
+  would be serialized. The correct command is `\textcolor` which despite its
+  name is also applicable in math mode.
 
 ## 0.78.2 (2022-08-18)
 
