@@ -183,10 +183,10 @@ function onDelete(
     return true;
   }
 
+  //
+  // 'genfrac': \frac, \choose, etc...
+  //
   if (atom.type === 'genfrac' || atom.type === 'overunder') {
-    //
-    // 'genfrac': \frac, \choose, etc...
-    //
     if (!branch) {
       // After or before atom
       if (atom.type === 'overunder' && atom.hasEmptyBranch('body'))
@@ -203,18 +203,24 @@ function onDelete(
       return true;
     }
 
+    const firstBranch =
+      atom.context.fractionNavigationOrder === 'numerator-denominator'
+        ? 'above'
+        : 'below';
+    const secondBranch = firstBranch === 'above' ? 'below' : 'above';
+
     if (
-      (direction === 'forward' && branch === 'above') ||
-      (direction === 'backward' && branch === 'below')
+      (direction === 'forward' && branch === firstBranch) ||
+      (direction === 'backward' && branch === secondBranch)
     ) {
       // Above last or below first: hoist
-      const above = atom.removeBranch('above');
-      const below = atom.removeBranch('below');
+      const first = atom.removeBranch(firstBranch);
+      const second = atom.removeBranch(secondBranch);
 
-      parent.addChildrenAfter([...above, ...below], atom);
+      parent.addChildrenAfter([...first, ...second], atom);
       parent.removeChild(atom);
       model.position = model.offsetOf(
-        above.length > 0 ? above[above.length - 1] : below[0]
+        first.length > 0 ? first[first.length - 1] : second[0]
       );
       return true;
     }
