@@ -314,7 +314,7 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
         (!parent || contextColor !== style.color)
       ) {
         return (
-          '\\mathcolor{' +
+          '\\textcolor{' +
           (style.verbatimColor ?? style.color) +
           '}{' +
           result +
