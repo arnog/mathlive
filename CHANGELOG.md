@@ -30,6 +30,8 @@
 
 - **#1590** Improved selection of content inside tabular environments (matrix,
   etc...)
+- **#1591** Improved cursor order when deleting values in fraction on when
+  `fractionNavigationOrder` mode is `denominator-numerator`.
 
 ## 0.78.2 (2022-08-18)
 
