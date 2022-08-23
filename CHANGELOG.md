@@ -25,6 +25,8 @@
   useful and potentially confusing.
 - **#1585** In some situations, improve the accuracy of the hit testing
 - Upconvert unicode characters to corresponding LaTeX command when available.
+- When a scaling factor is applied to the mathfield or one of its DOM ancestors,
+  correctly scale the selection background accordingly.
 
 ### Bug Fixes
 
