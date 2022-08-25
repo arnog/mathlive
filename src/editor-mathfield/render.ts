@@ -83,10 +83,8 @@ export function render(
   if (model.selectionIsCollapsed)
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
   else {
-    for (const atom of model.getAtoms(model.selection, {
-      includeChildren: true,
-    }))
-      atom.isSelected = true;
+    const atoms = model.getAtoms(model.selection, { includeChildren: true });
+    for (const atom of atoms) atom.isSelected = true;
   }
 
   if (hasFocus) {
@@ -195,28 +193,29 @@ export function render(
 export function renderSelection(mathfield: MathfieldPrivate): void {
   throwIfNotInBrowser();
 
+  const field = mathfield.field;
+
   // In some rare cases, we can get called (via a timeout) when the field
   // is either no longer ready, or not yet ready. Bail.
-  if (!mathfield.field) return;
+  if (!field) return;
 
   // Remove existing selection
-  for (const element of mathfield.field.querySelectorAll(
+  for (const element of field.querySelectorAll(
     '.ML__selection, .ML__contains-highlight'
   ))
     element.remove();
+
+  if (!mathfield.hasFocus()) return;
 
   const model = mathfield.model;
 
   // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
   // Without this, the selection indicator will not be in the right place.
   // 1. Inquire how big the mathfield thinks it is
-  let supposedWidthStr = getComputedStyle(mathfield.field).width;
-  // 2. Take off the "px" and convert to number
-  supposedWidthStr = supposedWidthStr.substring(0, supposedWidthStr.length - 2);
-  const supposedWidth = Number(supposedWidthStr);
-  // 3. Get the actual screen width of the box
-  const actualWidth = mathfield.field.getBoundingClientRect().width;
-  // 4. Divide the two to get the scale factor
+  const supposedWidth = parseFloat(getComputedStyle(field).width);
+  // 2. Get the actual screen width of the box
+  const actualWidth = field.getBoundingClientRect().width;
+  // 3. Divide the two to get the scale factor
   let scaleFactor = actualWidth / supposedWidth;
   scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
 
@@ -252,7 +251,7 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
         element.style.top = `${bounds.top}px`;
         element.style.width = `${Math.ceil(bounds.right - bounds.left)}px`;
         element.style.height = `${Math.ceil(bounds.bottom - bounds.top - 1)}px`;
-        mathfield.field.insertBefore(element, mathfield.field.childNodes[0]);
+        field.insertBefore(element, field.childNodes[0]);
       }
     }
 
@@ -278,10 +277,7 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
     selectionElement.style.top = `${x.top}px`;
     selectionElement.style.width = `${Math.ceil(x.right - x.left)}px`;
     selectionElement.style.height = `${Math.ceil(x.bottom - x.top - 1)}px`;
-    mathfield.field.insertBefore(
-      selectionElement,
-      mathfield.field.childNodes[0]
-    );
+    field.insertBefore(selectionElement, field.childNodes[0]);
   }
 }
 
