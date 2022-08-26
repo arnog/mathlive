@@ -109,7 +109,12 @@ export type Keybinding = {
    */
   key: string;
   /** The command is a single selector, or a selector with arguments */
-  command: Selector | [Selector, ...any[]];
+  command:
+    | Selector
+    | string[]
+    | [string, any]
+    | [string, any, any]
+    | [string, any, any, any];
   /**
    * If specified, this indicates in which mode this keybinding will apply.
    * If none is specified, the keybinding will apply in every mode.
@@ -279,7 +284,13 @@ export interface VirtualKeyboardKeycap {
   /**
    * Command to perform when the keycap is pressed
    */
-  command: Selector | [Selector, ...any[]];
+  command:
+    | Selector
+    | string[]
+    | [string, any]
+    | [string, any, any]
+    | [string, any, any, any];
+
   /**
    * LaTeX fragment to insert when the keycap is pressed
    * (ignored if command is specified)
