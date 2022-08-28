@@ -50,7 +50,7 @@ export function getCommandForKeybinding(
   for (let i = keybindings.length - 1; i >= 0; i--) {
     if (keybindings[i].key === keystroke) {
       if (!keybindings[i].ifMode || keybindings[i].ifMode === mode)
-        return keybindings[i].command;
+        return keybindings[i].command as Selector | [Selector, ...any[]];
     }
   }
 
@@ -269,7 +269,7 @@ function normalizeKeybinding(
   if ((code.shift && modifiers.shift) || (code.alt && modifiers.alt)) {
     throw new Error(
       `The keybinding ${keybinding.key} (${selectorToString(
-        keybinding.command
+        keybinding.command as Selector | [Selector, ...any[]]
       )}) is conflicting with the key combination ${keystrokeModifiersToString(
         code
       )} using the ${layout.displayName} keyboard layout`
@@ -324,9 +324,9 @@ export function normalizeKeybindings(
         if (matches.length > 0) {
           throw new Error(
             `Ambiguous key binding ${x.key} (${selectorToString(
-              x.command
+              x.command as Selector | [Selector, ...any[]]
             )}) matches ${matches[0].key} (${selectorToString(
-              matches[0].command
+              matches[0].command as Selector | [Selector, ...any[]]
             )}) with the ${layout.displayName} keyboard layout`
           );
         }
