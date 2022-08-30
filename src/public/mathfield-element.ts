@@ -1469,6 +1469,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     });
   }
 
+  get selectionIsCollapsed(): boolean {
+    const selection = this.selection;
+    return (
+      selection.ranges.length === 1 &&
+      selection.ranges[0][0] === selection.ranges[0][1]
+    );
+  }
+
   /**
    * The position of the caret/insertion point, from 0 to `lastOffset`.
    *
