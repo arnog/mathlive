@@ -13,6 +13,9 @@
   `selection-change`, `undo-state-change`, `change`
 - The `onKeystroke` handler has been removed. Instead use
   `mf.addEventListener("keydown",...)`
+- Improved editing of left-right delimiters:
+  - keep leftright atom if one of its delimiters is removed
+  - only hoist body if both delimiters are removed
 
 ### Improvements
 
