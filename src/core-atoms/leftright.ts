@@ -16,7 +16,7 @@ import { joinLatex } from '../core/tokenizer';
  *
  */
 export class LeftRightAtom extends Atom {
-  readonly leftDelim?: string;
+  leftDelim?: string;
   rightDelim?: string;
 
   // Indicate which command should the delimiters be serialized to:
