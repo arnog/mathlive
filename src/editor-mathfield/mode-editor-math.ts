@@ -632,23 +632,40 @@ export function insertSmartFence(
   // 2. Is it an open fence?
   //
   const rDelim = RIGHT_DELIM[fence];
-  if (
-    rDelim &&
-    !(parent instanceof LeftRightAtom && parent.leftDelim === '|')
-  ) {
-    // We have a valid open fence as input
-    ModeEditor.insert('math', model, `\\left${fence}\\right?`, {
-      format: 'latex',
-      style,
-    });
-    // If there is content after the anchor, move it into the `leftright` atom
-    if (atom.lastSibling.type !== 'first') {
-      const lastSiblingOffset = model.offsetOf(atom.lastSibling);
-      const content = model.extractAtoms([model.position, lastSiblingOffset]);
-      model.at(model.position).body = content;
-      model.position -= 1;
+  if (rDelim) {
+    const leftRightParent = parent as LeftRightAtom;
+    if (
+      leftRightParent.type === 'leftright' &&
+      leftRightParent.firstChild === atom && // At first child
+      (leftRightParent.leftDelim! === '?' || leftRightParent.leftDelim! === '.')
+    ) {
+      leftRightParent.leftDelim = fence;
+      leftRightParent.isDirty = true;
+      return true;
+    } else if (!(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
+      // We have a valid open fence as input
+      let s = '';
+
+      // If we're before a function (e.g. `\sin`, or 'f'):  this is an
+      // argument list: Use `\mleft...\mright'.
+
+      s = atom.isFunction
+        ? `\\mleft${fence}\\mright${rDelim}`
+        : `\\left${fence}\\right?`;
+
+      ModeEditor.insert('math', model, s, {
+        format: 'latex',
+        style,
+      });
+      // If there is content after the anchor, move it into the `leftright` atom
+      if (atom.lastSibling.type !== 'first') {
+        const lastSiblingOffset = model.offsetOf(atom.lastSibling);
+        const content = model.extractAtoms([model.position, lastSiblingOffset]);
+        model.at(model.position).body = content;
+        model.position -= 1;
+      }
+      return true;
     }
-    return true;
   }
 
   //

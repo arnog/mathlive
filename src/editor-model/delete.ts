@@ -1,7 +1,6 @@
 import { ContentChangeType } from '../public/options';
 import type { Range } from '../public/mathfield';
 
-import { Mode } from '../core/modes';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { Atom, Branch } from '../core/atom';
 import { ModelPrivate } from './model-private';
@@ -104,26 +103,34 @@ function onDelete(
     const atStart =
       (!branch && direction === 'forward') ||
       (branch === 'body' && direction === 'backward');
-    const pos = atStart
-      ? model.offsetOf(atom) - 1
+    let pos = atStart
+      ? model.offsetOf(atom.firstChild)
       : model.offsetOf(atom.lastChild);
-    if (!atStart && atom.leftDelim !== '?' && atom.leftDelim !== '.') {
-      // Insert open fence
-      parent.addChildBefore(
-        Mode.createAtom('math', atom.leftDelim!, model.mathfield)!,
-        atom
-      );
-    } else if (atStart && atom.rightDelim !== '?' && atom.rightDelim !== '.') {
-      // Insert closing fence
-      parent.addChildAfter(
-        Mode.createAtom('math', atom.rightDelim!, model.mathfield)!,
-        atom
-      );
+
+    if (atStart) {
+      if (atom.rightDelim !== '?' && atom.rightDelim !== '.') {
+        atom.leftDelim = '.';
+        atom.isDirty = true;
+      } else {
+        // Hoist body
+        parent.addChildrenAfter(atom.removeBranch('body'), atom);
+        parent.removeChild(atom);
+        // decrement position
+        pos--;
+      }
+    } else {
+      if (atom.leftDelim !== '?' && atom.leftDelim !== '.') {
+        atom.rightDelim = '.';
+        atom.isDirty = true;
+      } else {
+        // Hoist body
+        parent.addChildrenAfter(atom.removeBranch('body'), atom);
+        parent.removeChild(atom);
+        // decrement position
+        pos--;
+      }
     }
 
-    // Hoist body
-    parent.addChildrenAfter(atom.removeBranch('body'), atom);
-    parent.removeChild(atom);
     model.position = pos;
     return true;
   }
