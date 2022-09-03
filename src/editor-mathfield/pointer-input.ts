@@ -174,6 +174,19 @@ export function onPointerDown(
     anchor = offsetFromPoint(mathfield, anchorX, anchorY, {
       bias: 0,
     });
+
+    // gm
+    // is there already a selection?
+    const selection = mathfield.model.selection;
+    if (selection?.ranges && selection.ranges.length > 0) {
+      // if so, did the click land in it or very close to it?
+      const range = selection.ranges[0];
+      if (range[0] !== range[1] && range[0] <= anchor && range[1] >= anchor)
+        // then let this event go so others can pick it up to initiate drag and drop
+        return;
+    }
+    // end gm
+
     if (anchor >= 0) {
       // Set a `tracking` class to avoid triggering the hover of the virtual
       // keyboard toggle, for example
