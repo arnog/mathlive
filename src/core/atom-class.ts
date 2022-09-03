@@ -1135,11 +1135,9 @@ export class Atom {
     // (they won't be interactive, so no need for the id)
     if (!box || context.isPhantom || this.value === '\u200B') return box;
 
-    let captureSelection = false;
     let parent = this.parent;
     while (parent && !parent.captureSelection) parent = parent.parent;
-    if (parent?.captureSelection) captureSelection = true;
-    if (captureSelection) return box;
+    if (parent?.captureSelection) return box;
 
     if (!this.id) this.id = context.makeID();
     box.atomID = this.id;

@@ -33,6 +33,7 @@
 
 ### Bug Fixes
 
+- **#1042** Spacing atoms (e.g. `\;`) are now clickable and selectable.
 - **#1590** Improved selection of content inside tabular environments (matrix,
   etc...)
 - **#1591** Improved cursor order when deleting values in fraction on when

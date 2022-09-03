@@ -103,7 +103,7 @@ export class GroupAtom extends Atom {
       style: { backgroundColor: this.style.backgroundColor },
       newList: !this.boxType,
     });
-    if (!box) return box;
+    if (!box) return null;
     if (this.cssId) box.cssId = this.cssId;
     if (this.htmlData) box.htmlData = this.htmlData;
     if (this.htmlStyle) box.htmlStyle = this.htmlStyle;

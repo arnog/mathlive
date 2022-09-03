@@ -28,7 +28,7 @@ export class SpacingAtom extends Atom {
     return { ...super.toJson(), ...options };
   }
 
-  render(_context: Context): Box {
+  render(context: Context): Box {
     let result: Box;
     if (this.width) {
       result = new Box(null, { classes: 'mspace' });
@@ -47,6 +47,7 @@ export class SpacingAtom extends Atom {
       result = new Box(null, { classes: spacingCls });
     }
 
+    result = this.bind(context, result);
     if (this.caret) result.caret = this.caret;
     return result;
   }

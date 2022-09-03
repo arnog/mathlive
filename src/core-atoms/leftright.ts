@@ -132,7 +132,7 @@ export class LeftRightAtom extends Atom {
               style: this.style,
             }
           )
-        )!
+        )
       );
     }
 
@@ -153,7 +153,7 @@ export class LeftRightAtom extends Atom {
                 innerDepth,
                 context
               )
-            )!;
+            );
             inner.children![i].caret = savedCaret;
           }
         }
@@ -188,7 +188,7 @@ export class LeftRightAtom extends Atom {
               style: this.style,
             }
           )
-        )!
+        )
       );
     }
 
