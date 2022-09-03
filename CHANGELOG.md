@@ -40,6 +40,8 @@
 - **#1592** When applying color to some math content, the command `\mathcolor`
   would be serialized. The correct command is `\textcolor` which despite its
   name is also applicable in math mode.
+- **#1605** In some cases, clicking on the space between two atoms would not
+  position the caret.
 
 ## 0.78.2 (2022-08-18)
 
