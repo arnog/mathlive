@@ -7,14 +7,14 @@
   instead: `move-out`, `focus-out`, `announce`.
 - The `onModeChange`, `onReadAloudStatusChange`, `onBlur`, `onFocus`,
   `onContentWillChange`, `onContentDidChange`, `onSelectionDidChange`,
-  `onUndoStateWillChange`, `onUndoStateDidChange` and `onCommit` listeners have
-  been removed. Used the corresponding events `mode-change`,
+  `onUndoStateWillChange`, `onUndoStateDidChange` and `onCommit` deprecated
+  listeners have been removed. Used the corresponding events `mode-change`,
   `read-aloud-status-change`, `blur`, `focus`, `beforeinput`, `input`,
-  `selection-change`, `undo-state-change`, `change`
+  `selection-change`, `undo-state-change` and `change`.
 - The `onKeystroke` handler has been removed. Instead use
   `mf.addEventListener("keydown",...)`
 - Improved editing of left-right delimiters:
-  - keep leftright atom if one of its delimiters is removed
+  - keep leftright atom if only one of its delimiters is removed
   - only hoist body if both delimiters are removed
 
 ### Improvements
@@ -27,16 +27,16 @@
   Previously it would jump at the end of the expression, which wasn't very
   useful and potentially confusing.
 - **#1585** In some situations, improve the accuracy of the hit testing
-- Upconvert unicode characters to corresponding LaTeX command when available.
+- Upconvert unicode characters to corresponding LaTeX command when available
 - When a scaling factor is applied to the mathfield or one of its DOM ancestors,
-  correctly scale the selection background accordingly.
+  correctly scale the selection background accordingly
 
 ### Bug Fixes
 
-- **#1042** Spacing atoms (e.g. `\;`) are now clickable and selectable.
+- **#1042** Spacing atoms (e.g. `\;`) are now clickable and selectable
 - **#1590** Improved selection of content inside tabular environments (matrix,
   etc...)
-- **#1591** Improved cursor order when deleting values in fraction on when
+- **#1591** Improved cursor order when deleting values in fraction when
   `fractionNavigationOrder` mode is `denominator-numerator`.
 - **#1592** When applying color to some math content, the command `\mathcolor`
   would be serialized. The correct command is `\textcolor` which despite its
