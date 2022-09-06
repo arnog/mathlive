@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1540** When changing the `readonly` or `disabled` attribute of a mathfield,
+  hide the virtual keyboard if the mathfield had the focus.
+
 ## 0.79.0 (2022-09-06)
 
 ### Breaking Changes
