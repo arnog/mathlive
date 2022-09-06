@@ -735,14 +735,16 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         .delete as HTMLAudioElement;
     }
 
-    if (this.options.readOnly) {
-      this.onBlur();
-      this.element!.classList.add('ML__isReadOnly');
-    } else this.element!.classList.remove('ML__isReadOnly');
-
     if (this.options.defaultMode === 'inline-math')
       this.element!.classList.add('ML__isInline');
     else this.element!.classList.remove('ML__isInline');
+
+    if (this.options.readOnly) {
+      if (this.hasFocus() && this.virtualKeyboardState === 'visible')
+        this.executeCommand('hideVirtualKeyboard');
+      this.onBlur();
+      this.element!.classList.add('ML__isReadOnly');
+    } else this.element!.classList.remove('ML__isReadOnly');
 
     this.virtualKeyboard?.setOptions(this.options);
 
