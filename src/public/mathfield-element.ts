@@ -1183,6 +1183,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         break;
       case 'read-only':
       case 'readonly':
+        if (this._mathfield?.virtualKeyboardState === 'visible')
+          this._mathfield?.executeCommand('hideVirtualKeyboard');
+
         this.readOnly = hasValue;
         break;
       default:
