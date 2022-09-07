@@ -52,23 +52,23 @@ The textual content of the element is used as the initial value of the editor.
 
 | Name          | Type                  | Description                                                                                                                                                                                                                                                                                                                            |
 | ------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `value`       | `string`              | The content of the mathfield, represented as a LaTeX string.                                                                                                                                                                                                                                                                           |
-| `options`     | `object`              | Configuration options for the mathfield.                                                                                                                                                                                                                                                                                               |
+| `value`       | `string`              | The content of the mathfield, represented as a LaTeX string                                                                                                                                                                                                                                                                            |
+| `options`     | `object`              | The mathfield configuration options                                                                                                                                                                                                                                                                                                    |
 | `onMoveOutOf` | `(string) => boolean` | A callback invoked when keyboard navigation would cause the insertion point to leave the mathfield. The argument indicates the direction of the navigation, either "forward" or "backward". Return false to prevent the move, true to wrap around to the start of the field. By default, the insertion point will wrap around.         |
 | `onTabOutOf`  | `(string) => boolean` | A callback invoked when pressing tab (or shift-tab) would cause the insertion point to leave the mathfield. The argument indicates the direction of the navigation, either "forward" or "backward". Return false to prevent the move, true to wrap around to the start of the field. By default, the insertion point will wrap around. |
 
 ### Events
 
-| Name                      | Description                                                                                                                                                                                          |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `focus`                   | The editor instance gained the input focus.                                                                                                                                                          |
-| `blur`                    | The editor instance lost the input focus.                                                                                                                                                            |
-| `input`                   | The content of the mathfield has changed. The parameter of the event is the new value as a string                                                                                                    |
-| `selection-will-change`   | The selection of the mathfield is about to change                                                                                                                                                    |
-| `undo-state-will-change`  | The undo state is about to change                                                                                                                                                                    |
-| `undo-state-did-change`   | The undo state has changed                                                                                                                                                                           |
-| `virtual-keyboard-toggle` | The visibility of the virtual keyboard has changed. The first argument is a boolean indicating if the keyboard is now visible. The second argument is a DOM element containing the virtual keyboard. |
-| `read-aloud-status`       | The status of the read aloud operation has changed. The first argument is a string indicating the new status.                                                                                        |
+| Name                      | Description                                        |
+| ------------------------- | -------------------------------------------------- |
+| `focus`                   | The editor instance gained the input focus         |
+| `blur`                    | The editor instance lost the input focus           |
+| `input`                   | The content of the mathfield has changed           |
+| `selection-will-change`   | The selection of the mathfield is about to change  |
+| `undo-state-will-change`  | The undo state is about to change                  |
+| `undo-state-did-change`   | The undo state has changed                         |
+| `virtual-keyboard-toggle` | The visibility of the virtual keyboard has changed |
+| `read-aloud-status`       | The status of the read aloud operation has changed |
 
 ### Methods
 

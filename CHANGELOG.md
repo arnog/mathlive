@@ -6,6 +6,20 @@
   hide the virtual keyboard if the mathfield had the focus.
 - **#1641** A read-only mathfield would still accept inline shortcuts.
 
+## New Features
+
+- **#1541** To be notified when the visibility of the virtual keyboard changes
+  and using `makeSharedVirtualKeyboard()`, listen for the
+  `virtual-keyboard-toggle` on the object returned by
+  `makeSharedVirtualKeyboard()`:
+
+```ts
+const k = makeSharedVirtualKeyboard();
+k.addEventListener('virtual-keyboard-toggle', (ev) =>
+  console.log('toggling ', ev)
+);
+```
+
 ## 0.79.0 (2022-09-06)
 
 ### Breaking Changes

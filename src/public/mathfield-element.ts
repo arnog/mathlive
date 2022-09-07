@@ -544,7 +544,7 @@ export interface MathfieldElementAttributes {
  * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
  * | `undo-state-change` |  The state of the undo stack has changed |
  * | `read-aloud-status-change` | The status of a read aloud operation has changed |
- * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed |
+ * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed. When using `makeSharedVirtualKeyboard()`, listen for this even on the object returned by `makeSharedVirtualKeyboard()` |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
  * | `focus-out` | The user is navigating out of the mathfield, typically using the **tab** key<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|

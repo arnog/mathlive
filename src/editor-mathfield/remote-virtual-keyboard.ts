@@ -1,3 +1,4 @@
+/* eslint-disable brace-style */
 import { Selector } from '../public/commands';
 import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
 import type { MathfieldElement } from '../public/mathfield-element';
@@ -167,12 +168,16 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
 /**
  * Must be used on parent frame where virtual keyboard will be rendered
  */
-export class RemoteVirtualKeyboard extends VirtualKeyboard {
+export class RemoteVirtualKeyboard
+  extends VirtualKeyboard
+  implements EventTarget
+{
   options: RemoteVirtualKeyboardOptions;
 
   private sourceFrame: Window;
   private readonly canUndoState: boolean;
   private readonly canRedoState: boolean;
+  private readonly listeners: Set<EventListenerOrEventListenerObject | null>;
 
   constructor(options?: Partial<RemoteVirtualKeyboardOptions>) {
     const validOptions = {
@@ -184,6 +189,8 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
       validOptions.virtualKeyboardContainer = options.virtualKeyboardContainer;
 
     super(validOptions);
+
+    this.listeners = new Set();
 
     window.addEventListener('message', this);
 
@@ -242,6 +249,36 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
     };
   }
 
+  addEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    _options?: AddEventListenerOptions | boolean
+  ): void {
+    if (type !== 'virtual-keyboard-toggle')
+      throw new TypeError('Unexpected event type');
+    if (!this.listeners.has(callback)) this.listeners.add(callback);
+  }
+
+  dispatchEvent(event: Event): boolean {
+    if (event.type !== 'virtual-keyboard-toggle')
+      throw new TypeError('Unexpected event type');
+    if (this.listeners.size === 0) return false;
+    this.listeners.forEach((x) => {
+      if (typeof x === 'function') x(event);
+      else x?.handleEvent(event);
+    });
+    return true;
+  }
+  removeEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    _options?: EventListenerOptions | boolean
+  ): void {
+    if (type !== 'virtual-keyboard-toggle')
+      throw new TypeError('Unexpected event type');
+    this.listeners.delete(callback);
+  }
+
   handleEvent(event: MessageEvent<RemoteKeyboardMessageData>): void {
     if (
       event.type === 'message' &&
@@ -284,6 +321,7 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
   }
 
   stateChanged(): void {
+    this.dispatchEvent(new Event('virtual-keyboard-toggle'));
     this.sendMessage('stateChanged', {
       state: {
         visible: this.visible,
