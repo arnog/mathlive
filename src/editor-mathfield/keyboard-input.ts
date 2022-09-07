@@ -96,92 +96,96 @@ export function onKeystroke(
   // would match a long shortcut (i.e. '~~')
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
   // see 4.3)
-  if (mathfield.mode === 'math' && !evt.ctrlKey && !evt.metaKey) {
-    if (keystroke === '[Backspace]') {
-      // Special case for backspace to correctly handle undoing
-      mathfield.inlineShortcutBuffer.pop();
-      mathfield.flushInlineShortcutBuffer({ defer: true });
-    } else if (!mightProducePrintableCharacter(evt)) {
-      // It was a non-alpha character (PageUp, End, etc...)
-      mathfield.flushInlineShortcutBuffer();
-      mathfield.snapshot();
-    } else {
-      const c = eventToChar(evt);
+  if (!mathfield.options.readOnly) {
+    if (mathfield.mode === 'math' && !evt.ctrlKey && !evt.metaKey) {
+      if (keystroke === '[Backspace]') {
+        // Special case for backspace to correctly handle undoing
+        mathfield.inlineShortcutBuffer.pop();
+        mathfield.flushInlineShortcutBuffer({ defer: true });
+      } else if (!mightProducePrintableCharacter(evt)) {
+        // It was a non-alpha character (PageUp, End, etc...)
+        mathfield.flushInlineShortcutBuffer();
+        mathfield.snapshot();
+      } else {
+        const c = eventToChar(evt);
 
-      // Find the longest substring that matches a shortcut
-      const keystrokes =
-        (mathfield.inlineShortcutBuffer[
-          mathfield.inlineShortcutBuffer.length - 1
-        ]?.keystrokes ?? '') + c;
-      mathfield.inlineShortcutBuffer.push({
-        state: model.getState(),
-        keystrokes,
-        leftSiblings: getLeftSiblings(mathfield),
-      });
+        // Find the longest substring that matches a shortcut
+        const keystrokes =
+          (mathfield.inlineShortcutBuffer[
+            mathfield.inlineShortcutBuffer.length - 1
+          ]?.keystrokes ?? '') + c;
+        mathfield.inlineShortcutBuffer.push({
+          state: model.getState(),
+          keystrokes,
+          leftSiblings: getLeftSiblings(mathfield),
+        });
 
-      // Loop  over possible candidates, from the longest possible, to the shortest
-      let i = 0;
-      let candidate = '';
-      while (!shortcut && i < keystrokes.length) {
-        stateIndex =
-          mathfield.inlineShortcutBuffer.length - (keystrokes.length - i);
-        candidate = keystrokes.slice(i);
-        const leftSiblings =
-          mathfield.inlineShortcutBuffer[stateIndex].leftSiblings;
+        // Loop  over possible candidates, from the longest possible, to the shortest
+        let i = 0;
+        let candidate = '';
+        while (!shortcut && i < keystrokes.length) {
+          stateIndex =
+            mathfield.inlineShortcutBuffer.length - (keystrokes.length - i);
+          candidate = keystrokes.slice(i);
+          const leftSiblings =
+            mathfield.inlineShortcutBuffer[stateIndex].leftSiblings;
 
-        // Is this an inline shortcut?
-        shortcut = getInlineShortcut(
-          leftSiblings,
-          candidate,
-          mathfield.options.inlineShortcuts
-        );
+          // Is this an inline shortcut?
+          shortcut = getInlineShortcut(
+            leftSiblings,
+            candidate,
+            mathfield.options.inlineShortcuts
+          );
 
-        // Could this be interpreted as a multichar symbol or other complex
-        // inline shortcut
-        if (
-          !shortcut &&
-          /^[a-zA-Z][a-zA-Z0-9]+'?([_\^][a-zA-Z0-9\*\+\-]'?)?$/.test(candidate)
-        )
-          shortcut = mathfield.options.onInlineShortcut(mathfield, candidate);
+          // Could this be interpreted as a multichar symbol or other complex
+          // inline shortcut
+          if (
+            !shortcut &&
+            /^[a-zA-Z][a-zA-Z0-9]+'?([_\^][a-zA-Z0-9\*\+\-]'?)?$/.test(
+              candidate
+            )
+          )
+            shortcut = mathfield.options.onInlineShortcut(mathfield, candidate);
 
-        i += 1;
+          i += 1;
+        }
+
+        // Don't flush the inline shortcut buffer yet, but schedule a deferred
+        // flush, in case some keys typed later disambiguate the desired shortcut.
+        //
+        // This handles the case with two shortcuts for "sin" and "sinh", to
+        // avoid the detecting of the "sin" shortcut from preventing the "sinh"
+        // shortcut from ever being triggered.
+        mathfield.flushInlineShortcutBuffer({ defer: true });
+      }
+    }
+
+    //
+    // 4.2. Should we switch mode?
+    //
+    // Need to check this before determing if there's a valid shortcut
+    // since if we switch to math mode, we may want to apply the shortcut
+    // e.g. "slope = rise/run"
+    if (mathfield.options.smartMode) {
+      const previousMode = mathfield.mode;
+      if (shortcut) {
+        // If we found a shortcut (e.g. "alpha"),
+        // switch to math mode and insert it
+        mathfield.mode = 'math';
+      } else if (smartMode(mathfield, keystroke, evt)) {
+        mathfield.mode = { math: 'text', text: 'math' }[mathfield.mode];
+        selector = '';
       }
 
-      // Don't flush the inline shortcut buffer yet, but schedule a deferred
-      // flush, in case some keys typed later disambiguate the desired shortcut.
-      //
-      // This handles the case with two shortcuts for "sin" and "sinh", to
-      // avoid the detecting of the "sin" shortcut from preventing the "sinh"
-      // shortcut from ever being triggered.
-      mathfield.flushInlineShortcutBuffer({ defer: true });
-    }
-  }
-
-  //
-  // 4.2. Should we switch mode?
-  //
-  // Need to check this before determing if there's a valid shortcut
-  // since if we switch to math mode, we may want to apply the shortcut
-  // e.g. "slope = rise/run"
-  if (mathfield.options.smartMode) {
-    const previousMode = mathfield.mode;
-    if (shortcut) {
-      // If we found a shortcut (e.g. "alpha"),
-      // switch to math mode and insert it
-      mathfield.mode = 'math';
-    } else if (smartMode(mathfield, keystroke, evt)) {
-      mathfield.mode = { math: 'text', text: 'math' }[mathfield.mode];
-      selector = '';
-    }
-
-    // Notify of mode change
-    if (mathfield.mode !== previousMode) {
-      mathfield.host?.dispatchEvent(
-        new Event('mode-change', {
-          bubbles: true,
-          composed: true,
-        })
-      );
+      // Notify of mode change
+      if (mathfield.mode !== previousMode) {
+        mathfield.host?.dispatchEvent(
+          new Event('mode-change', {
+            bubbles: true,
+            composed: true,
+          })
+        );
+      }
     }
   }
 
