@@ -4,6 +4,7 @@
 
 - **#1540** When changing the `readonly` or `disabled` attribute of a mathfield,
   hide the virtual keyboard if the mathfield had the focus.
+- **#1641** A read-only mathfield would still accept inline shortcuts.
 
 ## 0.79.0 (2022-09-06)
 
