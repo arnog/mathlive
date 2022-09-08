@@ -20,6 +20,17 @@ k.addEventListener('virtual-keyboard-toggle', (ev) =>
 );
 ```
 
+- The `math-mode` event is now cancelable (by calling `.preventDefault()` on the
+  event). This can be used for example to turn off the ability to switch to the
+  LaTeX editing mode:
+
+```ts
+// Prevent change to LaTeX (or text) mode
+mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
+  capture: true,
+});
+```
+
 ## 0.79.0 (2022-09-06)
 
 ### Breaking Changes

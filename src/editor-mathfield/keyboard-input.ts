@@ -179,12 +179,16 @@ export function onKeystroke(
 
       // Notify of mode change
       if (mathfield.mode !== previousMode) {
-        mathfield.host?.dispatchEvent(
-          new Event('mode-change', {
-            bubbles: true,
-            composed: true,
-          })
-        );
+        if (
+          !mathfield.host?.dispatchEvent(
+            new Event('mode-change', {
+              bubbles: true,
+              composed: true,
+              cancelable: true,
+            })
+          )
+        )
+          mathfield.mode = previousMode;
       }
     }
   }

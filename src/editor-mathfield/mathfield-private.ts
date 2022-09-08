@@ -1068,6 +1068,20 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
     if (this.mode === mode || this.options.readOnly) return;
+
+    // Dispatch event with option of canceling
+    if (
+      !this.host?.dispatchEvent(
+        new Event('mode-change', {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+        })
+      )
+    )
+      return;
+
+    // Notify of mode change
     const currentMode = this.mode;
     const { model } = this;
     model.deferNotifications(
@@ -1151,13 +1165,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
           contentChanged = true;
         }
 
-        // Notify of mode change
-        this.host?.dispatchEvent(
-          new Event('mode-change', {
-            bubbles: true,
-            composed: true,
-          })
-        );
         requestUpdate(this);
         return contentChanged;
       }

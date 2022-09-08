@@ -41,21 +41,6 @@ import { MathfieldOptions } from './options';
 */
 
 /**
- * The `keystroke` event is fired when a keystroke is about to be processed.
- * The event is cancellable, which wills suppress further handling of the event.
- *
- */
-export type KeystrokeEvent = {
-  /** A string descring the keystroke, for example `"Alt-KeyU". See [W3C UIEvents](https://www.w3.org/TR/uievents/#keys-keyvalues)
-   * for more information on the format of the descriptor.
-   *
-   */
-  keystroke: string;
-  /** The native keyboard event */
-  event?: KeyboardEvent;
-};
-
-/**
  * The `focus-out` event signals that the mathfield has lost focus through keyboard
  * navigation with the **tab** key.
  *
@@ -109,7 +94,6 @@ declare global {
    */
   interface HTMLElementEventMap {
     'focus-out': CustomEvent<FocusOutEvent>;
-    'keystroke': CustomEvent<KeystrokeEvent>;
     'mode-change': Event;
     'mount': Event;
     'move-out': CustomEvent<MoveOutEvent>;
