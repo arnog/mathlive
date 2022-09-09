@@ -31,6 +31,9 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 });
 ```
 
+- The command `plonk` was added. It plays a sound indicating an error, and can
+  associated with a keybinding, or triggered with `mf.executeCommand()`.
+
 ## 0.79.0 (2022-09-06)
 
 ### Breaking Changes
