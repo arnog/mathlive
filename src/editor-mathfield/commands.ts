@@ -35,6 +35,10 @@ registerCommand({
     return true;
   },
   toggleKeystrokeCaption: toggleKeystrokeCaption,
+  plonk: (mathfield: MathfieldPrivate) => {
+    mathfield.model.announce('plonk');
+    return true;
+  },
   switchMode: (
     mathfield: MathfieldPrivate,
     mode: ParseMode,

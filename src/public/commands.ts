@@ -102,6 +102,8 @@ export interface Commands {
 
   toggleKeystrokeCaption: (mathfield: Mathfield) => boolean;
 
+  plonk: (mathfield: Mathfield) => boolean;
+
   switchMode: (mathfield: Mathfield, mode: ParseMode) => boolean;
   insert: (mathfield: Mathfield, s: string, options: InsertOptions) => boolean;
   insertDecimalSeparator: (mathfield: Mathfield) => boolean;
