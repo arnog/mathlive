@@ -9,23 +9,33 @@ module.exports = {
     '**/?(*.)+(spec|test).+(ts|tsx|js)',
   ],
   // reporters: ['jest-silent-reporter'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-      isolatedModules: true,
-      tsconfig: {
-        allowJs: true,
-        module: 'system',
-      },
-    },
-  },
   moduleNameMapper: {
     '.*\\.(sass|less|css)$': '<rootDir>/test/__mocks__/styleMock.js',
   },
   moduleFileExtensions: ['js', 'json', 'ts', 'esm.js'],
   transform: {
-    '^.+\\.js$': 'ts-jest',
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.js$': [
+      'ts-jest',
+      {
+        useESM: true,
+        isolatedModules: true,
+        tsconfig: {
+          allowJs: true,
+          module: 'system',
+        },
+      },
+    ],
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+        isolatedModules: true,
+        tsconfig: {
+          allowJs: true,
+          module: 'system',
+        },
+      },
+    ],
   },
   // See https://stackoverflow.com/questions/58370492/ts-jest-fails-to-run-a-tsx-test-file-because-of-import-from-a-modules-js-file
   transformIgnorePatterns: ['<rootDir>/node_modules/(?!(@cortex-js)/)'],
