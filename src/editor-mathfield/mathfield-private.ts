@@ -291,15 +291,13 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // On touch capable devices, we do not create a textarea to capture keyboard
     // events as this has the side effect of triggering the OS virtual keyboard
     // which we want to avoid
-    let markup = "<span class='ML__textarea'>";
+    let markup = '<span class=ML__textarea>';
     if (isTouchCapable())
-      markup += `<span class='ML__textarea__textarea' tabindex="-1" role="textbox"></span>`;
+      markup += `<span class=ML__textarea__textarea tabindex=-1 role=textbox></span>`;
     else {
-      markup +=
-        '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
-        `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${
-          element.tabIndex ?? 0
-        }"></textarea>`;
+      markup += `<textarea class=ML__textarea__textarea autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none aria-hidden="true" tabindex="${
+        element.tabIndex ?? 0
+      }"></textarea>`;
     }
     markup += '</span>';
 
