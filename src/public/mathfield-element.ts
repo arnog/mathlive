@@ -82,6 +82,14 @@ export type MoveOutEvent = {
   direction: 'forward' | 'backward' | 'upward' | 'downward';
 };
 
+/**  The `placeholder-change` event signals that an editable placeholder inside
+ * a read-only mathfield has been modified. The `placeholderId` property
+ * indicates which placeholder was changed.
+ */
+export type PlaceholderChange = {
+  placeholderId: string;
+};
+
 /**
  * See documentation for the `virtual-keyboard-mode` option.
  */
@@ -97,6 +105,7 @@ declare global {
     'mode-change': Event;
     'mount': Event;
     'move-out': CustomEvent<MoveOutEvent>;
+    'placeholder-change': CustomEvent<PlaceholderChange>;
     'unmount': Event;
     'read-aloud-status-change': Event;
     'selection-change': Event;
