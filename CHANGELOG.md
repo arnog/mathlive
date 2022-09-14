@@ -35,6 +35,8 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 
 - The command `plonk` was added. It plays a sound indicating an error, and can
   associated with a keybinding, or triggered with `mf.executeCommand()`.
+- To determine the offset (caret position) in a mathfield given a viewport
+  coordinate, use `mf.offsetFromPoint()`.
 
 ## 0.79.0 (2022-09-06)
 

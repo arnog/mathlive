@@ -4,6 +4,7 @@ import {
   update as updateOptions,
 } from '../editor/options';
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { isOffset, isRange, isSelection } from '../editor/model';
 import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 
@@ -990,6 +991,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   setCaretPoint(x: number, y: number): boolean {
     return this._mathfield?.setCaretPoint(x, y) ?? false;
+  }
+
+  /** Return the offset for the location (x, y) in viewport coordinate */
+  offsetFromPoint(x: number, y: number): Offset {
+    if (!this._mathfield) return -1;
+    return offsetFromPoint(this._mathfield, x, y);
   }
 
   /**
