@@ -209,12 +209,12 @@ export function onKeystroke(
 
     // 4.4 Handle the return/enter key
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
-      let result = true;
+      let result = false;
       if (contentWillChange(model, { inputType: 'insertLineBreak' })) {
         // No matching keybinding: trigger a commit
 
         if (mathfield.host) {
-          result = mathfield.host.dispatchEvent(
+          result = !mathfield.host.dispatchEvent(
             new Event('change', {
               bubbles: true,
               composed: true,
@@ -256,7 +256,7 @@ export function onKeystroke(
             evt.preventDefault();
             evt.stopPropagation();
           }
-          return true;
+          return false;
         }
         const nextSibling = model.at(model.position + 1);
         const previousSibling = model.at(model.position - 1);
