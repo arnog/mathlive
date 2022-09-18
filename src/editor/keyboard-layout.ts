@@ -591,36 +591,33 @@ export function getCodeForKey(
 }
 
 export function normalizeKeyboardEvent(evt: KeyboardEvent): KeyboardEvent {
-  if (!evt.code) {
-    // For virtual keyboards (iOS, Android) and Microsoft Edge (!)
-    // the `evt.code`, which represents the physical key pressed, is set
-    // to undefined. In that case, map the virtual key ("q") to a
-    // pseudo-hardware key ("KeyQ")
-    const mapping = Object.entries(getActiveKeyboardLayout().mapping);
-    let altKey = false;
-    let shiftKey = false;
-    let code = '';
-    for (let index = 0; index < 4; index++) {
-      for (const [key, value] of mapping) {
-        if (value![index] === evt.key) {
-          code = key;
-          if (index === 3) {
-            altKey = true;
-            shiftKey = true;
-          } else if (index === 2) altKey = true;
-          else if (index === 1) shiftKey = true;
+  if (evt.code) return evt;
+  // For virtual keyboards (iOS, Android) and Microsoft Edge (!)
+  // the `evt.code`, which represents the physical key pressed, is set
+  // to undefined. In that case, map the virtual key ("q") to a
+  // pseudo-hardware key ("KeyQ")
+  const mapping = Object.entries(getActiveKeyboardLayout().mapping);
+  let altKey = false;
+  let shiftKey = false;
+  let code = '';
+  for (let index = 0; index < 4; index++) {
+    for (const [key, value] of mapping) {
+      if (value![index] === evt.key) {
+        code = key;
+        if (index === 3) {
+          altKey = true;
+          shiftKey = true;
+        } else if (index === 2) altKey = true;
+        else if (index === 1) shiftKey = true;
 
-          break;
-        }
+        break;
       }
-
-      if (code) break;
     }
 
-    return new KeyboardEvent(evt.type, { ...evt, altKey, shiftKey, code });
+    if (code) break;
   }
 
-  return new KeyboardEvent(evt.type, evt);
+  return new KeyboardEvent(evt.type, { ...evt, altKey, shiftKey, code });
 }
 
 // Given this keyboard event, and the `code`, `key` and modifiers
@@ -633,7 +630,7 @@ export function validateKeyboardLayout(evt?: KeyboardEvent): void {
   if (evt.key === 'Unidentified') return;
 
   // Dead keys do not have enough info to validate the keyboard
-  // (we dont' know what char they could produce, only the physical key associated with them )
+  // (we don't know what char they could produce, only the physical key associated with them )
   if (evt.key === 'Dead') return;
 
   const index =
