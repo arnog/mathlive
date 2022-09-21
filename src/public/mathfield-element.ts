@@ -994,9 +994,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** Return the offset for the location (x, y) in viewport coordinate */
-  offsetFromPoint(x: number, y: number): Offset {
+  offsetFromPoint(
+    x: number,
+    y: number,
+    options?: { bias?: -1 | 0 | 1 }
+  ): Offset {
     if (!this._mathfield) return -1;
-    return offsetFromPoint(this._mathfield, x, y);
+    return offsetFromPoint(this._mathfield, x, y, options);
   }
 
   /**
