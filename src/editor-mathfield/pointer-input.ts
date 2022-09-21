@@ -286,10 +286,12 @@ function nearestAtomFromPointRecursive(
   if (!bounds) return [Infinity, null];
 
   let result: [distance: number, atom: Atom | null] = [
-    atom.type === 'group' || atom.type === 'root'
-      ? Infinity
-      : distance(x, y, bounds),
-    atom,
+    // part of fix for #1631
+    // atom.type === 'group' || atom.type === 'root'
+    //   ? Infinity
+    //   : distance(x, y, bounds),
+    Infinity,
+    null,
   ];
   //
   // 1. Consider any children within the horizontal bounds
@@ -304,9 +306,10 @@ function nearestAtomFromPointRecursive(
       const r = nearestAtomFromPointRecursive(mathfield, cache, child, x, y);
       if (r[0] <= result[0]) result = r;
     }
-    // 1.1. If no children matched, this atom matches
-    if (!result[1]) result = [distance(x, y, bounds), atom];
   }
+
+  // 2. If no children matched, this atom matches
+  if (!result[1]) result = [distance(x, y, bounds), atom];
 
   cache.set(atom.id, result);
   return result;
