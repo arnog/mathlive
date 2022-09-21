@@ -7,6 +7,10 @@
 - **#1641** A read-only mathfield would still accept inline shortcuts.
 - **#1618** In some cases, on touch-capable devices the OS virtual keyboard
   would be displayed instead of the virtual keyboard.
+- **#1620** On devices with a touch screen and a physical keyboard (Lenovo Yoga,
+  Chromebooks), pressing the **Enter** key would input the string `Enter` into
+  the mathfield.
+- **#1631** Hit-testing detection improvements
 
 ## New Features
 

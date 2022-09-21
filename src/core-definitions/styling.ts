@@ -1003,30 +1003,6 @@ defineFunction(
   }
 );
 
-defineFunction(
-  ['overwithdelims', 'atopwithdelims'],
-  '{numer:auto}{denom:auto}{left-delim:delim}{right-delim:delim}',
-  {
-    infix: true,
-    createAtom: (
-      name: string,
-      args: Argument[],
-      style: PrivateStyle,
-      context: GlobalContext
-    ): Atom =>
-      new GenfracAtom(name, args[0] as Atom[], args[1] as Atom[], context, {
-        leftDelim: args[2] as string,
-        rightDelim: args[3] as string,
-        hasBarLine: false,
-        style,
-        serialize: (atom: GenfracAtom, options: ToLatexOptions) =>
-          `${atom.aboveToLatex(options)} ${atom.command}${atom.leftDelim}${
-            atom.rightDelim
-          }${atom.belowToLatex(options)}`,
-      }),
-  }
-);
-
 defineFunction('smash', '[:string]{:auto}', {
   createAtom: (
     name: string,

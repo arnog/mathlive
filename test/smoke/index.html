@@ -15,7 +15,7 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf" read-only>{123}abc</math-field>
+      <math-field id="mf">{123}abc</math-field>
       <!-- <math-field id="mf"
         >{\sqrt{\sum_{n=1}^\infty {\frac{10}{n^4}}}} = {\int_0^\infty \frac{2x
         dx}{e^x-1}} = \frac{\pi^2}{3} \in {\mathbb R}</math-field
@@ -44,9 +44,14 @@
     <script type="module">
       import {
         renderMathInElement,
-        // makeSharedVirtualKeyboard,
+        makeSharedVirtualKeyboard,
         MathfieldElement,
       } from '/dist/mathlive.mjs';
+
+      // const k = makeSharedVirtualKeyboard();
+      // k.addEventListener('virtual-keyboard-toggle', (ev) =>
+      //   console.log('toggling ', ev)
+      // );
 
       // const HIGH_SCHOOL_KEYBOARD_LAYER = {
       //   'high-school-layer': {
@@ -216,13 +221,25 @@
         },
       });
 
-      mf.addEventListener('keydown', (ev) => {
-        if (ev.ctrlKey === true && ev.code === 'KeyL') {
-          mf.insert('\\sqrt2');
-          ev.preventDefault();
-        }
-        console.log(ev);
+      // mf.addEventListener(
+      //   'keydown',
+      //   (ev) => {
+      //     if (ev.code === 'Escape') ev.preventDefault();
+      //   },
+      //   { capture: true }
+      // );
+
+      // mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
+      //   capture: true,
+      // });
+
+      mf.setOptions({
+        keybindings: [
+          ...mf.getOptions('keybindings').filter((x) => x.key !== '[Escape]'),
+        ],
       });
+
+      // { key: '[Escape]', command: ['announce', 'plonk'] },
 
       mf.addEventListener('input', (ev) => updateContent(mf));
 
