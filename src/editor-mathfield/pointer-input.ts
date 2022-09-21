@@ -316,7 +316,7 @@ function nearestAtomFromPointRecursive(
   return result;
 }
 
-function nearestAtomFromPoint(
+export function nearestAtomFromPoint(
   mathfield: MathfieldPrivate,
   x: number,
   y: number
