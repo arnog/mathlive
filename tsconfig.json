@@ -25,9 +25,8 @@
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
 
-    // "declaration": true,
-    // "allowJs": true,
-    // "checkJs": true,
+    // Test files for Jest are in JS
+    "allowJs": true,
 
     "strictNullChecks": true,
     "noImplicitAny": false,

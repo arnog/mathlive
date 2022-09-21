@@ -253,6 +253,25 @@ defineFunction(['over', 'atop', 'choose'], '', {
   },
 });
 
+defineFunction(
+  ['overwithdelims', 'atopwithdelims'],
+  '{numer:auto}{denom:auto}{left-delim:delim}{right-delim:delim}',
+  {
+    infix: true,
+    createAtom: (name, args, style, context): Atom =>
+      new GenfracAtom(name, args[0] as Atom[], args[1] as Atom[], context, {
+        leftDelim: args[2] as string,
+        rightDelim: args[3] as string,
+        hasBarLine: false,
+        style,
+        serialize: (atom, options) =>
+          `${atom.aboveToLatex(options)} ${atom.command}${atom.leftDelim}${
+            atom.rightDelim
+          }${atom.belowToLatex(options)}`,
+      }),
+  }
+);
+
 // Slashed package
 /*
 defineFunction('\\slashed'
