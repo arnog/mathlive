@@ -994,7 +994,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield?.setCaretPoint(x, y) ?? false;
   }
 
-  /** Return the offset for the location (x, y) in viewport coordinate */
+  /** The offset closest to the location `(x, y)` in viewport coordinate.
+   *
+   * **`bias`**:  if `0`, the vertical midline is considered to the left or
+   * right sibling. If `-1`, the left sibling is favored, if `+1`, the right
+   * sibling is favored.
+   *
+   * @category Selection
+   */
   offsetFromPoint(
     x: number,
     y: number,
@@ -1004,8 +1011,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return offsetFromPoint(this._mathfield, x, y, options);
   }
 
-  /** Return bounding rect for the atom at offset */
-  hitBoxFromOffset(offset: number): DOMRect | null {
+  /** The bounding rect of the atom at offset
+   *
+   * @category Selection
+   *
+   */
+  hitboxFromOffset(offset: number): DOMRect | null {
     if (!this._mathfield) return null;
     const atom = this._mathfield.model.at(offset);
     if (!atom) return null;
