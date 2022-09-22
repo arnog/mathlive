@@ -1011,6 +1011,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   nearestBoxFromPoint(x: number, y: number): DOMRect | null {
     if (!this._mathfield) return null;
     const atom = nearestAtomFromPoint(this._mathfield, x, y);
+    if (!atom) return null;
     const bounds = getAtomBounds(this._mathfield, atom);
     if (!bounds) return null;
     return new DOMRect(
