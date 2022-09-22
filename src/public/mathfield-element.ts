@@ -4,7 +4,10 @@ import {
   update as updateOptions,
 } from '../editor/options';
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { offsetFromPoint } from '../editor-mathfield/pointer-input';
+import {
+  offsetFromPoint,
+  nearestAtomFromPoint,
+} from '../editor-mathfield/pointer-input';
 import { isOffset, isRange, isSelection } from '../editor/model';
 import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 
@@ -19,6 +22,7 @@ import {
   Selection,
 } from './mathfield';
 import { MathfieldOptions } from './options';
+import { getAtomBounds } from 'editor-mathfield/utils';
 
 //
 // Custom Events
@@ -994,9 +998,27 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** Return the offset for the location (x, y) in viewport coordinate */
-  offsetFromPoint(x: number, y: number): Offset {
+  offsetFromPoint(
+    x: number,
+    y: number,
+    options?: { bias?: -1 | 0 | 1 }
+  ): Offset {
     if (!this._mathfield) return -1;
-    return offsetFromPoint(this._mathfield, x, y);
+    return offsetFromPoint(this._mathfield, x, y, options);
+  }
+
+  /** Return bounding rect for the nearest atom */
+  nearestBoxFromPoint(x: number, y: number): DOMRect | null {
+    if (!this._mathfield) return null;
+    const atom = nearestAtomFromPoint(this._mathfield, x, y);
+    const bounds = getAtomBounds(this._mathfield, atom);
+    if (!bounds) return null;
+    return new DOMRect(
+      bounds.left,
+      bounds.top,
+      bounds.right - bounds.left,
+      bounds.bottom - bounds.top
+    );
   }
 
   /**
