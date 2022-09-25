@@ -870,6 +870,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   setValue(value?: string, options?: InsertOptions): void {
     if (this._mathfield && value !== undefined) {
+      if (!options) options = { suppressChangeNotifications: true };
       this._mathfield.setValue(value, options);
       return;
     }

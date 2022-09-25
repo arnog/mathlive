@@ -11,6 +11,8 @@
   Chromebooks), pressing the **Enter** key would input the string `Enter` into
   the mathfield.
 - **#1631** Hit-testing detection improvements
+- **#1640** An `input` event was dispatched when the value of the mathfield was
+  changed programatically.
 
 ## New Features
 
