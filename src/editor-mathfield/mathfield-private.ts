@@ -1508,4 +1508,18 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     ev.preventDefault();
     ev.stopPropagation();
   }
+
+  getHTMLElement(atom: Atom): HTMLSpanElement {
+    // find an atom id in this atom or its children
+    let target = atom;
+    while (!target.id && target.hasChildren) {
+      target = atom.children[0];
+    }
+    if (target.id) {
+      return this.element!.querySelector(
+        `[data-atom-id="${target.id}"]`
+      ) as HTMLSpanElement;
+    }
+    throw new TypeError('Could not get an ID from atom');
+  }
 }

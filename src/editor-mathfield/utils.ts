@@ -255,3 +255,21 @@ export function validateOrigin(
 
   return false;
 }
+
+/**
+ * Calculates a DOMRect like getBoundingClientRect
+ * but excluding any CSS transforms
+ */
+export function getLocalDOMRect(el: HTMLElement): DOMRect {
+  let offsetTop = 0;
+  let offsetLeft = 0;
+  const width = el.offsetWidth;
+  const height = el.offsetHeight;
+  while (el instanceof HTMLElement) {
+    offsetTop += el.offsetTop;
+    offsetLeft += el.offsetLeft;
+    el = el.offsetParent as HTMLElement;
+  }
+
+  return new DOMRect(offsetLeft, offsetTop, width, height);
+}

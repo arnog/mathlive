@@ -1,4 +1,5 @@
 import type { ModelPrivate } from './model-private';
+import { MathfieldPrivate, getLocalDOMRect } from 'editor/mathfield';
 import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from '../core-atoms/latex';
@@ -396,33 +397,15 @@ function setPositionHandlingPlaceholder(
   } else model.position = pos;
 }
 
-/**
- * Calculates a DOMRect like getBoundingClientRect
- * but excluding any CSS transforms
- */
-function getLocalDOMRect(el: HTMLElement): DOMRect {
-  let offsetTop = 0;
-  let offsetLeft = 0;
-  const width = el.offsetWidth;
-  const height = el.offsetHeight;
-  while (el instanceof HTMLElement) {
-    offsetTop += el.offsetTop;
-    offsetLeft += el.offsetLeft;
-    el = el.offsetParent as HTMLElement;
-  }
-
-  return new DOMRect(offsetLeft, offsetTop, width, height);
-}
-
 function getClosestAtomToXPosition(
-  model: ModelPrivate,
+  mathfield: MathfieldPrivate,
   search: Atom[],
   x: number
 ) {
   let prevX = Infinity;
   let i = 0;
   for (; i < search.length; i++) {
-    const toX = getLocalDOMRect(model.getHTMLElement(search[i])).right;
+    const toX = getLocalDOMRect(mathfield.getHTMLElement(search[i])).right;
     const abs = Math.abs(x - toX);
 
     if (abs <= prevX) {
@@ -464,9 +447,11 @@ function moveUpward(
     const rowAbove = Math.max(0, atom.treeBranch[0] - 1);
     const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
     // calculate best atom to put cursor at based on real x coordinate
-    const fromX = getLocalDOMRect(model.getHTMLElement(baseAtom)).right;
+    const fromX = getLocalDOMRect(
+      model.mathfield.getHTMLElement(baseAtom)
+    ).right;
     const targetSelection = model.offsetOf(
-      getClosestAtomToXPosition(model, aboveCell, fromX)
+      getClosestAtomToXPosition(model.mathfield, aboveCell, fromX)
     );
 
     if (extend) {
@@ -563,9 +548,11 @@ function moveDownward(
     );
     const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
     // calculate best atom to put cursor at based on real x coordinate
-    const fromX = getLocalDOMRect(model.getHTMLElement(baseAtom)).right;
+    const fromX = getLocalDOMRect(
+      model.mathfield.getHTMLElement(baseAtom)
+    ).right;
     const targetSelection = model.offsetOf(
-      getClosestAtomToXPosition(model, belowCell, fromX)
+      getClosestAtomToXPosition(model.mathfield, belowCell, fromX)
     );
 
     if (extend) {
