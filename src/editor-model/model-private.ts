@@ -239,6 +239,20 @@ export class ModelPrivate implements Model {
     return this.atoms.indexOf(atom);
   }
 
+  getHTMLElement(atom: Atom): HTMLSpanElement {
+    // find an atom id in this atom or its children
+    let target = atom;
+    while (!target.id && target.hasChildren) {
+      target = atom.children[0];
+    }
+    if (target.id) {
+      return this.mathfield.element!.querySelector(
+        `[data-atom-id="${target.id}"]`
+      ) as HTMLSpanElement;
+    }
+    throw new TypeError('Could not get an ID from atom');
+  }
+
   getSiblingsRange(offset: Offset): Range {
     const atom: Atom = this.at(offset);
     const { parent } = atom;

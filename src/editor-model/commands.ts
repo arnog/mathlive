@@ -1,4 +1,5 @@
 import type { ModelPrivate } from './model-private';
+import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from '../core-atoms/latex';
 import { TextAtom } from '../core-atoms/text';
@@ -395,6 +396,46 @@ function setPositionHandlingPlaceholder(
   } else model.position = pos;
 }
 
+/**
+ * Calculates a DOMRect like getBoundingClientRect
+ * but excluding any CSS transforms
+ */
+function getLocalDOMRect(el: HTMLElement): DOMRect {
+  let offsetTop = 0;
+  let offsetLeft = 0;
+  const width = el.offsetWidth;
+  const height = el.offsetHeight;
+  while (el instanceof HTMLElement) {
+    offsetTop += el.offsetTop;
+    offsetLeft += el.offsetLeft;
+    el = el.offsetParent as HTMLElement;
+  }
+
+  return new DOMRect(offsetLeft, offsetTop, width, height);
+}
+
+function getClosestAtomToXPosition(
+  model: ModelPrivate,
+  search: Atom[],
+  x: number
+) {
+  let prevX = Infinity;
+  let i = 0;
+  for (; i < search.length; i++) {
+    const toX = getLocalDOMRect(model.getHTMLElement(search[i])).right;
+    const abs = Math.abs(x - toX);
+
+    if (abs <= prevX) {
+      // minimise distance to fromX
+      prevX = abs;
+    } else {
+      // this element is further away
+      break;
+    }
+  }
+  return search[i - 1];
+}
+
 function moveUpward(
   model: ModelPrivate,
   options?: { extend: boolean }
@@ -407,7 +448,8 @@ function moveUpward(
   // This is to handle the case: `\frac{x}{\sqrt{y}}`. If we're at `y`
   // we'd expect to move to `x`, even though `\sqrt` doesn't have an 'above'
   // branch, but one of its ancestor does.
-  let atom = model.at(model.position);
+  const baseAtom = model.at(model.position);
+  let atom = baseAtom;
 
   while (
     atom &&
@@ -419,16 +461,17 @@ function moveUpward(
   // handle navigating through matrices and such
   if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    const currentIndex =
-      arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
     const rowAbove = Math.max(0, atom.treeBranch[0] - 1);
-    const cell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
-    const targetIndex = Math.min(cell.length - 1, currentIndex);
-    const targetSelection = model.offsetOf(cell[targetIndex]);
+    const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
+    // calculate best atom to put cursor at based on real x coordinate
+    const fromX = getLocalDOMRect(model.getHTMLElement(baseAtom)).right;
+    const targetSelection = model.offsetOf(
+      getClosestAtomToXPosition(model, aboveCell, fromX)
+    );
+
     if (extend) {
       const [left, right] = model.selection.ranges[0];
 
-      // doesn't highlight
       let newSelection: Selection;
       if (targetSelection < left) {
         // extending selection upwards
@@ -444,18 +487,6 @@ function moveUpward(
         };
       }
       model.setSelection(newSelection);
-
-      // does highlight, has direction error
-      // model.extendSelectionTo(
-      //   targetSelection < left ? right : left,
-      //   targetSelection
-      // );
-
-      // doesn't highlight, doesn't continue selection
-      // model.extendSelectionTo(
-      //   targetSelection,
-      //   targetSelection < left ? right : left
-      // );
     } else {
       // move cursor to row above
       setPositionHandlingPlaceholder(model, targetSelection);
@@ -513,7 +544,8 @@ function moveDownward(
   // This is to handle the case: `\frac{\sqrt{x}}{y}`. If we're at `x`
   // we'd expect to move to `y`, even though `\sqrt` doesn't have a 'below'
   // branch, but one of its ancestor does.
-  let atom = model.at(model.position);
+  const baseAtom = model.at(model.position);
+  let atom = baseAtom;
 
   while (
     atom &&
@@ -525,15 +557,17 @@ function moveDownward(
   // handle navigating through matrices and such
   if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    const currentIndex =
-      arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
     const rowBelow = Math.min(
       arrayAtom.array.length - 1,
       atom.treeBranch[0] + 1
     );
-    const cell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
-    const targetIndex = Math.min(cell.length - 1, currentIndex);
-    const targetSelection = model.offsetOf(cell[targetIndex]);
+    const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
+    // calculate best atom to put cursor at based on real x coordinate
+    const fromX = getLocalDOMRect(model.getHTMLElement(baseAtom)).right;
+    const targetSelection = model.offsetOf(
+      getClosestAtomToXPosition(model, belowCell, fromX)
+    );
+
     if (extend) {
       const [left, right] = model.selection.ranges[0];
 
@@ -551,7 +585,6 @@ function moveDownward(
           direction: 'forward',
         };
       }
-      // @todo: setSelection doesn't correctly handle this
       model.setSelection(newSelection);
     } else {
       // move cursor to row below
