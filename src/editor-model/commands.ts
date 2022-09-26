@@ -401,7 +401,7 @@ function getClosestAtomToXPosition(
   mathfield: MathfieldPrivate,
   search: Atom[],
   x: number
-) {
+): Atom {
   let prevX = Infinity;
   let i = 0;
   for (; i < search.length; i++) {
@@ -409,7 +409,7 @@ function getClosestAtomToXPosition(
     const abs = Math.abs(x - toX);
 
     if (abs <= prevX) {
-      // minimise distance to fromX
+      // minimise distance to x
       prevX = abs;
     } else {
       // this element is further away
