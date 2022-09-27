@@ -9,7 +9,7 @@ import {
 
 import { GroupAtom } from '../core-atoms/group';
 import { BoxAtom } from '../core-atoms/box';
-import { ChoiceAtom } from 'core-atoms/choice';
+import { ChoiceAtom } from '../core-atoms/choice';
 import { PhantomAtom } from '../core-atoms/phantom';
 import { SizedDelimAtom } from '../core-atoms/delim';
 import { SpacingAtom } from '../core-atoms/spacing';

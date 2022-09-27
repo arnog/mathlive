@@ -1,11 +1,8 @@
-import { Atom, AtomJson, fromJson, ToLatexOptions } from 'core/atom';
-import { Box } from 'core/box';
-import { GlobalContext, Context } from 'core/context';
+import { Atom } from '../core/atom-class';
+import { AtomJson, fromJson, ToLatexOptions } from '../core/atom';
+import { Box } from '../core/box';
+import { GlobalContext, Context } from '../core/context';
 
-/**
- * A group that represents a raw LaTeX editing zone.
- * There is only one LatexGroupAtom at a time in an expression.
- */
 export class ChoiceAtom extends Atom {
   choices: Atom[][];
 

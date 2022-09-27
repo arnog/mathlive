@@ -5,6 +5,7 @@ import { ArrayAtom } from '../core-atoms/array';
 import { BoxAtom } from '../core-atoms/box';
 import { CompositionAtom } from '../core-atoms/composition';
 import { ChemAtom } from '../core-definitions/mhchem';
+import { ChoiceAtom } from '../core-atoms/choice';
 import { DelimAtom } from '../core-atoms/delim';
 import { EncloseAtom } from '../core-atoms/enclose';
 import { ErrorAtom } from '../core-atoms/error';
@@ -28,7 +29,6 @@ import { TextAtom } from '../core-atoms/text';
 
 import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
 import { GlobalContext } from './context';
-import { ChoiceAtom } from 'core-atoms/choice';
 
 export * from './atom-class';
 
