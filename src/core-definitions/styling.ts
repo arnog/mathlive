@@ -9,13 +9,14 @@ import {
 
 import { GroupAtom } from '../core-atoms/group';
 import { BoxAtom } from '../core-atoms/box';
+import { ChoiceAtom } from 'core-atoms/choice';
 import { PhantomAtom } from '../core-atoms/phantom';
 import { SizedDelimAtom } from '../core-atoms/delim';
 import { SpacingAtom } from '../core-atoms/spacing';
 import { LineAtom } from '../core-atoms/line';
 import { OverunderAtom } from '../core-atoms/overunder';
 import { OverlapAtom } from '../core-atoms/overlap';
-import { GenfracAtom } from '../core-atoms/genfrac';
+import '../core-atoms/genfrac';
 import { RuleAtom } from '../core-atoms/rule';
 import { OperatorAtom } from '../core-atoms/operator';
 import { MathstyleName } from '../core/mathstyle';
@@ -741,6 +742,15 @@ defineFunction('mathop', '{:auto}', {
       hasArgument: true,
       style,
     }),
+});
+
+defineFunction('mathchoice', '{:math}{:math}{:math}{:math}', {
+  createAtom: (
+    _command: string,
+    args: Argument[],
+    _style: PrivateStyle,
+    context: GlobalContext
+  ): Atom => new ChoiceAtom(args as Atom[][], context),
 });
 
 defineFunction(

@@ -138,6 +138,15 @@ kbd {
   white-space: pre-wrap;
 }
 
+.output > div {
+  white-space: pre-wrap;
+  margin-bottom: 1em;
+}
+
+.output > div:last-child {
+  margin-bottom: 0;
+}
+
 math-field {
   border: 1px solid var(--editable-border);
   padding: 5px;

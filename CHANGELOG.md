@@ -14,6 +14,8 @@
 - **#1640** An `input` event was dispatched when the value of the mathfield was
   changed programatically.
 - **#1330** Make MathLive `convertLatexToMarkup()` usable from Node.js
+- **#1641** Correctly render units in a chemical equation, e.g.
+  `\pu{123 kJ//mol}`.
 
 ## New Features
 
@@ -44,6 +46,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
   associated with a keybinding, or triggered with `mf.executeCommand()`.
 - To determine the offset (caret position) in a mathfield given a viewport
   coordinate, use `mf.offsetFromPoint()`.
+- **#1641** Support the `\mathchoice` command.
 
 ## 0.79.0 (2022-09-06)
 

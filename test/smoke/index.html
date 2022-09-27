@@ -15,30 +15,26 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf">{123}abc</math-field>
-      <!-- <math-field id="mf"
-        >{\sqrt{\sum_{n=1}^\infty {\frac{10}{n^4}}}} = {\int_0^\infty \frac{2x
-        dx}{e^x-1}} = \frac{\pi^2}{3} \in {\mathbb R}</math-field
-      > -->
+      <math-field id="mf">\pu{123 kJ//mol}</math-field>
 
-      <h2 style="margin-top: 1em">Selection</h2>
-      <div class="output" id="selection"></div>
-
-      <h2>LaTeX</h2>
+      <h2 style="margin-top: 1em">LaTeX</h2>
       <div class="output" id="latex"></div>
 
       <h2>MathJSON</h2>
-      <div class="output" id="math-json"></div>
+      <div class="output" style="white-space: nowrap">
+        <div id="math-json"></div>
+        <div id="result"></div>
+        <div id="result-latex"></div>
+      </div>
+
+      <h2>Selection</h2>
+      <div class="output" id="selection"></div>
 
       <h2>MathASCII</h2>
       <div class="output" id="mathascii"></div>
 
       <h2>MathML</h2>
       <div class="output" id="mathml"></div>
-
-      <h2>Result</h2>
-      <div class="output" id="result"></div>
-      <div id="result-latex"></div>
     </main>
 
     <script type="module">
@@ -150,7 +146,81 @@
       //   },
       // };
 
+      const mf = document.getElementById('mf');
+
+      mf.setOptions({
+        onInlineShortcut: (_mf, s) => {
+          if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+            const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
+            if (m) {
+              if (['alpha', 'beta', 'gamma'].includes(m[1]))
+                return `\\${m[1]}_{${m[2]}}`;
+              return `\\mathrm{${m[1]}}_{${m[2]}}`;
+            }
+            return '\\mathrm{' + s + '}';
+          }
+          return '';
+        },
+        // smartFence: true,
+        virtualKeyboardMode: 'manual',
+        // macros: {
+        //   ...mf.getOptions('macros'),
+        //   smolfrac: {
+        //     args: 2,
+        //     def: '{}^{#1}\\!\\!/\\!{}_{#2}',
+        //     captureSelection: false,
+        //   },
+        // },
+      });
+
+      // mf.addEventListener(
+      //   'keydown',
+      //   (ev) => {
+      //     if (ev.code === 'Escape') ev.preventDefault();
+      //   },
+      //   { capture: true }
+      // );
+
+      // mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
+      //   capture: true,
+      // });
+
+      // mf.setOptions({
+      //   keybindings: [
+      //     ...mf.getOptions('keybindings').filter((x) => x.key !== '[Escape]'),
+      //   ],
+      // });
+
+      // { key: '[Escape]', command: ['announce', 'plonk'] },
+
+      mf.addEventListener('input', (ev) => updateContent(mf));
+
+      mf.addEventListener('selection-change', (ev) => {
+        const selection = mf.selection;
+        document.getElementById('selection').innerHTML =
+          `${label('value     ')}"${escapeHtml(
+            mf.getValue(selection, 'latex')
+          )}"<br>` +
+          label('start     ') +
+          selection.ranges[0][0] +
+          '<br>' +
+          label('end       ') +
+          selection.ranges[0][1] +
+          '<br>' +
+          label('position  ') +
+          mf.position +
+          '<br>' +
+          label('direction ') +
+          '"' +
+          selection.direction +
+          '"<br>' +
+          label('depth     ') +
+          mf.getOffsetDepth(mf.position);
+      });
+
+      //
       // Handler called when the mathfield content has changed
+      //
       function updateContent(mf) {
         const latex = mf.getValue('latex-expanded');
         try {
@@ -193,78 +263,6 @@
             }[s] ?? s)
         );
       }
-
-      const mf = document.getElementById('mf');
-
-      mf.setOptions({
-        onInlineShortcut: (_mf, s) => {
-          if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
-            const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
-            if (m) {
-              if (['alpha', 'beta', 'gamma'].includes(m[1]))
-                return `\\${m[1]}_{${m[2]}}`;
-              return `\\mathrm{${m[1]}}_{${m[2]}}`;
-            }
-            return '\\mathrm{' + s + '}';
-          }
-          return '';
-        },
-        // smartFence: true,
-        virtualKeyboardMode: 'manual',
-        macros: {
-          ...mf.getOptions('macros'),
-          smolfrac: {
-            args: 2,
-            def: '{}^{#1}\\!\\!/\\!{}_{#2}',
-            captureSelection: false,
-          },
-        },
-      });
-
-      // mf.addEventListener(
-      //   'keydown',
-      //   (ev) => {
-      //     if (ev.code === 'Escape') ev.preventDefault();
-      //   },
-      //   { capture: true }
-      // );
-
-      // mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
-      //   capture: true,
-      // });
-
-      mf.setOptions({
-        keybindings: [
-          ...mf.getOptions('keybindings').filter((x) => x.key !== '[Escape]'),
-        ],
-      });
-
-      // { key: '[Escape]', command: ['announce', 'plonk'] },
-
-      mf.addEventListener('input', (ev) => updateContent(mf));
-
-      mf.addEventListener('selection-change', (ev) => {
-        const selection = mf.selection;
-        document.getElementById('selection').innerHTML =
-          `${label('value     ')}"${escapeHtml(
-            mf.getValue(selection, 'latex')
-          )}"<br>` +
-          label('start     ') +
-          selection.ranges[0][0] +
-          '<br>' +
-          label('end       ') +
-          selection.ranges[0][1] +
-          '<br>' +
-          label('position  ') +
-          mf.position +
-          '<br>' +
-          label('direction ') +
-          '"' +
-          selection.direction +
-          '"<br>' +
-          label('depth     ') +
-          mf.getOffsetDepth(mf.position);
-      });
 
       // First time update
       updateContent(mf);

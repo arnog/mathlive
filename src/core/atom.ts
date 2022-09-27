@@ -28,6 +28,7 @@ import { TextAtom } from '../core-atoms/text';
 
 import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
 import { GlobalContext } from './context';
+import { ChoiceAtom } from 'core-atoms/choice';
 
 export * from './atom-class';
 
@@ -55,6 +56,7 @@ export function fromJson(
   if (type === 'box') result = BoxAtom.fromJson(json, context);
   if (type === 'composition') result = CompositionAtom.fromJson(json, context);
   if (type === 'chem') result = ChemAtom.fromJson(json, context);
+  if (type === 'choice') result = ChoiceAtom.fromJson(json, context);
   if (type === 'delim') result = DelimAtom.fromJson(json, context);
   if (type === 'enclose') result = EncloseAtom.fromJson(json, context);
   if (type === 'error') result = ErrorAtom.fromJson(json, context);
