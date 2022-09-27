@@ -891,7 +891,7 @@ export class Atom {
   }
 
   get hasChildren(): boolean {
-    return this._branches && this.children.length > 0;
+    return Boolean(this._branches && this.children.length > 0);
   }
 
   get firstChild(): Atom {
