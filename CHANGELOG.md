@@ -13,6 +13,7 @@
 - **#1631** Hit-testing detection improvements
 - **#1640** An `input` event was dispatched when the value of the mathfield was
   changed programatically.
+- **#1330** Make MathLive `convertLatexToMarkup()` usable from Node.js
 
 ## New Features
 
