@@ -727,6 +727,45 @@ defineFunction(
   }
 );
 
+defineFunction(
+  [
+    'mkern',
+    'kern',
+    // mkern accepts `mu` as a unit. We're lenient and
+    // also accept it with `kern`
+  ],
+  '{width:glue}',
+  {
+    createAtom: (
+      name: string,
+      args: Argument[],
+      style: PrivateStyle,
+      context: GlobalContext
+    ): Atom =>
+      new SpacingAtom(
+        name,
+        style,
+        context,
+        (args[0] as Glue) ?? { glue: { dimension: 0 } }
+      ),
+  }
+);
+
+defineFunction('mspace', '{width:glue}', {
+  createAtom: (
+    name: string,
+    args: Argument[],
+    style: PrivateStyle,
+    context: GlobalContext
+  ): Atom =>
+    new SpacingAtom(
+      name,
+      style,
+      context,
+      (args[0] as Glue) ?? { glue: { dimension: 0 } }
+    ),
+});
+
 defineFunction('mathop', '{:auto}', {
   createAtom: (
     command: string,

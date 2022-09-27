@@ -16,6 +16,8 @@
 - **#1330** Make MathLive `convertLatexToMarkup()` usable from Node.js
 - **#1641** Correctly render units in a chemical equation, e.g.
   `\pu{123 kJ//mol}`.
+- **#1643** Physical units with multiplication are now rendered correctly, e.g.
+  `\pu{123 J*s}`.
 
 ## New Features
 
@@ -46,7 +48,8 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
   associated with a keybinding, or triggered with `mf.executeCommand()`.
 - To determine the offset (caret position) in a mathfield given a viewport
   coordinate, use `mf.offsetFromPoint()`.
-- **#1641** Support the `\mathchoice` command.
+- **#1641** Support for the `\mathchoice` command.
+- **#1643** Support for the `\kern`, `\mkern` and `\mspace` command.
 
 ## 0.79.0 (2022-09-06)
 
