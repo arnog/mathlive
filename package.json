@@ -95,7 +95,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.34.0",
-    "ts-jest": "^29.0.0",
+    "ts-jest": "^29.0.2",
     "typescript": "^4.8.3"
   },
   "keywords": [
