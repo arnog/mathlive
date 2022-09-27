@@ -1,3 +1,12 @@
+## [Unreleased]
+
+### Improvements
+
+- **#1639** When navigating with the keyboard from a numerator to a denominator,
+  the new position of the caret is determined visually so that the caret is
+  approximately in the same horizontal position. Previously, the position was
+  determined by position/index. Contributed by @manstie. Thank you!
+
 ## 0.80.0 (2022-09-27)
 
 ### Bug Fixes
