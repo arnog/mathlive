@@ -6,6 +6,9 @@
   the new position of the caret is determined visually so that the caret is
   approximately in the same horizontal position. Previously, the position was
   determined by position/index. Contributed by @manstie. Thank you!
+- Expose the `placeholders` property on `MathfieldElement` to get access to the
+  "fill-in-the-blank" mathfields, i.e.
+  `<math-field readonly>f(x)=\placeholder[var1]{x}</math-field>`
 
 ## 0.80.0 (2022-09-27)
 

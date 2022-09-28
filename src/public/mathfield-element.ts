@@ -752,6 +752,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield?.errors ?? [];
   }
 
+  get placeholders(): { [id: string]: MathfieldElement } {
+    if (!this._mathfield) return {};
+    const result = {};
+    for (const [key, value] of this._mathfield.placeholders)
+      result[key] = value.field;
+    return result;
+  }
+
   /**
    *  @category Options
    */
