@@ -9,6 +9,9 @@
 - Expose the `placeholders` property on `MathfieldElement` to get access to the
   "fill-in-the-blank" mathfields, i.e.
   `<math-field readonly>f(x)=\placeholder[var1]{x}</math-field>`
+- Don't apply smart superscript on big operators (e.g. `\sum`). Smart
+  superscript moves immediately out of the superscript if the input is a single
+  digit. Works well for, e.g. `x^2` but is less desirable with `\sum`.
 
 ## 0.80.0 (2022-09-27)
 

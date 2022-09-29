@@ -510,6 +510,7 @@ export function onTypedText(
         /\d/.test(c) &&
         mathfield.options.smartSuperscript &&
         atom.treeBranch === 'superscript' &&
+        atom.parent?.type !== 'mop' &&
         atom.hasNoSiblings
       ) {
         // We are inserting a digit into an empty superscript
