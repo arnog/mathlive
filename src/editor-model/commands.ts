@@ -1,5 +1,5 @@
 import type { ModelPrivate } from './model-private';
-import { MathfieldPrivate, getLocalDOMRect } from 'editor/mathfield';
+import { MathfieldPrivate, getLocalDOMRect } from '../editor/mathfield';
 import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from '../core-atoms/latex';
