@@ -273,7 +273,6 @@ export function convertLatexToSpeakableText(
  * To render a specific element, use {@linkcode renderMathInElement | renderMathInElement()}
  * ---
  *
- * Read {@tutorial getting-started | Getting Started}.
  *
  * @example
  * import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
@@ -304,10 +303,13 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
  * Transform all the children of `element` that contain LaTeX code
  * into typeset math, recursively.
  *
- * Read {@tutorial mathfield-getting-started | Getting Started}.
  *
  * @param element An HTML DOM element, or a string containing
  * the ID of an element.
+ *
+ * @example
+ * import { renderMathInElement } from 'https://unpkg.com/mathlive?module';
+ * document.addEventListener("load", () => renderMathInElement('formula));
  *
  * @category Rendering
  * @keywords render, element, htmlelement

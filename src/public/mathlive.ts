@@ -3,8 +3,6 @@
  * Use MathLive to render and edit mathematical formulas.
  *
  *
- * Read {@tutorial mathfield-getting-started | Getting Started} for more info.
- *
  * @example
  * <script type="module">
  * // Load the `Mathlive` module from a CDN

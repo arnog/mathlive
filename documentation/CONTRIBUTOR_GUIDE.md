@@ -2,7 +2,7 @@ This guide is for developers who want to contribute code to the project, or who
 need to modify or debug it.
 
 If you simply want to use MathLive in your project, see the
-[Getting Started](https://cortexjs.io/guides/mathfield-getting-started/) guide.
+[Getting Started](https://cortexjs.io/mathlive/guides/getting-started/) guide.
 
 ## Table of Contents
 
@@ -33,28 +33,21 @@ $ cd mathlive
 $ npm ci
 ```
 
-The `npm ci` command installs in the `mathlive/node_modules` directory all the
-Node modules necessary to build and test the MathLive SDK.
-
 Depending on your system setup, you may need to run as admin, in which case use
 `sudo npm ci` or equivalent.
 
-If your version of `npm` or `node` is out of date, you will be prompted to
-update.
+The `npm ci` command installs in the `mathlive/node_modules` directory all the
+Node modules necessary to build and test the MathLive SDK.
 
 Once the installation is successful, you can use the following commands:
 
 ```bash
-# Make a local build and watch source file changes and rebuid.
-# Run a local server (http://localhost:8080/examples/) to view
-# the examples and do some simple debugging
+# Make a local build and watch source file for changes.
+# Run a local server (http://localhost:8080/test/smoke/)
 $ npm start
 
 
-# Make a local development build
-# 1. Compile the `.css/.less` file to `build/*.css`
-# 2. Compile the TypeScript source files and create
-# a bundle with sourcemap in the `dist/` directory
+# Make a local development build in the `dist/` directory
 $ npm run build
 
 
@@ -67,8 +60,6 @@ $ npm test coverage
 
 
 # Create a production build to `dist/`.
-# The `dist/` folder will contain the `.js`, `.css` and
-# font files necessary to use MathLive.
 $ npm run build production
 
 ```
@@ -82,10 +73,6 @@ a rebuild. You'll need to stop and restart the `npm start` command.
 Run the test suite with `npm test` and linter `npm run lint` to make sure your
 changes are ready to submit, then push a PR to the main branch
 
-After you push your changes to `main`, a Travis continuous integration task will
-run on a remote server to make sure the build can be reproduced in a clean
-environment.
-
 ### Troubleshooting
 
 If you are getting build errors after updating your repo, your `node-modules/`
@@ -97,7 +84,7 @@ $ npm ci
 
 ## Deploy / Publish
 
-**Note**: only the owner of the project should deploy to NPM.
+**Note**: only maintainers of the project should deploy to NPM.
 
 You will need a `GH_PUBLIC_TOKEN` env variable set up with a "Personal Access
 Token" to publish the GitHub Release.
@@ -109,7 +96,6 @@ To publish a new version of the SDK:
 
 ```bash
 # Increase the version number of the SDK
-# and publish a GitHub release
 $ npm version [major | minor | patch]
 
 # Publish to NPM
@@ -141,12 +127,26 @@ The MathLive SDK consists of the following key directories:
 
 - `css/` the stylesheets and fonts
 - `sounds/` the default sound files
-- `src/core`, `src/core-atoms`, `src/core-definitions` the core JavaScript code
-  needed to render math. This module depends on the `css/` module.
-- `src/editor`, `src/editor-mathfield`, `src/editor-model` the JavaScript code
-  needed for the editor. This module depends on the `src/core*` modules.
-- `src/addons` some optional modules that provide additional functionality
 
+- `src/core` is what is necessary to handle the LaTeX: parsing it and displaying
+  in, as a general layout engine
+- `core-atoms` contain the code about the specific "kind" of atoms that can be
+  displayed (fractions, operators, groups, etc...)
+- `src/core-definitions` contains the code for the specific LaTeX commands that
+  are known by MathLive
+- `src/editor-model` is all the code that keeps track of the "state" of the
+  mathfield (its model), including the content and selection, and the code
+  necessary to modify it (insert/remove, etc...)
+- `src/editor` contains utilities to handle user interaction, including handling
+  of keybinding and shortcuts, localization, text-to-speech, virtual keyboard,
+  and "commands" that users can use programmatically to change the state of the
+  mathfield.
+- `src/editor-mathfield` is the outer layer that handles the user input, and
+  interaction with the DOM. This section is a bit messy, and arguably some
+  components could be moved elsewhere (the remote virtual keyboard support for
+  example is in there, it should probably be in editor
+- `src/public` contains the exposed API of MathLive, including the
+  MathfieldElement wrapper class.
 - the `dist/` directory contains executable build artifacts. If a file named
   "DEVELOPMENT_BUILD" is present in the directory, the content of the directory
   is suitable only for development purposes, not for production. This means the
