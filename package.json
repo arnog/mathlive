@@ -64,7 +64,7 @@
   ],
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.1.0",
-    "@cortex-js/compute-engine": "^0.6.0",
+    "@cortex-js/compute-engine": "^0.7.0",
     "@cortex-js/prettier-config": "^1.1.1",
     "@rollup/plugin-node-resolve": "^14.0.1",
     "@types/css-font-loading-module": "0.0.7",

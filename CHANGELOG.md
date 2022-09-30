@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Improvements
+
+- Update Compute Engine to 0.7.0
+
 ## 0.81.0 (2022-09-28)
 
 ### Improvements
