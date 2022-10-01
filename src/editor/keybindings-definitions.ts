@@ -448,7 +448,7 @@ export const REVERSE_KEYBINDINGS = {
   '\\forall': 'shift+alt+a',
   '\\exists': 'shift+alt+e',
   '\\infty': 'alt+[Digit5]',
-  '\\wedge': 'alt+[Digit5]',
+  '\\wedge': 'alt+[Digit6]',
   '\\vee': 'shift+alt+[Digit6]',
   '\\differentialD': 'alt+d',
   '\\partial': 'shift+alt+d',
