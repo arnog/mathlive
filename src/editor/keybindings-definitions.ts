@@ -366,13 +366,13 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'shift+ctrl+[Comma]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: 'addColumnAfter',
+    command: 'addColumnBefore',
   },
   {
     key: 'shift+cmd+[Comma]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: 'addColumnAfter',
+    command: 'addColumnBefore',
   },
   {
     key: 'alt+[Digit5]',
