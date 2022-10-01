@@ -1,3 +1,21 @@
+## [Unreleased]
+
+### Improvements
+
+- When navigating with the keyboard from a numerator to a denominator (or any
+  above/below branch), determine the new position of the caret visually, rather
+  than by its index in the subexpression. Contributed by @manstie
+- Commands and key bindings to manipulate array/matrix:
+
+  | Key Binding                                                           | Command           |
+  | :-------------------------------------------------------------------- | :---------------- |
+  | <kbd>ctrl/⌘</kbd>+<kbd>;</kbd><br><kbd>ctrl/⌘</kbd>+<kbd>RETURN</kbd> | `addRowAfter`     |
+  | <kbd>ctrl/⌘</kbd>+<kbd>shift</kbd>+<kbd>;</kbd>                       | `addRowBefore`    |
+  | <kbd>ctrl/⌘</kbd>+<kbd>,</kbd>                                        | `addColumnAfter`  |
+  | <kbd>ctrl/⌘</kbd>+<kbd>shift</kbd>+<kbd>,</kbd>                       | `addColumnBefore` |
+
+  Contributed by @manstie
+
 ## 0.82.0 (2022-09-30)
 
 ### Improvements
@@ -8,10 +26,11 @@
 
 ### Improvements
 
-- **#1639** When navigating with the keyboard from a numerator to a denominator,
-  the new position of the caret is determined visually so that the caret is
-  approximately in the same horizontal position. Previously, the position was
-  determined by position/index. Contributed by @manstie. Thank you!
+- **#1639** When navigating with the keyboard from a cell in a matrix to another
+  cell above or below, the new position of the caret is determined visually so
+  that the caret is approximately in the same horizontal position. Previously,
+  the position was determined by position/index. Contributed by @manstie. Thank
+  you!
 - Expose the `placeholders` property on `MathfieldElement` to get access to the
   "fill-in-the-blank" mathfields, i.e.
   `<math-field readonly>f(x)=\placeholder[var1]{x}</math-field>`
