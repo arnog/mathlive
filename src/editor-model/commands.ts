@@ -419,6 +419,47 @@ function getClosestAtomToXPosition(
   return search[i - 1];
 }
 
+function moveToClosestAtomVertically(
+  model: ModelPrivate,
+  fromAtom: Atom,
+  toAtoms: Atom[],
+  extend: boolean,
+  direction: 'up' | 'down'
+) {
+  // calculate best atom to put cursor at based on real x coordinate
+  const fromX = getLocalDOMRect(model.mathfield.getHTMLElement(fromAtom)).right;
+  const targetSelection = model.offsetOf(
+    getClosestAtomToXPosition(model.mathfield, toAtoms, fromX)
+  );
+
+  if (extend) {
+    const [left, right] = model.selection.ranges[0];
+
+    let newSelection: Selection;
+    const cmp = direction === 'up' ? left : right;
+    if (targetSelection < cmp) {
+      // extending selection upwards / reducing selection downwards
+      newSelection = {
+        ranges: [[targetSelection, right]],
+        direction: 'backward',
+      };
+    } else {
+      // reducing selection upwards / extending selection downwards
+      newSelection = {
+        ranges: [[left, targetSelection]],
+        direction: 'forward',
+      };
+    }
+
+    model.setSelection(newSelection);
+  } else {
+    // move cursor
+    setPositionHandlingPlaceholder(model, targetSelection);
+  }
+
+  model.announce(`move ${direction}`);
+}
+
 function moveUpward(
   model: ModelPrivate,
   options?: { extend: boolean }
@@ -446,57 +487,13 @@ function moveUpward(
     const arrayAtom = atom.parent;
     const rowAbove = Math.max(0, atom.treeBranch[0] - 1);
     const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
-    // calculate best atom to put cursor at based on real x coordinate
-    const fromX = getLocalDOMRect(
-      model.mathfield.getHTMLElement(baseAtom)
-    ).right;
-    const targetSelection = model.offsetOf(
-      getClosestAtomToXPosition(model.mathfield, aboveCell, fromX)
-    );
-
-    if (extend) {
-      const [left, right] = model.selection.ranges[0];
-
-      let newSelection: Selection;
-      if (targetSelection < left) {
-        // extending selection upwards
-        newSelection = {
-          ranges: [[targetSelection, right]],
-          direction: 'backward',
-        };
-      } else {
-        // reducing selection upwards
-        newSelection = {
-          ranges: [[left, targetSelection]],
-          direction: 'forward',
-        };
-      }
-      model.setSelection(newSelection);
-    } else {
-      // move cursor to row above
-      setPositionHandlingPlaceholder(model, targetSelection);
-    }
-
-    model.announce('move up');
+    moveToClosestAtomVertically(model, baseAtom, aboveCell, extend, 'up');
   } else if (atom) {
-    if (extend) {
-      model.setSelection(
-        model.offsetOf(atom.parent!.leftSibling),
-        model.offsetOf(atom.parent!)
-      );
-    } else {
-      // If branch doesn't exist, create it
-      const branch =
-        atom.parent!.branch('above') ?? atom.parent!.createBranch('above');
+    // If branch doesn't exist, create it
+    const branch =
+      atom.parent!.branch('above') ?? atom.parent!.createBranch('above');
 
-      // Move to the last atom of the branch
-      setPositionHandlingPlaceholder(
-        model,
-        model.offsetOf(branch[branch.length - 1])
-      );
-    }
-
-    model.announce('move up');
+    moveToClosestAtomVertically(model, baseAtom, branch, extend, 'up');
   } else {
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
@@ -547,57 +544,13 @@ function moveDownward(
       atom.treeBranch[0] + 1
     );
     const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
-    // calculate best atom to put cursor at based on real x coordinate
-    const fromX = getLocalDOMRect(
-      model.mathfield.getHTMLElement(baseAtom)
-    ).right;
-    const targetSelection = model.offsetOf(
-      getClosestAtomToXPosition(model.mathfield, belowCell, fromX)
-    );
-
-    if (extend) {
-      const [left, right] = model.selection.ranges[0];
-
-      let newSelection: Selection;
-      if (targetSelection < right) {
-        // reducing selection downwards
-        newSelection = {
-          ranges: [[targetSelection, right]],
-          direction: 'backward',
-        };
-      } else {
-        // extending selection downwards
-        newSelection = {
-          ranges: [[left, targetSelection]],
-          direction: 'forward',
-        };
-      }
-      model.setSelection(newSelection);
-    } else {
-      // move cursor to row below
-      setPositionHandlingPlaceholder(model, targetSelection);
-    }
-
-    model.announce('move down');
+    moveToClosestAtomVertically(model, baseAtom, belowCell, extend, 'down');
   } else if (atom) {
-    if (extend) {
-      model.setSelection(
-        model.offsetOf(atom.parent!.leftSibling),
-        model.offsetOf(atom.parent!)
-      );
-    } else {
-      // If branch doesn't exist, create it
-      const branch =
-        atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
+    // If branch doesn't exist, create it
+    const branch =
+      atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
 
-      // Move to the last atom of the branch
-      setPositionHandlingPlaceholder(
-        model,
-        model.offsetOf(branch[branch.length - 1])
-      );
-    }
-
-    model.announce('move down');
+    moveToClosestAtomVertically(model, baseAtom, branch, extend, 'down');
   } else {
     let result = true; // `true` => perform default handling
     if (!model.suppressChangeNotifications) {
