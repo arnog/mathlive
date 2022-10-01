@@ -622,26 +622,79 @@ export class ArrayAtom extends Atom {
     this.isDirty = true;
   }
 
-  addRowBefore(_row: number): void {
+  addRowBefore(row: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
-    // @todo array
+    const newRow: Atom[][] = [];
+    for (let i = 0; i < this.colCount; i++) {
+      newRow.push(makePlaceholderCell(this));
+    }
+    this.array.splice(row, 0, newRow);
+    for (let i = row; i < this.rowCount; i++) {
+      for (let j = 0; j < this.colCount; j++) {
+        const atoms = this.array[i][j];
+        if (atoms) {
+          for (const atom of atoms) {
+            atom.treeBranch = [i, j];
+          }
+        }
+      }
+    }
     this.isDirty = true;
   }
 
-  addRowAfter(_row: number): void {
+  addRowAfter(row: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
-    // @todo array
+    const newRow: Atom[][] = [];
+    for (let i = 0; i < this.colCount; i++) {
+      newRow.push(makePlaceholderCell(this));
+    }
+    this.array.splice(row + 1, 0, newRow);
+    for (let i = row + 1; i < this.rowCount; i++) {
+      for (let j = 0; j < this.colCount; j++) {
+        const atoms = this.array[i][j];
+        if (atoms) {
+          for (const atom of atoms) {
+            atom.treeBranch = [i, j];
+          }
+        }
+      }
+    }
     this.isDirty = true;
   }
 
-  addColumnBefore(_col: number): void {
+  addColumnBefore(col: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
+    for (const row of this.array) {
+      row.splice(col, 0, makePlaceholderCell(this));
+    }
+    for (let i = 0; i < this.rowCount; i++) {
+      for (let j = col; j < this.colCount; j++) {
+        const atoms = this.array[i][j];
+        if (atoms) {
+          for (const atom of atoms) {
+            atom.treeBranch = [i, j];
+          }
+        }
+      }
+    }
     this.isDirty = true;
   }
 
-  addColumnAfter(_col: number): void {
+  addColumnAfter(col: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
-    // @todo array
+    for (const row of this.array) {
+      row.splice(col + 1, 0, makePlaceholderCell(this));
+    }
+    for (let i = 0; i < this.rowCount; i++) {
+      for (let j = col + 1; j < this.colCount; j++) {
+        const atoms = this.array[i][j];
+        if (atoms) {
+          for (const atom of atoms) {
+            atom.treeBranch = [i, j];
+          }
+        }
+      }
+    }
     this.isDirty = true;
   }
 
@@ -653,9 +706,22 @@ export class ArrayAtom extends Atom {
     return result;
   }
 }
+
+/**
+ * Create a matrix cell with a placeholder atom in it.
+ */
+function makePlaceholderCell(parent: ArrayAtom): Atom[] {
+  const first = new Atom('first', parent.context, { mode: parent.mode });
+  first.parent = parent;
+  const placeholder = new PlaceholderAtom(parent.context, {
+    mode: parent.mode,
+  });
+  placeholder.parent = parent;
+  return [first, placeholder];
+}
+
 /**
  * Create a column separator box.
- *
  */
 function makeColGap(width: number): Box {
   const separator = new Box(null, { classes: 'arraycolsep' });
