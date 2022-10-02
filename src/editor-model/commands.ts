@@ -377,24 +377,11 @@ export function move(
     //
     // 3. Handle placeholder
     //
-    setPositionHandlingPlaceholder(model, pos);
+    model.setPositionHandlingPlaceholder(pos);
   }
 
   model.announce('move', previousPosition);
   return true;
-}
-
-function setPositionHandlingPlaceholder(
-  model: ModelPrivate,
-  pos: Offset
-): void {
-  if (model.at(pos)?.type === 'placeholder') {
-    // We're going right of a placeholder: select it
-    model.setSelection(pos - 1, pos);
-  } else if (model.at(pos)?.rightSibling?.type === 'placeholder') {
-    // We're going left of a placeholder: select it
-    model.setSelection(pos, pos + 1);
-  } else model.position = pos;
 }
 
 function getClosestAtomToXPosition(
@@ -454,7 +441,7 @@ function moveToClosestAtomVertically(
     model.setSelection(newSelection);
   } else {
     // move cursor
-    setPositionHandlingPlaceholder(model, targetSelection);
+    model.setPositionHandlingPlaceholder(targetSelection);
   }
 
   model.announce(`move ${direction}`);

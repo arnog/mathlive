@@ -349,6 +349,16 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: 'addRowBefore',
   },
+  {
+    key: 'ctrl+[Backspace]',
+    ifMode: 'math',
+    command: 'removeRow',
+  },
+  {
+    key: 'cmd+[Backspace]',
+    ifMode: 'math',
+    command: 'removeRow',
+  },
 
   {
     key: 'ctrl+[Comma]',
@@ -374,6 +384,12 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: 'addColumnBefore',
   },
+  {
+    key: 'shift+[Backspace]',
+    ifMode: 'math',
+    command: 'removeColumn',
+  },
+
   {
     key: 'alt+[Digit5]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],

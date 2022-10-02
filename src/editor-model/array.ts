@@ -141,7 +141,6 @@ function addCell(
         pos = model.offsetOf(
           arrayAtom.getCell(atom.treeBranch[0], atom.treeBranch[1] + 1)![0]
         );
-        model.setSelection(pos, pos + 1);
         break;
 
       case 'before row':
@@ -188,12 +187,70 @@ export function addColumnBefore(model: ModelPrivate): boolean {
   return true;
 }
 
+/**
+ * Internal primitive to remove a column/row in a matrix
+ */
+function removeCell(model: ModelPrivate, where: 'row' | 'column'): void {
+  // This command is only applicable if we're in an ArrayAtom
+  let atom = model.at(model.position);
+
+  while (
+    atom &&
+    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
+  )
+    atom = atom.parent!;
+
+  if (Array.isArray(atom?.treeBranch) && atom?.parent instanceof ArrayAtom) {
+    const arrayAtom = atom.parent;
+    const treeBranch = atom.treeBranch;
+    let pos: number | undefined;
+    switch (where) {
+      case 'row':
+        if (arrayAtom.rowCount > 1) {
+          arrayAtom.removeRow(treeBranch[0]);
+          pos = model.offsetOf(
+            arrayAtom.getCell(Math.max(0, treeBranch[0] - 1), treeBranch[1])![0]
+          );
+        }
+        break;
+
+      case 'column':
+        if (arrayAtom.colCount > 1) {
+          arrayAtom.removeColumn(treeBranch[1]);
+          pos = model.offsetOf(
+            arrayAtom.getCell(treeBranch[0], Math.max(0, treeBranch[1] - 1))![0]
+          );
+        }
+        break;
+    }
+    if (pos) {
+      model.setPositionHandlingPlaceholder(pos);
+    }
+  }
+}
+
+export function removeRow(model: ModelPrivate): boolean {
+  if (!contentWillChange(model, { inputType: 'deleteContent' })) return false;
+  removeCell(model, 'row');
+  contentDidChange(model, { inputType: 'deleteContent' });
+  return true;
+}
+
+export function removeColumn(model: ModelPrivate): boolean {
+  if (!contentWillChange(model, { inputType: 'deleteContent' })) return false;
+  removeCell(model, 'column');
+  contentDidChange(model, { inputType: 'deleteContent' });
+  return true;
+}
+
 registerCommand(
   {
     addRowAfter,
     addColumnAfter,
     addRowBefore,
     addColumnBefore,
+    removeRow,
+    removeColumn,
   },
   { target: 'model', category: 'array-edit' }
 );

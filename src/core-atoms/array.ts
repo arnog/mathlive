@@ -662,6 +662,35 @@ export class ArrayAtom extends Atom {
     this.isDirty = true;
   }
 
+  removeRow(row: number): void {
+    console.assert(
+      this.type === 'array' && Array.isArray(this.array) && this.rowCount > row
+    );
+
+    const deleted = this.array.splice(row, 1);
+    for (const column of deleted) {
+      for (const cell of column) {
+        if (cell) {
+          for (const child of cell) {
+            child.parent = undefined;
+            child.treeBranch = undefined;
+          }
+        }
+      }
+    }
+    for (let i = row; i < this.rowCount; i++) {
+      for (let j = 0; j < this.colCount; j++) {
+        const atoms = this.array[i][j];
+        if (atoms) {
+          for (const atom of atoms) {
+            atom.treeBranch = [i, j];
+          }
+        }
+      }
+    }
+    this.isDirty = true;
+  }
+
   addColumnBefore(col: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
     for (const row of this.array) {
@@ -687,6 +716,34 @@ export class ArrayAtom extends Atom {
     }
     for (let i = 0; i < this.rowCount; i++) {
       for (let j = col + 1; j < this.colCount; j++) {
+        const atoms = this.array[i][j];
+        if (atoms) {
+          for (const atom of atoms) {
+            atom.treeBranch = [i, j];
+          }
+        }
+      }
+    }
+    this.isDirty = true;
+  }
+
+  removeColumn(col: number): void {
+    console.assert(
+      this.type === 'array' && Array.isArray(this.array) && this.colCount > col
+    );
+    for (const row of this.array) {
+      const deleted = row.splice(col, 1);
+      for (const cell of deleted) {
+        if (cell) {
+          for (const child of cell) {
+            child.parent = undefined;
+            child.treeBranch = undefined;
+          }
+        }
+      }
+    }
+    for (let i = 0; i < this.rowCount; i++) {
+      for (let j = col; j < this.colCount; j++) {
         const atoms = this.array[i][j];
         if (atoms) {
           for (const atom of atoms) {
