@@ -535,6 +535,7 @@ export class ArrayAtom extends Atom {
     ) {
       // There are no delimiters around the array, just return what
       // we've built so far.
+      if (this.caret) inner.caret = this.caret;
       return inner;
     }
 
