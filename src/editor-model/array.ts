@@ -208,18 +208,22 @@ function removeCell(model: ModelPrivate, where: 'row' | 'column'): void {
       case 'row':
         if (arrayAtom.rowCount > 1) {
           arrayAtom.removeRow(treeBranch[0]);
-          pos = model.offsetOf(
-            arrayAtom.getCell(Math.max(0, treeBranch[0] - 1), treeBranch[1])![0]
-          );
+          const cell = arrayAtom.getCell(
+            Math.max(0, treeBranch[0] - 1),
+            treeBranch[1]
+          )!;
+          pos = model.offsetOf(cell[cell.length - 1]);
         }
         break;
 
       case 'column':
         if (arrayAtom.colCount > 1) {
           arrayAtom.removeColumn(treeBranch[1]);
-          pos = model.offsetOf(
-            arrayAtom.getCell(treeBranch[0], Math.max(0, treeBranch[1] - 1))![0]
-          );
+          const cell = arrayAtom.getCell(
+            treeBranch[0],
+            Math.max(0, treeBranch[1] - 1)
+          )!;
+          pos = model.offsetOf(cell[cell.length - 1]);
         }
         break;
     }
