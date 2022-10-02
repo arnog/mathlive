@@ -16,6 +16,11 @@
 
   Contributed by @manstie
 
+### Bug Fixes
+
+- The caret after an environment without fences (e.g. `matrix`, `aligned`, etc)
+  would not be displayed.
+
 ## 0.82.0 (2022-09-30)
 
 ### Improvements

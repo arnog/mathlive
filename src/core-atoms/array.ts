@@ -626,18 +626,14 @@ export class ArrayAtom extends Atom {
   addRowBefore(row: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
     const newRow: Atom[][] = [];
-    for (let i = 0; i < this.colCount; i++) {
+    for (let i = 0; i < this.colCount; i++)
       newRow.push(makePlaceholderCell(this));
-    }
+
     this.array.splice(row, 0, newRow);
     for (let i = row; i < this.rowCount; i++) {
       for (let j = 0; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) {
-          for (const atom of atoms) {
-            atom.treeBranch = [i, j];
-          }
-        }
+        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -646,18 +642,14 @@ export class ArrayAtom extends Atom {
   addRowAfter(row: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
     const newRow: Atom[][] = [];
-    for (let i = 0; i < this.colCount; i++) {
+    for (let i = 0; i < this.colCount; i++)
       newRow.push(makePlaceholderCell(this));
-    }
+
     this.array.splice(row + 1, 0, newRow);
     for (let i = row + 1; i < this.rowCount; i++) {
       for (let j = 0; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) {
-          for (const atom of atoms) {
-            atom.treeBranch = [i, j];
-          }
-        }
+        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -665,17 +657,12 @@ export class ArrayAtom extends Atom {
 
   addColumnBefore(col: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
-    for (const row of this.array) {
-      row.splice(col, 0, makePlaceholderCell(this));
-    }
+    for (const row of this.array) row.splice(col, 0, makePlaceholderCell(this));
+
     for (let i = 0; i < this.rowCount; i++) {
       for (let j = col; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) {
-          for (const atom of atoms) {
-            atom.treeBranch = [i, j];
-          }
-        }
+        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -683,17 +670,13 @@ export class ArrayAtom extends Atom {
 
   addColumnAfter(col: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
-    for (const row of this.array) {
+    for (const row of this.array)
       row.splice(col + 1, 0, makePlaceholderCell(this));
-    }
+
     for (let i = 0; i < this.rowCount; i++) {
       for (let j = col + 1; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) {
-          for (const atom of atoms) {
-            atom.treeBranch = [i, j];
-          }
-        }
+        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
       }
     }
     this.isDirty = true;
