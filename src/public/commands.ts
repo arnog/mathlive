@@ -150,6 +150,14 @@ export interface Commands {
    * @category Array
    */
   addColumnBefore: (model: Model) => boolean;
+  /**
+   * @category Array
+   */
+  removeRow: (model: Model) => boolean;
+  /**
+   * @category Array
+   */
+  removeColumn: (model: Model) => boolean;
 
   /**
    * @category Deleting
