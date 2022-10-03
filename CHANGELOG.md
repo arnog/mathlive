@@ -13,8 +13,12 @@
   | <kbd>ctrl/⌘</kbd>+<kbd>shift</kbd>+<kbd>;</kbd>                       | `addRowBefore`    |
   | <kbd>ctrl/⌘</kbd>+<kbd>,</kbd>                                        | `addColumnAfter`  |
   | <kbd>ctrl/⌘</kbd>+<kbd>shift</kbd>+<kbd>,</kbd>                       | `addColumnBefore` |
+  | <kbd>ctrl/⌘</kbd>+<kbd>**BACKSPACE**</kbd>                            | `removeRow`       |
+  | <kbd>shift</kbd>+<kbd>**BACKSPACE**</kbd>                             | `removeColumn`    |
 
   Contributed by @manstie
+
+- Updated to Compute Engine 0.8
 
 ### Bug Fixes
 

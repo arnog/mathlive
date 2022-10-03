@@ -8,7 +8,7 @@ import { register as registerCommand } from '../editor/commands';
 import type { ModelPrivate } from './model-private';
 import { contentDidChange, contentWillChange } from './listeners';
 import { arrayIndex, arrayCell } from './array-utils';
-import { ArrayAtom } from 'core-atoms/array';
+import { ArrayAtom } from '../core-atoms/array';
 export * from './array-utils';
 
 /**
