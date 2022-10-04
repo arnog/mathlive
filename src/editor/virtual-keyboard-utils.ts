@@ -133,7 +133,7 @@ export function showAlternateKeys(
   //
   if (!Scrim.scrim) Scrim.scrim = new Scrim();
   Scrim.scrim.open({
-    root: keyboard.options.virtualKeyboardContainer,
+    root: document.body,
     child: altContainer,
   });
 

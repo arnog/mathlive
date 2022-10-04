@@ -227,9 +227,7 @@ function removeCell(model: ModelPrivate, where: 'row' | 'column'): void {
         }
         break;
     }
-    if (pos) {
-      model.setPositionHandlingPlaceholder(pos);
-    }
+    if (pos) model.setPositionHandlingPlaceholder(pos);
   }
 }
 

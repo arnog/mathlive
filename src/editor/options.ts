@@ -19,6 +19,7 @@ import { defaultSpeakHook } from './speech';
 import { defaultReadAloudHook } from './speech-read-aloud';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
+import { reevaluateBreakpoints } from './reevaluateBreakpoints';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -206,6 +207,7 @@ export function update(
         break;
       case 'virtualKeyboardContainer':
         result.virtualKeyboardContainer = updates.virtualKeyboardContainer!;
+        reevaluateBreakpoints(result.virtualKeyboardContainer);
         break;
 
       case 'macros':

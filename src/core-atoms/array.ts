@@ -674,11 +674,7 @@ export class ArrayAtom extends Atom {
     for (let i = row; i < this.rowCount; i++) {
       for (let j = 0; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) {
-          for (const atom of atoms) {
-            atom.treeBranch = [i, j];
-          }
-        }
+        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -729,11 +725,7 @@ export class ArrayAtom extends Atom {
     for (let i = 0; i < this.rowCount; i++) {
       for (let j = col; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) {
-          for (const atom of atoms) {
-            atom.treeBranch = [i, j];
-          }
-        }
+        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
       }
     }
     this.isDirty = true;

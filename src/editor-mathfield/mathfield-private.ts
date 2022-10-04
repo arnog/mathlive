@@ -117,6 +117,7 @@ import {
   defaultGetDefinition,
   getMacroDefinition,
 } from '../core/context-utils';
+import { reevaluateBreakpoints } from '../editor/reevaluateBreakpoints';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -292,13 +293,13 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // events as this has the side effect of triggering the OS virtual keyboard
     // which we want to avoid
     let markup = '<span class=ML__textarea>';
-    if (isTouchCapable())
-      markup += `<span class=ML__textarea__textarea tabindex=-1 role=textbox></span>`;
-    else {
-      markup += `<textarea class=ML__textarea__textarea autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none aria-hidden="true" tabindex="${
-        element.tabIndex ?? 0
-      }"></textarea>`;
-    }
+    // if (isTouchCapable())
+    //   markup += `<span class=ML__textarea__textarea tabindex=-1 role=textbox></span>`;
+    // else {
+    markup += `<textarea class=ML__textarea__textarea autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none aria-hidden="true" tabindex="${
+      element.tabIndex ?? 0
+    }"></textarea>`;
+    // }
     markup += '</span>';
 
     // 2/ The field, where the math equation will be displayed
@@ -1447,7 +1448,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     )
       this.executeCommand('hideVirtualKeyboard');
 
-    this.virtualKeyboard?.disable();
+    // this.virtualKeyboard?.disable();
 
     this.host?.dispatchEvent(
       new Event('blur', {
@@ -1487,6 +1488,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   private onResize(): void {
+    reevaluateBreakpoints(this.options.virtualKeyboardContainer!);
     updatePopoverPosition(this);
   }
 
