@@ -1,6 +1,7 @@
 import { Dimension } from '../public/core';
 
-import type { Atom } from '../core/atom-class';
+import { Atom } from '../core/atom-class';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { ArrayAtom, ColumnFormat } from '../core-atoms/array';
 import { GlobalContext } from '../core/context';
 
@@ -161,8 +162,16 @@ defineEnvironment(
     name: string,
     array: Atom[][][],
     rowGaps: Dimension[]
-  ): Atom =>
-    new ArrayAtom(context, name, array, rowGaps, { mathstyleName: 'textstyle' })
+  ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
+    return new ArrayAtom(context, name, array, rowGaps, {
+      mathstyleName: 'textstyle',
+    });
+  }
 );
 
 defineEnvironment(
@@ -173,8 +182,16 @@ defineEnvironment(
     name: string,
     array: Atom[][][],
     rowGaps: Dimension[]
-  ): Atom =>
-    new ArrayAtom(context, name, array, rowGaps, { mathstyleName: 'textstyle' })
+  ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
+    return new ArrayAtom(context, name, array, rowGaps, {
+      mathstyleName: 'textstyle',
+    });
+  }
 );
 
 defineTabularEnvironment(
@@ -186,11 +203,17 @@ defineTabularEnvironment(
     array: Atom[][][],
     rowGaps: Dimension[],
     args
-  ): Atom =>
-    new ArrayAtom(context, name, array, rowGaps, {
+  ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
+    return new ArrayAtom(context, name, array, rowGaps, {
       columns: args[0] as ColumnFormat[],
       mathstyleName: 'textstyle',
-    })
+    });
+  }
 );
 
 defineTabularEnvironment(
@@ -201,8 +224,16 @@ defineTabularEnvironment(
     name: string,
     array: Atom[][][],
     rowGaps: Dimension[]
-  ): Atom =>
-    new ArrayAtom(context, name, array, rowGaps, { columns: [{ align: 'c' }] })
+  ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
+    return new ArrayAtom(context, name, array, rowGaps, {
+      columns: [{ align: 'c' }],
+    });
+  }
 );
 
 // Note spelling: MULTLINE, not multiline.
@@ -214,8 +245,16 @@ defineTabularEnvironment(
     name: string,
     array: Atom[][][],
     rowGaps: Dimension[]
-  ): Atom =>
-    new ArrayAtom(context, name, array, rowGaps, { columns: [{ align: 'm' }] })
+  ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
+    return new ArrayAtom(context, name, array, rowGaps, {
+      columns: [{ align: 'm' }],
+    });
+  }
 );
 
 // An AMS-Math environment
@@ -236,6 +275,15 @@ defineTabularEnvironment(
     rowGaps: Dimension[]
   ): Atom => {
     let colCount = 0;
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [
+        [
+          [new Atom('first', context), new PlaceholderAtom(context)],
+          [new Atom('first', context), new PlaceholderAtom(context)],
+        ],
+      ];
+    }
     for (const row of array) colCount = Math.max(colCount, row.length);
 
     const colFormat: ColumnFormat[] = [
@@ -260,6 +308,7 @@ defineTabularEnvironment(
       columns: colFormat,
       colSeparationType: 'align',
       jot: 0.3,
+      minColumns: 2,
     });
   }
 );
@@ -284,10 +333,21 @@ defineTabularEnvironment(
     name: string,
     array: Atom[][][],
     rowGaps: Dimension[]
-  ): Atom =>
-    new ArrayAtom(context, name, array, rowGaps, {
+  ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [
+        [
+          [new Atom('first', context), new PlaceholderAtom(context)],
+          [new Atom('first', context), new PlaceholderAtom(context)],
+        ],
+      ];
+    }
+    return new ArrayAtom(context, name, array, rowGaps, {
       columns: [{ align: 'r' }, { align: 'l' }],
-    })
+      minColumns: 2,
+    });
+  }
 );
 
 defineTabularEnvironment(
@@ -298,7 +358,7 @@ defineTabularEnvironment(
     name: string,
     array: Atom[][][],
     rowGaps: Dimension[]
-  ): Atom =>
+  ): Atom => {
     // An AMS-Math environment
     // %    The \env{gathered} environment is for several lines that are
     // %    centered independently.
@@ -310,10 +370,17 @@ defineTabularEnvironment(
     //   \bgroup\Let@\restore@math@cr
     //   \ifinany@\else\openup\jot\fi\ialign
     //   \bgroup\hfil\strut@$\m@th\displaystyle##$\hfil\crcr
-    new ArrayAtom(context, name, array, rowGaps, {
+
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
+    return new ArrayAtom(context, name, array, rowGaps, {
       columns: [{ gap: 0.25 }, { align: 'c' }, { gap: 0 }],
       colSeparationType: 'gather',
-    })
+    });
+  }
 );
 
 // DefineEnvironment('cardinality', '',  function() {
@@ -349,6 +416,11 @@ defineTabularEnvironment(
     rowGaps: Dimension[],
     args
   ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
     // From amstex.sty:
     // \def\matrix{\hskip -\arraycolsep\array{*\c@MaxMatrixCols c}}
     // \def\endmatrix{\endarray \hskip -\arraycolsep}
@@ -425,6 +497,11 @@ defineTabularEnvironment(
     rowGaps: Dimension[],
     args
   ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
     return new ArrayAtom(context, name, array, rowGaps, {
       mathstyleName: 'scriptstyle',
       columns: (args[0] as ColumnFormat[]) ?? [
@@ -466,6 +543,12 @@ defineTabularEnvironment(
     //   \left\lbrace
     //   \def\arraystretch{1.2}%
     //   \array{@{}l@{\quad}l@{}}%
+
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
     return new ArrayAtom(context, name, array, rowGaps, {
       mathstyleName: name === 'dcases' ? 'displaystyle' : 'textstyle',
       arraystretch: 1.2,
@@ -486,6 +569,11 @@ defineTabularEnvironment(
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
     return new ArrayAtom(context, name, array, rowGaps, {
       arraystretch: 1.2,
       leftDelim: '.',
@@ -514,6 +602,20 @@ defineEnvironment(
     name: string,
     array: Atom[][][],
     rowGaps: Dimension[]
-  ): Atom =>
-    new ArrayAtom(context, name, array, rowGaps, { columns: [{ align: 'c' }] })
+  ): Atom => {
+    if (isEnvironmentEmpty(array)) {
+      // set default contents
+      array = [[[new Atom('first', context), new PlaceholderAtom(context)]]];
+    }
+
+    return new ArrayAtom(context, name, array, rowGaps, {
+      columns: [{ align: 'c' }],
+    });
+  }
 );
+
+function isEnvironmentEmpty(array: Atom[][][]) {
+  let atoms = 0;
+  for (const row of array) for (const col of row) atoms += col.length;
+  return atoms === 0;
+}
