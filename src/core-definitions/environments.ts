@@ -615,7 +615,7 @@ defineEnvironment(
 );
 
 function isEnvironmentEmpty(array: Atom[][][]) {
-  let atoms = 0;
-  for (const row of array) for (const col of row) atoms += col.length;
-  return atoms === 0;
+  for (const row of array)
+    for (const col of row) if (col.length > 0) return false;
+  return true;
 }
