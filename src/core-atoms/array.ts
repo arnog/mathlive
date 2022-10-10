@@ -250,7 +250,7 @@ export class ArrayAtom extends Atom {
     this.colSeparationType = options.colSeparationType;
     // Default \arraystretch from lttab.dtx
     this.arraystretch = options.arraystretch ?? 1.0;
-    this.minColumns = options.minColumns || 1;
+    this.minColumns = options.minColumns ?? 1;
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): ArrayAtom {

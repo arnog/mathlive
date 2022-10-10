@@ -140,8 +140,10 @@ function addCell(
         if (
           arrayAtom.colFormat.filter((col) => Boolean(col['align'])).length <=
           arrayAtom.colCount
-        )
+        ) {
+          model.announce('plonk');
           return;
+        }
         arrayAtom.addColumnAfter(atom.treeBranch[1]);
         pos = model.offsetOf(
           arrayAtom.getCell(atom.treeBranch[0], atom.treeBranch[1] + 1)![0]
@@ -157,8 +159,10 @@ function addCell(
         if (
           arrayAtom.colFormat.filter((col) => Boolean(col['align'])).length <=
           arrayAtom.colCount
-        )
+        ) {
+          model.announce('plonk');
           return;
+        }
         arrayAtom.addColumnBefore(atom.treeBranch[1]);
         pos = model.offsetOf(
           arrayAtom.getCell(atom.treeBranch[0], atom.treeBranch[1] - 1)![0]
