@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+**#1658** interactions with the Apple Pencil when the mathfield is embedded
+inside another element would not trigger the virtual keyboard toggle.
+
 ## 0.83.0 (2022-10-02)
 
 ### Improvements
