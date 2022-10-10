@@ -57,6 +57,7 @@ export type ArrayAtomConstructorOptions = {
   // A multiplication factor applied to the spacing between rows and columns
   arraystretch?: number;
   arraycolsep?: number;
+  minColumns?: number;
 };
 
 type ArrayRow = {
@@ -205,6 +206,7 @@ export class ArrayAtom extends Atom {
   leftDelim?: string;
   rightDelim?: string;
   mathstyleName?: MathstyleName;
+  minColumns: number;
 
   constructor(
     context: GlobalContext,
@@ -248,6 +250,7 @@ export class ArrayAtom extends Atom {
     this.colSeparationType = options.colSeparationType;
     // Default \arraystretch from lttab.dtx
     this.arraystretch = options.arraystretch ?? 1.0;
+    this.minColumns = options.minColumns ?? 1;
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): ArrayAtom {
