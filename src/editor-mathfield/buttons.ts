@@ -150,10 +150,11 @@ export function attachButtonHandlers(
       for (let i = 0; i < ev.changedTouches.length; i++) {
         if (ev.changedTouches[i].identifier === touchID) {
           // Found a touch matching our primary/tracked touch
-          const target = document.elementFromPoint(
+          const targets = document.elementsFromPoint(
             ev.changedTouches[i].clientX,
             ev.changedTouches[i].clientY
           );
+          const target = targets[targets.length - 1];
           if (target !== syntheticTarget && syntheticTarget) {
             syntheticTarget.dispatchEvent(new MouseEvent('mouseleave'), {
               bubbles: true,
