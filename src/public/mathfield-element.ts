@@ -21,6 +21,12 @@ import {
 import { MathfieldOptions } from './options';
 import { getAtomBounds } from '../editor-mathfield/utils';
 
+export declare type Expression =
+  | number
+  | string
+  | { [key: string]: any }
+  | [Expression, ...Expression[]];
+
 //
 // Custom Events
 //
@@ -748,6 +754,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield.expression;
   }
 
+  set expression(mathJson: Expression) {
+    if (!this._mathfield) return;
+    const latex = this.computeEngine?.box(mathJson).latex;
+    if (latex !== null) this._mathfield.setValue(latex);
+  }
+
   get errors(): LatexSyntaxError[] {
     return this._mathfield?.errors ?? [];
   }
@@ -1293,14 +1305,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   set defaultMode(value: 'inline-math' | 'math' | 'text') {
     this.setOptions({ defaultMode: value });
   }
-  get fontsDirectory(): string {
+  get fontsDirectory(): string | null {
     return this.getOption('fontsDirectory');
   }
-  set fontsDirectory(value: string) {
+  set fontsDirectory(value: string | null) {
     this.setOptions({ fontsDirectory: value });
   }
   get mathModeSpace(): string {
-    return this.getOption('fontsDirectory');
+    return this.getOption('mathModeSpace');
   }
   set mathModeSpace(value: string) {
     this.setOptions({ mathModeSpace: value });

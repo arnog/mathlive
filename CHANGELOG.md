@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### Improvements
+
+- The `MathfieldElement` now has a setter for `expression`, which allows to set
+  the value of a mathfield to a MathJSON expression.
+
 ### Bug Fixes
 
 - **#1658** Interactions with the Apple Pencil when the mathfield is embedded
