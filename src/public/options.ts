@@ -930,7 +930,8 @@ export type CoreOptions = {
    * Customize this value to reflect where you have copied these fonts,
    * or to use the CDN version.
    *
-   * The default value is './fonts'.
+   * The default value is './fonts'. Use `null` to prevent
+   * any fonts from being loaded.
    *
    * Changing this setting after the mathfield has been created will have
    * no effect.
@@ -956,15 +957,18 @@ export type CoreOptions = {
    * ```
    *
    */
-  fontsDirectory: string;
+  fontsDirectory: string | null;
 
   /**
    * A URL fragment pointing to the directory containing the optional
    * sounds used to provide feedback while typing.
    *
    * Some default sounds are available in the `/dist/sounds` directory of the SDK.
+   *
+   * Use `null` to prevent any sound from being loaded.
+   *
    */
-  soundsDirectory: string;
+  soundsDirectory: string | null;
   /**
    * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
    *
@@ -1112,8 +1116,9 @@ export type AutoRenderOptions = Partial<TextToSpeechOptions> & {
    * }
    * ```
    *
+   * Setting this value to `null` will prevent the fonts from being loaded.
    */
-  fontsDirectory?: string;
+  fontsDirectory?: string | null;
 
   /**
    * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).

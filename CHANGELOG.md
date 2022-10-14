@@ -2,8 +2,12 @@
 
 ### Bug Fixes
 
-**#1658** interactions with the Apple Pencil when the mathfield is embedded
-inside another element would not trigger the virtual keyboard toggle.
+- **#1658** Interactions with the Apple Pencil when the mathfield is embedded
+  inside another element would not trigger the virtual keyboard toggle.
+
+- **#1669** Don't attempt to get the local URL base when using absolute URLs.
+  Allow `null` as a value for `fontsDirectory` and `soundDirectory` to prevent
+  any attempt to resolve these values.
 
 ## 0.83.0 (2022-10-02)
 

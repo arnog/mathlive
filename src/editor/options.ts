@@ -2,7 +2,7 @@ import type { MathfieldOptions } from '../public/options';
 import { VirtualKeyboardMode } from '../public/mathfield-element';
 
 import { isArray } from '../common/types';
-import { resolveRelativeUrl } from '../common/script-url';
+import { resolveUrl } from '../common/script-url';
 import { isBrowser, isTouchCapable } from '../common/capabilities';
 
 import { l10n } from '../core/l10n';
@@ -27,10 +27,11 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
   value: string;
 };
 function loadSound(
-  soundDirectory: string,
+  soundDirectory: string | null,
   sound?: string | HTMLAudioElement | null
 ): HTMLAudioElement | null {
   if (
+    soundDirectory === null ||
     sound === null ||
     sound === undefined ||
     sound === 'none' ||
@@ -47,7 +48,7 @@ function loadSound(
     if (sound.length === 0) return null;
 
     const result: HTMLAudioElement = new Audio();
-    result.src = resolveRelativeUrl(
+    result.src = resolveUrl(
       (soundDirectory === undefined || soundDirectory.length === 0
         ? './sounds'
         : soundDirectory) +
@@ -80,7 +81,9 @@ export function update(
   updates: Partial<MathfieldOptionsPrivate>
 ): Required<MathfieldOptionsPrivate> {
   const soundsDirectory =
-    updates.soundsDirectory ?? current.soundsDirectory ?? './sounds';
+    updates.soundsDirectory === null
+      ? null
+      : updates.soundsDirectory ?? current.soundsDirectory ?? './sounds';
   const result: Required<MathfieldOptionsPrivate> = get(
     current,
     Object.keys(current)

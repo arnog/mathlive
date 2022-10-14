@@ -173,13 +173,9 @@
         // },
       });
 
-      // mf.addEventListener(
-      //   'keydown',
-      //   (ev) => {
-      //     if (ev.code === 'Escape') ev.preventDefault();
-      //   },
-      //   { capture: true }
-      // );
+      mf.addEventListener('keydown', (ev) => ev.preventDefault(), {
+        capture: true,
+      });
 
       // mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
       //   capture: true,

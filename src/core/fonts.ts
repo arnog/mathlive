@@ -1,5 +1,5 @@
 import { isBrowser } from '../common/capabilities';
-import { resolveRelativeUrl } from '../common/script-url';
+import { resolveUrl } from '../common/script-url';
 
 function makeFontFace(
   name: string,
@@ -50,7 +50,7 @@ export async function loadFonts(fontsDirectory?: string): Promise<void> {
     if (fontFamilies.every((x) => fontsInDocument.includes(x))) return;
 
     // Locate the `fonts` folder relative to the script URL
-    const fontsFolder = resolveRelativeUrl(fontsDirectory ?? './fonts');
+    const fontsFolder = resolveUrl(fontsDirectory ?? './fonts');
     if (!fontsFolder) return;
 
     document.body.classList.add('ML__fonts-loading');

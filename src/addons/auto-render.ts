@@ -542,7 +542,8 @@ export function autoRenderMathInElement(
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
-    void loadFonts(optionsPrivate.fontsDirectory);
+    if (optionsPrivate.fontsDirectory !== null)
+      void loadFonts(optionsPrivate.fontsDirectory);
     injectStylesheet(
       null,
       coreStylesheet,

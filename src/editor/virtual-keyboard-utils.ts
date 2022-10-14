@@ -348,7 +348,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
         hashCode(CORE_STYLESHEET).toString(36)
       );
     }
-    void loadFonts(this.options.fontsDirectory);
+    if (this.options.fontsDirectory !== null)
+      void loadFonts(this.options.fontsDirectory);
   }
 
   enable(): void {

@@ -270,7 +270,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (elementText) elementText = elementText.trim();
 
     // Load the fonts, inject the core and mathfield stylesheets
-    void loadFonts(this.options.fontsDirectory);
+    if (this.options.fontsDirectory !== null)
+      void loadFonts(this.options.fontsDirectory);
     if (!CORE_STYLESHEET_HASH)
       CORE_STYLESHEET_HASH = hashCode(CORE_STYLESHEET).toString(36);
 
