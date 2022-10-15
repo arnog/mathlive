@@ -74,7 +74,7 @@
     "autoprefixer": "^10.4.8",
     "check-node-version": "^4.2.1",
     "cssnano": "^5.1.13",
-    "esbuild": "^0.15.7",
+    "esbuild": "^0.15.11",
     "eslint": "^8.23.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
