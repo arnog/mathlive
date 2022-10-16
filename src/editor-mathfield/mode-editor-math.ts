@@ -89,16 +89,27 @@ export class MathModeEditor extends ModeEditor {
             }
 
             // expand environment columns to paste size
-            const currentRow = Number(cursor.treeBranch![0]);
-            const currentColumn = Number(cursor.treeBranch![1]);
-            while (cursor.parent.colCount - currentColumn < columns.length)
+            let currentRow = Number(cursor.treeBranch![0]);
+            let currentColumn = Number(cursor.treeBranch![1]);
+            const maxColumns = cursor.parent.maxColumns;
+            while (
+              cursor.parent.colCount - currentColumn < columns.length &&
+              cursor.parent.colCount < maxColumns
+            )
               cursor.parent.addColumn();
 
             // add content to the first cell
             cursor.parent.addChildrenAfter(columns[0], cursor);
             // replace the rest of the columns
-            for (let i = 1; i < columns.length; i++)
-              cursor.parent.setCell(currentRow, currentColumn + i, columns[i]);
+            for (let i = 1; i < columns.length; i++) {
+              currentColumn++;
+              if (currentColumn >= maxColumns) {
+                currentColumn = 0;
+                cursor.parent.addRowAfter(currentRow);
+                currentRow++;
+              }
+              cursor.parent.setCell(currentRow, currentColumn, columns[i]);
+            }
           } else {
             cursor.parent!.addChildrenAfter(
               atoms.filter((a) => a.type !== 'first'),

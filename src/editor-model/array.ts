@@ -137,10 +137,7 @@ function addCell(
         break;
 
       case 'after column':
-        if (
-          arrayAtom.colFormat.filter((col) => Boolean(col['align'])).length <=
-          arrayAtom.colCount
-        ) {
+        if (arrayAtom.maxColumns <= arrayAtom.colCount) {
           model.announce('plonk');
           return;
         }
@@ -156,10 +153,7 @@ function addCell(
         break;
 
       case 'before column':
-        if (
-          arrayAtom.colFormat.filter((col) => Boolean(col['align'])).length <=
-          arrayAtom.colCount
-        ) {
+        if (arrayAtom.maxColumns <= arrayAtom.colCount) {
           model.announce('plonk');
           return;
         }

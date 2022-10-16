@@ -313,6 +313,10 @@ export class ArrayAtom extends Atom {
     return this.array[0].length;
   }
 
+  get maxColumns(): number {
+    return this.colFormat.filter((col) => Boolean(col['align'])).length;
+  }
+
   removeBranch(name: Branch): Atom[] {
     if (isNamedBranch(name)) return super.removeBranch(name);
 
