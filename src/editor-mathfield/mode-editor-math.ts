@@ -67,7 +67,56 @@ export class MathModeEditor extends ModeEditor {
           if (!model.selectionIsCollapsed)
             model.deleteAtoms(range(model.selection));
           const cursor = model.at(model.position);
-          cursor.parent!.addChildrenAfter(atoms, cursor);
+
+          if (cursor.parent instanceof ArrayAtom) {
+            console.assert(cursor.treeBranch !== undefined);
+            // use 'first' atoms as environment column delimiter
+            const columns: Atom[][] = [];
+            let buffer: Atom[] = [];
+            // trim 'first' from array of atoms
+            if (atoms[0].type === 'first') atoms.shift();
+            if (atoms[atoms.length - 1].type === 'first') atoms.pop();
+            for (const atom of atoms) {
+              if (atom.type === 'first' && buffer.length > 0) {
+                columns.push(buffer);
+                buffer = [atom];
+              } else {
+                buffer.push(atom);
+              }
+            }
+            if (buffer.length > 0) {
+              columns.push(buffer);
+            }
+
+            // expand environment columns to paste size
+            let currentRow = Number(cursor.treeBranch![0]);
+            let currentColumn = Number(cursor.treeBranch![1]);
+            const maxColumns = cursor.parent.maxColumns;
+            while (
+              cursor.parent.colCount - currentColumn < columns.length &&
+              cursor.parent.colCount < maxColumns
+            )
+              cursor.parent.addColumn();
+
+            // add content to the first cell
+            cursor.parent.addChildrenAfter(columns[0], cursor);
+            // replace the rest of the columns
+            for (let i = 1; i < columns.length; i++) {
+              currentColumn++;
+              if (currentColumn >= maxColumns) {
+                currentColumn = 0;
+                cursor.parent.addRowAfter(currentRow);
+                currentRow++;
+              }
+              cursor.parent.setCell(currentRow, currentColumn, columns[i]);
+            }
+          } else {
+            cursor.parent!.addChildrenAfter(
+              atoms.filter((a) => a.type !== 'first'),
+              cursor
+            );
+          }
+
           model.position = model.offsetOf(atoms[atoms.length - 1]);
 
           contentDidChange(model, { inputType: 'insertFromPaste' });

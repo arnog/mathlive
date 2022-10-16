@@ -313,6 +313,10 @@ export class ArrayAtom extends Atom {
     return this.array[0].length;
   }
 
+  get maxColumns(): number {
+    return this.colFormat.filter((col) => Boolean(col['align'])).length;
+  }
+
   removeBranch(name: Branch): Atom[] {
     if (isNamedBranch(name)) return super.removeBranch(name);
 
@@ -620,9 +624,27 @@ export class ArrayAtom extends Atom {
     return this.array[row][col];
   }
 
-  setCell(_row: number, _column: number, _value: Atom[]): void {
-    // @todo array
-    console.assert(this.type === 'array' && Array.isArray(this.array));
+  setCell(row: number, column: number, value: Atom[]): void {
+    console.assert(
+      this.type === 'array' &&
+        Array.isArray(this.array) &&
+        this.array[row][column] !== undefined
+    );
+    for (const atom of this.array[row][column]!) {
+      atom.parent = undefined;
+      atom.treeBranch = undefined;
+    }
+
+    let atoms = value;
+    if (value.length === 0 || value[0].type !== 'first') {
+      atoms = [new Atom('first', this.context, { mode: this.mode }), ...value];
+    }
+
+    this.array[row][column] = atoms;
+    for (const atom of atoms) {
+      atom.parent = this;
+      atom.treeBranch = [row, column];
+    }
     this.isDirty = true;
   }
 
@@ -712,6 +734,10 @@ export class ArrayAtom extends Atom {
       }
     }
     this.isDirty = true;
+  }
+
+  addColumn(): void {
+    this.addColumnAfter(this.colCount - 1);
   }
 
   removeColumn(col: number): void {
