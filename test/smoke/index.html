@@ -21,6 +21,9 @@
       <div class="output" id="latex"></div>
 
       <h2>MathJSON</h2>
+      <script type="math/json">
+        ["Add", 2, ["Divide", "x", "Pi"]]
+      </script>
       <div class="output" style="white-space: nowrap">
         <div id="math-json"></div>
         <div id="result"></div>
@@ -39,6 +42,7 @@
 
     <script type="module">
       import {
+        renderMathInDocument,
         renderMathInElement,
         makeSharedVirtualKeyboard,
         MathfieldElement,
@@ -262,6 +266,7 @@
 
       // First time update
       updateContent(mf);
+      renderMathInDocument();
     </script>
   </body>
 </html>

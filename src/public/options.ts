@@ -1157,12 +1157,18 @@ export type AutoRenderOptions = Partial<TextToSpeechOptions> & {
   processClass?: string;
 
   /**
-   * `<script>` tags of the
-   * indicated type will be processed while others will be ignored.
+   * `<script>` tags with this type will be processed as LaTeX.
    *
    * **Default**: `"math/tex"`
    */
   processScriptType?: string;
+
+  /**
+   * `<script>` tags with this type will be processed as MathJSON.
+   *
+   * **Default**: `"math/json"`
+   */
+  processMathJSONScriptType?: string;
 
   /** The format(s) in
    * which to render the math for screen readers:

@@ -34,8 +34,12 @@ import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 export * from './public/mathlive';
 export * from './addons/auto-render';
 
-import { version as computeEngineVersion } from '@cortex-js/compute-engine';
-import { LatexSyntaxError } from './public/mathlive';
+import {
+  ComputeEngine,
+  SemiBoxedExpression,
+  version as computeEngineVersion,
+} from '@cortex-js/compute-engine';
+import { Expression, LatexSyntaxError } from './public/mathlive';
 export * from '@cortex-js/compute-engine';
 
 /**
@@ -261,6 +265,13 @@ export function convertLatexToSpeakableText(
   return atomToSpeakableText(atoms, options as Required<TextToSpeechOptions>);
 }
 
+let gComputeEngine: ComputeEngine;
+
+export function serializeMathJsonToLatex(json: Expression): string {
+  if (!gComputeEngine) gComputeEngine = new ComputeEngine();
+  return gComputeEngine.box(json as SemiBoxedExpression).latex;
+}
+
 /**
  * Transform all the elements in the document body that contain LaTeX code
  * into typeset math.
@@ -325,6 +336,7 @@ export function renderMathInElement(
   optionsPrivate.renderToMarkup ??= convertLatexToMarkup;
   optionsPrivate.renderToMathML ??= convertLatexToMathMl;
   optionsPrivate.renderToSpeakableText ??= convertLatexToSpeakableText;
+  optionsPrivate.serializeToLatex ??= serializeMathJsonToLatex;
   autoRenderMathInElement(el, optionsPrivate);
 }
 

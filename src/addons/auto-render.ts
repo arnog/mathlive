@@ -32,15 +32,19 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
    */
   renderToMathML?: (text: string) => string;
 
-  /** A function that will convert a LaTeX string to
-   * speakable text markup. */
+  /** A function that will convert a LaTeX string to speakable text markup. */
   renderToSpeakableText?: (
     text: string,
     options: Partial<TextToSpeechOptions>
   ) => string;
+
+  /** A function to convert MathJSON to a LaTeX string */
+  serializeToLatex?: (json: any) => string;
+
   ignoreClassPattern?: RegExp;
   processClassPattern?: RegExp;
   processScriptTypePattern?: RegExp;
+  processMathJSONScriptTypePattern?: RegExp;
 
   mathstyle?: string;
   format?: string;
@@ -422,18 +426,32 @@ function scanElement(
       const tag = childNode.nodeName.toLowerCase();
       if (tag === 'script') {
         const scriptNode = childNode as HTMLScriptElement;
-        if (options.processScriptTypePattern?.test(scriptNode.type)) {
+        let textContent: string | undefined = undefined;
+        if (options.processScriptTypePattern?.test(scriptNode.type))
+          textContent = scriptNode.textContent ?? '';
+        else if (
+          options.processMathJSONScriptTypePattern?.test(scriptNode.type)
+        ) {
+          try {
+            textContent = options.serializeToLatex?.(
+              JSON.parse(scriptNode.textContent ?? '')
+            );
+          } catch (e) {
+            console.error(e);
+          }
+        }
+
+        if (textContent) {
           let style: 'displaystyle' | 'textstyle' = 'displaystyle';
+
           for (const l of scriptNode.type.split(';')) {
-            const v = l.split('=');
-            if (v[0].toLowerCase() === 'mode') {
-              style =
-                v[1].toLowerCase() === 'display' ? 'displaystyle' : 'textstyle';
-            }
+            const [key, value] = l.toLowerCase().split('=');
+            if (key.trim() === 'mode')
+              style = value.trim() === 'display' ? 'displaystyle' : 'textstyle';
           }
 
           const span = createAccessibleMarkupPair(
-            scriptNode.textContent ?? '',
+            textContent,
             style,
             options,
             true
@@ -488,6 +506,9 @@ const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
   // <script> tags of the following types will be processed. Others, ignored.
   processScriptType: 'math/tex',
 
+  // <script> tag with this type will be processed as MathJSON
+  processMathJSONScriptType: 'math/json',
+
   // Regex pattern of the class name of elements whose contents should not
   // be processed
   ignoreClass: 'tex2jax_ignore',
@@ -537,6 +558,10 @@ export function autoRenderMathInElement(
     );
     optionsPrivate.processScriptTypePattern = new RegExp(
       optionsPrivate.processScriptType ?? ''
+    );
+
+    optionsPrivate.processMathJSONScriptTypePattern = new RegExp(
+      optionsPrivate.processMathJSONScriptType ?? ''
     );
 
     // Load the fonts and inject the stylesheet once to

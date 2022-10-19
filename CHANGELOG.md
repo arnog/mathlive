@@ -1,14 +1,23 @@
 ## [Unreleased]
 
+### New Features
+
+- When using `renderMathInElement` or `renderMathInDocument` to render math
+  content, the math content can now be provided as MathJSON in addition to LaTeX
+  by using a `<script>` tag with a type of `math/json`.
+
+```html
+<script type="math/json">
+  ["Cos", ["Divide", "Pi", 7]]
+</script>
+```
+
 ### Improvements
 
 - The `MathfieldElement` now has a setter for `expression`, which allows to set
   the value of a mathfield to a MathJSON expression.
 
 ### Bug Fixes
-
-- **#1658** Interactions with the Apple Pencil when the mathfield is embedded
-  inside another element would not trigger the virtual keyboard toggle.
 
 - **#1669** Don't attempt to get the local URL base when using absolute URLs.
   Allow `null` as a value for `fontsDirectory` and `soundDirectory` to prevent
