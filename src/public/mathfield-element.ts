@@ -754,9 +754,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield.expression;
   }
 
-  set expression(mathJson: Expression) {
+  set expression(mathJson: Expression | any) {
     if (!this._mathfield) return;
-    const latex = this.computeEngine?.box(mathJson).latex;
+    const latex = this.computeEngine?.box(mathJson).latex ?? null;
     if (latex !== null) this._mathfield.setValue(latex);
   }
 
@@ -1258,13 +1258,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (isReadonly) {
       this.setAttribute('readonly', '');
       this.setAttribute('disabled', '');
+      this.setAttribute('aria-readonly', 'true');
     } else {
       this.removeAttribute('readonly');
       this.removeAttribute('read-only');
       this.removeAttribute('disabled');
+      this.removeAttribute('aria-readonly');
     }
 
-    this.setAttribute('aria-disabled', isReadonly ? 'true' : 'false');
     this.setOptions({ readOnly: isReadonly });
   }
 
