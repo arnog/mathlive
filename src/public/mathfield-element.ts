@@ -1056,10 +1056,28 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /**
    * Reset the undo stack
-   * (for parent components with their own undo)
+   * (for parent components with their own undo/redo)
    */
   resetUndo(): void {
     this._mathfield?.resetUndo();
+  }
+
+  /**
+   * Return whether there are undoable items
+   * (for parent components with their own undo/redo)
+   */
+  canUndo(): boolean {
+    if (!this._mathfield) return false;
+    return this._mathfield.canUndo();
+  }
+
+  /**
+   * Return whether there are redoable items
+   * (for parent components with their own undo/redo)
+   */
+  canRedo(): boolean {
+    if (!this._mathfield) return false;
+    return this._mathfield.canRedo();
   }
 
   /**
