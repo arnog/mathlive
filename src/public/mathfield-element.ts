@@ -1055,6 +1055,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
+   * Reset the undo stack
+   * (for parent components with their own undo)
+   */
+  resetUndo(): void {
+    this._mathfield?.resetUndo();
+  }
+
+  /**
    * Custom elements lifecycle hooks
    * @internal
    */
