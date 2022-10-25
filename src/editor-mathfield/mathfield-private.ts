@@ -1363,6 +1363,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     );
   }
 
+  resetUndo(): void {
+    this.undoManager?.reset();
+  }
+
   private _onSelectionDidChange(): void {
     // Keep the content of the textarea in sync with the selection.
     // This will allow cut/copy to work.
