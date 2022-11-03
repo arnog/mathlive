@@ -183,7 +183,7 @@ export class EncloseAtom extends Atom {
       notation.setStyle('width', `calc(100% + ${2 * padding}em)`);
     else notation.setStyle('width', '100%');
 
-    notation.setStyle('top', -base.height + 2 * padding, 'em');
+    notation.setStyle('top', -base.height + padding / 2, 'em');
     notation.setStyle('left', -padding, 'em');
     notation.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
     notation.setStyle('box-sizing', 'border-box');
