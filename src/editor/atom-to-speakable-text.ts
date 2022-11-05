@@ -549,9 +549,7 @@ function atomToSpeakableFragment(
       case 'enclose':
         body = atomToSpeakableFragment('math', atom.body, options);
 
-        result += isAtomic(atom.body)
-          ? ' crossed out ' + body + ' , '
-          : ' crossed out ' + body + '. End cross out';
+        result += ' crossed out ' + body + '. End crossed out.';
         break;
 
       case 'space':
