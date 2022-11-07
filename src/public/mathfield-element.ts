@@ -513,10 +513,10 @@ export interface MathfieldElementAttributes {
  * | `text-to-speech-markup` | `options.textToSpeechMarkup` |
  * | `text-to-speech-rules` | `options.textToSpeechRules` |
  * | `value` | `value` |
- * | `virtual-keyboard-layout` | `options.keyboardLayout` |
- * | `virtual-keyboard-mode` | `options.keyboardMode` |
- * | `virtual-keyboard-theme` | `options.keyboardTheme` |
- * | `virtual-keyboards` | `options.keyboards` |
+ * | `virtual-keyboard-layout` | `options.virtualKeyboardLayout` |
+ * | `virtual-keyboard-mode` | `options.virtualKeyboardMode` |
+ * | `virtual-keyboard-theme` | `options.virtualKeyboardTheme` |
+ * | `virtual-keyboards` | `options.virtualKeyboards` |
  *
  * </div>
  *
