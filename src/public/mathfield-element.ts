@@ -1688,7 +1688,10 @@ declare global {
 }
 
 if (isBrowser() && !window.customElements?.get('math-field')) {
+  // The `window.mathlive` global is used  to coordinate between mathfield
+  // instances that may have been instantiated by different versions of the
+  // library
+  window.mathlive = { ...(window.mathlive ?? {}), version: '{{SDK_VERSION}}' };
   window.MathfieldElement = MathfieldElement;
-  window.mathlive = { version: '{{SDK_VERSION}}' };
   window.customElements?.define('math-field', MathfieldElement);
 }
