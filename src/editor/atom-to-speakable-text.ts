@@ -614,7 +614,7 @@ export function atomToSpeakableText(
     textToSpeechRulesOptions: { ...speechOptions.textToSpeechRulesOptions },
   };
 
-  if (options.textToSpeechRules === 'sre' && isBrowser() && 'sre' in window) {
+  if (options.textToSpeechRules === 'sre' && 'sre' in globalThis) {
     const mathML = atomsToMathML(atoms, options);
     if (mathML) {
       if (options.textToSpeechMarkup) {
@@ -628,12 +628,12 @@ export function atomToSpeakableText(
       }
 
       if (options.textToSpeechRulesOptions) {
-        window.sre.System.getInstance().setupEngine(
+        globalThis.sre.System.getInstance().setupEngine(
           options.textToSpeechRulesOptions
         );
       }
 
-      return window.sre.System.getInstance().toSpeech(mathML);
+      return globalThis.sre.System.getInstance().toSpeech(mathML);
     }
 
     return '';

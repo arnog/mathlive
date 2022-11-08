@@ -20,6 +20,7 @@ import {
 } from './mathfield';
 import { MathfieldOptions } from './options';
 import { getAtomBounds } from '../editor-mathfield/utils';
+import { globalMathLive } from 'mathlive';
 
 export declare type Expression =
   | number
@@ -363,7 +364,7 @@ export interface MathfieldElementAttributes {
    * to send control messages from child to parent frame to remote control
    * of mathfield component.
    *
-   * **Default**: `window.origin`
+   * **Default**: `globalThis.origin`
    */
   'shared-virtual-keyboard-target-origin': string;
 
@@ -1688,10 +1689,10 @@ declare global {
 }
 
 if (isBrowser() && !window.customElements?.get('math-field')) {
-  // The `window.mathlive` global is used  to coordinate between mathfield
+  // The `globalMathlive` global is used  to coordinate between mathfield
   // instances that may have been instantiated by different versions of the
   // library
-  window.mathlive = { ...(window.mathlive ?? {}), version: '{{SDK_VERSION}}' };
+  globalMathLive().version = '{{SDK_VERSION}}';
   window.MathfieldElement = MathfieldElement;
   window.customElements?.define('math-field', MathfieldElement);
 }

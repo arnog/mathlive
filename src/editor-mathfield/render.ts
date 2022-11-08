@@ -64,12 +64,7 @@ export function render(
   const { model } = mathfield;
 
   //
-  // 1. Stop and reset read aloud state
-  //
-  if (!('mathlive' in window)) window.mathlive = {};
-
-  //
-  // 2. Update selection state and blinking cursor (caret)
+  // 1. Update selection state and blinking cursor (caret)
   //
   model.root.caret = '';
   model.root.isSelected = false;
@@ -96,7 +91,7 @@ export function render(
   }
 
   //
-  // 3. Render boxes
+  // 2. Render boxes
   //
   const base = model.root.render(
     new Context(
@@ -142,7 +137,7 @@ export function render(
   );
 
   //
-  // 4. Construct struts around the boxes
+  // 3. Construct struts around the boxes
   //
   const wrapper = makeStruts(
     adjustInterAtomSpacing(base!, mathfield.options.horizontalSpacingScale),
@@ -160,7 +155,7 @@ export function render(
   );
 
   //
-  // 5. Generate markup and accessible node
+  // 4. Generate markup and accessible node
   //
   const field = mathfield.field;
   const isFocused = field.classList.contains('ML__focused');
@@ -177,7 +172,7 @@ export function render(
   );
 
   //
-  // 6. Render the selection/caret
+  // 5. Render the selection/caret
   //
   renderSelection(mathfield);
   if (mathfield.options.readOnly) mathfield.attachNestedMathfield();

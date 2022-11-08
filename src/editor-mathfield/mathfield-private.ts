@@ -117,6 +117,7 @@ import {
   defaultGetDefinition,
   getMacroDefinition,
 } from '../core/context-utils';
+import { globalMathLive } from 'mathlive';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -641,8 +642,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     if (!this._virtualKeyboard) {
       if (
-        window.mathlive?.sharedVirtualKeyboard ||
-        this.options.useSharedVirtualKeyboard
+        this.options.useSharedVirtualKeyboard ||
+        globalMathLive().sharedVirtualKeyboard
       ) {
         this._virtualKeyboard = new VirtualKeyboardDelegate({
           targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
@@ -1447,8 +1448,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.executeCommand('commit');
 
     if (
-      !window.mathlive?.sharedVirtualKeyboard &&
-      /onfocus|manual/.test(this.options.virtualKeyboardMode)
+      /onfocus|manual/.test(this.options.virtualKeyboardMode) &&
+      !globalMathLive().sharedVirtualKeyboard
     )
       this.executeCommand('hideVirtualKeyboard');
 

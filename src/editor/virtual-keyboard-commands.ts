@@ -9,6 +9,7 @@ import {
 } from './virtual-keyboard-utils';
 import { register as registerCommand, SelectorPrivate } from './commands';
 import { VirtualKeyboardTheme } from '../public/options';
+import { globalMathLive } from 'mathlive';
 export { unshiftKeyboardLayer };
 
 /*
@@ -201,10 +202,10 @@ export function showVirtualKeyboard(
   else keyboard.buildAndAttachElement(theme);
 
   if (!keyboard.visible) {
-    if (window.mathlive?.visibleVirtualKeyboard)
-      hideVirtualKeyboard(window.mathlive?.visibleVirtualKeyboard);
-    if (!window.mathlive) window.mathlive = {};
-    window.mathlive.visibleVirtualKeyboard = keyboard;
+    const global = globalMathLive();
+    if (global.visibleVirtualKeyboard)
+      hideVirtualKeyboard(global.visibleVirtualKeyboard);
+    global.visibleVirtualKeyboard = keyboard;
 
     const padding = container.style.paddingBottom;
     keyboard.originalContainerBottomPadding = padding;
@@ -230,8 +231,7 @@ export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
   if (!container) return false;
 
   if (keyboard.element) {
-    if (!window.mathlive) window.mathlive = {};
-    window.mathlive.visibleVirtualKeyboard = undefined;
+    globalMathLive().visibleVirtualKeyboard = undefined;
     // Remove the element from the DOM
     keyboard.disable();
     hideAlternateKeys();

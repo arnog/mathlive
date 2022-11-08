@@ -249,7 +249,7 @@ export function validateOrigin(
   if (originValidator === 'none') return true;
 
   if (originValidator === 'same-origin')
-    return !window.origin || origin === window.origin;
+    return !globalThis.origin || origin === globalThis.origin;
 
   if (typeof originValidator === 'function') return originValidator(origin);
 

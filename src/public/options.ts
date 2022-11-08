@@ -572,7 +572,7 @@ export type RemoteVirtualKeyboardOptions = CombinedVirtualKeyboardOptions & {
    * to send control messages from parent to child frame to remote control of
    * mathfield component.
    *
-   * **Default**: `window.origin`
+   * **Default**: `globalThis.origin`
    */
   targetOrigin: string;
 
@@ -1016,7 +1016,7 @@ export type MathfieldOptions = LayoutOptions &
      * to send control messages from child to parent frame to remote control
      * of mathfield component.
      *
-     * **Default**: `window.origin`
+     * **Default**: `globalThis.origin`
      */
     sharedVirtualKeyboardTargetOrigin: string;
 

@@ -1,3 +1,12 @@
+## [Unreleased]
+
+### Improvements
+
+- The `window.mathlive` global is now `globalThis[Symbol.for("mathlive")]`. This
+  is mostly used internally for coordination between mathfields in the same
+  context but it also includes the `version` property which may be of use for
+  debugging or to report issues.
+
 ## 0.84.0 (2022-10-19)
 
 ### New Features
@@ -822,7 +831,7 @@ in order to preserve the same settings, you would now use:
 - When using keybindings or virtual keyboard keys, insert the content in the
   current math style, rather than forcing display style.
 
-- Correctly handle loading Mathlive in a non-browser context (e.g. Node)
+- Correctly handle loading MathLive in a non-browser context (e.g. Node)
 
 - Updated localization strings
 
@@ -883,7 +892,7 @@ import { renderMathInDocument } from 'mathlive';
 renderMathInDocument();
 ```
 
-If you are not calling a specific Mathlive function and just need to use the
+If you are not calling a specific MathLive function and just need to use the
 `<math-field>` tag, use:
 
 ```js
@@ -988,7 +997,7 @@ or:
 
 ### Bug Fixes
 
-- **#969** and **#967** Changed the way the build is done so that Mathlive does
+- **#969** and **#967** Changed the way the build is done so that MathLive does
   not use MathJSON as a submodule but as a regular npm dependency, and builds
   correctly even in non-git environments.
 - **#968** navigating with arrow keys cannot navigate past a macro
@@ -998,7 +1007,7 @@ or:
 ### Breaking Changes
 
 **#500** MathJSON support. The legacy MASTON/JSON format has been removed.  
- The MathJSON format is now integrated into Mathlive 🚀 🎆 🥳
+ The MathJSON format is now integrated into MathLive 🚀 🎆 🥳
 
 To get the MathJSON representation of a formula, use `mf.getValue('math-json')`.
 
@@ -1456,7 +1465,7 @@ for more details.
 - **#708** Pressing on the bottom part of the virtual keyboard keycap did not
   trigger the key action.
 - The asset directory (fonts/sounds) was not properly located in some browsers
-  when using a CDN to load Mathlive.
+  when using a CDN to load MathLive.
 - Correctly focus the mathfield when the virtual keyboard is invoked.
 
 ## 0.62.0 (2021-04-23)
@@ -1989,8 +1998,8 @@ effective tree shaking. Therefore the default export will be eliminated.
 This means that instead of:
 
 ```javascript
-import Mathlive from 'mathlive';
-Mathlive.renderMathInDocument();
+import MathLive from 'mathlive';
+MathLive.renderMathInDocument();
 ```
 
 you will need to use:
@@ -2231,7 +2240,7 @@ The following functions have been renamed:
   location of the 'fonts' directory, if necessary (by default, the 'fonts'
   directory is expected to be next to the 'mathlive.js', 'mathlive.mjs' file.)
 
-  In some rare cases, you may have used the CSS stylesheet without the Mathlive
+  In some rare cases, you may have used the CSS stylesheet without the MathLive
   library, for example, after you may have saved the output of `latexToMarkup()`
   to a database and use it to render later in a page. In that case, you would
   need to use the CSS stylesheet `dist/mathlive-static.css`, which is suitable
@@ -2322,7 +2331,7 @@ The following functions have been renamed:
 
 - **#450** Custom keybindings. A keybinding (also called keyboard shortcut)
   associate a keystroke combination on a physical keyboard with a command.
-  Mathlive previously had some built-in keybindings, but now they can be
+  MathLive previously had some built-in keybindings, but now they can be
   extended or replaced.
 
   See `config.keybindings` and `Keybinding`

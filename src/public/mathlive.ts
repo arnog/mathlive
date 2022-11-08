@@ -5,7 +5,7 @@
  *
  * @example
  * <script type="module">
- * // Load the `Mathlive` module from a CDN
+ * // Load the `MathLive` module from a CDN
  * import { convertLatexToSpeakableText } from 'https://unpkg.com/mathlive?module';
  *
  * console.log(convertLatexToSpeakableText('e^{i\\pi}+1=0'));
