@@ -20,7 +20,6 @@ import {
 } from './mathfield';
 import { MathfieldOptions } from './options';
 import { getAtomBounds } from '../editor-mathfield/utils';
-import { globalMathLive } from 'mathlive';
 
 export declare type Expression =
   | number
@@ -1689,10 +1688,13 @@ declare global {
 }
 
 if (isBrowser() && !window.customElements?.get('math-field')) {
-  // The `globalMathlive` global is used  to coordinate between mathfield
+  // The `globalThis[Symbol.for('mathlive')]` global is used  to coordinate between mathfield
   // instances that may have been instantiated by different versions of the
   // library
-  globalMathLive().version = '{{SDK_VERSION}}';
+  globalThis[Symbol.for('mathlive')] ??= {};
+  const global = globalThis[Symbol.for('mathlive')];
+  global.version = '{{SDK_VERSION}}';
+
   window.MathfieldElement = MathfieldElement;
   window.customElements?.define('math-field', MathfieldElement);
 }

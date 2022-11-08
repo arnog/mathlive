@@ -80,13 +80,9 @@ export class MathModeEditor extends ModeEditor {
               if (atom.type === 'first' && buffer.length > 0) {
                 columns.push(buffer);
                 buffer = [atom];
-              } else {
-                buffer.push(atom);
-              }
+              } else buffer.push(atom);
             }
-            if (buffer.length > 0) {
-              columns.push(buffer);
-            }
+            if (buffer.length > 0) columns.push(buffer);
 
             // expand environment columns to paste size
             let currentRow = Number(cursor.treeBranch![0]);

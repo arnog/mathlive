@@ -1,4 +1,4 @@
-import { globalMathLive } from 'mathlive';
+import { globalMathLive } from '../mathlive';
 import { isBrowser } from '../common/capabilities';
 import { render } from '../editor-mathfield/render';
 import { MathfieldOptions } from '../public/options';

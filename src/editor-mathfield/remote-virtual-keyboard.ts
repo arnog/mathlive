@@ -12,7 +12,7 @@ import { osPlatform } from '../common/capabilities';
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
 import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { validateOrigin } from './utils';
-import { globalMathLive } from 'mathlive';
+import { globalMathLive } from '../mathlive';
 
 const POST_MESSAGE_TYPE = 'mathlive#remote-virtual-keyboard-message';
 

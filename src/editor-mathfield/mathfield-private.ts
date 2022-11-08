@@ -117,7 +117,7 @@ import {
   defaultGetDefinition,
   getMacroDefinition,
 } from '../core/context-utils';
-import { globalMathLive } from 'mathlive';
+import { globalMathLive } from '../mathlive';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;

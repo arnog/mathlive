@@ -636,9 +636,8 @@ export class ArrayAtom extends Atom {
     }
 
     let atoms = value;
-    if (value.length === 0 || value[0].type !== 'first') {
+    if (value.length === 0 || value[0].type !== 'first')
       atoms = [new Atom('first', this.context, { mode: this.mode }), ...value];
-    }
 
     this.array[row][column] = atoms;
     for (const atom of atoms) {
@@ -699,11 +698,7 @@ export class ArrayAtom extends Atom {
     for (let i = row; i < this.rowCount; i++) {
       for (let j = 0; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) {
-          for (const atom of atoms) {
-            atom.treeBranch = [i, j];
-          }
-        }
+        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -758,11 +753,7 @@ export class ArrayAtom extends Atom {
     for (let i = 0; i < this.rowCount; i++) {
       for (let j = col; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) {
-          for (const atom of atoms) {
-            atom.treeBranch = [i, j];
-          }
-        }
+        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
       }
     }
     this.isDirty = true;

@@ -5,7 +5,7 @@ import { Atom } from '../core/atom';
 import { atomsToMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
-import { isBrowser, osPlatform } from '../common/capabilities';
+import { osPlatform } from '../common/capabilities';
 
 declare global {
   interface Window {

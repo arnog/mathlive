@@ -9,7 +9,7 @@ import {
 } from './virtual-keyboard-utils';
 import { register as registerCommand, SelectorPrivate } from './commands';
 import { VirtualKeyboardTheme } from '../public/options';
-import { globalMathLive } from 'mathlive';
+import { globalMathLive } from '../mathlive';
 export { unshiftKeyboardLayer };
 
 /*
