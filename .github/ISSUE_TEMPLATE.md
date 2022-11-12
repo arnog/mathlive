@@ -1,10 +1,13 @@
 ## Description
 
+[If the issue has to do with MathJSON or the Compute Engine, please report it
+here: https://github.com/cortex-js/compute-engine/issues]
+
 [Describe the bug or feature]
 
-[Include screenshots, screen recordings, code fragments or CodePen. If you get
-an error message, include the text of the error message, not a screen capture of
-it.]
+[Include code fragments or CodePen. If you get an error, copy the text of the
+error message (from the JavaScript console, for example). Include screenshots or
+screen recordings to illustrate a visual or interactive issue.]
 
 [If you use Vue, React or some other framework, include a link to a minimal
 project demonstrating the issue.]
@@ -32,7 +35,7 @@ include a screenshot of the error messages.]
 
 ### Expected Behavior
 
-[What did you expect to happen insteead?]
+[What did you expect to happen instead?]
 
 [Is this a regression: did it use to work in a previous version?]
 
