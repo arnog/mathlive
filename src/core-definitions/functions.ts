@@ -23,10 +23,10 @@ defineFunction(
     'cos',
     'cosh',
     'cot',
+    'cotg', // Not LaTeX standard. Used in France
     'coth',
     'ctg', // Not LaTeX standard. Used in France
     'cth',
-    'cotg', // Not LaTeX standard. Used in France
     'csc', // Not LaTeX standard. \cth
     'cosec', // Not LaTeX standard.
     'deg',
@@ -35,7 +35,6 @@ defineFunction(
     'hom',
     'inf',
     'ker',
-    'lg',
     'lb', // Not LaTeX standard. US Dept of Commerce recommendation for log2
     'lg', // Not LaTeX standard. In German and Russian literature,  log10.
     // Sometimes used as the log2
@@ -51,6 +50,13 @@ defineFunction(
     'tanh',
     'tg', // Not LaTeX standard. Used in France
     'th', // Not LaTeX standard. \tanh
+    'arcsec',
+    'arccsc',
+    'arsinh',
+    'arcosh',
+    'artanh',
+    'arcsech',
+    'arccsch',
   ],
   '',
   {

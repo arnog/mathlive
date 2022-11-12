@@ -51,8 +51,8 @@ metadata('Trigonometry', ['\\cos', '\\sin', '\\tan'], SUPERCOMMON);
 metadata(
   'Trigonometry',
   [
-    '\\arcsin',
     '\\arccos',
+    '\\arcsin',
     '\\arctan',
     '\\arctg',
     '\\arcctg',
