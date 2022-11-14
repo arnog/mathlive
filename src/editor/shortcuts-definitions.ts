@@ -40,6 +40,7 @@ export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
   'nabla': '\\nabla',
   'grad': '\\nabla',
   'del': '\\partial',
+  'deg': { after: 'digit+space', value: '\\degree' },
 
   'infty': '\\infty',
 

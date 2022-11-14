@@ -2,7 +2,7 @@ import { Style } from '../public/core';
 
 import { joinLatex } from '../core/tokenizer';
 
-import type { Atom } from '../core/atom-class';
+import { Atom } from '../core/atom-class';
 import { GlobalContext } from '../core/context';
 import { OperatorAtom } from '../core-atoms/operator';
 import { SurdAtom } from '../core-atoms/surd';
@@ -10,6 +10,7 @@ import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
 import { DelimAtom } from '../core-atoms/delim';
 
 import { Argument, defineFunction } from './definitions-utils';
+import { GroupAtom } from 'core-atoms/group';
 
 defineFunction(
   [
@@ -29,7 +30,6 @@ defineFunction(
     'cth',
     'csc', // Not LaTeX standard. \cth
     'cosec', // Not LaTeX standard.
-    'deg',
     'dim',
     'exp',
     'hom',
@@ -125,6 +125,29 @@ defineFunction(['det', 'max', 'min'], '', {
       variant: 'main',
       style,
     }),
+});
+
+defineFunction(['ang'], '{:math}', {
+  isFunction: true,
+  createAtom: (
+    _command: string,
+    args: Argument[],
+    style: Style,
+    context: GlobalContext
+  ): Atom =>
+    new GroupAtom(
+      [
+        ...(args[0] as Atom[]),
+        new Atom('mord', context, { value: '\u00b0', style }),
+      ],
+      context,
+      {
+        mode: 'math',
+        latexOpen: '\\ang{',
+        latexClose: '}',
+        style,
+      }
+    ),
 });
 
 // Root
