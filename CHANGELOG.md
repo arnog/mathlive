@@ -16,10 +16,19 @@
 
 ### Improvements
 
+- Audio feedback is now using the Web Audio API. Previously, audio feedback was
+  provided using an `Audio` element, but browsers have limitations to the number
+  of `Audio` elements which can be instantiated in a page at a time, and this
+  limit is reached surprisingly quickly wiht multiple mathfields on a page.
 - The `window.mathlive` global is now `globalThis[Symbol.for("mathlive")]`. This
   is mostly used internally for coordination between mathfields in the same
   context but it also includes the `version` property which may be of use for
   debugging or to report issues.
+
+### Bug Fixes
+
+- **#1715**, **#1716**: fill-in-the-blank placeholders inside a `<math-field>`
+  did not inherit the options from their parent container.
 
 ## 0.84.0 (2022-10-19)
 

@@ -1362,34 +1362,32 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
   get keypressSound():
     | string
-    | HTMLAudioElement
     | null
     | {
-        spacebar?: null | string | HTMLAudioElement;
-        return?: null | string | HTMLAudioElement;
-        delete?: null | string | HTMLAudioElement;
-        default: null | string | HTMLAudioElement;
+        spacebar?: null | string;
+        return?: null | string;
+        delete?: null | string;
+        default: null | string;
       } {
     return this.getOption('keypressSound');
   }
   set keypressSound(
     value:
       | string
-      | HTMLAudioElement
       | null
       | {
-          spacebar?: null | string | HTMLAudioElement;
-          return?: null | string | HTMLAudioElement;
-          delete?: null | string | HTMLAudioElement;
-          default: null | string | HTMLAudioElement;
+          spacebar?: null | string;
+          return?: null | string;
+          delete?: null | string;
+          default: null | string;
         }
   ) {
     this.setOptions({ keypressSound: value });
   }
-  get plonkSound(): string | HTMLAudioElement | null {
+  get plonkSound(): string | null {
     return this.getOption('plonkSound') ?? null;
   }
-  set plonkSound(value: string | HTMLAudioElement | null) {
+  set plonkSound(value: string | null) {
     this.setOptions({ plonkSound: value });
   }
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {

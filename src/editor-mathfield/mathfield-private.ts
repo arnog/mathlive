@@ -118,9 +118,11 @@ import {
   getMacroDefinition,
 } from '../core/context-utils';
 import { globalMathLive } from '../mathlive';
+import { resolveUrl } from '../common/script-url';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
+const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
 /** @internal */
 export class MathfieldPrivate implements GlobalContext, Mathfield {
@@ -181,12 +183,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }[];
   inlineShortcutBufferFlushTimer: ReturnType<typeof setTimeout>;
 
-  keypressSound: null | HTMLAudioElement;
-  spacebarKeypressSound: null | HTMLAudioElement;
-  returnKeypressSound: null | HTMLAudioElement;
-  deleteKeypressSound: null | HTMLAudioElement;
-  plonkSound: null | HTMLAudioElement;
-
   private blurred: boolean;
 
   // The value of the mathfield when it is focussed.
@@ -197,6 +193,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   private readonly stylesheets: (null | Stylesheet)[] = [];
   private resizeTimer: ReturnType<typeof requestAnimationFrame>;
+
+  private audioBuffers: { [key: string]: AudioBuffer } = {};
+  private _audioContext: AudioContext;
 
   /**
    *
@@ -242,27 +241,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (options.eventSink) this.host = options.eventSink;
 
     this.placeholders = new Map();
-
-    this.plonkSound = this.options.plonkSound as HTMLAudioElement;
-    if (!this.options.keypressSound) {
-      this.keypressSound = null;
-      this.spacebarKeypressSound = null;
-      this.returnKeypressSound = null;
-      this.deleteKeypressSound = null;
-    } else if (
-      this.options.keypressSound &&
-      typeof this.options.keypressSound !== 'string' &&
-      !(this.options.keypressSound instanceof HTMLAudioElement)
-    ) {
-      this.keypressSound = this.options.keypressSound
-        .default as HTMLAudioElement;
-      this.spacebarKeypressSound = this.options.keypressSound
-        .spacebar as HTMLAudioElement;
-      this.returnKeypressSound = this.options.keypressSound
-        .return as HTMLAudioElement;
-      this.deleteKeypressSound = this.options.keypressSound
-        .delete as HTMLAudioElement;
-    }
 
     this.element = element;
     element.mathfield = this;
@@ -563,6 +541,11 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (isBrowser()) document.fonts.ready.then(() => render(this));
   }
 
+  get audioContext(): AudioContext {
+    if (!this._audioContext) this._audioContext = new AudioContext();
+    return this._audioContext;
+  }
+
   /** Global Context.
    * These properties are accessed by the atom instances for rendering/layout
    */
@@ -723,21 +706,15 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     this._keybindings = undefined;
 
-    this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (
-      this.options.keypressSound &&
-      typeof this.options.keypressSound !== 'string' &&
-      !(this.options.keypressSound instanceof HTMLAudioElement)
-    ) {
-      this.keypressSound = this.options.keypressSound
-        .default as HTMLAudioElement;
-      this.spacebarKeypressSound = this.options.keypressSound
-        .spacebar as HTMLAudioElement;
-      this.returnKeypressSound = this.options.keypressSound
-        .return as HTMLAudioElement;
-      this.deleteKeypressSound = this.options.keypressSound
-        .delete as HTMLAudioElement;
-    }
+      'soundsDirectory' in config ||
+      'plonkSound' in config ||
+      'keypressSound' in config ||
+      'spacebarKeypressSound' in config ||
+      'returnKeypressSound' in config ||
+      'deleteKeypressSound' in config
+    )
+      this.audioBuffers = {};
 
     if (this.options.defaultMode === 'inline-math')
       this.element!.classList.add('ML__isInline');
@@ -952,6 +929,78 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return ce.box(ce.parse(this.model.getValue()));
   }
 
+  loadSound(
+    sound: 'keypress' | 'spacebar' | 'delete' | 'plonk' | 'return'
+  ): void {
+    //  Clear out the cached audio buffer
+    delete this.audioBuffers[sound];
+
+    let soundFile: string | undefined | null = '';
+    switch (sound) {
+      case 'keypress':
+        soundFile =
+          typeof this.options.keypressSound === 'string'
+            ? this.options.keypressSound
+            : this.options.keypressSound?.default;
+        break;
+      case 'spacebar':
+        soundFile =
+          typeof this.options.keypressSound === 'string'
+            ? this.options.keypressSound
+            : this.options.keypressSound?.spacebar ??
+              this.options.keypressSound?.default;
+        break;
+      case 'delete':
+        soundFile =
+          typeof this.options.keypressSound === 'string'
+            ? this.options.keypressSound
+            : this.options.keypressSound?.delete ??
+              this.options.keypressSound?.default;
+        break;
+      case 'plonk':
+        soundFile = this.options.plonkSound;
+        break;
+    }
+
+    if (typeof soundFile !== 'string') return;
+    soundFile = soundFile.trim();
+    const soundsDirectory = this.options.soundsDirectory;
+    if (
+      soundsDirectory === undefined ||
+      soundsDirectory === null ||
+      soundsDirectory === 'null' ||
+      soundFile === 'none' ||
+      soundFile === 'null'
+    )
+      return;
+
+    // Fetch the audio buffer
+    fetch(resolveUrl(soundsDirectory + '/' + soundFile))
+      .then((response) => response.arrayBuffer())
+      .then((arrayBuffer) => this.audioContext.decodeAudioData(arrayBuffer))
+      .then((audioBuffer) => {
+        this.audioBuffers[sound] = audioBuffer;
+      });
+  }
+
+  playSound(
+    name: 'keypress' | 'spacebar' | 'delete' | 'plonk' | 'return'
+  ): void {
+    if (!this.audioBuffers[name]) this.loadSound(name);
+    if (!this.audioBuffers[name]) return;
+
+    // A sound source can't be played twice, so creeate a new one
+    const soundSource = this.audioContext.createBufferSource();
+    soundSource.buffer = this.audioBuffers[name];
+
+    // Set the volume
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.value = AUDIO_FEEDBACK_VOLUME;
+    soundSource.connect(gainNode).connect(this.audioContext.destination);
+
+    soundSource.start();
+  }
+
   /** Make sure the caret is visible within the matfield.
    * If the mathfield is inside a mathfield element, make sure the mathfield
    * element is visible in the page
@@ -1045,7 +1094,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         if (this.options.keypressVibration && canVibrate())
           navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
-        void this.keypressSound?.play().catch(console.warn);
+        void this.playSound('keypress');
       }
 
       if (options.scrollIntoView) this.scrollIntoView();

@@ -444,29 +444,27 @@ export type VirtualKeyboardOptions = {
    * When a key on the virtual keyboard is pressed, produce a short audio
    * feedback.
    *
-   * If the property is set to a `string` or `HTMLAudioElement`, the same
-   * sound is played in all cases. Otherwise, a distinct sound is played:
+   * If the property is set to a `string`, the same sound is played in all
+   * cases. Otherwise, a distinct sound is played:
    *
    * -   `delete` a sound played when the delete key is pressed
    * -   `return` ... when the return/tab key is pressed
    * -   `spacebar` ... when the spacebar is pressed
-   * -   `default` ... when any other key is pressed. This key is required,
+   * -   `default` ... when any other key is pressed. This property is required,
    *     the others are optional. If they are missing, this sound is played as
    *     well.
    *
    * The value of the properties should be either a string, the name of an
-   * audio file in the `soundsDirectory` directory, an `HTMLAudioElement` or
-   * null to suppress the sound.
+   * audio file in the `soundsDirectory` directory or `null` to suppress the sound.
    */
   keypressSound:
     | string
-    | HTMLAudioElement
     | null
     | {
-        spacebar?: null | string | HTMLAudioElement;
-        return?: null | string | HTMLAudioElement;
-        delete?: null | string | HTMLAudioElement;
-        default: null | string | HTMLAudioElement;
+        spacebar?: null | string;
+        return?: null | string;
+        delete?: null | string;
+        default: null | string;
       };
   /**
    * Sound played to provide feedback when a command has no effect, for example
@@ -474,10 +472,9 @@ export type VirtualKeyboardOptions = {
    *
    * The property is either:
    * - a string, the name of an audio file in the `soundsDirectory` directory
-   * - an `HTMLAudioElement`
    * - null to turn off the sound
    */
-  plonkSound: string | HTMLAudioElement | null;
+  plonkSound: string | null;
 
   /**
    * The right hand side toolbar configuration.
