@@ -4,18 +4,24 @@ import {
   SelectorPrivate,
 } from '../editor/commands-definitions';
 
+export type ButtonHandlersRecord = {
+  default: SelectorPrivate | [SelectorPrivate, ...any[]];
+  pressed?: SelectorPrivate | [SelectorPrivate, ...any[]];
+  alt?: SelectorPrivate | [SelectorPrivate, ...any[]];
+  altshift?: SelectorPrivate | [SelectorPrivate, ...any[]];
+  shift?: SelectorPrivate | [SelectorPrivate, ...any[]];
+  pressAndHoldStart?: SelectorPrivate | [SelectorPrivate, ...any[]];
+  pressAndHoldEnd?: SelectorPrivate | [SelectorPrivate, ...any[]];
+};
+
+function isButtonHandlersRecord(x: ButtonHandlers): x is ButtonHandlersRecord {
+  return typeof x === 'object' && ('default' in x || 'pressed' in x);
+}
+
 export type ButtonHandlers =
   | SelectorPrivate
   | [SelectorPrivate, ...any[]]
-  | {
-      default: SelectorPrivate | [SelectorPrivate, ...any[]];
-      pressed?: SelectorPrivate | [SelectorPrivate, ...any[]];
-      alt?: SelectorPrivate | [SelectorPrivate, ...any[]];
-      altshift?: SelectorPrivate | [SelectorPrivate, ...any[]];
-      shift?: SelectorPrivate | [SelectorPrivate, ...any[]];
-      pressAndHoldStart?: SelectorPrivate | [SelectorPrivate, ...any[]];
-      pressAndHoldEnd?: SelectorPrivate | [SelectorPrivate, ...any[]];
-    };
+  | ButtonHandlersRecord;
 
 /**
  * Attach event handlers to an element so that it will react by executing
@@ -47,10 +53,7 @@ export function attachButtonHandlers(
   element: HTMLElement,
   command: ButtonHandlers
 ): void {
-  if (
-    typeof command === 'object' &&
-    ('default' in command || 'pressed' in command)
-  ) {
+  if (isButtonHandlersRecord(command)) {
     // Attach the default (no modifiers pressed) command to the element
     if (command.default)
       element.dataset.command = JSON.stringify(command.default);

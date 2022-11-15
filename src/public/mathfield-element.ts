@@ -1167,7 +1167,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     // The mathfield creation could have failed
-    if (!this._mathfield || !this._mathfield.model) {
+    if (!this._mathfield?.model) {
       this._mathfield = null;
       return;
     }

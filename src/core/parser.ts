@@ -1194,7 +1194,7 @@ export class Parser {
   parseArguments(
     info: Partial<FunctionDefinition>
   ): [ParseMode | undefined, (null | Argument)[]] {
-    if (!info || !info.params) return [undefined, []];
+    if (!info?.params) return [undefined, []];
     let explicitGroup: ParseMode | undefined = undefined;
     const args: (null | Argument)[] = [];
     let i = info.infix ? 2 : 0;

@@ -87,7 +87,7 @@ export function defaultReadAloudHook(
       return;
     }
 
-    if (!data || !data.AudioStream) {
+    if (!data?.AudioStream) {
       console.log('polly.synthesizeSpeech():', data);
       return;
     }
@@ -119,7 +119,7 @@ export function defaultReadAloudHook(
         return;
       }
 
-      if (!data || !data.AudioStream) return;
+      if (!data?.AudioStream) return;
 
       const uInt8Array = new Uint8Array(data.AudioStream);
       const blob = new Blob([uInt8Array.buffer], {
