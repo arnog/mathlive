@@ -27,7 +27,7 @@ export class PlaceholderAtom extends Atom {
     });
     this.captureSelection = true;
     this.placeholderId = options?.placeholderId;
-    this.defaultValue = options?.default;
+    if (options?.default) this.defaultValue = options?.default;
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): PlaceholderAtom {

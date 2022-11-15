@@ -32,6 +32,7 @@ import {
 
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
+import { MathfieldOptions } from '../public/options';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -183,7 +184,10 @@ export class MathModeEditor extends ModeEditor {
       typeof input === 'string'
         ? input
         : model.mathfield.computeEngine?.box(input).latex ?? '';
-    if (!contentWillChange(model, { data, inputType: 'insertText' }))
+    if (
+      !options.suppressChangeNotifications &&
+      !contentWillChange(model, { data, inputType: 'insertText' })
+    )
       return false;
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
@@ -324,36 +328,31 @@ export class MathModeEditor extends ModeEditor {
         !!placeholder.placeholderId &&
           !model.mathfield.placeholders.has(placeholder.placeholderId)
       );
+
+      let virtualKeyboardMode = model.mathfield.options.virtualKeyboardMode;
+      if (virtualKeyboardMode === 'manual') virtualKeyboardMode = 'onfocus';
       const element = new MathfieldElement({
-        virtualKeyboardMode: 'onfocus',
+        ...model.mathfield.options,
+        eventSink: null,
+        virtualKeyboardMode,
         readOnly: false,
-        fontsDirectory: model.mathfield.options.fontsDirectory,
-      });
-      const container = model.mathfield.element?.querySelector(
-        '.ML__placeholdercontainer'
-      );
+      } as Partial<MathfieldOptions>);
 
-      element.value = placeholder.defaultValue?.length
-        ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'text' })
-        : '';
-      element.classList.add('nested-mathfield');
-      element.style.display = 'inline-block';
-      element.style.zIndex = '1001';
-      element.style.position = 'absolute';
-      element.style.minWidth = '30px';
-
-      const style = document.createElement('style');
-      style.textContent = `.nested-mathfield { border: 1px solid black; }
-          .ML__container{ min-height:auto !important; }
-          `;
-      element.appendChild(style);
+      const value =
+        (placeholder.defaultValue?.length ?? 0) > 0
+          ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'math' })
+          : '';
+      element.value = value;
       element.addEventListener('input', () => {
         placeholderDidChange(model, placeholder.placeholderId!);
         // this timeout gives some time for a placeholder to render properly
         // before rendering the main field.
         setTimeout(() => requestUpdate(model.mathfield));
       });
-      container?.appendChild(element);
+
+      model.mathfield.element
+        ?.querySelector('.ML__placeholdercontainer')
+        ?.appendChild(element);
 
       model.mathfield.placeholders.set(placeholder.placeholderId as string, {
         atom: placeholder,
