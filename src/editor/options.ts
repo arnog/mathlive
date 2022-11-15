@@ -285,6 +285,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     decimalSeparator: '.',
     fractionNavigationOrder: 'numerator-denominator',
     placeholderSymbol: '▢',
+    enablePopover: true,
 
     locale: l10n.locale,
     strings: l10n.strings,

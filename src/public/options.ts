@@ -816,6 +816,14 @@ export type EditingOptions = {
    * **Default**: `▢` `U+25A2 WHITE SQUARE WITH ROUNDED CORNERS`
    */
   placeholderSymbol: string;
+
+  /**
+   * If `true` a popover with suggestions may be displayed when a LaTeX
+   * command is input.
+   *
+   * **Default**: `true`
+   */
+  enablePopover: boolean;
 };
 
 export type LayoutOptions = {

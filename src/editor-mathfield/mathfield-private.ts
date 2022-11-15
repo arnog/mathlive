@@ -700,6 +700,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   setOptions(config: Partial<MathfieldOptionsPrivate>): void {
     this.options = updateOptions(this.options, config);
+
+    if ('computeEngine' in config)
+      this._computeEngine = this.options.computeEngine;
+
     if (this._computeEngine && 'decimalSeparator' in config) {
       this._computeEngine.latexOptions.decimalMarker =
         this.options.decimalSeparator === ',' ? '{,}' : '.';

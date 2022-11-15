@@ -4,10 +4,13 @@
 
 - Added support for `\mathtip{math}{tip}` and `\texttip{math}{tip}` commands.
   These commands are also supported by MathJax.
+- Added `options.enablePopover` option which can be set to `false` to prevent
+  the auto-complete popover from being displayed.
+- Changed the layout of the popover to display multiple options at once
 - Added the `\error{}` command which displays its content with a red underline.
 - A specific Compute Engine instance can be associated with a mathfield using
-  `mf.computeEngine = ce`. If none is provided, a default Compute Engine 
-  instance is created when necessary. Setting the property to `null` will 
+  `mf.computeEngine = ce`. If none is provided, a default Compute Engine
+  instance is created when necessary. Setting the property to `null` will
   prevent the Compute Engine from being used, but the MathJSON format will not
   be available.
 
