@@ -246,6 +246,7 @@ export class RemoteVirtualKeyboard
       keypressSound: null,
       plonkSound: null,
       virtualKeyboardToolbar: 'default',
+      computeEngine: null,
 
       virtualKeyboardContainer: globalThis.document?.body ?? null,
     };

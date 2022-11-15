@@ -969,6 +969,13 @@ export type CoreOptions = {
    *
    */
   soundsDirectory: string | null;
+
+  /**
+   * A custom compute engine instance. If none is provided, a default one is
+   * used. If `null` is specified, no compute engine is used.
+   */
+  computeEngine: any | null;
+
   /**
    * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
    *

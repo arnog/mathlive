@@ -125,7 +125,8 @@ export type AtomType =
   | 'space'
   | 'spacing'
   | 'surd' // Aka square root, nth root
-  | 'text'; // Text mode atom;
+  | 'text' // Text mode atom;
+  | 'tooltip'; // For `\mathtip` and `\texttip`
 
 export type BBoxParameter = {
   backgroundcolor?: string;
@@ -668,7 +669,6 @@ export class Atom {
 
     if (!hadVerbatimBackgroundColor) delete result.verbatimBackgroundColor;
     if (!hadVerbatimColor) delete result.verbatimColor;
-
     return result;
   }
 
@@ -1339,21 +1339,23 @@ function getStyleRuns(atoms: Atom[]): Atom[][] {
   const runs: Atom[][] = [];
   let run: Atom[] = [];
   for (const atom of atoms) {
-    const atomStyle = atom.computedStyle;
     if (!style && !atom.style) run.push(atom);
-    else if (
-      style &&
-      atomStyle.color === style.color &&
-      atomStyle.backgroundColor === style.backgroundColor &&
-      atomStyle.fontSize === style.fontSize
-    ) {
-      // Atom matches the current run
-      run.push(atom);
-    } else {
-      // Start a new run
-      if (run.length > 0) runs.push(run);
-      run = [atom];
-      style = atom.computedStyle;
+    else {
+      const atomStyle = atom.computedStyle;
+      if (
+        style &&
+        atomStyle.color === style.color &&
+        atomStyle.backgroundColor === style.backgroundColor &&
+        atomStyle.fontSize === style.fontSize
+      ) {
+        // Atom matches the current run
+        run.push(atom);
+      } else {
+        // Start a new run
+        if (run.length > 0) runs.push(run);
+        run = [atom];
+        style = atomStyle;
+      }
     }
   }
 

@@ -748,8 +748,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (!this._mathfield) return undefined;
     return this._mathfield.computeEngine;
   }
+  set computeEngine(val: any | null) {
+    if (!this._mathfield) return;
+    this._mathfield.setOptions({ computeEngine: val });
+  }
 
-  get expression(): any {
+  get expression(): any | null {
     if (!this._mathfield) return undefined;
     return this._mathfield.expression;
   }

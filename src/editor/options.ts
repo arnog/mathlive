@@ -207,6 +207,11 @@ export function update(
         }
 
         break;
+
+      case 'computeEngine':
+        result.computeEngine = updates.computeEngine;
+        break;
+
       case 'virtualKeyboardContainer':
         result.virtualKeyboardContainer = updates.virtualKeyboardContainer!;
         break;
@@ -261,6 +266,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     createHTML: (s: string): any => s,
     fontsDirectory: './fonts',
     soundsDirectory: './sounds',
+    computeEngine: undefined,
 
     defaultMode: 'math',
     macros: getMacros(),

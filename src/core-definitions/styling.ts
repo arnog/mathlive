@@ -24,6 +24,52 @@ import { BoxType } from '../core/box';
 import { GlobalContext, PrivateStyle } from '../core/context';
 
 import { Argument, defineFunction } from './definitions-utils';
+import { TooltipAtom } from '../core-atoms/tooltip';
+
+defineFunction('mathtip', '{:math}{:math}', {
+  createAtom: (
+    name: string,
+    args: Argument[],
+    style: PrivateStyle,
+    context: GlobalContext
+  ): Atom =>
+    new TooltipAtom(args[0] as Atom[], args[1] as Atom[], context, {
+      command: name,
+      content: 'math',
+      style,
+    }),
+});
+
+defineFunction('texttip', '{:math}{:text}', {
+  createAtom: (
+    name: string,
+    args: Argument[],
+    style: PrivateStyle,
+    context: GlobalContext
+  ): Atom =>
+    new TooltipAtom(args[0] as Atom[], args[1] as Atom[], context, {
+      command: name,
+      content: 'text',
+      style,
+    }),
+});
+
+defineFunction('error', '{:math}', {
+  createAtom: (
+    _name: string,
+    args: Argument[],
+    style: PrivateStyle,
+    context: GlobalContext
+  ): Atom =>
+    new GroupAtom(args[0] as Atom[], context, {
+      mode: 'math',
+      command: '\\error',
+      customClass: 'ML__error',
+      style,
+      serialize: (atom: GroupAtom, options: ToLatexOptions) =>
+        `\\error{${atom.bodyToLatex(options)}}`,
+    }),
+});
 
 defineFunction('ensuremath', '{:math}', {
   createAtom: (

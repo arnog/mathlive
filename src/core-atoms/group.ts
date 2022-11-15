@@ -44,11 +44,16 @@ export class GroupAtom extends Atom {
       mode: options?.mode ?? 'math',
       serialize: options?.serialize,
       style: options?.style,
-      displayContainsHighlight: true,
     });
     this.body = arg;
     this.mathstyleName = options?.mathstyleName;
 
+    console.assert(
+      !options?.serialize ||
+        !Boolean(options?.latexClose) ||
+        !Boolean(options?.latexOpen),
+      options?.command ?? ''
+    );
     this.latexOpen = options?.latexOpen;
     this.latexClose = options?.latexClose;
     this.cssId = options?.cssId;
@@ -62,10 +67,9 @@ export class GroupAtom extends Atom {
     this.changeMode = options?.changeMode ?? false;
     this.displayContainsHighlight = false;
 
-    if (arg && arg.length === 1 && arg[0].command === ',') {
-      // French decimal point
+    // French decimal point
+    if (arg && arg.length === 1 && arg[0].command === ',')
       this.captureSelection = true;
-    }
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): GroupAtom {

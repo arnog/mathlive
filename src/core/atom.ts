@@ -26,6 +26,7 @@ import { SpacingAtom } from '../core-atoms/spacing';
 import { SubsupAtom } from '../core-atoms/subsup';
 import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
+import { TooltipAtom } from '../core-atoms/tooltip';
 
 import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
 import { GlobalContext } from './context';
@@ -81,6 +82,7 @@ export function fromJson(
   if (type === 'spacing') result = SpacingAtom.fromJson(json, context);
   if (type === 'surd') result = SurdAtom.fromJson(json, context);
   if (type === 'text') result = TextAtom.fromJson(json, context);
+  if (type === 'tooltip') result = TooltipAtom.fromJson(json, context);
 
   if (type === 'mop') result = OperatorAtom.fromJson(json, context);
 

@@ -10,7 +10,7 @@ import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
 import { DelimAtom } from '../core-atoms/delim';
 
 import { Argument, defineFunction } from './definitions-utils';
-import { GroupAtom } from 'core-atoms/group';
+import { GroupAtom } from '../core-atoms/group';
 
 defineFunction(
   [

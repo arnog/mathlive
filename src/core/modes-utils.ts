@@ -97,7 +97,7 @@ export function getPropertyRuns(
   let run: Atom[] = [];
   let currentValue: string | number | undefined = undefined;
   for (const atom of atoms) {
-    if (atom.type !== 'first') {
+    if (atom.type !== 'first' && atom.style) {
       let value: string | number | undefined;
       if (property === 'variant') {
         value = atom.style.variant;

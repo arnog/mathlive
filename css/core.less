@@ -633,17 +633,25 @@ body.ML__fonts-loading .ML__base {
   }
 }
 
+// Wavy pattern
 .ML__error {
-  // Wavy pattern
+  display: inline-block;
   background-image: radial-gradient(
     ellipse at center,
     hsl(341, 100%, 40%),
     rgba(0, 0, 0, 0) 70%
   );
+  background-color: hsla(341, 100%, 40%, 10%);
 
   background-repeat: repeat-x;
   background-size: 3px 3px;
-  background-position: 0 98%;
+  padding-bottom: 3px;
+  background-position: 0 100%;
+}
+
+.ML__error > .ML__error {
+  background: transparent;
+  padding: 0;
 }
 
 .ML__composition {

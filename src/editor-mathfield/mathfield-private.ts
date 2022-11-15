@@ -203,10 +203,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
    * - `options.computeEngine`: An instance of a `ComputeEngine`. It is used to parse and serialize
    * LaTeX strings, using the information contained in the dictionaries
    * of the Compute Engine to determine, for example, which symbols are
-   * numbers or which are functions, and therefore corectly interpret
+   * numbers or which are functions, and therefore correctly interpret
    * `bf(x)` as `b \\times f(x)`.
    *
-   * If no instance is provided, a new, default, one is created.
+   * If no instance is provided, a new default one is created.
    *
    * @param element - The DOM element that this mathfield is attached to.
    * Note that `element.mathfield` is this object.
@@ -215,7 +215,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     element: HTMLElement & { mathfield?: MathfieldPrivate },
     options: Partial<MathfieldOptionsPrivate> & {
       eventSink?: HTMLElement;
-      computeEngine?: ComputeEngine;
     }
   ) {
     // Setup default config options
@@ -238,7 +237,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (this.options.virtualKeyboardMode === 'auto')
       this.options.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
 
-    if (options.computeEngine) this._computeEngine = options.computeEngine;
+    if (this.options.computeEngine !== undefined)
+      this._computeEngine = options.computeEngine;
     if (options.eventSink) this.host = options.eventSink;
 
     this.placeholders = new Map();
@@ -655,8 +655,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return this._virtualKeyboard;
   }
 
-  get computeEngine(): ComputeEngine {
-    if (!this._computeEngine) {
+  get computeEngine(): ComputeEngine | null {
+    if (this._computeEngine === undefined) {
       this._computeEngine = new ComputeEngine();
       if (this.options.decimalSeparator === ',')
         this._computeEngine.latexOptions.decimalMarker = '{,}';
@@ -942,8 +942,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     }
   }
 
-  get expression(): BoxedExpression {
+  get expression(): BoxedExpression | null {
     const ce = this.computeEngine;
+    if (!ce) return null;
     return ce.box(ce.parse(this.model.getValue()));
   }
 
