@@ -183,6 +183,10 @@ export function defaultSpeakHook(
 
   config ??= globalMathLive().config ?? {};
 
+  // Sigh... Not really necessary, but the version of the typescript
+  // compiler used by `grok` will complain about this
+  if (!config) return;
+
   if (!config.speechEngine || config.speechEngine === 'local') {
     // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
     // See also https://developer.chrome.com/apps/tts

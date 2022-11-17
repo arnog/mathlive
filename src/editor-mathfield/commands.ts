@@ -4,6 +4,7 @@ import { complete } from './autocomplete';
 import type { MathfieldPrivate } from './mathfield-private';
 import { onTypedText } from './keyboard-input';
 import { toggleKeystrokeCaption } from './keystroke-caption';
+import { contentDidChange, contentWillChange } from 'editor-model/listeners';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
@@ -71,12 +72,21 @@ registerCommand({
     return true;
   },
   commit: (mathfield: MathfieldPrivate) => {
-    mathfield.host?.dispatchEvent(
-      new Event('change', {
-        bubbles: true,
-        composed: true,
-      })
-    );
+    if (contentWillChange(mathfield.model, { inputType: 'insertLineBreak' })) {
+      // No matching keybinding: trigger a commit
+
+      if (mathfield.host) {
+        mathfield.host.dispatchEvent(
+          new Event('change', {
+            bubbles: true,
+            composed: true,
+          })
+        );
+      }
+
+      // Dispatch an 'input' event matching the behavior of `<textarea>`
+      contentDidChange(mathfield.model, { inputType: 'insertLineBreak' });
+    }
     return true;
   },
 });

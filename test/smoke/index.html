@@ -201,6 +201,14 @@
         // },
       });
 
+      mf.addEventListener('input', (ev) => {
+        console.log('commit');
+      });
+
+      mf.addEventListener('beforeinput', (ev) => {
+        if (ev.inputType === 'insertLineBreak') console.log('enter');
+      });
+
       mf.addEventListener('input', (ev) => updateContent(mf));
 
       mf.addEventListener('selection-change', (ev) => {
