@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- The vertical placement of the superscript after a `\left...\right' command was
+  incorrect.
+
 ## 0.85.1 (2022-11-18)
 
 - Updated to Compute Engine 0.11.0
