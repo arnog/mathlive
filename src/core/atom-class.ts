@@ -715,6 +715,7 @@ export class Atom {
   }
 
   isCharacterBox(): boolean {
+    if (this.type === 'leftright') return false;
     const base = this.getInitialBaseElement();
     return /mord/.test(base.type);
   }
