@@ -477,28 +477,28 @@ exports[`COLORS 22/ color format "-green!40!yellow" renders correctly 1`] = `
 ]
 `;
 
-exports[`DELIMTIER SIZING COMMANDS 0/ sizing command \\bigl, \\bigr, \\bigm, \\big 1`] = `
+exports[`DELIMITER SIZING COMMANDS 0/ sizing command \\bigl, \\bigr, \\bigm, \\big 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:0.85em"></span><span class="ML__strut--bottom" style="height:1.21em;vertical-align:-0.35em"></span><span class="ML__base"><span class="ML__delim-size1">(</span><span class="ML__mathit">x</span><span class="mrel ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.84em"><span style="top:-2.24em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.83em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.36em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size1">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\bigx</span><span class="nulldelimiter mord"></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`DELIMTIER SIZING COMMANDS 1/ sizing command \\Bigl, \\Bigr, \\Bigm, \\Big 1`] = `
+exports[`DELIMITER SIZING COMMANDS 1/ sizing command \\Bigl, \\Bigr, \\Bigm, \\Big 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:1.15em"></span><span class="ML__strut--bottom" style="height:1.81em;vertical-align:-0.65em"></span><span class="ML__base"><span class="ML__delim-size2">(</span><span class="ML__mathit">x</span><span class="mrel ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.14em"><span style="top:-1.94em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.54em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.13em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.66em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size2">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\Bigx</span><span class="nulldelimiter mord"></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`DELIMTIER SIZING COMMANDS 2/ sizing command \\biggl, \\biggr, \\biggm, \\bigg 1`] = `
+exports[`DELIMITER SIZING COMMANDS 2/ sizing command \\biggl, \\biggr, \\biggm, \\bigg 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:1.45em"></span><span class="ML__strut--bottom" style="height:2.41em;vertical-align:-0.95em"></span><span class="ML__base"><span class="ML__delim-size3">(</span><span class="ML__mathit">x</span><span class="mrel ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.44em"><span style="top:-1.64em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.24em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.84em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.43em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.96em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size3">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\biggx</span><span class="nulldelimiter mord"></span></span></span>",
   "unknown-command",
 ]
 `;
 
-exports[`DELIMTIER SIZING COMMANDS 3/ sizing command \\Biggl, \\Biggr, \\Biggm, \\Bigg 1`] = `
+exports[`DELIMITER SIZING COMMANDS 3/ sizing command \\Biggl, \\Biggr, \\Biggm, \\Bigg 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:1.75em"></span><span class="ML__strut--bottom" style="height:3.01em;vertical-align:-1.25em"></span><span class="ML__base"><span class="ML__delim-size4">(</span><span class="ML__mathit">x</span><span class="mrel ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.74em"><span style="top:-1.34em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-1.94em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.54em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.14em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.73em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.26em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size4">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\Biggx</span><span class="nulldelimiter mord"></span></span></span>",
   "unknown-command",
@@ -1393,6 +1393,13 @@ exports[`SPACING AND KERN 6/ x \\scriptstyle x renders correctly 1`] = `
 exports[`SPACING AND KERN 7/ \\vec{x} \\scriptstyle \\vec{x} renders correctly 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:0.72em"></span><span class="ML__base"><span><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.72em"><span style="top:-3em"><span class="pstrut" style="height:3em"></span><span><span><span class="ML__mathit">x</span></span></span></span><span class="ML__center" style="top:-3em;margin-left:0.06em"><span class="pstrut" style="height:3em"></span><span class="ML__accent-body ML__accent-vec"><span><span>⃗</span></span></span></span></span></span></span></span><span style="font-size:70%"><span><span><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.72em"><span style="top:-3em"><span class="pstrut" style="height:3em"></span><span><span><span class="ML__mathit">x</span></span></span></span><span class="ML__center" style="top:-3em;margin-left:0.06em"><span class="pstrut" style="height:3em"></span><span class="ML__accent-body ML__accent-vec"><span><span>⃗</span></span></span></span></span></span></span></span></span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`SUPERSCRIPT/SUBSCRIPT \\left(x+1\\right)^2 1`] = `
+[
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.94em"></span><span class="ML__strut--bottom" style="height:1.19em;vertical-align:-0.25em"></span><span class="ML__base"><span class="left-right"><span class="ML__small-delim ML__open"><span>(</span></span><span><span class="ML__mathit">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__cmr" style="margin-left:0.23em">1</span></span><span class="ML__small-delim ML__close"><span>)</span></span></span><span><span class="msubsup"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94em"><span style="top:-3.47em;margin-right:0.05em"><span class="pstrut" style="height:3em"></span><span style="font-size:70%"><span><span class="ML__cmr">2</span></span></span></span></span></span></span></span></span></span></span>",
   "no-error",
 ]
 `;

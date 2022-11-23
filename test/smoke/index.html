@@ -15,7 +15,9 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf" virtualkeyboardmode="manual">f(x)=2x </math-field>
+      <math-field id="mf" virtualkeyboardmode="manual"
+        >\left(x+\frac{1}{2}\right)^2</math-field
+      >
 
       <h2 style="margin-top: 1em">LaTeX</h2>
       <div class="output" id="latex"></div>
@@ -150,29 +152,6 @@
 
       const mf = document.getElementById('mf');
 
-      const customCe = new ComputeEngine({
-        latexDictionary: [
-          // {
-          //   name: 'Degrees',
-          //   trigger: ['in'],
-          //   kind: 'postfix',
-          //   precedence: 880,
-          //   parse: (_parser, lhs) => ['Unit', lhs, 'inch'],
-          //   serialize: (serializer, expr) =>
-          //     joinLatex([serializer.serialize(op(expr, 1)), '\\mathrm{in}']),
-          // },
-          // {
-          //   trigger: '\\in',
-          //   parse: ['Unit', 'iinch'],
-          // },
-          {
-            trigger: ['\\mathrm', '<{>', 'i', 'n', '<}>'],
-            kind: 'symbol',
-            parse: ['Unit', 'inch'],
-          },
-        ],
-      });
-
       mf.setOptions({
         onInlineShortcut: (_mf, s) => {
           if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
@@ -190,7 +169,6 @@
         virtualKeyboardMode: 'manual',
         enablePopover: false,
         macros: { ...mf.getOptions('macros'), in: '\\mathrm{in}' },
-        computeEngine: customCe,
         // macros: {
         //   ...mf.getOptions('macros'),
         //   smolfrac: {

@@ -4,7 +4,7 @@ import { complete } from './autocomplete';
 import type { MathfieldPrivate } from './mathfield-private';
 import { onTypedText } from './keyboard-input';
 import { toggleKeystrokeCaption } from './keystroke-caption';
-import { contentDidChange, contentWillChange } from 'editor-model/listeners';
+import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {

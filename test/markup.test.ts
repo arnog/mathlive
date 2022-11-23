@@ -167,6 +167,9 @@ describe('SUPERSCRIPT/SUBSCRIPT', () => {
   test('-1-\\frac56-1-x^{2-\\frac34}', () => {
     expect(markupAndError('-1-\\frac56-1-x^{2-\\frac34}')).toMatchSnapshot();
   });
+  test('\\left(x+1\\right)^2', () => {
+    expect(markupAndError('\\left(x+1\\right)^2')).toMatchSnapshot();
+  });
 });
 
 // ////////////////////////////////////////////////////////////////////////////////
@@ -212,7 +215,7 @@ describe('LEFT/RIGHT', () => {
   });
 });
 
-describe('DELIMTIER SIZING COMMANDS', () => {
+describe('DELIMITER SIZING COMMANDS', () => {
   test.each([
     ['\\bigl', '\\bigr', '\\bigm', '\\big'],
     ['\\Bigl', '\\Bigr', '\\Bigm', '\\Big'],
