@@ -156,8 +156,8 @@ function parseSubsup(base: string, stream: MathMLStream, options): boolean {
 
   if (!atom) return false;
 
-  const superscript = toMathML(atom.superscript, 0, 0, options).mathML;
-  const subscript = toMathML(atom.subscript, 0, 0, options).mathML;
+  const superscript = toMathML(atom.superscript!, options);
+  const subscript = toMathML(atom.subscript!, options);
 
   if (!superscript && !subscript) return false;
 
@@ -253,12 +253,7 @@ function scanFence(stream: MathMLStream, final: number, options) {
       mathML = '<mrow>';
       mathML += toMo(stream.atoms[openIndex], options);
 
-      mathML += toMathML(
-        stream.atoms,
-        openIndex + 1,
-        closeIndex,
-        options
-      ).mathML;
+      mathML += toMathML(stream.atoms, options, openIndex + 1, closeIndex);
 
       mathML += toMo(stream.atoms[closeIndex], options);
       mathML += '</mrow>';
@@ -316,18 +311,18 @@ function scanOperator(stream: MathMLStream, final: number, options) {
         // Both superscript and subscript
         mathML += '<munderover>' + op;
 
-        mathML += toMathML(atom.subscript, 0, 0, options).mathML;
-        mathML += toMathML(atom.superscript, 0, 0, options).mathML;
+        mathML += toMathML(atom.subscript, options);
+        mathML += toMathML(atom.superscript, options);
         mathML += '</munderover>';
       } else if (atom.superscript) {
         // Superscript only
         mathML += '<mover>' + op;
-        mathML += toMathML(atom.superscript, 0, 0, options).mathML;
+        mathML += toMathML(atom.superscript, options);
         mathML += '</mover>';
-      } else {
+      } else if (atom.subscript) {
         // Subscript only
         mathML += '<munder>' + op;
-        mathML += toMathML(atom.subscript, 0, 0, options).mathML;
+        mathML += toMathML(atom.subscript, options);
         mathML += '</munder>';
       }
 
@@ -376,12 +371,12 @@ function scanOperator(stream: MathMLStream, final: number, options) {
  * @param initial index of the input to start conversion from
  * @param final last index of the input to stop conversion to
  */
-function toMathML(
+export function toMathML(
   input: number | boolean | string | Atom | Atom[] | undefined,
-  initial: number,
-  final: number,
-  options: Partial<MathfieldOptions> & { generateID?: boolean }
-): MathMLStream {
+  options: Partial<MathfieldOptions> & { generateID?: boolean },
+  initial?: number,
+  final?: number
+): string {
   const result: MathMLStream = {
     atoms: [],
     index: initial ?? 0,
@@ -438,7 +433,7 @@ function toMathML(
     if (count > 1) result.mathML = '<mrow>' + result.mathML + '</mrow>';
   }
 
-  return result;
+  return result.mathML;
 }
 
 function toMo(atom, options) {
@@ -572,7 +567,7 @@ function atomToMathML(atom, options): string {
       case 'root':
         if (SPECIAL_OPERATORS[atom.command])
           result = SPECIAL_OPERATORS[atom.command];
-        else result = toMathML(atom.body, 0, 0, options).mathML;
+        else result = toMathML(atom.body, options);
         break;
 
       case 'array':
@@ -609,9 +604,7 @@ function atomToMathML(atom, options): string {
           result += '<mtr>';
           for (col = 0; col < atom.array[row].length; col++) {
             result +=
-              '<mtd>' +
-              toMathML(atom.array[row][col], 0, 0, options).mathML +
-              '</mtd>';
+              '<mtd>' + toMathML(atom.array[row][col], options) + '</mtd>';
           }
 
           result += '</mtr>';
@@ -649,18 +642,14 @@ function atomToMathML(atom, options): string {
 
         if (atom.hasBarLine) {
           result += '<mfrac>';
-          result +=
-            toMathML(atom.above, 0, 0, options).mathML || '<mi>&nbsp;</mi>';
-          result +=
-            toMathML(atom.below, 0, 0, options).mathML || '<mi>&nbsp;</mi>';
+          result += toMathML(atom.above, options) || '<mi>&nbsp;</mi>';
+          result += toMathML(atom.below, options) || '<mi>&nbsp;</mi>';
           result += '</mfrac>';
         } else {
           // No bar line, i.e. \choose, etc...
           result += '<mtable' + makeID(atom.id, options) + '>';
-          result +=
-            '<mtr>' + toMathML(atom.above, 0, 0, options).mathML + '</mtr>';
-          result +=
-            '<mtr>' + toMathML(atom.below, 0, 0, options).mathML + '</mtr>';
+          result += '<mtr>' + toMathML(atom.above, options) + '</mtr>';
+          result += '<mtr>' + toMathML(atom.below, options) + '</mtr>';
           result += '</mtable>';
         }
 
@@ -680,12 +669,12 @@ function atomToMathML(atom, options): string {
       case 'surd':
         if (!atom.hasEmptyBranch('above')) {
           result += '<mroot' + makeID(atom.id, options) + '>';
-          result += toMathML(atom.body, 0, 0, options).mathML;
-          result += toMathML(atom.above, 0, 0, options).mathML;
+          result += toMathML(atom.body, options);
+          result += toMathML(atom.above, options);
           result += '</mroot>';
         } else {
           result += '<msqrt' + makeID(atom.id, options) + '>';
-          result += toMathML(atom.body, 0, 0, options).mathML;
+          result += toMathML(atom.body, options);
           result += '</msqrt>';
         }
 
@@ -703,7 +692,7 @@ function atomToMathML(atom, options): string {
             '</mo>';
         }
 
-        if (atom.body) result += toMathML(atom.body, 0, 0, options).mathML;
+        if (atom.body) result += toMathML(atom.body, options);
 
         if (atom.rightDelim && atom.rightDelim !== '.') {
           result +=
@@ -729,7 +718,7 @@ function atomToMathML(atom, options): string {
 
       case 'accent':
         result += '<mover accent="true"' + makeID(atom.id, options) + '>';
-        result += toMathML(atom.body, 0, 0, options).mathML;
+        result += toMathML(atom.body, options);
         result +=
           '<mo>' + (SPECIAL_OPERATORS[command] || atom.accent) + '</mo>';
         result += '</mover>';
@@ -772,33 +761,25 @@ function atomToMathML(atom, options): string {
 
         if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript)) {
           result += `<munderover ${variant} ${makeID(atom.id, options)}>`;
+          result += SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options);
           result +=
-            SVG_CODE_POINTS[atom.svgBody] ||
-            toMathML(body, 0, 0, options).mathML;
+            SVG_CODE_POINTS[atom.svgBelow] ?? toMathML(underscript, options);
           result +=
-            SVG_CODE_POINTS[atom.svgBelow] ||
-            toMathML(underscript, 0, 0, options).mathML;
-          result +=
-            SVG_CODE_POINTS[atom.svgAbove] ||
-            toMathML(overscript, 0, 0, options).mathML;
+            SVG_CODE_POINTS[atom.svgAbove] ?? toMathML(overscript, options);
           result += '</munderover>';
         } else if (atom.svgAbove || overscript) {
           result +=
             `<mover ${variant} ${makeID(atom.id, options)}>` +
-            (SVG_CODE_POINTS[atom.svgBody] ||
-              toMathML(body, 0, 0, options).mathML);
+            (SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options));
           result +=
-            SVG_CODE_POINTS[atom.svgAbove] ||
-            toMathML(overscript, 0, 0, options).mathML;
+            SVG_CODE_POINTS[atom.svgAbove] ?? toMathML(overscript, options);
           result += '</mover>';
         } else if (atom.svgBelow || underscript) {
           result +=
             `<munder ${variant} ${makeID(atom.id, options)}>` +
-            (SVG_CODE_POINTS[atom.svgBody] ||
-              toMathML(body, 0, 0, options).mathML);
+            (SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options));
           result +=
-            SVG_CODE_POINTS[atom.svgBelow] ||
-            toMathML(underscript, 0, 0, options).mathML;
+            SVG_CODE_POINTS[atom.svgBelow] ?? toMathML(underscript, options);
           result += '</munder>';
         }
 
@@ -869,7 +850,7 @@ function atomToMathML(atom, options): string {
           '<mo separator="true"' +
           makeID(atom.id, options) +
           '>' +
-          (SPECIAL_OPERATORS[command] || command) +
+          (SPECIAL_OPERATORS[command] ?? command) +
           '</mo>';
         break;
 
@@ -903,12 +884,12 @@ function atomToMathML(atom, options): string {
         result +=
           makeID(atom.id, options) +
           '>' +
-          toMathML(atom.body, 0, 0, options).mathML +
+          toMathML(atom.body, options) +
           '</menclose>';
         break;
 
       case 'spacing':
-        result += '<mspace width="' + (SPACING[command] || 0) + 'em"/>';
+        result += '<mspace width="' + (SPACING[command] ?? 0) + 'em"/>';
         break;
 
       case 'enclose':
@@ -926,7 +907,7 @@ function atomToMathML(atom, options): string {
         result +=
           makeID(atom.id, options) +
           '">' +
-          toMathML(atom.body, 0, 0, options).mathML +
+          toMathML(atom.body, options) +
           '</menclose>';
         break;
 
@@ -979,17 +960,13 @@ function atomToMathML(atom, options): string {
         result +=
           '<mtext' + makeID(atom.id, options) + '>' + atom.value + '</mtext>';
         break;
+      case 'tooltip':
+        result += toMathML(atom.body, options);
+        break;
       default:
         console.log('In conversion to MathML, unknown type : ' + atom.type);
     }
   }
 
   return result;
-}
-
-export function atomsToMathML(
-  atoms: Atom | Atom[],
-  options: Partial<MathfieldOptions> & { generateID?: boolean }
-): string {
-  return toMathML(atoms, 0, 0, options).mathML;
 }

@@ -2,7 +2,7 @@ import { TextToSpeechOptions } from '../public/options';
 
 import { Atom } from '../core/atom';
 
-import { atomsToMathML } from '../addons/math-ml';
+import { toMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
 import { osPlatform } from '../common/capabilities';
@@ -615,7 +615,7 @@ export function atomToSpeakableText(
   };
 
   if (options.textToSpeechRules === 'sre' && 'sre' in globalThis) {
-    const mathML = atomsToMathML(atoms, options);
+    const mathML = toMathML(atoms, options);
     if (mathML) {
       if (options.textToSpeechMarkup) {
         options.textToSpeechRulesOptions =

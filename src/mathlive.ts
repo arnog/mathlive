@@ -16,7 +16,7 @@ import MathLiveDebug, {
   asciiMathToLatex,
   latexToAsciiMath,
 } from './addons/debug';
-import { atomsToMathML } from './addons/math-ml';
+import { toMathML } from './addons/math-ml';
 import './addons/definitions-metadata';
 
 import { atomToSpeakableText } from './editor/atom-to-speakable-text';
@@ -249,7 +249,7 @@ export function convertLatexToMathMl(
   latex: string,
   options: { generateID?: boolean } = {}
 ): string {
-  return atomsToMathML(
+  return toMathML(
     parseLatex(latex, defaultGlobalContext(), {
       parseMode: 'math',
       args: () => '',
