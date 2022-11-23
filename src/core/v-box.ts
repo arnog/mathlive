@@ -175,32 +175,34 @@ function makeRows(
   vlist.setStyle('height', maxPos, 'em');
 
   // A second row is used if necessary to represent the vlist's depth.
-  let rows: Box[];
-  if (minPos < 0) {
-    // We will define depth in an empty box with display: table-cell.
-    // It should render with the height that we define. But Chrome, in
-    // contenteditable mode only, treats that box as if it contains some
-    // text content. And that min-height over-rides our desired height.
-    // So we put another empty box inside the depth strut box.
-    const depthStrut = new Box(new Box(null), { classes: 'vlist' });
-    depthStrut.setStyle('height', -minPos, 'em');
+  if (minPos >= 0)
+    return [[new Box(vlist, { classes: 'vlist-r' })], maxPos, -minPos];
 
-    // Safari wants the first row to have inline content; otherwise it
-    // puts the bottom of the *second* row on the baseline.
-    const topStrut = new Box(0x200b, {
-      classes: 'vlist-s',
-      maxFontSize: 0,
-      height: 0,
-      depth: 0,
-    });
+  // We will define depth in an empty box with display: table-cell.
+  // It should render with the height that we define. But Chrome, in
+  // contenteditable mode only, treats that box as if it contains some
+  // text content. And that min-height over-rides our desired height.
+  // So we put another empty box inside the depth strut box.
+  const depthStrut = new Box(new Box(null), { classes: 'vlist' });
+  depthStrut.setStyle('height', -minPos, 'em');
 
-    rows = [
+  // Safari wants the first row to have inline content; otherwise it
+  // puts the bottom of the *second* row on the baseline.
+  const topStrut = new Box(0x200b, {
+    classes: 'vlist-s',
+    maxFontSize: 0,
+    height: 0,
+    depth: 0,
+  });
+
+  return [
+    [
       new Box([vlist, topStrut], { classes: 'vlist-r' }),
       new Box(depthStrut, { classes: 'vlist-r' }),
-    ];
-  } else rows = [new Box(vlist, { classes: 'vlist-r' })];
-
-  return [rows, maxPos, -minPos];
+    ],
+    maxPos,
+    -minPos,
+  ];
 }
 
 export class VBox extends Box {
