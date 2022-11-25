@@ -679,33 +679,34 @@ const ALT_KEYS_BASE: {
   ],
 
   'xleftarrows': [
-    '\\xlongequal{}',
-    '\\xleftrightarrow{}',
-    '\\xLeftrightarrow{}',
-    '\\xleftrightharpoons{}',
-    '\\xLeftarrow{}',
-    '\\xleftharpoonup{}',
-    '\\xleftharpoondown{}',
-    '\\xtwoheadleftarrow{}',
-    '\\xhookleftarrow{}',
-    '\\xtofrom{}',
-    '\\xleftequilibrium{}', // From mhchem.sty package
-    '\\xrightleftarrows{}', // From mhchem.sty package
+    '\\xlongequal{#@}',
+    '\\xleftrightarrow{#@}',
+    '\\xLeftrightarrow{#@}',
+    '\\xleftrightharpoons{#@}',
+    '\\xLeftarrow{#@}',
+    '\\xleftharpoonup{#@}',
+    '\\xleftharpoondown{#@}',
+    '\\xtwoheadleftarrow{#@}',
+    '\\xhookleftarrow{#@}',
+    '\\xtofrom{#@}',
+    '\\xleftequilibrium{#@}', // From mhchem.sty package
+    '\\xrightleftarrows{#@}', // From mhchem.sty package
   ],
   'xrightarrows': [
-    '\\xlongequal{}',
-    '\\xleftrightarrow{}',
-    '\\xLeftrightarrow{}',
-    '\\xleftrightharpoons{}',
-    '\\xRightarrow{}',
-    '\\xrightharpoonup{}',
-    '\\xrightharpoondown{}',
-    '\\xtwoheadrightarrow{}',
-    '\\xrightleftharpoons{}',
-    '\\xhookrightarrow{}',
-    '\\xmapsto{}',
-    '\\xrightequilibrium{}', // From mhchem.sty package
-    '\\xrightleftarrows{}', // From mhchem.sty package
+    '\\xrightarrow{#@}',
+    '\\xlongequal{#@}',
+    '\\xleftrightarrow{#@}',
+    '\\xLeftrightarrow{#@}',
+    '\\xleftrightharpoons{#@}',
+    '\\xRightarrow{#@}',
+    '\\xrightharpoonup{#@}',
+    '\\xrightharpoondown{#@}',
+    '\\xtwoheadrightarrow{#@}',
+    '\\xrightleftharpoons{#@}',
+    '\\xhookrightarrow{#@}',
+    '\\xmapsto{#@}',
+    '\\xrightequilibrium{#@}', // From mhchem.sty package
+    '\\xrightleftarrows{#@}', // From mhchem.sty package
   ],
 
   // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},
@@ -985,10 +986,10 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrace '>{</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrace '>}</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='in' data-insert='\\in '>&#x2208;</li>
-                <li class='keycap tex' data-alt-keys='!in' data-insert='\\notin '>&#x2209;</li>
-                <li class='keycap tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>
-                <li class='keycap tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>
+                <li class='keycap tex small' data-alt-keys='xleftarrows' data-latex='\\leftarrow' ></li>
+                <li class='keycap tex small' data-alt-keys='xrightarrows' data-latex='\\rightarrow' ></li>
+                <li class='keycap tex' data-alt-keys='overline' data-latex='\\overline{#@}' data-aside='overline'></li>
+                <li class='keycap tex' data-alt-keys='underline' data-latex='\\underline{#@}' data-aside='underline'></li>
                 <li class='keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>
                 <li class='keycap tex' data-alt-keys='nabla' data-insert='\\nabla '>&#x2207;<aside>nabla</aside></li>
                 <li class='keycap tex' data-alt-keys='infinity' data-insert='\\infty '>&#x221e;</li>
@@ -999,11 +1000,13 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrack '>[</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrack '>]</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
-                <li class='keycap tex' data-alt-keys='superset' data-insert='\\supset '>&#x2283;</li>
-                <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
-                <li class='keycap' data-latex='^{\\prime} '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
+
+                <li class='keycap tex' data-alt-keys='in' data-insert='\\in '>&#x2208;</li>
+                <li class='keycap tex' data-alt-keys='!in' data-insert='\\notin '>&#x2209;</li>
+                <li class='keycap tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>
+                <li class='keycap tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>
                 <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
+
                 <li class='keycap tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>
                 <li class='keycap tex' data-insert='\\emptyset '>&#x2205;<aside>empty set</aside></li>
 
@@ -1013,12 +1016,14 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='overline' data-latex='\\overline{#@}' data-aside='overline'></li>
-                <li class='keycap tex' data-alt-keys='underline' data-latex='\\underline{#@}' data-aside='underline'></li>
+                <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
+                <li class='keycap tex' data-alt-keys='superset' data-insert='\\supset '>&#x2283;</li>
+
                 <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
-                <li class='keycap tex small' data-alt-keys='xleftarrows' data-latex='\\xleftarrow{}' ></li>
-                <li class='keycap tex small' data-alt-keys='xrightarrows' data-latex='\\xrightarrow{}' ></li>
                 <li class='keycap tex' data-alt-keys='absnorm' data-insert='\\left| #0 \\right|' data-latex='\\left| #? \\right|' data-aside='abs'></li>
+
+                <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
+                <li class='keycap' data-latex='^{\\prime} '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
 
                 <li class='action font-glyph bottom right w15'
                     data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'

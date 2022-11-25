@@ -4,6 +4,13 @@
 
 - The vertical placement of the superscript after a `\left...\right' command was
   incorrect.
+- Extensible arrows with superscript or subscript would not serialize the
+  superscript/subscript.
+
+### Improvements
+
+- Tweaked the layout of the symbols virtual keyboard to make regular arrows the
+  default, rather than extensible arrows.
 
 ## 0.85.1 (2022-11-18)
 
