@@ -74,18 +74,14 @@ function buildProgress() {
     name: 'rollup.config.js',
     transform(_code, id) {
       const file = normalizePath(id);
-      if (file.includes(':')) {
-        return;
-      }
+      if (file.includes(':')) return;
 
       clearLine();
       if (process.stdout.isTTY) {
         process.stdout.write(
           basename() + chalk.green(' 羽') + ' Building ' + chalk.grey(file)
         );
-      } else {
-        console.log(chalk.grey(file));
-      }
+      } else console.log(chalk.grey(file));
     },
     buildEnd() {
       clearLine();
@@ -139,6 +135,7 @@ ROLLUP.push({
       banner: preamble(),
     },
   ],
+  external: ['@cortex-js/compute-engine'],
 });
 
 // MathLive Vue-js adapter
@@ -195,5 +192,6 @@ if (PRODUCTION) {
         banner: preamble(),
       },
     ],
+    external: ['@cortex-js/compute-engine'],
   });
 }

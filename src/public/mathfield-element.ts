@@ -1690,11 +1690,11 @@ declare global {
 }
 
 if (isBrowser() && !window.customElements?.get('math-field')) {
-  // The `globalThis[Symbol.for('mathlive')]` global is used  to coordinate between mathfield
+  // The `globalThis[Symbol.for('io.cortexjs.mathlive')]` global is used  to coordinate between mathfield
   // instances that may have been instantiated by different versions of the
   // library
-  globalThis[Symbol.for('mathlive')] ??= {};
-  const global = globalThis[Symbol.for('mathlive')];
+  globalThis[Symbol.for('io.cortexjs.mathlive')] ??= {};
+  const global = globalThis[Symbol.for('io.cortexjs.mathlive')];
   global.version = '{{SDK_VERSION}}';
 
   window.MathfieldElement = MathfieldElement;

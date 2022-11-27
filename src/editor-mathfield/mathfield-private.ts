@@ -640,11 +640,13 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   get computeEngine(): ComputeEngine | null {
     if (this._computeEngine === undefined) {
-      this._computeEngine = new ComputeEngine();
-      if (this.options.decimalSeparator === ',')
+      const ComputeEngineCtor =
+        globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
+      if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
+      if (this._computeEngine && this.options.decimalSeparator === ',')
         this._computeEngine.latexOptions.decimalMarker = '{,}';
     }
-    return this._computeEngine;
+    return this._computeEngine ?? null;
   }
 
   get virtualKeyboardState(): 'hidden' | 'visible' {

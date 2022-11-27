@@ -35,13 +35,8 @@ import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 import { defaultGlobalContext } from './core/core';
 import { DEFAULT_FONT_SIZE } from './core/font-metrics';
 
-import {
-  ComputeEngine,
-  SemiBoxedExpression,
-  version as computeEngineVersion,
-} from '@cortex-js/compute-engine';
+import { ComputeEngine, SemiBoxedExpression } from '@cortex-js/compute-engine';
 import { Expression, LatexSyntaxError } from './public/mathlive';
-export * from '@cortex-js/compute-engine';
 
 export type MathLiveGlobal = {
   version: string;
@@ -60,8 +55,8 @@ export type MathLiveGlobal = {
 };
 
 export function globalMathLive(): MathLiveGlobal {
-  globalThis[Symbol.for('mathlive')] ??= {};
-  return globalThis[Symbol.for('mathlive')];
+  globalThis[Symbol.for('io.cortexjs.mathlive')] ??= {};
+  return globalThis[Symbol.for('io.cortexjs.mathlive')];
 }
 
 /**
@@ -289,8 +284,13 @@ export function convertLatexToSpeakableText(
 let gComputeEngine: ComputeEngine;
 
 export function serializeMathJsonToLatex(json: Expression): string {
-  if (!gComputeEngine) gComputeEngine = new ComputeEngine();
-  return gComputeEngine.box(json as SemiBoxedExpression).latex;
+  if (!gComputeEngine) {
+    const ComputeEngineCtor =
+      globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
+
+    if (ComputeEngineCtor) gComputeEngine = new ComputeEngineCtor();
+  }
+  return gComputeEngine?.box(json as SemiBoxedExpression).latex ?? '';
 }
 
 /**
@@ -375,7 +375,6 @@ export function renderMathInElement(
 
 export const version = {
   mathlive: '{{SDK_VERSION}}',
-  computeEngine: computeEngineVersion,
 };
 
 /** @internal */

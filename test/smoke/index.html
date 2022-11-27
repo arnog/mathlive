@@ -16,7 +16,9 @@
     </header>
     <main>
       <math-field id="mf" virtualkeyboardmode="manual"
-        >\left(x+\frac{1}{2}\right)^2</math-field
+        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
+        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+        \frac{a+1}{b+\alpha+\gamma}</math-field
       >
 
       <h2 style="margin-top: 1em">LaTeX</h2>
@@ -45,8 +47,12 @@
         renderMathInElement,
         makeSharedVirtualKeyboard,
         MathfieldElement,
-        ComputeEngine,
       } from '/dist/mathlive.mjs';
+
+      import {
+        ComputeEngine,
+        version,
+      } from 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
 
       // const k = makeSharedVirtualKeyboard();
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
@@ -222,7 +228,7 @@
           setHtml('mathascii', mf.getValue('ascii-math'));
           setHtml('mathml', mf.getValue('math-ml'));
           setHtml('math-json', mf.getValue('math-json'));
-          const result = mf.expression.evaluate().latex;
+          const result = mf.expression?.evaluate().latex ?? '';
           document.getElementById('result').innerText = result;
           document.getElementById('result-latex').innerText = `$$${result}$$`;
 
