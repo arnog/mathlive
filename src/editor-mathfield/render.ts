@@ -134,13 +134,13 @@ export function render(
         ? 'textstyle'
         : 'displaystyle'
     )
-  );
+  )!;
 
   //
   // 3. Construct struts around the boxes
   //
   const wrapper = makeStruts(
-    adjustInterAtomSpacing(base!, mathfield.options.horizontalSpacingScale),
+    adjustInterAtomSpacing(base, mathfield.options.horizontalSpacingScale),
     {
       classes: 'ML__mathlive',
       attributes: {
@@ -175,7 +175,7 @@ export function render(
   // 5. Render the selection/caret
   //
   renderSelection(mathfield);
-  if (mathfield.options.readOnly) mathfield.attachNestedMathfield();
+  if (mathfield.options.readOnly) mathfield.attachNestedMathfield(base.depth);
 
   if (!(renderOptions.interactive ?? false)) {
     // (re-render a bit later because the layout may not be up to date right

@@ -1292,7 +1292,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return this.placeholders.get(placeholderId)?.field;
   }
 
-  attachNestedMathfield(): void {
+  attachNestedMathfield(depth: number): void {
     let needsUpdate = false;
     this.placeholders.forEach((v) => {
       const container = this.field?.querySelector(
@@ -1300,26 +1300,25 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       ) as HTMLElement;
       if (container) {
         const placeholderPosition = container.getBoundingClientRect();
-        const parentPosition = this.field?.getBoundingClientRect();
+        const parentPosition = this.field.getBoundingClientRect() ?? {
+          top: 0,
+          left: 0,
+        };
 
-        const scaleDownFontsize =
-          parseInt(window.getComputedStyle(container).fontSize) * 0.6;
+        // const scaleDownFontsize =
+        //   parseInt(window.getComputedStyle(container).fontSize) * 0.6;
 
-        if (
-          !v.field.style.fontSize ||
-          Math.abs(scaleDownFontsize - parseFloat(v.field.style.fontSize)) >=
-            0.2
-        ) {
-          needsUpdate = true;
-          v.field.style.fontSize = `${scaleDownFontsize}px`;
-        }
-        const newTop =
-          (placeholderPosition?.top ?? 0) -
-          (parentPosition?.top ?? 0) +
-          (this.element!.offsetTop ?? 0);
+        // if (
+        //   !v.field.style.fontSize ||
+        //   Math.abs(scaleDownFontsize - parseFloat(v.field.style.fontSize)) >=
+        //     0.2
+        // ) {
+        //   needsUpdate = true;
+        //   v.field.style.fontSize = `${scaleDownFontsize}px`;
+        // }
         const newLeft =
-          (placeholderPosition?.left ?? 0) -
-          (parentPosition?.left ?? 0) +
+          placeholderPosition.left -
+          parentPosition.left +
           (this.element!.offsetLeft ?? 0);
         if (
           !v.field.style.left ||
@@ -1329,12 +1328,17 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
           v.field.style.left = `${newLeft}px`;
         }
 
+        const newTop =
+          placeholderPosition.top -
+          parentPosition.top +
+          (this.element!.offsetTop ?? 0);
         if (
           !v.field.style.top ||
           Math.abs(newTop - parseFloat(v.field.style.top)) >= 1
         ) {
           needsUpdate = true;
-          v.field.style.top = `${newTop}px`;
+          v.field.style.top =
+            depth === 0 ? `${newTop}px` : `calc(${newTop}px + ${depth}em)`;
         }
       }
     });

@@ -20,9 +20,9 @@ to create custom Compute Engine instances, which can then be associated with a
 mathfield using `mf.setOptions({computeEngine: ce})` or `mf.computeEngine = ce`.
 
 If the Compute Engine library is not loaded, some functionality of the mathfield
-will not be available, including `mf.expression` will always return `null` and
-cannot be used to change the content of the mathfield, and `math-json` is not
-available as a format on the clipboard.
+will not be available: `mf.expression` will always return `null` and cannot be
+used to change the content of the mathfield, and `math-json` is not available as
+a format on the clipboard,
 
 ### Bug Fixes
 
@@ -35,6 +35,8 @@ available as a format on the clipboard.
 
 - Tweaked the layout of the symbols virtual keyboard to make regular arrows the
   default, rather than extensible arrows.
+- Fill-in-the-blank (placeholder) nested mathfields now line up wiht the
+  baseline. They also inherit the font-size of their parent container.
 
 ## 0.85.1 (2022-11-18)
 

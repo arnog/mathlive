@@ -1159,22 +1159,9 @@ export class Atom {
       element: MathfieldElement;
     }
   ): MathfieldBox {
-    // Ensure that the atom type is a valid Box type
-    const type: BoxType = 'mathfield';
-
-    // The font family is determined by:
-    // - the base font family associated with this atom (optional). For example,
-    // some atoms such as some functions ('\sin', '\cos', etc...) or some
-    // symbols ('\Z') have an explicit font family. This overrides any
-    // other font family
-    // - the user-specified font family that has been explicitly applied to
-    // this atom
-    // - the font family determined automatically in math mode, for example
-    // which italicizes some characters, but which can be overridden
-
     const classes = options?.classes ?? '';
     const result = new MathfieldBox(options.placeholderId, options.element, {
-      type,
+      type: 'mathfield',
       mode: this.mode,
       maxFontSize: context.scalingFactor,
       style: {
