@@ -333,7 +333,6 @@ export class MathModeEditor extends ModeEditor {
       if (virtualKeyboardMode === 'manual') virtualKeyboardMode = 'onfocus';
       const element = new MathfieldElement({
         ...model.mathfield.options,
-        eventSink: null,
         virtualKeyboardMode,
         readOnly: false,
       } as Partial<MathfieldOptions>);

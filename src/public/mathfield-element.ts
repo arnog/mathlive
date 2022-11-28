@@ -632,7 +632,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   /**
      * To create programmatically a new mathfield use:
      *
-     * ```javascript
+     ```javascript
     let mfe = new MathfieldElement();
 
     // Set initial value and options
@@ -648,7 +648,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Attach the element to the DOM
     document.body.appendChild(mfe);
-    * ```
+    ```
     */
   constructor(options?: Partial<MathfieldOptions>) {
     throwIfNotInBrowser();
@@ -1151,10 +1151,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._mathfield = new MathfieldPrivate(
       this.shadowRoot!.querySelector(':host > div')!,
       {
-        eventSink: this,
         ...(gDeferredState.has(this)
           ? gDeferredState.get(this)!.options
           : getOptionsFromAttributes(this)),
+        eventSink: this,
         value,
       }
     );
