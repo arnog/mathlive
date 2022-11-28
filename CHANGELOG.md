@@ -30,6 +30,8 @@ a format on the clipboard,
   incorrect.
 - Extensible arrows with superscript or subscript would not serialize the
   superscript/subscript.
+- The fraction line and surd line would not be visible when printing with the
+  "Don't show image background" option in the print dialog.
 
 ### Improvements
 
