@@ -32,12 +32,13 @@ a format on the clipboard,
   superscript/subscript.
 - The fraction line and surd line would not be visible when printing with the
   "Don't show image background" option in the print dialog.
+- The `"placeholder-change"` event was not dispatched.
 
 ### Improvements
 
 - Tweaked the layout of the symbols virtual keyboard to make regular arrows the
   default, rather than extensible arrows.
-- Fill-in-the-blank (placeholder) nested mathfields now line up wiht the
+- Fill-in-the-blank (placeholder) nested mathfields now line up with the
   baseline. They also inherit the font-size of their parent container.
 
 ## 0.85.1 (2022-11-18)
