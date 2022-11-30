@@ -1,4 +1,4 @@
-import { adjustInterAtomSpacing, makeStruts } from '../core/box';
+import { adjustInterAtomSpacing, Box, makeStruts } from '../core/box';
 
 import {
   Rect,
@@ -45,55 +45,16 @@ export function requestUpdate(
 }
 
 /**
- * Lay-out the mathfield and generate the DOM.
- *
- * This is usually done automatically, but if the font-size, or other geometric
- * attributes are modified, outside of MathLive, this function may need to be
- * called explicitly.
- *
+ * Return a box representing the content of the mathfield.
+ * @param mathfield
+ * @param renderOptions
  */
-export function render(
+function makeBox(
   mathfield: MathfieldPrivate,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
-): void {
-  throwIfNotInBrowser();
-  if (!isValidMathfield(mathfield)) return;
-
+): Box {
   renderOptions = renderOptions ?? {};
-  mathfield.dirty = false;
-  const { model } = mathfield;
-
-  //
-  // 1. Update selection state and blinking cursor (caret)
-  //
-  model.root.caret = '';
-  model.root.isSelected = false;
-  model.root.containsCaret = true;
-  for (const atom of model.atoms) {
-    atom.caret = '';
-    atom.isSelected = false;
-    atom.containsCaret = false;
-  }
-  const hasFocus = !mathfield.options.readOnly && mathfield.hasFocus();
-  if (model.selectionIsCollapsed)
-    model.at(model.position).caret = hasFocus ? mathfield.mode : '';
-  else {
-    const atoms = model.getAtoms(model.selection, { includeChildren: true });
-    for (const atom of atoms) atom.isSelected = true;
-  }
-
-  if (hasFocus) {
-    let ancestor = model.at(model.position).parent;
-    while (ancestor) {
-      ancestor.containsCaret = true;
-      ancestor = ancestor.parent;
-    }
-  }
-
-  //
-  // 2. Render boxes
-  //
-  const base = model.root.render(
+  const base = mathfield.model.root.render(
     new Context(
       {
         registers: mathfield.registers,
@@ -102,7 +63,7 @@ export function render(
           // keeps the IDs the same until the content of the field changes.
           seed: renderOptions.forHighlighting
             ? hash(
-                Atom.serialize(model.root, {
+                Atom.serialize(mathfield.model.root, {
                   expandMacro: false,
                   defaultMode: mathfield.options.defaultMode,
                 })
@@ -116,11 +77,8 @@ export function render(
         renderPlaceholder: mathfield.options.readOnly
           ? (context: Context, p) => {
               if (p.placeholderId) {
-                const field = mathfield.getPlaceholderField(p.placeholderId!);
-                return p.createMathfieldBox(context, {
-                  placeholderId: p.placeholderId!,
-                  element: field!,
-                });
+                const field = mathfield.getPlaceholderField(p.placeholderId!)!;
+                return p.createMathfieldBox(context, field, p.placeholderId);
               }
               return p.createBox(context);
             }
@@ -153,16 +111,68 @@ export function render(
       },
     }
   );
+  return wrapper;
+}
+
+/**
+ * Layout the mathfield and generate the DOM.
+ *
+ * This is usually done automatically, but if the font-size, or other geometric
+ * attributes are modified, outside of MathLive, this function may need to be
+ * called explicitly.
+ *
+ */
+export function render(
+  mathfield: MathfieldPrivate,
+  renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
+): void {
+  throwIfNotInBrowser();
+  if (!isValidMathfield(mathfield)) return;
+
+  renderOptions = renderOptions ?? {};
+  const { model } = mathfield;
 
   //
-  // 4. Generate markup and accessible node
+  // 1. Update selection state and blinking cursor (caret)
+  //
+  model.root.caret = '';
+  model.root.isSelected = false;
+  model.root.containsCaret = true;
+  for (const atom of model.atoms) {
+    atom.caret = '';
+    atom.isSelected = false;
+    atom.containsCaret = false;
+  }
+  const hasFocus = !mathfield.options.readOnly && mathfield.hasFocus();
+  if (model.selectionIsCollapsed)
+    model.at(model.position).caret = hasFocus ? mathfield.mode : '';
+  else {
+    const atoms = model.getAtoms(model.selection, { includeChildren: true });
+    for (const atom of atoms) atom.isSelected = true;
+  }
+
+  if (hasFocus) {
+    let ancestor = model.at(model.position).parent;
+    while (ancestor) {
+      ancestor.containsCaret = true;
+      ancestor = ancestor.parent;
+    }
+  }
+
+  //
+  // 2. Render a box representation of the mathfield content
+  //
+  const box = makeBox(mathfield, renderOptions);
+
+  //
+  // 3. Generate markup and accessible node
   //
   const field = mathfield.field;
   const isFocused = field.classList.contains('ML__focused');
   if (isFocused && !hasFocus) field.classList.remove('ML__focused');
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
-  field.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
+  field.innerHTML = mathfield.options.createHTML(box.toMarkup());
   mathfield.fieldContent = field.querySelector('.ML__mathlive')!;
 
   mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
@@ -172,10 +182,10 @@ export function render(
   );
 
   //
-  // 5. Render the selection/caret
+  // 4. Render the selection/caret
   //
   renderSelection(mathfield);
-  if (mathfield.options.readOnly) mathfield.attachNestedMathfield(base.depth);
+  if (mathfield.options.readOnly) mathfield.attachNestedMathfield();
 
   if (!(renderOptions.interactive ?? false)) {
     // (re-render a bit later because the layout may not be up to date right
@@ -183,6 +193,8 @@ export function render(
     //  not yet available. )
     setTimeout(() => renderSelection(mathfield), 32);
   }
+
+  mathfield.dirty = false;
 }
 
 export function renderSelection(mathfield: MathfieldPrivate): void {

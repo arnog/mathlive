@@ -8,7 +8,7 @@ import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 import { GlobalContext, Context, PrivateStyle } from './context';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
-import { BoxType, isBoxType, Box } from './box';
+import { BoxType, isBoxType, Box, makeStruts } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
@@ -1152,15 +1152,11 @@ export class Atom {
    */
   createMathfieldBox(
     context: Context,
-    options: {
-      classes?: string;
-      newList?: boolean;
-      placeholderId: string;
-      element: MathfieldElement;
-    }
-  ): MathfieldBox {
-    const classes = options?.classes ?? '';
-    const result = new MathfieldBox(options.placeholderId, options.element, {
+    mathfield: MathfieldElement,
+    placeholderId: string
+  ): Box {
+    const classes = '';
+    const result = new MathfieldBox(placeholderId, mathfield, {
       type: 'mathfield',
       mode: this.mode,
       maxFontSize: context.scalingFactor,
@@ -1174,7 +1170,6 @@ export class Atom {
         ) as FontSize,
       },
       classes,
-      newList: options?.newList,
     });
 
     // Set other attributes
@@ -1190,7 +1185,7 @@ export class Atom {
     // on, attach a unique ID to the box and associate it with the atom.
     this.bind(context, result);
 
-    return result;
+    return makeStruts(result, { type: 'mord' });
   }
 
   /**

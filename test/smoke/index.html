@@ -15,10 +15,13 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf" virtualkeyboardmode="manual"
+      <!-- <math-field id="mf" virtualkeyboardmode="manual"
         >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
         \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
         \frac{a+1}{b+\alpha+\gamma}</math-field
+      > -->
+      <math-field id="mf" virtualkeyboardmode="manual" readonly
+        >f(x)= \placeholder[id1][x]{}</math-field
       >
 
       <h2 style="margin-top: 1em">LaTeX</h2>
@@ -187,6 +190,10 @@
 
       mf.addEventListener('input', (ev) => {
         console.log('commit');
+      });
+
+      mf.addEventListener('placeholder-change', (ev) => {
+        console.log(ev.detail.placeholderId);
       });
 
       mf.addEventListener('beforeinput', (ev) => {

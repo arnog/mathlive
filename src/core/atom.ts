@@ -1,5 +1,8 @@
 import { isArray } from '../common/types';
 
+import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
+import { GlobalContext } from './context';
+
 import { AccentAtom } from '../core-atoms/accent';
 import { ArrayAtom } from '../core-atoms/array';
 import { BoxAtom } from '../core-atoms/box';
@@ -27,9 +30,6 @@ import { SubsupAtom } from '../core-atoms/subsup';
 import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
-
-import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
-import { GlobalContext } from './context';
 
 export * from './atom-class';
 
