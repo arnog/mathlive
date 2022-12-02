@@ -956,6 +956,9 @@ function atomToMathML(atom, options): string {
       case 'error':
         console.log('In conversion to MathML, unknown type : ' + atom.type);
         break;
+      case 'latexgroup':
+        result += toMathML(atom.body, options);
+        break;
       case 'latex':
         result +=
           '<mtext' + makeID(atom.id, options) + '>' + atom.value + '</mtext>';
