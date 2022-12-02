@@ -811,7 +811,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._mathfield.placeholders.forEach((placeholder) => {
         placeholder.field.setOptions({
           ...options,
-          virtualKeyboardMode: 'onfocus',
           readOnly: false,
         });
       });
