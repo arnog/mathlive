@@ -52,10 +52,14 @@
         MathfieldElement,
       } from '/dist/mathlive.mjs';
 
+      // import {
+      //   ComputeEngine,
+      //   version,
+      // } from 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
       import {
         ComputeEngine,
         version,
-      } from 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+      } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
       // const k = makeSharedVirtualKeyboard();
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
@@ -160,6 +164,12 @@
       // };
 
       const mf = document.getElementById('mf');
+
+      mf.setOptions({ computeEngine: new ComputeEngine() });
+      mf.setOptions({
+        ...mf.getOptions(),
+        decimalSeparator: '.',
+      });
 
       mf.setOptions({
         onInlineShortcut: (_mf, s) => {

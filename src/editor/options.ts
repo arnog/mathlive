@@ -160,13 +160,14 @@ export function get(
 
   const result: Partial<MathfieldOptionsPrivate> = {};
   for (const x of resolvedKeys) {
-    if (isArray(config[x])) result[x] = [...config[x]];
-    else if (config[x] instanceof HTMLElement) {
-      //For 'plonksound', it's a AudioElement
-      result[x] = config[x];
-    } else if (config[x] === null) result[x] = null;
-    else if (typeof config[x] === 'object') {
-      // Some object literal, make a copy (for keypressSound)
+    if (config[x] === null) result[x] = null;
+    else if (isArray(config[x])) result[x] = [...config[x]];
+    else if (
+      typeof config[x] === 'object' &&
+      !(config[x] instanceof Element) &&
+      x !== 'computeEngine'
+    ) {
+      // Some object literal, make a copy (for keypressSound, macros, etc...)
       result[x] = { ...config[x] };
     } else result[x] = config[x];
   }

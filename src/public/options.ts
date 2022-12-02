@@ -270,7 +270,7 @@ export type TextToSpeechOptions = {
     element: HTMLElement,
     text: string,
     config: MathfieldOptions
-  ) => void; // @revisit 1.0: rename readAloudHook
+  ) => void;
 };
 
 /**
