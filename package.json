@@ -89,7 +89,7 @@
     "open": "^8.4.0",
     "postcss": "^8.4.16",
     "postcss-cli": "^10.0.0",
-    "prettier": "^2.7.1",
+    "prettier": "^2.8.1",
     "rollup": "^2.79.0",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-postcss": "^4.0.2",
