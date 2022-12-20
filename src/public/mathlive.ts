@@ -5,7 +5,7 @@
  *
  * @example
  * <script type="module">
- * // Load the `Mathlive` module from a CDN
+ * // Load the `MathLive` module from a CDN
  * import { convertLatexToSpeakableText } from 'https://unpkg.com/mathlive?module';
  *
  * console.log(convertLatexToSpeakableText('e^{i\\pi}+1=0'));
@@ -16,6 +16,7 @@
  *
  */
 
+import { RemoteVirtualKeyboard } from '../editor-mathfield/remote-virtual-keyboard';
 import {
   RemoteVirtualKeyboardOptions,
   TextToSpeechOptions,
@@ -30,7 +31,7 @@ export * from './mathfield-element';
 
 export declare function makeSharedVirtualKeyboard(
   options?: Partial<RemoteVirtualKeyboardOptions>
-): void;
+): RemoteVirtualKeyboard;
 
 export declare function convertLatexToMarkup(
   text: string,
@@ -61,5 +62,4 @@ export declare function renderMathInElement(
 
 export declare const version: {
   mathlive: string;
-  computeEngine: string;
 };

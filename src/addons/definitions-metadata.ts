@@ -51,8 +51,8 @@ metadata('Trigonometry', ['\\cos', '\\sin', '\\tan'], SUPERCOMMON);
 metadata(
   'Trigonometry',
   [
-    '\\arcsin',
     '\\arccos',
+    '\\arcsin',
     '\\arctan',
     '\\arctg',
     '\\arcctg',
@@ -1029,7 +1029,7 @@ metadata(
 
 metadata(
   'Spacing',
-  ['\\space, \\quad', '\\qquad'],
+  ['\\space', '\\quad', '\\qquad'],
   COMMON,
   '\\unicode{"203A}$0\\unicode{"2039}'
 );

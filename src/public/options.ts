@@ -270,7 +270,7 @@ export type TextToSpeechOptions = {
     element: HTMLElement,
     text: string,
     config: MathfieldOptions
-  ) => void; // @revisit 1.0: rename readAloudHook
+  ) => void;
 };
 
 /**
@@ -444,29 +444,27 @@ export type VirtualKeyboardOptions = {
    * When a key on the virtual keyboard is pressed, produce a short audio
    * feedback.
    *
-   * If the property is set to a `string` or `HTMLAudioElement`, the same
-   * sound is played in all cases. Otherwise, a distinct sound is played:
+   * If the property is set to a `string`, the same sound is played in all
+   * cases. Otherwise, a distinct sound is played:
    *
    * -   `delete` a sound played when the delete key is pressed
    * -   `return` ... when the return/tab key is pressed
    * -   `spacebar` ... when the spacebar is pressed
-   * -   `default` ... when any other key is pressed. This key is required,
+   * -   `default` ... when any other key is pressed. This property is required,
    *     the others are optional. If they are missing, this sound is played as
    *     well.
    *
    * The value of the properties should be either a string, the name of an
-   * audio file in the `soundsDirectory` directory, an `HTMLAudioElement` or
-   * null to suppress the sound.
+   * audio file in the `soundsDirectory` directory or `null` to suppress the sound.
    */
   keypressSound:
     | string
-    | HTMLAudioElement
     | null
     | {
-        spacebar?: null | string | HTMLAudioElement;
-        return?: null | string | HTMLAudioElement;
-        delete?: null | string | HTMLAudioElement;
-        default: null | string | HTMLAudioElement;
+        spacebar?: null | string;
+        return?: null | string;
+        delete?: null | string;
+        default: null | string;
       };
   /**
    * Sound played to provide feedback when a command has no effect, for example
@@ -474,10 +472,9 @@ export type VirtualKeyboardOptions = {
    *
    * The property is either:
    * - a string, the name of an audio file in the `soundsDirectory` directory
-   * - an `HTMLAudioElement`
    * - null to turn off the sound
    */
-  plonkSound: string | HTMLAudioElement | null;
+  plonkSound: string | null;
 
   /**
    * The right hand side toolbar configuration.
@@ -572,7 +569,7 @@ export type RemoteVirtualKeyboardOptions = CombinedVirtualKeyboardOptions & {
    * to send control messages from parent to child frame to remote control of
    * mathfield component.
    *
-   * **Default**: `window.origin`
+   * **Default**: `globalThis.origin`
    */
   targetOrigin: string;
 
@@ -816,6 +813,14 @@ export type EditingOptions = {
    * **Default**: `▢` `U+25A2 WHITE SQUARE WITH ROUNDED CORNERS`
    */
   placeholderSymbol: string;
+
+  /**
+   * If `true` a popover with suggestions may be displayed when a LaTeX
+   * command is input.
+   *
+   * **Default**: `true`
+   */
+  enablePopover: boolean;
 };
 
 export type LayoutOptions = {
@@ -930,7 +935,8 @@ export type CoreOptions = {
    * Customize this value to reflect where you have copied these fonts,
    * or to use the CDN version.
    *
-   * The default value is './fonts'.
+   * The default value is './fonts'. Use `null` to prevent
+   * any fonts from being loaded.
    *
    * Changing this setting after the mathfield has been created will have
    * no effect.
@@ -956,15 +962,25 @@ export type CoreOptions = {
    * ```
    *
    */
-  fontsDirectory: string;
+  fontsDirectory: string | null;
 
   /**
    * A URL fragment pointing to the directory containing the optional
    * sounds used to provide feedback while typing.
    *
    * Some default sounds are available in the `/dist/sounds` directory of the SDK.
+   *
+   * Use `null` to prevent any sound from being loaded.
+   *
    */
-  soundsDirectory: string;
+  soundsDirectory: string | null;
+
+  /**
+   * A custom compute engine instance. If none is provided, a default one is
+   * used. If `null` is specified, no compute engine is used.
+   */
+  computeEngine: any | null;
+
   /**
    * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
    *
@@ -1012,7 +1028,7 @@ export type MathfieldOptions = LayoutOptions &
      * to send control messages from child to parent frame to remote control
      * of mathfield component.
      *
-     * **Default**: `window.origin`
+     * **Default**: `globalThis.origin`
      */
     sharedVirtualKeyboardTargetOrigin: string;
 
@@ -1112,8 +1128,9 @@ export type AutoRenderOptions = Partial<TextToSpeechOptions> & {
    * }
    * ```
    *
+   * Setting this value to `null` will prevent the fonts from being loaded.
    */
-  fontsDirectory?: string;
+  fontsDirectory?: string | null;
 
   /**
    * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
@@ -1152,12 +1169,18 @@ export type AutoRenderOptions = Partial<TextToSpeechOptions> & {
   processClass?: string;
 
   /**
-   * `<script>` tags of the
-   * indicated type will be processed while others will be ignored.
+   * `<script>` tags with this type will be processed as LaTeX.
    *
    * **Default**: `"math/tex"`
    */
   processScriptType?: string;
+
+  /**
+   * `<script>` tags with this type will be processed as MathJSON.
+   *
+   * **Default**: `"math/json"`
+   */
+  processMathJSONScriptType?: string;
 
   /** The format(s) in
    * which to render the math for screen readers:

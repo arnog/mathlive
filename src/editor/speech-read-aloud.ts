@@ -1,8 +1,10 @@
+import { globalMathLive } from '../mathlive';
 import { isBrowser } from '../common/capabilities';
 import { render } from '../editor-mathfield/render';
 import { MathfieldOptions } from '../public/options';
 
-function removeHighlight(element: Element): void {
+function removeHighlight(element: Element | null): void {
+  if (!element) return;
   element.classList.remove('ML__highlight');
   if (element.children)
     for (const child of element.children) removeHighlight(child);
@@ -17,7 +19,8 @@ function removeHighlight(element: Element): void {
  * @param {string} atomID
  *
  */
-function highlightAtomID(element: HTMLElement, atomID?: string): void {
+function highlightAtomID(element: HTMLElement | null, atomID?: string): void {
+  if (!element) return;
   if (!atomID || element.dataset?.atomId === atomID) {
     element.classList.add('ML__highlight');
     if (element.children && element.children.length > 0) {
@@ -49,7 +52,7 @@ export function defaultReadAloudHook(
 ): void {
   if (!isBrowser()) return;
 
-  if (!config && window.mathlive) config = window.mathlive.config;
+  config ??= globalMathLive().config;
 
   if (config.speechEngine !== 'amazon') {
     console.warn('Use Amazon TTS Engine for synchronized highlighting');
@@ -57,14 +60,14 @@ export function defaultReadAloudHook(
     return;
   }
 
-  if (!window.AWS) {
+  if (!globalThis.AWS) {
     console.warn(
       'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
     );
     return;
   }
 
-  const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
+  const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
 
   const parameters = {
     OutputFormat: 'json',
@@ -75,8 +78,7 @@ export function defaultReadAloudHook(
     SpeechMarkTypes: ['ssml'],
   };
 
-  window.mathlive = window.mathlive ?? {};
-  window.mathlive.readAloudElement = element;
+  globalMathLive().readAloudElement = element;
 
   // Request the mark points
   polly.synthesizeSpeech(parameters, (err, data) => {
@@ -85,7 +87,7 @@ export function defaultReadAloudHook(
       return;
     }
 
-    if (!data || !data.AudioStream) {
+    if (!data?.AudioStream) {
       console.log('polly.synthesizeSpeech():', data);
       return;
     }
@@ -93,14 +95,14 @@ export function defaultReadAloudHook(
     const response = new TextDecoder('utf-8').decode(
       new Uint8Array(data.AudioStream)
     );
-    window.mathlive.readAloudMarks = response
+    globalMathLive().readAloudMarks = response
       .split('\n')
       .map((x) => (x ? JSON.parse(x) : {}));
-    window.mathlive.readAloudTokens = [];
-    for (const mark of window.mathlive.readAloudMarks)
-      if (mark.value) window.mathlive.readAloudTokens.push(mark.value);
+    globalMathLive().readAloudTokens = [];
+    for (const mark of globalMathLive().readAloudMarks)
+      if (mark.value) globalMathLive().readAloudTokens.push(mark.value);
 
-    window.mathlive.readAloudCurrentMark = '';
+    globalMathLive().readAloudCurrentMark = '';
 
     // Request the audio
     parameters.OutputFormat = 'mp3';
@@ -117,20 +119,20 @@ export function defaultReadAloudHook(
         return;
       }
 
-      if (!data || !data.AudioStream) return;
+      if (!data?.AudioStream) return;
 
       const uInt8Array = new Uint8Array(data.AudioStream);
       const blob = new Blob([uInt8Array.buffer], {
         type: 'audio/mpeg',
       });
       const url = URL.createObjectURL(blob);
+      const global = globalMathLive();
+      if (!global.readAloudAudio) {
+        global.readAloudAudio = new Audio();
+        global.readAloudAudio.addEventListener('ended', () => {
+          const mathfield = global.readAloudMathField;
 
-      if (!window.mathlive.readAloudAudio) {
-        window.mathlive.readAloudAudio = new Audio();
-        window.mathlive.readAloudAudio.addEventListener('ended', () => {
-          const mathfield = window.mathlive.readAloudMathField;
-
-          window.mathlive.readAloudStatus = 'ended';
+          global.readAloudStatus = 'ended';
           document.body.dispatchEvent(
             new Event('read-aloud-status-change', {
               bubbles: true,
@@ -140,43 +142,42 @@ export function defaultReadAloudHook(
 
           if (mathfield) {
             render(mathfield);
-            window.mathlive.readAloudElement = null;
-            window.mathlive.readAloudMathField = null;
-            window.mathlive.readAloudTokens = [];
-            window.mathlive.readAloudMarks = [];
-            window.mathlive.readAloudCurrentMark = '';
-          } else removeHighlight(window.mathlive.readAloudElement);
+            global.readAloudElement = null;
+            global.readAloudMathField = null;
+            global.readAloudTokens = [];
+            global.readAloudMarks = [];
+            global.readAloudCurrentMark = '';
+          } else removeHighlight(global.readAloudElement);
         });
-        window.mathlive.readAloudAudio.addEventListener('timeupdate', () => {
+        global.readAloudAudio.addEventListener('timeupdate', () => {
           let value = '';
           // The target, the atom we're looking for, is the one matching the current audio
           // plus 100 ms. By anticipating it a little bit, it feels more natural, otherwise it
           // feels like the highlighting is trailing the audio.
-          const target =
-            window.mathlive.readAloudAudio.currentTime * 1000 + 100;
+          const target = global.readAloudAudio.currentTime * 1000 + 100;
 
           // Find the smallest element which is bigger than the target time
-          for (const mark of window.mathlive.readAloudMarks)
+          for (const mark of global.readAloudMarks)
             if (mark.time < target) value = mark.value;
 
-          if (window.mathlive.readAloudCurrentMark !== value) {
-            window.mathlive.readAloudCurrentToken = value;
-            if (value && value === window.mathlive.readAloudFinalToken)
-              window.mathlive.readAloudAudio.pause();
+          if (global.readAloudCurrentMark !== value) {
+            global.readAloudCurrentToken = value;
+            if (value && value === global.readAloudFinalToken)
+              global.readAloudAudio.pause();
             else {
-              window.mathlive.readAloudCurrentMark = value;
+              global.readAloudCurrentMark = value;
               highlightAtomID(
-                window.mathlive.readAloudElement,
-                window.mathlive.readAloudCurrentMark
+                global.readAloudElement,
+                global.readAloudCurrentMark
               );
             }
           }
         });
-      } else window.mathlive.readAloudAudio.pause();
+      } else global.readAloudAudio.pause();
 
-      window.mathlive.readAloudAudio.src = url;
+      global.readAloudAudio.src = url;
 
-      window.mathlive.readAloudStatus = 'playing';
+      global.readAloudStatus = 'playing';
       document.body.dispatchEvent(
         new Event('read-aloud-status-change', {
           bubbles: true,
@@ -184,7 +185,7 @@ export function defaultReadAloudHook(
         })
       );
 
-      window.mathlive.readAloudAudio.play();
+      global.readAloudAudio.play();
     });
   });
 }
@@ -208,11 +209,10 @@ export function readAloudStatus():
   | 'paused'
   | 'unavailable' {
   if (!isBrowser()) return 'unavailable';
-  window.mathlive = window.mathlive ?? {};
-
-  if (!window.mathlive.readAloudAudio) return 'ready';
-  if (window.mathlive.readAloudAudio.paused) return 'paused';
-  if (!window.mathlive.readAloudAudio.ended) return 'playing';
+  const audio = globalMathLive().readAloudAudio;
+  if (!audio) return 'ready';
+  if (audio.paused) return 'paused';
+  if (!audio.ended) return 'playing';
 
   return 'ready';
 }
@@ -224,9 +224,9 @@ export function readAloudStatus():
  */
 export function pauseReadAloud(): void {
   if (!isBrowser()) return;
-  window.mathlive ??= {};
-  if (window.mathlive.readAloudAudio) {
-    window.mathlive.readAloudStatus = 'paused';
+  const audio = globalMathLive().readAloudAudio;
+  if (audio) {
+    globalMathLive().readAloudStatus = 'paused';
 
     document.body.dispatchEvent(
       new Event('read-aloud-status-change', {
@@ -235,7 +235,7 @@ export function pauseReadAloud(): void {
       })
     );
 
-    window.mathlive.readAloudAudio.pause();
+    audio.pause();
   }
 }
 
@@ -246,9 +246,9 @@ export function pauseReadAloud(): void {
  */
 export function resumeReadAloud(): void {
   if (!isBrowser()) return;
-  window.mathlive = window.mathlive ?? {};
-  if (window.mathlive.readAloudAudio) {
-    window.mathlive.readAloudStatus = 'playing';
+  const audio = globalMathLive().readAloudAudio;
+  if (audio) {
+    globalMathLive().readAloudStatus = 'playing';
 
     document.body.dispatchEvent(
       new Event('read-aloud-status-change', {
@@ -257,7 +257,7 @@ export function resumeReadAloud(): void {
       })
     );
 
-    window.mathlive.readAloudAudio.play();
+    audio.play();
   }
 }
 
@@ -270,26 +270,27 @@ export function resumeReadAloud(): void {
  */
 export function playReadAloud(token: string, count: number): void {
   if (!isBrowser()) return;
-  window.mathlive = window.mathlive ?? {};
-  if (window.mathlive.readAloudAudio) {
+  const global = globalMathLive();
+
+  if (global.readAloudAudio) {
     let timeIndex = 0;
-    window.mathlive.readAloudFinalToken = null;
+    global.readAloudFinalToken = null;
     if (token) {
-      window.mathlive.readAloudMarks = window.mathlive.readAloudMarks || [];
-      for (const mark of window.mathlive.readAloudMarks)
+      global.readAloudMarks = global.readAloudMarks ?? [];
+      for (const mark of global.readAloudMarks)
         if (mark.value === token) timeIndex = mark.time / 1000;
 
-      let tokenIndex = window.mathlive.readAloudTokens.indexOf(token);
+      let tokenIndex = global.readAloudTokens.indexOf(token);
       if (tokenIndex >= 0) {
         tokenIndex += count;
-        if (tokenIndex < window.mathlive.readAloudTokens.length)
-          window.mathlive.readAloudFinalToken = tokenIndex;
+        if (tokenIndex < global.readAloudTokens.length)
+          global.readAloudFinalToken = global.readAloudTokens[tokenIndex];
       }
     }
 
-    window.mathlive.readAloudAudio.currentTime = timeIndex;
+    global.readAloudAudio.currentTime = timeIndex;
 
-    window.mathlive.readAloudStatus = 'playing';
+    global.readAloudStatus = 'playing';
     document.body.dispatchEvent(
       new Event('read-aloud-status-change', {
         bubbles: true,
@@ -297,6 +298,6 @@ export function playReadAloud(token: string, count: number): void {
       })
     );
 
-    window.mathlive.readAloudAudio.play();
+    global.readAloudAudio.play();
   }
 }

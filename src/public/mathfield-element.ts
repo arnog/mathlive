@@ -21,6 +21,12 @@ import {
 import { MathfieldOptions } from './options';
 import { getAtomBounds } from '../editor-mathfield/utils';
 
+export declare type Expression =
+  | number
+  | string
+  | { [key: string]: any }
+  | [Expression, ...Expression[]];
+
 //
 // Custom Events
 //
@@ -357,7 +363,7 @@ export interface MathfieldElementAttributes {
    * to send control messages from child to parent frame to remote control
    * of mathfield component.
    *
-   * **Default**: `window.origin`
+   * **Default**: `globalThis.origin`
    */
   'shared-virtual-keyboard-target-origin': string;
 
@@ -507,10 +513,10 @@ export interface MathfieldElementAttributes {
  * | `text-to-speech-markup` | `options.textToSpeechMarkup` |
  * | `text-to-speech-rules` | `options.textToSpeechRules` |
  * | `value` | `value` |
- * | `virtual-keyboard-layout` | `options.keyboardLayout` |
- * | `virtual-keyboard-mode` | `options.keyboardMode` |
- * | `virtual-keyboard-theme` | `options.keyboardTheme` |
- * | `virtual-keyboards` | `options.keyboards` |
+ * | `virtual-keyboard-layout` | `options.virtualKeyboardLayout` |
+ * | `virtual-keyboard-mode` | `options.virtualKeyboardMode` |
+ * | `virtual-keyboard-theme` | `options.virtualKeyboardTheme` |
+ * | `virtual-keyboards` | `options.virtualKeyboards` |
  *
  * </div>
  *
@@ -626,7 +632,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   /**
      * To create programmatically a new mathfield use:
      *
-     * ```javascript
+     ```javascript
     let mfe = new MathfieldElement();
 
     // Set initial value and options
@@ -642,7 +648,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Attach the element to the DOM
     document.body.appendChild(mfe);
-    * ```
+    ```
     */
   constructor(options?: Partial<MathfieldOptions>) {
     throwIfNotInBrowser();
@@ -742,10 +748,20 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (!this._mathfield) return undefined;
     return this._mathfield.computeEngine;
   }
+  set computeEngine(val: any | null) {
+    if (!this._mathfield) return;
+    this._mathfield.setOptions({ computeEngine: val });
+  }
 
-  get expression(): any {
+  get expression(): any | null {
     if (!this._mathfield) return undefined;
     return this._mathfield.expression;
+  }
+
+  set expression(mathJson: Expression | any) {
+    if (!this._mathfield) return;
+    const latex = this.computeEngine?.box(mathJson).latex ?? null;
+    if (latex !== null) this._mathfield.setValue(latex);
   }
 
   get errors(): LatexSyntaxError[] {
@@ -795,7 +811,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._mathfield.placeholders.forEach((placeholder) => {
         placeholder.field.setOptions({
           ...options,
-          virtualKeyboardMode: 'onfocus',
           readOnly: false,
         });
       });
@@ -1043,6 +1058,32 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
+   * Reset the undo stack
+   * (for parent components with their own undo/redo)
+   */
+  resetUndo(): void {
+    this._mathfield?.resetUndo();
+  }
+
+  /**
+   * Return whether there are undoable items
+   * (for parent components with their own undo/redo)
+   */
+  canUndo(): boolean {
+    if (!this._mathfield) return false;
+    return this._mathfield.canUndo();
+  }
+
+  /**
+   * Return whether there are redoable items
+   * (for parent components with their own undo/redo)
+   */
+  canRedo(): boolean {
+    if (!this._mathfield) return false;
+    return this._mathfield.canRedo();
+  }
+
+  /**
    * Custom elements lifecycle hooks
    * @internal
    */
@@ -1109,10 +1150,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._mathfield = new MathfieldPrivate(
       this.shadowRoot!.querySelector(':host > div')!,
       {
-        eventSink: this,
         ...(gDeferredState.has(this)
           ? gDeferredState.get(this)!.options
           : getOptionsFromAttributes(this)),
+        eventSink: this,
         value,
       }
     );
@@ -1125,7 +1166,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     // The mathfield creation could have failed
-    if (!this._mathfield || !this._mathfield.model) {
+    if (!this._mathfield?.model) {
       this._mathfield = null;
       return;
     }
@@ -1246,13 +1287,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (isReadonly) {
       this.setAttribute('readonly', '');
       this.setAttribute('disabled', '');
+      this.setAttribute('aria-readonly', 'true');
     } else {
       this.removeAttribute('readonly');
       this.removeAttribute('read-only');
       this.removeAttribute('disabled');
+      this.removeAttribute('aria-readonly');
     }
 
-    this.setAttribute('aria-disabled', isReadonly ? 'true' : 'false');
     this.setOptions({ readOnly: isReadonly });
   }
 
@@ -1293,14 +1335,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   set defaultMode(value: 'inline-math' | 'math' | 'text') {
     this.setOptions({ defaultMode: value });
   }
-  get fontsDirectory(): string {
+  get fontsDirectory(): string | null {
     return this.getOption('fontsDirectory');
   }
-  set fontsDirectory(value: string) {
+  set fontsDirectory(value: string | null) {
     this.setOptions({ fontsDirectory: value });
   }
   get mathModeSpace(): string {
-    return this.getOption('fontsDirectory');
+    return this.getOption('mathModeSpace');
   }
   set mathModeSpace(value: string) {
     this.setOptions({ mathModeSpace: value });
@@ -1319,34 +1361,32 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
   get keypressSound():
     | string
-    | HTMLAudioElement
     | null
     | {
-        spacebar?: null | string | HTMLAudioElement;
-        return?: null | string | HTMLAudioElement;
-        delete?: null | string | HTMLAudioElement;
-        default: null | string | HTMLAudioElement;
+        spacebar?: null | string;
+        return?: null | string;
+        delete?: null | string;
+        default: null | string;
       } {
     return this.getOption('keypressSound');
   }
   set keypressSound(
     value:
       | string
-      | HTMLAudioElement
       | null
       | {
-          spacebar?: null | string | HTMLAudioElement;
-          return?: null | string | HTMLAudioElement;
-          delete?: null | string | HTMLAudioElement;
-          default: null | string | HTMLAudioElement;
+          spacebar?: null | string;
+          return?: null | string;
+          delete?: null | string;
+          default: null | string;
         }
   ) {
     this.setOptions({ keypressSound: value });
   }
-  get plonkSound(): string | HTMLAudioElement | null {
+  get plonkSound(): string | null {
     return this.getOption('plonkSound') ?? null;
   }
-  set plonkSound(value: string | HTMLAudioElement | null) {
+  set plonkSound(value: string | null) {
     this.setOptions({ plonkSound: value });
   }
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
@@ -1649,7 +1689,13 @@ declare global {
 }
 
 if (isBrowser() && !window.customElements?.get('math-field')) {
+  // The `globalThis[Symbol.for('io.cortexjs.mathlive')]` global is used  to coordinate between mathfield
+  // instances that may have been instantiated by different versions of the
+  // library
+  globalThis[Symbol.for('io.cortexjs.mathlive')] ??= {};
+  const global = globalThis[Symbol.for('io.cortexjs.mathlive')];
+  global.version = '{{SDK_VERSION}}';
+
   window.MathfieldElement = MathfieldElement;
-  window.mathlive = { version: '{{SDK_VERSION}}' };
   window.customElements?.define('math-field', MathfieldElement);
 }

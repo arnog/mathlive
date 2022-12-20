@@ -155,7 +155,7 @@ defineFunction(
           (!atom.hasEmptyBranch('below')
             ? `[${atom.belowToLatex(options)}]`
             : '') +
-          `{${atom.aboveToLatex(options)}}`,
+          `{${atom.aboveToLatex(options)}}${atom.supsubToLatex(options)}`,
       }),
   }
 );

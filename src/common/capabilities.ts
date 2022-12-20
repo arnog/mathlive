@@ -15,9 +15,9 @@ export function throwIfNotInBrowser(): void {
 
 export function isTouchCapable(): boolean {
   if (!isBrowser()) return false;
-  if (window.matchMedia)
-    return window.matchMedia('(any-pointer: coarse)').matches;
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if ('matchMedia' in globalThis)
+    return globalThis.matchMedia('(any-pointer: coarse)').matches;
+  return 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 }
 
 export function canVibrate(): boolean {

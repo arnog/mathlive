@@ -15,7 +15,7 @@ import { joinLatex } from '../core/tokenizer';
 import { Mode } from '../core/modes';
 import { AtomJson, fromJson } from '../core/atom';
 
-import { atomsToMathML } from '../addons/math-ml';
+import { toMathML } from '../addons/math-ml';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
@@ -387,8 +387,7 @@ export class ModelPrivate implements Model {
       });
     }
 
-    if (format === 'math-ml')
-      return atomsToMathML(atom, this.mathfield.options);
+    if (format === 'math-ml') return toMathML(atom, this.mathfield.options);
 
     if (format === 'spoken')
       return atomToSpeakableText(atom, this.mathfield.options);
@@ -418,6 +417,7 @@ export class ModelPrivate implements Model {
     }
 
     if (format === 'math-json') {
+      if (!this.mathfield.computeEngine) return '';
       try {
         const expr = this.mathfield.computeEngine.parse(
           Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })

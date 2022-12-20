@@ -337,7 +337,13 @@ export function move(
             model.position = pos;
             return move(model, 'forward', options);
           }
-        } else if (atom instanceof LatexAtom && atom.isSuggestion)
+        } else if (
+          atom.parent?.skipBoundary &&
+          atom.rightSibling?.isLastSibling
+        )
+          pos += 2;
+        else if (atom.parent?.skipBoundary && atom.type === 'first') pos += 1;
+        else if (atom instanceof LatexAtom && atom.isSuggestion)
           atom.isSuggestion = false;
       } else if (direction === 'backward') {
         if (atom.parent?.inCaptureSelection) {
@@ -346,10 +352,11 @@ export function move(
           while (!atom.captureSelection) atom = atom.parent!;
           pos = Math.max(0, model.offsetOf(atom.leftSibling));
         } else if (atom.skipBoundary) {
-          // When going backward, if land on first of group and previous (atom) is
-          // skipboundary,  move - 2
+          // When going backward, if land on first of group and previous
+          // (atom) is skipboundary,  move - 2
           pos = Math.max(0, model.position - 2);
-        }
+        } else if (atom.parent?.skipBoundary && atom.type === 'first')
+          pos = Math.max(0, model.position - 2);
       }
     }
 

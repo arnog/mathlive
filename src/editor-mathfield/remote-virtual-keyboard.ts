@@ -12,6 +12,7 @@ import { osPlatform } from '../common/capabilities';
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
 import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { validateOrigin } from './utils';
+import { globalMathLive } from '../mathlive';
 
 const POST_MESSAGE_TYPE = 'mathlive#remote-virtual-keyboard-message';
 
@@ -48,17 +49,18 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     mathfield: Mathfield;
     originValidator: OriginValidator;
   }) {
-    this.targetOrigin = options.targetOrigin ?? window.origin ?? '*';
+    this.targetOrigin = options.targetOrigin ?? globalThis.origin ?? '*';
     this.originValidator = options.originValidator ?? 'same-origin';
     this._mathfield = options.mathfield;
   }
 
   get visible(): boolean {
-    return window.mathlive?.sharedVirtualKeyboard?.visible ?? false;
+    return globalMathLive().sharedVirtualKeyboard?.visible ?? false;
   }
 
   set visible(value: boolean) {
-    window.mathlive.sharedVirtualKeyboard.visible = value;
+    if (globalMathLive().sharedVirtualKeyboard)
+      globalMathLive().sharedVirtualKeyboard!.visible = value;
   }
 
   setOptions(
@@ -78,13 +80,13 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   public enable(): void {
     if (!this.enabled) {
       this.enabled = true;
-      window.addEventListener('message', this);
+      globalThis.addEventListener('message', this);
     }
   }
 
   public disable(): void {
     if (this.enabled) {
-      window.removeEventListener('message', this);
+      globalThis.removeEventListener('message', this);
       this.enabled = false;
     }
   }
@@ -134,7 +136,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
         // Avoid an infinite messages loop if within one window
         if (
           getCommandTarget(event.data.command!) === 'virtual-keyboard' &&
-          window === window.parent
+          window === globalThis.parent
         )
           return;
 
@@ -148,8 +150,8 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   }
 
   private sendMessage(action: string, payload: any = {}): boolean {
-    if (window.parent) {
-      window.parent.postMessage(
+    if (globalThis.parent) {
+      globalThis.parent.postMessage(
         {
           type: POST_MESSAGE_TYPE,
           action,
@@ -192,7 +194,7 @@ export class RemoteVirtualKeyboard
 
     this.listeners = new Set();
 
-    window.addEventListener('message', this);
+    globalThis.addEventListener('message', this);
 
     document.body.addEventListener('focusin', (event: FocusEvent) => {
       const target = event.target as HTMLElement;
@@ -230,7 +232,7 @@ export class RemoteVirtualKeyboard
       createHTML: (s: string): any => s,
       fontsDirectory: './fonts',
       soundsDirectory: './sounds',
-      targetOrigin: window.origin,
+      targetOrigin: globalThis.origin,
       originValidator: 'same-origin',
 
       virtualKeyboards: 'all',
@@ -244,6 +246,7 @@ export class RemoteVirtualKeyboard
       keypressSound: null,
       plonkSound: null,
       virtualKeyboardToolbar: 'default',
+      computeEngine: null,
 
       virtualKeyboardContainer: globalThis.document?.body ?? null,
     };

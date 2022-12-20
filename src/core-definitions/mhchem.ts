@@ -5,7 +5,7 @@
 // @ts-nocheck
 
 /**
- * Mathlive mhchem.ts
+ * MathLive mhchem.ts
  *
  * This file is an adptation of KaTeX's adaption of MathJax's mhchem
  * implementation of the mhchem LaTeX extension of the same name.

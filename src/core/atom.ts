@@ -1,5 +1,8 @@
 import { isArray } from '../common/types';
 
+import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
+import { GlobalContext } from './context';
+
 import { AccentAtom } from '../core-atoms/accent';
 import { ArrayAtom } from '../core-atoms/array';
 import { BoxAtom } from '../core-atoms/box';
@@ -26,9 +29,7 @@ import { SpacingAtom } from '../core-atoms/spacing';
 import { SubsupAtom } from '../core-atoms/subsup';
 import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
-
-import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
-import { GlobalContext } from './context';
+import { TooltipAtom } from '../core-atoms/tooltip';
 
 export * from './atom-class';
 
@@ -81,6 +82,7 @@ export function fromJson(
   if (type === 'spacing') result = SpacingAtom.fromJson(json, context);
   if (type === 'surd') result = SurdAtom.fromJson(json, context);
   if (type === 'text') result = TextAtom.fromJson(json, context);
+  if (type === 'tooltip') result = TooltipAtom.fromJson(json, context);
 
   if (type === 'mop') result = OperatorAtom.fromJson(json, context);
 

@@ -32,6 +32,7 @@ import {
 
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
+import { MathfieldOptions } from '../public/options';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -67,7 +68,52 @@ export class MathModeEditor extends ModeEditor {
           if (!model.selectionIsCollapsed)
             model.deleteAtoms(range(model.selection));
           const cursor = model.at(model.position);
-          cursor.parent!.addChildrenAfter(atoms, cursor);
+
+          if (cursor.parent instanceof ArrayAtom) {
+            console.assert(cursor.treeBranch !== undefined);
+            // use 'first' atoms as environment column delimiter
+            const columns: Atom[][] = [];
+            let buffer: Atom[] = [];
+            // trim 'first' from array of atoms
+            if (atoms[0].type === 'first') atoms.shift();
+            if (atoms[atoms.length - 1].type === 'first') atoms.pop();
+            for (const atom of atoms) {
+              if (atom.type === 'first' && buffer.length > 0) {
+                columns.push(buffer);
+                buffer = [atom];
+              } else buffer.push(atom);
+            }
+            if (buffer.length > 0) columns.push(buffer);
+
+            // expand environment columns to paste size
+            let currentRow = Number(cursor.treeBranch![0]);
+            let currentColumn = Number(cursor.treeBranch![1]);
+            const maxColumns = cursor.parent.maxColumns;
+            while (
+              cursor.parent.colCount - currentColumn < columns.length &&
+              cursor.parent.colCount < maxColumns
+            )
+              cursor.parent.addColumn();
+
+            // add content to the first cell
+            cursor.parent.addChildrenAfter(columns[0], cursor);
+            // replace the rest of the columns
+            for (let i = 1; i < columns.length; i++) {
+              currentColumn++;
+              if (currentColumn >= maxColumns) {
+                currentColumn = 0;
+                cursor.parent.addRowAfter(currentRow);
+                currentRow++;
+              }
+              cursor.parent.setCell(currentRow, currentColumn, columns[i]);
+            }
+          } else {
+            cursor.parent!.addChildrenAfter(
+              atoms.filter((a) => a.type !== 'first'),
+              cursor
+            );
+          }
+
           model.position = model.offsetOf(atoms[atoms.length - 1]);
 
           contentDidChange(model, { inputType: 'insertFromPaste' });
@@ -84,14 +130,14 @@ export class MathModeEditor extends ModeEditor {
     // 2/ Try to get a MathJSON data type
     //
     json = ev.clipboardData.getData('application/json');
-    if (json) {
+    if (json && mathfield.computeEngine) {
       try {
         const expr = JSON.parse(json);
         if (typeof expr === 'object' && 'latex' in expr && expr.latex)
           text = expr.latex;
         if (!text) {
           const box = mathfield.computeEngine.box(expr);
-          if (!box.has('Error')) text = box.latex;
+          if (box && !box.has('Error')) text = box.latex;
         }
         if (!text) format = 'latex';
       } catch {}
@@ -137,8 +183,11 @@ export class MathModeEditor extends ModeEditor {
     const data =
       typeof input === 'string'
         ? input
-        : model.mathfield.computeEngine.box(input).latex;
-    if (!contentWillChange(model, { data, inputType: 'insertText' }))
+        : model.mathfield.computeEngine?.box(input).latex ?? '';
+    if (
+      !options.suppressChangeNotifications &&
+      !contentWillChange(model, { data, inputType: 'insertText' })
+    )
       return false;
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
@@ -279,36 +328,29 @@ export class MathModeEditor extends ModeEditor {
         !!placeholder.placeholderId &&
           !model.mathfield.placeholders.has(placeholder.placeholderId)
       );
+
+      let virtualKeyboardMode = model.mathfield.options.virtualKeyboardMode;
+      if (virtualKeyboardMode === 'manual') virtualKeyboardMode = 'onfocus';
       const element = new MathfieldElement({
-        virtualKeyboardMode: 'onfocus',
+        ...model.mathfield.options,
+        virtualKeyboardMode,
         readOnly: false,
-        fontsDirectory: model.mathfield.options.fontsDirectory,
-      });
-      const container = model.mathfield.element?.querySelector(
-        '.ML__placeholdercontainer'
-      );
+      } as Partial<MathfieldOptions>);
 
-      element.value = placeholder.defaultValue?.length
-        ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'text' })
+      const value = placeholder.defaultValue
+        ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'math' })
         : '';
-      element.classList.add('nested-mathfield');
-      element.style.display = 'inline-block';
-      element.style.zIndex = '1001';
-      element.style.position = 'absolute';
-      element.style.minWidth = '30px';
-
-      const style = document.createElement('style');
-      style.textContent = `.nested-mathfield { border: 1px solid black; }
-          .ML__container{ min-height:auto !important; }
-          `;
-      element.appendChild(style);
+      element.value = value;
       element.addEventListener('input', () => {
         placeholderDidChange(model, placeholder.placeholderId!);
         // this timeout gives some time for a placeholder to render properly
         // before rendering the main field.
         setTimeout(() => requestUpdate(model.mathfield));
       });
-      container?.appendChild(element);
+
+      model.mathfield.element
+        ?.querySelector('.ML__placeholdercontainer')
+        ?.appendChild(element);
 
       model.mathfield.placeholders.set(placeholder.placeholderId as string, {
         atom: placeholder,
@@ -403,6 +445,8 @@ function convertStringToAtoms(
   let result: Atom[] = [];
 
   if (typeof s !== 'string' || options.format === 'math-json') {
+    if (!model.mathfield.computeEngine) return ['math-json', []];
+
     [format, s] = [
       'latex',
       model.mathfield.computeEngine.box(s as Expression).latex as string,

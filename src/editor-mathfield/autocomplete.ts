@@ -5,7 +5,7 @@ import { suggest } from '../core-definitions/definitions-utils';
 
 import type { ModelPrivate } from '../editor-model/model-private';
 
-import { hidePopover, showPopoverWithLatex } from '../editor/popover';
+import { hidePopover, showPopover } from '../editor/popover';
 
 import type { MathfieldPrivate } from './mathfield-private';
 import { requestUpdate } from './render';
@@ -95,7 +95,7 @@ export function updateAutocomplete(
     requestUpdate(mathfield);
   }
 
-  showPopoverWithLatex(mathfield, suggestion, suggestions.length > 1);
+  showPopover(mathfield, suggestions);
 }
 
 export function acceptCommandSuggestion(model: ModelPrivate): boolean {
@@ -114,7 +114,7 @@ export function acceptCommandSuggestion(model: ModelPrivate): boolean {
 }
 
 /**
- * When in LaTeX mode, insert the LaTeX being edited and leave latex mode
+ * When in LaTeX mode, insert the LaTeX being edited and leave LaTeX mode
  *
  */
 export function complete(

@@ -53,10 +53,10 @@ export class SpacingAtom extends Atom {
   }
 
   serialize(_options: ToLatexOptions): string {
-    // Three kinds of spacing commands:
-    // \hskip and \kern which take one implicit parameter
-    // \hspace and hspace* with take one *explicit* parameter
-    // \quad, etc... which take no parameters.
+    // Two kinds of spacing commands:
+    // - `\hskip`, `\kern`, `\hspace` and `hspace*` which take one glue argument:
+    // i.e. `\hspace1em` or `\hspace{1em}`.
+    // - `\quad`, etc... which take no parameters.
     let result = this.command ?? '';
     if (this.command === '\\hspace' || this.command === '\\hspace*') {
       if (Number.isFinite(this.width)) result += `{${this.width}em'}`;

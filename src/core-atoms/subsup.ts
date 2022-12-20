@@ -36,12 +36,13 @@ export class SubsupAtom extends Atom {
     // The box type of a `subsup` atom is 'supsub' as it doesn't
     // have any special INTER_ATOM_SPACING with its attached atom (previous box)
 
+    const leftSibling = this.leftSibling;
     const phantomContex = new Context(context, { isPhantom: true });
-    const base = this.leftSibling.render(phantomContex) ?? new Box(null);
+    const base = leftSibling.render(phantomContex) ?? new Box(null);
     const phantom = new Box(null, { height: base.height, depth: base.depth });
     return this.attachSupsub(context, {
       base: phantom,
-      isCharacterBox: this.leftSibling.isCharacterBox(),
+      isCharacterBox: leftSibling.isCharacterBox(),
       // Set to 'supsub' so that it is skipped when walking the
       // atom to adjust for spacing.
       type: 'supsub',

@@ -9,8 +9,8 @@ If you are using MathLive in your project, encourage the business partners in
 your organization to provide financial support of open source projects,
 including MathLive. Contact [me](arno@arno.org) to discuss possible arrangments
 which can run from short-term contracts for specific features or integration
-support (I can invoice the work), to one-time or recurring donation to
-support the work in general.
+support (I can invoice the work), to one-time or recurring donation to support
+the work in general.
 
 Funds go to general development, support, and infrastructure costs.
 
@@ -31,7 +31,8 @@ test case that demonstrates the issue, if applicable.
 Sure! Have a look at the issue report, and make sure no one is already working
 on it. If the issue is assigned to someone, they're on it! Otherwise, add a
 comment in the issue indicating you'd like to work on resolving the issue and go
-for it! See the [Contributor Guide](documentation/CONTRIBUTOR_GUIDE.md) for coding guidelines.
+for it! See the [Contributor Guide](documentation/CONTRIBUTOR_GUIDE.md) for
+coding guidelines.
 
 ## Contributing Test Cases
 
@@ -58,11 +59,11 @@ feature, we welcome contributions in the form of pull requests. Once submitted,
 your pull request will be reviewed and you will receive some feedback to make
 sure that your pull request fits in with
 
--   the roadmap for MathLive
--   the architecture of the project
--   the coding guidelines of the project
+- the roadmap for MathLive
+- the architecture of the project
+- the coding guidelines of the project
 
 Once your pull request has been accepted, it will be merged into the master
 branch.
 
-Congratulations, you've become a Mathlive contributor! Thanks for your help!
+Congratulations, you've become a MathLive contributor! Thanks for your help!

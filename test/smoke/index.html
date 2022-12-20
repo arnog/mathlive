@@ -15,7 +15,14 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf">\begin{matrix}a&b\\c&d\end{matrix}=1</math-field>
+      <!-- <math-field id="mf" virtualkeyboardmode="manual"
+        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
+        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+        \frac{a+1}{b+\alpha+\gamma}</math-field
+      > -->
+      <math-field id="mf" virtualkeyboardmode="manual" readonly
+        >f(x)= \placeholder[id1][x]{}</math-field
+      >
 
       <h2 style="margin-top: 1em">LaTeX</h2>
       <div class="output" id="latex"></div>
@@ -39,10 +46,20 @@
 
     <script type="module">
       import {
+        renderMathInDocument,
         renderMathInElement,
         makeSharedVirtualKeyboard,
         MathfieldElement,
       } from '/dist/mathlive.mjs';
+
+      // import {
+      //   ComputeEngine,
+      //   version,
+      // } from 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+      import {
+        ComputeEngine,
+        version,
+      } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
       // const k = makeSharedVirtualKeyboard();
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
@@ -148,6 +165,12 @@
 
       const mf = document.getElementById('mf');
 
+      mf.setOptions({ computeEngine: new ComputeEngine() });
+      mf.setOptions({
+        ...mf.getOptions(),
+        decimalSeparator: '.',
+      });
+
       mf.setOptions({
         onInlineShortcut: (_mf, s) => {
           if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
@@ -163,6 +186,8 @@
         },
         // smartFence: true,
         virtualKeyboardMode: 'manual',
+        enablePopover: false,
+        macros: { ...mf.getOptions('macros'), in: '\\mathrm{in}' },
         // macros: {
         //   ...mf.getOptions('macros'),
         //   smolfrac: {
@@ -173,25 +198,17 @@
         // },
       });
 
-      // mf.addEventListener(
-      //   'keydown',
-      //   (ev) => {
-      //     if (ev.code === 'Escape') ev.preventDefault();
-      //   },
-      //   { capture: true }
-      // );
+      mf.addEventListener('input', (ev) => {
+        console.log('commit');
+      });
 
-      // mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
-      //   capture: true,
-      // });
+      mf.addEventListener('placeholder-change', (ev) => {
+        console.log(ev.detail.placeholderId);
+      });
 
-      // mf.setOptions({
-      //   keybindings: [
-      //     ...mf.getOptions('keybindings').filter((x) => x.key !== '[Escape]'),
-      //   ],
-      // });
-
-      // { key: '[Escape]', command: ['announce', 'plonk'] },
+      mf.addEventListener('beforeinput', (ev) => {
+        if (ev.inputType === 'insertLineBreak') console.log('enter');
+      });
 
       mf.addEventListener('input', (ev) => updateContent(mf));
 
@@ -228,7 +245,7 @@
           setHtml('mathascii', mf.getValue('ascii-math'));
           setHtml('mathml', mf.getValue('math-ml'));
           setHtml('math-json', mf.getValue('math-json'));
-          const result = mf.expression.evaluate().latex;
+          const result = mf.expression?.evaluate().latex ?? '';
           document.getElementById('result').innerText = result;
           document.getElementById('result-latex').innerText = `$$${result}$$`;
 
@@ -266,6 +283,7 @@
 
       // First time update
       updateContent(mf);
+      renderMathInDocument();
     </script>
   </body>
 </html>

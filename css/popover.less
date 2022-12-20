@@ -2,14 +2,16 @@
   'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif;
 
+@monospace: 'IBM Plex Mono', 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
+  'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
+
 /* The element that display info while in latex mode */
 #mathlive-popover-panel {
   visibility: hidden;
-  min-width: 160px;
   background-color: rgba(97, 97, 97, 0.95);
   color: #fff;
   text-align: center;
-  border-radius: 6px;
+  border-radius: 8px;
   // padding: 8px 8px;
   position: fixed;
   z-index: 1;
@@ -38,15 +40,6 @@
   }
 }
 
-.ML__popover--reverse-direction {
-  &::after {
-    top: auto;
-    bottom: -5px;
-    border-top: 5px solid rgba(97, 97, 97, 0.9);
-    border-bottom: 0;
-  }
-}
-
 #mathlive-popover-panel.is-visible {
   visibility: inherit;
   animation: ML__fade-in cubic-bezier(0, 0, 0.2, 1) 0.15s;
@@ -61,17 +54,29 @@
 }
 
 /* The wrapper class for the entire content of the popover panel */
-.ML__popover__content {
-  border-radius: 6px;
-  padding: 2px;
-  cursor: pointer;
-  min-height: 100px;
 
+#mathlive-popover-panel ul {
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: flex-start;
   justify-content: center;
-  margin-left: 8px;
-  margin-right: 8px;
+}
+
+#mathlive-popover-panel li {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 8px;
+  padding: 8px;
+  width: calc(100% - 16px - 16px); // minus 2*margin minus 2 * padding
+  column-gap: 1em;
+
+  border-radius: 8px;
+  cursor: pointer;
+
   a {
     color: #5ea6fd;
     padding-top: 0.3em;
@@ -96,88 +101,16 @@
   font-family: KaTeX_Main;
 }
 
-.ML__popover__prev-shortcut {
-  height: 31px;
-  opacity: 0.1;
-  cursor: pointer;
-
-  margin-left: 8px;
-  margin-right: 8px;
-  padding-top: 4px;
-  padding-bottom: 2px;
-}
-
-.ML__popover__prev-shortcut:hover,
-.ML__popover__next-shortcut:hover {
-  opacity: 0.3;
-}
-
-.ML__popover__prev-shortcut.is-pressed,
-.ML__popover__next-shortcut.is-pressed {
-  opacity: 1;
-}
-
-.ML__popover__prev-shortcut.is-active,
-.ML__popover__next-shortcut.is-active {
-  opacity: 1;
-}
-
-.ML__popover__prev-shortcut > span,
-.ML__popover__next-shortcut > span {
-  padding: 5px;
-  border-radius: 8px;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-}
-
-.ML__popover__prev-shortcut > span > span {
-  margin-top: -2px;
-  display: block;
-}
-
-.ML__popover__next-shortcut > span > span {
-  margin-top: +2px;
-  display: block;
-}
-
-.ML__popover__prev-shortcut:hover > span,
-.ML__popover__next-shortcut:hover > span {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.ML__popover__next-shortcut {
-  height: 34px;
-  opacity: 0.1;
-  cursor: pointer;
-
-  margin-left: 8px;
-  margin-right: 8px;
-  padding-top: 2px;
-  padding-bottom: 4px;
+.ML__popover__latex {
+  font-family: @monospace;
+  align-self: center;
 }
 
 /* The keyboard shortcuts for a symbol as displayed in the popover */
-.ML__popover__shortcut {
+.ML__popover__keybinding {
   font-family: @system;
   font-size: 0.8em;
   opacity: 0.7;
-
-  margin-top: 0.25em;
-  padding-top: 0.25em;
-}
-
-/* The field in a popover that provides some info about the symbol */
-.ML__popover__note {
-  font-family: @system;
-  font-size: 0.8rem;
-  opacity: 0.7;
-
-  line-height: 1em;
-
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  padding-top: 0.25em;
 }
 
 /* Style for the character that joins the modifiers of a keyboard shortcut 

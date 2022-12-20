@@ -2,10 +2,10 @@ import { TextToSpeechOptions } from '../public/options';
 
 import { Atom } from '../core/atom';
 
-import { atomsToMathML } from '../addons/math-ml';
+import { toMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
-import { isBrowser, osPlatform } from '../common/capabilities';
+import { osPlatform } from '../common/capabilities';
 
 declare global {
   interface Window {
@@ -549,9 +549,7 @@ function atomToSpeakableFragment(
       case 'enclose':
         body = atomToSpeakableFragment('math', atom.body, options);
 
-        result += isAtomic(atom.body)
-          ? ' crossed out ' + body + ' , '
-          : ' crossed out ' + body + '. End cross out';
+        result += ' crossed out ' + body + '. End crossed out.';
         break;
 
       case 'space':
@@ -616,8 +614,8 @@ export function atomToSpeakableText(
     textToSpeechRulesOptions: { ...speechOptions.textToSpeechRulesOptions },
   };
 
-  if (options.textToSpeechRules === 'sre' && isBrowser() && 'sre' in window) {
-    const mathML = atomsToMathML(atoms, options);
+  if (options.textToSpeechRules === 'sre' && 'sre' in globalThis) {
+    const mathML = toMathML(atoms, options);
     if (mathML) {
       if (options.textToSpeechMarkup) {
         options.textToSpeechRulesOptions =
@@ -630,12 +628,12 @@ export function atomToSpeakableText(
       }
 
       if (options.textToSpeechRulesOptions) {
-        window.sre.System.getInstance().setupEngine(
+        globalThis.sre.System.getInstance().setupEngine(
           options.textToSpeechRulesOptions
         );
       }
 
-      return window.sre.System.getInstance().toSpeech(mathML);
+      return globalThis.sre.System.getInstance().toSpeech(mathML);
     }
 
     return '';

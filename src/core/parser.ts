@@ -1194,7 +1194,7 @@ export class Parser {
   parseArguments(
     info: Partial<FunctionDefinition>
   ): [ParseMode | undefined, (null | Argument)[]] {
-    if (!info || !info.params) return [undefined, []];
+    if (!info?.params) return [undefined, []];
     let explicitGroup: ParseMode | undefined = undefined;
     const args: (null | Argument)[] = [];
     let i = info.infix ? 2 : 0;
@@ -1379,11 +1379,15 @@ export class Parser {
 
   parseCommand(command: string): Atom[] | null {
     if (command === '\\placeholder') {
+      const id = this.parseOptionalArgument('string') as string;
+      const defaultValue = this.parseOptionalArgument('math') as Atom[];
+      const value = this.parseArgument('string') ?? undefined;
       return [
         new PlaceholderAtom(this.context, {
           mode: this.parseMode,
-          placeholderId: this.parseOptionalArgument('string') as string,
-          value: this.parseArgument('string') ?? undefined,
+          placeholderId: id,
+          value: value,
+          default: defaultValue,
           style: this.style,
         }),
       ];

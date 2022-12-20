@@ -1,6 +1,6 @@
 {
   "name": "mathlive",
-  "version": "0.83.0",
+  "version": "0.86.0",
   "description": "Render and edit beautifully typeset math",
   "license": "MIT",
   "funding": {
@@ -64,7 +64,7 @@
   ],
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.1.0",
-    "@cortex-js/compute-engine": "^0.7.0",
+    "@cortex-js/compute-engine": "^0.12.2",
     "@cortex-js/prettier-config": "^1.1.1",
     "@rollup/plugin-node-resolve": "^14.0.1",
     "@types/css-font-loading-module": "0.0.7",

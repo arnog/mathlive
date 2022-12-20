@@ -3,7 +3,7 @@
 This example shows how to interact with a MathLive mathfield on page with
 multiple iframes.
 
-It uses the Mathlive SDK distributed via a CDN.
+It uses the MathLive SDK distributed via a CDN.
 
 ## Initialize child frame
 
@@ -22,7 +22,7 @@ Initialize a mathfield element as usual, just pass an option
 
 ## Initialize parent frame
 
-In the parent frame you should also load Mathlive using a `<script>` tag and
+In the parent frame you should also load MathLive using a `<script>` tag and
 invoke `makeSharedVirtualKeyboard()` function to create the shared virtual
 keyboard. Make sure to call `makeSharedVirtualKeyboard()` as early as possible,
 and before creating any mathfield element. `makeSharedVirtualKeyboard()` does

@@ -141,9 +141,7 @@ export function onKeystroke(
           // inline shortcut
           if (
             !shortcut &&
-            /^[a-zA-Z][a-zA-Z0-9]+'?([_\^][a-zA-Z0-9\*\+\-]'?)?$/.test(
-              candidate
-            )
+            /^[a-zA-Z][a-zA-Z0-9]+?([_\^][a-zA-Z0-9\*\+\-]+?)?$/.test(candidate)
           )
             shortcut = mathfield.options.onInlineShortcut(mathfield, candidate);
 
@@ -429,7 +427,7 @@ export function onTypedText(
     if (mathfield.options.keypressVibration && canVibrate())
       navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
-    mathfield.keypressSound?.play().catch(console.warn);
+    mathfield.playSound('keypress');
   }
 
   //

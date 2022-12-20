@@ -49,7 +49,11 @@ function getFileUrl() {
 // URL
 let gResolvedScriptUrl: string | null = null;
 
-export function resolveRelativeUrl(url: string): string {
+export function resolveUrl(url: string): string {
+  // Is  it an absolute URL?
+  if (/^(?:[a-z+]+:)?\/\//i.test(url)) return new URL(url).href;
+
+  // This may be a relative URL
   if (gResolvedScriptUrl === null) {
     try {
       const request = new XMLHttpRequest();

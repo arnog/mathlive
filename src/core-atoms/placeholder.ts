@@ -27,7 +27,7 @@ export class PlaceholderAtom extends Atom {
     });
     this.captureSelection = true;
     this.placeholderId = options?.placeholderId;
-    this.defaultValue = options?.default;
+    if (options?.default) this.defaultValue = options?.default;
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): PlaceholderAtom {
@@ -49,8 +49,8 @@ export class PlaceholderAtom extends Atom {
       return context.renderPlaceholder(context, this);
 
     let classes = '';
-    if (this.caret) classes += 'ML__placeholder-selected';
-    if (this.isSelected) classes += 'ML__selected';
+    if (this.caret) classes += 'ML__placeholder-selected ';
+    if (this.isSelected) classes += ' ML__selected ';
     return this.createBox(context, { classes });
   }
 

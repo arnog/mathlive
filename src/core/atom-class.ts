@@ -8,7 +8,7 @@ import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 import { GlobalContext, Context, PrivateStyle } from './context';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
-import { BoxType, isBoxType, Box } from './box';
+import { BoxType, isBoxType, Box, makeStruts } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
@@ -125,7 +125,8 @@ export type AtomType =
   | 'space'
   | 'spacing'
   | 'surd' // Aka square root, nth root
-  | 'text'; // Text mode atom;
+  | 'text' // Text mode atom;
+  | 'tooltip'; // For `\mathtip` and `\texttip`
 
 export type BBoxParameter = {
   backgroundcolor?: string;
@@ -668,7 +669,6 @@ export class Atom {
 
     if (!hadVerbatimBackgroundColor) delete result.verbatimBackgroundColor;
     if (!hadVerbatimColor) delete result.verbatimColor;
-
     return result;
   }
 
@@ -715,6 +715,7 @@ export class Atom {
   }
 
   isCharacterBox(): boolean {
+    if (this.type === 'leftright') return false;
     const base = this.getInitialBaseElement();
     return /mord/.test(base.type);
   }
@@ -1151,29 +1152,12 @@ export class Atom {
    */
   createMathfieldBox(
     context: Context,
-    options: {
-      classes?: string;
-      newList?: boolean;
-      placeholderId: string;
-      element: MathfieldElement;
-    }
-  ): MathfieldBox {
-    // Ensure that the atom type is a valid Box type
-    const type: BoxType = 'mathfield';
-
-    // The font family is determined by:
-    // - the base font family associated with this atom (optional). For example,
-    // some atoms such as some functions ('\sin', '\cos', etc...) or some
-    // symbols ('\Z') have an explicit font family. This overrides any
-    // other font family
-    // - the user-specified font family that has been explicitly applied to
-    // this atom
-    // - the font family determined automatically in math mode, for example
-    // which italicizes some characters, but which can be overridden
-
-    const classes = options?.classes ?? '';
-    const result = new MathfieldBox(options.placeholderId, options.element, {
-      type,
+    mathfield: MathfieldElement,
+    placeholderId: string
+  ): Box {
+    const classes = '';
+    const result = new MathfieldBox(placeholderId, mathfield, {
+      type: 'mathfield',
       mode: this.mode,
       maxFontSize: context.scalingFactor,
       style: {
@@ -1186,7 +1170,6 @@ export class Atom {
         ) as FontSize,
       },
       classes,
-      newList: options?.newList,
     });
 
     // Set other attributes
@@ -1202,7 +1185,7 @@ export class Atom {
     // on, attach a unique ID to the box and associate it with the atom.
     this.bind(context, result);
 
-    return result;
+    return makeStruts(result, { type: 'mord' });
   }
 
   /**
@@ -1339,21 +1322,23 @@ function getStyleRuns(atoms: Atom[]): Atom[][] {
   const runs: Atom[][] = [];
   let run: Atom[] = [];
   for (const atom of atoms) {
-    const atomStyle = atom.computedStyle;
     if (!style && !atom.style) run.push(atom);
-    else if (
-      style &&
-      atomStyle.color === style.color &&
-      atomStyle.backgroundColor === style.backgroundColor &&
-      atomStyle.fontSize === style.fontSize
-    ) {
-      // Atom matches the current run
-      run.push(atom);
-    } else {
-      // Start a new run
-      if (run.length > 0) runs.push(run);
-      run = [atom];
-      style = atom.computedStyle;
+    else {
+      const atomStyle = atom.computedStyle;
+      if (
+        style &&
+        atomStyle.color === style.color &&
+        atomStyle.backgroundColor === style.backgroundColor &&
+        atomStyle.fontSize === style.fontSize
+      ) {
+        // Atom matches the current run
+        run.push(atom);
+      } else {
+        // Start a new run
+        if (run.length > 0) runs.push(run);
+        run = [atom];
+        style = atomStyle;
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import { adjustInterAtomSpacing, makeStruts } from '../core/box';
+import { adjustInterAtomSpacing, Box, makeStruts } from '../core/box';
 
 import {
   Rect,
@@ -9,7 +9,7 @@ import {
 } from './utils';
 import type { MathfieldPrivate } from './mathfield-private';
 
-import { atomsToMathML } from '../addons/math-ml';
+import { toMathML } from '../addons/math-ml';
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
 import { throwIfNotInBrowser } from '../common/capabilities';
@@ -45,7 +45,77 @@ export function requestUpdate(
 }
 
 /**
- * Lay-out the mathfield and generate the DOM.
+ * Return a box representing the content of the mathfield.
+ * @param mathfield
+ * @param renderOptions
+ */
+function makeBox(
+  mathfield: MathfieldPrivate,
+  renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
+): Box {
+  renderOptions = renderOptions ?? {};
+  const base = mathfield.model.root.render(
+    new Context(
+      {
+        registers: mathfield.registers,
+        atomIdsSettings: {
+          // Using the hash as a seed for the ID
+          // keeps the IDs the same until the content of the field changes.
+          seed: renderOptions.forHighlighting
+            ? hash(
+                Atom.serialize(mathfield.model.root, {
+                  expandMacro: false,
+                  defaultMode: mathfield.options.defaultMode,
+                })
+              )
+            : 'random',
+          // The `groupNumbers` flag indicates that extra boxes should be generated
+          // to represent group of atoms, for example, a box to group
+          // consecutive digits to represent a number.
+          groupNumbers: renderOptions.forHighlighting ?? false,
+        },
+        renderPlaceholder: mathfield.options.readOnly
+          ? (context: Context, p) => {
+              if (p.placeholderId) {
+                const field = mathfield.getPlaceholderField(p.placeholderId!)!;
+                return p.createMathfieldBox(context, field, p.placeholderId);
+              }
+              return p.createBox(context);
+            }
+          : undefined,
+      },
+      {
+        fontSize: DEFAULT_FONT_SIZE,
+        letterShapeStyle: mathfield.options.letterShapeStyle,
+      },
+      mathfield.options.defaultMode === 'inline-math'
+        ? 'textstyle'
+        : 'displaystyle'
+    )
+  )!;
+
+  //
+  // 3. Construct struts around the boxes
+  //
+  const wrapper = makeStruts(
+    adjustInterAtomSpacing(base, mathfield.options.horizontalSpacingScale),
+    {
+      classes: 'ML__mathlive',
+      attributes: {
+        // Sometimes Google Translate kicks in an attempts to 'translate' math
+        // This doesn't work very well, so turn off translate
+        'translate': 'no',
+        // Hint to screen readers to not attempt to read this <span>.
+        // They should use instead the 'aria-label' attribute.
+        'aria-hidden': 'true',
+      },
+    }
+  );
+  return wrapper;
+}
+
+/**
+ * Layout the mathfield and generate the DOM.
  *
  * This is usually done automatically, but if the font-size, or other geometric
  * attributes are modified, outside of MathLive, this function may need to be
@@ -60,16 +130,10 @@ export function render(
   if (!isValidMathfield(mathfield)) return;
 
   renderOptions = renderOptions ?? {};
-  mathfield.dirty = false;
   const { model } = mathfield;
 
   //
-  // 1. Stop and reset read aloud state
-  //
-  if (!('mathlive' in window)) window.mathlive = {};
-
-  //
-  // 2. Update selection state and blinking cursor (caret)
+  // 1. Update selection state and blinking cursor (caret)
   //
   model.root.caret = '';
   model.root.isSelected = false;
@@ -96,88 +160,29 @@ export function render(
   }
 
   //
-  // 3. Render boxes
+  // 2. Render a box representation of the mathfield content
   //
-  const base = model.root.render(
-    new Context(
-      {
-        registers: mathfield.registers,
-        atomIdsSettings: {
-          // Using the hash as a seed for the ID
-          // keeps the IDs the same until the content of the field changes.
-          seed: renderOptions.forHighlighting
-            ? hash(
-                Atom.serialize(model.root, {
-                  expandMacro: false,
-                  defaultMode: mathfield.options.defaultMode,
-                })
-              )
-            : 'random',
-          // The `groupNumbers` flag indicates that extra boxes should be generated
-          // to represent group of atoms, for example, a box to group
-          // consecutive digits to represent a number.
-          groupNumbers: renderOptions.forHighlighting ?? false,
-        },
-        renderPlaceholder: mathfield.options.readOnly
-          ? (context: Context, p) => {
-              if (p.placeholderId) {
-                const field = mathfield.getPlaceholderField(p.placeholderId!);
-                return p.createMathfieldBox(context, {
-                  placeholderId: p.placeholderId!,
-                  element: field!,
-                });
-              }
-              return p.createBox(context);
-            }
-          : undefined,
-      },
-      {
-        fontSize: DEFAULT_FONT_SIZE,
-        letterShapeStyle: mathfield.options.letterShapeStyle,
-      },
-      mathfield.options.defaultMode === 'inline-math'
-        ? 'textstyle'
-        : 'displaystyle'
-    )
-  );
+  const box = makeBox(mathfield, renderOptions);
 
   //
-  // 4. Construct struts around the boxes
-  //
-  const wrapper = makeStruts(
-    adjustInterAtomSpacing(base!, mathfield.options.horizontalSpacingScale),
-    {
-      classes: 'ML__mathlive',
-      attributes: {
-        // Sometimes Google Translate kicks in an attempts to 'translate' math
-        // This doesn't work very well, so turn off translate
-        'translate': 'no',
-        // Hint to screen readers to not attempt to read this <span>.
-        // They should use instead the 'aria-label' attribute.
-        'aria-hidden': 'true',
-      },
-    }
-  );
-
-  //
-  // 5. Generate markup and accessible node
+  // 3. Generate markup and accessible node
   //
   const field = mathfield.field;
   const isFocused = field.classList.contains('ML__focused');
   if (isFocused && !hasFocus) field.classList.remove('ML__focused');
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
-  field.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
+  field.innerHTML = mathfield.options.createHTML(box.toMarkup());
   mathfield.fieldContent = field.querySelector('.ML__mathlive')!;
 
   mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
     '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-      atomsToMathML(model.root, mathfield.options) +
+      toMathML(model.root, mathfield.options) +
       '</math>'
   );
 
   //
-  // 6. Render the selection/caret
+  // 4. Render the selection/caret
   //
   renderSelection(mathfield);
   if (mathfield.options.readOnly) mathfield.attachNestedMathfield();
@@ -188,6 +193,8 @@ export function render(
     //  not yet available. )
     setTimeout(() => renderSelection(mathfield), 32);
   }
+
+  mathfield.dirty = false;
 }
 
 export function renderSelection(mathfield: MathfieldPrivate): void {

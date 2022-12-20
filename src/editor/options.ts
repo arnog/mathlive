@@ -2,7 +2,6 @@ import type { MathfieldOptions } from '../public/options';
 import { VirtualKeyboardMode } from '../public/mathfield-element';
 
 import { isArray } from '../common/types';
-import { resolveRelativeUrl } from '../common/script-url';
 import { isBrowser, isTouchCapable } from '../common/capabilities';
 
 import { l10n } from '../core/l10n';
@@ -21,67 +20,15 @@ import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { reevaluateBreakpoints } from './reevaluateBreakpoints';
 
-const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
-
 /** @internal */
 export type MathfieldOptionsPrivate = MathfieldOptions & {
   value: string;
 };
-function loadSound(
-  soundDirectory: string,
-  sound?: string | HTMLAudioElement | null
-): HTMLAudioElement | null {
-  if (
-    sound === null ||
-    sound === undefined ||
-    sound === 'none' ||
-    sound === 'null'
-  )
-    return null;
-
-  if (sound instanceof HTMLAudioElement) {
-    sound.load();
-    return sound;
-  }
-  if (typeof sound === 'string') {
-    sound = sound.trim();
-    if (sound.length === 0) return null;
-
-    const result: HTMLAudioElement = new Audio();
-    result.src = resolveRelativeUrl(
-      (soundDirectory === undefined || soundDirectory.length === 0
-        ? './sounds'
-        : soundDirectory) +
-        '/' +
-        sound
-    );
-    // Note that on iOS the volume property is read-only
-    result.volume = AUDIO_FEEDBACK_VOLUME;
-    result.load();
-    return result;
-  }
-
-  return null;
-}
-
-function unloadSound(
-  sound: string | HTMLAudioElement | Record<string, HTMLAudioElement | string>
-): void {
-  if (sound instanceof HTMLAudioElement) {
-    sound.pause();
-    sound.removeAttribute('src');
-    // Important: to properly unload call `load()` after removing the
-    // `src` attribute
-    sound.load();
-  }
-}
 
 export function update(
   current: Required<MathfieldOptionsPrivate>,
   updates: Partial<MathfieldOptionsPrivate>
 ): Required<MathfieldOptionsPrivate> {
-  const soundsDirectory =
-    updates.soundsDirectory ?? current.soundsDirectory ?? './sounds';
   const result: Required<MathfieldOptionsPrivate> = get(
     current,
     Object.keys(current)
@@ -146,22 +93,11 @@ export function update(
         break;
 
       case 'plonkSound':
-        if (result.plonkSound instanceof HTMLAudioElement)
-          unloadSound(result.plonkSound);
-        result.plonkSound = loadSound(soundsDirectory, updates.plonkSound);
+        if (updates.plonkSound !== undefined)
+          result.plonkSound = updates.plonkSound;
         break;
 
       case 'keypressSound':
-        if (
-          typeof result.keypressSound === 'object' &&
-          result.keypressSound !== null &&
-          'default' in result.keypressSound
-        ) {
-          unloadSound(result.keypressSound.default!);
-          unloadSound(result.keypressSound.delete!);
-          unloadSound(result.keypressSound.return!);
-          unloadSound(result.keypressSound.spacebar!);
-        }
         if (updates.keypressSound === null) {
           result.keypressSound = {
             default: null,
@@ -170,14 +106,6 @@ export function update(
             spacebar: null,
           };
         } else if (typeof updates.keypressSound === 'string') {
-          const sound = loadSound(soundsDirectory, updates.keypressSound);
-          result.keypressSound = {
-            delete: sound,
-            return: sound,
-            spacebar: sound,
-            default: sound,
-          };
-        } else if (updates.keypressSound instanceof HTMLAudioElement) {
           result.keypressSound = {
             delete: updates.keypressSound,
             return: updates.keypressSound,
@@ -189,22 +117,20 @@ export function update(
           'default' in updates.keypressSound!
         ) {
           result.keypressSound = { ...updates.keypressSound };
-          result.keypressSound!.default = loadSound(
-            soundsDirectory,
-            result.keypressSound!.default
-          );
-          result.keypressSound!.delete =
-            loadSound(soundsDirectory, result.keypressSound!.delete) ??
-            updates.keypressSound!.default!;
-          result.keypressSound!.return =
-            loadSound(soundsDirectory, result.keypressSound!.return) ??
-            updates.keypressSound!.default!;
-          result.keypressSound!.spacebar =
-            loadSound(soundsDirectory, result.keypressSound!.spacebar) ??
-            updates.keypressSound!.default!;
+          result.keypressSound.delete =
+            result.keypressSound.delete ?? updates.keypressSound.default!;
+          result.keypressSound.return =
+            result.keypressSound.return ?? updates.keypressSound.default!;
+          result.keypressSound.spacebar =
+            result.keypressSound.spacebar ?? updates.keypressSound.default!;
         }
 
         break;
+
+      case 'computeEngine':
+        result.computeEngine = updates.computeEngine;
+        break;
+
       case 'virtualKeyboardContainer':
         result.virtualKeyboardContainer = updates.virtualKeyboardContainer!;
         reevaluateBreakpoints(result.virtualKeyboardContainer);
@@ -236,13 +162,14 @@ export function get(
 
   const result: Partial<MathfieldOptionsPrivate> = {};
   for (const x of resolvedKeys) {
-    if (isArray(config[x])) result[x] = [...config[x]];
-    else if (config[x] instanceof HTMLElement) {
-      //For 'plonksound', it's a AudioElement
-      result[x] = config[x];
-    } else if (config[x] === null) result[x] = null;
-    else if (typeof config[x] === 'object') {
-      // Some object literal, make a copy (for keypressSound)
+    if (config[x] === null) result[x] = null;
+    else if (isArray(config[x])) result[x] = [...config[x]];
+    else if (
+      typeof config[x] === 'object' &&
+      !(config[x] instanceof Element) &&
+      x !== 'computeEngine'
+    ) {
+      // Some object literal, make a copy (for keypressSound, macros, etc...)
       result[x] = { ...config[x] };
     } else result[x] = config[x];
   }
@@ -260,6 +187,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     createHTML: (s: string): any => s,
     fontsDirectory: './fonts',
     soundsDirectory: './sounds',
+    computeEngine: undefined,
 
     defaultMode: 'math',
     macros: getMacros(),
@@ -278,6 +206,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     decimalSeparator: '.',
     fractionNavigationOrder: 'numerator-denominator',
     placeholderSymbol: '▢',
+    enablePopover: true,
 
     locale: l10n.locale,
     strings: l10n.strings,

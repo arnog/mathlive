@@ -2,7 +2,7 @@ import { Style } from '../public/core';
 
 import { joinLatex } from '../core/tokenizer';
 
-import type { Atom } from '../core/atom-class';
+import { Atom } from '../core/atom-class';
 import { GlobalContext } from '../core/context';
 import { OperatorAtom } from '../core-atoms/operator';
 import { SurdAtom } from '../core-atoms/surd';
@@ -10,6 +10,7 @@ import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
 import { DelimAtom } from '../core-atoms/delim';
 
 import { Argument, defineFunction } from './definitions-utils';
+import { GroupAtom } from '../core-atoms/group';
 
 defineFunction(
   [
@@ -23,19 +24,17 @@ defineFunction(
     'cos',
     'cosh',
     'cot',
+    'cotg', // Not LaTeX standard. Used in France
     'coth',
     'ctg', // Not LaTeX standard. Used in France
     'cth',
-    'cotg', // Not LaTeX standard. Used in France
     'csc', // Not LaTeX standard. \cth
     'cosec', // Not LaTeX standard.
-    'deg',
     'dim',
     'exp',
     'hom',
     'inf',
     'ker',
-    'lg',
     'lb', // Not LaTeX standard. US Dept of Commerce recommendation for log2
     'lg', // Not LaTeX standard. In German and Russian literature,  log10.
     // Sometimes used as the log2
@@ -51,6 +50,13 @@ defineFunction(
     'tanh',
     'tg', // Not LaTeX standard. Used in France
     'th', // Not LaTeX standard. \tanh
+    'arcsec',
+    'arccsc',
+    'arsinh',
+    'arcosh',
+    'artanh',
+    'arcsech',
+    'arccsch',
   ],
   '',
   {
@@ -119,6 +125,29 @@ defineFunction(['det', 'max', 'min'], '', {
       variant: 'main',
       style,
     }),
+});
+
+defineFunction(['ang'], '{:math}', {
+  isFunction: true,
+  createAtom: (
+    _command: string,
+    args: Argument[],
+    style: Style,
+    context: GlobalContext
+  ): Atom =>
+    new GroupAtom(
+      [
+        ...(args[0] as Atom[]),
+        new Atom('mord', context, { value: '\u00b0', style }),
+      ],
+      context,
+      {
+        mode: 'math',
+        latexOpen: '\\ang{',
+        latexClose: '}',
+        style,
+      }
+    ),
 });
 
 // Root

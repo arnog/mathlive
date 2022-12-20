@@ -137,6 +137,10 @@ function addCell(
         break;
 
       case 'after column':
+        if (arrayAtom.maxColumns <= arrayAtom.colCount) {
+          model.announce('plonk');
+          return;
+        }
         arrayAtom.addColumnAfter(atom.treeBranch[1]);
         pos = model.offsetOf(
           arrayAtom.getCell(atom.treeBranch[0], atom.treeBranch[1] + 1)![0]
@@ -149,6 +153,10 @@ function addCell(
         break;
 
       case 'before column':
+        if (arrayAtom.maxColumns <= arrayAtom.colCount) {
+          model.announce('plonk');
+          return;
+        }
         arrayAtom.addColumnBefore(atom.treeBranch[1]);
         pos = model.offsetOf(
           arrayAtom.getCell(atom.treeBranch[0], atom.treeBranch[1] - 1)![0]
@@ -217,7 +225,7 @@ function removeCell(model: ModelPrivate, where: 'row' | 'column'): void {
         break;
 
       case 'column':
-        if (arrayAtom.colCount > 1) {
+        if (arrayAtom.colCount > arrayAtom.minColumns) {
           arrayAtom.removeColumn(treeBranch[1]);
           const cell = arrayAtom.getCell(
             treeBranch[0],

@@ -1,3 +1,107 @@
+## 0.86.0 (2022-12-02)
+
+### Breaking Changes
+
+- The Compute Engine has been split from MathLive to reduce the package size and
+  improve the TTI (Time To Interactive) metric. The Compute Engine now needs to
+  be loaded separately:
+
+```js
+import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+```
+
+or
+
+```js
+import { ComputeEngine } from 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+```
+
+to create custom Compute Engine instances, which can then be associated with a
+mathfield using `mf.setOptions({computeEngine: ce})` or `mf.computeEngine = ce`.
+
+If the Compute Engine library is not loaded, some functionality of the mathfield
+will not be available: `mf.expression` will always return `null` and cannot be
+used to change the content of the mathfield, and `math-json` is not available as
+a format on the clipboard,
+
+### Bug Fixes
+
+- The vertical placement of the superscript after a `\left...\right` command was
+  incorrect.
+- Extensible arrows with superscript or subscript would not serialize the
+  superscript/subscript.
+- The fraction line and surd line would not be visible when printing with the
+  "Don't show image background" option in the print dialog.
+- The `"placeholder-change"` event was not dispatched.
+
+### Improvements
+
+- Tweaked the layout of the symbols virtual keyboard to make regular arrows the
+  default, rather than extensible arrows.
+- Fill-in-the-blank (placeholder) nested mathfields now line up with the
+  baseline. They also inherit the font-size of their parent container.
+
+## 0.85.1 (2022-11-18)
+
+- Updated to Compute Engine 0.11.0
+
+## 0.85.0 (2022-11-15)
+
+### New Features
+
+- Added support for `\mathtip{math}{tip}` and `\texttip{math}{tip}` commands.
+  These commands are also supported by MathJax.
+- Added `options.enablePopover` option which can be set to `false` to prevent
+  the auto-complete popover from being displayed.
+- Changed the layout of the popover to display multiple options at once
+- Added the `\error{}` command which displays its content with a red underline.
+- A specific Compute Engine instance can be associated with a mathfield using
+  `mf.computeEngine = ce`. If none is provided, a default Compute Engine
+  instance is created when necessary. Setting the property to `null` will
+  prevent the Compute Engine from being used, but the MathJSON format will not
+  be available.
+
+### Improvements
+
+- Audio feedback is now using the Web Audio API. Previously, audio feedback was
+  provided using an `Audio` element, but browsers have limitations to the number
+  of `Audio` elements which can be instantiated in a page at a time, and this
+  limit is reached surprisingly quickly wiht multiple mathfields on a page.
+- The `window.mathlive` global is now `globalThis[Symbol.for("mathlive")]`. This
+  is mostly used internally for coordination between mathfields in the same
+  context but it also includes the `version` property which may be of use for
+  debugging or to report issues.
+
+### Bug Fixes
+
+- **#1715**, **#1716**: fill-in-the-blank placeholders inside a `<math-field>`
+  did not inherit the options from their parent container.
+
+## 0.84.0 (2022-10-19)
+
+### New Features
+
+- When using `renderMathInElement` or `renderMathInDocument` to render math
+  content, the math content can now be provided as MathJSON in addition to LaTeX
+  by using a `<script>` tag with a type of `math/json`.
+
+```html
+<script type="math/json">
+  ["Cos", ["Divide", "Pi", 7]]
+</script>
+```
+
+### Improvements
+
+- The `MathfieldElement` now has a setter for `expression`, which allows to set
+  the value of a mathfield to a MathJSON expression.
+
+### Bug Fixes
+
+- **#1669** Don't attempt to get the local URL base when using absolute URLs.
+  Allow `null` as a value for `fontsDirectory` and `soundDirectory` to prevent
+  any attempt to resolve these values.
+
 ## 0.83.0 (2022-10-02)
 
 ### Improvements
@@ -797,7 +901,7 @@ in order to preserve the same settings, you would now use:
 - When using keybindings or virtual keyboard keys, insert the content in the
   current math style, rather than forcing display style.
 
-- Correctly handle loading Mathlive in a non-browser context (e.g. Node)
+- Correctly handle loading MathLive in a non-browser context (e.g. Node)
 
 - Updated localization strings
 
@@ -858,7 +962,7 @@ import { renderMathInDocument } from 'mathlive';
 renderMathInDocument();
 ```
 
-If you are not calling a specific Mathlive function and just need to use the
+If you are not calling a specific MathLive function and just need to use the
 `<math-field>` tag, use:
 
 ```js
@@ -963,7 +1067,7 @@ or:
 
 ### Bug Fixes
 
-- **#969** and **#967** Changed the way the build is done so that Mathlive does
+- **#969** and **#967** Changed the way the build is done so that MathLive does
   not use MathJSON as a submodule but as a regular npm dependency, and builds
   correctly even in non-git environments.
 - **#968** navigating with arrow keys cannot navigate past a macro
@@ -973,7 +1077,7 @@ or:
 ### Breaking Changes
 
 **#500** MathJSON support. The legacy MASTON/JSON format has been removed.  
- The MathJSON format is now integrated into Mathlive 🚀 🎆 🥳
+ The MathJSON format is now integrated into MathLive 🚀 🎆 🥳
 
 To get the MathJSON representation of a formula, use `mf.getValue('math-json')`.
 
@@ -1431,7 +1535,7 @@ for more details.
 - **#708** Pressing on the bottom part of the virtual keyboard keycap did not
   trigger the key action.
 - The asset directory (fonts/sounds) was not properly located in some browsers
-  when using a CDN to load Mathlive.
+  when using a CDN to load MathLive.
 - Correctly focus the mathfield when the virtual keyboard is invoked.
 
 ## 0.62.0 (2021-04-23)
@@ -1964,8 +2068,8 @@ effective tree shaking. Therefore the default export will be eliminated.
 This means that instead of:
 
 ```javascript
-import Mathlive from 'mathlive';
-Mathlive.renderMathInDocument();
+import MathLive from 'mathlive';
+MathLive.renderMathInDocument();
 ```
 
 you will need to use:
@@ -2206,7 +2310,7 @@ The following functions have been renamed:
   location of the 'fonts' directory, if necessary (by default, the 'fonts'
   directory is expected to be next to the 'mathlive.js', 'mathlive.mjs' file.)
 
-  In some rare cases, you may have used the CSS stylesheet without the Mathlive
+  In some rare cases, you may have used the CSS stylesheet without the MathLive
   library, for example, after you may have saved the output of `latexToMarkup()`
   to a database and use it to render later in a page. In that case, you would
   need to use the CSS stylesheet `dist/mathlive-static.css`, which is suitable
@@ -2297,7 +2401,7 @@ The following functions have been renamed:
 
 - **#450** Custom keybindings. A keybinding (also called keyboard shortcut)
   associate a keystroke combination on a physical keyboard with a command.
-  Mathlive previously had some built-in keybindings, but now they can be
+  MathLive previously had some built-in keybindings, but now they can be
   extended or replaced.
 
   See `config.keybindings` and `Keybinding`

@@ -223,13 +223,16 @@ body.ML__fonts-loading .ML__base {
     display: block;
     margin-top: -0.04em;
     min-height: 0.04em;
+    /* Ensure the line is visible when printing even if "turn off background images" is on*/
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
     /* There's a bug since Chrome 62 where 
-            sub-pixel border lines don't draw at some zoom 
-            levels (110%, 90%). 
-            Setting the min-height used to work around it, but that workaround
-            broke in Chrome 84 or so.
-            Setting the background (and the min-height) seems to work for now.
-            */
+      sub-pixel border lines don't draw at some zoom 
+      levels (110%, 90%). 
+      Setting the min-height used to work around it, but that workaround
+      broke in Chrome 84 or so.
+      Setting the background (and the min-height) seems to work for now.
+      */
     background: currentColor;
     box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
             causes the fraction line to not draw at all sizes (see #26) */
@@ -260,6 +263,9 @@ body.ML__fonts-loading .ML__base {
     display: block;
     margin-top: -0.04em;
     min-height: 0.04em;
+    /* Ensure the line is visible when printing even if "turn off background images" is on*/
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
     background: currentColor;
     /* On some versions of Firefox on Windows, the line fails to 
             draw at some zoom levels, but setting the transform triggers
@@ -633,17 +639,25 @@ body.ML__fonts-loading .ML__base {
   }
 }
 
+// Wavy pattern
 .ML__error {
-  // Wavy pattern
+  display: inline-block;
   background-image: radial-gradient(
     ellipse at center,
     hsl(341, 100%, 40%),
     rgba(0, 0, 0, 0) 70%
   );
+  background-color: hsla(341, 100%, 40%, 10%);
 
   background-repeat: repeat-x;
   background-size: 3px 3px;
-  background-position: 0 98%;
+  padding-bottom: 3px;
+  background-position: 0 100%;
+}
+
+.ML__error > .ML__error {
+  background: transparent;
+  padding: 0;
 }
 
 .ML__composition {
@@ -671,6 +685,22 @@ body.ML__fonts-loading .ML__base {
   display: none;
 }
 
+.ML__placeholdercontainer math-field {
+  display: inline-block;
+  position: absolute;
+  z-index: 1001;
+  min-width: 32px;
+  padding-left: 4px;
+  padding-right: 4px;
+
+  border-radius: 4px;
+  border: 1px solid var(--editable-border);
+}
+
 .ML__isReadOnly .ML__placeholdercontainer {
   display: block;
+}
+
+.ML__container {
+  min-height: auto !important;
 }

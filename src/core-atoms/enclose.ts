@@ -171,22 +171,30 @@ export class EncloseAtom extends Atom {
             })
           : context.getRegisterAsDimension('fboxsep')
       ) ?? 0;
+    const borderWidth = borderDim(this.borderStyle);
 
     // The 'ML__notation' class is required to prevent the box from being omitted
     // during rendering (it looks like an empty, no-op box)
     const notation = new Box(null, { classes: 'ML__notation' });
     notation.setStyle('position', 'absolute');
-    notation.setStyle('height', base.height + base.depth + 2 * padding, 'em');
-    notation.height = base.height + padding;
-    notation.depth = base.depth + padding;
-    if (padding !== 0)
-      notation.setStyle('width', `calc(100% + ${2 * padding}em)`);
-    else notation.setStyle('width', '100%');
-
-    notation.setStyle('top', -base.height + 2 * padding, 'em');
-    notation.setStyle('left', -padding, 'em');
     notation.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
     notation.setStyle('box-sizing', 'border-box');
+
+    notation.setStyle('top', `calc(-${borderWidth} / 2 - ${padding}em)`);
+    notation.setStyle('left', `calc(-${borderWidth} / 2 - ${padding}em)`);
+
+    notation.setStyle(
+      'height',
+      `calc(100% + ${2 * padding}em + 2 * ${borderWidth})`
+    );
+
+    notation.height = base.height + padding;
+    notation.depth = base.depth + padding;
+    notation.setStyle(
+      'width',
+      `calc(100% + ${2 * padding}em + 2 * ${borderWidth})`
+    );
+
     if (this.backgroundcolor)
       notation.setStyle('background-color', this.backgroundcolor);
 
@@ -202,7 +210,7 @@ export class EncloseAtom extends Atom {
     }
 
     if (this.notation.roundedbox) {
-      notation.setStyle('border-radius', (base.height + base.depth) / 2, 'em');
+      notation.setStyle('border-radius', '8px');
       notation.setStyle('border', this.borderStyle);
     }
 
@@ -353,4 +361,11 @@ export class EncloseAtom extends Atom {
 
     return result.wrap(context);
   }
+}
+
+function borderDim(s: string | undefined): string {
+  if (!s) return '1px';
+  const m = s.match(/([0-9][a-zA-Z\%]+)/);
+  if (m === null) return '1px';
+  return m[1];
 }

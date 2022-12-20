@@ -9,6 +9,7 @@ import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { render } from '../editor-mathfield/render';
 import { isBrowser } from '../common/capabilities';
+import { globalMathLive } from '../mathlive';
 
 declare global {
   interface Window {
@@ -144,14 +145,19 @@ function speak(
   const options = { ...mathfield.options };
   if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
     options.textToSpeechMarkup =
-      isBrowser() && window.sre && options.textToSpeechRules === 'sre'
+      globalThis.sre && options.textToSpeechRules === 'sre'
         ? 'ssml_step'
         : 'ssml';
+  }
+  // Chrome and Safari support ssml, but FireFox doesn't
+  if (!options.textToSpeechMarkup) {
+    if (!/firefox/i.test(navigator.userAgent))
+      options.textToSpeechMarkup = 'ssml';
   }
 
   const text = atomToSpeakableText(atoms, options);
   if (isBrowser() && speakOptions.withHighlighting) {
-    window.mathlive.readAloudMathField = mathfield;
+    globalMathLive().readAloudMathField = mathfield;
     render(mathfield, { forHighlighting: true });
     if (mathfield.options.readAloudHook) {
       mathfield.options.readAloudHook(
@@ -170,25 +176,29 @@ export function defaultSpeakHook(
   text: string,
   config?: Partial<MathfieldOptions>
 ): void {
-  if (!config && isBrowser() && 'mathlive' in window)
-    config = window.mathlive.config;
+  if (!isBrowser()) {
+    console.log('Speak:', text);
+    return;
+  }
 
-  config = config ?? {};
+  config ??= globalMathLive().config ?? {};
+
+  // Sigh... Not really necessary, but the version of the typescript
+  // compiler used by `grok` will complain about this
+  if (!config) return;
 
   if (!config.speechEngine || config.speechEngine === 'local') {
-    if (isBrowser()) {
-      // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
-      // See also https://developer.chrome.com/apps/tts
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
-    } else console.log('Speak:', text);
+    // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
+    // See also https://developer.chrome.com/apps/tts
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
   } else if (config.speechEngine === 'amazon') {
-    if (!isBrowser() || !('AWS' in window)) {
+    if (!('AWS' in window)) {
       console.warn(
         'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
       );
     } else {
-      const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
+      const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
       const parameters = {
         OutputFormat: 'mp3',
         VoiceId: config.speechEngineVoice ?? 'Joanna',
