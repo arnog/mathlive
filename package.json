@@ -69,7 +69,7 @@
     "@rollup/plugin-node-resolve": "^14.0.1",
     "@types/css-font-loading-module": "0.0.7",
     "@types/jest": "^29.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
     "@typescript-eslint/parser": "^5.36.2",
     "autoprefixer": "^10.4.8",
     "check-node-version": "^4.2.1",
