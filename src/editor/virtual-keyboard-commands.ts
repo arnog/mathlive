@@ -28,15 +28,6 @@ export function switchKeyboardLayer(
   keyboard: VirtualKeyboard,
   layer: string | null
 ): boolean {
-  if (
-    layer !== 'lower-command' &&
-    layer !== 'upper-command' &&
-    layer !== 'symbols-command'
-  ) {
-    // If we switch to a non-command keyboard layer, first exit command mode.
-    keyboard.executeCommand('complete');
-  }
-
   showVirtualKeyboard(keyboard);
   // If the alternate keys panel was visible, hide it
   hideAlternateKeys();
