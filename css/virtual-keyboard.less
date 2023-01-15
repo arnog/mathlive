@@ -145,7 +145,14 @@
         background: transparent;
         border: 1px solid transparent; // #e5e6e9;
         border-radius: 5px;
+
         pointer-events: all;
+        cursor: pointer;
+
+        .ML__mathlive {
+          pointer-events: none;
+        }
+
         color: var(--keyboard-alternate-text);
         fill: currentColor;
         &:hover,
@@ -236,7 +243,6 @@
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
-    cursor: pointer;
 
     box-shadow: @shadow2;
 
@@ -445,6 +451,12 @@
           border: 1px solid var(--keycap-background-border);
           border-bottom-color: var(--keycap-background-border-bottom);
           border-radius: 5px;
+
+          cursor: pointer;
+
+          .ML__mathlive {
+            pointer-events: none;
+          }
 
           /* Last key should be flush against the border */
           &:last-child {
