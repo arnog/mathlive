@@ -236,7 +236,6 @@
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
-    cursor: pointer;
 
     box-shadow: @shadow2;
 
@@ -445,6 +444,8 @@
           border: 1px solid var(--keycap-background-border);
           border-bottom-color: var(--keycap-background-border-bottom);
           border-radius: 5px;
+
+          cursor: pointer;
 
           /* Last key should be flush against the border */
           &:last-child {
