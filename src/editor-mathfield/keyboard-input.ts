@@ -433,8 +433,7 @@ export function onTypedText(
   //
   // 2/ Switch mode if requested
   //
-  if (typeof options.mode === 'string' && mathfield.mode !== options.mode)
-    mathfield.switchMode(options.mode);
+  if (typeof options.mode === 'string') mathfield.switchMode(options.mode);
 
   //
   // 3/ Simulate keystroke, if requested

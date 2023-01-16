@@ -31,10 +31,6 @@ registerCommand({
     mathfield.field!.scroll(fieldBounds.left - window.scrollX, 0);
     return true;
   },
-  enterLatexMode: (mathfield: MathfieldPrivate) => {
-    mathfield.switchMode('latex');
-    return true;
-  },
   toggleKeystrokeCaption: toggleKeystrokeCaption,
   plonk: (mathfield: MathfieldPrivate) => {
     mathfield.model.announce('plonk');

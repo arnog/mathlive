@@ -61,6 +61,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
 
   { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'latex'] },
   { key: '[Escape]', ifMode: 'text', command: ['switchMode', 'latex'] },
+  {
+    key: '[Escape]',
+    ifMode: 'latex',
+    command: ['complete', 'complete', { selectItem: 'true' }],
+  }, // Accept the entry (without the suggestion) and select
 
   {
     key: '\\',
@@ -74,11 +79,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     command: ['switchMode', 'latex', '\\'],
   }, // On UK QWERTY keyboards
 
-  {
-    key: '[Escape]',
-    ifMode: 'latex',
-    command: ['complete', 'complete', { selectItem: 'true' }],
-  }, // Accept the entry (without the suggestion) and select
   {
     key: '[Tab]',
     ifMode: 'latex',

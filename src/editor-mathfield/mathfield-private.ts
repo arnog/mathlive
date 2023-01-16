@@ -1171,10 +1171,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
           // If a latex group is open, close it first
           complete(this, 'accept');
 
-          // Switch to the command mode keyboard layer
-          if (this.virtualKeyboard?.visible)
-            this.executeCommand(['switchKeyboardLayer', 'latex-lower']);
-
           // Insert a latex group atom
           let latex: string;
           let cursor = model.at(model.position);
