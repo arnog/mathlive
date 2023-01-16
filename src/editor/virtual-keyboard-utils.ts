@@ -1340,9 +1340,9 @@ function makeKeyboardToolbar(
         if (typeof keyboards[keyboard].command === 'string')
           result += `data-command='"${keyboards[keyboard].command as string}"'`;
         else if (Array.isArray(keyboards[keyboard].command)) {
-          result += `data-command='"${(
-            keyboards[keyboard].command as string[]
-          ).join('')}"'`;
+          result += `data-command='${JSON.stringify(
+            keyboards[keyboard].command
+          )}'`;
         }
 
         if (keyboards[keyboard].layer)
@@ -1684,7 +1684,7 @@ function expandLayerMarkup(
         } else if (cls.includes('tt')) {
           row +=
             `<li class='keycap${cls}' data-alt-keys='${c}' ` +
-            `data-command='["typedText","${c}",{"mode":"command", "focus":true, "feedback":true}]'` +
+            `data-command='["typedText","${c}",{"mode":"latex", "focus":true, "feedback":true}]'` +
             `>${c}</li>`;
         } else {
           row +=
@@ -1915,7 +1915,7 @@ export function makeKeyboardElement(
 
   keyboardIDs = keyboardIDs.replace(
     /\ball\b/i,
-    'numeric functions symbols roman  greek'
+    'numeric functions symbols roman greek'
   );
 
   const layers: Record<string, string | Partial<VirtualKeyboardLayer>> = {
