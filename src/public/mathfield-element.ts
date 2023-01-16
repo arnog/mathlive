@@ -1088,7 +1088,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * @internal
    */
   connectedCallback(): void {
-    if (!this.hasAttribute('role')) this.setAttribute('role', 'textbox');
+    if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
     this.setAttribute('dir', 'ltr');
     if (!this.hasAttribute('aria-label'))
       this.setAttribute('aria-label', 'math input field');
