@@ -38,7 +38,7 @@ export function inject(
 
   return {
     release: (): void => {
-      const element_ = document.head.querySelector<HTMLElement>(
+      const element_ = (root as HTMLElement).querySelector<HTMLElement>(
         `style[data-id="${id}"]`
       );
       if (element_) {
