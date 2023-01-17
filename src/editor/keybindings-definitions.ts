@@ -32,13 +32,13 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: '[Space]', ifMode: 'math', command: 'moveAfterParent' },
   { key: 'shift+[Space]', ifMode: 'math', command: 'moveBeforeParent' },
 
-  { key: '[Home]', command: 'moveToMathFieldStart' },
-  { key: 'cmd+[ArrowLeft]', command: 'moveToMathFieldStart' },
+  { key: '[Home]', command: 'moveToMathfieldStart' },
+  { key: 'cmd+[ArrowLeft]', command: 'moveToMathfieldStart' },
   { key: 'shift+[Home]', command: 'extendToMathFieldStart' },
   { key: 'shift+cmd+[ArrowLeft]', command: 'extendToMathFieldStart' },
 
-  { key: '[End]', command: 'moveToMathFieldEnd' },
-  { key: 'cmd+[ArrowRight]', command: 'moveToMathFieldEnd' },
+  { key: '[End]', command: 'moveToMathfieldEnd' },
+  { key: 'cmd+[ArrowRight]', command: 'moveToMathfieldEnd' },
   { key: 'shift+[End]', command: 'extendToMathFieldEnd' },
   { key: 'shift+cmd+[ArrowRight]', command: 'extendToMathFieldEnd' },
 
@@ -121,8 +121,8 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'ctrl+f', ifPlatform: 'macos', command: 'moveToNextChar' },
   { key: 'ctrl+p', ifPlatform: 'macos', command: 'moveUp' },
   { key: 'ctrl+n', ifPlatform: 'macos', command: 'moveDown' },
-  { key: 'ctrl+a', ifPlatform: 'macos', command: 'moveToMathFieldStart' },
-  { key: 'ctrl+e', ifPlatform: 'macos', command: 'moveToMathFieldEnd' },
+  { key: 'ctrl+a', ifPlatform: 'macos', command: 'moveToMathfieldStart' },
+  { key: 'ctrl+e', ifPlatform: 'macos', command: 'moveToMathfieldEnd' },
   {
     key: 'shift+ctrl+b',
     ifPlatform: 'macos',

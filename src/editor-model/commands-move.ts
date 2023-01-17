@@ -495,7 +495,7 @@ register(
       model.position = pos;
       return true;
     },
-    moveToMathFieldStart: (model: ModelPrivate): boolean => {
+    moveToMathfieldStart: (model: ModelPrivate): boolean => {
       if (model.position === 0) {
         model.announce('plonk');
         return false;
@@ -504,7 +504,7 @@ register(
       model.position = 0;
       return true;
     },
-    moveToMathFieldEnd: (model: ModelPrivate): boolean => {
+    moveToMathfieldEnd: (model: ModelPrivate): boolean => {
       if (model.position === model.lastOffset) {
         model.announce('plonk');
         return false;
