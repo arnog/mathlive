@@ -15,14 +15,16 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
+      <math-field id="mf" virtualkeyboardmode="manual"></math-field>
       <!-- <math-field id="mf" virtualkeyboardmode="manual"
         >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
         \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
         \frac{a+1}{b+\alpha+\gamma}</math-field
       > -->
-      <math-field id="mf" virtualkeyboardmode="manual" readonly
+      <!-- <math-field id="mf" virtualkeyboardmode="manual" readonly
         >f(x)= \placeholder[id1][x]{}</math-field
-      >
+      > -->
+      <math-field>f(x)</math-field>
 
       <h2 style="margin-top: 1em">LaTeX</h2>
       <div class="output" id="latex"></div>
@@ -187,19 +189,37 @@
         // smartFence: true,
         virtualKeyboardMode: 'manual',
         enablePopover: false,
-        macros: { ...mf.getOptions('macros'), in: '\\mathrm{in}' },
-        // macros: {
-        //   ...mf.getOptions('macros'),
-        //   smolfrac: {
-        //     args: 2,
-        //     def: '{}^{#1}\\!\\!/\\!{}_{#2}',
-        //     captureSelection: false,
-        //   },
-        // },
+        // macros: { ...mf.getOptions('macros'), in: '\\mathrm{in}' },
+        macros: {
+          ...mf.getOptions('macros'),
+          // Alpha: undefined,
+          minutes: '\\prime',
+          smolfrac: {
+            args: 2,
+            def: '{}^{#1}\\!\\!/\\!{}_{#2}',
+            captureSelection: true,
+          },
+        },
+      });
+
+      mf.addEventListener('move-out', (ev) => {
+        console.log('move-out event');
+        ev.preventDefault();
+        mf.blur();
+      });
+
+      mf.addEventListener('focus-out', (ev) => {
+        console.log('focus-out event');
+        if (ev.detail.direction === 'forward')
+          mf.executeCommand('moveToMathfieldEnd');
+        else if (ev.detail.direction === 'backward')
+          mf.executeCommand('moveToMathfieldStart');
+        ev.preventDefault();
       });
 
       mf.addEventListener('input', (ev) => {
-        console.log('commit');
+        console.log('input event');
+        updateContent(mf);
       });
 
       mf.addEventListener('placeholder-change', (ev) => {
@@ -209,8 +229,6 @@
       mf.addEventListener('beforeinput', (ev) => {
         if (ev.inputType === 'insertLineBreak') console.log('enter');
       });
-
-      mf.addEventListener('input', (ev) => updateContent(mf));
 
       mf.addEventListener('selection-change', (ev) => {
         const selection = mf.selection;

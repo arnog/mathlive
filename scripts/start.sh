@@ -39,6 +39,11 @@ cp -f -R css/fonts dist/
 cp -f -R sounds dist/
 echo -e "${LINECLEAR}"
 
+# Build CSS
+printf "$LINECLEAR${DOT}Building static CSS"
+npx lessc css/mathlive-static.less dist/mathlive-static.css
+npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
+echo -e "$LINECLEAR$CHECK Static CSS built${RESET}"
 
 # Do dev build and watch
 node ./scripts/start.js

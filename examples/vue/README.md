@@ -50,12 +50,10 @@ The textual content of the element is used as the initial value of the editor.
 
 ### Props
 
-| Name          | Type                  | Description                                                                                                                                                                                                                                                                                                                            |
-| ------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `value`       | `string`              | The content of the mathfield, represented as a LaTeX string                                                                                                                                                                                                                                                                            |
-| `options`     | `object`              | The mathfield configuration options                                                                                                                                                                                                                                                                                                    |
-| `onMoveOutOf` | `(string) => boolean` | A callback invoked when keyboard navigation would cause the insertion point to leave the mathfield. The argument indicates the direction of the navigation, either "forward" or "backward". Return false to prevent the move, true to wrap around to the start of the field. By default, the insertion point will wrap around.         |
-| `onTabOutOf`  | `(string) => boolean` | A callback invoked when pressing tab (or shift-tab) would cause the insertion point to leave the mathfield. The argument indicates the direction of the navigation, either "forward" or "backward". Return false to prevent the move, true to wrap around to the start of the field. By default, the insertion point will wrap around. |
+| Name      | Type     | Description                                                 |
+| --------- | -------- | ----------------------------------------------------------- |
+| `value`   | `string` | The content of the mathfield, represented as a LaTeX string |
+| `options` | `object` | The mathfield configuration options                         |
 
 ### Events
 
