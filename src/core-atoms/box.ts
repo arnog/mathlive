@@ -103,8 +103,6 @@ export class BoxAtom extends Atom {
       box.setStyle('left', -padding, 'em');
     }
 
-    box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
-
     if (this.backgroundcolor)
       box.setStyle('background-color', this.backgroundcolor);
 

@@ -176,8 +176,6 @@ export class EncloseAtom extends Atom {
     // The 'ML__notation' class is required to prevent the box from being omitted
     // during rendering (it looks like an empty, no-op box)
     const notation = new Box(null, { classes: 'ML__notation' });
-    notation.setStyle('position', 'absolute');
-    notation.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
     notation.setStyle('box-sizing', 'border-box');
 
     notation.setStyle('top', `calc(-${borderWidth} / 2 - ${padding}em)`);
