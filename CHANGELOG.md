@@ -8,6 +8,8 @@
 - **#1791** The "aside" labels in the virtual keyboard were barely visible in
   dark mode.
 - **#1726** Deleting the last element of a fraction also deletes the fraction
+- **#1764** The MathML serialization for superscripts and subscripts was
+  invalid.
 
 ## 0.86.0 (2022-12-02)
 

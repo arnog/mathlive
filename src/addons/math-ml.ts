@@ -156,6 +156,9 @@ function parseSubsup(base: string, stream: MathMLStream, options): boolean {
 
   if (!atom) return false;
 
+  // Subsup atoms are handled with the atom they are associated with
+  if (atom.type === 'msubsup') return false;
+
   const superscript = toMathML(atom.superscript!, options);
   const subscript = toMathML(atom.subscript!, options);
 
