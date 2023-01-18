@@ -1,3 +1,14 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1035** Removing the last mathfield element from a page could result in math
+  content rendered with `renderMathInElement()` to no longer be rendered
+  correctly (the necessary stylesheet was erroneously removed).
+- **#1791** The "aside" labels in the virtual keyboard were barely visible in
+  dark mode.
+- **#1726** Deleting the last element of a fraction also deletes the fraction
+
 ## 0.86.0 (2022-12-02)
 
 ### Breaking Changes
