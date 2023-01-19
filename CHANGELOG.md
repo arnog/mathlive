@@ -2,6 +2,9 @@
 
 ### Bug Fixes
 
+- **#1773**, **#1542**: better handling of interaction with the virtual keyboard
+  on touch-based devices (always use PointerEvents to handle interaction with
+  keycaps)
 - **#1035** Removing the last mathfield element from a page could result in math
   content rendered with `renderMathInElement()` to no longer be rendered
   correctly (the necessary stylesheet was erroneously removed).
