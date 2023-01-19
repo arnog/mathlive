@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Improvements
+
+- Removed dependency on `jsdom` for server-side rendering.
+
 ## 0.86.1 (2023-01-18)
 
 ### Bug Fixes

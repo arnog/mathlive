@@ -52,6 +52,7 @@
         renderMathInElement,
         makeSharedVirtualKeyboard,
         MathfieldElement,
+        convertLatexToMarkup,
       } from '/dist/mathlive.mjs';
 
       // import {
@@ -166,6 +167,8 @@
       // };
 
       const mf = document.getElementById('mf');
+
+      console.log(convertLatexToMarkup('\\pi+1'));
 
       mf.setOptions({ computeEngine: new ComputeEngine() });
       mf.setOptions({

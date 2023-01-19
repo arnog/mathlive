@@ -1,9 +1,12 @@
-import { debug } from '../src/mathlive';
+import {
+  convertLatexToAsciiMath,
+  convertAsciiMathToLatex,
+} from '../src/public/mathlive-ssr';
 
 function equalASCIIMath(latex: string, ascii: string) {
   test(latex, () => {
-    expect(debug.latexToAsciiMath(latex)).toBe(ascii);
-    expect(debug.asciiMathToLatex(ascii)).toBe(latex);
+    expect(convertLatexToAsciiMath(latex)).toBe(ascii);
+    expect(convertAsciiMathToLatex(ascii)).toBe(latex);
   });
 }
 
@@ -17,11 +20,11 @@ describe('ASCII MATH', function () {
   equalASCIIMath('npq', 'npq');
   equalASCIIMath('2npq', '2npq');
 
-  expect(debug.latexToAsciiMath('(x)')).toBe('(x)');
-  expect(debug.asciiMathToLatex('(x)')).toBe('\\left(x\\right)');
+  expect(convertLatexToAsciiMath('(x)')).toBe('(x)');
+  expect(convertAsciiMathToLatex('(x)')).toBe('\\left(x\\right)');
 
-  expect(debug.latexToAsciiMath('(x + 1)')).toBe('(x+1)');
-  expect(debug.asciiMathToLatex('(x + 1)')).toBe('\\left(x +1\\right)');
+  expect(convertLatexToAsciiMath('(x + 1)')).toBe('(x+1)');
+  expect(convertAsciiMathToLatex('(x + 1)')).toBe('\\left(x +1\\right)');
 
   equalASCIIMath('f\\left(x\\right)=\\sin x', 'f(x)=sin x');
 
