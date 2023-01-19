@@ -549,15 +549,12 @@
             font-size: 25px;
           }
           // &.tt {font-size: 30px;}
-          &:hover,
           &.is-pressed {
             // box-shadow: inset 0 0 1px 1px #8d8f92;
             background: var(--keycap-background-active);
             color: var(--keyboard-text-active);
           }
-          &.keycap:active,
           &.keycap.is-active,
-          &.action:active,
           &.action.is-active {
             // -0.2 = 1.0 - 1.4
             transform: translateY(
@@ -567,7 +564,6 @@
             z-index: calc(var(--keyboard-zindex, @keyboard-zindex) - 5);
             color: var(--keyboard-text-active);
           }
-          &.modifier:active,
           &.modifier.is-active {
             background: var(--keyboard-text-active);
             color: var(--keycap-text-active);

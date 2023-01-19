@@ -1418,7 +1418,7 @@ export function makeKeycap(
     if (selector) {
       if (chainedCommand) selector = [chainedCommand, selector];
 
-      let handlers: ButtonHandlers = selector;
+      let handlers: ButtonHandlers = { default: selector };
       const altKeysetId = element.getAttribute('data-alt-keys');
       if (altKeysetId) {
         const altKeys = ALT_KEYS[altKeysetId];
@@ -1434,8 +1434,8 @@ export function makeKeycap(
       }
 
       attachButtonHandlers(
-        (command) => keyboard.executeCommand(command),
         element,
+        (command) => keyboard.executeCommand(command),
         handlers
       );
     }
@@ -2003,8 +2003,8 @@ export function makeKeyboardElement(
     if (element.classList.contains('shift')) {
       // This is a potential press-and-hold layer switch
       attachButtonHandlers(
-        (command) => keyboard.executeCommand(command),
         element,
+        (command) => keyboard.executeCommand(command),
         {
           // When the modifier is initially pressed, we will shift the labels
           // (if available)
@@ -2021,8 +2021,8 @@ export function makeKeyboardElement(
     } else {
       // This is a simple layer switch
       attachButtonHandlers(
-        (command) => keyboard.executeCommand(command),
         element,
+        (command) => keyboard.executeCommand(command),
         {
           default: ['switchKeyboardLayer', element.getAttribute('data-layer')],
         }

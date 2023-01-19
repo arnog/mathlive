@@ -389,8 +389,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.field.addEventListener('wheel', this, { passive: false });
 
     attachButtonHandlers(
-      (command) => this.executeCommand(command),
       this.virtualKeyboardToggle,
+      (command) => this.executeCommand(command),
       {
         default: 'toggleVirtualKeyboard',
         alt: 'toggleVirtualKeyboardAlt',
