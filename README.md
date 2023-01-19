@@ -7,20 +7,20 @@
 
 <img src="assets/screenshots/mathlive-demo.png">
 
-[![Maintenance](https://img.shields.io/maintenance/yes/2022.svg)]()
+[![Maintenance](https://img.shields.io/maintenance/yes/2023.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 [![Build Status](https://travis-ci.org/arnog/mathlive.svg?branch=master)](https://travis-ci.org/arnog/mathlive)
 
 - [x] A **Web Component**, easy to integrate in your project, regardless of the
       framework you use, or even if you just use plain JavaScript
 - [x] Edit **math formulas** with an easy to use interface
-- [x] Beautiful, **TeX-quality** typesetting: over 800 LaTeX commands built-in
+- [x] Beautiful, **TeX-quality** typesetting: over 800 built-in LaTeX commands
 - [x] Designed for **mobile devices** with an extensive set of **virtual
       keyboards** for math input
 - [x] Compatible with **screen readers**, and includes custom math-to-speech
       support for improved **accessibility**
-- [x] Output to **LaTeX**, **MathML** and **MathJSON** (Abstract Syntax Tree)
-      formats
+- [x] Output to **LaTeX**, **MathML**, **ASCIIMath** and **MathJSON** (Abstract
+      Syntax Tree) formats
 - [x] And it is easy to **customize** to your needs!
 
 Reference documentation and guides at
@@ -52,9 +52,9 @@ Try it at [cortexjs.io/mathlive/demo/](https://cortexjs.io/mathlive/demo/).
 
 ## Using MathLive
 
-To add a mathfield element to your page use a `<math-field>` tag.
+**To add a mathfield element to your page** use a `<math-field>` tag.
 
-It works just like a `<textarea>` or `<button>`. You can manipulate the
+It works just like a `<textarea>` or `<button>` element. You can manipulate the
 mathfield using methods of the element and listen for events to be notified when
 its internal state changes.
 
