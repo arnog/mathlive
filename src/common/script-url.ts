@@ -57,18 +57,23 @@ export function resolveUrl(url: string): string {
   if (gResolvedScriptUrl === null) {
     try {
       const request = new XMLHttpRequest();
-      // Do a `HEAD` request, we don't care about the body
       request.open('HEAD', gScriptUrl, false);
-      request.send(null);
+      request.send();
       if (request.status === 200) gResolvedScriptUrl = request.responseURL;
+      else {
+        // The esbuild built-in server responds to HEAD requests with 404,
+        // so fallback to GET if HEAD fails
+        // See https://github.com/evanw/esbuild/issues/2851
+        request.open('GET', gScriptUrl, false);
+        request.send();
+        if (request.status === 200) gResolvedScriptUrl = request.responseURL;
+      }
     } catch (e) {
       console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
     }
   }
 
-  if (gResolvedScriptUrl) return new URL(url, gResolvedScriptUrl).href;
-
-  return '';
+  return new URL(url, gResolvedScriptUrl ?? gScriptUrl).href;
 }
 
 // The URL of the bundled MathLive library. Used later to locate the `fonts`
