@@ -143,24 +143,19 @@ function indexOfSuperscriptInNumber(stream: MathMLStream) {
 }
 
 function parseSubsup(base: string, stream: MathMLStream, options): boolean {
-  let atom: Atom = stream.atoms[stream.index - 1];
+  let atom = stream.atoms[stream.index - 1];
 
   if (!atom) return false;
 
   if (!atom.superscript && !atom.subscript) {
-    if (isSuperscriptAtom(stream) || isSubscriptAtom(stream)) {
+    if (stream.atoms[stream.index]?.type === 'msubsup') {
       atom = stream.atoms[stream.index];
       stream.index += 1;
-    }
+    } else return false;
   }
 
-  if (!atom) return false;
-
-  // Subsup atoms are handled with the atom they are associated with
-  if (atom.type === 'msubsup') return false;
-
-  const superscript = toMathML(atom.superscript!, options);
-  const subscript = toMathML(atom.subscript!, options);
+  const superscript = toMathML(atom.superscript, options);
+  const subscript = toMathML(atom.subscript, options);
 
   if (!superscript && !subscript) return false;
 
@@ -356,9 +351,9 @@ function scanOperator(stream: MathMLStream, final: number, options) {
 
     stream.index += 1;
   }
-  if (!parseSubsup(mathML, stream, options)) {
-    if (mathML.length > 0) {
-      result = true;
+  if (mathML.length > 0) {
+    result = true;
+    if (!parseSubsup(mathML, stream, options)) {
       stream.mathML += mathML;
       stream.lastType = lastType;
     }
@@ -423,12 +418,13 @@ export function toMathML(
 
         result.index += 1;
 
-        if (!parseSubsup(mathML, result, options)) {
+        if (parseSubsup(mathML, result, options)) count += 1;
+        else {
           if (mathML.length > 0) {
             result.mathML += mathML;
             count += 1;
           }
-        } else count += 2;
+        }
       }
     }
 

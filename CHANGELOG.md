@@ -12,6 +12,8 @@
   dispatched. Also, sounds were not audible the first time they were played.
 - **#1762** The `\smallint` command was errouneously displayed as an extensible
   symbol
+- The MathML serialization for superscripts and subscripts was invalid in some
+  cases.
 
 ## 0.86.1 (2023-01-18)
 
