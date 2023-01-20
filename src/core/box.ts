@@ -38,7 +38,7 @@ const BOX_TYPE = [
   'none',
   'mathfield',
 ] as const; // The const assertion prevents widening to string[]
-export type BoxType = typeof BOX_TYPE[number];
+export type BoxType = (typeof BOX_TYPE)[number];
 
 export function isBoxType(type: string): type is BoxType {
   return (BOX_TYPE as unknown as string[]).includes(type);
