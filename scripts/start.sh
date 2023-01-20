@@ -46,4 +46,5 @@ npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
 echo -e "$LINECLEAR$CHECK Static CSS built${RESET}"
 
 # Do dev build and watch
-node ./scripts/start.js
+node ./scripts/start.js&
+npx tsc --watch --noEmit --preserveWatchOutput
