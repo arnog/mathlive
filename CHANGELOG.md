@@ -10,6 +10,8 @@
   exception (introduced in 0.86.1)
 - **#1763** The "plonk" sound and other accessibility announcements were not
   dispatched. Also, sounds were not audible the first time they were played.
+- **#1762** The `\smallint` command was errouneously displayed as an extensible
+  symbol
 
 ## 0.86.1 (2023-01-18)
 

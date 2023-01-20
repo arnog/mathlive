@@ -336,7 +336,6 @@ defineFunction(
     'bigoplus',
     'bigodot',
     'bigsqcup',
-    'smallint',
     'intop',
   ],
   '',
@@ -375,6 +374,22 @@ defineFunction(
       ),
   }
 );
+
+// Non-extensible symbol
+defineFunction('smallint', '', {
+  createAtom: (
+    command: string,
+    _args: Argument[],
+    style: Style,
+    context: GlobalContext
+  ): Atom =>
+    new OperatorAtom(command, '\u222B', context, {
+      limits: 'adjacent',
+      isExtensibleSymbol: false,
+      style,
+      variant: 'main',
+    }),
+});
 
 // No limits, symbols (i.e. display larger in 'display' mode, and
 // centered on the baseline)
