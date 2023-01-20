@@ -95,9 +95,9 @@ function onDelete(
   atom: Atom,
   branch?: Branch
 ): boolean {
-  const parent = atom.parent!;
+  const parent = atom.parent;
 
-  if (parent.type === 'genfrac') {
+  if (parent?.type === 'genfrac') {
     let pos = model.offsetOf(atom.leftSibling);
     parent.removeChild(atom);
 
@@ -116,7 +116,7 @@ function onDelete(
     return true;
   }
 
-  if (atom instanceof LeftRightAtom) {
+  if (parent && atom instanceof LeftRightAtom) {
     //
     // 'leftright': \left\right
     //
@@ -155,7 +155,7 @@ function onDelete(
     return true;
   }
 
-  if (atom.type === 'surd') {
+  if (parent && atom.type === 'surd') {
     //
     // 'surd': square root
     //
@@ -195,7 +195,7 @@ function onDelete(
     return true;
   }
 
-  if (atom.type === 'box' || atom.type === 'enclose') {
+  if (parent && (atom.type === 'box' || atom.type === 'enclose')) {
     //
     // 'box': \boxed, \fbox 'enclose': \cancel
     //
@@ -237,8 +237,9 @@ function onDelete(
     const secondBranch = firstBranch === 'above' ? 'below' : 'above';
 
     if (
-      (direction === 'forward' && branch === firstBranch) ||
-      (direction === 'backward' && branch === secondBranch)
+      parent &&
+      ((direction === 'forward' && branch === firstBranch) ||
+        (direction === 'backward' && branch === secondBranch))
     ) {
       // Above last or below first: hoist
       const first = atom.removeBranch(firstBranch);
