@@ -4,6 +4,13 @@
 
 - Removed dependency on `jsdom` for server-side rendering.
 
+### Bug Fixes
+
+- **#1795** Deleting forward when there is nothing to delete was throwing an
+  exception (introduced in 0.86.1)
+- **#1763** The "plonk" sound and other accessibility announcements were not
+  dispatched. Also, sounds were not audible the first time they were played.
+
 ## 0.86.1 (2023-01-18)
 
 ### Bug Fixes

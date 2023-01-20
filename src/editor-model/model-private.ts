@@ -628,7 +628,7 @@ export class ModelPrivate implements Model {
           composed: true,
         })
       ) ?? true;
-    if (!result)
+    if (result)
       defaultAnnounceHook(this.mathfield, command, previousPosition, atoms);
   }
 
