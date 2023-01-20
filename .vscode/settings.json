@@ -38,5 +38,7 @@
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
   "cSpell.language": "en,en-US",
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "cSpell.diagnosticLevel": "Hint",
+  "cSpell.autoFormatConfigFile": false
 }

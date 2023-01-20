@@ -49,11 +49,15 @@ export async function loadFonts(fontsDirectory?: string): Promise<void> {
     const fontsInDocument = Array.from(document.fonts).map((f) => f.family);
     if (fontFamilies.every((x) => fontsInDocument.includes(x))) return;
 
-    // Locate the `fonts` folder relative to the script URL
-    const fontsFolder = resolveUrl(fontsDirectory ?? './fonts');
-    if (!fontsFolder) return;
-
     document.body.classList.add('ML__fonts-loading');
+
+    // Locate the `fonts` folder relative to the script URL
+    const fontsFolder = await resolveUrl(fontsDirectory ?? './fonts');
+    if (!fontsFolder) {
+      document.body.classList.add('ML__fonts-did-not-load');
+      document.body.classList.remove('ML__fonts-loading');
+      return;
+    }
 
     const fonts: FontFace[] = (
       [
