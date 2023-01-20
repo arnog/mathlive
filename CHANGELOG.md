@@ -3,6 +3,7 @@
 ### Improvements
 
 - Removed dependency on `jsdom` for server-side rendering.
+- Switched bundler from `rollup` to `esbuild`
 
 ### Bug Fixes
 
@@ -10,7 +11,7 @@
   exception (introduced in 0.86.1)
 - **#1763** The "plonk" sound and other accessibility announcements were not
   dispatched. Also, sounds were not audible the first time they were played.
-- **#1762** The `\smallint` command was errouneously displayed as an extensible
+- **#1762** The `\smallint` command was erroneously displayed as an extensible
   symbol
 - The MathML serialization for superscripts and subscripts was invalid in some
   cases.

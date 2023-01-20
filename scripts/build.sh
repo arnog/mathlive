@@ -66,6 +66,8 @@ mkdir -p dist
 mkdir -p declarations
 echo -e  $LINECLEAR$BASENAME$CHECK${DIM}"Cleaning output directories"$RESET
 
+
+
 # Bundle Typescript declaration files (.d.ts).
 # Even though we only generate declaration files, the target must be set 
 # high-enough to prevent `tsc` from complaining (!)
@@ -96,12 +98,12 @@ if [ "$BUILD" = "production" ]; then
 fi
 
 
-
-
 # Do build (development or production)
 printf "$BASENAME${DOT}Making a ${EMPH}${BUILD}${RESET} build"
-npx rollup --silent --config 
+node --experimental-json-modules ./scripts/build.mjs
 echo -e "$LINECLEAR$BASENAME$CHECK${EMPH}${BUILD}${RESET}${DIM} build done${RESET}"
+
+
 
 if [ "$BUILD" = "production" ]; then
     # Stamp the SDK version number

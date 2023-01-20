@@ -6,14 +6,29 @@ If you simply want to use MathLive in your project, see the
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Getting Started: Setting up Your Development Environment](#getting-started-setting-up-your-development-environment)
+  - [Submitting changes](#submitting-changes)
+  - [Troubleshooting](#troubleshooting)
 - [Deploy / Publish](#deploy--publish)
 - [Code Structure](#code-structure)
 - [Language and Coding Style](#language-and-coding-style)
 - [Bundling](#bundling)
 - [Browser Support](#browser-support)
-- [Accessibility](#accessibility-a11y)
+- [Accessibility - A11Y](#accessibility---a11y)
+  - [Rendering](#rendering)
+  - [Alternate renditions](#alternate-renditions)
+  - [Speech](#speech)
+  - [Input and navigation](#input-and-navigation)
 - [Architecture](#architecture)
+  - [Core](#core)
+  - [Lexer](#lexer)
+  - [Parser](#parser)
+  - [Box](#box)
+  - [Atom](#atom)
+  - [Editor](#editor)
+  - [Model](#model)
+  - [Mathfield](#mathfield)
 
 ## Getting Started: Setting up Your Development Environment
 
@@ -187,7 +202,7 @@ The code base attempts to follow these general guidelines:
 
 The TypeScript code is compiled to JavaScript by the `tsc` compiler. When doing
 a production build, the JavaScript is further minimized with `terser`, then
-bundled into a single file with `rollup`. The CSS files are minimized with
+bundled into a single file with `esbuild`. The CSS files are minimized with
 `postcss`.
 
 ## Browser Support
