@@ -73,7 +73,7 @@
     "autoprefixer": "^10.4.13",
     "check-node-version": "^4.2.1",
     "cssnano": "^5.1.14",
-    "esbuild": "^0.17.3",
+    "esbuild": "^0.17.4",
     "eslint": "^8.32.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.27.5",
