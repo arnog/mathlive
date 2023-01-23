@@ -67,20 +67,29 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
   final = final ?? stream.atoms.length;
   let mathML = '';
   let body = '';
-  const atom: Atom = stream.atoms[stream.index];
+  let atom: Atom = stream.atoms[stream.index];
 
-  if (
-    stream.index < final &&
-    (atom.type === 'mord' || atom.type === 'macro') &&
-    !atom.isDigit()
-  ) {
-    body = atomToMathML(atom, options);
+  if (atom.command === '\\operatorname') {
+    body = toString(atom.body);
     stream.index += 1;
+  } else {
+    const variant = atom.style?.variant ?? '';
+    const variantStyle = atom.style?.variantStyle ?? '';
+    while (
+      stream.index < final &&
+      (atom.type === 'mord' || atom.type === 'macro') &&
+      !atom.isDigit() &&
+      variant === (atom.style?.variant ?? '') &&
+      variantStyle === (atom.style?.variantStyle ?? '')
+    ) {
+      body += toString([atom]);
+      stream.index += 1;
+      atom = stream.atoms[stream.index];
+    }
   }
-
   if (body.length > 0) {
     result = true;
-    mathML = body;
+    mathML = `<mi>${body}</mi>`;
 
     if (
       (stream.lastType === 'mi' ||
@@ -113,14 +122,6 @@ function isSuperscriptAtom(stream: MathMLStream) {
   return (
     stream.index < stream.atoms.length &&
     stream.atoms[stream.index].superscript &&
-    stream.atoms[stream.index].type === 'msubsup'
-  );
-}
-
-function isSubscriptAtom(stream: MathMLStream) {
-  return (
-    stream.index < stream.atoms.length &&
-    stream.atoms[stream.index].subscript &&
     stream.atoms[stream.index].type === 'msubsup'
   );
 }
