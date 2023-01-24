@@ -4,6 +4,11 @@
 
 - Better MathML serialization of `\operatorname{}` and `\mathrm{}`
 
+### Bug Fixes
+
+- **#1797** The result type of `makeSharedVirtualKeyboard()` was incorrectly
+  specified as a private type.
+
 ## 0.87.0 (2023-01-20)
 
 ### Improvements

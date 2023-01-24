@@ -16,7 +16,7 @@
  *
  */
 
-import { RemoteVirtualKeyboard } from '../editor-mathfield/remote-virtual-keyboard';
+import { VirtualKeyboardInterface } from './mathfield';
 import { RemoteVirtualKeyboardOptions, AutoRenderOptions } from './options';
 
 export * from './commands';
@@ -28,7 +28,7 @@ export * from './mathlive-ssr';
 
 export declare function makeSharedVirtualKeyboard(
   options?: Partial<RemoteVirtualKeyboardOptions>
-): RemoteVirtualKeyboard;
+): VirtualKeyboardInterface & EventTarget;
 
 export declare function renderMathInDocument(options?: AutoRenderOptions): void;
 
