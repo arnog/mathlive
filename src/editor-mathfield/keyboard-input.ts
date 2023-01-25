@@ -213,10 +213,7 @@ export function onKeystroke(
 
         if (mathfield.host) {
           result = !mathfield.host.dispatchEvent(
-            new Event('change', {
-              bubbles: true,
-              composed: true,
-            })
+            new Event('change', { bubbles: true, composed: true })
           );
         }
 
@@ -555,7 +552,7 @@ function getLeftSiblings(mf: MathfieldPrivate): Atom[] {
   let atom = model.at(Math.min(model.position, model.anchor));
   while (atom.type !== 'first') {
     result.push(atom);
-    atom = atom.leftSibling;
+    atom = atom.leftSibling!;
   }
 
   return result;
