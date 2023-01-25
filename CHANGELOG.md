@@ -6,6 +6,8 @@
 
 ### Bug Fixes
 
+- **#1772** Typing `/` after `f(x)` will now consider `f(x)` as the numerator,
+  instead of `(x)`
 - **#1797** The result type of `makeSharedVirtualKeyboard()` was incorrectly
   specified as a private type.
 - **#1798** Using a keyboard shortcut with the `control` or `command` key would
