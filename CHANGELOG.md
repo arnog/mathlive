@@ -2,6 +2,10 @@
 
 ### Improvements
 
+- **#1800** More closely matches the behavior of the `textarea` element. Only
+  dispatch an `"input"` event with an `inputType` of `"insertLineBreak"` when
+  the user pressed the **RETURN** or **ENTER** key. Also dispatch a `focusin`
+  and `focusout` event when applicable.
 - Removed dependency on `jsdom` for server-side rendering.
 
 ## 0.86.1 (2023-01-18)
