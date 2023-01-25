@@ -105,7 +105,6 @@ export function onKeystroke(
       } else if (!mightProducePrintableCharacter(evt)) {
         // It was a non-alpha character (PageUp, End, etc...)
         mathfield.flushInlineShortcutBuffer();
-        mathfield.snapshot();
       } else {
         const c = eventToChar(evt);
 
