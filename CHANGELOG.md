@@ -11,6 +11,8 @@
 - **#1798** Using a keyboard shortcut with the `control` or `command` key would
   not reset the inline keystroke buffer. As a result, typing `s` + `i` +
   `ctrl`-`6` + `n` would yield `\sin` instead of `\si^n`.
+- **#1799** Better fix for **#1795**. Deleting numerator or denominator of a
+  fraction would no longer collapse the fraction.
 - **#1800** More closely matches the behavior of the `textarea` element. Only
   dispatch an `"input"` event with an `inputType` of `"insertLineBreak"` when
   the user pressed the **RETURN** or **ENTER** key. Also dispatch a `focusin`
