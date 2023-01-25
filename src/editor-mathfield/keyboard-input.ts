@@ -97,7 +97,7 @@ export function onKeystroke(
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
   // see 4.3)
   if (!mathfield.options.readOnly) {
-    if (mathfield.mode === 'math' && !evt.ctrlKey && !evt.metaKey) {
+    if (mathfield.mode === 'math') {
       if (keystroke === '[Backspace]') {
         // Special case for backspace to correctly handle undoing
         mathfield.inlineShortcutBuffer.pop();

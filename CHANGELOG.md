@@ -8,6 +8,9 @@
 
 - **#1797** The result type of `makeSharedVirtualKeyboard()` was incorrectly
   specified as a private type.
+- **#1798** Using a keyboard shortcut with the `control` or `command` key would
+  not reset the inline keystroke buffer. As a result, typing `s` + `i` +
+  `ctrl`-`6` + `n` would yield `\sin` instead of `\si^n`.
 
 ## 0.87.0 (2023-01-20)
 
