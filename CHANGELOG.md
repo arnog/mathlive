@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Improvements
+
+- **#1150** Deleting the empty numerator or denominator of a fraction now
+  behaves more intuitively. The behavior now matches the Desmos graphing
+  calculator.
+
 ## 0.87.1 (2023-01-26)
 
 ### Improvements

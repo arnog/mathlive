@@ -200,25 +200,6 @@ function onDelete(
   // 'genfrac': \frac, \choose, etc...
   //
 
-  // if (parent?.type === 'genfrac') {
-  //   let pos = model.offsetOf(atom.leftSibling);
-  //   parent.removeChild(atom);
-
-  //   if (parent.hasEmptyBranch('above') && parent.hasEmptyBranch('below')) {
-  //     // The last numerator or denominator of a fraction has been deleted:
-  //     // delete the fraction
-
-  //     pos = model.offsetOf(parent.leftSibling);
-  //     parent.parent!.removeChild(parent);
-  //     model.announce('delete', undefined, [parent]);
-  //     model.position = pos;
-  //     return true;
-  //   }
-  //   model.announce('delete', undefined, [atom]);
-  //   model.position = pos;
-  //   return true;
-  // }
-
   if (atom.type === 'genfrac' || atom.type === 'overunder') {
     if (!branch) {
       // After or before atom
@@ -445,11 +426,11 @@ export function deleteRange(
 ): boolean {
   const result = model.getAtoms(range);
   if (result.length > 0 && result[0].parent) {
-    let firstChild: Atom | undefined = result[0].parent!.firstChild;
+    let firstChild = result[0].parent!.firstChild;
     if (firstChild.type === 'first') firstChild = firstChild.rightSibling;
     const lastChild = result[result.length - 1].parent!.lastChild;
 
-    let firstSelected: Atom | undefined = result[0];
+    let firstSelected = result[0];
     if (firstSelected.type === 'first')
       firstSelected = firstSelected.rightSibling;
     const lastSelected = result[result.length - 1];
@@ -464,6 +445,32 @@ export function deleteRange(
           model.offsetOf(parent.rightSibling),
         ];
       }
+    }
+
+    // If we have a placeholder denominator selected,
+    // hoist the denominator
+    if (
+      result.length === 1 &&
+      result[0].type === 'placeholder' &&
+      result[0].parent.type === 'genfrac'
+    ) {
+      const genfrac = result[0].parent!;
+      const branch = result[0].treeBranch === 'below' ? 'above' : 'below';
+      const pos = model.offsetOf(genfrac.leftSibling);
+      return model.deferNotifications(
+        { content: true, selection: true, type },
+        () => {
+          const numer = genfrac.removeBranch(branch);
+          if (!(numer.length === 1 && numer[0].type === 'placeholder')) {
+            const lastAtom = genfrac.parent!.addChildrenAfter(numer, genfrac);
+            genfrac.parent?.removeChild(genfrac);
+            model.position = model.offsetOf(lastAtom);
+          } else {
+            genfrac.parent?.removeChild(genfrac);
+            model.position = Math.max(0, pos);
+          }
+        }
+      );
     }
   }
   return model.deferNotifications(
