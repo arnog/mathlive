@@ -6,6 +6,10 @@
   behaves more intuitively. The behavior now matches the Desmos graphing
   calculator.
 
+### Bug Fixes
+
+- **#1802** MathML markup for expressions like `a(b)^2` was invalid.
+
 ## 0.87.1 (2023-01-26)
 
 ### Improvements
