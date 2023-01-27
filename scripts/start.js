@@ -12,9 +12,7 @@ context({
     '.html': 'copy',
     '.css': 'copy',
   },
-}).then((ctx) => {
-  ctx.watch();
-});
+}).then((ctx) => ctx.watch());
 
 // Build and serve the library
 context({
@@ -29,11 +27,11 @@ context({
   sourcemap: true,
   sourceRoot: '../src',
   sourcesContent: false,
-}).then((ctx) => {
+}).then((ctx) =>
   ctx.serve({ host: '127.0.0.1', servedir: '.' }).then(({ host, port }) => {
     if (host === '0.0.0.0') host = 'localhost';
     console.log(
       ` 🚀 Server ready \u001b[1;35m http://${host}:${port}/dist/\u001b[0m`
     );
-  });
-});
+  })
+);
