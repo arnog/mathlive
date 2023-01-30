@@ -137,6 +137,18 @@ const PRONUNCIATION: Record<string, string> = {
   'kg': 'kilograms',
 };
 
+const ENVIRONMENTS_NAMES = {
+  'array': 'array',
+  'matrix': 'matrix',
+  'pmatrix': 'parenthesis matrix',
+  'bmatrix': 'square brackets matrix',
+  'Bmatrix': 'braces matrix',
+  'vmatrix': 'bars matrix',
+  'Vmatrix': 'double bars matrix',
+  'matrix*': 'matrix',
+  'smallmatrix': 'small matrix',
+};
+
 function getSpokenName(latex: string): string {
   let result = '';
   if (latex.startsWith('\\')) result = ' ' + latex.replace('\\', '') + ' ';
@@ -261,8 +273,8 @@ function atomToSpeakableFragment(
         const array = (atom as ArrayAtom).array;
         const environment = (atom as ArrayAtom).environmentName;
 
-        if (environment === 'matrix') {
-          result += ' begin matrix ';
+        if (Object.keys(ENVIRONMENTS_NAMES).includes(environment)) {
+          result += ` begin ${ENVIRONMENTS_NAMES[environment]} `;
           for (let i = 0; i < array.length; i++) {
             if (i > 0) result += ',';
             result += ` row ${i + 1} `;
@@ -272,7 +284,7 @@ function atomToSpeakableFragment(
               result += atomToSpeakableFragment('math', array[i][j], options);
             }
           }
-          result += ' end matrix ';
+          result += ` end ${ENVIRONMENTS_NAMES[environment]} `;
         }
 
         // @todo add support for other array environments
