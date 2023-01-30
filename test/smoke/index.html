@@ -1,315 +1,315 @@
 <!DOCTYPE html>
 <html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <title>MathLive Smoke Test</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1"
-    />
-    <link rel="stylesheet" href="./style.css" />
-    <link rel="icon" href="data:," />
-  </head>
-  <body>
-    <header>
-      <h1>MathLive Smoke Test</h1>
-    </header>
-    <main>
-      <math-field id="mf" virtualkeyboardmode="manual"></math-field>
-      <!-- <math-field id="mf" virtualkeyboardmode="manual"
+
+<head>
+  <meta charset="utf-8" />
+  <title>MathLive Smoke Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="icon" href="data:," />
+</head>
+
+<body>
+  <header>
+    <h1>MathLive Smoke Test</h1>
+  </header>
+  <main>
+    <math-field id="mf" virtualkeyboardmode="manual"></math-field>
+    <!-- <math-field id="mf" virtualkeyboardmode="manual"
         >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
         \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
         \frac{a+1}{b+\alpha+\gamma}</math-field
       > -->
-      <!-- <math-field id="mf" virtualkeyboardmode="manual" readonly
+    <!-- <math-field id="mf" virtualkeyboardmode="manual" readonly
         >f(x)= \placeholder[id1][x]{}</math-field
       > -->
-      <math-field>f(x)</math-field>
+    <math-field>f(x)</math-field>
 
-      <h2 style="margin-top: 1em">LaTeX</h2>
-      <div class="output" id="latex"></div>
+    <h2 style="margin-top: 1em">LaTeX</h2>
+    <div class="output" id="latex"></div>
 
-      <h2>MathJSON</h2>
-      <div class="output" style="white-space: nowrap">
-        <div id="math-json"></div>
-        <div id="result"></div>
-        <div id="result-latex"></div>
-      </div>
+    <h2>MathJSON</h2>
+    <div class="output" style="white-space: nowrap">
+      <div id="math-json"></div>
+      <div id="result"></div>
+      <div id="result-latex"></div>
+    </div>
 
-      <h2>Selection</h2>
-      <div class="output" id="selection"></div>
+    <h2>Selection</h2>
+    <div class="output" id="selection"></div>
 
-      <h2>MathASCII</h2>
-      <div class="output" id="mathascii"></div>
+    <h2>MathASCII</h2>
+    <div class="output" id="mathascii"></div>
 
-      <h2>MathML</h2>
-      <div class="output" id="mathml"></div>
+    <h2>MathML</h2>
+    <div class="output" id="mathml"></div>
 
-      <h2>Latex to Speakable Text</h2>
-      <div class="output" id="latex2speech"></div>
-    </main>
+    <h2>Latex to Speakable Text</h2>
+    <div class="output" id="latex2speech"></div>
+  </main>
 
-    <script type="module">
-      import {
-        renderMathInDocument,
-        renderMathInElement,
-        makeSharedVirtualKeyboard,
-        MathfieldElement,
-        convertLatexToMarkup,
-        convertLatexToSpeakableText,
-      } from '/dist/mathlive.mjs';
+  <script type="module">
+    import {
+      renderMathInDocument,
+      renderMathInElement,
+      makeSharedVirtualKeyboard,
+      MathfieldElement,
+      convertLatexToMarkup,
+      convertLatexToSpeakableText,
+    } from '/dist/mathlive.mjs';
 
-      // import {
-      //   ComputeEngine,
-      //   version,
-      // } from 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
-      import {
-        ComputeEngine,
-        version,
-      } from 'https://unpkg.com/@cortex-js/compute-engine?module';
+    // import {
+    //   ComputeEngine,
+    //   version,
+    // } from 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+    import {
+      ComputeEngine,
+      version,
+    } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      // const k = makeSharedVirtualKeyboard();
-      // k.addEventListener('virtual-keyboard-toggle', (ev) =>
-      //   console.log('toggling ', ev)
-      // );
+    // const k = makeSharedVirtualKeyboard();
+    // k.addEventListener('virtual-keyboard-toggle', (ev) =>
+    //   console.log('toggling ', ev)
+    // );
 
-      // const HIGH_SCHOOL_KEYBOARD_LAYER = {
-      //   'high-school-layer': {
-      //     styles: '',
-      //     rows: [
-      //       [
-      //         { latex: 'a' },
-      //         { latex: 'x' },
-      //         { class: 'separator w5' },
-      //         { label: '7', key: '7' },
-      //         // Will display the label using the system font. To display
-      //         // with the TeX font, use:
-      //         // { class: "tex", label: "7", key: "7" },
-      //         // or
-      //         // { latex: "7"},
-      //         { label: '8', key: '8' },
-      //         { label: '9', key: '9' },
-      //         { latex: '\\div' },
-      //         { class: 'separator w5' },
-      //         {
-      //           class: 'tex small',
-      //           label: '<span><i>x</i>&thinsp;²</span>',
-      //           insert: '$$#@^{2}$$',
-      //         },
-      //         {
-      //           class: 'tex small',
-      //           label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
-      //           insert: '$$#@^{}$$',
-      //         },
-      //         {
-      //           class: 'small',
-      //           latex: '\\sqrt{#0}',
-      //           insert: '$$\\sqrt{#0}$$',
-      //         },
-      //       ],
-      //       [
-      //         { class: 'tex', latex: 'b' },
-      //         { class: 'tex', latex: 'y' },
-      //         { class: 'separator w5' },
-      //         { label: '4', latex: '4' },
-      //         { label: '5', key: '5' },
-      //         { label: '6', key: '6' },
-      //         { latex: '\\times' },
-      //         { class: 'separator w5' },
-      //         { class: 'small', latex: '\\frac{#0}{#0}' },
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //       ],
-      //       [
-      //         { class: 'tex', label: '<i>c</i>' },
-      //         { class: 'tex', label: '<i>z</i>' },
-      //         { class: 'separator w5' },
-      //         { label: '1', key: '1' },
-      //         { label: '2', key: '2' },
-      //         { label: '3', key: '3' },
-      //         { latex: '-' },
-      //         { class: 'separator w5' },
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //       ],
-      //       [
-      //         { latex: '(' },
-      //         { latex: ')' },
+    // const HIGH_SCHOOL_KEYBOARD_LAYER = {
+    //   'high-school-layer': {
+    //     styles: '',
+    //     rows: [
+    //       [
+    //         { latex: 'a' },
+    //         { latex: 'x' },
+    //         { class: 'separator w5' },
+    //         { label: '7', key: '7' },
+    //         // Will display the label using the system font. To display
+    //         // with the TeX font, use:
+    //         // { class: "tex", label: "7", key: "7" },
+    //         // or
+    //         // { latex: "7"},
+    //         { label: '8', key: '8' },
+    //         { label: '9', key: '9' },
+    //         { latex: '\\div' },
+    //         { class: 'separator w5' },
+    //         {
+    //           class: 'tex small',
+    //           label: '<span><i>x</i>&thinsp;²</span>',
+    //           insert: '$$#@^{2}$$',
+    //         },
+    //         {
+    //           class: 'tex small',
+    //           label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
+    //           insert: '$$#@^{}$$',
+    //         },
+    //         {
+    //           class: 'small',
+    //           latex: '\\sqrt{#0}',
+    //           insert: '$$\\sqrt{#0}$$',
+    //         },
+    //       ],
+    //       [
+    //         { class: 'tex', latex: 'b' },
+    //         { class: 'tex', latex: 'y' },
+    //         { class: 'separator w5' },
+    //         { label: '4', latex: '4' },
+    //         { label: '5', key: '5' },
+    //         { label: '6', key: '6' },
+    //         { latex: '\\times' },
+    //         { class: 'separator w5' },
+    //         { class: 'small', latex: '\\frac{#0}{#0}' },
+    //         { class: 'separator' },
+    //         { class: 'separator' },
+    //       ],
+    //       [
+    //         { class: 'tex', label: '<i>c</i>' },
+    //         { class: 'tex', label: '<i>z</i>' },
+    //         { class: 'separator w5' },
+    //         { label: '1', key: '1' },
+    //         { label: '2', key: '2' },
+    //         { label: '3', key: '3' },
+    //         { latex: '-' },
+    //         { class: 'separator w5' },
+    //         { class: 'separator' },
+    //         { class: 'separator' },
+    //         { class: 'separator' },
+    //       ],
+    //       [
+    //         { latex: '(' },
+    //         { latex: ')' },
 
-      //         { class: 'separator w5' },
-      //         { label: '0', key: '0' },
-      //         { latex: '.' },
-      //         { latex: '\\pi' },
-      //         { latex: '+' },
-      //         { class: 'separator w5' },
-      //         {
-      //           class: 'action',
-      //           label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
-      //           command: ['performWithFeedback', 'moveToPreviousChar'],
-      //         },
-      //         {
-      //           class: 'action',
-      //           label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
-      //           command: ['performWithFeedback', 'moveToNextChar'],
-      //         },
-      //         {
-      //           class: 'action font-glyph bottom right',
-      //           label: '&#x232b;',
-      //           command: ['performWithFeedback', 'deleteBackward'],
-      //         },
-      //       ],
-      //     ],
-      //   },
-      // };
-      // const HIGH_SCHOOL_KEYBOARD = {
-      //   'high-school-keyboard': {
-      //     label: 'High School', // Label displayed in the Virtual Keyboard Switcher
-      //     tooltip: 'High School Level', // Tooltip when hovering over the label
-      //     layer: 'high-school-layer',
-      //   },
-      // };
+    //         { class: 'separator w5' },
+    //         { label: '0', key: '0' },
+    //         { latex: '.' },
+    //         { latex: '\\pi' },
+    //         { latex: '+' },
+    //         { class: 'separator w5' },
+    //         {
+    //           class: 'action',
+    //           label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+    //           command: ['performWithFeedback', 'moveToPreviousChar'],
+    //         },
+    //         {
+    //           class: 'action',
+    //           label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+    //           command: ['performWithFeedback', 'moveToNextChar'],
+    //         },
+    //         {
+    //           class: 'action font-glyph bottom right',
+    //           label: '&#x232b;',
+    //           command: ['performWithFeedback', 'deleteBackward'],
+    //         },
+    //       ],
+    //     ],
+    //   },
+    // };
+    // const HIGH_SCHOOL_KEYBOARD = {
+    //   'high-school-keyboard': {
+    //     label: 'High School', // Label displayed in the Virtual Keyboard Switcher
+    //     tooltip: 'High School Level', // Tooltip when hovering over the label
+    //     layer: 'high-school-layer',
+    //   },
+    // };
 
-      const mf = document.getElementById('mf');
+    const mf = document.getElementById('mf');
 
-      console.log(convertLatexToMarkup('\\pi+1'));
+    console.log(convertLatexToMarkup('\\pi+1'));
 
-      mf.setOptions({ computeEngine: new ComputeEngine() });
-      mf.setOptions({
-        ...mf.getOptions(),
-        decimalSeparator: '.',
-      });
+    mf.setOptions({ computeEngine: new ComputeEngine() });
+    mf.setOptions({
+      ...mf.getOptions(),
+      decimalSeparator: '.',
+    });
 
-      mf.setOptions({
-        onInlineShortcut: (_mf, s) => {
-          if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
-            const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
-            if (m) {
-              if (['alpha', 'beta', 'gamma'].includes(m[1]))
-                return `\\${m[1]}_{${m[2]}}`;
-              return `\\mathrm{${m[1]}}_{${m[2]}}`;
-            }
-            return '\\mathrm{' + s + '}';
+    mf.setOptions({
+      onInlineShortcut: (_mf, s) => {
+        if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+          const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
+          if (m) {
+            if (['alpha', 'beta', 'gamma'].includes(m[1]))
+              return `\\${m[1]}_{${m[2]}}`;
+            return `\\mathrm{${m[1]}}_{${m[2]}}`;
           }
-          return '';
-        },
-        // smartFence: true,
-        virtualKeyboardMode: 'manual',
-        enablePopover: false,
-        // macros: { ...mf.getOptions('macros'), in: '\\mathrm{in}' },
-        macros: {
-          ...mf.getOptions('macros'),
-          // Alpha: undefined,
-          minutes: '\\prime',
-          smolfrac: {
-            args: 2,
-            def: '{}^{#1}\\!\\!/\\!{}_{#2}',
-            captureSelection: true,
-          },
-        },
-      });
-
-      mf.addEventListener('move-out', (ev) => {
-        console.log('move-out event');
-        ev.preventDefault();
-        mf.blur();
-      });
-
-      mf.addEventListener('focus-out', (ev) => {
-        console.log('focus-out event');
-        if (ev.detail.direction === 'forward')
-          mf.executeCommand('moveToMathfieldEnd');
-        else if (ev.detail.direction === 'backward')
-          mf.executeCommand('moveToMathfieldStart');
-        ev.preventDefault();
-      });
-
-      mf.addEventListener('input', (ev) => {
-        console.log('input event');
-        updateContent(mf);
-      });
-
-      mf.addEventListener('placeholder-change', (ev) => {
-        console.log(ev.detail.placeholderId);
-      });
-
-      mf.addEventListener('beforeinput', (ev) => {
-        if (ev.inputType === 'insertLineBreak') console.log('enter');
-      });
-
-      mf.addEventListener('selection-change', (ev) => {
-        const selection = mf.selection;
-        document.getElementById('selection').innerHTML =
-          `${label('value     ')}"${escapeHtml(
-            mf.getValue(selection, 'latex')
-          )}"<br>` +
-          label('start     ') +
-          selection.ranges[0][0] +
-          '<br>' +
-          label('end       ') +
-          selection.ranges[0][1] +
-          '<br>' +
-          label('position  ') +
-          mf.position +
-          '<br>' +
-          label('direction ') +
-          '"' +
-          selection.direction +
-          '"<br>' +
-          label('depth     ') +
-          mf.getOffsetDepth(mf.position);
-      });
-
-      //
-      // Handler called when the mathfield content has changed
-      //
-      function updateContent(mf) {
-        const latex = mf.getValue('latex-expanded');
-        try {
-          setHtml('latex', mf.getValue('latex-expanded'));
-          setHtml('mathascii', mf.getValue('ascii-math'));
-          setHtml('mathml', mf.getValue('math-ml'));          
-          setHtml('math-json', mf.getValue('math-json'));
-          setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
-          const result = mf.expression?.evaluate().latex ?? '';
-          document.getElementById('result').innerText = result;
-          document.getElementById('result-latex').innerText = `$$${result}$$`;
-
-          renderMathInElement('result-latex');
-        } catch (e) {
-          console.error('Error converting', e.toString());
+          return '\\mathrm{' + s + '}';
         }
-      }
+        return '';
+      },
+      // smartFence: true,
+      virtualKeyboardMode: 'manual',
+      enablePopover: false,
+      // macros: { ...mf.getOptions('macros'), in: '\\mathrm{in}' },
+      macros: {
+        ...mf.getOptions('macros'),
+        // Alpha: undefined,
+        minutes: '\\prime',
+        smolfrac: {
+          args: 2,
+          def: '{}^{#1}\\!\\!/\\!{}_{#2}',
+          captureSelection: true,
+        },
+      },
+    });
 
-      function setHtml(id, text) {
-        document.getElementById(id).innerHTML = escapeHtml(text);
-      }
+    mf.addEventListener('move-out', (ev) => {
+      console.log('move-out event');
+      ev.preventDefault();
+      mf.blur();
+    });
 
-      function label(s) {
-        return `<span class='label'>${s}</span>`;
-      }
+    mf.addEventListener('focus-out', (ev) => {
+      console.log('focus-out event');
+      if (ev.detail.direction === 'forward')
+        mf.executeCommand('moveToMathfieldEnd');
+      else if (ev.detail.direction === 'backward')
+        mf.executeCommand('moveToMathfieldStart');
+      ev.preventDefault();
+    });
 
-      function escapeHtml(string) {
-        return String(string).replace(
-          /[&<>"'`= /\u200b]/g,
-          (s) =>
-            ({
-              '&': '&amp;',
-              '<': '&lt;',
-              '>': '&gt;',
-              '"': '&quot;',
-              "'": '&#39;',
-              '/': '&#x2F;',
-              '`': '&#x60;',
-              '=': '&#x3D;',
-              '\u200b': '&amp;#zws;',
-            }[s] ?? s)
-        );
-      }
-
-      // First time update
+    mf.addEventListener('input', (ev) => {
+      console.log('input event');
       updateContent(mf);
-      renderMathInDocument();
-    </script>
-  </body>
+    });
+
+    mf.addEventListener('placeholder-change', (ev) => {
+      console.log(ev.detail.placeholderId);
+    });
+
+    mf.addEventListener('beforeinput', (ev) => {
+      if (ev.inputType === 'insertLineBreak') console.log('enter');
+    });
+
+    mf.addEventListener('selection-change', (ev) => {
+      const selection = mf.selection;
+      document.getElementById('selection').innerHTML =
+        `${label('value     ')}"${escapeHtml(
+          mf.getValue(selection, 'latex')
+        )}"<br>` +
+        label('start     ') +
+        selection.ranges[0][0] +
+        '<br>' +
+        label('end       ') +
+        selection.ranges[0][1] +
+        '<br>' +
+        label('position  ') +
+        mf.position +
+        '<br>' +
+        label('direction ') +
+        '"' +
+        selection.direction +
+        '"<br>' +
+        label('depth     ') +
+        mf.getOffsetDepth(mf.position);
+    });
+
+    //
+    // Handler called when the mathfield content has changed
+    //
+    function updateContent(mf) {
+      const latex = mf.getValue('latex-expanded');
+      try {
+        setHtml('latex', mf.getValue('latex-expanded'));
+        setHtml('mathascii', mf.getValue('ascii-math'));
+        setHtml('mathml', mf.getValue('math-ml'));
+        setHtml('math-json', mf.getValue('math-json'));
+        setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
+        const result = mf.expression?.evaluate().latex ?? '';
+        document.getElementById('result').innerText = result;
+        document.getElementById('result-latex').innerText = `$$${result}$$`;
+
+        renderMathInElement('result-latex');
+      } catch (e) {
+        console.error('Error converting', e.toString());
+      }
+    }
+
+    function setHtml(id, text) {
+      document.getElementById(id).innerHTML = escapeHtml(text);
+    }
+
+    function label(s) {
+      return `<span class='label'>${s}</span>`;
+    }
+
+    function escapeHtml(string) {
+      return String(string).replace(
+        /[&<>"'`= /\u200b]/g,
+        (s) =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+          '/': '&#x2F;',
+          '`': '&#x60;',
+          '=': '&#x3D;',
+          '\u200b': '&amp;#zws;',
+        }[s] ?? s)
+      );
+    }
+
+    // First time update
+    updateContent(mf);
+    renderMathInDocument();
+  </script>
+</body>
+
 </html>
