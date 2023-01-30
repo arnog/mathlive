@@ -10,14 +10,12 @@ process.env.BUILD = process.env.BUILD || 'development';
 const PRODUCTION = process.env.BUILD.toLowerCase() === 'production';
 const SDK_VERSION = pkg.version || 'v?.?.?';
 
-function preamble() {
-  return `/** MathLive ${SDK_VERSION} ${
-    process.env.GIT_VERSION ? ' -- ' + process.env.GIT_VERSION : ''
-  }*/`;
-}
-
 const BUILD_OPTIONS = {
-  banner: { js: preamble() },
+  banner: {
+    js: `/** MathLive ${SDK_VERSION} ${
+      process.env.GIT_VERSION ? ' -- ' + process.env.GIT_VERSION : ''
+    }*/`,
+  },
   bundle: true,
   define: {
     ENV: JSON.stringify(process.env.BUILD),
