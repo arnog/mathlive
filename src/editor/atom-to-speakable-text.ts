@@ -6,6 +6,7 @@ import { toMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
 import { osPlatform } from '../common/capabilities';
+import { ArrayAtom } from 'core-atoms/array';
 
 declare global {
   interface Window {
@@ -256,6 +257,26 @@ function atomToSpeakableFragment(
     let body = '';
     let supsubHandled = false;
     switch (atom.type) {
+      case 'array':
+        const array = (atom as ArrayAtom).array;
+        const environment = (atom as ArrayAtom).environmentName;
+
+        if (environment === 'matrix') {
+          result += ' begin matrix ';
+          for (let i = 0; i < array.length; i++) {
+            if (i > 0) result += ',';
+            result += ` row ${i + 1} `;
+            for (let j = 0; j < array[i].length; j++) {
+              if (j > 0) result += ',';
+              result += ` column ${j + 1}: `;
+              result += atomToSpeakableFragment('math', array[i][j], options);
+            }
+          }
+          result += ' end matrix ';
+        }
+
+        // @todo add support for other array environments
+        break;
       case 'group':
       case 'root':
         result += atomToSpeakableFragment('math', atom.body, options);
