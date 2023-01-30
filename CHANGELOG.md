@@ -5,6 +5,8 @@
 - **#1150** Deleting the empty numerator or denominator of a fraction now
   behaves more intuitively. The behavior now matches the Desmos graphing
   calculator.
+- **#1806** Support for speaking matrices and other LaTeX environments.
+  Contribution from @androettop. Thanks, Pablo!
 
 ### Bug Fixes
 
