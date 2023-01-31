@@ -98,15 +98,15 @@
     "@arnog/esbuild-plugin-less": "^1.1.0",
     "@cortex-js/compute-engine": "^0.12.2",
     "@cortex-js/prettier-config": "^1.1.1",
-    "@types/css-font-loading-module": "0.0.7",
+    "@types/css-font-loading-module": "0.0.8",
     "@types/jest": "^29.4.0",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",
     "autoprefixer": "^10.4.13",
     "check-node-version": "^4.2.1",
     "cssnano": "^5.1.14",
-    "esbuild": "^0.17.4",
-    "eslint": "^8.32.0",
+    "esbuild": "^0.17.5",
+    "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-no-unsanitized": "^4.0.2",
@@ -119,7 +119,7 @@
     "postcss-cli": "^10.1.0",
     "prettier": "^2.8.3",
     "ts-jest": "^29.0.5",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5"
   },
   "keywords": [
     "math",
