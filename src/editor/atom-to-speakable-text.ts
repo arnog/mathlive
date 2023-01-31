@@ -7,6 +7,8 @@ import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
 import { osPlatform } from '../common/capabilities';
 import { ArrayAtom } from 'core-atoms/array';
+import { LineAtom } from 'core-atoms/line';
+import { getMacros } from 'core-definitions/definitions-utils';
 
 declare global {
   interface Window {
@@ -268,7 +270,16 @@ function atomToSpeakableFragment(
     let denom = '';
     let body = '';
     let supsubHandled = false;
+    const { command } = atom;
+
     switch (atom.type) {
+      case 'accent':
+        if (command === '\\vec') {
+          result +=
+            'vector ' + atomToSpeakableFragment(mode, atom.body, options);
+        }
+        // @todo add support for other accents
+        break;
       case 'array':
         const array = (atom as ArrayAtom).array;
         const environment = (atom as ArrayAtom).environmentName;
@@ -290,6 +301,15 @@ function atomToSpeakableFragment(
         // @todo add support for other array environments
         break;
       case 'group':
+        if (command === '\\ne') result += ' not equal ';
+        else if (command === '\\not') {
+          result += ' not ';
+          result += atomToSpeakableFragment('math', atom.body, options);
+        } else {
+          // @todo add support for other groups
+          result += atomToSpeakableFragment('math', atom.body, options);
+        }
+        break;
       case 'root':
         result += atomToSpeakableFragment('math', atom.body, options);
         break;
@@ -398,6 +418,23 @@ function atomToSpeakableFragment(
       case 'overlap':
         // @todo
         break;
+      case 'line':
+        const position = (atom as LineAtom).position;
+        result += `${position} `;
+        result += atomToSpeakableFragment('math', atom.body, options);
+        result += ` end ${position} `;
+        break;
+      case 'macro':
+        // @todo implement custom speech for macros
+        // Workaround: if the macro is expand = true, speak the atom body, otherwise speak the macro name
+        const macroName = command.replace(/^\\/g, '');
+        const macro = getMacros()[macroName];
+        if (macro) {
+          if (macro?.expand)
+            result += atomToSpeakableFragment('math', atom.body, options);
+          else result += `${macroName} `;
+        }
+        break;
       case 'placeholder':
         result += 'placeholder ';
         break;
@@ -410,7 +447,6 @@ function atomToSpeakableFragment(
       case 'mpunct':
       case 'mopen':
       case 'mclose': {
-        const { command } = atom;
         if (
           command === '\\mathbin' ||
           command === '\\mathrel' ||
@@ -587,7 +623,6 @@ function atomToSpeakableFragment(
 
       case 'space':
       case 'spacing':
-      case 'macro':
         // @todo
         break;
     }
