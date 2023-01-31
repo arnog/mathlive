@@ -6,7 +6,7 @@ import { Context, GlobalContext } from '../core/context';
 import { VBox } from '../core/v-box';
 
 export class LineAtom extends Atom {
-  private readonly position: 'overline' | 'underline';
+  readonly position: 'overline' | 'underline';
   constructor(
     command: string,
     body: Atom[],
