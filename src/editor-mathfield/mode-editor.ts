@@ -37,6 +37,9 @@ export class ModeEditor {
     mathfield: MathfieldPrivate,
     ev: ClipboardEvent
   ): boolean {
+    // if this is the redispatched (untrusted) event, ignore it but let it proceed
+    if (!ev.isTrusted) return true;
+
     const redispatchedEvent = new ClipboardEvent('paste', {
       clipboardData: ev.clipboardData,
       cancelable: true,

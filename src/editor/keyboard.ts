@@ -252,8 +252,10 @@ export function delegateKeyboardEvents(
         // If we did not create a text-area because we're on a mobile
         // device and we don't want to use the OS virtual keyboard, capture
         // the key events possibly coming from an attached hardware keyboard
-        if (event.key.length === 1) handlers.typedText(event.key);
-        event.preventDefault();
+        if (event.key.length === 1 && !event.metaKey && !event.ctrlKey) {
+          handlers.typedText(event.key);
+          event.preventDefault();
+        }
       }
     },
     true
@@ -282,9 +284,15 @@ export function delegateKeyboardEvents(
     },
     true
   );
-  target.addEventListener(
+
+  // if we don't have a textarea, must attach cut/copy/paste handlers to window instead
+  const ccpEventTarget =
+    textarea.tagName.toLowerCase() !== 'textarea' ? window : target;
+  ccpEventTarget.addEventListener(
     'paste',
     (event: ClipboardEvent) => {
+      if (document.activeElement?.tagName.toLowerCase() !== 'math-field')
+        return;
       // In some cases (Linux browsers), the text area might not be focused
       // when doing a middle-click paste command.
       textarea.focus();
@@ -294,8 +302,25 @@ export function delegateKeyboardEvents(
     },
     true
   );
-  target.addEventListener('cut', (ev) => handlers.cut(ev), true);
-  target.addEventListener('copy', (ev) => handlers.copy(ev), true);
+  ccpEventTarget.addEventListener(
+    'cut',
+    (ev: ClipboardEvent) => {
+      if (document.activeElement?.tagName.toLowerCase() !== 'math-field')
+        return;
+      handlers.cut(ev);
+    },
+    true
+  );
+  target.addEventListener(
+    'copy',
+    (ev: ClipboardEvent) => {
+      if (document.activeElement?.tagName.toLowerCase() !== 'math-field')
+        return;
+      handlers.copy(ev);
+    },
+    true
+  );
+
   target.addEventListener(
     'blur',
     (event) => {
