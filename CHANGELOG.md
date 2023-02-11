@@ -2,12 +2,37 @@
 
 ### Improvements
 
+- **#1150** Deleting the empty numerator or denominator of a fraction now
+  behaves more intuitively. The behavior now matches the Desmos graphing
+  calculator.
+- **#1806** Support for speaking matrices and other LaTeX environments.
+  Contribution from @androettop. Thanks, Pablo!
+
+### Bug Fixes
+
+- **#1802** MathML markup for expressions like `a(b)^2` was invalid.
+
+## 0.87.1 (2023-01-26)
+
+### Improvements
+
 - Better MathML serialization of `\operatorname{}` and `\mathrm{}`
 
 ### Bug Fixes
 
+- **#1772** Typing `/` after `f(x)` will now consider `f(x)` as the numerator,
+  instead of `(x)`
 - **#1797** The result type of `makeSharedVirtualKeyboard()` was incorrectly
   specified as a private type.
+- **#1798** Using a keyboard shortcut with the `control` or `command` key would
+  not reset the inline keystroke buffer. As a result, typing `s` + `i` +
+  `ctrl`-`6` + `n` would yield `\sin` instead of `\si^n`.
+- **#1799** Better fix for **#1795**. Deleting numerator or denominator of a
+  fraction would no longer collapse the fraction.
+- **#1800** More closely matches the behavior of the `textarea` element. Only
+  dispatch an `"input"` event with an `inputType` of `"insertLineBreak"` when
+  the user pressed the **RETURN** or **ENTER** key. Also dispatch a `focusin`
+  and `focusout` event when applicable.
 
 ## 0.87.0 (2023-01-20)
 

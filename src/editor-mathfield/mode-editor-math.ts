@@ -589,22 +589,43 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
   // until the first sibling.
   // Terms inside of delimiters (parens, brackets, etc) are grouped and kept together.
   const atomAtCursor = atom;
-  const delimiterStack: string[] = [];
+  let afterDelim = false;
 
-  while (
-    !atom.isFirstSibling &&
-    (isImplicitArg(atom) || delimiterStack.length > 0)
-  ) {
-    if (atom.type === 'mclose') delimiterStack.unshift(atom.value);
-
-    if (
-      atom.type === 'mopen' &&
-      delimiterStack.length > 0 &&
-      atom.value === LEFT_DELIM[delimiterStack[0]]
+  if (atom.type === 'mclose') {
+    const delim = LEFT_DELIM[atom.value];
+    while (
+      !atom.isFirstSibling &&
+      !(atom.type === 'mopen' && atom.value === delim)
     )
-      delimiterStack.shift();
-
+      atom = atom.leftSibling;
+    if (!atom.isFirstSibling) atom = atom.leftSibling;
+    afterDelim = true;
+  } else if (atom.type === 'leftright') {
     atom = atom.leftSibling;
+    afterDelim = true;
+  }
+
+  if (afterDelim) {
+    while (!atom.isFirstSibling && (atom.isFunction || isImplicitArg(atom)))
+      atom = atom.leftSibling;
+  } else {
+    const delimiterStack: string[] = [];
+
+    while (
+      !atom.isFirstSibling &&
+      (isImplicitArg(atom) || delimiterStack.length > 0)
+    ) {
+      if (atom.type === 'mclose') delimiterStack.unshift(atom.value);
+
+      if (
+        atom.type === 'mopen' &&
+        delimiterStack.length > 0 &&
+        atom.value === LEFT_DELIM[delimiterStack[0]]
+      )
+        delimiterStack.shift();
+
+      atom = atom.leftSibling;
+    }
   }
 
   if (atomAtCursor === atom) return -1;

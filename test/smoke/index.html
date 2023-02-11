@@ -44,6 +44,9 @@
 
       <h2>MathML</h2>
       <div class="output" id="mathml"></div>
+
+      <h2>Latex to Speakable Text</h2>
+      <div class="output" id="latex2speech"></div>
     </main>
 
     <script type="module">
@@ -53,6 +56,7 @@
         makeSharedVirtualKeyboard,
         MathfieldElement,
         convertLatexToMarkup,
+        convertLatexToSpeakableText,
       } from '/dist/mathlive.mjs';
 
       // import {
@@ -266,6 +270,7 @@
           setHtml('mathascii', mf.getValue('ascii-math'));
           setHtml('mathml', mf.getValue('math-ml'));
           setHtml('math-json', mf.getValue('math-json'));
+          setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
           const result = mf.expression?.evaluate().latex ?? '';
           document.getElementById('result').innerText = result;
           document.getElementById('result-latex').innerText = `$$${result}$$`;

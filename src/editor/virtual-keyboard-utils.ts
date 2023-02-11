@@ -611,7 +611,7 @@ const ALT_KEYS_BASE: {
 
   'numeric-pi': ['\\prod', '\\theta', '\\rho', '\\sin', '\\cos', '\\tan'],
 
-  'ee': ['\\times 10^{#?}', '\\ln', '\\ln_{10}', '\\log'],
+  'ee': ['\\times 10^{#?}', '\\ln', '\\log_{10}', '\\log'],
 
   '^': ['_{#?}'],
 
@@ -1131,7 +1131,7 @@ const LAYERS = {
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-latex='\\cos'></li>
                 <li class='fnbutton' data-latex='\\cos^{-1}'></li>
-                <li class='fnbutton' data-latex='\\ln_{10}'></li>
+                <li class='fnbutton' data-latex='\\log'></li>
                 <li class='fnbutton' data-latex='10^{#?}'></li>
                 <li class='bigfnbutton' data-latex='\\operatorname{gcd}(#?)' data-latex='\\operatorname{gcd}()'></li>
                 <li class='bigfnbutton' data-latex='\\operatorname{floor}(#?)' data-latex='\\operatorname{floor}()'></li>

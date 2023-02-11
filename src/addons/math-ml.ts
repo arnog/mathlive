@@ -40,9 +40,9 @@ export type MathMLStream = {
   lastType: string;
 };
 
-const APPLY_FUNCTION = '&#x2061;';
+const APPLY_FUNCTION = '<mo>&#x2061;</mo>';
 
-const INVISIBLE_TIMES = '&#8290;';
+const INVISIBLE_TIMES = '<mo>&#8290;</mo>';
 
 function xmlEscape(string: string): string {
   return (
@@ -98,10 +98,10 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
         stream.lastType === 'fence') &&
       !/^<mo>(.*)<\/mo>$/.test(mathML)
     )
-      mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
+      mathML = INVISIBLE_TIMES + mathML;
 
     if (body.endsWith('>f</mi>') || body.endsWith('>g</mi>')) {
-      mathML += `<mo>${APPLY_FUNCTION}</mo>`; // &ApplyFunction;
+      mathML += APPLY_FUNCTION;
       stream.lastType = 'applyfunction';
     } else stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
 
@@ -257,15 +257,15 @@ function scanFence(stream: MathMLStream, final: number, options) {
       mathML += toMo(stream.atoms[closeIndex], options);
       mathML += '</mrow>';
 
+      stream.index = closeIndex + 1;
+
       if (
         stream.lastType === 'mi' ||
         stream.lastType === 'mn' ||
         stream.lastType === 'mfrac' ||
         stream.lastType === 'fence'
       )
-        mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
-
-      stream.index = closeIndex + 1;
+        stream.mathML += INVISIBLE_TIMES;
 
       if (parseSubsup(mathML, stream, options)) {
         result = true;
@@ -338,7 +338,7 @@ function scanOperator(stream: MathMLStream, final: number, options) {
         : toMo(atom, options);
       mathML += op;
       if (!isUnit && !/^<mo>(.*)<\/mo>$/.test(op)) {
-        mathML += `<mo>${APPLY_FUNCTION}</mo>`; // APPLY FUNCTION
+        mathML += APPLY_FUNCTION;
         // mathML += scanArgument(stream);
         lastType = 'applyfunction';
       } else lastType = isUnit ? 'mi' : 'mo';
@@ -348,7 +348,7 @@ function scanOperator(stream: MathMLStream, final: number, options) {
       (stream.lastType === 'mi' || stream.lastType === 'mn') &&
       !/^<mo>(.*)<\/mo>$/.test(mathML)
     )
-      mathML = `<mo>${INVISIBLE_TIMES}</mo>${mathML}`; // &InvisibleTimes;
+      mathML = INVISIBLE_TIMES + mathML;
 
     stream.index += 1;
   }

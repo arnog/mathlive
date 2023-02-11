@@ -1,8 +1,9 @@
 {
-  "eslint.options": {
-    "overrideConfigFile": ".eslintrc.json"
-  },
   "cSpell.allowCompoundWords": true,
+  "cSpell.autoFormatConfigFile": false,
+  "cSpell.diagnosticLevel": "Hint",
+  "cSpell.enabled": true,
+  "cSpell.language": "en,en-US",
   "cSpell.words": [
     "assistive",
     "AZERTY",
@@ -27,18 +28,28 @@
     "Soiffer",
     "unstyled",
     "vlist",
-    "zindex"
+    "zindex",
+    "mbin",
+    "mclose",
+    "minner",
+    "mopen",
+    "mord",
+    "mpunct",
+    "mrel",
+    "numer",
+    "prec",
+    "ssml",
+    "textord",
+    "xmlns"
   ],
-  "cSpell.enabled": true,
-  "liveServer.settings.port": 5501,
-  "typescript.tsdk": "./node_modules/typescript/lib",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
+  "editor.tabSize": 2,
   "eslint.alwaysShowStatus": true,
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
-  "cSpell.language": "en,en-US",
-  "editor.tabSize": 2,
-  "cSpell.diagnosticLevel": "Hint",
-  "cSpell.autoFormatConfigFile": false
+  "eslint.options": {
+    "overrideConfigFile": ".eslintrc.json"
+  },
+  "typescript.tsdk": "./node_modules/typescript/lib"
 }
