@@ -24,6 +24,7 @@
     "postversion": "bash ./scripts/github-release.sh"
   },
   "main": "./dist/mathlive.min.js",
+  "module": "./dist/mathlive.min.mjs",
   "exports": {
     "import": "./dist/mathlive.min.mjs",
     "require": "./dist/mathlive.min.js"
