@@ -192,7 +192,13 @@ export interface Mathfield {
   /**
    * Return a textual representation of the content of the mathfield.
    *
-   * @param format - The format of the result
+   * @param format - The format of the result. If using `math-json`
+   * the Compute Engine library must be loaded, for example with:
+   *
+   * ```js
+import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+```
+   *
    *
    * **Default:** `"latex"`
    *

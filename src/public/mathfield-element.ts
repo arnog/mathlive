@@ -744,6 +744,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._mathfield.mode = value;
   }
 
+  /**
+   * If the Compute Engine library is available, return the
+   * compute engine associated with this mathfield.
+   *
+   * To load the Compute Engine library, use:
+   * ```js
+import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+```
+   *
+   */
+
   get computeEngine(): any {
     if (!this._mathfield) return undefined;
     return this._mathfield.computeEngine;
@@ -753,6 +764,15 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._mathfield.setOptions({ computeEngine: val });
   }
 
+  /**
+   * If the Compute Engine library is available, return a boxed MathJSON expression representing the value of the mathfield.
+   *
+   * To load the Compute Engine library, use:
+   * ```js
+import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+```
+   *
+   */
   get expression(): any | null {
     if (!this._mathfield) return undefined;
     return this._mathfield.expression;
