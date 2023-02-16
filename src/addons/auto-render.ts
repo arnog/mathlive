@@ -241,7 +241,10 @@ function createMathMLNode(
       '</math>';
     span.innerHTML = options.createHTML ? options.createHTML(html) : html;
   } catch (error: unknown) {
-    console.error("Could not convert '" + latex + "' to MathML with ", error);
+    console.error(
+      "MathLive: Could not convert '" + latex + "' to MathML with ",
+      error
+    );
     span.textContent = latex;
   }
 

@@ -777,7 +777,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     if (!this._mathfield) return undefined;
     if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
-        'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+        'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
       );
     }
     return this._mathfield.expression;
@@ -790,7 +790,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
-        'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+        'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
       );
     }
   }

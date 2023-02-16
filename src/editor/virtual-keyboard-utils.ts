@@ -1244,7 +1244,7 @@ function makeKeyboardToolbar(
     };
     for (const keyboard of keyboardList) {
       if (!keyboards[keyboard]) {
-        console.error('Unknown virtual keyboard "', keyboard, '"');
+        console.error('MathLive: Unknown virtual keyboard "', keyboard, '"');
         break;
       }
 
@@ -1561,7 +1561,8 @@ function expandLayerMarkup(
 
     let keys = layout[attributes.name] as string;
     if (!keys) keys = ROWS.qwerty[attributes.name];
-    if (!keys) console.warn('Unknown roman keyboard row:', attributes.name);
+    if (!keys)
+      console.error('MathLive: Unknown roman keyboard row:', attributes.name);
     else {
       for (const c of keys) {
         let cls: string = attributes.class ?? '';
@@ -1856,7 +1857,9 @@ export function makeKeyboardElement(
   const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
   for (const keyboardName of keyboardList) {
     if (!keyboards[keyboardName]) {
-      console.error('Unknown virtual keyboard "' + keyboardName + '"');
+      console.error(
+        'MathLive: Unknown virtual keyboard "' + keyboardName + '"'
+      );
       continue;
     }
 
@@ -1870,7 +1873,11 @@ export function makeKeyboardElement(
 
     for (const layerName of keyboardLayers) {
       if (!layers[layerName]) {
-        console.error('Unknown virtual keyboard layer: "', layerName, '"');
+        console.error(
+          'MathLive: Unknown virtual keyboard layer: "',
+          layerName,
+          '"'
+        );
         break;
       }
 

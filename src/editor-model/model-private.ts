@@ -437,7 +437,7 @@ export class ModelPrivate implements Model {
 
     if (format === 'ascii-math') return atomToAsciiMath(atom);
 
-    console.warn('Unknown format :', format);
+    console.error('MathLive: Unknown format :', format);
     return '';
   }
 

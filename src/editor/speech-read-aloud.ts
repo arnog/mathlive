@@ -55,14 +55,16 @@ export function defaultReadAloudHook(
   config ??= globalMathLive().config;
 
   if (config.speechEngine !== 'amazon') {
-    console.warn('Use Amazon TTS Engine for synchronized highlighting');
+    console.error(
+      'MathLive: Use Amazon TTS Engine for synchronized highlighting'
+    );
     if (config.speakHook) config.speakHook(text, config);
     return;
   }
 
   if (!globalThis.AWS) {
-    console.warn(
-      'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
+    console.error(
+      'MathLive: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
     );
     return;
   }
@@ -83,7 +85,11 @@ export function defaultReadAloudHook(
   // Request the mark points
   polly.synthesizeSpeech(parameters, (err, data) => {
     if (err) {
-      console.warn('polly.synthesizeSpeech() error:', err, err.stack);
+      console.error(
+        'MathLive: polly.synthesizeSpeech() error:',
+        err,
+        err.stack
+      );
       return;
     }
 
@@ -109,8 +115,8 @@ export function defaultReadAloudHook(
     parameters.SpeechMarkTypes = [];
     polly.synthesizeSpeech(parameters, (err, data) => {
       if (err) {
-        console.warn(
-          'polly.synthesizeSpeech(',
+        console.error(
+          'MathLive: polly.synthesizeSpeech(',
           text,
           ') error:',
           err,

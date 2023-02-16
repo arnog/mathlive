@@ -22,7 +22,6 @@ const BUILD_OPTIONS = {
     SDK_VERSION: JSON.stringify(SDK_VERSION),
     GIT_VERSION: JSON.stringify(process.env.GIT_VERSION || '?.?.?'),
   },
-  drop: ['debugger', 'console'],
   plugins: [less({ compress: true })],
   loader: { '.ts': 'ts' },
   sourcemap: !PRODUCTION,
@@ -50,6 +49,8 @@ build({
 
 build({
   ...BUILD_OPTIONS,
+  drop: ['debugger'],
+  pure: ['console.assert', 'console.log'],
   entryPoints: ['./src/mathlive.ts'],
   outfile: './dist/mathlive.min.mjs',
   format: 'esm',
@@ -59,6 +60,8 @@ build({
 build({
   ...BUILD_OPTIONS,
   entryPoints: ['./src/mathlive.ts'],
+  drop: ['debugger'],
+  pure: ['console.assert', 'console.log'],
   outfile: './dist/mathlive.min.js',
   format: 'iife',
   globalName: 'MathLive',
@@ -68,6 +71,8 @@ build({
 build({
   ...BUILD_OPTIONS,
   entryPoints: ['./src/public/mathlive-ssr.ts'],
+  drop: ['debugger'],
+  pure: ['console.assert', 'console.log'],
   outfile: './dist/mathlive-ssr.min.mjs',
   format: 'esm',
   minify: true,

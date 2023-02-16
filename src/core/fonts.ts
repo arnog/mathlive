@@ -103,7 +103,7 @@ export async function loadFonts(fontsDirectory?: string): Promise<void> {
       loadedFonts.forEach((font) => document.fonts.add(font));
     } catch (error: unknown) {
       console.error(
-        `The mathlive fonts could not be loaded from "${fontsFolder}"`,
+        `The MathLive fonts could not be loaded from "${fontsFolder}"`,
         { cause: error }
       );
       document.body.classList.add('ML__fonts-did-not-load');

@@ -194,8 +194,8 @@ export function defaultSpeakHook(
     window.speechSynthesis.speak(utterance);
   } else if (config.speechEngine === 'amazon') {
     if (!('AWS' in window)) {
-      console.warn(
-        'AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
+      console.error(
+        'MathLive: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
       );
     } else {
       const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
@@ -225,7 +225,11 @@ export function defaultSpeakHook(
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Polly.html#synthesizeSpeech-property
       polly.synthesizeSpeech(parameters, (err, data) => {
         if (err)
-          console.warn('polly.synthesizeSpeech() error:', err, err.stack);
+          console.error(
+            'MathLive: polly.synthesizeSpeech() error:',
+            err,
+            err.stack
+          );
         // Announce('plonk');
         else if (data?.AudioStream) {
           const uInt8Array = new Uint8Array(data.AudioStream);
@@ -242,8 +246,8 @@ export function defaultSpeakHook(
       // Can call AWS.Request() on the result of synthesizeSpeech()
     }
   } else if (config.speechEngine === 'google') {
-    console.warn(
-      'The Google speech engine is not supported yet. Please come again.'
+    console.error(
+      'MathLive: The Google speech engine is not supported yet. Please come again.'
     );
     // @todo: implement support for Google Text-to-Speech API,
     // using config.speechEngineToken, config.speechEngineVoice and

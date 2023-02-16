@@ -645,7 +645,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
       else {
         console.error(
-          'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+          'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
         );
       }
       if (this._computeEngine && this.options.decimalSeparator === ',')
@@ -680,7 +680,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
       if (errors.length > 0) {
         console.error(
-          'invalid keybindings for current keyboard layout',
+          'MathLive: Invalid keybindings for current keyboard layout',
           errors
         );
       }
