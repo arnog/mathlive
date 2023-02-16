@@ -193,6 +193,11 @@ export function serializeMathJsonToLatex(json: Expression): string {
       globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
 
     if (ComputeEngineCtor) gComputeEngine = new ComputeEngineCtor();
+    else {
+      console.error(
+        'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+      );
+    }
   }
   return gComputeEngine?.box(json as SemiBoxedExpression).latex ?? '';
 }

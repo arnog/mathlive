@@ -643,6 +643,11 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       const ComputeEngineCtor =
         globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
       if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
+      else {
+        console.error(
+          'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+        );
+      }
       if (this._computeEngine && this.options.decimalSeparator === ',')
         this._computeEngine.latexOptions.decimalMarker = '{,}';
     }

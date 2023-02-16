@@ -417,14 +417,21 @@ export class ModelPrivate implements Model {
     }
 
     if (format === 'math-json') {
-      if (!this.mathfield.computeEngine) return '';
+      if (!this.mathfield.computeEngine) {
+        if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
+          console.error(
+            'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+          );
+        }
+        return '["Error", "compute-engine-not-available"]';
+      }
       try {
         const expr = this.mathfield.computeEngine.parse(
           Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
         );
         return JSON.stringify(expr.json);
       } catch (e) {
-        return JSON.stringify(['Error', 'Nothing', `'${e.toString()}'`]);
+        return JSON.stringify(['Error', `'${e.toString()}'`]);
       }
     }
 

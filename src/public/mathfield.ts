@@ -19,7 +19,7 @@ import { ParseMode, Style } from './core';
 
    * To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
    * ```js
-import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+import "https://unpkg.com/@cortex-js/compute-engine?module";
 ```
    *
 
@@ -203,7 +203,7 @@ export interface Mathfield {
    * the Compute Engine library must be loaded, for example with:
    *
    * ```js
-import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+import "https://unpkg.com/@cortex-js/compute-engine?module";
 ```
    *
    *

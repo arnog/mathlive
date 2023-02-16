@@ -750,7 +750,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    * To load the Compute Engine library, use:
    * ```js
-import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+import 'https://unpkg.com/@cortex-js/compute-engine?module';
 ```
    *
    */
@@ -769,12 +769,17 @@ import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.m
    *
    * To load the Compute Engine library, use:
    * ```js
-import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
+import 'https://unpkg.com/@cortex-js/compute-engine?module';
 ```
    *
    */
   get expression(): any | null {
     if (!this._mathfield) return undefined;
+    if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
+      console.error(
+        'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+      );
+    }
     return this._mathfield.expression;
   }
 
@@ -782,6 +787,12 @@ import 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.m
     if (!this._mathfield) return;
     const latex = this.computeEngine?.box(mathJson).latex ?? null;
     if (latex !== null) this._mathfield.setValue(latex);
+
+    if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
+      console.error(
+        'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+      );
+    }
   }
 
   get errors(): LatexSyntaxError[] {
