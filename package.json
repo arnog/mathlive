@@ -106,7 +106,7 @@
     "autoprefixer": "^10.4.13",
     "check-node-version": "^4.2.1",
     "cssnano": "^5.1.14",
-    "esbuild": "^0.17.5",
+    "esbuild": "^0.17.8",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.27.5",
