@@ -246,12 +246,6 @@ export function delegateKeyboardEvents(
       if (!handlers.keystroke(keyboardEventToString(event), event)) {
         keydownEvent = null;
         textarea.value = '';
-      } else if (textarea.tagName.toLowerCase() !== 'textarea') {
-        // If we did not create a text-area because we're on a mobile
-        // device and we don't want to use the OS virtual keyboard, capture
-        // the key events possibly coming from an attached hardware keyboard
-        if (event.key.length === 1) handlers.typedText(event.key);
-        event.preventDefault();
       }
     },
     true

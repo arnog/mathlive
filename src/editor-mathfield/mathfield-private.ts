@@ -268,17 +268,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // They are retrieved in order a bit later, so they need to be kept in sync
 
     // 1/ The keyboard event capture element.
-    // On touch capable devices, we do not create a textarea to capture keyboard
-    // events as this has the side effect of triggering the OS virtual keyboard
-    // which we want to avoid
     let markup = '<span class=ML__textarea>';
-    if (isTouchCapable())
-      markup += `<span class=ML__textarea__textarea tabindex=-1 role=textbox></span>`;
-    else {
-      markup += `<textarea class=ML__textarea__textarea autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none aria-hidden="true" tabindex="${
-        element.tabIndex ?? 0
-      }"></textarea>`;
-    }
+    markup += `<textarea inputmode="none" class=ML__textarea__textarea autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none aria-hidden="true" tabindex="${
+      element.tabIndex ?? 0
+    }"></textarea>`;
     markup += '</span>';
 
     // 2/ The field, where the math equation will be displayed
