@@ -6,9 +6,9 @@ import { toMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
 import { osPlatform } from '../common/capabilities';
-import { ArrayAtom } from 'core-atoms/array';
-import { LineAtom } from 'core-atoms/line';
-import { getMacros } from 'core-definitions/definitions-utils';
+import { ArrayAtom } from '../core-atoms/array';
+import { LineAtom } from '../core-atoms/line';
+import { getMacros } from '../core-definitions/definitions-utils';
 
 declare global {
   interface Window {

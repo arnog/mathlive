@@ -79,7 +79,7 @@ const PRINTABLE_KEYCODE = new Set([
   'Comma',
   'Period',
   'Slash',
-  'IntlRo', // Japanse keyboard '\ろ'
+  'IntlRo', // Japanese keyboard '\ろ'
 
   'Space',
 
@@ -107,10 +107,8 @@ const PRINTABLE_KEYCODE = new Set([
 ]);
 
 export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
-  if (evt.ctrlKey || evt.metaKey) {
-    // ignore ctrl/cmd-combination but not shift/alt-combinations
-    return false;
-  }
+  // Ignore ctrl/cmd-combinations but not shift/alt-combinations
+  if (evt.ctrlKey || evt.metaKey) return false;
 
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
   if (evt.key === 'Dead') return false;

@@ -1,6 +1,6 @@
 {
   "name": "mathlive",
-  "version": "0.87.1",
+  "version": "0.89.2",
   "description": "A web component for math input",
   "license": "MIT",
   "funding": {
@@ -24,6 +24,7 @@
     "postversion": "bash ./scripts/github-release.sh"
   },
   "main": "./dist/mathlive.min.js",
+  "module": "./dist/mathlive.min.mjs",
   "exports": {
     "import": "./dist/mathlive.min.mjs",
     "require": "./dist/mathlive.min.js"

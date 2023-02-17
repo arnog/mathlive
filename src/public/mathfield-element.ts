@@ -744,6 +744,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._mathfield.mode = value;
   }
 
+  /**
+   * If the Compute Engine library is available, return the
+   * compute engine associated with this mathfield.
+   *
+   * To load the Compute Engine library, use:
+   * ```js
+import 'https://unpkg.com/@cortex-js/compute-engine?module';
+```
+   *
+   */
+
   get computeEngine(): any {
     if (!this._mathfield) return undefined;
     return this._mathfield.computeEngine;
@@ -753,8 +764,22 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._mathfield.setOptions({ computeEngine: val });
   }
 
+  /**
+   * If the Compute Engine library is available, return a boxed MathJSON expression representing the value of the mathfield.
+   *
+   * To load the Compute Engine library, use:
+   * ```js
+import 'https://unpkg.com/@cortex-js/compute-engine?module';
+```
+   *
+   */
   get expression(): any | null {
     if (!this._mathfield) return undefined;
+    if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
+      console.error(
+        'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+      );
+    }
     return this._mathfield.expression;
   }
 
@@ -762,6 +787,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (!this._mathfield) return;
     const latex = this.computeEngine?.box(mathJson).latex ?? null;
     if (latex !== null) this._mathfield.setValue(latex);
+
+    if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
+      console.error(
+        'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+      );
+    }
   }
 
   get errors(): LatexSyntaxError[] {
