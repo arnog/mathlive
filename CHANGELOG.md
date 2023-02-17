@@ -1,3 +1,28 @@
+## [Unreleased]
+
+### Improvements
+
+- **#1833** MathLive 0.87.0 dropped support for UMD. It turns out, there are
+  some use cases that still require it, sadly. This release should restore the
+  UMD support.
+  - As background for this, there are many ways to package a JavaScript library
+    so it can be used in different contexts. The modern packaging supported by
+    both the browsers and Node ecosystem is the JavaScript module. Files in the
+    `/dist` directory with a `.mjs` extension are packaged as modules and can be
+    used with a JavaScript `import` statement or a `<script type=module>` tag.
+  - The files with a `.js` extension are packaged to be used with a regular
+    `<script>` tag (no `type=module`). This format is called IIFE and declares a
+    `MathLive` global variable from which the MathLive API can be accessed.
+  - Another convention was in use before the universal support for JavaScript
+    modules, which used a `require()` API. This was implemented in Node, but
+    also supported by some toolchains, such as WebPack. Unfortunately, some of
+    those older toolchains are still in use and difficult to move away from. In
+    order to support `require()` the library needs to be packaged using the UMD
+    format. The UMD format is not supported by modern bundling tools, such as
+    `esbuild`, which is what MathLive uses since 0.87.0. In this release, the
+    support for UMD is re-introduced by implementing it manually in MathLive,
+    rather than relying on the bundler.
+
 ## 0.89.0 (2023-02-12)
 
 ### Improvements

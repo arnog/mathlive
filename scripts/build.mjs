@@ -10,6 +10,21 @@ process.env.BUILD = process.env.BUILD || 'development';
 const PRODUCTION = process.env.BUILD.toLowerCase() === 'production';
 const SDK_VERSION = pkg.version || 'v?.?.?';
 
+// UMD wrapper
+// (while iife works for `<script>` loading, sadly, some environemnts use
+// `require()` which needs the UMD wrapper. See #1833)
+const UMD_OPTIONS = {
+  banner: {
+    js: `/** MathLive ${SDK_VERSION} ${
+      process.env.GIT_VERSION ? ' -- ' + process.env.GIT_VERSION : ''
+    }*/
+    (function(global,factory){typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) : typeof define === 'function' && define.amd ? define(['exports'],factory):(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.MathLive = {}));})(this, (function (exports) { 'use strict';`,
+  },
+  footer: {
+    js: `Object.assign(exports, MathLive); Object.defineProperty(exports, '__esModule', { value: true });}));`,
+  },
+};
+
 const BUILD_OPTIONS = {
   banner: {
     js: `/** MathLive ${SDK_VERSION} ${
@@ -44,6 +59,7 @@ build({
   entryPoints: ['./src/mathlive.ts'],
   outfile: './dist/mathlive.js',
   format: 'iife',
+  ...UMD_OPTIONS,
   globalName: 'MathLive',
 });
 
@@ -64,6 +80,7 @@ build({
   pure: ['console.assert', 'console.log'],
   outfile: './dist/mathlive.min.js',
   format: 'iife',
+  ...UMD_OPTIONS,
   globalName: 'MathLive',
   minify: true,
 });
