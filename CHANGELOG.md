@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1834** On Windows, using Firefox with the Swedish keyboard layout, pressing
+  the "¨" or "`" key resulted in a runtime error.
+
 ## 0.89.2 (2023-02-17)
 
 ### Improvements
