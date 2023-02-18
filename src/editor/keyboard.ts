@@ -24,7 +24,6 @@
  * - https://github.com/microsoft/vscode/wiki/Keybinding-Issues
  */
 
-import { isBrowser } from '../common/capabilities';
 import { normalizeKeyboardEvent } from './keyboard-layout';
 import { Scrim } from './scrim';
 
@@ -55,7 +54,7 @@ const PRINTABLE_KEYCODE = new Set([
   'KeyO',
   'KeyP',
   'BracketLeft',
-  'BracketRight',
+  'BracketRight', // On the Windows Swedish keyboard, this is the `¨` key, which is a dead key
   'Backslash', // May be labeled #~ on UK 102 keyboard
   'KeyA', // AZERTY keyboard: labeled 'q'
   'KeyS',
@@ -471,6 +470,9 @@ export function eventToChar(evt?: KeyboardEvent): string {
     if (evt.target) result = (evt.target as HTMLInputElement).value;
   }
 
+  // Note that in some  rare cases, the evt.key can be a string of multiple
+  // char. This happens on Windows Swedish keyboard with Firefox, where the
+  // `¨` key is returned as `¨¨`.
   result = result ?? evt.key ?? evt.code;
   if (
     /^(Dead|Return|Enter|Tab|Escape|Delete|PageUp|PageDown|Home|End|Help|ArrowLeft|ArrowRight|ArrowUp|ArrowDown)$/.test(

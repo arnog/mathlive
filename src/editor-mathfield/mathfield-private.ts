@@ -178,7 +178,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   inlineShortcutBuffer: {
     state: ModelState;
-    keystrokes: string;
+    keystrokes: string[];
     leftSiblings: Atom[];
   }[];
   inlineShortcutBufferFlushTimer: ReturnType<typeof setTimeout>;

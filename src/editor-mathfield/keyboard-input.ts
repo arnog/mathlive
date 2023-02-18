@@ -109,13 +109,15 @@ export function onKeystroke(
         const c = eventToChar(evt);
 
         // Find the longest substring that matches a shortcut
-        const keystrokes =
-          (mathfield.inlineShortcutBuffer[
+        const keystrokes = [
+          ...(mathfield.inlineShortcutBuffer[
             mathfield.inlineShortcutBuffer.length - 1
-          ]?.keystrokes ?? '') + c;
+          ]?.keystrokes ?? []),
+          c,
+        ];
         mathfield.inlineShortcutBuffer.push({
           state: model.getState(),
-          keystrokes,
+          keystrokes: keystrokes,
           leftSiblings: getLeftSiblings(mathfield),
         });
 
@@ -125,13 +127,11 @@ export function onKeystroke(
         while (!shortcut && i < keystrokes.length) {
           stateIndex =
             mathfield.inlineShortcutBuffer.length - (keystrokes.length - i);
-          candidate = keystrokes.slice(i);
-          const leftSiblings =
-            mathfield.inlineShortcutBuffer[stateIndex].leftSiblings;
+          candidate = keystrokes.slice(i).join('');
 
           // Is this an inline shortcut?
           shortcut = getInlineShortcut(
-            leftSiblings,
+            mathfield.inlineShortcutBuffer[stateIndex].leftSiblings,
             candidate,
             mathfield.options.inlineShortcuts
           );
