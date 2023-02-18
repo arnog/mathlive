@@ -269,24 +269,24 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     // 1/ The keyboard event capture element.
     let markup = '<span class=ML__textarea>';
-    markup += `<textarea inputmode="none" class=ML__textarea__textarea autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none aria-hidden="true" tabindex="${
+    markup += `<textarea class=ML__textarea__textarea autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none aria-hidden=true tabindex=${
       element.tabIndex ?? 0
-    }"></textarea>`;
+    }></textarea>`;
     markup += '</span>';
 
     // 2/ The field, where the math equation will be displayed
     markup +=
-      '<span part="container" class="ML__container"><span part="content" class="ML__content"></span>';
+      '<span part=container class=ML__container><span part=content class=ML__content></span>';
 
     // 2.1/ The virtual keyboard toggle
-    markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${localize(
+    markup += `<div part='virtual-keyboard-toggle' class=ML__virtual-keyboard-toggle role=button data-ML__tooltip=${localize(
       'tooltip.toggle virtual keyboard'
-    )}">`;
+    )}>`;
     markup +=
       this.options.virtualKeyboardToggleGlyph ?? DEFAULT_KEYBOARD_TOGGLE_GLYPH;
     markup += '</div>';
 
-    markup += "<div class='ML__placeholdercontainer'></div>";
+    markup += '<div class=ML__placeholdercontainer></div>';
 
     markup += '</span>';
 
@@ -296,8 +296,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // there and then back triggering the screen reader to read it
 
     markup +=
-      '<div class="ML__sr-only">' +
-      '<span aria-role="status" aria-live="assertive" aria-atomic="true"></span>' +
+      '<div class=ML__sr-only>' +
+      '<span aria-role=status aria-live=assertive aria-atomic=true></span>' +
       '<span></span>' +
       '</div>';
 
@@ -1592,7 +1592,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     if (target.id) {
       return this.element!.querySelector(
-        `[data-atom-id="${target.id}"]`
+        `[data-atom-id=${target.id}]`
       ) as HTMLSpanElement;
     }
     throw new TypeError('Could not get an ID from atom');
