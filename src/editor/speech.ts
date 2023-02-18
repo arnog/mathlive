@@ -224,18 +224,16 @@ export function defaultSpeakHook(
       };
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Polly.html#synthesizeSpeech-property
       polly.synthesizeSpeech(parameters, (err, data) => {
-        if (err)
+        if (err) {
           console.error(
             'MathLive: polly.synthesizeSpeech() error:',
             err,
             err.stack
           );
-        // Announce('plonk');
-        else if (data?.AudioStream) {
+        } else if (data?.AudioStream) {
+          // Announce('plonk');
           const uInt8Array = new Uint8Array(data.AudioStream);
-          const blob = new Blob([uInt8Array.buffer], {
-            type: 'audio/mpeg',
-          });
+          const blob = new Blob([uInt8Array.buffer], { type: 'audio/mpeg' });
           const url = URL.createObjectURL(blob);
 
           const audioElement = new Audio(url);

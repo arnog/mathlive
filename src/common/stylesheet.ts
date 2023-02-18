@@ -1,5 +1,4 @@
 import type { Releasable } from './releasable';
-import { throwIfNotInBrowser } from './capabilities';
 
 export type Stylesheet = Releasable;
 

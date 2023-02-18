@@ -1,4 +1,3 @@
-import { isBrowser } from '../common/capabilities';
 import { resolveUrl } from '../common/script-url';
 
 function makeFontFace(

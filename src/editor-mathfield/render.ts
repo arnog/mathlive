@@ -12,7 +12,6 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { toMathML } from '../addons/math-ml';
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
-import { throwIfNotInBrowser } from '../common/capabilities';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
