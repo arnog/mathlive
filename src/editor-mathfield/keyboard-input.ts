@@ -301,20 +301,21 @@ export function onKeystroke(
   }
 
   //
-  // 5.2 If there's a selector, perform it.
+  // 5.2 Cancel the (upcoming) composition
+
+  // This is to prevent starting a composition when the keyboard event
+  // has already been handled.
+  // Example: alt+U -> \cup, but could also be diaeresis deak key (¨) which
+  // starts a composition
   //
+  mathfield.keyboardDelegate!.cancelComposition();
+
+  //
+  // 5.3 Perform the selector or shortcut
+  //
+
   if (selector) mathfield.executeCommand(selector);
   else if (shortcut) {
-    //
-    // 5.3 Cancel the (upcoming) composition
-
-    // This is to prevent starting a composition when the keyboard event
-    // has already been handled.
-    // Example: alt+U -> \cup, but could also be diaeresis deak key (¨) which
-    // starts a composition
-    //
-    mathfield.keyboardDelegate!.cancelComposition();
-
     //
     // 5.4 Insert the shortcut
     //

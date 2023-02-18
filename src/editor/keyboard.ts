@@ -250,6 +250,7 @@ export function delegateKeyboardEvents(
     },
     true
   );
+
   target.addEventListener(
     'keypress',
     (event) => {
@@ -264,6 +265,7 @@ export function delegateKeyboardEvents(
     },
     true
   );
+
   target.addEventListener(
     'keyup',
     () => {
@@ -274,6 +276,7 @@ export function delegateKeyboardEvents(
     },
     true
   );
+
   target.addEventListener(
     'paste',
     (event: ClipboardEvent) => {
@@ -286,8 +289,11 @@ export function delegateKeyboardEvents(
     },
     true
   );
+
   target.addEventListener('cut', (ev) => handlers.cut(ev), true);
+
   target.addEventListener('copy', (ev) => handlers.copy(ev), true);
+
   target.addEventListener(
     'blur',
     (event) => {
@@ -330,6 +336,7 @@ export function delegateKeyboardEvents(
     },
     true
   );
+
   target.addEventListener(
     'focus',
     (evt) => {
@@ -348,6 +355,7 @@ export function delegateKeyboardEvents(
     },
     true
   );
+
   target.addEventListener(
     'compositionstart',
     (event: CompositionEvent) => {
@@ -358,28 +366,30 @@ export function delegateKeyboardEvents(
     },
     true
   );
+
   target.addEventListener(
     'compositionupdate',
     (ev: CompositionEvent) => {
       if (!compositionInProgress) return;
+
       if (handlers.compositionUpdate) handlers.compositionUpdate(ev.data);
     },
     true
   );
+
   target.addEventListener(
     'compositionend',
     (ev: CompositionEvent) => {
       textarea.value = '';
       if (!compositionInProgress) return;
+
       compositionInProgress = false;
       if (handlers.compositionEnd) handlers.compositionEnd(ev.data);
     },
     true
   );
 
-  target.addEventListener('beforeinput', (ev: InputEvent) => {
-    ev.stopImmediatePropagation();
-  });
+  target.addEventListener('beforeinput', (ev) => ev.stopImmediatePropagation());
 
   // The `input` handler gets called when the field is changed,
   // but no other relevant events have been triggered
@@ -408,14 +418,8 @@ export function delegateKeyboardEvents(
 
   return {
     cancelComposition: (): void => {
-      const savedBlur = handlers.blur;
-      const savedFocus = handlers.focus;
-      handlers.blur = null;
-      handlers.focus = null;
       textarea.blur();
-      textarea.focus();
-      handlers.blur = savedBlur;
-      handlers.focus = savedFocus;
+      requestAnimationFrame(() => textarea.focus());
     },
     blur: (): void => {
       if (typeof textarea.blur === 'function') textarea.blur();
@@ -452,7 +456,6 @@ export function delegateKeyboardEvents(
 }
 
 function deepActiveElement(): Element | null {
-  if (!isBrowser()) return null;
   let a = document.activeElement;
   while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
 
