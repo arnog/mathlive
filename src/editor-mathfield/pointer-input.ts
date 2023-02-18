@@ -5,24 +5,17 @@ import { Offset } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
 import { selectGroup } from '../editor-model/commands-select';
-import { isBrowser } from '../common/capabilities';
 
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;
 
-function isTouchEvent(evt: Event): evt is TouchEvent {
-  return isBrowser() && 'TouchEvent' in globalThis && evt instanceof TouchEvent;
-}
-
 function isPointerEvent(evt: Event): evt is PointerEvent {
-  return (
-    isBrowser() && 'PointerEvent' in globalThis && evt instanceof PointerEvent
-  );
+  return evt instanceof PointerEvent;
 }
 
 export function onPointerDown(
   mathfield: MathfieldPrivate,
-  evt: PointerEvent | TouchEvent
+  evt: PointerEvent
 ): void {
   //Reset the atom bounds cache
   mathfield.atomBoundsCache = new Map<string, Rect>();
@@ -34,26 +27,20 @@ export function onPointerDown(
   let dirty: 'none' | 'selection' | 'all' = 'none';
 
   // If a mouse button other than the main one was pressed, return.
-  // On iOS 12.4 Safari and Firefox on Android (which do not support
-  // PointerEvent) the touchstart event is sent with event.buttons = 0
-  // which for a mouse event would normally be an invalid button.
-  // Accept this button 0.
-  if (isPointerEvent(evt) && evt.buttons > 1) return;
+  if (evt.buttons > 1) return;
 
   let scrollLeft = false;
   let scrollRight = false;
-  // Note: evt['touches'] is for touchstart (when PointerEvent is not supported)
-  const anchorX = isTouchEvent(evt) ? evt.touches[0].clientX : evt.clientX;
-  const anchorY = isTouchEvent(evt) ? evt.touches[0].clientY : evt.clientY;
+
+  const anchorX = evt.clientX;
+  const anchorY = evt.clientY;
   const anchorTime = Date.now();
   const field = that.field!;
   const scrollInterval = setInterval(() => {
     if (scrollLeft) field.scroll({ top: 0, left: field.scrollLeft - 16 });
     else if (scrollRight) field.scroll({ top: 0, left: field.scrollLeft + 16 });
   }, 32);
-  function endPointerTracking(evt: null | PointerEvent | TouchEvent): void {
-    if (!isBrowser()) return;
-
+  function endPointerTracking(evt: null | PointerEvent | MouseEvent): void {
     if ('PointerEvent' in window) {
       off(field, 'pointermove', onPointerMove);
       off(
@@ -64,8 +51,6 @@ export function onPointerDown(
       if (evt instanceof PointerEvent)
         field.releasePointerCapture(evt.pointerId);
     } else {
-      off(field, 'touchmove', onPointerMove);
-      off(field, 'touchcancel touchend', endPointerTracking as EventListener);
       off(window, 'mousemove', onPointerMove);
       off(window, 'mouseup blur', endPointerTracking as EventListener);
     }
@@ -76,19 +61,19 @@ export function onPointerDown(
     if (evt) evt.preventDefault();
   }
 
-  function onPointerMove(evt: PointerEvent | TouchEvent): void {
+  function onPointerMove(evt: PointerEvent | MouseEvent): void {
     // If we've somehow lost focus, end tracking
     if (!that.hasFocus()) {
       endPointerTracking(null);
       return;
     }
 
-    const x = isTouchEvent(evt) ? evt.touches[0].clientX : evt.clientX;
-    const y = isTouchEvent(evt) ? evt.touches[0].clientY : evt.clientY;
+    const x = evt.clientX;
+    const y = evt.clientY;
     // Ignore events that are within small spatial and temporal bounds
     // of the pointer down
     const hysteresis =
-      isTouchEvent(evt) || evt.pointerType === 'touch' ? 20 : 5;
+      isPointerEvent(evt) && evt.pointerType === 'touch' ? 20 : 5;
     if (
       Date.now() < anchorTime + 500 &&
       Math.abs(anchorX - x) < hysteresis &&
@@ -102,20 +87,13 @@ export function onPointerDown(
     const fieldBounds = field.getBoundingClientRect();
     scrollRight = x > fieldBounds.right;
     scrollLeft = x < fieldBounds.left;
-    let actualAnchor: Offset = anchor;
+    let actualAnchor = anchor;
     if (isPointerEvent(evt)) {
       if (!evt.isPrimary) {
         actualAnchor = offsetFromPoint(that, evt.clientX, evt.clientY, {
           bias: 0,
         });
       }
-    } else if (evt.touches && evt.touches.length === 2) {
-      actualAnchor = offsetFromPoint(
-        that,
-        evt.touches[1].clientX,
-        evt.touches[1].clientY,
-        { bias: 0 }
-      );
     }
 
     const focus = offsetFromPoint(that, x, y, {
@@ -217,7 +195,7 @@ export function onPointerDown(
         }
       } else if (!trackingPointer) {
         trackingPointer = true;
-        if (isBrowser() && 'PointerEvent' in window) {
+        if ('PointerEvent' in window) {
           on(field, 'pointermove', onPointerMove);
           on(
             field,
@@ -228,21 +206,8 @@ export function onPointerDown(
             field.setPointerCapture(evt.pointerId);
         } else {
           on(window, 'blur', endPointerTracking as EventListener);
-          if (isTouchEvent(evt) && evt.touches) {
-            // This is a touchstart event (and PointerEvent is not supported)
-            // To receive the subsequent touchmove/touch, need to
-            // listen to this evt.target.
-            // This was a touch event
-            on(evt.target!, 'touchmove', onPointerMove);
-            on(
-              evt.target!,
-              'touchcancel touchend',
-              endPointerTracking as EventListener
-            );
-          } else {
-            on(window, 'mousemove', onPointerMove);
-            on(window, 'mouseup', endPointerTracking as EventListener);
-          }
+          on(window, 'mousemove', onPointerMove);
+          on(window, 'mouseup', endPointerTracking as EventListener);
         }
 
         if (evt.detail === 2 || gTapCount === 2) {
@@ -260,8 +225,7 @@ export function onPointerDown(
     requestUpdate(mathfield);
   }
 
-  // Prevent the browser from handling. In particular when this is a
-  // touch event, prevent the synthetic mouseDown event from being generated
+  // Prevent the browser from handling.
   evt.preventDefault();
 }
 
