@@ -2,6 +2,8 @@
 
 ### Bug Fixes
 
+- **#1723** The Ctrl-X/C/V keyboard shortcut did not trigger when using a
+  touch-capable device with a physical keyboard connected.
 - **#1834** On Windows, using Firefox with the Swedish keyboard layout, pressing
   the "¨" or "`" key resulted in a runtime error.
 
