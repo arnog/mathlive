@@ -25,7 +25,7 @@ import type {
 } from '../public/mathfield';
 import MathfieldElement from '../public/mathfield-element';
 
-import { canVibrate, isBrowser, isTouchCapable } from '../common/capabilities';
+import { canVibrate, isTouchCapable } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
@@ -452,7 +452,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     });
 
     // Delegate mouse and touch events
-    if (isBrowser() && 'PointerEvent' in window) {
+    if ('PointerEvent' in window) {
       // Use modern pointer events if available
       on(this.field, 'pointerdown', this);
     } else on(this.field, 'touchstart:active mousedown', this);
@@ -531,7 +531,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // When fonts are done loading, re-render
     // (the selection highlighting may be out of date due to the HTML layout
     // having been updated with the new font metrics)
-    if (isBrowser()) document.fonts.ready.then(() => render(this));
+    document.fonts.ready.then(() => render(this));
   }
 
   get audioContext(): AudioContext {
@@ -1224,7 +1224,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   hasFocus(): boolean {
-    return isBrowser() && this.keyboardDelegate.hasFocus();
+    return this.keyboardDelegate.hasFocus();
   }
 
   focus(options?: { scrollIntoView: boolean }): void {

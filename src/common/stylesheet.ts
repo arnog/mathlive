@@ -8,8 +8,6 @@ export function inject(
   css: string,
   id: string
 ): null | Releasable {
-  throwIfNotInBrowser();
-
   if (!css) return null;
 
   let root = element?.getRootNode() ?? document?.head;

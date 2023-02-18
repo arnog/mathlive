@@ -126,7 +126,6 @@ export function render(
   mathfield: MathfieldPrivate,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
-  throwIfNotInBrowser();
   if (!isValidMathfield(mathfield)) return;
 
   renderOptions = renderOptions ?? {};
@@ -198,8 +197,6 @@ export function render(
 }
 
 export function renderSelection(mathfield: MathfieldPrivate): void {
-  throwIfNotInBrowser();
-
   const field = mathfield.field;
 
   // In some rare cases, we can get called (via a timeout) when the field

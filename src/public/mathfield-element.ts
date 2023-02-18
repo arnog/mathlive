@@ -6,7 +6,7 @@ import {
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { isOffset, isRange, isSelection } from '../editor/model';
-import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
+import { isBrowser } from '../common/capabilities';
 
 import { Selector } from './commands';
 import { LatexSyntaxError, ParseMode, Style } from './core';
@@ -26,6 +26,12 @@ export declare type Expression =
   | string
   | { [key: string]: any }
   | [Expression, ...Expression[]];
+
+if (!isBrowser()) {
+  console.error(
+    'MathLive: this version of the MathLive library is for use in the browser. A subset of the API is available on the server side in the "mathlive-ssr" library. If using server side rendering (with React for example) you may want to do a dynamic import of the MathLive library inside a `useEffect()` call.'
+  );
+}
 
 //
 // Custom Events
@@ -651,7 +657,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     ```
     */
   constructor(options?: Partial<MathfieldOptions>) {
-    throwIfNotInBrowser();
     super();
 
     this.attachShadow({ mode: 'open' });

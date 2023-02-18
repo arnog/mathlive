@@ -18,7 +18,6 @@ import { VirtualKeyboard } from './editor/virtual-keyboard-utils';
 import './editor/virtual-keyboard-commands';
 import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboard';
 
-import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 import {
   convertLatexToMarkup,
   convertLatexToMathMl,
@@ -131,12 +130,11 @@ export function makeSharedVirtualKeyboard(
  */
 
 export function renderMathInDocument(options?: AutoRenderOptions): void {
-  throwIfNotInBrowser();
   renderMathInElement(document.body, options);
 }
 
 function getElement(element: string | HTMLElement): HTMLElement | null {
-  if (typeof element === 'string' && isBrowser()) {
+  if (typeof element === 'string') {
     const result = document.getElementById(element);
     if (result === null)
       throw new Error(`The element with ID "${element}" could not be found.`);

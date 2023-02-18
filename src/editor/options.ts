@@ -2,7 +2,7 @@ import type { MathfieldOptions } from '../public/options';
 import { VirtualKeyboardMode } from '../public/mathfield-element';
 
 import { isArray } from '../common/types';
-import { isBrowser, isTouchCapable } from '../common/capabilities';
+import { isTouchCapable } from '../common/capabilities';
 
 import { l10n } from '../core/l10n';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
@@ -45,7 +45,7 @@ export function update(
 
       case 'locale':
         if (updates.locale === 'auto')
-          result.locale = isBrowser() ? navigator.language.slice(0, 5) : 'en';
+          result.locale = navigator.language.slice(0, 5);
         else result.locale = updates.locale!;
         l10n.locale = result.locale;
         break;
@@ -220,10 +220,9 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     virtualKeyboardLayout: 'auto',
     customVirtualKeyboardLayers: {},
     customVirtualKeyboards: {},
-    virtualKeyboardTheme:
-      isBrowser() && /android|cros/i.test(navigator.userAgent)
-        ? 'material'
-        : 'apple',
+    virtualKeyboardTheme: /android|cros/i.test(navigator.userAgent)
+      ? 'material'
+      : 'apple',
     keypressVibration: true,
     keypressSound: null,
     plonkSound: null,
