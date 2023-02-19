@@ -278,6 +278,10 @@ export interface MathfieldElementAttributes {
    */
   'smart-mode': string;
   /**
+   * When `on`, \prompt{} contents become editable while everything else becomes non-editable
+   */
+  'prompt-mode': 'string';
+  /**
    * When `on`, when a digit is entered in an empty superscript, the cursor
    * leaps automatically out of the superscript. This makes entry of common
    * polynomials easier and faster. If entering other characters (for example
@@ -588,6 +592,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'remove-extraneous-parentheses': 'on/off',
       'smart-fence': 'on/off',
       'smart-mode': 'on/off',
+      'prompt-mode': 'on/off',
       'smart-superscript': 'on/off',
       'speech-engine': 'string',
       'speech-engine-rate': 'string',
@@ -1455,6 +1460,12 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   set smartMode(value: boolean) {
     this.setOptions({ smartMode: value });
+  }
+  get promptMode(): boolean {
+    return this.getOption('promptMode');
+  }
+  set promptMode(value: boolean) {
+    this.setOptions({ promptMode: value });
   }
   get smartSuperscript(): boolean {
     return this.getOption('smartSuperscript');

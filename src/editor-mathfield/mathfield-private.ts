@@ -583,6 +583,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return this.options?.smartFence ?? false;
   }
 
+  get promptMode(): boolean {
+    return this.options?.promptMode ?? false;
+  }
+
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
     return this.options?.letterShapeStyle ?? 'tex';
   }

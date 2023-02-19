@@ -888,6 +888,15 @@ function atomToMathML(atom, options): string {
           '</menclose>';
         break;
 
+      case 'prompt':
+        result =
+          '<menclose notation="roundedbox' +
+          makeID(atom.id, options) +
+          '>' +
+          toMathML(atom.body, options) +
+          '</menclose>';
+        break;
+
       case 'spacing':
         result += '<mspace width="' + (SPACING[command] ?? 0) + 'em"/>';
         break;

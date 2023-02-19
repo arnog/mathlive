@@ -28,6 +28,7 @@ import { convertDimensionToEm } from './registers-utils';
 export interface GlobalContext {
   readonly registers: Registers;
   readonly smartFence: boolean;
+  readonly promptMode: boolean;
   readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
   readonly fractionNavigationOrder:
     | 'numerator-denominator'

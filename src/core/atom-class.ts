@@ -126,7 +126,8 @@ export type AtomType =
   | 'spacing'
   | 'surd' // Aka square root, nth root
   | 'text' // Text mode atom;
-  | 'tooltip'; // For `\mathtip` and `\texttip`
+  | 'tooltip' // For `\mathtip` and `\texttip`
+  | 'prompt';
 
 export type BBoxParameter = {
   backgroundcolor?: string;
