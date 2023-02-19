@@ -123,7 +123,10 @@ export function makeSharedVirtualKeyboard(
  *
  * @example
  * import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
- * document.addEventListener("load", () => renderMathInDocument());
+ * if (window.readyState === "loading")
+ *  document.addEventListener("DOMContentLoaded", () => renderMathInDocument());
+ * else
+ *   renderMathInDocument();
  *
  * @category Rendering
  * @keywords render, document, autorender
@@ -155,7 +158,10 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
  *
  * @example
  * import { renderMathInElement } from 'https://unpkg.com/mathlive?module';
- * document.addEventListener("load", () => renderMathInElement('formula));
+ * if (window.readyState === "loading")
+ *  document.addEventListener("DOMContentLoaded", () => renderMathInElement("formula"));
+ * else
+ *   renderMathInElement("formula");
  *
  * @category Rendering
  * @keywords render, element, htmlelement
