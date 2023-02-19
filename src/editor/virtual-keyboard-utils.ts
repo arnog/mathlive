@@ -259,9 +259,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
 
   buildAndAttachElement(theme?: VirtualKeyboardTheme): void {
     this.element = makeKeyboardElement(this, theme ?? '');
-    on(this.element, 'touchstart:passive mousedown', () =>
-      this.focusMathfield()
-    );
+    on(this.element, 'mousedown', () => this.focusMathfield());
     this.options.virtualKeyboardContainer?.appendChild(this.element);
   }
 
@@ -354,19 +352,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     // keyboard.
     // Note that we need to listen on the window to capture events happening
     // outside the virtual keyboard.
-    // @todo should use a scrim instead (to prevent elements underneat the alt
-    // layer from reacting while the alt layer is up)
     window.addEventListener('mouseup', this);
     window.addEventListener('blur', this);
-    window.addEventListener('touchend', this);
-    window.addEventListener('touchcancel', this);
   }
 
   disable(): void {
     window.removeEventListener('mouseup', this);
     window.removeEventListener('blur', this);
-    window.removeEventListener('touchend', this);
-    window.removeEventListener('touchcancel', this);
   }
 
   dispose(): void {}
@@ -2027,23 +2019,14 @@ export function makeKeyboardElement(
     }
   }
 
-  // Select the first keyboard as the initial one.
   const layerElements = result.querySelectorAll('.keyboard-layer');
-  for (const x of layerElements) {
-    x.addEventListener('mousedown', (evt) => {
-      evt.preventDefault();
-      evt.stopPropagation();
-    });
-    x.addEventListener(
-      'touchstart',
-      (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-      },
-      { passive: false }
-    );
-  }
   console.assert(layerElements.length > 0, 'No virtual keyboards available');
+
+  // Prevent a click on a virtual keyboard to focus it (and blur the mathfield)
+  for (const x of layerElements)
+    x.addEventListener('mousedown', (evt) => evt.preventDefault());
+
+  // Select the first keyboard as the initial one.
   layerElements[0]?.classList.add('is-visible');
 
   return result;

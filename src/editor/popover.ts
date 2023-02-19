@@ -84,10 +84,8 @@ export function showPopover(mf: MathfieldPrivate, suggestions: string[]): void {
 
   const elements = mf.popover.querySelectorAll<HTMLElement>('ul li');
   for (const element of elements) {
-    element.addEventListener('pointerdown', (ev) => {
-      // Prevent loss of focus of the mathfield
-      ev.preventDefault();
-    });
+    // Prevent loss of focus of the mathfield
+    element.addEventListener('pointerdown', (ev) => ev.preventDefault());
     element.addEventListener('click', (_ev) => {
       complete(mf, 'reject');
       ModeEditor.insert('math', mf.model, element.dataset.command!, {

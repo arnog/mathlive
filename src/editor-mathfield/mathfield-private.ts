@@ -97,8 +97,6 @@ import {
   getCaretPoint,
   getSelectionBounds,
   isValidMathfield,
-  on,
-  off,
   Rect,
 } from './utils';
 
@@ -393,8 +391,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     // Focus/blur state
     this.blurred = true;
-    on(this.element, 'focus', this);
-    on(this.element, 'blur', this);
+    this.element.addEventListener('focus', this);
+    this.element.addEventListener('blur', this);
 
     // Capture clipboard events
     // Delegate keyboard events
@@ -451,15 +449,14 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         this.onCompositionEnd(composition),
     });
 
-    // Delegate mouse and touch events
-    if ('PointerEvent' in window) {
-      // Use modern pointer events if available
-      on(this.field, 'pointerdown', this);
-    } else on(this.field, 'touchstart:active mousedown', this);
+    // Delegate pointer events
+    if ('PointerEvent' in window)
+      this.field.addEventListener('pointerdown', this);
+    else this.field.addEventListener('mousedown', this);
 
     // Request notification for when the window is resized or the device
     // switched from portrait to landscape, to adjust the UI (popover, etc...)
-    on(window, 'resize', this);
+    window.addEventListener('resize', this);
 
     // When the window loses focus, the browser will restore the focus to a
     // textarea element if it had the focus when the window was blured.
@@ -779,12 +776,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   /*
-   * HandleEvent is a function invoked when an event is registered with an
-   * object instead ( see `addEventListener()` in `on()`)
+   * handleEvent is a function invoked when an event is registered with an
+   * object.
    * The name is defined by `addEventListener()` and cannot be changed.
    * This pattern is used to be able to release bound event handlers,
-   * (event handlers that need access to `this`) as the bind() function
-   * would create a new function that would have to be kept track off
+   * (event handlers that need access to `this`) as the `bind()` function
+   * would create a new function that would have to be kept track of
    * to be able to properly remove the event handler later.
    */
   handleEvent(evt: Event): void {
@@ -798,7 +795,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         this.onBlur();
         break;
 
-      case 'touchstart':
       case 'mousedown':
         // iOS <=13 Safari and Firefox on Android
         onPointerDown(this, evt as PointerEvent);
@@ -834,11 +830,11 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     element.innerHTML = this.model.getValue();
 
-    off(element, 'pointerdown', this);
-    off(element, 'touchstart:active mousedown', this);
-    off(element, 'focus', this);
-    off(element, 'blur', this);
-    off(window, 'resize', this);
+    element.removeEventListener('pointerdown', this);
+    element.removeEventListener('mousedown', this);
+    element.removeEventListener('focus', this);
+    element.removeEventListener('blur', this);
+    window.removeEventListener('resize', this);
     window.removeEventListener('blur', this, { capture: true });
 
     delete (this as any).accessibleNode;
