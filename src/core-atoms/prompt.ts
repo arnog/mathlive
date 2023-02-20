@@ -32,7 +32,6 @@ export class PromptAtom extends Atom {
   }
 
   render(parentContext: Context) {
-    console.log(this.mode);
     const context = new Context(parentContext);
 
     const fboxsep = convertDimensionToEm(
@@ -42,14 +41,12 @@ export class PromptAtom extends Atom {
     let padding = fboxsep;
 
     // Base is the main content "inside" the box
-    console.log(this.body);
     const content = Atom.createBox(parentContext, this.body);
     if (!content) return null;
 
-    // Sizing logic is identical to box.ts, except for the following:
     // An empty prompt should not be too small, pretend content has height 0.5em
-    !content.height && (content.height = 0.5);
 
+    !content.height && (content.height = 0.5); // CHANGE FROM BOX
     content.setStyle('vertical-align', -content.height, 'em');
     const base = new Box(content, { type: 'mord' });
 
@@ -57,7 +54,6 @@ export class PromptAtom extends Atom {
     // It's positioned to overlap the base.
     // The 'ML__box' class is required to prevent the box from being omitted
     // during rendering (it looks like an empty, no-op box)
-    console.log(this.context.promptMode);
     const boxClasses = this.context.promptMode
       ? this.containsCaret
         ? 'ML__focusedPromptBox'
@@ -92,13 +88,15 @@ export class PromptAtom extends Atom {
     result.setStyle('line-height', 0);
 
     // The padding adds to the width and height of the pod
-    result.height = base.height + padding;
+    result.height = base.height + padding + 0.2;
     result.depth = base.depth + padding;
     result.left = padding;
     result.right = padding;
     result.setStyle('height', base.height + padding, 'em');
     result.setStyle('top', base.depth - base.height, 'em');
-    result.setStyle('vertical-align', base.depth + padding, 'em');
+    result.setStyle('vertical-align', base.depth + padding + 0.1, 'em');
+    result.setStyle('margin-left', 0.5, 'em'); // CHANGE FROM BOX
+    result.setStyle('margin-right', 0.5, 'em'); // CHANGE FROM BOX
 
     if (this.caret) result.caret = this.caret;
 

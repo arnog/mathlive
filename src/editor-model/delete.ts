@@ -328,6 +328,8 @@ function onDelete(
  * Delete the item at the current position
  */
 export function deleteBackward(model: ModelPrivate): boolean {
+  if (model.mathfield.promptSelectionLocked) return false;
+
   if (!contentWillChange(model, { inputType: 'deleteContentBackward' }))
     return false;
 

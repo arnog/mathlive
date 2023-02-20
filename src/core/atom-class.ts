@@ -566,6 +566,21 @@ export class Atom {
     return result;
   }
 
+  /** Returns true if atom is *WITHIN* a prompt atom */
+  get inPrompt(): boolean {
+    let result = false;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let atom: Atom | undefined = this;
+    while (atom) {
+      if (atom.parent?.command === '\\prompt') {
+        result = true;
+        break;
+      }
+      atom = atom.parent;
+    }
+    return result;
+  }
+
   /**
    * Return the atoms in the branch, if it exists, otherwise null
    */

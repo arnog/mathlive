@@ -312,16 +312,49 @@ export function move(
     return move(model, direction);
   }
 
+  const handleDeadEnd = () => {
+    // We're going out of bounds
+    let result = true; // True => perform default handling
+    if (!model.suppressChangeNotifications) {
+      result =
+        model.mathfield.host?.dispatchEvent(
+          new CustomEvent('move-out', {
+            detail: { direction },
+            cancelable: true,
+            bubbles: true,
+            composed: true,
+          })
+        ) ?? true;
+    }
+    if (result) model.announce('plonk');
+    return result;
+  };
+
   if (!model.collapseSelection(direction)) {
     let pos = model.position + (direction === 'forward' ? +1 : -1);
     let atom = model.at(pos);
 
     //
-    // 1. Handle `captureSelection` and `skipBoundary`
+    // 1. Handle prompt, `captureSelection` and `skipBoundary`
     //
     if (pos >= 0 && pos <= model.lastOffset) {
       if (direction === 'forward') {
-        if (atom.inCaptureSelection) {
+        if (model.mathfield.promptMode && !model.at(pos).inPrompt) {
+          // The new position is not ediatble, instead look forward for the next prompt:
+          const nextAtoms = model
+            .getAtoms(pos, -1)
+            .map((a) => [a, ...a.children])
+            .flat();
+
+          const nextPrompts: Atom[] = nextAtoms.filter(
+            (p) => p.command === '\\prompt'
+          );
+          console.log(nextPrompts);
+          const nextPrompt = nextPrompts[0];
+          console.log(nextPrompt);
+          if (!nextPrompt) return handleDeadEnd();
+          pos = model.offsetOf(nextPrompt) - 1;
+        } else if (atom.inCaptureSelection) {
           // If in a capture selection, while going forward jump to
           // after
           while (!atom.captureSelection) atom = atom.parent!;
@@ -346,7 +379,21 @@ export function move(
         else if (atom instanceof LatexAtom && atom.isSuggestion)
           atom.isSuggestion = false;
       } else if (direction === 'backward') {
-        if (atom.parent?.inCaptureSelection) {
+        if (model.mathfield.promptMode && !model.at(pos).inPrompt) {
+          // The new position is not ediatble, instead look forward for the previous prompt:
+          const previousAtoms = model
+            .getAtoms(0, pos)
+            .map((a) => [a, ...a.children])
+            .flat();
+
+          const previousPrompts: Atom[] = previousAtoms.filter(
+            (p) => p.command === '\\prompt'
+          );
+          const previousPrompt = previousPrompts[previousPrompts.length - 1];
+          if (!previousPrompt) return handleDeadEnd();
+
+          pos = model.offsetOf(previousPrompt) - 1;
+        } else if (atom.parent?.inCaptureSelection) {
           // If in a capture selection while going backward, jump to
           // before
           while (!atom.captureSelection) atom = atom.parent!;
@@ -364,21 +411,7 @@ export function move(
     // 2. Handle out of bounds
     //
     if (pos < 0 || pos > model.lastOffset) {
-      // We're going out of bounds
-      let result = true; // True => perform default handling
-      if (!model.suppressChangeNotifications) {
-        result =
-          model.mathfield.host?.dispatchEvent(
-            new CustomEvent('move-out', {
-              detail: { direction },
-              cancelable: true,
-              bubbles: true,
-              composed: true,
-            })
-          ) ?? true;
-      }
-      if (result) model.announce('plonk');
-      return result;
+      return handleDeadEnd();
     }
 
     //
@@ -420,11 +453,18 @@ function moveToClosestAtomVertically(
   extend: boolean,
   direction: 'up' | 'down'
 ) {
+  // If in prompt mode, filter toAtoms for prompts
+  const editableAtoms = toAtoms.filter(
+    (a) => !model.mathfield.promptMode || a.command === '\\prompt'
+  );
+  console.assert(editableAtoms.length !== 0);
+
   // calculate best atom to put cursor at based on real x coordinate
   const fromX = getLocalDOMRect(model.mathfield.getHTMLElement(fromAtom)).right;
-  const targetSelection = model.offsetOf(
-    getClosestAtomToXPosition(model.mathfield, toAtoms, fromX)
-  );
+  const targetSelection =
+    model.offsetOf(
+      getClosestAtomToXPosition(model.mathfield, editableAtoms, fromX)
+    ) - (model.mathfield.promptMode ? 1 : 0); // jump inside prompt
 
   if (extend) {
     const [left, right] = model.selection.ranges[0];
@@ -462,6 +502,24 @@ function moveUpward(
 
   if (!extend) model.collapseSelection('backward');
 
+  // Callback when there is nowhere to move
+  const handleDeadEnd = () => {
+    let result = true; // True => perform default handling
+    if (!model.suppressChangeNotifications) {
+      result =
+        model.mathfield.host?.dispatchEvent(
+          new CustomEvent('move-out', {
+            detail: { direction: 'upward' },
+            cancelable: true,
+            bubbles: true,
+            composed: true,
+          })
+        ) ?? true;
+    }
+    model.announce(result ? 'plonk' : 'line');
+    return result;
+  };
+
   // Find a target branch
   // This is to handle the case: `\frac{x}{\sqrt{y}}`. If we're at `y`
   // we'd expect to move to `x`, even though `\sqrt` doesn't have an 'above'
@@ -481,14 +539,39 @@ function moveUpward(
     const arrayAtom = atom.parent;
     const rowAbove = Math.max(0, atom.treeBranch[0] - 1);
     const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
+
+    // Check if the cell has any editab;e regions
+    const cellHasPrompt = aboveCell.some((a) => a.command === '\\prompt');
+    if (!cellHasPrompt && model.mathfield.promptMode) return handleDeadEnd();
+
     moveToClosestAtomVertically(model, baseAtom, aboveCell, extend, 'up');
   } else if (atom) {
     // If branch doesn't exist, create it
     const branch =
       atom.parent!.branch('above') ?? atom.parent!.createBranch('above');
 
+    // Check if the branch has any editable regions
+    const branchHasPrompt = branch.some((a) => a.command === '\\prompt');
+    if (!branchHasPrompt && model.mathfield.promptMode) return handleDeadEnd();
+
     moveToClosestAtomVertically(model, baseAtom, branch, extend, 'up');
   } else {
+    return handleDeadEnd();
+  }
+
+  return true;
+}
+
+function moveDownward(
+  model: ModelPrivate,
+  options?: { extend: boolean }
+): boolean {
+  const extend = options?.extend ?? false;
+
+  if (!extend) model.collapseSelection('forward');
+
+  // Callback when there is nowhere to move
+  const handleDeadEnd = () => {
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result =
@@ -503,18 +586,7 @@ function moveUpward(
     }
     model.announce(result ? 'plonk' : 'line');
     return result;
-  }
-
-  return true;
-}
-
-function moveDownward(
-  model: ModelPrivate,
-  options?: { extend: boolean }
-): boolean {
-  const extend = options?.extend ?? false;
-
-  if (!extend) model.collapseSelection('forward');
+  };
 
   // Find a target branch
   // This is to handle the case: `\frac{\sqrt{x}}{y}`. If we're at `x`
@@ -538,28 +610,23 @@ function moveDownward(
       atom.treeBranch[0] + 1
     );
     const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
+
+    // Check if the cell has any editab;e regions
+    const cellHasPrompt = belowCell.some((a) => a.command === '\\prompt');
+    if (!cellHasPrompt && model.mathfield.promptMode) return handleDeadEnd();
+
     moveToClosestAtomVertically(model, baseAtom, belowCell, extend, 'down');
   } else if (atom) {
     // If branch doesn't exist, create it
     const branch =
       atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
 
+    // Check if the branch has any editable regions
+    const branchHasPrompt = branch.some((a) => a.command === '\\prompt');
+    if (!branchHasPrompt && model.mathfield.promptMode) return handleDeadEnd();
     moveToClosestAtomVertically(model, baseAtom, branch, extend, 'down');
   } else {
-    let result = true; // `true` => perform default handling
-    if (!model.suppressChangeNotifications) {
-      result =
-        model.mathfield.host?.dispatchEvent(
-          new CustomEvent('move-out', {
-            detail: { direction: 'downward' },
-            cancelable: true,
-            bubbles: true,
-            composed: true,
-          })
-        ) ?? true;
-    }
-    model.announce(result ? 'plonk' : 'line');
-    return result;
+    return handleDeadEnd();
   }
 
   return true;

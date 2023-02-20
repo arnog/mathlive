@@ -401,8 +401,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.keyboardDelegate = delegateKeyboardEvents(textarea, this.element, {
       typedText: (text: string): void => onTypedText(this, text),
       cut: (ev: ClipboardEvent) => {
-        // Ignore if in read-only mode
-        if (this.options.readOnly) {
+        // Ignore if in read-only mode or or prompt mode and selection not editable
+        if (this.options.readOnly || this.promptSelectionLocked) {
           this.model.announce('plonk');
           return;
         }
@@ -426,9 +426,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       },
       copy: (ev: ClipboardEvent) => ModeEditor.onCopy(this, ev),
       paste: (ev: ClipboardEvent) => {
-        // Ignore if in read-only mode
+        // Ignore if in read-only mode or prompt mode and selection not editable
         let result = true;
         if (this.options.readOnly) result = false;
+        if (this.promptSelectionLocked) result = false;
         if (result) {
           result = ModeEditor.onPaste(
             this.model.at(this.model.position).mode,
@@ -585,6 +586,20 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   get promptMode(): boolean {
     return this.options?.promptMode ?? false;
+  }
+
+  /** Returns true if mathfield is in prompt mode and selection not contained to a single prompt */
+  get promptSelectionLocked(): boolean {
+    if (!this.promptMode) return false;
+    const anchor = this.model.anchor;
+    const cursor = this.model.position;
+
+    const anchorParent = this.model.at(anchor).parent;
+    const cursorParent = this.model.at(cursor).parent;
+    if (anchorParent !== cursorParent || cursorParent?.command !== '\\prompt')
+      return true;
+
+    return false;
   }
 
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
