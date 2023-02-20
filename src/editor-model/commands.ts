@@ -535,7 +535,9 @@ function moveUpward(
   // handle navigating through matrices and such
   if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    const rowAbove = Math.max(0, atom.treeBranch[0] - 1);
+    if (atom.treeBranch[0] < 1) return handleDeadEnd();
+
+    const rowAbove = atom.treeBranch[0];
     const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
 
     // Check if the cell has any editable regions
@@ -567,7 +569,6 @@ function moveDownward(
   const extend = options?.extend ?? false;
 
   if (!extend) model.collapseSelection('forward');
-
   // Callback when there is nowhere to move
   const handleDeadEnd = () => {
     let result = true; // True => perform default handling
@@ -603,14 +604,15 @@ function moveDownward(
   // handle navigating through matrices and such
   if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    const rowBelow = Math.min(
-      arrayAtom.array.length - 1,
-      atom.treeBranch[0] + 1
-    );
+    if (atom.treeBranch[0] + 1 > arrayAtom.array.length - 1)
+      return handleDeadEnd();
+
+    const rowBelow = atom.treeBranch[0] + 1;
     const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
 
     // Check if the cell has any editable regions
     const cellHasPrompt = belowCell.some((a) => a.command === '\\prompt');
+    console.log(cellHasPrompt);
     if (!cellHasPrompt && model.mathfield.promptMode) return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, belowCell, extend, 'down');
