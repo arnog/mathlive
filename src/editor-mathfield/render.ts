@@ -100,7 +100,9 @@ function makeBox(
   const wrapper = makeStruts(
     adjustInterAtomSpacing(base, mathfield.options.horizontalSpacingScale),
     {
-      classes: 'ML__mathlive',
+      classes: mathfield.promptMode
+        ? 'ML__mathlive ML__prompting'
+        : 'ML__mathlive',
       attributes: {
         // Sometimes Google Translate kicks in an attempts to 'translate' math
         // This doesn't work very well, so turn off translate
