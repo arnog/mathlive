@@ -116,14 +116,29 @@ export class ModelPrivate implements Model {
       ) {
         const pos = value.ranges[0][0];
         console.assert(pos >= 0 && pos <= this.lastOffset);
-        // if (
-        //   !this.mathfield.dirty &&
-        //   !this.at(pos).inPrompt &&
-        //   this.mathfield.promptMode
-        // ) {
-        //   console.log(this._anchor, pos);
-        //   return false;
-        // }
+        if (
+          !this.mathfield.dirty &&
+          !this.at(pos).inPrompt &&
+          this.mathfield.promptMode
+        ) {
+          if (this.at(pos - 1)?.inPrompt) {
+            this._anchor = pos - 1;
+            this._position = pos - 1;
+            this._selection = this.normalizeSelection(pos - 1, pos - 1);
+            return true;
+          } else if (this.at(pos + 1).inPrompt) {
+            console.log(this.at(pos + 1));
+            this._anchor = pos + 1;
+            this._position = pos + 1;
+            this._selection = this.normalizeSelection(pos + 1, pos + 1);
+            return true;
+          } else {
+            this._anchor = 0;
+            this._position = 0;
+            this._selection = value;
+            return false;
+          }
+        }
         this._anchor = pos;
         this._position = pos;
         this._selection = value;

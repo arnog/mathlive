@@ -1,4 +1,4 @@
-import { PromptAtom } from 'core-atoms/prompt';
+import { PromptAtom } from '../core-atoms/prompt';
 import { Atom } from 'core/atom-class';
 import { GlobalContext, PrivateStyle } from '../core/context';
 import { Argument, defineFunction } from './definitions-utils';

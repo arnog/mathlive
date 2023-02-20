@@ -50,6 +50,17 @@
   animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
+.ML__base {
+  .ML__prompt-atom {
+    .ML__caret:after {
+      content: '' !important;
+    }
+  }
+  .ML__caret:after {
+    content: none;
+  }
+}
+
 .ML__container {
   display: flex;
   flex-flow: row;

@@ -14,6 +14,7 @@ import { speakableText } from './speech';
  */
 function relationName(atom: Atom): string {
   let result: string | undefined = undefined;
+  console.log(atom);
   if (atom.treeBranch === 'body') {
     result = {
       enclose: 'cross out',

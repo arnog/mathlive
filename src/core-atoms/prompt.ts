@@ -46,7 +46,9 @@ export class PromptAtom extends Atom {
 
     // An empty prompt should not be too small, pretend content has height 0.5em
 
-    !content.height && (content.height = 0.5); // CHANGE FROM BOX
+    if (!content.height) {
+      content.height = 0.5;
+    }
     content.setStyle('vertical-align', -content.height, 'em');
     const base = new Box(content, { type: 'mord' });
 
@@ -80,7 +82,7 @@ export class PromptAtom extends Atom {
     base.setStyle('vertical-align', -padding, 'em');
 
     // The result is a box that encloses the box and the base
-    const result = new Box([box, base]);
+    const result = new Box([box, base], { classes: 'ML__prompt-atom' });
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');
@@ -95,8 +97,8 @@ export class PromptAtom extends Atom {
     result.setStyle('height', base.height + padding, 'em');
     result.setStyle('top', base.depth - base.height, 'em');
     result.setStyle('vertical-align', base.depth + padding + 0.1, 'em');
-    result.setStyle('margin-left', 0.5, 'em'); // CHANGE FROM BOX
-    result.setStyle('margin-right', 0.5, 'em'); // CHANGE FROM BOX
+    result.setStyle('margin-left', 0.5, 'em');
+    result.setStyle('margin-right', 0.5, 'em');
 
     if (this.caret) result.caret = this.caret;
 

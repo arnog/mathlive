@@ -288,6 +288,28 @@ function leap(
   callHooks = true
 ): boolean {
   const dist = dir === 'forward' ? 1 : -1;
+  // If in prompt mode, move to beggining / end of current prompt, then call move
+  // which already jumps to next prompt on arrow keys
+  if (model.mathfield.promptMode) {
+    console.log('promptMode');
+    if (!model.at(model.anchor).inPrompt) {
+      // not inside a prompt, do nothing
+      return false;
+    } else {
+      console.log(model.anchor, model.position);
+      let atom = model.at(model.anchor).parent!;
+      while (atom.type !== 'prompt' && atom.parent) {
+        atom = atom.parent;
+      }
+      console.log(atom);
+
+      model.position =
+        dir === 'forward'
+          ? model.offsetOf(atom) - 1
+          : model.offsetOf(atom) - atom.children.length;
+      return move(model, dir);
+    }
+  }
   if (model.at(model.anchor).type === 'placeholder') {
     // If we're already at a placeholder, move by one more (the placeholder
     // is right after the insertion point)

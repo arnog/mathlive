@@ -349,9 +349,7 @@ export function move(
           const nextPrompts: Atom[] = nextAtoms.filter(
             (p) => p.command === '\\prompt'
           );
-          console.log(nextPrompts);
           const nextPrompt = nextPrompts[0];
-          console.log(nextPrompt);
           if (!nextPrompt) return handleDeadEnd();
           pos = model.offsetOf(nextPrompt) - 1;
         } else if (atom.inCaptureSelection) {
@@ -540,7 +538,7 @@ function moveUpward(
     const rowAbove = Math.max(0, atom.treeBranch[0] - 1);
     const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
 
-    // Check if the cell has any editab;e regions
+    // Check if the cell has any editable regions
     const cellHasPrompt = aboveCell.some((a) => a.command === '\\prompt');
     if (!cellHasPrompt && model.mathfield.promptMode) return handleDeadEnd();
 
@@ -611,7 +609,7 @@ function moveDownward(
     );
     const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
 
-    // Check if the cell has any editab;e regions
+    // Check if the cell has any editable regions
     const cellHasPrompt = belowCell.some((a) => a.command === '\\prompt');
     if (!cellHasPrompt && model.mathfield.promptMode) return handleDeadEnd();
 
@@ -620,7 +618,6 @@ function moveDownward(
     // If branch doesn't exist, create it
     const branch =
       atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
-
     // Check if the branch has any editable regions
     const branchHasPrompt = branch.some((a) => a.command === '\\prompt');
     if (!branchHasPrompt && model.mathfield.promptMode) return handleDeadEnd();

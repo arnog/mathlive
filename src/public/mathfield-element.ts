@@ -138,6 +138,7 @@ if (MATHFIELD_TEMPLATE) {
   outline: Highlight auto 1px;    /* For Firefox */
   outline: -webkit-focus-ring-color auto 1px;
 }
+:host([promptmode]), :host([prompt-mode]) { outline: none;}
 :host([readonly]), :host([read-only]) { outline: none; }
 </style>
 <div></div><slot style="display:none"></slot>`;
