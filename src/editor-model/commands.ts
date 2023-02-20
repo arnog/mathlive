@@ -576,7 +576,7 @@ function moveDownward(
       result =
         model.mathfield.host?.dispatchEvent(
           new CustomEvent('move-out', {
-            detail: { direction: 'upward' },
+            detail: { direction: 'downward' },
             cancelable: true,
             bubbles: true,
             composed: true,
