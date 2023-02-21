@@ -585,7 +585,7 @@ export class Box {
 
       if (this.cssId) {
         // A (HTML5) CSS id may not contain a space
-        props += ` id=${this.cssId.replace(/ /g, '-')} `;
+        props += ` id="${this.cssId.replace(/ /g, '-')}" `;
       }
       if (this.htmlData) {
         const entries = this.htmlData.split(',');
@@ -593,7 +593,7 @@ export class Box {
           const matched = entry.match(/([^=]+)=(.+$)/);
           if (matched) {
             const key = matched[1].trim().replace(/ /g, '-');
-            if (key) props += ` data-${key}=${matched[2]} `;
+            if (key) props += ` data-${key}="${matched[2]}" `;
           } else {
             const key = entry.trim().replace(/ /g, '-');
             if (key) props += ` data-${key} `;

@@ -1287,7 +1287,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     const parentBounds = this.field.getBoundingClientRect();
     this.placeholders.forEach((v, id) => {
       const container = this.field.querySelector(
-        `[data-placeholder-id=${id}]`
+        `[data-placeholder-id="${id}"]`
       ) as HTMLElement;
       if (!container) return;
       const placeholderBounds = container.getBoundingClientRect();
@@ -1587,8 +1587,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     while (!target.id && target.hasChildren) target = atom.children[0];
 
     if (target.id) {
-      return this.element!.querySelector(
-        `[data-atom-id=${target.id}]`
+      return this.fieldContent!.querySelector(
+        `[data-atom-id="${target.id}"]`
       ) as HTMLSpanElement;
     }
     throw new TypeError('Could not get an ID from atom');
