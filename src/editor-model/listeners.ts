@@ -23,14 +23,15 @@ export function contentWillChange(
   if (model.suppressChangeNotifications || !model.mathfield.host) return true;
 
   model.suppressChangeNotifications = true;
-  const result = model.mathfield.host.dispatchEvent(
-    new InputEvent('beforeinput', {
-      ...options,
-      cancelable: true,
-      bubbles: true,
-      composed: true,
-    })
-  );
+  const inputEvent = new InputEvent('beforeinput', {
+    data: 'test',
+    inputType: 'insertLineBreak',
+    cancelable: true,
+    bubbles: true,
+    composed: true,
+  });
+  console.log(inputEvent);
+  const result = model.mathfield.host.dispatchEvent(inputEvent);
 
   model.suppressChangeNotifications = false;
   return result;
@@ -48,7 +49,7 @@ export function contentDidChange(
       ...options,
       bubbles: true,
       composed: true,
-    })
+    } as InputEventInit)
   );
   model.suppressChangeNotifications = false;
 }

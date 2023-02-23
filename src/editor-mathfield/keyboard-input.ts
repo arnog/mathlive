@@ -96,10 +96,9 @@ export function onKeystroke(
   // would match a long shortcut (i.e. '~~')
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
   // see 4.3)
-  if (!mathfield.options.readOnly && !mathfield.promptSelectionLocked) {
+  if (!mathfield.promptSelectionLocked) {
     if (mathfield.mode === 'math') {
       if (keystroke === '[Backspace]') {
-        console.log(mathfield.promptSelectionLocked);
         // Special case for backspace to correctly handle undoing
         mathfield.inlineShortcutBuffer.pop();
         mathfield.flushInlineShortcutBuffer({ defer: true });
@@ -409,7 +408,7 @@ export function onTypedText(
   }
 ): void {
   const { model } = mathfield;
-  if (mathfield.options.readOnly || mathfield.promptSelectionLocked) {
+  if (mathfield.promptSelectionLocked) {
     model.announce('plonk');
     return;
   }

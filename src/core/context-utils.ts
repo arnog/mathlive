@@ -20,7 +20,7 @@ export function defaultGlobalContext(): GlobalContext {
   const result: GlobalContext = {
     registers: {},
     smartFence: false,
-    promptMode: false,
+    readOnly: false,
     fractionNavigationOrder: 'numerator-denominator',
     placeholderSymbol: '▢',
     letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',

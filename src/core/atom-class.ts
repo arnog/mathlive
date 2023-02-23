@@ -13,6 +13,7 @@ import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { MathfieldBox } from './mathfield-box';
+import { PlaceholderAtom } from 'core-atoms/placeholder';
 
 /**
  * This data type is used as a serialized representation of the  atom tree.
@@ -566,13 +567,13 @@ export class Atom {
     return result;
   }
 
-  /** Returns true if atom is *WITHIN* a prompt atom */
+  /** Returns true if atom is *WITHIN* an ID'd placeholder atom */
   get inPrompt(): boolean {
     let result = false;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let atom: Atom | undefined = this;
     while (atom) {
-      if (atom.parent?.command === '\\prompt') {
+      if (atom.parent?.type === 'prompt') {
         result = true;
         break;
       }

@@ -6,6 +6,7 @@ import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
 import { selectGroup } from '../editor-model/commands-select';
 import { isBrowser } from '../common/capabilities';
+import { PlaceholderAtom } from 'core-atoms/placeholder';
 
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;

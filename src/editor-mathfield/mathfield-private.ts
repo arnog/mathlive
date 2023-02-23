@@ -402,7 +402,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       typedText: (text: string): void => onTypedText(this, text),
       cut: (ev: ClipboardEvent) => {
         // Ignore if in read-only mode or or prompt mode and selection not editable
-        if (this.options.readOnly || this.promptSelectionLocked) {
+        if (this.promptSelectionLocked) {
           this.model.announce('plonk');
           return;
         }
@@ -428,7 +428,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       paste: (ev: ClipboardEvent) => {
         // Ignore if in read-only mode or prompt mode and selection not editable
         let result = true;
-        if (this.options.readOnly) result = false;
         if (this.promptSelectionLocked) result = false;
         if (result) {
           result = ModeEditor.onPaste(
@@ -584,22 +583,30 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return this.options?.smartFence ?? false;
   }
 
-  get promptMode(): boolean {
-    return this.options?.promptMode ?? false;
+  get readOnly(): boolean {
+    return this.options?.readOnly ?? false;
   }
 
-  /** Returns true if mathfield is in prompt mode and selection not contained to a single prompt */
+  /** returns true if readOnly and at least one ID'd placeholder */
+  get prompting(): boolean {
+    return (
+      this.readOnly &&
+      this.model.getAllAtoms(0).some((a) => a.type === 'prompt')
+    );
+  }
+
+  /** Returns true if mathfield is in readOnly mode and selection not contained to a single ID'd placeholder */
   get promptSelectionLocked(): boolean {
-    if (!this.promptMode) return false;
-    const anchor = this.model.anchor;
-    const cursor = this.model.position;
+    if (!this.readOnly) return false;
+    const anchor = this.model.at(this.model.anchor);
+    const cursor = this.model.at(this.model.position);
 
-    const anchorParent = this.model.at(anchor).parent;
-    const cursorParent = this.model.at(cursor).parent;
-    if (anchorParent !== cursorParent || cursorParent?.command !== '\\prompt')
-      return true;
+    const ancestor = Atom.commonAncestor(anchor, cursor);
 
-    return false;
+    if (ancestor?.inPrompt || !!(ancestor as PlaceholderAtom).placeholderId)
+      return false;
+
+    return true;
   }
 
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
@@ -625,7 +632,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   get virtualKeyboard(): VirtualKeyboardInterface | undefined {
-    if (this.options.readOnly) return undefined;
+    if (this.promptSelectionLocked) return undefined;
 
     // The virtual keyboard can be either attached to this mathfield
     // or a delegate that mirrors a global virtual keyboard attached
@@ -1303,58 +1310,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
     return this.placeholders.get(placeholderId)?.field;
-  }
-
-  attachNestedMathfield(): void {
-    let needsUpdate = false;
-    const parentBounds = this.field.getBoundingClientRect();
-    this.placeholders.forEach((v, id) => {
-      const container = this.field.querySelector(
-        `[data-placeholder-id=${id}]`
-      ) as HTMLElement;
-      if (!container) return;
-      const placeholderBounds = container.getBoundingClientRect();
-
-      // const scaleDownFontsize =
-      //   parseInt(window.getComputedStyle(container).fontSize) * 0.6;
-
-      // if (
-      //   !v.field.style.fontSize ||
-      //   Math.abs(scaleDownFontsize - parseFloat(v.field.style.fontSize)) >=
-      //     0.2
-      // ) {
-      //   needsUpdate = true;
-      //   v.field.style.fontSize = `${scaleDownFontsize}px`;
-      // }
-      const depth = 0;
-      const newLeft =
-        placeholderBounds.left -
-        parentBounds.left +
-        (this.element!.offsetLeft ?? 0);
-      if (
-        !v.field.style.left ||
-        Math.abs(newLeft - parseFloat(v.field.style.left)) >= 1
-      ) {
-        needsUpdate = true;
-        v.field.style.left = `${newLeft}px`;
-      }
-
-      const newTop =
-        placeholderBounds.top -
-        parentBounds.top +
-        (this.element!.offsetTop ?? 0);
-      if (
-        !v.field.style.top ||
-        Math.abs(newTop - parseFloat(v.field.style.top)) >= 1 ||
-        depth !== 0
-      ) {
-        needsUpdate = true;
-        v.field.style.top =
-          depth === 0 ? `${newTop}px` : `calc(${newTop}px + ${depth}em)`;
-      }
-    });
-
-    if (needsUpdate) requestUpdate(this);
   }
 
   canUndo(): boolean {

@@ -1380,16 +1380,19 @@ export class Parser {
   parseCommand(command: string): Atom[] | null {
     if (command === '\\placeholder') {
       const id = this.parseOptionalArgument('string') as string;
+      // default value is legacy, written to body instead
       const defaultValue = this.parseOptionalArgument('math') as Atom[];
-      const value = this.parseArgument('string') ?? undefined;
+      const body = this.parseArgument('auto') ?? undefined;
       return [
-        new PlaceholderAtom(this.context, {
-          mode: this.parseMode,
-          placeholderId: id,
-          value: value,
-          default: defaultValue,
-          style: this.style,
-        }),
+        new PlaceholderAtom(
+          this.context,
+          {
+            mode: this.parseMode,
+            placeholderId: id,
+            style: this.style,
+          },
+          defaultValue ?? body
+        ),
       ];
     }
 

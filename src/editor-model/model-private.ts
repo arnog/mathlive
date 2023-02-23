@@ -106,7 +106,6 @@ export class ModelPrivate implements Model {
       const value = this.normalizeSelection(arg1, arg2);
 
       if (value === undefined) throw new TypeError('Invalid selection');
-
       //
       // 2/ Short-circuit a common case...
       //
@@ -115,11 +114,10 @@ export class ModelPrivate implements Model {
         value.ranges[0][0] === value.ranges[0][1]
       ) {
         const pos = value.ranges[0][0];
-        console.assert(pos >= 0 && pos <= this.lastOffset);
         if (
           !this.mathfield.dirty &&
           !this.at(pos).inPrompt &&
-          this.mathfield.promptMode
+          this.mathfield.prompting
         ) {
           if (this.at(pos - 1)?.inPrompt) {
             this._anchor = pos - 1;
