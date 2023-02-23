@@ -30,6 +30,7 @@ import { GlobalContext } from './context';
 import type { MathstyleName } from './mathstyle';
 import { Mode } from './modes-utils';
 import { Token, tokenize, tokensToString } from './tokenizer';
+import { PromptAtom } from 'core-atoms/prompt';
 
 export type ArgumentType =
   | ParseMode
@@ -1383,16 +1384,20 @@ export class Parser {
       // default value is legacy, written to body instead
       const defaultValue = this.parseOptionalArgument('math') as Atom[];
       const body = this.parseArgument('auto') ?? undefined;
-      return [
-        new PlaceholderAtom(
-          this.context,
-          {
+      if (id) {
+        return [
+          new PromptAtom(this.context, id, defaultValue ?? body, {
             mode: this.parseMode,
-            placeholderId: id,
             style: this.style,
-          },
-          defaultValue ?? body
-        ),
+          }),
+        ];
+      }
+      return [
+        new PlaceholderAtom(this.context, {
+          mode: this.parseMode,
+          placeholderId: id,
+          style: this.style,
+        }),
       ];
     }
 

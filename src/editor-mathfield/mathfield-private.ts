@@ -597,6 +597,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   /** Returns true if mathfield is in readOnly mode and selection not contained to a single ID'd placeholder */
   get promptSelectionLocked(): boolean {
+    console.log(this.readOnly);
     if (!this.readOnly) return false;
     const anchor = this.model.at(this.model.anchor);
     const cursor = this.model.at(this.model.position);
