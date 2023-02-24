@@ -315,6 +315,7 @@ export function move(
 
   const handleDeadEnd = () => {
     // We're going out of bounds
+    console.log('handle dead end');
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result =
@@ -348,8 +349,9 @@ export function move(
             .flat();
 
           const nextPrompts: Atom[] = nextAtoms.filter(
-            (p) => p instanceof PlaceholderAtom && !!p.placeholderId
+            (p) => p.type === 'prompt'
           );
+          console.log(nextPrompts);
           const nextPrompt = nextPrompts[0];
           if (!nextPrompt) return handleDeadEnd();
           pos = model.offsetOf(nextPrompt) - 1;
@@ -386,7 +388,7 @@ export function move(
             .flat();
 
           const previousPrompts: Atom[] = previousAtoms.filter(
-            (p) => p instanceof PlaceholderAtom && !!p.placeholderId
+            (p) => p.type === 'prompt'
           );
           const previousPrompt = previousPrompts[previousPrompts.length - 1];
           if (!previousPrompt) return handleDeadEnd();
@@ -452,13 +454,11 @@ function moveToClosestAtomVertically(
   extend: boolean,
   direction: 'up' | 'down'
 ) {
+  console.log('up');
   // If prompting mode, filter toAtoms for ID's placeholders
   const editableAtoms = toAtoms.filter(
-    (a) =>
-      !model.mathfield.prompting ||
-      (a instanceof PlaceholderAtom && !!a.placeholderId)
+    (a) => !model.mathfield.prompting || a.type === 'prompt'
   );
-  console.assert(editableAtoms.length !== 0);
 
   // calculate best atom to put cursor at based on real x coordinate
   const fromX = getLocalDOMRect(model.mathfield.getHTMLElement(fromAtom)).right;
@@ -540,13 +540,11 @@ function moveUpward(
     const arrayAtom = atom.parent;
     if (atom.treeBranch[0] < 1) return handleDeadEnd();
 
-    const rowAbove = atom.treeBranch[0];
+    const rowAbove = atom.treeBranch[0] - 1;
     const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
 
     // Check if the cell has any editable regions
-    const cellHasPrompt = aboveCell.some(
-      (a) => a instanceof PlaceholderAtom && !!a.placeholderId
-    );
+    const cellHasPrompt = aboveCell.some((a) => a.type === 'prompt');
     if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, aboveCell, extend, 'up');
@@ -578,6 +576,7 @@ function moveDownward(
   if (!extend) model.collapseSelection('forward');
   // Callback when there is nowhere to move
   const handleDeadEnd = () => {
+    console.log('handle dead end');
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result =
@@ -618,9 +617,7 @@ function moveDownward(
     const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
 
     // Check if the cell has any editable regions
-    const cellHasPrompt = belowCell.some(
-      (a) => a instanceof PlaceholderAtom && !!a.placeholderId
-    );
+    const cellHasPrompt = belowCell.some((a) => a.type === 'prompt');
     if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, belowCell, extend, 'down');

@@ -124,7 +124,7 @@ export class ModelPrivate implements Model {
             this._position = pos - 1;
             this._selection = this.normalizeSelection(pos - 1, pos - 1);
             return true;
-          } else if (this.at(pos + 1).inPrompt) {
+          } else if (this.at(pos + 1)?.inPrompt) {
             this._anchor = pos + 1;
             this._position = pos + 1;
             this._selection = this.normalizeSelection(pos + 1, pos + 1);
