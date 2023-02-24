@@ -30,7 +30,6 @@ export class PlaceholderAtom extends Atom {
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): PlaceholderAtom {
-    console.log(json);
     if (json.placeholderId)
       return new PromptAtom(
         context,
@@ -64,7 +63,6 @@ export class PlaceholderAtom extends Atom {
   serialize(options: ToLatexOptions): string {
     let value = this.value;
     if (value === this.context.placeholderSymbol) value = '';
-    console.log(value);
     return `\\placeholder{${this.value ?? ''}}`;
   }
 }

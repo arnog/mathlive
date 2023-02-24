@@ -288,7 +288,6 @@ function leap(
   dir: 'forward' | 'backward',
   callHooks = true
 ): boolean {
-  console.log('leap');
   const dist = dir === 'forward' ? 1 : -1;
   // If in prompt mode, move to beggining / end of current prompt, then call move
   // which already jumps to next prompt on arrow keys

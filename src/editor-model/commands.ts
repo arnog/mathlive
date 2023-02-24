@@ -341,7 +341,6 @@ export function move(
     if (pos >= 0 && pos <= model.lastOffset) {
       if (direction === 'forward') {
         if (model.mathfield.prompting && !model.at(pos).inPrompt) {
-          console.log('prompting, leap');
           // The new position is not ediatble, instead look forward for the next prompt:
           const nextAtoms = model
             .getAtoms(pos, -1)
@@ -622,7 +621,6 @@ function moveDownward(
     const cellHasPrompt = belowCell.some(
       (a) => a instanceof PlaceholderAtom && !!a.placeholderId
     );
-    console.log(cellHasPrompt);
     if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, belowCell, extend, 'down');

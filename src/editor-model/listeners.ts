@@ -30,7 +30,6 @@ export function contentWillChange(
     bubbles: true,
     composed: true,
   });
-  console.log(inputEvent);
   const result = model.mathfield.host.dispatchEvent(inputEvent);
 
   model.suppressChangeNotifications = false;

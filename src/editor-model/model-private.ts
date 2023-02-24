@@ -119,14 +119,12 @@ export class ModelPrivate implements Model {
           !this.at(pos).inPrompt &&
           this.mathfield.prompting
         ) {
-          console.log('leap to prompt');
           if (this.at(pos - 1)?.inPrompt) {
             this._anchor = pos - 1;
             this._position = pos - 1;
             this._selection = this.normalizeSelection(pos - 1, pos - 1);
             return true;
           } else if (this.at(pos + 1).inPrompt) {
-            console.log(this.at(pos + 1));
             this._anchor = pos + 1;
             this._position = pos + 1;
             this._selection = this.normalizeSelection(pos + 1, pos + 1);
@@ -176,7 +174,6 @@ export class ModelPrivate implements Model {
   }
 
   setPositionHandlingPlaceholder(pos: Offset): void {
-    console.log('placholder select');
     if (this.at(pos)?.type === 'placeholder') {
       // We're going right of a placeholder: select it
       this.setSelection(pos - 1, pos);
@@ -208,15 +205,11 @@ export class ModelPrivate implements Model {
     if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
     // Restore the content and selection
     if (contentWillChange(this, changeOption)) {
-      // console.log(state.content);
       this.root = fromJson(state.content, this.mathfield);
-      // console.log(this.root);
       this.selection = state.selection;
 
       contentDidChange(this, changeOption);
     }
-
-    console.log(this.root.toJson().body[0]);
     this.suppressChangeNotifications = wasSuppressing;
   }
 
