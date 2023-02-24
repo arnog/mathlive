@@ -3,7 +3,7 @@ import { ParseMode, Style } from '../public/core';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context, GlobalContext } from '../core/context';
-import { convertDimensionToEm } from 'core/registers-utils';
+import { convertDimensionToEm } from '../core/registers-utils';
 
 export class PromptAtom extends Atom {
   readonly placeholderId?: string;

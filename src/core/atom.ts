@@ -30,7 +30,7 @@ import { SubsupAtom } from '../core-atoms/subsup';
 import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
-import { PromptAtom } from 'core-atoms/prompt';
+import { PromptAtom } from '../core-atoms/prompt';
 
 export * from './atom-class';
 

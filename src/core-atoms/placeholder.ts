@@ -30,13 +30,6 @@ export class PlaceholderAtom extends Atom {
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): PlaceholderAtom {
-    if (json.placeholderId)
-      return new PromptAtom(
-        context,
-        json.placeholderId,
-        json.body,
-        json as any
-      );
     return new PlaceholderAtom(context, json as any);
   }
 
@@ -50,7 +43,7 @@ export class PlaceholderAtom extends Atom {
     return result;
   }
 
-  render(context: Context): Box | null {
+  render(context: Context): Box {
     if (typeof context.renderPlaceholder === 'function')
       return context.renderPlaceholder(context, this);
 

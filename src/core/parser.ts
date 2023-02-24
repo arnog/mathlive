@@ -30,7 +30,7 @@ import { GlobalContext } from './context';
 import type { MathstyleName } from './mathstyle';
 import { Mode } from './modes-utils';
 import { Token, tokenize, tokensToString } from './tokenizer';
-import { PromptAtom } from 'core-atoms/prompt';
+import { PromptAtom } from '../core-atoms/prompt';
 
 export type ArgumentType =
   | ParseMode
