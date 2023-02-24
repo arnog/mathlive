@@ -33,6 +33,7 @@ import {
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { MathfieldOptions } from '../public/options';
+import { PromptAtom } from 'core-atoms/prompt';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -325,7 +326,6 @@ export class MathModeEditor extends ModeEditor {
     }
 
     const hadEmptyBody = parent!.hasEmptyBranch('body');
-
     const cursor = model.at(model.position);
     cursor.parent!.addChildrenAfter(newAtoms, cursor);
 

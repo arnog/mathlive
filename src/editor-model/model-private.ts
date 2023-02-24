@@ -208,12 +208,15 @@ export class ModelPrivate implements Model {
     if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
     // Restore the content and selection
     if (contentWillChange(this, changeOption)) {
+      // console.log(state.content);
       this.root = fromJson(state.content, this.mathfield);
+      // console.log(this.root);
       this.selection = state.selection;
 
       contentDidChange(this, changeOption);
     }
 
+    console.log(this.root.toJson().body[0]);
     this.suppressChangeNotifications = wasSuppressing;
   }
 

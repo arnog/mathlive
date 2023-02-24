@@ -137,9 +137,9 @@ export function render(
     atom.containsCaret = false;
   }
   const hasFocus = !mathfield.promptSelectionLocked && mathfield.hasFocus();
-  if (model.selectionIsCollapsed)
+  if (model.selectionIsCollapsed) {
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
-  else {
+  } else {
     const atoms = model.getAtoms(model.selection, { includeChildren: true });
     for (const atom of atoms) atom.isSelected = true;
   }

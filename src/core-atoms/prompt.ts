@@ -22,7 +22,6 @@ export class PromptAtom extends Atom {
       style: options?.style,
       command: '\\placeholder',
     });
-    // If body is [], the total length of placeholder + content will be 2, but we want 1:
     this.body = body;
 
     this.placeholderId = placeholderId;
@@ -41,7 +40,6 @@ export class PromptAtom extends Atom {
       result.body = this.body
         .filter((x) => x.type !== 'first')
         .map((x) => x.toJson());
-    console.log(result);
     return result;
   }
 

@@ -1034,7 +1034,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
    */
   scrollIntoView(): void {
     if (!this.element) return;
-
     //
     // 1/ If inside a mathfield element, make sure that element is visible.
     //

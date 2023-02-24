@@ -303,6 +303,8 @@ export function onKeystroke(
   //
   // 5.2 If there's a selector, perform it.
   //
+  console.log(mathfield.model.getState());
+
   if (selector) mathfield.executeCommand(selector);
   else if (shortcut) {
     //
@@ -339,6 +341,7 @@ export function onKeystroke(
       // Revert to the state before the beginning of the shortcut
       // (restore doesn't change the undo stack)
       model.setState(mathfield.inlineShortcutBuffer[stateIndex!].state);
+      console.log(mathfield.model.root.toJson());
       mathfield.mode = saveMode;
     }
 
@@ -371,6 +374,7 @@ export function onKeystroke(
     mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
     model.announce('replacement');
   }
+  console.log(mathfield.model.getState());
 
   //
   // 6. Make sure the mathfield and the insertion point is scrolled into view
