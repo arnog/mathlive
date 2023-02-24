@@ -78,7 +78,7 @@ export class EncloseAtom extends Atom {
     this.borderStyle = options.borderStyle;
     this.padding = options.padding;
 
-    this.captureSelection = false; // Do not let children be selected
+    this.captureSelection = true; // Do not let children be selected
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): EncloseAtom {
