@@ -55,9 +55,9 @@ export function fromJson(
   if (type === 'accent') result = AccentAtom.fromJson(json, context);
   if (type === 'array') result = ArrayAtom.fromJson(json, context);
   if (type === 'box') result = BoxAtom.fromJson(json, context);
-  if (type === 'composition') result = CompositionAtom.fromJson(json, context);
   if (type === 'chem') result = ChemAtom.fromJson(json, context);
   if (type === 'choice') result = ChoiceAtom.fromJson(json, context);
+  if (type === 'composition') result = CompositionAtom.fromJson(json, context);
   if (type === 'delim') result = DelimAtom.fromJson(json, context);
   if (type === 'enclose') result = EncloseAtom.fromJson(json, context);
   if (type === 'error') result = ErrorAtom.fromJson(json, context);
@@ -89,7 +89,24 @@ export function fromJson(
   // @todo root;
   // @todo space;
 
-  if (!result) result = Atom.fromJson(json, context);
+  if (!result) {
+    console.assert(
+      [
+        'first',
+        'mbin',
+        'mrel',
+        'mclose',
+        'minner',
+        'mopen',
+        'mord',
+        'mpunct',
+        'root',
+        'space',
+      ].includes(type),
+      `MathLive: an unexpected atom type ("${type}") was encountered. Add new atom constructors to fromJson() in atom.ts`
+    );
+    result = Atom.fromJson(json, context);
+  }
 
   for (const branch of NAMED_BRANCHES)
     if (json[branch]) result.setChildren(json[branch], branch);

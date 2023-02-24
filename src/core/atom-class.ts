@@ -84,6 +84,8 @@ export type ToLatexOptions = {
   defaultMode: 'math' | 'text' | 'inline-math';
 };
 
+// IMPORTANT: when adding a new atom type, add its constructor to `toJson()`
+// atom.ts
 export type AtomType =
   | 'accent'
   | 'array' // A group, which has children arranged in rows. Used
