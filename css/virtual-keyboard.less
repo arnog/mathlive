@@ -15,7 +15,7 @@
 
 .ML__keyboard {
   --hue: 206;
-  --keyboard-background: rgba(209, 213, 217, 0.97);
+  --keyboard-background: rgba(209, 213, 217);
   --keyboard-text: #000;
   --keyboard-text-active: var(--primary, hsl(var(--hue), 40%, 50%));
   --keyboard-background-border: #ddd;
@@ -43,7 +43,7 @@
   --keyboard-alternate-key-font-size: 30px;
   --keyboard-alternate-key-aside-font-size: 12px;
 
-  --keyboard-height: @keyboard-height;
+  --keyboard-height: calc(@keyboard-height + env(safe-area-inset-bottom, 0));
   --keycap-height: @keycap-height;
   --keycap-font-size: 20px;
   --keycap-small-font-size: calc(var(--keycap-font-size) * 0.8);
@@ -217,6 +217,7 @@
     left: 0;
     bottom: calc(-1 * var(--keyboard-height, @keyboard-height));
     width: 100%;
+    min-height: var(--keyboard-height, @keyboard-height);
 
     padding-top: 5px;
 
@@ -277,11 +278,11 @@
       justify-content: space-between;
       min-width: 736px; // Desktop
       /* Tablet */
-      @media only screen and (min-width: 768px) and (max-width: 1024px) {
+      @media only screen and (min-width: 744px) and (max-width: 1025px) {
         min-width: 556px;
       }
       /* Phone */
-      @media only screen and (max-width: 767px) {
+      @media only screen and (max-width: 743px) {
         width: 365px;
         min-width: 365px;
         max-width: 100vw; // iPhone 5 is 320px
@@ -292,7 +293,7 @@
         height: 20px;
         width: 20px;
       }
-      @media only screen and (max-width: 767px) {
+      @media only screen and (max-width: 743px) {
         svg {
           height: 13px;
           width: 17px;
@@ -345,7 +346,7 @@
           padding: 0 6px 0 0;
         }
         /* Phone */
-        @media only screen and (max-width: 767px) {
+        @media only screen and (max-width: 743px) {
           padding-left: 4px;
           padding-right: 4px;
           font-size: 90%;
@@ -394,7 +395,7 @@
         font-size: 12px;
 
         /* Phone */
-        @media only screen and (max-width: 767px) {
+        @media only screen and (max-width: 743px) {
           padding: 8px 16px;
           font-size: 16px;
         }
@@ -505,7 +506,7 @@
               width: 16px;
               height: 16px;
             }
-            @media only screen and (max-width: 768px) {
+            @media only screen and (max-width: 744px) {
               height: 16px;
               width: 16px;
               min-height: 16px;
@@ -571,7 +572,7 @@
           &.action.font-glyph,
           &.modifier.font-glyph {
             font-size: 18px;
-            @media only screen and (max-width: 767px) {
+            @media only screen and (max-width: 743px) {
               font-size: 16px;
             }
           }
@@ -585,7 +586,7 @@
           // z-index: 1;
           // transition: .14s cubic-bezier(.4, 0, .2, 1);
           &.fnbutton {
-            @media only screen and (max-width: 767px) {
+            @media only screen and (max-width: 743px) {
               font-size: 12px;
             }
             // width: 60px;
@@ -593,7 +594,7 @@
           }
           &.bigfnbutton {
             font-size: var(--keycap-extra-small-font-size, 14px);
-            @media only screen and (max-width: 767px) {
+            @media only screen and (max-width: 743px) {
               font-size: calc(var(--keycap-extra-small-font-size, 14px) / 1.55);
             }
           }
@@ -622,7 +623,7 @@
           }
           small {
             color: var(--keycap-secondary-text);
-            @media only screen and (max-width: 767px) {
+            @media only screen and (max-width: 743px) {
               font-size: 9px;
             }
           }
@@ -632,7 +633,7 @@
             line-height: 10px;
             color: var(--keycap-secondary-text);
             /* On small screens, don't display */
-            @media only screen and (max-width: 767px) {
+            @media only screen and (max-width: 743px) {
               display: none;
             }
           }
@@ -661,7 +662,7 @@
         }
       }
       /* Pixel, iPhone 6,7,8+ */
-      @media only screen and (min-width: 415px) and (max-width: 768px) {
+      @media only screen and (min-width: 415px) and (max-width: 744px) {
         & > ul {
           & > li {
             width: 37px;
@@ -682,7 +683,7 @@
         }
       }
       /* Tablet size */
-      @media only screen and (min-width: 768px) and (max-width: 1024px) {
+      @media only screen and (min-width: 744px) and (max-width: 1024px) {
         & > ul {
           height: var(--keycap-height, @keycap-height);
           & > li {
@@ -869,7 +870,7 @@ div.ML__keyboard.material {
         background: var(--keyboard-alternate-background);
         color: var(--keyboard-alternate-text);
         box-shadow: @shadow3;
-        @media only screen and (max-width: 767px) {
+        @media only screen and (max-width: 743px) {
           box-shadow: @shadow3;
           font-size: 10px;
           vertical-align: top;
@@ -889,7 +890,7 @@ div.ML__keyboard.material {
       }
       &:last-child:active,
       &:last-child.is-active {
-        @media only screen and (max-width: 767px) {
+        @media only screen and (max-width: 743px) {
           margin-right: 0;
           margin-left: 14px;
         }
