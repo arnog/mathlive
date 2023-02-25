@@ -26,6 +26,8 @@ export function contentWillChange(
   const result = model.mathfield.host.dispatchEvent(
     new InputEvent('beforeinput', {
       ...options,
+      // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
+      data: options.inputType ?? '',
       cancelable: true,
       bubbles: true,
       composed: true,
@@ -46,6 +48,8 @@ export function contentDidChange(
   model.mathfield.host.dispatchEvent(
     new InputEvent('input', {
       ...options,
+      // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
+      data: options.inputType ?? '',
       bubbles: true,
       composed: true,
     })
