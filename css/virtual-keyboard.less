@@ -736,58 +736,61 @@
   }
 }
 @media (prefers-color-scheme: dark) {
-  body:not([theme='light']) .ML__keyboard {
+  .ML__keyboard {
     --hue: 206;
-    --keyboard-background: hsl(206, 19%, 38%);
-    --keyboard-background: hsl(212, 19%, 38%);
-    --keyboard-background: hsl(var(--hue), 19%, 38%);
+    --keyboard-background: #0c0c0c;
     --keyboard-text: #f0f0f0;
     --keyboard-text-active: hsl(var(--hue), 100%, 60%);
-    --keyboard-background-border: hsl(0, 0%, 20%);
-    --keycap-background: hsl(var(--hue), 25%, 39%);
+    --keyboard-background-border: hsl(0, 0%, 10%);
+    --keycap-background: #555555;
     --keycap-background-active: hsl(var(--hue), 35%, 42%);
-    --keycap-background-border: hsl(var(--hue), 25%, 35%);
-    --keycap-background-border-bottom: hsl(206, 35%, 40%);
+    --keycap-background-border: transparent;
+    --keycap-background-border-bottom: transparent;
     --keycap-text: hsl(0, 0%, 81.6%);
     --keycap-text-active: #000;
     --keycap-secondary-text: #fff;
 
-    --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
-    --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
-    --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+    --keycap-modifier-background: #303030;
+    --keycap-modifier-border: transparent;
+    --keycap-modifier-border-bottom: transparent;
 
-    --keyboard-alternate-background: hsl(var(--hue), 19%, 38%);
+    --keyboard-alternate-background: #303030;
   }
 }
 /* Same as the media query, but with a class */
 body[theme='dark'] .ML__keyboard {
   --hue: 206;
-  --keyboard-background: hsl(var(--hue), 19%, 38%);
+  --keyboard-background: #0c0c0c;
   --keyboard-text: #f0f0f0;
   --keyboard-text-active: hsl(var(--hue), 100%, 60%);
-  --keyboard-background-border: hsl(0, 0%, 20%);
-  --keycap-background: hsl(var(--hue), 25%, 39%);
+  --keyboard-background-border: hsl(0, 0%, 10%);
+  --keycap-background: #555555;
   --keycap-background-active: hsl(var(--hue), 35%, 42%);
-  --keycap-background-border: hsl(var(--hue), 25%, 35%);
-  --keycap-background-border-bottom: hsl(206, 35%, 40%);
+  --keycap-background-border: transparent;
+  --keycap-background-border-bottom: transparent;
   --keycap-text: hsl(0, 0%, 81.6%);
   --keycap-text-active: #000;
   --keycap-secondary-text: #fff;
 
-  --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
-  --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
-  --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+  --keycap-modifier-background: #303030;
+  --keycap-modifier-border: transparent;
+  --keycap-modifier-border-bottom: transparent;
 
   --keyboard-alternate-background: hsl(var(--hue), 19%, 38%);
 }
 
 /* The 'material' theme for the virtual keyboard */
 div.ML__keyboard.material {
-  --keyboard-background: rgba(209, 213, 217, 0.9);
+  --keyboard-background: #eee;
   --keyboard-background-border: #ddd;
   --keycap-background: transparent;
   --keycap-background-active: #cccfd1;
   --keycap-background-border: transparent;
+  --keycap-background-border-bottom: transparent;
+
+  --keycap-modifier-background: #cdd6ec;
+  --keycap-modifier-border: transparent;
+  --keycap-modifier-border-bottom: transparent;
 
   --keyboard-alternate-background: #efefef;
   --keyboard-alternate-text: #000;
@@ -947,13 +950,13 @@ div.ML__keyboard.material {
 }
 
 @media (prefers-color-scheme: dark) {
-  body:not([theme='light']) div.ML__keyboard.material {
+  div.ML__keyboard.material {
     --hue: 198;
     --keyboard-background: hsl(var(--hue), 19%, 18%);
     --keyboard-text: #d4d6d7;
     --keyboard-text-active: @material-primary;
     --keyboard-background-border: hsl(0, 0%, 20%);
-    --keycap-background: hsl(var(--hue), 25%, 39%);
+    --keycap-background: transparent;
     --keycap-background-active: @material-primary;
     --keycap-background-border: transparent;
     --keycap-background-border-bottom: transparent;
@@ -961,9 +964,9 @@ div.ML__keyboard.material {
     --keycap-text-active: #d4d6d7;
     --keycap-secondary-text: @material-primary;
 
-    --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
-    --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
-    --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+    --keycap-modifier-background: hsl(var(--hue), 35%, 16%);
+    --keycap-modifier-border: transparent;
+    --keycap-modifier-border-bottom: transparent;
 
     --keyboard-alternate-background: hsl(var(--hue), 8%, 2%);
     --keyboard-alternate-background-active: hsl(var(--hue), 35%, 42%);
@@ -976,7 +979,7 @@ body[theme='dark'] div.ML__keyboard.material {
   --keyboard-text: #d4d6d7;
   --keyboard-text-active: @material-primary;
   --keyboard-background-border: hsl(0, 0%, 20%);
-  --keycap-background: hsl(var(--hue), 25%, 39%);
+  --keycap-background: transparent;
   --keycap-background-active: @material-primary;
   --keycap-background-border: transparent;
   --keycap-background-border-bottom: transparent;
@@ -984,9 +987,9 @@ body[theme='dark'] div.ML__keyboard.material {
   --keycap-text-active: #d4d6d7;
   --keycap-secondary-text: @material-primary;
 
-  --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
-  --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
-  --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+  --keycap-modifier-background: hsl(var(--hue), 35%, 16%);
+  --keycap-modifier-border: transparent;
+  --keycap-modifier-border-bottom: transparent;
 
   --keyboard-alternate-background: hsl(var(--hue), 8%, 2%);
   --keyboard-alternate-background-active: hsl(var(--hue), 35%, 42%);
