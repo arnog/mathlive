@@ -124,6 +124,7 @@ declare global {
     'read-aloud-status-change': Event;
     'selection-change': Event;
     'undo-state-change': Event;
+    'before-virtual-keyboard-toggle': Event;
     'virtual-keyboard-toggle': Event;
   }
 }
@@ -554,6 +555,7 @@ export interface MathfieldElementAttributes {
  * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
  * | `undo-state-change` |  The state of the undo stack has changed |
  * | `read-aloud-status-change` | The status of a read aloud operation has changed |
+ * | `before-virtual-keyboard-toggle` | The visibility of the virtual keyboard panel is about to change.  |
  * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed. When using `makeSharedVirtualKeyboard()`, listen for this even on the object returned by `makeSharedVirtualKeyboard()` |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
@@ -570,6 +572,9 @@ export interface MathfieldElementAttributes {
 
  */
 export class MathfieldElement extends HTMLElement implements Mathfield {
+  static get formAssociated(): boolean {
+    return isElementInternalsSupported();
+  }
   /**
    * Private lifecycle hooks
    * @internal
@@ -631,6 +636,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   /** @internal */
   private _slotValue: string;
 
+  /** @internal */
+  private _internals: ElementInternals;
+
   // The content of <style> tags inside the element.
   /** @internal */
   private _style: string;
@@ -658,6 +666,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     */
   constructor(options?: Partial<MathfieldOptions>) {
     super();
+
+    if (isElementInternalsSupported()) {
+      this._internals = this.attachInternals();
+      this._internals.role = 'math';
+      this._internals.ariaLabel = 'math input field';
+      this._internals.ariaMultiLine = 'false';
+    }
 
     this.attachShadow({ mode: 'open' });
     this.shadowRoot!.append(MATHFIELD_TEMPLATE!.content.cloneNode(true));
@@ -738,6 +753,18 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     options?: boolean | EventListenerOptions
   ): void {
     super.removeEventListener(type, listener, options);
+  }
+
+  get form(): HTMLFormElement | null {
+    return this._internals?.form;
+  }
+
+  get name(): string {
+    return this.getAttribute('name') ?? '';
+  }
+
+  get type(): string {
+    return this.localName;
   }
 
   get mode(): ParseMode {
@@ -1124,15 +1151,15 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @internal
    */
   connectedCallback(): void {
-    if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
-    this.setAttribute('dir', 'ltr');
-    if (!this.hasAttribute('aria-label'))
-      this.setAttribute('aria-label', 'math input field');
+    if (!isElementInternalsSupported()) {
+      if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
+      if (!this.hasAttribute('aria-label'))
+        this.setAttribute('aria-label', 'math input field');
+      this.setAttribute('aria-multiline', 'false');
+    }
 
     // NVDA on Firefox seems to require this attribute
     this.setAttribute('contenteditable', 'true');
-
-    this.setAttribute('aria-multiline', 'false');
 
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
@@ -1713,6 +1740,13 @@ function getOptionsFromAttributes(
     } else if (attribs[x] === 'boolean') result[toCamelCase(x)] = false;
   });
   return result;
+}
+
+function isElementInternalsSupported(): boolean {
+  if (!window.ElementInternals || !HTMLElement.prototype.attachInternals)
+    return false;
+  if (!('role' in window.ElementInternals.prototype)) return false;
+  return true;
 }
 
 export default MathfieldElement;

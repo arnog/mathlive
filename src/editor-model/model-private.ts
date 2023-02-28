@@ -645,8 +645,8 @@ export class ModelPrivate implements Model {
     options: {
       content?: boolean;
       selection?: boolean;
-      data?: string;
       type?: ContentChangeType;
+      data?: string;
     },
     f: () => void
   ): boolean {
@@ -670,7 +670,7 @@ export class ModelPrivate implements Model {
 
     // Notify of content change, if requested
     if (options.content && contentChanged)
-      contentDidChange(this, { data: options.data, inputType: options.type });
+      contentDidChange(this, { inputType: options.type });
 
     // If the selection has effectively changed, notify
     if (options.selection && selectionChanged) selectionDidChange(this);

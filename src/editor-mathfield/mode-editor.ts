@@ -35,15 +35,21 @@ export class ModeEditor {
   static onPaste(
     mode: ParseMode,
     mathfield: MathfieldPrivate,
-    ev: ClipboardEvent
+    data: DataTransfer | string | null
   ): boolean {
+    if (typeof data === 'string') {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.setData('text/plain', data);
+      data = dataTransfer;
+    }
+
     const redispatchedEvent = new ClipboardEvent('paste', {
-      clipboardData: ev.clipboardData,
+      clipboardData: data,
       cancelable: true,
     });
     if (!mathfield.host?.dispatchEvent(redispatchedEvent)) return false;
 
-    return ModeEditor._registry[mode].onPaste(mathfield, ev);
+    return ModeEditor._registry[mode].onPaste(mathfield, data);
   }
 
   static onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
@@ -142,7 +148,10 @@ export class ModeEditor {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onPaste(_mathfield: MathfieldPrivate, _ev: ClipboardEvent): boolean {
+  onPaste(
+    _mathfield: MathfieldPrivate,
+    _data: DataTransfer | string | null
+  ): boolean {
     return false;
   }
 

@@ -305,10 +305,10 @@ export function onKeystroke(
 
   // This is to prevent starting a composition when the keyboard event
   // has already been handled.
-  // Example: alt+U -> \cup, but could also be diaeresis deak key (¨) which
+  // Example: alt+U -> \cup, but could also be diaeresis dead key (¨) which
   // starts a composition
   //
-  mathfield.keyboardDelegate!.cancelComposition();
+  mathfield.keyboardDelegate.cancelComposition();
 
   //
   // 5.3 Perform the selector or shortcut
@@ -398,7 +398,7 @@ export function onKeystroke(
  * keystrokes (useful to trigger inline shortcuts, for example)
  * @private
  */
-export function onTypedText(
+export function onInput(
   mathfield: MathfieldPrivate,
   text: string,
   options?: {

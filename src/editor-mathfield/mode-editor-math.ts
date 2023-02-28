@@ -39,12 +39,16 @@ export class MathModeEditor extends ModeEditor {
     super('math');
   }
 
-  onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
-    if (!ev.clipboardData) return false;
+  onPaste(
+    mathfield: MathfieldPrivate,
+    data: DataTransfer | string | null
+  ): boolean {
+    if (!data) return false;
 
     if (
       !contentWillChange(mathfield.model, {
-        dataTransfer: ev.clipboardData,
+        data: typeof data === 'string' ? data : null,
+        dataTransfer: typeof data === 'string' ? null : data,
         inputType: 'insertFromPaste',
       })
     )
@@ -56,7 +60,8 @@ export class MathModeEditor extends ModeEditor {
     //
     // 1/ Try to get serialized atoms
     //
-    let json = ev.clipboardData.getData('application/json+mathlive');
+    let json =
+      typeof data !== 'string' ? data.getData('application/json+mathlive') : '';
     if (json) {
       try {
         const atomJson = JSON.parse(json);
@@ -119,8 +124,6 @@ export class MathModeEditor extends ModeEditor {
           contentDidChange(model, { inputType: 'insertFromPaste' });
           requestUpdate(mathfield);
 
-          ev.preventDefault();
-          ev.stopPropagation();
           return true;
         }
       } catch {}
@@ -129,7 +132,7 @@ export class MathModeEditor extends ModeEditor {
     //
     // 2/ Try to get a MathJSON data type
     //
-    json = ev.clipboardData.getData('application/json');
+    json = typeof data !== 'string' ? data.getData('application/json') : '';
     if (json && mathfield.computeEngine) {
       try {
         const expr = JSON.parse(json);
@@ -147,8 +150,8 @@ export class MathModeEditor extends ModeEditor {
     // 3/ Try to get raw LaTeX
     //
 
-    if (!text) {
-      text = ev.clipboardData.getData('application/x-latex');
+    if (!text && typeof data !== 'string') {
+      text = data.getData('application/x-latex');
       if (text) format = 'latex';
     }
 
@@ -156,7 +159,8 @@ export class MathModeEditor extends ModeEditor {
     // 4/ If that didn't work, try some plain text
     // (could be LaTeX, could be MathASCII)
     //
-    if (!text) text = ev.clipboardData.getData('text/plain');
+    if (!text)
+      text = typeof data === 'string' ? data : data.getData('text/plain');
 
     if (text) {
       mathfield.snapshot();
@@ -167,8 +171,6 @@ export class MathModeEditor extends ModeEditor {
       if (this.insert(mathfield.model, text, { format }))
         requestUpdate(mathfield);
 
-      ev.preventDefault();
-      ev.stopPropagation();
       return true;
     }
 

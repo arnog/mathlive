@@ -39,12 +39,6 @@ export interface CommandsPrivate {
 
   /** Toggle the virtual keyboard, but switch another keyboard layout */
   toggleVirtualKeyboardShift: (keyboard: VirtualKeyboardInterface) => boolean;
-
-  onUndoStateChanged: (
-    keyboard: VirtualKeyboardInterface,
-    canUndoState: boolean,
-    canRedoState: boolean
-  ) => boolean;
 }
 
 export type SelectorPrivate = Selector | Keys<CommandsPrivate>;

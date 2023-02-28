@@ -96,11 +96,12 @@ export function makeSharedVirtualKeyboard(
         (x) =>
           x.isConnected &&
           x['_mathfield'] &&
-          x['_mathfield']['_virtualKeyboard']
+          x['_mathfield']['_virtualKeyboard'] &&
+          x['_mathfield']['_virtualKeyboard'] instanceof VirtualKeyboard
       )
     ) {
       console.error(
-        'ERROR: makeSharedVirtualKeyboard() must be called before any mathfield element is connected to the DOM'
+        'MathLive: makeSharedVirtualKeyboard() must be called before any mathfield element is connected to the DOM or set the `use-shared-virtual-keyboard` on each mathfield elements.'
       );
     }
     globalMathLive().sharedVirtualKeyboard = new RemoteVirtualKeyboard(options);

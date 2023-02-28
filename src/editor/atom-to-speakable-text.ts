@@ -46,8 +46,6 @@ const PRONUNCIATION: Record<string, string> = {
   '\\sum': 'Summation ',
   '\\prod': 'Product ',
 
-  'a': '<phoneme alphabet="ipa" ph="eɪ">a</phoneme>',
-  'A': 'capital <phoneme alphabet="ipa" ph="eɪ">A</phoneme>',
   '+': 'plus ',
   '-': 'minus ',
   ';': '<break time="150ms"/> semi-colon <break time="150ms"/>',
@@ -226,6 +224,8 @@ function atomToSpeakableFragment(
     let isInDigitRun = false; // Need to group sequence of digits
     let isInTextRun = false; // Need to group text
     for (let i = 0; i < atom.length; i++) {
+      if (atom[i].type === 'first') continue;
+
       if (atom[i].mode !== 'text') isInTextRun = false;
 
       if (
@@ -354,7 +354,7 @@ function atomToSpeakableFragment(
           result +=
             ' the fraction <break time="150ms"/>' +
             numer +
-            ', over <break time="150ms"/>' +
+            ' over <break time="150ms"/>' +
             denom +
             '.<break time="150ms"/> End fraction.<break time="150ms"/>';
         }

@@ -17,10 +17,13 @@ export class TextModeEditor extends ModeEditor {
     super('text');
   }
 
-  onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
-    if (!ev.clipboardData) return false;
+  onPaste(
+    mathfield: MathfieldPrivate,
+    data: DataTransfer | string | null
+  ): boolean {
+    if (!data) return false;
 
-    const text = ev.clipboardData.getData('text/plain');
+    const text = typeof data === 'string' ? data : data.getData('text/plain');
 
     if (
       text &&
@@ -35,8 +38,6 @@ export class TextModeEditor extends ModeEditor {
         requestUpdate(mathfield);
       }
 
-      ev.preventDefault();
-      ev.stopPropagation();
       return true;
     }
 

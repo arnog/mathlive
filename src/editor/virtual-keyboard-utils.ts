@@ -138,7 +138,7 @@ export function showAlternateKeys(
   //
   // Position the alternate panel
   //
-  const keycapElement = keyboard?.element!.querySelector(
+  const keycapElement = keyboard?.element?.querySelector(
     'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
       altKeysetId +
       '"]'
@@ -288,14 +288,39 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this._mathfield?.blur?.();
   }
 
+  stateWillChange(visible: boolean): boolean {
+    return (
+      !this._mathfield?.host?.dispatchEvent(
+        new CustomEvent('before-virtual-keyboard-toggle', {
+          detail: { visible },
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+        })
+      ) ?? true
+    );
+  }
+
   stateChanged(): void {
-    this._mathfield?.element?.dispatchEvent(
+    this._mathfield?.host?.dispatchEvent(
       new Event('virtual-keyboard-toggle', {
         bubbles: true,
         cancelable: false,
         composed: true,
       })
     );
+  }
+
+  updateToolbar(mf: Mathfield | undefined): void {
+    const toolbars = this._element?.querySelectorAll('.ML__toolbar-action');
+    if (toolbars) {
+      for (const toolbar of toolbars) {
+        toolbar.innerHTML = makeToolbarAction(
+          this.options,
+          mf as MathfieldPrivate
+        );
+      }
+    }
   }
 
   executeCommand(
@@ -1101,7 +1126,7 @@ const LAYERS = {
 
   'functions': `
         <div class='rows'>
-            <ul><li class='separator'></li>
+            <ul>
                 <li class='fnbutton' data-insert='\\sin'></li>
                 <li class='fnbutton' data-insert='\\sin^{-1}'></li>
                 <li class='fnbutton' data-insert='\\ln'></li>
@@ -1112,18 +1137,18 @@ const LAYERS = {
                 <li class='bigfnbutton' data-insert='\\int'></li>
                 <li class='bigfnbutton' data-insert='\\operatorname{abs}(#?)' data-latex='\\operatorname{abs}()'></li>
             </ul>
-            <ul><li class='separator'></li>
+            <ul>
                 <li class='fnbutton' data-latex='\\cos'></li>
                 <li class='fnbutton' data-latex='\\cos^{-1}'></li>
                 <li class='fnbutton' data-latex='\\log'></li>
                 <li class='fnbutton' data-latex='10^{#?}'></li>
-                <li class='bigfnbutton' data-latex='\\operatorname{gcd}(#?)' data-latex='\\operatorname{gcd}()'></li>
-                <li class='bigfnbutton' data-latex='\\operatorname{floor}(#?)' data-latex='\\operatorname{floor}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{gcd}(#?)' data-latex='\\operatorname{gcd}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{floor}(#?)' data-latex='\\operatorname{floor}()'></li>
                 <li class='bigfnbutton' data-latex='\\sum_{n\\mathop=0}^{\\infty}'></li>
                 <li class='bigfnbutton' data-latex='\\int_{0}^{\\infty}'></li>
-                <li class='bigfnbutton' data-latex='\\operatorname{sign}(#?)' data-latex='\\operatorname{sign}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{sign}(#?)' data-latex='\\operatorname{sign}()'></li>
             </ul>
-            <ul><li class='separator'></li>
+            <ul>
                 <li class='fnbutton' data-latex='\\tan'></li>
                 <li class='fnbutton' data-latex='\\tan^{-1}'></li>
                 <li class='fnbutton' data-latex='\\log_{#?}'></li>
@@ -1133,7 +1158,7 @@ const LAYERS = {
                 <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\scriptstyle \\prod_{n=0}^{\\infty}}'></li>
                 <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
                 <li class='action font-glyph bottom right' data-command='["performWithFeedback","deleteBackward"]'><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li></ul>
-            <ul><li class='separator'></li>
+            <ul>
                 <li class='fnbutton'>(</li>
                 <li class='fnbutton'>)</li>
                 <li class='fnbutton' data-insert='^{#?}' data-latex='x^{#?}'></li>
@@ -1265,46 +1290,73 @@ function makeKeyboardToolbar(
 
   result += '</div>';
 
+  result += `<div class='ML__toolbar-action right'></div>`;
+
+  return result;
+}
+
+export function makeToolbarAction(
+  options: CombinedVirtualKeyboardOptions,
+  mathfield: MathfieldPrivate | undefined
+): string {
+  let result = '';
   const toolbarOptions = options.virtualKeyboardToolbar;
-  const availableActions =
-    toolbarOptions === 'default' ? ['copyToClipboard', 'undo', 'redo'] : [];
+  if (toolbarOptions === 'none') return '';
+
+  const availableActions: string[] = [];
+
+  if (mathfield?.model.selectionIsCollapsed)
+    availableActions.push('undo', 'redo', 'pasteFromClipboard');
+  else {
+    availableActions.push(
+      'cutToClipboard',
+      'copyToClipboard',
+      'pasteFromClipboard'
+    );
+  }
 
   const actionsMarkup = {
+    undo: `<div class='action ${
+      mathfield?.canUndo() === false ? 'disabled' : ''
+    }'
+          data-command='"undo"'
+          data-tooltip='${l10n('tooltip.undo')}'>
+          <svg><use xlink:href='#svg-undo' /></svg>
+      </div>`,
+    redo: `<div class='action ${
+      mathfield?.canRedo() === false ? 'disabled' : ''
+    }'
+          data-command='"redo"'
+          data-tooltip='${l10n('tooltip.redo')}'>
+          <svg><use xlink:href='#svg-redo' /></svg>
+      </div>`,
+    cutToClipboard: `
+        <div class='action'
+            data-command='"cutToClipboard"'
+            data-tooltip='${l10n('tooltip.cut to clipboard')}'>
+            <svg><use xlink:href='#svg-cut' /></svg>
+        </div>
+    `,
     copyToClipboard: `
-            <div class='action'
-                data-command='"copyToClipboard"'
-                data-tooltip='${l10n('tooltip.copy to clipboard')}'>
-                <svg><use xlink:href='#svg-copy' /></svg>
-            </div>
-        `,
-    undo: `
-            <div class='action disabled'
-                data-command='"undo"'
-                data-tooltip='${l10n('tooltip.undo')}'>
-                <svg><use xlink:href='#svg-undo' /></svg>
-            </div>
-        `,
-    redo: `
-            <div class='action disabled'
-                data-command='"redo"'
-                data-tooltip='${l10n('tooltip.redo')}'>
-                <svg><use xlink:href='#svg-redo' /></svg>
-            </div>
-        `,
+        <div class='action'
+            data-command='"copyToClipboard"'
+            data-tooltip='${l10n('tooltip.copy to clipboard')}'>
+            <svg><use xlink:href='#svg-copy' /></svg>
+        </div>
+    `,
+    pasteFromClipboard: `
+        <div class='action'
+            data-command='"pasteFromClipboard"'
+            data-tooltip='${l10n('tooltip.paste from clipboard')}'>
+            <svg><use xlink:href='#svg-paste' /></svg>
+        </div>
+    `,
   };
 
   // The right hand side of the toolbar, with the copy/undo/redo commands
-  if (availableActions.length > 0) {
-    result += `
-            <div class='right'>
-                ${availableActions
-                  .map((action) => actionsMarkup[action])
-                  .join('')}
-            </div>
-        `;
-  }
+  result += availableActions.map((action) => actionsMarkup[action]).join('');
 
-  return "<div class='keyboard-toolbar' role='toolbar'>" + result + '</div>';
+  return result;
 }
 
 export function makeKeycap(
@@ -1659,8 +1711,9 @@ export function makeKeyboardElement(
     <symbol id="svg-tab" viewBox="0 0 448 512">
       <path d="M32 217.1c0-8.8 7.2-16 16-16h144v-93.9c0-7.1 8.6-10.7 13.6-5.7l143.5 143.1c6.3 6.3 6.3 16.4 0 22.7L205.6 410.4c-5 5-13.6 1.5-13.6-5.7v-93.9H48c-8.8 0-16-7.2-16-16v-77.7m-32 0v77.7c0 26.5 21.5 48 48 48h112v61.9c0 35.5 43 53.5 68.2 28.3l143.6-143c18.8-18.8 18.8-49.2 0-68L228.2 78.9c-25.1-25.1-68.2-7.3-68.2 28.3v61.9H48c-26.5 0-48 21.6-48 48zM436 64h-8c-6.6 0-12 5.4-12 12v360c0 6.6 5.4 12 12 12h8c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12z"/>
     </symbol>
-    <symbol id="svg-copy" viewBox="0 0 448 512">
-      <path d="M433.941 65.941l-51.882-51.882A48 48 0 0 0 348.118 0H176c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h224c26.51 0 48-21.49 48-48v-48h80c26.51 0 48-21.49 48-48V99.882a48 48 0 0 0-14.059-33.941zM352 32.491a15.88 15.88 0 0 1 7.431 4.195l51.882 51.883A15.885 15.885 0 0 1 415.508 96H352V32.491zM288 464c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V144c0-8.822 7.178-16 16-16h80v240c0 26.51 21.49 48 48 48h112v48zm128-96c0 8.822-7.178 16-16 16H176c-8.822 0-16-7.178-16-16V48c0-8.822 7.178-16 16-16h144v72c0 13.2 10.8 24 24 24h72v240z"/>
+    <symbol id="svg-paste" viewBox="0 0 512 512"><path d="M160 32c11.6 0 21.3 8.2 23.5 19.2C185 58.6 191.6 64 199.2 64H208c8.8 0 16 7.2 16 16V96H96V80c0-8.8 7.2-16 16-16h8.8c7.6 0 14.2-5.4 15.7-12.8C138.7 40.2 148.4 32 160 32zM64 64h2.7C65 69 64 74.4 64 80V96c0 17.7 14.3 32 32 32H224c17.7 0 32-14.3 32-32V80c0-5.6-1-11-2.7-16H256c17.7 0 32 14.3 32 32h32c0-35.3-28.7-64-64-64H210.6c-9-18.9-28.3-32-50.6-32s-41.6 13.1-50.6 32H64C28.7 32 0 60.7 0 96V384c0 35.3 28.7 64 64 64H192V416H64c-17.7 0-32-14.3-32-32V96c0-17.7 14.3-32 32-32zM288 480c-17.7 0-32-14.3-32-32V192c0-17.7 14.3-32 32-32h96v56c0 22.1 17.9 40 40 40h56V448c0 17.7-14.3 32-32 32H288zM416 165.3L474.7 224H424c-4.4 0-8-3.6-8-8V165.3zM448 512c35.3 0 64-28.7 64-64V235.9c0-12.7-5.1-24.9-14.1-33.9l-59.9-59.9c-9-9-21.2-14.1-33.9-14.1H288c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H448z"/></symbol>
+    <symbol id="svg-cut" viewBox="0 0 512 512"><path d="M485.6 444.2L333.6 314.9C326.9 309.2 326.1 299.1 331.8 292.4C337.5 285.6 347.6 284.8 354.4 290.5L506.4 419.8C513.1 425.5 513.9 435.6 508.2 442.4C502.5 449.1 492.4 449.9 485.6 444.2zM485.7 67.76C492.5 62.07 502.5 62.94 508.2 69.69C513.9 76.45 513.1 86.55 506.3 92.24L208.5 343.1C218.3 359.7 224 379.2 224 400C224 461.9 173.9 512 112 512C50.14 512 0 461.9 0 400C0 338.1 50.14 288 112 288C141.5 288 168.4 299.4 188.4 318.1L262.2 256L188.4 193.9C168.4 212.6 141.5 224 112 224C50.14 224 0 173.9 0 112C0 50.14 50.14 0 112 0C173.9 0 224 50.14 224 112C224 132.8 218.3 152.3 208.5 168.9L287 235.1L485.7 67.76zM32 112C32 156.2 67.82 192 112 192C156.2 192 192 156.2 192 112C192 67.82 156.2 32 112 32C67.82 32 32 67.82 32 112zM112 480C156.2 480 192 444.2 192 400C192 355.8 156.2 320 112 320C67.82 320 32 355.8 32 400C32 444.2 67.82 480 112 480z"/></symbol>
+    <symbol id="svg-copy" viewBox="0 0 512 512"><path d="M272 416C263.2 416 256 423.2 256 432V448c0 17.67-14.33 32-32 32H64c-17.67 0-32-14.33-32-32V192c0-17.67 14.33-32 32-32h112C184.8 160 192 152.8 192 144C192 135.2 184.8 128 176 128H63.99c-35.35 0-64 28.65-64 64l.0098 256C0 483.3 28.65 512 64 512h160c35.35 0 64-28.65 64-64v-16C288 423.2 280.8 416 272 416zM502.6 86.63l-77.25-77.25C419.4 3.371 411.2 0 402.7 0H288C252.7 0 224 28.65 224 64v256c0 35.35 28.65 64 64 64h160c35.35 0 64-28.65 64-64V109.3C512 100.8 508.6 92.63 502.6 86.63zM416 45.25L466.7 96H416V45.25zM480 320c0 17.67-14.33 32-32 32h-160c-17.67 0-32-14.33-32-32V64c0-17.67 14.33-32 32-32h96l.0026 64c0 17.67 14.33 32 32 32H480V320z"/>
     </symbol>
     <symbol id="svg-angle-double-right" viewBox="0 0 320 512">
       <path d="M166.9 264.5l-117.8 116c-4.7 4.7-12.3 4.7-17 0l-7.1-7.1c-4.7-4.7-4.7-12.3 0-17L127.3 256 25.1 155.6c-4.7-4.7-4.7-12.3 0-17l7.1-7.1c4.7-4.7 12.3-4.7 17 0l117.8 116c4.6 4.7 4.6 12.3-.1 17zm128-17l-117.8-116c-4.7-4.7-12.3-4.7-17 0l-7.1 7.1c-4.7 4.7-4.7 12.3 0 17L255.3 256 153.1 356.4c-4.7 4.7-4.7 12.3 0 17l7.1 7.1c4.7 4.7 12.3 4.7 17 0l117.8-116c4.6-4.7 4.6-12.3-.1-17z"/>
@@ -1946,11 +1999,12 @@ export function makeKeyboardElement(
       }
 
       markup += `<div tabindex="-1" class='keyboard-layer' data-layer='${layerName}'>`;
-      markup += makeKeyboardToolbar(
+      markup += `<div class='keyboard-toolbar' role='toolbar'>${makeKeyboardToolbar(
         keyboard.options,
         keyboardIDs,
         keyboardName
-      );
+      )}</div>`;
+
       const layerMarkup = layers[layerName];
       // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
       // be expanded
@@ -1976,6 +2030,21 @@ export function makeKeyboardElement(
   result.appendChild(plate);
 
   // Attach the element handlers
+
+  const toolbars = result.querySelectorAll<HTMLElement>('.ML__toolbar-action');
+  if (toolbars) {
+    for (const toolbar of toolbars) {
+      toolbar.addEventListener('click', (ev) => {
+        let target: HTMLElement | null = ev.target as HTMLElement;
+        let command = '';
+        while (target && !command) {
+          command = target?.getAttribute('data-command') ?? '';
+          target = target?.parentElement ?? null;
+        }
+        if (command) keyboard.executeCommand(JSON.parse(command));
+      });
+    }
+  }
   const keycaps = result.querySelectorAll<HTMLElement>(
     '.keycap, .action, .fnbutton, .bigfnbutton'
   );
@@ -2057,30 +2126,6 @@ export function unshiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
         keycap.dataset.unshiftedCommand = '';
       }
     }
-  }
-
-  return false;
-}
-
-export function onUndoStateChanged(
-  keyboard: VirtualKeyboard,
-  canUndoState: boolean,
-  canRedoState: boolean
-): boolean {
-  const toolbar = keyboard.element?.querySelector('.keyboard-toolbar');
-  if (!toolbar) return false;
-
-  const undoButton = toolbar.querySelector('[data-command=\'"undo"\']');
-  const redoButton = toolbar.querySelector('[data-command=\'"redo"\']');
-
-  if (redoButton) {
-    if (canRedoState) redoButton.classList.remove('disabled');
-    else redoButton.classList.add('disabled');
-  }
-
-  if (undoButton) {
-    if (canUndoState) undoButton.classList.remove('disabled');
-    else undoButton.classList.add('disabled');
   }
 
   return false;

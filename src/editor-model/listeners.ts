@@ -14,6 +14,7 @@ export function selectionDidChange(model: ModelPrivate): void {
     model.listeners.onSelectionDidChange(model);
     model.suppressChangeNotifications = false;
   }
+  model.mathfield.virtualKeyboard?.updateToolbar(model.mathfield);
 }
 
 export function contentWillChange(
@@ -27,7 +28,7 @@ export function contentWillChange(
     new InputEvent('beforeinput', {
       ...options,
       // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
-      data: options.inputType ?? '',
+      data: options.data ? options.data : options.inputType ?? '',
       cancelable: true,
       bubbles: true,
       composed: true,
@@ -49,7 +50,7 @@ export function contentDidChange(
     new InputEvent('input', {
       ...options,
       // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
-      data: options.inputType ?? '',
+      data: options.data ? options.data : options.inputType ?? '',
       bubbles: true,
       composed: true,
     })

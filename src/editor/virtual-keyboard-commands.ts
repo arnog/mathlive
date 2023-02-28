@@ -2,7 +2,6 @@ import { isArray } from '../common/types';
 
 import {
   unshiftKeyboardLayer,
-  onUndoStateChanged,
   showAlternateKeys,
   hideAlternateKeys,
   VirtualKeyboard,
@@ -163,7 +162,7 @@ export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
     colemak: 'qwerty',
   }[keyboard.options.virtualKeyboardLayout];
   const layer =
-    keyboard?.element!.querySelector('div.keyboard-layer.is-visible')?.id ?? '';
+    keyboard?.element?.querySelector('div.keyboard-layer.is-visible')?.id ?? '';
   if (keyboard) keyboard.disable();
 
   showVirtualKeyboard(keyboard);
@@ -188,6 +187,9 @@ export function showVirtualKeyboard(
 ): boolean {
   const container = keyboard.options.virtualKeyboardContainer;
   if (!container) return false;
+
+  // Confirm
+  if (!keyboard.stateWillChange(true)) return false;
 
   if (keyboard.element) keyboard.element.classList.add('is-visible');
   else keyboard.buildAndAttachElement(theme);
@@ -220,6 +222,9 @@ export function showVirtualKeyboard(
 export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
   const container = keyboard.options.virtualKeyboardContainer;
   if (!container) return false;
+
+  // Confirm
+  if (!keyboard.stateWillChange(false)) return false;
 
   if (keyboard.element) {
     globalMathLive().visibleVirtualKeyboard = undefined;
@@ -263,11 +268,6 @@ registerCommand(
       hideVirtualKeyboard(keyboard),
     showVirtualKeyboard: (keyboard: VirtualKeyboard, theme): boolean =>
       showVirtualKeyboard(keyboard, theme),
-    onUndoStateChanged: (
-      keyboard: VirtualKeyboard,
-      canUndoState,
-      canRedoState
-    ) => onUndoStateChanged(keyboard, canUndoState, canRedoState),
   },
   { target: 'virtual-keyboard' }
 );

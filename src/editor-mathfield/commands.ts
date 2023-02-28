@@ -2,9 +2,10 @@ import { ParseMode } from '../public/core';
 import { register as registerCommand } from '../editor/commands';
 import { complete } from './autocomplete';
 import type { MathfieldPrivate } from './mathfield-private';
-import { onTypedText } from './keyboard-input';
+import { onInput } from './keyboard-input';
 import { toggleKeystrokeCaption } from './keystroke-caption';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
+import { requestUpdate } from './render';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
@@ -48,7 +49,7 @@ registerCommand({
   insert: (mathfield: MathfieldPrivate, s: string, options) =>
     mathfield.insert(s, options),
   typedText: (mathfield: MathfieldPrivate, text: string, options) => {
-    onTypedText(mathfield, text, options);
+    onInput(mathfield, text, options);
     return true;
   },
   insertDecimalSeparator: (mathfield: MathfieldPrivate) => {
@@ -88,19 +89,57 @@ registerCommand(
       // copying it.
       if (mathfield.model.selectionIsCollapsed) mathfield.select();
 
-      document.execCommand('copy');
+      if (document.queryCommandSupported('copy')) document.execCommand('copy');
+      else {
+        mathfield.element!.querySelector('.ML__keyboard-sink')!.dispatchEvent(
+          new ClipboardEvent('copy', {
+            bubbles: true,
+            composed: true,
+          })
+        );
+      }
       return false;
     },
 
     cutToClipboard: (mathfield: MathfieldPrivate) => {
       mathfield.focus();
-      document.execCommand('cut');
+
+      if (document.queryCommandSupported('cut')) document.execCommand('cut');
+      else {
+        mathfield.element!.querySelector('.ML__keyboard-sink')!.dispatchEvent(
+          new ClipboardEvent('cut', {
+            bubbles: true,
+            composed: true,
+          })
+        );
+      }
       return true;
     },
 
     pasteFromClipboard: (mathfield: MathfieldPrivate) => {
       mathfield.focus();
-      document.execCommand('paste');
+      if (document.queryCommandSupported('paste'))
+        document.execCommand('paste');
+      else {
+        navigator.clipboard.readText().then((text) => {
+          if (
+            text &&
+            contentWillChange(mathfield.model, {
+              inputType: 'insertFromPaste',
+              data: text,
+            })
+          ) {
+            mathfield.snapshot();
+            if (mathfield.insert(text)) {
+              contentDidChange(mathfield.model, {
+                inputType: 'insertFromPaste',
+              });
+              requestUpdate(mathfield);
+            }
+          } else mathfield.model.announce('plonk');
+        });
+      }
+
       return true;
     },
   },

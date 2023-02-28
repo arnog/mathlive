@@ -143,29 +143,31 @@
   }
 }
 
-/* Style for the invisible textarea element which is used
-to capture keyboard events. We're just trying really hard
-to make sure it doesn't show. */
-.ML__textarea__textarea {
+/* The invisible element used to capture keyboard events. We're just trying
+ really hard to make sure it doesn't show. */
+.ML__keyboard-sink {
   display: inline-block;
 
-  transform: scale(0);
   resize: none;
-
   outline: none;
   border: none;
 
-  /* Need these for Microsoft Edge */
-  position: absolute;
-  clip: rect(0 0 0 0);
-  width: 1px;
-  height: 1px;
-  /*-ms-transform: scale(0);*/
+  // border-radius: 16px;
+  // min-width: 16px;
+  // height: 16px;
+  // background-color: #29c;
 
+  /* Need these for Microsoft Edge */
+  position: fixed;
+  clip: rect(0 0 0 0);
   /* Need this to prevent iOS Safari from auto-zooming */
   font-size: 1em;
   font-family: KaTeX_Main;
 }
+
+// .ML__keyboardSink:focus {
+//   background: #ce2029;
+// }
 
 .ML__focused .ML__text {
   background: var(--highlight-text, var(--ML__text-highlight-background-color));

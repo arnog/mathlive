@@ -149,11 +149,6 @@ function speak(
         ? 'ssml_step'
         : 'ssml';
   }
-  // Chrome and Safari support ssml, but FireFox doesn't
-  if (!options.textToSpeechMarkup) {
-    if (!/firefox/i.test(navigator.userAgent))
-      options.textToSpeechMarkup = 'ssml';
-  }
 
   const text = atomToSpeakableText(atoms, options);
   if (isBrowser() && speakOptions.withHighlighting) {
