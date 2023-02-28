@@ -441,7 +441,7 @@ export function deleteRange(
     // (for example for surd/\sqrt)
     if (firstSelected === firstChild && lastSelected === lastChild) {
       const parent = result[0].parent!;
-      if (parent.type !== 'root') {
+      if (parent.type !== 'root' && parent.type !== 'prompt') {
         range = [
           model.offsetOf(parent.leftSibling),
           model.offsetOf(parent.rightSibling),

@@ -23,6 +23,7 @@ function relationName(atom: Atom): string {
       surd: 'square root',
       root: 'math field',
       mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
+      first: 'first',
     }[atom.type];
   } else if (atom.parent!.type === 'genfrac') {
     if (atom.treeBranch === 'above') return 'numerator';
