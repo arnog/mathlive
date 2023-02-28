@@ -157,7 +157,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   fieldContent: HTMLElement;
   private virtualKeyboardToggle: HTMLElement;
   readonly ariaLiveText: HTMLElement;
-  readonly accessibleMathML: HTMLElement;
+  // readonly accessibleMathML: HTMLElement;
 
   atomBoundsCache?: Map<string, Rect>;
 
@@ -261,9 +261,14 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     );
 
     // Additional elements used for UI.
+    const markup: string[] = [];
+
+    // const accessibleNodeID =
+    //   Date.now().toString(36).slice(-2) +
+    //   Math.floor(Math.random() * 0x186a0).toString(36);
+    // Add "aria-labelledby="${accessibleNodeID}"" to the keyboard sink
 
     // 1/ The keyboard event capture element.
-    const markup: string[] = [];
     markup.push(
       `<span contenteditable=true aria-multiline=false class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=${
         element.tabIndex ?? 0
@@ -295,7 +300,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     markup.push(
       '<span role=status aria-live=assertive aria-atomic=true></span>'
     );
-    markup.push('<span class=accessibleMathML></span>');
+
+    // markup.push(
+    //   `<span class=accessibleMathML id="${accessibleNodeID}"></span>`
+    // );
     markup.push('</div>');
 
     this.element.innerHTML = this.options.createHTML(markup.join(''));
@@ -349,7 +357,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     );
 
     this.ariaLiveText = this.element.querySelector('[role=status]')!;
-    this.accessibleMathML = this.element.querySelector('.accessibleMathML')!;
+    // this.accessibleMathML = this.element.querySelector('.accessibleMathML')!;
 
     // The keystroke caption panel and the popover are initially hidden
     this.keystrokeCaptionVisible = false;
@@ -825,7 +833,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     window.removeEventListener('resize', this);
     window.removeEventListener('blur', this, { capture: true });
 
-    delete (this as any).accessibleMathML;
+    // delete (this as any).accessibleMathML;
     delete (this as any).ariaLiveText;
     delete (this as any).field;
     delete (this as any).fieldContent;

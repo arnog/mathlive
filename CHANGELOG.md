@@ -2,6 +2,8 @@
 
 ### Improvements
 
+- **#1854** Attempt to solve multiple reading of field content by screen readers
+  on focus
 - **#1855** Updated support for more recent versions of SRE (Speech Rule Engine)
 - Improved interaction with some screen readers
 

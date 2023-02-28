@@ -173,11 +173,12 @@ export function render(
   field.innerHTML = mathfield.options.createHTML(box.toMarkup());
   mathfield.fieldContent = field.querySelector('.ML__mathlive')!;
 
-  mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
-    '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-      toMathML(model.root, mathfield.options) +
-      '</math>'
-  );
+  // NVA tries (and fails) to read MathML, so skip it for now
+  // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
+  //   '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
+  //     toMathML(model.root, mathfield.options) +
+  //     '</math>'
+  // );
 
   //
   // 4. Render the selection/caret
