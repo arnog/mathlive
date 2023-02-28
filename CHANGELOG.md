@@ -6,6 +6,8 @@
   on focus
 - **#1855** Updated support for more recent versions of SRE (Speech Rule Engine)
 - Improved interaction with some screen readers
+- **#1845** Smarter smart-fence: fewer fence combinations are now valid,
+  resulting in more correct results
 
 ### Bug Fixes
 

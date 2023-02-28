@@ -364,7 +364,7 @@ export class MathModeEditor extends ModeEditor {
     // Insert the new atoms
     //
     const { parent } = model.at(model.position);
-    // Are we inserting a fraction inside a lefright?
+    // Are we inserting a fraction inside a leftright?
     if (
       format !== 'latex' &&
       model.options.removeExtraneousParentheses &&
@@ -655,6 +655,19 @@ function isImplicitArg(atom: Atom): boolean {
   return false;
 }
 
+function isValidClose(open: string | undefined, close: string): boolean {
+  if (!open) return true;
+
+  if (
+    ['(', '{', '[', '\\lbrace', '\\lparen', '\\{', '\\lbrack'].includes(open)
+  ) {
+    return [')', '}', ']', '\\rbrace', '\\rparen', '\\}', '\\rbrack'].includes(
+      close
+    );
+  }
+  return RIGHT_DELIM[open] === close;
+}
+
 /**
  * Insert a smart fence '(', '{', '[', etc...
  * If not handled (because `fence` wasn't a fence), return false.
@@ -729,17 +742,50 @@ export function insertSmartFence(
   //
   // 3. Is it a close fence?
   //
-  let lDelim = '';
-  Object.keys(RIGHT_DELIM).forEach((delim) => {
-    if (fence === RIGHT_DELIM[delim]) lDelim = delim;
-  });
-  if (lDelim) {
-    // We found a matching open fence, so it was a valid close fence.
-    // Note that `lDelim` may not match `fence`. That's OK.
+  let targetLeftDelim = '';
 
-    // If we're the last atom inside a 'leftright',
-    // update the parent
-    if (parent instanceof LeftRightAtom && atom.isLastSibling) {
+  for (const delim of Object.keys(RIGHT_DELIM))
+    if (fence === RIGHT_DELIM[delim]) targetLeftDelim = delim;
+
+  if (targetLeftDelim) {
+    // We found a target open fence matching this delim.
+    // Note that `targetLeftDelim` may not match `fence`. That's OK.
+
+    // Check if there's a stand-alone sibling atom matching...
+    let sibling = atom;
+    while (sibling) {
+      // There is a left sibling that matches: make a leftright
+      if (sibling.type === 'mopen' && sibling.value === targetLeftDelim) {
+        const insertAfter = sibling.leftSibling!;
+        const body = model.extractAtoms([
+          model.offsetOf(sibling.leftSibling),
+          model.offsetOf(atom),
+        ]);
+        body.shift();
+        const result = new LeftRightAtom(
+          'left...right',
+          body,
+          parent!.context,
+          {
+            leftDelim: targetLeftDelim,
+            rightDelim: fence,
+          }
+        );
+
+        parent!.addChildrenAfter([result], insertAfter);
+        model.position = model.offsetOf(result);
+        contentDidChange(model, { data: fence, inputType: 'insertText' });
+        return true;
+      }
+      sibling = sibling.leftSibling;
+    }
+
+    // If we're the last atom inside a 'leftright', update the parent
+    if (
+      parent instanceof LeftRightAtom &&
+      atom.isLastSibling &&
+      isValidClose(parent.leftDelim, fence)
+    ) {
       parent.isDirty = true;
       parent.rightDelim = fence;
       model.position += 1;
@@ -754,7 +800,12 @@ export function insertSmartFence(
     let i: number;
     for (i = model.position; i >= firstSibling; i--) {
       const atom = model.at(i);
-      if (atom instanceof LeftRightAtom && atom.rightDelim === '?') break;
+      if (
+        atom instanceof LeftRightAtom &&
+        atom.rightDelim === '?' &&
+        isValidClose(atom.leftDelim, fence)
+      )
+        break;
     }
 
     const match = model.at(i);
@@ -772,7 +823,11 @@ export function insertSmartFence(
     // If we're inside a `leftright`, but not the last atom,
     // and the `leftright` right delim is indeterminate
     // adjust the body (put everything after the insertion point outside)
-    if (parent instanceof LeftRightAtom && parent.rightDelim === '?') {
+    if (
+      parent instanceof LeftRightAtom &&
+      parent.rightDelim === '?' &&
+      isValidClose(parent.leftDelim, fence)
+    ) {
       parent.isDirty = true;
       parent.rightDelim = fence;
 
