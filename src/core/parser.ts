@@ -25,7 +25,7 @@ import { ErrorAtom } from '../core-atoms/error';
 import { MacroAtom } from '../core-atoms/macro';
 import { TextAtom } from '../core-atoms/text';
 
-import { Atom, BBoxParameter } from './atom-class';
+import { Atom, BBoxParameter, serializeAtoms } from './atom-class';
 import { GlobalContext } from './context';
 import type { MathstyleName } from './mathstyle';
 import { Mode } from './modes-utils';
@@ -1381,12 +1381,26 @@ export class Parser {
   parseCommand(command: string): Atom[] | null {
     if (command === '\\placeholder') {
       const id = this.parseOptionalArgument('string') as string;
-      // default value is legacy, written to body instead
+      // default value is legacy, ignored if there is a body
+      // We need to check if second argument is `true`, `false` or to ber interpreted as math
       const defaultValue = this.parseOptionalArgument('math') as Atom[];
+      const defaultAsString = serializeAtoms(defaultValue, {
+        defaultMode: 'math',
+      });
+      let defaultAtoms;
+
+      let correctness = this.parseOptionalArgument('string') as string;
       const body = this.parseArgument('auto') ?? undefined;
+
+      if (!correctness && defaultAsString === 'correct')
+        correctness = 'correct';
+      else if (!correctness && defaultAsString === 'incorrect')
+        correctness = 'incorrect';
+      else defaultAtoms = defaultValue;
+
       if (id) {
         return [
-          new PromptAtom(this.context, id, defaultValue ?? body, {
+          new PromptAtom(this.context, id, correctness, body ?? defaultAtoms, {
             mode: this.parseMode,
             style: this.style,
           }),

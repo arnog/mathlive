@@ -8,6 +8,7 @@ import { LETTER_AND_DIGITS } from '../core-definitions/definitions';
 import type { Offset, Selection } from '../public/mathfield';
 import { getCommandSuggestionRange } from '../editor-mathfield/mode-editor-latex';
 import { PlaceholderAtom } from 'core-atoms/placeholder';
+import { PromptAtom } from 'core-atoms/prompt';
 
 /*
  * Calculates the offset of the "next word".
@@ -315,7 +316,6 @@ export function move(
 
   const handleDeadEnd = () => {
     // We're going out of bounds
-    console.log('handle dead end');
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result =
@@ -349,9 +349,8 @@ export function move(
             .flat();
 
           const nextPrompts: Atom[] = nextAtoms.filter(
-            (p) => p.type === 'prompt'
+            (p: PromptAtom) => p.type === 'prompt' && !p.correctness
           );
-          console.log(nextPrompts);
           const nextPrompt = nextPrompts[0];
           if (!nextPrompt) return handleDeadEnd();
           pos = model.offsetOf(nextPrompt) - 1;
@@ -388,7 +387,7 @@ export function move(
             .flat();
 
           const previousPrompts: Atom[] = previousAtoms.filter(
-            (p) => p.type === 'prompt'
+            (p: PromptAtom) => p.type === 'prompt' && !p.correctness
           );
           const previousPrompt = previousPrompts[previousPrompts.length - 1];
           if (!previousPrompt) return handleDeadEnd();
@@ -454,10 +453,10 @@ function moveToClosestAtomVertically(
   extend: boolean,
   direction: 'up' | 'down'
 ) {
-  console.log('up');
   // If prompting mode, filter toAtoms for ID's placeholders
   const editableAtoms = toAtoms.filter(
-    (a) => !model.mathfield.prompting || a.type === 'prompt'
+    (a: PromptAtom) =>
+      !model.mathfield.prompting || (a.type === 'prompt' && !a.correctness)
   );
 
   // calculate best atom to put cursor at based on real x coordinate
@@ -544,7 +543,9 @@ function moveUpward(
     const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
 
     // Check if the cell has any editable regions
-    const cellHasPrompt = aboveCell.some((a) => a.type === 'prompt');
+    const cellHasPrompt = aboveCell.some(
+      (a: PromptAtom) => a.type === 'prompt' && !a.correctness
+    );
     if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, aboveCell, extend, 'up');
@@ -555,7 +556,7 @@ function moveUpward(
 
     // Check if the branch has any editable regions
     const branchHasPrompt = branch.some(
-      (a) => a instanceof PlaceholderAtom && !!a.placeholderId
+      (a: PromptAtom) => a.type === 'prompt' && a.placeholderId
     );
     if (!branchHasPrompt && model.mathfield.prompting) return handleDeadEnd();
 
@@ -576,7 +577,6 @@ function moveDownward(
   if (!extend) model.collapseSelection('forward');
   // Callback when there is nowhere to move
   const handleDeadEnd = () => {
-    console.log('handle dead end');
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result =
@@ -617,7 +617,9 @@ function moveDownward(
     const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
 
     // Check if the cell has any editable regions
-    const cellHasPrompt = belowCell.some((a) => a.type === 'prompt');
+    const cellHasPrompt = belowCell.some(
+      (a: PromptAtom) => a.type === 'prompt' && !a.correctness
+    );
     if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, belowCell, extend, 'down');
@@ -627,7 +629,7 @@ function moveDownward(
       atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
     // Check if the branch has any editable regions
     const branchHasPrompt = branch.some(
-      (a) => a instanceof PlaceholderAtom && !!a.placeholderId
+      (a: PromptAtom) => a.type === 'prompt' && a.placeholderId
     );
     if (!branchHasPrompt && model.mathfield.prompting) return handleDeadEnd();
     moveToClosestAtomVertically(model, baseAtom, branch, extend, 'down');

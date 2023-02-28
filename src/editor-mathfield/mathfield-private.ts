@@ -23,7 +23,6 @@ import type {
   ApplyStyleOptions,
   VirtualKeyboardInterface,
 } from '../public/mathfield';
-import MathfieldElement from '../public/mathfield-element';
 
 import { canVibrate, isBrowser, isTouchCapable } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
@@ -119,6 +118,7 @@ import {
 } from '../core/context-utils';
 import { globalMathLive } from '../mathlive';
 import { resolveUrl } from '../common/script-url';
+import { PromptAtom } from 'core-atoms/prompt';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -137,12 +137,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
-
-  // Placeholders for 'fill-in-the-blank'
-  readonly placeholders: Map<
-    string,
-    { atom: PlaceholderAtom; field: MathfieldElement }
-  >;
 
   private _computeEngine: ComputeEngine;
 
@@ -239,8 +233,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (this.options.computeEngine !== undefined)
       this._computeEngine = options.computeEngine;
     if (options.eventSink) this.host = options.eventSink;
-
-    this.placeholders = new Map();
 
     this.element = element;
     element.mathfield = this;
@@ -591,7 +583,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   get prompting(): boolean {
     return (
       this.readOnly &&
-      this.model.getAllAtoms(0).some((a) => a.type === 'prompt')
+      this.model
+        .getAllAtoms(0)
+        .some((a: PromptAtom) => a.type === 'prompt' && !a.correctness)
     );
   }
 
@@ -1307,8 +1301,60 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return true;
   }
 
-  getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
-    return this.placeholders.get(placeholderId)?.field;
+  getPrompt(placeholderId: string): string {
+    const prompts = this.model
+      .getAllAtoms(0)
+      .filter((a) => a.type === 'prompt') as PromptAtom[];
+    const promptsWithID = prompts.filter(
+      (a) => a.placeholderId === placeholderId
+    );
+    console.assert(
+      promptsWithID.length > 0,
+      'no prompts with matching ID found'
+    );
+    console.assert(promptsWithID.length < 2, 'duplicate prompt IDs found');
+    return promptsWithID[0].bodyToLatex({ defaultMode: 'math' });
+  }
+
+  getAllPrompts(): string[] {
+    return this.model
+      .getAllAtoms(0)
+      .filter((a) => a.type === 'prompt')
+      .map((a) => a.bodyToLatex({ defaultMode: 'math' }));
+  }
+
+  setPromptContent(id: string, content?: string) {
+    const prompts: PromptAtom[] = this.model
+      .getAllAtoms(0)
+      .filter((a) => a.type === 'prompt') as PromptAtom[];
+    const promptsWithID = prompts.filter((a) => a.placeholderId === id);
+    console.assert(
+      promptsWithID.length > 0,
+      'no prompts with matching ID found: ',
+      id
+    );
+    console.assert(promptsWithID.length < 2, 'duplicate prompt IDs found');
+    if (content !== undefined)
+      promptsWithID[0].body = parseLatex(content, this);
+    requestUpdate(this);
+  }
+
+  setPromptCorrectness(
+    id: string,
+    correctness: 'correct' | 'incorrect' | undefined
+  ) {
+    const prompts: PromptAtom[] = this.model
+      .getAllAtoms(0)
+      .filter((a) => a.type === 'prompt') as PromptAtom[];
+    const promptsWithID = prompts.filter((a) => a.placeholderId === id);
+    console.assert(
+      promptsWithID.length > 0,
+      'no prompts with matching ID found: ',
+      id
+    );
+    console.assert(promptsWithID.length < 2, 'duplicate prompt IDs found');
+    promptsWithID[0].correctness = correctness;
+    requestUpdate(this);
   }
 
   canUndo(): boolean {
@@ -1402,11 +1448,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     const selectedAtoms = this.model.getAtoms(this.model.selection);
     if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
       const placeholder = selectedAtoms[0] as PlaceholderAtom;
-      if (this.model.mathfield.placeholders.has(placeholder.placeholderId!)) {
-        this.model.mathfield.placeholders
-          .get(placeholder.placeholderId!)
-          ?.field.focus();
-      }
     }
     // Adjust mode
     {

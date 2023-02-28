@@ -1,6 +1,7 @@
 import { Selector } from './commands';
 import { CombinedVirtualKeyboardOptions, MathfieldOptions } from './options';
 import { ParseMode, Style } from './core';
+import { PromptAtom } from 'core-atoms/prompt';
 
 /**
  *
@@ -302,7 +303,9 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * Return a nested mathfield element that match the provided `placeholderId`
    * @param placeholderId
    */
-  getPlaceholderField(placeholderId: string): Mathfield | undefined;
+  getPrompt(placeholderId: string): string;
+
+  getAllPrompts(): string[];
 
   virtualKeyboardState: 'visible' | 'hidden';
 }

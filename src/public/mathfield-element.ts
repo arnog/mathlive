@@ -20,6 +20,7 @@ import {
 } from './mathfield';
 import { MathfieldOptions } from './options';
 import { getAtomBounds } from '../editor-mathfield/utils';
+import { PromptAtom } from 'core-atoms/prompt';
 
 export declare type Expression =
   | number
@@ -722,8 +723,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     );
   }
 
-  getPlaceholderField(placeholderId: string): Mathfield | undefined {
-    return this._mathfield?.getPlaceholderField(placeholderId);
+  getPrompt(placeholderId: string): string {
+    return this._mathfield?.getPrompt(placeholderId)!;
+  }
+
+  getAllPrompts(): string[] {
+    return this._mathfield?.getAllPrompts()!;
   }
 
   addEventListener<K extends keyof HTMLElementEventMap>(
@@ -805,14 +810,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield?.errors ?? [];
   }
 
-  get placeholders(): { [id: string]: MathfieldElement } {
-    if (!this._mathfield) return {};
-    const result = {};
-    for (const [key, value] of this._mathfield.placeholders)
-      result[key] = value.field;
-    return result;
-  }
-
   /**
    *  @category Options
    */
@@ -845,12 +842,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   setOptions(options: Partial<MathfieldOptions>): void {
     if (this._mathfield) {
       this._mathfield.setOptions(options);
-      this._mathfield.placeholders.forEach((placeholder) => {
-        placeholder.field.setOptions({
-          ...options,
-          readOnly: false,
-        });
-      });
     } else if (gDeferredState.has(this)) {
       const mergedOptions = {
         ...gDeferredState.get(this)!.options,
@@ -1467,6 +1458,12 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   set promptMode(value: boolean) {
     this.setOptions({ promptMode: value });
+  }
+  setPromptCorrectness(id, correctness: 'correct' | 'incorrect' | undefined) {
+    this._mathfield?.setPromptCorrectness(id, correctness);
+  }
+  setPromptContent(id, content: string) {
+    this._mathfield?.setPromptContent(id, content);
   }
   get smartSuperscript(): boolean {
     return this.getOption('smartSuperscript');
