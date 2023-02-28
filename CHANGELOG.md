@@ -1,9 +1,16 @@
+## [Unreleased]
+
+### Improvements
+
+- **#1855** Updated support for more recent versions of SRE (Speech Rule Engine)
+- Improved interaction with some screen readers
+
 ## 0.89.4 (2023-02-27)
 
 ### Bug Fix
 
-- Fix an issue where the virtual keyboard would not activate when not using a shared virtual keyboard.
-
+- Fix an issue where the virtual keyboard would not activate when not using a
+  shared virtual keyboard.
 
 ## 0.89.3 (2023-02-27)
 

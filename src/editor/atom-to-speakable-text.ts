@@ -682,7 +682,10 @@ export function atomToSpeakableText(
     textToSpeechRulesOptions: { ...speechOptions.textToSpeechRulesOptions },
   };
 
-  if (options.textToSpeechRules === 'sre' && 'sre' in globalThis) {
+  if (
+    options.textToSpeechRules === 'sre' &&
+    ('sre' in globalThis || 'SRE' in globalThis)
+  ) {
     const mathML = toMathML(atoms, options);
     if (mathML) {
       if (options.textToSpeechMarkup) {
@@ -695,13 +698,19 @@ export function atomToSpeakableText(
         options.textToSpeechRulesOptions.rate = options.speechEngineRate;
       }
 
-      if (options.textToSpeechRulesOptions) {
-        globalThis.sre.System.getInstance().setupEngine(
-          options.textToSpeechRulesOptions
-        );
+      const SRE = globalThis.SRE ?? globalThis.sre.System.getInstance();
+
+      if (options.textToSpeechRulesOptions)
+        SRE.setupEngine(options.textToSpeechRulesOptions);
+
+      let result = '';
+      try {
+        result = SRE.toSpeech(mathML);
+      } catch (e) {
+        console.error('MathLive: SRE.toSpeech() runtime error ', e);
       }
 
-      return globalThis.sre.System.getInstance().toSpeech(mathML);
+      return result;
     }
 
     return '';

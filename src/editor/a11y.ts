@@ -83,7 +83,7 @@ export function defaultAnnounceHook(
     // );
 
     liveText = speakableText(mathfield.options, '', mathfield.model.root);
-    mathfield.keyboardDelegate.setAriaLabel('after: ' + liveText);
+    mathfield.keyboardDelegate.setAriaLabel(liveText);
 
     /** * FIX -- testing hack for setting braille ***/
     // mathfield.accessibleNode.focus();
