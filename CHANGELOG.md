@@ -7,6 +7,11 @@
 - **#1855** Updated support for more recent versions of SRE (Speech Rule Engine)
 - Improved interaction with some screen readers
 
+### Bug Fixes
+
+- **#1850** When multiple `\char` commands were in an expression, they were
+  serialized incorrectly (they would all have the same argument)
+
 ## 0.89.4 (2023-02-27)
 
 ### Bug Fix

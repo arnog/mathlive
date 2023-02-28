@@ -1410,7 +1410,9 @@ export class Parser {
           command: '\\char',
           mode: this.parseMode,
           value: String.fromCodePoint(codepoint),
-          serialize: () => verbatimLatex,
+          serialize: (atom) =>
+            atom.verbatimLatex ??
+            `\\char"${atom.value!.codePointAt(0)!.toString(16).toUpperCase()}`,
         }
       );
       result.verbatimLatex = verbatimLatex;
