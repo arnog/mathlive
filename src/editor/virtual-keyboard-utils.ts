@@ -289,16 +289,15 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   stateWillChange(visible: boolean): boolean {
-    return (
-      !this._mathfield?.host?.dispatchEvent(
-        new CustomEvent('before-virtual-keyboard-toggle', {
-          detail: { visible },
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-        })
-      ) ?? true
+    const defaultNotPrevented = this._mathfield?.host?.dispatchEvent(
+      new CustomEvent('before-virtual-keyboard-toggle', {
+        detail: { visible },
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      })
     );
+    return defaultNotPrevented ?? true;
   }
 
   stateChanged(): void {

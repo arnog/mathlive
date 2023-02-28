@@ -292,12 +292,12 @@ export class RemoteVirtualKeyboard
       event.type !== 'before-virtual-keyboard-toggle'
     )
       throw new TypeError('Unexpected event type');
-    if (this.listeners[event.type].size === 0) return false;
+    if (this.listeners[event.type].size === 0) return true;
     this.listeners[event.type].forEach((x) => {
       if (typeof x === 'function') x(event);
       else x?.handleEvent(event);
     });
-    return event.defaultPrevented;
+    return !event.defaultPrevented;
   }
   removeEventListener(
     type: string,
@@ -354,7 +354,7 @@ export class RemoteVirtualKeyboard
   }
 
   stateWillChange(visible: boolean): boolean {
-    const defaultPrevented = this.dispatchEvent(
+    const defaultNotPrevented = this.dispatchEvent(
       new CustomEvent('before-virtual-keyboard-toggle', {
         detail: { visible },
         bubbles: true,
@@ -362,7 +362,7 @@ export class RemoteVirtualKeyboard
         composed: true,
       })
     );
-    return !defaultPrevented;
+    return defaultNotPrevented;
   }
 
   stateChanged(): void {

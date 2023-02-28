@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fix
+
+- Fix an issue where the virtual keyboard would not activate when not using a shared virtual keyboard.
+
+
 ## 0.89.3 (2023-02-27)
 
 ### Bug Fixes
