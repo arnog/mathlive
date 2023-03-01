@@ -8,10 +8,12 @@ import { convertDimensionToEm } from '../core/registers-utils';
 export class PromptAtom extends Atom {
   readonly placeholderId?: string;
   correctness: string | undefined;
+  locked: boolean;
   constructor(
     context: GlobalContext,
     placeholderId?: string,
     correctness?: string | undefined,
+    locked: boolean = false,
     body?: Atom[],
     options?: {
       mode?: ParseMode;
@@ -27,22 +29,16 @@ export class PromptAtom extends Atom {
     this.body = body;
     this.correctness = correctness;
     this.placeholderId = placeholderId;
-    this.captureSelection = !this.context.readOnly || !!this.correctness;
+    this.locked = locked;
+    this.captureSelection = this.locked;
   }
-
-  // set correctness(correctness: string | undefined) {
-  //   this.correctness = correctness;
-  // }
-
-  // get correctness() {
-  //   return this.correctness;
-  // }
 
   static fromJson(json: AtomJson, context: GlobalContext): PromptAtom {
     return new PromptAtom(
       context,
       json.placeholderId,
       json.correctness,
+      json.locked,
       json.body,
       json as any
     );
@@ -57,6 +53,7 @@ export class PromptAtom extends Atom {
         .filter((x) => x.type !== 'first')
         .map((x) => x.toJson());
     if (this.correctness) result.correctness = this.correctness;
+    result.locked = this.locked;
     return result;
   }
 
@@ -97,17 +94,21 @@ export class PromptAtom extends Atom {
     // The 'ML__box' class is required to prevent the box from being omitted
     // during rendering (it looks like an empty, no-op box)
     let boxClasses = 'ML__prompt ';
-    if (!this.context.readOnly) {
-      // Note in readOnly mode, just a grey background
-      boxClasses += 'ML__promptBox';
-    } else if (this.correctness === 'correct') {
-      boxClasses += 'ML__correctPromptBox';
-    } else if (this.correctness === 'incorrect') {
-      boxClasses += 'ML__incorrectPromptBox';
+    if (this.locked) {
+      // The prompt is not editable
+      boxClasses += ' ML__lockedPromptBox ';
     } else {
-      boxClasses += this.containsCaret
-        ? 'ML__focusedPromptBox'
-        : 'ML__editablePromptBox';
+      boxClasses += ' ML__editablePromptBox ';
+    }
+
+    if (this.correctness === 'correct') {
+      boxClasses += ' ML__correctPromptBox ';
+    } else if (this.correctness === 'incorrect') {
+      boxClasses += ' ML__incorrectPromptBox ';
+    }
+
+    if (this.containsCaret) {
+      boxClasses += ' ML__focusedPromptBox ';
     }
     const box = new Box(null, {
       classes: boxClasses,
@@ -178,6 +179,7 @@ export class PromptAtom extends Atom {
     } else {
       correctness = '';
     }
-    return `\\placeholder${id}${correctness}{${value}}`;
+    const locked = this.locked ? '[locked]' : '';
+    return `\\placeholder${id}${correctness}${locked}{${value}}`;
   }
 }

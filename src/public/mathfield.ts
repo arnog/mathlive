@@ -305,9 +305,9 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * Return a nested mathfield element that match the provided `placeholderId`
    * @param placeholderId
    */
-  getPrompt(placeholderId: string): string;
+  getPromptContent(placeholderId: string): string;
 
-  getAllPrompts(): string[];
+  get prompts(): string[];
 
   virtualKeyboardState: 'visible' | 'hidden';
 }

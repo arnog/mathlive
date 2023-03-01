@@ -116,15 +116,15 @@ export class ModelPrivate implements Model {
         const pos = value.ranges[0][0];
         if (
           !this.mathfield.dirty &&
-          !this.at(pos).inPrompt &&
+          !this.at(pos).inEditablePrompt &&
           this.mathfield.prompting
         ) {
-          if (this.at(pos - 1)?.inPrompt) {
+          if (this.at(pos - 1)?.inEditablePrompt) {
             this._anchor = pos - 1;
             this._position = pos - 1;
             this._selection = this.normalizeSelection(pos - 1, pos - 1);
             return true;
-          } else if (this.at(pos + 1)?.inPrompt) {
+          } else if (this.at(pos + 1)?.inEditablePrompt) {
             this._anchor = pos + 1;
             this._position = pos + 1;
             this._selection = this.normalizeSelection(pos + 1, pos + 1);

@@ -20,7 +20,6 @@ import {
 } from './mathfield';
 import { MathfieldOptions } from './options';
 import { getAtomBounds } from '../editor-mathfield/utils';
-import { PromptAtom } from 'core-atoms/prompt';
 
 export declare type Expression =
   | number
@@ -286,10 +285,6 @@ export interface MathfieldElementAttributes {
    *
    */
   'smart-mode': string;
-  /**
-   * When `on`, \prompt{} contents become editable while everything else becomes non-editable
-   */
-  'prompt-mode': 'string';
   /**
    * When `on`, when a digit is entered in an empty superscript, the cursor
    * leaps automatically out of the superscript. This makes entry of common
@@ -605,7 +600,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'remove-extraneous-parentheses': 'on/off',
       'smart-fence': 'on/off',
       'smart-mode': 'on/off',
-      'prompt-mode': 'on/off',
       'smart-superscript': 'on/off',
       'speech-engine': 'string',
       'speech-engine-rate': 'string',
@@ -743,12 +737,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     );
   }
 
-  getPrompt(placeholderId: string): string {
-    return this._mathfield?.getPrompt(placeholderId)!;
+  getPromptContent(placeholderId: string): string {
+    return this._mathfield?.getPromptContent(placeholderId)!;
   }
 
-  getAllPrompts(): string[] {
-    return this._mathfield?.getAllPrompts()!;
+  get prompts(): string[] {
+    return this._mathfield?.prompts!;
   }
 
   addEventListener<K extends keyof HTMLElementEventMap>(
@@ -1485,17 +1479,17 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   set smartMode(value: boolean) {
     this.setOptions({ smartMode: value });
   }
-  get promptMode(): boolean {
-    return this.getOption('promptMode');
-  }
-  set promptMode(value: boolean) {
-    this.setOptions({ promptMode: value });
-  }
-  setPromptCorrectness(id, correctness: 'correct' | 'incorrect' | undefined) {
+  setPromptCorrectness(
+    id: string,
+    correctness: 'correct' | 'incorrect' | undefined
+  ) {
     this._mathfield?.setPromptCorrectness(id, correctness);
   }
-  setPromptContent(id, content: string) {
+  setPromptContent(id: string, content: string) {
     this._mathfield?.setPromptContent(id, content);
+  }
+  setPromptLocked(id: string, locked: boolean) {
+    this._mathfield?.setPromptLocked(id, locked);
   }
   get smartSuperscript(): boolean {
     return this.getOption('smartSuperscript');

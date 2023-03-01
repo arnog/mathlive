@@ -343,7 +343,7 @@ export function move(
     //
     if (pos >= 0 && pos <= model.lastOffset) {
       if (direction === 'forward') {
-        if (model.mathfield.prompting && !model.at(pos).inPrompt) {
+        if (model.mathfield.prompting && !model.at(pos).inEditablePrompt) {
           // The new position is not ediatble, instead look forward for the next prompt:
           const nextAtoms = model
             .getAtoms(pos, -1)
@@ -351,7 +351,7 @@ export function move(
             .flat();
 
           const nextPrompts: Atom[] = nextAtoms.filter(
-            (p: PromptAtom) => p.type === 'prompt' && !p.correctness
+            (p: PromptAtom) => p.type === 'prompt' && !p.captureSelection
           );
           const nextPrompt = nextPrompts[0];
           if (!nextPrompt) return handleDeadEnd();
@@ -381,7 +381,7 @@ export function move(
         else if (atom instanceof LatexAtom && atom.isSuggestion)
           atom.isSuggestion = false;
       } else if (direction === 'backward') {
-        if (model.mathfield.prompting && !model.at(pos).inPrompt) {
+        if (model.mathfield.prompting && !model.at(pos).inEditablePrompt) {
           // The new position is not ediatble, instead look forward for the previous prompt:
           const previousAtoms = model
             .getAtoms(0, pos)
@@ -389,7 +389,7 @@ export function move(
             .flat();
 
           const previousPrompts: Atom[] = previousAtoms.filter(
-            (p: PromptAtom) => p.type === 'prompt' && !p.correctness
+            (p: PromptAtom) => p.type === 'prompt' && !p.captureSelection
           );
           const previousPrompt = previousPrompts[previousPrompts.length - 1];
           if (!previousPrompt) return handleDeadEnd();
@@ -458,7 +458,7 @@ function moveToClosestAtomVertically(
   // If prompting mode, filter toAtoms for ID's placeholders
   const editableAtoms = toAtoms.filter(
     (a: PromptAtom) =>
-      !model.mathfield.prompting || (a.type === 'prompt' && !a.correctness)
+      !model.mathfield.prompting || (a.type === 'prompt' && !a.captureSelection)
   );
 
   // calculate best atom to put cursor at based on real x coordinate
@@ -546,7 +546,7 @@ function moveUpward(
 
     // Check if the cell has any editable regions
     const cellHasPrompt = aboveCell.some(
-      (a: PromptAtom) => a.type === 'prompt' && !a.correctness
+      (a: PromptAtom) => a.type === 'prompt' && !a.captureSelection
     );
     if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
 
@@ -620,7 +620,7 @@ function moveDownward(
 
     // Check if the cell has any editable regions
     const cellHasPrompt = belowCell.some(
-      (a: PromptAtom) => a.type === 'prompt' && !a.correctness
+      (a: PromptAtom) => a.type === 'prompt' && !a.captureSelection
     );
     if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
 

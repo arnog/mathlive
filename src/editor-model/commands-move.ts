@@ -292,7 +292,7 @@ function leap(
   // If in prompt mode, move to beggining / end of current prompt, then call move
   // which already jumps to next prompt on arrow keys
   if (model.mathfield.prompting) {
-    if (!model.at(model.anchor).inPrompt) {
+    if (!model.at(model.anchor).inEditablePrompt) {
       // not inside a prompt, do nothing
       return false;
     } else {

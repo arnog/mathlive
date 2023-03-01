@@ -582,7 +582,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.readOnly &&
       this.model
         .getAllAtoms(0)
-        .some((a: PromptAtom) => a.type === 'prompt' && !a.correctness)
+        .some((a: PromptAtom) => a.type === 'prompt' && !a.captureSelection)
     );
   }
 
@@ -594,7 +594,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     const ancestor = Atom.commonAncestor(anchor, cursor);
 
-    if (ancestor?.inPrompt || !!(ancestor as PlaceholderAtom).placeholderId)
+    if (
+      ancestor?.inEditablePrompt ||
+      !!(ancestor as PlaceholderAtom).placeholderId
+    )
       return false;
 
     return true;
@@ -1299,22 +1302,24 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return true;
   }
 
-  getPrompt(placeholderId: string): string {
+  getPrompt(id: string): PromptAtom {
     const prompts = this.model
       .getAllAtoms(0)
       .filter((a) => a.type === 'prompt') as PromptAtom[];
-    const promptsWithID = prompts.filter(
-      (a) => a.placeholderId === placeholderId
-    );
+    const promptsWithID = prompts.filter((a) => a.placeholderId === id);
     console.assert(
       promptsWithID.length > 0,
       'no prompts with matching ID found'
     );
     console.assert(promptsWithID.length < 2, 'duplicate prompt IDs found');
-    return promptsWithID[0].bodyToLatex({ defaultMode: 'math' });
+    return promptsWithID[0];
   }
 
-  getAllPrompts(): string[] {
+  getPromptContent(id: string): string {
+    return this.getPrompt(id).bodyToLatex({ defaultMode: 'math' });
+  }
+
+  get prompts(): string[] {
     return this.model
       .getAllAtoms(0)
       .filter((a) => a.type === 'prompt')
@@ -1322,18 +1327,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   setPromptContent(id: string, content?: string) {
-    const prompts: PromptAtom[] = this.model
-      .getAllAtoms(0)
-      .filter((a) => a.type === 'prompt') as PromptAtom[];
-    const promptsWithID = prompts.filter((a) => a.placeholderId === id);
-    console.assert(
-      promptsWithID.length > 0,
-      'no prompts with matching ID found: ',
-      id
-    );
-    console.assert(promptsWithID.length < 2, 'duplicate prompt IDs found');
     if (content !== undefined)
-      promptsWithID[0].body = parseLatex(content, this);
+      this.getPrompt(id).body = parseLatex(content, this);
     requestUpdate(this);
   }
 
@@ -1341,17 +1336,13 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     id: string,
     correctness: 'correct' | 'incorrect' | undefined
   ) {
-    const prompts: PromptAtom[] = this.model
-      .getAllAtoms(0)
-      .filter((a) => a.type === 'prompt') as PromptAtom[];
-    const promptsWithID = prompts.filter((a) => a.placeholderId === id);
-    console.assert(
-      promptsWithID.length > 0,
-      'no prompts with matching ID found: ',
-      id
-    );
-    console.assert(promptsWithID.length < 2, 'duplicate prompt IDs found');
-    promptsWithID[0].correctness = correctness;
+    this.getPrompt(id).correctness = correctness;
+    requestUpdate(this);
+  }
+
+  setPromptLocked(id: string, locked: boolean) {
+    this.getPrompt(id).locked = locked;
+    this.getPrompt(id).captureSelection = locked;
     requestUpdate(this);
   }
 

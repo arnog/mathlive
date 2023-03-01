@@ -1382,28 +1382,41 @@ export class Parser {
     if (command === '\\placeholder') {
       const id = this.parseOptionalArgument('string') as string;
       // default value is legacy, ignored if there is a body
-      // We need to check if second argument is `true`, `false` or to ber interpreted as math
+      // We need to check if second argument is `correct`, `incorrect` or to be interpreted as math
       const defaultValue = this.parseOptionalArgument('math') as Atom[];
       const defaultAsString = serializeAtoms(defaultValue, {
         defaultMode: 'math',
       });
-      let defaultAtoms;
+      let defaultAtoms = [] as Atom[];
 
-      let correctness = this.parseOptionalArgument('string') as string;
-      const body = this.parseArgument('auto') ?? undefined;
+      let correctness;
 
       if (!correctness && defaultAsString === 'correct')
         correctness = 'correct';
       else if (!correctness && defaultAsString === 'incorrect')
         correctness = 'incorrect';
-      else defaultAtoms = defaultValue;
+      else if (defaultAsString !== '') defaultAtoms = defaultValue;
 
+      // const locked =  === 'locked';
+      const locked = this.parseOptionalArgument('string') === 'locked';
+      const value = this.parseArgument('auto');
+      let body: Atom[];
+      if (value!.length > 0) body = value!;
+      else body = defaultAtoms;
       if (id) {
         return [
-          new PromptAtom(this.context, id, correctness, body ?? defaultAtoms, {
-            mode: this.parseMode,
-            style: this.style,
-          }),
+          new PromptAtom(
+            this.context,
+            id,
+            correctness,
+            // locked,
+            locked,
+            body ?? defaultAtoms,
+            {
+              mode: this.parseMode,
+              style: this.style,
+            }
+          ),
         ];
       }
       return [

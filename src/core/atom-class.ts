@@ -571,14 +571,14 @@ export class Atom {
   }
 
   /** Returns true if atom is *WITHIN* an ID'd placeholder atom that is not correct/incorrect */
-  get inPrompt(): boolean {
+  get inEditablePrompt(): boolean {
     let result = false;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let atom: Atom | undefined = this;
     while (atom) {
       if (
         atom.parent?.type === 'prompt' &&
-        !(atom.parent as PromptAtom).correctness
+        !(atom.parent as PromptAtom).captureSelection
       ) {
         result = true;
         break;
