@@ -15,10 +15,7 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field
-        id="mf"
-        use-shared-virtual-keyboard
-        virtual-keyboard-mode="manual"
+      <math-field id="mf" virtual-keyboard-mode="manual"
         >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
       >
       <!-- <math-field id="mf" virtual-keyboard-mode="manual"
@@ -75,7 +72,7 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      const k = makeSharedVirtualKeyboard();
+      // const k = makeSharedVirtualKeyboard();
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
       //   console.log('toggling ', ev)
       // );
@@ -183,10 +180,7 @@
       const mf = document.getElementById('mf');
 
       mf.setOptions({ computeEngine: new ComputeEngine() });
-      mf.setOptions({
-        ...mf.getOptions(),
-        decimalSeparator: '.',
-      });
+      // mf.setOptions({decimalSeparator: '.'});
 
       mf.setOptions({
         onInlineShortcut: (_mf, s) => {

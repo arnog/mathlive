@@ -8,6 +8,8 @@
 - Improved interaction with some screen readers
 - **#1845** Smarter smart-fence: fewer fence combinations are now valid,
   resulting in more correct results
+- **#1859** In math mode, after pressing the SPACE key, do not adopt the variant
+  style (upright, italic, etc...) from neighboring atoms.
 
 ### Bug Fixes
 

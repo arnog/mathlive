@@ -148,6 +148,7 @@ export function onPointerDown(
     // smart mode
     mathfield.flushInlineShortcutBuffer();
     mathfield.smartModeSuppressed = false;
+    mathfield.adoptStyle = 'left';
 
     anchor = offsetFromPoint(mathfield, anchorX, anchorY, {
       bias: 0,

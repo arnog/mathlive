@@ -235,8 +235,13 @@ export function onKeystroke(
       // a text zone, or if `mathModeSpace` is enabled, insert the space
       //
       if (keystroke === '[Space]') {
+        // Temporarily stop adopting the style from surround atoms
+        mathfield.adoptStyle = 'none';
+
         // The space bar can be used to separate inline shortcuts
         mathfield.flushInlineShortcutBuffer();
+
+        // If will also terminate styling in progress
 
         if (mathfield.options.mathModeSpace) {
           mathfield.snapshot();
@@ -258,6 +263,7 @@ export function onKeystroke(
           mathfield.snapshot();
           ModeEditor.insert('text', model, ' ');
           mathfield.dirty = true;
+          return true;
         }
       }
 
@@ -375,6 +381,7 @@ export function onKeystroke(
 
   //
   // 6. Make sure the mathfield and the insertion point is scrolled into view
+  // and rendered
   //
   mathfield.scrollIntoView();
 
@@ -449,10 +456,7 @@ export function onInput(
   // If the selection is not collapsed, the content will be deleted first.
   //
   const atom = model.at(model.position);
-  const style: Style = {
-    ...atom.computedStyle,
-    ...mathfield.style,
-  };
+  const style = { ...atom.computedStyle, ...mathfield.style };
   if (!model.selectionIsCollapsed) {
     model.deleteAtoms(range(model.selection));
     mathfield.snapshot();
@@ -513,18 +517,21 @@ export function onInput(
         ModeEditor.insert('math', model, c, { style });
         moveAfterParent(model);
       } else {
-        // If adding an alphabetic character, and the leftmost atom is an
-        // ordinary character, use the same variant/variantStyle (\mathit, \mathrm...)
-        if (
-          atom.type === 'mord' &&
-          /[a-zA-Z]/.test(atom.value) &&
-          /[a-zA-Z]/.test(c)
-        ) {
-          if (atom.style.variant) style.variant = atom.style.variant;
-          if (atom.style.variantStyle)
-            style.variantStyle = atom.style.variantStyle;
+        if (mathfield.adoptStyle !== 'none') {
+          // If adding an alphabetic character, and the neighboring atom is an
+          // ordinary character, use the same variant/variantStyle (\mathit, \mathrm...)
+          const sibling =
+            mathfield.adoptStyle === 'left' ? atom : atom.rightSibling;
+          if (
+            sibling.type === 'mord' &&
+            /[a-zA-Z]/.test(sibling.value) &&
+            /[a-zA-Z]/.test(c)
+          ) {
+            if (sibling.style.variant) style.variant = sibling.style.variant;
+            if (sibling.style.variantStyle)
+              style.variantStyle = sibling.style.variantStyle;
+          }
         }
-
         // General purpose character insertion
         ModeEditor.insert('math', model, c, { style });
       }

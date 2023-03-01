@@ -132,6 +132,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   mode: ParseMode;
   style: Style;
+  // When inserting new characters, if not `"none"`, adopt the style
+  // (up variant, etc..) from the previous or following atom.
+  adoptStyle: 'left' | 'right' | 'none';
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
@@ -385,6 +388,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // Current style (color, weight, italic, etc...):
     // reflects the style to be applied on next insertion.
     this.style = {};
+    this.adoptStyle = 'left';
 
     if (this.options.readOnly) this.element.classList.add('ML__isReadOnly');
     else this.element.classList.remove('ML__isReadOnly');
