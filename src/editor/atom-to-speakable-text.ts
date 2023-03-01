@@ -61,6 +61,8 @@ const PRONUNCIATION: Record<string, string> = {
   '\\le': 'is less than or equal to ',
   '\\gt': 'is greater than ',
   '>': 'is greater than ',
+  '\\pm': 'plus or minus',
+  '\\mp': 'minus or plus',
   '\\ge': 'is greater than or equal to ',
   '\\geq': 'is greater than or equal to ',
   '\\leq': 'is less than or equal to ',
