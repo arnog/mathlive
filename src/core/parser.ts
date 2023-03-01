@@ -1401,7 +1401,7 @@ export class Parser {
       const locked = this.parseOptionalArgument('string') === 'locked';
       const value = this.parseArgument('auto');
       let body: Atom[];
-      if (value!.length > 0) body = value!;
+      if (value && value.length > 0) body = value;
       else body = defaultAtoms;
       if (id) {
         return [
