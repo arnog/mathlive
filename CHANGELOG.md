@@ -13,6 +13,8 @@
 
 - **#1850** When multiple `\char` commands were in an expression, they were
   serialized incorrectly (they would all have the same argument)
+- **#1691** Inserting a left parenthesis to the left of a right parenthesis
+  caused the expression to be incorrectly balanced
 
 ## 0.89.4 (2023-02-27)
 

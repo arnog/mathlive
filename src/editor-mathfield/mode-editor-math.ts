@@ -678,27 +678,9 @@ export function insertSmartFence(
   style?: Style
 ): boolean {
   console.assert(model.selectionIsCollapsed);
+
   const atom = model.at(model.position);
   const { parent } = atom;
-  let delims =
-    parent instanceof LeftRightAtom
-      ? parent.leftDelim! + parent.rightDelim!
-      : '';
-  if (delims === '\\lbrace\\rbrace') delims = '{}';
-  if (delims === '\\{\\}') delims = '{}';
-  if (delims === '\\lparen\\rparen') delims = '()';
-
-  //
-  // 1. Are we inserting a middle fence?
-  // ...as in {...|...}
-  //
-  if (delims === '{}' && /\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
-    ModeEditor.insert('math', model, '\\,\\middle' + fence + '\\, ', {
-      format: 'latex',
-      style,
-    });
-    return true;
-  }
 
   // Normalize some fences.
   // Note that '{' and '}' are not valid braces.
@@ -709,20 +691,73 @@ export function insertSmartFence(
   if (fence === ']') fence = '\\rbrack';
 
   //
+  // 1. Are we inserting a middle fence?
+  // ...as in {...|...}
+  //
+  if (/\||\\vert|\\Vert|\\mvert|\\mid/.test(fence)) {
+    let delims =
+      parent instanceof LeftRightAtom
+        ? parent.leftDelim! + parent.rightDelim!
+        : '';
+    if (delims === '\\lbrace\\rbrace') delims = '{}';
+    if (delims === '\\{\\}') delims = '{}';
+    if (delims === '\\lparen\\rparen') delims = '()';
+    if (delims === '{}') {
+      ModeEditor.insert('math', model, '\\,\\middle' + fence + '\\, ', {
+        format: 'latex',
+        style,
+      });
+      return true;
+    }
+  }
+
+  //
   // 2. Is it an open fence?
   //
   const rDelim = RIGHT_DELIM[fence];
   if (rDelim) {
-    const leftRightParent = parent as LeftRightAtom;
     if (
-      leftRightParent.type === 'leftright' &&
-      leftRightParent.firstChild === atom && // At first child
-      (leftRightParent.leftDelim! === '?' || leftRightParent.leftDelim! === '.')
+      parent instanceof LeftRightAtom &&
+      parent.firstChild === atom && // At first child
+      (parent.leftDelim! === '?' || parent.leftDelim! === '.')
     ) {
-      leftRightParent.leftDelim = fence;
-      leftRightParent.isDirty = true;
+      parent.leftDelim = fence;
+      parent.isDirty = true;
       return true;
-    } else if (!(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
+    }
+
+    // Is there a matching right delim as a right sibling?
+    if (!(parent instanceof LeftRightAtom)) {
+      let sibling = atom;
+      while (sibling) {
+        if (sibling.type === 'mclose' && sibling.value === rDelim) break;
+        sibling = sibling.rightSibling;
+      }
+
+      if (sibling) {
+        // We've found a matching sibling
+        const body = model.extractAtoms([
+          model.offsetOf(atom),
+          model.offsetOf(sibling),
+        ]);
+        body.shift();
+        body.pop();
+        parent!.addChildrenAfter(
+          [
+            new LeftRightAtom('left...right', body, parent!.context, {
+              leftDelim: fence,
+              rightDelim: rDelim,
+            }),
+          ],
+          atom
+        );
+        model.position = model.offsetOf(parent!.firstChild);
+        contentDidChange(model, { data: fence, inputType: 'insertText' });
+        return true;
+      }
+    }
+
+    if (!(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
       // We have a valid open fence as input
       ModeEditor.insert('math', model, `\\left${fence}\\right?`, {
         format: 'latex',
