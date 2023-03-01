@@ -911,6 +911,13 @@ function atomToMathML(atom, options): string {
           '</menclose>';
         break;
 
+      case 'prompt':
+        result =
+          '<menclose notation="roundexbox""">' +
+          toMathML(atom.body, options) +
+          '</menclose>';
+        break;
+
       case 'space':
         result += '&nbsp;';
         break;

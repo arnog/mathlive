@@ -14,13 +14,16 @@ import { speakableText } from './speech';
  */
 function relationName(atom: Atom): string {
   let result: string | undefined = undefined;
-  if (atom.treeBranch === 'body') {
+  if (atom.parent!.type === 'prompt') {
+    if (atom.treeBranch === 'body') result = 'prompt';
+  } else if (atom.treeBranch === 'body') {
     result = {
       enclose: 'cross out',
       leftright: 'delimiter',
       surd: 'square root',
       root: 'math field',
       mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
+      first: 'first',
     }[atom.type];
   } else if (atom.parent!.type === 'genfrac') {
     if (atom.treeBranch === 'above') return 'numerator';

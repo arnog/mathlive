@@ -106,7 +106,6 @@ export class ModelPrivate implements Model {
       const value = this.normalizeSelection(arg1, arg2);
 
       if (value === undefined) throw new TypeError('Invalid selection');
-
       //
       // 2/ Short-circuit a common case...
       //
@@ -115,9 +114,30 @@ export class ModelPrivate implements Model {
         value.ranges[0][0] === value.ranges[0][1]
       ) {
         const pos = value.ranges[0][0];
-        console.assert(pos >= 0 && pos <= this.lastOffset);
-        this._position = pos;
+        if (
+          !this.mathfield.dirty &&
+          !this.at(pos).inEditablePrompt &&
+          this.mathfield.prompting
+        ) {
+          if (this.at(pos - 1)?.inEditablePrompt) {
+            this._anchor = pos - 1;
+            this._position = pos - 1;
+            this._selection = this.normalizeSelection(pos - 1, pos - 1);
+            return true;
+          } else if (this.at(pos + 1)?.inEditablePrompt) {
+            this._anchor = pos + 1;
+            this._position = pos + 1;
+            this._selection = this.normalizeSelection(pos + 1, pos + 1);
+            return true;
+          } else {
+            this._anchor = 0;
+            this._position = 0;
+            this._selection = value;
+            return false;
+          }
+        }
         this._anchor = pos;
+        this._position = pos;
         this._selection = value;
       } else {
         //
@@ -190,7 +210,6 @@ export class ModelPrivate implements Model {
 
       contentDidChange(this, changeOption);
     }
-
     this.suppressChangeNotifications = wasSuppressing;
   }
 

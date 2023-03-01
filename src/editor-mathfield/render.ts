@@ -73,15 +73,6 @@ function makeBox(
           // consecutive digits to represent a number.
           groupNumbers: renderOptions.forHighlighting ?? false,
         },
-        renderPlaceholder: mathfield.options.readOnly
-          ? (context: Context, p) => {
-              if (p.placeholderId) {
-                const field = mathfield.getPlaceholderField(p.placeholderId!)!;
-                return p.createMathfieldBox(context, field, p.placeholderId);
-              }
-              return p.createBox(context);
-            }
-          : undefined,
       },
       {
         fontSize: DEFAULT_FONT_SIZE,
@@ -99,7 +90,9 @@ function makeBox(
   const wrapper = makeStruts(
     adjustInterAtomSpacing(base, mathfield.options.horizontalSpacingScale),
     {
-      classes: 'ML__mathlive',
+      classes: mathfield.prompting
+        ? 'ML__mathlive ML__prompting'
+        : 'ML__mathlive',
       attributes: {
         // Sometimes Google Translate kicks in an attempts to 'translate' math
         // This doesn't work very well, so turn off translate
@@ -141,10 +134,10 @@ export function render(
     atom.isSelected = false;
     atom.containsCaret = false;
   }
-  const hasFocus = !mathfield.options.readOnly && mathfield.hasFocus();
-  if (model.selectionIsCollapsed)
+  const hasFocus = !mathfield.promptSelectionLocked && mathfield.hasFocus();
+  if (model.selectionIsCollapsed) {
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
-  else {
+  } else {
     const atoms = model.getAtoms(model.selection, { includeChildren: true });
     for (const atom of atoms) atom.isSelected = true;
   }
@@ -184,7 +177,6 @@ export function render(
   // 4. Render the selection/caret
   //
   renderSelection(mathfield);
-  if (mathfield.options.readOnly) mathfield.attachNestedMathfield();
 
   if (!(renderOptions.interactive ?? false)) {
     // (re-render a bit later because the layout may not be up to date right

@@ -13,6 +13,8 @@ import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { MathfieldBox } from './mathfield-box';
+import { PlaceholderAtom } from 'core-atoms/placeholder';
+import { PromptAtom } from 'core-atoms/prompt';
 
 /**
  * This data type is used as a serialized representation of the  atom tree.
@@ -128,7 +130,8 @@ export type AtomType =
   | 'spacing'
   | 'surd' // Aka square root, nth root
   | 'text' // Text mode atom;
-  | 'tooltip'; // For `\mathtip` and `\texttip`
+  | 'tooltip' // For `\mathtip` and `\texttip`
+  | 'prompt';
 
 export type BBoxParameter = {
   backgroundcolor?: string;
@@ -559,6 +562,24 @@ export class Atom {
     let atom: Atom | undefined = this;
     while (atom) {
       if (atom.captureSelection) {
+        result = true;
+        break;
+      }
+      atom = atom.parent;
+    }
+    return result;
+  }
+
+  /** Returns true if atom is *WITHIN* an ID'd placeholder atom that is not correct/incorrect */
+  get inEditablePrompt(): boolean {
+    let result = false;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let atom: Atom | undefined = this;
+    while (atom) {
+      if (
+        atom.parent?.type === 'prompt' &&
+        !(atom.parent as PromptAtom).captureSelection
+      ) {
         result = true;
         break;
       }
@@ -1294,7 +1315,7 @@ export class Atom {
  * @param options.expandMacro true if macros should be expanded
  * @result a LaTeX string
  */
-function serializeAtoms(
+export function serializeAtoms(
   atoms: undefined | Atom[],
   options: ToLatexOptions
 ): string {

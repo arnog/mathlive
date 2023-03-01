@@ -53,7 +53,7 @@ export function contentDidChange(
       data: options.data ? options.data : options.inputType ?? '',
       bubbles: true,
       composed: true,
-    })
+    } as InputEventInit)
   );
   model.suppressChangeNotifications = false;
 }

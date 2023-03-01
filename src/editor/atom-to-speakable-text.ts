@@ -9,6 +9,7 @@ import { osPlatform } from '../common/capabilities';
 import { ArrayAtom } from '../core-atoms/array';
 import { LineAtom } from '../core-atoms/line';
 import { getMacros } from '../core-definitions/definitions-utils';
+import { PromptAtom } from 'core-atoms/prompt';
 
 declare global {
   interface Window {
@@ -273,6 +274,20 @@ function atomToSpeakableFragment(
     const { command } = atom;
 
     switch (atom.type) {
+      case 'prompt':
+        const input =
+          atom.body?.length! > 1
+            ? 'start input . <break time="500ms"/> ' +
+              atomToSpeakableFragment(mode, atom.body, options) +
+              '. <break time="500ms"/> end input'
+            : 'blank';
+        result +=
+          ' <break time="300ms"/> ' +
+          input +
+          '. <break time="700ms"/>' +
+          ((atom as PromptAtom).correctness ?? '') +
+          ' . <break time="700ms"/> ';
+        break;
       case 'accent':
         if (command === '\\vec') {
           result +=

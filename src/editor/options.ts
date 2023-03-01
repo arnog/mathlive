@@ -205,6 +205,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     fractionNavigationOrder: 'numerator-denominator',
     placeholderSymbol: '▢',
     enablePopover: true,
+    promptMode: false,
 
     locale: l10n.locale,
     strings: l10n.strings,

@@ -82,6 +82,7 @@ export class EncloseAtom extends Atom {
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): EncloseAtom {
+    console.log(json);
     return new EncloseAtom(
       json.command,
       json.body,
@@ -93,24 +94,9 @@ export class EncloseAtom extends Atom {
 
   toJson(): AtomJson {
     const notation: Notations = {};
-    if (this.notation.downdiagonalstrike) notation.downdiagonalstrike = true;
-    if (this.notation.updiagonalstrike) notation.downdiagonalstrike = true;
-    if (this.notation.verticalstrike) notation.downdiagonalstrike = true;
-    if (this.notation.horizontalstrike) notation.downdiagonalstrike = true;
-    if (this.notation.updiagonalarrow) notation.downdiagonalstrike = true;
-    if (this.notation.right) notation.downdiagonalstrike = true;
-    if (this.notation.bottom) notation.downdiagonalstrike = true;
-    if (this.notation.left) notation.downdiagonalstrike = true;
-    if (this.notation.top) notation.downdiagonalstrike = true;
-    if (this.notation.circle) notation.downdiagonalstrike = true;
-    if (this.notation.roundedbox) notation.downdiagonalstrike = true;
-    if (this.notation.madruwb) notation.downdiagonalstrike = true;
-    if (this.notation.actuarial) notation.downdiagonalstrike = true;
-    if (this.notation.box) notation.downdiagonalstrike = true;
-
     return {
       ...super.toJson(),
-      notation: notation,
+      notation: this.notation,
       shadow: this.shadow,
       strokeWidth: this.strokeWidth,
       strokeStyle: this.strokeStyle,

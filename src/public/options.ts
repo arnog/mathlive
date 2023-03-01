@@ -821,6 +821,9 @@ export type EditingOptions = {
    * **Default**: `true`
    */
   enablePopover: boolean;
+
+  /** If true, math field becomes read only except inside \prompt{} regions*/
+  promptMode: boolean;
 };
 
 export type LayoutOptions = {

@@ -33,6 +33,7 @@ import {
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { MathfieldOptions } from '../public/options';
+import { PromptAtom } from 'core-atoms/prompt';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -304,62 +305,6 @@ export class MathModeEditor extends ModeEditor {
     );
     if (!newAtoms) return false;
 
-    const placeholdersFound = findPlaceholders(newAtoms);
-
-    const fillInTheBlankPlaceholders = placeholdersFound.filter(
-      (atom) =>
-        atom.placeholderId &&
-        !model.mathfield.placeholders.has(atom.placeholderId)
-    );
-
-    // Remove placeholders that have a matching placeholder ID
-    // (those are placeholders used for "fill-in-the-blank")
-    const idsFound = placeholdersFound.map((atom) => atom.placeholderId);
-    [...model.mathfield.placeholders.keys()]
-      .filter((placeholderId) => !idsFound.includes(placeholderId))
-      .forEach((placeholderId) => {
-        if (model.mathfield.placeholders.has(placeholderId)) {
-          model.mathfield.placeholders.get(placeholderId)?.field.remove();
-
-          model.mathfield.placeholders.delete(placeholderId);
-        }
-      });
-
-    fillInTheBlankPlaceholders.forEach((placeholder) => {
-      console.assert(
-        !!placeholder.placeholderId &&
-          !model.mathfield.placeholders.has(placeholder.placeholderId)
-      );
-
-      let virtualKeyboardMode = model.mathfield.options.virtualKeyboardMode;
-      if (virtualKeyboardMode === 'manual') virtualKeyboardMode = 'onfocus';
-      const element = new MathfieldElement({
-        ...model.mathfield.options,
-        virtualKeyboardMode,
-        readOnly: false,
-      } as Partial<MathfieldOptions>);
-
-      const value = placeholder.defaultValue
-        ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'math' })
-        : '';
-      element.value = value;
-      element.addEventListener('input', () => {
-        placeholderDidChange(model, placeholder.placeholderId!);
-        // this timeout gives some time for a placeholder to render properly
-        // before rendering the main field.
-        setTimeout(() => requestUpdate(model.mathfield));
-      });
-
-      model.mathfield.element
-        ?.querySelector('.ML__placeholdercontainer')
-        ?.appendChild(element);
-
-      model.mathfield.placeholders.set(placeholder.placeholderId as string, {
-        atom: placeholder,
-        field: element,
-      });
-    });
-
     //
     // Insert the new atoms
     //
@@ -383,7 +328,6 @@ export class MathModeEditor extends ModeEditor {
     }
 
     const hadEmptyBody = parent!.hasEmptyBranch('body');
-
     const cursor = model.at(model.position);
     cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
@@ -429,7 +373,8 @@ export class MathModeEditor extends ModeEditor {
     } else if (options.selectionMode === 'item')
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
 
-    contentDidChange(model, { data, inputType: 'insertText' });
+    const inputType = 'insertLineBreak';
+    contentDidChange(model, { data, inputType });
 
     model.suppressChangeNotifications = suppressChangeNotifications;
 

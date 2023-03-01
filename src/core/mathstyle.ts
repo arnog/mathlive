@@ -26,9 +26,9 @@
  * > We shall use C to stand for the current style, and we shall say that the
  * > math list is being typeset in style C. (b) The typesetting is done either
  * > with or without penalties. Formulas in the text of a paragraph are converted
- * > to horizontal lists in which additional penalty items are inserted after
+ * > to horizontal lists in which additional penalty items are ed after
  * > binary operations and relations, in order to aid in line breaking. Such
- * > penalties are not inserted in other cases, because they would serve no
+ * > penalties are not ed in other cases, because they would serve no
  * > useful function.
  * >
  * > The eight styles are considered to be D > D′ > T > T′ > S > S′ > SS > SS′,

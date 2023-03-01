@@ -328,6 +328,8 @@ function onDelete(
  * Delete the item at the current position
  */
 export function deleteBackward(model: ModelPrivate): boolean {
+  if (model.mathfield.promptSelectionLocked) return false;
+
   if (!contentWillChange(model, { inputType: 'deleteContentBackward' }))
     return false;
 
@@ -439,7 +441,7 @@ export function deleteRange(
     // (for example for surd/\sqrt)
     if (firstSelected === firstChild && lastSelected === lastChild) {
       const parent = result[0].parent!;
-      if (parent.type !== 'root') {
+      if (parent.type !== 'root' && parent.type !== 'prompt') {
         range = [
           model.offsetOf(parent.leftSibling),
           model.offsetOf(parent.rightSibling),

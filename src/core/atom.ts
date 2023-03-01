@@ -30,6 +30,7 @@ import { SubsupAtom } from '../core-atoms/subsup';
 import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
+import { PromptAtom } from '../core-atoms/prompt';
 
 export * from './atom-class';
 
@@ -71,11 +72,8 @@ export function fromJson(
   if (type === 'msubsup') result = SubsupAtom.fromJson(json, context);
   if (type === 'overlap') result = OverlapAtom.fromJson(json, context);
   if (type === 'overunder') result = OverunderAtom.fromJson(json, context);
-  if (type === 'placeholder') {
-    if (json.defaultValue)
-      json.defaultValue = fromJson(json.defaultValue, context);
-    result = PlaceholderAtom.fromJson(json, context);
-  }
+  if (type === 'placeholder') result = PlaceholderAtom.fromJson(json, context);
+  if (type === 'prompt') result = PromptAtom.fromJson(json, context);
   if (type === 'phantom') result = PhantomAtom.fromJson(json, context);
   if (type === 'rule') result = RuleAtom.fromJson(json, context);
   if (type === 'sizeddelim') result = SizedDelimAtom.fromJson(json, context);

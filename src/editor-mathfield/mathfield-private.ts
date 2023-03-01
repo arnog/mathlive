@@ -23,7 +23,6 @@ import type {
   ApplyStyleOptions,
   VirtualKeyboardInterface,
 } from '../public/mathfield';
-import MathfieldElement from '../public/mathfield-element';
 
 import { canVibrate, isTouchCapable } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
@@ -117,6 +116,7 @@ import {
 } from '../core/context-utils';
 import { globalMathLive } from '../mathlive';
 import { resolveUrl } from '../common/script-url';
+import { PromptAtom } from 'core-atoms/prompt';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -138,12 +138,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
-
-  // Placeholders for 'fill-in-the-blank'
-  readonly placeholders: Map<
-    string,
-    { atom: PlaceholderAtom; field: MathfieldElement }
-  >;
 
   private _computeEngine: ComputeEngine;
 
@@ -241,8 +235,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this._computeEngine = options.computeEngine;
 
     if (options.eventSink) this.host = options.eventSink;
-
-    this.placeholders = new Map();
 
     this.element = element;
     element.mathfield = this;
@@ -417,7 +409,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         onCompositionEnd: (composition) => this.onCompositionEnd(composition),
         onCut: (ev) => {
           // Ignore if in read-only mode
-          if (this.options.readOnly) {
+          if (this.promptSelectionLocked) {
             this.model.announce('plonk');
             return;
           }
@@ -438,7 +430,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         onCopy: (ev) => ModeEditor.onCopy(this, ev),
         onPaste: (ev) => {
           // Ignore if in read-only mode
-          let result = !this.options.readOnly;
+          let result = !this.promptSelectionLocked;
 
           if (result) {
             result = ModeEditor.onPaste(
@@ -580,6 +572,37 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return this.options?.smartFence ?? false;
   }
 
+  get readOnly(): boolean {
+    return this.options?.readOnly ?? false;
+  }
+
+  /** returns true if readOnly and at least one ID'd placeholder */
+  get prompting(): boolean {
+    return (
+      this.readOnly &&
+      this.model
+        .getAllAtoms(0)
+        .some((a: PromptAtom) => a.type === 'prompt' && !a.captureSelection)
+    );
+  }
+
+  /** Returns true if mathfield is in readOnly mode and selection not contained to a single ID'd placeholder */
+  get promptSelectionLocked(): boolean {
+    if (!this.readOnly) return false;
+    const anchor = this.model.at(this.model.anchor);
+    const cursor = this.model.at(this.model.position);
+
+    const ancestor = Atom.commonAncestor(anchor, cursor);
+
+    if (
+      ancestor?.inEditablePrompt ||
+      !!(ancestor as PlaceholderAtom).placeholderId
+    )
+      return false;
+
+    return true;
+  }
+
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
     return this.options?.letterShapeStyle ?? 'tex';
   }
@@ -603,7 +626,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   get virtualKeyboard(): VirtualKeyboardInterface | undefined {
-    if (this.options.readOnly) return undefined;
+    if (this.promptSelectionLocked) return undefined;
 
     // The virtual keyboard can be either attached to this mathfield
     // or a delegate that mirrors a global virtual keyboard attached
@@ -1003,7 +1026,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
    */
   scrollIntoView(): void {
     if (!this.element) return;
-
     //
     // 1/ If inside a mathfield element, make sure that element is visible.
     //
@@ -1280,60 +1302,48 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return true;
   }
 
-  getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
-    return this.placeholders.get(placeholderId)?.field;
+  getPrompt(id: string): PromptAtom {
+    const prompts = this.model
+      .getAllAtoms(0)
+      .filter((a) => a.type === 'prompt') as PromptAtom[];
+    const promptsWithID = prompts.filter((a) => a.placeholderId === id);
+    console.assert(
+      promptsWithID.length > 0,
+      'no prompts with matching ID found'
+    );
+    console.assert(promptsWithID.length < 2, 'duplicate prompt IDs found');
+    return promptsWithID[0];
   }
 
-  attachNestedMathfield(): void {
-    let needsUpdate = false;
-    const parentBounds = this.field.getBoundingClientRect();
-    this.placeholders.forEach((v, id) => {
-      const container = this.field.querySelector(
-        `[data-placeholder-id="${id}"]`
-      ) as HTMLElement;
-      if (!container) return;
-      const placeholderBounds = container.getBoundingClientRect();
+  getPromptContent(id: string): string {
+    return this.getPrompt(id).bodyToLatex({ defaultMode: 'math' });
+  }
 
-      // const scaleDownFontsize =
-      //   parseInt(window.getComputedStyle(container).fontSize) * 0.6;
+  get prompts(): string[] {
+    return this.model
+      .getAllAtoms(0)
+      .filter((a) => a.type === 'prompt')
+      .map((a) => a.bodyToLatex({ defaultMode: 'math' }));
+  }
 
-      // if (
-      //   !v.field.style.fontSize ||
-      //   Math.abs(scaleDownFontsize - parseFloat(v.field.style.fontSize)) >=
-      //     0.2
-      // ) {
-      //   needsUpdate = true;
-      //   v.field.style.fontSize = `${scaleDownFontsize}px`;
-      // }
-      const depth = 0;
-      const newLeft =
-        placeholderBounds.left -
-        parentBounds.left +
-        (this.element!.offsetLeft ?? 0);
-      if (
-        !v.field.style.left ||
-        Math.abs(newLeft - parseFloat(v.field.style.left)) >= 1
-      ) {
-        needsUpdate = true;
-        v.field.style.left = `${newLeft}px`;
-      }
+  setPromptContent(id: string, content?: string) {
+    if (content !== undefined)
+      this.getPrompt(id).body = parseLatex(content, this);
+    requestUpdate(this);
+  }
 
-      const newTop =
-        placeholderBounds.top -
-        parentBounds.top +
-        (this.element!.offsetTop ?? 0);
-      if (
-        !v.field.style.top ||
-        Math.abs(newTop - parseFloat(v.field.style.top)) >= 1 ||
-        depth !== 0
-      ) {
-        needsUpdate = true;
-        v.field.style.top =
-          depth === 0 ? `${newTop}px` : `calc(${newTop}px + ${depth}em)`;
-      }
-    });
+  setPromptCorrectness(
+    id: string,
+    correctness: 'correct' | 'incorrect' | undefined
+  ) {
+    this.getPrompt(id).correctness = correctness;
+    requestUpdate(this);
+  }
 
-    if (needsUpdate) requestUpdate(this);
+  setPromptLocked(id: string, locked: boolean) {
+    this.getPrompt(id).locked = locked;
+    this.getPrompt(id).captureSelection = locked;
+    requestUpdate(this);
   }
 
   canUndo(): boolean {
@@ -1414,8 +1424,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     const selectedAtoms = model.getAtoms(model.selection);
     if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
       const placeholder = selectedAtoms[0] as PlaceholderAtom;
-      if (this.placeholders.has(placeholder.placeholderId!))
-        this.placeholders.get(placeholder.placeholderId!)?.field.focus();
     }
     // Adjust mode
     {

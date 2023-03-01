@@ -25,11 +25,12 @@ import { ErrorAtom } from '../core-atoms/error';
 import { MacroAtom } from '../core-atoms/macro';
 import { TextAtom } from '../core-atoms/text';
 
-import { Atom, BBoxParameter } from './atom-class';
+import { Atom, BBoxParameter, serializeAtoms } from './atom-class';
 import { GlobalContext } from './context';
 import type { MathstyleName } from './mathstyle';
 import { Mode } from './modes-utils';
 import { Token, tokenize, tokensToString } from './tokenizer';
+import { PromptAtom } from '../core-atoms/prompt';
 
 export type ArgumentType =
   | ParseMode
@@ -1380,14 +1381,48 @@ export class Parser {
   parseCommand(command: string): Atom[] | null {
     if (command === '\\placeholder') {
       const id = this.parseOptionalArgument('string') as string;
+      // default value is legacy, ignored if there is a body
+      // We need to check if second argument is `correct`, `incorrect` or to be interpreted as math
       const defaultValue = this.parseOptionalArgument('math') as Atom[];
-      const value = this.parseArgument('string') ?? undefined;
+      const defaultAsString = serializeAtoms(defaultValue, {
+        defaultMode: 'math',
+      });
+      let defaultAtoms = [] as Atom[];
+
+      let correctness;
+
+      if (!correctness && defaultAsString === 'correct')
+        correctness = 'correct';
+      else if (!correctness && defaultAsString === 'incorrect')
+        correctness = 'incorrect';
+      else if (defaultAsString !== '') defaultAtoms = defaultValue;
+
+      // const locked =  === 'locked';
+      const locked = this.parseOptionalArgument('string') === 'locked';
+      const value = this.parseArgument('auto');
+      let body: Atom[];
+      if (value!.length > 0) body = value!;
+      else body = defaultAtoms;
+      if (id) {
+        return [
+          new PromptAtom(
+            this.context,
+            id,
+            correctness,
+            // locked,
+            locked,
+            body ?? defaultAtoms,
+            {
+              mode: this.parseMode,
+              style: this.style,
+            }
+          ),
+        ];
+      }
       return [
         new PlaceholderAtom(this.context, {
           mode: this.parseMode,
           placeholderId: id,
-          value: value,
-          default: defaultValue,
           style: this.style,
         }),
       ];

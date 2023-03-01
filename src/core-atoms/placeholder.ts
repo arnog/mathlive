@@ -3,6 +3,7 @@ import { ParseMode, Style } from '../public/core';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context, GlobalContext } from '../core/context';
+import { PromptAtom } from './prompt';
 
 export class PlaceholderAtom extends Atom {
   readonly placeholderId?: string;
@@ -14,7 +15,6 @@ export class PlaceholderAtom extends Atom {
       mode?: ParseMode;
       style?: Style;
       placeholderId?: string;
-      default?: Atom[];
     }
   ) {
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
@@ -27,7 +27,6 @@ export class PlaceholderAtom extends Atom {
     });
     this.captureSelection = true;
     this.placeholderId = options?.placeholderId;
-    if (options?.default) this.defaultValue = options?.default;
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): PlaceholderAtom {
@@ -55,12 +54,8 @@ export class PlaceholderAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let value = this.value ?? '';
+    let value = this.value;
     if (value === this.context.placeholderSymbol) value = '';
-    const id = this.placeholderId ? `[${this.placeholderId}]` : '';
-    const defaultValue = this.defaultValue
-      ? `[${Atom.serialize(this.defaultValue, options)}]`
-      : '';
-    return `\\placeholder${id}${defaultValue}{${value}}`;
+    return `\\placeholder{${this.value ?? ''}}`;
   }
 }
