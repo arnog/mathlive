@@ -47,8 +47,6 @@ const PRONUNCIATION: Record<string, string> = {
   '\\sum': 'Summation ',
   '\\prod': 'Product ',
 
-  'a': '<phoneme alphabet="ipa" ph="eɪ">a</phoneme>',
-  'A': 'capital <phoneme alphabet="ipa" ph="eɪ">A</phoneme>',
   '+': 'plus ',
   '-': 'minus ',
   ';': '<break time="150ms"/> semi-colon <break time="150ms"/>',
@@ -227,6 +225,8 @@ function atomToSpeakableFragment(
     let isInDigitRun = false; // Need to group sequence of digits
     let isInTextRun = false; // Need to group text
     for (let i = 0; i < atom.length; i++) {
+      if (atom[i].type === 'first') continue;
+
       if (atom[i].mode !== 'text') isInTextRun = false;
 
       if (
@@ -369,7 +369,7 @@ function atomToSpeakableFragment(
           result +=
             ' the fraction <break time="150ms"/>' +
             numer +
-            ', over <break time="150ms"/>' +
+            ' over <break time="150ms"/>' +
             denom +
             '.<break time="150ms"/> End fraction.<break time="150ms"/>';
         }
@@ -697,7 +697,10 @@ export function atomToSpeakableText(
     textToSpeechRulesOptions: { ...speechOptions.textToSpeechRulesOptions },
   };
 
-  if (options.textToSpeechRules === 'sre' && 'sre' in globalThis) {
+  if (
+    options.textToSpeechRules === 'sre' &&
+    ('sre' in globalThis || 'SRE' in globalThis)
+  ) {
     const mathML = toMathML(atoms, options);
     if (mathML) {
       if (options.textToSpeechMarkup) {
@@ -710,13 +713,19 @@ export function atomToSpeakableText(
         options.textToSpeechRulesOptions.rate = options.speechEngineRate;
       }
 
-      if (options.textToSpeechRulesOptions) {
-        globalThis.sre.System.getInstance().setupEngine(
-          options.textToSpeechRulesOptions
-        );
+      const SRE = globalThis.SRE ?? globalThis.sre.System.getInstance();
+
+      if (options.textToSpeechRulesOptions)
+        SRE.setupEngine(options.textToSpeechRulesOptions);
+
+      let result = '';
+      try {
+        result = SRE.toSpeech(mathML);
+      } catch (e) {
+        console.error('MathLive: SRE.toSpeech() runtime error ', e);
       }
 
-      return globalThis.sre.System.getInstance().toSpeech(mathML);
+      return result;
     }
 
     return '';

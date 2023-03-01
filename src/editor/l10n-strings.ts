@@ -7,6 +7,8 @@ export const STRINGS = {
     'keyboard.tooltip.numeric': 'Numeric',
     'keyboard.tooltip.roman': 'Roman Letters',
     'tooltip.copy to clipboard': 'Copy to Clipboard',
+    'tooltip.cut to clipboard': 'Cut to Clipboard',
+    'tooltip.paste from clipboard': 'Paste from Clipboard',
     'tooltip.redo': 'Redo',
     'tooltip.toggle virtual keyboard': 'Toggle Virtual Keyboard',
     'tooltip.undo': 'Undo',

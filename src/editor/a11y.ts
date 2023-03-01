@@ -79,17 +79,17 @@ export function defaultAnnounceHook(
     );
   } else if (action === 'line') {
     // Announce the current line -- currently that's everything
-    // mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
+    // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
     //     '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
     //         atomsToMathML(mathfield.model.root, mathfield.options) +
     //         '</math>'
     // );
 
-    liveText = speakableText(mathfield.options, '', mathfield.model.root);
-    mathfield.keyboardDelegate!.setAriaLabel('after: ' + liveText);
+    const label = speakableText(mathfield.options, '', mathfield.model.root);
+    mathfield.keyboardDelegate.setAriaLabel(label);
 
     /** * FIX -- testing hack for setting braille ***/
-    // mathfield.accessibleNode.focus();
+    // mathfield.accessibleMathML.focus();
     // console.log("before sleep");
     // sleep(1000).then(() => {
     //     mathfield.textarea.focus();
@@ -101,15 +101,16 @@ export function defaultAnnounceHook(
       : action;
   }
 
-  // Aria-live regions are only spoken when it changes; force a change by
-  // alternately using nonbreaking space or narrow nonbreaking space
-  const ariaLiveChangeHack = mathfield.ariaLiveText.textContent!.includes(
-    '\u00a0'
-  )
-    ? ' \u202F '
-    : ' \u00A0 ';
-  mathfield.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
-  // This.textarea.setAttribute('aria-label', liveText + ariaLiveChangeHack);
+  if (liveText) {
+    // Aria-live regions are only spoken when it changes; force a change by
+    // alternately using nonbreaking space or narrow nonbreaking space
+    const ariaLiveChangeHack = mathfield.ariaLiveText.textContent!.includes(
+      '\u00a0'
+    )
+      ? ' \u202F '
+      : ' \u00A0 ';
+    mathfield.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
+  }
 }
 
 function getRelationshipAsSpokenText(

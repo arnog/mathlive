@@ -1,3 +1,58 @@
+## [Unreleased]
+
+### Improvements
+
+- **#1854** Attempt to solve multiple reading of field content by screen readers
+  on focus
+- **#1855** Updated support for more recent versions of SRE (Speech Rule Engine)
+- Improved interaction with some screen readers
+- **#1845** Smarter smart-fence: fewer fence combinations are now valid,
+  resulting in more correct results
+- **#1859** In math mode, after pressing the SPACE key, do not adopt the variant
+  style (upright, italic, etc...) from neighboring atoms.
+
+### Bug Fixes
+
+- **#1850** When multiple `\char` commands were in an expression, they were
+  serialized incorrectly (they would all have the same argument)
+- **#1691** Inserting a left parenthesis to the left of a right parenthesis
+  caused the expression to be incorrectly balanced
+
+## 0.89.4 (2023-02-27)
+
+### Bug Fix
+
+- Fix an issue where the virtual keyboard would not activate when not using a
+  shared virtual keyboard.
+
+## 0.89.3 (2023-02-27)
+
+### Bug Fixes
+
+- **#1723** The Ctrl-X/C/V keyboard shortcuts did not trigger when using a
+  touch-capable device with a physical keyboard connected.
+- **#1834** On Windows, using Firefox with the Swedish keyboard layout, pressing
+  the "¨" or "`" key resulted in a runtime error.
+- **#1684** The visual state of the Undo button in the virtual keyboard is now
+  correct
+
+### Improvements
+
+- Improved layout for the virtual keyboard: automatically increase the size of
+  the keycaps when possible, better adapt to various device layouts.
+- When selecting an expression on iPadOS, do not display the OS selection UI
+- On iPadOS, account for the safe area at the bottom of the screen when
+  displaying the virtual keyboard.
+- Added Cut and Copy commands in the virtual keyboard default action toolbar
+- Changed the implementation of the physical keyboard event handling. The same
+  implementation is now used for touch-enabled and non-touch-enabled devices.
+  Instead of an invisible `<textarea>`, the keyboard events are now captured by
+  a content editable `<span>`.
+- More accurately position the accessory windows of IMEs during composition
+- **#1843** Work around a WebKit/Safari bug by replicating the `inputType`
+  property as the `data` property of `"input"` and `"beforeinput"` events.
+  WebKit/Safari erroneously strip the `inputType` property.
+
 ## 0.89.2 (2023-02-17)
 
 ### Improvements

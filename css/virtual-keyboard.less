@@ -1,6 +1,12 @@
-@keyboard-zindex: 105;
 @keyboard-height: 276px;
 @keycap-height: 52px;
+
+@xs: ~'(max-width: 414px)'; // <= iPhone 5
+@sm: ~'(max-width: 744px)'; // <=744 -> phone
+@md: ~'(max-width: 768px)'; // >= -> phone landscape
+@lg: ~'(max-width: 1024px)'; // <=1024 -> tablet
+
+@keyboard-zindex: 105;
 @system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
   'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif;
@@ -13,9 +19,10 @@
 @shadow4: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 @shadow5: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
 
+// Default layout if for desktop (max-width: @lg)
 .ML__keyboard {
   --hue: 206;
-  --keyboard-background: rgba(209, 213, 217, 0.97);
+  --keyboard-background: rgba(209, 213, 217);
   --keyboard-text: #000;
   --keyboard-text-active: var(--primary, hsl(var(--hue), 40%, 50%));
   --keyboard-background-border: #ddd;
@@ -43,7 +50,7 @@
   --keyboard-alternate-key-font-size: 30px;
   --keyboard-alternate-key-aside-font-size: 12px;
 
-  --keyboard-height: @keyboard-height;
+  --keyboard-height: calc(@keyboard-height + env(safe-area-inset-bottom, 0));
   --keycap-height: @keycap-height;
   --keycap-font-size: 20px;
   --keycap-small-font-size: calc(var(--keycap-font-size) * 0.8);
@@ -82,8 +89,7 @@
   &.alternate-keys {
     visibility: hidden;
     max-width: 286px;
-    @media only screen and (max-height: 412px) {
-      // 412 is the height of the Google Pixel in landscape mode
+    @media @xs {
       max-width: 320px;
     }
 
@@ -134,7 +140,7 @@
         height: var(--keyboard-alternate-key-length);
         width: var(--keyboard-alternate-key-length);
 
-        @media only screen and (max-height: 412px) {
+        @media (max-height: 412px) {
           font-size: 24px;
           height: 50px;
           width: 50px;
@@ -209,7 +215,7 @@
     }
   }
 
-  // The keyboard "plate" is placed inside a top level .ML__keyboard container
+  // The keyboard "plate" is placed inside a `.ML__keyboard` container
   // so that it can be relatively positioned correctly when using a custom
   // `virtualKeyboardContainer`
   .ML__keyboard--plate {
@@ -217,7 +223,8 @@
     left: 0;
     bottom: calc(-1 * var(--keyboard-height, @keyboard-height));
     width: 100%;
-
+    margin: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0);
     padding-top: 5px;
 
     transform: translate(0, 0);
@@ -228,25 +235,21 @@
     transition: 0.28s cubic-bezier(0, 0, 0.2, 1); // Deceleration curve
     transition-property: transform, opacity;
 
-    backdrop-filter: grayscale(50%);
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: all;
+
     background-color: var(--keyboard-background);
-    border: 1px solid var(--keyboard-background-border);
+    border-top: 1px solid var(--keyboard-background-border);
 
     font-family: @system;
     font-size: 16px; /* Size of toolbar labels */
     font-weight: 400;
 
-    margin: 0;
-    text-shadow: none;
     box-sizing: border-box;
-
-    touch-action: none;
-    -webkit-user-select: none;
-    user-select: none;
-
+    text-shadow: none;
     box-shadow: @shadow2;
-
-    pointer-events: all;
 
     .tex {
       font-family: 'KaTeX_Math', KaTeX_Main, 'Cambria Math', 'Asana Math',
@@ -275,24 +278,25 @@
       display: flex;
       flex-flow: row;
       justify-content: space-between;
+      width: 100%;
       min-width: 736px; // Desktop
-      /* Tablet */
-      @media only screen and (min-width: 768px) and (max-width: 1024px) {
-        min-width: 556px;
-      }
-      /* Phone */
-      @media only screen and (max-width: 767px) {
-        width: 365px;
-        min-width: 365px;
-        max-width: 100vw; // iPhone 5 is 320px
-      }
+      max-width: 766px;
 
       /* Icons for undo/redo, etc. */
       svg {
         height: 20px;
         width: 20px;
       }
-      @media only screen and (max-width: 767px) {
+
+      /* Tablet */
+      @media @lg {
+        min-width: 556px;
+      }
+      /* Phone */
+      @media @sm {
+        width: 365px;
+        min-width: 365px;
+        max-width: 100vw; // iPhone 5 is 320px
         svg {
           height: 13px;
           width: 17px;
@@ -322,11 +326,12 @@
         padding: 4px 15px;
         cursor: pointer;
         min-height: 0;
+        width: max-content;
         border: none;
         padding-left: 10px;
         padding-right: 10px;
         margin-top: 7px;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         margin-left: 4px;
         margin-right: 4px;
         box-shadow: none;
@@ -340,12 +345,12 @@
         }
 
         /* iPhone 5 */
-        @media only screen and (max-width: 414px) {
+        @media @xs {
           font-size: 100%;
           padding: 0 6px 0 0;
         }
         /* Phone */
-        @media only screen and (max-width: 767px) {
+        @media @sm {
           padding-left: 4px;
           padding-right: 4px;
           font-size: 90%;
@@ -358,8 +363,7 @@
         }
         &.selected {
           color: var(--keyboard-text-active);
-          border-bottom: 2px solid var(--keyboard-text-active);
-          margin-bottom: 8px;
+          border-bottom-color: var(--keyboard-text-active);
           padding-bottom: 0;
         }
       }
@@ -394,7 +398,7 @@
         font-size: 12px;
 
         /* Phone */
-        @media only screen and (max-width: 767px) {
+        @media @sm {
           padding: 8px 16px;
           font-size: 16px;
         }
@@ -422,24 +426,28 @@
       flex-flow: column;
       align-items: center;
       & > ul {
+        display: flex;
+        flex-flow: row;
+        max-width: 100vw;
         list-style: none;
-        height: 40px;
+        height: var(--keycap-height, @keycap-height);
         margin: 0 0 3px 0;
         padding: 0;
 
         & > li {
-          /* Key widths. A standard key is 10 units wide (w10) */
-          /* The formula for wn = n * w10 / 10 + (n -1) * margin-right */
           display: flex;
           flex-flow: column;
           align-items: center;
           justify-content: center;
 
-          width: 34px;
-          margin-right: 2px;
-          height: 40px;
+          /* Keycap with (incl. margin) */
+          --max-width: 100px;
+          --margin: 6px;
+          margin-right: var(--margin);
+          width: calc(~'min(var(--max-width), 10vw)' - var(--margin));
+          height: var(--keycap-height, @keycap-height);
           box-sizing: border-box;
-          padding: 8px 0;
+          padding: 0;
           vertical-align: top;
           text-align: center;
           float: left;
@@ -463,6 +471,10 @@
             margin-right: 0;
           }
 
+          /* Keys with an alternate panel */
+          // &[data-alt-keys] {
+          // }
+
           &.small {
             font-size: var(--keycap-small-font-size, 16px);
           }
@@ -483,10 +495,40 @@
             padding-right: 4px;
           }
 
+          &.w0 {
+            width: 0;
+          }
+          &.w5 {
+            width: calc(~'min(var(--max-width), 10vw)' / 2 - var(--margin));
+          }
+          &.w15 {
+            width: calc(
+              15 * ~'min(var(--max-width), 10vw)' / 10 - var(--margin)
+            );
+          }
+          &.w20 {
+            width: calc(
+              20 * ~'min(var(--max-width), 10vw)' / 10 - var(--margin)
+            );
+          }
+          &.w50 {
+            width: calc(
+              50 * ~'min(var(--max-width), 10vw)' / 10 - var(--margin)
+            );
+          }
+          /* Extra spacing between two adjacent keys */
+          &.separator {
+            background: transparent;
+            border: none;
+            pointer-events: none;
+          }
+
           svg.svg-glyph {
+            padding: 8px 0;
             width: 20px;
             height: 20px;
           }
+
           // Use to display warning icons, with a SVG icon
           .warning {
             height: 25px;
@@ -505,7 +547,7 @@
               width: 16px;
               height: 16px;
             }
-            @media only screen and (max-width: 768px) {
+            @media @sm {
               height: 16px;
               width: 16px;
               min-height: 16px;
@@ -516,30 +558,8 @@
               }
             }
           }
-          & > .w0 {
-            width: 0;
-          }
-          & > .w5 {
-            width: 16px;
-          }
-          & > .w15 {
-            width: 52px;
-          }
-          & > .w20 {
-            width: 70px;
-          }
-          & > .w50 {
-            width: 178px;
-          }
-          /* Extra spacing between two adjacent keys */
-          &.separator {
-            background: transparent;
-            border: none;
-            pointer-events: none;
-          }
-
           // Only show if there's extra room (up to four more columns)
-          @media only screen and (max-width: 560px) {
+          @media @lg {
             &.if-wide {
               display: none;
             }
@@ -571,7 +591,7 @@
           &.action.font-glyph,
           &.modifier.font-glyph {
             font-size: 18px;
-            @media only screen and (max-width: 767px) {
+            @media @sm {
               font-size: 16px;
             }
           }
@@ -585,7 +605,7 @@
           // z-index: 1;
           // transition: .14s cubic-bezier(.4, 0, .2, 1);
           &.fnbutton {
-            @media only screen and (max-width: 767px) {
+            @media @sm {
               font-size: 12px;
             }
             // width: 60px;
@@ -593,7 +613,7 @@
           }
           &.bigfnbutton {
             font-size: var(--keycap-extra-small-font-size, 14px);
-            @media only screen and (max-width: 767px) {
+            @media @sm {
               font-size: calc(var(--keycap-extra-small-font-size, 14px) / 1.55);
             }
           }
@@ -622,7 +642,7 @@
           }
           small {
             color: var(--keycap-secondary-text);
-            @media only screen and (max-width: 767px) {
+            @media @sm {
               font-size: 9px;
             }
           }
@@ -632,362 +652,105 @@
             line-height: 10px;
             color: var(--keycap-secondary-text);
             /* On small screens, don't display */
-            @media only screen and (max-width: 767px) {
+            @media @sm {
               display: none;
             }
           }
         }
       }
 
-      /* iPhone 5 */
-      @media only screen and (max-width: 414px) {
+      /* Medium breakpoint: larger phones */
+      @media @md {
         & > ul {
+          // height: 40px;
+          & > li {
+            --margin: 2px;
+            --max-width: 74px;
+            --width: 34px;
+            min-width: 34px;
+          }
+        }
+      }
+
+      // /* @xs breakpoint: iPhone 5 */
+      @media @xs {
+        & > ul {
+          height: 40px;
           & > li {
             width: calc(10vw - 2px); // 29px;
-            margin-right: 2px;
-          }
-          & > .w5 {
-            width: calc(5vw - 2px); // 13.5px;
-          }
-          & > .w15 {
-            width: calc(15vw - 2px); // 44.5px;
-          }
-          & > .w20 {
-            width: calc(20vw - 2px); // 60px;
-          }
-          & > .w50 {
-            width: calc(50vw - 2px); // 153px;
-          }
-        }
-      }
-      /* Pixel, iPhone 6,7,8+ */
-      @media only screen and (min-width: 415px) and (max-width: 768px) {
-        & > ul {
-          & > li {
-            width: 37px;
-            margin-right: 3px;
-          }
-          & > .w5 {
-            width: 17px;
-          }
-          & > .w15 {
-            width: 57px;
-          }
-          & > .w20 {
-            width: 77px;
-          }
-          & > .w50 {
-            width: 197px;
-          }
-        }
-      }
-      /* Tablet size */
-      @media only screen and (min-width: 768px) and (max-width: 1024px) {
-        & > ul {
-          height: var(--keycap-height, @keycap-height);
-          & > li {
-            height: var(--keycap-height, @keycap-height);
-            width: 51px;
-            margin-right: 4px;
-          }
-          & > .w5 {
-            width: 23.5px;
-          }
-          & > .w15 {
-            width: 78.5px;
-          }
-          & > .w20 {
-            width: 106px;
-          }
-          & > .w50 {
-            width: 271px;
-          }
-        }
-      }
-      /* Desktop size */
-      @media only screen and (min-width: 1025px) {
-        & > ul {
-          height: var(--keycap-height, @keycap-height);
-          & > li {
-            height: var(--keycap-height, @keycap-height);
-            width: 66px;
-            margin-right: 6px;
-          }
-          & > .modifier,
-          & > .action {
-            font-size: 80%;
-          }
-          & > .w5 {
-            width: 30px;
-          }
-          & > .w15 {
-            width: 102px;
-          }
-          & > .w20 {
-            width: 138px;
-          }
-          & > .w50 {
-            width: 354px;
+            // min-width: 29px;
+            // margin-right: 2px;
+            height: 40px;
+            &.w5 {
+              width: calc(5vw - 2px); // 13.5px;
+            }
+            &.w15 {
+              width: calc(15vw - 2px); // 44.5px;
+            }
+            &.w20 {
+              width: calc(20vw - 2px); // 60px;
+            }
+            &.w50 {
+              width: calc(50vw - 2px); // 153px;
+            }
+            &.separator {
+              width: 2px;
+              min-width: 2px;
+            }
+            &.modifier,
+            &.action {
+              font-size: 65%;
+            }
           }
         }
       }
     }
   }
 }
+
+//
+// Dark theme
+//
 @media (prefers-color-scheme: dark) {
-  body:not([theme='light']) .ML__keyboard {
+  .ML__keyboard {
     --hue: 206;
-    --keyboard-background: hsl(206, 19%, 38%);
-    --keyboard-background: hsl(212, 19%, 38%);
-    --keyboard-background: hsl(var(--hue), 19%, 38%);
+    --keyboard-background: #0c0c0c;
     --keyboard-text: #f0f0f0;
     --keyboard-text-active: hsl(var(--hue), 100%, 60%);
-    --keyboard-background-border: hsl(0, 0%, 20%);
-    --keycap-background: hsl(var(--hue), 25%, 39%);
+    --keyboard-background-border: hsl(0, 0%, 10%);
+    --keycap-background: #555555;
     --keycap-background-active: hsl(var(--hue), 35%, 42%);
-    --keycap-background-border: hsl(var(--hue), 25%, 35%);
-    --keycap-background-border-bottom: hsl(206, 35%, 40%);
+    --keycap-background-border: transparent;
+    --keycap-background-border-bottom: transparent;
     --keycap-text: hsl(0, 0%, 81.6%);
     --keycap-text-active: #000;
     --keycap-secondary-text: #fff;
 
-    --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
-    --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
-    --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+    --keycap-modifier-background: #303030;
+    --keycap-modifier-border: transparent;
+    --keycap-modifier-border-bottom: transparent;
 
-    --keyboard-alternate-background: hsl(var(--hue), 19%, 38%);
+    --keyboard-alternate-background: #303030;
   }
 }
 /* Same as the media query, but with a class */
 body[theme='dark'] .ML__keyboard {
   --hue: 206;
-  --keyboard-background: hsl(var(--hue), 19%, 38%);
+  --keyboard-background: #0c0c0c;
   --keyboard-text: #f0f0f0;
   --keyboard-text-active: hsl(var(--hue), 100%, 60%);
-  --keyboard-background-border: hsl(0, 0%, 20%);
-  --keycap-background: hsl(var(--hue), 25%, 39%);
+  --keyboard-background-border: hsl(0, 0%, 10%);
+  --keycap-background: #555555;
   --keycap-background-active: hsl(var(--hue), 35%, 42%);
-  --keycap-background-border: hsl(var(--hue), 25%, 35%);
-  --keycap-background-border-bottom: hsl(206, 35%, 40%);
+  --keycap-background-border: transparent;
+  --keycap-background-border-bottom: transparent;
   --keycap-text: hsl(0, 0%, 81.6%);
   --keycap-text-active: #000;
   --keycap-secondary-text: #fff;
 
-  --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
-  --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
-  --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
+  --keycap-modifier-background: #303030;
+  --keycap-modifier-border: transparent;
+  --keycap-modifier-border-bottom: transparent;
 
   --keyboard-alternate-background: hsl(var(--hue), 19%, 38%);
-}
-
-/* The 'material' theme for the virtual keyboard */
-div.ML__keyboard.material {
-  --keyboard-background: rgba(209, 213, 217, 0.9);
-  --keyboard-background-border: #ddd;
-  --keycap-background: transparent;
-  --keycap-background-active: #cccfd1;
-  --keycap-background-border: transparent;
-
-  --keyboard-alternate-background: #efefef;
-  --keyboard-alternate-text: #000;
-
-  font-family: Roboto, sans-serif;
-
-  &.alternate-keys {
-    background: var(--keyboard-alternate-background);
-    border: 1px solid transparent;
-    border-radius: 5px;
-    box-shadow: @shadow4;
-
-    ul li:hover,
-    ul li:active,
-    ul li.is-active,
-    ul li.is-pressed {
-      border: 1px solid transparent;
-      background: @material-primary;
-      color: white;
-      fill: currentColor;
-    }
-  }
-
-  .ML__keyboard__plate {
-    .keyboard-toolbar {
-      & > div > div {
-        font-size: 16px;
-      }
-      div div:hover,
-      div div:active,
-      div.div.is-active,
-      div.div.is-pressed {
-        color: @material-primary;
-        fill: currentColor;
-      }
-      & > div > .selected {
-        color: @material-primary;
-        fill: currentColor;
-        border-bottom: 2px solid @material-primary;
-        margin-bottom: 8px;
-        padding-bottom: 0;
-      }
-    }
-    div > .rows > ul > .keycap {
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 5px;
-      color: var(--keycap-text);
-      fill: currentColor;
-
-      &.tt {
-        color: @material-primary;
-      }
-
-      // transition: .14s cubic-bezier(.4, 0, .2, 1);
-      transition: none;
-      &[data-key=' '] {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        height: 20px;
-        background: #e0e0e0;
-
-        &:hover,
-        &:active,
-        &.is-active,
-        &.is-pressed {
-          background: #d0d0d0;
-          box-shadow: none;
-          transform: none;
-        }
-      }
-      &:not([data-key=' ']):hover {
-        border: 1px solid transparent;
-        background: var(--keycap-background-active);
-        box-shadow: none;
-      }
-      &:not([data-key=' ']).is-pressed,
-      &:not([data-key=' ']).is-active,
-      &:not([data-key=' ']):active {
-        background: var(--keyboard-alternate-background);
-        color: var(--keyboard-alternate-text);
-        box-shadow: @shadow3;
-        @media only screen and (max-width: 767px) {
-          box-shadow: @shadow3;
-          font-size: 10px;
-          vertical-align: top;
-          width: 19.5px;
-          margin-right: 10px;
-          margin-left: 10px;
-          transform: translateY(-10px) scale(2, 2);
-          // transition: .07s cubic-bezier(.4, 0, .2, 1);
-          transition: none;
-          justify-content: flex-start;
-          padding: 2px 0 0 0;
-          z-index: calc(var(--ML_keyboard-zindex, @keyboard-zindex) - 5);
-        }
-        @media only screen and (max-width: 414px) {
-          width: 16.5px;
-        }
-      }
-      &:last-child:active,
-      &:last-child.is-active {
-        @media only screen and (max-width: 767px) {
-          margin-right: 0;
-          margin-left: 14px;
-        }
-      }
-    }
-    div div.rows ul li.modifier,
-    div div.rows ul li.action {
-      background: transparent;
-      border: 0;
-      color: #869096;
-      fill: currentColor;
-      font-size: 16px;
-      // transition: .28s cubic-bezier(.4, 0, .2, 1);
-      transition: none;
-      &.selected {
-        color: @material-primary;
-        border-radius: 0;
-        border-bottom: 2px solid @material-primary;
-      }
-      &:hover,
-      &:active,
-      &.is-active,
-      &.is-pressed {
-        border: 0;
-        color: var(--keycap-text);
-        background: var(--keycap-background-active);
-        box-shadow: none;
-      }
-    }
-    div div.rows ul li.fnbutton,
-    div div.rows ul li.bigfnbutton {
-      background: transparent;
-      border: 0;
-      // transition: .28s cubic-bezier(.4, 0, .2, 1);
-      &.selected,
-      &.selected {
-        color: @material-primary;
-        fill: currentColor;
-        border-radius: 0;
-        border-bottom: 2px solid @material-primary;
-      }
-      &:hover,
-      &:active,
-      &.is-pressed,
-      &.is-active {
-        border: 0;
-        color: @material-primary;
-        fill: currentColor;
-        background: var(--keycap-background-active);
-        box-shadow: none;
-      }
-    }
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  body:not([theme='light']) div.ML__keyboard.material {
-    --hue: 198;
-    --keyboard-background: hsl(var(--hue), 19%, 18%);
-    --keyboard-text: #d4d6d7;
-    --keyboard-text-active: @material-primary;
-    --keyboard-background-border: hsl(0, 0%, 20%);
-    --keycap-background: hsl(var(--hue), 25%, 39%);
-    --keycap-background-active: @material-primary;
-    --keycap-background-border: transparent;
-    --keycap-background-border-bottom: transparent;
-    --keycap-text: hsl(0, 0%, 81.6%);
-    --keycap-text-active: #d4d6d7;
-    --keycap-secondary-text: @material-primary;
-
-    --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
-    --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
-    --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
-
-    --keyboard-alternate-background: hsl(var(--hue), 8%, 2%);
-    --keyboard-alternate-background-active: hsl(var(--hue), 35%, 42%);
-    --keyboard-alternate-text: hsl(0, 0%, 82%);
-  }
-}
-body[theme='dark'] div.ML__keyboard.material {
-  --hue: 198;
-  --keyboard-background: hsl(var(--hue), 19%, 18%);
-  --keyboard-text: #d4d6d7;
-  --keyboard-text-active: @material-primary;
-  --keyboard-background-border: hsl(0, 0%, 20%);
-  --keycap-background: hsl(var(--hue), 25%, 39%);
-  --keycap-background-active: @material-primary;
-  --keycap-background-border: transparent;
-  --keycap-background-border-bottom: transparent;
-  --keycap-text: hsl(0, 0%, 81.6%);
-  --keycap-text-active: #d4d6d7;
-  --keycap-secondary-text: @material-primary;
-
-  --keycap-modifier-background: hsl(var(--hue), 35%, 40%);
-  --keycap-modifier-border: hsl(var(--hue), 35%, 35%);
-  --keycap-modifier-border-bottom: hsl(var(--hue), 35%, 42%);
-
-  --keyboard-alternate-background: hsl(var(--hue), 8%, 2%);
-  --keyboard-alternate-background-active: hsl(var(--hue), 35%, 42%);
-  --keyboard-alternate-text: hsl(0, 0%, 82%);
 }

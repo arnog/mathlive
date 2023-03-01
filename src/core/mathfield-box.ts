@@ -54,7 +54,7 @@ export class MathfieldBox extends Box {
   ) {
     super(null, options);
     this.mathfield = mathfield;
-    this.htmlData = `placeholder-id=${placeholderId} `;
+    this.htmlData = `placeholder-id="${placeholderId}" `;
 
     const box = makeBox(mathfield['_mathfield']!);
     this.height = box.height;
@@ -77,7 +77,7 @@ export class MathfieldBox extends Box {
 
     if (this.cssId) {
       // A (HTML5) CSS id may not contain a space
-      props.push(`id=${this.cssId.replace(/ /g, '-')}`);
+      props.push(`id="${this.cssId.replace(/ /g, '-')}"`);
     }
 
     if (this.htmlData) {

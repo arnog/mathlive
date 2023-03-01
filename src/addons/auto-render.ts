@@ -6,7 +6,6 @@ import coreStylesheet from '../../css/core.less';
 import { AutoRenderOptions, TextToSpeechOptions } from '../public/options';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
-import { throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
 
 import '../core/atom';
@@ -229,8 +228,6 @@ function createMathMLNode(
   latex: string,
   options: AutoRenderOptionsPrivate
 ): HTMLElement {
-  throwIfNotInBrowser();
-
   // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
   // This node has a style that makes it be invisible to display but is seen by AT
   const span = document.createElement('span');
@@ -258,8 +255,6 @@ function createMarkupNode(
   mathstyle: 'displaystyle' | 'textstyle',
   createNodeOnFailure: boolean
 ): HTMLElement | Text | null {
-  throwIfNotInBrowser();
-
   // Create a node for displaying math.
   //   This is slightly ugly because in the case of failure to create the markup,
   //   sometimes a text node is desired and sometimes not.
@@ -302,7 +297,6 @@ function createAccessibleMarkupPair(
   );
   const accessibleContent = options.renderAccessibleContent ?? '';
   if (markupNode && /\b(mathml|speakable-text)\b/i.test(accessibleContent)) {
-    throwIfNotInBrowser();
     const fragment = document.createElement('span');
     if (/\bmathml\b/i.test(accessibleContent) && options.renderToMathML)
       fragment.append(createMathMLNode(latex, options));
@@ -329,8 +323,6 @@ function scanText(
   text: string,
   options: AutoRenderOptionsPrivate
 ): Node | null {
-  throwIfNotInBrowser();
-
   // If the text starts with '\begin'... (this is a MathJAX behavior)
   let fragment: Node | null = null;
   if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text)) {

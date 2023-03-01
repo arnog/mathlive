@@ -104,17 +104,22 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: '[Copy]', command: 'copyToClipboard' },
   { key: '[Paste]', command: 'pasteFromClipboard' },
   { key: '[Clear]', command: 'deleteBackward' },
+  { key: '[Undo]', command: 'undo' },
+  { key: '[Redo]', command: 'redo' },
+  { key: '[EraseEof]', command: 'deleteToGroupEnd' },
 
+  { key: 'ctrl+x', command: 'cutToClipboard' },
+  { key: 'cmd+x', command: 'cutToClipboard' },
+  { key: 'ctrl+c', command: 'copyToClipboard' },
+  { key: 'cmd+c', command: 'copyToClipboard' },
+  { key: 'ctrl+v', command: 'pasteFromClipboard' },
+  { key: 'cmd+v', command: 'pasteFromClipboard' },
   { key: 'ctrl+z', ifPlatform: '!macos', command: 'undo' },
   { key: 'cmd+z', command: 'undo' },
-  { key: '[Undo]', command: 'undo' },
   { key: 'ctrl+y', ifPlatform: '!macos', command: 'redo' }, // ARIA recommendation
   { key: 'shift+cmd+y', command: 'redo' },
   { key: 'shift+ctrl+z', ifPlatform: '!macos', command: 'redo' },
   { key: 'shift+cmd+z', command: 'redo' },
-  { key: '[Redo]', command: 'redo' },
-
-  { key: '[EraseEof]', command: 'deleteToGroupEnd' },
 
   // EMACS/MACOS BINDINGS
   { key: 'ctrl+b', ifPlatform: 'macos', command: 'moveToPreviousChar' },

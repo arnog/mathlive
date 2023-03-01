@@ -18,7 +18,6 @@ import { VirtualKeyboard } from './editor/virtual-keyboard-utils';
 import './editor/virtual-keyboard-commands';
 import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboard';
 
-import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 import {
   convertLatexToMarkup,
   convertLatexToMathMl,
@@ -97,11 +96,12 @@ export function makeSharedVirtualKeyboard(
         (x) =>
           x.isConnected &&
           x['_mathfield'] &&
-          x['_mathfield']['_virtualKeyboard']
+          x['_mathfield']['_virtualKeyboard'] &&
+          x['_mathfield']['_virtualKeyboard'] instanceof VirtualKeyboard
       )
     ) {
       console.error(
-        'ERROR: makeSharedVirtualKeyboard() must be called before any mathfield element is connected to the DOM'
+        'MathLive: makeSharedVirtualKeyboard() must be called before any mathfield element is connected to the DOM or set the `use-shared-virtual-keyboard` on each mathfield elements.'
       );
     }
     globalMathLive().sharedVirtualKeyboard = new RemoteVirtualKeyboard(options);
@@ -124,19 +124,21 @@ export function makeSharedVirtualKeyboard(
  *
  * @example
  * import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
- * document.addEventListener("load", () => renderMathInDocument());
+ * if (window.readyState === "loading")
+ *  document.addEventListener("DOMContentLoaded", () => renderMathInDocument());
+ * else
+ *   renderMathInDocument();
  *
  * @category Rendering
  * @keywords render, document, autorender
  */
 
 export function renderMathInDocument(options?: AutoRenderOptions): void {
-  throwIfNotInBrowser();
   renderMathInElement(document.body, options);
 }
 
 function getElement(element: string | HTMLElement): HTMLElement | null {
-  if (typeof element === 'string' && isBrowser()) {
+  if (typeof element === 'string') {
     const result = document.getElementById(element);
     if (result === null)
       throw new Error(`The element with ID "${element}" could not be found.`);
@@ -157,7 +159,10 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
  *
  * @example
  * import { renderMathInElement } from 'https://unpkg.com/mathlive?module';
- * document.addEventListener("load", () => renderMathInElement('formula));
+ * if (window.readyState === "loading")
+ *  document.addEventListener("DOMContentLoaded", () => renderMathInElement("formula"));
+ * else
+ *   renderMathInElement("formula");
  *
  * @category Rendering
  * @keywords render, element, htmlelement

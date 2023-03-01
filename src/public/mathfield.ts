@@ -160,8 +160,10 @@ export interface VirtualKeyboardInterface {
   executeCommand(command: string | [string, ...any[]]): boolean;
   focusMathfield(): void;
   blurMathfield(): void;
+  updateToolbar(mf: Mathfield): void;
   enable(): void;
   disable(): void;
+  stateWillChange(visible: boolean): boolean;
   stateChanged(): void;
   setOptions(options: CombinedVirtualKeyboardOptions): void;
 }

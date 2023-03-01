@@ -1,4 +1,3 @@
-import { isBrowser } from '../common/capabilities';
 import { resolveUrl } from '../common/script-url';
 
 function makeFontFace(
@@ -15,8 +14,7 @@ function makeFontFace(
 
 export async function loadFonts(fontsDirectory?: string): Promise<void> {
   // If we're already loading the fonts, we're done.
-  if (!isBrowser() || document.body.classList.contains('ML__fonts-loading'))
-    return;
+  if (document.body.classList.contains('ML__fonts-loading')) return;
 
   // If the "mathlive-fonts.css" stylesheet is included in the <head> of the
   // page, it will include a `--ML__static-fonts` variable.

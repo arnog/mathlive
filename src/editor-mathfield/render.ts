@@ -12,7 +12,6 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { toMathML } from '../addons/math-ml';
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
-import { throwIfNotInBrowser } from '../common/capabilities';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -119,7 +118,6 @@ export function render(
   mathfield: MathfieldPrivate,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
-  throwIfNotInBrowser();
   if (!isValidMathfield(mathfield)) return;
 
   renderOptions = renderOptions ?? {};
@@ -168,11 +166,12 @@ export function render(
   field.innerHTML = mathfield.options.createHTML(box.toMarkup());
   mathfield.fieldContent = field.querySelector('.ML__mathlive')!;
 
-  mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
-    '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-      toMathML(model.root, mathfield.options) +
-      '</math>'
-  );
+  // NVA tries (and fails) to read MathML, so skip it for now
+  // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
+  //   '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
+  //     toMathML(model.root, mathfield.options) +
+  //     '</math>'
+  // );
 
   //
   // 4. Render the selection/caret
@@ -190,8 +189,6 @@ export function render(
 }
 
 export function renderSelection(mathfield: MathfieldPrivate): void {
-  throwIfNotInBrowser();
-
   const field = mathfield.field;
 
   // In some rare cases, we can get called (via a timeout) when the field

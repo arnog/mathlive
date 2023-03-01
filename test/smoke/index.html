@@ -15,16 +15,20 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf" virtualkeyboardmode="manual"></math-field>
-      <!-- <math-field id="mf" virtualkeyboardmode="manual"
+      <math-field id="mf" virtual-keyboard-mode="manual"
+        >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
+      >
+      <!-- <math-field id="mf" virtual-keyboard-mode="manual"
         >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
         \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
         \frac{a+1}{b+\alpha+\gamma}</math-field
       > -->
-      <!-- <math-field id="mf" virtualkeyboardmode="manual" readonly
+      <!-- <math-field id="mf" virtual-keyboard-mode="manual" readonly
         >f(x)= \placeholder[id1][x]{}</math-field
       > -->
-      <math-field>f(x)</math-field>
+      <math-field use-shared-virtual-keyboard virtual-keyboard-mode="manual"
+        >f(x)</math-field
+      >
 
       <h2 style="margin-top: 1em">LaTeX</h2>
       <div class="output" id="latex"></div>
@@ -71,6 +75,9 @@
       // const k = makeSharedVirtualKeyboard();
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
       //   console.log('toggling ', ev)
+      // );
+      // k.addEventListener('before-virtual-keyboard-toggle', (ev) =>
+      //   // ev.preventDefault()
       // );
 
       // const HIGH_SCHOOL_KEYBOARD_LAYER = {
@@ -172,13 +179,8 @@
 
       const mf = document.getElementById('mf');
 
-      console.log(convertLatexToMarkup('\\pi+1'));
-
       mf.setOptions({ computeEngine: new ComputeEngine() });
-      mf.setOptions({
-        ...mf.getOptions(),
-        decimalSeparator: '.',
-      });
+      // mf.setOptions({decimalSeparator: '.'});
 
       mf.setOptions({
         onInlineShortcut: (_mf, s) => {
@@ -194,7 +196,7 @@
           return '';
         },
         // smartFence: true,
-        virtualKeyboardMode: 'manual',
+        // virtualKeyboardMode: 'off',
         enablePopover: false,
         // macros: { ...mf.getOptions('macros'), in: '\\mathrm{in}' },
         macros: {
@@ -209,20 +211,38 @@
         },
       });
 
-      mf.addEventListener('move-out', (ev) => {
-        console.log('move-out event');
-        ev.preventDefault();
-        mf.blur();
+      mf.addEventListener('click', (ev) => {
+        console.log('a click');
+      });
+      // mf.addEventListener('focusin', (ev) => {
+      //   console.log('focus-in', ev);
+      // });
+      // mf.addEventListener('focus', (ev) => {
+      //   console.log('focus', ev);
+      //   mf.executeCommand('showVirtualKeyboard');
+      // });
+      // mf.addEventListener('blur', (ev) => {
+      //   console.log('blur');
+      // });
+
+      mf.addEventListener('selection-change', (ev) => {
+        console.log('selection change', ev);
       });
 
-      mf.addEventListener('focus-out', (ev) => {
-        console.log('focus-out event');
-        if (ev.detail.direction === 'forward')
-          mf.executeCommand('moveToMathfieldEnd');
-        else if (ev.detail.direction === 'backward')
-          mf.executeCommand('moveToMathfieldStart');
-        ev.preventDefault();
-      });
+      // mf.addEventListener('move-out', (ev) => {
+      //   console.log('move-out event');
+      //   ev.preventDefault();
+      //   mf.blur();
+      // });
+
+      // mf.addEventListener('focus-out', (ev) => {
+      //   console.log('focus-out event');
+      //   if (ev.detail.direction === 'forward')
+      //     mf.executeCommand('moveToMathfieldEnd');
+      //   else if (ev.detail.direction === 'backward')
+      //     mf.executeCommand('moveToMathfieldStart');
+      //   ev.preventDefault();
+      // });
 
       mf.addEventListener('input', (ev) => {
         console.log('input event');

@@ -1,5 +1,4 @@
 import type { Releasable } from './releasable';
-import { throwIfNotInBrowser } from './capabilities';
 
 export type Stylesheet = Releasable;
 
@@ -8,8 +7,6 @@ export function inject(
   css: string,
   id: string
 ): null | Releasable {
-  throwIfNotInBrowser();
-
   if (!css) return null;
 
   let root = element?.getRootNode() ?? document?.head;

@@ -18,7 +18,13 @@ const POST_MESSAGE_TYPE = 'mathlive#remote-virtual-keyboard-message';
 
 interface RemoteKeyboardMessageData {
   type: 'mathlive#remote-virtual-keyboard-message';
-  action: 'executeCommand' | 'focus' | 'blur' | 'updateState' | 'setOptions';
+  action:
+    | 'execute-command'
+    | 'focus'
+    | 'blur'
+    | 'update-state'
+    | 'update-toolbar'
+    | 'set-options';
   state?: {
     visible: boolean;
     height: number;
@@ -66,7 +72,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   setOptions(
     options: CombinedVirtualKeyboardOptions | Record<string, never>
   ): void {
-    this.sendMessage('setOptions', {
+    this.sendMessage('set-options', {
       options: JSON.stringify(getValidOptions(options)),
     });
   }
@@ -81,6 +87,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     if (!this.enabled) {
       this.enabled = true;
       globalThis.addEventListener('message', this);
+      this.updateToolbar();
     }
   }
 
@@ -103,7 +110,8 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
         )
           this._mathfield.focus?.();
       }
-      this.sendMessage('executeCommand', { command });
+      this.sendMessage('execute-command', { command });
+      requestAnimationFrame(() => this.updateToolbar());
       return false;
     }
 
@@ -116,7 +124,14 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
 
   blurMathfield(): void {}
 
+  stateWillChange(_visible: boolean): boolean {
+    return true;
+  }
   stateChanged(): void {}
+
+  updateToolbar(): void {
+    globalMathLive().sharedVirtualKeyboard?.updateToolbar(this._mathfield);
+  }
 
   handleEvent(event: MessageEvent<RemoteKeyboardMessageData>): void {
     if (
@@ -132,7 +147,7 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
 
       const { action } = event.data;
 
-      if (action === 'executeCommand') {
+      if (action === 'execute-command') {
         // Avoid an infinite messages loop if within one window
         if (
           getCommandTarget(event.data.command!) === 'virtual-keyboard' &&
@@ -141,11 +156,12 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
           return;
 
         this.executeCommand(event.data.command!);
-      } else if (action === 'updateState') {
+      } else if (action === 'update-state') {
         this.visible = event.data.state!.visible;
         this.height = event.data.state!.height;
       } else if (action === 'focus') this._mathfield?.focus?.();
       else if (action === 'blur') this._mathfield?.blur?.();
+      else if (action === 'update-toolbar') this.updateToolbar();
     }
   }
 
@@ -179,7 +195,9 @@ export class RemoteVirtualKeyboard
   private sourceFrame: Window;
   private readonly canUndoState: boolean;
   private readonly canRedoState: boolean;
-  private readonly listeners: Set<EventListenerOrEventListenerObject | null>;
+  private readonly listeners: {
+    [type: string]: Set<EventListenerOrEventListenerObject | null>;
+  };
 
   constructor(options?: Partial<RemoteVirtualKeyboardOptions>) {
     const validOptions = {
@@ -192,7 +210,10 @@ export class RemoteVirtualKeyboard
 
     super(validOptions);
 
-    this.listeners = new Set();
+    this.listeners = {
+      'virtual-keyboard-toggle': new Set(),
+      'before-virtual-keyboard-toggle': new Set(),
+    };
 
     globalThis.addEventListener('message', this);
 
@@ -257,29 +278,38 @@ export class RemoteVirtualKeyboard
     callback: EventListenerOrEventListenerObject | null,
     _options?: AddEventListenerOptions | boolean
   ): void {
-    if (type !== 'virtual-keyboard-toggle')
+    if (
+      type !== 'virtual-keyboard-toggle' &&
+      type !== 'before-virtual-keyboard-toggle'
+    )
       throw new TypeError('Unexpected event type');
-    if (!this.listeners.has(callback)) this.listeners.add(callback);
+    if (!this.listeners[type].has(callback)) this.listeners[type].add(callback);
   }
 
   dispatchEvent(event: Event): boolean {
-    if (event.type !== 'virtual-keyboard-toggle')
+    if (
+      event.type !== 'virtual-keyboard-toggle' &&
+      event.type !== 'before-virtual-keyboard-toggle'
+    )
       throw new TypeError('Unexpected event type');
-    if (this.listeners.size === 0) return false;
-    this.listeners.forEach((x) => {
+    if (this.listeners[event.type].size === 0) return true;
+    this.listeners[event.type].forEach((x) => {
       if (typeof x === 'function') x(event);
       else x?.handleEvent(event);
     });
-    return true;
+    return !event.defaultPrevented;
   }
   removeEventListener(
     type: string,
     callback: EventListenerOrEventListenerObject | null,
     _options?: EventListenerOptions | boolean
   ): void {
-    if (type !== 'virtual-keyboard-toggle')
+    if (
+      type !== 'virtual-keyboard-toggle' &&
+      type !== 'before-virtual-keyboard-toggle'
+    )
       throw new TypeError('Unexpected event type');
-    this.listeners.delete(callback);
+    this.listeners[type].delete(callback);
   }
 
   handleEvent(event: MessageEvent<RemoteKeyboardMessageData>): void {
@@ -295,7 +325,7 @@ export class RemoteVirtualKeyboard
       }
 
       const { action } = event.data;
-      if (action === 'executeCommand') {
+      if (action === 'execute-command') {
         const { command } = event.data;
         this.sourceFrame = event.source as Window;
 
@@ -305,7 +335,7 @@ export class RemoteVirtualKeyboard
           return;
 
         this.executeCommand(command!);
-      } else if (action === 'setOptions') {
+      } else if (action === 'set-options') {
         const currentOptions = JSON.stringify(getValidOptions(this.options));
         if (currentOptions !== event.data.options) {
           const parsedOptions = getValidOptions(
@@ -323,9 +353,21 @@ export class RemoteVirtualKeyboard
     }
   }
 
+  stateWillChange(visible: boolean): boolean {
+    const defaultNotPrevented = this.dispatchEvent(
+      new CustomEvent('before-virtual-keyboard-toggle', {
+        detail: { visible },
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      })
+    );
+    return defaultNotPrevented;
+  }
+
   stateChanged(): void {
     this.dispatchEvent(new Event('virtual-keyboard-toggle'));
-    this.sendMessage('stateChanged', {
+    this.sendMessage('state-changed', {
       state: {
         visible: this.visible,
         height: this.element?.offsetHeight ?? 0,
@@ -340,7 +382,7 @@ export class RemoteVirtualKeyboard
     if (commandTarget === 'virtual-keyboard')
       return super.executeCommand(command);
 
-    this.sendMessage('executeCommand', { command });
+    this.sendMessage('execute-command', { command });
     return false;
   }
 

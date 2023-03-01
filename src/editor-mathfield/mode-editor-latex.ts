@@ -26,10 +26,15 @@ export class LatexModeEditor extends ModeEditor {
     return new LatexAtom(command, context);
   }
 
-  onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
-    if (!ev.clipboardData) return false;
-    let text = ev.clipboardData.getData('text/x-latex');
-    if (!text) text = ev.clipboardData.getData('text/plain');
+  onPaste(
+    mathfield: MathfieldPrivate,
+    data: DataTransfer | string | null
+  ): boolean {
+    if (!data) return false;
+    const text =
+      typeof data === 'string'
+        ? data
+        : data.getData('text/x-latex') ?? data.getData('text/plain');
 
     if (
       text &&
@@ -43,8 +48,6 @@ export class LatexModeEditor extends ModeEditor {
         contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
         requestUpdate(mathfield);
       }
-      ev.preventDefault();
-      ev.stopPropagation();
       return true;
     }
 

@@ -14,6 +14,7 @@ export function selectionDidChange(model: ModelPrivate): void {
     model.listeners.onSelectionDidChange(model);
     model.suppressChangeNotifications = false;
   }
+  model.mathfield.virtualKeyboard?.updateToolbar(model.mathfield);
 }
 
 export function contentWillChange(
@@ -23,14 +24,16 @@ export function contentWillChange(
   if (model.suppressChangeNotifications || !model.mathfield.host) return true;
 
   model.suppressChangeNotifications = true;
-  const inputEvent = new InputEvent('beforeinput', {
-    data: 'test',
-    inputType: 'insertLineBreak',
-    cancelable: true,
-    bubbles: true,
-    composed: true,
-  });
-  const result = model.mathfield.host.dispatchEvent(inputEvent);
+  const result = model.mathfield.host.dispatchEvent(
+    new InputEvent('beforeinput', {
+      ...options,
+      // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
+      data: options.data ? options.data : options.inputType ?? '',
+      cancelable: true,
+      bubbles: true,
+      composed: true,
+    })
+  );
 
   model.suppressChangeNotifications = false;
   return result;
@@ -46,6 +49,8 @@ export function contentDidChange(
   model.mathfield.host.dispatchEvent(
     new InputEvent('input', {
       ...options,
+      // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
+      data: options.data ? options.data : options.inputType ?? '',
       bubbles: true,
       composed: true,
     } as InputEventInit)
