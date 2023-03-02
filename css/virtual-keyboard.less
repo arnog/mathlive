@@ -1,5 +1,5 @@
 @keyboard-height: 276px;
-@keycap-height: 52px;
+@keycap-height: 62px;
 
 @xs: ~'(max-width: 414px)'; // <= iPhone 5
 @sm: ~'(max-width: 744px)'; // <=744 -> phone
@@ -12,7 +12,6 @@
   sans-serif;
 @monospace: 'IBM Plex Mono', 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
   'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
-@material-primary: #5f97fc;
 
 @shadow2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 @shadow3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
@@ -24,14 +23,14 @@
   --keyboard-height: calc(@keyboard-height + env(safe-area-inset-bottom, 0));
 
   --hue: 206;
-  --primary: #326595;
+  --primary: #0b579d; // #326595;
   --keyboard-background: #cacfd7;
   --keyboard-border: #ddd;
   --keyboard-toolbar-text: #2c2e2f;
   --keyboard-toolbar-text-active: var(--primary, hsl(var(--hue), 40%, 50%));
   --keyboard-toolbar-background: transparent;
   --keyboard-toolbar-background-hover: #eee;
-  --keyboard-toolbar-background-active: transparent;
+  --keyboard-toolbar-background-selected: transparent;
 
   --keycap-background: white;
   --keycap-background-hover: #f5f5f7;
@@ -50,7 +49,7 @@
   --keycap-modifier-border-bottom: #989da6;
 
   --keycap-height: @keycap-height;
-  --keycap-font-size: 20px;
+  --keycap-font-size: clamp(16px, 4vw, 24px);
   --keycap-small-font-size: calc(var(--keycap-font-size) * 0.8);
   --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
   --keycap-tt-font-size: calc(var(--keycap-font-size) * 1.5);
@@ -98,6 +97,17 @@
   /* This is the element that displays alternate keys on press+hold */
   &.alternate-keys {
     visibility: hidden;
+    position: fixed;
+    bottom: auto; // Override the value from ML__keyboard
+    top: 0; // "
+    box-sizing: content-box; // "
+    transform: none; // "
+    z-index: calc(var(--keyboard-zindex, @keyboard-zindex) + 1);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+
     max-width: 286px;
     @media @xs {
       max-width: 320px;
@@ -106,17 +116,7 @@
     background-color: var(--keyboard-alternate-background);
     text-align: center;
     border-radius: 6px;
-    position: fixed;
-    bottom: auto; // Override the value from ML__keyboard
-    top: 0; // "
-    box-sizing: content-box; // "
-    transform: none; // "
-    z-index: calc(var(--keyboard-zindex, @keyboard-zindex) + 1);
-
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-content: center;
+    padding: 6px;
 
     box-shadow: @shadow4;
 
@@ -174,7 +174,6 @@
         &:hover,
         &.is-pressed,
         &.is-active {
-          box-shadow: @shadow3;
           background: var(--keyboard-alternate-background-active);
           color: var(--keyboard-alternate-text-active);
         }
@@ -324,7 +323,7 @@
         color: var(--keyboard-toolbar-text);
         fill: currentColor;
         background: var(--keyboard-toolbar-background);
-        font-size: 110%;
+        font-size: 125%;
         padding: 4px 15px;
         cursor: pointer;
         width: max-content;
@@ -342,7 +341,7 @@
         border-radius: 8px;
         box-shadow: none;
         border-bottom: 2px solid transparent;
-        &:hover {
+        &:not(.disabled):not(.selected):hover {
           background: var(--keyboard-toolbar-background-hover);
         }
         &.disabled svg,
@@ -352,18 +351,18 @@
           opacity: 0.2;
         }
 
-        /* Phone */
-        @media @sm {
-          padding-left: 0;
-          padding-right: 0;
-          font-size: 90%;
-        }
         /* iPhone 5 */
         @media @xs {
           font-size: 100%;
           padding: 0;
           margin-left: 2px;
           margin-right: 2px;
+        }
+        /* Phone */
+        @media @sm {
+          padding-left: 0;
+          padding-right: 0;
+          font-size: 90%;
         }
         &:hover,
         &:active,
@@ -373,9 +372,11 @@
         }
         &.selected {
           color: var(--keyboard-toolbar-text-active);
-          background: var(--keyboard-toolbar-background-active);
+          background: var(--keyboard-toolbar-background-selected);
           border-radius: 0;
           border-bottom-color: var(--keyboard-toolbar-text-active);
+          padding-bottom: 4px;
+          margin-bottom: 12px;
         }
       }
     }
@@ -436,13 +437,16 @@
       display: flex;
       flex-flow: column;
       align-items: center;
+      /* Keycap with (incl. margin) */
+      --max-width: 100px;
+      --margin: 6px;
       & > ul {
         display: flex;
         flex-flow: row;
         max-width: 100vw;
         list-style: none;
         height: var(--keycap-height, @keycap-height);
-        margin: 0 0 3px 0;
+        margin: 0 0 var(--margin) 0;
         padding: 0;
 
         & > li {
@@ -451,9 +455,6 @@
           align-items: center;
           justify-content: center;
 
-          /* Keycap with (incl. margin) */
-          --max-width: 100px;
-          --margin: 6px;
           margin-right: var(--margin);
           width: calc(~'min(var(--max-width), 10vw)' - var(--margin));
           height: var(--keycap-height, @keycap-height);
@@ -490,6 +491,10 @@
           // &[data-alt-keys] {
           // }
 
+          &.big-op {
+            font-size: calc(1.25 * var(--keycap-font-size, 20px));
+          }
+
           &.small {
             font-size: var(--keycap-small-font-size, 16px);
           }
@@ -503,11 +508,11 @@
           }
           &.left {
             align-items: flex-start;
-            padding-left: 4px;
+            padding-left: 12px;
           }
           &.right {
             align-items: flex-end;
-            padding-right: 4px;
+            padding-right: 12px;
           }
 
           &.w0 {
@@ -682,12 +687,9 @@
       /* Medium breakpoint: larger phones */
       @media @md {
         & > ul {
-          // height: 40px;
-          & > li {
-            --margin: 2px;
-            --max-width: 74px;
-            --width: 34px;
-            min-width: 34px;
+          --keycap-height: 42px;
+          & > li.small {
+            font-size: 14px;
           }
         }
       }
@@ -698,8 +700,6 @@
           height: 40px;
           & > li {
             width: calc(10vw - 2px); // 29px;
-            // min-width: 29px;
-            // margin-right: 2px;
             height: 40px;
             &.w5 {
               width: calc(5vw - 2px); // 13.5px;
@@ -740,7 +740,7 @@
     --keyboard-toolbar-text-active: hsl(var(--hue), 100%, 60%);
     --keyboard-toolbar-background: transparent;
     --keyboard-toolbar-background-hover: #303030;
-    --keyboard-toolbar-background-active: transparent;
+    --keyboard-toolbar-background-selected: transparent;
 
     --keycap-background: #1f2022;
     --keycap-background-hover: #2f3032;
@@ -769,7 +769,7 @@ body[theme='dark'] .ML__keyboard {
   --keyboard-toolbar-text-active: hsl(var(--hue), 100%, 60%);
   --keyboard-toolbar-background: transparent;
   --keyboard-toolbar-background-hover: #303030;
-  --keyboard-toolbar-background-active: transparent;
+  --keyboard-toolbar-background-selected: transparent;
 
   --keycap-background: #1f2022;
   --keycap-background-hover: #2f3032;

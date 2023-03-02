@@ -393,12 +393,14 @@ const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {
     tooltip: 'keyboard.tooltip.numeric',
     layer: 'math',
     label: '123',
+    classes: 'tex-math',
     layers: ['math'],
   },
   roman: {
     tooltip: 'keyboard.tooltip.roman',
     layer: 'lower-roman',
-    label: 'ABC',
+    label: 'abc',
+    classes: 'tex-math',
     layers: ['lower-roman', 'upper-roman'],
   },
   greek: {
@@ -411,15 +413,15 @@ const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {
   functions: {
     tooltip: 'keyboard.tooltip.functions',
     layer: 'functions',
-    label: '<i>f</i>&thinsp;()',
-    classes: 'tex',
+    label: 'f&thinsp;()',
+    classes: 'tex-math',
     layers: ['functions'],
   },
   symbols: {
     tooltip: 'keyboard.tooltip.symbols',
     layer: 'symbols',
     label: '&infin;≠∈',
-    classes: 'tex',
+    classes: 'tex-math',
     layers: ['symbols'],
   },
 };
@@ -1154,7 +1156,7 @@ const LAYERS = {
                 <li class='fnbutton' data-latex='\\sqrt[#?]{#0}'></li>
                 <li class='bigfnbutton' data-insert='#0 \\mod' data-latex='\\mod'></li>
                 <li class='bigfnbutton' data-insert='\\operatorname{round}(#?) ' data-latex='\\operatorname{round}()'></li>
-                <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\scriptstyle \\prod_{n=0}^{\\infty}}'></li>
+                <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{ \\prod_{n=0}^{\\infty}}'></li>
                 <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
                 <li class='action font-glyph bottom right' data-command='["performWithFeedback","deleteBackward"]'><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li></ul>
             <ul>
@@ -1621,43 +1623,30 @@ function expandLayerMarkup(
             `<li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='` +
             attributes['shift-layer'] +
             `'><svg class="svg-glyph"><use xlink:href="#svg-shift" /></svg></li>`;
-        } else if (c === '/') {
+        } else if (c === '/')
+          row += `<li class="keycap big-op ${cls}" data-alt-keys="/" data-insert='\\frac{#@}{#?}'>&divide;</li>`;
+        else if (c === '*')
+          row += `<li class="keycap big-op ${cls}" data-alt-keys="*" data-insert='\\times '>&times;</li>`;
+        else if (c === '-')
+          row += `<li class="keycap  big-op ${cls}" data-alt-keys="-" data-key='-'>&#x2212;</li>`;
+        else if (c === '.') {
           row +=
-            "<li class='keycap" +
-            cls +
-            "' data-alt-keys='/' data-insert='\\frac{#@}{#?}'>&divide;</li>";
-        } else if (c === '*') {
-          row +=
-            "<li class='keycap" +
-            cls +
-            "' data-alt-keys='*' data-insert='\\times '>&times;</li>";
-        } else if (c === '-') {
-          row +=
-            "<li class='keycap" +
-            cls +
-            "' data-alt-keys='-' data-key='-'>&#x2212;</li>";
-        } else if (c === '.') {
-          row +=
-            "<li class='keycap" +
+            "<li class='keycap big-op " +
             cls +
             "' data-alt-keys='.' data-command='\"insertDecimalSeparator\"'>" +
             (options['decimalSeparator'] ?? '.') +
             '</li>';
-        } else if (cls.includes('tt')) {
+        } else if (c === '+')
+          row += `<li class="keycap big-op ${cls}" data-alt-keys="+" data-key="-">+</li>`;
+        else if (c === '=')
+          row += `<li class="keycap big-op ${cls}" data-alt-keys="=" data-key="-">=</li>`;
+        else if (cls.includes('tt')) {
           row +=
-            `<li class='keycap${cls}' data-alt-keys='${c}' ` +
+            `<li class="keycap${cls}" data-alt-keys="${c}" ` +
             `data-command='["typedText","${c}",{"mode":"latex", "focus":true, "feedback":true}]'` +
             `>${c}</li>`;
-        } else {
-          row +=
-            "<li class='keycap" +
-            cls +
-            "' data-alt-keys='" +
-            c +
-            "'>" +
-            c +
-            '</li>';
-        }
+        } else
+          row += `<li class="keycap ${cls}" data-alt-keys="${c}">${c}</li>`;
       }
     }
 
