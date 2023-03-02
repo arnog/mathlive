@@ -1,23 +1,33 @@
 ## [Unreleased]
 
+### Breaking Change
+
+- New implementation of `\placeholder` command for "fill-in-the-blank" feature.
+  Instead of each placeholder being an embedded mathfield, the placeholders are
+  now special editable regions of a read-only mathfield. This improves their
+  layout (for example a placeholder numerator is now displayed at the correct
+  size) and simplify their interaction.
+
 ### Improvements
 
 - **#1854** Attempt to solve multiple reading of field content by screen readers
   on focus
 - **#1855** Updated support for more recent versions of SRE (Speech Rule Engine)
 - Improved interaction with some screen readers
-- **#1845** Smarter smart-fence: fewer fence combinations are now valid,
-  resulting in more correct results
-- **#1859** In math mode, after pressing the SPACE key, do not adopt the variant
-  style (upright, italic, etc...) from neighboring atoms.
+- **#843**, **#1845** Smarter smart-fence: fewer fence combinations are now
+  valid, resulting in more correct results
+- **#1859** In math mode, after pressing the SPACE key, the variant style
+  (upright, italic, etc...) from neighboring atoms is not adopted by subsequent
+  characters.
 
 ### Bug Fixes
 
-- **#1850** When multiple `\char` commands were in an expression, they were
-  serialized incorrectly (they would all have the same argument)
+- **#1850** When multiple `\char` commands were in an expression, they would all
+  have the same argument when serialized
 - **#1691** Inserting a left parenthesis to the left of a right parenthesis
   caused the expression to be incorrectly balanced
-- **#1858** Fixed spoken representation of `\pm` command
+- **#1858** The spoken representation of the `\pm` command was incorrect
+- **#1856** Displaying the virtual keyboard in a custom container was broken
 
 ## 0.89.4 (2023-02-27)
 

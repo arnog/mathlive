@@ -15,7 +15,10 @@
       <h1>MathLive Smoke Test</h1>
     </header>
     <main>
-      <math-field id="mf" virtual-keyboard-mode="manual"
+      <math-field
+        id="mf"
+        use-shared-virtual-keyboard
+        virtual-keyboard-mode="manual"
         >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
       >
       <!-- <math-field id="mf" virtual-keyboard-mode="manual"
@@ -29,6 +32,11 @@
       <math-field use-shared-virtual-keyboard virtual-keyboard-mode="manual"
         >f(x)</math-field
       >
+
+      <div
+        style="width: 500px; height: 300px; background: firebrick"
+        id="kbd-container"
+      ></div>
 
       <h2 style="margin-top: 1em">LaTeX</h2>
       <div class="output" id="latex"></div>
@@ -72,13 +80,17 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      // const k = makeSharedVirtualKeyboard();
+      const k = makeSharedVirtualKeyboard({
+        virtualKeyboardContainer: document.getElementById('kbd-container'),
+      });
+      // const k = makeSharedVirtualKeyboard({});
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
       //   console.log('toggling ', ev)
       // );
-      // k.addEventListener('before-virtual-keyboard-toggle', (ev) =>
-      //   // ev.preventDefault()
-      // );
+
+      k.addEventListener('before-virtual-keyboard-toggle', (ev) => {
+        if (k.visible) ev.preventDefault();
+      });
 
       // const HIGH_SCHOOL_KEYBOARD_LAYER = {
       //   'high-school-layer': {

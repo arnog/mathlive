@@ -191,8 +191,7 @@ export function showVirtualKeyboard(
   // Confirm
   if (!keyboard.stateWillChange(true)) return false;
 
-  if (keyboard.element) keyboard.element.classList.add('is-visible');
-  else keyboard.buildAndAttachElement(theme);
+  if (!keyboard.element) keyboard.buildAndAttachElement(theme);
 
   if (!keyboard.visible) {
     const global = globalMathLive();
@@ -200,22 +199,27 @@ export function showVirtualKeyboard(
       hideVirtualKeyboard(global.visibleVirtualKeyboard);
     global.visibleVirtualKeyboard = keyboard;
 
-    const padding = container.style.paddingBottom;
-    keyboard.originalContainerBottomPadding = padding;
-    container.style.paddingBottom = padding
-      ? `calc(${padding} + var(--keyboard-height, 276px) - 1px)`
-      : 'calc(var(--keyboard-height, 276px) - 1px)';
+    if (container === window.document.body) {
+      const padding = container.style.paddingBottom;
+      keyboard.originalContainerBottomPadding = padding;
+      const keyboardHeight =
+        keyboard.element!.querySelector<HTMLElement>('.ML__keyboard--plate')!
+          .offsetHeight - 1;
+      container.style.paddingBottom = padding
+        ? `calc(${padding} + ${keyboardHeight}px)`
+        : `${keyboardHeight}px`;
+    }
   }
 
   // For the transition effect to work, the property has to be changed
-  // after the insertion in the DOM. Use setTimeout
-  setTimeout(() => {
+  // after the insertion in the DOM.
+  requestAnimationFrame(() => {
     keyboard.element?.classList.add('is-visible');
     keyboard.focusMathfield();
-  }, 1);
+    keyboard.visible = true;
+    keyboard.stateChanged();
+  });
 
-  keyboard.visible = true;
-  keyboard.stateChanged();
   return false;
 }
 

@@ -19,7 +19,21 @@
 @shadow5: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
 
 // Default layout for desktop (max-width: @lg)
+body > .ML__keyboard {
+  position: fixed;
+}
 .ML__keyboard {
+  position: relative;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--keyboard-zindex, @keyboard-zindex);
+  container-type: inline-size;
+
+  background: #ff000040;
+
   --keyboard-height: calc(@keyboard-height + env(safe-area-inset-bottom, 0));
 
   --hue: 206;
@@ -66,17 +80,11 @@
   --keyboard-alternate-key-font-size: 30px;
   --keyboard-alternate-key-aside-font-size: 12px;
 
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: var(--keyboard-zindex, @keyboard-zindex);
 
   // The pointer events should pass through the "ML__keyboard" element
   // which is covering the entire screen, and be captured by the ML__keyboard--plate
   // otherwise this elements gets focus and the mathfield gets blured, causing
-  // the virtual keyboard get hidden.
+  // the virtual keyboard to be hidden.
   pointer-events: none;
 
   &.is-visible .ML__keyboard--plate {
