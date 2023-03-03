@@ -373,8 +373,7 @@ export class MathModeEditor extends ModeEditor {
     } else if (options.selectionMode === 'item')
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
 
-    const inputType = 'insertLineBreak';
-    contentDidChange(model, { data, inputType });
+    contentDidChange(model, { data, inputType: 'insertText' });
 
     model.suppressChangeNotifications = suppressChangeNotifications;
 
