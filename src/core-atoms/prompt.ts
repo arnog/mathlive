@@ -13,7 +13,7 @@ export class PromptAtom extends Atom {
     context: GlobalContext,
     placeholderId?: string,
     correctness?: string | undefined,
-    locked: boolean = false,
+    locked = false,
     body?: Atom[],
     options?: {
       mode?: ParseMode;
@@ -48,10 +48,11 @@ export class PromptAtom extends Atom {
     const result = super.toJson();
     if (this.placeholderId) result.placeholderId = this.placeholderId;
     if (!this.body) delete result.body;
-    if (this.body)
+    if (this.body) {
       result.body = this.body
         .filter((x) => x.type !== 'first')
         .map((x) => x.toJson());
+    }
     if (this.correctness) result.correctness = this.correctness;
     result.locked = this.locked;
     return result;
@@ -64,7 +65,7 @@ export class PromptAtom extends Atom {
       context.getRegisterAsDimension('fboxsep')
     );
 
-    let padding = fboxsep;
+    const padding = fboxsep;
 
     // Base is the main content "inside" the box
     const content = Atom.createBox(parentContext, this.body);
@@ -72,9 +73,8 @@ export class PromptAtom extends Atom {
     if (!content) return null;
     // An empty prompt should not be too small, pretend content has height 0.5em
 
-    if (!content.height) {
-      content.height = 0.5;
-    }
+    if (!content.height) content.height = 0.5;
+
     content.setStyle('vertical-align', -content.height, 'em');
     if (this.correctness === 'correct') {
       content.setStyle(
@@ -97,19 +97,14 @@ export class PromptAtom extends Atom {
     if (this.locked) {
       // The prompt is not editable
       boxClasses += ' ML__lockedPromptBox ';
-    } else {
-      boxClasses += ' ML__editablePromptBox ';
-    }
+    } else boxClasses += ' ML__editablePromptBox ';
 
-    if (this.correctness === 'correct') {
-      boxClasses += ' ML__correctPromptBox ';
-    } else if (this.correctness === 'incorrect') {
+    if (this.correctness === 'correct') boxClasses += ' ML__correctPromptBox ';
+    else if (this.correctness === 'incorrect')
       boxClasses += ' ML__incorrectPromptBox ';
-    }
 
-    if (this.containsCaret) {
-      boxClasses += ' ML__focusedPromptBox ';
-    }
+    if (this.containsCaret) boxClasses += ' ML__focusedPromptBox ';
+
     const box = new Box(null, {
       classes: boxClasses,
     });
@@ -132,9 +127,7 @@ export class PromptAtom extends Atom {
       svg +=
         '<line x1="3%"  y1="97%" x2="97%" y2="3%" stroke-width="0.5" stroke="var(--incorrect-color, var(--ML__incorrect-color))" stroke-linecap="round" />';
     }
-    if (svg) {
-      addSVGOverlay(box, svg, '');
-    }
+    if (svg) addSVGOverlay(box, svg, '');
 
     base.setStyle('display', 'inline-block');
     base.setStyle('height', content.height + content.depth, 'em');
@@ -172,13 +165,10 @@ export class PromptAtom extends Atom {
     if (value === this.context.placeholderSymbol) value = '';
     const id = this.placeholderId ? `[${this.placeholderId}]` : '';
     let correctness: string;
-    if (this.correctness === 'correct') {
-      correctness = '[correct]';
-    } else if (this.correctness === 'incorrect') {
-      correctness = '[incorrect]';
-    } else {
-      correctness = '';
-    }
+    if (this.correctness === 'correct') correctness = '[correct]';
+    else if (this.correctness === 'incorrect') correctness = '[incorrect]';
+    else correctness = '';
+
     const locked = this.locked ? '[locked]' : '';
     return `\\placeholder${id}${correctness}${locked}{${value}}`;
   }

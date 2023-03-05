@@ -1,5 +1,5 @@
 import type { Style, ParseMode, FontSize } from '../public/core';
-import MathfieldElement from '../public/mathfield-element';
+import '../public/mathfield-element';
 
 import { isArray } from '../common/types';
 
@@ -8,12 +8,10 @@ import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 import { GlobalContext, Context, PrivateStyle } from './context';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
-import { BoxType, isBoxType, Box, makeStruts } from './box';
+import { BoxType, isBoxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
-import { MathfieldBox } from './mathfield-box';
-import { PlaceholderAtom } from 'core-atoms/placeholder';
 import { PromptAtom } from 'core-atoms/prompt';
 
 /**
@@ -1168,47 +1166,6 @@ export class Atom {
     box.atomID = this.id;
 
     return box;
-  }
-
-  /**
-   * Create a box with the specified body.
-   */
-  createMathfieldBox(
-    context: Context,
-    mathfield: MathfieldElement,
-    placeholderId: string
-  ): Box {
-    const classes = '';
-    const result = new MathfieldBox(placeholderId, mathfield, {
-      type: 'mathfield',
-      mode: this.mode,
-      maxFontSize: context.scalingFactor,
-      style: {
-        variant: 'normal', // Will auto-italicize
-        ...this.style,
-        letterShapeStyle: context.letterShapeStyle,
-        fontSize: Math.max(
-          1,
-          context.size + context.mathstyle.sizeDelta
-        ) as FontSize,
-      },
-      classes,
-    });
-
-    // Set other attributes
-    if (context.isTight) result.isTight = true;
-
-    // The italic correction applies only in math mode
-    if (this.mode !== 'math' || this.style.variant === 'main')
-      result.italic = 0;
-
-    result.right = result.italic;
-
-    // To retrieve the atom from a box, for example when the box is clicked
-    // on, attach a unique ID to the box and associate it with the atom.
-    this.bind(context, result);
-
-    return makeStruts(result, { type: 'mord' });
   }
 
   /**

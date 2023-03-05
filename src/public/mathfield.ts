@@ -1,7 +1,6 @@
 import { Selector } from './commands';
 import { CombinedVirtualKeyboardOptions, MathfieldOptions } from './options';
 import { ParseMode, Style } from './core';
-import { PromptAtom } from 'core-atoms/prompt';
 
 /**
  *

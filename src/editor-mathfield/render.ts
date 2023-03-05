@@ -9,7 +9,6 @@ import {
 } from './utils';
 import type { MathfieldPrivate } from './mathfield-private';
 
-import { toMathML } from '../addons/math-ml';
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
 
@@ -135,9 +134,9 @@ export function render(
     atom.containsCaret = false;
   }
   const hasFocus = !mathfield.promptSelectionLocked && mathfield.hasFocus();
-  if (model.selectionIsCollapsed) {
+  if (model.selectionIsCollapsed)
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
-  } else {
+  else {
     const atoms = model.getAtoms(model.selection, { includeChildren: true });
     for (const atom of atoms) atom.isSelected = true;
   }

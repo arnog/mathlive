@@ -278,7 +278,7 @@ function atomToSpeakableFragment(
     switch (atom.type) {
       case 'prompt':
         const input =
-          atom.body?.length! > 1
+          atom.body!.length > 1
             ? 'start input . <break time="500ms"/> ' +
               atomToSpeakableFragment(mode, atom.body, options) +
               '. <break time="500ms"/> end input'

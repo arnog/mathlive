@@ -129,12 +129,11 @@ export class ModelPrivate implements Model {
             this._position = pos + 1;
             this._selection = this.normalizeSelection(pos + 1, pos + 1);
             return true;
-          } else {
-            this._anchor = 0;
-            this._position = 0;
-            this._selection = value;
-            return false;
           }
+          this._anchor = 0;
+          this._position = 0;
+          this._selection = value;
+          return false;
         }
         this._anchor = pos;
         this._position = pos;
@@ -170,6 +169,7 @@ export class ModelPrivate implements Model {
           this._position >= 0 && this._position <= this.lastOffset
         );
       }
+      return false;
     });
   }
 

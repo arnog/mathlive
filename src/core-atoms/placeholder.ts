@@ -3,7 +3,6 @@ import { ParseMode, Style } from '../public/core';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context, GlobalContext } from '../core/context';
-import { PromptAtom } from './prompt';
 
 export class PlaceholderAtom extends Atom {
   readonly placeholderId?: string;
@@ -53,7 +52,7 @@ export class PlaceholderAtom extends Atom {
     return this.createBox(context, { classes });
   }
 
-  serialize(options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     let value = this.value;
     if (value === this.context.placeholderSymbol) value = '';
     return `\\placeholder{${this.value ?? ''}}`;

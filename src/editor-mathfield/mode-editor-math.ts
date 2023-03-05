@@ -4,7 +4,6 @@ import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-
 
 import type { Style } from '../public/core';
 import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
-import MathfieldElement from '../public/mathfield-element';
 
 import { requestUpdate } from './render';
 
@@ -14,7 +13,6 @@ import { fromJson } from '../core/atom';
 import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LeftRightAtom } from '../core-atoms/leftright';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 import { range } from '../editor-model/selection-utils';
 import { ModelPrivate } from '../editor-model/model-private';
@@ -22,7 +20,6 @@ import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import {
   contentDidChange,
   selectionDidChange,
-  placeholderDidChange,
   contentWillChange,
 } from '../editor-model/listeners';
 import {
@@ -32,8 +29,6 @@ import {
 
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
-import { MathfieldOptions } from '../public/options';
-import { PromptAtom } from 'core-atoms/prompt';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -495,23 +490,6 @@ function simplifyParen(atoms: Atom[]): void {
 
     if (atom instanceof ArrayAtom) for (const x of atom.cells) simplifyParen(x);
   }
-}
-
-function findPlaceholders(atoms: Atom[]): PlaceholderAtom[] {
-  if (!atoms) return [];
-  const result: PlaceholderAtom[] = [];
-  for (const atom of atoms) {
-    for (const branch of atom.branches) {
-      if (!atom.hasEmptyBranch(branch)) {
-        const branchPlaceholder = findPlaceholders(atom.branch(branch)!);
-        result.push(...branchPlaceholder);
-      }
-    }
-
-    if (atom instanceof PlaceholderAtom) result.push(atom);
-  }
-
-  return result;
 }
 
 /**

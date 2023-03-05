@@ -93,7 +93,6 @@ export class EncloseAtom extends Atom {
   }
 
   toJson(): AtomJson {
-    const notation: Notations = {};
     return {
       ...super.toJson(),
       notation: this.notation,

@@ -8,7 +8,6 @@ import { register } from '../editor/commands';
 
 import { move, skip } from './commands';
 import type { ModelPrivate } from './model-private';
-import { PlaceholderAtom } from 'core-atoms/placeholder';
 
 export function moveAfterParent(model: ModelPrivate): boolean {
   const previousPosition = model.position;
@@ -295,18 +294,15 @@ function leap(
     if (!model.at(model.anchor).inEditablePrompt) {
       // not inside a prompt, do nothing
       return false;
-    } else {
-      let atom = model.at(model.anchor).parent!;
-      while (!(atom.type === 'prompt') && atom.parent) {
-        atom = atom.parent;
-      }
-
-      model.position =
-        dir === 'forward'
-          ? model.offsetOf(atom) - 1
-          : model.offsetOf(atom) - atom.children.length;
-      return move(model, dir);
     }
+    let atom = model.at(model.anchor).parent!;
+    while (!(atom.type === 'prompt') && atom.parent) atom = atom.parent;
+
+    model.position =
+      dir === 'forward'
+        ? model.offsetOf(atom) - 1
+        : model.offsetOf(atom) - atom.children.length;
+    return move(model, dir);
   }
 
   if (model.at(model.anchor).type === 'placeholder') {

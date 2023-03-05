@@ -2,9 +2,6 @@ import type { ParseMode } from '../public/core';
 import type { Offset, Range, Selection } from '../public/mathfield';
 
 import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
-import { MathfieldPrivate } from 'editor/mathfield';
-import { Atom } from 'core/atom-class';
-import { ModelPrivate } from './model-private';
 
 export type ModelOptions = {
   mode: ParseMode;
