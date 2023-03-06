@@ -456,6 +456,7 @@ export function onInput(
   // If the selection is not collapsed, the content will be deleted first.
   //
   const atom = model.at(model.position);
+  const rightSibling = atom.rightSibling;
   const style = { ...atom.computedStyle, ...mathfield.style };
   if (!model.selectionIsCollapsed) {
     model.deleteAtoms(range(model.selection));
@@ -520,10 +521,9 @@ export function onInput(
         if (mathfield.adoptStyle !== 'none') {
           // If adding an alphabetic character, and the neighboring atom is an
           // ordinary character, use the same variant/variantStyle (\mathit, \mathrm...)
-          const sibling =
-            mathfield.adoptStyle === 'left' ? atom : atom.rightSibling;
+          const sibling = mathfield.adoptStyle === 'left' ? atom : rightSibling;
           if (
-            sibling.type === 'mord' &&
+            sibling?.type === 'mord' &&
             /[a-zA-Z]/.test(sibling.value) &&
             /[a-zA-Z]/.test(c)
           ) {
