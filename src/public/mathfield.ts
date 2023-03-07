@@ -150,21 +150,41 @@ export type Selection = {
 export interface VirtualKeyboardInterface {
   visible: boolean;
   height: number;
+
   /** Called once when the keyboard is created */
   create(): void;
+
   /** After calling dispose() the Virtual Keyboard is no longer valid and
-   * cannot be brought back. Use disable() for temporarily deactivating the
+   * cannot be brought back. Use disable() to temporarily deactivate the
    * keyboard. */
   dispose(): void;
+
   executeCommand(command: string | [string, ...any[]]): boolean;
+
+  show(): void;
+  hide(): void;
+
   focusMathfield(): void;
   blurMathfield(): void;
-  updateToolbar(mf: Mathfield): void;
+
+  /** When enabled the virtual keyboard interacts with the focused mathfield.
+   * When disabled, the virtual keyboard does not respond to messages from
+   * mathfields.
+   */
   enable(): void;
   disable(): void;
+
+  /** The content or selection of the mathfield has changed and the toolbar
+   * may need to be updated accordingly
+   */
+  updateToolbar(mf: Mathfield): void;
+
   stateWillChange(visible: boolean): boolean;
   stateChanged(): void;
+
   setOptions(options: CombinedVirtualKeyboardOptions): void;
+
+  readonly boundingRect: DOMRect;
 }
 
 export interface Mathfield {

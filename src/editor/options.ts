@@ -221,9 +221,6 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     virtualKeyboardLayout: 'auto',
     customVirtualKeyboardLayers: {},
     customVirtualKeyboards: {},
-    virtualKeyboardTheme: /android|cros/i.test(navigator.userAgent)
-      ? 'material'
-      : 'apple',
     keypressVibration: true,
     keypressSound: null,
     plonkSound: null,

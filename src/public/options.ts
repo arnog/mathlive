@@ -428,14 +428,6 @@ export type VirtualKeyboardOptions = {
   >;
   customVirtualKeyboards: Record<string, VirtualKeyboardDefinition>;
   /**
-   * The visual theme of the virtual keyboard.
-   *
-   * If empty, the theme will switch automatically based on the device it's
-   * running on. The two supported themes are 'material' and 'apple' (the
-   * default).
-   */
-  virtualKeyboardTheme: 'material' | 'apple' | '';
-  /**
    * When a key on the virtual keyboard is pressed, produce a short haptic
    * feedback, if the device supports it.
    */
@@ -554,8 +546,6 @@ export interface MathfieldHooks {
    */
   onExport: (from: Mathfield, latex: string, range: Range) => string;
 }
-
-export type VirtualKeyboardTheme = 'apple' | 'material' | '';
 
 export type CombinedVirtualKeyboardOptions = Omit<
   VirtualKeyboardOptions,

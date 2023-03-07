@@ -11,17 +11,13 @@ export type ExecuteCommandFunction = (
 // Commands return true if they resulted in a dirty state
 // @revisit: maybe a command attribute instead?
 export interface CommandsPrivate {
-  showAlternateKeys: (
-    keyboard: VirtualKeyboard,
-    altKeysetId: string
-  ) => boolean;
-  hideAlternateKeys: (keyboard: VirtualKeyboardInterface) => boolean;
+  showVariantsPanel: (keyboard: VirtualKeyboard, variants: string) => boolean;
+  hideVariantsPanel: (keyboard: VirtualKeyboardInterface) => boolean;
   /**
-   * The command invoked when an alternate key is pressed.
-   * We need to hide the Alternate Keys panel, then perform the
-   * command.
+   * The command invoked when a variant key is pressed:
+   * hide the variants panel, then perform the command.
    */
-  performAlternateKeys: (
+  performVariant: (
     keyboard: VirtualKeyboardInterface,
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
   ) => boolean;
@@ -34,10 +30,7 @@ export interface CommandsPrivate {
     c: string
   ) => boolean;
 
-  /** Toggle the virtual keyboard, but switch to the alternate theme if available */
-  toggleVirtualKeyboardAlt: (keyboard: VirtualKeyboardInterface) => boolean;
-
-  /** Toggle the virtual keyboard, but switch another keyboard layout */
+  /** Toggle the virtual keyboard, but switch to another keyboard layout */
   toggleVirtualKeyboardShift: (keyboard: VirtualKeyboardInterface) => boolean;
 }
 

@@ -333,7 +333,7 @@ export function delegateKeyboardEvents(
         event.stopPropagation();
         return;
       }
-      // If the scrim is up, ignore blur (while the alternate key panel is up)
+      // If the scrim is up, ignore blur (while the variants panel is up)
       const scrimState = Scrim.scrim?.state;
       if (scrimState === 'open' || scrimState === 'opening') {
         event.preventDefault();
@@ -359,21 +359,19 @@ export function delegateKeyboardEvents(
       keypressEvent = null;
       handlers.onBlur?.();
       blurInProgress = false;
-      event.stopPropagation();
     },
     true
   );
 
   keyboardSink.addEventListener(
     'focus',
-    (evt) => {
+    (_evt) => {
       if (blurInProgress || focusInProgress) return;
 
       focusInProgress = true;
       handlers.onFocus?.();
 
       focusInProgress = false;
-      evt.stopPropagation();
     },
     true
   );

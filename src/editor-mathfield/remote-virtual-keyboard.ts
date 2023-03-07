@@ -8,11 +8,11 @@ import {
   RemoteVirtualKeyboardOptions,
 } from '../public/options';
 
-import { osPlatform } from '../common/capabilities';
 import { getCommandTarget, SelectorPrivate } from '../editor/commands';
 import { VirtualKeyboard } from '../editor/virtual-keyboard-utils';
 import { validateOrigin } from './utils';
 import { globalMathLive } from '../mathlive';
+import { isBrowser } from 'common/capabilities';
 
 const POST_MESSAGE_TYPE = 'mathlive#remote-virtual-keyboard-message';
 
@@ -65,8 +65,22 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   }
 
   set visible(value: boolean) {
-    if (globalMathLive().sharedVirtualKeyboard)
-      globalMathLive().sharedVirtualKeyboard!.visible = value;
+    const kbd = globalMathLive().sharedVirtualKeyboard;
+    if (!kbd) return;
+    if (value) kbd.show();
+    else kbd.hide();
+  }
+
+  show(): void {
+    const kbd = globalMathLive().sharedVirtualKeyboard;
+    if (!kbd) return;
+    kbd.show();
+  }
+
+  hide(): void {
+    const kbd = globalMathLive().sharedVirtualKeyboard;
+    if (!kbd) return;
+    kbd.hide();
   }
 
   setOptions(
@@ -84,18 +98,16 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   }
 
   public enable(): void {
-    if (!this.enabled) {
-      this.enabled = true;
-      globalThis.addEventListener('message', this);
-      this.updateToolbar();
-    }
+    if (this.enabled) return;
+    this.enabled = true;
+    globalThis.addEventListener('message', this);
+    this.updateToolbar();
   }
 
   public disable(): void {
-    if (this.enabled) {
-      globalThis.removeEventListener('message', this);
-      this.enabled = false;
-    }
+    if (!this.enabled) return;
+    globalThis.removeEventListener('message', this);
+    this.enabled = false;
   }
 
   public executeCommand(
@@ -131,6 +143,12 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
 
   updateToolbar(): void {
     globalMathLive().sharedVirtualKeyboard?.updateToolbar(this._mathfield);
+  }
+
+  get boundingRect(): DOMRect {
+    return (
+      globalMathLive().sharedVirtualKeyboard?.boundingRect ?? new DOMRect()
+    );
   }
 
   handleEvent(event: MessageEvent<RemoteKeyboardMessageData>): void {
@@ -260,9 +278,6 @@ export class RemoteVirtualKeyboard
       virtualKeyboardLayout: 'auto',
       customVirtualKeyboardLayers: {},
       customVirtualKeyboards: {},
-      virtualKeyboardTheme: /macos|ios/.test(osPlatform())
-        ? 'apple'
-        : 'material',
       keypressVibration: true,
       keypressSound: null,
       plonkSound: null,
@@ -445,8 +460,6 @@ function getValidOptions(
   }
   if (options.customVirtualKeyboards)
     validOptions.customVirtualKeyboards = options.customVirtualKeyboards;
-  if (options.virtualKeyboardTheme)
-    validOptions.virtualKeyboardTheme = options.virtualKeyboardTheme;
   if (options.keypressVibration)
     validOptions.keypressVibration = options.keypressVibration;
   if (options.keypressSound) validOptions.keypressSound = options.keypressSound;
@@ -459,4 +472,16 @@ function getValidOptions(
     validOptions.originValidator = options.originValidator;
 
   return validOptions as RemoteVirtualKeyboardOptions;
+}
+
+declare global {
+  interface Window {
+    mathVirtualKeyboard: VirtualKeyboardInterface & EventTarget;
+  }
+}
+
+if (isBrowser()) {
+  Object.defineProperty(window, 'mathVirtualKeyboard', {
+    get: () => globalMathLive().sharedVirtualKeyboard,
+  });
 }

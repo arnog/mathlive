@@ -10,7 +10,6 @@ import {
   VirtualKeyboardDefinition,
   VirtualKeyboardKeycap,
   VirtualKeyboardLayer,
-  VirtualKeyboardTheme,
 } from '../public/options';
 
 import { inject as injectStylesheet, Stylesheet } from '../common/stylesheet';
@@ -39,42 +38,40 @@ import { MathfieldPrivate } from './mathfield';
 import { getActiveKeyboardLayout } from './keyboard-layout';
 import { COMMANDS, SelectorPrivate } from './commands';
 import { Scrim } from './scrim';
+import { globalMathLive } from 'mathlive';
 
 let VIRTUAL_KEYBOARD_STYLESHEET_HASH: string | undefined = undefined;
 
-export function showAlternateKeys(
+export function showVariantsPanel(
   keyboard: VirtualKeyboard,
-  altKeysetId: string
+  variantsId: string
 ): boolean {
-  const altKeys = ALT_KEYS[altKeysetId];
-  const altContainer = document.createElement('div');
-  altContainer.setAttribute('aria-hidden', 'true');
-  altContainer.className =
-    'ML__keyboard alternate-keys' +
-    (keyboard.element!.classList.contains('material') ? ' material' : '');
-  altContainer.id = 'mathlive-alternate-keys-panel';
+  const variants = VARIANTS[variantsId];
+  const variantPanel = document.createElement('div');
+  variantPanel.setAttribute('aria-hidden', 'true');
+  variantPanel.className = 'ML__keyboard MLK__variant-panel';
 
-  if (altKeys.length >= 14) {
+  if (variants.length >= 14) {
     // Width 5: 5 key wide
-    altContainer.style.width = '236px';
-  } else if (altKeys.length >= 7) {
+    variantPanel.style.width = '236px';
+  } else if (variants.length >= 7) {
     // Width 4
-    altContainer.style.width = '286px';
-  } else if (altKeys.length === 4 || altKeys.length === 2) {
+    variantPanel.style.width = '286px';
+  } else if (variants.length === 4 || variants.length === 2) {
     // Width 2
-    altContainer.style.width = '146px';
-  } else if (altKeys.length === 1) {
+    variantPanel.style.width = '146px';
+  } else if (variants.length === 1) {
     // Width 1
-    altContainer.style.width = '86px';
+    variantPanel.style.width = '86px';
   } else {
     // Width 3
-    altContainer.style.width = '146px';
+    variantPanel.style.width = '146px';
   }
 
   // Reset container height
-  altContainer.style.height = 'auto';
+  variantPanel.style.height = 'auto';
   let markup = '';
-  for (const altKey of altKeys) {
+  for (const altKey of variants) {
     markup += '<li';
     if (typeof altKey === 'string')
       markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
@@ -115,72 +112,70 @@ export function showAlternateKeys(
   }
 
   markup = '<ul>' + markup + '</ul>';
-  altContainer.innerHTML = keyboard.options.createHTML(markup);
+  variantPanel.innerHTML = keyboard.options.createHTML(markup);
 
   //
-  // Associate a command which each of the alternate keycaps
+  // Associate a command which each of the variant keycaps
   //
   makeKeycap(
     keyboard,
-    [...altContainer.querySelectorAll('li')],
-    'performAlternateKeys'
+    [...variantPanel.querySelectorAll('li')],
+    'performVariant'
   );
 
   //
-  // Create the scrim and attach the alternate key panel to it
+  // Create the scrim and attach the variants panel to it
   //
   if (!Scrim.scrim) Scrim.scrim = new Scrim();
   Scrim.scrim.open({
     root: keyboard.options.virtualKeyboardContainer,
-    child: altContainer,
+    child: variantPanel,
   });
 
   //
-  // Position the alternate panel
+  // Position the variants panel
   //
   const keycapElement = keyboard?.element?.querySelector(
-    'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
-      altKeysetId +
-      '"]'
+    '.MLK__rows ul li[data-variants="' + variantsId + '"]'
   );
 
   const position = keycapElement?.getBoundingClientRect();
   if (position) {
-    if (position.top - altContainer.clientHeight < 0) {
+    if (position.top - variantPanel.clientHeight < 0) {
       // AltContainer.style.maxWidth = '320px';  // Up to six columns
-      altContainer.style.width = 'auto';
-      if (altKeys.length <= 6) altContainer.style.height = '56px'; // 1 row
-      else if (altKeys.length <= 12)
-        altContainer.style.height = '108px'; // 2 rows
-      else if (altKeys.length <= 18)
-        altContainer.style.height = '205px'; // 3 rows
-      else altContainer.classList.add('compact');
+      variantPanel.style.width = 'auto';
+      if (variants.length <= 6) variantPanel.style.height = '56px'; // 1 row
+      else if (variants.length <= 12)
+        variantPanel.style.height = '108px'; // 2 rows
+      else if (variants.length <= 18)
+        variantPanel.style.height = '205px'; // 3 rows
+      else variantPanel.classList.add('compact');
     }
 
     const top =
-      (position.top - altContainer.clientHeight + 5).toString() + 'px';
+      (position.top - variantPanel.clientHeight + 5).toString() + 'px';
     const left =
       Math.max(
         0,
         Math.min(
-          window.innerWidth - altContainer.offsetWidth,
-          (position.left + position.right - altContainer.offsetWidth) / 2
+          window.innerWidth - variantPanel.offsetWidth,
+          (position.left + position.right - variantPanel.offsetWidth) / 2
         )
       ) + 'px';
-    altContainer.style.transform = 'translate(' + left + ',' + top + ')';
-    altContainer.classList.add('is-visible');
+    variantPanel.style.transform = 'translate(' + left + ',' + top + ')';
+    variantPanel.classList.add('is-visible');
   }
 
   return false;
 }
 
-export function hideAlternateKeys(): boolean {
-  const altContainer = document.querySelector<HTMLElement>(
-    '#mathlive-alternate-keys-panel'
+export function hideVariantsPanel(): boolean {
+  const variantPanel = document.querySelector<HTMLElement>(
+    '.MLK__variant-panel'
   );
-  if (altContainer) {
-    altContainer.classList.remove('is-visible');
-    altContainer.innerHTML = '';
+  if (variantPanel) {
+    variantPanel.classList.remove('is-visible');
+    variantPanel.innerHTML = '';
   }
 
   Scrim.scrim?.close();
@@ -190,17 +185,17 @@ export function hideAlternateKeys(): boolean {
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: CombinedVirtualKeyboardOptions;
-  _visible: boolean;
-  _element?: HTMLDivElement;
+  private _visible: boolean;
+  private _element?: HTMLDivElement;
   originalContainerBottomPadding: string | null = null;
   private readonly _mathfield?: MathfieldPrivate;
 
-  coreStylesheet: Stylesheet | null;
-  virtualKeyboardStylesheet: Stylesheet | null;
+  private coreStylesheet: Stylesheet | null;
+  private virtualKeyboardStylesheet: Stylesheet | null;
 
   constructor(options: CombinedVirtualKeyboardOptions, mathfield?: Mathfield) {
     this.options = options;
-    this.visible = false;
+    this._visible = false;
     this._mathfield = mathfield as MathfieldPrivate;
     this.coreStylesheet = null;
     this.virtualKeyboardStylesheet = null;
@@ -210,7 +205,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     let currentKeyboardName = '';
     if (this._element) {
       const currentKeyboard = this._element.querySelector(
-        'div.keyboard-layer.is-visible'
+        '.MLK__layer.is-visible'
       );
       if (currentKeyboard)
         currentKeyboardName = currentKeyboard.getAttribute('data-layer') ?? '';
@@ -220,16 +215,16 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     this.options = options;
 
     if (this.visible) {
-      this.buildAndAttachElement(options.virtualKeyboardTheme);
+      this.buildAndAttachElement();
 
       // Restore the active keyboard
       const newActive = this.element!.querySelector(
-        `.keyboard-layer[data-layer="${currentKeyboardName}"]`
+        `.MLK__layer[data-layer="${currentKeyboardName}"]`
       );
       if (newActive) {
-        this.element!.querySelector(
-          '.keyboard-layer.is-visible'
-        )?.classList.remove('is-visible');
+        this.element!.querySelector('.MLK__layer.is-visible')?.classList.remove(
+          'is-visible'
+        );
         newActive.classList.add('is-visible');
       }
 
@@ -250,21 +245,103 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     return this._visible;
   }
   set visible(val: boolean) {
-    this._visible = val;
+    if (val) this.show();
+    else this.hide();
+  }
+
+  get boundingRect(): DOMRect {
+    const plate = this._element?.querySelector('.MLK__plate');
+    if (plate) return plate.getBoundingClientRect();
+    return new DOMRect();
+  }
+
+  show(): void {
+    const container = this.options.virtualKeyboardContainer;
+    if (!container) return;
+
+    if (this._visible) return;
+
+    // Confirm
+    if (!this.stateWillChange(true)) return;
+
+    if (!this._element) this.buildAndAttachElement();
+
+    window.addEventListener('resize', () => console.log('resizing'));
+
+    if (!this._visible) {
+      const global = globalMathLive();
+      if (global.visibleVirtualKeyboard) global.visibleVirtualKeyboard.hide();
+      global.visibleVirtualKeyboard = this;
+
+      if (container === window.document.body) {
+        const padding = container.style.paddingBottom;
+        this.originalContainerBottomPadding = padding;
+        const keyboardHeight =
+          this._element!.querySelector<HTMLElement>('.MLK__backdrop')!
+            .offsetHeight - 1;
+        container.style.paddingBottom = padding
+          ? `calc(${padding} + ${keyboardHeight}px)`
+          : `${keyboardHeight}px`;
+      }
+    }
+
+    // For the transition effect to work, the property has to be changed
+    // after the insertion in the DOM.
+    requestAnimationFrame(() => {
+      this._element?.classList.add('is-visible');
+      const h = this.boundingRect.height;
+      this._element?.style.setProperty('--keyboard-height', `${h}px`);
+      this.focusMathfield();
+      this._visible = true;
+      this.stateChanged();
+    });
+  }
+
+  hide(): void {
+    const container = this.options.virtualKeyboardContainer;
+    if (!container) return;
+    if (!this._visible) return;
+
+    // Confirm
+    if (!this.stateWillChange(false)) return;
+
+    window.removeEventListener('resize', this);
+
+    if (this._element) {
+      globalMathLive().visibleVirtualKeyboard = undefined;
+      // Remove the element from the DOM
+      this.disable();
+      hideVariantsPanel();
+      this._visible = false;
+
+      this.coreStylesheet?.release();
+      this.coreStylesheet = null;
+      this.virtualKeyboardStylesheet?.release();
+      this.virtualKeyboardStylesheet = null;
+
+      this._element?.remove();
+      this._element = undefined;
+
+      if (this.originalContainerBottomPadding !== null)
+        container.style.paddingBottom = this.originalContainerBottomPadding;
+    }
+
+    this._visible = false;
+    this.stateChanged();
   }
 
   get height(): number {
     return this.element?.offsetHeight ?? 0;
   }
 
-  buildAndAttachElement(theme?: VirtualKeyboardTheme): void {
-    this.element = makeKeyboardElement(this, theme ?? '');
+  buildAndAttachElement(): void {
+    this.element = makeKeyboardElement(this);
     on(this.element, 'mousedown', () => this.focusMathfield());
     this.options.virtualKeyboardContainer?.appendChild(this.element);
   }
 
   handleEvent(evt: Event): void {
-    if (!this.element) return;
+    if (!this._element) return;
 
     switch (evt.type) {
       case 'mouseup':
@@ -276,6 +353,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
         document.body.style.userSelect = '';
 
         unshiftKeyboardLayer(this);
+        break;
+      case 'resize':
+        const h = this.boundingRect.height;
+        this._element?.style.setProperty('--keyboard-height', `${h}px`);
         break;
     }
   }
@@ -372,7 +453,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
 
   enable(): void {
     // Listen to know when the mouse has been released without being
-    // captured to remove the alternate keys panel and the shifted state of the
+    // captured to remove the variants panel and the shifted state of the
     // keyboard.
     // Note that we need to listen on the window to capture events happening
     // outside the virtual keyboard.
@@ -393,35 +474,35 @@ const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {
     tooltip: 'keyboard.tooltip.numeric',
     layer: 'math',
     label: '123',
-    classes: 'tex-math',
+    classes: 'MLK__tex-math',
     layers: ['math'],
   },
   roman: {
     tooltip: 'keyboard.tooltip.roman',
     layer: 'lower-roman',
     label: 'abc',
-    classes: 'tex-math',
+    classes: 'MLK__tex-math',
     layers: ['lower-roman', 'upper-roman'],
   },
   greek: {
     tooltip: 'keyboard.tooltip.greek',
     layer: 'lower-greek',
     label: '&alpha;&beta;&gamma;',
-    classes: 'tex-math',
+    classes: 'MLK__tex-math',
     layers: ['lower-greek', 'upper-greek'],
   },
   functions: {
     tooltip: 'keyboard.tooltip.functions',
     layer: 'functions',
     label: 'f&thinsp;()',
-    classes: 'tex-math',
+    classes: 'MLK__tex-math',
     layers: ['functions'],
   },
   symbols: {
     tooltip: 'keyboard.tooltip.symbols',
     layer: 'symbols',
     label: '&infin;≠∈',
-    classes: 'tex-math',
+    classes: 'MLK__tex-math',
     layers: ['symbols'],
   },
 };
@@ -886,44 +967,44 @@ const ALT_KEYS_BASE: {
   // @todo Tab: could turn on speech, visible keyboard...
   '->|': [],
 };
-let ALT_KEYS = {};
+let VARIANTS = {};
 
 const LAYERS = {
   'math': `
-        <div class='rows'>
+        <div class='MLK__rows'>
             <ul>
-                <li class='keycap tex' data-alt-keys='x-var'><i>x</i></li>
-                <li class='keycap tex' data-alt-keys='n-var'><i>n</i></li>
+                <li class='MLK__keycap MLK__tex' data-variants='x-var'><i>x</i></li>
+                <li class='MLK__keycap MLK__tex' data-variants='n-var'><i>n</i></li>
                 <li class='separator w5'></li>
                 <row name='numpad-1'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-latex='\\exponentialE' data-alt-keys='ee'>e</li>
-                <li class='keycap tex' data-latex='\\imaginaryI' data-alt-keys='ii'>i</li>
-                <li class='keycap tex' data-latex='\\pi' data-alt-keys='numeric-pi'></li>
+                <li class='MLK__keycap MLK__tex' data-latex='\\exponentialE' data-variants='ee'>e</li>
+                <li class='MLK__keycap MLK__tex' data-latex='\\imaginaryI' data-variants='ii'>i</li>
+                <li class='MLK__keycap MLK__tex' data-latex='\\pi' data-variants='numeric-pi'></li>
             </ul>
             <ul>
-                <li class='keycap tex' data-key='<' data-alt-keys='<'>&lt;</li>
-                <li class='keycap tex' data-key='>' data-alt-keys='>'>&gt;</li>
+                <li class='MLK__keycap MLK__tex' data-key='<' data-variants='<'>&lt;</li>
+                <li class='MLK__keycap MLK__tex' data-key='>' data-variants='>'>&gt;</li>
                 <li class='separator w5'></li>
                 <row name='numpad-2'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-latex='#@^{2}' data-latex='x^2'></li>
-                <li class='keycap tex' data-alt-keys='^' data-insert='#@^{#?}' data-latex='x^\\placeholder'></li>
-                <li class='keycap tex small' data-insert='\\sqrt{#0}' data-latex='\\sqrt{#0}'></li>
+                <li class='MLK__keycap MLK__tex' data-latex='#@^{2}' data-latex='x^2'></li>
+                <li class='MLK__keycap MLK__tex' data-variants='^' data-insert='#@^{#?}' data-latex='x^\\placeholder'></li>
+                <li class='MLK__keycap MLK__tex small' data-insert='\\sqrt{#0}' data-latex='\\sqrt{#0}'></li>
             </ul>
             <ul>
-                <li class='keycap tex' data-alt-keys='(' >(</li>
-                <li class='keycap tex' data-alt-keys=')' >)</li>
+                <li class='MLK__keycap MLK__tex' data-variants='(' >(</li>
+                <li class='MLK__keycap MLK__tex' data-variants=')' >)</li>
                 <li class='separator w5'></li>
                 <row name='numpad-3'/>
                 <li class='separator w5'></li>
-                <li class='keycap small' data-alt-keys='int' data-latex='\\int_0^\\infty'></li>
-                <li class='keycap' data-latex='\\forall' data-alt-keys='logic' ></li>
-                <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li></ul>
+                <li class='MLK__keycap small' data-variants='int' data-latex='\\int_0^\\infty'></li>
+                <li class='MLK__keycap' data-latex='\\forall' data-variants='logic' ></li>
+                <li class='action font-glyph bottom right' data-variants='delete' data-command='["performWithFeedback","deleteBackward"]'><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li></ul>
             </ul>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"red"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"yellow"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>
+                <li class='MLK__keycap' data-variants='foreground-color' data-command='["applyStyle",{"color":"red"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
+                <li class='MLK__keycap' data-variants='background-color' data-command='["applyStyle",{"backgroundColor":"yellow"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>
                 <li class='separator w5'></li>
                 <row name='numpad-4'/>
                 <li class='separator w5'></li>
@@ -932,7 +1013,7 @@ const LAYERS = {
         </div>
     `,
   'lower-roman': `
-        <div class='rows'>
+        <div class='MLK__rows'>
             <ul>
                 <row name='numpad-1' class='if-wide'/>
                 <row name='lower-1' shift-layer='upper-roman'/>
@@ -947,14 +1028,14 @@ const LAYERS = {
             </ul>
             <ul>
                 <row name='numpad-4' class='if-wide'/>
-                <li class='keycap' >;</li>
-                <li class='keycap' >,</li>
-                <li class='keycap w50' data-key=' ' data-alt-keys='space'>&nbsp;</li>
+                <li class='MLK__keycap' >;</li>
+                <li class='MLK__keycap' >,</li>
+                <li class='MLK__keycap w50' data-key=' ' data-variants='space'>&nbsp;</li>
                 <arrows/>
             </ul>
         </div>`,
   'upper-roman': `
-        <div class='rows'>
+        <div class='MLK__rows'>
             <ul>
                 <row name='numpad-1' class='if-wide'/>
                 <row name='upper-1'  shift-layer='lower-roman'/>
@@ -969,164 +1050,164 @@ const LAYERS = {
             </ul>
             <ul>
                 <row name='numpad-4' class='if-wide'/>
-                <li class='keycap' >;</li>
-                <li class='keycap' data-alt-keys='.'>;</li>
-                <li class='keycap w50' data-key=' '>&nbsp;</li>
+                <li class='MLK__keycap' >;</li>
+                <li class='MLK__keycap' data-variants='.'>;</li>
+                <li class='MLK__keycap w50' data-key=' '>&nbsp;</li>
                 <arrows/>
             </ul>
         </div>`,
   'symbols': `
-        <div class='rows'>
+        <div class='MLK__rows'>
             <ul>
                 <row name='numpad-1' class='if-wide'/>
-                <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrace '>{</li>
-                <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrace '>}</li>
+                <li class='MLK__keycap MLK__tex' data-variants='(' data-insert='\\lbrace '>{</li>
+                <li class='MLK__keycap MLK__tex' data-variants=')' data-insert='\\rbrace '>}</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex small' data-alt-keys='xleftarrows' data-latex='\\leftarrow' ></li>
-                <li class='keycap tex small' data-alt-keys='xrightarrows' data-latex='\\rightarrow' ></li>
-                <li class='keycap tex' data-alt-keys='overline' data-latex='\\overline{#@}' data-aside='overline'></li>
-                <li class='keycap tex' data-alt-keys='underline' data-latex='\\underline{#@}' data-aside='underline'></li>
-                <li class='keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>
-                <li class='keycap tex' data-alt-keys='nabla' data-insert='\\nabla '>&#x2207;<aside>nabla</aside></li>
-                <li class='keycap tex' data-alt-keys='infinity' data-insert='\\infty '>&#x221e;</li>
+                <li class='MLK__keycap MLK__tex small' data-variants='xleftarrows' data-latex='\\leftarrow' ></li>
+                <li class='MLK__keycap MLK__tex small' data-variants='xrightarrows' data-latex='\\rightarrow' ></li>
+                <li class='MLK__keycap MLK__tex' data-variants='overline' data-latex='\\overline{#@}' data-aside='overline'></li>
+                <li class='MLK__keycap MLK__tex' data-variants='underline' data-latex='\\underline{#@}' data-aside='underline'></li>
+                <li class='MLK__keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>
+                <li class='MLK__keycap MLK__tex' data-variants='nabla' data-insert='\\nabla '>&#x2207;<aside>nabla</aside></li>
+                <li class='MLK__keycap MLK__tex' data-variants='infinity' data-insert='\\infty '>&#x221e;</li>
 
             </ul>
             <ul>
                 <row name='numpad-2' class='if-wide'/>
-                <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrack '>[</li>
-                <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrack '>]</li>
+                <li class='MLK__keycap MLK__tex' data-variants='(' data-insert='\\lbrack '>[</li>
+                <li class='MLK__keycap MLK__tex' data-variants=')' data-insert='\\rbrack '>]</li>
                 <li class='separator w5'></li>
 
-                <li class='keycap tex' data-alt-keys='in' data-insert='\\in '>&#x2208;</li>
-                <li class='keycap tex' data-alt-keys='!in' data-insert='\\notin '>&#x2209;</li>
-                <li class='keycap tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>
-                <li class='keycap tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>
-                <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
+                <li class='MLK__keycap MLK__tex' data-variants='in' data-insert='\\in '>&#x2208;</li>
+                <li class='MLK__keycap MLK__tex' data-variants='!in' data-insert='\\notin '>&#x2209;</li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>
+                <li class='MLK__keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
 
-                <li class='keycap tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>
-                <li class='keycap tex' data-insert='\\emptyset '>&#x2205;<aside>empty set</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\emptyset '>&#x2205;<aside>empty set</aside></li>
 
             </ul>
             <ul>
                 <row name='numpad-3' class='if-wide'/>
-                <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>
-                <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>
+                <li class='MLK__keycap MLK__tex' data-variants='(' data-insert='\\langle '>&#x27e8;</li>
+                <li class='MLK__keycap MLK__tex' data-variants=')' data-insert='\\rangle '>&#x27e9;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
-                <li class='keycap tex' data-alt-keys='superset' data-insert='\\supset '>&#x2283;</li>
+                <li class='MLK__keycap MLK__tex' data-variants='subset' data-insert='\\subset '>&#x2282;</li>
+                <li class='MLK__keycap MLK__tex' data-variants='superset' data-insert='\\supset '>&#x2283;</li>
 
-                <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
-                <li class='keycap tex' data-alt-keys='absnorm' data-insert='\\left| #0 \\right|' data-latex='\\left| #? \\right|' data-aside='abs'></li>
+                <li class='MLK__keycap MLK__tex' data-variants='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
+                <li class='MLK__keycap MLK__tex' data-variants='absnorm' data-insert='\\left| #0 \\right|' data-latex='\\left| #? \\right|' data-aside='abs'></li>
 
-                <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
-                <li class='keycap' data-latex='^{\\prime} '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
+                <li class='MLK__keycap MLK__tex' data-key='!' data-variants='!'>!<aside>factorial</aside></li>
+                <li class='MLK__keycap' data-latex='^{\\prime} '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
 
                 <li class='action font-glyph bottom right w15'
                     data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
+                    data-variants='delete' data-command='["performWithFeedback","deleteBackward"]'
                 ><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li>
             </ul>
             <ul>
                 <row name='numpad-4' class='if-wide'/>
-                <li class='keycap tex' data-insert=','>,</li>
-                <li class='keycap tex' data-insert='\\cdot '>&#x22c5;<aside>centered dot</aside></li>
-                <li class='keycap tex' data-insert='\\colon '>:<aside>colon</aside></li>
-                <li class='keycap tex' data-insert='\\circ '>&#x2218;<aside>circle</aside></li>
-                <li class='keycap tex' data-insert='\\approx '>&#x2248;<aside>approx.</aside></li>
-                <li class='keycap tex' data-insert='\\ne '>&#x2260;</li>
-                <li class='keycap tex' data-insert='\\pm '>&#x00b1;</li>
+                <li class='MLK__keycap MLK__tex' data-insert=','>,</li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\cdot '>&#x22c5;<aside>centered dot</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\colon '>:<aside>colon</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\circ '>&#x2218;<aside>circle</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\approx '>&#x2248;<aside>approx.</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\ne '>&#x2260;</li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\pm '>&#x00b1;</li>
                 <arrows/>
             </ul>
         </div>`,
   'lower-greek': `
-        <div class='rows'>
-            <ul><li class='keycap tex' data-insert='\\varphi '><i>&#x03c6;</i><aside>phi var.</aside></li>
-                <li class='keycap tex' data-insert='\\varsigma '><i>&#x03c2;</i><aside>sigma var.</aside></li>
-                <li class='keycap tex' data-insert='\\epsilon '><i>&#x03f5;</i></li>
-                <li class='keycap tex' data-insert='\\rho '><i>&rho;</i></li>
-                <li class='keycap tex' data-insert='\\tau '><i>&tau;</i></li>
-                <li class='keycap tex' data-insert='\\upsilon '><i>&upsilon;</i></li>
-                <li class='keycap tex' data-insert='\\theta '><i>&theta;</i></li>
-                <li class='keycap tex' data-insert='\\iota '><i>&iota;</i></li>
-                <li class='keycap tex' data-insert='\\omicron '>&omicron;</i></li>
-                <li class='keycap tex' data-insert='\\pi '><i>&pi;</i></li>
+        <div class='MLK__rows'>
+            <ul><li class='MLK__keycap MLK__tex' data-insert='\\varphi '><i>&#x03c6;</i><aside>phi var.</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\varsigma '><i>&#x03c2;</i><aside>sigma var.</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\epsilon '><i>&#x03f5;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\rho '><i>&rho;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\tau '><i>&tau;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\upsilon '><i>&upsilon;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\theta '><i>&theta;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\iota '><i>&iota;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\omicron '>&omicron;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\pi '><i>&pi;</i></li>
             </ul>
-            <ul><li class='keycap tex' data-insert='\\alpha ' data-shifted='&Alpha;' data-shifted-command='["insert","\\\\char\\"391"]'><i>&alpha;</i></li>
-                <li class='keycap tex' data-insert='\\sigma '><i>&sigma;</i></li>
-                <li class='keycap tex' data-insert='\\delta '><i>&delta;</i></li>
-                <li class='keycap tex' data-insert='\\phi '><i>&#x03d5;</i></i></li>
-                <li class='keycap tex' data-insert='\\gamma '><i>&gamma;</i></li>
-                <li class='keycap tex' data-insert='\\eta '><i>&eta;</i></li>
-                <li class='keycap tex' data-insert='\\xi '><i>&xi;</i></li>
-                <li class='keycap tex' data-insert='\\kappa '><i>&kappa;</i></li>
-                <li class='keycap tex' data-insert='\\lambda '><i>&lambda;</i></li>
+            <ul><li class='MLK__keycap MLK__tex' data-insert='\\alpha ' data-shifted='&Alpha;' data-shifted-command='["insert","\\\\char\\"391"]'><i>&alpha;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\sigma '><i>&sigma;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\delta '><i>&delta;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\phi '><i>&#x03d5;</i></i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\gamma '><i>&gamma;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\eta '><i>&eta;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\xi '><i>&xi;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\kappa '><i>&kappa;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\lambda '><i>&lambda;</i></li>
             </ul>
             <ul><li class='shift modifier font-glyph bottom left w15 layer-switch' data-layer='upper-greek'><svg class="svg-glyph"><use xlink:href="#svg-shift" /></svg></li>
-                <li class='keycap tex' data-insert='\\zeta '><i>&zeta;</i></li>
-                <li class='keycap tex' data-insert='\\chi '><i>&chi;</i></li>
-                <li class='keycap tex' data-insert='\\psi '><i>&psi;</i></li>
-                <li class='keycap tex' data-insert='\\omega '><i>&omega;</i></li>
-                <li class='keycap tex' data-insert='\\beta '><i>&beta;</i></li>
-                <li class='keycap tex' data-insert='\\nu '><i>&nu;</i></li>
-                <li class='keycap tex' data-insert='\\mu '><i>&mu;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\zeta '><i>&zeta;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\chi '><i>&chi;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\psi '><i>&psi;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\omega '><i>&omega;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\beta '><i>&beta;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\nu '><i>&nu;</i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\mu '><i>&mu;</i></li>
                 <li class='action font-glyph bottom right w15'
                     data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
-                    data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
+                    data-variants='delete' data-command='["performWithFeedback","deleteBackward"]'
                 ><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li>
             </ul>
             <ul>
-                <li class='keycap ' data-key=' '>&nbsp;</li>
-                <li class='keycap'>,</li>
-                <li class='keycap tex' data-insert='\\varepsilon '><i>&#x03b5;</i><aside>epsilon var.</aside></li>
-                <li class='keycap tex' data-insert='\\vartheta '><i>&#x03d1;</i><aside>theta var.</aside></li>
-                <li class='keycap tex' data-insert='\\varkappa '><i>&#x3f0;</i><aside>kappa var.</aside></li>
-                <li class='keycap tex' data-insert='\\varpi '><i>&#x03d6;<aside>pi var.</aside></i></li>
-                <li class='keycap tex' data-insert='\\varrho '><i>&#x03f1;</i><aside>rho var.</aside></li>
+                <li class='MLK__keycap ' data-key=' '>&nbsp;</li>
+                <li class='MLK__keycap'>,</li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\varepsilon '><i>&#x03b5;</i><aside>epsilon var.</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\vartheta '><i>&#x03d1;</i><aside>theta var.</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\varkappa '><i>&#x3f0;</i><aside>kappa var.</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\varpi '><i>&#x03d6;<aside>pi var.</aside></i></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\varrho '><i>&#x03f1;</i><aside>rho var.</aside></li>
                 <arrows/>
             </ul>
         </div>`,
   'upper-greek': `
-        <div class='rows'>
-            <ul><li class='keycap tex' data-insert='\\Phi '>&Phi;<aside>phi</aside></li>
-                <li class='keycap tex' data-insert='\\Sigma '>&Sigma;<aside>sigma</aside></li>
-                <li class='keycap tex' data-insert='\\char"0190'>&#x0190;<aside>epsilon</aside></li>
-                <li class='keycap tex' data-insert='\\char"3A1'>&#x3A1;<aside>rho</aside></li>
-                <li class='keycap tex' data-insert='\\char"3A4'>&#x3A4;<aside>tau</aside></li>
-                <li class='keycap tex' data-insert='\\Upsilon '>&Upsilon;<aside>upsilon</aside></li>
-                <li class='keycap tex' data-insert='\\Theta '>&Theta;<aside>theta</aside></li>
-                <li class='keycap tex' data-insert='\\char"399'>&Iota;<aside>iota</aside></li>
-                <li class='keycap tex' data-insert='\\char"39F'>&#x039F;<aside>omicron</aside></li>
-                <li class='keycap tex' data-insert='\\Pi '>&Pi;<aside>pi</aside></li></ul>
-            <ul><li class='keycap tex' data-insert='\\char"391'>&#x391;<aside>alpha</aside></li>
-                <li class='keycap tex' data-insert='\\Sigma '>&Sigma;<aside>sigma</aside></li>
-                <li class='keycap tex' data-insert='\\Delta '>&Delta;<aside>delta</aside></li>
-                <li class='keycap tex' data-insert='\\Phi '>&#x03a6;<aside>phi</aside></li>
-                <li class='keycap tex' data-insert='\\Gamma '>&Gamma;<aside>gamma</aside></li>
-                <li class='keycap tex' data-insert='\\char"397'>&Eta;<aside>eta</aside></li>
-                <li class='keycap tex' data-insert='\\Xi '>&Xi;<aside>xi</aside></li>
-                <li class='keycap tex' data-insert='\\char"39A'>&Kappa;<aside>kappa</aside></li>
-                <li class='keycap tex' data-insert='\\Lambda '>&Lambda;<aside>lambda</aside></li></ul>
+        <div class='MLK__rows'>
+            <ul><li class='MLK__keycap MLK__tex' data-insert='\\Phi '>&Phi;<aside>phi</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Sigma '>&Sigma;<aside>sigma</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"0190'>&#x0190;<aside>epsilon</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"3A1'>&#x3A1;<aside>rho</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"3A4'>&#x3A4;<aside>tau</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Upsilon '>&Upsilon;<aside>upsilon</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Theta '>&Theta;<aside>theta</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"399'>&Iota;<aside>iota</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"39F'>&#x039F;<aside>omicron</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Pi '>&Pi;<aside>pi</aside></li></ul>
+            <ul><li class='MLK__keycap MLK__tex' data-insert='\\char"391'>&#x391;<aside>alpha</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Sigma '>&Sigma;<aside>sigma</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Delta '>&Delta;<aside>delta</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Phi '>&#x03a6;<aside>phi</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Gamma '>&Gamma;<aside>gamma</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"397'>&Eta;<aside>eta</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Xi '>&Xi;<aside>xi</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"39A'>&Kappa;<aside>kappa</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Lambda '>&Lambda;<aside>lambda</aside></li></ul>
             <ul><li class='shift modifier font-glyph bottom left selected w15 layer-switch' data-layer='lower-greek'><svg class="svg-glyph"><use xlink:href="#svg-shift" /></svg></li>
-                <li class='keycap tex' data-insert='\\char"396'>&Zeta;<aside>zeta</aside></li>
-                <li class='keycap tex' data-insert='\\char"3A7'>&Chi;<aside>chi</aside></li>
-                <li class='keycap tex' data-insert='\\Psi '>&Psi;<aside>psi</aside></li>
-                <li class='keycap tex' data-insert='\\Omega '>&Omega;<aside>omega</aside></li>
-                <li class='keycap tex' data-insert='\\char"392'>&Beta;<aside>beta</aside></li>
-                <li class='keycap tex' data-insert='\\char"39D'>&Nu;<aside>nu</aside></li>
-                <li class='keycap tex' data-insert='\\char"39C'>&Mu;<aside>mu</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"396'>&Zeta;<aside>zeta</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"3A7'>&Chi;<aside>chi</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Psi '>&Psi;<aside>psi</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\Omega '>&Omega;<aside>omega</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"392'>&Beta;<aside>beta</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"39D'>&Nu;<aside>nu</aside></li>
+                <li class='MLK__keycap MLK__tex' data-insert='\\char"39C'>&Mu;<aside>mu</aside></li>
                 <li class='action font-glyph bottom right w15' data-command='["performWithFeedback","deleteBackward"]'><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li></ul>
             <ul>
                 <li class='separator w10'>&nbsp;</li>
-                <li class='keycap'>.</li>
-                <li class='keycap w50' data-key=' '>&nbsp;</li>
+                <li class='MLK__keycap'>.</li>
+                <li class='MLK__keycap w50' data-key=' '>&nbsp;</li>
                 <arrows/>
             </ul>
         </div>`,
 
   'functions': `
-        <div class='rows'>
+        <div class='MLK__rows'>
             <ul>
                 <li class='fnbutton' data-insert='\\sin'></li>
                 <li class='fnbutton' data-insert='\\sin^{-1}'></li>
@@ -1164,47 +1245,47 @@ const LAYERS = {
                 <li class='fnbutton'>)</li>
                 <li class='fnbutton' data-insert='^{#?}' data-latex='x^{#?}'></li>
                 <li class='fnbutton' data-insert='_{#?}' data-latex='x_{#?}'></li>
-                <li class='keycap w20 ' data-key=' '>&nbsp;</li>
+                <li class='MLK__keycap w20 ' data-key=' '>&nbsp;</li>
                 <arrows/>
             </ul>
         </div>`,
   'style': `
-        <div class='rows'>
+        <div class='MLK__rows'>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"red"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"yellow"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
+                <li class='MLK__keycap' data-variants='foreground-color' data-command='["applyStyle",{"color":"red"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
+                <li class='MLK__keycap' data-variants='background-color' data-command='["applyStyle",{"backgroundColor":"yellow"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
                 <li class='separator w5'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"3"}]' data-latex='\\scriptsize\\text{small}'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"5"}]' data-latex='\\scriptsize\\text{normal}'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"9"}]' data-latex='\\huge\\text{big}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"size":"3"}]' data-latex='\\scriptsize\\text{small}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"size":"5"}]' data-latex='\\scriptsize\\text{normal}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"size":"9"}]' data-latex='\\huge\\text{big}'></li>
                 <li class='separator w5'></li>
-                <li class='keycap' data-latex='\\langle' data-command='["insert", "\\\\langle", {"smartFence":true}]'></li>
+                <li class='MLK__keycap' data-latex='\\langle' data-command='["insert", "\\\\langle", {"smartFence":true}]'></li>
             </ul>
             <ul>
-                <li class='keycap' data-command='["applyStyle",{"series":"l"}]' data-latex='\\fontseries{l}\\text{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"m"}]' data-latex='\\fontseries{m}\\text{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"b"}]' data-latex='\\fontseries{b}\\text{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"bx"}]' data-latex='\\fontseries{bx}\\text{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"sb"}]' data-latex='\\fontseries{sb}\\text{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"series":"c"}]' data-latex='\\fontseries{c}\\text{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"series":"l"}]' data-latex='\\fontseries{l}\\text{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"series":"m"}]' data-latex='\\fontseries{m}\\text{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"series":"b"}]' data-latex='\\fontseries{b}\\text{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"series":"bx"}]' data-latex='\\fontseries{bx}\\text{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"series":"sb"}]' data-latex='\\fontseries{sb}\\text{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"series":"c"}]' data-latex='\\fontseries{c}\\text{Ab}'></li>
             </ul>
             <ul>
-                <li class='keycap' data-command='["applyStyle",{"shape":"up"}]' data-latex='\\textup{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"shape":"it"}]' data-latex='\\textit{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"shape":"sl"}]' data-latex='\\textsl{Ab}'></li>
-                <li class='keycap' data-command='["applyStyle",{"shape":"sc"}]' data-latex='\\textsc{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"shape":"up"}]' data-latex='\\textup{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"shape":"it"}]' data-latex='\\textit{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"shape":"sl"}]' data-latex='\\textsl{Ab}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"shape":"sc"}]' data-latex='\\textsc{Ab}'></li>
                 <li class='separator w5'></li>
-                <li class='keycap' data-insert='\\emph{#@} ' data-latex='\\text{\\emph{emph}}'></li>
+                <li class='MLK__keycap' data-insert='\\emph{#@} ' data-latex='\\text{\\emph{emph}}'></li>
             </ul>
             <ul>
-                <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmr"}]' data-latex='\\textrm{Az}'></li>
-                <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmtt"}]' data-latex='\\texttt{Az}'></li>
-                <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmss"}]' data-latex='\\textsf{Az}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"fontFamily":"cmr"}]' data-latex='\\textrm{Az}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"fontFamily":"cmtt"}]' data-latex='\\texttt{Az}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"fontFamily":"cmss"}]' data-latex='\\textsf{Az}'></li>
 
-                <li class='keycap' data-command='["applyStyle",{"fontFamily":"bb"}]'  data-latex='\\mathbb{AZ}'></li>
-                <li class='keycap' data-command='["applyStyle",{"fontFamily":"scr"}]'  data-latex='\\mathscr{AZ}'></li>
-                <li class='keycap' data-command='["applyStyle",{"fontFamily":"cal"}]' data-latex='\\mathcal{A1}'></li>
-                <li class='keycap' data-command='["applyStyle",{"fontFamily":"frak"}]' data-latex='\\mathfrak{Az}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"fontFamily":"bb"}]'  data-latex='\\mathbb{AZ}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"fontFamily":"scr"}]'  data-latex='\\mathscr{AZ}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"fontFamily":"cal"}]' data-latex='\\mathcal{A1}'></li>
+                <li class='MLK__keycap' data-command='["applyStyle",{"fontFamily":"frak"}]' data-latex='\\mathfrak{Az}'></li>
             </ul>
         </div>`,
 };
@@ -1262,6 +1343,8 @@ function makeKeyboardToolbar(
       if (keyboard === currentKeyboard) result += 'selected ';
       else if (keyboards[keyboard].command) result += 'action ';
       else result += 'layer-switch ';
+
+      if (keyboards[keyboard].tooltip) result += 'MLK__tooltip ';
 
       result += (keyboards[keyboard].classes ?? '') + "'";
 
@@ -1456,18 +1539,15 @@ export function makeKeycap(
       if (chainedCommand) selector = [chainedCommand, selector];
 
       let handlers: ButtonHandlers = { default: selector };
-      const altKeysetId = element.getAttribute('data-alt-keys');
-      if (altKeysetId) {
-        const altKeys = ALT_KEYS[altKeysetId];
-        if (altKeys) {
-          handlers = {
-            default: selector,
-            pressAndHoldStart: ['showAlternateKeys', altKeysetId],
-            pressAndHoldEnd: 'hideAlternateKeys',
-          };
-          // } else {
-          //   console.warn(`Unknown alt key set: "${altKeysetId}"`);
-        }
+      const variantsId = element.getAttribute('data-variants');
+      if (variantsId && VARIANTS[variantsId]) {
+        handlers = {
+          default: selector,
+          pressAndHoldStart: ['showVariantsPanel', variantsId],
+          pressAndHoldEnd: 'hideVariantsPanel',
+        };
+        // } else {
+        //   console.warn(`Unknown variants: "${variantsId}"`);
       }
 
       attachButtonHandlers(
@@ -1612,7 +1692,7 @@ function expandLayerMarkup(
               : 'w15';
           row += `' data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
-                        data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
+                        data-variants='delete' data-command='["performWithFeedback","deleteBackward"]'
                         ><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li>`;
         } else if (c === ' ') {
           // Separator
@@ -1624,29 +1704,24 @@ function expandLayerMarkup(
             attributes['shift-layer'] +
             `'><svg class="svg-glyph"><use xlink:href="#svg-shift" /></svg></li>`;
         } else if (c === '/')
-          row += `<li class="keycap big-op ${cls}" data-alt-keys="/" data-insert='\\frac{#@}{#?}'>&divide;</li>`;
+          row += `<li class="MLK__keycap big-op ${cls}" data-variants="/" data-insert='\\frac{#@}{#?}'>&divide;</li>`;
         else if (c === '*')
-          row += `<li class="keycap big-op ${cls}" data-alt-keys="*" data-insert='\\times '>&times;</li>`;
+          row += `<li class="MLK__keycap big-op ${cls}" data-variants="*" data-insert='\\times '>&times;</li>`;
         else if (c === '-')
-          row += `<li class="keycap  big-op ${cls}" data-alt-keys="-" data-key='-'>&#x2212;</li>`;
+          row += `<li class="MLK__keycap  big-op ${cls}" data-variants="-" data-key='-'>&#x2212;</li>`;
         else if (c === '.') {
           row +=
-            "<li class='keycap big-op " +
+            "<li class='MLK__keycap big-op " +
             cls +
-            "' data-alt-keys='.' data-command='\"insertDecimalSeparator\"'>" +
+            "' data-variants='.' data-command='\"insertDecimalSeparator\"'>" +
             (options['decimalSeparator'] ?? '.') +
             '</li>';
         } else if (c === '+')
-          row += `<li class="keycap big-op ${cls}" data-alt-keys="+" data-key="-">+</li>`;
+          row += `<li class="MLK__keycap big-op ${cls}" data-variants="+" data-key="-">+</li>`;
         else if (c === '=')
-          row += `<li class="keycap big-op ${cls}" data-alt-keys="=" data-key="-">=</li>`;
-        else if (cls.includes('tt')) {
-          row +=
-            `<li class="keycap${cls}" data-alt-keys="${c}" ` +
-            `data-command='["typedText","${c}",{"mode":"latex", "focus":true, "feedback":true}]'` +
-            `>${c}</li>`;
-        } else
-          row += `<li class="keycap ${cls}" data-alt-keys="${c}">${c}</li>`;
+          row += `<li class="MLK__keycap big-op ${cls}" data-variants="=" data-key="-">=</li>`;
+        else
+          row += `<li class="MLK__keycap ${cls}" data-variants="${c}">${c}</li>`;
       }
     }
 
@@ -1662,10 +1737,7 @@ function expandLayerMarkup(
  * Construct a virtual keyboard element based on the config options in the
  * mathfield and an optional theme.
  */
-export function makeKeyboardElement(
-  keyboard: VirtualKeyboard,
-  theme: VirtualKeyboardTheme
-): HTMLDivElement {
+export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
   const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
     <symbol id="svg-delete-backward" viewBox="0 0 576 512">
@@ -1756,69 +1828,69 @@ export function makeKeyboardElement(
     });
   }
 
-  ALT_KEYS = { ...ALT_KEYS_BASE };
-  for (const key of Object.keys(ALT_KEYS))
-    ALT_KEYS[key] = ALT_KEYS[key].slice();
+  VARIANTS = { ...ALT_KEYS_BASE };
+  for (const key of Object.keys(VARIANTS))
+    VARIANTS[key] = VARIANTS[key].slice();
 
   const UPPER_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
   const DIGITS = '0123456789';
-  // Define the alternate set for uppercase keys
+  // Define the variants for uppercase keys
   for (let i = 0; i < 26; i++) {
     const key = UPPER_ALPHA[i];
-    if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
-    ALT_KEYS[key].unshift({
+    if (!VARIANTS[key]) VARIANTS[key] = [];
+    VARIANTS[key].unshift({
       latex: '\\mathbb{' + key + '}',
       aside: 'blackboard',
       insert: '\\mathbb{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathbf{' + key + '}',
       aside: 'bold',
       insert: '\\mathbf{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathsf{' + key + '}',
       aside: 'sans',
       insert: '\\mathsf{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathtt{' + key + '}',
       aside: 'monospace',
       insert: '\\mathtt{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathcal{' + key + '}',
       aside: 'calligraphy',
       insert: '\\mathcal{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathfrak{' + key + '}',
       aside: 'fraktur',
       insert: '\\mathfrak{' + key + '}',
     });
   }
 
-  // Define the alternate set for lowercase keys
+  // Define the variants set for lowercase keys
   for (let i = 0; i <= 26; i++) {
     const key = LOWER_ALPHA[i];
-    if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
-    ALT_KEYS[key].unshift({
+    if (!VARIANTS[key]) VARIANTS[key] = [];
+    VARIANTS[key].unshift({
       latex: '\\mathsf{' + key + '}',
       aside: 'sans',
       insert: '\\mathsf{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathbf{' + key + '}',
       aside: 'bold',
       insert: '\\mathbf{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathtt{' + key + '}',
       aside: 'monospace',
       insert: '\\mathtt{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathfrak{' + key + '}',
       aside: 'fraktur',
       insert: '\\mathfrak{' + key + '}',
@@ -1827,33 +1899,33 @@ export function makeKeyboardElement(
 
   for (let i = 0; i < 10; i++) {
     const key = DIGITS[i];
-    if (!ALT_KEYS[key]) ALT_KEYS[key] = [];
+    if (!VARIANTS[key]) VARIANTS[key] = [];
     // The mathbb font does not appear to include digits,
     // although it's supposed to.
     // ALT_KEYS[key].push({
     //         latex: '\\underset{\\textsf{\\footnotesize blackboard}}{\\mathbb{' + key + '}}',
     //         insert: '\\mathbb{' + key + '}}'});
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathbf{' + key + '}',
       aside: 'bold',
       insert: '\\mathbf{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathsf{' + key + '}',
       aside: 'sans',
       insert: '\\mathsf{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathtt{' + key + '}',
       aside: 'monospace',
       insert: '\\mathtt{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathcal{' + key + '}',
       aside: 'script',
       insert: '\\mathcal{' + key + '}',
     });
-    ALT_KEYS[key].unshift({
+    VARIANTS[key].unshift({
       latex: '\\mathfrak{' + key + '}',
       aside: 'fraktur',
       insert: '\\mathfrak{' + key + '}',
@@ -1919,7 +1991,7 @@ export function makeKeyboardElement(
         if (layer.container) layerMarkup += `<div class='${layer.container}'>`;
 
         if (layer.rows) {
-          layerMarkup += `<div class='rows'>`;
+          layerMarkup += `<div class='MLK__rows'>`;
           for (const row of layer.rows) {
             layerMarkup += `<ul>`;
             for (const keycap of row) {
@@ -1932,7 +2004,7 @@ export function makeKeyboardElement(
                 if (!/separator/.test(cls)) cls += ' keycap';
 
                 layerMarkup += ` class="${cls}"`;
-              } else layerMarkup += ` class="keycap"`;
+              } else layerMarkup += ` class="MLK__keycap"`;
 
               if (keycap.key) layerMarkup += ` data-key="${keycap.key}"`;
 
@@ -1958,8 +2030,8 @@ export function makeKeyboardElement(
                   Date.now().toString(36).slice(-2) +
                   Math.floor(Math.random() * 0x186a0).toString(36);
 
-                ALT_KEYS[keysetId] = keycap.variants;
-                layerMarkup += ` data-alt-keys="${keysetId}"`;
+                VARIANTS[keysetId] = keycap.variants;
+                layerMarkup += ` data-variants="${keysetId}"`;
               }
 
               if (keycap.shifted)
@@ -1986,8 +2058,8 @@ export function makeKeyboardElement(
         layers[layerName] = layerMarkup;
       }
 
-      markup += `<div tabindex="-1" class='keyboard-layer' data-layer='${layerName}'>`;
-      markup += `<div class='keyboard-toolbar' role='toolbar'>${makeKeyboardToolbar(
+      markup += `<div tabindex="-1" class='MLK__layer' data-layer='${layerName}'>`;
+      markup += `<div class='MLK__toolbar' role='toolbar'>${makeKeyboardToolbar(
         keyboard.options,
         keyboardIDs,
         keyboardName
@@ -2004,18 +2076,21 @@ export function makeKeyboardElement(
 
   const result = document.createElement('div');
   result.className = 'ML__keyboard';
-  if (theme) result.classList.add(theme);
-  else if (keyboard.options.virtualKeyboardTheme)
-    result.classList.add(keyboard.options.virtualKeyboardTheme);
 
   // We have a separate 'plate' element to support positioning the keyboard
   // inside custom `virtualKeyboardContainer`
 
   const plate = document.createElement('div');
-  plate.className = 'ML__keyboard--plate';
+  plate.className = 'MLK__plate';
   plate.innerHTML = keyboard.options.createHTML(markup);
 
-  result.appendChild(plate);
+  // The plate is palced on a 'backdrop' which is used to display the keyboard
+  // background and account for optional margins
+  const backdrop = document.createElement('div');
+  backdrop.className = 'MLK__backdrop';
+  backdrop.appendChild(plate);
+
+  result.appendChild(backdrop);
 
   // Attach the element handlers
 
@@ -2034,7 +2109,7 @@ export function makeKeyboardElement(
     }
   }
   const keycaps = result.querySelectorAll<HTMLElement>(
-    '.keycap, .action, .fnbutton, .bigfnbutton'
+    '.MLK__keycap, .action, .fnbutton, .bigfnbutton'
   );
   for (const keycap of keycaps) {
     keycap.id =
@@ -2076,7 +2151,7 @@ export function makeKeyboardElement(
     }
   }
 
-  const layerElements = result.querySelectorAll('.keyboard-layer');
+  const layerElements = result.querySelectorAll('.MLK__layer');
   console.assert(layerElements.length > 0, 'No virtual keyboards available');
 
   // Prevent a click on a virtual keyboard to focus it (and blur the mathfield)
@@ -2095,10 +2170,10 @@ export function makeKeyboardElement(
  *
  */
 export function unshiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
-  hideAlternateKeys();
+  hideVariantsPanel();
 
   const keycaps = keyboard.element!.querySelectorAll<HTMLElement>(
-    'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
+    '.MLK__layer.is-visible .MLK__keycap, .MLK__layer.is-visible .action'
   );
   if (keycaps) {
     for (const keycap of keycaps) {

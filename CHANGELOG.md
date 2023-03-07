@@ -1,12 +1,57 @@
 ## [Unreleased]
 
-### Breaking Change
+### Breaking Changes
+
+#### Fill-in-the-blank
 
 - New implementation of `\placeholder` command for "fill-in-the-blank" feature.
   Instead of each placeholder being an embedded mathfield, the placeholders are
   now special editable regions of a read-only mathfield. This improves their
   layout (for example a placeholder numerator is now displayed at the correct
-  size) and simplify their interaction.
+  size) and simplify their interaction. When used as a "fill-in-the-blank", set
+  the mathfield to readonly, and specify an ID with the placeholder, i.e.
+  `\placeholder[id]{value}`. In this situation these placeholders are called
+  "prompts".
+- The `mf.getPlaceholderField()` function has been replaced with
+  `mf.getPromptContent()`
+- Use `mf.setPromptContent()` to change the content of a prompt.
+- Use `mf.prompts` to get an array of the content of all the prompts in the
+  expression.
+- Prompts can be either in a correct, incorrect or indeterminate state. In
+  correct or incorrect state, their appearance changes to reflect their state.
+  Use `mf.setPromptCorrectness()` to flag a prompt as being correct or
+  incorrect.
+- Use `mf.setPromptLocked()` to mark a prompt as no longer being editable.
+
+#### Virtual Keyboard
+
+- The MathLive virtual keyboard API has changed to be consisten with the
+  [W3C Virtual Keyboard](https://www.w3.org/TR/virtual-keyboard/) API.
+
+  This includes adding a `show()` and `hide()` functions, and a `boundingRect`
+  property.
+
+  In addition, the `virtualKeyboardMode` property is now called
+  `mathVirtualKeyboardPolicy` and can take a value of `"auto"` or `"manual"`.
+
+  A value of `"manual"` corresponds to a `virtualKeyboardMode` value of `"off"`,
+  that is the virtual keyboard is not displayed automatically and must be
+  displayed programmatically.
+
+  The value of `"onfocus"` is no longer supported. To implement this behavior,
+  listen for a `"focus"` or `"blur"` even on the relevant mathfield and call
+  `mathVirtualKeyboard.show()` or `mathVirtualKeyboard.hide()` as needed.
+
+  If `mathVirtualKeyboardPolicy` is set to `"auto"` the virtual keyboard is
+  displayed automatically when a mathfield is focused on a touch-enabled device.
+
+  The virtual keyboard toggle
+
+- The virtual keyboard can be accessed as `window.mathVirtualKeyboard`. Its
+  value is a `VirtualKeyboard` instance, same as was previously returned by
+  `makeSharedVirtualKeyboard()`
+- The "alt-keys" are now called "variants". The `data-alt-keys` attribute is now
+  `data-variants`
 
 ### Improvements
 

@@ -2,38 +2,31 @@ import { isArray } from '../common/types';
 
 import {
   unshiftKeyboardLayer,
-  showAlternateKeys,
-  hideAlternateKeys,
+  showVariantsPanel,
+  hideVariantsPanel,
   VirtualKeyboard,
 } from './virtual-keyboard-utils';
 import { register as registerCommand, SelectorPrivate } from './commands';
-import { VirtualKeyboardTheme } from '../public/options';
-import { globalMathLive } from '../mathlive';
 export { unshiftKeyboardLayer };
 
 /*
- * Alternate options are displayed when a key on the virtual keyboard is pressed
- * and held.
+ * The variants panel is displayed when a keycap on the virtual keyboard is
+ * pressed and held.
  *
  */
-registerCommand(
-  {
-    showAlternateKeys,
-  },
-  { target: 'virtual-keyboard' }
-);
+registerCommand({ showVariantsPanel }, { target: 'virtual-keyboard' });
 
 export function switchKeyboardLayer(
   keyboard: VirtualKeyboard,
   layer: string | null
 ): boolean {
-  showVirtualKeyboard(keyboard);
-  // If the alternate keys panel was visible, hide it
-  hideAlternateKeys();
+  keyboard.show();
+  // If the variants panel was visible, hide it
+  hideVariantsPanel();
   // If we were in a temporarily shifted state (shift-key held down)
   // restore our state before switching to a new layer.
   unshiftKeyboardLayer(keyboard);
-  const layers = keyboard?.element!.querySelectorAll('.keyboard-layer');
+  const layers = keyboard?.element!.querySelectorAll('.MLK__layer');
   // Search for the requested layer
   let found = false;
   for (const layer_ of layers) {
@@ -60,7 +53,7 @@ export function switchKeyboardLayer(
 
 export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
   const keycaps = keyboard?.element!.querySelectorAll<HTMLElement>(
-    'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
+    '.MLK__layer.is-visible .MLK__keycap, .MLK__layer.is-visible .action'
   );
   if (keycaps) {
     for (const keycap of keycaps) {
@@ -105,11 +98,11 @@ registerCommand(
   { target: 'virtual-keyboard' }
 );
 
-export function performAlternateKeys(
+export function performVariant(
   keyboard: VirtualKeyboard,
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
 ): boolean {
-  hideAlternateKeys();
+  hideVariantsPanel();
   return keyboard.executeCommand(command);
 }
 
@@ -124,14 +117,13 @@ export function insertAndUnshiftKeyboardLayer(
 
 registerCommand(
   {
-    hideAlternateKeys: () => hideAlternateKeys(),
+    hideVariantsPanel: () => hideVariantsPanel(),
 
     /*
-     * The command invoked when an alternate key is pressed.
-     * We need to hide the Alternate Keys panel, then perform the
-     * command.
+     * The command invoked when a variant key is pressed:
+     * hide the Variants panel, then perform the command.
      */
-    performAlternateKeys,
+    performVariant,
     switchKeyboardLayer: (keyboard: VirtualKeyboard, layer) =>
       switchKeyboardLayer(keyboard, layer),
     unshiftKeyboardLayer: (keyboard: VirtualKeyboard) =>
@@ -140,17 +132,6 @@ registerCommand(
   },
   { target: 'virtual-keyboard' }
 );
-
-export function toggleVirtualKeyboardAlt(keyboard: VirtualKeyboard): boolean {
-  let hadAltTheme = false;
-  if (keyboard?.element) {
-    hadAltTheme = keyboard?.element.classList.contains('material');
-    keyboard.disable();
-  }
-
-  showVirtualKeyboard(keyboard, hadAltTheme ? '' : 'material');
-  return false;
-}
 
 export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
   keyboard.options.virtualKeyboardLayout = {
@@ -162,116 +143,36 @@ export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
     colemak: 'qwerty',
   }[keyboard.options.virtualKeyboardLayout];
   const layer =
-    keyboard?.element?.querySelector('div.keyboard-layer.is-visible')?.id ?? '';
+    keyboard?.element?.querySelector('.MLK__layer.is-visible')?.id ?? '';
   if (keyboard) keyboard.disable();
 
-  showVirtualKeyboard(keyboard);
+  keyboard.show();
   if (layer) switchKeyboardLayer(keyboard, layer);
 
   return false;
 }
 
-registerCommand(
-  {
-    /* Toggle the virtual keyboard, but switch to the alternate theme if available */
-    toggleVirtualKeyboardAlt,
-    /** Toggle the virtual keyboard, but switch another keyboard layout */
-    toggleVirtualKeyboardShift,
-  },
-  { target: 'virtual-keyboard' }
-);
+/** Toggle the virtual keyboard, but switch another keyboard layout */
+registerCommand({ toggleVirtualKeyboardShift }, { target: 'virtual-keyboard' });
 
-export function showVirtualKeyboard(
-  keyboard: VirtualKeyboard,
-  theme: VirtualKeyboardTheme = ''
-): boolean {
-  const container = keyboard.options.virtualKeyboardContainer;
-  if (!container) return false;
-
-  // Confirm
-  if (!keyboard.stateWillChange(true)) return false;
-
-  if (!keyboard.element) keyboard.buildAndAttachElement(theme);
-
-  if (!keyboard.visible) {
-    const global = globalMathLive();
-    if (global.visibleVirtualKeyboard)
-      hideVirtualKeyboard(global.visibleVirtualKeyboard);
-    global.visibleVirtualKeyboard = keyboard;
-
-    if (container === window.document.body) {
-      const padding = container.style.paddingBottom;
-      keyboard.originalContainerBottomPadding = padding;
-      const keyboardHeight =
-        keyboard.element!.querySelector<HTMLElement>('.ML__keyboard--plate')!
-          .offsetHeight - 1;
-      container.style.paddingBottom = padding
-        ? `calc(${padding} + ${keyboardHeight}px)`
-        : `${keyboardHeight}px`;
-    }
-  }
-
-  // For the transition effect to work, the property has to be changed
-  // after the insertion in the DOM.
-  requestAnimationFrame(() => {
-    keyboard.element?.classList.add('is-visible');
-    keyboard.focusMathfield();
-    keyboard.visible = true;
-    keyboard.stateChanged();
-  });
-
-  return false;
-}
-
-export function hideVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
-  const container = keyboard.options.virtualKeyboardContainer;
-  if (!container) return false;
-
-  // Confirm
-  if (!keyboard.stateWillChange(false)) return false;
-
-  if (keyboard.element) {
-    globalMathLive().visibleVirtualKeyboard = undefined;
-    // Remove the element from the DOM
-    keyboard.disable();
-    hideAlternateKeys();
-    keyboard.visible = false;
-
-    keyboard.coreStylesheet?.release();
-    keyboard.coreStylesheet = null;
-    keyboard.virtualKeyboardStylesheet?.release();
-    keyboard.virtualKeyboardStylesheet = null;
-
-    keyboard._element?.remove();
-    keyboard._element = undefined;
-
-    if (keyboard.originalContainerBottomPadding !== null)
-      container.style.paddingBottom = keyboard.originalContainerBottomPadding;
-  }
-
-  keyboard.visible = false;
-  keyboard.stateChanged();
-  return false;
-}
-
-function toggleVirtualKeyboard(
-  keyboard: VirtualKeyboard,
-  theme?: VirtualKeyboardTheme
-): boolean {
-  if (keyboard.visible) hideVirtualKeyboard(keyboard);
-  else showVirtualKeyboard(keyboard, theme);
+function toggleVirtualKeyboard(keyboard: VirtualKeyboard): boolean {
+  if (keyboard.visible) keyboard.hide();
+  else keyboard.show();
 
   return false;
 }
 
 registerCommand(
   {
-    toggleVirtualKeyboard: (keyboard: VirtualKeyboard, theme) =>
-      toggleVirtualKeyboard(keyboard, theme),
-    hideVirtualKeyboard: (keyboard: VirtualKeyboard) =>
-      hideVirtualKeyboard(keyboard),
-    showVirtualKeyboard: (keyboard: VirtualKeyboard, theme): boolean =>
-      showVirtualKeyboard(keyboard, theme),
+    toggleVirtualKeyboard,
+    hideVirtualKeyboard: (keyboard) => {
+      keyboard.hide();
+      return false;
+    },
+    showVirtualKeyboard: (keyboard) => {
+      keyboard.show();
+      return false;
+    },
   },
   { target: 'virtual-keyboard' }
 );

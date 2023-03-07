@@ -9,6 +9,12 @@
     />
     <link rel="stylesheet" href="./style.css" />
     <link rel="icon" href="data:," />
+    <style>
+      body {
+        /* --keyboard-background: linear-gradient(#e66465, #9198e5); */
+        --keyboard-background: linear-gradient(white, #cacfd7);
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -18,7 +24,7 @@
       <math-field
         id="mf"
         use-shared-virtual-keyboard
-        virtual-keyboard-mode="manual"
+        virtual-keyboard-mode="off"
         >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
       >
       <!-- <math-field id="mf" virtual-keyboard-mode="manual"
@@ -33,10 +39,9 @@
         >f(x)</math-field
       >
 
-      <div
-        style="width: 500px; height: 300px; background: firebrick"
-        id="kbd-container"
-      ></div>
+      <math-field readonly virtual-keyboard-mode="onfocus"
+        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
+      >
 
       <h2 style="margin-top: 1em">LaTeX</h2>
       <div class="output" id="latex"></div>
@@ -80,16 +85,17 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      const k = makeSharedVirtualKeyboard({
-        virtualKeyboardContainer: document.getElementById('kbd-container'),
-      });
-      // const k = makeSharedVirtualKeyboard({});
+      const k = makeSharedVirtualKeyboard({});
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
       //   console.log('toggling ', ev)
       // );
 
       k.addEventListener('before-virtual-keyboard-toggle', (ev) => {
+        console.log('before-virtual-keyboard-toggle');
         if (k.visible) ev.preventDefault();
+      });
+      k.addEventListener('virtual-keyboard-toggle', (ev) => {
+        console.log('virtual-keyboard-toggle');
       });
 
       // const HIGH_SCHOOL_KEYBOARD_LAYER = {

@@ -276,7 +276,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     // 2.1/ The virtual keyboard toggle
     markup.push(
-      `<div part='virtual-keyboard-toggle' class=ML__virtual-keyboard-toggle role=button data-ML__tooltip="${localize(
+      `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button data-ML__tooltip="${localize(
         'tooltip.toggle virtual keyboard'
       )}">`
     );
@@ -346,7 +346,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       (command) => this.executeCommand(command),
       {
         default: 'toggleVirtualKeyboard',
-        alt: 'toggleVirtualKeyboardAlt',
         shift: 'toggleVirtualKeyboardShift',
       }
     );
@@ -1322,7 +1321,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       .map((a) => a.bodyToLatex({ defaultMode: 'math' }));
   }
 
-  setPromptContent(id: string, content?: string) {
+  setPromptContent(id: string, content?: string): void {
     if (content !== undefined)
       this.getPrompt(id).body = parseLatex(content, this);
     requestUpdate(this);
@@ -1331,12 +1330,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   setPromptCorrectness(
     id: string,
     correctness: 'correct' | 'incorrect' | undefined
-  ) {
+  ): void {
     this.getPrompt(id).correctness = correctness;
     requestUpdate(this);
   }
 
-  setPromptLocked(id: string, locked: boolean) {
+  setPromptLocked(id: string, locked: boolean): void {
     this.getPrompt(id).locked = locked;
     this.getPrompt(id).captureSelection = locked;
     requestUpdate(this);
@@ -1417,10 +1416,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.model.getValue(this.model.selection, 'latex-expanded')
     );
 
-    const selectedAtoms = model.getAtoms(model.selection);
-    if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
-      const placeholder = selectedAtoms[0] as PlaceholderAtom;
-    }
     // Adjust mode
     {
       const cursor = model.at(model.position);

@@ -1,25 +1,25 @@
-import {
-  get as getOptions,
-  getDefault as getDefaultOptions,
-  update as updateOptions,
-} from '../editor/options';
-import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { offsetFromPoint } from '../editor-mathfield/pointer-input';
-import { isOffset, isRange, isSelection } from '../editor/model';
-import { isBrowser } from '../common/capabilities';
-
 import { Selector } from './commands';
 import { LatexSyntaxError, ParseMode, Style } from './core';
 import {
-  Mathfield,
   InsertOptions,
   OutputFormat,
   Offset,
   Range,
   Selection,
+  Mathfield,
 } from './mathfield';
 import { MathfieldOptions } from './options';
+
+import {
+  get as getOptions,
+  getDefault as getDefaultOptions,
+  update as updateOptions,
+} from '../editor/options';
+import { isOffset, isRange, isSelection } from '../editor/model';
+import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
+import { isBrowser } from '../common/capabilities';
 
 export declare type Expression =
   | number
@@ -136,7 +136,6 @@ if (MATHFIELD_TEMPLATE) {
   outline: Highlight auto 1px;    /* For Firefox */
   outline: -webkit-focus-ring-color auto 1px;
 }
-:host([promptmode]), :host([prompt-mode]) { outline: none;}
 :host([readonly]), :host([read-only]) { outline: none; }
 </style>
 <div></div><slot style="display:none"></slot>`;
