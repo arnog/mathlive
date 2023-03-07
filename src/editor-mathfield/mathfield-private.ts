@@ -634,7 +634,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (!this._virtualKeyboard) {
       if (
         this.options.useSharedVirtualKeyboard ||
-        globalMathLive().sharedVirtualKeyboard
+        globalMathLive().mathVirtualKeyboard
       ) {
         this._virtualKeyboard = new VirtualKeyboardDelegate({
           targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
@@ -1487,7 +1487,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     if (
       /onfocus|manual/.test(this.options.virtualKeyboardMode) &&
-      !globalMathLive().sharedVirtualKeyboard
+      !globalMathLive().mathVirtualKeyboard
     )
       this.executeCommand('hideVirtualKeyboard');
 

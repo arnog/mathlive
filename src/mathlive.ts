@@ -27,7 +27,7 @@ import {
 
 export type MathLiveGlobal = {
   version: string;
-  sharedVirtualKeyboard?: RemoteVirtualKeyboard;
+  mathVirtualKeyboard?: RemoteVirtualKeyboard;
   visibleVirtualKeyboard?: VirtualKeyboard;
   config: Partial<MathfieldOptions>; // for speechEngine, speakHook
   readAloudElement: null | HTMLElement;
@@ -90,7 +90,7 @@ export function globalMathLive(): MathLiveGlobal {
 export function makeSharedVirtualKeyboard(
   options?: Partial<RemoteVirtualKeyboardOptions>
 ): RemoteVirtualKeyboard {
-  if (!globalMathLive().sharedVirtualKeyboard) {
+  if (!globalMathLive().mathVirtualKeyboard) {
     if (
       [...document.querySelectorAll('math-field')].some(
         (x) =>
@@ -104,9 +104,9 @@ export function makeSharedVirtualKeyboard(
         'MathLive: makeSharedVirtualKeyboard() must be called before any mathfield element is connected to the DOM or set the `use-shared-virtual-keyboard` on each mathfield elements.'
       );
     }
-    globalMathLive().sharedVirtualKeyboard = new RemoteVirtualKeyboard(options);
+    globalMathLive().mathVirtualKeyboard = new RemoteVirtualKeyboard(options);
   }
-  return globalMathLive().sharedVirtualKeyboard!;
+  return globalMathLive().mathVirtualKeyboard!;
 }
 
 /**

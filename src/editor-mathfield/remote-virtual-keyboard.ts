@@ -45,8 +45,8 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   private readonly _mathfield: Mathfield;
 
   /**
-   * @param targetOrigin only virtual keyboards in a frame (or document) with this
-   * origin will be able to receive messages.
+   * @param targetOrigin only virtual keyboards in a frame (or document) with
+   * this origin will be able to receive messages.
    * Specify a value other than '*' to improve security and prevent malicious
    * sites from intercepting content.
    */
@@ -61,24 +61,24 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   }
 
   get visible(): boolean {
-    return globalMathLive().sharedVirtualKeyboard?.visible ?? false;
+    return globalMathLive().mathVirtualKeyboard?.visible ?? false;
   }
 
   set visible(value: boolean) {
-    const kbd = globalMathLive().sharedVirtualKeyboard;
+    const kbd = globalMathLive().mathVirtualKeyboard;
     if (!kbd) return;
     if (value) kbd.show();
     else kbd.hide();
   }
 
   show(): void {
-    const kbd = globalMathLive().sharedVirtualKeyboard;
+    const kbd = globalMathLive().mathVirtualKeyboard;
     if (!kbd) return;
     kbd.show();
   }
 
   hide(): void {
-    const kbd = globalMathLive().sharedVirtualKeyboard;
+    const kbd = globalMathLive().mathVirtualKeyboard;
     if (!kbd) return;
     kbd.hide();
   }
@@ -142,13 +142,11 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
   stateChanged(): void {}
 
   updateToolbar(): void {
-    globalMathLive().sharedVirtualKeyboard?.updateToolbar(this._mathfield);
+    globalMathLive().mathVirtualKeyboard?.updateToolbar(this._mathfield);
   }
 
   get boundingRect(): DOMRect {
-    return (
-      globalMathLive().sharedVirtualKeyboard?.boundingRect ?? new DOMRect()
-    );
+    return globalMathLive().mathVirtualKeyboard?.boundingRect ?? new DOMRect();
   }
 
   handleEvent(event: MessageEvent<RemoteKeyboardMessageData>): void {
@@ -303,6 +301,7 @@ export class RemoteVirtualKeyboard
 
   dispatchEvent(event: Event): boolean {
     if (
+      event.type !== 'geometrychange' &&
       event.type !== 'virtual-keyboard-toggle' &&
       event.type !== 'before-virtual-keyboard-toggle'
     )
@@ -320,6 +319,7 @@ export class RemoteVirtualKeyboard
     _options?: EventListenerOptions | boolean
   ): void {
     if (
+      type !== 'geometrychange' &&
       type !== 'virtual-keyboard-toggle' &&
       type !== 'before-virtual-keyboard-toggle'
     )
@@ -482,6 +482,6 @@ declare global {
 
 if (isBrowser()) {
   Object.defineProperty(window, 'mathVirtualKeyboard', {
-    get: () => globalMathLive().sharedVirtualKeyboard,
+    get: () => globalMathLive().mathVirtualKeyboard,
   });
 }

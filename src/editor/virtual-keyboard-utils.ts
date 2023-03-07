@@ -187,8 +187,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: CombinedVirtualKeyboardOptions;
   private _visible: boolean;
   private _element?: HTMLDivElement;
-  originalContainerBottomPadding: string | null = null;
-  private readonly _mathfield?: MathfieldPrivate;
+  private readonly mathfield?: MathfieldPrivate;
+  private readonly observer: ResizeObserver;
+  private originalContainerBottomPadding: string | null = null;
 
   private coreStylesheet: Stylesheet | null;
   private virtualKeyboardStylesheet: Stylesheet | null;
@@ -196,9 +197,24 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   constructor(options: CombinedVirtualKeyboardOptions, mathfield?: Mathfield) {
     this.options = options;
     this._visible = false;
-    this._mathfield = mathfield as MathfieldPrivate;
+    this.mathfield = mathfield as MathfieldPrivate;
     this.coreStylesheet = null;
     this.virtualKeyboardStylesheet = null;
+    this.observer = new ResizeObserver((_entries) => {
+      // Adjust the keyboard height
+      const h = this.boundingRect.height;
+      this._element?.style.setProperty('--keyboard-height', `${h}px`);
+
+      const keyboardHeight = h - 1;
+      this.options.virtualKeyboardContainer!.style.paddingBottom = this
+        .originalContainerBottomPadding
+        ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
+        : `${keyboardHeight}px`;
+
+      this.mathfield?.host?.dispatchEvent(
+        new Event('geometrychange', { bubbles: true, composed: true })
+      );
+    });
   }
 
   setOptions(options: CombinedVirtualKeyboardOptions): void {
@@ -250,7 +266,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   get boundingRect(): DOMRect {
-    const plate = this._element?.querySelector('.MLK__plate');
+    const plate = this._element?.getElementsByClassName('MLK__plate')[0];
     if (plate) return plate.getBoundingClientRect();
     return new DOMRect();
   }
@@ -266,19 +282,20 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
 
     if (!this._element) this.buildAndAttachElement();
 
-    window.addEventListener('resize', () => console.log('resizing'));
-
     if (!this._visible) {
       const global = globalMathLive();
       if (global.visibleVirtualKeyboard) global.visibleVirtualKeyboard.hide();
       global.visibleVirtualKeyboard = this;
 
+      const plate = this._element!.getElementsByClassName(
+        'MLK__plate'
+      )[0] as HTMLElement;
+      if (plate) this.observer.observe(plate);
+
       if (container === window.document.body) {
         const padding = container.style.paddingBottom;
         this.originalContainerBottomPadding = padding;
-        const keyboardHeight =
-          this._element!.querySelector<HTMLElement>('.MLK__backdrop')!
-            .offsetHeight - 1;
+        const keyboardHeight = plate.offsetHeight - 1;
         container.style.paddingBottom = padding
           ? `calc(${padding} + ${keyboardHeight}px)`
           : `${keyboardHeight}px`;
@@ -289,8 +306,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     // after the insertion in the DOM.
     requestAnimationFrame(() => {
       this._element?.classList.add('is-visible');
-      const h = this.boundingRect.height;
-      this._element?.style.setProperty('--keyboard-height', `${h}px`);
       this.focusMathfield();
       this._visible = true;
       this.stateChanged();
@@ -305,9 +320,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     // Confirm
     if (!this.stateWillChange(false)) return;
 
-    window.removeEventListener('resize', this);
-
     if (this._element) {
+      const plate = this._element.getElementsByClassName('MLK__plate')[0];
+      if (plate) this.observer.unobserve(plate);
+
       globalMathLive().visibleVirtualKeyboard = undefined;
       // Remove the element from the DOM
       this.disable();
@@ -354,23 +370,19 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
 
         unshiftKeyboardLayer(this);
         break;
-      case 'resize':
-        const h = this.boundingRect.height;
-        this._element?.style.setProperty('--keyboard-height', `${h}px`);
-        break;
     }
   }
 
   focusMathfield(): void {
-    this._mathfield?.focus?.();
+    this.mathfield?.focus?.();
   }
 
   blurMathfield(): void {
-    this._mathfield?.blur?.();
+    this.mathfield?.blur?.();
   }
 
   stateWillChange(visible: boolean): boolean {
-    const defaultNotPrevented = this._mathfield?.host?.dispatchEvent(
+    const defaultNotPrevented = this.mathfield?.host?.dispatchEvent(
       new CustomEvent('before-virtual-keyboard-toggle', {
         detail: { visible },
         bubbles: true,
@@ -382,7 +394,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   stateChanged(): void {
-    this._mathfield?.host?.dispatchEvent(
+    this.mathfield?.host?.dispatchEvent(
       new Event('virtual-keyboard-toggle', {
         bubbles: true,
         cancelable: false,
@@ -421,7 +433,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       return COMMANDS[selector]!.fn(this, ...args);
 
     return (
-      this._mathfield?.executeCommand(
+      this.mathfield?.executeCommand(
         command as Selector | [Selector, ...any[]]
       ) ?? false
     );
