@@ -594,11 +594,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     const ancestor = Atom.commonAncestor(anchor, cursor);
 
-    if (
-      ancestor?.inEditablePrompt ||
-      !!(ancestor as PlaceholderAtom).placeholderId
-    )
-      return false;
+    if (ancestor?.inEditablePrompt) return false;
 
     return true;
   }
