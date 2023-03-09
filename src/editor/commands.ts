@@ -10,6 +10,7 @@ import {
   removeSuggestion,
 } from '../editor-mathfield/autocomplete';
 import { canVibrate } from '../common/capabilities';
+import { VirtualKeyboard } from './virtual-keyboard-utils';
 
 export { SelectorPrivate };
 
@@ -139,7 +140,7 @@ export function perform(
     dirty = true;
     handled = true;
   } else if (commandTarget === 'virtual-keyboard') {
-    dirty = mathfield.virtualKeyboard?.executeCommand(command) ?? false;
+    dirty = VirtualKeyboard.singleton.executeCommand(command) ?? false;
     handled = true;
   } else if (COMMANDS[selector]) {
     if (/^(undo|redo)/.test(selector)) mathfield.flushInlineShortcutBuffer();
@@ -183,7 +184,7 @@ export function performWithFeedback(
 ): boolean {
   // @revisit: have a registry of commands -> sound
   mathfield.focus();
-  if (mathfield.options.keypressVibration && canVibrate())
+  if (window.mathVirtualKeyboard.keypressVibration && canVibrate())
     navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
   // Convert kebab case to camel case.
@@ -195,7 +196,7 @@ export function performWithFeedback(
     selector === 'moveToPreviousPlaceholder' ||
     selector === 'complete'
   )
-    mathfield.playSound('return');
+    window.MathfieldElement.playSound('return');
   else if (
     selector === 'deleteBackward' ||
     selector === 'deleteForward' ||
@@ -206,8 +207,8 @@ export function performWithFeedback(
     selector === 'deleteToMathFieldStart' ||
     selector === 'deleteToMathFieldEnd'
   )
-    mathfield.playSound('delete');
-  else mathfield.playSound('keypress');
+    window.MathfieldElement.playSound('delete');
+  else window.MathfieldElement.playSound('keypress');
 
   const result = mathfield.executeCommand(selector);
   mathfield.scrollIntoView();

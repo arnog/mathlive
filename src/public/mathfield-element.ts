@@ -20,6 +20,7 @@ import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
 import { isBrowser } from '../common/capabilities';
+import { resolveUrl } from 'common/script-url';
 
 export declare type Expression =
   | number
@@ -97,9 +98,12 @@ export type MoveOutEvent = {
 };
 
 /**
- * See documentation for the `virtual-keyboard-mode` attribute.
+ * -   `"auto"`: the virtual keyboard is triggered when a
+ * mathfield is focused on a touch capable device.
+ * -   `"manual"`: the virtual keyboard not triggered automatically
+ *
  */
-export type VirtualKeyboardMode = 'auto' | 'manual' | 'onfocus' | 'off';
+export type VirtualKeyboardPolicy = 'auto' | 'manual';
 
 declare global {
   /**
@@ -293,68 +297,14 @@ export interface MathfieldElementAttributes {
   'speech-engine-voice': string;
   'text-to-speech-markup': string;
   'text-to-speech-rules': string;
-  'virtual-keyboard-layout': string;
   /**
-   * -   `"manual"`: pressing the virtual keyboard toggle button will show or hide
-   *     the virtual keyboard. If hidden, the virtual keyboard is not shown when
-   *     the field is focused until the toggle button is pressed.
-   * -   `"onfocus"`: the virtual keyboard will be displayed whenever the field is
-   *     focused and hidden when the field loses focus. In that case, the virtual
-   *     keyboard toggle button is not displayed.
-   * -   `"off"`: the virtual keyboard toggle button is not displayed, and the
-   *     virtual keyboard is never triggered.
-   *
-   * If the setting is `"auto"`, it will default to `"onfocus"` on touch-capable
-   * devices and to `"off"` otherwise.
+   * -   `"auto"`: the virtual keyboard is triggered when a
+   * mathfield is focused on a touch capable device.
+   * -   `"manual"`: the virtual keyboard not triggered automatically
    *
    */
-  'virtual-keyboard-mode': VirtualKeyboardMode;
-  /**
-   * The visual theme used for the virtual keyboard.
-   *
-   * If empty, the theme will switch automatically based on the device it's
-   * running on. The two supported themes are 'material' and 'apple' (the
-   * default).
-   */
-  'virtual-keyboard-theme': string;
-  /**
-   * A space separated list of the keyboards that should be available. The
-   * keyboard `"all"` is synonym with `"numeric"`, `"functions"``, `"symbols"``
-   * `"roman"` and `"greek"`,
-   *
-   * The keyboards will be displayed in the order indicated.
-   */
-  'virtual-keyboards':
-    | 'all'
-    | 'numeric'
-    | 'roman'
-    | 'greek'
-    | 'functions'
-    | 'symbols'
-    | 'latex'
-    | string;
-  /**
-   * When `true`, use a shared virtual keyboard for all the mathfield
-   * elements in the page, even across _iframes_.
-   *
-   * When setting this option to true, you must create the shared
-   * virtual keyboard in the the parent document:
-   *
-   * ```javascript
-   * import { makeSharedVirtualKeyboard } from 'mathlive';
-   *
-   *     makeSharedVirtualKeyboard({
-   *         virtualKeyboardToolbar: 'none',
-   *     });
-   * ```
-   * You should call `makeSharedVirtualKeyboard()` as early as possible.
-   * `makeSharedVirtualKeyboard()` only applies to mathfield instances created
-   *  after it is called.
-   *
-   *
-   * **Default**: `false`
-   */
-  'use-shared-virtual-keyboard': boolean;
+  'math-virtual-keyboard-policy': VirtualKeyboardPolicy;
+
   /**
    * Specify the `targetOrigin` parameter for
    * [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
@@ -363,7 +313,7 @@ export interface MathfieldElementAttributes {
    *
    * **Default**: `globalThis.origin`
    */
-  'shared-virtual-keyboard-target-origin': string;
+  'virtual-keyboard-target-origin': string;
 
   /**
    * The LaTeX string to insert when the spacebar is pressed (on the physical or
@@ -372,6 +322,8 @@ export interface MathfieldElementAttributes {
    */
   'math-mode-space': string;
 }
+
+const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
 /**
  * The `MathfieldElement` class provides special properties and
@@ -472,12 +424,12 @@ export interface MathfieldElementAttributes {
  * change one or the other, for example:
  *
  * ```javascript
- * getElementById('mf').setAttribute('virtual-keyboard-mode',  'manual');
- * console.log(getElementById('mf').virtualKeyboardMode);
- * // Result: "manual"
- * getElementById('mf').virtualKeyboardMode ='auto;
- * console.log(getElementById('mf').getAttribute('virtual-keyboard-mode');
- * // Result: 'auto'
+ * getElementById('mf').setAttribute('letter-shape-style',  'french');
+ * console.log(getElementById('mf').letterShapeStyle);
+ * // Result: "french"
+ * getElementById('mf').letterShapeStyle ='tex;
+ * console.log(getElementById('mf').getAttribute('letter-shape-style');
+ * // Result: 'tex'
  * ```
  *
  * An exception is the `value` property, which is not reflected on the `value`
@@ -512,9 +464,7 @@ export interface MathfieldElementAttributes {
  * | `text-to-speech-markup` | `options.textToSpeechMarkup` |
  * | `text-to-speech-rules` | `options.textToSpeechRules` |
  * | `value` | `value` |
- * | `virtual-keyboard-layout` | `options.virtualKeyboardLayout` |
- * | `virtual-keyboard-mode` | `virtualKeyboardMode` |
- * | `virtual-keyboards` | `options.virtualKeyboards` |
+ * | `math-virtual-keyboard-policy` | `mathVirtualKeyboardPolicy` |
  *
  * </div>
  *
@@ -533,8 +483,8 @@ export interface MathfieldElementAttributes {
  *
  * ### Events
  *
- * Listen to these events by using `addEventListener()`. For events with additional
- * arguments, the arguments are available in `event.detail`.
+ * Listen to these events by using `addEventListener()`. For events with
+ * additional arguments, the arguments are available in `event.detail`.
  *
  * <div class='symbols-table' style='--first-col-width:27ex'>
  *
@@ -596,12 +546,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'speech-engine-voice': 'string',
       'text-to-speech-markup': 'string',
       'text-to-speech-rules': 'string',
-      'virtual-keyboard-layout': 'string',
-      'virtual-keyboard-mode': 'string',
-      'virtual-keyboard-theme': 'string',
-      'virtual-keyboards': 'string',
-      'use-shared-virtual-keyboard': 'boolean',
-      'shared-virtual-keyboard-target-origin': 'string',
+      'virtual-keyboard-target-origin': 'string',
     };
   }
 
@@ -611,11 +556,247 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   static get observedAttributes(): string[] {
     return [
-      ...Object.keys(MathfieldElement.optionsAttributes),
+      ...Object.keys(this.optionsAttributes),
       'disabled', // Global attribute
       'readonly', // A semi-global attribute (not all standard elements support it, but some do)
       'read-only',
     ];
+  }
+
+  /**
+   * A URL fragment pointing to the directory containing the fonts
+   * necessary to render a formula.
+   *
+   * These fonts are available in the `/dist/fonts` directory of the SDK.
+   *
+   * Customize this value to reflect where you have copied these fonts,
+   * or to use the CDN version.
+   *
+   * The default value is `"./fonts"`. Use `null` to prevent
+   * any fonts from being loaded.
+   *
+   * Changing this setting after the mathfield has been created will have
+   * no effect.
+   *
+   * ```javascript
+   * {
+   *      // Use the CDN version
+   *      fontsDirectory: ''
+   * }
+   * ```
+   *
+   * ```javascript
+   * {
+   *      // Use a directory called "fonts", located next to the
+   *      // `mathlive.js` (or `mathlive.mjs`) file.
+   *      fontsDirectory: './fonts'
+   * }
+   * ```
+   *
+   * ```javascript
+   * {
+   *      // Use a directory located at the root of your website
+   *      fontsDirectory: 'https://example.com/fonts'
+   * }
+   * ```
+   *
+   */
+  static fontsDirectory: string | null = './fonts';
+
+  /**
+   * A URL fragment pointing to the directory containing the optional
+   * sounds used to provide feedback while typing.
+   *
+   * Some default sounds are available in the `/dist/sounds` directory of the SDK.
+   *
+   * Use `null` to prevent any sound from being loaded.
+   *
+   */
+  static _soundsDirectory: string | null = './sounds';
+  static get soundsDirectory(): string | null {
+    return this._soundsDirectory;
+  }
+  static set soundsDirectory(value: string | null) {
+    this._soundsDirectory = value;
+    this.audioBuffers = {};
+  }
+  /**
+   * When a key on the virtual keyboard is pressed, produce a short audio
+   * feedback.
+   *
+   * If the property is set to a `string`, the same sound is played in all
+   * cases. Otherwise, a distinct sound is played:
+   *
+   * -   `delete` a sound played when the delete key is pressed
+   * -   `return` ... when the return/tab key is pressed
+   * -   `spacebar` ... when the spacebar is pressed
+   * -   `default` ... when any other key is pressed. This property is required,
+   *     the others are optional. If they are missing, this sound is played as
+   *     well.
+   *
+   * The value of the properties should be either a string, the name of an
+   * audio file in the `soundsDirectory` directory or `null` to suppress the sound.
+   */
+  static _keypressSound: {
+    spacebar: null | string;
+    return: null | string;
+    delete: null | string;
+    default: null | string;
+  } = {
+    spacebar: 'keypress-spacebar.wav',
+    return: 'keypress-return.wav',
+    delete: 'keypress-delete.wav',
+    default: 'keypress-standard.wav',
+  };
+  static get keypressSound(): {
+    spacebar: null | string;
+    return: null | string;
+    delete: null | string;
+    default: null | string;
+  } {
+    return this._keypressSound;
+  }
+  static set keypressSound(
+    value:
+      | null
+      | string
+      | {
+          spacebar?: null | string;
+          return?: null | string;
+          delete?: null | string;
+          default: null | string;
+        }
+  ) {
+    this.audioBuffers = {};
+
+    if (value === null) {
+      this._keypressSound = {
+        spacebar: null,
+        return: null,
+        delete: null,
+        default: null,
+      };
+    } else if (typeof value === 'string') {
+      this._keypressSound = {
+        spacebar: value,
+        return: value,
+        delete: value,
+        default: value,
+      };
+    } else if (typeof value === 'object' && 'default' in value) {
+      this._keypressSound = {
+        spacebar: value.spacebar ?? value.default,
+        return: value.return ?? value.default,
+        delete: value.delete ?? value.default,
+        default: value.default,
+      };
+    }
+  }
+
+  /**
+   * Sound played to provide feedback when a command has no effect, for example
+   * when pressing the spacebar at the root level.
+   *
+   * The property is either:
+   * - a string, the name of an audio file in the `soundsDirectory` directory
+   * - null to turn off the sound
+   */
+  static _plonkSound: string | null = 'plonk.wav';
+  static get plonkSound(): string | null {
+    return this._plonkSound;
+  }
+  static set plonkSound(value: string | null) {
+    this.audioBuffers = {};
+    this._plonkSound = value;
+  }
+
+  /** @internal */
+  static audioBuffers: { [key: string]: AudioBuffer } = {};
+  /** @internal */
+  static _audioContext: AudioContext;
+  static get audioContext(): AudioContext {
+    if (!this._audioContext) this._audioContext = new AudioContext();
+    return this._audioContext;
+  }
+
+  /**
+   * A custom compute engine instance. If none is provided, a default one is
+   * used. If `null` is specified, no compute engine is used.
+   */
+  static computeEngine: any | null = undefined;
+
+  /**
+   * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+   *
+   * This optional function will be called before a string of HTML is
+   * injected in the DOM, allowing that string to be sanitized
+   * according to a policy defined by the host.
+   */
+  static createHTML: (html: string) => any = (x) => x;
+  // @todo https://github.com/microsoft/TypeScript/issues/30024
+
+  static async loadSound(
+    sound: 'plonk' | 'keypress' | 'spacebar' | 'delete' | 'return'
+  ): Promise<void> {
+    //  Clear out the cached audio buffer
+    delete this.audioBuffers[sound];
+
+    let soundFile: string | undefined | null = '';
+    switch (sound) {
+      case 'keypress':
+        soundFile = this._keypressSound.default;
+        break;
+      case 'return':
+        soundFile = this._keypressSound.return;
+        break;
+      case 'spacebar':
+        soundFile = this._keypressSound.spacebar;
+        break;
+      case 'delete':
+        soundFile = this._keypressSound.delete;
+        break;
+      case 'plonk':
+        soundFile = this.plonkSound;
+        break;
+    }
+
+    if (typeof soundFile !== 'string') return;
+    soundFile = soundFile.trim();
+    const soundsDirectory = this.soundsDirectory;
+    if (
+      soundsDirectory === undefined ||
+      soundsDirectory === null ||
+      soundsDirectory === 'null' ||
+      soundFile === 'none' ||
+      soundFile === 'null'
+    )
+      return;
+
+    // Fetch the audio buffer
+    const response = await fetch(
+      await resolveUrl(`${soundsDirectory}/${soundFile}`)
+    );
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+    this.audioBuffers[sound] = audioBuffer;
+  }
+
+  static async playSound(
+    name: 'keypress' | 'spacebar' | 'delete' | 'plonk' | 'return'
+  ): Promise<void> {
+    if (!this.audioBuffers[name]) await this.loadSound(name);
+    if (!this.audioBuffers[name]) return;
+
+    // A sound source can't be played twice, so creeate a new one
+    const soundSource = this.audioContext.createBufferSource();
+    soundSource.buffer = this.audioBuffers[name];
+
+    // Set the volume
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.value = AUDIO_FEEDBACK_VOLUME;
+    soundSource.connect(gainNode).connect(this.audioContext.destination);
+
+    soundSource.start();
   }
 
   /** @internal */
@@ -630,10 +811,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   /** @internal */
   private _internals: ElementInternals;
 
-  // The content of <style> tags inside the element.
-  /** @internal */
-  private _style: string;
-
   /**
      * To create programmatically a new mathfield use:
      *
@@ -644,12 +821,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
 
     // Options can be set either as an attribute (for simple options)...
-    mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
+    mfe.setAttribute("letter-shape-style", "french");
 
-    // ... or using `setOptions()`
-    mfe.setOptions({
-        virtualKeyboardMode: 'manual',
-    });
+    // ... or using properties
+    mfe.letterShapeStyle = "french";
 
     // Attach the element to the DOM
     document.body.appendChild(mfe);
@@ -667,9 +842,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     this.attachShadow({ mode: 'open' });
     this.shadowRoot!.append(MATHFIELD_TEMPLATE!.content.cloneNode(true));
-
-    // When the elements get focused (through tabbing for example)
-    // focus the mathfield
 
     const slot =
       this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
@@ -772,26 +944,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * If the Compute Engine library is available, return the
-   * compute engine associated with this mathfield.
-   *
-   * To load the Compute Engine library, use:
-   * ```js
-import 'https://unpkg.com/@cortex-js/compute-engine?module';
-```
-   *
-   */
-
-  get computeEngine(): any {
-    if (!this._mathfield) return undefined;
-    return this._mathfield.computeEngine;
-  }
-  set computeEngine(val: any | null) {
-    if (!this._mathfield) return;
-    this._mathfield.setOptions({ computeEngine: val });
-  }
-
-  /**
    * If the Compute Engine library is available, return a boxed MathJSON expression representing the value of the mathfield.
    *
    * To load the Compute Engine library, use:
@@ -812,7 +964,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
   set expression(mathJson: Expression | any) {
     if (!this._mathfield) return;
-    const latex = this.computeEngine?.box(mathJson).latex ?? null;
+    const latex = MathfieldElement.computeEngine?.box(mathJson).latex ?? null;
     if (latex !== null) this._mathfield.setValue(latex);
 
     if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
@@ -978,14 +1130,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield?.hasFocus() ?? false;
   }
 
-  get virtualKeyboardState(): 'hidden' | 'visible' {
-    return this._mathfield?.virtualKeyboardState ?? 'hidden';
-  }
-
-  set virtualKeyboardState(value: 'hidden' | 'visible') {
-    if (this._mathfield) this._mathfield.virtualKeyboardState = value;
-  }
-
   /**
    * Sets the focus to the mathfield (will respond to keyboard input).
    *
@@ -1141,41 +1285,12 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     // NVDA on Firefox seems to require this attribute
     this.setAttribute('contenteditable', 'true');
 
+    // When the elements get focused (through tabbing for example)
+    // focus the mathfield
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
     const slot =
       this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
-
-    try {
-      this._style = slot!
-        .assignedElements()
-        .filter((x) => x.tagName.toLowerCase() === 'style')
-        .map((x) => x.textContent)
-        .join('');
-    } catch (error: unknown) {
-      console.log(error);
-    }
-    // Add shadowed stylesheet if one was provided
-    if (this._style) {
-      const styleElement = document.createElement('style');
-      styleElement.textContent = this._style;
-      this.shadowRoot!.appendChild(styleElement);
-    }
-    // Inline options (as a JSON structure in the markup)
-    try {
-      const json = slot!
-        .assignedElements()
-        .filter(
-          (x) =>
-            x.tagName.toLowerCase() === 'script' &&
-            (x as HTMLScriptElement).type === 'application/json'
-        )
-        .map((x) => x.textContent)
-        .join('');
-      if (json) this.setOptions(JSON.parse(json));
-    } catch (error: unknown) {
-      console.log(error);
-    }
 
     let value = '';
     // Check if there is a `value` attribute and set the initial value
@@ -1378,12 +1493,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   set defaultMode(value: 'inline-math' | 'math' | 'text') {
     this.setOptions({ defaultMode: value });
   }
-  get fontsDirectory(): string | null {
-    return this.getOption('fontsDirectory');
-  }
-  set fontsDirectory(value: string | null) {
-    this.setOptions({ fontsDirectory: value });
-  }
   get mathModeSpace(): string {
     return this.getOption('mathModeSpace');
   }
@@ -1395,42 +1504,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   set inlineShortcutTimeout(value: number) {
     this.setOptions({ inlineShortcutTimeout: value });
-  }
-  get keypressVibration(): boolean {
-    return this.getOption('keypressVibration');
-  }
-  set keypressVibration(value: boolean) {
-    this.setOptions({ keypressVibration: value });
-  }
-  get keypressSound():
-    | string
-    | null
-    | {
-        spacebar?: null | string;
-        return?: null | string;
-        delete?: null | string;
-        default: null | string;
-      } {
-    return this.getOption('keypressSound');
-  }
-  set keypressSound(
-    value:
-      | string
-      | null
-      | {
-          spacebar?: null | string;
-          return?: null | string;
-          delete?: null | string;
-          default: null | string;
-        }
-  ) {
-    this.setOptions({ keypressSound: value });
-  }
-  get plonkSound(): string | null {
-    return this.getOption('plonkSound') ?? null;
-  }
-  set plonkSound(value: string | null) {
-    this.setOptions({ plonkSound: value });
   }
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
     return this.getOption('letterShapeStyle');
@@ -1518,43 +1591,18 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this.setOptions({ textToSpeechRules: value });
   }
 
-  get virtualKeyboardLayout():
-    | 'auto'
-    | 'qwerty'
-    | 'azerty'
-    | 'qwertz'
-    | 'dvorak'
-    | 'colemak' {
-    return this.getOption('virtualKeyboardLayout');
+  get virtualKeyboardTargetOrigin(): string {
+    return this.getOption('virtualKeyboardTargetOrigin');
   }
-  set virtualKeyboardLayout(
-    value: 'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak'
-  ) {
-    this.setOptions({ virtualKeyboardLayout: value });
+  set virtualKeyboardTargetOrigin(value: string) {
+    this.setOptions({ virtualKeyboardTargetOrigin: value });
   }
-  get virtualKeyboardMode(): VirtualKeyboardMode {
-    return this.getOption('virtualKeyboardMode');
+
+  get mathVirtualKeyboardPolicy(): VirtualKeyboardPolicy {
+    return this.getOption('virtualKeyboardPolicy');
   }
-  set virtualKeyboardMode(value: VirtualKeyboardMode) {
-    this.setOptions({ virtualKeyboardMode: value });
-  }
-  get virtualKeyboards(): string {
-    return this.getOption('virtualKeyboards');
-  }
-  set virtualKeyboards(value: string) {
-    this.setOptions({ virtualKeyboards: value });
-  }
-  get useSharedVirtualKeyboard(): boolean {
-    return this.getOption('useSharedVirtualKeyboard');
-  }
-  set useSharedVirtualKeyboard(value: boolean) {
-    this.setOptions({ useSharedVirtualKeyboard: value });
-  }
-  get sharedVirtualKeyboardTargetOrigin(): string {
-    return this.getOption('sharedVirtualKeyboardTargetOrigin');
-  }
-  set sharedVirtualKeyboardTargetOrigin(value: string) {
-    this.setOptions({ sharedVirtualKeyboardTargetOrigin: value });
+  set mathVirtualKeyboardPolicy(value: VirtualKeyboardPolicy) {
+    this.setOptions({ virtualKeyboardPolicy: value });
   }
 
   /**

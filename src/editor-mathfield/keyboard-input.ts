@@ -1,8 +1,6 @@
 import type { Selector } from '../public/commands';
 import { ParseMode, Style } from '../public/core';
 
-import { canVibrate } from '../common/capabilities';
-
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { Atom } from '../core/atom';
 
@@ -12,7 +10,7 @@ import {
 } from '../editor/keyboard';
 import { getInlineShortcut } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
-import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate } from '../editor/commands';
+import { SelectorPrivate } from '../editor/commands';
 import {
   getActiveKeyboardLayout,
   validateKeyboardLayout,
@@ -427,12 +425,7 @@ export function onInput(
   //
   if (options.focus) mathfield.focus();
 
-  if (options.feedback) {
-    if (mathfield.options.keypressVibration && canVibrate())
-      navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
-
-    mathfield.playSound('keypress');
-  }
+  if (options.feedback) window.MathfieldElement.playSound('keypress');
 
   //
   // 2/ Switch mode if requested

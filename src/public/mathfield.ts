@@ -1,5 +1,5 @@
 import { Selector } from './commands';
-import { CombinedVirtualKeyboardOptions, MathfieldOptions } from './options';
+import { MathfieldOptions, VirtualKeyboardOptions } from './options';
 import { ParseMode, Style } from './core';
 
 /**
@@ -148,11 +148,17 @@ export type Selection = {
  * - `RemoteVirtualKeyboard` (the shared virtual keyboard instance)
  */
 export interface VirtualKeyboardInterface {
-  visible: boolean;
-  height: number;
-
   /** Called once when the keyboard is created */
   create(): void;
+
+  /** When connected the virtual keyboard dispatches messages to mathfields
+   * and responds to messages from mathfields.
+   * Only the focused mathfield should be listening and reacting.
+   * When disconnected, the virtual keyboard does not respond to messages from
+   * mathfields.
+   */
+  connect(): void;
+  disconnect(): void;
 
   /** After calling dispose() the Virtual Keyboard is no longer valid and
    * cannot be brought back. Use disable() to temporarily deactivate the
@@ -164,16 +170,6 @@ export interface VirtualKeyboardInterface {
   show(): void;
   hide(): void;
 
-  focusMathfield(): void;
-  blurMathfield(): void;
-
-  /** When enabled the virtual keyboard interacts with the focused mathfield.
-   * When disabled, the virtual keyboard does not respond to messages from
-   * mathfields.
-   */
-  enable(): void;
-  disable(): void;
-
   /** The content or selection of the mathfield has changed and the toolbar
    * may need to be updated accordingly
    */
@@ -182,9 +178,11 @@ export interface VirtualKeyboardInterface {
   stateWillChange(visible: boolean): boolean;
   stateChanged(): void;
 
-  setOptions(options: CombinedVirtualKeyboardOptions): void;
+  setOptions(options: VirtualKeyboardOptions): void;
 
   readonly boundingRect: DOMRect;
+
+  keypressVibration: boolean;
 }
 
 export interface Mathfield {
@@ -327,8 +325,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
   getPromptContent(placeholderId: string): string;
 
   get prompts(): string[];
-
-  virtualKeyboardState: 'visible' | 'hidden';
 }
 
 export interface Model {

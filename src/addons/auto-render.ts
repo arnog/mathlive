@@ -236,7 +236,7 @@ function createMathMLNode(
       "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
       options.renderToMathML!(latex) +
       '</math>';
-    span.innerHTML = options.createHTML ? options.createHTML(html) : html;
+    span.innerHTML = window.MathfieldElement.createHTML(html);
   } catch (error: unknown) {
     console.error(
       "MathLive: Could not convert '" + latex + "' to MathML with ",
@@ -270,7 +270,7 @@ function createMarkupNode(
       mathstyle === 'displaystyle' ? 'div' : 'span'
     );
     element.setAttribute('aria-hidden', 'true');
-    element.innerHTML = options.createHTML ? options.createHTML(html) : html;
+    element.innerHTML = window.MathfieldElement.createHTML(html);
     return element;
   } catch (error: unknown) {
     console.error("Could not parse'" + text + "' with ", error);
@@ -307,7 +307,7 @@ function createAccessibleMarkupPair(
     ) {
       const span = document.createElement('span');
       const html = options.renderToSpeakableText(latex, options);
-      span.innerHTML = options.createHTML ? options.createHTML(html) : html;
+      span.innerHTML = window.MathfieldElement.createHTML(html);
       span.className = 'ML__sr-only';
       fragment.append(span);
     }
@@ -562,8 +562,7 @@ export function autoRenderMathInElement(
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
-    if (optionsPrivate.fontsDirectory !== null)
-      void loadFonts(optionsPrivate.fontsDirectory);
+    void loadFonts();
     injectStylesheet(
       null,
       coreStylesheet,

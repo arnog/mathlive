@@ -12,7 +12,7 @@ function makeFontFace(
   );
 }
 
-export async function loadFonts(fontsDirectory?: string): Promise<void> {
+export async function loadFonts(): Promise<void> {
   // If we're already loading the fonts, we're done.
   if (document.body.classList.contains('ML__fonts-loading')) return;
 
@@ -50,7 +50,9 @@ export async function loadFonts(fontsDirectory?: string): Promise<void> {
     document.body.classList.add('ML__fonts-loading');
 
     // Locate the `fonts` folder relative to the script URL
-    const fontsFolder = await resolveUrl(fontsDirectory ?? './fonts');
+    const fontsFolder = await resolveUrl(
+      window.MathfieldElement.fontsDirectory ?? './fonts'
+    );
     if (!fontsFolder) {
       document.body.classList.add('ML__fonts-did-not-load');
       document.body.classList.remove('ML__fonts-loading');

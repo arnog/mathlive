@@ -162,7 +162,7 @@ export function render(
   if (isFocused && !hasFocus) field.classList.remove('ML__focused');
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
-  field.innerHTML = mathfield.options.createHTML(box.toMarkup());
+  field.innerHTML = window.MathfieldElement.createHTML(box.toMarkup());
   mathfield.fieldContent = field.querySelector('.ML__mathlive')!;
 
   // NVA tries (and fails) to read MathML, so skip it for now

@@ -25,33 +25,78 @@
 
 #### Virtual Keyboard
 
-- The MathLive virtual keyboard API has changed to be consisten with the
+- Previously the virtual keyboard could be shared amongst mathfield instances if
+  the `makeSharedVirtualKeyboard()` function was called or the
+  `use-shared-virtual-keyboard` attribute was set on a mathfield. Otherwise a
+  virtual keyboard instance was created for each mathfield in the document. The
+  virtual keyboard is now always shared. The virtual keyboard global instance
+  can be accessed as `window.mathVirtualKeyboard`. Its value is a
+  `VirtualKeyboard` instance, same as was previously returned by
+  `makeSharedVirtualKeyboard()`.
+
+- The options related to the virtual keyboard should now be set on the global
+  shared virtual keyboard, using `window.mathVirtualKeyboard.setOptions()`
+  instead of on mathfield instances.
+
+- The MathLive virtual keyboard API (offered by the `window.mathVirtualKeyboard`
+  property) has changed to be consistent with the
   [W3C Virtual Keyboard](https://www.w3.org/TR/virtual-keyboard/) API.
 
   This includes adding a `show()` and `hide()` functions, and a `boundingRect`
   property.
 
-  In addition, the `virtualKeyboardMode` property is now called
-  `mathVirtualKeyboardPolicy` and can take a value of `"auto"` or `"manual"`.
+  In addition, the `MathfieldElement.virtualKeyboardMode` property is now called
+  `MathfieldElement.mathVirtualKeyboardPolicy` and can take a value of `"auto"`
+  or `"manual"`.
 
   A value of `"manual"` corresponds to a `virtualKeyboardMode` value of `"off"`,
   that is the virtual keyboard is not displayed automatically and must be
   displayed programmatically.
 
-  The value of `"onfocus"` is no longer supported. To implement this behavior,
-  listen for a `"focus"` or `"blur"` even on the relevant mathfield and call
-  `mathVirtualKeyboard.show()` or `mathVirtualKeyboard.hide()` as needed.
+  The value `"onfocus"` is no longer supported. To implement the behavior
+  previously provided by this value, listen for a `"focus"` or `"blur"` event on
+  the relevant mathfield and call `mathVirtualKeyboard.show()` or
+  `mathVirtualKeyboard.hide()` as needed.
 
   If `mathVirtualKeyboardPolicy` is set to `"auto"` the virtual keyboard is
   displayed automatically when a mathfield is focused on a touch-enabled device.
 
-  The virtual keyboard toggle
+- The virtual keyboard toggle glyph can no longer be customized.
 
-- The virtual keyboard can be accessed as `window.mathVirtualKeyboard`. Its
-  value is a `VirtualKeyboard` instance, same as was previously returned by
-  `makeSharedVirtualKeyboard()`
-- The "alt-keys" are now called "variants". The `data-alt-keys` attribute is now
-  `data-variants`
+- The virtual keyboard toggle button is displayed by default unless the
+  mathfield is readonly. The display of the toggle button is independent of the
+  `mathVirtualKeyboardPolicy`. Using the
+  `math-field::part(virtual-keyboard-toggle)` CSS selector, a `display: none`
+  CSS attribute can be used to hide the virtual keyboard toggle if desired. To
+  replicate the previous default behavior, where the toggle was displayed on
+  touch-enabled devices, use:
+
+  ```css
+  @media not (pointer: coarse) {
+    math-field::part(virtual-keyboard-toggle) {
+      display: none;
+    }
+  }
+  ```
+
+- The "alt-keys" of the virtual keyboard are now called "variants". The
+  `data-alt-keys` attribute is now `data-variants`
+
+#### Miscellaneous Breaking Changes
+
+- It was previously possible to specify a set of options for a mathfield as a
+  `<script>` tag inside the mathfield, as JSON data structure. This is no longer
+  supported.
+- It was previously possible to supply a custom style sheet to be applied inside
+  the shadow DOM by using a `<style>` tag inside the mathfield. This is no
+  longer supported. Use custom CSS variables or `part` selectors to apply custom
+  styling to the mathfield.
+- Some options that were previously available as options for each mathfield
+  instances are now shared by all mathfield instances. This includes
+  `fontsDirectory`, `soundsDirectory` and `computeEngine`. They are now
+  available as static properties of the `MathfieldElement` class. So, before:
+  `mf.setOptions({soundsDirectory: null});` and now:
+  `MathfieldElement.soundsDirectory = null;`
 
 ### Improvements
 

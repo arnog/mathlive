@@ -1,3 +1,4 @@
+import { VirtualKeyboard } from 'editor/virtual-keyboard-utils';
 import { ContentChangeOptions } from '../public/options';
 import { ModelPrivate } from './model-private';
 
@@ -14,7 +15,7 @@ export function selectionDidChange(model: ModelPrivate): void {
     model.listeners.onSelectionDidChange(model);
     model.suppressChangeNotifications = false;
   }
-  model.mathfield.virtualKeyboard?.updateToolbar(model.mathfield);
+  VirtualKeyboard.singleton.updateToolbar(model.mathfield);
 }
 
 export function contentWillChange(

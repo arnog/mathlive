@@ -46,7 +46,7 @@ export function switchKeyboardLayer(
     }
   }
 
-  keyboard.focusMathfield();
+  keyboard.focus();
 
   return true;
 }
@@ -66,7 +66,7 @@ export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
         keycap.dataset.unshiftedContent = keycap.innerHTML;
         if (!shiftedContent) shiftedContent = keycap.innerHTML.toUpperCase();
 
-        keycap.innerHTML = keyboard.options.createHTML(shiftedContent);
+        keycap.innerHTML = window.MathfieldElement.createHTML(shiftedContent);
         const command = keycap.getAttribute('data-command');
         if (command) {
           keycap.dataset.unshiftedCommand = command;
@@ -144,7 +144,6 @@ export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
   }[keyboard.options.virtualKeyboardLayout];
   const layer =
     keyboard?.element?.querySelector('.MLK__layer.is-visible')?.id ?? '';
-  if (keyboard) keyboard.disable();
 
   keyboard.show();
   if (layer) switchKeyboardLayer(keyboard, layer);

@@ -1,8 +1,7 @@
 import type { MathfieldOptions } from '../public/options';
-import { VirtualKeyboardMode } from '../public/mathfield-element';
+import { VirtualKeyboardPolicy } from '../public/mathfield-element';
 
 import { isArray } from '../common/types';
-import { isTouchCapable } from '../common/capabilities';
 
 import { l10n } from '../core/l10n';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
@@ -55,31 +54,11 @@ export function update(
         result.strings = l10n.strings;
         break;
 
-      case 'virtualKeyboardLayout':
-        result.virtualKeyboardLayout = updates.virtualKeyboardLayout!;
-        break;
+      case 'virtualKeyboardPolicy':
+        const keyboardPolicy =
+          updates.virtualKeyboardPolicy!.toLowerCase() as VirtualKeyboardPolicy;
+        result.virtualKeyboardPolicy = keyboardPolicy;
 
-      case 'virtualKeyboardMode':
-        const keyboardMode =
-          updates.virtualKeyboardMode!.toLowerCase() as VirtualKeyboardMode;
-        if (keyboardMode === 'auto')
-          result.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
-        else result.virtualKeyboardMode = keyboardMode;
-
-        break;
-
-      case 'customVirtualKeyboardLayers':
-        result.customVirtualKeyboardLayers = {
-          ...result.customVirtualKeyboardLayers,
-          ...updates.customVirtualKeyboardLayers,
-        };
-        break;
-
-      case 'customVirtualKeyboards':
-        result.customVirtualKeyboards = {
-          ...result.customVirtualKeyboards,
-          ...updates.customVirtualKeyboards,
-        };
         break;
 
       case 'letterShapeStyle':
@@ -89,49 +68,6 @@ export function update(
           else result.letterShapeStyle = 'tex';
         } else result.letterShapeStyle = updates.letterShapeStyle!;
 
-        break;
-
-      case 'plonkSound':
-        if (updates.plonkSound !== undefined)
-          result.plonkSound = updates.plonkSound;
-        break;
-
-      case 'keypressSound':
-        if (updates.keypressSound === null) {
-          result.keypressSound = {
-            default: null,
-            delete: null,
-            return: null,
-            spacebar: null,
-          };
-        } else if (typeof updates.keypressSound === 'string') {
-          result.keypressSound = {
-            delete: updates.keypressSound,
-            return: updates.keypressSound,
-            spacebar: updates.keypressSound,
-            default: updates.keypressSound,
-          };
-        } else if (
-          typeof updates.keypressSound === 'object' &&
-          'default' in updates.keypressSound!
-        ) {
-          result.keypressSound = { ...updates.keypressSound };
-          result.keypressSound.delete =
-            result.keypressSound.delete ?? updates.keypressSound.default!;
-          result.keypressSound.return =
-            result.keypressSound.return ?? updates.keypressSound.default!;
-          result.keypressSound.spacebar =
-            result.keypressSound.spacebar ?? updates.keypressSound.default!;
-        }
-
-        break;
-
-      case 'computeEngine':
-        result.computeEngine = updates.computeEngine;
-        break;
-
-      case 'virtualKeyboardContainer':
-        result.virtualKeyboardContainer = updates.virtualKeyboardContainer!;
         break;
 
       case 'macros':
@@ -182,10 +118,6 @@ export const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<span style="width: 21px; margin-t
 export function getDefault(): Required<MathfieldOptionsPrivate> {
   return {
     readOnly: false,
-    createHTML: (s: string): any => s,
-    fontsDirectory: './fonts',
-    soundsDirectory: './sounds',
-    computeEngine: undefined,
 
     defaultMode: 'math',
     macros: getMacros(),
@@ -215,20 +147,9 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     inlineShortcuts: INLINE_SHORTCUTS,
     inlineShortcutTimeout: 0,
 
-    virtualKeyboardToggleGlyph: DEFAULT_KEYBOARD_TOGGLE_GLYPH,
-    virtualKeyboardMode: 'auto',
-    virtualKeyboards: 'all',
-    virtualKeyboardLayout: 'auto',
-    customVirtualKeyboardLayers: {},
-    customVirtualKeyboards: {},
-    keypressVibration: true,
-    keypressSound: null,
-    plonkSound: null,
-    virtualKeyboardToolbar: 'default',
-    virtualKeyboardContainer: globalThis.document?.body ?? null,
+    virtualKeyboardPolicy: 'auto',
 
-    useSharedVirtualKeyboard: false,
-    sharedVirtualKeyboardTargetOrigin: globalThis.window?.origin,
+    virtualKeyboardTargetOrigin: globalThis.window?.origin,
     originValidator: 'same-origin',
 
     textToSpeechRules: 'mathlive',

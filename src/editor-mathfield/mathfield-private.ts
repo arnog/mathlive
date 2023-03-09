@@ -24,7 +24,7 @@ import type {
   VirtualKeyboardInterface,
 } from '../public/mathfield';
 
-import { canVibrate, isTouchCapable } from '../common/capabilities';
+import { canVibrate } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
@@ -82,7 +82,6 @@ import {
   DEFAULT_KEYBOARD_LAYOUT,
   gKeyboardLayout,
 } from '../editor/keyboard-layout';
-import { VirtualKeyboard } from '../editor/virtual-keyboard';
 import { ModelState } from '../editor-model/model-private';
 
 import { onInput, onKeystroke } from './keyboard-input';
@@ -97,6 +96,7 @@ import {
   getSelectionBounds,
   isValidMathfield,
   Rect,
+  validateOrigin,
 } from './utils';
 
 import { attachButtonHandlers } from './buttons';
@@ -107,20 +107,21 @@ import { getLatexGroupBody } from './mode-editor-latex';
 import './mode-editor-math';
 import './mode-editor-text';
 
-import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 import { validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import {
   defaultGetDefinition,
   getMacroDefinition,
 } from '../core/context-utils';
-import { globalMathLive } from '../mathlive';
-import { resolveUrl } from '../common/script-url';
-import { PromptAtom } from 'core-atoms/prompt';
+import { PromptAtom } from '../core-atoms/prompt';
+import {
+  isKeyboardMessage,
+  VirtualKeyboard,
+  VIRTUAL_KEYBOARD_MESSAGE,
+} from '../editor/virtual-keyboard-utils';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
-const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
 /** @internal */
 export class MathfieldPrivate implements GlobalContext, Mathfield {
@@ -189,8 +190,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   private readonly stylesheets: (null | Stylesheet)[] = [];
   private resizeTimer: ReturnType<typeof requestAnimationFrame>;
 
-  private audioBuffers: { [key: string]: AudioBuffer } = {};
-  private _audioContext: AudioContext;
+  /** When true, the mathfield is listening to the virtual keyboard */
+  private connected: boolean;
 
   /**
    *
@@ -214,25 +215,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // Setup default config options
     this.options = updateOptions(
       { ...getDefaultOptions(), registers: getDefaultRegisters(this) },
-      options.readOnly
-        ? { ...options, virtualKeyboardMode: 'off' }
-        : {
-            plonkSound: 'plonk.wav',
-            keypressSound: {
-              spacebar: 'keypress-spacebar.wav',
-              return: 'keypress-return.wav',
-              delete: 'keypress-delete.wav',
-              default: 'keypress-standard.wav',
-            },
-            ...options,
-          }
+      options
     );
-
-    if (this.options.virtualKeyboardMode === 'auto')
-      this.options.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
-
-    if (this.options.computeEngine !== undefined)
-      this._computeEngine = options.computeEngine;
 
     if (options.eventSink) this.host = options.eventSink;
 
@@ -240,8 +224,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     element.mathfield = this;
 
     // Load the fonts, inject the core and mathfield stylesheets
-    if (this.options.fontsDirectory !== null)
-      void loadFonts(this.options.fontsDirectory);
+    void loadFonts();
     if (!CORE_STYLESHEET_HASH)
       CORE_STYLESHEET_HASH = hashCode(CORE_STYLESHEET).toString(36);
 
@@ -280,9 +263,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         'tooltip.toggle virtual keyboard'
       )}">`
     );
-    markup.push(
-      this.options.virtualKeyboardToggleGlyph ?? DEFAULT_KEYBOARD_TOGGLE_GLYPH
-    );
+    markup.push(DEFAULT_KEYBOARD_TOGGLE_GLYPH);
     markup.push('</div>');
 
     markup.push('<div class=ML__placeholdercontainer></div>');
@@ -301,7 +282,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // );
     markup.push('</div>');
 
-    this.element.innerHTML = this.options.createHTML(markup.join(''));
+    this.element.innerHTML = window.MathfieldElement.createHTML(
+      markup.join('')
+    );
     if (!this.element.children) {
       console.error(
         '%cMathLive: Something went wrong and the mathfield could not be created.%c\n' +
@@ -337,7 +320,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.virtualKeyboardToggle = this.element.querySelector<HTMLElement>(
       '[part=virtual-keyboard-toggle]'
     )!;
-    if (!this.options.readOnly && this.options.virtualKeyboardMode === 'manual')
+    if (!this.options.readOnly)
       this.virtualKeyboardToggle.classList.add('is-visible');
     else this.virtualKeyboardToggle.classList.remove('is-visible');
 
@@ -522,9 +505,17 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     document.fonts.ready.then(() => render(this));
   }
 
-  get audioContext(): AudioContext {
-    if (!this._audioContext) this._audioContext = new AudioContext();
-    return this._audioContext;
+  connect(): void {
+    if (this.connected) return;
+    this.connected = true;
+    globalThis.addEventListener('message', this);
+    VirtualKeyboard.singleton.updateToolbar(this);
+  }
+
+  disconnect(): void {
+    if (!this.connected) return;
+    globalThis.removeEventListener('message', this);
+    this.connected = false;
   }
 
   /** Global Context.
@@ -620,32 +611,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     );
   }
 
-  get virtualKeyboard(): VirtualKeyboardInterface | undefined {
-    if (this.promptSelectionLocked) return undefined;
-
-    // The virtual keyboard can be either attached to this mathfield
-    // or a delegate that mirrors a global virtual keyboard attached
-    // to the document. This is useful for example when using
-    // mathfield in iframes so that all the mathfields share the keyboard
-    // at the document level (rather than having one in each iframe)
-    // If there is a shared virtual keyboard attached to this document, use it
-    // even if `options.useSharedVirtualKeyboard` is false.
-
-    if (!this._virtualKeyboard) {
-      if (
-        this.options.useSharedVirtualKeyboard ||
-        globalMathLive().mathVirtualKeyboard
-      ) {
-        this._virtualKeyboard = new VirtualKeyboardDelegate({
-          targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
-          originValidator: this.options.originValidator,
-          mathfield: this,
-        });
-      } else this._virtualKeyboard = new VirtualKeyboard(this.options, this);
-    }
-    return this._virtualKeyboard;
-  }
-
   get computeEngine(): ComputeEngine | null {
     if (this._computeEngine === undefined) {
       const ComputeEngineCtor =
@@ -660,19 +625,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         this._computeEngine.latexOptions.decimalMarker = '{,}';
     }
     return this._computeEngine ?? null;
-  }
-
-  get virtualKeyboardState(): 'hidden' | 'visible' {
-    if (this.virtualKeyboard?.visible) return 'visible';
-    return 'hidden';
-  }
-
-  set virtualKeyboardState(value: 'hidden' | 'visible') {
-    if (!this.virtualKeyboard) return;
-    if (value === 'hidden')
-      this.virtualKeyboard.executeCommand('hideVirtualKeyboard');
-    else if (value === 'visible')
-      this.virtualKeyboard.executeCommand('showVirtualKeyboard');
   }
 
   get keybindings(): Keybinding[] {
@@ -699,9 +651,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   setOptions(config: Partial<MathfieldOptionsPrivate>): void {
     this.options = updateOptions(this.options, config);
 
-    if ('computeEngine' in config)
-      this._computeEngine = this.options.computeEngine;
-
     if (this._computeEngine && 'decimalSeparator' in config) {
       this._computeEngine.latexOptions.decimalMarker =
         this.options.decimalSeparator === ',' ? '{,}' : '.';
@@ -721,43 +670,18 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     this._keybindings = undefined;
 
-    if (
-      'soundsDirectory' in config ||
-      'plonkSound' in config ||
-      'keypressSound' in config ||
-      'spacebarKeypressSound' in config ||
-      'returnKeypressSound' in config ||
-      'deleteKeypressSound' in config
-    )
-      this.audioBuffers = {};
-
     if (this.options.defaultMode === 'inline-math')
       this.element!.classList.add('ML__isInline');
     else this.element!.classList.remove('ML__isInline');
 
     if (this.options.readOnly) {
-      if (this.hasFocus() && this.virtualKeyboardState === 'visible')
+      if (this.hasFocus() && VirtualKeyboard.singleton.visible)
         this.executeCommand('hideVirtualKeyboard');
       this.onBlur();
       this.element!.classList.add('ML__isReadOnly');
     } else this.element!.classList.remove('ML__isReadOnly');
 
-    this.virtualKeyboard?.setOptions(this.options);
-
-    if (!this.options.readOnly && this.options.virtualKeyboardMode === 'manual')
-      this.virtualKeyboardToggle.classList.add('is-visible');
-    else this.virtualKeyboardToggle.classList.remove('is-visible');
-
-    if ('virtualKeyboardToggleGlyph' in config) {
-      const toggle = this.element?.querySelector(
-        '.ML__virtual-keyboard-toggle'
-      );
-      if (toggle) {
-        toggle.innerHTML = this.options.createHTML(
-          this.options.virtualKeyboardToggleGlyph
-        );
-      }
-    }
+    VirtualKeyboard.singleton.setOptions(this.options);
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
@@ -804,6 +728,37 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
    */
   handleEvent(evt: Event): void {
     if (!isValidMathfield(this)) return;
+    if (isKeyboardMessage(evt)) {
+      if (
+        !validateOrigin(
+          evt.origin,
+          this.options.originValidator ?? 'same-origin'
+        )
+      ) {
+        throw new Error(
+          `Message from unknown origin (${evt.origin}) cannot be handled`
+        );
+      }
+
+      const { action } = evt.data;
+
+      if (action === 'execute-command') {
+        // Avoid an infinite messages loop if within one window
+        if (
+          getCommandTarget(evt.data.command!) === 'virtual-keyboard' &&
+          window === globalThis.parent
+        )
+          return;
+
+        this.executeCommand(evt.data.command!);
+      } else if (action === 'update-state') {
+      } else if (action === 'focus') this.focus?.();
+      else if (action === 'blur') this.blur?.();
+      else if (action === 'update-toolbar')
+        VirtualKeyboard.singleton.updateToolbar(this);
+      return;
+    }
+
     switch (evt.type) {
       case 'focus':
         this.onFocus();
@@ -839,8 +794,24 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     }
   }
 
+  private sendMessage(action: string, payload: any = {}): boolean {
+    if (!globalThis.parent) return false;
+    globalThis.parent.postMessage(
+      {
+        type: VIRTUAL_KEYBOARD_MESSAGE,
+        action,
+        ...payload,
+      },
+      this.options.virtualKeyboardTargetOrigin ?? globalThis.origin ?? '*'
+    );
+
+    return true;
+  }
+
   dispose(): void {
     if (!isValidMathfield(this)) return;
+
+    this.disconnect();
 
     const element = this.element!;
     delete (this as any).element;
@@ -896,9 +867,14 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   executeCommand(
     command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
   ): boolean {
-    if (getCommandTarget(command) === 'virtual-keyboard')
-      return this.virtualKeyboard?.executeCommand(command) ?? false;
-
+    if (getCommandTarget(command) === 'virtual-keyboard') {
+      this.focus();
+      this.sendMessage('execute-command', { command });
+      requestAnimationFrame(() =>
+        VirtualKeyboard.singleton.updateToolbar(this)
+      );
+      return false;
+    }
     return perform(this, command);
   }
 
@@ -941,78 +917,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     const ce = this.computeEngine;
     if (!ce) return null;
     return ce.box(ce.parse(this.model.getValue()));
-  }
-
-  async loadSound(
-    sound: 'keypress' | 'spacebar' | 'delete' | 'plonk' | 'return'
-  ): Promise<void> {
-    //  Clear out the cached audio buffer
-    delete this.audioBuffers[sound];
-
-    let soundFile: string | undefined | null = '';
-    switch (sound) {
-      case 'keypress':
-        soundFile =
-          typeof this.options.keypressSound === 'string'
-            ? this.options.keypressSound
-            : this.options.keypressSound?.default;
-        break;
-      case 'spacebar':
-        soundFile =
-          typeof this.options.keypressSound === 'string'
-            ? this.options.keypressSound
-            : this.options.keypressSound?.spacebar ??
-              this.options.keypressSound?.default;
-        break;
-      case 'delete':
-        soundFile =
-          typeof this.options.keypressSound === 'string'
-            ? this.options.keypressSound
-            : this.options.keypressSound?.delete ??
-              this.options.keypressSound?.default;
-        break;
-      case 'plonk':
-        soundFile = this.options.plonkSound;
-        break;
-    }
-
-    if (typeof soundFile !== 'string') return;
-    soundFile = soundFile.trim();
-    const soundsDirectory = this.options.soundsDirectory;
-    if (
-      soundsDirectory === undefined ||
-      soundsDirectory === null ||
-      soundsDirectory === 'null' ||
-      soundFile === 'none' ||
-      soundFile === 'null'
-    )
-      return;
-
-    // Fetch the audio buffer
-    const response = await fetch(
-      await resolveUrl(soundsDirectory + '/' + soundFile)
-    );
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-    this.audioBuffers[sound] = audioBuffer;
-  }
-
-  async playSound(
-    name: 'keypress' | 'spacebar' | 'delete' | 'plonk' | 'return'
-  ): Promise<void> {
-    if (!this.audioBuffers[name]) await this.loadSound(name);
-    if (!this.audioBuffers[name]) return;
-
-    // A sound source can't be played twice, so creeate a new one
-    const soundSource = this.audioContext.createBufferSource();
-    soundSource.buffer = this.audioBuffers[name];
-
-    // Set the volume
-    const gainNode = this.audioContext.createGain();
-    gainNode.gain.value = AUDIO_FEEDBACK_VOLUME;
-    soundSource.connect(gainNode).connect(this.audioContext.destination);
-
-    soundSource.start();
   }
 
   /** Make sure the caret is visible within the matfield.
@@ -1104,10 +1008,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       if (options.focus) this.focus();
 
       if (options.feedback) {
-        if (this.options.keypressVibration && canVibrate())
+        if (window.mathVirtualKeyboard.keypressVibration && canVibrate())
           navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
-        this.playSound('keypress');
+        window.MathfieldElement.playSound('keypress');
       }
 
       if (options.scrollIntoView) this.scrollIntoView();
@@ -1242,14 +1146,14 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   focus(options?: { scrollIntoView: boolean }): void {
     if (this.hasFocus()) return;
-    this.keyboardDelegate.focus();
+    this.connect();
     this.model.announce('line');
     if (options?.scrollIntoView ?? true) this.scrollIntoView();
   }
 
   blur(): void {
     if (!this.hasFocus()) return;
-    this.keyboardDelegate.blur();
+    this.disconnect();
   }
 
   select(): void {
@@ -1355,7 +1259,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   snapshot(): void {
     if (this.undoManager.snapshot()) {
-      this.virtualKeyboard?.updateToolbar(this);
+      VirtualKeyboard.singleton.updateToolbar(this);
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1368,7 +1272,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   snapshotAndCoalesce(): void {
     if (this.undoManager.snapshotAndCoalesce()) {
-      this.virtualKeyboard?.updateToolbar(this);
+      VirtualKeyboard.singleton.updateToolbar(this);
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1381,7 +1285,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   undo(): void {
     if (!this.undoManager.undo()) return;
-    this.virtualKeyboard?.updateToolbar(this);
+    VirtualKeyboard.singleton.updateToolbar(this);
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,
@@ -1393,7 +1297,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   redo(): void {
     if (!this.undoManager.redo()) return;
-    this.virtualKeyboard?.updateToolbar(this);
+    VirtualKeyboard.singleton.updateToolbar(this);
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,
@@ -1443,12 +1347,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.blurred = false;
     this.keyboardDelegate.focus();
 
-    this.virtualKeyboard?.setOptions(this.options);
+    VirtualKeyboard.singleton.setOptions(this.options);
 
-    this.virtualKeyboard?.enable();
-
-    if (this.options.virtualKeyboardMode === 'onfocus')
-      this.executeCommand('showVirtualKeyboard');
+    VirtualKeyboard.singleton.connect();
 
     updatePopoverPosition(this);
     render(this, { interactive: true });
@@ -1485,13 +1386,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       );
     }
 
-    if (
-      /onfocus|manual/.test(this.options.virtualKeyboardMode) &&
-      !globalMathLive().mathVirtualKeyboard
-    )
-      this.executeCommand('hideVirtualKeyboard');
-
-    this.virtualKeyboard?.disable();
+    this.disconnect();
 
     this.host?.dispatchEvent(
       new Event('blur', {

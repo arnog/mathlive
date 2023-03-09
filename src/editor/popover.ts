@@ -28,6 +28,7 @@ import POPOVER_STYLESHEET from '../../css/popover.less';
 import CORE_STYLESHEET from '../../css/core.less';
 import { complete } from '../editor-mathfield/autocomplete';
 import { ModeEditor } from '../editor-mathfield/mode-editor';
+import { VirtualKeyboard } from './virtual-keyboard-utils';
 
 let POPOVER_STYLESHEET_HASH: string | undefined = undefined;
 let gPopoverStylesheet: Stylesheet | null = null;
@@ -159,7 +160,7 @@ function setPopoverPosition(
     window.innerWidth - document.documentElement.clientWidth;
   const scrollbarHeight =
     window.innerHeight - document.documentElement.clientHeight;
-  const virtualkeyboardHeight = mf.virtualKeyboard!.height;
+  const virtualkeyboardHeight = VirtualKeyboard.singleton.boundingRect.height;
   // Prevent screen overflow horizontal.
   if (position.x + mf.popover.offsetWidth / 2 > screenWidth - scrollbarWidth) {
     mf.popover.style.left = `${
@@ -195,7 +196,7 @@ export function hidePopover(mf: MathfieldPrivate): void {
 
 export function createPopover(mf: MathfieldPrivate, html: string): HTMLElement {
   if (mf.popover) {
-    mf.popover.innerHTML = mf.options.createHTML(html);
+    mf.popover.innerHTML = window.MathfieldElement.createHTML(html);
     return mf.popover;
   }
 
@@ -214,7 +215,7 @@ export function createPopover(mf: MathfieldPrivate, html: string): HTMLElement {
     hashCode(CORE_STYLESHEET).toString(36)
   );
 
-  mf.popover.innerHTML = mf.options.createHTML(html);
+  mf.popover.innerHTML = window.MathfieldElement.createHTML(html);
 
   return mf.popover;
 }
