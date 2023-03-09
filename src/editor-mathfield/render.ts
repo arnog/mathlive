@@ -30,16 +30,15 @@ export function requestUpdate(
   mathfield: MathfieldPrivate,
   options?: { interactive: boolean }
 ): void {
-  if (!mathfield.dirty) {
-    mathfield.dirty = true;
-    requestAnimationFrame(() => {
-      if (isValidMathfield(mathfield) && mathfield.dirty) {
-        mathfield.atomBoundsCache = new Map<string, Rect>();
-        render(mathfield, options);
-        mathfield.atomBoundsCache = undefined;
-      }
-    });
-  }
+  if (mathfield.dirty) return;
+  mathfield.dirty = true;
+  requestAnimationFrame(() => {
+    if (isValidMathfield(mathfield) && mathfield.dirty) {
+      mathfield.atomBoundsCache = new Map<string, Rect>();
+      render(mathfield, options);
+      mathfield.atomBoundsCache = undefined;
+    }
+  });
 }
 
 /**
@@ -163,7 +162,9 @@ export function render(
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
   field.innerHTML = window.MathfieldElement.createHTML(box.toMarkup());
-  mathfield.fieldContent = field.querySelector('.ML__mathlive')!;
+  mathfield.fieldContent = field.getElementsByClassName(
+    'ML__mathlive'
+  )[0]! as HTMLElement;
 
   // NVA tries (and fails) to read MathML, so skip it for now
   // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(

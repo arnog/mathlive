@@ -261,6 +261,7 @@ export function onKeystroke(
           mathfield.snapshot();
           ModeEditor.insert('text', model, ' ');
           mathfield.dirty = true;
+          mathfield.scrollIntoView();
           return true;
         }
       }

@@ -191,7 +191,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   private resizeTimer: ReturnType<typeof requestAnimationFrame>;
 
   /** When true, the mathfield is listening to the virtual keyboard */
-  private connected: boolean;
+  private connectedToVirtualKeyboard: boolean;
 
   /**
    *
@@ -505,17 +505,17 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     document.fonts.ready.then(() => render(this));
   }
 
-  connect(): void {
-    if (this.connected) return;
-    this.connected = true;
+  connectToVirtualKeyboard(): void {
+    if (this.connectedToVirtualKeyboard) return;
+    this.connectedToVirtualKeyboard = true;
     globalThis.addEventListener('message', this);
     VirtualKeyboard.singleton.updateToolbar(this);
   }
 
-  disconnect(): void {
-    if (!this.connected) return;
+  disconnectFromVirtualKeyboard(): void {
+    if (!this.connectedToVirtualKeyboard) return;
     globalThis.removeEventListener('message', this);
-    this.connected = false;
+    this.connectedToVirtualKeyboard = false;
   }
 
   /** Global Context.
@@ -811,7 +811,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   dispose(): void {
     if (!isValidMathfield(this)) return;
 
-    this.disconnect();
+    this.disconnectFromVirtualKeyboard();
 
     const element = this.element!;
     delete (this as any).element;
@@ -1146,14 +1146,16 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   focus(options?: { scrollIntoView: boolean }): void {
     if (this.hasFocus()) return;
-    this.connect();
+    this.keyboardDelegate.focus();
+    this.connectToVirtualKeyboard();
     this.model.announce('line');
     if (options?.scrollIntoView ?? true) this.scrollIntoView();
   }
 
   blur(): void {
     if (!this.hasFocus()) return;
-    this.disconnect();
+    this.disconnectFromVirtualKeyboard();
+    this.keyboardDelegate.blur();
   }
 
   select(): void {
@@ -1386,7 +1388,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       );
     }
 
-    this.disconnect();
+    this.disconnectFromVirtualKeyboard();
 
     this.host?.dispatchEvent(
       new Event('blur', {

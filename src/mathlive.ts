@@ -57,6 +57,9 @@ export function globalMathLive(): MathLiveGlobal {
 export function makeSharedVirtualKeyboard(
   options?: Partial<VirtualKeyboardOptions>
 ): VirtualKeyboard {
+  console.warn(
+    'MathLive: makeSharedVirtualKeyboard() is deprecated. Use window.mathVirtualKeyboard to access the virtual keyboard instance'
+  );
   if (options) VirtualKeyboard.singleton.setOptions(options);
   return VirtualKeyboard.singleton;
 }

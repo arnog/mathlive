@@ -856,7 +856,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     this.shadowRoot!.host.addEventListener(
       'pointerdown',
-      (_event) => this.onPointerDown(),
+      () => this.onPointerDown(),
       true
     );
     this.shadowRoot!.host.addEventListener(
