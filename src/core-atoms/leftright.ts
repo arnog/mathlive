@@ -1,9 +1,9 @@
-import { Style } from '../public/core';
+import type { Style, GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { makeLeftRightDelim, RIGHT_DELIM } from '../core/delimiters';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
 
 /**

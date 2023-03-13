@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Frame One</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main>
+      <h2>Frame One</h2>
+      <math-field id="mf">f(x)= </math-field>
+      <div id="output"></div>
+    </main>
+
+    <script type="module">
+      import '/dist/mathlive.mjs';
+      // import 'https://unpkg.com/mathlive?module';
+      document.getElementById('mf').addEventListener('input', (ev) => {
+        document.getElementById('output').innerHTML = ev.target.value;
+      });
+    </script>
+  </body>
+</html>

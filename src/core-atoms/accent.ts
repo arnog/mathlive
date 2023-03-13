@@ -1,8 +1,8 @@
-import { Style } from '../public/core';
+import type { GlobalContext, Style } from '../core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { makeSVGBox, Box } from '../core/box';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 import { X_HEIGHT } from '../core/font-metrics';
 import { VBox } from '../core/v-box';
 

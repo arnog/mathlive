@@ -1,12 +1,11 @@
 /* eslint-disable no-new */
-import { mathVariantToUnicode } from '../core-definitions/definitions-utils';
 import { Atom, ToLatexOptions } from './atom';
 import { joinLatex } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
-import { Style } from '../public/core';
 import { Box } from './box';
 import { BoxAtom } from '../core-atoms/box';
-import { GlobalContext } from './context';
+import type { GlobalContext, Style } from './types';
+import { mathVariantToUnicode } from '../core-definitions/unicode';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible

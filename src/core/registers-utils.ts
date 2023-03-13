@@ -1,5 +1,5 @@
-import { Dimension, Glue } from '../public/core';
 import { PT_PER_EM } from './font-metrics';
+import type { Dimension, Glue } from './types';
 
 export function convertDimensionToPt(
   value?: Dimension,

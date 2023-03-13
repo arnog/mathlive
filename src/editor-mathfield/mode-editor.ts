@@ -1,8 +1,8 @@
+import type { ParseMode } from 'core/types';
 import { TextAtom } from '../core-atoms/text';
 import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { MODE_SHIFT_COMMANDS } from '../editor/parse-math-string';
-import { ParseMode } from '../public/core';
 import { InsertOptions, Range } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
 

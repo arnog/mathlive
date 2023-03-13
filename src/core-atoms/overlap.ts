@@ -1,8 +1,8 @@
-import type { Style } from '../public/core';
+import type { BoxType, Style, GlobalContext } from '../core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
-import { Box, BoxType } from '../core/box';
-import { Context, GlobalContext } from '../core/context';
+import { Box } from '../core/box';
+import { Context } from '../core/context';
 
 export class OverlapAtom extends Atom {
   private readonly align?: 'left' | 'right';

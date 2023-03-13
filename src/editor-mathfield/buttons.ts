@@ -1,8 +1,5 @@
 import { on } from './utils';
-import {
-  ExecuteCommandFunction,
-  SelectorPrivate,
-} from '../editor/commands-definitions';
+import { ExecuteCommandFunction, SelectorPrivate } from '../editor/types';
 
 export type ButtonHandlers = {
   default: SelectorPrivate | [SelectorPrivate, ...any[]];

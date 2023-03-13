@@ -28,7 +28,6 @@ import POPOVER_STYLESHEET from '../../css/popover.less';
 import CORE_STYLESHEET from '../../css/core.less';
 import { complete } from '../editor-mathfield/autocomplete';
 import { ModeEditor } from '../editor-mathfield/mode-editor';
-import { VirtualKeyboard } from './virtual-keyboard-utils';
 
 let POPOVER_STYLESHEET_HASH: string | undefined = undefined;
 let gPopoverStylesheet: Stylesheet | null = null;
@@ -160,7 +159,7 @@ function setPopoverPosition(
     window.innerWidth - document.documentElement.clientWidth;
   const scrollbarHeight =
     window.innerHeight - document.documentElement.clientHeight;
-  const virtualkeyboardHeight = VirtualKeyboard.singleton.boundingRect.height;
+  const virtualkeyboardHeight = window.mathVirtualKeyboard.boundingRect.height;
   // Prevent screen overflow horizontal.
   if (position.x + mf.popover.offsetWidth / 2 > screenWidth - scrollbarWidth) {
     mf.popover.style.left = `${

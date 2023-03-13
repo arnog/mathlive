@@ -1,7 +1,5 @@
-import type { ParseMode } from '../public/core';
+import type { NormalizedMacroDictionary, ParseMode } from 'core/types';
 import type { Offset, Range, Selection } from '../public/mathfield';
-
-import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
 export type ModelOptions = {
   mode: ParseMode;

@@ -1,5 +1,5 @@
 import type { MathfieldOptions } from '../public/options';
-import { Atom } from '../core/atom';
+import { Atom } from '../core/atom-class';
 import { MacroAtom } from '../core-atoms/macro';
 const SPECIAL_OPERATORS = {
   '\\ne': '<mo>&ne;</mo>',

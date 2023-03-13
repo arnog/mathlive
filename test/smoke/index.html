@@ -70,7 +70,6 @@
       import {
         renderMathInDocument,
         renderMathInElement,
-        makeSharedVirtualKeyboard,
         MathfieldElement,
         convertLatexToMarkup,
         convertLatexToSpeakableText,
@@ -85,7 +84,7 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      const k = makeSharedVirtualKeyboard({});
+      const k = window.mathVirtualKeyboard;
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
       //   console.log('toggling ', ev)
       // );

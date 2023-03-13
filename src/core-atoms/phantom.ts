@@ -1,9 +1,9 @@
-import type { Style } from '../public/core';
+import type { Style, GlobalContext } from '../core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 
 export class PhantomAtom extends Atom {
   private readonly isInvisible: boolean;

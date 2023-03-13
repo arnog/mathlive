@@ -6,24 +6,26 @@
  *
  */
 
+import { Atom } from '../core/atom-class';
+
 import { ComputeEngine, SemiBoxedExpression } from '@cortex-js/compute-engine';
 import { toMathML } from '../addons/math-ml';
-import { Atom } from '../core/atom';
 import { Box, adjustInterAtomSpacing, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { parseLatex } from '../core/parser';
 import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
-import { LatexSyntaxError, ParseMode } from './core';
 import { Expression } from './mathfield-element';
 import { TextToSpeechOptions } from './options';
 import { validateLatex as validateLatexInternal } from '../core/parser';
-import { defaultGlobalContext } from '../core/context-utils';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { parseMathString } from '../editor/parse-math-string';
 
+import type { LatexSyntaxError, ParseMode } from '../core/types';
+
 import '../core/modes';
+import { defaultGlobalContext } from '../core/context-utils';
 
 /**
  * Convert a LaTeX string to a string of HTML markup.

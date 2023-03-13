@@ -1,9 +1,5 @@
 /* eslint-disable no-new */
-import type {
-  AutoRenderOptions,
-  MathfieldOptions,
-  VirtualKeyboardOptions,
-} from './public/options';
+import type { AutoRenderOptions, TextToSpeechOptions } from './public/options';
 export * from './public/mathlive';
 
 import {
@@ -14,8 +10,7 @@ export * from './addons/auto-render';
 import MathLiveDebug from './addons/debug';
 import './addons/definitions-metadata';
 
-import { VirtualKeyboard } from './editor/virtual-keyboard-utils';
-import './editor/virtual-keyboard-commands';
+import './virtual-keyboard/commands';
 
 import {
   convertLatexToMarkup,
@@ -23,11 +18,11 @@ import {
   convertLatexToSpeakableText,
   serializeMathJsonToLatex,
 } from 'public/mathlive-ssr';
+import type { VirtualKeyboardInterface } from 'virtual-keyboard/types';
 
 export type MathLiveGlobal = {
   version: string;
-  mathVirtualKeyboard?: VirtualKeyboard;
-  config: Partial<MathfieldOptions>; // for speechEngine, speakHook
+  config: TextToSpeechOptions; // for speechEngine, speakHook
   readAloudElement: null | HTMLElement;
   readAloudMarks: { value: string; time: number }[];
   readAloudTokens: string[];
@@ -39,6 +34,9 @@ export type MathLiveGlobal = {
   readAloudMathField: any; // MathfieldPrivate;
 };
 
+// Note that this global is only global to the "browsing context". In the
+// case of a page containing iframes, each iframe is a separate browsing
+// context, and therefore will have its own `globalMathLive()`
 export function globalMathLive(): MathLiveGlobal {
   globalThis[Symbol.for('io.cortexjs.mathlive')] ??= {};
   return globalThis[Symbol.for('io.cortexjs.mathlive')];
@@ -54,14 +52,11 @@ export function globalMathLive(): MathLiveGlobal {
  * @keywords create, make, mathfield, iframe
  * @deprecated
  */
-export function makeSharedVirtualKeyboard(
-  options?: Partial<VirtualKeyboardOptions>
-): VirtualKeyboard {
+export function makeSharedVirtualKeyboard(): VirtualKeyboardInterface {
   console.warn(
     'MathLive: makeSharedVirtualKeyboard() is deprecated. Use window.mathVirtualKeyboard to access the virtual keyboard instance'
   );
-  if (options) VirtualKeyboard.singleton.setOptions(options);
-  return VirtualKeyboard.singleton;
+  return window.mathVirtualKeyboard;
 }
 
 /**

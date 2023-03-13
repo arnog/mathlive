@@ -1,9 +1,8 @@
-import { Dimension } from '../public/core';
+import type { GlobalContext, Dimension } from '../core/types';
 
 import { Atom } from '../core/atom-class';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { ArrayAtom, ColumnFormat } from '../core-atoms/array';
-import { GlobalContext } from '../core/context';
 
 import {
   defineEnvironment,

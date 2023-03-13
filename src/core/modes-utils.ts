@@ -1,25 +1,8 @@
-import { Style, ParseMode } from '../public/core';
-
 import type { GroupAtom } from '../core-atoms/group';
-import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
-import { Atom, ToLatexOptions } from './atom';
+import { Atom, ToLatexOptions } from './atom-class';
 import type { Box } from './box';
-import { GlobalContext } from './context';
-import { ArgumentType } from './parser';
-import type { Token } from './tokenizer';
-
-export interface ParseTokensOptions {
-  macros: NormalizedMacroDictionary;
-  smartFence: boolean;
-  style: Style;
-  args: (arg: string) => string;
-  parse: (
-    mode: ArgumentType,
-    tokens: Token[],
-    options: ParseTokensOptions
-  ) => [Atom[], Token[]];
-}
+import type { GlobalContext, ParseMode, Style } from './types';
 
 export abstract class Mode {
   static _registry: Record<string, Mode> = {};
@@ -123,4 +106,12 @@ export function getPropertyRuns(
   // Push whatever is left
   if (run.length > 0) result.push(run);
   return result;
+}
+
+export function applyStyle(
+  mode: ParseMode,
+  box: Box,
+  style: Style
+): string | null {
+  return Mode.applyStyle(mode, box, style);
 }

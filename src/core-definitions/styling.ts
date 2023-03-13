@@ -1,11 +1,4 @@
 import { Atom, BBoxParameter, ToLatexOptions } from '../core/atom-class';
-import {
-  FontShape,
-  FontSeries,
-  FontSize,
-  Dimension,
-  Glue,
-} from '../public/core';
 
 import { GroupAtom } from '../core-atoms/group';
 import { BoxAtom } from '../core-atoms/box';
@@ -19,12 +12,19 @@ import { OverlapAtom } from '../core-atoms/overlap';
 import '../core-atoms/genfrac';
 import { RuleAtom } from '../core-atoms/rule';
 import { OperatorAtom } from '../core-atoms/operator';
-import { MathstyleName } from '../core/mathstyle';
-import { BoxType } from '../core/box';
-import { GlobalContext, PrivateStyle } from '../core/context';
 
-import { Argument, defineFunction } from './definitions-utils';
+import { Argument, binRelType, defineFunction } from './definitions-utils';
 import { TooltipAtom } from '../core-atoms/tooltip';
+import type {
+  FontSize,
+  FontSeries,
+  FontShape,
+  Glue,
+  Dimension,
+  MathstyleName,
+  GlobalContext,
+  PrivateStyle,
+} from 'core/types';
 
 defineFunction('mathtip', '{:math}{:math}', {
   createAtom: (
@@ -1002,15 +1002,6 @@ defineFunction('underline', '{:auto}', {
       style,
     }),
 });
-
-export function binRelType(atoms: Atom[]): BoxType {
-  if (atoms.length === 1) {
-    const atom = atoms[0];
-    if (atom.type === 'mbin') return 'mbin';
-    if (atom.type === 'mrel') return 'mrel';
-  }
-  return 'mord';
-}
 
 defineFunction('overset', '{above:auto}{base:auto}', {
   createAtom: (

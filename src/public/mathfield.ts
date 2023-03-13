@@ -1,6 +1,6 @@
+import type { ParseMode, Style } from 'core/types';
 import { Selector } from './commands';
-import { MathfieldOptions, VirtualKeyboardOptions } from './options';
-import { ParseMode, Style } from './core';
+import { MathfieldOptions } from './options';
 
 /**
  *
@@ -139,51 +139,6 @@ export type Selection = {
   ranges: Range[];
   direction?: 'forward' | 'backward' | 'none';
 };
-
-/**
- * This interface is implemented by:
- * - `VirtualKeyboard`
- * - `VirtualKeyboardDelegate` (used when the virtual keyboard is shared amongst
- * mathfield instances)
- * - `RemoteVirtualKeyboard` (the shared virtual keyboard instance)
- */
-export interface VirtualKeyboardInterface {
-  /** Called once when the keyboard is created */
-  create(): void;
-
-  /** When connected the virtual keyboard dispatches messages to mathfields
-   * and responds to messages from mathfields.
-   * Only the focused mathfield should be listening and reacting.
-   * When disconnected, the virtual keyboard does not respond to messages from
-   * mathfields.
-   */
-  connect(): void;
-  disconnect(): void;
-
-  /** After calling dispose() the Virtual Keyboard is no longer valid and
-   * cannot be brought back. Use disable() to temporarily deactivate the
-   * keyboard. */
-  dispose(): void;
-
-  executeCommand(command: string | [string, ...any[]]): boolean;
-
-  show(): void;
-  hide(): void;
-
-  /** The content or selection of the mathfield has changed and the toolbar
-   * may need to be updated accordingly
-   */
-  updateToolbar(mf: Mathfield): void;
-
-  stateWillChange(visible: boolean): boolean;
-  stateChanged(): void;
-
-  setOptions(options: VirtualKeyboardOptions): void;
-
-  readonly boundingRect: DOMRect;
-
-  keypressVibration: boolean;
-}
 
 export interface Mathfield {
   mode: ParseMode;

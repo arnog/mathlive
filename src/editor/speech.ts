@@ -1,4 +1,4 @@
-import type { TextToSpeechOptions, MathfieldOptions } from '../public/options';
+import type { TextToSpeechOptions } from '../public/options';
 import type { SpeechScope } from '../public/commands';
 
 import type { Atom } from '../core/atom';
@@ -14,7 +14,6 @@ import { globalMathLive } from '../mathlive';
 declare global {
   interface Window {
     AWS: { [key: string]: any };
-    mathlive: { [key: string]: any };
   }
 }
 
@@ -169,7 +168,7 @@ function speak(
 
 export function defaultSpeakHook(
   text: string,
-  config?: Partial<MathfieldOptions>
+  config?: Partial<TextToSpeechOptions>
 ): void {
   if (!isBrowser()) {
     console.log('Speak:', text);

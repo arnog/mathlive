@@ -1,4 +1,4 @@
-import { Style } from '../public/core';
+import type { Style, GlobalContext } from '../core/types';
 
 import {
   Atom,
@@ -7,7 +7,7 @@ import {
   ToLatexOptions,
 } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 
 export class SubsupAtom extends Atom {
   constructor(context: GlobalContext, options?: { style?: Style }) {

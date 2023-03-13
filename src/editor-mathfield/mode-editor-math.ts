@@ -2,7 +2,6 @@
 
 import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 
-import type { Style } from '../public/core';
 import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 
 import { requestUpdate } from './render';
@@ -29,6 +28,7 @@ import {
 
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
+import type { Style } from 'core/types';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {

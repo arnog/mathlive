@@ -4,26 +4,7 @@
     <meta charset="utf-8" />
     <title>MathLive IFrame Example</title>
     <link rel="stylesheet" href="../style.css" />
-    <style>
-      body {
-        font-family: sans-serif;
-        color: #444;
-        background-color: #f9f9f9;
-      }
-
-      main {
-        max-width: 820px;
-        margin: auto;
-      }
-
-      iframe {
-        display: block;
-        width: 100%;
-        min-height: 230px;
-        margin: 20px 0;
-        border: 2px dashed #999;
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
@@ -32,15 +13,8 @@
     </header>
 
     <main>
-      <iframe src="child.html"></iframe>
-      <iframe src="child2.html"></iframe>
+      <iframe src="frame-1.html"></iframe>
+      <iframe src="frame-2.html"></iframe>
     </main>
-
-    <script type="module">
-      import { makeSharedVirtualKeyboard } from '/dist/mathlive.mjs';
-      // import {makeSharedVirtualKeyboard} from 'https://unpkg.com/mathlive?module';
-
-      makeSharedVirtualKeyboard();
-    </script>
   </body>
 </html>

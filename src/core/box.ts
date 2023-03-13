@@ -1,44 +1,18 @@
 import { isArray } from '../common/types';
 
-import { Style, ParseMode } from '../public/core';
 import { getCharacterMetrics } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-box';
-import { Mode } from './modes-utils';
 import { Context } from './context';
 import { highlight } from './color';
-
-/*
- * See https://tex.stackexchange.com/questions/81752/
- * for a thorough description of the TeX atom type and their relevance to
- * proper kerning.
- *
- * See TeXBook p. 158 for a list of the "atom types"
- * Note: we are not using the following types: 'over', 'under', 'acc', 'rad',
- * 'vcent'
- */
-
-const BOX_TYPE = [
-  '',
-  'chem',
-  'mord', // > is an ordinary atom like ‘x’ ;
-  'mbin', // > is a binary operation atom like ‘+’
-  'mop', // > is a large operator atom like $$\sum$$
-  'mrel', // > is a relation atom like ‘=’
-  'mopen', // > is an opening atom like ‘(’
-  'mclose', // > is a closing atom like ‘)’
-  'mpunct', // > is a punctuation atom like ‘,’
-  'minner', // >  is an inner atom like ‘$$\frac12$$'
-  'spacing',
-  'first',
-  'latex',
-  'composition',
-  'error',
-  'placeholder',
-  'supsub',
-  'none',
-  'mathfield',
-] as const; // The const assertion prevents widening to string[]
-export type BoxType = (typeof BOX_TYPE)[number];
+import {
+  BOX_TYPE,
+  BoxCSSProperties,
+  BoxInterface,
+  BoxOptions,
+  BoxType,
+  ParseMode,
+} from './types';
+import { applyStyle } from './modes-utils';
 
 export function isBoxType(type: string): type is BoxType {
   return (BOX_TYPE as unknown as string[]).includes(type);
@@ -114,55 +88,6 @@ function toString(arg1: number | string, arg2?: string): string {
   return '';
 }
 
-export type BoxCSSProperties =
-  | 'background-color'
-  | 'border'
-  | 'border-bottom'
-  | 'border-color'
-  | 'border-left'
-  | 'border-radius'
-  | 'border-right'
-  | 'border-right-width'
-  | 'border-top'
-  | 'border-top-width'
-  | 'box-sizing'
-  | 'color'
-  | 'display'
-  | 'font-family'
-  | 'left'
-  | 'font-size'
-  | 'height'
-  | 'line-height'
-  | 'margin'
-  | 'margin-top'
-  | 'margin-left'
-  | 'margin-right'
-  | 'opacity'
-  | 'padding'
-  | 'position'
-  | 'top'
-  | 'vertical-align'
-  | 'width'
-  | 'z-index';
-
-export type BoxOptions = {
-  classes?: string;
-  properties?: Partial<Record<BoxCSSProperties, string>>;
-  attributes?: Record<string, string>;
-  type?: BoxType;
-  isTight?: boolean;
-  height?: number;
-  depth?: number;
-  maxFontSize?: number;
-
-  newList?: boolean;
-
-  mode?: ParseMode;
-  style?: Style; // If a `style` option is provided, a `mode` must also be provided.
-
-  fontFamily?: string;
-};
-
 //----------------------------------------------------------------------------
 // BOX
 //----------------------------------------------------------------------------
@@ -188,7 +113,7 @@ export type BoxOptions = {
  * @property height - The measurement from baseline to top, in em.
  * @property depth - The measurement from baseline to bottom, in em.
  */
-export class Box {
+export class Box implements BoxInterface {
   type: BoxType;
 
   children?: Box[];
@@ -224,9 +149,9 @@ export class Box {
 
   delim?: string; // @revisit
 
-  protected attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
+  attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
 
-  protected cssProperties: Partial<Record<BoxCSSProperties, string>>;
+  cssProperties: Partial<Record<BoxCSSProperties, string>>;
 
   constructor(
     content: null | number | string | Box | (Box | null)[],
@@ -260,7 +185,7 @@ export class Box {
     if (options?.style && this.value) {
       fontName =
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        Mode.applyStyle(options.mode ?? 'math', this, options.style) ||
+        applyStyle(options.mode ?? 'math', this, options.style) ||
         'Main-Regular';
     }
 

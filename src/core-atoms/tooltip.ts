@@ -1,11 +1,11 @@
-import type { Style } from '../public/core';
+import type { GlobalContext, Style } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context, GlobalContext } from '../core/context';
-import { defaultGlobalContext } from '../core/context-utils';
+import { Context } from '../core/context';
 import { adjustInterAtomSpacing, Box, coalesce } from '../core/box';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { fromJson } from '../core/atom';
+import { defaultGlobalContext } from '../core/context-utils';
 
 export class TooltipAtom extends Atom {
   tooltip: Atom;

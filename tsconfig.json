@@ -17,10 +17,7 @@
     // which include NodeJS definitions that are not applicable to a web app
     // but only those type definitions that are required
     "typeRoots": [],
-    "types": [
-      "./node_modules/@types/css-font-loading-module",
-      "./node_modules/@types/jest"
-    ],
+    "types": [],
 
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,

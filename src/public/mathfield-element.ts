@@ -1,5 +1,5 @@
 import { Selector } from './commands';
-import { LatexSyntaxError, ParseMode, Style } from './core';
+import type { LatexSyntaxError, ParseMode, Style } from '../core/types';
 import {
   InsertOptions,
   OutputFormat,
@@ -443,13 +443,8 @@ const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
  * |:---|:---|
  * | `disabled` | `disabled` |
  * | `default-mode` | `options.defaultMode` |
- * | `fonts-directory` | `options.fontsDirectory` |
- * | `sounds-directory` | `options.soundsDirectory` |
  * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
  * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
- * | `keypress-vibration` | `options.keypressVibration` |
- * | `keypress-sound` | `options.keypressSound` |
- * | `plonk-sound` | `options.plonkSound` |
  * | `letter-shape-style` | `options.letterShapeStyle` |
  * | `locale` | `options.locale` |
  * | `math-mode-space` | `options.mathModeSpace` |
@@ -490,6 +485,7 @@ const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
  *
  * | Event Name  | Description |
  * |:---|:---|
+ * | `beforeinput` | The value of the mathfield is about to be modified.  |
  * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield.  |
  * | `change` | The user has committed the value of the mathfield. This happens when the user presses **Return** or leaves the mathfield. |
  * | `selection-change` | The selection (or caret position) in the mathfield has changed |
@@ -497,12 +493,11 @@ const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
  * | `undo-state-change` |  The state of the undo stack has changed |
  * | `read-aloud-status-change` | The status of a read aloud operation has changed |
  * | `before-virtual-keyboard-toggle` | The visibility of the virtual keyboard panel is about to change.  |
- * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed. When using `makeSharedVirtualKeyboard()`, listen for this even on the object returned by `makeSharedVirtualKeyboard()` |
+ * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed. Listen for this event on `window.mathVirtualKeyboard` |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
  * | `focus-out` | The user is navigating out of the mathfield, typically using the **tab** key<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
  * | `move-out` | The user has pressed an **arrow** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
- * | `math-error` | A parsing or configuration error happened <br> `detail: ErrorListener<ParserErrorCode | MathfieldErrorCode>` |
  * | `keystroke` | The user typed a keystroke with a physical keyboard <br> `detail: {keystroke: string, event: KeyboardEvent}` |
  * | `mount` | The element has been attached to the DOM |
  * | `unmount` | The element is about to be removed from the DOM |
@@ -531,9 +526,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'horizontal-spacing-scale': 'string',
       'math-mode-space': 'string',
       'inline-shortcut-timeout': 'string',
-      'keypress-vibration': 'on/off',
-      'keypress-sound': 'string',
-      'plonk-sound': 'string',
       'letter-shape-style': 'string',
       'locale': 'string',
       'read-only': 'boolean',
@@ -612,7 +604,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * Use `null` to prevent any sound from being loaded.
    *
    */
-  static _soundsDirectory: string | null = './sounds';
   static get soundsDirectory(): string | null {
     return this._soundsDirectory;
   }
@@ -620,6 +611,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._soundsDirectory = value;
     this.audioBuffers = {};
   }
+  static _soundsDirectory: string | null = './sounds';
+
+  /**
+   * When a key on the virtual keyboard is pressed, produce a short haptic
+   * feedback, if the device supports it.
+   */
+  static keypressVibration = true;
+
   /**
    * When a key on the virtual keyboard is pressed, produce a short audio
    * feedback.
@@ -637,17 +636,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * The value of the properties should be either a string, the name of an
    * audio file in the `soundsDirectory` directory or `null` to suppress the sound.
    */
-  static _keypressSound: {
-    spacebar: null | string;
-    return: null | string;
-    delete: null | string;
-    default: null | string;
-  } = {
-    spacebar: 'keypress-spacebar.wav',
-    return: 'keypress-return.wav',
-    delete: 'keypress-delete.wav',
-    default: 'keypress-standard.wav',
-  };
   static get keypressSound(): {
     spacebar: null | string;
     return: null | string;
@@ -692,6 +680,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       };
     }
   }
+  static _keypressSound: {
+    spacebar: null | string;
+    return: null | string;
+    delete: null | string;
+    default: null | string;
+  } = {
+    spacebar: 'keypress-spacebar.wav',
+    return: 'keypress-return.wav',
+    delete: 'keypress-delete.wav',
+    default: 'keypress-standard.wav',
+  };
 
   /**
    * Sound played to provide feedback when a command has no effect, for example

@@ -1,59 +1,22 @@
-import {
-  Dimension,
-  FontSize,
-  Glue,
-  MacroDefinition,
-  ParseMode,
-  Registers,
-  RegisterValue,
-  Style,
-} from '../public/core';
-
-import { TokenDefinition } from '../core-definitions/definitions-utils';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-
-import { Box } from './box';
-import { FontMetrics, FONT_SCALE } from './font-metrics';
-import { D, Dc, Mathstyle, MathstyleName, MATHSTYLES } from './mathstyle';
+import { FONT_SCALE } from './font-metrics';
+import { D, Dc, Mathstyle, MATHSTYLES } from './mathstyle';
 import { convertDimensionToEm } from './registers-utils';
+import {
+  BoxInterface,
+  ContextInterface,
+  Dimension,
+  FontMetrics,
+  FontSize,
+  GlobalContext,
+  Glue,
+  RegisterValue,
+  Registers,
+  Style,
+  MathstyleName,
+} from './types';
 
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf
-
-/**
- * The Global Context encapsulates information that atoms
- * may require in order to render correctly. Unlike `ContextInterface`, these
- * values do not depend of the location of the atom in the render tree.
- */
-export interface GlobalContext {
-  readonly registers: Registers;
-  readonly smartFence: boolean;
-  readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-  readonly fractionNavigationOrder:
-    | 'numerator-denominator'
-    | 'denominator-numerator';
-  readonly placeholderSymbol: string;
-  colorMap: (name: string) => string | undefined;
-  backgroundColorMap: (name: string) => string | undefined;
-  getDefinition(token: string, parseMode: ParseMode): TokenDefinition | null;
-  getMacro(token: string): MacroDefinition | null;
-}
-
-export interface ContextInterface {
-  registers: Registers;
-  atomIdsSettings?: {
-    overrideID?: string;
-    groupNumbers: boolean;
-    seed: 'random' | number;
-  };
-  renderPlaceholder?: (context: Context, placeholder: PlaceholderAtom) => Box;
-}
-
-export type PrivateStyle = Style & {
-  verbatimColor?: string;
-  verbatimBackgroundColor?: string;
-  mathStyle?: MathstyleName;
-};
 
 /**
  * This structure contains the rendering context of the current parse level.
@@ -99,7 +62,7 @@ export class Context implements ContextInterface {
     groupNumbers: boolean;
     seed: 'random' | number;
   };
-  renderPlaceholder?: (context: Context, placeholder: PlaceholderAtom) => Box;
+  renderPlaceholder?: (context: Context) => BoxInterface;
 
   // Rendering to construct a phantom: don't bind the box.
   readonly isPhantom: boolean;

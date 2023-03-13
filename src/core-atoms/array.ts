@@ -1,4 +1,4 @@
-import { Dimension } from '../public/core';
+import type { MathstyleName, Dimension, GlobalContext } from '../core/types';
 
 import {
   Atom,
@@ -11,8 +11,7 @@ import {
 import { Box } from '../core/box';
 import { VBox, VBoxElementAndShift } from '../core/v-box';
 import { makeLeftRightDelim } from '../core/delimiters';
-import { MathstyleName } from '../core/mathstyle';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
 import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
 import { convertDimensionToEm } from '../core/registers-utils';

@@ -1,10 +1,8 @@
 /* eslint-disable no-new */
 import { Offset, Range, InsertOptions } from '../public/mathfield';
-import { Style } from '../public/core';
 import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
 import { range } from '../editor-model/selection-utils';
 import { Atom } from '../core/atom-class';
-import { GlobalContext } from '../core/core';
 import { ModelPrivate } from '../editor-model/model-private';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
@@ -12,6 +10,7 @@ import { MathfieldPrivate } from './mathfield-private';
 import { requestUpdate } from './render';
 import { ModeEditor } from './mode-editor';
 import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions';
+import type { GlobalContext, Style } from 'core/types';
 
 export class LatexModeEditor extends ModeEditor {
   constructor() {

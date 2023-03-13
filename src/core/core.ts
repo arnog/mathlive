@@ -1,9 +1,11 @@
+import './atom-class';
+export * from './atom-class';
 import './atom';
 export * from './atom';
 import './context';
 export * from './context';
-import './context-utils';
-export { defaultGlobalContext } from './context-utils';
+import './delimiters';
+export * from './delimiters';
 import './mathstyle';
 export * from './mathstyle';
 import './parser';

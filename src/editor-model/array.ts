@@ -1,7 +1,4 @@
-import { Style } from '../public/core';
-
 import { Atom } from '../core/atom';
-import { GlobalContext } from '../core/context';
 
 import { register as registerCommand } from '../editor/commands';
 
@@ -9,6 +6,7 @@ import type { ModelPrivate } from './model-private';
 import { contentDidChange, contentWillChange } from './listeners';
 import { arrayIndex, arrayCell } from './array-utils';
 import { ArrayAtom } from '../core-atoms/array';
+import type { Style, GlobalContext } from '../core/types';
 export * from './array-utils';
 
 /**

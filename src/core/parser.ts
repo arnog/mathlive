@@ -1,13 +1,3 @@
-import type {
-  Dimension,
-  Glue,
-  LatexSyntaxError,
-  ParseMode,
-  Registers,
-  RegisterValue,
-  Style,
-} from '../public/core';
-
 import { isArray } from '../common/types';
 
 import {
@@ -16,36 +6,34 @@ import {
   getEnvironmentDefinition,
 } from '../core-definitions/definitions-utils';
 import type { ColumnFormat } from '../core-atoms/array';
-import { GroupAtom } from '../core-atoms/group';
-import { SpacingAtom } from '../core-atoms/spacing';
-import { LeftRightAtom } from '../core-atoms/leftright';
-import { SubsupAtom } from '../core-atoms/subsup';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-import { ErrorAtom } from '../core-atoms/error';
-import { MacroAtom } from '../core-atoms/macro';
-import { TextAtom } from '../core-atoms/text';
 
 import { Atom, BBoxParameter, serializeAtoms } from './atom-class';
-import { GlobalContext } from './context';
-import type { MathstyleName } from './mathstyle';
-import { Mode } from './modes-utils';
-import { Token, tokenize, tokensToString } from './tokenizer';
-import { PromptAtom } from '../core-atoms/prompt';
 
-export type ArgumentType =
-  | ParseMode
-  | (
-      | 'bbox'
-      | 'colspec' // Formating of a column in tabular environment, e.g. `"r@{.}l"`
-      | 'delim'
-      | 'dimen' // `"25mu"`, `"2pt"`
-      | 'number' // `+/-12.56` (and some more exotic, like `"CAFE`, `'0808`...)
-      | 'rest' // `{\foo \textsize ...}` to capture "..."
-      | 'glue' // `"25mu plus 2em minus fiLll"`, `"2pt"`
-      | 'string' // The string will end on the first non-literal token, e.g. `<}>`
-      | 'balanced-string' // Delimiter is a balanced closing brace
-      | 'auto'
-    );
+import { ErrorAtom } from '../core-atoms/error';
+import { GroupAtom } from '../core-atoms/group';
+import { LeftRightAtom } from '../core-atoms/leftright';
+import { MacroAtom } from '../core-atoms/macro';
+import { PromptAtom } from '../core-atoms/prompt';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { SpacingAtom } from '../core-atoms/spacing';
+import { SubsupAtom } from '../core-atoms/subsup';
+import { TextAtom } from '../core-atoms/text';
+
+import { Mode } from './modes-utils';
+import { tokenize, tokensToString } from './tokenizer';
+import type {
+  Style,
+  ParseMode,
+  Registers,
+  LatexSyntaxError,
+  RegisterValue,
+  Dimension,
+  Glue,
+  ArgumentType,
+  Token,
+  GlobalContext,
+  MathstyleName,
+} from './types';
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
 
@@ -126,7 +114,6 @@ export class Parser {
       style?: Style;
 
       smartFence?: boolean;
-      registers?: Registers;
     }
   ) {
     this.tokens = tokens;
@@ -141,7 +128,7 @@ export class Parser {
       style: options.style ?? {},
       parseMode: options.parseMode ?? 'math',
       mathstyle: options.mathstyle ?? 'displaystyle',
-      registers: options.registers ?? context.registers,
+      registers: context.registers,
       tabular: false,
     };
   }
@@ -1733,8 +1720,7 @@ export function validateLatex(
 
 export function convertToGlue(
   value: RegisterValue,
-  context: GlobalContext,
-  registers?: Registers
+  context: GlobalContext
 ): null | Glue {
   // If it's already a Glue, return it.
   if (typeof value === 'object' && 'glue' in value) return value;
@@ -1744,15 +1730,14 @@ export function convertToGlue(
   if (typeof value === 'number') return { glue: { dimension: value } };
 
   // It's a string, attempt to parse it.
-  const parser = new Parser(tokenize(value), context, { registers });
+  const parser = new Parser(tokenize(value), context, {});
   return parser.scanGlue();
 }
 
 /**  Return a dimension. */
 export function convertToDimension(
   value: RegisterValue,
-  context: GlobalContext,
-  registers?: Registers
+  context: GlobalContext
 ): null | Dimension {
   if (typeof value === 'number') return { dimension: value, unit: 'pt' };
 
@@ -1761,6 +1746,6 @@ export function convertToDimension(
   if (typeof value === 'object' && 'dimension' in value) return value;
 
   // It's a string
-  const parser = new Parser(tokenize(value), context, { registers });
+  const parser = new Parser(tokenize(value), context, {});
   return parser.scanDimen();
 }

@@ -1,6 +1,6 @@
 import type { Atom, ToLatexOptions } from '../core/atom-class';
 import { OverunderAtom } from '../core-atoms/overunder';
-import { GlobalContext, PrivateStyle } from '../core/context';
+import type { GlobalContext, PrivateStyle } from '../core/types';
 
 import { Argument, defineFunction } from './definitions-utils';
 

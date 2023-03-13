@@ -1,11 +1,10 @@
-import type { Style } from '../public/core';
+import type { GlobalContext, MathstyleName, Style } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import type { MathstyleName } from '../core/mathstyle';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
 import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 import { AXIS_HEIGHT } from '../core/font-metrics';
 
 export type GenfracOptions = {

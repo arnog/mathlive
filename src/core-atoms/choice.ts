@@ -1,7 +1,8 @@
-import { Atom } from '../core/atom-class';
-import { AtomJson, fromJson, ToLatexOptions } from '../core/atom';
+import { GlobalContext } from '../core/types';
+import { fromJson } from '../core/atom';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { GlobalContext, Context } from '../core/context';
+import { Context } from '../core/context';
 
 export class ChoiceAtom extends Atom {
   choices: Atom[][];

@@ -5,6 +5,7 @@
  * `metrics` variable and the getCharacterMetrics function.
  */
 import CHARACTER_METRICS_MAP from './font-metrics-data';
+import { FontMetrics } from './types';
 
 // This CHARACTER_METRICS_MAP contains a mapping from font name and character
 // code to character metrics, including height, depth, italic correction, and
@@ -17,48 +18,6 @@ interface CharacterMetrics {
   height: number;
   italic: number;
   skew: number;
-}
-
-// See http://www.ntg.nl/maps/38/03.pdf for an explanation of the metrics
-// and how they relate to the OpenFont math metrics
-export interface FontMetrics<T = number> {
-  slant: T;
-  space: T;
-  stretch: T;
-  shrink: T;
-  xHeight: T; // sigma 5 = accent base height
-  quad: T;
-  extraSpace: T;
-  num1: T; // sigma 8 = FractionNumeratorDisplayStyleShiftUp
-  num2: T; // sigma 9 = FractionNumeratorShiftUp
-  num3: T; // sigma 10 = StackTopShiftUp
-  denom1: T; // sigma 11 = StackBottomDisplayStyleShiftDown = FractionDenominatorDisplayStyleShiftDown
-  denom2: T; // sigma 12 = StackBottomShiftDown = FractionDenominatorShiftDown
-  sup1: T; //sigma 13 = SuperscriptShiftUp
-  sup2: T;
-  sup3: T; // sigma 15 = SuperscriptShiftUpCramped
-  sub1: T; // sigma 16 = SubscriptShiftDown
-  sub2: T;
-  supDrop: T; // sigma 18 = SuperscriptBaselineDropMax
-  subDrop: T; // sigma 19 = SubscriptBaselineDropMin
-  delim1: T;
-  delim2: T; // sigma 21 = DelimitedSubFormulaMinHeight
-  axisHeight: T; // sigma 22
-
-  // Note: xi14: offset from baseline for superscript TexBook p. 179
-  // Note: xi16: offset from baseline for subscript
-
-  // The \sqrt rule width is taken from the height of the surd character.
-  // Since we use the same font at all sizes, this thickness doesn't scale.
-
-  defaultRuleThickness: T; // xi8; cmex7: 0.049
-  bigOpSpacing1: T; // xi9
-  bigOpSpacing2: T; // xi10
-  bigOpSpacing3: T; // xi11
-  bigOpSpacing4: T; // xi12; cmex7: 0.611
-  bigOpSpacing5: T; // xi13; cmex7: 0.143
-
-  sqrtRuleThickness: T;
 }
 
 // This regex combines

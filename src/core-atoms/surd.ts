@@ -1,10 +1,10 @@
-import type { ParseMode, Style } from '../public/core';
+import type { GlobalContext, ParseMode, Style } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { X_HEIGHT } from '../core/font-metrics';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 
 import { makeCustomSizedDelim } from '../core/delimiters';
 

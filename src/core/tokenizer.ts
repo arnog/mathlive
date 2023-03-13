@@ -6,20 +6,7 @@
  */
 
 import { splitGraphemes } from './grapheme-splitter';
-
-// The 'special' tokens must be of length > 1 to distinguish
-// them from literals.
-// '<space>': whitespace
-// '<$$>'   : display math mode shift
-// '<$>'    : inline math mode shift
-// '<{>'    : begin group
-// '<}>'    : end group
-// '#0'-'#9': argument
-// '#?'     : placeholder
-// '\' + ([a-zA-Z\*]+)|([^a-zAz\*])  : command
-// other (length = 1)   : literal
-//  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
-export type Token = string;
+import type { Token } from './types';
 
 /**
  * Given a LaTeX expression represented as a character string,

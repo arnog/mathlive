@@ -1,6 +1,7 @@
+import type { GlobalContext } from 'core/types';
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 
 /*
  * An atom representing a syntactic error, such as an unknown command

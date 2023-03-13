@@ -1,5 +1,3 @@
-import { ParseMode } from '../public/core';
-
 import { LatexAtom } from '../core-atoms/latex';
 import { suggest } from '../core-definitions/definitions-utils';
 
@@ -15,6 +13,7 @@ import {
   getLatexGroup,
 } from './mode-editor-latex';
 import { ModeEditor } from './mode-editor';
+import { ParseMode } from 'core/types';
 
 export function removeSuggestion(mathfield: MathfieldPrivate): void {
   const group = getLatexGroupBody(mathfield.model).filter(

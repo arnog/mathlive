@@ -1,7 +1,7 @@
 /* eslint-disable no-new */
 import type { InsertOptions } from '../public/mathfield';
 
-import { GlobalContext, parseLatex } from '../core/core';
+import { parseLatex } from '../core/core';
 import { Atom } from '../core/atom-class';
 import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
@@ -11,6 +11,7 @@ import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { requestUpdate } from './render';
+import type { GlobalContext } from 'core/types';
 
 export class TextModeEditor extends ModeEditor {
   constructor() {

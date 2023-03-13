@@ -1,8 +1,8 @@
-import { ParseMode, Style } from '../public/core';
+import type { GlobalContext, ParseMode, Style } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 
 export class CompositionAtom extends Atom {
   constructor(

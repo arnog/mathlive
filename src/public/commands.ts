@@ -1,12 +1,7 @@
 import type { Keys } from './types-utils';
 
-import type { ParseMode, Style } from './core';
-import type {
-  InsertOptions,
-  Mathfield,
-  Model,
-  VirtualKeyboardInterface,
-} from './mathfield';
+import type { ParseMode, Style } from '../core/types';
+import type { InsertOptions, Mathfield, Model } from './mathfield';
 
 /**
  * How much of the formula should be spoken:
@@ -327,19 +322,6 @@ export interface Commands {
   extendToMathFieldEnd: (model: Model) => boolean;
 
   applyStyle: (mathfield: Mathfield, style: Style) => boolean;
-
-  /**
-   * @category Virtual Keyboard
-   */
-  toggleVirtualKeyboard: (keyboard: VirtualKeyboardInterface) => boolean;
-  /**
-   * @category Virtual Keyboard
-   */
-  hideVirtualKeyboard: (keyboard: VirtualKeyboardInterface) => boolean;
-  /**
-   * @category Virtual Keyboard
-   */
-  showVirtualKeyboard: (keyboard: VirtualKeyboardInterface) => boolean;
 }
 
 export type Selector = Keys<Commands>;

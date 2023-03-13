@@ -1,8 +1,8 @@
-import { Style } from '../public/core';
+import type { GlobalContext, Style } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 import { convertToDimension } from '../core/parser';
 import { convertDimensionToEm } from '../core/registers-utils';
 

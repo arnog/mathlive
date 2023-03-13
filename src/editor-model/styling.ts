@@ -1,10 +1,9 @@
 import { Atom } from '../core/atom';
 import type { ModelPrivate } from './model-private';
 import { Range } from '../public/mathfield';
-import { Style } from '../public/core';
 import { isArray } from '../common/types';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
-import { PrivateStyle } from '../core/context';
+import type { PrivateStyle, Style } from '../core/types';
 
 export function applyStyleToUnstyledAtoms(
   atom: Atom | Atom[] | undefined,

@@ -21,9 +21,8 @@
  * @summary   Handling of delimiters surrounds symbols.
  */
 
-import { BoxType, Box } from './box';
+import { Box } from './box';
 import { VBoxChild, VBox } from './v-box';
-import { MathstyleName } from './mathstyle';
 import {
   getCharacterMetrics,
   PT_PER_EM,
@@ -31,7 +30,8 @@ import {
   FONT_SCALE,
 } from './font-metrics';
 import { Context } from './context';
-import { ParseMode, Style } from '../public/core';
+import type { MathstyleName, BoxType, ParseMode, Style } from './types';
+
 export const RIGHT_DELIM = {
   '(': ')',
   '{': '}',

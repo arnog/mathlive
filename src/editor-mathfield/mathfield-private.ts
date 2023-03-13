@@ -5,13 +5,6 @@ import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
 // @ts-ignore-error
 import CORE_STYLESHEET from '../../css/core.less';
 
-import type {
-  MacroDefinition,
-  LatexSyntaxError,
-  ParseMode,
-  Registers,
-  Style,
-} from '../public/core';
 import type { Keybinding, KeyboardLayoutName } from '../public/options';
 import type {
   Mathfield,
@@ -21,7 +14,6 @@ import type {
   Range,
   Selection,
   ApplyStyleOptions,
-  VirtualKeyboardInterface,
 } from '../public/mathfield';
 
 import { canVibrate } from '../common/capabilities';
@@ -30,11 +22,11 @@ import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
 import { Atom } from '../core/atom-class';
 import { loadFonts } from '../core/fonts';
-import { GlobalContext } from '../core/context';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
-  NormalizedMacroDictionary,
   TokenDefinition,
+  defaultGetDefinition,
+  getMacroDefinition,
 } from '../core-definitions/definitions-utils';
 import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex, validateLatex } from '../core/parser';
@@ -109,16 +101,26 @@ import './mode-editor-text';
 
 import { validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
-import {
-  defaultGetDefinition,
-  getMacroDefinition,
-} from '../core/context-utils';
 import { PromptAtom } from '../core-atoms/prompt';
 import {
-  isKeyboardMessage,
-  VirtualKeyboard,
+  isVirtualKeyboardMessage,
   VIRTUAL_KEYBOARD_MESSAGE,
-} from '../editor/virtual-keyboard-utils';
+} from 'virtual-keyboard/proxy';
+import { VirtualKeyboard } from 'virtual-keyboard/virtual-keyboard';
+import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
+import { MathfieldElement } from 'public/mathfield-element';
+
+import 'virtual-keyboard/global';
+import type {
+  ParseMode,
+  Style,
+  NormalizedMacroDictionary,
+  Registers,
+  MacroDefinition,
+  LatexSyntaxError,
+  GlobalContext,
+} from '../core/types';
+import { VirtualKeyboardMessageAction } from 'virtual-keyboard/types';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -167,7 +169,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   keystrokeCaptionVisible: boolean;
 
   readonly keyboardDelegate: KeyboardDelegate;
-  private _virtualKeyboard?: VirtualKeyboardInterface;
 
   _keybindings?: Keybinding[]; // Normalized keybindings (raw ones in config)
   keyboardLayout: KeyboardLayoutName;
@@ -320,9 +321,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.virtualKeyboardToggle = this.element.querySelector<HTMLElement>(
       '[part=virtual-keyboard-toggle]'
     )!;
-    if (!this.options.readOnly)
-      this.virtualKeyboardToggle.classList.add('is-visible');
-    else this.virtualKeyboardToggle.classList.remove('is-visible');
 
     attachButtonHandlers(
       this.virtualKeyboardToggle,
@@ -508,8 +506,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   connectToVirtualKeyboard(): void {
     if (this.connectedToVirtualKeyboard) return;
     this.connectedToVirtualKeyboard = true;
-    globalThis.addEventListener('message', this);
-    VirtualKeyboard.singleton.updateToolbar(this);
+    window.addEventListener('message', this);
+    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
   }
 
   disconnectFromVirtualKeyboard(): void {
@@ -681,8 +679,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.element!.classList.add('ML__isReadOnly');
     } else this.element!.classList.remove('ML__isReadOnly');
 
-    VirtualKeyboard.singleton.setOptions(this.options);
-
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
     const content = Atom.serialize(this.model.root, {
@@ -728,15 +724,16 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
    */
   handleEvent(evt: Event): void {
     if (!isValidMathfield(this)) return;
-    if (isKeyboardMessage(evt)) {
+    if (isVirtualKeyboardMessage(evt)) {
       if (
         !validateOrigin(
           evt.origin,
           this.options.originValidator ?? 'same-origin'
         )
       ) {
-        throw new Error(
-          `Message from unknown origin (${evt.origin}) cannot be handled`
+        throw new DOMException(
+          `Message from unknown origin (${evt.origin}) cannot be handled`,
+          'SecurityError'
         );
       }
 
@@ -755,7 +752,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       } else if (action === 'focus') this.focus?.();
       else if (action === 'blur') this.blur?.();
       else if (action === 'update-toolbar')
-        VirtualKeyboard.singleton.updateToolbar(this);
+        window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
       return;
     }
 
@@ -794,7 +791,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     }
   }
 
-  private sendMessage(action: string, payload: any = {}): boolean {
+  private sendMessage(
+    action: VirtualKeyboardMessageAction,
+    payload: any = {}
+  ): boolean {
     if (!globalThis.parent) return false;
     globalThis.parent.postMessage(
       {
@@ -832,10 +832,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     delete (this as any).fieldContent;
     this.virtualKeyboardToggle.remove();
     delete (this as any).virtualKeyboardToggle;
-    if (this._virtualKeyboard) {
-      this._virtualKeyboard.dispose();
-      delete this._virtualKeyboard;
-    }
     disposePopover(this);
     disposeKeystrokeCaption(this);
 
@@ -871,7 +867,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.focus();
       this.sendMessage('execute-command', { command });
       requestAnimationFrame(() =>
-        VirtualKeyboard.singleton.updateToolbar(this)
+        window.mathVirtualKeyboard.updateToolbar(makeProxy(this))
       );
       return false;
     }
@@ -1008,7 +1004,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       if (options.focus) this.focus();
 
       if (options.feedback) {
-        if (window.mathVirtualKeyboard.keypressVibration && canVibrate())
+        if (MathfieldElement.keypressVibration && canVibrate())
           navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
         window.MathfieldElement.playSound('keypress');
@@ -1261,7 +1257,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   snapshot(): void {
     if (this.undoManager.snapshot()) {
-      VirtualKeyboard.singleton.updateToolbar(this);
+      window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1274,7 +1270,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   snapshotAndCoalesce(): void {
     if (this.undoManager.snapshotAndCoalesce()) {
-      VirtualKeyboard.singleton.updateToolbar(this);
+      window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1287,7 +1283,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   undo(): void {
     if (!this.undoManager.undo()) return;
-    VirtualKeyboard.singleton.updateToolbar(this);
+    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,
@@ -1299,7 +1295,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   redo(): void {
     if (!this.undoManager.redo()) return;
-    VirtualKeyboard.singleton.updateToolbar(this);
+    VirtualKeyboard.singleton.updateToolbar(makeProxy(this));
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,
@@ -1348,10 +1344,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.focusBlurInProgress = true;
     this.blurred = false;
     this.keyboardDelegate.focus();
-
-    VirtualKeyboard.singleton.setOptions(this.options);
-
-    VirtualKeyboard.singleton.connect();
 
     updatePopoverPosition(this);
     render(this, { interactive: true });

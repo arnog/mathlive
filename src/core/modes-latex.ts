@@ -1,10 +1,9 @@
 /* eslint-disable no-new */
 import { Mode } from './modes-utils';
 import { Atom, ToLatexOptions } from './atom';
-import { GlobalContext } from './context';
 
 import { LatexAtom } from '../core-atoms/latex';
-import { Style } from '../public/core';
+import type { GlobalContext, Style } from './types';
 
 export class LatexMode extends Mode {
   constructor() {

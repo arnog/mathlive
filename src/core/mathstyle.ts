@@ -41,8 +41,8 @@
  * > Finally, style C↓ is the subscript style, which is (C↑) .
  */
 
-import { FontSize } from '../public/core';
-import { FONT_METRICS, FontMetrics } from './font-metrics';
+import { FONT_METRICS } from './font-metrics';
+import type { FontMetrics, FontSize } from './types';
 
 // IDs of the different MATHSTYLES
 export const D = 7; // Displaystyle
@@ -158,9 +158,3 @@ MATHSTYLES.displaystyle = MATHSTYLES[D];
 MATHSTYLES.textstyle = MATHSTYLES[T];
 MATHSTYLES.scriptstyle = MATHSTYLES[S];
 MATHSTYLES.scriptscriptstyle = MATHSTYLES[SS];
-
-export type MathstyleName =
-  | 'displaystyle'
-  | 'textstyle'
-  | 'scriptstyle'
-  | 'scriptscriptstyle';

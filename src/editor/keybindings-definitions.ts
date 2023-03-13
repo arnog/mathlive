@@ -1,3 +1,4 @@
+import { Selector } from 'public/commands';
 import type { Keybinding } from '../public/options';
 
 export const DEFAULT_KEYBINDINGS: Keybinding[] = [
@@ -251,7 +252,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
 
   // Accessibility
   { key: 'shift+alt+k', command: 'toggleKeystrokeCaption' },
-  { key: 'alt+[Space]', command: 'toggleVirtualKeyboard' },
+  { key: 'alt+[Space]', command: 'toggleVirtualKeyboard' as Selector },
 
   // Note: On Mac OS (as of 10.12), there is a bug/behavior that causes
   // a beep to be generated with certain command+control key combinations.

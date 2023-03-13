@@ -1,18 +1,27 @@
-import type { Style, ParseMode, FontSize } from '../public/core';
-import '../public/mathfield-element';
-
 import { isArray } from '../common/types';
 
-import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
-
-import { GlobalContext, Context, PrivateStyle } from './context';
+import type { PromptAtom } from '../core-atoms/prompt';
+import type {
+  BoxType,
+  ParseMode,
+  Style,
+  FontSize,
+  GlobalContext,
+  PrivateStyle,
+} from './types';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
-import { BoxType, isBoxType, Box } from './box';
+import { isBoxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
-import { PromptAtom } from 'core-atoms/prompt';
+import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
+
+import { Context } from './context';
+
+const gCustomSerializer: {
+  [command: string]: (atom: Atom, options: ToLatexOptions) => string;
+} = {};
 
 /**
  * This data type is used as a serialized representation of the  atom tree.
@@ -268,13 +277,9 @@ export class Atom {
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
     if (options?.serialize) {
       console.assert(typeof options.command === 'string');
-      Atom.customSerializer[options.command!] = options.serialize;
+      gCustomSerializer[options.command!] = options.serialize;
     }
   }
-
-  private static customSerializer: {
-    [command: string]: (atom: Atom, options: ToLatexOptions) => string;
-  } = {};
 
   /**
    * Return a list of boxes equivalent to atoms.
@@ -372,8 +377,8 @@ export class Atom {
     if (!options.expandMacro && typeof value.verbatimLatex === 'string')
       return value.verbatimLatex;
 
-    if (value.command && Atom.customSerializer[value.command])
-      return Atom.customSerializer[value.command](value, options);
+    if (value.command && gCustomSerializer[value.command])
+      return gCustomSerializer[value.command](value, options);
 
     return value.serialize(options);
   }

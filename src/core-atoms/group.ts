@@ -1,9 +1,14 @@
-import type { ParseMode, Style } from '../public/core';
+import type {
+  MathstyleName,
+  GlobalContext,
+  BoxType,
+  ParseMode,
+  Style,
+} from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context, GlobalContext } from '../core/context';
-import type { MathstyleName } from '../core/mathstyle';
-import type { Box, BoxType } from '../core/box';
+import { Context } from '../core/context';
+import type { Box } from '../core/box';
 
 export class GroupAtom extends Atom {
   latexOpen?: string;

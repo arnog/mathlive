@@ -1,7 +1,7 @@
-import { Dimension, Style } from '../public/core';
+import type { Dimension, Style, GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context, GlobalContext } from '../core/context';
+import { Context } from '../core/context';
 import { Box } from '../core/box';
 import {
   convertDimensionToEm,

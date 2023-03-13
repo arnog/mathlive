@@ -1,8 +1,6 @@
-import { Style } from '../public/core';
-
+import type { GlobalContext, Style } from '../core/types';
 import { SpacingAtom } from '../core-atoms/spacing';
 import { Atom } from '../core/atom';
-import { GlobalContext } from '../core/context';
 
 import {
   newSymbols,
