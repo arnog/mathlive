@@ -1135,7 +1135,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    *
    */
   focus(): void {
-    super.focus();
+    this._mathfield?.focus();
   }
 
   /**
@@ -1147,7 +1147,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   blur(): void {
     this._mathfield?.blur();
-    super.blur();
   }
 
   /**

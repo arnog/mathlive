@@ -1135,14 +1135,15 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   hasFocus(): boolean {
-    return this.keyboardDelegate.hasFocus();
+    return !this.blurred;
   }
 
   focus(options?: { scrollIntoView: boolean }): void {
-    if (this.hasFocus()) return;
-    this.keyboardDelegate.focus();
-    this.connectToVirtualKeyboard();
-    this.model.announce('line');
+    if (!this.hasFocus()) {
+      this.keyboardDelegate.focus();
+      this.connectToVirtualKeyboard();
+      this.model.announce('line');
+    }
     if (options?.scrollIntoView ?? true) this.scrollIntoView();
   }
 
@@ -1341,18 +1342,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (this.focusBlurInProgress || !this.blurred) return;
     this.focusBlurInProgress = true;
     this.blurred = false;
+    // As a side effect, a `focus` and `focusin` events will be dispatched
     this.keyboardDelegate.focus();
 
-    updatePopoverPosition(this);
     render(this, { interactive: true });
-
-    this.host?.dispatchEvent(
-      new FocusEvent('focus', {
-        bubbles: false, // DOM 'focus' and 'blur' don't bubble
-        composed: true,
-      })
-    );
-    // Note: a `focus-in` event is automatically dispatched
 
     // Save the current value.
     // It will be compared in `onBlur()` to see if the

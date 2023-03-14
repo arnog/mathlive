@@ -140,7 +140,7 @@ export function onPointerDown(
   ) {
     // Focus the mathfield
     if (!mathfield.hasFocus()) {
-      dirty = 'all';
+      dirty = 'none'; // focus() will refresh
       mathfield.focus({ scrollIntoView: false });
     }
 
