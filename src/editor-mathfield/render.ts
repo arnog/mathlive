@@ -11,6 +11,7 @@ import type { MathfieldPrivate } from './mathfield-private';
 
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
+import { gFontsState } from 'core/fonts';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -117,9 +118,17 @@ export function render(
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
   if (!isValidMathfield(mathfield)) return;
-
   renderOptions = renderOptions ?? {};
   const { model } = mathfield;
+
+  if (gFontsState !== 'loading' && gFontsState !== 'ready') {
+    if (!(renderOptions.interactive ?? false)) {
+      // (re-render a bit later because the layout may not be up to date right
+      //  now. This happens in particular when first loading and the fonts are
+      //  not yet available. )
+      setTimeout(() => renderSelection(mathfield), 32);
+    }
+  }
 
   //
   // 1. Update selection state and blinking cursor (caret)
@@ -177,13 +186,6 @@ export function render(
   // 4. Render the selection/caret
   //
   renderSelection(mathfield);
-
-  if (!(renderOptions.interactive ?? false)) {
-    // (re-render a bit later because the layout may not be up to date right
-    //  now. This happens in particular when first loading and the fonts are
-    //  not yet available. )
-    setTimeout(() => renderSelection(mathfield), 32);
-  }
 
   mathfield.dirty = false;
 }

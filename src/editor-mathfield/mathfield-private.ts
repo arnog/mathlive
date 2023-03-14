@@ -21,7 +21,7 @@ import { hashCode } from '../common/hash-code';
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
 import { Atom } from '../core/atom-class';
-import { loadFonts } from '../core/fonts';
+import { gFontsState, loadFonts } from '../core/fonts';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
   TokenDefinition,
@@ -366,8 +366,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     else this.element.classList.remove('ML__isReadOnly');
 
     if (this.options.defaultMode === 'inline-math')
-      this.element.classList.add('ML__isInline');
-    else this.element.classList.remove('ML__isInline');
+      this.element.classList.add('ML__is-inline');
+    else this.element.classList.remove('ML__is-inline');
 
     // Focus/blur state
     this.blurred = true;
@@ -495,12 +495,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     )
       setKeyboardLayoutLocale(this.options.locale);
 
-    requestUpdate(this);
-
     // When fonts are done loading, re-render
     // (the selection highlighting may be out of date due to the HTML layout
     // having been updated with the new font metrics)
-    document.fonts.ready.then(() => render(this));
+    if (gFontsState !== 'ready') document.fonts.ready.then(() => render(this));
   }
 
   connectToVirtualKeyboard(): void {
@@ -669,8 +667,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this._keybindings = undefined;
 
     if (this.options.defaultMode === 'inline-math')
-      this.element!.classList.add('ML__isInline');
-    else this.element!.classList.remove('ML__isInline');
+      this.element!.classList.add('ML__is-inline');
+    else this.element!.classList.remove('ML__is-inline');
 
     if (this.options.readOnly) {
       if (this.hasFocus() && VirtualKeyboard.singleton.visible)
