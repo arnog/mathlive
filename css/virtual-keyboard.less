@@ -172,7 +172,7 @@
   }
 
   .MLK__tex {
-    font-family: 'KaTeX_Math', KaTeX_Main, 'Cambria Math', 'Asana Math',
+    font-family: KaTeX_Math, KaTeX_Main, 'Cambria Math', 'Asana Math',
       OpenSymbol, Symbola, STIX, Times, serif !important;
   }
 
@@ -202,6 +202,118 @@
     /* Keycap with (incl. margin) */
     --max-width: 72px;
     --margin: 6px;
+
+    .small {
+      font-size: 12px;
+    }
+    .tex {
+      font-family: KaTeX_Math, KaTeX_Main, 'Cambria Math', 'Asana Math',
+        OpenSymbol, Symbola, STIX, Times, serif !important;
+    }
+    .tex-math {
+      font-family: KaTeX_Math, 'Cambria Math', 'Asana Math', OpenSymbol, Symbola,
+        STIX, Times, serif !important;
+    }
+
+    .big-op {
+      font-size: calc(1.25 * var(--keycap-font-size, 20px));
+    }
+
+    .small {
+      font-size: var(--keycap-small-font-size, 16px);
+    }
+
+    /* For the alignment of the text on some modifiers (e.g. shift) */
+    .bottom {
+      justify-content: flex-end;
+    }
+    .left {
+      align-items: flex-start;
+      padding-left: 12px;
+    }
+
+    .right {
+      align-items: flex-end;
+      padding-right: 12px;
+    }
+
+    .w0 {
+      width: 0;
+    }
+    .w5 {
+      width: calc(~'min(var(--max-width), 10cqw)' / 2 - var(--margin));
+    }
+    .w15 {
+      width: calc(15 * ~'min(var(--max-width), 10cqw)' / 10 - var(--margin));
+    }
+    .w20 {
+      width: calc(20 * ~'min(var(--max-width), 10cqw)' / 10 - var(--margin));
+    }
+    .w50 {
+      width: calc(50 * ~'min(var(--max-width), 10cqw)' / 10 - var(--margin));
+    }
+    .MLK__keycap.w50 {
+      font-size: 80%;
+      padding-top: 10px;
+      font-weight: 100;
+    }
+    /* Extra spacing between two adjacent keys */
+    .separator {
+      background: transparent;
+      border: none;
+      pointer-events: none;
+    }
+    .bigfnbutton {
+      font-size: var(--keycap-extra-small-font-size, 14px);
+    }
+    .modifier,
+    .action {
+      color: var(--keycap-modifier-text);
+      background: var(--keycap-modifier-background);
+      border-color: var(--keycap-modifier-border);
+      border-bottom-color: var(--keycap-modifier-border-bottom);
+      font-size: 65%;
+      font-weight: 100;
+      &:hover {
+        background: var(--keycap-modifier-background-hover);
+      }
+    }
+
+    .modifier.selected,
+    .action.selected {
+      color: var(--keyboard-toolbar-text-active);
+      &:hover,
+      &:active,
+      &.is-pressed,
+      &.is-active {
+        color: white;
+      }
+    }
+
+    .action.font-glyph,
+    .modifier.font-glyph {
+      font-size: 2em;
+    }
+
+    // Use to display warning icons, with a SVG icon
+    .warning {
+      height: 25px;
+      width: 25px;
+      min-height: 25px;
+      min-width: 25px;
+      background: #cd0030;
+      color: white;
+      border-radius: 100%;
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: -2px;
+      svg.svg-glyph {
+        width: 16px;
+        height: 16px;
+      }
+    }
 
     & > ul {
       display: flex;
@@ -255,73 +367,10 @@
       // &[data-variants] {
       // }
 
-      &.big-op {
-        font-size: calc(1.25 * var(--keycap-font-size, 20px));
-      }
-
-      &.small {
-        font-size: var(--keycap-small-font-size, 16px);
-      }
-
-      /* For the alignment of the text on some modifiers (e.g. shift) */
-      &.bottom {
-        justify-content: flex-end;
-      }
-      &.left {
-        align-items: flex-start;
-        padding-left: 12px;
-      }
-      &.right {
-        align-items: flex-end;
-        padding-right: 12px;
-      }
-
-      &.w0 {
-        width: 0;
-      }
-      &.w5 {
-        width: calc(~'min(var(--max-width), 10cqw)' / 2 - var(--margin));
-      }
-      &.w15 {
-        width: calc(15 * ~'min(var(--max-width), 10cqw)' / 10 - var(--margin));
-      }
-      &.w20 {
-        width: calc(20 * ~'min(var(--max-width), 10cqw)' / 10 - var(--margin));
-      }
-      &.w50 {
-        width: calc(50 * ~'min(var(--max-width), 10cqw)' / 10 - var(--margin));
-      }
-      /* Extra spacing between two adjacent keys */
-      &.separator {
-        background: transparent;
-        border: none;
-        pointer-events: none;
-      }
-
       svg.svg-glyph {
         margin: 8px 0;
         width: 20px;
         height: 20px;
-      }
-
-      // Use to display warning icons, with a SVG icon
-      .warning {
-        height: 25px;
-        width: 25px;
-        min-height: 25px;
-        min-width: 25px;
-        background: #cd0030;
-        color: white;
-        border-radius: 100%;
-        padding: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: -2px;
-        svg.svg-glyph {
-          width: 16px;
-          height: 16px;
-        }
       }
 
       &.MLK__tex-math {
@@ -345,10 +394,6 @@
         background: var(--keyboard-toolbar-text-active);
         color: var(--keycap-text-active);
       }
-      &.action.font-glyph,
-      &.modifier.font-glyph {
-        font-size: 18px;
-      }
 
       // Waves effect
       position: relative;
@@ -358,37 +403,6 @@
       -webkit-tap-highlight-color: transparent;
       // z-index: 1;
       // transition: .14s cubic-bezier(.4, 0, .2, 1);
-      &.bigfnbutton {
-        font-size: var(--keycap-extra-small-font-size, 14px);
-      }
-      &.modifier,
-      &.action {
-        color: var(--keycap-modifier-text);
-        background: var(--keycap-modifier-background);
-        border-color: var(--keycap-modifier-border);
-        border-bottom-color: var(--keycap-modifier-border-bottom);
-        font-size: 65%;
-        font-weight: 100;
-        &:hover {
-          background: var(--keycap-modifier-background-hover);
-        }
-      }
-
-      &.modifier.selected,
-      &.action.selected {
-        color: var(--keyboard-toolbar-text-active);
-        &:hover,
-        &:active,
-        &.is-pressed,
-        &.is-active {
-          color: white;
-        }
-      }
-      &.MLK__keycap.w50 {
-        font-size: 80%;
-        padding-top: 10px;
-        font-weight: 100;
-      }
       small {
         color: var(--keycap-secondary-text);
       }
@@ -735,7 +749,8 @@ Note there are a different set of tooltip rules for the keyboard toggle
       font-size: calc(var(--keycap-extra-small-font-size, 14px) / 1.55);
     }
 
-    .MLK__rows small {
+    // Class for keycaps (not a tag)
+    .MLK__rows .small {
       font-size: 9px;
     }
     .MLK__rows aside {

@@ -160,7 +160,7 @@
             rows: [
               [
                 { latex: 'a' },
-                { latex: 'x' },
+                { latex: 'b' },
                 { class: 'separator w5' },
                 { label: '7', key: '7' },
                 // Will display the label using the system font. To display
@@ -173,12 +173,12 @@
                 { latex: '\\div' },
                 { class: 'separator w5' },
                 {
-                  class: 'tex small',
+                  class: 'tex',
                   label: '<span><i>x</i>&thinsp;²</span>',
                   insert: '$$#@^{2}$$',
                 },
                 {
-                  class: 'tex small',
+                  class: 'tex',
                   label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
                   insert: '$$#@^{}$$',
                 },
@@ -189,21 +189,21 @@
                 },
               ],
               [
-                { class: 'tex', latex: 'b' },
-                { class: 'tex', latex: 'y' },
+                { latex: 'c' },
+                { latex: 'd' },
                 { class: 'separator w5' },
-                { label: '4', latex: '4' },
+                { label: '4', key: '4' },
                 { label: '5', key: '5' },
                 { label: '6', key: '6' },
                 { latex: '\\times' },
                 { class: 'separator w5' },
-                { class: 'small', latex: '\\frac{#0}{#0}' },
+                { latex: '\\frac{#0}{#0}' },
                 { class: 'separator' },
                 { class: 'separator' },
               ],
               [
-                { class: 'tex', label: '<i>c</i>' },
-                { class: 'tex', label: '<i>z</i>' },
+                { latex: 'x' },
+                { latex: 'y' },
                 { class: 'separator w5' },
                 { label: '1', key: '1' },
                 { label: '2', key: '2' },
@@ -226,16 +226,18 @@
                 { class: 'separator w5' },
                 {
                   class: 'action',
-                  label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+                  label:
+                    "<svg class=svg-glyph><use xlink:href='#svg-arrow-left' /></svg>",
                   command: ['performWithFeedback', 'moveToPreviousChar'],
                 },
                 {
                   class: 'action',
-                  label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+                  label:
+                    "<svg class=svg-glyph><use xlink:href='#svg-arrow-right' /></svg>",
                   command: ['performWithFeedback', 'moveToNextChar'],
                 },
                 {
-                  class: 'action font-glyph bottom right',
+                  class: 'action font-glyph right',
                   label: '&#x232b;',
                   command: ['performWithFeedback', 'deleteBackward'],
                 },

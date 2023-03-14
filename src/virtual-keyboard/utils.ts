@@ -687,7 +687,7 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
                 if (keycap.layer && !/layer-switch/.test(cls))
                   cls += ' layer-switch';
 
-                if (!/separator/.test(cls)) cls += ' keycap';
+                if (!/separator/.test(cls)) cls += ' MLK__keycap';
 
                 layerMarkup += ` class="${cls}"`;
               } else layerMarkup += ` class="MLK__keycap"`;
