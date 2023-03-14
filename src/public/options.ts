@@ -552,9 +552,6 @@ export type EditingOptions = {
   enablePopover: boolean;
 
   virtualKeyboardPolicy: 'auto' | 'manual';
-
-  /** If `true`, mathfield becomes read only except inside `\prompt{}` regions*/
-  promptMode: boolean;
 };
 
 export type LayoutOptions = {

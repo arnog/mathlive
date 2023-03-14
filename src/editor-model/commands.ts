@@ -343,7 +343,7 @@ export function move(
     if (pos >= 0 && pos <= model.lastOffset) {
       if (direction === 'forward') {
         if (model.mathfield.prompting && !model.at(pos).inEditablePrompt) {
-          // The new position is not ediatble, instead look forward for the next prompt:
+          // The new position is not editable, instead look forward for the next prompt:
           const nextAtoms = model
             .getAtoms(pos, -1)
             .map((a) => [a, ...a.children])

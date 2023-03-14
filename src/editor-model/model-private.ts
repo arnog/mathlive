@@ -116,7 +116,7 @@ export class ModelPrivate implements Model {
         const pos = value.ranges[0][0];
         if (
           !this.mathfield.dirty &&
-          !this.at(pos).inEditablePrompt &&
+          !this.at(pos)?.inEditablePrompt &&
           this.mathfield.prompting
         ) {
           if (this.at(pos - 1)?.inEditablePrompt) {
