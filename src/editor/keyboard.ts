@@ -120,7 +120,7 @@ export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
   if (evt.ctrlKey || evt.metaKey) return false;
 
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-  if (evt.key === 'Dead') return false;
+  if (['Dead', 'Process'].includes(evt.key)) return false;
 
   // When issued via a composition, the `code` field is empty
   if (evt.code === '') return true;
