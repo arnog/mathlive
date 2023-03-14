@@ -133,6 +133,7 @@ const MATHFIELD_TEMPLATE = isBrowser()
   : null;
 if (MATHFIELD_TEMPLATE) {
   MATHFIELD_TEMPLATE.innerHTML = `<style>
+  :host { display: block;}
   :host([hidden]) { display: none; }
   :host([disabled]) { opacity:  .5; }
   :host(:focus), :host(:focus-within) {
