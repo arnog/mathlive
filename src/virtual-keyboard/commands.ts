@@ -94,14 +94,14 @@ register(
   { target: 'virtual-keyboard' }
 );
 
-export function performVariant(
+function performVariant(
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
 ): boolean {
   hideVariantsPanel();
   return VirtualKeyboard.singleton.executeCommand(command);
 }
 
-export function insertAndUnshiftKeyboardLayer(c: string): boolean {
+function insertAndUnshiftKeyboardLayer(c: string): boolean {
   VirtualKeyboard.singleton.executeCommand(['insert', c]);
   unshiftKeyboardLayer();
   return true;
@@ -123,7 +123,7 @@ register(
   { target: 'virtual-keyboard' }
 );
 
-export function toggleVirtualKeyboardShift(): boolean {
+function toggleVirtualKeyboardShift(): boolean {
   const kbd = VirtualKeyboard.singleton;
   kbd.virtualKeyboardLayout = {
     qwerty: 'azerty',

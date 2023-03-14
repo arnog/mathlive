@@ -441,10 +441,7 @@ const VARIANTS_BASE: {
   '->|': [],
 };
 
-export function showVariantsPanel(
-  keyboard: VirtualKeyboard,
-  variantsId: string
-): boolean {
+export function showVariantsPanel(variantsId: string): boolean {
   const variants = VARIANTS[variantsId];
   const variantPanel = document.createElement('div');
   variantPanel.setAttribute('aria-hidden', 'true');
@@ -516,6 +513,7 @@ export function showVariantsPanel(
   //
   // Associate a command which each of the variant keycaps
   //
+  const keyboard = VirtualKeyboard.singleton;
   makeKeycap(
     keyboard,
     [...variantPanel.querySelectorAll('li')],
