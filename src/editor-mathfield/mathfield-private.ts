@@ -249,7 +249,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     // 1/ The keyboard event capture element.
     markup.push(
-      `<span contenteditable=true aria-multiline=false class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=${
+      `<span contenteditable=true aria-multiline=false part=keyboard-sink class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=${
         element.tabIndex ?? 0
       }></span>`
     );
