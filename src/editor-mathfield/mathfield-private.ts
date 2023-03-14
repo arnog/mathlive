@@ -155,7 +155,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   readonly field: HTMLElement;
   fieldContent: HTMLElement;
-  private virtualKeyboardToggle: HTMLElement;
   readonly ariaLiveText: HTMLElement;
   // readonly accessibleMathML: HTMLElement;
 
@@ -273,7 +272,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     // 3.1/ The aria-live region for announcements
 
-    markup.push('<div class=ML__sr-only>');
+    markup.push('<span class=ML__sr-only>');
     markup.push(
       '<span role=status aria-live=assertive aria-atomic=true></span>'
     );
@@ -281,7 +280,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // markup.push(
     //   `<span class=accessibleMathML id="${accessibleNodeID}"></span>`
     // );
-    markup.push('</div>');
+    markup.push('</span>');
 
     this.element.innerHTML = window.MathfieldElement.createHTML(
       markup.join('')
@@ -318,12 +317,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       this.field.addEventListener('pointerdown', this);
     else this.field.addEventListener('mousedown', this);
 
-    this.virtualKeyboardToggle = this.element.querySelector<HTMLElement>(
-      '[part=virtual-keyboard-toggle]'
-    )!;
-
     attachButtonHandlers(
-      this.virtualKeyboardToggle,
+      this.element.querySelector<HTMLElement>(
+        '[part=virtual-keyboard-toggle]'
+      )!,
       (command) => this.executeCommand(command),
       {
         default: 'toggleVirtualKeyboard',
@@ -362,8 +359,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.style = {};
     this.adoptStyle = 'left';
 
-    if (this.options.readOnly) this.element.classList.add('ML__isReadOnly');
-    else this.element.classList.remove('ML__isReadOnly');
+    if (this.options.readOnly) this.element.classList.add('ML__is-read-only');
+    else this.element.classList.remove('ML__is-read-only');
 
     if (this.options.defaultMode === 'inline-math')
       this.element.classList.add('ML__is-inline');
@@ -674,8 +671,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       if (this.hasFocus() && VirtualKeyboard.singleton.visible)
         this.executeCommand('hideVirtualKeyboard');
       this.onBlur();
-      this.element!.classList.add('ML__isReadOnly');
-    } else this.element!.classList.remove('ML__isReadOnly');
+      this.element!.classList.add('ML__is-read-only');
+    } else this.element!.classList.remove('ML__is-read-only');
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
@@ -828,8 +825,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     delete (this as any).ariaLiveText;
     delete (this as any).field;
     delete (this as any).fieldContent;
-    this.virtualKeyboardToggle.remove();
-    delete (this as any).virtualKeyboardToggle;
     disposePopover(this);
     disposeKeystrokeCaption(this);
 
@@ -1201,14 +1196,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   getPrompt(id: string): PromptAtom {
     const prompts = this.model
       .getAllAtoms(0)
-      .filter((a) => a.type === 'prompt') as PromptAtom[];
-    const promptsWithID = prompts.filter((a) => a.placeholderId === id);
-    console.assert(
-      promptsWithID.length > 0,
-      'no prompts with matching ID found'
-    );
-    console.assert(promptsWithID.length < 2, 'duplicate prompt IDs found');
-    return promptsWithID[0];
+      .filter(
+        (a) => a.type === 'prompt' && (a as PromptAtom).placeholderId === id
+      ) as PromptAtom[];
+    console.assert(prompts.length > 0, 'no prompts with matching ID found');
+    console.assert(prompts.length < 2, 'duplicate prompt IDs found');
+    return prompts[0];
   }
 
   getPromptContent(id: string): string {
@@ -1237,8 +1230,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   setPromptLocked(id: string, locked: boolean): void {
-    this.getPrompt(id).locked = locked;
-    this.getPrompt(id).captureSelection = locked;
+    const prompt = this.getPrompt(id);
+    prompt.locked = locked;
+    prompt.captureSelection = locked;
     requestUpdate(this);
   }
 

@@ -662,12 +662,12 @@
   text-decoration: underline var(--caret-color-computed, var(--ML__caret-color));
 }
 
-@media (prefers-color-scheme: dark) {
-  .ML__composition {
-    background: #69571c;
-    color: white;
-  }
-}
+// @media (prefers-color-scheme: dark) {
+//   .ML__composition {
+//     background: #69571c;
+//     color: white;
+//   }
+// }
 
 .ML__placeholder {
   color: var(--placeholder-color, var(--ML__placeholder-color));
@@ -687,18 +687,19 @@
 }
 
 .ML__prompt {
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 .ML__editablePromptBox {
-  outline: 1px solid var(--editable-border);
-  background: var(--editable);
+  outline: 1px solid #acacac;
+  border-radius: 2px;
+  background: field;
+  color: fieldtext;
   z-index: -1;
-  color: var(--on-editable);
 }
 
 .ML__focusedPromptBox {
-  outline: Highlight auto 1px;
+  outline: highlight auto 1px;
 }
 
 .ML__lockedPromptBox {

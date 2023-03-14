@@ -274,8 +274,7 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
   setCaretPoint(x: number, y: number): boolean;
 
   /**
-   * Return a nested mathfield element that match the provided `placeholderId`
-   * @param placeholderId
+   * Return the content of the `\placeholder{}` command with the `placeholderId`
    */
   getPromptContent(placeholderId: string): string;
 

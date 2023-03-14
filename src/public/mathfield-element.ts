@@ -133,7 +133,7 @@ const MATHFIELD_TEMPLATE = isBrowser()
   : null;
 if (MATHFIELD_TEMPLATE) {
   MATHFIELD_TEMPLATE.innerHTML = `<style>
-  :host { display: block;}
+  :host { display: inline-block; background-color: field; color: fieldtext; border-width: 1px; border-style: solid; border-color: #acacac; border-radius: 2px; padding:4px;}
   :host([hidden]) { display: none; }
   :host([disabled]) { opacity:  .5; }
   :host(:focus), :host(:focus-within) {
@@ -142,7 +142,7 @@ if (MATHFIELD_TEMPLATE) {
   }
   :host([readonly]), :host([read-only]) { outline: none; }
   </style>
-  <div></div><slot style="display:none"></slot>`;
+  <span></span><slot style="display:none"></slot>`;
 }
 //
 // Deferred State
@@ -1304,7 +1304,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     }
 
     this._mathfield = new MathfieldPrivate(
-      this.shadowRoot!.querySelector(':host > div')!,
+      this.shadowRoot!.querySelector(':host > span')!,
       {
         ...(gDeferredState.has(this)
           ? gDeferredState.get(this)!.options

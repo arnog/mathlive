@@ -51,7 +51,7 @@
 }
 
 .ML__container {
-  display: flex;
+  display: inline-flex;
   flex-flow: row;
   justify-content: space-between;
   align-items: flex-end;
@@ -80,17 +80,17 @@
   --ML__placeholder-color: hsl(var(--hue, 212), 40%, 49%);
 }
 
-@media (prefers-color-scheme: dark) {
-  .ML__container {
-    --ML__selection-background-color: hsl(var(--hue, 212), 25%, 45%);
-    --ML__text-highlight-background-color: hsla(var(--hue, 212), 40%, 50%, 0.2);
-    --ML__contains-highlight-background-color: hsl(var(--hue, 212), 5%, 34%);
-    --ML__caret-color: hsl(var(--hue, 212), 60%, 69%);
-    --ML__latex-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
+// @media (prefers-color-scheme: dark) {
+//   .ML__container {
+//     --ML__selection-background-color: hsl(var(--hue, 212), 25%, 45%);
+//     --ML__text-highlight-background-color: hsla(var(--hue, 212), 40%, 50%, 0.2);
+//     --ML__contains-highlight-background-color: hsl(var(--hue, 212), 5%, 34%);
+//     --ML__caret-color: hsl(var(--hue, 212), 60%, 69%);
+//     --ML__latex-color: var(--primary, hsl(var(--hue, 212), 40%, 50%));
 
-    --ML__placeholder-color: hsl(var(--hue, 212), 60%, 69%);
-  }
-}
+//     --ML__placeholder-color: hsl(var(--hue, 212), 60%, 69%);
+//   }
+// }
 
 /* This is the actual field content (formula) */
 .ML__content {
@@ -142,7 +142,7 @@
   }
 }
 
-.ML__isReadOnly .ML__virtual-keyboard-toggle {
+.ML__is-read-only .ML__virtual-keyboard-toggle {
   display: none;
 }
 
