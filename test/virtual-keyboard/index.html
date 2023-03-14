@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Virtual Keyboard Test</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="data:," />
+    <style>
+      body {
+        /* --keyboard-background: linear-gradient(#e66465, #9198e5); */
+        --keyboard-background: linear-gradient(white, #cacfd7);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Virtual Keyboard Test</h1>
+      <ul>
+        <li><a href="../smoke/">Smoke</a></li>
+        <li class="current">
+          <a href="../virtual-keyboard/">Virtual Keyboard</a>
+        </li>
+      </ul>
+    </header>
+    <main>
+      <math-field id="mf-1"
+        >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
+      >
+      <math-field id="mf-2"
+        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
+        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+        \frac{a+1}{b+\alpha+\gamma}</math-field
+      >
+
+      <textarea id="ta-1"></textarea>
+      <!-- <math-field id="mf" virtual-keyboard-mode="manual" readonly
+        >f(x)= \placeholder[id1][x]{}</math-field
+      > -->
+
+      <!-- <math-field id="mf-prompt" readonly
+        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
+      > -->
+      <math-field id="mf-prompt" readonly virtual-keyboard-mode="onfocus"
+        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
+      >
+
+      <math-field readonly id="mf-ro">x=\frac{3}{4}</math-field>
+
+      <textarea id="ta-2"></textarea>
+
+      <div class="buttonbar">
+        <button id="show-keyboard">Show Keyboard</button>
+        <button id="hide-keyboard">Hide Keyboard</button>
+        <button id="freeze-keyboard">Freeze Keyboard</button>
+        <button id="unfreeze-keyboard">Unfreeze Keyboard</button>
+        <button id="custom-keyboard">Custom Keyboard</button>
+        <button id="default-keyboard">Default Keyboard</button>
+      </div>
+    </main>
+
+    <script type="module">
+      import { MathfieldElement } from '/dist/mathlive.mjs';
+      let keyboardFrozen = false;
+
+      const kbd = window.mathVirtualKeyboard;
+      // k.addEventListener('virtual-keyboard-toggle', (ev) =>
+      //   console.log('toggling ', ev)
+      // );
+
+      kbd.addEventListener('before-virtual-keyboard-toggle', (ev) => {
+        if (keyboardFrozen && kbd.visible) ev.preventDefault();
+      });
+
+      document
+        .getElementById('show-keyboard')
+        .addEventListener('click', () => kbd.show());
+      document
+        .getElementById('hide-keyboard')
+        .addEventListener('click', () => kbd.hide());
+      updateButtons();
+
+      document
+        .getElementById('freeze-keyboard')
+        .addEventListener('click', () => {
+          keyboardFrozen = true;
+          document.getElementById('freeze-keyboard').classList.add('hidden');
+          document
+            .getElementById('unfreeze-keyboard')
+            .classList.remove('hidden');
+        });
+      document.getElementById('unfreeze-keyboard').classList.add('hidden');
+      document
+        .getElementById('unfreeze-keyboard')
+        .addEventListener('click', () => {
+          keyboardFrozen = false;
+          document.getElementById('unfreeze-keyboard').classList.add('hidden');
+          document.getElementById('freeze-keyboard').classList.remove('hidden');
+        });
+
+      document
+        .getElementById('mf-prompt')
+        .addEventListener('placeholder-change', (ev) => {
+          console.log('placeholder-change', ev.detail);
+        });
+
+      // const HIGH_SCHOOL_KEYBOARD_LAYER = {
+      //   'high-school-layer': {
+      //     styles: '',
+      //     rows: [
+      //       [
+      //         { latex: 'a' },
+      //         { latex: 'x' },
+      //         { class: 'separator w5' },
+      //         { label: '7', key: '7' },
+      //         // Will display the label using the system font. To display
+      //         // with the TeX font, use:
+      //         // { class: "tex", label: "7", key: "7" },
+      //         // or
+      //         // { latex: "7"},
+      //         { label: '8', key: '8' },
+      //         { label: '9', key: '9' },
+      //         { latex: '\\div' },
+      //         { class: 'separator w5' },
+      //         {
+      //           class: 'tex small',
+      //           label: '<span><i>x</i>&thinsp;²</span>',
+      //           insert: '$$#@^{2}$$',
+      //         },
+      //         {
+      //           class: 'tex small',
+      //           label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
+      //           insert: '$$#@^{}$$',
+      //         },
+      //         {
+      //           class: 'small',
+      //           latex: '\\sqrt{#0}',
+      //           insert: '$$\\sqrt{#0}$$',
+      //         },
+      //       ],
+      //       [
+      //         { class: 'tex', latex: 'b' },
+      //         { class: 'tex', latex: 'y' },
+      //         { class: 'separator w5' },
+      //         { label: '4', latex: '4' },
+      //         { label: '5', key: '5' },
+      //         { label: '6', key: '6' },
+      //         { latex: '\\times' },
+      //         { class: 'separator w5' },
+      //         { class: 'small', latex: '\\frac{#0}{#0}' },
+      //         { class: 'separator' },
+      //         { class: 'separator' },
+      //       ],
+      //       [
+      //         { class: 'tex', label: '<i>c</i>' },
+      //         { class: 'tex', label: '<i>z</i>' },
+      //         { class: 'separator w5' },
+      //         { label: '1', key: '1' },
+      //         { label: '2', key: '2' },
+      //         { label: '3', key: '3' },
+      //         { latex: '-' },
+      //         { class: 'separator w5' },
+      //         { class: 'separator' },
+      //         { class: 'separator' },
+      //         { class: 'separator' },
+      //       ],
+      //       [
+      //         { latex: '(' },
+      //         { latex: ')' },
+
+      //         { class: 'separator w5' },
+      //         { label: '0', key: '0' },
+      //         { latex: '.' },
+      //         { latex: '\\pi' },
+      //         { latex: '+' },
+      //         { class: 'separator w5' },
+      //         {
+      //           class: 'action',
+      //           label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
+      //           command: ['performWithFeedback', 'moveToPreviousChar'],
+      //         },
+      //         {
+      //           class: 'action',
+      //           label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
+      //           command: ['performWithFeedback', 'moveToNextChar'],
+      //         },
+      //         {
+      //           class: 'action font-glyph bottom right',
+      //           label: '&#x232b;',
+      //           command: ['performWithFeedback', 'deleteBackward'],
+      //         },
+      //       ],
+      //     ],
+      //   },
+      // };
+      // const HIGH_SCHOOL_KEYBOARD = {
+      //   'high-school-keyboard': {
+      //     label: 'High School', // Label displayed in the Virtual Keyboard Switcher
+      //     tooltip: 'High School Level', // Tooltip when hovering over the label
+      //     layer: 'high-school-layer',
+      //   },
+      // };
+
+      document.querySelectorAll('math-field, textarea').forEach((x) => {
+        x.addEventListener('beforeinput', logEvent);
+        x.addEventListener('input', logEvent);
+        x.addEventListener('keypress', logEvent);
+        x.addEventListener('keydown', logEvent);
+        x.addEventListener('keyup', logEvent);
+        x.addEventListener('click', logEvent);
+        x.addEventListener('focus', logEvent);
+        x.addEventListener('focusin', logEvent);
+        x.addEventListener('focusout', logEvent);
+        x.addEventListener('move-out', logEvent);
+        x.addEventListener('focus-in', logEvent);
+        x.addEventListener('focus-out', logEvent);
+        x.addEventListener('blur', logEvent);
+      });
+
+      kbd.addEventListener('geometrychange', logEvent);
+      kbd.addEventListener('virtual-keyboard-toggle', logEvent);
+      kbd.addEventListener('before-virtual-keyboard-toggle', logEvent);
+
+      function logEvent(evt) {
+        const stackTraceFrames = String(new Error().stack)
+          .replace(/^Error.*\n/, '')
+          .split('\n')
+          .map((x) => x.replace(/\(.*\)/, ''));
+        stackTraceFrames.shift();
+
+        console.log(evt.type, (evt.target?.id || evt.target?.tagName) ?? evt);
+        if (stackTraceFrames.length > 0)
+          console.log(stackTraceFrames.join('\n'));
+        // console.log(evt);
+        updateButtons();
+      }
+
+      function updateButtons() {
+        if (kbd.visible) {
+          document.getElementById('hide-keyboard').classList.remove('hidden');
+          document.getElementById('show-keyboard').classList.add('hidden');
+        } else {
+          document.getElementById('hide-keyboard').classList.add('hidden');
+          document.getElementById('show-keyboard').classList.remove('hidden');
+        }
+      }
+    </script>
+  </body>
+</html>

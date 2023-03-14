@@ -6,7 +6,11 @@ const less = require('@arnog/esbuild-plugin-less');
 
 // Copy and watch the smoke test file
 context({
-  entryPoints: ['./test/smoke/index.html', './test/smoke/style.css'],
+  entryPoints: [
+    './test/style.css',
+    './test/smoke/index.html',
+    './test/virtual-keyboard/index.html',
+  ],
   outdir: './dist',
   loader: {
     '.html': 'copy',

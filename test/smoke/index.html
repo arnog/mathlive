@@ -2,45 +2,27 @@
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
-    <title>MathLive Smoke Test</title>
+    <title>Smoke Test</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1"
     />
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="data:," />
-    <style>
-      body {
-        /* --keyboard-background: linear-gradient(#e66465, #9198e5); */
-        --keyboard-background: linear-gradient(white, #cacfd7);
-      }
-    </style>
   </head>
   <body>
     <header>
-      <h1>MathLive Smoke Test</h1>
+      <h1>Smoke Test</h1>
+      <ul>
+        <li class="current"><a href="../smoke/">Smoke</a></li>
+        <li>
+          <a href="../virtual-keyboard/">Virtual Keyboard</a>
+        </li>
+      </ul>
     </header>
     <main>
-      <math-field
-        id="mf"
-        use-shared-virtual-keyboard
-        virtual-keyboard-mode="off"
+      <math-field id="mf"
         >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
-      >
-      <!-- <math-field id="mf" virtual-keyboard-mode="manual"
-        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
-        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-        \frac{a+1}{b+\alpha+\gamma}</math-field
-      > -->
-      <!-- <math-field id="mf" virtual-keyboard-mode="manual" readonly
-        >f(x)= \placeholder[id1][x]{}</math-field
-      > -->
-      <math-field use-shared-virtual-keyboard virtual-keyboard-mode="manual"
-        >f(x)</math-field
-      >
-
-      <math-field readonly virtual-keyboard-mode="onfocus"
-        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
       >
 
       <h2 style="margin-top: 1em">LaTeX</h2>
@@ -75,129 +57,14 @@
         convertLatexToSpeakableText,
       } from '/dist/mathlive.mjs';
 
-      // import {
-      //   ComputeEngine,
-      //   version,
-      // } from 'https://unpkg.com/@cortex-js/compute-engine@latest/dist/compute-engine.min.esm.js';
       import {
         ComputeEngine,
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      const k = window.mathVirtualKeyboard;
-      // k.addEventListener('virtual-keyboard-toggle', (ev) =>
-      //   console.log('toggling ', ev)
-      // );
-
-      k.addEventListener('before-virtual-keyboard-toggle', (ev) => {
-        console.log('before-virtual-keyboard-toggle');
-        if (k.visible) ev.preventDefault();
-      });
-      k.addEventListener('virtual-keyboard-toggle', (ev) => {
-        console.log('virtual-keyboard-toggle');
-      });
-
-      // const HIGH_SCHOOL_KEYBOARD_LAYER = {
-      //   'high-school-layer': {
-      //     styles: '',
-      //     rows: [
-      //       [
-      //         { latex: 'a' },
-      //         { latex: 'x' },
-      //         { class: 'separator w5' },
-      //         { label: '7', key: '7' },
-      //         // Will display the label using the system font. To display
-      //         // with the TeX font, use:
-      //         // { class: "tex", label: "7", key: "7" },
-      //         // or
-      //         // { latex: "7"},
-      //         { label: '8', key: '8' },
-      //         { label: '9', key: '9' },
-      //         { latex: '\\div' },
-      //         { class: 'separator w5' },
-      //         {
-      //           class: 'tex small',
-      //           label: '<span><i>x</i>&thinsp;²</span>',
-      //           insert: '$$#@^{2}$$',
-      //         },
-      //         {
-      //           class: 'tex small',
-      //           label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
-      //           insert: '$$#@^{}$$',
-      //         },
-      //         {
-      //           class: 'small',
-      //           latex: '\\sqrt{#0}',
-      //           insert: '$$\\sqrt{#0}$$',
-      //         },
-      //       ],
-      //       [
-      //         { class: 'tex', latex: 'b' },
-      //         { class: 'tex', latex: 'y' },
-      //         { class: 'separator w5' },
-      //         { label: '4', latex: '4' },
-      //         { label: '5', key: '5' },
-      //         { label: '6', key: '6' },
-      //         { latex: '\\times' },
-      //         { class: 'separator w5' },
-      //         { class: 'small', latex: '\\frac{#0}{#0}' },
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //       ],
-      //       [
-      //         { class: 'tex', label: '<i>c</i>' },
-      //         { class: 'tex', label: '<i>z</i>' },
-      //         { class: 'separator w5' },
-      //         { label: '1', key: '1' },
-      //         { label: '2', key: '2' },
-      //         { label: '3', key: '3' },
-      //         { latex: '-' },
-      //         { class: 'separator w5' },
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //       ],
-      //       [
-      //         { latex: '(' },
-      //         { latex: ')' },
-
-      //         { class: 'separator w5' },
-      //         { label: '0', key: '0' },
-      //         { latex: '.' },
-      //         { latex: '\\pi' },
-      //         { latex: '+' },
-      //         { class: 'separator w5' },
-      //         {
-      //           class: 'action',
-      //           label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
-      //           command: ['performWithFeedback', 'moveToPreviousChar'],
-      //         },
-      //         {
-      //           class: 'action',
-      //           label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
-      //           command: ['performWithFeedback', 'moveToNextChar'],
-      //         },
-      //         {
-      //           class: 'action font-glyph bottom right',
-      //           label: '&#x232b;',
-      //           command: ['performWithFeedback', 'deleteBackward'],
-      //         },
-      //       ],
-      //     ],
-      //   },
-      // };
-      // const HIGH_SCHOOL_KEYBOARD = {
-      //   'high-school-keyboard': {
-      //     label: 'High School', // Label displayed in the Virtual Keyboard Switcher
-      //     tooltip: 'High School Level', // Tooltip when hovering over the label
-      //     layer: 'high-school-layer',
-      //   },
-      // };
-
       const mf = document.getElementById('mf');
 
-      mf.setOptions({ computeEngine: new ComputeEngine() });
-      // mf.setOptions({decimalSeparator: '.'});
+      mf.computeEngine = new ComputeEngine();
 
       mf.setOptions({
         onInlineShortcut: (_mf, s) => {
@@ -228,46 +95,13 @@
         },
       });
 
-      mf.addEventListener('click', (ev) => {
-        console.log('a click');
-      });
-      // mf.addEventListener('focusin', (ev) => {
-      //   console.log('focus-in', ev);
-      // });
-      // mf.addEventListener('focus', (ev) => {
-      //   console.log('focus', ev);
-      //   mf.executeCommand('showVirtualKeyboard');
-      // });
-      // mf.addEventListener('blur', (ev) => {
-      //   console.log('blur');
-      // });
-
       mf.addEventListener('selection-change', (ev) => {
         console.log('selection change', ev);
       });
 
-      // mf.addEventListener('move-out', (ev) => {
-      //   console.log('move-out event');
-      //   ev.preventDefault();
-      //   mf.blur();
-      // });
-
-      // mf.addEventListener('focus-out', (ev) => {
-      //   console.log('focus-out event');
-      //   if (ev.detail.direction === 'forward')
-      //     mf.executeCommand('moveToMathfieldEnd');
-      //   else if (ev.detail.direction === 'backward')
-      //     mf.executeCommand('moveToMathfieldStart');
-      //   ev.preventDefault();
-      // });
-
       mf.addEventListener('input', (ev) => {
         console.log('input event');
         updateContent(mf);
-      });
-
-      mf.addEventListener('placeholder-change', (ev) => {
-        console.log(ev.detail.placeholderId);
       });
 
       mf.addEventListener('beforeinput', (ev) => {
