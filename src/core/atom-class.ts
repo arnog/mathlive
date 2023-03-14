@@ -560,35 +560,24 @@ export class Atom {
   }
 
   get inCaptureSelection(): boolean {
-    let result = false;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let atom: Atom | undefined = this;
     while (atom) {
-      if (atom.captureSelection) {
-        result = true;
-        break;
-      }
+      if (atom.captureSelection) return true;
       atom = atom.parent;
     }
-    return result;
+    return false;
   }
 
   /** Returns true if atom is *WITHIN* an ID'd placeholder atom that is not correct/incorrect */
   get inEditablePrompt(): boolean {
-    let result = false;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let atom: Atom | undefined = this;
     while (atom) {
-      if (
-        atom.parent?.type === 'prompt' &&
-        !(atom.parent as PromptAtom).captureSelection
-      ) {
-        result = true;
-        break;
-      }
+      if (atom.type === 'prompt' && !atom.captureSelection) return true;
       atom = atom.parent;
     }
-    return result;
+    return false;
   }
 
   /**
