@@ -166,7 +166,7 @@ export class VirtualKeyboardProxy
 
       if (action === 'geometry-changed') {
         this._boundingRect = evt.data.boundingRect;
-        this.dispatchEvent(new Event('geometry-change'));
+        this.dispatchEvent(new Event('geometrychange'));
         return;
       }
     }

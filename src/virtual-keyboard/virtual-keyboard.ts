@@ -131,6 +131,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
         : `${keyboardHeight}px`;
 
+      this.dispatchEvent(new Event('geometrychange'));
+
       this.sendMessage('geometry-changed', { boundingRect: this.boundingRect });
     });
 
