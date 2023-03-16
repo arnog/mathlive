@@ -105,34 +105,14 @@ function makeBox(
   return wrapper;
 }
 
-/**
- * Layout the mathfield and generate the DOM.
- *
- * This is usually done automatically, but if the font-size, or other geometric
- * attributes are modified, outside of MathLive, this function may need to be
- * called explicitly.
- *
- */
-export function render(
+export function contentMarkup(
   mathfield: MathfieldPrivate,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
-): void {
-  if (!isValidMathfield(mathfield)) return;
-  renderOptions = renderOptions ?? {};
-  const { model } = mathfield;
-
-  if (gFontsState !== 'loading' && gFontsState !== 'ready') {
-    if (!(renderOptions.interactive ?? false)) {
-      // (re-render a bit later because the layout may not be up to date right
-      //  now. This happens in particular when first loading and the fonts are
-      //  not yet available. )
-      setTimeout(() => renderSelection(mathfield), 32);
-    }
-  }
-
+): string {
   //
   // 1. Update selection state and blinking cursor (caret)
   //
+  const { model } = mathfield;
   model.root.caret = '';
   model.root.isSelected = false;
   model.root.containsCaret = true;
@@ -141,7 +121,7 @@ export function render(
     atom.isSelected = false;
     atom.containsCaret = false;
   }
-  const hasFocus = !mathfield.promptSelectionLocked && mathfield.hasFocus();
+  const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
   if (model.selectionIsCollapsed)
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
   else {
@@ -163,17 +143,42 @@ export function render(
   const box = makeBox(mathfield, renderOptions);
 
   //
-  // 3. Generate markup and accessible node
+  // 3. Generate markup
   //
-  const field = mathfield.field;
-  const isFocused = field.classList.contains('ML__focused');
-  if (isFocused && !hasFocus) field.classList.remove('ML__focused');
-  else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
-  field.innerHTML = window.MathfieldElement.createHTML(box.toMarkup());
-  mathfield.fieldContent = field.getElementsByClassName(
-    'ML__mathlive'
-  )[0]! as HTMLElement;
+  return window.MathfieldElement.createHTML(box.toMarkup());
+}
+
+/**
+ * Layout the mathfield and generate the DOM.
+ *
+ * This is usually done automatically, but if the font-size, or other geometric
+ * attributes are modified, outside of MathLive, this function may need to be
+ * called explicitly.
+ *
+ */
+export function render(
+  mathfield: MathfieldPrivate,
+  renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
+): void {
+  if (!isValidMathfield(mathfield)) return;
+  renderOptions ??= {};
+
+  //
+  // 1. Hide the virtual keyboard toggle if not applicable
+  //
+  //   :host([disabled]) .ML__virtual-keyboard-toggle,
+  // :host([readonly]) .ML__virtual-keyboard-toggle,
+  // :host([read-only]) .ML__virtual-keyboard-toggle,
+  // :host([contenteditable=false]) .ML__virtual-keyboard-toggle {
+  //   display: none;
+  // }
+
+  const toggle = mathfield.element?.querySelector<HTMLElement>(
+    '[part=virtual-keyboard-toggle]'
+  );
+  if (toggle)
+    toggle.style.display = mathfield.hasEditableContent ? 'flex' : 'none';
 
   // NVA tries (and fails) to read MathML, so skip it for now
   // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
@@ -182,15 +187,31 @@ export function render(
   //     '</math>'
   // );
 
+  const field = mathfield.field;
+
+  const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
+  const isFocused = field.classList.contains('ML__focused');
+
+  if (isFocused && !hasFocus) field.classList.remove('ML__focused');
+  else if (!isFocused && hasFocus) field.classList.add('ML__focused');
+
+  field.innerHTML = contentMarkup(mathfield, renderOptions);
+  mathfield.fieldContent = field.getElementsByClassName(
+    'ML__mathlive'
+  )[0]! as HTMLElement;
+
   //
-  // 4. Render the selection/caret
+  // 5. Render the selection/caret
   //
-  renderSelection(mathfield);
+  renderSelection(mathfield, renderOptions.interactive);
 
   mathfield.dirty = false;
 }
 
-export function renderSelection(mathfield: MathfieldPrivate): void {
+export function renderSelection(
+  mathfield: MathfieldPrivate,
+  interactive?: boolean
+): void {
   const field = mathfield.field;
 
   // In some rare cases, we can get called (via a timeout) when the field
@@ -204,6 +225,23 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
     element.remove();
 
   if (!mathfield.hasFocus()) return;
+
+  if (
+    !(interactive ?? false) &&
+    gFontsState !== 'error' &&
+    gFontsState !== 'ready'
+  ) {
+    // If the fonts are not loaded, or if they are still loading, schedule
+    // a re-render of the selection to a bit later. If after waiting a bit
+    // the fonts are still not ready,
+    // Once the fonts are loaded, the layout may shift due to the glyph metrics
+    // being different after font-substitution, which may affect rendering of
+    // the selection
+    setTimeout(() => {
+      if (gFontsState === 'ready') renderSelection(mathfield);
+      else setTimeout(() => renderSelection(mathfield), 128);
+    }, 32);
+  }
 
   const model = mathfield.model;
 

@@ -328,7 +328,7 @@ function onDelete(
  * Delete the item at the current position
  */
 export function deleteBackward(model: ModelPrivate): boolean {
-  if (model.mathfield.promptSelectionLocked) return false;
+  if (!model.mathfield.isSelectionEditable) return false;
 
   if (!contentWillChange(model, { inputType: 'deleteContentBackward' }))
     return false;
@@ -368,6 +368,8 @@ export function deleteBackward(model: ModelPrivate): boolean {
  * send notifications
  */
 export function deleteForward(model: ModelPrivate): boolean {
+  if (!model.mathfield.isSelectionEditable) return false;
+
   if (!contentWillChange(model, { inputType: 'deleteContentForward' }))
     return false;
   if (!model.selectionIsCollapsed)

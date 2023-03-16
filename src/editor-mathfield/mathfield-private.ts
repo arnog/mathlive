@@ -77,7 +77,12 @@ import { ModelState } from '../editor-model/model-private';
 
 import { onInput, onKeystroke } from './keyboard-input';
 import { complete } from './autocomplete';
-import { requestUpdate, render } from './render';
+import {
+  requestUpdate,
+  render,
+  renderSelection,
+  contentMarkup,
+} from './render';
 
 import './commands';
 import './styling';
@@ -223,9 +228,11 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     this.element = element;
     element.mathfield = this;
+    // Start with hidden content to minimize flashing during creation
+    // The visibility will be reset during render
+    element.style.visibility = 'hidden';
 
-    // Load the fonts, inject the core and mathfield stylesheets
-    void loadFonts();
+    // Inject the core and mathfield stylesheets
     if (!CORE_STYLESHEET_HASH)
       CORE_STYLESHEET_HASH = hashCode(CORE_STYLESHEET).toString(36);
 
@@ -238,6 +245,71 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.stylesheets.push(
       injectStylesheet(element, MATHFIELD_STYLESHEET, MATHFIELD_STYLESHEET_HASH)
     );
+
+    // Focus/blur state
+    this.blurred = true;
+
+    // The keystroke caption panel and the popover are initially hidden
+    this.keystrokeCaptionVisible = false;
+    this.popoverVisible = false;
+
+    // This index indicates which of the suggestions available to
+    // display in the popover panel
+    this.suggestionIndex = 0;
+
+    this.inlineShortcutBuffer = [];
+    this.inlineShortcutBufferFlushTimer = 0 as unknown as ReturnType<
+      typeof setTimeout
+    >;
+
+    // The input mode (text, math, command)
+    // While model.getMode() represent the mode of the current selection,
+    // this.mode is the mode chosen by the user. It indicates the mode the
+    // next character typed will be interpreted in.
+    // It is often identical to getAnchorMode() since changing the selection
+    // changes the mode, but sometimes it is not, for example when a user
+    // enters a mode changing command.
+    this.mode = effectiveMode(this.options);
+    this.smartModeSuppressed = false;
+
+    // Current style (color, weight, italic, etc...):
+    // reflects the style to be applied on next insertion.
+    this.style = {};
+    this.adoptStyle = 'left';
+
+    if (this.options.defaultMode === 'inline-math')
+      this.element.classList.add('ML__is-inline');
+    else this.element.classList.remove('ML__is-inline');
+
+    this.dirty = false;
+
+    // Setup the model
+    this.model = new ModelPrivate(
+      {
+        mode: effectiveMode(this.options),
+        macros: this.options.macros as NormalizedMacroDictionary,
+        removeExtraneousParentheses: this.options.removeExtraneousParentheses,
+      },
+      {
+        onSelectionDidChange: () => this._onSelectionDidChange(),
+      },
+      this
+    );
+
+    // Prepare to manage undo/redo
+    this.undoManager = new UndoManager(this.model);
+
+    // Use the content of the element for the initial value of the mathfield
+    let elementText = options.value ?? this.element.textContent;
+    if (elementText) elementText = elementText.trim();
+    if (elementText) {
+      ModeEditor.insert('math', this.model, elementText, {
+        insertionMode: 'replaceAll',
+        selectionMode: 'after',
+        format: 'latex',
+        suppressChangeNotifications: true,
+      });
+    }
 
     // Additional elements used for UI.
     const markup: string[] = [];
@@ -256,20 +328,20 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     // 2/ The field, where the math equation will be displayed
     markup.push('<span part=container class=ML__container aria-hidden=true>');
-    markup.push('<span part=content class=ML__content></span>');
+    markup.push('<span part=content class=ML__content>');
+    markup.push(contentMarkup(this));
+    markup.push('</span>');
 
     // 2.1/ The virtual keyboard toggle
     markup.push(
-      `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button data-ML__tooltip="${localize(
-        'tooltip.toggle virtual keyboard'
-      )}">`
+      `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button ${
+        this.hasEditableContent ? '' : 'style="display:none;"'
+      }data-ML__tooltip="${localize('tooltip.toggle virtual keyboard')}">`
     );
     markup.push(DEFAULT_KEYBOARD_TOGGLE_GLYPH);
     markup.push('</div>');
 
-    markup.push('<div class=ML__placeholdercontainer></div>');
-
-    markup.push('</span>');
+    markup.push('</span>'); // end container
 
     // 3.1/ The aria-live region for announcements
 
@@ -332,44 +404,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.ariaLiveText = this.element.querySelector('[role=status]')!;
     // this.accessibleMathML = this.element.querySelector('.accessibleMathML')!;
 
-    // The keystroke caption panel and the popover are initially hidden
-    this.keystrokeCaptionVisible = false;
-    this.popoverVisible = false;
-
-    // This index indicates which of the suggestions available to
-    // display in the popover panel
-    this.suggestionIndex = 0;
-
-    this.inlineShortcutBuffer = [];
-    this.inlineShortcutBufferFlushTimer = 0 as unknown as ReturnType<
-      typeof setTimeout
-    >;
-
-    // The input mode (text, math, command)
-    // While model.getMode() represent the mode of the current selection,
-    // this.mode is the mode chosen by the user. It indicates the mode the
-    // next character typed will be interpreted in.
-    // It is often identical to getAnchorMode() since changing the selection
-    // changes the mode, but sometimes it is not, for example when a user
-    // enters a mode changing command.
-    this.mode = effectiveMode(this.options);
-    this.smartModeSuppressed = false;
-
-    // Current style (color, weight, italic, etc...):
-    // reflects the style to be applied on next insertion.
-    this.style = {};
-    this.adoptStyle = 'left';
-
-    if (this.options.readOnly) this.element.classList.add('ML__is-read-only');
-    else this.element.classList.remove('ML__is-read-only');
-
-    if (this.options.defaultMode === 'inline-math')
-      this.element.classList.add('ML__is-inline');
-    else this.element.classList.remove('ML__is-inline');
-
-    // Focus/blur state
-    this.blurred = true;
-
     // Capture clipboard events
     // Delegate keyboard events
     this.keyboardDelegate = delegateKeyboardEvents(
@@ -387,7 +421,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         onCompositionEnd: (composition) => this.onCompositionEnd(composition),
         onCut: (ev) => {
           // Ignore if in read-only mode
-          if (this.promptSelectionLocked) {
+          if (!this.isSelectionEditable) {
             this.model.announce('plonk');
             return;
           }
@@ -408,7 +442,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         onCopy: (ev) => ModeEditor.onCopy(this, ev),
         onPaste: (ev) => {
           // Ignore if in read-only mode
-          let result = !this.promptSelectionLocked;
+          let result = this.isSelectionEditable;
 
           if (result) {
             result = ModeEditor.onPaste(
@@ -455,34 +489,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       { capture: true }
     );
 
-    // Setup the model
-    this.model = new ModelPrivate(
-      {
-        mode: effectiveMode(this.options),
-        macros: this.options.macros as NormalizedMacroDictionary,
-        removeExtraneousParentheses: this.options.removeExtraneousParentheses,
-      },
-      {
-        onSelectionDidChange: () => this._onSelectionDidChange(),
-      },
-      this
-    );
-
-    // Prepare to manage undo/redo
-    this.undoManager = new UndoManager(this.model);
-
-    // Use the content of the element for the initial value of the mathfield
-    let elementText = options.value ?? this.element.textContent;
-    if (elementText) elementText = elementText.trim();
-    if (elementText) {
-      ModeEditor.insert('math', this.model, elementText, {
-        insertionMode: 'replaceAll',
-        selectionMode: 'after',
-        format: 'latex',
-        suppressChangeNotifications: true,
-      });
-    }
-
     // Now start recording potentially undoable actions
     this.undoManager.startRecording();
     this.undoManager.snapshot();
@@ -496,7 +502,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // When fonts are done loading, re-render
     // (the selection highlighting may be out of date due to the HTML layout
     // having been updated with the new font metrics)
-    if (gFontsState !== 'ready') document.fonts.ready.then(() => render(this));
+    if (gFontsState !== 'ready')
+      document.fonts.ready.then(() => renderSelection(this));
+
+    // The mathfield element is initially set with a visibility of hidden
+    // to minimize flashing during construction.
+    this.element!.style.visibility = 'visible';
   }
 
   connectToVirtualKeyboard(): void {
@@ -560,27 +571,69 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return this.options?.readOnly ?? false;
   }
 
-  /** returns true if readOnly and at least one ID'd placeholder */
-  get prompting(): boolean {
+  get disabled(): boolean {
+    return this.host?.['disabled'] ?? false;
+  }
+
+  // This reflects the contenteditable attribute.
+  // Use hasEditableContent instead to take into account readonly and disabled
+  // states.
+  get contentEditable(): boolean {
+    return this.host?.getAttribute('contenteditable') === 'true' ?? true;
+  }
+
+  // Use to hide/show the virtual keyboard toggle. If false, no point in
+  // showing  the toggle.
+  get hasEditableContent(): boolean {
+    if (this.readOnly) {
+      if (this.contentEditable && this.hasEditablePrompts) return true;
+      return false;
+    }
+    return this.contentEditable && !this.disabled;
+  }
+
+  get userSelect(): string {
+    if (!this.host) return '';
+    const style = getComputedStyle(this.host);
+    // Safari uses '-webkit-user-select'. Other browsers use 'user-select'
     return (
-      this.readOnly &&
-      this.model
-        .getAllAtoms(0)
-        .some((a: PromptAtom) => a.type === 'prompt' && !a.captureSelection)
+      style.getPropertyValue('user-select') ||
+      style.getPropertyValue('-webkit-user-select')
     );
   }
 
-  /** Returns true if mathfield is in readOnly mode and selection not contained to a single ID'd placeholder */
-  get promptSelectionLocked(): boolean {
-    if (!this.readOnly) return false;
+  get hasEditablePrompts(): boolean {
+    return this.model
+      .getAllAtoms(0)
+      .some((a: PromptAtom) => a.type === 'prompt' && !a.locked);
+  }
+
+  /** returns true if readOnly and at least one ID'd placeholder */
+  get prompting(): boolean {
+    return (
+      this.contentEditable &&
+      !this.disabled &&
+      this.readOnly &&
+      this.hasEditablePrompts
+    );
+  }
+
+  /** Returns true if the selection is editable:
+   * - mathfield is not disabled, and has contentEditable
+   * - if mathfield is readonly, the current selection is in a prompt which is editable (not locked)
+   */
+  get isSelectionEditable(): boolean {
+    if (this.disabled || !this.contentEditable) return false;
+    if (!this.readOnly) return true;
+
     const anchor = this.model.at(this.model.anchor);
     const cursor = this.model.at(this.model.position);
 
     const ancestor = Atom.commonAncestor(anchor, cursor);
 
-    if (ancestor?.inEditablePrompt) return false;
+    if (ancestor?.inEditablePrompt) return true;
 
-    return true;
+    return false;
   }
 
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
@@ -671,9 +724,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (this.options.readOnly) {
       if (this.hasFocus() && VirtualKeyboard.singleton.visible)
         this.executeCommand('hideVirtualKeyboard');
-      this.onBlur();
-      this.element!.classList.add('ML__is-read-only');
-    } else this.element!.classList.remove('ML__is-read-only');
+    }
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
@@ -905,7 +956,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   get expression(): BoxedExpression | null {
     const ce = this.computeEngine;
-    if (!ce) return null;
+    if (!ce) {
+      console.error('MathLive: no compute engine available');
+      return null;
+    }
     return ce.box(ce.parse(this.model.getValue()));
   }
 
@@ -1028,7 +1082,13 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
-    if (this.mode === mode || this.options.readOnly) return;
+    if (
+      this.mode === mode ||
+      this.readOnly ||
+      !this.contentEditable ||
+      this.disabled
+    )
+      return;
 
     // Dispatch event with option of canceling
     if (
@@ -1194,31 +1254,70 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return true;
   }
 
-  getPrompt(id: string): PromptAtom {
+  getPrompt(id: string): PromptAtom | undefined {
     const prompts = this.model
       .getAllAtoms(0)
       .filter(
         (a) => a.type === 'prompt' && (a as PromptAtom).placeholderId === id
       ) as PromptAtom[];
-    console.assert(prompts.length > 0, 'no prompts with matching ID found');
-    console.assert(prompts.length < 2, 'duplicate prompt IDs found');
+    console.assert(
+      prompts.length > 0,
+      'MathLive: no prompts with matching ID found'
+    );
+    console.assert(prompts.length < 2, 'MathLive: duplicate prompt IDs found');
+    if (prompts.length === 0) return undefined;
     return prompts[0];
   }
 
-  getPromptContent(id: string): string {
-    return this.getPrompt(id).bodyToLatex({ defaultMode: 'math' });
+  getPromptValue(id: string, format?: OutputFormat): string {
+    const prompt = this.getPrompt(id);
+    if (!prompt) {
+      console.error('MathLive: unknown prompt', id);
+      return '';
+    }
+
+    const first = this.model.offsetOf(prompt.firstChild);
+    const last = this.model.offsetOf(prompt.lastChild);
+
+    return this.model.getValue(first, last, format);
   }
 
-  get prompts(): string[] {
+  getPrompts(filter?: {
+    id?: string;
+    locked?: boolean;
+    correctness?: 'correct' | 'incorrect' | 'undefined';
+  }): string[] {
     return this.model
       .getAllAtoms(0)
-      .filter((a) => a.type === 'prompt')
-      .map((a) => a.bodyToLatex({ defaultMode: 'math' }));
+      .filter((a) => {
+        if (a.type !== 'prompt') return false;
+        if (filter?.id && a.id !== filter.id) return false;
+        if (filter?.locked && (a as PromptAtom).locked !== filter.locked)
+          return false;
+        if (
+          filter?.correctness === 'undefined' &&
+          (a as PromptAtom).correctness
+        )
+          return false;
+        if (
+          filter?.correctness &&
+          (a as PromptAtom).correctness !== filter.correctness
+        )
+          return false;
+        return true;
+      })
+      .map((a: PromptAtom) => a.id!);
   }
 
-  setPromptContent(id: string, content?: string): void {
-    if (content !== undefined)
-      this.getPrompt(id).body = parseLatex(content, this);
+  setPromptValue(id: string, value?: string): void {
+    if (value !== undefined) {
+      const prompt = this.getPrompt(id);
+      if (!prompt) {
+        console.error('MathLive: unknown prompt', id);
+        return;
+      }
+      prompt.body = parseLatex(value, this);
+    }
     requestUpdate(this);
   }
 
@@ -1226,12 +1325,21 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     id: string,
     correctness: 'correct' | 'incorrect' | undefined
   ): void {
-    this.getPrompt(id).correctness = correctness;
+    const prompt = this.getPrompt(id);
+    if (!prompt) {
+      console.error('MathLive: unknown prompt', id);
+      return;
+    }
+    prompt.correctness = correctness;
     requestUpdate(this);
   }
 
   setPromptLocked(id: string, locked: boolean): void {
     const prompt = this.getPrompt(id);
+    if (!prompt) {
+      console.error('MathLive: unknown prompt', id);
+      return;
+    }
     prompt.locked = locked;
     prompt.captureSelection = locked;
     requestUpdate(this);

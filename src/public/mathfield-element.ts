@@ -20,7 +20,10 @@ import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
 import { isBrowser } from '../common/capabilities';
-import { resolveUrl } from 'common/script-url';
+import { resolveUrl } from '../common/script-url';
+import { VirtualKeyboard } from 'virtual-keyboard/virtual-keyboard';
+import { requestUpdate } from 'editor-mathfield/render';
+import { loadFonts } from 'core/fonts';
 
 export declare type Expression =
   | number
@@ -135,12 +138,11 @@ if (MATHFIELD_TEMPLATE) {
   MATHFIELD_TEMPLATE.innerHTML = `<style>
   :host { display: inline-block; background-color: field; color: fieldtext; border-width: 1px; border-style: solid; border-color: #acacac; border-radius: 2px; padding:4px;}
   :host([hidden]) { display: none; }
-  :host([disabled]) { opacity:  .5; }
+  :host([disabled]), :host([disabled]:focus), :host([disabled]:focus-within) { outline: none; opacity:  .5; }
   :host(:focus), :host(:focus-within) {
     outline: Highlight auto 1px;    /* For Firefox */
     outline: -webkit-focus-ring-color auto 1px;
   }
-  :host([readonly]), :host([read-only]) { outline: none; }
   </style>
   <span></span><slot style="display:none"></slot>`;
 }
@@ -549,9 +551,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static get observedAttributes(): string[] {
     return [
       ...Object.keys(this.optionsAttributes),
+      'contenteditable', // Global attribute
       'disabled', // Global attribute
       'readonly', // A semi-global attribute (not all standard elements support it, but some do)
-      'read-only',
+      'read-only', // Alternate spelling for `readonly`
     ];
   }
 
@@ -807,7 +810,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   /** @internal */
   private _slotValue: string;
 
-  /** @internal */
+  /** @internal
+   * Supported by some browser: allows some (static) attributes to be set
+   * without being reflected on the element instance.
+   */
   private _internals: ElementInternals;
 
   /**
@@ -853,6 +859,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     // Record the (optional) configuration options, as a deferred state
     if (options) this.setOptions(options);
 
+    // Load the fonts
+    void loadFonts();
+
     this.shadowRoot!.host.addEventListener(
       'pointerdown',
       () => this.onPointerDown(),
@@ -874,7 +883,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     window.addEventListener(
       'pointerup',
       (evt) => {
-        if (evt.target === this) {
+        // Disabled elements do not dispatch 'click' events
+        if (evt.target === this && !this._mathfield?.disabled) {
           this.dispatchEvent(
             new MouseEvent('click', {
               altKey: evt.altKey,
@@ -898,12 +908,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     );
   }
 
-  getPromptContent(placeholderId: string): string {
-    return this._mathfield?.getPromptContent(placeholderId) ?? '';
+  getPromptValue(placeholderId: string): string {
+    return this._mathfield?.getPromptValue(placeholderId) ?? '';
   }
 
-  get prompts(): string[] {
-    return this._mathfield?.prompts ?? [];
+  /** Return the id of the prompts matching the filter */
+  getPrompts(filter?: {
+    id?: string;
+    locked?: boolean;
+    correctness?: 'correct' | 'incorrect' | 'undefined';
+  }): string[] {
+    return this._mathfield?.getPrompts(filter) ?? [];
   }
 
   addEventListener<K extends keyof HTMLElementEventMap>(
@@ -986,7 +1001,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   getOptions(): MathfieldOptions;
   getOptions(
     keys?: keyof MathfieldOptions | (keyof MathfieldOptions)[]
-  ): unknown | Partial<MathfieldOptions> {
+  ): null | Partial<MathfieldOptions> {
     if (this._mathfield) return getOptions(this._mathfield.options, keys);
 
     if (!gDeferredState.has(this)) return null;
@@ -1281,7 +1296,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     }
 
     // NVDA on Firefox seems to require this attribute
-    this.setAttribute('contenteditable', 'true');
+    if (!this.hasAttribute('contenteditable'))
+      this.setAttribute('contenteditable', 'true');
 
     // When the elements get focused (through tabbing for example)
     // focus the mathfield
@@ -1418,6 +1434,9 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     if (oldValue === newValue) return;
     const hasValue: boolean = newValue !== null;
     switch (name) {
+      case 'contenteditable':
+        if (this._mathfield) requestUpdate(this._mathfield);
+        break;
       case 'disabled':
         this.disabled = hasValue;
         break;
@@ -1436,19 +1455,24 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   set readonly(value: boolean) {
     const isReadonly = Boolean(value);
 
-    // Note that `readonly` and `disabled` are "boolean attributes" as
-    // per the HTML5 spec. Their value must be the empty string to indicate
-    // a value of true, or they must be absent to indicate a value of false.
+    // Note that `readonly` is a "boolean attribute" as
+    // per the HTML5 spec. Its value must be the empty string to indicate
+    // a value of true, or it must be absent to indicate a value of false.
     // https://html.spec.whatwg.org/#boolean-attribute
     if (isReadonly) {
+      // The canonical spelling is "readonly" (no dash. It's a global attribute
+      // name and follows HTML attribute conventions)
       this.setAttribute('readonly', '');
-      this.setAttribute('disabled', '');
+      if (isElementInternalsSupported()) this._internals.ariaReadOnly = 'true';
+      else this.setAttribute('aria-readonly', 'true');
+
       this.setAttribute('aria-readonly', 'true');
     } else {
+      if (isElementInternalsSupported()) this._internals.ariaReadOnly = 'false';
+      else this.removeAttribute('aria-readonly');
+
       this.removeAttribute('readonly');
       this.removeAttribute('read-only');
-      this.removeAttribute('disabled');
-      this.removeAttribute('aria-readonly');
     }
 
     this.setOptions({ readOnly: isReadonly });
@@ -1463,8 +1487,16 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     if (isDisabled) this.setAttribute('disabled', '');
     else this.removeAttribute('disabled');
 
-    this.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
-    this.setOptions({ readOnly: isDisabled });
+    if (isElementInternalsSupported())
+      this._internals.ariaDisabled = isDisabled ? 'true' : 'false';
+    else this.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
+
+    if (
+      isDisabled &&
+      this._mathfield?.hasFocus &&
+      VirtualKeyboard.singleton.visible
+    )
+      this._mathfield.executeCommand('hideVirtualKeyboard');
   }
 
   /**
@@ -1546,7 +1578,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._mathfield?.setPromptCorrectness(id, correctness);
   }
   setPromptContent(id: string, content: string): void {
-    this._mathfield?.setPromptContent(id, content);
+    this._mathfield?.setPromptValue(id, content);
   }
   setPromptLocked(id: string, locked: boolean): void {
     this._mathfield?.setPromptLocked(id, locked);

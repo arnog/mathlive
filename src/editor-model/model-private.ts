@@ -98,6 +98,8 @@ export class ModelPrivate implements Model {
   setSelection(range: Range): boolean;
   setSelection(selection: Selection): boolean;
   setSelection(arg1: Offset | Range | Selection, arg2?: Offset): boolean {
+    if (!this.mathfield.contentEditable && this.mathfield.userSelect === 'none')
+      return false;
     return this.deferNotifications({ selection: true }, () => {
       //
       // 1/ Normalize the input
@@ -575,6 +577,8 @@ export class ModelPrivate implements Model {
    * in a selection whose boundary is outside the anchor
    */
   extendSelectionTo(anchor: Offset, position: Offset): boolean {
+    if (!this.mathfield.contentEditable && this.mathfield.userSelect === 'none')
+      return false;
     return this.deferNotifications({ selection: true }, () => {
       const range = this.normalizeRange([anchor, position]);
       let [start, end] = range;

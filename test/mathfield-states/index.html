@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mathfield States</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_AMS-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Caligraphic-Bold.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Caligraphic-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Fraktur-Bold.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Fraktur-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Main-BoldItalic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Main-Bold.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Main-Italic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Main-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Math-BoldItalic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Math-Italic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_SansSerif-Bold.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_SansSerif-Italic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_SansSerif-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Script-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Size1-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Size2-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Size3-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Size4-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Typewriter-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link rel="stylesheet" href="../mathlive-fonts.css" />
+    <link rel="icon" href="data:," />
+    <style>
+      body {
+        visibility: hidden;
+      }
+      body.ready {
+        visibility: visible;
+      }
+      math-field,
+      textarea {
+        margin-top: 1em;
+        margin-bottom: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Mathfield States</h1>
+      <ul>
+        <li><a href="../smoke/">Smoke</a></li>
+        <li>
+          <a href="../virtual-keyboard/">Virtual Keyboard</a>
+        </li>
+        <li class="current">
+          <a href="../mathfield-states/">States</a>
+        </li>
+      </ul>
+    </header>
+    <main>
+      <h2>Inline</h2>
+      <p>
+        The solution is
+        <math-field default-mode="inline-math" id="mf-1"
+          >x=\frac{3}{4}</math-field
+        >.
+      </p>
+
+      <h2><kbd>readonly</kbd></h2>
+      <math-field id="mf-2" readonly
+        >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
+      >
+
+      <h2><kbd>read-only</kbd></h2>
+      <math-field id="mf-3" read-only
+        >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
+      >
+
+      <h2><kbd>disabled</kbd></h2>
+      <math-field id="mf-4" disabled
+        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
+        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+        \frac{a+1}{b+\alpha+\gamma}</math-field
+      >
+
+      <h2><kbd>contenteditable=false</kbd></h2>
+      <math-field id="mf-5" contenteditable="false"
+        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
+        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+        \frac{a+1}{b+\alpha+\gamma}</math-field
+      >
+
+      <h2><kbd>contenteditable=false</kbd> && <kbd>user-select=none</kbd></h2>
+      <math-field
+        id="mf-6"
+        contenteditable="false"
+        style="user-select: none; -webkit-user-select: none"
+        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
+        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+        \frac{a+1}{b+\alpha+\gamma}</math-field
+      >
+
+      <h2>Prompt</h2>
+      <math-field id="mf-prompt" readonly virtual-keyboard-mode="onfocus"
+        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
+      >
+
+      <textarea disabled>blah blah</textarea>
+
+      <textarea contenteditable="false" disabled style="user-select: none">
+hello</textarea
+      >
+    </main>
+
+    <script type="module">
+      import { MathfieldElement } from '/dist/mathlive.mjs';
+
+      document.querySelectorAll('math-field, textarea').forEach((x) => {
+        x.addEventListener('beforeinput', logEvent);
+        x.addEventListener('input', logEvent);
+        x.addEventListener('keypress', logEvent);
+        x.addEventListener('keydown', logEvent);
+        x.addEventListener('keyup', logEvent);
+        x.addEventListener('click', logEvent);
+        x.addEventListener('focus', logEvent);
+        x.addEventListener('focusin', logEvent);
+        x.addEventListener('focusout', logEvent);
+        x.addEventListener('move-out', logEvent);
+        x.addEventListener('focus-in', logEvent);
+        x.addEventListener('focus-out', logEvent);
+        x.addEventListener('blur', logEvent);
+      });
+
+      function logEvent(evt) {
+        const stackTraceFrames = String(new Error().stack)
+          .replace(/^Error.*\n/, '')
+          .split('\n')
+          .map((x) => x.replace(/\(.*\)/, ''));
+        stackTraceFrames.shift();
+
+        console.log(evt.type, (evt.target?.id || evt.target?.tagName) ?? evt);
+        if (stackTraceFrames.length > 0)
+          console.log(stackTraceFrames.join('\n'));
+        // console.log(evt);
+      }
+
+      await customElements.whenDefined('math-field');
+      document.body.classList.add('ready');
+    </script>
+  </body>
+</html>

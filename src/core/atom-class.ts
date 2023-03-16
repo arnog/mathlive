@@ -1,6 +1,5 @@
 import { isArray } from '../common/types';
 
-import type { PromptAtom } from '../core-atoms/prompt';
 import type {
   BoxType,
   ParseMode,

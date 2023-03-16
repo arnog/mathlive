@@ -147,25 +147,14 @@ kbd {
   margin-bottom: 0;
 }
 
-math-field {
-  border: 1px solid var(--editable-border);
-  padding: 5px;
-  margin: 10px 0 10px 0;
-  border-radius: 5px;
-  background: var(--editable);
-  color: var(--on-editable);
-  max-width: 640px;
-  width: 100%;
-}
-
-input,
+/* input,
 textarea {
   border: 1px solid var(--editable-border);
   border-radius: 5px;
   background: var(--editable);
   color: var(--on-editable);
   padding: 5px;
-}
+} */
 
 input::placeholder {
   opacity: 0.5;
@@ -311,12 +300,8 @@ footer a:active {
   padding-bottom: 6px;
 }
 
-.mathfield {
-  font-size: 32px;
-}
-
 math-field:not(:defined) {
-  display: none;
+  visibility: hidden;
 }
 
 /* math-field:focus-within {

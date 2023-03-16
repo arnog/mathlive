@@ -276,9 +276,13 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
   /**
    * Return the content of the `\placeholder{}` command with the `placeholderId`
    */
-  getPromptContent(placeholderId: string): string;
+  getPromptValue(placeholderId: string): string;
 
-  get prompts(): string[];
+  getPrompts(filter?: {
+    id?: string;
+    locked?: boolean;
+    correctness?: 'correct' | 'incorrect' | 'undefined';
+  }): string[];
 }
 
 export interface Model {

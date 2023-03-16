@@ -37,6 +37,10 @@ export class ModeEditor {
     mathfield: MathfieldPrivate,
     data: DataTransfer | string | null
   ): boolean {
+    if (!mathfield.contentEditable && mathfield.userSelect === 'none') {
+      mathfield.model.announce('plonk');
+      return false;
+    }
     if (typeof data === 'string') {
       const dataTransfer = new DataTransfer();
       dataTransfer.setData('text/plain', data);
@@ -54,6 +58,11 @@ export class ModeEditor {
 
   static onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
     if (!ev.clipboardData) return;
+    if (!mathfield.contentEditable && mathfield.userSelect === 'none') {
+      mathfield.model.announce('plonk');
+      return;
+    }
+
     const model = mathfield.model;
     const exportRange: Range = model.selectionIsCollapsed
       ? [0, model.lastOffset]

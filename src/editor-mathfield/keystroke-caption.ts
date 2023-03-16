@@ -18,7 +18,7 @@ export function showKeystroke(
   mathfield: MathfieldPrivate,
   keystroke: string
 ): void {
-  if (mathfield.promptSelectionLocked || !mathfield.keystrokeCaptionVisible)
+  if (!mathfield.isSelectionEditable || !mathfield.keystrokeCaptionVisible)
     return;
 
   const vb = createKeystrokeCaption(mathfield);

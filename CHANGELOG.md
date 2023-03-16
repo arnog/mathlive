@@ -4,18 +4,22 @@
 
 #### Fill-in-the-blank
 
-- New implementation of `\placeholder` command for "fill-in-the-blank" feature.
+- New implementation of the `\placeholder{}` command for "fill-in-the-blank"
+  feature.
+
   Instead of each placeholder being an embedded mathfield, the placeholders are
-  now special editable regions of a read-only mathfield. This improves their
-  layout (for example a placeholder numerator is now displayed at the correct
-  size) and simplify their interaction. When used as a "fill-in-the-blank", set
-  the mathfield to readonly, and specify an ID with the placeholder, i.e.
-  `\placeholder[id]{value}`. In this situation these placeholders are called
-  "prompts".
+  now special editable regions of a read-only mathfield.
+
+  This improves their layout (for example a placeholder numerator is now
+  displayed at the correct size) and simplify their interaction. When used as a
+  "fill-in-the-blank", set the mathfield to readonly, and specify an ID with the
+  placeholder, i.e. `\placeholder[id]{value}`. In this situation these
+  placeholders are called "prompts".
+
 - The `mf.getPlaceholderField()` function has been replaced with
-  `mf.getPromptContent()`
-- Use `mf.setPromptContent()` to change the content of a prompt.
-- Use `mf.prompts` to get an array of the content of all the prompts in the
+  `mf.getPromptValue()`
+- Use `mf.setPromptValue()` to change the content of a prompt.
+- Use `mf.getPrompts()` to get an array of the ids of all the prompts in the
   expression.
 - Prompts can be either in a correct, incorrect or indeterminate state. In
   correct or incorrect state, their appearance changes to reflect their state.
@@ -28,11 +32,13 @@
 - Previously the virtual keyboard could be shared amongst mathfield instances if
   the `makeSharedVirtualKeyboard()` function was called or the
   `use-shared-virtual-keyboard` attribute was set on a mathfield. Otherwise a
-  virtual keyboard instance was created for each mathfield in the document. The
-  virtual keyboard is now always shared. The virtual keyboard global instance
-  can be accessed as `window.mathVirtualKeyboard`. Its value is a
-  `VirtualKeyboard` instance, same as was previously returned by
-  `makeSharedVirtualKeyboard()`.
+  virtual keyboard instance was created for each mathfield in the document.
+
+  The virtual keyboard is now always shared.
+
+  The virtual keyboard global instance can be accessed as
+  `window.mathVirtualKeyboard`. Its value is a `VirtualKeyboard` instance, same
+  as was previously returned by `makeSharedVirtualKeyboard()`.
 
 - The options related to the virtual keyboard should now be set on the global
   shared virtual keyboard, using `window.mathVirtualKeyboard.setOptions()`
@@ -45,13 +51,15 @@
   This includes adding a `show()` and `hide()` functions, and a `boundingRect`
   property.
 
+  A `geometrychange` event is dispatched when the size of the keyboard changes.
+
   In addition, the `MathfieldElement.virtualKeyboardMode` property is now called
   `MathfieldElement.mathVirtualKeyboardPolicy` and can take a value of `"auto"`
   or `"manual"`.
 
-  A value of `"manual"` corresponds to a `virtualKeyboardMode` value of `"off"`,
-  that is the virtual keyboard is not displayed automatically and must be
-  displayed programmatically.
+  A value of `"manual"` corresponds to the previous `virtualKeyboardMode` value
+  of `"off"`, that is the virtual keyboard is not displayed automatically and
+  must be displayed programmatically.
 
   The value `"onfocus"` is no longer supported. To implement the behavior
   previously provided by this value, listen for a `"focus"` or `"blur"` event on
@@ -63,13 +71,16 @@
 
 - The virtual keyboard toggle glyph can no longer be customized.
 
-- The virtual keyboard toggle button is displayed by default unless the
-  mathfield is readonly. The display of the toggle button is independent of the
-  `mathVirtualKeyboardPolicy`. Using the
-  `math-field::part(virtual-keyboard-toggle)` CSS selector, a `display: none`
-  CSS attribute can be used to hide the virtual keyboard toggle if desired. To
-  replicate the previous default behavior, where the toggle was displayed on
-  touch-enabled devices, use:
+- The virtual keyboard toggle button is displayed by default if the content of
+  mathfield can be modified.
+
+  The display of the toggle button is independent of the
+  `mathVirtualKeyboardPolicy`.
+
+  Using the `math-field::part(virtual-keyboard-toggle)` CSS selector, a
+  `display: none` CSS attribute can be used to hide the virtual keyboard toggle
+  if desired. To replicate the previous default behavior, where the toggle was
+  displayed on touch-enabled devices, use:
 
   ```css
   @media not (pointer: coarse) {
@@ -84,6 +95,26 @@
 
 #### Miscellaneous Breaking Changes
 
+- The `<math-field>` tag now has some default styling, including a background
+  and border, consistent with a `<textarea>` element.
+- Some options that were previously available as options for each mathfield
+  instances are now shared by all mathfield instances. This includes
+  `fontsDirectory`, `soundsDirectory` and `computeEngine`.
+
+  They are now available as static properties of the `MathfieldElement` class.
+
+  **Before:**
+
+  ```js
+  mf.setOptions({ soundsDirectory: null });
+  ```
+
+  **Now:**
+
+  ```js
+  MathfieldElement.soundsDirectory = null;
+  ```
+
 - It was previously possible to specify a set of options for a mathfield as a
   `<script>` tag inside the mathfield, as JSON data structure. This is no longer
   supported.
@@ -91,12 +122,6 @@
   the shadow DOM by using a `<style>` tag inside the mathfield. This is no
   longer supported. Use custom CSS variables or `part` selectors to apply custom
   styling to the mathfield.
-- Some options that were previously available as options for each mathfield
-  instances are now shared by all mathfield instances. This includes
-  `fontsDirectory`, `soundsDirectory` and `computeEngine`. They are now
-  available as static properties of the `MathfieldElement` class. So, before:
-  `mf.setOptions({soundsDirectory: null});` and now:
-  `MathfieldElement.soundsDirectory = null;`
 
 ### Improvements
 
@@ -109,6 +134,16 @@
 - **#1859** In math mode, after pressing the SPACE key, the variant style
   (upright, italic, etc...) from neighboring atoms is not adopted by subsequent
   characters.
+- The `disabled` and `readonly` attributes and the `user-select` CSS property
+  are now consistent with `<textarea>`:
+  - a `readonly` mathfield is still focusable
+  - a `disabled` mathfield is not focusable
+  - The content of a `readonly` or `disabled` mathfield can be selected, unless
+    the `contenteditable` attribute is set to `"false"` and the `user-select`
+    CSS property is set to `"none"`.
+- A mathfield can be used inline, for example inside a `<p>` element.
+- For consistency with a `<textarea>`, `click` events are not dispatched when a
+  disabled `<math-element>` is clicked.
 
 ### Bug Fixes
 

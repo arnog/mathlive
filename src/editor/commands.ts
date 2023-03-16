@@ -106,7 +106,7 @@ export function perform(
     // If in promptLocked (readOnly && selection node within prompt) mode, reject commands that would modify the
     // content.
     if (
-      mathfield.promptSelectionLocked &&
+      !mathfield.isSelectionEditable &&
       /^(paste|cut|insert|delete|transpose|add)/.test(selector)
     ) {
       mathfield.model.announce('plonk');
