@@ -164,106 +164,101 @@
         updateButtons();
       }
 
-      mathVirtualKeyboard.customVirtualKeyboards = {
-        layers: {
-          'high-school-layer': {
-            styles: '',
-            rows: [
-              [
-                { latex: 'a' },
-                { latex: 'b' },
-                { class: 'separator w5' },
-                { label: '7', key: '7' },
-                // Will display the label using the system font. To display
-                // with the TeX font, use:
-                // { class: "tex", label: "7", key: "7" },
-                // or
-                // { latex: "7"},
-                { label: '8', key: '8' },
-                { label: '9', key: '9' },
-                { latex: '\\div' },
-                { class: 'separator w5' },
-                {
-                  class: 'tex',
-                  label: '<span><i>x</i>&thinsp;²</span>',
-                  insert: '$$#@^{2}$$',
-                },
-                {
-                  class: 'tex',
-                  label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
-                  insert: '$$#@^{}$$',
-                },
-                {
-                  class: 'small',
-                  latex: '\\sqrt{#0}',
-                  insert: '$$\\sqrt{#0}$$',
-                },
-              ],
-              [
-                { latex: 'c' },
-                { latex: 'd' },
-                { class: 'separator w5' },
-                { label: '4', key: '4' },
-                { label: '5', key: '5' },
-                { label: '6', key: '6' },
-                { latex: '\\times' },
-                { class: 'separator w5' },
-                { latex: '\\frac{#0}{#0}' },
-                { class: 'separator' },
-                { class: 'separator' },
-              ],
-              [
-                { latex: 'x' },
-                { latex: 'y' },
-                { class: 'separator w5' },
-                { label: '1', key: '1' },
-                { label: '2', key: '2' },
-                { label: '3', key: '3' },
-                { latex: '-' },
-                { class: 'separator w5' },
-                { class: 'separator' },
-                { class: 'separator' },
-                { class: 'separator' },
-              ],
-              [
-                { latex: '(' },
-                { latex: ')' },
-
-                { class: 'separator w5' },
-                { label: '0', key: '0' },
-                { latex: '.' },
-                { latex: '\\pi' },
-                { latex: '+' },
-                { class: 'separator w5' },
-                {
-                  class: 'action',
-                  label:
-                    "<svg class=svg-glyph><use xlink:href='#svg-arrow-left' /></svg>",
-                  command: ['performWithFeedback', 'moveToPreviousChar'],
-                },
-                {
-                  class: 'action',
-                  label:
-                    "<svg class=svg-glyph><use xlink:href='#svg-arrow-right' /></svg>",
-                  command: ['performWithFeedback', 'moveToNextChar'],
-                },
-                {
-                  class: 'action font-glyph right',
-                  label: '&#x232b;',
-                  command: ['performWithFeedback', 'deleteBackward'],
-                },
-              ],
+      mathVirtualKeyboard.layers = {
+        'high-school-layer': {
+          styles: '',
+          rows: [
+            [
+              'a',
+              'b',
+              { class: 'separator w5' },
+              '7',
+              '8',
+              '9',
+              '\\div',
+              { class: 'separator w5' },
+              {
+                class: 'tex',
+                label: '<span><i>x</i>&thinsp;²</span>',
+                insert: '$$#@^{2}$$',
+              },
+              {
+                class: 'tex',
+                label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
+                insert: '$$#@^{}$$',
+              },
+              {
+                class: 'small',
+                latex: '\\sqrt{#0}',
+                insert: '$$\\sqrt{#0}$$',
+              },
             ],
-          },
-        },
-        keyboards: {
-          'high-school-keyboard': {
-            label: 'High School', // Label displayed in the Virtual Keyboard Switcher
-            tooltip: 'High School Level', // Tooltip when hovering over the label
-            layer: 'high-school-layer',
-          },
+            [
+              'c',
+              'd',
+              { class: 'separator w5' },
+              '4',
+              '5',
+              '6',
+              '\\times',
+              { class: 'separator w5' },
+              '\\frac{#0}{#0}',
+              { class: 'separator' },
+              { class: 'separator' },
+            ],
+            [
+              'x',
+              'y',
+              { class: 'separator w5' },
+
+              '1',
+              '2',
+              '3',
+              '-',
+              { class: 'separator w5' },
+              { class: 'separator' },
+              { class: 'separator' },
+              { class: 'separator' },
+            ],
+            [
+              '(',
+              ')',
+
+              { class: 'separator w5' },
+              '0',
+              '.',
+              '\\pi',
+              '+',
+              { class: 'separator w5' },
+              {
+                class: 'action',
+                label:
+                  "<svg class=svg-glyph><use xlink:href='#svg-arrow-left' /></svg>",
+                command: ['performWithFeedback', 'moveToPreviousChar'],
+              },
+              {
+                class: 'action',
+                label:
+                  "<svg class=svg-glyph><use xlink:href='#svg-arrow-right' /></svg>",
+                command: ['performWithFeedback', 'moveToNextChar'],
+              },
+              {
+                class: 'action font-glyph right',
+                label: '&#x232b;',
+                command: ['performWithFeedback', 'deleteBackward'],
+              },
+            ],
+          ],
         },
       };
+
+      mathVirtualKeyboard.layouts = [
+        {
+          label: 'High School', // Label displayed in the Virtual Keyboard Switcher
+          tooltip: 'High School Level', // Tooltip when hovering over the label
+          layers: ['high-school-layer'],
+        },
+      ];
 
       function updateButtons() {
         if (kbd.visible) {
