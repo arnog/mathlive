@@ -169,6 +169,7 @@
     font-size: 16px; /* Size of toolbar labels */
     font-weight: 400;
     text-shadow: none;
+    overflow-x: scroll;
   }
 
   .MLK__tex {
@@ -200,7 +201,7 @@
     flex-flow: column;
     align-items: center;
     /* Keycap with (incl. margin) */
-    --max-width: 72px;
+    --max-width: 102px;
     --margin: 6px;
 
     .small {
@@ -463,6 +464,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     justify-content: space-between;
     width: 100%;
     max-width: 996px;
+    min-height: 32px;
 
     /* Icons for undo/redo, etc. */
     svg {
@@ -769,7 +771,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     }
   }
 
-  @container @lg {
+  @container (max-width: 1444px) {
     // Only show if there's extra room (up to four more columns)
     .MLK__rows .if-wide {
       display: none;
