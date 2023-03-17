@@ -1,4 +1,3 @@
-import type { MathfieldOptions } from '../public/options';
 import { Atom } from '../core/atom-class';
 import { MacroAtom } from '../core-atoms/macro';
 const SPECIAL_OPERATORS = {
@@ -372,10 +371,11 @@ function scanOperator(stream: MathMLStream, final: number, options) {
  */
 export function toMathML(
   input: number | boolean | string | Atom | Atom[] | undefined,
-  options: Partial<MathfieldOptions> & { generateID?: boolean },
+  options?: { generateID?: boolean },
   initial?: number,
   final?: number
 ): string {
+  options ??= {};
   const result: MathMLStream = {
     atoms: [],
     index: initial ?? 0,

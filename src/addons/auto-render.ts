@@ -3,7 +3,7 @@
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
 
-import { AutoRenderOptions, TextToSpeechOptions } from '../public/options';
+import { AutoRenderOptions } from '../public/options';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
 import { hashCode } from '../common/hash-code';
@@ -32,10 +32,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   renderToMathML?: (text: string) => string;
 
   /** A function that will convert a LaTeX string to speakable text markup. */
-  renderToSpeakableText?: (
-    text: string,
-    options: Partial<TextToSpeechOptions>
-  ) => string;
+  renderToSpeakableText?: (text: string) => string;
 
   /** A function to convert MathJSON to a LaTeX string */
   serializeToLatex?: (json: any) => string;
@@ -306,7 +303,7 @@ function createAccessibleMarkupPair(
       options.renderToSpeakableText
     ) {
       const span = document.createElement('span');
-      const html = options.renderToSpeakableText(latex, options);
+      const html = options.renderToSpeakableText(latex);
       span.innerHTML = window.MathfieldElement.createHTML(html);
       span.className = 'ML__sr-only';
       fragment.append(span);
@@ -562,7 +559,7 @@ export function autoRenderMathInElement(
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
-    void loadFonts();
+    setInterval(() => void loadFonts());
     injectStylesheet(
       null,
       coreStylesheet,

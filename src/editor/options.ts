@@ -13,8 +13,6 @@ import {
 
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
 
-import { defaultSpeakHook } from './speech';
-import { defaultReadAloudHook } from './speech-read-aloud';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 
@@ -40,18 +38,6 @@ export function update(
           result.scriptDepth = [updates.scriptDepth, updates.scriptDepth];
         else throw new TypeError('Unexpected value for scriptDepth');
 
-        break;
-
-      case 'locale':
-        if (updates.locale === 'auto')
-          result.locale = navigator.language.slice(0, 5);
-        else result.locale = updates.locale!;
-        l10n.locale = result.locale;
-        break;
-
-      case 'strings':
-        l10n.merge(updates.strings!);
-        result.strings = l10n.strings;
         break;
 
       case 'virtualKeyboardPolicy':
@@ -135,7 +121,6 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     registers: {},
     colorMap: defaultColorMap,
     backgroundColorMap: defaultBackgroundColorMap,
-    horizontalSpacingScale: 1,
     letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
 
     smartMode: false,
@@ -144,13 +129,8 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     scriptDepth: [Infinity, Infinity],
     removeExtraneousParentheses: true,
     mathModeSpace: '',
-    decimalSeparator: '.',
-    fractionNavigationOrder: 'numerator-denominator',
     placeholderSymbol: '▢',
-    enablePopover: true,
-
-    locale: l10n.locale,
-    strings: l10n.strings,
+    popoverPolicy: 'auto',
 
     keybindings: DEFAULT_KEYBINDINGS,
 
@@ -161,15 +141,6 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
     virtualKeyboardTargetOrigin: globalThis.window?.origin,
     originValidator: 'same-origin',
-
-    textToSpeechRules: 'mathlive',
-    textToSpeechMarkup: '', // No markup
-    textToSpeechRulesOptions: {},
-    speechEngine: 'local',
-    speechEngineVoice: 'Joanna',
-    speechEngineRate: '100%',
-    speakHook: defaultSpeakHook,
-    readAloudHook: defaultReadAloudHook,
 
     onInlineShortcut: () => '',
     onExport: defaultExportHook,

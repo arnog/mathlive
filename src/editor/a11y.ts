@@ -1,5 +1,3 @@
-import type { TextToSpeechOptions } from '../public/options';
-
 import { Atom } from '../core/atom';
 
 import type { ModelPrivate } from '../editor-model/model-private';
@@ -61,22 +59,17 @@ export function defaultAnnounceHook(
     window.MathfieldElement.playSound('plonk');
     // As a side effect, reset the keystroke buffer
     mathfield.flushInlineShortcutBuffer();
-  } else if (action === 'delete')
-    liveText = speakableText(mathfield.options, 'deleted: ', atoms!);
+  } else if (action === 'delete') liveText = speakableText('deleted: ', atoms!);
   //* ** FIX: could also be moveUp or moveDown -- do something different like provide context???
   else if (action === 'focus' || action.includes('move')) {
     //* ** FIX -- should be xxx selected/unselected */
     liveText =
       getRelationshipAsSpokenText(mathfield.model, previousPosition) +
       (mathfield.model.selectionIsCollapsed ? '' : 'selected: ') +
-      getNextAtomAsSpokenText(mathfield.model, mathfield.options);
+      getNextAtomAsSpokenText(mathfield.model);
   } else if (action === 'replacement') {
     // Announce the contents
-    liveText = speakableText(
-      mathfield.options,
-      '',
-      mathfield.model.at(mathfield.model.position)
-    );
+    liveText = speakableText('', mathfield.model.at(mathfield.model.position));
   } else if (action === 'line') {
     // Announce the current line -- currently that's everything
     // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
@@ -85,7 +78,7 @@ export function defaultAnnounceHook(
     //         '</math>'
     // );
 
-    const label = speakableText(mathfield.options, '', mathfield.model.root);
+    const label = speakableText('', mathfield.model.root);
     mathfield.keyboardDelegate.setAriaLabel(label);
 
     /** * FIX -- testing hack for setting braille ***/
@@ -95,11 +88,7 @@ export function defaultAnnounceHook(
     //     mathfield.textarea.focus();
     //     console.log("after sleep");
     // });
-  } else {
-    liveText = atoms
-      ? speakableText(mathfield.options, action + ' ', atoms)
-      : action;
-  }
+  } else liveText = atoms ? speakableText(action + ' ', atoms) : action;
 
   if (liveText) {
     // Aria-live regions are only spoken when it changes; force a change by
@@ -139,12 +128,9 @@ function getRelationshipAsSpokenText(
  * Take into consideration the position amongst siblings to include 'start of'
  * and 'end of' if applicable.
  */
-function getNextAtomAsSpokenText(
-  model: ModelPrivate,
-  options: TextToSpeechOptions
-): string {
+function getNextAtomAsSpokenText(model: ModelPrivate): string {
   if (!model.selectionIsCollapsed)
-    return speakableText(options, '', model.getAtoms(model.selection));
+    return speakableText('', model.getAtoms(model.selection));
 
   let result = '';
 
@@ -158,7 +144,7 @@ function getNextAtomAsSpokenText(
     // Don't say both start and end
     if (!cursor.isFirstSibling)
       result += relation ? 'end of ' + relation : 'unknown';
-  } else result += speakableText(options, '', cursor);
+  } else result += speakableText('', cursor);
 
   return result;
 }

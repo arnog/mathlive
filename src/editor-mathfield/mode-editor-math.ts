@@ -129,13 +129,13 @@ export class MathModeEditor extends ModeEditor {
     // 2/ Try to get a MathJSON data type
     //
     json = typeof data !== 'string' ? data.getData('application/json') : '';
-    if (json && mathfield.computeEngine) {
+    if (json && window.MathfieldElement.computeEngine) {
       try {
         const expr = JSON.parse(json);
         if (typeof expr === 'object' && 'latex' in expr && expr.latex)
           text = expr.latex;
         if (!text) {
-          const box = mathfield.computeEngine.box(expr);
+          const box = window.MathfieldElement.computeEngine.box(expr);
           if (box && !box.has('Error')) text = box.latex;
         }
         if (!text) format = 'latex';
@@ -181,7 +181,7 @@ export class MathModeEditor extends ModeEditor {
     const data =
       typeof input === 'string'
         ? input
-        : model.mathfield.computeEngine?.box(input).latex ?? '';
+        : window.MathfieldElement.computeEngine?.box(input).latex ?? '';
     if (
       !options.suppressChangeNotifications &&
       !contentWillChange(model, { data, inputType: 'insertText' })
@@ -386,12 +386,10 @@ function convertStringToAtoms(
   let result: Atom[] = [];
 
   if (typeof s !== 'string' || options.format === 'math-json') {
-    if (!model.mathfield.computeEngine) return ['math-json', []];
+    const ce = window.MathfieldElement.computeEngine;
+    if (!ce) return ['math-json', []];
 
-    [format, s] = [
-      'latex',
-      model.mathfield.computeEngine.box(s as Expression).latex as string,
-    ];
+    [format, s] = ['latex', ce.box(s as Expression).latex as string];
     result = parseLatex(s, model.mathfield, { parseMode: 'math' });
   } else if (typeof s === 'string' && options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {

@@ -271,7 +271,7 @@ export function onKeystroke(
       //
       if (
         model.at(model.position)?.isDigit() &&
-        mathfield.options.decimalSeparator === ',' &&
+        window.MathfieldElement.decimalSeparator === ',' &&
         eventToChar(evt) === ','
       )
         selector = 'insertDecimalSeparator';

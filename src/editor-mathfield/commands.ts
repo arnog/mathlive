@@ -55,7 +55,7 @@ registerCommand({
   insertDecimalSeparator: (mathfield: MathfieldPrivate) => {
     if (
       mathfield.mode === 'math' &&
-      mathfield.options.decimalSeparator === ','
+      window.MathfieldElement.decimalSeparator === ','
     ) {
       const model = mathfield.model;
       const child = model.at(Math.max(model.position, model.anchor));

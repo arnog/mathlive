@@ -59,18 +59,17 @@ export class TooltipAtom extends Atom {
     });
     if (!body) return null;
 
+    const tooltipContext = new Context(
+      { registers: context.registers },
+      { fontSize: DEFAULT_FONT_SIZE },
+      'displaystyle'
+    );
     const tooltip = coalesce(
       adjustInterAtomSpacing(
-        new Box(
-          this.tooltip.render(
-            new Context(
-              { registers: context.registers },
-              { fontSize: DEFAULT_FONT_SIZE },
-              'displaystyle'
-            )
-          ),
-          { classes: 'ML__tooltip-content' }
-        )
+        new Box(this.tooltip.render(tooltipContext), {
+          classes: 'ML__tooltip-content',
+        }),
+        tooltipContext
       )
     );
     const box = new Box([tooltip, body], { classes: 'ML__tooltip-container' });

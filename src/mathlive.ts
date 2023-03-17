@@ -1,5 +1,5 @@
 /* eslint-disable no-new */
-import type { AutoRenderOptions, TextToSpeechOptions } from './public/options';
+import type { AutoRenderOptions } from './public/options';
 export * from './public/mathlive';
 
 import {
@@ -22,7 +22,6 @@ import type { VirtualKeyboardInterface } from 'virtual-keyboard/types';
 
 export type MathLiveGlobal = {
   version: string;
-  config: TextToSpeechOptions; // for speechEngine, speakHook
   readAloudElement: null | HTMLElement;
   readAloudMarks: { value: string; time: number }[];
   readAloudTokens: string[];

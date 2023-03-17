@@ -132,7 +132,7 @@ export class ModeEditor {
       //
       // 5. Put other flavors on the clipboard (MathJSON)
       //
-      const ce = mathfield.computeEngine;
+      const ce = window.MathfieldElement.computeEngine;
       if (ce) {
         try {
           ce.jsonSerializationOptions = { metadata: ['latex'] };

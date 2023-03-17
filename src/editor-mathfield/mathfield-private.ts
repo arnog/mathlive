@@ -1,4 +1,4 @@
-import { BoxedExpression, ComputeEngine } from '@cortex-js/compute-engine';
+import { BoxedExpression } from '@cortex-js/compute-engine';
 
 // @ts-ignore-error
 import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
@@ -21,7 +21,7 @@ import { hashCode } from '../common/hash-code';
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
 import { Atom } from '../core/atom-class';
-import { gFontsState, loadFonts } from '../core/fonts';
+import { gFontsState } from '../core/fonts';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
   TokenDefinition,
@@ -52,7 +52,7 @@ import { addRowAfter, addColumnAfter } from '../editor-model/array';
 import { delegateKeyboardEvents, KeyboardDelegate } from '../editor/keyboard';
 import { UndoManager } from '../editor/undo';
 import { disposePopover, updatePopoverPosition } from '../editor/popover';
-import { localize } from '../core/l10n';
+import { l10n, localize } from '../core/l10n';
 import {
   HAPTIC_FEEDBACK_DURATION,
   SelectorPrivate,
@@ -147,8 +147,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
-
-  private _computeEngine: ComputeEngine;
 
   readonly element:
     | (HTMLElement & {
@@ -493,11 +491,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     this.undoManager.startRecording();
     this.undoManager.snapshot();
 
-    if (
-      gKeyboardLayout &&
-      !this.options.locale.startsWith(gKeyboardLayout.locale)
-    )
-      setKeyboardLayoutLocale(this.options.locale);
+    if (gKeyboardLayout && !l10n.locale.startsWith(gKeyboardLayout.locale))
+      setKeyboardLayoutLocale(l10n.locale);
 
     // When fonts are done loading, re-render
     // (the selection highlighting may be out of date due to the HTML layout
@@ -556,7 +551,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   get fractionNavigationOrder():
     | 'numerator-denominator'
     | 'denominator-numerator' {
-    return this.options?.fractionNavigationOrder ?? 'numerator-denominator';
+    return window.MathfieldElement.fractionNavigationOrder;
   }
 
   get placeholderSymbol(): string {
@@ -658,22 +653,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     );
   }
 
-  get computeEngine(): ComputeEngine | null {
-    if (this._computeEngine === undefined) {
-      const ComputeEngineCtor =
-        globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
-      if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
-      else {
-        console.error(
-          'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
-        );
-      }
-      if (this._computeEngine && this.options.decimalSeparator === ',')
-        this._computeEngine.latexOptions.decimalMarker = '{,}';
-    }
-    return this._computeEngine ?? null;
-  }
-
   get keybindings(): Keybinding[] {
     if (this._keybindings) return this._keybindings;
 
@@ -698,22 +677,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   setOptions(config: Partial<MathfieldOptionsPrivate>): void {
     this.options = updateOptions(this.options, config);
 
-    if (this._computeEngine && 'decimalSeparator' in config) {
-      this._computeEngine.latexOptions.decimalMarker =
-        this.options.decimalSeparator === ',' ? '{,}' : '.';
-    }
     this.model.setListeners({
       onSelectionDidChange: (_sender: ModelPrivate) =>
         this._onSelectionDidChange(),
     });
     this.model.options.macros = this.options
       .macros as NormalizedMacroDictionary;
-
-    if (
-      gKeyboardLayout &&
-      !this.options.locale.startsWith(gKeyboardLayout.locale)
-    )
-      setKeyboardLayoutLocale(this.options.locale);
 
     this._keybindings = undefined;
 
@@ -955,9 +924,11 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   get expression(): BoxedExpression | null {
-    const ce = this.computeEngine;
+    const ce = window.MathfieldElement.computeEngine;
     if (!ce) {
-      console.error('MathLive: no compute engine available');
+      console.error(
+        'MathLive: no compute engine available. Make sure the Compute Engine library is loaded.'
+      );
       return null;
     }
     return ce.box(ce.parse(this.model.getValue()));

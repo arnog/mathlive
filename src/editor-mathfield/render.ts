@@ -52,56 +52,52 @@ function makeBox(
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): Box {
   renderOptions = renderOptions ?? {};
-  const base = mathfield.model.root.render(
-    new Context(
-      {
-        registers: mathfield.registers,
-        atomIdsSettings: {
-          // Using the hash as a seed for the ID
-          // keeps the IDs the same until the content of the field changes.
-          seed: renderOptions.forHighlighting
-            ? hash(
-                Atom.serialize(mathfield.model.root, {
-                  expandMacro: false,
-                  defaultMode: mathfield.options.defaultMode,
-                })
-              )
-            : 'random',
-          // The `groupNumbers` flag indicates that extra boxes should be generated
-          // to represent group of atoms, for example, a box to group
-          // consecutive digits to represent a number.
-          groupNumbers: renderOptions.forHighlighting ?? false,
-        },
+  const context = new Context(
+    {
+      registers: mathfield.registers,
+      atomIdsSettings: {
+        // Using the hash as a seed for the ID
+        // keeps the IDs the same until the content of the field changes.
+        seed: renderOptions.forHighlighting
+          ? hash(
+              Atom.serialize(mathfield.model.root, {
+                expandMacro: false,
+                defaultMode: mathfield.options.defaultMode,
+              })
+            )
+          : 'random',
+        // The `groupNumbers` flag indicates that extra boxes should be generated
+        // to represent group of atoms, for example, a box to group
+        // consecutive digits to represent a number.
+        groupNumbers: renderOptions.forHighlighting ?? false,
       },
-      {
-        fontSize: DEFAULT_FONT_SIZE,
-        letterShapeStyle: mathfield.options.letterShapeStyle,
-      },
-      mathfield.options.defaultMode === 'inline-math'
-        ? 'textstyle'
-        : 'displaystyle'
-    )
-  )!;
+    },
+    {
+      fontSize: DEFAULT_FONT_SIZE,
+      letterShapeStyle: mathfield.options.letterShapeStyle,
+    },
+    mathfield.options.defaultMode === 'inline-math'
+      ? 'textstyle'
+      : 'displaystyle'
+  );
+  const base = mathfield.model.root.render(context)!;
 
   //
   // 3. Construct struts around the boxes
   //
-  const wrapper = makeStruts(
-    adjustInterAtomSpacing(base, mathfield.options.horizontalSpacingScale),
-    {
-      classes: mathfield.prompting
-        ? 'ML__mathlive ML__prompting'
-        : 'ML__mathlive',
-      attributes: {
-        // Sometimes Google Translate kicks in an attempts to 'translate' math
-        // This doesn't work very well, so turn off translate
-        'translate': 'no',
-        // Hint to screen readers to not attempt to read this <span>.
-        // They should use instead the 'aria-label' attribute.
-        'aria-hidden': 'true',
-      },
-    }
-  );
+  const wrapper = makeStruts(adjustInterAtomSpacing(base, context), {
+    classes: mathfield.prompting
+      ? 'ML__mathlive ML__prompting'
+      : 'ML__mathlive',
+    attributes: {
+      // Sometimes Google Translate kicks in an attempts to 'translate' math
+      // This doesn't work very well, so turn off translate
+      'translate': 'no',
+      // Hint to screen readers to not attempt to read this <span>.
+      // They should use instead the 'aria-label' attribute.
+      'aria-hidden': 'true',
+    },
+  });
   return wrapper;
 }
 

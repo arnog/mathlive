@@ -1,7 +1,6 @@
 import { globalMathLive } from '../mathlive';
 import { isBrowser } from '../common/capabilities';
 import { render } from '../editor-mathfield/render';
-import { MathfieldOptions } from '../public/options';
 
 function removeHighlight(element: Element | null): void {
   if (!element) return;
@@ -45,35 +44,30 @@ function highlightAtomID(element: HTMLElement | null, atomID?: string): void {
  * @param element - The DOM element to highlight
  * @param text - The text to speak
  */
-export function defaultReadAloudHook(
-  element: HTMLElement,
-  text: string,
-  config: Partial<MathfieldOptions>
-): void {
+export function defaultReadAloudHook(element: HTMLElement, text: string): void {
   if (!isBrowser()) return;
 
-  config ??= globalMathLive().config;
-
-  if (config.speechEngine !== 'amazon') {
+  if (window.MathfieldElement.speechEngine !== 'amazon') {
     console.error(
       'MathLive: Use Amazon TTS Engine for synchronized highlighting'
     );
-    if (config.speakHook) config.speakHook(text, config);
+    if (typeof window.MathfieldElement.speakHook === 'function')
+      window.MathfieldElement.speakHook(text);
     return;
   }
 
-  if (!globalThis.AWS) {
+  if (!window.AWS) {
     console.error(
       'MathLive: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
     );
     return;
   }
 
-  const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
+  const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
 
   const parameters = {
     OutputFormat: 'json',
-    VoiceId: config.speechEngineVoice ?? 'Joanna',
+    VoiceId: window.MathfieldElement.speechEngineVoice ?? 'Joanna',
     Engine: 'standard', // The neural engine does not appear to support ssml marks
     Text: text,
     TextType: 'ssml',

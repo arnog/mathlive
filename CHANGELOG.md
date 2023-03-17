@@ -7,8 +7,9 @@
 - New implementation of the `\placeholder{}` command for "fill-in-the-blank"
   feature.
 
-  Instead of each placeholder being an embedded mathfield, the placeholders are
-  now special editable regions of a read-only mathfield.
+  Previously, each placeholder was an embedded mathfield inside a "root"
+  mathfield. The placeholders are now special editable regions of a read-only
+  mathfield.
 
   This improves their layout (for example a placeholder numerator is now
   displayed at the correct size) and simplify their interaction. When used as a
@@ -148,28 +149,91 @@ mathVirtualKeyboard.alphabeticLayout = 'azerty';
 - The "alt-keys" of the virtual keyboard are now called "variants". The
   `data-alt-keys` attribute is now `data-variants`
 
+#### Options
+
+Previously all the options to configure a mathfield could be changed using
+`mf.setOptions({...})`. Some of these options affected a specific mathfield
+instance, while others affected all mathfields on the page.
+
+The options that affect all mathfields are now static properties of the
+`MathfieldElement` global. The options that affect the virtual keyboard are
+properties of the `mathVirtualKeyboard` global singleton. The options specific
+to a mathfield are now properties or attribute of this element.
+
+For example:
+
+**Before:**
+
+```js
+mf.setOptions({ soundsDirectory: null });
+```
+
+**Now:**
+
+```js
+MathfieldElement.soundsDirectory = null;
+```
+
+| Before                                              | Now                                                                          |
+| :-------------------------------------------------- | :--------------------------------------------------------------------------- |
+| `mf.setOptions({defaultMode: ...})`                 | `mf.defaultMode = ...`                                                       |
+| `mf.setOptions({letterShapeStyle: ...})`            | `mf.letterShapeStyle = ...`                                                  |
+| `mf.setOptions({horizontalSpacingScale: ...})`      | Removed. Use `"thinmuskip"`, `"medmuskip"`, and `"thickmuskip"` registers ', |
+| `mf.setOptions({macros: ...})`                      | `mf.macros = ...`                                                            |
+| `mf.setOptions({registers: ...})`                   | `mf.registers = ...`                                                         |
+| `mf.setOptions({backgroundColorMap: ...})`          | `mf.backgroundColorMap = ...`                                                |
+| `mf.setOptions({colorMap: ...})`                    | `mf.colorMap = ...`                                                          |
+| `mf.setOptions({enablePopover: ...})`               | `mf.popoverPolicy = ...`                                                     |
+| `mf.setOptions({mathModeSpace: ...})`               | `mf.mathModeSpace = ...`                                                     |
+| `mf.setOptions({placeholderSymbol: ...})`           | `mf.placeholderSymbol = ...`                                                 |
+| `mf.setOptions({readOnly: ...})`                    | `mf.readOnly = ...`                                                          |
+| `mf.setOptions({removeExtraneousParentheses: ...})` | `mf.removeExtraneousParentheses = ...`                                       |
+| `mf.setOptions({scriptDepth: ...})`                 | `mf.scriptDepth = ...`                                                       |
+| `mf.setOptions({smartFence: ...})`                  | `mf.smartFence = ...`                                                        |
+| `mf.setOptions({smartMode: ...})`                   | `mf.smartMode = ...`                                                         |
+| `mf.setOptions({smartSuperscript: ...})`            | `mf.smartSuperscript = ...`                                                  |
+| `mf.setOptions({inlineShortcutTimeout: ...})`       | `mf.inlineShortcutTimeout = ...`                                             |
+| `mf.setOptions({inlineShortcuts: ...})`             | `mf.inlineShortcuts = ...`                                                   |
+| `mf.setOptions({keybindings: ...})`                 | `mf.keybindings = ...`                                                       |
+| `mf.setOptions({virtualKeyboardMode: ...})`         | `mf.virtualKeyboardPolicy = ...`                                             |
+| `mf.setOptions({customVirtualKeyboardLayers: ...})` | `mathVirtualKeyboard.layers = ...`                                           |
+| `mf.setOptions({customVirtualKeyboards: ...})`      | `mathVirtualKeyboard.layouts = ...`                                          |
+| `mf.setOptions({keypressSound: ...})`               | `mathVirtualKeyboard.keypressSound = ...`                                    |
+| `mf.setOptions({keypressVibration: ...})`           | `mathVirtualKeyboard.keypressVibration = ...`                                |
+| `mf.setOptions({plonkSound: ...})`                  | `mathVirtualKeyboard.plonkSound = ...`                                       |
+| `mf.setOptions({virtualKeyboardContainer: ...})`    | `mathVirtualKeyboard.container = ...`                                        |
+| `mf.setOptions({virtualKeyboardLayout: ...})`       | `mathVirtualKeyboard.alphabeticLayout = ...`                                 |
+| `mf.setOptions({virtualKeyboardTheme: ...})`        | No longer supported                                                          |
+| `mf.setOptions({virtualKeyboardToggleGlyph: ...})`  | No longer supported                                                          |
+| `mf.setOptions({virtualKeyboardToolbar: ...})`      | `mathVirtualKeyboard.actionToolbar = ...`                                    |
+| `mf.setOptions({virtualKeyboards: ...})`            | Use `mathVirtualKeyboard.layouts`                                            |
+| `mf.setOptions({speechEngine: ...})`                | `MathfieldElement.speechEngine`                                              |
+| `mf.setOptions({speechEngineRate: ...})`            | `MathfieldElement.speechEngineRate`                                          |
+| `mf.setOptions({speechEngineVoice: ...})`           | `MathfieldElement.speechEngineVoice`                                         |
+| `mf.setOptions({textToSpeechMarkup: ...})`          | `MathfieldElement.textToSpeechMarkup`                                        |
+| `mf.setOptions({textToSpeechRules: ...})`           | `MathfieldElement.textToSpeechRules`                                         |
+| `mf.setOptions({textToSpeechRulesOptions: ...})`    | `MathfieldElement.textToSpeechRulesOptions`                                  |
+| `mf.setOptions({readAloudHook: ...})`               | `MathfieldElement.readAloudHook`                                             |
+| `mf.setOptions({speakHook: ...})`                   | `MathfieldElement.speakHook`                                                 |
+| `mf.setOptions({computeEngine: ...})`               | `MathfieldElement.computeEngine`                                             |
+| `mf.setOptions({fontsDirectory: ...})`              | `MathfieldElement.fontsDirectory`                                            |
+| `mf.setOptions({soundsDirectory: ...})`             | `MathfieldElement.soundsDirectory`                                           |
+| `mf.setOptions({createHTML: ...})`                  | `MathfieldElement.createHTML`                                                |
+| `mf.setOptions({onExport: ...})`                    | `MathfieldElement.onExport`                                                  |
+| `mf.setOptions({onInlineShortcut: ...})`            | `MathfieldElement.onInlineShortcut`                                          |
+| `mf.setOptions({locale: ...})`                      | `MathfieldElement.locale = ...`                                              |
+| `mf.setOptions({strings: ...})`                     | `MathfieldElement.strings = ...`                                             |
+| `mf.setOptions({decimalSeparator: ...})`            | `MathfieldElement.decimalSeparator = ...`                                    |
+| `mf.setOptions({fractionNavigationOrder: ...})`     | `MathfieldElement.fractionNavigationOrder = ...`                             |
+
 #### Miscellaneous Breaking Changes
 
 - The `<math-field>` tag now has some default styling, including a background
-  and border, consistent with a `<textarea>` element.
-- Some options that were previously available as options for each mathfield
-  instances are now shared by all mathfield instances. This includes
-  `fontsDirectory`, `soundsDirectory` and `computeEngine`.
-
-  They are now available as static properties of the `MathfieldElement` class.
-
-  **Before:**
-
-  ```js
-  mf.setOptions({ soundsDirectory: null });
-  ```
-
-  **Now:**
-
-  ```js
-  MathfieldElement.soundsDirectory = null;
-  ```
-
+  and border, consistent with a `<textarea>` element. You can override this
+  styling by defining CSS rules for the `math-field` selector.
+- The previously deprecated option `horizontalSpacingScale`has been removed. It
+  is replaced by the standard TeX registers`\thinmuskip`,
+  `\medmuskip` and `\thickmuskip`.
 - It was previously possible to specify a set of options for a mathfield as a
   `<script>` tag inside the mathfield, as JSON data structure. This is no longer
   supported.

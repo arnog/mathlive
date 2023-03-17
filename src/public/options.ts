@@ -199,80 +199,6 @@ export type InlineShortcutDefinition =
       after?: string;
     };
 
-export type TextToSpeechOptions = {
-  /**
-   * Specify which set of text to speech rules to use.
-   *
-   * A value of `mathlive` indicates that the simple rules built into MathLive
-   * should be used.
-   *
-   * A value of `sre` indicates that the Speech Rule Engine from Volker Sorge
-   * should be used.
-   *
-   * **(Caution)** SRE is not included or loaded by MathLive. For this option to
-   * work SRE should be loaded separately.
-   *
-   * **See**
-   * {@link https://cortexjs.io/mathlive/guides/speech/ | Guide: Speech}
-   */
-  textToSpeechRules: 'mathlive' | 'sre';
-  /**
-   * The markup syntax to use for the output of conversion to spoken text.
-   *
-   * Possible values are `ssml` for the SSML markup or `mac` for the macOS
-   * markup, i.e. `&#91;&#91;ltr&#93;&#93;`.
-   *
-   */
-  textToSpeechMarkup: '' | 'ssml' | 'ssml_step' | 'mac';
-  /**
-   * A set of key/value pairs that can be used to configure the speech rule
-   * engine.
-   *
-   * Which options are available depends on the speech rule engine in use.
-   * There are no options available with MathLive's built-in engine. The
-   * options for the SRE engine are documented
-   * {@link https://github.com/zorkow/speech-rule-engine | here}
-   */
-  textToSpeechRulesOptions: Record<string, string>;
-  /**
-   * Indicates which speech engine to use for speech output.
-   *
-   * Use `local` to use the OS-specific TTS engine.
-   *
-   * Use `amazon` for Amazon Text-to-Speech cloud API. You must include the
-   * AWS API library and configure it with your API key before use.
-   *
-   * **See**
-   * {@link https://cortexjs.io/mathlive/guides/speech/ | Guide: Speech}
-   */
-  speechEngine: 'local' | 'amazon';
-  /**
-   * Indicates the voice to use with the speech engine.
-   *
-   * This is dependent on the speech engine. For Amazon Polly, see here:
-   * https://docs.aws.amazon.com/polly/latest/dg/voicelist.html
-   *
-   */
-
-  speechEngineVoice: string;
-  /**
-   * Sets the speed of the selected voice.
-   *
-   * One of `x-slow`, `slow`, `medium`, `fast`, `x-fast` or a value as a
-   * percentage.
-   *
-   * Range is `20%` to `200%` For example `200%` to indicate a speaking rate
-   * twice the default rate.
-   */
-  speechEngineRate: string;
-  speakHook: (text: string, config: Partial<MathfieldOptions>) => void;
-  readAloudHook: (
-    element: HTMLElement,
-    text: string,
-    config: MathfieldOptions
-  ) => void;
-};
-
 /**
  * These hooks provide an opportunity to intercept or modify an action.
  * When their return value is a boolean, it indicates if the default handling
@@ -374,34 +300,6 @@ export type InlineShortcutsOptions = {
    * shortcuts.
    */
   inlineShortcutTimeout: number;
-};
-
-export type LocalizationOptions = {
-  /**
-   * The locale (language + region) to use for string localization.
-   *
-   * If none is provided, the locale of the browser is used.
-   *
-   */
-  locale: string;
-  /**
- * An object whose keys are a locale string, and whose values are an object of
- * string identifier to localized string.
- *
- * **Example**
- *
-```json
-{
-   "fr-CA": {
-      "tooltip.undo": "Annuler",
-      "tooltip.redo": "Refaire",
-   }
-}
-```
- *
- * This will override the default localized strings.
-*/
-  strings: Record<string, Record<string, string>>;
 };
 
 export type EditingOptions = {
@@ -506,37 +404,6 @@ export type EditingOptions = {
   mathModeSpace: string;
 
   /**
-   * The symbol used to separate the integer part from the fractional part of a
-   * number.
-   *
-   * When `","` is used, the corresponding LaTeX string is `{,}`, in order
-   * to ensure proper spacing (otherwise an extra gap is displayed after the
-   * comma).
-   *
-   * This affects:
-   * - what happens when the `,` key is pressed (if `decimalSeparator` is
-   * `","`, the `{,}` LaTeX string is inserted when following some digits)
-   * - the label and behavior of the "." key in the default virtual keyboard
-   *
-   * **Default**: `"."`
-   */
-  decimalSeparator: ',' | '.';
-
-  /**
-   * When navigation a fraction with the keyboard, the order in which the
-   * numerator and navigator are traversed:
-   * - "numerator-denominator": first the elements in the numerator, then
-   *   the elements in the denominator
-   * - "denominator-numerator": first the elements in the denominator, then
-   *   the elements in the numerator. In some East-Asian cultures, fractions
-   *   are read and written denominator first ("fēnzhī"). Using this
-   *   option allows the keyboard navigation to follow this convention.
-   *
-   * **Default**: `"numerator-denominator"`
-   */
-  fractionNavigationOrder: 'numerator-denominator' | 'denominator-numerator';
-
-  /**
    * The symbol used to represent a placeholder in an expression.
    *
    * **Default**: `▢` `U+25A2 WHITE SQUARE WITH ROUNDED CORNERS`
@@ -549,7 +416,7 @@ export type EditingOptions = {
    *
    * **Default**: `true`
    */
-  enablePopover: boolean;
+  popoverPolicy: 'auto' | 'off';
 
   virtualKeyboardPolicy: 'auto' | 'manual';
 };
@@ -616,14 +483,6 @@ mf.setConfig({
   backgroundColorMap: (name: string) => string | undefined;
 
   /**
-   * Scaling factor to be applied to horizontal spacing between elements of
-   * the formula. A value greater than 1.0 can be used to improve the
-   * legibility.
-   *
-   * @deprecated Use registers `\thinmuskip`, `\medmuskip` and `\thickmuskip`
-   */
-  horizontalSpacingScale: number;
-  /**
      * Control the letter shape style:
 
     | `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
@@ -661,10 +520,8 @@ mf.setConfig({
  */
 export type MathfieldOptions = LayoutOptions &
   EditingOptions &
-  LocalizationOptions &
   InlineShortcutsOptions &
   KeyboardOptions &
-  TextToSpeechOptions &
   MathfieldHooks & {
     /**
      * Specify the `targetOrigin` parameter for
@@ -737,7 +594,7 @@ export declare function setKeyboardLayout(
  */
 export declare function setKeyboardLayoutLocale(locale: string): void;
 
-export type AutoRenderOptions = Partial<TextToSpeechOptions> & {
+export type AutoRenderOptions = {
   /** An array of tag names whose content will
    *  not be scanned for delimiters (unless their class matches the `processClass`
    * pattern below.

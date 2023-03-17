@@ -77,23 +77,23 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
-  const context = defaultGlobalContext();
+  const globalContext = defaultGlobalContext();
 
-  const root = new Atom('root', context);
-  root.body = parseLatex(latex, context, { parseMode: 'math', args: arg });
+  const root = new Atom('root', globalContext);
+  root.body = parseLatex(latex, globalContext, {
+    parseMode: 'math',
+    args: arg,
+  });
 
+  const context = new Context(
+    { registers: globalContext.registers },
+    { fontSize: DEFAULT_FONT_SIZE },
+    'displaystyle'
+  );
   const box = coalesce(
     adjustInterAtomSpacing(
-      new Box(
-        root.render(
-          new Context(
-            { registers: context.registers },
-            { fontSize: DEFAULT_FONT_SIZE },
-            'displaystyle'
-          )
-        ),
-        { classes: 'ML__base' }
-      )
+      new Box(root.render(context), { classes: 'ML__base' }),
+      context
     )
   );
 

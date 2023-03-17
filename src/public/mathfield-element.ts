@@ -23,7 +23,11 @@ import { isBrowser } from '../common/capabilities';
 import { resolveUrl } from '../common/script-url';
 import { VirtualKeyboard } from 'virtual-keyboard/virtual-keyboard';
 import { requestUpdate } from 'editor-mathfield/render';
-import { loadFonts } from 'core/fonts';
+import { reloadFonts, loadFonts } from 'core/fonts';
+import { defaultSpeakHook } from 'editor/speech';
+import { defaultReadAloudHook } from 'editor/speech-read-aloud';
+import { ComputeEngine } from '@cortex-js/compute-engine';
+import { l10n } from 'core/l10n';
 
 export declare type Expression =
   | number
@@ -149,11 +153,9 @@ if (MATHFIELD_TEMPLATE) {
 //
 // Deferred State
 //
-// Methods such as `setOptions()` or `getOptions()` could be called before
-// the element has been connected (i.e. `mf = new MathfieldElement(); mf.setOptions()`...)
-// and therefore before the mathfield instance has been created.
-// So we'll stash any deferred operations on options (and value) here, and
-// will apply them to the element when it gets connected to the DOM.
+// Operations that modify the state of the mathfield before it has been
+// connected to the DOM will be stashed in this object and they
+// will be applied to the element when it gets connected to the DOM.
 //
 const gDeferredState = new WeakMap<
   MathfieldElement,
@@ -173,66 +175,14 @@ export interface MathfieldElementAttributes {
   // and global element attributes
   [key: string]: unknown;
   'default-mode': string;
-  'fonts-directory': string;
-  /**
-   * Scaling factor to be applied to horizontal spacing between elements of
-   * the formula. A value greater than 1.0 can be used to improve the
-   * legibility.
-   *
-   * @deprecated Use registers `\thinmuskip`, `\medmuskip` and `\thickmuskip`
-   *
-   */
-  'horizontal-spacing-scale': string;
-  /**
-   * Maximum time, in milliseconds, between consecutive characters for them to be
-   * considered part of the same shortcut sequence.
-   *
-   * A value of 0 is the same as infinity: any consecutive character will be
-   * candidate for an inline shortcut, regardless of the interval between this
-   * character and the previous one.
-   *
-   * A value of 750 will indicate that the maximum interval between two
-   * characters to be considered part of the same inline shortcut sequence is
-   * 3/4 of a second.
-   *
-   * This is useful to enter "+-" as a sequence of two characters, while also
-   * supporting the "±" shortcut with the same sequence.
-   *
-   * The first result can be entered by pausing slightly between the first and
-   * second character if this option is set to a value of 250 or so.
-   *
-   * Note that some operations, such as clicking to change the selection, or
-   * losing the focus on the mathfield, will automatically timeout the
-   * shortcuts.
-   */
-  'inline-shortcut-timeout': string;
-  'keypress-vibration': string;
-  /**
-   * When a key on the virtual keyboard is pressed, produce a short audio
-   * feedback.
-   *
-   * The value of the properties should a string, the name of an audio file in
-   * the `soundsDirectory` directory or 'none' to suppress the sound.
-   */
-  'keypress-sound': string;
-  /**
-   * Sound played to provide feedback when a command has no effect, for example
-   * when pressing the spacebar at the root level.
-   *
-   * The property is either:
-   * - a string, the name of an audio file in the `soundsDirectory` directory
-   * - 'none' to turn off the sound
-   */
-  'plonk-sound': string;
-
   'letter-shape-style': string;
+  'popover-policy': string;
   /**
-   * The locale (language + region) to use for string localization.
-   *
-   * If none is provided, the locale of the browser is used.
-   *
+   * The LaTeX string to insert when the spacebar is pressed (on the physical or
+   * virtual keyboard). Empty by default. Use `\;` for a thick space, `\:` for
+   * a medium space, `\,` for a thin space.
    */
-  'locale': string;
+  'math-mode-space': string;
   /** When true, the user cannot edit the mathfield. */
   'read-only': boolean;
   'remove-extraneous-parentheses': boolean;
@@ -294,11 +244,32 @@ export interface MathfieldElementAttributes {
    *
    */
   'smart-superscript': string;
-  'speech-engine': string;
-  'speech-engine-rate': string;
-  'speech-engine-voice': string;
-  'text-to-speech-markup': string;
-  'text-to-speech-rules': string;
+  /**
+   * Maximum time, in milliseconds, between consecutive characters for them to be
+   * considered part of the same shortcut sequence.
+   *
+   * A value of 0 is the same as infinity: any consecutive character will be
+   * candidate for an inline shortcut, regardless of the interval between this
+   * character and the previous one.
+   *
+   * A value of 750 will indicate that the maximum interval between two
+   * characters to be considered part of the same inline shortcut sequence is
+   * 3/4 of a second.
+   *
+   * This is useful to enter "+-" as a sequence of two characters, while also
+   * supporting the "±" shortcut with the same sequence.
+   *
+   * The first result can be entered by pausing slightly between the first and
+   * second character if this option is set to a value of 250 or so.
+   *
+   * Note that some operations, such as clicking to change the selection, or
+   * losing the focus on the mathfield, will automatically timeout the
+   * shortcuts.
+   */
+  'inline-shortcut-timeout': string;
+
+  'script-depth': string;
+
   /**
    * -   `"auto"`: the virtual keyboard is triggered when a
    * mathfield is focused on a touch capable device.
@@ -316,13 +287,6 @@ export interface MathfieldElementAttributes {
    * **Default**: `globalThis.origin`
    */
   'virtual-keyboard-target-origin': string;
-
-  /**
-   * The LaTeX string to insert when the spacebar is pressed (on the physical or
-   * virtual keyboard). Empty by default. Use `\;` for a thick space, `\:` for
-   * a medium space, `\,` for a thin space.
-   */
-  'math-mode-space': string;
 }
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
@@ -407,19 +371,17 @@ const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
  * An attribute is a key-value pair set as part of the tag:
  *
  * ```html
- * <math-field locale="fr"></math-field>
+ * <math-field letter-shape-style="tex"></math-field>
  * ```
  *
  * The supported attributes are listed in the table below with their
  * corresponding property.
  *
- * The property can be changed either directly on the
- * `MathfieldElement` object, or using `setOptions()` if it is prefixed with
- * `options.`, for example:
+ * The property can also be changed directly on the `MathfieldElement` object:
  *
  * ```javascript
- *  getElementById('mf').value = '\\sin x';
- *  getElementById('mf').setOptions({horizontalSpacingScale: 1.1});
+ *  getElementById('mf').value = "\\sin x";
+ *  getElementById('mf').letterShapeStyle = "text";
  * ```
  *
  * The values of attributes and properties are reflected, which means you can
@@ -443,23 +405,18 @@ const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
  *
  * | Attribute | Property |
  * |:---|:---|
- * | `disabled` | `disabled` |
- * | `default-mode` | `options.defaultMode` |
- * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
- * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
- * | `letter-shape-style` | `options.letterShapeStyle` |
- * | `locale` | `options.locale` |
- * | `math-mode-space` | `options.mathModeSpace` |
- * | `read-only` | `options.readOnly` |
- * | `remove-extraneous-parentheses` | `options.removeExtraneousParentheses` |
- * | `smart-fence` | `options.smartFence` |
- * | `smart-mode` | `options.smartMode` |
- * | `smart-superscript` | `options.superscript` |
- * | `speech-engine` | `options.speechEngine` |
- * | `speech-engine-rate` | `options.speechEngineRate` |
- * | `speech-engine-voice` | `options.speechEngineVoice` |
- * | `text-to-speech-markup` | `options.textToSpeechMarkup` |
- * | `text-to-speech-rules` | `options.textToSpeechRules` |
+ * | `disabled` | `mf.disabled` |
+ * | `default-mode` | `mf.defaultMode` |
+ * | `letter-shape-style` | `mf.letterShapeStyle` |
+ * | `popover-policy` | `mf.popoverPolicy` |
+ * | `math-mode-space` | `mf.mathModeSpace` |
+ * | `read-only` | `mf.readOnly` |
+ * | `remove-extraneous-parentheses` | `mf.removeExtraneousParentheses` |
+ * | `smart-fence` | `mf.smartFence` |
+ * | `smart-mode` | `mf.smartMode` |
+ * | `smart-superscript` | `mf.smartSuperscript` |
+ * | `inline-shortcut-timeout` | `mf.inlineShortcutTimeout` |
+ * | `script-depth` | `mf.scriptDepth` |
  * | `value` | `value` |
  * | `math-virtual-keyboard-policy` | `mathVirtualKeyboardPolicy` |
  *
@@ -523,24 +480,19 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   > {
     return {
       'default-mode': 'string',
-      'fonts-directory': 'string',
-      'sounds-directory': 'string',
-      'horizontal-spacing-scale': 'string',
-      'math-mode-space': 'string',
-      'inline-shortcut-timeout': 'string',
       'letter-shape-style': 'string',
-      'locale': 'string',
+      'popover-policy': 'string',
+
+      'math-mode-space': 'string',
       'read-only': 'boolean',
       'remove-extraneous-parentheses': 'on/off',
       'smart-fence': 'on/off',
       'smart-mode': 'on/off',
       'smart-superscript': 'on/off',
-      'speech-engine': 'string',
-      'speech-engine-rate': 'string',
-      'speech-engine-voice': 'string',
-      'text-to-speech-markup': 'string',
-      'text-to-speech-rules': 'string',
+      'inline-shortcut-timeout': 'string',
+      'script-depth': 'string',
       'virtual-keyboard-target-origin': 'string',
+      'math-virtual-keyboard-policy': 'string',
     };
   }
 
@@ -596,7 +548,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * ```
    *
    */
-  static fontsDirectory: string | null = './fonts';
+  static get fontsDirectory(): string | null {
+    return this._fontsDirectory;
+  }
+  static set fontsDirectory(value: string | null) {
+    this._fontsDirectory = value;
+    reloadFonts();
+  }
+  static _fontsDirectory: string | null = './fonts';
 
   /**
    * A URL fragment pointing to the directory containing the optional
@@ -722,12 +681,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * A custom compute engine instance. If none is provided, a default one is
-   * used. If `null` is specified, no compute engine is used.
-   */
-  static computeEngine: any | null = undefined;
-
-  /**
    * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
    *
    * This optional function will be called before a string of HTML is
@@ -736,6 +689,222 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   static createHTML: (html: string) => any = (x) => x;
   // @todo https://github.com/microsoft/TypeScript/issues/30024
+
+  /**
+   * Indicates which speech engine to use for speech output.
+   *
+   * Use `local` to use the OS-specific TTS engine.
+   *
+   * Use `amazon` for Amazon Text-to-Speech cloud API. You must include the
+   * AWS API library and configure it with your API key before use.
+   *
+   * **See**
+   * {@link https://cortexjs.io/mathlive/guides/speech/ | Guide: Speech}
+   */
+  static get speechEngine(): 'local' | 'amazon' {
+    return this._speechEngine;
+  }
+  static set speechEngine(value: 'local' | 'amazon') {
+    this._speechEngine = value;
+  }
+  private static _speechEngine: 'local' | 'amazon';
+
+  /**
+   * Sets the speed of the selected voice.
+   *
+   * One of `x-slow`, `slow`, `medium`, `fast`, `x-fast` or a value as a
+   * percentage.
+   *
+   * Range is `20%` to `200%` For example `200%` to indicate a speaking rate
+   * twice the default rate.
+   */
+  static get speechEngineRate(): string {
+    return this._speechEngineRate;
+  }
+  static set speechEngineRate(value: string) {
+    this._speechEngineRate = value;
+  }
+  private static _speechEngineRate = '100%';
+
+  /**
+   * Indicates the voice to use with the speech engine.
+   *
+   * This is dependent on the speech engine. For Amazon Polly, see here:
+   * https://docs.aws.amazon.com/polly/latest/dg/voicelist.html
+   *
+   */
+  static get speechEngineVoice(): string {
+    return this._speechEngineVoice;
+  }
+  static set speechEngineVoice(value: string) {
+    this._speechEngineVoice = value;
+  }
+  private static _speechEngineVoice = 'Joanna';
+
+  /**
+   * The markup syntax to use for the output of conversion to spoken text.
+   *
+   * Possible values are `ssml` for the SSML markup or `mac` for the macOS
+   * markup, i.e. `&#91;&#91;ltr&#93;&#93;`.
+   *
+   */
+  static get textToSpeechMarkup(): '' | 'ssml' | 'ssml_step' | 'mac' {
+    return this._textToSpeechMarkup;
+  }
+  static set textToSpeechMarkup(value: '' | 'ssml' | 'ssml_step' | 'mac') {
+    this._textToSpeechMarkup = value;
+  }
+  private static _textToSpeechMarkup: '' | 'ssml' | 'ssml_step' | 'mac' = '';
+
+  /**
+   * Specify which set of text to speech rules to use.
+   *
+   * A value of `mathlive` indicates that the simple rules built into MathLive
+   * should be used.
+   *
+   * A value of `sre` indicates that the Speech Rule Engine from Volker Sorge
+   * should be used.
+   *
+   * **(Caution)** SRE is not included or loaded by MathLive. For this option to
+   * work SRE should be loaded separately.
+   *
+   * **See**
+   * {@link https://cortexjs.io/mathlive/guides/speech/ | Guide: Speech}
+   */
+  static get textToSpeechRules(): 'mathlive' | 'sre' {
+    return this._textToSpeechRules;
+  }
+  static set textToSpeechRules(value: 'mathlive' | 'sre') {
+    this._textToSpeechRules = value;
+  }
+  private static _textToSpeechRules: 'mathlive' | 'sre' = 'mathlive';
+
+  /**
+   * A set of key/value pairs that can be used to configure the speech rule
+   * engine.
+   *
+   * Which options are available depends on the speech rule engine in use.
+   * There are no options available with MathLive's built-in engine. The
+   * options for the SRE engine are documented
+   * {@link https://github.com/zorkow/speech-rule-engine | here}
+   */
+  static get textToSpeechRulesOptions(): Record<string, string> {
+    return this._textToSpeechRulesOptions;
+  }
+  static set textToSpeechRulesOptions(value: Record<string, string>) {
+    this._textToSpeechRulesOptions = value;
+  }
+  private static _textToSpeechRulesOptions: Record<string, string> = {};
+
+  static speakHook: (text: string) => void = defaultSpeakHook;
+  static readAloudHook: (element: HTMLElement, text: string) => void =
+    defaultReadAloudHook;
+
+  /**
+   * The locale (language + region) to use for string localization.
+   *
+   * If none is provided, the locale of the browser is used.
+   *
+   */
+  static get locale(): string {
+    return l10n.locale;
+  }
+  static set locale(value: string) {
+    if (value === 'auto') value = navigator.language.slice(0, 5);
+    l10n.locale = value;
+  }
+
+  /**
+   * The symbol used to separate the integer part from the fractional part of a
+   * number.
+   *
+   * When `","` is used, the corresponding LaTeX string is `{,}`, in order
+   * to ensure proper spacing (otherwise an extra gap is displayed after the
+   * comma).
+   *
+   * This affects:
+   * - what happens when the `,` key is pressed (if `decimalSeparator` is
+   * `","`, the `{,}` LaTeX string is inserted when following some digits)
+   * - the label and behavior of the "." key in the default virtual keyboard
+   *
+   * **Default**: `"."`
+   */
+  static get decimalSeparator(): ',' | '.' {
+    return this._decimalSeparator;
+  }
+  static set decimalSeparator(value: ',' | '.') {
+    this._decimalSeparator = value;
+    if (this._computeEngine) {
+      this._computeEngine.latexOptions.decimalMarker =
+        this.decimalSeparator === ',' ? '{,}' : '.';
+    }
+  }
+
+  private static _decimalSeparator: ',' | '.' = '.';
+
+  /**
+   * When using the keyboard to navigate a fraction, the order in which the
+   * numerator and navigator are traversed:
+   * - "numerator-denominator": first the elements in the numerator, then
+   *   the elements in the denominator.
+   * - "denominator-numerator": first the elements in the denominator, then
+   *   the elements in the numerator. In some East-Asian cultures, fractions
+   *   are read and written denominator first ("fēnzhī"). With this option
+   *   the keyboard navigation follows this convention.
+   *
+   * **Default**: `"numerator-denominator"`
+   */
+  static fractionNavigationOrder:
+    | 'numerator-denominator'
+    | 'denominator-numerator' = 'numerator-denominator';
+
+  /**
+  * An object whose keys are a locale string, and whose values are an object of
+  * string identifier to localized string.
+  *
+  * **Example**
+  *
+  ```json
+  {
+    "fr-CA": {
+        "tooltip.undo": "Annuler",
+        "tooltip.redo": "Refaire",
+    }
+  }
+  ```
+  *
+  * This will override the default localized strings.
+  */
+  static get strings(): Record<string, Record<string, string>> {
+    return l10n.strings;
+  }
+  static set strings(value: Record<string, Record<string, string>>) {
+    l10n.merge(value);
+  }
+
+  /**
+   * A custom compute engine instance. If none is provided, a default one is
+   * used. If `null` is specified, no compute engine is used.
+   */
+  static get computeEngine(): ComputeEngine | null {
+    if (this._computeEngine === undefined) {
+      const ComputeEngineCtor =
+        globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
+      if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
+      else {
+        console.error(
+          'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+        );
+      }
+      if (this._computeEngine && this.decimalSeparator === ',')
+        this._computeEngine.latexOptions.decimalMarker = '{,}';
+    }
+    return this._computeEngine ?? null;
+  }
+  static set computeEngine(value: ComputeEngine | null) {
+    this._computeEngine = value;
+  }
+  private static _computeEngine: ComputeEngine | null;
 
   static async loadSound(
     sound: 'plonk' | 'keypress' | 'spacebar' | 'delete' | 'return'
@@ -858,25 +1027,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Record the (optional) configuration options, as a deferred state
     if (options) this.setOptions(options);
-
-    // Load the fonts
-    void loadFonts();
-
-    this.shadowRoot!.host.addEventListener(
-      'pointerdown',
-      () => this.onPointerDown(),
-      true
-    );
-    this.shadowRoot!.host.addEventListener(
-      'focus',
-      () => this._mathfield?.focus(),
-      true
-    );
-    this.shadowRoot!.host.addEventListener(
-      'blur',
-      () => this._mathfield?.blur(),
-      true
-    );
   }
 
   onPointerDown(): void {
@@ -994,6 +1144,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
   /**
    *  @category Options
+   *  @deprecated
    */
   getOptions<K extends keyof MathfieldOptions>(
     keys: K[]
@@ -1014,14 +1165,16 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /**
    *  @category Options
    */
-  getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K] {
+  private getOption<K extends keyof MathfieldOptions>(
+    key: K
+  ): MathfieldOptions[K] {
     return this.getOptions([key])[key];
   }
 
   /**
    *  @category Options
    */
-  setOptions(options: Partial<MathfieldOptions>): void {
+  private setOptions(options: Partial<MathfieldOptions>): void {
     if (this._mathfield) this._mathfield.setOptions(options);
     else if (gDeferredState.has(this)) {
       const mergedOptions = {
@@ -1288,6 +1441,25 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @internal
    */
   connectedCallback(): void {
+    // Load the fonts
+    setInterval(() => void loadFonts());
+
+    this.shadowRoot!.host.addEventListener(
+      'pointerdown',
+      () => this.onPointerDown(),
+      true
+    );
+    this.shadowRoot!.host.addEventListener(
+      'focus',
+      () => this._mathfield?.focus(),
+      true
+    );
+    this.shadowRoot!.host.addEventListener(
+      'blur',
+      () => this._mathfield?.blur(),
+      true
+    );
+
     if (!isElementInternalsSupported()) {
       if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
       if (!this.hasAttribute('aria-label'))
@@ -1541,12 +1713,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   set letterShapeStyle(value: 'auto' | 'tex' | 'iso' | 'french' | 'upright') {
     this.setOptions({ letterShapeStyle: value });
   }
-  get locale(): string {
-    return this.getOption('locale');
-  }
-  set locale(value: string) {
-    this.setOptions({ locale: value });
-  }
   get readOnly(): boolean {
     return this.getOption('readOnly');
   }
@@ -1588,37 +1754,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   set smartSuperscript(value: boolean) {
     this.setOptions({ smartSuperscript: value });
-  }
-
-  get speechEngine(): 'local' | 'amazon' {
-    return this.getOption('speechEngine');
-  }
-  set speechEngine(value: 'local' | 'amazon') {
-    this.setOptions({ speechEngine: value });
-  }
-  get speechEngineRate(): string {
-    return this.getOption('speechEngineRate');
-  }
-  set speechEngineRate(value: string) {
-    this.setOptions({ speechEngineRate: value });
-  }
-  get speechEngineVoice(): string {
-    return this.getOption('speechEngineVoice');
-  }
-  set speechEngineVoice(value: string) {
-    this.setOptions({ speechEngineVoice: value });
-  }
-  get textToSpeechMarkup(): '' | 'ssml' | 'ssml_step' | 'mac' {
-    return this.getOption('textToSpeechMarkup');
-  }
-  set textToSpeechMarkup(value: '' | 'ssml' | 'ssml_step' | 'mac') {
-    this.setOptions({ textToSpeechMarkup: value });
-  }
-  get textToSpeechRules(): 'mathlive' | 'sre' {
-    return this.getOption('textToSpeechRules');
-  }
-  set textToSpeechRule(value: 'mathlive' | 'sre') {
-    this.setOptions({ textToSpeechRules: value });
   }
 
   get virtualKeyboardTargetOrigin(): string {

@@ -1,4 +1,3 @@
-import type { TextToSpeechOptions } from '../public/options';
 import type { SpeechScope } from '../public/commands';
 
 import type { Atom } from '../core/atom';
@@ -17,20 +16,8 @@ declare global {
   }
 }
 
-export function speakableText(
-  speechOptions: Required<TextToSpeechOptions>,
-  prefix: string,
-  atoms: Atom | Atom[]
-): string {
-  const options: TextToSpeechOptions = {
-    ...speechOptions,
-    textToSpeechMarkup: '',
-    textToSpeechRulesOptions: {
-      ...speechOptions.textToSpeechRulesOptions,
-      markup: 'none',
-    },
-  };
-  return prefix + atomToSpeakableText(atoms, options);
+export function speakableText(prefix: string, atoms: Atom | Atom[]): string {
+  return prefix + atomToSpeakableText(atoms);
 }
 
 /**
@@ -137,56 +124,47 @@ function speak(
 
   const atoms = getAtoms(scope);
   if (atoms === null) {
-    mathfield.options.speakHook?.(getFailedSpeech(scope), mathfield.options);
+    window.MathfieldElement.speakHook?.(getFailedSpeech(scope));
     return false;
   }
 
-  const options = { ...mathfield.options };
-  if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
-    options.textToSpeechMarkup =
-      globalThis.sre && options.textToSpeechRules === 'sre'
+  if (
+    speakOptions.withHighlighting ||
+    window.MathfieldElement.speechEngine === 'amazon'
+  ) {
+    window.MathfieldElement.textToSpeechMarkup =
+      window.sre && window.MathfieldElement.textToSpeechRules === 'sre'
         ? 'ssml_step'
         : 'ssml';
   }
 
-  const text = atomToSpeakableText(atoms, options);
+  const text = atomToSpeakableText(atoms);
   if (isBrowser() && speakOptions.withHighlighting) {
     globalMathLive().readAloudMathField = mathfield;
     render(mathfield, { forHighlighting: true });
-    if (mathfield.options.readAloudHook) {
-      mathfield.options.readAloudHook(
-        mathfield.field!,
-        text,
-        mathfield.options
-      );
-    }
-  } else if (mathfield.options.speakHook)
-    mathfield.options.speakHook(text, options);
+    if (window.MathfieldElement.readAloudHook)
+      window.MathfieldElement.readAloudHook(mathfield.field!, text);
+  } else if (window.MathfieldElement.speakHook)
+    window.MathfieldElement.speakHook(text);
 
   return false;
 }
 
-export function defaultSpeakHook(
-  text: string,
-  config?: Partial<TextToSpeechOptions>
-): void {
+export function defaultSpeakHook(text: string): void {
   if (!isBrowser()) {
     console.log('Speak:', text);
     return;
   }
 
-  config ??= globalMathLive().config ?? {};
-
-  // Sigh... Not really necessary, but the version of the typescript
-  // compiler used by `grok` will complain about this
-  if (!config) return;
-
-  if (!config.speechEngine || config.speechEngine === 'local') {
+  if (
+    !window.MathfieldElement.speechEngine ||
+    window.MathfieldElement.speechEngine === 'local'
+  ) {
     // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
     // See also https://developer.chrome.com/apps/tts
     const utterance = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(utterance);
-  } else if (config.speechEngine === 'amazon') {
+  } else if (window.MathfieldElement.speechEngine === 'amazon') {
     if (!('AWS' in window)) {
       console.error(
         'MathLive: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
@@ -195,7 +173,7 @@ export function defaultSpeakHook(
       const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
       const parameters = {
         OutputFormat: 'mp3',
-        VoiceId: config.speechEngineVoice ?? 'Joanna',
+        VoiceId: window.MathfieldElement.speechEngineVoice ?? 'Joanna',
         Engine: [
           'Amy',
           'Emma',
@@ -208,7 +186,7 @@ export function defaultSpeakHook(
           'Joey',
           'Justin',
           'Matthew',
-        ].includes(config.speechEngineVoice ?? 'Joanna')
+        ].includes(window.MathfieldElement.speechEngineVoice ?? 'Joanna')
           ? 'neural'
           : 'standard',
         // SampleRate: '24000',
@@ -237,7 +215,7 @@ export function defaultSpeakHook(
 
       // Can call AWS.Request() on the result of synthesizeSpeech()
     }
-  } else if (config.speechEngine === 'google') {
+  } else if (window.MathfieldElement.speechEngine === 'google') {
     console.error(
       'MathLive: The Google speech engine is not supported yet. Please come again.'
     );

@@ -1,6 +1,5 @@
 import type { ParseMode, Style } from 'core/types';
 import { Selector } from './commands';
-import { MathfieldOptions } from './options';
 
 /**
  *
@@ -142,14 +141,6 @@ export type Selection = {
 
 export interface Mathfield {
   mode: ParseMode;
-
-  getOptions(): MathfieldOptions;
-  getOptions<K extends keyof MathfieldOptions>(
-    keys: K[]
-  ): Pick<MathfieldOptions, K>;
-  getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
-
-  setOptions(options: Partial<MathfieldOptions>): void;
 
   /**
    * Execute a [[`Commands`|command]] defined by a selector.

@@ -734,15 +734,18 @@ function adjustType(root: Box | null): void {
 //
 // Adjust the atom(/box) types according to the TeX rules
 //
-function applyInterAtomSpacing(root: Box | null, scale: number): void {
+function applyInterAtomSpacing(root: Box | null, context: Context): void {
   forEachBox(root, (prevBox: Box, box: Box) => {
     const prevType: BoxType = prevBox?.type ?? 'none';
     const table = box.isTight
       ? INTER_ATOM_TIGHT_SPACING[prevType] ?? null
       : INTER_ATOM_SPACING[prevType] ?? null;
-    const hskip = table ? table[box.type] ?? 0 : 0;
-
-    if (hskip) box.left += scale * (hskip / 18);
+    const hskip = table?.[box.type] ?? 'none';
+    if (hskip !== 'none') {
+      if (hskip === 3) box.left += context.getRegisterAsEm('thinmuskip');
+      if (hskip === 4) box.left += context.getRegisterAsEm('medmuskip');
+      if (hskip === 5) box.left += context.getRegisterAsEm('thickmuskip');
+    }
   });
 }
 
@@ -798,9 +801,9 @@ function forEachBox(box: Box | null, f: (prevBox: Box, curBox: Box) => void) {
   forEachBoxRecursive(null, box, f);
 }
 
-export function adjustInterAtomSpacing(root: Box, scale = 1.0): Box {
+export function adjustInterAtomSpacing(root: Box, context: Context): Box {
   adjustType(root);
-  applyInterAtomSpacing(root, scale);
+  applyInterAtomSpacing(root, context);
   return root;
 }
 

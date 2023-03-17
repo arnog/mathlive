@@ -36,7 +36,8 @@
     </header>
     <main>
       <math-field id="mf-1"
-        >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
+        >\sum^q_{n=0}\begin{pmatrix}a &amp; b \\ c &amp;
+        d\end{pmatrix}</math-field
       >
       <math-field id="mf-2"
         >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
@@ -101,7 +102,7 @@
         .getElementById('default-keyboard')
         .addEventListener(
           'click',
-          () => (mathVirtualKeyboard.virtualKeyboards = 'all')
+          () => (mathVirtualKeyboard.layouts = ['default'])
         );
 
       document

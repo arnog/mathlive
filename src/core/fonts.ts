@@ -15,6 +15,11 @@ function makeFontFace(
 export let gFontsState: 'error' | 'not-loaded' | 'loading' | 'ready' =
   'not-loaded';
 
+export async function reloadFonts(): Promise<void> {
+  gFontsState = 'not-loaded';
+  return loadFonts();
+}
+
 export async function loadFonts(): Promise<void> {
   // If we're already loading the fonts, we're done.
   if (gFontsState !== 'not-loaded') return;
@@ -57,9 +62,14 @@ export async function loadFonts(): Promise<void> {
       return;
     }
 
+    if (!window.MathfieldElement.fontsDirectory) {
+      gFontsState = 'not-loaded';
+      return;
+    }
+
     // Locate the `fonts` folder relative to the script URL
     const fontsFolder = await resolveUrl(
-      window.MathfieldElement.fontsDirectory ?? './fonts'
+      window.MathfieldElement.fontsDirectory
     );
     if (!fontsFolder) {
       document.body.classList.add('ML__fonts-did-not-load');
