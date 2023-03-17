@@ -694,6 +694,10 @@ function makeLayout(
   }
 
   const markup: string[] = [];
+  console.assert(
+    layout.layers && Array.isArray(layout.layers),
+    'MathLive: the virtual keyboard layout should have a "layers" property, an array of layer IDs'
+  );
   for (const layerName of layout.layers) {
     if (!(keyboard.layers[layerName] ?? LAYERS[layerName])) {
       console.error(
@@ -746,8 +750,11 @@ function markupLayer(layer: string | Partial<VirtualKeyboardLayer>): string {
     layerMarkup += `<div class='MLK__rows'>`;
     for (const row of layer.rows) {
       layerMarkup += `<ul>`;
-      for (const keycap of row) {
+      for (let keycap of row) {
         layerMarkup += `<li`;
+
+        if (typeof keycap === 'string') keycap = { latex: keycap };
+
         if (keycap.class) {
           let cls = keycap.class;
           if (keycap.layer && !/layer-switch/.test(cls)) cls += ' layer-switch';
