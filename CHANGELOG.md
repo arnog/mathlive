@@ -29,27 +29,28 @@
 
 #### Virtual Keyboard
 
-- Previously the virtual keyboard could be shared amongst mathfield instances if
-  the `makeSharedVirtualKeyboard()` function was called or the
+- Previously the virtual keyboard was shared amongst mathfield instances if the
+  `makeSharedVirtualKeyboard()` function was called or the
   `use-shared-virtual-keyboard` attribute was set on a mathfield. Otherwise a
   virtual keyboard instance was created for each mathfield in the document.
 
   The virtual keyboard is now always shared.
 
   The virtual keyboard global instance can be accessed as
-  `window.mathVirtualKeyboard`. Its value is a `VirtualKeyboard` instance, same
-  as was previously returned by `makeSharedVirtualKeyboard()`.
+  `window.mathVirtualKeyboard` or just `mathVirtualKeyboard`. Its value
+  implements `VirtualKeyboardInterface` instance, same as was previously
+  returned by `makeSharedVirtualKeyboard()`.
 
 - The options related to the virtual keyboard should now be set on the global
-  shared virtual keyboard, using `window.mathVirtualKeyboard.setOptions()`
-  instead of on mathfield instances.
+  shared virtual keyboard, using `window.mathVirtualKeyboard` instead of on
+  mathfield instances.
 
 - The MathLive virtual keyboard API (offered by the `window.mathVirtualKeyboard`
   property) has changed to be consistent with the
   [W3C Virtual Keyboard](https://www.w3.org/TR/virtual-keyboard/) API.
 
   This includes adding a `show()` and `hide()` functions, and a `boundingRect`
-  property.
+  property to `VirtualKeyboardInterface`.
 
   A `geometrychange` event is dispatched when the size of the keyboard changes.
 
@@ -68,6 +69,60 @@
 
   If `mathVirtualKeyboardPolicy` is set to `"auto"` the virtual keyboard is
   displayed automatically when a mathfield is focused on a touch-enabled device.
+
+- The virtual keyboard customization API has been simplified.
+
+  **Before:**
+
+```js
+const HIGH_SCHOOL_KEYBOARD = {
+  'high-school-keyboard': {
+    label: 'High School', // Label displayed in the Virtual Keyboard Switcher
+    tooltip: 'High School Level', // Tooltip when hovering over the label
+    layer: 'high-school-layer',
+  },
+};
+
+mf.setOptions({
+  customVirtualKeyboardLayers: HIGH_SCHOOL_KEYBOARD_LAYER,
+  customVirtualKeyboards: HIGH_SCHOOL_KEYBOARD,
+  virtualKeyboards: 'roman high-school-keyboard',
+});
+```
+
+**Now:**
+
+```js
+mathVirtualKeyboard.layers = HIGH_SCHOOL_KEYBOARD_LAYER;
+mathVirtualKeyboard.layouts = [
+  'alphabetic',
+  {
+    label: 'High School', // Label displayed in the Layout Switcher
+    tooltip: 'High School Level', // Tooltip when hovering over the label
+    layers: ['high-school-layer'],
+  },
+];
+```
+
+To change the alphabetic layout"
+
+    **Before:**
+
+```js
+mf.setOptions({ virtualKeyboardLayout: 'azerty' });
+```
+
+    **Now:**
+
+```js
+mathVirtualKeyboard.alphabeticLayout = 'azerty';
+```
+
+- The `"roman"` virtual keyboard is now called `"alphabetic"`
+
+- The `virtualKeyboardToolbar` option is now `mathVirtualKeyboard.actionToolbar`
+
+- The `virtualKeyboardContainer` option is now `mathVirtualKeyboard.container`
 
 - The virtual keyboard toggle glyph can no longer be customized.
 

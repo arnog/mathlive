@@ -320,11 +320,11 @@
         },
       };
 
-      mf?.setOptions({
+      mathVirtualKeyboard.customVirtualKeyboards = {
         customVirtualKeyboardLayers: VIRTUAL_KEYBOARD_LAYERS,
         customVirtualKeyboards: KEYBOARDS,
         virtualKeyboards: 'basic secondary',
-      });
+      };
 
       mf?.addEventListener('input', (ev) => updateContent(mf));
       mf?.addEventListener('math-error', (ev) =>

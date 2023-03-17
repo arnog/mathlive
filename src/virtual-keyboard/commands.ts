@@ -125,14 +125,14 @@ register(
 
 function toggleVirtualKeyboardShift(): boolean {
   const kbd = VirtualKeyboard.singleton;
-  kbd.virtualKeyboardLayout = {
+  kbd.alphabeticLayout = {
     qwerty: 'azerty',
 
     azerty: 'qwertz',
     qwertz: 'dvorak',
     dvorak: 'colemak',
     colemak: 'qwerty',
-  }[kbd.virtualKeyboardLayout];
+  }[kbd.alphabeticLayout];
   const layer = kbd?.element?.querySelector('.MLK__layer.is-visible')?.id ?? '';
 
   kbd.show();

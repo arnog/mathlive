@@ -100,13 +100,16 @@ export interface VirtualKeyboardKeycap {
   layer: string;
 }
 
-export interface VirtualKeyboardDefinition {
+export interface LayoutDefinition {
+  /** A human readable string displayed in the layout switcher toolbar */
   label: string;
-  tooltip?: string;
-  layer?: string;
-  layers?: string[];
   classes?: string;
-  command?: string | string[];
+  /** A human readable tooltip associated with the label */
+  tooltip?: string;
+  /** The set of layers for this layout (identified by their layer name) */
+  layers: string[];
+  /** A unique string identifying the layout */
+  id?: string;
 }
 
 export interface VirtualKeyboardLayer {
@@ -120,63 +123,38 @@ export interface VirtualKeyboardLayer {
   rows: Partial<VirtualKeyboardKeycap>[][];
 }
 
-export type VirtualKeyboardToolbarOptions = 'none' | 'default';
+export type ActionToolbarOptions = 'none' | 'default';
 
 export interface VirtualKeyboardOptions {
-  /**
-   * A space separated list of the keyboards that should be available. The
-   * keyboard `"all"` is synonym with `"numeric"`, `"functions"``, `"symbols"``
-   * `"roman"` and `"greek"`,
-   *
-   * The keyboards will be displayed in the order indicated.
-   */
-  set virtualKeyboards(
-    value:
-      | 'all'
-      | 'numeric'
-      | 'roman'
-      | 'greek'
-      | 'functions'
-      | 'symbols'
-      | 'latex'
-      | string
-  );
-
-  set virtualKeyboardLayout(value: AlphabeticKeyboardLayout);
+  /** A layer is a set of keycaps. Each keycap has a label and perform a command when pressed. A layout can include more than one layer. A secondary layer can be invoked, for example when pressing a shift key. */
+  set layers(value: Record<string, string | Partial<VirtualKeyboardLayer>>);
 
   /**
-   * Custom virtual keyboards.
+   * A layout is made up of one or more layers (think of the main layer
+   * and the shift layer on a hardware keyboard).
    *
-   * A keyboard is made up of one or more layers (think of the main layer and
-   * the shift layer on a hardware keyboard).
+   * A layout has a name and styling information.
    *
-   * Each key in `layers` defines a new keyboard layer or replace
-   * an existing one. The value of the key can be some HTML Markup
-   * or a `VirtualKeyboardLayer` object.
-   *
-   * Each entry in `keyboards` defines a keyboard as a set of layers
+   * In addition, a layout can be represented as a standard name which
+   * includes `"numeric"`, `"functions"`, `"symbols"`, `"alphabetic"`
+   * and `"greek".
    *
    * **See* {@link https://cortexjs.io/mathlive/guides/virtual-keyboards | Guide: Virtual Keyboards}
    *
    *
    */
-  set customVirtualKeyboards(
-    value:
-      | undefined
-      | null
-      | {
-          layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-          keyboards: Record<string, VirtualKeyboardDefinition>;
-        }
-  );
+  set layouts(value: (string | LayoutDefinition)[]);
 
   /**
-   * The right hand side toolbar configuration.
+   * Configuration of the action toolbar, displayed on the right-hand side.
    *
-   * Use `none` to disable the right hand side toolbar of the
+   * Use `"none"` to disable the right hand side toolbar of the
    * virtual keyboard.
    */
-  set virtualKeyboardToolbar(value: VirtualKeyboardToolbarOptions);
+  set actionToolbar(value: ActionToolbarOptions);
+
+  /** Layout of the alphabetic layers: AZERTY, QWERTY, etc... */
+  set alphabeticLayout(value: AlphabeticKeyboardLayout);
 
   /**
    * Element the virtual keyboard element gets appended to.
@@ -187,7 +165,7 @@ export interface VirtualKeyboardOptions {
    *
    * **Default**: `document.body`
    */
-  set virtualKeyboardContainer(value: null | HTMLElement);
+  set container(value: null | HTMLElement);
 
   /**
    * Specify the `targetOrigin` parameter for [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)

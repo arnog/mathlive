@@ -3,9 +3,9 @@ import { getCommandTarget } from 'editor/commands';
 import {
   AlphabeticKeyboardLayout,
   OriginValidator,
-  VirtualKeyboardDefinition,
+  LayoutDefinition,
   VirtualKeyboardLayer,
-  VirtualKeyboardToolbarOptions,
+  ActionToolbarOptions,
 } from '../public/options';
 import type {
   VirtualKeyboardMessage,
@@ -53,30 +53,24 @@ export class VirtualKeyboardProxy
     window.addEventListener('message', this);
     this.sendMessage('proxy-created');
   }
-  set virtualKeyboards(value: string) {
-    this.sendMessage('update-setting', { virtualKeyboards: value });
+  set alphabeticLayout(value: AlphabeticKeyboardLayout) {
+    this.sendMessage('update-setting', { alphabeticLayout: value });
   }
-  set virtualKeyboardLayout(value: AlphabeticKeyboardLayout) {
-    this.sendMessage('update-setting', { virtualKeyboardLayout: value });
-  }
-  set customVirtualKeyboards(
-    value:
-      | {
-          layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-          keyboards: Record<string, VirtualKeyboardDefinition>;
-        }
-      | null
-      | undefined
-  ) {
+  set layers(value: Record<string, string | Partial<VirtualKeyboardLayer>>) {
     this.sendMessage('update-setting', {
-      customVirtualKeyboards: structuredClone(value),
+      layers: structuredClone(value),
     });
   }
-  set virtualKeyboardToolbar(value: VirtualKeyboardToolbarOptions) {
-    this.sendMessage('update-setting', { virtualKeyboardToolbar: value });
+  set layouts(value: (string | LayoutDefinition)[]) {
+    this.sendMessage('update-setting', {
+      layouts: structuredClone(value),
+    });
+  }
+  set actionToolbar(value: ActionToolbarOptions) {
+    this.sendMessage('update-setting', { actionToolbar: value });
   }
 
-  set virtualKeyboardContainer(value: HTMLElement | null) {
+  set container(value: HTMLElement | null) {
     throw new Error('Container inside an iframe cannot be changed');
   }
 

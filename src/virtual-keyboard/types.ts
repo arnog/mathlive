@@ -3,8 +3,8 @@ import type {
   VirtualKeyboardOptions,
   AlphabeticKeyboardLayout,
   VirtualKeyboardLayer,
-  VirtualKeyboardDefinition,
-  VirtualKeyboardToolbarOptions,
+  LayoutDefinition,
+  ActionToolbarOptions,
 } from './public';
 
 export interface MathfieldProxy {
@@ -89,25 +89,19 @@ export type VirtualKeyboardMessage =
       type: 'mathlive#virtual-keyboard-message';
       action: 'synchronize-proxy';
       boundingRect: DOMRect;
-      virtualKeyboards: string;
-      virtualKeyboardLayout: AlphabeticKeyboardLayout;
-      customKeyboards: null | {
-        layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-        keyboards: Record<string, VirtualKeyboardDefinition>;
-      };
-      virtualKeyboardToolbar: VirtualKeyboardToolbarOptions;
+      alphabeticLayout?: AlphabeticKeyboardLayout;
+      layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
+      layouts: (string | LayoutDefinition)[];
+      actionToolbar?: ActionToolbarOptions;
     }
   | {
       // From proxy to VK
       type: 'mathlive#virtual-keyboard-message';
       action: 'update-setting';
-      virtualKeyboards?: string;
-      virtualKeyboardLayout?: AlphabeticKeyboardLayout;
-      customKeyboards?: null | {
-        layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-        keyboards: Record<string, VirtualKeyboardDefinition>;
-      };
-      virtualKeyboardToolbar?: VirtualKeyboardToolbarOptions;
+      alphabeticLayout?: AlphabeticKeyboardLayout;
+      layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
+      layouts: (string | LayoutDefinition)[];
+      actionToolbar?: ActionToolbarOptions;
     }
   | {
       type: 'mathlive#virtual-keyboard-message';

@@ -5,11 +5,7 @@ import { FOREGROUND_COLORS, BACKGROUND_COLORS } from 'core/color';
 import { VirtualKeyboardKeycap } from 'public/options';
 import MathfieldElement from 'public/mathfield-element';
 
-let VARIANTS: {
-  [variantID: string]: (string | Partial<VirtualKeyboardKeycap>)[];
-};
-
-const VARIANTS_BASE: {
+const gVariants: {
   [variantID: string]: (string | Partial<VirtualKeyboardKeycap>)[];
 } = {
   '0': [
@@ -442,7 +438,7 @@ const VARIANTS_BASE: {
 };
 
 export function showVariantsPanel(variantsId: string): boolean {
-  const variants = VARIANTS[variantsId];
+  const variants = getVariants(variantsId);
   const variantPanel = document.createElement('div');
   variantPanel.setAttribute('aria-hidden', 'true');
   variantPanel.className = 'ML__keyboard MLK__variant-panel';
@@ -525,7 +521,7 @@ export function showVariantsPanel(variantsId: string): boolean {
   //
   if (!Scrim.scrim) Scrim.scrim = new Scrim();
   Scrim.scrim.open({
-    root: keyboard.virtualKeyboardContainer,
+    root: keyboard.container,
     child: variantPanel,
   });
 
@@ -580,137 +576,138 @@ export function hideVariantsPanel(): boolean {
   return false;
 }
 
-export function makeVariants(): {
-  [variantId: string]: (string | Partial<VirtualKeyboardKeycap>)[];
-} {
-  // Auto-populate the ALT_KEYS table
-  VARIANTS_BASE['foreground-color'] = [];
-  for (const color of Object.keys(FOREGROUND_COLORS)) {
-    VARIANTS_BASE['foreground-color'].push({
-      class: 'small-button',
-      content:
-        '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
-        FOREGROUND_COLORS[color] +
-        '"></span>',
-      command: ['applyStyle', { color }],
-    });
+function makeVariants(
+  id: string
+): undefined | (string | Partial<VirtualKeyboardKeycap>)[] {
+  if (id === 'foreground-color') {
+    const result: Partial<VirtualKeyboardKeycap>[] = [];
+    for (const color of Object.keys(FOREGROUND_COLORS)) {
+      result.push({
+        class: 'small-button',
+        content:
+          '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
+          FOREGROUND_COLORS[color] +
+          '"></span>',
+        command: ['applyStyle', { color }],
+      });
+      return result;
+    }
   }
 
-  VARIANTS_BASE['background-color'] = [];
-  for (const color of Object.keys(BACKGROUND_COLORS)) {
-    VARIANTS_BASE['background-color'].push({
-      class: 'small-button',
-      content:
-        '<span style="border-radius:50%;width:32px;height:32px; background:' +
-        BACKGROUND_COLORS[color] +
-        '"></span>',
-      command: ['applyStyle', { backgroundColor: color }],
-    });
+  if (id === 'background-color') {
+    const result: Partial<VirtualKeyboardKeycap>[] = [];
+    for (const color of Object.keys(BACKGROUND_COLORS)) {
+      result.push({
+        class: 'small-button',
+        content:
+          '<span style="border-radius:50%;width:32px;height:32px; background:' +
+          BACKGROUND_COLORS[color] +
+          '"></span>',
+        command: ['applyStyle', { backgroundColor: color }],
+      });
+    }
+    return result;
   }
 
-  VARIANTS = { ...VARIANTS_BASE };
-  for (const key of Object.keys(VARIANTS))
-    VARIANTS[key] = VARIANTS[key].slice();
-
-  const UPPER_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
-  const DIGITS = '0123456789';
-  // Define the variants for uppercase keys
-  for (let i = 0; i < 26; i++) {
-    const key = UPPER_ALPHA[i];
-    if (!VARIANTS[key]) VARIANTS[key] = [];
-    VARIANTS[key].unshift({
-      latex: '\\mathbb{' + key + '}',
+  if (/^[A-Z]$/.test(id)) {
+    const result: Partial<VirtualKeyboardKeycap>[] = [];
+    result.unshift({
+      latex: '\\mathbb{' + id + '}',
       aside: 'blackboard',
-      insert: '\\mathbb{' + key + '}',
+      insert: '\\mathbb{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathbf{' + key + '}',
+    result.unshift({
+      latex: '\\mathbf{' + id + '}',
       aside: 'bold',
-      insert: '\\mathbf{' + key + '}',
+      insert: '\\mathbf{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathsf{' + key + '}',
+    result.unshift({
+      latex: '\\mathsf{' + id + '}',
       aside: 'sans',
-      insert: '\\mathsf{' + key + '}',
+      insert: '\\mathsf{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathtt{' + key + '}',
+    result.unshift({
+      latex: '\\mathtt{' + id + '}',
       aside: 'monospace',
-      insert: '\\mathtt{' + key + '}',
+      insert: '\\mathtt{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathcal{' + key + '}',
+    result.unshift({
+      latex: '\\mathcal{' + id + '}',
       aside: 'calligraphy',
-      insert: '\\mathcal{' + key + '}',
+      insert: '\\mathcal{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathfrak{' + key + '}',
+    result.unshift({
+      latex: '\\mathfrak{' + id + '}',
       aside: 'fraktur',
-      insert: '\\mathfrak{' + key + '}',
+      insert: '\\mathfrak{' + id + '}',
     });
+
+    return result;
   }
 
-  // Define the variants set for lowercase keys
-  for (let i = 0; i <= 26; i++) {
-    const key = LOWER_ALPHA[i];
-    if (!VARIANTS[key]) VARIANTS[key] = [];
-    VARIANTS[key].unshift({
-      latex: '\\mathsf{' + key + '}',
+  if (/^[a-z]$/.test(id)) {
+    const result: Partial<VirtualKeyboardKeycap>[] = [];
+    result.unshift({
+      latex: '\\mathsf{' + id + '}',
       aside: 'sans',
-      insert: '\\mathsf{' + key + '}',
+      insert: '\\mathsf{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathbf{' + key + '}',
+    result.unshift({
+      latex: '\\mathbf{' + id + '}',
       aside: 'bold',
-      insert: '\\mathbf{' + key + '}',
+      insert: '\\mathbf{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathtt{' + key + '}',
+    result.unshift({
+      latex: '\\mathtt{' + id + '}',
       aside: 'monospace',
-      insert: '\\mathtt{' + key + '}',
+      insert: '\\mathtt{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathfrak{' + key + '}',
+    result.unshift({
+      latex: '\\mathfrak{' + id + '}',
       aside: 'fraktur',
-      insert: '\\mathfrak{' + key + '}',
+      insert: '\\mathfrak{' + id + '}',
     });
+    return result;
   }
 
-  for (let i = 0; i < 10; i++) {
-    const key = DIGITS[i];
-    if (!VARIANTS[key]) VARIANTS[key] = [];
-    // The mathbb font does not appear to include digits,
-    // although it's supposed to.
-    // ALT_KEYS[key].push({
-    //         latex: '\\underset{\\textsf{\\footnotesize blackboard}}{\\mathbb{' + key + '}}',
-    //         insert: '\\mathbb{' + key + '}}'});
-    VARIANTS[key].unshift({
-      latex: '\\mathbf{' + key + '}',
-      aside: 'bold',
-      insert: '\\mathbf{' + key + '}',
-    });
-    VARIANTS[key].unshift({
-      latex: '\\mathsf{' + key + '}',
+  if (/^[0-9]$/.test(id)) {
+    const result: Partial<VirtualKeyboardKeycap>[] = [];
+    result.unshift({
+      latex: '\\mathsf{' + id + '}',
       aside: 'sans',
-      insert: '\\mathsf{' + key + '}',
+      insert: '\\mathsf{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathtt{' + key + '}',
+    result.unshift({
+      latex: '\\mathbf{' + id + '}',
+      aside: 'bold',
+      insert: '\\mathbf{' + id + '}',
+    });
+    result.unshift({
+      latex: '\\mathtt{' + id + '}',
       aside: 'monospace',
-      insert: '\\mathtt{' + key + '}',
+      insert: '\\mathtt{' + id + '}',
     });
-    VARIANTS[key].unshift({
-      latex: '\\mathcal{' + key + '}',
-      aside: 'script',
-      insert: '\\mathcal{' + key + '}',
-    });
-    VARIANTS[key].unshift({
-      latex: '\\mathfrak{' + key + '}',
+    result.unshift({
+      latex: '\\mathfrak{' + id + '}',
       aside: 'fraktur',
-      insert: '\\mathfrak{' + key + '}',
+      insert: '\\mathfrak{' + id + '}',
     });
+    return result;
   }
 
-  return VARIANTS;
+  return undefined;
+}
+
+export function getVariants(
+  id: string
+): (string | Partial<VirtualKeyboardKeycap>)[] {
+  if (!gVariants[id]) gVariants[id] = makeVariants(id) ?? [];
+  return gVariants[id];
+}
+
+export function setVariants(
+  id: string,
+  value: (string | Partial<VirtualKeyboardKeycap>)[]
+): void {
+  gVariants[id] = value;
 }
