@@ -5,7 +5,7 @@ export const LAYOUTS: Record<string, LayoutDefinition> = {
     label: '123',
     classes: 'MLK__tex-math',
     tooltip: 'keyboard.tooltip.numeric',
-    layers: ['math'],
+    layers: ['numeric'],
   },
   alphabetic: {
     label: 'abc',
@@ -63,7 +63,7 @@ export const SHIFTED_KEYS = {
 };
 
 export const LAYERS = {
-  'math': `
+  'numeric': `
 <div class='MLK__rows'>
   <ul>
     <li class='MLK__keycap MLK__tex' data-variants='x-var'><i>x</i></li>

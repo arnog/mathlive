@@ -4,7 +4,6 @@ import {
   AlphabeticKeyboardLayout,
   OriginValidator,
   LayoutDefinition,
-  VirtualKeyboardLayer,
   ActionToolbarOptions,
 } from '../public/options';
 import type {
@@ -55,11 +54,6 @@ export class VirtualKeyboardProxy
   }
   set alphabeticLayout(value: AlphabeticKeyboardLayout) {
     this.sendMessage('update-setting', { alphabeticLayout: value });
-  }
-  set layers(value: Record<string, string | Partial<VirtualKeyboardLayer>>) {
-    this.sendMessage('update-setting', {
-      layers: value,
-    });
   }
   set layouts(value: (string | LayoutDefinition)[]) {
     this.sendMessage('update-setting', {

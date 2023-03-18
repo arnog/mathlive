@@ -100,35 +100,43 @@ export interface VirtualKeyboardKeycap {
   layer: string;
 }
 
-export interface LayoutDefinition {
-  /** A human readable string displayed in the layout switcher toolbar */
-  label: string;
-  classes?: string;
-  /** A human readable tooltip associated with the label */
-  tooltip?: string;
-  /** The set of layers for this layout (identified by their layer name) */
-  layers: string[];
-  /** A unique string identifying the layout */
-  id?: string;
-}
+export type LayoutDefinition =
+  | {
+      /** A human readable string displayed in the layout switcher toolbar */
+      label?: string;
+      classes?: string;
+      /** A human readable tooltip associated with the label */
+      tooltip?: string;
+      /** A unique string identifying the layout */
+      id?: string;
+    } & (
+      | {
+          /** The set of layers for this layout */
+          layers: (string | VirtualKeyboardLayer)[];
+        }
+      | {
+          /** As a shortcut, if a single layer, the rows of that layer */
+          rows: Partial<VirtualKeyboardKeycap>[][];
+        }
+    );
 
 export interface VirtualKeyboardLayer {
-  /** The CSS stylesheet associated with this layer */
-  styles: string;
-  /** A CSS class name to customize the appearance of the background of the layer */
-  backdrop: string;
-  /** A CSS class name to customize the appearance of the container the layer */
-  container: string;
   /** The rows of keycaps in this layer */
-  rows: Partial<VirtualKeyboardKeycap>[][];
+  rows?: Partial<VirtualKeyboardKeycap>[][];
+  markup?: string;
+  /** The CSS stylesheet associated with this layer */
+  styles?: string;
+  /** A CSS class name to customize the appearance of the background of the layer */
+  backdrop?: string;
+  /** A CSS class name to customize the appearance of the container the layer */
+  container?: string;
+  /** A unique string identifying the layer */
+  id?: string;
 }
 
 export type ActionToolbarOptions = 'none' | 'default';
 
 export interface VirtualKeyboardOptions {
-  /** A layer is a set of keycaps. Each keycap has a label and perform a command when pressed. A layout can include more than one layer. A secondary layer can be invoked, for example when pressing a shift key. */
-  set layers(value: Record<string, string | Partial<VirtualKeyboardLayer>>);
-
   /**
    * A layout is made up of one or more layers (think of the main layer
    * and the shift layer on a hardware keyboard).

@@ -100,6 +100,79 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
 }
 
+type NormalizedLayoutDefinition = {
+  /** A human readable string displayed in the layout switcher toolbar */
+  label?: string;
+  classes?: string;
+  /** A human readable tooltip associated with the label */
+  tooltip?: string;
+  /** A unique string identifying the layout */
+  id?: string;
+  /** The set of layers for this layout */
+  layers: VirtualKeyboardLayer[];
+};
+
+function normalizeLayer(
+  layer: string | VirtualKeyboardLayer | (string | VirtualKeyboardLayer)[]
+): VirtualKeyboardLayer[] {
+  if (typeof layer === 'string' && LAYERS[layer])
+    return normalizeLayer({ markup: LAYERS[layer], id: layer });
+  if (typeof layer === 'string') {
+    return [
+      {
+        markup: layer,
+        id:
+          'ML__layer_' +
+          Date.now().toString(36).slice(-2) +
+          Math.floor(Math.random() * 0x186a0).toString(36),
+      },
+    ];
+  }
+  if (Array.isArray(layer)) return layer.map((x) => normalizeLayer(x)).flat();
+
+  return [layer];
+}
+
+function normalizeLayout(
+  layout: string | LayoutDefinition
+): NormalizedLayoutDefinition {
+  if (typeof layout === 'string') return normalizeLayout(LAYOUTS[layout]);
+
+  if ('rows' in layout && Array.isArray(layout.rows)) {
+    console.assert(
+      !('layers' in layout),
+      'MathLive: only provide either a "rows" or "layers" property, not both'
+    );
+    return {
+      ...layout,
+      layers: [
+        {
+          rows: layout.rows,
+          id:
+            'ML__layer_' +
+            Date.now().toString(36).slice(-2) +
+            Math.floor(Math.random() * 0x186a0).toString(36),
+        },
+      ],
+      rows: undefined,
+    } as NormalizedLayoutDefinition;
+  }
+
+  if ('markup' in layout && typeof layout.markup === 'string') {
+    return {
+      ...layout,
+      layers: normalizeLayer(layout.markup),
+    } as NormalizedLayoutDefinition;
+  }
+
+  const result: NormalizedLayoutDefinition = {
+    ...layout,
+  } as NormalizedLayoutDefinition;
+  if ('layers' in layout) result.layers = normalizeLayer(layout.layers);
+
+  return result;
+}
+
 /**
  * Return a markup string for the layouts toolbar for the specified layout.
  */
@@ -108,10 +181,9 @@ function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
   let markup = `<div class="left">`;
   if (keyboard.layouts.length > 1) {
     for (const [i, l] of keyboard.layouts.entries()) {
+      const layout = normalizeLayout(l);
+
       const classes = [i === index ? 'selected' : 'layer-switch'];
-
-      const layout = typeof l === 'string' ? LAYOUTS[l] : l;
-
       if (layout.tooltip) classes.push('MLK__tooltip');
       if (layout.classes) classes.push(...layout.classes.split(' '));
 
@@ -122,9 +194,9 @@ function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
           " data-tooltip='" + (l10n(layout.tooltip) ?? layout.tooltip) + "' ";
       }
 
-      if (i !== index) markup += "data-layer='" + layout.layers[0] + "'";
+      if (i !== index) markup += `data-layer="${layout.layers[0].id}"`;
 
-      markup += '>' + layout.label + '</div>';
+      markup += `>${layout.label}</div>`;
     }
   }
 
@@ -682,34 +754,15 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
 function makeLayout(
   keyboard: VirtualKeyboard,
-  layout: string | LayoutDefinition,
+  l: string | LayoutDefinition,
   index: number
 ): string {
-  if (typeof layout === 'string') {
-    if (!LAYOUTS[layout]) {
-      console.error(`MathLive: Unknown virtual keyboard layout "${layout}"'`);
-      return '';
-    }
-    return makeLayout(keyboard, LAYOUTS[layout], index);
-  }
+  const layout = normalizeLayout(l);
 
   const markup: string[] = [];
-  console.assert(
-    layout.layers && Array.isArray(layout.layers),
-    'MathLive: the virtual keyboard layout should have a "layers" property, an array of layer IDs'
-  );
-  for (const layerName of layout.layers) {
-    if (!(keyboard.layers[layerName] ?? LAYERS[layerName])) {
-      console.error(
-        'MathLive: Unknown virtual keyboard layer: "',
-        layerName,
-        '"'
-      );
-      continue;
-    }
-
+  for (const layer of layout.layers) {
     markup.push(
-      `<div tabindex="-1" class="MLK__layer" data-layer="${layerName}">`
+      `<div tabindex="-1" class="MLK__layer" data-layer="${layer.id}">`
     );
     markup.push(
       `<div class='MLK__toolbar' role='toolbar'>${makeLayoutsToolbar(
@@ -720,19 +773,14 @@ function makeLayout(
 
     // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
     // be expanded
-    markup.push(
-      expandLayerMarkup(
-        keyboard,
-        markupLayer(keyboard.layers[layerName] ?? LAYERS[layerName])
-      )
-    );
+    markup.push(expandLayerMarkup(keyboard, markupLayer(layer)));
     markup.push('</div>');
   }
 
   return markup.join('');
 }
 
-function markupLayer(layer: string | Partial<VirtualKeyboardLayer>): string {
+function markupLayer(layer: Partial<VirtualKeyboardLayer>): string {
   if (typeof layer === 'string') return layer;
   // Process JSON layer to web element based layer.
 
@@ -805,7 +853,7 @@ function markupLayer(layer: string | Partial<VirtualKeyboardLayer>): string {
     }
 
     layerMarkup += `</div>`;
-  }
+  } else if (layer.markup) layerMarkup += layer.markup;
 
   if (layer.container) layerMarkup += '</div>';
 

@@ -95,14 +95,30 @@
       document
         .getElementById('custom-keyboard')
         .addEventListener('click', () => {
-          mathVirtualKeyboard.virtualKeyboards = 'high-school-keyboard';
+          mathVirtualKeyboard.layouts = {
+            rows: [
+              [
+                '+',
+                '-',
+                '\\times',
+                '\\frac{#@}{#?}',
+                '=',
+                '.',
+                '(',
+                ')',
+                '\\sqrt{#0}',
+                '#@^{#?}',
+              ],
+              ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+            ],
+          };
         });
 
       document
         .getElementById('default-keyboard')
         .addEventListener(
           'click',
-          () => (mathVirtualKeyboard.layouts = ['default'])
+          () => (mathVirtualKeyboard.layouts = 'default')
         );
 
       document
@@ -165,101 +181,111 @@
         updateButtons();
       }
 
-      mathVirtualKeyboard.layers = {
-        'high-school-layer': {
-          styles: '',
-          rows: [
-            [
-              'a',
-              'b',
-              { class: 'separator w5' },
-              '7',
-              '8',
-              '9',
-              '\\div',
-              { class: 'separator w5' },
-              {
-                class: 'tex',
-                label: '<span><i>x</i>&thinsp;²</span>',
-                insert: '$$#@^{2}$$',
-              },
-              {
-                class: 'tex',
-                label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
-                insert: '$$#@^{}$$',
-              },
-              {
-                class: 'small',
-                latex: '\\sqrt{#0}',
-                insert: '$$\\sqrt{#0}$$',
-              },
-            ],
-            [
-              'c',
-              'd',
-              { class: 'separator w5' },
-              '4',
-              '5',
-              '6',
-              '\\times',
-              { class: 'separator w5' },
-              '\\frac{#0}{#0}',
-              { class: 'separator' },
-              { class: 'separator' },
-            ],
-            [
-              'x',
-              'y',
-              { class: 'separator w5' },
+      // mathVirtualKeyboard.layouts = {
+      //     rows: [
+      //       [
+      //         'a',
+      //         'b',
+      //         { class: 'separator w5' },
+      //         '7',
+      //         '8',
+      //         '9',
+      //         '\\div',
+      //         { class: 'separator w5' },
+      //         {
+      //           class: 'tex',
+      //           label: '<span><i>x</i>&thinsp;²</span>',
+      //           insert: '$$#@^{2}$$',
+      //         },
+      //         {
+      //           class: 'tex',
+      //           label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
+      //           insert: '$$#@^{}$$',
+      //         },
+      //         {
+      //           class: 'small',
+      //           latex: '\\sqrt{#0}',
+      //           insert: '$$\\sqrt{#0}$$',
+      //         },
+      //       ],
+      //       [
+      //         'c',
+      //         'd',
+      //         { class: 'separator w5' },
+      //         '4',
+      //         '5',
+      //         '6',
+      //         '\\times',
+      //         { class: 'separator w5' },
+      //         '\\frac{#0}{#0}',
+      //         { class: 'separator' },
+      //         { class: 'separator' },
+      //       ],
+      //       [
+      //         'x',
+      //         'y',
+      //         { class: 'separator w5' },
 
-              '1',
-              '2',
-              '3',
-              '-',
-              { class: 'separator w5' },
-              { class: 'separator' },
-              { class: 'separator' },
-              { class: 'separator' },
-            ],
-            [
-              '(',
-              ')',
+      //         '1',
+      //         '2',
+      //         '3',
+      //         '-',
+      //         { class: 'separator w5' },
+      //         { class: 'separator' },
+      //         { class: 'separator' },
+      //         { class: 'separator' },
+      //       ],
+      //       [
+      //         '(',
+      //         ')',
 
-              { class: 'separator w5' },
-              '0',
-              '.',
-              '\\pi',
-              '+',
-              { class: 'separator w5' },
-              {
-                class: 'action',
-                label:
-                  "<svg class=svg-glyph><use xlink:href='#svg-arrow-left' /></svg>",
-                command: ['performWithFeedback', 'moveToPreviousChar'],
-              },
-              {
-                class: 'action',
-                label:
-                  "<svg class=svg-glyph><use xlink:href='#svg-arrow-right' /></svg>",
-                command: ['performWithFeedback', 'moveToNextChar'],
-              },
-              {
-                class: 'action font-glyph right',
-                label: '&#x232b;',
-                command: ['performWithFeedback', 'deleteBackward'],
-              },
-            ],
-          ],
-        },
-      };
+      //         { class: 'separator w5' },
+      //         '0',
+      //         '.',
+      //         '\\pi',
+      //         '+',
+      //         { class: 'separator w5' },
+      //         {
+      //           class: 'action',
+      //           label:
+      //             "<svg class=svg-glyph><use xlink:href='#svg-arrow-left' /></svg>",
+      //           command: ['performWithFeedback', 'moveToPreviousChar'],
+      //         },
+      //         {
+      //           class: 'action',
+      //           label:
+      //             "<svg class=svg-glyph><use xlink:href='#svg-arrow-right' /></svg>",
+      //           command: ['performWithFeedback', 'moveToNextChar'],
+      //         },
+      //         {
+      //           class: 'action font-glyph right',
+      //           label: '&#x232b;',
+      //           command: ['performWithFeedback', 'deleteBackward'],
+      //         },
+      //       ],
+      // };
 
-      mathVirtualKeyboard.layouts = [
-        {
-          label: 'High School', // Label displayed in the Virtual Keyboard Switcher
-          tooltip: 'High School Level', // Tooltip when hovering over the label
-          layers: ['high-school-layer'],
-        },
-      ];
+      // mathVirtualKeyboard.layouts = [
+      //   {
+      //     label: 'Minimal', // Label displayed in the Layout Switcher
+      //     tooltip: 'Only the essentials!',
+      //     rows: [
+      //       [
+      //         '+',
+      //         '-',
+      //         '\\times',
+      //         '\\frac{#@}{#?}',
+      //         '=',
+      //         '.',
+      //         '(',
+      //         ')',
+      //         '\\sqrt{#0}',
+      //         '#@^{#?}',
+      //       ],
+      //       ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+      //     ],
+      //   },
+      // ];
 
       function updateButtons() {
         if (kbd.visible) {

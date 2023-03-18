@@ -8,7 +8,6 @@ import {
   AlphabeticKeyboardLayout,
   OriginValidator,
   LayoutDefinition,
-  VirtualKeyboardLayer,
   ActionToolbarOptions,
 } from '../public/options';
 import { isVirtualKeyboardMessage, VIRTUAL_KEYBOARD_MESSAGE } from './proxy';
@@ -46,21 +45,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.rebuild();
   }
 
-  private _layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-  get layers(): Record<string, string | Partial<VirtualKeyboardLayer>> {
-    return this._layers;
-  }
-  set layers(value: Record<string, string | Partial<VirtualKeyboardLayer>>) {
-    this._layers = value;
-    this.rebuild();
-  }
-
   private _layouts: (string | LayoutDefinition)[];
   get layouts(): (string | LayoutDefinition)[] {
     return this._layouts;
   }
   set layouts(value: (string | LayoutDefinition)[]) {
-    const layouts = [...value];
+    const layouts = Array.isArray(value) ? [...value] : [value];
     const defaultIndex = layouts.findIndex((x) => x === 'default');
     if (defaultIndex >= 0) {
       layouts.splice(
@@ -110,7 +100,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.originValidator = 'same-origin';
 
     this._alphabeticLayout = 'auto';
-    this._layers = {};
     this._layouts = ['numeric', 'functions', 'symbols', 'alphabetic', 'greek'];
     this._actionToolbar = 'default';
 
@@ -366,7 +355,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         if (evt.data.alphabeticLayout)
           this.alphabeticLayout = evt.data.alphabeticLayout;
         if (evt.data.layouts) this.layouts = evt.data.layouts;
-        if (evt.data.layers) this.layers = evt.data.layers;
         if (evt.data.actionToolbar) this.actionToolbar = evt.data.actionToolbar;
         return;
       }
@@ -378,7 +366,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           boundingRect: this.boundingRect,
           alphabeticLayout: this._alphabeticLayout,
           layouts: this._layouts,
-          layers: this._layers,
           actionToolbar: this._actionToolbar,
         });
         return;
