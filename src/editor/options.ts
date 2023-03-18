@@ -40,10 +40,10 @@ export function update(
 
         break;
 
-      case 'virtualKeyboardPolicy':
+      case 'mathVirtualKeyboardPolicy':
         const keyboardPolicy =
-          updates.virtualKeyboardPolicy!.toLowerCase() as VirtualKeyboardPolicy;
-        result.virtualKeyboardPolicy = keyboardPolicy;
+          updates.mathVirtualKeyboardPolicy!.toLowerCase() as VirtualKeyboardPolicy;
+        result.mathVirtualKeyboardPolicy = keyboardPolicy;
 
         break;
 
@@ -137,7 +137,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     inlineShortcuts: INLINE_SHORTCUTS,
     inlineShortcutTimeout: 0,
 
-    virtualKeyboardPolicy: 'auto',
+    mathVirtualKeyboardPolicy: 'auto',
 
     virtualKeyboardTargetOrigin: globalThis.window?.origin,
     originValidator: 'same-origin',

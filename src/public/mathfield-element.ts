@@ -1766,10 +1766,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   get mathVirtualKeyboardPolicy(): VirtualKeyboardPolicy {
-    return this.getOption('virtualKeyboardPolicy');
+    return this.getOption('mathVirtualKeyboardPolicy');
   }
   set mathVirtualKeyboardPolicy(value: VirtualKeyboardPolicy) {
-    this.setOptions({ virtualKeyboardPolicy: value });
+    this.setOptions({ mathVirtualKeyboardPolicy: value });
   }
 
   /**

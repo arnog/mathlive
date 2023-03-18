@@ -418,7 +418,7 @@ export type EditingOptions = {
    */
   popoverPolicy: 'auto' | 'off';
 
-  virtualKeyboardPolicy: 'auto' | 'manual';
+  mathVirtualKeyboardPolicy: 'auto' | 'manual';
 };
 
 export type LayoutOptions = {
