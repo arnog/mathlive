@@ -148,10 +148,6 @@
       import * as htmlToImage from './html-to-image/index.mjs';
 
       const mf = document.getElementById('mf');
-      mf.setOptions({
-        smartMode: true,
-        virtualKeyboardMode: 'manual',
-      });
       mf.addEventListener('input', (evt) => {
         document.getElementById('latex').value = mf.getValue();
       });

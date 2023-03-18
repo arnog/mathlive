@@ -280,11 +280,7 @@ export type Registers = Record<string, RegisterValue>;
  *
  * For example:
 ```javascript
-mf.setOptions({
-    macros: {
-        smallfrac: '^{#1}\\!\\!/\\!_{#2}',
-    },
-});
+mf.macros = { smallfrac: "^{#1}\\!\\!/\\!_{#2}" };
 ```
 The code above will support the following notation:
 ```latex

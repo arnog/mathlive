@@ -1486,65 +1486,55 @@ surface is zero.
             ]
         };
       const mf = document.getElementById('mf');
-      mf.setOptions({
-        // fontsDirectory: '/dist/fonts/',
-        // letterShapeStyle: 'french', // 'french', 'upright', 'tex'
-        smartFence: true,
-        smartMode: true,
-        virtualKeyboardMode: 'manual',
-        onContentDidChange: (mf) => {
-          const latex = mf.getValue('latex-expanded');
-          try {
-            // let errors = [];
-            // let expr = parseLatex(latex, {
-            //     form: 'canonical',
-            //     onError: (err) =>
-            //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-            // });
-            // let jsonLatex = emitLatex(expr, {
-            //     precision: 100, onError: (err) =>
-            //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-            // });
-            // errors = [];
-            // expr = parseLatex(latex, {
-            //     form: 'full',
-            //     preserveLatex: true,
-            //     onError: (err) =>
-            //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-            // });
-            // jsonLatex = emitLatex(expr, {
-            //     precision: 100, onError: (err) =>
-            //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
-            // });
-            // errors = [];
-            // expr = parseLatex(latex, {
-            //     form: 'full',
-            //     invisibleOperator: '',
-            //     superscriptOperator: '',
-            //     subscriptOperator: '',
-            //     // parseArgumentsOfUnknownLatexCommands: false,
-            //     invisiblePlusOperator: '',
-            //     dictionary: [],
-            //     promoteUnknownSymbols: /./,
+      md.addEventListener('change', () => {
+        const latex = mf.getValue('latex-expanded');
+        try {
+          // let errors = [];
+          // let expr = parseLatex(latex, {
+          //     form: 'canonical',
+          //     onError: (err) =>
+          //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+          // });
+          // let jsonLatex = emitLatex(expr, {
+          //     precision: 100, onError: (err) =>
+          //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+          // });
+          // errors = [];
+          // expr = parseLatex(latex, {
+          //     form: 'full',
+          //     preserveLatex: true,
+          //     onError: (err) =>
+          //         errors.push('parse: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+          // });
+          // jsonLatex = emitLatex(expr, {
+          //     precision: 100, onError: (err) =>
+          //         errors.push('emit: ' + err.code + (err.arg ? ' ' + err.arg : '')),
+          // });
+          // errors = [];
+          // expr = parseLatex(latex, {
+          //     form: 'full',
+          //     invisibleOperator: '',
+          //     superscriptOperator: '',
+          //     subscriptOperator: '',
+          //     // parseArgumentsOfUnknownLatexCommands: false,
+          //     invisiblePlusOperator: '',
+          //     dictionary: [],
+          //     promoteUnknownSymbols: /./,
 
-            //     parseArgumentsOfUnknownLatexCommands: true,
-            //     parseNumbers: true,
+          //     parseArgumentsOfUnknownLatexCommands: true,
+          //     parseNumbers: true,
 
-            //     onError: (err) =>
-            //         errors.push(err.code + (err.arg ? ' ' + err.arg : '')),
-            // });
-            const mathAscci = mf.getValue('ascii-math');
-          } catch (e) {
-            console.error(
-              'Error converting %c ' + latex + '%c ' + e.toString(),
-              'color: red;  background: hsla(0, 60%, 90%)',
-              'background: transparent'
-            );
-          }
-        },
-        onError: (err) => {
-          console.error(err.latex, err.code + ' ' + (err.arg ?? ''));
-        },
+          //     onError: (err) =>
+          //         errors.push(err.code + (err.arg ? ' ' + err.arg : '')),
+          // });
+          const mathAscci = mf.getValue('ascii-math');
+        } catch (e) {
+          console.error(
+            'Error converting %c ' + latex + '%c ' + e.toString(),
+            'color: red;  background: hsla(0, 60%, 90%)',
+            'background: transparent'
+          );
+        }
       });
       // renderMathInDocument({
       //     onError: (err) => {
@@ -1553,19 +1543,6 @@ surface is zero.
       // });
       if (true) {
         let error = [];
-        mf.setOptions({
-          onError: (err) =>
-            error.push(
-              'At "' +
-                err.after +
-                '<span style="color:#999">' +
-                err.before +
-                '</span>" ' +
-                err.code +
-                ' ' +
-                (err.arg ?? '')
-            ),
-        });
         document.getElementById('examples').innerHTML = Object.keys(
           TESTING_SAMPLES
         )

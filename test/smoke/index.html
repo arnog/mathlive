@@ -20,6 +20,10 @@
         max-width: 640px;
         width: 100%;
       }
+      math-field {
+        --selection-background-color: lightgoldenrodyellow;
+        --selection-color: darkblue;
+      }
     </style>
   </head>
   <body>
@@ -81,34 +85,28 @@
 
       mf.computeEngine = new ComputeEngine();
 
-      mf.setOptions({
-        onInlineShortcut: (_mf, s) => {
-          if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
-            const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
-            if (m) {
-              if (['alpha', 'beta', 'gamma'].includes(m[1]))
-                return `\\${m[1]}_{${m[2]}}`;
-              return `\\mathrm{${m[1]}}_{${m[2]}}`;
-            }
-            return '\\mathrm{' + s + '}';
+      mf.onInlineShortcut = (_mf, s) => {
+        if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+          const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
+          if (m) {
+            if (['alpha', 'beta', 'gamma'].includes(m[1]))
+              return `\\${m[1]}_{${m[2]}}`;
+            return `\\mathrm{${m[1]}}_{${m[2]}}`;
           }
-          return '';
+          return '\\mathrm{' + s + '}';
+        }
+        return '';
+      };
+      mf.macros = {
+        ...mf.macros,
+        // Alpha: undefined,
+        minutes: '\\prime',
+        smolfrac: {
+          args: 2,
+          def: '{}^{#1}\\!\\!/\\!{}_{#2}',
+          captureSelection: true,
         },
-        // smartFence: true,
-        // virtualKeyboardMode: 'off',
-        enablePopover: false,
-        // macros: { ...mf.getOptions('macros'), in: '\\mathrm{in}' },
-        macros: {
-          ...mf.getOptions('macros'),
-          // Alpha: undefined,
-          minutes: '\\prime',
-          smolfrac: {
-            args: 2,
-            def: '{}^{#1}\\!\\!/\\!{}_{#2}',
-            captureSelection: true,
-          },
-        },
-      });
+      };
 
       mf.addEventListener('selection-change', (ev) => {
         console.log('selection change', ev);
