@@ -58,12 +58,12 @@ export class VirtualKeyboardProxy
   }
   set layers(value: Record<string, string | Partial<VirtualKeyboardLayer>>) {
     this.sendMessage('update-setting', {
-      layers: structuredClone(value),
+      layers: value,
     });
   }
   set layouts(value: (string | LayoutDefinition)[]) {
     this.sendMessage('update-setting', {
-      layouts: structuredClone(value),
+      layouts: value,
     });
   }
   set actionToolbar(value: ActionToolbarOptions) {

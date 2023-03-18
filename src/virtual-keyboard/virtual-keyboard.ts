@@ -377,8 +377,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         this.sendMessage('synchronize-proxy', {
           boundingRect: this.boundingRect,
           alphabeticLayout: this._alphabeticLayout,
-          layouts: structuredClone(this._layouts),
-          layers: structuredClone(this._layers),
+          layouts: this._layouts,
+          layers: this._layers,
           actionToolbar: this._actionToolbar,
         });
         return;

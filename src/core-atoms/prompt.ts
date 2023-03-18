@@ -7,12 +7,12 @@ import { convertDimensionToEm } from '../core/registers-utils';
 
 export class PromptAtom extends Atom {
   readonly placeholderId?: string;
-  correctness: string | undefined;
+  correctness: 'correct' | 'incorrect' | undefined;
   locked: boolean;
   constructor(
     context: GlobalContext,
     placeholderId?: string,
-    correctness?: string | undefined,
+    correctness?: 'correct' | 'incorrect' | undefined,
     locked = false,
     body?: Atom[],
     options?: {

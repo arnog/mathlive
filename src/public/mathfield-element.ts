@@ -1009,7 +1009,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     if (isElementInternalsSupported()) {
       this._internals = this.attachInternals();
-      this._internals.role = 'math';
+      this._internals['role'] = 'math';
       this._internals.ariaLabel = 'math input field';
       this._internals.ariaMultiLine = 'false';
     }
@@ -1087,7 +1087,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   get form(): HTMLFormElement | null {
-    return this._internals?.form;
+    return this._internals?.['form'];
   }
 
   get name(): string {
@@ -1737,17 +1737,19 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   set smartMode(value: boolean) {
     this.setOptions({ smartMode: value });
   }
-  setPromptCorrectness(
+  setPromptState(
     id: string,
-    correctness: 'correct' | 'incorrect' | undefined
+    state: 'correct' | 'incorrect' | 'undefined' | undefined,
+    locked?: boolean
   ): void {
-    this._mathfield?.setPromptCorrectness(id, correctness);
+    this._mathfield?.setPromptState(id, state, locked);
   }
+  getPromptState(id: string): ['correct' | 'incorrect' | undefined, boolean] {
+    return this._mathfield?.getPromptState(id) ?? [undefined, true];
+  }
+
   setPromptContent(id: string, content: string): void {
     this._mathfield?.setPromptValue(id, content);
-  }
-  setPromptLocked(id: string, locked: boolean): void {
-    this._mathfield?.setPromptLocked(id, locked);
   }
   get smartSuperscript(): boolean {
     return this.getOption('smartSuperscript');

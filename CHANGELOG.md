@@ -24,9 +24,9 @@
   expression.
 - Prompts can be either in a correct, incorrect or indeterminate state. In
   correct or incorrect state, their appearance changes to reflect their state.
-  Use `mf.setPromptCorrectness()` to flag a prompt as being correct or
-  incorrect.
-- Use `mf.setPromptLocked()` to mark a prompt as no longer being editable.
+  Use `mf.setPromptState()` to flag a prompt as being correct or incorrect.
+  `mf.setPromptState()` can also be used to mark a prompt as no longer being
+  editable.
 
 #### Virtual Keyboard
 
@@ -73,7 +73,7 @@
 
 - The virtual keyboard customization API has been simplified.
 
-  **Before:**
+**Before:**
 
 ```js
 const HIGH_SCHOOL_KEYBOARD = {
@@ -105,15 +105,15 @@ mathVirtualKeyboard.layouts = [
 ];
 ```
 
-To change the alphabetic layout"
+To change the alphabetic layout:
 
-    **Before:**
+**Before:**
 
 ```js
 mf.setOptions({ virtualKeyboardLayout: 'azerty' });
 ```
 
-    **Now:**
+**Now:**
 
 ```js
 mathVirtualKeyboard.alphabeticLayout = 'azerty';
@@ -228,12 +228,15 @@ MathfieldElement.soundsDirectory = null;
 
 #### Miscellaneous Breaking Changes
 
+- For consistency with `<textarea>` the `<math-field>` tag now has a default
+  display style of "inline". You can change the display style to "block" using a
+  CSS rule.
 - The `<math-field>` tag now has some default styling, including a background
   and border, consistent with a `<textarea>` element. You can override this
   styling by defining CSS rules for the `math-field` selector.
 - The previously deprecated option `horizontalSpacingScale`has been removed. It
-  is replaced by the standard TeX registers`\thinmuskip`,
-  `\medmuskip` and `\thickmuskip`.
+  is replaced by the standard TeX registers`\thinmuskip`, `\medmuskip` and
+  `\thickmuskip`.
 - It was previously possible to specify a set of options for a mathfield as a
   `<script>` tag inside the mathfield, as JSON data structure. This is no longer
   supported.

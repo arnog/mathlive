@@ -1292,28 +1292,34 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     requestUpdate(this);
   }
 
-  setPromptCorrectness(
+  setPromptState(
     id: string,
-    correctness: 'correct' | 'incorrect' | undefined
+    state: 'correct' | 'incorrect' | 'undefined' | undefined,
+    locked?: boolean
   ): void {
     const prompt = this.getPrompt(id);
     if (!prompt) {
       console.error('MathLive: unknown prompt', id);
       return;
     }
-    prompt.correctness = correctness;
+    if (state === 'undefined') prompt.correctness = undefined;
+    else if (typeof state === 'string') prompt.correctness = state;
+
+    if (typeof locked === 'boolean') {
+      prompt.locked = locked;
+      prompt.captureSelection = locked;
+    }
+
     requestUpdate(this);
   }
 
-  setPromptLocked(id: string, locked: boolean): void {
+  getPromptState(id: string): ['correct' | 'incorrect' | undefined, boolean] {
     const prompt = this.getPrompt(id);
     if (!prompt) {
       console.error('MathLive: unknown prompt', id);
-      return;
+      return [undefined, true];
     }
-    prompt.locked = locked;
-    prompt.captureSelection = locked;
-    requestUpdate(this);
+    return [prompt.correctness, prompt.locked];
   }
 
   canUndo(): boolean {
