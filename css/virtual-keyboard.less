@@ -385,12 +385,16 @@
         color: var(--keyboard-toolbar-text-active);
       }
       &.MLK__keycap.is-active,
-      &.action.is-active {
+      &.action.is-active,
+      &.MLK__keycap.is-pressed,
+      &.action.is-pressed {
         // -0.2 = 1.0 - 1.4
-        transform: translateY(calc(-0.2 * var(--keycap-height, @keycap-height)))
-          scale(1.4, 1.4);
+        // transform: translateY(calc(-0.2 * var(--keycap-height, @keycap-height)))
+        //   scale(1.4, 1.4);
         z-index: calc(var(--keyboard-zindex, @keyboard-zindex) - 5);
-        color: var(--keyboard-toolbar-text-active);
+        // color: var(--keyboard-toolbar-text-active);
+        background: var(--keyboard-accent-color);
+        color: #fff;
       }
       &.modifier.is-active {
         background: var(--keyboard-toolbar-text-active);
