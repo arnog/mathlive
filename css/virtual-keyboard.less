@@ -1,4 +1,3 @@
-@keyboard-height: 336px;
 @keycap-height: 62px;
 
 //
@@ -21,7 +20,7 @@
 
 @layer ML_keyboard {
   :where(:root) {
-    --keyboard-height: @keyboard-height;
+    --keyboard-height: 0;
 
     --keyboard-accent-color: #0b579d; // #326595;
     --keyboard-background: #cacfd7;
@@ -74,7 +73,6 @@
   // Account for the potential inset area at the bottom of the screen
   body > .ML__keyboard {
     position: fixed;
-    --keyboard-height: calc(@keyboard-height + env(safe-area-inset-bottom, 0));
     --keyboard-padding-bottom: calc(
       var(--keyboard-padding-bottom) + env(safe-area-inset-bottom, 0)
     );
@@ -121,7 +119,7 @@
   // `virtualKeyboardContainer`
   .MLK__backdrop {
     position: absolute;
-    bottom: calc(-1 * var(--keyboard-height, @keyboard-height));
+    bottom: calc(-1 * var(--keyboard-height));
 
     width: 100%;
     height: var(--keyboard-height);
@@ -140,10 +138,7 @@
   }
 
   .ML__keyboard.is-visible > .MLK__backdrop {
-    transform: translate(
-      0,
-      calc(-1 * var(--keyboard-height, @keyboard-height))
-    );
+    transform: translate(0, calc(-1 * var(--keyboard-height)));
     opacity: 1;
     visibility: visible;
   }
@@ -819,7 +814,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     }
   }
   /* Same as the media query, but with a class */
-  body[theme='dark'] .ML__keyboard {
+  [theme='dark'] .ML__keyboard {
     --keyboard-accent-color: hsl(212, 100%, 50%);
     --keyboard-background: #151515;
     --keyboard-border: transparent;
@@ -848,5 +843,38 @@ Note there are a different set of tooltip rules for the keyboard toggle
     --variant-panel-background: #303030;
     --variant-keycap-text: var(--keycap-text);
     --variant-keycap-text-active: #fff;
+  }
+
+  [theme='light'] .ML__keyboard {
+    --keyboard-accent-color: #0b579d; // #326595;
+    --keyboard-background: #cacfd7;
+    --keyboard-border: #ddd;
+
+    --keyboard-toolbar-text: #2c2e2f;
+    --keyboard-toolbar-text-active: var(--keyboard-accent-color);
+    --keyboard-toolbar-background: transparent;
+    --keyboard-toolbar-background-hover: #eee;
+    --keyboard-toolbar-background-selected: transparent;
+
+    --keycap-background: white;
+    --keycap-background-hover: #f5f5f7;
+    --keycap-background-active: white;
+    --keycap-border: #e5e6e9;
+    --keycap-border-bottom: #8d8f92;
+    --keycap-text: #000;
+    --keycap-text-active: #fff;
+    --keycap-text-hover: #fff;
+    --keycap-secondary-text: #000;
+
+    --keycap-modifier-background: #a0a9b6;
+    --keycap-modifier-background-hover: #949ead;
+    --keycap-modifier-text: #060707;
+    --keycap-modifier-border: #c5c9d0;
+    --keycap-modifier-border-bottom: #989da6;
+
+    --variant-panel-background: #fff;
+    --variant-keycap-text: var(--keycap-text, #000);
+    --variant-keycap-text-active: #fff;
+    --variant-keycap-background-active: var(--keyboard-accent-color);
   }
 }
