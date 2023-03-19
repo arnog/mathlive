@@ -6,8 +6,7 @@ export type ButtonHandlers = {
   pressed?: SelectorPrivate | [SelectorPrivate, ...any[]];
   alt?: SelectorPrivate | [SelectorPrivate, ...any[]];
   shift?: SelectorPrivate | [SelectorPrivate, ...any[]];
-  pressAndHoldStart?: SelectorPrivate | [SelectorPrivate, ...any[]];
-  pressAndHoldEnd?: SelectorPrivate | [SelectorPrivate, ...any[]];
+  pressAndHold?: SelectorPrivate | [SelectorPrivate, ...any[]];
 };
 
 /**
@@ -20,10 +19,8 @@ export type ButtonHandlers = {
  *    * 'default': command performed on up, with a down + up sequence with no
  *      delay between down and up
  *    * 'pressed': command performed on 'down'
- *    * 'pressAndHoldStart': command performed after a tap/down followed by a
+ *    * 'pressAndHold': command performed after a tap/down followed by a
  * delay (optional)
- *    * 'pressAndHoldEnd': command performed on up, if there was a delay
- *     between down and up, if absent, 'default' is performed
  * The value of the keys specify which selector (string
  * or array) to perform depending on the keyboard state when the button is
  * pressed.
@@ -53,19 +50,9 @@ export function attachButtonHandlers(
   if (command.pressed)
     element.dataset.commandPressed = JSON.stringify(command.pressed);
 
-  if (command.pressAndHoldStart) {
-    element.dataset.commandPressAndHoldStart = JSON.stringify(
-      command.pressAndHoldStart
-    );
-  }
+  if (command.pressAndHold)
+    element.dataset.commandPressAndHold = JSON.stringify(command.pressAndHold);
 
-  if (command.pressAndHoldEnd) {
-    element.dataset.commandPressAndHoldEnd = JSON.stringify(
-      command.pressAndHoldEnd
-    );
-  }
-
-  let pressHoldStart: number;
   let pressAndHoldTimer;
 
   on(element, 'pointerdown:passive', (ev: PointerEvent) => {
@@ -74,7 +61,6 @@ export function attachButtonHandlers(
     // The primary button was pressed or the screen was tapped.
     ev.stopPropagation();
 
-    pressHoldStart = Date.now();
     element.classList.add('is-pressed');
 
     const target = ev.target! as Element;
@@ -88,16 +74,17 @@ export function attachButtonHandlers(
 
     // If there is a `press and hold start` command, perform it
     // after a delay, if we're still pressed by then.
-    const pressAndHoldStartCommand = element.getAttribute(
-      'data-command-press-and-hold-start'
+    const pressAndHoldCommand = element.getAttribute(
+      'data-command-press-and-hold'
     );
-    if (pressAndHoldStartCommand) {
+    if (pressAndHoldCommand) {
       if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
 
       pressAndHoldTimer = setTimeout(() => {
         if (element.classList.contains('is-pressed')) {
           element.classList.remove('is-pressed');
-          executeCommand(JSON.parse(pressAndHoldStartCommand));
+          element.classList.add('is-active');
+          executeCommand(JSON.parse(pressAndHoldCommand));
         }
       }, 300);
     }
@@ -111,8 +98,6 @@ export function attachButtonHandlers(
   on(element, 'pointercancel', () => element.classList.remove('is-pressed'));
   on(element, 'pointerleave', () => element.classList.remove('is-pressed'));
   on(element, 'pointerup', (ev: PointerEvent) => {
-    const wasPressed = element.classList.contains('is-pressed');
-
     element.classList.remove('is-pressed');
     element.classList.add('is-active');
 
@@ -123,10 +108,7 @@ export function attachButtonHandlers(
     // If the button has been pressed for a while but is not in the "pressed"
     // state (the pressed state is removed when the press and hold starts)
     // consider it a press-and-hold.
-    let command =
-      Date.now() >= pressHoldStart && !wasPressed
-        ? element.getAttribute('data-command-press-and-hold-end')
-        : null;
+    let command: string | null = null;
 
     if (!command && ev.altKey)
       command = element.getAttribute('data-command-alt');

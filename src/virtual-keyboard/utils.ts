@@ -41,6 +41,9 @@ export function unshiftKeyboardLayer(): boolean {
     );
   if (keycaps) {
     for (const keycap of keycaps) {
+      keycap.classList.remove('is-active');
+      keycap.classList.remove('is-pressed');
+
       const content = keycap.getAttribute('data-unshifted-content');
       if (content) {
         keycap.innerHTML = MathfieldElement.createHTML(content);
@@ -367,8 +370,7 @@ export function makeKeycap(
       if (variantsId) {
         handlers = {
           default: selector,
-          pressAndHoldStart: ['showVariantsPanel', variantsId],
-          pressAndHoldEnd: 'hideVariantsPanel',
+          pressAndHold: ['showVariantsPanel', variantsId],
         };
         // } else {
         //   console.warn(`Unknown variants: "${variantsId}"`);
@@ -721,10 +723,6 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
           // If the key is released before a delay, we switch to the target layer
           default: ['switchKeyboardLayer', element.getAttribute('data-layer')],
-
-          // If the key is released after a longer delay, we restore the
-          // shifted labels
-          pressAndHoldEnd: 'unshiftKeyboardLayer',
         }
       );
     } else {
