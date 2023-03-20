@@ -342,7 +342,7 @@ export function move(
     //
     if (pos >= 0 && pos <= model.lastOffset) {
       if (direction === 'forward') {
-        if (model.mathfield.hasEditableContent && !model.at(pos).parentPrompt) {
+        if (model.mathfield.hasEditablePrompts && !model.at(pos).parentPrompt) {
           // The new position is not editable, instead look forward for the next prompt:
           const nextAtoms = model
             .getAtoms(pos, -1)
@@ -380,7 +380,7 @@ export function move(
         else if (atom instanceof LatexAtom && atom.isSuggestion)
           atom.isSuggestion = false;
       } else if (direction === 'backward') {
-        if (model.mathfield.hasEditableContent && !model.at(pos).parentPrompt) {
+        if (model.mathfield.hasEditablePrompts && !model.at(pos).parentPrompt) {
           // The new position is not editable, instead look forward for the previous prompt:
           const previousAtoms = model
             .getAtoms(0, pos)
