@@ -110,7 +110,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.observer = new ResizeObserver((_entries) => {
       // Adjust the keyboard height
       const h = this.boundingRect.height;
-      this._element?.style.setProperty('--keyboard-height', `${h}px`);
+      if (this.container === document.body) {
+        this._element?.style.setProperty(
+          '--keyboard-height',
+          `calc(${h}px + env(safe-area-inset-bottom, 0))`
+        );
+      } else this._element?.style.setProperty('--keyboard-height', `${h}px`);
 
       const keyboardHeight = h - 1;
       this.container!.style.paddingBottom = this.originalContainerBottomPadding
