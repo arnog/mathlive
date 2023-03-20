@@ -8,6 +8,7 @@ module.exports = {
           discardComments: {
             removeAll: true,
           },
+          convertValues: false,
         },
       ],
     }),

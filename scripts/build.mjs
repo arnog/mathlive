@@ -37,7 +37,7 @@ const BUILD_OPTIONS = {
     SDK_VERSION: JSON.stringify(SDK_VERSION),
     GIT_VERSION: JSON.stringify(process.env.GIT_VERSION || '?.?.?'),
   },
-  plugins: [less({ compress: true })],
+  plugins: [less()],
   loader: { '.ts': 'ts' },
   sourcemap: !PRODUCTION,
   sourceRoot: '../src',
