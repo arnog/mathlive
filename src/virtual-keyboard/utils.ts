@@ -164,7 +164,7 @@ function normalizeLayout(
   if ('markup' in layout && typeof layout.markup === 'string') {
     return {
       ...layout,
-      layers: normalizeLayer(layout.markup),
+      layers: normalizeLayer(layout.markup as string),
     } as NormalizedLayoutDefinition;
   }
 

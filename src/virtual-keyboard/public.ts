@@ -118,6 +118,9 @@ export type LayoutDefinition =
           /** As a shortcut, if a single layer, the rows of that layer */
           rows: Partial<VirtualKeyboardKeycap>[][];
         }
+      | {
+          markup: string;
+        }
     );
 
 export interface VirtualKeyboardLayer {

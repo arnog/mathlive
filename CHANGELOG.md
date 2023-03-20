@@ -126,15 +126,23 @@ mf.setOptions({
 
 **Now:**
 
-````js
+```js
 mathVirtualKeyboard.layouts = {
   rows: [
     [
-      "+", "-", "\\times", "\\frac{#@}{#?}", "=", ".",
-      "(", ")", "\\sqrt{#0}", "#@^{#?}",
+      '+',
+      '-',
+      '\\times',
+      '\\frac{#@}{#?}',
+      '=',
+      '.',
+      '(',
+      ')',
+      '\\sqrt{#0}',
+      '#@^{#?}',
     ],
-    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-  ]
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+  ],
 };
 ```
 
@@ -144,7 +152,7 @@ To change the alphabetic layout:
 
 ```js
 mf.setOptions({ virtualKeyboardLayout: 'azerty' });
-````
+```
 
 **Now:**
 
