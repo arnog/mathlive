@@ -308,7 +308,8 @@ export function offsetFromPoint(
   //
   // 1/ Check if we're inside the mathfield bounding box
   //
-  const bounds = mathfield.fieldContent!.getBoundingClientRect();
+  const bounds = mathfield.fieldContent?.getBoundingClientRect();
+  if (!bounds) return 0;
   if (x > bounds.right || y > bounds.bottom + 8)
     return mathfield.model.lastOffset;
 

@@ -10,13 +10,19 @@ declare global {
 }
 
 if (isBrowser()) {
-  Object.defineProperty(window, 'mathVirtualKeyboard', {
-    // The value of `window.mathVirtualKeyboard` is either a
-    // `VirtualKeyboard` singleton in the top-level browsing context,
-    // or a `VirtualKeyboardProxy` otherwise (when in an iframe)
-    get: () =>
-      window.top !== window
-        ? VirtualKeyboardProxy.singleton
-        : VirtualKeyboard.singleton,
-  });
+  if (window === window.top) {
+    // When at the top-level window, mathVirtualKeyboard is a singleton
+    // VirtualKeyboard. Instantiate it during static init, otherwise
+    // mathfields in iFrame will not be able to talk to it until it has been
+    // instantiated (which the client may not do)
+    const kbd = VirtualKeyboard.singleton;
+    Object.defineProperty(window, 'mathVirtualKeyboard', {
+      get: () => kbd,
+    });
+  } else {
+    // When in an iFrame, the mathVirtualKeyboard is a proxy
+    Object.defineProperty(window, 'mathVirtualKeyboard', {
+      get: () => VirtualKeyboardProxy.singleton,
+    });
+  }
 }

@@ -110,7 +110,6 @@ import {
   isVirtualKeyboardMessage,
   VIRTUAL_KEYBOARD_MESSAGE,
 } from 'virtual-keyboard/proxy';
-import { VirtualKeyboard } from 'virtual-keyboard/virtual-keyboard';
 import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
 import { MathfieldElement } from 'public/mathfield-element';
 
@@ -470,23 +469,27 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // (during the capture phase, before the mathfield potentially loses focus)\
     // then, if this mathfield has focus, listen for when the window regains
     // focus, and restore the focus to this mathfield.
+    // Check for window.top, i.e. that we're not in an iframe. The "window"
+    // object of an iframe also gets sent a blur event when the frame loses focus
 
-    window.addEventListener(
-      'blur',
-      () => {
-        if (isValidMathfield(this) && this.hasFocus()) {
-          window.addEventListener(
-            'focus',
-            (evt) => {
-              if (evt.target === window && isValidMathfield(this)) this.focus();
-            },
-            { once: true }
-          );
-        }
-      },
-      { capture: true }
-    );
-
+    if (window === window.top) {
+      window.addEventListener(
+        'blur',
+        () => {
+          if (isValidMathfield(this) && this.hasFocus()) {
+            window.addEventListener(
+              'focus',
+              (evt) => {
+                if (evt.target === window && isValidMathfield(this))
+                  this.focus();
+              },
+              { once: true }
+            );
+          }
+        },
+        { capture: true }
+      );
+    }
     // Now start recording potentially undoable actions
     this.undoManager.startRecording();
     this.undoManager.snapshot();
@@ -514,7 +517,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   disconnectFromVirtualKeyboard(): void {
     if (!this.connectedToVirtualKeyboard) return;
-    globalThis.removeEventListener('message', this);
+    window.removeEventListener('message', this);
     this.connectedToVirtualKeyboard = false;
   }
 
@@ -684,7 +687,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     else this.element!.classList.remove('ML__is-inline');
 
     if (this.options.readOnly) {
-      if (this.hasFocus() && VirtualKeyboard.singleton.visible)
+      if (this.hasFocus() && window.mathVirtualKeyboard.visible)
         this.executeCommand('hideVirtualKeyboard');
     }
 
@@ -749,17 +752,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       const { action } = evt.data;
 
       if (action === 'execute-command') {
-        // Avoid an infinite messages loop if within one window
-        if (
-          getCommandTarget(evt.data.command!) === 'virtual-keyboard' &&
-          window === globalThis.parent
-        )
-          return;
-
-        this.executeCommand(evt.data.command!);
+        const command = evt.data.command!;
+        if (getCommandTarget(command) === 'virtual-keyboard') return;
+        this.executeCommand(command);
       } else if (action === 'update-state') {
-      } else if (action === 'focus') this.focus?.();
-      else if (action === 'blur') this.blur?.();
+      } else if (action === 'focus') this.focus();
+      else if (action === 'blur') this.blur();
       else if (action === 'update-toolbar')
         window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
       return;
@@ -871,7 +869,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
   ): boolean {
     if (getCommandTarget(command) === 'virtual-keyboard') {
-      this.focus();
+      this.focus({ scrollIntoView: false });
       this.sendMessage('execute-command', { command });
       requestAnimationFrame(() =>
         window.mathVirtualKeyboard.updateToolbar(makeProxy(this))
@@ -1159,17 +1157,17 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   focus(options?: { scrollIntoView: boolean }): void {
+    this.connectToVirtualKeyboard();
     if (!this.hasFocus()) {
       this.keyboardDelegate.focus();
-      this.connectToVirtualKeyboard();
       this.model.announce('line');
     }
     if (options?.scrollIntoView ?? true) this.scrollIntoView();
   }
 
   blur(): void {
-    if (!this.hasFocus()) return;
     this.disconnectFromVirtualKeyboard();
+    if (!this.hasFocus()) return;
     this.keyboardDelegate.blur();
   }
 
@@ -1363,7 +1361,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
   redo(): void {
     if (!this.undoManager.redo()) return;
-    VirtualKeyboard.singleton.updateToolbar(makeProxy(this));
+    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,
@@ -1526,7 +1524,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     while (!target.id && target.hasChildren) target = atom.children[0];
 
     if (target.id) {
-      return this.fieldContent!.querySelector(
+      return this.fieldContent?.querySelector(
         `[data-atom-id="${target.id}"]`
       ) as HTMLSpanElement;
     }

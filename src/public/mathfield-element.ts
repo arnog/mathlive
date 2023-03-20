@@ -21,7 +21,6 @@ import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
 import { isBrowser } from '../common/capabilities';
 import { resolveUrl } from '../common/script-url';
-import { VirtualKeyboard } from 'virtual-keyboard/virtual-keyboard';
 import { requestUpdate } from 'editor-mathfield/render';
 import { reloadFonts, loadFonts } from 'core/fonts';
 import { defaultSpeakHook } from 'editor/speech';
@@ -1666,7 +1665,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     if (
       isDisabled &&
       this._mathfield?.hasFocus &&
-      VirtualKeyboard.singleton.visible
+      window.mathVirtualKeyboard.visible
     )
       this._mathfield.executeCommand('hideVirtualKeyboard');
   }

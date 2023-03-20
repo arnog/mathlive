@@ -14,7 +14,7 @@ import { register } from 'editor/commands';
 register({ showVariantsPanel }, { target: 'virtual-keyboard' });
 
 export function switchKeyboardLayer(layer: string | null): boolean {
-  VirtualKeyboard.singleton.show();
+  window.mathVirtualKeyboard.show();
   // If the variants panel was visible, hide it
   hideVariantsPanel();
   // If we were in a temporarily shifted state (shift-key held down)
@@ -98,11 +98,11 @@ function performVariant(
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
 ): boolean {
   hideVariantsPanel();
-  return VirtualKeyboard.singleton.executeCommand(command);
+  return window.mathVirtualKeyboard.executeCommand(command);
 }
 
 function insertAndUnshiftKeyboardLayer(c: string): boolean {
-  VirtualKeyboard.singleton.executeCommand(['insert', c]);
+  window.mathVirtualKeyboard.executeCommand(['insert', c]);
   unshiftKeyboardLayer();
   return true;
 }
@@ -145,7 +145,7 @@ function toggleVirtualKeyboardShift(): boolean {
 register({ toggleVirtualKeyboardShift }, { target: 'virtual-keyboard' });
 
 function toggleVirtualKeyboard(): boolean {
-  const kbd = VirtualKeyboard.singleton;
+  const kbd = window.mathVirtualKeyboard;
   if (kbd.visible) kbd.hide();
   else kbd.show();
 
@@ -156,11 +156,11 @@ register(
   {
     toggleVirtualKeyboard,
     hideVirtualKeyboard: () => {
-      VirtualKeyboard.singleton.hide();
+      window.mathVirtualKeyboard.hide();
       return false;
     },
     showVirtualKeyboard: () => {
-      VirtualKeyboard.singleton.show();
+      window.mathVirtualKeyboard.show();
       return false;
     },
   },

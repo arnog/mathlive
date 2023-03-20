@@ -51,14 +51,13 @@ export class VirtualKeyboardProxy
   constructor() {
     window.addEventListener('message', this);
     this.sendMessage('proxy-created');
+    this.listeners = {};
   }
   set alphabeticLayout(value: AlphabeticKeyboardLayout) {
     this.sendMessage('update-setting', { alphabeticLayout: value });
   }
   set layouts(value: (string | LayoutDefinition)[]) {
-    this.sendMessage('update-setting', {
-      layouts: value,
-    });
+    this.sendMessage('update-setting', { layouts: value });
   }
   set actionToolbar(value: ActionToolbarOptions) {
     this.sendMessage('update-setting', { actionToolbar: value });
@@ -90,7 +89,7 @@ export class VirtualKeyboardProxy
   }
 
   executeCommand(command: string | [string, ...any[]]): boolean {
-    this.sendMessage('execute-command', command);
+    this.sendMessage('execute-command', { command });
     return true; // true = dirty
   }
 
@@ -137,13 +136,9 @@ export class VirtualKeyboardProxy
       const { action } = evt.data;
       if (action === 'execute-command') {
         const { command } = evt.data;
-
-        // Avoid an infinite messages loop if within one window
         const commandTarget = getCommandTarget(command!);
-        if (commandTarget !== 'virtual-keyboard' && window === window.parent)
-          return;
-
-        this.executeCommand(command!);
+        if (commandTarget === 'virtual-keyboard')
+          this.executeCommand(command!);
         return;
       }
 
