@@ -9,14 +9,14 @@
   <body>
     <main>
       <h2>Frame Two</h2>
-      <math-field id="mf">f(x)= </math-field>
+      <math-field id="mf2">f(x)= </math-field>
       <div id="output"></div>
     </main>
 
     <script type="module">
       import '/dist/mathlive.mjs';
       // import 'https://unpkg.com/mathlive?module';
-      document.getElementById('mf').addEventListener('input', (ev) => {
+      document.getElementById('mf2').addEventListener('input', (ev) => {
         document.getElementById('output').innerHTML = ev.target.value;
       });
     </script>

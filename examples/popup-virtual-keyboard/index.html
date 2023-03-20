@@ -17,6 +17,10 @@
         color: var(--on-editable);
       }
 
+      math-field::part(virtual-keyboard-toggle) {
+        display: none;
+      }
+
       math-field:not(:defined) {
         visibility: hidden;
       }
@@ -73,47 +77,36 @@
     </main>
 
     <script type="module">
-      import { makeSharedVirtualKeyboard } from '/dist/mathlive.mjs';
+      import '/dist/mathlive.mjs';
 
-      const virtualKeyboard = makeSharedVirtualKeyboard({
-        virtualKeyboardContainer: document.getElementById('keyboard-container'),
-      });
-      // const virtualKeyboard = makeSharedVirtualKeyboard();
+      window.mathVirtualKeyboard.container =
+        document.getElementById('keyboard-container');
 
       // Force the virtual keyboard open (for debugging)
-      // virtualKeyboard.addEventListener(
+      // window.mathVirtualKeyboard.addEventListener(
       //   'before-virtual-keyboard-toggle',
       //   (ev) => {
       //     if (virtualKeyboard.visible) ev.preventDefault();
       //   }
       // );
 
-      virtualKeyboard.addEventListener('virtual-keyboard-toggle', (ev) => {
-        if (virtualKeyboard.visible) {
-          const kbdPanel = document.getElementById('keyboard-container');
-          const h = document.querySelector('.MLK__backdrop');
-          kbdPanel.style.height = `${h.offsetHeight}px`;
-        }
+      window.mathVirtualKeyboard.addEventListener('geometrychange', (ev) => {
+        const kbdPanel = document.getElementById('keyboard-container');
+        kbdPanel.style.height = `${mathVirtualKeyboard.boundingRect.height}px`;
       });
 
       document.addEventListener('focusout', (ev) => {
         const kbdPanel = document.getElementById('keyboard-container');
         if (ev.target.tagName === 'MATH-FIELD') {
+          const kbdPanel = document.getElementById('keyboard-container');
+          kbdPanel.style.display = 'none';
           // observer.unobserve(ev.target);
           // kbdPanel.style.display = 'none';
           // virtualKeyboard.visible = false;
         }
       });
 
-      document.getElementById('mf').addEventListener('focus', (ev) => {
-        console.log('focus1', ev);
-      });
-      document.getElementById('mf2').addEventListener('focus', (ev) => {
-        console.log('focus2', ev);
-      });
-
       document.addEventListener('focusin', (ev) => {
-        console.log('focusin', ev);
         if (ev.target.tagName === 'MATH-FIELD') {
           positionPopupKeyboard(ev.target);
         } else {
@@ -123,31 +116,22 @@
         }
       });
 
-      // let observer = new MutationObserver((mutationList, observer) => {
-      //   for (const mutation of mutationList) {
-      //     positionPopupKeyboard(mutation.target);
-      //   }
-      // });
-
-      // const ro = new ResizeObserver((entries) => {
-      //   for (let entry of entries) {
-      //     positionPopupKeyboard(entry.target);
-      //   }
-      // });
-
       window.addEventListener('resize', () => positionPopupKeyboard());
 
       function positionPopupKeyboard() {
-        if (document.activeElement.tagName !== 'MATH-FIELD') return;
         const mf = document.activeElement;
         const kbdPanel = document.getElementById('keyboard-container');
+
+        if (mf.tagName !== 'MATH-FIELD') {
+          kbdPanel.style.display = 'none';
+          return;
+        }
         const r = mf.getBoundingClientRect();
         kbdPanel.style.display = 'block';
         const w = kbdPanel.offsetWidth;
         kbdPanel.style.top = `${r.bottom + 16}px`;
         kbdPanel.style.left = `${r.left + r.width / 2 - w / 2}px`;
-        console.log('in mathfield');
-        virtualKeyboard.visible = true;
+        mathVirtualKeyboard.show();
       }
     </script>
   </body>
