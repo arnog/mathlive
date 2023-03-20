@@ -568,15 +568,15 @@ export class Atom {
     return false;
   }
 
-  /** Returns true if atom is *WITHIN* an ID'd placeholder atom that is not correct/incorrect */
-  get inEditablePrompt(): boolean {
+  /** Return the parent editable prompt, if it exists */
+  get parentPrompt(): Atom | null {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let atom: Atom | undefined = this;
     while (atom) {
-      if (atom.type === 'prompt' && !atom.captureSelection) return true;
+      if (atom.type === 'prompt' && !atom.captureSelection) return atom;
       atom = atom.parent;
     }
-    return false;
+    return null;
   }
 
   /**

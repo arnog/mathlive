@@ -86,7 +86,7 @@ function makeBox(
   // 3. Construct struts around the boxes
   //
   const wrapper = makeStruts(adjustInterAtomSpacing(base, context), {
-    classes: mathfield.prompting
+    classes: mathfield.hasEditablePrompts
       ? 'ML__mathlive ML__prompting'
       : 'ML__mathlive',
     attributes: {

@@ -266,6 +266,13 @@ MathfieldElement.soundsDirectory = null;
 - A mathfield can be used inline, for example inside a `<p>` element.
 - For consistency with a `<textarea>`, `click` events are not dispatched when a
   disabled `<math-element>` is clicked.
+- **#1722** The theme applied to the keyboard can be set programmatically by
+  apply a `theme` attribute to the container of the keyboard, for example
+  `<body theme="dark">` or `<body theme="light">`.
+- When a mathfield contains placeholders (or prompts), tabbing at the last
+  placeholder will move to the next focusable element on the page (previously,
+  it would circularly stay inside the current mathfield, with no possibility of
+  escape).
 
 ### Bug Fixes
 

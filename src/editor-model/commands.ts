@@ -342,7 +342,7 @@ export function move(
     //
     if (pos >= 0 && pos <= model.lastOffset) {
       if (direction === 'forward') {
-        if (model.mathfield.prompting && !model.at(pos).inEditablePrompt) {
+        if (model.mathfield.hasEditableContent && !model.at(pos).parentPrompt) {
           // The new position is not editable, instead look forward for the next prompt:
           const nextAtoms = model
             .getAtoms(pos, -1)
@@ -380,8 +380,8 @@ export function move(
         else if (atom instanceof LatexAtom && atom.isSuggestion)
           atom.isSuggestion = false;
       } else if (direction === 'backward') {
-        if (model.mathfield.prompting && !model.at(pos).inEditablePrompt) {
-          // The new position is not ediatble, instead look forward for the previous prompt:
+        if (model.mathfield.hasEditableContent && !model.at(pos).parentPrompt) {
+          // The new position is not editable, instead look forward for the previous prompt:
           const previousAtoms = model
             .getAtoms(0, pos)
             .map((a) => [a, ...a.children])
@@ -455,7 +455,8 @@ function moveToClosestAtomVertically(
   // If prompting mode, filter toAtoms for ID's placeholders
   const editableAtoms = toAtoms.filter(
     (a: PromptAtom) =>
-      !model.mathfield.prompting || (a.type === 'prompt' && !a.captureSelection)
+      !model.mathfield.hasEditableContent ||
+      (a.type === 'prompt' && !a.captureSelection)
   );
 
   // calculate best atom to put cursor at based on real x coordinate
@@ -463,7 +464,7 @@ function moveToClosestAtomVertically(
   const targetSelection =
     model.offsetOf(
       getClosestAtomToXPosition(model.mathfield, editableAtoms, fromX)
-    ) - (model.mathfield.prompting ? 1 : 0); // jump inside prompt
+    ) - (model.mathfield.hasEditableContent ? 1 : 0); // jump inside prompt
 
   if (extend) {
     const [left, right] = model.selection.ranges[0];
@@ -545,7 +546,8 @@ function moveUpward(
     const cellHasPrompt = aboveCell.some(
       (a: PromptAtom) => a.type === 'prompt' && !a.captureSelection
     );
-    if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
+    if (!cellHasPrompt && model.mathfield.hasEditableContent)
+      return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, aboveCell, extend, 'up');
   } else if (atom) {
@@ -557,7 +559,8 @@ function moveUpward(
     const branchHasPrompt = branch.some(
       (a: PromptAtom) => a.type === 'prompt' && a.placeholderId
     );
-    if (!branchHasPrompt && model.mathfield.prompting) return handleDeadEnd();
+    if (!branchHasPrompt && model.mathfield.hasEditableContent)
+      return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, branch, extend, 'up');
   } else return handleDeadEnd();
@@ -617,7 +620,8 @@ function moveDownward(
     const cellHasPrompt = belowCell.some(
       (a: PromptAtom) => a.type === 'prompt' && !a.captureSelection
     );
-    if (!cellHasPrompt && model.mathfield.prompting) return handleDeadEnd();
+    if (!cellHasPrompt && model.mathfield.hasEditableContent)
+      return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, belowCell, extend, 'down');
   } else if (atom) {
@@ -625,10 +629,9 @@ function moveDownward(
     const branch =
       atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
     // Check if the branch has any editable regions
-    const branchHasPrompt = branch.some(
-      (a: PromptAtom) => a.type === 'prompt' && a.placeholderId
-    );
-    if (!branchHasPrompt && model.mathfield.prompting) return handleDeadEnd();
+    const branchHasPrompt = branch.some((a: PromptAtom) => a.type === 'prompt');
+    if (!branchHasPrompt && model.mathfield.hasEditableContent)
+      return handleDeadEnd();
     moveToClosestAtomVertically(model, baseAtom, branch, extend, 'down');
   } else return handleDeadEnd();
 

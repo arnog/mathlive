@@ -142,6 +142,19 @@
         margin-top: 1em;
         margin-bottom: 1em;
       }
+
+      table {
+        width: 100%;
+      }
+
+      table td:first-child {
+        background: #ddd;
+        font-weight: 600;
+      }
+      table td:nth-child(2),
+      table td:nth-child(3) {
+        border-right: 1px solid #ddd;
+      }
     </style>
   </head>
   <body>
@@ -158,48 +171,95 @@
       </ul>
     </header>
     <main>
-      <h2>Inline</h2>
-      <p>
-        The solution <textarea>foo</textarea> is
-        <math-field style="display: block" id="mf-1">x=\frac{3}{4}</math-field>.
-      </p>
+      <div>
+        <table>
+          <tr>
+            <td>Inline</td>
+            <td>
+              The solution is <math-field id="mf-1">x=\frac{3}{4}</math-field>.
+            </td>
+            <td>The solution is <textarea>x=3/4</textarea>.</td>
+          </tr>
 
-      <h2><kbd>readonly</kbd></h2>
-      <math-field id="mf-2" readonly
-        >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
-      >
+          <tr>
+            <td><kbd>readonly</kbd></td>
+            <td>
+              <math-field id="mf-2" readonly
+                >\sum^q_{n=0}\begin{pmatrix}a & b \\ c &
+                d\end{pmatrix}\placeholder{}+\placeholder{}</math-field
+              >
+            </td>
+            <td><textarea readonly>x=3/4</textarea></td>
+          </tr>
 
-      <h2><kbd>read-only</kbd></h2>
-      <math-field id="mf-3" read-only
-        >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\end{pmatrix}</math-field
-      >
+          <tr>
+            <td><kbd>read-only</kbd></td>
+            <td>
+              <math-field read-only
+                >\sum^q_{n=0}\begin{pmatrix}a & b \\ c &
+                d\end{pmatrix}\placeholder{}+\placeholder{}</math-field
+              >
+            </td>
+            <td></td>
+          </tr>
 
-      <h2><kbd>disabled</kbd></h2>
-      <math-field id="mf-4" disabled
-        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
-        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-        \frac{a+1}{b+\alpha+\gamma}</math-field
-      >
+          <tr>
+            <td><kbd>disabled</kbd></td>
+            <td>
+              <math-field id="mf-4" disabled
+                >1+\texttip{a}{hello
+                world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+ \frac{a+1}
+                {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+                \frac{a+1}{b+\alpha+\gamma}\placeholder{}+\placeholder{}</math-field
+              >
+            </td>
+            <td><textarea disabled>x=3/4</textarea></td>
+          </tr>
 
-      <h2><kbd>contenteditable=false</kbd></h2>
-      <math-field id="mf-5" contenteditable="false"
-        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
-        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-        \frac{a+1}{b+\alpha+\gamma}</math-field
-      >
+          <tr>
+            <td><kbd>contenteditable=false</kbd></td>
+            <td>
+              <math-field id="mf-5" contenteditable="false"
+                >1+\texttip{a}{hello
+                world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+ \frac{a+1}
+                {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+                \frac{a+1}{b+\alpha+\gamma}\placeholder{}+\placeholder{}</math-field
+              >
+            </td>
+            <td><textarea contenteditable="false">x=3/4</textarea></td>
+          </tr>
 
-      <h2><kbd>contenteditable=false</kbd> && <kbd>user-select=none</kbd></h2>
-      <math-field
-        id="mf-6"
-        contenteditable="false"
-        style="user-select: none; -webkit-user-select: none"
-        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
-        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-        \frac{a+1}{b+\alpha+\gamma}</math-field
-      >
+          <tr>
+            <td><kbd>contenteditable=false</kbd></td>
+            <td>
+              <math-field
+                id="mf-5"
+                contenteditable="false"
+                style="user-select: none; -webkit-user-select: none"
+                >1+\texttip{a}{hello
+                world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+ \frac{a+1}
+                {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
+                \frac{a+1}{b+\alpha+\gamma}\placeholder{}+\placeholder{}</math-field
+              >
+            </td>
+            <td>
+              <textarea
+                contenteditable="false"
+                style="user-select: none; -webkit-user-select: none"
+              >
+x=3/4</textarea
+              >
+            </td>
+          </tr>
+        </table>
+      </div>
 
       <h2>Prompt</h2>
-      <math-field id="mf-prompt" readonly virtual-keyboard-mode="onfocus"
+      <math-field
+        >x=\frac{\placeholder{33}}{\placeholder{}}+\frac{1}{}+\placeholder{}</math-field
+      >
+      <textarea>hello</textarea>
+      <math-field id="mf-prompt" readonly
         >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
       >
 

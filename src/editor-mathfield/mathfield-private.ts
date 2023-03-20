@@ -577,16 +577,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     return this.host?.getAttribute('contenteditable') !== 'false' ?? true;
   }
 
-  // Use to hide/show the virtual keyboard toggle. If false, no point in
-  // showing  the toggle.
-  get hasEditableContent(): boolean {
-    if (this.readOnly) {
-      if (this.contentEditable && this.hasEditablePrompts) return true;
-      return false;
-    }
-    return this.contentEditable && !this.disabled;
-  }
-
+  // This reflect the `user-select` CSS property
   get userSelect(): string {
     if (!this.host) return '';
     const style = getComputedStyle(this.host);
@@ -597,19 +588,21 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     );
   }
 
-  get hasEditablePrompts(): boolean {
-    return this.model
-      .getAllAtoms(0)
-      .some((a: PromptAtom) => a.type === 'prompt' && !a.locked);
+  // Use to hide/show the virtual keyboard toggle. If false, no point in
+  // showing  the toggle.
+  get hasEditableContent(): boolean {
+    if (this.disabled || !this.contentEditable) return false;
+    return !this.readOnly || this.hasEditablePrompts;
   }
 
-  /** returns true if readOnly and at least one ID'd placeholder */
-  get prompting(): boolean {
+  get hasEditablePrompts(): boolean {
     return (
-      this.contentEditable &&
-      !this.disabled &&
       this.readOnly &&
-      this.hasEditablePrompts
+      !this.disabled &&
+      this.contentEditable &&
+      this.model.findAtom(
+        (a: PromptAtom) => a.type === 'prompt' && !a.locked
+      ) !== undefined
     );
   }
 
@@ -626,7 +619,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     const ancestor = Atom.commonAncestor(anchor, cursor);
 
-    if (ancestor?.inEditablePrompt) return true;
+    if (ancestor?.parentPrompt) return true;
 
     return false;
   }
@@ -1226,18 +1219,14 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   getPrompt(id: string): PromptAtom | undefined {
-    const prompts = this.model
-      .getAllAtoms(0)
-      .filter(
-        (a) => a.type === 'prompt' && (a as PromptAtom).placeholderId === id
-      ) as PromptAtom[];
+    const prompt = this.model.findAtom(
+      (a) => a.type === 'prompt' && (a as PromptAtom).placeholderId === id
+    ) as PromptAtom | undefined;
     console.assert(
-      prompts.length > 0,
+      prompt !== undefined,
       'MathLive: no prompts with matching ID found'
     );
-    console.assert(prompts.length < 2, 'MathLive: duplicate prompt IDs found');
-    if (prompts.length === 0) return undefined;
-    return prompts[0];
+    return prompt;
   }
 
   getPromptValue(id: string, format?: OutputFormat): string {
@@ -1259,7 +1248,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     correctness?: 'correct' | 'incorrect' | 'undefined';
   }): string[] {
     return this.model
-      .getAllAtoms(0)
+      .getAllAtoms()
       .filter((a) => {
         if (a.type !== 'prompt') return false;
         if (filter?.id && a.id !== filter.id) return false;
@@ -1432,6 +1421,14 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     // `change` event needs to be dispatched. This
     // mimic the `<input>` and `<textarea>` behavior
     this.valueOnFocus = this.model.getValue();
+
+    // If we're in prompt mode, and the selection is
+    // not in a prompt, move it to a prompt
+    if (
+      this.hasEditablePrompts &&
+      !this.model.at(this.model.anchor).parentPrompt
+    )
+      this.executeCommand('moveToNextPlaceholder');
 
     this.focusBlurInProgress = false;
   }

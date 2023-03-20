@@ -209,7 +209,7 @@ body > header {
 header > ul {
   display: flex;
   list-style-type: none;
-  width: 100%;
+  width: calc(100% - 16px);
   margin: 0;
   padding: 8px;
   border-radius: 8px;

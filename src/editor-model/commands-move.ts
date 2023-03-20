@@ -1,5 +1,3 @@
-import MathfieldElement from '../public/mathfield-element';
-
 import { isBrowser } from '../common/capabilities';
 
 import { Atom, BranchName } from '../core/atom';
@@ -279,8 +277,9 @@ function getTabbableElements(): HTMLElement[] {
 }
 
 /**
- * Move to the next/previous placeholder or empty child list.
- * @return False if no placeholder found and did not move
+ * Move to the next/previous leap target: placeholder, editable prompt or
+ * empty child list.
+ * @return `false` if no placeholder found and did not move
  */
 function leap(
   model: ModelPrivate,
@@ -288,48 +287,47 @@ function leap(
   callHooks = true
 ): boolean {
   const dist = dir === 'forward' ? 1 : -1;
-  // If in prompt mode, move to beggining / end of current prompt, then call move
-  // which already jumps to next prompt on arrow keys
-  if (model.mathfield.prompting) {
-    if (!model.at(model.anchor).inEditablePrompt) {
-      // not inside a prompt, do nothing
-      return false;
-    }
-    let atom = model.at(model.anchor).parent!;
-    while (!(atom.type === 'prompt') && atom.parent) atom = atom.parent;
 
-    model.position =
-      dir === 'forward'
-        ? model.offsetOf(atom) - 1
-        : model.offsetOf(atom) - atom.children.length;
-    return move(model, dir);
-  }
+  // If we're already at a placeholder, move by one more (the placeholder
+  // is right after the insertion point)
+  if (model.at(model.anchor).type === 'placeholder') move(model, dir);
 
-  if (model.at(model.anchor).type === 'placeholder') {
-    // If we're already at a placeholder, move by one more (the placeholder
-    // is right after the insertion point)
-    move(model, dir);
-  }
+  let origin: number;
 
-  // Candidate placeholders are atom of type 'placeholder'
-  // or empty children list (except for the root: if the root is empty,
-  // it is not a valid placeholder)
-  const atoms = model.getAllAtoms(Math.max(model.position + dist, 0));
-  if (dir === 'backward') atoms.reverse();
-  const placeholders = atoms.filter(
+  // If we're in a prompt, start looking after/before the prompt
+  const parentPrompt = model.at(model.anchor).parentPrompt;
+  if (parentPrompt) {
+    if (dir === 'forward') origin = model.offsetOf(parentPrompt) + 1;
+    else origin = model.offsetOf(parentPrompt.leftSibling);
+  } else origin = Math.max(model.position + dist, 0);
+
+  // Candidate leap targets are atoms of type 'placeholder' or
+  // 'prompt' or empty children list (except for the root:
+  // if the root is empty, it is not a valid leap target)
+  const target = model.findAtom(
     (atom) =>
       atom.type === 'placeholder' ||
-      (atom.treeDepth > 2 && atom.isFirstSibling && atom.isLastSibling)
+      atom.type === 'prompt' ||
+      (!model.mathfield.readOnly &&
+        atom.treeDepth > 2 &&
+        atom.isFirstSibling &&
+        atom.isLastSibling),
+    origin,
+    dir
   );
 
-  // If no placeholders were found, call handler or move to the next focusable
+  // If no leap target was found, call handler or move to the next focusable
   // element in the document
-  if (placeholders.length === 0) {
+  if (
+    !target ||
+    (dir === 'forward' && model.offsetOf(target) < origin) ||
+    (dir === 'backward' && model.offsetOf(target) > origin)
+  ) {
     const handled =
       !callHooks ||
       !(
         model.mathfield.host?.dispatchEvent(
-          new CustomEvent('focus-out', {
+          new CustomEvent('move-out', {
             detail: { direction: dir },
             cancelable: true,
             bubbles: true,
@@ -343,82 +341,38 @@ function leap(
     }
 
     const tabbable = getTabbableElements();
-    if (!document.activeElement || tabbable.length === 1) {
+
+    // If there are no other elements to focus, plonk.
+    if (!document.activeElement || tabbable.length <= 1) {
       model.announce('plonk');
       return false;
     }
 
+    //
+    // Focus on next/previous tabbable element
+    //
     let index = tabbable.indexOf(document.activeElement as HTMLElement) + dist;
-
-    if (
-      document.activeElement instanceof MathfieldElement &&
-      moveToNextNestedMathfield(
-        document.activeElement as MathfieldElement,
-        dir,
-        dist
-      )
-    )
-      return true;
-
     if (index < 0) index = tabbable.length - 1;
     if (index >= tabbable.length) index = 0;
-    if (
-      tabbable[index] instanceof MathfieldElement &&
-      moveToNextNestedMathfield(tabbable[index] as MathfieldElement, dir, dist)
-    )
-      return true;
 
     tabbable[index].focus();
 
-    if (index === 0) {
-      model.announce('plonk');
-      return false;
-    }
-
     return true;
-  }
-  /**
-   *
-   */
-  function moveToNextNestedMathfield(
-    element: MathfieldElement,
-    dir: 'forward' | 'backward',
-    dist: 1 | -1
-  ): boolean {
-    const nestedMathfield = [
-      ...(element.shadowRoot?.querySelectorAll<HTMLElement>('math-field') ??
-        []),
-    ];
-    if (nestedMathfield.length) {
-      const activeMathfield = element.shadowRoot?.activeElement;
-
-      const activeIndex = nestedMathfield.indexOf(
-        activeMathfield as HTMLElement
-      );
-      let newMathfieldIndex = activeIndex + dist;
-
-      if (activeIndex < 0 && dir === 'backward')
-        newMathfieldIndex = nestedMathfield.length - 1;
-
-      if (
-        newMathfieldIndex >= 0 &&
-        newMathfieldIndex < nestedMathfield.length
-      ) {
-        nestedMathfield[newMathfieldIndex].focus();
-        return true;
-      }
-    }
-
-    return false;
   }
 
   // Set the selection to the next placeholder
   const previousPosition = model.position;
-  const newPosition = model.offsetOf(placeholders[0]);
-  if (placeholders[0].type === 'placeholder')
-    model.setSelection(newPosition - 1, newPosition);
-  else model.position = newPosition;
-
+  if (target.type === 'prompt') {
+    model.setSelection(
+      model.offsetOf(target.firstChild),
+      model.offsetOf(target.lastChild)
+    );
+  } else {
+    const newPosition = model.offsetOf(target);
+    if (target.type === 'placeholder')
+      model.setSelection(newPosition - 1, newPosition);
+    else model.position = newPosition;
+  }
   model.announce('move', previousPosition);
   return true;
 }
