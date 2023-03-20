@@ -149,8 +149,16 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       // a mathfield (or there is no active element),
       // hide the virtual keyboard
       setTimeout(() => {
-        const target = document.activeElement;
-        if (target?.tagName?.toLowerCase() !== 'math-field') this.hide();
+        let target = document.activeElement;
+        let focusedMathfield = false;
+        while (target) {
+          if (target.tagName?.toLowerCase() === 'math-field') {
+            focusedMathfield = true;
+            break;
+          }
+          target = target.shadowRoot?.activeElement ?? null;
+        }
+        if (!focusedMathfield) this.hide();
       }, 300);
     });
   }
