@@ -2,10 +2,27 @@
 
 ### Breaking Changes
 
+This release contains several breaking changes. As much as possible I try to
+avoid introducing breaking changes, but there was an accumulation of issues that
+required some breaking change and I figured I would introduce them all at once:
+
+- the use case where a page had several mathfields was not handled well. Several
+  configuration options were effectively shared, yet each mathfield had its own
+  idea of what the setting was. There were also several duplicate ways of
+  configuring a mathfield, which was confusing.
+- the virtual keyboard was awkward to use and configure with multiple
+  mathfields. The virtual keyboard API was also attached to mathfield instances,
+  instead of the virtual keyboard being its own entity.
+- Fill-in-the-blank is a popular feature, but its current implementation had
+  some limitations. Thanks to a contributed new implementation, those
+  limitations have been removed, and the API to handle fill-in-the-blank has
+  been adjusted accordingly.
+
 #### Fill-in-the-blank
 
 - New implementation of the `\placeholder{}` command for "fill-in-the-blank"
-  feature.
+  feature. Thank you to James Mullen (https://github.com/wildyellowfin) for this
+  contribution.
 
   Previously, each placeholder was an embedded mathfield inside a "root"
   mathfield. The placeholders are now special editable regions of a read-only
@@ -76,33 +93,49 @@
 **Before:**
 
 ```js
-const HIGH_SCHOOL_KEYBOARD = {
-  'high-school-keyboard': {
-    label: 'High School', // Label displayed in the Virtual Keyboard Switcher
-    tooltip: 'High School Level', // Tooltip when hovering over the label
-    layer: 'high-school-layer',
+const MINIMAL_LAYER = [
+  minimal: {
+    rows: [
+      [
+        {latex: "+"}, {latex: "-"}, {latex: "\\times"},
+        {latex: "\\frac{#@}{#?}"}, {latex: "="}, {latex: "."},
+        {latex: "("}, {latex: ")"}, {latex: "\\sqrt{#0}"},
+        {latex: "#@^{#?}"}
+      ],
+      [
+        {latex: "1"}, {latex: "2"}, {latex: "3"}, {latex: "4"},
+        {latex: "5"}, {latex: "6"}, {latex: "7"}, {latex: "8"},
+        {latex: "9"}, {latex: "0"},
+      ]
+    ]
+}];
+
+const MINIMAL_KEYBOARD = {
+  'minimal': {
+    label: 'Minimal',
+    layer: 'minimal',
   },
 };
 
 mf.setOptions({
-  customVirtualKeyboardLayers: HIGH_SCHOOL_KEYBOARD_LAYER,
-  customVirtualKeyboards: HIGH_SCHOOL_KEYBOARD,
-  virtualKeyboards: 'roman high-school-keyboard',
+  customVirtualKeyboardLayers: MINIMAL_LAYER,
+  customVirtualKeyboards: MINIMAL_KEYBOARD,
+  virtualKeyboards: 'minimal',
 });
 ```
 
 **Now:**
 
-```js
-mathVirtualKeyboard.layers = HIGH_SCHOOL_KEYBOARD_LAYER;
-mathVirtualKeyboard.layouts = [
-  'alphabetic',
-  {
-    label: 'High School', // Label displayed in the Layout Switcher
-    tooltip: 'High School Level', // Tooltip when hovering over the label
-    layers: ['high-school-layer'],
-  },
-];
+````js
+mathVirtualKeyboard.layouts = {
+  rows: [
+    [
+      "+", "-", "\\times", "\\frac{#@}{#?}", "=", ".",
+      "(", ")", "\\sqrt{#0}", "#@^{#?}",
+    ],
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+  ]
+};
 ```
 
 To change the alphabetic layout:
@@ -111,7 +144,7 @@ To change the alphabetic layout:
 
 ```js
 mf.setOptions({ virtualKeyboardLayout: 'azerty' });
-```
+````
 
 **Now:**
 
@@ -262,7 +295,7 @@ MathfieldElement.soundsDirectory = null;
   - a `disabled` mathfield is not focusable
   - The content of a `readonly` or `disabled` mathfield can be selected, unless
     the `contenteditable` attribute is set to `"false"` and the `user-select`
-    CSS property is set to `"none"`.
+    CSS property is set to `"none"`. (fixes **#1136**)
 - A mathfield can be used inline, for example inside a `<p>` element.
 - For consistency with a `<textarea>`, `click` events are not dispatched when a
   disabled `<math-element>` is clicked.
@@ -282,6 +315,12 @@ MathfieldElement.soundsDirectory = null;
   caused the expression to be incorrectly balanced
 - **#1858** The spoken representation of the `\pm` command was incorrect
 - **#1856** Displaying the virtual keyboard in a custom container was broken
+- **#1877** Setting options on read-only field was not working
+- **#1771** Incorrect layout of fill-in-the-blank
+- **#1770** `mf.setValue()` did not affect fill-in-the-blank sections
+- **#1736** Layout issues with fill-in-the-blank
+- **#1048** Virtual keyboard inside a custom container is now displayed
+  correctly.
 
 ## 0.89.4 (2023-02-27)
 
