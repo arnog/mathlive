@@ -1247,24 +1247,19 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }): string[] {
     return this.model
       .getAllAtoms()
-      .filter((a) => {
+      .filter((a: PromptAtom) => {
         if (a.type !== 'prompt') return false;
-        if (filter?.id && a.id !== filter.id) return false;
-        if (filter?.locked && (a as PromptAtom).locked !== filter.locked)
+        if (!filter) return true;
+
+        if (filter.id && a.placeholderId !== filter.id) return false;
+        if (filter.locked && a.locked !== filter.locked) return false;
+        if (filter.correctness === 'undefined' && a.correctness) return false;
+        if (filter.correctness && a.correctness !== filter.correctness)
           return false;
-        if (
-          filter?.correctness === 'undefined' &&
-          (a as PromptAtom).correctness
-        )
-          return false;
-        if (
-          filter?.correctness &&
-          (a as PromptAtom).correctness !== filter.correctness
-        )
-          return false;
+
         return true;
       })
-      .map((a: PromptAtom) => a.id!);
+      .map((a: PromptAtom) => a.placeholderId!);
   }
 
   setPromptValue(id: string, value?: string): void {

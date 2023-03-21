@@ -11,6 +11,7 @@ context({
     './test/smoke/index.html',
     './test/virtual-keyboard/index.html',
     './test/mathfield-states/index.html',
+    './test/prompts/index.html',
   ],
   outdir: './dist',
   loader: {
