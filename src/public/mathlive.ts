@@ -41,3 +41,9 @@ export declare function renderMathInElement(
 export declare const version: {
   mathlive: string;
 };
+
+declare global {
+  interface Window {
+    mathVirtualKeyboard: VirtualKeyboardInterface & EventTarget;
+  }
+}

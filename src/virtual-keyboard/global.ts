@@ -1,13 +1,6 @@
 import { isBrowser } from 'common/capabilities';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { VirtualKeyboardProxy } from './proxy';
-import { VirtualKeyboardInterface } from './types';
-
-declare global {
-  interface Window {
-    mathVirtualKeyboard: VirtualKeyboardInterface & EventTarget;
-  }
-}
 
 if (isBrowser()) {
   if (window === window.top) {

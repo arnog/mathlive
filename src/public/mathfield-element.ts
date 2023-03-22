@@ -1952,7 +1952,6 @@ function isElementInternalsSupported(): boolean {
 export default MathfieldElement;
 
 declare global {
-  /** @internal */
   interface Window {
     MathfieldElement: typeof MathfieldElement;
   }
