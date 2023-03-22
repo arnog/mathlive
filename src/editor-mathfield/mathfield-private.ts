@@ -106,10 +106,7 @@ import './mode-editor-text';
 import { validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PromptAtom } from '../core-atoms/prompt';
-import {
-  isVirtualKeyboardMessage,
-  VIRTUAL_KEYBOARD_MESSAGE,
-} from 'virtual-keyboard/proxy';
+import { isVirtualKeyboardMessage } from 'virtual-keyboard/proxy';
 import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
 import { MathfieldElement } from 'public/mathfield-element';
 
@@ -123,7 +120,6 @@ import type {
   LatexSyntaxError,
   GlobalContext,
 } from '../core/types';
-import { VirtualKeyboardMessageAction } from 'virtual-keyboard/types';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -512,12 +508,15 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (this.connectedToVirtualKeyboard) return;
     this.connectedToVirtualKeyboard = true;
     window.addEventListener('message', this);
+    // Connect the kbd or kbd proxy to the current window
+    window.mathVirtualKeyboard.connect();
     window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
   }
 
   disconnectFromVirtualKeyboard(): void {
     if (!this.connectedToVirtualKeyboard) return;
     window.removeEventListener('message', this);
+    window.mathVirtualKeyboard.disconnect();
     this.connectedToVirtualKeyboard = false;
   }
 
@@ -737,6 +736,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   handleEvent(evt: Event): void {
     if (!isValidMathfield(this)) return;
     if (isVirtualKeyboardMessage(evt)) {
+      // console.log('mf received ', evt.data.action, evt);
       if (
         !validateOrigin(
           evt.origin,
@@ -758,8 +758,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       } else if (action === 'update-state') {
       } else if (action === 'focus') this.focus();
       else if (action === 'blur') this.blur();
-      else if (action === 'update-toolbar')
-        window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
       return;
     }
 
@@ -796,23 +794,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       default:
         console.warn('Unexpected event type', evt.type);
     }
-  }
-
-  private sendMessage(
-    action: VirtualKeyboardMessageAction,
-    payload: any = {}
-  ): boolean {
-    if (!globalThis.parent) return false;
-    globalThis.parent.postMessage(
-      {
-        type: VIRTUAL_KEYBOARD_MESSAGE,
-        action,
-        ...payload,
-      },
-      this.options.virtualKeyboardTargetOrigin ?? globalThis.origin ?? '*'
-    );
-
-    return true;
   }
 
   dispose(): void {
@@ -870,7 +851,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   ): boolean {
     if (getCommandTarget(command) === 'virtual-keyboard') {
       this.focus({ scrollIntoView: false });
-      this.sendMessage('execute-command', { command });
+      window.mathVirtualKeyboard.executeCommand(command);
       requestAnimationFrame(() =>
         window.mathVirtualKeyboard.updateToolbar(makeProxy(this))
       );
@@ -1157,9 +1138,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   focus(options?: { scrollIntoView: boolean }): void {
-    this.connectToVirtualKeyboard();
     if (!this.hasFocus()) {
       this.keyboardDelegate.focus();
+      this.connectToVirtualKeyboard();
       this.model.announce('line');
     }
     if (options?.scrollIntoView ?? true) this.scrollIntoView();

@@ -41,9 +41,11 @@
         width: 50vw;
         min-width: 320px;
 
-        background: white;
+        background: #ddd;
         filter: drop-shadow(0 0 10px #33333350);
         z-index: 1;
+
+        --keyboard-background: transparent;
       }
 
       div#keyboard-container .ML__keyboard {
@@ -60,7 +62,7 @@
         top: 0;
         border: 20px solid transparent;
         border-top: 0;
-        border-bottom: 20px solid #fff;
+        border-bottom: 20px solid #ddd;
         transform: translate(-50%, -19px);
       }
     </style>
@@ -100,9 +102,7 @@
         if (ev.target.tagName === 'MATH-FIELD') {
           const kbdPanel = document.getElementById('keyboard-container');
           kbdPanel.style.display = 'none';
-          // observer.unobserve(ev.target);
-          // kbdPanel.style.display = 'none';
-          // virtualKeyboard.visible = false;
+          mathVirtualKeyboard.visible = false;
         }
       });
 
@@ -112,7 +112,7 @@
         } else {
           const kbdPanel = document.getElementById('keyboard-container');
           kbdPanel.style.display = 'none';
-          // virtualKeyboard.visible = false;
+          mathVirtualKeyboard.visible = false;
         }
       });
 

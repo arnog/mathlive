@@ -97,6 +97,15 @@ export class VirtualKeyboardProxy
     this.sendMessage('update-toolbar', mf);
   }
 
+  connect(): void {
+    this.sendMessage('connect');
+  }
+
+  disconnect(): void {
+    this.sendMessage('disconnect');
+  }
+
+
   addEventListener(
     type: string,
     callback: EventListenerOrEventListenerObject | null,
@@ -126,6 +135,8 @@ export class VirtualKeyboardProxy
 
   handleEvent(evt: Event): void {
     if (isVirtualKeyboardMessage(evt)) {
+            // console.log('proxy received ', evt.data.action, evt);
+
       if (!validateOrigin(evt.origin, this.originValidator)) {
         throw new DOMException(
           `Message from unknown origin (${evt.origin}) cannot be handled`,
@@ -159,7 +170,13 @@ export class VirtualKeyboardProxy
     action: VirtualKeyboardMessageAction,
     payload: any = {}
   ): void {
-    window.top?.postMessage(
+    if (!window.top) {
+      throw new DOMException(
+        `A frame does not have access to the top window and can‘t communicate with the keyboard. Review virtualKeyboardTargetOrigin and originValidator on the mathfield embedded in an iframe`,
+        'SecurityError'
+      );
+    }
+    window.top.postMessage(
       {
         type: VIRTUAL_KEYBOARD_MESSAGE,
         action,

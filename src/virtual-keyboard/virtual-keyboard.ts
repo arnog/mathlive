@@ -31,7 +31,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private readonly observer: ResizeObserver;
   private originalContainerBottomPadding: string | null = null;
 
-  private sourceFrame: Window;
+  private connectedMathfieldWindow: Window | undefined;
   private readonly listeners: {
     [type: string]: Set<EventListenerOrEventListenerObject | null>;
   };
@@ -129,7 +129,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     this.listeners = {};
 
-    window.addEventListener('message', this);
+    window.top?.addEventListener('message', this);
 
     document.body.addEventListener('focusin', (event: FocusEvent) => {
       const target = event.target as HTMLElement;
@@ -342,7 +342,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       const { action } = evt.data;
       if (action === 'execute-command') {
         const { command } = evt.data;
-        this.sourceFrame = evt.source as Window;
+        this.connectedMathfieldWindow = evt.source as Window;
 
         // Avoid an infinite messages loop if within one window
         const commandTarget = getCommandTarget(command!);
@@ -353,12 +353,24 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         return;
       }
 
+      if (action === 'connect') {
+        this.connectedMathfieldWindow = evt.source as Window;
+        return;
+      }
+
+      if (action === 'disconnect') {
+        this.connectedMathfieldWindow = undefined;
+        return;
+      }
+
       if (action === 'show') {
+        this.connectedMathfieldWindow = evt.source as Window;
         this.show();
         return;
       }
 
       if (action === 'hide') {
+        this.connectedMathfieldWindow = evt.source as Window;
         this.hide();
         return;
       }
@@ -402,7 +414,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     action: VirtualKeyboardMessageAction,
     payload: any = {}
   ): void {
-    this.sourceFrame?.postMessage(
+    this.connectedMathfieldWindow?.postMessage(
       {
         type: VIRTUAL_KEYBOARD_MESSAGE,
         action,
@@ -452,6 +464,16 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       toolbar.innerHTML = makeActionToolbar(this, mf);
   }
 
+  connect(): void {
+    console.log('kbd connecting to ', window);
+    this.connectedMathfieldWindow = window;
+  }
+
+  disconnect(): void {
+    console.log('kbd disconnecting ');
+    this.connectedMathfieldWindow = undefined;
+  }
+
   executeCommand(
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
   ): boolean {
@@ -466,7 +488,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     selector = selector.replace(/-\w/g, (m) =>
       m[1].toUpperCase()
     ) as SelectorPrivate;
-    if (COMMANDS[selector]?.target === 'virtual-keyboard')
+    if (getCommandTarget(command) === 'virtual-keyboard')
       return COMMANDS[selector]!.fn(...args);
 
     this.sendMessage('execute-command', { command });

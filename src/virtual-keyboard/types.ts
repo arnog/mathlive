@@ -32,6 +32,9 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
    * may need to be updated accordingly
    */
   updateToolbar(mf: MathfieldProxy): void;
+
+  connect(): void;
+  disconnect(): void;
 }
 
 // Commands return true if they resulted in a dirty state
@@ -59,6 +62,8 @@ export interface VirtualKeyboardCommands {
 }
 
 export type VirtualKeyboardMessageAction =
+  | 'connect' // From proxy or mf to VK
+  | 'disconnect' // From proxy or mf to VK
   | 'proxy-created' // From proxy to VK
   | 'execute-command' // From proxy to VK
   | 'show' // From proxy to VK
@@ -106,6 +111,8 @@ export type VirtualKeyboardMessage =
   | {
       type: 'mathlive#virtual-keyboard-message';
       action:
+        | 'connect'
+        | 'disconnect'
         | 'proxy-created'
         | 'show'
         | 'hide'
