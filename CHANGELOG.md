@@ -81,9 +81,11 @@ required some breaking change and I figured I would introduce them all at once:
   must be displayed programmatically.
 
   The value `"onfocus"` is no longer supported. To implement the behavior
-  previously provided by this value, listen for a `"focus"` or `"blur"` event on
-  the relevant mathfield and call `mathVirtualKeyboard.show()` or
-  `mathVirtualKeyboard.hide()` as needed.
+  previously provided by this value:
+
+  ```js
+  mf.addEventListener('focusin', () => mathVirtualKeyboard.show());
+  ```
 
   If `mathVirtualKeyboardPolicy` is set to `"auto"` the virtual keyboard is
   displayed automatically when a mathfield is focused on a touch-enabled device.
