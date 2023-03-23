@@ -719,6 +719,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set speechEngine(value: 'local' | 'amazon') {
     this._speechEngine = value;
   }
+  /** @internal */
   private static _speechEngine: 'local' | 'amazon';
 
   /**
@@ -736,6 +737,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set speechEngineRate(value: string) {
     this._speechEngineRate = value;
   }
+  /** @internal */
   private static _speechEngineRate = '100%';
 
   /**
@@ -751,6 +753,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set speechEngineVoice(value: string) {
     this._speechEngineVoice = value;
   }
+  /** @internal */
   private static _speechEngineVoice = 'Joanna';
 
   /**
@@ -766,6 +769,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set textToSpeechMarkup(value: '' | 'ssml' | 'ssml_step' | 'mac') {
     this._textToSpeechMarkup = value;
   }
+  /** @internal */
   private static _textToSpeechMarkup: '' | 'ssml' | 'ssml_step' | 'mac' = '';
 
   /**
@@ -789,6 +793,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set textToSpeechRules(value: 'mathlive' | 'sre') {
     this._textToSpeechRules = value;
   }
+  /** @internal */
   private static _textToSpeechRules: 'mathlive' | 'sre' = 'mathlive';
 
   /**
@@ -806,6 +811,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set textToSpeechRulesOptions(value: Record<string, string>) {
     this._textToSpeechRulesOptions = value;
   }
+  /** @internal */
   private static _textToSpeechRulesOptions: Record<string, string> = {};
 
   static speakHook: (text: string) => void = defaultSpeakHook;
@@ -852,6 +858,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
   }
 
+  /** @internal */
   private static _decimalSeparator: ',' | '.' = '.';
 
   /**
@@ -916,6 +923,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set computeEngine(value: ComputeEngine | null) {
     this._computeEngine = value;
   }
+  /** @internal */
   private static _computeEngine: ComputeEngine | null;
 
   static async loadSound(
@@ -1178,6 +1186,37 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     );
   }
 
+  /** @internal */
+  private reflectAttributes() {
+    const defaultOptions = getDefaultOptions();
+    const options = this.getOptions();
+    Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
+      const prop = toCamelCase(x);
+      if (MathfieldElement.optionsAttributes[x] === 'on/off') {
+        if (defaultOptions[prop] !== options[prop])
+          this.setAttribute(x, options[prop] ? 'on' : 'off');
+        else this.removeAttribute(x);
+      } else if (defaultOptions[prop] !== options[prop]) {
+        if (MathfieldElement.optionsAttributes[x] === 'boolean') {
+          if (options[prop]) {
+            // Add attribute
+            this.setAttribute(x, '');
+          } else {
+            // Remove attribute
+            this.removeAttribute(x);
+          }
+        } else {
+          // Set attribute (as string)
+          if (
+            typeof options[prop] === 'string' ||
+            typeof options[prop] === 'number'
+          )
+            this.setAttribute(x, options[prop].toString());
+        }
+      }
+    });
+  }
+
   /**
    *  @category Options
    * @deprecated
@@ -1219,7 +1258,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     }
 
     // Reflect options to attributes
-    reflectAttributes(this);
+    this.reflectAttributes();
   }
 
   /**
@@ -1990,36 +2029,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
 function toCamelCase(s: string): string {
   return s.toLowerCase().replace(/[^a-zA-Z\d]+(.)/g, (m, c) => c.toUpperCase());
-}
-
-function reflectAttributes(element: MathfieldElement) {
-  const defaultOptions = getDefaultOptions();
-  const options = element.getOptions();
-  Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-    const prop = toCamelCase(x);
-    if (MathfieldElement.optionsAttributes[x] === 'on/off') {
-      if (defaultOptions[prop] !== options[prop])
-        element.setAttribute(x, options[prop] ? 'on' : 'off');
-      else element.removeAttribute(x);
-    } else if (defaultOptions[prop] !== options[prop]) {
-      if (MathfieldElement.optionsAttributes[x] === 'boolean') {
-        if (options[prop]) {
-          // Add attribute
-          element.setAttribute(x, '');
-        } else {
-          // Remove attribute
-          element.removeAttribute(x);
-        }
-      } else {
-        // Set attribute (as string)
-        if (
-          typeof options[prop] === 'string' ||
-          typeof options[prop] === 'number'
-        )
-          element.setAttribute(x, options[prop].toString());
-      }
-    }
-  });
 }
 
 // Function toKebabCase(s: string): string {
