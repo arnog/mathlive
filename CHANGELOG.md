@@ -4,6 +4,9 @@
 
 - **#1881**, **#1883** Fixed issues with TypeScript declarations of public
   interface
+- In some cases a horizontal scrollbar would appear in the virtual keyboard
+- **#1884** `mf.setPromptValue()` could cause runtime errors
+- In some cases, using `mf.insert()` to replace a selection would do nothing
 
 ## 0.90.0 (2023-03-19)
 
