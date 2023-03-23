@@ -985,43 +985,50 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   }
 
   insert(s: string, options?: InsertOptions): boolean {
-    if (typeof s === 'string' && s.length > 0) {
-      // This code path is used when inserting content from the virtual keyboard
-      // (i.e. inserting `\sin`). We need to ignore previous key combinations
-      // in this case
-      this.flushInlineShortcutBuffer();
+    if (typeof s !== 'string') return false;
 
-      options = options ?? { mode: 'math' };
-      if (options.focus) this.focus();
+    if (
+      s.length === 0 &&
+      (options?.insertionMode === 'insertBefore' ||
+        options?.insertionMode === 'insertAfter')
+    )
+      return false;
 
-      if (options.feedback) {
-        if (MathfieldElement.keypressVibration && canVibrate())
-          navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+    if (s.length === 0 && this.model.selectionIsCollapsed) return false;
 
-        window.MathfieldElement.playSound('keypress');
-      }
+    // This code path is used when inserting content from the virtual keyboard
+    // (i.e. inserting `\sin`). We need to ignore previous key combinations
+    // in this case
+    this.flushInlineShortcutBuffer();
 
-      if (options.scrollIntoView) this.scrollIntoView();
+    options = options ?? { mode: 'math' };
+    if (options.focus) this.focus();
 
-      if (s === '\\\\') {
-        // This string is interpreted as an "insert row after" command
-        addRowAfter(this.model);
-      } else if (s === '&') addColumnAfter(this.model);
-      else {
-        const savedStyle = this.style;
-        ModeEditor.insert(this.mode, this.model, s, {
-          style: this.model.at(this.model.position).computedStyle,
-          ...options,
-        });
-        if (options.resetStyle) this.style = savedStyle;
-      }
+    if (options.feedback) {
+      if (MathfieldElement.keypressVibration && canVibrate())
+        navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
-      this.undoManager.snapshot();
-      requestUpdate(this);
-      return true;
+      window.MathfieldElement.playSound('keypress');
     }
 
-    return false;
+    if (options.scrollIntoView) this.scrollIntoView();
+
+    if (s === '\\\\') {
+      // This string is interpreted as an "insert row after" command
+      addRowAfter(this.model);
+    } else if (s === '&') addColumnAfter(this.model);
+    else {
+      const savedStyle = this.style;
+      ModeEditor.insert(this.mode, this.model, s, {
+        style: this.model.at(this.model.position).computedStyle,
+        ...options,
+      });
+      if (options.resetStyle) this.style = savedStyle;
+    }
+
+    this.undoManager.snapshot();
+    requestUpdate(this);
+    return true;
   }
 
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
@@ -1173,9 +1180,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
       { content: !options.suppressChangeNotifications, type: 'insertText' },
       () => {
         if (options.range === undefined) {
-          this.model.selection.ranges.forEach((range) =>
-            applyStyle(this.model, range, style, { operation })
-          );
+          for (const range of this.model.selection.ranges)
+            applyStyle(this.model, range, style, { operation });
         } else applyStyle(this.model, options.range, style, { operation });
       }
     );

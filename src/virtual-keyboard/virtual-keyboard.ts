@@ -465,12 +465,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   connect(): void {
-    console.log('kbd connecting to ', window);
     this.connectedMathfieldWindow = window;
   }
 
   disconnect(): void {
-    console.log('kbd disconnecting ');
     this.connectedMathfieldWindow = undefined;
   }
 
