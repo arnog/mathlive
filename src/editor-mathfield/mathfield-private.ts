@@ -1257,13 +1257,12 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         return;
       }
 
-      const promptFirstOffset = this.model.offsetOf(prompt) + 1;
-      const rightSibling = prompt.rightSibling;
-      const promptLastOffset = rightSibling
-        ? this.model.offsetOf(rightSibling) - 1
-        : this.model.lastOffset;
+      const branchRange = this.model.getBranchRange(
+        this.model.offsetOf(prompt),
+        'body'
+      );
 
-      this.model.setSelection(promptFirstOffset, promptLastOffset);
+      this.model.setSelection(branchRange);
       this.insert(value, { insertionMode: 'replaceSelection' });
     }
     requestUpdate(this);
