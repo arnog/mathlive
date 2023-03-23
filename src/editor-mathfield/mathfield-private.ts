@@ -1250,7 +1250,15 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
         console.error('MathLive: unknown prompt', id);
         return;
       }
-      prompt.body = parseLatex(value, this);
+
+      const rightSibling = prompt?.rightSibling;
+      const promptFirstOffset = this.model.offsetOf(prompt) + 1;
+      const promptLastOffset = rightSibling
+        ? this.model.offsetOf(rightSibling) - 1
+        : this.model.lastOffset;
+
+      this.model.setSelection(promptFirstOffset, promptLastOffset);
+      this.insert(value, { insertionMode: 'replaceSelection' });
     }
     requestUpdate(this);
   }
