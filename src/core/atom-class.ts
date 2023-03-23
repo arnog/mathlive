@@ -1,13 +1,11 @@
 import { isArray } from '../common/types';
 
 import type {
-  BoxType,
   ParseMode,
   Style,
   FontSize,
   GlobalContext,
-  PrivateStyle,
-} from './types';
+} from '../public/core-types';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { isBoxType, Box } from './box';
@@ -17,6 +15,7 @@ import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 
 import { Context } from './context';
+import { PrivateStyle, BoxType } from './types';
 
 const gCustomSerializer: {
   [command: string]: (atom: Atom, options: ToLatexOptions) => string;

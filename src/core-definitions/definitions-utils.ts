@@ -6,7 +6,6 @@ import type { ColumnFormat } from '../core-atoms/array';
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import type {
   ArgumentType,
-  BoxType,
   Dimension,
   GlobalContext,
   Glue,
@@ -15,11 +14,11 @@ import type {
   MacroPackageDefinition,
   NormalizedMacroDictionary,
   ParseMode,
-  PrivateStyle,
   Variant,
   MathstyleName,
-} from '../core/types';
+} from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
+import { PrivateStyle, BoxType } from 'core/types';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;

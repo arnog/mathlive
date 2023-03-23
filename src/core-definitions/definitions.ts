@@ -17,4 +17,4 @@ import './symbols';
 import './definitions-utils';
 export * from './definitions-utils';
 
-export { MacroDictionary } from '../core/types';
+export { MacroDictionary } from '../public/core-types';

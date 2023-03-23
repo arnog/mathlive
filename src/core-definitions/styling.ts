@@ -23,8 +23,8 @@ import type {
   Dimension,
   MathstyleName,
   GlobalContext,
-  PrivateStyle,
-} from 'core/types';
+} from 'public/core-types';
+import { PrivateStyle } from 'core/types';
 
 defineFunction('mathtip', '{:math}{:math}', {
   createAtom: (

@@ -30,7 +30,8 @@ import {
   FONT_SCALE,
 } from './font-metrics';
 import { Context } from './context';
-import type { MathstyleName, BoxType, ParseMode, Style } from './types';
+import type { MathstyleName, ParseMode, Style } from '../public/core-types';
+import { BoxType } from './types';
 
 export const RIGHT_DELIM = {
   '(': ')',

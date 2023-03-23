@@ -11,7 +11,7 @@ import type {
   VirtualKeyboardInterface,
   MathfieldProxy,
   VirtualKeyboardMessageAction,
-} from './types';
+} from '../public/virtual-keyboard-types';
 
 export const VIRTUAL_KEYBOARD_MESSAGE = 'mathlive#virtual-keyboard-message';
 

@@ -1,4 +1,4 @@
-import type { ParseMode } from 'core/types';
+import type { ParseMode } from 'public/core-types';
 import { TextAtom } from '../core-atoms/text';
 import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';

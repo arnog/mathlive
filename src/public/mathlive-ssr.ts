@@ -6,6 +6,8 @@
  *
  */
 
+declare module '@cortex-js/compute-engine';
+
 import { Atom } from '../core/atom-class';
 
 import { ComputeEngine, SemiBoxedExpression } from '@cortex-js/compute-engine';
@@ -21,7 +23,7 @@ import { validateLatex as validateLatexInternal } from '../core/parser';
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { parseMathString } from '../editor/parse-math-string';
 
-import type { LatexSyntaxError, ParseMode } from '../core/types';
+import type { LatexSyntaxError, ParseMode } from './core-types';
 
 import '../core/modes';
 import { defaultGlobalContext } from '../core/context-utils';

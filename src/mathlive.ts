@@ -18,7 +18,7 @@ import {
   convertLatexToSpeakableText,
   serializeMathJsonToLatex,
 } from 'public/mathlive-ssr';
-import type { VirtualKeyboardInterface } from 'virtual-keyboard/types';
+import type { VirtualKeyboardInterface } from 'public/virtual-keyboard-types';
 
 export type MathLiveGlobal = {
   version: string;

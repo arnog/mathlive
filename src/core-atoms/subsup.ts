@@ -1,4 +1,4 @@
-import type { Style, GlobalContext } from '../core/types';
+import type { Style, GlobalContext } from '../public/core-types';
 
 import {
   Atom,

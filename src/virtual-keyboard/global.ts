@@ -2,8 +2,8 @@ import { isBrowser } from 'common/capabilities';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { VirtualKeyboardProxy } from './proxy';
 
-if (isBrowser()) {
-  if (window === window.top) {
+if (isBrowser() && !('mathVirtualKeyboard' in window)) {
+  if (window === window['top']) {
     // When at the top-level window, mathVirtualKeyboard is a singleton
     // VirtualKeyboard. Instantiate it during static init, otherwise
     // mathfields in iFrame will not be able to talk to it until it has been

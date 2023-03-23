@@ -23,7 +23,7 @@ import { Context } from '../core/context';
 
 import { LAYOUTS, LAYERS, SHIFTED_KEYS } from './data';
 import { VirtualKeyboard } from './virtual-keyboard';
-import { MathfieldProxy } from './types';
+import { MathfieldProxy } from '../public/virtual-keyboard-types';
 import { hideVariantsPanel, setVariants } from './variants';
 import { defaultGlobalContext } from '../core/context-utils';
 

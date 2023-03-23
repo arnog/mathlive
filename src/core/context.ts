@@ -2,10 +2,7 @@ import { FONT_SCALE } from './font-metrics';
 import { D, Dc, Mathstyle, MATHSTYLES } from './mathstyle';
 import { convertDimensionToEm } from './registers-utils';
 import {
-  BoxInterface,
-  ContextInterface,
   Dimension,
-  FontMetrics,
   FontSize,
   GlobalContext,
   Glue,
@@ -13,7 +10,8 @@ import {
   Registers,
   Style,
   MathstyleName,
-} from './types';
+} from '../public/core-types';
+import { ContextInterface, BoxInterface, FontMetrics } from './types';
 
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf

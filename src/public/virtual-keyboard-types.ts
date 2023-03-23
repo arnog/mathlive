@@ -5,7 +5,7 @@ import type {
   VirtualKeyboardLayer,
   LayoutDefinition,
   ActionToolbarOptions,
-} from './public';
+} from './virtual-keyboard';
 
 export interface MathfieldProxy {
   value: string;

@@ -1,5 +1,7 @@
+declare module '@cortex-js/compute-engine';
+
 import { Selector } from './commands';
-import type { LatexSyntaxError, ParseMode, Style } from '../core/types';
+import type { LatexSyntaxError, ParseMode, Style } from './core-types';
 import {
   InsertOptions,
   OutputFormat,
@@ -26,6 +28,7 @@ import { reloadFonts, loadFonts } from 'core/fonts';
 import { defaultSpeakHook } from 'editor/speech';
 import { defaultReadAloudHook } from 'editor/speech-read-aloud';
 import { ComputeEngine } from '@cortex-js/compute-engine';
+
 import { l10n } from 'core/l10n';
 
 export declare type Expression =

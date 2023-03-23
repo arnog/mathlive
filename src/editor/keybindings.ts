@@ -11,7 +11,7 @@ import {
 } from './keyboard-layout';
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
 import { isBrowser, osPlatform } from '../common/capabilities';
-import { ParseMode } from 'core/types';
+import { ParseMode } from 'public/core-types';
 
 /**
  * @param p The platform to test against.

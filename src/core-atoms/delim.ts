@@ -1,9 +1,10 @@
-import type { BoxType, GlobalContext, Style } from '../core/types';
+import type { GlobalContext, Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { makeSizedDelim } from '../core/delimiters';
+import type { BoxType } from 'core/types';
 
 export class DelimAtom extends Atom {
   size: 1 | 2 | 3 | 4;

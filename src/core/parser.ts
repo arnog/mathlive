@@ -33,7 +33,7 @@ import type {
   Token,
   GlobalContext,
   MathstyleName,
-} from './types';
+} from '../public/core-types';
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
 

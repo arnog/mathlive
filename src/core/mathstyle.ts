@@ -42,7 +42,8 @@
  */
 
 import { FONT_METRICS } from './font-metrics';
-import type { FontMetrics, FontSize } from './types';
+import type { FontSize } from '../public/core-types';
+import { FontMetrics } from './types';
 
 // IDs of the different MATHSTYLES
 export const D = 7; // Displaystyle

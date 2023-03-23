@@ -3,7 +3,7 @@ import type {
   VariantStyle,
   Style,
   GlobalContext,
-} from '../core/types';
+} from '../public/core-types';
 
 import { Atom, AtomJson, AtomType, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';

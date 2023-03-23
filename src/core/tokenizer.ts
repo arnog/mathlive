@@ -6,7 +6,7 @@
  */
 
 import { splitGraphemes } from './grapheme-splitter';
-import type { Token } from './types';
+import type { Token } from '../public/core-types';
 
 /**
  * Given a LaTeX expression represented as a character string,

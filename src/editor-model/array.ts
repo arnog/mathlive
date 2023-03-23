@@ -6,7 +6,7 @@ import type { ModelPrivate } from './model-private';
 import { contentDidChange, contentWillChange } from './listeners';
 import { arrayIndex, arrayCell } from './array-utils';
 import { ArrayAtom } from '../core-atoms/array';
-import type { Style, GlobalContext } from '../core/types';
+import type { Style, GlobalContext } from '../public/core-types';
 export * from './array-utils';
 
 /**

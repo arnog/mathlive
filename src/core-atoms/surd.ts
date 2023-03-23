@@ -1,4 +1,4 @@
-import type { GlobalContext, ParseMode, Style } from '../core/types';
+import type { GlobalContext, ParseMode, Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { X_HEIGHT } from '../core/font-metrics';

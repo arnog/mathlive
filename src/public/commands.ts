@@ -1,6 +1,6 @@
 import type { Keys } from './types-utils';
 
-import type { ParseMode, Style } from '../core/types';
+import type { ParseMode, Style } from './core-types';
 import type { InsertOptions, Mathfield, Model } from './mathfield';
 
 /**

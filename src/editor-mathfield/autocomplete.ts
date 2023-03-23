@@ -13,7 +13,7 @@ import {
   getLatexGroup,
 } from './mode-editor-latex';
 import { ModeEditor } from './mode-editor';
-import { ParseMode } from 'core/types';
+import { ParseMode } from 'public/core-types';
 
 export function removeSuggestion(mathfield: MathfieldPrivate): void {
   const group = getLatexGroupBody(mathfield.model).filter(

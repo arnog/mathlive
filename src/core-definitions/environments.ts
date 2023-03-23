@@ -1,4 +1,4 @@
-import type { GlobalContext, Dimension } from '../core/types';
+import type { GlobalContext, Dimension } from '../public/core-types';
 
 import { Atom } from '../core/atom-class';
 import { PlaceholderAtom } from '../core-atoms/placeholder';

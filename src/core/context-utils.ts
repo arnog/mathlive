@@ -1,4 +1,4 @@
-import type { GlobalContext, MacroDefinition } from './types';
+import type { GlobalContext, MacroDefinition } from '../public/core-types';
 
 import {
   defaultGetDefinition,

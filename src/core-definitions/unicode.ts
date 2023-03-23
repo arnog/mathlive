@@ -1,4 +1,4 @@
-import { Variant, VariantStyle } from 'core/types';
+import { Variant, VariantStyle } from 'public/core-types';
 
 /* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS block had
    been previously defined in other blocks. Remap them */

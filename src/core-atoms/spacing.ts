@@ -1,4 +1,4 @@
-import type { Glue, Style, GlobalContext } from '../core/types';
+import type { Glue, Style, GlobalContext } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';

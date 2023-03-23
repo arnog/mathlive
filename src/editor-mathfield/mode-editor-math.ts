@@ -28,7 +28,7 @@ import {
 
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
-import type { Style } from 'core/types';
+import type { Style } from 'public/core-types';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {

@@ -1,6 +1,7 @@
 import { Box } from './box';
 import { Context } from './context';
-import type { BoxType, Style } from './types';
+import type { Style } from '../public/core-types';
+import { BoxType } from './types';
 
 export type VBoxElement = {
   box: Box;

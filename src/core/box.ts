@@ -4,15 +4,9 @@ import { getCharacterMetrics } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-box';
 import { Context } from './context';
 import { highlight } from './color';
-import {
-  BOX_TYPE,
-  BoxCSSProperties,
-  BoxInterface,
-  BoxOptions,
-  BoxType,
-  ParseMode,
-} from './types';
+import { BoxCSSProperties, ParseMode } from '../public/core-types';
 import { applyStyle } from './modes-utils';
+import { BOX_TYPE, BoxInterface, BoxOptions, BoxType } from './types';
 
 export function isBoxType(type: string): type is BoxType {
   return (BOX_TYPE as unknown as string[]).includes(type);

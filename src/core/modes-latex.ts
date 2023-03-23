@@ -3,7 +3,7 @@ import { Mode } from './modes-utils';
 import { Atom, ToLatexOptions } from './atom';
 
 import { LatexAtom } from '../core-atoms/latex';
-import type { GlobalContext, Style } from './types';
+import type { GlobalContext, Style } from '../public/core-types';
 
 export class LatexMode extends Mode {
   constructor() {

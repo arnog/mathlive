@@ -2,7 +2,7 @@ import type { GroupAtom } from '../core-atoms/group';
 
 import { Atom, ToLatexOptions } from './atom-class';
 import type { Box } from './box';
-import type { GlobalContext, ParseMode, Style } from './types';
+import type { GlobalContext, ParseMode, Style } from '../public/core-types';
 
 export abstract class Mode {
   static _registry: Record<string, Mode> = {};

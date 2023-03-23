@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- **#1881**, **#1883** Fixed issues with TypeScript declarations of public
+  interface
+
 ## 0.90.0 (2023-03-19)
 
 ### Breaking Changes

@@ -21,7 +21,7 @@ import type {
   MathfieldProxy,
   VirtualKeyboardInterface,
   VirtualKeyboardMessageAction,
-} from './types';
+} from '../public/virtual-keyboard-types';
 import { hideVariantsPanel } from './variants';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {

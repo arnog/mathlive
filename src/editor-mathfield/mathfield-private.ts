@@ -119,7 +119,7 @@ import type {
   MacroDefinition,
   LatexSyntaxError,
   GlobalContext,
-} from '../core/types';
+} from '../public/core-types';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;

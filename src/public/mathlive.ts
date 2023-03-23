@@ -16,12 +16,12 @@
  *
  */
 
-import type { VirtualKeyboardOptions } from 'virtual-keyboard/public';
-import type { VirtualKeyboardInterface } from 'virtual-keyboard/types';
+import type { VirtualKeyboardOptions } from './virtual-keyboard';
+import type { VirtualKeyboardInterface } from './virtual-keyboard-types';
 import type { AutoRenderOptions } from './options';
 
 export * from './commands';
-export * from '../core/types';
+export * from './core-types';
 export * from './options';
 export * from './mathfield';
 export * from './mathfield-element';

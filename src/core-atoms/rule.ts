@@ -1,4 +1,4 @@
-import type { Dimension, Style, GlobalContext } from '../core/types';
+import type { Dimension, Style, GlobalContext } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
