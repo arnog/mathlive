@@ -89,6 +89,12 @@
 
       mf.computeEngine = new ComputeEngine();
 
+      const mfe = new MathfieldElement({
+        decimalSeparator: ',',
+        foo: 'bar',
+        virtualKeyboardMode: 'auto',
+      });
+
       mf.onInlineShortcut = (_mf, s) => {
         if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
           const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);

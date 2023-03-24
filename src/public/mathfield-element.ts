@@ -304,6 +304,59 @@ export interface MathfieldElementAttributes {
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
+/** @internal */
+const DEPRECATED_OPTIONS = {
+  letterShapeStyle: 'mf.letterShapeStyle = ...',
+  horizontalSpacingScale:
+    'Removed. Use `"thinmuskip"`, `"medmuskip"`, and `"thickmuskip"` registers ',
+  macros: 'mf.macros = ...',
+  registers: 'mf.registers = ...',
+  backgroundColorMap: 'mf.backgroundColorMap = ...',
+  colorMap: 'mf.colorMap = ...',
+  enablePopover: 'mf.popoverPolicy = ...',
+  mathModeSpace: 'mf.mathModeSpace = ...',
+  placeholderSymbol: 'mf.placeholderSymbol = ...',
+  readOnly: 'mf.readOnly = ...',
+  removeExtraneousParentheses: 'mf.removeExtraneousParentheses = ...',
+  scriptDepth: 'mf.scriptDepth = ...',
+  smartFence: 'mf.smartFence = ...',
+  smartMode: 'mf.smartMode = ...',
+  smartSuperscript: 'mf.smartSuperscript = ...',
+  inlineShortcutTimeout: 'mf.inlineShortcutTimeout = ...',
+  inlineShortcuts: 'mf.inlineShortcuts = ...',
+  keybindings: 'mf.keybindings = ...',
+  virtualKeyboardMode: 'mf.mathVirtualKeyboardPolicy = ...',
+  customVirtualKeyboardLayers: 'mathVirtualKeyboard.layers = ...',
+  customVirtualKeyboards: 'mathVirtualKeyboard.layouts = ...',
+  keypressSound: 'mathVirtualKeyboard.keypressSound = ...',
+  keypressVibration: 'mathVirtualKeyboard.keypressVibration = ...',
+  plonkSound: 'mathVirtualKeyboard.plonkSound = ...',
+  virtualKeyboardContainer: 'mathVirtualKeyboard.container = ...',
+  virtualKeyboardLayout: 'mathVirtualKeyboard.alphabeticLayout = ...',
+  virtualKeyboardTheme: 'No longer supported',
+  virtualKeyboardToggleGlyph: 'No longer supported',
+  virtualKeyboardToolbar: 'mathVirtualKeyboard.actionToolbar = ...',
+  virtualKeyboards: 'Use `mathVirtualKeyboard.layouts`',
+  speechEngine: '`MathfieldElement.speechEngine`',
+  speechEngineRate: '`MathfieldElement.speechEngineRate`',
+  speechEngineVoice: '`MathfieldElement.speechEngineVoice`',
+  textToSpeechMarkup: '`MathfieldElement.textToSpeechMarkup`',
+  textToSpeechRules: '`MathfieldElement.textToSpeechRules`',
+  textToSpeechRulesOptions: '`MathfieldElement.textToSpeechRulesOptions`',
+  readAloudHook: '`MathfieldElement.readAloudHook`',
+  speakHook: '`MathfieldElement.speakHook`',
+  computeEngine: '`MathfieldElement.computeEngine`',
+  fontsDirectory: '`MathfieldElement.fontsDirectory`',
+  soundsDirectory: '`MathfieldElement.soundsDirectory`',
+  createHTML: '`MathfieldElement.createHTML`',
+  onExport: '`MathfieldElement.onExport`',
+  onInlineShortcut: '`MathfieldElement.onInlineShortcut`',
+  locale: 'MathfieldElement.locale = ...',
+  strings: 'MathfieldElement.strings = ...',
+  decimalSeparator: 'MathfieldElement.decimalSeparator = ...',
+  fractionNavigationOrder: 'MathfieldElement.fractionNavigationOrder = ...',
+};
+
 /**
  * The `MathfieldElement` class provides special properties and
  * methods to control the display and behavior of `<math-field>`
@@ -1033,6 +1086,44 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   constructor(options?: Partial<MathfieldOptions>) {
     super();
 
+    if (options) {
+      const warnings: string[] = [];
+      for (const key of Object.keys(options)) {
+        if (DEPRECATED_OPTIONS[key]) {
+          if (DEPRECATED_OPTIONS[key].startsWith('mf.')) {
+            if (!DEPRECATED_OPTIONS[key].startsWith(`mf.${key}`)) {
+              const newName = DEPRECATED_OPTIONS[key].match(/([a-zA-Z]+) =/);
+              warnings.push(
+                `Option \`${key}\` has been renamed \`${newName[1]}\``
+              );
+            } else {
+              warnings.push(
+                `Option \`${key}\` cannot be used as a constructor option. Use ${DEPRECATED_OPTIONS[key]}`
+              );
+            }
+          } else {
+            warnings.push(
+              `Option \`${key}\` cannot be used as a constructor option. Use ${DEPRECATED_OPTIONS[key]}`
+            );
+          }
+        } else warnings.push(`Unexpected option \`${key}\``);
+      }
+
+      if (warnings.length > 0) {
+        console.group(
+          `%cMathLive ${version.mathlive}: %cInvalid Options`,
+          'color:#12b; font-size: 1.1rem',
+          'color:#db1111; font-size: 1.1rem'
+        );
+        console.warn(
+          `Some of the options passed to \`new MathFieldElement(...)\` are invalid.`
+        );
+        for (const warning of warnings) console.warn(warning);
+
+        console.groupEnd();
+      }
+    }
+
     if (isElementInternalsSupported()) {
       this._internals = this.attachInternals();
       this._internals['role'] = 'math';
@@ -1313,57 +1404,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     console.warn(
       ` \`mf.setOptions()\` is deprecated. Set the property directly on the mathfield instead`
     );
-    const DEPRECATED_OPTIONS = {
-      letterShapeStyle: 'mf.letterShapeStyle = ...',
-      horizontalSpacingScale:
-        'Removed. Use `"thinmuskip"`, `"medmuskip"`, and `"thickmuskip"` registers ',
-      macros: 'mf.macros = ...',
-      registers: 'mf.registers = ...',
-      backgroundColorMap: 'mf.backgroundColorMap = ...',
-      colorMap: 'mf.colorMap = ...',
-      enablePopover: 'mf.popoverPolicy = ...',
-      mathModeSpace: 'mf.mathModeSpace = ...',
-      placeholderSymbol: 'mf.placeholderSymbol = ...',
-      readOnly: 'mf.readOnly = ...',
-      removeExtraneousParentheses: 'mf.removeExtraneousParentheses = ...',
-      scriptDepth: 'mf.scriptDepth = ...',
-      smartFence: 'mf.smartFence = ...',
-      smartMode: 'mf.smartMode = ...',
-      smartSuperscript: 'mf.smartSuperscript = ...',
-      inlineShortcutTimeout: 'mf.inlineShortcutTimeout = ...',
-      inlineShortcuts: 'mf.inlineShortcuts = ...',
-      keybindings: 'mf.keybindings = ...',
-      virtualKeyboardMode: 'mf.mathVirtualKeyboardPolicy = ...',
-      customVirtualKeyboardLayers: 'mathVirtualKeyboard.layers = ...',
-      customVirtualKeyboards: 'mathVirtualKeyboard.layouts = ...',
-      keypressSound: 'mathVirtualKeyboard.keypressSound = ...',
-      keypressVibration: 'mathVirtualKeyboard.keypressVibration = ...',
-      plonkSound: 'mathVirtualKeyboard.plonkSound = ...',
-      virtualKeyboardContainer: 'mathVirtualKeyboard.container = ...',
-      virtualKeyboardLayout: 'mathVirtualKeyboard.alphabeticLayout = ...',
-      virtualKeyboardTheme: 'No longer supported',
-      virtualKeyboardToggleGlyph: 'No longer supported',
-      virtualKeyboardToolbar: 'mathVirtualKeyboard.actionToolbar = ...',
-      virtualKeyboards: 'Use `mathVirtualKeyboard.layouts`',
-      speechEngine: '`MathfieldElement.speechEngine`',
-      speechEngineRate: '`MathfieldElement.speechEngineRate`',
-      speechEngineVoice: '`MathfieldElement.speechEngineVoice`',
-      textToSpeechMarkup: '`MathfieldElement.textToSpeechMarkup`',
-      textToSpeechRules: '`MathfieldElement.textToSpeechRules`',
-      textToSpeechRulesOptions: '`MathfieldElement.textToSpeechRulesOptions`',
-      readAloudHook: '`MathfieldElement.readAloudHook`',
-      speakHook: '`MathfieldElement.speakHook`',
-      computeEngine: '`MathfieldElement.computeEngine`',
-      fontsDirectory: '`MathfieldElement.fontsDirectory`',
-      soundsDirectory: '`MathfieldElement.soundsDirectory`',
-      createHTML: '`MathfieldElement.createHTML`',
-      onExport: '`MathfieldElement.onExport`',
-      onInlineShortcut: '`MathfieldElement.onInlineShortcut`',
-      locale: 'MathfieldElement.locale = ...',
-      strings: 'MathfieldElement.strings = ...',
-      decimalSeparator: 'MathfieldElement.decimalSeparator = ...',
-      fractionNavigationOrder: 'MathfieldElement.fractionNavigationOrder = ...',
-    };
     for (const key of Object.keys(options)) {
       if (DEPRECATED_OPTIONS[key]) {
         console.warn(
