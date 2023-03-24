@@ -1034,7 +1034,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._internals.ariaMultiLine = 'false';
     }
 
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: 'open', delegatesFocus: true });
     this.shadowRoot!.append(MATHFIELD_TEMPLATE!.content.cloneNode(true));
 
     const slot =
