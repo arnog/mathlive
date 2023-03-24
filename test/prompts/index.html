@@ -34,9 +34,24 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf-prompt" readonly
-        >x=\frac{\placeholder[numerator]{x}}{\placeholder[denominator]{y}}}}</math-field
-      >
+      <div style="display: flex; gap: 1em; flex-wrap: wrap; flex-flow: column">
+        <math-field id="mf-prompt" readonly
+          >x=\frac{\placeholder[numerator]{x}}{\placeholder[denominator]{y}}}}</math-field
+        >
+        <textarea>textarea</textarea>
+        <math-field
+          >x=\frac{\placeholder{33}}{\placeholder{}}+\frac{1}{}+\placeholder{}</math-field
+        >
+        <math-field readonly
+          >x=\frac{\placeholder[numer][incorrect]{1+x}}{\placeholder[denom][correct]{3}}+\placeholder[other]{\frac{x^2}{\sqrt{x}}}</math-field
+        >
+
+        <textarea>textarea</textarea>
+
+        <textarea disabled>disabled textarea</textarea>
+
+        <textarea readonly>readonly textarea</textarea>
+      </div>
     </main>
 
     <script type="module">

@@ -137,8 +137,15 @@
       body.ready {
         visibility: visible;
       }
-      math-field,
-      textarea {
+
+      main {
+        width: 820px;
+      }
+
+      h2 {
+        width: 100%;
+        border-top: 3px solid #ddd;
+        padding-top: 1em;
         margin-top: 1em;
         margin-bottom: 1em;
       }
@@ -147,13 +154,53 @@
         width: 100%;
       }
 
-      table td:first-child {
-        background: #ddd;
-        font-weight: 600;
+      table tbody {
+        display: flex;
+        flex-direction: column;
       }
-      table td:nth-child(2),
+
+      table tr {
+        display: flex;
+      }
+
+      table td {
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        border-top: 1px solid #eee;
+      }
+
+      table td {
+        display: flex;
+        flex: 1 1 auto;
+        gap: 1em;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: center;
+      }
+
+      table td:first-child {
+        display: table-cell;
+        background: #f0f0f0;
+        font-weight: 600;
+        max-width: 260px;
+        padding-top: 1em;
+        padding-bottom: 1em;
+      }
+      table td:nth-child(2) {
+        max-width: 320px;
+        border-right: 1px solid #eee;
+      }
       table td:nth-child(3) {
-        border-right: 1px solid #ddd;
+        max-width: 160px;
+      }
+
+      td aside {
+        display: block;
+        font-weight: 400;
+        font-size: 0.8rem;
+        padding-top: 1em;
       }
     </style>
   </head>
@@ -177,72 +224,83 @@
       <div>
         <table>
           <tr>
-            <td>Inline</td>
             <td>
-              The solution is <math-field id="mf-1">x=\frac{3}{4}</math-field>.
+              <kbd>readonly</kbd>
+              <aside>
+                Placeholders are editable.<br />Without placeholders mathfield
+                is still focusable.
+              </aside>
             </td>
-            <td>The solution is <textarea>x=3/4</textarea>.</td>
-          </tr>
-
-          <tr>
-            <td><kbd>readonly</kbd></td>
             <td>
               <math-field id="mf-2" readonly
-                >\sum^q_{n=0}\begin{pmatrix}a & b \\ c &
-                d\end{pmatrix}\placeholder{}+\placeholder{}</math-field
+                >\sqrt{\frac{1}{x+\placeholder[id1]{}}}+\placeholder[id2]{x}</math-field
               >
+              <math-field readonly>\sqrt{\frac{1}{x+1}}+x</math-field>
             </td>
             <td><textarea readonly>x=3/4</textarea></td>
           </tr>
 
           <tr>
-            <td><kbd>read-only</kbd></td>
+            <td>
+              <kbd>read-only</kbd>
+              <aside>Different spelling but same as <kbd>readonly</kbd></aside>
+            </td>
             <td>
               <math-field read-only
-                >\sum^q_{n=0}\begin{pmatrix}a & b \\ c &
-                d\end{pmatrix}\placeholder{}+\placeholder{}</math-field
+                >\sqrt{\frac{1}{x+\placeholder[id1]{}}}+\placeholder[id2]{x}</math-field
               >
+              <math-field read-only>\sqrt{\frac{1}{x+1}}+x</math-field>
             </td>
             <td></td>
           </tr>
 
           <tr>
-            <td><kbd>disabled</kbd></td>
+            <td>
+              <kbd>disabled</kbd>
+              <aside>
+                Not focusable<br />Content is selectable.<br />Mathfield appears
+                greyed out.
+              </aside>
+            </td>
             <td>
               <math-field id="mf-4" disabled
-                >1+\texttip{a}{hello
-                world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+ \frac{a+1}
-                {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-                \frac{a+1}{b+\alpha+\gamma}\placeholder{}+\placeholder{}</math-field
+                >\sqrt{\frac{1}{x+1}}+\placeholder[id2]{}</math-field
               >
             </td>
             <td><textarea disabled>x=3/4</textarea></td>
           </tr>
 
           <tr>
-            <td><kbd>contenteditable=false</kbd></td>
+            <td>
+              <kbd>contenteditable=false</kbd>
+              <aside>
+                Focusable.<br />Content cannot be changed, including
+                placeholders.<br />
+                Textarea is still editable when <kbd>contenteditable</kbd> is
+                false (as per spec)
+              </aside>
+            </td>
             <td>
               <math-field id="mf-5" contenteditable="false"
-                >1+\texttip{a}{hello
-                world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+ \frac{a+1}
-                {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-                \frac{a+1}{b+\alpha+\gamma}\placeholder{}+\placeholder{}</math-field
+                >\sqrt{\frac{1}{x+\placeholder[id1]{}}}+\placeholder[id2]{x}</math-field
               >
             </td>
             <td><textarea contenteditable="false">x=3/4</textarea></td>
           </tr>
 
           <tr>
-            <td><kbd>contenteditable=false</kbd></td>
+            <td>
+              <kbd>contenteditable=false</kbd><br />&amp;<br /><kbd
+                >user-select: none</kbd
+              >
+              <aside>Content is not editable or selectable</aside>
+            </td>
             <td>
               <math-field
                 id="mf-5"
                 contenteditable="false"
                 style="user-select: none; -webkit-user-select: none"
-                >1+\texttip{a}{hello
-                world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+ \frac{a+1}
-                {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-                \frac{a+1}{b+\alpha+\gamma}\placeholder{}+\placeholder{}</math-field
+                >\sqrt{\frac{1}{x+\placeholder[id1]{}}}+\placeholder[id2]{x}</math-field
               >
             </td>
             <td>
@@ -257,20 +315,11 @@ x=3/4</textarea
         </table>
       </div>
 
-      <h2>Prompt</h2>
-      <math-field
-        >x=\frac{\placeholder{33}}{\placeholder{}}+\frac{1}{}+\placeholder{}</math-field
-      >
-      <textarea>hello</textarea>
-      <math-field id="mf-prompt" readonly
-        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
-      >
-
-      <textarea disabled>blah blah</textarea>
-
-      <textarea contenteditable="false" disabled style="user-select: none">
-hello</textarea
-      >
+      <h2>Inline</h2>
+      <p>
+        The solution is <math-field id="mf-1">x=\frac{3}{4}</math-field> or
+        <textarea>x=3/4</textarea>.
+      </p>
     </main>
 
     <script type="module">
