@@ -480,6 +480,7 @@ const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
  */
 export class MathfieldElement extends HTMLElement implements Mathfield {
+  static version = '{{SDK_VERSION}}';
   static get formAssociated(): boolean {
     return isElementInternalsSupported();
   }
