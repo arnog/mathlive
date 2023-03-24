@@ -1,4 +1,4 @@
-import { globalMathLive } from '../mathlive';
+import { globalMathLive, version } from '../mathlive';
 import { isBrowser } from '../common/capabilities';
 import { render } from '../editor-mathfield/render';
 
@@ -49,7 +49,7 @@ export function defaultReadAloudHook(element: HTMLElement, text: string): void {
 
   if (window.MathfieldElement.speechEngine !== 'amazon') {
     console.error(
-      'MathLive: Use Amazon TTS Engine for synchronized highlighting'
+      `MathLive ${version.mathlive}: Use Amazon TTS Engine for synchronized highlighting`
     );
     if (typeof window.MathfieldElement.speakHook === 'function')
       window.MathfieldElement.speakHook(text);
@@ -58,7 +58,7 @@ export function defaultReadAloudHook(element: HTMLElement, text: string): void {
 
   if (!window.AWS) {
     console.error(
-      'MathLive: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
+      `MathLive ${version.mathlive}: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
     );
     return;
   }
@@ -79,10 +79,8 @@ export function defaultReadAloudHook(element: HTMLElement, text: string): void {
   // Request the mark points
   polly.synthesizeSpeech(parameters, (err, data) => {
     if (err) {
-      console.error(
-        'MathLive: polly.synthesizeSpeech() error:',
-        err,
-        err.stack
+      console.trace(
+        `MathLive ${version.mathlive}: \`polly.synthesizeSpeech()\` error: ${err}`
       );
       return;
     }
@@ -109,12 +107,8 @@ export function defaultReadAloudHook(element: HTMLElement, text: string): void {
     parameters.SpeechMarkTypes = [];
     polly.synthesizeSpeech(parameters, (err, data) => {
       if (err) {
-        console.error(
-          'MathLive: polly.synthesizeSpeech(',
-          text,
-          ') error:',
-          err,
-          err.stack
+        console.trace(
+          `MathLive ${version.mathlive}: \`polly.synthesizeSpeech("${text}") error:${err}`
         );
         return;
       }

@@ -120,6 +120,7 @@ import type {
   LatexSyntaxError,
   GlobalContext,
 } from '../public/core-types';
+import { version } from 'mathlive';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -351,12 +352,8 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     );
     if (!this.element.children) {
       console.error(
-        '%cMathLive: Something went wrong and the mathfield could not be created.%c\n' +
-          'If you are using Vue, this may be because you are using the ' +
-          'runtime-only build of Vue. Make sure to include ' +
-          "'runtimeCompiler: true' in your Vue configuration. There" +
-          'may a warning from Vue in the log above.',
-
+        `%cMathLive ${version.mathlive}: Something went wrong and the mathfield could not be created.%c
+If you are using Vue, this may be because you are using the runtime-only build of Vue. Make sure to include \`runtimeCompiler: true\` in your Vue configuration. There may a warning from Vue in the log above.`,
         'color:red;font-family:system-ui;font-size:1.2rem;font-weight:bold',
         'color:inherit;font-family:system-ui;font-size:inherit;font-weight:inherit'
       );
@@ -659,7 +656,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
       if (errors.length > 0) {
         console.error(
-          'MathLive: Invalid keybindings for current keyboard layout',
+          `MathLive ${version.mathlive}: Invalid keybindings for current keyboard layout`,
           errors
         );
       }
@@ -897,7 +894,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     const ce = window.MathfieldElement.computeEngine;
     if (!ce) {
       console.error(
-        'MathLive: no compute engine available. Make sure the Compute Engine library is loaded.'
+        `MathLive ${version.mathlive}:  no compute engine available. Make sure the Compute Engine library is loaded.`
       );
       return null;
     }
@@ -1207,7 +1204,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     ) as PromptAtom | undefined;
     console.assert(
       prompt !== undefined,
-      'MathLive: no prompts with matching ID found'
+      `MathLive ${version.mathlive}:  no prompts with matching ID found`
     );
     return prompt;
   }
@@ -1215,7 +1212,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   getPromptValue(id: string, format?: OutputFormat): string {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error('MathLive: unknown prompt', id);
+      console.error(`MathLive ${version.mathlive}:  unknown prompt ${id}`);
       return '';
     }
 
@@ -1251,7 +1248,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     if (value !== undefined) {
       const prompt = this.getPrompt(id);
       if (!prompt) {
-        console.error('MathLive: unknown prompt', id);
+        console.error(`MathLive ${version.mathlive}:  unknown prompt ${id}`);
         return;
       }
 
@@ -1273,7 +1270,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   ): void {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error('MathLive: unknown prompt', id);
+      console.error(`MathLive ${version.mathlive}: unknown prompt ${id}`);
       return;
     }
     if (state === 'undefined') prompt.correctness = undefined;
@@ -1290,7 +1287,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   getPromptState(id: string): ['correct' | 'incorrect' | undefined, boolean] {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error('MathLive: unknown prompt', id);
+      console.error(`MathLive ${version.mathlive}: unknown prompt ${id}`);
       return [undefined, true];
     }
     return [prompt.correctness, prompt.locked];

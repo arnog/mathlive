@@ -8,7 +8,7 @@ import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { render } from '../editor-mathfield/render';
 import { isBrowser } from '../common/capabilities';
-import { globalMathLive } from '../mathlive';
+import { globalMathLive, version } from '../mathlive';
 
 declare global {
   interface Window {
@@ -167,7 +167,7 @@ export function defaultSpeakHook(text: string): void {
   } else if (window.MathfieldElement.speechEngine === 'amazon') {
     if (!('AWS' in window)) {
       console.error(
-        'MathLive: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk'
+        `MathLive ${version.mathlive}: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
       );
     } else {
       const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
@@ -197,10 +197,8 @@ export function defaultSpeakHook(text: string): void {
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Polly.html#synthesizeSpeech-property
       polly.synthesizeSpeech(parameters, (err, data) => {
         if (err) {
-          console.error(
-            'MathLive: polly.synthesizeSpeech() error:',
-            err,
-            err.stack
+          console.trace(
+            `MathLive ${version.mathlive}: \`polly.synthesizeSpeech()\` error: ${err}`
           );
         } else if (data?.AudioStream) {
           // Announce('plonk');
@@ -217,7 +215,7 @@ export function defaultSpeakHook(text: string): void {
     }
   } else if (window.MathfieldElement.speechEngine === 'google') {
     console.error(
-      'MathLive: The Google speech engine is not supported yet. Please come again.'
+      `MathLive ${version.mathlive}: The Google speech engine is not supported yet. Please come again.`
     );
     // @todo: implement support for Google Text-to-Speech API,
     // using config.speechEngineToken, config.speechEngineVoice and

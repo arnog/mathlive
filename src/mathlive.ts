@@ -53,7 +53,7 @@ export function globalMathLive(): MathLiveGlobal {
  */
 export function makeSharedVirtualKeyboard(): VirtualKeyboardInterface {
   console.warn(
-    'MathLive: makeSharedVirtualKeyboard() is deprecated. Use window.mathVirtualKeyboard to access the virtual keyboard instance'
+    `MathLive ${version.mathlive}: makeSharedVirtualKeyboard() is deprecated. Use window.mathVirtualKeyboard to access the virtual keyboard instance`
   );
   return window.mathVirtualKeyboard;
 }
