@@ -547,9 +547,9 @@ function expandLayerMarkup(
             (options['decimalSeparator'] ?? '.') +
             '</li>';
         } else if (c === '+')
-          row += `<li class="MLK__keycap big-op ${cls}" data-variants="+" data-key="-">+</li>`;
+          row += `<li class="MLK__keycap big-op ${cls}" data-variants="+" data-key="+">+</li>`;
         else if (c === '=')
-          row += `<li class="MLK__keycap big-op ${cls}" data-variants="=" data-key="-">=</li>`;
+          row += `<li class="MLK__keycap big-op ${cls}" data-variants="=" data-key="=">=</li>`;
         else
           row += `<li class="MLK__keycap ${cls}" data-variants="${c}">${c}</li>`;
       }
