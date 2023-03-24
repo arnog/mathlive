@@ -1212,7 +1212,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   getPromptValue(id: string, format?: OutputFormat): string {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error(`MathLive ${version.mathlive}:  unknown prompt ${id}`);
+      console.error(`MathLive ${version.mathlive}: unknown prompt ${id}`);
       return '';
     }
 
@@ -1248,7 +1248,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (value !== undefined) {
       const prompt = this.getPrompt(id);
       if (!prompt) {
-        console.error(`MathLive ${version.mathlive}:  unknown prompt ${id}`);
+        console.error(`MathLive ${version.mathlive}: unknown prompt ${id}`);
         return;
       }
 

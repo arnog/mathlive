@@ -1116,7 +1116,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
           'color:#db1111; font-size: 1.1rem'
         );
         console.warn(
-          `Some of the options passed to \`new MathFieldElement(...)\` are invalid.`
+          `Some of the options passed to \`new MathFieldElement(...)\` are invalid. 
+          See https://cortexjs.io/mathlive/changelog/ for details.`
         );
         for (const warning of warnings) console.warn(warning);
 
@@ -1297,7 +1298,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   ): null | Partial<MathfieldOptions> {
     console.warn(
       `%cMathLive ${version.mathlive}: %cDeprecated Usage%c
-      \`mf.getOptions()\` is deprecated. Read the property directly on the mathfield instead`,
+      \`mf.getOptions()\` is deprecated. Read the property directly on the mathfield instead.
+      See https://cortexjs.io/mathlive/changelog/ for details.`,
       'color:#12b; font-size: 1.1rem',
       'color:#db1111; font-size: 1.1rem',
       'color: inherit, font-size: 1rem'
@@ -1351,7 +1353,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   ): MathfieldOptions[K] {
     console.warn(
       `%cMathLive ${version.mathlive}: %cDeprecated Usage%c
-      \`mf.getOption()\` is deprecated. Read the property directly on the mathfield instead`,
+      \`mf.getOption()\` is deprecated. Read the property directly on the mathfield instead.
+      See https://cortexjs.io/mathlive/changelog/ for details.`,
       'color:#12b; font-size: 1.1rem',
       'color:#db1111; font-size: 1.1rem',
       'color: inherit, font-size: 1rem'
@@ -1402,7 +1405,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       'color:#db1111; font-size: 1.1rem'
     );
     console.warn(
-      ` \`mf.setOptions()\` is deprecated. Set the property directly on the mathfield instead`
+      ` \`mf.setOptions()\` is deprecated. Set the property directly on the mathfield instead.
+      See https://cortexjs.io/mathlive/changelog/ for details.`
     );
     for (const key of Object.keys(options)) {
       if (DEPRECATED_OPTIONS[key]) {
