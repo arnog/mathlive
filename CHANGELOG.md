@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixed
+
+- **#1861** In Firefox, an apparently focused mathfield would not always accept
+  keyboard input.
+
 ## 0.90.6 (2023-03-23)
 
 ### Bug Fixes
