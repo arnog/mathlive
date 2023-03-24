@@ -1,3 +1,4 @@
+import { version } from 'mathlive';
 import { resolveUrl } from '../common/script-url';
 
 function makeFontFace(
@@ -123,7 +124,7 @@ export async function loadFonts(): Promise<void> {
       return;
     } catch (error: unknown) {
       console.error(
-        `MathLive: The math fonts could not be loaded from "${fontsFolder}"`,
+        `MathLive ${version.mathlive}: The math fonts could not be loaded from "${fontsFolder}"`,
         { cause: error }
       );
       document.body.classList.add('ML__fonts-did-not-load');

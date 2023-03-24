@@ -35,6 +35,7 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
+import { version } from 'mathlive';
 
 export type ModelState = {
   content: AtomJson;
@@ -484,7 +485,7 @@ export class ModelPrivate implements Model {
 
     if (format === 'ascii-math') return atomToAsciiMath(atom);
 
-    console.error('MathLive: Unknown format :', format);
+    console.error(`MathLive ${version.mathlive}: Unknown format "${format}`);
     return '';
   }
 

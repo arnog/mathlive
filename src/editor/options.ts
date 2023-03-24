@@ -15,6 +15,7 @@ import { defaultExportHook } from '../editor-mathfield/mode-editor';
 
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
+import { version } from 'mathlive';
 
 /** @internal */
 export type MathfieldOptionsPrivate = MathfieldOptions & {
@@ -63,7 +64,7 @@ export function update(
           )
         ) {
           console.error(
-            'MathLive: valid valeus for defaultMode are "text", "math" or "inline-math"'
+            `MathLive ${version.mathlive}:  valid values for defaultMode are "text", "math" or "inline-math"`
           );
           result.defaultMode = 'math';
         } else result.defaultMode = updates.defaultMode!;

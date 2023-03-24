@@ -31,6 +31,7 @@ import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
 import { PromptAtom } from '../core-atoms/prompt';
 import type { GlobalContext } from '../public/core-types';
+import { version } from 'mathlive';
 
 export * from './atom-class';
 
@@ -101,7 +102,7 @@ export function fromJson(
         'root',
         'space',
       ].includes(type),
-      `MathLive: an unexpected atom type ("${type}") was encountered. Add new atom constructors to fromJson() in atom.ts`
+      `MathLive ${version.mathlive}: an unexpected atom type "${type}" was encountered. Add new atom constructors to \`fromJson()\` in "atom.ts"`
     );
     result = Atom.fromJson(json, context);
   }

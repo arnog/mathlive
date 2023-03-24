@@ -8,6 +8,7 @@ import { ArrayAtom } from '../core-atoms/array';
 import { LineAtom } from '../core-atoms/line';
 import { getMacros } from '../core-definitions/definitions-utils';
 import { PromptAtom } from 'core-atoms/prompt';
+import { version } from 'mathlive';
 
 declare global {
   interface Window {
@@ -679,7 +680,10 @@ export function atomToSpeakableText(atoms: Atom | Atom[]): string {
       try {
         result = SRE.toSpeech(mathML);
       } catch (e) {
-        console.error('MathLive: SRE.toSpeech() runtime error ', e);
+        console.error(
+          `MathLive ${version.mathlive}: \`SRE.toSpeech()\` runtime error`,
+          e
+        );
       }
 
       return result;

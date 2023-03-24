@@ -40,6 +40,7 @@ import { defaultReadAloudHook } from 'editor/speech-read-aloud';
 import { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { l10n } from 'core/l10n';
+import { version } from 'mathlive';
 
 export declare type Expression =
   | number
@@ -49,7 +50,7 @@ export declare type Expression =
 
 if (!isBrowser()) {
   console.error(
-    'MathLive: this version of the MathLive library is for use in the browser. A subset of the API is available on the server side in the "mathlive-ssr" library. If using server side rendering (with React for example) you may want to do a dynamic import of the MathLive library inside a `useEffect()` call.'
+    `MathLive ${version.mathlive}: this version of the MathLive library is for use in the browser. A subset of the API is available on the server side in the "mathlive-ssr" library. If using server side rendering (with React for example) you may want to do a dynamic import of the MathLive library inside a \`useEffect()\` call.`
   );
 }
 
@@ -912,7 +913,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
       else {
         console.error(
-          'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+          `MathLive ${version.mathlive}: The CortexJS Compute Engine library is not available.
+          
+          Load the library, for example with:
+          
+          import "https://unpkg.com/@cortex-js/compute-engine?module"`
         );
       }
       if (this._computeEngine && this.decimalSeparator === ',')
@@ -1046,7 +1051,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       .trim();
 
     // Record the (optional) configuration options, as a deferred state
-    if (options) this.setOptions(options);
+    if (options) this._setOptions(options);
   }
 
   onPointerDown(): void {
@@ -1140,7 +1145,11 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     if (!this._mathfield) return undefined;
     if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
-        'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+        `MathLive ${version.mathlive}: The CortexJS Compute Engine library is not available.
+        
+        Load the library, for example with:
+        
+        import "https://unpkg.com/@cortex-js/compute-engine?module"`
       );
     }
     return this._mathfield.expression;
@@ -1153,13 +1162,34 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
-        'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+        `MathLive ${version.mathlive}: The CortexJS Compute Engine library is not available.
+        
+        Load the library, for example with:
+        
+        import "https://unpkg.com/@cortex-js/compute-engine?module"`
       );
     }
   }
 
   get errors(): LatexSyntaxError[] {
     return this._mathfield?.errors ?? [];
+  }
+
+  /** @internal */
+  private _getOptions<K extends keyof MathfieldOptions>(
+    keys: K[]
+  ): Pick<MathfieldOptions, K>;
+  private _getOptions(): MathfieldOptions;
+  private _getOptions(
+    keys?: keyof MathfieldOptions | (keyof MathfieldOptions)[]
+  ): null | Partial<MathfieldOptions> {
+    if (this._mathfield) return getOptions(this._mathfield.options, keys);
+
+    if (!gDeferredState.has(this)) return null;
+    return getOptions(
+      updateOptions(getDefaultOptions(), gDeferredState.get(this)!.options),
+      keys
+    );
   }
 
   /**
@@ -1174,7 +1204,11 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     keys?: keyof MathfieldOptions | (keyof MathfieldOptions)[]
   ): null | Partial<MathfieldOptions> {
     console.warn(
-      'MathLive: mf.getOptions() is deprecated. Read the property directly on the mathfield instead'
+      `%cMathLive ${version.mathlive}: %cDeprecated Usage%c
+      \`mf.getOptions()\` is deprecated. Read the property directly on the mathfield instead`,
+      'color:#12b; font-size: 1.1rem',
+      'color:#db1111; font-size: 1.1rem',
+      'color: inherit, font-size: 1rem'
     );
 
     if (this._mathfield) return getOptions(this._mathfield.options, keys);
@@ -1185,11 +1219,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       keys
     );
   }
-
   /** @internal */
   private reflectAttributes() {
     const defaultOptions = getDefaultOptions();
-    const options = this.getOptions();
+    const options = this._getOptions();
     Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
       const prop = toCamelCase(x);
       if (MathfieldElement.optionsAttributes[x] === 'on/off') {
@@ -1225,19 +1258,24 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     key: K
   ): MathfieldOptions[K] {
     console.warn(
-      'MathLive: mf.getOption() is deprecated. Read the property directly on the mathfield instead'
+      `%cMathLive ${version.mathlive}: %cDeprecated Usage%c
+      \`mf.getOption()\` is deprecated. Read the property directly on the mathfield instead`,
+      'color:#12b; font-size: 1.1rem',
+      'color:#db1111; font-size: 1.1rem',
+      'color: inherit, font-size: 1rem'
     );
-    return this.getOptions([key])[key];
+    return this._getOptions([key])[key];
   }
 
-  /**
-   *  @category Options
-   * @deprecated
-   */
-  private setOptions(options: Partial<MathfieldOptions>): void {
-    console.warn(
-      'MathLive: mf.setOptions() is deprecated. Set the property directly on the mathfield instead'
-    );
+  /** @internal */
+  private _getOption<K extends keyof MathfieldOptions>(
+    key: K
+  ): MathfieldOptions[K] {
+    return this._getOptions([key])[key];
+  }
+
+  /** @internal */
+  private _setOptions(options: Partial<MathfieldOptions>): void {
     if (this._mathfield) this._mathfield.setOptions(options);
     else if (gDeferredState.has(this)) {
       const mergedOptions = {
@@ -1259,6 +1297,81 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     // Reflect options to attributes
     this.reflectAttributes();
+  }
+
+  /**
+   *  @category Options
+   * @deprecated
+   */
+  private setOptions(options: Partial<MathfieldOptions>): void {
+    console.group(
+      `%cMathLive ${version.mathlive}: %cDeprecated Usage`,
+      'color:#12b; font-size: 1.1rem',
+      'color:#db1111; font-size: 1.1rem'
+    );
+    console.warn(
+      ` \`mf.setOptions()\` is deprecated. Set the property directly on the mathfield instead`
+    );
+    const DEPRECATED_OPTIONS = {
+      letterShapeStyle: 'mf.letterShapeStyle = ...',
+      horizontalSpacingScale:
+        'Removed. Use `"thinmuskip"`, `"medmuskip"`, and `"thickmuskip"` registers ',
+      macros: 'mf.macros = ...',
+      registers: 'mf.registers = ...',
+      backgroundColorMap: 'mf.backgroundColorMap = ...',
+      colorMap: 'mf.colorMap = ...',
+      enablePopover: 'mf.popoverPolicy = ...',
+      mathModeSpace: 'mf.mathModeSpace = ...',
+      placeholderSymbol: 'mf.placeholderSymbol = ...',
+      readOnly: 'mf.readOnly = ...',
+      removeExtraneousParentheses: 'mf.removeExtraneousParentheses = ...',
+      scriptDepth: 'mf.scriptDepth = ...',
+      smartFence: 'mf.smartFence = ...',
+      smartMode: 'mf.smartMode = ...',
+      smartSuperscript: 'mf.smartSuperscript = ...',
+      inlineShortcutTimeout: 'mf.inlineShortcutTimeout = ...',
+      inlineShortcuts: 'mf.inlineShortcuts = ...',
+      keybindings: 'mf.keybindings = ...',
+      virtualKeyboardMode: 'mf.mathVirtualKeyboardPolicy = ...',
+      customVirtualKeyboardLayers: 'mathVirtualKeyboard.layers = ...',
+      customVirtualKeyboards: 'mathVirtualKeyboard.layouts = ...',
+      keypressSound: 'mathVirtualKeyboard.keypressSound = ...',
+      keypressVibration: 'mathVirtualKeyboard.keypressVibration = ...',
+      plonkSound: 'mathVirtualKeyboard.plonkSound = ...',
+      virtualKeyboardContainer: 'mathVirtualKeyboard.container = ...',
+      virtualKeyboardLayout: 'mathVirtualKeyboard.alphabeticLayout = ...',
+      virtualKeyboardTheme: 'No longer supported',
+      virtualKeyboardToggleGlyph: 'No longer supported',
+      virtualKeyboardToolbar: 'mathVirtualKeyboard.actionToolbar = ...',
+      virtualKeyboards: 'Use `mathVirtualKeyboard.layouts`',
+      speechEngine: '`MathfieldElement.speechEngine`',
+      speechEngineRate: '`MathfieldElement.speechEngineRate`',
+      speechEngineVoice: '`MathfieldElement.speechEngineVoice`',
+      textToSpeechMarkup: '`MathfieldElement.textToSpeechMarkup`',
+      textToSpeechRules: '`MathfieldElement.textToSpeechRules`',
+      textToSpeechRulesOptions: '`MathfieldElement.textToSpeechRulesOptions`',
+      readAloudHook: '`MathfieldElement.readAloudHook`',
+      speakHook: '`MathfieldElement.speakHook`',
+      computeEngine: '`MathfieldElement.computeEngine`',
+      fontsDirectory: '`MathfieldElement.fontsDirectory`',
+      soundsDirectory: '`MathfieldElement.soundsDirectory`',
+      createHTML: '`MathfieldElement.createHTML`',
+      onExport: '`MathfieldElement.onExport`',
+      onInlineShortcut: '`MathfieldElement.onInlineShortcut`',
+      locale: 'MathfieldElement.locale = ...',
+      strings: 'MathfieldElement.strings = ...',
+      decimalSeparator: 'MathfieldElement.decimalSeparator = ...',
+      fractionNavigationOrder: 'MathfieldElement.fractionNavigationOrder = ...',
+    };
+    for (const key of Object.keys(options)) {
+      if (DEPRECATED_OPTIONS[key]) {
+        console.warn(
+          `\`mf.setOptions({${key}:...})\` -> ${DEPRECATED_OPTIONS[key]}`
+        );
+      }
+    }
+    console.groupEnd();
+    this._setOptions(options);
   }
 
   /**
@@ -1710,7 +1823,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       this.removeAttribute('read-only');
     }
 
-    this.setOptions({ readOnly: isReadonly });
+    this._setOptions({ readOnly: isReadonly });
   }
 
   get disabled(): boolean {
@@ -1753,151 +1866,151 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   get defaultMode(): 'inline-math' | 'math' | 'text' {
-    return this.getOption('defaultMode');
+    return this._getOption('defaultMode');
   }
   set defaultMode(value: 'inline-math' | 'math' | 'text') {
-    this.setOptions({ defaultMode: value });
+    this._setOptions({ defaultMode: value });
   }
 
   get macros(): MacroDictionary {
-    return this.getOption('macros');
+    return this._getOption('macros');
   }
   set macros(value: MacroDictionary) {
-    this.setOptions({ macros: value });
+    this._setOptions({ macros: value });
   }
 
   get registers(): Registers {
-    return this.getOption('registers');
+    return this._getOption('registers');
   }
   set registers(value: Registers) {
-    this.setOptions({ registers: value });
+    this._setOptions({ registers: value });
   }
 
   get colorMap(): (name: string) => string | undefined {
-    return this.getOption('colorMap');
+    return this._getOption('colorMap');
   }
   set colorMap(value: (name: string) => string | undefined) {
-    this.setOptions({ colorMap: value });
+    this._setOptions({ colorMap: value });
   }
 
   get backgroundColorMap(): (name: string) => string | undefined {
-    return this.getOption('backgroundColorMap');
+    return this._getOption('backgroundColorMap');
   }
   set backgroundColorMap(value: (name: string) => string | undefined) {
-    this.setOptions({ backgroundColorMap: value });
+    this._setOptions({ backgroundColorMap: value });
   }
 
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
-    return this.getOption('letterShapeStyle');
+    return this._getOption('letterShapeStyle');
   }
   set letterShapeStyle(value: 'auto' | 'tex' | 'iso' | 'french' | 'upright') {
-    this.setOptions({ letterShapeStyle: value });
+    this._setOptions({ letterShapeStyle: value });
   }
 
   get smartMode(): boolean {
-    return this.getOption('smartMode');
+    return this._getOption('smartMode');
   }
   set smartMode(value: boolean) {
-    this.setOptions({ smartMode: value });
+    this._setOptions({ smartMode: value });
   }
   get smartFence(): boolean {
-    return this.getOption('smartFence');
+    return this._getOption('smartFence');
   }
   set smartFence(value: boolean) {
-    this.setOptions({ smartFence: value });
+    this._setOptions({ smartFence: value });
   }
 
   get smartSuperscript(): boolean {
-    return this.getOption('smartSuperscript');
+    return this._getOption('smartSuperscript');
   }
   set smartSuperscript(value: boolean) {
-    this.setOptions({ smartSuperscript: value });
+    this._setOptions({ smartSuperscript: value });
   }
 
   get scriptDepth(): number | [number, number] {
-    return this.getOption('scriptDepth');
+    return this._getOption('scriptDepth');
   }
   set scriptDepth(value: number | [number, number]) {
-    this.setOptions({ scriptDepth: value });
+    this._setOptions({ scriptDepth: value });
   }
 
   get removeExtraneousParentheses(): boolean {
-    return this.getOption('removeExtraneousParentheses');
+    return this._getOption('removeExtraneousParentheses');
   }
   set removeExtraneousParentheses(value: boolean) {
-    this.setOptions({ removeExtraneousParentheses: value });
+    this._setOptions({ removeExtraneousParentheses: value });
   }
 
   get mathModeSpace(): string {
-    return this.getOption('mathModeSpace');
+    return this._getOption('mathModeSpace');
   }
   set mathModeSpace(value: string) {
-    this.setOptions({ mathModeSpace: value });
+    this._setOptions({ mathModeSpace: value });
   }
 
   get placeholderSymbol(): string {
-    return this.getOption('placeholderSymbol');
+    return this._getOption('placeholderSymbol');
   }
   set placeholderSymbol(value: string) {
-    this.setOptions({ placeholderSymbol: value });
+    this._setOptions({ placeholderSymbol: value });
   }
 
   get popoverPolicy(): 'auto' | 'off' {
-    return this.getOption('popoverPolicy');
+    return this._getOption('popoverPolicy');
   }
   set popoverPolicy(value: 'auto' | 'off') {
-    this.setOptions({ popoverPolicy: value });
+    this._setOptions({ popoverPolicy: value });
   }
 
   get mathVirtualKeyboardPolicy(): VirtualKeyboardPolicy {
-    return this.getOption('mathVirtualKeyboardPolicy');
+    return this._getOption('mathVirtualKeyboardPolicy');
   }
   set mathVirtualKeyboardPolicy(value: VirtualKeyboardPolicy) {
-    this.setOptions({ mathVirtualKeyboardPolicy: value });
+    this._setOptions({ mathVirtualKeyboardPolicy: value });
   }
 
   get inlineShortcuts(): Record<string, InlineShortcutDefinition> {
-    return this.getOption('inlineShortcuts');
+    return this._getOption('inlineShortcuts');
   }
   set inlineShortcuts(value: Record<string, InlineShortcutDefinition>) {
-    this.setOptions({ inlineShortcuts: value });
+    this._setOptions({ inlineShortcuts: value });
   }
 
   get inlineShortcutTimeout(): number {
-    return this.getOption('inlineShortcutTimeout');
+    return this._getOption('inlineShortcutTimeout');
   }
   set inlineShortcutTimeout(value: number) {
-    this.setOptions({ inlineShortcutTimeout: value });
+    this._setOptions({ inlineShortcutTimeout: value });
   }
 
   get keybindings(): Keybinding[] {
-    return this.getOption('keybindings');
+    return this._getOption('keybindings');
   }
   set keybindings(value: Keybinding[]) {
-    this.setOptions({ keybindings: value });
+    this._setOptions({ keybindings: value });
   }
 
   get onInlineShortcut(): (sender: Mathfield, symbol: string) => string {
-    return this.getOption('onInlineShortcut');
+    return this._getOption('onInlineShortcut');
   }
   set onInlineShortcut(value: (sender: Mathfield, symbol: string) => string) {
-    this.setOptions({ onInlineShortcut: value });
+    this._setOptions({ onInlineShortcut: value });
   }
 
   get onExport(): (from: Mathfield, latex: string, range: Range) => string {
-    return this.getOption('onExport');
+    return this._getOption('onExport');
   }
   set onExport(
     value: (from: Mathfield, latex: string, range: Range) => string
   ) {
-    this.setOptions({ onExport: value });
+    this._setOptions({ onExport: value });
   }
 
   get readOnly(): boolean {
-    return this.getOption('readOnly');
+    return this._getOption('readOnly');
   }
   set readOnly(value: boolean) {
-    this.setOptions({ readOnly: value });
+    this._setOptions({ readOnly: value });
   }
   setPromptState(
     id: string,
@@ -1914,10 +2027,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._mathfield?.setPromptValue(id, content);
   }
   get virtualKeyboardTargetOrigin(): string {
-    return this.getOption('virtualKeyboardTargetOrigin');
+    return this._getOption('virtualKeyboardTargetOrigin');
   }
   set virtualKeyboardTargetOrigin(value: string) {
-    this.setOptions({ virtualKeyboardTargetOrigin: value });
+    this._setOptions({ virtualKeyboardTargetOrigin: value });
   }
 
   /**

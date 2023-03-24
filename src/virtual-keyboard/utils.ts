@@ -11,6 +11,7 @@ import {
   VirtualKeyboardOptions,
   VirtualKeyboardLayer,
   LayoutDefinition,
+  version,
 } from 'mathlive';
 
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
@@ -144,7 +145,7 @@ function normalizeLayout(
   if ('rows' in layout && Array.isArray(layout.rows)) {
     console.assert(
       !('layers' in layout),
-      'MathLive: only provide either a "rows" or "layers" property, not both'
+      `MathLive ${version.mathlive}: only provide either a "rows" or "layers" property, not both`
     );
     return {
       ...layout,
@@ -504,9 +505,12 @@ function expandLayerMarkup(
 
     let keys = layout[attributes.name] as string;
     if (!keys) keys = ROWS.qwerty[attributes.name];
-    if (!keys)
-      console.error('MathLive: Unknown roman keyboard row:', attributes.name);
-    else {
+    if (!keys) {
+      console.error(
+        `MathLive ${version.mathlive}: Unknown roman keyboard row:`,
+        attributes.name
+      );
+    } else {
       for (const c of keys) {
         let cls: string = attributes.class ?? '';
         if (cls) cls = ` ${cls}`;

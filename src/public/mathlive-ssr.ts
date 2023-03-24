@@ -27,6 +27,7 @@ import type { LatexSyntaxError, ParseMode } from './core-types';
 
 import '../core/modes';
 import { defaultGlobalContext } from '../core/context-utils';
+import { version } from 'mathlive';
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
@@ -192,7 +193,11 @@ export function serializeMathJsonToLatex(json: Expression): string {
     if (ComputeEngineCtor) gComputeEngine = new ComputeEngineCtor();
     else {
       console.error(
-        'MathLive: The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+        `MathLive ${version.mathlive}: The CortexJS Compute Engine library is not available.
+        
+        Load the library, for example with:
+        
+        import "https://unpkg.com/@cortex-js/compute-engine?module"`
       );
     }
   }
