@@ -1247,7 +1247,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   setPromptValue(
     id: string,
     value?: string,
-    insertOptions?: InsertOptions
+    insertOptions?: Omit<InsertOptions, 'insertionMode'>
   ): void {
     if (value !== undefined) {
       const prompt = this.getPrompt(id);

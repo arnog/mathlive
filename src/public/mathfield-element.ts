@@ -2068,8 +2068,12 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield?.getPromptState(id) ?? [undefined, true];
   }
 
-  setPromptContent(id: string, content: string): void {
-    this._mathfield?.setPromptValue(id, content);
+  setPromptContent(
+    id: string,
+    content: string,
+    insertOptions: Omit<InsertOptions, 'insertionMode'>
+  ): void {
+    this._mathfield?.setPromptValue(id, content, insertOptions);
   }
   get virtualKeyboardTargetOrigin(): string {
     return this._getOption('virtualKeyboardTargetOrigin');
