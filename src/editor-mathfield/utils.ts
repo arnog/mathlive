@@ -244,12 +244,10 @@ export function validateOrigin(
   origin: string,
   originValidator: OriginValidator
 ): boolean {
-  if (origin === '*') return true;
-
-  if (originValidator === 'none') return true;
+  if (origin === '*' || originValidator === 'none') return true;
 
   if (originValidator === 'same-origin')
-    return !globalThis.origin || origin === globalThis.origin;
+    return !window.origin || origin === window.origin;
 
   if (typeof originValidator === 'function') return originValidator(origin);
 

@@ -731,12 +731,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (!isValidMathfield(this)) return;
     if (isVirtualKeyboardMessage(evt)) {
       // console.log('mf received ', evt.data.action, evt);
-      if (
-        !validateOrigin(
-          evt.origin,
-          this.options.originValidator ?? 'same-origin'
-        )
-      ) {
+      if (!validateOrigin(evt.origin, this.options.originValidator ?? 'none')) {
         throw new DOMException(
           `Message from unknown origin (${evt.origin}) cannot be handled`,
           'SecurityError'

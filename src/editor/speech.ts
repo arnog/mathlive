@@ -170,7 +170,7 @@ export function defaultSpeakHook(text: string): void {
         `MathLive {{SDK_VERSION}}: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
       );
     } else {
-      const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
+      const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
       const parameters = {
         OutputFormat: 'mp3',
         VoiceId: window.MathfieldElement.speechEngineVoice ?? 'Joanna',

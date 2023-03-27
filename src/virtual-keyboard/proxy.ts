@@ -39,8 +39,8 @@ export class VirtualKeyboardProxy
     return this._singleton;
   }
 
-  targetOrigin = globalThis.origin;
-  originValidator: OriginValidator = 'same-origin';
+  targetOrigin = window.origin;
+  originValidator: OriginValidator = 'none';
 
   private readonly listeners: {
     [type: string]: Set<EventListenerOrEventListenerObject | null>;

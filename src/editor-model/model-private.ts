@@ -465,7 +465,7 @@ export class ModelPrivate implements Model {
 
     if (format === 'math-json') {
       if (!window.MathfieldElement.computeEngine) {
-        if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
+        if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
           console.error(
             'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
           );

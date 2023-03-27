@@ -296,7 +296,7 @@ export interface MathfieldElementAttributes {
    * to send control messages from child to parent frame to remote control
    * of mathfield component.
    *
-   * **Default**: `globalThis.origin`
+   * **Default**: `window.origin`
    */
   'virtual-keyboard-target-origin': string;
 }
@@ -962,7 +962,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static get computeEngine(): ComputeEngine | null {
     if (this._computeEngine === undefined) {
       const ComputeEngineCtor =
-        globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
+        window[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
       if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
       else {
         console.error(
@@ -1235,7 +1235,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   get expression(): any | null {
     if (!this._mathfield) return undefined;
-    if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
+    if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
         `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
         
@@ -1252,7 +1252,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     const latex = MathfieldElement.computeEngine?.box(mathJson).latex ?? null;
     if (latex !== null) this._mathfield.setValue(latex);
 
-    if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
+    if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
         `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
         
@@ -2238,11 +2238,11 @@ declare global {
 }
 
 if (isBrowser() && !window.customElements?.get('math-field')) {
-  // The `globalThis[Symbol.for('io.cortexjs.mathlive')]` global is used  to coordinate between mathfield
+  // The `window[Symbol.for('io.cortexjs.mathlive')]` global is used  to coordinate between mathfield
   // instances that may have been instantiated by different versions of the
   // library
-  globalThis[Symbol.for('io.cortexjs.mathlive')] ??= {};
-  const global = globalThis[Symbol.for('io.cortexjs.mathlive')];
+  window[Symbol.for('io.cortexjs.mathlive')] ??= {};
+  const global = window[Symbol.for('io.cortexjs.mathlive')];
   global.version = '{{SDK_VERSION}}';
 
   window.MathfieldElement = MathfieldElement;

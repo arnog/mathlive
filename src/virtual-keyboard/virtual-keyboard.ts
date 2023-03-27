@@ -96,14 +96,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   constructor() {
-    this.targetOrigin = globalThis.origin;
-    this.originValidator = 'same-origin';
+    this.targetOrigin = window.origin;
+    this.originValidator = 'none';
 
     this._alphabeticLayout = 'auto';
     this._layouts = ['numeric', 'functions', 'symbols', 'alphabetic', 'greek'];
     this._actionToolbar = 'default';
 
-    this._container = globalThis.document?.body ?? null;
+    this._container = window.document?.body ?? null;
 
     this._visible = false;
     this._dirty = true;

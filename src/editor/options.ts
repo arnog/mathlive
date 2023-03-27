@@ -139,8 +139,8 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
     mathVirtualKeyboardPolicy: 'auto',
 
-    virtualKeyboardTargetOrigin: globalThis.window?.origin,
-    originValidator: 'same-origin',
+    virtualKeyboardTargetOrigin: window?.origin,
+    originValidator: 'none',
 
     onInlineShortcut: () => '',
     onExport: defaultExportHook,

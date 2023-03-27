@@ -670,7 +670,7 @@ export function atomToSpeakableText(atoms: Atom | Atom[]): string {
           window.MathfieldElement.speechEngineRate;
       }
 
-      const SRE = globalThis.SRE ?? window.sre.System.getInstance();
+      const SRE = window['SRE'] ?? window.sre.System.getInstance();
 
       if (window.MathfieldElement.textToSpeechRulesOptions)
         SRE.setupEngine(window.MathfieldElement.textToSpeechRulesOptions);
