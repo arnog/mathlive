@@ -590,8 +590,8 @@ function makeVariants(
           '"></span>',
         command: ['applyStyle', { color }],
       });
-      return result;
     }
+    return result;
   }
 
   if (id === 'background-color') {
