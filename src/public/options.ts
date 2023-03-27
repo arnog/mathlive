@@ -266,7 +266,7 @@ export type ContentChangeOptions = {
   data?: string | null;
   dataTransfer?: DataTransfer | null;
   inputType?: ContentChangeType;
-  isComposing?: boolean;
+  // isComposing?: boolean;
 };
 
 export type KeyboardOptions = {

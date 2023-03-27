@@ -2223,7 +2223,7 @@ function getOptionsFromAttributes(
 }
 
 function isElementInternalsSupported(): boolean {
-  if (!window.ElementInternals || !HTMLElement.prototype.attachInternals)
+  if (!('ElementInternals' in window) || !HTMLElement.prototype.attachInternals)
     return false;
   if (!('role' in window.ElementInternals.prototype)) return false;
   return true;
