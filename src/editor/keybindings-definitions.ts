@@ -297,6 +297,16 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     command: ['switchMode', 'text', '', ''],
   },
   {
+    key: 'shift+alt+[KeyT]',
+    ifMode: 'math',
+    command: ['switchMode', 'text', '', ''],
+  },
+  {
+    key: 'shift+alt+[KeyT]',
+    ifMode: 'text',
+    command: ['switchMode', 'math', '', ''],
+  },
+  {
     key: 'shift+[Quote]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'text',
