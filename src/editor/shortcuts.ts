@@ -1,8 +1,11 @@
-import type { InlineShortcutDefinition } from '../public/options';
+import type {
+  InlineShortcutDefinition,
+  InlineShortcutDefinitions,
+} from '../public/options';
 import { LETTER } from '../core-definitions/definitions';
 import type { Atom } from '../core/atom';
 
-export { InlineShortcutDefinition };
+export { InlineShortcutDefinition, InlineShortcutDefinitions };
 
 /**
  *
@@ -96,7 +99,7 @@ function validateShortcut(
 export function getInlineShortcut(
   context: null | Atom[],
   s: string,
-  shortcuts?: Record<string, InlineShortcutDefinition>
+  shortcuts?: InlineShortcutDefinitions
 ): string {
   if (!shortcuts) return '';
   return validateShortcut(context, shortcuts[s]);

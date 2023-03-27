@@ -17,7 +17,7 @@ import {
   Mathfield,
 } from './mathfield';
 import {
-  InlineShortcutDefinition,
+  InlineShortcutDefinitions,
   Keybinding,
   MathfieldOptions,
 } from './options';
@@ -1663,7 +1663,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   connectedCallback(): void {
     // Load the fonts
-    setInterval(() => void loadFonts());
+    requestAnimationFrame(() => void loadFonts());
 
     this.shadowRoot!.host.addEventListener(
       'pointerdown',
@@ -2014,10 +2014,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ mathVirtualKeyboardPolicy: value });
   }
 
-  get inlineShortcuts(): Record<string, InlineShortcutDefinition> {
+  get inlineShortcuts(): InlineShortcutDefinitions {
     return this._getOption('inlineShortcuts');
   }
-  set inlineShortcuts(value: Record<string, InlineShortcutDefinition>) {
+  set inlineShortcuts(value: InlineShortcutDefinitions) {
     this._setOptions({ inlineShortcuts: value });
   }
 

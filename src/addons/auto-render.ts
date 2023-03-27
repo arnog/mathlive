@@ -559,7 +559,7 @@ export function autoRenderMathInElement(
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
-    setInterval(() => void loadFonts());
+    requestAnimationFrame(() => void loadFonts());
     injectStylesheet(
       null,
       coreStylesheet,
