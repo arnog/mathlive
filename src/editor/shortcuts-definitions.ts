@@ -1,10 +1,10 @@
-import type { InlineShortcutDefinition } from '../public/options';
+import type { InlineShortcutDefinitions } from '../public/options';
 
 /**
  * These shortcut strings are replaced with the corresponding LaTeX expression
  * without requiring an escape sequence or command.
  */
-export const INLINE_SHORTCUTS: Record<string, InlineShortcutDefinition> = {
+export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '&': '\\&',
   '%': '\\%',
 

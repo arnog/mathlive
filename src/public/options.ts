@@ -199,6 +199,11 @@ export type InlineShortcutDefinition =
       after?: string;
     };
 
+export type InlineShortcutDefinitions = Record<
+  string,
+  InlineShortcutDefinition
+>;
+
 /**
  * These hooks provide an opportunity to intercept or modify an action.
  * When their return value is a boolean, it indicates if the default handling
@@ -276,7 +281,7 @@ export type InlineShortcutsOptions = {
    * {@inheritDoc InlineShortcutDefinition}
    */
 
-  inlineShortcuts: Record<string, InlineShortcutDefinition>;
+  inlineShortcuts: InlineShortcutDefinitions;
   /**
    * Maximum time, in milliseconds, between consecutive characters for them to be
    * considered part of the same shortcut sequence.

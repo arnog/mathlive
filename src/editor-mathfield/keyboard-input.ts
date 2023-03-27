@@ -227,7 +227,7 @@ export function onKeystroke(
       return result;
     }
 
-    if (mathfield.mode === 'math') {
+    if (!selector && mathfield.mode === 'math') {
       //
       // 4.5 If this is the Space bar and we're just before or right after
       // a text zone, or if `mathModeSpace` is enabled, insert the space
@@ -361,14 +361,21 @@ export function onKeystroke(
           format: 'latex',
           style,
         });
+
         // Check if as a result of the substitution there is now an isolated
         // (text mode) space (surrounded by math). In which case, remove it.
+
         removeIsolatedSpace(mathfield.model);
+
         // Switch (back) to text mode if the shortcut ended with a space
         if (shortcut!.endsWith(' ')) {
           mathfield.mode = 'text';
           ModeEditor.insert('text', model, ' ', { style });
         }
+
+        // If as a result of the substitution the selection is not collapsed,
+        // the substitution inserted a place holder. Reset the buffer.
+        if (!model.selectionIsCollapsed) mathfield.flushInlineShortcutBuffer();
 
         return true; // Content changed
       }

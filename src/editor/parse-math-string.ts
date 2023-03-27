@@ -1,5 +1,5 @@
 import { OutputFormat } from '../public/mathfield';
-import { InlineShortcutDefinition, getInlineShortcut } from './shortcuts';
+import { InlineShortcutDefinitions, getInlineShortcut } from './shortcuts';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 /**
@@ -38,7 +38,7 @@ export function parseMathString(
   s: string,
   options?: {
     format?: 'auto' | OutputFormat;
-    inlineShortcuts?: Record<string, InlineShortcutDefinition>;
+    inlineShortcuts?: InlineShortcutDefinitions;
   }
 ): [OutputFormat, string] {
   let format: OutputFormat | 'auto' | undefined = options?.format ?? 'auto';
@@ -65,7 +65,7 @@ export function parseMathString(
 function parseMathExpression(
   s: string,
   options: {
-    inlineShortcuts?: Record<string, InlineShortcutDefinition>;
+    inlineShortcuts?: InlineShortcutDefinitions;
   }
 ): string {
   if (!s) return '';
@@ -214,7 +214,7 @@ function parseMathArgument(
   s: string,
   options: {
     noWrap?: boolean;
-    inlineShortcuts?: Record<string, InlineShortcutDefinition>;
+    inlineShortcuts?: InlineShortcutDefinitions;
   }
 ): { match: string; rest: string } {
   let match = '';
@@ -295,7 +295,7 @@ function parseMathArgument(
 
 function paddedShortcut(
   s: string,
-  shortcuts?: Record<string, InlineShortcutDefinition>
+  shortcuts?: InlineShortcutDefinitions
 ): string {
   let result = getInlineShortcut(null, s, shortcuts);
   if (result) {
