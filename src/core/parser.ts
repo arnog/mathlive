@@ -31,9 +31,9 @@ import type {
   Glue,
   ArgumentType,
   Token,
-  GlobalContext,
   MathstyleName,
 } from '../public/core-types';
+import type { GlobalContext } from 'core/types';
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
 

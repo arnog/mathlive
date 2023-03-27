@@ -2,7 +2,8 @@ import type { Atom } from '../core/atom-class';
 import { EncloseAtom, EncloseAtomOptions } from '../core-atoms/enclose';
 
 import { Argument, defineFunction } from './definitions-utils';
-import type { GlobalContext, Style } from '../public/core-types';
+import type { Style } from '../public/core-types';
+import type { GlobalContext } from 'core/types';
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
 // The first argument is a comma delimited list of notations, as defined

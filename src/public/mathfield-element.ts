@@ -17,7 +17,7 @@ import {
   Mathfield,
 } from './mathfield';
 import {
-  InlineShortcutDefinition,
+  InlineShortcutDefinitions,
   Keybinding,
   MathfieldOptions,
 } from './options';
@@ -33,14 +33,13 @@ import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
 import { isBrowser } from '../common/capabilities';
 import { resolveUrl } from '../common/script-url';
-import { requestUpdate } from 'editor-mathfield/render';
-import { reloadFonts, loadFonts } from 'core/fonts';
-import { defaultSpeakHook } from 'editor/speech';
-import { defaultReadAloudHook } from 'editor/speech-read-aloud';
+import { requestUpdate } from '../editor-mathfield/render';
+import { reloadFonts, loadFonts } from '../core/fonts';
+import { defaultSpeakHook } from '../editor/speech';
+import { defaultReadAloudHook } from '../editor/speech-read-aloud';
 import { ComputeEngine } from '@cortex-js/compute-engine';
 
-import { l10n } from 'core/l10n';
-import { version } from 'mathlive';
+import { l10n } from '../core/l10n';
 
 export declare type Expression =
   | number
@@ -50,7 +49,7 @@ export declare type Expression =
 
 if (!isBrowser()) {
   console.error(
-    `MathLive ${version.mathlive}: this version of the MathLive library is for use in the browser. A subset of the API is available on the server side in the "mathlive-ssr" library. If using server side rendering (with React for example) you may want to do a dynamic import of the MathLive library inside a \`useEffect()\` call.`
+    `MathLive {{SDK_VERSION}}: this version of the MathLive library is for use in the browser. A subset of the API is available on the server side in the "mathlive-ssr" library. If using server side rendering (with React for example) you may want to do a dynamic import of the MathLive library inside a \`useEffect()\` call.`
   );
 }
 
@@ -967,7 +966,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
       else {
         console.error(
-          `MathLive ${version.mathlive}: The CortexJS Compute Engine library is not available.
+          `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
           
           Load the library, for example with:
           
@@ -1111,7 +1110,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
       if (warnings.length > 0) {
         console.group(
-          `%cMathLive ${version.mathlive}: %cInvalid Options`,
+          `%cMathLive {{SDK_VERSION}}: %cInvalid Options`,
           'color:#12b; font-size: 1.1rem',
           'color:#db1111; font-size: 1.1rem'
         );
@@ -1238,7 +1237,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     if (!this._mathfield) return undefined;
     if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
-        `MathLive ${version.mathlive}: The CortexJS Compute Engine library is not available.
+        `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
         
         Load the library, for example with:
         
@@ -1255,7 +1254,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     if (!globalThis[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
-        `MathLive ${version.mathlive}: The CortexJS Compute Engine library is not available.
+        `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
         
         Load the library, for example with:
         
@@ -1297,7 +1296,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     keys?: keyof MathfieldOptions | (keyof MathfieldOptions)[]
   ): null | Partial<MathfieldOptions> {
     console.warn(
-      `%cMathLive ${version.mathlive}: %cDeprecated Usage%c
+      `%cMathLive {{SDK_VERSION}}: %cDeprecated Usage%c
       \`mf.getOptions()\` is deprecated. Read the property directly on the mathfield instead.
       See https://cortexjs.io/mathlive/changelog/ for details.`,
       'color:#12b; font-size: 1.1rem',
@@ -1352,7 +1351,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     key: K
   ): MathfieldOptions[K] {
     console.warn(
-      `%cMathLive ${version.mathlive}: %cDeprecated Usage%c
+      `%cMathLive {{SDK_VERSION}}: %cDeprecated Usage%c
       \`mf.getOption()\` is deprecated. Read the property directly on the mathfield instead.
       See https://cortexjs.io/mathlive/changelog/ for details.`,
       'color:#12b; font-size: 1.1rem',
@@ -1400,7 +1399,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   private setOptions(options: Partial<MathfieldOptions>): void {
     console.group(
-      `%cMathLive ${version.mathlive}: %cDeprecated Usage`,
+      `%cMathLive {{SDK_VERSION}}: %cDeprecated Usage`,
       'color:#12b; font-size: 1.1rem',
       'color:#db1111; font-size: 1.1rem'
     );
@@ -1663,7 +1662,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   connectedCallback(): void {
     // Load the fonts
-    setInterval(() => void loadFonts());
+    requestAnimationFrame(() => void loadFonts());
 
     this.shadowRoot!.host.addEventListener(
       'pointerdown',
@@ -2014,10 +2013,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ mathVirtualKeyboardPolicy: value });
   }
 
-  get inlineShortcuts(): Record<string, InlineShortcutDefinition> {
+  get inlineShortcuts(): InlineShortcutDefinitions {
     return this._getOption('inlineShortcuts');
   }
-  set inlineShortcuts(value: Record<string, InlineShortcutDefinition>) {
+  set inlineShortcuts(value: InlineShortcutDefinitions) {
     this._setOptions({ inlineShortcuts: value });
   }
 
@@ -2068,8 +2067,12 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield?.getPromptState(id) ?? [undefined, true];
   }
 
-  setPromptContent(id: string, content: string): void {
-    this._mathfield?.setPromptValue(id, content);
+  setPromptContent(
+    id: string,
+    content: string,
+    insertOptions: Omit<InsertOptions, 'insertionMode'>
+  ): void {
+    this._mathfield?.setPromptValue(id, content, insertOptions);
   }
   get virtualKeyboardTargetOrigin(): string {
     return this._getOption('virtualKeyboardTargetOrigin');

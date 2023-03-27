@@ -1,7 +1,8 @@
 import { Atom } from '../core/atom-class';
 import { AccentAtom } from '../core-atoms/accent';
 import { OverunderAtom } from '../core-atoms/overunder';
-import type { GlobalContext, Style } from 'public/core-types';
+import type { Style } from 'public/core-types';
+import type { GlobalContext } from 'core/types';
 
 import {
   Argument,

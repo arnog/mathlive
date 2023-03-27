@@ -22,9 +22,8 @@ import type {
   Glue,
   Dimension,
   MathstyleName,
-  GlobalContext,
 } from 'public/core-types';
-import { PrivateStyle } from 'core/types';
+import { GlobalContext, PrivateStyle } from 'core/types';
 
 defineFunction('mathtip', '{:math}{:math}', {
   createAtom: (

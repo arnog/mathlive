@@ -1,5 +1,3 @@
-import { TokenDefinition } from '../core-definitions/definitions-utils';
-
 export type MathstyleName =
   | 'displaystyle'
   | 'textstyle'
@@ -310,22 +308,3 @@ export type BoxCSSProperties =
   | 'vertical-align'
   | 'width'
   | 'z-index';
-
-/**
- * The Global Context encapsulates information that atoms
- * may require in order to render correctly. Unlike `ContextInterface`, these
- * values do not depend of the location of the atom in the render tree.
- */
-export interface GlobalContext {
-  readonly registers: Registers;
-  readonly smartFence: boolean;
-  readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-  readonly fractionNavigationOrder:
-    | 'numerator-denominator'
-    | 'denominator-numerator';
-  readonly placeholderSymbol: string;
-  colorMap: (name: string) => string | undefined;
-  backgroundColorMap: (name: string) => string | undefined;
-  getDefinition(token: string, parseMode: ParseMode): TokenDefinition | null;
-  getMacro(token: string): MacroDefinition | null;
-}

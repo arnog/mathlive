@@ -1,4 +1,4 @@
-import { Selector } from 'public/commands';
+import { Selector } from '../public/commands';
 import type { Keybinding } from '../public/options';
 
 export const DEFAULT_KEYBINDINGS: Keybinding[] = [
@@ -295,6 +295,16 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
     command: ['switchMode', 'text', '', ''],
+  },
+  {
+    key: 'shift+alt+[KeyT]',
+    ifMode: 'math',
+    command: ['switchMode', 'text', '', ''],
+  },
+  {
+    key: 'shift+alt+[KeyT]',
+    ifMode: 'text',
+    command: ['switchMode', 'math', '', ''],
   },
   {
     key: 'shift+[Quote]',

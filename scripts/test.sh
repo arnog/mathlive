@@ -29,3 +29,19 @@ else
     npx jest test/
     echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Test suite complete"
 fi
+
+
+#
+# Validate that the public declaration files do not reference
+# private types
+#
+
+
+if [ ! -d "./dist/public" ]; then
+  echo -e "No build with declaration file available. Run `npm run build`"
+  exit 1    
+else
+
+  npx tsc --noEmit --baseUrl ./dist/public ./test/public-ts-declarations/main.ts
+
+fi

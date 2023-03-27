@@ -1,11 +1,7 @@
 import { isArray } from '../common/types';
 
-import type {
-  ParseMode,
-  Style,
-  FontSize,
-  GlobalContext,
-} from '../public/core-types';
+import type { ParseMode, Style, FontSize } from '../public/core-types';
+import type { GlobalContext } from 'core/types';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { isBoxType, Box } from './box';

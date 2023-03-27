@@ -342,19 +342,18 @@ export class MathModeEditor extends ModeEditor {
     model.suppressChangeNotifications = contentWasChanging;
 
     const lastNewAtom = newAtoms[newAtoms.length - 1];
+
+    //
     // Update the anchor's location
+    //
     if (options.selectionMode === 'placeholder') {
       // Move to the next placeholder
-      const newPlaceholders = newAtoms.reduce(
-        (acc, atom) => [
-          ...acc,
-          ...atom.children.filter((x) => x.type === 'placeholder'),
-        ],
-        []
-      );
+      const placeholder = newAtoms
+        .flatMap((x) => [x, ...x.children])
+        .find((x) => x.type === 'placeholder');
 
-      if (newPlaceholders.length > 0) {
-        const placeholderOffset = model.offsetOf(newPlaceholders[0]);
+      if (placeholder) {
+        const placeholderOffset = model.offsetOf(placeholder);
         model.setSelection(placeholderOffset - 1, placeholderOffset);
         model.announce('move'); // Should have placeholder selected
       } else if (lastNewAtom) {

@@ -106,11 +106,11 @@ import './mode-editor-text';
 import { validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PromptAtom } from '../core-atoms/prompt';
-import { isVirtualKeyboardMessage } from 'virtual-keyboard/proxy';
-import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
-import { MathfieldElement } from 'public/mathfield-element';
+import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
+import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
+import { MathfieldElement } from '../public/mathfield-element';
 
-import 'virtual-keyboard/global';
+import '../virtual-keyboard/global';
 import type {
   ParseMode,
   Style,
@@ -118,9 +118,8 @@ import type {
   Registers,
   MacroDefinition,
   LatexSyntaxError,
-  GlobalContext,
 } from '../public/core-types';
-import { version } from 'mathlive';
+import type { GlobalContext } from 'core/types';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -352,7 +351,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     );
     if (!this.element.children) {
       console.error(
-        `%cMathLive ${version.mathlive}: Something went wrong and the mathfield could not be created.%c
+        `%cMathLive {{SDK_VERSION}}: Something went wrong and the mathfield could not be created.%c
 If you are using Vue, this may be because you are using the runtime-only build of Vue. Make sure to include \`runtimeCompiler: true\` in your Vue configuration. There may a warning from Vue in the log above.`,
         'color:red;font-family:system-ui;font-size:1.2rem;font-weight:bold',
         'color:inherit;font-family:system-ui;font-size:inherit;font-weight:inherit'
@@ -656,7 +655,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
       if (errors.length > 0) {
         console.error(
-          `MathLive ${version.mathlive}: Invalid keybindings for current keyboard layout`,
+          `MathLive {{SDK_VERSION}}: Invalid keybindings for current keyboard layout`,
           errors
         );
       }
@@ -894,7 +893,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     const ce = window.MathfieldElement.computeEngine;
     if (!ce) {
       console.error(
-        `MathLive ${version.mathlive}:  no compute engine available. Make sure the Compute Engine library is loaded.`
+        `MathLive {{SDK_VERSION}}:  no compute engine available. Make sure the Compute Engine library is loaded.`
       );
       return null;
     }
@@ -1204,7 +1203,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     ) as PromptAtom | undefined;
     console.assert(
       prompt !== undefined,
-      `MathLive ${version.mathlive}:  no prompts with matching ID found`
+      `MathLive {{SDK_VERSION}}:  no prompts with matching ID found`
     );
     return prompt;
   }
@@ -1212,7 +1211,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   getPromptValue(id: string, format?: OutputFormat): string {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error(`MathLive ${version.mathlive}: unknown prompt ${id}`);
+      console.error(`MathLive {{SDK_VERSION}}: unknown prompt ${id}`);
       return '';
     }
 
@@ -1244,11 +1243,15 @@ If you are using Vue, this may be because you are using the runtime-only build o
       .map((a: PromptAtom) => a.placeholderId!);
   }
 
-  setPromptValue(id: string, value?: string): void {
+  setPromptValue(
+    id: string,
+    value?: string,
+    insertOptions?: Omit<InsertOptions, 'insertionMode'>
+  ): void {
     if (value !== undefined) {
       const prompt = this.getPrompt(id);
       if (!prompt) {
-        console.error(`MathLive ${version.mathlive}: unknown prompt ${id}`);
+        console.error(`MathLive {{SDK_VERSION}}: unknown prompt ${id}`);
         return;
       }
 
@@ -1258,7 +1261,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
       );
 
       this.model.setSelection(branchRange);
-      this.insert(value, { insertionMode: 'replaceSelection' });
+      this.insert(value, {
+        ...insertOptions,
+        insertionMode: 'replaceSelection',
+      });
     }
     requestUpdate(this);
   }
@@ -1270,7 +1276,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   ): void {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error(`MathLive ${version.mathlive}: unknown prompt ${id}`);
+      console.error(`MathLive {{SDK_VERSION}}: unknown prompt ${id}`);
       return;
     }
     if (state === 'undefined') prompt.correctness = undefined;
@@ -1287,7 +1293,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   getPromptState(id: string): ['correct' | 'incorrect' | undefined, boolean] {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error(`MathLive ${version.mathlive}: unknown prompt ${id}`);
+      console.error(`MathLive {{SDK_VERSION}}: unknown prompt ${id}`);
       return [undefined, true];
     }
     return [prompt.correctness, prompt.locked];

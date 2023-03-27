@@ -1,4 +1,5 @@
-import type { GlobalContext, Style } from '../public/core-types';
+import type { Style } from '../public/core-types';
+import type { GlobalContext } from 'core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { makeSVGBox, Box } from '../core/box';

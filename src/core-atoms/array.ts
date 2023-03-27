@@ -1,8 +1,5 @@
-import type {
-  MathstyleName,
-  Dimension,
-  GlobalContext,
-} from '../public/core-types';
+import type { MathstyleName, Dimension } from '../public/core-types';
+import type { GlobalContext } from 'core/types';
 
 import {
   Atom,
