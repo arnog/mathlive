@@ -1244,7 +1244,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       .map((a: PromptAtom) => a.placeholderId!);
   }
 
-  setPromptValue(id: string, value?: string): void {
+  setPromptValue(
+    id: string,
+    value?: string,
+    insertOptions?: Omit<InsertOptions, 'insertionMode'>
+  ): void {
     if (value !== undefined) {
       const prompt = this.getPrompt(id);
       if (!prompt) {
@@ -1258,7 +1262,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
       );
 
       this.model.setSelection(branchRange);
-      this.insert(value, { insertionMode: 'replaceSelection' });
+      this.insert(value, {
+        ...insertOptions,
+        insertionMode: 'replaceSelection',
+      });
     }
     requestUpdate(this);
   }
