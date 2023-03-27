@@ -12,6 +12,7 @@ import {
   VirtualKeyboardLayer,
   LayoutDefinition,
   version,
+  VirtualKeyboardKeycap,
 } from 'mathlive';
 
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
@@ -330,6 +331,13 @@ export function makeKeycap(
         } catch (e) {}
       }
     } else if (element.getAttribute('data-insert')) {
+      // @deprecated
+      console.log(
+        'insert keycap',
+        element.getAttribute('data-insert'),
+        'with latex',
+        element.getAttribute('data-latex')
+      );
       selector = [
         'insert',
         element.getAttribute('data-insert')!,
@@ -356,6 +364,7 @@ export function makeKeycap(
         },
       ];
     } else {
+      console.log('keycap fallback, key = ', element.getAttribute('data-key'));
       selector = [
         'typedText',
         element.getAttribute('data-key') ?? element.textContent!,
@@ -803,7 +812,7 @@ function markupLayer(layer: Partial<VirtualKeyboardLayer>): string {
       for (let keycap of row) {
         layerMarkup += `<li`;
 
-        if (typeof keycap === 'string') keycap = { latex: keycap };
+        keycap = expandKeycap(keycap);
 
         if (keycap.class) {
           let cls = keycap.class;
@@ -862,4 +871,88 @@ function markupLayer(layer: Partial<VirtualKeyboardLayer>): string {
   if (layer.backdrop) layerMarkup += '</div>';
 
   return layerMarkup;
+}
+
+const KEYCAP_SHORTCUTS = {
+  '[left]': {
+    'class': 'action',
+    'command': ['performWithFeedback', 'moveToPreviousChar'],
+    'shifted':
+      '<svg class=svg-glyph><use xlink:href="#svg-angle-double-left" /></svg>',
+    'shifted-command': ['performWithFeedback', 'extendToPreviousChar'],
+    'label': '<svg class=svg-glyph><use xlink:href=#svg-arrow-left /></svg>',
+  },
+  '[right]': {
+    'class': 'action',
+    'command': ['performWithFeedback', 'moveToNextChar'],
+    'shifted':
+      '<svg class=svg-glyph><use xlink:href="#svg-angle-double-right" /></svg>',
+    'shifted-command': ['performWithFeedback', 'extendToNextChar'],
+    'label': '<svg class=svg-glyph><use xlink:href=#svg-arrow-right /></svg>',
+  },
+  '[return]': {
+    class: 'action',
+    command: ['performWithFeedback', 'commit'],
+    label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
+  },
+  '[.]': {
+    class: 'big-op',
+    variants: '.',
+    command: 'insertDecimalSeparator',
+    // latex: options.decimalSeparator ?? '.',
+  },
+  '[+]': { classes: 'big-op', variants: '+', latex: '+' },
+  '[-]': { classes: 'big-op', variants: '-', latex: '-', label: '&#x2212;' },
+  '[/]': {
+    classes: 'big-op',
+    variants: '/',
+    latex: '\\frac{#@}{#?}',
+    label: '&divide;',
+  },
+  '[*]': {
+    classes: 'big-op',
+    variants: '*',
+    latex: '\\times',
+    label: '&times;',
+  },
+  '[=]': { classes: 'big-op', variants: '=', latex: '=', label: '=' },
+  '[backspace]': {
+    'class': 'action font-glyph bottom right w15',
+    'command': ['performWithFeedback', 'deleteBackward'],
+    'label':
+      '<svg class=svg-glyph><use xlink:href=#svg-delete-backward /></svg>',
+    'shifted':
+      '<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span',
+    'shifted-command': 'deleteAll',
+    'variants': 'delete',
+  },
+  '[separator-5]': {
+    class: 'separator',
+    width: 0.5,
+  },
+  '[shift]': {
+    class: 'shift modifier font-glyph bottom left layer-switch',
+    width: 1.5,
+    // layer: attributes['shift-layer'],
+    label: '<svg class="svg-glyph"><use xlink:href="#svg-shift" /></svg>',
+  },
+};
+
+function expandKeycap(
+  keycap: string | Partial<VirtualKeyboardKeycap>
+): Partial<VirtualKeyboardKeycap> {
+  if (typeof keycap === 'string') {
+    if (KEYCAP_SHORTCUTS[keycap]) return KEYCAP_SHORTCUTS[keycap];
+    return { latex: keycap };
+  }
+
+  if ('label' in keycap && keycap.label && KEYCAP_SHORTCUTS[keycap.label]) {
+    return {
+      ...KEYCAP_SHORTCUTS[keycap.label],
+      ...keycap,
+      label: KEYCAP_SHORTCUTS[keycap.label].label,
+    };
+  }
+
+  return keycap;
 }

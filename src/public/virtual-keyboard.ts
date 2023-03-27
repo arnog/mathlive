@@ -125,7 +125,7 @@ export type LayoutDefinition =
 
 export interface VirtualKeyboardLayer {
   /** The rows of keycaps in this layer */
-  rows?: Partial<VirtualKeyboardKeycap>[][];
+  rows?: Partial<VirtualKeyboardKeycap | string>[][];
   markup?: string;
   /** The CSS stylesheet associated with this layer */
   styles?: string;
