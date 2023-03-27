@@ -191,7 +191,7 @@ export interface VirtualKeyboardOptions {
    * Specify behavior how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
    * should be validated.
    *
-   * **Default**: `"same-origin"`
+   * **Default**: `"none"`
    */
   originValidator: OriginValidator;
 }
