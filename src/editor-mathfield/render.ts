@@ -11,7 +11,7 @@ import type { MathfieldPrivate } from './mathfield-private';
 
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
-import { gFontsState } from 'core/fonts';
+import { gFontsState } from '../core/fonts';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield

@@ -1,9 +1,9 @@
-import { isTouchCapable } from 'common/capabilities';
-import { isArray } from 'common/types';
-import { on, validateOrigin } from 'editor-mathfield/utils';
-import { getCommandTarget, COMMANDS } from 'editor/commands';
-import { SelectorPrivate } from 'editor/types';
-import { MathfieldElement } from 'mathlive';
+import { isTouchCapable } from '../common/capabilities';
+import { isArray } from '../common/types';
+import { on, validateOrigin } from '../editor-mathfield/utils';
+import { getCommandTarget, COMMANDS } from '../editor/commands';
+import { SelectorPrivate } from '../editor/types';
+import { MathfieldElement } from '../mathlive';
 import {
   AlphabeticKeyboardLayout,
   OriginValidator,

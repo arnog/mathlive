@@ -11,7 +11,6 @@ import { hashCode } from '../common/hash-code';
 import '../core/atom';
 import { loadFonts } from '../core/fonts';
 import { parseMathString } from '../editor/parse-math-string';
-import { version } from 'mathlive';
 
 /** @internal */
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
@@ -237,7 +236,7 @@ function createMathMLNode(
     span.innerHTML = window.MathfieldElement.createHTML(html);
   } catch (error: unknown) {
     console.error(
-      `MathLive ${version.mathlive}:  Could not convert "${latex}"' to MathML with ${error}`
+      `MathLive {{SDK_VERSION}}:  Could not convert "${latex}"' to MathML with ${error}`
     );
     span.textContent = latex;
   }

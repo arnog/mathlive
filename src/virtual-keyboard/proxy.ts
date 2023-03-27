@@ -1,5 +1,5 @@
-import { validateOrigin } from 'editor-mathfield/utils';
-import { getCommandTarget } from 'editor/commands';
+import { validateOrigin } from '../editor-mathfield/utils';
+import { getCommandTarget } from '../editor/commands';
 import {
   AlphabeticKeyboardLayout,
   OriginValidator,

@@ -1,5 +1,5 @@
-import { Selector } from 'public/commands';
-import { OriginValidator } from 'public/options';
+import { Selector } from './commands';
+import { OriginValidator } from './options';
 
 export type AlphabeticKeyboardLayout =
   | 'auto'

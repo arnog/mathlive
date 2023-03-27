@@ -4,6 +4,13 @@
 
 - **#1861** In Firefox, an apparently focused mathfield would not always accept
   keyboard input.
+- **#1830** The keybinding to toggle text mode (alt+") could not be used on some
+  keyboard layouts. Added shift+alt+T as a keybinding to switch to text mode.
+- **#1830** In some cases, the placeholder inside an inline shortcut would not
+  get selected when inserted.
+- **#1890** The Typescript declaration files included references to non-public
+  files. This has been fixed, and some test cases have been added to prevent
+  these errors in the future.
 
 ## 0.90.6 (2023-03-23)
 

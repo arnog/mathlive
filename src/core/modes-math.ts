@@ -4,8 +4,9 @@ import { joinLatex } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import { Box } from './box';
 import { BoxAtom } from '../core-atoms/box';
-import type { GlobalContext, Style } from '../public/core-types';
+import type { Style } from '../public/core-types';
 import { mathVariantToUnicode } from '../core-definitions/unicode';
+import type { GlobalContext } from 'core/types';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible

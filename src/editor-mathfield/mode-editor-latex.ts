@@ -10,7 +10,8 @@ import { MathfieldPrivate } from './mathfield-private';
 import { requestUpdate } from './render';
 import { ModeEditor } from './mode-editor';
 import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions';
-import type { GlobalContext, Style } from 'public/core-types';
+import type { GlobalContext } from 'core/types';
+import type { Style } from 'public/core-types';
 
 export class LatexModeEditor extends ModeEditor {
   constructor() {

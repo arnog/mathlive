@@ -1,6 +1,7 @@
 import {
   ArgumentType,
   BoxCSSProperties,
+  MacroDefinition,
   MathstyleName,
   NormalizedMacroDictionary,
   ParseMode,
@@ -10,6 +11,7 @@ import {
 } from 'public/core-types';
 import { Atom } from '../core/atom-class';
 import { Context } from '../core/context';
+import { TokenDefinition } from 'core-definitions/definitions-utils';
 
 export interface ParseTokensOptions {
   macros: NormalizedMacroDictionary;
@@ -96,7 +98,7 @@ export const BOX_TYPE = [
   'none',
   'mathfield',
 ] as const; // The const assertion prevents widening to string[]
-export type BoxType = typeof BOX_TYPE[number];
+export type BoxType = (typeof BOX_TYPE)[number];
 
 export type BoxOptions = {
   classes?: string;
@@ -208,3 +210,22 @@ export declare function applyStyle(
   box: BoxInterface,
   style: Style
 ): string | null;
+
+/**
+ * The Global Context encapsulates information that atoms
+ * may require in order to render correctly. Unlike `ContextInterface`, these
+ * values do not depend of the location of the atom in the render tree.
+ */
+export interface GlobalContext {
+  readonly registers: Registers;
+  readonly smartFence: boolean;
+  readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+  readonly fractionNavigationOrder:
+    | 'numerator-denominator'
+    | 'denominator-numerator';
+  readonly placeholderSymbol: string;
+  colorMap: (name: string) => string | undefined;
+  backgroundColorMap: (name: string) => string | undefined;
+  getDefinition(token: string, parseMode: ParseMode): TokenDefinition | null;
+  getMacro(token: string): MacroDefinition | null;
+}

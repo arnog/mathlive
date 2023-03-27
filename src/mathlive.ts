@@ -53,7 +53,7 @@ export function globalMathLive(): MathLiveGlobal {
  */
 export function makeSharedVirtualKeyboard(): VirtualKeyboardInterface {
   console.warn(
-    `%cMathLive ${version.mathlive}: %cmakeSharedVirtualKeyboard() is deprecated. 
+    `%cMathLive {{SDK_VERSION}}: %cmakeSharedVirtualKeyboard() is deprecated. 
     Use \`window.mathVirtualKeyboard\` to access the virtual keyboard instance.
     See https://cortexjs.io/mathlive/changelog/ for details.`,
     'color:#12b; font-size: 1.1rem',

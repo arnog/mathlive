@@ -1,4 +1,4 @@
-import type { ParseMode, Style } from 'public/core-types';
+import type { ParseMode, Style } from './core-types';
 import { Selector } from './commands';
 
 /**

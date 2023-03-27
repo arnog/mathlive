@@ -7,7 +7,6 @@ import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import type {
   ArgumentType,
   Dimension,
-  GlobalContext,
   Glue,
   MacroDefinition,
   MacroDictionary,
@@ -18,7 +17,7 @@ import type {
   MathstyleName,
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
-import { PrivateStyle, BoxType } from 'core/types';
+import { GlobalContext, BoxType, PrivateStyle } from 'core/types';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;

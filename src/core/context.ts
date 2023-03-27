@@ -4,14 +4,18 @@ import { convertDimensionToEm } from './registers-utils';
 import {
   Dimension,
   FontSize,
-  GlobalContext,
   Glue,
   RegisterValue,
   Registers,
   Style,
   MathstyleName,
 } from '../public/core-types';
-import { ContextInterface, BoxInterface, FontMetrics } from './types';
+import {
+  GlobalContext,
+  ContextInterface,
+  BoxInterface,
+  FontMetrics,
+} from './types';
 
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf

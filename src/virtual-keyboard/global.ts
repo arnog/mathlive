@@ -1,4 +1,4 @@
-import { isBrowser } from 'common/capabilities';
+import { isBrowser } from '../common/capabilities';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { VirtualKeyboardProxy } from './proxy';
 

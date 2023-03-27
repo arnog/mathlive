@@ -1,18 +1,21 @@
-import { Atom } from 'core/atom';
+import { Atom } from '../core/atom';
 import { coalesce, adjustInterAtomSpacing, Box, makeStruts } from '../core/box';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { l10n as l10nOptions, localize as l10n } from '../core/l10n';
-import { parseLatex } from 'core/parser';
-import { ButtonHandlers, attachButtonHandlers } from 'editor-mathfield/buttons';
-import { SelectorPrivate } from 'editor/types';
-import { getActiveKeyboardLayout } from 'editor/keyboard-layout';
+import { parseLatex } from '../core/parser';
+import {
+  ButtonHandlers,
+  attachButtonHandlers,
+} from '../editor-mathfield/buttons';
+import { SelectorPrivate } from '../editor/types';
+import { getActiveKeyboardLayout } from '../editor/keyboard-layout';
 import {
   MathfieldElement,
   VirtualKeyboardOptions,
   VirtualKeyboardLayer,
   LayoutDefinition,
   version,
-} from 'mathlive';
+} from '../mathlive';
 
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
 import CORE_STYLESHEET from '../../css/core.less';
@@ -145,7 +148,7 @@ function normalizeLayout(
   if ('rows' in layout && Array.isArray(layout.rows)) {
     console.assert(
       !('layers' in layout),
-      `MathLive ${version.mathlive}: only provide either a "rows" or "layers" property, not both`
+      `MathLive {{SDK_VERSION}}: only provide either a "rows" or "layers" property, not both`
     );
     return {
       ...layout,
@@ -507,7 +510,7 @@ function expandLayerMarkup(
     if (!keys) keys = ROWS.qwerty[attributes.name];
     if (!keys) {
       console.error(
-        `MathLive ${version.mathlive}: Unknown roman keyboard row:`,
+        `MathLive {{SDK_VERSION}}: Unknown roman keyboard row:`,
         attributes.name
       );
     } else {
