@@ -217,10 +217,9 @@ export function delegateKeyboardEvents(
 
       keydownEvent = event;
       keypressEvent = null;
-      if (!handlers.onKeystroke(keyboardEventToString(event), event)) {
+      if (!handlers.onKeystroke(keyboardEventToString(event), event))
         keydownEvent = null;
-        keyboardSink.textContent = '';
-      }
+      else keyboardSink.textContent = '';
     },
     true
   );
