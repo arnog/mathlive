@@ -934,7 +934,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     variants: '.',
     command: 'insertDecimalSeparator',
   },
-  '[+]': { class: 'big-op', variants: '+', latex: '+' },
+  '[+]': { class: 'big-op', variants: '+', latex: '+', label: '+' },
   '[-]': { class: 'big-op', variants: '-', latex: '-', label: '&#x2212;' },
   '[/]': {
     class: 'big-op',
@@ -950,7 +950,8 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
   '[=]': { class: 'big-op', variants: '=', latex: '=', label: '=' },
   '[backspace]': {
-    class: 'action font-glyph bottom right w15',
+    class: 'action font-glyph bottom right',
+    width: 1.5,
     command: ['performWithFeedback', 'deleteBackward'],
     label: '<svg class=svg-glyph><use xlink:href=#svg-delete-backward /></svg>',
     shifted:
@@ -960,25 +961,39 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
   '[(]': { variants: '(', latex: '(' },
   '[)]': { variants: ')', latex: ')' },
-  '[0]': { variants: '0', latex: '0' },
-  '[1]': { variants: '1', latex: '1' },
-  '[2]': { variants: '2', latex: '2' },
-  '[3]': { variants: '3', latex: '3' },
-  '[4]': { variants: '4', latex: '4' },
-  '[5]': { variants: '5', latex: '5' },
-  '[6]': { variants: '6', latex: '6' },
-  '[7]': { variants: '7', latex: '7' },
-  '[8]': { variants: '8', latex: '8' },
-  '[9]': { variants: '9', latex: '9' },
-  '[separator-5]': {
-    class: 'separator',
-    width: 0.5,
-  },
+  '[0]': { variants: '0', latex: '0', label: '0' },
+  '[1]': { variants: '1', latex: '1', label: '1' },
+  '[2]': { variants: '2', latex: '2', label: '2' },
+  '[3]': { variants: '3', latex: '3', label: '3' },
+  '[4]': { variants: '4', latex: '4', label: '4' },
+  '[5]': { variants: '5', latex: '5', label: '5' },
+  '[6]': { variants: '6', latex: '6', label: '6' },
+  '[7]': { variants: '7', latex: '7', label: '7' },
+  '[8]': { variants: '8', latex: '8', label: '8' },
+  '[9]': { variants: '9', latex: '9', label: '9' },
+  '[separator-5]': { class: 'separator', width: 0.5 },
+  '[separator]': { class: 'separator' },
+  '[separator-10]': { class: 'separator' },
+  '[separator-15]': { class: 'separator', width: 1.5 },
+  '[separator-20]': { class: 'separator', width: 2.0 },
+  '[separator-50]': { class: 'separator', width: 5.0 },
   '[shift]': {
     class: 'shift modifier font-glyph bottom left layer-switch',
     width: 1.5,
     // layer: attributes['shift-layer'],
     label: '<svg class=svg-glyph><use xlink:href=#svg-shift /></svg>',
+  },
+  '[foreground-color]': {
+    variants: 'foreground-color',
+    command: ['applyStyle', { color: 'red' }],
+    label:
+      "<span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'>",
+  },
+  '[background-color]': {
+    variants: 'background-color',
+    command: ['applyStyle', { backgroundColor: 'yellow' }],
+    label:
+      "<span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span>",
   },
 };
 
@@ -994,7 +1009,11 @@ function expandKeycap(
   }
 
   if ('label' in keycap && keycap.label && KEYCAP_SHORTCUTS[keycap.label]) {
-    const shortcut = { ...KEYCAP_SHORTCUTS[keycap.label] };
+    const shortcut = {
+      ...KEYCAP_SHORTCUTS[keycap.label],
+      ...keycap,
+      label: KEYCAP_SHORTCUTS[keycap.label].label,
+    };
     if (shortcut.command === 'insertDecimalSeparator')
       shortcut.label = MathfieldElement.decimalSeparator ?? '.';
     // If there's no shift modifier in this layout, don't apply
@@ -1003,7 +1022,7 @@ function expandKeycap(
       delete shortcut.shifted;
       delete shortcut.shiftedCommand;
     }
-    return { ...shortcut, label: shortcut.label };
+    return shortcut;
   }
 
   return keycap;

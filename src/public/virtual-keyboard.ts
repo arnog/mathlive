@@ -61,7 +61,7 @@ export interface VirtualKeyboardKeycap {
   class: string;
 
   /** Width of the keycap, as a multiple of the standard keycap width */
-  width: 0.5 | 1.0 | 1.5 | 5.0 | 50.0;
+  width: 0.5 | 1.0 | 1.5 | 2.0 | 5.0;
 
   /**
    * HTML markup to represent the keycap.
