@@ -3,7 +3,7 @@ import type {
   VirtualKeyboardOptions,
   AlphabeticKeyboardLayout,
   VirtualKeyboardLayer,
-  LayoutDefinition,
+  VirtualKeyboardLayout,
   ActionToolbarOptions,
 } from './virtual-keyboard';
 
@@ -96,7 +96,7 @@ export type VirtualKeyboardMessage =
       boundingRect: DOMRect;
       alphabeticLayout?: AlphabeticKeyboardLayout;
       layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-      layouts: (string | LayoutDefinition)[];
+      layouts: (string | VirtualKeyboardLayout)[];
       actionToolbar?: ActionToolbarOptions;
     }
   | {
@@ -105,7 +105,7 @@ export type VirtualKeyboardMessage =
       action: 'update-setting';
       alphabeticLayout?: AlphabeticKeyboardLayout;
       layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-      layouts: (string | LayoutDefinition)[];
+      layouts: (string | VirtualKeyboardLayout)[];
       actionToolbar?: ActionToolbarOptions;
     }
   | {

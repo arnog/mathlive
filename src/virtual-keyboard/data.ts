@@ -1,6 +1,6 @@
-import { LayoutDefinition } from 'mathlive';
+import { VirtualKeyboardLayout } from 'mathlive';
 
-export const LAYOUTS: Record<string, LayoutDefinition> = {
+export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
   numeric: {
     label: '123',
     classes: 'MLK__tex-math',

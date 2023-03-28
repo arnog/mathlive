@@ -3,7 +3,7 @@ import { getCommandTarget } from '../editor/commands';
 import {
   AlphabeticKeyboardLayout,
   OriginValidator,
-  LayoutDefinition,
+  VirtualKeyboardLayout,
   ActionToolbarOptions,
 } from '../public/options';
 import type {
@@ -56,7 +56,7 @@ export class VirtualKeyboardProxy
   set alphabeticLayout(value: AlphabeticKeyboardLayout) {
     this.sendMessage('update-setting', { alphabeticLayout: value });
   }
-  set layouts(value: (string | LayoutDefinition)[]) {
+  set layouts(value: (string | VirtualKeyboardLayout)[]) {
     this.sendMessage('update-setting', { layouts: value });
   }
   set actionToolbar(value: ActionToolbarOptions) {

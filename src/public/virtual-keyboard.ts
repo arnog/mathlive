@@ -99,33 +99,36 @@ export interface VirtualKeyboardKeycap {
   /** Name of the layer to shift to when the key is pressed */
   layer: string;
 }
+export type VirtualKeyboardLayoutCore = {
+  /** A human readable string displayed in the layout switcher toolbar */
+  label?: string;
+  classes?: string;
+  /** A human readable tooltip associated with the label */
+  tooltip?: string;
+  /** A unique string identifying the layout */
+  id?: string;
+  /** If false, keycaps that have a shifted variant will be displayed as if they don't */
+  displayShiftedKeycaps?: boolean;
+  /** If false, do not include the edit toolbar in the layout */
+  displayEditToolbar?: boolean;
+};
 
-export type LayoutDefinition =
-  | {
-      /** A human readable string displayed in the layout switcher toolbar */
-      label?: string;
-      classes?: string;
-      /** A human readable tooltip associated with the label */
-      tooltip?: string;
-      /** A unique string identifying the layout */
-      id?: string;
-    } & (
-      | {
-          /** The set of layers for this layout */
-          layers: (string | VirtualKeyboardLayer)[];
-        }
-      | {
-          /** As a shortcut, if a single layer, the rows of that layer */
-          rows: Partial<VirtualKeyboardKeycap>[][];
-        }
-      | {
-          markup: string;
-        }
-    );
+export type VirtualKeyboardLayout = VirtualKeyboardLayoutCore &
+  (
+    | /** The set of layers for this layout */
+    { layers: (string | VirtualKeyboardLayer)[] }
+    /** As a shortcut, if a single layer, the rows of that layer */
+    | { rows: Partial<VirtualKeyboardKeycap>[][] }
+    | { markup: string }
+  );
+
+export type NormalizedVirtualKeyboardLayout = VirtualKeyboardLayoutCore & {
+  layers: VirtualKeyboardLayer[];
+};
 
 export interface VirtualKeyboardLayer {
   /** The rows of keycaps in this layer */
-  rows?: Partial<VirtualKeyboardKeycap | string>[][];
+  rows?: (Partial<VirtualKeyboardKeycap> | string)[][];
   markup?: string;
   /** The CSS stylesheet associated with this layer */
   styles?: string;
@@ -154,7 +157,7 @@ export interface VirtualKeyboardOptions {
    *
    *
    */
-  set layouts(value: (string | LayoutDefinition)[]);
+  set layouts(value: 'default' | (string | VirtualKeyboardLayout)[]);
 
   /**
    * Configuration of the action toolbar, displayed on the right-hand side.

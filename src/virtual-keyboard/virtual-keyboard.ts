@@ -7,8 +7,10 @@ import { MathfieldElement } from '../mathlive';
 import {
   AlphabeticKeyboardLayout,
   OriginValidator,
-  LayoutDefinition,
+  VirtualKeyboardLayout,
   ActionToolbarOptions,
+  VirtualKeyboardLayer,
+  VirtualKeyboardLayoutCore,
 } from '../public/options';
 import { isVirtualKeyboardMessage, VIRTUAL_KEYBOARD_MESSAGE } from './proxy';
 import {
@@ -16,6 +18,7 @@ import {
   unshiftKeyboardLayer,
   makeActionToolbar,
   releaseStylesheets,
+  normalizeLayout,
 } from './utils';
 import type {
   MathfieldProxy,
@@ -45,11 +48,15 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.rebuild();
   }
 
-  private _layouts: (string | LayoutDefinition)[];
-  get layouts(): (string | LayoutDefinition)[] {
+  private _layouts: (VirtualKeyboardLayoutCore & {
+    layers: VirtualKeyboardLayer[];
+  })[];
+  get layouts(): (VirtualKeyboardLayoutCore & {
+    layers: VirtualKeyboardLayer[];
+  })[] {
     return this._layouts;
   }
-  set layouts(value: (string | LayoutDefinition)[]) {
+  set layouts(value: 'default' | (string | VirtualKeyboardLayout)[]) {
     const layouts = Array.isArray(value) ? [...value] : [value];
     const defaultIndex = layouts.findIndex((x) => x === 'default');
     if (defaultIndex >= 0) {
@@ -64,7 +71,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       );
     }
 
-    this._layouts = layouts;
+    this._layouts = layouts.map((x) => normalizeLayout(x));
     this.rebuild();
   }
 
@@ -100,7 +107,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.originValidator = 'none';
 
     this._alphabeticLayout = 'auto';
-    this._layouts = ['numeric', 'functions', 'symbols', 'alphabetic', 'greek'];
+    this.layouts = ['default'];
     this._actionToolbar = 'default';
 
     this._container = window.document?.body ?? null;

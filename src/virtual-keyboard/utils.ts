@@ -13,8 +13,9 @@ import {
   MathfieldElement,
   VirtualKeyboardOptions,
   VirtualKeyboardLayer,
-  LayoutDefinition,
+  VirtualKeyboardLayout,
   VirtualKeyboardKeycap,
+  NormalizedVirtualKeyboardLayout,
 } from '../mathlive';
 
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
@@ -107,42 +108,31 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
 }
 
-type NormalizedLayoutDefinition = {
-  /** A human readable string displayed in the layout switcher toolbar */
-  label?: string;
-  classes?: string;
-  /** A human readable tooltip associated with the label */
-  tooltip?: string;
-  /** A unique string identifying the layout */
-  id?: string;
-  /** The set of layers for this layout */
-  layers: VirtualKeyboardLayer[];
-};
-
 function normalizeLayer(
   layer: string | VirtualKeyboardLayer | (string | VirtualKeyboardLayer)[]
 ): VirtualKeyboardLayer[] {
-  if (typeof layer === 'string' && LAYERS[layer])
-    return normalizeLayer({ markup: LAYERS[layer], id: layer });
-  if (typeof layer === 'string') {
-    return [
-      {
-        markup: layer,
-        id:
-          'ML__layer_' +
-          Date.now().toString(36).slice(-2) +
-          Math.floor(Math.random() * 0x186a0).toString(36),
-      },
-    ];
-  }
   if (Array.isArray(layer)) return layer.map((x) => normalizeLayer(x)).flat();
 
-  return [layer];
+  if (typeof layer === 'string' && LAYERS[layer])
+    return normalizeLayer({ markup: LAYERS[layer], id: layer });
+
+  let result: VirtualKeyboardLayer;
+  if (typeof layer === 'string') result = { markup: layer };
+  else result = layer;
+
+  if (!result.id) {
+    result.id =
+      'ML__layer_' +
+      Date.now().toString(36).slice(-2) +
+      Math.floor(Math.random() * 0x186a0).toString(36);
+  }
+
+  return [result];
 }
 
-function normalizeLayout(
-  layout: string | LayoutDefinition
-): NormalizedLayoutDefinition {
+export function normalizeLayout(
+  layout: string | VirtualKeyboardLayout
+): NormalizedVirtualKeyboardLayout {
   if (typeof layout === 'string') return normalizeLayout(LAYOUTS[layout]);
 
   if ('rows' in layout && Array.isArray(layout.rows)) {
@@ -150,31 +140,43 @@ function normalizeLayout(
       !('layers' in layout),
       `MathLive {{SDK_VERSION}}: only provide either a "rows" or "layers" property, not both`
     );
+
+    let hasShift = false;
+    let hasEdit = false;
+    for (const keycap of layout.rows.flat()) {
+      const label = typeof keycap === 'string' ? keycap : keycap.label!;
+      if (label === '[shift]') hasShift = true;
+      if (['[undo]', '[redo]', '[cut]', '[copy]', '[paste]'].includes(label))
+        hasEdit = true;
+    }
+    if (
+      !('displayShiftedKeycaps' in layout) ||
+      layout.displayShiftedKeycaps === undefined
+    )
+      layout.displayShiftedKeycaps = hasShift;
+    if (
+      !('displayEditToolbar' in layout) ||
+      layout.displayEditToolbar === undefined
+    )
+      layout.displayEditToolbar = !hasEdit;
+
     return {
       ...layout,
-      layers: [
-        {
-          rows: layout.rows,
-          id:
-            'ML__layer_' +
-            Date.now().toString(36).slice(-2) +
-            Math.floor(Math.random() * 0x186a0).toString(36),
-        },
-      ],
+      layers: normalizeLayer({ rows: layout.rows }),
       rows: undefined,
-    } as NormalizedLayoutDefinition;
+    } as NormalizedVirtualKeyboardLayout;
   }
 
   if ('markup' in layout && typeof layout.markup === 'string') {
     return {
       ...layout,
       layers: normalizeLayer(layout.markup as string),
-    } as NormalizedLayoutDefinition;
+    } as NormalizedVirtualKeyboardLayout;
   }
 
-  const result: NormalizedLayoutDefinition = {
+  const result: NormalizedVirtualKeyboardLayout = {
     ...layout,
-  } as NormalizedLayoutDefinition;
+  } as NormalizedVirtualKeyboardLayout;
   if ('layers' in layout) result.layers = normalizeLayer(layout.layers);
 
   return result;
@@ -188,7 +190,7 @@ function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
   let markup = `<div class="left">`;
   if (keyboard.layouts.length > 1) {
     for (const [i, l] of keyboard.layouts.entries()) {
-      const layout = normalizeLayout(l);
+      const layout = l;
 
       const classes = [i === index ? 'selected' : 'layer-switch'];
       if (layout.tooltip) classes.push('MLK__tooltip');
@@ -203,7 +205,7 @@ function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
 
       if (i !== index) markup += `data-layer="${layout.layers[0].id}"`;
 
-      markup += `>${layout.label}</div>`;
+      markup += `>${layout.label ?? 'untitled'}</div>`;
     }
   }
 
@@ -765,35 +767,32 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
 function makeLayout(
   keyboard: VirtualKeyboard,
-  l: string | LayoutDefinition,
+  layout: NormalizedVirtualKeyboardLayout,
   index: number
 ): string {
-  const layout = normalizeLayout(l);
-
   const markup: string[] = [];
+  if (!('layers' in layout)) return '';
   for (const layer of layout.layers) {
-    const options = { hasShift: false, hasEdit: false };
-    if (layer.rows) {
-      for (const keycap of layer.rows.flat()) {
-        const label = typeof keycap === 'string' ? keycap : keycap.label!;
-        if (label === '[shift]') options.hasShift = true;
-        if (['[undo]', '[redo]', '[cut]', '[copy]', '[paste]'].includes(label))
-          options.hasEdit = true;
-      }
-    }
     markup.push(
       `<div tabindex="-1" class="MLK__layer" data-layer="${layer.id}">`
     );
     markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
     markup.push(makeLayoutsToolbar(keyboard, index));
     // If there are no keycap with editing commands, add an edit toolbar
-    if (!options.hasEdit)
+    if (layout.displayEditToolbar)
       markup.push(`<div class="ML__edit-toolbar right"></div>`);
     markup.push(`</div>`);
 
     // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
     // be expanded
-    markup.push(expandLayerMarkup(keyboard, markupLayer(layer, options)));
+    markup.push(
+      expandLayerMarkup(
+        keyboard,
+        markupLayer(layer, {
+          displayShiftedKeycaps: layout.displayShiftedKeycaps,
+        })
+      )
+    );
     markup.push('</div>');
   }
 
@@ -803,8 +802,7 @@ function makeLayout(
 function markupLayer(
   layer: Partial<VirtualKeyboardLayer>,
   options: {
-    hasShift?: boolean;
-    hasEdit?: boolean;
+    displayShiftedKeycaps?: boolean;
   }
 ): string {
   if (typeof layer === 'string') return layer;
@@ -969,8 +967,7 @@ const KEYCAP_SHORTCUTS = {
 function expandKeycap(
   keycap: string | Partial<VirtualKeyboardKeycap>,
   options: {
-    hasShift?: boolean;
-    hasEdit?: boolean;
+    displayShiftedKeycaps?: boolean;
   } = {}
 ): Partial<VirtualKeyboardKeycap> {
   if (typeof keycap === 'string') {
@@ -984,7 +981,7 @@ function expandKeycap(
       shortcut.label = MathfieldElement.decimalSeparator ?? '.';
     // If there's no shift modifier in this layout, don't apply
     // shifted label or commands to the keycap
-    if (!options.hasShift) {
+    if (!options.displayShiftedKeycaps) {
       delete shortcut.shifted;
       delete shortcut.shiftedCommand;
     }
