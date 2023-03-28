@@ -291,7 +291,7 @@ export const LAYERS = {
     <li class='MLK__keycap MLK__tex' data-insert='\\char"39C'>&Mu;<aside>mu</aside></li>
     <li class='action font-glyph bottom right w15' data-command='["performWithFeedback","deleteBackward"]'><svg class="svg-glyph"><use xlink:href="#svg-delete-backward" /></svg></li></ul>
 <ul>
-    <li class='separator w10'>&nbsp;</li>
+    <li class='separator'>&nbsp;</li>
     <li class='MLK__keycap'>.</li>
     <li class='MLK__keycap w50' data-key=' '>&nbsp;</li>
     <arrows/>

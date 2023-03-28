@@ -1,5 +1,5 @@
 import { Scrim } from '../editor/scrim';
-import { makeKeycap } from './utils';
+import { latexToMarkup, makeKeycap } from './utils';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { FOREGROUND_COLORS, BACKGROUND_COLORS } from '../core/color';
 import { VirtualKeyboardKeycap } from '../public/options';
@@ -502,16 +502,12 @@ export function showVariantsPanel(
       markup += ` data-latex="${variant.replace(
         /"/g,
         '&quot;'
-      )}"'>${variant}</li>`;
+      )}"'>${latexToMarkup(variant)}</li>`;
     } else {
       if (variant.latex)
         markup += ' data-latex="' + variant.latex.replace(/"/g, '&quot;') + '"';
 
-      if (variant.content) {
-        markup +=
-          ' data-content="' + variant.content.replace(/"/g, '&quot;') + '"';
-      }
-
+      // @deprecated
       if (variant.insert) {
         markup +=
           ' data-insert="' + variant.insert.replace(/"/g, '&quot;') + '"';
@@ -529,7 +525,7 @@ export function showVariantsPanel(
 
       if (variant.class) markup += ` data-classes="${variant.class}"`;
       markup += '>';
-      markup += variant.label ?? `$$ ${variant.latex} $$`;
+      markup += variant.label ?? latexToMarkup(variant.latex ?? '');
       markup += '</li>';
     }
   }
@@ -607,7 +603,7 @@ function makeVariants(
     for (const color of Object.keys(FOREGROUND_COLORS)) {
       result.push({
         class: 'small-button',
-        content:
+        label:
           '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
           FOREGROUND_COLORS[color] +
           '"></span>',
@@ -622,7 +618,7 @@ function makeVariants(
     for (const color of Object.keys(BACKGROUND_COLORS)) {
       result.push({
         class: 'small-button',
-        content:
+        label:
           '<span style="border-radius:50%;width:32px;height:32px; background:' +
           BACKGROUND_COLORS[color] +
           '"></span>',

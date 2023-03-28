@@ -82,7 +82,10 @@ function jsonToCss(json): string {
     .join('');
 }
 
-function latexToMarkup(latex: string, arg: (arg: string) => string): string {
+export function latexToMarkup(
+  latex: string,
+  arg?: (arg: string) => string
+): string {
   // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
@@ -91,7 +94,7 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   const root = new Atom('root', globalContext);
   root.body = parseLatex(latex, globalContext, {
     parseMode: 'math',
-    args: arg,
+    args: arg ?? (() => '\\placeholder{}'),
   });
 
   const context = new Context(
@@ -281,34 +284,31 @@ export function makeKeycap(
   chainedCommand?: SelectorPrivate
 ): void {
   for (const element of elementList) {
-    let html: string | undefined = undefined;
     // Display
-    if (element.getAttribute('data-latex')) {
-      html = latexToMarkup(
-        element.getAttribute('data-latex')!.replace(/&quot;/g, '"'),
-        () => '\\placeholder{}'
-      );
-    } else if (
-      element.getAttribute('data-insert') &&
-      element.innerHTML === ''
-    ) {
-      html = latexToMarkup(
-        element.getAttribute('data-insert')!.replace(/&quot;/g, '"'),
-        () => '\\placeholder{}'
-      );
-    } else if (element.getAttribute('data-content'))
-      html = element.getAttribute('data-content')!.replace(/&quot;/g, '"');
+    let html = element.innerHTML;
+    if (!html) {
+      if (element.getAttribute('data-label'))
+        html = element.getAttribute('data-label')!.replace(/&quot;/g, '"');
+      else if (element.getAttribute('data-latex')) {
+        html = latexToMarkup(
+          element.getAttribute('data-latex')!.replace(/&quot;/g, '"')
+        );
+      } else if (element.getAttribute('data-insert')) {
+        html = latexToMarkup(
+          element.getAttribute('data-insert')!.replace(/&quot;/g, '"')
+        );
+      }
+      // } else if (element.getAttribute('data-content'))
+      //   html = element.getAttribute('data-content')!.replace(/&quot;/g, '"');
 
-    if (element.getAttribute('data-aside')) {
-      html =
-        (html ?? '') +
-        '<aside>' +
-        element.getAttribute('data-aside')!.replace(/&quot;/g, '"') +
-        '</aside>';
+      if (element.getAttribute('data-aside')) {
+        html += `<aside>${element
+          .getAttribute('data-aside')!
+          .replace(/&quot;/g, '"')}</aside>`;
+      }
+
+      if (html) element.innerHTML = MathfieldElement.createHTML(html);
     }
-
-    if (html !== undefined)
-      element.innerHTML = MathfieldElement.createHTML(html);
 
     if (element.getAttribute('data-classes'))
       element.classList.add(element.getAttribute('data-classes')!);
@@ -536,7 +536,7 @@ function expandLayerMarkup(
           row += `<li class='action font-glyph bottom right `;
           row +=
             keys.length - (keys.match(/ /g) || []).length / 2 === 10
-              ? 'w10'
+              ? ''
               : 'w15';
           row += `' data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
@@ -837,14 +837,20 @@ function markupLayer(
 
         keycap = expandKeycap(keycap, options);
 
-        if (keycap.class) {
-          let cls = keycap.class;
-          if (keycap.layer && !/layer-switch/.test(cls)) cls += ' layer-switch';
+        let cls = keycap.class ?? '';
+        if (keycap.layer && !/layer-switch/.test(cls)) cls += ' layer-switch';
 
-          if (!/separator/.test(cls)) cls += ' MLK__keycap';
+        if (cls && !/separator/.test(cls)) cls += ' MLK__keycap';
 
-          layerMarkup += ` class="${cls}"`;
-        } else layerMarkup += ` class="MLK__keycap"`;
+        // If there's no explicit width class, and a width is specified,
+        // add a class
+        if (!/\bw[0-9]+\b/.test(cls) && keycap.width) {
+          cls +=
+            { 0: ' w0', 0.5: ' w5', 1.5: ' w15', 2.0: ' w20', 5.0: ' w50' }[
+              keycap.width
+            ] ?? '';
+        }
+        layerMarkup += ` class="${cls || 'MLK__keycap'}"`;
 
         if (keycap.key) layerMarkup += ` data-key="${keycap.key}"`;
 
@@ -882,7 +888,10 @@ function markupLayer(
 
         if (keycap.layer) layerMarkup += ` data-layer="${keycap.layer}"`;
 
-        layerMarkup += `>${keycap.label ? keycap.label : ''}</li>`;
+        layerMarkup += `>${
+          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+          keycap.label || latexToMarkup(keycap.latex ?? '')
+        }</li>`;
       }
 
       layerMarkup += `</ul>`;
@@ -898,7 +907,7 @@ function markupLayer(
   return layerMarkup;
 }
 
-const KEYCAP_SHORTCUTS = {
+const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   '[left]': {
     class: 'action',
     command: ['performWithFeedback', 'moveToPreviousChar'],
@@ -925,21 +934,21 @@ const KEYCAP_SHORTCUTS = {
     variants: '.',
     command: 'insertDecimalSeparator',
   },
-  '[+]': { classes: 'big-op', variants: '+', latex: '+' },
-  '[-]': { classes: 'big-op', variants: '-', latex: '-', label: '&#x2212;' },
+  '[+]': { class: 'big-op', variants: '+', latex: '+' },
+  '[-]': { class: 'big-op', variants: '-', latex: '-', label: '&#x2212;' },
   '[/]': {
-    classes: 'big-op',
+    class: 'big-op',
     variants: '/',
     latex: '\\frac{#@}{#?}',
     label: '&divide;',
   },
   '[*]': {
-    classes: 'big-op',
+    class: 'big-op',
     variants: '*',
     latex: '\\times',
     label: '&times;',
   },
-  '[=]': { classes: 'big-op', variants: '=', latex: '=', label: '=' },
+  '[=]': { class: 'big-op', variants: '=', latex: '=', label: '=' },
   '[backspace]': {
     class: 'action font-glyph bottom right w15',
     command: ['performWithFeedback', 'deleteBackward'],

@@ -60,13 +60,16 @@ export interface VirtualKeyboardKeycap {
    */
   class: string;
 
+  /** Width of the keycap, as a multiple of the standard keycap width */
+  width: 0.5 | 1.0 | 1.5 | 5.0 | 50.0;
+
   /**
    * HTML markup to represent the keycap.
    *
    * This property is only useful when using a custom keycap shape or appearance.
    * Usually, setting the `label` property is sufficient.
    */
-  content: string;
+  // content: string;
 
   /**
    * Markup displayed with the key label (for example to explain what the
@@ -85,7 +88,7 @@ export interface VirtualKeyboardKeycap {
    *
    * ```
    */
-  variants: (string | Partial<VirtualKeyboardKeycap>)[];
+  variants: string | (string | Partial<VirtualKeyboardKeycap>)[];
 
   /**
    * Markup for the label of the key when the shift key is pressed
