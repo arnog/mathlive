@@ -196,6 +196,8 @@
     align-items: center;
     overflow-x: auto;
 
+    touch-action: none;
+
     /* Keycap with (incl. margin) */
     --max-width: 102px;
     --margin: 6px;
@@ -346,6 +348,7 @@
       border-radius: 5px;
 
       cursor: pointer;
+      touch-action: none;
 
       &:hover {
         background: var(--keycap-background-hover);
@@ -353,6 +356,7 @@
 
       .ML__mathlive {
         pointer-events: none;
+        touch-action: none;
       }
 
       /* Last key should be flush against the border */
@@ -550,6 +554,8 @@ Note there are a different set of tooltip rules for the keyboard toggle
     flex-direction: row;
     justify-content: center;
     align-content: center;
+
+    touch-action: none;
 
     max-width: 286px;
 

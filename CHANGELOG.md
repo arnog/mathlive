@@ -1,9 +1,7 @@
-## 0.90.7 (2023-03-24)
+## [Unreleased]
 
 ### Bug Fixed
 
-- **#1861** In Firefox, an apparently focused mathfield would not always accept
-  keyboard input.
 - **#1830** The keybinding to toggle text mode (alt+") could not be used on some
   keyboard layouts. Added shift+alt+T as a keybinding to switch to text mode.
 - **#1830** In some cases, the placeholder inside an inline shortcut would not
@@ -11,6 +9,24 @@
 - **#1890** The Typescript declaration files included references to non-public
   files. This has been fixed, and some test cases have been added to prevent
   these errors in the future.
+- On iPadOS, making a vertical swipe motion on certain areas of the virtual
+  keyboard would result in a scrolling of the document.
+
+### Improvements
+
+- The default `originValidator` policy which controls the messaging between a
+  mathfield and the virtual keyboard is now `"none"` by default. This provides
+  no check or validation when sending messages between a main document and
+  embedded iframes. To use the previous, more secure, policy, set the
+  `originValidator` property of the `mathVirtualKeyboard` and any mathfield to
+  `"same-origin"`.
+
+## 0.90.7 (2023-03-24)
+
+### Bug Fixed
+
+- **#1861** In Firefox, an apparently focused mathfield would not always accept
+  keyboard input.
 
 ## 0.90.6 (2023-03-23)
 
