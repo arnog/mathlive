@@ -10,7 +10,10 @@ declare module '@cortex-js/compute-engine';
 
 import { Atom } from '../core/atom-class';
 
-import { ComputeEngine, SemiBoxedExpression } from '@cortex-js/compute-engine';
+import type {
+  ComputeEngine,
+  SemiBoxedExpression,
+} from '@cortex-js/compute-engine';
 import { toMathML } from '../addons/math-ml';
 import { Box, adjustInterAtomSpacing, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';

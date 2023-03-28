@@ -37,7 +37,7 @@ import { requestUpdate } from '../editor-mathfield/render';
 import { reloadFonts, loadFonts } from '../core/fonts';
 import { defaultSpeakHook } from '../editor/speech';
 import { defaultReadAloudHook } from '../editor/speech-read-aloud';
-import { ComputeEngine } from '@cortex-js/compute-engine';
+import type { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { l10n } from '../core/l10n';
 

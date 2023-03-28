@@ -1,6 +1,13 @@
-## 0.90.8 (2023-03-27)
+## [Unreleased]
 
 ### Bug Fixed
+
+- **#1890** Attempt to fix a remaining Typescript declaration issue when using
+  MathLive without the Compute Engine
+
+## 0.90.8 (2023-03-27)
+
+### Bugs Fixed
 
 - **#1830** The keybinding to toggle text mode (alt+") could not be used on some
   keyboard layouts. Added shift+alt+T as a keybinding to switch to text mode.
@@ -680,7 +687,7 @@ a format on the clipboard,
 - **#1643** Physical units with multiplication are now rendered correctly, e.g.
   `\pu{123 J*s}`.
 
-## New Features
+### New Features
 
 - **#1541** To be notified when the visibility of the virtual keyboard changes
   and using `makeSharedVirtualKeyboard()`, listen for the
@@ -1125,7 +1132,7 @@ in order to preserve the same settings, you would now use:
   This change was made because not every LaTeX environment recognize the
   `\mleft...\mright` commands, and this caused interoperability issues.
 
-## New Features
+### New Features
 
 - **Comma `,` as a decimal separator**
 
@@ -1318,6 +1325,12 @@ in order to preserve the same settings, you would now use:
 
 ## 0.69.10 (2022-02-23)
 
+### Features
+
+- Support for the `\htmlStyle` command (feature contributed by @neokazemi)
+- Pressing the `\` key after a trigonometric function will not include the
+  function in the numerator of the fraction.
+
 ### Bug Fixes
 
 - **#1024** `\ne` and `\neq` render correctly (fix contributed by @AceGentile)
@@ -1326,12 +1339,6 @@ in order to preserve the same settings, you would now use:
 - Boxes in `\enclose` command render correctly (fix contributed by @Zahara-Nour
 - **#1357** Alternate (shifted) layers described in the virtual keyboard defined
   with an object literal would not trigger.
-
-# Features
-
-- Support for the `\htmlStyle` command (feature contributed by @neokazemi)
-- Pressing the `\` key after a trigonometric function will not include the
-  function in the numerator of the fraction.
 
 ## 0.69.9 (2022-01-06)
 
@@ -1528,7 +1535,7 @@ or:
 <math-field virtual-keyboard-mode="manual">f(x) = \sin x</math-field>
 ```
 
-## Improvements
+### Improvements
 
 - Added localization for Dutch (contributed by @harrisnl), Bosnian, Croatian,
   Czeck, Danish, Estonian, Finnish, Icelandic, Norwegian, Portuguese, Serbian,
@@ -1543,7 +1550,7 @@ or:
   the `\` key), remove the `\placeholder{}` command.
 - In spoken text, correctly handle `\mathop` and `\operatorname`.
 
-## New Features
+### New Features
 
 - The `getOffsetDepth()` method can be used to query the depth of a specific
   offset. Use `mf.getOffsetDepth(mf.position)` for the depth of the current
@@ -3245,7 +3252,7 @@ They have been broken up as follow:
   - `mathfield-buttons.ts`
 
 Again, this is an internal change that will have no impact for external users of
-the MathLive library, but it will be contribute to improving the maintainability
+the MathLive library, but it will contribute to improving the maintainability
 and velocity of the project.
 
 #### Other Code Maintenance
