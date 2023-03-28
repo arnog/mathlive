@@ -152,7 +152,7 @@ const MATHFIELD_TEMPLATE = isBrowser()
   : null;
 if (MATHFIELD_TEMPLATE) {
   MATHFIELD_TEMPLATE.innerHTML = `<style>
-  :host { display: inline-block; background-color: field; color: fieldtext; border-width: 1px; border-style: solid; border-color: #acacac; border-radius: 2px; padding:4px;}
+  :host { display: inline-block; background-color: field; color: fieldtext; border-width: 1px; border-style: solid; border-color: #acacac; border-radius: 2px; padding:4px; pointer-events: none;}
   :host([hidden]) { display: none; }
   :host([disabled]), :host([disabled]:focus), :host([disabled]:focus-within) { outline: none; opacity:  .5; }
   :host(:focus), :host(:focus-within) {
@@ -160,7 +160,7 @@ if (MATHFIELD_TEMPLATE) {
     outline: -webkit-focus-ring-color auto 1px;
   }
   </style>
-  <span></span><slot style="display:none"></slot>`;
+  <span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
 }
 //
 // Deferred State
