@@ -2,16 +2,9 @@ import { SelectorPrivate } from 'editor/types';
 import { isArray } from '../common/types';
 
 import { unshiftKeyboardLayer } from './utils';
-import { showVariantsPanel, hideVariantsPanel } from './variants';
+import { hideVariantsPanel } from './variants';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { register } from 'editor/commands';
-
-/*
- * The variants panel is displayed when a keycap on the virtual keyboard is
- * pressed and held.
- *
- */
-register({ showVariantsPanel }, { target: 'virtual-keyboard' });
 
 export function switchKeyboardLayer(layer: string | null): boolean {
   window.mathVirtualKeyboard.show();
@@ -109,8 +102,6 @@ function insertAndUnshiftKeyboardLayer(c: string): boolean {
 
 register(
   {
-    hideVariantsPanel: () => hideVariantsPanel(),
-
     /*
      * The command invoked when a variant key is pressed:
      * hide the Variants panel, then perform the command.

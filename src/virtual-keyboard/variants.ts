@@ -467,7 +467,10 @@ const gVariants: {
   '->|': [],
 };
 
-export function showVariantsPanel(variantsId: string): boolean {
+export function showVariantsPanel(
+  element: HTMLElement,
+  variantsId: string
+): boolean {
   const variants = getVariants(variantsId);
   const variantPanel = document.createElement('div');
   variantPanel.setAttribute('aria-hidden', 'true');
@@ -493,53 +496,57 @@ export function showVariantsPanel(variantsId: string): boolean {
   // Reset container height
   variantPanel.style.height = 'auto';
   let markup = '';
-  for (const altKey of variants) {
+  for (const variant of variants) {
     markup += '<li';
-    if (typeof altKey === 'string')
-      markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
-    else {
-      if (altKey.latex)
-        markup += ' data-latex="' + altKey.latex.replace(/"/g, '&quot;') + '"';
+    if (typeof variant === 'string') {
+      markup += ` data-latex="${variant.replace(
+        /"/g,
+        '&quot;'
+      )}"'>${variant}</li>`;
+    } else {
+      if (variant.latex)
+        markup += ' data-latex="' + variant.latex.replace(/"/g, '&quot;') + '"';
 
-      if (altKey.content) {
+      if (variant.content) {
         markup +=
-          ' data-content="' + altKey.content.replace(/"/g, '&quot;') + '"';
+          ' data-content="' + variant.content.replace(/"/g, '&quot;') + '"';
       }
 
-      if (altKey.insert) {
+      if (variant.insert) {
         markup +=
-          ' data-insert="' + altKey.insert.replace(/"/g, '&quot;') + '"';
+          ' data-insert="' + variant.insert.replace(/"/g, '&quot;') + '"';
       }
 
-      if (altKey.command) {
-        if (typeof altKey.command === 'string')
-          markup += ` data-command="${altKey.command.replace(/"/g, '&quot;')}"`;
-        else {
-          markup +=
-            " data-command='" +
-            JSON.stringify(altKey.command).replace(/"/g, '&quot;') +
-            "'";
-        }
+      if (variant.command) {
+        markup += ` data-command='${(typeof variant.command === 'string'
+          ? '"' + variant.command + '"'
+          : JSON.stringify(variant.command)
+        ).replace(/"/g, '&quot;')}'`;
       }
 
-      if (altKey.aside)
-        markup += ` data-aside="${altKey.aside.replace(/"/g, '&quot;')}"`;
+      if (variant.aside)
+        markup += ` data-aside="${variant.aside.replace(/"/g, '&quot;')}"`;
 
-      if (altKey.class) markup += ` data-classes="${altKey.class}"`;
+      if (variant.class) markup += ` data-classes="${variant.class}"`;
+      markup += '>';
+      markup += variant.label ?? `$$ ${variant.latex} $$`;
+      markup += '</li>';
     }
-
-    markup += '>';
-    markup += typeof altKey === 'string' ? altKey : altKey.label ?? '';
-    markup += '</li>';
   }
 
-  markup = '<ul>' + markup + '</ul>';
-  variantPanel.innerHTML = MathfieldElement.createHTML(markup);
+  variantPanel.innerHTML = MathfieldElement.createHTML(`<ul>${markup}</ul>`);
+
+  const keyboard = VirtualKeyboard.singleton;
+
+  //
+  // Create the scrim and attach the variants panel to it
+  //
+  if (!Scrim.scrim) Scrim.scrim = new Scrim();
+  Scrim.scrim.open({ root: keyboard.container, child: variantPanel });
 
   //
   // Associate a command which each of the variant keycaps
   //
-  const keyboard = VirtualKeyboard.singleton;
   makeKeycap(
     keyboard,
     [...variantPanel.querySelectorAll('li')],
@@ -547,22 +554,10 @@ export function showVariantsPanel(variantsId: string): boolean {
   );
 
   //
-  // Create the scrim and attach the variants panel to it
-  //
-  if (!Scrim.scrim) Scrim.scrim = new Scrim();
-  Scrim.scrim.open({
-    root: keyboard.container,
-    child: variantPanel,
-  });
-
-  //
   // Position the variants panel
   //
-  const keycapElement = keyboard?.element?.querySelector(
-    '.MLK__rows ul li[data-variants="' + variantsId + '"]'
-  );
 
-  const position = keycapElement?.getBoundingClientRect();
+  const position = element?.getBoundingClientRect();
   if (position) {
     if (position.top - variantPanel.clientHeight < 0) {
       // AltContainer.style.maxWidth = '320px';  // Up to six columns
@@ -575,17 +570,15 @@ export function showVariantsPanel(variantsId: string): boolean {
       else variantPanel.classList.add('compact');
     }
 
-    const top =
-      (position.top - variantPanel.clientHeight + 5).toString() + 'px';
-    const left =
-      Math.max(
-        0,
-        Math.min(
-          window.innerWidth - variantPanel.offsetWidth,
-          (position.left + position.right - variantPanel.offsetWidth) / 2
-        )
-      ) + 'px';
-    variantPanel.style.transform = 'translate(' + left + ',' + top + ')';
+    const left = Math.max(
+      0,
+      Math.min(
+        window.innerWidth - variantPanel.offsetWidth,
+        (position.left + position.right - variantPanel.offsetWidth) / 2
+      )
+    );
+    const top = position.top - variantPanel.clientHeight + 5;
+    variantPanel.style.transform = `translate(${left}px, ${top}px)`;
     variantPanel.classList.add('is-visible');
   }
 

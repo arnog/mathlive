@@ -16,6 +16,7 @@ import {
   VirtualKeyboardLayout,
   VirtualKeyboardKeycap,
   NormalizedVirtualKeyboardLayout,
+  Selector,
 } from '../mathlive';
 
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
@@ -29,7 +30,7 @@ import { Context } from '../core/context';
 import { LAYOUTS, LAYERS, SHIFTED_KEYS } from './data';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { MathfieldProxy } from '../public/virtual-keyboard-types';
-import { getVariants, hideVariantsPanel, setVariants } from './variants';
+import { hideVariantsPanel, setVariants, showVariantsPanel } from './variants';
 import { defaultGlobalContext } from '../core/context-utils';
 
 /*
@@ -382,7 +383,7 @@ export function makeKeycap(
       if (variantsId) {
         handlers = {
           default: selector,
-          pressAndHold: ['showVariantsPanel', variantsId],
+          pressAndHold: ['showVariantsPanel' as Selector, variantsId],
         };
         // } else {
         //   console.warn(`Unknown variants: "${variantsId}"`);
@@ -390,7 +391,13 @@ export function makeKeycap(
 
       attachButtonHandlers(
         element,
-        (command) => keyboard.executeCommand(command),
+        (command) => {
+          if (Array.isArray(command)) {
+            if (command[0] === ('showVariantsPanel' as Selector))
+              return showVariantsPanel(element, variantsId!);
+          }
+          return keyboard.executeCommand(command);
+        },
         handlers
       );
     }
@@ -858,12 +865,14 @@ function markupLayer(
         if (keycap.aside) layerMarkup += ` data-aside="${keycap.aside}"`;
 
         if (keycap.variants) {
-          const keysetId =
-            Date.now().toString(36).slice(-2) +
-            Math.floor(Math.random() * 0x186a0).toString(36);
+          if (typeof keycap.variants !== 'string') {
+            const keysetId =
+              Date.now().toString(36).slice(-2) +
+              Math.floor(Math.random() * 0x186a0).toString(36);
 
-          setVariants(keysetId, keycap.variants);
-          layerMarkup += ` data-variants="${keysetId}"`;
+            setVariants(keysetId, keycap.variants);
+            layerMarkup += ` data-variants="${keysetId}"`;
+          } else layerMarkup += ` data-variants="${keycap.variants}"`;
         }
 
         if (keycap.shifted) layerMarkup += ` data-shifted="${keycap.shifted}"`;
@@ -985,11 +994,7 @@ function expandKeycap(
       delete shortcut.shifted;
       delete shortcut.shiftedCommand;
     }
-    const variants =
-      typeof shortcut.variants === 'string'
-        ? getVariants(shortcut.variants)
-        : shortcut.variants ?? [];
-    return { ...shortcut, variants, label: shortcut.label };
+    return { ...shortcut, label: shortcut.label };
   }
 
   return keycap;

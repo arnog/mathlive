@@ -40,15 +40,13 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
 // Commands return true if they resulted in a dirty state
 // @revisit: maybe a command attribute instead?
 export interface VirtualKeyboardCommands {
-  showVariantsPanel: (variants: string) => boolean;
-  hideVariantsPanel: () => boolean;
   /**
    * The command invoked when a variant key is pressed:
    * hide the variants panel, then perform the command.
    */
   performVariant: (command: Selector | [Selector, ...any[]]) => boolean;
 
-  switchKeyboardLayer: (layer) => boolean;
+  switchKeyboardLayer: (layer: string) => boolean;
   shiftKeyboardLayer: () => boolean;
   unshiftKeyboardLayer: () => boolean;
   insertAndUnshiftKeyboardLayer: (c: string) => boolean;
