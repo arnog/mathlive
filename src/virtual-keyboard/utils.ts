@@ -28,7 +28,7 @@ import { Context } from '../core/context';
 import { LAYOUTS, LAYERS, SHIFTED_KEYS } from './data';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { MathfieldProxy } from '../public/virtual-keyboard-types';
-import { hideVariantsPanel, setVariants } from './variants';
+import { getVariants, hideVariantsPanel, setVariants } from './variants';
 import { defaultGlobalContext } from '../core/context-utils';
 
 /*
@@ -208,8 +208,6 @@ function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
   }
 
   markup += '</div>';
-
-  markup += `<div class="ML__toolbar-action right"></div>`;
 
   return markup;
 }
@@ -699,7 +697,7 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
   // Attach the element handlers
 
-  const toolbars = result.querySelectorAll<HTMLElement>('.ML__toolbar-action');
+  const toolbars = result.querySelectorAll<HTMLElement>('.ML__edit-toolbar');
   if (toolbars) {
     for (const toolbar of toolbars) {
       toolbar.addEventListener('click', (ev) => {
@@ -774,28 +772,46 @@ function makeLayout(
 
   const markup: string[] = [];
   for (const layer of layout.layers) {
+    const options = { hasShift: false, hasEdit: false };
+    if (layer.rows) {
+      for (const keycap of layer.rows.flat()) {
+        const label = typeof keycap === 'string' ? keycap : keycap.label!;
+        if (label === '[shift]') options.hasShift = true;
+        if (['[undo]', '[redo]', '[cut]', '[copy]', '[paste]'].includes(label))
+          options.hasEdit = true;
+      }
+    }
     markup.push(
       `<div tabindex="-1" class="MLK__layer" data-layer="${layer.id}">`
     );
-    markup.push(
-      `<div class='MLK__toolbar' role='toolbar'>${makeLayoutsToolbar(
-        keyboard,
-        index
-      )}</div>`
-    );
+    markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
+    markup.push(makeLayoutsToolbar(keyboard, index));
+    // If there are no keycap with editing commands, add an edit toolbar
+    if (!options.hasEdit)
+      markup.push(`<div class="ML__edit-toolbar right"></div>`);
+    markup.push(`</div>`);
 
     // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
     // be expanded
-    markup.push(expandLayerMarkup(keyboard, markupLayer(layer)));
+    markup.push(expandLayerMarkup(keyboard, markupLayer(layer, options)));
     markup.push('</div>');
   }
 
   return markup.join('');
 }
 
-function markupLayer(layer: Partial<VirtualKeyboardLayer>): string {
+function markupLayer(
+  layer: Partial<VirtualKeyboardLayer>,
+  options: {
+    hasShift?: boolean;
+    hasEdit?: boolean;
+  }
+): string {
   if (typeof layer === 'string') return layer;
-  // Process JSON layer to web element based layer.
+
+  //
+  // Process JSON layer to markup based layer.
+  //
 
   let layerMarkup = '';
   if (typeof layer.styles === 'string')
@@ -814,7 +830,7 @@ function markupLayer(layer: Partial<VirtualKeyboardLayer>): string {
       for (let keycap of row) {
         layerMarkup += `<li`;
 
-        keycap = expandKeycap(keycap);
+        keycap = expandKeycap(keycap, options);
 
         if (keycap.class) {
           let cls = keycap.class;
@@ -877,20 +893,20 @@ function markupLayer(layer: Partial<VirtualKeyboardLayer>): string {
 
 const KEYCAP_SHORTCUTS = {
   '[left]': {
-    'class': 'action',
-    'command': ['performWithFeedback', 'moveToPreviousChar'],
-    'shifted':
-      '<svg class=svg-glyph><use xlink:href="#svg-angle-double-left" /></svg>',
-    'shifted-command': ['performWithFeedback', 'extendToPreviousChar'],
-    'label': '<svg class=svg-glyph><use xlink:href=#svg-arrow-left /></svg>',
+    class: 'action',
+    command: ['performWithFeedback', 'moveToPreviousChar'],
+    shifted:
+      '<svg class=svg-glyph><use xlink:href=#svg-angle-double-left /></svg>',
+    shiftedCommand: ['performWithFeedback', 'extendToPreviousChar'],
+    label: '<svg class=svg-glyph><use xlink:href=#svg-arrow-left /></svg>',
   },
   '[right]': {
-    'class': 'action',
-    'command': ['performWithFeedback', 'moveToNextChar'],
-    'shifted':
-      '<svg class=svg-glyph><use xlink:href="#svg-angle-double-right" /></svg>',
-    'shifted-command': ['performWithFeedback', 'extendToNextChar'],
-    'label': '<svg class=svg-glyph><use xlink:href=#svg-arrow-right /></svg>',
+    class: 'action',
+    command: ['performWithFeedback', 'moveToNextChar'],
+    shifted:
+      '<svg class=svg-glyph><use xlink:href=#svg-angle-double-right /></svg>',
+    shiftedCommand: ['performWithFeedback', 'extendToNextChar'],
+    label: '<svg class=svg-glyph><use xlink:href=#svg-arrow-right /></svg>',
   },
   '[return]': {
     class: 'action',
@@ -901,7 +917,6 @@ const KEYCAP_SHORTCUTS = {
     class: 'big-op',
     variants: '.',
     command: 'insertDecimalSeparator',
-    // latex: options.decimalSeparator ?? '.',
   },
   '[+]': { classes: 'big-op', variants: '+', latex: '+' },
   '[-]': { classes: 'big-op', variants: '-', latex: '-', label: '&#x2212;' },
@@ -919,15 +934,26 @@ const KEYCAP_SHORTCUTS = {
   },
   '[=]': { classes: 'big-op', variants: '=', latex: '=', label: '=' },
   '[backspace]': {
-    'class': 'action font-glyph bottom right w15',
-    'command': ['performWithFeedback', 'deleteBackward'],
-    'label':
-      '<svg class=svg-glyph><use xlink:href=#svg-delete-backward /></svg>',
-    'shifted':
-      '<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span',
-    'shifted-command': 'deleteAll',
-    'variants': 'delete',
+    class: 'action font-glyph bottom right w15',
+    command: ['performWithFeedback', 'deleteBackward'],
+    label: '<svg class=svg-glyph><use xlink:href=#svg-delete-backward /></svg>',
+    shifted:
+      '<span class=warning><svg class=svg-glyph><use xlink:href=#svg-trash /></svg></span',
+    shiftedCommand: 'deleteAll',
+    variants: 'delete',
   },
+  '[(]': { variants: '(', latex: '(' },
+  '[)]': { variants: ')', latex: ')' },
+  '[0]': { variants: '0', latex: '0' },
+  '[1]': { variants: '1', latex: '1' },
+  '[2]': { variants: '2', latex: '2' },
+  '[3]': { variants: '3', latex: '3' },
+  '[4]': { variants: '4', latex: '4' },
+  '[5]': { variants: '5', latex: '5' },
+  '[6]': { variants: '6', latex: '6' },
+  '[7]': { variants: '7', latex: '7' },
+  '[8]': { variants: '8', latex: '8' },
+  '[9]': { variants: '9', latex: '9' },
   '[separator-5]': {
     class: 'separator',
     width: 0.5,
@@ -936,24 +962,37 @@ const KEYCAP_SHORTCUTS = {
     class: 'shift modifier font-glyph bottom left layer-switch',
     width: 1.5,
     // layer: attributes['shift-layer'],
-    label: '<svg class="svg-glyph"><use xlink:href="#svg-shift" /></svg>',
+    label: '<svg class=svg-glyph><use xlink:href=#svg-shift /></svg>',
   },
 };
 
 function expandKeycap(
-  keycap: string | Partial<VirtualKeyboardKeycap>
+  keycap: string | Partial<VirtualKeyboardKeycap>,
+  options: {
+    hasShift?: boolean;
+    hasEdit?: boolean;
+  } = {}
 ): Partial<VirtualKeyboardKeycap> {
   if (typeof keycap === 'string') {
-    if (KEYCAP_SHORTCUTS[keycap]) return KEYCAP_SHORTCUTS[keycap];
-    return { latex: keycap };
+    if (!KEYCAP_SHORTCUTS[keycap]) return { latex: keycap };
+    keycap = { label: keycap };
   }
 
   if ('label' in keycap && keycap.label && KEYCAP_SHORTCUTS[keycap.label]) {
-    return {
-      ...KEYCAP_SHORTCUTS[keycap.label],
-      ...keycap,
-      label: KEYCAP_SHORTCUTS[keycap.label].label,
-    };
+    const shortcut = { ...KEYCAP_SHORTCUTS[keycap.label] };
+    if (shortcut.command === 'insertDecimalSeparator')
+      shortcut.label = MathfieldElement.decimalSeparator ?? '.';
+    // If there's no shift modifier in this layout, don't apply
+    // shifted label or commands to the keycap
+    if (!options.hasShift) {
+      delete shortcut.shifted;
+      delete shortcut.shiftedCommand;
+    }
+    const variants =
+      typeof shortcut.variants === 'string'
+        ? getVariants(shortcut.variants)
+        : shortcut.variants ?? [];
+    return { ...shortcut, variants, label: shortcut.label };
   }
 
   return keycap;

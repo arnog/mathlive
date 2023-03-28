@@ -8,7 +8,7 @@ import MathfieldElement from '../public/mathfield-element';
 const gVariants: {
   [variantID: string]: (string | Partial<VirtualKeyboardKeycap>)[];
 } = {
-  '0': [
+  '0-extended': [
     '\\emptyset',
     '\\varnothing',
     '\\infty',
@@ -17,8 +17,16 @@ const gVariants: {
     '\\bigcirc',
     '\\bullet',
   ],
-  '2': ['\\frac{1}{2}', { latex: '#?^2', insert: '#@^2' }],
-  '3': ['\\frac{1}{3}', { latex: '#?^3', insert: '#@^3' }],
+  '0': ['\\varnothing', '\\infty'],
+  '1': ['\\frac{1}{#0}', '\\times 10^{#?}'],
+  '2': ['\\frac{1}{2}', '#@^2', '\\exponentialE'],
+  '3': ['\\frac{1}{3}', '#@^3', '\\pi'],
+  '4': ['\\frac{1}{4}', '#@^4'],
+  '5': ['\\frac{1}{5}', '#@^5'],
+  '6': ['\\frac{1}{6}', '#@^6'],
+  '7': ['\\frac{1}{7}', '#@^7'],
+  '8': ['\\frac{1}{8}', '#@^8'],
+  '9': ['\\frac{1}{9}', '#@^9'],
   '.': [
     '.',
     ',',
@@ -40,6 +48,12 @@ const gVariants: {
     '\\cdot',
     '\\ast',
     '\\star',
+    { latex: '\\prod_{#0}^{#0}', class: 'small' },
+  ],
+  '*-extended': [
+    '\\cdot',
+    '\\ast',
+    '\\star',
     '\\bigstar',
     '\\ltimes',
     '\\rtimes',
@@ -50,7 +64,7 @@ const gVariants: {
     { latex: '\\prod_{n\\mathop=0}^{\\infty}', class: 'small' },
   ],
 
-  '+': [
+  '+-extended': [
     '\\pm',
     '\\mp',
     '\\sum',
@@ -58,11 +72,18 @@ const gVariants: {
     '\\dotplus',
     '\\oplus',
   ],
-  '-': ['\\pm', '\\mp', '\\ominus', '\\vert #0  \\vert'],
+  '+': [{ latex: '\\sum_{#0}^{#0}', class: 'small' }],
+  '--extended': ['\\pm', '\\mp', '\\ominus', '\\vert #0  \\vert'],
+  '-': ['\\pm'],
 
-  '/': ['\\divideontimes', '/', '\\div', '\\%'],
+  '/-extended': ['\\divideontimes', '/', '\\div', '\\%'],
+  '/': ['/', '\\div', '\\%'],
 
-  '(': [
+  '(': ['\\lbrack', '\\langle', '\\lfloor', '\\lceil', '\\lbrace'],
+
+  ')': ['\\rbrack', '\\rangle', '\\rfloor', '\\rceil', '\\rbrace'],
+
+  '(-extended': [
     '\\left( #0\\right)',
     '\\left[ #0\\right]',
     '\\left\\{ #0\\right\\}',
@@ -80,8 +101,7 @@ const gVariants: {
     '\\lmoustache',
     '\\lbrace',
   ],
-
-  ')': [
+  ')-extended': [
     '\\rfloor',
     '\\lrcorner',
     ')',
@@ -97,6 +117,16 @@ const gVariants: {
   ],
 
   '=': [
+    '\\neq',
+    '\\equiv',
+    '\\varpropto',
+    '\\thickapprox',
+    '\\lt',
+    '\\gt',
+    '\\le',
+    '\\ge',
+  ],
+  '=-extended': [
     '\\cong',
     '\\asymp',
     '\\equiv',
@@ -606,92 +636,6 @@ function makeVariants(
         command: ['applyStyle', { backgroundColor: color }],
       });
     }
-    return result;
-  }
-
-  if (/^[A-Z]$/.test(id)) {
-    const result: Partial<VirtualKeyboardKeycap>[] = [];
-    result.unshift({
-      latex: '\\mathbb{' + id + '}',
-      aside: 'blackboard',
-      insert: '\\mathbb{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathbf{' + id + '}',
-      aside: 'bold',
-      insert: '\\mathbf{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathsf{' + id + '}',
-      aside: 'sans',
-      insert: '\\mathsf{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathtt{' + id + '}',
-      aside: 'monospace',
-      insert: '\\mathtt{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathcal{' + id + '}',
-      aside: 'calligraphy',
-      insert: '\\mathcal{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathfrak{' + id + '}',
-      aside: 'fraktur',
-      insert: '\\mathfrak{' + id + '}',
-    });
-
-    return result;
-  }
-
-  if (/^[a-z]$/.test(id)) {
-    const result: Partial<VirtualKeyboardKeycap>[] = [];
-    result.unshift({
-      latex: '\\mathsf{' + id + '}',
-      aside: 'sans',
-      insert: '\\mathsf{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathbf{' + id + '}',
-      aside: 'bold',
-      insert: '\\mathbf{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathtt{' + id + '}',
-      aside: 'monospace',
-      insert: '\\mathtt{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathfrak{' + id + '}',
-      aside: 'fraktur',
-      insert: '\\mathfrak{' + id + '}',
-    });
-    return result;
-  }
-
-  if (/^[0-9]$/.test(id)) {
-    const result: Partial<VirtualKeyboardKeycap>[] = [];
-    result.unshift({
-      latex: '\\mathsf{' + id + '}',
-      aside: 'sans',
-      insert: '\\mathsf{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathbf{' + id + '}',
-      aside: 'bold',
-      insert: '\\mathbf{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathtt{' + id + '}',
-      aside: 'monospace',
-      insert: '\\mathtt{' + id + '}',
-    });
-    result.unshift({
-      latex: '\\mathfrak{' + id + '}',
-      aside: 'fraktur',
-      insert: '\\mathfrak{' + id + '}',
-    });
     return result;
   }
 
