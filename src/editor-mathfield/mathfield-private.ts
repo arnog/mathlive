@@ -221,9 +221,6 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     this.element = element;
     element.mathfield = this;
-    // Start with hidden content to minimize flashing during creation
-    // The visibility will be reset during render
-    element.style.visibility = 'hidden';
 
     // Inject the core and mathfield stylesheets
     if (!CORE_STYLESHEET_HASH)
@@ -314,11 +311,16 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
 
     // 1/ The keyboard event capture element.
     markup.push(
-      `<span contenteditable=true aria-multiline=false part=keyboard-sink class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=0></span>`
+      `<span aria-multiline=false part=keyboard-sink class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=0></span>`
     );
 
     // 2/ The field, where the math equation will be displayed
-    markup.push('<span part=container class=ML__container aria-hidden=true>');
+
+    // Start with hidden content to minimize flashing during creation
+    // The visibility will be reset during render
+    markup.push(
+      '<span part=container class=ML__container aria-hidden=true  style="visibility:hidden">'
+    );
     markup.push('<span part=content class=ML__content>');
     markup.push(contentMarkup(this));
     markup.push('</span>');
@@ -493,9 +495,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (gFontsState !== 'ready')
       document.fonts.ready.then(() => renderSelection(this));
 
-    // The mathfield element is initially set with a visibility of hidden
+    // The mathfield container is initially set with a visibility of hidden
     // to minimize flashing during construction.
-    this.element!.style.visibility = 'visible';
+    element
+      .querySelector<HTMLElement>('.ML__container')!
+      .style.removeProperty('visibility');
   }
 
   connectToVirtualKeyboard(): void {

@@ -307,7 +307,7 @@ export function delegateKeyboardEvents(
   keyboardSink.addEventListener(
     'paste',
     (event: ClipboardEvent) => {
-      // In some cases (Linux browsers), the text area might not be focused
+      // In some cases (Linux browsers), the keyboard sink might not be focused
       // when doing a middle-click paste command.
       keyboardSink.focus();
       keyboardSink.textContent = '';
@@ -400,8 +400,8 @@ export function delegateKeyboardEvents(
       keyboardSink.setAttribute('aria-label', value),
 
     setValue: (value: string): void => {
-      keyboardSink.innerText = value;
-      // Move sink offsreen (Safari will display a visible selection otherwise)
+      keyboardSink.textContent = value;
+      // Move sink offscreen (Safari will display a visible selection otherwise)
       keyboardSink.style.top = `-1000px`;
       // Select the elements in the sink (Safari will not enable copy/paste if there isn't a selection)
       window.getSelection()?.selectAllChildren(keyboardSink);
