@@ -89,7 +89,11 @@ registerCommand(
       // copying it.
       if (mathfield.model.selectionIsCollapsed) mathfield.select();
 
-      if (document.queryCommandSupported('copy')) document.execCommand('copy');
+      if (
+        'queryCommandSupported' in document &&
+        document.queryCommandSupported('copy')
+      )
+        document.execCommand('copy');
       else {
         mathfield.element!.querySelector('.ML__keyboard-sink')!.dispatchEvent(
           new ClipboardEvent('copy', {
@@ -104,7 +108,11 @@ registerCommand(
     cutToClipboard: (mathfield: MathfieldPrivate) => {
       mathfield.focus();
 
-      if (document.queryCommandSupported('cut')) document.execCommand('cut');
+      if (
+        'queryCommandSupported' in document &&
+        document.queryCommandSupported('cut')
+      )
+        document.execCommand('cut');
       else {
         mathfield.element!.querySelector('.ML__keyboard-sink')!.dispatchEvent(
           new ClipboardEvent('cut', {
@@ -118,7 +126,10 @@ registerCommand(
 
     pasteFromClipboard: (mathfield: MathfieldPrivate) => {
       mathfield.focus();
-      if (document.queryCommandSupported('paste'))
+      if (
+        'queryCommandSupported' in document &&
+        document.queryCommandSupported('paste')
+      )
         document.execCommand('paste');
       else {
         navigator.clipboard.readText().then((text) => {
