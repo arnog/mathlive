@@ -46,8 +46,8 @@
     --keycap-text-hover: #fff;
     --keycap-secondary-text: #000;
 
-    --keycap-modifier-background: #a0a9b6;
-    --keycap-modifier-background-hover: #949ead;
+    --keycap-modifier-background: #b9bfc8;
+    --keycap-modifier-background-hover: #a0a9b6;
     --keycap-modifier-text: #060707;
     --keycap-modifier-border: #c5c9d0;
     --keycap-modifier-border-bottom: #989da6;
@@ -262,6 +262,14 @@
       border: none;
       pointer-events: none;
     }
+    .horizontal-rule {
+      width: 100%;
+      border-top: 1px solid var(--keycap-modifier-border-bottom);
+    }
+    .ghost {
+      background: transparent;
+      border: none;
+    }
     .bigfnbutton {
       font-size: var(--keycap-extra-small-font-size, 14px);
     }
@@ -317,9 +325,10 @@
     & > ul {
       display: flex;
       flex-flow: row;
+      width: 100%;
       // max-width: 100%;
       list-style: none;
-      height: var(--keycap-height, @keycap-height);
+      // height: var(--keycap-height, @keycap-height);
       margin: 0 0 var(--margin) 0;
       padding: 0;
     }
@@ -350,6 +359,11 @@
       cursor: pointer;
       touch-action: none;
 
+      &.horizontal-rule {
+        margin-top: 1px;
+        height: 3px;
+      }
+
       &:hover {
         background: var(--keycap-background-hover);
       }
@@ -372,6 +386,11 @@
         margin: 8px 0;
         width: 20px;
         height: 20px;
+      }
+      svg.svg-glyph-lg {
+        margin: 8px 0;
+        width: 24px;
+        height: 24px;
       }
 
       &.MLK__tex-math {

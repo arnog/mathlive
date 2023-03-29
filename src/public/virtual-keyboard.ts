@@ -17,6 +17,9 @@ export interface VirtualKeyboardKeycap {
    * The HTML markup displayed for the keycap
    */
   label: string;
+
+  tooltip: string;
+
   /**
    * Command to perform when the keycap is pressed
    */

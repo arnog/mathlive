@@ -86,6 +86,7 @@ export function latexToMarkup(
   latex: string,
   arg?: (arg: string) => string
 ): string {
+  if (!latex) return '';
   // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
@@ -182,6 +183,11 @@ export function normalizeLayout(
     ...layout,
   } as NormalizedVirtualKeyboardLayout;
   if ('layers' in layout) result.layers = normalizeLayer(layout.layers);
+  if (
+    !('displayEditToolbar' in layout) ||
+    layout.displayEditToolbar === undefined
+  )
+    result.displayEditToolbar = true;
 
   return result;
 }
@@ -662,6 +668,7 @@ const SVG_ICONS = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;
 <symbol id="svg-trash" viewBox="0 0 448 512">
   <path d="M336 64l-33.6-44.8C293.3 7.1 279.1 0 264 0h-80c-15.1 0-29.3 7.1-38.4 19.2L112 64H24C10.7 64 0 74.7 0 88v2c0 3.3 2.7 6 6 6h26v368c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V96h26c3.3 0 6-2.7 6-6v-2c0-13.3-10.7-24-24-24h-88zM184 32h80c5 0 9.8 2.4 12.8 6.4L296 64H152l19.2-25.6c3-4 7.8-6.4 12.8-6.4zm200 432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96h320v368zm-176-44V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm-80 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm160 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12z"/>
 </symbol>
+<symbol id="svg-keyboard-down" viewBox="0 0 576 512"><path d="M64 48c-8.8 0-16 7.2-16 16V240c0 8.8 7.2 16 16 16H512c8.8 0 16-7.2 16-16V64c0-8.8-7.2-16-16-16H64zM0 64C0 28.7 28.7 0 64 0H512c35.3 0 64 28.7 64 64V240c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zM159 359c9.4-9.4 24.6-9.4 33.9 0l95 95 95-95c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L305 505c-4.5 4.5-10.6 7-17 7s-12.5-2.5-17-7L159 393c-9.4-9.4-9.4-24.6 0-33.9zm1-167c0-8.8 7.2-16 16-16H400c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V192zM120 88h16c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H120c-8.8 0-16-7.2-16-16V104c0-8.8 7.2-16 16-16zm64 16c0-8.8 7.2-16 16-16h16c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H200c-8.8 0-16-7.2-16-16V104zm96-16h16c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H280c-8.8 0-16-7.2-16-16V104c0-8.8 7.2-16 16-16zm64 16c0-8.8 7.2-16 16-16h16c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H360c-8.8 0-16-7.2-16-16V104zm96-16h16c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H440c-8.8 0-16-7.2-16-16V104c0-8.8 7.2-16 16-16z"/></symbol>
 </svg>`;
 // <symbol id="svg-wikipedia" viewBox="0 0 640 512">
 //         <path d="M640 51.2l-.3 12.2c-28.1.8-45 15.8-55.8 40.3-25 57.8-103.3 240-155.3 358.6H415l-81.9-193.1c-32.5 63.6-68.3 130-99.2 193.1-.3.3-15 0-15-.3C172 352.3 122.8 243.4 75.8 133.4 64.4 106.7 26.4 63.4.2 63.7c0-3.1-.3-10-.3-14.2h161.9v13.9c-19.2 1.1-52.8 13.3-43.3 34.2 21.9 49.7 103.6 240.3 125.6 288.6 15-29.7 57.8-109.2 75.3-142.8-13.9-28.3-58.6-133.9-72.8-160-9.7-17.8-36.1-19.4-55.8-19.7V49.8l142.5.3v13.1c-19.4.6-38.1 7.8-29.4 26.1 18.9 40 30.6 68.1 48.1 104.7 5.6-10.8 34.7-69.4 48.1-100.8 8.9-20.6-3.9-28.6-38.6-29.4.3-3.6 0-10.3.3-13.6 44.4-.3 111.1-.3 123.1-.6v13.6c-22.5.8-45.8 12.8-58.1 31.7l-59.2 122.8c6.4 16.1 63.3 142.8 69.2 156.7L559.2 91.8c-8.6-23.1-36.4-28.1-47.2-28.3V49.6l127.8 1.1.2.5z"/>
@@ -704,8 +711,6 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
   result.appendChild(backdrop);
 
-  // Attach the element handlers
-
   const toolbars = result.querySelectorAll<HTMLElement>('.ML__edit-toolbar');
   if (toolbars) {
     for (const toolbar of toolbars) {
@@ -720,6 +725,8 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
       });
     }
   }
+
+  // Associated ids with each keycap
   const keycaps = result.querySelectorAll<HTMLElement>(
     '.MLK__keycap, .action, .fnbutton, .bigfnbutton'
   );
@@ -729,6 +736,8 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
       Date.now().toString(36).slice(-2) +
       Math.floor(Math.random() * 0x186a0).toString(36);
   }
+
+  // Attach the element handlers
   makeKeycap(keyboard, [...keycaps]);
 
   const elementList = result.querySelectorAll<HTMLElement>('.layer-switch');
@@ -854,6 +863,8 @@ function markupLayer(
 
         if (keycap.key) layerMarkup += ` data-key="${keycap.key}"`;
 
+        if (keycap.tooltip) layerMarkup += ` data-tooltip="${keycap.tooltip}"`;
+
         if (keycap.command) {
           if (typeof keycap.command === 'string')
             layerMarkup += ` data-command='"${keycap.command}"'`;
@@ -927,7 +938,18 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   '[return]': {
     class: 'action',
     command: ['performWithFeedback', 'commit'],
+    width: 1.5,
     label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
+  },
+  '[hr]': {
+    class: 'separator horizontal-rule',
+  },
+  '[hide-keyboard]': {
+    class: 'action',
+    command: ['performWithFeedback', 'hideVirtualKeyboard'],
+    width: 1.5,
+    label:
+      '<svg class=svg-glyph-lg><use xlink:href=#svg-keyboard-down /></svg>',
   },
   '[.]': {
     class: 'big-op',
@@ -959,6 +981,18 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     shiftedCommand: 'deleteAll',
     variants: 'delete',
   },
+  '[undo]': {
+    class: 'ghost',
+    command: 'undo',
+    label: '<svg class=svg-glyph><use xlink:href=#svg-undo /></svg>',
+    tooltip: l10n('tooltip.undo'),
+  },
+  '[redo]': {
+    class: 'ghost',
+    command: 'redo',
+    label: '<svg class=svg-glyph><use xlink:href=#svg-redo /></svg>',
+  },
+
   '[(]': { variants: '(', latex: '(' },
   '[)]': { variants: ')', latex: ')' },
   '[0]': { variants: '0', latex: '0', label: '0' },
