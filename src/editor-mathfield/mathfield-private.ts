@@ -1,4 +1,4 @@
-import { BoxedExpression } from '@cortex-js/compute-engine';
+import type { BoxedExpression } from '@cortex-js/compute-engine';
 
 // @ts-ignore-error
 import MATHFIELD_STYLESHEET from '../../css/mathfield.less';

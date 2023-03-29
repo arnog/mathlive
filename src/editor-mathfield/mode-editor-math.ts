@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 
-import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
+import type { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 
 import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 
