@@ -36,6 +36,8 @@
     --keyboard-toolbar-background-hover: #eee;
     --keyboard-toolbar-background-selected: transparent;
 
+    --keyboard-horizontal-rule: 1px solid #fff;
+
     --keycap-background: white;
     --keycap-background-hover: #f5f5f7;
     --keycap-background-active: white;
@@ -65,6 +67,24 @@
     --variant-keycap-length: 70px;
     --variant-keycap-font-size: 30px;
     --variant-keycap-aside-font-size: 12px;
+  }
+
+  .if-can-undo,
+  .if-can-redo,
+  .if-can-copy,
+  .if-can-cut,
+  .if-can-paste {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .can-undo .if-can-undo,
+  .can-redo .if-can-redo,
+  .can-copy .if-can-copy,
+  .can-cut .if-can-cut,
+  .can-paste .if-can-paste {
+    opacity: 1;
+    pointer-events: all;
   }
 
   // The keyboard can be attached to the body (most common case)
@@ -263,13 +283,24 @@
       pointer-events: none;
     }
     .horizontal-rule {
+      height: 6px;
+
+      margin-top: 3px;
+      margin-bottom: 0;
       width: 100%;
-      border-top: 1px solid var(--keycap-modifier-border-bottom);
+      border-radius: 0;
+      border-top: var(--keyboard-horizontal-rule);
     }
     .ghost {
-      background: transparent;
+      background: var(--keyboard-toolbar-background);
       border: none;
+      color: var(--keyboard-toolbar-text);
     }
+
+    .ghost:hover {
+      background: var(--keyboard-toolbar-background-hover);
+    }
+
     .bigfnbutton {
       font-size: var(--keycap-extra-small-font-size, 14px);
     }
@@ -358,11 +389,6 @@
 
       cursor: pointer;
       touch-action: none;
-
-      &.horizontal-rule {
-        margin-top: 1px;
-        height: 3px;
-      }
 
       &:hover {
         background: var(--keycap-background-hover);
@@ -818,6 +844,8 @@ Note there are a different set of tooltip rules for the keyboard toggle
       --keyboard-toolbar-background-hover: #303030;
       --keyboard-toolbar-background-selected: transparent;
 
+      --keyboard-horizontal-rule: 1px solid #303030;
+
       --keycap-background: #1f2022;
       --keycap-background-hover: #2f3032;
       --keycap-background-active: #2f3032;
@@ -848,6 +876,8 @@ Note there are a different set of tooltip rules for the keyboard toggle
     --keyboard-toolbar-background: transparent;
     --keyboard-toolbar-background-hover: #303030;
     --keyboard-toolbar-background-selected: transparent;
+
+    --keyboard-horizontal-rule: border 1px solid #4d5154;
 
     --keycap-background: #1f2022;
     --keycap-background-hover: #2f3032;

@@ -465,7 +465,16 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   updateToolbar(mf: MathfieldProxy): void {
-    const toolbars = this._element?.querySelectorAll('.ML__edit-toolbar');
+    const el = this._element;
+    if (!el) return;
+
+    el.classList.toggle('can-undo', mf.canUndo);
+    el.classList.toggle('can-redo', mf.canRedo);
+    el.classList.toggle('can-copy', !mf.selectionIsCollapsed);
+    el.classList.toggle('can-copy', !mf.selectionIsCollapsed);
+    el.classList.toggle('can-paste', true);
+
+    const toolbars = el.querySelectorAll('.ML__edit-toolbar');
     if (!toolbars) return;
     for (const toolbar of toolbars)
       toolbar.innerHTML = makeActionToolbar(this, mf);

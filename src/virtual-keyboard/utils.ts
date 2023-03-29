@@ -982,19 +982,19 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     variants: 'delete',
   },
   '[undo]': {
-    class: 'ghost',
+    class: 'ghost if-can-undo',
     command: 'undo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-undo /></svg>',
     tooltip: l10n('tooltip.undo'),
   },
   '[redo]': {
-    class: 'ghost',
+    class: 'ghost  if-can-redo',
     command: 'redo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-redo /></svg>',
   },
 
-  '[(]': { variants: '(', latex: '(' },
-  '[)]': { variants: ')', latex: ')' },
+  '[(]': { variants: '(', latex: '(', label: '(' },
+  '[)]': { variants: ')', latex: ')', label: ')' },
   '[0]': { variants: '0', latex: '0', label: '0' },
   '[1]': { variants: '1', latex: '1', label: '1' },
   '[2]': { variants: '2', latex: '2', label: '2' },
