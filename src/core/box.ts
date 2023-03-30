@@ -5,7 +5,7 @@ import { svgBodyToMarkup, svgBodyHeight } from './svg-box';
 import { Context } from './context';
 import { highlight } from './color';
 import { BoxCSSProperties, ParseMode } from '../public/core-types';
-import { applyStyle } from './modes-utils';
+import { Mode } from './modes-utils';
 import { BOX_TYPE, BoxInterface, BoxOptions, BoxType } from './types';
 
 export function isBoxType(type: string): type is BoxType {
@@ -179,7 +179,7 @@ export class Box implements BoxInterface {
     if (options?.style && this.value) {
       fontName =
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        applyStyle(options.mode ?? 'math', this, options.style) ||
+        Mode.applyStyle(options.mode ?? 'math', this, options.style) ||
         'Main-Regular';
     }
 

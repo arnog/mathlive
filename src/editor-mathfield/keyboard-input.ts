@@ -26,7 +26,7 @@ import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
 import { insertSmartFence } from './mode-editor-math';
-import type { Style, ParseMode } from 'mathlive';
+import type { Style, ParseMode } from '../mathlive';
 
 /**
  * Handler in response to a keystroke event.

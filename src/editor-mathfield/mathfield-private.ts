@@ -86,7 +86,6 @@ import {
 
 import './commands';
 import './styling';
-
 import {
   getCaretPoint,
   getSelectionBounds,
@@ -107,10 +106,10 @@ import { validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PromptAtom } from '../core-atoms/prompt';
 import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
-import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
-import { MathfieldElement } from '../public/mathfield-element';
+import '../public/mathfield-element';
 
 import '../virtual-keyboard/global';
+
 import type {
   ParseMode,
   Style,
@@ -119,7 +118,8 @@ import type {
   MacroDefinition,
   LatexSyntaxError,
 } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
+import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -998,7 +998,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (options.focus) this.focus();
 
     if (options.feedback) {
-      if (MathfieldElement.keypressVibration && canVibrate())
+      if (window.MathfieldElement.keypressVibration && canVibrate())
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
       window.MathfieldElement.playSound('keypress');

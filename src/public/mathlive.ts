@@ -26,6 +26,8 @@ export * from './options';
 export * from './mathfield';
 export * from './mathfield-element';
 export * from './mathlive-ssr';
+export * from './virtual-keyboard';
+export * from './virtual-keyboard-types';
 
 export declare function makeSharedVirtualKeyboard(
   options?: Partial<VirtualKeyboardOptions>

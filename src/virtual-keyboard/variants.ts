@@ -1,5 +1,5 @@
 import { Scrim } from '../editor/scrim';
-import { latexToMarkup, makeKeycap } from './utils';
+import { latexToMarkup, makeKeycaps } from './utils';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { FOREGROUND_COLORS, BACKGROUND_COLORS } from '../core/color';
 import { VirtualKeyboardKeycap } from '../public/options';
@@ -544,11 +544,7 @@ export function showVariantsPanel(
   //
   // Associate a command which each of the variant keycaps
   //
-  makeKeycap(
-    keyboard,
-    [...variantPanel.querySelectorAll('li')],
-    'performVariant'
-  );
+  makeKeycaps(keyboard, variantPanel.querySelectorAll('li'), 'performVariant');
 
   //
   // Position the variants panel
