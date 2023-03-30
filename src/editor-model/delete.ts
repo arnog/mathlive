@@ -444,10 +444,7 @@ export function deleteRange(
     if (firstSelected === firstChild && lastSelected === lastChild) {
       const parent = result[0].parent!;
       if (parent.type !== 'root' && parent.type !== 'prompt') {
-        range = [
-          model.offsetOf(parent.leftSibling),
-          model.offsetOf(parent.rightSibling),
-        ];
+        range = [model.offsetOf(parent.leftSibling), model.offsetOf(parent)];
       }
     }
 
