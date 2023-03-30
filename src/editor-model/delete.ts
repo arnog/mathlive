@@ -443,12 +443,8 @@ export function deleteRange(
     // (for example for surd/\sqrt)
     if (firstSelected === firstChild && lastSelected === lastChild) {
       const parent = result[0].parent!;
-      if (parent.type !== 'root' && parent.type !== 'prompt') {
-        range = [
-          model.offsetOf(parent.leftSibling),
-          model.offsetOf(parent.rightSibling),
-        ];
-      }
+      if (parent.type !== 'root' && parent.type !== 'prompt')
+        range = [model.offsetOf(parent.leftSibling), model.offsetOf(parent)];
     }
 
     // If we have a placeholder denominator selected,
