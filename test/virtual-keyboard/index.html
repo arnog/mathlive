@@ -12,12 +12,13 @@
     <style>
       body {
         /* --keyboard-background: linear-gradient(#e66465, #9198e5); */
-        --keyboard-background: linear-gradient(white, #cacfd7);
+        /* --keyboard-background: linear-gradient(white, #cacfd7); */
       }
       math-field,
       textarea {
         margin-top: 1em;
         margin-bottom: 1em;
+        min-width: 400px;
       }
     </style>
   </head>
@@ -38,10 +39,7 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf-1"
-        >\sum^q_{n=0}\begin{pmatrix}a &amp; b \\ c &amp;
-        d\end{pmatrix}</math-field
-      >
+      <math-field id="mf-1">f(x)=\frac{1}{x+1}}</math-field>
       <math-field id="mf-2"
         >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
         \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
