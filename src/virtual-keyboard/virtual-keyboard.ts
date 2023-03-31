@@ -41,18 +41,23 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     [type: string]: Set<EventListenerOrEventListenerObject | null>;
   };
 
-  private readonly keycapRegistry: Record<string, VirtualKeyboardKeycap> = {};
+  private keycapRegistry: Record<string, Partial<VirtualKeyboardKeycap>> = {};
 
-  registerKeycap(keycap: VirtualKeyboardKeycap): string {
+  resetKeycapRegistry(): void {
+    this.keycapRegistry = {};
+  }
+
+  registerKeycap(keycap: Partial<VirtualKeyboardKeycap>): string {
     const id =
       'ML__k' +
       Date.now().toString(36).slice(-2) +
       Math.floor(Math.random() * 0x186a0).toString(36);
+
     this.keycapRegistry[id] = keycap;
     return id;
   }
 
-  getKeycap(id: string): VirtualKeyboardKeycap | undefined {
+  getKeycap(id: string): Partial<VirtualKeyboardKeycap> | undefined {
     return this.keycapRegistry[id];
   }
 

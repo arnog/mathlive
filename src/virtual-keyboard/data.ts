@@ -62,7 +62,7 @@ export const SHIFTED_KEYS = {
   '\\mu ': ['&Mu;', '\\char"39C'],
 };
 
-export const LAYERS = {
+export const LAYERS_MARKUP = {
   'numeric': `
 <div class='MLK__rows'>
   <ul>

@@ -1,5 +1,12 @@
 import { Scrim } from '../editor/scrim';
-import { latexToMarkup, makeKeycaps } from './utils';
+import {
+  executeKeycapCommand,
+  expandKeycap,
+  latexToMarkup,
+  makeKeycaps,
+  parentKeycap,
+  renderKeycap,
+} from './utils';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { FOREGROUND_COLORS, BACKGROUND_COLORS } from '../core/color';
 import { VirtualKeyboardKeycap } from '../public/options';
@@ -468,68 +475,43 @@ const gVariants: {
   '->|': [],
 };
 
+let variantPanelController: AbortController;
+
 export function showVariantsPanel(
   element: HTMLElement,
-  variantsId: string
+  variantList: string | (string | Partial<VirtualKeyboardKeycap>)[],
+  onClose?: () => void
 ): boolean {
-  const variants = getVariants(variantsId);
+  const variants = {};
+  let markup = '';
+
+  for (const variant of getVariants(variantList)) {
+    const keycap = expandKeycap(variant);
+    const id =
+      Date.now().toString(36).slice(-2) +
+      Math.floor(Math.random() * 0x186a0).toString(36);
+    variants[id] = keycap;
+    markup += `<li id=${id} class="MLK__keycap ${
+      keycap.class ?? ''
+    }">${renderKeycap(keycap)}</li>`;
+  }
+
   const variantPanel = document.createElement('div');
   variantPanel.setAttribute('aria-hidden', 'true');
   variantPanel.className = 'ML__keyboard MLK__variant-panel';
 
-  if (variants.length >= 14) {
-    // Width 5: 5 key wide
-    variantPanel.style.width = '236px';
-  } else if (variants.length >= 7) {
-    // Width 4
-    variantPanel.style.width = '286px';
-  } else if (variants.length === 4 || variants.length === 2) {
-    // Width 2
-    variantPanel.style.width = '146px';
-  } else if (variants.length === 1) {
-    // Width 1
-    variantPanel.style.width = '86px';
-  } else {
-    // Width 3
-    variantPanel.style.width = '146px';
-  }
-
-  // Reset container height
+  // Reset variant panel height
   variantPanel.style.height = 'auto';
-  let markup = '';
-  for (const variant of variants) {
-    markup += '<li';
-    if (typeof variant === 'string') {
-      markup += ` data-latex="${variant.replace(
-        /"/g,
-        '&quot;'
-      )}"'>${latexToMarkup(variant)}</li>`;
-    } else {
-      if (variant.latex)
-        markup += ' data-latex="' + variant.latex.replace(/"/g, '&quot;') + '"';
 
-      // @deprecated
-      if (variant.insert) {
-        markup +=
-          ' data-insert="' + variant.insert.replace(/"/g, '&quot;') + '"';
-      }
+  const l = Object.keys(variants).length;
+  let w = 5; // l >= 14, width 5
 
-      if (variant.command) {
-        markup += ` data-command='${(typeof variant.command === 'string'
-          ? '"' + variant.command + '"'
-          : JSON.stringify(variant.command)
-        ).replace(/"/g, '&quot;')}'`;
-      }
+  if (l === 1) w = 1;
+  else if (l === 2 || l === 4) w = 2;
+  else if (l === 3 || l === 5 || l === 6) w = 3;
+  else if (l >= 7 && l < 14) w = 4;
 
-      if (variant.aside)
-        markup += ` data-aside="${variant.aside.replace(/"/g, '&quot;')}"`;
-
-      if (variant.class) markup += ` data-classes="${variant.class}"`;
-      markup += '>';
-      markup += variant.label ?? latexToMarkup(variant.latex ?? '');
-      markup += '</li>';
-    }
-  }
+  variantPanel.style.width = `calc(var(--variant-keycap-length) * ${w} + 12px)`;
 
   variantPanel.innerHTML = MathfieldElement.createHTML(`<ul>${markup}</ul>`);
 
@@ -541,10 +523,45 @@ export function showVariantsPanel(
   if (!Scrim.scrim) Scrim.scrim = new Scrim();
   Scrim.scrim.open({ root: keyboard.container, child: variantPanel });
 
+  variantPanelController?.abort();
+  variantPanelController = new AbortController();
+  variantPanel.addEventListener(
+    'pointerup',
+    (ev) => {
+      let target = parentKeycap(ev.target);
+      if (!target || !target.id || !variants[target.id]) return;
+
+      executeKeycapCommand(variants[target.id]);
+
+      hideVariantsPanel();
+      onClose?.();
+      ev.preventDefault();
+    },
+    { capture: true, signal: variantPanelController.signal }
+  );
+
+  window.addEventListener(
+    'pointercancel',
+    () => {
+      hideVariantsPanel();
+      onClose?.();
+    },
+    { signal: variantPanelController.signal }
+  );
+
+  window.addEventListener(
+    'pointerup',
+    (ev) => {
+      hideVariantsPanel();
+      onClose?.();
+    },
+    { signal: variantPanelController.signal }
+  );
+
   //
   // Associate a command which each of the variant keycaps
   //
-  makeKeycaps(keyboard, variantPanel.querySelectorAll('li'), 'performVariant');
+  // makeKeycaps(variantPanel.querySelectorAll('li'), 'performVariant');
 
   //
   // Position the variants panel
@@ -553,13 +570,11 @@ export function showVariantsPanel(
   const position = element?.getBoundingClientRect();
   if (position) {
     if (position.top - variantPanel.clientHeight < 0) {
-      // AltContainer.style.maxWidth = '320px';  // Up to six columns
+      // variantPanel.style.maxWidth = '320px';  // Up to six columns
       variantPanel.style.width = 'auto';
-      if (variants.length <= 6) variantPanel.style.height = '56px'; // 1 row
-      else if (variants.length <= 12)
-        variantPanel.style.height = '108px'; // 2 rows
-      else if (variants.length <= 18)
-        variantPanel.style.height = '205px'; // 3 rows
+      if (l <= 6) variantPanel.style.height = '56px'; // 1 row
+      else if (l <= 12) variantPanel.style.height = '108px'; // 2 rows
+      else if (l <= 18) variantPanel.style.height = '205px'; // 3 rows
       else variantPanel.classList.add('compact');
     }
 
@@ -579,14 +594,7 @@ export function showVariantsPanel(
 }
 
 export function hideVariantsPanel(): boolean {
-  const variantPanel = document.querySelector<HTMLElement>(
-    '.MLK__variant-panel'
-  );
-  if (variantPanel) {
-    variantPanel.classList.remove('is-visible');
-    variantPanel.innerHTML = '';
-  }
-
+  variantPanelController?.abort();
   Scrim.scrim?.close();
 
   return false;
@@ -599,9 +607,9 @@ function makeVariants(
     const result: Partial<VirtualKeyboardKeycap>[] = [];
     for (const color of Object.keys(FOREGROUND_COLORS)) {
       result.push({
-        class: 'small-button',
+        class: 'swatch-button',
         label:
-          '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
+          '<span style="border: 3px solid ' +
           FOREGROUND_COLORS[color] +
           '"></span>',
         command: ['applyStyle', { color }],
@@ -614,11 +622,9 @@ function makeVariants(
     const result: Partial<VirtualKeyboardKeycap>[] = [];
     for (const color of Object.keys(BACKGROUND_COLORS)) {
       result.push({
-        class: 'small-button',
+        class: 'swatch-button',
         label:
-          '<span style="border-radius:50%;width:32px;height:32px; background:' +
-          BACKGROUND_COLORS[color] +
-          '"></span>',
+          '<span style="background:' + BACKGROUND_COLORS[color] + '"></span>',
         command: ['applyStyle', { backgroundColor: color }],
       });
     }
@@ -628,16 +634,10 @@ function makeVariants(
   return undefined;
 }
 
-export function getVariants(
-  id: string
+function getVariants(
+  id: string | (string | Partial<VirtualKeyboardKeycap>)[]
 ): (string | Partial<VirtualKeyboardKeycap>)[] {
+  if (typeof id !== 'string') return id;
   if (!gVariants[id]) gVariants[id] = makeVariants(id) ?? [];
   return gVariants[id];
-}
-
-export function setVariants(
-  id: string,
-  value: (string | Partial<VirtualKeyboardKeycap>)[]
-): void {
-  gVariants[id] = value;
 }

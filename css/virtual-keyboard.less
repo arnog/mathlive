@@ -46,7 +46,8 @@
     --keycap-text: #000;
     --keycap-text-active: #fff;
     --keycap-text-hover: #fff;
-    --keycap-secondary-text: #000;
+    --keycap-secondary-text: #333;
+    --keycap-shift-text: var(--keyboard-accent-color);
 
     --keycap-modifier-background: #b9bfc8;
     --keycap-modifier-background-hover: #a0a9b6;
@@ -61,7 +62,7 @@
 
     --variant-panel-background: #fff;
     --variant-keycap-text: var(--keycap-text, #000);
-    --variant-keycap-text-active: #fff;
+    --variant-keycap-text-active: var(--keycap-text-active, #fff);
     --variant-keycap-background-active: var(--keyboard-accent-color);
 
     --variant-keycap-length: 70px;
@@ -602,7 +603,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
     touch-action: none;
 
-    max-width: 286px;
+    max-width: 350px;
 
     background: var(--variant-panel-background);
     text-align: center;
@@ -625,7 +626,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
     ul {
       list-style: none;
-      margin: 3px;
+      margin: 0;
       padding: 0;
       display: flex;
       flex-flow: row wrap-reverse;
@@ -644,17 +645,16 @@ Note there are a different set of tooltip rules for the keyboard toggle
       width: var(--variant-keycap-length);
 
       @media (max-height: 412px) {
-        font-size: 24px;
-        height: 50px;
-        width: 50px;
+        --variant-keycap-font-size: 24px;
+        --variant-keycap-length: 50px;
       }
 
-      box-sizing: border-box;
       margin: 0;
-      background: transparent;
-      border: 1px solid transparent; // #e5e6e9;
+      box-sizing: border-box;
       border-radius: 5px;
+      border: 1px solid transparent; // #e5e6e9;
 
+      background: transparent;
       pointer-events: all;
       cursor: pointer;
 
@@ -674,13 +674,21 @@ Note there are a different set of tooltip rules for the keyboard toggle
       &.small {
         font-size: var(--keycap-small-font-size, 16px);
       }
-      &.small-button {
-        width: 42px;
-        height: 42px;
-        margin: 2px;
+      &.swatch-button {
+        & > span {
+          display: inline-block;
+          margin: 6px;
+          width: calc(100% - 12px);
+          height: calc(100% - 12px);
+          border-radius: 50%;
+        }
+        box-sizing: border-box;
         background: #fbfbfb;
         &:hover {
-          background: var(--variant-keycap-background-active);
+          background: #f0f0f0;
+          & > span {
+            border-radius: 2px;
+          }
         }
       }
       &.box > div,
@@ -717,13 +725,19 @@ Note there are a different set of tooltip rules for the keyboard toggle
     }
   }
 
+  @media @xs {
+    // Use a wider variant panel on small screens.
+    // The variant panel is not inside the keyboard container, so this
+    // is a media query, not a container query (there is no container)
+    .MLK__variant-panel {
+      max-width: 350px;
+      --variant-keycap-font-size: 24px;
+      --variant-keycap-length: 50px;
+    }
+  }
+
   /* @xs breakpoint: iPhone 5 */
   @container @xs {
-    // Use a wider variant panel on small screens
-    .MLK__variant-panel {
-      max-width: 320px;
-    }
-
     // Smaller toolbar switcher labels
     .MLK__toolbar > div > div {
       font-size: 100%;
@@ -919,7 +933,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     --keycap-text: #000;
     --keycap-text-active: #fff;
     --keycap-text-hover: #fff;
-    --keycap-secondary-text: #000;
+    --keycap-secondary-text: #333;
 
     --keycap-modifier-background: #a0a9b6;
     --keycap-modifier-background-hover: #949ead;
