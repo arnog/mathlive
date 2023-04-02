@@ -19,7 +19,7 @@
     "lint": "eslint --fix src/",
     "prepare": "bash ./scripts/build.sh production",
     "start": "bash ./scripts/start.sh",
-    "test": "bash ./scripts/test.sh",
+    "test": "bash ./scripts/test.sh; npx playwright test",
     "version": "bash ./scripts/version.sh",
     "postversion": "bash ./scripts/github-release.sh"
   },
@@ -101,6 +101,7 @@
     "@arnog/esbuild-plugin-less": "^1.1.0",
     "@cortex-js/compute-engine": "^0.12.2",
     "@cortex-js/prettier-config": "^1.1.1",
+    "@playwright/test": "^1.32.1",
     "@types/css-font-loading-module": "0.0.7",
     "@types/jest": "^29.4.0",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
