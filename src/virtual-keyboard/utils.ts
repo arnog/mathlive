@@ -1208,7 +1208,7 @@ function isKeycapElement(el: Node): el is HTMLElement {
 export function parentKeycap(
   el: EventTarget | Node | null
 ): HTMLElement | undefined {
-  if (!el || !(el instanceof Node)) return undefined;
+  if (!el || !(el instanceof globalThis.Node)) return undefined;
 
   let node: Node | null = el as Node;
   while (node && !isKeycapElement(node)) node = node.parentNode;
