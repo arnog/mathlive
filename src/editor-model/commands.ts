@@ -453,18 +453,17 @@ function moveToClosestAtomVertically(
   direction: 'up' | 'down'
 ) {
   // If prompting mode, filter toAtoms for ID's placeholders
-  const editableAtoms = toAtoms.filter(
-    (a: PromptAtom) =>
-      !model.mathfield.hasEditableContent ||
-      (a.type === 'prompt' && !a.captureSelection)
-  );
+  const hasEditablePrompts = model.mathfield.hasEditablePrompts;
+  const editableAtoms = !hasEditablePrompts
+    ? toAtoms
+    : toAtoms.filter((a) => a.type === 'prompt' && !a.captureSelection);
 
   // calculate best atom to put cursor at based on real x coordinate
   const fromX = getLocalDOMRect(model.mathfield.getHTMLElement(fromAtom)).right;
   const targetSelection =
     model.offsetOf(
       getClosestAtomToXPosition(model.mathfield, editableAtoms, fromX)
-    ) - (model.mathfield.hasEditableContent ? 1 : 0); // jump inside prompt
+    ) - (hasEditablePrompts ? 1 : 0); // jump inside prompt
 
   if (extend) {
     const [left, right] = model.selection.ranges[0];
@@ -546,7 +545,7 @@ function moveUpward(
     const cellHasPrompt = aboveCell.some(
       (a: PromptAtom) => a.type === 'prompt' && !a.captureSelection
     );
-    if (!cellHasPrompt && model.mathfield.hasEditableContent)
+    if (!cellHasPrompt && model.mathfield.hasEditablePrompts)
       return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, aboveCell, extend, 'up');
@@ -559,7 +558,7 @@ function moveUpward(
     const branchHasPrompt = branch.some(
       (a: PromptAtom) => a.type === 'prompt' && a.placeholderId
     );
-    if (!branchHasPrompt && model.mathfield.hasEditableContent)
+    if (!branchHasPrompt && model.mathfield.hasEditablePrompts)
       return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, branch, extend, 'up');
@@ -620,7 +619,7 @@ function moveDownward(
     const cellHasPrompt = belowCell.some(
       (a: PromptAtom) => a.type === 'prompt' && !a.captureSelection
     );
-    if (!cellHasPrompt && model.mathfield.hasEditableContent)
+    if (!cellHasPrompt && model.mathfield.hasEditablePrompts)
       return handleDeadEnd();
 
     moveToClosestAtomVertically(model, baseAtom, belowCell, extend, 'down');
@@ -630,7 +629,7 @@ function moveDownward(
       atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
     // Check if the branch has any editable regions
     const branchHasPrompt = branch.some((a: PromptAtom) => a.type === 'prompt');
-    if (!branchHasPrompt && model.mathfield.hasEditableContent)
+    if (!branchHasPrompt && model.mathfield.hasEditablePrompts)
       return handleDeadEnd();
     moveToClosestAtomVertically(model, baseAtom, branch, extend, 'down');
   } else return handleDeadEnd();

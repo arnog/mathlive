@@ -1,4 +1,4 @@
-declare module '@cortex-js/compute-engine';
+/// <reference path="./cortex-compute-engine.d.ts" />
 
 import { Selector } from './commands';
 import type {

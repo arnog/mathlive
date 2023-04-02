@@ -27,10 +27,10 @@ import { hashCode } from '../common/hash-code';
 import { loadFonts } from '../core/fonts';
 import { Context } from '../core/context';
 
-import { LAYOUTS, LAYERS, SHIFTED_KEYS } from './data';
+import { LAYOUTS, LAYERS_MARKUP, SHIFTED_KEYS } from './data';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { MathfieldProxy } from '../public/virtual-keyboard-types';
-import { hideVariantsPanel, setVariants, showVariantsPanel } from './variants';
+import { hideVariantsPanel, showVariantsPanel } from './variants';
 import { defaultGlobalContext } from '../core/context-utils';
 
 /*
@@ -118,19 +118,15 @@ function normalizeLayer(
 ): VirtualKeyboardLayer[] {
   if (Array.isArray(layer)) return layer.map((x) => normalizeLayer(x)).flat();
 
-  if (typeof layer === 'string' && LAYERS[layer])
-    return normalizeLayer({ markup: LAYERS[layer], id: layer });
+  if (typeof layer === 'string' && LAYERS_MARKUP[layer])
+    return normalizeLayer({ markup: LAYERS_MARKUP[layer], id: layer });
 
-  let result: VirtualKeyboardLayer;
-  if (typeof layer === 'string') result = { markup: layer };
-  else result = layer;
+  let result = typeof layer === 'string' ? { markup: layer } : layer;
 
-  if (!result.id) {
-    result.id =
-      'ML__layer_' +
-      Date.now().toString(36).slice(-2) +
-      Math.floor(Math.random() * 0x186a0).toString(36);
-  }
+  result.id ??=
+    'ML__layer_' +
+    Date.now().toString(36).slice(-2) +
+    Math.floor(Math.random() * 0x186a0).toString(36);
 
   return [result];
 }
@@ -165,16 +161,19 @@ export function normalizeLayout(
     )
       layout.displayEditToolbar = !hasEdit;
 
+    // Remove the `rows` key from `layout`
+    const { rows, ...result } = layout;
     return {
-      ...layout,
+      ...result,
       layers: normalizeLayer({ rows: layout.rows }),
-      rows: undefined,
     } as NormalizedVirtualKeyboardLayout;
   }
 
   if ('markup' in layout && typeof layout.markup === 'string') {
+    // Remove the `markup` key from `layout`
+    const { markup, ...result } = layout;
     return {
-      ...layout,
+      ...result,
       layers: normalizeLayer(layout.markup as string),
     } as NormalizedVirtualKeyboardLayout;
   }
@@ -183,6 +182,7 @@ export function normalizeLayout(
     ...layout,
   } as NormalizedVirtualKeyboardLayout;
   if ('layers' in layout) result.layers = normalizeLayer(layout.layers);
+
   if (
     !('displayEditToolbar' in layout) ||
     layout.displayEditToolbar === undefined
@@ -224,7 +224,7 @@ function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
   return markup;
 }
 
-export function makeActionToolbar(
+export function makeEditToolbar(
   options: VirtualKeyboardOptions,
   mathfield: MathfieldProxy
 ): string {
@@ -284,130 +284,132 @@ export function makeActionToolbar(
   return result;
 }
 
-export function makeKeycap(
-  keyboard: VirtualKeyboard,
-  elementList: HTMLElement[],
-  chainedCommand?: SelectorPrivate
-): void {
-  for (const element of elementList) {
-    // Display
-    let html = element.innerHTML;
-    if (!html) {
-      if (element.getAttribute('data-label'))
-        html = element.getAttribute('data-label')!.replace(/&quot;/g, '"');
-      else if (element.getAttribute('data-latex')) {
-        html = latexToMarkup(
-          element.getAttribute('data-latex')!.replace(/&quot;/g, '"')
-        );
-      } else if (element.getAttribute('data-insert')) {
-        html = latexToMarkup(
-          element.getAttribute('data-insert')!.replace(/&quot;/g, '"')
-        );
-      }
-      // } else if (element.getAttribute('data-content'))
-      //   html = element.getAttribute('data-content')!.replace(/&quot;/g, '"');
+export function makeKeycaps(elementList: NodeList) {
+  for (const element of elementList) makeKeycap(element as HTMLElement);
+}
 
-      if (element.getAttribute('data-aside')) {
-        html += `<aside>${element
-          .getAttribute('data-aside')!
-          .replace(/&quot;/g, '"')}</aside>`;
-      }
+function makeKeycap(element: HTMLElement): void {
+  // @todo: generate synthetic keycap
+  const keycap: Partial<VirtualKeyboardKeycap> = {};
 
-      if (html) element.innerHTML = MathfieldElement.createHTML(html);
+  if (!element.id) {
+    if (element.hasAttribute('data-label'))
+      keycap.label = element.dataset.label;
+
+    if (element.hasAttribute('data-latex'))
+      keycap.latex = element.dataset.latex;
+
+    if (element.hasAttribute('data-key')) keycap.key = element.dataset.key;
+
+    if (element.hasAttribute('data-insert'))
+      keycap.insert = element.dataset.insert;
+
+    if (element.hasAttribute('data-variants'))
+      keycap.variants = element.dataset.variants;
+
+    if (element.hasAttribute('data-aside'))
+      keycap.aside = element.dataset.aside;
+
+    if (element.className) keycap.class = element.className;
+
+    if (!keycap.label && !keycap.latex && !keycap.key && !keycap.insert) {
+      keycap.latex = element.innerText;
+      keycap.label = element.innerHTML;
     }
 
-    if (element.getAttribute('data-classes'))
-      element.classList.add(element.getAttribute('data-classes')!);
-
-    const key = element.getAttribute('data-insert')?.replace(/&quot;/g, '"');
-    if (key && SHIFTED_KEYS[key]) {
-      element.dataset.shifted = SHIFTED_KEYS[key][0];
-      element.dataset.shiftedCommand = JSON.stringify([
-        'insertAndUnshiftKeyboardLayer',
-        SHIFTED_KEYS[key][1],
-      ]);
+    if (element.hasAttribute('data-command')) {
+      try {
+        keycap.command = JSON.parse(element.dataset.command!);
+      } catch (e) {}
     }
 
-    // Commands
-    let selector: SelectorPrivate | [SelectorPrivate, ...any[]] | undefined =
-      undefined;
-    const command = element.getAttribute('data-command');
-    if (command) {
-      if (/^[a-zA-Z]+$/.test(command)) selector = command as SelectorPrivate;
-      else {
-        try {
-          selector = JSON.parse(command);
-        } catch (e) {}
-      }
-    } else if (element.getAttribute('data-insert')) {
-      // @deprecated
-      console.log(
-        'insert keycap',
-        element.getAttribute('data-insert'),
-        'with latex',
-        element.getAttribute('data-latex')
-      );
-      selector = [
-        'insert',
-        element.getAttribute('data-insert')!,
-        {
-          focus: true,
-          feedback: true,
-          scrollIntoView: true,
-          mode: 'math',
-          format: 'latex',
-          resetStyle: true,
-        },
-      ];
-    } else if (element.getAttribute('data-latex')) {
-      selector = [
-        'insert',
-        element.getAttribute('data-latex')!,
-        {
-          focus: true,
-          feedback: true,
-          scrollIntoView: true,
-          mode: 'math',
-          format: 'latex',
-          resetStyle: true,
-        },
-      ];
-    } else {
-      console.log('keycap fallback, key = ', element.getAttribute('data-key'));
-      selector = [
-        'typedText',
-        element.getAttribute('data-key') ?? element.textContent!,
-        { focus: true, feedback: true, simulateKeystroke: true },
-      ];
-    }
+    element.id = VirtualKeyboard.singleton.registerKeycap(keycap);
+  } // Display
 
-    if (selector) {
-      if (chainedCommand) selector = [chainedCommand, selector];
+  if (!element.innerHTML)
+    element.innerHTML = MathfieldElement.createHTML(renderKeycap(keycap));
 
-      let handlers: ButtonHandlers = { default: selector };
-      const variantsId = element.getAttribute('data-variants');
-      if (variantsId) {
-        handlers = {
-          default: selector,
-          pressAndHold: ['showVariantsPanel' as Selector, variantsId],
-        };
-        // } else {
-        //   console.warn(`Unknown variants: "${variantsId}"`);
-      }
+  // const key = element.getAttribute('data-insert')?.replace(/&quot;/g, '"');
+  // if (key && SHIFTED_KEYS[key]) {
+  //   element.dataset.shifted = SHIFTED_KEYS[key][0];
+  //   element.dataset.shiftedCommand = JSON.stringify([
+  //     'insertAndUnshiftKeyboardLayer',
+  //     SHIFTED_KEYS[key][1],
+  //   ]);
+  // }
 
-      attachButtonHandlers(
-        element,
-        (command) => {
-          if (Array.isArray(command)) {
-            if (command[0] === ('showVariantsPanel' as Selector))
-              return showVariantsPanel(element, variantsId!);
-          }
-          return keyboard.executeCommand(command);
-        },
-        handlers
-      );
-    }
-  }
+  // Commands
+  // let selector: SelectorPrivate | [SelectorPrivate, ...any[]] | undefined =
+  //   undefined;
+  // const command = element.getAttribute('data-command');
+  // if (command) {
+  //   if (/^[a-zA-Z]+$/.test(command)) selector = command as SelectorPrivate;
+  //   else {
+  //     try {
+  //       selector = JSON.parse(command);
+  //     } catch (e) {}
+  //   }
+  // } else if (element.getAttribute('data-insert')) {
+  //   selector = [
+  //     'insert',
+  //     element.getAttribute('data-insert')!,
+  //     {
+  //       focus: true,
+  //       feedback: true,
+  //       scrollIntoView: true,
+  //       mode: 'math',
+  //       format: 'latex',
+  //       resetStyle: true,
+  //     },
+  //   ];
+  // } else if (element.getAttribute('data-latex')) {
+  //   selector = [
+  //     'insert',
+  //     element.getAttribute('data-latex')!,
+  //     {
+  //       focus: true,
+  //       feedback: true,
+  //       scrollIntoView: true,
+  //       mode: 'math',
+  //       format: 'latex',
+  //       resetStyle: true,
+  //     },
+  //   ];
+  // } else {
+  //   console.log('keycap fallback, key = ', element.getAttribute('data-key'));
+  //   selector = [
+  //     'typedText',
+  //     element.getAttribute('data-key') ?? element.textContent!,
+  //     { focus: true, feedback: true, simulateKeystroke: true },
+  //   ];
+  // }
+
+  // if (selector) {
+  //   if (chainedCommand) selector = [chainedCommand, selector];
+
+  //   let handlers: ButtonHandlers = { default: selector };
+  //   const variantsId = element.getAttribute('data-variants');
+  //   if (variantsId) {
+  //     handlers = {
+  //       default: selector,
+  //       pressAndHold: ['showVariantsPanel' as Selector, variantsId],
+  //     };
+  //     // } else {
+  //     //   console.warn(`Unknown variants: "${variantsId}"`);
+  //   }
+
+  //   attachButtonHandlers(
+  //     element,
+  //     (command) => {
+  //       if (Array.isArray(command)) {
+  //         if (command[0] === ('showVariantsPanel' as Selector))
+  //           return showVariantsPanel(element, variantsId!);
+  //       }
+  //       return keyboard.executeCommand(command);
+  //     },
+  //     handlers
+  //   );
+  // }
 }
 
 /**
@@ -688,6 +690,8 @@ const SVG_ICONS = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;
  * mathfield and an optional theme.
  */
 export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
+  keyboard.resetKeycapRegistry();
+
   injectStylesheets();
 
   const result = document.createElement('div');
@@ -711,6 +715,8 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
   result.appendChild(backdrop);
 
+  result.addEventListener('pointerdown', handlePointerDown);
+
   const toolbars = result.querySelectorAll<HTMLElement>('.ML__edit-toolbar');
   if (toolbars) {
     for (const toolbar of toolbars) {
@@ -726,19 +732,13 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
     }
   }
 
-  // Associated ids with each keycap
+  // Associate ids with each keycap
   const keycaps = result.querySelectorAll<HTMLElement>(
     '.MLK__keycap, .action, .fnbutton, .bigfnbutton'
   );
-  for (const keycap of keycaps) {
-    keycap.id =
-      'ML__k' +
-      Date.now().toString(36).slice(-2) +
-      Math.floor(Math.random() * 0x186a0).toString(36);
-  }
 
-  // Attach the element handlers
-  makeKeycap(keyboard, [...keycaps]);
+  // Attach the element handler
+  makeKeycaps(keycaps);
 
   const elementList = result.querySelectorAll<HTMLElement>('.layer-switch');
   for (const element of elementList) {
@@ -804,7 +804,7 @@ function makeLayout(
     markup.push(
       expandLayerMarkup(
         keyboard,
-        markupLayer(layer, {
+        makeLayer(keyboard, layer, {
           displayShiftedKeycaps: layout.displayShiftedKeycaps,
         })
       )
@@ -815,7 +815,8 @@ function makeLayout(
   return markup.join('');
 }
 
-function markupLayer(
+function makeLayer(
+  keyboard: VirtualKeyboard,
   layer: Partial<VirtualKeyboardLayer>,
   options: {
     displayShiftedKeycaps?: boolean;
@@ -845,6 +846,9 @@ function markupLayer(
         layerMarkup += `<li`;
 
         keycap = expandKeycap(keycap, options);
+        const keycapId = keyboard.registerKeycap(keycap);
+
+        layerMarkup += ` id="${keycapId}"`;
 
         let cls = keycap.class ?? '';
         if (keycap.layer && !/layer-switch/.test(cls)) cls += ' layer-switch';
@@ -861,48 +865,9 @@ function markupLayer(
         }
         layerMarkup += ` class="${cls || 'MLK__keycap'}"`;
 
-        if (keycap.key) layerMarkup += ` data-key="${keycap.key}"`;
-
         if (keycap.tooltip) layerMarkup += ` data-tooltip="${keycap.tooltip}"`;
 
-        if (keycap.command) {
-          if (typeof keycap.command === 'string')
-            layerMarkup += ` data-command='"${keycap.command}"'`;
-          else {
-            layerMarkup += ` data-command='`;
-            layerMarkup += JSON.stringify(keycap.command);
-            layerMarkup += `'`;
-          }
-        }
-
-        if (keycap.insert) layerMarkup += ` data-insert="${keycap.insert}"`;
-
-        if (keycap.latex) layerMarkup += ` data-latex="${keycap.latex}"`;
-
-        if (keycap.aside) layerMarkup += ` data-aside="${keycap.aside}"`;
-
-        if (keycap.variants) {
-          if (typeof keycap.variants !== 'string') {
-            const keysetId =
-              Date.now().toString(36).slice(-2) +
-              Math.floor(Math.random() * 0x186a0).toString(36);
-
-            setVariants(keysetId, keycap.variants);
-            layerMarkup += ` data-variants="${keysetId}"`;
-          } else layerMarkup += ` data-variants="${keycap.variants}"`;
-        }
-
-        if (keycap.shifted) layerMarkup += ` data-shifted="${keycap.shifted}"`;
-
-        if (keycap.shiftedCommand)
-          layerMarkup += ` data-shifted-command="${keycap.shiftedCommand}"`;
-
-        if (keycap.layer) layerMarkup += ` data-layer="${keycap.layer}"`;
-
-        layerMarkup += `>${
-          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-          keycap.label || latexToMarkup(keycap.latex ?? '')
-        }</li>`;
+        layerMarkup += `>${renderKeycap(keycap)}</li>`;
       }
 
       layerMarkup += `</ul>`;
@@ -916,6 +881,17 @@ function markupLayer(
   if (layer.backdrop) layerMarkup += '</div>';
 
   return layerMarkup;
+}
+
+export function renderKeycap(keycap: Partial<VirtualKeyboardKeycap>): string {
+  // @todo: render shift label depending on shift state
+  let result = keycap.label
+    ? keycap.label
+    : (latexToMarkup(keycap.latex || keycap.insert || '') || keycap.key) ?? '';
+
+  if (keycap.aside) result += `<aside>${keycap.aside}</aside>`;
+
+  return result;
 }
 
 const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
@@ -982,19 +958,19 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     variants: 'delete',
   },
   '[undo]': {
-    class: 'ghost',
+    class: 'ghost if-can-undo',
     command: 'undo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-undo /></svg>',
     tooltip: l10n('tooltip.undo'),
   },
   '[redo]': {
-    class: 'ghost',
+    class: 'ghost  if-can-redo',
     command: 'redo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-redo /></svg>',
   },
 
-  '[(]': { variants: '(', latex: '(' },
-  '[)]': { variants: ')', latex: ')' },
+  '[(]': { variants: '(', latex: '(', label: '(' },
+  '[)]': { variants: ')', latex: ')', label: ')' },
   '[0]': { variants: '0', latex: '0', label: '0' },
   '[1]': { variants: '1', latex: '1', label: '1' },
   '[2]': { variants: '2', latex: '2', label: '2' },
@@ -1031,7 +1007,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
 };
 
-function expandKeycap(
+export function expandKeycap(
   keycap: string | Partial<VirtualKeyboardKeycap>,
   options: {
     displayShiftedKeycaps?: boolean;
@@ -1060,4 +1036,182 @@ function expandKeycap(
   }
 
   return keycap;
+}
+
+function handlePointerDown(ev: PointerEvent) {
+  // Is this event for a keycap?
+  let target = parentKeycap(ev.target);
+
+  if (!target || !target.id) return;
+
+  const keyboard = VirtualKeyboard.singleton;
+  const keycap = keyboard.getKeycap(target.id);
+
+  console.log(ev.type);
+
+  if (!keycap) return;
+
+  console.assert(ev.type === 'pointerdown');
+  // @todo: if modifier key, update keyboard to shift layout
+
+  const controller = new AbortController();
+
+  target.classList.add('is-pressed');
+  target.addEventListener(
+    'pointerenter',
+    handleVirtualKeyboardEvent(controller),
+    {
+      capture: true,
+      signal: controller.signal,
+    }
+  );
+  target.addEventListener(
+    'pointerleave',
+    handleVirtualKeyboardEvent(controller),
+    {
+      capture: true,
+      signal: controller.signal,
+    }
+  );
+  target.addEventListener(
+    'pointercancel',
+    handleVirtualKeyboardEvent(controller),
+    {
+      signal: controller.signal,
+    }
+  );
+  target.addEventListener('pointerup', handleVirtualKeyboardEvent(controller), {
+    signal: controller.signal,
+  });
+
+  if (keycap.variants) {
+    let pressAndHoldTimer;
+    if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
+    pressAndHoldTimer = setTimeout(() => {
+      if (target!.classList.contains('is-pressed')) {
+        target!.classList.remove('is-pressed');
+        target!.classList.add('is-active');
+        showVariantsPanel(target!, keycap.variants!, () => {
+          controller.abort();
+          target?.classList.remove('is-active');
+        });
+      }
+    }, 200);
+  }
+
+  ev.preventDefault();
+  return;
+}
+
+function handleVirtualKeyboardEvent(controller) {
+  return (ev: Event) => {
+    // Is this event for a keycap?
+    let target = parentKeycap(ev.target);
+
+    if (!target || !target.id) return;
+
+    const keyboard = VirtualKeyboard.singleton;
+    const keycap = keyboard.getKeycap(target.id);
+
+    console.log(ev.type);
+
+    if (!keycap) return;
+
+    if (ev.type === 'pointerenter') {
+      const pev = ev as PointerEvent;
+      if (pev.isPrimary) target.classList.add('is-pressed');
+    }
+
+    if (ev.type === 'pointercancel') {
+      target.classList.remove('is-pressed');
+      controller.abort();
+      return;
+    }
+
+    if (ev.type === 'pointerleave') {
+      target.classList.remove('is-pressed');
+      return;
+    }
+
+    if (ev.type === 'pointerup') {
+      if (target.classList.contains('is-pressed')) {
+        target.classList.remove('is-pressed');
+        target.classList.add('is-active');
+
+        // Since we want the active state to be visible for a while,
+        // use a timer to remove it after a short delay
+        setTimeout(() => target?.classList.remove('is-active'), 150);
+
+        executeKeycapCommand(keycap);
+      }
+      controller.abort();
+      ev.preventDefault();
+      return;
+    }
+  };
+}
+
+export function executeKeycapCommand(
+  keycap: Partial<VirtualKeyboardKeycap>
+): void {
+  let command: SelectorPrivate | [SelectorPrivate, ...any[]] | undefined =
+    keycap.command as SelectorPrivate | [SelectorPrivate, ...any[]] | undefined;
+  if (!command && keycap.insert) {
+    command = [
+      'insert',
+      keycap.insert,
+      {
+        focus: true,
+        feedback: true,
+        scrollIntoView: true,
+        mode: 'math',
+        format: 'latex',
+        resetStyle: true,
+      },
+    ];
+  }
+  if (!command && keycap.latex) {
+    command = [
+      'insert',
+      keycap.latex,
+      {
+        focus: true,
+        feedback: true,
+        scrollIntoView: true,
+        mode: 'math',
+        format: 'latex',
+        resetStyle: true,
+      },
+    ];
+  }
+  if (!command) {
+    command = [
+      'typedText',
+      keycap.key || keycap.label,
+      { focus: true, feedback: true, simulateKeystroke: true },
+    ];
+  }
+  VirtualKeyboard.singleton.executeCommand(command);
+}
+
+function isKeycapElement(el: Node): el is HTMLElement {
+  if (el.nodeType !== 1) return false;
+  const classes = (el as HTMLElement).classList;
+  return (
+    classes.contains('MLK__keycap') ||
+    classes.contains('action') ||
+    classes.contains('fnbutton') ||
+    classes.contains('bigfnbutton')
+  );
+}
+
+export function parentKeycap(
+  el: EventTarget | Node | null
+): HTMLElement | undefined {
+  if (!el || !(el instanceof Node)) return undefined;
+
+  let node: Node | null = el as Node;
+  while (node && !isKeycapElement(node)) node = node.parentNode;
+
+  return node ?? undefined;
 }

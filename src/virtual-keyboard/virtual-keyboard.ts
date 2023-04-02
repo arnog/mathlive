@@ -3,23 +3,25 @@ import { isArray } from '../common/types';
 import { on, validateOrigin } from '../editor-mathfield/utils';
 import { getCommandTarget, COMMANDS } from '../editor/commands';
 import { SelectorPrivate } from '../editor/types';
-import { MathfieldElement } from '../mathlive';
-import {
-  AlphabeticKeyboardLayout,
-  OriginValidator,
-  VirtualKeyboardLayout,
-  ActionToolbarOptions,
-  VirtualKeyboardLayer,
-  VirtualKeyboardLayoutCore,
-} from '../public/options';
+import { MathfieldElement, OriginValidator } from '../mathlive';
 import { isVirtualKeyboardMessage, VIRTUAL_KEYBOARD_MESSAGE } from './proxy';
 import {
   makeKeyboardElement,
   unshiftKeyboardLayer,
-  makeActionToolbar,
+  makeEditToolbar,
   releaseStylesheets,
   normalizeLayout,
 } from './utils';
+
+import {
+  ActionToolbarOptions,
+  AlphabeticKeyboardLayout,
+  VirtualKeyboardKeycap,
+  VirtualKeyboardLayer,
+  VirtualKeyboardLayout,
+  VirtualKeyboardLayoutCore,
+} from '../public/virtual-keyboard';
+
 import type {
   MathfieldProxy,
   VirtualKeyboardInterface,
@@ -38,6 +40,26 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private readonly listeners: {
     [type: string]: Set<EventListenerOrEventListenerObject | null>;
   };
+
+  private keycapRegistry: Record<string, Partial<VirtualKeyboardKeycap>> = {};
+
+  resetKeycapRegistry(): void {
+    this.keycapRegistry = {};
+  }
+
+  registerKeycap(keycap: Partial<VirtualKeyboardKeycap>): string {
+    const id =
+      'ML__k' +
+      Date.now().toString(36).slice(-2) +
+      Math.floor(Math.random() * 0x186a0).toString(36);
+
+    this.keycapRegistry[id] = keycap;
+    return id;
+  }
+
+  getKeycap(id: string): Partial<VirtualKeyboardKeycap> | undefined {
+    return this.keycapRegistry[id];
+  }
 
   private _alphabeticLayout: AlphabeticKeyboardLayout;
   get alphabeticLayout(): AlphabeticKeyboardLayout {
@@ -465,10 +487,19 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   updateToolbar(mf: MathfieldProxy): void {
-    const toolbars = this._element?.querySelectorAll('.ML__edit-toolbar');
+    const el = this._element;
+    if (!el) return;
+
+    el.classList.toggle('can-undo', mf.canUndo);
+    el.classList.toggle('can-redo', mf.canRedo);
+    el.classList.toggle('can-copy', !mf.selectionIsCollapsed);
+    el.classList.toggle('can-copy', !mf.selectionIsCollapsed);
+    el.classList.toggle('can-paste', true);
+
+    const toolbars = el.querySelectorAll('.ML__edit-toolbar');
     if (!toolbars) return;
     for (const toolbar of toolbars)
-      toolbar.innerHTML = makeActionToolbar(this, mf);
+      toolbar.innerHTML = makeEditToolbar(this, mf);
   }
 
   connect(): void {

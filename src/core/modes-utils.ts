@@ -3,7 +3,7 @@ import type { GroupAtom } from '../core-atoms/group';
 import { Atom, ToLatexOptions } from './atom-class';
 import type { Box } from './box';
 import type { ParseMode, Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 export abstract class Mode {
   static _registry: Record<string, Mode> = {};
@@ -108,7 +108,6 @@ export function getPropertyRuns(
   if (run.length > 0) result.push(run);
   return result;
 }
-
 export function applyStyle(
   mode: ParseMode,
   box: Box,

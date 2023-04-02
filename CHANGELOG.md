@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bug Fixed
+
+- The up and down arrow did not move the cursor, when in a fraction for example.
+
 ## 0.90.9 (2023-03-28)
 
 ### Bug Fixed

@@ -99,7 +99,106 @@
         .getElementById('custom-keyboard')
         .addEventListener('click', () => {
           mathVirtualKeyboard.layouts = [
-            'numeric',
+            {
+              label: '&infin;≠∈',
+              classes: 'MLK__tex-math',
+              tooltip: 'keyboard.tooltip.symbols',
+              rows: [
+                [
+                  {
+                    latex: '\\sin',
+                    shiftLabel: '\\sin^{-1}',
+                    shift: '\\sin^{-1}',
+                    variants: [
+                      '\\sinh',
+                      '\\sin^{-1}',
+                      { class: 'small', latex: '\\arsinh' },
+                    ],
+                  },
+                  '\\ln',
+                  {
+                    latex: '\\mathrm{abs}',
+                    insert: '\\mathrm{abs}\\left(#0\\right)',
+                  },
+                  '\\rarr',
+                  { latex: '\\exists', variants: ['\\nexists'] },
+                  '\\in',
+                  '\\cup',
+                  '\\overrightarrow{#@}',
+                  '\\lim_{#?}',
+                  '\\exponentialE',
+                ],
+                [
+                  {
+                    latex: '\\cos',
+                    variants: [
+                      '\\cosh',
+                      '\\cos^{-1}',
+                      { class: 'small', latex: '\\arcosh' },
+                    ],
+                  },
+                  { latex: '\\log', variants: ['\\log_{#0}', '\\log_{10}'] },
+                  '\\left\\vert#0\\right\\vert',
+                  '\\rArr',
+                  '\\forall',
+                  '\\ni',
+                  '\\cap',
+                  '\\overline{#@}',
+                  '\\int',
+                  '\\pi',
+                ],
+                [
+                  {
+                    latex: '\\tan',
+                    variants: [
+                      '\\tanh',
+                      '\\tan^{-1}',
+                      { class: 'small', latex: '\\artanh' },
+                    ],
+                  },
+                  {
+                    latex: '\\mathrm{exp}',
+                    insert: '\\mathrm{exp}\\left(#0\\right)',
+                    variants: ['\\exponentialE^{#0}'],
+                  },
+                  '\\left\\Vert#0\\right\\Vert',
+                  '\\lrArr',
+                  '!',
+                  {
+                    insert: '#@^{\\mathrm{C}}',
+                    latex: '\\blacksquare^{\\mathrm{\\complement}}',
+                    aside: 'complement',
+                    variants: ['\\setminus'],
+                  },
+                  { latex: '\\subset', variants: ['\\supset'] },
+                  {
+                    insert: '#@^{\\prime}',
+                    latex: '\\blacksquare^{\\prime}',
+                    variants: [
+                      {
+                        insert: '#@^{\\doubleprime}',
+                        latex: '\\blacksquare^{\\doubleprime}',
+                      },
+                    ],
+                  },
+                  '\\partial',
+                  '\\infty',
+                ],
+                [
+                  { label: '[shift]', width: 2.0 },
+                  '\\colon',
+                  ';',
+                  ',',
+                  '[separator]',
+                  '[left]',
+                  '[right]',
+                  { label: '[backspace]', width: 1.0, class: 'action' },
+                  { label: '[return]', width: 1.0 },
+                ],
+              ],
+            },
+            'symbols',
+            'functions',
             {
               label: 'compact',
               rows: [
@@ -113,7 +212,7 @@
                   '[(]',
                   '[)]',
                   '\\sqrt{#0}',
-                  '#@^{#?}',
+                  { insert: '#@^{#?}', latex: '\\blacksquare^{#?}' },
                 ],
                 [
                   '[1]',
@@ -142,7 +241,39 @@
               ],
             },
             {
-              label: 'shin-numeric',
+              label: 'minimalist',
+              rows: [
+                [
+                  '+',
+                  '-',
+                  '\\times',
+                  { latex: '\\frac{#@}{#0}', class: 'small' },
+                  '=',
+                  '[.]',
+                  '(',
+                  ')',
+                  '\\sqrt{#0}',
+                  { insert: '#@^{#?}', latex: '\\blacksquare^{#?}' },
+                ],
+                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+                ['[hr]'],
+                [
+                  '[undo]',
+                  '[redo]',
+                  '[separator]',
+                  '[separator]',
+                  '[separator]',
+                  '[left]',
+                  '[right]',
+                  { label: '[backspace]', class: 'action' },
+                  '[hide-keyboard]',
+                ],
+              ],
+            },
+            {
+              label: '123',
+              classes: 'MLK__tex-math',
+              tooltip: 'keyboard.tooltip.numeric',
               id: 'shin-numeric',
               // rows: [['[2]']],
               rows: [

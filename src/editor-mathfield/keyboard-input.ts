@@ -26,7 +26,7 @@ import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
 import { insertSmartFence } from './mode-editor-math';
-import type { Style, ParseMode } from 'mathlive';
+import type { Style, ParseMode } from '../mathlive';
 
 /**
  * Handler in response to a keystroke event.
@@ -227,7 +227,7 @@ export function onKeystroke(
       return result;
     }
 
-    if (!selector && mathfield.mode === 'math') {
+    if ((!selector || keystroke === '[Space]') && mathfield.mode === 'math') {
       //
       // 4.5 If this is the Space bar and we're just before or right after
       // a text zone, or if `mathModeSpace` is enabled, insert the space

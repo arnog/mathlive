@@ -1,3 +1,5 @@
+/// <reference path="./cortex-compute-engine.d.ts" />
+
 /**
  * Server-side rendering exports.
  *
@@ -5,8 +7,6 @@
  * be used from a server-side environment.
  *
  */
-
-declare module '@cortex-js/compute-engine';
 
 import { Atom } from '../core/atom-class';
 

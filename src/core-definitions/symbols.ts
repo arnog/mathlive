@@ -1,7 +1,6 @@
 import type { Style } from '../public/core-types';
 import type { GlobalContext } from 'core/types';
 import { SpacingAtom } from '../core-atoms/spacing';
-import { Atom } from '../core/atom';
 
 import {
   newSymbols,
@@ -674,12 +673,8 @@ newSymbols(
 );
 // \enspace is a TeX command (not LaTeX) equivalent to a \skip
 defineFunction(['!', ',', ':', ';', 'enskip', 'enspace', 'quad', 'qquad'], '', {
-  createAtom: (
-    command: string,
-    _args,
-    style: Style,
-    context: GlobalContext
-  ): Atom => new SpacingAtom(command, style, context),
+  createAtom: (command: string, _args, style: Style, context: GlobalContext) =>
+    new SpacingAtom(command, style, context),
 });
 
 // Punctuation
