@@ -6,6 +6,7 @@ import { toggleKeystrokeCaption } from './keystroke-caption';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { requestUpdate } from './render';
 import { ParseMode } from 'public/core-types';
+import { insertPrompt } from 'core-atoms/prompt';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
@@ -79,6 +80,7 @@ registerCommand({
     }
     return true;
   },
+  insertPrompt,
 });
 
 registerCommand(

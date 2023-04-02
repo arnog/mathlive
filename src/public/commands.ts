@@ -129,6 +129,15 @@ export interface Commands {
   ) => boolean;
 
   /**
+   * @category Prompt
+   */
+  insertPrompt: (
+    mathfield: Mathfield,
+    id?: string,
+    options?: InsertOptions
+  ) => boolean;
+
+  /**
    * @category Array
    */
   addRowAfter: (model: Model) => boolean;

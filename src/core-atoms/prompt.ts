@@ -5,6 +5,9 @@ import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
 import { convertDimensionToEm } from '../core/registers-utils';
+import { ModelPrivate } from 'editor-model/model-private';
+import { contentDidChange, contentWillChange } from 'editor-model/listeners';
+import { InsertOptions, Mathfield } from 'public/mathfield';
 
 export class PromptAtom extends Atom {
   readonly placeholderId?: string;
@@ -122,6 +125,12 @@ export class PromptAtom extends Atom {
       box.setStyle('left', -padding, 'em');
     }
 
+    // empty prompt should be a little wider
+    if (!this.body || this.body.length === 1) {
+      box.setStyle('width', `calc(100% + ${3 * padding}em)`);
+      box.setStyle('left', -1.5 * padding, 'em');
+    }
+
     let svg = ''; // strike through incorrect prompt, for users with impaired color vision
 
     if (this.correctness === 'incorrect') {
@@ -173,4 +182,30 @@ export class PromptAtom extends Atom {
     const locked = this.locked ? '[locked]' : '';
     return `\\placeholder${id}${correctness}${locked}{${value}}`;
   }
+}
+
+export function insertPrompt(
+  mathfield: Mathfield,
+  id?: string,
+  options?: InsertOptions
+): boolean {
+  const promptIds = mathfield.getPrompts();
+  let prosepectiveId = sixCharId();
+  let i = 0;
+  while (promptIds.includes(prosepectiveId) && i < 100) {
+    if (i === 99) {
+      console.error('could not find a unique ID after 100 tries');
+      return false;
+    }
+    prosepectiveId = sixCharId();
+    i++;
+  }
+  mathfield.insert(`\\placeholder[${id ?? prosepectiveId}]{}`, options);
+  return true;
+}
+
+function sixCharId() {
+  const max = 36 ** 6 - 1;
+  const min = 36 ** 5;
+  return Math.floor(Math.random() * (max - min) + min).toString(36);
 }
