@@ -1265,6 +1265,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         insertionMode: 'replaceSelection',
       });
     }
+    console.log(insertOptions?.suppressChangeNotifications);
     if (insertOptions?.suppressChangeNotifications)
       this.valueOnFocus = this.getValue();
     requestUpdate(this);
