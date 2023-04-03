@@ -67,3 +67,30 @@ Once your pull request has been accepted, it will be merged into the master
 branch.
 
 Congratulations, you've become a MathLive contributor! Thanks for your help!
+
+## Build Instructions
+[Node.js](https://nodejs.org) is used for MathLive development. If you don't already have node installed, the easiest way to get it installed is to use the [Volta](https://volta.sh/) node installer.
+
+First, [fork and clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repository. Then, in the cloned project folder, use the following commands to start a local dev server:
+``` bash
+# Install dependencies
+npm install
+
+# Run local dev server with live reload
+# After running this command, point your browser to http://127.0.0.1:8000/dist/smoke/
+npm run start
+```
+
+To run the test suite locally, run the following commands (if the dev server is running, close it using Ctrl-C before running these commands):
+``` bash
+# Install playwright browsers
+# This only needs to be done once for each version of playwright
+# Additional installation of browser dependencies may be required, follow instructions
+npx playwright install
+
+# Build the production version of MathLive
+npm run build
+
+# Run test suite
+npm run test
+```
