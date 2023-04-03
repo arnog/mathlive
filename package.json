@@ -19,7 +19,7 @@
     "lint": "eslint --fix src/",
     "prepare": "bash ./scripts/build.sh production",
     "start": "bash ./scripts/start.sh",
-    "test": "bash ./scripts/test.sh; npx playwright test",
+    "test": "bash ./scripts/test.sh",
     "version": "bash ./scripts/version.sh",
     "postversion": "bash ./scripts/github-release.sh"
   },
