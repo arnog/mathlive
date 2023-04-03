@@ -39,7 +39,7 @@ interface RegisterCommandOptions {
   changeSelection?: boolean; // To update inline shortcut buffer
 }
 
-export const COMMANDS: CommandRegistry<RegisterCommandOptions> = {};
+export let COMMANDS: CommandRegistry<RegisterCommandOptions>;
 
 /**
  * Register one or more selectors.
@@ -50,6 +50,8 @@ export function register(
   options?: RegisterCommandOptions
 ): void {
   options = options ?? { target: 'mathfield', canUndo: false };
+
+  if (!COMMANDS) COMMANDS = {};
 
   for (const selector of Object.keys(commands)) {
     console.assert(!COMMANDS[selector], 'Selector already defined: ', selector);
