@@ -51,7 +51,7 @@
     //         }
     //     }
     // ],
-    "@typescript-eslint/triple-slash-reference": "always",
+    "@typescript-eslint/triple-slash-reference": 0,
     "no-restricted-globals": [
       "error",
       "postMessage",
@@ -247,18 +247,14 @@
     "no-this-before-super": "warn",
     // "no-undef": "warn",
     "no-unreachable": "warn",
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-unused-vars": [
-      "warn",
-      { "argsIgnorePattern": "^_" }
-    ],
+    "no-unused-vars": 0, // ["warn", { "argsIgnorePattern": "^_" }],
     "constructor-super": "warn",
 
     "block-scoped-var": "error",
 
     "array-bracket-spacing": ["error", "never"],
     "block-spacing": ["error", "always"],
-    "brace-style": ["warn", "1tbs", { "allowSingleLine": true }],
+    "brace-style": 0, //["warn", "1tbs", { "allowSingleLine": true }],
     "prefer-const": "warn",
 
     "valid-typeof": "error",
@@ -298,13 +294,13 @@
       "files": ["*.ts"],
       "rules": {
         "@typescript-eslint/no-unused-vars": [
-          "error",
+          "warn",
           {
-            "argsIgnorePattern": "^_"
-            // "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_",
             // "vars": "all",
-            // "args": "after-used",
-            // "ignoreRestSiblings": false
+            "args": "after-used",
+            "ignoreRestSiblings": false
           }
         ],
         // We use @ts-ignore to generate the .d.ts files using tsc, even though
