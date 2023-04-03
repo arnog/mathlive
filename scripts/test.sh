@@ -44,8 +44,7 @@ if [ ! -d "./dist/public" ]; then
   echo -e "\n❌ No build with declaration file available. Run 'npm run build'"
   exit 1    
 else
-#  npx tsc --noEmit --baseUrl ./dist/public ./test/public-ts-declarations/main.ts || exit_code=$?
-  echo "pass"
+  npx tsc --noEmit --baseUrl ./dist/public ./test/public-ts-declarations/main.ts || exit_code=$?
 fi
 
 # Run playwright end-to-end tests
