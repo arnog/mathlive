@@ -180,14 +180,16 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       setTimeout(() => {
         let target = document.activeElement;
         let focusedMathfield = false;
+        let lastFocusedMathVirtualKeyboardPolicy = 'auto';
         while (target) {
           if (target.tagName?.toLowerCase() === 'math-field') {
             focusedMathfield = true;
+            lastFocusedMathVirtualKeyboardPolicy = target.mathVirtualKeyboardPolicy;
             break;
           }
           target = target.shadowRoot?.activeElement ?? null;
         }
-        if (mf.mathVirtualKeyboardPolicy === 'auto' && !focusedMathfield) this.hide();
+        if (lastFocusedMathVirtualKeyboardPolicy === 'auto' && !focusedMathfield) this.hide();
       }, 300);
     });
   }
