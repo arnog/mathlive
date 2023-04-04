@@ -19,6 +19,10 @@
         margin-top: 1em;
         margin-bottom: 1em;
       }
+
+      #mf-2::part(virtual-keyboard-toggle) {
+        display:none;
+      }
     </style>
   </head>
   <body>
@@ -26,7 +30,7 @@
       <h1>Virtual Keyboard Test</h1>
       <ul>
         <li><a href="../smoke/">Smoke</a></li>
-        <li class="current">
+        <li>
           <a href="../virtual-keyboard/">Virtual Keyboard</a>
         </li>
         <li>
@@ -35,7 +39,7 @@
         <li>
           <a href="../prompts/">Prompts</a>
         </li>
-        <li>
+        <li class="current">
           <a href="../playwright-test-page/">Playwright Tests</a>
         </li>
       </ul>
@@ -45,12 +49,14 @@
         >\sum^q_{n=0}\begin{pmatrix}a &amp; b \\ c &amp;
         d\end{pmatrix}</math-field
       >
+      <div>
       <math-field id="mf-2"
         >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
         \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
         \frac{a+1}{b+\alpha+\gamma}</math-field
       >
-
+        Virtual Keyboard Toggle Hidden
+      </div>
       <textarea readonly disabled id="ta-1">hello world</textarea>
       <!-- <math-field id="mf" virtual-keyboard-mode="manual" readonly
         >f(x)= \placeholder[id1][x]{}</math-field

@@ -1,3 +1,5 @@
+import type { MathfieldElement } from '../../src/public/mathfield-element';
+
 import { test, expect } from '@playwright/test';
 
 
@@ -7,12 +9,13 @@ import { test, expect } from '@playwright/test';
 // latex render, MathJson render, MathASCII render, MathML render,
 // speakable text render, selection latex, selection replace on type,
 // custom onInlineShortcut handler, replace * with \cdot
-test('smoke test', async ({ page, browserName }) => {
+test('smoke test with physical keyboard', async ({ page, browserName }) => {
   const modifierKey = /Mac|iPod|iPhone|iPad/.test(await page.evaluate( () => navigator.platform)) ? "Meta" : "Control";
 
   let selectAllCommand = `${modifierKey}+a`;
   if (modifierKey === "Meta" && browserName === "chromium") {
     // Cmd-a not working with Chromium on Mac, need to use Control-A
+    // Cmd-a works correctly on Chrome and Edge on Mac
     selectAllCommand = 'Control+a';
   }
 
@@ -48,7 +51,7 @@ test('smoke test', async ({ page, browserName }) => {
   await page.locator('math-field').press('Shift+ArrowLeft');
 
   // check selection latex
-  await page.locator('text=value     "2a"').waitFor();
+  await page.locator('#selection >> text=2a').waitFor();
 
   // replace only selection
   await page.locator('math-field').type('2*z');
@@ -57,5 +60,4 @@ test('smoke test', async ({ page, browserName }) => {
   await page.locator(String.raw`text=x=\frac{-b\pm\sqrt{b^2-4\mathrm{ac}}}{2\cdot z}`).waitFor();
 
 });
-
 
