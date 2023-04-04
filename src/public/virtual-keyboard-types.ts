@@ -20,8 +20,8 @@ export interface MathfieldProxy {
  * - `VirtualKeyboardProxy`: when the browsing context is an iframe
  */
 export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
-  show(): void;
-  hide(): void;
+  show(options?: { animate: boolean }): void;
+  hide(options?: { animate: boolean }): void;
   visible: boolean;
 
   readonly boundingRect: DOMRect;

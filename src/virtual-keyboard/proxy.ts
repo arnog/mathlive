@@ -19,10 +19,10 @@ export function isVirtualKeyboardMessage(
   evt: Event
 ): evt is MessageEvent<VirtualKeyboardMessage> {
   if (evt.type !== 'message') return false;
+
   const msg = evt as MessageEvent<VirtualKeyboardMessage>;
 
-  if (msg.data?.type !== VIRTUAL_KEYBOARD_MESSAGE) return false;
-  return true;
+  return msg.data?.type === VIRTUAL_KEYBOARD_MESSAGE;
 }
 /**
  * The `VirtualKeyboardProxy` singleton is used when inside an
@@ -30,9 +30,9 @@ export function isVirtualKeyboardMessage(
  *
  * It relays messages to the top level `VirtualKeyboard` instance.
  */
-// prettier-ignore
 export class VirtualKeyboardProxy
-  implements VirtualKeyboardInterface, EventTarget {
+  implements VirtualKeyboardInterface, EventTarget
+{
   private static _singleton: VirtualKeyboardProxy;
   static get singleton(): VirtualKeyboardProxy {
     if (!this._singleton) this._singleton = new VirtualKeyboardProxy();
@@ -67,11 +67,11 @@ export class VirtualKeyboardProxy
     throw new Error('Container inside an iframe cannot be changed');
   }
 
-  show(): void {
+  show(_options?: { animate: boolean }): void {
     this.sendMessage('show');
   }
 
-  hide(): void {
+  hide(_options?: { animate: boolean }): void {
     this.sendMessage('hide');
   }
 
@@ -105,7 +105,6 @@ export class VirtualKeyboardProxy
     this.sendMessage('disconnect');
   }
 
-
   addEventListener(
     type: string,
     callback: EventListenerOrEventListenerObject | null,
@@ -135,8 +134,6 @@ export class VirtualKeyboardProxy
 
   handleEvent(evt: Event): void {
     if (isVirtualKeyboardMessage(evt)) {
-            // console.log('proxy received ', evt.data.action, evt);
-
       if (!validateOrigin(evt.origin, this.originValidator)) {
         throw new DOMException(
           `Message from unknown origin (${evt.origin}) cannot be handled`,
@@ -144,25 +141,28 @@ export class VirtualKeyboardProxy
         );
       }
 
-      const { action } = evt.data;
-      if (action === 'execute-command') {
-        const { command } = evt.data;
-        const commandTarget = getCommandTarget(command!);
-        if (commandTarget === 'virtual-keyboard')
-          this.executeCommand(command!);
-        return;
-      }
+      this.handleMessage(evt.data);
+    }
+  }
 
-      if (action === 'synchronize-proxy') {
-        this._boundingRect = evt.data.boundingRect;
-        return;
-      }
+  handleMessage(msg: VirtualKeyboardMessage): void {
+    const { action } = msg;
+    if (action === 'execute-command') {
+      const { command } = msg;
+      const commandTarget = getCommandTarget(command!);
+      if (commandTarget === 'virtual-keyboard') this.executeCommand(command!);
+      return;
+    }
 
-      if (action === 'geometry-changed') {
-        this._boundingRect = evt.data.boundingRect;
-        this.dispatchEvent(new Event('geometrychange'));
-        return;
-      }
+    if (action === 'synchronize-proxy') {
+      this._boundingRect = msg.boundingRect;
+      return;
+    }
+
+    if (action === 'geometry-changed') {
+      this._boundingRect = msg.boundingRect;
+      this.dispatchEvent(new Event('geometrychange'));
+      return;
     }
   }
 
@@ -172,10 +172,11 @@ export class VirtualKeyboardProxy
   ): void {
     if (!window.top) {
       throw new DOMException(
-        `A frame does not have access to the top window and can‘t communicate with the keyboard. Review virtualKeyboardTargetOrigin and originValidator on the mathfield embedded in an iframe`,
+        `A frame does not have access to the top window and can‘t communicate with the keyboard. Review virtualKeyboardTargetOrigin and originValidator on mathfields embedded in an iframe`,
         'SecurityError'
       );
     }
+
     window.top.postMessage(
       {
         type: VIRTUAL_KEYBOARD_MESSAGE,

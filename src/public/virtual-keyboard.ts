@@ -52,7 +52,7 @@ export interface VirtualKeyboardKeycap {
    * - `tex`: use the TeX font for its label.
    *    Using the tex class is not necessary if using the latex property to
    *    define the label.
-   * - `modifier`: a modifier (shift/option, etc…) keycap
+   * - `shift`: a shift key
    * - `small`: display the label in a smaller size
    * - `action`: an “action” keycap (for arrows, return, etc…)
    * - `separator w5`: a half-width blank used as a separator. Other widths
@@ -94,13 +94,9 @@ export interface VirtualKeyboardKeycap {
   variants: string | (string | Partial<VirtualKeyboardKeycap>)[];
 
   /**
-   * Markup for the label of the key when the shift key is pressed
+   * Variant of the keycap when the shift key is pressed
    */
-  shifted: string;
-  /**
-   * Command to perform when the shifted key is pressed
-   */
-  shiftedCommand: Selector | [Selector, ...any[]];
+  shift: string | Partial<VirtualKeyboardKeycap>;
 
   /** Name of the layer to shift to when the key is pressed */
   layer: string;
@@ -108,7 +104,7 @@ export interface VirtualKeyboardKeycap {
 export type VirtualKeyboardLayoutCore = {
   /** A human readable string displayed in the layout switcher toolbar */
   label?: string;
-  classes?: string;
+  labelClass?: string;
   /** A human readable tooltip associated with the label */
   tooltip?: string;
   /** A unique string identifying the layout */
@@ -124,12 +120,12 @@ export type VirtualKeyboardLayout = VirtualKeyboardLayoutCore &
     | /** The set of layers for this layout */
     { layers: (string | VirtualKeyboardLayer)[] }
     /** As a shortcut, if a single layer, the rows of that layer */
-    | { rows: Partial<VirtualKeyboardKeycap>[][] }
+    | { rows: (string | Partial<VirtualKeyboardKeycap>)[][] }
     | { markup: string }
   );
 
 export type NormalizedVirtualKeyboardLayout = VirtualKeyboardLayoutCore & {
-  layers: VirtualKeyboardLayer[];
+  layers: NormalizedVirtualKeyboardLayer[];
 };
 
 export interface VirtualKeyboardLayer {
@@ -137,12 +133,22 @@ export interface VirtualKeyboardLayer {
   rows?: (Partial<VirtualKeyboardKeycap> | string)[][];
   markup?: string;
   /** The CSS stylesheet associated with this layer */
-  styles?: string;
+  style?: string;
   /** A CSS class name to customize the appearance of the background of the layer */
   backdrop?: string;
   /** A CSS class name to customize the appearance of the container the layer */
   container?: string;
   /** A unique string identifying the layer */
+  id?: string;
+}
+
+export interface NormalizedVirtualKeyboardLayer {
+  rows?: Partial<VirtualKeyboardKeycap>[][];
+  markup?: string;
+
+  style?: string;
+  backdrop?: string;
+  container?: string;
   id?: string;
 }
 
