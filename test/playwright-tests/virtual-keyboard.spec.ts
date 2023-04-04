@@ -22,12 +22,12 @@ test('virtual keyboard with two math fields', async ({ page }) => {
 
   // press some keyboard buttons
   await page.getByRole('toolbar').getByText('abc').click();
-  await page.getByText('z', { exact: true }).click();
+  await page.getByText('zZ', { exact: true }).click();
   await page.getByRole('toolbar').getByText('123').click();
   await page.getByRole('listitem').filter({ hasText: '=' }).click();
-  await page.getByRole('listitem').filter({ hasText: '1' }).click();
+  await page.getByRole('listitem').filter({ hasText: '1' }).nth(1).click();
   await page.getByRole('listitem').filter({ hasText: '÷' }).click();
-  await page.getByRole('listitem').filter({ hasText: /^2$/ }).click();
+  await page.getByRole('listitem').filter({ hasText: '2' }).nth(1).click();
 
   // check resulting latex
   let latex = await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value);
@@ -36,10 +36,10 @@ test('virtual keyboard with two math fields', async ({ page }) => {
   // click to focus next math field to make sure virtual keyboard updates focused math field
   await page.locator('#mf-2').click();
 
-  await page.getByRole('listitem').filter({ hasText: /^x$/}).click();
-  await page.getByRole('listitem').filter({ hasText: '▢2'}).click();
-  await page.getByRole('list').locator('svg').nth(1).click({clickCount: 4, delay: 100});
-  await page.getByRole('listitem').filter({ hasText: /^n$/}).click();
+  await page.getByRole('listitem').filter({ hasText: 'x' }).click();
+  await page.getByRole('listitem').filter({ hasText: '2' }).nth(0).click();
+  await page.getByRole('list').locator('svg').nth(3).click({ clickCount: 4, delay: 200 });
+  await page.getByRole('listitem').filter({ hasText: 'na' }).click();
   await page.getByRole('listitem').filter({ hasText: '=' }).click();
 
   // check latex of second math field
@@ -53,6 +53,6 @@ test('virtual keyboard with two math fields', async ({ page }) => {
 
   // make sure that when no mathfield is focused that the virtual keyboard is hidden
   await page.locator('#ta-2').click();
-  await page.getByRole('toolbar').getByText('123').waitFor({state: "detached"});
+  await page.getByRole('toolbar').getByText('123').waitFor({ state: "detached" });
 
 });
