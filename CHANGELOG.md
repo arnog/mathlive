@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.91.0 (2023-04-04)
 
 In this release the UI of the virtual keyboards has been significantly updated.
 This includes new virtual keyboards as well as updated layout for existing
