@@ -93,22 +93,23 @@
 
       document.addEventListener("DOMContentLoaded", () => {
         const mfe3 = new MathfieldElement();
+        mfe3.id = "mf-3";
 
         mfe3.mathModeSpace = "\\:";
         mfe3.smartSuperscript = false;
-        mfe3.id = "mf-3";
 
         document.getElementById('mf-3-span').appendChild(mfe3);
 
 
         const mfe5 = new MathfieldElement();
+        mfe5.id = "mf-5";
 
         mfe5.addEventListener(
           'keydown',
           (ev) => {
             if (ev.key === '\\') {
               ev.preventDefault();
-              mf.executeCommand(['insert', '\\backslash']);
+              mfe5.executeCommand(['insert', '\\backslash']);
             } else if (ev.key === 'Escape') ev.preventDefault();
           },
           { capture: true }

@@ -3,65 +3,6 @@ import type { MathfieldElement } from '../../src/public/mathfield-element';
 import { test, expect } from '@playwright/test';
 
 
-// Tests the following functionality on the smoke test page: 
-// Cmd-A select all, latex mode, press Enter to exit latex mode, smartSuperscript,
-// +- inline shortcut, down arrow for fraction navigation,
-// latex render, MathJson render, MathASCII render, MathML render,
-// speakable text render, selection latex, selection replace on type,
-// custom onInlineShortcut handler, replace * with \cdot
-test('smoke test with physical keyboard', async ({ page, browserName }) => {
-  const modifierKey = /Mac|iPod|iPhone|iPad/.test(await page.evaluate( () => navigator.platform)) ? "Meta" : "Control";
-
-  let selectAllCommand = `${modifierKey}+a`;
-  if (modifierKey === "Meta" && browserName === "chromium") {
-    // Cmd-a not working with Chromium on Mac, need to use Control-A
-    // Cmd-a works correctly on Chrome and Edge on Mac
-    selectAllCommand = 'Control+a';
-  }
-
-  await page.goto('/dist/smoke/');
-
-  await page.locator('math-field').press(selectAllCommand);
-  await page.locator('math-field').type('x=/-b+-\sqrt');
-  await page.locator('math-field').press('Enter');
-  await page.locator('math-field').type('b^2-4ac');
-  await page.locator('math-field').press('ArrowDown');
-  await page.locator('math-field').type('2a');
-
-  // check latex
-  await page.locator(String.raw`text=x=\frac{-b\pm\sqrt{b^2-4\mathrm{ac}}}{2a}`).waitFor();
-
-  // check MathJson
-  await page.locator('text=["Equal","x",["Divide",["Multiply",["Rational",1,2],["PlusMinus",["Negate","b"],["Sqrt",["Add",["Multiply",-4,"ac"],["Square","b"]]]]],"a"]]')
-            .waitFor();
-
-  // check MathASCII
-  await page.locator('text=x=(-b+-sqrt(b^2-4ac))/(2a)').waitFor();
-  
-  // check MathML
-  await page.locator('text=<mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo>−</mo><mi>b</mi><mo>&#177;</mo><msqrt><mrow><msup>b<mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&#8290;</mo><mi>ac</mi></mrow></msqrt></mrow><mrow><mn>2</mn><mo>&#8290;</mo><mi>a</mi></mrow></mfrac></mrow>')
-            .waitFor();
-
-  // check Speakable Text
-  await page.locator("text='X' equals the fraction minus 'B' plus or minus the square root of 'B' squared minus 4 'A' 'C'. End square root over 2 'A'. End fraction.")
-            .waitFor();
-
-  // select denominator
-  await page.locator('math-field').press('Shift+ArrowLeft');
-  await page.locator('math-field').press('Shift+ArrowLeft');
-
-  // check selection latex
-  await page.locator('#selection >> text=2a').waitFor();
-
-  // replace only selection
-  await page.locator('math-field').type('2*z');
-
-  // check updated latex
-  await page.locator(String.raw`text=x=\frac{-b\pm\sqrt{b^2-4\mathrm{ac}}}{2\cdot z}`).waitFor();
-
-});
-
-
 test('default space bar', async ({ page }) => {
   await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
 
@@ -165,4 +106,205 @@ test('cannot edit readonly mathfield', async ({ page}) => {
   expect(await page.locator('#mf-4').evaluate( (e: MathfieldElement) => e.value))
     .toBe('x=\\frac{3}{4}');
 
+});
+
+
+test('escape to enter/exit latex mode', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').press('Escape');
+  await page.locator('#mf-1').type('frac');
+  await page.locator('#mf-1').press('Escape');
+  // full fraction will be selected, navigate back to numerator
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('ArrowRight');
+  await page.locator('#mf-1').type('x');
+  await page.locator('#mf-1').press('ArrowDown');
+  await page.locator('#mf-1').type('y');
+
+  // check latex of result
+  expect(await page.locator('#mf-1').evaluate( (e: MathfieldElement) => e.value))
+    .toBe('\\frac{x}{y}');
+
+  // attempt to use latex mode for math field with latex mode disabled
+  // using instructions from: https://cortexjs.io/mathlive/guides/customizing/#turning-off-the-latex-mode
+  await page.locator('#mf-5').press('Escape');
+  await page.locator('#mf-5').type('frac');
+  await page.locator('#mf-5').press('Escape');
+  await page.locator('#mf-5').type('x');
+  await page.locator('#mf-5').press('ArrowDown');
+  await page.locator('#mf-5').type('y');
+
+  // check latex of result
+  expect(await page.locator('#mf-5').evaluate( (e: MathfieldElement) => e.value))
+    .toBe('fracxy');
+  
+});
+
+
+test('backslash to enter, enter to exit latex mode', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('\\frac');
+  await page.locator('#mf-1').press('Enter');
+  await page.locator('#mf-1').type('x');
+  await page.locator('#mf-1').press('ArrowDown');
+  await page.locator('#mf-1').type('y');
+
+  // check latex of result
+  expect(await page.locator('#mf-1').evaluate( (e: MathfieldElement) => e.value))
+    .toBe('\\frac{x}{y}');
+
+  // attempt to use latex mode for math field with latex mode disabled
+  // using instructions from: https://cortexjs.io/mathlive/guides/customizing/#turning-off-the-latex-mode
+  await page.locator('#mf-5').type('\\frac');
+  await page.locator('#mf-5').press('Enter');
+  await page.locator('#mf-5').type('x');
+  await page.locator('#mf-5').press('ArrowDown');
+  await page.locator('#mf-5').type('y');
+
+  // check latex of result
+  expect(await page.locator('#mf-5').evaluate( (e: MathfieldElement) => e.value))
+    .toBe('\\backslash fracxy');
+  
+});
+
+
+test('Select all/type to replace selection', async ({ page, browserName }) => {
+  const modifierKey = /Mac|iPod|iPhone|iPad/.test(await page.evaluate( () => navigator.platform)) ? "Meta" : "Control";
+
+  let selectAllCommand = `${modifierKey}+a`;
+  if (modifierKey === "Meta" && browserName === "chromium") {
+    // Cmd-a not working with Chromium on Mac, need to use Control-A
+    // Cmd-a works correctly on Chrome and Edge on Mac
+    selectAllCommand = 'Control+a';
+  }
+
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  // add some content to the first math field
+  await page.locator('#mf-1').type('x+y=20');
+
+  await page.locator('#mf-1').press(selectAllCommand);
+
+  // check the contents of the selection
+  let selectionLatex = await page.locator('#mf-1').evaluate( (mfe: MathfieldElement) => {
+    return mfe.getValue(mfe.selection, 'latex');
+  });
+  expect(selectionLatex).toBe('x+y=20');
+
+  // type to replace selection
+  await page.locator('#mf-1').type('30=r+t');
+
+  // make sure math field contents were replaced
+  expect(await page.locator('#mf-1').evaluate( (mfe: MathfieldElement) => mfe.value))
+    .toBe('30=r+t');
+
+  // select rhs
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+
+  selectionLatex = await page.locator('#mf-1').evaluate( (mfe: MathfieldElement) => {
+    return mfe.getValue(mfe.selection, 'latex');
+  });
+  expect(selectionLatex).toBe('r+t');
+
+  // type to replace rhs only
+  await page.locator('#mf-1').type('z+y');
+  expect(await page.locator('#mf-1').evaluate( (mfe: MathfieldElement) => mfe.value))
+    .toBe('30=z+y');
+});
+
+
+test('readonly selectable', async ({ page, browserName }) => {
+  const modifierKey = /Mac|iPod|iPhone|iPad/.test(await page.evaluate( () => navigator.platform)) ? "Meta" : "Control";
+
+  let selectAllCommand = `${modifierKey}+a`;
+  if (modifierKey === "Meta" && browserName === "chromium") {
+    // Cmd-a not working with Chromium on Mac, need to use Control-A
+    // Cmd-a works correctly on Chrome and Edge on Mac
+    selectAllCommand = 'Control+a';
+  }
+
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  await page.locator('#mf-4').press(selectAllCommand);
+
+  // check contents of selection
+  let selectionLatex = await page.locator('#mf-4').evaluate( (mfe: MathfieldElement) => {
+    return mfe.getValue(mfe.selection, 'latex');
+  });
+  expect(selectionLatex).toBe('x=\\frac{3}{4}');
+});
+
+
+test('test up/down arrow fraction navigation', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('x/y');
+  await page.locator('#mf-1').press('ArrowUp');
+  await page.locator('#mf-1').type('+1');
+  await page.locator('#mf-1').press('ArrowDown');
+  await page.locator('#mf-1').type('+2');
+
+  // check latex of result
+  expect(await page.locator('#mf-1').evaluate( (e: MathfieldElement) => e.value))
+    .toBe('\\frac{x+1}{y+2}');
+});
+
+
+test('test inline shortcuts', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('+-grad*alpha+tanx-20>=40');
+
+  // check latex of result
+  expect(await page.locator('#mf-1').evaluate( (e: MathfieldElement) => e.value))
+    .toBe(String.raw`\pm\nabla\cdot\alpha+\tan x-20\ge40`);
+});
+
+
+test('underscore subscript', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('x_y -y_s'); // space to exit subscript
+  await page.locator('#mf-1').press('ArrowRight'); // right arrow to exit subscript
+  await page.locator('#mf-1').type('+z_rt +20'); // double char subscript
+
+  // check latex of result
+  expect(await page.locator('#mf-1').evaluate( (e: MathfieldElement) => e.value))
+    .toBe(String.raw`x_y-y_s+z_{rt}+20`);
+});
+
+
+test('subscript and superscript', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('x_y ^h +y_rr ^a +z_1 ^aa + s_11 ^bb +30+x^h _s -40');
+
+  // check latex of result
+  expect(await page.locator('#mf-1').evaluate( (e: MathfieldElement) => e.value))
+    .toBe(String.raw`x_y^h+y_{rr}^a+z_1^{aa}+s_{11}^{bb}+30+x^h_s-40`);
+});
+
+
+test('nested paranthesis', async ({ page }) => {
+  // test both typing right parenthesis and using auto right paranthesis
+  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('(((x+y)-r -1');
+  await page.locator('#mf-1').press('ArrowRight');
+  await page.locator('#mf-1').type('+30');
+
+  // check latex of result
+  expect(await page.locator('#mf-1').evaluate( (e: MathfieldElement) => e.value))
+    .toBe(String.raw`\left(\left(\left(x+y\right)-r\right)-1\right)+30`);
 });

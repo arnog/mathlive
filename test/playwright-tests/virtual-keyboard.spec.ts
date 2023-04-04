@@ -6,14 +6,11 @@ import { test, expect } from '@playwright/test';
 test('virtual-keyboard-toggle visibility', async ({ page }) => {
   await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
 
-
   expect(await page.locator('.ML__virtual-keyboard-toggle').nth(0).isVisible())
     .toBe(true);
 
-
   expect(await page.locator('.ML__virtual-keyboard-toggle').nth(1).isVisible())
     .toBe(false);
-
 });
 
 
