@@ -8,7 +8,7 @@ import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { render } from '../editor-mathfield/render';
 import { isBrowser } from '../common/capabilities';
-import { globalMathLive, version } from '../mathlive';
+import { globalMathLive } from '../mathlive';
 
 declare global {
   interface Window {

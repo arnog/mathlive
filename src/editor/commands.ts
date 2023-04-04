@@ -39,7 +39,7 @@ interface RegisterCommandOptions {
   changeSelection?: boolean; // To update inline shortcut buffer
 }
 
-export const COMMANDS: CommandRegistry<RegisterCommandOptions> = {};
+export let COMMANDS: CommandRegistry<RegisterCommandOptions>;
 
 /**
  * Register one or more selectors.
@@ -50,6 +50,8 @@ export function register(
   options?: RegisterCommandOptions
 ): void {
   options = options ?? { target: 'mathfield', canUndo: false };
+
+  if (!COMMANDS) COMMANDS = {};
 
   for (const selector of Object.keys(commands)) {
     console.assert(!COMMANDS[selector], 'Selector already defined: ', selector);
@@ -187,28 +189,30 @@ export function performWithFeedback(
   if (MathfieldElement.keypressVibration && canVibrate())
     navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
-  // Convert kebab case to camel case.
-  selector = selector.replace(/-\w/g, (m) =>
-    m[1].toUpperCase()
-  ) as SelectorPrivate;
-  if (
-    selector === 'moveToNextPlaceholder' ||
-    selector === 'moveToPreviousPlaceholder' ||
-    selector === 'complete'
-  )
-    window.MathfieldElement.playSound('return');
-  else if (
-    selector === 'deleteBackward' ||
-    selector === 'deleteForward' ||
-    selector === 'deletePreviousWord' ||
-    selector === 'deleteNextWord' ||
-    selector === 'deleteToGroupStart' ||
-    selector === 'deleteToGroupEnd' ||
-    selector === 'deleteToMathFieldStart' ||
-    selector === 'deleteToMathFieldEnd'
-  )
-    window.MathfieldElement.playSound('delete');
-  else window.MathfieldElement.playSound('keypress');
+  if (typeof selector === 'string') {
+    // Convert kebab case to camel case.
+    selector = selector.replace(/-\w/g, (m) =>
+      m[1].toUpperCase()
+    ) as SelectorPrivate;
+    if (
+      selector === 'moveToNextPlaceholder' ||
+      selector === 'moveToPreviousPlaceholder' ||
+      selector === 'complete'
+    )
+      window.MathfieldElement.playSound('return');
+    else if (
+      selector === 'deleteBackward' ||
+      selector === 'deleteForward' ||
+      selector === 'deletePreviousWord' ||
+      selector === 'deleteNextWord' ||
+      selector === 'deleteToGroupStart' ||
+      selector === 'deleteToGroupEnd' ||
+      selector === 'deleteToMathFieldStart' ||
+      selector === 'deleteToMathFieldEnd'
+    )
+      window.MathfieldElement.playSound('delete');
+    else window.MathfieldElement.playSound('keypress');
+  } else window.MathfieldElement.playSound('keypress');
 
   const result = mathfield.executeCommand(selector);
   mathfield.scrollIntoView();

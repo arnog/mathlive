@@ -1,11 +1,48 @@
 {
   "name": "mathlive",
-  "version": "0.90.10",
+  "version": "0.91.0",
   "description": "A web component for math input",
   "license": "MIT",
   "funding": {
     "type": "individual",
     "url": "https://paypal.me/arnogourdol"
+  },
+  "files": [
+    "/dist"
+  ],
+  "types": "./dist/public/mathlive.d.ts",
+  "module": "./dist/mathlive.min.mjs",
+  "main": "./dist/mathlive.min.js",
+  "exports": {
+    ".": {
+      "browser": {
+        "production": {
+          "types": "./dist/public/mathlive.d.ts",
+          "import": "./dist/mathlive.min.mjs",
+          "require": "./dist/mathlive.min.js"
+        },
+        "development": {
+          "types": "./dist/public/mathlive.d.ts",
+          "import": "./dist/mathlive.mjs",
+          "require": "./dist/mathlive.js"
+        }
+      },
+      "node": {
+        "types": "./dist/public/mathlive-ssr.d.ts",
+        "import": "./dist/mathlive-ssr.min.mjs"
+      },
+      "default": {
+        "types": "./dist/public/mathlive.d.ts",
+        "import": "./dist/mathlive.min.mjs",
+        "require": "./dist/mathlive.min.js"
+      }
+    },
+    "./fonts.css": "./dist/mathlive-fonts.css",
+    "./static.css": "./dist/mathlive-static.css",
+    "./fonts/*": "./dist/fonts/*",
+    "./sounds/*": "./dist/sounds/*",
+    "./fonts/": "./dist/fonts/",
+    "./sounds/": "./dist/sounds/"
   },
   "repository": {
     "type": "git",
@@ -23,16 +60,6 @@
     "version": "bash ./scripts/version.sh",
     "postversion": "bash ./scripts/github-release.sh"
   },
-  "main": "./dist/mathlive.min.js",
-  "module": "./dist/mathlive.min.mjs",
-  "exports": {
-    "import": "./dist/mathlive.min.mjs",
-    "require": "./dist/mathlive.min.js"
-  },
-  "types": "./dist/public/mathlive.d.ts",
-  "files": [
-    "/dist"
-  ],
   "author": "Arno Gourdol <arno@arno.org>",
   "contributors": [
     "Louis Larpin (lilfaf.github.io)",
@@ -121,7 +148,7 @@
     "postcss-cli": "^10.1.0",
     "prettier": "^2.8.3",
     "ts-jest": "^29.0.5",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.3"
   },
   "keywords": [
     "math",
@@ -131,6 +158,7 @@
     "cortex",
     "compute engine",
     "virtual keyboard",
+    "math keyboard",
     "latex",
     "tex",
     "mathjax",

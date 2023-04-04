@@ -1,4 +1,72 @@
-## [Unreleased]
+## 0.91.0 (2023-04-04)
+
+In this release the UI of the virtual keyboards has been significantly updated.
+This includes new virtual keyboards as well as updated layout for existing
+virtual keyboards and support for shift key modifier for many keycaps.
+
+### Breaking Changes
+
+- The CSS variable `--keycap-modifier-background`,
+  `--keycap-modifier-background-hover`, `--keycap-modifier-text`, `--keycap-modifier-border` and `--keycap-modifier-border-bottom` have been renamed `--keycap-secondary-background`, `-keycap-secondary-background-hover`, 
+  `--keycap-secondary-text`, `--keycap-secondary-border` and `--keycap-secondary-border-bottom`, respectively.
+- The custom class on a keycap to indicate a shift key has been renamed from `modifier` to `shift`
+- The undocument `data-shifted` and `data-shifted-command` attributes are no longer supported.
+- The `classes` property in the JSON description of custom layouts has been renamed to `labelClass`
+- The `styles` property in the JSON description of a custom layer has been renamed to `style`
+
+### New Features
+
+- The JSON description of custom virtual keyboard now support keycap
+  shortcuts. For example the `[left]` keycap shortcut represent the left arrow 
+  key. See the [documentation](https://cortexjs.io/mathlive/guides/virtual-keyboards/#defining-custom-layouts) 
+  for more details.
+- Custom virtual keyboards can now include special keycaps for editing commands 
+  (cut/copy/paste/undo).
+- The JSON description of custom virtual keyboard keycaps can now include a 
+  `width` property
+- The variants panel can be invoked by right-clicking on a keycap.
+
+### Improvements
+
+- The default virtual keyboards have been rewritten. They now use the JSON
+  format for their internal description, instead of custom markup.
+- The "Functions" virtual keyboard has been merged with the "Symbols" virtual
+  keyboard. Fewer keyboards makes it easier to find the symbol or function 
+  you're looking for.
+- The "Numeric" and "Symbols" keyboard now feature a Shift key, doubling the
+  number of symbols accessible from them.
+- The variants (accessible with a long press on a keycap) have been streamlined
+  and extended.
+- The virtual keyboard now also support pressing the Shift and Caps Lock key
+  on the physical keyboard.
+- Three new optional virtual keyboards have been added:
+  - `minimalist`: a small keyboard with only two rows of keycaps containing 
+    digits and basic operations.
+  - `compact`: similar layout to `minimalist`, but the keycaps include variants
+  - `numeric-only`: a keyboard with only digits, the decimal marker and the 
+    minus sign.
+  To use them, use `mathVirtualKeyboard.layouts = "minimalist"`
+- Two new CSS variables have been added to control the layout of the virtual keyboard:
+  - `--keycap-max-width`: define the maximum with of a keycap, including its margin
+  - `--keycap-gap`: define the space between keycaps
+- The `mathVirtualKeyboard.show()` function now has an optional argument to 
+  animate or not the virtual keyboard. The default is to animate, as per previous behavior.
+- When hiding then showing the virtual keyboard, the keyboard will restore the
+  previously selected keyboard layout.
+- If loading a web page with a mathfield from a `file://` protocol, that is 
+  from a local file, the keyboard will now work, as long as the mathfields are
+  in the main document, and not in another browsing context such as an iframe.
+- Architectural improvements: the virtual keyboard is now more efficient, uses 
+  fewer event handlers and a simplified and lighter weight DOM tree.
+
+### Bugs Fixed
+
+- On ChromeOS devices with a touch screen, long pressing a keycap in the 
+  virtual keyboard no longer triggers the contextual menu.
+- The variants keycap work on iOS devices
+- The keyboard is correctly offset from the bottom on iOS devices
+
+## 0.90.11 (2023-03-31)
 
 ### Bug Fixed
 

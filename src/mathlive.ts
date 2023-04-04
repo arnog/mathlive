@@ -7,8 +7,6 @@ import {
   autoRenderMathInElement,
 } from './addons/auto-render';
 export * from './addons/auto-render';
-import MathLiveDebug from './addons/debug';
-import './addons/definitions-metadata';
 
 import './virtual-keyboard/commands';
 
@@ -152,11 +150,11 @@ export const version = {
 };
 
 /** @internal */
-export const debug = {
-  FUNCTIONS: MathLiveDebug.FUNCTIONS,
-  MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
-  TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
-  ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
-  DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
-  getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
-};
+// export const debug = {
+//   FUNCTIONS: MathLiveDebug.FUNCTIONS,
+//   MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
+//   TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
+//   ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
+//   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
+//   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
+// };
