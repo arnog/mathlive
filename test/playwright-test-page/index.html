@@ -45,31 +45,34 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf-1"
-        >\sum^q_{n=0}\begin{pmatrix}a &amp; b \\ c &amp;
-        d\end{pmatrix}</math-field
-      >
       <div>
-      <math-field id="mf-2"
-        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
-        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-        \frac{a+1}{b+\alpha+\gamma}</math-field
-      >
-        Virtual Keyboard Toggle Hidden
+        <math-field id="mf-1"></math-field>
+        #mf-1: default
       </div>
-      <textarea readonly disabled id="ta-1">hello world</textarea>
-      <!-- <math-field id="mf" virtual-keyboard-mode="manual" readonly
-        >f(x)= \placeholder[id1][x]{}</math-field
-      > -->
+      <div>
+        <math-field id="mf-2"></math-field>
+        #mf-2: Virtual Keyboard Toggle Hidden
+      </div>
+      <div>
+        <span id="mf-3-span"></span>
+        #mf-3: mathModeSpace='\\:', smartSuperscript=false
+      </div>
 
-      <!-- <math-field id="mf-prompt" readonly
-        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
-      > -->
+      <div>
+        <math-field readonly id="mf-4">x=\frac{3}{4}</math-field>
+        #mf-4: readonly
+      </div>
+
+      <div>
+        <span id="mf-5-span"></span>
+        #mf-5: latex mode disabled
+      </div>
+
+      <textarea readonly disabled id="ta-1">hello world</textarea>
+
       <math-field id="mf-prompt" readonly virtual-keyboard-mode="onfocus"
         >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
       >
-
-      <math-field readonly id="mf-ro">x=\frac{3}{4}</math-field>
 
       <textarea id="ta-2"></textarea>
 
@@ -87,6 +90,34 @@
 
     <script type="module">
       import { MathfieldElement } from '/dist/mathlive.mjs';
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const mfe3 = new MathfieldElement();
+
+        mfe3.mathModeSpace = "\\:";
+        mfe3.smartSuperscript = false;
+        mfe3.id = "mf-3";
+
+        document.getElementById('mf-3-span').appendChild(mfe3);
+
+
+        const mfe5 = new MathfieldElement();
+
+        mfe5.addEventListener(
+          'keydown',
+          (ev) => {
+            if (ev.key === '\\') {
+              ev.preventDefault();
+              mf.executeCommand(['insert', '\\backslash']);
+            } else if (ev.key === 'Escape') ev.preventDefault();
+          },
+          { capture: true }
+        );
+
+        document.getElementById('mf-5-span').appendChild(mfe5);
+      });
+
+
       let keyboardFrozen = false;
 
       const kbd = window.mathVirtualKeyboard;
@@ -376,22 +407,6 @@
 
       updateButtons();
 
-      // document.querySelectorAll('math-field, textarea').forEach((x) => {
-      //   x.addEventListener('beforeinput', logEvent);
-      //   x.addEventListener('input', logEvent);
-      //   x.addEventListener('keypress', logEvent);
-      //   x.addEventListener('keydown', logEvent);
-      //   x.addEventListener('keyup', logEvent);
-      //   x.addEventListener('click', logEvent);
-      //   x.addEventListener('focus', logEvent);
-      //   x.addEventListener('focusin', logEvent);
-      //   x.addEventListener('focusout', logEvent);
-      //   x.addEventListener('move-out', logEvent);
-      //   x.addEventListener('focus-in', logEvent);
-      //   x.addEventListener('focus-out', logEvent);
-      //   x.addEventListener('blur', logEvent);
-      // });
-
       kbd.addEventListener('geometrychange', logEvent);
       kbd.addEventListener('virtual-keyboard-toggle', logEvent);
       kbd.addEventListener('before-virtual-keyboard-toggle', logEvent);
@@ -409,112 +424,6 @@
         // console.log(evt);
         updateButtons();
       }
-
-      // mathVirtualKeyboard.layouts = {
-      //     rows: [
-      //       [
-      //         'a',
-      //         'b',
-      //         { class: 'separator w5' },
-      //         '7',
-      //         '8',
-      //         '9',
-      //         '\\div',
-      //         { class: 'separator w5' },
-      //         {
-      //           class: 'tex',
-      //           label: '<span><i>x</i>&thinsp;²</span>',
-      //           insert: '$$#@^{2}$$',
-      //         },
-      //         {
-      //           class: 'tex',
-      //           label: '<span><i>x</i><sup>&thinsp;<i>n</i></sup></span>',
-      //           insert: '$$#@^{}$$',
-      //         },
-      //         {
-      //           class: 'small',
-      //           latex: '\\sqrt{#0}',
-      //           insert: '$$\\sqrt{#0}$$',
-      //         },
-      //       ],
-      //       [
-      //         'c',
-      //         'd',
-      //         { class: 'separator w5' },
-      //         '4',
-      //         '5',
-      //         '6',
-      //         '\\times',
-      //         { class: 'separator w5' },
-      //         '\\frac{#0}{#0}',
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //       ],
-      //       [
-      //         'x',
-      //         'y',
-      //         { class: 'separator w5' },
-
-      //         '1',
-      //         '2',
-      //         '3',
-      //         '-',
-      //         { class: 'separator w5' },
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //         { class: 'separator' },
-      //       ],
-      //       [
-      //         '(',
-      //         ')',
-
-      //         { class: 'separator w5' },
-      //         '0',
-      //         '.',
-      //         '\\pi',
-      //         '+',
-      //         { class: 'separator w5' },
-      //         {
-      //           class: 'action',
-      //           label:
-      //             "<svg class=svg-glyph><use xlink:href='#svg-arrow-left' /></svg>",
-      //           command: ['performWithFeedback', 'moveToPreviousChar'],
-      //         },
-      //         {
-      //           class: 'action',
-      //           label:
-      //             "<svg class=svg-glyph><use xlink:href='#svg-arrow-right' /></svg>",
-      //           command: ['performWithFeedback', 'moveToNextChar'],
-      //         },
-      //         {
-      //           class: 'action font-glyph right',
-      //           label: '&#x232b;',
-      //           command: ['performWithFeedback', 'deleteBackward'],
-      //         },
-      //       ],
-      // };
-
-      // mathVirtualKeyboard.layouts = [
-      //   {
-      //     label: 'Minimal', // Label displayed in the Layout Switcher
-      //     tooltip: 'Only the essentials!',
-      //     rows: [
-      //       [
-      //         '+',
-      //         '-',
-      //         '\\times',
-      //         '\\frac{#@}{#?}',
-      //         '=',
-      //         '.',
-      //         '(',
-      //         ')',
-      //         '\\sqrt{#0}',
-      //         '#@^{#?}',
-      //       ],
-      //       ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-      //     ],
-      //   },
-      // ];
 
       function updateButtons() {
         if (kbd.visible) {

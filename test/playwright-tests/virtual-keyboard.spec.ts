@@ -20,10 +20,6 @@ test('virtual-keyboard-toggle visibility', async ({ page }) => {
 test('virtual keyboard with two math fields', async ({ page }) => {
   await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
 
-  // clear the contents of the first two editable math fields
-  await page.locator('#mf-1').evaluate( (mfe: MathfieldElement) => mfe.value = '');
-  await page.locator('#mf-2').evaluate( (mfe: MathfieldElement) => mfe.value = '');
-
   // toggle the virtual keyboard to visible and focus first math field
   await page.locator('.ML__virtual-keyboard-toggle').nth(0).click();
 

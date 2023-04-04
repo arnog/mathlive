@@ -92,5 +92,8 @@ npx playwright install
 npm run build
 
 # Run test suite
-npm run test
+npm test
 ```
+
+Note that, because of how the dev server manages files, `npm run build` needs to be run before
+each `npm test` run. When debugging the Playwright browser tests, the `npx playwright test` command can be used to run only the Playwright tests. When running the Playwright tests directly, `npm run build` is not required. Also, the Playwright tests, when run with `npx playwright test`, can be run while the dev server is running.
