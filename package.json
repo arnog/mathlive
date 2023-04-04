@@ -7,6 +7,43 @@
     "type": "individual",
     "url": "https://paypal.me/arnogourdol"
   },
+  "files": [
+    "/dist"
+  ],
+  "types": "./dist/public/mathlive.d.ts",
+  "module": "./dist/mathlive.min.mjs",
+  "main": "./dist/mathlive.min.js",
+  "exports": {
+    ".": {
+      "browser": {
+        "production": {
+          "types": "./dist/public/mathlive.d.ts",
+          "import": "./dist/mathlive.min.mjs",
+          "require": "./dist/mathlive.min.js"
+        },
+        "development": {
+          "types": "./dist/public/mathlive.d.ts",
+          "import": "./dist/mathlive.mjs",
+          "require": "./dist/mathlive.js"
+        }
+      },
+      "node": {
+        "types": "./dist/public/mathlive-ssr.d.ts",
+        "import": "./dist/mathlive-ssr.min.mjs"
+      },
+      "default": {
+        "types": "./dist/public/mathlive.d.ts",
+        "import": "./dist/mathlive.min.mjs",
+        "require": "./dist/mathlive.min.js"
+      }
+    },
+    "./fonts.css": "./dist/mathlive-fonts.css",
+    "./static.css": "./dist/mathlive-static.css",
+    "./fonts/*": "./dist/fonts/*",
+    "./sounds/*": "./dist/sounds/*",
+    "./fonts/": "./dist/fonts/",
+    "./sounds/": "./dist/sounds/"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/arnog/mathlive.git"
@@ -23,16 +60,6 @@
     "version": "bash ./scripts/version.sh",
     "postversion": "bash ./scripts/github-release.sh"
   },
-  "main": "./dist/mathlive.min.js",
-  "module": "./dist/mathlive.min.mjs",
-  "exports": {
-    "import": "./dist/mathlive.min.mjs",
-    "require": "./dist/mathlive.min.js"
-  },
-  "types": "./dist/public/mathlive.d.ts",
-  "files": [
-    "/dist"
-  ],
   "author": "Arno Gourdol <arno@arno.org>",
   "contributors": [
     "Louis Larpin (lilfaf.github.io)",
@@ -130,6 +157,7 @@
     "cortex",
     "compute engine",
     "virtual keyboard",
+    "math keyboard",
     "latex",
     "tex",
     "mathjax",
