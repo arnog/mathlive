@@ -187,7 +187,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           }
           target = target.shadowRoot?.activeElement ?? null;
         }
-        if (!focusedMathfield) this.hide();
+        if (mf.mathVirtualKeyboardPolicy === 'auto' && !focusedMathfield) this.hide();
       }, 300);
     });
   }
