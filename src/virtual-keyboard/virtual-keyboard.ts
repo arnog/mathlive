@@ -528,7 +528,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         break;
 
       case 'contextmenu':
-        evt.preventDefault();
+        if ((evt as PointerEvent).button !== 2) evt.preventDefault();
         break;
 
       case 'keydown': {
