@@ -7,6 +7,7 @@ module.exports = {
     '**/__tests__/**/*.+(ts|tsx|js)',
     '**/?(*.)+(spec|test).+(ts|tsx|js)',
   ],
+  testPathIgnorePatterns: ["<rootDir>/test/playwright-tests/"],
   // reporters: ['jest-silent-reporter'],
   moduleNameMapper: {
     '.*\\.(sass|less|css)$': '<rootDir>/test/__mocks__/styleMock.js',
