@@ -65,6 +65,7 @@ echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESE
 printf "$BASENAME${DOT}Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
 cp -f -R sounds dist/
+cp -f ./src/public/cortex-compute-engine.d.ts ./dist/public/
 echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Static assets copied${RESET}"
 
 

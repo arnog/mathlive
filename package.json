@@ -129,7 +129,7 @@
     "@cortex-js/compute-engine": "^0.12.2",
     "@cortex-js/prettier-config": "^1.1.1",
     "@playwright/test": "^1.32.1",
-    "@types/css-font-loading-module": "0.0.7",
+    "@types/css-font-loading-module": "0.0.8",
     "@types/jest": "^29.4.0",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",

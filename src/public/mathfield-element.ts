@@ -1,4 +1,4 @@
-/// <reference path="./cortex-compute-engine.d.ts" />
+/// <reference types="./cortex-compute-engine.d.ts" />
 
 import { Selector } from './commands';
 import type {
@@ -677,11 +677,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       | null
       | string
       | {
-          spacebar?: null | string;
-          return?: null | string;
-          delete?: null | string;
-          default: null | string;
-        }
+        spacebar?: null | string;
+        return?: null | string;
+        delete?: null | string;
+        default: null | string;
+      }
   ) {
     this.audioBuffers = {};
 
@@ -714,11 +714,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     delete: null | string;
     default: null | string;
   } = {
-    spacebar: 'keypress-spacebar.wav',
-    return: 'keypress-return.wav',
-    delete: 'keypress-delete.wav',
-    default: 'keypress-standard.wav',
-  };
+      spacebar: 'keypress-spacebar.wav',
+      return: 'keypress-return.wav',
+      delete: 'keypress-delete.wav',
+      default: 'keypress-standard.wav',
+    };
 
   /**
    * Sound played to provide feedback when a command has no effect, for example
