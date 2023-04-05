@@ -267,12 +267,12 @@ export function showVariantsPanel(
       Math.floor(Math.random() * 0x186a0).toString(36);
     variants[id] = keycap;
     const [keycapMarkup, keycapCls] = renderKeycap(keycap);
-    markup += `<li id=${id} class="${keycapCls}">${keycapMarkup}</li>`;
+    markup += `<div id=${id} class="item ${keycapCls}">${keycapMarkup}</div>`;
   }
 
   const variantPanel = document.createElement('div');
   variantPanel.setAttribute('aria-hidden', 'true');
-  variantPanel.className = 'ML__keyboard MLK__variant-panel';
+  variantPanel.className = 'MLK__variant-panel';
 
   // Reset variant panel height
   variantPanel.style.height = 'auto';
@@ -287,7 +287,7 @@ export function showVariantsPanel(
 
   variantPanel.style.width = `calc(var(--variant-keycap-length) * ${w} + 12px)`;
 
-  variantPanel.innerHTML = MathfieldElement.createHTML(`<ul>${markup}</ul>`);
+  variantPanel.innerHTML = MathfieldElement.createHTML(markup);
 
   //
   // Create the scrim and attach the variants panel to it
