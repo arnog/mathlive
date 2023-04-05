@@ -453,6 +453,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       window.removeEventListener('blur', this);
       window.removeEventListener('keydown', this, { capture: true });
       window.removeEventListener('keyup', this, { capture: true });
+      window.removeEventListener('contextmenu', this, { capture: true });
       hideVariantsPanel();
 
       releaseStylesheets();
@@ -475,6 +476,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     console.assert(!this.element);
     this.element = makeKeyboardElement(this);
     this.element.addEventListener('pointerdown', () => this.focus());
+    // To prevent the long press contextmenu from showing up in Chrome...
+    window.addEventListener('contextmenu', this, { capture: true });
     this.element.addEventListener(
       'contextmenu',
       (ev) => {
@@ -485,9 +488,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           ev.stopPropagation();
         }
       },
-      {
-        capture: true,
-      }
+      { capture: true }
     );
     this.container?.appendChild(this.element);
   }
@@ -524,6 +525,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         document.body.style.userSelect = '';
 
         this.isShifted = false;
+        break;
+
+      case 'contextmenu':
+        evt.preventDefault();
         break;
 
       case 'keydown': {
