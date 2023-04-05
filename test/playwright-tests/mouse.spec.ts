@@ -3,7 +3,6 @@ import type { MathfieldElement } from '../../src/public/mathfield-element';
 
 import { test, expect } from '@playwright/test';
 
-
 test('double/triple click to select', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
@@ -28,7 +27,4 @@ test('double/triple click to select', async ({ page }) => {
     return mfe.getValue(mfe.selection, 'latex');
   });
   expect(selectionLatex).toBe(String.raw`\left(x+y\right)-\left(r+s\right)=34`);
-
 });
-
-

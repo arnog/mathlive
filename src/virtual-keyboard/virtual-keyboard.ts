@@ -50,11 +50,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   lastLayer: string;
 
   get currentLayer(): string {
-    return (
-      this._element
-        ?.querySelector('.MLK__layer.is-visible')
-        ?.getAttribute('data-layer') ?? ''
-    );
+    return this._element?.querySelector('.MLK__layer.is-visible')?.id ?? '';
   }
 
   set currentLayer(id: string) {
@@ -62,9 +58,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       this.lastLayer = id;
       return;
     }
-    const newActive = this._element.querySelector(
-      `.MLK__layer[data-layer="${id}"]`
-    );
+    const newActive = this._element.querySelector(`#${id}.MLK__layer`);
     if (newActive) {
       this._element
         .querySelector('.MLK__layer.is-visible')
@@ -414,22 +408,29 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       this.render();
     }
 
+    this._visible = true;
+
     // For the transition effect to work, the property has to be changed
     // after the insertion in the DOM.
-    requestAnimationFrame(() => {
-      if (this._element) {
-        if (options?.animate) this._element.classList.add('animate');
-        this._element.addEventListener(
-          'transitionend',
-          () => this._element?.classList.remove('animate'),
-          { once: true }
-        );
-        this._element.classList.add('is-visible');
-      }
+    if (options?.animate) {
+      requestAnimationFrame(() => {
+        if (this._element) {
+          this._element.classList.add('animate');
+          this._element.addEventListener(
+            'transitionend',
+            () => this._element?.classList.remove('animate'),
+            { once: true }
+          );
+          this._element.classList.add('is-visible');
+        }
+        this.focus();
+        this.stateChanged();
+      });
+    } else {
+      this._element!.classList.add('is-visible');
       this.focus();
-      this._visible = true;
       this.stateChanged();
-    });
+    }
   }
 
   hide(_options?: { animate: boolean }): void {
@@ -439,6 +440,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     // Confirm
     if (!this.stateWillChange(false)) return;
+    this._visible = false;
 
     if (this._element) {
       this.lastLayer = this.currentLayer;
@@ -452,7 +454,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       window.removeEventListener('keydown', this, { capture: true });
       window.removeEventListener('keyup', this, { capture: true });
       hideVariantsPanel();
-      this._visible = false;
 
       releaseStylesheets();
 
@@ -463,7 +464,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         container.style.paddingBottom = this.originalContainerBottomPadding;
     }
 
-    this._visible = false;
     this.stateChanged();
   }
 
@@ -568,12 +568,16 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     if (action === 'disconnect') return;
 
     if (action === 'show') {
-      this.show();
+      if (typeof msg.animate !== 'undefined')
+        this.show({ animate: msg.animate });
+      else this.show();
       return;
     }
 
     if (action === 'hide') {
-      this.hide();
+      if (typeof msg.animate !== 'undefined')
+        this.hide({ animate: msg.animate });
+      else this.hide();
       return;
     }
 
