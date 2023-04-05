@@ -56,8 +56,13 @@ echo -e "\033[2K\033[80D\033[32m ✔ \033[0m End-to-end test suite complete"
 if [ "$exit_code" -eq "0" ]
 then
   echo -e "\n\033[42m PASS \033[0m 🎉 All tests have completed successfully!"
-  exit 0
 else
   echo -e "\n\033[41m FAIL \033[0m 😕 At least one test has failed"
   exit 1
 fi
+
+#
+# Once testing has completed, rebuild
+# This is so that npm run dist (which runs test) end up with a clean build
+# 
+npm run build production
