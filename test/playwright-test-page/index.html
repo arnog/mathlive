@@ -2,7 +2,7 @@
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
-    <title>Virtual Keyboard Test</title>
+    <title>Playwright Test</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1"
@@ -21,29 +21,19 @@
       }
 
       #mf-2::part(virtual-keyboard-toggle) {
-        display:none;
+        display: none;
       }
     </style>
   </head>
   <body>
     <header>
-      <h1>Virtual Keyboard Test</h1>
-      <ul>
-        <li><a href="../smoke/">Smoke</a></li>
-        <li>
-          <a href="../virtual-keyboard/">Virtual Keyboard</a>
-        </li>
-        <li>
-          <a href="../mathfield-states/">States</a>
-        </li>
-        <li>
-          <a href="../prompts/">Prompts</a>
-        </li>
-        <li class="current">
-          <a href="../playwright-test-page/">Playwright Tests</a>
-        </li>
-      </ul>
+      <h1>Playwright End-to-end Test</h1>
     </header>
+    <p>
+      This page is used by the Playwright end-to-end test automation tool. The
+      tests are defined in <kbd>/test/playwritght-tests/</kbd> and reference
+      this page.
+    </p>
     <main>
       <div>
         <math-field id="mf-1"></math-field>
@@ -75,34 +65,22 @@
       >
 
       <textarea id="ta-2"></textarea>
-
-      <div class="buttonbar">
-        <button id="show-keyboard">Show Keyboard</button>
-        <button id="hide-keyboard">Hide Keyboard</button>
-        <button id="freeze-keyboard">Freeze Keyboard</button>
-        <button id="unfreeze-keyboard">Unfreeze Keyboard</button>
-        <button id="custom-keyboard">Custom Keyboard</button>
-        <button id="default-keyboard">Default Keyboard</button>
-        <button id="show-toggle">Show Toggle</button>
-        <button id="hide-toggle">Hide Toggle</button>
-      </div>
     </main>
 
     <script type="module">
       import { MathfieldElement } from '/dist/mathlive.mjs';
 
-      document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener('DOMContentLoaded', () => {
         const mfe3 = new MathfieldElement();
-        mfe3.id = "mf-3";
+        mfe3.id = 'mf-3';
 
-        mfe3.mathModeSpace = "\\:";
+        mfe3.mathModeSpace = '\\:';
         mfe3.smartSuperscript = false;
 
         document.getElementById('mf-3-span').appendChild(mfe3);
 
-
         const mfe5 = new MathfieldElement();
-        mfe5.id = "mf-5";
+        mfe5.id = 'mf-5';
 
         mfe5.addEventListener(
           'keydown',
@@ -117,324 +95,6 @@
 
         document.getElementById('mf-5-span').appendChild(mfe5);
       });
-
-
-      let keyboardFrozen = false;
-
-      const kbd = window.mathVirtualKeyboard;
-      // k.addEventListener('virtual-keyboard-toggle', (ev) =>
-      //   console.log('toggling ', ev)
-      // );
-
-      kbd.addEventListener('before-virtual-keyboard-toggle', (ev) => {
-        if (keyboardFrozen && kbd.visible) ev.preventDefault();
-      });
-
-      document
-        .getElementById('show-keyboard')
-        .addEventListener('click', () => kbd.show());
-      document
-        .getElementById('hide-keyboard')
-        .addEventListener('click', () => kbd.hide());
-      document
-        .getElementById('custom-keyboard')
-        .addEventListener('click', () => {
-          mathVirtualKeyboard.layouts = [
-            {
-              label: '&infin;≠∈',
-              classes: 'MLK__tex-math',
-              tooltip: 'keyboard.tooltip.symbols',
-              rows: [
-                [
-                  {
-                    latex: '\\sin',
-                    shiftLabel: '\\sin^{-1}',
-                    shift: '\\sin^{-1}',
-                    variants: [
-                      '\\sinh',
-                      '\\sin^{-1}',
-                      { class: 'small', latex: '\\arsinh' },
-                    ],
-                  },
-                  '\\ln',
-                  {
-                    latex: '\\mathrm{abs}',
-                    insert: '\\mathrm{abs}\\left(#0\\right)',
-                  },
-                  '\\rarr',
-                  { latex: '\\exists', variants: ['\\nexists'] },
-                  '\\in',
-                  '\\cup',
-                  '\\overrightarrow{#@}',
-                  '\\lim_{#?}',
-                  '\\exponentialE',
-                ],
-                [
-                  {
-                    latex: '\\cos',
-                    variants: [
-                      '\\cosh',
-                      '\\cos^{-1}',
-                      { class: 'small', latex: '\\arcosh' },
-                    ],
-                  },
-                  { latex: '\\log', variants: ['\\log_{#0}', '\\log_{10}'] },
-                  '\\left\\vert#0\\right\\vert',
-                  '\\rArr',
-                  '\\forall',
-                  '\\ni',
-                  '\\cap',
-                  '\\overline{#@}',
-                  '\\int',
-                  '\\pi',
-                ],
-                [
-                  {
-                    latex: '\\tan',
-                    variants: [
-                      '\\tanh',
-                      '\\tan^{-1}',
-                      { class: 'small', latex: '\\artanh' },
-                    ],
-                  },
-                  {
-                    latex: '\\mathrm{exp}',
-                    insert: '\\mathrm{exp}\\left(#0\\right)',
-                    variants: ['\\exponentialE^{#0}'],
-                  },
-                  '\\left\\Vert#0\\right\\Vert',
-                  '\\lrArr',
-                  '!',
-                  {
-                    insert: '#@^{\\mathrm{C}}',
-                    latex: '\\blacksquare^{\\mathrm{\\complement}}',
-                    aside: 'complement',
-                    variants: ['\\setminus'],
-                  },
-                  { latex: '\\subset', variants: ['\\supset'] },
-                  {
-                    insert: '#@^{\\prime}',
-                    latex: '\\blacksquare^{\\prime}',
-                    variants: [
-                      {
-                        insert: '#@^{\\doubleprime}',
-                        latex: '\\blacksquare^{\\doubleprime}',
-                      },
-                    ],
-                  },
-                  '\\partial',
-                  '\\infty',
-                ],
-                [
-                  { label: '[shift]', width: 2.0 },
-                  '\\colon',
-                  ';',
-                  ',',
-                  '[separator]',
-                  '[left]',
-                  '[right]',
-                  { label: '[backspace]', width: 1.0, class: 'action' },
-                  { label: '[return]', width: 1.0 },
-                ],
-              ],
-            },
-            'symbols',
-            'functions',
-            {
-              label: 'compact',
-              rows: [
-                [
-                  '[+]',
-                  '[-]',
-                  '[*]',
-                  '[/]',
-                  '[=]',
-                  '[.]',
-                  '[(]',
-                  '[)]',
-                  '\\sqrt{#0}',
-                  { insert: '#@^{#?}', latex: '\\blacksquare^{#?}' },
-                ],
-                [
-                  '[1]',
-                  '[2]',
-                  '[3]',
-                  '[4]',
-                  '[5]',
-                  '[6]',
-                  '[7]',
-                  '[8]',
-                  '[9]',
-                  '[0]',
-                ],
-                ['[hr]'],
-                [
-                  '[undo]',
-                  '[redo]',
-                  '[separator]',
-                  '[separator]',
-                  '[separator]',
-                  '[left]',
-                  '[right]',
-                  { label: '[backspace]', class: 'action' },
-                  '[hide-keyboard]',
-                ],
-              ],
-            },
-            {
-              label: 'minimalist',
-              rows: [
-                [
-                  '+',
-                  '-',
-                  '\\times',
-                  { latex: '\\frac{#@}{#0}', class: 'small' },
-                  '=',
-                  '[.]',
-                  '(',
-                  ')',
-                  '\\sqrt{#0}',
-                  { insert: '#@^{#?}', latex: '\\blacksquare^{#?}' },
-                ],
-                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-                ['[hr]'],
-                [
-                  '[undo]',
-                  '[redo]',
-                  '[separator]',
-                  '[separator]',
-                  '[separator]',
-                  '[left]',
-                  '[right]',
-                  { label: '[backspace]', class: 'action' },
-                  '[hide-keyboard]',
-                ],
-              ],
-            },
-            {
-              label: '123',
-              classes: 'MLK__tex-math',
-              tooltip: 'keyboard.tooltip.numeric',
-              id: 'shin-numeric',
-              // rows: [['[2]']],
-              rows: [
-                [
-                  'x',
-                  'n',
-                  '[separator-5]',
-                  '[7]',
-                  '[8]',
-                  '[9]',
-                  '[/]',
-                  '[separator-5]',
-                  'e',
-                  'i',
-                  '\\pi',
-                ],
-                [
-                  '<',
-                  '>',
-                  '[separator-5]',
-                  '[4]',
-                  '[5]',
-                  '[6]',
-                  '[*]',
-                  '[separator-5]',
-                  { latex: '\\blacksquare^{2}}', insert: '#@^2' },
-                  { latex: '\\blacksquare^{#0}}', insert: '#@^#0' },
-                  '\\sqrt{#0}',
-                ],
-                [
-                  '[(]',
-                  '[)]',
-                  '[separator-5]',
-                  '[1]',
-                  '[2]',
-                  '[3]',
-                  '[-]',
-                  '[separator-5]',
-                  { latex: '\\int^{\\infty}_{0}', class: 'small' },
-                  '\\forall',
-                  { label: '[backspace]', width: 1.0 },
-                ],
-                [
-                  '[foreground-color]',
-                  '[background-color]',
-                  '[separator-5]',
-                  '[0]',
-                  '[.]',
-                  '[=]',
-                  '[+]',
-                  '[separator-5]',
-                  '[left]',
-                  '[right]',
-                  { label: '[return]', width: 1.0 },
-                ],
-              ],
-            },
-          ];
-        });
-
-      document
-        .getElementById('default-keyboard')
-        .addEventListener(
-          'click',
-          () => (mathVirtualKeyboard.layouts = 'default')
-        );
-
-      document
-        .getElementById('freeze-keyboard')
-        .addEventListener('click', () => {
-          keyboardFrozen = true;
-          document.getElementById('freeze-keyboard').classList.add('hidden');
-          document
-            .getElementById('unfreeze-keyboard')
-            .classList.remove('hidden');
-        });
-      document.getElementById('unfreeze-keyboard').classList.add('hidden');
-      document
-        .getElementById('unfreeze-keyboard')
-        .addEventListener('click', () => {
-          keyboardFrozen = false;
-          document.getElementById('unfreeze-keyboard').classList.add('hidden');
-          document.getElementById('freeze-keyboard').classList.remove('hidden');
-        });
-
-      document
-        .getElementById('mf-prompt')
-        .addEventListener('placeholder-change', (ev) => {
-          console.log('placeholder-change', ev.detail);
-        });
-
-      updateButtons();
-
-      kbd.addEventListener('geometrychange', logEvent);
-      kbd.addEventListener('virtual-keyboard-toggle', logEvent);
-      kbd.addEventListener('before-virtual-keyboard-toggle', logEvent);
-
-      function logEvent(evt) {
-        const stackTraceFrames = String(new Error().stack)
-          .replace(/^Error.*\n/, '')
-          .split('\n')
-          .map((x) => x.replace(/\(.*\)/, ''));
-        stackTraceFrames.shift();
-
-        console.log(evt.type, (evt.target?.id || evt.target?.tagName) ?? evt);
-        if (stackTraceFrames.length > 0)
-          console.log(stackTraceFrames.join('\n'));
-        // console.log(evt);
-        updateButtons();
-      }
-
-      function updateButtons() {
-        if (kbd.visible) {
-          document.getElementById('hide-keyboard').classList.remove('hidden');
-          document.getElementById('show-keyboard').classList.add('hidden');
-        } else {
-          document.getElementById('hide-keyboard').classList.add('hidden');
-          document.getElementById('show-keyboard').classList.remove('hidden');
-        }
-      }
     </script>
   </body>
 </html>
