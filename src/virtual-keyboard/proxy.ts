@@ -67,12 +67,12 @@ export class VirtualKeyboardProxy
     throw new Error('Container inside an iframe cannot be changed');
   }
 
-  show(_options?: { animate: boolean }): void {
-    this.sendMessage('show');
+  show(options?: { animate: boolean }): void {
+    this.sendMessage('show', options);
   }
 
-  hide(_options?: { animate: boolean }): void {
-    this.sendMessage('hide');
+  hide(options?: { animate: boolean }): void {
+    this.sendMessage('hide', options);
   }
 
   get visible(): boolean {

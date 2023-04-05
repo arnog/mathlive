@@ -94,7 +94,6 @@ import {
   validateOrigin,
 } from './utils';
 
-import { attachButtonHandlers } from './buttons';
 import { onPointerDown, offsetFromPoint } from './pointer-input';
 
 import { ModeEditor } from './mode-editor';
@@ -379,16 +378,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this.field.addEventListener('pointerdown', this);
     else this.field.addEventListener('mousedown', this);
 
-    attachButtonHandlers(
-      this.element.querySelector<HTMLElement>(
-        '[part=virtual-keyboard-toggle]'
-      )!,
-      (command) => this.executeCommand(command),
-      {
-        default: 'toggleVirtualKeyboard',
-        shift: 'toggleVirtualKeyboardShift',
-      }
-    );
+    this.element
+      .querySelector<HTMLElement>('[part=virtual-keyboard-toggle]')
+      ?.addEventListener('click', () => {
+        if (window.mathVirtualKeyboard.visible)
+          window.mathVirtualKeyboard.hide();
+        else window.mathVirtualKeyboard.show({ animate: true });
+      });
 
     this.ariaLiveText = this.element.querySelector('[role=status]')!;
     // this.accessibleMathML = this.element.querySelector('.accessibleMathML')!;

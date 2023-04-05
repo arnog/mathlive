@@ -3,7 +3,6 @@ import { coalesce, adjustInterAtomSpacing, Box, makeStruts } from '../core/box';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { l10n as l10nOptions, localize as l10n } from '../core/l10n';
 import { parseLatex } from '../core/parser';
-import { attachButtonHandlers } from '../editor-mathfield/buttons';
 import { SelectorPrivate } from '../editor/types';
 import { getActiveKeyboardLayout } from '../editor/keyboard-layout';
 import type {
@@ -570,40 +569,12 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
     )
   );
 
-  const elementList = result.querySelectorAll<HTMLElement>('.layer-switch');
-  for (const element of elementList) {
-    if (element.classList.contains('shift')) {
-      // This is a potential press-and-hold layer switch
-      attachButtonHandlers(
-        element,
-        (command) => keyboard.executeCommand(command),
-        {
-          // When the modifier is initially pressed, we will shift the labels
-          // (if available)
-          pressed: 'shiftKeyboardLayer',
-
-          // If the key is released before a delay, we switch to the target layer
-          default: ['switchKeyboardLayer', element.getAttribute('data-layer')],
-        }
-      );
-    } else {
-      // This is a simple layer switch
-      attachButtonHandlers(
-        element,
-        (command) => keyboard.executeCommand(command),
-        {
-          default: ['switchKeyboardLayer', element.getAttribute('data-layer')],
-        }
-      );
-    }
-  }
-
   const layerElements = result.querySelectorAll('.MLK__layer');
   console.assert(layerElements.length > 0, 'No virtual keyboards available');
 
   // Prevent a click on a virtual keyboard to focus it (and blur the mathfield)
   for (const x of layerElements)
-    x.addEventListener('mousedown', (evt) => evt.preventDefault());
+    x.addEventListener('pointerdown', (evt) => evt.preventDefault());
 
   // Restore the last active keyboards, or pick the first one
   if (keyboard.lastLayer) keyboard.currentLayer = keyboard.lastLayer;
@@ -620,9 +591,7 @@ function makeLayout(
   const markup: string[] = [];
   if (!('layers' in layout)) return '';
   for (const layer of layout.layers) {
-    markup.push(
-      `<div tabindex="-1" class="MLK__layer" data-layer="${layer.id}">`
-    );
+    markup.push(`<div tabindex="-1" class="MLK__layer" id="${layer.id}">`);
     markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
     markup.push(makeLayoutsToolbar(keyboard, index));
     // If there are no keycap with editing commands, add an edit toolbar
@@ -1009,12 +978,28 @@ let pressAndHoldTimer;
 function handlePointerDown(ev: PointerEvent) {
   if (ev.button !== 0) return;
 
+  const keyboard = VirtualKeyboard.singleton;
+
+  //
+  // Is this event for a layer switch
+  //
+
+  let layerButton: HTMLElement | null = ev.target as HTMLElement;
+  while (layerButton && !layerButton.getAttribute('data-layer'))
+    layerButton = layerButton.parentElement;
+  if (layerButton) {
+    keyboard.currentLayer = layerButton.getAttribute('data-layer') ?? '';
+    ev.preventDefault();
+    return;
+  }
+
+  //
   // Is this event for a keycap?
+  //
   const target = parentKeycap(ev.target);
 
   if (!target?.id) return;
 
-  const keyboard = VirtualKeyboard.singleton;
   const keycap = keyboard.getKeycap(target.id);
 
   if (!keycap) return;
@@ -1073,7 +1058,6 @@ function handlePointerDown(ev: PointerEvent) {
   }
 
   ev.preventDefault();
-  return;
 }
 
 function handleVirtualKeyboardEvent(controller) {
