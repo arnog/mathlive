@@ -632,16 +632,19 @@ function makeLayer(
     for (const row of layer.rows) {
       layerMarkup += `<div class=row>`;
       for (const keycap of row) {
-        const keycapId = keyboard.registerKeycap(keycap);
-        const [markup, cls] = renderKeycap(keycap);
+        if (keycap) {
+          const keycapId = keyboard.registerKeycap(keycap);
+          const [markup, cls] = renderKeycap(keycap);
 
-        if (/(^|\s)separator/.test(cls)) layerMarkup += `<div class="${cls}"`;
-        else
-          layerMarkup += `<div tabindex="-1" id="${keycapId}" class="${cls}"`;
+          if (/(^|\s)separator/.test(cls)) layerMarkup += `<div class="${cls}"`;
+          else
+            layerMarkup += `<div tabindex="-1" id="${keycapId}" class="${cls}"`;
 
-        if (keycap.tooltip) layerMarkup += ` data-tooltip="${keycap.tooltip}"`;
+          if (keycap.tooltip)
+            layerMarkup += ` data-tooltip="${keycap.tooltip}"`;
 
-        layerMarkup += `>${markup}</div>`;
+          layerMarkup += `>${markup}</div>`;
+        }
       }
 
       layerMarkup += `</div>`;
