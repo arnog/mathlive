@@ -77,7 +77,7 @@ First, [fork and clone](https://docs.github.com/en/get-started/quickstart/fork-a
 npm install
 
 # Run local dev server with live reload
-# After running this command, point your browser to http://127.0.0.1:8000/dist/smoke/
+# After running this command, point your browser to http://127.0.0.1:9029/dist/smoke/
 npm run start
 ```
 
