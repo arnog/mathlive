@@ -12,6 +12,7 @@ context({
     './test/virtual-keyboard/index.html',
     './test/mathfield-states/index.html',
     './test/prompts/index.html',
+    './test/playwright-test-page/index.html'
   ],
   outdir: './dist',
   loader: {

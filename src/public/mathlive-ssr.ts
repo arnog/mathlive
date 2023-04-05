@@ -1,4 +1,4 @@
-/// <reference path="./cortex-compute-engine.d.ts" />
+/// <reference types="./cortex-compute-engine.d.ts" />
 
 /**
  * Server-side rendering exports.
