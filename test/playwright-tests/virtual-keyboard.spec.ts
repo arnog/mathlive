@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 
 
 test('virtual-keyboard-toggle visibility', async ({ page }) => {
-  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+  await page.goto('/dist/playwright-test-page/');
 
   expect(await page.locator('.ML__virtual-keyboard-toggle').nth(0).isVisible())
     .toBe(true);
@@ -15,7 +15,7 @@ test('virtual-keyboard-toggle visibility', async ({ page }) => {
 
 
 test('virtual keyboard with two math fields', async ({ page }) => {
-  await page.goto('http://127.0.0.1:8000/dist/playwright-test-page/');
+  await page.goto('/dist/playwright-test-page/');
 
   // toggle the virtual keyboard to visible and focus first math field
   await page.locator('.ML__virtual-keyboard-toggle').nth(0).click();
