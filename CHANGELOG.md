@@ -4,6 +4,9 @@
 
 - The context menu that appears on long press on ChromeOS has been disabled as
  it interfered with long press for variant keys
+- When showing the virtual keyboard if the virtual keyboard obscures the 
+  mathfield, adjust the position of the mathfield to be visible
+  
 ## 0.91.0 (2023-04-04)
 
 In this release the UI of the virtual keyboards has been significantly updated.

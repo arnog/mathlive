@@ -896,15 +896,34 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   /** Make sure the caret is visible within the matfield.
-   * If the mathfield is inside a mathfield element, make sure the mathfield
-   * element is visible in the page
+   * If using mathfield element, make sure the mathfield element is visible in
+   * the page
    */
   scrollIntoView(): void {
     if (!this.element) return;
     //
-    // 1/ If inside a mathfield element, make sure that element is visible.
+    // 1/ If using a mathfield element, make sure that the element is visible.
     //
-    this.host?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+    if (this.host) {
+      // 1.1/ Bring the mathfield into the viewport
+      this.host.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+      // 1.2/ If the virtual keyboard obscures the mathfield, adjust
+      if (
+        window.mathVirtualKeyboard.visible &&
+        window.mathVirtualKeyboard.container === window.document.body
+      ) {
+        const kbdBounds = window.mathVirtualKeyboard.boundingRect;
+        const mathfieldBounds = this.host.getBoundingClientRect();
+        if (mathfieldBounds.bottom > kbdBounds.top) {
+          window.document.scrollingElement?.scrollBy(
+            0,
+            mathfieldBounds.bottom - kbdBounds.top + 8
+          );
+        }
+      }
+    }
 
     //
     // 2/ If a render is pending, do it now to make sure we have correct layout

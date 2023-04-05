@@ -418,12 +418,15 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           this._element.classList.add('animate');
           this._element.addEventListener(
             'transitionend',
-            () => this._element?.classList.remove('animate'),
+            () => {
+              this._element?.classList.remove('animate');
+              // Focus to scroll the field into view
+              this.focus();
+            },
             { once: true }
           );
           this._element.classList.add('is-visible');
         }
-        this.focus();
         this.stateChanged();
       });
     } else {
