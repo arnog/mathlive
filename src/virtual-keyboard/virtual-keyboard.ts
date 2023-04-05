@@ -482,6 +482,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           if (ev.ctrlKey || ev.button === 2)
             showVariantsPanel(ev.target as HTMLElement);
           ev.preventDefault();
+          ev.stopPropagation();
         }
       },
       {
