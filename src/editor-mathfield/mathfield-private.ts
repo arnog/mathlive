@@ -383,7 +383,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
       ?.addEventListener('click', () => {
         if (window.mathVirtualKeyboard.visible)
           window.mathVirtualKeyboard.hide();
-        else window.mathVirtualKeyboard.show({ animate: true });
+        else {
+          window.mathVirtualKeyboard.show({ animate: true });
+          window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+        }
       });
 
     this.ariaLiveText = this.element.querySelector('[role=status]')!;
