@@ -1042,7 +1042,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
     if (
       this.mode === mode ||
-      this.readOnly ||
+      !this.hasEditableContent ||
       !this.contentEditable ||
       this.disabled
     )
