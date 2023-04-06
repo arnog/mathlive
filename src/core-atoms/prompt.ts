@@ -5,9 +5,6 @@ import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
 import { convertDimensionToEm } from '../core/registers-utils';
-import { ModelPrivate } from 'editor-model/model-private';
-import { contentDidChange, contentWillChange } from 'editor-model/listeners';
-import { InsertOptions, Mathfield } from 'public/mathfield';
 
 export class PromptAtom extends Atom {
   readonly placeholderId?: string;
