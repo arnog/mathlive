@@ -43,21 +43,15 @@ function jsonToCss(json): string {
     .join('');
 }
 
-export function latexToMarkup(
-  latex: string,
-  arg?: (arg: string) => string
-): string {
+export function latexToMarkup(latex: string): string {
   if (!latex) return '';
-  // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
-  latex = latex.replace(/(^|[^\\])#@/g, '$1\\blacksquare');
 
   const globalContext = defaultGlobalContext();
 
   const root = new Atom('root', globalContext);
-  root.body = parseLatex(latex, globalContext, {
-    parseMode: 'math',
-    args: arg ?? (() => '\\placeholder{}'),
-  });
+  const args = (arg) =>
+    arg === '@' ? '{\\color{blue}\\blacksquare}' : '\\placeholder{}';
+  root.body = parseLatex(latex, globalContext, { parseMode: 'math', args });
 
   const context = new Context(
     { registers: globalContext.registers },

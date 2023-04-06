@@ -76,15 +76,13 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
         '[separator-5]',
         {
           class: 'hide-shift',
-          latex: '\\blacksquare^{2}}',
-          insert: '#@^2',
-          shift: { latex: '\\blacksquare^{\\prime}}', insert: '#@^{\\prime}' },
+          latex: '#@^2}',
+          shift: '#@^{\\prime}}',
         },
         {
-          latex: '\\blacksquare^{#0}}',
+          latex: '#@^{#0}}',
           class: 'hide-shift',
-          insert: '#@^#0',
-          shift: { latex: '\\blacksquare_{#?}}', insert: '#@_{#?}' },
+          shift: '#@_{#?}',
         },
         {
           class: 'hide-shift',
@@ -560,8 +558,7 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
         },
         { latex: '\\vert', shift: '!' },
         {
-          insert: '#@^{\\mathrm{C}}',
-          latex: '\\blacksquare^{\\mathrm{\\complement}}',
+          latex: '#@^{\\complement}',
           aside: 'complement',
           variants: [
             { latex: '\\setminus', aside: 'set minus' },
@@ -589,8 +586,7 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
           ],
         },
         {
-          insert: '#@^{\\prime}',
-          latex: '\\blacksquare^{\\prime}',
+          latex: '#@^{\\prime}',
           shift: '#@^{\\doubleprime}',
           variants: ['#@^{\\doubleprime}', '#@\\degree'],
         },
@@ -681,7 +677,7 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
         '[(]',
         '[)]',
         '\\sqrt{#0}',
-        { insert: '#@^{#?}', latex: '\\blacksquare^{#?}' },
+        '#@^{#?}',
       ],
       ['[1]', '[2]', '[3]', '[4]', '[5]', '[6]', '[7]', '[8]', '[9]', '[0]'],
       ['[hr]'],
@@ -732,7 +728,7 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
             '(',
             ')',
             { latex: '\\sqrt{#0}', class: 'small' },
-            { insert: '#@^{#?}', class: 'small', latex: '\\blacksquare^{#?}' },
+            { latex: '#@^{#?}', class: 'small' },
           ],
           ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
           ['[hr]'],
