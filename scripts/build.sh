@@ -53,11 +53,10 @@ echo -e  $LINECLEAR$BASENAME$CHECK${DIM}"Cleaning output directories"$RESET
 
 
 # Bundle Typescript declaration files (.d.ts).
-# Even though we only generate declaration files, the target must be set 
-# high-enough to prevent `tsc` from complaining (!)
 printf "$BASENAME${DOT}Building TypeScript declaration files (.d.ts)"
-npx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly --outDir ./declarations
+npx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly --noResolve --outDir ./declarations
 mv ./declarations/src/public ./dist
+cp -f ./src/public/cortex-compute-engine.d.ts ./dist/public/
 rm -rf ./declarations
 echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESET}"
 
@@ -65,7 +64,6 @@ echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESE
 printf "$BASENAME${DOT}Copying static assets (fonts, sounds)"
 cp -f -R css/fonts dist/
 cp -f -R sounds dist/
-cp -f ./src/public/cortex-compute-engine.d.ts ./dist/public/
 echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Static assets copied${RESET}"
 
 
