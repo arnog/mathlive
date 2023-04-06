@@ -5,7 +5,7 @@ import { onInput } from './keyboard-input';
 import { toggleKeystrokeCaption } from './keystroke-caption';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { requestUpdate } from './render';
-import { ParseMode } from 'public/core-types';
+import { ParseMode } from '../public/core-types';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
