@@ -6,7 +6,6 @@ import { toggleKeystrokeCaption } from './keystroke-caption';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { requestUpdate } from './render';
 import { ParseMode } from 'public/core-types';
-import { insertPrompt } from 'core-atoms/prompt';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
@@ -80,7 +79,31 @@ registerCommand({
     }
     return true;
   },
-  insertPrompt,
+  insertPrompt: (
+    mathfield: MathfieldPrivate,
+    id?: string,
+    options?
+  ): boolean => {
+    const promptIds = mathfield.getPrompts();
+    let prosepectiveId =
+      'prompt-' +
+      Date.now().toString(36).slice(-2) +
+      Math.floor(Math.random() * 0x186a0).toString(36);
+    let i = 0;
+    while (promptIds.includes(prosepectiveId) && i < 100) {
+      if (i === 99) {
+        console.error('could not find a unique ID after 100 tries');
+        return false;
+      }
+      prosepectiveId =
+        'prompt-' +
+        Date.now().toString(36).slice(-2) +
+        Math.floor(Math.random() * 0x186a0).toString(36);
+      i++;
+    }
+    mathfield.insert(`\\placeholder[${id ?? prosepectiveId}]{}`, options);
+    return true;
+  },
 });
 
 registerCommand(

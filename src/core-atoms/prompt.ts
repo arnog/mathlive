@@ -183,29 +183,3 @@ export class PromptAtom extends Atom {
     return `\\placeholder${id}${correctness}${locked}{${value}}`;
   }
 }
-
-export function insertPrompt(
-  mathfield: Mathfield,
-  id?: string,
-  options?: InsertOptions
-): boolean {
-  const promptIds = mathfield.getPrompts();
-  let prosepectiveId = sixCharId();
-  let i = 0;
-  while (promptIds.includes(prosepectiveId) && i < 100) {
-    if (i === 99) {
-      console.error('could not find a unique ID after 100 tries');
-      return false;
-    }
-    prosepectiveId = sixCharId();
-    i++;
-  }
-  mathfield.insert(`\\placeholder[${id ?? prosepectiveId}]{}`, options);
-  return true;
-}
-
-function sixCharId() {
-  const max = 36 ** 6 - 1;
-  const min = 36 ** 5;
-  return Math.floor(Math.random() * (max - min) + min).toString(36);
-}
