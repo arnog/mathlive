@@ -50,7 +50,9 @@ export function latexToMarkup(latex: string): string {
 
   const root = new Atom('root', globalContext);
   const args = (arg) =>
-    arg === '@' ? '{\\color{blue}\\blacksquare}' : '\\placeholder{}';
+    arg === '@'
+      ? '{\\class{ML__box-placeholder}{\\blacksquare}}'
+      : '\\placeholder{}';
   root.body = parseLatex(latex, globalContext, { parseMode: 'math', args });
 
   const context = new Context(
@@ -255,18 +257,12 @@ export function normalizeLayout(
     !('displayShiftedKeycaps' in layout) ||
     layout.displayShiftedKeycaps === undefined
   )
-    layout.displayShiftedKeycaps = hasShift;
+    result.displayShiftedKeycaps = hasShift;
   if (
     !('displayEditToolbar' in layout) ||
     layout.displayEditToolbar === undefined
   )
-    layout.displayEditToolbar = !hasEdit;
-
-  if (
-    !('displayEditToolbar' in layout) ||
-    layout.displayEditToolbar === undefined
-  )
-    result.displayEditToolbar = true;
+    result.displayEditToolbar = !hasEdit;
 
   return result;
 }

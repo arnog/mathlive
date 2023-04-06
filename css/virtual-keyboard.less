@@ -17,6 +17,18 @@
 @shadow4: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 @shadow5: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
 
+// 
+// blue-50   #e2f0fd
+// blue-100   #b6d9fb
+// blue-200   #86c0f9
+// blue-300   #56a6f6
+// blue-400   #3193f4
+// blue-500   #0d80f2
+// blue-600   #0c75d8
+// blue-700   #0c6abe
+// blue-800   #0b5c9c
+// blue-900   #094668
+
 :where(:root) {
   // This value is calculated based on the actual height of layouts.
   --keyboard-height: 0;
@@ -250,6 +262,10 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   font-size: 16px; /* Size of toolbar labels */
   font-weight: 400;
   text-shadow: none;
+}
+
+.ML__box-placeholder {
+  color: var(--box-placeholder-color, var(--keyboard-accent-color));
 }
 
 .MLK__tex {
@@ -926,11 +942,11 @@ Note there are a different set of tooltip rules for the keyboard toggle
 //
 @media (prefers-color-scheme: dark) {
   .ML__keyboard {
-    --keyboard-accent-color: hsl(212, 100%, 50%);
+    --keyboard-accent-color: #56a6f6; // blue-300
     --keyboard-background: #151515;
     --keyboard-border: transparent;
     --keyboard-toolbar-text: #e3e4e8;
-    --keyboard-toolbar-text-active: hsl(212, 100%, 60%);
+    --keyboard-toolbar-text-active: var(--keyboard-accent-color);
     --keyboard-toolbar-background: transparent;
     --keyboard-toolbar-background-hover: #303030;
     --keyboard-toolbar-background-selected: transparent;
@@ -959,12 +975,12 @@ Note there are a different set of tooltip rules for the keyboard toggle
 }
 /* Same as the media query, but with a class */
 [theme='dark'] .ML__keyboard {
-  --keyboard-accent-color: hsl(212, 100%, 50%);
+  --keyboard-accent-color: #56a6f6; // blue-300
   --keyboard-background: #151515;
   --keyboard-border: transparent;
   --keyboard-toolbar-text: #e3e4e8;
-  --keyboard-toolbar-text-active: hsl(212, 100%, 60%);
-  --keyboard-toolbar-background: transparent;
+  --keyboard-toolbar-text-active: var(--keyboard-accent-color);
+--keyboard-toolbar-background: transparent;
   --keyboard-toolbar-background-hover: #303030;
   --keyboard-toolbar-background-selected: transparent;
 
@@ -992,7 +1008,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 }
 
 [theme='light'] .ML__keyboard {
-  --keyboard-accent-color: #0b579d; // #326595;
+  --keyboard-accent-color: #0c75d8; // blue-600
   --keyboard-background: #cacfd7;
   --keyboard-border: #ddd;
 
