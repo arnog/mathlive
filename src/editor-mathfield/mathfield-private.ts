@@ -953,21 +953,24 @@ If you are using Vue, this may be because you are using the runtime-only build o
     //
 
     if (this.host) {
-      // 1.1/ Bring the mathfield into the viewport
-      this.host.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (this.options.onScrollIntoView) this.options.onScrollIntoView(this);
+      else {
+        // 1.1/ Bring the mathfield into the viewport
+        this.host.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
-      // 1.2/ If the virtual keyboard obscures the mathfield, adjust
-      if (
-        window.mathVirtualKeyboard.visible &&
-        window.mathVirtualKeyboard.container === window.document.body
-      ) {
-        const kbdBounds = window.mathVirtualKeyboard.boundingRect;
-        const mathfieldBounds = this.host.getBoundingClientRect();
-        if (mathfieldBounds.bottom > kbdBounds.top) {
-          window.document.scrollingElement?.scrollBy(
-            0,
-            mathfieldBounds.bottom - kbdBounds.top + 8
-          );
+        // 1.2/ If the virtual keyboard obscures the mathfield, adjust
+        if (
+          window.mathVirtualKeyboard.visible &&
+          window.mathVirtualKeyboard.container === window.document.body
+        ) {
+          const kbdBounds = window.mathVirtualKeyboard.boundingRect;
+          const mathfieldBounds = this.host.getBoundingClientRect();
+          if (mathfieldBounds.bottom > kbdBounds.top) {
+            window.document.scrollingElement?.scrollBy(
+              0,
+              mathfieldBounds.bottom - kbdBounds.top + 8
+            );
+          }
         }
       }
     }

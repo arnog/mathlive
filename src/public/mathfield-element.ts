@@ -356,6 +356,7 @@ const DEPRECATED_OPTIONS = {
   createHTML: '`MathfieldElement.createHTML`',
   onExport: '`MathfieldElement.onExport`',
   onInlineShortcut: '`MathfieldElement.onInlineShortcut`',
+  onScrollIntoView: '`MathfieldElement.onScrollIntoView`',
   locale: 'MathfieldElement.locale = ...',
   strings: 'MathfieldElement.strings = ...',
   decimalSeparator: 'MathfieldElement.decimalSeparator = ...',
@@ -2045,6 +2046,13 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   set onInlineShortcut(value: (sender: Mathfield, symbol: string) => string) {
     this._setOptions({ onInlineShortcut: value });
+  }
+
+  get onScrollIntoView(): ((sender: Mathfield) => void) | null {
+    return this._getOption('onScrollIntoView');
+  }
+  set onScrollIntoView(value: (sender: Mathfield) => void) {
+    this._setOptions({ onScrollIntoView: value });
   }
 
   get onExport(): (from: Mathfield, latex: string, range: Range) => string {
