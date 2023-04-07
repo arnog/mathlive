@@ -39,56 +39,16 @@
   <body>
     <header>
       <h1>Mathfield Keyboard</h1>
-      <!-- <ul>
-        <li><a href="../smoke/">Smoke</a></li>
-        <li class="current">
-          <a href="../virtual-keyboard/">Virtual Keyboard</a>
-        </li>
-        <li>
-          <a href="../mathfield-states/">States</a>
-        </li>
-      </ul> -->
     </header>
     <main>
       <math-field id="mf-1">x=\frac{-b\pm \sqrt{b^2-4ac}}{2a}</math-field>
-      <!-- <math-field id="mf-2"
-        >1+\texttip{a}{hello world}+b+\alpha+\mathtip{\alpha+\gamma}{x=\frac34}+
-        \frac{a+1} {b+\mathtip{\alpha+\gamma}{x=\frac34} }+
-        \frac{a+1}{b+\alpha+\gamma}</math-field
-      >
- -->
-      <!-- <textarea readonly disabled id="ta-1">hello world</textarea> -->
-      <!-- <math-field id="mf" virtual-keyboard-mode="manual" readonly
-        >f(x)= \placeholder[id1][x]{}</math-field
-      > -->
-
-      <!-- <math-field id="mf-prompt" readonly
-        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
-      > -->
-      <!-- <math-field id="mf-prompt" readonly virtual-keyboard-mode="onfocus"
-        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
-      >
-
-      <math-field readonly id="mf-ro">x=\frac{3}{4}</math-field>
-
-      <textarea id="ta-2"></textarea>
-
-      <div class="buttonbar">
-        <button id="show-keyboard">Show Keyboard</button>
-        <button id="hide-keyboard">Hide Keyboard</button>
-        <button id="freeze-keyboard">Freeze Keyboard</button>
-        <button id="unfreeze-keyboard">Unfreeze Keyboard</button>
-        <button id="custom-keyboard">Custom Keyboard</button>
-        <button id="default-keyboard">Default Keyboard</button>
-        <button id="show-toggle">Show Toggle</button>
-        <button id="hide-toggle">Hide Toggle</button>
-      </div> -->
     </main>
 
     <script type="module">
       import { MathfieldElement } from '/dist/mathlive.mjs';
 
       const kbd = window.mathVirtualKeyboard;
+      // kbd.layouts = 'compact';
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>
       //   console.log('toggling ', ev)
       // );
