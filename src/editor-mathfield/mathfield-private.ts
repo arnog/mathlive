@@ -633,6 +633,29 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return this.options?.registers ?? {};
   }
 
+  /** Returns styles shared by all selected atoms */
+  get selectionStyle(): Style {
+    // Selection is not extended, adopt style
+    if (this.model.selectionIsCollapsed) {
+      const previousAtom = this.model.at(this.model.selection.ranges[0][0]);
+      const siblingToAdopt =
+        this.adoptStyle === 'right' ? previousAtom.rightSibling : previousAtom;
+      if (!siblingToAdopt) return {};
+      return siblingToAdopt.style;
+    }
+
+    // Potentially multiple atoms selected, return the COMMON styles
+    const selectedAtoms = this.model.getAtoms(this.model.selection);
+    const style = selectedAtoms[0].style || {};
+    selectedAtoms.forEach((a: Atom) => {
+      for (const [key, value] of Object.entries(style)) {
+        if (!style[key] || style[key] !== value) style[key] = undefined;
+      }
+    });
+
+    return style!;
+  }
+
   getDefinition(
     token: string,
     parseMode: ParseMode = 'math'
