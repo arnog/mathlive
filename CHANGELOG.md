@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.91.2 (2023-04-06)
 
 ### Bug Fixes
 - Update editing toolbar when virtual keyboard is made visible
