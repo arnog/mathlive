@@ -308,7 +308,7 @@ export function delegateKeyboardEvents(
     (event: ClipboardEvent) => {
       // In some cases (Linux browsers), the keyboard sink might not be focused
       // when doing a middle-click paste command.
-      keyboardSink.focus();
+      keyboardSink.focus({ preventScroll: true });
       keyboardSink.textContent = '';
       if (!handlers.onPaste(event)) event.preventDefault();
       event.stopImmediatePropagation();
@@ -327,7 +327,7 @@ export function delegateKeyboardEvents(
       // clicking right on the border of the mathfield) ignore it
       // (preventDefault on the event doesn't work)
       if (event['relatedTarget']?.['_mathfield']?.['element'] === element) {
-        keyboardSink.focus();
+        keyboardSink.focus({ preventScroll: true });
         event.preventDefault();
         event.stopPropagation();
         return;
@@ -379,7 +379,7 @@ export function delegateKeyboardEvents(
     cancelComposition: (): void => {
       if (!compositionInProgress) return;
       keyboardSink.blur();
-      requestAnimationFrame(() => keyboardSink.focus());
+      requestAnimationFrame(() => keyboardSink.focus({ preventScroll: true }));
     },
 
     blur: (): void => {
@@ -388,7 +388,7 @@ export function delegateKeyboardEvents(
 
     focus: (): void => {
       if (!focusInProgress && typeof keyboardSink.focus === 'function')
-        keyboardSink.focus();
+        keyboardSink.focus({ preventScroll: true });
     },
 
     hasFocus: (): boolean => {
