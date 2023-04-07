@@ -2045,7 +2045,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   get onScrollIntoView(): ((sender: Mathfield) => void) | null {
     return this._getOption('onScrollIntoView');
   }
-  set onScrollIntoView(value: (sender: Mathfield) => void) {
+  set onScrollIntoView(value: ((sender: Mathfield) => void) | null) {
     this._setOptions({ onScrollIntoView: value });
   }
 
