@@ -91,115 +91,81 @@
 
       const mf = document.getElementById('mf');
 
-      // Example of Alt-Keys
-      //     const VIRTUAL_KEYBOARD_LAYERS = {
-      //       "secondary-layer": {
-      //         rows: [
-      //           [
-      //             { class: "tex", label: "x", key: "x", insert: "y",
-      //               variants: [    'y',
-      //     'z',
-      //     't',
-      //     'r',
-      //     { latex: 'f(#?)', class: 'small' },
-      //     { latex: 'g(#?)', class: 'small' },
-      //     'x^2',
-      //     'x^n',
-      //     'x_n',
-      //     'x_{n+1}',
-      //     'x_i',
-      //     'x_{i+1}',
-      // ]
-      //             },
-      //           ],
-      //         ]
-      //       }
-      //     }
-
-      const VIRTUAL_KEYBOARD_LAYERS = {
-        'secondary-layer': {
+      mathVirtualKeyboard.layouts = [
+        {
+          label: 'Basic',
           rows: [
             [
-              {
-                label: '&#x21e7;',
-                class: 'shift modifier font-glyph bottom left w15 layer-switch',
-                layer: 'geometry-layer',
-              },
-              {
-                class: 'tex',
-                label: 'x',
-                key: 'x',
-                insert: 'y',
-                variants: [{ class: 'w15', latex: '\\cos\\left( #0 \\right)' }],
-              },
-              // { class: "w15", latex: "\\sin\\left( #0 \\right)" },
-              { class: 'w15', label: 'cos(x)', shifted: 'sin (x)' },
-              { class: 'w15', latex: '\\tan\\left( #0 \\right)' },
-              { class: 'separator w5' },
-              { latex: '\\land' },
-              { latex: '\\lor' },
-              { latex: '\\lnot' },
-              { class: 'separator w5' },
-              { latex: '\\approx' },
+              '[7]',
+              '[8]',
+              '[9]',
+              '[+]',
+              '[separator-5]',
+              { class: 'small', latex: '\\frac{#@}{#0}' },
+              '\\varnothing',
+              '\\infty',
+              '\\in',
+              '\\notin',
+              '[separator]',
             ],
             [
-              { class: 'w15', latex: '\\sin^{-1}\\left( #0 \\right)' },
-              { class: 'w15', latex: '\\cos^{-1}\\left( #0 \\right)' },
-              { class: 'w15', latex: '\\tan^{-1}\\left( #0 \\right)' },
-              { class: 'separator w5' },
-              { class: 'w15', latex: '#@^{#?}' },
-              { class: 'w15', latex: '#@^2' },
-              { class: 'separator w5' },
-              { latex: '\\cong' },
+              '[4]',
+              '[5]',
+              '[6]',
+              '[-]',
+              '[separator-5]',
+              '[(]',
+              '[)]',
+              '\\lt',
+              '\\le',
+              '\\hat{=}',
+              '[separator]',
             ],
             [
-              {
-                class: 'w15',
-                latex: '\\begin{vmatrix}#?&#?\\\\#?&#?\\end{vmatrix}',
-              },
-              { latex: '\\sqrt{#@}' },
-              { latex: '\\pm' },
-              { latex: '\\overarc{#@}' },
-              { latex: '\\sim' },
-              { class: 'w15', latex: '#@_{#?}' },
+              '[1]',
+              '[2]',
+              '[3]',
+              '\\cdot',
+              '[separator-5]',
+              '[',
+              ']',
+              '\\gt',
+              '\\ge',
+
+              { label: '[backspace]', width: 2 },
             ],
             [
-              { class: 'separator w20' },
-              { class: 'separator w20' },
-              { class: 'separator w20' },
-              { class: 'separator w15' },
-              {
-                class: 'action',
-                label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
-                command: ['performWithFeedback', 'moveToPreviousChar'],
-              },
-              {
-                class: 'action',
-                label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
-                command: ['performWithFeedback', 'moveToNextChar'],
-              },
+              { label: '[0]', width: 2 },
+              '[.]',
+              '\\colon',
+              '[separator-5]',
+              '\\lbrace',
+              '\\rbrace',
+              '=',
+              '\\ne',
+              '[left]',
+              '[right]',
             ],
           ],
         },
-        'geometry-layer': {
+        {
+          label: 'Geometry',
           rows: [
             [
-              // <ul><li class='shift modifier font-glyph bottom left selected w15 layer-switch' data-layer='lower-greek'>&#x21e7;</li>
-
-              { latex: '\\vert' },
-              { latex: '\\not{\\vert}' },
-              { latex: '\\parallel' },
-              { latex: '\\bot' },
-              { latex: '\\overrightarrow{#@}' },
-              { latex: '\\begin{pmatrix}#0\\\\#0\\end{pmatrix}' },
+              '\\vert',
+              '\\not{\\vert}',
+              '\\parallel',
+              '\\bot',
+              '\\overrightarrow{#@}',
+              '\\begin{pmatrix}#0\\\\#0\\end{pmatrix}',
             ],
             [
-              { latex: '\\measuredangle' },
-              { latex: ';' },
-              { latex: '\\longmapsto' },
-              { latex: '\\left\\lvert #0 \\right\\rvert' },
-              { latex: '\\left\\lvert \\overline{#0} \\right\\rvert' },
-              { latex: '\\overline{#@}' },
+              '\\measuredangle',
+              ';',
+              '\\longmapsto',
+              '\\left\\lvert #0 \\right\\rvert',
+              '\\left\\lvert \\overline{#0} \\right\\rvert',
+              '\\overline{#@}',
             ],
             [],
             [
@@ -207,112 +173,69 @@
               { class: 'separator w20' },
               { class: 'separator w20' },
               { class: 'separator w15' },
-              {
-                class: 'action',
-                label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
-                command: ['performWithFeedback', 'moveToPreviousChar'],
-              },
-              {
-                class: 'action',
-                label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
-                command: ['performWithFeedback', 'moveToNextChar'],
-              },
+              '[left]',
+              '[right]',
             ],
           ],
         },
-        'basic-layer': {
-          styles: '',
+        {
+          label: 'Secondary',
           rows: [
             [
               {
-                label: '7',
-                key: '7',
-                variants: ['\\alpha', '\\beta'],
+                latex: 'x',
+                variants: [{ latex: '\\cos\\left( #0 \\right)' }],
+                width: 1.5,
               },
-              { label: '8', key: '8' },
-              { label: '9', key: '9' },
-              { label: '+', key: '+' },
-              { class: 'separator w5' },
-              { class: 'small', latex: '\\frac{#0}{#0}' },
-              { latex: '\\varnothing' },
-              { latex: '\\infty' },
-              { latex: '\\in' },
-              { latex: '\\notin' },
-              { class: 'separator' },
+              // { class: "w15", latex: "\\sin\\left( #0 \\right)" },
+              {
+                latex: '\\cos',
+                insert: '\\cos(#0)',
+                shift: { latex: '\\sin', insert: '\\sin (#0)' },
+                width: 1.5,
+              },
+              { latex: '\\tan\\left( #0 \\right)', width: 1.5 },
+              '[separator-5]',
+
+              '\\land',
+              '\\lor',
+              '\\lnot',
+              '[separator-5]',
+
+              '\\approx',
             ],
             [
-              { label: '4', latex: '4' },
-              { label: '5', key: '5' },
-              { label: '6', key: '6' },
-              { label: '-', key: '-' },
-              { class: 'separator w5' },
-              { label: '(', key: '(' },
-              { label: ')', key: ')' },
-              { latex: '\\lt' },
-              { latex: '\\le' },
-              { latex: '\\hat{=}' },
-              { class: 'separator' },
+              { latex: '\\sin^{-1}\\left( #0 \\right)', width: 1.5 },
+              { latex: '\\cos^{-1}\\left( #0 \\right)', width: 1.5 },
+              { latex: '\\tan^{-1}\\left( #0 \\right)', width: 1.5 },
+              '[separator-5]',
+              { latex: '#@^{#?}', width: 1.5 },
+              { latex: '#@^2', width: 1.5 },
+              '[separator-5]',
+              '\\cong',
             ],
             [
-              { label: '1', key: '1' },
-              { label: '2', key: '2' },
-              { label: '3', key: '3' },
-              { latex: '\\cdot' },
-              { class: 'separator w5' },
-              { label: '[', key: '[' },
-              { label: ']', key: ']' },
-              { latex: '\\gt' },
-              { latex: '\\ge' },
-              { class: 'separator' },
               {
-                class: 'action font-glyph bottom right',
-                label: '&#x232b;',
-                command: ['performWithFeedback', 'deleteBackward'],
+                latex: '\\begin{vmatrix}#?&#?\\\\#?&#?\\end{vmatrix}',
+                width: 1.5,
               },
+              '\\sqrt{#@}',
+              '\\pm',
+              '\\overarc{#@}',
+              '\\sim',
+              { latex: '#@_{#?}', width: 1.5 },
             ],
             [
-              { class: 'w20', label: '0', key: '0' },
-              { latex: ',' },
-              { latex: '\\colon' },
-              { class: 'separator w5' },
-              { latex: '\\lbrace' },
-              { latex: '\\rbrace' },
-              { latex: '=' },
-              { latex: '\\ne' },
-              {
-                class: 'action',
-                label: "<svg><use xlink:href='#svg-arrow-left' /></svg>",
-                command: ['performWithFeedback', 'moveToPreviousChar'],
-              },
-              {
-                class: 'action',
-                label: "<svg><use xlink:href='#svg-arrow-right' /></svg>",
-                command: ['performWithFeedback', 'moveToNextChar'],
-              },
+              '[separator-20]',
+              '[separator-20]',
+              '[separator-20]',
+              '[separator-15]',
+              '[left]',
+              '[right]',
             ],
           ],
         },
-      };
-
-      mathVirtualKeyboard.layers = VIRTUAL_KEYBOARD_LAYERS;
-      mathVirtualKeyboard.layouts = {
-        basic: {
-          label: 'Basic',
-          tooltip: 'Basic',
-          layer: 'basic-layer',
-        },
-        // "geometry": {
-        //   "label": "Geometry",
-        //   "tooltip": "Geometry",
-        //   "layer": "geometry-layer"
-        // },
-        secondary: {
-          label: 'Secondary',
-          tooltip: 'Secondary',
-          layer: 'secondary-layer',
-          layers: ['secondary-layer', 'geometry-layer'],
-        },
-      };
+      ];
 
       mf?.addEventListener('input', (ev) => updateContent(mf));
       mf?.addEventListener('math-error', (ev) =>

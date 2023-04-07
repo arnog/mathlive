@@ -20,8 +20,8 @@ export interface MathfieldProxy {
  * - `VirtualKeyboardProxy`: when the browsing context is an iframe
  */
 export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
-  show(): void;
-  hide(): void;
+  show(options?: { animate: boolean }): void;
+  hide(options?: { animate: boolean }): void;
   visible: boolean;
 
   readonly boundingRect: DOMRect;
@@ -47,16 +47,10 @@ export interface VirtualKeyboardCommands {
   performVariant: (command: Selector | [Selector, ...any[]]) => boolean;
 
   switchKeyboardLayer: (layer: string) => boolean;
-  shiftKeyboardLayer: () => boolean;
-  unshiftKeyboardLayer: () => boolean;
-  insertAndUnshiftKeyboardLayer: (c: string) => boolean;
 
   toggleVirtualKeyboard: () => boolean;
   hideVirtualKeyboard: () => boolean;
   showVirtualKeyboard: () => boolean;
-
-  /** Toggle the virtual keyboard, but switch to another keyboard layout */
-  toggleVirtualKeyboardShift: () => boolean;
 }
 
 export type VirtualKeyboardMessageAction =
@@ -107,13 +101,17 @@ export type VirtualKeyboardMessage =
       actionToolbar?: ActionToolbarOptions;
     }
   | {
+      // From proxy to VK
+      type: 'mathlive#virtual-keyboard-message';
+      action: 'show' | 'hide';
+      animate?: boolean;
+    }
+  | {
       type: 'mathlive#virtual-keyboard-message';
       action:
         | 'connect'
         | 'disconnect'
         | 'proxy-created'
-        | 'show'
-        | 'hide'
         | 'focus'
         | 'blur'
         | 'update-state'

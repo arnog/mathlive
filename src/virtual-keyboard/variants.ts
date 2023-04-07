@@ -1,22 +1,27 @@
 import { Scrim } from '../editor/scrim';
-import { latexToMarkup, makeKeycaps } from './utils';
+import {
+  executeKeycapCommand,
+  normalizeKeycap,
+  parentKeycap,
+  renderKeycap,
+} from './utils';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { FOREGROUND_COLORS, BACKGROUND_COLORS } from '../core/color';
 import { VirtualKeyboardKeycap } from '../public/options';
 import MathfieldElement from '../public/mathfield-element';
 
-const gVariants: {
+const VARIANTS: {
   [variantID: string]: (string | Partial<VirtualKeyboardKeycap>)[];
 } = {
-  '0-extended': [
-    '\\emptyset',
-    '\\varnothing',
-    '\\infty',
-    { latex: '#?_0', insert: '#@_0' },
-    '\\circ',
-    '\\bigcirc',
-    '\\bullet',
-  ],
+  // '0-extended': [
+  //   '\\emptyset',
+  //   '\\varnothing',
+  //   '\\infty',
+  //   { latex: '#?_0', insert: '#@_0' },
+  //   '\\circ',
+  //   '\\bigcirc',
+  //   '\\bullet',
+  // ],
   '0': ['\\varnothing', '\\infty'],
   '1': ['\\frac{1}{#@}', '#@^{-1}', '\\times 10^{#?}', '\\phi', '\\imaginaryI'],
   '2': ['\\frac{1}{2}', '#@^2', '\\sqrt2', '\\exponentialE'],
@@ -28,263 +33,135 @@ const gVariants: {
   '8': ['\\frac{1}{8}', '#@^8'],
   '9': ['\\frac{1}{9}', '#@^9'],
   '.': ['.', ',', ';', '\\colon'],
-  '.-extended': [
-    '.',
-    ',',
-    ';',
-    '\\colon',
-    { latex: ':', aside: 'ratio' },
-    { latex: '\\cdotp', aside: 'center dot', class: 'box' },
-    { latex: '\\cdots', aside: 'center ellipsis', class: 'box' },
-    { latex: '\\ldotp', aside: 'low dot', class: 'box' },
-    { latex: '\\ldots', aside: 'low ellipsis', class: 'box' },
-    { latex: '\\vdots', aside: '', class: 'box' },
-    { latex: '\\ddots', aside: '', class: 'box' },
-    '\\odot',
-    '\\oslash',
-    '\\circledcirc',
-  ],
 
-  '*': [
-    '\\cdot',
-    '\\ast',
-    '\\star',
-    { latex: '\\prod_{#0}^{#0}', class: 'small' },
-  ],
-  '*-extended': [
-    '\\cdot',
-    '\\ast',
-    '\\star',
-    '\\bigstar',
-    '\\ltimes',
-    '\\rtimes',
-    '\\rightthreetimes',
-    '\\leftthreetimes',
-    '\\intercal',
-    '\\prod',
-    { latex: '\\prod_{n\\mathop=0}^{\\infty}', class: 'small' },
-  ],
+  // '(-extended': [
+  //   '\\left( #0\\right)',
+  //   '\\left[ #0\\right]',
+  //   '\\left\\{ #0\\right\\}',
+  //   '\\left\\langle #0\\right\\rangle',
+  //   '\\lfloor',
+  //   '\\llcorner',
+  //   '(',
+  //   '\\lbrack',
+  //   '\\lvert',
+  //   '\\lVert',
+  //   '\\lgroup',
+  //   '\\langle',
+  //   '\\lceil',
+  //   '\\ulcorner',
+  //   '\\lmoustache',
+  //   '\\lbrace',
+  // ],
+  // ')-extended': [
+  //   '\\rfloor',
+  //   '\\lrcorner',
+  //   ')',
+  //   '\\rbrack',
+  //   '\\rvert',
+  //   '\\rVert',
+  //   '\\rgroup',
+  //   '\\rangle',
+  //   '\\rceil',
+  //   '\\urcorner',
+  //   '\\rmoustache',
+  //   '\\rbrace',
+  // ],
 
-  '+-extended': [
-    '\\pm',
-    '\\mp',
-    '\\sum',
-    { latex: '\\sum_{n\\mathop=0}^{\\infty}', class: 'small' },
-    '\\dotplus',
-    '\\oplus',
-  ],
-  '+': [{ latex: '\\sum_{#0}^{#0}', class: 'small' }],
-  '--extended': ['\\pm', '\\mp', '\\ominus', '\\vert #0  \\vert'],
-  '-': ['\\pm'],
+  // '=-extended': [
+  //   '\\cong',
+  //   '\\asymp',
+  //   '\\equiv',
+  //   '\\differencedelta',
+  //   '\\varpropto',
+  //   '\\thickapprox',
+  //   '\\approxeq',
+  //   '\\thicksim',
+  //   '\\backsim',
+  //   '\\eqsim',
+  //   '\\simeq',
+  //   '\\Bumpeq',
+  //   '\\bumpeq',
+  //   '\\doteq',
+  //   '\\Doteq',
+  //   '\\fallingdotseq',
+  //   '\\risingdotseq',
+  //   '\\coloneq',
+  //   '\\eqcirc',
+  //   '\\circeq',
+  //   '\\triangleq',
+  //   '\\between',
+  // ],
 
-  '/-extended': ['\\divideontimes', '/', '\\div', '\\%'],
-  '/': ['/', '\\div', '\\%'],
+  // '<': [
+  //   '\\leq',
+  //   '\\leqq',
+  //   '\\lneqq',
+  //   '\\ll',
 
-  '(': ['\\lbrack', '\\langle', '\\lfloor', '\\lceil', '\\lbrace'],
+  //   '\\lessgtr',
+  //   '\\nless',
+  //   '\\nleq',
+  //   '\\lesssim',
 
-  ')': ['\\rbrack', '\\rangle', '\\rfloor', '\\rceil', '\\rbrace'],
+  //   '\\precsim',
+  //   '\\prec',
+  //   '\\nprec',
+  //   '\\preccurlyeq',
 
-  '(-extended': [
-    '\\left( #0\\right)',
-    '\\left[ #0\\right]',
-    '\\left\\{ #0\\right\\}',
-    '\\left\\langle #0\\right\\rangle',
-    '\\lfloor',
-    '\\llcorner',
-    '(',
-    '\\lbrack',
-    '\\lvert',
-    '\\lVert',
-    '\\lgroup',
-    '\\langle',
-    '\\lceil',
-    '\\ulcorner',
-    '\\lmoustache',
-    '\\lbrace',
-  ],
-  ')-extended': [
-    '\\rfloor',
-    '\\lrcorner',
-    ')',
-    '\\rbrack',
-    '\\rvert',
-    '\\rVert',
-    '\\rgroup',
-    '\\rangle',
-    '\\rceil',
-    '\\urcorner',
-    '\\rmoustache',
-    '\\rbrace',
-  ],
+  //   '\\lessdot',
+  // ],
 
-  '=': [
-    '\\neq',
-    '\\equiv',
-    '\\varpropto',
-    '\\thickapprox',
-    '\\lt',
-    '\\gt',
-    '\\le',
-    '\\ge',
-  ],
-  '=-extended': [
-    '\\cong',
-    '\\asymp',
-    '\\equiv',
-    '\\differencedelta',
-    '\\varpropto',
-    '\\thickapprox',
-    '\\approxeq',
-    '\\thicksim',
-    '\\backsim',
-    '\\eqsim',
-    '\\simeq',
-    '\\Bumpeq',
-    '\\bumpeq',
-    '\\doteq',
-    '\\Doteq',
-    '\\fallingdotseq',
-    '\\risingdotseq',
-    '\\coloneq',
-    '\\eqcirc',
-    '\\circeq',
-    '\\triangleq',
-    '\\between',
-  ],
+  // '>': [
+  //   '\\geq',
+  //   '\\geqq',
+  //   '\\gneqq',
+  //   '\\gg',
 
-  '!=': ['\\neq', '\\ncong', '', '\\nsim'],
+  //   '\\gtrless',
+  //   '\\ngtr',
+  //   '\\ngeq',
+  //   '\\gtrsim',
 
-  '<': [
-    '\\leq',
-    '\\leqq',
-    '\\lneqq',
-    '\\ll',
+  //   '\\succsim',
+  //   '\\succ',
+  //   '\\nsucc',
+  //   '\\succcurlyeq',
 
-    '\\lessgtr',
-    '\\nless',
-    '\\nleq',
-    '\\lesssim',
+  //   '\\gtrdot',
+  // ],
 
-    '\\precsim',
-    '\\prec',
-    '\\nprec',
-    '\\preccurlyeq',
+  // 'nabla': ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
 
-    '\\lessdot',
-  ],
-
-  '>': [
-    '\\geq',
-    '\\geqq',
-    '\\gneqq',
-    '\\gg',
-
-    '\\gtrless',
-    '\\ngtr',
-    '\\ngeq',
-    '\\gtrsim',
-
-    '\\succsim',
-    '\\succ',
-    '\\nsucc',
-    '\\succcurlyeq',
-
-    '\\gtrdot',
-  ],
-
-  'in': ['\\owns'],
-  '!in': ['\\backepsilon'],
-
-  'subset': ['\\subseteq', '\\nsubset', '\\nsubseteq'],
-  'superset': ['\\supseteq', '\\nsupset', '\\nsupseteq'],
-
-  'infinity': ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
-
-  'numeric-pi': ['\\prod', '\\theta', '\\rho', '\\sin', '\\cos', '\\tan'],
-
-  'ee': ['\\times 10^{#?}', '\\ln', '\\log_{10}', '\\log'],
-
-  '^': ['_{#?}'],
-
-  // Integrals
-  'int': [
-    { latex: '\\int_{#?}^{#?}', class: 'small' },
-    { latex: '\\int', class: 'small' },
-    { latex: '\\smallint', class: 'small' },
-    { latex: '\\iint', class: 'small' },
-    { latex: '\\iiint', class: 'small' },
-    { latex: '\\oint', class: 'small' },
-    { latex: '\\dfrac{\\rd}{\\rd x}', class: 'small' },
-    { latex: '\\frac{\\partial}{\\partial x}', class: 'small' },
-
-    '\\capitalDifferentialD',
-    '\\rd',
-    '\\partial',
-  ],
-
-  'nabla': ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
-
-  '!': ['!!', '\\Gamma', '\\Pi'],
-  'accents': [
-    '\\bar{#@}',
-    '\\vec{#@}',
-    '\\hat{#@}',
-    '\\check{#@}',
-    '\\dot{#@}',
-    '\\ddot{#@}',
-    '\\mathring{#@}',
-    '\\breve{#@}',
-    '\\acute{#@}',
-    '\\tilde{#@}',
-    '\\grave{#@}',
-  ],
-  'underline': [
-    '\\underbrace{#@}',
-    '\\underlinesegment{#@}',
-    '\\underleftrightarrow{#@}',
-    '\\underrightarrow{#@}',
-    '\\underleftarrow{#@}',
-    '\\undergroup{#@}',
-  ],
-  'overline': [
-    '\\overbrace{#@}',
-    '\\overlinesegment{#@}',
-    '\\overleftrightarrow{#@}',
-    '\\overrightarrow{#@}',
-    '\\overleftarrow{#@}',
-    '\\overgroup{#@}',
-  ],
-
-  'xleftarrows': [
-    '\\xlongequal{#@}',
-    '\\xleftrightarrow{#@}',
-    '\\xLeftrightarrow{#@}',
-    '\\xleftrightharpoons{#@}',
-    '\\xLeftarrow{#@}',
-    '\\xleftharpoonup{#@}',
-    '\\xleftharpoondown{#@}',
-    '\\xtwoheadleftarrow{#@}',
-    '\\xhookleftarrow{#@}',
-    '\\xtofrom{#@}',
-    '\\xleftequilibrium{#@}', // From mhchem.sty package
-    '\\xrightleftarrows{#@}', // From mhchem.sty package
-  ],
-  'xrightarrows': [
-    '\\xrightarrow{#@}',
-    '\\xlongequal{#@}',
-    '\\xleftrightarrow{#@}',
-    '\\xLeftrightarrow{#@}',
-    '\\xleftrightharpoons{#@}',
-    '\\xRightarrow{#@}',
-    '\\xrightharpoonup{#@}',
-    '\\xrightharpoondown{#@}',
-    '\\xtwoheadrightarrow{#@}',
-    '\\xrightleftharpoons{#@}',
-    '\\xhookrightarrow{#@}',
-    '\\xmapsto{#@}',
-    '\\xrightequilibrium{#@}', // From mhchem.sty package
-    '\\xrightleftarrows{#@}', // From mhchem.sty package
-  ],
+  // 'xleftarrows': [
+  //   '\\xlongequal{#@}',
+  //   '\\xleftrightarrow{#@}',
+  //   '\\xLeftrightarrow{#@}',
+  //   '\\xleftrightharpoons{#@}',
+  //   '\\xLeftarrow{#@}',
+  //   '\\xleftharpoonup{#@}',
+  //   '\\xleftharpoondown{#@}',
+  //   '\\xtwoheadleftarrow{#@}',
+  //   '\\xhookleftarrow{#@}',
+  //   '\\xtofrom{#@}',
+  //   '\\xleftequilibrium{#@}', // From mhchem.sty package
+  //   '\\xrightleftarrows{#@}', // From mhchem.sty package
+  // ],
+  // 'xrightarrows': [
+  //   '\\xrightarrow{#@}',
+  //   '\\xlongequal{#@}',
+  //   '\\xleftrightarrow{#@}',
+  //   '\\xLeftrightarrow{#@}',
+  //   '\\xleftrightharpoons{#@}',
+  //   '\\xRightarrow{#@}',
+  //   '\\xrightharpoonup{#@}',
+  //   '\\xrightharpoondown{#@}',
+  //   '\\xtwoheadrightarrow{#@}',
+  //   '\\xrightleftharpoons{#@}',
+  //   '\\xhookrightarrow{#@}',
+  //   '\\xmapsto{#@}',
+  //   '\\xrightequilibrium{#@}', // From mhchem.sty package
+  //   '\\xrightleftarrows{#@}', // From mhchem.sty package
+  // ],
 
   // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},
   //     {latex:'\\lvert #@ \\rvert', aside:'determinant'},
@@ -293,26 +170,19 @@ const gVariants: {
   //     {latex:'\\lvert #@ \\rvert', aside:'order'},
 
   // ],
-  'A': [
-    { latex: '\\aleph', aside: 'aleph' },
-    { latex: '\\forall', aside: 'for all' },
-  ],
   'a': [
     { latex: '\\aleph', aside: 'aleph' },
     { latex: '\\forall', aside: 'for all' },
   ],
   'b': [{ latex: '\\beth', aside: 'beth' }],
-  'B': [{ latex: '\\beth', aside: 'beth' }],
   'c': [{ latex: '\\C', aside: 'set of complex numbers' }],
   'd': [{ latex: '\\daleth', aside: 'daleth' }],
-  'D': [{ latex: '\\daleth', aside: 'daleth' }],
   'e': [
     { latex: '\\exponentialE', aside: 'exponential e' },
     { latex: '\\exists', aside: 'there is' },
     { latex: '\\nexists', aside: 'there isn’t' },
   ],
   'g': [{ latex: '\\gimel', aside: 'gimel' }],
-  'G': [{ latex: '\\gimel', aside: 'gimel' }],
   'h': [
     { latex: '\\hbar', aside: 'h bar' },
     { latex: '\\hslash', aside: 'h slash' },
@@ -325,92 +195,6 @@ const gVariants: {
   'q': [{ latex: '\\mathbb{Q}', aside: 'set of rational numbers' }],
   'r': [{ latex: '\\mathbb{R}', aside: 'set of real numbers' }],
   'z': [{ latex: '\\mathbb{Z}', aside: 'set of integers' }],
-
-  'x-var': [
-    'y',
-    'z',
-    't',
-    'r',
-    { latex: 'f(#?)', class: 'small' },
-    { latex: 'g(#?)', class: 'small' },
-    'x^2',
-    'x^n',
-    'x_n',
-    'x_{n+1}',
-    'x_i',
-    'x_{i+1}',
-  ],
-  'n-var': ['i', 'j', 'p', 'k', 'a', 'u'],
-  'ii': ['\\Re', '\\Im', '\\imaginaryJ', '\\Vert #0 \\Vert'],
-
-  'logic': [
-    { latex: '\\exists', aside: 'there is' },
-    { latex: '\\nexists', aside: 'there isn’t' },
-
-    { latex: '\\ni', aside: 'such that' },
-    { latex: '\\Colon', aside: 'such that' },
-
-    { latex: '\\implies', aside: 'implies' },
-    { latex: '\\impliedby', aside: 'implied by' },
-
-    { latex: '\\iff', aside: 'if and only if' },
-
-    { latex: '\\land', aside: 'and' },
-    { latex: '\\lor', aside: 'or' },
-    { latex: '\\oplus', aside: 'xor' },
-    { latex: '\\lnot', aside: 'not' },
-
-    { latex: '\\downarrow', aside: 'nor' },
-    { latex: '\\uparrow', aside: 'nand' },
-
-    { latex: '\\curlywedge', aside: 'nor' },
-    { latex: '\\bar\\curlywedge', aside: 'nand' },
-
-    // {latex:'\\barwedge', aside:'bar wedge'},
-    // {latex:'\\curlyvee', aside:'curly vee'},
-    // {latex:'\\veebar', aside:'vee bar'},
-
-    { latex: '\\therefore', aside: 'therefore' },
-    { latex: '\\because', aside: 'because' },
-
-    { latex: '^\\biconditional', aside: 'biconditional' },
-
-    '\\leftrightarrow',
-    '\\Leftrightarrow',
-    '\\to',
-    '\\models',
-    '\\vdash',
-    '\\gets',
-    '\\dashv',
-    '\\roundimplies',
-  ],
-
-  'set-operators': [
-    '\\cap',
-    '\\cup',
-    '\\setminus',
-    '\\smallsetminus',
-    '\\complement',
-  ],
-
-  'set-relations': [
-    '\\in',
-    '\\notin',
-    '\\ni',
-    '\\owns',
-    '\\subset',
-    '\\supset',
-    '\\subseteq',
-    '\\supseteq',
-    '\\subsetneq',
-    '\\supsetneq',
-    '\\varsubsetneq',
-    '\\subsetneqq',
-    '\\nsubset',
-    '\\nsupset',
-    '\\nsubseteq',
-    '\\nsupseteq',
-  ],
 
   'space': [
     {
@@ -454,86 +238,56 @@ const gVariants: {
       aside: '2 em',
     },
   ],
-
-  // @todo could also delete to end
-  'delete': [
-    {
-      label:
-        '<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>',
-      command: 'deleteAll',
-    },
-  ],
-
-  // @todo Tab: could turn on speech, visible keyboard...
-  '->|': [],
 };
+
+let variantPanelController: AbortController;
 
 export function showVariantsPanel(
   element: HTMLElement,
-  variantsId: string
-): boolean {
-  const variants = getVariants(variantsId);
+  onClose?: () => void
+): void {
+  const keyboard = VirtualKeyboard.singleton;
+  const keycap = parentKeycap(element);
+  const variantDef = keyboard.getKeycap(keycap?.id)?.variants ?? '';
+  if (
+    (typeof variantDef === 'string' && !hasVariants(variantDef)) ||
+    (Array.isArray(variantDef) && variantDef.length === 0)
+  ) {
+    onClose?.();
+    return;
+  }
+
+  const variants = {};
+  let markup = '';
+
+  for (const variant of getVariants(variantDef)) {
+    const keycap = normalizeKeycap(variant);
+    const id =
+      Date.now().toString(36).slice(-2) +
+      Math.floor(Math.random() * 0x186a0).toString(36);
+    variants[id] = keycap;
+    const [keycapMarkup, keycapCls] = renderKeycap(keycap);
+    markup += `<div id=${id} class="item ${keycapCls}">${keycapMarkup}</div>`;
+  }
+
   const variantPanel = document.createElement('div');
   variantPanel.setAttribute('aria-hidden', 'true');
-  variantPanel.className = 'ML__keyboard MLK__variant-panel';
+  variantPanel.className = 'MLK__variant-panel';
 
-  if (variants.length >= 14) {
-    // Width 5: 5 key wide
-    variantPanel.style.width = '236px';
-  } else if (variants.length >= 7) {
-    // Width 4
-    variantPanel.style.width = '286px';
-  } else if (variants.length === 4 || variants.length === 2) {
-    // Width 2
-    variantPanel.style.width = '146px';
-  } else if (variants.length === 1) {
-    // Width 1
-    variantPanel.style.width = '86px';
-  } else {
-    // Width 3
-    variantPanel.style.width = '146px';
-  }
-
-  // Reset container height
+  // Reset variant panel height
   variantPanel.style.height = 'auto';
-  let markup = '';
-  for (const variant of variants) {
-    markup += '<li';
-    if (typeof variant === 'string') {
-      markup += ` data-latex="${variant.replace(
-        /"/g,
-        '&quot;'
-      )}"'>${latexToMarkup(variant)}</li>`;
-    } else {
-      if (variant.latex)
-        markup += ' data-latex="' + variant.latex.replace(/"/g, '&quot;') + '"';
 
-      // @deprecated
-      if (variant.insert) {
-        markup +=
-          ' data-insert="' + variant.insert.replace(/"/g, '&quot;') + '"';
-      }
+  const l = Object.keys(variants).length;
+  let w = 5; // l >= 14, width 5
 
-      if (variant.command) {
-        markup += ` data-command='${(typeof variant.command === 'string'
-          ? '"' + variant.command + '"'
-          : JSON.stringify(variant.command)
-        ).replace(/"/g, '&quot;')}'`;
-      }
+  if (l === 1) w = 1;
+  else if (l === 2 || l === 4) w = 2;
+  else if (l === 3 || l === 5 || l === 6) w = 3;
+  else if (l >= 7 && l < 14) w = 4;
 
-      if (variant.aside)
-        markup += ` data-aside="${variant.aside.replace(/"/g, '&quot;')}"`;
+  variantPanel.style.width = `calc(var(--variant-keycap-length) * ${w} + 12px)`;
 
-      if (variant.class) markup += ` data-classes="${variant.class}"`;
-      markup += '>';
-      markup += variant.label ?? latexToMarkup(variant.latex ?? '');
-      markup += '</li>';
-    }
-  }
-
-  variantPanel.innerHTML = MathfieldElement.createHTML(`<ul>${markup}</ul>`);
-
-  const keyboard = VirtualKeyboard.singleton;
+  variantPanel.innerHTML = MathfieldElement.createHTML(markup);
 
   //
   // Create the scrim and attach the variants panel to it
@@ -541,10 +295,62 @@ export function showVariantsPanel(
   if (!Scrim.scrim) Scrim.scrim = new Scrim();
   Scrim.scrim.open({ root: keyboard.container, child: variantPanel });
 
-  //
-  // Associate a command which each of the variant keycaps
-  //
-  makeKeycaps(keyboard, variantPanel.querySelectorAll('li'), 'performVariant');
+  variantPanelController?.abort();
+  variantPanelController = new AbortController();
+  variantPanel.addEventListener(
+    'pointerup',
+    (ev) => {
+      const target = parentKeycap(ev.target);
+      if (!target?.id || !variants[target.id]) return;
+
+      executeKeycapCommand(variants[target.id]);
+
+      hideVariantsPanel();
+      onClose?.();
+      ev.preventDefault();
+    },
+    { capture: true, passive: false, signal: variantPanelController.signal }
+  );
+
+  variantPanel.addEventListener(
+    'pointerenter',
+    (ev) => {
+      const target = parentKeycap(ev.target);
+      if (!target?.id || !variants[target.id]) return;
+
+      target.classList.add('is-active');
+    },
+    { capture: true, signal: variantPanelController.signal }
+  );
+
+  variantPanel.addEventListener(
+    'pointerleave',
+    (ev) => {
+      const target = parentKeycap(ev.target);
+      if (!target?.id || !variants[target.id]) return;
+
+      target.classList.remove('is-active');
+    },
+    { capture: true, signal: variantPanelController.signal }
+  );
+
+  window.addEventListener(
+    'pointercancel',
+    () => {
+      hideVariantsPanel();
+      onClose?.();
+    },
+    { signal: variantPanelController.signal }
+  );
+
+  window.addEventListener(
+    'pointerup',
+    () => {
+      hideVariantsPanel();
+      onClose?.();
+    },
+    { signal: variantPanelController.signal }
+  );
 
   //
   // Position the variants panel
@@ -553,13 +359,11 @@ export function showVariantsPanel(
   const position = element?.getBoundingClientRect();
   if (position) {
     if (position.top - variantPanel.clientHeight < 0) {
-      // AltContainer.style.maxWidth = '320px';  // Up to six columns
+      // variantPanel.style.maxWidth = '320px';  // Up to six columns
       variantPanel.style.width = 'auto';
-      if (variants.length <= 6) variantPanel.style.height = '56px'; // 1 row
-      else if (variants.length <= 12)
-        variantPanel.style.height = '108px'; // 2 rows
-      else if (variants.length <= 18)
-        variantPanel.style.height = '205px'; // 3 rows
+      if (l <= 6) variantPanel.style.height = '56px'; // 1 row
+      else if (l <= 12) variantPanel.style.height = '108px'; // 2 rows
+      else if (l <= 18) variantPanel.style.height = '205px'; // 3 rows
       else variantPanel.classList.add('compact');
     }
 
@@ -575,21 +379,12 @@ export function showVariantsPanel(
     variantPanel.classList.add('is-visible');
   }
 
-  return false;
+  return;
 }
 
-export function hideVariantsPanel(): boolean {
-  const variantPanel = document.querySelector<HTMLElement>(
-    '.MLK__variant-panel'
-  );
-  if (variantPanel) {
-    variantPanel.classList.remove('is-visible');
-    variantPanel.innerHTML = '';
-  }
-
+export function hideVariantsPanel(): void {
+  variantPanelController?.abort();
   Scrim.scrim?.close();
-
-  return false;
 }
 
 function makeVariants(
@@ -599,9 +394,9 @@ function makeVariants(
     const result: Partial<VirtualKeyboardKeycap>[] = [];
     for (const color of Object.keys(FOREGROUND_COLORS)) {
       result.push({
-        class: 'small-button',
+        class: 'swatch-button',
         label:
-          '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
+          '<span style="border: 3px solid ' +
           FOREGROUND_COLORS[color] +
           '"></span>',
         command: ['applyStyle', { color }],
@@ -614,11 +409,9 @@ function makeVariants(
     const result: Partial<VirtualKeyboardKeycap>[] = [];
     for (const color of Object.keys(BACKGROUND_COLORS)) {
       result.push({
-        class: 'small-button',
+        class: 'swatch-button',
         label:
-          '<span style="border-radius:50%;width:32px;height:32px; background:' +
-          BACKGROUND_COLORS[color] +
-          '"></span>',
+          '<span style="background:' + BACKGROUND_COLORS[color] + '"></span>',
         command: ['applyStyle', { backgroundColor: color }],
       });
     }
@@ -628,16 +421,14 @@ function makeVariants(
   return undefined;
 }
 
-export function getVariants(
-  id: string
-): (string | Partial<VirtualKeyboardKeycap>)[] {
-  if (!gVariants[id]) gVariants[id] = makeVariants(id) ?? [];
-  return gVariants[id];
+export function hasVariants(id: string): boolean {
+  return VARIANTS[id] !== undefined;
 }
 
-export function setVariants(
-  id: string,
-  value: (string | Partial<VirtualKeyboardKeycap>)[]
-): void {
-  gVariants[id] = value;
+function getVariants(
+  id: string | (string | Partial<VirtualKeyboardKeycap>)[]
+): (string | Partial<VirtualKeyboardKeycap>)[] {
+  if (typeof id !== 'string') return id;
+  if (!VARIANTS[id]) VARIANTS[id] = makeVariants(id) ?? [];
+  return VARIANTS[id];
 }

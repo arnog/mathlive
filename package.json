@@ -1,11 +1,48 @@
 {
   "name": "mathlive",
-  "version": "0.90.10",
+  "version": "0.91.2",
   "description": "A web component for math input",
   "license": "MIT",
   "funding": {
     "type": "individual",
     "url": "https://paypal.me/arnogourdol"
+  },
+  "files": [
+    "/dist"
+  ],
+  "types": "./dist/public/mathlive.d.ts",
+  "module": "./dist/mathlive.min.mjs",
+  "main": "./dist/mathlive.min.js",
+  "exports": {
+    ".": {
+      "browser": {
+        "production": {
+          "types": "./dist/public/mathlive.d.ts",
+          "import": "./dist/mathlive.min.mjs",
+          "require": "./dist/mathlive.min.js"
+        },
+        "development": {
+          "types": "./dist/public/mathlive.d.ts",
+          "import": "./dist/mathlive.mjs",
+          "require": "./dist/mathlive.js"
+        }
+      },
+      "node": {
+        "types": "./dist/public/mathlive-ssr.d.ts",
+        "import": "./dist/mathlive-ssr.min.mjs"
+      },
+      "default": {
+        "types": "./dist/public/mathlive.d.ts",
+        "import": "./dist/mathlive.min.mjs",
+        "require": "./dist/mathlive.min.js"
+      }
+    },
+    "./fonts.css": "./dist/mathlive-fonts.css",
+    "./static.css": "./dist/mathlive-static.css",
+    "./fonts/*": "./dist/fonts/*",
+    "./sounds/*": "./dist/sounds/*",
+    "./fonts/": "./dist/fonts/",
+    "./sounds/": "./dist/sounds/"
   },
   "repository": {
     "type": "git",
@@ -16,23 +53,13 @@
     "build": "bash ./scripts/build.sh",
     "clean": "bash ./scripts/clean.sh",
     "dist": "bash ./scripts/build.sh production; bash ./scripts/test.sh",
-    "lint": "eslint --fix src/",
+    "lint": "eslint --fix src/; prettier -w src/",
     "prepare": "bash ./scripts/build.sh production",
     "start": "bash ./scripts/start.sh",
     "test": "bash ./scripts/test.sh",
     "version": "bash ./scripts/version.sh",
     "postversion": "bash ./scripts/github-release.sh"
   },
-  "main": "./dist/mathlive.min.js",
-  "module": "./dist/mathlive.min.mjs",
-  "exports": {
-    "import": "./dist/mathlive.min.mjs",
-    "require": "./dist/mathlive.min.js"
-  },
-  "types": "./dist/public/mathlive.d.ts",
-  "files": [
-    "/dist"
-  ],
   "author": "Arno Gourdol <arno@arno.org>",
   "contributors": [
     "Louis Larpin (lilfaf.github.io)",
@@ -101,7 +128,8 @@
     "@arnog/esbuild-plugin-less": "^1.1.0",
     "@cortex-js/compute-engine": "^0.12.2",
     "@cortex-js/prettier-config": "^1.1.1",
-    "@types/css-font-loading-module": "0.0.7",
+    "@playwright/test": "^1.32.1",
+    "@types/css-font-loading-module": "0.0.8",
     "@types/jest": "^29.4.0",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",
@@ -120,7 +148,7 @@
     "postcss-cli": "^10.1.0",
     "prettier": "^2.8.3",
     "ts-jest": "^29.0.5",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.3"
   },
   "keywords": [
     "math",
@@ -130,6 +158,7 @@
     "cortex",
     "compute engine",
     "virtual keyboard",
+    "math keyboard",
     "latex",
     "tex",
     "mathjax",

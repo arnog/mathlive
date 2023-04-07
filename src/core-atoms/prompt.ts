@@ -122,6 +122,12 @@ export class PromptAtom extends Atom {
       box.setStyle('left', -padding, 'em');
     }
 
+    // empty prompt should be a little wider
+    if (!this.body || this.body.length === 1) {
+      box.setStyle('width', `calc(100% + ${3 * padding}em)`);
+      box.setStyle('left', -1.5 * padding, 'em');
+    }
+
     let svg = ''; // strike through incorrect prompt, for users with impaired color vision
 
     if (this.correctness === 'incorrect') {

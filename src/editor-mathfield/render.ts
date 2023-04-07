@@ -255,7 +255,7 @@ export function renderSelection(
     //
     // 1.1. Display the popover relative to the location of the caret
     //
-    setTimeout(() => updatePopoverPosition(mathfield), 32);
+    updatePopoverPosition(mathfield, { deferred: true });
 
     //
     // 1.2. Display the 'contains' highlight

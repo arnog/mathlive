@@ -47,6 +47,7 @@
     "examples",
     "docs",
     "tutorials",
-    "**/*.config.js"
+    "**/*.config.js",
+    "playwright.config.ts"
   ]
 }

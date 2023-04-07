@@ -6,7 +6,7 @@ import type { ModelPrivate } from '../editor-model/model-private';
 import { hidePopover, showPopover } from '../editor/popover';
 
 import type { MathfieldPrivate } from './mathfield-private';
-import { requestUpdate } from './render';
+import { render } from './render';
 import {
   getLatexGroupBody,
   getCommandSuggestionRange,
@@ -33,7 +33,10 @@ export function updateAutocomplete(
   removeSuggestion(mathfield);
   for (const atom of getLatexGroupBody(model)) atom.isError = false;
 
-  if (!model.selectionIsCollapsed) {
+  if (
+    !model.selectionIsCollapsed ||
+    mathfield.options.popoverPolicy === 'off'
+  ) {
     hidePopover(mathfield);
     return;
   }
@@ -41,7 +44,7 @@ export function updateAutocomplete(
   // The current command is the sequence of atoms around the insertion point
   // that ends on the left with a '\' and on the right with a non-command
   // character.
-  const command: LatexAtom[] = [];
+  const commandAtoms: LatexAtom[] = [];
   let atom = model.at(model.position);
 
   while (atom && atom instanceof LatexAtom && /^[a-zA-Z\*]$/.test(atom.value))
@@ -50,48 +53,45 @@ export function updateAutocomplete(
   if (atom && atom instanceof LatexAtom && atom.value === '\\') {
     // We've found the start of a command.
     // Go forward and collect the potential atoms of the command
-    command.push(atom);
+    commandAtoms.push(atom);
     atom = atom.rightSibling;
     while (
       atom &&
       atom instanceof LatexAtom &&
       /^[a-zA-Z\*]$/.test(atom.value)
     ) {
-      command.push(atom);
+      commandAtoms.push(atom);
       atom = atom.rightSibling;
     }
   }
 
-  const commandString = command.map((x) => x.value).join('');
-  const suggestions = commandString ? suggest(mathfield, commandString) : [];
+  const command = commandAtoms.map((x) => x.value).join('');
+  const suggestions = suggest(mathfield, command);
 
   if (suggestions.length === 0) {
     // This looks like a command name, but not a known one
-    if (/^\\[a-zA-Z\*]+$/.test(commandString)) {
-      command.forEach((x) => {
-        x.isError = true;
-      });
-    }
+    if (/^\\[a-zA-Z\*]+$/.test(command))
+      for (const atom of commandAtoms) atom.isError = true;
 
     hidePopover(mathfield);
     return;
   }
 
-  mathfield.suggestionIndex = options?.atIndex ?? 0;
-  if (mathfield.suggestionIndex < 0)
-    mathfield.suggestionIndex = suggestions.length - 1;
+  const index = options?.atIndex ?? 0;
+  mathfield.suggestionIndex =
+    index < 0 ? suggestions.length - 1 : index % suggestions.length;
 
-  const suggestion =
-    suggestions[mathfield.suggestionIndex % suggestions.length];
-  if (suggestion !== commandString) {
-    const lastAtom = command[command.length - 1];
+  const suggestion = suggestions[mathfield.suggestionIndex];
+
+  if (suggestion !== command) {
+    const lastAtom = commandAtoms[commandAtoms.length - 1];
     lastAtom.parent!.addChildrenAfter(
-      [...suggestion.slice(commandString.length - suggestion.length)].map(
+      [...suggestion.slice(command.length - suggestion.length)].map(
         (x) => new LatexAtom(x, mathfield, { isSuggestion: true })
       ),
       lastAtom
     );
-    requestUpdate(mathfield);
+    render(mathfield, { interactive: true });
   }
 
   showPopover(mathfield, suggestions);

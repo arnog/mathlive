@@ -94,7 +94,6 @@ import {
   validateOrigin,
 } from './utils';
 
-import { attachButtonHandlers } from './buttons';
 import { onPointerDown, offsetFromPoint } from './pointer-input';
 
 import { ModeEditor } from './mode-editor';
@@ -187,7 +186,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   private focusBlurInProgress = false;
 
   private readonly stylesheets: (null | Stylesheet)[] = [];
-  private resizeTimer: ReturnType<typeof requestAnimationFrame>;
+  private geometryChangeTimer: ReturnType<typeof requestAnimationFrame>;
 
   /** When true, the mathfield is listening to the virtual keyboard */
   private connectedToVirtualKeyboard: boolean;
@@ -379,16 +378,16 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this.field.addEventListener('pointerdown', this);
     else this.field.addEventListener('mousedown', this);
 
-    attachButtonHandlers(
-      this.element.querySelector<HTMLElement>(
-        '[part=virtual-keyboard-toggle]'
-      )!,
-      (command) => this.executeCommand(command),
-      {
-        default: 'toggleVirtualKeyboard',
-        shift: 'toggleVirtualKeyboardShift',
-      }
-    );
+    this.element
+      .querySelector<HTMLElement>('[part=virtual-keyboard-toggle]')
+      ?.addEventListener('click', () => {
+        if (window.mathVirtualKeyboard.visible)
+          window.mathVirtualKeyboard.hide();
+        else {
+          window.mathVirtualKeyboard.show({ animate: true });
+          window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+        }
+      });
 
     this.ariaLiveText = this.element.querySelector('[role=status]')!;
     // this.accessibleMathML = this.element.querySelector('.accessibleMathML')!;
@@ -450,9 +449,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       }
     );
 
-    // Request notification for when the window is resized or the device
-    // switched from portrait to landscape, to adjust the UI (popover, etc...)
+    // Request notification for when the window is resized, the device
+    // switched from portrait to landscape or the document is scrolled
+    // to adjust the UI (popover, etc...)
     window.addEventListener('resize', this);
+    document.addEventListener('scroll', this);
 
     // When the window loses focus, the browser will restore the focus to a
     // textarea element if it had the focus when the window was blured.
@@ -773,10 +774,20 @@ If you are using Vue, this may be because you are using the runtime-only build o
         break;
 
       case 'resize':
-        if (this.resizeTimer) cancelAnimationFrame(this.resizeTimer);
+        if (this.geometryChangeTimer)
+          cancelAnimationFrame(this.geometryChangeTimer);
 
-        this.resizeTimer = requestAnimationFrame(
-          () => isValidMathfield(this) && this.onResize()
+        this.geometryChangeTimer = requestAnimationFrame(
+          () => isValidMathfield(this) && this.onGeometryChange()
+        );
+        break;
+
+      case 'scroll':
+        if (this.geometryChangeTimer)
+          cancelAnimationFrame(this.geometryChangeTimer);
+
+        this.geometryChangeTimer = requestAnimationFrame(
+          () => isValidMathfield(this) && this.onGeometryChange()
         );
         break;
 
@@ -805,6 +816,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     element.removeEventListener('focus', this);
     element.removeEventListener('blur', this);
     window.removeEventListener('resize', this);
+    document.removeEventListener('scroll', this);
     window.removeEventListener('blur', this, { capture: true });
 
     // delete (this as any).accessibleMathML;
@@ -900,15 +912,34 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   /** Make sure the caret is visible within the matfield.
-   * If the mathfield is inside a mathfield element, make sure the mathfield
-   * element is visible in the page
+   * If using mathfield element, make sure the mathfield element is visible in
+   * the page
    */
   scrollIntoView(): void {
     if (!this.element) return;
     //
-    // 1/ If inside a mathfield element, make sure that element is visible.
+    // 1/ If using a mathfield element, make sure that the element is visible.
     //
-    this.host?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+    if (this.host) {
+      // 1.1/ Bring the mathfield into the viewport
+      this.host.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+      // 1.2/ If the virtual keyboard obscures the mathfield, adjust
+      if (
+        window.mathVirtualKeyboard.visible &&
+        window.mathVirtualKeyboard.container === window.document.body
+      ) {
+        const kbdBounds = window.mathVirtualKeyboard.boundingRect;
+        const mathfieldBounds = this.host.getBoundingClientRect();
+        if (mathfieldBounds.bottom > kbdBounds.top) {
+          window.document.scrollingElement?.scrollBy(
+            0,
+            mathfieldBounds.bottom - kbdBounds.top + 8
+          );
+        }
+      }
+    }
 
     //
     // 2/ If a render is pending, do it now to make sure we have correct layout
@@ -1027,7 +1058,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
     if (
       this.mode === mode ||
-      this.readOnly ||
+      !this.hasEditableContent ||
       !this.contentEditable ||
       this.disabled
     )
@@ -1486,7 +1517,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     });
   }
 
-  private onResize(): void {
+  private onGeometryChange(): void {
     updatePopoverPosition(this);
   }
 

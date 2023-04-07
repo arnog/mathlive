@@ -27,3 +27,6 @@ ehthumbs.db
 Thumbs.db
 #IDE files
 .idea
+/test-results/
+/playwright-report/
+/playwright/.cache/

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Playwright Test</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="data:," />
+    <style>
+      body {
+        /* --keyboard-background: linear-gradient(#e66465, #9198e5); */
+        --keyboard-background: linear-gradient(white, #cacfd7);
+      }
+      math-field,
+      textarea {
+        margin-top: 1em;
+        margin-bottom: 1em;
+      }
+
+      #mf-2::part(virtual-keyboard-toggle) {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Playwright End-to-end Test</h1>
+    </header>
+    <p>
+      This page is used by the Playwright end-to-end test automation tool. The
+      tests are defined in <kbd>/test/playwritght-tests/</kbd> and reference
+      this page.
+    </p>
+    <main>
+      <div>
+        <math-field id="mf-1"></math-field>
+        #mf-1: default
+      </div>
+      <div>
+        <math-field id="mf-2"></math-field>
+        #mf-2: Virtual Keyboard Toggle Hidden
+      </div>
+      <div>
+        <span id="mf-3-span"></span>
+        #mf-3: mathModeSpace='\\:', smartSuperscript=false
+      </div>
+
+      <div>
+        <math-field readonly id="mf-4">x=\frac{3}{4}</math-field>
+        #mf-4: readonly
+      </div>
+
+      <div>
+        <span id="mf-5-span"></span>
+        #mf-5: latex mode disabled
+      </div>
+
+      <textarea readonly disabled id="ta-1">hello world</textarea>
+
+      <math-field id="mf-prompt" readonly virtual-keyboard-mode="onfocus"
+        >x=\frac{\placeholder[numer]{}}{\placeholder[denom][correct]{3}</math-field
+      >
+
+      <textarea id="ta-2"></textarea>
+    </main>
+
+    <script type="module">
+      import { MathfieldElement } from '/dist/mathlive.mjs';
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const mfe3 = new MathfieldElement();
+        mfe3.id = 'mf-3';
+
+        mfe3.mathModeSpace = '\\:';
+        mfe3.smartSuperscript = false;
+
+        document.getElementById('mf-3-span').appendChild(mfe3);
+
+        const mfe5 = new MathfieldElement();
+        mfe5.id = 'mf-5';
+
+        mfe5.addEventListener(
+          'keydown',
+          (ev) => {
+            if (ev.key === '\\') {
+              ev.preventDefault();
+              mfe5.executeCommand(['insert', '\\backslash']);
+            } else if (ev.key === 'Escape') ev.preventDefault();
+          },
+          { capture: true }
+        );
+
+        document.getElementById('mf-5-span').appendChild(mfe5);
+      });
+    </script>
+  </body>
+</html>
