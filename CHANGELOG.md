@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bug Fixes
+- Update editing toolbar when virtual keyboard is made visible
+- **#1919** Correctly position the popover panel above or below the mathfield based on the space available. Allow for more suggestions to be displayed, and include a scrollbar when necessary.
+
 ## 0.91.1 (2023-04-05)
 
 ### Bug Fix

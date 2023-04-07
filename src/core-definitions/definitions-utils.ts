@@ -584,8 +584,7 @@ export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
  * Infix operators are excluded, since they are deprecated commands.
  */
 export function suggest(mf: MathfieldPrivate, s: string): string[] {
-  if (s === '\\') return [];
-  if (!s.startsWith('\\')) return [];
+  if (s.length === 0 || s === '\\' || !s.startsWith('\\')) return [];
 
   const result: { match: string; frequency: number }[] = [];
 

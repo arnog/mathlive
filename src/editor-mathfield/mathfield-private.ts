@@ -186,7 +186,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   private focusBlurInProgress = false;
 
   private readonly stylesheets: (null | Stylesheet)[] = [];
-  private resizeTimer: ReturnType<typeof requestAnimationFrame>;
+  private geometryChangeTimer: ReturnType<typeof requestAnimationFrame>;
 
   /** When true, the mathfield is listening to the virtual keyboard */
   private connectedToVirtualKeyboard: boolean;
@@ -449,9 +449,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       }
     );
 
-    // Request notification for when the window is resized or the device
-    // switched from portrait to landscape, to adjust the UI (popover, etc...)
+    // Request notification for when the window is resized, the device
+    // switched from portrait to landscape or the document is scrolled
+    // to adjust the UI (popover, etc...)
     window.addEventListener('resize', this);
+    document.addEventListener('scroll', this);
 
     // When the window loses focus, the browser will restore the focus to a
     // textarea element if it had the focus when the window was blured.
@@ -772,10 +774,20 @@ If you are using Vue, this may be because you are using the runtime-only build o
         break;
 
       case 'resize':
-        if (this.resizeTimer) cancelAnimationFrame(this.resizeTimer);
+        if (this.geometryChangeTimer)
+          cancelAnimationFrame(this.geometryChangeTimer);
 
-        this.resizeTimer = requestAnimationFrame(
-          () => isValidMathfield(this) && this.onResize()
+        this.geometryChangeTimer = requestAnimationFrame(
+          () => isValidMathfield(this) && this.onGeometryChange()
+        );
+        break;
+
+      case 'scroll':
+        if (this.geometryChangeTimer)
+          cancelAnimationFrame(this.geometryChangeTimer);
+
+        this.geometryChangeTimer = requestAnimationFrame(
+          () => isValidMathfield(this) && this.onGeometryChange()
         );
         break;
 
@@ -804,6 +816,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     element.removeEventListener('focus', this);
     element.removeEventListener('blur', this);
     window.removeEventListener('resize', this);
+    document.removeEventListener('scroll', this);
     window.removeEventListener('blur', this, { capture: true });
 
     // delete (this as any).accessibleMathML;
@@ -1504,7 +1517,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     });
   }
 
-  private onResize(): void {
+  private onGeometryChange(): void {
     updatePopoverPosition(this);
   }
 
