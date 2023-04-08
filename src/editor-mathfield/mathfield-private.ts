@@ -474,7 +474,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
               'focus',
               (evt) => {
                 if (evt.target === window && isValidMathfield(this))
-                  this.focus();
+                  this.focus({ scrollIntoView: false });
               },
               { once: true }
             );
@@ -750,7 +750,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (getCommandTarget(command) === 'virtual-keyboard') return;
         this.executeCommand(command);
       } else if (action === 'update-state') {
-      } else if (action === 'focus') this.focus();
+      } else if (action === 'focus') this.focus({ scrollIntoView: false });
       else if (action === 'blur') this.blur();
       return;
     }

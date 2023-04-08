@@ -567,8 +567,7 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
     x.addEventListener('pointerdown', (evt) => evt.preventDefault());
 
   // Restore the last active keyboards, or pick the first one
-  if (keyboard.lastLayer) keyboard.currentLayer = keyboard.lastLayer;
-  else layerElements[0]?.classList.add('is-visible');
+  keyboard.currentLayer = keyboard.latentLayer;
 
   return result;
 }

@@ -1,3 +1,15 @@
+## [Unreleased]
+
+
+### Bug Fix
+
+- When a keybinding conflicts with a composition, cancel the composition. For 
+ example, when typing <kbd>option</kbd>+<kbd>U</kbd>.
+- After changing the math keyboard layouts, if there is no layer matching
+  the previously active layer, pick the first available layer.
+- When scrolling the mathfield into view after activating the math keyboard
+  correctly account for the position of the keyboard.
+
 ## 0.91.2 (2023-04-06)
 
 ### Bug Fixes

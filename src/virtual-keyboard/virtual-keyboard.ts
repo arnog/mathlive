@@ -47,7 +47,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   private keycapRegistry: Record<string, Partial<VirtualKeyboardKeycap>> = {};
 
-  lastLayer: string;
+  latentLayer: string;
 
   get currentLayer(): string {
     return this._element?.querySelector('.MLK__layer.is-visible')?.id ?? '';
@@ -55,10 +55,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   set currentLayer(id: string) {
     if (!this._element) {
-      this.lastLayer = id;
+      this.latentLayer = id;
       return;
     }
-    const newActive = this._element.querySelector(`#${id}.MLK__layer`);
+    let newActive = id
+      ? this._element.querySelector(`#${id}.MLK__layer`)
+      : null;
+    if (!newActive) newActive = this._element.querySelector('.MLK__layer');
+
     if (newActive) {
       this._element
         .querySelector('.MLK__layer.is-visible')
@@ -209,22 +213,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this._visible = false;
     this._dirty = false;
     this.observer = new ResizeObserver((_entries) => {
-      // Adjust the keyboard height
-      const h = this.boundingRect.height;
-      if (this.container === document.body) {
-        this._element?.style.setProperty(
-          '--keyboard-height',
-          `calc(${h}px + env(safe-area-inset-bottom, 0))`
-        );
-        const keyboardHeight = h - 1;
-        this.container!.style.paddingBottom = this
-          .originalContainerBottomPadding
-          ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
-          : `${keyboardHeight}px`;
-      } else this._element?.style.setProperty('--keyboard-height', `${h}px`);
-
+      this.adjustBoundingRect();
       this.dispatchEvent(new Event('geometrychange'));
-
       this.sendMessage('geometry-changed', { boundingRect: this.boundingRect });
     });
 
@@ -241,7 +231,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       ) {
         const mf = target as MathfieldElement;
         if (mf.mathVirtualKeyboardPolicy === 'auto' && !mf.readOnly)
-          this.show();
+          this.show({ animate: true });
       }
     });
 
@@ -263,6 +253,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       }, 300);
     });
   }
+
   addEventListener(
     type: string,
     callback: EventListenerOrEventListenerObject | null,
@@ -314,6 +305,21 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return new DOMRect();
   }
 
+  adjustBoundingRect(): void {
+    // Adjust the keyboard height
+    const h = this.boundingRect.height;
+    if (this.container === document.body) {
+      this._element?.style.setProperty(
+        '--keyboard-height',
+        `calc(${h}px + env(safe-area-inset-bottom, 0))`
+      );
+      const keyboardHeight = h - 1;
+      this.container!.style.paddingBottom = this.originalContainerBottomPadding
+        ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
+        : `${keyboardHeight}px`;
+    } else this._element?.style.setProperty('--keyboard-height', `${h}px`);
+  }
+
   rebuild(): void {
     if (!this._element) {
       this._dirty = false;
@@ -334,6 +340,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       }
       if (this.visible) {
         this.buildAndAttachElement();
+        this.adjustBoundingRect();
 
         // Restore the active keyboard
         this.currentLayer = currentLayerId;
@@ -382,7 +389,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     // Confirm
     if (!this.stateWillChange(true)) return;
 
-    if (!this._element) this.buildAndAttachElement();
+    if (!this._element) {
+      this.buildAndAttachElement();
+      this.adjustBoundingRect();
+    }
 
     if (!this._visible) {
       const plate = this._element!.getElementsByClassName(
@@ -403,7 +413,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       window.addEventListener('keydown', this, { capture: true });
       window.addEventListener('keyup', this, { capture: true });
 
-      this.currentLayer = this.lastLayer;
+      this.currentLayer = this.latentLayer;
 
       this.render();
     }
@@ -418,11 +428,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           this._element.classList.add('animate');
           this._element.addEventListener(
             'transitionend',
-            () => {
-              this._element?.classList.remove('animate');
-              // Focus to scroll the field into view
-              this.focus();
-            },
+            () => this._element?.classList.remove('animate'),
             { once: true }
           );
           this._element.classList.add('is-visible');
@@ -431,7 +437,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       });
     } else {
       this._element!.classList.add('is-visible');
-      this.focus();
       this.stateChanged();
     }
   }
@@ -446,7 +451,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this._visible = false;
 
     if (this._element) {
-      this.lastLayer = this.currentLayer;
+      this.latentLayer = this.currentLayer;
 
       const plate = this._element.getElementsByClassName('MLK__plate')[0];
       if (plate) this.observer.unobserve(plate);
@@ -478,9 +483,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   buildAndAttachElement(): void {
     console.assert(!this.element);
     this.element = makeKeyboardElement(this);
-    this.element.addEventListener('pointerdown', () => this.focus());
+    // this.element.addEventListener('pointerdown', () => this.focus());
+
     // To prevent the long press contextmenu from showing up in Chrome...
     window.addEventListener('contextmenu', this, { capture: true });
+
     this.element.addEventListener(
       'contextmenu',
       (ev) => {
