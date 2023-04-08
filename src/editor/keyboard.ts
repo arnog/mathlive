@@ -377,9 +377,17 @@ export function delegateKeyboardEvents(
 
   return {
     cancelComposition: (): void => {
-      if (!compositionInProgress) return;
+      // Due to the order of event, we may not have
+      // received `compositionstart` by the time we decide
+      // to cancel the composition.
+      const sel = window.getSelection();
+      const range = sel?.getRangeAt(0);
+
       keyboardSink.blur();
-      requestAnimationFrame(() => keyboardSink.focus());
+
+      window.getSelection()?.removeAllRanges();
+
+      setTimeout(() => sel?.addRange(range!), 20);
     },
 
     blur: (): void => {
