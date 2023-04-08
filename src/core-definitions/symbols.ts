@@ -203,6 +203,7 @@ newSymbols(
 
     ['\\twoheadleftarrow', 0x219e],
     ['\\twoheadrightarrow', 0x21a0],
+    ['\\twoheadrightarrowtail', 0x2916],
 
     ['\\rightleftharpoons', 0x21cc],
     ['\\leftrightharpoons', 0x21cb],
@@ -226,12 +227,16 @@ newSymbols(
 
     // 'ams' Negated Arrows
 
-    ['\\nrightarrow', 0x219b],
     ['\\nleftarrow', 0x219a],
+    ['\\nrightarrow', 0x219b],
     ['\\nRightarrow', 0x21cf],
     ['\\nLeftarrow', 0x21cd],
     ['\\nleftrightarrow', 0x21ae],
     ['\\nLeftrightarrow', 0x21ce],
+    ['\\nvrightarrow', 0x21f8],
+    ['\\nvtwoheadrightarrow', 0x2900],
+    ['\\nvrightarrowtail', 0x2914],
+    ['\\nvtwoheadrightarrowtail', 0x2917],
 
     // 'ams' Negated Relations
     ['\\shortparallel', 0x2225],

@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## Improvements
+
+- Removed some unused keybindings, added Desmos Graphing Calculator inline shortcuts, added ASCIIMath inline shortcuts.
 
 ### Bug Fix
 
@@ -9,6 +12,7 @@
   the previously active layer, pick the first available layer.
 - When scrolling the mathfield into view after activating the math keyboard
   correctly account for the position of the keyboard.
+- **#1914** When the `mathVirtualKeyboardPolicy` is set to `"manual"`, the keyboard is not hidden, even when losing focus.
 
 ## 0.91.2 (2023-04-06)
 
