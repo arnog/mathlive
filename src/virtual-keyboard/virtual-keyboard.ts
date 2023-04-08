@@ -235,22 +235,25 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       }
     });
 
-    document.addEventListener('focusout', () => {
-      // If after a short delay the active element is no longer
-      // a mathfield (or there is no active element),
-      // hide the virtual keyboard
-      setTimeout(() => {
-        let target = document.activeElement;
-        let focusedMathfield = false;
-        while (target) {
-          if (target.tagName?.toLowerCase() === 'math-field') {
-            focusedMathfield = true;
-            break;
+    document.addEventListener('focusout', (evt) => {
+      const target = evt.target as MathfieldElement;
+      if (target.mathVirtualKeyboardPolicy !== 'manual') {
+        // If after a short delay the active element is no longer
+        // a mathfield (or there is no active element),
+        // hide the virtual keyboard
+        setTimeout(() => {
+          let target = document.activeElement;
+          let focusedMathfield = false;
+          while (target) {
+            if (target.tagName?.toLowerCase() === 'math-field') {
+              focusedMathfield = true;
+              break;
+            }
+            target = target.shadowRoot?.activeElement ?? null;
           }
-          target = target.shadowRoot?.activeElement ?? null;
-        }
-        if (!focusedMathfield) this.hide();
-      }, 300);
+          if (!focusedMathfield) this.hide();
+        }, 300);
+      }
     });
   }
 
