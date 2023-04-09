@@ -155,11 +155,13 @@ export class VirtualKeyboardProxy
     }
 
     if (action === 'synchronize-proxy') {
+      console.log('synchronize-proxy', window, msg.boundingRect);
       this._boundingRect = msg.boundingRect;
       return;
     }
 
     if (action === 'geometry-changed') {
+      console.log('geometry-change', window, msg.boundingRect);
       this._boundingRect = msg.boundingRect;
       this.dispatchEvent(new Event('geometrychange'));
       return;

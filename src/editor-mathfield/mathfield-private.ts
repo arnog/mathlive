@@ -107,6 +107,7 @@ import { PromptAtom } from '../core-atoms/prompt';
 import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
 import '../public/mathfield-element';
 
+import '../virtual-keyboard/virtual-keyboard';
 import '../virtual-keyboard/global';
 
 import type {

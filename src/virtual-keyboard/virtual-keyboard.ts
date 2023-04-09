@@ -525,7 +525,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         this.connectedMathfieldWindow = evt.source as Window;
       }
 
-      this.handleMessage(evt.data);
+      this.handleMessage(evt.data, evt.source);
     }
 
     if (!this._element) return;
@@ -567,7 +567,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     }
   }
 
-  handleMessage(msg: VirtualKeyboardMessage): void {
+  handleMessage(
+    msg: VirtualKeyboardMessage,
+    source: MessageEventSource | null
+  ): void {
     const { action } = msg;
     if (action === 'execute-command') {
       const { command } = msg;
@@ -581,9 +584,27 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       return;
     }
 
-    if (action === 'connect') return;
+    if (action === 'connect') {
+      this.sendMessage(
+        'synchronize-proxy',
+        {
+          boundingRect: this.boundingRect,
+          alphabeticLayout: this._alphabeticLayout,
+          layouts: this._layouts,
+          actionToolbar: this._actionToolbar,
+        },
+        source
+      );
+    }
 
     if (action === 'disconnect') return;
+
+    // If the mathVirtualKeyboardPolicy was set to `sandboxed`,
+    // we can be a VirtualKeyboard instance (not a proxy) inside a non-top-level
+    // browsing context. If that's the case, safely ignored messages that could
+    // be dispatched from other mathfields, as we will only respond to
+    // direct invocation via function dispatching on the VK instance.
+    if (window !== window.top) return;
 
     if (action === 'show') {
       if (typeof msg.animate !== 'undefined')
@@ -610,24 +631,30 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     if (action === 'proxy-created') {
       // A new proxy has been created. Dispatch a message to synchronize
       // the reflected state
-      this.sendMessage('synchronize-proxy', {
-        boundingRect: this.boundingRect,
-        alphabeticLayout: this._alphabeticLayout,
-        layouts: this._layouts,
-        actionToolbar: this._actionToolbar,
-      });
+      this.sendMessage(
+        'synchronize-proxy',
+        {
+          boundingRect: this.boundingRect,
+          alphabeticLayout: this._alphabeticLayout,
+          layouts: this._layouts,
+          actionToolbar: this._actionToolbar,
+        },
+        source
+      );
       return;
     }
   }
 
   private sendMessage(
     action: VirtualKeyboardMessageAction,
-    payload: any = {}
+    payload: any,
+    target?: MessageEventSource | null
   ): void {
+    if (!target) target = this.connectedMathfieldWindow;
     if (
       this.targetOrigin === null ||
       this.targetOrigin === 'null' ||
-      this.connectedMathfieldWindow === window
+      target === window
     ) {
       window.dispatchEvent(
         new MessageEvent('message', {
@@ -642,13 +669,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       return;
     }
 
-    this.connectedMathfieldWindow?.postMessage(
+    target?.postMessage(
       {
         type: VIRTUAL_KEYBOARD_MESSAGE,
         action,
         ...payload,
       },
-      this.targetOrigin
+      { targetOrigin: this.targetOrigin }
     );
   }
 
@@ -675,14 +702,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
    * @category Focus
    */
   public focus(): void {
-    this.sendMessage('focus');
+    this.sendMessage('focus', {});
   }
 
   /**
    * @category Focus
    */
   public blur(): void {
-    this.sendMessage('blur');
+    this.sendMessage('blur', {});
   }
 
   updateToolbar(mf: MathfieldProxy): void {

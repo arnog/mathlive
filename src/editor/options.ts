@@ -15,6 +15,7 @@ import { defaultExportHook } from '../editor-mathfield/mode-editor';
 
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
+import { VirtualKeyboard } from '../virtual-keyboard/global';
 
 /** @internal */
 export type MathfieldOptionsPrivate = MathfieldOptions & {
@@ -41,10 +42,23 @@ export function update(
         break;
 
       case 'mathVirtualKeyboardPolicy':
-        const keyboardPolicy =
+        let keyboardPolicy =
           updates.mathVirtualKeyboardPolicy!.toLowerCase() as VirtualKeyboardPolicy;
-        result.mathVirtualKeyboardPolicy = keyboardPolicy;
 
+        // The 'sandboxed' policy requires the use of a VirtualKeyboard
+        // (not a proxy) while inside an iframe.
+        // Redefine the `mathVirtualKeyboard` getter in the current browsing context
+        if (keyboardPolicy === 'sandboxed') {
+          if (window !== window['top']) {
+            const kbd = VirtualKeyboard.singleton;
+            Object.defineProperty(window, 'mathVirtualKeyboard', {
+              get: () => kbd,
+            });
+          }
+          keyboardPolicy = 'manual';
+        }
+
+        result.mathVirtualKeyboardPolicy = keyboardPolicy;
         break;
 
       case 'letterShapeStyle':

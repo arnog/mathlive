@@ -3,6 +3,9 @@
 ## Improvements
 
 - Removed some unused keybindings, added Desmos Graphing Calculator inline shortcuts, added ASCIIMath inline shortcuts.
+- **#1920** Added a `"sandboxed"` `mathVirtualKeyboardPolicy` which causes the
+  iframe in which the mathfield is to be treated as a top-level browsing context,
+  i.e. to display a virtual keyboard instance in the that iframe.
 
 ### Bug Fix
 

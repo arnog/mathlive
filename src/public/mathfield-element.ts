@@ -117,12 +117,15 @@ export type MoveOutEvent = {
 };
 
 /**
- * -   `"auto"`: the virtual keyboard is triggered when a
+ * - `"auto"`: the virtual keyboard is triggered when a
  * mathfield is focused on a touch capable device.
- * -   `"manual"`: the virtual keyboard not triggered automatically
+ * - `"manual"`: the virtual keyboard is not triggered automatically
+ * - `"sandboxed"`: the virtual keyboard is displayed in the current browsing
+ * context (iframe) if it has a defined container or is the top-level browsing
+ * context.
  *
  */
-export type VirtualKeyboardPolicy = 'auto' | 'manual';
+export type VirtualKeyboardPolicy = 'auto' | 'manual' | 'sandboxed';
 
 declare global {
   /**
@@ -283,9 +286,12 @@ export interface MathfieldElementAttributes {
   'script-depth': string;
 
   /**
-   * -   `"auto"`: the virtual keyboard is triggered when a
+   * - `"auto"`: the virtual keyboard is triggered when a
    * mathfield is focused on a touch capable device.
-   * -   `"manual"`: the virtual keyboard not triggered automatically
+   * - `"manual"`: the virtual keyboard is not triggered automatically
+   * - `"sandboxed"`: the virtual keyboard is displayed in the current browsing
+   * context (iframe) if it has a defined container or is the top-level browsing
+   * context.
    *
    */
   'math-virtual-keyboard-policy': VirtualKeyboardPolicy;
