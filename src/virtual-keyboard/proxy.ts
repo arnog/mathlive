@@ -4,7 +4,8 @@ import {
   AlphabeticKeyboardLayout,
   OriginValidator,
   VirtualKeyboardLayout,
-  ActionToolbarOptions,
+  EditToolbarOptions,
+  VirtualKeyboardKeycap,
 } from '../public/options';
 import type {
   VirtualKeyboardMessage,
@@ -59,8 +60,20 @@ export class VirtualKeyboardProxy
   set layouts(value: (string | VirtualKeyboardLayout)[]) {
     this.sendMessage('update-setting', { layouts: value });
   }
-  set actionToolbar(value: ActionToolbarOptions) {
-    this.sendMessage('update-setting', { actionToolbar: value });
+  set editToolbar(value: EditToolbarOptions) {
+    this.sendMessage('update-setting', { editToolbar: value });
+  }
+  set actionKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { actionKeycap: value });
+  }
+  set shiftKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { shiftKeycap: value });
+  }
+  set backspaceKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { backspaceKeycap: value });
+  }
+  set tabKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { tabKeycap: value });
   }
 
   set container(value: HTMLElement | null) {

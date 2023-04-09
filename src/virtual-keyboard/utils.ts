@@ -178,7 +178,7 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
     '[.]',
     '[left]',
     '[right]',
-    { label: '[return]', width: 1.5 },
+    { label: '[action]', width: 1.5 },
   ]);
 
   return {
@@ -240,7 +240,6 @@ export function normalizeLayout(
     if (layer.rows) {
       for (const keycap of layer.rows.flat()) {
         const label = keycap.label!;
-        if (label === '[shift]') debugger;
         if (
           typeof keycap !== 'string' &&
           keycap.class &&
@@ -304,7 +303,7 @@ export function makeEditToolbar(
   mathfield: MathfieldProxy
 ): string {
   let result = '';
-  const toolbarOptions = options.actionToolbar;
+  const toolbarOptions = options.editToolbar;
   if (toolbarOptions === 'none') return '';
 
   const availableActions: string[] = [];
@@ -741,6 +740,12 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     width: 1.5,
     label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
   },
+  '[action]': {
+    class: 'action',
+    command: ['performWithFeedback', 'commit'],
+    width: 1.5,
+    label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
+  },
   '[hr]': {
     class: 'separator horizontal-rule',
   },
@@ -810,12 +815,12 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     class: 'big-op hide-shift',
   },
   '[backspace]': {
-    class: 'action font-glyph bottom right hide-shift',
+    class: 'action bottom right hide-shift',
     width: 1.5,
     command: ['performWithFeedback', 'deleteBackward'],
     label: '<svg class=svg-glyph><use xlink:href=#svg-delete-backward /></svg>',
     shift: {
-      class: 'action font-glyph warning',
+      class: 'action warning',
       label: '<svg class=svg-glyph><use xlink:href=#svg-trash /></svg>',
       command: 'deleteAll',
     },
@@ -923,7 +928,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   '[separator-20]': { class: 'separator', width: 2.0 },
   '[separator-50]': { class: 'separator', width: 5.0 },
   '[shift]': {
-    class: 'shift font-glyph bottom left',
+    class: 'shift bottom left',
     width: 1.5,
     label:
       '<span class=caps-lock-indicator></span><svg class=svg-glyph><use xlink:href=#svg-shift /></svg>',
@@ -951,13 +956,42 @@ export function normalizeKeycap(
   }
 
   if ('label' in keycap && keycap.label && KEYCAP_SHORTCUTS[keycap.label]) {
-    const shortcut = {
+    let shortcut = {
       ...KEYCAP_SHORTCUTS[keycap.label],
       ...keycap,
       label: KEYCAP_SHORTCUTS[keycap.label].label,
     };
     if (shortcut.command === 'insertDecimalSeparator')
       shortcut.label = window.MathfieldElement.decimalSeparator ?? '.';
+
+    if (keycap.label === '[action]') {
+      shortcut = {
+        ...shortcut,
+        ...(window.mathVirtualKeyboard
+          .actionKeycap as Partial<VirtualKeyboardKeycap>),
+      };
+    }
+    if (keycap.label === '[shift]') {
+      shortcut = {
+        ...shortcut,
+        ...(window.mathVirtualKeyboard
+          .shiftKeycap as Partial<VirtualKeyboardKeycap>),
+      };
+    }
+    if (keycap.label === '[backspace]') {
+      shortcut = {
+        ...shortcut,
+        ...(window.mathVirtualKeyboard
+          .backspaceKeycap as Partial<VirtualKeyboardKeycap>),
+      };
+    }
+    if (keycap.label === '[tab]') {
+      shortcut = {
+        ...shortcut,
+        ...(window.mathVirtualKeyboard
+          .tabKeycap as Partial<VirtualKeyboardKeycap>),
+      };
+    }
 
     return shortcut;
   }

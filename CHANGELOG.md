@@ -6,6 +6,7 @@
 - **#1920** Added a `"sandboxed"` `mathVirtualKeyboardPolicy` which causes the
   iframe in which the mathfield is to be treated as a top-level browsing context,
   i.e. to display a virtual keyboard instance in the that iframe.
+- Added `mathVirtualKeycap.actionKeycap`, `mathVirtualKeycap.shiftKeycap`, `mathVirtualKeycap.tabKeycap`, `mathVirtualKeycap.backspaceKeycap` to customize the appearance of action keys without having to define new layouts. This can be used to change the "Return" glyph to "Continue" for example, or to use the word "Shift" for the shift key instead of the default shift glyph.
 
 ### Bug Fix
 

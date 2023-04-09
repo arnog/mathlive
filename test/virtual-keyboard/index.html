@@ -88,6 +88,12 @@
       let keyboardFrozen = false;
 
       const kbd = window.mathVirtualKeyboard;
+      kbd.shiftKeycap = { label: 'Shift' };
+      kbd.actionKeycap = { label: 'Continue', class: 'action primary small' };
+      kbd.backspaceKeycap = {
+        label: 'Backspace',
+        class: 'action small hide-shift',
+      };
       // kbd.layouts = 'minimalist';
       // kbd.alphabeticLayout = 'dvorak';
       // k.addEventListener('virtual-keyboard-toggle', (ev) =>

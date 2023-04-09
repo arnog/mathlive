@@ -1,5 +1,5 @@
 import type {
-  ActionToolbarOptions,
+  EditToolbarOptions,
   AlphabeticKeyboardLayout,
   NormalizedVirtualKeyboardLayer,
   VirtualKeyboardKeycap,
@@ -133,6 +133,36 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.rebuild();
   }
 
+  private _actionKeycap: Partial<VirtualKeyboardKeycap>;
+  get actionKeycap(): Partial<VirtualKeyboardKeycap> {
+    return this._actionKeycap;
+  }
+  set actionKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this._actionKeycap = typeof value === 'string' ? { label: value } : value;
+  }
+  private _shiftKeycap: Partial<VirtualKeyboardKeycap>;
+  get shiftKeycap(): Partial<VirtualKeyboardKeycap> {
+    return this._shiftKeycap;
+  }
+  set shiftKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this._shiftKeycap = typeof value === 'string' ? { label: value } : value;
+  }
+  private _backspaceKeycap: Partial<VirtualKeyboardKeycap>;
+  get backspaceKeycap(): Partial<VirtualKeyboardKeycap> {
+    return this._backspaceKeycap;
+  }
+  set backspaceKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this._backspaceKeycap =
+      typeof value === 'string' ? { label: value } : value;
+  }
+  private _tabKeycap: Partial<VirtualKeyboardKeycap>;
+  get tabKeycap(): Partial<VirtualKeyboardKeycap> {
+    return this._tabKeycap;
+  }
+  set tabKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this._tabKeycap = typeof value === 'string' ? { label: value } : value;
+  }
+
   private _layouts: 'default' | (string | VirtualKeyboardLayout)[];
   get layouts(): 'default' | (string | VirtualKeyboardLayout)[] {
     return this._layouts;
@@ -173,12 +203,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return this._normalizedLayouts;
   }
 
-  private _actionToolbar: ActionToolbarOptions;
-  get actionToolbar(): ActionToolbarOptions {
-    return this._actionToolbar;
+  private _editToolbar: EditToolbarOptions;
+  get editToolbar(): EditToolbarOptions {
+    return this._editToolbar;
   }
-  set actionToolbar(value: ActionToolbarOptions) {
-    this._actionToolbar = value;
+  set editToolbar(value: EditToolbarOptions) {
+    this._editToolbar = value;
     this.rebuild();
   }
 
@@ -206,7 +236,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     this._alphabeticLayout = 'auto';
     this._layouts = 'default';
-    this._actionToolbar = 'default';
+    this._editToolbar = 'default';
 
     this._container = window.document?.body ?? null;
 
@@ -591,7 +621,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           boundingRect: this.boundingRect,
           alphabeticLayout: this._alphabeticLayout,
           layouts: this._layouts,
-          actionToolbar: this._actionToolbar,
+          editToolbar: this._editToolbar,
         },
         source
       );
@@ -624,7 +654,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       // A proxy has an updated setting
       if (msg.alphabeticLayout) this.alphabeticLayout = msg.alphabeticLayout;
       if (msg.layouts) this.layouts = msg.layouts;
-      if (msg.actionToolbar) this.actionToolbar = msg.actionToolbar;
+      if (msg.editToolbar) this.editToolbar = msg.editToolbar;
       return;
     }
 
@@ -637,7 +667,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           boundingRect: this.boundingRect,
           alphabeticLayout: this._alphabeticLayout,
           layouts: this._layouts,
-          actionToolbar: this._actionToolbar,
+          editToolbar: this._editToolbar,
         },
         source
       );

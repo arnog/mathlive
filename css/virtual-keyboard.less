@@ -409,9 +409,21 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
       border-color: var(--keycap-secondary-border);
       border-bottom-color: var(--keycap-secondary-border-bottom);
       line-height: 0.8;
+      font-size: calc(min(1rem, var(--keycap-small-font-size, 16px)));
+      font-weight: 600;
+      padding: 8px 12px 8px 12px;      
       &:hover {
         background: var(--keycap-secondary-background-hover);
       }
+    }
+
+    .action.primary {
+      background: var(--keyboard-accent-color);
+      color: #ddd;
+    }
+    .action.primary:hover {
+      background: #0d80f2 ; // blue-500
+      color: #fff;
     }
 
     .shift.selected,
@@ -421,11 +433,6 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
       &.is-active {
         color: white;
       }
-    }
-
-    .action.font-glyph,
-    .shift.font-glyph {
-      font-size: 2em;
     }
 
     // Use to display warning icons, with a SVG icon
@@ -893,11 +900,6 @@ Note there are a different set of tooltip rules for the keyboard toggle
   }
   .MLK__tooltip::after {
     padding: 8px 16px;
-    font-size: 16px;
-  }
-
-  .MLK__rows > .row > div.action.font-glyph,
-  .MLK__rows > .row > div.shift.font-glyph {
     font-size: 16px;
   }
 

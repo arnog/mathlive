@@ -340,7 +340,7 @@ const DEPRECATED_OPTIONS = {
   virtualKeyboardLayout: 'mathVirtualKeyboard.alphabeticLayout = ...',
   virtualKeyboardTheme: 'No longer supported',
   virtualKeyboardToggleGlyph: 'No longer supported',
-  virtualKeyboardToolbar: 'mathVirtualKeyboard.actionToolbar = ...',
+  virtualKeyboardToolbar: 'mathVirtualKeyboard.editToolbar = ...',
   virtualKeyboards: 'Use `mathVirtualKeyboard.layouts`',
   speechEngine: '`MathfieldElement.speechEngine`',
   speechEngineRate: '`MathfieldElement.speechEngineRate`',
