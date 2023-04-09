@@ -1002,7 +1002,6 @@ Note there are a different set of tooltip rules for the keyboard toggle
   --keycap-secondary-border-bottom: transparent;
 
   --variant-panel-background: #303030;
-  --variant-panel-background: #303030;
   --variant-keycap-text: var(--keycap-text);
   --variant-keycap-text-active: #fff;
 }
@@ -1038,4 +1037,95 @@ Note there are a different set of tooltip rules for the keyboard toggle
   --variant-keycap-text: var(--keycap-text, #000);
   --variant-keycap-text-active: #fff;
   --variant-keycap-background-active: var(--keyboard-accent-color);
+}
+
+.MLK__environment-panel:not(.is-visible) {
+  visibility: none;
+}
+
+.MLK__environment-panel {
+  width: 160px;
+  height: 68px;
+  border-radius: 10px;
+  background-color: var(--variant-panel-background);
+  box-shadow: @shadow4;
+  
+  .MLK__environment-controls {
+    justify-content: flex-start;
+    align-items: start;
+
+    svg {
+      height: 20px;
+      width: 20px;
+      pointer-events: none;
+      & > path, & > circle, & > rect {
+        pointer-events: all;
+      }
+    }
+    
+    .MLK__array-button {
+      transition: 300ms;
+    }
+
+    .MLK__array-button-background {
+      fill-opacity: 0;
+    }
+
+    svg:has(.MLK__array-button:hover, .MLK__array-button-background:hover) {
+      .MLK__array-button {
+        fill: var(--keyboard-accent-color, #20d80c);  
+        fill-opacity: 1;
+        transform: matrix(1.2, 0, 0, 1.2, -1.6, -1.6)
+      }
+    }
+
+    .MLK__row-controls {
+      height: 60px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .MLK__column-controls {
+      display: flex;
+      flex-wrap: wrap;
+      width: 60px;
+      align-items: center;
+      svg:first-of-type {
+        margin-left: -20px;
+      }
+      p {
+        font-size: 30px;
+        color: #999;
+        margin-block-start: 15px;
+      }
+    }
+
+    .MLK__array-navigator {
+      width: 40px;
+      height: 40px;
+
+      path {
+        fill: #999;
+        transition: 300ms;
+      }
+
+      path:hover, rect:hover + path {
+        fill: var(--keyboard-accent-color, #0c75d8);  
+      }
+
+      .MLK__array-navigator-center {
+        stroke-width: 2;
+        stroke: #999;
+        fill-opacity: 0;
+
+      }
+    }
+  }
+}
+
+div[role=presentation]:has(.MLK__environment-panel) {
+  pointer-events: none;
+   .MLK__environment-panel {
+    pointer-events: all;
+   }
 }

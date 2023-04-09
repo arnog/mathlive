@@ -304,6 +304,7 @@ export function makeEditToolbar(
   mathfield: MathfieldProxy
 ): string {
   let result = '';
+  console.log(options.actionToolbar);
   const toolbarOptions = options.actionToolbar;
   if (toolbarOptions === 'none') return '';
 

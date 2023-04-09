@@ -18,6 +18,7 @@ import type {
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
 import { GlobalContext, BoxType, PrivateStyle } from 'core/types';
+import { Environment } from './environments';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;
@@ -230,7 +231,7 @@ export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 
 type EnvironmentConstructor = (
   context: GlobalContext,
-  name: string,
+  name: Environment,
   array: Atom[][][],
   rowGaps: Dimension[],
   args: (null | Argument)[]
@@ -694,7 +695,7 @@ export function parseArgAsString(atoms: Atom[]): string {
  * @param params The number and type of required and optional parameters.
  */
 export function defineEnvironment(
-  names: string | string[],
+  names: Environment | Environment[],
   parameters: string,
   createAtom: EnvironmentConstructor,
   isTabular = false
@@ -722,7 +723,7 @@ export function defineEnvironment(
  * and '\\' indicate a new row.
  */
 export function defineTabularEnvironment(
-  names: string | string[],
+  names: Environment | Environment[],
   parameters: string,
   createAtom: EnvironmentConstructor
 ): void {

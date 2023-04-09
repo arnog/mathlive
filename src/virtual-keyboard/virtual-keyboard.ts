@@ -32,6 +32,11 @@ import {
 } from './utils';
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
+import { Style } from 'mathlive';
+import {
+  hideEnvironmentPanel,
+  showEnvironmentPanel,
+} from './environmentPopover';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
@@ -194,6 +199,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   static get singleton(): VirtualKeyboard {
     if (!this._singleton) this._singleton = new VirtualKeyboard();
     return this._singleton;
+  }
+
+  private _style: Style;
+  get style(): Style {
+    return this._style;
   }
 
   constructor() {
@@ -504,9 +514,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           'SecurityError'
         );
       }
-      if (evt.data.action === 'disconnect')
+      if (evt.data.action === 'disconnect') {
         this.connectedMathfieldWindow = undefined;
-      else if (
+      } else if (
         evt.data.action !== 'update-setting' &&
         evt.data.action !== 'proxy-created' &&
         evt.data.action !== 'execute-command'
@@ -691,11 +701,22 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       toolbar.innerHTML = makeEditToolbar(this, mf);
   }
 
+  update(mf: MathfieldProxy): void {
+    if (mf.array && mf.boundingRect && this.visible && mf.mode === 'math') {
+      showEnvironmentPanel(this, mf.array, mf.boundingRect);
+    } else {
+      hideEnvironmentPanel();
+    }
+    this._style = mf.style;
+    this.updateToolbar(mf);
+  }
+
   connect(): void {
     this.connectedMathfieldWindow = window;
   }
 
   disconnect(): void {
+    hideEnvironmentPanel();
     this.connectedMathfieldWindow = undefined;
   }
 

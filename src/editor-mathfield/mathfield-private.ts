@@ -385,7 +385,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           window.mathVirtualKeyboard.hide();
         else {
           window.mathVirtualKeyboard.show({ animate: true });
-          window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+          window.mathVirtualKeyboard.update(makeProxy(this));
         }
       });
 
@@ -509,7 +509,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     window.addEventListener('message', this);
     // Connect the kbd or kbd proxy to the current window
     window.mathVirtualKeyboard.connect();
-    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+    window.mathVirtualKeyboard.update(makeProxy(this));
   }
 
   disconnectFromVirtualKeyboard(): void {
@@ -638,8 +638,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // Selection is not extended, adopt style
     if (this.model.selectionIsCollapsed) {
       const previousAtom = this.model.at(this.model.selection.ranges[0][0]);
+
+      console.log('current atom: ', previousAtom);
+
       const siblingToAdopt =
         this.adoptStyle === 'right' ? previousAtom.rightSibling : previousAtom;
+
       if (!siblingToAdopt) return {};
       return siblingToAdopt.style;
     }
@@ -881,7 +885,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this.focus({ scrollIntoView: false });
       window.mathVirtualKeyboard.executeCommand(command);
       requestAnimationFrame(() =>
-        window.mathVirtualKeyboard.updateToolbar(makeProxy(this))
+        window.mathVirtualKeyboard.update(makeProxy(this))
       );
       return false;
     }
@@ -1368,7 +1372,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   snapshot(): void {
     if (this.undoManager.snapshot()) {
-      window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+      window.mathVirtualKeyboard.update(makeProxy(this));
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1381,7 +1385,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   snapshotAndCoalesce(): void {
     if (this.undoManager.snapshotAndCoalesce()) {
-      window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+      window.mathVirtualKeyboard.update(makeProxy(this));
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1394,7 +1398,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   undo(): void {
     if (!this.undoManager.undo()) return;
-    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+    console.log('updating');
+    window.mathVirtualKeyboard.update(makeProxy(this));
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,
@@ -1406,7 +1411,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   redo(): void {
     if (!this.undoManager.redo()) return;
-    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+    window.mathVirtualKeyboard.update(makeProxy(this));
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,

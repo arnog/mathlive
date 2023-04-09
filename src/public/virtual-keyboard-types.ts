@@ -1,4 +1,6 @@
-import { Selector } from 'mathlive';
+import { ArrayAtom } from 'core-atoms/array';
+import { Environment } from 'core-definitions/environments';
+import { ParseMode, Selector, Style } from 'mathlive';
 import type {
   VirtualKeyboardOptions,
   AlphabeticKeyboardLayout,
@@ -12,6 +14,10 @@ export interface MathfieldProxy {
   readonly selectionIsCollapsed: boolean;
   readonly canUndo: boolean;
   readonly canRedo: boolean;
+  readonly mode: ParseMode;
+  readonly style: Style;
+  readonly array?: ArrayAtom;
+  readonly boundingRect?: DOMRect;
 }
 
 /**
@@ -32,7 +38,7 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
    * may need to be updated accordingly
    */
   updateToolbar(mf: MathfieldProxy): void;
-
+  update(mf: MathfieldProxy): void;
   connect(): void;
   disconnect(): void;
 }

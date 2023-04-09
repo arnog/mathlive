@@ -133,6 +133,45 @@ automatically, and therefore the use of alignedat is deprecated.
 // See https://en.wikibooks.org/wiki/LaTeX/Mathematics
 // and http://www.ele.uri.edu/faculty/vetter/Other-stuff/latex/Mathmode.pdf
 
+export type MatrixEnvironments =
+  | 'matrix'
+  | 'pmatrix'
+  | 'bmatrix'
+  | 'Bmatrix'
+  | 'vmatrix'
+  | 'Vmatrix'
+  | 'matrix*'
+  | 'pmatrix*'
+  | 'bmatrix*'
+  | 'Bmatrix*'
+  | 'vmatrix*'
+  | 'Vmatrix*';
+
+export type TabularEnvironment =
+  | MatrixEnvironments
+  | 'array'
+  | 'equation'
+  | 'equation*'
+  | 'subequations'
+  | 'multline'
+  | 'align'
+  | 'align*'
+  | 'aligned'
+  | 'eqnarray'
+  | 'split'
+  | 'gather'
+  | 'gathered'
+  | 'smallmatrix'
+  | 'smallmatrix*'
+  | 'cases'
+  | 'dcases'
+  | 'rcases';
+
+export type Environment =
+  | 'math'
+  | 'displaymath'
+  | 'center'
+  | TabularEnvironment;
 /*
 The star at the end of the name of a displayed math environment causes that
 the formula lines won't be numbered. Otherwise they would automatically get a number.
@@ -159,7 +198,7 @@ defineEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: Environment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -179,7 +218,7 @@ defineEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: Environment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -199,7 +238,7 @@ defineTabularEnvironment(
   '{columns:colspec}',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[],
     args
@@ -221,7 +260,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -242,7 +281,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -270,7 +309,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -330,7 +369,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -355,7 +394,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -411,7 +450,7 @@ defineTabularEnvironment(
   '[columns:colspec]',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[],
     args
@@ -492,7 +531,7 @@ defineTabularEnvironment(
   '[columns:colspec]',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[],
     args
@@ -529,7 +568,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -565,7 +604,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: TabularEnvironment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -599,7 +638,7 @@ defineEnvironment(
   '',
   (
     context: GlobalContext,
-    name: string,
+    name: Environment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {

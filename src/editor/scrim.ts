@@ -58,7 +58,11 @@ export class Scrim {
     return element;
   }
 
-  open(options: { root?: Node | null; child?: HTMLElement }): void {
+  open(options: {
+    root?: Node | null;
+    child?: HTMLElement;
+    zIndex?: number;
+  }): void {
     if (this.state !== 'closed') return;
 
     this.state = 'opening';
@@ -67,6 +71,9 @@ export class Scrim {
     this.savedActiveElement = deepActiveElement();
 
     const { element } = this;
+
+    if (options.zIndex) element.style.zIndex = options.zIndex.toString();
+
     (options?.root ?? document.body).appendChild(element);
 
     element.addEventListener('click', this);

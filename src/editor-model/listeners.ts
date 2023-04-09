@@ -16,7 +16,7 @@ export function selectionDidChange(model: ModelPrivate): void {
     model.listeners.onSelectionDidChange(model);
     model.suppressChangeNotifications = false;
   }
-  window.mathVirtualKeyboard.updateToolbar(makeProxy(model.mathfield));
+  window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
 }
 
 export function contentWillChange(

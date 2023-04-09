@@ -7,5 +7,9 @@ export function makeProxy(mf: MathfieldPrivate): MathfieldProxy {
     selectionIsCollapsed: mf.model.selectionIsCollapsed,
     canUndo: mf.canUndo(),
     canRedo: mf.canRedo(),
+    style: mf.selectionStyle,
+    array: mf.model.parentEnvironment,
+    boundingRect: mf.element?.getBoundingClientRect(),
+    mode: mf.mode,
   };
 }
