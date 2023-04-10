@@ -151,7 +151,8 @@ function normalizeArray(
   //
   if (
     rows[rows.length - 1].length === 1 &&
-    rows[rows.length - 1][0].length === 0
+    rows[rows.length - 1][0].length === 1 &&
+    rows[rows.length - 1][0][0].type === 'first'
   )
     rows.pop();
 
