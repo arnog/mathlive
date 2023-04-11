@@ -1109,8 +1109,9 @@ Note there are a different set of tooltip rules for the keyboard toggle
       justify-content: space-around;
       svg {
         pointer-events: all;
+        margin-top: 2px;
         width: calc(var(--private-panel-height) / 3 * 28 / 24);
-        height: calc(var(--private-panel-height) / 3);
+        height: calc(var(--private-panel-height) / 3 - 2px);
         border-radius: calc(var(--private-panel-height) / 25);
         &:hover {
           background-color: var(--keycap-background-hover, #f5f5f7);
