@@ -32,8 +32,6 @@ import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex, validateLatex } from '../core/parser';
 import { getDefaultRegisters } from '../core/registers';
 
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-
 import {
   contentWillChange,
   deleteRange,
@@ -107,6 +105,7 @@ import { PromptAtom } from '../core-atoms/prompt';
 import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
 import '../public/mathfield-element';
 
+import '../virtual-keyboard/virtual-keyboard';
 import '../virtual-keyboard/global';
 
 import type {
@@ -474,7 +473,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
               'focus',
               (evt) => {
                 if (evt.target === window && isValidMathfield(this))
-                  this.focus();
+                  this.focus({ scrollIntoView: false });
               },
               { once: true }
             );
@@ -783,7 +782,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (getCommandTarget(command) === 'virtual-keyboard') return;
         this.executeCommand(command);
       } else if (action === 'update-state') {
-      } else if (action === 'focus') this.focus();
+      } else if (action === 'focus') this.focus({ scrollIntoView: false });
       else if (action === 'blur') this.blur();
       return;
     }
@@ -1153,7 +1152,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
             const extractedAtoms = this.model.extractAtoms(selRange);
             if (
               extractedAtoms.length === 1 &&
-              extractedAtoms[0] instanceof PlaceholderAtom
+              extractedAtoms[0].type === 'placeholder'
             ) {
               // If we just had a placeholder selected, pretend we had an empty
               // selection

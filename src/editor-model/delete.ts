@@ -2,11 +2,11 @@ import { ContentChangeType } from '../public/options';
 import type { Range } from '../public/mathfield';
 
 import { LeftRightAtom } from '../core-atoms/leftright';
-import { Atom, Branch } from '../core/atom';
+import { Atom, Branch, BranchName } from '../core/atom';
 import { ModelPrivate } from './model-private';
 import { range } from './selection-utils';
 import { contentWillChange } from './listeners';
-// Import {
+// import {
 //     arrayFirstCellByRow,
 //     arrayColRow,
 //     arrayAdjustRow,
@@ -344,7 +344,7 @@ export function deleteBackward(model: ModelPrivate): boolean {
       if (target && onDelete(model, 'backward', target)) return;
 
       if (target?.isFirstSibling) {
-        if (onDelete(model, 'backward', target.parent!, target.treeBranch))
+        if (onDelete(model, 'backward', target.parent!, target.parentBranch))
           return;
 
         target = null;
@@ -386,14 +386,14 @@ export function deleteForward(model: ModelPrivate): boolean {
         target = model.at(model.position);
         if (
           target.isLastSibling &&
-          onDelete(model, 'forward', target.parent!, target.treeBranch)
+          onDelete(model, 'forward', target.parent!, target.parentBranch)
         )
           return;
 
         target = undefined;
       } else if (
         model.at(model.position).isLastSibling &&
-        onDelete(model, 'forward', target.parent!, target.treeBranch)
+        onDelete(model, 'forward', target.parent!, target.parentBranch)
       )
         return;
 
@@ -443,7 +443,7 @@ export function deleteRange(
     // (for example for surd/\sqrt)
     if (firstSelected === firstChild && lastSelected === lastChild) {
       const parent = result[0].parent!;
-      if (parent.type !== 'root' && parent.type !== 'prompt')
+      if (parent.parent && parent.type !== 'prompt')
         range = [model.offsetOf(parent.leftSibling), model.offsetOf(parent)];
     }
 
@@ -455,7 +455,7 @@ export function deleteRange(
       result[0].parent.type === 'genfrac'
     ) {
       const genfrac = result[0].parent!;
-      const branch = result[0].treeBranch === 'below' ? 'above' : 'below';
+      const branch = result[0].parentBranch === 'below' ? 'above' : 'below';
       const pos = model.offsetOf(genfrac.leftSibling);
       return model.deferNotifications(
         { content: true, selection: true, type },

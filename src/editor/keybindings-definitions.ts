@@ -197,17 +197,8 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // ctrl+- to delete a row or columns
 
   // MATHLIVE BINDINGS
-  // { key: 'alt+a', command: ['insert', '\\theta'] },
   { key: 'alt+p', ifMode: 'math', command: ['insert', '\\pi'] },
   { key: 'alt+v', ifMode: 'math', command: ['insert', '\\sqrt{#0}'] },
-  {
-    key: 'alt+w',
-    ifMode: 'math',
-    command: ['insert', '\\sum_{i=#?}^{#?}'],
-  },
-  { key: 'alt+b', command: ['insert', '\\int_{#?}^{#?}'] },
-  { key: 'alt+u', ifMode: 'math', command: ['insert', '\\cup'] },
-  { key: 'alt+n', ifMode: 'math', command: ['insert', '\\cap'] },
   { key: 'alt+o', ifMode: 'math', command: ['insert', '\\emptyset'] },
   {
     key: 'alt+d',
@@ -224,15 +215,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: ['insert', '\\partial'],
   },
-  {
-    key: 'shift+alt+p',
-    ifMode: 'math',
-    command: ['insert', '\\prod_{i=#?}^{#?}'],
-  },
-  { key: 'shift+alt+u', ifMode: 'math', command: ['insert', '\\bigcup'] },
-  { key: 'shift+alt+n', ifMode: 'math', command: ['insert', '\\bigcap'] },
-  { key: 'shift+alt+a', ifMode: 'math', command: ['insert', '\\forall'] },
-  { key: 'shift+alt+e', ifMode: 'math', command: ['insert', '\\exists'] },
   {
     key: 'alt+[Backslash]',
     ifMode: 'math',
@@ -279,18 +261,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // only work with specific keyboard layouts
   //
   {
-    key: 'alt+[Equal]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: ['applyStyle', { mode: 'text' }],
-  },
-  {
-    key: 'alt+[Equal]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'text',
-    command: ['applyStyle', { mode: 'math' }],
-  },
-  {
     key: 'shift+[Quote]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
@@ -302,13 +272,13 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     command: ['switchMode', 'text', '', ''],
   },
   {
-    key: 'shift+alt+[KeyT]',
+    key: 'shift+[Quote]',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'text',
     command: ['switchMode', 'math', '', ''],
   },
   {
-    key: 'shift+[Quote]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    key: 'shift+alt+[KeyT]',
     ifMode: 'text',
     command: ['switchMode', 'math', '', ''],
   },
@@ -376,30 +346,38 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     command: 'removeRow',
   },
 
-  {
-    key: 'ctrl+[Comma]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: 'addColumnAfter',
-  },
-  {
-    key: 'cmd+[Comma]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: 'addColumnAfter',
-  },
-  {
-    key: 'shift+ctrl+[Comma]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: 'addColumnBefore',
-  },
-  {
-    key: 'shift+cmd+[Comma]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: 'addColumnBefore',
-  },
+  // {
+  //   key: 'ctrl+[Comma]',
+  //   ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+  //   ifMode: 'math',
+  //   command: 'addColumnAfter',
+  // },
+  // {
+  //   key: 'cmd+[Comma]',
+  //   ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+  //   ifMode: 'math',
+  //   command: 'addColumnAfter',
+  // },
+  // {
+  //   key: 'shift+ctrl+[Comma]',
+  //   ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+  //   ifMode: 'math',
+  //   command: 'addColumnBefore',
+  // },
+  // {
+  //   key: 'shift+cmd+[Comma]',
+  //   ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+  //   ifMode: 'math',
+  //   command: 'addColumnBefore',
+  // },
+
+  { key: 'alt+[Tab]', ifMode: 'math', command: 'addColumnAfter' },
+  { key: 'shift+alt+[Tab]', ifMode: 'math', command: 'addColumnBefore' },
+  { key: 'alt+[Enter]', ifMode: 'math', command: 'addRowAfter' },
+  { key: 'shift+alt+[Enter]', ifMode: 'math', command: 'addRowBefore' },
+  { key: 'alt+[Return]', ifMode: 'math', command: 'addRowAfter' },
+  { key: 'shift+alt+[Return]', ifMode: 'math', command: 'addRowBefore' },
+
   {
     key: 'shift+[Backspace]',
     ifMode: 'math',
@@ -412,19 +390,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: ['insert', '$\\infty'],
   }, // "%" key
-  {
-    key: 'alt+[Digit6]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: ['insert', '\\wedge'],
-  }, // "^" key
-  {
-    key: 'shift+alt+[Digit6]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-
-    ifMode: 'math',
-    command: ['insert', '\\vee'],
-  }, // "^" key
   {
     key: 'alt+[Digit9]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
@@ -467,21 +432,9 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
  * keybindings for specific commands in the popover.
  */
 export const REVERSE_KEYBINDINGS = {
-  '\\theta': 'alt+q',
   '\\sqrt': ['alt+v', 'ctrl+[Digit2]'],
   '\\pi': 'alt+p',
-  '\\prod': 'shift+alt+p',
-  '\\sum': 'alt+w',
-  '\\int': 'alt+b',
-  '\\cup': 'alt+u',
-  '\\cap': 'alt+n',
-  '\\bigcup': 'shift+alt+u',
-  '\\bigcap': 'shift+alt+n',
-  '\\forall': 'shift+alt+a',
-  '\\exists': 'shift+alt+e',
   '\\infty': 'alt+[Digit5]',
-  '\\wedge': 'alt+[Digit6]',
-  '\\vee': 'shift+alt+[Digit6]',
   '\\differentialD': 'alt+d',
   '\\partial': 'shift+alt+d',
   '\\frac': 'Slash',

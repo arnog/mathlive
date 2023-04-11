@@ -13,8 +13,8 @@ import { speakableText } from './speech';
 function relationName(atom: Atom): string {
   let result: string | undefined = undefined;
   if (atom.parent!.type === 'prompt') {
-    if (atom.treeBranch === 'body') result = 'prompt';
-  } else if (atom.treeBranch === 'body') {
+    if (atom.parentBranch === 'body') result = 'prompt';
+  } else if (atom.parentBranch === 'body') {
     result = {
       enclose: 'cross out',
       leftright: 'delimiter',
@@ -24,13 +24,13 @@ function relationName(atom: Atom): string {
       first: 'first',
     }[atom.type];
   } else if (atom.parent!.type === 'genfrac') {
-    if (atom.treeBranch === 'above') return 'numerator';
+    if (atom.parentBranch === 'above') return 'numerator';
 
-    if (atom.treeBranch === 'below') return 'denominator';
+    if (atom.parentBranch === 'below') return 'denominator';
   } else if (atom.parent!.type === 'surd') {
-    if (atom.treeBranch === 'above') result = 'index';
-  } else if (atom.treeBranch === 'superscript') result = 'superscript';
-  else if (atom.treeBranch === 'subscript') result = 'subscript';
+    if (atom.parentBranch === 'above') result = 'index';
+  } else if (atom.parentBranch === 'superscript') result = 'superscript';
+  else if (atom.parentBranch === 'subscript') result = 'subscript';
 
   if (!result) console.log('unknown relationship');
 

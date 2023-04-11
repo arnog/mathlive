@@ -528,18 +528,18 @@ function moveUpward(
 
   while (
     atom &&
-    atom.treeBranch !== 'below' &&
-    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
+    atom.parentBranch !== 'below' &&
+    !(Array.isArray(atom.parentBranch) && atom.parent instanceof ArrayAtom)
   )
     atom = atom.parent!;
 
   // handle navigating through matrices and such
-  if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
+  if (Array.isArray(atom?.parentBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    if (atom.treeBranch[0] < 1) return handleDeadEnd();
+    if (atom.parentBranch[0] < 1) return handleDeadEnd();
 
-    const rowAbove = atom.treeBranch[0] - 1;
-    const aboveCell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
+    const rowAbove = atom.parentBranch[0] - 1;
+    const aboveCell = arrayAtom.array[rowAbove][atom.parentBranch[1]]!;
 
     // Check if the cell has any editable regions
     const cellHasPrompt = aboveCell.some(
@@ -601,19 +601,19 @@ function moveDownward(
 
   while (
     atom &&
-    atom.treeBranch !== 'above' &&
-    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
+    atom.parentBranch !== 'above' &&
+    !(Array.isArray(atom.parentBranch) && atom.parent instanceof ArrayAtom)
   )
     atom = atom.parent!;
 
   // handle navigating through matrices and such
-  if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
+  if (Array.isArray(atom?.parentBranch) && atom.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    if (atom.treeBranch[0] + 1 > arrayAtom.array.length - 1)
+    if (atom.parentBranch[0] + 1 > arrayAtom.array.length - 1)
       return handleDeadEnd();
 
-    const rowBelow = atom.treeBranch[0] + 1;
-    const belowCell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
+    const rowBelow = atom.parentBranch[0] + 1;
+    const belowCell = arrayAtom.array[rowBelow][atom.parentBranch[1]]!;
 
     // Check if the cell has any editable regions
     const cellHasPrompt = belowCell.some(

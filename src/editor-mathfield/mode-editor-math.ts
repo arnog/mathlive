@@ -72,7 +72,7 @@ export class MathModeEditor extends ModeEditor {
           const cursor = model.at(model.position);
 
           if (cursor.parent instanceof ArrayAtom) {
-            console.assert(cursor.treeBranch !== undefined);
+            console.assert(cursor.parentBranch !== undefined);
             // use 'first' atoms as environment column delimiter
             const columns: Atom[][] = [];
             let buffer: Atom[] = [];
@@ -88,8 +88,8 @@ export class MathModeEditor extends ModeEditor {
             if (buffer.length > 0) columns.push(buffer);
 
             // expand environment columns to paste size
-            let currentRow = Number(cursor.treeBranch![0]);
-            let currentColumn = Number(cursor.treeBranch![1]);
+            let currentRow = Number(cursor.parentBranch![0]);
+            let currentColumn = Number(cursor.parentBranch![1]);
             const maxColumns = cursor.parent.maxColumns;
             while (
               cursor.parent.colCount - currentColumn < columns.length &&
@@ -318,7 +318,7 @@ export class MathModeEditor extends ModeEditor {
       // Remove the leftright
       // i.e. `\left(\frac{}{}\right))` -> `\frac{}{}`
       const newParent = parent.parent!;
-      const branch = parent.treeBranch!;
+      const branch = parent.parentBranch!;
       newParent.removeChild(parent);
       newParent.setChildren(newAtoms, branch);
     }
@@ -334,7 +334,7 @@ export class MathModeEditor extends ModeEditor {
       // would return an empty string. If the latex is generated using other
       // properties than parent.body, for example by adding '\left.' and
       // '\right.' with a 'leftright' type, we can't use this shortcut.
-      if (parent!.type === 'root' && hadEmptyBody && !usedArg)
+      if (parent!.parent && hadEmptyBody && !usedArg)
         parent!.verbatimLatex = input;
     }
 
@@ -768,7 +768,7 @@ export function insertSmartFence(
       match.rightDelim = fence;
       match.addChildren(
         model.extractAtoms([i, model.position]),
-        atom.treeBranch!
+        atom.parentBranch!
       );
       model.position = i;
       contentDidChange(model, { data: fence, inputType: 'insertText' });
@@ -788,7 +788,7 @@ export function insertSmartFence(
 
       parent.parent!.addChildren(
         model.extractAtoms([model.position, model.offsetOf(atom.lastSibling)]),
-        parent.treeBranch!
+        parent.parentBranch!
       );
       model.position = model.offsetOf(parent);
       contentDidChange(model, { data: fence, inputType: 'insertText' });
