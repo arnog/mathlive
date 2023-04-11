@@ -18,6 +18,7 @@ import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
 import { convertDimensionToEm } from '../core/registers-utils';
 
 import { PlaceholderAtom } from './placeholder';
+import { Environment } from 'core-definitions/environment-types';
 
 export type ColumnFormat =
   | {
@@ -203,7 +204,7 @@ function normalizeArray(
 // See http://ctan.math.utah.edu/ctan/tex-archive/macros/latex/base/lttab.dtx
 export class ArrayAtom extends Atom {
   array: (undefined | Atom[])[][];
-  environmentName: string;
+  environmentName: Environment;
   rowGaps: Dimension[];
   colFormat: ColumnFormat[];
   arraystretch?: number;
@@ -217,7 +218,7 @@ export class ArrayAtom extends Atom {
 
   constructor(
     context: GlobalContext,
-    envName: string,
+    envName: Environment,
     array: Atom[][][],
     rowGaps: Dimension[],
     options: ArrayAtomConstructorOptions = {}

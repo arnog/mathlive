@@ -34,6 +34,7 @@ import type {
   MathstyleName,
 } from '../public/core-types';
 import type { GlobalContext } from 'core/types';
+import { Environment } from 'core-definitions/environment-types';
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
 
@@ -757,7 +758,7 @@ export class Parser {
 
     // The \begin command is immediately followed by the environment
     // name, as a string argument
-    const envName = this.parseArgument('string');
+    const envName = this.parseArgument('string') as Environment;
     if (!envName) return null;
     const def = getEnvironmentDefinition(envName);
     if (!def) {

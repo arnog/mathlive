@@ -789,6 +789,20 @@ export class ModelPrivate implements Model {
     console.assert(result !== undefined);
     return result!;
   }
+
+  /** Returns the first ArrayAtom in ancestry of current position */
+  get parentEnvironment(): ArrayAtom | undefined {
+    let parent = this.at(this.position).parent;
+    if (!parent) return undefined;
+
+    while (parent.parent && parent.type !== 'array') {
+      parent = parent.parent;
+    }
+
+    if (parent.type !== 'array') return undefined;
+
+    return parent as ArrayAtom;
+  }
 }
 
 function atomIsInRange(

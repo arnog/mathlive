@@ -2,6 +2,7 @@ import type { Keys } from './types-utils';
 
 import type { ParseMode, Style } from './core-types';
 import type { InsertOptions, Mathfield, Model } from './mathfield';
+import { TabularEnvironment } from 'core-definitions/environment-types';
 
 /**
  * How much of the formula should be spoken:
@@ -161,7 +162,10 @@ export interface Commands {
    * @category Array
    */
   removeColumn: (model: Model) => boolean;
-
+  /**
+   * @category Array
+   */
+  setEnvironment: (model: Model, environment: TabularEnvironment) => boolean;
   /**
    * @category Deleting
    */

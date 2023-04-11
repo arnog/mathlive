@@ -110,6 +110,10 @@ export class VirtualKeyboardProxy
     this.sendMessage('update-toolbar', mf);
   }
 
+  update(mf: MathfieldProxy): void {
+    this.sendMessage('update-setting', mf);
+  }
+
   connect(): void {
     this.sendMessage('connect');
   }

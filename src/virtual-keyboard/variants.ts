@@ -293,7 +293,11 @@ export function showVariantsPanel(
   // Create the scrim and attach the variants panel to it
   //
   if (!Scrim.scrim) Scrim.scrim = new Scrim();
-  Scrim.scrim.open({ root: keyboard.container, child: variantPanel });
+  Scrim.scrim.open({
+    root: keyboard.container?.querySelector('.ML__keyboard'),
+    child: variantPanel,
+    zIndex: 10099,
+  });
 
   variantPanelController?.abort();
   variantPanelController = new AbortController();
