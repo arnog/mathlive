@@ -45,6 +45,7 @@ export function contentDidChange(
   model: ModelPrivate,
   options: ContentChangeOptions
 ): void {
+  window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
   if (model.suppressChangeNotifications || !model.mathfield.host) return;
 
   model.suppressChangeNotifications = true;

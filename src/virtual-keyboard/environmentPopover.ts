@@ -80,7 +80,6 @@ const Vmatrix: svgBuilder = (className) => `
 const gather: svgBuilder = (className) => `
 <svg id="gather" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
   data-command='["setEnvironment","gather"]'>
-  <defs><style>.cls-1{fill:#b3b3b3;}.cls-2{fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;}</style></defs>
   <rect class="cls-1" width="28" height="24"/>
   <line class="cls-2" x1="14" y1="4" x2="20" y2="4"/>
   <line class="cls-2" x1="20" y1="8" x2="14" y2="8"/>
@@ -95,7 +94,6 @@ const gather: svgBuilder = (className) => `
 const align: svgBuilder = (className) => `
 <svg id="align" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
   data-command='["setEnvironment","align"]'>
-  <defs><style>.cls-1{fill:#b3b3b3;}.cls-2{fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;}</style></defs>
   <rect class="cls-1" width="28" height="24"/>
   <line class="cls-2" x1="12" y1="4" x2="18" y2="4"/>
   <line class="cls-2" x1="18" y1="8" x2="12" y2="8"/>
@@ -110,7 +108,6 @@ const align: svgBuilder = (className) => `
 const cases: svgBuilder = (className) => `
 <svg id="cases" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
   data-command='["setEnvironment","cases"]'>
-  <defs><style>.cls-1{fill:#b3b3b3;}.cls-2{fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;}</style></defs>
   <rect class="cls-1" width="28" height="24"/>
   <path class="cls-2" d="m10,4c-1.1,0-2,.9-2,2v3c0,1.66-.9,3-2,3,1.1,0,2,1.34,2,3v3c0,1.1.9,2,2,2"/>
   <circle cx="13" cy="8" r="1"/>
@@ -122,7 +119,6 @@ const cases: svgBuilder = (className) => `
 const rcases: svgBuilder = (className) => `
 <svg id="rcases" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
   data-command='["setEnvironment","rcases"]'>
-  <defs><style>.cls-1{fill:#b3b3b3;}.cls-2{fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;}</style></defs>
   <rect class="cls-1" width="28" height="24"/>
   <path class="cls-2" d="m18,20c1.1,0,2-.9,2-2v-3c0-1.66.9-3,2-3-1.1,0-2-1.34-2-3v-3c0-1.1-.9-2-2-2"/>
   <circle cx="15" cy="8" r="1"/>
@@ -132,7 +128,7 @@ const rcases: svgBuilder = (className) => `
 </svg>`;
 
 const matrixButtons = { matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix };
-const casesButtons = { cases, rcases };
+const casesButtons = { cases, rcases, Bmatrix };
 const alignButtons = { align, gather };
 
 export function showEnvironmentPanel(
@@ -191,7 +187,7 @@ export function showEnvironmentPanel(
     );
   } else if (isCasesEnvironment(environment)) {
     const normalizedEnvironment = normalizeCasesName(environment);
-    activeDelimeter = matrixButtons[normalizedEnvironment];
+    activeDelimeter = casesButtons[normalizedEnvironment]('active');
     let { [normalizedEnvironment]: _, ...filteredDelimeters } = casesButtons;
     delimeterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
       f('inactive')
