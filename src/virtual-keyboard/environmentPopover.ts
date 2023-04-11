@@ -211,7 +211,7 @@ export function showEnvironmentPanel(
     zIndex: 3,
   });
 
-  let flexbox = document.createElement('div');
+  const flexbox = document.createElement('div');
   flexbox.className = 'MLK__environment-controls';
   flexbox.style.display = 'flex';
   flexbox.style.width = '100%';
@@ -229,14 +229,14 @@ export function showEnvironmentPanel(
   if (isMatrixEnvironment(environment)) {
     const normalizedEnvironment = normalizeMatrixName(environment);
     activeDelimeter = matrixButtons[normalizedEnvironment]('active');
-    let { [normalizedEnvironment]: _, ...filteredDelimeters } = matrixButtons;
+    const { [normalizedEnvironment]: _, ...filteredDelimeters } = matrixButtons;
     delimiterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
       f('inactive')
     );
   } else if (isCasesEnvironment(environment)) {
     const normalizedEnvironment = normalizeCasesName(environment);
     activeDelimeter = casesButtons[normalizedEnvironment]('active');
-    let { [normalizedEnvironment]: _, ...filteredDelimeters } = casesButtons;
+    const { [normalizedEnvironment]: _, ...filteredDelimeters } = casesButtons;
     delimiterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
       f('inactive')
     );
@@ -247,7 +247,7 @@ export function showEnvironmentPanel(
     );
   }
 
-  let delimiterControls = document.createElement('div');
+  const delimiterControls = document.createElement('div');
   delimiterControls.className = 'MLK__environment-delimiter-controls';
   delimiterControls.style.display = 'flex';
   delimiterControls.style.flexDirection = 'column';
@@ -313,5 +313,5 @@ const normalizedCases = ['cases', 'rcases'] as const;
 function normalizeCasesName(environment: CasesEnvironment) {
   if (environment === 'dcases')
     return 'cases' as (typeof normalizedCases)[number];
-  else return environment as (typeof normalizedCases)[number];
+  return environment as (typeof normalizedCases)[number];
 }

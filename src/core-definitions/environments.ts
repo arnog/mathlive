@@ -209,7 +209,7 @@ function defaultContent(context: GlobalContext, array: Atom[][][], count = 1) {
 
 export function makeEnvironment(
   context: GlobalContext,
-  name: string,
+  name: Environment,
   content: Atom[][][] = [[[]]],
   rowGaps: Dimension[] = [],
   args: (null | Argument)[] = []

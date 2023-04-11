@@ -555,9 +555,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           'SecurityError'
         );
       }
-      if (evt.data.action === 'disconnect') {
+      if (evt.data.action === 'disconnect')
         this.connectedMathfieldWindow = undefined;
-      } else if (
+      else if (
         evt.data.action !== 'update-setting' &&
         evt.data.action !== 'proxy-created' &&
         evt.data.action !== 'execute-command'
@@ -776,11 +776,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       mf.boundingRect &&
       this.visible &&
       mf.mode === 'math'
-    ) {
+    )
       showEnvironmentPanel(this, mf.array, mf.boundingRect);
-    } else {
-      hideEnvironmentPanel();
-    }
+    else hideEnvironmentPanel();
+
     this._style = mf.style;
     this.updateToolbar(mf);
   }

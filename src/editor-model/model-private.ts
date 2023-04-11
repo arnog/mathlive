@@ -795,9 +795,7 @@ export class ModelPrivate implements Model {
     let parent = this.at(this.position).parent;
     if (!parent) return undefined;
 
-    while (parent.parent && parent.type !== 'array') {
-      parent = parent.parent;
-    }
+    while (parent.parent && parent.type !== 'array') parent = parent.parent;
 
     if (parent.type !== 'array') return undefined;
 

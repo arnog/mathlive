@@ -8,7 +8,10 @@ import { arrayIndex, arrayCell } from './array-utils';
 import { ArrayAtom } from '../core-atoms/array';
 import type { Style } from '../public/core-types';
 import { GlobalContext } from 'core/types';
-import { TabularEnvironment } from 'core-definitions/environment-types';
+import {
+  Environment,
+  TabularEnvironment,
+} from 'core-definitions/environment-types';
 import { makeEnvironment } from 'core-definitions/environments';
 import { PlaceholderAtom } from 'core-atoms/placeholder';
 import { LeftRightAtom } from 'core-atoms/leftright';
@@ -204,7 +207,7 @@ function parentArray(
       if (firstCell.length === 0) firstCell = placeholderCell(atom.context);
       if (secondCell.length === 0) secondCell = placeholderCell(atom.context);
 
-      let envName = 'pmatrix';
+      let envName: Environment = 'pmatrix';
       const lDelim = parent.leftDelim;
       const rDelim = parent.rightDelim;
       if (lDelim === '(' && (rDelim === ')' || rDelim === '?'))
@@ -370,7 +373,7 @@ export function addColumnBefore(model: ModelPrivate): boolean {
 export function setEnvironment(
   model: ModelPrivate,
   environment: TabularEnvironment
-) {
+): boolean {
   contentWillChange(model, {});
   let leftDelim = '.';
   let rightDelim = '.';
@@ -418,7 +421,7 @@ export function setEnvironment(
       break;
     case 'rcases':
       rightDelim = '\\rbrace';
-    default:
+      break;
   }
 
   const arrayAtom = model.parentEnvironment!;

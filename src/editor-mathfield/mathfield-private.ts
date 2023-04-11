@@ -647,7 +647,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         const branch = siblingToAdopt.branch('body');
         if (!branch || branch.length < 2) return {};
         if (this.adoptStyle === 'right') return branch[1].style;
-        else return branch[branch.length - 1].style;
+        return branch[branch.length - 1].style;
       }
 
       return siblingToAdopt.style;
@@ -657,9 +657,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     const selectedAtoms = this.model.getAtoms(this.model.selection);
     const style = selectedAtoms[0].style || {};
     selectedAtoms.forEach((a: Atom) => {
-      for (const [key, value] of Object.entries(style)) {
+      for (const [key, value] of Object.entries(a.style))
         if (!style[key] || style[key] !== value) style[key] = undefined;
-      }
     });
 
     return style!;
