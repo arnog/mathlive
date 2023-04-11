@@ -220,7 +220,7 @@ export function showEnvironmentPanel(
 
   flexbox.innerHTML = controllerSvg;
 
-  let delimeterOptions: string[] = [];
+  let delimiterOptions: string[] = [];
   let activeDelimeter;
 
   const environment = arrayAtom.environmentName;
@@ -230,36 +230,36 @@ export function showEnvironmentPanel(
     const normalizedEnvironment = normalizeMatrixName(environment);
     activeDelimeter = matrixButtons[normalizedEnvironment]('active');
     let { [normalizedEnvironment]: _, ...filteredDelimeters } = matrixButtons;
-    delimeterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
+    delimiterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
       f('inactive')
     );
   } else if (isCasesEnvironment(environment)) {
     const normalizedEnvironment = normalizeCasesName(environment);
     activeDelimeter = casesButtons[normalizedEnvironment]('active');
     let { [normalizedEnvironment]: _, ...filteredDelimeters } = casesButtons;
-    delimeterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
+    delimiterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
       f('inactive')
     );
   } else if (isAlignEnvironment(environment)) {
     activeDelimeter = matrixButtons['matrix']('active');
-    delimeterOptions = Object.values(casesButtons).map((f: svgBuilder) =>
+    delimiterOptions = Object.values(casesButtons).map((f: svgBuilder) =>
       f('inactive')
     );
   }
 
-  let delimeterControls = document.createElement('div');
-  delimeterControls.className = 'MLK__environment-delimeter-controls';
-  delimeterControls.style.display = 'flex';
-  delimeterControls.style.flexDirection = 'column';
+  let delimiterControls = document.createElement('div');
+  delimiterControls.className = 'MLK__environment-delimiter-controls';
+  delimiterControls.style.display = 'flex';
+  delimiterControls.style.flexDirection = 'column';
 
-  delimeterControls.innerHTML = `
-  <div class='MLK__array-delimeter-options'>
+  delimiterControls.innerHTML = `
+  <div class='MLK__array-delimiter-options'>
     ${activeDelimeter}
-    ${delimeterOptions.join('')}
+    ${delimiterOptions.join('')}
   </div>`;
 
-  // If we're in cases or matrix, show the delimeter controls
-  if (activeDelimeter) flexbox.appendChild(delimeterControls);
+  // If we're in cases or matrix, show the delimiter controls
+  if (activeDelimeter) flexbox.appendChild(delimiterControls);
 
   environmentPanel.appendChild(flexbox);
 
