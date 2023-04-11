@@ -1,5 +1,6 @@
 export class Scrim {
   static scrim: Scrim;
+  static matrixScrim: Scrim;
 
   private _element?: HTMLElement;
 

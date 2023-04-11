@@ -639,8 +639,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (this.model.selectionIsCollapsed) {
       const previousAtom = this.model.at(this.model.selection.ranges[0][0]);
 
-      console.log('current atom: ', previousAtom);
-
       const siblingToAdopt =
         this.adoptStyle === 'right' ? previousAtom.rightSibling : previousAtom;
 

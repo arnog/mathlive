@@ -9,7 +9,7 @@ export function makeProxy(mf: MathfieldPrivate): MathfieldProxy {
     canRedo: mf.canRedo(),
     style: mf.selectionStyle,
     array: mf.model.parentEnvironment,
-    boundingRect: mf.element?.getBoundingClientRect(),
+    boundingRect: mf.field?.getBoundingClientRect(),
     mode: mf.mode,
   };
 }

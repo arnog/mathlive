@@ -36,7 +36,6 @@ import {
 } from './utils';
 import { compareSelection, range } from './selection-utils';
 import { ArrayAtom } from 'core-atoms/array';
-import { Environment } from 'core-definitions/environments';
 
 export type ModelState = {
   content: AtomJson;

@@ -1,5 +1,5 @@
 import { ArrayAtom } from 'core-atoms/array';
-import { Environment } from 'core-definitions/environments';
+import { Environment } from 'core-definitions/environment-types';
 import { ParseMode, Selector, Style } from 'mathlive';
 import type {
   VirtualKeyboardOptions,

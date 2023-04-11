@@ -8,6 +8,7 @@ import { arrayIndex, arrayCell } from './array-utils';
 import { ArrayAtom } from '../core-atoms/array';
 import type { Style } from '../public/core-types';
 import { GlobalContext } from 'core/types';
+import { TabularEnvironment } from 'core-definitions/environment-types';
 export * from './array-utils';
 
 /**
@@ -194,6 +195,67 @@ export function addColumnBefore(model: ModelPrivate): boolean {
   return true;
 }
 
+export function setEnvironment(
+  model: ModelPrivate,
+  environment: TabularEnvironment
+) {
+  let leftDelim = '.';
+  let rightDelim = '.';
+  switch (environment) {
+    case 'pmatrix':
+    case 'pmatrix*':
+      leftDelim = '(';
+      rightDelim = ')';
+      break;
+
+    case 'bmatrix':
+    case 'bmatrix*':
+      leftDelim = '[';
+      rightDelim = ']';
+      break;
+
+    case 'Bmatrix':
+    case 'Bmatrix*':
+      leftDelim = '\\lbrace';
+      rightDelim = '\\rbrace';
+      break;
+
+    case 'vmatrix':
+    case 'vmatrix*':
+      leftDelim = '\\vert';
+      rightDelim = '\\vert';
+      break;
+
+    case 'Vmatrix':
+    case 'Vmatrix*':
+      leftDelim = '\\Vert';
+      rightDelim = '\\Vert';
+      break;
+
+    case 'matrix':
+    case 'matrix*':
+      // Specifying a fence, even a null fence,
+      // will prevent the insertion of an initial and final gap
+      leftDelim = '.';
+      rightDelim = '.';
+      break;
+    case 'cases':
+    case 'dcases':
+      leftDelim = '\\lbrace';
+      break;
+    case 'rcases':
+      rightDelim = '\\rbrace';
+    default:
+  }
+
+  const arrayAtom = model.parentEnvironment!;
+  arrayAtom.environmentName = environment;
+  arrayAtom.leftDelim = leftDelim;
+  arrayAtom.rightDelim = rightDelim;
+  contentDidChange(model, {});
+  return true;
+}
+
 /**
  * Internal primitive to remove a column/row in a matrix
  */
@@ -260,6 +322,7 @@ registerCommand(
     addColumnBefore,
     removeRow,
     removeColumn,
+    setEnvironment,
   },
   { target: 'model', category: 'array-edit' }
 );

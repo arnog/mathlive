@@ -37,6 +37,7 @@ import {
   hideEnvironmentPanel,
   showEnvironmentPanel,
 } from './environmentPopover';
+import { isTabularEnvironment } from 'core-definitions/environment-types';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
@@ -702,7 +703,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   update(mf: MathfieldProxy): void {
-    if (mf.array && mf.boundingRect && this.visible && mf.mode === 'math') {
+    if (
+      mf.array &&
+      isTabularEnvironment(mf.array?.environmentName) &&
+      mf.boundingRect &&
+      this.visible &&
+      mf.mode === 'math'
+    ) {
       showEnvironmentPanel(this, mf.array, mf.boundingRect);
     } else {
       hideEnvironmentPanel();

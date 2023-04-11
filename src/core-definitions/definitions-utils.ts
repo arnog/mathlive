@@ -18,7 +18,7 @@ import type {
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
 import { GlobalContext, BoxType, PrivateStyle } from 'core/types';
-import { Environment } from './environments';
+import { Environment } from './environment-types';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;

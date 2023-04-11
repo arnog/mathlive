@@ -18,7 +18,7 @@ import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
 import { convertDimensionToEm } from '../core/registers-utils';
 
 import { PlaceholderAtom } from './placeholder';
-import { Environment } from 'core-definitions/environments';
+import { Environment } from 'core-definitions/environment-types';
 
 export type ColumnFormat =
   | {
