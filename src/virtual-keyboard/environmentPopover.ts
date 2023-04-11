@@ -11,283 +11,6 @@ import { Scrim } from 'editor/scrim';
 import { SelectorPrivate } from 'editor/types';
 import { VirtualKeyboard } from './virtual-keyboard';
 
-type svgBuilder = (className: string) => string;
-
-const matrix: svgBuilder = (className) => `
-<svg id="matrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-  data-command='["setEnvironment","matrix"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <circle cx="10" cy="8" r="1"/>
-  <circle cx="14" cy="12" r="1"/>
-  <circle cx="18" cy="16" r="1"/></svg>`;
-
-const pmatrix: svgBuilder = (className) => `
-<svg id="pmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-data-command='["setEnvironment","pmatrix"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <path class="cls-2" d="m6,4c-3.96,4.6-3.96,11.4,0,16"/>
-  <path class="cls-2" d="m22,4c3.96,4.6,3.96,11.4,0,16"/>
-  <circle cx="10" cy="8" r="1"/>
-  <circle cx="14" cy="12" r="1"/>
-  <circle cx="18" cy="16" r="1"/></svg>`;
-
-const Bmatrix: svgBuilder = (className) => `
-<svg id="Bmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-  data-command='["setEnvironment","Bmatrix"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <path class="cls-2" d="m6,4c-1.1,0-2,.9-2,2v3c0,1.66-.9,3-2,3,1.1,0,2,1.34,2,3v3c0,1.1.9,2,2,2"/>
-  <path class="cls-2" d="m22,4c1.1,0,2,.9,2,2v3c0,1.66.9,3,2,3-1.1,0-2,1.34-2,3v3c0,1.1-.9,2-2,2"/>
-  <circle cx="10" cy="8" r="1"/>
-  <circle cx="14" cy="12" r="1"/>
-  <circle cx="18" cy="16" r="1"/>
-</svg>`;
-
-const bmatrix: svgBuilder = (className) => `
-<svg id="bmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-  data-command='["setEnvironment","bmatrix"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <path class="cls-2" d="m6,4h-3v16h3"/>
-  <path class="cls-2" d="m22,4h3v16h-3"/>
-  <circle cx="10" cy="8" r="1"/>
-  <circle cx="14" cy="12" r="1"/>
-  <circle cx="18" cy="16" r="1"/>
-</svg>`;
-
-const vmatrix: svgBuilder = (className) => `
-<svg id="vmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-  data-command='["setEnvironment","vmatrix"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <circle cx="10" cy="8" r="1"/>
-  <circle cx="14" cy="12" r="1"/>
-  <circle cx="18" cy="16" r="1"/>
-  <line class="cls-2" x1="4" y1="4" x2="4" y2="20"/>
-  <line class="cls-2" x1="24" y1="4" x2="24" y2="20"/>
-</svg>`;
-
-const Vmatrix: svgBuilder = (className) => `
-<svg id="Vmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="-3.5 -3 35 30" 
-  data-command='["setEnvironment","Vmatrix"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <circle cx="10" cy="8" r="1"/>
-  <circle cx="14" cy="12" r="1"/>
-  <circle cx="18" cy="16" r="1"/>
-  <line class="cls-2" x1="6" y1="4" x2="6" y2="20"/>
-  <line class="cls-2" x1="22" y1="4" x2="22" y2="20"/>
-  <line class="cls-2" x1="2" y1="4" x2="2" y2="20"/>
-  <line class="cls-2" x1="26" y1="4" x2="26" y2="20"/>
-</svg>`;
-
-const gather: svgBuilder = (className) => `
-<svg id="gather" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-  data-command='["setEnvironment","gather"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <line class="cls-2" x1="14" y1="4" x2="20" y2="4"/>
-  <line class="cls-2" x1="20" y1="8" x2="14" y2="8"/>
-  <line class="cls-2" x1="6" y1="16" x2="12" y2="16"/>
-  <line class="cls-2" x1="12" y1="20" x2="6" y2="20"/>
-  <circle cx="15" cy="18" r="1"/>
-  <circle cx="19" cy="18" r="1"/>
-  <circle cx="11" cy="6" r="1"/>
-  <circle cx="7" cy="6" r="1"/>
-</svg>`;
-
-const align: svgBuilder = (className) => `
-<svg id="align" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-  data-command='["setEnvironment","align"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <line class="cls-2" x1="12" y1="4" x2="18" y2="4"/>
-  <line class="cls-2" x1="18" y1="8" x2="12" y2="8"/>
-  <line class="cls-2" x1="12" y1="16" x2="18" y2="16"/>
-  <line class="cls-2" x1="18" y1="20" x2="12" y2="20"/>
-  <circle cx="21" cy="18" r="1"/>
-  <circle cx="25" cy="18" r="1"/>
-  <circle cx="9" cy="6" r="1"/>
-  <circle cx="5" cy="6" r="1"/>
-</svg>`;
-
-const cases: svgBuilder = (className) => `
-<svg id="cases" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-  data-command='["setEnvironment","cases"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <path class="cls-2" d="m10,4c-1.1,0-2,.9-2,2v3c0,1.66-.9,3-2,3,1.1,0,2,1.34,2,3v3c0,1.1.9,2,2,2"/>
-  <circle cx="13" cy="8" r="1"/>
-  <circle cx="13" cy="16" r="1"/>
-  <circle cx="21" cy="8" r="1"/>
-  <circle cx="21" cy="16" r="1"/>
-</svg>`;
-
-const rcases: svgBuilder = (className) => `
-<svg id="rcases" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
-  data-command='["setEnvironment","rcases"]'>
-  <rect class="cls-1" width="28" height="24"/>
-  <path class="cls-2" d="m18,20c1.1,0,2-.9,2-2v-3c0-1.66.9-3,2-3-1.1,0-2-1.34-2-3v-3c0-1.1-.9-2-2-2"/>
-  <circle cx="15" cy="8" r="1"/>
-  <circle cx="15" cy="16" r="1"/>
-  <circle cx="7" cy="8" r="1"/>
-  <circle cx="7" cy="16" r="1"/>
-</svg>`;
-
-const matrixButtons = { matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix };
-const casesButtons = { cases, rcases, Bmatrix };
-const alignButtons = { align, gather };
-
-export function showEnvironmentPanel(
-  keyboard: VirtualKeyboard,
-  arrayAtom: ArrayAtom,
-  bounds: DOMRect
-): void {
-  hideEnvironmentPanel();
-  const array = (arrayAtom as ArrayAtom).array;
-
-  let columnCount = 0;
-  const rowCount = array.length;
-  array.forEach((column) => {
-    if (!columnCount || column.length > columnCount)
-      columnCount = column.length;
-  });
-
-  const environmentPanel = document.createElement('div');
-  environmentPanel.setAttribute('aria-hidden', 'true');
-  environmentPanel.className = 'MLK__environment-panel';
-
-  console.log(keyboard.container?.querySelector('.ML__keyboard'));
-  if (!Scrim.matrixScrim) Scrim.matrixScrim = new Scrim();
-  Scrim.matrixScrim.open({
-    root: keyboard.container?.querySelector('.ML__keyboard'),
-    child: environmentPanel,
-    zIndex: 3,
-  });
-
-  let flexbox = document.createElement('div');
-  flexbox.className = 'MLK__environment-controls';
-  flexbox.style.display = 'flex';
-  flexbox.style.width = '100%';
-  flexbox.style.height = '100%';
-  flexbox.style.boxSizing = 'border-box';
-
-  flexbox.innerHTML = controllerSvg;
-
-  let delimeterControls = document.createElement('div');
-  delimeterControls.className = 'MLK__environment-delimeter-controls';
-  delimeterControls.style.display = 'flex';
-  delimeterControls.style.flexDirection = 'column';
-
-  let delimeterOptions: string[] = [];
-  let activeDelimeter;
-
-  const environment = arrayAtom.environmentName;
-
-  // 3 button modes: matrix, cases, and align/gather
-  if (isMatrixEnvironment(environment)) {
-    const normalizedEnvironment = normalizeMatrixName(environment);
-    activeDelimeter = matrixButtons[normalizedEnvironment]('active');
-    let { [normalizedEnvironment]: _, ...filteredDelimeters } = matrixButtons;
-    delimeterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
-      f('inactive')
-    );
-  } else if (isCasesEnvironment(environment)) {
-    const normalizedEnvironment = normalizeCasesName(environment);
-    activeDelimeter = casesButtons[normalizedEnvironment]('active');
-    let { [normalizedEnvironment]: _, ...filteredDelimeters } = casesButtons;
-    delimeterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
-      f('inactive')
-    );
-  } else if (isAlignEnvironment(environment)) {
-    const normalizedEnvironment = normalizeAlignName(environment);
-    activeDelimeter = alignButtons[normalizedEnvironment];
-    let { [normalizedEnvironment]: _, ...filteredDelimeters } = alignButtons;
-    delimeterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
-      f('inactive')
-    );
-  }
-
-  delimeterControls.innerHTML = `
-  <div class='MLK__array-delimeter-options'>
-    ${activeDelimeter}
-    ${delimeterOptions.join('')}
-  </div>`;
-
-  flexbox.appendChild(delimeterControls);
-
-  environmentPanel.appendChild(flexbox);
-
-  const arrayControls = flexbox.querySelectorAll(
-    '[data-command]'
-  ) as NodeListOf<SVGSVGElement>;
-
-  arrayControls.forEach((control) => {
-    const commandString = control.dataset.command!;
-    let command: SelectorPrivate | [SelectorPrivate, ...any[]] =
-      commandString as SelectorPrivate;
-    try {
-      command = JSON.parse(commandString);
-    } catch (e) {
-      // just a string command
-    }
-    control.addEventListener('mousedown', (ev) => ev.preventDefault());
-    command &&
-      control.addEventListener('click', () => keyboard.executeCommand(command));
-  });
-
-  const position = bounds;
-
-  if (position) {
-    const left = position.left + 20;
-    const top = position.top - environmentPanel.clientHeight - 15;
-    environmentPanel.style.transform = `translate(${left}px, ${top}px)`;
-    environmentPanel.classList.add('is-visible');
-  }
-
-  return;
-}
-
-export function hideEnvironmentPanel(): void {
-  Scrim.matrixScrim?.close();
-}
-
-const normalizedMatrices = [
-  'matrix',
-  'pmatrix',
-  'bmatrix',
-  'Bmatrix',
-  'vmatrix',
-  'Vmatrix',
-] as const;
-function normalizeMatrixName(environment: MatrixEnvironment) {
-  return environment.replace('*', '') as (typeof normalizedMatrices)[number];
-}
-
-const normalizedCases = ['cases', 'rcases'] as const;
-function normalizeCasesName(environment: CasesEnvironment) {
-  if (environment === 'dcases')
-    return 'cases' as (typeof normalizedCases)[number];
-  else return environment as (typeof normalizedCases)[number];
-}
-
-function assertUnreachable(x: never): never {
-  throw new Error("Didn't expect to get here");
-}
-
-const normalizedAligns = ['align', 'gather'] as const;
-function normalizeAlignName(
-  environment: AlignEnvironment
-): (typeof normalizedAligns)[number] {
-  const noStars = environment.replace('*', '') as Exclude<
-    AlignEnvironment,
-    'align*'
-  >;
-  switch (noStars) {
-    case 'multline':
-    case 'gather':
-    case 'gathered':
-      return 'gather' as (typeof normalizedAligns)[number];
-    case 'aligned':
-    case 'align':
-    case 'split':
-      return 'align' as (typeof normalizedAligns)[number];
-  }
-}
-
 const padding = 4;
 const radius = 20;
 const paddedWidth = 2 * (radius + padding);
@@ -369,3 +92,226 @@ viewBox=
     ${newPlus(padding, 2 * padding + 3 * paddedWidth)}
   </g>
 </svg>`;
+
+type svgBuilder = (className: string) => string;
+
+const matrix: svgBuilder = (className) => `
+<svg id="matrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
+  data-command='["setEnvironment","matrix"]'>
+  <rect class="cls-1" width="28" height="24"/>
+  <circle cx="10" cy="8" r="1"/>
+  <circle cx="14" cy="12" r="1"/>
+  <circle cx="18" cy="16" r="1"/></svg>`;
+
+const pmatrix: svgBuilder = (className) => `
+<svg id="pmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
+data-command='["setEnvironment","pmatrix"]'>
+  <rect class="cls-1" width="28" height="24"/>
+  <path class="cls-2" d="m6,4c-3.96,4.6-3.96,11.4,0,16"/>
+  <path class="cls-2" d="m22,4c3.96,4.6,3.96,11.4,0,16"/>
+  <circle cx="10" cy="8" r="1"/>
+  <circle cx="14" cy="12" r="1"/>
+  <circle cx="18" cy="16" r="1"/></svg>`;
+
+const Bmatrix: svgBuilder = (className) => `
+<svg id="Bmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
+  data-command='["setEnvironment","Bmatrix"]'>
+  <rect class="cls-1" width="28" height="24"/>
+  <path class="cls-2" d="m6,4c-1.1,0-2,.9-2,2v3c0,1.66-.9,3-2,3,1.1,0,2,1.34,2,3v3c0,1.1.9,2,2,2"/>
+  <path class="cls-2" d="m22,4c1.1,0,2,.9,2,2v3c0,1.66.9,3,2,3-1.1,0-2,1.34-2,3v3c0,1.1-.9,2-2,2"/>
+  <circle cx="10" cy="8" r="1"/>
+  <circle cx="14" cy="12" r="1"/>
+  <circle cx="18" cy="16" r="1"/>
+</svg>`;
+
+const bmatrix: svgBuilder = (className) => `
+<svg id="bmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
+  data-command='["setEnvironment","bmatrix"]'>
+  <rect class="cls-1" width="28" height="24"/>
+  <path class="cls-2" d="m6,4h-3v16h3"/>
+  <path class="cls-2" d="m22,4h3v16h-3"/>
+  <circle cx="10" cy="8" r="1"/>
+  <circle cx="14" cy="12" r="1"/>
+  <circle cx="18" cy="16" r="1"/>
+</svg>`;
+
+const vmatrix: svgBuilder = (className) => `
+<svg id="vmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
+  data-command='["setEnvironment","vmatrix"]'>
+  <rect class="cls-1" width="28" height="24"/>
+  <circle cx="10" cy="8" r="1"/>
+  <circle cx="14" cy="12" r="1"/>
+  <circle cx="18" cy="16" r="1"/>
+  <line class="cls-2" x1="4" y1="4" x2="4" y2="20"/>
+  <line class="cls-2" x1="24" y1="4" x2="24" y2="20"/>
+</svg>`;
+
+const Vmatrix: svgBuilder = (className) => `
+<svg id="Vmatrix" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="-3.5 -3 35 30" 
+  data-command='["setEnvironment","Vmatrix"]'>
+  <rect class="cls-1" width="28" height="24"/>
+  <circle cx="10" cy="8" r="1"/>
+  <circle cx="14" cy="12" r="1"/>
+  <circle cx="18" cy="16" r="1"/>
+  <line class="cls-2" x1="6" y1="4" x2="6" y2="20"/>
+  <line class="cls-2" x1="22" y1="4" x2="22" y2="20"/>
+  <line class="cls-2" x1="2" y1="4" x2="2" y2="20"/>
+  <line class="cls-2" x1="26" y1="4" x2="26" y2="20"/>
+</svg>`;
+
+const cases: svgBuilder = (className) => `
+<svg id="cases" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
+  data-command='["setEnvironment","cases"]'>
+  <rect class="cls-1" width="28" height="24"/>
+  <path class="cls-2" d="m10,4c-1.1,0-2,.9-2,2v3c0,1.66-.9,3-2,3,1.1,0,2,1.34,2,3v3c0,1.1.9,2,2,2"/>
+  <circle cx="13" cy="8" r="1"/>
+  <circle cx="13" cy="16" r="1"/>
+  <circle cx="21" cy="8" r="1"/>
+  <circle cx="21" cy="16" r="1"/>
+</svg>`;
+
+const rcases: svgBuilder = (className) => `
+<svg id="rcases" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" 
+  data-command='["setEnvironment","rcases"]'>
+  <rect class="cls-1" width="28" height="24"/>
+  <path class="cls-2" d="m18,20c1.1,0,2-.9,2-2v-3c0-1.66.9-3,2-3-1.1,0-2-1.34-2-3v-3c0-1.1-.9-2-2-2"/>
+  <circle cx="15" cy="8" r="1"/>
+  <circle cx="15" cy="16" r="1"/>
+  <circle cx="7" cy="8" r="1"/>
+  <circle cx="7" cy="16" r="1"/>
+</svg>`;
+
+const matrixButtons = { matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix };
+const casesButtons = { cases, rcases, Bmatrix };
+
+export function showEnvironmentPanel(
+  keyboard: VirtualKeyboard,
+  arrayAtom: ArrayAtom,
+  bounds: DOMRect
+): void {
+  hideEnvironmentPanel();
+  const array = (arrayAtom as ArrayAtom).array;
+
+  let columnCount = 0;
+  const rowCount = array.length;
+  array.forEach((column) => {
+    if (!columnCount || column.length > columnCount)
+      columnCount = column.length;
+  });
+
+  const environmentPanel = document.createElement('div');
+  environmentPanel.setAttribute('aria-hidden', 'true');
+  environmentPanel.className = 'MLK__environment-panel';
+
+  console.log(keyboard.container?.querySelector('.ML__keyboard'));
+  if (!Scrim.matrixScrim) Scrim.matrixScrim = new Scrim();
+  Scrim.matrixScrim.open({
+    root: keyboard.container?.querySelector('.ML__keyboard'),
+    child: environmentPanel,
+    zIndex: 3,
+  });
+
+  let flexbox = document.createElement('div');
+  flexbox.className = 'MLK__environment-controls';
+  flexbox.style.display = 'flex';
+  flexbox.style.width = '100%';
+  flexbox.style.height = '100%';
+  flexbox.style.boxSizing = 'border-box';
+
+  flexbox.innerHTML = controllerSvg;
+
+  let delimeterOptions: string[] = [];
+  let activeDelimeter;
+
+  const environment = arrayAtom.environmentName;
+
+  // 3 button modes: matrix, cases, and align/gather
+  if (isMatrixEnvironment(environment)) {
+    const normalizedEnvironment = normalizeMatrixName(environment);
+    activeDelimeter = matrixButtons[normalizedEnvironment]('active');
+    let { [normalizedEnvironment]: _, ...filteredDelimeters } = matrixButtons;
+    delimeterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
+      f('inactive')
+    );
+  } else if (isCasesEnvironment(environment)) {
+    const normalizedEnvironment = normalizeCasesName(environment);
+    activeDelimeter = casesButtons[normalizedEnvironment]('active');
+    let { [normalizedEnvironment]: _, ...filteredDelimeters } = casesButtons;
+    delimeterOptions = Object.values(filteredDelimeters).map((f: svgBuilder) =>
+      f('inactive')
+    );
+  } else if (isAlignEnvironment(environment)) {
+    activeDelimeter = matrixButtons['matrix']('active');
+    delimeterOptions = Object.values(casesButtons).map((f: svgBuilder) =>
+      f('inactive')
+    );
+  }
+
+  let delimeterControls = document.createElement('div');
+  delimeterControls.className = 'MLK__environment-delimeter-controls';
+  delimeterControls.style.display = 'flex';
+  delimeterControls.style.flexDirection = 'column';
+
+  delimeterControls.innerHTML = `
+  <div class='MLK__array-delimeter-options'>
+    ${activeDelimeter}
+    ${delimeterOptions.join('')}
+  </div>`;
+
+  // If we're in cases or matrix, show the delimeter controls
+  if (activeDelimeter) flexbox.appendChild(delimeterControls);
+
+  environmentPanel.appendChild(flexbox);
+
+  const arrayControls = flexbox.querySelectorAll(
+    '[data-command]'
+  ) as NodeListOf<SVGSVGElement>;
+
+  arrayControls.forEach((control) => {
+    const commandString = control.dataset.command!;
+    let command: SelectorPrivate | [SelectorPrivate, ...any[]] =
+      commandString as SelectorPrivate;
+    try {
+      command = JSON.parse(commandString);
+    } catch (e) {
+      // just a string command
+    }
+    control.addEventListener('mousedown', (ev) => ev.preventDefault());
+    command &&
+      control.addEventListener('click', () => keyboard.executeCommand(command));
+  });
+
+  const position = bounds;
+
+  if (position) {
+    const left = position.left + 20;
+    const top = position.top - environmentPanel.clientHeight - 15;
+    environmentPanel.style.transform = `translate(${left}px, ${top}px)`;
+    environmentPanel.classList.add('is-visible');
+  }
+
+  return;
+}
+
+export function hideEnvironmentPanel(): void {
+  Scrim.matrixScrim?.close();
+}
+
+const normalizedMatrices = [
+  'matrix',
+  'pmatrix',
+  'bmatrix',
+  'Bmatrix',
+  'vmatrix',
+  'Vmatrix',
+] as const;
+function normalizeMatrixName(environment: MatrixEnvironment) {
+  return environment.replace('*', '') as (typeof normalizedMatrices)[number];
+}
+
+const normalizedCases = ['cases', 'rcases'] as const;
+function normalizeCasesName(environment: CasesEnvironment) {
+  if (environment === 'dcases')
+    return 'cases' as (typeof normalizedCases)[number];
+  else return environment as (typeof normalizedCases)[number];
+}
