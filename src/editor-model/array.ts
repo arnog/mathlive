@@ -8,6 +8,9 @@ import { arrayIndex, arrayCell } from './array-utils';
 import { ArrayAtom } from '../core-atoms/array';
 import type { Style } from '../public/core-types';
 import { GlobalContext } from 'core/types';
+import { makeEnvironment } from 'core-definitions/environments';
+import { PlaceholderAtom } from 'core-atoms/placeholder';
+import { LeftRightAtom } from 'core-atoms/leftright';
 export * from './array-utils';
 
 /**
@@ -23,12 +26,10 @@ export function arrayJoinColumns(
   const result: Atom[] = [new Atom('first', context)];
   let sep: Atom | null = null;
   for (let cell of row) {
-    if (cell && cell.length > 0 && cell[0].type === 'first') {
-      // Remove the 'first' atom, if present
-      cell = cell.slice(1);
-    }
+    // Remove the 'first' atom, if present
+    if (cell?.length > 0 && cell[0].type === 'first') cell = cell.slice(1);
 
-    if (cell && cell.length > 0) {
+    if (cell?.length > 0) {
       if (sep) result.push(sep);
       else sep = new Atom('mpunct', context, { value: separator, style });
 
@@ -111,58 +112,229 @@ export function arrayFirstCellByRow(array: Atom[][][]): string {
 }
 
 /**
- * Internal primitive to add a column/row in a matrix
+ * If we're inside an array, return that parent array.
+ *
+ * Otherwise, consider creating an array based on the context (sibling atoms).
+ *
+ * If at root, create a `lines` environment.
+ * If left sibling is `(` (or `\left( with matching \right))`) create a `pmatrix`
+ * If left sibling is `[` create a `bmatrix`
+ * If left sibling is { create a `cases`
+ * If left sibling is \vert `vmatrix`
+ * If left sibling is \Vert `Vmatrix`
+ * If other \left\right create a matrix (inside the left-right)
+ *
+ * If inside a leftright, use the content of the leftright as the initial cell
+ */
+function parentArray(
+  model: ModelPrivate,
+  where: 'after row' | 'before row' | 'after column' | 'before column'
+): [ArrayAtom | undefined, [row: number, col: number]] {
+  let atom: Atom | undefined = model.at(model.position);
+
+  while (atom && !(atom.parent instanceof ArrayAtom)) atom = atom.parent;
+
+  //
+  // Conversion:
+  // if we are in an array, but the addition of cell is not compatible,
+  // change the array type
+  //
+  //
+  if (atom && atom.type === 'array') {
+    const array = atom as ArrayAtom;
+    if (array.environmentName === 'lines') {
+      // Convert to `split` if adding columns
+      // @todo
+    }
+  }
+
+  //
+  // If no array was found, try to create one
+  //
+  if (!atom || !(atom.parent instanceof ArrayAtom)) {
+    const cursor = model.at(model.position);
+    atom = cursor;
+
+    //
+    // 1/ Handle insertion at the root (when the root is not already an array)
+    //
+    if (!atom.parent!.parent) {
+      let secondCell = model.extractAtoms([model.position, model.lastOffset]);
+      let firstCell = model.extractAtoms([0, model.position]);
+      if (firstCell.length === 0) firstCell = placeholderCell(atom.context);
+      if (secondCell.length === 0) secondCell = placeholderCell(atom.context);
+      let array: ArrayAtom;
+      if (where.endsWith('column')) {
+        array = makeEnvironment(atom.context, 'split', [
+          [firstCell, secondCell],
+        ]);
+        model.root = array;
+        if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
+        else if (isPlaceholderCell(array, 0, 1)) selectCell(model, array, 0, 1);
+        else model.position = model.offsetOf(cursor);
+      } else {
+        array = makeEnvironment(atom.context, 'lines', [
+          [firstCell],
+          [secondCell],
+        ]);
+        model.root = array;
+        if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
+        else if (isPlaceholderCell(array, 1, 0)) selectCell(model, array, 1, 0);
+        else model.position = model.offsetOf(cursor);
+      }
+
+      // We've created the environment and the cells, no need to add a row/column, so return undefined
+      return [undefined, [0, 0]];
+    }
+
+    //
+    // 2/ Are we inside a \left...\right...?
+    //
+    if (atom.parent instanceof LeftRightAtom) {
+      const parent = atom.parent;
+      let secondCell = model.extractAtoms([
+        model.position,
+        model.offsetOf(parent.lastChild),
+      ]);
+      let firstCell = model.extractAtoms([
+        model.offsetOf(parent.firstChild),
+        model.position,
+      ]);
+      if (firstCell.length === 0) firstCell = placeholderCell(atom.context);
+      if (secondCell.length === 0) secondCell = placeholderCell(atom.context);
+
+      let envName = 'pmatrix';
+      const lDelim = parent.leftDelim;
+      const rDelim = parent.rightDelim;
+      if (lDelim === '(' && (rDelim === ')' || rDelim === '?'))
+        envName = 'pmatrix';
+      else if (
+        (lDelim === '[' || lDelim === '\\lbrack') &&
+        (rDelim === ']' || rDelim === '\\rbrack' || rDelim === '?')
+      )
+        envName = 'bmatrix';
+      else if (lDelim === '\\vert' && rDelim === '\\vert') envName = 'vmatrix';
+      else if (lDelim === '\\Vert' && rDelim === '\\Vert') envName = 'Vmatrix';
+      else if (
+        (lDelim === '{' || lDelim === '\\lbrace') &&
+        (rDelim === '.' || rDelim === '?')
+      )
+        envName = 'cases';
+
+      const array = makeEnvironment(
+        atom.context,
+        envName,
+        where.endsWith('column')
+          ? [[firstCell, secondCell]]
+          : [[firstCell], [secondCell]]
+      );
+
+      parent.parent!.addChildBefore(array, parent);
+      parent.parent!.removeChild(parent);
+      if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
+      else if (where.endsWith('column')) {
+        if (isPlaceholderCell(array, 0, 1)) selectCell(model, array, 0, 1);
+        else model.position = model.offsetOf(atom);
+      } else {
+        if (isPlaceholderCell(array, 1, 0)) selectCell(model, array, 1, 0);
+        else model.position = model.offsetOf(atom);
+      }
+
+      return [undefined, [0, 0]];
+    }
+  }
+
+  return atom && atom.parent instanceof ArrayAtom
+    ? [atom.parent, atom.parentBranch! as [number, number]]
+    : [undefined, [0, 0]];
+}
+
+function isPlaceholderCell(
+  array: ArrayAtom,
+  row: number,
+  column: number
+): boolean {
+  // const pos = model.offsetOf(array.getCell(row, column)![1]);
+  // return pos >= 0 && model.at(pos).type === 'placeholder';
+  const cell = array.getCell(row, column);
+  if (!cell || cell.length !== 2) return false;
+  return cell[1].type === 'placeholder';
+}
+
+function cellRange(
+  model: ModelPrivate,
+  array: ArrayAtom,
+  row: number,
+  column: number
+): [number, number] | number {
+  const cell = array.getCell(row, column);
+  if (!cell) return -1;
+  return [model.offsetOf(cell[0]), model.offsetOf(cell[cell.length - 1])];
+}
+
+function selectCell(
+  model: ModelPrivate,
+  array: ArrayAtom,
+  row: number,
+  column: number
+) {
+  const range = cellRange(model, array, row, column);
+  if (typeof range !== 'number') model.setSelection(range);
+}
+
+function setPositionInCell(
+  model: ModelPrivate,
+  array: ArrayAtom,
+  row: number,
+  column: number,
+  pos: 'start' | 'end'
+) {
+  const cell = array.getCell(row, column);
+  if (!cell) return;
+  model.setPositionHandlingPlaceholder(
+    model.offsetOf(cell[pos === 'start' ? 0 : cell.length - 1])
+  );
+}
+
+/**
+ * Internal primitive to add a column/row in an array.
+ * Insert an array if necessary.
  */
 function addCell(
   model: ModelPrivate,
   where: 'after row' | 'before row' | 'after column' | 'before column'
 ): void {
-  // This command is only applicable if we're in an ArrayAtom
-  let atom = model.at(model.position);
+  const [arrayAtom, [row, column]] = parentArray(model, where);
+  if (!arrayAtom) return;
 
-  while (
-    atom &&
-    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
-  )
-    atom = atom.parent!;
+  switch (where) {
+    case 'after row':
+      arrayAtom.addRowAfter(row);
+      setPositionInCell(model, arrayAtom, row + 1, 0, 'end');
+      break;
 
-  if (Array.isArray(atom?.treeBranch) && atom?.parent instanceof ArrayAtom) {
-    const arrayAtom = atom.parent;
-    let pos: number;
-    switch (where) {
-      case 'after row':
-        arrayAtom.addRowAfter(atom.treeBranch[0]);
-        pos = model.offsetOf(arrayAtom.getCell(atom.treeBranch[0] + 1, 0)![0]);
-        break;
+    case 'after column':
+      if (arrayAtom.maxColumns <= arrayAtom.colCount) {
+        model.announce('plonk');
+        return;
+      }
+      arrayAtom.addColumnAfter(column);
+      setPositionInCell(model, arrayAtom, row, column + 1, 'end');
+      break;
 
-      case 'after column':
-        if (arrayAtom.maxColumns <= arrayAtom.colCount) {
-          model.announce('plonk');
-          return;
-        }
-        arrayAtom.addColumnAfter(atom.treeBranch[1]);
-        pos = model.offsetOf(
-          arrayAtom.getCell(atom.treeBranch[0], atom.treeBranch[1] + 1)![0]
-        );
-        break;
+    case 'before row':
+      arrayAtom.addRowBefore(row);
+      setPositionInCell(model, arrayAtom, row - 1, 0, 'start');
+      break;
 
-      case 'before row':
-        arrayAtom.addRowBefore(atom.treeBranch[0]);
-        pos = model.offsetOf(arrayAtom.getCell(atom.treeBranch[0] - 1, 0)![0]);
-        break;
-
-      case 'before column':
-        if (arrayAtom.maxColumns <= arrayAtom.colCount) {
-          model.announce('plonk');
-          return;
-        }
-        arrayAtom.addColumnBefore(atom.treeBranch[1]);
-        pos = model.offsetOf(
-          arrayAtom.getCell(atom.treeBranch[0], atom.treeBranch[1] - 1)![0]
-        );
-        break;
-    }
-    model.setSelection(pos, pos + 1);
+    case 'before column':
+      if (arrayAtom.maxColumns <= arrayAtom.colCount) {
+        model.announce('plonk');
+        return;
+      }
+      arrayAtom.addColumnBefore(column);
+      setPositionInCell(model, arrayAtom, row, column - 1, 'start');
+      break;
   }
 }
 
@@ -203,13 +375,13 @@ function removeCell(model: ModelPrivate, where: 'row' | 'column'): void {
 
   while (
     atom &&
-    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
+    !(Array.isArray(atom.parentBranch) && atom.parent instanceof ArrayAtom)
   )
     atom = atom.parent!;
 
-  if (Array.isArray(atom?.treeBranch) && atom?.parent instanceof ArrayAtom) {
+  if (Array.isArray(atom?.parentBranch) && atom?.parent instanceof ArrayAtom) {
     const arrayAtom = atom.parent;
-    const treeBranch = atom.treeBranch;
+    const treeBranch = atom.parentBranch;
     let pos: number | undefined;
     switch (where) {
       case 'row':
@@ -263,3 +435,7 @@ registerCommand(
   },
   { target: 'model', category: 'array-edit' }
 );
+
+function placeholderCell(context: GlobalContext) {
+  return [new PlaceholderAtom(context)];
+}

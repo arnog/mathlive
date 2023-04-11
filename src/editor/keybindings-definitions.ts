@@ -346,30 +346,38 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     command: 'removeRow',
   },
 
-  {
-    key: 'ctrl+[Comma]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: 'addColumnAfter',
-  },
-  {
-    key: 'cmd+[Comma]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: 'addColumnAfter',
-  },
-  {
-    key: 'shift+ctrl+[Comma]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: 'addColumnBefore',
-  },
-  {
-    key: 'shift+cmd+[Comma]',
-    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
-    ifMode: 'math',
-    command: 'addColumnBefore',
-  },
+  // {
+  //   key: 'ctrl+[Comma]',
+  //   ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+  //   ifMode: 'math',
+  //   command: 'addColumnAfter',
+  // },
+  // {
+  //   key: 'cmd+[Comma]',
+  //   ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+  //   ifMode: 'math',
+  //   command: 'addColumnAfter',
+  // },
+  // {
+  //   key: 'shift+ctrl+[Comma]',
+  //   ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+  //   ifMode: 'math',
+  //   command: 'addColumnBefore',
+  // },
+  // {
+  //   key: 'shift+cmd+[Comma]',
+  //   ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+  //   ifMode: 'math',
+  //   command: 'addColumnBefore',
+  // },
+
+  { key: 'alt+[Tab]', ifMode: 'math', command: 'addColumnAfter' },
+  { key: 'shift+alt+[Tab]', ifMode: 'math', command: 'addColumnBefore' },
+  { key: 'alt+[Enter]', ifMode: 'math', command: 'addRowAfter' },
+  { key: 'shift+alt+[Enter]', ifMode: 'math', command: 'addRowBefore' },
+  { key: 'alt+[Return]', ifMode: 'math', command: 'addRowAfter' },
+  { key: 'shift+alt+[Return]', ifMode: 'math', command: 'addRowBefore' },
+
   {
     key: 'shift+[Backspace]',
     ifMode: 'math',

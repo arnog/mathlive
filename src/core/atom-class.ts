@@ -155,9 +155,9 @@ export class Atom {
   // An atom can have multiple "branches" of children,
   // e.g. `body` and `superscript`.
   //
-  // The `treeBranch` property indicate which branch of the parent this
+  // The `parentBranch` property indicate which branch of the parent this
   // atom belongs to or if in an array, the row and column
-  treeBranch: Branch | undefined;
+  parentBranch: Branch | undefined;
 
   value: string; // If no branches
 
@@ -589,7 +589,7 @@ export class Atom {
    */
   get branches(): Branch[] {
     if (!this._branches) return [];
-    const result: Branch[] = [];
+    const result: BranchName[] = [];
     for (const branch of NAMED_BRANCHES)
       if (this._branches[branch]) result.push(branch);
 
@@ -614,13 +614,13 @@ export class Atom {
   }
 
   get row(): number {
-    if (!isCellBranch(this.treeBranch)) return -1;
-    return this.treeBranch[0];
+    if (!isCellBranch(this.parentBranch)) return -1;
+    return this.parentBranch[0];
   }
 
   get col(): number {
-    if (!isCellBranch(this.treeBranch)) return -1;
-    return this.treeBranch[1];
+    if (!isCellBranch(this.parentBranch)) return -1;
+    return this.parentBranch[1];
   }
 
   get body(): Atom[] | undefined {
@@ -757,7 +757,7 @@ export class Atom {
     // Update the children
     for (const child of children) {
       child.parent = this;
-      child.treeBranch = branch;
+      child.parentBranch = branch;
     }
 
     this.isDirty = true;
@@ -766,7 +766,7 @@ export class Atom {
   makeFirstAtom(branch: Branch): Atom {
     const result = new Atom('first', this.context, { mode: this.mode });
     result.parent = this;
-    result.treeBranch = branch;
+    result.parentBranch = branch;
     return result;
   }
 
@@ -778,29 +778,29 @@ export class Atom {
 
     // Update the child
     child.parent = this;
-    child.treeBranch = branch;
+    child.parentBranch = branch;
   }
 
   addChildBefore(child: Atom, before: Atom): void {
-    console.assert(before.treeBranch !== undefined);
-    const branch = this.createBranch(before.treeBranch!);
+    console.assert(before.parentBranch !== undefined);
+    const branch = this.createBranch(before.parentBranch!);
     branch.splice(branch.indexOf(before), 0, child);
     this.isDirty = true;
 
     // Update the child
     child.parent = this;
-    child.treeBranch = before.treeBranch;
+    child.parentBranch = before.parentBranch;
   }
 
   addChildAfter(child: Atom, after: Atom): void {
-    console.assert(after.treeBranch !== undefined);
-    const branch = this.createBranch(after.treeBranch!);
+    console.assert(after.parentBranch !== undefined);
+    const branch = this.createBranch(after.parentBranch!);
     branch.splice(branch.indexOf(after) + 1, 0, child);
     this.isDirty = true;
 
     // Update the child
     child.parent = this;
-    child.treeBranch = after.treeBranch;
+    child.parentBranch = after.parentBranch;
   }
 
   addChildren(children: Atom[], branch: Branch): void {
@@ -812,15 +812,15 @@ export class Atom {
    */
   addChildrenAfter(children: Atom[], after: Atom): Atom {
     console.assert(children.length === 0 || children[0].type !== 'first');
-    console.assert(after.treeBranch !== undefined);
-    const branch = this.createBranch(after.treeBranch!);
+    console.assert(after.parentBranch !== undefined);
+    const branch = this.createBranch(after.parentBranch!);
     branch.splice(branch.indexOf(after) + 1, 0, ...children);
     this.isDirty = true;
 
     // Update the children
     for (const child of children) {
       child.parent = this;
-      child.treeBranch = after.treeBranch;
+      child.parentBranch = after.parentBranch;
     }
     return children[children.length - 1];
   }
@@ -833,7 +833,7 @@ export class Atom {
 
     for (const child of children) {
       child.parent = undefined;
-      child.treeBranch = undefined;
+      child.parentBranch = undefined;
     }
     // Drop the 'first' element
     console.assert(children[0].type === 'first');
@@ -849,7 +849,7 @@ export class Atom {
     if (child.type === 'first') return;
 
     // Update the parent
-    const branch = this.branch(child.treeBranch!)!;
+    const branch = this.branch(child.parentBranch!)!;
     const index = branch.indexOf(child);
     console.assert(index >= 0);
     branch.splice(index, 1);
@@ -857,12 +857,12 @@ export class Atom {
 
     // Update the child
     child.parent = undefined;
-    child.treeBranch = undefined;
+    child.parentBranch = undefined;
   }
 
   get siblings(): Atom[] {
-    if (this.type === 'root') return [];
-    return this.parent!.branch(this.treeBranch!)!;
+    if (!this.parent) return [];
+    return this.parent.branch(this.parentBranch!)!;
   }
 
   get firstSibling(): Atom {
@@ -890,13 +890,13 @@ export class Atom {
 
   get leftSibling(): Atom {
     console.assert(this.parent !== undefined);
-    const siblings = this.parent!.branch(this.treeBranch!)!;
+    const siblings = this.parent!.branch(this.parentBranch!)!;
     return siblings[siblings.indexOf(this) - 1];
   }
 
   get rightSibling(): Atom {
     console.assert(this.parent !== undefined);
-    const siblings = this.parent!.branch(this.treeBranch!)!;
+    const siblings = this.parent!.branch(this.parentBranch!)!;
     return siblings[siblings.indexOf(this) + 1];
   }
 
@@ -953,7 +953,7 @@ export class Atom {
     //
     const context = new Context(parentContext, this.style);
     let classes = '';
-    if (this.type === 'root') classes += ' ML__base';
+    if (!this.parent) classes += ' ML__base';
     if (this.isSelected) classes += ' ML__selected';
     let result: Box = this.createBox(context, {
       classes,

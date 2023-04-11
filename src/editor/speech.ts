@@ -81,7 +81,7 @@ function speak(
 
       case 'parent': {
         const { parent } = model.at(model.position);
-        if (parent && parent.type !== 'root') result = parent;
+        if (parent?.parent) result = parent;
         else result = model.root;
 
         break;

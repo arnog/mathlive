@@ -32,8 +32,6 @@ import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex, validateLatex } from '../core/parser';
 import { getDefaultRegisters } from '../core/registers';
 
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-
 import {
   contentWillChange,
   deleteRange,
@@ -1121,7 +1119,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
             const extractedAtoms = this.model.extractAtoms(selRange);
             if (
               extractedAtoms.length === 1 &&
-              extractedAtoms[0] instanceof PlaceholderAtom
+              extractedAtoms[0].type === 'placeholder'
             ) {
               // If we just had a placeholder selected, pretend we had an empty
               // selection

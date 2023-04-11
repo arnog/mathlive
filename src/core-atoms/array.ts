@@ -36,11 +36,11 @@ export type ColumnFormat =
     };
 
 export type ColSeparationType =
-  | 'align'
-  | 'alignat'
-  | 'gather'
+  // | 'align'
+  // | 'alignat'
+  // | 'gather'
   | 'small'
-  | 'CD'
+  // | 'CD'
   | undefined;
 
 export type ArrayAtomConstructorOptions = {
@@ -130,14 +130,18 @@ function normalizeArray(
       const newRow: Atom[][] = [];
       const lastCol = Math.min(row.length, colIndex + maxColCount);
       while (colIndex < lastCol) {
-        if (row[colIndex].length === 0)
+        const cell = row[colIndex];
+        if (cell.length === 0)
           newRow.push([new Atom('first', context, { mode: atom.mode })]);
-        else if (row[colIndex][0].type !== 'first') {
+        else if (cell[0].type !== 'first') {
           newRow.push([
             new Atom('first', context, { mode: atom.mode }),
-            ...row[colIndex],
+            ...cell,
           ]);
-        } else newRow.push(row[colIndex]);
+        } else {
+          console.assert(!cell.slice(1).some((x) => x.type === 'first'));
+          newRow.push(cell);
+        }
 
         colIndex += 1;
       }
@@ -148,8 +152,10 @@ function normalizeArray(
 
   //
   // 2/ If the last row is empty, ignore it (TeX behavior)
+  // (unless there's only one row)
   //
   if (
+    rows.length > 0 &&
     rows[rows.length - 1].length === 1 &&
     rows[rows.length - 1][0].length === 1 &&
     rows[rows.length - 1][0][0].type === 'first'
@@ -182,7 +188,7 @@ function normalizeArray(
     for (const cell of row) {
       for (const element of cell) {
         element.parent = atom;
-        element.treeBranch = [rowIndex, colIndex];
+        element.parentBranch = [rowIndex, colIndex];
       }
       colIndex += 1;
     }
@@ -290,16 +296,6 @@ export class ArrayAtom extends Atom {
     return this.array[cell[0]][cell[1]] ?? undefined;
   }
 
-  get branches(): Branch[] {
-    const result = super.branches;
-    this.array.forEach((_, col) => {
-      this.array[col].forEach((_, row) => {
-        if (this.array[col][row]) result.push([col, row]);
-      });
-    });
-    return result;
-  }
-
   createBranch(cell: Branch): Atom[] {
     if (!isCellBranch(cell)) return [];
     this.isDirty = true;
@@ -325,7 +321,7 @@ export class ArrayAtom extends Atom {
     this.array[name[0]][name[1]] = undefined;
     children.forEach((x) => {
       x.parent = undefined;
-      x.treeBranch = undefined;
+      x.parentBranch = undefined;
     });
     // Drop the 'first' element
     console.assert(children[0].type === 'first');
@@ -633,7 +629,7 @@ export class ArrayAtom extends Atom {
     );
     for (const atom of this.array[row][column]!) {
       atom.parent = undefined;
-      atom.treeBranch = undefined;
+      atom.parentBranch = undefined;
     }
 
     let atoms = value;
@@ -643,7 +639,7 @@ export class ArrayAtom extends Atom {
     this.array[row][column] = atoms;
     for (const atom of atoms) {
       atom.parent = this;
-      atom.treeBranch = [row, column];
+      atom.parentBranch = [row, column];
     }
     this.isDirty = true;
   }
@@ -658,7 +654,7 @@ export class ArrayAtom extends Atom {
     for (let i = row; i < this.rowCount; i++) {
       for (let j = 0; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
+        if (atoms) for (const atom of atoms) atom.parentBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -674,7 +670,7 @@ export class ArrayAtom extends Atom {
     for (let i = row + 1; i < this.rowCount; i++) {
       for (let j = 0; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
+        if (atoms) for (const atom of atoms) atom.parentBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -691,7 +687,7 @@ export class ArrayAtom extends Atom {
         if (cell) {
           for (const child of cell) {
             child.parent = undefined;
-            child.treeBranch = undefined;
+            child.parentBranch = undefined;
           }
         }
       }
@@ -699,7 +695,7 @@ export class ArrayAtom extends Atom {
     for (let i = row; i < this.rowCount; i++) {
       for (let j = 0; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
+        if (atoms) for (const atom of atoms) atom.parentBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -712,7 +708,7 @@ export class ArrayAtom extends Atom {
     for (let i = 0; i < this.rowCount; i++) {
       for (let j = col; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
+        if (atoms) for (const atom of atoms) atom.parentBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -726,7 +722,7 @@ export class ArrayAtom extends Atom {
     for (let i = 0; i < this.rowCount; i++) {
       for (let j = col + 1; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
+        if (atoms) for (const atom of atoms) atom.parentBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -746,7 +742,7 @@ export class ArrayAtom extends Atom {
         if (cell) {
           for (const child of cell) {
             child.parent = undefined;
-            child.treeBranch = undefined;
+            child.parentBranch = undefined;
           }
         }
       }
@@ -754,7 +750,7 @@ export class ArrayAtom extends Atom {
     for (let i = 0; i < this.rowCount; i++) {
       for (let j = col; j < this.colCount; j++) {
         const atoms = this.array[i][j];
-        if (atoms) for (const atom of atoms) atom.treeBranch = [i, j];
+        if (atoms) for (const atom of atoms) atom.parentBranch = [i, j];
       }
     }
     this.isDirty = true;
@@ -762,9 +758,10 @@ export class ArrayAtom extends Atom {
 
   get cells(): Atom[][] {
     const result: Atom[][] = [];
-    for (const row of this.array)
-      for (const cell of row) if (cell) result.push(cell);
-
+    for (const row of this.array) {
+      for (const cell of row)
+        if (cell) result.push(cell.filter((x) => x.type !== 'first'));
+    }
     return result;
   }
 }

@@ -509,7 +509,7 @@ export function onInput(
       else if (
         /\d/.test(c) &&
         mathfield.options.smartSuperscript &&
-        atom.treeBranch === 'superscript' &&
+        atom.parentBranch === 'superscript' &&
         atom.parent?.type !== 'mop' &&
         atom.hasNoSiblings
       ) {
