@@ -643,6 +643,14 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.adoptStyle === 'right' ? previousAtom.rightSibling : previousAtom;
 
       if (!siblingToAdopt) return {};
+
+      if (siblingToAdopt.type === 'group') {
+        const branch = siblingToAdopt.branch('body');
+        if (!branch || branch.length < 2) return {};
+        if (this.adoptStyle === 'right') return branch[1].style;
+        else return branch[branch.length - 1].style;
+      }
+
       return siblingToAdopt.style;
     }
 
