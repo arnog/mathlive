@@ -15,9 +15,10 @@ import type {
   ParseMode,
   Variant,
   MathstyleName,
+  Environment,
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
-import { GlobalContext, BoxType, PrivateStyle } from 'core/types';
+import { GlobalContext, BoxType, PrivateStyle } from '../core/types';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;
@@ -230,7 +231,7 @@ export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 
 type EnvironmentConstructor = (
   context: GlobalContext,
-  name: string,
+  name: Environment,
   array: Atom[][][],
   rowGaps: Dimension[],
   args: (null | Argument)[]
@@ -695,25 +696,16 @@ export function parseArgAsString(atoms: Atom[]): string {
  */
 export function defineEnvironment(
   names: string | string[],
-  parameters: string,
-  createAtom: EnvironmentConstructor,
-  isTabular = false
+  createAtom: EnvironmentConstructor
 ): void {
   if (typeof names === 'string') names = [names];
 
-  const parsedParameters = parseParameterTemplate(parameters);
-
-  // Set default values of functions
-  const data: EnvironmentDefinition = {
-    tabular: isTabular,
-    // Params: the parameters for this function, an array of
-    // {optional, type}
-    params: parsedParameters,
-
-    // Handler to create an atom
+  const def: EnvironmentDefinition = {
+    tabular: false,
+    params: [],
     createAtom,
   };
-  for (const name of names) ENVIRONMENTS[name] = data;
+  for (const name of names) ENVIRONMENTS[name] = def;
 }
 
 /**
@@ -722,11 +714,22 @@ export function defineEnvironment(
  * and '\\' indicate a new row.
  */
 export function defineTabularEnvironment(
-  names: string | string[],
+  names: Environment | Environment[],
   parameters: string,
   createAtom: EnvironmentConstructor
 ): void {
-  defineEnvironment(names, parameters, createAtom, true);
+  if (typeof names === 'string') names = [names];
+
+  // The parameters for this function, an array of
+  // {optional, type}
+  const parsedParameters = parseParameterTemplate(parameters);
+
+  const data: EnvironmentDefinition = {
+    tabular: true,
+    params: parsedParameters,
+    createAtom,
+  };
+  for (const name of names) ENVIRONMENTS[name] = data;
 }
 
 /**

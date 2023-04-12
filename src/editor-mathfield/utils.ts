@@ -120,9 +120,9 @@ function branchId(atom: Atom): string {
   if (!atom.parent) return 'root';
   let result = atom.parent.id ?? '';
   result +=
-    typeof atom.treeBranch === 'string'
-      ? '-' + atom.treeBranch
-      : `-${atom.treeBranch![0]}/${atom.treeBranch![0]}`;
+    typeof atom.parentBranch === 'string'
+      ? '-' + atom.parentBranch
+      : `-${atom.parentBranch![0]}/${atom.parentBranch![0]}`;
   return result;
 }
 

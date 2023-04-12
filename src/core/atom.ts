@@ -30,7 +30,7 @@ import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
 import { PromptAtom } from '../core-atoms/prompt';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 export * from './atom-class';
 

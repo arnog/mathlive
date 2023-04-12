@@ -377,6 +377,9 @@ export function delegateKeyboardEvents(
 
   return {
     cancelComposition: (): void => {
+      // Due to the order of event, we may not have
+      // received `compositionstart` by the time we decide
+      // to cancel the composition.
       if (!compositionInProgress) return;
       keyboardSink.blur();
       requestAnimationFrame(() => keyboardSink.focus({ preventScroll: true }));

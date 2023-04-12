@@ -1,7 +1,7 @@
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 export class MacroAtom extends Atom {
   readonly macroArgs: string;

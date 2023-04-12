@@ -32,8 +32,6 @@ import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex, validateLatex } from '../core/parser';
 import { getDefaultRegisters } from '../core/registers';
 
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-
 import {
   contentWillChange,
   deleteRange,
@@ -107,6 +105,7 @@ import { PromptAtom } from '../core-atoms/prompt';
 import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
 import '../public/mathfield-element';
 
+import '../virtual-keyboard/virtual-keyboard';
 import '../virtual-keyboard/global';
 
 import type {
@@ -385,7 +384,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           window.mathVirtualKeyboard.hide();
         else {
           window.mathVirtualKeyboard.show({ animate: true });
-          window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+          window.mathVirtualKeyboard.update(makeProxy(this));
         }
       });
 
@@ -474,7 +473,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
               'focus',
               (evt) => {
                 if (evt.target === window && isValidMathfield(this))
-                  this.focus();
+                  this.focus({ scrollIntoView: false });
               },
               { once: true }
             );
@@ -509,7 +508,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     window.addEventListener('message', this);
     // Connect the kbd or kbd proxy to the current window
     window.mathVirtualKeyboard.connect();
-    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+    window.mathVirtualKeyboard.update(makeProxy(this));
   }
 
   disconnectFromVirtualKeyboard(): void {
@@ -633,6 +632,38 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return this.options?.registers ?? {};
   }
 
+  /** Returns styles shared by all selected atoms */
+  get selectionStyle(): Style {
+    // Selection is not extended, adopt style
+    if (this.model.selectionIsCollapsed) {
+      const previousAtom = this.model.at(this.model.selection.ranges[0][0]);
+
+      const siblingToAdopt =
+        this.adoptStyle === 'right' ? previousAtom.rightSibling : previousAtom;
+
+      if (!siblingToAdopt) return {};
+
+      if (siblingToAdopt.type === 'group') {
+        const branch = siblingToAdopt.branch('body');
+        if (!branch || branch.length < 2) return {};
+        if (this.adoptStyle === 'right') return branch[1].style;
+        return branch[branch.length - 1].style;
+      }
+
+      return siblingToAdopt.style;
+    }
+
+    // Potentially multiple atoms selected, return the COMMON styles
+    const selectedAtoms = this.model.getAtoms(this.model.selection);
+    const style = selectedAtoms[0].style || {};
+    selectedAtoms.forEach((a: Atom) => {
+      for (const [key, value] of Object.entries(a.style))
+        if (!style[key] || style[key] !== value) style[key] = undefined;
+    });
+
+    return style!;
+  }
+
   getDefinition(
     token: string,
     parseMode: ParseMode = 'math'
@@ -750,7 +781,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (getCommandTarget(command) === 'virtual-keyboard') return;
         this.executeCommand(command);
       } else if (action === 'update-state') {
-      } else if (action === 'focus') this.focus();
+      } else if (action === 'focus') this.focus({ scrollIntoView: false });
       else if (action === 'blur') this.blur();
       return;
     }
@@ -858,7 +889,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this.focus({ scrollIntoView: false });
       window.mathVirtualKeyboard.executeCommand(command);
       requestAnimationFrame(() =>
-        window.mathVirtualKeyboard.updateToolbar(makeProxy(this))
+        window.mathVirtualKeyboard.update(makeProxy(this))
       );
       return false;
     }
@@ -1123,7 +1154,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
             const extractedAtoms = this.model.extractAtoms(selRange);
             if (
               extractedAtoms.length === 1 &&
-              extractedAtoms[0] instanceof PlaceholderAtom
+              extractedAtoms[0].type === 'placeholder'
             ) {
               // If we just had a placeholder selected, pretend we had an empty
               // selection
@@ -1348,7 +1379,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   snapshot(): void {
     if (this.undoManager.snapshot()) {
-      window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+      window.mathVirtualKeyboard.update(makeProxy(this));
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1361,7 +1392,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   snapshotAndCoalesce(): void {
     if (this.undoManager.snapshotAndCoalesce()) {
-      window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+      window.mathVirtualKeyboard.update(makeProxy(this));
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1374,7 +1405,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   undo(): void {
     if (!this.undoManager.undo()) return;
-    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+    console.log('updating');
+    window.mathVirtualKeyboard.update(makeProxy(this));
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,
@@ -1386,7 +1418,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   redo(): void {
     if (!this.undoManager.redo()) return;
-    window.mathVirtualKeyboard.updateToolbar(makeProxy(this));
+    window.mathVirtualKeyboard.update(makeProxy(this));
     this.host?.dispatchEvent(
       new CustomEvent('undo-state-change', {
         bubbles: true,

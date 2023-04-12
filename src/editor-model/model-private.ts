@@ -10,10 +10,10 @@ import { ContentChangeOptions, ContentChangeType } from '../public/options';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
-import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
+import { Atom, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
 import { Mode } from '../core/modes';
-import { AtomJson, fromJson } from '../core/atom';
+import { AtomJson, BranchName, fromJson } from '../core/atom';
 
 import { toMathML } from '../addons/math-ml';
 
@@ -35,6 +35,7 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
+import { ArrayAtom } from '../core-atoms/array';
 
 export type ModelState = {
   content: AtomJson;
@@ -277,11 +278,11 @@ export class ModelPrivate implements Model {
     const atom: Atom = this.at(offset);
     const { parent } = atom;
     if (!parent) return [0, this.lastOffset];
-    const branch = atom.parent!.branch(atom.treeBranch!)!;
+    const branch = atom.parent!.branch(atom.parentBranch!)!;
     return [this.offsetOf(branch[0]), this.offsetOf(branch[branch.length - 1])];
   }
 
-  getBranchRange(offset: Offset, branchName: Branch): Range {
+  getBranchRange(offset: Offset, branchName: BranchName): Range {
     const branch = this.at(offset).branch(branchName)!;
     return [this.offsetOf(branch[0]), this.offsetOf(branch[branch.length - 1])];
   }
@@ -337,11 +338,8 @@ export class ModelPrivate implements Model {
     const first = Math.min(start, end) + 1;
     const last = Math.max(start, end);
 
-    if (first === 1 && last === this.lastOffset) {
-      // This is the entire selection,
-      // return the root
-      return [this.root];
-    }
+    // If this is the entire selection, return the root
+    if (first === 1 && last === this.lastOffset) return [this.root];
 
     let result: Atom[] = [];
     for (let i = first; i <= last; i++) {
@@ -410,10 +408,19 @@ export class ModelPrivate implements Model {
    */
   extractAtoms(range: Range): Atom[] {
     let result = this.getAtoms(range);
-    if (result.length === 1 && result[0].type === 'root') {
-      // We're trying to delete the root.
+    if (result.length === 1 && !result[0].parent) {
+      // We're trying to extract the root.
       // Don't actually delete the root, delete all the children of the root.
-      result = result[0].children;
+      if (result[0].type === 'root') {
+        result = [...result[0].body!];
+        result.shift();
+      } else {
+        // If the root is an array, replace with a plain root
+        result = (this.root as ArrayAtom).cells.flat();
+        this.root = new Atom('root', this.root.context);
+        this.root.body = [];
+        return result;
+      }
     }
     for (const child of result) child.parent!.removeChild(child);
     return result;
@@ -781,6 +788,18 @@ export class ModelPrivate implements Model {
     }
     console.assert(result !== undefined);
     return result!;
+  }
+
+  /** Returns the first ArrayAtom in ancestry of current position */
+  get parentEnvironment(): ArrayAtom | undefined {
+    let parent = this.at(this.position).parent;
+    if (!parent) return undefined;
+
+    while (parent.parent && parent.type !== 'array') parent = parent.parent;
+
+    if (parent.type !== 'array') return undefined;
+
+    return parent as ArrayAtom;
   }
 }
 

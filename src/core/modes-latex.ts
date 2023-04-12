@@ -4,7 +4,7 @@ import { Atom, ToLatexOptions } from './atom';
 
 import { LatexAtom } from '../core-atoms/latex';
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 export class LatexMode extends Mode {
   constructor() {

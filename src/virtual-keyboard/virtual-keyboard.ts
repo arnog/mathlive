@@ -1,5 +1,5 @@
 import type {
-  ActionToolbarOptions,
+  EditToolbarOptions,
   AlphabeticKeyboardLayout,
   NormalizedVirtualKeyboardLayer,
   VirtualKeyboardKeycap,
@@ -12,7 +12,7 @@ import type {
   VirtualKeyboardInterface,
   VirtualKeyboardMessage,
   VirtualKeyboardMessageAction,
-} from '../public/virtual-keyboard-types';
+} from '../public/virtual-keyboard';
 import type { OriginValidator } from '../public/options';
 import type { MathfieldElement } from '../public/mathfield-element';
 
@@ -32,6 +32,13 @@ import {
 } from './utils';
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
+import {
+  hideEnvironmentPanel,
+  showEnvironmentPanel,
+} from './environmentPopover';
+import { isTabularEnvironment } from '../core-definitions/environment-types';
+import { Style } from '../public/core-types';
+import { ArrayAtom } from '../core-atoms/array';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
@@ -47,7 +54,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   private keycapRegistry: Record<string, Partial<VirtualKeyboardKeycap>> = {};
 
-  lastLayer: string;
+  latentLayer: string;
 
   get currentLayer(): string {
     return this._element?.querySelector('.MLK__layer.is-visible')?.id ?? '';
@@ -55,10 +62,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   set currentLayer(id: string) {
     if (!this._element) {
-      this.lastLayer = id;
+      this.latentLayer = id;
       return;
     }
-    const newActive = this._element.querySelector(`#${id}.MLK__layer`);
+    let newActive = id
+      ? this._element.querySelector(`#${id}.MLK__layer`)
+      : null;
+    if (!newActive) newActive = this._element.querySelector('.MLK__layer');
+
     if (newActive) {
       this._element
         .querySelector('.MLK__layer.is-visible')
@@ -129,6 +140,36 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.rebuild();
   }
 
+  private _actionKeycap: Partial<VirtualKeyboardKeycap>;
+  get actionKeycap(): Partial<VirtualKeyboardKeycap> {
+    return this._actionKeycap;
+  }
+  set actionKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this._actionKeycap = typeof value === 'string' ? { label: value } : value;
+  }
+  private _shiftKeycap: Partial<VirtualKeyboardKeycap>;
+  get shiftKeycap(): Partial<VirtualKeyboardKeycap> {
+    return this._shiftKeycap;
+  }
+  set shiftKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this._shiftKeycap = typeof value === 'string' ? { label: value } : value;
+  }
+  private _backspaceKeycap: Partial<VirtualKeyboardKeycap>;
+  get backspaceKeycap(): Partial<VirtualKeyboardKeycap> {
+    return this._backspaceKeycap;
+  }
+  set backspaceKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this._backspaceKeycap =
+      typeof value === 'string' ? { label: value } : value;
+  }
+  private _tabKeycap: Partial<VirtualKeyboardKeycap>;
+  get tabKeycap(): Partial<VirtualKeyboardKeycap> {
+    return this._tabKeycap;
+  }
+  set tabKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this._tabKeycap = typeof value === 'string' ? { label: value } : value;
+  }
+
   private _layouts: 'default' | (string | VirtualKeyboardLayout)[];
   get layouts(): 'default' | (string | VirtualKeyboardLayout)[] {
     return this._layouts;
@@ -169,12 +210,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return this._normalizedLayouts;
   }
 
-  private _actionToolbar: ActionToolbarOptions;
-  get actionToolbar(): ActionToolbarOptions {
-    return this._actionToolbar;
+  private _editToolbar: EditToolbarOptions;
+  get editToolbar(): EditToolbarOptions {
+    return this._editToolbar;
   }
-  set actionToolbar(value: ActionToolbarOptions) {
-    this._actionToolbar = value;
+  set editToolbar(value: EditToolbarOptions) {
+    this._editToolbar = value;
     this.rebuild();
   }
 
@@ -196,35 +237,26 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return this._singleton;
   }
 
+  private _style: Style;
+  get style(): Style {
+    return this._style;
+  }
+
   constructor() {
     this.targetOrigin = window.origin;
     this.originValidator = 'none';
 
     this._alphabeticLayout = 'auto';
     this._layouts = 'default';
-    this._actionToolbar = 'default';
+    this._editToolbar = 'default';
 
     this._container = window.document?.body ?? null;
 
     this._visible = false;
     this._dirty = false;
     this.observer = new ResizeObserver((_entries) => {
-      // Adjust the keyboard height
-      const h = this.boundingRect.height;
-      if (this.container === document.body) {
-        this._element?.style.setProperty(
-          '--keyboard-height',
-          `calc(${h}px + env(safe-area-inset-bottom, 0))`
-        );
-        const keyboardHeight = h - 1;
-        this.container!.style.paddingBottom = this
-          .originalContainerBottomPadding
-          ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
-          : `${keyboardHeight}px`;
-      } else this._element?.style.setProperty('--keyboard-height', `${h}px`);
-
+      this.adjustBoundingRect();
       this.dispatchEvent(new Event('geometrychange'));
-
       this.sendMessage('geometry-changed', { boundingRect: this.boundingRect });
     });
 
@@ -241,28 +273,32 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       ) {
         const mf = target as MathfieldElement;
         if (mf.mathVirtualKeyboardPolicy === 'auto' && !mf.readOnly)
-          this.show();
+          this.show({ animate: true });
       }
     });
 
-    document.addEventListener('focusout', () => {
-      // If after a short delay the active element is no longer
-      // a mathfield (or there is no active element),
-      // hide the virtual keyboard
-      setTimeout(() => {
-        let target = document.activeElement;
-        let focusedMathfield = false;
-        while (target) {
-          if (target.tagName?.toLowerCase() === 'math-field') {
-            focusedMathfield = true;
-            break;
+    document.addEventListener('focusout', (evt) => {
+      const target = evt.target as MathfieldElement;
+      if (target.mathVirtualKeyboardPolicy !== 'manual') {
+        // If after a short delay the active element is no longer
+        // a mathfield (or there is no active element),
+        // hide the virtual keyboard
+        setTimeout(() => {
+          let target = document.activeElement;
+          let focusedMathfield = false;
+          while (target) {
+            if (target.tagName?.toLowerCase() === 'math-field') {
+              focusedMathfield = true;
+              break;
+            }
+            target = target.shadowRoot?.activeElement ?? null;
           }
-          target = target.shadowRoot?.activeElement ?? null;
-        }
-        if (!focusedMathfield) this.hide();
-      }, 300);
+          if (!focusedMathfield) this.hide();
+        }, 300);
+      }
     });
   }
+
   addEventListener(
     type: string,
     callback: EventListenerOrEventListenerObject | null,
@@ -314,6 +350,21 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return new DOMRect();
   }
 
+  adjustBoundingRect(): void {
+    // Adjust the keyboard height
+    const h = this.boundingRect.height;
+    if (this.container === document.body) {
+      this._element?.style.setProperty(
+        '--keyboard-height',
+        `calc(${h}px + env(safe-area-inset-bottom, 0))`
+      );
+      const keyboardHeight = h - 1;
+      this.container!.style.paddingBottom = this.originalContainerBottomPadding
+        ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
+        : `${keyboardHeight}px`;
+    } else this._element?.style.setProperty('--keyboard-height', `${h}px`);
+  }
+
   rebuild(): void {
     if (!this._element) {
       this._dirty = false;
@@ -334,6 +385,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       }
       if (this.visible) {
         this.buildAndAttachElement();
+        this.adjustBoundingRect();
 
         // Restore the active keyboard
         this.currentLayer = currentLayerId;
@@ -382,7 +434,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     // Confirm
     if (!this.stateWillChange(true)) return;
 
-    if (!this._element) this.buildAndAttachElement();
+    if (!this._element) {
+      this.buildAndAttachElement();
+      this.adjustBoundingRect();
+    }
 
     if (!this._visible) {
       const plate = this._element!.getElementsByClassName(
@@ -403,7 +458,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       window.addEventListener('keydown', this, { capture: true });
       window.addEventListener('keyup', this, { capture: true });
 
-      this.currentLayer = this.lastLayer;
+      this.currentLayer = this.latentLayer;
 
       this.render();
     }
@@ -418,11 +473,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           this._element.classList.add('animate');
           this._element.addEventListener(
             'transitionend',
-            () => {
-              this._element?.classList.remove('animate');
-              // Focus to scroll the field into view
-              this.focus();
-            },
+            () => this._element?.classList.remove('animate'),
             { once: true }
           );
           this._element.classList.add('is-visible');
@@ -431,7 +482,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       });
     } else {
       this._element!.classList.add('is-visible');
-      this.focus();
       this.stateChanged();
     }
   }
@@ -446,7 +496,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this._visible = false;
 
     if (this._element) {
-      this.lastLayer = this.currentLayer;
+      this.latentLayer = this.currentLayer;
 
       const plate = this._element.getElementsByClassName('MLK__plate')[0];
       if (plate) this.observer.unobserve(plate);
@@ -478,9 +528,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   buildAndAttachElement(): void {
     console.assert(!this.element);
     this.element = makeKeyboardElement(this);
-    this.element.addEventListener('pointerdown', () => this.focus());
+    // this.element.addEventListener('pointerdown', () => this.focus());
+
     // To prevent the long press contextmenu from showing up in Chrome...
     window.addEventListener('contextmenu', this, { capture: true });
+
     this.element.addEventListener(
       'contextmenu',
       (ev) => {
@@ -515,7 +567,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         this.connectedMathfieldWindow = evt.source as Window;
       }
 
-      this.handleMessage(evt.data);
+      this.handleMessage(evt.data, evt.source);
     }
 
     if (!this._element) return;
@@ -557,7 +609,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     }
   }
 
-  handleMessage(msg: VirtualKeyboardMessage): void {
+  handleMessage(
+    msg: VirtualKeyboardMessage,
+    source: MessageEventSource | null
+  ): void {
     const { action } = msg;
     if (action === 'execute-command') {
       const { command } = msg;
@@ -571,9 +626,27 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       return;
     }
 
-    if (action === 'connect') return;
+    if (action === 'connect') {
+      this.sendMessage(
+        'synchronize-proxy',
+        {
+          boundingRect: this.boundingRect,
+          alphabeticLayout: this._alphabeticLayout,
+          layouts: this._layouts,
+          editToolbar: this._editToolbar,
+        },
+        source
+      );
+    }
 
     if (action === 'disconnect') return;
+
+    // If the mathVirtualKeyboardPolicy was set to `sandboxed`,
+    // we can be a VirtualKeyboard instance (not a proxy) inside a non-top-level
+    // browsing context. If that's the case, safely ignored messages that could
+    // be dispatched from other mathfields, as we will only respond to
+    // direct invocation via function dispatching on the VK instance.
+    if (window !== window.top) return;
 
     if (action === 'show') {
       if (typeof msg.animate !== 'undefined')
@@ -593,31 +666,37 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       // A proxy has an updated setting
       if (msg.alphabeticLayout) this.alphabeticLayout = msg.alphabeticLayout;
       if (msg.layouts) this.layouts = msg.layouts;
-      if (msg.actionToolbar) this.actionToolbar = msg.actionToolbar;
+      if (msg.editToolbar) this.editToolbar = msg.editToolbar;
       return;
     }
 
     if (action === 'proxy-created') {
       // A new proxy has been created. Dispatch a message to synchronize
       // the reflected state
-      this.sendMessage('synchronize-proxy', {
-        boundingRect: this.boundingRect,
-        alphabeticLayout: this._alphabeticLayout,
-        layouts: this._layouts,
-        actionToolbar: this._actionToolbar,
-      });
+      this.sendMessage(
+        'synchronize-proxy',
+        {
+          boundingRect: this.boundingRect,
+          alphabeticLayout: this._alphabeticLayout,
+          layouts: this._layouts,
+          editToolbar: this._editToolbar,
+        },
+        source
+      );
       return;
     }
   }
 
   private sendMessage(
     action: VirtualKeyboardMessageAction,
-    payload: any = {}
+    payload: any,
+    target?: MessageEventSource | null
   ): void {
+    if (!target) target = this.connectedMathfieldWindow;
     if (
       this.targetOrigin === null ||
       this.targetOrigin === 'null' ||
-      this.connectedMathfieldWindow === window
+      target === window
     ) {
       window.dispatchEvent(
         new MessageEvent('message', {
@@ -632,13 +711,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       return;
     }
 
-    this.connectedMathfieldWindow?.postMessage(
+    target?.postMessage(
       {
         type: VIRTUAL_KEYBOARD_MESSAGE,
         action,
         ...payload,
       },
-      this.targetOrigin
+      { targetOrigin: this.targetOrigin }
     );
   }
 
@@ -665,14 +744,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
    * @category Focus
    */
   public focus(): void {
-    this.sendMessage('focus');
+    this.sendMessage('focus', {});
   }
 
   /**
    * @category Focus
    */
   public blur(): void {
-    this.sendMessage('blur');
+    this.sendMessage('blur', {});
   }
 
   updateToolbar(mf: MathfieldProxy): void {
@@ -691,11 +770,27 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       toolbar.innerHTML = makeEditToolbar(this, mf);
   }
 
+  update(mf: MathfieldProxy): void {
+    if (
+      mf.array &&
+      isTabularEnvironment((mf.array as ArrayAtom)?.environmentName) &&
+      mf.boundingRect &&
+      this.visible &&
+      mf.mode === 'math'
+    )
+      showEnvironmentPanel(this, mf.array as ArrayAtom, mf.boundingRect);
+    else hideEnvironmentPanel();
+
+    this._style = mf.style;
+    this.updateToolbar(mf);
+  }
+
   connect(): void {
     this.connectedMathfieldWindow = window;
   }
 
   disconnect(): void {
+    hideEnvironmentPanel();
     this.connectedMathfieldWindow = undefined;
   }
 

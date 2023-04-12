@@ -5,6 +5,7 @@
     <title>MathLive LaTeX Editor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="/dist/mathlive-static.css" />
     <link
       crossorigin
       rel="stylesheet"
@@ -137,13 +138,14 @@
           spellcheck="false"
         ></textarea>
       </div>
+      <div id="output"></div>
       <div class="buttonbar">
         <button id="save-to-png">Save to PNG</button>
       </div>
     </main>
 
     <script type="module">
-      import '/dist/mathlive.mjs';
+      import { convertLatexToMarkup } from '/dist/mathlive.mjs';
       // import 'https://unpkg.com/mathlive?module';
       import * as htmlToImage from './html-to-image/index.mjs';
 
@@ -157,14 +159,16 @@
       });
 
       document.getElementById('save-to-png').addEventListener('click', (ev) => {
-        htmlToImage
-          .toPng(document.getElementById('mf').querySelector('.ML__mathlive'))
-          .then((data) => {
-            var link = document.createElement('a');
-            link.download = 'formula.png';
-            link.href = data;
-            link.click();
-          });
+        const div = document.getElementById('output');
+        div.innerHTML = convertLatexToMarkup(
+          document.getElementById('mf').value
+        );
+        htmlToImage.toPng(div).then((data) => {
+          var link = document.createElement('a');
+          link.download = 'formula.png';
+          link.href = data;
+          link.click();
+        });
       });
 
       function escapeHtml(string) {

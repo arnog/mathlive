@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 # Read the first argument, set it to "test" if not set
 VARIANT="${1-test}"
 
-if [ ! -d "./dist/public" ]; then
+if [ ! -d "./dist/types" ]; then
     npm run build
 fi
 
@@ -38,7 +38,7 @@ fi
 
 echo -e "\n🧐 Running Declaration Type test suite..."
 
-npx tsc --noEmit --baseUrl ./dist/public ./test/public-ts-declarations/main.ts || exit_code=$?
+npx tsc --noEmit --baseUrl ./dist/types ./test/public-ts-declarations/main.ts || exit_code=$?
 
 echo -e "\033[2K\033[80D\033[32m ✔ \033[0m Declaration Type test suite complete"
 

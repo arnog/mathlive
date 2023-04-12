@@ -1,7 +1,6 @@
 import type { Mathfield, Range } from './mathfield';
 import type { Selector } from './commands';
 import type { ParseMode, MacroDictionary, Registers } from './core-types';
-export * from './virtual-keyboard';
 
 /**
  * Specify behavior for origin validation.
@@ -431,7 +430,7 @@ export type EditingOptions = {
    */
   popoverPolicy: 'auto' | 'off';
 
-  mathVirtualKeyboardPolicy: 'auto' | 'manual';
+  mathVirtualKeyboardPolicy: 'auto' | 'manual' | 'sandboxed';
 };
 
 export type LayoutOptions = {

@@ -1,4 +1,4 @@
-import type { ParseMode } from 'public/core-types';
+import type { ParseMode } from '../public/core-types';
 import { TextAtom } from '../core-atoms/text';
 import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
@@ -117,10 +117,7 @@ export class ModeEditor {
       //
       // 4. Put serialized atoms on clipboard
       //
-      if (
-        atoms.length === 1 &&
-        (atoms[0].type === 'root' || atoms[0].type === 'group')
-      )
+      if (atoms.length === 1 && (!atoms[0].parent || atoms[0].type === 'group'))
         atoms = atoms[0].body!.filter((x) => x.type !== 'first');
       try {
         ev.clipboardData.setData(

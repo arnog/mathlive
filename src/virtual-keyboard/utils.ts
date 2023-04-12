@@ -5,18 +5,9 @@ import { l10n as l10nOptions, localize as l10n } from '../core/l10n';
 import { parseLatex } from '../core/parser';
 import { SelectorPrivate } from '../editor/types';
 import { getActiveKeyboardLayout } from '../editor/keyboard-layout';
-import type {
-  VirtualKeyboardOptions,
-  VirtualKeyboardLayer,
-  VirtualKeyboardLayout,
-  VirtualKeyboardKeycap,
-  NormalizedVirtualKeyboardLayout,
-  NormalizedVirtualKeyboardLayer,
-} from '../mathlive';
 
-import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
-import CORE_STYLESHEET from '../../css/core.less';
-
+import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less' assert { type: 'css' };
+import CORE_STYLESHEET from '../../css/core.less' assert { type: 'css' };
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 import { hashCode } from '../common/hash-code';
 import { loadFonts } from '../core/fonts';
@@ -24,9 +15,17 @@ import { Context } from '../core/context';
 
 import { LAYOUTS } from './data';
 import { VirtualKeyboard } from './virtual-keyboard';
-import { MathfieldProxy } from '../public/virtual-keyboard-types';
+import { MathfieldProxy } from '../public/virtual-keyboard';
 import { hasVariants, showVariantsPanel } from './variants';
 import { defaultGlobalContext } from '../core/context-utils';
+import {
+  NormalizedVirtualKeyboardLayer,
+  NormalizedVirtualKeyboardLayout,
+  VirtualKeyboardKeycap,
+  VirtualKeyboardLayer,
+  VirtualKeyboardLayout,
+  VirtualKeyboardOptions,
+} from '../public/virtual-keyboard';
 
 function jsonToCssProps(json) {
   if (typeof json === 'string') return json;
@@ -178,7 +177,7 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
     '[.]',
     '[left]',
     '[right]',
-    { label: '[return]', width: 1.5 },
+    { label: '[action]', width: 1.5 },
   ]);
 
   return {
@@ -240,7 +239,6 @@ export function normalizeLayout(
     if (layer.rows) {
       for (const keycap of layer.rows.flat()) {
         const label = keycap.label!;
-        if (label === '[shift]') debugger;
         if (
           typeof keycap !== 'string' &&
           keycap.class &&
@@ -304,7 +302,7 @@ export function makeEditToolbar(
   mathfield: MathfieldProxy
 ): string {
   let result = '';
-  const toolbarOptions = options.actionToolbar;
+  const toolbarOptions = options.editToolbar;
   if (toolbarOptions === 'none') return '';
 
   const availableActions: string[] = [];
@@ -567,8 +565,7 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
     x.addEventListener('pointerdown', (evt) => evt.preventDefault());
 
   // Restore the last active keyboards, or pick the first one
-  if (keyboard.lastLayer) keyboard.currentLayer = keyboard.lastLayer;
-  else layerElements[0]?.classList.add('is-visible');
+  keyboard.currentLayer = keyboard.latentLayer;
 
   return result;
 }
@@ -742,6 +739,12 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     width: 1.5,
     label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
   },
+  '[action]': {
+    class: 'action',
+    command: ['performWithFeedback', 'commit'],
+    width: 1.5,
+    label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
+  },
   '[hr]': {
     class: 'separator horizontal-rule',
   },
@@ -811,12 +814,12 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     class: 'big-op hide-shift',
   },
   '[backspace]': {
-    class: 'action font-glyph bottom right hide-shift',
+    class: 'action bottom right hide-shift',
     width: 1.5,
     command: ['performWithFeedback', 'deleteBackward'],
     label: '<svg class=svg-glyph><use xlink:href=#svg-delete-backward /></svg>',
     shift: {
-      class: 'action font-glyph warning',
+      class: 'action warning',
       label: '<svg class=svg-glyph><use xlink:href=#svg-trash /></svg>',
       command: 'deleteAll',
     },
@@ -924,7 +927,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   '[separator-20]': { class: 'separator', width: 2.0 },
   '[separator-50]': { class: 'separator', width: 5.0 },
   '[shift]': {
-    class: 'shift font-glyph bottom left',
+    class: 'shift bottom left',
     width: 1.5,
     label:
       '<span class=caps-lock-indicator></span><svg class=svg-glyph><use xlink:href=#svg-shift /></svg>',
@@ -952,13 +955,42 @@ export function normalizeKeycap(
   }
 
   if ('label' in keycap && keycap.label && KEYCAP_SHORTCUTS[keycap.label]) {
-    const shortcut = {
+    let shortcut = {
       ...KEYCAP_SHORTCUTS[keycap.label],
       ...keycap,
       label: KEYCAP_SHORTCUTS[keycap.label].label,
     };
     if (shortcut.command === 'insertDecimalSeparator')
       shortcut.label = window.MathfieldElement.decimalSeparator ?? '.';
+
+    if (keycap.label === '[action]') {
+      shortcut = {
+        ...shortcut,
+        ...(window.mathVirtualKeyboard
+          .actionKeycap as Partial<VirtualKeyboardKeycap>),
+      };
+    }
+    if (keycap.label === '[shift]') {
+      shortcut = {
+        ...shortcut,
+        ...(window.mathVirtualKeyboard
+          .shiftKeycap as Partial<VirtualKeyboardKeycap>),
+      };
+    }
+    if (keycap.label === '[backspace]') {
+      shortcut = {
+        ...shortcut,
+        ...(window.mathVirtualKeyboard
+          .backspaceKeycap as Partial<VirtualKeyboardKeycap>),
+      };
+    }
+    if (keycap.label === '[tab]') {
+      shortcut = {
+        ...shortcut,
+        ...(window.mathVirtualKeyboard
+          .tabKeycap as Partial<VirtualKeyboardKeycap>),
+      };
+    }
 
     return shortcut;
   }
@@ -1172,7 +1204,7 @@ export function executeKeycapCommand(
   VirtualKeyboard.singleton.executeCommand(command);
 }
 
-function isKeycapElement(el: Node): el is HTMLElement {
+function isKeycapElement(el: Element): el is HTMLElement {
   if (el.nodeType !== 1) return false;
   const classes = (el as HTMLElement).classList;
   return (
@@ -1187,8 +1219,8 @@ function isKeycapElement(el: Node): el is HTMLElement {
 export function parentKeycap(el: EventTarget | null): HTMLElement | undefined {
   if (!el) return undefined;
 
-  let node: Node | null = el as Node;
-  while (node && !isKeycapElement(node)) node = node.parentNode;
+  let node: Element | null = el as Element;
+  while (node && !isKeycapElement(node)) node = node.parentElement;
 
-  return node ?? undefined;
+  return (node as HTMLElement) ?? undefined;
 }

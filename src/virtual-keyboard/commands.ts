@@ -48,11 +48,11 @@ register(
     switchKeyboardLayer,
     toggleVirtualKeyboard,
     hideVirtualKeyboard: () => {
-      window.mathVirtualKeyboard.hide();
+      window.mathVirtualKeyboard.hide({ animate: true });
       return false;
     },
     showVirtualKeyboard: () => {
-      window.mathVirtualKeyboard.show();
+      window.mathVirtualKeyboard.show({ animate: true });
       return false;
     },
   },

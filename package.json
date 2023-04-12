@@ -10,29 +10,29 @@
   "files": [
     "/dist"
   ],
-  "types": "./dist/public/mathlive.d.ts",
+  "types": "./dist/types/mathlive.d.ts",
   "module": "./dist/mathlive.min.mjs",
   "main": "./dist/mathlive.min.js",
   "exports": {
     ".": {
       "browser": {
         "production": {
-          "types": "./dist/public/mathlive.d.ts",
+          "types": "./dist/types/mathlive.d.ts",
           "import": "./dist/mathlive.min.mjs",
           "require": "./dist/mathlive.min.js"
         },
         "development": {
-          "types": "./dist/public/mathlive.d.ts",
+          "types": "./dist/types/mathlive.d.ts",
           "import": "./dist/mathlive.mjs",
           "require": "./dist/mathlive.js"
         }
       },
       "node": {
-        "types": "./dist/public/mathlive-ssr.d.ts",
+        "types": "./dist/types/mathlive-ssr.d.ts",
         "import": "./dist/mathlive-ssr.min.mjs"
       },
       "default": {
-        "types": "./dist/public/mathlive.d.ts",
+        "types": "./dist/types/mathlive.d.ts",
         "import": "./dist/mathlive.min.mjs",
         "require": "./dist/mathlive.min.js"
       }
@@ -128,7 +128,7 @@
     "@arnog/esbuild-plugin-less": "^1.1.0",
     "@cortex-js/compute-engine": "^0.12.2",
     "@cortex-js/prettier-config": "^1.1.1",
-    "@playwright/test": "^1.32.1",
+    "@playwright/test": "^1.32.3",
     "@types/css-font-loading-module": "0.0.8",
     "@types/jest": "^29.4.0",
     "@typescript-eslint/eslint-plugin": "^5.49.0",

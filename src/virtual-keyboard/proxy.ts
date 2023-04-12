@@ -1,17 +1,18 @@
-import { validateOrigin } from '../editor-mathfield/utils';
-import { getCommandTarget } from '../editor/commands';
 import {
   AlphabeticKeyboardLayout,
-  OriginValidator,
+  EditToolbarOptions,
+  VirtualKeyboardKeycap,
   VirtualKeyboardLayout,
-  ActionToolbarOptions,
-} from '../public/options';
+} from '../public/virtual-keyboard';
+import { validateOrigin } from '../editor-mathfield/utils';
+import { getCommandTarget } from '../editor/commands';
+import { OriginValidator } from '../public/options';
 import type {
   VirtualKeyboardMessage,
   VirtualKeyboardInterface,
   MathfieldProxy,
   VirtualKeyboardMessageAction,
-} from '../public/virtual-keyboard-types';
+} from '../public/virtual-keyboard';
 
 export const VIRTUAL_KEYBOARD_MESSAGE = 'mathlive#virtual-keyboard-message';
 
@@ -59,8 +60,20 @@ export class VirtualKeyboardProxy
   set layouts(value: (string | VirtualKeyboardLayout)[]) {
     this.sendMessage('update-setting', { layouts: value });
   }
-  set actionToolbar(value: ActionToolbarOptions) {
-    this.sendMessage('update-setting', { actionToolbar: value });
+  set editToolbar(value: EditToolbarOptions) {
+    this.sendMessage('update-setting', { editToolbar: value });
+  }
+  set actionKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { actionKeycap: value });
+  }
+  set shiftKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { shiftKeycap: value });
+  }
+  set backspaceKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { backspaceKeycap: value });
+  }
+  set tabKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { tabKeycap: value });
   }
 
   set container(value: HTMLElement | null) {
@@ -95,6 +108,10 @@ export class VirtualKeyboardProxy
 
   updateToolbar(mf: MathfieldProxy): void {
     this.sendMessage('update-toolbar', mf);
+  }
+
+  update(mf: MathfieldProxy): void {
+    this.sendMessage('update-setting', mf);
   }
 
   connect(): void {
@@ -155,11 +172,13 @@ export class VirtualKeyboardProxy
     }
 
     if (action === 'synchronize-proxy') {
+      console.log('synchronize-proxy', window, msg.boundingRect);
       this._boundingRect = msg.boundingRect;
       return;
     }
 
     if (action === 'geometry-changed') {
+      console.log('geometry-change', window, msg.boundingRect);
       this._boundingRect = msg.boundingRect;
       this.dispatchEvent(new Event('geometrychange'));
       return;

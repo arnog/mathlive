@@ -11,7 +11,7 @@ import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { requestUpdate } from './render';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 export class TextModeEditor extends ModeEditor {
   constructor() {
