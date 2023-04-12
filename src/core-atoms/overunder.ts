@@ -3,7 +3,7 @@ import { Box, makeSVGBox } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 import { makeNullDelimiter } from '../core/delimiters';
-import { BoxType, GlobalContext, PrivateStyle } from 'core/types';
+import { BoxType, GlobalContext, PrivateStyle } from '../core/types';
 
 // An `overunder` atom has the following attributes:
 // - body: atoms[]: atoms displayed on the base line

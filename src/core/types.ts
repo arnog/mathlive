@@ -8,10 +8,10 @@ import {
   Registers,
   Style,
   Token,
-} from 'public/core-types';
+} from '../public/core-types';
 import { Atom } from '../core/atom-class';
 import { Context } from '../core/context';
-import { TokenDefinition } from 'core-definitions/definitions-utils';
+import { TokenDefinition } from '../core-definitions/definitions-utils';
 
 export interface ParseTokensOptions {
   macros: NormalizedMacroDictionary;

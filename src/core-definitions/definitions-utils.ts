@@ -15,10 +15,10 @@ import type {
   ParseMode,
   Variant,
   MathstyleName,
+  Environment,
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
-import { GlobalContext, BoxType, PrivateStyle } from 'core/types';
-import { Environment } from './environment-types';
+import { GlobalContext, BoxType, PrivateStyle } from '../core/types';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;

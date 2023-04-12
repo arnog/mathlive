@@ -1,4 +1,4 @@
-import { ParseMode } from 'public/core-types';
+import { ParseMode } from '../public/core-types';
 import { Offset } from '../public/mathfield';
 
 import { ModelPrivate } from './model-private';

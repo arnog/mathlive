@@ -12,7 +12,7 @@ import type {
   VirtualKeyboardInterface,
   VirtualKeyboardMessage,
   VirtualKeyboardMessageAction,
-} from '../public/virtual-keyboard-types';
+} from '../public/virtual-keyboard';
 import type { OriginValidator } from '../public/options';
 import type { MathfieldElement } from '../public/mathfield-element';
 
@@ -32,12 +32,13 @@ import {
 } from './utils';
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
-import { Style } from 'mathlive';
 import {
   hideEnvironmentPanel,
   showEnvironmentPanel,
 } from './environmentPopover';
-import { isTabularEnvironment } from 'core-definitions/environment-types';
+import { isTabularEnvironment } from '../core-definitions/environment-types';
+import { Style } from '../public/core-types';
+import { ArrayAtom } from '../core-atoms/array';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
@@ -772,12 +773,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   update(mf: MathfieldProxy): void {
     if (
       mf.array &&
-      isTabularEnvironment(mf.array?.environmentName) &&
+      isTabularEnvironment((mf.array as ArrayAtom)?.environmentName) &&
       mf.boundingRect &&
       this.visible &&
       mf.mode === 'math'
     )
-      showEnvironmentPanel(this, mf.array, mf.boundingRect);
+      showEnvironmentPanel(this, mf.array as ArrayAtom, mf.boundingRect);
     else hideEnvironmentPanel();
 
     this._style = mf.style;

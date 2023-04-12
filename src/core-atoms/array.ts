@@ -1,5 +1,9 @@
-import type { MathstyleName, Dimension } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type {
+  MathstyleName,
+  Dimension,
+  Environment,
+} from '../public/core-types';
+import type { GlobalContext } from '../core/types';
 
 import {
   Atom,
@@ -18,7 +22,6 @@ import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
 import { convertDimensionToEm } from '../core/registers-utils';
 
 import { PlaceholderAtom } from './placeholder';
-import { Environment } from 'core-definitions/environment-types';
 
 export type ColumnFormat =
   | {

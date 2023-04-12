@@ -7,14 +7,11 @@ import { contentDidChange, contentWillChange } from './listeners';
 import { arrayIndex, arrayCell } from './array-utils';
 import { ArrayAtom } from '../core-atoms/array';
 import type { Style } from '../public/core-types';
-import { GlobalContext } from 'core/types';
-import {
-  Environment,
-  TabularEnvironment,
-} from 'core-definitions/environment-types';
-import { makeEnvironment } from 'core-definitions/environments';
-import { PlaceholderAtom } from 'core-atoms/placeholder';
-import { LeftRightAtom } from 'core-atoms/leftright';
+import { GlobalContext } from '../core/types';
+import { Environment, TabularEnvironment } from '../public/core-types';
+import { makeEnvironment } from '../core-definitions/environments';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { LeftRightAtom } from '../core-atoms/leftright';
 export * from './array-utils';
 
 /**

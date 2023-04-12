@@ -1,5 +1,5 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 import { SpacingAtom } from '../core-atoms/spacing';
 
 import {

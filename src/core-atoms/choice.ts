@@ -1,4 +1,4 @@
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 import { fromJson } from '../core/atom';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';

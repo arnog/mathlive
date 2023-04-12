@@ -1,5 +1,5 @@
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { MathfieldProxy } from '../public/virtual-keyboard-types';
+import { MathfieldProxy } from '../public/virtual-keyboard';
 
 export function makeProxy(mf: MathfieldPrivate): MathfieldProxy {
   return {

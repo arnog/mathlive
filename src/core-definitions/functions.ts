@@ -8,8 +8,8 @@ import { DelimAtom } from '../core-atoms/delim';
 
 import { Argument, defineFunction } from './definitions-utils';
 import { GroupAtom } from '../core-atoms/group';
-import type { Style } from 'public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { Style } from '../public/core-types';
+import type { GlobalContext } from '../core/types';
 
 defineFunction(
   [

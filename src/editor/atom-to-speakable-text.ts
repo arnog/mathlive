@@ -7,7 +7,7 @@ import { osPlatform } from '../common/capabilities';
 import { ArrayAtom } from '../core-atoms/array';
 import { LineAtom } from '../core-atoms/line';
 import { getMacros } from '../core-definitions/definitions-utils';
-import { PromptAtom } from 'core-atoms/prompt';
+import { PromptAtom } from '../core-atoms/prompt';
 
 declare global {
   interface Window {

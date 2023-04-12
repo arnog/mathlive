@@ -1,14 +1,12 @@
-import { ArrayAtom } from 'core-atoms/array';
+import { CasesEnvironment, MatrixEnvironment } from '../public/core-types';
+import { ArrayAtom } from '../core-atoms/array';
 import {
-  AlignEnvironment,
-  CasesEnvironment,
   isAlignEnvironment,
   isCasesEnvironment,
   isMatrixEnvironment,
-  MatrixEnvironment,
-} from 'core-definitions/environment-types';
-import { Scrim } from 'editor/scrim';
-import { SelectorPrivate } from 'editor/types';
+} from '../core-definitions/environment-types';
+import { Scrim } from '../editor/scrim';
+import { SelectorPrivate } from '../editor/types';
 import { VirtualKeyboard } from './virtual-keyboard';
 
 const padding = 4;

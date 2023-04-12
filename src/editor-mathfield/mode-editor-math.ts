@@ -29,7 +29,7 @@ import {
 
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
-import type { Style } from 'public/core-types';
+import type { Style } from '../public/core-types';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -334,7 +334,7 @@ export class MathModeEditor extends ModeEditor {
       // would return an empty string. If the latex is generated using other
       // properties than parent.body, for example by adding '\left.' and
       // '\right.' with a 'leftright' type, we can't use this shortcut.
-      if (parent!.parent && hadEmptyBody && !usedArg)
+      if (!parent!.parent && hadEmptyBody && !usedArg)
         parent!.verbatimLatex = input;
     }
 

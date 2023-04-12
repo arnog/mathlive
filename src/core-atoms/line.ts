@@ -1,5 +1,5 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';

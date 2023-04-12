@@ -35,7 +35,7 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
-import { ArrayAtom } from 'core-atoms/array';
+import { ArrayAtom } from '../core-atoms/array';
 
 export type ModelState = {
   content: AtomJson;

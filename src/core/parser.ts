@@ -32,9 +32,9 @@ import type {
   ArgumentType,
   Token,
   MathstyleName,
+  Environment,
 } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
-import { Environment } from 'core-definitions/environment-types';
+import type { GlobalContext } from '../core/types';
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
 
