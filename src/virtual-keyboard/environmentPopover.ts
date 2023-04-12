@@ -59,36 +59,36 @@ viewBox=
       height="${paddedWidth}" 
       width="${3 * paddedWidth}" 
       rx="${paddedWidth / 2}"/>
-  <g data-command="moveDown">
+  <g data-command='"moveDown"'>
   ${newArrow(2 * (padding + paddedWidth), 2 * padding + 3 * paddedWidth, 0)}
   </g>
-  <g data-command="moveUp">
+  <g data-command='"moveUp"'>
   ${newArrow(2 * (padding + paddedWidth), 2 * padding + paddedWidth, 180)}
   </g>
-  <g data-command="moveToNextWord">
+  <g data-command='"moveToNextWord"'>
   ${newArrow(2 * padding + 3 * paddedWidth, 2 * (padding + paddedWidth), -90)}
   </g>
-  <g data-command="moveToPreviousWord">
+  <g data-command='"moveToPreviousWord"'>
   ${newArrow(2 * padding + paddedWidth, 2 * (padding + paddedWidth), 90)}
   </g>
   <g>
 
-  <g data-command="addColumnBefore">
+  <g data-command='"addColumnBefore"'>
   ${newPlus(2 * padding + paddedWidth, padding)}
   </g>
-  <g data-command="removeColumn">
+  <g data-command='"removeColumn"'>
   ${newMinus(2 * padding + 2 * paddedWidth, padding)}
   </g>
-  <g data-command="addColumnAfter">
+  <g data-command='"addColumnAfter"'>
   ${newPlus(2 * padding + 3 * paddedWidth, padding)}
   </g>
-  <g data-command="addRowBefore">
+  <g data-command='"addRowBefore"'>
   ${newPlus(padding, 2 * padding + paddedWidth)}
   </g>
-  <g data-command="removeRow">
+  <g data-command='"removeRow"'>
   ${newMinus(padding, 2 * padding + 2 * paddedWidth)}
   </g>
-  <g data-command="addRowAfter">
+  <g data-command='"addRowAfter"'>
     ${newPlus(padding, 2 * padding + 3 * paddedWidth)}
   </g>
 </svg>`;
@@ -203,7 +203,7 @@ export function showEnvironmentPanel(
   environmentPanel.setAttribute('aria-hidden', 'true');
   environmentPanel.className = 'MLK__environment-panel';
 
-  console.log(keyboard.container?.querySelector('.ML__keyboard'));
+  // console.log(keyboard.container?.querySelector('.ML__keyboard'));
   if (!Scrim.matrixScrim) Scrim.matrixScrim = new Scrim();
   Scrim.matrixScrim.open({
     root: keyboard.container?.querySelector('.ML__keyboard'),
