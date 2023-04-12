@@ -1,3 +1,26 @@
+## [Unreleased]
+
+## Improvements
+
+- Removed some unused keybindings, added Desmos Graphing Calculator inline shortcuts, added ASCIIMath inline shortcuts.
+- **#1920** Added a `"sandboxed"` `mathVirtualKeyboardPolicy` which causes the
+  iframe in which the mathfield is to be treated as a top-level browsing context,
+  i.e. to display a virtual keyboard instance in the that iframe.
+- Added `mathVirtualKeycap.actionKeycap`, `mathVirtualKeycap.shiftKeycap`, `mathVirtualKeycap.tabKeycap`, `mathVirtualKeycap.backspaceKeycap` to customize the appearance of action keys without having to define new layouts. This can be used to change the "Return" glyph to "Continue" for example, or to use the word "Shift" for the shift key instead of the default shift glyph.
+- Added keyboard shorcuts (<kbd>alt/option</kbd>+<kbd>Tab</kbd> and <kbd>alt/option</kbd>+<kbd>Return</kbd>) for matrices/environments. Type `(` + <kbd>alt/option</kbd>+<kbd>Tab</kbd> to create 2x1 matrix. If at the root, type 
+ <kbd>alt/option</kbd>+<kbd>Return</kbd> for a multi-line expression.
+
+### Bug Fix
+
+- When a keybinding conflicts with a composition, cancel the composition. For 
+ example, when typing <kbd>option</kbd>+<kbd>U</kbd>.
+- After changing the math keyboard layouts, if there is no layer matching
+  the previously active layer, pick the first available layer.
+- When scrolling the mathfield into view after activating the math keyboard
+  correctly account for the position of the keyboard.
+- **#1914** When the `mathVirtualKeyboardPolicy` is set to `"manual"`, the keyboard is not hidden, even when losing focus.
+- If the last row of a matrix is empty, it is ignored (LaTeX behavior)
+
 ## 0.91.2 (2023-04-06)
 
 ### Bug Fixes

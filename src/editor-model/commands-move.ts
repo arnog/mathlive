@@ -11,7 +11,7 @@ export function moveAfterParent(model: ModelPrivate): boolean {
   const previousPosition = model.position;
   const parent = model.at(previousPosition).parent;
   // Do nothing if at the root.
-  if (!parent || parent.type === 'root') {
+  if (!parent?.parent) {
     model.announce('plonk');
     return false;
   }
@@ -401,7 +401,7 @@ register(
         return false;
       }
 
-      const relation = cursor.treeBranch;
+      const relation = cursor.parentBranch;
       let oppositeRelation: BranchName | undefined;
       if (typeof relation === 'string')
         oppositeRelation = OPPOSITE_RELATIONS[relation];

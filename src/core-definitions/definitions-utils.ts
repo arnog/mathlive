@@ -695,26 +695,17 @@ export function parseArgAsString(atoms: Atom[]): string {
  * @param params The number and type of required and optional parameters.
  */
 export function defineEnvironment(
-  names: Environment | Environment[],
-  parameters: string,
-  createAtom: EnvironmentConstructor,
-  isTabular = false
+  names: string | string[],
+  createAtom: EnvironmentConstructor
 ): void {
   if (typeof names === 'string') names = [names];
 
-  const parsedParameters = parseParameterTemplate(parameters);
-
-  // Set default values of functions
-  const data: EnvironmentDefinition = {
-    tabular: isTabular,
-    // Params: the parameters for this function, an array of
-    // {optional, type}
-    params: parsedParameters,
-
-    // Handler to create an atom
+  const def: EnvironmentDefinition = {
+    tabular: false,
+    params: [],
     createAtom,
   };
-  for (const name of names) ENVIRONMENTS[name] = data;
+  for (const name of names) ENVIRONMENTS[name] = def;
 }
 
 /**
@@ -727,7 +718,18 @@ export function defineTabularEnvironment(
   parameters: string,
   createAtom: EnvironmentConstructor
 ): void {
-  defineEnvironment(names, parameters, createAtom, true);
+  if (typeof names === 'string') names = [names];
+
+  // The parameters for this function, an array of
+  // {optional, type}
+  const parsedParameters = parseParameterTemplate(parameters);
+
+  const data: EnvironmentDefinition = {
+    tabular: true,
+    params: parsedParameters,
+    createAtom,
+  };
+  for (const name of names) ENVIRONMENTS[name] = data;
 }
 
 /**

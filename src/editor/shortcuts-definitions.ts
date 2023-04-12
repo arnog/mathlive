@@ -305,6 +305,7 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '+...': '+\\cdots', // ... but use \cdots after + ...
   '-...': '-\\cdots', // ... - and ...
   '->...': '\\to\\cdots', // ->
+  '-->...': '\\longrightarrow\\cdots',
 
   '->': '\\to',
   '|->': '\\mapsto',
@@ -320,7 +321,7 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '(.)': '\\odot',
   '(+)': '\\oplus',
   '(/)': '\\oslash',
-  '(*)': '\\otimes',
+  '(x)': '\\otimes',
   '(-)': '\\ominus',
   // '(-)':                  '\\circleddash',
 
@@ -330,84 +331,90 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
 
   '*': '\\cdot',
 
-  /*
-    //
-    // ASCIIIMath
-    //
-    // Binary operation symbols
-    '**':                   '\\ast',
-    '***':                  '\\star',
-    '//':                   '\\slash',
-    '\\\\':                 '\\backslash',
-    'setminus':             '\\backslash',
-    '|><':                  '\\ltimes',
-    '><|':                  '\\rtimes',
-    '|><|':                 '\\bowtie',
-    '-:':                   '\\div',
-    'divide':               '\\div',
-    '@':                    '\\circ',
-    'o+':                   '\\oplus',
-    'ox':                   '\\otimes',
-    'o.':                   '\\odot',
-    '^^':                   '\\wedge',
-    '^^^':                  '\\bigwedge',
-    'vv':                   '\\vee',
-    'vvv':                  '\\bigvee',
-    'nn':                   '\\cap',
-    'nnn':                  '\\bigcap',
-    'uu':                   '\\cup',
-    'uuu':                  '\\bigcup',
+  //
+  // ASCIIIMath
+  //
+  // Binary operation symbols
+  //
+  '**': '\\star',
+  '***': '\\ast',
+  '//': '\\slash',
+  '\\\\': '\\backslash',
+  'setminus': '\\backslash',
+  '|><': '\\ltimes',
+  '><|': '\\rtimes',
+  '|><|': '\\bowtie',
+  '-:': '\\div',
+  'divide': '\\div',
+  '@': '\\circ',
+  'o+': '\\oplus',
+  'ox': '\\otimes',
+  'o.': '\\odot',
+  '^^': '\\wedge',
+  '^^^': '\\bigwedge',
+  'vv': '\\vee',
+  'vvv': '\\bigvee',
+  'nn': '\\cap',
+  'nnn': '\\bigcap',
+  'uu': '\\cup',
+  'uuu': '\\bigcup',
 
-    // Binary relation symbols
-    '-=':                   '\\equiv',
-    '~=':                   '\\cong',
-    'lt':                   '<',
-    'lt=':                  '\\leq',
-    'gt':                   '>',
-    'gt=':                  '\\geq',
-    '-<':                   '\\prec',
-    '-lt':                  '\\prec',
-    '-<=':                  '\\preceq',
-    // '>-':                   '\\succ',
-    '>-=':                  '\\succeq',
-    'prop':                 '\\propto',
-    'diamond':              '\\diamond',
-    'square':               '\\square',
-    'iff':                  '\\iff',
+  // Binary relation symbols
+  '-=': '\\equiv',
+  '~=': '\\cong',
+  'lt': '<',
+  'lt=': '\\leq',
+  'gt': '>',
+  'gt=': '\\geq',
+  '-<': '\\prec',
+  '-lt': '\\prec',
+  '-<=': '\\preceq',
+  // '>-':                   '\\succ',
+  '>-=': '\\succeq',
+  'prop': '\\propto',
+  'diamond': '\\diamond',
+  'square': '\\square',
+  'iff': '\\iff',
 
-    'sub':                  '\\subset',
-    'sup':                  '\\supset',
-    'sube':                 '\\subseteq',
-    'supe':                 '\\supseteq',
-    'uarr':                 '\\uparrow',
-    'darr':                 '\\downarrow',
-    'rarr':                 '\\rightarrow',
-    'rArr':                 '\\Rightarrow',
-    'larr':                 '\\leftarrow',
-    'lArr':                 '\\Leftarrow',
-    'harr':                 '\\leftrightarrow',
-    'hArr':                 '\\Leftrightarrow',
-    'aleph':                '\\aleph',
+  'sub': '\\subset',
+  'sup': '\\supset',
+  'sube': '\\subseteq',
+  'supe': '\\supseteq',
+  'uarr': '\\uparrow',
+  'darr': '\\downarrow',
+  'rarr': '\\rightarrow',
+  'rArr': '\\Rightarrow',
+  'larr': '\\leftarrow',
+  'lArr': '\\Leftarrow',
+  'harr': '\\leftrightarrow',
+  'hArr': '\\Leftrightarrow',
+  'aleph': '\\aleph',
 
-    // Logic
-    'and':                  '\\land',
-    'or':                   '\\lor',
-    'not':                  '\\neg',
-    '_|_':                   '\\bot',
-    'TT':                   '\\top',
-    '|--':                  '\\vdash',
-    '|==':                  '\\models',
-    
-    // Other functions
-    '|__':                  '\\lfloor',
-    '__|':                  '\\rfloor',
+  // Logic
+  'and': '\\land',
+  'or': '\\lor',
+  'not': '\\neg',
+  '_|_': '\\bot',
+  'TT': '\\top',
+  '|--': '\\vdash',
+  '|==': '\\models',
 
-    '|~':                   '\\lceil',
-    '~|':                   '\\rceil',
+  // Other functions
+  '|__': '\\lfloor',
+  '__|': '\\rfloor',
 
-    // Arrows
-    '>->':                   '\\rightarrowtail',
-    '->>':                   '\\twoheadrightarrow',
-    '>->>':                  '\\twoheadrightarrowtail'
-*/
+  '|~': '\\lceil',
+  '~|': '\\rceil',
+
+  // Arrows
+  '>->': '\\rightarrowtail',
+  '->>': '\\twoheadrightarrow', // \char"21A0
+  '>->>': '\\twoheadrightarrowtail', // \char"2916
+
+  //
+  // Desmos Graphing Calculator
+  //
+  'frac': '\\frac{#?}{#?}',
+  'cbrt': '\\sqrt[3]{#?}',
+  'nthroot': '\\sqrt[#?]{#?}',
 };

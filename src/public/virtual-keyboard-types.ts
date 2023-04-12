@@ -6,7 +6,8 @@ import type {
   AlphabeticKeyboardLayout,
   VirtualKeyboardLayer,
   VirtualKeyboardLayout,
-  ActionToolbarOptions,
+  EditToolbarOptions,
+  VirtualKeyboardKeycap,
 } from './virtual-keyboard';
 
 export interface MathfieldProxy {
@@ -95,7 +96,11 @@ export type VirtualKeyboardMessage =
       alphabeticLayout?: AlphabeticKeyboardLayout;
       layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
       layouts: (string | VirtualKeyboardLayout)[];
-      actionToolbar?: ActionToolbarOptions;
+      editToolbar?: EditToolbarOptions;
+      actionKeycap: string | Partial<VirtualKeyboardKeycap>;
+      shiftKeycap: string | Partial<VirtualKeyboardKeycap>;
+      backspaceKeycap: string | Partial<VirtualKeyboardKeycap>;
+      tabKeycap: string | Partial<VirtualKeyboardKeycap>;
     }
   | {
       // From proxy to VK
@@ -104,7 +109,11 @@ export type VirtualKeyboardMessage =
       alphabeticLayout?: AlphabeticKeyboardLayout;
       layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
       layouts: (string | VirtualKeyboardLayout)[];
-      actionToolbar?: ActionToolbarOptions;
+      editToolbar?: EditToolbarOptions;
+      actionKeycap: string | Partial<VirtualKeyboardKeycap>;
+      shiftKeycap: string | Partial<VirtualKeyboardKeycap>;
+      backspaceKeycap: string | Partial<VirtualKeyboardKeycap>;
+      tabKeycap: string | Partial<VirtualKeyboardKeycap>;
     }
   | {
       // From proxy to VK

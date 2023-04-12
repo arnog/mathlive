@@ -152,7 +152,7 @@ export interface NormalizedVirtualKeyboardLayer {
   id?: string;
 }
 
-export type ActionToolbarOptions = 'none' | 'default';
+export type EditToolbarOptions = 'none' | 'default';
 
 export interface VirtualKeyboardOptions {
   /**
@@ -177,10 +177,15 @@ export interface VirtualKeyboardOptions {
    * Use `"none"` to disable the right hand side toolbar of the
    * virtual keyboard.
    */
-  set actionToolbar(value: ActionToolbarOptions);
+  set editToolbar(value: EditToolbarOptions);
 
   /** Layout of the alphabetic layers: AZERTY, QWERTY, etc... */
   set alphabeticLayout(value: AlphabeticKeyboardLayout);
+
+  set actionKeycap(value: string | Partial<VirtualKeyboardKeycap>);
+  set shiftKeycap(value: string | Partial<VirtualKeyboardKeycap>);
+  set backspaceKeycap(value: string | Partial<VirtualKeyboardKeycap>);
+  set tabKeycap(value: string | Partial<VirtualKeyboardKeycap>);
 
   /**
    * Element the virtual keyboard element gets appended to.
