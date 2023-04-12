@@ -1353,6 +1353,33 @@ If you are using Vue, this may be because you are using the runtime-only build o
     requestUpdate(this);
   }
 
+  stripPromptContent(filter?: {
+    id?: string;
+    locked?: boolean;
+    correctness?: 'correct' | 'incorrect' | 'undefined';
+  }): Record<string, string> {
+    const matchingPrompts = this.model.getAllAtoms().filter((a: PromptAtom) => {
+      if (a.type !== 'prompt') return false;
+      if (!filter) return true;
+
+      if (filter.id && a.placeholderId !== filter.id) return false;
+      if (filter.locked && a.locked !== filter.locked) return false;
+      if (filter.correctness === 'undefined' && a.correctness) return false;
+      if (filter.correctness && a.correctness !== filter.correctness)
+        return false;
+
+      return true;
+    }) as PromptAtom[];
+
+    const promptStates = {};
+    matchingPrompts.forEach((prompt) => {
+      const id = prompt.placeholderId!;
+      promptStates[id] = this.getPromptValue(id);
+      this.setPromptValue(id, '');
+    });
+    return promptStates;
+  }
+
   getPromptState(id: string): ['correct' | 'incorrect' | undefined, boolean] {
     const prompt = this.getPrompt(id);
     if (!prompt) {

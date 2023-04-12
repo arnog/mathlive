@@ -2062,6 +2062,11 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   set readOnly(value: boolean) {
     this._setOptions({ readOnly: value });
   }
+
+  get isSelectionEditable(): boolean {
+    return this._mathfield?.isSelectionEditable ?? false;
+  }
+
   setPromptState(
     id: string,
     state: 'correct' | 'incorrect' | 'undefined' | undefined,
@@ -2080,6 +2085,16 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   ): void {
     this._mathfield?.setPromptValue(id, content, insertOptions);
   }
+
+  /** Remove the contents of all prompts, and return an object with the prompt contents */
+  stripPromptContent(filter?: {
+    id?: string;
+    locked?: boolean;
+    correctness?: 'correct' | 'incorrect' | 'undefined';
+  }): Record<string, string> {
+    return this._mathfield?.stripPromptContent(filter) ?? {};
+  }
+
   get virtualKeyboardTargetOrigin(): string {
     return this._getOption('virtualKeyboardTargetOrigin');
   }
