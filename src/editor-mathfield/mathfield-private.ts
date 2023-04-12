@@ -473,7 +473,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
               'focus',
               (evt) => {
                 if (evt.target === window && isValidMathfield(this))
-                  this.focus({ scrollIntoView: false });
+                  this.focus({ preventScroll: true });
               },
               { once: true }
             );
@@ -781,7 +781,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (getCommandTarget(command) === 'virtual-keyboard') return;
         this.executeCommand(command);
       } else if (action === 'update-state') {
-      } else if (action === 'focus') this.focus({ scrollIntoView: false });
+      } else if (action === 'focus') this.focus({ preventScroll: true });
       else if (action === 'blur') this.blur();
       return;
     }
@@ -886,7 +886,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
   ): boolean {
     if (getCommandTarget(command) === 'virtual-keyboard') {
-      this.focus({ scrollIntoView: false });
+      this.focus({ preventScroll: true });
       window.mathVirtualKeyboard.executeCommand(command);
       requestAnimationFrame(() =>
         window.mathVirtualKeyboard.update(makeProxy(this))
@@ -1202,13 +1202,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return !this.blurred;
   }
 
-  focus(options?: { scrollIntoView: boolean }): void {
+  focus(options?: FocusOptions): void {
     if (!this.hasFocus()) {
       this.keyboardDelegate.focus();
       this.connectToVirtualKeyboard();
       this.model.announce('line');
     }
-    if (options?.scrollIntoView ?? true) this.scrollIntoView();
+    if (!options?.preventScroll ?? false) this.scrollIntoView();
   }
 
   blur(): void {
