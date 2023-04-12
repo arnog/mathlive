@@ -328,7 +328,7 @@ function addCell(
 
     case 'before row':
       arrayAtom.addRowBefore(row);
-      setPositionInCell(model, arrayAtom, row - 1, 0, 'start');
+      setPositionInCell(model, arrayAtom, row, 0, 'start');
       break;
 
     case 'before column':
@@ -337,7 +337,7 @@ function addCell(
         return;
       }
       arrayAtom.addColumnBefore(column);
-      setPositionInCell(model, arrayAtom, row, column - 1, 'start');
+      setPositionInCell(model, arrayAtom, row, column, 'start');
       break;
   }
 }
