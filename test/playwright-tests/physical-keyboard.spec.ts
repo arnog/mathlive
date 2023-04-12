@@ -137,16 +137,13 @@ test('escape to enter/exit latex mode', async ({ page }) => {
   // attempt to use latex mode for math field with latex mode disabled
   // using instructions from: https://cortexjs.io/mathlive/guides/customizing/#turning-off-the-latex-mode
   await page.locator('#mf-5').press('Escape');
-  await page.locator('#mf-5').type('frac');
+  await page.locator('#mf-5').type('lozenge');
   await page.locator('#mf-5').press('Escape');
-  await page.locator('#mf-5').type('x');
-  await page.locator('#mf-5').press('ArrowDown');
-  await page.locator('#mf-5').type('y');
 
   // check latex of result
   expect(
     await page.locator('#mf-5').evaluate((e: MathfieldElement) => e.value)
-  ).toBe('fracxy');
+  ).toBe('lozenge');
 });
 
 test('backslash to enter, enter to exit latex mode', async ({ page }) => {
@@ -166,16 +163,13 @@ test('backslash to enter, enter to exit latex mode', async ({ page }) => {
 
   // attempt to use latex mode for math field with latex mode disabled
   // using instructions from: https://cortexjs.io/mathlive/guides/customizing/#turning-off-the-latex-mode
-  await page.locator('#mf-5').type('\\frac');
+  await page.locator('#mf-5').type('\\lozenge');
   await page.locator('#mf-5').press('Enter');
-  await page.locator('#mf-5').type('x');
-  await page.locator('#mf-5').press('ArrowDown');
-  await page.locator('#mf-5').type('y');
 
   // check latex of result
   expect(
     await page.locator('#mf-5').evaluate((e: MathfieldElement) => e.value)
-  ).toBe('\\backslash fracxy');
+  ).toBe('\\backslash lozenge');
 });
 
 test('Select all/type to replace selection', async ({ page, browserName }) => {
