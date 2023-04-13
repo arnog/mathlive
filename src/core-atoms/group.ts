@@ -11,7 +11,10 @@ export class GroupAtom extends Atom {
   cssId?: string;
   htmlData?: string;
   htmlStyle?: string;
+  // This CSS class is user-provided
   customClass?: string;
+  // This CSS class is used only during rendering
+  renderClass?: string;
   mathstyleName?: MathstyleName;
   boxType?: BoxType;
   // This atom causes the parsemode to change. Use by commands such as
@@ -32,6 +35,7 @@ export class GroupAtom extends Atom {
       htmlData?: string;
       htmlStyle?: string;
       customClass?: string;
+      renderClass?: string;
       mode?: ParseMode;
       style?: Style;
       captureSelection?: boolean;
@@ -60,6 +64,7 @@ export class GroupAtom extends Atom {
     this.htmlData = options?.htmlData;
     this.htmlStyle = options?.htmlStyle;
     this.customClass = options?.customClass;
+    this.renderClass = options?.renderClass;
 
     this.boxType = options?.boxType;
     this.skipBoundary = true;
@@ -85,6 +90,7 @@ export class GroupAtom extends Atom {
     if (this.htmlData) options.htmlData = this.htmlData;
     if (this.htmlStyle) options.htmlStyle = this.htmlStyle;
     if (this.customClass) options.customClass = this.customClass;
+    if (this.renderClass) options.renderClass = this.renderClass;
     if (this.boxType) options.boxType = this.boxType;
     if (this.captureSelection) options.captureSelection = true;
     if (this.changeMode) options.changeMode = true;
@@ -100,9 +106,14 @@ export class GroupAtom extends Atom {
     // If that's the case, clone() returns a clone of the
     // context with the same mathstyle.
     const localContext = new Context(context, this.style, this.mathstyleName);
+    const classes =
+      this.customClass || this.renderClass
+        ? `${this.customClass ?? ''} ${this.renderClass ?? ''}`
+        : '';
+
     const box = Atom.createBox(localContext, this.body, {
       type: this.boxType,
-      classes: this.customClass,
+      classes,
       mode: this.mode,
       style: { backgroundColor: this.style.backgroundColor },
       newList: !this.boxType,

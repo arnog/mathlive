@@ -63,10 +63,8 @@ defineFunction('error', '{:math}', {
     new GroupAtom(args[0] as Atom[], context, {
       mode: 'math',
       command: '\\error',
-      customClass: 'ML__error',
+      renderClass: 'ML__error',
       style,
-      serialize: (atom: GroupAtom, options: ToLatexOptions) =>
-        `\\error{${atom.bodyToLatex(options)}}`,
     }),
 });
 
@@ -347,7 +345,7 @@ defineFunction(['boldsymbol', 'bm'], '{:math*}', {
       latexOpen: `${name}{`,
       latexClose: '}',
       style,
-      customClass: 'ML__boldsymbol',
+      renderClass: 'ML__boldsymbol',
     }),
 });
 
@@ -672,7 +670,7 @@ defineFunction('em', '{:auto*}', {
     new GroupAtom(args[0] as Atom[], context, {
       latexOpen: '\\em',
       latexClose: '',
-      customClass: 'ML__emph',
+      renderClass: 'ML__emph',
       style,
     }),
 });
@@ -688,7 +686,7 @@ defineFunction('emph', '{:auto}', {
     new GroupAtom(args[0] as Atom[], context, {
       latexOpen: '\\emph{',
       latexClose: '}',
-      customClass: 'ML__emph',
+      renderClass: 'ML__emph',
       style,
     }),
 });
