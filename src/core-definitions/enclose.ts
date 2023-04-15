@@ -1,9 +1,9 @@
 import type { Atom } from '../core/atom-class';
 import { EncloseAtom, EncloseAtomOptions } from '../core-atoms/enclose';
 
-import { Argument, defineFunction } from './definitions-utils';
+import { Argument, argAtoms, defineFunction } from './definitions-utils';
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
 // The first argument is a comma delimited list of notations, as defined
@@ -12,9 +12,9 @@ import type { GlobalContext } from 'core/types';
 defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
   createAtom: (
     command: string,
-    args: Argument[],
+    context: GlobalContext,
     style: Style,
-    context: GlobalContext
+    args: Argument[]
   ): Atom => {
     const options: EncloseAtomOptions = {
       strokeColor: 'currentColor',
@@ -72,7 +72,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
 
     return new EncloseAtom(
       command,
-      args[2] as Atom[],
+      argAtoms(args[2]),
       notation,
       context,
       options
@@ -83,13 +83,13 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
 defineFunction('cancel', '{body:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: Style,
-    context: GlobalContext
+    args: Argument[]
   ): Atom =>
     new EncloseAtom(
       name,
-      args[0] as Atom[],
+      argAtoms(args[0]),
       { updiagonalstrike: true },
       context,
       {
@@ -108,13 +108,13 @@ defineFunction('cancel', '{body:auto}', {
 defineFunction('bcancel', '{body:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: Style,
-    context: GlobalContext
+    args: Argument[]
   ): Atom =>
     new EncloseAtom(
       name,
-      args[0] as Atom[],
+      argAtoms(args[0]),
       { downdiagonalstrike: true },
       context,
       {
@@ -133,13 +133,13 @@ defineFunction('bcancel', '{body:auto}', {
 defineFunction('xcancel', '{body:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: Style,
-    context: GlobalContext
+    args: Argument[]
   ): Atom =>
     new EncloseAtom(
       name,
-      args[0] as Atom[],
+      argAtoms(args[0]),
       { updiagonalstrike: true, downdiagonalstrike: true },
       context,
       {

@@ -1,10 +1,10 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { BoxType } from 'core/types';
+import { BoxType } from '../core/types';
 
 export class OverlapAtom extends Atom {
   private readonly align?: 'left' | 'right';
@@ -22,7 +22,7 @@ export class OverlapAtom extends Atom {
     else this.body = body;
 
     this.align = options?.align ?? 'left';
-    this.boxType = options?.boxType ?? 'mord';
+    this.boxType = options?.boxType ?? 'ord';
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): OverlapAtom {

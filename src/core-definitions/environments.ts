@@ -1,5 +1,9 @@
-import type { Dimension } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type {
+  Dimension,
+  Environment,
+  TabularEnvironment,
+} from '../public/core-types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom } from '../core/atom-class';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
@@ -10,7 +14,6 @@ import {
   defineEnvironment,
   defineTabularEnvironment,
 } from './definitions-utils';
-import { Environment, TabularEnvironment } from './environment-types';
 
 /*
 The star at the end of the name of a displayed math environment causes that

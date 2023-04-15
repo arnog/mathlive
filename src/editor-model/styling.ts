@@ -4,7 +4,7 @@ import { Range } from '../public/mathfield';
 import { isArray } from '../common/types';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import type { Style } from '../public/core-types';
-import { PrivateStyle } from 'core/types';
+import { PrivateStyle } from '../core/types';
 
 export function applyStyleToUnstyledAtoms(
   atom: Atom | Atom[] | undefined,

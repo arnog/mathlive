@@ -7,8 +7,8 @@ import {
 } from './utils';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { FOREGROUND_COLORS, BACKGROUND_COLORS } from '../core/color';
-import { VirtualKeyboardKeycap } from '../public/options';
 import MathfieldElement from '../public/mathfield-element';
+import type { VirtualKeyboardKeycap } from '../public/virtual-keyboard';
 
 const VARIANTS: {
   [variantID: string]: (string | Partial<VirtualKeyboardKeycap>)[];

@@ -1,12 +1,12 @@
 /* eslint-disable no-new */
 import { Atom, ToLatexOptions } from './atom';
-import { joinLatex } from './tokenizer';
+import { joinLatex, latexCommand } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import { Box } from './box';
 import { BoxAtom } from '../core-atoms/box';
 import type { Style } from '../public/core-types';
 import { mathVariantToUnicode } from '../core-definitions/unicode';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -134,36 +134,36 @@ export class MathMode extends Mode {
     return result;
   }
 
-  serialize(run: Atom[], options: ToLatexOptions): string {
+  serialize(run: Atom[], options: ToLatexOptions): string[] {
     const { parent } = run[0];
     const contextFontsize = parent?.computedStyle.fontSize;
-    return joinLatex(
-      getPropertyRuns(run, 'fontSize').map((x) => {
-        const result = emitBackgroundColorRun(x, options);
-        const fontsize = x[0].computedStyle.fontSize;
-        if (fontsize && (!parent || contextFontsize !== fontsize)) {
-          return (
-            '\\' +
-            [
-              '',
-              'tiny',
-              'scriptsize',
-              'footnotesize',
-              'small',
-              'normalsize',
-              'large',
-              'Large',
-              'LARGE',
-              'huge',
-              'Huge',
-            ][fontsize] +
-            ' ' +
-            result
-          );
-        }
-        return result;
-      })
-    );
+    return getPropertyRuns(run, 'fontSize').map((x) => {
+      const result = emitBackgroundColorRun(x, options);
+      const fontsize = x[0].computedStyle.fontSize;
+      if (
+        fontsize &&
+        fontsize !== 'auto' &&
+        (!parent || contextFontsize !== fontsize)
+      ) {
+        return latexCommand(
+          [
+            '',
+            '\\tiny',
+            '\\scriptsize',
+            '\\footnotesize',
+            '\\small',
+            '\\normalsize',
+            '\\large',
+            '\\Large',
+            '\\LARGE',
+            '\\huge',
+            '\\Huge',
+          ][fontsize],
+          result
+        );
+      }
+      return result;
+    });
   }
 
   applyStyle(box: Box, style: Style): string | null {
@@ -267,24 +267,24 @@ function emitVariantRun(run: Atom[], options: ToLatexOptions): string {
       let command = '';
       if (variant && variant !== contextVariant) {
         command = {
-          'calligraphic': '\\mathcal{',
-          'fraktur': '\\mathfrak{',
-          'double-struck': '\\mathbb{',
-          'script': '\\mathscr{',
-          'monospace': '\\mathtt{',
-          'sans-serif': '\\mathsf{',
-          'normal': '\\mathrm{',
-          'normal-italic': '\\mathnormal{',
-          'normal-bold': '\\mathbf{',
-          'normal-bolditalic': '\\mathbfit{',
+          'calligraphic': '\\mathcal',
+          'fraktur': '\\mathfrak',
+          'double-struck': '\\mathbb',
+          'script': '\\mathscr',
+          'monospace': '\\mathtt',
+          'sans-serif': '\\mathsf',
+          'normal': '\\mathrm',
+          'normal-italic': '\\mathnormal',
+          'normal-bold': '\\mathbf',
+          'normal-bolditalic': '\\mathbfit',
           'ams': '',
-          'ams-italic': '\\mathit{',
-          'ams-bold': '\\mathbf{',
-          'ams-bolditalic': '\\mathbfit{',
+          'ams-italic': '\\mathit',
+          'ams-bold': '\\mathbf',
+          'ams-bolditalic': '\\mathbfit',
           'main': '',
-          'main-italic': '\\mathit{',
-          'main-bold': '\\mathbf{',
-          'main-bolditalic': '\\mathbfit{',
+          'main-italic': '\\mathit',
+          'main-bold': '\\mathbf',
+          'main-bolditalic': '\\mathbfit',
           // There are a few rare font families possible, which
           // are not supported:
           // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
@@ -293,10 +293,9 @@ function emitVariantRun(run: Atom[], options: ToLatexOptions): string {
         }[variant!]!;
         console.assert(command !== undefined);
       }
-      if (!command) return joinLatex(x.map((x) => Atom.serialize(x, options)));
-      return (
-        command + joinLatex(x.map((x) => Atom.serialize(x, options))) + '}'
-      );
+
+      const arg = joinLatex(x.map((x) => Atom.serialize(x, options)));
+      return !command ? arg : latexCommand(command, arg);
     })
   );
 }
@@ -313,12 +312,10 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
         style.color &&
         (!parent || contextColor !== style.color)
       ) {
-        return (
-          '\\textcolor{' +
-          (style.verbatimColor ?? style.color) +
-          '}{' +
-          result +
-          '}'
+        return latexCommand(
+          '\\textcolor',
+          style.verbatimColor ?? style.color,
+          result
         );
       }
 
@@ -341,11 +338,13 @@ function emitBackgroundColorRun(run: Atom[], options: ToLatexOptions): string {
         (!parent || parentColor !== style.backgroundColor) &&
         (x.length > 0 || !(x[0] instanceof BoxAtom))
       ) {
-        result = `\\ensuremath{${result}}`;
+        result = latexCommand('\\ensuremath', result);
 
-        result = `\\colorbox{${
-          style.verbatimBackgroundColor ?? style.backgroundColor
-        }}{${result}}`;
+        result = latexCommand(
+          '\\colorbox',
+          style.verbatimBackgroundColor ?? style.backgroundColor,
+          result
+        );
       }
       return result;
     })

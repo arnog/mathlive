@@ -1,10 +1,11 @@
 import type { Glue, Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { convertGlueToEm } from '../core/registers-utils';
+import { latexCommand } from '../core/tokenizer';
 
 export class SpacingAtom extends Atom {
   private readonly width?: Glue;
@@ -58,12 +59,14 @@ export class SpacingAtom extends Atom {
     // - `\hskip`, `\kern`, `\hspace` and `hspace*` which take one glue argument:
     // i.e. `\hspace1em` or `\hspace{1em}`.
     // - `\quad`, etc... which take no parameters.
-    let result = this.command ?? '';
+    const command = this.command ?? '';
     if (this.command === '\\hspace' || this.command === '\\hspace*') {
-      if (Number.isFinite(this.width)) result += `{${this.width}em'}`;
-      else result += `{0pt}`;
-    } else if (Number.isFinite(this.width)) result += ` ${this.width}em`;
+      if (!Number.isFinite(this.width)) return `${command}0pt`;
+      return latexCommand(command, `${this.width}em'}`);
+    }
 
-    return result;
+    if (!Number.isFinite(this.width)) return command;
+
+    return latexCommand(command, `${this.width}em`);
   }
 }

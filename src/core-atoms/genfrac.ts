@@ -1,5 +1,5 @@
 import type { MathstyleName, Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -7,6 +7,7 @@ import { VBox } from '../core/v-box';
 import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { Context } from '../core/context';
 import { AXIS_HEIGHT } from '../core/font-metrics';
+import { latexCommand } from '../core/tokenizer';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;
@@ -87,10 +88,10 @@ export class GenfracAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    return (
-      this.command +
-      `{${this.aboveToLatex(options)}}` +
-      `{${this.belowToLatex(options)}}`
+    return latexCommand(
+      this.command,
+      this.aboveToLatex(options),
+      this.belowToLatex(options)
     );
   }
 
@@ -260,7 +261,7 @@ export class GenfracAtom extends Atom {
       ? this.bind(
           context,
           makeCustomSizedDelim(
-            'mopen',
+            'open',
             this.leftDelim,
             delimSize,
             true,
@@ -268,19 +269,19 @@ export class GenfracAtom extends Atom {
             { style: this.style, mode: this.mode, classes: selectClasses }
           )
         )
-      : makeNullDelimiter(fracContext, 'mopen');
+      : makeNullDelimiter(fracContext, 'open');
 
     let rightDelim: Box | null = null;
     if (this.continuousFraction) {
       // Zero width for `\cfrac`
-      rightDelim = new Box(null, { type: 'mclose' });
+      rightDelim = new Box(null, { type: 'close' });
     } else if (!this.rightDelim)
-      rightDelim = makeNullDelimiter(fracContext, 'mclose');
+      rightDelim = makeNullDelimiter(fracContext, 'close');
     else {
       rightDelim = this.bind(
         context,
         makeCustomSizedDelim(
-          'mclose',
+          'close',
           this.rightDelim,
           delimSize,
           true,
@@ -296,7 +297,7 @@ export class GenfracAtom extends Atom {
       context,
       new Box([leftDelim, frac, rightDelim], {
         isTight: fracContext.isTight,
-        type: 'mord',
+        type: 'ord',
         classes: 'mfrac',
       })
     );

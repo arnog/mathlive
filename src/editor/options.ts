@@ -157,6 +157,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     originValidator: 'none',
 
     onInlineShortcut: () => '',
+    onScrollIntoView: null,
     onExport: defaultExportHook,
     value: '',
   };

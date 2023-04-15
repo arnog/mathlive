@@ -141,7 +141,7 @@ export function onPointerDown(
     // Focus the mathfield
     if (!mathfield.hasFocus()) {
       dirty = 'none'; // focus() will refresh
-      mathfield.focus({ scrollIntoView: false });
+      mathfield.focus({ preventScroll: true });
     }
 
     // Clicking or tapping the field resets the keystroke buffer and

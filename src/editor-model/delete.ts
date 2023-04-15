@@ -2,7 +2,7 @@ import { ContentChangeType } from '../public/options';
 import type { Range } from '../public/mathfield';
 
 import { LeftRightAtom } from '../core-atoms/leftright';
-import { Atom, Branch, BranchName } from '../core/atom';
+import { Atom, Branch } from '../core/atom';
 import { ModelPrivate } from './model-private';
 import { range } from './selection-utils';
 import { contentWillChange } from './listeners';
@@ -247,7 +247,7 @@ function onDelete(
     return true;
   }
 
-  if (atom.isExtensibleSymbol || atom.type === 'msubsup') {
+  if (atom.isExtensibleSymbol || atom.type === 'subsup') {
     //
     // Extensible operator: \sum, \int, etc...
     // Superscript/subscript carrier
@@ -404,7 +404,7 @@ export function deleteForward(model: ModelPrivate): boolean {
 
       target.parent!.removeChild(target);
       let sibling = model.at(model.position)?.rightSibling;
-      while (sibling?.type === 'msubsup') {
+      while (sibling?.type === 'subsup') {
         sibling.parent!.removeChild(sibling);
         sibling = model.at(model.position)?.rightSibling;
       }

@@ -13,7 +13,7 @@ import '../core-atoms/genfrac';
 import { RuleAtom } from '../core-atoms/rule';
 import { OperatorAtom } from '../core-atoms/operator';
 
-import { Argument, binRelType, defineFunction } from './definitions-utils';
+import { Argument, argAtoms, defineFunction } from './definitions-utils';
 import { TooltipAtom } from '../core-atoms/tooltip';
 import type {
   FontSize,
@@ -22,17 +22,19 @@ import type {
   Glue,
   Dimension,
   MathstyleName,
-} from 'public/core-types';
-import { GlobalContext, PrivateStyle } from 'core/types';
+} from '../public/core-types';
+import { GlobalContext, PrivateStyle } from '../core/types';
+import { latexCommand } from '../core/tokenizer';
+import { atomsBoxType } from '../core/box';
 
 defineFunction('mathtip', '{:math}{:math}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new TooltipAtom(args[0] as Atom[], args[1] as Atom[], context, {
+    new TooltipAtom(argAtoms(args[0]), argAtoms(args[1]), context, {
       command: name,
       content: 'math',
       style,
@@ -42,11 +44,11 @@ defineFunction('mathtip', '{:math}{:math}', {
 defineFunction('texttip', '{:math}{:text}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new TooltipAtom(args[0] as Atom[], args[1] as Atom[], context, {
+    new TooltipAtom(argAtoms(args[0]), argAtoms(args[1]), context, {
       command: name,
       content: 'text',
       style,
@@ -56,28 +58,26 @@ defineFunction('texttip', '{:math}{:text}', {
 defineFunction('error', '{:math}', {
   createAtom: (
     _name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[0] as Atom[], context, {
+    new GroupAtom(argAtoms(args[0]), context, {
       mode: 'math',
       command: '\\error',
-      customClass: 'ML__error',
+      renderClass: 'ML__error',
       style,
-      serialize: (atom: GroupAtom, options: ToLatexOptions) =>
-        `\\error{${atom.bodyToLatex(options)}}`,
     }),
 });
 
 defineFunction('ensuremath', '{:math}', {
   createAtom: (
     _name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[0] as Atom[], context, {
+    new GroupAtom(argAtoms(args[0]), context, {
       mode: 'math',
       latexOpen: '\\ensuremath{',
       latexClose: '}',
@@ -87,7 +87,7 @@ defineFunction('ensuremath', '{:math}', {
 });
 
 defineFunction('color', '{:string}', {
-  applyStyle: (_name, args, context: GlobalContext): PrivateStyle => {
+  applyStyle: (_name, context, args) => {
     const color = args[0] as string;
     return {
       verbatimColor: args[0] as string,
@@ -100,7 +100,7 @@ defineFunction('color', '{:string}', {
 // Unlike what its name might suggest, this command does not set the mode to text
 // That is, it can equally be applied to math and text mode.
 defineFunction('textcolor', '{:string}{content:auto*}', {
-  applyStyle: (_name, args, context: GlobalContext): PrivateStyle => {
+  applyStyle: (_name, context, args) => {
     const color = args[0] as string;
     return {
       verbatimColor: color,
@@ -119,11 +119,11 @@ defineFunction('textcolor', '{:string}{content:auto*}', {
 defineFunction('boxed', '{content:math}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new BoxAtom(name, args[0] as Atom[], context, {
+    new BoxAtom(name, argAtoms(args[0]), context, {
       framecolor: 'black',
       style,
     }),
@@ -133,7 +133,7 @@ defineFunction('boxed', '{content:math}', {
 // However, just changing the background color makes editing easier
 defineFunction('colorbox', '{:string}{content:auto*}', {
   applyMode: 'text',
-  applyStyle: (_name, args, context: GlobalContext): PrivateStyle => {
+  applyStyle: (_name, context, args) => {
     const color = args[0] as string;
     return {
       verbatimBackgroundColor: args[0] as string,
@@ -149,13 +149,13 @@ defineFunction(
     applyMode: 'text',
     createAtom: (
       name: string,
-      args: Argument[],
+      context: GlobalContext,
       style: PrivateStyle,
-      context: GlobalContext
+      args: (null | Argument)[]
     ): Atom => {
       const color = args[0] as string;
       const bgColor = args[1] as string;
-      return new BoxAtom(name, args[2] as Atom[], context, {
+      return new BoxAtom(name, argAtoms(args[2]), context, {
         verbatimFramecolor: color, // Save this value to restore it verbatim later
         framecolor: context.colorMap?.(color) ?? color,
         verbatimBackgroundcolor: args[1] as string, // Save this value to restore it verbatim later
@@ -181,13 +181,13 @@ defineFunction(
 defineFunction('bbox', '[:bbox]{body:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom => {
     if (args[0]) {
       const arg = args[0] as BBoxParameter;
-      return new BoxAtom(name, args[1] as Atom[], context, {
+      return new BoxAtom(name, argAtoms(args[1]), context, {
         padding: arg.padding,
         border: arg.border,
         backgroundcolor: arg.backgroundcolor,
@@ -218,7 +218,7 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
       });
     }
 
-    return new BoxAtom(name, args[1] as Atom[], context, { style });
+    return new BoxAtom(name, argAtoms(args[1]), context, { style });
   },
 });
 
@@ -232,11 +232,11 @@ defineFunction(
   {
     createAtom: (
       name: string,
-      args: Argument[],
+      context: GlobalContext,
       style: PrivateStyle,
-      context: GlobalContext
+      args: (null | Argument)[]
     ): Atom =>
-      new GroupAtom(args[0] as Atom[], context, {
+      new GroupAtom(argAtoms(args[0]), context, {
         latexOpen: `{${name} `,
         latexClose: '}',
         style,
@@ -339,15 +339,15 @@ defineFunction(['boldsymbol', 'bm'], '{:math*}', {
   applyMode: 'math',
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[0] as Atom[], context, {
+    new GroupAtom(argAtoms(args[0]), context, {
       latexOpen: `${name}{`,
       latexClose: '}',
       style,
-      customClass: 'ML__boldsymbol',
+      renderClass: 'ML__boldsymbol',
     }),
 });
 
@@ -579,11 +579,11 @@ defineFunction('mbox', '{:text}', {
   ifMode: 'math',
   createAtom: (
     command: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[0] as Atom[], context, {
+    new GroupAtom(argAtoms(args[0]), context, {
       changeMode: true,
       style,
       mode: 'text',
@@ -604,12 +604,12 @@ defineFunction('text', '{:text}', {
 /* A MathJax extension: assign a class to the element */
 defineFunction('class', '{name:string}{content:auto*}', {
   createAtom: (
-    _command: string,
-    args: Argument[],
+    _name: string,
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[1] as Atom[], context, {
+    new GroupAtom(argAtoms(args[1]), context, {
       customClass: args[0] as string,
       style,
     }),
@@ -618,12 +618,12 @@ defineFunction('class', '{name:string}{content:auto*}', {
 /* A MathJax extension: assign an ID to the element */
 defineFunction('cssId', '{id:string}{content:auto}', {
   createAtom: (
-    command: string,
-    args: Argument[],
+    _name: string,
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[1] as Atom[], context, {
+    new GroupAtom(argAtoms(args[1]), context, {
       cssId: args[0] as string,
       style,
     }),
@@ -632,12 +632,12 @@ defineFunction('cssId', '{id:string}{content:auto}', {
 /*  assign an property to the element */
 defineFunction('htmlData', '{data:string}{content:auto}', {
   createAtom: (
-    command: string,
-    args: Argument[],
+    _name: string,
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[1] as Atom[], context, {
+    new GroupAtom(argAtoms(args[1]), context, {
       htmlData: args[0] as string,
       style,
     }),
@@ -646,12 +646,12 @@ defineFunction('htmlData', '{data:string}{content:auto}', {
 /* assign CSS styles to the element */
 defineFunction('htmlStyle', '{data:string}{content:auto}', {
   createAtom: (
-    command: string,
-    args: Argument[],
+    _name: string,
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[1] as Atom[], context, {
+    new GroupAtom(argAtoms(args[1]), context, {
       htmlStyle: args[0] as string,
       style,
     }),
@@ -664,15 +664,15 @@ defineFunction('htmlStyle', '{data:string}{content:auto}', {
  */
 defineFunction('em', '{:auto*}', {
   createAtom: (
-    command: string,
-    args: Argument[],
+    _name: string,
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[0] as Atom[], context, {
+    new GroupAtom(argAtoms(args[0]), context, {
       latexOpen: '\\em',
       latexClose: '',
-      customClass: 'ML__emph',
+      renderClass: 'ML__emph',
       style,
     }),
 });
@@ -680,15 +680,15 @@ defineFunction('em', '{:auto*}', {
 /* Note: in TeX, \emph is restricted to text mode. We extend it to math */
 defineFunction('emph', '{:auto}', {
   createAtom: (
-    command: string,
-    args: Argument[],
+    _name: string,
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new GroupAtom(args[0] as Atom[], context, {
+    new GroupAtom(argAtoms(args[0]), context, {
       latexOpen: '\\emph{',
       latexClose: '}',
-      customClass: 'ML__emph',
+      renderClass: 'ML__emph',
       style,
     }),
 });
@@ -736,13 +736,13 @@ defineFunction(
   {
     createAtom: (
       name: string,
-      args: Argument[],
+      context: GlobalContext,
       style: PrivateStyle,
-      context: GlobalContext
+      args: (null | Argument)[]
     ): Atom =>
       new SizedDelimAtom(name, args[0] as string, context, {
         size: DELIMITER_SIZES[name].size,
-        delimClass: DELIMITER_SIZES[name].mclass,
+        delimType: DELIMITER_SIZES[name].mclass,
         style,
       }),
   }
@@ -759,9 +759,9 @@ defineFunction(
   {
     createAtom: (
       name: string,
-      args: Argument[],
+      context: GlobalContext,
       style: PrivateStyle,
-      context: GlobalContext
+      args: (null | Argument)[]
     ): Atom =>
       new SpacingAtom(
         name,
@@ -783,9 +783,9 @@ defineFunction(
   {
     createAtom: (
       name: string,
-      args: Argument[],
+      context: GlobalContext,
       style: PrivateStyle,
-      context: GlobalContext
+      args: (null | Argument)[]
     ): Atom =>
       new SpacingAtom(
         name,
@@ -799,9 +799,9 @@ defineFunction(
 defineFunction('mspace', '{width:glue}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
     new SpacingAtom(
       name,
@@ -813,12 +813,12 @@ defineFunction('mspace', '{width:glue}', {
 
 defineFunction('mathop', '{:auto}', {
   createAtom: (
-    command: string,
-    args: Argument[],
+    name: string,
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new OperatorAtom(command, args[0] as Atom[], context, {
+    new OperatorAtom(name, argAtoms(args[0]), context, {
       type: 'mop',
       captureSelection: true,
       limits: 'over-under',
@@ -830,11 +830,15 @@ defineFunction('mathop', '{:auto}', {
 
 defineFunction('mathchoice', '{:math}{:math}{:math}{:math}', {
   createAtom: (
-    _command: string,
-    args: Argument[],
+    _name: string,
+    context: GlobalContext,
     _style: PrivateStyle,
-    context: GlobalContext
-  ): Atom => new ChoiceAtom(args as Atom[][], context),
+    args: (null | Argument)[]
+  ): Atom =>
+    new ChoiceAtom(
+      args.map((x) => argAtoms(x)),
+      context
+    ),
 });
 
 defineFunction(
@@ -850,12 +854,12 @@ defineFunction(
   '{:auto}',
   {
     createAtom: (
-      command: string,
-      args: Argument[],
+      name: string,
+      context: GlobalContext,
       style: PrivateStyle,
-      context: GlobalContext
+      args: (null | Argument)[]
     ): Atom =>
-      new OperatorAtom(command, args[0] as Atom[], context, {
+      new OperatorAtom(name, argAtoms(args[0]), context, {
         type: (
           {
             '\\mathbin': 'mbin',
@@ -866,7 +870,7 @@ defineFunction(
             '\\mathord': 'mord',
             '\\mathinner': 'minner',
           } as const
-        )[command],
+        )[name],
         captureSelection: true,
         hasArgument: true,
         style,
@@ -880,11 +884,11 @@ defineFunction(
 defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom => {
-    const result = new OperatorAtom(name, args[0] as Atom[], context, {
+    const result = new OperatorAtom(name, argAtoms(args[0]), context, {
       isFunction: true,
       hasArgument: true,
       limits: name === '\\operatorname' ? 'adjacent' : 'over-under',
@@ -893,22 +897,22 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
     result.captureSelection = true; // Do not let children be selected
 
     /*
-        The \operatorname commands is defined with:
+      The \operatorname commands is defined with:
 
-        \gdef\newmcodes@{\mathcode`\'39\mathcode`\*42\mathcode`\."613A%
-        \ifnum\mathcode`\-=45 \else
-            \mathchardef\std@minus\mathcode`\-\relax
-        \fi
-        \mathcode`\-45\mathcode`\/47\mathcode`\:"603A\relax}
+      \gdef\newmcodes@{\mathcode`\'39\mathcode`\*42\mathcode`\."613A%
+      \ifnum\mathcode`\-=45 \else
+          \mathchardef\std@minus\mathcode`\-\relax
+      \fi
+      \mathcode`\-45\mathcode`\/47\mathcode`\:"603A\relax}
 
 
-        \mathcode assigns to a character its category (2=mbin), its font family (0=cmr),
-        and its character code.
+      \mathcode assigns to a character its category (2=mbin), its font family (0=cmr),
+      and its character code.
 
-        It basically temporarily reassigns to ":.'-/*" the values/properties
-        these characters have in text mode (but importantly, not to " " (space))
+      It basically temporarily reassigns to ":.'-/*" the values/properties
+      these characters have in text mode (but importantly, not to " " (space))
 
-        */
+    */
 
     if (result.body) {
       result.body.forEach((x) => {
@@ -953,9 +957,9 @@ class UnicodeAtom extends Atom {
 defineFunction('unicode', '{charcode:number}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom => new UnicodeAtom(args[0] as string, style, context),
 });
 
@@ -963,9 +967,9 @@ defineFunction('unicode', '{charcode:number}', {
 defineFunction('rule', '[raise:dimen]{width:dimen}{thickness:dimen}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
     new RuleAtom(name, context, {
       shift: args[0] as Dimension,
@@ -979,11 +983,11 @@ defineFunction('rule', '[raise:dimen]{width:dimen}{thickness:dimen}', {
 defineFunction('overline', '{:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new LineAtom(name, args[0] as Atom[], context, {
+    new LineAtom(name, argAtoms(args[0]), context, {
       position: 'overline',
       style,
     }),
@@ -992,11 +996,11 @@ defineFunction('overline', '{:auto}', {
 defineFunction('underline', '{:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new LineAtom(name, args[0] as Atom[], context, {
+    new LineAtom(name, argAtoms(args[0]), context, {
       position: 'underline',
       style,
     }),
@@ -1005,16 +1009,16 @@ defineFunction('underline', '{:auto}', {
 defineFunction('overset', '{above:auto}{base:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
     new OverunderAtom(name, context, {
-      above: args[0] as Atom[],
-      body: args[1] as Atom[],
+      above: argAtoms(args[0]),
+      body: argAtoms(args[1]),
       skipBoundary: false,
       style,
-      boxType: binRelType(args[1] as Atom[]),
+      boxType: atomsBoxType(argAtoms(args[1])),
       serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${atom.command}{${atom.aboveToLatex(options)}}` +
         `{${atom.bodyToLatex(options)}}`,
@@ -1024,16 +1028,16 @@ defineFunction('overset', '{above:auto}{base:auto}', {
 defineFunction('underset', '{below:auto}{base:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
     new OverunderAtom(name, context, {
-      below: args[0] as Atom[],
-      body: args[1] as Atom[],
+      below: argAtoms(args[0]),
+      body: argAtoms(args[1]),
       skipBoundary: false,
       style,
-      boxType: binRelType(args[1] as Atom[]),
+      boxType: atomsBoxType(argAtoms(args[1])),
       serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${name}{${atom.belowToLatex(options)}}` +
         `{${atom.bodyToLatex(options)}}`,
@@ -1043,17 +1047,17 @@ defineFunction('underset', '{below:auto}{base:auto}', {
 defineFunction('overunderset', '{above:auto}{below:auto}{base:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
     new OverunderAtom(name, context, {
-      above: args[0] as Atom[],
-      below: args[1] as Atom[],
-      body: args[2] as Atom[],
+      above: argAtoms(args[0]),
+      below: argAtoms(args[1]),
+      body: argAtoms(args[2]),
       skipBoundary: false,
       style,
-      boxType: binRelType(args[2] as Atom[]),
+      boxType: atomsBoxType(argAtoms(args[2])),
       serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
         `${atom.command}{${atom.aboveToLatex(options)}}` +
         `{${atom.bodyToLatex(options)}}`,
@@ -1070,17 +1074,17 @@ defineFunction(
   {
     createAtom: (
       name: string,
-      args: Argument[],
+      context: GlobalContext,
       style: PrivateStyle,
-      context: GlobalContext
+      args: (null | Argument)[]
     ): Atom =>
       new OverunderAtom(name, context, {
-        body: args[2] as Atom[],
-        above: args[1] as Atom[],
-        below: args[0] as Atom[],
+        body: argAtoms(args[2]),
+        above: argAtoms(args[1]),
+        below: argAtoms(args[0]),
         skipBoundary: false,
         style,
-        boxType: name === '\\stackrel' ? 'mrel' : 'mbin',
+        boxType: name === '\\stackrel' ? 'rel' : 'bin',
         serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
           `${atom.command}{${atom.aboveToLatex(options)}}` +
           `{${atom.bodyToLatex(options)}}`,
@@ -1091,19 +1095,19 @@ defineFunction(
 defineFunction('smash', '[:string]{:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom => {
     if (!args[0]) {
-      return new PhantomAtom(name, args[1] as Atom[], context, {
+      return new PhantomAtom(name, argAtoms(args[1]), context, {
         smashHeight: true,
         smashDepth: true,
         style,
       });
     }
 
-    return new PhantomAtom(name, args[1] as Atom[], context, {
+    return new PhantomAtom(name, argAtoms(args[1]), context, {
       smashHeight: (args[0] as string).includes('t'),
       smashDepth: (args[0] as string).includes('b'),
       style,
@@ -1114,11 +1118,11 @@ defineFunction('smash', '[:string]{:auto}', {
 defineFunction(['vphantom'], '{:auto*}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new PhantomAtom(name, args[1] as Atom[], context, {
+    new PhantomAtom(name, argAtoms(args[1]), context, {
       isInvisible: true,
       smashWidth: true,
       style,
@@ -1128,11 +1132,11 @@ defineFunction(['vphantom'], '{:auto*}', {
 defineFunction(['hphantom'], '{:auto*}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new PhantomAtom(name, args[1] as Atom[], context, {
+    new PhantomAtom(name, argAtoms(args[1]), context, {
       isInvisible: true,
       smashHeight: true,
       smashDepth: true,
@@ -1143,11 +1147,11 @@ defineFunction(['hphantom'], '{:auto*}', {
 defineFunction(['phantom'], '{:auto*}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new PhantomAtom(name, args[1] as Atom[], context, {
+    new PhantomAtom(name, argAtoms(args[1]), context, {
       isInvisible: true,
       style,
     }),
@@ -1156,39 +1160,37 @@ defineFunction(['phantom'], '{:auto*}', {
 defineFunction('not', '{:math}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom => {
-    if (args.length < 1 || args[0] === null) {
+    if (args.length < 1 || args[0] === null || argAtoms(args[0]).length === 0) {
       return new Atom('mrel', context, {
         command: name,
         style,
         value: '\ue020',
       });
     }
-    const arg = args[0] as Atom[];
+    const isGroup = typeof args[0] === 'object' && 'group' in args[0];
+    const arg = argAtoms(args[0]);
     return new GroupAtom(
       [
         new OverlapAtom(name, '\ue020', context, {
           align: 'right',
           style,
-          boxType: 'mrel',
+          boxType: isGroup ? 'op' : atomsBoxType(arg),
         }),
         ...arg,
       ],
       context,
       {
-        boxType: 'mrel',
+        boxType: isGroup ? 'op' : atomsBoxType(arg),
         captureSelection: true,
         command: '\\not',
-        serialize: (_atom: GroupAtom, options) => {
-          const argLatex = Atom.serialize(arg, options);
-          if (argLatex.length === 1 && !/[a-zA-Z]/.test(argLatex))
-            return '\\not' + argLatex;
-
-          return `\\not{${argLatex}}`;
-        },
+        serialize: (_atom, options) =>
+          isGroup
+            ? `\\not{${Atom.serialize(arg, options)}}`
+            : latexCommand('\\not', Atom.serialize(arg, options)),
       }
     );
   },
@@ -1197,22 +1199,21 @@ defineFunction('not', '{:math}', {
 defineFunction(['ne', 'neq'], '', {
   createAtom: (
     name: string,
-    _args: Argument[],
-    style: PrivateStyle,
-    context: GlobalContext
+    context: GlobalContext,
+    style: PrivateStyle
   ): Atom =>
     new GroupAtom(
       [
         new OverlapAtom(name, '\ue020', context, {
           align: 'right',
           style,
-          boxType: 'mrel',
+          boxType: 'rel',
         }),
         new Atom('mrel', context, { style, value: '=' }),
       ],
       context,
       {
-        boxType: 'mrel',
+        boxType: 'rel',
         captureSelection: true,
         serialize: () => name,
         command: name,
@@ -1223,11 +1224,11 @@ defineFunction(['ne', 'neq'], '', {
 defineFunction('rlap', '{:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new OverlapAtom(name, args[0] as Atom[], context, {
+    new OverlapAtom(name, argAtoms(args[0]), context, {
       align: 'right',
       style,
     }),
@@ -1236,29 +1237,29 @@ defineFunction('rlap', '{:auto}', {
 defineFunction('llap', '{:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
-  ): Atom => new OverlapAtom(name, args[0] as Atom[], context, { style }),
+    args: (null | Argument)[]
+  ): Atom => new OverlapAtom(name, argAtoms(args[0]), context, { style }),
 });
 
 defineFunction('mathllap', '{:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
-  ): Atom => new OverlapAtom(name, args[0] as Atom[], context, { style }),
+    args: (null | Argument)[]
+  ): Atom => new OverlapAtom(name, argAtoms(args[0]), context, { style }),
 });
 
 defineFunction('mathrlap', '{:auto}', {
   createAtom: (
     name: string,
-    args: Argument[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ): Atom =>
-    new OverlapAtom(name, args[0] as Atom[], context, {
+    new OverlapAtom(name, argAtoms(args[0]), context, {
       align: 'right',
       style,
     }),

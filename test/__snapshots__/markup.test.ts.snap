@@ -479,28 +479,28 @@ exports[`COLORS 22/ color format "-green!40!yellow" renders correctly 1`] = `
 
 exports[`DELIMITER SIZING COMMANDS 0/ sizing command \\bigl, \\bigr, \\bigm, \\big 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.85em"></span><span class="ML__strut--bottom" style="height:1.21em;vertical-align:-0.35em"></span><span class="ML__base"><span class="ML__delim-size1">(</span><span class="ML__mathit">x</span><span class="mrel ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.84em"><span style="top:-2.24em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.83em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.36em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size1">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\bigx</span><span class="nulldelimiter mord"></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.85em"></span><span class="ML__strut--bottom" style="height:1.21em;vertical-align:-0.35em"></span><span class="ML__base"><span class="ML__delim-size1">(</span><span class="ML__mathit">x</span><span class="ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.84em"><span style="top:-2.24em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.83em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.36em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size1">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\bigx</span><span class="nulldelimiter"></span></span></span>",
   "unknown-command",
 ]
 `;
 
 exports[`DELIMITER SIZING COMMANDS 1/ sizing command \\Bigl, \\Bigr, \\Bigm, \\Big 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:1.15em"></span><span class="ML__strut--bottom" style="height:1.81em;vertical-align:-0.65em"></span><span class="ML__base"><span class="ML__delim-size2">(</span><span class="ML__mathit">x</span><span class="mrel ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.14em"><span style="top:-1.94em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.54em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.13em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.66em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size2">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\Bigx</span><span class="nulldelimiter mord"></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:1.15em"></span><span class="ML__strut--bottom" style="height:1.81em;vertical-align:-0.65em"></span><span class="ML__base"><span class="ML__delim-size2">(</span><span class="ML__mathit">x</span><span class="ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.14em"><span style="top:-1.94em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.54em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.13em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.66em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size2">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\Bigx</span><span class="nulldelimiter"></span></span></span>",
   "unknown-command",
 ]
 `;
 
 exports[`DELIMITER SIZING COMMANDS 2/ sizing command \\biggl, \\biggr, \\biggm, \\bigg 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:1.45em"></span><span class="ML__strut--bottom" style="height:2.41em;vertical-align:-0.95em"></span><span class="ML__base"><span class="ML__delim-size3">(</span><span class="ML__mathit">x</span><span class="mrel ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.44em"><span style="top:-1.64em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.24em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.84em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.43em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.96em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size3">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\biggx</span><span class="nulldelimiter mord"></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:1.45em"></span><span class="ML__strut--bottom" style="height:2.41em;vertical-align:-0.95em"></span><span class="ML__base"><span class="ML__delim-size3">(</span><span class="ML__mathit">x</span><span class="ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.44em"><span style="top:-1.64em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.24em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.84em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.43em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.96em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size3">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\biggx</span><span class="nulldelimiter"></span></span></span>",
   "unknown-command",
 ]
 `;
 
 exports[`DELIMITER SIZING COMMANDS 3/ sizing command \\Biggl, \\Biggr, \\Biggm, \\Bigg 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:1.75em"></span><span class="ML__strut--bottom" style="height:3.01em;vertical-align:-1.25em"></span><span class="ML__base"><span class="ML__delim-size4">(</span><span class="ML__mathit">x</span><span class="mrel ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.74em"><span style="top:-1.34em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-1.94em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.54em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.14em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.73em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.26em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size4">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\Biggx</span><span class="nulldelimiter mord"></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:1.75em"></span><span class="ML__strut--bottom" style="height:3.01em;vertical-align:-1.25em"></span><span class="ML__base"><span class="ML__delim-size4">(</span><span class="ML__mathit">x</span><span class="ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.74em"><span style="top:-1.34em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-1.94em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-2.54em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.14em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span><span style="top:-3.73em"><span class="pstrut" style="height:2.61em"></span><span>∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.26em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size4">)</span><span class="ML__cmr" style="margin-left:0.28em">=</span><span class="ML__mathit" style="margin-left:0.28em">x</span><span class="ML__cmr" style="margin-left:0.23em">+</span><span class="ML__error ML__cmr">\\Biggx</span><span class="nulldelimiter"></span></span></span>",
   "unknown-command",
 ]
 `;
@@ -514,7 +514,7 @@ exports[`ENVIRONMENTS 0/ \\begin{bmatrix}a & b & c\\end{bmatrix} renders correct
 ]
 `;
 
-exports[`ENVIRONMENTS 1/ \\begin{a} errors 1`] = `"unknown-environment"`;
+exports[`ENVIRONMENTS 1/ \\begin{bmatrix} errors 1`] = `"unbalanced-environment"`;
 
 exports[`ENVIRONMENTS 1/ \\begin{bmatrix}a & b & c\\\\ d & e & f\\end{bmatrix} renders correctly 1`] = `
 [
@@ -523,7 +523,7 @@ exports[`ENVIRONMENTS 1/ \\begin{bmatrix}a & b & c\\\\ d & e & f\\end{bmatrix} r
 ]
 `;
 
-exports[`ENVIRONMENTS 2/ \\begin{a}\\end errors 1`] = `"unknown-environment"`;
+exports[`ENVIRONMENTS 2/ \\begin{bmatrix}\\end errors 1`] = `"unbalanced-environment"`;
 
 exports[`ENVIRONMENTS 2/ \\begin{bmatrix}a & b & c\\\\ d \\end{bmatrix} renders correctly 1`] = `
 [
@@ -532,7 +532,7 @@ exports[`ENVIRONMENTS 2/ \\begin{bmatrix}a & b & c\\\\ d \\end{bmatrix} renders 
 ]
 `;
 
-exports[`ENVIRONMENTS 3/ \\begin{a}\\end{x} errors 1`] = `"unknown-environment"`;
+exports[`ENVIRONMENTS 3/ \\begin{bmatrix}\\end{Bmatrix} errors 1`] = `"unbalanced-environment"`;
 
 exports[`ENVIRONMENTS 3/ \\begin{bmatrix}a & b & c\\\\ d \\\\ g & h & i & j\\end{bmatrix} renders correctly 1`] = `
 [
@@ -557,9 +557,9 @@ exports[`ENVIRONMENTS 5/ \\begin{Bmatrix}a & b & c\\end{Bmatrix} renders correct
 ]
 `;
 
-exports[`ENVIRONMENTS 5/ \\begin{array}{ll}\\end{a} errors 1`] = `"unbalanced-environment"`;
+exports[`ENVIRONMENTS 5/ \\begin{array}{ll}\\end{bmatrix} errors 1`] = `"unbalanced-environment"`;
 
-exports[`ENVIRONMENTS 6/ \\begin{array}{ll}xyz\\end{a} errors 1`] = `"unbalanced-environment"`;
+exports[`ENVIRONMENTS 6/ \\begin{array}{ll}xyz\\end{bmatrix} errors 1`] = `"unbalanced-environment"`;
 
 exports[`ENVIRONMENTS 6/ \\begin{pmatrix}a & b & c\\end{pmatrix} renders correctly 1`] = `
 [
@@ -586,7 +586,7 @@ exports[`ENVIRONMENTS 8/ \\begin{dcases}\\sum_n^{100}+\\frac{x-y}{4}=\\frac{4-y}
 ]
 `;
 
-exports[`ENVIRONMENTS 9/ \\begin{\\alpha} errors 1`] = `"unknown-environment"`;
+exports[`ENVIRONMENTS 9/ \\begin{\\alpha}\\end{\\alpha} errors 1`] = `"unexpected-command-in-string"`;
 
 exports[`ENVIRONMENTS 10/ \\begin{.}\\end{.} errors 1`] = `"unknown-environment"`;
 
@@ -1145,58 +1145,65 @@ exports[`NOT 1/ a \\neq b renders correctly 1`] = `
 ]
 `;
 
-exports[`NOT 2/ a\\not= b renders correctly 1`] = `
+exports[`NOT 2/ \\not= \\not{=} a \\neq b \\ne c \\not< d \\not{h} e\\not{} renders correctly 1`] = `
+[
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr">=</span></span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr" style="margin-left:0.28em">=</span></span><span class="ML__mathit" style="margin-left:0.17em">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr">=</span></span><span class="ML__mathit" style="margin-left:0.28em">b</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr">=</span></span><span class="ML__mathit" style="margin-left:0.28em">c</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr"><</span></span><span class="ML__mathit" style="margin-left:0.28em">d</span><span style="margin-left:0.17em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__mathit" style="margin-left:0.17em">h</span></span><span class="ML__mathit" style="margin-left:0.17em">e</span><span class="ML__cmr" style="margin-left:0.28em"></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`NOT 3/ a\\not= b renders correctly 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr">=</span></span><span class="ML__mathit" style="margin-left:0.28em">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`NOT 3/ a\\not< b renders correctly 1`] = `
+exports[`NOT 4/ a\\not< b renders correctly 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr"><</span></span><span class="ML__mathit" style="margin-left:0.28em">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`NOT 4/ a\\not{c} b renders correctly 1`] = `
+exports[`NOT 5/ a\\not{c} b renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__mathit" style="margin-left:0.28em">c</span></span><span class="ML__mathit" style="margin-left:0.28em">b</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.17em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__mathit" style="margin-left:0.17em">c</span></span><span class="ML__mathit" style="margin-left:0.17em">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`NOT 5/ a\\not{cd} b renders correctly 1`] = `
+exports[`NOT 6/ a\\not{cd} b renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__mathit" style="margin-left:0.28em">c</span><span class="ML__mathit">d</span></span><span class="ML__mathit" style="margin-left:0.28em">b</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.17em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__mathit" style="margin-left:0.17em">c</span><span class="ML__mathit">d</span></span><span class="ML__mathit" style="margin-left:0.17em">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`NOT 6/ a\\not{<} b renders correctly 1`] = `
+exports[`NOT 7/ a\\not{<} b renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr"><</span></span><span class="ML__mathit" style="margin-left:0.28em">b</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.17em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr" style="margin-left:0.28em"><</span></span><span class="ML__mathit" style="margin-left:0.17em">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`NOT 7/ a\\not{<>} b renders correctly 1`] = `
+exports[`NOT 8/ a\\not{<>} b renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr"><></span></span><span class="ML__mathit" style="margin-left:0.28em">b</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.17em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span class="ML__cmr" style="margin-left:0.28em"><</span><span class="ML__cmr">></span></span><span class="ML__mathit" style="margin-left:0.17em">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`NOT 8/ a\\not{} b renders correctly 1`] = `
+exports[`NOT 9/ a\\not{} b renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span></span><span class="ML__mathit" style="margin-left:0.28em">b</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span class="ML__cmr" style="margin-left:0.28em"></span><span class="ML__mathit" style="margin-left:0.28em">b</span></span></span>",
   "no-error",
 ]
 `;
 
-exports[`NOT 9/ a\\not renders correctly 1`] = `
+exports[`NOT 10/ a\\not renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="margin-left:0.28em"><span class="rlap"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span> </span></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.89em;vertical-align:-0.19em"></span><span class="ML__base"><span class="ML__mathit">a</span><span class="ML__placeholder"><span class="rlap ML__placeholder"><span class="inner"><span class="ML__cmr"></span></span><span class="fix"></span></span><span> </span></span></span></span>",
   "missing-argument",
 ]
 `;

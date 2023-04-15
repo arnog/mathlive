@@ -1,6 +1,6 @@
 // import { convertToDimension, convertToGlue } from './parser';
 import type { Registers } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { convertToGlue, convertToDimension } from '../core/parser';
 

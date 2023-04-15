@@ -1,5 +1,5 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -84,7 +84,7 @@ export class BoxAtom extends Atom {
     const content = Atom.createBox(parentContext, this.body);
     if (!content) return null;
     content.setStyle('vertical-align', -content.height, 'em');
-    const base = new Box(content, { type: 'mord' });
+    const base = new Box(content, { type: 'ord' });
 
     // This box will represent the box (background and border).
     // It's positioned to overlap the base.

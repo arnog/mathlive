@@ -5,18 +5,9 @@ import { l10n as l10nOptions, localize as l10n } from '../core/l10n';
 import { parseLatex } from '../core/parser';
 import { SelectorPrivate } from '../editor/types';
 import { getActiveKeyboardLayout } from '../editor/keyboard-layout';
-import type {
-  VirtualKeyboardOptions,
-  VirtualKeyboardLayer,
-  VirtualKeyboardLayout,
-  VirtualKeyboardKeycap,
-  NormalizedVirtualKeyboardLayout,
-  NormalizedVirtualKeyboardLayer,
-} from '../mathlive';
 
-import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
-import CORE_STYLESHEET from '../../css/core.less';
-
+import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less' assert { type: 'css' };
+import CORE_STYLESHEET from '../../css/core.less' assert { type: 'css' };
 import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 import { hashCode } from '../common/hash-code';
 import { loadFonts } from '../core/fonts';
@@ -24,9 +15,17 @@ import { Context } from '../core/context';
 
 import { LAYOUTS } from './data';
 import { VirtualKeyboard } from './virtual-keyboard';
-import { MathfieldProxy } from '../public/virtual-keyboard-types';
+import { MathfieldProxy } from '../public/virtual-keyboard';
 import { hasVariants, showVariantsPanel } from './variants';
 import { defaultGlobalContext } from '../core/context-utils';
+import {
+  NormalizedVirtualKeyboardLayer,
+  NormalizedVirtualKeyboardLayout,
+  VirtualKeyboardKeycap,
+  VirtualKeyboardLayer,
+  VirtualKeyboardLayout,
+  VirtualKeyboardOptions,
+} from '../public/virtual-keyboard';
 
 function jsonToCssProps(json) {
   if (typeof json === 'string') return json;
@@ -1205,7 +1204,7 @@ export function executeKeycapCommand(
   VirtualKeyboard.singleton.executeCommand(command);
 }
 
-function isKeycapElement(el: Node): el is HTMLElement {
+function isKeycapElement(el: Element): el is HTMLElement {
   if (el.nodeType !== 1) return false;
   const classes = (el as HTMLElement).classList;
   return (
@@ -1220,8 +1219,8 @@ function isKeycapElement(el: Node): el is HTMLElement {
 export function parentKeycap(el: EventTarget | null): HTMLElement | undefined {
   if (!el) return undefined;
 
-  let node: Node | null = el as Node;
-  while (node && !isKeycapElement(node)) node = node.parentNode;
+  let node: Element | null = el as Element;
+  while (node && !isKeycapElement(node)) node = node.parentElement;
 
-  return node ?? undefined;
+  return (node as HTMLElement) ?? undefined;
 }

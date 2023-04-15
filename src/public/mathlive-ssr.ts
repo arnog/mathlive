@@ -156,7 +156,7 @@ export function convertLatexToMathMl(
   return toMathML(
     parseLatex(latex, defaultGlobalContext(), {
       parseMode: 'math',
-      args: () => '',
+      args: () => '', // Prevent #0 arguments to be replaced with placeholder (default behavior)
       mathstyle: 'displaystyle',
     }),
     options

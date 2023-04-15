@@ -39,7 +39,9 @@ export BUILD="${1-production}"
 # export GIT_VERSION=`git describe --long --dirty`
 
 
+#
 # Clean output directories
+#
 printf "$BASENAME${DOT}Cleaning output directories"
 rm -rf ./dist
 rm -rf ./declarations
@@ -52,11 +54,15 @@ echo -e  $LINECLEAR$BASENAME$CHECK${DIM}"Cleaning output directories"$RESET
 
 
 
-# Bundle Typescript declaration files (.d.ts).
+#
+# Build TypeScript declaration files (.d.ts).
+#
 printf "$BASENAME${DOT}Building TypeScript declaration files (.d.ts)"
-npx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly --noResolve --outDir ./declarations
-mv ./declarations/src/public ./dist
-cp -f ./src/public/cortex-compute-engine.d.ts ./dist/public/
+npx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly  --outDir ./declarations
+# npx tsc ./src/public/mathlive-ssr.ts --moduleResolution nodenext --target es2020 --module esnext --lib es2020,dom,dom.iterable,scripthost --declaration --emitDeclarationOnly  --typeRoots ./src/public --outDir ./declarations
+mkdir ./dist/types
+mv ./declarations/src/public/* ./dist/types
+cp -f ./src/public/cortex-compute-engine.d.ts ./dist/types/
 rm -rf ./declarations
 echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESET}"
 
@@ -67,7 +73,9 @@ cp -f -R sounds dist/
 echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Static assets copied${RESET}"
 
 
+#
 # Build CSS
+#
 printf "$BASENAME${DOT}Building static CSS"
 npx lessc css/mathlive-static.less dist/mathlive-static.css
 npx lessc css/mathlive-fonts.less dist/mathlive-fonts.css
@@ -81,7 +89,9 @@ if [ "$BUILD" = "production" ]; then
 fi
 
 
+#
 # Do build (development or production)
+#
 printf "$BASENAME${DOT}Making a ${EMPH}${BUILD}${RESET} build"
 node --experimental-json-modules ./scripts/build.mjs
 echo -e "$LINECLEAR$BASENAME$CHECK${EMPH}${BUILD}${RESET}${DIM} build done${RESET}"
@@ -115,5 +125,12 @@ if [ "$BUILD" = "production" ]; then
     find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
     find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
     find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" {}' \;
+
+    # "Correct" the path to compute engine emitted by tsc
+    find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "s/types=\"public/types=\"\./" {}' \;
+
+
+
+
     echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Output files stamped${RESET}"
 fi

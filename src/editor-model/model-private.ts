@@ -35,7 +35,7 @@ import {
   AnnounceVerb,
 } from './utils';
 import { compareSelection, range } from './selection-utils';
-import { ArrayAtom } from 'core-atoms/array';
+import { ArrayAtom } from '../core-atoms/array';
 
 export type ModelState = {
   content: AtomJson;
@@ -435,11 +435,13 @@ export class ModelPrivate implements Model {
     const format: string = inFormat ?? 'latex';
 
     if (format.startsWith('latex')) {
-      return Mode.serialize([atom], {
-        expandMacro: format === 'latex-expanded',
-        skipStyles: format === 'latex-unstyled',
-        defaultMode: this.mathfield.options.defaultMode,
-      });
+      return joinLatex(
+        Mode.serialize([atom], {
+          expandMacro: format === 'latex-expanded',
+          skipStyles: format === 'latex-unstyled',
+          defaultMode: this.mathfield.options.defaultMode,
+        })
+      );
     }
 
     if (format === 'math-ml') return toMathML(atom);
@@ -619,7 +621,7 @@ export class ModelPrivate implements Model {
       // Include the parent if all the children are selected
       let { parent } = this.at(end);
       if (parent) {
-        if (parent.type === 'genfrac' || parent.type === 'msubsup') {
+        if (parent.type === 'genfrac' || parent.type === 'subsup') {
           while (
             parent !== this.root &&
             childrenInRange(this, parent!, [start, end])

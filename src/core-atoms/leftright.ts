@@ -1,11 +1,11 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { makeLeftRightDelim, RIGHT_DELIM } from '../core/delimiters';
 import { Context } from '../core/context';
-import { joinLatex } from '../core/tokenizer';
+import { joinLatex, latexCommand } from '../core/tokenizer';
 
 /**
  *  \left....\right
@@ -66,17 +66,17 @@ export class LeftRightAtom extends Atom {
 
     if (this.variant === 'left...right') {
       return joinLatex([
-        '\\left' + (this.leftDelim ?? '.'),
+        latexCommand('\\left', this.leftDelim ?? '.'),
         this.bodyToLatex(options),
-        '\\right' + rightDelim,
+        latexCommand('\\right', rightDelim),
       ]);
     }
 
     if (this.variant === 'mleft...mright') {
       return joinLatex([
-        '\\mleft' + (this.leftDelim ?? '.'),
+        latexCommand('\\mleft', this.leftDelim ?? '.'),
         this.bodyToLatex(options),
-        '\\mright' + rightDelim,
+        latexCommand('\\mright', rightDelim),
       ]);
     }
 
@@ -121,7 +121,7 @@ export class LeftRightAtom extends Atom {
         this.bind(
           delimContext,
           makeLeftRightDelim(
-            'mopen',
+            'open',
             this.leftDelim,
             innerHeight,
             innerDepth,
@@ -148,7 +148,7 @@ export class LeftRightAtom extends Atom {
             inner.children![i] = this.bind(
               context,
               makeLeftRightDelim(
-                'minner',
+                'inner',
                 child.delim,
                 innerHeight,
                 innerDepth,
@@ -178,7 +178,7 @@ export class LeftRightAtom extends Atom {
         this.bind(
           delimContext,
           makeLeftRightDelim(
-            'mclose',
+            'close',
             delim,
             innerHeight,
             innerDepth,
@@ -201,7 +201,7 @@ export class LeftRightAtom extends Atom {
       false;
 
     const result = new Box(boxes, {
-      type: tightSpacing ? 'mclose' : 'minner',
+      type: tightSpacing ? 'close' : 'inner',
       classes: 'left-right',
     });
 

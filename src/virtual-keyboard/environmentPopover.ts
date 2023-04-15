@@ -1,14 +1,12 @@
-import { ArrayAtom } from 'core-atoms/array';
+import { CasesEnvironment, MatrixEnvironment } from '../public/core-types';
+import { ArrayAtom } from '../core-atoms/array';
 import {
-  AlignEnvironment,
-  CasesEnvironment,
   isAlignEnvironment,
   isCasesEnvironment,
   isMatrixEnvironment,
-  MatrixEnvironment,
-} from 'core-definitions/environment-types';
-import { Scrim } from 'editor/scrim';
-import { SelectorPrivate } from 'editor/types';
+} from '../core-definitions/environment-types';
+import { Scrim } from '../editor/scrim';
+import { SelectorPrivate } from '../editor/types';
 import { VirtualKeyboard } from './virtual-keyboard';
 
 const padding = 4;
@@ -193,7 +191,6 @@ export function showEnvironmentPanel(
   const array = (arrayAtom as ArrayAtom).array;
 
   let columnCount = 0;
-  const rowCount = array.length;
   array.forEach((column) => {
     if (!columnCount || column.length > columnCount)
       columnCount = column.length;
@@ -288,7 +285,7 @@ export function showEnvironmentPanel(
       // just a string command
     }
     control.addEventListener('mousedown', (ev) => ev.preventDefault());
-    command &&
+    if (command)
       control.addEventListener('click', () => keyboard.executeCommand(command));
   });
 

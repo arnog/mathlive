@@ -298,7 +298,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
       result = ' ';
       break;
 
-    case 'msubsup':
+    case 'subsup':
       result = '';
       break;
 

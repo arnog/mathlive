@@ -14,12 +14,13 @@
  * See https://mhchem.github.io/MathJax-mhchem/
  */
 
-import { Style } from '../public/core';
+import type { Style } from '../public/core';
 
 import { parseLatex } from '../core/parser';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context, GlobalContext } from '../core/context';
-import { Box } from '../core/box';
+import type { Context } from '../core/context';
+import type { GlobalContext } from '../core/types';
+import type { Box } from '../core/box';
 
 import { Argument, defineFunction } from './definitions-utils';
 

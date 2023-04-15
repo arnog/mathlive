@@ -1,10 +1,11 @@
 import type { ParseMode, Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
 import { convertDimensionToEm } from '../core/registers-utils';
+import { latexCommand } from '../core/tokenizer';
 
 export class PromptAtom extends Atom {
   readonly placeholderId?: string;
@@ -88,7 +89,7 @@ export class PromptAtom extends Atom {
         'var(--incorrect-color, var(--ML__incorrect-color))'
       );
     }
-    const base = new Box(content, { type: 'mord' });
+    const base = new Box(content, { type: 'ord' });
 
     // This box will represent the box (background and border).
     // It's positioned to overlap the base.
@@ -170,13 +171,12 @@ export class PromptAtom extends Atom {
   serialize(options: ToLatexOptions): string {
     let value = this.bodyToLatex(options) ?? '';
     if (value === this.context.placeholderSymbol) value = '';
-    const id = this.placeholderId ? `[${this.placeholderId}]` : '';
-    let correctness: string;
-    if (this.correctness === 'correct') correctness = '[correct]';
-    else if (this.correctness === 'incorrect') correctness = '[incorrect]';
-    else correctness = '';
+    let command = '\\placeholder';
+    if (this.placeholderId) command = `\\placeholder[${this.placeholderId}]`;
+    if (this.correctness === 'correct') command += '[correct]';
+    else if (this.correctness === 'incorrect') command += '[incorrect]';
 
-    const locked = this.locked ? '[locked]' : '';
-    return `\\placeholder${id}${correctness}${locked}{${value}}`;
+    if (this.locked) command += '[locked]';
+    return latexCommand(command, value);
   }
 }

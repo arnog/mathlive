@@ -8,10 +8,10 @@ import {
   Registers,
   Style,
   Token,
-} from 'public/core-types';
+} from '../public/core-types';
 import { Atom } from '../core/atom-class';
 import { Context } from '../core/context';
-import { TokenDefinition } from 'core-definitions/definitions-utils';
+import { TokenDefinition } from '../core-definitions/definitions-utils';
 
 export interface ParseTokensOptions {
   macros: NormalizedMacroDictionary;
@@ -77,17 +77,17 @@ export interface FontMetrics<T = number> {
  * 'vcent'
  */
 
-export const BOX_TYPE = [
+const BOX_TYPE = [
   '',
   'chem',
-  'mord', // > is an ordinary atom like ‘x’ ;
-  'mbin', // > is a binary operation atom like ‘+’
-  'mop', // > is a large operator atom like $$\sum$$
-  'mrel', // > is a relation atom like ‘=’
-  'mopen', // > is an opening atom like ‘(’
-  'mclose', // > is a closing atom like ‘)’
-  'mpunct', // > is a punctuation atom like ‘,’
-  'minner', // >  is an inner atom like ‘$$\frac12$$'
+  'ord', // > is an ordinary atom like ‘x’ ;
+  'bin', // > is a binary operation atom like ‘+’
+  'op', // > is a large operator atom like $$\sum$$
+  'rel', // > is a relation atom like ‘=’
+  'open', // > is an opening atom like ‘(’
+  'close', // > is a closing atom like ‘)’
+  'punct', // > is a punctuation atom like ‘,’
+  'inner', // >  is an inner atom like ‘$$\frac12$$'
   'spacing',
   'first',
   'latex',
@@ -96,7 +96,6 @@ export const BOX_TYPE = [
   'placeholder',
   'supsub',
   'none',
-  'mathfield',
 ] as const; // The const assertion prevents widening to string[]
 export type BoxType = (typeof BOX_TYPE)[number];
 
@@ -178,7 +177,7 @@ export interface BoxInterface {
     context: ContextInterface,
     options?: {
       classes: string;
-      type: '' | 'mopen' | 'mclose' | 'minner';
+      type: '' | 'open' | 'close' | 'inner';
     }
   ): BoxInterface;
 

@@ -476,7 +476,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
               'focus',
               (evt) => {
                 if (evt.target === window && isValidMathfield(this))
-                  this.focus({ scrollIntoView: false });
+                  this.focus({ preventScroll: true });
               },
               { once: true }
             );
@@ -784,7 +784,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (getCommandTarget(command) === 'virtual-keyboard') return;
         this.executeCommand(command);
       } else if (action === 'update-state') {
-      } else if (action === 'focus') this.focus({ scrollIntoView: false });
+      } else if (action === 'focus') this.focus({ preventScroll: true });
       else if (action === 'blur') this.blur();
       return;
     }
@@ -889,7 +889,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     command: SelectorPrivate | [SelectorPrivate, ...unknown[]]
   ): boolean {
     if (getCommandTarget(command) === 'virtual-keyboard') {
-      this.focus({ scrollIntoView: false });
+      this.focus({ preventScroll: true });
       window.mathVirtualKeyboard.executeCommand(command);
       requestAnimationFrame(() =>
         window.mathVirtualKeyboard.update(makeProxy(this))
@@ -956,21 +956,24 @@ If you are using Vue, this may be because you are using the runtime-only build o
     //
 
     if (this.host) {
-      // 1.1/ Bring the mathfield into the viewport
-      this.host.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (this.options.onScrollIntoView) this.options.onScrollIntoView(this);
+      else {
+        // 1.1/ Bring the mathfield into the viewport
+        this.host.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
-      // 1.2/ If the virtual keyboard obscures the mathfield, adjust
-      if (
-        window.mathVirtualKeyboard.visible &&
-        window.mathVirtualKeyboard.container === window.document.body
-      ) {
-        const kbdBounds = window.mathVirtualKeyboard.boundingRect;
-        const mathfieldBounds = this.host.getBoundingClientRect();
-        if (mathfieldBounds.bottom > kbdBounds.top) {
-          window.document.scrollingElement?.scrollBy(
-            0,
-            mathfieldBounds.bottom - kbdBounds.top + 8
-          );
+        // 1.2/ If the virtual keyboard obscures the mathfield, adjust
+        if (
+          window.mathVirtualKeyboard.visible &&
+          window.mathVirtualKeyboard.container === window.document.body
+        ) {
+          const kbdBounds = window.mathVirtualKeyboard.boundingRect;
+          const mathfieldBounds = this.host.getBoundingClientRect();
+          if (mathfieldBounds.bottom > kbdBounds.top) {
+            window.document.scrollingElement?.scrollBy(
+              0,
+              mathfieldBounds.bottom - kbdBounds.top + 8
+            );
+          }
         }
       }
     }
@@ -1202,13 +1205,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return !this.blurred;
   }
 
-  focus(options?: { scrollIntoView: boolean }): void {
+  focus(options?: FocusOptions): void {
     if (!this.hasFocus()) {
       this.keyboardDelegate.focus();
       this.connectToVirtualKeyboard();
       this.model.announce('line');
     }
-    if (options?.scrollIntoView ?? true) this.scrollIntoView();
+    if (!options?.preventScroll ?? false) this.scrollIntoView();
   }
 
   blur(): void {

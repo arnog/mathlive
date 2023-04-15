@@ -1,5 +1,5 @@
 import type { Dimension, Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
@@ -8,6 +8,7 @@ import {
   convertDimensionToEm,
   serializeDimension,
 } from '../core/registers-utils';
+import { latexCommand } from '../core/tokenizer';
 
 export class RuleAtom extends Atom {
   private readonly height: Dimension;
@@ -51,7 +52,7 @@ export class RuleAtom extends Atom {
     const shift = convertDimensionToEm(this.shift);
     const width = convertDimensionToEm(this.width);
     const height = convertDimensionToEm(this.height);
-    const result = new Box(null, { classes: 'rule', type: 'mord' });
+    const result = new Box(null, { classes: 'rule', type: 'ord' });
     result.setStyle('border-right-width', width, 'em');
     result.setStyle('border-top-width', height, 'em');
     result.setStyle('border-color', this.style.color);
@@ -66,12 +67,13 @@ export class RuleAtom extends Atom {
   }
 
   serialize(_options: ToLatexOptions): string {
-    let result = this.command ?? '';
-    if (this.shift) result += `[${serializeDimension(this.shift)}]`;
+    let command = this.command ?? '';
+    if (this.shift) command += `[${serializeDimension(this.shift)}]`;
 
-    result += `{${serializeDimension(this.width)}}{${serializeDimension(
-      this.height
-    )}}`;
-    return result;
+    return latexCommand(
+      command,
+      serializeDimension(this.width),
+      serializeDimension(this.height)
+    );
   }
 }

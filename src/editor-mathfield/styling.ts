@@ -7,7 +7,7 @@ import type {
   FontShape,
   FontSize,
 } from '../public/core-types';
-import { PrivateStyle } from 'core/types';
+import { PrivateStyle } from '../core/types';
 
 export function applyStyle(
   mathfield: MathfieldPrivate,

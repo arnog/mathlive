@@ -6,10 +6,38 @@ import { Context } from './context';
 import { highlight } from './color';
 import { BoxCSSProperties, ParseMode } from '../public/core-types';
 import { Mode } from './modes-utils';
-import { BOX_TYPE, BoxInterface, BoxOptions, BoxType } from './types';
+import { BoxInterface, BoxOptions, BoxType } from './types';
+import { Atom, AtomType } from './atom-class';
 
-export function isBoxType(type: string): type is BoxType {
-  return (BOX_TYPE as unknown as string[]).includes(type);
+export function boxType(type: AtomType): BoxType | undefined {
+  const result = {
+    chem: 'chem',
+    mord: 'ord',
+    mbin: 'bin',
+    mop: 'op',
+    mrel: 'rel',
+    mopen: 'open',
+    mclose: 'close',
+    mpunct: 'punct',
+    minner: 'inner',
+    spacing: 'spacing',
+    first: 'first',
+    latex: 'latex',
+    composition: 'composition',
+    error: 'error',
+    placeholder: 'placeholder',
+    supsub: 'supsub',
+  }[type];
+
+  return result;
+}
+
+export function atomsBoxType(atoms: Atom[]): BoxType {
+  if (atoms.length === 0) return 'ord';
+  const first = boxType(atoms[0].type);
+  const last = boxType(atoms[atoms.length - 1].type);
+  if (first && first === last) return first;
+  return 'ord';
 }
 
 /*
@@ -40,13 +68,13 @@ export function isBoxType(type: string): type is BoxType {
  */
 
 const INTER_ATOM_SPACING = {
-  mord: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
-  mop: { mord: 3, mop: 3, rel: 5, minner: 3 },
-  mbin: { mord: 4, mop: 4, mopen: 4, minner: 4 },
-  mrel: { mord: 5, mop: 5, mopen: 5, minner: 5 },
-  mclose: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
-  mpunct: { mord: 3, mop: 3, mrel: 3, mopen: 3, mpunct: 3, minner: 3 },
-  minner: { mord: 3, mop: 3, mbin: 4, mrel: 5, mopen: 3, mpunct: 3, minner: 3 },
+  ord: { op: 3, bin: 4, rel: 5, inner: 3 },
+  op: { ord: 3, op: 3, rel: 5, inner: 3 },
+  bin: { ord: 4, op: 4, open: 4, inner: 4 },
+  rel: { ord: 5, op: 5, open: 5, inner: 5 },
+  close: { op: 3, bin: 4, rel: 5, inner: 3 },
+  punct: { ord: 3, op: 3, rel: 3, open: 3, punct: 3, inner: 3 },
+  inner: { ord: 3, op: 3, bin: 4, rel: 5, open: 3, punct: 3, inner: 3 },
 };
 
 /**
@@ -54,10 +82,10 @@ const INTER_ATOM_SPACING = {
  * scriptscriptstyle).
  */
 const INTER_ATOM_TIGHT_SPACING = {
-  mord: { mop: 3 },
-  mop: { mord: 3, mop: 3 },
-  mclose: { mop: 3 },
-  minner: { mop: 3 },
+  ord: { op: 3 },
+  op: { ord: 3, op: 3 },
+  close: { op: 3 },
+  inner: { op: 3 },
 };
 
 /**
@@ -366,7 +394,7 @@ export class Box implements BoxInterface {
     context: Context,
     options?: {
       classes: string;
-      type: '' | 'mopen' | 'mclose' | 'minner';
+      type: '' | 'open' | 'close' | 'inner';
     }
   ): Box {
     const parent = context.parent;
@@ -609,7 +637,7 @@ export class Box implements BoxInterface {
     // Only coalesce some types
     if (
       !/ML__text/.test(this.classes) &&
-      !['mord', 'mbin', 'mrel'].includes(this.type)
+      !['ord', 'bin', 'rel'].includes(this.type)
     )
       return false;
 
@@ -708,20 +736,20 @@ function adjustType(root: Box | null): void {
     // >   Otherwise continue with Rule 17.
 
     if (
-      box.type === 'mbin' &&
-      (!prevBox || /first|none|mbin|mop|mrel|mopen|mpunct/.test(prevBox.type))
+      box.type === 'bin' &&
+      (!prevBox || /^(first|none|bin|op|rel|open|punct)$/.test(prevBox.type))
     )
-      box.type = 'mord';
+      box.type = 'ord';
 
     // > 6. If the current item is a Rel or Close or Punct atom, and if the most
     // >   recent previous atom was Bin, change that previous Bin to Ord. Continue
     // >   with Rule 17.
     if (
       prevBox &&
-      prevBox.type === 'mbin' &&
-      /mrel|mclose|mpunct|placeholder/.test(box.type)
+      prevBox.type === 'bin' &&
+      /^(rel|close|punct|placeholder)$/.test(box.type)
     )
-      prevBox.type = 'mord';
+      prevBox.type = 'ord';
   });
 }
 

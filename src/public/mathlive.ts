@@ -17,7 +17,7 @@
  */
 
 import type { VirtualKeyboardOptions } from './virtual-keyboard';
-import type { VirtualKeyboardInterface } from './virtual-keyboard-types';
+import type { VirtualKeyboardInterface } from './virtual-keyboard';
 import type { AutoRenderOptions } from './options';
 
 export * from './commands';
@@ -27,7 +27,6 @@ export * from './mathfield';
 export * from './mathfield-element';
 export * from './mathlive-ssr';
 export * from './virtual-keyboard';
-export * from './virtual-keyboard-types';
 
 export declare function makeSharedVirtualKeyboard(
   options?: Partial<VirtualKeyboardOptions>

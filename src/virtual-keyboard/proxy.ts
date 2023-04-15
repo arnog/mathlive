@@ -1,18 +1,18 @@
-import { validateOrigin } from '../editor-mathfield/utils';
-import { getCommandTarget } from '../editor/commands';
 import {
   AlphabeticKeyboardLayout,
-  OriginValidator,
-  VirtualKeyboardLayout,
   EditToolbarOptions,
   VirtualKeyboardKeycap,
-} from '../public/options';
+  VirtualKeyboardLayout,
+} from '../public/virtual-keyboard';
+import { validateOrigin } from '../editor-mathfield/utils';
+import { getCommandTarget } from '../editor/commands';
+import { OriginValidator } from '../public/options';
 import type {
   VirtualKeyboardMessage,
   VirtualKeyboardInterface,
   MathfieldProxy,
   VirtualKeyboardMessageAction,
-} from '../public/virtual-keyboard-types';
+} from '../public/virtual-keyboard';
 
 export const VIRTUAL_KEYBOARD_MESSAGE = 'mathlive#virtual-keyboard-message';
 

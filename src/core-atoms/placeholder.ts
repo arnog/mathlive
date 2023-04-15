@@ -1,9 +1,10 @@
 import type { ParseMode, Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
+import { latexCommand } from '../core/tokenizer';
 
 export class PlaceholderAtom extends Atom {
   readonly defaultValue?: Atom[];
@@ -53,6 +54,6 @@ export class PlaceholderAtom extends Atom {
   serialize(_options: ToLatexOptions): string {
     let value = this.value;
     if (value === this.context.placeholderSymbol) value = '';
-    return `\\placeholder{${this.value}}`;
+    return latexCommand('\\placeholder', this.value);
   }
 }

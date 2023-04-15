@@ -121,21 +121,13 @@ automatically, and therefore the use of alignedat is deprecated.
 // See https://en.wikibooks.org/wiki/LaTeX/Mathematics
 // and http://www.ele.uri.edu/faculty/vetter/Other-stuff/latex/Mathmode.pdf
 
-const matrixEnvironments = [
-  'matrix',
-  'matrix*',
-  'pmatrix',
-  'pmatrix*',
-  'bmatrix',
-  'bmatrix*',
-  'Bmatrix',
-  'Bmatrix*',
-  'vmatrix',
-  'vmatrix*',
-  'Vmatrix',
-  'Vmatrix*',
-] as const;
-export type MatrixEnvironment = (typeof matrixEnvironments)[number];
+import {
+  AlignEnvironment,
+  CasesEnvironment,
+  Environment,
+  MatrixEnvironment,
+  TabularEnvironment,
+} from '../public/core-types';
 
 const matrices = [
   'matrix',
@@ -151,53 +143,10 @@ const matrices = [
   'Vmatrix',
   'Vmatrix*',
 ];
-
-const casesEnvironments = ['cases', 'dcases', 'rcases'] as const;
-export type CasesEnvironment = (typeof casesEnvironments)[number];
 const cases = ['cases', 'dcases', 'rcases'];
 
-const otherTabularEnvironments = [
-  'array',
-  'equation',
-  'equation*',
-  'subequations',
-  'multline',
-  'align',
-  'align*',
-  'aligned',
-  'eqnarray',
-  'split',
-  'gather',
-  'gathered',
-  'lines',
-  'multline',
-  'multline*',
-  'cases',
-  'dcases',
-  'rcases',
-  'smallmatrix',
-  'smallmatrix*',
-] as const;
-
-export type TabularEnvironment =
-  | (typeof otherTabularEnvironments)[number]
-  | CasesEnvironment
-  | MatrixEnvironment;
-
 const align = ['align', 'align*', 'aligned', 'gather', 'gathered', 'split'];
-const alignEnvironments = [
-  'align',
-  'align*',
-  'aligned',
-  'gather',
-  'gathered',
-  'split',
-  'multline',
-] as const;
-export type AlignEnvironment = (typeof alignEnvironments)[number];
-
 const otherTabular = ['array', 'subequations', 'eqnarray'];
-
 export function isTabularEnvironment(
   environment: Environment
 ): environment is TabularEnvironment {
@@ -225,9 +174,3 @@ export function isAlignEnvironment(
 ): environment is AlignEnvironment {
   return align.includes(environment);
 }
-
-export type Environment =
-  | 'math'
-  | 'displaymath'
-  | 'center'
-  | TabularEnvironment;

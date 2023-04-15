@@ -5,13 +5,15 @@ import { TextAtom } from '../core-atoms/text';
 import { Atom, ToLatexOptions } from './atom';
 import { Box } from './box';
 import { Mode, getPropertyRuns } from './modes-utils';
-import { joinLatex } from './tokenizer';
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
+import { latexCommand } from './tokenizer';
 
-function join(segments: [string, boolean][]): [string, boolean] {
+function join(
+  segments: [string[], boolean][]
+): [tokens: string[], needsWrap: boolean] {
   return [
-    joinLatex(segments.map((x) => x[0])),
+    segments.reduce((acc, x) => [...acc, ...x[0]], []),
     segments.map((x) => x[1]).some((x) => x === true),
   ];
 }
@@ -21,30 +23,32 @@ function join(segments: [string, boolean][]): [string, boolean] {
 function emitStringTextRun(
   run: Atom[],
   options: ToLatexOptions
-): [string, boolean] {
-  return [joinLatex(run.map((x: Atom) => Atom.serialize(x, options))), true];
+): [string[], boolean] {
+  return [run.map((x: Atom) => Atom.serialize(x, options)), true];
 }
 
 function emitFontShapeTextRun(
   run: Atom[],
   options: ToLatexOptions
-): [string, boolean] {
+): [tokens: string[], needsWrap: boolean] {
   return join(
     getPropertyRuns(run, 'fontShape').map((x: Atom[]) => {
       const [s, needsWrap] = emitStringTextRun(x, options);
       const { fontShape } = x[0].style;
-      if (fontShape === 'it') return ['\\textit{' + s + '}', false];
 
-      if (fontShape === 'sl') return ['\\textsl{' + s + '}', false];
+      let command = '';
+      if (fontShape === 'it') command = '\\textit';
+      if (fontShape === 'sl') command = '\\textsl';
+      if (fontShape === 'sc') command = '\\textsc';
+      if (fontShape === 'n') command = '\\textup';
 
-      if (fontShape === 'sc') return ['\\textsc{' + s + '}', false];
-
-      if (fontShape === 'n') return ['\\textup{' + s + '}', false];
-
-      if (fontShape)
-        return [`{\\fontshape{${x[0].style.fontShape}}${s}`, false];
-
-      return [s, needsWrap];
+      if (!command && fontShape) {
+        return [
+          ['{', latexCommand('\\fontshape', fontShape), ...s, '}'],
+          false,
+        ];
+      }
+      return command ? [[latexCommand(command, ...s)], false] : [s, needsWrap];
     })
   );
 }
@@ -52,20 +56,26 @@ function emitFontShapeTextRun(
 function emitFontSeriesTextRun(
   run: Atom[],
   options: ToLatexOptions
-): [string, boolean] {
+): [tokens: string[], needsWrap: boolean] {
   return join(
     getPropertyRuns(run, 'fontSeries').map((x) => {
       const [s, needsWrap] = emitFontShapeTextRun(x, options);
       const { fontSeries } = x[0].style;
-      if (fontSeries === 'b') return [`\\textbf{${s}}`, false];
+      let command = '';
+      if (fontSeries === 'b') command = '\\textbf';
 
-      if (fontSeries === 'l') return [`\\textlf{${s}}`, false];
+      if (fontSeries === 'l') command = '\\textlf';
 
-      if (fontSeries === 'm') return [`\\textmd{${s}}`, false];
+      if (fontSeries === 'm') command = '\\textmd';
 
-      if (fontSeries) return [`\\fontseries{${fontSeries}}${s}`, false];
+      if (fontSeries && !command) {
+        return [
+          [latexCommand('\\fontseries', fontSeries), '{', ...s, '}'],
+          false,
+        ];
+      }
 
-      return [s, needsWrap];
+      return command ? [[latexCommand(command, ...s)], false] : [s, needsWrap];
     })
   );
 }
@@ -73,27 +83,26 @@ function emitFontSeriesTextRun(
 function emitSizeTextRun(
   run: Atom[],
   options: ToLatexOptions
-): [string, boolean] {
+): [tokens: string[], needsWrap: boolean] {
   return join(
     getPropertyRuns(run, 'fontSize').map((x: Atom[]) => {
       const [s, needsWrap] = emitFontSeriesTextRun(x, options);
-      const command: string =
+      const command =
         [
           '',
-          'tiny',
-          'scriptsize',
-          'footnotesize',
-          'small',
-          'normalsize',
-          'large',
-          'Large',
-          'LARGE',
-          'huge',
-          'Huge',
+          '\\tiny',
+          '\\scriptsize',
+          '\\footnotesize',
+          '\\small',
+          '\\normalsize',
+          '\\large',
+          '\\Large',
+          '\\LARGE',
+          '\\huge',
+          '\\Huge',
         ][x[0].style.fontSize ?? ''] ?? '';
-      if (command) return [`{\\${command} ${s}}`, needsWrap];
 
-      return [s, needsWrap];
+      return command ? [['{', command, ...s, '}'], needsWrap] : [s, needsWrap];
     })
   );
 }
@@ -101,7 +110,7 @@ function emitSizeTextRun(
 function emitFontFamilyTextRun(
   run: Atom[],
   options: ToLatexOptions
-): [string, boolean] {
+): [tokens: string[], needsWrap: boolean] {
   return join(
     getPropertyRuns(run, 'fontFamily').map((x: Atom[]) => {
       const [s, needsWrap] = emitSizeTextRun(x, options);
@@ -111,11 +120,14 @@ function emitFontFamilyTextRun(
           'monospace': 'texttt',
           'sans-serif': 'textsf',
         }[x[0].style.fontFamily ?? ''] ?? '';
-      if (command) return [`\\${command}{${s}}`, false];
+      if (command) return [[`\\${command}`, '{', ...s, '}'], false];
 
-      if (x[0].style.fontFamily)
-        return [`\\fontfamily{${x[0].style.fontFamily}}${s}`, needsWrap];
-
+      if (x[0].style.fontFamily) {
+        return [
+          [`\\fontfamily`, '{', x[0].style.fontFamily!, '}', ...s],
+          needsWrap,
+        ];
+      }
       return [s, needsWrap];
     })
   );
@@ -124,14 +136,14 @@ function emitFontFamilyTextRun(
 function emitStyledTextRun(
   run: Atom[],
   options: ToLatexOptions
-): [string, boolean] {
+): [tokens: string[], needsWrap: boolean] {
   return emitFontFamilyTextRun(run, options);
 }
 
 function emitBackgroundColorRun(
   run: Atom[],
   options: ToLatexOptions
-): [string, boolean] {
+): [tokens: string[], needsWrap: boolean] {
   return join(
     getPropertyRuns(run, 'backgroundColor').map((x) => {
       const [s, needsWrap] = emitColorRun(x, options);
@@ -142,9 +154,13 @@ function emitBackgroundColorRun(
         style.backgroundColor !== 'none'
       ) {
         return [
-          `\\colorbox{${
-            style.verbatimBackgroundColor ?? style.backgroundColor
-          }}{${s}}`,
+          [
+            '\\colorbox',
+            '{',
+            style.verbatimBackgroundColor ?? style.backgroundColor,
+            '}',
+            ...s,
+          ],
           false,
         ];
       }
@@ -153,8 +169,11 @@ function emitBackgroundColorRun(
   );
 }
 
-function emitColorRun(run: Atom[], options: ToLatexOptions): [string, boolean] {
-  if (!run || run.length === 0) return ['', false];
+function emitColorRun(
+  run: Atom[],
+  options: ToLatexOptions
+): [tokens: string[], needsWrap: boolean] {
+  if (!run || run.length === 0) return [[], false];
   const parentColor = run[0].parent?.style.color;
   return join(
     getPropertyRuns(run, 'color').map((x) => {
@@ -169,7 +188,14 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): [string, boolean] {
         // If there is a color specified, and it is different
         // from our context color, output a command
         return [
-          `\\textcolor{${x[0].style.verbatimColor ?? x[0].style.color}}{${s}}`,
+          [
+            '\\textcolor',
+            '{',
+            x[0].style.verbatimColor ?? x[0].style.color,
+            '}',
+            ...s,
+            '}',
+          ],
           false,
         ];
       }
@@ -208,10 +234,10 @@ export class TextMode extends Mode {
     return null;
   }
 
-  serialize(run: Atom[], options: ToLatexOptions): string {
+  serialize(run: Atom[], options: ToLatexOptions): string[] {
     let [result, needWrapper] = emitBackgroundColorRun(run, options);
     if ((options.skipModeCommand ?? false) === true) needWrapper = false;
-    if (needWrapper) result = `\\text{${result}}`;
+    if (needWrapper) result = [latexCommand('\\text', ...result)];
     return result;
   }
 

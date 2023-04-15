@@ -22,7 +22,7 @@ export abstract class Mode {
 
   // `run` should be a run (sequence) of atoms all with the same
   // mode
-  static serialize(run: Atom[], options: ToLatexOptions): string {
+  static serialize(run: Atom[], options: ToLatexOptions): string[] {
     console.assert(run.length > 0);
     const mode = Mode._registry[run[0].mode];
     return mode.serialize(run, options);
@@ -38,7 +38,7 @@ export abstract class Mode {
     style?: Style
   ): Atom | null;
 
-  abstract serialize(_run: Atom[], _options: ToLatexOptions): string;
+  abstract serialize(_run: Atom[], _options: ToLatexOptions): string[];
 
   /*
    * Apply the styling (bold, italic, etc..) as classes to the box, and return

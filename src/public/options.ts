@@ -1,7 +1,6 @@
 import type { Mathfield, Range } from './mathfield';
 import type { Selector } from './commands';
 import type { ParseMode, MacroDictionary, Registers } from './core-types';
-export * from './virtual-keyboard';
 
 /**
  * Specify behavior for origin validation.
@@ -221,6 +220,14 @@ export interface MathfieldHooks {
    * for example `\mathrm{${symbol}}`.
    */
   onInlineShortcut: (sender: Mathfield, symbol: string) => string;
+
+  /**
+   * A hook invoked when a scrolling the mathfield into view is necessary.
+   *
+   * Use when scrolling the page would not solve the problem, e.g.
+   * when the mathfield is in another div that has scrollable content.
+   */
+  onScrollIntoView: ((sender: Mathfield) => void) | null;
 
   /**
    * This hooks is invoked when the user has requested to export the content

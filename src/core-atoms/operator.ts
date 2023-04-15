@@ -1,10 +1,10 @@
 import type { Variant, VariantStyle, Style } from '../public/core-types';
-import type { GlobalContext } from 'core/types';
+import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, AtomType, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { joinLatex } from '../core/tokenizer';
+import { joinLatex, latexCommand } from '../core/tokenizer';
 import { AXIS_HEIGHT } from '../core/font-metrics';
 
 /**
@@ -83,7 +83,7 @@ export class OperatorAtom extends Atom {
       base = new Box(this.value, {
         fontFamily: large ? 'Size2-Regular' : 'Size1-Regular',
         classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
-        type: 'mop',
+        type: 'op',
         maxFontSize: context.scalingFactor,
       });
 
@@ -119,7 +119,7 @@ export class OperatorAtom extends Atom {
       // Not all styles are applied, since the operators have a distinct
       // appearance (for example, can't override their font family)
       base = new Box(this.value, {
-        type: 'mop',
+        type: 'op',
         mode: 'math',
         maxFontSize: context.scalingFactor,
         style: {
@@ -147,7 +147,7 @@ export class OperatorAtom extends Atom {
     // Bind the generated box with its limits so they
     // can all be selected as one
     return new Box(this.bind(context, result), {
-      type: 'mop',
+      type: 'op',
       classes: 'op-group' + (this.isSelected ? ' ML__selected' : ''),
     });
   }
@@ -157,8 +157,10 @@ export class OperatorAtom extends Atom {
     if (this.value === '\u200B') return this.supsubToLatex(options);
 
     const result: string[] = [];
-    result.push(this.command!);
-    if (this.hasArgument) result.push(`{${this.bodyToLatex(options)}}`);
+
+    if (this.hasArgument)
+      result.push(latexCommand(this.command, this.bodyToLatex(options)));
+    else result.push(this.command!);
     if (this.explicitSubsupPlacement) {
       if (this.subsupPlacement === 'over-under') result.push('\\limits');
       if (this.subsupPlacement === 'adjacent') result.push('\\nolimits');
