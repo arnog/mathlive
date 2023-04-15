@@ -414,6 +414,8 @@ export class ArrayAtom extends Atom {
       }
 
       if (this.jot !== undefined) depth += this.jot;
+      // If not last row, add 'jot' of depth
+      else if (r < nr - 1) depth += innerContext.getRegisterAsEm('jot');
 
       outrow.height = height;
       outrow.depth = depth;

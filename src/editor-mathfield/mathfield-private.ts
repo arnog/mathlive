@@ -161,6 +161,9 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   popoverVisible: boolean;
   suggestionIndex: number;
 
+  envPopover?: HTMLElement;
+  envPopoverVisible: boolean;
+
   keystrokeCaption?: HTMLElement;
   keystrokeCaptionVisible: boolean;
 
@@ -1578,6 +1581,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   private onGeometryChange(): void {
     updatePopoverPosition(this);
+    window.mathVirtualKeyboard.updatePopover(makeProxy(this));
   }
 
   private onWheel(ev: WheelEvent): void {

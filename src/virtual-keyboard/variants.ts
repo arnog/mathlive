@@ -296,7 +296,6 @@ export function showVariantsPanel(
   Scrim.scrim.open({
     root: keyboard.container?.querySelector('.ML__keyboard'),
     child: variantPanel,
-    zIndex: 10099,
   });
 
   variantPanelController?.abort();
