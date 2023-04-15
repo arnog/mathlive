@@ -120,7 +120,7 @@ export class AccentAtom extends Atom {
       ],
     });
 
-    const result = new Box(accentBox, { newList: true, type: 'mord' });
+    const result = new Box(accentBox, { newList: true, type: 'ord' });
     if (this.caret) result.caret = this.caret;
     this.bind(context, result.wrap(context));
     return this.attachSupsub(context, { base: result });

@@ -33,7 +33,7 @@ test('virtual keyboard with two math fields', async ({ page }) => {
   let latex = await page
     .locator('#mf-1')
     .evaluate((mfe: MathfieldElement) => mfe.value);
-  expect(latex).toBe('z=\\frac{1}{2}');
+  expect(latex).toBe('z=\\frac12');
 
   // click to focus next math field to make sure virtual keyboard updates focused math field
   await page.locator('#mf-2').click();
@@ -54,7 +54,7 @@ test('virtual keyboard with two math fields', async ({ page }) => {
   latex = await page
     .locator('#mf-1')
     .evaluate((mfe: MathfieldElement) => mfe.value);
-  expect(latex).toBe('z=\\frac{1}{2}');
+  expect(latex).toBe('z=\\frac12');
 
   // make sure that when no mathfield is focused that the virtual keyboard is hidden
   await page.locator('#ta-2').click();

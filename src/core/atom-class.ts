@@ -4,18 +4,14 @@ import type { ParseMode, Style, FontSize } from '../public/core-types';
 import type { GlobalContext } from '../core/types';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
-import { isBoxType, Box } from './box';
+import { boxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
-import { joinLatex } from './tokenizer';
+import { joinLatex, latexCommand } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
 import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
 
 import { Context } from './context';
 import { PrivateStyle, BoxType } from './types';
-
-const gCustomSerializer: {
-  [command: string]: (atom: Atom, options: ToLatexOptions) => string;
-} = {};
 
 /**
  * This data type is used as a serialized representation of the  atom tree.
@@ -111,15 +107,7 @@ export type AtomType =
   | 'leftright' // Used by the `\left` and `\right` commands
   | 'line' // Used by `\overline` and `\underline`
   | 'macro'
-  | 'mbin' // Binary operator: `+`, `*`, etc...
-  | 'mclose' // Closing fence: `)`, `\rangle`, etc...
-  | 'minner' // Special layout cases, fraction, overlap, `\left...\right`
-  | 'mop' // `mop`: operators, including special functions, `\sin`, `\sum`, `\cap`.
-  | 'mopen' // Opening fence: `(`, `\langle`, etc...
-  | 'mord' // Ordinary symbol, e.g. `x`, `\alpha`
-  | 'mpunct' // Punctuation: `,`, `:`, etc...
-  | 'mrel' // Relational operator: `=`, `\ne`, etc...
-  | 'msubsup' // A carrier for a superscript/subscript
+  | 'subsup' // A carrier for a superscript/subscript
   | 'overlap' // Display a symbol _over_ another
   | 'overunder' // Displays an annotation above or below a symbol
   | 'placeholder' // A temporary item. Placeholders are displayed as a dashed square in the editor.
@@ -132,7 +120,18 @@ export type AtomType =
   | 'surd' // Aka square root, nth root
   | 'text' // Text mode atom;
   | 'tooltip' // For `\mathtip` and `\texttip`
-  | 'prompt';
+  | 'prompt'
+  /** The types below confound atom type and box type. They are all indicating
+   * a probable Atom class, but with a different boxType (inter-atom spacing)
+   */
+  | 'mbin' // Binary operator: `+`, `*`, etc...
+  | 'mclose' // Closing fence: `)`, `\rangle`, etc...
+  | 'minner' // Special layout cases, fraction, overlap, `\left...\right`
+  | 'mop' // `mop`: operators, including special functions, `\sin`, `\sum`, `\cap`.
+  | 'mopen' // Opening fence: `(`, `\langle`, etc...
+  | 'mord' // Ordinary symbol, e.g. `x`, `\alpha`
+  | 'mpunct' // Punctuation: `,`, `:`, etc...
+  | 'mrel'; // Relational operator: `=`, `\ne`, etc...
 
 export type BBoxParameter = {
   backgroundcolor?: string;
@@ -208,8 +207,8 @@ export class Atom {
   // Necessary so the proper LaTeX can be output.
   explicitSubsupPlacement = false;
 
-  // If true, the atom represents a function (which can be followed by parentheses)
-  // e.g. "f" or "\sin"
+  // If true, the atom represents a function (which can be followed by
+  // parentheses) e.g. "f" or "\sin"
   isFunction: boolean;
 
   // If true, the atom is an operator such as `\int` or `\sum`
@@ -233,6 +232,8 @@ export class Atom {
 
   // The kern to the right of this atom
   // kern?: Glue;
+
+  _serializer?: (atom: Atom, options: ToLatexOptions) => string;
 
   //
   // The following properties are reset and updated through each rendering loop.
@@ -269,10 +270,7 @@ export class Atom {
     this.subsupPlacement = options?.limits;
     this.style = options?.style ?? {};
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
-    if (options?.serialize) {
-      console.assert(typeof options.command === 'string');
-      gCustomSerializer[options.command!] = options.serialize;
-    }
+    if (options?.serialize) this._serializer = options.serialize;
   }
 
   /**
@@ -301,6 +299,7 @@ export class Atom {
     }
   ): Box | null {
     if (!atoms) return null;
+    const classes = (options?.classes ?? '').trim();
     const runs = getStyleRuns(atoms);
 
     //
@@ -340,11 +339,11 @@ export class Atom {
       }
     }
     if (boxes.length === 0) return null;
-    if (boxes.length === 1 && !options?.classes && !options?.type)
+    if (boxes.length === 1 && !classes && !options?.type)
       return boxes[0].wrap(parentContext);
 
     return new Box(boxes, {
-      classes: options?.classes,
+      classes,
       type: options?.type,
       newList: options?.newList,
     }).wrap(parentContext);
@@ -366,13 +365,13 @@ export class Atom {
 
     if (value === undefined) return '';
 
-    // If we have some verbatim latex for this atom, use it.
-    // This allow non-significant punctuation to be preserved when possible.
+    // 1/ Verbatim LaTeX. This allow non-significant punctuation to be
+    // preserved when possible.
     if (!options.expandMacro && typeof value.verbatimLatex === 'string')
       return value.verbatimLatex;
 
-    if (value.command && gCustomSerializer[value.command])
-      return gCustomSerializer[value.command](value, options);
+    // 2/ Custom serializer
+    if (value._serializer) return value._serializer(value, options);
 
     return value.serialize(options);
   }
@@ -481,29 +480,25 @@ export class Atom {
    * Serialize the atom  to LaTeX
    */
   serialize(options: ToLatexOptions): string {
+    // 1/ Command and body
     if (this.body && this.command) {
-      // There's a command and body
       return joinLatex([
-        this.command,
-        '{',
-        this.bodyToLatex(options),
-        '}',
+        latexCommand(this.command, this.bodyToLatex(options)),
         this.supsubToLatex(options),
       ]);
     }
 
+    // 2/ body with no command
     if (this.body) {
-      // There's a body with no command
       return joinLatex([
         this.bodyToLatex(options),
         this.supsubToLatex(options),
       ]);
     }
 
-    if (this.value && this.value !== '\u200B') {
-      // There's probably just a value (which is a unicode character)
+    // 3/ A string value (which is a unicode character)
+    if (this.value && this.value !== '\u200B')
       return this.command ?? unicodeCharToLatex(this.mode, this.value);
-    }
 
     return '';
   }
@@ -955,10 +950,8 @@ export class Atom {
     let classes = '';
     if (!this.parent) classes += ' ML__base';
     if (this.isSelected) classes += ' ML__selected';
-    let result: Box = this.createBox(context, {
-      classes,
-      newList: options?.newList === true || this.type === 'first',
-    });
+    const newList = options?.newList === true || this.type === 'first';
+    let result = this.createBox(context, { classes, newList });
     if (!result) return null;
 
     //
@@ -1092,7 +1085,7 @@ export class Atom {
     }
 
     // Display the caret *following* the superscript and subscript,
-    // so attach the caret to the 'msubsup' element.
+    // so attach the caret to the 'subsup' element.
     const supsubContainer = new Box(supsub, {
       classes: 'msubsup' + (this.isSelected ? ' ML__selected' : ''),
     });
@@ -1127,12 +1120,7 @@ export class Atom {
 
     if (!above && !below) return options.base.wrap(parentContext);
 
-    return makeLimitsStack(parentContext, {
-      ...options,
-      above,
-      below,
-      type: options?.type ?? 'mop',
-    });
+    return makeLimitsStack(parentContext, { ...options, above, below });
   }
 
   /**
@@ -1168,10 +1156,8 @@ export class Atom {
   ): Box {
     const value = this.value ?? this.body;
 
-    // Ensure that the atom type is a valid Box type
-    const type: BoxType | undefined = isBoxType(this.type)
-      ? this.type
-      : undefined;
+    // Get the right BoxType for this atom type
+    const type = boxType(this.type);
 
     // The font family is determined by:
     // - the base font family associated with this atom (optional). For example,
@@ -1227,7 +1213,7 @@ export class Atom {
     this.bind(context, result);
     if (this.caret) {
       // If this has a super/subscript, the caret will be attached
-      // to the 'msubsup' atom, so no need to have it here.
+      // to the 'subsup' atom, so no need to have it here.
       if (!this.superscript && !this.subscript) result.caret = this.caret;
     }
 
@@ -1274,15 +1260,16 @@ export function serializeAtoms(
 
   if (atoms.length === 0) return '';
 
-  return joinLatex(
-    getPropertyRuns(atoms, 'cssClass').map((x) =>
-      joinLatex(
-        getPropertyRuns(x, 'color').map((x) =>
-          joinLatex(getModeRuns(x).map((x) => Mode.serialize(x, options)))
-        )
-      )
-    )
-  );
+  const tokens: string[] = [];
+
+  for (const cssClassRun of getPropertyRuns(atoms, 'cssClass')) {
+    for (const colorRun of getPropertyRuns(cssClassRun, 'color')) {
+      for (const modeRun of getModeRuns(colorRun))
+        tokens.push(...Mode.serialize(modeRun, options));
+    }
+  }
+
+  return joinLatex(tokens);
 }
 
 function getStyleRuns(atoms: Atom[]): Atom[][] {

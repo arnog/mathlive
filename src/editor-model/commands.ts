@@ -128,7 +128,7 @@ export function skip(
 
   let atom = model.at(model.position);
   if (direction === 'forward') {
-    if (atom.type === 'msubsup') {
+    if (atom.type === 'subsup') {
       atom = atom.rightSibling;
       if (!atom) atom = model.at(model.position + 1);
     } else atom = model.at(model.position + 1);
@@ -228,19 +228,19 @@ export function skip(
       }
     } else {
       const type = atom.type;
-      if (atom.type === 'msubsup') {
-        // If we're after a 'msubsup', skip to its left sibling
+      if (atom.type === 'subsup') {
+        // If we're after a 'subsup', skip to its left sibling
         // (the base of the super/subscript)
         offset = model.offsetOf(model.at(offset).leftSibling);
       }
 
       offset -= 1;
       let nextType = model.at(offset)?.type;
-      // If (nextType === 'msubsup') {
+      // If (nextType === 'subsup') {
       //     offset = model.offsetOf(model.at(offset).leftSibling);
       // }
       while (offset >= 0 && nextType === type) {
-        if (model.at(offset)?.type === 'msubsup')
+        if (model.at(offset)?.type === 'subsup')
           offset = model.offsetOf(model.at(offset).leftSibling);
         else offset -= 1;
 
@@ -248,17 +248,17 @@ export function skip(
       }
     }
   } else {
-    const { type } = atom;
-    // If (atom.type === 'msubsup') {
+    const { type: type } = atom;
+    // If (atom.type === 'subsup') {
     //     offset = model.offsetOf(model.at(offset).rightSibling);
     // }
     let nextType = model.at(offset)?.type;
     const { lastOffset } = model;
     while (
       offset <= lastOffset &&
-      (nextType === type || nextType === 'msubsup')
+      (nextType === type || nextType === 'subsup')
     ) {
-      while (model.at(offset).rightSibling?.type === 'msubsup')
+      while (model.at(offset).rightSibling?.type === 'subsup')
         offset = model.offsetOf(model.at(offset).rightSibling);
 
       offset += 1;

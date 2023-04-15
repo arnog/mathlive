@@ -3,6 +3,7 @@ import { fromJson } from '../core/atom';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
+import { latexCommand } from '../core/tokenizer';
 
 export class ChoiceAtom extends Atom {
   choices: Atom[][];
@@ -16,10 +17,10 @@ export class ChoiceAtom extends Atom {
   static fromJson(json: AtomJson, context: GlobalContext): ChoiceAtom {
     return new ChoiceAtom(
       [
-        fromJson(json.choices[0] as Atom[], context),
-        fromJson(json.choices[1] as Atom[], context),
-        fromJson(json.choices[2] as Atom[], context),
-        fromJson(json.choices[3] as Atom[], context),
+        fromJson(json.choices[0] as AtomJson[], context),
+        fromJson(json.choices[1] as AtomJson[], context),
+        fromJson(json.choices[2] as AtomJson[], context),
+        fromJson(json.choices[3] as AtomJson[], context),
       ],
       context
     );
@@ -50,12 +51,12 @@ export class ChoiceAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    return `\\mathchoice{${Atom.serialize(
-      this.choices[0],
-      options
-    )}}{${Atom.serialize(this.choices[1], options)}}{${Atom.serialize(
-      this.choices[2],
-      options
-    )}}{${Atom.serialize(this.choices[3], options)}}`;
+    return latexCommand(
+      '\\mathchoice',
+      Atom.serialize(this.choices[0], options),
+      Atom.serialize(this.choices[1], options),
+      Atom.serialize(this.choices[2], options),
+      Atom.serialize(this.choices[3], options)
+    );
   }
 }

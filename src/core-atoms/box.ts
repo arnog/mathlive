@@ -84,7 +84,7 @@ export class BoxAtom extends Atom {
     const content = Atom.createBox(parentContext, this.body);
     if (!content) return null;
     content.setStyle('vertical-align', -content.height, 'em');
-    const base = new Box(content, { type: 'mord' });
+    const base = new Box(content, { type: 'ord' });
 
     // This box will represent the box (background and border).
     // It's positioned to overlap the base.

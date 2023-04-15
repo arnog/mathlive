@@ -259,15 +259,15 @@ describe('ENVIRONMENTS', function () {
 
   test.each([
     '\\begin',
-    '\\begin{a}',
-    '\\begin{a}\\end',
-    '\\begin{a}\\end{x}',
+    '\\begin{bmatrix}',
+    '\\begin{bmatrix}\\end',
+    '\\begin{bmatrix}\\end{Bmatrix}',
     '\\begin{a}\\end{a}',
-    '\\begin{array}{ll}\\end{a}',
-    '\\begin{array}{ll}xyz\\end{a}',
+    '\\begin{array}{ll}\\end{bmatrix}',
+    '\\begin{array}{ll}xyz\\end{bmatrix}',
     '\\begin{array}{ll}xyz',
     '\\begin{array}{ll}xyz',
-    '\\begin{\\alpha}',
+    '\\begin{\\alpha}\\end{\\alpha}',
     '\\begin{.}\\end{.}',
     '\\begin{(}\\end{(}',
   ])('%#/ %s errors', (x) => {
@@ -312,6 +312,7 @@ describe('NOT', () => {
   test.each([
     'a \\ne b',
     'a \\neq b',
+    '\\not= \\not{=} a \\neq b \\ne c \\not< d \\not{h} e\\not{}',
     'a\\not= b',
     'a\\not< b',
     'a\\not{c} b',

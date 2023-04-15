@@ -22,7 +22,7 @@ export class OverlapAtom extends Atom {
     else this.body = body;
 
     this.align = options?.align ?? 'left';
-    this.boxType = options?.boxType ?? 'mord';
+    this.boxType = options?.boxType ?? 'ord';
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): OverlapAtom {

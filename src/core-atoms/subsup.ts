@@ -12,7 +12,7 @@ import { Context } from '../core/context';
 
 export class SubsupAtom extends Atom {
   constructor(context: GlobalContext, options?: { style?: Style }) {
-    super('msubsup', context, { style: options?.style });
+    super('subsup', context, { style: options?.style });
   }
 
   static fromJson(

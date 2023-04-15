@@ -1,9 +1,7 @@
-import type { Atom, ToLatexOptions } from '../core/atom-class';
+import type { ToLatexOptions } from '../core/atom-class';
 import { OverunderAtom } from '../core-atoms/overunder';
-import type { GlobalContext } from '../core/types';
 
-import { Argument, defineFunction } from './definitions-utils';
-import { PrivateStyle } from '../core/types';
+import { argAtoms, defineFunction } from './definitions-utils';
 
 // Extensible (horizontally stretchy) symbols
 
@@ -20,18 +18,13 @@ defineFunction(
   ],
   '{:auto}',
   {
-    createAtom: (
-      command: string,
-      args: Argument[],
-      style: PrivateStyle,
-      context: GlobalContext
-    ): Atom =>
+    createAtom: (command, context, style, args) =>
       new OverunderAtom(command, context, {
-        body: args[0] as Atom[],
+        body: argAtoms(args[0]),
         skipBoundary: false,
         supsubPlacement: 'over-under',
         paddedBody: true,
-        boxType: 'mrel',
+        boxType: 'rel',
         style,
         // Set the "svgAbove" to the name of a SVG object (which is the same
         // as the command name)
@@ -40,18 +33,13 @@ defineFunction(
   }
 );
 defineFunction('overbrace', '{:auto}', {
-  createAtom: (
-    command: string,
-    args: Argument[],
-    style: PrivateStyle,
-    context: GlobalContext
-  ): Atom =>
+  createAtom: (command, context, style, args) =>
     new OverunderAtom(command, context, {
-      body: args[0] as Atom[],
+      body: argAtoms(args[0]),
       skipBoundary: false,
       supsubPlacement: 'over-under',
       paddedBody: true,
-      boxType: 'mord',
+      boxType: 'ord',
       style,
       svgAbove: command.slice(1),
     }),
@@ -67,18 +55,13 @@ defineFunction(
   ],
   '{:auto}',
   {
-    createAtom: (
-      command: string,
-      args: Argument[],
-      style: PrivateStyle,
-      context: GlobalContext
-    ): Atom =>
+    createAtom: (command, context, style, args) =>
       new OverunderAtom(command, context, {
-        body: args[0] as Atom[],
+        body: argAtoms(args[0]),
         skipBoundary: false,
         supsubPlacement: 'over-under',
         paddedBody: true,
-        boxType: 'mrel',
+        boxType: 'rel',
         style,
         // Set the "svgBelow" to the name of a SVG object (which is the same
         // as the command name)
@@ -87,18 +70,13 @@ defineFunction(
   }
 );
 defineFunction(['underbrace'], '{:auto}', {
-  createAtom: (
-    command: string,
-    args: Argument[],
-    style: PrivateStyle,
-    context: GlobalContext
-  ): Atom =>
+  createAtom: (command, context, style, args) =>
     new OverunderAtom(command, context, {
-      body: args[0] as Atom[],
+      body: argAtoms(args[0]),
       skipBoundary: false,
       supsubPlacement: 'over-under',
       paddedBody: true,
-      boxType: 'mord',
+      boxType: 'ord',
       style,
       svgBelow: command.slice(1),
     }),
@@ -131,26 +109,20 @@ defineFunction(
   ],
   '[:auto]{:auto}',
   {
-    createAtom: (
-      command: string,
-      args: Argument[],
-      style: PrivateStyle,
-      context: GlobalContext
-    ): Atom =>
+    createAtom: (command, context, style, args) =>
       new OverunderAtom(command, context, {
         style,
         // Set the "svgBody" to the name of a SVG object (which is the same
         // as the command name)
         svgBody: command.slice(1),
         // The overscript is optional, i.e. `\xtofrom` is valid
-        above:
-          (args[1] as Atom[])?.length === 0 ? undefined : (args[1] as Atom[]),
-        below: (args[0] as Atom[]) ?? null,
+        above: argAtoms(args[1])?.length === 0 ? undefined : argAtoms(args[1]),
+        below: argAtoms(args[0]) ?? null,
         skipBoundary: false,
         supsubPlacement: 'over-under',
         paddedBody: true,
         paddedLabels: true,
-        boxType: 'mrel',
+        boxType: 'rel',
         serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
           command +
           (!atom.hasEmptyBranch('below')

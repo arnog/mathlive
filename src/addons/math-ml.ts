@@ -121,7 +121,7 @@ function isSuperscriptAtom(stream: MathMLStream) {
   return (
     stream.index < stream.atoms.length &&
     stream.atoms[stream.index].superscript &&
-    stream.atoms[stream.index].type === 'msubsup'
+    stream.atoms[stream.index].type === 'subsup'
   );
 }
 
@@ -148,7 +148,7 @@ function parseSubsup(base: string, stream: MathMLStream, options): boolean {
   if (!atom) return false;
 
   if (!atom.superscript && !atom.subscript) {
-    if (stream.atoms[stream.index]?.type === 'msubsup') {
+    if (stream.atoms[stream.index]?.type === 'subsup') {
       atom = stream.atoms[stream.index];
       stream.index += 1;
     } else return false;
@@ -922,7 +922,7 @@ function atomToMathML(atom, options): string {
         result += '&nbsp;';
         break;
 
-      case 'msubsup':
+      case 'subsup':
         // if (atom.superscript && atom.subscript) {
         //   result = '<msubsup>' + base;
         //   result += toMathML(atom.subscript, 0, 0, options).mathML;

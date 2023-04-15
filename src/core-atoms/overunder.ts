@@ -52,7 +52,7 @@ export class OverunderAtom extends Atom {
     this.svgBody = options.svgBody;
     this.above = options.above;
     this.below = options.below;
-    this.boxType = options.boxType ?? 'mord';
+    this.boxType = options.boxType ?? 'ord';
     this.paddedBody = options.paddedBody ?? false;
     this.paddedLabels = options.paddedLabels ?? false;
   }
@@ -68,7 +68,7 @@ export class OverunderAtom extends Atom {
     if (this.svgAbove) options.svgAbove = this.svgAbove;
     if (this.svgBelow) options.svgBelow = this.svgBelow;
     if (this.svgBody) options.svgBody = this.svgBody;
-    if (this.boxType !== 'mord') options.boxType = this.boxType;
+    if (this.boxType !== 'ord') options.boxType = this.boxType;
     if (this.paddedBody) options.paddedBody = true;
     if (this.paddedLabels) options.paddedLabels = true;
     return { ...super.toJson(), ...options };
@@ -113,9 +113,9 @@ export class OverunderAtom extends Atom {
       // The base of \overset are padded, but \overbrace aren't
       body = new Box(
         [
-          makeNullDelimiter(parentContext, 'mopen'),
+          makeNullDelimiter(parentContext, 'open'),
           body,
-          makeNullDelimiter(parentContext, 'mclose'),
+          makeNullDelimiter(parentContext, 'close'),
         ],
         { newList: true }
       );
@@ -130,9 +130,7 @@ export class OverunderAtom extends Atom {
       below,
       // belowShift,
       type:
-        this.boxType === 'mbin' || this.boxType === 'mrel'
-          ? this.boxType
-          : 'mord',
+        this.boxType === 'bin' || this.boxType === 'rel' ? this.boxType : 'ord',
       paddedAboveBelow: this.paddedLabels,
     });
 

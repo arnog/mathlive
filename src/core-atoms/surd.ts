@@ -8,6 +8,7 @@ import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 
 import { makeCustomSizedDelim } from '../core/delimiters';
+import { latexCommand } from '../core/tokenizer';
 
 export class SurdAtom extends Atom {
   constructor(
@@ -37,11 +38,10 @@ export class SurdAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let args = '';
-    if (this.above) args += `[${this.aboveToLatex(options)}]`;
+    let command = this.command;
+    if (this.above) command += `[${this.aboveToLatex(options)}]`;
 
-    args += `{${this.bodyToLatex(options)}}`;
-    return this.command + args;
+    return latexCommand(command, this.bodyToLatex(options));
   }
 
   render(parentContext: Context): Box | null {
@@ -166,7 +166,7 @@ export class SurdAtom extends Atom {
       //
       const result = new Box([delimBox, bodyBox], {
         classes: this.containsCaret ? 'ML__contains-caret' : '',
-        type: 'mord',
+        type: 'ord',
       });
       if (this.caret) result.caret = this.caret;
       return this.bind(parentContext, result.wrap(parentContext));
@@ -187,7 +187,7 @@ export class SurdAtom extends Atom {
     // kerning
     const result = new Box(
       [new Box(indexStack, { classes: 'ML__sqrt-index' }), delimBox, bodyBox],
-      { type: 'mord', classes: this.containsCaret ? 'ML__contains-caret' : '' }
+      { type: 'ord', classes: this.containsCaret ? 'ML__contains-caret' : '' }
     );
     result.height = delimBox.height;
     result.depth = delimBox.depth;

@@ -184,7 +184,7 @@ class Tokenizer {
 // (the 'gullet')
 function expand(
   lex: Tokenizer,
-  args: null | ((arg: string) => string)
+  args: null | ((arg: string) => string | undefined)
 ): Token[] {
   const result: Token[] = [];
   let token = lex.next();
@@ -286,7 +286,7 @@ function expand(
  */
 export function tokenize(
   s: string,
-  args: null | ((arg: string) => string) = null
+  args: null | ((arg: string) => string | undefined) = null
 ): Token[] {
   // Merge multiple lines into one, and remove comments
   const stream: string[] = [];
@@ -315,13 +315,16 @@ export function joinLatex(segments: string[]): string {
     if (segment) {
       // If the segment begins with a char that *could* be in a command
       // name... insert a separator (if one was needed for the previous segment)
-      if (/[a-zA-Z\*]/.test(segment[0])) result.push(sep);
+      if (sep && /^[a-zA-Z\*]/.test(segment)) result.push(sep);
 
       result.push(segment);
 
-      if (/\\[a-zA-Z]+\*?[\"\'][^\ ]+$/.test(segment)) result.push(' ');
+      // If the segment is a command with an unbraced argument using a hex
+      // number, add a separator now.
+      if (/^\\[a-zA-Z]+\*?[\"\'][^\ ]+$/.test(segment)) result.push(' ');
 
-      // If the segment ends in a command...
+      // If the segment ends in a command, we may need a separator for
+      // the next segment
       sep = /\\[a-zA-Z]+\*?$/.test(segment) ? ' ' : '';
     }
   }
@@ -329,18 +332,45 @@ export function joinLatex(segments: string[]): string {
   return result.join('');
 }
 
+/** Return a LaTeX fragment given a command and its arguments,
+ * minimizing the use of groups/curly braces
+ */
+export function latexCommand(command: string, ...args: string[]): string {
+  console.assert(command.startsWith('\\'));
+
+  if (args.length === 0) return command;
+
+  // Mandatory argument wrapping if the command is not purely alphabetic, e.g.
+  // with optional arguments `\\enclose[arrow]`
+  if (!/^\\[a-zA-Z]+\*?/.test(command))
+    return command + args.map((x) => `{${x}}`).join('');
+
+  // If the argument is a single non-alpha or a command, it doesn't need
+  // wrapping
+  return (
+    command +
+    args
+      .map((x, i) =>
+        (i === 0 && /(^[^A-Za-z]$)|(^\\)/.test(x)) ||
+        (i !== 0 && (x.length === 1 || x.startsWith('\\')))
+          ? x
+          : `{${x}}`
+      )
+      .join('')
+  );
+}
+
 export function tokensToString(tokens: Token[]): string {
   return joinLatex(
-    tokens.map((token) => {
-      return (
-        {
+    tokens.map(
+      (token) =>
+        ({
           '<space>': ' ',
           '<$$>': '$$',
           '<$>': '$',
           '<{>': '{',
           '<}>': '}',
-        }[token] ?? token
-      );
-    })
+        }[token] ?? token)
+    )
   );
 }

@@ -9,6 +9,7 @@
 - Added `mathVirtualKeycap.actionKeycap`, `mathVirtualKeycap.shiftKeycap`, `mathVirtualKeycap.tabKeycap`, `mathVirtualKeycap.backspaceKeycap` to customize the appearance of action keys without having to define new layouts. This can be used to change the "Return" glyph to "Continue" for example, or to use the word "Shift" for the shift key instead of the default shift glyph.
 - Added keyboard shorcuts (<kbd>alt/option</kbd>+<kbd>Tab</kbd> and <kbd>alt/option</kbd>+<kbd>Return</kbd>) for matrices/environments. Type `(` + <kbd>alt/option</kbd>+<kbd>Tab</kbd> to create 2x1 matrix. If at the root, type 
  <kbd>alt/option</kbd>+<kbd>Return</kbd> for a multi-line expression.
+- More concise LaTeX serialization, avoiding use of braces unless necessary.
 
 ### Bug Fix
 
@@ -20,7 +21,13 @@
   correctly account for the position of the keyboard.
 - **#1914** When the `mathVirtualKeyboardPolicy` is set to `"manual"`, the keyboard is not hidden, even when losing focus.
 - If the last row of a matrix is empty, it is ignored (LaTeX behavior)
+- **#1929** The `\boldsymbol` command was serialized incorrectly after its content
+  was modified.
+- Ambient style is now applied to macros, so `\Huge\mathbb{R}` and `\Huge\R` render identically.
+- **#1851**: Correctly render `\not`. Fun fact: in LaTeX, `\not=` renders with a different spacing from `\not{=}`.
+  
 
+  
 ## 0.91.2 (2023-04-06)
 
 ### Bug Fixes

@@ -130,7 +130,7 @@ export class GroupAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let result = this.bodyToLatex(options);
+    let result = super.serialize(options);
 
     if (typeof this.latexOpen === 'string')
       result = this.latexOpen + result + this.latexClose;

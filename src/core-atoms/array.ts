@@ -558,7 +558,7 @@ export class ArrayAtom extends Atom {
           this.bind(
             context,
             makeLeftRightDelim(
-              'mopen',
+              'open',
               this.leftDelim ?? '.',
               innerHeight,
               innerDepth,
@@ -569,7 +569,7 @@ export class ArrayAtom extends Atom {
           this.bind(
             context,
             makeLeftRightDelim(
-              'mclose',
+              'close',
               this.rightDelim ?? '.',
               innerHeight,
               innerDepth,
@@ -577,7 +577,7 @@ export class ArrayAtom extends Atom {
             )
           ),
         ],
-        { type: 'mord' }
+        { type: 'ord' }
       )
     );
     if (!result) return null;
@@ -587,38 +587,40 @@ export class ArrayAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let result = '\\begin{' + this.environmentName + '}';
+    const result = [`\\begin{${this.environmentName}}`];
     if (this.environmentName === 'array') {
-      result += '{';
+      result.push('{');
       if (this.colFormat !== undefined) {
         for (const format of this.colFormat) {
-          if ('align' in format) result += format.align;
+          if ('align' in format && typeof format.align === 'string')
+            result.push(format.align);
           else if ('separator' in format && format.separator === 'solid')
-            result += '|';
+            result.push('|');
           else if ('separator' in format && format.separator === 'dashed')
-            result += ':';
+            result.push(':');
         }
       }
 
-      result += '}';
+      result.push('}');
     }
 
     for (let row = 0; row < this.array.length; row++) {
       for (let col = 0; col < this.array[row].length; col++) {
-        if (col > 0) result += ' & ';
-        result = joinLatex([
-          result,
-          Atom.serialize(this.array[row][col], options),
-        ]);
+        if (col > 0) result.push(' & ');
+        result.push(Atom.serialize(this.array[row][col], options));
       }
 
       // Adds a separator between rows (but not after the last row)
-      if (row < this.array.length - 1) result += ' \\\\ ';
+      if (row < this.array.length - 1) {
+        const gap = this.rowGaps[row];
+        if (gap) result.push(` \\\\[${gap.dimension} ${gap.unit ?? 'pt'}] `);
+        else result.push(' \\\\ ');
+      }
     }
 
-    result += '\\end{' + this.environmentName + '}';
+    result.push(`\\end{${this.environmentName}}`);
 
-    return result;
+    return joinLatex(result);
   }
 
   getCell(row: number, col: number): Atom[] | undefined {

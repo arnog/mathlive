@@ -122,7 +122,7 @@ function makeSmallDelim(
   center: boolean,
   options: {
     classes: string;
-    type: '' | 'mopen' | 'mclose' | 'minner';
+    type: '' | 'open' | 'close' | 'inner';
   }
 ): Box {
   const text = new Box(getSymbolValue(delim), { fontFamily: 'Main-Regular' });
@@ -145,7 +145,7 @@ function makeLargeDelim(
   parentContext: Context,
   options: {
     classes?: string;
-    type?: '' | 'mopen' | 'mclose' | 'minner';
+    type?: '' | 'open' | 'close' | 'inner';
     mode?: ParseMode;
     style?: Style;
   }
@@ -483,7 +483,7 @@ export function makeSizedDelim(
   context: Context,
   options: {
     classes?: string;
-    type?: 'mopen' | 'mclose';
+    type?: 'open' | 'close';
     mode?: ParseMode;
     style?: Style;
   }
@@ -491,11 +491,7 @@ export function makeSizedDelim(
   if (delim === undefined || delim === '.') {
     // Empty delimiters still count as elements, even though they don't
     // show anything.
-    return makeNullDelimiter(
-      context,
-      options.type ?? 'minner',
-      options.classes
-    );
+    return makeNullDelimiter(context, options.type ?? 'inner', options.classes);
   }
 
   // < and > turn into \langle and \rangle in delimiters
@@ -640,7 +636,7 @@ function traverseSequence(
  * traverse the sequences, and create a delimiter that the sequence tells us to.
  */
 export function makeCustomSizedDelim(
-  type: '' | 'mopen' | 'mclose' | 'minner',
+  type: '' | 'open' | 'close' | 'inner',
   delim: string,
   height: number,
   center: boolean,
@@ -651,9 +647,13 @@ export function makeCustomSizedDelim(
     style?: Style;
   }
 ): Box {
-  if (!delim || delim.length === 0 || delim === '.')
-    return makeNullDelimiter(context, type, type);
-
+  if (!delim || delim.length === 0 || delim === '.') {
+    return makeNullDelimiter(
+      context,
+      type,
+      { open: 'mopen', close: 'mclose', inner: 'minner' }[type]
+    );
+  }
   if (delim === '<' || delim === '\\lt') delim = '\\langle';
   else if (delim === '>' || delim === '\\gt') delim = '\\rangle';
 
@@ -705,7 +705,7 @@ export function makeCustomSizedDelim(
  * See tex.web:14994
  */
 export function makeLeftRightDelim(
-  type: 'mopen' | 'mclose' | 'minner',
+  type: 'open' | 'close' | 'inner',
   delim: string,
   height: number,
   depth: number,
@@ -735,7 +735,7 @@ export function makeLeftRightDelim(
 
 export function makeNullDelimiter(
   parentContext: Context,
-  type: '' | 'mopen' | 'mclose' | 'minner',
+  type: '' | 'open' | 'close' | 'inner',
   classes?: string
 ): Box {
   // The null delimiter has a width, specified by class 'nulldelimiter'

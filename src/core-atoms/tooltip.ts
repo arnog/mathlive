@@ -7,6 +7,7 @@ import { adjustInterAtomSpacing, Box, coalesce } from '../core/box';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { fromJson } from '../core/atom';
 import { defaultGlobalContext } from '../core/context-utils';
+import { latexCommand } from '../core/tokenizer';
 
 export class TooltipAtom extends Atom {
   tooltip: Atom;
@@ -41,7 +42,7 @@ export class TooltipAtom extends Atom {
   static fromJson(json: AtomJson, context: GlobalContext): TooltipAtom {
     return new TooltipAtom(
       json.body,
-      fromJson(json.tooltip as Atom[], context),
+      fromJson(json.tooltip as AtomJson[], context),
       context,
       json as any
     );
@@ -79,9 +80,10 @@ export class TooltipAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    return `${this.command}{${this.bodyToLatex(options)}}{${Atom.serialize(
-      this.tooltip.body,
-      options
-    )}}`;
+    return latexCommand(
+      this.command,
+      this.bodyToLatex(options),
+      Atom.serialize(this.tooltip.body, options)
+    );
   }
 }

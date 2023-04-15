@@ -80,7 +80,7 @@ export class PhantomAtom extends Atom {
     // acting on that height.
     return new VBox(
       { firstBaseline: [{ box: content }] },
-      { type: 'mord' }
+      { type: 'ord' }
     ).wrap(context);
   }
 }

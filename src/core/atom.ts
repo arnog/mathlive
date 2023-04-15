@@ -69,7 +69,7 @@ export function fromJson(
   if (type === 'leftright') result = LeftRightAtom.fromJson(json, context);
   if (type === 'line') result = LineAtom.fromJson(json, context);
   if (type === 'macro') result = MacroAtom.fromJson(json, context);
-  if (type === 'msubsup') result = SubsupAtom.fromJson(json, context);
+  if (type === 'subsup') result = SubsupAtom.fromJson(json, context);
   if (type === 'overlap') result = OverlapAtom.fromJson(json, context);
   if (type === 'overunder') result = OverunderAtom.fromJson(json, context);
   if (type === 'placeholder') result = PlaceholderAtom.fromJson(json, context);

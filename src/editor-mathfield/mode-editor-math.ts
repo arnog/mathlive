@@ -1,5 +1,4 @@
 /* eslint-disable no-new */
-// <reference types="../public/cortex-compute-engine.d.ts" />
 
 import type { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 

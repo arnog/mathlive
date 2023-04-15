@@ -191,7 +191,6 @@ export function showEnvironmentPanel(
   const array = (arrayAtom as ArrayAtom).array;
 
   let columnCount = 0;
-  const rowCount = array.length;
   array.forEach((column) => {
     if (!columnCount || column.length > columnCount)
       columnCount = column.length;
@@ -275,7 +274,7 @@ export function showEnvironmentPanel(
       // just a string command
     }
     control.addEventListener('mousedown', (ev) => ev.preventDefault());
-    command &&
+    if (command)
       control.addEventListener('click', () => keyboard.executeCommand(command));
   });
 

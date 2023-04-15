@@ -18,7 +18,7 @@ import type {
   Environment,
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
-import { GlobalContext, BoxType, PrivateStyle } from '../core/types';
+import { GlobalContext, PrivateStyle } from '../core/types';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;
@@ -28,6 +28,7 @@ export type FunctionArgumentDefinition = {
 export type Argument =
   | string
   | number
+  | { group: Atom[] }
   | Dimension
   | Glue
   | BBoxParameter
@@ -61,14 +62,14 @@ export type FunctionDefinition = {
   applyMode?: ParseMode;
   createAtom?: (
     command: string,
-    args: (null | Argument)[],
+    context: GlobalContext,
     style: PrivateStyle,
-    context: GlobalContext
+    args: (null | Argument)[]
   ) => Atom;
   applyStyle?: (
     command: string,
-    args: (null | Argument)[],
-    context: GlobalContext
+    context: GlobalContext,
+    args: (null | Argument)[]
   ) => PrivateStyle;
 
   frequency?: number;
@@ -98,6 +99,13 @@ export type SymbolDefinition = {
   category?: string;
   template?: string;
 };
+
+export function argAtoms(arg: Argument | null): Atom[] {
+  if (!arg) return [];
+  if (Array.isArray(arg)) return arg as Atom[];
+  if (typeof arg === 'object' && 'group' in arg) return arg.group;
+  return [];
+}
 
 export const MATH_SYMBOLS: Record<string, SymbolDefinition> = {};
 
@@ -197,12 +205,12 @@ const REVERSE_MATH_SYMBOLS = {
     0x27F9: '\\implies', // Also \Longrightarrow
     0x27fa: '\\iff',
 
-    0x2102: '\\mathbb{C}',    // Also \doubleStruckCapitalC
-    0x2115: '\\mathbb{N}',    // Also \doubleStruckCapitalN
-    0x2119: '\\mathbb{P}',    // Also \doubleStruckCapitalP
-    0x211A: '\\mathbb{Q}',    // Also \doubleStruckCapitalQ
-    0x211D: '\\mathbb{R}',    // Also \doubleStruckCapitalR
-    0x2124: '\\mathbb{Z}',    // Also \doubleStruckCapitalZ
+    0x2102: '\\mathbb{C}',
+    0x2115: '\\mathbb{N}',
+    0x2119: '\\mathbb{P}',
+    0x211A: '\\mathbb{Q}',
+    0x211D: '\\mathbb{R}',
+    0x2124: '\\mathbb{Z}',
     0x210d: '\\mathbb{H}',
 
     0x211c: '\\Re',
@@ -750,14 +758,14 @@ export function defineFunction(
     isFunction?: boolean;
     createAtom?: (
       name: string,
-      args: (null | Argument)[],
+      context: GlobalContext,
       style: PrivateStyle,
-      context: GlobalContext
+      args: (null | Argument)[]
     ) => Atom;
     applyStyle?: (
       name: string,
-      args: (null | Argument)[],
-      context: GlobalContext
+      context: GlobalContext,
+      args: (null | Argument)[]
     ) => PrivateStyle;
     command?: string;
   }
@@ -848,15 +856,6 @@ export function normalizeMacroDictionary(
     } else result[macro] = normalizeMacroDefinition(macroDef);
   }
   return result;
-}
-
-export function binRelType(atoms: Atom[]): BoxType {
-  if (atoms.length === 1) {
-    const atom = atoms[0];
-    if (atom.type === 'mbin') return 'mbin';
-    if (atom.type === 'mrel') return 'mrel';
-  }
-  return 'mord';
 }
 
 export function defaultGetDefinition(

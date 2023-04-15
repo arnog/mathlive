@@ -6,6 +6,7 @@ import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
 import { convertToDimension } from '../core/parser';
 import { convertDimensionToEm } from '../core/registers-utils';
+import { latexCommand } from '../core/tokenizer';
 
 export type EncloseAtomOptions = {
   shadow?: string;
@@ -108,9 +109,9 @@ export class EncloseAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let result = this.command ?? '';
+    let command = this.command ?? '';
     if (this.command === '\\enclose') {
-      result += '{' + Object.keys(this.notation).join(' ') + '}';
+      command += '{' + Object.keys(this.notation).join(' ') + '}';
 
       // \enclose can have optional parameters...
       let style = '';
@@ -133,11 +134,10 @@ export class EncloseAtom extends Atom {
         sep = ',';
       }
 
-      if (style) result += `[${style}]`;
+      if (style) command += `[${style}]`;
     }
 
-    result += `{${this.bodyToLatex(options)}}`;
-    return result;
+    return latexCommand(command, this.bodyToLatex(options));
   }
 
   render(parentContext: Context): Box | null {
