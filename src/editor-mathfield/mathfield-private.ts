@@ -1584,7 +1584,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   private onGeometryChange(): void {
     updatePopoverPosition(this);
-    window.mathVirtualKeyboard.updatePopover(makeProxy(this));
+    window.mathVirtualKeyboard.updateEnvironmemtPopover(makeProxy(this));
   }
 
   private onWheel(ev: WheelEvent): void {

@@ -772,11 +772,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   update(mf: MathfieldProxy): void {
     this._style = mf.style;
-    this.updatePopover(mf);
+    this.updateEnvironmemtPopover(mf);
     this.updateToolbar(mf);
   }
 
-  updatePopover(mf: MathfieldProxy): void {
+  updateEnvironmemtPopover(mf: MathfieldProxy): void {
     if (
       mf.array &&
       isTabularEnvironment((mf.array as ArrayAtom)?.environmentName) &&

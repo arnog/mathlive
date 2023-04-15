@@ -246,6 +246,7 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
    * may need to be updated accordingly
    */
   updateToolbar(mf: MathfieldProxy): void;
+  updateEnvironmemtPopover(mf: MathfieldProxy): void;
   update(mf: MathfieldProxy): void;
   connect(): void;
   disconnect(): void;
