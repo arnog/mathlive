@@ -43,7 +43,7 @@ defineTabularEnvironment(
   '{columns:colspec}',
   (
     context: GlobalContext,
-    name: TabularEnvironment,
+    name: Environment,
     array: Atom[][][],
     rowGaps: Dimension[],
     args
@@ -66,7 +66,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: TabularEnvironment,
+    name: Environment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
