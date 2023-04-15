@@ -63,7 +63,7 @@ npx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly  --outDir 
 mkdir ./dist/types
 mv ./declarations/src/public/* ./dist/types
 cp -f ./src/public/cortex-compute-engine.d.ts ./dist/types/
-# rm -rf ./declarations
+rm -rf ./declarations
 echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESET}"
 
 # Copy static assets
