@@ -1,3 +1,4 @@
+import { NewLineAtom } from '../core-atoms/newline';
 import { SpacingAtom } from '../core-atoms/spacing';
 
 import {
@@ -678,6 +679,13 @@ newSymbols(
 defineFunction(['!', ',', ':', ';', 'enskip', 'enspace', 'quad', 'qquad'], '', {
   createAtom: (command, context, style) =>
     new SpacingAtom(command, style, context),
+});
+
+// New line
+newSymbols('\\\\', 'newline');
+defineFunction('\\', '', {
+  createAtom: (command, context, style) =>
+    new NewLineAtom(command, context, style),
 });
 
 // Punctuation

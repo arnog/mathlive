@@ -728,6 +728,10 @@ function atomToMathML(atom, options): string {
       case 'overlap':
         break;
 
+      case 'newline':
+        result += '<mspace linebreak="newline"></mspace>';
+        break;
+
       case 'overunder':
         overscript = atom.above;
         underscript = atom.below;

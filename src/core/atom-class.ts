@@ -107,6 +107,7 @@ export type AtomType =
   | 'leftright' // Used by the `\left` and `\right` commands
   | 'line' // Used by `\overline` and `\underline`
   | 'macro'
+  | 'newline' // New line command: `\\`
   | 'subsup' // A carrier for a superscript/subscript
   | 'overlap' // Display a symbol _over_ another
   | 'overunder' // Displays an annotation above or below a symbol
