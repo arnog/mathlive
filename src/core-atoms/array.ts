@@ -22,6 +22,7 @@ import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
 import { convertDimensionToEm } from '../core/registers-utils';
 
 import { PlaceholderAtom } from './placeholder';
+import { isMatrixEnvironment } from '../core-definitions/environment-types';
 
 export type ColumnFormat =
   | {
@@ -55,9 +56,6 @@ export type ArrayAtomConstructorOptions = {
   colSeparationType?: ColSeparationType;
   leftDelim?: string;
   rightDelim?: string;
-  // Jot is an extra gap between lines of numbered equation.
-  // It's 3pt by default in LaTeX (ltmath.dtx:181)
-  jot?: number;
   // A multiplication factor applied to the spacing between rows and columns
   arraystretch?: number;
   arraycolsep?: number;
@@ -213,7 +211,6 @@ export class ArrayAtom extends Atom {
   arraystretch?: number;
   arraycolsep?: number;
   colSeparationType?: ColSeparationType;
-  jot?: number;
   leftDelim?: string;
   rightDelim?: string;
   mathstyleName?: MathstyleName;
@@ -256,7 +253,6 @@ export class ArrayAtom extends Atom {
     // console.log(arrayToString(this.array));
     if (options.leftDelim) this.leftDelim = options.leftDelim;
     if (options.rightDelim) this.rightDelim = options.rightDelim;
-    if (options.jot !== undefined) this.jot = options.jot;
     if (options.arraycolsep) this.arraycolsep = options.arraycolsep;
     this.colSeparationType = options.colSeparationType;
     // Default \arraystretch from lttab.dtx
@@ -290,7 +286,6 @@ export class ArrayAtom extends Atom {
     if (this.arraycolsep) result.arraycolsep = this.arraycolsep;
     if (this.leftDelim) result.leftDelim = this.leftDelim;
     if (this.rightDelim) result.rightDelim = this.rightDelim;
-    if (this.jot !== undefined) result.jot = this.jot;
 
     return result;
   }
@@ -416,9 +411,13 @@ export class ArrayAtom extends Atom {
         gap = 0;
       }
 
-      if (this.jot !== undefined) depth += this.jot;
       // If not last row, add 'jot' of depth
-      else if (r < nr - 1) depth += innerContext.getRegisterAsEm('jot');
+      if (
+        r < nr - 1 &&
+        !isMatrixEnvironment(this.environmentName) &&
+        this.environmentName !== 'array'
+      )
+        depth += innerContext.getRegisterAsEm('jot');
 
       outrow.height = height;
       outrow.depth = depth;

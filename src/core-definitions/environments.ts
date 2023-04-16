@@ -360,7 +360,6 @@ export function makeEnvironment(
         arraycolsep: 0,
         columns,
         // colSeparationType: 'align',
-        jot: 0.3,
         minColumns: 2,
       });
     }
