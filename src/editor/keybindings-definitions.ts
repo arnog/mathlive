@@ -87,6 +87,9 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   }, // Complete the suggestion
   { key: '[Return]', ifMode: 'latex', command: 'complete' },
   { key: '[Enter]', ifMode: 'latex', command: 'complete' },
+  { key: '[Return]', ifMode: 'math', command: ['insert', '\\\\'] },
+  { key: '[Enter]', ifMode: 'math', command: ['insert', '\\\\'] },
+  { key: '[NumpadEnter]', ifMode: 'math', command: ['insert', '\\\\'] },
   {
     key: 'shift+[Escape]',
     ifMode: 'latex',
