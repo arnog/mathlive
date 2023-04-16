@@ -1071,11 +1071,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     if (options.scrollIntoView) this.scrollIntoView();
 
-    if (s === '\\\\') {
-      // This string is interpreted as an "insert row after" command
-      addRowAfter(this.model);
-    } else if (s === '&') addColumnAfter(this.model);
-    else {
+    if (this.model.at(this.model.position).isInArrayAtom) {
+      if (s === '\\\\') {
+        // This string is interpreted as an "insert row after" command
+        addRowAfter(this.model);
+      } else if (s === '&') addColumnAfter(this.model);
+    } else {
       const savedStyle = this.style;
       ModeEditor.insert(this.mode, this.model, s, {
         style: this.model.at(this.model.position).computedStyle,
