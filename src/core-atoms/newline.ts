@@ -22,7 +22,7 @@ export class NewLineAtom extends Atom {
   render(context: Context): Box | null {
     const box = new Box(null, {
       classes: 'ML__newline',
-      type: '',
+      type: 'newline',
     });
     box.caret = (this.caret as ParseMode) ?? null;
     this.bind(context, box);

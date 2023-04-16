@@ -759,6 +759,9 @@ function adjustType(root: Box | null): void {
 function applyInterAtomSpacing(root: Box | null, context: Context): void {
   forEachBox(root, (prevBox: Box, box: Box) => {
     const prevType: BoxType = prevBox?.type ?? 'none';
+
+    if (prevType === 'newline') return;
+
     const table = box.isTight
       ? INTER_ATOM_TIGHT_SPACING[prevType] ?? null
       : INTER_ATOM_SPACING[prevType] ?? null;
