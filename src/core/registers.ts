@@ -73,7 +73,7 @@ const DEFAULT_DIMENSION_REGISTERS: Registers = {
   'normallineskiplimit': '0pt',
   // @todo: The vertical space between the lines for all math expressions which
   // allow multiple lines (see array, multline)
-  'jot': '10pt',
+  'jot': '3pt',
 
   // The space between adjacent `|` columns in an array definition.
   // From article.cls.txt:455
