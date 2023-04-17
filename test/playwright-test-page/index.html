@@ -39,6 +39,8 @@
         <math-field id="mf-1"></math-field>
         #mf-1: default
       </div>
+      <div id="mf-1.value">
+      </div>
       <div>
         <math-field id="mf-2"></math-field>
         #mf-2: Virtual Keyboard Toggle Hidden
@@ -71,6 +73,12 @@
       import { MathfieldElement } from '/dist/mathlive.mjs';
 
       document.addEventListener('DOMContentLoaded', () => {
+        const mfe1 = document.getElementById('mf-1');
+        const mfe1Value = document.getElementById('mf-1.value')
+        mfe1.addEventListener('input', ()=> {
+          mfe1Value.innerText = mfe1.value;
+        });
+
         const mfe3 = new MathfieldElement();
         mfe3.id = 'mf-3';
 
