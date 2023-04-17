@@ -660,7 +660,6 @@ export function insertSmartFence(
           model.offsetOf(atom),
           model.offsetOf(sibling),
         ]);
-        body.shift();
         body.pop();
         parent!.addChildrenAfter(
           [
@@ -671,7 +670,7 @@ export function insertSmartFence(
           ],
           atom
         );
-        model.position = model.offsetOf(parent!.firstChild);
+        model.position = model.offsetOf(parent!.firstChild) + 1;
         contentDidChange(model, { data: fence, inputType: 'insertText' });
         return true;
       }
