@@ -110,4 +110,112 @@ test('editing and re-adding left delimiter', async ({ page }) => {
 });
 
 
+test('deleting and re-adding left delimiter outside leftright atom', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').type('1+(2+3)+4');
+  for(let i = 0; i < 6; i++) 
+    await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('Backspace');
+  for(let i = 0; i < 3; i++) 
+    await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').type('(');
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.value;
+    });
+
+  expect(latex).toBe(String.raw`\left(1+2+3\right)+4`);
+
+});
+
+
+test('deleting and re-adding left delimiter inside leftright atom', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').type('1+(2+3)+4');
+  for(let i = 0; i < 6; i++) 
+    await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('Backspace');
+  await page.locator('#mf-1').press('ArrowRight');
+  await page.locator('#mf-1').press('ArrowRight');
+  await page.locator('#mf-1').type('(');
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.value;
+    });
+
+  expect(latex).toBe(String.raw`1+2+\left(3\right)+4`);
+
+});
+
+
+test('deleting and re-adding right delimiter in place', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').type('1+(2+3)+4');
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('Backspace');
+  await page.locator('#mf-1').type(')');
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.value;
+    });
+
+  expect(latex).toBe(String.raw`1+\left(2+3\right)+4`);
+
+});
+
+
+test('deleting and re-adding right delimiter outside leftright atom', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').type('1+(2+3)+4');
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('Backspace');
+  await page.locator('#mf-1').press('ArrowRight');
+  await page.locator('#mf-1').press('ArrowRight');
+  await page.locator('#mf-1').press('ArrowRight');
+  await page.locator('#mf-1').type(')');
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.value;
+    });
+
+  expect(latex).toBe(String.raw`1+\left(2+3+4\right)`);
+
+});
+
+test('deleting and re-adding right delimiter inside leftright atom', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').type('1+(2+3)+4');
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('Backspace');
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').press('ArrowLeft');
+  await page.locator('#mf-1').type(')');
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.value;
+    });
+
+  expect(latex).toBe(String.raw`1+\left(2\right)+4+3`);
+
+});
+
+
 
