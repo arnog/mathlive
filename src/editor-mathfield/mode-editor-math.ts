@@ -642,7 +642,7 @@ export function insertSmartFence(
     ) {
       parent.leftDelim = fence;
       parent.isDirty = true;
-      contentDidChange(model, { data: fence, inputType: 'insertText'});
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
       return true;
     }
 
