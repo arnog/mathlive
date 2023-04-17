@@ -642,6 +642,7 @@ export function insertSmartFence(
     ) {
       parent.leftDelim = fence;
       parent.isDirty = true;
+      contentDidChange(model, { data: fence, inputType: 'insertText'});
       return true;
     }
 
@@ -756,7 +757,7 @@ export function insertSmartFence(
       const atom = model.at(i);
       if (
         atom instanceof LeftRightAtom &&
-        atom.rightDelim === '?' &&
+        (atom.rightDelim === '?' || atom.rightDelim === '.') &&
         isValidClose(atom.leftDelim, fence)
       )
         break;
@@ -767,9 +768,8 @@ export function insertSmartFence(
       match.rightDelim = fence;
       match.addChildren(
         model.extractAtoms([i, model.position]),
-        atom.parentBranch!
+        match.parentBranch!
       );
-      model.position = i;
       contentDidChange(model, { data: fence, inputType: 'insertText' });
       return true;
     }
@@ -779,7 +779,7 @@ export function insertSmartFence(
     // adjust the body (put everything after the insertion point outside)
     if (
       parent instanceof LeftRightAtom &&
-      parent.rightDelim === '?' &&
+      (parent.rightDelim === '?' || parent.rightDelim === '.') &&
       isValidClose(parent.leftDelim, fence)
     ) {
       parent.isDirty = true;
@@ -801,7 +801,7 @@ export function insertSmartFence(
     const grandparent = parent!.parent;
     if (
       grandparent instanceof LeftRightAtom &&
-      grandparent.rightDelim === '?' &&
+      (grandparent.rightDelim === '?' || grandparent.rightDelim === '.') &&
       model.at(model.position).isLastSibling
     ) {
       model.position = model.offsetOf(grandparent);
