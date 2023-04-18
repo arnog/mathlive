@@ -1183,7 +1183,8 @@ defineFunction('not', '{:math}', {
     style: PrivateStyle,
     args: (null | Argument)[]
   ): Atom => {
-    if (args.length < 1 || args[0] === null || argAtoms(args[0]).length === 0) {
+    const arg = argAtoms(args[0]);
+    if (args.length < 1 || args[0] === null || arg.length === 0) {
       return new Atom('mrel', context, {
         command: name,
         style,
@@ -1191,27 +1192,27 @@ defineFunction('not', '{:math}', {
       });
     }
     const isGroup = typeof args[0] === 'object' && 'group' in args[0];
-    const arg = argAtoms(args[0]);
-    return new GroupAtom(
+    const result = new GroupAtom(
       [
         new OverlapAtom(name, '\ue020', context, {
           align: 'right',
           style,
-          boxType: isGroup ? 'op' : atomsBoxType(arg),
+          boxType: 'inner', // isGroup ? 'ord' : 'ord', // atomsBoxType(arg),
         }),
         ...arg,
       ],
       context,
       {
-        boxType: isGroup ? 'op' : atomsBoxType(arg),
+        boxType: 'inner', // isGroup ? 'ord' : 'ord', // atomsBoxType(arg),
         captureSelection: true,
         command: '\\not',
         serialize: (_atom, options) =>
           isGroup
             ? `\\not{${Atom.serialize(arg, options)}}`
-            : latexCommand('\\not', Atom.serialize(arg, options)),
+            : `\\not${Atom.serialize(arg, options)}`,
       }
     );
+    return result;
   },
 });
 
