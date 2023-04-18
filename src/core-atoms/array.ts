@@ -412,9 +412,12 @@ export class ArrayAtom extends Atom {
       }
 
       // If not last row, add 'jot' of depth
+      // This does not apply to matrix environments, and cases.
+      // It *does* appear to apply to `dcases` and `rcases` environments
       if (
         r < nr - 1 &&
         !isMatrixEnvironment(this.environmentName) &&
+        this.environmentName !== 'cases' &&
         this.environmentName !== 'array'
       )
         depth += innerContext.getRegisterAsEm('jot');
