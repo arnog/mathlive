@@ -3,6 +3,7 @@ import { Context } from '../core/context';
 import { Box } from '../core/box';
 import type { GlobalContext } from '../core/types';
 import { latexCommand } from '../core/tokenizer';
+import { Style } from '../public/core-types';
 
 export class MacroAtom extends Atom {
   readonly macroArgs: string;
@@ -16,9 +17,10 @@ export class MacroAtom extends Atom {
       args?: string;
       body: Atom[];
       captureSelection?: boolean;
+      style: Style;
     }
   ) {
-    super('macro', context, { command: macro });
+    super('macro', context, { command: macro, style: options.style });
     this.body = options.body;
     // Set the `captureSelection` attribute to true so that the atom is handled
     // as an unbreakable unit

@@ -1748,6 +1748,7 @@ export class Parser {
       expand: def.expand,
       captureSelection: def.captureSelection,
       args: tokensToString(this.tokens.slice(initialIndex, this.index)),
+      style: this.currentContext.style,
       body: parseLatex(def.def, this.context, {
         parseMode: this.parseMode,
         args: (arg) => args[arg],
