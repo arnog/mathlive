@@ -4,15 +4,23 @@
 
 - In LaTeX, `\not{\in}`, `\not{}\in` and `\not\in` all render differently.
   Previously they were all rendered as `\not\in`. They now render as in LaTeX.
-- Removed some unused keybindings, added Desmos Graphing Calculator inline shortcuts, added ASCIIMath inline shortcuts.
+- Removed some unused keybindings, added Desmos Graphing Calculator inline 
+  shortcuts, added ASCIIMath inline shortcuts.
 - **#1920** Added a `"sandboxed"` `mathVirtualKeyboardPolicy` which causes the
   iframe in which the mathfield is to be treated as a top-level browsing context,
-  i.e. to display a virtual keyboard instance in the that iframe.
-- Added `mathVirtualKeycap.actionKeycap`, `mathVirtualKeycap.shiftKeycap`, `mathVirtualKeycap.tabKeycap`, `mathVirtualKeycap.backspaceKeycap` to customize the appearance of action keys without having to define new layouts. This can be used to change the "Return" glyph to "Continue" for example, or to use the word "Shift" for the shift key instead of the default shift glyph.
-- Added keyboard shortcuts (<kbd>alt/option</kbd>+<kbd>Tab</kbd> and <kbd>alt/option</kbd>+<kbd>Return</kbd>) for matrices/environments. Type `(` + <kbd>alt/option</kbd>+<kbd>Tab</kbd> to create 2x1 matrix. If at the root, type 
- <kbd>alt/option</kbd>+<kbd>Return</kbd> for a multi-line expression.
-- Improved LaTeX serialization. More consistently use braces around arguments,
-  consistent with LaTeX conventions. Exception is made for single digits for 
+  i.e. to display a virtual keyboard instance in that iframe.
+- Added `mathVirtualKeycap.actionKeycap`, `mathVirtualKeycap.shiftKeycap`, 
+  `mathVirtualKeycap.tabKeycap`, `mathVirtualKeycap.backspaceKeycap` to 
+  customize the appearance of action keys without having to define new layouts. 
+  This can be used to change the "Return" glyph to "Continue" for example, 
+  or to use the word "Shift" for the shift key instead of the default shift glyph.
+- Added keyboard shortcuts (<kbd>alt/option</kbd>+<kbd>Tab</kbd> and 
+  <kbd>alt/option</kbd>+<kbd>Return</kbd>) for matrices/environments. 
+  Type `(` + <kbd>alt/option</kbd>+<kbd>Tab</kbd> to create 2x1 matrix. 
+  If at the root, type  <kbd>alt/option</kbd>+<kbd>Return</kbd> for a 
+  multi-line expression.
+- Improved LaTeX serialization. Use braces around arguments consistent with 
+  LaTeX conventions. Exception is made for single digits for 
   fractions, square roots, superscript and subscript.
 - Improved handling of arguments with and without braces. `x^\frac12` is now
   parsed correctly.
