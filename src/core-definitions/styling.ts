@@ -26,6 +26,7 @@ import type {
 import { GlobalContext, PrivateStyle } from '../core/types';
 import { latexCommand } from '../core/tokenizer';
 import { atomsBoxType } from '../core/box';
+import { NewLineAtom } from '../core-atoms/newline';
 
 defineFunction('mathtip', '{:math}{:math}', {
   createAtom: (
@@ -809,6 +810,12 @@ defineFunction('mspace', '{width:glue}', {
       context,
       (args[0] as Glue) ?? { glue: { dimension: 0 } }
     ),
+});
+
+// New line
+defineFunction('\\', '', {
+  createAtom: (command, context, style) =>
+    new NewLineAtom(command, context, style),
 });
 
 defineFunction('mathop', '{:auto}', {
