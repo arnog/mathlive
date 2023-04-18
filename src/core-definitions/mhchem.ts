@@ -65,12 +65,8 @@ export class ChemAtom extends Atom {
 }
 
 defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', {
-  createAtom: (
-    command: string,
-    args: Argument[],
-    _style: Style,
-    context: GlobalContext
-  ): Atom => new ChemAtom(command, args[0] as string, context),
+  createAtom: (command, context, _style, args: [string]): Atom =>
+    new ChemAtom(command, args[0] ?? '', context),
 });
 
 /*************************************************************

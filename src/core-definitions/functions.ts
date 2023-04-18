@@ -260,10 +260,15 @@ defineFunction(
   '{numer:auto}{denom:auto}{left-delim:delim}{right-delim:delim}',
   {
     infix: true,
-    createAtom: (command, context, style, args) =>
+    createAtom: (
+      command,
+      context,
+      style,
+      args: [Argument | null, Argument | null, string | null, string | null]
+    ) =>
       new GenfracAtom(command, argAtoms(args[0]), argAtoms(args[1]), context, {
-        leftDelim: args[2] as string,
-        rightDelim: args[3] as string,
+        leftDelim: args[2] ?? '.',
+        rightDelim: args[3] ?? '.',
         hasBarLine: false,
         style,
         serialize: (atom, options) =>
@@ -411,8 +416,8 @@ defineFunction(['Re', 'Im'], '', {
 
 defineFunction('middle', '{:delim}', {
   ifMode: 'math',
-  createAtom: (command, context, style, args) =>
-    new DelimAtom(command, args[0] as string, context, { size: 1, style }),
+  createAtom: (command, context, style, args: [string | null]) =>
+    new DelimAtom(command, args[0] ?? '|', context, { size: 1, style }),
 });
 
 // TODO

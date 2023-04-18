@@ -88,10 +88,10 @@ defineFunction('ensuremath', '{:math}', {
 });
 
 defineFunction('color', '{:string}', {
-  applyStyle: (_name, context, args) => {
-    const color = args[0] as string;
+  applyStyle: (_name, context, args: (string | null)[]) => {
+    const color = args[0] ?? 'red';
     return {
-      verbatimColor: args[0] as string,
+      verbatimColor: args[0] ?? undefined,
       color: context.colorMap?.(color) ?? color,
     };
   },
@@ -101,10 +101,10 @@ defineFunction('color', '{:string}', {
 // Unlike what its name might suggest, this command does not set the mode to text
 // That is, it can equally be applied to math and text mode.
 defineFunction('textcolor', '{:string}{content:auto*}', {
-  applyStyle: (_name, context, args) => {
-    const color = args[0] as string;
+  applyStyle: (_name, context, args: (string | null)[]) => {
+    const color = args[0] ?? 'red';
     return {
-      verbatimColor: color,
+      verbatimColor: args[0] ?? undefined,
       color: context.colorMap?.(color) ?? color,
     };
   },
@@ -134,10 +134,10 @@ defineFunction('boxed', '{content:math}', {
 // However, just changing the background color makes editing easier
 defineFunction('colorbox', '{:string}{content:auto*}', {
   applyMode: 'text',
-  applyStyle: (_name, context, args) => {
-    const color = args[0] as string;
+  applyStyle: (_name, context, args: (string | null)[]) => {
+    const color = args[0] ?? 'yellow';
     return {
-      verbatimBackgroundColor: args[0] as string,
+      verbatimBackgroundColor: args[0] ?? undefined,
       backgroundColor: context.backgroundColorMap?.(color) ?? color,
     };
   },
@@ -152,14 +152,14 @@ defineFunction(
       name: string,
       context: GlobalContext,
       style: PrivateStyle,
-      args: (null | Argument)[]
+      args: [null | string, null | string, null | Argument]
     ): Atom => {
-      const color = args[0] as string;
-      const bgColor = args[1] as string;
+      const color = args[0] ?? 'blue';
+      const bgColor = args[1] ?? 'yellow';
       return new BoxAtom(name, argAtoms(args[2]), context, {
         verbatimFramecolor: color, // Save this value to restore it verbatim later
         framecolor: context.colorMap?.(color) ?? color,
-        verbatimBackgroundcolor: args[1] as string, // Save this value to restore it verbatim later
+        verbatimBackgroundcolor: args[1] ?? undefined, // Save this value to restore it verbatim later
         backgroundcolor: context.backgroundColorMap?.(bgColor) ?? bgColor,
         style,
         serialize: (atom: BoxAtom, options: ToLatexOptions) =>
@@ -187,10 +187,10 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
     name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: [BBoxParameter | null, null | Argument]
   ): Atom => {
     if (args[0]) {
-      const arg = args[0] as BBoxParameter;
+      const arg = args[0];
       return new BoxAtom(name, argAtoms(args[1]), context, {
         padding: arg.padding,
         border: arg.border,
@@ -276,7 +276,7 @@ defineFunction(
     // TeX behaves very inconsistently when sizing commands are applied
     // to math mode. We allow sizing commands to be applied in both math and
     // text mode
-    applyStyle: (name, _args): PrivateStyle => {
+    applyStyle: (name): PrivateStyle => {
       return {
         fontSize: {
           '\\tiny': 1,
@@ -298,23 +298,23 @@ defineFunction(
 // \fontseries only works in text mode
 defineFunction('fontseries', '{:string}', {
   ifMode: 'text',
-  applyStyle: (_name, args): PrivateStyle => {
-    return { fontSeries: args[0] as string as FontSeries };
+  applyStyle: (_name, _context, args: [null | FontSeries]): PrivateStyle => {
+    return { fontSeries: args[0] ?? 'auto' };
   },
 });
 // SHAPE: italic, small caps
 defineFunction('fontshape', '{:string}', {
   ifMode: 'text',
-  applyStyle: (_name, args): PrivateStyle => {
-    return { fontShape: args[0] as FontShape };
+  applyStyle: (_name, _context, args: [null | FontShape]): PrivateStyle => {
+    return { fontShape: args[0] ?? 'auto' };
   },
 });
 
 // FONT FAMILY: Fraktur, Calligraphic, ...
 defineFunction('fontfamily', '{:string}', {
   ifMode: 'text',
-  applyStyle: (_name, args): PrivateStyle => {
-    return { fontFamily: args[0] as string };
+  applyStyle: (_name, _context, args: [null | string]): PrivateStyle => {
+    return { fontFamily: args[0] ?? 'roman' };
   },
 });
 
@@ -323,17 +323,13 @@ defineFunction('fontfamily', '{:string}', {
 // they take effect immediately, and \selectfont is a no-op
 defineFunction('selectfont', '', {
   ifMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return {};
-  },
+  applyStyle: () => ({}),
 });
 
 // \bf works in any mode
 // As per the LaTeX 2.09 semantics, it overrides shape, family
 defineFunction('bf', '', {
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontSeries: 'b', fontShape: 'n', fontFamily: 'cmr' };
-  },
+  applyStyle: () => ({ fontSeries: 'b', fontShape: 'n', fontFamily: 'cmr' }),
 });
 
 // Note: These function work a little bit differently than LaTex
@@ -359,220 +355,158 @@ defineFunction(['boldsymbol', 'bm'], '{:math*}', {
 // Note: switches to math mode
 defineFunction('bold', '{:math*}', {
   applyMode: 'math',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variantStyle: 'bold' };
-  },
+  applyStyle: () => ({ variantStyle: 'bold' }),
 });
 
 defineFunction('bfseries', '', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontSeries: 'b' };
-  },
+  applyStyle: () => ({ fontSeries: 'b' }),
 });
 defineFunction('mdseries', '', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontSeries: 'm' };
-  },
+  applyStyle: () => ({ fontSeries: 'm' }),
 });
 defineFunction('upshape', '', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontShape: 'n' };
-  },
+  applyStyle: () => ({ fontShape: 'n' }),
 });
 defineFunction('slshape', '', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontShape: 'sl' };
-  },
+  applyStyle: () => ({ fontShape: 'sl' }),
 });
 // Small caps
 defineFunction('scshape', '', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontShape: 'sc' };
-  },
+  applyStyle: () => ({ fontShape: 'sc' }),
 });
 
 defineFunction('textbf', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontSeries: 'b' };
-  },
+  applyStyle: () => ({ fontSeries: 'b' }),
 });
 defineFunction('textmd', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontSeries: 'm' };
-  },
+  applyStyle: () => ({ fontSeries: 'm' }),
 });
 
 defineFunction('textup', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontShape: 'n' };
-  },
+  applyStyle: () => ({ fontShape: 'n' }),
 });
 
 // @todo: family could be 'none' or 'default'
 // "normal" font of the body text, not necessarily roman
 defineFunction('textnormal', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontShape: 'n', fontSeries: 'm' };
-  },
+  applyStyle: () => ({ fontShape: 'n', fontSeries: 'm' }),
 });
 
 defineFunction('textsl', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontShape: 'sl' };
-  },
+  applyStyle: () => ({ fontShape: 'sl' }),
 });
 
 defineFunction('textit', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontShape: 'it' };
-  },
+  applyStyle: () => ({ fontShape: 'it' }),
 });
 
 defineFunction('textsc', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontShape: 'sc' };
-  },
+  applyStyle: () => ({ fontShape: 'sc' }),
 });
 defineFunction('textrm', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontFamily: 'roman' };
-  },
+  applyStyle: () => ({ fontFamily: 'roman' }),
 });
 
 defineFunction('textsf', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontFamily: 'sans-serif' };
-  },
+  applyStyle: () => ({ fontFamily: 'sans-serif' }),
 });
 
 defineFunction('texttt', '{:text*}', {
   applyMode: 'text',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontFamily: 'monospace' };
-  },
+  applyStyle: () => ({ fontFamily: 'monospace' }),
 });
 
 // Note: \mathbf is a no-op in text mode
 defineFunction('mathbf', '{:math*}', {
   applyMode: 'math',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'normal', variantStyle: 'bold' };
-  },
+  applyStyle: () => ({ variant: 'normal', variantStyle: 'bold' }),
 });
 
 // `\mathnormal` includes italic correction, `\mathit` doesn't
 defineFunction('mathit', '{:math*}', {
   applyMode: 'math',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'main', variantStyle: 'italic' };
-  },
+  applyStyle: () => ({ variant: 'main', variantStyle: 'italic' }),
 });
 
 // `\mathnormal` includes italic correction, `\mathit` doesn't
 defineFunction('mathnormal', '{:math*}', {
   applyMode: 'math',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'normal', variantStyle: 'italic' };
-  },
+  applyStyle: () => ({ variant: 'normal', variantStyle: 'italic' }),
 });
 
 // From the ISOMath package
 defineFunction('mathbfit', '{:math*}', {
   applyMode: 'math',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'main', variantStyle: 'bolditalic' };
-  },
+  applyStyle: () => ({ variant: 'main', variantStyle: 'bolditalic' }),
 });
 
 defineFunction('mathrm', '{:math*}', {
   applyMode: 'math',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'normal', variantStyle: 'up' };
-  },
+  applyStyle: () => ({ variant: 'normal', variantStyle: 'up' }),
 });
 
 defineFunction('mathsf', '{:math*}', {
   applyMode: 'math',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'sans-serif', variantStyle: 'up' };
-  },
+  applyStyle: () => ({ variant: 'sans-serif', variantStyle: 'up' }),
 });
 defineFunction('mathtt', '{:math*}', {
   applyMode: 'math',
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'monospace', variantStyle: 'up' };
-  },
+  applyStyle: () => ({ variant: 'monospace', variantStyle: 'up' }),
 });
 
 defineFunction('it', '', {
-  applyStyle: (_name, _args): PrivateStyle => {
-    return {
-      fontSeries: 'm',
-      fontShape: 'it',
-      fontFamily: 'cmr',
-      variantStyle: 'italic', // For math mode
-    };
-  },
+  applyStyle: () => ({
+    fontSeries: 'm',
+    fontShape: 'it',
+    fontFamily: 'cmr',
+    variantStyle: 'italic', // For math mode
+  }),
 });
 
 // In LaTeX, \rmfamily, \sffamily and \ttfamily are no-op in math mode.
 defineFunction('rmfamily', '', {
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontFamily: 'roman' };
-  },
+  applyStyle: () => ({ fontFamily: 'roman' }),
 });
 
 defineFunction('sffamily', '', {
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontFamily: 'sans-serif' };
-  },
+  applyStyle: () => ({ fontFamily: 'sans-serif' }),
 });
 
 defineFunction('ttfamily', '', {
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { fontFamily: 'monospace' };
-  },
+  applyStyle: () => ({ fontFamily: 'monospace' }),
 });
 
 // In LaTeX, \Bbb and \mathbb are no-op in text mode.
 // They also map lowercase characters to different glyphs.
 // Note that \Bbb has been deprecated for over 20 years (as well as \rm, \it, \bf)
 defineFunction(['Bbb', 'mathbb'], '{:math*}', {
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'double-struck', variantStyle: 'up' };
-  },
+  applyStyle: () => ({ variant: 'double-struck', variantStyle: 'up' }),
 });
 
 defineFunction(['frak', 'mathfrak'], '{:math*}', {
-  applyStyle: (_name, _args) => {
-    return { variant: 'fraktur', variantStyle: 'up' };
-  },
+  applyStyle: () => ({ variant: 'fraktur', variantStyle: 'up' }),
 });
 
 defineFunction('mathcal', '{:math*}', {
-  applyStyle: (_name, _args) => {
-    return { variant: 'calligraphic', variantStyle: 'up' };
-  },
+  applyStyle: () => ({ variant: 'calligraphic', variantStyle: 'up' }),
 });
 
 defineFunction('mathscr', '{:math*}', {
-  applyStyle: (_name, _args): PrivateStyle => {
-    return { variant: 'script', variantStyle: 'up' };
-  },
+  applyStyle: () => ({ variant: 'script', variantStyle: 'up' }),
 });
 
 /*
@@ -614,10 +548,10 @@ defineFunction('class', '{name:string}{content:auto*}', {
     _name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: [null | string, null | Argument]
   ): Atom =>
     new GroupAtom(argAtoms(args[1]), context, {
-      customClass: args[0] as string,
+      customClass: args[0] ?? '',
       style,
     }),
 });
@@ -628,10 +562,10 @@ defineFunction('cssId', '{id:string}{content:auto}', {
     _name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: [null | string, null | Argument]
   ): Atom =>
     new GroupAtom(argAtoms(args[1]), context, {
-      cssId: args[0] as string,
+      cssId: args[0] ?? '',
       style,
     }),
 });
@@ -642,10 +576,10 @@ defineFunction('htmlData', '{data:string}{content:auto}', {
     _name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: [null | string, null | Argument]
   ): Atom =>
     new GroupAtom(argAtoms(args[1]), context, {
-      htmlData: args[0] as string,
+      htmlData: args[0] ?? '',
       style,
     }),
 });
@@ -656,10 +590,10 @@ defineFunction('htmlStyle', '{data:string}{content:auto}', {
     _name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: [null | string, null | Argument]
   ): Atom =>
     new GroupAtom(argAtoms(args[1]), context, {
-      htmlStyle: args[0] as string,
+      htmlStyle: args[0] ?? '',
       style,
     }),
 });
@@ -745,9 +679,9 @@ defineFunction(
       name: string,
       context: GlobalContext,
       style: PrivateStyle,
-      args: (null | Argument)[]
+      args: (null | string)[]
     ): Atom =>
-      new SizedDelimAtom(name, args[0] as string, context, {
+      new SizedDelimAtom(name, args[0] ?? '.', context, {
         size: DELIMITER_SIZES[name].size,
         delimType: DELIMITER_SIZES[name].mclass,
         style,
@@ -768,13 +702,13 @@ defineFunction(
       name: string,
       context: GlobalContext,
       style: PrivateStyle,
-      args: (null | Argument)[]
+      args: (null | Glue)[]
     ): Atom =>
       new SpacingAtom(
         name,
         style,
         context,
-        (args[0] as Glue) ?? { glue: { dimension: 0 } }
+        args[0] ?? { glue: { dimension: 0 } }
       ),
   }
 );
@@ -792,13 +726,13 @@ defineFunction(
       name: string,
       context: GlobalContext,
       style: PrivateStyle,
-      args: (null | Argument)[]
+      args: (null | Glue)[]
     ): Atom =>
       new SpacingAtom(
         name,
         style,
         context,
-        (args[0] as Glue) ?? { glue: { dimension: 0 } }
+        args[0] ?? { glue: { dimension: 0 } }
       ),
   }
 );
@@ -808,13 +742,13 @@ defineFunction('mspace', '{width:glue}', {
     name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: (null | Glue)[]
   ): Atom =>
     new SpacingAtom(
       name,
       style,
       context,
-      (args[0] as Glue) ?? { glue: { dimension: 0 } }
+      args[0] ?? { glue: { dimension: 0 } }
     ),
 });
 
@@ -943,8 +877,7 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
 
 class UnicodeAtom extends Atom {
   codepoint: number;
-  constructor(arg: string, style: PrivateStyle, context: GlobalContext) {
-    let codepoint = Number.parseInt(arg);
+  constructor(codepoint: number, style: PrivateStyle, context: GlobalContext) {
     if (!Number.isFinite(codepoint)) codepoint = 0x2753; // BLACK QUESTION MARK
     super('mord', context, {
       value: String.fromCodePoint(codepoint),
@@ -963,11 +896,11 @@ class UnicodeAtom extends Atom {
 
 defineFunction('unicode', '{charcode:number}', {
   createAtom: (
-    name: string,
+    _name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
-  ): Atom => new UnicodeAtom(args[0] as string, style, context),
+    args: [null | number]
+  ): Atom => new UnicodeAtom(args[0] ?? 0xfffd, style, context),
 });
 
 // A box of the width and height
@@ -976,12 +909,12 @@ defineFunction('rule', '[raise:dimen]{width:dimen}{thickness:dimen}', {
     name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: (null | Dimension)[]
   ): Atom =>
     new RuleAtom(name, context, {
-      shift: args[0] as Dimension,
-      width: args[1] as Dimension,
-      height: args[2] as Dimension,
+      shift: args[0] ?? { dimension: 0 },
+      width: args[1] ?? { dimension: 1, unit: 'em' },
+      height: args[2] ?? { dimension: 1, unit: 'em' },
       style,
     }),
 });
@@ -1116,7 +1049,7 @@ defineFunction('smash', '[:string]{:auto}', {
     name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: [null | string, null | Argument]
   ): Atom => {
     if (!args[0]) {
       return new PhantomAtom(name, argAtoms(args[1]), context, {
@@ -1127,8 +1060,8 @@ defineFunction('smash', '[:string]{:auto}', {
     }
 
     return new PhantomAtom(name, argAtoms(args[1]), context, {
-      smashHeight: (args[0] as string).includes('t'),
-      smashDepth: (args[0] as string).includes('b'),
+      smashHeight: args[0].includes('t'),
+      smashDepth: args[0].includes('b'),
       style,
     });
   },
@@ -1181,7 +1114,7 @@ defineFunction('not', '{:math}', {
     name: string,
     context: GlobalContext,
     style: PrivateStyle,
-    args: (null | Argument)[]
+    args: [null | Argument]
   ): Atom => {
     const arg = argAtoms(args[0]);
     if (args.length < 1 || args[0] === null || arg.length === 0) {
