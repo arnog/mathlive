@@ -1189,6 +1189,8 @@ defineFunction('not', '{:math}', {
         command: name,
         style,
         value: '\ue020',
+        serialize: (_atom, _options) =>
+          args[0] !== null && arg.length === 0 ? `\\not{}` : `\\not`,
       });
     }
     const isGroup = typeof args[0] === 'object' && 'group' in args[0];
@@ -1197,13 +1199,13 @@ defineFunction('not', '{:math}', {
         new OverlapAtom(name, '\ue020', context, {
           align: 'right',
           style,
-          boxType: 'inner', // isGroup ? 'ord' : 'ord', // atomsBoxType(arg),
+          boxType: isGroup ? 'inner' : atomsBoxType(arg),
         }),
         ...arg,
       ],
       context,
       {
-        boxType: 'inner', // isGroup ? 'ord' : 'ord', // atomsBoxType(arg),
+        boxType: isGroup ? 'inner' : atomsBoxType(arg),
         captureSelection: true,
         command: '\\not',
         serialize: (_atom, options) =>

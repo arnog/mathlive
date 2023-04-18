@@ -348,7 +348,8 @@ export class Parser {
   matchRowSeparator(): boolean {
     if (!this.tabularMode) return false;
     const peek = this.peek();
-    if (peek !== '\\\\' && peek !== '\\cr') return false;
+    if (peek !== '\\\\' && peek !== '\\cr' && peek !== '\\tabularnewline')
+      return false;
     this.index++;
     return true;
   }
@@ -493,15 +494,15 @@ export class Parser {
     if (!this.match('<{>')) return '';
 
     let result = '';
-    let depth = 1;
-    while (depth > 0 && !this.end()) {
+    let level = 1;
+    while (level > 0 && !this.end()) {
       const token = this.get()!;
       if (token === '<}>') {
-        depth -= 1;
+        level -= 1;
         // Don't include final '}'
-        if (depth > 0) result += '}';
+        if (level > 0) result += '}';
       } else if (token === '<{>') {
-        depth += 1;
+        level += 1;
         result += '{';
       } else {
         if (/\\[a-zA-Z]+$/.test(result) && /^[a-zA-Z]/.test(token))
@@ -783,12 +784,7 @@ export class Parser {
           args.push(this.scanOptionalArgument(parameter.type));
         } else {
           const arg = this.scanArgument(parameter.type);
-          if (!arg) {
-            this.onError({
-              code: 'missing-argument',
-              arg: envName,
-            });
-          }
+          if (!arg) this.onError({ code: 'missing-argument', arg: envName });
 
           args.push(arg);
         }
@@ -838,13 +834,15 @@ export class Parser {
           row = [];
         } else {
           this.mathlist.push(
-            ...this.scan(
-              (token: Token) =>
-                token === '<}>' ||
-                token === '&' ||
-                token === '\\end' ||
-                token === '\\cr' ||
-                token === '\\\\'
+            ...this.scan((token) =>
+              [
+                '<}>',
+                '&',
+                '\\end',
+                '\\cr',
+                '\\\\',
+                '\\tabularnewline',
+              ].includes(token)
             )
           );
         }
@@ -1237,13 +1235,10 @@ export class Parser {
       // Parse an argument
       if (parameter.type === 'rest') {
         args.push(
-          this.scan(
-            (token: Token) =>
-              token === '<}>' ||
-              token === '&' ||
-              token === '\\end' ||
-              token === '\\cr' ||
-              token === '\\\\'
+          this.scan((token) =>
+            ['<}>', '&', '\\end', '\\cr', '\\\\', '\\tabularnewline'].includes(
+              token
+            )
           )
         );
       } else if (parameter.isOptional)
@@ -1251,43 +1246,9 @@ export class Parser {
       else if (parameter.type.endsWith('*')) {
         // For example 'math*'.
         // In this case, indicate that a 'yet-to-be-parsed'
-        // argument (and 'explicit group') is present
+        // argument (an 'explicit group') is present
         explicitGroup = parameter.type.slice(0, -1) as ParseMode;
-      } else {
-        const arg = this.scanArgument(parameter.type);
-        if (arg !== null) args.push(arg);
-        else {
-          // Report an error
-          this.onError({ code: 'missing-argument' });
-          switch (parameter.type) {
-            case 'number':
-              // case 'dimen':
-              // case 'glue':
-              args.push(0);
-              break;
-            case 'dimen':
-              args.push({ dimension: 0, unit: 'pt' });
-              break;
-            case 'glue':
-              args.push({ glue: { dimension: 0, unit: 'pt' } });
-              break;
-            case 'string':
-            case 'balanced-string':
-              args.push('');
-              break;
-            case 'delim':
-              args.push('.');
-              break;
-            case 'colspec':
-              args.push('llllllllll');
-              break;
-            case 'auto':
-            default:
-              args.push(this.placeholder());
-              break;
-          }
-        }
-      }
+      } else args.push(this.scanArgument(parameter.type));
 
       i += 1;
     }

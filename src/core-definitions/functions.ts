@@ -10,6 +10,7 @@ import { Argument, argAtoms, defineFunction } from './definitions-utils';
 import { GroupAtom } from '../core-atoms/group';
 import type { Style } from '../public/core-types';
 import type { GlobalContext } from '../core/types';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 defineFunction(
   [
@@ -185,8 +186,8 @@ defineFunction(
 
       return new GenfracAtom(
         command,
-        argAtoms(args[0]),
-        argAtoms(args[1]),
+        !args[0] ? [new PlaceholderAtom(context)] : argAtoms(args[0]),
+        !args[1] ? [new PlaceholderAtom(context)] : argAtoms(args[1]),
         context,
         {
           ...genfracOptions,

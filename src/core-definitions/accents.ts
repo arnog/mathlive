@@ -11,6 +11,7 @@ import {
   parseArgAsString,
 } from './definitions-utils';
 import { atomsBoxType } from '../core/box';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 const ACCENTS = {
   acute: 0x02ca,
@@ -32,11 +33,17 @@ defineFunction(Object.keys(ACCENTS), '{body:auto}', {
     context: GlobalContext,
     style: Style,
     args: Argument[]
-  ): Atom =>
-    new AccentAtom(command, argAtoms(args[0]), context, {
-      accentChar: ACCENTS[command.slice(1)],
-      style,
-    }),
+  ): Atom => {
+    return new AccentAtom(
+      command,
+      !args[0] ? [new PlaceholderAtom(context)] : argAtoms(args[0]),
+      context,
+      {
+        accentChar: ACCENTS[command.slice(1)],
+        style,
+      }
+    );
+  },
 });
 
 defineFunction(['widehat', 'widecheck', 'widetilde'], '{body:auto}', {

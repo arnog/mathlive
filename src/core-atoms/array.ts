@@ -623,8 +623,9 @@ export class ArrayAtom extends Atom {
       // Adds a separator between rows (but not after the last row)
       if (row < this.array.length - 1) {
         const gap = this.rowGaps[row];
-        if (gap) result.push(` \\\\[${gap.dimension} ${gap.unit ?? 'pt'}] `);
-        else result.push(' \\\\ ');
+        if (gap?.dimension)
+          result.push(`\\\\[${gap.dimension} ${gap.unit ?? 'pt'}] `);
+        else result.push('\\\\ ');
       }
     }
 

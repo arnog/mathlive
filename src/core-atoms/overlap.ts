@@ -49,6 +49,7 @@ export class OverlapAtom extends Atom {
       new Box([inner, new Box(null, { classes: 'fix' })], {
         classes: this.align === 'left' ? 'llap' : 'rlap',
         type: this.boxType,
+        newList: true,
       })
     );
   }
