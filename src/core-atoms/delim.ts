@@ -32,9 +32,7 @@ export class DelimAtom extends Atom {
   }
 
   render(_context: Context): Box {
-    const box = new Box(null);
-    box.delim = this.value;
-    return box;
+    return new Box(this.value, { type: 'middle' });
   }
 
   serialize(_options: ToLatexOptions): string {

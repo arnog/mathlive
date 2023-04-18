@@ -47,7 +47,8 @@
       <!-- <math-field id="mf"> \not=\not{}=\not{\in} </math-field> -->
 
       <math-field id="mf"
-        >\not= \not{=} a \neq b \ne c \not&lt; d \not{h} e\not{}</math-field
+        >\binom12 \sqrt[3]{x} \Huge \sqrt[3]{x} \binom56 x \text{text is
+        huge}</math-field
       >
 
       <!-- <math-field id="mf"
@@ -90,6 +91,50 @@
         ComputeEngine,
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
+
+      mathVirtualKeyboard.layouts = [
+        {
+          label: 'Clavier',
+          toolip: 'Clavier simple',
+          rows: [
+            [
+              'A',
+              'B',
+              'C',
+              'D',
+              'E',
+              'F',
+              'G',
+              '[separator-5]',
+
+              {
+                class: 'tex small',
+                label: '<span><i>x</i>&thinsp;²</span>',
+                insert: '$$#@^{2}$$',
+              },
+            ],
+            ['H', 'I', 'J', 'K', 'L', 'M', 'N', '[separator-5]', ' +'],
+            ['O', 'P', 'Q', 'R', 'S', 'T', 'U', '[separator-5]', '='],
+            [
+              'V',
+              'W',
+              'X',
+              'Y',
+              'Z',
+              '[separator-5]',
+              '[left]',
+              '[right]',
+              {
+                class: 'action',
+                label:
+                  '<svg style="width: 32px;height:32px"><use xlink:href=#svg-delete-backward /></svg>',
+                width: 1.0,
+                command: ['performWithFeedback', 'deleteBackward'],
+              },
+            ],
+          ],
+        },
+      ];
 
       const mf = document.getElementById('mf');
       // mf.addEventListener('focusin', () => mathVirtualKeyboard.show());
@@ -165,6 +210,7 @@
       // Handler called when the mathfield content has changed
       //
       function updateContent(mf) {
+        return;
         const latex = mf.getValue('latex-expanded');
         try {
           setHtml('latex', mf.getValue('latex-expanded'));

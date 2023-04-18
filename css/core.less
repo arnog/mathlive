@@ -217,8 +217,8 @@
   &:after {
     content: '';
     display: block;
-    margin-top: -0.04em;
-    min-height: 0.04em;
+    margin-top: calc(max(-1px, -0.04em));
+    min-height: calc(max(1px, 0.04em));
     /* Ensure the line is visible when printing even if "turn off background images" is on*/
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -251,14 +251,14 @@
 
 .ML__sqrt-line {
   display: inline-block;
-  height: 0.04em;
+  height: calc(max(1px, 0.04em));
   width: 100%;
 
   &:before {
     content: '';
     display: block;
-    margin-top: -0.04em;
-    min-height: 0.04em;
+    margin-top: calc(max(-1px, -0.04em));
+    min-height: calc(max(1px, 0.04em));
     /* Ensure the line is visible when printing even if "turn off background images" is on*/
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -489,19 +489,22 @@
 
     &:before {
       border-bottom-style: solid;
-      border-bottom-width: 0.04em;
-      content: '';
+      border-bottom-width: calc(max(1px, 0.04em));
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+        content: '';
       display: block;
     }
 
     &:after {
       border-bottom-style: solid;
-      border-bottom-width: 0.04em;
-      min-height: thin; /* There's a bug since Chrome 62 where 
-            sub-pixel border lines don't draw at some zoom 
-            levels (110%, 90%). Setting the min-height seems to work around it.
-            */
-      content: '';
+      // Since Chrome 62 there are issues rendering sub-pixel borders at 
+      // certain zoom levels (90%, 110%). Forcing it to at least one pixels 
+      // seems to work around the issue.
+      border-bottom-width: calc(max(1px, 0.04em));
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+        content: '';
       display: block;
       margin-top: -1px;
     }

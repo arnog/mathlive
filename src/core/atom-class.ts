@@ -521,8 +521,12 @@ export class Atom {
     if (this.branch('subscript') !== undefined) {
       const sub = serializeAtoms(this.subscript, options);
       if (sub.length === 0) result += '_{}';
-      else if (sub.length === 1) result += '_' + sub;
-      else result += `_{${sub}}`;
+      else if (sub.length === 1) {
+        // Using the short form without braces is a stylistic choice
+        // In general, LaTeX recommends the use of braces
+        if (/^[0-9]$/.test(sub)) result += `_${sub}`;
+        else result += `_{${sub}}`;
+      } else result += `_{${sub}}`;
     }
 
     if (this.branch('superscript') !== undefined) {
@@ -531,7 +535,10 @@ export class Atom {
       else if (sup.length === 1) {
         if (sup === '\u2032') result += '^\\prime ';
         else if (sup === '\u2033') result += '^\\doubleprime ';
-        else result += '^' + sup;
+        // Using the short form without braces is a stylistic choice
+        // In general, LaTeX recommends the use of braces
+        else if (/^[0-9]$/.test(sup)) result += `^${sup}`;
+        else result += `^{${sup}}`;
       } else result += `^{${sup}}`;
     }
     return result;
@@ -950,7 +957,7 @@ export class Atom {
     let classes = '';
     if (!this.parent) classes += ' ML__base';
     if (this.isSelected) classes += ' ML__selected';
-    const newList = options?.newList === true || this.type === 'first';
+    const newList = options?.newList === true;
     let result = this.createBox(context, { classes, newList });
     if (!result) return null;
 
@@ -1350,15 +1357,12 @@ function renderStyleRun(
         context.atomIdsSettings.overrideID = digitOrTextStringID;
 
       const box = atom.render(context, { newList });
+      newList = false;
 
       if (context.atomIdsSettings)
         context.atomIdsSettings.overrideID = undefined;
 
       if (box) {
-        // Groups (i.e. `{}`) without a specific boxType restart a new list
-        // (for spacing purposes)
-        newList = atom.type === 'group' && !atom['boxType'];
-
         // If this is a digit or text run, keep track of it
         if (context.atomIdsSettings?.groupNumbers) {
           if (atom.isDigit() || isText(atom)) {

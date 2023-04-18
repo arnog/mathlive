@@ -220,6 +220,7 @@ export class VBox extends Box {
       height,
       depth,
       type: options?.type,
+      newList: true,
     });
   }
 }

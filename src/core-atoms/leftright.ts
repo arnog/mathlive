@@ -5,7 +5,7 @@ import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { makeLeftRightDelim, RIGHT_DELIM } from '../core/delimiters';
 import { Context } from '../core/context';
-import { joinLatex, latexCommand } from '../core/tokenizer';
+import { joinLatex } from '../core/tokenizer';
 
 /**
  *  \left....\right
@@ -66,17 +66,21 @@ export class LeftRightAtom extends Atom {
 
     if (this.variant === 'left...right') {
       return joinLatex([
-        latexCommand('\\left', this.leftDelim ?? '.'),
+        '\\left',
+        this.leftDelim ?? '.',
         this.bodyToLatex(options),
-        latexCommand('\\right', rightDelim),
+        '\\right',
+        rightDelim,
       ]);
     }
 
     if (this.variant === 'mleft...mright') {
       return joinLatex([
-        latexCommand('\\mleft', this.leftDelim ?? '.'),
+        '\\mleft',
+        this.leftDelim ?? '.',
         this.bodyToLatex(options),
-        latexCommand('\\mright', rightDelim),
+        '\\mright',
+        rightDelim,
       ]);
     }
 
@@ -137,28 +141,13 @@ export class LeftRightAtom extends Atom {
       );
     }
 
+    const closeDelimStyle = this.body?.[this.body.length - 1].style ?? {};
+
     if (inner) {
-      // Replace the delim (\middle) boxes with proper ones now that we know
-      // the height/depth
-      if (inner.children) {
-        for (let i = 0; i < inner.children.length; i++) {
-          const child = inner.children![i];
-          if (child.delim) {
-            const savedCaret = child.caret;
-            inner.children![i] = this.bind(
-              context,
-              makeLeftRightDelim(
-                'inner',
-                child.delim,
-                innerHeight,
-                innerDepth,
-                context
-              )
-            );
-            inner.children![i].caret = savedCaret;
-          }
-        }
-      }
+      // Now that we know the height/depth of the `\left...\right`,
+      // replace the middle delimiter (\middle) boxes with correctly sized ones
+      upgradeMiddle(inner.children, this, context, innerHeight, innerDepth);
+
       boxes.push(inner);
     }
 
@@ -186,7 +175,7 @@ export class LeftRightAtom extends Atom {
             {
               classes: classes + ' ML__close',
               mode: this.mode,
-              style: this.style,
+              style: closeDelimStyle,
             }
           )
         )
@@ -208,5 +197,32 @@ export class LeftRightAtom extends Atom {
     if (this.caret) result.caret = this.caret;
 
     return this.bind(context, result.wrap(context));
+  }
+}
+
+function upgradeMiddle(
+  boxes: Box[] | undefined,
+  atom: LeftRightAtom,
+  context: Context,
+  height: number,
+  depth: number
+) {
+  if (!boxes) return;
+  for (let i = 0; i < boxes.length; i++) {
+    const child = boxes[i];
+    if (child.type === 'middle') {
+      boxes[i] = atom.bind(
+        context,
+        makeLeftRightDelim('inner', child.value, height, depth, context)
+      );
+      boxes[i].caret = child.caret;
+      boxes[i].isSelected = child.isSelected;
+      boxes[i].cssId = child.cssId;
+      boxes[i].htmlData = child.htmlData;
+      boxes[i].htmlStyle = child.htmlStyle;
+      boxes[i].attributes = child.attributes;
+      boxes[i].cssProperties = child.cssProperties;
+    } else if (child.children)
+      upgradeMiddle(child.children, atom, context, height, depth);
   }
 }
