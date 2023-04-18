@@ -16,6 +16,8 @@
   fractions, square roots, superscript and subscript.
 - Improved handling of arguments with and without braces. `x^\frac12` is now
   parsed correctly.
+- The `arraystretch` register is now supported to customize the vertical spacing
+  of matrixes and other multi row environments.
 
 ### Bug Fix
 

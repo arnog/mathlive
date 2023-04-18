@@ -148,8 +148,7 @@ const DEFAULT_NUMBER_REGISTERS: Registers = {
 
   baselineSkip: 1.2,
 
-  // @todo:
-  arraystretch: '',
+  arraystretch: 1.0,
 
   month: new Date().getMonth() + 1,
   day: new Date().getDate(),

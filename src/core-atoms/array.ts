@@ -256,7 +256,8 @@ export class ArrayAtom extends Atom {
     if (options.arraycolsep) this.arraycolsep = options.arraycolsep;
     this.colSeparationType = options.colSeparationType;
     // Default \arraystretch from lttab.dtx
-    this.arraystretch = options.arraystretch ?? 1.0;
+    if (options.arraystretch !== undefined)
+      this.arraystretch = options.arraystretch;
     this.minColumns = options.minColumns ?? 1;
   }
 
@@ -282,7 +283,8 @@ export class ArrayAtom extends Atom {
       colSeparationType: this.colSeparationType,
     };
 
-    if (this.arraystretch !== 1.0) result.arraystretch = this.arraystretch;
+    if (this.arraystretch !== undefined)
+      result.arraystretch = this.arraystretch;
     if (this.arraycolsep) result.arraycolsep = this.arraycolsep;
     if (this.leftDelim) result.leftDelim = this.leftDelim;
     if (this.rightDelim) result.rightDelim = this.rightDelim;
@@ -359,7 +361,10 @@ export class ArrayAtom extends Atom {
     const doubleRuleSep = innerContext.getRegisterAsEm('doublerulesep');
 
     // Row spacing
-    const arraystretch = this.arraystretch ?? 1.0;
+    const arraystretch =
+      this.arraystretch ??
+      innerContext.getRegisterAsNumber('arraystretch') ??
+      1.0;
     let arraycolsep =
       typeof this.arraycolsep === 'number' ? this.arraycolsep : arrayColSep;
     if (this.colSeparationType === 'small') {
