@@ -1124,6 +1124,13 @@ exports[`LEFT/RIGHT middle delimiters 2`] = `
 ]
 `;
 
+exports[`LEFT/RIGHT middle delimiters 3`] = `
+[
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1em;vertical-align:-0.25em"></span><span class="ML__base"><span class="left-right"><span class="ML__small-delim ML__open"><span>(</span></span><span><span><span class="ML__mathit">a</span></span><span style="color:#d7170b"><span class="ML__small-delim" style="margin-left:0.17em"><span>∣</span></span><span class="ML__mathit">b</span></span></span><span class="ML__small-delim ML__close"><span style="color:#d7170b">)</span></span></span></span></span>",
+  "no-error",
+]
+`;
+
 exports[`MODE SHIFT 0/ \\text{\\ensuremath{\\frac34}} renders correctly 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:1.33em"></span><span class="ML__strut--bottom" style="height:2.01em;vertical-align:-0.68em"></span><span class="ML__base"><span><span class="mfrac"><span class="nulldelimiter"></span><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.33em"><span class="ML__center" style="top:-2.31em"><span class="pstrut" style="height:3em"></span><span><span class="ML__cmr">4</span></span></span><span style="top:-3.21em"><span class="pstrut" style="height:3em"></span><span class="ML__frac-line"></span></span><span class="ML__center" style="top:-3.67em"><span class="pstrut" style="height:3em"></span><span><span class="ML__cmr">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.69em"></span></span></span><span class="nulldelimiter"></span></span></span></span></span>",

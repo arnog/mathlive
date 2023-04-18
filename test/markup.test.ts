@@ -228,6 +228,9 @@ describe('LEFT/RIGHT', () => {
   test('middle delimiters', () => {
     expect(markupAndError('\\left(a\\middle|b\\right)')).toMatchSnapshot();
     expect(markupAndError('\\left(a\\middle xb\\right)')).toMatchSnapshot();
+    expect(
+      markupAndError('\\left(a\\color{red}\\middle|b\\right)')
+    ).toMatchSnapshot();
   });
 });
 
