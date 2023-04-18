@@ -54,6 +54,6 @@ export class PlaceholderAtom extends Atom {
   serialize(_options: ToLatexOptions): string {
     let value = this.value;
     if (value === this.context.placeholderSymbol) value = '';
-    return latexCommand('\\placeholder', this.value);
+    return latexCommand('\\placeholder', value);
   }
 }
