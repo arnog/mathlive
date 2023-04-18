@@ -43,7 +43,7 @@ defineTabularEnvironment(
   '{columns:colspec}',
   (
     context: GlobalContext,
-    name: TabularEnvironment,
+    name: Environment,
     array: Atom[][][],
     rowGaps: Dimension[],
     args
@@ -66,7 +66,7 @@ defineTabularEnvironment(
   '',
   (
     context: GlobalContext,
-    name: TabularEnvironment,
+    name: Environment,
     array: Atom[][][],
     rowGaps: Dimension[]
   ): Atom => {
@@ -360,7 +360,6 @@ export function makeEnvironment(
         arraycolsep: 0,
         columns,
         // colSeparationType: 'align',
-        jot: 0.3,
         minColumns: 2,
       });
     }

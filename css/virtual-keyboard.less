@@ -1047,7 +1047,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 }
 
 .MLK__environment-panel:not(.is-visible) {
-  visibility: none;
+  visibility: hidden;
 }
 
 .MLK__environment-panel {
@@ -1072,7 +1072,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     
     circle {
       fill: #7f7f7f;
-      transition: 300ms;
+      transition: fill 300ms;
     }
 
     .MLK__array-insert-background {
@@ -1087,7 +1087,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
       stroke-opacity: 0;
       stroke-width: 40;
       pointer-events: none;
-      transition: 300ms;
+      transition: stroke-opacity 300ms;
       stroke-linecap: round;
     }
 
@@ -1113,8 +1113,9 @@ Note there are a different set of tooltip rules for the keyboard toggle
       justify-content: space-around;
       svg {
         pointer-events: all;
+        margin-top: 2px;
         width: calc(var(--private-panel-height) / 3 * 28 / 24);
-        height: calc(var(--private-panel-height) / 3);
+        height: calc(var(--private-panel-height) / 3 - 2px);
         border-radius: calc(var(--private-panel-height) / 25);
         &:hover {
           background-color: var(--keycap-background-hover, #f5f5f7);

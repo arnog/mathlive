@@ -1,6 +1,5 @@
 export class Scrim {
   static scrim: Scrim;
-  static matrixScrim: Scrim;
 
   private _element?: HTMLElement;
 
@@ -59,21 +58,14 @@ export class Scrim {
     return element;
   }
 
-  open(options: {
-    root?: Node | null;
-    child?: HTMLElement;
-    zIndex?: number;
-  }): void {
+  open(options: { root?: Node | null; child?: HTMLElement }): void {
     if (this.state !== 'closed') return;
-
     this.state = 'opening';
 
     // Remember the previously focused element. We'll restore it when we close.
     this.savedActiveElement = deepActiveElement();
 
     const { element } = this;
-
-    if (options.zIndex) element.style.zIndex = options.zIndex.toString();
 
     (options?.root ?? document.body).appendChild(element);
 
@@ -86,6 +78,7 @@ export class Scrim {
     const scrollbarWidth =
       window.innerWidth - document.documentElement.clientWidth;
     this.savedMarginRight = document.body.style.marginRight;
+
     this.savedOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 

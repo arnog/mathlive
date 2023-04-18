@@ -771,6 +771,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   update(mf: MathfieldProxy): void {
+    this._style = mf.style;
+    this.updateEnvironmemtPopover(mf);
+    this.updateToolbar(mf);
+  }
+
+  updateEnvironmemtPopover(mf: MathfieldProxy): void {
     if (
       mf.array &&
       isTabularEnvironment((mf.array as ArrayAtom)?.environmentName) &&
@@ -779,7 +785,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       mf.mode === 'math'
     )
       showEnvironmentPanel(this, mf.array as ArrayAtom, mf.boundingRect);
-    else hideEnvironmentPanel();
+    else hideEnvironmentPanel(this);
 
     this._style = mf.style;
     this.updateToolbar(mf);
@@ -790,7 +796,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   disconnect(): void {
-    hideEnvironmentPanel();
+    hideEnvironmentPanel(this);
     this.connectedMathfieldWindow = undefined;
   }
 
