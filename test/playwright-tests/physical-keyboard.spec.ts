@@ -14,7 +14,7 @@ test('default space bar', async ({ page }) => {
       return mfe.value;
     });
 
-  expect(latex).toBe('\\frac1y+x');
+  expect(latex).toBe('\\frac{1}{y}+x');
 });
 
 test('custom mathModeSpace', async ({ page }) => {
@@ -29,7 +29,7 @@ test('custom mathModeSpace', async ({ page }) => {
       return mfe.value;
     });
 
-  expect(latex).toBe('\\frac1{y\\:+x}');
+  expect(latex).toBe('\\frac{1}{y\\:+x}');
 });
 
 test('tab focus', async ({ page }) => {
@@ -132,7 +132,7 @@ test('escape to enter/exit latex mode', async ({ page }) => {
   // check latex of result
   expect(
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
-  ).toBe('\\frac{x}y');
+  ).toBe('\\frac{x}{y}');
 
   // attempt to use latex mode for math field with latex mode disabled
   // using instructions from: https://cortexjs.io/mathlive/guides/customizing/#turning-off-the-latex-mode
@@ -159,7 +159,7 @@ test('backslash to enter, enter to exit latex mode', async ({ page }) => {
   // check latex of result
   expect(
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
-  ).toBe('\\frac{x}y');
+  ).toBe('\\frac{x}{y}');
 
   // attempt to use latex mode for math field with latex mode disabled
   // using instructions from: https://cortexjs.io/mathlive/guides/customizing/#turning-off-the-latex-mode
@@ -294,7 +294,7 @@ test('underscore subscript', async ({ page }) => {
   // check latex of result
   expect(
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
-  ).toBe(String.raw`x_y-y_s+z_{rt}+20`);
+  ).toBe(String.raw`x_{y}-y_{s}+z_{rt}+20`);
 });
 
 test('subscript and superscript', async ({ page }) => {
@@ -308,7 +308,7 @@ test('subscript and superscript', async ({ page }) => {
   // check latex of result
   expect(
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
-  ).toBe(String.raw`x_y^h+y_{rr}^a+z_1^{aa}+s_{11}^{bb}+30+x^h_s-40`);
+  ).toBe(String.raw`x_{y}^{h}+y_{rr}^{a}+z_1^{aa}+s_{11}^{bb}+30+x^{h}_{s}-40`);
 });
 
 test('nested paranthesis', async ({ page }) => {

@@ -46,9 +46,7 @@
       <!-- <div style="height: 2000px; border-left: 10px solid blue"></div> -->
       <!-- <math-field id="mf"> \not=\not{}=\not{\in} </math-field> -->
 
-      <math-field id="mf"
-        >\not= \not{=} a \neq b \ne c \not&lt; d \not{h} e\not{}</math-field
-      >
+      <math-field id="mf">\not\in\not{\in}\not\in</math-field>
 
       <!-- <math-field id="mf"
         >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\\\end{pmatrix}</math-field
@@ -90,6 +88,50 @@
         ComputeEngine,
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
+
+      mathVirtualKeyboard.layouts = [
+        {
+          label: 'Clavier',
+          toolip: 'Clavier simple',
+          rows: [
+            [
+              'A',
+              'B',
+              'C',
+              'D',
+              'E',
+              'F',
+              'G',
+              '[separator-5]',
+
+              {
+                class: 'tex small',
+                label: '<span><i>x</i>&thinsp;²</span>',
+                insert: '$$#@^{2}$$',
+              },
+            ],
+            ['H', 'I', 'J', 'K', 'L', 'M', 'N', '[separator-5]', ' +'],
+            ['O', 'P', 'Q', 'R', 'S', 'T', 'U', '[separator-5]', '='],
+            [
+              'V',
+              'W',
+              'X',
+              'Y',
+              'Z',
+              '[separator-5]',
+              '[left]',
+              '[right]',
+              {
+                class: 'action',
+                label:
+                  '<svg style="width: 32px;height:32px"><use xlink:href=#svg-delete-backward /></svg>',
+                width: 1.0,
+                command: ['performWithFeedback', 'deleteBackward'],
+              },
+            ],
+          ],
+        },
+      ];
 
       const mf = document.getElementById('mf');
       // mf.addEventListener('focusin', () => mathVirtualKeyboard.show());

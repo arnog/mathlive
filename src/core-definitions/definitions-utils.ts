@@ -869,7 +869,10 @@ export function defaultGetDefinition(
   if (token.startsWith('\\')) {
     // This could be a function or a token
     info = LATEX_COMMANDS[token];
-    if (info) return info;
+    if (info) {
+      if (!info.ifMode || info.ifMode === parseMode) return info;
+      return null;
+    }
 
     // It wasn't a function, maybe it's a token?
     if (parseMode === 'math') info = MATH_SYMBOLS[token];

@@ -18,6 +18,7 @@ export type ArgumentType =
       | 'glue' // `"25mu plus 2em minus fiLll"`, `"2pt"`
       | 'string' // The string will end on the first non-literal token, e.g. `<}>`
       | 'balanced-string' // Delimiter is a balanced closing brace
+      | 'expression' // A literal, or command with arguments, not enclosed in braces
       | 'auto'
     );
 

@@ -153,8 +153,9 @@ function makeLargeDelim(
   // Delimiters ignore the mathstyle, so use a 'textstyle' context.
   const context = new Context(parentContext, options?.style, 'textstyle');
   const result = new Box(getSymbolValue(delim), {
-    fontFamily: 'Size' + size + '-Regular',
-    classes: 'ML__delim-size' + size,
+    fontFamily: `Size${size}-Regular`,
+    classes: `ML__delim-size${size}`,
+    type: options.type || 'none',
   }).wrap(context);
 
   if (center) result.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
@@ -647,13 +648,9 @@ export function makeCustomSizedDelim(
     style?: Style;
   }
 ): Box {
-  if (!delim || delim.length === 0 || delim === '.') {
-    return makeNullDelimiter(
-      context,
-      type,
-      { open: 'mopen', close: 'mclose', inner: 'minner' }[type]
-    );
-  }
+  if (!delim || delim.length === 0 || delim === '.')
+    return makeNullDelimiter(context, type);
+
   if (delim === '<' || delim === '\\lt') delim = '\\langle';
   else if (delim === '>' || delim === '\\gt') delim = '\\rangle';
 
@@ -744,6 +741,6 @@ export function makeNullDelimiter(
   const context = new Context(parentContext, undefined, 'textstyle');
   return new Box(null, {
     classes: ' nulldelimiter ' + (classes ?? ''),
-    type,
+    type: 'none',
   }).wrap(context);
 }

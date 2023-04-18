@@ -14,7 +14,12 @@ export class SurdAtom extends Atom {
   constructor(
     command: string,
     context: GlobalContext,
-    options: { mode?: ParseMode; body: Atom[]; index: Atom[]; style: Style }
+    options: {
+      mode?: ParseMode;
+      body: Atom[];
+      index: undefined | Atom[];
+      style: Style;
+    }
   ) {
     super('surd', context, {
       command,
@@ -39,7 +44,8 @@ export class SurdAtom extends Atom {
 
   serialize(options: ToLatexOptions): string {
     let command = this.command;
-    if (this.above) command += `[${this.aboveToLatex(options)}]`;
+    if (this.above && !this.hasEmptyBranch('above'))
+      command += `[${this.aboveToLatex(options)}]`;
 
     return latexCommand(command, this.bodyToLatex(options));
   }
@@ -154,10 +160,7 @@ export class SurdAtom extends Atom {
     const indexBox = Atom.createBox(
       new Context(parentContext, this.style, 'scriptscriptstyle'),
       this.above,
-      {
-        style: this.style,
-        newList: true,
-      }
+      { style: this.style, newList: true }
     );
 
     if (!indexBox) {
@@ -166,7 +169,7 @@ export class SurdAtom extends Atom {
       //
       const result = new Box([delimBox, bodyBox], {
         classes: this.containsCaret ? 'ML__contains-caret' : '',
-        type: 'ord',
+        type: 'inner',
       });
       if (this.caret) result.caret = this.caret;
       return this.bind(parentContext, result.wrap(parentContext));
@@ -186,8 +189,16 @@ export class SurdAtom extends Atom {
     // Add a class surrounding it so we can add on the appropriate
     // kerning
     const result = new Box(
-      [new Box(indexStack, { classes: 'ML__sqrt-index' }), delimBox, bodyBox],
-      { type: 'ord', classes: this.containsCaret ? 'ML__contains-caret' : '' }
+      [
+        new Box(indexStack, { classes: 'ML__sqrt-index', newList: true }),
+        delimBox,
+        bodyBox,
+      ],
+      {
+        type: 'inner',
+        newList: true,
+        classes: this.containsCaret ? 'ML__contains-caret' : '',
+      }
     );
     result.height = delimBox.height;
     result.depth = delimBox.depth;

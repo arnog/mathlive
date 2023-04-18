@@ -504,6 +504,8 @@ export class Parser {
         depth += 1;
         result += '{';
       } else {
+        if (/\\[a-zA-Z]+$/.test(result) && /^[a-zA-Z]/.test(token))
+          result += ' ';
         result +=
           {
             '<space>': ' ',
@@ -687,27 +689,28 @@ export class Parser {
    * @return group for the sequence or null
    */
   scanModeSet(): Atom | null {
-    let final: Token = '';
-    if (this.match('\\(')) final = '\\)';
-    if (!final && this.match('\\[')) final = '\\]';
-    if (!final) return null;
-    this.beginContext({
-      mode: 'math',
-      mathstyle: final === '\\)' ? 'textstyle' : 'displaystyle',
-    });
+    let mathstyle: MathstyleName | undefined = undefined;
+    if (this.match('\\(')) mathstyle = 'textstyle';
+    if (!mathstyle && this.match('\\[')) mathstyle = 'displaystyle';
+    if (!mathstyle) return null;
+    this.beginContext({ mode: 'math', mathstyle });
 
     const result = new GroupAtom(
-      this.scan((token) => token === final),
+      this.scan(
+        (token) => token === (mathstyle === 'displaystyle' ? '\\]' : '\\)')
+      ),
       this.context,
       {
-        mathstyleName: final === '\\)' ? 'textstyle' : 'displaystyle',
-        latexOpen: final === '\\]' ? '\\[' : '\\(',
-        latexClose: final,
-        boxType: 'ord',
+        mathstyleName: mathstyle,
+        latexOpen: mathstyle === 'displaystyle' ? '\\[' : '\\(',
+        latexClose: mathstyle === 'displaystyle' ? '\\]' : '\\)',
+        boxType: 'inner',
+        break: true,
       }
     );
 
-    if (!this.match(final)) this.onError({ code: 'unbalanced-mode-shift' });
+    if (!this.match(mathstyle === 'displaystyle' ? '\\]' : '\\)'))
+      this.onError({ code: 'unbalanced-mode-shift' });
 
     this.endContext();
     if (result.hasEmptyBranch('body')) return null;
@@ -736,6 +739,7 @@ export class Parser {
         mathstyleName: final === '<$>' ? 'textstyle' : 'displaystyle',
         latexOpen: final === '<$>' ? '$ ' : '$$ ',
         latexClose: final === '<$>' ? ' $' : ' $$',
+        break: true,
       }
     );
 
@@ -856,6 +860,21 @@ export class Parser {
   }
 
   /**
+   * Parse an expression: a literal, or a command and its arguments
+   */
+  scanExpression(): Atom[] | null {
+    const savedList = this.mathlist;
+    this.mathlist = [];
+    if (this.parseExpression()) {
+      const result = this.mathlist;
+      this.mathlist = savedList;
+      return result;
+    }
+    this.mathlist = savedList;
+    return null;
+  }
+
+  /**
    * Parse a sequence until a group end marker, such as
    * `}`, `\end`, `&`, etc...
    *
@@ -898,7 +917,7 @@ export class Parser {
         // Save the math list so far and start a new one
         prefix = this.mathlist;
         this.mathlist = [];
-      } else this.parse();
+      } else this.parseExpression();
     }
 
     let result: Atom[];
@@ -929,18 +948,37 @@ export class Parser {
    * group (i.e. `{}`).
    */
   scanGroup(): Atom | null {
-    if (!this.match('<{>')) return null;
-    const result = new GroupAtom(
-      this.scan((token) => token === '<}>'),
-      this.context,
-      {
-        mode: this.parseMode,
-        latexOpen: '{',
-        latexClose: '}',
+    if (this.parseMode === 'text') {
+      if (this.match('<{>')) {
+        return new Atom('text', this.context, {
+          value: '{',
+          mode: 'text',
+          style: this.style,
+        });
       }
-    );
+      if (this.match('<}>')) {
+        return new Atom('text', this.context, {
+          value: '}',
+          mode: 'text',
+          style: this.style,
+        });
+      }
+      return null;
+    }
+    if (!this.match('<{>')) return null;
 
+    const body = this.scan((token) => token === '<}>');
     if (!this.match('<}>')) this.onError({ code: 'unbalanced-braces' });
+
+    // Non-empty groups introduce a break in the
+    // inter-box spacing. Empty groups (`{}`) do not.
+
+    const result = new GroupAtom(body, this.context, {
+      break: body.length > 1,
+      mode: this.parseMode,
+      latexOpen: '{',
+      latexClose: '}',
+    });
 
     return result;
   }
@@ -954,7 +992,7 @@ export class Parser {
     while (!this.end() && nestLevel !== 0) {
       if (this.match('(')) nestLevel += 1;
       if (this.match(')')) nestLevel -= 1;
-      if (nestLevel !== 0) this.parse();
+      if (nestLevel !== 0) this.parseExpression();
     }
 
     if (nestLevel === 0) this.match(')');
@@ -974,18 +1012,19 @@ export class Parser {
    */
   scanDelim(): string | null {
     this.skipWhitespace();
-    const token = this.get();
+    const token = this.peek();
     if (!token) {
       this.onError({ code: 'unexpected-end-of-string' });
       return null;
     }
 
-    let delim = '.';
-    if (isLiteral(token) || token.startsWith('\\')) delim = token;
+    if (!isLiteral(token) && !token.startsWith('\\')) return null;
 
-    const info = this.context.getDefinition(delim, 'math');
+    this.next();
+
+    const info = this.context.getDefinition(token, 'math');
     if (!info) {
-      this.onError({ code: 'unknown-command', arg: delim });
+      this.onError({ code: 'unknown-command', arg: token });
       return null;
     }
 
@@ -994,7 +1033,7 @@ export class Parser {
       info.ifMode &&
       !info.ifMode.includes(this.parseMode)
     ) {
-      this.onError({ code: 'unexpected-delimiter', arg: delim });
+      this.onError({ code: 'unexpected-delimiter', arg: token });
       return null;
     }
 
@@ -1002,7 +1041,7 @@ export class Parser {
       info.definitionType === 'symbol' &&
       (info.type === 'mopen' || info.type === 'mclose')
     )
-      return delim;
+      return token;
 
     // Some symbols are not of type mopen/mclose, but are still
     // valid delimiters...
@@ -1010,12 +1049,12 @@ export class Parser {
     // (when the closing delimiter is displayed greyed out)
     if (
       /^(\.|\?|\||<|>|\\vert|\\Vert|\\\||\\surd|\\uparrow|\\downarrow|\\Uparrow|\\Downarrow|\\updownarrow|\\Updownarrow|\\mid|\\mvert|\\mVert)$/.test(
-        delim
+        token
       )
     )
-      return delim;
+      return token;
 
-    this.onError({ code: 'unexpected-delimiter', arg: delim });
+    this.onError({ code: 'unexpected-delimiter', arg: token });
     return null;
   }
 
@@ -1028,10 +1067,13 @@ export class Parser {
    * Return either an atom of type `"leftright"` or null
    */
   scanLeftRight(): Atom | null {
-    if (this.match('\\right') || this.match('\\mright')) {
-      // We have an unbalanced left/right (there's a \right, but no \left)
+    if (this.match('\\right')) {
       this.onError({ code: 'unbalanced-braces' });
-      return null;
+      return new ErrorAtom('\\right', this.context);
+    }
+    if (this.match('\\mright')) {
+      this.onError({ code: 'unbalanced-braces' });
+      return new ErrorAtom('\\mright', this.context);
     }
 
     let close = '\\right';
@@ -1041,11 +1083,17 @@ export class Parser {
     }
 
     const leftDelim = this.scanDelim();
-    if (!leftDelim) return null;
+    if (!leftDelim) {
+      this.onError({ code: 'unexpected-delimiter' });
+      return new ErrorAtom(
+        close === '\\right' ? '\\left' : '\\mleft',
+        this.context
+      );
+    }
 
     this.beginContext();
 
-    while (!this.end() && !this.match(close)) this.parse();
+    while (!this.end() && !this.match(close)) this.parseExpression();
 
     const body = this.mathlist;
     this.endContext();
@@ -1107,7 +1155,7 @@ export class Parser {
           );
         }
       } else if (this.match('^') || this.match('_')) {
-        const arg = this.scanArgument('math');
+        const arg = this.scanArgument('expression');
         if (arg) {
           this.lastSubsupAtom().addChildren(
             argAtoms(arg),
@@ -1303,82 +1351,121 @@ export class Parser {
    * Parse a "math field" (in the TeX parlance), an argument to a
    * command.
    *
+   * In LaTeX, the arguments of commands can either:
+   * - require braces: e.g. `\hbox{\alpha}`
+   * - prohibit braces: e.g. `\vskip 12pt`
+   * - have optional braces, e.g. `\sqrt\frac12`. The behavior with and without
+   * braces may be different. Example: `\not=` vs `\not{=}` render differently
+   *
+   * This is reflected by the argument type.
+   * - Prohibited braces:
+   *  - 'delim'
+   * - Optional braces:
+   *  - 'text': required braces (or when 'auto' means 'text')
+   *  - 'math' (or when 'auto' means 'math')
+   *  - 'expression'
+   *  - 'number', 'glue', 'dimen'
+   * - Required braces:
+   *  - 'string', 'balanced-string',
+   *  - 'colspec'
+   *  - 'bbox' (require square brackets)
+   *
    * An argument can either be a single atom or  a sequence of atoms
    * enclosed in braces.
    *
    */
-  scanArgument(argType: 'auto'): null | Atom[] | { group: Atom[] };
-  scanArgument(argType: ParseMode): null | Atom[] | { group: Atom[] };
-  scanArgument(argType: 'balanced-string'): null | string;
-  scanArgument(argType: 'colspec'): null | ColumnFormat[];
-  scanArgument(argType: 'delim'): null | string;
-  scanArgument(argType: 'dimen'): null | number;
-  scanArgument(argType: 'number'): null | number;
-  scanArgument(argType: 'glue'): null | number;
-  scanArgument(argType: 'string'): null | string;
-  scanArgument(argType: ArgumentType): null | Argument;
-  scanArgument(argType: ArgumentType): null | Argument {
+  scanArgument(type: 'auto'): null | Atom[] | { group: Atom[] };
+  scanArgument(type: ParseMode): null | Atom[] | { group: Atom[] };
+  scanArgument(type: 'expression'): null | Atom[] | { group: Atom[] };
+  scanArgument(type: 'balanced-string'): null | string;
+  scanArgument(type: 'colspec'): null | ColumnFormat[];
+  scanArgument(type: 'delim'): null | string;
+  scanArgument(type: 'dimen'): null | number;
+  scanArgument(type: 'number'): null | number;
+  scanArgument(type: 'glue'): null | number;
+  scanArgument(type: 'string'): null | string;
+  scanArgument(type: ArgumentType): null | Argument;
+  scanArgument(type: ArgumentType): null | Argument {
     this.skipFiller();
-    if (argType === 'auto') argType = this.parseMode;
+    if (type === 'auto') type = this.parseMode;
 
-    let result: Argument | null = null;
-    // An argument (which is called a 'math field' in TeX)
-    // could be a single character or symbol, as in `\frac12`
-    // Note that ``\frac\sqrt{-1}\alpha\beta`` is equivalent to
-    // ``\frac{\sqrt}{-1}{\beta}``
-    const hasBrace = this.peek() === '<{>';
-    if (!hasBrace) {
-      if (argType === 'delim') return this.scanDelim() ?? '.';
-
-      if (argType === 'text' || argType === 'math') {
-        // Parse a symbol or literal
-        this.beginContext();
-        const atom = this.scanSymbolOrLiteral();
+    //
+    // Argument without braces
+    //
+    if (!this.match('<{>')) {
+      if (type === 'dimen') return this.scanDimen();
+      if (type === 'glue') return this.scanGlue();
+      if (type === 'number') return this.scanNumber();
+      if (type === 'delim') return this.scanDelim() ?? '.';
+      if (type === 'expression') return this.scanExpression();
+      if (type === 'math') return this.scanSymbolOrLiteral();
+      if (type === 'text') {
+        this.beginContext({ mode: 'text' });
+        const result = this.scanSymbolOrLiteral();
         this.endContext();
-        return atom;
+        return result;
       }
+
+      return null;
     }
 
-    if (hasBrace) this.next();
+    //
+    // Braced argument
+    //
 
-    if (argType === 'text' || argType === 'math') {
-      this.beginContext({ mode: argType });
+    if (type === 'text') {
+      this.beginContext({ mode: type });
+      this.index -= 1;
+      const s = this.scanLiteralGroup();
+      const atoms = parseLatex(s, this.context, {
+        parseMode: 'text',
+        style: this.currentContext.style,
+      });
+      this.endContext();
+      return { group: atoms };
+    }
+
+    if (type === 'math') {
+      this.beginContext({ mode: type });
       do this.mathlist.push(...this.scan());
       while (!this.match('<}>') && !this.end());
-    } else {
-      this.beginContext();
-      if (argType === 'string') result = this.scanString();
-      else if (argType === 'balanced-string')
-        result = this.scanBalancedString();
-      else if (argType === 'number') result = this.scanNumber();
-      else if (argType === 'colspec') result = this.scanColspec();
-      else if (argType === 'dimen') result = this.scanDimen();
-      else if (argType === 'glue') result = this.scanGlue();
-      else if (argType === 'delim') result = this.scanDelim() ?? '.';
-
-      if (hasBrace) this.skipUntilToken('<}>');
-
-      if (result === null) {
-        this.endContext();
-        return null;
-      }
+      const atoms = this.mathlist;
+      this.endContext();
+      return { group: atoms };
     }
 
-    const atoms = this.mathlist;
-    this.endContext();
-    return result ?? { group: atoms };
+    let result: null | Argument = null;
+    if (type === 'expression') {
+      this.beginContext({ mode: 'math' });
+      do this.mathlist.push(...this.scan());
+      while (!this.match('<}>') && !this.end());
+      const atoms = this.mathlist;
+      this.endContext();
+      return { group: atoms };
+    }
+
+    if (type === 'string') result = this.scanString();
+    else if (type === 'balanced-string') result = this.scanBalancedString();
+    else if (type === 'colspec') result = this.scanColspec();
+    else if (type === 'dimen') result = this.scanDimen();
+    else if (type === 'glue') result = this.scanGlue();
+    else if (type === 'number') result = this.scanNumber();
+
+    this.skipUntilToken('<}>');
+
+    return result;
   }
 
   scanOptionalArgument(argType: ArgumentType): Argument | null {
     argType = argType === 'auto' ? this.parseMode : argType;
-    this.skipWhitespace();
+    this.skipFiller();
     if (!this.match('[')) return null;
     let result: Argument | null = null;
     while (!this.end() && !this.match(']')) {
       if (argType === 'string') result = this.scanString();
-      else if (argType === 'number') result = this.scanNumber();
       else if (argType === 'dimen') result = this.scanDimen();
       else if (argType === 'glue') result = this.scanGlue();
+      else if (argType === 'number') result = this.scanNumber();
       else if (argType === 'colspec') result = this.scanColspec();
       else if (argType === 'bbox') {
         // The \bbox command takes a very particular argument:
@@ -1508,9 +1595,19 @@ export class Parser {
     // This wasn't a macro, so let's see if it's a regular command
     const info = this.context.getDefinition(command, this.parseMode);
 
-    // An unknown command
+    // An unknown command, or a command not available in this mode
     if (!info) {
       this.onError({ code: 'unknown-command', arg: command });
+      if (this.parseMode === 'text') {
+        return [...command].map(
+          (c) =>
+            new Atom('text', this.context, {
+              value: c,
+              mode: 'text',
+              style: this.style,
+            })
+        );
+      }
       return [new ErrorAtom(command, this.context)];
     }
 
@@ -1705,7 +1802,7 @@ export class Parser {
    * If the token is a command with arguments, will also parse the
    * arguments.
    */
-  parse(): boolean {
+  parseExpression(): boolean {
     let result: null | Atom | Atom[] =
       this.scanEnvironment() ??
       this.scanModeShift() ??
@@ -1755,7 +1852,7 @@ export function parseLatex(
   });
 
   const atoms: Atom[] = [];
-  while (!parser.end()) atoms.push(...parser.scan());
+  while (!parser.end()) atoms.push(...parser.scan(() => false));
   return atoms;
 }
 

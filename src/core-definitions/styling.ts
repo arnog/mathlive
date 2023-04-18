@@ -71,6 +71,7 @@ defineFunction('error', '{:math}', {
 });
 
 defineFunction('ensuremath', '{:math}', {
+  // applyMode: 'math',
   createAtom: (
     _name: string,
     context: GlobalContext,
@@ -162,9 +163,12 @@ defineFunction(
         backgroundcolor: context.backgroundColorMap?.(bgColor) ?? bgColor,
         style,
         serialize: (atom: BoxAtom, options: ToLatexOptions) =>
-          `${atom.command}{${atom.verbatimFramecolor ?? atom.framecolor}{${
-            atom.verbatimBackgroundcolor ?? atom.backgroundcolor
-          }}{${atom.bodyToLatex(options)}}`,
+          latexCommand(
+            atom.command,
+            atom.verbatimFramecolor ?? atom.framecolor ?? '',
+            atom.verbatimBackgroundcolor ?? atom.backgroundcolor ?? '',
+            atom.bodyToLatex(options)
+          ),
       });
     },
   }
@@ -213,7 +217,7 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
             result += `[${bboxParameters.join(',')}]`;
           }
 
-          return result + `{${atom.bodyToLatex(options)}}`;
+          return latexCommand(result, atom.bodyToLatex(options));
         },
       });
     }
@@ -241,6 +245,7 @@ defineFunction(
         latexClose: '}',
         style,
         mathstyleName: name.slice(1) as MathstyleName,
+        break: true,
       }),
   }
 );
@@ -584,15 +589,17 @@ defineFunction('mbox', '{:text}', {
     args: (null | Argument)[]
   ): Atom =>
     new GroupAtom(argAtoms(args[0]), context, {
-      changeMode: true,
       style,
       mode: 'text',
       command,
       serialize: (atom: GroupAtom, options: ToLatexOptions) =>
-        `\\mbox{${atom.bodyToLatex({
-          ...options,
-          skipModeCommand: true,
-        })}}`,
+        latexCommand(
+          '\\mbox',
+          atom.bodyToLatex({
+            ...options,
+            skipModeCommand: true,
+          })
+        ),
     }),
 });
 
@@ -1020,8 +1027,11 @@ defineFunction('overset', '{above:auto}{base:auto}', {
       style,
       boxType: atomsBoxType(argAtoms(args[1])),
       serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-        `${atom.command}{${atom.aboveToLatex(options)}}` +
-        `{${atom.bodyToLatex(options)}}`,
+        latexCommand(
+          atom.command,
+          atom.aboveToLatex(options),
+          atom.bodyToLatex(options)
+        ),
     }),
 });
 
@@ -1039,8 +1049,11 @@ defineFunction('underset', '{below:auto}{base:auto}', {
       style,
       boxType: atomsBoxType(argAtoms(args[1])),
       serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-        `${name}{${atom.belowToLatex(options)}}` +
-        `{${atom.bodyToLatex(options)}}`,
+        latexCommand(
+          name,
+          atom.belowToLatex(options),
+          atom.bodyToLatex(options)
+        ),
     }),
 });
 
@@ -1059,8 +1072,11 @@ defineFunction('overunderset', '{above:auto}{below:auto}{base:auto}', {
       style,
       boxType: atomsBoxType(argAtoms(args[2])),
       serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-        `${atom.command}{${atom.aboveToLatex(options)}}` +
-        `{${atom.bodyToLatex(options)}}`,
+        latexCommand(
+          atom.command,
+          atom.aboveToLatex(options),
+          atom.bodyToLatex(options)
+        ),
     }),
 });
 
@@ -1086,8 +1102,11 @@ defineFunction(
         style,
         boxType: name === '\\stackrel' ? 'rel' : 'bin',
         serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-          `${atom.command}{${atom.aboveToLatex(options)}}` +
-          `{${atom.bodyToLatex(options)}}`,
+          latexCommand(
+            atom.command,
+            atom.aboveToLatex(options),
+            atom.bodyToLatex(options)
+          ),
       }),
   }
 );
@@ -1164,7 +1183,8 @@ defineFunction('not', '{:math}', {
     style: PrivateStyle,
     args: (null | Argument)[]
   ): Atom => {
-    if (args.length < 1 || args[0] === null || argAtoms(args[0]).length === 0) {
+    const arg = argAtoms(args[0]);
+    if (args.length < 1 || args[0] === null || arg.length === 0) {
       return new Atom('mrel', context, {
         command: name,
         style,
@@ -1172,27 +1192,27 @@ defineFunction('not', '{:math}', {
       });
     }
     const isGroup = typeof args[0] === 'object' && 'group' in args[0];
-    const arg = argAtoms(args[0]);
-    return new GroupAtom(
+    const result = new GroupAtom(
       [
         new OverlapAtom(name, '\ue020', context, {
           align: 'right',
           style,
-          boxType: isGroup ? 'op' : atomsBoxType(arg),
+          boxType: 'inner', // isGroup ? 'ord' : 'ord', // atomsBoxType(arg),
         }),
         ...arg,
       ],
       context,
       {
-        boxType: isGroup ? 'op' : atomsBoxType(arg),
+        boxType: 'inner', // isGroup ? 'ord' : 'ord', // atomsBoxType(arg),
         captureSelection: true,
         command: '\\not',
         serialize: (_atom, options) =>
           isGroup
             ? `\\not{${Atom.serialize(arg, options)}}`
-            : latexCommand('\\not', Atom.serialize(arg, options)),
+            : `\\not${Atom.serialize(arg, options)}`,
       }
     );
+    return result;
   },
 });
 
