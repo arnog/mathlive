@@ -40,6 +40,8 @@
   commands, for example: `a\left(b\color{red}\middle| \frac34\right)d`
 - Work around a Chrome rendering issue with thin lines (fractions, surds)
 - Correctly render the gap to the left of `\underline`, `\overline` 
+- **#1656** Incorrect `\left...\right` command after deleting part of the 
+  formula. 
   
 ## 0.91.2 (2023-04-06)
 
