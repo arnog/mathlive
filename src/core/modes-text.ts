@@ -7,7 +7,7 @@ import { Box } from './box';
 import { Mode, getPropertyRuns } from './modes-utils';
 import type { Style } from '../public/core-types';
 import type { GlobalContext } from '../core/types';
-import { latexCommand } from './tokenizer';
+import { joinLatex, latexCommand } from './tokenizer';
 
 function join(
   segments: [string[], boolean][]
@@ -124,7 +124,7 @@ function emitFontFamilyTextRun(
 
       if (x[0].style.fontFamily) {
         return [
-          [`\\fontfamily`, '{', x[0].style.fontFamily!, '}', ...s],
+          [`\\fontfamily`, '{', x[0].style.fontFamily!, '}', '{', ...s, '}'],
           needsWrap,
         ];
       }
@@ -159,7 +159,9 @@ function emitBackgroundColorRun(
             '{',
             style.verbatimBackgroundColor ?? style.backgroundColor,
             '}',
+            '{',
             ...s,
+            '}',
           ],
           false,
         ];
@@ -193,6 +195,7 @@ function emitColorRun(
             '{',
             x[0].style.verbatimColor ?? x[0].style.color,
             '}',
+            '{',
             ...s,
             '}',
           ],
@@ -237,7 +240,25 @@ export class TextMode extends Mode {
   serialize(run: Atom[], options: ToLatexOptions): string[] {
     let [result, needWrapper] = emitBackgroundColorRun(run, options);
     if ((options.skipModeCommand ?? false) === true) needWrapper = false;
-    if (needWrapper) result = [latexCommand('\\text', ...result)];
+    if (needWrapper) {
+      result = [
+        latexCommand(
+          '\\text',
+          joinLatex(
+            result.map(
+              (t) =>
+                ({
+                  '˜': ' ',
+                  '$': '\\$',
+                  '{': '\\textbraceleft',
+                  '}': '\\textbraceright',
+                  '\\': '\\textbackslash',
+                }[t] ?? t)
+            )
+          )
+        ),
+      ];
+    }
     return result;
   }
 

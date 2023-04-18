@@ -292,12 +292,11 @@ export class GenfracAtom extends Atom {
     }
 
     // TeXBook p. 170 "fractions are treated as type Inner."
-    // However, we add the nullDelimiter above which effectively account for this.
     const result = this.bind(
       context,
       new Box([leftDelim, frac, rightDelim], {
         isTight: fracContext.isTight,
-        type: 'ord',
+        type: 'inner',
         classes: 'mfrac',
       })
     );

@@ -55,6 +55,7 @@ export class LineAtom extends Atom {
     return new Box(stack, {
       classes: this.position,
       type: 'ord',
+      newList: true,
     });
   }
 }

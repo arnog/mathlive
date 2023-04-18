@@ -587,6 +587,19 @@ function isValidClose(open: string | undefined, close: string): boolean {
   return RIGHT_DELIM[open] === close;
 }
 
+function isValidOpen(open: string, close: string | undefined): boolean {
+  if (!close) return true;
+
+  if (
+    [')', '}', ']', '\\rbrace', '\\rparen', '\\}', '\\rbrack'].includes(close)
+  ) {
+    return ['(', '{', '[', '\\lbrace', '\\lparen', '\\{', '\\lbrack'].includes(
+      open
+    );
+  }
+  return LEFT_DELIM[close] === open;
+}
+
 /**
  * Insert a smart fence '(', '{', '[', etc...
  * If not handled (because `fence` wasn't a fence), return false.
@@ -642,6 +655,7 @@ export function insertSmartFence(
     ) {
       parent.leftDelim = fence;
       parent.isDirty = true;
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
       return true;
     }
 
@@ -659,7 +673,6 @@ export function insertSmartFence(
           model.offsetOf(atom),
           model.offsetOf(sibling),
         ]);
-        body.shift();
         body.pop();
         parent!.addChildrenAfter(
           [
@@ -670,10 +683,64 @@ export function insertSmartFence(
           ],
           atom
         );
-        model.position = model.offsetOf(parent!.firstChild);
+        model.position = model.offsetOf(parent!.firstChild) + 1;
         contentDidChange(model, { data: fence, inputType: 'insertText' });
         return true;
       }
+    }
+
+    // If we have a `leftright` sibling to our right
+    // with an indeterminate left fence,
+    // move what's between us and the `leftright` inside the `leftright`
+    const lastSibling = model.offsetOf(atom.lastSibling);
+    let i: number;
+    for (i = model.position; i <= lastSibling; i++) {
+      const atom = model.at(i);
+      if (
+        atom instanceof LeftRightAtom &&
+        (atom.leftDelim === '?' || atom.leftDelim === '.') &&
+        isValidOpen(fence, atom.rightDelim)
+      )
+        break;
+    }
+
+    const match = model.at(i);
+    if (i <= lastSibling && match instanceof LeftRightAtom) {
+      match.leftDelim = fence;
+
+      let extractedAtoms = model.extractAtoms([model.position, i - 1]);
+      // remove any atoms of type 'first'
+      extractedAtoms = extractedAtoms.filter((value) => value.type !== 'first');
+      match.addChildren(extractedAtoms, match.parentBranch!);
+
+      model.position += 1;
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      return true;
+    }
+
+    // If we're inside a `leftright`, but not the first atom,
+    // and the `leftright` left delim is indeterminate
+    // adjust the body (put everything before the insertion point outside)
+    if (
+      parent instanceof LeftRightAtom &&
+      (parent.leftDelim === '?' || parent.leftDelim === '.') &&
+      isValidOpen(fence, parent.rightDelim)
+    ) {
+      parent.isDirty = true;
+      parent.leftDelim = fence;
+
+      const extractedAtoms = model.extractAtoms([
+        model.offsetOf(atom.firstSibling),
+        model.position,
+      ]);
+
+      for (const extractedAtom of extractedAtoms)
+        parent.parent!.addChildBefore(extractedAtom, parent);
+
+      //model.position = model.offsetOf(parent);
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+
+      return true;
     }
 
     if (!(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
@@ -696,11 +763,7 @@ export function insertSmartFence(
   //
   // 3. Is it a close fence?
   //
-  let targetLeftDelim = '';
-
-  for (const delim of Object.keys(RIGHT_DELIM))
-    if (fence === RIGHT_DELIM[delim]) targetLeftDelim = delim;
-
+  const targetLeftDelim = LEFT_DELIM[fence];
   if (targetLeftDelim) {
     // We found a target open fence matching this delim.
     // Note that `targetLeftDelim` may not match `fence`. That's OK.
@@ -756,7 +819,7 @@ export function insertSmartFence(
       const atom = model.at(i);
       if (
         atom instanceof LeftRightAtom &&
-        atom.rightDelim === '?' &&
+        (atom.rightDelim === '?' || atom.rightDelim === '.') &&
         isValidClose(atom.leftDelim, fence)
       )
         break;
@@ -767,9 +830,8 @@ export function insertSmartFence(
       match.rightDelim = fence;
       match.addChildren(
         model.extractAtoms([i, model.position]),
-        atom.parentBranch!
+        match.parentBranch!
       );
-      model.position = i;
       contentDidChange(model, { data: fence, inputType: 'insertText' });
       return true;
     }
@@ -779,7 +841,7 @@ export function insertSmartFence(
     // adjust the body (put everything after the insertion point outside)
     if (
       parent instanceof LeftRightAtom &&
-      parent.rightDelim === '?' &&
+      (parent.rightDelim === '?' || parent.rightDelim === '.') &&
       isValidClose(parent.leftDelim, fence)
     ) {
       parent.isDirty = true;
@@ -801,7 +863,7 @@ export function insertSmartFence(
     const grandparent = parent!.parent;
     if (
       grandparent instanceof LeftRightAtom &&
-      grandparent.rightDelim === '?' &&
+      (grandparent.rightDelim === '?' || grandparent.rightDelim === '.') &&
       model.at(model.position).isLastSibling
     ) {
       model.position = model.offsetOf(grandparent);

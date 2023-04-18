@@ -332,32 +332,21 @@ export function joinLatex(segments: string[]): string {
   return result.join('');
 }
 
-/** Return a LaTeX fragment given a command and its arguments,
- * minimizing the use of groups/curly braces
+/**
+ * Return a LaTeX fragment given a command and its arguments.
+ * Note that `command` may include optional arguments, e.g. `\\bbox[red]`
  */
 export function latexCommand(command: string, ...args: string[]): string {
   console.assert(command.startsWith('\\'));
 
   if (args.length === 0) return command;
 
-  // Mandatory argument wrapping if the command is not purely alphabetic, e.g.
-  // with optional arguments `\\enclose[arrow]`
-  if (!/^\\[a-zA-Z]+\*?/.test(command))
-    return command + args.map((x) => `{${x}}`).join('');
+  // While TeX (Knuth) tends to minimize the use of braces, e.g. prefering
+  // `\frac xy` over `\frac{x}{y}` we are implementing the more conservative
+  // LaTeX convention that use braces by default.
+  // See a discussion on this topic here: https://tex.stackexchange.com/questions/82329/how-bad-for-tex-is-omitting-braces-even-if-the-result-is-the-same
 
-  // If the argument is a single non-alpha or a command, it doesn't need
-  // wrapping
-  return (
-    command +
-    args
-      .map((x, i) =>
-        (i === 0 && /(^[^A-Za-z]$)|(^\\)/.test(x)) ||
-        (i !== 0 && (x.length === 1 || x.startsWith('\\')))
-          ? x
-          : `{${x}}`
-      )
-      .join('')
-  );
+  return joinLatex([command, ...args.map((x) => `{${x}}`)]);
 }
 
 export function tokensToString(tokens: Token[]): string {

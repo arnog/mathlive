@@ -80,22 +80,20 @@ export interface FontMetrics<T = number> {
 const BOX_TYPE = [
   '',
   'chem',
-  'ord', // > is an ordinary atom like ‘x’ ;
-  'bin', // > is a binary operation atom like ‘+’
-  'op', // > is a large operator atom like $$\sum$$
-  'rel', // > is a relation atom like ‘=’
-  'open', // > is an opening atom like ‘(’
-  'close', // > is a closing atom like ‘)’
+  'ord', // > is an ordinary atom like `x`
+  'bin', // > is a binary operation atom like `+`
+  'op', // > is a large operator atom like `\sum`
+  'rel', // > is a relation atom like `=`
+  'open', // > is an opening atom like `(`
+  'close', // > is a closing atom like `)`
   'punct', // > is a punctuation atom like ‘,’
-  'inner', // >  is an inner atom like ‘$$\frac12$$'
+  'inner', // >  is an inner atom like `\frac12`
   'newline', // >  is a new line box
   'spacing',
   'first',
   'latex',
   'composition',
-  'error',
-  'placeholder',
-  'supsub',
+  'middle', // A box type used by the `\middle` command
   'none',
 ] as const; // The const assertion prevents widening to string[]
 export type BoxType = (typeof BOX_TYPE)[number];
@@ -126,7 +124,7 @@ export interface BoxInterface {
   type: BoxType;
 
   children?: BoxInterface[];
-  newList: boolean;
+  break: boolean;
   value: string;
 
   classes: string;

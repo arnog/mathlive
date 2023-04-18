@@ -2,14 +2,20 @@
 
 ## Improvements
 
+- In LaTeX, `\not{\in}`, `\not{}\in` and `\not\in` all render differently.
+  Previously they were all rendered as `\not\in`. They now render as in LaTeX.
 - Removed some unused keybindings, added Desmos Graphing Calculator inline shortcuts, added ASCIIMath inline shortcuts.
 - **#1920** Added a `"sandboxed"` `mathVirtualKeyboardPolicy` which causes the
   iframe in which the mathfield is to be treated as a top-level browsing context,
   i.e. to display a virtual keyboard instance in the that iframe.
 - Added `mathVirtualKeycap.actionKeycap`, `mathVirtualKeycap.shiftKeycap`, `mathVirtualKeycap.tabKeycap`, `mathVirtualKeycap.backspaceKeycap` to customize the appearance of action keys without having to define new layouts. This can be used to change the "Return" glyph to "Continue" for example, or to use the word "Shift" for the shift key instead of the default shift glyph.
-- Added keyboard shorcuts (<kbd>alt/option</kbd>+<kbd>Tab</kbd> and <kbd>alt/option</kbd>+<kbd>Return</kbd>) for matrices/environments. Type `(` + <kbd>alt/option</kbd>+<kbd>Tab</kbd> to create 2x1 matrix. If at the root, type 
+- Added keyboard shortcuts (<kbd>alt/option</kbd>+<kbd>Tab</kbd> and <kbd>alt/option</kbd>+<kbd>Return</kbd>) for matrices/environments. Type `(` + <kbd>alt/option</kbd>+<kbd>Tab</kbd> to create 2x1 matrix. If at the root, type 
  <kbd>alt/option</kbd>+<kbd>Return</kbd> for a multi-line expression.
-- More concise LaTeX serialization, avoiding use of braces unless necessary.
+- Improved LaTeX serialization. More consistently use braces around arguments,
+  consistent with LaTeX conventions. Exception is made for single digits for 
+  fractions, square roots, superscript and subscript.
+- Improved handling of arguments with and without braces. `x^\frac12` is now
+  parsed correctly.
 
 ### Bug Fix
 
@@ -25,8 +31,15 @@
   was modified.
 - Ambient style is now applied to macros, so `\Huge\mathbb{R}` and `\Huge\R` render identically.
 - **#1851**: Correctly render `\not`. Fun fact: in LaTeX, `\not=` renders with a different spacing from `\not{=}`.
-  
-
+- Correctly render and serialize text (e.g. in `\text{}` commands) containing
+  non-applicable commands, for example `\text{\frac12}`.
+- When applying a style inside a `\left...\right`, the style of the closing 
+  delimiter should match the style of the last atom before the `\right` command.
+  For example, with `a\left(b\color{red} c\right)d`, `c` and `)` should be red.
+- Correctly render `\middle` commands when preceded with a style-changing
+  commands, for example: `a\left(b\color{red}\middle| \frac34\right)d`
+- Work around a Chrome rendering issue with thin lines (fractions, surds)
+- Correctly render the gap to the left of `\underline`, `\overline` 
   
 ## 0.91.2 (2023-04-06)
 

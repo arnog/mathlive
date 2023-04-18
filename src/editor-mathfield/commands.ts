@@ -85,23 +85,23 @@ registerCommand({
     options?
   ): boolean => {
     const promptIds = mathfield.getPrompts();
-    let prosepectiveId =
+    let prospectiveId =
       'prompt-' +
       Date.now().toString(36).slice(-2) +
       Math.floor(Math.random() * 0x186a0).toString(36);
     let i = 0;
-    while (promptIds.includes(prosepectiveId) && i < 100) {
+    while (promptIds.includes(prospectiveId) && i < 100) {
       if (i === 99) {
         console.error('could not find a unique ID after 100 tries');
         return false;
       }
-      prosepectiveId =
+      prospectiveId =
         'prompt-' +
         Date.now().toString(36).slice(-2) +
         Math.floor(Math.random() * 0x186a0).toString(36);
       i++;
     }
-    mathfield.insert(`\\placeholder[${id ?? prosepectiveId}]{}`, options);
+    mathfield.insert(`\\placeholder[${id ?? prospectiveId}]{}`, options);
     return true;
   },
 });
