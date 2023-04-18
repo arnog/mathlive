@@ -198,6 +198,13 @@ export class Context implements ContextInterface {
     return undefined;
   }
 
+  getRegisterAsNumber(name: string): undefined | number {
+    const val = this.getRegister(name);
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') return Number(val);
+    return undefined;
+  }
+
   getRegisterAsGlue(name: string): Glue | undefined {
     if (this.registers?.[name]) {
       const value = this.registers[name];

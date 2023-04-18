@@ -253,7 +253,8 @@ export class ArrayAtom extends Atom {
     // console.log(arrayToString(this.array));
     if (options.leftDelim) this.leftDelim = options.leftDelim;
     if (options.rightDelim) this.rightDelim = options.rightDelim;
-    if (options.arraycolsep) this.arraycolsep = options.arraycolsep;
+    if (options.arraycolsep !== undefined)
+      this.arraycolsep = options.arraycolsep;
     this.colSeparationType = options.colSeparationType;
     // Default \arraystretch from lttab.dtx
     if (options.arraystretch !== undefined)
@@ -285,7 +286,7 @@ export class ArrayAtom extends Atom {
 
     if (this.arraystretch !== undefined)
       result.arraystretch = this.arraystretch;
-    if (this.arraycolsep) result.arraycolsep = this.arraycolsep;
+    if (this.arraycolsep !== undefined) result.arraycolsep = this.arraycolsep;
     if (this.leftDelim) result.leftDelim = this.leftDelim;
     if (this.rightDelim) result.rightDelim = this.rightDelim;
 
