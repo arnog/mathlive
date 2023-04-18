@@ -43,11 +43,14 @@ export class SurdAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let command = this.command;
+    const command = this.command;
+    const body = this.bodyToLatex(options);
     if (this.above && !this.hasEmptyBranch('above'))
-      command += `[${this.aboveToLatex(options)}]`;
+      return latexCommand(`${command}[${this.aboveToLatex(options)}]`, body);
 
-    return latexCommand(command, this.bodyToLatex(options));
+    if (/^[0-9]$/.test(body)) return `${command}${body}`;
+
+    return latexCommand(command, body);
   }
 
   render(parentContext: Context): Box | null {
