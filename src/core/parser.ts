@@ -1747,7 +1747,10 @@ export class Parser {
     return new MacroAtom(macro, this.context, {
       expand: def.expand,
       captureSelection: def.captureSelection,
-      args: tokensToString(this.tokens.slice(initialIndex, this.index)),
+      args:
+        initialIndex === this.index
+          ? null
+          : tokensToString(this.tokens.slice(initialIndex, this.index)),
       style: this.currentContext.style,
       body: parseLatex(def.def, this.context, {
         parseMode: this.parseMode,
