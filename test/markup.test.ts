@@ -70,6 +70,17 @@ describe('FRACTIONS', function () {
   });
 });
 
+describe('NOT', () => {
+  test.each([
+    '\\not\\in \\not{}\\in \\not{}\\in \\not\\in',
+    '\\not= \\not{}= \\not{}= \\not=',
+    '\\not= \\ne \\neq',
+    '\\not',
+  ])('%#/ %s renders correctly', (a) =>
+    expect(markupAndError(a)).toMatchSnapshot()
+  );
+});
+
 describe('RULE AND DIMENSIONS', function () {
   test.each([
     '\\rule{1em}{2em}',
@@ -133,6 +144,8 @@ describe('OVER/UNDERLINE', () => {
 
 describe('SPACING AND KERN', () => {
   test.each([
+    'a+{}b+c',
+    '123\\colorbox{red}456',
     'a\\hskip 3em b',
     'a\\kern 3em b',
     'a\\hspace{3em} b',

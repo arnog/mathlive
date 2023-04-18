@@ -83,6 +83,8 @@ describe('EXPANSION PRIMITIVES', () => {
 
 describe('ARGUMENTS', () => {
   test.each([
+    ['a^\\frac12', 'a^{\\frac{1}{2}}'],
+    ['\\sqrt3^2', '\\sqrt{3}^{2}'],
     ['\\frac12', '\\frac{1}{2}'],
     ['\\frac  1  2', '\\frac{1}{2}'],
     ['\\frac357', '\\frac{3}{5}7'],
