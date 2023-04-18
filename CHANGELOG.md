@@ -2,6 +2,8 @@
 
 ## Improvements
 
+- In LaTeX, `\not{\in}`, `\not{}\in` and `\not\in` all render differently.
+  Previously they were all rendered as `\not\in`. They now render as in LaTeX.
 - Removed some unused keybindings, added Desmos Graphing Calculator inline shortcuts, added ASCIIMath inline shortcuts.
 - **#1920** Added a `"sandboxed"` `mathVirtualKeyboardPolicy` which causes the
   iframe in which the mathfield is to be treated as a top-level browsing context,

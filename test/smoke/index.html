@@ -46,10 +46,7 @@
       <!-- <div style="height: 2000px; border-left: 10px solid blue"></div> -->
       <!-- <math-field id="mf"> \not=\not{}=\not{\in} </math-field> -->
 
-      <math-field id="mf"
-        >\binom12 \sqrt[3]{x} \Huge \sqrt[3]{x} \binom56 x \text{text is
-        huge}</math-field
-      >
+      <math-field id="mf">\not\in\not{\in}\not\in</math-field>
 
       <!-- <math-field id="mf"
         >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\\\end{pmatrix}</math-field
@@ -210,7 +207,6 @@
       // Handler called when the mathfield content has changed
       //
       function updateContent(mf) {
-        return;
         const latex = mf.getValue('latex-expanded');
         try {
           setHtml('latex', mf.getValue('latex-expanded'));
