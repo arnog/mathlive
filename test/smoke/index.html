@@ -46,9 +46,10 @@
       <!-- <div style="height: 2000px; border-left: 10px solid blue"></div> -->
       <!-- <math-field id="mf"> \not=\not{}=\not{\in} </math-field> -->
 
-      <math-field id="mf"
-        >a\dot{\vec{M}}bx\textcolor{blue}{\mathbb{K}\R1+\frac12}\overline{XYZWQ}+\vec{\textcolor{red}{ABC\sqrt3\frac12}}+1</math-field
-      >
+      <math-field id="mf">x^{}y^</math-field>
+      <!-- <math-field id="mf"
+        >\frac{}{1+x}\sqrt{}x^{}+y_{}+{}+\mathbb{}+\textcolor{red}{}</math-field
+      > -->
 
       <!-- <math-field id="mf"
         >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\\\end{pmatrix}</math-field
@@ -91,73 +92,89 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      mathVirtualKeyboard.layouts = [
-        {
-          label: 'Clavier',
-          toolip: 'Clavier simple',
-          rows: [
-            [
-              'A',
-              'B',
-              'C',
-              'D',
-              'E',
-              'F',
-              'G',
-              '[separator-5]',
+      // mathVirtualKeyboard.layouts = [
+      //   {
+      //     label: 'Clavier',
+      //     toolip: 'Clavier simple',
+      //     rows: [
+      //       [
+      //         'A',
+      //         'B',
+      //         'C',
+      //         'D',
+      //         'E',
+      //         'F',
+      //         'G',
+      //         '[separator-5]',
 
-              {
-                class: 'tex small',
-                label: '<span><i>x</i>&thinsp;²</span>',
-                insert: '$$#@^{2}$$',
-              },
-            ],
-            ['H', 'I', 'J', 'K', 'L', 'M', 'N', '[separator-5]', ' +'],
-            ['O', 'P', 'Q', 'R', 'S', 'T', 'U', '[separator-5]', '='],
-            [
-              'V',
-              'W',
-              'X',
-              'Y',
-              'Z',
-              '[separator-5]',
-              '[left]',
-              '[right]',
-              {
-                class: 'action',
-                label:
-                  '<svg style="width: 32px;height:32px"><use xlink:href=#svg-delete-backward /></svg>',
-                width: 1.0,
-                command: ['performWithFeedback', 'deleteBackward'],
-              },
-            ],
-          ],
-        },
-      ];
+      //         {
+      //           class: 'tex small',
+      //           label: '<span><i>x</i>&thinsp;²</span>',
+      //           insert: '$$#@^{2}$$',
+      //         },
+      //       ],
+      //       ['H', 'I', 'J', 'K', 'L', 'M', 'N', '[separator-5]', ' +'],
+      //       ['O', 'P', 'Q', 'R', 'S', 'T', 'U', '[separator-5]', '='],
+      //       [
+      //         'V',
+      //         'W',
+      //         'X',
+      //         'Y',
+      //         'Z',
+      //         '[separator-5]',
+      //         '[left]',
+      //         '[right]',
+      //         {
+      //           class: 'action',
+      //           label:
+      //             '<svg style="width: 32px;height:32px"><use xlink:href=#svg-delete-backward /></svg>',
+      //           width: 1.0,
+      //           command: ['performWithFeedback', 'deleteBackward'],
+      //         },
+      //       ],
+      //     ],
+      //   },
+      // ];
 
       const mf = document.getElementById('mf');
-      // mf.addEventListener('focusin', () => mathVirtualKeyboard.show());
 
-      mf.computeEngine = new ComputeEngine();
-
-      const mfe = new MathfieldElement({
-        decimalSeparator: ',',
-        foo: 'bar',
-        virtualKeyboardMode: 'auto',
+      const ce = new ComputeEngine({
+        latexDictionary: [
+          ...ComputeEngine.getLatexDictionary(),
+          {
+            trigger: ['\\smallfrac'],
+            parse: (parser) => {
+              return [
+                'Smallfrac',
+                parser.matchRequiredLatexArgument() ?? ['Error', "'missing'"],
+                parser.matchRequiredLatexArgument() ?? ['Error', "'missing'"],
+              ];
+            },
+          },
+        ],
       });
+      ce.defineFunction('Smallfrac', {
+        signature: {
+          domain: 'NumericFunction',
+          evaluate: (ce, args) => ce.box(args[0].N() / args[1].N()),
+        },
+      });
+      console.log(ce.parse('\\frac{1}{2}+\\smallfrac{1}{2}').N().json);
 
-      mf.onInlineShortcut = (_mf, s) => {
-        if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
-          const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
-          if (m) {
-            if (['alpha', 'beta', 'gamma'].includes(m[1]))
-              return `\\${m[1]}_{${m[2]}}`;
-            return `\\mathrm{${m[1]}}_{${m[2]}}`;
-          }
-          return '\\mathrm{' + s + '}';
-        }
-        return '';
-      };
+      MathfieldElement.computeEngine = ce;
+
+      // mf.onInlineShortcut = (_mf, s) => {
+      //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+      //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
+      //     if (m) {
+      //       if (['alpha', 'beta', 'gamma'].includes(m[1]))
+      //         return `\\${m[1]}_{${m[2]}}`;
+      //       return `\\mathrm{${m[1]}}_{${m[2]}}`;
+      //     }
+      //     return '\\mathrm{' + s + '}';
+      //   }
+      //   return '';
+      // };
       mf.macros = {
         ...mf.macros,
         // Alpha: undefined,
@@ -166,6 +183,10 @@
           args: 2,
           def: '{}^{#1}\\!\\!/\\!{}_{#2}',
           captureSelection: true,
+        },
+        smallfrac: {
+          args: 2,
+          def: '{}^{#1}\\!\\!/\\!{}_{#2}',
         },
       };
 
@@ -215,6 +236,7 @@
           setHtml('mathascii', mf.getValue('ascii-math'));
           setHtml('mathml', mf.getValue('math-ml'));
           setHtml('math-json', mf.getValue('math-json'));
+          // setHtml('math-json', ce.parse(mf.value));
           setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
           const result = mf.expression?.evaluate().latex ?? '';
           document.getElementById('result').innerText = result;

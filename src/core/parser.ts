@@ -1720,8 +1720,7 @@ export class Parser {
   }
 
   /**
-   * Attempt to scan the macro name and return a macro atom if
-   * successful.
+   * Scan the macro name and its arguments and return a macro atom
    */
   scanMacro(macro: string): Atom | null {
     const def = this.context.getMacro(macro);

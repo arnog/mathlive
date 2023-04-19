@@ -3,6 +3,7 @@
 ## Improvements
 - Replaced the `(x)` ASCIIMath inline shortcut with `(*)`
 - Correctly parse empty sub/superscripts, i.e. `x^{}`
+- Fixed serialization of macros (regression)
 
 ## 0.92.0 (2023-04-18)
 
