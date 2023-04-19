@@ -89,32 +89,20 @@ export function selectGroup(model: ModelPrivate): boolean {
 
 register(
   {
-    selectGroup: (model: ModelPrivate): boolean => {
+    selectGroup: (model) => {
       const result = selectGroup(model);
       if (!result) model.announce('plonk');
       return result;
     },
 
-    selectAll: (model: ModelPrivate): boolean =>
-      model.setSelection(0, model.lastOffset),
-    extendSelectionForward: (model: ModelPrivate): boolean => {
-      const result = model.extendSelection('forward');
-      if (!result) model.announce('plonk');
-      return result;
-    },
-    extendSelectionBackward: (model: ModelPrivate): boolean => {
-      const result = model.extendSelection('backward');
-      if (!result) model.announce('plonk');
-      return result;
-    },
-
-    extendToNextWord: (model: ModelPrivate): boolean =>
-      skip(model, 'forward', { extend: true }),
-    extendToPreviousWord: (model: ModelPrivate): boolean =>
-      skip(model, 'backward', { extend: true }),
-    extendSelectionUpward: (model: ModelPrivate): boolean =>
-      move(model, 'upward', { extend: true }),
-    extendSelectionDownward: (model: ModelPrivate): boolean =>
+    selectAll: (model) => model.setSelection(0, model.lastOffset),
+    extendSelectionForward: (model) => move(model, 'forward', { extend: true }),
+    extendSelectionBackward: (model) =>
+      move(model, 'backward', { extend: true }),
+    extendToNextWord: (model) => skip(model, 'forward', { extend: true }),
+    extendToPreviousWord: (model) => skip(model, 'backward', { extend: true }),
+    extendSelectionUpward: (model) => move(model, 'upward', { extend: true }),
+    extendSelectionDownward: (model) =>
       move(model, 'downward', { extend: true }),
     /**
      * Extend the selection until the next boundary is reached. A boundary
@@ -123,8 +111,7 @@ register(
      * "1" and "2", invoking `extendToNextBoundary_` would extend the selection
      * to "234".
      */
-    extendToNextBoundary: (model: ModelPrivate): boolean =>
-      skip(model, 'forward', { extend: true }),
+    extendToNextBoundary: (model) => skip(model, 'forward', { extend: true }),
     /**
      * Extend the selection until the previous boundary is reached. A boundary
      * is defined by an atom of a different type (mbin, mord, etc...)
@@ -132,9 +119,9 @@ register(
      * "5" and "6", invoking `extendToPreviousBoundary` would extend the selection
      * to "2345".
      */
-    extendToPreviousBoundary: (model: ModelPrivate): boolean =>
+    extendToPreviousBoundary: (model) =>
       skip(model, 'backward', { extend: true }),
-    extendToGroupStart: (model: ModelPrivate): boolean => {
+    extendToGroupStart: (model) => {
       const result = model.setSelection(
         model.anchor,
         model.offsetOf(model.at(model.position).firstSibling)
@@ -142,7 +129,7 @@ register(
       if (!result) model.announce('plonk');
       return result;
     },
-    extendToGroupEnd: (model: ModelPrivate): boolean => {
+    extendToGroupEnd: (model) => {
       const result = model.setSelection(
         model.anchor,
         model.offsetOf(model.at(model.position).lastSibling)
@@ -150,12 +137,12 @@ register(
       if (!result) model.announce('plonk');
       return result;
     },
-    extendToMathFieldStart: (model: ModelPrivate): boolean => {
+    extendToMathFieldStart: (model) => {
       const result = model.setSelection(model.anchor, 0);
       if (!result) model.announce('plonk');
       return result;
     },
-    extendToMathFieldEnd: (model: ModelPrivate): boolean => {
+    extendToMathFieldEnd: (model) => {
       const result = model.setSelection(model.anchor, model.lastOffset);
       if (!result) model.announce('plonk');
       return result;

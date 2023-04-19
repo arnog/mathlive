@@ -157,16 +157,14 @@ export function perform(
     // shortcut buffer and the user style
     if (
       !mathfield.model.selectionIsCollapsed ||
-      /^(transpose|paste|complete|((moveToNextChar|moveToPreviousChar|extend).*))_$/.test(
-        selector
-      )
+      /^(transpose|paste|complete|moveTo|extendSelection)/.test(selector)
     ) {
       mathfield.flushInlineShortcutBuffer();
       mathfield.style = {};
     }
   }
 
-  // Render the mathlist
+  // Render the mathfield
   if (dirty) requestUpdate(mathfield);
 
   return handled;

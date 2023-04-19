@@ -142,7 +142,7 @@ export function contentMarkup(
   // 3. Generate markup
   //
 
-  return window.MathfieldElement.createHTML(box.toMarkup());
+  return box.toMarkup();
 }
 
 /**
@@ -191,7 +191,9 @@ export function render(
   if (isFocused && !hasFocus) field.classList.remove('ML__focused');
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
-  field.innerHTML = contentMarkup(mathfield, renderOptions);
+  field.innerHTML = window.MathfieldElement.createHTML(
+    contentMarkup(mathfield, renderOptions)
+  );
   mathfield.fieldContent = field.getElementsByClassName(
     'ML__mathlive'
   )[0]! as HTMLElement;

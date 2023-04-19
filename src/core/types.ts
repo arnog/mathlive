@@ -179,8 +179,6 @@ export interface BoxInterface {
     }
   ): BoxInterface;
 
-  wrapSelect(context: ContextInterface): BoxInterface;
-
   toMarkup(): string;
 
   tryCoalesceWith(box: BoxInterface): boolean;

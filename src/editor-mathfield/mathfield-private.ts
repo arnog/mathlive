@@ -659,7 +659,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // Potentially multiple atoms selected, return the COMMON styles
     const selectedAtoms = this.model.getAtoms(this.model.selection);
     if (selectedAtoms.length === 0) return {};
-    const style = selectedAtoms[0].style || {};
+    const style = { ...selectedAtoms[0].style };
     selectedAtoms.forEach((a: Atom) => {
       for (const [key, value] of Object.entries(a.style))
         if (!style[key] || style[key] !== value) style[key] = undefined;

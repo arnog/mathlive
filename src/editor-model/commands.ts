@@ -306,16 +306,20 @@ export function move(
   if (direction === 'upward') return moveUpward(model, options);
   if (direction === 'downward') return moveDownward(model, options);
 
-  if (options.extend) return model.extendSelection(direction);
+  if (options.extend) {
+    let pos = nextValidPosition(model, model.position, direction);
+    if (pos < 0) pos = 0;
+    if (pos > model.lastOffset) pos = model.lastOffset;
+    return model.setSelection(model.anchor, pos);
+  }
 
   if (model.selectionIsPlaceholder) {
     model.collapseSelection(direction);
     return move(model, direction);
   }
 
-  const previousPosition = model.position;
-
   let pos = model.position;
+  const previousPosition = pos;
   if (model.collapseSelection(direction)) {
     if (!isValidPosition(model, pos))
       pos = nextValidPosition(model, pos, direction);

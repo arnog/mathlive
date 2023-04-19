@@ -268,7 +268,7 @@ export class Atom {
     this.mode = options?.mode ?? 'math';
     this.isFunction = options?.isFunction ?? false;
     this.subsupPlacement = options?.limits;
-    this.style = options?.style ?? {};
+    this.style = { ...options?.style } ?? {};
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
     if (options?.serialize) this._serializer = options.serialize;
   }

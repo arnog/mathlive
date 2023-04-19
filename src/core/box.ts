@@ -459,24 +459,6 @@ export class Box implements BoxInterface {
     return result;
   }
 
-  /** If necessary, wrap this box in another that accounts for
-   * selected backgroundColor
-   */
-  wrapSelect(context: Context): Box {
-    if (!this.isSelected) return this;
-
-    // If we're at the root, nothing to do
-    if (!context.parent) return this;
-
-    const newBackgroundColor = highlight(context.computedBackgroundColor);
-
-    const result = makeStruts(this);
-    result.selected(true);
-    result.setStyle('background-color', newBackgroundColor);
-    result.setStyle('display', 'inline-block');
-    return result;
-  }
-
   /**
    * Generate the HTML markup to represent this box.
    */

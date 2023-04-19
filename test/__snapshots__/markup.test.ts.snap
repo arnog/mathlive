@@ -1273,7 +1273,7 @@ exports[`RULE AND DIMENSIONS 1/ \\rule[1em]{1em}{2em} renders correctly 1`] = `
 
 exports[`RULE AND DIMENSIONS 2/ \\rule{1em} renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0"></span><span class="ML__base"><span class="rule" style="border-right-width:1em;border-top-width:0;vertical-align:0;width:1em"></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:1em"></span><span class="ML__base"><span class="rule" style="border-right-width:1em;border-top-width:1em;vertical-align:0;width:1em"></span></span></span>",
   "no-error",
 ]
 `;
