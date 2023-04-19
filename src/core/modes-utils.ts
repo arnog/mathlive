@@ -38,14 +38,14 @@ export abstract class Mode {
     style?: Style
   ): Atom | null;
 
-  abstract serialize(_run: Atom[], _options: ToLatexOptions): string[];
+  abstract serialize(run: Atom[], options: ToLatexOptions): string[];
 
   /*
    * Apply the styling (bold, italic, etc..) as classes to the box, and return
    * the effective font name to be used for metrics
    * ('Main-Regular', 'Caligraphic-Regular' etc...)
    */
-  abstract applyStyle(_box: Box, _style: Style): string | null;
+  abstract applyStyle(box: Box, style: Style): string | null;
 }
 
 /*
