@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.92.1 (2023-04-19)
 
 ## Improvements
 - Replaced the `(x)` ASCIIMath inline shortcut with `(*)`
