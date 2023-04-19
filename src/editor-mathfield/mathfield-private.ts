@@ -622,7 +622,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     const ancestor = Atom.commonAncestor(anchor, cursor);
 
-    if (ancestor?.parentPrompt) return true;
+    if (ancestor?.type === 'prompt' || ancestor?.parentPrompt) return true;
 
     return false;
   }

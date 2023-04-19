@@ -36,6 +36,7 @@ import {
 } from './utils';
 import { compareSelection, range } from './selection-utils';
 import { ArrayAtom } from '../core-atoms/array';
+import { LatexAtom } from 'core-atoms/latex';
 
 export type ModelState = {
   content: AtomJson;
@@ -180,13 +181,17 @@ export class ModelPrivate implements Model {
   }
 
   setPositionHandlingPlaceholder(pos: Offset): void {
-    if (this.at(pos)?.type === 'placeholder') {
+    const atom = this.at(pos);
+    if (atom?.type === 'placeholder') {
       // We're going right of a placeholder: select it
       this.setSelection(pos - 1, pos);
-    } else if (this.at(pos)?.rightSibling?.type === 'placeholder') {
+    } else if (atom?.rightSibling?.type === 'placeholder') {
       // We're going left of a placeholder: select it
       this.setSelection(pos, pos + 1);
     } else this.position = pos;
+
+    if (atom instanceof LatexAtom && atom.isSuggestion)
+      atom.isSuggestion = false;
   }
 
   getState(): ModelState {

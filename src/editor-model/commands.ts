@@ -306,8 +306,6 @@ export function move(
   if (direction === 'upward') return moveUpward(model, options);
   if (direction === 'downward') return moveDownward(model, options);
 
-  const previousPosition = model.position;
-
   if (options.extend) return model.extendSelection(direction);
 
   if (model.selectionIsPlaceholder) {
@@ -315,7 +313,15 @@ export function move(
     return move(model, direction);
   }
 
-  const handleDeadEnd = () => {
+  const previousPosition = model.position;
+
+  let pos = model.position;
+  if (model.collapseSelection(direction)) {
+    if (!isValidPosition(model, pos))
+      pos = nextValidPosition(model, pos, direction);
+  } else pos = nextValidPosition(model, model.position, direction);
+
+  if (pos < 0 || pos > model.lastOffset) {
     // We're going out of bounds
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
@@ -331,95 +337,44 @@ export function move(
     }
     if (result) model.announce('plonk');
     return result;
-  };
-
-  if (!model.collapseSelection(direction)) {
-    let pos = model.position + (direction === 'forward' ? +1 : -1);
-    let atom = model.at(pos);
-
-    //
-    // 1. Handle ID'd placeholders, `captureSelection` and `skipBoundary`
-    //
-    if (pos >= 0 && pos <= model.lastOffset) {
-      if (direction === 'forward') {
-        if (model.mathfield.hasEditablePrompts && !model.at(pos).parentPrompt) {
-          // The new position is not editable, instead look forward for the next prompt:
-          const nextAtoms = model
-            .getAtoms(pos, -1)
-            .map((a) => [a, ...a.children])
-            .flat();
-
-          const nextPrompts: Atom[] = nextAtoms.filter(
-            (p: PromptAtom) => p.type === 'prompt' && !p.captureSelection
-          );
-          const nextPrompt = nextPrompts[0];
-          if (!nextPrompt) return handleDeadEnd();
-          pos = model.offsetOf(nextPrompt) - 1;
-        } else if (atom.inCaptureSelection) {
-          // If in a capture selection, while going forward jump to
-          // after
-          while (!atom.captureSelection) atom = atom.parent!;
-          pos = model.offsetOf(atom);
-        } else if (
-          !atom.isFirstSibling &&
-          atom.isLastSibling &&
-          atom.parent?.skipBoundary
-        ) {
-          // When going forward if next is skipboundary, move 2
-          if (pos + 1 === model.lastOffset) pos = pos + 1;
-          else {
-            model.position = pos;
-            return move(model, 'forward', options);
-          }
-        } else if (
-          atom.parent?.skipBoundary &&
-          atom.rightSibling?.isLastSibling
-        )
-          pos += 2;
-        else if (atom.parent?.skipBoundary && atom.type === 'first') pos += 1;
-        else if (atom instanceof LatexAtom && atom.isSuggestion)
-          atom.isSuggestion = false;
-      } else if (direction === 'backward') {
-        if (model.mathfield.hasEditablePrompts && !model.at(pos).parentPrompt) {
-          // The new position is not editable, instead look forward for the previous prompt:
-          const previousAtoms = model
-            .getAtoms(0, pos)
-            .map((a) => [a, ...a.children])
-            .flat();
-
-          const previousPrompts: Atom[] = previousAtoms.filter(
-            (p: PromptAtom) => p.type === 'prompt' && !p.captureSelection
-          );
-          const previousPrompt = previousPrompts[previousPrompts.length - 1];
-          if (!previousPrompt) return handleDeadEnd();
-
-          pos = model.offsetOf(previousPrompt) - 1;
-        } else if (atom.parent?.inCaptureSelection) {
-          // If in a capture selection while going backward, jump to
-          // before
-          while (!atom.captureSelection) atom = atom.parent!;
-          pos = Math.max(0, model.offsetOf(atom.leftSibling));
-        } else if (atom.skipBoundary) {
-          // When going backward, if land on first of group and previous
-          // (atom) is skipboundary,  move - 2
-          pos = Math.max(0, model.position - 2);
-        } else if (atom.parent?.skipBoundary && atom.type === 'first')
-          pos = Math.max(0, model.position - 2);
-      }
-    }
-
-    //
-    // 2. Handle out of bounds
-    //
-    if (pos < 0 || pos > model.lastOffset) return handleDeadEnd();
-
-    //
-    // 3. Handle placeholder
-    //
-    model.setPositionHandlingPlaceholder(pos);
   }
 
+  model.setPositionHandlingPlaceholder(pos);
+
   model.announce('move', previousPosition);
+  return true;
+}
+
+function nextValidPosition(
+  model: ModelPrivate,
+  pos: number,
+  direction: 'forward' | 'backward'
+): number {
+  pos = pos + (direction === 'forward' ? +1 : -1);
+
+  if (pos < 0 || pos > model.lastOffset) return pos;
+
+  if (!isValidPosition(model, pos))
+    return nextValidPosition(model, pos, direction);
+
+  return pos;
+}
+
+function isValidPosition(model: ModelPrivate, pos: number): boolean {
+  const atom = model.at(pos);
+
+  // If we're inside a captureSelection, that's not a valid position
+  let parent = atom.parent;
+  while (parent && !parent.inCaptureSelection) parent = parent.parent;
+  if (parent?.inCaptureSelection) return false;
+
+  if (atom.parent?.skipBoundary) {
+    if (!atom.isFirstSibling && atom.isLastSibling) return false;
+    if (atom.type === 'first') return false;
+  }
+
+  if (model.mathfield.hasEditablePrompts && !atom.parentPrompt) return false;
+
   return true;
 }
 

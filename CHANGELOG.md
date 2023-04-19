@@ -51,7 +51,10 @@
 - Work around a Chrome rendering issue with thin lines (fractions, surds)
 - Correctly render the gap to the left of `\underline`, `\overline` 
 - **#1656** Incorrect `\left...\right` command after deleting part of the 
-  formula. 
+  formula.
+- **#1925** Navigation with the arrow keys could occasionally incorrectly
+  handle atoms that should be treated as a unit, for example `\dot{\vec{v}}`.
+  In general, various edge cases were not handled correctly.
   
 ## 0.91.2 (2023-04-06)
 

@@ -568,7 +568,7 @@ export class Atom {
   /** Return the parent editable prompt, if it exists */
   get parentPrompt(): Atom | null {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let atom: Atom | undefined = this;
+    let atom: Atom | undefined = this.parent;
     while (atom) {
       if (atom.type === 'prompt' && !atom.captureSelection) return atom;
       atom = atom.parent;
