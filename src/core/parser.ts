@@ -1153,17 +1153,10 @@ export class Parser {
           );
         }
       } else if (this.match('^') || this.match('_')) {
-        const arg = this.scanArgument('expression');
-        if (arg) {
-          this.lastSubsupAtom().addChildren(
-            argAtoms(arg),
-            token === '_' ? 'subscript' : 'superscript'
-          );
-        } else {
-          this.lastSubsupAtom().createBranch(
-            token === '_' ? 'subscript' : 'superscript'
-          );
-        }
+        this.lastSubsupAtom().addChildren(
+          argAtoms(this.scanArgument('expression')),
+          token === '_' ? 'subscript' : 'superscript'
+        );
       }
 
       token = this.peek();

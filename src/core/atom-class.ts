@@ -709,26 +709,29 @@ export class Atom {
   }
 
   getInitialBaseElement(): Atom {
-    let result: Atom | undefined = undefined;
-    if (!this.hasEmptyBranch('body')) {
-      console.assert(this.body?.[0].type === 'first');
-      result = this.body![1].getInitialBaseElement();
-    }
+    if (this.hasEmptyBranch('body')) return this;
 
-    return result ?? this;
+    console.assert(this.body?.[0].type === 'first');
+
+    return this.body![1]?.getInitialBaseElement() ?? this;
   }
 
   getFinalBaseElement(): Atom {
-    if (!this.hasEmptyBranch('body'))
-      return this.body![this.body!.length - 1].getFinalBaseElement();
-
-    return this;
+    if (this.hasEmptyBranch('body')) return this;
+    return this.body![this.body!.length - 1].getFinalBaseElement();
   }
 
   isCharacterBox(): boolean {
-    if (this.type === 'leftright') return false;
-    const base = this.getInitialBaseElement();
-    return /mord/.test(base.type);
+    if (
+      this.type === 'leftright' ||
+      this.type === 'genfrac' ||
+      this.type === 'subsup' ||
+      this.type === 'delim' ||
+      this.type === 'array' ||
+      this.type === 'surd'
+    )
+      return false;
+    return this.getFinalBaseElement().type === 'mord';
   }
 
   hasEmptyBranch(branch: Branch): boolean {
@@ -805,8 +808,16 @@ export class Atom {
     child.parentBranch = after.parentBranch;
   }
 
-  addChildren(children: Atom[], branch: Branch): void {
-    for (const child of children) this.addChild(child, branch);
+  addChildren(children: Atom[], branchName: Branch): void {
+    const branch = this.createBranch(branchName);
+
+    for (const child of children) {
+      child.parent = this;
+      child.parentBranch = branchName;
+      branch.push(child);
+    }
+
+    this.isDirty = true;
   }
 
   /**
@@ -1071,7 +1082,7 @@ export class Atom {
           {
             box: subBox,
             marginRight: scriptspace,
-            marginLeft: this.isCharacterBox() ? -(base.italic ?? 0) : 0,
+            marginLeft: this.isCharacterBox() ? -base.italic ?? 0 : 0,
           },
         ],
       });

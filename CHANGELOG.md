@@ -1,3 +1,9 @@
+## [Unreleased]
+
+## Improvements
+- Replaced the `(x)` ASCIIMath inline shortcut with `(*)`
+- Correctly parse empty sub/superscripts, i.e. `x^{}`
+
 ## 0.92.0 (2023-04-18)
 
 ## Improvements
