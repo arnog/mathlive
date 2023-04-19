@@ -321,9 +321,10 @@ export function move(
   let pos = model.position;
   const previousPosition = pos;
   if (model.collapseSelection(direction)) {
+    pos = model.position;
     if (!isValidPosition(model, pos))
       pos = nextValidPosition(model, pos, direction);
-  } else pos = nextValidPosition(model, model.position, direction);
+  } else pos = nextValidPosition(model, pos, direction);
 
   if (pos < 0 || pos > model.lastOffset) {
     // We're going out of bounds
