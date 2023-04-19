@@ -52,9 +52,7 @@ export class MacroAtom extends Atom {
   serialize(options: ToLatexOptions): string {
     return options.expandMacro && this.expand
       ? this.bodyToLatex(options)
-      : this.macroArgs
-      ? latexCommand(this.command, this.macroArgs)
-      : this.command;
+      : this.command + (this.macroArgs ?? '');
   }
 
   render(context: Context): Box | null {
