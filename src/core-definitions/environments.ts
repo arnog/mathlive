@@ -1,8 +1,4 @@
-import type {
-  Dimension,
-  Environment,
-  TabularEnvironment,
-} from '../public/core-types';
+import type { Dimension, Environment } from '../public/core-types';
 import type { GlobalContext } from '../core/types';
 
 import { Atom } from '../core/atom-class';

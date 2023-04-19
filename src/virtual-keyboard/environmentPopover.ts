@@ -5,7 +5,6 @@ import {
   isCasesEnvironment,
   isMatrixEnvironment,
 } from '../core-definitions/environment-types';
-import { Scrim } from '../editor/scrim';
 import { SelectorPrivate } from '../editor/types';
 import { VirtualKeyboard } from './virtual-keyboard';
 
@@ -201,9 +200,8 @@ export function showEnvironmentPanel(
   const possiblyExistentPanel = keyboard.container?.querySelector(
     '.MLK__environment-panel'
   );
-  if (possiblyExistentPanel) {
-    environmentPanel = possiblyExistentPanel;
-  } else {
+  if (possiblyExistentPanel) environmentPanel = possiblyExistentPanel;
+  else {
     environmentPanel = document.createElement('div');
     keyboard.container
       ?.querySelector('.ML__keyboard')
@@ -217,9 +215,8 @@ export function showEnvironmentPanel(
   const possiblyExistentFlexbox = environmentPanel.querySelector(
     '.MLK__environment-controls'
   );
-  if (possiblyExistentFlexbox) {
-    flexbox = possiblyExistentFlexbox;
-  } else {
+  if (possiblyExistentFlexbox) flexbox = possiblyExistentFlexbox;
+  else {
     flexbox = document.createElement('div');
     environmentPanel.appendChild(flexbox);
   }
@@ -302,7 +299,6 @@ export function showEnvironmentPanel(
 }
 
 export function hideEnvironmentPanel(keyboard: VirtualKeyboard): void {
-  console.log(keyboard.container?.querySelector('.MLK__environment-panel'));
   keyboard.container
     ?.querySelector('.MLK__environment-panel')
     ?.classList.remove('is-visible');
