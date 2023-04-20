@@ -13,6 +13,7 @@ import { Context } from '../core/context';
 export class SubsupAtom extends Atom {
   constructor(context: GlobalContext, options?: { style?: Style }) {
     super('subsup', context, { style: options?.style });
+    this.subsupPlacement = 'auto';
   }
 
   static fromJson(
@@ -31,14 +32,11 @@ export class SubsupAtom extends Atom {
   }
 
   render(context: Context): Box {
-    // The caret for this atom type is handled by its elements
-    console.assert(!this.subsupPlacement);
-
     // The box type of a `subsup` atom is 'supsub' as it doesn't
     // have any special INTER_BOX_SPACING with its attached atom (previous box)
 
-    const leftSibling = this.leftSibling;
     const phantomContex = new Context(context, { isPhantom: true });
+    const leftSibling = this.leftSibling;
     const base = leftSibling.render(phantomContex) ?? new Box(null);
     const phantom = new Box(null, { height: base.height, depth: base.depth });
     return this.attachSupsub(context, {

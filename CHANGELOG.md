@@ -1,3 +1,12 @@
+## [Unreleased]
+
+## Bug Fixes
+- **#1646** **mhchem**: states of aggregation is now rendered correctly. Added 
+  support for the `\mskip` command
+- When editing a mathfield, after inserting both a superscript and 
+  subscript, the subscript would be offset from the superscript.
+
+
 ## 0.92.1 (2023-04-19)
 
 ## Improvements
