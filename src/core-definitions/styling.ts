@@ -689,6 +689,19 @@ defineFunction(
   }
 );
 
+/*
+% \hspace: register name or braced argument, glue in any unit
+$$+\hspace{1ex}+$$
+$$+\hspace{1em plus1ex minus 2pt}+$$
+$$+\hspace\textwidth+$$
+$$+\hspace{\textwidth}+$$
+$$+\hspace\thinmuskip+$$ % Incompatible glue units
+$$+\hspace1ex+$$         % Illegal unit of measure (pt inserted).
+$$+\hspace{1}+$$         % Illegal unit of measure (pt inserted).
+$$+\hspace10+$$          % Illegal unit of measure (pt inserted).
+$$+\hspace1pt+$$         % Illegal unit of measure (pt inserted).
+$$+\hspace1em+$$         % Illegal unit of measure (pt inserted).
+*/
 defineFunction(
   [
     'hspace',
@@ -696,60 +709,67 @@ defineFunction(
     // \hspace* inserts a non-breakable space, but since we don't line break...
     // it's the same as \hspace.
   ],
-  '{width:glue}',
+  '{width:dimension}',
   {
-    createAtom: (
-      name: string,
-      context: GlobalContext,
-      style: PrivateStyle,
-      args: (null | Glue)[]
-    ): Atom =>
-      new SpacingAtom(
-        name,
-        style,
-        context,
-        args[0] ?? { glue: { dimension: 0 } }
-      ),
+    createAtom: (name, context, style, args: [null | Dimension]) =>
+      new SpacingAtom(name, style, context, args[0] ?? { dimension: 0 }),
   }
 );
 
-defineFunction(
-  [
-    'mkern',
-    'kern',
-    // mkern accepts `mu` as a unit. We're lenient and
-    // also accept it with `kern`
-  ],
-  '{width:glue}',
-  {
-    createAtom: (
-      name: string,
-      context: GlobalContext,
-      style: PrivateStyle,
-      args: (null | Glue)[]
-    ): Atom =>
-      new SpacingAtom(
-        name,
-        style,
-        context,
-        args[0] ?? { glue: { dimension: 0 } }
-      ),
-  }
-);
+/*
 
-defineFunction('mspace', '{width:glue}', {
-  createAtom: (
-    name: string,
-    context: GlobalContext,
-    style: PrivateStyle,
-    args: (null | Glue)[]
-  ): Atom =>
-    new SpacingAtom(
-      name,
-      style,
-      context,
-      args[0] ?? { glue: { dimension: 0 } }
-    ),
+Compared to LaTeX, we're a bit more lenient:
+- we accept any units, i.e. "mu" units in non-mu variants, and non-mu
+   units in mu variants
+- we accept both braced and unbraced variants
+
+
+% \kern: register or unbraced glue in non-mu units
+$$+\kern11pt+$$
+$$+\kern11pt plus2ex minus3pt+$$
+$$+\kern2em+$$
+$$+\kern\thinmuskip+$$   % Incompatible glue units
+$$+\kern{11pt}+$$        % Missing number, treated as zero
+
+% \mkern: register or unbraced glue in mu units
+$$+\mkern11mu+$$
+$$+\mkern11mu plus1mu minus2mu+$$
+$$+\mkern\thinmuskip+$$
+$$+\mkern{\thinmuskip}+$$ % Illegal unit of measure (mu inserted).
+$$+\mkern11+$$           % Illegal unit of measure (mu inserted).
+$$+\mkern{11mu}+$$       % Missing number, treated as zero.
+
+% \mskip: register or unbraced glue in mu units
+$$+\mskip5mu+$$
+$$+\mskip5mu plus 1mu minus 1mu+$$
+$$+\mskip\thinmuskip+$$
+$$+\mskip1em+$$          % Illegal unit of measure (mu inserted).
+$$+\mskip5+$$            % Illegal unit of measure (mu inserted).
+$$+\mskip{5}+$$          % Missing number, treated as zero
+
+% \hskip: register or unbraced glue in non-mu units
+$$+\hskip5pt+$$
+$$+\hskip5pt plus 1em minus 1ex+$$
+$$+\hskip\textwidth+$$
+$$+\hskip1em+$$
+$$+\hskip5+$$            % Illegal unit of measure (pt inserted).
+$$+\hskip{5}+$$          % Missing number, treated as zero
+
+ From amsmath
+% \mspace: require register or braced glue in mu units
+$$\mspace{12mu}+$$
+$$\mspace{12mu plus 1mu minus 2mu}+$$
+$$\mspace12mu+$$        % Illegal unit of measure (mu inserted).
+$$\mspace1em+$$         % Illegal unit of measure (mu inserted).
+$$\mspace1em plus 2ex+$$% Illegal unit of measure (mu inserted).
+$$\mspace{1em}+$$       % Illegal unit of measure (mu inserted).
+$$\mspace12+$$          % Illegal unit of measure (mu inserted).
+
+
+*/
+defineFunction(['mkern', 'kern', 'mskip', 'hskip', 'mspace'], '{width:glue}', {
+  createAtom: (name, context, style, args: (null | Glue)[]) =>
+    new SpacingAtom(name, style, context, args[0] ?? { dimension: 0 }),
 });
 
 defineFunction('mathop', '{:auto}', {

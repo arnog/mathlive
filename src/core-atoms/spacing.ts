@@ -1,42 +1,49 @@
-import type { Glue, Style } from '../public/core-types';
+import type { Dimension, Glue, Style } from '../public/core-types';
 import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { convertGlueToEm } from '../core/registers-utils';
-import { latexCommand } from '../core/tokenizer';
+import {
+  convertGlueOrDimensionToEm,
+  serializeGlueOrDimenstion,
+} from '../core/registers-utils';
 
 export class SpacingAtom extends Atom {
-  private readonly width?: Glue;
-
+  private readonly width: Glue | Dimension | undefined;
+  _braced: boolean;
   constructor(
     command: string,
     style: Style,
     context: GlobalContext,
-    width?: Glue
+    width?: Glue | Dimension,
+    options?: { braced: boolean }
   ) {
     super('spacing', context, { command, style });
     this.width = width;
+    this._braced = options?.braced ?? false;
   }
 
   static fromJson(json: AtomJson, context: GlobalContext): SpacingAtom {
-    return new SpacingAtom(json.command, json.style, context, json.width);
+    return new SpacingAtom(json.command, json.style, context, json.width, {
+      braced: json.braced,
+    });
   }
 
   toJson(): AtomJson {
     const options: { [key: string]: any } = {};
-    if (this.width) options.width = this.width;
+    if (this.width !== undefined) options.width = this.width;
+    if (this._braced) options.braced = true;
     return { ...super.toJson(), ...options };
   }
 
   render(context: Context): Box {
     let result: Box;
-    if (this.width) {
+    if (this.width !== undefined) {
       result = new Box(null, { classes: 'mspace' });
-      result.left = convertGlueToEm(this.width);
+      result.left = convertGlueOrDimensionToEm(this.width);
     } else {
-      const spacingCls: string =
+      const spacingCls =
         {
           '\\qquad': 'qquad',
           '\\quad': 'quad',
@@ -60,13 +67,12 @@ export class SpacingAtom extends Atom {
     // i.e. `\hspace1em` or `\hspace{1em}`.
     // - `\quad`, etc... which take no parameters.
     const command = this.command ?? '';
-    if (this.command === '\\hspace' || this.command === '\\hspace*') {
-      if (!Number.isFinite(this.width)) return `${command}0pt`;
-      return latexCommand(command, `${this.width}em'}`);
-    }
 
-    if (!Number.isFinite(this.width)) return command;
+    if (this.width === undefined) return command;
 
-    return latexCommand(command, `${this.width}em`);
+    // @todo Note: when the value is a register, it should not be braced
+    if (this._braced)
+      return `${command}{${serializeGlueOrDimenstion(this.width)}}`;
+    return `${command}${serializeGlueOrDimenstion(this.width)}`;
   }
 }

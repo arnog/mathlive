@@ -41,6 +41,11 @@ export function convertGlueToEm(value: Glue): number {
   return convertDimensionToEm(value.glue);
 }
 
+export function convertGlueOrDimensionToEm(value: Glue | Dimension): number {
+  if ('glue' in value) return convertDimensionToEm(value.glue);
+  return convertDimensionToEm(value);
+}
+
 export function convertDimensionToPixel(value: Dimension): number {
   return convertDimensionToEm(value) * (4 / 3) * PT_PER_EM;
 }
@@ -58,6 +63,11 @@ export function serializeGlue(value: Glue): string {
     result += ` minus ${serializeDimension(value.shrink)}`;
 
   return result;
+}
+
+export function serializeGlueOrDimenstion(value: Glue | Dimension): string {
+  if ('glue' in value) return serializeGlue(value);
+  return serializeDimension(value);
 }
 
 export function addDimension(lhs: Dimension, rhs: Dimension): Dimension {

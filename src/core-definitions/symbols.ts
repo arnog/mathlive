@@ -674,7 +674,7 @@ newSymbols(
   ],
   'space'
 );
-// \enspace is a TeX command (not LaTeX) equivalent to a \skip
+// \enspace is a TeX command (not LaTeX)
 defineFunction(['!', ',', ':', ';', 'enskip', 'enspace', 'quad', 'qquad'], '', {
   createAtom: (command, context, style) =>
     new SpacingAtom(command, style, context),
