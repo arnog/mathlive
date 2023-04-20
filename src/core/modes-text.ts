@@ -248,7 +248,6 @@ export class TextMode extends Mode {
             result.map(
               (t) =>
                 ({
-                  '˜': ' ',
                   '$': '\\$',
                   '{': '\\textbraceleft',
                   '}': '\\textbraceright',

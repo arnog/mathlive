@@ -5,6 +5,7 @@
   support for the `\mskip` command
 - When editing a mathfield, after inserting both a superscript and 
   subscript, the subscript would be offset from the superscript.
+- **#1668** Correctly handle `\space`, `~`
 
 
 ## 0.92.1 (2023-04-19)

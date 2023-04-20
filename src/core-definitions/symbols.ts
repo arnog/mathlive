@@ -670,7 +670,6 @@ newSymbols(
     // See http://tex.stackexchange.com/questions/41476/lengths-and-when-to-use-them
     ['\\ ', 0x00a0],
     ['~', 0x00a0],
-    ['\\space', 0x00a0],
   ],
   'space'
 );
@@ -678,6 +677,11 @@ newSymbols(
 defineFunction(['!', ',', ':', ';', 'enskip', 'enspace', 'quad', 'qquad'], '', {
   createAtom: (command, context, style) =>
     new SpacingAtom(command, style, context),
+});
+
+defineFunction('space', '', {
+  createAtom: (_command, context, style) =>
+    new SpacingAtom('space', style, context),
 });
 
 // Punctuation

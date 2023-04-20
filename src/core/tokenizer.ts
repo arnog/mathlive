@@ -110,10 +110,6 @@ class Tokenizer {
         } else {
           // ... or a single non-letter character
           command = this.get();
-          if (command === ' ') {
-            // The `\ ` command is equivalent to a single space
-            return '<space>';
-          }
         }
 
         return '\\' + command;
@@ -196,12 +192,7 @@ function expand(
       token = lex.next();
       if (token) result.push(token);
     } else if (token === '\\obeyspaces') lex.obeyspaces = true;
-    else if (token === '\\space' || token === '~') {
-      // The `\space` command is equivalent to a single space
-      // The ~ is an 'active character' (a single character macro)
-      // that maps to <space>
-      result.push('<space>');
-    } else if (token === '\\bgroup') {
+    else if (token === '\\bgroup') {
       // Begin group, synonym for opening brace
       result.push('<{>');
     } else if (token === '\\egroup') {

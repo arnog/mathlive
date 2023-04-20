@@ -188,6 +188,7 @@ export type PrivateStyle = Style & {
   verbatimColor?: string;
   verbatimBackgroundColor?: string;
   mathStyle?: MathstyleName;
+  mode?: ParseMode;
 };
 
 export interface ContextInterface {
