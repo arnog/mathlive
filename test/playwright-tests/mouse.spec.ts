@@ -34,3 +34,23 @@ test('double/triple click to select', async ({ page }) => {
     });
   expect(selectionLatex).toBe(String.raw`\left(x+y\right)-\left(r+s\right)=34`);
 });
+
+test('readonly selectable', async ({ page, browserName }) => {
+
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-4').focus();
+
+  // triple click to select it all
+  await page
+    .locator('#mf-4 >> span.ML__cmr >> text=3')
+    .click({ clickCount: 3, delay: 200 });
+
+  // check contents of selection
+  let selectionLatex = await page
+    .locator('#mf-4')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.getValue(mfe.selection, 'latex');
+    });
+  expect(selectionLatex).toBe('x=\\frac{3}{4}');
+});
