@@ -301,7 +301,7 @@ test('nested paranthesis', async ({ page }) => {
 
 
 test('keyboard copy/cut/paste', async ({ page, browserName }) => {
-  test.skip(browserName === "webkit", "copy-paste test doesn't work with webkit on linux");
+  test.skip(browserName !== "firefox", "with playwright, copy-paste test only works in firefox");
 
   const modifierKey = /Mac|iPod|iPhone|iPad/.test(
     await page.evaluate(() => navigator.platform)
