@@ -129,15 +129,18 @@ export class ModeEditor {
       //
       // 5. Put other flavors on the clipboard (MathJSON)
       //
-      const ce = window.MathfieldElement.computeEngine;
-      if (ce) {
-        try {
-          ce.jsonSerializationOptions = { metadata: ['latex'] };
-          const expr = ce.parse(latex);
+      if (window[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine) {
+        const ce = window.MathfieldElement.computeEngine;
+        if (ce) {
+          try {
+            ce.jsonSerializationOptions = { metadata: ['latex'] };
+            const expr = ce.parse(latex);
 
-          const mathJson = JSON.stringify(expr.json);
-          if (mathJson) ev.clipboardData.setData('application/json', mathJson);
-        } catch {}
+            const mathJson = JSON.stringify(expr.json);
+            if (mathJson)
+              ev.clipboardData.setData('application/json', mathJson);
+          } catch {}
+        }
       }
     }
     // Prevent the current document selection from being written to the clipboard.
