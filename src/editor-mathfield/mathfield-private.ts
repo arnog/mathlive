@@ -433,9 +433,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
         onCopy: (ev) => ModeEditor.onCopy(this, ev),
         onPaste: (ev) => {
           // Ignore if in read-only mode
-          let result = this.isSelectionEditable;          
+          let result = this.isSelectionEditable;
 
-          const text = ev.clipboardData?.getData("text");
+          const text = ev.clipboardData?.getData('text');
 
           if (result) {
             if (
@@ -484,7 +484,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       window.addEventListener(
         'blur',
         (event) => {
-          if (!event.relatedTarget && isValidMathfield(this) && this.hasFocus()) {
+          if (
+            !event.relatedTarget &&
+            isValidMathfield(this) &&
+            this.hasFocus()
+          ) {
             window.addEventListener(
               'focus',
               (evt) => {
