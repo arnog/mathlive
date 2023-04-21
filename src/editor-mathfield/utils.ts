@@ -206,9 +206,21 @@ function getRangeBounds(
     if (options?.excludeAtomsWithBackground && atom.style.backgroundColor)
       break;
 
+    // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
+    // Without this, the selection indicator will not be in the right place.
+    // 1. Inquire how big the mathfield thinks it is
+    const field = mathfield.field;
+    const supposedWidth = parseFloat(getComputedStyle(field).width);
+    // 2. Get the actual screen width of the box
+    const actualWidth = field.getBoundingClientRect().width;
+    // 3. Divide the two to get the scale factor
+    let scaleFactor = actualWidth / supposedWidth;
+    scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
+
     const bounds = adjustForScrolling(
       mathfield,
-      getAtomBounds(mathfield, atom)
+      getAtomBounds(mathfield, atom),
+      scaleFactor
     );
     if (bounds) {
       const id = branchId(atom);
