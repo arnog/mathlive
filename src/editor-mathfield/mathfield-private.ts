@@ -470,8 +470,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (window === window.top) {
       window.addEventListener(
         'blur',
-        () => {
-          if (isValidMathfield(this) && this.hasFocus()) {
+        (event) => {
+          if (!event.relatedTarget && isValidMathfield(this) && this.hasFocus()) {
             window.addEventListener(
               'focus',
               (evt) => {
