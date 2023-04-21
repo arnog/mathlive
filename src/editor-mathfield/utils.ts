@@ -128,22 +128,19 @@ function branchId(atom: Atom): string {
 
 export function adjustForScrolling(
   mathfield: MathfieldPrivate,
-  rect: Rect | null
+  rect: Rect | null,
+  scaleFactor: number
 ): Rect | null {
   if (!rect) return null;
   const fieldRect = mathfield.field!.getBoundingClientRect();
   const w = rect.right - rect.left;
   const h = rect.bottom - rect.top;
   const left = Math.ceil(
-    rect.left - fieldRect.left + mathfield.field!.scrollLeft
+    rect.left - fieldRect.left + mathfield.field.scrollLeft * scaleFactor
   );
+
   const top = Math.ceil(rect.top - fieldRect.top);
-  return {
-    left,
-    right: left + w,
-    top,
-    bottom: top + h,
-  };
+  return { left, right: left + w, top, bottom: top + h };
 }
 
 function getNodeBounds(node: Element): Rect {

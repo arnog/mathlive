@@ -269,7 +269,8 @@ export function renderSelection(
     if (atom?.containsCaret && atom.displayContainsHighlight) {
       const bounds = adjustForScrolling(
         mathfield,
-        getAtomBounds(mathfield, atom)
+        getAtomBounds(mathfield, atom),
+        scaleFactor
       );
 
       if (bounds) {
