@@ -308,7 +308,7 @@ test('subscript and superscript', async ({ page }) => {
   // check latex of result
   expect(
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
-  ).toBe(String.raw`x_{y}^{h}+y_{rr}^{a}+z_1^{aa}+s_{11}^{bb}+30+x^{h}_{s}-40`);
+  ).toBe(String.raw`x_{y}^{h}+y_{rr}^{a}+z_1^{aa}+s_{11}^{bb}+30+x_{s}^{h}-40`);
 });
 
 test('nested paranthesis', async ({ page }) => {
