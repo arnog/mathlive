@@ -34,6 +34,7 @@ import { getDefaultRegisters } from '../core/registers';
 
 import {
   contentWillChange,
+  contentDidChange,
   deleteRange,
   getMode,
   isRange,
@@ -432,14 +433,26 @@ If you are using Vue, this may be because you are using the runtime-only build o
         onCopy: (ev) => ModeEditor.onCopy(this, ev),
         onPaste: (ev) => {
           // Ignore if in read-only mode
-          let result = this.isSelectionEditable;
+          let result = this.isSelectionEditable;          
+
+          const text = ev.clipboardData?.getData("text");
 
           if (result) {
-            result = ModeEditor.onPaste(
-              this.model.at(this.model.position).mode,
-              this,
-              ev.clipboardData
-            );
+            if (
+              text &&
+              contentWillChange(this.model, {
+                inputType: 'insertFromPaste',
+                data: text,
+              })
+            ) {
+              this.snapshot();
+              if (this.insert(text)) {
+                contentDidChange(this.model, {
+                  inputType: 'insertFromPaste',
+                });
+                requestUpdate(this);
+              }
+            } else result = false;
           }
 
           if (!result) this.model.announce('plonk');

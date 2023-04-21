@@ -103,7 +103,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // Rare keys on some extended keyboards
   { key: '[Cut]', command: 'cutToClipboard' },
   { key: '[Copy]', command: 'copyToClipboard' },
-  { key: '[Paste]', command: 'pasteFromClipboard' },
   { key: '[Clear]', command: 'deleteBackward' },
   { key: '[Undo]', command: 'undo' },
   { key: '[Redo]', command: 'redo' },
@@ -113,8 +112,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'cmd+x', command: 'cutToClipboard' },
   { key: 'ctrl+c', command: 'copyToClipboard' },
   { key: 'cmd+c', command: 'copyToClipboard' },
-  { key: 'ctrl+v', command: 'pasteFromClipboard' },
-  { key: 'cmd+v', command: 'pasteFromClipboard' },
   { key: 'ctrl+z', ifPlatform: '!macos', command: 'undo' },
   { key: 'cmd+z', command: 'undo' },
   { key: 'ctrl+y', ifPlatform: '!macos', command: 'redo' }, // ARIA recommendation
