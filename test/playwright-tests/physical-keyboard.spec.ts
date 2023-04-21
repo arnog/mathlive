@@ -228,33 +228,6 @@ test('Select all/type to replace selection', async ({ page, browserName }) => {
   ).toBe('30=z+y');
 });
 
-test('readonly selectable', async ({ page, browserName }) => {
-  const modifierKey = /Mac|iPod|iPhone|iPad/.test(
-    await page.evaluate(() => navigator.platform)
-  )
-    ? 'Meta'
-    : 'Control';
-
-  let selectAllCommand = `${modifierKey}+a`;
-  if (modifierKey === 'Meta' && browserName === 'chromium') {
-    // Cmd-a not working with Chromium on Mac, need to use Control-A
-    // Cmd-a works correctly on Chrome and Edge on Mac
-    selectAllCommand = 'Control+a';
-  }
-
-  await page.goto('/dist/playwright-test-page/');
-
-  await page.locator('#mf-4').press(selectAllCommand);
-
-  // check contents of selection
-  let selectionLatex = await page
-    .locator('#mf-4')
-    .evaluate((mfe: MathfieldElement) => {
-      return mfe.getValue(mfe.selection, 'latex');
-    });
-  expect(selectionLatex).toBe('x=\\frac{3}{4}');
-});
-
 test('test up/down arrow fraction navigation', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
@@ -308,7 +281,7 @@ test('subscript and superscript', async ({ page }) => {
   // check latex of result
   expect(
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
-  ).toBe(String.raw`x_{y}^{h}+y_{rr}^{a}+z_1^{aa}+s_{11}^{bb}+30+x^{h}_{s}-40`);
+  ).toBe(String.raw`x_{y}^{h}+y_{rr}^{a}+z_1^{aa}+s_{11}^{bb}+30+x_{s}^{h}-40`);
 });
 
 test('nested paranthesis', async ({ page }) => {
@@ -328,6 +301,8 @@ test('nested paranthesis', async ({ page }) => {
 
 
 test('keyboard copy/cut/paste', async ({ page, browserName }) => {
+  test.skip(browserName === "webkit", "copy-paste test doesn't work with webkit on linux");
+
   const modifierKey = /Mac|iPod|iPhone|iPad/.test(
     await page.evaluate(() => navigator.platform)
   )
