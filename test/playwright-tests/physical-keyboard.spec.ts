@@ -330,8 +330,8 @@ test('keyboard copy/cut/paste', async ({ page, browserName }) => {
 
   // check that paste was successful
   expect(
-    await page.locator('#mf-2').evaluate((mfe: MathfieldElement) => mfe.value)
-  ).toBe('$$ x+y=20 $$');
+    (await page.locator('#mf-2').evaluate((mfe: MathfieldElement) => mfe.value)).trim()
+  ).toBe('x+y=20');
 
   // select all and cut contents for math field one
   await page.locator('#mf-1').press(selectAllCommand);
@@ -347,7 +347,7 @@ test('keyboard copy/cut/paste', async ({ page, browserName }) => {
 
   // check contents of math field 1
   expect(
-    await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)
-  ).toBe('$$ x+y=20 $$');
+    (await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)).trim()
+  ).toBe('x+y=20');
 
 });
