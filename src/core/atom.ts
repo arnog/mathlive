@@ -30,6 +30,7 @@ import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
 import { PromptAtom } from '../core-atoms/prompt';
+import { NewLineAtom } from '../core-atoms/newline';
 import type { GlobalContext } from '../core/types';
 
 export * from './atom-class';
@@ -69,6 +70,7 @@ export function fromJson(
   if (type === 'leftright') result = LeftRightAtom.fromJson(json, context);
   if (type === 'line') result = LineAtom.fromJson(json, context);
   if (type === 'macro') result = MacroAtom.fromJson(json, context);
+  if (type === 'newline') result = NewLineAtom.fromJson(json, context);
   if (type === 'subsup') result = SubsupAtom.fromJson(json, context);
   if (type === 'overlap') result = OverlapAtom.fromJson(json, context);
   if (type === 'overunder') result = OverunderAtom.fromJson(json, context);

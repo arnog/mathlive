@@ -746,6 +746,7 @@ function applyInterAtomSpacing(root: Box | null, context: Context): void {
     if (!prevBox?.type) return;
     // console.log(prevBox?.value, prevBox?.type, box.value, box.type);
     const prevType = prevBox.type;
+    if (prevType === 'newline') return;
     const table = box.isTight
       ? INTER_BOX_TIGHT_SPACING[prevType] ?? null
       : INTER_BOX_SPACING[prevType] ?? null;

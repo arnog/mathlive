@@ -26,6 +26,7 @@ import type {
 import { GlobalContext, PrivateStyle } from '../core/types';
 import { latexCommand } from '../core/tokenizer';
 import { atomsBoxType } from '../core/box';
+import { NewLineAtom } from '../core-atoms/newline';
 
 defineFunction('mathtip', '{:math}{:math}', {
   createAtom: (
@@ -770,6 +771,12 @@ $$\mspace12+$$          % Illegal unit of measure (mu inserted).
 defineFunction(['mkern', 'kern', 'mskip', 'hskip', 'mspace'], '{width:glue}', {
   createAtom: (name, context, style, args: (null | Glue)[]) =>
     new SpacingAtom(name, style, context, args[0] ?? { dimension: 0 }),
+});
+
+// New line
+defineFunction('\\', '', {
+  createAtom: (command, context, style) =>
+    new NewLineAtom(command, context, style),
 });
 
 defineFunction('mathop', '{:auto}', {

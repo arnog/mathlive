@@ -107,6 +107,7 @@ export type AtomType =
   | 'leftright' // Used by the `\left` and `\right` commands
   | 'line' // Used by `\overline` and `\underline`
   | 'macro'
+  | 'newline' // New line command: `\\`
   | 'subsup' // A carrier for a superscript/subscript
   | 'overlap' // Display a symbol _over_ another
   | 'overunder' // Displays an annotation above or below a symbol
@@ -560,6 +561,16 @@ export class Atom {
     let atom: Atom | undefined = this;
     while (atom) {
       if (atom.captureSelection) return true;
+      atom = atom.parent;
+    }
+    return false;
+  }
+
+  get isInArrayAtom(): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let atom: Atom | undefined = this;
+    while (atom) {
+      if (atom.type === 'array') return true;
       atom = atom.parent;
     }
     return false;

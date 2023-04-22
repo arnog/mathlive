@@ -177,7 +177,7 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
     '[.]',
     '[left]',
     '[right]',
-    { label: '[action]', width: 1.5 },
+    { label: '[return]', width: 1.5 },
   ]);
 
   return {
@@ -735,7 +735,8 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
   '[return]': {
     class: 'action',
-    command: ['performWithFeedback', 'commit'],
+    insert: '\\\\',
+    shift: { command: ['performWithFeedback', 'commit'] },
     width: 1.5,
     label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
   },

@@ -1040,6 +1040,7 @@ metadata(
   RARE,
   '\\unicode{"203A}$0{1em}\\unicode{"2039}'
 );
+metadata('Spacing', ['\\\\'], COMMON); // New Line
 metadata(
   'Punctuation',
   [

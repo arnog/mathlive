@@ -88,6 +88,7 @@ const BOX_TYPE = [
   'close', // > is a closing atom like `)`
   'punct', // > is a punctuation atom like ‘,’
   'inner', // >  is an inner atom like `\frac12`
+  'newline', // >  is a new line box
   'spacing',
   'first',
   'latex',
