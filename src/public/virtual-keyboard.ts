@@ -170,7 +170,12 @@ export interface VirtualKeyboardOptions {
    *
    *
    */
-  set layouts(value: 'default' | (string | VirtualKeyboardLayout)[]);
+  set layouts(
+    value:
+      | 'default'
+      | VirtualKeyboardLayout
+      | (string | VirtualKeyboardLayout)[]
+  );
 
   /**
    * Configuration of the action toolbar, displayed on the right-hand side.
