@@ -6,7 +6,8 @@
 - When editing a mathfield, after inserting both a superscript and 
   subscript, the subscript would be offset from the superscript.
 - **#1668** Correctly handle `\space`, `~`
-
+- **#1939** When the parent of the Mathfield is scaled, apply the scaling to 
+  the selection rectangles
 
 ## 0.92.1 (2023-04-19)
 
