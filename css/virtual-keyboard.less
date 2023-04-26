@@ -71,7 +71,7 @@
   --keycap-max-width: 100px;
   --keycap-gap: 8px;
 
-  --keycap-font-size: clamp(16px, 4cqw, 24px);
+  --keycap-font-size: ~"clamp(16px, 4cqw, 24px)";
   --keycap-small-font-size: calc(var(--keycap-font-size) * 0.8);
   --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
 
@@ -293,6 +293,11 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 
 /* Keyboard layouts are made or rows of keys... */
 .MLK__rows {
+  --private-keycap-gap: var(--keycap-gap);
+  --private-keycap-height: var(--keycap-height);
+  --private-keycap-max-width: var(--keycap-max-width);
+
+
   display: flex;
   flex-flow: column;
   align-items: center;
@@ -300,8 +305,8 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   clear: both;
   border: 0;
   margin: 0;
-  margin-bottom: var(--keycap-gap);
-  gap: var(--keycap-gap);
+  margin-bottom: var(--private-keycap-gap);
+  gap: var(--private-keycap-gap);
 
   overflow-x: auto;
 
@@ -312,7 +317,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
     flex-flow: row;
     justify-content: center;
     width: 100%;
-    gap: var(--keycap-gap);
+    gap: var(--private-keycap-gap);
     margin: 0;
     padding: 0;
 
@@ -352,22 +357,22 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
     }
     .w5 {
       width: calc(
-        ~'min(var(--keycap-max-width), 10cqw)' / 2 - var(--keycap-gap)
+        ~'min(var(--private-keycap-max-width, 100px), 10cqw)' / 2 - var(--private-keycap-gap);
       );
     }
     .w15 {
       width: calc(
-        15 * ~'min(var(--keycap-max-width), 10cqw)' / 10 - var(--keycap-gap)
+        1.5 * ~'min(var(--private-keycap-max-width, 100px), 10cqw)'  var(--private-keycap-gap);
       );
     }
     .w20 {
       width: calc(
-        20 * ~'min(var(--keycap-max-width), 10cqw)' / 10 - var(--keycap-gap)
+        2 * ~'min(var(--private-keycap-max-width, 100px), 10cqw)' -  var(--private-keycap-gap);
       );
     }
     .w50 {
       width: calc(
-        50 * ~'min(var(--keycap-max-width), 10cqw)' / 10 - var(--keycap-gap)
+        5 * ~'min(var(--private-keycap-max-width, 100px), 10cqw)' -  var(--private-keycap-gap);
       );
     }
     .MLK__keycap.w50 {
@@ -410,7 +415,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
       border-color: var(--keycap-secondary-border);
       border-bottom-color: var(--keycap-secondary-border-bottom);
       line-height: 0.8;
-      font-size: calc(min(1rem, var(--keycap-small-font-size, 16px)));
+      font-size: ~"min(1rem, var(--keycap-small-font-size, 16px))";
       font-weight: 600;
       padding: 8px 12px 8px 12px;      
       &:hover {
@@ -453,8 +458,8 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
       align-items: center;
       justify-content: space-evenly;
 
-      width: calc(~'min(var(--keycap-max-width), 10cqw)' - var(--keycap-gap));
-      height: var(--keycap-height);
+      width: calc(~'min(var(--private-keycap-max-width), 10cqw)' - var(--private-keycap-gap));
+      height: var(--private-keycap-height);
       box-sizing: border-box;
       padding: 0;
       vertical-align: top;
@@ -842,6 +847,12 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
 /* @xs breakpoint: iPhone 5 */
 @container @xs {
+  .MLK__rows {
+    --private-keycap-gap: ~"min(var(--keycap-gap), 2px)";
+    --private-keycap-height: ~"min(var(--keycap-height), 42px)";
+    --private-keycap-max-width: ~"min(var(--keycap-max-width), 62px)";;
+  }
+
   // Smaller toolbar switcher labels
   .MLK__toolbar > div > div {
     font-size: 100%;
@@ -850,26 +861,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     margin-right: 2px;
   }
 
-  .MLK__rows > .row > div {
-    width: calc(10cqw - 2px); // 29px;
-    height: 42px;
-  }
-  .MLK__rows .w5 {
-    width: calc(5cqw - 2px); // 13.5px;
-  }
-  .MLK__rows .w15 {
-    width: calc(15cqw - 2px); // 44.5px;
-  }
-  .MLK__rows .w20 {
-    width: calc(20cqw - 2px); // 60px;
-  }
-  .MLK__rows .w50 {
-    width: calc(50cqw - 2px); // 153px;
-  }
-  .MLK__rows .separator {
-    width: 2px;
-    min-width: 2px;
-  }
+
   .MLK__rows .shift,
   .MLK__rows .action {
     font-size: 65%;
@@ -882,22 +874,16 @@ Note there are a different set of tooltip rules for the keyboard toggle
 }
 
 @container @sm {
-  // .MLK__toolbar svg {
-  //   // Smaller toolbar icons
-  //   height: 13px;
-  //   width: 17px;
-  // }
   .MLK__rows {
-    --keycap-gap: min(2px, --keycap-gap);
-    --keycap-height: min(52px, --keycap-height);
-    --keycap-max-width: min(62px, --keycap-max-width);
+    --private-keycap-gap: ~"min(var(--keycap-gap), 2px)";
+    --private-keycap-height: ~"min(var(--keycap-height), 52px)";
+    --private-keycap-max-width: ~"min(var(--keycap-max-width), 62px)";;
   }
 
   .MLK__toolbar > div > div {
     // More compact toolbar switcher labels
     padding-left: 0;
     padding-right: 0;
-    // font-size: 90%;
   }
   .MLK__tooltip::after {
     padding: 8px 16px;
@@ -926,8 +912,10 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
 /* Medium breakpoint: larger phones */
 @container @md {
-  .ML__keyboard {
-    --keycap-height: 42px;
+  .MLK__rows {
+    // --private-keycap-gap: ~"min(var(--keycap-gap), 2px)";
+    --private-keycap-height: ~"min(var(--keycap-height), 42px)";
+    // --private-keycap-max-width: ~"min(var(--keycap-max-width), 62px)";;
   }
 
   .MLK__rows > .row > div > small {
