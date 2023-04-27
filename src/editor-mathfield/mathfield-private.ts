@@ -193,7 +193,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   private geometryChangeTimer: ReturnType<typeof requestAnimationFrame>;
 
   /** When true, the mathfield is listening to the virtual keyboard */
-  private connectedToVirtualKeyboard: boolean;
+  connectedToVirtualKeyboard: boolean;
 
   /**
    *

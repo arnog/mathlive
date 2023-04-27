@@ -1603,6 +1603,11 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._mathfield?.setCaretPoint(point.x, point.y);
   }
 
+  /** When true, the mathfield is listening to the virtual keyboard */
+  get isConnectedToVirtualKeyboard(): boolean | undefined {
+    return this._mathfield?.connectedToVirtualKeyboard;
+  }
+
   /**
    * `x` and `y` are in viewport coordinates.
    *
