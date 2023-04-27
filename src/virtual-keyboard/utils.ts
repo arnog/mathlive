@@ -834,6 +834,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     class: 'ghost  if-can-redo',
     command: 'redo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-redo /></svg>',
+    tooltip: l10n('tooltip.redo'),
   },
 
   '[(]': {
