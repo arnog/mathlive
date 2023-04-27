@@ -1217,19 +1217,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   focus(options?: FocusOptions): void {
     if (!this.hasFocus()) {
-      const prevMathfield = MathfieldElement.current;
-      const currentMathfield = (MathfieldElement.current = this
-        .host as MathfieldElement);
+      MathfieldElement.current = this.host as MathfieldElement;
       this.keyboardDelegate.focus();
-      if (
-        prevMathfield?.locale !== currentMathfield.locale &&
-        VirtualKeyboard.singleton.visible
-      ) {
-        const keyboard = VirtualKeyboard.singleton;
-        keyboard.hide();
-        keyboard.show();
-        keyboard.update(makeProxy(this)); // I don't know why but it this line is needed though it will be called inside the `connectToVirtualKeyboard` function
-      }
       this.connectToVirtualKeyboard();
       this.model.announce('line');
     }
