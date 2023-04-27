@@ -1,10 +1,11 @@
 // Import { Keys } from '../types-utils';
 import { STRINGS } from '../editor/l10n-strings';
 import { isBrowser } from '../common/capabilities';
+import { MathfieldElement } from 'mathlive';
 
 interface L10n {
-  locale: string;
-  _locale: string;
+  gLocale: string;
+  _gLocale: string;
   strings: Record<string, Record<string, string>>;
 
   merge(
@@ -15,20 +16,20 @@ interface L10n {
 
 export const l10n: L10n = {
   strings: STRINGS,
-  _locale: '', //  Important! Set the locale to empty so it can be determined at runtime
+  _gLocale: '', //  Important! Set the locale to empty so it can be determined at runtime
 
   // Add getter and setter for the _locale property of l10n
-  get locale(): string {
+  get gLocale(): string {
     // Use the browser defined language as the default language,
     // "english" if not running in a browser (node.js)
-    if (!l10n._locale)
-      l10n._locale = isBrowser() ? navigator.language.slice(0, 5) : 'en';
+    if (!l10n._gLocale)
+      l10n._gLocale = isBrowser() ? navigator.language.slice(0, 5) : 'en';
 
-    return l10n._locale;
+    return l10n._gLocale;
   },
 
-  set locale(value: string) {
-    l10n._locale = value;
+  set gLocale(value: string) {
+    l10n._gLocale = value;
   },
 
   /*
@@ -44,14 +45,14 @@ export const l10n: L10n = {
     strings?: Record<string, string>
   ): void {
     if (locale && strings) {
-      const savedLocale = l10n._locale;
-      l10n.locale = locale as string; // Load the necessary json file
+      const savedLocale = l10n._gLocale;
+      l10n.gLocale = locale as string; // Load the necessary json file
 
       l10n.strings[locale as string] = {
         ...l10n.strings[locale as string],
         ...strings,
       };
-      l10n.locale = savedLocale;
+      l10n.gLocale = savedLocale;
     } else if (locale && !strings) {
       for (const l of Object.keys(
         locale as Record<string, Record<string, string>>
@@ -62,23 +63,32 @@ export const l10n: L10n = {
 };
 
 /**
- * Return a localized string for the `key`.
+ * Return a localized string for the `key` Based on the given `MathfieldElement`'s locale. Defaults to the current focused mathfield.
+ *
+ * If you don't want this behavior, you can set the `mf` to `null`, and it will use the browser's locale.
  */
-export function localize(key?: string): string | undefined {
-  if (key === undefined) return undefined;
+export function localize(key: string, mf?: MathfieldElement | null);
+/** Return a localized string for the `key` using the given `locale` */
+export function localize(key: string, locale?: string);
+export function localize(
+  key: string,
+  arg: string | MathfieldElement | null | undefined = MathfieldElement?.current
+): string | undefined {
+  if (typeof arg === 'string') return l10n.strings[arg]?.[key];
 
-  const language = l10n.locale.slice(0, 2);
-
-  let result = '';
+  // If a mathfield was provided, attempt to find a match using the mathfield's local locale
+  if (arg?.locale && l10n.strings[arg.locale])
+    return l10n.strings[arg.locale][key];
 
   // Attempt to find a match for the current locale
-  if (l10n.strings[l10n.locale]) result = l10n.strings[l10n.locale][key];
-  // If none is found, attempt to find a match for the language
-  if (!result && l10n.strings[language]) result = l10n.strings[language][key];
-  // If none is found, try english
-  if (!result) result = l10n.strings.en[key];
-  // If that didn't work, return undefined
-  if (!result) return undefined;
+  if (l10n.strings[l10n.gLocale]) return l10n.strings[l10n.gLocale][key];
 
-  return result;
+  // If none is found, attempt to find a match for the language
+  const language = l10n.gLocale.slice(0, 2);
+  if (l10n.strings[language]) return l10n.strings[language][key];
+
+  return (
+    l10n.strings.en[key] ?? // If none is found, try english
+    undefined // If that didn't work, return undefined
+  );
 }

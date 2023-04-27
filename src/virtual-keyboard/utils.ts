@@ -110,7 +110,7 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
             sk: 'qwertz',
             ch: 'qwertz',
           } as const
-        )[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
+        )[l10nOptions.gLocale.slice(0, 2)] ?? 'qwerty';
     }
   }
 

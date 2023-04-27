@@ -18,7 +18,7 @@ export function defaultGlobalContext(): GlobalContext {
     smartFence: false,
     fractionNavigationOrder: 'numerator-denominator',
     placeholderSymbol: '▢',
-    letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
+    letterShapeStyle: l10n.gLocale.startsWith('fr') ? 'french' : 'tex',
     colorMap: defaultColorMap,
     backgroundColorMap: defaultBackgroundColorMap,
     getDefinition: defaultGetDefinition,

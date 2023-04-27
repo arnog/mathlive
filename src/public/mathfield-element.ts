@@ -357,7 +357,7 @@ const DEPRECATED_OPTIONS = {
   onExport: '`MathfieldElement.onExport`',
   onInlineShortcut: '`MathfieldElement.onInlineShortcut`',
   onScrollIntoView: '`MathfieldElement.onScrollIntoView`',
-  locale: 'MathfieldElement.locale = ...',
+  // locale: 'MathfieldElement.locale = ...',
   strings: 'MathfieldElement.strings = ...',
   decimalSeparator: 'MathfieldElement.decimalSeparator = ...',
   fractionNavigationOrder: 'MathfieldElement.fractionNavigationOrder = ...',
@@ -543,6 +543,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static get formAssociated(): boolean {
     return isElementInternalsSupported();
   }
+
+  /** Current focused `MathfieldElement`. `undefined` if none is focused */
+  static current?: MathfieldElement;
+
   /**
    * Private lifecycle hooks
    * @internal
@@ -553,6 +557,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   > {
     return {
       'default-mode': 'string',
+      'locale': 'string',
       'letter-shape-style': 'string',
       'popover-policy': 'string',
 
@@ -880,17 +885,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     defaultReadAloudHook;
 
   /**
-   * The locale (language + region) to use for string localization.
+   * The global locale (language + region) to use for string localization.
    *
    * If none is provided, the locale of the browser is used.
    *
    */
-  static get locale(): string {
-    return l10n.locale;
+  static get gLocale(): string {
+    return l10n.gLocale;
   }
-  static set locale(value: string) {
+  static set gLocale(value: string) {
     if (value === 'auto') value = navigator.language.slice(0, 5);
-    l10n.locale = value;
+    l10n.gLocale = value;
   }
 
   /**
@@ -1574,6 +1579,15 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield?.applyStyle(style, options);
   }
 
+  /** The local locale of the mathfield */
+  get locale(): string | undefined {
+    return this._mathfield?.options.locale;
+  }
+
+  set locale(val: string | undefined) {
+    if (this._mathfield) this._mathfield.setOptions({ locale: val });
+  }
+
   /**
    * The bottom location of the caret (insertion point) in viewport
    * coordinates.
@@ -1725,6 +1739,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
           ? gDeferredState.get(this)!.options
           : getOptionsFromAttributes(this)),
         eventSink: this,
+        locale: this.getAttribute('locale') ?? undefined,
         value,
       }
     );

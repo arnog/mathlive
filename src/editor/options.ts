@@ -16,6 +16,7 @@ import { defaultExportHook } from '../editor-mathfield/mode-editor';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { VirtualKeyboard } from '../virtual-keyboard/global';
+import { isBrowser } from 'common/capabilities';
 
 /** @internal */
 export type MathfieldOptionsPrivate = MathfieldOptions & {
@@ -64,7 +65,7 @@ export function update(
       case 'letterShapeStyle':
         if (updates.letterShapeStyle === 'auto') {
           // Letter shape style (locale dependent)
-          if (l10n.locale.startsWith('fr')) result.letterShapeStyle = 'french';
+          if (l10n.gLocale.startsWith('fr')) result.letterShapeStyle = 'french';
           else result.letterShapeStyle = 'tex';
         } else result.letterShapeStyle = updates.letterShapeStyle!;
 
@@ -130,12 +131,14 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
   return {
     readOnly: false,
 
+    locale: isBrowser() ? navigator.language.slice(0, 5) : 'en',
+
     defaultMode: 'math',
     macros: getMacros(),
     registers: {},
     colorMap: defaultColorMap,
     backgroundColorMap: defaultBackgroundColorMap,
-    letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
+    letterShapeStyle: l10n.gLocale.startsWith('fr') ? 'french' : 'tex',
 
     smartMode: false,
     smartFence: true,

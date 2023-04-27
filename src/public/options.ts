@@ -535,6 +535,9 @@ export type MathfieldOptions = LayoutOptions &
   InlineShortcutsOptions &
   KeyboardOptions &
   MathfieldHooks & {
+    /** Custom locale option */
+    locale: string;
+
     /**
      * Specify the `targetOrigin` parameter for
      * [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)

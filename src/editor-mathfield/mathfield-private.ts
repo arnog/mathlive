@@ -118,6 +118,8 @@ import type {
 } from '../public/core-types';
 import type { GlobalContext } from '../core/types';
 import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
+import MathfieldElement from '../public/mathfield-element';
+import { VirtualKeyboard } from '../virtual-keyboard/virtual-keyboard';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -330,7 +332,10 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
     markup.push(
       `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button ${
         this.hasEditableContent ? '' : 'style="display:none;"'
-      }data-ML__tooltip="${localize('tooltip.toggle virtual keyboard')}">`
+      }data-ML__tooltip="${localize(
+        'tooltip.toggle virtual keyboard',
+        options.locale
+      )}">`
     );
     markup.push(DEFAULT_KEYBOARD_TOGGLE_GLYPH);
     markup.push('</div>');
@@ -471,7 +476,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       window.addEventListener(
         'blur',
         (event) => {
-          if (!event.relatedTarget && isValidMathfield(this) && this.hasFocus()) {
+          if (
+            !event.relatedTarget &&
+            isValidMathfield(this) &&
+            this.hasFocus()
+          ) {
             window.addEventListener(
               'focus',
               (evt) => {
@@ -489,8 +498,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.undoManager.startRecording();
     this.undoManager.snapshot();
 
-    if (gKeyboardLayout && !l10n.locale.startsWith(gKeyboardLayout.locale))
-      setKeyboardLayoutLocale(l10n.locale);
+    if (gKeyboardLayout && !l10n.gLocale.startsWith(gKeyboardLayout.locale))
+      setKeyboardLayoutLocale(l10n.gLocale);
 
     // When fonts are done loading, re-render
     // (the selection highlighting may be out of date due to the HTML layout
@@ -1208,7 +1217,19 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   focus(options?: FocusOptions): void {
     if (!this.hasFocus()) {
+      const prevMathfield = MathfieldElement.current;
+      const currentMathfield = (MathfieldElement.current = this
+        .host as MathfieldElement);
       this.keyboardDelegate.focus();
+      if (
+        prevMathfield?.locale !== currentMathfield.locale &&
+        VirtualKeyboard.singleton.visible
+      ) {
+        const keyboard = VirtualKeyboard.singleton;
+        keyboard.hide();
+        keyboard.show();
+        keyboard.update(makeProxy(this)); // I don't know why but it this line is needed though it will be called inside the `connectToVirtualKeyboard` function
+      }
       this.connectToVirtualKeyboard();
       this.model.announce('line');
     }
@@ -1219,6 +1240,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.disconnectFromVirtualKeyboard();
     if (!this.hasFocus()) return;
     this.keyboardDelegate.blur();
+    if (MathfieldElement.current === (this.host as MathfieldElement))
+      MathfieldElement.current = undefined;
   }
 
   select(): void {
