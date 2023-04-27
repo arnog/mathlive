@@ -270,7 +270,7 @@ export function normalizeLayout(
  */
 function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
   // The left hand side of the toolbar has a list of all the available keyboards
-  let markup = `<div class="left">`;
+  let markup = `<div class="ML__layouts-toolbar left">`;
   if (keyboard.normalizedLayouts.length > 1) {
     for (const [i, l] of keyboard.normalizedLayouts.entries()) {
       const layout = l;
