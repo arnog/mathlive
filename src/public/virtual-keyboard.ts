@@ -225,7 +225,7 @@ export interface MathfieldProxy {
   readonly mode: ParseMode;
   readonly style: Style;
   readonly array?: unknown;
-  readonly boundingRect?: DOMRect;
+  readonly field?: HTMLElement;
 }
 
 /**
