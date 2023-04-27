@@ -777,16 +777,22 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   updateEnvironmemtPopover(mf: MathfieldProxy): void {
-    const boundingRect = mf.field?.getBoundingClientRect();
+    let hide = true;
+
     if (
       mf.array &&
       isTabularEnvironment((mf.array as ArrayAtom)?.environmentName) &&
-      boundingRect &&
       this.visible &&
       mf.mode === 'math'
-    )
-      showEnvironmentPanel(this, mf.array as ArrayAtom, boundingRect);
-    else hideEnvironmentPanel(this);
+    ) {
+      const boundingRect = mf.field?.getBoundingClientRect();
+      if (boundingRect) {
+        hide = false;
+        showEnvironmentPanel(this, mf.array as ArrayAtom, boundingRect);
+      }
+    }
+
+    if (hide) hideEnvironmentPanel(this);
 
     this._style = mf.style;
     this.updateToolbar(mf);
