@@ -29,7 +29,6 @@ import {
   releaseStylesheets,
   normalizeLayout,
   renderKeycap,
-  makeLayoutsToolbar,
 } from './utils';
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
@@ -765,24 +764,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     el.classList.toggle('can-copy', !mf.selectionIsCollapsed);
     el.classList.toggle('can-paste', true);
 
-    const layoutToolbars = el.querySelectorAll('.ML__layouts-toolbar');
-    if (layoutToolbars) {
-      for (let i = 0; i < layoutToolbars.length; i++) {
-        const toolbar = layoutToolbars[i];
-        toolbar.innerHTML = makeLayoutsToolbar(this, i);
-        toolbar.parentElement!.insertBefore(
-          toolbar.firstElementChild!,
-          toolbar
-        );
-        toolbar.remove();
-      }
-    }
-
-    const editToolbars = el.querySelectorAll('.ML__edit-toolbar');
-    if (editToolbars) {
-      for (const toolbar of editToolbars)
-        toolbar.innerHTML = makeEditToolbar(this, mf);
-    }
+    const toolbars = el.querySelectorAll('.ML__edit-toolbar');
+    if (!toolbars) return;
+    for (const toolbar of toolbars)
+      toolbar.innerHTML = makeEditToolbar(this, mf);
   }
 
   update(mf: MathfieldProxy): void {
