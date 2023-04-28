@@ -145,6 +145,13 @@ export function perform(
     dirty = window.mathVirtualKeyboard.executeCommand(command) ?? false;
     handled = true;
   } else if (COMMANDS[selector]) {
+    if (
+      !mathfield.isSelectionEditable &&
+      /^(insert|typedText)/.test(selector)
+    ) {
+      mathfield.model.announce('plonk');
+      return false;
+    }
     if (/^(undo|redo)/.test(selector)) mathfield.flushInlineShortcutBuffer();
     dirty = COMMANDS[selector]!.fn(mathfield, ...args);
     handled = true;
