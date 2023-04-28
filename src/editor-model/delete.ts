@@ -6,6 +6,7 @@ import { Atom, Branch } from '../core/atom';
 import { ModelPrivate } from './model-private';
 import { range } from './selection-utils';
 import { contentWillChange } from './listeners';
+import MathfieldElement from 'public/mathfield-element';
 // import {
 //     arrayFirstCellByRow,
 //     arrayColRow,
@@ -218,7 +219,7 @@ function onDelete(
     }
 
     const firstBranch =
-      atom.context.fractionNavigationOrder === 'numerator-denominator'
+      MathfieldElement.fractionNavigationOrder === 'numerator-denominator'
         ? 'above'
         : 'below';
     const secondBranch = firstBranch === 'above' ? 'below' : 'above';

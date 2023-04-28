@@ -1,5 +1,9 @@
 /// ^.*('\\.*').*
-import { LATEX_COMMANDS, MATH_SYMBOLS } from '../core-definitions/definitions';
+
+import {
+  LATEX_COMMANDS,
+  MATH_SYMBOLS,
+} from '../core-definitions/definitions-utils';
 
 // Frequency of a symbol.
 // String constants corresponding to frequency values,

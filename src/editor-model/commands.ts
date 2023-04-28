@@ -4,7 +4,7 @@ import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from '../core-atoms/latex';
 import { TextAtom } from '../core-atoms/text';
-import { LETTER_AND_DIGITS } from '../core-definitions/definitions';
+import { LETTER_AND_DIGITS } from '../core-definitions/definitions-utils';
 import type { Offset, Selection } from '../public/mathfield';
 import { getCommandSuggestionRange } from '../editor-mathfield/mode-editor-latex';
 import { PromptAtom } from '../core-atoms/prompt';

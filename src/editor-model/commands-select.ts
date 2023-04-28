@@ -1,6 +1,6 @@
 import { register } from '../editor/commands';
 import type { ModelPrivate } from './model-private';
-import { LETTER_AND_DIGITS } from '../core-definitions/definitions';
+import { LETTER_AND_DIGITS } from '../core-definitions/definitions-utils';
 import { getMode } from './selection';
 import { move, skip } from './commands';
 

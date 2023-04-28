@@ -9,7 +9,7 @@ import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
   getMacros,
   normalizeMacroDictionary,
-} from '../core-definitions/definitions';
+} from '../core-definitions/definitions-utils';
 
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
 
