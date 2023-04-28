@@ -786,6 +786,8 @@ function atomToMathML(atom, options): string {
         break;
 
       case 'placeholder': // No real equivalent in MathML -- will generate a '?'qq
+        result += '?';
+        break;
       case 'mord': {
         result =
           SPECIAL_IDENTIFIERS[command] ||
@@ -811,7 +813,7 @@ function atomToMathML(atom, options): string {
           } else if (typeof atom.value === 'string')
             result = atom.value.charAt(0);
           else {
-            console.log('Did not expect this');
+            console.error('Did not expect this');
             result = '';
           }
         }
