@@ -1,6 +1,6 @@
 /// <reference path="cortex-compute-engine.d.ts" />
 
-import { Selector } from './commands';
+import type { Selector } from './commands';
 import type {
   LatexSyntaxError,
   MacroDictionary,
@@ -8,7 +8,7 @@ import type {
   Registers,
   Style,
 } from './core-types';
-import {
+import type {
   InsertOptions,
   OutputFormat,
   Offset,
@@ -16,7 +16,7 @@ import {
   Selection,
   Mathfield,
 } from './mathfield';
-import {
+import type {
   InlineShortcutDefinitions,
   Keybinding,
   MathfieldOptions,
@@ -161,6 +161,10 @@ if (MATHFIELD_TEMPLATE) {
   :host(:focus), :host(:focus-within) {
     outline: Highlight auto 1px;    /* For Firefox */
     outline: -webkit-focus-ring-color auto 1px;
+  }
+  :host([readonly]:focus), :host([readonly]:focus-within),
+  :host([read-only]:focus), :host([read-only]:focus-within) {
+    outline: none;
   }
   </style>
   <span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
