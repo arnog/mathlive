@@ -23,11 +23,7 @@ import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 import { Atom } from '../core/atom-class';
 import { gFontsState } from '../core/fonts';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
-import {
-  TokenDefinition,
-  defaultGetDefinition,
-  getMacroDefinition,
-} from '../core-definitions/definitions-utils';
+import { getMacroDefinition } from '../core-definitions/definitions-utils';
 import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex, validateLatex } from '../core/parser';
 import { getDefaultRegisters } from '../core/registers';
@@ -82,6 +78,7 @@ import {
   contentMarkup,
 } from './render';
 
+import '../core-definitions/definitions';
 import './commands';
 import './styling';
 import {
@@ -112,12 +109,10 @@ import type {
   ParseMode,
   Style,
   NormalizedMacroDictionary,
-  Registers,
-  MacroDefinition,
   LatexSyntaxError,
 } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
+import type { ContextInterface } from '../core/types';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -125,7 +120,7 @@ let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg style="width: 21px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg>`;
 
 /** @internal */
-export class MathfieldPrivate implements GlobalContext, Mathfield {
+export class MathfieldPrivate implements Mathfield {
   readonly model: ModelPrivate;
 
   private readonly undoManager: UndoManager;
@@ -214,7 +209,7 @@ export class MathfieldPrivate implements GlobalContext, Mathfield {
   ) {
     // Setup default config options
     this.options = updateOptions(
-      { ...getDefaultOptions(), registers: getDefaultRegisters(this) },
+      { ...getDefaultOptions(), registers: getDefaultRegisters() },
       options
     );
 
@@ -551,16 +546,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
     };
   }
 
-  get fractionNavigationOrder():
-    | 'numerator-denominator'
-    | 'denominator-numerator' {
-    return window.MathfieldElement.fractionNavigationOrder;
-  }
-
-  get placeholderSymbol(): string {
-    return this.options?.placeholderSymbol ?? '▢';
-  }
-
   get smartFence(): boolean {
     return this.options?.smartFence ?? false;
   }
@@ -627,12 +612,14 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return false;
   }
 
-  get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
-    return this.options?.letterShapeStyle ?? 'tex';
-  }
-
-  get registers(): Registers {
-    return this.options?.registers ?? {};
+  get letterShapeStyle(): 'tex' | 'iso' | 'french' | 'upright' {
+    return (
+      (this.options?.letterShapeStyle as
+        | 'tex'
+        | 'iso'
+        | 'french'
+        | 'upright') ?? 'tex'
+    );
   }
 
   /** Returns styles shared by all selected atoms */
@@ -666,20 +653,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
     });
 
     return style!;
-  }
-
-  getDefinition(
-    token: string,
-    parseMode: ParseMode = 'math'
-  ): TokenDefinition | null {
-    return defaultGetDefinition(token, parseMode);
-  }
-
-  getMacro(token: string): MacroDefinition | null {
-    return getMacroDefinition(
-      token,
-      this.options.macros as NormalizedMacroDictionary
-    );
   }
 
   get keybindings(): Keybinding[] {
@@ -901,7 +874,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   get errors(): LatexSyntaxError[] {
-    return validateLatex(this.model.getValue(), this);
+    return validateLatex(this.model.getValue(), { context: this.context });
   }
 
   getValue(): string;
@@ -1131,7 +1104,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.smartModeSuppressed =
           /text|math/.test(this.mode) && /text|math/.test(mode);
         if (prefix && mode !== 'latex') {
-          const atoms = parseLatex(prefix, this, { parseMode: mode });
+          const atoms = parseLatex(prefix, {
+            context: this.context,
+            parseMode: mode,
+          });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
@@ -1168,7 +1144,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
             cursor = model.at(selRange[0]);
           }
 
-          const atom = new LatexGroupAtom(latex, this);
+          const atom = new LatexGroupAtom(latex);
           cursor.parent!.addChildAfter(atom, cursor);
           if (wasCollapsed) model.position = model.offsetOf(atom.lastChild);
           else {
@@ -1185,7 +1161,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
         }
 
         if (suffix) {
-          const atoms = parseLatex(suffix, this, { parseMode: currentMode });
+          const atoms = parseLatex(suffix, {
+            context: this.context,
+            parseMode: currentMode,
+          });
           model.collapseSelection('forward');
           const cursor = model.at(model.position);
           model.position = model.offsetOf(
@@ -1618,5 +1597,22 @@ If you are using Vue, this may be because you are using the runtime-only build o
       ) as HTMLSpanElement;
     }
     throw new TypeError('Could not get an ID from atom');
+  }
+
+  get context(): ContextInterface {
+    return {
+      registers: this.options?.registers ?? {},
+      smartFence: this.smartFence,
+      letterShapeStyle: this.letterShapeStyle,
+      placeholderSymbol: this.options?.placeholderSymbol ?? '▢',
+      colorMap: (name) => this.colorMap(name),
+      backgroundColorMap: (name) => this.backgroundColorMap(name),
+      getMacro: (token) =>
+        getMacroDefinition(
+          token,
+          this.options.macros as NormalizedMacroDictionary
+        ),
+      atomIdsSettings: { seed: 'random', groupNumbers: false },
+    };
   }
 }

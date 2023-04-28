@@ -11,7 +11,7 @@ import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { requestUpdate } from './render';
-import type { GlobalContext } from '../core/types';
+import { ContextInterface } from 'core/types';
 
 export class TextModeEditor extends ModeEditor {
   constructor() {
@@ -79,7 +79,7 @@ export class TextModeEditor extends ModeEditor {
     else if (options.insertionMode === 'insertAfter')
       model.collapseSelection('forward');
 
-    const newAtoms = convertStringToAtoms(text, model.mathfield);
+    const newAtoms = convertStringToAtoms(text, model.mathfield.context);
     // Some atoms may already have a style (for example if there was an
     // argument, i.e. the selection, that this was applied to).
     // So, don't apply style to atoms that are already styled, but *do*
@@ -108,7 +108,7 @@ export class TextModeEditor extends ModeEditor {
   }
 }
 
-function convertStringToAtoms(s: string, context: GlobalContext): Atom[] {
+function convertStringToAtoms(s: string, context: ContextInterface): Atom[] {
   // Map special TeX characters to alternatives
   // Must do this one first, since other replacements include backslash
   s = s.replace(/\\/g, '\\textbackslash ');
@@ -127,7 +127,7 @@ function convertStringToAtoms(s: string, context: GlobalContext): Atom[] {
   s = s.replace(/~/g, '\\textasciitilde ');
   s = s.replace(/£/g, '\\textsterling ');
 
-  return parseLatex(s, context, { parseMode: 'text' });
+  return parseLatex(s, { context, parseMode: 'text' });
 }
 
 new TextModeEditor();

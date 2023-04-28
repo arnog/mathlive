@@ -9,21 +9,15 @@ import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { MathfieldPrivate } from './mathfield-private';
 import { requestUpdate } from './render';
 import { ModeEditor } from './mode-editor';
-import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions';
-import type { GlobalContext } from '../core/types';
-import type { Style } from '../public/core-types';
+import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions-utils';
 
 export class LatexModeEditor extends ModeEditor {
   constructor() {
     super('latex');
   }
 
-  createAtom(
-    command: string,
-    context: GlobalContext,
-    _style?: Style
-  ): Atom | null {
-    return new LatexAtom(command, context);
+  createAtom(command: string): Atom | null {
+    return new LatexAtom(command);
   }
 
   onPaste(
@@ -84,10 +78,8 @@ export class LatexModeEditor extends ModeEditor {
 
     // Short-circuit the tokenizer and parser when in LaTeX mode
     const newAtoms: Atom[] = [];
-    for (const c of text) {
-      if (COMMAND_MODE_CHARACTERS.test(c))
-        newAtoms.push(new LatexAtom(c, model.mathfield));
-    }
+    for (const c of text)
+      if (COMMAND_MODE_CHARACTERS.test(c)) newAtoms.push(new LatexAtom(c));
 
     //
     // Insert the new atoms
@@ -101,7 +93,7 @@ export class LatexModeEditor extends ModeEditor {
     // If there is no LatexGroup (for example, it was deleted, but we're still
     // in LaTeX mode), insert one.
     if (!(cursor.parent instanceof LatexGroupAtom)) {
-      const group = new LatexGroupAtom('', model.mathfield);
+      const group = new LatexGroupAtom('');
       cursor.parent!.addChildAfter(group, cursor);
       cursor = group.firstChild;
     }

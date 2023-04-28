@@ -1,5 +1,4 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -27,14 +26,13 @@ export class LeftRightAtom extends Atom {
   constructor(
     variant: '' | 'left...right' | 'mleft...mright',
     body: Atom[],
-    context: GlobalContext,
     options: {
       leftDelim: string;
       rightDelim: string;
       style?: Style;
     }
   ) {
-    super('leftright', context, {
+    super('leftright', {
       style: options.style,
       displayContainsHighlight: true,
     });
@@ -44,13 +42,8 @@ export class LeftRightAtom extends Atom {
     this.rightDelim = options.rightDelim;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): LeftRightAtom {
-    return new LeftRightAtom(
-      json.variant ?? '',
-      json.body,
-      context,
-      json as any
-    );
+  static fromJson(json: AtomJson): LeftRightAtom {
+    return new LeftRightAtom(json.variant ?? '', json.body, json as any);
   }
 
   toJson(): AtomJson {
@@ -98,7 +91,7 @@ export class LeftRightAtom extends Atom {
   }
 
   render(parentContext: Context): Box | null {
-    const context = new Context(parentContext, this.style);
+    const context = new Context({ parent: parentContext }, this.style);
 
     console.assert(this.body !== undefined);
 
@@ -106,10 +99,13 @@ export class LeftRightAtom extends Atom {
     // The size of delimiters is the same, regardless of what mathstyle we are
     // in. Thus, to correctly calculate the size of delimiter we need around
     // a group, we scale down the inner size based on the size.
-    const delimContext = new Context(parentContext, this.style, 'textstyle');
+    const delimContext = new Context(
+      { parent: parentContext, mathstyle: 'textstyle' },
+      this.style
+    );
     const inner: Box =
-      Atom.createBox(context, this.body, { newList: true }) ??
-      new Box(null, { newList: true });
+      Atom.createBox(context, this.body, { type: 'inner' }) ??
+      new Box(null, { type: 'inner' });
 
     const innerHeight = inner.height / delimContext.scalingFactor;
     const innerDepth = inner.depth / delimContext.scalingFactor;
@@ -156,7 +152,7 @@ export class LeftRightAtom extends Atom {
       let classes = this.containsCaret ? ' ML__contains-caret' : '';
       let delim = this.rightDelim;
       if (delim === '?') {
-        if (this.context.smartFence) {
+        if (context.smartFence) {
           // Use a placeholder delimiter matching the open delimiter
           delim = this.matchingRightDelim();
           classes += ' ML__smart-fence__close';

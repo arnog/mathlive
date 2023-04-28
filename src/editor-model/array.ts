@@ -7,7 +7,6 @@ import { contentDidChange, contentWillChange } from './listeners';
 import { arrayIndex, arrayCell } from './array-utils';
 import { ArrayAtom } from '../core-atoms/array';
 import type { Style } from '../public/core-types';
-import { GlobalContext } from '../core/types';
 import { Environment, TabularEnvironment } from '../public/core-types';
 import { makeEnvironment } from '../core-definitions/environments';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
@@ -18,13 +17,12 @@ export * from './array-utils';
  * Join all the cells at the indicated row into a single list of atoms
  */
 export function arrayJoinColumns(
-  context: GlobalContext,
   row: Atom[][],
   separator = ',',
   style?: Style
 ): Atom[] {
   if (!row) return [];
-  const result: Atom[] = [new Atom('first', context)];
+  const result: Atom[] = [new Atom('first')];
   let sep: Atom | null = null;
   for (let cell of row) {
     // Remove the 'first' atom, if present
@@ -32,7 +30,7 @@ export function arrayJoinColumns(
 
     if (cell?.length > 0) {
       if (sep) result.push(sep);
-      else sep = new Atom('mpunct', context, { value: separator, style });
+      else sep = new Atom('mpunct', { value: separator, style });
 
       result.push(...cell);
     }
@@ -45,18 +43,17 @@ export function arrayJoinColumns(
  * Join all the rows into a single atom list
  */
 export function arrayJoinRows(
-  context: GlobalContext,
   array: Atom[][][],
   separators = [';', ','],
   style?: Style
 ): Atom[] {
-  const result: Atom[] = [new Atom('first', context)];
+  const result: Atom[] = [new Atom('first')];
   let sep: Atom | null = null;
   for (const row of array) {
     if (sep) result.push(sep);
-    else sep = new Atom('mpunct', context, { value: separators[0], style });
+    else sep = new Atom('mpunct', { value: separators[0], style });
 
-    result.push(...arrayJoinColumns(context, row, separators[1]));
+    result.push(...arrayJoinColumns(row, separators[1]));
   }
 
   return result;
@@ -162,22 +159,17 @@ function parentArray(
     if (!atom.parent!.parent) {
       let secondCell = model.extractAtoms([model.position, model.lastOffset]);
       let firstCell = model.extractAtoms([0, model.position]);
-      if (firstCell.length === 0) firstCell = placeholderCell(atom.context);
-      if (secondCell.length === 0) secondCell = placeholderCell(atom.context);
+      if (firstCell.length === 0) firstCell = placeholderCell();
+      if (secondCell.length === 0) secondCell = placeholderCell();
       let array: ArrayAtom;
       if (where.endsWith('column')) {
-        array = makeEnvironment(atom.context, 'split', [
-          [firstCell, secondCell],
-        ]);
+        array = makeEnvironment('split', [[firstCell, secondCell]]);
         model.root = array;
         if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
         else if (isPlaceholderCell(array, 0, 1)) selectCell(model, array, 0, 1);
         else model.position = model.offsetOf(cursor);
       } else {
-        array = makeEnvironment(atom.context, 'lines', [
-          [firstCell],
-          [secondCell],
-        ]);
+        array = makeEnvironment('lines', [[firstCell], [secondCell]]);
         model.root = array;
         if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
         else if (isPlaceholderCell(array, 1, 0)) selectCell(model, array, 1, 0);
@@ -201,8 +193,8 @@ function parentArray(
         model.offsetOf(parent.firstChild),
         model.position,
       ]);
-      if (firstCell.length === 0) firstCell = placeholderCell(atom.context);
-      if (secondCell.length === 0) secondCell = placeholderCell(atom.context);
+      if (firstCell.length === 0) firstCell = placeholderCell();
+      if (secondCell.length === 0) secondCell = placeholderCell();
 
       let envName: Environment = 'pmatrix';
       const lDelim = parent.leftDelim;
@@ -223,7 +215,6 @@ function parentArray(
         envName = 'cases';
 
       const array = makeEnvironment(
-        atom.context,
         envName,
         where.endsWith('column')
           ? [[firstCell, secondCell]]
@@ -501,6 +492,6 @@ registerCommand(
   { target: 'model', category: 'array-edit' }
 );
 
-function placeholderCell(context: GlobalContext) {
-  return [new PlaceholderAtom(context)];
+function placeholderCell() {
+  return [new PlaceholderAtom()];
 }

@@ -1,5 +1,4 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -12,19 +11,18 @@ export class DelimAtom extends Atom {
   constructor(
     command: string,
     delim: string,
-    context: GlobalContext,
     options: {
       size: 1 | 2 | 3 | 4;
       style: Style;
     }
   ) {
-    super('delim', context, { command, style: options?.style });
+    super('delim', { command, style: options?.style });
     this.value = delim;
     this.size = options?.size;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): DelimAtom {
-    return new DelimAtom(json.command, json.delim, context, json as any);
+  static fromJson(json: AtomJson): DelimAtom {
+    return new DelimAtom(json.command, json.delim, json as any);
   }
 
   toJson(): AtomJson {
@@ -46,21 +44,20 @@ export class SizedDelimAtom extends Atom {
   constructor(
     command: string,
     delim: string,
-    context: GlobalContext,
     options: {
       delimType: 'open' | 'close';
       size: 1 | 2 | 3 | 4;
       style: Style;
     }
   ) {
-    super('sizeddelim', context, { command, style: options.style });
+    super('sizeddelim', { command, style: options.style });
     this.value = delim;
     this.delimType = options.delimType;
     this.size = options.size;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): SizedDelimAtom {
-    return new SizedDelimAtom(json.command, json.delim, context, json as any);
+  static fromJson(json: AtomJson): SizedDelimAtom {
+    return new SizedDelimAtom(json.command, json.delim, json as any);
   }
 
   toJson(): AtomJson {

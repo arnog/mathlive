@@ -137,13 +137,7 @@ export class Mathstyle {
   }
 }
 
-export const MATHSTYLES: {
-  [key: number]: Mathstyle;
-  displaystyle?: Mathstyle;
-  textstyle?: Mathstyle;
-  scriptstyle?: Mathstyle;
-  scriptscriptstyle?: Mathstyle;
-} = {
+const NUMERIC_MATHSTYLES = {
   7: new Mathstyle(D, 0, false),
   6: new Mathstyle(Dc, 0, true),
   5: new Mathstyle(T, 0, false),
@@ -153,9 +147,16 @@ export const MATHSTYLES: {
   1: new Mathstyle(SS, -4, false),
   0: new Mathstyle(SSc, -4, true),
 };
-
-// Aliases
-MATHSTYLES.displaystyle = MATHSTYLES[D];
-MATHSTYLES.textstyle = MATHSTYLES[T];
-MATHSTYLES.scriptstyle = MATHSTYLES[S];
-MATHSTYLES.scriptscriptstyle = MATHSTYLES[SS];
+export const MATHSTYLES: {
+  [key: number]: Mathstyle;
+  displaystyle: Mathstyle;
+  textstyle: Mathstyle;
+  scriptstyle: Mathstyle;
+  scriptscriptstyle: Mathstyle;
+} = {
+  ...NUMERIC_MATHSTYLES,
+  displaystyle: NUMERIC_MATHSTYLES[D],
+  textstyle: NUMERIC_MATHSTYLES[T],
+  scriptstyle: NUMERIC_MATHSTYLES[S],
+  scriptscriptstyle: NUMERIC_MATHSTYLES[SS],
+};

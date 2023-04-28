@@ -1,5 +1,4 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -14,7 +13,6 @@ export class PhantomAtom extends Atom {
   constructor(
     command: string,
     body: Atom[],
-    context: GlobalContext,
     options: {
       smashHeight?: boolean;
       smashDepth?: boolean;
@@ -23,7 +21,7 @@ export class PhantomAtom extends Atom {
       style: Style;
     }
   ) {
-    super('phantom', context, { command, style: options.style });
+    super('phantom', { command, style: options.style });
     this.captureSelection = true;
     this.body = body;
     this.isInvisible = options.isInvisible ?? false;
@@ -32,8 +30,8 @@ export class PhantomAtom extends Atom {
     this.smashWidth = options.smashWidth ?? false;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): PhantomAtom {
-    return new PhantomAtom(json.command, json.body, context, json as any);
+  static fromJson(json: AtomJson): PhantomAtom {
+    return new PhantomAtom(json.command, json.body, json as any);
   }
 
   toJson(): AtomJson {
@@ -46,7 +44,7 @@ export class PhantomAtom extends Atom {
   }
 
   render(context: Context): Box | null {
-    const phantom = new Context(context, { isPhantom: true });
+    const phantom = new Context({ parent: context, isPhantom: true });
 
     if (!this.smashDepth && !this.smashHeight && !this.smashWidth) {
       console.assert(this.isInvisible);
@@ -80,7 +78,7 @@ export class PhantomAtom extends Atom {
     // acting on that height.
     return new VBox(
       { firstBaseline: [{ box: content }] },
-      { type: 'ord' }
+      { type: content.type }
     ).wrap(context);
   }
 }

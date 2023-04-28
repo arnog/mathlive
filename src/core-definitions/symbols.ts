@@ -675,13 +675,11 @@ newSymbols(
 );
 // \enspace is a TeX command (not LaTeX)
 defineFunction(['!', ',', ':', ';', 'enskip', 'enspace', 'quad', 'qquad'], '', {
-  createAtom: (command, context, style) =>
-    new SpacingAtom(command, style, context),
+  createAtom: (command, _args, style) => new SpacingAtom(command, style),
 });
 
 defineFunction('space', '', {
-  createAtom: (_command, context, style) =>
-    new SpacingAtom('space', style, context),
+  createAtom: (_command, _args, style) => new SpacingAtom('space', style),
 });
 
 // Punctuation

@@ -1,5 +1,4 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import {
   Atom,
@@ -11,16 +10,13 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 
 export class SubsupAtom extends Atom {
-  constructor(context: GlobalContext, options?: { style?: Style }) {
-    super('subsup', context, { style: options?.style });
+  constructor(options?: { style?: Style }) {
+    super('subsup', { style: options?.style });
     this.subsupPlacement = 'auto';
   }
 
-  static fromJson(
-    json: { [key: string]: any },
-    context: GlobalContext
-  ): SubsupAtom {
-    const result = new SubsupAtom(context, json as any);
+  static fromJson(json: { [key: string]: any }): SubsupAtom {
+    const result = new SubsupAtom(json as any);
     for (const branch of NAMED_BRANCHES)
       if (json[branch]) result.setChildren(json[branch], branch);
 
@@ -35,16 +31,18 @@ export class SubsupAtom extends Atom {
     // The box type of a `subsup` atom is 'supsub' as it doesn't
     // have any special INTER_BOX_SPACING with its attached atom (previous box)
 
-    const phantomContex = new Context(context, { isPhantom: true });
+    const phantomContex = new Context({ parent: context, isPhantom: true });
     const leftSibling = this.leftSibling;
     const base = leftSibling.render(phantomContex) ?? new Box(null);
     const phantom = new Box(null, { height: base.height, depth: base.depth });
+    // > subscripts and superscripts merely get attached to atoms without
+    // > changing the atomic type. -- TeXBook p. 171
     return this.attachSupsub(context, {
       base: phantom,
       isCharacterBox: leftSibling.isCharacterBox(),
-      // Set to 'none' so that it is skipped during inter-box spacing
+      // Set to 'skip' so that it is skipped during inter-box spacing
       // adjustment.
-      type: 'none',
+      type: 'skip',
     });
   }
 

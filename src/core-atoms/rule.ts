@@ -1,37 +1,32 @@
-import type { Dimension, Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
+import type { LatexValue, Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
-import {
-  convertDimensionToEm,
-  serializeDimension,
-} from '../core/registers-utils';
+import { serializeLatexValue } from '../core/registers-utils';
 import { latexCommand } from '../core/tokenizer';
 
 export class RuleAtom extends Atom {
-  private readonly height: Dimension;
-  private readonly width: Dimension;
-  private readonly shift: Dimension;
+  private readonly height: LatexValue;
+  private readonly width: LatexValue;
+  private readonly shift: LatexValue;
   constructor(
     command: string,
-    context: GlobalContext,
     options: {
-      height: Dimension;
-      width: Dimension;
-      shift?: Dimension | null;
+      height: LatexValue;
+      width: LatexValue;
+      shift?: LatexValue | null;
       style: Style;
     }
   ) {
-    super('rule', context, { command, style: options.style });
+    super('rule', { command, style: options.style });
     this.shift = options.shift ?? { dimension: 0 };
     this.height = options.height;
     this.width = options.width;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): RuleAtom {
-    return new RuleAtom(json.command, context, json as any);
+  static fromJson(json: AtomJson): RuleAtom {
+    return new RuleAtom(json.command, json as any);
   }
 
   toJson(): AtomJson {
@@ -47,11 +42,17 @@ export class RuleAtom extends Atom {
     // The mathstyle sizing corrections (size delta) do not
     // apply to the dimensions of rules. Create a 'textstyle'
     // context to do the measurements without accounting for the mathstyle.
-    const context = new Context(parentContext, this.style, 'textstyle');
+    const context = new Context(
+      {
+        parent: parentContext,
+        mathstyle: 'textstyle',
+      },
+      this.style
+    );
 
-    const shift = convertDimensionToEm(this.shift);
-    const width = convertDimensionToEm(this.width);
-    const height = convertDimensionToEm(this.height);
+    const shift = context.toEm(this.shift) ?? 1.0;
+    const width = context.toEm(this.width) ?? 1.0;
+    const height = context.toEm(this.height) ?? 1.0;
     const result = new Box(null, { classes: 'rule', type: 'ord' });
     result.setStyle('border-right-width', width, 'em');
     result.setStyle('border-top-width', height, 'em');
@@ -68,12 +69,12 @@ export class RuleAtom extends Atom {
 
   serialize(_options: ToLatexOptions): string {
     let command = this.command ?? '';
-    if (this.shift) command += `[${serializeDimension(this.shift)}]`;
+    if (this.shift) command += `[${serializeLatexValue(this.shift)}]`;
 
     return latexCommand(
       command,
-      serializeDimension(this.width),
-      serializeDimension(this.height)
+      serializeLatexValue(this.width) ?? '',
+      serializeLatexValue(this.height) ?? ''
     );
   }
 }

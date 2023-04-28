@@ -12,18 +12,15 @@ export type ArgumentType =
       | 'bbox'
       | 'colspec' // Formating of a column in tabular environment, e.g. `"r@{.}l"`
       | 'delim'
-      | 'dimen' // `"25mu"`, `"2pt"`
-      | 'number' // `+/-12.56` (and some more exotic, like `"CAFE`, `'0808`...)
+      | 'value' //  LatexValue
       | 'rest' // `{\foo \textsize ...}` to capture "..."
-      | 'glue' // `"25mu plus 2em minus fiLll"`, `"2pt"`
       | 'string' // The string will end on the first non-literal token, e.g. `<}>`
       | 'balanced-string' // Delimiter is a balanced closing brace
       | 'expression' // A literal, or command with arguments, not enclosed in braces
       | 'auto'
     );
 
-// The 'special' tokens must be of length > 1 to distinguish
-// them from literals.
+// The 'special' tokens are:
 // '<space>': whitespace
 // '<$$>'   : display math mode shift
 // '<$>'    : inline math mode shift
@@ -32,7 +29,7 @@ export type ArgumentType =
 // '#0'-'#9': argument
 // '#?'     : placeholder
 // '\' + ([a-zA-Z\*]+)|([^a-zAz\*])  : command
-// other (length = 1)   : literal
+// others: literal (not that length may be > 1, e.g. emoji)
 //  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
 export type Token = string;
 
@@ -193,8 +190,9 @@ export type MacroDefinition = {
   /** Definition of the macro as a LaTeX expression */
   def: string;
   args?: number;
-  expand?: boolean;
   captureSelection?: boolean;
+  // If false, even if `expandMacro` is true, do not expand.
+  expand?: boolean;
 };
 
 export type MacroPackageDefinition = {
@@ -241,7 +239,60 @@ export type Dimension = {
   unit?: DimensionUnit; // If missing, assumes 'pt'
 };
 
-export type RegisterValue = Dimension | Glue | number | string;
+/**
+ * A LaTeX expression represent a sequence of tokens that can be evaluated to
+ * a value, such as a dimension.
+ */
+export type LatexValue = { relax?: boolean } & (
+  | Dimension
+  | Glue
+  | {
+      string: string;
+    }
+  | {
+      // For example "15"
+      number: number;
+      base?: 'decimal' | 'octal' | 'hexadecimal' | 'alpha'; // Default: 'decimal'
+    }
+  | {
+      // Reference to a register
+      register: string;
+      factor?: number; // as in `2\thinmuskip` (default: 1)
+      global?: boolean; // as in `\global\foo` (default: false)
+    }
+);
+// | {
+//     // Converts an expression to a sequence of tokens
+//     type: 'the';
+//     // \the<register> (a string representation of the register)
+//     // \the<symbol-token> -> codepoint of this token (as a string)
+//     // \the\font -> control sequence for the current font (not a string)
+//     value: string; // Register or symbol (e.g. \alpha)
+//   }
+// | {
+//     // Addition: change the value of the lhs register
+//     type: 'advance';
+//     lhs: string;
+//     rhs: LatexValue;
+//   }
+// | {
+//     // Multiplication: change the value of the lhs register
+//     type: 'multiply';
+//     lhs: string;
+//     rhs: number;
+//   }
+// | {
+//     // Division: change the value of the lhs register
+//     type: 'divide';
+//     lhs: string;
+//     rhs: number;
+//   }
+// | {
+//     // \register=<value>
+//     type: 'assignment';
+//     register: string;
+//     value: LatexValue;
+//   }
 
 /**
  * TeX registers represent 'variables' and 'constants'.
@@ -258,7 +309,7 @@ export type RegisterValue = Dimension | Glue | number | string;
  * - `delimitershortfall`
  * - `jot`
  */
-export type Registers = Record<string, RegisterValue>;
+export type Registers = Record<string, number | string | LatexValue>;
 
 /**
  * A dictionary of LaTeX macros to be used to interpret and render the content.

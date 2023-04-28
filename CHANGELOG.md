@@ -8,6 +8,8 @@
 - **#1668** Correctly handle `\space`, `~`
 - **#1939** When the parent of the Mathfield is scaled, apply the scaling to 
   the selection rectangles
+- Fixed parsing of emojis such as 🧑🏻‍🚀
+- The focus outline is no longer displayed when in readonly mode
 
 ## 0.92.1 (2023-04-19)
 
@@ -452,7 +454,7 @@ MathfieldElement.soundsDirectory = null;
 | `mf.setOptions({inlineShortcuts: ...})`             | `mf.inlineShortcuts = ...`                                                   |
 | `mf.setOptions({keybindings: ...})`                 | `mf.keybindings = ...`                                                       |
 | `mf.setOptions({virtualKeyboardMode: ...})`         | `mf.mathVirtualKeyboardPolicy = ...`                                         |
-| `mf.setOptions({customVirtualKeyboardLayers: ...})` | `mathVirtualKeyboard.layers = ...`                                           |
+| `mf.setOptions({customVirtualKeyboardLayers: ...})` | `mathVirtualKeyboard.layouts.layers = ...`                                           |
 | `mf.setOptions({customVirtualKeyboards: ...})`      | `mathVirtualKeyboard.layouts = ...`                                          |
 | `mf.setOptions({keypressSound: ...})`               | `mathVirtualKeyboard.keypressSound = ...`                                    |
 | `mf.setOptions({keypressVibration: ...})`           | `mathVirtualKeyboard.keypressVibration = ...`                                |

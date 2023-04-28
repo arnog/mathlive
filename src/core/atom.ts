@@ -16,7 +16,7 @@ import { GroupAtom } from '../core-atoms/group';
 import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { LineAtom } from '../core-atoms/line';
-import { MacroAtom } from '../core-atoms/macro';
+import { MacroArgumentAtom, MacroAtom } from '../core-atoms/macro';
 import { OperatorAtom } from '../core-atoms/operator';
 import { OverlapAtom } from '../core-atoms/overlap';
 import { OverunderAtom } from '../core-atoms/overunder';
@@ -30,59 +30,55 @@ import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
 import { PromptAtom } from '../core-atoms/prompt';
-import type { GlobalContext } from '../core/types';
 
 export * from './atom-class';
 
-export function fromJson(json: AtomJson, context: GlobalContext): Atom;
-export function fromJson(json: AtomJson[], context: GlobalContext): Atom[];
-export function fromJson(
-  json: AtomJson | AtomJson[],
-  context: GlobalContext
-): Atom | Atom[] {
-  if (isArray<AtomJson>(json)) return json.map((x) => fromJson(x, context));
+export function fromJson(json: AtomJson): Atom;
+export function fromJson(json: AtomJson[]): Atom[];
+export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
+  if (isArray<AtomJson>(json)) return json.map((x) => fromJson(x));
 
   json = { ...json };
 
   // Restore the branches
-  for (const branch of NAMED_BRANCHES) {
-    if (json[branch])
-      json[branch] = fromJson(json[branch] as AtomJson[], context);
-  }
-  if (json.array) json.array = fromJson(json.array, context);
+  for (const branch of NAMED_BRANCHES)
+    if (json[branch]) json[branch] = fromJson(json[branch] as AtomJson[]);
+
+  if (json.array) json.array = fromJson(json.array);
 
   const type: AtomType = json.type;
   let result: Atom | undefined = undefined;
-  if (type === 'accent') result = AccentAtom.fromJson(json, context);
-  if (type === 'array') result = ArrayAtom.fromJson(json, context);
-  if (type === 'box') result = BoxAtom.fromJson(json, context);
-  if (type === 'chem') result = ChemAtom.fromJson(json, context);
-  if (type === 'choice') result = ChoiceAtom.fromJson(json, context);
-  if (type === 'composition') result = CompositionAtom.fromJson(json, context);
-  if (type === 'delim') result = DelimAtom.fromJson(json, context);
-  if (type === 'enclose') result = EncloseAtom.fromJson(json, context);
-  if (type === 'error') result = ErrorAtom.fromJson(json, context);
-  if (type === 'genfrac') result = GenfracAtom.fromJson(json, context);
-  if (type === 'group') result = GroupAtom.fromJson(json, context);
-  if (type === 'latex') result = LatexAtom.fromJson(json, context);
-  if (type === 'latexgroup') result = LatexGroupAtom.fromJson(json, context);
-  if (type === 'leftright') result = LeftRightAtom.fromJson(json, context);
-  if (type === 'line') result = LineAtom.fromJson(json, context);
-  if (type === 'macro') result = MacroAtom.fromJson(json, context);
-  if (type === 'subsup') result = SubsupAtom.fromJson(json, context);
-  if (type === 'overlap') result = OverlapAtom.fromJson(json, context);
-  if (type === 'overunder') result = OverunderAtom.fromJson(json, context);
-  if (type === 'placeholder') result = PlaceholderAtom.fromJson(json, context);
-  if (type === 'prompt') result = PromptAtom.fromJson(json, context);
-  if (type === 'phantom') result = PhantomAtom.fromJson(json, context);
-  if (type === 'rule') result = RuleAtom.fromJson(json, context);
-  if (type === 'sizeddelim') result = SizedDelimAtom.fromJson(json, context);
-  if (type === 'spacing') result = SpacingAtom.fromJson(json, context);
-  if (type === 'surd') result = SurdAtom.fromJson(json, context);
-  if (type === 'text') result = TextAtom.fromJson(json, context);
-  if (type === 'tooltip') result = TooltipAtom.fromJson(json, context);
+  if (type === 'accent') result = AccentAtom.fromJson(json);
+  if (type === 'array') result = ArrayAtom.fromJson(json);
+  if (type === 'box') result = BoxAtom.fromJson(json);
+  if (type === 'chem') result = ChemAtom.fromJson(json);
+  if (type === 'choice') result = ChoiceAtom.fromJson(json);
+  if (type === 'composition') result = CompositionAtom.fromJson(json);
+  if (type === 'delim') result = DelimAtom.fromJson(json);
+  if (type === 'enclose') result = EncloseAtom.fromJson(json);
+  if (type === 'error') result = ErrorAtom.fromJson(json);
+  if (type === 'genfrac') result = GenfracAtom.fromJson(json);
+  if (type === 'group') result = GroupAtom.fromJson(json);
+  if (type === 'latex') result = LatexAtom.fromJson(json);
+  if (type === 'latexgroup') result = LatexGroupAtom.fromJson(json);
+  if (type === 'leftright') result = LeftRightAtom.fromJson(json);
+  if (type === 'line') result = LineAtom.fromJson(json);
+  if (type === 'macro') result = MacroAtom.fromJson(json);
+  if (type === 'macro-argument') result = MacroArgumentAtom.fromJson(json);
+  if (type === 'subsup') result = SubsupAtom.fromJson(json);
+  if (type === 'overlap') result = OverlapAtom.fromJson(json);
+  if (type === 'overunder') result = OverunderAtom.fromJson(json);
+  if (type === 'placeholder') result = PlaceholderAtom.fromJson(json);
+  if (type === 'prompt') result = PromptAtom.fromJson(json);
+  if (type === 'phantom') result = PhantomAtom.fromJson(json);
+  if (type === 'rule') result = RuleAtom.fromJson(json);
+  if (type === 'sizeddelim') result = SizedDelimAtom.fromJson(json);
+  if (type === 'spacing') result = SpacingAtom.fromJson(json);
+  if (type === 'surd') result = SurdAtom.fromJson(json);
+  if (type === 'text') result = TextAtom.fromJson(json);
+  if (type === 'tooltip') result = TooltipAtom.fromJson(json);
 
-  if (type === 'mop') result = OperatorAtom.fromJson(json, context);
+  if (type === 'mop') result = OperatorAtom.fromJson(json);
 
   // @todo root;
   // @todo space;
@@ -103,7 +99,7 @@ export function fromJson(
       ].includes(type),
       `MathLive {{SDK_VERSION}}: an unexpected atom type "${type}" was encountered. Add new atom constructors to \`fromJson()\` in "atom.ts"`
     );
-    result = Atom.fromJson(json, context);
+    result = Atom.fromJson(json);
   }
 
   for (const branch of NAMED_BRANCHES)

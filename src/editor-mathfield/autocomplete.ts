@@ -87,7 +87,7 @@ export function updateAutocomplete(
     const lastAtom = commandAtoms[commandAtoms.length - 1];
     lastAtom.parent!.addChildrenAfter(
       [...suggestion.slice(command.length - suggestion.length)].map(
-        (x) => new LatexAtom(x, mathfield, { isSuggestion: true })
+        (x) => new LatexAtom(x, { isSuggestion: true })
       ),
       lastAtom
     );

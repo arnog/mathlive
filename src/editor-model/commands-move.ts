@@ -79,7 +79,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
     // add an adjacent `msubsup` atom instead.
     if (target.rightSibling?.type !== 'subsup') {
       target.parent!.addChildAfter(
-        new SubsupAtom(model.mathfield, { style: target.computedStyle }),
+        new SubsupAtom({ style: target.computedStyle }),
         target
       );
     }
@@ -114,9 +114,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
     // add an adjacent `msubsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'subsup') {
       target.parent!.addChildAfter(
-        new SubsupAtom(model.mathfield, {
-          style: model.at(model.position).computedStyle,
-        }),
+        new SubsupAtom({ style: model.at(model.position).computedStyle }),
         target
       );
     }

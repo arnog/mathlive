@@ -3,7 +3,7 @@ import { Box, makeSVGBox } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 import { makeNullDelimiter } from '../core/delimiters';
-import { BoxType, GlobalContext, PrivateStyle } from '../core/types';
+import type { BoxType, PrivateStyle } from '../core/types';
 
 // An `overunder` atom has the following attributes:
 // - body: atoms[]: atoms displayed on the base line
@@ -21,7 +21,6 @@ export class OverunderAtom extends Atom {
   paddedLabels: boolean;
   constructor(
     command: string,
-    context: GlobalContext,
     options: {
       body?: Atom[];
       above?: Atom[];
@@ -38,7 +37,7 @@ export class OverunderAtom extends Atom {
       serialize?: (atom: OverunderAtom, options: ToLatexOptions) => string;
     }
   ) {
-    super('overunder', context, {
+    super('overunder', {
       command,
       serialize: options.serialize,
       style: options.style,
@@ -57,8 +56,8 @@ export class OverunderAtom extends Atom {
     this.paddedLabels = options.paddedLabels ?? false;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): OverunderAtom {
-    return new OverunderAtom(json.command, context, json as any);
+  static fromJson(json: AtomJson): OverunderAtom {
+    return new OverunderAtom(json.command, json as any);
   }
 
   toJson(): AtomJson {
@@ -87,11 +86,10 @@ export class OverunderAtom extends Atom {
   render(parentContext: Context): Box | null {
     let body = this.svgBody
       ? makeSVGBox(this.svgBody)
-      : Atom.createBox(parentContext, this.body, { newList: true });
+      : Atom.createBox(parentContext, this.body, { type: 'skip' });
     const annotationContext = new Context(
-      parentContext,
-      this.style,
-      'scriptstyle'
+      { parent: parentContext, mathstyle: 'scriptstyle' },
+      this.style
     );
     let above: Box | null = null;
     // let aboveShift: number;
@@ -99,7 +97,7 @@ export class OverunderAtom extends Atom {
     // aboveShift = 0;
     // aboveShift = -above.depth;
     else if (this.above)
-      above = Atom.createBox(annotationContext, this.above, { newList: true });
+      above = Atom.createBox(annotationContext, this.above, { type: 'skip' });
 
     let below: Box | null = null;
     // let belowShift: number;
@@ -107,7 +105,7 @@ export class OverunderAtom extends Atom {
     // belowShift = 0;
     // belowShift = below.height;
     else if (this.below)
-      below = Atom.createBox(annotationContext, this.below, { newList: true });
+      below = Atom.createBox(annotationContext, this.below, { type: 'skip' });
 
     if (this.paddedBody) {
       // The base of \overset are padded, but \overbrace aren't
@@ -117,7 +115,7 @@ export class OverunderAtom extends Atom {
           body,
           makeNullDelimiter(parentContext, 'close'),
         ],
-        { newList: true }
+        { type: 'skip' }
       );
     }
 

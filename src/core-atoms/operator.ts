@@ -1,5 +1,4 @@
 import type { Variant, VariantStyle, Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, AtomType, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -18,7 +17,6 @@ export class OperatorAtom extends Atom {
   constructor(
     command: string,
     symbol: string | Atom[],
-    context: GlobalContext,
     options: {
       type?: AtomType;
       isExtensibleSymbol?: boolean;
@@ -33,7 +31,7 @@ export class OperatorAtom extends Atom {
       style?: Style;
     }
   ) {
-    super(options.type ?? 'mop', context, {
+    super(options.type ?? 'mop', {
       command,
       style: options.style,
       isFunction: options?.isFunction,
@@ -50,11 +48,10 @@ export class OperatorAtom extends Atom {
     this.isExtensibleSymbol = options?.isExtensibleSymbol ?? false;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): OperatorAtom {
+  static fromJson(json: AtomJson): OperatorAtom {
     return new OperatorAtom(
       json.command,
       json.body ? json.body : json.value,
-      context,
       json as any
     );
   }
@@ -106,7 +103,7 @@ export class OperatorAtom extends Atom {
       base.setStyle('background-color', this.style.backgroundColor);
     } else if (this.body) {
       // If this is a list, decompose that list.
-      base = Atom.createBox(context, this.body, { newList: true });
+      base = Atom.createBox(context, this.body, { type: 'inner' });
 
       if (!base) return null;
 

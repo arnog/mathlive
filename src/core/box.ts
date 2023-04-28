@@ -11,7 +11,6 @@ import { Atom, AtomType } from './atom-class';
 
 export function boxType(type: AtomType): BoxType | undefined {
   const result = {
-    chem: 'chem',
     mord: 'ord',
     mbin: 'bin',
     mop: 'op',
@@ -20,13 +19,12 @@ export function boxType(type: AtomType): BoxType | undefined {
     mclose: 'close',
     mpunct: 'punct',
     minner: 'inner',
-    spacing: 'spacing',
-    first: 'first',
+    spacing: 'skip',
     latex: 'latex',
-    composition: 'composition',
-    error: 'error',
-    placeholder: 'placeholder',
-    supsub: 'supsub',
+    composition: 'inner',
+    error: 'inner',
+    placeholder: 'ord',
+    supsub: 'skip',
   }[type];
 
   return result;
@@ -39,56 +37,6 @@ export function atomsBoxType(atoms: Atom[]): BoxType {
   if (first && first === last) return first;
   return 'ord';
 }
-
-/*
- * See http://www.tug.org/TUGboat/tb30-3/tb96vieth.pdf for
- * typesetting conventions for mathematical physics (units, etc...)
- */
-
-/**
- *
- *
- * > In fact, TEX’s rules for spacing in formulas are fairly simple. A
- * > formula is converted to a math list as described at the end of Chapter 17,
- * > and the math list consists chiefly of “atoms” of eight basic types:
- * > Ord (ordinary), Op (large operator), Bin (binary operation),
- * > Rel (relation), Open (opening), Close (closing), Punct (punctuation),
- * > and Inner (a delimited subformula).
- * > Other kinds of atoms, which arise from commands like \overline or
- * > \mathaccent or \vcenter, etc., are all treated as type Ord; fractions are
- * > treated as type Inner.
- *
- * > The following table is used to determine the spacing between pair of
- * > adjacent atoms.
- *                                                          -- TeXBook, p. 170
- *
- * In this table
- * - "3" = `\thinmuskip`
- * - "4" = `\medmuskip`
- * - "5" = `\thickmuskip`
- *
- */
-
-const INTER_BOX_SPACING = {
-  ord: { op: 3, bin: 4, rel: 5, inner: 3 },
-  op: { ord: 3, op: 3, rel: 5, inner: 3 },
-  bin: { ord: 4, op: 4, open: 4, inner: 4 },
-  rel: { ord: 5, op: 5, open: 5, inner: 5 },
-  close: { op: 3, bin: 4, rel: 5, inner: 3 },
-  punct: { ord: 3, op: 3, rel: 3, open: 3, punct: 3, inner: 3 },
-  inner: { ord: 3, op: 3, bin: 4, rel: 5, open: 3, punct: 3, inner: 3 },
-};
-
-/**
- * This table is used when the mathstyle is 'tight' (scriptstyle or
- * scriptscriptstyle).
- */
-const INTER_BOX_TIGHT_SPACING = {
-  ord: { op: 3 },
-  op: { ord: 3, op: 3 },
-  close: { op: 3 },
-  inner: { op: 3 },
-};
 
 /**
  * Return a string made up of the concatenated arguments.
@@ -141,11 +89,6 @@ export class Box implements BoxInterface {
   type: BoxType;
 
   children?: Box[];
-  // If true, this atom (and its children) should be considered as part of
-  // a 'new list', in the TeX sense. That happens when a new branch
-  // (superscript, etc...) begins. This is important to correctly adjust
-  // the 'type' of boxes, and calculate their interspacing correctly.
-  break: boolean;
   value: string;
 
   classes: string;
@@ -173,7 +116,7 @@ export class Box implements BoxInterface {
 
   attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
 
-  cssProperties: Partial<Record<BoxCSSProperties, string>>;
+  cssProperties?: Partial<Record<BoxCSSProperties, string>>;
 
   constructor(
     content: null | number | string | Box | (Box | null)[],
@@ -185,10 +128,9 @@ export class Box implements BoxInterface {
       this.children = content.filter((x) => x !== null) as Box[];
     else if (content && content instanceof Box) this.children = [content];
 
-    this.type = options?.type ?? '';
+    this.type = options?.type ?? 'skip';
     this.isSelected = false;
     this.isTight = options?.isTight ?? false;
-    this.break = options?.newList ?? false;
 
     // CSS style, as a set of key value pairs.
     // Use `Box.setStyle()` to modify it.
@@ -394,7 +336,7 @@ export class Box implements BoxInterface {
     context: Context,
     options?: {
       classes: string;
-      type: '' | 'open' | 'close' | 'inner';
+      type: 'open' | 'close' | 'inner';
     }
   ): Box {
     const parent = context.parent;
@@ -404,8 +346,8 @@ export class Box implements BoxInterface {
 
     if (context.isPhantom) this.setStyle('opacity', 0);
 
-    let newColor = context.computedColor;
-    if (newColor === parent.computedColor) newColor = '';
+    let newColor = context.color;
+    if (newColor === parent.color) newColor = '';
 
     //
     // Apply color changes to the box
@@ -417,11 +359,10 @@ export class Box implements BoxInterface {
         ? undefined
         : context.effectiveFontSize;
 
-    let newBackgroundColor = context.computedBackgroundColor;
+    let newBackgroundColor = context.backgroundColor;
     if (this.isSelected) newBackgroundColor = highlight(newBackgroundColor);
 
-    if (newBackgroundColor === parent.computedBackgroundColor)
-      newBackgroundColor = '';
+    if (newBackgroundColor === parent.backgroundColor) newBackgroundColor = '';
 
     //
     // Wrap the box if necessary.
@@ -550,9 +491,10 @@ export class Box implements BoxInterface {
 
       if (classList.length > 0) props += ` class="${classList}"`;
 
-      if (this.cssProperties) {
-        const styleString = Object.keys(this.cssProperties)
-          .map((x) => `${x}:${this.cssProperties[x]}`)
+      const cssProps = this.cssProperties;
+      if (cssProps) {
+        const styleString = Object.keys(cssProps)
+          .map((x) => `${x}:${cssProps[x]}`)
           .join(';');
 
         if (styleString.length > 0) props += ` style="${styleString}"`;
@@ -642,8 +584,10 @@ export class Box implements BoxInterface {
 
     // If the styles are different, can't coalesce
     if (thisStyleCount > 0) {
-      for (const prop of Object.keys(this.cssProperties))
-        if (this.cssProperties[prop] !== box.cssProperties[prop]) return false;
+      for (const prop of Object.keys(this.cssProperties!)) {
+        if (this.cssProperties![prop] !== box.cssProperties![prop])
+          return false;
+      }
     }
 
     // For the purpose of our comparison,
@@ -684,6 +628,17 @@ export class Box implements BoxInterface {
  *
  */
 function coalesceRecursive(boxes: undefined | Box[]): Box[] {
+  boxes = boxes?.filter(
+    (x) =>
+      !(
+        x.height === 0 &&
+        x.depth === 0 &&
+        !x.value &&
+        !x.classes &&
+        !x.cssProperties
+      )
+  );
+
   if (!boxes || boxes.length === 0) return [];
 
   boxes[0].children = coalesceRecursive(boxes[0].children);
@@ -703,134 +658,6 @@ export function coalesce(box: Box): Box {
   if (box.children) box.children = coalesceRecursive(box.children);
   return box;
 }
-
-/**
- *  Handle proper spacing of, e.g. "-4" vs "1-4", by adjusting some box type
- */
-function adjustType(root: Box | null): void {
-  forEachBox(root, (prevBox: Box, box: Box) => {
-    // > 5. If the current item is a Bin atom, and if this was the first atom
-    // >   in the list, or if the most recent previous atom was Bin, Op, Rel,
-    // >   Open, or Punct, change the current Bin to Ord and continue with
-    // >   Rule 14.
-    // >   Otherwise continue with Rule 17.
-    //                                                    -- TexBook p. 442
-
-    if (
-      box.type === 'bin' &&
-      (!prevBox || /^(first|none|bin|op|rel|open|punct)$/.test(prevBox.type))
-    )
-      box.type = 'ord';
-
-    // > 6. If the current item is a Rel or Close or Punct atom, and if the most
-    // >   recent previous atom was Bin, change that previous Bin to Ord. Continue
-    // >   with Rule 17.
-    if (
-      prevBox &&
-      prevBox.type === 'bin' &&
-      /^(rel|close|punct|placeholder)$/.test(box.type)
-    )
-      prevBox.type = 'ord';
-  });
-}
-
-//
-// Adjust the atom(/box) types according to the TeX rules
-//
-function applyInterAtomSpacing(root: Box | null, context: Context): void {
-  const thin = context.getRegisterAsEm('thinmuskip');
-  const med = context.getRegisterAsEm('medmuskip');
-  const thick = context.getRegisterAsEm('thickmuskip');
-
-  forEachBox(root, (prevBox, box) => {
-    if (!prevBox?.type) return;
-    // console.log(prevBox?.value, prevBox?.type, box.value, box.type);
-    const prevType = prevBox.type;
-    const table = box.isTight
-      ? INTER_BOX_TIGHT_SPACING[prevType] ?? null
-      : INTER_BOX_SPACING[prevType] ?? null;
-    const hskip = table?.[box.type] ?? 'none';
-    if (hskip !== 'none') {
-      if (hskip === 3) box.left += thin;
-      if (hskip === 4) box.left += med;
-      if (hskip === 5) box.left += thick;
-    }
-  });
-}
-
-/*
- * Iterate over each box, mimicking the TeX atom list walking logic
- * used to demote bin atoms to ord.
- *
- * Our boxes don't map one to one with atoms, since we may include
- * "construction" boxes that should be ignored. This function takes care
- * of that.
- *
- */
-
-function forEachBoxRecursive(
-  prevBox: Box | null,
-  box: Box,
-  f: (prevBox: Box | null, curBox: Box) => void
-): Box | undefined | null {
-  // The TeX algorithms scan each elements, and consider them to be part
-  // of the same list of atoms, until they reach some branch points
-  // (superscript, numerator,etc..). The boxes that indicate the start of a
-  // new list have the `break` property set.
-  if (box.break) prevBox = null;
-
-  // Ignore empty boxes, i.e. {}
-  if (box.children?.length === 1 && box.children[0].type === 'first')
-    return undefined;
-
-  const type = box.type;
-  const skipBox =
-    type === 'none' ||
-    type === 'first' ||
-    type === 'spacing' ||
-    type === undefined ||
-    type.length === 0;
-
-  if (!skipBox) f(prevBox, box);
-
-  if (!box.children) return skipBox ? undefined : box;
-
-  let childPrev: Box | null = prevBox;
-
-  for (const child of box.children) {
-    const nextChild = forEachBoxRecursive(childPrev, child, f);
-    if (nextChild !== undefined) childPrev = nextChild;
-  }
-
-  return childPrev;
-}
-
-function forEachBox(box: Box | null, f: (prevBox: Box, curBox: Box) => void) {
-  if (!box) return;
-  forEachBoxRecursive(null, box, f);
-}
-
-export function adjustInterAtomSpacing(root: Box, context: Context): Box {
-  adjustType(root);
-  applyInterAtomSpacing(root, context);
-  return root;
-}
-
-// function spanToString(span: Span, indent = 0): string {
-//   let result = '\n' + ' '.repeat(indent * 2);
-//   if (span.value !== undefined) {
-//     result += `"${span.svgBody ?? span.value}"`;
-//   }
-//   result += ` ${span.type ?? '????'} ${toString(span.height)} / ${toString(
-//     span.depth
-//   )} / ${span.maxFontSize}`;
-//   if (span.children) {
-//     for (const child of span.children) {
-//       result += spanToString(child, indent + 1);
-//     }
-//   }
-//   return result;
-// }
 
 //----------------------------------------------------------------------------
 // UTILITY FUNCTIONS

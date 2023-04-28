@@ -1,8 +1,4 @@
-// import { convertToDimension, convertToGlue } from './parser';
 import type { Registers } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
-
-import { convertToGlue, convertToDimension } from '../core/parser';
 
 /**
  * Registers
@@ -51,64 +47,114 @@ global $R = $\the\R ~($= 1000$)
  */
 
 const DEFAULT_DIMENSION_REGISTERS: Registers = {
-  'p@': '1pt ',
-  'z@': '0pt',
-  'maxdimen': '16383.99999pt',
-  'hfuzz': '0.1pt',
-  'vfuzz': '0.1pt',
-  'overfullrule': '5pt',
-  'hsize': '6.5in',
-  'vsize': '8.9in',
-  'parindent': '20pt',
-  'maxdepth': '4pt',
-  'splitmaxdepth': '\\maxdimen',
-  'boxmaxdepth': '\\maxdimen',
-  'delimitershortfall': '5pt', //      @todo used in makeLeftRightDelim()
-  'nulldelimiterspace': '1.2pt', //       @todo use in makeNullDelimiter
-  'scriptspace': '0.5pt', // In pt.
-  'topskip': '10pt',
-  'splittopskip': '10pt',
-  'normalbaselineskip': '12pt',
-  'normallineskip': '1pt',
-  'normallineskiplimit': '0pt',
-  // @todo: The vertical space between the lines for all math expressions which
+  'p@': { dimension: 1 },
+  'z@': { dimension: 0 },
+  'maxdimen': { dimension: 16383.99999 },
+  'hfuzz': { dimension: 0.1 },
+  'vfuzz': { dimension: 0.1 },
+  'overfullrule': { dimension: 5 },
+  'hsize': { dimension: 6.5, unit: 'in' },
+  'vsize': { dimension: 8.9, unit: 'in' },
+  'parindent': { dimension: 20 },
+  'maxdepth': { dimension: 4 },
+  'splitmaxdepth': { register: 'maxdimen' },
+  'boxmaxdepth': { register: 'maxdimen' },
+  'delimitershortfall': { dimension: 5 }, //      @todo used in makeLeftRightDelim()
+  'nulldelimiterspace': { dimension: 1.2, unit: 'pt' },
+  'scriptspace': { dimension: 0.5 }, // In pt.
+  'topskip': { dimension: 10 },
+  'splittopskip': { dimension: 10 },
+  'normalbaselineskip': { dimension: 12 },
+  'normallineskip': { dimension: 1 },
+  'normallineskiplimit': { dimension: 0 },
+  // The vertical space between the lines for all math expressions which
   // allow multiple lines (see array, multline)
-  'jot': '3pt',
+  'jot': { dimension: 3 },
 
   // The space between adjacent `|` columns in an array definition.
   // From article.cls.txt:455
-  'doublerulesep': '2pt',
+  'doublerulesep': { dimension: 2 },
 
   // The width of separator lines in {array} environments.
-  'arrayrulewidth': '0.4pt',
-  'arraycolsep': '5pt',
+  'arrayrulewidth': { dimension: 0.4 },
+  'arraycolsep': { dimension: 5 },
 
   // Two values from LaTeX source2e:
-  'fboxsep': '3pt', // From letter.dtx:1626
-  'fboxrule': '0.4pt', // From letter.dtx:1627
+  'fboxsep': { dimension: 3 }, // From letter.dtx:1626
+  'fboxrule': { dimension: 0.4 }, // From letter.dtx:1627
 };
 
 const DEFAULT_GLUE_REGISTERS: Registers = {
-  'z@skip': '0pt plust0pt minus0pt',
-  'hideskip': '-1000pt plust 1fill', // LaTeX
-  '@flushglue': '0pt plust 1fill', // LaTeX
-  'parskip': '0pt plus 1pt',
+  'z@skip': {
+    glue: { dimension: 0 },
+    shrink: { dimension: 0 },
+    grow: { dimension: 0 },
+  },
+  'hideskip': {
+    glue: { dimension: -1000 },
+    grow: { dimension: 1, unit: 'fill' },
+  }, // LaTeX
+  '@flushglue': {
+    glue: { dimension: 0 },
+    grow: { dimension: 1, unit: 'fill' },
+  }, // LaTeX
+  'parskip': {
+    glue: { dimension: 0 },
+    grow: { dimension: 1 },
+  },
+
   // @todo  the "shortskip" are used if the formula starts to the right of the
   // line before (i.e. centered and short line before)
-  'abovedisplayskip': '12pt plus 3pt minus 9pt',
-  'abovedisplayshortskip': '0pt plus 3pt',
-  'belowdisplayskip': '12pt plus 3pt minus 9pt',
-  'belowdisplayshortskip': '7pt plus 3pt minus 4pt',
+  'abovedisplayskip': {
+    glue: { dimension: 12 },
+    grow: { dimension: 3 },
+    shrink: { dimension: 9 },
+  },
+  'abovedisplayshortskip': {
+    glue: { dimension: 0 },
+    grow: { dimension: 3 },
+  },
+  'belowdisplayskip': {
+    glue: { dimension: 12 },
+    grow: { dimension: 3 },
+    shrink: { dimension: 9 },
+  },
+  'belowdisplayshortskip': {
+    glue: { dimension: 7 },
+    grow: { dimension: 3 },
+    shrink: { dimension: 4 },
+  },
 
-  'parfillskip': '0pt plus 1fil',
+  'parfillskip': {
+    glue: { dimension: 0 },
+    grow: { dimension: 1, unit: 'fil' },
+  },
+  'thinmuskip': { glue: { dimension: 3, unit: 'mu' } },
+  'medmuskip': {
+    glue: { dimension: 4, unit: 'mu' },
+    grow: { dimension: 2, unit: 'mu' },
+    shrink: { dimension: 4, unit: 'mu' },
+  },
+  'thickmuskip': {
+    glue: { dimension: 5, unit: 'mu' },
+    grow: { dimension: 5, unit: 'mu' },
+  },
 
-  'thinmuskip': '3mu', //  @todo for inter atom spacing
-  'medmuskip': '4mu plus 2mu minus 4mu', // @todo for inter atom spacing
-  'thickmuskip': '5mu plus 5mu', //  @todo for inter atom spacing
-
-  'smallskipamount': '3pt plus1pt minus1pt',
-  'medskipamount': '6pt plus2pt minus2pt',
-  'bigskipamount': '12pt plus4pt minus4pt',
+  'smallskipamount': {
+    glue: { dimension: 3 },
+    grow: { dimension: 1 },
+    shrink: { dimension: 1 },
+  },
+  'medskipamount': {
+    glue: { dimension: 6 },
+    grow: { dimension: 2 },
+    shrink: { dimension: 3 },
+  },
+  'bigskipamount': {
+    glue: { dimension: 12 },
+    grow: { dimension: 2 },
+    shrink: { dimension: 4 },
+  },
 };
 
 // From TeXBook p.348
@@ -155,27 +201,10 @@ const DEFAULT_NUMBER_REGISTERS: Registers = {
   year: new Date().getFullYear(),
 };
 
-let gDefaultRegisters: Registers;
-
-export function getDefaultRegisters(context: GlobalContext): Registers {
-  if (gDefaultRegisters) return gDefaultRegisters;
-
-  gDefaultRegisters = { ...DEFAULT_NUMBER_REGISTERS };
-
-  for (const reg of Object.keys(DEFAULT_DIMENSION_REGISTERS)) {
-    gDefaultRegisters[reg] =
-      convertToDimension(DEFAULT_DIMENSION_REGISTERS[reg], {
-        ...context,
-        registers: gDefaultRegisters,
-      }) ?? 0;
-  }
-
-  for (const reg of Object.keys(DEFAULT_GLUE_REGISTERS)) {
-    gDefaultRegisters[reg] =
-      convertToGlue(DEFAULT_GLUE_REGISTERS[reg], {
-        ...context,
-        registers: gDefaultRegisters,
-      }) ?? 0;
-  }
-  return gDefaultRegisters;
+export function getDefaultRegisters(): Registers {
+  return {
+    ...DEFAULT_NUMBER_REGISTERS,
+    ...DEFAULT_DIMENSION_REGISTERS,
+    ...DEFAULT_GLUE_REGISTERS,
+  };
 }

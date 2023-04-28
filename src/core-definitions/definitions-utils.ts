@@ -7,7 +7,6 @@ import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import type {
   ArgumentType,
   Dimension,
-  Glue,
   MacroDefinition,
   MacroDictionary,
   MacroPackageDefinition,
@@ -16,9 +15,11 @@ import type {
   Variant,
   MathstyleName,
   Environment,
+  LatexValue,
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
-import { GlobalContext, PrivateStyle } from '../core/types';
+import type { ContextInterface, PrivateStyle } from '../core/types';
+import type { Context } from '../core/context';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;
@@ -27,12 +28,10 @@ export type FunctionArgumentDefinition = {
 
 export type Argument =
   | string
-  | number
-  | { group: Atom[] }
-  | Dimension
-  | Glue
+  | LatexValue
   | BBoxParameter
   | ColumnFormat[]
+  | { group: Atom[] }
   | Atom[];
 
 export type ParseResult =
@@ -40,9 +39,7 @@ export type ParseResult =
   | PrivateStyle
   | ParseMode
   | MathstyleName
-  | {
-      error: string;
-    };
+  | { error: string };
 
 export type TokenDefinition = FunctionDefinition | SymbolDefinition;
 
@@ -62,14 +59,13 @@ export type FunctionDefinition = {
   applyMode?: ParseMode;
   createAtom?: (
     command: string,
-    context: GlobalContext,
-    style: PrivateStyle,
-    args: (null | Argument)[]
+    args: (null | Argument)[],
+    style: PrivateStyle
   ) => Atom;
   applyStyle?: (
     command: string,
-    context: GlobalContext,
-    args: (null | Argument)[]
+    args: (null | Argument)[],
+    context: ContextInterface
   ) => PrivateStyle;
 
   frequency?: number;
@@ -238,7 +234,6 @@ export const LATEX_COMMANDS: Record<string, FunctionDefinition> = {};
 export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 
 type EnvironmentConstructor = (
-  context: GlobalContext,
   name: Environment,
   array: Atom[][][],
   rowGaps: Dimension[],
@@ -430,6 +425,11 @@ const DEFAULT_MACROS: MacroDictionary = {
   'exponentialE': '\\mathrm{e}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
   'differentialD': '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
   'capitalDifferentialD': '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+
+  // mhchem
+
+  'tripledash':
+    '\\vphantom{-}\\raisebox{2mu}{$\\mkern2mu\\tiny\\text{-}\\mkern1mu\\text{-}\\mkern1mu\\text{-}\\mkern2mu$}',
 
   'braket.sty': { package: BRAKET_MACROS } as MacroPackageDefinition,
   'amsmath.sty': {
@@ -758,14 +758,13 @@ export function defineFunction(
     isFunction?: boolean;
     createAtom?: (
       name: string,
-      context: GlobalContext,
-      style: PrivateStyle,
-      args: (null | Argument)[]
+      args: (null | Argument)[],
+      style: PrivateStyle
     ) => Atom;
     applyStyle?: (
       name: string,
-      context: GlobalContext,
-      args: (null | Argument)[]
+      args: (null | Argument)[],
+      context: Context
     ) => PrivateStyle;
     command?: string;
   }
@@ -858,7 +857,7 @@ export function normalizeMacroDictionary(
   return result;
 }
 
-export function defaultGetDefinition(
+export function getDefinition(
   token: string,
   parseMode: ParseMode = 'math'
 ): TokenDefinition | null {
@@ -889,7 +888,7 @@ export function defaultGetDefinition(
       //Check if this is a Unicode character that has a definition
       const command = charToLatex('math', token.codePointAt(0));
       if (command.startsWith('\\'))
-        return { ...defaultGetDefinition(command, 'math')!, command };
+        return { ...getDefinition(command, 'math')!, command };
       return null;
     }
   } else if (TEXT_SYMBOLS[token]) {

@@ -1,5 +1,5 @@
 import { PT_PER_EM } from './font-metrics';
-import type { Dimension, Glue } from '../public/core-types';
+import type { Dimension, Glue, LatexValue } from '../public/core-types';
 
 export function convertDimensionToPt(
   value?: Dimension,
@@ -65,13 +65,50 @@ export function serializeGlue(value: Glue): string {
   return result;
 }
 
-export function serializeGlueOrDimenstion(value: Glue | Dimension): string {
+export function serializeGlueOrDimention(value: Glue | Dimension): string {
   if ('glue' in value) return serializeGlue(value);
   return serializeDimension(value);
 }
 
-export function addDimension(lhs: Dimension, rhs: Dimension): Dimension {
-  const lhsPt = convertDimensionToPt(lhs);
-  const rhsPt = convertDimensionToPt(rhs);
-  return { dimension: lhsPt + rhsPt, unit: 'pt' };
+export function serializeLatexValue(
+  value: LatexValue | null | undefined
+): string | null {
+  if (value === null || value === undefined) return null;
+  let result = '';
+  if ('dimension' in value) result = `${value.dimension}${value.unit ?? 'pt'}`;
+
+  if ('glue' in value) result = serializeGlue(value);
+
+  if ('number' in value) {
+    if (!('base' in value) || value.base === 'decimal')
+      result = Number(value.number).toString();
+    else if (value.base === 'alpha')
+      result = `\`${String.fromCodePoint(value.number)}`;
+    else if (value.base === 'hexadecimal') {
+      result = `"${`00000000${Number(Math.round(value.number) >>> 0).toString(
+        16
+      )}`
+        .slice(-8)
+        .toUpperCase()}`;
+    } else if (value.base === 'octal') {
+      result = `'${`00000000${Number(Math.round(value.number) >>> 0).toString(
+        8
+      )}`.slice(-8)}`;
+    }
+  }
+
+  if ('register' in value) {
+    if ('factor' in value) {
+      if (value.factor === -1) result = '-';
+      else if (value.factor !== 1) result = Number(value.factor).toString();
+    }
+    if ('global' in value && value.global) result += '\\global';
+    result += `\\${value.register}`;
+  }
+
+  if ('string' in value) result = value.string;
+
+  if (value.relax ?? false) result += '\\relax';
+
+  return result;
 }

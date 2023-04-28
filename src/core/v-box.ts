@@ -137,7 +137,7 @@ function makeRows(
     }
   }
   pstrutSize += 2;
-  const pstrut = new Box(null, { classes: 'pstrut' });
+  const pstrut = new Box(null, { classes: 'pstrut', height: pstrutSize });
   pstrut.setStyle('height', pstrutSize, 'em');
 
   // Create a new list of actual children at the correct offsets
@@ -220,7 +220,6 @@ export class VBox extends Box {
       height,
       depth,
       type: options?.type,
-      newList: true,
     });
   }
 }

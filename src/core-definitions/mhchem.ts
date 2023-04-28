@@ -14,33 +14,30 @@
  * See https://mhchem.github.io/MathJax-mhchem/
  */
 
-import type { Style } from '../public/core';
-
-import { parseLatex } from '../core/parser';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+import { parseLatex } from '../core/parser';
 import type { Context } from '../core/context';
-import type { GlobalContext } from '../core/types';
 import type { Box } from '../core/box';
 
-import { Argument, defineFunction } from './definitions-utils';
+import { defineFunction } from './definitions-utils';
 
 export class ChemAtom extends Atom {
   private arg: string;
-  constructor(command: string, arg: string, context: GlobalContext) {
-    super('chem', context, { command, mode: 'math' });
+  constructor(command: string, arg: string) {
+    super('chem', { command, mode: 'math' });
     const tex = texify.go(
       mhchemParser.go(arg, command === '\\pu' ? 'pu' : 'ce'),
       false
     );
 
-    this.body = parseLatex(tex, context);
+    this.body = parseLatex(tex);
     this.verbatimLatex = command + '{' + arg + '}';
     this.arg = arg;
     this.captureSelection = true;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): ChemAtom {
-    return new ChemAtom(json.command, json.arg, context);
+  static fromJson(json: AtomJson): ChemAtom {
+    return new ChemAtom(json.command, json.arg);
   }
 
   toJson(): AtomJson {
@@ -48,10 +45,7 @@ export class ChemAtom extends Atom {
   }
 
   render(context: Context): Box {
-    const box = Atom.createBox(context, this.body, {
-      type: 'chem',
-      newList: true,
-    })!;
+    const box = Atom.createBox(context, this.body, { type: 'inner' })!;
 
     if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
@@ -65,8 +59,8 @@ export class ChemAtom extends Atom {
 }
 
 defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', {
-  createAtom: (command, context, _style, args: [string]): Atom =>
-    new ChemAtom(command, args[0] ?? '', context),
+  createAtom: (command, args: [string]): Atom =>
+    new ChemAtom(command, args[0] ?? ''),
 });
 
 /*************************************************************

@@ -3,7 +3,6 @@ import type {
   Dimension,
   Environment,
 } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import {
   Atom,
@@ -104,7 +103,6 @@ type ArrayRow = {
  */
 
 function normalizeArray(
-  context: GlobalContext,
   atom: ArrayAtom,
   array: Atom[][][],
   colFormat: ColumnFormat[]
@@ -134,13 +132,10 @@ function normalizeArray(
       while (colIndex < lastCol) {
         const cell = row[colIndex];
         if (cell.length === 0)
-          newRow.push([new Atom('first', context, { mode: atom.mode })]);
-        else if (cell[0].type !== 'first') {
-          newRow.push([
-            new Atom('first', context, { mode: atom.mode }),
-            ...cell,
-          ]);
-        } else {
+          newRow.push([new Atom('first', { mode: atom.mode })]);
+        else if (cell[0].type !== 'first')
+          newRow.push([new Atom('first', { mode: atom.mode }), ...cell]);
+        else {
           console.assert(!cell.slice(1).some((x) => x.type === 'first'));
           newRow.push(cell);
         }
@@ -172,8 +167,8 @@ function normalizeArray(
     if (row.length !== colCount) {
       for (let i = row.length; i < colCount; i++) {
         row.push([
-          new Atom('first', context, { mode: atom.mode }),
-          new PlaceholderAtom(context),
+          new Atom('first', { mode: atom.mode }),
+          new PlaceholderAtom(),
         ]);
       }
     }
@@ -217,13 +212,12 @@ export class ArrayAtom extends Atom {
   minColumns: number;
 
   constructor(
-    context: GlobalContext,
     envName: Environment,
     array: Atom[][][],
     rowGaps: Dimension[],
     options: ArrayAtomConstructorOptions = {}
   ) {
-    super('array', context);
+    super('array');
     this.environmentName = envName;
     this.rowGaps = rowGaps;
     if (options.mathstyleName) this.mathstyleName = options.mathstyleName;
@@ -249,7 +243,7 @@ export class ArrayAtom extends Atom {
       ];
     }
 
-    this.array = normalizeArray(context, this, array, this.colFormat);
+    this.array = normalizeArray(this, array, this.colFormat);
     // console.log(arrayToString(this.array));
     if (options.leftDelim) this.leftDelim = options.leftDelim;
     if (options.rightDelim) this.rightDelim = options.rightDelim;
@@ -262,9 +256,8 @@ export class ArrayAtom extends Atom {
     this.minColumns = options.minColumns ?? 1;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): ArrayAtom {
+  static fromJson(json: AtomJson): ArrayAtom {
     return new ArrayAtom(
-      context,
       json.environmentName,
       json.array,
       json.rowGaps,
@@ -355,7 +348,10 @@ export class ArrayAtom extends Atom {
     // See http://tug.ctan.org/macros/latex/base/ltfsstrc.dtx
     // and http://tug.ctan.org/macros/latex/base/lttab.dtx
 
-    const innerContext = new Context(context, this.style, this.mathstyleName);
+    const innerContext = new Context(
+      { parent: context, mathstyle: this.mathstyleName },
+      this.style
+    );
 
     const arrayRuleWidth = innerContext.getRegisterAsEm('arrayrulewidth');
     const arrayColSep = innerContext.getRegisterAsEm('arraycolsep');
@@ -374,8 +370,10 @@ export class ArrayAtom extends Atom {
       // But that needs adjustment because LaTeX applies \scriptstyle to the
       // entire array, including the colspace, but this function applies
       // \scriptstyle only inside each element.
-      const localMultiplier = new Context(context, undefined, 'scriptstyle')
-        .scalingFactor;
+      const localMultiplier = new Context({
+        parent: context,
+        mathstyle: 'scriptstyle',
+      }).scalingFactor;
       arraycolsep = 0.2778 * (localMultiplier / context.scalingFactor);
     }
     const arrayskip = arraystretch * BASELINE_SKIP;
@@ -392,17 +390,16 @@ export class ArrayAtom extends Atom {
       // cells, with the same mathstyleName, but this will prevent the
       // style correction from being applied twice
       const cellContext = new Context(
-        innerContext,
-        this.style,
-        this.mathstyleName
+        { parent: innerContext, mathstyle: this.mathstyleName },
+        this.style
       );
       let height = arstrutHeight / cellContext.scalingFactor; // \@array adds an \@arstrut
       let depth = arstrutDepth / cellContext.scalingFactor; // To each row (via the template)
       const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
       for (const element of inrow) {
         const elt =
-          Atom.createBox(cellContext, element, { newList: true }) ??
-          new Box(null, { newList: true });
+          Atom.createBox(cellContext, element, { type: 'skip' }) ??
+          new Box(null, { type: 'skip' });
         depth = Math.max(depth, elt.depth);
         height = Math.max(height, elt.height);
         outrow.cells.push(elt);
@@ -651,7 +648,7 @@ export class ArrayAtom extends Atom {
 
     let atoms = value;
     if (value.length === 0 || value[0].type !== 'first')
-      atoms = [new Atom('first', this.context, { mode: this.mode }), ...value];
+      atoms = [new Atom('first', { mode: this.mode }), ...value];
 
     this.array[row][column] = atoms;
     for (const atom of atoms) {
@@ -787,11 +784,9 @@ export class ArrayAtom extends Atom {
  * Create a matrix cell with a placeholder atom in it.
  */
 function makePlaceholderCell(parent: ArrayAtom): Atom[] {
-  const first = new Atom('first', parent.context, { mode: parent.mode });
+  const first = new Atom('first', { mode: parent.mode });
   first.parent = parent;
-  const placeholder = new PlaceholderAtom(parent.context, {
-    mode: parent.mode,
-  });
+  const placeholder = new PlaceholderAtom();
   placeholder.parent = parent;
   return [first, placeholder];
 }
@@ -817,7 +812,7 @@ function makeColOfRepeatingElements(
   if (!element) return null;
   const col: VBoxElementAndShift[] = [];
   for (const row of rows) {
-    const cell = Atom.createBox(context, element, { newList: true });
+    const cell = Atom.createBox(context, element, { type: 'skip' });
     if (cell) {
       cell.depth = row.depth;
       cell.height = row.height;

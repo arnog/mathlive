@@ -1,4 +1,4 @@
-import {
+import type {
   ArgumentType,
   BoxCSSProperties,
   MacroDefinition,
@@ -11,7 +11,6 @@ import {
 } from '../public/core-types';
 import { Atom } from '../core/atom-class';
 import { Context } from '../core/context';
-import { TokenDefinition } from '../core-definitions/definitions-utils';
 
 export interface ParseTokensOptions {
   macros: NormalizedMacroDictionary;
@@ -78,8 +77,6 @@ export interface FontMetrics<T = number> {
  */
 
 const BOX_TYPE = [
-  '',
-  'chem',
   'ord', // > is an ordinary atom like `x`
   'bin', // > is a binary operation atom like `+`
   'op', // > is a large operator atom like `\sum`
@@ -88,12 +85,13 @@ const BOX_TYPE = [
   'close', // > is a closing atom like `)`
   'punct', // > is a punctuation atom like ‘,’
   'inner', // >  is an inner atom like `\frac12`
-  'spacing',
-  'first',
+  'rad', // for radicals, like `\sqrt2`
   'latex',
   'composition',
   'middle', // A box type used by the `\middle` command
-  'none',
+  'skip', // A box that should be skipped during inter-box spacing, e.g. sup/sub atoms
+  'lift', // For inter-box spacing, the children of the box should be lifted as
+  // if they were present instead of the box
 ] as const; // The const assertion prevents widening to string[]
 export type BoxType = (typeof BOX_TYPE)[number];
 
@@ -107,8 +105,6 @@ export type BoxOptions = {
   depth?: number;
   maxFontSize?: number;
 
-  newList?: boolean;
-
   mode?: ParseMode;
   style?: Style; // If a `style` option is provided, a `mode` must also be provided.
 
@@ -116,14 +112,9 @@ export type BoxOptions = {
 };
 
 export interface BoxInterface {
-  // constructor(
-  //   content: null | number | string | Box | (Box | null)[],
-  //   options?: BoxOptions
-  // );
   type: BoxType;
 
   children?: BoxInterface[];
-  break: boolean;
   value: string;
 
   classes: string;
@@ -151,7 +142,7 @@ export interface BoxInterface {
 
   attributes?: Record<string, string>;
 
-  cssProperties: Partial<Record<BoxCSSProperties, string>>;
+  cssProperties?: Partial<Record<BoxCSSProperties, string>>;
 
   set atomID(id: string | undefined);
 
@@ -191,14 +182,29 @@ export type PrivateStyle = Style & {
   mode?: ParseMode;
 };
 
+/**
+ * The `ContextInterface` encapsulates information needed to render atoms. Each
+ * rendering group may create a new `ContextInterface`, linked to its parent.
+ *
+ * Registers are scoped to the current context by default, but global
+ * registers can also be accessed with `\global`:
+ * (https://tex.stackexchange.com/questions/94710/what-is-the-difference-between-local-and-global-in-a-tex-meaning)
+ *
+ */
 export interface ContextInterface {
-  registers: Registers;
+  readonly registers: Registers;
   atomIdsSettings?: {
     overrideID?: string;
     groupNumbers: boolean;
     seed: 'random' | number;
   };
-  renderPlaceholder?: (context: Context) => BoxInterface;
+  renderPlaceholder?: ((context: Context) => BoxInterface) | undefined;
+  readonly smartFence: boolean;
+  readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
+  readonly placeholderSymbol: string;
+  readonly colorMap: (name: string) => string | undefined;
+  readonly backgroundColorMap: (name: string) => string | undefined;
+  getMacro(token: string): MacroDefinition | null;
 }
 
 export declare function applyStyle(
@@ -206,22 +212,3 @@ export declare function applyStyle(
   box: BoxInterface,
   style: Style
 ): string | null;
-
-/**
- * The Global Context encapsulates information that atoms
- * may require in order to render correctly. Unlike `ContextInterface`, these
- * values do not depend of the location of the atom in the render tree.
- */
-export interface GlobalContext {
-  readonly registers: Registers;
-  readonly smartFence: boolean;
-  readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-  readonly fractionNavigationOrder:
-    | 'numerator-denominator'
-    | 'denominator-numerator';
-  readonly placeholderSymbol: string;
-  colorMap: (name: string) => string | undefined;
-  backgroundColorMap: (name: string) => string | undefined;
-  getDefinition(token: string, parseMode: ParseMode): TokenDefinition | null;
-  getMacro(token: string): MacroDefinition | null;
-}

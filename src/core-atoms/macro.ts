@@ -1,16 +1,15 @@
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
-import type { GlobalContext } from '../core/types';
-import { Style } from '../public/core-types';
+import type { Style } from '../public/core-types';
 
 export class MacroAtom extends Atom {
   readonly macroArgs: null | string;
+  // If false, even if `expandMacro` is true, do not expand.
   private readonly expand: boolean;
 
   constructor(
     macro: string,
-    context: GlobalContext,
     options: {
       expand?: boolean;
       args: null | string;
@@ -19,7 +18,7 @@ export class MacroAtom extends Atom {
       style: Style;
     }
   ) {
-    super('macro', context, { command: macro, style: options.style });
+    super('macro', { command: macro, style: options.style });
     this.body = options.body;
     // Set the `captureSelection` attribute to true so that the atom is handled
     // as an unbreakable unit
@@ -35,8 +34,8 @@ export class MacroAtom extends Atom {
     this.expand = options.expand ?? false;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): MacroAtom {
-    return new MacroAtom(json.command, context, json as any);
+  static fromJson(json: AtomJson): MacroAtom {
+    return new MacroAtom(json.command, json as any);
   }
 
   toJson(): AtomJson {
@@ -59,5 +58,33 @@ export class MacroAtom extends Atom {
     if (!result) return null;
     if (this.caret) result.caret = this.caret;
     return this.bind(context, result);
+  }
+}
+
+export class MacroArgumentAtom extends Atom {
+  constructor() {
+    super('macro-argument');
+  }
+
+  static fromJson(json: AtomJson): MacroArgumentAtom {
+    return new MacroArgumentAtom();
+  }
+
+  toJson(): AtomJson {
+    const options = super.toJson();
+    return options;
+  }
+
+  serialize(options: ToLatexOptions): string {
+    return '';
+  }
+
+  render(context: Context): Box | null {
+    // const result = Atom.createBox(context, this.body);
+    // if (!result) return null;
+    // if (this.caret) result.caret = this.caret;
+    // return this.bind(context, result);
+
+    return null;
   }
 }

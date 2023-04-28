@@ -1,4 +1,3 @@
-import type { GlobalContext } from '../core/types';
 import { fromJson } from '../core/atom';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -8,22 +7,19 @@ import { latexCommand } from '../core/tokenizer';
 export class ChoiceAtom extends Atom {
   choices: Atom[][];
 
-  constructor(choices: Atom[][], context: GlobalContext) {
-    super('choice', context);
+  constructor(choices: Atom[][]) {
+    super('choice');
     this.choices = choices;
     this.skipBoundary = true;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): ChoiceAtom {
-    return new ChoiceAtom(
-      [
-        fromJson(json.choices[0] as AtomJson[], context),
-        fromJson(json.choices[1] as AtomJson[], context),
-        fromJson(json.choices[2] as AtomJson[], context),
-        fromJson(json.choices[3] as AtomJson[], context),
-      ],
-      context
-    );
+  static fromJson(json: AtomJson): ChoiceAtom {
+    return new ChoiceAtom([
+      fromJson(json.choices[0] as AtomJson[]),
+      fromJson(json.choices[1] as AtomJson[]),
+      fromJson(json.choices[2] as AtomJson[]),
+      fromJson(json.choices[3] as AtomJson[]),
+    ]);
   }
 
   toJson(): AtomJson {

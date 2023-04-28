@@ -8,8 +8,6 @@ import {
   coalesce,
   Box,
   Context,
-  adjustInterAtomSpacing,
-  DEFAULT_FONT_SIZE,
 } from '../core/core';
 
 import {
@@ -27,22 +25,20 @@ import POPOVER_STYLESHEET from '../../css/popover.less';
 import CORE_STYLESHEET from '../../css/core.less';
 import { complete } from '../editor-mathfield/autocomplete';
 import { ModeEditor } from '../editor-mathfield/mode-editor';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 
 let POPOVER_STYLESHEET_HASH: string | undefined = undefined;
 let gPopoverStylesheet: Stylesheet | null = null;
 let gCoreStylesheet: Stylesheet | null = null;
 
 function latexToMarkup(mf: MathfieldPrivate, latex: string): string {
-  const root = new Atom('root', mf);
-  root.body = parseLatex(latex, mf, { parseMode: 'math' });
+  const root = new Atom('root');
+  const context = new Context({ from: mf.context });
 
-  const context = new Context(
-    { registers: mf.registers },
-    { fontSize: DEFAULT_FONT_SIZE },
-    'displaystyle'
-  );
+  root.body = parseLatex(latex, { context });
+
   const box = coalesce(
-    adjustInterAtomSpacing(
+    applyInterBoxSpacing(
       new Box(root.render(context), { classes: 'ML__base' }),
       context
     )

@@ -1,5 +1,4 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -11,17 +10,16 @@ export class LineAtom extends Atom {
   constructor(
     command: string,
     body: Atom[],
-    context: GlobalContext,
     options: { position: 'overline' | 'underline'; style: Style }
   ) {
-    super('line', context, { command, style: options.style });
+    super('line', { command, style: options.style });
     this.skipBoundary = true;
     this.body = body;
     this.position = options.position;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): LineAtom {
-    return new LineAtom(json.command, json.body, context, json as any);
+  static fromJson(json: AtomJson): LineAtom {
+    return new LineAtom(json.command, json.body, json as any);
   }
 
   toJson(): AtomJson {
@@ -30,7 +28,13 @@ export class LineAtom extends Atom {
 
   render(parentContext: Context): Box | null {
     // TeXBook:443. Rule 9 and 10
-    const context = new Context(parentContext, this.style, 'cramp');
+    // > Math accents, and the operations \sqrt and \overline, change
+    // > uncramped styles to their cramped counterparts; for example, D
+    // > changes to D′, but D′ stays as it was. -- TeXBook p. 152
+    const context = new Context(
+      { parent: parentContext, mathstyle: 'cramp' },
+      this.style
+    );
     const inner = Atom.createBox(context, this.body);
     if (!inner) return null;
     const ruleWidth =
@@ -52,10 +56,6 @@ export class LineAtom extends Atom {
     }
 
     if (this.caret) stack.caret = this.caret;
-    return new Box(stack, {
-      classes: this.position,
-      type: 'ord',
-      newList: true,
-    });
+    return new Box(stack, { classes: this.position, type: 'skip' });
   }
 }

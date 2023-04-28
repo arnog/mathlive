@@ -1,7 +1,7 @@
 import type { ToLatexOptions } from '../core/atom-class';
 import { OverunderAtom } from '../core-atoms/overunder';
 
-import { argAtoms, defineFunction } from './definitions-utils';
+import { Argument, argAtoms, defineFunction } from './definitions-utils';
 
 // Extensible (horizontally stretchy) symbols
 
@@ -18,8 +18,8 @@ defineFunction(
   ],
   '{:auto}',
   {
-    createAtom: (command, context, style, args) =>
-      new OverunderAtom(command, context, {
+    createAtom: (command, args: [Argument | null], style) =>
+      new OverunderAtom(command, {
         body: argAtoms(args[0]),
         skipBoundary: false,
         supsubPlacement: 'over-under',
@@ -33,8 +33,8 @@ defineFunction(
   }
 );
 defineFunction('overbrace', '{:auto}', {
-  createAtom: (command, context, style, args) =>
-    new OverunderAtom(command, context, {
+  createAtom: (command, args: [Argument | null], style) =>
+    new OverunderAtom(command, {
       body: argAtoms(args[0]),
       skipBoundary: false,
       supsubPlacement: 'over-under',
@@ -55,8 +55,8 @@ defineFunction(
   ],
   '{:auto}',
   {
-    createAtom: (command, context, style, args) =>
-      new OverunderAtom(command, context, {
+    createAtom: (command, args: [Argument | null], style) =>
+      new OverunderAtom(command, {
         body: argAtoms(args[0]),
         skipBoundary: false,
         supsubPlacement: 'over-under',
@@ -70,8 +70,8 @@ defineFunction(
   }
 );
 defineFunction(['underbrace'], '{:auto}', {
-  createAtom: (command, context, style, args) =>
-    new OverunderAtom(command, context, {
+  createAtom: (command, args: [Argument | null], style) =>
+    new OverunderAtom(command, {
       body: argAtoms(args[0]),
       skipBoundary: false,
       supsubPlacement: 'over-under',
@@ -109,8 +109,8 @@ defineFunction(
   ],
   '[:auto]{:auto}',
   {
-    createAtom: (command, context, style, args) =>
-      new OverunderAtom(command, context, {
+    createAtom: (command, args: [Argument | null, Argument | null], style) =>
+      new OverunderAtom(command, {
         style,
         // Set the "svgBody" to the name of a SVG object (which is the same
         // as the command name)

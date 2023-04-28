@@ -6,7 +6,7 @@ import { Box } from './box';
 import { BoxAtom } from '../core-atoms/box';
 import type { Style } from '../public/core-types';
 import { mathVariantToUnicode } from '../core-definitions/unicode';
-import type { GlobalContext } from '../core/types';
+import { TokenDefinition } from 'core-definitions/definitions-utils';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -99,10 +99,9 @@ export class MathMode extends Mode {
     super('math');
   }
 
-  createAtom(command: string, context: GlobalContext, style?: Style): Atom {
-    const info = context.getDefinition(command, 'math');
+  createAtom(command: string, info: TokenDefinition, style?: Style): Atom {
     if (info === null) {
-      return new Atom('mord', context, {
+      return new Atom('mord', {
         mode: 'math',
         command,
         value: command,
@@ -110,7 +109,7 @@ export class MathMode extends Mode {
       });
     }
     if (info.definitionType === 'symbol') {
-      const result = new Atom(info.type ?? 'mord', context, {
+      const result = new Atom(info.type ?? 'mord', {
         mode: 'math',
         command: info.command ?? command,
         value: String.fromCodePoint(info.codepoint),
@@ -121,7 +120,7 @@ export class MathMode extends Mode {
       if (command.startsWith('\\')) result.verbatimLatex = command;
       return result;
     }
-    const result = new Atom('mord', context, {
+    const result = new Atom('mord', {
       mode: 'math',
       command: info.command ?? command,
       value: command,
@@ -246,24 +245,10 @@ export class MathMode extends Mode {
 function emitVariantRun(run: Atom[], options: ToLatexOptions): string {
   const { parent } = run[0];
   const contextVariant = variantString(parent!);
-  const parentMode = parent?.mode ?? 'math';
+  // const parentMode = parent?.mode ?? 'math';
   return joinLatex(
     getPropertyRuns(run, 'variant').map((x) => {
       const variant = variantString(x[0]);
-      // Check if all the atoms in this run have a base
-      // variant identical to the current variant
-      // If so, we can skip wrapping them
-      if (
-        x.every((x) => {
-          const info = x.context.getDefinition(x.command!, parentMode);
-          if (!info || info.definitionType === 'function' || !info.variant)
-            return false;
-
-          return variantString(x) === variant;
-        })
-      )
-        return joinLatex(x.map((x) => Atom.serialize(x, options)));
-
       let command = '';
       if (variant && variant !== contextVariant) {
         command = {

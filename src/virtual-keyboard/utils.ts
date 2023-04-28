@@ -1,6 +1,5 @@
 import { Atom } from '../core/atom';
-import { coalesce, adjustInterAtomSpacing, Box, makeStruts } from '../core/box';
-import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
+import { coalesce, Box, makeStruts } from '../core/box';
 import { l10n as l10nOptions, localize as l10n } from '../core/l10n';
 import { parseLatex } from '../core/parser';
 import { SelectorPrivate } from '../editor/types';
@@ -17,7 +16,6 @@ import { LAYOUTS } from './data';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { MathfieldProxy } from '../public/virtual-keyboard';
 import { hasVariants, showVariantsPanel } from './variants';
-import { defaultGlobalContext } from '../core/context-utils';
 import {
   NormalizedVirtualKeyboardLayer,
   NormalizedVirtualKeyboardLayout,
@@ -26,6 +24,7 @@ import {
   VirtualKeyboardLayout,
   VirtualKeyboardOptions,
 } from '../public/virtual-keyboard';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 
 function jsonToCssProps(json) {
   if (typeof json === 'string') return json;
@@ -42,25 +41,22 @@ function jsonToCss(json): string {
     .join('');
 }
 
-export function latexToMarkup(latex: string): string {
+function latexToMarkup(latex: string): string {
   if (!latex) return '';
 
-  const globalContext = defaultGlobalContext();
+  const context = new Context();
 
-  const root = new Atom('root', globalContext);
-  const args = (arg) =>
-    arg === '@'
-      ? '{\\class{ML__box-placeholder}{\\blacksquare}}'
-      : '\\placeholder{}';
-  root.body = parseLatex(latex, globalContext, { parseMode: 'math', args });
+  const root = new Atom('root');
+  root.body = parseLatex(latex, {
+    context,
+    args: (arg) =>
+      arg === '@'
+        ? '{\\class{ML__box-placeholder}{\\blacksquare}}'
+        : '\\placeholder{}',
+  });
 
-  const context = new Context(
-    { registers: globalContext.registers },
-    { fontSize: DEFAULT_FONT_SIZE },
-    'displaystyle'
-  );
   const box = coalesce(
-    adjustInterAtomSpacing(
+    applyInterBoxSpacing(
       new Box(root.render(context), { classes: 'ML__base' }),
       context
     )

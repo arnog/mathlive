@@ -1,11 +1,8 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
-import { convertToDimension } from '../core/parser';
-import { convertDimensionToEm } from '../core/registers-utils';
 import { latexCommand } from '../core/tokenizer';
 
 export type EncloseAtomOptions = {
@@ -56,10 +53,9 @@ export class EncloseAtom extends Atom {
     command: string,
     body: Atom[],
     notation: Notations,
-    context: GlobalContext,
     options: EncloseAtomOptions
   ) {
-    super('enclose', context, { command, style: options.style });
+    super('enclose', { command, style: options.style });
     this.body = body;
     this.backgroundcolor = options.backgroundcolor;
     if (notation.updiagonalarrow) notation.updiagonalstrike = false;
@@ -83,13 +79,12 @@ export class EncloseAtom extends Atom {
     this.captureSelection = true; // Do not let children be selected
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): EncloseAtom {
+  static fromJson(json: AtomJson): EncloseAtom {
     console.log(json);
     return new EncloseAtom(
       json.command,
       json.body,
       json.notation,
-      context,
       json as any as EncloseAtomOptions
     );
   }
@@ -141,22 +136,18 @@ export class EncloseAtom extends Atom {
   }
 
   render(parentContext: Context): Box | null {
-    const context = new Context(parentContext, this.style);
+    const context = new Context({ parent: parentContext }, this.style);
 
     const base = Atom.createBox(context, this.body);
 
     if (!base) return null;
 
     // Account for the padding
-    const padding =
-      convertDimensionToEm(
-        this.padding && this.padding !== 'auto'
-          ? convertToDimension(this.padding, {
-              ...this.context,
-              registers: parentContext.registers,
-            })
-          : context.getRegisterAsDimension('fboxsep')
-      ) ?? 0;
+    const padding = context.toEm(
+      !this.padding || this.padding === 'auto'
+        ? { register: 'fboxsep' }
+        : { string: this.padding }
+    );
     const borderWidth = borderDim(this.borderStyle);
 
     // The 'ML__notation' class is required to prevent the box from being omitted
@@ -179,8 +170,12 @@ export class EncloseAtom extends Atom {
       `calc(100% + ${2 * padding}em + 2 * ${borderWidth})`
     );
 
-    if (this.backgroundcolor)
-      notation.setStyle('background-color', this.backgroundcolor);
+    if (this.backgroundcolor) {
+      notation.setStyle(
+        'background-color',
+        this.backgroundcolor ?? 'transparent'
+      );
+    }
 
     if (this.notation.box) notation.setStyle('border', this.borderStyle);
     if (this.notation.actuarial) {

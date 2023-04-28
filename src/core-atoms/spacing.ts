@@ -1,31 +1,26 @@
-import type { Dimension, Glue, Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
+import type { LatexValue, Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { Context } from '../core/context';
-import {
-  convertGlueOrDimensionToEm,
-  serializeGlueOrDimenstion,
-} from '../core/registers-utils';
+import type { Context } from '../core/context';
+import { serializeLatexValue } from '../core/registers-utils';
 
 export class SpacingAtom extends Atom {
-  private readonly width: Glue | Dimension | undefined;
+  private readonly width: LatexValue | undefined;
   _braced: boolean;
   constructor(
     command: string,
     style: Style,
-    context: GlobalContext,
-    width?: Glue | Dimension,
+    width?: LatexValue,
     options?: { braced: boolean }
   ) {
-    super('spacing', context, { command, style });
+    super('spacing', { command, style });
     this.width = width;
     this._braced = options?.braced ?? false;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): SpacingAtom {
-    return new SpacingAtom(json.command, json.style, context, json.width, {
+  static fromJson(json: AtomJson): SpacingAtom {
+    return new SpacingAtom(json.command, json.style, json.width, {
       braced: json.braced,
     });
   }
@@ -44,7 +39,7 @@ export class SpacingAtom extends Atom {
     let result: Box;
     if (this.width !== undefined) {
       result = new Box(null, { classes: 'mspace' });
-      result.left = convertGlueOrDimensionToEm(this.width);
+      result.left = context.toEm(this.width) ?? 0;
     } else {
       const spacingCls =
         {
@@ -66,16 +61,17 @@ export class SpacingAtom extends Atom {
 
   serialize(_options: ToLatexOptions): string {
     // Two kinds of spacing commands:
-    // - `\hskip`, `\kern`, `\hspace` and `hspace*` which take one glue argument:
+    // - `\hskip`, `\kern`, `\hspace` and `hspace*` which take one glue
+    //     argument:
     // i.e. `\hspace1em` or `\hspace{1em}`.
     // - `\quad`, etc... which take no parameters.
     const command = this.command ?? '';
 
     if (this.width === undefined) return command;
 
-    // @todo Note: when the value is a register, it should not be braced
-    if (this._braced)
-      return `${command}{${serializeGlueOrDimenstion(this.width)}}`;
-    return `${command}${serializeGlueOrDimenstion(this.width)}`;
+    // When the value is a register, it should not be braced
+    if (this._braced && !('register' in this.width))
+      return `${command}{${serializeLatexValue(this.width)}}`;
+    return `${command}${serializeLatexValue(this.width)}`;
   }
 }

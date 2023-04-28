@@ -122,7 +122,7 @@ function makeSmallDelim(
   center: boolean,
   options: {
     classes: string;
-    type: '' | 'open' | 'close' | 'inner';
+    type: 'open' | 'close' | 'inner';
   }
 ): Box {
   const text = new Box(getSymbolValue(delim), { fontFamily: 'Main-Regular' });
@@ -145,17 +145,20 @@ function makeLargeDelim(
   parentContext: Context,
   options: {
     classes?: string;
-    type?: '' | 'open' | 'close' | 'inner';
+    type?: 'open' | 'close' | 'inner';
     mode?: ParseMode;
     style?: Style;
   }
 ): Box {
   // Delimiters ignore the mathstyle, so use a 'textstyle' context.
-  const context = new Context(parentContext, options?.style, 'textstyle');
+  const context = new Context(
+    { parent: parentContext, mathstyle: 'textstyle' },
+    options?.style
+  );
   const result = new Box(getSymbolValue(delim), {
     fontFamily: `Size${size}-Regular`,
     classes: `ML__delim-size${size}`,
-    type: options.type || 'none',
+    type: options.type ?? 'skip',
   }).wrap(context);
 
   if (center) result.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
@@ -492,7 +495,7 @@ export function makeSizedDelim(
   if (delim === undefined || delim === '.') {
     // Empty delimiters still count as elements, even though they don't
     // show anything.
-    return makeNullDelimiter(context, options.type ?? 'inner', options.classes);
+    return makeNullDelimiter(context, options.classes);
   }
 
   // < and > turn into \langle and \rangle in delimiters
@@ -637,7 +640,7 @@ function traverseSequence(
  * traverse the sequences, and create a delimiter that the sequence tells us to.
  */
 export function makeCustomSizedDelim(
-  type: '' | 'open' | 'close' | 'inner',
+  type: 'open' | 'close' | 'inner',
   delim: string,
   height: number,
   center: boolean,
@@ -649,7 +652,7 @@ export function makeCustomSizedDelim(
   }
 ): Box {
   if (!delim || delim.length === 0 || delim === '.')
-    return makeNullDelimiter(context, type);
+    return makeNullDelimiter(context);
 
   if (delim === '<' || delim === '\\lt') delim = '\\langle';
   else if (delim === '>' || delim === '\\gt') delim = '\\rangle';
@@ -669,14 +672,14 @@ export function makeCustomSizedDelim(
     context
   );
   const delimContext = new Context(
-    context,
-    options?.style,
-    delimType.mathstyle
+    { parent: context, mathstyle: delimType.mathstyle },
+    options?.style
   );
   // Depending on the sequence element we decided on,
   // call the appropriate function.
   if (delimType.type === 'small') {
     return makeSmallDelim(delim, delimContext, center, {
+      ...options,
       type,
       classes: 'ML__small-delim ' + (options?.classes ?? ''),
     });
@@ -710,7 +713,7 @@ export function makeLeftRightDelim(
   options?: { classes?: string; style?: Style; mode?: ParseMode }
 ): Box {
   // If this is the empty delimiter, return a null fence
-  if (delim === '.') return makeNullDelimiter(context, type, options?.classes);
+  if (delim === '.') return makeNullDelimiter(context, options?.classes);
 
   // We always center \left/\right delimiters, so the axis is always shifted
   const axisHeight = AXIS_HEIGHT * context.scalingFactor;
@@ -730,17 +733,12 @@ export function makeLeftRightDelim(
   return makeCustomSizedDelim(type, delim, totalHeight, true, context, options);
 }
 
-export function makeNullDelimiter(
-  parentContext: Context,
-  type: '' | 'open' | 'close' | 'inner',
-  classes?: string
-): Box {
-  // The null delimiter has a width, specified by class 'nulldelimiter'
-
+export function makeNullDelimiter(parent: Context, classes?: string): Box {
   // The size of the null delimiter is independent of the current mathstyle
-  const context = new Context(parentContext, undefined, 'textstyle');
-  return new Box(null, {
+  const box = new Box(null, {
     classes: ' nulldelimiter ' + (classes ?? ''),
-    type: 'none',
-  }).wrap(context);
+    type: 'skip',
+  });
+  box.width = parent.getRegisterAsEm('nulldelimiterspace');
+  return box.wrap(new Context({ parent, mathstyle: 'textstyle' }));
 }

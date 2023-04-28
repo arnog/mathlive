@@ -3,7 +3,7 @@ import type { MathstyleName, ParseMode, Style } from '../public/core-types';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import type { Box } from '../core/box';
-import type { GlobalContext, BoxType } from '../core/types';
+import type { BoxType } from '../core/types';
 
 export class GroupAtom extends Atom {
   latexOpen?: string;
@@ -17,11 +17,9 @@ export class GroupAtom extends Atom {
   renderClass?: string;
   mathstyleName?: MathstyleName;
   boxType?: BoxType;
-  break: boolean;
 
   constructor(
     arg: Atom[] | undefined,
-    context: GlobalContext,
     options?: {
       command?: string;
       boxType?: BoxType;
@@ -40,7 +38,7 @@ export class GroupAtom extends Atom {
       serialize?: (atom: GroupAtom, options: ToLatexOptions) => string;
     }
   ) {
-    super('group', context, {
+    super('group', {
       command: options?.command,
       mode: options?.mode ?? 'math',
       serialize: options?.serialize,
@@ -66,7 +64,6 @@ export class GroupAtom extends Atom {
     this.boxType = options?.boxType;
     this.skipBoundary = true;
     this.captureSelection = options?.captureSelection ?? false;
-    this.break = options?.break ?? false;
     this.displayContainsHighlight = false;
 
     // French decimal point
@@ -74,8 +71,8 @@ export class GroupAtom extends Atom {
       this.captureSelection = true;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): GroupAtom {
-    return new GroupAtom(json.body, context, json as any);
+  static fromJson(json: AtomJson): GroupAtom {
+    return new GroupAtom(json.body, json as any);
   }
 
   toJson(): AtomJson {
@@ -90,7 +87,6 @@ export class GroupAtom extends Atom {
     if (this.renderClass) options.renderClass = this.renderClass;
     if (this.boxType) options.boxType = this.boxType;
     if (this.captureSelection) options.captureSelection = true;
-    if (this.break) options.break = true;
 
     return { ...super.toJson(), ...options };
   }
@@ -102,7 +98,10 @@ export class GroupAtom extends Atom {
     // Note that the mathstyle property is optional and could be undefined
     // If that's the case, clone() returns a clone of the
     // context with the same mathstyle.
-    const localContext = new Context(context, this.style, this.mathstyleName);
+    const localContext = new Context(
+      { parent: context, mathstyle: this.mathstyleName },
+      this.style
+    );
     const classes =
       this.customClass || this.renderClass
         ? `${this.customClass ?? ''} ${this.renderClass ?? ''}`

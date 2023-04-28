@@ -1,5 +1,4 @@
 import type { ParseMode, Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { X_HEIGHT } from '../core/font-metrics';
@@ -13,7 +12,6 @@ import { latexCommand } from '../core/tokenizer';
 export class SurdAtom extends Atom {
   constructor(
     command: string,
-    context: GlobalContext,
     options: {
       mode?: ParseMode;
       body: Atom[];
@@ -21,7 +19,7 @@ export class SurdAtom extends Atom {
       style: Style;
     }
   ) {
-    super('surd', context, {
+    super('surd', {
       command,
       mode: options.mode ?? 'math',
       style: options.style,
@@ -31,8 +29,8 @@ export class SurdAtom extends Atom {
     this.above = options.index;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): SurdAtom {
-    return new SurdAtom(json.command, context, {
+  static fromJson(json: AtomJson): SurdAtom {
+    return new SurdAtom(json.command, {
       ...(json as any),
       index: json.above,
     });
@@ -64,11 +62,17 @@ export class SurdAtom extends Atom {
     // > set box x to the nucleus in style C′
     // TeXBook p.443
 
-    const innerContext = new Context(parentContext, this.style, 'cramp');
+    // > Math accents, and the operations \sqrt and \overline, change
+    // > uncramped styles to their cramped counterparts; for example, D
+    // > changes to D′, but D′ stays as it was. -- TeXBook p. 152
+    const innerContext = new Context(
+      { parent: parentContext, mathstyle: 'cramp' },
+      this.style
+    );
     const innerBox: Box =
       Atom.createBox(innerContext, this.body, {
         style: this.style,
-        newList: true,
+        type: 'inner', // In TeX, 'rac'
       }) ?? new Box(null);
 
     //
@@ -100,13 +104,13 @@ export class SurdAtom extends Atom {
     );
 
     const minDelimiterHeight = innerTotalHeight + lineClearance + ruleWidth;
-    const delimContext = new Context(parentContext, this.style);
+    const delimContext = new Context({ parent: parentContext }, this.style);
     const selectClasses = this.isSelected ? ' ML__selected' : '';
     const delimBox = this.bind(
       delimContext,
       new Box(
         makeCustomSizedDelim(
-          '',
+          'inner', // @todo not sure if that's the right type
           '\\surd',
           minDelimiterHeight,
           false,
@@ -161,9 +165,12 @@ export class SurdAtom extends Atom {
     // > \def\root#1\of{\setbox\rootbox=
     // > \hbox{$\m@th \scriptscriptstyle{#1}$}\mathpalette\r@@t}
     const indexBox = Atom.createBox(
-      new Context(parentContext, this.style, 'scriptscriptstyle'),
+      new Context(
+        { parent: parentContext, mathstyle: 'scriptscriptstyle' },
+        this.style
+      ),
       this.above,
-      { style: this.style, newList: true }
+      { style: this.style, type: 'skip' }
     );
 
     if (!indexBox) {
@@ -193,13 +200,12 @@ export class SurdAtom extends Atom {
     // kerning
     const result = new Box(
       [
-        new Box(indexStack, { classes: 'ML__sqrt-index', newList: true }),
+        new Box(indexStack, { classes: 'ML__sqrt-index', type: 'skip' }),
         delimBox,
         bodyBox,
       ],
       {
         type: 'inner',
-        newList: true,
         classes: this.containsCaret ? 'ML__contains-caret' : '',
       }
     );

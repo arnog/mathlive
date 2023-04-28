@@ -10,14 +10,15 @@
 
 import { Atom } from '../core/atom-class';
 
+import '../core-definitions/definitions';
+
 import type {
   ComputeEngine,
   SemiBoxedExpression,
 } from '@cortex-js/compute-engine';
 import { toMathML } from '../addons/math-ml';
-import { Box, adjustInterAtomSpacing, coalesce, makeStruts } from '../core/box';
+import { Box, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
-import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { parseLatex } from '../core/parser';
 import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
 import { Expression } from './mathfield-element';
@@ -29,7 +30,8 @@ import { parseMathString } from '../editor/parse-math-string';
 import type { LatexSyntaxError, ParseMode } from './core-types';
 
 import '../core/modes';
-import { defaultGlobalContext } from '../core/context-utils';
+import { getDefaultContext } from '../core/context-utils';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 
 /**
  * Convert a LaTeX string to a string of HTML markup.
@@ -72,18 +74,27 @@ export function convertLatexToMarkup(
   options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
     format?: string;
+    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
   }
 ): string {
-  options = options ?? {};
+  options ??= {};
   options.mathstyle = options.mathstyle ?? 'displaystyle';
 
-  const globalContext = defaultGlobalContext();
+  const context = new Context({
+    from: {
+      ...getDefaultContext(),
+      renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
+      letterShapeStyle: options?.letterShapeStyle ?? 'tex',
+    },
+    mathstyle: options.mathstyle,
+  });
 
   //
   // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
   //
-  const root = new Atom('root', globalContext);
-  root.body = parseLatex(text, globalContext, {
+  const root = new Atom('root');
+  root.body = parseLatex(text, {
+    context,
     parseMode: 'math',
     mathstyle: options.mathstyle,
   });
@@ -92,47 +103,31 @@ export function convertLatexToMarkup(
   // 2. Transform the math atoms into elementary boxes
   // for example from genfrac to VBox.
   //
-  const context = new Context(
-    {
-      registers: globalContext.registers,
-      renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
-    },
-    {
-      fontSize: DEFAULT_FONT_SIZE,
-      letterShapeStyle: globalContext.letterShapeStyle,
-    },
-    options.mathstyle
-  );
   const box = root.render(context);
 
   if (!box) return '';
 
   //
-  // 3. Adjust to `mord` according to TeX spacing rules
-  //
-  adjustInterAtomSpacing(box, context);
-
-  //
-  // 2. Simplify by coalescing adjacent boxes
+  // 3. Simplify by coalescing adjacent boxes
   //    for example, from <span>1</span><span>2</span>
   //    to <span>12</span>
   //
-  coalesce(box);
+  coalesce(applyInterBoxSpacing(box, context));
 
   //
   // 4. Wrap the expression with struts
   //
-  const wrapper = makeStruts(box, { classes: 'ML__mathlive' });
+  const struts = makeStruts(box, { classes: 'ML__mathlive' });
 
   //
   // 5. Generate markup
   //
 
-  return wrapper.toMarkup();
+  return struts.toMarkup();
 }
 
 export function validateLatex(s: string): LatexSyntaxError[] {
-  return validateLatexInternal(s, defaultGlobalContext());
+  return validateLatexInternal(s, { context: getDefaultContext() });
 }
 
 /**
@@ -154,7 +149,7 @@ export function convertLatexToMathMl(
   options: { generateID?: boolean } = {}
 ): string {
   return toMathML(
-    parseLatex(latex, defaultGlobalContext(), {
+    parseLatex(latex, {
       parseMode: 'math',
       args: () => '', // Prevent #0 arguments to be replaced with placeholder (default behavior)
       mathstyle: 'displaystyle',
@@ -177,7 +172,7 @@ export function convertLatexToMathMl(
  * @keywords convert, latex, speech, speakable, text, speakable text
  */
 export function convertLatexToSpeakableText(latex: string): string {
-  const atoms = parseLatex(latex, defaultGlobalContext(), {
+  const atoms = parseLatex(latex, {
     parseMode: 'math',
     mathstyle: 'displaystyle',
   });
@@ -208,11 +203,10 @@ export function serializeMathJsonToLatex(json: Expression): string {
 
 export function convertLatexToAsciiMath(
   latex: string,
-  mode: ParseMode = 'math'
+  parseMode: ParseMode = 'math'
 ): string {
-  const context = defaultGlobalContext();
-  const root = new Atom('root', context);
-  root.body = parseLatex(latex, context, { parseMode: mode });
+  const root = new Atom('root');
+  root.body = parseLatex(latex, { parseMode });
   return atomToAsciiMath(root);
 }
 

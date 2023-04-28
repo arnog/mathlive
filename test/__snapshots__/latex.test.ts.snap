@@ -2,21 +2,21 @@
 
 exports[`ARGUMENTS 0/ "\\\\frac" renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.68em"></span><span class="ML__strut--bottom" style="height:1.37em;vertical-align:-0.68em"></span><span class="ML__base"><span class="mfrac"><span class="nulldelimiter"></span><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.68em"><span class="ML__center" style="top:-2.31em"><span class="pstrut" style="height:3em"></span><span><span> </span></span></span><span style="top:-3.21em"><span class="pstrut" style="height:3em"></span><span class="ML__frac-line"></span></span><span class="ML__center" style="top:-3.67em"><span class="pstrut" style="height:3em"></span><span><span> </span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.69em"></span></span></span><span class="nulldelimiter"></span></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.68em"></span><span class="ML__strut--bottom" style="height:1.37em;vertical-align:-0.68em"></span><span class="ML__base"><span class="mfrac"><span class="nulldelimiter open" style="width:0.12em"></span><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.68em"><span class="ML__center" style="top:-2.31em"><span class="pstrut" style="height:3em"></span></span><span style="top:-3.21em"><span class="pstrut" style="height:3em"></span><span class="ML__frac-line"></span></span><span class="ML__center" style="top:-3.67em"><span class="pstrut" style="height:3em"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.69em"></span></span></span><span class="nulldelimiter close" style="width:0.12em"></span></span></span></span>",
   "no-error",
 ]
 `;
 
 exports[`ARGUMENTS 1/ "\\\\frac{}" renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.68em"></span><span class="ML__strut--bottom" style="height:1.37em;vertical-align:-0.68em"></span><span class="ML__base"><span class="mfrac"><span class="nulldelimiter"></span><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.68em"><span class="ML__center" style="top:-2.31em"><span class="pstrut" style="height:3em"></span><span><span> </span></span></span><span style="top:-3.21em"><span class="pstrut" style="height:3em"></span><span class="ML__frac-line"></span></span><span class="ML__center" style="top:-3.67em"><span class="pstrut" style="height:3em"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.69em"></span></span></span><span class="nulldelimiter"></span></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.68em"></span><span class="ML__strut--bottom" style="height:1.37em;vertical-align:-0.68em"></span><span class="ML__base"><span class="mfrac"><span class="nulldelimiter open" style="width:0.12em"></span><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.68em"><span class="ML__center" style="top:-2.31em"><span class="pstrut" style="height:3em"></span></span><span style="top:-3.21em"><span class="pstrut" style="height:3em"></span><span class="ML__frac-line"></span></span><span class="ML__center" style="top:-3.67em"><span class="pstrut" style="height:3em"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.69em"></span></span></span><span class="nulldelimiter close" style="width:0.12em"></span></span></span></span>",
   "no-error",
 ]
 `;
 
 exports[`ARGUMENTS 2/ "\\\\frac{}{}" renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.68em"></span><span class="ML__strut--bottom" style="height:1.37em;vertical-align:-0.68em"></span><span class="ML__base"><span class="mfrac"><span class="nulldelimiter"></span><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.68em"><span class="ML__center" style="top:-1.33em"><span class="pstrut" style="height:2.02em"></span></span><span style="top:-2.23em"><span class="pstrut" style="height:2.02em"></span><span class="ML__frac-line"></span></span><span class="ML__center" style="top:-2.69em"><span class="pstrut" style="height:2.02em"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.69em"></span></span></span><span class="nulldelimiter"></span></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.68em"></span><span class="ML__strut--bottom" style="height:1.37em;vertical-align:-0.68em"></span><span class="ML__base"><span class="mfrac"><span class="nulldelimiter open" style="width:0.12em"></span><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.68em"><span class="ML__center" style="top:-1.33em"><span class="pstrut" style="height:2.02em"></span></span><span style="top:-2.23em"><span class="pstrut" style="height:2.02em"></span><span class="ML__frac-line"></span></span><span class="ML__center" style="top:-2.69em"><span class="pstrut" style="height:2.02em"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.69em"></span></span></span><span class="nulldelimiter close" style="width:0.12em"></span></span></span></span>",
   "no-error",
 ]
 `;
@@ -93,7 +93,7 @@ exports[`BASIC PARSING 9/ "ab" renders correctly 1`] = `
 
 exports[`BASIC PARSING 10/ "a~b" renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__base"><span class="ML__mathit">ab</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__base"><span class="ML__mathit">a</span><span class="ML__cmr"> </span><span class="ML__mathit">b</span></span></span>",
   "no-error",
 ]
 `;

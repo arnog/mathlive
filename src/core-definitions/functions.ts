@@ -8,8 +8,6 @@ import { DelimAtom } from '../core-atoms/delim';
 
 import { Argument, argAtoms, defineFunction } from './definitions-utils';
 import { GroupAtom } from '../core-atoms/group';
-import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 
 defineFunction(
@@ -62,8 +60,8 @@ defineFunction(
   {
     isFunction: true,
     ifMode: 'math',
-    createAtom: (command, context, style) =>
-      new OperatorAtom(command, command.slice(1), context, {
+    createAtom: (command, _args, style) =>
+      new OperatorAtom(command, command.slice(1), {
         limits: 'adjacent',
         isFunction: true,
         variant: 'main',
@@ -75,11 +73,10 @@ defineFunction(
 
 defineFunction(['liminf', 'limsup'], '', {
   ifMode: 'math',
-  createAtom: (command, context, style) =>
+  createAtom: (command, _args, style) =>
     new OperatorAtom(
       command,
       { '\\liminf': 'lim inf', '\\limsup': 'lim sup' }[command]!,
-      context,
       {
         limits: 'over-under',
         variant: 'main',
@@ -90,8 +87,8 @@ defineFunction(['liminf', 'limsup'], '', {
 
 defineFunction(['lim', 'mod'], '', {
   ifMode: 'math',
-  createAtom: (command, context, style) =>
-    new OperatorAtom(command, command.slice(1), context, {
+  createAtom: (command, _args, style) =>
+    new OperatorAtom(command, command.slice(1), {
       limits: 'over-under',
       variant: 'main',
       style,
@@ -102,8 +99,8 @@ defineFunction(['lim', 'mod'], '', {
 defineFunction(['det', 'max', 'min'], '', {
   ifMode: 'math',
   isFunction: true,
-  createAtom: (command, context, style) =>
-    new OperatorAtom(command, command.slice(1), context, {
+  createAtom: (command, _args, style) =>
+    new OperatorAtom(command, command.slice(1), {
       limits: 'over-under',
       isFunction: true,
       variant: 'main',
@@ -114,13 +111,9 @@ defineFunction(['det', 'max', 'min'], '', {
 defineFunction(['ang'], '{:math}', {
   ifMode: 'math',
   isFunction: true,
-  createAtom: (_command, context, style, args) =>
+  createAtom: (_command, args, style) =>
     new GroupAtom(
-      [
-        ...argAtoms(args[0]),
-        new Atom('mord', context, { value: '\u00b0', style }),
-      ],
-      context,
+      [...argAtoms(args[0]), new Atom('mord', { value: '\u00b0', style })],
       {
         mode: 'math',
         latexOpen: '\\ang{',
@@ -133,8 +126,8 @@ defineFunction(['ang'], '{:math}', {
 // Root
 defineFunction('sqrt', '[index:auto]{radicand:expression}', {
   ifMode: 'math',
-  createAtom: (command, context, style, args) =>
-    new SurdAtom(command, context, {
+  createAtom: (command, args, style) =>
+    new SurdAtom(command, {
       body: argAtoms(args[1]),
       index: args[0] ? argAtoms(args[0]) : undefined,
       style,
@@ -147,7 +140,7 @@ defineFunction(
   '{:expression}{:expression}',
   {
     ifMode: 'math',
-    createAtom: (command, context, style, args) => {
+    createAtom: (command, args, style) => {
       const genfracOptions: GenfracOptions = { style };
       switch (command) {
         case '\\dfrac':
@@ -186,9 +179,8 @@ defineFunction(
 
       return new GenfracAtom(
         command,
-        !args[0] ? [new PlaceholderAtom(context)] : argAtoms(args[0]),
-        !args[1] ? [new PlaceholderAtom(context)] : argAtoms(args[1]),
-        context,
+        !args[0] ? [new PlaceholderAtom()] : argAtoms(args[0]),
+        !args[1] ? [new PlaceholderAtom()] : argAtoms(args[1]),
         {
           ...genfracOptions,
           serialize: (atom, options) => {
@@ -208,8 +200,8 @@ defineFunction(
 
 defineFunction(['brace', 'brack'], '', {
   infix: true,
-  createAtom: (command, context, style, args) =>
-    new GenfracAtom(command, argAtoms(args[0]), argAtoms(args[1]), context, {
+  createAtom: (command, args, style) =>
+    new GenfracAtom(command, argAtoms(args[0]), argAtoms(args[1]), {
       hasBarLine: false,
       leftDelim: command === '\\brace' ? '\\lbrace' : '\\lbrack',
       rightDelim: command === '\\brace' ? '\\rbrace' : '\\rbrack',
@@ -225,7 +217,7 @@ defineFunction(['brace', 'brack'], '', {
 
 defineFunction(['over', 'atop', 'choose'], '', {
   infix: true,
-  createAtom: (command, context, style, args) => {
+  createAtom: (command, args, style) => {
     let leftDelim: string | undefined = undefined;
     let rightDelim: string | undefined = undefined;
 
@@ -234,24 +226,18 @@ defineFunction(['over', 'atop', 'choose'], '', {
       rightDelim = ')';
     }
 
-    return new GenfracAtom(
-      command,
-      argAtoms(args[0]),
-      argAtoms(args[1]),
-      context,
-      {
-        hasBarLine: command === '\\over',
-        leftDelim,
-        rightDelim,
-        style,
-        serialize: (atom, options) =>
-          joinLatex([
-            atom.aboveToLatex(options),
-            atom.command,
-            atom.belowToLatex(options),
-          ]),
-      }
-    );
+    return new GenfracAtom(command, argAtoms(args[0]), argAtoms(args[1]), {
+      hasBarLine: command === '\\over',
+      leftDelim,
+      rightDelim,
+      style,
+      serialize: (atom, options) =>
+        joinLatex([
+          atom.aboveToLatex(options),
+          atom.command,
+          atom.belowToLatex(options),
+        ]),
+    });
   },
 });
 
@@ -262,11 +248,10 @@ defineFunction(
     infix: true,
     createAtom: (
       command,
-      context,
-      style,
-      args: [Argument | null, Argument | null, string | null, string | null]
+      args: [Argument | null, Argument | null, string | null, string | null],
+      style
     ) =>
-      new GenfracAtom(command, argAtoms(args[0]), argAtoms(args[1]), context, {
+      new GenfracAtom(command, argAtoms(args[0]), argAtoms(args[1]), {
         leftDelim: args[2] ?? '.',
         rightDelim: args[3] ?? '.',
         hasBarLine: false,
@@ -286,13 +271,8 @@ defineFunction('\\slashed'
 
 defineFunction('pdiff', '{numerator}{denominator}', {
   ifMode: 'math',
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom =>
-    new GenfracAtom(command, argAtoms(args[0]), argAtoms(args[1]), context, {
+  createAtom: (command, args, style) =>
+    new GenfracAtom(command, argAtoms(args[0]), argAtoms(args[1]), {
       hasBarLine: true,
       numerPrefix: '\u2202',
       denomPrefix: '\u2202',
@@ -320,7 +300,7 @@ defineFunction(
   '',
   {
     ifMode: 'math',
-    createAtom: (command, context, style) =>
+    createAtom: (command, args, style) =>
       new OperatorAtom(
         command,
         {
@@ -339,7 +319,6 @@ defineFunction(
           bigsqcup: '\u2A06',
           smallint: '\u222B',
         }[command.slice(1)]!,
-        context,
         {
           isExtensibleSymbol: true,
           limits: 'auto',
@@ -353,8 +332,8 @@ defineFunction(
 // Non-extensible symbol
 defineFunction('smallint', '', {
   ifMode: 'math',
-  createAtom: (command, context, style) =>
-    new OperatorAtom(command, '\u222B', context, {
+  createAtom: (command, args, style) =>
+    new OperatorAtom(command, '\u222B', {
       limits: 'adjacent',
       isExtensibleSymbol: false,
       style,
@@ -387,8 +366,8 @@ const EXTENSIBLE_SYMBOLS = {
 };
 defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
   ifMode: 'math',
-  createAtom: (command, context, style) =>
-    new OperatorAtom(command, EXTENSIBLE_SYMBOLS[command.slice(1)], context, {
+  createAtom: (command, args, style) =>
+    new OperatorAtom(command, EXTENSIBLE_SYMBOLS[command.slice(1)], {
       limits: 'adjacent',
       isExtensibleSymbol: true,
       style,
@@ -400,11 +379,10 @@ defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
 
 defineFunction(['Re', 'Im'], '', {
   ifMode: 'math',
-  createAtom: (command, context, style) =>
+  createAtom: (command, args, style) =>
     new OperatorAtom(
       command,
       { '\\Re': '\u211C', '\\Im': '\u2111' }[command]!,
-      context,
       {
         limits: 'adjacent',
         style,
@@ -416,8 +394,8 @@ defineFunction(['Re', 'Im'], '', {
 
 defineFunction('middle', '{:delim}', {
   ifMode: 'math',
-  createAtom: (command, context, style, args: [string | null]) =>
-    new DelimAtom(command, args[0] ?? '|', context, { size: 1, style }),
+  createAtom: (command, args: [string | null], style) =>
+    new DelimAtom(command, args[0] ?? '|', { size: 1, style }),
 });
 
 // TODO

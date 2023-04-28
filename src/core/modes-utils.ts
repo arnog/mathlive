@@ -3,7 +3,10 @@ import type { GroupAtom } from '../core-atoms/group';
 import { Atom, ToLatexOptions } from './atom-class';
 import type { Box } from './box';
 import type { ParseMode, Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
+import {
+  TokenDefinition,
+  getDefinition,
+} from '../core-definitions/definitions-utils';
 
 export abstract class Mode {
   static _registry: Record<string, Mode> = {};
@@ -14,10 +17,13 @@ export abstract class Mode {
   static createAtom(
     mode: ParseMode,
     command: string,
-    context: GlobalContext,
     style?: Style
   ): Atom | null {
-    return Mode._registry[mode].createAtom(command, context, style);
+    return Mode._registry[mode].createAtom(
+      command,
+      getDefinition(command, mode),
+      style
+    );
   }
 
   // `run` should be a run (sequence) of atoms all with the same
@@ -34,7 +40,7 @@ export abstract class Mode {
 
   abstract createAtom(
     command: string,
-    context: GlobalContext,
+    info: TokenDefinition | null,
     style?: Style
   ): Atom | null;
 

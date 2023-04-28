@@ -73,9 +73,7 @@ export class ModelPrivate implements Model {
     this.mathfield = target as MathfieldPrivate;
     this.suppressChangeNotifications = false;
 
-    this.root = new Atom('root', target as MathfieldPrivate, {
-      mode: options.mode,
-    });
+    this.root = new Atom('root', { mode: options.mode });
     this.root.body = [];
 
     this.setListeners(listeners);
@@ -216,7 +214,7 @@ export class ModelPrivate implements Model {
     if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
     // Restore the content and selection
     if (contentWillChange(this, changeOption)) {
-      this.root = fromJson(state.content, this.mathfield);
+      this.root = fromJson(state.content);
       this.selection = state.selection;
 
       contentDidChange(this, changeOption);
@@ -422,7 +420,7 @@ export class ModelPrivate implements Model {
       } else {
         // If the root is an array, replace with a plain root
         result = (this.root as ArrayAtom).cells.flat();
-        this.root = new Atom('root', this.root.context);
+        this.root = new Atom('root');
         this.root.body = [];
         return result;
       }

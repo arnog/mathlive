@@ -1,4 +1,4 @@
-import { adjustInterAtomSpacing, Box, makeStruts } from '../core/box';
+import { Box, makeStruts } from '../core/box';
 
 import {
   Rect,
@@ -9,9 +9,11 @@ import {
 } from './utils';
 import type { MathfieldPrivate } from './mathfield-private';
 
-import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
 import { gFontsState } from '../core/fonts';
+import { Context } from 'core/context';
+import { Atom } from 'core/atom-class';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -52,9 +54,9 @@ function makeBox(
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): Box {
   renderOptions = renderOptions ?? {};
-  const context = new Context(
-    {
-      registers: mathfield.registers,
+  const context = new Context({
+    from: {
+      ...mathfield.context,
       atomIdsSettings: {
         // Using the hash as a seed for the ID
         // keeps the IDs the same until the content of the field changes.
@@ -71,21 +73,23 @@ function makeBox(
         // consecutive digits to represent a number.
         groupNumbers: renderOptions.forHighlighting ?? false,
       },
+      letterShapeStyle: mathfield.options.letterShapeStyle as
+        | 'tex'
+        | 'french'
+        | 'iso'
+        | 'upright',
     },
-    {
-      fontSize: DEFAULT_FONT_SIZE,
-      letterShapeStyle: mathfield.options.letterShapeStyle,
-    },
-    mathfield.options.defaultMode === 'inline-math'
-      ? 'textstyle'
-      : 'displaystyle'
-  );
+    mathstyle:
+      mathfield.options.defaultMode === 'inline-math'
+        ? 'textstyle'
+        : 'displaystyle',
+  });
   const base = mathfield.model.root.render(context)!;
 
   //
   // 3. Construct struts around the boxes
   //
-  const wrapper = makeStruts(adjustInterAtomSpacing(base, context), {
+  const wrapper = makeStruts(applyInterBoxSpacing(base, context), {
     classes: mathfield.hasEditablePrompts
       ? 'ML__mathlive ML__prompting'
       : 'ML__mathlive',

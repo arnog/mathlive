@@ -1,11 +1,8 @@
 import { Atom } from '../core/atom-class';
 import { AccentAtom } from '../core-atoms/accent';
 import { OverunderAtom } from '../core-atoms/overunder';
-import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import {
-  Argument,
   argAtoms,
   defineFunction,
   parseArgAsString,
@@ -28,16 +25,10 @@ const ACCENTS = {
 };
 
 defineFunction(Object.keys(ACCENTS), '{body:auto}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom => {
+  createAtom: (command, args, style): Atom => {
     return new AccentAtom(
       command,
-      !args[0] ? [new PlaceholderAtom(context)] : argAtoms(args[0]),
-      context,
+      !args[0] ? [new PlaceholderAtom()] : argAtoms(args[0]),
       {
         accentChar: ACCENTS[command.slice(1)],
         style,
@@ -47,15 +38,10 @@ defineFunction(Object.keys(ACCENTS), '{body:auto}', {
 });
 
 defineFunction(['widehat', 'widecheck', 'widetilde'], '{body:auto}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom => {
+  createAtom: (command, args, style): Atom => {
     // Pick the correct SVG template based on the length of the body
     const baseString = parseArgAsString(argAtoms(args[0]));
-    return new AccentAtom(command, argAtoms(args[0]), context, {
+    return new AccentAtom(command, argAtoms(args[0]), {
       style,
       svgAccent:
         command.slice(1) +
@@ -67,26 +53,16 @@ defineFunction(['widehat', 'widecheck', 'widetilde'], '{body:auto}', {
 });
 
 defineFunction(['overarc', 'overparen', 'wideparen'], '{body:auto}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom => {
-    return new AccentAtom(command, argAtoms(args[0]), context, {
+  createAtom: (command, args, style): Atom => {
+    return new AccentAtom(command, argAtoms(args[0]), {
       style,
       svgAccent: 'overarc',
     });
   },
 });
 defineFunction(['underarc', 'underparen'], '{body:auto}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom => {
-    return new OverunderAtom(command, context, {
+  createAtom: (command, args, style): Atom => {
+    return new OverunderAtom(command, {
       body: argAtoms(args[0]),
       style,
       svgBelow: 'underarc',
@@ -95,19 +71,14 @@ defineFunction(['underarc', 'underparen'], '{body:auto}', {
 });
 
 defineFunction('utilde', '{body:auto}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom => {
+  createAtom: (command, args, style): Atom => {
     const baseString = parseArgAsString(argAtoms(args[0]));
     const accent =
       'widetilde' +
       (baseString.length > 5
         ? '4'
         : ['1', '1', '2', '2', '3', '3'][baseString.length]);
-    return new OverunderAtom(command, context, {
+    return new OverunderAtom(command, {
       body: argAtoms(args[0]),
       svgBelow: accent,
       style,
@@ -122,13 +93,8 @@ defineFunction('utilde', '{body:auto}', {
  */
 
 defineFunction('^', '{:string}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom =>
-    new Atom('mord', context, {
+  createAtom: (command, args, style): Atom =>
+    new Atom('mord', {
       command,
       isFunction: false,
       limits: 'adjacent',
@@ -151,13 +117,8 @@ defineFunction('^', '{:string}', {
 });
 
 defineFunction('`', '{:string}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom =>
-    new Atom('mord', context, {
+  createAtom: (command, args, style) =>
+    new Atom('mord', {
       command,
       isFunction: false,
       limits: 'adjacent',
@@ -180,13 +141,8 @@ defineFunction('`', '{:string}', {
 });
 
 defineFunction("'", '{:string}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom =>
-    new Atom('mord', context, {
+  createAtom: (command, args, style) =>
+    new Atom('mord', {
       command,
       isFunction: false,
       limits: 'adjacent',
@@ -209,13 +165,8 @@ defineFunction("'", '{:string}', {
 });
 
 defineFunction('~', '{:string}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom =>
-    new Atom('mord', context, {
+  createAtom: (command, args, style) =>
+    new Atom('mord', {
       command,
       isFunction: false,
       limits: 'adjacent',
@@ -229,13 +180,8 @@ defineFunction('~', '{:string}', {
 });
 
 defineFunction('c', '{:string}', {
-  createAtom: (
-    command: string,
-    context: GlobalContext,
-    style: Style,
-    args: Argument[]
-  ): Atom =>
-    new Atom('mord', context, {
+  createAtom: (command, args, style) =>
+    new Atom('mord', {
       command,
       isFunction: false,
       limits: 'adjacent',

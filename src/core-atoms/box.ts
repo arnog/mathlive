@@ -1,36 +1,30 @@
-import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
+import type { LatexValue, Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { convertDimensionToEm } from '../core/registers-utils';
-import { convertToDimension } from '../core/parser';
 
 export class BoxAtom extends Atom {
-  readonly framecolor?: string;
-  readonly verbatimFramecolor?: string;
-  readonly backgroundcolor?: string;
-  readonly verbatimBackgroundcolor?: string;
-  readonly padding?: string;
+  readonly framecolor?: LatexValue;
+  readonly backgroundcolor?: LatexValue;
+  readonly padding?: LatexValue;
+  readonly raise?: LatexValue; // Vertical offset (used by \raisebox)
   readonly border?: string;
 
   constructor(
     command: string,
     body: Atom[],
-    context: GlobalContext,
     options: {
-      framecolor?: string;
-      verbatimFramecolor?: string;
-      backgroundcolor?: string;
-      verbatimBackgroundcolor?: string;
-      padding?: string;
+      framecolor?: LatexValue;
+      backgroundcolor?: LatexValue;
+      padding?: LatexValue;
+      raise?: LatexValue;
       border?: string;
       style: Style;
       serialize?: (atom: BoxAtom, options: ToLatexOptions) => string;
     }
   ) {
-    super('box', context, {
+    super('box', {
       command,
       serialize: options.serialize,
       style: options.style,
@@ -38,48 +32,34 @@ export class BoxAtom extends Atom {
     this.body = body;
 
     this.framecolor = options.framecolor;
-    this.verbatimFramecolor = options.verbatimBackgroundcolor;
     this.backgroundcolor = options.backgroundcolor;
-    this.verbatimBackgroundcolor = options.verbatimBackgroundcolor;
     this.padding = options.padding;
     this.border = options.border;
   }
 
-  static fromJson(
-    json: { [key: string]: any },
-    context: GlobalContext
-  ): BoxAtom {
-    return new BoxAtom(json.command, json.body, context, json as any);
+  static fromJson(json: { [key: string]: any }): BoxAtom {
+    return new BoxAtom(json.command, json.body, json as any);
   }
 
   toJson(): AtomJson {
     return {
       ...super.toJson(),
       framecolor: this.framecolor,
-      verbatimFramecolor: this.verbatimFramecolor,
       backgroundcolor: this.backgroundcolor,
-      verbatimBackgroundcolor: this.verbatimBackgroundcolor,
       padding: this.padding,
+      raise: this.raise,
       border: this.border,
     };
   }
 
   render(parentContext: Context): Box | null {
-    const context = new Context(parentContext, this.style);
+    const context = new Context({ parent: parentContext }, this.style);
 
-    const fboxsep = convertDimensionToEm(
-      context.getRegisterAsDimension('fboxsep')
-    );
+    const fboxsep = context.getRegisterAsEm('fboxsep');
+
     // The padding extends outside of the base
-    const padding =
-      this.padding === undefined
-        ? fboxsep
-        : convertDimensionToEm(
-            convertToDimension(this.padding, {
-              ...this.context,
-              registers: parentContext.registers,
-            })
-          );
+    const padding = this.padding ? context.toEm(this.padding) : fboxsep;
+
     // Base is the main content "inside" the box
     const content = Atom.createBox(parentContext, this.body);
     if (!content) return null;
@@ -100,19 +80,21 @@ export class BoxAtom extends Atom {
     if (padding === 0) box.setStyle('width', '100%');
     else {
       box.setStyle('width', `calc(100% + ${2 * padding}em)`);
-      box.setStyle('top', fboxsep, 'em'); // empirical
       box.setStyle('left', -padding, 'em');
     }
 
-    if (this.backgroundcolor)
-      box.setStyle('background-color', this.backgroundcolor);
-
+    if (this.backgroundcolor) {
+      box.setStyle(
+        'background-color',
+        context.toColor(this.backgroundcolor) ?? 'transparent'
+      );
+    }
     if (this.framecolor) {
       box.setStyle(
         'border',
-        `${convertDimensionToEm(
-          context.getRegisterAsDimension('fboxrule')
-        )}em solid ${this.framecolor}`
+        `${context.getRegisterAsEm('fboxrule', 2)}em solid ${
+          context.toColor(this.framecolor) ?? 'black'
+        }`
       );
     }
 
@@ -120,8 +102,8 @@ export class BoxAtom extends Atom {
     // box.setStyle('top', /* width of the border */);
 
     base.setStyle('display', 'inline-block');
-    base.setStyle('height', content.height + content.depth, 'em');
-    base.setStyle('vertical-align', -padding, 'em');
+    base.setStyle('height', content.height + content.depth + 2 * padding, 'em');
+    base.setStyle('position', 'relative');
 
     // The result is a box that encloses the box and the base
     const result = new Box([box, base]);
@@ -136,9 +118,10 @@ export class BoxAtom extends Atom {
     result.depth = base.depth + padding;
     result.left = padding;
     result.right = padding;
-    result.setStyle('height', base.height + padding, 'em');
-    result.setStyle('top', base.depth - base.height, 'em');
-    result.setStyle('vertical-align', base.depth + padding, 'em');
+    result.setStyle('height', base.height + base.depth + 2 * padding, 'em');
+    result.setStyle('margin-top', -padding, 'em');
+    result.setStyle('top', base.depth - base.height + 2 * padding, 'em');
+    result.setStyle('vertical-align', base.depth + 2 * padding, 'em');
 
     if (this.caret) result.caret = this.caret;
 

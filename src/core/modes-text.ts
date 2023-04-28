@@ -6,8 +6,8 @@ import { Atom, ToLatexOptions } from './atom';
 import { Box } from './box';
 import { Mode, getPropertyRuns } from './modes-utils';
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 import { joinLatex, latexCommand } from './tokenizer';
+import { TokenDefinition } from 'core-definitions/definitions-utils';
 
 function join(
   segments: [string[], boolean][]
@@ -221,17 +221,15 @@ export class TextMode extends Mode {
 
   createAtom(
     command: string,
-    context: GlobalContext,
+    info: TokenDefinition,
     style?: Style
   ): Atom | null {
-    const info = context.getDefinition(command, 'text');
     if (!info) return null;
     if (info.definitionType === 'symbol') {
       return new TextAtom(
         command,
         String.fromCodePoint(info.codepoint),
-        style ?? {},
-        context
+        style ?? {}
       );
     }
     return null;

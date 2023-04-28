@@ -64,7 +64,7 @@ export class MathModeEditor extends ModeEditor {
         if (atomJson && Array.isArray(atomJson)) {
           mathfield.snapshot();
 
-          const atoms = fromJson(atomJson, mathfield);
+          const atoms = fromJson(atomJson);
           const { model } = mathfield;
           if (!model.selectionIsCollapsed)
             model.deleteAtoms(range(model.selection));
@@ -389,13 +389,19 @@ function convertStringToAtoms(
     if (!ce) return ['math-json', []];
 
     [format, s] = ['latex', ce.box(s as Expression).latex as string];
-    result = parseLatex(s, model.mathfield, { parseMode: 'math' });
+    result = parseLatex(s, {
+      context: model.mathfield.context,
+      parseMode: 'math',
+    });
   } else if (typeof s === 'string' && options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {
       format: 'ascii-math',
       inlineShortcuts: model.mathfield.options.inlineShortcuts,
     });
-    result = parseLatex(s, model.mathfield, { parseMode: 'math' });
+    result = parseLatex(s, {
+      context: model.mathfield.context,
+      parseMode: 'math',
+    });
 
     // Simplify result.
     if (format !== 'latex' && model.options.removeExtraneousParentheses)
@@ -411,7 +417,11 @@ function convertStringToAtoms(
     // If the whole string is bracketed by a mode shift command, remove it
     if (options.format === 'latex') [, s] = trimModeShiftCommand(s);
 
-    result = parseLatex(s, model.mathfield, { parseMode: 'math', args: args });
+    result = parseLatex(s, {
+      context: model.mathfield.context,
+      parseMode: 'math',
+      args: args,
+    });
 
     // Simplify result.
     if (options.format !== 'latex' && model.options.removeExtraneousParentheses)
@@ -676,7 +686,7 @@ export function insertSmartFence(
         body.pop();
         parent!.addChildrenAfter(
           [
-            new LeftRightAtom('left...right', body, parent!.context, {
+            new LeftRightAtom('left...right', body, {
               leftDelim: fence,
               rightDelim: rDelim,
             }),
@@ -779,15 +789,10 @@ export function insertSmartFence(
           model.offsetOf(atom),
         ]);
         body.shift();
-        const result = new LeftRightAtom(
-          'left...right',
-          body,
-          parent!.context,
-          {
-            leftDelim: targetLeftDelim,
-            rightDelim: fence,
-          }
-        );
+        const result = new LeftRightAtom('left...right', body, {
+          leftDelim: targetLeftDelim,
+          rightDelim: fence,
+        });
 
         parent!.addChildrenAfter([result], insertAfter);
         model.position = model.offsetOf(result);

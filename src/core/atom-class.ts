@@ -1,7 +1,11 @@
 import { isArray } from '../common/types';
 
-import type { ParseMode, Style, FontSize } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
+import type {
+  ParseMode,
+  Style,
+  FontSize,
+  LatexValue,
+} from '../public/core-types';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { boxType, Box } from './box';
@@ -14,7 +18,7 @@ import { Context } from './context';
 import { PrivateStyle, BoxType } from './types';
 
 /**
- * This data type is used as a serialized representation of the  atom tree.
+ * This data type is used as a serialized representation of the atom tree.
  * This is used by the Undo Manager to store the state of the mathfield.
  * While in many cases the LaTeX representation of the mathfield could be used
  * there are a few cases where the atom will carry additional information
@@ -107,6 +111,7 @@ export type AtomType =
   | 'leftright' // Used by the `\left` and `\right` commands
   | 'line' // Used by `\overline` and `\underline`
   | 'macro'
+  | 'macro-argument'
   | 'subsup' // A carrier for a superscript/subscript
   | 'overlap' // Display a symbol _over_ another
   | 'overunder' // Displays an annotation above or below a symbol
@@ -134,8 +139,8 @@ export type AtomType =
   | 'mrel'; // Relational operator: `=`, `\ne`, etc...
 
 export type BBoxParameter = {
-  backgroundcolor?: string;
-  padding?: string;
+  backgroundcolor?: LatexValue;
+  padding?: LatexValue;
   border?: string;
 };
 
@@ -147,8 +152,6 @@ export type BBoxParameter = {
  * are tracked by Box objects which are created by the `createBox()` function.
  */
 export class Atom {
-  context: GlobalContext;
-
   parent: Atom | undefined;
 
   // An atom can have multiple "branches" of children,
@@ -249,7 +252,6 @@ export class Atom {
 
   constructor(
     type: AtomType,
-    context: GlobalContext,
     options?: {
       command?: string;
       mode?: ParseMode;
@@ -262,7 +264,6 @@ export class Atom {
     }
   ) {
     this.type = type;
-    this.context = context;
     if (typeof options?.value === 'string') this.value = options.value;
     this.command = options?.command ?? this.value ?? '';
     this.mode = options?.mode ?? 'math';
@@ -282,10 +283,6 @@ export class Atom {
    *
    * @param parentContext Font family, variant, size, color, and other info useful
    * to render an expression
-   * @param options.newList - If true, for the purpose of calculating spacing
-   * between atoms, this list of atoms should be considered a new atom list,
-   * in the sense of TeX atom lists (i.e. don't consider preceding atoms
-   * to calculate spacing)
    */
   static createBox(
     parentContext: Context,
@@ -295,7 +292,6 @@ export class Atom {
       classes?: string;
       style?: Style;
       mode?: ParseMode;
-      newList?: boolean;
     }
   ): Box | null {
     if (!atoms) return null;
@@ -324,29 +320,24 @@ export class Atom {
     // There are multiple runs to handle
     //
     const boxes: Box[] = [];
-    let newList = options?.newList;
     for (const run of runs) {
-      const context = new Context(parentContext, {
-        color: run[0].style?.color,
-        backgroundColor: run[0].style?.backgroundColor,
-        fontSize: run[0].style?.fontSize,
-      });
-      const box = renderStyleRun(context, run, { newList });
+      const context = new Context(
+        { parent: parentContext },
+        {
+          color: run[0].style?.color,
+          backgroundColor: run[0].style?.backgroundColor,
+          fontSize: run[0].style?.fontSize,
+        }
+      );
+      const box = renderStyleRun(context, run);
 
-      if (box) {
-        newList = false;
-        boxes.push(box);
-      }
+      if (box) boxes.push(box);
     }
     if (boxes.length === 0) return null;
     if (boxes.length === 1 && !classes && !options?.type)
       return boxes[0].wrap(parentContext);
 
-    return new Box(boxes, {
-      classes,
-      type: options?.type,
-      newList: options?.newList,
-    }).wrap(parentContext);
+    return new Box(boxes, { classes, type: options?.type }).wrap(parentContext);
   }
 
   /**
@@ -360,8 +351,7 @@ export class Atom {
 
     if (typeof value === 'number' || typeof value === 'boolean')
       return value.toString();
-
-    if (typeof value === 'string') return value.replace(/\s/g, '~');
+    if (typeof value === 'string') return value;
 
     if (value === undefined) return '';
 
@@ -405,8 +395,8 @@ export class Atom {
     return undefined;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): Atom {
-    const result = new Atom(json.type, context, json as any);
+  static fromJson(json: AtomJson): Atom {
+    const result = new Atom(json.type, json as any);
     // Restore the branches
     for (const branch of NAMED_BRANCHES)
       if (json[branch]) result.setChildren(json[branch], branch);
@@ -769,7 +759,7 @@ export class Atom {
   }
 
   makeFirstAtom(branch: Branch): Atom {
-    const result = new Atom('first', this.context, { mode: this.mode });
+    const result = new Atom('first', { mode: this.mode });
     result.parent = this;
     result.parentBranch = branch;
     return result;
@@ -952,24 +942,22 @@ export class Atom {
   }
 
   /**
-   * Render this atom as an array of boxes.
+   * Render this atom as a box.
    *
    * The parent context (color, size...) will be applied
    * to the result.
    *
    */
-  render(parentContext: Context, options?: { newList: boolean }): Box | null {
+  render(parentContext: Context): Box | null {
     if (this.type === 'first' && !parentContext.atomIdsSettings) return null;
 
     //
     // 1. Render the body or value
     //
-    const context = new Context(parentContext, this.style);
-    let classes = '';
-    if (!this.parent) classes += ' ML__base';
+    const context = new Context({ parent: parentContext }, this.style);
+    let classes = !this.parent ? 'ML__base' : '';
     if (this.isSelected) classes += ' ML__selected';
-    const newList = options?.newList === true;
-    let result = this.createBox(context, { classes, newList });
+    let result = this.createBox(context, { classes });
     if (!result) return null;
 
     //
@@ -1006,8 +994,11 @@ export class Atom {
 
     let supShift = 0;
     if (superscript) {
-      const context = new Context(parentContext, undefined, 'superscript');
-      supBox = Atom.createBox(context, superscript, { newList: true });
+      const context = new Context({
+        parent: parentContext,
+        mathstyle: 'superscript',
+      });
+      supBox = Atom.createBox(context, superscript);
       if (!isCharacterBox) {
         supShift =
           base.height - parentContext.metrics.supDrop * context.scalingFactor;
@@ -1016,8 +1007,11 @@ export class Atom {
 
     let subShift = 0;
     if (subscript) {
-      const context = new Context(parentContext, undefined, 'subscript');
-      subBox = Atom.createBox(context, subscript, { newList: true });
+      const context = new Context({
+        parent: parentContext,
+        mathstyle: 'subscript',
+      });
+      subBox = Atom.createBox(context, subscript);
       if (!isCharacterBox) {
         subShift =
           base.depth + parentContext.metrics.subDrop * context.scalingFactor;
@@ -1113,7 +1107,7 @@ export class Atom {
   }
 
   attachLimits(
-    parentContext: Context,
+    ctx: Context,
     options: {
       base: Box;
       baseShift?: number;
@@ -1123,22 +1117,20 @@ export class Atom {
   ): Box {
     const above = this.superscript
       ? Atom.createBox(
-          new Context(parentContext, this.style, 'superscript'),
-          this.superscript,
-          { newList: true }
+          new Context({ parent: ctx, mathstyle: 'superscript' }, this.style),
+          this.superscript
         )
       : null;
     const below = this.subscript
       ? Atom.createBox(
-          new Context(parentContext, this.style, 'subscript'),
-          this.subscript,
-          { newList: true }
+          new Context({ parent: ctx, mathstyle: 'subscript' }, this.style),
+          this.subscript
         )
       : null;
 
-    if (!above && !below) return options.base.wrap(parentContext);
+    if (!above && !below) return options.base.wrap(ctx);
 
-    return makeLimitsStack(parentContext, { ...options, above, below });
+    return makeLimitsStack(ctx, { ...options, above, below });
   }
 
   /**
@@ -1165,13 +1157,7 @@ export class Atom {
   /**
    * Create a box with the specified body.
    */
-  createBox(
-    context: Context,
-    options?: {
-      classes?: string;
-      newList?: boolean;
-    }
-  ): Box {
+  createBox(context: Context, options?: { classes?: string }): Box {
     const value = this.value ?? this.body;
 
     // Get the right BoxType for this atom type
@@ -1207,14 +1193,12 @@ export class Atom {
               ) as FontSize,
             },
             classes,
-            newList: options?.newList,
           })
         : Atom.createBox(context, value, {
             type,
             mode: this.mode,
             style: this.style,
             classes,
-            newList: options?.newList,
           }) ?? new Box(null);
 
     // Set other attributes
@@ -1331,7 +1315,6 @@ function renderStyleRun(
     classes?: string;
     style?: Style;
     mode?: ParseMode;
-    newList?: boolean;
   }
 ): Box | null {
   function isText(atom: Atom): boolean {
@@ -1340,7 +1323,7 @@ function renderStyleRun(
 
   if (!atoms || atoms.length === 0) return null;
 
-  const context = new Context(parentContext, options?.style);
+  const context = new Context({ parent: parentContext }, options?.style);
 
   // In most cases we want to display selection,
   // except if the `atomIdsSettings.groupNumbers` flag is set which is used for
@@ -1348,10 +1331,9 @@ function renderStyleRun(
   const displaySelection = !context.atomIdsSettings?.groupNumbers;
 
   let boxes: Box[] = [];
-  let newList = options?.newList ?? false;
   if (atoms.length === 1) {
     const atom = atoms[0];
-    const box = atom.render(context, { newList });
+    const box = atom.render(context);
     if (box) {
       if (displaySelection && atom.isSelected) box.selected(true);
       boxes = [box];
@@ -1367,8 +1349,7 @@ function renderStyleRun(
       )
         context.atomIdsSettings.overrideID = digitOrTextStringID;
 
-      const box = atom.render(context, { newList });
-      newList = false;
+      const box = atom.render(context);
 
       if (context.atomIdsSettings)
         context.atomIdsSettings.overrideID = undefined;
@@ -1406,6 +1387,7 @@ function renderStyleRun(
   let result: Box;
   if (options || context.isTight || boxes.length > 1) {
     result = new Box(boxes, {
+      type: 'lift',
       isTight: context.isTight,
       ...(options ?? {}),
     });

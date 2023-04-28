@@ -1,5 +1,4 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { makeSVGBox, Box } from '../core/box';
@@ -13,10 +12,9 @@ export class AccentAtom extends Atom {
   constructor(
     command: string,
     body: Atom[],
-    context: GlobalContext,
     options: { accentChar?: number; svgAccent?: string; style: Style }
   ) {
-    super('accent', context, { command, style: options.style });
+    super('accent', { command, style: options.style });
     if (options.accentChar) this.accent = options.accentChar;
     else this.svgAccent = options?.svgAccent;
 
@@ -29,11 +27,8 @@ export class AccentAtom extends Atom {
     // (any non-null value would do)
   }
 
-  static fromJson(
-    json: { [key: string]: any },
-    context: GlobalContext
-  ): AccentAtom {
-    return new AccentAtom(json.command, json.body, context, {
+  static fromJson(json: { [key: string]: any }): AccentAtom {
+    return new AccentAtom(json.command, json.body, {
       accentChar: json.accentChar,
       svgAccent: json.svgAccent,
       style: json.style,
@@ -48,7 +43,14 @@ export class AccentAtom extends Atom {
     };
   }
   render(parentContext: Context): Box {
-    const context = new Context(parentContext, this.style, 'cramp');
+    // > Math accents, and the operations \sqrt and \overline, change
+    // > uncramped styles to their cramped counterparts; for example, D
+    // > changes to D′, but D′ stays as it was. -- TeXBook p. 152
+
+    const context = new Context(
+      { parent: parentContext, mathstyle: 'cramp' },
+      this.style
+    );
     // Accents are handled in the TeXbook pg. 443, rule 12.
 
     //
@@ -120,7 +122,7 @@ export class AccentAtom extends Atom {
       ],
     });
 
-    const result = new Box(accentBox, { newList: true, type: 'ord' });
+    const result = new Box(accentBox, { type: 'lift' });
     if (this.caret) result.caret = this.caret;
     this.bind(context, result.wrap(context));
     return this.attachSupsub(context, { base: result });

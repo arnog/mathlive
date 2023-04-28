@@ -1,13 +1,12 @@
 import type { Style } from '../public/core-types';
-import type { GlobalContext } from '../core/types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { adjustInterAtomSpacing, Box, coalesce } from '../core/box';
+import { Box, coalesce } from '../core/box';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { fromJson } from '../core/atom';
-import { defaultGlobalContext } from '../core/context-utils';
 import { latexCommand } from '../core/tokenizer';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 
 export class TooltipAtom extends Atom {
   tooltip: Atom;
@@ -15,7 +14,6 @@ export class TooltipAtom extends Atom {
   constructor(
     body: Atom[] | undefined,
     tooltip: Atom[] | undefined,
-    context: GlobalContext,
     options?: {
       command?: string;
       content: 'math' | 'text';
@@ -23,7 +21,7 @@ export class TooltipAtom extends Atom {
       serialize?: (atom: TooltipAtom, options: ToLatexOptions) => string;
     }
   ) {
-    super('tooltip', context, {
+    super('tooltip', {
       command: options?.command,
       mode: 'math',
       serialize: options?.serialize,
@@ -31,19 +29,17 @@ export class TooltipAtom extends Atom {
       displayContainsHighlight: true,
     });
     this.body = body;
-    const tooltipContext = defaultGlobalContext();
-    this.tooltip = new Atom('root', tooltipContext, { style: {} });
+    this.tooltip = new Atom('root', { style: {} });
     this.tooltip.body = tooltip;
 
     this.skipBoundary = true;
     this.captureSelection = false;
   }
 
-  static fromJson(json: AtomJson, context: GlobalContext): TooltipAtom {
+  static fromJson(json: AtomJson): TooltipAtom {
     return new TooltipAtom(
       json.body,
-      fromJson(json.tooltip as AtomJson[], context),
-      context,
+      fromJson(json.tooltip as AtomJson[]),
       json as any
     );
   }
@@ -56,18 +52,17 @@ export class TooltipAtom extends Atom {
   }
 
   render(context: Context): Box | null {
-    const body = Atom.createBox(context, this.body, {
+    const body = Atom.createBox(new Context(), this.body, {
       style: this.style,
     });
     if (!body) return null;
 
     const tooltipContext = new Context(
-      { registers: context.registers },
-      { fontSize: DEFAULT_FONT_SIZE },
-      'displaystyle'
+      { parent: context, mathstyle: 'displaystyle' },
+      { fontSize: DEFAULT_FONT_SIZE }
     );
     const tooltip = coalesce(
-      adjustInterAtomSpacing(
+      applyInterBoxSpacing(
         new Box(this.tooltip.render(tooltipContext), {
           classes: 'ML__tooltip-content',
         }),
