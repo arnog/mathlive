@@ -245,7 +245,7 @@
 
 .ML__sqrt-sign {
   display: inline-block;
-  font-family: KaTeX_Main;
+  font-family: KaTeX_Main;  // @todo is this necessary?
   position: relative;
 }
 
@@ -318,7 +318,6 @@
 
 .ML__mathlive {
   @ptperem: 10; // This value should equal PT_PER_EM om `font-metrics.ts`
-  @nulldelimiterspace: 0.12em;
 
   @thinspace: 0.16667em; // 3mu
   @mediumspace: 0.22222em; // 4mu
@@ -583,7 +582,6 @@
   }
 
   .nulldelimiter {
-    width: @nulldelimiterspace;
     display: inline-block;
   }
 
