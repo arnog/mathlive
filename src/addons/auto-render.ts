@@ -262,9 +262,9 @@ function createMarkupNode(
       mathstyle: mathstyle,
       format: 'html',
     });
-    const element = document.createElement(
-      mathstyle === 'displaystyle' ? 'div' : 'span'
-    );
+    const element = document.createElement('span');
+    element.style.display =
+      mathstyle === 'displaystyle' ? 'flex' : 'inline-flex';
     element.setAttribute('aria-hidden', 'true');
     element.innerHTML = window.MathfieldElement.createHTML(html);
     return element;
@@ -288,7 +288,7 @@ function createAccessibleMarkupPair(
   const markupNode = createMarkupNode(
     latex,
     options,
-    mathstyle ? mathstyle : 'displaystyle',
+    mathstyle ? mathstyle : 'textstyle',
     createNodeOnFailure
   );
   const accessibleContent = options.renderAccessibleContent ?? '';
@@ -433,7 +433,7 @@ function scanElement(
         }
 
         if (textContent) {
-          let style: 'displaystyle' | 'textstyle' = 'displaystyle';
+          let style: 'displaystyle' | 'textstyle' = 'textstyle';
 
           for (const l of scriptNode.type.split(';')) {
             const [key, value] = l.toLowerCase().split('=');
