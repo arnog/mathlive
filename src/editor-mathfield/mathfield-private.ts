@@ -452,34 +452,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
     window.addEventListener('resize', this);
     document.addEventListener('scroll', this);
 
-    // When the window loses focus, the browser will restore the focus to a
-    // textarea element if it had the focus when the window was blured.
-    // But it doesn't restore the focus for math-field elements (and other
-    // custom elements, presumably). So, listen for when the window loses focus
-    // (during the capture phase, before the mathfield potentially loses focus)\
-    // then, if this mathfield has focus, listen for when the window regains
-    // focus, and restore the focus to this mathfield.
-    // Check for window.top, i.e. that we're not in an iframe. The "window"
-    // object of an iframe also gets sent a blur event when the frame loses focus
-
-    if (window === window.top) {
-      window.addEventListener(
-        'blur',
-        (event) => {
-          if (!event.relatedTarget && isValidMathfield(this) && this.hasFocus()) {
-            window.addEventListener(
-              'focus',
-              (evt) => {
-                if (evt.target === window && isValidMathfield(this))
-                  this.focus({ preventScroll: true });
-              },
-              { once: true }
-            );
-          }
-        },
-        { capture: true }
-      );
-    }
     // Now start recording potentially undoable actions
     this.undoManager.startRecording();
     this.undoManager.snapshot();
@@ -1532,6 +1504,44 @@ If you are using Vue, this may be because you are using the runtime-only build o
     requestUpdate(this);
 
     this.focusBlurInProgress = false;
+
+    //
+    // When the document/window loses focus, for example by switching
+    // to another tab, the mathfield will be blured. When the window
+    // regains focus, we'd like the focus to be restored on the mahtfield,
+    // like the browsers do for `<textarea>` elements. However, they
+    // don't do that for custom elements, so we do it ourselves. @futureweb
+    //
+
+    // Wait for the window/document visibility to change
+    // (the mathfield gets blurred before the window)
+    const controller = new AbortController();
+    const signal = controller.signal;
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.visibilityState === 'hidden') {
+          document.addEventListener(
+            'visibilitychange',
+            () => {
+              if (
+                isValidMathfield(this) &&
+                document.visibilityState === 'visible'
+              )
+                this.focus({ preventScroll: true });
+            },
+            { once: true }
+          );
+        }
+      },
+      { once: true, signal }
+    );
+
+    // If we haven't received a visibility change after a short delay,
+    // stop waiting for it (the delay has to be longer than at least
+    // 16ms: the documents that are not visible are throttled by the
+    // browser)
+    setTimeout(() => controller.abort(), 100);
   }
 
   private onCompositionStart(_composition: string): void {

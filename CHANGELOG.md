@@ -10,6 +10,8 @@
   the selection rectangles
 - Fixed parsing of emojis such as 🧑🏻‍🚀
 - The focus outline is no longer displayed when in readonly mode
+- **#1940** New attempt to preserve the focus of mathfields when a window loses,
+  then regains focus (when switching tabs, for example).
 
 ## 0.92.1 (2023-04-19)
 
