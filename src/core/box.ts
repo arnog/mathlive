@@ -388,15 +388,11 @@ export class Box implements BoxInterface {
 
     //
     // Adjust the dimensions to account for the size variations
+    // (since the dimensions are in em, adjusting the font-size will have
+    // the same effect)
     //
     const factor = context.scalingFactor;
-    if (factor !== 1.0) {
-      result.setStyle('font-size', factor * 100, '%');
-      result.height *= factor;
-      result.depth *= factor;
-      result.italic *= factor;
-      result.skew *= factor;
-    }
+    if (factor !== 1.0) result.setStyle('font-size', factor * 100, '%');
     return result;
   }
 
