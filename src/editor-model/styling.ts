@@ -67,7 +67,7 @@ export function applyStyle(
     if (style.color && everyStyle('color', style.color)) {
       // If the selection already has this color, turn it off
       style.color = 'none';
-      style.verbatimColor = undefined;
+      delete style.verbatimColor;
     }
 
     if (
@@ -76,7 +76,7 @@ export function applyStyle(
     ) {
       // If the selection already has this color, turn it off
       style.backgroundColor = 'none';
-      style.verbatimBackgroundColor = undefined;
+      delete style.verbatimBackgroundColor;
     }
 
     if (style.fontFamily && everyStyle('fontFamily', style.fontFamily)) {
