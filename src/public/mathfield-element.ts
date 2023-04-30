@@ -1489,7 +1489,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   setValue(value?: string, options?: InsertOptions): void {
     if (this._mathfield && value !== undefined) {
-      if (!options) options = { suppressChangeNotifications: true };
+      options ??= { suppressChangeNotifications: true, mode: 'math' };
       this._mathfield.setValue(value, options);
       return;
     }
