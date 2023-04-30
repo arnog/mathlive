@@ -92,18 +92,13 @@ export class OverunderAtom extends Atom {
       this.style
     );
     let above: Box | null = null;
-    // let aboveShift: number;
     if (this.svgAbove) above = makeSVGBox(this.svgAbove);
-    // aboveShift = 0;
-    // aboveShift = -above.depth;
     else if (this.above)
       above = Atom.createBox(annotationContext, this.above, { type: 'skip' });
 
     let below: Box | null = null;
     // let belowShift: number;
     if (this.svgBelow) below = makeSVGBox(this.svgBelow);
-    // belowShift = 0;
-    // belowShift = below.height;
     else if (this.below)
       below = Atom.createBox(annotationContext, this.below, { type: 'skip' });
 
@@ -119,14 +114,10 @@ export class OverunderAtom extends Atom {
       );
     }
 
-    // this.bind(parentContext, base);
-
     let base = makeOverunderStack(parentContext, {
       base: body,
       above,
-      // aboveShift,
       below,
-      // belowShift,
       type:
         this.boxType === 'bin' || this.boxType === 'rel' ? this.boxType : 'ord',
       paddedAboveBelow: this.paddedLabels,
@@ -174,8 +165,7 @@ function makeOverunderStack(
 
   let aboveShift = 0;
 
-  if (options.above)
-    aboveShift = -options.above.depth + context.metrics.bigOpSpacing2; // Empirical
+  if (options.above) aboveShift = context.metrics.bigOpSpacing5; // Empirical
 
   let result: Box | null = null;
   const base = options.base;
