@@ -34,7 +34,7 @@ export class SpacingAtom extends Atom {
 
   render(context: Context): Box {
     if (this.command === 'space')
-      return new Box(this.style.mode === 'math' ? null : ' ');
+      return new Box(this.mode === 'math' ? null : ' ');
 
     let result: Box;
     if (this.width !== undefined) {

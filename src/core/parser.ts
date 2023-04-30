@@ -103,13 +103,13 @@ export class Parser {
   private index = 0;
 
   // Substitutes for `#` tokens.
-  private args: null | ((arg: string) => string | undefined);
+  private args?: (arg: string) => string | undefined;
 
   // Counter to prevent deadlock. If `end()` is called too many
   // times (1,000) in a row for the same token, bail.
   private endCount = 0;
 
-  private currentContext: ParsingContext;
+  private parsingContext: ParsingContext;
 
   private context: Context;
 
@@ -128,7 +128,7 @@ export class Parser {
     tokens: Token[],
     context?: ContextInterface,
     options?: {
-      args?: null | ((arg: string) => string | undefined);
+      args?: (arg: string) => string | undefined;
       parseMode?: ParseMode;
       mathstyle?: MathstyleName;
       style?: Style;
@@ -144,9 +144,9 @@ export class Parser {
             options.style
           );
 
-    this.args = options.args ?? null;
+    this.args = options.args ?? undefined;
     this.smartFence = this.context.smartFence;
-    this.currentContext = {
+    this.parsingContext = {
       parent: undefined,
       mathlist: [],
       style: options.style ?? {},
@@ -161,7 +161,7 @@ export class Parser {
     mathstyle?: MathstyleName;
     tabular?: boolean;
   }): void {
-    const current = this.currentContext;
+    const current = this.parsingContext;
     const newContext: ParsingContext = {
       parent: current,
       mathlist: [],
@@ -170,11 +170,11 @@ export class Parser {
       mathstyle: options?.mathstyle ?? current.mathstyle,
       tabular: options?.tabular ?? false,
     };
-    this.currentContext = newContext;
+    this.parsingContext = newContext;
   }
 
   endContext(): void {
-    this.currentContext = this.currentContext.parent!;
+    this.parsingContext = this.parsingContext.parent!;
   }
 
   onError(err: LatexSyntaxError): void {
@@ -188,39 +188,37 @@ export class Parser {
   }
 
   get mathlist(): Atom[] {
-    return this.currentContext.mathlist;
+    return this.parsingContext.mathlist;
   }
 
   set mathlist(value: Atom[]) {
-    this.currentContext.mathlist = value;
+    this.parsingContext.mathlist = value;
   }
 
   get parseMode(): ParseMode {
-    return this.currentContext.parseMode;
+    return this.parsingContext.parseMode;
   }
 
-  // @revisit
   set parseMode(value: ParseMode) {
-    this.currentContext.parseMode = value;
+    this.parsingContext.parseMode = value;
   }
 
   get tabularMode(): boolean {
-    return this.currentContext.tabular;
+    return this.parsingContext.tabular;
   }
 
   get style(): PrivateStyle {
     // Style is inherited
-    let context: ParsingContext | undefined = this.currentContext;
+    let context: ParsingContext | undefined = this.parsingContext;
     while (context) {
-      if (context.style) return { ...context.style, mode: this.parseMode };
+      if (context.style) return { ...context.style };
       context = context.parent;
     }
     return {};
   }
 
-  // @revisit
   set style(value: Style) {
-    this.currentContext.style = value;
+    this.parsingContext.style = value;
   }
 
   /**
@@ -1405,7 +1403,7 @@ export class Parser {
       const atoms = parseLatex(s, {
         context: this.context,
         parseMode: 'text',
-        style: this.currentContext.style,
+        style: this.parsingContext.style,
       });
       this.endContext();
       return { group: atoms };
@@ -1637,20 +1635,22 @@ export class Parser {
         if (deferredArg)
           result!.body = argAtoms(this.scanArgument(deferredArg));
       } else if (typeof info.applyStyle === 'function') {
-        const style = info.applyStyle(command, args, this.context);
+        const style = {
+          ...this.style,
+          ...info.applyStyle(command, args, this.context),
+        };
         // No type provided -> the parse function will modify
         // the current style rather than create a new Atom.
         const savedMode = this.parseMode;
-        if (info.applyMode) {
-          // Change to 'text' (or 'math') mode if necessary
-          this.parseMode = info.applyMode;
-        }
+
+        // Change to 'text' (or 'math') mode if necessary
+        if (info.applyMode) this.parseMode = info.applyMode;
 
         // If a deferred arg is expected, process it now
         if (deferredArg) {
           // Create a temporary style
           const saveStyle = this.style;
-          this.style = { ...this.style, ...style };
+          this.style = style;
           const atoms = this.scanArgument(deferredArg);
           this.style = saveStyle;
           this.parseMode = savedMode;
@@ -1658,10 +1658,9 @@ export class Parser {
         }
 
         // Merge the new style info with the current style
-        this.style = { ...this.style, ...style };
-        this.parseMode = savedMode;
+        this.style = style;
       } else {
-        result = new Atom('mop', {
+        result = new Atom('mord', {
           command: info.command ?? command,
           style: { ...this.style },
           value: command,
@@ -1753,13 +1752,13 @@ export class Parser {
         initialIndex === this.index
           ? null
           : tokensToString(this.tokens.slice(initialIndex, this.index)),
-      style: this.currentContext.style,
+      style: this.parsingContext.style,
       body: parseLatex(def.def, {
         context: this.context,
         parseMode: this.parseMode,
         args: (arg) => args[arg],
-        mathstyle: this.currentContext.mathstyle,
-        style: this.currentContext.style,
+        mathstyle: this.parsingContext.mathstyle,
+        style: this.parsingContext.style,
       }),
     });
   }
@@ -1806,12 +1805,12 @@ export function parseLatex(
   options?: {
     context?: ContextInterface;
     parseMode?: ParseMode;
-    args?: null | ((arg: string) => string | undefined);
+    args?: (arg: string) => string | undefined;
     mathstyle?: MathstyleName;
     style?: Style;
   }
 ): Atom[] {
-  const args = options?.args ?? null;
+  const args = options?.args ?? undefined;
   const parser = new Parser(tokenize(s, args), options?.context, {
     args,
     mathstyle: options?.mathstyle ?? 'displaystyle',
@@ -1829,7 +1828,6 @@ export function validateLatex(
   options?: { context: ContextInterface; parseMode?: ParseMode }
 ): LatexSyntaxError[] {
   const parser = new Parser(tokenize(s, null), options?.context, {
-    args: null,
     mathstyle: 'displaystyle',
     parseMode: options?.parseMode ?? 'math',
   });

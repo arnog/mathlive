@@ -125,9 +125,7 @@ export class Context implements ContextInterface {
     this.renderPlaceholder = template.renderPlaceholder;
     this.isPhantom = options?.isPhantom ?? this.parent?.isPhantom ?? false;
 
-    if (style?.letterShapeStyle && style.letterShapeStyle !== 'auto')
-      this.letterShapeStyle = style.letterShapeStyle;
-    else this.letterShapeStyle = template.letterShapeStyle;
+    this.letterShapeStyle = template.letterShapeStyle;
 
     if (style?.color && style.color !== 'none') this.color = style.color;
     else this.color = this.parent?.color ?? '';

@@ -2,7 +2,15 @@ import type { GroupAtom } from '../core-atoms/group';
 
 import { Atom, ToLatexOptions } from './atom-class';
 import type { Box } from './box';
-import type { ParseMode, Style } from '../public/core-types';
+import type {
+  FontSeries,
+  FontShape,
+  FontSize,
+  ParseMode,
+  Style,
+  Variant,
+  VariantStyle,
+} from '../public/core-types';
 import {
   TokenDefinition,
   getDefinition,
@@ -34,8 +42,22 @@ export abstract class Mode {
     return mode.serialize(run, options);
   }
 
-  static applyStyle(mode: ParseMode, box: Box, style: Style): string | null {
-    return Mode._registry[mode].applyStyle(box, style);
+  static getFont(
+    mode: ParseMode,
+    box: Box,
+    style: {
+      // For math mode
+      letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
+      variant?: Variant;
+      variantStyle?: VariantStyle;
+
+      // For text mode
+      fontFamily?: string;
+      fontShape?: FontShape;
+      fontSeries?: FontSeries;
+    }
+  ): string | null {
+    return Mode._registry[mode].getFont(box, style);
   }
 
   abstract createAtom(
@@ -47,11 +69,21 @@ export abstract class Mode {
   abstract serialize(run: Atom[], options: ToLatexOptions): string[];
 
   /*
-   * Apply the styling (bold, italic, etc..) as classes to the box, and return
-   * the effective font name to be used for metrics
+   * Calculate the effective font name to be used for metrics
    * ('Main-Regular', 'Caligraphic-Regular' etc...)
    */
-  abstract applyStyle(box: Box, style: Style): string | null;
+  abstract getFont(
+    box: Box,
+    style: {
+      variant?: Variant;
+      variantStyle?: VariantStyle;
+      fontFamily?: string;
+      fontShape?: FontShape;
+      fontSeries?: FontSeries;
+      fontSize?: FontSize | 'auto';
+      letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
+    }
+  ): string | null;
 }
 
 /*
@@ -113,11 +145,4 @@ export function getPropertyRuns(
   // Push whatever is left
   if (run.length > 0) result.push(run);
   return result;
-}
-export function applyStyle(
-  mode: ParseMode,
-  box: Box,
-  style: Style
-): string | null {
-  return Mode.applyStyle(mode, box, style);
 }

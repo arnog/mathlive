@@ -122,10 +122,10 @@ export class OperatorAtom extends Atom {
         style: {
           color: this.style.color,
           backgroundColor: this.style.backgroundColor,
-          letterShapeStyle: context.letterShapeStyle,
           variant: this.variant,
           variantStyle: this.variantStyle,
         },
+        letterShapeStyle: context.letterShapeStyle,
       });
     }
 

@@ -170,15 +170,19 @@ export type FontSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
  */
 
 export interface Style {
+  // For text and math mode:
   color?: string;
   backgroundColor?: string;
+  fontSize?: FontSize | 'auto';
+
+  // For math mode:
   variant?: Variant;
   variantStyle?: VariantStyle;
+
+  // For text mode:
   fontFamily?: string;
   fontShape?: FontShape;
   fontSeries?: FontSeries;
-  fontSize?: FontSize | 'auto';
-  letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 }
 /**
  * **See Also**

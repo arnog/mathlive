@@ -148,9 +148,10 @@ export class Box implements BoxInterface {
     let fontName = options?.fontFamily || 'Main-Regular';
     if (options?.style && this.value) {
       fontName =
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        Mode.applyStyle(options.mode ?? 'math', this, options.style) ||
-        'Main-Regular';
+        Mode.getFont(options.mode ?? 'math', this, {
+          ...options.style,
+          letterShapeStyle: options.letterShapeStyle,
+        }) || 'Main-Regular';
     }
 
     this.height = 0;

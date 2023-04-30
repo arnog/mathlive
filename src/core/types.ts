@@ -2,7 +2,6 @@ import type {
   ArgumentType,
   BoxCSSProperties,
   MacroDefinition,
-  MathstyleName,
   NormalizedMacroDictionary,
   ParseMode,
   Registers,
@@ -109,6 +108,7 @@ export type BoxOptions = {
   style?: Style; // If a `style` option is provided, a `mode` must also be provided.
 
   fontFamily?: string;
+  letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
 };
 
 export interface BoxInterface {
@@ -178,8 +178,6 @@ export interface BoxInterface {
 export type PrivateStyle = Style & {
   verbatimColor?: string;
   verbatimBackgroundColor?: string;
-  mathStyle?: MathstyleName;
-  mode?: ParseMode;
 };
 
 /**

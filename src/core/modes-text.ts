@@ -5,7 +5,7 @@ import { TextAtom } from '../core-atoms/text';
 import { Atom, ToLatexOptions } from './atom';
 import { Box } from './box';
 import { Mode, getPropertyRuns } from './modes-utils';
-import type { Style } from '../public/core-types';
+import type { FontSeries, FontShape, Style } from '../public/core-types';
 import { joinLatex, latexCommand } from './tokenizer';
 import { TokenDefinition } from 'core-definitions/definitions-utils';
 
@@ -266,7 +266,14 @@ export class TextMode extends Mode {
   /**
    * Return the font-family name
    */
-  applyStyle(box: Box, style: Style): string | null {
+  getFont(
+    box: Box,
+    style: {
+      fontFamily?: string;
+      fontShape?: FontShape;
+      fontSeries?: FontSeries;
+    }
+  ): string | null {
     const { fontFamily } = style;
 
     if (TEXT_FONT_CLASS[fontFamily!])

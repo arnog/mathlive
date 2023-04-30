@@ -656,15 +656,13 @@ export class Atom {
   }
 
   get computedStyle(): PrivateStyle {
-    if (!this.parent) return { ...(this.style ?? {}) };
-
-    const hadVerbatimColor = this.style.verbatimColor !== undefined;
+    const hadVerbatimColor = typeof this.style.verbatimColor === 'string';
     const hadVerbatimBackgroundColor =
-      this.style.verbatimBackgroundColor !== undefined;
+      typeof this.style.verbatimBackgroundColor === 'string';
 
-    const result = { ...this.parent.computedStyle, ...this.style };
+    const result = { ...(this.parent?.computedStyle ?? {}), ...this.style };
 
-    // Variant are not included in the computed style (they're not inherited)
+    // Variants are not included in the computed style (they're not inherited)
     delete result.variant;
     delete result.variantStyle;
 
@@ -1186,12 +1184,12 @@ export class Atom {
             style: {
               variant: 'normal', // Will auto-italicize
               ...this.style,
-              letterShapeStyle: context.letterShapeStyle,
               fontSize: Math.max(
                 1,
                 context.size + context.mathstyle.sizeDelta
               ) as FontSize,
             },
+            letterShapeStyle: context.letterShapeStyle,
             classes,
           })
         : Atom.createBox(context, value, {

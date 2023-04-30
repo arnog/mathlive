@@ -22,7 +22,7 @@ export class LatexMode extends Mode {
     ];
   }
 
-  applyStyle(): string | null {
+  getFont(): string | null {
     return null;
   }
 }

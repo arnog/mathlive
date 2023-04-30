@@ -4,7 +4,7 @@ import { joinLatex, latexCommand } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import { Box } from './box';
 import { BoxAtom } from '../core-atoms/box';
-import type { Style } from '../public/core-types';
+import type { Style, Variant, VariantStyle } from '../public/core-types';
 import { mathVariantToUnicode } from '../core-definitions/unicode';
 import { TokenDefinition } from 'core-definitions/definitions-utils';
 
@@ -165,17 +165,17 @@ export class MathMode extends Mode {
     });
   }
 
-  applyStyle(box: Box, style: Style): string | null {
-    // If no variant specified, don't change the font
-    if (style.variant === undefined) return '';
+  getFont(
+    box: Box,
+    style: {
+      // For math mode
+      letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
+      variant: Variant;
+      variantStyle?: VariantStyle;
+    }
+  ): string | null {
+    console.assert(style.variant !== undefined);
 
-    // LetterShapeStyle will usually be set automatically, except when the
-    // locale cannot be determined, in which case its value will be 'auto'
-    // which we default to 'tex'
-    const letterShapeStyle =
-      style.letterShapeStyle === 'auto' || !style.letterShapeStyle
-        ? 'tex'
-        : style.letterShapeStyle;
     let { variant } = style;
     let { variantStyle } = style;
 
@@ -204,7 +204,7 @@ export class MathMode extends Mode {
       LETTER_SHAPE_RANGES.forEach((x, i) => {
         if (
           x.test(box.value) &&
-          LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it'
+          LETTER_SHAPE_MODIFIER[style.letterShapeStyle ?? 'tex'][i] === 'it'
         )
           variantStyle = 'italic';
       });
@@ -290,7 +290,7 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
   const contextColor = parent?.computedStyle.color;
   return joinLatex(
     getPropertyRuns(run, 'color').map((x) => {
-      const result = emitVariantRun(x, options);
+      const body = emitVariantRun(x, options);
       const style = x[0].computedStyle;
       if (
         !(options.skipStyles ?? false) &&
@@ -300,11 +300,11 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string {
         return latexCommand(
           '\\textcolor',
           style.verbatimColor ?? style.color,
-          result
+          body
         );
       }
 
-      return result;
+      return body;
     })
   );
 }
