@@ -217,8 +217,8 @@
   &:after {
     content: '';
     display: block;
-    margin-top: calc(max(-1px, -0.04em));
-    min-height: calc(max(1px, 0.04em));
+    margin-top: ~"max(-1px, -0.04em)";
+    min-height: ~"max(1px, 0.04em)";
     /* Ensure the line is visible when printing even if "turn off background images" is on*/
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -245,20 +245,20 @@
 
 .ML__sqrt-sign {
   display: inline-block;
-  font-family: KaTeX_Main;  // @todo is this necessary?
   position: relative;
 }
 
 .ML__sqrt-line {
   display: inline-block;
-  height: calc(max(1px, 0.04em));
+  height: ~"max(1px, 0.04em)";
   width: 100%;
 
   &:before {
     content: '';
     display: block;
-    margin-top: calc(max(-1px, -0.04em));
-    min-height: calc(max(1px, 0.04em));
+    margin-top: ~"min(-1px, -0.04em)";
+    // margin-top: -1px;
+    min-height: ~"max(1px, 0.04em)";
     /* Ensure the line is visible when printing even if "turn off background images" is on*/
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -369,7 +369,7 @@
   }
 
   .vlist {
-    display: table-cell;
+    display: table-cell;    // Inside a table-cell, vertical-align aligns the content of the cell, not the cell itself
     vertical-align: bottom;
     position: relative;
 
@@ -487,11 +487,11 @@
     width: 100%;
 
     &:before {
+      content: '';
       border-bottom-style: solid;
-      border-bottom-width: calc(max(1px, 0.04em));
+      border-bottom-width: ~"max(1px, 0.04em)";
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-        content: '';
       display: block;
     }
 
@@ -500,7 +500,7 @@
       // Since Chrome 62 there are issues rendering sub-pixel borders at 
       // certain zoom levels (90%, 110%). Forcing it to at least one pixels 
       // seems to work around the issue.
-      border-bottom-width: calc(max(1px, 0.04em));
+      border-bottom-width: ~"max(1px, 0.04em)";
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
         content: '';
@@ -681,6 +681,7 @@
 .ML__notation {
   position: absolute;
   box-sizing: border-box;
+  line-height: 0;
 }
 
 .ML__container {
