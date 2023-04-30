@@ -258,7 +258,7 @@ export class Box implements BoxInterface {
 
   /**
    * Set the value of a CSS property associated with this box.
-   * For example, setStyle('border-right', 5.6, 'em');
+   * For example, setStyle('margin-right', 5.6, 'em');
    *
    * @param prop the CSS property to set
    * @param value a series of strings and numbers that will be concatenated.
