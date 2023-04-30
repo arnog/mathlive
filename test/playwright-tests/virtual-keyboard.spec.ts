@@ -63,3 +63,61 @@ test('virtual keyboard with two math fields', async ({ page }) => {
     .getByText('123')
     .waitFor({ state: 'detached' });
 });
+
+test('Switch layer by shift', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.evaluate(() => {
+    const shift = {
+      class: 'action font-glyph modifier',
+      label: "<svg><use xlink:href='#svg-shift' /></svg>"
+    };
+    window.mathVirtualKeyboard.layouts = [
+      {
+        label: 'abc',
+        layers: [
+          {
+            id: 'abc-lower',
+            rows: [
+              [
+                {
+                  ...shift,
+                  command: ['switchKeyboardLayer', 'abc-upper']
+                },
+                {
+                  latex: 'a'
+                }
+              ]
+            ]
+          },
+          {
+            id: 'abc-upper',
+            rows: [
+              [
+                {
+                  ...shift,
+                  command: ['switchKeyboardLayer', 'abc-lower']
+                },
+                {
+                  latex: 'A'
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ];
+  });
+
+  await page.locator('.ML__virtual-keyboard-toggle').nth(0).click();
+  const rowLocator = page.locator('.MLK__layer.is-visible .row')
+  await rowLocator.locator('> :nth-child(1)').click(); // shift
+  await rowLocator.locator('> :nth-child(2)').click(); // A
+  await rowLocator.locator('> :nth-child(1)').click(); // shift
+  await rowLocator.locator('> :nth-child(2)').click(); // a
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => mfe.value);
+  expect(latex).toBe('Aa');
+})
