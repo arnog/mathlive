@@ -46,9 +46,7 @@
       <!-- <math-field id="mf"
         >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
       > -->
-      <math-field id="mf"
-        >-\bbox[border:solid 1px red]{\sqrt{\frac{2}{1+x}}}-</math-field
-      >
+      <math-field id="mf">1+\sqrt{\frac{1}{x+1}}</math-field>
       <!-- <math-field id="mf"
         >{\mathrlap{\raisebox{-.1em}{$-$}}\raisebox{.1em}{$\tripledash$}}\ce{A\bond{~-}B\bond{~=}C\bond{-~-}D}</math-field
       > -->
@@ -79,12 +77,8 @@
         <div id="result-latex"></div>
       </div>
 
-      <p>
-        q=
-        <script type="math/tex">
-          -12=x+1\left(x+\frac{3}{\sqrt{x+1}}\right)
-        </script>
-      </p>
+      <input type="date" lang="fr-FR" />;
+
       <h2>Selection</h2>
       <div class="output" id="selection"></div>
 
@@ -112,63 +106,7 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      console.log(convertLatexToMarkup('=\\space\\space\\space='));
-
-      // mathVirtualKeyboard.layouts = [
-      //   {
-      //     label: 'Clavier',
-      //     toolip: 'Clavier simple',
-      //     rows: [
-      //       [
-      //         'A',
-      //         'B',
-      //         'C',
-      //         'D',
-      //         'E',
-      //         'F',
-      //         'G',
-      //         '[separator-5]',
-
-      //         {
-      //           class: 'tex small',
-      //           label: '<span><i>x</i>&thinsp;²</span>',
-      //           insert: '$$#@^{2}$$',
-      //         },
-      //       ],
-      //       ['H', 'I', 'J', 'K', 'L', 'M', 'N', '[separator-5]', ' +'],
-      //       ['O', 'P', 'Q', 'R', 'S', 'T', 'U', '[separator-5]', '='],
-      //       [
-      //         'V',
-      //         'W',
-      //         'X',
-      //         'Y',
-      //         'Z',
-      //         '[separator-5]',
-      //         '[left]',
-      //         '[right]',
-      //         {
-      //           class: 'action',
-      //           label:
-      //             '<svg style="width: 32px;height:32px"><use xlink:href=#svg-delete-backward /></svg>',
-      //           width: 1.0,
-      //           command: ['performWithFeedback', 'deleteBackward'],
-      //         },
-      //       ],
-      //     ],
-      //   },
-      // ];
-
       const mf = document.getElementById('mf');
-      mf.inlineShortcuts = {
-        // ...this.mfe.getOptions('inlineShortcuts'),
-        // node: '{#1}_{\\left\\lbrack#2\\right\\rbrack}^{#3}({#4})'
-        // node:'\\mathrm{smallfrac}({#1},{#2})'
-        smallfrac: '\\smallfrac{#@}{#?}',
-        // node: '\\node{#1}{#2}{#3}{#4}',
-        // node: '\\node{#1}_\\left\\lbrack{#2}\\right\\rbrack^{#3}{#4}'
-        node: '\\node{#1}{#2}{#3}{#4}',
-        set: '\\set{#1}{#2}{#3}{#4}{#5}',
-      };
 
       const ce = new ComputeEngine({
         latexDictionary: [
@@ -191,22 +129,21 @@
           evaluate: (ce, args) => ce.box(args[0].N() / args[1].N()),
         },
       });
-      console.log(ce.parse('\\frac{1}{2}+\\smallfrac{1}{2}').N().json);
 
       MathfieldElement.computeEngine = ce;
 
-      // mf.onInlineShortcut = (_mf, s) => {
-      //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
-      //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
-      //     if (m) {
-      //       if (['alpha', 'beta', 'gamma'].includes(m[1]))
-      //         return `\\${m[1]}_{${m[2]}}`;
-      //       return `\\mathrm{${m[1]}}_{${m[2]}}`;
-      //     }
-      //     return '\\mathrm{' + s + '}';
-      //   }
-      //   return '';
-      // };
+      mf.onInlineShortcut = (_mf, s) => {
+        if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+          const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
+          if (m) {
+            if (['alpha', 'beta', 'gamma'].includes(m[1]))
+              return `\\${m[1]}_{${m[2]}}`;
+            return `\\mathrm{${m[1]}}_{${m[2]}}`;
+          }
+          return '\\mathrm{' + s + '}';
+        }
+        return '';
+      };
       mf.macros = {
         ...mf.macros,
         // Alpha: undefined,
@@ -216,15 +153,7 @@
           def: '{}^{#1}\\!\\!/\\!{}_{#2}',
           captureSelection: true,
         },
-        smallfrac: {
-          args: 2,
-          def: '{}^{#1}\\!\\!/\\!{}_{#2}',
-        },
       };
-
-      mf.addEventListener('selection-change', (ev) => {
-        console.log('selection change', ev);
-      });
 
       mf.addEventListener('input', (ev) => {
         console.log('input event');
@@ -233,6 +162,10 @@
 
       mf.addEventListener('beforeinput', (ev) => {
         if (ev.inputType === 'insertLineBreak') console.log('enter');
+      });
+
+      mf.addEventListener('keydown', (ev) => {
+        console.log('keydown', ev);
       });
 
       mf.addEventListener('selection-change', (ev) => {

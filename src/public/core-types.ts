@@ -357,6 +357,7 @@ export type BoxCSSProperties =
   | 'padding'
   | 'position'
   | 'top'
+  | 'bottom'
   | 'vertical-align'
   | 'width'
   | 'z-index';

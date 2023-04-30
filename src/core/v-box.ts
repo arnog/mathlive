@@ -155,6 +155,8 @@ function makeRows(
         classes: classes.join(' '),
         style: child.style,
       });
+      box.setStyle('height', box.height + box.depth, 'em');
+      box.setStyle('display', 'inline-block');
       childWrap.setStyle('top', -pstrutSize - currPos - box.depth, 'em');
       if (child.marginLeft)
         childWrap.setStyle('margin-left', child.marginLeft, 'em');

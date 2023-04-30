@@ -155,12 +155,11 @@ export class EncloseAtom extends Atom {
     const notation = new Box(null, { classes: 'ML__notation' });
     notation.setStyle('box-sizing', 'border-box');
 
-    notation.setStyle('top', `calc(-${borderWidth} / 2 - ${padding}em)`);
     notation.setStyle('left', `calc(-${borderWidth} / 2 - ${padding}em)`);
 
     notation.setStyle(
       'height',
-      `calc(100% + ${2 * padding}em + 2 * ${borderWidth})`
+      `calc(${base.height + base.depth + 2 * padding}em)`
     );
 
     notation.height = base.height + padding;

@@ -106,6 +106,7 @@ export class SurdAtom extends Atom {
     const minDelimiterHeight = innerTotalHeight + lineClearance + ruleWidth;
     const delimContext = new Context({ parent: parentContext }, this.style);
     const selectClasses = this.isSelected ? ' ML__selected' : '';
+
     const delimBox = this.bind(
       delimContext,
       new Box(
@@ -152,7 +153,6 @@ export class SurdAtom extends Atom {
         ],
       }).wrap(parentContext)
     );
-
     //
     //  5. Assemble the body and the delimiter
     //
@@ -181,6 +181,9 @@ export class SurdAtom extends Atom {
         classes: this.containsCaret ? 'ML__contains-caret' : '',
         type: 'inner',
       });
+      result.setStyle('display', 'inline-block');
+      result.setStyle('height', result.height + result.depth, 'em');
+
       if (this.caret) result.caret = this.caret;
       return this.bind(parentContext, result.wrap(parentContext));
     }

@@ -61,10 +61,13 @@ export class BoxAtom extends Atom {
     const padding = this.padding ? context.toEm(this.padding) : fboxsep;
 
     // Base is the main content "inside" the box
-    const content = Atom.createBox(parentContext, this.body);
-    if (!content) return null;
-    content.setStyle('vertical-align', -content.height, 'em');
-    const base = new Box(content, { type: 'ord' });
+    const base = Atom.createBox(parentContext, this.body, { type: 'ord' });
+    if (!base) return null;
+
+    let borderWidth = '';
+    if (this.framecolor)
+      borderWidth = `${context.getRegisterAsEm('fboxrule')}em`;
+    else if (this.border) borderWidth = lineWidth(this.border);
 
     // This box will represent the box (background and border).
     // It's positioned to overlap the base.
@@ -75,8 +78,10 @@ export class BoxAtom extends Atom {
     box.depth = base.depth + padding;
     box.setStyle('box-sizing', 'border-box');
     box.setStyle('position', 'absolute');
+    if (!borderWidth) box.setStyle('bottom', padding, 'em');
+    else box.setStyle('bottom', `calc(${padding}em - 2 * ${borderWidth})`);
 
-    box.setStyle('height', base.height + base.depth + 2 * padding, 'em');
+    box.setStyle('height', box.height + box.depth, 'em');
     if (padding === 0) box.setStyle('width', '100%');
     else {
       box.setStyle('width', `calc(100% + ${2 * padding}em)`);
@@ -102,15 +107,16 @@ export class BoxAtom extends Atom {
     // box.setStyle('top', /* width of the border */);
 
     base.setStyle('display', 'inline-block');
-    base.setStyle('height', content.height + content.depth + 2 * padding, 'em');
     base.setStyle('position', 'relative');
+    base.setStyle('height', base.height + base.depth, 'em');
+    base.setStyle('vertical-align', -base.height, 'em');
 
     // The result is a box that encloses the box and the base
     const result = new Box([box, base]);
     // Set its position as relative so that the box can be absolute positioned
     // over the base
-    result.setStyle('position', 'relative');
     result.setStyle('display', 'inline-block');
+    result.setStyle('position', 'relative');
     result.setStyle('line-height', 0);
 
     // The padding adds to the width and height of the pod
@@ -127,4 +133,10 @@ export class BoxAtom extends Atom {
 
     return this.attachSupsub(parentContext, { base: result });
   }
+}
+
+function lineWidth(s: string): string {
+  const m = s.match(/[\d]+(\.[\d]+)?[a-zA-Z]+/);
+  if (m) return m[0];
+  return '';
 }
