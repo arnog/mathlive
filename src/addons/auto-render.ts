@@ -513,7 +513,7 @@ const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
 
   asciiMath: {
     delimiters: {
-      display: [
+      inline: [
         ['`', '`'], // ASCII Math delimiters
       ],
     },
