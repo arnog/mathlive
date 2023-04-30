@@ -16,6 +16,7 @@ import type {
   MathstyleName,
   Environment,
   LatexValue,
+  Style,
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
 import type { ContextInterface, PrivateStyle } from '../core/types';
@@ -759,7 +760,7 @@ export function defineFunction(
     createAtom?: (
       name: string,
       args: (null | Argument)[],
-      style: PrivateStyle
+      style: Style
     ) => Atom;
     applyStyle?: (
       name: string,
