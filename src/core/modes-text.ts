@@ -48,7 +48,9 @@ function emitFontShapeTextRun(
           false,
         ];
       }
-      return command ? [[latexCommand(command, ...s)], false] : [s, needsWrap];
+      return command
+        ? [[latexCommand(command, joinLatex(s))], false]
+        : [s, needsWrap];
     })
   );
 }
@@ -75,7 +77,9 @@ function emitFontSeriesTextRun(
         ];
       }
 
-      return command ? [[latexCommand(command, ...s)], false] : [s, needsWrap];
+      return command
+        ? [[latexCommand(command, joinLatex(s))], false]
+        : [s, needsWrap];
     })
   );
 }
