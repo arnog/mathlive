@@ -32,13 +32,7 @@ import {
 } from './utils';
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
-import {
-  hideEnvironmentPanel,
-  showEnvironmentPanel,
-} from './environmentPopover';
-import { isTabularEnvironment } from '../core-definitions/environment-types';
 import { Style } from '../public/core-types';
-import { ArrayAtom } from '../core-atoms/array';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
@@ -477,8 +471,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
             { once: true }
           );
           this._element.classList.add('is-visible');
+          this.stateChanged();
         }
-        this.stateChanged();
       });
     } else {
       this._element!.classList.add('is-visible');
@@ -772,22 +766,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   update(mf: MathfieldProxy): void {
     this._style = mf.style;
-    this.updateEnvironmemtPopover(mf);
-    this.updateToolbar(mf);
-  }
-
-  updateEnvironmemtPopover(mf: MathfieldProxy): void {
-    if (
-      mf.array &&
-      isTabularEnvironment((mf.array as ArrayAtom)?.environmentName) &&
-      mf.boundingRect &&
-      this.visible &&
-      mf.mode === 'math'
-    )
-      showEnvironmentPanel(this, mf.array as ArrayAtom, mf.boundingRect);
-    else hideEnvironmentPanel(this);
-
-    this._style = mf.style;
     this.updateToolbar(mf);
   }
 
@@ -796,7 +774,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   disconnect(): void {
-    hideEnvironmentPanel(this);
     this.connectedMathfieldWindow = undefined;
   }
 

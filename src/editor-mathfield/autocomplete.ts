@@ -3,7 +3,10 @@ import { suggest } from '../core-definitions/definitions-utils';
 
 import type { ModelPrivate } from '../editor-model/model-private';
 
-import { hidePopover, showPopover } from '../editor/popover';
+import {
+  hideSuggestionPopover,
+  showSuggestionPopover,
+} from '../editor/suggestion-popover';
 
 import type { MathfieldPrivate } from './mathfield-private';
 import { render } from './render';
@@ -37,7 +40,7 @@ export function updateAutocomplete(
     !model.selectionIsCollapsed ||
     mathfield.options.popoverPolicy === 'off'
   ) {
-    hidePopover(mathfield);
+    hideSuggestionPopover(mathfield);
     return;
   }
 
@@ -73,7 +76,7 @@ export function updateAutocomplete(
     if (/^\\[a-zA-Z\*]+$/.test(command))
       for (const atom of commandAtoms) atom.isError = true;
 
-    hidePopover(mathfield);
+    hideSuggestionPopover(mathfield);
     return;
   }
 
@@ -94,7 +97,7 @@ export function updateAutocomplete(
     render(mathfield, { interactive: true });
   }
 
-  showPopover(mathfield, suggestions);
+  showSuggestionPopover(mathfield, suggestions);
 }
 
 export function acceptCommandSuggestion(model: ModelPrivate): boolean {
@@ -121,7 +124,7 @@ export function complete(
   completion: 'reject' | 'accept' | 'accept-suggestion' = 'accept',
   options?: { mode?: ParseMode; selectItem?: boolean }
 ): boolean {
-  hidePopover(mathfield);
+  hideSuggestionPopover(mathfield);
   const latexGroup = getLatexGroup(mathfield.model);
   if (!latexGroup) return false;
 

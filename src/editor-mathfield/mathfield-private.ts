@@ -17,8 +17,6 @@ import type {
 } from '../public/mathfield';
 
 import { canVibrate } from '../common/capabilities';
-import { hashCode } from '../common/hash-code';
-import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
 import { Atom } from '../core/atom-class';
 import { gFontsState } from '../core/fonts';
@@ -45,7 +43,10 @@ import { addRowAfter, addColumnAfter } from '../editor-model/array';
 
 import { delegateKeyboardEvents, KeyboardDelegate } from '../editor/keyboard';
 import { UndoManager } from '../editor/undo';
-import { disposePopover, updatePopoverPosition } from '../editor/popover';
+import {
+  disposeSuggestionPopover,
+  updateSuggestionPopoverPosition,
+} from '../editor/suggestion-popover';
 import { l10n, localize } from '../core/l10n';
 import {
   HAPTIC_FEEDBACK_DURATION,
@@ -113,9 +114,11 @@ import type {
 } from '../public/core-types';
 import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
 import type { ContextInterface } from '../core/types';
-
-let CORE_STYLESHEET_HASH: string | undefined = undefined;
-let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
+import {
+  disposeEnvironmentPopover,
+  hideEnvironmentPopover,
+  updateEnvironmemtPopover,
+} from 'editor/environment-popover';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg style="width: 21px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg>`;
 
@@ -152,14 +155,8 @@ export class MathfieldPrivate implements Mathfield {
 
   atomBoundsCache?: Map<string, Rect>;
 
-  popover?: HTMLElement;
-  popoverVisible: boolean;
   suggestionIndex: number;
 
-  envPopover?: HTMLElement;
-  envPopoverVisible: boolean;
-
-  keystrokeCaption?: HTMLElement;
   keystrokeCaptionVisible: boolean;
 
   readonly keyboardDelegate: KeyboardDelegate;
@@ -182,7 +179,6 @@ export class MathfieldPrivate implements Mathfield {
   private valueOnFocus: string;
   private focusBlurInProgress = false;
 
-  private readonly stylesheets: (null | Stylesheet)[] = [];
   private geometryChangeTimer: ReturnType<typeof requestAnimationFrame>;
 
   /** When true, the mathfield is listening to the virtual keyboard */
@@ -219,25 +215,17 @@ export class MathfieldPrivate implements Mathfield {
     element.mathfield = this;
 
     // Inject the core and mathfield stylesheets
-    if (!CORE_STYLESHEET_HASH)
-      CORE_STYLESHEET_HASH = hashCode(CORE_STYLESHEET).toString(36);
-
-    this.stylesheets.push(
-      injectStylesheet(element, CORE_STYLESHEET, CORE_STYLESHEET_HASH)
+    const styleNode = document.createElement('style');
+    styleNode.append(
+      document.createTextNode(CORE_STYLESHEET + MATHFIELD_STYLESHEET)
     );
-    if (!MATHFIELD_STYLESHEET_HASH)
-      MATHFIELD_STYLESHEET_HASH = hashCode(MATHFIELD_STYLESHEET).toString(36);
-
-    this.stylesheets.push(
-      injectStylesheet(element, MATHFIELD_STYLESHEET, MATHFIELD_STYLESHEET_HASH)
-    );
+    element.getRootNode().appendChild(styleNode);
 
     // Focus/blur state
     this.blurred = true;
 
-    // The keystroke caption panel and the popover are initially hidden
+    // The keystroke caption panel is initially hidden
     this.keystrokeCaptionVisible = false;
-    this.popoverVisible = false;
 
     // This index indicates which of the suggestions available to
     // display in the popover panel
@@ -452,6 +440,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
     window.addEventListener('resize', this);
     document.addEventListener('scroll', this);
 
+    window.mathVirtualKeyboard.addEventListener(
+      'virtual-keyboard-toggle',
+      this
+    );
+
     // Now start recording potentially undoable actions
     this.undoManager.startRecording();
     this.undoManager.snapshot();
@@ -479,6 +472,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // Connect the kbd or kbd proxy to the current window
     window.mathVirtualKeyboard.connect();
     window.mathVirtualKeyboard.update(makeProxy(this));
+    updateEnvironmemtPopover(this);
   }
 
   disconnectFromVirtualKeyboard(): void {
@@ -486,44 +480,26 @@ If you are using Vue, this may be because you are using the runtime-only build o
     window.removeEventListener('message', this);
     window.mathVirtualKeyboard.disconnect();
     this.connectedToVirtualKeyboard = false;
+    hideEnvironmentPopover();
   }
 
-  /** Global Context.
-   * These properties are accessed by the atom instances for rendering/layout
-   */
   get colorMap(): (name: string) => string | undefined {
-    return (name: string): string | undefined => {
-      let result: string | undefined = undefined;
-      if (typeof this.options?.colorMap === 'function')
-        result = this.options.colorMap(name);
-
-      if (!result) result = defaultColorMap(name);
-
-      return result;
-    };
+    return (name) => this.options.colorMap?.(name) ?? defaultColorMap(name);
   }
 
   get backgroundColorMap(): (name: string) => string | undefined {
-    return (name: string): string | undefined => {
-      let result: string | undefined = undefined;
-      if (typeof this.options?.backgroundColorMap === 'function')
-        result = this.options.backgroundColorMap(name);
-
-      if (!result && typeof this.options.colorMap === 'function')
-        result = this.options.colorMap(name);
-
-      if (!result) result = defaultBackgroundColorMap(name);
-
-      return result;
-    };
+    return (name) =>
+      this.options.backgroundColorMap?.(name) ??
+      this.options.colorMap?.(name) ??
+      defaultBackgroundColorMap(name);
   }
 
   get smartFence(): boolean {
-    return this.options?.smartFence ?? false;
+    return this.options.smartFence ?? false;
   }
 
   get readOnly(): boolean {
-    return this.options?.readOnly ?? false;
+    return this.options.readOnly ?? false;
   }
 
   get disabled(): boolean {
@@ -586,11 +562,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   get letterShapeStyle(): 'tex' | 'iso' | 'french' | 'upright' {
     return (
-      (this.options?.letterShapeStyle as
-        | 'tex'
-        | 'iso'
-        | 'french'
-        | 'upright') ?? 'tex'
+      (this.options.letterShapeStyle as 'tex' | 'iso' | 'french' | 'upright') ??
+      'tex'
     );
   }
 
@@ -715,7 +688,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
   handleEvent(evt: Event): void {
     if (!isValidMathfield(this)) return;
     if (isVirtualKeyboardMessage(evt)) {
-      // console.log('mf received ', evt.data.action, evt);
       if (!validateOrigin(evt.origin, this.options.originValidator ?? 'none')) {
         throw new DOMException(
           `Message from unknown origin (${evt.origin}) cannot be handled`,
@@ -751,6 +723,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
       case 'pointerdown':
         onPointerDown(this, evt as PointerEvent);
+        break;
+
+      case 'virtual-keyboard-toggle':
+        if (this.hasFocus()) updateEnvironmemtPopover(this);
         break;
 
       case 'resize':
@@ -798,15 +774,19 @@ If you are using Vue, this may be because you are using the runtime-only build o
     window.removeEventListener('resize', this);
     document.removeEventListener('scroll', this);
     window.removeEventListener('blur', this, { capture: true });
+    window.mathVirtualKeyboard.removeEventListener(
+      'virtual-keyboard-toggle',
+      this
+    );
 
     // delete (this as any).accessibleMathML;
     delete (this as any).ariaLiveText;
     delete (this as any).field;
     delete (this as any).fieldContent;
-    disposePopover(this);
-    disposeKeystrokeCaption(this);
 
-    this.stylesheets.forEach((x) => x?.release());
+    disposeKeystrokeCaption();
+    disposeSuggestionPopover();
+    disposeEnvironmentPopover();
   }
 
   flushInlineShortcutBuffer(options?: { defer: boolean }): void {
@@ -1375,6 +1355,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   snapshotAndCoalesce(): void {
     if (this.undoManager.snapshotAndCoalesce()) {
       window.mathVirtualKeyboard.update(makeProxy(this));
+      updateEnvironmemtPopover(this);
       this.host?.dispatchEvent(
         new CustomEvent('undo-state-change', {
           bubbles: true,
@@ -1442,6 +1423,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
         composed: true,
       })
     );
+
+    updateEnvironmemtPopover(this);
   }
 
   private onFocus(): void {
@@ -1504,6 +1487,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     requestUpdate(this);
 
     this.focusBlurInProgress = false;
+
+    hideEnvironmentPopover();
 
     //
     // When the document/window loses focus, for example by switching
@@ -1573,8 +1558,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   private onGeometryChange(): void {
-    updatePopoverPosition(this);
-    window.mathVirtualKeyboard.updateEnvironmemtPopover(makeProxy(this));
+    updateSuggestionPopoverPosition(this);
+    updateEnvironmemtPopover(this);
   }
 
   private onWheel(ev: WheelEvent): void {
@@ -1611,10 +1596,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   get context(): ContextInterface {
     return {
-      registers: this.options?.registers ?? {},
+      registers: this.options.registers ?? {},
       smartFence: this.smartFence,
       letterShapeStyle: this.letterShapeStyle,
-      placeholderSymbol: this.options?.placeholderSymbol ?? '▢',
+      placeholderSymbol: this.options.placeholderSymbol ?? '▢',
       colorMap: (name) => this.colorMap(name),
       backgroundColorMap: (name) => this.backgroundColorMap(name),
       getMacro: (token) =>

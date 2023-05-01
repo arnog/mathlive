@@ -5,8 +5,7 @@ import coreStylesheet from '../../css/core.less';
 
 import { AutoRenderOptions } from '../public/options';
 
-import { inject as injectStylesheet } from '../common/stylesheet';
-import { hashCode } from '../common/hash-code';
+import { injectStylesheet } from '../common/stylesheet';
 
 import '../core/atom';
 import { loadFonts } from '../core/fonts';
@@ -559,11 +558,7 @@ export function autoRenderMathInElement(
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
     requestAnimationFrame(() => void loadFonts());
-    injectStylesheet(
-      null,
-      coreStylesheet,
-      hashCode(coreStylesheet).toString(36)
-    );
+    injectStylesheet('mathlive-core-stylesheet', coreStylesheet);
 
     scanElement(element, optionsPrivate);
   } catch (error: unknown) {

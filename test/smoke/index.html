@@ -48,8 +48,7 @@
       > -->
       <!-- <math-field id="mf">=\overset{\left[\frac{0}{0}\right]}{=}=</math-field> -->
       <math-field id="mf"
-        >\overset{\left[\frac{0}{0}\right]}{\underset{\mathop{H}}{=}}=
-        ^\left[\frac{0}{0}\right]</math-field
+        >\begin{pmatrix}a & b+1 \\ c + 2 & d\end{pmatrix}</math-field
       >
       <!-- <math-field id="mf"
         >{\mathrlap{\raisebox{-.1em}{$-$}}\raisebox{.1em}{$\tripledash$}}\ce{A\bond{~-}B\bond{~=}C\bond{-~-}D}</math-field
@@ -109,6 +108,10 @@
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
       const mf = document.getElementById('mf');
+
+      for (let i = 0; i < 1000; i++) {
+        document.body.appendChild(new MathfieldElement());
+      }
 
       const ce = new ComputeEngine({
         latexDictionary: [

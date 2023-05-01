@@ -6,7 +6,7 @@
   'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
 
 /* The element that display info while in latex mode */
-#mathlive-popover-panel {
+#mathlive-suggestion-popover {
   background-color: rgba(97, 97, 97);
   color: #fff;
   text-align: center;
@@ -21,7 +21,7 @@
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
-#mathlive-popover-panel.top-tip::after  {
+#mathlive-suggestion-popover.top-tip::after  {
   content: '';
   position: absolute;
   top: -15px;
@@ -35,7 +35,7 @@
   font-size: 1rem;
 }
 
-#mathlive-popover-panel.bottom-tip::after  {
+#mathlive-suggestion-popover.bottom-tip::after  {
   content: '';
   position: absolute;
   bottom: -15px;
@@ -51,12 +51,12 @@
 
 
 
-#mathlive-popover-panel.is-animated {
+#mathlive-suggestion-popover.is-animated {
   transition: all 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
   animation: ML__fade-in cubic-bezier(0, 0, 0.2, 1) 0.15s;
 }
 
-#mathlive-popover-panel.is-visible {
+#mathlive-suggestion-popover.is-visible {
   display: flex;
 }
 @keyframes ML__fade-in {
@@ -70,7 +70,7 @@
 
 /* The wrapper class for the entire content of the popover panel */
 
-#mathlive-popover-panel ul {
+#mathlive-suggestion-popover ul {
   display: flex;
   flex-flow: column;
   list-style: none;
@@ -81,7 +81,7 @@
   overflow-y: auto;
 }
 
-#mathlive-popover-panel li {
+#mathlive-suggestion-popover li {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -111,7 +111,7 @@
   }
 }
 
-/* The command inside a popover (inside a #mathlive-popover-panel) */
+/* The command inside a popover (inside a #mathlive-suggestion-popover) */
 .ML__popover__command {
   font-size: 1.6rem;
   font-family: KaTeX_Main;

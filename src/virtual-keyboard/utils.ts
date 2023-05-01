@@ -7,8 +7,7 @@ import { getActiveKeyboardLayout } from '../editor/keyboard-layout';
 
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less' assert { type: 'css' };
 import CORE_STYLESHEET from '../../css/core.less' assert { type: 'css' };
-import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
-import { hashCode } from '../common/hash-code';
+import { releaseStylesheet, injectStylesheet } from '../common/stylesheet';
 import { loadFonts } from '../core/fonts';
 import { Context } from '../core/context';
 
@@ -403,39 +402,18 @@ function makeSyntheticKeycap(element: HTMLElement): void {
   }
 }
 
-let gCoreStylesheet: Stylesheet | null;
-let gVirtualKeyboardStylesheet: Stylesheet | null;
-
-let gVirtualKeyboardStylesheetHash: string;
-
 function injectStylesheets(): void {
-  if (!gVirtualKeyboardStylesheet) {
-    if (!gVirtualKeyboardStylesheetHash) {
-      gVirtualKeyboardStylesheetHash = hashCode(
-        VIRTUAL_KEYBOARD_STYLESHEET
-      ).toString(36);
-    }
-    gVirtualKeyboardStylesheet = injectStylesheet(
-      null,
-      VIRTUAL_KEYBOARD_STYLESHEET,
-      gVirtualKeyboardStylesheetHash
-    );
-  }
-  if (!gCoreStylesheet) {
-    gCoreStylesheet = injectStylesheet(
-      null,
-      CORE_STYLESHEET,
-      hashCode(CORE_STYLESHEET).toString(36)
-    );
-    void loadFonts();
-  }
+  injectStylesheet(
+    'mathlive-virtual-keyboard-stylesheet',
+    VIRTUAL_KEYBOARD_STYLESHEET
+  );
+  injectStylesheet('mathlive-core-stylesheet', CORE_STYLESHEET);
+  void loadFonts();
 }
 
 export function releaseStylesheets(): void {
-  gCoreStylesheet?.release();
-  gCoreStylesheet = null;
-  gVirtualKeyboardStylesheet?.release();
-  gVirtualKeyboardStylesheet = null;
+  releaseStylesheet('mathlive-core-stylesheet');
+  releaseStylesheet('mathlive-virtual-keyboard-stylesheet');
 }
 
 const SVG_ICONS = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">

@@ -1,12 +1,20 @@
 import { CasesEnvironment, MatrixEnvironment } from '../public/core-types';
-import { ArrayAtom } from '../core-atoms/array';
 import {
   isAlignEnvironment,
   isCasesEnvironment,
   isMatrixEnvironment,
+  isTabularEnvironment,
 } from '../core-definitions/environment-types';
-import { SelectorPrivate } from '../editor/types';
-import { VirtualKeyboard } from './virtual-keyboard';
+import { SelectorPrivate } from './types';
+import { MathfieldPrivate } from './mathfield';
+import { getSharedElement, releaseSharedElement } from './shared-element';
+
+// @ts-ignore-error
+import POPOVER_STYLESHEET from '../../css/environment-popover.less';
+// @ts-ignore-error
+import CORE_STYLESHEET from '../../css/core.less';
+import { injectStylesheet, releaseStylesheet } from 'common/stylesheet';
+import { hashCode } from 'common/hash-code';
 
 const padding = 4;
 const radius = 20;
@@ -39,18 +47,18 @@ const newArrow = (x, y, theta) => `
   </svg>`;
 
 const controllerSvg = `
-<svg class="MLK__array-buttons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+<svg class="MLEP__array-buttons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 viewBox=
 "-2 -2 ${8 * radius + 10 * padding + 5} ${8 * radius + 10 * padding + 5}">
   <rect 
-      class="MLK__array-insert-background rows"
+      class="MLEP__array-insert-background rows"
       x="0" 
       y="${paddedWidth + padding}" 
       height="${3 * paddedWidth}" 
       width="${paddedWidth}" 
       rx="${paddedWidth / 2}"/>
       <rect 
-      class="MLK__array-insert-background columns"
+      class="MLEP__array-insert-background columns"
       x="${paddedWidth + padding}" 
       y="0" 
       height="${paddedWidth}" 
@@ -181,13 +189,9 @@ const rcases: svgBuilder = (className) => `
 const matrixButtons = { matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix };
 const casesButtons = { cases, rcases, Bmatrix };
 
-export function showEnvironmentPanel(
-  keyboard: VirtualKeyboard,
-  arrayAtom: ArrayAtom,
-  bounds: DOMRect
-): void {
-  hideEnvironmentPanel(keyboard);
-  const array = (arrayAtom as ArrayAtom).array;
+export function showEnvironmentPopover(mf: MathfieldPrivate): void {
+  const array = mf.model.parentEnvironment?.array;
+  if (!array) return;
 
   let columnCount = 0;
   array.forEach((column) => {
@@ -196,31 +200,30 @@ export function showEnvironmentPanel(
   });
   //@TODO: display current matrix dimensions
 
-  let environmentPanel;
-  const possiblyExistentPanel = keyboard.container?.querySelector(
-    '.MLK__environment-panel'
-  );
-  if (possiblyExistentPanel) environmentPanel = possiblyExistentPanel;
-  else {
-    environmentPanel = document.createElement('div');
-    keyboard.container
-      ?.querySelector('.ML__keyboard')
-      ?.appendChild(environmentPanel);
+  let panel = document.getElementById('mathlive-environment-popover');
+  if (!panel) {
+    panel = getSharedElement('mathlive-environment-popover');
+
+    injectStylesheet(
+      'mathlive-environment-popover-stylesheet',
+      POPOVER_STYLESHEET
+    );
+    injectStylesheet('mathlive-core-stylesheet', CORE_STYLESHEET);
+
+    panel.setAttribute('aria-hidden', 'true');
   }
 
-  environmentPanel.setAttribute('aria-hidden', 'true');
-  environmentPanel.className = 'MLK__environment-panel';
-
   let flexbox;
-  const possiblyExistentFlexbox = environmentPanel.querySelector(
-    '.MLK__environment-controls'
+  const possiblyExistentFlexbox = panel.querySelector(
+    '.MLEP__environment-controls'
   );
   if (possiblyExistentFlexbox) flexbox = possiblyExistentFlexbox;
   else {
     flexbox = document.createElement('div');
-    environmentPanel.appendChild(flexbox);
+    panel.innerHTML = '';
+    panel.appendChild(flexbox);
   }
-  flexbox.className = 'MLK__environment-controls';
+  flexbox.className = 'MLEP__environment-controls';
   flexbox.style.display = 'flex';
   flexbox.style.width = '100%';
   flexbox.style.height = '100%';
@@ -229,9 +232,9 @@ export function showEnvironmentPanel(
   flexbox.innerHTML = controllerSvg;
 
   let delimiterOptions: string[] = [];
-  let activeDelimeter;
+  let activeDelimeter = '';
 
-  const environment = arrayAtom.environmentName;
+  const environment = mf.model.parentEnvironment.environmentName;
 
   // 3 button modes: matrix, cases, and align/gather
   if (isMatrixEnvironment(environment)) {
@@ -256,12 +259,12 @@ export function showEnvironmentPanel(
   }
 
   const delimiterControls = document.createElement('div');
-  delimiterControls.className = 'MLK__environment-delimiter-controls';
+  delimiterControls.className = 'MLEP__environment-delimiter-controls';
   delimiterControls.style.display = 'flex';
   delimiterControls.style.flexDirection = 'column';
 
   delimiterControls.innerHTML = `
-  <div class='MLK__array-delimiter-options'>
+  <div class='MLEP__array-delimiter-options'>
   ${activeDelimeter}
   ${delimiterOptions.join('')}
   </div>`;
@@ -283,25 +286,43 @@ export function showEnvironmentPanel(
     }
     control.addEventListener('mousedown', (ev) => ev.preventDefault());
     if (command)
-      control.addEventListener('click', () => keyboard.executeCommand(command));
+      control.addEventListener('click', () => mf.executeCommand(command));
   });
 
-  const position = bounds;
-
+  const position = mf.field?.getBoundingClientRect();
   if (position) {
-    const left = position.left + 20;
-    const top = position.top - environmentPanel.clientHeight - 15;
-    environmentPanel.style.transform = `translate(${left}px, ${top}px)`;
-    environmentPanel.classList.add('is-visible');
+    panel.style.top = `${position.top - panel.clientHeight - 15}px`;
+    panel.style.left = `${position.left + 20}px`;
+    panel.classList.add('is-visible');
   }
-
-  return;
 }
 
-export function hideEnvironmentPanel(keyboard: VirtualKeyboard): void {
-  keyboard.container
-    ?.querySelector('.MLK__environment-panel')
-    ?.classList.remove('is-visible');
+export function hideEnvironmentPopover(): void {
+  const panel = document.getElementById('mathlive-environment-popover');
+  panel?.classList.remove('is-visible');
+}
+
+export function disposeEnvironmentPopover(): void {
+  releaseSharedElement('mathlive-environment-popover');
+  releaseStylesheet('mathlive-environment-popover-stylesheet');
+  releaseStylesheet('mathlive-core-stylesheet');
+}
+
+export function environmentPopoverIsVisible(): boolean {
+  const panel = document.getElementById('mathlive-environment-popover');
+  if (!panel) return false;
+  return panel.classList.contains('is-visible');
+}
+
+export function updateEnvironmemtPopover(mf: MathfieldPrivate): void {
+  if (!mf.hasFocus()) return;
+  let visible = false;
+  if (mf.mode === 'math' && window.mathVirtualKeyboard.visible) {
+    const env = mf.model.parentEnvironment;
+    visible = !!env?.array && isTabularEnvironment(env.environmentName);
+  }
+  if (visible) showEnvironmentPopover(mf);
+  else hideEnvironmentPopover();
 }
 
 const normalizedMatrices = [
@@ -312,6 +333,7 @@ const normalizedMatrices = [
   'vmatrix',
   'Vmatrix',
 ] as const;
+
 function normalizeMatrixName(environment: MatrixEnvironment) {
   return environment.replace('*', '') as (typeof normalizedMatrices)[number];
 }

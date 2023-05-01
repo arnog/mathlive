@@ -110,10 +110,6 @@ export class VirtualKeyboardProxy
     this.sendMessage('update-toolbar', mf);
   }
 
-  updateEnvironmemtPopover(mf: MathfieldProxy): void {
-    this.sendMessage('update-setting');
-  }
-
   update(mf: MathfieldProxy): void {
     this.sendMessage('update-setting', mf);
   }
