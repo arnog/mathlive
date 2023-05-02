@@ -27,16 +27,11 @@ import {
   ModelListeners,
   selectionDidChange,
 } from './listeners';
-import {
-  ModelOptions,
-  isOffset,
-  isSelection,
-  isRange,
-  AnnounceVerb,
-} from './utils';
+import { isOffset, isSelection, isRange, AnnounceVerb } from './utils';
 import { compareSelection, range } from './selection-utils';
 import { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from 'core-atoms/latex';
+import { parseLatex } from 'core/parser';
 
 export type ModelState = {
   content: AtomJson;
@@ -50,22 +45,17 @@ export type GetAtomOptions = {
 /** @internal */
 export class ModelPrivate implements Model {
   readonly mathfield: MathfieldPrivate;
-  readonly options: ModelOptions;
+
   listeners: ModelListeners;
+  suppressChangeNotifications: boolean;
 
   root: Atom;
-  suppressChangeNotifications: boolean;
 
   private _selection: Selection;
   private _anchor: Offset;
   private _position: Offset;
 
-  constructor(
-    options: ModelOptions,
-    listeners: ModelListeners,
-    target: Mathfield
-  ) {
-    this.options = options;
+  constructor(target: Mathfield, content: string, listeners: ModelListeners) {
     this._selection = { ranges: [[0, 0]], direction: 'none' };
     this._anchor = 0;
     this._position = 0;
@@ -73,10 +63,18 @@ export class ModelPrivate implements Model {
     this.mathfield = target as MathfieldPrivate;
     this.suppressChangeNotifications = false;
 
-    this.root = new Atom('root', { mode: options.mode });
-    this.root.body = [];
+    this.root = new Atom('root', { mode: target.mode });
+
+    this.root.body = parseLatex(content, {
+      context: this.mathfield.context,
+    });
 
     this.setListeners(listeners);
+  }
+
+  dispose(): void {
+    (this as any).mathfield = undefined;
+    (this as any).listeners.onSelectionDidChange = undefined;
   }
 
   get atoms(): Atom[] {

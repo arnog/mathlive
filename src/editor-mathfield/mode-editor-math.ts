@@ -307,7 +307,7 @@ export class MathModeEditor extends ModeEditor {
     // Are we inserting a fraction inside a leftright?
     if (
       format !== 'latex' &&
-      model.options.removeExtraneousParentheses &&
+      model.mathfield.options.removeExtraneousParentheses &&
       parent instanceof LeftRightAtom &&
       parent.leftDelim === '(' &&
       parent.hasEmptyBranch('body') &&
@@ -389,22 +389,19 @@ function convertStringToAtoms(
     if (!ce) return ['math-json', []];
 
     [format, s] = ['latex', ce.box(s as Expression).latex as string];
-    result = parseLatex(s, {
-      context: model.mathfield.context,
-      parseMode: 'math',
-    });
+    result = parseLatex(s, { context: model.mathfield.context });
   } else if (typeof s === 'string' && options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {
       format: 'ascii-math',
       inlineShortcuts: model.mathfield.options.inlineShortcuts,
     });
-    result = parseLatex(s, {
-      context: model.mathfield.context,
-      parseMode: 'math',
-    });
+    result = parseLatex(s, { context: model.mathfield.context });
 
     // Simplify result.
-    if (format !== 'latex' && model.options.removeExtraneousParentheses)
+    if (
+      format !== 'latex' &&
+      model.mathfield.options.removeExtraneousParentheses
+    )
       simplifyParen(result);
   } else if (options.format === 'auto' || options.format?.startsWith('latex')) {
     if (options.format === 'auto') {
@@ -419,12 +416,14 @@ function convertStringToAtoms(
 
     result = parseLatex(s, {
       context: model.mathfield.context,
-      parseMode: 'math',
       args: args,
     });
 
     // Simplify result.
-    if (options.format !== 'latex' && model.options.removeExtraneousParentheses)
+    if (
+      options.format !== 'latex' &&
+      model.mathfield.options.removeExtraneousParentheses
+    )
       simplifyParen(result);
   }
 

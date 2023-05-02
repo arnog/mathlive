@@ -499,15 +499,19 @@ export const TEXT_SYMBOLS: Record<string, number> = {
 
 export const COMMAND_MODE_CHARACTERS = /[\w!@*()-=+{}[\]\\';:?/.,~<>`|$%#&^" ]/;
 
-export const LETTER = supportRegexPropertyEscape()
-  ? /* eslint-disable-next-line prefer-regex-literals */
-    new RegExp('\\p{Letter}', 'u')
-  : /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
+export let LETTER;
+export let LETTER_AND_DIGITS;
 
-export const LETTER_AND_DIGITS = supportRegexPropertyEscape()
-  ? /* eslint-disable-next-line prefer-regex-literals */
-    new RegExp('[0-9\\p{Letter}]', 'u')
-  : /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
+if (supportRegexPropertyEscape()) {
+  LETTER = new RegExp('\\p{Letter}', 'u');
+  LETTER_AND_DIGITS = new RegExp('[0-9\\p{Letter}]', 'u');
+} else {
+  LETTER =
+    /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
+
+  LETTER_AND_DIGITS =
+    /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
+}
 
 /**
  * @param symbol    The LaTeX command for this symbol, for

@@ -16,7 +16,8 @@ export function selectionDidChange(model: ModelPrivate): void {
     model.listeners.onSelectionDidChange(model);
     model.suppressChangeNotifications = false;
   }
-  window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
+  if (window.mathVirtualKeyboard.visible)
+    window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
 }
 
 export function contentWillChange(
@@ -45,7 +46,8 @@ export function contentDidChange(
   model: ModelPrivate,
   options: ContentChangeOptions
 ): void {
-  window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
+  if (window.mathVirtualKeyboard.visible)
+    window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
   if (model.suppressChangeNotifications || !model.mathfield.host) return;
 
   model.suppressChangeNotifications = true;

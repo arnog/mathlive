@@ -1,14 +1,4 @@
-import type {
-  NormalizedMacroDictionary,
-  ParseMode,
-} from '../public/core-types';
 import type { Offset, Range, Selection } from '../public/mathfield';
-
-export type ModelOptions = {
-  mode: ParseMode;
-  macros: NormalizedMacroDictionary;
-  removeExtraneousParentheses: boolean;
-};
 
 export type AnnounceVerb =
   | 'plonk'

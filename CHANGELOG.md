@@ -13,6 +13,10 @@
 - **#1940** New attempt to preserve the focus of mathfields when a window loses,
   then regains focus (when switching tabs, for example).
 
+## Improvements
+- Improved performance of creation and destruction of mathfields by 50%.
+- Fixed memory and listener leaks
+
 ## 0.92.1 (2023-04-19)
 
 ## Improvements

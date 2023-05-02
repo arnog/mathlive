@@ -35,6 +35,7 @@ export interface KeyboardDelegate {
   setValue: (value: string) => void;
   setAriaLabel: (value: string) => void;
   moveTo: (x: number, y: number) => void;
+  dispose: () => void;
 }
 
 const PRINTABLE_KEYCODE = new Set([
@@ -155,6 +156,19 @@ function keyboardEventToString(evt: KeyboardEvent): string {
   return modifiers.join('+');
 }
 
+export interface KeyboardDelegateInterface {
+  onKeystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
+  onInput: (text: string) => void;
+  onCut: (ev: ClipboardEvent) => void;
+  onCopy: (ev: ClipboardEvent) => void;
+  onPaste: (ev: ClipboardEvent) => boolean;
+  onFocus: () => void;
+  onBlur: () => void;
+  onCompositionStart: (composition: string) => void;
+  onCompositionUpdate: (composition: string) => void;
+  onCompositionEnd: (composition: string) => void;
+}
+
 /**
  * Setup to capture the keyboard events from a `TextArea` and redispatch them to
  * handlers.
@@ -165,7 +179,7 @@ function keyboardEventToString(evt: KeyboardEvent): string {
  *
  * @param {HTMLElement} keyboardSink The element that captures the keyboard
  * events.
- * @param {Object.<string, any>} handlers
+ * @param {KeyboardDelegateInterface} delegate
  * @param {function} handlers.keystroke invoked on a key down event, including
  * for special keys such as ESC, arrow keys, tab, etc... and their variants
  * with modifiers.
@@ -181,24 +195,16 @@ function keyboardEventToString(evt: KeyboardEvent): string {
 export function delegateKeyboardEvents(
   keyboardSink: HTMLElement,
   element: HTMLElement,
-  handlers: {
-    onKeystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
-    onInput: (text: string) => void;
-    onCut: (ev: ClipboardEvent) => void;
-    onCopy: (ev: ClipboardEvent) => void;
-    onPaste: (ev: ClipboardEvent) => boolean;
-    onFocus: null | (() => void);
-    onBlur: null | (() => void);
-    onCompositionStart: (composition: string) => void;
-    onCompositionUpdate: (composition: string) => void;
-    onCompositionEnd: (composition: string) => void;
-  }
+  delegate: KeyboardDelegateInterface
 ): KeyboardDelegate {
   let keydownEvent: KeyboardEvent | null = null;
   let keypressEvent: KeyboardEvent | null = null;
   let compositionInProgress = false;
   let focusInProgress = false;
   let blurInProgress = false;
+
+  const controller = new AbortController();
+  const signal = controller.signal;
 
   keyboardSink.addEventListener(
     'keydown',
@@ -217,11 +223,11 @@ export function delegateKeyboardEvents(
 
       keydownEvent = event;
       keypressEvent = null;
-      if (!handlers.onKeystroke(keyboardEventToString(event), event))
+      if (!delegate.onKeystroke(keyboardEventToString(event), event))
         keydownEvent = null;
       else keyboardSink.textContent = '';
     },
-    true
+    { capture: true, signal }
   );
 
   keyboardSink.addEventListener(
@@ -231,11 +237,11 @@ export function delegateKeyboardEvents(
       // If this is not the first keypress after a keydown, that is,
       // if this is a repeated keystroke, call the keystroke handler.
       if (keydownEvent && keypressEvent)
-        handlers.onKeystroke(keyboardEventToString(keydownEvent), keydownEvent);
+        delegate.onKeystroke(keyboardEventToString(keydownEvent), keydownEvent);
 
       keypressEvent = event;
     },
-    true
+    { capture: true, signal }
   );
 
   keyboardSink.addEventListener(
@@ -244,9 +250,9 @@ export function delegateKeyboardEvents(
       keyboardSink.textContent = '';
       compositionInProgress = true;
 
-      handlers.onCompositionStart(event.data);
+      delegate.onCompositionStart(event.data);
     },
-    true
+    { capture: true, signal }
   );
 
   keyboardSink.addEventListener(
@@ -254,9 +260,9 @@ export function delegateKeyboardEvents(
     (ev: CompositionEvent) => {
       if (!compositionInProgress) return;
 
-      handlers.onCompositionUpdate(ev.data);
+      delegate.onCompositionUpdate(ev.data);
     },
-    true
+    { capture: true, signal }
   );
 
   keyboardSink.addEventListener(
@@ -266,42 +272,48 @@ export function delegateKeyboardEvents(
       if (!compositionInProgress) return;
 
       compositionInProgress = false;
-      handlers.onCompositionEnd(ev.data);
+      delegate.onCompositionEnd(ev.data);
     },
-    true
+    { capture: true, signal }
   );
 
-  keyboardSink.addEventListener('beforeinput', (ev) =>
-    ev.stopImmediatePropagation()
+  keyboardSink.addEventListener(
+    'beforeinput',
+    (ev) => ev.stopImmediatePropagation(),
+    { signal }
   );
 
   // The `input` events is dispatched when the field is changed,
   // but no other relevant events have been triggered
   // for example with emoji input...
-  keyboardSink.addEventListener('input', (ev: InputEvent) => {
-    if (compositionInProgress) return;
+  keyboardSink.addEventListener(
+    'input',
+    (ev: InputEvent) => {
+      if (compositionInProgress) return;
 
-    keyboardSink.textContent = '';
+      keyboardSink.textContent = '';
 
-    // If this was an `input` event sent as a result of a commit of
-    // IME, ignore it.
-    // (This is what FireFox does, even though the spec says it
-    // shouldn't happen). See https://github.com/w3c/uievents/issues/202
-    if (ev.inputType === 'insertCompositionText') return;
+      // If this was an `input` event sent as a result of a commit of
+      // IME, ignore it.
+      // (This is what FireFox does, even though the spec says it
+      // shouldn't happen). See https://github.com/w3c/uievents/issues/202
+      if (ev.inputType === 'insertCompositionText') return;
 
-    // Paste is handled in paste handler
-    if (ev.inputType === 'insertFromPaste') {
+      // Paste is handled in paste handler
+      if (ev.inputType === 'insertFromPaste') {
+        ev.preventDefault();
+        ev.stopPropagation();
+        return;
+      }
+
+      delegate.onInput(ev.data ?? '');
+
+      // Do not propagate the event (it crosses the shadow dom barrier)
       ev.preventDefault();
       ev.stopPropagation();
-      return;
-    }
-
-    handlers.onInput(ev.data ?? '');
-
-    // Do not propagate the event (it crosses the shadow dom barrier)
-    ev.preventDefault();
-    ev.stopPropagation();
-  });
+    },
+    { signal }
+  );
 
   keyboardSink.addEventListener(
     'paste',
@@ -310,15 +322,21 @@ export function delegateKeyboardEvents(
       // when doing a middle-click paste command.
       keyboardSink.focus({ preventScroll: true });
       keyboardSink.textContent = '';
-      if (!handlers.onPaste(event)) event.preventDefault();
+      if (!delegate.onPaste(event)) event.preventDefault();
       event.stopImmediatePropagation();
     },
-    true
+    { passive: true, signal }
   );
 
-  keyboardSink.addEventListener('cut', (ev) => handlers.onCut(ev), true);
+  keyboardSink.addEventListener('cut', (ev) => delegate.onCut(ev), {
+    capture: true,
+    signal,
+  });
 
-  keyboardSink.addEventListener('copy', (ev) => handlers.onCopy(ev), true);
+  keyboardSink.addEventListener('copy', (ev) => delegate.onCopy(ev), {
+    capture: true,
+    signal,
+  });
 
   keyboardSink.addEventListener(
     'blur',
@@ -356,10 +374,10 @@ export function delegateKeyboardEvents(
       blurInProgress = true;
       keydownEvent = null;
       keypressEvent = null;
-      handlers.onBlur?.();
+      delegate.onBlur();
       blurInProgress = false;
     },
-    true
+    { capture: true, signal }
   );
 
   keyboardSink.addEventListener(
@@ -368,14 +386,15 @@ export function delegateKeyboardEvents(
       if (blurInProgress || focusInProgress) return;
 
       focusInProgress = true;
-      handlers.onFocus?.();
+      delegate.onFocus();
 
       focusInProgress = false;
     },
-    true
+    { capture: true, signal }
   );
 
   return {
+    dispose: (): void => controller.abort(),
     cancelComposition: (): void => {
       // Due to the order of event, we may not have
       // received `compositionstart` by the time we decide
