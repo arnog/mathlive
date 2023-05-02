@@ -136,6 +136,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     colorMap: defaultColorMap,
     backgroundColorMap: defaultBackgroundColorMap,
     letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
+    minFontScale: 0,
 
     smartMode: false,
     smartFence: true,

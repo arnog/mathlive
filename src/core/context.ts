@@ -76,6 +76,7 @@ export class Context implements ContextInterface {
   readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
   readonly color: string;
   readonly backgroundColor: string;
+  readonly minFontScale: number;
 
   /** @internal */
   // `size` is the "base" font size (need to add `mathstyle.sizeDelta` to get effective size)
@@ -126,6 +127,7 @@ export class Context implements ContextInterface {
     this.isPhantom = options?.isPhantom ?? this.parent?.isPhantom ?? false;
 
     this.letterShapeStyle = template.letterShapeStyle;
+    this.minFontScale = template.minFontScale;
 
     if (style?.color && style.color !== 'none') this.color = style.color;
     else this.color = this.parent?.color ?? '';
@@ -252,9 +254,10 @@ export class Context implements ContextInterface {
   // Return the font size, in em relative to the mathfield fontsize,
   // accounting both for the base font size and the mathstyle
   get effectiveFontSize(): number {
-    return FONT_SCALE[
-      Math.max(1, this.size + this.mathstyle.sizeDelta) as FontSize
-    ];
+    return Math.max(
+      FONT_SCALE[Math.max(1, this.size + this.mathstyle.sizeDelta) as FontSize],
+      this.minFontScale
+    );
   }
 
   getRegister(name: string): undefined | number | string | LatexValue {

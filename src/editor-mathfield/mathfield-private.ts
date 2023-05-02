@@ -567,6 +567,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
     );
   }
 
+  get minFontScale(): number {
+    return this.options.minFontScale;
+  }
+
   /** Returns styles shared by all selected atoms */
   get selectionStyle(): Style {
     // Selection is not extended, adopt style
@@ -1599,6 +1603,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       registers: this.options.registers ?? {},
       smartFence: this.smartFence,
       letterShapeStyle: this.letterShapeStyle,
+      minFontScale: this.minFontScale,
       placeholderSymbol: this.options.placeholderSymbol ?? '▢',
       colorMap: (name) => this.colorMap(name),
       backgroundColorMap: (name) => this.backgroundColorMap(name),

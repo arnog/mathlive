@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+## Improvements
+- The minFontScale property has been added that specifies the minimum font
+  size that should be used for nested superscripts and fractions. The value 
+  should be between 0 and 1. The size is in releative `em` units 
+  relative to the font size of the `math-field`. The default value is 0, 
+  which allows the `math-field` to use its default sizing logic. 
+
 ## Bug Fixes
 - **#1646** **mhchem**: states of aggregation is now rendered correctly. Added 
   support for the `\mskip` command

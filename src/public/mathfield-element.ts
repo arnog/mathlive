@@ -195,6 +195,7 @@ export interface MathfieldElementAttributes {
   [key: string]: unknown;
   'default-mode': string;
   'letter-shape-style': string;
+  'min-font-scale': number;
   'popover-policy': string;
   /**
    * The LaTeX string to insert when the spacebar is pressed (on the physical or
@@ -484,6 +485,7 @@ const DEPRECATED_OPTIONS = {
  * | `disabled` | `mf.disabled` |
  * | `default-mode` | `mf.defaultMode` |
  * | `letter-shape-style` | `mf.letterShapeStyle` |
+ * | `min-font-scale` | `mf.minFontScale` |
  * | `popover-policy` | `mf.popoverPolicy` |
  * | `math-mode-space` | `mf.mathModeSpace` |
  * | `read-only` | `mf.readOnly` |
@@ -558,6 +560,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return {
       'default-mode': 'string',
       'letter-shape-style': 'string',
+      'min-font-scale': 'number',
       'popover-policy': 'string',
 
       'math-mode-space': 'string',
@@ -1960,6 +1963,13 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   set letterShapeStyle(value: 'auto' | 'tex' | 'iso' | 'french' | 'upright') {
     this._setOptions({ letterShapeStyle: value });
+  }
+
+  get minFontScale(): number {
+    return this._getOption('minFontScale');
+  }
+  set minFontScale(value: number) {
+    this._setOptions({ minFontScale: value });
   }
 
   get smartMode(): boolean {

@@ -525,6 +525,16 @@ mf.setConfig({
      * ---
     */
   letterShapeStyle: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
+
+  /**
+   * Set the minimum relative font size for nested superscripts and fractions. The value
+   * should be a number between `0` and `1`. The size is in releative `em` units relative to the
+   * font size of the `math-field` element. Specifying a value of `0` allows the `math-field`
+   * to use its default sizing logic.
+   *
+   * **Default**: `0`
+   */
+  minFontScale: number;
 };
 
 /**
