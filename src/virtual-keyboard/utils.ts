@@ -929,12 +929,22 @@ export function normalizeKeycap(
     keycap = { label: keycap };
   }
 
+  let shortcut: Partial<VirtualKeyboardKeycap> | undefined = undefined;
   if ('label' in keycap && keycap.label && KEYCAP_SHORTCUTS[keycap.label]) {
-    let shortcut = {
+    shortcut = {
       ...KEYCAP_SHORTCUTS[keycap.label],
       ...keycap,
       label: KEYCAP_SHORTCUTS[keycap.label].label,
     };
+  }
+  if ('key' in keycap && keycap.key && KEYCAP_SHORTCUTS[keycap.key]) {
+    shortcut = {
+      ...KEYCAP_SHORTCUTS[keycap.key],
+      ...keycap,
+      key: KEYCAP_SHORTCUTS[keycap.key].key,
+    };
+  }
+  if (shortcut) {
     if (shortcut.command === 'insertDecimalSeparator')
       shortcut.label = window.MathfieldElement.decimalSeparator ?? '.';
 

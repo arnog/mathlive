@@ -4,6 +4,9 @@
 
 - Support for `\the` command. For example, `\the\year`. Its argument can 
   be a literal or a register, preceded by an optional factor literal.
+- In addition to the `label` property, the `key` property can also now be used
+  for keycap shortcuts. This allow overriding of the shortcut label. For example
+  `{key: "[undo]", label: "undo"}`
 
 ## Improvements
 - Improved performance of creation and destruction of mathfields by 50%.
