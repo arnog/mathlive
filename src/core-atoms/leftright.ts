@@ -127,6 +127,7 @@ export class LeftRightAtom extends Atom {
             innerDepth,
             delimContext,
             {
+              isSelected: this.isSelected,
               classes:
                 'ML__open' + (this.containsCaret ? ' ML__contains-caret' : ''),
               mode: this.mode,
@@ -169,6 +170,7 @@ export class LeftRightAtom extends Atom {
             innerDepth,
             delimContext,
             {
+              isSelected: this.isSelected,
               classes: classes + ' ML__close',
               mode: this.mode,
               style: closeDelimStyle,
@@ -209,7 +211,9 @@ function upgradeMiddle(
     if (child.type === 'middle') {
       boxes[i] = atom.bind(
         context,
-        makeLeftRightDelim('inner', child.value, height, depth, context)
+        makeLeftRightDelim('inner', child.value, height, depth, context, {
+          isSelected: atom.isSelected,
+        })
       );
       boxes[i].caret = child.caret;
       boxes[i].isSelected = child.isSelected;

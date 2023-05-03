@@ -46,11 +46,11 @@ export function applyStyle(
     mathfield.model.deferNotifications(
       { content: true, type: 'insertText' },
       () => {
+        mathfield.snapshot();
         // Change the style of the selection
         model.selection.ranges.forEach((range) =>
           applyStyleToModel(model, range, style, { operation: 'toggle' })
         );
-        mathfield.snapshot();
       }
     );
   }

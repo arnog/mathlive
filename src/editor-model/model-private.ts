@@ -191,10 +191,11 @@ export class ModelPrivate implements Model {
   }
 
   getState(): ModelState {
-    return {
-      content: this.root.toJson(),
-      selection: this.selection,
-    };
+    const selection: Selection = { ranges: [...this.selection.ranges] };
+    if (this.selection.direction && this.selection.direction !== 'none')
+      selection.direction = this.selection.direction;
+
+    return { content: this.root.toJson(), selection };
   }
 
   setState(

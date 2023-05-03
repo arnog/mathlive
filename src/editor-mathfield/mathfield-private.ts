@@ -812,10 +812,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (options.mode === undefined || options.mode === 'auto')
       mode = getMode(this.model, this.model.position) ?? 'math';
 
-    if (ModeEditor.insert(mode, this.model, value, options)) {
-      this.undoManager.snapshot();
+    this.undoManager.snapshot();
+    if (ModeEditor.insert(mode, this.model, value, options))
       requestUpdate(this);
-    }
+    else this.undoManager.pop();
   }
 
   get expression(): BoxedExpression | null {
@@ -958,6 +958,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     if (options.scrollIntoView) this.scrollIntoView();
 
+    this.undoManager.snapshot();
+
     if (s === '\\\\') {
       // This string is interpreted as an "insert row after" command
       addRowAfter(this.model);
@@ -971,7 +973,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
       if (options.resetStyle) this.style = savedStyle;
     }
 
-    this.undoManager.snapshot();
     requestUpdate(this);
     return true;
   }

@@ -6,7 +6,7 @@ import { Box } from './box';
 import { BoxAtom } from '../core-atoms/box';
 import type { Style, Variant, VariantStyle } from '../public/core-types';
 import { mathVariantToUnicode } from '../core-definitions/unicode';
-import { TokenDefinition } from 'core-definitions/definitions-utils';
+import { TokenDefinition } from '../core-definitions/definitions-utils';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible

@@ -1,6 +1,6 @@
 import type { LatexValue, Style } from '../public/core-types';
 
-import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 
@@ -21,12 +21,10 @@ export class BoxAtom extends Atom {
       raise?: LatexValue;
       border?: string;
       style: Style;
-      serialize?: (atom: BoxAtom, options: ToLatexOptions) => string;
     }
   ) {
     super('box', {
       command,
-      serialize: options.serialize,
       style: options.style,
     });
     this.body = body;

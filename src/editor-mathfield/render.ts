@@ -113,17 +113,17 @@ export function contentMarkup(
   // 1. Update selection state and blinking cursor (caret)
   //
   const { model } = mathfield;
-  model.root.caret = '';
+  model.root.caret = undefined;
   model.root.isSelected = false;
   model.root.containsCaret = true;
   for (const atom of model.atoms) {
-    atom.caret = '';
+    atom.caret = undefined;
     atom.isSelected = false;
     atom.containsCaret = false;
   }
   const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
   if (model.selectionIsCollapsed)
-    model.at(model.position).caret = hasFocus ? mathfield.mode : '';
+    model.at(model.position).caret = hasFocus ? mathfield.mode : undefined;
   else {
     const atoms = model.getAtoms(model.selection, { includeChildren: true });
     for (const atom of atoms) atom.isSelected = true;

@@ -95,20 +95,22 @@ const BOX_TYPE = [
 export type BoxType = (typeof BOX_TYPE)[number];
 
 export type BoxOptions = {
-  classes?: string;
-  properties?: Partial<Record<BoxCSSProperties, string>>;
-  attributes?: Record<string, string>;
+  mode?: ParseMode;
   type?: BoxType;
-  isTight?: boolean;
   height?: number;
   depth?: number;
   maxFontSize?: number;
-
-  mode?: ParseMode;
-  style?: Style; // If a `style` option is provided, a `mode` must also be provided.
-
+  isTight?: boolean;
   fontFamily?: string;
   letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
+
+  caret?: ParseMode;
+  isSelected?: boolean;
+  classes?: string;
+  properties?: Partial<Record<BoxCSSProperties, string>>;
+  attributes?: Record<string, string>;
+
+  style?: Style; // If a `style` option is provided, a `mode` must also be provided.
 };
 
 export interface BoxInterface {

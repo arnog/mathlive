@@ -569,7 +569,8 @@ export class ArrayAtom extends Atom {
               this.leftDelim ?? '.',
               innerHeight,
               innerDepth,
-              innerContext
+              innerContext,
+              { isSelected: this.isSelected }
             )
           ),
           inner,
@@ -580,7 +581,8 @@ export class ArrayAtom extends Atom {
               this.rightDelim ?? '.',
               innerHeight,
               innerDepth,
-              innerContext
+              innerContext,
+              { isSelected: this.isSelected }
             )
           ),
         ],

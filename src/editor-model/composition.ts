@@ -16,7 +16,7 @@ export function updateComposition(model: ModelPrivate, s: string): void {
 
     // Remove previous caret
     const { caret } = cursor;
-    cursor.caret = '';
+    cursor.caret = undefined;
 
     // Create 'composition' atom, with caret
     const atom = new CompositionAtom(s, { mode: cursor.mode });

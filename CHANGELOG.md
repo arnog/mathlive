@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+## New Features
+
+- Support for `\the` command. For example, `\the\year`. Its argument can 
+  be a literal or a register, preceded by an optional factor literal.
+
+## Improvements
+- Improved performance of creation and destruction of mathfields by 50%.
+- Fixed memory and listener leaks. After creating, inserting in the DOM, then 
+  removing over 100,000, the memory is back to its starting point and there
+  are no listeners left (except for those associated with the Virtual Keyboard). 
+
 ## Bug Fixes
 - **#1646** **mhchem**: states of aggregation is now rendered correctly. Added 
   support for the `\mskip` command
@@ -12,10 +23,9 @@
 - The focus outline is no longer displayed when in readonly mode
 - **#1940** New attempt to preserve the focus of mathfields when a window loses,
   then regains focus (when switching tabs, for example).
+- At certain sizes, the `\left...\right` command did not display the visual
+  indicator that the caret was inside the argument of the command.
 
-## Improvements
-- Improved performance of creation and destruction of mathfields by 50%.
-- Fixed memory and listener leaks
 
 ## 0.92.1 (2023-04-19)
 

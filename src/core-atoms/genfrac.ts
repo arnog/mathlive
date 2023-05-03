@@ -18,7 +18,6 @@ export type GenfracOptions = {
   mathstyleName?: MathstyleName;
   fractionNavigationOrder?: 'numerator-denominator' | 'denominator-numerator';
   style?: Style;
-  serialize?: (atom: GenfracAtom, options: ToLatexOptions) => string;
 };
 
 /**
@@ -53,7 +52,6 @@ export class GenfracAtom extends Atom {
     super('genfrac', {
       style: options.style,
       command,
-      serialize: options.serialize,
       displayContainsHighlight: true,
     });
     this.above = above;
@@ -265,8 +263,6 @@ export class GenfracAtom extends Atom {
       ? metrics.delim1
       : metrics.delim2;
 
-    const selectClasses = this.isSelected ? ' ML__selected' : '';
-
     // Optional delimiters
     const leftDelim = this.leftDelim
       ? this.bind(
@@ -277,7 +273,7 @@ export class GenfracAtom extends Atom {
             delimSize,
             true,
             context,
-            { style: this.style, mode: this.mode, classes: selectClasses }
+            { style: this.style, mode: this.mode, isSelected: this.isSelected }
           )
         )
       : makeNullDelimiter(fracContext, 'open');
@@ -297,7 +293,7 @@ export class GenfracAtom extends Atom {
           delimSize,
           true,
           context,
-          { style: this.style, mode: this.mode, classes: selectClasses }
+          { style: this.style, mode: this.mode, isSelected: this.isSelected }
         )
       );
     }

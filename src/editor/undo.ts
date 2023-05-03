@@ -37,7 +37,7 @@ export class UndoManager {
   undo(): boolean {
     if (!this.canUndo()) return false;
 
-    this.model.setState(this.stack[this.index - 1], {
+    this.model.setState(this.stack[this.index], {
       suppressChangeNotifications: false,
       type: 'undo',
     });
@@ -80,6 +80,7 @@ export class UndoManager {
 
     // Add a new entry
     this.stack.push(this.model.getState());
+    console.log('snapshot', JSON.stringify(this.stack[this.stack.length - 1]));
 
     this.index++;
 

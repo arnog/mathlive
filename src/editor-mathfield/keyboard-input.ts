@@ -348,6 +348,7 @@ export function onKeystroke(
       mathfield.mode = saveMode;
     }
 
+    mathfield.snapshot();
     model.deferNotifications(
       {
         content: true,
@@ -380,7 +381,6 @@ export function onKeystroke(
         return true; // Content changed
       }
     );
-    mathfield.snapshot();
     mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
     model.announce('replacement');
   }
@@ -426,7 +426,7 @@ export function onInput(
     model.announce('plonk');
     return;
   }
-  options = options ?? {};
+  options ??= {};
 
   //
   // 1/ Focus (and scroll into view), then provide audio and haptic feedback
@@ -438,7 +438,10 @@ export function onInput(
   //
   // 2/ Switch mode if requested
   //
-  if (typeof options.mode === 'string') mathfield.switchMode(options.mode);
+  if (typeof options.mode === 'string') {
+    mathfield.snapshot();
+    mathfield.switchMode(options.mode);
+  }
 
   //
   // 3/ Simulate keystroke, if requested
@@ -460,9 +463,11 @@ export function onInput(
   const rightSibling = atom.rightSibling;
   const style = { ...atom.computedStyle, ...mathfield.style };
   if (!model.selectionIsCollapsed) {
-    model.deleteAtoms(range(model.selection));
     mathfield.snapshot();
+    model.deleteAtoms(range(model.selection));
   }
+
+  let snapshot = false;
 
   // Decompose the string into an array of graphemes.
   // This is necessary to correctly process what is displayed as a single
@@ -517,6 +522,8 @@ export function onInput(
         // If smartSuperscript is on, insert the digit, and
         // exit the superscript.
         ModeEditor.insert('math', model, c, { style });
+        mathfield.snapshot();
+        snapshot = false;
         moveAfterParent(model);
       } else {
         if (mathfield.adoptStyle !== 'none') {
@@ -533,6 +540,10 @@ export function onInput(
               style.variantStyle = sibling.style.variantStyle;
           }
         }
+        if (atom.type !== 'mord') {
+          mathfield.snapshot();
+          // snapshot = false;
+        }
         // General purpose character insertion
         ModeEditor.insert('math', model, c, { style });
       }
@@ -542,7 +553,7 @@ export function onInput(
   //
   // 5/ Take a snapshot for undo stack
   //
-  mathfield.snapshotAndCoalesce();
+  if (snapshot) mathfield.snapshotAndCoalesce();
 
   //
   // 6/ Render the mathfield

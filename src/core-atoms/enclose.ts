@@ -80,7 +80,6 @@ export class EncloseAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): EncloseAtom {
-    console.log(json);
     return new EncloseAtom(
       json.command,
       json.body,

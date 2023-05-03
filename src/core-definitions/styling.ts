@@ -1,4 +1,9 @@
-import { Atom, BBoxParameter, ToLatexOptions } from '../core/atom-class';
+import {
+  Atom,
+  BBoxParameter,
+  ToLatexOptions,
+  serializeAtoms,
+} from '../core/atom-class';
 
 import { GroupAtom } from '../core-atoms/group';
 import { BoxAtom } from '../core-atoms/box';
@@ -130,15 +135,15 @@ defineFunction(
         framecolor: args[0] ?? { string: 'blue' },
         backgroundcolor: args[1] ?? { string: 'yellow' },
         style,
-        serialize: (atom: BoxAtom, options: ToLatexOptions) =>
-          latexCommand(
-            atom.command,
-            serializeLatexValue(atom.framecolor) ?? '',
-            serializeLatexValue(atom.backgroundcolor) ?? '',
-            atom.bodyToLatex(options)
-          ),
       });
     },
+    serialize: (atom: BoxAtom, options: ToLatexOptions) =>
+      latexCommand(
+        atom.command,
+        serializeLatexValue(atom.framecolor) ?? '',
+        serializeLatexValue(atom.backgroundcolor) ?? '',
+        atom.bodyToLatex(options)
+      ),
   }
 );
 
@@ -163,31 +168,28 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
       border: arg.border,
       backgroundcolor: arg.backgroundcolor ?? undefined,
       style,
-      serialize: (atom: BoxAtom, options: ToLatexOptions) => {
-        let result = name;
-        if (
-          Number.isFinite(atom.padding) ||
-          atom.border !== undefined ||
-          atom.backgroundcolor !== undefined
-        ) {
-          const bboxParameters: string[] = [];
-          if (atom.padding)
-            bboxParameters.push(serializeLatexValue(atom.padding) ?? '');
-
-          if (atom.border) bboxParameters.push(`border: ${atom.border}`);
-
-          if (atom.backgroundcolor) {
-            bboxParameters.push(
-              serializeLatexValue(atom.backgroundcolor) ?? ''
-            );
-          }
-
-          result += `[${bboxParameters.join(',')}]`;
-        }
-
-        return latexCommand(result, atom.bodyToLatex(options));
-      },
     });
+  },
+  serialize: (atom: BoxAtom, options: ToLatexOptions) => {
+    let result = atom.command;
+    if (
+      Number.isFinite(atom.padding) ||
+      atom.border !== undefined ||
+      atom.backgroundcolor !== undefined
+    ) {
+      const bboxParameters: string[] = [];
+      if (atom.padding)
+        bboxParameters.push(serializeLatexValue(atom.padding) ?? '');
+
+      if (atom.border) bboxParameters.push(`border: ${atom.border}`);
+
+      if (atom.backgroundcolor)
+        bboxParameters.push(serializeLatexValue(atom.backgroundcolor) ?? '');
+
+      result += `[${bboxParameters.join(',')}]`;
+    }
+
+    return latexCommand(result, atom.bodyToLatex(options));
   },
 });
 
@@ -476,15 +478,15 @@ defineFunction('mbox', '{:text}', {
       style,
       mode: 'text',
       command,
-      serialize: (atom: GroupAtom, options: ToLatexOptions) =>
-        latexCommand(
-          '\\mbox',
-          atom.bodyToLatex({
-            ...options,
-            skipModeCommand: true,
-          })
-        ),
     }),
+  serialize: (atom: GroupAtom, options: ToLatexOptions) =>
+    latexCommand(
+      '\\mbox',
+      atom.bodyToLatex({
+        ...options,
+        skipModeCommand: true,
+      })
+    ),
 });
 
 defineFunction('text', '{:text}', {
@@ -844,13 +846,13 @@ defineFunction('overset', '{above:auto}{base:auto}', {
       skipBoundary: false,
       style,
       boxType: atomsBoxType(argAtoms(args[1])),
-      serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-        latexCommand(
-          atom.command,
-          atom.aboveToLatex(options),
-          atom.bodyToLatex(options)
-        ),
     }),
+  serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
+    latexCommand(
+      atom.command,
+      atom.aboveToLatex(options),
+      atom.bodyToLatex(options)
+    ),
 });
 
 defineFunction('underset', '{below:auto}{base:auto}', {
@@ -861,13 +863,13 @@ defineFunction('underset', '{below:auto}{base:auto}', {
       skipBoundary: false,
       style,
       boxType: atomsBoxType(argAtoms(args[1])),
-      serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-        latexCommand(
-          name,
-          atom.belowToLatex(options),
-          atom.bodyToLatex(options)
-        ),
     }),
+  serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
+    latexCommand(
+      atom.command,
+      atom.belowToLatex(options),
+      atom.bodyToLatex(options)
+    ),
 });
 
 defineFunction('overunderset', '{above:auto}{below:auto}{base:auto}', {
@@ -879,13 +881,13 @@ defineFunction('overunderset', '{above:auto}{below:auto}{base:auto}', {
       skipBoundary: false,
       style,
       boxType: atomsBoxType(argAtoms(args[2])),
-      serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-        latexCommand(
-          atom.command,
-          atom.aboveToLatex(options),
-          atom.bodyToLatex(options)
-        ),
     }),
+  serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
+    latexCommand(
+      atom.command,
+      atom.aboveToLatex(options),
+      atom.bodyToLatex(options)
+    ),
 });
 
 // `\stackrel` and `\stackbin` stack an item and provide an explicit
@@ -904,13 +906,13 @@ defineFunction(
         skipBoundary: false,
         style,
         boxType: name === '\\stackrel' ? 'rel' : 'bin',
-        serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-          latexCommand(
-            atom.command,
-            atom.aboveToLatex(options),
-            atom.bodyToLatex(options)
-          ),
       }),
+    serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
+      latexCommand(
+        atom.command,
+        atom.aboveToLatex(options),
+        atom.bodyToLatex(options)
+      ),
   }
 );
 
@@ -956,10 +958,9 @@ defineFunction('not', '{:math}', {
     if (args.length < 1 || args[0] === null || arg.length === 0) {
       return new Atom('mrel', {
         command: name,
+        args,
         style,
         value: '\ue020',
-        serialize: (_atom, _options) =>
-          args[0] !== null && arg.length === 0 ? `\\not{}` : `\\not`,
       });
     }
     const isGroup = typeof args[0] === 'object' && 'group' in args[0];
@@ -967,20 +968,27 @@ defineFunction('not', '{:math}', {
 
     const result = new GroupAtom(
       [
-        new OverlapAtom(name, '\ue020', { align: 'right', style, boxType }),
+        new OverlapAtom('', '\ue020', { align: 'right', style, boxType }),
         ...arg,
       ],
       {
+        command: '\\not',
+        args,
         boxType,
         captureSelection: true,
-        command: '\\not',
-        serialize: (_atom, options) =>
-          isGroup
-            ? `\\not{${Atom.serialize(arg, options)}}`
-            : `\\not${Atom.serialize(arg, options)}`,
       }
     );
     return result;
+  },
+  serialize: (atom: Atom | GroupAtom, options) => {
+    const arg = atom.args![0]!;
+    const isGroup = typeof arg === 'object' && 'group' in arg;
+    if (atom instanceof GroupAtom) {
+      return isGroup
+        ? `\\not{${serializeAtoms(arg.group, options)}}`
+        : `\\not${serializeAtoms(arg as Atom[], options)}`;
+    }
+    return isGroup ? `\\not{}` : `\\not`;
   },
 });
 
@@ -988,7 +996,7 @@ defineFunction(['ne', 'neq'], '', {
   createAtom: (name, args, style): Atom =>
     new GroupAtom(
       [
-        new OverlapAtom(name, '\ue020', {
+        new OverlapAtom('', '\ue020', {
           align: 'right',
           style,
           boxType: 'rel',
@@ -998,10 +1006,10 @@ defineFunction(['ne', 'neq'], '', {
       {
         boxType: 'rel',
         captureSelection: true,
-        serialize: () => name,
         command: name,
       }
     ),
+  serialize: (atom) => atom.command,
 });
 
 defineFunction('rlap', '{:auto}', {
@@ -1036,11 +1044,11 @@ defineFunction('raisebox', '{:value}{:text}', {
       padding: { dimension: 0 },
       raise: args[0] ?? { dimension: 0 },
       style,
-      serialize: (atom: BoxAtom, options) =>
-        latexCommand(
-          '\\raisebox',
-          serializeLatexValue(atom.raise) ?? '0pt',
-          atom.bodyToLatex(options)
-        ),
     }),
+  serialize: (atom: BoxAtom, options) =>
+    latexCommand(
+      '\\raisebox',
+      serializeLatexValue(atom.raise) ?? '0pt',
+      atom.bodyToLatex(options)
+    ),
 });

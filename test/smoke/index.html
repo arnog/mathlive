@@ -48,7 +48,8 @@
       > -->
       <!-- <math-field id="mf">=\overset{\left[\frac{0}{0}\right]}{=}=</math-field> -->
       <math-field id="mf"
-        >\begin{pmatrix}a & b+1 \\ c + 2 & d\end{pmatrix}</math-field
+        >a\not=b=\left(\sqrt{\frac{1}{2+x}}\right) \left(1+\sqrt{x}\right)
+        (\sqrt{\frac{1}{2+x}}) \int^\infty x</math-field
       >
       <!-- <math-field id="mf"
         >{\mathrlap{\raisebox{-.1em}{$-$}}\raisebox{.1em}{$\tripledash$}}\ce{A\bond{~-}B\bond{~=}C\bond{-~-}D}</math-field
@@ -91,6 +92,11 @@
 
       <h2>Latex to Speakable Text</h2>
       <div class="output" id="latex2speech"></div>
+
+      <div class="button-bar">
+        <button id="grow">Grow</button>
+        <button id="shrink">Shrink</button>
+      </div>
     </main>
 
     <script type="module">
@@ -107,11 +113,7 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      const mf = document.getElementById('mf');
-
-      for (let i = 0; i < 1000; i++) {
-        document.body.appendChild(new MathfieldElement());
-      }
+      // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
 
       const ce = new ComputeEngine({
         latexDictionary: [
@@ -137,6 +139,8 @@
 
       MathfieldElement.computeEngine = ce;
 
+      const mf = document.getElementById('mf');
+
       mf.onInlineShortcut = (_mf, s) => {
         if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
           const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
@@ -160,18 +164,18 @@
         },
       };
 
-      mf.addEventListener('input', (ev) => {
-        console.log('input event');
-        updateContent(mf);
-      });
+      // mf.addEventListener('input', (ev) => {
+      //   console.log('input event');
+      //   updateContent(mf);
+      // });
 
-      mf.addEventListener('beforeinput', (ev) => {
-        if (ev.inputType === 'insertLineBreak') console.log('enter');
-      });
+      // mf.addEventListener('beforeinput', (ev) => {
+      //   if (ev.inputType === 'insertLineBreak') console.log('enter');
+      // });
 
-      mf.addEventListener('keydown', (ev) => {
-        console.log('keydown', ev);
-      });
+      // mf.addEventListener('keydown', (ev) => {
+      //   console.log('keydown', ev);
+      // });
 
       mf.addEventListener('selection-change', (ev) => {
         const selection = mf.selection;
@@ -196,6 +200,16 @@
           mf.getOffsetDepth(mf.position);
       });
 
+      document.getElementById('grow').addEventListener('click', () => {
+        for (let i = 0; i < 1000; i++) {
+          document.body.appendChild(new MathfieldElement());
+        }
+      });
+
+      document.getElementById('shrink').addEventListener('click', () => {
+        document.querySelectorAll('math-field').forEach((x) => x.remove());
+      });
+
       //
       // Handler called when the mathfield content has changed
       //
@@ -212,7 +226,7 @@
           document.getElementById('result').innerText = result;
           document.getElementById('result-latex').innerText = `$$${result}$$`;
 
-          renderMathInElement('result-latex');
+          // renderMathInElement('result-latex');
         } catch (e) {
           console.error('Error converting', e.toString());
         }
@@ -246,7 +260,7 @@
 
       // First time update
       updateContent(mf);
-      renderMathInDocument();
+      // renderMathInDocument();
     </script>
   </body>
 </html>
