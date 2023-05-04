@@ -7,6 +7,9 @@
 - In addition to the `label` property, the `key` property can also now be used
   for keycap shortcuts. This allow overriding of the shortcut label. For example
   `{key: "[undo]", label: "undo"}`
+- Added support for `--keyboard-row-padding-left` and `--keyboard-row-padding-right` as an option to account for shadows or other decoration that may spill outside the box of a keycap.
+- Fixed opacity of Undo button in virtual keyboard, when the button is not applicable.
+- 
 
 ## Improvements
 - Improved performance of creation and destruction of mathfields by 50%.
