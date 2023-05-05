@@ -121,21 +121,12 @@ export function perform(
     )
       mathfield.flushInlineShortcutBuffer();
 
-    if (
-      /^(delete|transpose|add)/.test(selector) &&
-      mathfield.mode !== 'latex'
-    ) {
-      // Update the undo state to account for the current selection
-      mathfield.popUndoStack();
-      mathfield.snapshot();
-    }
+    if (/^(delete|transpose|add)/.test(selector)) mathfield.snapshot();
 
     if (mathfield.mode === 'latex' && !/^(complete)/.test(selector))
       removeSuggestion(mathfield);
 
     COMMANDS[selector]!.fn(mathfield.model, ...args);
-    if (mathfield.mode !== 'latex' && /^(delete|transpose|add)/.test(selector))
-      mathfield.snapshot();
 
     if (mathfield.mode === 'latex') updateAutocomplete(mathfield);
 

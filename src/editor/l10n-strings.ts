@@ -37,6 +37,8 @@ export const STRINGS = {
     'keyboard.tooltip.numeric': 'الرقمية',
     'keyboard.tooltip.alphabetic': 'رموز الاحرف الرومانية',
     'tooltip.copy to clipboard': 'نسخ إلى الحافظة',
+    'tooltip.cut to clipboard': 'قص إلى الحافظة',
+    'tooltip.paste from clipboard': 'لصق من الحافظة',
     'tooltip.redo': 'الإعادة',
     'tooltip.toggle virtual keyboard': 'تبديل لوحة المفاتيح الإفتراضية',
     'tooltip.undo': 'إلغاء',

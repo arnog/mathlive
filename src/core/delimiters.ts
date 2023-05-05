@@ -121,13 +121,20 @@ function makeSmallDelim(
   context: Context,
   center: boolean,
   options: {
-    classes: string;
+    classes?: string;
+    isSelected: boolean;
     type: 'open' | 'close' | 'inner';
   }
 ): Box {
-  const text = new Box(getSymbolValue(delim), { fontFamily: 'Main-Regular' });
+  const text = new Box(getSymbolValue(delim), {
+    fontFamily: 'Main-Regular',
+    isSelected: options.isSelected,
+  });
 
-  const box = text.wrap(context, options);
+  const box = text.wrap(context, {
+    type: options.type,
+    classes: 'ML__small-delim ' + (options.classes ?? ''),
+  });
 
   if (center) box.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
 
@@ -145,6 +152,7 @@ function makeLargeDelim(
   parentContext: Context,
   options: {
     classes?: string;
+    isSelected: boolean;
     type?: 'open' | 'close' | 'inner';
     mode?: ParseMode;
     style?: Style;
@@ -157,7 +165,8 @@ function makeLargeDelim(
   );
   const result = new Box(getSymbolValue(delim), {
     fontFamily: `Size${size}-Regular`,
-    classes: `ML__delim-size${size}`,
+    isSelected: options.isSelected,
+    classes: (options.classes ?? '') + ` ML__delim-size${size}`,
     type: options.type ?? 'skip',
   }).wrap(context);
 
@@ -486,17 +495,17 @@ export function makeSizedDelim(
   size: 1 | 2 | 3 | 4,
   context: Context,
   options: {
+    isSelected: boolean;
     classes?: string;
     type?: 'open' | 'close';
     mode?: ParseMode;
     style?: Style;
   }
 ): Box | null {
-  if (delim === undefined || delim === '.') {
-    // Empty delimiters still count as elements, even though they don't
-    // show anything.
+  // Empty delimiters still count as elements, even though they don't
+  // show anything: they may affect horizontal spacing
+  if (delim === undefined || delim === '.')
     return makeNullDelimiter(context, options.classes);
-  }
 
   // < and > turn into \langle and \rangle in delimiters
   if (delim === '<' || delim === '\\lt' || delim === '\u27e8')
@@ -652,8 +661,9 @@ export function makeCustomSizedDelim(
   height: number,
   center: boolean,
   context: Context,
-  options?: {
+  options: {
     classes?: string;
+    isSelected: boolean;
     mode?: ParseMode;
     style?: Style;
   }
@@ -678,32 +688,24 @@ export function makeCustomSizedDelim(
     sequence,
     context
   );
-  const delimContext = new Context(
+  const ctx = new Context(
     { parent: context, mathstyle: delimType.mathstyle },
     options?.style
   );
   // Depending on the sequence element we decided on,
   // call the appropriate function.
-  if (delimType.type === 'small') {
-    return makeSmallDelim(delim, delimContext, center, {
-      ...options,
-      type,
-      classes: 'ML__small-delim ' + (options?.classes ?? ''),
-    });
-  }
+  if (delimType.type === 'small')
+    return makeSmallDelim(delim, ctx, center, { ...options, type });
 
   if (delimType.type === 'large') {
-    return makeLargeDelim(delim, delimType.size!, center, delimContext, {
+    return makeLargeDelim(delim, delimType.size!, center, ctx, {
       ...options,
       type,
     });
   }
 
   console.assert(delimType.type === 'stack');
-  return makeStackedDelim(delim, height, center, delimContext, {
-    ...options,
-    type,
-  });
+  return makeStackedDelim(delim, height, center, ctx, { ...options, type });
 }
 
 /**
@@ -717,7 +719,12 @@ export function makeLeftRightDelim(
   height: number,
   depth: number,
   context: Context,
-  options?: { classes?: string; style?: Style; mode?: ParseMode }
+  options: {
+    isSelected: boolean;
+    classes?: string;
+    style?: Style;
+    mode?: ParseMode;
+  }
 ): Box {
   // If this is the empty delimiter, return a null fence
   if (delim === '.') return makeNullDelimiter(context, options?.classes);

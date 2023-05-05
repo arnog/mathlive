@@ -123,12 +123,10 @@ defineFunction(
         paddedBody: true,
         paddedLabels: true,
         boxType: 'rel',
-        serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
-          command +
-          (!atom.hasEmptyBranch('below')
-            ? `[${atom.belowToLatex(options)}]`
-            : '') +
-          `{${atom.aboveToLatex(options)}}${atom.supsubToLatex(options)}`,
       }),
+    serialize: (atom: OverunderAtom, options: ToLatexOptions) =>
+      atom.command +
+      (!atom.hasEmptyBranch('below') ? `[${atom.belowToLatex(options)}]` : '') +
+      `{${atom.aboveToLatex(options)}}${atom.supsubToLatex(options)}`,
   }
 );

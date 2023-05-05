@@ -7,7 +7,7 @@ import { Box } from './box';
 import { Mode, getPropertyRuns } from './modes-utils';
 import type { FontSeries, FontShape, Style } from '../public/core-types';
 import { joinLatex, latexCommand } from './tokenizer';
-import { TokenDefinition } from 'core-definitions/definitions-utils';
+import { TokenDefinition } from '../core-definitions/definitions-utils';
 
 function join(
   segments: [string[], boolean][]

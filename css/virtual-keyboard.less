@@ -51,14 +51,21 @@
 
   --keycap-background: white;
   --keycap-background-hover: #f5f5f7;
-  --keycap-background-active: white;
+  --keycap-background-active: var(--keyboard-accent-color);
+  --keycap-background-pressed: var(--keyboard-accent-color);
   --keycap-border: #e5e6e9;
   --keycap-border-bottom: #8d8f92;
   --keycap-text: #000;
   --keycap-text-active: #fff;
-  --keycap-text-hover: #fff;
+  --keycap-text-hover: var(--keycap-text);
+  --keycap-text-pressed: #fff;
   --keycap-secondary-text: #333;
   --keycap-shift-text: var(--keyboard-accent-color);
+
+  --keycap-primary-background: var(--keyboard-accent-color);
+  --keycap-primary-text: #ddd;
+  --keycap-primary-background-hover: #0d80f2;
+
 
   --keycap-secondary-background: #a0a9b8;
   --keycap-secondary-background-hover: #7d8795;
@@ -86,7 +93,6 @@
 
   --keycap-shift-font-size: 16px;
   --keycap-shift-color: var(--keyboard-accent-color);
-  --environment-shadow: rgba(0,0,0,0.4);
 }
 
 .if-can-undo,
@@ -185,7 +191,6 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   cursor: auto;
   white-space: pre;
   box-shadow: none;
-  opacity: 1;
   transform: none;
 }
 
@@ -238,8 +243,8 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   display: block;
 }
 .ML__keyboard.is-caps-lock .shift {
-  background: var(--keyboard-accent-color);
-  color: #fff;
+  background: var(--keycap-background-active);
+  color: var(--keycap-text-active);
 }
 
 // The keyboard "plate" is placed inside the `.MLK__backdrop`.
@@ -306,6 +311,11 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   margin-bottom: var(--private-keycap-gap);
   gap: var(--private-keycap-gap);
 
+  /* If the styling include, e.g., some shadows, they will be
+  cut off by the overflow. In that case, set the padding to 
+  compensate. */
+  padding-left: var(--keyboard-row-padding-left, 0);
+  padding-right: var(--keyboard-row-padding-right, 0);
   overflow-x: auto;
 
   touch-action: none;
@@ -422,12 +432,12 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
     }
 
     .action.primary {
-      background: var(--keyboard-accent-color);
-      color: #ddd;
+      background: var(--keycap-primary-background);
+      color: var(--keycap-primary-text);
     }
     .action.primary:hover {
-      background: #0d80f2 ; // blue-500
-      color: #fff;
+      background: var(--keycap-primary-background-hover) ; // blue-500
+      color: var(--keycap-primary-text);
     }
 
     .shift.selected,
@@ -446,6 +456,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
       svg.svg-glyph {
         width: 24px;
         height: 24px;
+        min-height: 24px;
       }
     }
 
@@ -492,11 +503,13 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
         margin: 8px 0;
         width: 20px;
         height: 20px;
+        min-height: 20px;
       }
       svg.svg-glyph-lg {
         margin: 8px 0;
         width: 24px;
         height: 24px;
+        min-height: 24px;
       }
 
       &.MLK__tex-math {
@@ -505,21 +518,14 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
       // &.tt {font-size: 30px;}
       &.is-pressed {
         // box-shadow: inset 0 0 1px 1px #8d8f92;
-        background: var(--keycap-background-active);
-        color: var(--keyboard-toolbar-text-active);
+        background: var(--keycap-background-pressed);
+        color: var(--keyboard-text-pressed);
       }
       &.MLK__keycap.is-active,
       &.action.is-active,
       &.MLK__keycap.is-pressed,
       &.action.is-pressed {
-        // -0.2 = 1.0 - 1.4
-        // transform: translateY(calc(-0.2 * var(--keycap-height)))
-        //   scale(1.4, 1.4);
         z-index: calc(var(--keyboard-zindex, @keyboard-zindex) - 5);
-        // color: var(--keyboard-toolbar-text-active);
-        background: var(--keyboard-accent-color);
-        color: #fff;
-
         aside {
           display: none;
         }
@@ -527,8 +533,13 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
           display: none;
         }
       }
-      &.shift.is-active {
-        background: var(--keyboard-toolbar-text-active);
+      &.shift.is-pressed, &.MLK__keycap.is-pressed, &.action.is-pressed {
+        background: var(--keycap-background-pressed);
+        color: var(--keycap-text-pressed);
+      }
+
+      &.shift.is-active, &.MLK__keycap.is-active, &.action.is-active {
+        background: var(--keycap-background-active);
         color: var(--keycap-text-active);
       }
 
@@ -756,10 +767,13 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
     color: var(--variant-keycap-text);
     fill: currentColor;
-    &.is-pressed,
     &.is-active {
       background: var(--variant-keycap-background-active);
       color: var(--variant-keycap-text-active);
+    }
+    &.is-pressed {
+      background: var(--variant-keycap-background-pressed);
+      color: var(--variant-keycap-text-pressed);
     }
     &.small {
       font-size: var(--keycap-small-font-size, 16px);
@@ -868,6 +882,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
   .MLK__rows .warning svg.svg-glyph {
     width: 14px;
     height: 14px;
+    min-height: 14px;
   }
 }
 
@@ -933,7 +948,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 //
 @media (prefers-color-scheme: dark) {
   .ML__keyboard {
-    --keyboard-accent-color: #56a6f6; // blue-300
+    --keyboard-accent-color: #0b5c9c; // blue-700
     --keyboard-background: #151515;
     --keyboard-border: transparent;
     --keyboard-toolbar-text: #e3e4e8;
@@ -946,11 +961,9 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
     --keycap-background: #1f2022;
     --keycap-background-hover: #2f3032;
-    --keycap-background-active: #2f3032;
     --keycap-border: transparent;
     --keycap-border-bottom: transparent;
     --keycap-text: #e3e4e8;
-    --keycap-text-active: #000;
     --keycap-secondary-text: #e7ebee;
 
     --keycap-secondary-background: #3d4144;
@@ -962,29 +975,26 @@ Note there are a different set of tooltip rules for the keyboard toggle
     --variant-panel-background: #303030;
     --variant-keycap-text: var(--keycap-text);
     --variant-keycap-text-active: #fff;
-    --environment-shadow: rgba(255,255,255,0.1);
   }
 }
 /* Same as the media query, but with a class */
 [theme='dark'] .ML__keyboard {
-  --keyboard-accent-color: #56a6f6; // blue-300
+  --keyboard-accent-color: #0b5c9c; // blue-300
   --keyboard-background: #151515;
   --keyboard-border: transparent;
   --keyboard-toolbar-text: #e3e4e8;
   --keyboard-toolbar-text-active: var(--keyboard-accent-color);
---keyboard-toolbar-background: transparent;
+  --keyboard-toolbar-background: transparent;
   --keyboard-toolbar-background-hover: #303030;
   --keyboard-toolbar-background-selected: transparent;
 
-  --keyboard-horizontal-rule: border 1px solid #4d5154;
+  --keyboard-horizontal-rule: 1px solid #303030;
 
   --keycap-background: #1f2022;
   --keycap-background-hover: #2f3032;
-  --keycap-background-active: #2f3032;
   --keycap-border: transparent;
   --keycap-border-bottom: transparent;
   --keycap-text: #e3e4e8;
-  --keycap-text-active: #000;
   --keycap-secondary-text: #e7ebee;
 
   --keycap-secondary-background: #3d4144;
@@ -996,7 +1006,6 @@ Note there are a different set of tooltip rules for the keyboard toggle
   --variant-panel-background: #303030;
   --variant-keycap-text: var(--keycap-text);
   --variant-keycap-text-active: #fff;
-  --environment-shadow: rgba(255,255,255,0.1);
 }
 
 [theme='light'] .ML__keyboard {
@@ -1010,24 +1019,26 @@ Note there are a different set of tooltip rules for the keyboard toggle
   --keyboard-toolbar-background-hover: #eee;
   --keyboard-toolbar-background-selected: transparent;
 
+  --keyboard-horizontal-rule: 1px solid #fff;
+
   --keycap-background: white;
   --keycap-background-hover: #f5f5f7;
-  --keycap-background-active: white;
   --keycap-border: #e5e6e9;
   --keycap-border-bottom: #8d8f92;
   --keycap-text: #000;
-  --keycap-text-active: #fff;
-  --keycap-text-hover: #fff;
+  --keycap-text-active: var(--keycap-text);
+  --keycap-text-pressed: #fff;
   --keycap-secondary-text: #333;
 
-  --keycap-secondary-background: #a0a9b6;
-  --keycap-secondary-background-hover: #949ead;
+  --keycap-secondary-background: #a0a9b8;
+  --keycap-secondary-background-hover: #7d8795;
   --keycap-secondary-text: #060707;
   --keycap-secondary-border: #c5c9d0;
   --keycap-secondary-border-bottom: #989da6;
 
+
   --variant-panel-background: #fff;
   --variant-keycap-text: var(--keycap-text, #000);
-  --variant-keycap-text-active: #fff;
+  --variant-keycap-text-active: var(--keycap-text-active, #fff);
   --variant-keycap-background-active: var(--keyboard-accent-color);
 }

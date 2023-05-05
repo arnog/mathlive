@@ -63,6 +63,9 @@ defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', {
     new ChemAtom(command, args[0] ?? ''),
 });
 
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/TeX/mhchem.js
@@ -73,7 +76,7 @@ defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', {
  *  ---------------------------------------------------------------------
  *
  *  Copyright (c) 2011-2015 The MathJax Consortium
- *  Copyright (c) 2015-2018 Martin Hensel
+ *  Copyright (c) 2015-2019 Martin Hensel
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -89,6 +92,11 @@ defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', {
  */
 
 //
+// Coding Style
+//   - use '' for identifiers that can by minified/uglified
+//   - use "" for strings that need to stay untouched
+
+//
 // Core parser for mhchem syntax  (recursive)
 //
 /** @type {MhchemParser} */
@@ -99,7 +107,7 @@ var mhchemParser = {
   // Call like
   //   go("H2O");
   //
-  go: function (input?, stateMachine?) {
+  go: function (input, stateMachine) {
     if (!input) {
       return [];
     }
@@ -233,7 +241,8 @@ var mhchemParser = {
   },
   concatArray: function (a, b) {
     if (b) {
-      if (Array.isArray(b)) {
+      if (Object.prototype.toString.call(b) === '[object Array]') {
+        // Array.isArray(b)
         for (var iB = 0; iB < b.length; iB++) {
           a.push(b[iB]);
         }
@@ -273,13 +282,10 @@ var mhchemParser = {
       '-9.,9 no missing 0': /^[+\-]?[0-9]+(?:[.,][0-9]+)?/,
       '(-)(9.,9)(e)(99)': function (input) {
         var m = input.match(
-          /^(\+\-|\+\/\-|\+|\-|\\pm\s?)?([0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))?(\((?:[0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))\))?(?:([eE]|\s*(\*|x|\\times|\u00D7)\s*10\^)([+\-]?[0-9]+|\{[+\-]?[0-9]+\}))?/
+          /^(\+\-|\+\/\-|\+|\-|\\pm\s?)?([0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))?(\((?:[0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))\))?(?:(?:([eE])|\s*(\*|x|\\times|\u00D7)\s*10\^)([+\-]?[0-9]+|\{[+\-]?[0-9]+\}))?/
         );
         if (m && m[0]) {
-          return {
-            match_: m.splice(1),
-            remainder: input.substr(m[0].length),
-          };
+          return { match_: m.slice(1), remainder: input.substr(m[0].length) };
         }
         return null;
       },
@@ -288,10 +294,7 @@ var mhchemParser = {
           /^(\+\-|\+\/\-|\+|\-|\\pm\s?)?([0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+)?)\^([+\-]?[0-9]+|\{[+\-]?[0-9]+\})/
         );
         if (m && m[0]) {
-          return {
-            match_: m.splice(1),
-            remainder: input.substr(m[0].length),
-          };
+          return { match_: m.slice(1), remainder: input.substr(m[0].length) };
         }
         return null;
       },
@@ -309,10 +312,7 @@ var mhchemParser = {
         } //  AND end of 'phrase'
         var m = input.match(/^(?:\((?:\\ca\s?)?\$[amothc]\$\))/); // OR crystal system ($o$) (\ca$c$)
         if (m) {
-          return {
-            match_: m[0],
-            remainder: input.substr(m[0].length),
-          };
+          return { match_: m[0], remainder: input.substr(m[0].length) };
         }
         return null;
       },
@@ -597,10 +597,7 @@ var mhchemParser = {
           /^(?:(?:(?:\([+\-]?[0-9]+\/[0-9]+\)|[+\-]?(?:[0-9]+|\$[a-z]\$|[a-z])\/[0-9]+|[+\-]?[0-9]+[.,][0-9]+|[+\-]?\.[0-9]+|[+\-]?[0-9]+)(?:[a-z](?=\s*[A-Z]))?)|[+\-]?[a-z](?=\s*[A-Z])|\+(?!\s))/
         );
         if (match) {
-          return {
-            match_: match[0],
-            remainder: input.substr(match[0].length),
-          };
+          return { match_: match[0], remainder: input.substr(match[0].length) };
         }
         var a = mhchemParser.patterns.findObserveGroups(
           input,
@@ -635,10 +632,7 @@ var mhchemParser = {
           /^(?:[a-z]|(?:[0-9\ \+\-\,\.\(\)]+[a-z])+[0-9\ \+\-\,\.\(\)]*|(?:[a-z][0-9\ \+\-\,\.\(\)]+)+[a-z]?)$/
         );
         if (match) {
-          return {
-            match_: match[0],
-            remainder: input.substr(match[0].length),
-          };
+          return { match_: match[0], remainder: input.substr(match[0].length) };
         }
         return null;
       },
@@ -653,11 +647,11 @@ var mhchemParser = {
       begIncl,
       endIncl,
       endExcl,
-      beg2Excl?,
-      beg2Incl?,
-      end2Incl?,
-      end2Excl?,
-      combine?
+      beg2Excl,
+      beg2Incl,
+      end2Incl,
+      end2Excl,
+      combine
     ) {
       /** @type {{(input: string, pattern: string | RegExp): string | string[] | null;}} */
       var _match = function (input, pattern) {
@@ -681,10 +675,7 @@ var mhchemParser = {
           var a = input.charAt(i);
           var match = _match(input.substr(i), endChars);
           if (match !== null && braces === 0) {
-            return {
-              endMatchBegin: i,
-              endMatchEnd: i + match.length,
-            };
+            return { endMatchBegin: i, endMatchEnd: i + match.length };
           } else if (a === '{') {
             braces++;
           } else if (a === '}') {
@@ -769,10 +760,7 @@ var mhchemParser = {
           } else {
             mm = match[0];
           }
-          return {
-            match_: mm,
-            remainder: input.substr(match[0].length),
-          };
+          return { match_: mm, remainder: input.substr(match[0].length) };
         }
         return null;
       }
@@ -848,7 +836,7 @@ var mhchemParser = {
     },
     '1/2': function (buffer, m) {
       /** @type {ParserOutput[]} */
-      var ret: any[] = [];
+      var ret = [];
       if (m.match(/^[+\-]/)) {
         ret.push(m.substr(0, 1));
         m = m.substr(1);
@@ -921,10 +909,7 @@ var mhchemParser = {
             if (stateArray[i] === '*') {
               // insert into all
               for (var t in transitions) {
-                transitions[t].push({
-                  pattern: patternArray[j],
-                  task: p,
-                });
+                transitions[t].push({ pattern: patternArray[j], task: p });
               }
             } else {
               transitions[stateArray[i]].push({
@@ -992,10 +977,7 @@ mhchemParser.stateMachines = {
         'q': { action_: 'd=', nextState: 'qd' },
         'qd|qD': { action_: 'd=', nextState: 'qd' },
         'dq': { action_: ['output', 'd='], nextState: 'd' },
-        '3': {
-          action_: ['sb=false', 'output', 'operator'],
-          nextState: '0',
-        },
+        '3': { action_: ['sb=false', 'output', 'operator'], nextState: '0' },
       },
       'amount': {
         '0|2': { action_: 'a=', nextState: 'a' },
@@ -1017,10 +999,7 @@ mhchemParser.stateMachines = {
         },
       },
       '-$': {
-        'o|q': {
-          action_: ['charge or bond', 'output'],
-          nextState: 'qd',
-        },
+        'o|q': { action_: ['charge or bond', 'output'], nextState: 'qd' },
         'd': { action_: 'd=', nextState: 'd' },
         'D': {
           action_: ['output', { type_: 'bond', option: '-' }],
@@ -1151,10 +1130,7 @@ mhchemParser.stateMachines = {
         },
       },
       'state of aggregation $': {
-        '*': {
-          action_: ['output', 'state of aggregation'],
-          nextState: '1',
-        },
+        '*': { action_: ['output', 'state of aggregation'], nextState: '1' },
       },
       '{[(': {
         'a|as|o': {
@@ -1228,17 +1204,11 @@ mhchemParser.stateMachines = {
         },
       },
       '{}': {
-        '*': {
-          action_: { type_: 'output', option: 1 },
-          nextState: '1',
-        },
+        '*': { action_: { type_: 'output', option: 1 }, nextState: '1' },
       },
       '{...}': {
         '0|1|2|3|a|as|b|p|bp': { action_: 'o=', nextState: 'o' },
-        'o|d|D|q|qd|qD|dq': {
-          action_: ['output', 'o='],
-          nextState: 'o',
-        },
+        'o|d|D|q|qd|qD|dq': { action_: ['output', 'o='], nextState: 'o' },
       },
       '$...$': {
         'a': { action_: 'a=' }, // 2$n$
@@ -1283,9 +1253,7 @@ mhchemParser.stateMachines = {
         },
       },
       '\\color{(...)}0': {
-        '*': {
-          action_: [{ type_: 'output', option: 2 }, 'color0-output'],
-        },
+        '*': { action_: [{ type_: 'output', option: 2 }, 'color0-output'] },
       },
       '\\ce{(...)}': {
         '*': {
@@ -1314,11 +1282,7 @@ mhchemParser.stateMachines = {
       },
       'else2': {
         'a': { action_: 'a to o', nextState: 'o', revisit: true },
-        'as': {
-          action_: ['output', 'sb=true'],
-          nextState: '1',
-          revisit: true,
-        },
+        'as': { action_: ['output', 'sb=true'], nextState: '1', revisit: true },
         'r|rt|rd|rdt|rdq': {
           action_: ['output'],
           nextState: '0',
@@ -1433,10 +1397,7 @@ mhchemParser.stateMachines = {
         buffer['parenthesisLevel']--;
       },
       'state of aggregation': function (buffer, m) {
-        return {
-          type_: 'state of aggregation',
-          p1: mhchemParser.go(m, 'o'),
-        };
+        return { type_: 'state of aggregation', p1: mhchemParser.go(m, 'o') };
       },
       'comma': function (buffer, m) {
         var a = m.replace(/\s*$/, '');
@@ -1584,11 +1545,7 @@ mhchemParser.stateMachines = {
         };
       },
       'color-output': function (buffer, m) {
-        return {
-          type_: 'color',
-          color1: m[0],
-          color2: mhchemParser.go(m[1]),
-        };
+        return { type_: 'color', color1: m[0], color2: mhchemParser.go(m[1]) };
       },
       'r=': function (buffer, m) {
         buffer.r = m;
@@ -1738,12 +1695,7 @@ mhchemParser.stateMachines = {
         '*': { action_: '9,9' },
       },
       ',': {
-        '*': {
-          action_: {
-            type_: 'insert+p1',
-            option: 'comma enumeration S',
-          },
-        },
+        '*': { action_: { type_: 'insert+p1', option: 'comma enumeration S' } },
       },
       '\\color{(...)}{(...)}1|\\color(...){(...)}2': {
         '*': { action_: 'color-output' },
@@ -1991,32 +1943,35 @@ mhchemParser.stateMachines = {
     actions: {
       'enumber': function (buffer, m) {
         /** @type {ParserOutput[]} */
-        var ret: any[] = [];
+        var ret = [];
         if (m[0] === '+-' || m[0] === '+/-') {
           ret.push('\\pm ');
         } else if (m[0]) {
           ret.push(m[0]);
         }
         if (m[1]) {
+          // 1.2
           mhchemParser.concatArray(ret, mhchemParser.go(m[1], 'pu-9,9'));
           if (m[2]) {
             if (m[2].match(/[,.]/)) {
+              // 1.23456(0.01111)
               mhchemParser.concatArray(ret, mhchemParser.go(m[2], 'pu-9,9'));
             } else {
+              // 1.23456(1111)  - without spacings
               ret.push(m[2]);
             }
           }
-          m[3] = m[4] || m[3];
-          if (m[3]) {
-            m[3] = m[3].trim();
-            if (m[3] === 'e' || m[3].substr(0, 1) === '*') {
+          if (m[3] || m[4]) {
+            // 1.2e7  1.2x10^7
+            if (m[3] === 'e' || m[4] === '*') {
               ret.push({ type_: 'cdot' });
             } else {
               ret.push({ type_: 'times' });
             }
           }
         }
-        if (m[3]) {
+        if (m[5]) {
+          // 10^7
           ret.push('10^{' + m[5] + '}');
         }
         return ret;
@@ -2273,8 +2228,8 @@ var texify = {
             (b5.p || '') +
             '}}';
           res += '{\\vphantom{X}}';
-          res += '^{\\smash[t]{\\vphantom{2}}\\mathllap{' + (b5.b || '') + '}}';
-          res += '_{\\vphantom{2}\\mathllap{\\smash[t]{' + (b5.p || '') + '}}}';
+          res += '^{\\smash[t]{\\vphantom{2}}\\llap{' + (b5.b || '') + '}}';
+          res += '_{\\vphantom{2}\\llap{\\smash[t]{' + (b5.p || '') + '}}}';
         }
         //
         // o
@@ -2409,14 +2364,36 @@ var texify = {
           rd: texify._goInner(buf.rd),
           rq: texify._goInner(buf.rq),
         };
-        var arrow = '\\x' + texify._getArrow(buf.r);
-        if (b6.rq) {
-          arrow += '[{' + b6.rq + '}]';
-        }
-        if (b6.rd) {
-          arrow += '{' + b6.rd + '}';
+        var arrow = texify._getArrow(buf.r);
+        if (b6.rd || b6.rq) {
+          if (
+            buf.r === '<=>' ||
+            buf.r === '<=>>' ||
+            buf.r === '<<=>' ||
+            buf.r === '<-->'
+          ) {
+            // arrows that cannot stretch correctly yet, https://github.com/mathjax/MathJax/issues/1491
+            arrow = '\\long' + arrow;
+            if (b6.rd) {
+              arrow = '\\overset{' + b6.rd + '}{' + arrow + '}';
+            }
+            if (b6.rq) {
+              if (buf.r === '<-->') {
+                arrow = '\\underset{\\lower2mu{' + b6.rq + '}}{' + arrow + '}';
+              } else {
+                arrow = '\\underset{\\lower6mu{' + b6.rq + '}}{' + arrow + '}'; // align with ->[][under]
+              }
+            }
+            arrow = ' {}\\mathrel{' + arrow + '}{} ';
+          } else {
+            if (b6.rq) {
+              arrow += '[{' + b6.rq + '}]';
+            }
+            arrow += '{' + b6.rd + '}';
+            arrow = ' {}\\mathrel{\\x' + arrow + '}{} ';
+          }
         } else {
-          arrow += '{}';
+          arrow = ' {}\\mathrel{\\long' + arrow + '}{} ';
         }
         res = arrow;
         break;
@@ -2515,15 +2492,15 @@ var texify = {
       case '<->':
         return 'leftrightarrow';
       case '<-->':
-        return 'rightleftarrows';
+        return 'leftrightarrows';
       case '<=>':
         return 'rightleftharpoons';
       case '\u21CC':
         return 'rightleftharpoons';
       case '<=>>':
-        return 'rightequilibrium';
+        return 'Rightleftharpoons';
       case '<<=>':
-        return 'leftequilibrium';
+        return 'Leftrightharpoons';
       default:
         assertNever(a);
         throw ['MhchemBugT', 'mhchem bug T. Please report.'];
@@ -2546,13 +2523,13 @@ var texify = {
       case '~':
         return '{\\tripledash}';
       case '~-':
-        return '{\\mathrlap{\\raisebox{-.1em}{$-$}}\\raisebox{.1em}{$\\tripledash$}}';
+        return '{\\rlap{\\lower.1em{-}}\\raise.1em{\\tripledash}}';
       case '~=':
-        return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$\\tripledash$}}-}';
+        return '{\\rlap{\\lower.2em{-}}\\rlap{\\raise.2em{\\tripledash}}-}';
       case '~--':
-        return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$\\tripledash$}}-}';
+        return '{\\rlap{\\lower.2em{-}}\\rlap{\\raise.2em{\\tripledash}}-}';
       case '-~-':
-        return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$-$}}\\tripledash}';
+        return '{\\rlap{\\lower.2em{-}}\\rlap{\\raise.2em{-}}\\tripledash}';
       case '...':
         return '{{\\cdot}{\\cdot}{\\cdot}}';
       case '....':

@@ -1,4 +1,4 @@
-import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 import { Box, makeSVGBox } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
@@ -34,14 +34,9 @@ export class OverunderAtom extends Atom {
       supsubPlacement?: 'over-under' | 'adjacent';
       paddedBody?: boolean;
       paddedLabels?: boolean;
-      serialize?: (atom: OverunderAtom, options: ToLatexOptions) => string;
     }
   ) {
-    super('overunder', {
-      command,
-      serialize: options.serialize,
-      style: options.style,
-    });
+    super('overunder', { command, style: options.style });
     this.skipBoundary = options.skipBoundary ?? true;
     this.subsupPlacement = options.supsubPlacement;
 

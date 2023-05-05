@@ -12,7 +12,12 @@ import { boxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex, latexCommand } from './tokenizer';
 import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
-import { unicodeCharToLatex } from '../core-definitions/definitions-utils';
+import {
+  Argument,
+  argumentsToJson,
+  getDefinition,
+  unicodeCharToLatex,
+} from '../core-definitions/definitions-utils';
 
 import { Context } from './context';
 import { PrivateStyle, BoxType } from './types';
@@ -171,6 +176,7 @@ export class Atom {
 
   // LaTeX command ('\sin') or character ('a')
   command: string;
+  args?: (Argument | null)[]; // (optional)
 
   // Verbatim LaTeX of the command and its arguments
   // Note that the empty string is a valid verbatim LaTeX , so it's important
@@ -236,8 +242,6 @@ export class Atom {
   // The kern to the right of this atom
   // kern?: Glue;
 
-  _serializer?: (atom: Atom, options: ToLatexOptions) => string;
-
   //
   // The following properties are reset and updated through each rendering loop.
   //
@@ -248,19 +252,21 @@ export class Atom {
   // If the atom or one of its descendant includes the caret
   // (used to highlight surd or fences to make clearer where the caret is)
   containsCaret: boolean;
-  caret: ParseMode | '';
+  caret: ParseMode | undefined;
 
   constructor(
     type: AtomType,
     options?: {
       command?: string;
+      args?: (Argument | null)[];
       mode?: ParseMode;
       value?: string;
       isFunction?: boolean;
       limits?: 'auto' | 'over-under' | 'adjacent';
       style?: Style;
       displayContainsHighlight?: boolean;
-      serialize?: (atom: Atom, options: ToLatexOptions) => string;
+      captureSelection?: boolean;
+      verbatimLatex?: string | null;
     }
   ) {
     this.type = type;
@@ -271,7 +277,9 @@ export class Atom {
     this.subsupPlacement = options?.limits;
     this.style = { ...options?.style } ?? {};
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
-    if (options?.serialize) this._serializer = options.serialize;
+    this.captureSelection = options?.captureSelection ?? false;
+    this.verbatimLatex = options?.verbatimLatex ?? undefined;
+    this.args = options?.args ?? undefined;
   }
 
   /**
@@ -361,7 +369,8 @@ export class Atom {
       return value.verbatimLatex;
 
     // 2/ Custom serializer
-    if (value._serializer) return value._serializer(value, options);
+    const def = getDefinition(value.command, value.mode);
+    if (def?.serialize) return def.serialize(value, options);
 
     return value.serialize(options);
   }
@@ -396,12 +405,8 @@ export class Atom {
   }
 
   static fromJson(json: AtomJson): Atom {
-    const result = new Atom(json.type, json as any);
-    // Restore the branches
-    for (const branch of NAMED_BRANCHES)
-      if (json[branch]) result.setChildren(json[branch], branch);
-
-    return result;
+    if (typeof json === 'string') return new Atom('mord', { value: json });
+    return new Atom(json.type, json as any);
   }
 
   toJson(): AtomJson {
@@ -425,6 +430,7 @@ export class Atom {
     if (this.isExtensibleSymbol) result.isExtensibleSymbol = true;
     if (this.skipBoundary) result.skipBoundary = true;
     if (this.captureSelection) result.captureSelection = true;
+    if (this.args) result.args = argumentsToJson(this.args);
 
     if (this._branches) {
       for (const branch of Object.keys(this._branches)) {
@@ -436,6 +442,12 @@ export class Atom {
       }
     }
 
+    // If the result is only `{type: "mord", value="b"}`,
+    // return a shortcut
+    if (result.type === 'mord') {
+      if (Object.keys(result).length === 2 && 'value' in result)
+        return result.value;
+    }
     return result;
   }
 
@@ -949,13 +961,16 @@ export class Atom {
   render(parentContext: Context): Box | null {
     if (this.type === 'first' && !parentContext.atomIdsSettings) return null;
 
+    const def = getDefinition(this.command, this.mode);
+    if (def?.render) return def.render(this, parentContext);
+
     //
     // 1. Render the body or value
     //
     const context = new Context({ parent: parentContext }, this.style);
-    let classes = !this.parent ? 'ML__base' : '';
-    if (this.isSelected) classes += ' ML__selected';
-    let result = this.createBox(context, { classes });
+    let result = this.createBox(context, {
+      classes: !this.parent ? 'ML__base' : '',
+    });
     if (!result) return null;
 
     //
@@ -1096,12 +1111,18 @@ export class Atom {
 
     // Display the caret *following* the superscript and subscript,
     // so attach the caret to the 'subsup' element.
-    const supsubContainer = new Box(supsub, {
-      classes: 'msubsup' + (this.isSelected ? ' ML__selected' : ''),
-    });
-    if (this.caret) supsubContainer.caret = this.caret;
 
-    return new Box([base, supsubContainer], { type: options.type });
+    return new Box(
+      [
+        base,
+        new Box(supsub, {
+          caret: this.caret,
+          isSelected: this.isSelected,
+          classes: 'msubsup',
+        }),
+      ],
+      { type: options.type }
+    );
   }
 
   attachLimits(
@@ -1179,6 +1200,7 @@ export class Atom {
       typeof value === 'string' || value === undefined
         ? new Box((value as string | undefined) ?? null, {
             type,
+            isSelected: this.isSelected,
             mode: this.mode,
             maxFontSize: context.scalingFactor,
             style: {

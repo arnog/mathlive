@@ -46,7 +46,7 @@ global $R = $\the\R ~($= 1000$)
  *
  */
 
-const DEFAULT_DIMENSION_REGISTERS: Registers = {
+const DEFAULT_REGISTERS: Registers = {
   'p@': { dimension: 1 },
   'z@': { dimension: 0 },
   'maxdimen': { dimension: 16383.99999 },
@@ -82,9 +82,7 @@ const DEFAULT_DIMENSION_REGISTERS: Registers = {
   // Two values from LaTeX source2e:
   'fboxsep': { dimension: 3 }, // From letter.dtx:1626
   'fboxrule': { dimension: 0.4 }, // From letter.dtx:1627
-};
 
-const DEFAULT_GLUE_REGISTERS: Registers = {
   'z@skip': {
     glue: { dimension: 0 },
     shrink: { dimension: 0 },
@@ -155,56 +153,50 @@ const DEFAULT_GLUE_REGISTERS: Registers = {
     grow: { dimension: 2 },
     shrink: { dimension: 4 },
   },
-};
 
-// From TeXBook p.348
-// See also https://ctan.math.washington.edu/tex-archive/info/macros2e/macros2e.pdf
-const DEFAULT_NUMBER_REGISTERS: Registers = {
+  // From TeXBook p.348
+  // See also https://ctan.math.washington.edu/tex-archive/info/macros2e/macros2e.pdf
   // 'voidb@x'
 
-  pretolerance: 100,
-  tolerance: 200,
-  hbadness: 1000,
-  vbadness: 1000,
-  linepenalty: 10,
-  hyphenpenalty: 50,
-  exhyphenpenalty: 50,
-  binoppenalty: 700,
-  relpenalty: 500,
-  clubpenalty: 150,
-  widowpenalty: 150,
-  displaywidowpenalty: 50,
-  brokenpenalty: 100,
-  predisplaypenalty: 10000,
-  doublehyphendemerits: 10000,
-  finalhyphendemerits: 5000,
-  adjdemerits: 10000,
-  tracinglostchars: 1,
-  uchyph: 1,
-  delimiterfactor: 901,
-  defaulthyphenchar: '\\-',
-  defaultskewchar: -1,
-  newlinechar: -1,
-  showboxbreadth: 5,
-  showboxdepth: 3,
-  errorcontextlines: 5,
+  'pretolerance': 100,
+  'tolerance': 200,
+  'hbadness': 1000,
+  'vbadness': 1000,
+  'linepenalty': 10,
+  'hyphenpenalty': 50,
+  'exhyphenpenalty': 50,
+  'binoppenalty': 700,
+  'relpenalty': 500,
+  'clubpenalty': 150,
+  'widowpenalty': 150,
+  'displaywidowpenalty': 50,
+  'brokenpenalty': 100,
+  'predisplaypenalty': 10000,
+  'doublehyphendemerits': 10000,
+  'finalhyphendemerits': 5000,
+  'adjdemerits': 10000,
+  'tracinglostchars': 1,
+  'uchyph': 1,
+  'delimiterfactor': 901,
+  'defaulthyphenchar': '\\-',
+  'defaultskewchar': -1,
+  'newlinechar': -1,
+  'showboxbreadth': 5,
+  'showboxdepth': 3,
+  'errorcontextlines': 5,
 
-  interdisplaylinepenalty: 100,
-  interfootnotelinepenalty: 100,
+  'interdisplaylinepenalty': 100,
+  'interfootnotelinepenalty': 100,
 
-  baselineSkip: 1.2,
+  'baselineSkip': 1.2,
 
-  arraystretch: 1.0,
+  'arraystretch': 1.0,
 
-  month: new Date().getMonth() + 1,
-  day: new Date().getDate(),
-  year: new Date().getFullYear(),
+  'month': new Date().getMonth() + 1,
+  'day': new Date().getDate(),
+  'year': new Date().getFullYear(),
 };
 
 export function getDefaultRegisters(): Registers {
-  return {
-    ...DEFAULT_NUMBER_REGISTERS,
-    ...DEFAULT_DIMENSION_REGISTERS,
-    ...DEFAULT_GLUE_REGISTERS,
-  };
+  return { ...DEFAULT_REGISTERS };
 }

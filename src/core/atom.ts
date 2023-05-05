@@ -30,6 +30,7 @@ import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
 import { PromptAtom } from '../core-atoms/prompt';
+import { argumentsFromJson } from 'core-definitions/definitions-utils';
 
 export * from './atom-class';
 
@@ -38,11 +39,15 @@ export function fromJson(json: AtomJson[]): Atom[];
 export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (isArray<AtomJson>(json)) return json.map((x) => fromJson(x));
 
+  if (typeof json === 'string') return Atom.fromJson(json);
+
   json = { ...json };
 
   // Restore the branches
   for (const branch of NAMED_BRANCHES)
     if (json[branch]) json[branch] = fromJson(json[branch] as AtomJson[]);
+
+  if (json.args) json.args = argumentsFromJson(json.args);
 
   if (json.array) json.array = fromJson(json.array);
 

@@ -362,7 +362,8 @@ export function setEnvironment(
   model: ModelPrivate,
   environment: TabularEnvironment
 ): boolean {
-  contentWillChange(model, {});
+  if (!contentWillChange(model, {})) return false;
+  model.mathfield.snapshot();
   let leftDelim = '.';
   let rightDelim = '.';
   switch (environment) {
@@ -416,7 +417,6 @@ export function setEnvironment(
   arrayAtom.environmentName = environment;
   arrayAtom.leftDelim = leftDelim;
   arrayAtom.rightDelim = rightDelim;
-  model.mathfield.snapshot();
   contentDidChange(model, {});
   return true;
 }

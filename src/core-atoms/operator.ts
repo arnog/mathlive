@@ -118,6 +118,7 @@ export class OperatorAtom extends Atom {
       base = new Box(this.value, {
         type: 'op',
         mode: 'math',
+        caret: this.caret,
         maxFontSize: context.scalingFactor,
         style: {
           color: this.style.color,
@@ -139,13 +140,12 @@ export class OperatorAtom extends Atom {
           : this.attachSupsub(context, { base });
     }
 
-    if (this.caret) result.caret = this.caret;
-
     // Bind the generated box with its limits so they
     // can all be selected as one
     return new Box(this.bind(context, result), {
       type: 'op',
-      classes: 'op-group' + (this.isSelected ? ' ML__selected' : ''),
+      isSelected: this.isSelected,
+      classes: 'op-group',
     });
   }
 

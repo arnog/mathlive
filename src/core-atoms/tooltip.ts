@@ -18,13 +18,11 @@ export class TooltipAtom extends Atom {
       command?: string;
       content: 'math' | 'text';
       style?: Style;
-      serialize?: (atom: TooltipAtom, options: ToLatexOptions) => string;
     }
   ) {
     super('tooltip', {
       command: options?.command,
       mode: 'math',
-      serialize: options?.serialize,
       style: options?.style,
       displayContainsHighlight: true,
     });

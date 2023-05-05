@@ -41,6 +41,11 @@ import type { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { l10n } from '../core/l10n';
 
+// @ts-ignore-error
+import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
+// @ts-ignore-error
+import CORE_STYLESHEET from '../../css/core.less';
+
 export declare type Expression =
   | number
   | string
@@ -166,6 +171,7 @@ if (MATHFIELD_TEMPLATE) {
   :host([read-only]:focus), :host([read-only]:focus-within) {
     outline: none;
   }
+  ${CORE_STYLESHEET}${MATHFIELD_STYLESHEET}
   </style>
   <span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
 }
@@ -550,7 +556,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return isElementInternalsSupported();
   }
   /**
-   * Private lifecycle hooks
+   * Private lifecycle hooks.
+   * If adding a 'boolean' attribute, add its default value to getOptionsFromAttributes
    * @internal
    */
   static get optionsAttributes(): Record<
@@ -632,8 +639,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._fontsDirectory;
   }
   static set fontsDirectory(value: string | null) {
-    this._fontsDirectory = value;
-    reloadFonts();
+    if (value !== this._fontsDirectory) {
+      this._fontsDirectory = value;
+      reloadFonts();
+    }
   }
   static _fontsDirectory: string | null = './fonts';
 
@@ -1202,21 +1211,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield?.getPrompts(filter) ?? [];
   }
 
-  addEventListener<K extends keyof HTMLElementEventMap>(
-    type: K,
-    listener: (this: MathfieldElement, ev: HTMLElementEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions
-  ): void {
-    return super.addEventListener(type, listener, options);
-  }
-  removeEventListener<K extends keyof HTMLElementEventMap>(
-    type: K,
-    listener: (this: MathfieldElement, ev: HTMLElementEventMap[K]) => any,
-    options?: boolean | EventListenerOptions
-  ): void {
-    super.removeEventListener(type, listener, options);
-  }
-
   get form(): HTMLFormElement | null {
     return this._internals?.['form'];
   }
@@ -1292,10 +1286,15 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     if (this._mathfield) return getOptions(this._mathfield.options, keys);
 
     if (!gDeferredState.has(this)) return null;
-    return getOptions(
-      updateOptions(getDefaultOptions(), gDeferredState.get(this)!.options),
-      keys
-    );
+    return {
+      ...getOptions(
+        {
+          ...getDefaultOptions(),
+          ...updateOptions(gDeferredState.get(this)!.options),
+        },
+        keys
+      ),
+    };
   }
 
   /**
@@ -1322,7 +1321,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     if (!gDeferredState.has(this)) return null;
     return getOptions(
-      updateOptions(getDefaultOptions(), gDeferredState.get(this)!.options),
+      {
+        ...getDefaultOptions(),
+        ...updateOptions(gDeferredState.get(this)!.options),
+      },
       keys
     );
   }
@@ -1670,29 +1672,22 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield.canRedo();
   }
 
+  handleEvent(evt: Event): void {
+    if (evt.type === 'pointerdown') this.onPointerDown();
+    if (evt.type === 'focus') this._mathfield?.focus();
+    if (evt.type === 'blur') this._mathfield?.blur();
+  }
+
   /**
    * Custom elements lifecycle hooks
    * @internal
    */
   connectedCallback(): void {
-    // Load the fonts
-    requestAnimationFrame(() => void loadFonts());
+    this.shadowRoot!.host.addEventListener('pointerdown', this, true);
 
-    this.shadowRoot!.host.addEventListener(
-      'pointerdown',
-      () => this.onPointerDown(),
-      true
-    );
-    this.shadowRoot!.host.addEventListener(
-      'focus',
-      () => this._mathfield?.focus(),
-      true
-    );
-    this.shadowRoot!.host.addEventListener(
-      'blur',
-      () => this._mathfield?.blur(),
-      true
-    );
+    // Listen for an element *inside* the mathfield to get focus, e.g. the virtual keyboard toggle
+    this.shadowRoot!.host.addEventListener('focus', this, true);
+    this.shadowRoot!.host.addEventListener('blur', this, true);
 
     if (!isElementInternalsSupported()) {
       if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
@@ -1762,26 +1757,36 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       );
     }
 
-    slot!.addEventListener('slotchange', (event) => {
-      if (event.target !== slot) return;
-      const value = slot!
-        .assignedNodes()
-        .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-        .join('')
-        .trim();
-      if (value === this._slotValue) return;
-      if (!this._mathfield) this.value = value;
-      else {
-        // Don't suppress notification changes. We need to know
-        // if the value has changed indirectly through slot manipulation
-        this._mathfield.setValue(value);
-      }
-    });
+    // slot!.addEventListener('slotchange', (event) => {
+    //   if (event.target !== slot) return;
+    //   const value = slot!
+    //     .assignedNodes()
+    //     .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+    //     .join('')
+    //     .trim();
+    //   if (value === this._slotValue) return;
+    //   if (!this._mathfield) this.value = value;
+    //   else {
+    //     // Don't suppress notification changes. We need to know
+    //     // if the value has changed indirectly through slot manipulation
+    //     this._mathfield.setValue(value);
+    //   }
+    // });
 
     // Notify listeners that we're mounted and ready
-    this.dispatchEvent(
-      new Event('mount', { cancelable: false, bubbles: true, composed: true })
-    );
+    window.queueMicrotask(() => {
+      if (!this.isConnected) return;
+      this.dispatchEvent(
+        new Event('mount', {
+          cancelable: false,
+          bubbles: true,
+          composed: true,
+        })
+      );
+    });
+
+    // Load the fonts
+    void loadFonts();
   }
 
   /**
@@ -1789,12 +1794,20 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @internal
    */
   disconnectedCallback(): void {
-    // Notify listeners that we're about to be unmounted
-    this.dispatchEvent(
-      new Event('unmount', { cancelable: false, bubbles: true, composed: true })
-    );
+    this.shadowRoot!.host.removeEventListener('pointerdown', this, true);
 
     if (!this._mathfield) return;
+
+    window.queueMicrotask(() =>
+      // Notify listeners that we have been unmounted
+      this.dispatchEvent(
+        new Event('unmount', {
+          cancelable: false,
+          bubbles: true,
+          composed: true,
+        })
+      )
+    );
 
     // Save the state (in case the element gets reconnected later)
     const options = getOptions(
@@ -2232,7 +2245,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 }
 
 function toCamelCase(s: string): string {
-  return s.toLowerCase().replace(/[^a-zA-Z\d]+(.)/g, (m, c) => c.toUpperCase());
+  return s.replace(/[^a-zA-Z\d]+(.)/g, (_m, c) => c.toUpperCase());
 }
 
 // Function toKebabCase(s: string): string {
@@ -2247,7 +2260,7 @@ function toCamelCase(s: string): string {
 function getOptionsFromAttributes(
   mfe: MathfieldElement
 ): Partial<MathfieldOptions> {
-  const result = {};
+  const result = { readOnly: false };
   const attribs = MathfieldElement.optionsAttributes;
   Object.keys(attribs).forEach((x) => {
     if (mfe.hasAttribute(x)) {
@@ -2260,7 +2273,8 @@ function getOptionsFromAttributes(
       } else if (attribs[x] === 'number')
         result[toCamelCase(x)] = Number.parseFloat(value ?? '0');
       else result[toCamelCase(x)] = value;
-    } else if (attribs[x] === 'boolean') result[toCamelCase(x)] = false;
+    }
+    // else if (attribs[x] === 'boolean') result[toCamelCase(x)] = false;
   });
   return result;
 }

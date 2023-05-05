@@ -9,6 +9,10 @@ import { DelimAtom } from '../core-atoms/delim';
 import { Argument, argAtoms, defineFunction } from './definitions-utils';
 import { GroupAtom } from '../core-atoms/group';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { serializeLatexValue } from '../core/registers-utils';
+import { LatexValue } from '../public/core-types';
+import { Context } from '../core/context';
+import { Box } from '../core/box';
 
 defineFunction(
   [
@@ -181,19 +185,17 @@ defineFunction(
         command,
         !args[0] ? [new PlaceholderAtom()] : argAtoms(args[0]),
         !args[1] ? [new PlaceholderAtom()] : argAtoms(args[1]),
-        {
-          ...genfracOptions,
-          serialize: (atom, options) => {
-            const numer = atom.aboveToLatex(options);
-            const denom = atom.belowToLatex(options);
-            // Special case serialization when numer and denom are digits
-            if (/^[0-9]$/.test(numer) && /^[0-9]$/.test(denom))
-              return `${command}${numer}${denom}`;
-
-            return latexCommand(command, numer, denom);
-          },
-        }
+        genfracOptions
       );
+    },
+    serialize: (atom, options) => {
+      const numer = atom.aboveToLatex(options);
+      const denom = atom.belowToLatex(options);
+      // Special case serialization when numer and denom are digits
+      if (/^[0-9]$/.test(numer) && /^[0-9]$/.test(denom))
+        return `${atom.command}${numer}${denom}`;
+
+      return latexCommand(atom.command, numer, denom);
     },
   }
 );
@@ -206,13 +208,13 @@ defineFunction(['brace', 'brack'], '', {
       leftDelim: command === '\\brace' ? '\\lbrace' : '\\lbrack',
       rightDelim: command === '\\brace' ? '\\rbrace' : '\\rbrack',
       style,
-      serialize: (atom, options) =>
-        joinLatex([
-          atom.aboveToLatex(options),
-          atom.command,
-          atom.belowToLatex(options),
-        ]),
     }),
+  serialize: (atom, options) =>
+    joinLatex([
+      atom.aboveToLatex(options),
+      atom.command,
+      atom.belowToLatex(options),
+    ]),
 });
 
 defineFunction(['over', 'atop', 'choose'], '', {
@@ -231,14 +233,14 @@ defineFunction(['over', 'atop', 'choose'], '', {
       leftDelim,
       rightDelim,
       style,
-      serialize: (atom, options) =>
-        joinLatex([
-          atom.aboveToLatex(options),
-          atom.command,
-          atom.belowToLatex(options),
-        ]),
     });
   },
+  serialize: (atom, options) =>
+    joinLatex([
+      atom.aboveToLatex(options),
+      atom.command,
+      atom.belowToLatex(options),
+    ]),
 });
 
 defineFunction(
@@ -256,11 +258,11 @@ defineFunction(
         rightDelim: args[3] ?? '.',
         hasBarLine: false,
         style,
-        serialize: (atom, options) =>
-          `${atom.aboveToLatex(options)} ${atom.command}${atom.leftDelim}${
-            atom.rightDelim
-          }${atom.belowToLatex(options)}`,
       }),
+    serialize: (atom: GenfracAtom, options) =>
+      `${atom.aboveToLatex(options)} ${atom.command}${atom.leftDelim}${
+        atom.rightDelim
+      }${atom.belowToLatex(options)}`,
   }
 );
 
@@ -436,3 +438,42 @@ defineFunction('middle', '{:delim}', {
     See http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/mathtools/mathtools.pdf
 
 */
+
+defineFunction('the', '{:value}', {
+  createAtom: (command, args: [LatexValue | null], style) =>
+    new Atom('mord', {
+      command,
+      captureSelection: true,
+      args,
+      style,
+      verbatimLatex: null, // disable verbatim LaTeX
+    }),
+  render: (atom, parent) => {
+    const ctx = new Context({ parent }, atom.style);
+    let classes = '';
+    if (atom.isSelected) classes += ' ML__selected';
+    const arg = ctx.evaluate(atom.args![0] as LatexValue);
+
+    return new Box(
+      (serializeLatexValue(arg) ?? '').split('').map(
+        (x) =>
+          new Box(x, {
+            type: 'ord',
+            classes,
+            mode: atom.mode,
+            isSelected: atom.isSelected,
+            style: { variant: 'main', ...atom.style },
+          })
+      ),
+      {
+        type: 'lift',
+        style: atom.style,
+        caret: atom.caret,
+        isSelected: atom.isSelected,
+        classes,
+      }
+    ).wrap(ctx);
+  },
+  serialize: (atom) =>
+    `\\the${serializeLatexValue(atom.args![0] as LatexValue) ?? '\\relax'}`,
+});

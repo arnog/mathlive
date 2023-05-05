@@ -319,19 +319,21 @@ export class Context implements ContextInterface {
     if ('global' in value && value.global)
       while (context.parent) context = context.parent;
 
+    let factor = 1;
+    if ('factor' in value && value.factor !== 1 && value.factor !== undefined)
+      factor = value.factor;
+
     const val = context.getRegister(value.register);
     if (val === undefined) return undefined;
-    if (typeof val === 'string') return { string: val };
-    if (typeof val === 'number') return { number: val };
+    if (typeof val === 'string')
+      return { string: Number(val).toString() + val };
+    if (typeof val === 'number') return { number: factor * val };
+
     const result = context.evaluate(val);
     if (result === undefined) return undefined;
-    if (
-      !('factor' in value) ||
-      value.factor === 1 ||
-      value.factor === undefined
-    )
-      return result;
-    const factor = value.factor;
+
+    if ('string' in result)
+      return { string: Number(val).toString() + result.string };
     if ('number' in result) return { number: factor * result.number };
     if ('dimension' in result)
       return { ...result, dimension: factor * result.dimension };

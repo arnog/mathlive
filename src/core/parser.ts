@@ -563,19 +563,20 @@ export class Parser {
   scanNumberOrRegister(): LatexValue | null {
     const index = this.index;
 
-    const number = this.scanNumber();
+    const number = this.scanNumber(false);
 
     this.skipWhitespace();
     if (this.match('\\relax')) return number;
     let negative = false;
-    while (true) {
-      const s = this.peek();
-      if (s === '-') negative = !negative;
-      else if (s !== '+') break;
-      this.next();
-      this.skipWhitespace();
+    if (number !== null) {
+      while (true) {
+        const s = this.peek();
+        if (s === '-') negative = !negative;
+        else if (s !== '+') break;
+        this.next();
+        this.skipWhitespace();
+      }
     }
-
     if (this.match('\\global')) {
       this.skipWhitespace();
       const register = this.get();
@@ -594,7 +595,7 @@ export class Parser {
       return null;
     }
 
-    let register = this.peek();
+    let register = this.get();
     if (!register?.startsWith('\\')) {
       this.index = index;
       return null;
@@ -615,11 +616,11 @@ export class Parser {
   }
 
   scanValue(): LatexValue | null {
-    const glue = this.scanGlueOrDimen();
-    if (glue) return glue;
-
     const value = this.scanNumberOrRegister();
     if (value) return value;
+
+    const glue = this.scanGlueOrDimen();
+    if (glue) return glue;
 
     if (this.end() || !isLiteral(this.peek())) return null;
 
@@ -1542,12 +1543,10 @@ export class Parser {
         command: '\\char',
         mode: this.parseMode,
         value: String.fromCodePoint(codepoint),
-        serialize: (atom) =>
-          atom.verbatimLatex ??
-          `\\char"${atom.value!.codePointAt(0)!.toString(16).toUpperCase()}`,
+        verbatimLatex:
+          '\\char' +
+          tokensToString(this.tokens.slice(initialIndex, this.index)),
       });
-      result.verbatimLatex =
-        '\\char' + tokensToString(this.tokens.slice(initialIndex, this.index));
 
       return [result];
     }
@@ -1684,7 +1683,7 @@ export class Parser {
         const smartFence = this.scanSmartFence();
         if (smartFence) return [result, smartFence];
       }
-    }
+    } else if (result?.verbatimLatex === null) result.verbatimLatex = undefined;
 
     return result ? [result] : null;
   }

@@ -4,24 +4,31 @@ import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import type { Box } from '../core/box';
 import type { BoxType } from '../core/types';
+import { Argument } from '../core-definitions/definitions-utils';
 
 export class GroupAtom extends Atom {
+  boxType?: BoxType;
+  mathstyleName?: MathstyleName;
+
   latexOpen?: string;
   latexClose?: string;
+
+  // This CSS class is used only during rendering
+  renderClass?: string;
+
   cssId?: string;
   htmlData?: string;
   htmlStyle?: string;
   // This CSS class is user-provided
   customClass?: string;
-  // This CSS class is used only during rendering
-  renderClass?: string;
-  mathstyleName?: MathstyleName;
-  boxType?: BoxType;
 
   constructor(
     arg: Atom[] | undefined,
     options?: {
       command?: string;
+      args?: (Argument | null)[];
+      mode?: ParseMode;
+      style?: Style;
       boxType?: BoxType;
       mathstyleName?: MathstyleName;
       latexOpen?: string;
@@ -31,34 +38,24 @@ export class GroupAtom extends Atom {
       htmlStyle?: string;
       customClass?: string;
       renderClass?: string;
-      mode?: ParseMode;
-      style?: Style;
       captureSelection?: boolean;
-      break?: boolean;
-      serialize?: (atom: GroupAtom, options: ToLatexOptions) => string;
     }
   ) {
     super('group', {
       command: options?.command,
+      args: options?.args,
       mode: options?.mode ?? 'math',
-      serialize: options?.serialize,
       style: options?.style,
     });
     this.body = arg;
     this.mathstyleName = options?.mathstyleName;
 
-    console.assert(
-      !options?.serialize ||
-        !Boolean(options?.latexClose) ||
-        !Boolean(options?.latexOpen),
-      options?.command ?? ''
-    );
     this.latexOpen = options?.latexOpen;
     this.latexClose = options?.latexClose;
-    this.cssId = options?.cssId;
-    this.htmlData = options?.htmlData;
-    this.htmlStyle = options?.htmlStyle;
-    this.customClass = options?.customClass;
+    // this.cssId = options?.cssId;
+    // this.htmlData = options?.htmlData;
+    // this.htmlStyle = options?.htmlStyle;
+    // this.customClass = options?.customClass;
     this.renderClass = options?.renderClass;
 
     this.boxType = options?.boxType;
@@ -76,19 +73,19 @@ export class GroupAtom extends Atom {
   }
 
   toJson(): AtomJson {
-    const options: { [key: string]: any } = {};
-    if (this.mathstyleName) options.mathstyleName = this.mathstyleName;
-    if (this.latexOpen) options.latexOpen = this.latexOpen;
-    if (this.latexClose) options.latexClose = this.latexClose;
-    if (this.cssId) options.cssId = this.cssId;
-    if (this.htmlData) options.htmlData = this.htmlData;
-    if (this.htmlStyle) options.htmlStyle = this.htmlStyle;
-    if (this.customClass) options.customClass = this.customClass;
-    if (this.renderClass) options.renderClass = this.renderClass;
-    if (this.boxType) options.boxType = this.boxType;
-    if (this.captureSelection) options.captureSelection = true;
+    const result: { [key: string]: any } = {};
+    if (this.mathstyleName) result.mathstyleName = this.mathstyleName;
+    if (this.latexOpen) result.latexOpen = this.latexOpen;
+    if (this.latexClose) result.latexClose = this.latexClose;
+    if (this.cssId) result.cssId = this.cssId;
+    if (this.htmlData) result.htmlData = this.htmlData;
+    if (this.htmlStyle) result.htmlStyle = this.htmlStyle;
+    if (this.customClass) result.customClass = this.customClass;
+    if (this.renderClass) result.renderClass = this.renderClass;
+    if (this.boxType) result.boxType = this.boxType;
+    if (this.captureSelection) result.captureSelection = true;
 
-    return { ...super.toJson(), ...options };
+    return { ...super.toJson(), ...result };
   }
 
   render(context: Context): Box | null {

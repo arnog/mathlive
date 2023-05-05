@@ -557,7 +557,7 @@ export function autoRenderMathInElement(
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
-    requestAnimationFrame(() => void loadFonts());
+    void loadFonts();
     injectStylesheet('mathlive-core-stylesheet', coreStylesheet);
 
     scanElement(element, optionsPrivate);

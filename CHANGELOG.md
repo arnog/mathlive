@@ -1,11 +1,26 @@
 ## [Unreleased]
 
-## Improvements
+
+## New Features
+
+- Support for `\the` command. For example, `\the\year`. Its argument can 
+  be a literal or a register, preceded by an optional factor literal.
+- In addition to the `label` property, the `key` property can also now be used
+  for keycap shortcuts. This allow overriding of the shortcut label. For example
+  `{key: "[undo]", label: "undo"}`
+- Added support for `--keyboard-row-padding-left` and `--keyboard-row-padding-right` as an option to account for shadows or other decoration that may spill outside the box of a keycap.
+- Fixed opacity of Undo button in virtual keyboard, when the button is not applicable.
 - The minFontScale property has been added that specifies the minimum font
   size that should be used for nested superscripts and fractions. The value 
   should be between 0 and 1. The size is in releative `em` units 
   relative to the font size of the `math-field`. The default value is 0, 
   which allows the `math-field` to use its default sizing logic. 
+
+## Improvements
+- Improved performance of creation and destruction of mathfields by 50%.
+- Fixed memory and listener leaks. After creating, inserting in the DOM, then 
+  removing over 100,000, the memory is back to its starting point and there
+  are no listeners left (except for those associated with the Virtual Keyboard). 
 
 ## Bug Fixes
 - **#1646** **mhchem**: states of aggregation is now rendered correctly. Added 
@@ -19,6 +34,9 @@
 - The focus outline is no longer displayed when in readonly mode
 - **#1940** New attempt to preserve the focus of mathfields when a window loses,
   then regains focus (when switching tabs, for example).
+- At certain sizes, the `\left...\right` command did not display the visual
+  indicator that the caret was inside the argument of the command.
+
 
 ## 0.92.1 (2023-04-19)
 

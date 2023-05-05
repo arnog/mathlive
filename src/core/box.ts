@@ -129,7 +129,13 @@ export class Box implements BoxInterface {
     else if (content && content instanceof Box) this.children = [content];
 
     this.type = options?.type ?? 'skip';
-    this.isSelected = false;
+
+    this.isSelected = options?.isSelected === true;
+    if (options?.caret) this.caret = options.caret;
+
+    this.classes = options?.classes ?? '';
+    if (this.isSelected) this.classes += ' ML__selected';
+
     this.isTight = options?.isTight ?? false;
 
     // CSS style, as a set of key value pairs.
@@ -140,9 +146,6 @@ export class Box implements BoxInterface {
     }
 
     if (options?.attributes) this.attributes = options.attributes;
-
-    // Set initial classes
-    this.classes = options?.classes ?? '';
 
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     let fontName = options?.fontFamily || 'Main-Regular';

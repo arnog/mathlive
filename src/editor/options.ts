@@ -6,10 +6,7 @@ import { isArray } from '../common/types';
 import { l10n } from '../core/l10n';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 
-import {
-  getMacros,
-  normalizeMacroDictionary,
-} from '../core-definitions/definitions-utils';
+import { normalizeMacroDictionary } from '../core-definitions/definitions-utils';
 
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
 
@@ -23,13 +20,9 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
 };
 
 export function update(
-  current: Required<MathfieldOptionsPrivate>,
   updates: Partial<MathfieldOptionsPrivate>
-): Required<MathfieldOptionsPrivate> {
-  const result: Required<MathfieldOptionsPrivate> = get(
-    current,
-    Object.keys(current)
-  ) as Required<MathfieldOptionsPrivate>;
+): Partial<MathfieldOptionsPrivate> {
+  const result: Partial<MathfieldOptionsPrivate> = {};
   for (const key of Object.keys(updates)) {
     switch (key) {
       case 'scriptDepth':
@@ -89,7 +82,11 @@ export function update(
 
       default:
         if (isArray(updates[key])) result[key] = [...updates[key]];
-        else if (typeof updates[key] === 'object')
+        else if (
+          typeof updates[key] === 'object' &&
+          !(updates[key] instanceof Element) &&
+          key !== 'computeEngine'
+        )
           result[key] = { ...updates[key] };
         else result[key] = updates[key];
     }
@@ -131,7 +128,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     readOnly: false,
 
     defaultMode: 'math',
-    macros: getMacros(),
+    macros: {},
     registers: {},
     colorMap: defaultColorMap,
     backgroundColorMap: defaultBackgroundColorMap,

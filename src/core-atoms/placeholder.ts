@@ -31,10 +31,7 @@ export class PlaceholderAtom extends Atom {
       result = context.renderPlaceholder(context);
     else result = this.createBox(context);
 
-    let classes = '';
-    if (this.caret) classes += ' ML__placeholder-selected';
-    if (this.isSelected) classes += ' ML__selected';
-    result.classes += classes;
+    if (this.caret) result.classes += ' ML__placeholder-selected';
 
     return result;
   }

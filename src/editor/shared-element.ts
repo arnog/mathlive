@@ -16,7 +16,7 @@ export function getSharedElement(id: string): HTMLElement {
 }
 
 export function releaseSharedElement(id: string): void {
-  const element = getSharedElement(id);
+  const element = document.getElementById(id);
   if (!element) return;
   const refcount = Number.parseInt(
     element.getAttribute('data-refcount') ?? '0'

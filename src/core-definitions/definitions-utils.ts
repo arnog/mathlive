@@ -1,6 +1,11 @@
 import { supportRegexPropertyEscape } from '../common/capabilities';
 
-import type { Atom, AtomType, BBoxParameter } from '../core/atom-class';
+import {
+  Atom,
+  AtomType,
+  BBoxParameter,
+  ToLatexOptions,
+} from '../core/atom-class';
 import type { ColumnFormat } from '../core-atoms/array';
 
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
@@ -21,6 +26,7 @@ import type {
 import { unicodeToMathVariant } from './unicode';
 import type { ContextInterface, PrivateStyle } from '../core/types';
 import type { Context } from '../core/context';
+import { Box } from '../core/box';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;
@@ -68,6 +74,8 @@ export type FunctionDefinition = {
     args: (null | Argument)[],
     context: ContextInterface
   ) => PrivateStyle;
+  serialize?: (atom: Atom, options: ToLatexOptions) => string;
+  render?: (Atom: Atom, context: Context) => Box | null;
 
   frequency?: number;
   category?: string;
@@ -91,6 +99,9 @@ export type SymbolDefinition = {
   variant?: Variant;
 
   isFunction?: boolean;
+
+  serialize?: (atom: Atom, options: ToLatexOptions) => string;
+  render?: (Atom: Atom, context: Context) => Box | null;
 
   frequency?: number;
   category?: string;
@@ -499,15 +510,19 @@ export const TEXT_SYMBOLS: Record<string, number> = {
 
 export const COMMAND_MODE_CHARACTERS = /[\w!@*()-=+{}[\]\\';:?/.,~<>`|$%#&^" ]/;
 
-export const LETTER = supportRegexPropertyEscape()
-  ? /* eslint-disable-next-line prefer-regex-literals */
-    new RegExp('\\p{Letter}', 'u')
-  : /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
+export let LETTER;
+export let LETTER_AND_DIGITS;
 
-export const LETTER_AND_DIGITS = supportRegexPropertyEscape()
-  ? /* eslint-disable-next-line prefer-regex-literals */
-    new RegExp('[0-9\\p{Letter}]', 'u')
-  : /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
+if (supportRegexPropertyEscape()) {
+  LETTER = new RegExp('\\p{Letter}', 'u');
+  LETTER_AND_DIGITS = new RegExp('[0-9\\p{Letter}]', 'u');
+} else {
+  LETTER =
+    /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
+
+  LETTER_AND_DIGITS =
+    /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
+}
 
 /**
  * @param symbol    The LaTeX command for this symbol, for
@@ -768,6 +783,8 @@ export function defineFunction(
       context: Context
     ) => PrivateStyle;
     command?: string;
+    serialize?: (atom: Atom, options: ToLatexOptions) => string;
+    render?: (atom: Atom, context: Context) => Box | null;
   }
 ): void {
   if (!options) options = {};
@@ -785,6 +802,8 @@ export function defineFunction(
     infix: options.infix ?? false,
     createAtom: options.createAtom,
     applyStyle: options.applyStyle,
+    serialize: options.serialize,
+    render: options.render,
   };
   if (typeof names === 'string') LATEX_COMMANDS['\\' + names] = data;
   else for (const name of names) LATEX_COMMANDS['\\' + name] = data;
@@ -982,4 +1001,28 @@ export function charToLatex(
   }
 
   return String.fromCodePoint(codepoint);
+}
+
+export function argumentsToJson(args: (null | Argument)[]): any {
+  return args.map((arg) => {
+    if (arg === null) return '<null>';
+    if (Array.isArray(arg) && arg[0] instanceof Atom)
+      return { atoms: arg.map((x) => x.toJson()) };
+    if (typeof arg === 'object' && 'group' in arg)
+      return { group: arg.group.map((x) => x.toJson()) };
+    return arg;
+  });
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function argumentsFromJson(json: any): undefined | Argument[] {
+  if (!json) return undefined;
+  if (!Array.isArray(json)) return undefined;
+  return json.map((arg) => {
+    if (arg === '<null>') return null;
+    if (typeof arg === 'object' && 'group' in arg)
+      return { group: arg.group.map((x) => Atom.fromJson(x)) };
+    if ('atoms' in arg) return arg.atoms.map((x) => Atom.fromJson(x));
+    return arg;
+  });
 }
