@@ -14,7 +14,6 @@ import POPOVER_STYLESHEET from '../../css/environment-popover.less';
 // @ts-ignore-error
 import CORE_STYLESHEET from '../../css/core.less';
 import { injectStylesheet, releaseStylesheet } from 'common/stylesheet';
-import { hashCode } from 'common/hash-code';
 
 const padding = 4;
 const radius = 20;
@@ -317,7 +316,7 @@ export function environmentPopoverIsVisible(): boolean {
 export function updateEnvironmemtPopover(mf: MathfieldPrivate): void {
   if (!mf.hasFocus()) return;
   let visible = false;
-  if (mf.mode === 'math' && window.mathVirtualKeyboard.visible) {
+  if (mf.model.mode === 'math' && window.mathVirtualKeyboard.visible) {
     const env = mf.model.parentEnvironment;
     visible = !!env?.array && isTabularEnvironment(env.environmentName);
   }
