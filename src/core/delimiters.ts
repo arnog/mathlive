@@ -630,10 +630,17 @@ function traverseSequence(
     // account for the style change size.
 
     if (sequence[i].type === 'small') {
-      if (sequence[i].mathstyle === 'scriptscriptstyle')
-        heightDepth *= FONT_SCALE[Math.max(1, context.size - 2)];
-      else if (sequence[i].mathstyle === 'scriptstyle')
-        heightDepth *= FONT_SCALE[Math.max(1, context.size - 1)];
+      if (sequence[i].mathstyle === 'scriptscriptstyle') {
+        heightDepth *= Math.max(
+          FONT_SCALE[Math.max(1, context.size - 2)],
+          context.minFontScale
+        );
+      } else if (sequence[i].mathstyle === 'scriptstyle') {
+        heightDepth *= Math.max(
+          FONT_SCALE[Math.max(1, context.size - 1)],
+          context.minFontScale
+        );
+      }
     }
 
     // Check if the delimiter at this size works for the given height.
