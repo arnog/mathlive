@@ -234,12 +234,7 @@ export function normalizeLayout(
     if (layer.rows) {
       for (const keycap of layer.rows.flat()) {
         const label = keycap.label!;
-        if (
-          typeof keycap !== 'string' &&
-          keycap.class &&
-          /(^|\s)shift($|\s)/.test(keycap.class)
-        )
-          hasShift = true;
+        if (typeof keycap !== 'string' && isShiftKey(keycap)) hasShift = true;
         if (['[undo]', '[redo]', '[cut]', '[copy]', '[paste]'].includes(label))
           hasEdit = true;
       }
@@ -476,8 +471,7 @@ const SVG_ICONS = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;
 // </symbol>
 
 /**
- * Construct a virtual keyboard element based on the config options in the
- * mathfield and an optional theme.
+ * Construct a virtual keyboard element.
  */
 export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
   keyboard.resetKeycapRegistry();
@@ -628,7 +622,7 @@ export function renderKeycap(
   let markup = '';
   let cls = keycap.class ?? '';
 
-  if (options.shifted && /(^|\s)shift($|\s)/.test(cls)) cls += ' is-active';
+  if (options.shifted && isShiftKey(keycap)) cls += ' is-active';
 
   if (options.shifted && 'shift' in keycap) {
     //
@@ -1046,7 +1040,8 @@ function handlePointerDown(ev: PointerEvent) {
     signal: controller.signal,
   });
 
-  if (keycap.class && /(^|\s)shift($|\s)/.test(keycap.class)) {
+  // Is it the Shift key?
+  if (isShiftKey(keycap)) {
     target.classList.add('is-active');
     keyboard.isShifted = true;
   }
@@ -1089,7 +1084,7 @@ function handleVirtualKeyboardEvent(controller) {
 
     if (ev.type === 'pointercancel') {
       target.classList.remove('is-pressed');
-      if (keycap.class && /(^|\s)shift($|\s)/.test(keycap.class)) {
+      if (isShiftKey(keycap)) {
         keyboard.isShifted = false;
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
@@ -1100,7 +1095,7 @@ function handleVirtualKeyboardEvent(controller) {
 
     if (ev.type === 'pointerleave' && ev.target === target) {
       target.classList.remove('is-pressed');
-      if (keycap.class && /(^|\s)shift($|\s)/.test(keycap.class)) {
+      if (isShiftKey(keycap)) {
         keyboard.isShifted = false;
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
@@ -1110,17 +1105,12 @@ function handleVirtualKeyboardEvent(controller) {
 
     if (ev.type === 'pointerup') {
       if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
-      if (keycap.class && /(^|\s)shift($|\s)/.test(keycap.class)) {
+      if (isShiftKey(keycap)) {
         keyboard.isShifted = false;
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
       } else if (target.classList.contains('is-pressed')) {
         target.classList.remove('is-pressed');
-        target.classList.add('is-active');
-
-        // Since we want the active state to be visible for a while,
-        // use a timer to remove it after a short delay
-        setTimeout(() => target?.classList.remove('is-active'), 150);
 
         if (VirtualKeyboard.singleton.isShifted && keycap.shift) {
           if (typeof keycap.shift === 'string') {
@@ -1208,4 +1198,8 @@ export function parentKeycap(el: EventTarget | null): HTMLElement | undefined {
   while (node && !isKeycapElement(node)) node = node.parentElement;
 
   return (node as HTMLElement) ?? undefined;
+}
+
+function isShiftKey(k: Partial<VirtualKeyboardKeycap>): boolean {
+  return !!k.class && /(^|\s)shift($|\s)/.test(k.class);
 }
