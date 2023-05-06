@@ -704,15 +704,32 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       );
       return;
     }
-
-    target?.postMessage(
-      {
-        type: VIRTUAL_KEYBOARD_MESSAGE,
-        action,
-        ...payload,
-      },
-      { targetOrigin: this.targetOrigin }
-    );
+    if (target) {
+      target.postMessage(
+        {
+          type: VIRTUAL_KEYBOARD_MESSAGE,
+          action,
+          ...payload,
+        },
+        { targetOrigin: this.targetOrigin }
+      );
+    } else {
+      if (
+        action === 'execute-command' &&
+        Array.isArray(payload.command) &&
+        payload.command[0] === 'insert'
+      ) {
+        const s = payload.command[1].split('');
+        for (const c of s) {
+          this.dispatchEvent(
+            new KeyboardEvent('keydown', { key: c, bubbles: true })
+          );
+          this.dispatchEvent(
+            new KeyboardEvent('keyup', { key: c, bubbles: true })
+          );
+        }
+      }
+    }
   }
 
   stateWillChange(visible: boolean): boolean {
