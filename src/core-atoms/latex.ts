@@ -15,11 +15,10 @@ export class LatexAtom extends Atom {
     super('latex', { value, mode: 'latex' });
     this.isSuggestion = options?.isSuggestion ?? false;
     this.isError = false;
-    this.verbatimLatex = value;
   }
 
   static fromJson(json: AtomJson): LatexAtom {
-    const result = new LatexAtom(json.command);
+    const result = new LatexAtom(json.value);
     if (json.isSuggestion) result.isSuggestion = true;
     if (json.isError) result.isError = true;
     return result;
@@ -29,7 +28,7 @@ export class LatexAtom extends Atom {
     const options: { [key: string]: any } = {};
     if (this.isSuggestion) options.isSuggestion = true;
     if (this.isError) options.isError = true;
-    return { ...super.toJson(), ...options };
+    return { type: 'latex', value: this.value, ...options };
   }
 
   get computedStyle(): Style {
@@ -60,7 +59,6 @@ export class LatexGroupAtom extends Atom {
   constructor(latex: string) {
     super('latexgroup', { mode: 'latex' });
     this.body = [...latex].map((x) => new LatexAtom(x));
-
     this.skipBoundary = false;
   }
 
