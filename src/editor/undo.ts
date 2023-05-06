@@ -57,23 +57,11 @@ export class UndoManager {
   stopCoalescing(selection?: Selection): void {
     if (selection && this.index >= 0)
       this.stack[this.index].selection = selection;
-    if (this.lastOp) console.log('stopCoalescing ', this.lastOp);
     this.lastOp = '';
   }
 
   undo(): boolean {
     if (!this.canUndo()) return false;
-
-    console.log(
-      'Undo:\n' +
-        this.stack
-          .map(
-            (s, i) =>
-              `${i === this.index ? '>' : ' '}${JSON.stringify(s.content.body)}`
-          )
-          .join('\n') +
-        '\n'
-    );
 
     this.model.setState(this.stack[this.index - 1], {
       silenceNotifications: false,
@@ -88,17 +76,6 @@ export class UndoManager {
 
   redo(): boolean {
     if (!this.canRedo()) return false;
-
-    console.log(
-      'Redo:\n' +
-        this.stack
-          .map(
-            (s, i) =>
-              `${i === this.index ? '>' : ' '}${JSON.stringify(s.content.body)}`
-          )
-          .join('\n') +
-        '\n'
-    );
 
     this.index += 1;
     this.model.setState(this.stack[this.index], {
@@ -142,22 +119,6 @@ export class UndoManager {
       this.stack.shift();
       this.index -= 1;
     }
-
-    console.log(
-      'snapshot (lastOp = ' +
-        this.lastOp +
-        ') ' +
-        'op = ' +
-        op +
-        ' \n' +
-        this.stack
-          .map(
-            (s, i) =>
-              `${i === this.index ? '>' : ' '}${JSON.stringify(s.content.body)}`
-          )
-          .join('\n') +
-        '\n'
-    );
 
     this.lastOp = op ?? '';
 
