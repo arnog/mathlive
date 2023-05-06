@@ -1388,6 +1388,8 @@ export class Parser {
         this.endContext();
         return result;
       }
+      if (type === 'balanced-string') return null;
+
       debugger;
 
       return null;
