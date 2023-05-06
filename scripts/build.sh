@@ -62,7 +62,6 @@ npx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly  --outDir 
 # npx tsc ./src/public/mathlive-ssr.ts --moduleResolution nodenext --target es2020 --module esnext --lib es2020,dom,dom.iterable,scripthost --declaration --emitDeclarationOnly  --typeRoots ./src/public --outDir ./declarations
 mkdir ./dist/types
 mv ./declarations/src/public/* ./dist/types
-cp -f ./src/public/cortex-compute-engine.d.ts ./dist/types/
 rm -rf ./declarations
 echo -e "$LINECLEAR$BASENAME$CHECK${DIM}TypeScript declaration files built${RESET}"
 

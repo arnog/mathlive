@@ -1,5 +1,3 @@
-/// <reference path="cortex-compute-engine.d.ts" />
-
 import type { Selector } from './commands';
 import type {
   LatexSyntaxError,

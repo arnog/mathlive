@@ -26,6 +26,8 @@
 - Improved behavior of undo/redo. **#1924** works in LaTeX mode. Undo shortcut
   substitution. Repeated operations (e.g. backspace) are considered a sinle
   operation for undo/redo purposes.
+- Importing the Compute Engine and MathLive in the same projec should no 
+  longer trigger a conflict.
 
 ## Bug Fixes
 - **#1646** **mhchem**: states of aggregation is now rendered correctly. Added 
