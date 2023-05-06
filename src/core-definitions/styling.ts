@@ -28,6 +28,7 @@ import type {
   Dimension,
   MathstyleName,
   LatexValue,
+  FontFamily,
 } from '../public/core-types';
 import type { PrivateStyle } from '../core/types';
 import { latexCommand } from '../core/tokenizer';
@@ -272,10 +273,10 @@ defineFunction('fontshape', '{:string}', {
   },
 });
 
-// FONT FAMILY: Fraktur, Calligraphic, ...
+// FONT FAMILY: roman, sans-serif, monospace
 defineFunction('fontfamily', '{:string}', {
   ifMode: 'text',
-  applyStyle: (_name, args: [null | string]): PrivateStyle => {
+  applyStyle: (_name, args: [null | FontFamily]): PrivateStyle => {
     return { fontFamily: args[0] ?? 'roman' };
   },
 });
@@ -291,7 +292,7 @@ defineFunction('selectfont', '', {
 // \bf works in any mode
 // As per the LaTeX 2.09 semantics, it overrides shape, family
 defineFunction('bf', '', {
-  applyStyle: () => ({ fontSeries: 'b', fontShape: 'n', fontFamily: 'cmr' }),
+  applyStyle: () => ({ fontSeries: 'b', fontShape: 'n', fontFamily: 'roman' }),
 });
 
 // Note: These function work a little bit differently than LaTex
@@ -429,7 +430,7 @@ defineFunction('it', '', {
   applyStyle: () => ({
     fontSeries: 'm',
     fontShape: 'it',
-    fontFamily: 'cmr',
+    fontFamily: 'roman',
     variantStyle: 'italic', // For math mode
   }),
 });
