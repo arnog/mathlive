@@ -46,5 +46,11 @@ register(
       contentWillChange(model, { inputType: 'deleteHardLineForward' }) &&
       deleteRange(model, [model.anchor, -1], 'deleteHardLineForward'),
   },
-  { target: 'model', category: 'delete' }
+  {
+    target: 'model',
+    audioFeedback: 'delete',
+    canUndo: true,
+    changeContent: true,
+    changeSelection: true,
+  }
 );

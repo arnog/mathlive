@@ -20,7 +20,10 @@
 - Improved performance of creation and destruction of mathfields by 50%.
 - Fixed memory and listener leaks. After creating, inserting in the DOM, then 
   removing over 100,000, the memory is back to its starting point and there
-  are no listeners left (except for those associated with the Virtual Keyboard). 
+  are no listeners left (except for those associated with the Virtual Keyboard).
+- Improved behavior of undo/redo. **#1924** works in LaTeX mode. Undo shortcut
+  substitution. Repeated operations (e.g. backspace) are considered a sinle
+  operation for undo/redo purposes.
 
 ## Bug Fixes
 - **#1646** **mhchem**: states of aggregation is now rendered correctly. Added 

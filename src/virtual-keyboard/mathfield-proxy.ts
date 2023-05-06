@@ -8,6 +8,6 @@ export function makeProxy(mf: MathfieldPrivate): MathfieldProxy {
     canUndo: mf.canUndo(),
     canRedo: mf.canRedo(),
     style: mf.selectionStyle,
-    mode: mf.mode,
+    mode: mf.model.mode,
   };
 }

@@ -26,7 +26,7 @@ import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
 import { insertSmartFence } from './mode-editor-math';
-import type { Style, ParseMode } from '../mathlive';
+import type { ParseMode } from '../mathlive';
 
 /**
  * Handler in response to a keystroke event.
@@ -94,11 +94,12 @@ export function onKeystroke(
   // would match a long shortcut (i.e. '~~')
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
   // see 4.3)
+  const buffer = mathfield.inlineShortcutBuffer;
   if (mathfield.isSelectionEditable) {
-    if (mathfield.mode === 'math') {
+    if (model.mode === 'math') {
       if (keystroke === '[Backspace]') {
         // Special case for backspace to correctly handle undoing
-        mathfield.inlineShortcutBuffer.pop();
+        buffer.pop();
         mathfield.flushInlineShortcutBuffer({ defer: true });
       } else if (!mightProducePrintableCharacter(evt)) {
         // It was a non-alpha character (PageUp, End, etc...)
@@ -108,14 +109,12 @@ export function onKeystroke(
 
         // Find the longest substring that matches a shortcut
         const keystrokes = [
-          ...(mathfield.inlineShortcutBuffer[
-            mathfield.inlineShortcutBuffer.length - 1
-          ]?.keystrokes ?? []),
+          ...(buffer[buffer.length - 1]?.keystrokes ?? []),
           c,
         ];
-        mathfield.inlineShortcutBuffer.push({
+        buffer.push({
           state: model.getState(),
-          keystrokes: keystrokes,
+          keystrokes,
           leftSiblings: getLeftSiblings(mathfield),
         });
 
@@ -123,19 +122,21 @@ export function onKeystroke(
         let i = 0;
         let candidate = '';
         while (!shortcut && i < keystrokes.length) {
-          stateIndex =
-            mathfield.inlineShortcutBuffer.length - (keystrokes.length - i);
+          stateIndex = buffer.length - (keystrokes.length - i);
           candidate = keystrokes.slice(i).join('');
 
-          // Is this an inline shortcut?
+          //
+          // Is this a simple inline shortcut?
+          //
           shortcut = getInlineShortcut(
-            mathfield.inlineShortcutBuffer[stateIndex].leftSiblings,
+            buffer[stateIndex].leftSiblings,
             candidate,
             mathfield.options.inlineShortcuts
           );
 
-          // Could this be interpreted as a multichar symbol or other complex
-          // inline shortcut
+          //
+          // Is this a multichar symbol or other complex inline shortcut?
+          //
           if (
             !shortcut &&
             /^[a-zA-Z][a-zA-Z0-9]+?([_\^][a-zA-Z0-9\*\+\-]+?)?$/.test(candidate)
@@ -146,7 +147,8 @@ export function onKeystroke(
         }
 
         // Don't flush the inline shortcut buffer yet, but schedule a deferred
-        // flush, in case some keys typed later disambiguate the desired shortcut.
+        // flush, in case some keys typed later disambiguate the desired
+        // shortcut.
         //
         // This handles the case with two shortcuts for "sin" and "sinh", to
         // avoid the detecting of the "sin" shortcut from preventing the "sinh"
@@ -158,22 +160,22 @@ export function onKeystroke(
     //
     // 4.2. Should we switch mode?
     //
-    // Need to check this before determing if there's a valid shortcut
+    // Need to check this before determining if there's a valid shortcut
     // since if we switch to math mode, we may want to apply the shortcut
     // e.g. "slope = rise/run"
     if (mathfield.options.smartMode) {
-      const previousMode = mathfield.mode;
+      const previousMode = model.mode;
       if (shortcut) {
         // If we found a shortcut (e.g. "alpha"),
         // switch to math mode and insert it
-        mathfield.mode = 'math';
+        model.mode = 'math';
       } else if (smartMode(mathfield, keystroke, evt)) {
-        mathfield.mode = { math: 'text', text: 'math' }[mathfield.mode];
+        model.mode = { math: 'text', text: 'math' }[model.mode];
         selector = '';
       }
 
       // Notify of mode change
-      if (mathfield.mode !== previousMode) {
+      if (model.mode !== previousMode) {
         if (
           !mathfield.host?.dispatchEvent(
             new Event('mode-change', {
@@ -183,7 +185,7 @@ export function onKeystroke(
             })
           )
         )
-          mathfield.mode = previousMode;
+          model.mode = previousMode;
       }
     }
   }
@@ -197,7 +199,7 @@ export function onKeystroke(
     if (!selector) {
       selector = getCommandForKeybinding(
         mathfield.keybindings,
-        mathfield.mode,
+        model.mode,
         keystroke
       );
     }
@@ -227,7 +229,7 @@ export function onKeystroke(
       return result;
     }
 
-    if ((!selector || keystroke === '[Space]') && mathfield.mode === 'math') {
+    if ((!selector || keystroke === '[Space]') && model.mode === 'math') {
       //
       // 4.5 If this is the Space bar and we're just before or right after
       // a text zone, or if `mathModeSpace` is enabled, insert the space
@@ -242,10 +244,11 @@ export function onKeystroke(
         // If will also terminate styling in progress
 
         if (mathfield.options.mathModeSpace) {
-          mathfield.snapshot();
-          ModeEditor.insert('math', model, mathfield.options.mathModeSpace, {
+          ModeEditor.insert(model, mathfield.options.mathModeSpace, {
             format: 'latex',
+            mode: 'math',
           });
+          mathfield.snapshot('insert-space');
           selector = '';
           mathfield.dirty = true;
           mathfield.scrollIntoView();
@@ -258,8 +261,8 @@ export function onKeystroke(
         const nextSibling = model.at(model.position + 1);
         const previousSibling = model.at(model.position - 1);
         if (nextSibling?.mode === 'text' || previousSibling?.mode === 'text') {
-          mathfield.snapshot();
-          ModeEditor.insert('text', model, ' ');
+          ModeEditor.insert(model, ' ', { mode: 'text' });
+          mathfield.snapshot('insert-space');
           mathfield.dirty = true;
           mathfield.scrollIntoView();
           return true;
@@ -282,12 +285,12 @@ export function onKeystroke(
   if (!shortcut && !selector) return true;
 
   //
-  // 5. Perform the action matching this selector or insert the shortcut
+  // 5. Insert the shortcut or perform the action for this selector
   //
 
   //
   // 5.1 If we have a `moveAfterParent` selector (usually triggered with
-  // `spacebar), and we're at the end of a smart fence, close the fence with
+  // `spacebar`), and we're at the end of a smart fence, close the fence with
   // an empty (.) right delimiter
   //
   const child = model.at(Math.max(model.position, model.anchor));
@@ -307,6 +310,7 @@ export function onKeystroke(
 
   //
   // 5.2 Cancel the (upcoming) composition
+  //
 
   // This is to prevent starting a composition when the keyboard event
   // has already been handled.
@@ -324,44 +328,43 @@ export function onKeystroke(
     //
     // 5.4 Insert the shortcut
     //
-    // If the shortcut is a mandatory escape sequence (\}, etc...)
-    // don't make it undoable, this would result in syntactically incorrect
-    // formulas
-    //
-    const style: Style = {
+    const style = {
       ...model.at(model.position).computedStyle,
       ...mathfield.style,
     };
-    if (!/^\\({|}|\[|]|@|#|\$|%|&|\^|_|backslash)$/.test(shortcut)) {
-      // To enable the substitution to be undoable,
-      // insert the character before applying the substitution
-      const saveMode = mathfield.mode;
-      ModeEditor.insert(mathfield.mode, model, eventToChar(evt), {
-        suppressChangeNotifications: true,
+    //
+    // Make the substitution to be undoable
+    //
+    // Revert to the state before the beginning of the shortcut
+    model.setState(buffer[stateIndex!].state);
+    // Insert the keystrokes as regular characters
+    const keystrokes = buffer[buffer.length - 1].keystrokes;
+    for (const c of keystrokes) {
+      ModeEditor.insert(model, c, {
+        silenceNotifications: true,
         style,
       });
-      // Create a snapshot with the inserted character
-      mathfield.snapshot();
-      // Revert to the state before the beginning of the shortcut
-      // (restore doesn't change the undo stack)
-      model.setState(mathfield.inlineShortcutBuffer[stateIndex!].state);
-      mathfield.mode = saveMode;
     }
 
-    mathfield.snapshot();
+    mathfield.snapshot(`insert-shortcut`);
+
+    //
+    // Revert, then insert the substitution
+    //
+
+    // Revert to the state before the beginning of the shortcut
+    model.setState(buffer[stateIndex!].state);
+
     model.deferNotifications(
       {
         content: true,
         selection: true,
-        data: shortcut ?? null,
+        data: shortcut,
         type: 'insertText',
       },
       () => {
         // Insert the substitute
-        ModeEditor.insert(mathfield.mode, model, shortcut!, {
-          format: 'latex',
-          style,
-        });
+        ModeEditor.insert(model, shortcut!, { format: 'latex', style });
 
         // Check if as a result of the substitution there is now an isolated
         // (text mode) space (surrounded by math). In which case, remove it.
@@ -370,9 +373,11 @@ export function onKeystroke(
 
         // Switch (back) to text mode if the shortcut ended with a space
         if (shortcut!.endsWith(' ')) {
-          mathfield.mode = 'text';
-          ModeEditor.insert('text', model, ' ', { style });
+          model.mode = 'text';
+          ModeEditor.insert(model, ' ', { style, mode: 'text' });
         }
+
+        mathfield.snapshot();
 
         // If as a result of the substitution the selection is not collapsed,
         // the substitution inserted a place holder. Reset the buffer.
@@ -439,8 +444,8 @@ export function onInput(
   // 2/ Switch mode if requested
   //
   if (typeof options.mode === 'string') {
-    mathfield.snapshot();
     mathfield.switchMode(options.mode);
+    mathfield.snapshot();
   }
 
   //
@@ -463,11 +468,9 @@ export function onInput(
   const rightSibling = atom.rightSibling;
   const style = { ...atom.computedStyle, ...mathfield.style };
   if (!model.selectionIsCollapsed) {
-    mathfield.snapshot();
     model.deleteAtoms(range(model.selection));
+    mathfield.snapshot('delete');
   }
-
-  let snapshot = false;
 
   // Decompose the string into an array of graphemes.
   // This is necessary to correctly process what is displayed as a single
@@ -478,20 +481,23 @@ export function onInput(
   // David Bowie emoji: 👨🏻‍🎤
   const graphemes = splitGraphemes(text);
 
-  if (mathfield.mode === 'latex') {
+  if (model.mode === 'latex') {
     model.deferNotifications(
       { content: true, selection: true, data: text, type: 'insertText' },
       () => {
         removeSuggestion(mathfield);
 
-        for (const c of graphemes) ModeEditor.insert('latex', model, c);
+        for (const c of graphemes) ModeEditor.insert(model, c);
+
+        mathfield.snapshot('insert-latex');
 
         updateAutocomplete(mathfield);
       }
     );
-  } else if (mathfield.mode === 'text')
-    for (const c of graphemes) ModeEditor.insert('text', model, c, { style });
-  else if (mathfield.mode === 'math') {
+  } else if (model.mode === 'text') {
+    for (const c of graphemes) ModeEditor.insert(model, c, { style });
+    mathfield.snapshot('insert-text');
+  } else if (model.mode === 'math') {
     for (const c of graphemes) {
       // Some characters are mapped to commands. Handle them here.
       // This is important to handle synthetic text input and
@@ -521,10 +527,10 @@ export function onInput(
         // We are inserting a digit into an empty superscript
         // If smartSuperscript is on, insert the digit, and
         // exit the superscript.
-        ModeEditor.insert('math', model, c, { style });
+        ModeEditor.insert(model, c, { style });
         mathfield.snapshot();
-        snapshot = false;
         moveAfterParent(model);
+        mathfield.snapshot();
       } else {
         if (mathfield.adoptStyle !== 'none') {
           // If adding an alphabetic character, and the neighboring atom is an
@@ -540,23 +546,15 @@ export function onInput(
               style.variantStyle = sibling.style.variantStyle;
           }
         }
-        if (atom.type !== 'mord') {
-          mathfield.snapshot();
-          // snapshot = false;
-        }
         // General purpose character insertion
-        ModeEditor.insert('math', model, c, { style });
+        ModeEditor.insert(model, c, { style });
+        mathfield.snapshot(`insert-${model.at(model.position).type}`);
       }
     }
   }
 
   //
-  // 5/ Take a snapshot for undo stack
-  //
-  if (snapshot) mathfield.snapshotAndCoalesce();
-
-  //
-  // 6/ Render the mathfield
+  // 5/ Render the mathfield
   //
   mathfield.dirty = true;
 

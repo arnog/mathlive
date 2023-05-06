@@ -159,14 +159,17 @@ export class MathModeEditor extends ModeEditor {
       text = typeof data === 'string' ? data : data.getData('text/plain');
 
     if (text) {
-      mathfield.snapshot();
-
       let wasLatex: boolean;
       [wasLatex, text] = trimModeShiftCommand(text);
       if (format === 'auto' && wasLatex) format = 'latex';
-      if (this.insert(mathfield.model, text, { format }))
+      mathfield.stopCoalescingUndo();
+      mathfield.stopRecording();
+      if (this.insert(mathfield.model, text, { format })) {
+        mathfield.startRecording();
+        mathfield.snapshot('paste');
         requestUpdate(mathfield);
-
+      }
+      mathfield.startRecording();
       return true;
     }
 
@@ -183,7 +186,7 @@ export class MathModeEditor extends ModeEditor {
         ? input
         : window.MathfieldElement.computeEngine?.box(input).latex ?? '';
     if (
-      !options.suppressChangeNotifications &&
+      !options.silenceNotifications &&
       !contentWillChange(model, { data, inputType: 'insertText' })
     )
       return false;
@@ -221,12 +224,11 @@ export class MathModeEditor extends ModeEditor {
     )
       return true;
 
-    const { suppressChangeNotifications } = model;
-    if (options.suppressChangeNotifications)
-      model.suppressChangeNotifications = true;
+    const { silenceNotifications } = model;
+    if (options.silenceNotifications) model.silenceNotifications = true;
 
-    const contentWasChanging = model.suppressChangeNotifications;
-    model.suppressChangeNotifications = true;
+    const contentWasChanging = model.silenceNotifications;
+    model.silenceNotifications = true;
 
     //
     // Save the content of the selection, if any
@@ -339,7 +341,7 @@ export class MathModeEditor extends ModeEditor {
 
     // Prepare to dispatch notifications
     // (for selection changes, then content change)
-    model.suppressChangeNotifications = contentWasChanging;
+    model.silenceNotifications = contentWasChanging;
 
     const lastNewAtom = newAtoms[newAtoms.length - 1];
 
@@ -369,7 +371,7 @@ export class MathModeEditor extends ModeEditor {
 
     contentDidChange(model, { data, inputType: 'insertText' });
 
-    model.suppressChangeNotifications = suppressChangeNotifications;
+    model.silenceNotifications = silenceNotifications;
 
     return true;
   }
@@ -644,7 +646,7 @@ export function insertSmartFence(
     if (delims === '\\{\\}') delims = '{}';
     if (delims === '\\lparen\\rparen') delims = '()';
     if (delims === '{}') {
-      ModeEditor.insert('math', model, '\\,\\middle' + fence + '\\, ', {
+      ModeEditor.insert(model, '\\,\\middle' + fence + '\\, ', {
         format: 'latex',
         style,
       });
@@ -754,7 +756,7 @@ export function insertSmartFence(
 
     if (!(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
       // We have a valid open fence as input
-      ModeEditor.insert('math', model, `\\left${fence}\\right?`, {
+      ModeEditor.insert(model, `\\left${fence}\\right?`, {
         format: 'latex',
         style,
       });

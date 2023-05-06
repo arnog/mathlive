@@ -26,7 +26,7 @@
       } */
     </style>
   </head>
-  <body>
+  <body theme="light">
     <header>
       <h1>Smoke Test</h1>
       <ul>
@@ -47,10 +47,11 @@
         >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
       > -->
       <!-- <math-field id="mf">=\overset{\left[\frac{0}{0}\right]}{=}=</math-field> -->
-      <math-field id="mf"
+      <math-field id="mf"></math-field>
+      <!-- <math-field id="mf"
         >a\not=b=\left(\sqrt{\frac{1}{2+x}}\right) \left(1+\sqrt{x}\right)
         (\sqrt{\frac{1}{2+x}}) \int^\infty x</math-field
-      >
+      > -->
       <!-- <math-field id="mf"
         >{\mathrlap{\raisebox{-.1em}{$-$}}\raisebox{.1em}{$\tripledash$}}\ce{A\bond{~-}B\bond{~=}C\bond{-~-}D}</math-field
       > -->
@@ -114,6 +115,8 @@
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
       // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
+
+      mathVirtualKeyboard.layouts = makeVirtualKeyboard(['x', 'y']);
 
       const ce = new ComputeEngine({
         latexDictionary: [
@@ -261,6 +264,148 @@
       // First time update
       updateContent(mf);
       // renderMathInDocument();
+
+      function makeVirtualKeyboard(variables) {
+        const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
+        // const customKeys = symbolsToKeycaps(variables);
+
+        return {
+          label: '',
+          layers: [
+            {
+              style: `
+                .ML__keyboard {
+                  --keyboard-zindex: 2000;
+
+                }
+                .minimalist-backdrop {
+                  display: flex;
+                  justify-content: center;
+                }
+                ${extraSpecificity} .minimalist-container {
+                  --keycap-height: 45px;
+                  --keycap-max-width: 53px;
+                  --keycap-font-size: 20px;
+                  --keycap-small-font-size: 12px;
+                  --keyboard-background: #f2f2f2;
+                  --keycap-background-hover: #ffffff;
+
+                  --keycap-secondary-background: #e5e5e5;
+                  --keycap-secondary-background-hover: #c4c4c4;
+
+                  --placeholder-opacity: 1;
+
+                  padding: 15px;
+
+                  background: var(--keyboard-background);
+                  border-top-left-radius: 8px;
+                  border-top-right-radius: 8px;
+                  border: none;
+                  box-shadow: 0px 0px 40px 0px #00000033;
+                }
+
+                @container (max-width: 744px) {
+                  ${extraSpecificity} .minimalist-container {
+                    padding: 4px;
+                  }
+
+                  ${extraSpecificity} .MLK__rows {
+                    --keycap-gap: 5px;
+                    --keycap-height: 45px;
+                  }
+                }
+
+                ${extraSpecificity} .minimalist-container .action {
+                  box-shadow: 0px 1px 0px #b5b5b5;
+                  color: var(--keyboard-text);
+                  border: none;
+                }
+
+                ${extraSpecificity} .minimalist-container .action.is-pressed {
+                  transform-origin: bottom center;
+                  transform: scale(1.4, 1.4);
+                  background-color: var(--keycap-secondary-background-hover);
+                  color: var(--keyboard-text);
+                }
+
+                ${extraSpecificity} .minimalist-container .action.is-active {
+                  background-color: var(--keycap-secondary-background-hover);
+                  color: var(--keyboard-text);
+                }
+
+                ${extraSpecificity} .minimalist-container .MLK__keycap:not(.ghost) {
+                  box-shadow: 0px 1px 0px #b5b5b5;
+                  color: var(--keyboard-text);
+                  border: none;
+                }
+
+                ${extraSpecificity} .minimalist-container .MLK__keycap.is-pressed {
+                  transform-origin: bottom center;
+                  transform: scale(1.4, 1.4);
+                  background-color: var(--keycap-background-hover);
+                  color: var(--keyboard-text);
+                }
+
+                ${extraSpecificity} .minimalist-container .MLK__keycap.is-active {
+                  background-color: var(--keycap-background-hover);
+                  color: var(--keyboard-text);
+                }
+
+                ${extraSpecificity} .MLK__rows {
+                  overflow-x: unset;
+                }
+
+                ${extraSpecificity} .MLK__rows .row {
+                  justify-content: flex-start;
+                }
+
+                ${extraSpecificity} .if-can-undo, ${extraSpecificity} .if-can-redo {
+                  opacity: 0.4;
+                }
+
+                .ML__keyboard.can-undo .if-can-undo, .ML__keyboard.can-redo .if-can-redo {
+                  opacity: 1;
+                }
+              `,
+              backdrop: 'minimalist-backdrop',
+              container: 'minimalist-container',
+              rows: [
+                // customKeys,
+                // customKeys.length > 0 ? ['[hr]'] : [],
+                [
+                  '+',
+                  '-',
+                  '\\times',
+                  {
+                    insert: '\\frac{#@}{#0}',
+                    latex: '\\frac{#?}{#?}',
+                    class: 'small',
+                  },
+                  '=',
+                  '[.]',
+                  '(',
+                  ')',
+                  { latex: '\\sqrt{#0}', class: 'small' },
+                  { insert: '#@^{#?}', class: 'small', latex: '#?^{#?}' },
+                ],
+                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+                ['[hr]'],
+                [
+                  { label: '[undo]' },
+                  '[redo]',
+                  '[separator]',
+                  '[separator]',
+                  '[separator]',
+                  { label: '[separator]', width: 1.5 },
+                  '[left]',
+                  '[right]',
+                  { label: '[backspace]', class: 'action hide-shift' },
+                ],
+              ],
+            },
+          ],
+        };
+      }
     </script>
   </body>
 </html>

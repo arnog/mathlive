@@ -489,7 +489,12 @@ registerCommand(
     removeColumn,
     setEnvironment,
   },
-  { target: 'model', category: 'array-edit' }
+  {
+    target: 'model',
+    canUndo: true,
+    changeContent: true,
+    changeSelection: true,
+  }
 );
 
 function placeholderCell() {

@@ -150,13 +150,14 @@ export function complete(
   const newPos = latexGroup.leftSibling;
   latexGroup.parent!.removeChild(latexGroup);
   mathfield.model.position = mathfield.model.offsetOf(newPos);
-  mathfield.mode = options?.mode ?? 'math';
+  mathfield.model.mode = options?.mode ?? 'math';
 
   if (completion === 'reject') return true;
 
-  ModeEditor.insert('math', mathfield.model, latex, {
+  ModeEditor.insert(mathfield.model, latex, {
     selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
     format: 'latex',
+    mode: 'math',
   });
 
   mathfield.snapshot();

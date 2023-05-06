@@ -26,10 +26,10 @@ export const defaultExportHook = (
 };
 
 export class ModeEditor {
-  static _registry: Record<string, ModeEditor> = {};
+  static _modes: Record<string, ModeEditor> = {};
 
   constructor(name: string) {
-    ModeEditor._registry[name] = this;
+    ModeEditor._modes[name] = this;
   }
 
   static onPaste(
@@ -53,7 +53,7 @@ export class ModeEditor {
     });
     if (!mathfield.host?.dispatchEvent(redispatchedEvent)) return false;
 
-    return ModeEditor._registry[mode].onPaste(mathfield, data);
+    return ModeEditor._modes[mode].onPaste(mathfield, data);
   }
 
   static onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
@@ -148,12 +148,13 @@ export class ModeEditor {
   }
 
   static insert(
-    mode: ParseMode,
     model: ModelPrivate,
     text: string,
     options: InsertOptions = {}
   ): boolean {
-    return ModeEditor._registry[mode].insert(model, text, options);
+    const mode =
+      options.mode === 'auto' ? model.mode : options.mode ?? model.mode;
+    return ModeEditor._modes[mode].insert(model, text, options);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function

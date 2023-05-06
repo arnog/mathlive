@@ -33,11 +33,15 @@ export class TextModeEditor extends ModeEditor {
         data: text,
       })
     ) {
-      mathfield.snapshot();
+      mathfield.stopCoalescingUndo();
+      mathfield.stopRecording();
       if (this.insert(mathfield.model, text)) {
         contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
+        mathfield.startRecording();
+        mathfield.snapshot('paste');
         requestUpdate(mathfield);
       }
+      mathfield.startRecording();
 
       return true;
     }
@@ -56,12 +60,11 @@ export class TextModeEditor extends ModeEditor {
     if (!options.selectionMode) options.selectionMode = 'placeholder';
     if (!options.format) options.format = 'auto';
 
-    const { suppressChangeNotifications } = model;
-    if (options.suppressChangeNotifications)
-      model.suppressChangeNotifications = true;
+    const { silenceNotifications } = model;
+    if (options.silenceNotifications) model.silenceNotifications = true;
 
-    const contentWasChanging = model.suppressChangeNotifications;
-    model.suppressChangeNotifications = true;
+    const contentWasChanging = model.silenceNotifications;
+    model.silenceNotifications = true;
 
     //
     // Delete any selected items
@@ -92,7 +95,7 @@ export class TextModeEditor extends ModeEditor {
 
     // Prepare to dispatch notifications
     // (for selection changes, then content change)
-    model.suppressChangeNotifications = contentWasChanging;
+    model.silenceNotifications = contentWasChanging;
 
     if (options.selectionMode === 'before') {
       // Do nothing: don't change the position.
@@ -102,7 +105,7 @@ export class TextModeEditor extends ModeEditor {
 
     contentDidChange(model, { data: text, inputType: 'insertText' });
 
-    model.suppressChangeNotifications = suppressChangeNotifications;
+    model.silenceNotifications = silenceNotifications;
 
     return true;
   }

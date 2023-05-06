@@ -1,5 +1,4 @@
 import { register as registerCommand } from '../editor/commands';
-import { complete } from './autocomplete';
 import type { MathfieldPrivate } from './mathfield-private';
 import { onInput } from './keyboard-input';
 import { toggleKeystrokeCaption } from './keystroke-caption';
@@ -9,13 +8,10 @@ import { ParseMode } from '../public/core-types';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
-    complete(mathfield, 'accept');
-    // Undo to the previous state
     mathfield.undo();
     return true;
   },
   redo: (mathfield: MathfieldPrivate) => {
-    complete(mathfield, 'accept');
     mathfield.redo();
     return true;
   },
@@ -53,15 +49,15 @@ registerCommand({
     return true;
   },
   insertDecimalSeparator: (mathfield: MathfieldPrivate) => {
+    const model = mathfield.model;
     if (
-      mathfield.mode === 'math' &&
+      model.mode === 'math' &&
       window.MathfieldElement.decimalSeparator === ','
     ) {
-      const model = mathfield.model;
       const child = model.at(Math.max(model.position, model.anchor));
       if (child.isDigit()) {
-        mathfield.snapshot();
         mathfield.insert('{,}', { format: 'latex' });
+        mathfield.snapshot('insert-mord');
         return true;
       }
     }
@@ -129,7 +125,12 @@ registerCommand(
       }
       return false;
     },
+  },
+  { target: 'mathfield' }
+);
 
+registerCommand(
+  {
     cutToClipboard: (mathfield: MathfieldPrivate) => {
       mathfield.focus();
 
@@ -154,30 +155,38 @@ registerCommand(
       if (
         'queryCommandSupported' in document &&
         document.queryCommandSupported('paste')
-      )
+      ) {
         document.execCommand('paste');
-      else {
-        navigator.clipboard.readText().then((text) => {
-          if (
-            text &&
-            contentWillChange(mathfield.model, {
-              inputType: 'insertFromPaste',
-              data: text,
-            })
-          ) {
-            mathfield.snapshot();
-            if (mathfield.insert(text)) {
-              contentDidChange(mathfield.model, {
-                inputType: 'insertFromPaste',
-              });
-              requestUpdate(mathfield);
-            }
-          } else mathfield.model.announce('plonk');
-        });
+        return true;
       }
+
+      navigator.clipboard.readText().then((text) => {
+        if (
+          text &&
+          contentWillChange(mathfield.model, {
+            inputType: 'insertFromPaste',
+            data: text,
+          })
+        ) {
+          mathfield.stopCoalescingUndo();
+          mathfield.stopRecording();
+          if (mathfield.insert(text)) {
+            mathfield.startRecording();
+            mathfield.snapshot('paste');
+            contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
+            requestUpdate(mathfield);
+          }
+        } else mathfield.model.announce('plonk');
+        mathfield.startRecording();
+      });
 
       return true;
     },
   },
-  { target: 'mathfield', category: 'clipboard' }
+  {
+    target: 'mathfield',
+    canUndo: true,
+    changeContent: true,
+    changeSelection: true,
+  }
 );

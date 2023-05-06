@@ -38,7 +38,7 @@ registerCommand(
       return speak(mathfield, scope, options);
     },
   },
-  { target: 'mathfield', category: 'speech' }
+  { target: 'mathfield' }
 );
 
 function speak(

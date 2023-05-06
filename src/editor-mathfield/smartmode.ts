@@ -124,10 +124,10 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
     // We need to adjust the selection after doing some surgery on the atoms list
     // But we don't want to receive selection notification changes
     // which could have a side effect of changing the mode :(
-    const save = model.suppressChangeNotifications;
-    model.suppressChangeNotifications = true;
+    const save = model.silenceNotifications;
+    model.silenceNotifications = true;
     model.position -= 1;
-    model.suppressChangeNotifications = save;
+    model.silenceNotifications = save;
 
     contentDidChange(model, { inputType: 'deleteContent' });
   }
@@ -184,7 +184,7 @@ export function smartMode(
   const c = eventToChar(evt);
   if (!model.selectionIsCollapsed) {
     // There is a selection
-    if (mathfield.mode === 'text') {
+    if (mathfield.model.mode === 'text') {
       // If the character is '/' or '_' or '^', switch to 'math'
       if (/[/_^]/.test(c)) return true;
     }
@@ -193,7 +193,7 @@ export function smartMode(
   }
 
   const context = getTextBeforePosition(model) + c;
-  if (mathfield.mode === 'text') {
+  if (mathfield.model.mode === 'text') {
     // We're in text mode. Should we switch to math?
     if (keystroke === 'Esc' || /[/\\]/.test(c)) {
       // If this is a command for a fraction,

@@ -6,7 +6,11 @@ import type {
   Selection,
   OutputFormat,
 } from '../public/mathfield';
-import { ContentChangeOptions, ContentChangeType } from '../public/options';
+import type {
+  ContentChangeOptions,
+  ContentChangeType,
+} from '../public/options';
+import type { ParseMode } from '../public/core-types';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
@@ -29,13 +33,14 @@ import {
 } from './listeners';
 import { isOffset, isSelection, isRange, AnnounceVerb } from './utils';
 import { compareSelection, range } from './selection-utils';
-import { ArrayAtom } from '../core-atoms/array';
+import type { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from 'core-atoms/latex';
 import { parseLatex } from 'core/parser';
 
 export type ModelState = {
   content: AtomJson;
   selection: Selection;
+  mode: ParseMode;
 };
 
 export type GetAtomOptions = {
@@ -46,8 +51,9 @@ export type GetAtomOptions = {
 export class ModelPrivate implements Model {
   readonly mathfield: MathfieldPrivate;
 
+  mode: ParseMode;
   listeners: ModelListeners;
-  suppressChangeNotifications: boolean;
+  silenceNotifications: boolean;
 
   root: Atom;
 
@@ -60,10 +66,11 @@ export class ModelPrivate implements Model {
     this._anchor = 0;
     this._position = 0;
 
+    this.mode = 'math';
     this.mathfield = target as MathfieldPrivate;
-    this.suppressChangeNotifications = false;
+    this.silenceNotifications = false;
 
-    this.root = new Atom('root', { mode: target.mode });
+    this.root = new Atom('root', { mode: this.mode });
 
     this.root.body = parseLatex(content, {
       context: this.mathfield.context,
@@ -188,37 +195,45 @@ export class ModelPrivate implements Model {
 
     if (atom instanceof LatexAtom && atom.isSuggestion)
       atom.isSuggestion = false;
+
+    this.mathfield.stopCoalescingUndo();
   }
 
   getState(): ModelState {
-    const selection: Selection = { ranges: [...this.selection.ranges] };
+    const selection: Selection = { ranges: [...this._selection.ranges] };
     if (this.selection.direction && this.selection.direction !== 'none')
       selection.direction = this.selection.direction;
 
-    return { content: this.root.toJson(), selection };
+    return {
+      content: this.root.toJson(),
+      selection,
+      mode: this.mode,
+    };
   }
 
   setState(
     state: ModelState,
     options?: {
-      suppressChangeNotifications?: boolean;
+      silenceNotifications?: boolean;
       type?: 'redo' | 'undo';
     }
   ): void {
-    const wasSuppressing = this.suppressChangeNotifications;
-    this.suppressChangeNotifications =
-      options?.suppressChangeNotifications ?? true;
+    const wasSuppressing = this.silenceNotifications;
+    this.silenceNotifications = options?.silenceNotifications ?? true;
     let changeOption: ContentChangeOptions = {};
     if (options?.type === 'undo') changeOption = { inputType: 'historyUndo' };
     if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
     // Restore the content and selection
     if (contentWillChange(this, changeOption)) {
+      const didSuppress = this.silenceNotifications;
+      this.silenceNotifications = true;
+      this.mode = state.mode;
       this.root = fromJson(state.content);
       this.selection = state.selection;
-
+      this.silenceNotifications = didSuppress;
       contentDidChange(this, changeOption);
     }
-    this.suppressChangeNotifications = wasSuppressing;
+    this.silenceNotifications = wasSuppressing;
   }
 
   /**
@@ -667,8 +682,8 @@ export class ModelPrivate implements Model {
     const oldAnchor = this._anchor;
     const oldPosition = this._position;
 
-    const saved = this.suppressChangeNotifications;
-    this.suppressChangeNotifications = true;
+    const saved = this.silenceNotifications;
+    this.silenceNotifications = true;
     const previousCounter = this.root.changeCounter;
 
     f();
@@ -679,7 +694,7 @@ export class ModelPrivate implements Model {
       oldPosition !== this._position ||
       compareSelection(this._selection, oldSelection) === 'different';
 
-    this.suppressChangeNotifications = saved;
+    this.silenceNotifications = saved;
 
     // Notify of content change, if requested
     if (options.content && contentChanged)

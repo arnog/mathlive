@@ -128,11 +128,10 @@ const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg style="width: 21px;" xmlns="http://w
 export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
   readonly model: ModelPrivate;
 
-  private readonly undoManager: UndoManager;
+  readonly undoManager: UndoManager;
 
   options: Required<MathfieldOptionsPrivate>;
 
-  mode: ParseMode;
   style: Style;
   // When inserting new characters, if not `"none"`, adopt the style
   // (up variant, etc..) from the previous or following atom.
@@ -244,16 +243,6 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
       typeof setTimeout
     >;
 
-    // The input mode (text, math, command)
-    // While model.getMode() represent the mode of the current selection,
-    // this.mode is the mode chosen by the user. It indicates the mode the
-    // next character typed will be interpreted in.
-    // It is often identical to getAnchorMode() since changing the selection
-    // changes the mode, but sometimes it is not, for example when a user
-    // enters a mode changing command.
-    this.mode = effectiveMode(this.options);
-    this.smartModeSuppressed = false;
-
     // Current style (color, weight, italic, etc...):
     // reflects the style to be applied on next insertion.
     this.style = {};
@@ -273,6 +262,16 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
     this.model = new ModelPrivate(this, elementText, {
       onSelectionDidChange: () => this._onSelectionDidChange(),
     });
+
+    // The input mode (text, math, command)
+    // While model.getMode() represent the mode of the current selection,
+    // this.mode is the mode chosen by the user. It indicates the mode the
+    // next character typed will be interpreted in.
+    // It is often identical to getAnchorMode() since changing the selection
+    // changes the mode, but sometimes it is not, for example when a user
+    // enters a mode changing command.
+    this.model.mode = effectiveMode(this.options);
+    this.smartModeSuppressed = false;
 
     // Prepare to manage undo/redo
     this.undoManager = new UndoManager(this.model);
@@ -405,10 +404,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this
     );
 
-    // Now start recording potentially undoable actions
-    this.undoManager.startRecording();
-    this.undoManager.snapshot();
-
     if (gKeyboardLayout && !l10n.locale.startsWith(gKeyboardLayout.locale))
       setKeyboardLayoutLocale(l10n.locale);
 
@@ -423,6 +418,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
     element
       .querySelector<HTMLElement>('.ML__container')!
       .style.removeProperty('visibility');
+
+    // Now start recording potentially undoable actions
+    this.undoManager.startRecording();
+    // Snapshot as 'set-value' operation, so that any other subsequent
+    // `setValue()` gets coalesced
+    this.undoManager.snapshot('set-value');
   }
 
   connectToVirtualKeyboard(): void {
@@ -614,11 +615,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
       defaultMode: this.options.defaultMode,
     });
     if ('macros' in config || this.model.getValue() !== content) {
-      ModeEditor.insert('math', this.model, content, {
+      ModeEditor.insert(this.model, content, {
         insertionMode: 'replaceAll',
         selectionMode: 'after',
         format: 'latex',
-        suppressChangeNotifications: true,
+        silenceNotifications: true,
+        mode: 'math',
       });
     }
 
@@ -812,14 +814,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (options.format === undefined || options.format === 'auto')
       options.format = 'latex';
 
-    let mode: ParseMode = 'math';
     if (options.mode === undefined || options.mode === 'auto')
-      mode = getMode(this.model, this.model.position) ?? 'math';
+      options.mode = getMode(this.model, this.model.position) ?? 'math';
 
-    this.undoManager.snapshot();
-    if (ModeEditor.insert(mode, this.model, value, options))
+    if (ModeEditor.insert(this.model, value, options)) {
       requestUpdate(this);
-    else this.undoManager.pop();
+      this.undoManager.snapshot('set-value');
+    }
   }
 
   get expression(): BoxedExpression | null {
@@ -962,20 +963,20 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     if (options.scrollIntoView) this.scrollIntoView();
 
-    this.undoManager.snapshot();
-
     if (s === '\\\\') {
       // This string is interpreted as an "insert row after" command
       addRowAfter(this.model);
     } else if (s === '&') addColumnAfter(this.model);
     else {
       const savedStyle = this.style;
-      ModeEditor.insert(this.mode, this.model, s, {
+      ModeEditor.insert(this.model, s, {
         style: this.model.at(this.model.position).computedStyle,
         ...options,
       });
       if (options.resetStyle) this.style = savedStyle;
     }
+
+    this.snapshot(`insert-${this.model.at(this.model.position).type}`);
 
     requestUpdate(this);
     return true;
@@ -983,7 +984,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
     if (
-      this.mode === mode ||
+      this.model.mode === mode ||
       !this.hasEditableContent ||
       !this.contentEditable ||
       this.disabled
@@ -1003,7 +1004,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       return;
 
     // Notify of mode change
-    const currentMode = this.mode;
+    const currentMode = this.model.mode;
     const { model } = this;
     model.deferNotifications(
       {
@@ -1014,10 +1015,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       (): boolean => {
         let contentChanged = false;
         this.flushInlineShortcutBuffer();
+        this.stopCoalescingUndo();
         // Suppress (temporarily) smart mode if switching to/from text or math
         // This prevents switching to/from command mode from suppressing smart mode.
         this.smartModeSuppressed =
-          /text|math/.test(this.mode) && /text|math/.test(mode);
+          /text|math/.test(this.model.mode) && /text|math/.test(mode);
         if (prefix && mode !== 'latex') {
           const atoms = parseLatex(prefix, {
             context: this.context,
@@ -1031,7 +1033,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           contentChanged = true;
         }
 
-        this.mode = mode;
+        this.model.mode = mode;
 
         if (mode === 'latex') {
           let wasCollapsed = model.selectionIsCollapsed;
@@ -1089,11 +1091,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
         }
 
         requestUpdate(this);
+        this.undoManager.snapshot(mode === 'latex' ? 'insert-latex' : 'insert');
         return contentChanged;
       }
     );
 
-    this.mode = mode;
+    this.model.mode = mode;
   }
 
   hasFocus(): boolean {
@@ -1122,18 +1125,17 @@ If you are using Vue, this may be because you are using the runtime-only build o
   applyStyle(inStyle: Style, inOptions: Range | ApplyStyleOptions = {}): void {
     const options: ApplyStyleOptions = {
       operation: 'set',
-      suppressChangeNotifications: false,
+      silenceNotifications: false,
     };
     if (isRange(inOptions)) options.range = inOptions;
     else {
       options.range = inOptions.range;
-      options.suppressChangeNotifications =
-        inOptions.suppressChangeNotifications ?? false;
+      options.silenceNotifications = inOptions.silenceNotifications ?? false;
     }
     const style = validateStyle(this, inStyle);
     const operation = options.operation ?? 'set';
     this.model.deferNotifications(
-      { content: !options.suppressChangeNotifications, type: 'insertText' },
+      { content: !options.silenceNotifications, type: 'insertText' },
       () => {
         if (options.range === undefined) {
           for (const range of this.model.selection.ranges)
@@ -1228,7 +1230,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         insertionMode: 'replaceSelection',
       });
     }
-    if (insertOptions?.suppressChangeNotifications)
+    if (insertOptions?.silenceNotifications)
       this.valueOnFocus = this.getValue();
     requestUpdate(this);
   }
@@ -1302,8 +1304,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.undoManager.pop();
   }
 
-  snapshot(): void {
-    if (this.undoManager.snapshot()) {
+  snapshot(op?: string): void {
+    if (this.undoManager.snapshot(op)) {
       if (window.mathVirtualKeyboard.visible)
         window.mathVirtualKeyboard.update(makeProxy(this));
       this.host?.dispatchEvent(
@@ -1316,19 +1318,16 @@ If you are using Vue, this may be because you are using the runtime-only build o
     }
   }
 
-  snapshotAndCoalesce(): void {
-    if (this.undoManager.snapshotAndCoalesce()) {
-      if (window.mathVirtualKeyboard.visible)
-        window.mathVirtualKeyboard.update(makeProxy(this));
-      updateEnvironmemtPopover(this);
-      this.host?.dispatchEvent(
-        new CustomEvent('undo-state-change', {
-          bubbles: true,
-          composed: true,
-          detail: { type: 'snapshot' },
-        })
-      );
-    }
+  stopCoalescingUndo(): void {
+    this.undoManager.stopCoalescing(this.model.selection);
+  }
+
+  stopRecording(): void {
+    this.undoManager.stopRecording();
+  }
+
+  startRecording(): void {
+    this.undoManager.startRecording();
   }
 
   undo(): void {
@@ -1374,8 +1373,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     {
       const cursor = model.at(model.position);
       const newMode = cursor.mode ?? effectiveMode(this.options);
-      if (this.mode !== newMode) {
-        if (this.mode === 'latex') {
+      if (this.model.mode !== newMode) {
+        if (this.model.mode === 'latex') {
           complete(this, 'accept', { mode: newMode });
           model.position = model.offsetOf(cursor);
         } else this.switchMode(newMode);
@@ -1400,6 +1399,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // As a side effect, a `focus` and `focusin` events will be dispatched
     this.keyboardDelegate.focus();
 
+    this.stopCoalescingUndo();
+
     render(this, { interactive: true });
 
     // Save the current value.
@@ -1422,6 +1423,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
   onBlur(): void {
     if (this.focusBlurInProgress || this.blurred) return;
     this.focusBlurInProgress = true;
+
+    this.stopCoalescingUndo();
 
     this.blurred = true;
     this.ariaLiveText!.textContent = '';
@@ -1540,13 +1543,15 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     if (contentWillChange(this.model, { inputType: 'deleteByCut' })) {
       // Snapshot the undo state
-      this.snapshot();
+      this.stopCoalescingUndo();
 
       // Copy to the clipboard
       ModeEditor.onCopy(this, ev);
 
       // Delete the selection
       deleteRange(this.model, range(this.model.selection), 'deleteByCut');
+
+      this.snapshot('cut');
 
       requestUpdate(this);
     }

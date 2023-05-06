@@ -37,11 +37,15 @@ export class LatexModeEditor extends ModeEditor {
         data: text,
       })
     ) {
-      mathfield.snapshot();
+      mathfield.stopCoalescingUndo();
+      mathfield.stopRecording();
       if (this.insert(mathfield.model, text)) {
+        mathfield.startRecording();
+        mathfield.snapshot('paste');
         contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
         requestUpdate(mathfield);
       }
+      mathfield.startRecording();
       return true;
     }
 
@@ -55,12 +59,11 @@ export class LatexModeEditor extends ModeEditor {
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
 
-    const { suppressChangeNotifications } = model;
-    if (options.suppressChangeNotifications)
-      model.suppressChangeNotifications = true;
+    const { silenceNotifications } = model;
+    if (options.silenceNotifications) model.silenceNotifications = true;
 
-    const savedSuppressChangeNotifications = model.suppressChangeNotifications;
-    model.suppressChangeNotifications = true;
+    const saveSilenceNotifications = model.silenceNotifications;
+    model.silenceNotifications = true;
 
     // Delete any selected items
     if (
@@ -101,7 +104,7 @@ export class LatexModeEditor extends ModeEditor {
     const lastNewAtom = cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
     // Prepare to dispatch notifications
-    model.suppressChangeNotifications = savedSuppressChangeNotifications;
+    model.silenceNotifications = saveSilenceNotifications;
 
     if (options.selectionMode === 'before') {
       // Do nothing: don't change the position.
@@ -111,7 +114,7 @@ export class LatexModeEditor extends ModeEditor {
 
     contentDidChange(model, { data: text, inputType: 'insertText' });
 
-    model.suppressChangeNotifications = suppressChangeNotifications;
+    model.silenceNotifications = silenceNotifications;
 
     return true;
   }

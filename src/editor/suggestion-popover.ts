@@ -190,9 +190,10 @@ export function createSuggestionPopover(
       while (el && !el.dataset.command) el = el.parentElement;
       if (!el) return;
       complete(mf, 'reject');
-      ModeEditor.insert('math', mf.model, el.dataset.command!, {
+      ModeEditor.insert(mf.model, el.dataset.command!, {
         selectionMode: 'placeholder',
         format: 'latex',
+        mode: 'math',
       });
       mf.dirty = true;
       mf.focus();

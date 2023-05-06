@@ -221,6 +221,8 @@ export function onPointerDown(
     }
   } else gLastTap = null;
 
+  mathfield.stopCoalescingUndo();
+
   if (dirty !== 'none') {
     if (mathfield.model.selectionIsCollapsed) dirty = 'all';
     requestUpdate(mathfield);

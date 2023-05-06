@@ -19,27 +19,15 @@ export const HAPTIC_FEEDBACK_DURATION = 3; // In ms
 
 type CommandTarget = 'model' | 'mathfield' | 'virtual-keyboard';
 
-interface RegisterCommandOptions {
+interface CommandOptions {
   target: CommandTarget;
-  category?:
-    | 'delete'
-    | 'edit' // Changes the content
-    | 'array-edit' // Changes the content
-    | 'autocomplete'
-    | 'clipboard'
-    | 'scroll'
-    | 'selection-anchor'
-    | 'selection-extend'
-    | 'speech'
-    | 'virtual-keyboard'
-    | '';
-  audioFeedback?: string;
+  audioFeedback?: 'keypress' | 'spacebar' | 'delete' | 'plonk' | 'return';
   canUndo?: boolean;
   changeContent?: boolean; // To update popover
   changeSelection?: boolean; // To update inline shortcut buffer
 }
 
-export let COMMANDS: CommandRegistry<RegisterCommandOptions>;
+export let COMMANDS: CommandRegistry<CommandOptions>;
 
 /**
  * Register one or more selectors.
@@ -47,9 +35,16 @@ export let COMMANDS: CommandRegistry<RegisterCommandOptions>;
  */
 export function register(
   commands: Record<string, (...args: any[]) => boolean>,
-  options?: RegisterCommandOptions
+  options?: CommandOptions
 ): void {
-  options = options ?? { target: 'mathfield', canUndo: false };
+  options = {
+    target: 'mathfield',
+    canUndo: false,
+    audioFeedback: undefined,
+    changeContent: false,
+    changeSelection: false,
+    ...(options ?? {}),
+  };
 
   if (!COMMANDS) COMMANDS = {};
 
@@ -59,19 +54,29 @@ export function register(
   }
 }
 
-export function getCommandTarget(
+export function getCommandInfo(
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
-): CommandTarget | undefined {
+): CommandOptions | undefined {
   let selector: SelectorPrivate;
 
-  selector = isArray(command) ? command[0] : command;
+  if (Array.isArray(command)) {
+    if (command[0] === 'performWithFeedback' || command[0] === 'performVariant')
+      selector = command[1];
+    else selector = command[0];
+  } else selector = command;
 
   // Convert kebab case (like-this) to camel case (likeThis).
   selector = selector.replace(/-\w/g, (m) =>
     m[1].toUpperCase()
   ) as SelectorPrivate;
 
-  return COMMANDS[selector]?.target;
+  return COMMANDS[selector];
+}
+
+export function getCommandTarget(
+  command: SelectorPrivate | [SelectorPrivate, ...any[]]
+): CommandTarget | undefined {
+  return getCommandInfo(command)?.target;
 }
 
 export function perform(
@@ -95,40 +100,27 @@ export function perform(
     m[1].toUpperCase()
   ) as SelectorPrivate;
 
-  const commandTarget = COMMANDS[selector]?.target;
+  const info = COMMANDS[selector];
+  const commandTarget = info?.target;
 
-  // @todo Refactor this method
-  // Using commands this way increases code complexity,
-  //  ideally all code must be moved under command code, maybe it is
-  //  a good idea to implement new Command API with additional hooks
-  //  and callbacks to make command code more transparent. Now logic of
-  //  commands are splitted between command function, registration options
-  //  and there.
   if (commandTarget === 'model') {
-    // If in promptLocked (readOnly && selection node within prompt) mode, reject commands that would modify the
-    // content.
-    if (
-      !mathfield.isSelectionEditable &&
-      /^(paste|cut|insert|delete|transpose|add)/.test(selector)
-    ) {
+    // If in promptLocked (readOnly && selection node within prompt) mode,
+    // reject commands that would modify the content.
+    if (!mathfield.isSelectionEditable && info?.changeContent) {
       mathfield.model.announce('plonk');
       return false;
     }
 
-    if (
-      /^(delete|transpose|add)/.test(selector) &&
-      selector !== 'deleteBackward'
-    )
-      mathfield.flushInlineShortcutBuffer();
+    if (/^(delete|add)/.test(selector)) {
+      if (selector !== 'deleteBackward') mathfield.flushInlineShortcutBuffer();
+      mathfield.snapshot(selector);
+    }
 
-    if (/^(delete|transpose|add)/.test(selector)) mathfield.snapshot();
-
-    if (mathfield.mode === 'latex' && !/^(complete)/.test(selector))
-      removeSuggestion(mathfield);
+    if (!/^complete/.test(selector)) removeSuggestion(mathfield);
 
     COMMANDS[selector]!.fn(mathfield.model, ...args);
 
-    if (mathfield.mode === 'latex') updateAutocomplete(mathfield);
+    updateAutocomplete(mathfield);
 
     dirty = true;
     handled = true;
@@ -136,10 +128,7 @@ export function perform(
     dirty = window.mathVirtualKeyboard.executeCommand(command) ?? false;
     handled = true;
   } else if (COMMANDS[selector]) {
-    if (
-      !mathfield.isSelectionEditable &&
-      /^(insert|typedText)/.test(selector)
-    ) {
+    if (!mathfield.isSelectionEditable && info?.changeContent) {
       mathfield.model.announce('plonk');
       return false;
     }
@@ -153,11 +142,9 @@ export function perform(
     // If the command changed the selection so that it is no longer
     // collapsed, or if it was an editing command, reset the inline
     // shortcut buffer and the user style
-    if (
-      !mathfield.model.selectionIsCollapsed ||
-      /^(transpose|paste|complete|moveTo|extendSelection)/.test(selector)
-    ) {
+    if (!mathfield.model.selectionIsCollapsed || info?.changeSelection) {
       mathfield.flushInlineShortcutBuffer();
+      if (!info?.changeContent) mathfield.stopCoalescingUndo();
       mathfield.style = {};
     }
   }
@@ -180,35 +167,13 @@ export function performWithFeedback(
   mathfield: MathfieldPrivate,
   selector: SelectorPrivate
 ): boolean {
-  // @revisit: have a registry of commands -> sound
   mathfield.focus();
+
   if (MathfieldElement.keypressVibration && canVibrate())
     navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
-  if (typeof selector === 'string') {
-    // Convert kebab case to camel case.
-    selector = selector.replace(/-\w/g, (m) =>
-      m[1].toUpperCase()
-    ) as SelectorPrivate;
-    if (
-      selector === 'moveToNextPlaceholder' ||
-      selector === 'moveToPreviousPlaceholder' ||
-      selector === 'complete'
-    )
-      window.MathfieldElement.playSound('return');
-    else if (
-      selector === 'deleteBackward' ||
-      selector === 'deleteForward' ||
-      selector === 'deletePreviousWord' ||
-      selector === 'deleteNextWord' ||
-      selector === 'deleteToGroupStart' ||
-      selector === 'deleteToGroupEnd' ||
-      selector === 'deleteToMathFieldStart' ||
-      selector === 'deleteToMathFieldEnd'
-    )
-      window.MathfieldElement.playSound('delete');
-    else window.MathfieldElement.playSound('keypress');
-  } else window.MathfieldElement.playSound('keypress');
+  const info = getCommandInfo(selector);
+  window.MathfieldElement.playSound(info?.audioFeedback ?? 'keypress');
 
   const result = mathfield.executeCommand(selector);
   mathfield.scrollIntoView();
@@ -235,10 +200,21 @@ function previousSuggestion(mathfield: MathfieldPrivate): boolean {
 }
 
 register(
+  { complete },
   {
-    complete,
-    nextSuggestion,
-    previousSuggestion,
-  },
-  { target: 'mathfield', category: 'autocomplete' }
+    target: 'mathfield',
+    audioFeedback: 'return',
+    canUndo: true,
+    changeContent: true,
+    changeSelection: true,
+  }
+);
+
+register(
+  { nextSuggestion, previousSuggestion },
+  {
+    target: 'mathfield',
+    audioFeedback: 'keypress',
+    changeSelection: true,
+  }
 );

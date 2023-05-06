@@ -10,11 +10,11 @@ export type ModelListeners = {
 export function selectionDidChange(model: ModelPrivate): void {
   if (
     typeof model.listeners?.onSelectionDidChange === 'function' &&
-    !model.suppressChangeNotifications
+    !model.silenceNotifications
   ) {
-    model.suppressChangeNotifications = true;
+    model.silenceNotifications = true;
     model.listeners.onSelectionDidChange(model);
-    model.suppressChangeNotifications = false;
+    model.silenceNotifications = false;
   }
   if (window.mathVirtualKeyboard.visible)
     window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
@@ -24,9 +24,9 @@ export function contentWillChange(
   model: ModelPrivate,
   options: ContentChangeOptions = {}
 ): boolean {
-  if (model.suppressChangeNotifications || !model.mathfield.host) return true;
+  if (model.silenceNotifications || !model.mathfield.host) return true;
 
-  model.suppressChangeNotifications = true;
+  model.silenceNotifications = true;
   const result = model.mathfield.host.dispatchEvent(
     new InputEvent('beforeinput', {
       ...options,
@@ -38,7 +38,7 @@ export function contentWillChange(
     })
   );
 
-  model.suppressChangeNotifications = false;
+  model.silenceNotifications = false;
   return result;
 }
 
@@ -48,9 +48,9 @@ export function contentDidChange(
 ): void {
   if (window.mathVirtualKeyboard.visible)
     window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
-  if (model.suppressChangeNotifications || !model.mathfield.host) return;
+  if (model.silenceNotifications || !model.mathfield.host) return;
 
-  model.suppressChangeNotifications = true;
+  model.silenceNotifications = true;
   model.mathfield.host.dispatchEvent(
     new InputEvent('input', {
       ...options,
@@ -60,16 +60,16 @@ export function contentDidChange(
       composed: true,
     } as InputEventInit)
   );
-  model.suppressChangeNotifications = false;
+  model.silenceNotifications = false;
 }
 
 export function placeholderDidChange(
   model: ModelPrivate,
   placeholderId: string
 ): void {
-  if (model.suppressChangeNotifications || !model.mathfield.host) return;
+  if (model.silenceNotifications || !model.mathfield.host) return;
 
-  model.suppressChangeNotifications = true;
+  model.silenceNotifications = true;
   model.mathfield.host.dispatchEvent(
     new CustomEvent('placeholder-change', {
       detail: { placeholderId },
@@ -77,7 +77,7 @@ export function placeholderDidChange(
       composed: true,
     })
   );
-  model.suppressChangeNotifications = false;
+  model.silenceNotifications = false;
 }
 
 export interface Disposable {

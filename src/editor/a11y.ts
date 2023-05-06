@@ -15,14 +15,15 @@ function relationName(atom: Atom): string {
   if (atom.parent!.type === 'prompt') {
     if (atom.parentBranch === 'body') result = 'prompt';
   } else if (atom.parentBranch === 'body') {
-    result = {
-      enclose: 'cross out',
-      leftright: 'delimiter',
-      surd: 'square root',
-      root: 'math field',
-      mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
-      first: 'first',
-    }[atom.type];
+    result =
+      {
+        enclose: 'cross out',
+        leftright: 'delimiter',
+        surd: 'square root',
+        root: 'math field',
+        mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
+        first: 'first',
+      }[atom.type] ?? 'parent';
   } else if (atom.parent!.type === 'genfrac') {
     if (atom.parentBranch === 'above') return 'numerator';
 

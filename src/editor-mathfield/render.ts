@@ -122,9 +122,11 @@ export function contentMarkup(
     atom.containsCaret = false;
   }
   const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
-  if (model.selectionIsCollapsed)
-    model.at(model.position).caret = hasFocus ? mathfield.mode : undefined;
-  else {
+  if (model.selectionIsCollapsed) {
+    model.at(model.position).caret = hasFocus
+      ? mathfield.model.mode
+      : undefined;
+  } else {
     const atoms = model.getAtoms(model.selection, { includeChildren: true });
     for (const atom of atoms) atom.isSelected = true;
   }

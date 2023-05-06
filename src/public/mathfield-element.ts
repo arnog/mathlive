@@ -1224,12 +1224,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   get mode(): ParseMode {
-    return this._mathfield?.mode ?? 'math';
+    return this._mathfield?.model.mode ?? 'math';
   }
 
   set mode(value: ParseMode) {
     if (!this._mathfield) return;
-    this._mathfield.mode = value;
+    this._mathfield.model.mode = value;
   }
 
   /**
@@ -1494,7 +1494,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   setValue(value?: string, options?: InsertOptions): void {
     if (this._mathfield && value !== undefined) {
-      options ??= { suppressChangeNotifications: true, mode: 'math' };
+      options ??= { silenceNotifications: true, mode: 'math' };
       this._mathfield.setValue(value, options);
       return;
     }

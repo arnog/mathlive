@@ -65,7 +65,7 @@ export type InsertOptions = {
     */
   selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
 
-  suppressChangeNotifications?: boolean;
+  silenceNotifications?: boolean;
   style?: Style;
   /** If `true`, the mathfield will be focused after
    * the insertion
@@ -88,7 +88,7 @@ export type InsertOptions = {
 export type ApplyStyleOptions = {
   range?: Range;
   operation?: 'set' | 'toggle';
-  suppressChangeNotifications?: boolean;
+  silenceNotifications?: boolean;
 };
 
 /**
@@ -140,8 +140,6 @@ export type Selection = {
 };
 
 export interface Mathfield {
-  mode: ParseMode;
-
   /**
    * Execute a [[`Commands`|command]] defined by a selector.
    * ```javascript

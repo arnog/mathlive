@@ -148,5 +148,5 @@ register(
       return result;
     },
   },
-  { target: 'model', category: 'selection-extend' }
+  { target: 'model', changeSelection: true }
 );

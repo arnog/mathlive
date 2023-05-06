@@ -283,6 +283,7 @@ export function skip(
   }
 
   model.announce('move', previousPosition);
+  model.mathfield.stopCoalescingUndo();
   return true;
 }
 
@@ -310,12 +311,16 @@ export function move(
     let pos = nextValidPosition(model, model.position, direction);
     if (pos < 0) pos = 0;
     if (pos > model.lastOffset) pos = model.lastOffset;
-    return model.setSelection(model.anchor, pos);
+    const result = model.setSelection(model.anchor, pos);
+    model.mathfield.stopCoalescingUndo();
+    return result;
   }
 
   if (model.selectionIsPlaceholder) {
     model.collapseSelection(direction);
-    return move(model, direction);
+    const result = move(model, direction);
+    model.mathfield.stopCoalescingUndo();
+    return result;
   }
 
   let pos = model.position;
@@ -329,7 +334,7 @@ export function move(
   if (pos < 0 || pos > model.lastOffset) {
     // We're going out of bounds
     let result = true; // True => perform default handling
-    if (!model.suppressChangeNotifications) {
+    if (!model.silenceNotifications) {
       result =
         model.mathfield.host?.dispatchEvent(
           new CustomEvent('move-out', {
@@ -345,8 +350,9 @@ export function move(
   }
 
   model.setPositionHandlingPlaceholder(pos);
-
+  model.mathfield.stopCoalescingUndo();
   model.announce('move', previousPosition);
+
   return true;
 }
 
@@ -464,7 +470,7 @@ function moveUpward(
   // Callback when there is nowhere to move
   const handleDeadEnd = () => {
     let result = true; // True => perform default handling
-    if (!model.suppressChangeNotifications) {
+    if (!model.silenceNotifications) {
       result =
         model.mathfield.host?.dispatchEvent(
           new CustomEvent('move-out', {
@@ -524,6 +530,8 @@ function moveUpward(
     moveToClosestAtomVertically(model, baseAtom, branch, extend, 'up');
   } else return handleDeadEnd();
 
+  model.mathfield.stopCoalescingUndo();
+
   return true;
 }
 
@@ -537,7 +545,7 @@ function moveDownward(
   // Callback when there is nowhere to move
   const handleDeadEnd = () => {
     let result = true; // True => perform default handling
-    if (!model.suppressChangeNotifications) {
+    if (!model.silenceNotifications) {
       result =
         model.mathfield.host?.dispatchEvent(
           new CustomEvent('move-out', {

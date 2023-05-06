@@ -6,6 +6,7 @@ import type {
   FontSeries,
   FontShape,
   FontSize,
+  FontFamily,
 } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 
@@ -14,6 +15,7 @@ export function applyStyle(
   inStyle: Style
 ): boolean {
   mathfield.flushInlineShortcutBuffer();
+  mathfield.stopCoalescingUndo();
 
   const style = validateStyle(mathfield, inStyle);
   const { model } = mathfield;
@@ -46,11 +48,11 @@ export function applyStyle(
     mathfield.model.deferNotifications(
       { content: true, type: 'insertText' },
       () => {
-        mathfield.snapshot();
         // Change the style of the selection
         model.selection.ranges.forEach((range) =>
           applyStyleToModel(model, range, style, { operation: 'toggle' })
         );
+        mathfield.snapshot('style-change');
       }
     );
   }
@@ -58,7 +60,14 @@ export function applyStyle(
   return true;
 }
 
-registerCommand({ applyStyle }, { target: 'mathfield' });
+registerCommand(
+  { applyStyle },
+  {
+    target: 'mathfield',
+    canUndo: true,
+    changeContent: true,
+  }
+);
 
 /**
  * Validate a style specification object
@@ -81,7 +90,7 @@ export function validateStyle(
   }
 
   if (typeof style.fontFamily === 'string')
-    result.fontFamily = style.fontFamily;
+    result.fontFamily = style.fontFamily as FontFamily;
 
   if (typeof style.series === 'string')
     result.fontSeries = style.series as FontSeries;
