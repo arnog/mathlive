@@ -84,16 +84,20 @@ export function serializeLatexValue(
       result = Number(value.number).toString();
     else if (value.base === 'alpha')
       result = `\`${String.fromCodePoint(value.number)}`;
-    else if (value.base === 'hexadecimal') {
-      result = `"${`00000000${Number(Math.round(value.number) >>> 0).toString(
-        16
-      )}`
-        .slice(-8)
-        .toUpperCase()}`;
-    } else if (value.base === 'octal') {
-      result = `'${`00000000${Number(Math.round(value.number) >>> 0).toString(
-        8
-      )}`.slice(-8)}`;
+    else {
+      const i = Math.round(value.number) >>> 0;
+      let pad = '00000000';
+      if (value.base === 'hexadecimal') {
+        if (i <= 0xff) pad = '00';
+        else if (i <= 0xffff) pad = '0000';
+        result = `"${`${pad}${Number(i).toString(16)}`
+          .slice(-pad.length)
+          .toUpperCase()}`;
+      } else if (value.base === 'octal') {
+        if (i <= 0o77) pad = '00';
+        else if (i <= 0x7777) pad = '0000';
+        result = `'${`${pad}${Number(i).toString(8)}`.slice(-pad.length)}`;
+      }
     }
   }
 
