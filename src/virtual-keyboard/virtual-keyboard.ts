@@ -37,7 +37,7 @@ import { Style } from '../public/core-types';
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
   private _element?: HTMLDivElement;
-  private _dirty: boolean;
+  private _rebuilding: boolean;
   private readonly observer: ResizeObserver;
   private originalContainerBottomPadding: string | null = null;
 
@@ -169,9 +169,28 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return this._layouts;
   }
   set layouts(value: 'default' | (string | VirtualKeyboardLayout)[]) {
-    this._normalizedLayouts = undefined;
     this._layouts = value;
+    this.updateNormalizedLayouts();
     this.rebuild();
+  }
+
+  private updateNormalizedLayouts(): void {
+    const layouts = Array.isArray(this._layouts)
+      ? [...this._layouts]
+      : [this._layouts];
+    const defaultIndex = layouts.findIndex((x) => x === 'default');
+    if (defaultIndex >= 0) {
+      layouts.splice(
+        defaultIndex,
+        1,
+        'numeric',
+        'symbols',
+        'alphabetic',
+        'greek'
+      );
+    }
+
+    this._normalizedLayouts = layouts.map((x) => normalizeLayout(x));
   }
 
   private _normalizedLayouts:
@@ -182,26 +201,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   get normalizedLayouts(): (VirtualKeyboardLayoutCore & {
     layers: NormalizedVirtualKeyboardLayer[];
   })[] {
-    if (!this._normalizedLayouts) {
-      const layouts = Array.isArray(this._layouts)
-        ? [...this._layouts]
-        : [this._layouts];
-      const defaultIndex = layouts.findIndex((x) => x === 'default');
-      if (defaultIndex >= 0) {
-        layouts.splice(
-          defaultIndex,
-          1,
-          'numeric',
-          'symbols',
-          'alphabetic',
-          'greek'
-        );
-      }
-
-      this._normalizedLayouts = layouts.map((x) => normalizeLayout(x));
-    }
-
-    return this._normalizedLayouts;
+    if (!this._normalizedLayouts) this.updateNormalizedLayouts();
+    return this._normalizedLayouts!;
   }
 
   private _editToolbar: EditToolbarOptions;
@@ -247,7 +248,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this._container = window.document?.body ?? null;
 
     this._visible = false;
-    this._dirty = false;
+    this._rebuilding = false;
     this.observer = new ResizeObserver((_entries) => {
       this.adjustBoundingRect();
       this.dispatchEvent(new Event('geometrychange'));
@@ -360,17 +361,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   rebuild(): void {
-    if (!this._element) {
-      this._dirty = false;
-      return;
-    }
-    if (this._dirty) return;
+    if (this._rebuilding || !this._element) return;
 
-    this._dirty = true;
+    this._rebuilding = true;
 
     const currentLayerId = this.currentLayer;
     requestAnimationFrame(() => {
-      this._dirty = false;
+      this._rebuilding = false;
 
       // By the time the handler is called, the _element may have been destroyed
       if (this._element) {
@@ -379,12 +376,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       }
       if (this.visible) {
         this.buildAndAttachElement();
-        this.adjustBoundingRect();
 
         // Restore the active keyboard
         this.currentLayer = currentLayerId;
 
         this.render();
+
+        this.adjustBoundingRect();
 
         // Show the keyboard panel
         this._element!.classList.add('is-visible');
