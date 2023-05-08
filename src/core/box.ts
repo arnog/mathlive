@@ -93,7 +93,7 @@ export class Box implements BoxInterface {
 
   classes: string;
 
-  caret: ParseMode;
+  caret?: ParseMode;
   isSelected: boolean;
 
   height: number; // Distance above the baseline, in em

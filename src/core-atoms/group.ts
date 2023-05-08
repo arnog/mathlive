@@ -16,21 +16,14 @@ export class GroupAtom extends Atom {
   constructor(
     arg: Atom[] | undefined,
     options?: {
-      args?: (Argument | null)[];
       mode?: ParseMode;
-      style?: Style;
       boxType?: BoxType;
       mathstyleName?: MathstyleName;
       latexOpen?: string;
       latexClose?: string;
-      captureSelection?: boolean;
     }
   ) {
-    super('group', {
-      args: options?.args,
-      mode: options?.mode ?? 'math',
-      style: options?.style,
-    });
+    super('group', { mode: options?.mode ?? 'math' });
     this.body = arg;
     this.mathstyleName = options?.mathstyleName;
 
@@ -39,7 +32,6 @@ export class GroupAtom extends Atom {
 
     this.boxType = options?.boxType;
     this.skipBoundary = true;
-    this.captureSelection = options?.captureSelection ?? false;
     this.displayContainsHighlight = false;
 
     // French decimal point

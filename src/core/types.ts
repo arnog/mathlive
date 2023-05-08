@@ -121,7 +121,7 @@ export interface BoxInterface {
 
   classes: string;
 
-  caret: ParseMode;
+  caret?: ParseMode;
   isSelected: boolean;
 
   height: number;

@@ -230,11 +230,11 @@ export class Atom {
   // Conversely, when the caret reaches the last position inside
   // this element, (moving left to right) it automatically moves to the one
   // outside the element.
-  skipBoundary = false;
+  skipBoundary: boolean;
 
   // If true, the children of this atom cannot be selected and should be handled
   // as a unit. Used by the `\enclose` annotations, for example.
-  captureSelection = false;
+  captureSelection: boolean;
 
   // If true, this atom should be highlighted when it contains the caret
   displayContainsHighlight: boolean;
@@ -267,6 +267,7 @@ export class Atom {
       style?: Style;
       displayContainsHighlight?: boolean;
       captureSelection?: boolean;
+      skipBoundary?: boolean;
       verbatimLatex?: string | null;
     }
   ) {
@@ -279,6 +280,7 @@ export class Atom {
     this.style = { ...options?.style } ?? {};
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
     this.captureSelection = options?.captureSelection ?? false;
+    this.skipBoundary = options?.skipBoundary ?? false;
     this.verbatimLatex = options?.verbatimLatex ?? undefined;
     this.args = options?.args ?? undefined;
     if (options?.body) this.body = options.body;

@@ -31,10 +31,10 @@ import type {
   FontFamily,
 } from '../public/core-types';
 import type { PrivateStyle } from '../core/types';
-import { latexCommand } from '../core/tokenizer';
+import { joinLatex, latexCommand } from '../core/tokenizer';
 import { atomsBoxType } from '../core/box';
 import { serializeLatexValue } from '../core/registers-utils';
-import type { Context } from '../core/context';
+import { Context } from '../core/context';
 
 defineFunction('mathtip', '{:math}{:math}', {
   createAtom: (name, args: (null | Argument)[], style): Atom =>
@@ -62,15 +62,14 @@ defineFunction('error', '{:math}', {
 });
 
 defineFunction('ensuremath', '{:math}', {
-  // applyMode: 'math',
-  createAtom: (_name, args: [null | Argument], style) =>
-    new GroupAtom(argAtoms(args[0]), {
+  createAtom: (command, args: [null | Argument], style) =>
+    new Atom('minner', {
+      command,
+      body: argAtoms(args[0]),
       mode: 'math',
-      latexOpen: '\\ensuremath{',
-      latexClose: '}',
       style,
-      // mathstyleName: 'textstyle',
     }),
+  serialize: (atom, options) => `${atom.command}{${atom.bodyToLatex(options)}}`,
 });
 
 defineFunction('color', '{:value}', {
@@ -199,14 +198,24 @@ defineFunction(
   ['displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle'],
   '{:rest}',
   {
-    createAtom: (name, args: (null | Argument)[], style): Atom =>
-      new GroupAtom(argAtoms(args[0]), {
-        latexOpen: `{${name} `,
-        latexClose: '}',
-        style,
-        mathstyleName: name.slice(1) as MathstyleName,
-        boxType: 'lift',
-      }),
+    createAtom: (command, args: (null | Argument)[], style): Atom =>
+      new Atom('minner', { command, body: argAtoms(args[0]), style }),
+    render: (atom, context) => {
+      const ctx = new Context(
+        { parent: context, mathstyle: atom.command.slice(1) as MathstyleName },
+        atom.style
+      );
+      const box = Atom.createBox(ctx, atom.body, {
+        type: 'lift',
+        mode: 'math',
+        style: atom.style,
+      })!;
+
+      if (atom.caret) box.caret = atom.caret;
+      return atom.bind(context, box);
+    },
+    serialize: (atom, options) =>
+      `{${joinLatex([atom.command, atom.bodyToLatex(options)])}}`,
   }
 );
 

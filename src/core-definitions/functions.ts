@@ -7,7 +7,6 @@ import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
 import { DelimAtom } from '../core-atoms/delim';
 
 import { Argument, argAtoms, defineFunction } from './definitions-utils';
-import { GroupAtom } from '../core-atoms/group';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { serializeLatexValue } from '../core/registers-utils';
 import { LatexValue } from '../public/core-types';
@@ -114,16 +113,29 @@ defineFunction(['det', 'max', 'min'], '', {
 
 defineFunction(['ang'], '{:math}', {
   ifMode: 'math',
-  createAtom: (_command, args, style) =>
-    new GroupAtom(
-      [...argAtoms(args[0]), new Atom('mord', { value: '\u00b0', style })],
-      {
-        mode: 'math',
-        latexOpen: '\\ang{',
-        latexClose: '}',
-        style,
-      }
-    ),
+  createAtom: (command, args, style) =>
+    new Atom('mord', {
+      command,
+      body: argAtoms(args[0]),
+      mode: 'math',
+      style,
+    }),
+  serialize: (atom, options) => `\\ang{${atom.bodyToLatex(options)}}`,
+  render: (atom, context) => {
+    const box = atom.createBox(context);
+    const caret = box.caret;
+    box.caret = undefined;
+
+    const deg = new Box('\u00b0', {
+      style: { ...atom.style, variant: 'normal', variantStyle: 'up' },
+    });
+
+    return new Box([box, deg], {
+      type: 'inner',
+      isSelected: atom.isSelected,
+      caret,
+    });
+  },
 });
 
 // Root
