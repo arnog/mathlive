@@ -326,7 +326,8 @@ function emitBackgroundColorRun(run: Atom[], options: ToLatexOptions): string {
         (!parent || parentColor !== style.backgroundColor) &&
         (x.length > 0 || !(x[0] instanceof BoxAtom))
       ) {
-        result = latexCommand('\\ensuremath', result);
+        if (x.length === 1 && x[0].command !== '\\ensuremath')
+          result = latexCommand('\\ensuremath', result);
 
         result = latexCommand(
           '\\colorbox',
