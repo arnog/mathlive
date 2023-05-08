@@ -13,10 +13,10 @@ export class OverlapAtom extends Atom {
     body: string | Atom[],
     options?: { align?: 'left' | 'right'; boxType?: BoxType; style: Style }
   ) {
-    super('overlap', {
+    super({
+      type: 'overlap',
       command,
-      body:
-        typeof body === 'string' ? [new Atom('mord', { value: body })] : body,
+      body: typeof body === 'string' ? [new Atom({ value: body })] : body,
       style: options?.style,
     });
 

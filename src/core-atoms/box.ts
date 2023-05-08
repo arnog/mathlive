@@ -23,10 +23,7 @@ export class BoxAtom extends Atom {
       style: Style;
     }
   ) {
-    super('box', {
-      command,
-      style: options.style,
-    });
+    super({ type: 'box', command, style: options.style });
     this.body = body;
 
     this.framecolor = options.framecolor;

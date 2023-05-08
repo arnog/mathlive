@@ -8,7 +8,7 @@ export class ChoiceAtom extends Atom {
   choices: Atom[][];
 
   constructor(choices: Atom[][]) {
-    super('choice');
+    super({ type: 'choice' });
     this.choices = choices;
     this.skipBoundary = true;
   }

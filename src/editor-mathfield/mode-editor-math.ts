@@ -9,7 +9,7 @@ import { requestUpdate } from './render';
 import { RIGHT_DELIM, LEFT_DELIM } from '../core/delimiters';
 import { parseLatex } from '../core/parser';
 import { fromJson } from '../core/atom';
-import { Atom } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LeftRightAtom } from '../core-atoms/leftright';
 
@@ -60,11 +60,11 @@ export class MathModeEditor extends ModeEditor {
       typeof data !== 'string' ? data.getData('application/json+mathlive') : '';
     if (json) {
       try {
-        const atomJson = JSON.parse(json);
+        const atomJson: AtomJson | AtomJson[] = JSON.parse(json);
         if (atomJson && Array.isArray(atomJson)) {
           mathfield.snapshot();
 
-          const atoms = fromJson(atomJson);
+          const atoms = fromJson(atomJson) as unknown as Atom[];
           const { model } = mathfield;
           if (!model.selectionIsCollapsed)
             model.deleteAtoms(range(model.selection));
@@ -574,7 +574,10 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
  * be included as the numerator
  */
 function isImplicitArg(atom: Atom): boolean {
-  if (/^(mord|surd|msubsup|leftright|mop|mclose)$/.test(atom.type)) {
+  if (
+    atom.type &&
+    /^(mord|surd|msubsup|leftright|mop|mclose)$/.test(atom.type)
+  ) {
     // Exclude `\int`, \`sum`, etc...
     if (atom.isExtensibleSymbol) return false;
     // Exclude trig functions (they can be written as `\sin \frac\pi3` without parens)

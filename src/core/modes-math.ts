@@ -101,7 +101,8 @@ export class MathMode extends Mode {
 
   createAtom(command: string, info: TokenDefinition, style?: Style): Atom {
     if (info === null) {
-      return new Atom('mord', {
+      return new Atom({
+        type: 'mord',
         mode: 'math',
         command,
         value: command,
@@ -109,7 +110,8 @@ export class MathMode extends Mode {
       });
     }
     if (info.definitionType === 'symbol') {
-      const result = new Atom(info.type ?? 'mord', {
+      const result = new Atom({
+        type: info.type ?? 'mord',
         mode: 'math',
         command: info.command ?? command,
         value: String.fromCodePoint(info.codepoint),
@@ -120,7 +122,8 @@ export class MathMode extends Mode {
       if (command.startsWith('\\')) result.verbatimLatex = command;
       return result;
     }
-    const result = new Atom('mord', {
+    const result = new Atom({
+      type: 'mord',
       mode: 'math',
       command: info.command ?? command,
       value: command,

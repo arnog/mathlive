@@ -14,7 +14,7 @@ export class AccentAtom extends Atom {
     body: Atom[],
     options: { accentChar?: number; svgAccent?: string; style: Style }
   ) {
-    super('accent', { command, style: options.style });
+    super({ type: 'accent', command, style: options.style });
     if (options.accentChar) this.accent = options.accentChar;
     else this.svgAccent = options?.svgAccent;
 

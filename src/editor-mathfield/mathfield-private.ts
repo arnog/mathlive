@@ -261,7 +261,8 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
     const mode = effectiveMode(this.options);
 
     // Setup the model
-    const root = new Atom('root', {
+    const root = new Atom({
+      type: 'root',
       mode,
       body: parseLatex(elementText, { context: this.context }),
     });

@@ -16,7 +16,7 @@ export class DelimAtom extends Atom {
       style: Style;
     }
   ) {
-    super('delim', { command, style: options?.style });
+    super({ type: 'delim', command, style: options?.style });
     this.value = delim;
     this.size = options?.size;
   }
@@ -50,7 +50,7 @@ export class SizedDelimAtom extends Atom {
       style: Style;
     }
   ) {
-    super('sizeddelim', { command, style: options.style });
+    super({ type: 'sizeddelim', command, style: options.style });
     this.value = delim;
     this.delimType = options.delimType;
     this.size = options.size;

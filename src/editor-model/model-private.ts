@@ -437,7 +437,7 @@ export class ModelPrivate implements Model {
       } else {
         // If the root is an array, replace with a plain root
         result = (this.root as ArrayAtom).cells.flat();
-        this.root = new Atom('root', { body: [] });
+        this.root = new Atom({ type: 'root', body: [] });
         return result;
       }
     }

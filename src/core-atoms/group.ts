@@ -1,10 +1,9 @@
-import type { MathstyleName, ParseMode, Style } from '../public/core-types';
+import type { MathstyleName, ParseMode } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import type { Box } from '../core/box';
 import type { BoxType } from '../core/types';
-import { Argument } from '../core-definitions/definitions-utils';
 
 export class GroupAtom extends Atom {
   boxType?: BoxType;
@@ -23,7 +22,7 @@ export class GroupAtom extends Atom {
       latexClose?: string;
     }
   ) {
-    super('group', { mode: options?.mode ?? 'math' });
+    super({ type: 'group', mode: options?.mode ?? 'math' });
     this.body = arg;
     this.mathstyleName = options?.mathstyleName;
 

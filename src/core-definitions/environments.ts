@@ -167,15 +167,17 @@ function isContentEmpty(array: Atom[][][]) {
 }
 
 function defaultContent(array: Atom[][][], count = 1) {
-  if (isContentEmpty(array))
-    return Array(count).fill([[new Atom('first'), new PlaceholderAtom()]]);
-
+  if (isContentEmpty(array)) {
+    return Array(count).fill([
+      [new Atom({ type: 'first' }), new PlaceholderAtom()],
+    ]);
+  }
   return array.map((row) => {
-    if (row.length === 0) return [[new Atom('first')]];
+    if (row.length === 0) return [[new Atom({ type: 'first' })]];
     return row.map((cell) => {
-      if (cell.length === 0) return [new Atom('first')];
+      if (cell.length === 0) return [new Atom({ type: 'first' })];
 
-      if (cell[0].type !== 'first') cell.unshift(new Atom('first'));
+      if (cell[0].type !== 'first') cell.unshift(new Atom({ type: 'first' }));
 
       return cell;
     });

@@ -94,7 +94,8 @@ defineFunction('utilde', '{body:auto}', {
 
 defineFunction('^', '{:string}', {
   createAtom: (command, args, style): Atom =>
-    new Atom('mord', {
+    new Atom({
+      type: 'mord',
       command,
       isFunction: false,
       limits: 'adjacent',
@@ -118,7 +119,8 @@ defineFunction('^', '{:string}', {
 
 defineFunction('`', '{:string}', {
   createAtom: (command, args, style) =>
-    new Atom('mord', {
+    new Atom({
+      type: 'mord',
       command,
       isFunction: false,
       limits: 'adjacent',
@@ -142,7 +144,8 @@ defineFunction('`', '{:string}', {
 
 defineFunction("'", '{:string}', {
   createAtom: (command, args, style) =>
-    new Atom('mord', {
+    new Atom({
+      type: 'mord',
       command,
       isFunction: false,
       limits: 'adjacent',
@@ -166,7 +169,8 @@ defineFunction("'", '{:string}', {
 
 defineFunction('~', '{:string}', {
   createAtom: (command, args, style) =>
-    new Atom('mord', {
+    new Atom({
+      type: 'mord',
       command,
       isFunction: false,
       limits: 'adjacent',
@@ -181,7 +185,8 @@ defineFunction('~', '{:string}', {
 
 defineFunction('c', '{:string}', {
   createAtom: (command, args, style) =>
-    new Atom('mord', {
+    new Atom({
+      type: 'mord',
       command,
       isFunction: false,
       limits: 'adjacent',

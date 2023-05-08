@@ -20,14 +20,15 @@ export class TooltipAtom extends Atom {
       style?: Style;
     }
   ) {
-    super('tooltip', {
+    super({
+      type: 'tooltip',
       command: options?.command,
       mode: 'math',
       style: options?.style,
       displayContainsHighlight: true,
     });
     this.body = body;
-    this.tooltip = new Atom('root', { body: tooltip, style: {} });
+    this.tooltip = new Atom({ type: 'root', body: tooltip, style: {} });
 
     this.skipBoundary = true;
     this.captureSelection = false;

@@ -32,7 +32,8 @@ export class LeftRightAtom extends Atom {
       style?: Style;
     }
   ) {
-    super('leftright', {
+    super({
+      type: 'leftright',
       style: options.style,
       displayContainsHighlight: true,
     });

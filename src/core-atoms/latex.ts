@@ -12,7 +12,7 @@ export class LatexAtom extends Atom {
   isError: boolean; // Display errors with wavy red line
 
   constructor(value: string, options?: { isSuggestion: boolean }) {
-    super('latex', { value, mode: 'latex' });
+    super({ type: 'latex', value, mode: 'latex' });
     this.isSuggestion = options?.isSuggestion ?? false;
     this.isError = false;
   }
@@ -57,7 +57,7 @@ export class LatexAtom extends Atom {
  */
 export class LatexGroupAtom extends Atom {
   constructor(latex: string) {
-    super('latexgroup', { mode: 'latex' });
+    super({ type: 'latexgroup', mode: 'latex' });
     this.body = [...latex].map((x) => new LatexAtom(x));
     this.skipBoundary = false;
   }

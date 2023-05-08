@@ -36,7 +36,7 @@ export class OverunderAtom extends Atom {
       paddedLabels?: boolean;
     }
   ) {
-    super('overunder', { command, style: options.style });
+    super({ type: 'overunder', command, style: options.style });
     this.skipBoundary = options.skipBoundary ?? true;
     this.subsupPlacement = options.supsubPlacement;
 

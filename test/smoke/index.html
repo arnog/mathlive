@@ -43,11 +43,11 @@
       </ul>
     </header>
     <main>
+      <math-field id="mf">\not\in \not{}\in \not{}\in \not\in</math-field>
       <!-- <math-field id="mf"
         >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
       > -->
       <!-- <math-field id="mf">=\overset{\left[\frac{0}{0}\right]}{=}=</math-field> -->
-      <math-field id="mf">\textcolor{purple}{m\ang{30}w}</math-field>
 
       <!-- <math-field id="mf">
         \Huge\textcolor{red}{\mathbb{Cc\frac{1}{C}}} \mbox{hello \small world}
@@ -119,6 +119,9 @@
         ComputeEngine,
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
+
+      console.log(convertLatexToMarkup('\\not{}\\in'));
+      console.log(convertLatexToMarkup('\\text{Hello world}'));
 
       // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
 

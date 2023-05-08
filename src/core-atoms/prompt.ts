@@ -21,7 +21,8 @@ export class PromptAtom extends Atom {
     }
   ) {
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    super('prompt', {
+    super({
+      type: 'prompt',
       mode: options?.mode ?? 'math',
       style: options?.style,
       command: '\\placeholder',

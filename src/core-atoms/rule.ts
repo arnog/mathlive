@@ -19,7 +19,7 @@ export class RuleAtom extends Atom {
       style: Style;
     }
   ) {
-    super('rule', { command, style: options.style });
+    super({ type: 'rule', command, style: options.style });
     this.shift = options.shift ?? { dimension: 0 };
     this.height = options.height;
     this.width = options.width;

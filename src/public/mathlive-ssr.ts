@@ -90,7 +90,8 @@ export function convertLatexToMarkup(
   //
   // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
   //
-  const root = new Atom('root', {
+  const root = new Atom({
+    type: 'root',
     body: parseLatex(text, {
       context,
       parseMode: 'math',
@@ -205,7 +206,7 @@ export function convertLatexToAsciiMath(
   parseMode: ParseMode = 'math'
 ): string {
   return atomToAsciiMath(
-    new Atom('root', { body: parseLatex(latex, { parseMode }) })
+    new Atom({ type: 'root', body: parseLatex(latex, { parseMode }) })
   );
 }
 

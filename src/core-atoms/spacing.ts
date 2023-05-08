@@ -14,7 +14,7 @@ export class SpacingAtom extends Atom {
     width?: LatexValue,
     options?: { braced: boolean }
   ) {
-    super('spacing', { command, style });
+    super({ type: 'spacing', command, style });
     this.width = width;
     this._braced = options?.braced ?? false;
   }

@@ -38,7 +38,7 @@ function convertLastAtomsToText(
       atom === undefined ||
       atom.mode !== 'math' ||
       !(
-        /mord|textord|mpunct/.test(atom.type) ||
+        (atom.type && /mord|mpunct/.test(atom.type)) ||
         (atom.type === 'mop' && /[a-zA-Z]+/.test(atom.value))
       ) ||
       !atom.hasEmptyBranch('superscript') ||
@@ -148,7 +148,7 @@ function getTextBeforePosition(model: ModelPrivate): string {
     done = !(
       atom &&
       (atom.mode === 'text' ||
-        (atom.mode === 'math' && /mord|textord|mpunct/.test(atom.type)))
+        (atom.mode === 'math' && atom.type && /mord|mpunct/.test(atom.type)))
     );
     if (!done) result = atom.value + result;
 

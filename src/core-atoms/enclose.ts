@@ -55,7 +55,7 @@ export class EncloseAtom extends Atom {
     notation: Notations,
     options: EncloseAtomOptions
   ) {
-    super('enclose', { command, style: options.style });
+    super({ type: 'enclose', command, style: options.style });
     this.body = body;
     this.backgroundcolor = options.backgroundcolor;
     if (notation.updiagonalarrow) notation.updiagonalstrike = false;

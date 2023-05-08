@@ -996,14 +996,16 @@ export class Parser {
     const initialIndex = this.index;
     if (this.parseMode === 'text') {
       if (this.match('<{>')) {
-        return new Atom('text', {
+        return new Atom({
+          type: 'text',
           value: '{',
           mode: 'text',
           style: this.style,
         });
       }
       if (this.match('<}>')) {
-        return new Atom('text', {
+        return new Atom({
+          type: 'text',
           value: '}',
           mode: 'text',
           style: this.style,
@@ -1181,7 +1183,8 @@ export class Parser {
         if (this.match("'")) {
           // A single quote, twice, is equivalent to '^{\doubleprime}'
           this.lastSubsupAtom().addChild(
-            new Atom('mord', {
+            new Atom({
+              type: 'mord',
               command: '\\doubleprime',
               mode: 'math',
               value: '\u2032\u2032', // "\u2033" displays too high
@@ -1191,7 +1194,8 @@ export class Parser {
         } else {
           // A single quote (prime) is equivalent to '^{\prime}'
           this.lastSubsupAtom().addChild(
-            new Atom('mord', {
+            new Atom({
+              type: 'mord',
               command: '\\prime',
               mode: 'math',
               value: '\u2032',
@@ -1328,7 +1332,8 @@ export class Parser {
         const style = { ...this.style };
         if (info.variant) style.variant = info.variant;
 
-        result = new Atom(info.type, {
+        result = new Atom({
+          type: info.type,
           command: token,
           style,
           value: String.fromCodePoint(info.codepoint),
@@ -1401,9 +1406,7 @@ export class Parser {
         return result;
       }
       if (type === 'balanced-string') return null;
-
-      debugger;
-
+      console.assert(false);
       return null;
     }
 
@@ -1552,7 +1555,8 @@ export class Parser {
         codepoint = 0x2753; // BLACK QUESTION MARK
 
       return [
-        new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
+        new Atom({
+          type: this.parseMode === 'math' ? 'mord' : 'text',
           command: '\\char',
           mode: this.parseMode,
           value: String.fromCodePoint(codepoint),
@@ -1576,7 +1580,8 @@ export class Parser {
       if (this.parseMode === 'text') {
         return [...command].map(
           (c) =>
-            new Atom('text', {
+            new Atom({
+              type: 'text',
               value: c,
               mode: 'text',
               style: this.style,
@@ -1594,7 +1599,8 @@ export class Parser {
       // Override the variant if an explicit variant is provided
       if (info.variant) style.variant = info.variant;
 
-      result = new Atom(info.type, {
+      result = new Atom({
+        type: info.type,
         command,
         style,
         value: String.fromCodePoint(info.codepoint),
@@ -1671,7 +1677,8 @@ export class Parser {
         // Merge the new style info with the current style
         this.style = style;
       } else {
-        result = new Atom('mord', {
+        result = new Atom({
+          type: 'mord',
           command: info.command ?? command,
           style: { ...this.style },
           value: command,

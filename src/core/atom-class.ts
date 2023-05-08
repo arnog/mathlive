@@ -30,7 +30,7 @@ import { PrivateStyle, BoxType } from './types';
  * that is difficult/impossible to represent in pure LaTeX, for example
  * the state/content of empty branches.
  */
-export type AtomJson = { type: AtomType; [key: string]: any };
+export type AtomJson = { type?: AtomType; [key: string]: any };
 
 /**
  * Each atom can have one or more "branches" of child atoms.
@@ -172,7 +172,7 @@ export class Atom {
   // (the corresponding DOM element has a `data-atom-id` attribute)
   id: string | undefined = undefined;
 
-  type: AtomType;
+  type: AtomType | undefined;
 
   // LaTeX command ('\sin') or character ('a')
   command: string;
@@ -254,24 +254,22 @@ export class Atom {
   containsCaret: boolean;
   caret: ParseMode | undefined;
 
-  constructor(
-    type: AtomType,
-    options?: {
-      command?: string;
-      args?: (Argument | null)[];
-      mode?: ParseMode;
-      value?: string;
-      body?: Atom[];
-      isFunction?: boolean;
-      limits?: 'auto' | 'over-under' | 'adjacent';
-      style?: Style;
-      displayContainsHighlight?: boolean;
-      captureSelection?: boolean;
-      skipBoundary?: boolean;
-      verbatimLatex?: string | null;
-    }
-  ) {
-    this.type = type;
+  constructor(options?: {
+    type?: AtomType;
+    command?: string;
+    args?: (Argument | null)[];
+    mode?: ParseMode;
+    value?: string;
+    body?: Atom[];
+    isFunction?: boolean;
+    limits?: 'auto' | 'over-under' | 'adjacent';
+    style?: Style;
+    displayContainsHighlight?: boolean;
+    captureSelection?: boolean;
+    skipBoundary?: boolean;
+    verbatimLatex?: string | null;
+  }) {
+    this.type = options?.type;
     if (typeof options?.value === 'string') this.value = options.value;
     this.command = options?.command ?? this.value ?? '';
     this.mode = options?.mode ?? 'math';
@@ -409,12 +407,15 @@ export class Atom {
   }
 
   static fromJson(json: AtomJson): Atom {
-    if (typeof json === 'string') return new Atom('mord', { value: json });
-    return new Atom(json.type, json as any);
+    if (typeof json === 'string')
+      return new Atom({ type: 'mord', value: json });
+    return new Atom(json as any);
   }
 
   toJson(): AtomJson {
-    const result: AtomJson = { type: this.type };
+    const result: AtomJson = {};
+
+    if (this.type) result.type = this.type;
 
     if (this.mode !== 'math') result.mode = this.mode;
     if (this.command && this.command !== this.value)
@@ -773,7 +774,7 @@ export class Atom {
   }
 
   makeFirstAtom(branch: Branch): Atom {
-    const result = new Atom('first', { mode: this.mode });
+    const result = new Atom({ type: 'first', mode: this.mode });
     result.parent = this;
     result.parentBranch = branch;
     return result;
@@ -1180,11 +1181,14 @@ export class Atom {
   /**
    * Create a box with the specified body.
    */
-  createBox(context: Context, options?: { classes?: string }): Box {
+  createBox(
+    context: Context,
+    options?: { classes?: string; boxType?: BoxType }
+  ): Box {
     const value = this.value ?? this.body;
 
     // Get the right BoxType for this atom type
-    const type = boxType(this.type);
+    const type = options?.boxType ?? boxType(this.type);
 
     // The font family is determined by:
     // - the base font family associated with this atom (optional). For example,

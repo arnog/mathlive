@@ -18,7 +18,7 @@ export class MacroAtom extends Atom {
       style: Style;
     }
   ) {
-    super('macro', { command: macro, style: options.style });
+    super({ type: 'macro', command: macro, style: options.style });
     this.body = options.body;
     // Set the `captureSelection` attribute to true so that the atom is handled
     // as an unbreakable unit
@@ -63,7 +63,7 @@ export class MacroAtom extends Atom {
 
 export class MacroArgumentAtom extends Atom {
   constructor() {
-    super('macro-argument');
+    super({ type: 'macro-argument' });
   }
 
   static fromJson(json: AtomJson): MacroArgumentAtom {

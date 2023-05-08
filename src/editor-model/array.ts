@@ -22,7 +22,7 @@ export function arrayJoinColumns(
   style?: Style
 ): Atom[] {
   if (!row) return [];
-  const result: Atom[] = [new Atom('first')];
+  const result: Atom[] = [new Atom({ type: 'first' })];
   let sep: Atom | null = null;
   for (let cell of row) {
     // Remove the 'first' atom, if present
@@ -30,7 +30,7 @@ export function arrayJoinColumns(
 
     if (cell?.length > 0) {
       if (sep) result.push(sep);
-      else sep = new Atom('mpunct', { value: separator, style });
+      else sep = new Atom({ type: 'mpunct', value: separator, style });
 
       result.push(...cell);
     }
@@ -47,11 +47,11 @@ export function arrayJoinRows(
   separators = [';', ','],
   style?: Style
 ): Atom[] {
-  const result: Atom[] = [new Atom('first')];
+  const result: Atom[] = [new Atom({ type: 'first' })];
   let sep: Atom | null = null;
   for (const row of array) {
     if (sep) result.push(sep);
-    else sep = new Atom('mpunct', { value: separators[0], style });
+    else sep = new Atom({ type: 'mpunct', value: separators[0], style });
 
     result.push(...arrayJoinColumns(row, separators[1]));
   }

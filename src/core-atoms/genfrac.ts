@@ -49,7 +49,8 @@ export class GenfracAtom extends Atom {
     below: Atom[],
     options: GenfracOptions
   ) {
-    super('genfrac', {
+    super({
+      type: 'genfrac',
       style: options.style,
       command,
       displayContainsHighlight: true,

@@ -7,7 +7,8 @@ import { charToLatex } from '../core-definitions/definitions-utils';
 
 export class TextAtom extends Atom {
   constructor(command: string, value: string, style: Style) {
-    super('text', {
+    super({
+      type: 'text',
       command,
       mode: 'text',
       displayContainsHighlight: true,

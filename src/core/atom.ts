@@ -51,7 +51,7 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
 
   if (json.array) json.array = fromJson(json.array);
 
-  const type: AtomType = json.type;
+  const type: AtomType | undefined = json.type;
   let result: Atom | undefined = undefined;
   if (type === 'accent') result = AccentAtom.fromJson(json);
   if (type === 'array') result = ArrayAtom.fromJson(json);
@@ -90,18 +90,19 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
 
   if (!result) {
     console.assert(
-      [
-        'first',
-        'mbin',
-        'mrel',
-        'mclose',
-        'minner',
-        'mopen',
-        'mord',
-        'mpunct',
-        'root',
-        'space',
-      ].includes(type),
+      !type ||
+        [
+          'first',
+          'mbin',
+          'mrel',
+          'mclose',
+          'minner',
+          'mopen',
+          'mord',
+          'mpunct',
+          'root',
+          'space',
+        ].includes(type),
       `MathLive {{SDK_VERSION}}: an unexpected atom type "${type}" was encountered. Add new atom constructors to \`fromJson()\` in "atom.ts"`
     );
     result = Atom.fromJson(json);

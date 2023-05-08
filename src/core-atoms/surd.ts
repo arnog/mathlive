@@ -19,7 +19,8 @@ export class SurdAtom extends Atom {
       style: Style;
     }
   ) {
-    super('surd', {
+    super({
+      type: 'surd',
       command,
       mode: options.mode ?? 'math',
       style: options.style,
@@ -34,10 +35,6 @@ export class SurdAtom extends Atom {
       ...(json as any),
       index: json.above,
     });
-  }
-
-  toJson(): AtomJson {
-    return super.toJson();
   }
 
   serialize(options: ToLatexOptions): string {

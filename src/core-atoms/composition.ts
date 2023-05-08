@@ -6,7 +6,7 @@ import { Context } from '../core/context';
 
 export class CompositionAtom extends Atom {
   constructor(value: string, options?: { mode: ParseMode }) {
-    super('composition', { mode: options?.mode ?? 'math', value });
+    super({ type: 'composition', mode: options?.mode ?? 'math', value });
   }
 
   static fromJson(json: { [key: string]: any }): CompositionAtom {

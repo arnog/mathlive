@@ -42,7 +42,7 @@ function validateShortcut(
   // Find first sibling left which is not a placeholder or subsup
   let sibling = siblings[0]; // sibling immediately left
   let index = 0;
-  while (sibling && /msubsup|placeholder/.test(sibling.type)) {
+  while (sibling?.type && /msubsup|placeholder/.test(sibling.type)) {
     index += 1;
     sibling = siblings[index];
   }

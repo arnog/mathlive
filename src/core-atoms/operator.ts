@@ -31,7 +31,8 @@ export class OperatorAtom extends Atom {
       style?: Style;
     }
   ) {
-    super(options.type ?? 'mop', {
+    super({
+      type: options.type ?? 'mop',
       command,
       style: options.style,
       isFunction: options?.isFunction,

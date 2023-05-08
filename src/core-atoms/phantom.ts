@@ -21,7 +21,7 @@ export class PhantomAtom extends Atom {
       style: Style;
     }
   ) {
-    super('phantom', { command, style: options.style });
+    super({ type: 'phantom', command, style: options.style });
     this.captureSelection = true;
     this.body = body;
     this.isInvisible = options.isInvisible ?? false;

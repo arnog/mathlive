@@ -114,12 +114,7 @@ defineFunction(['det', 'max', 'min'], '', {
 defineFunction(['ang'], '{:math}', {
   ifMode: 'math',
   createAtom: (command, args, style) =>
-    new Atom('mord', {
-      command,
-      body: argAtoms(args[0]),
-      mode: 'math',
-      style,
-    }),
+    new Atom({ command, body: argAtoms(args[0]), mode: 'math', style }),
   serialize: (atom, options) => `\\ang{${atom.bodyToLatex(options)}}`,
   render: (atom, context) => {
     const box = atom.createBox(context);
@@ -452,7 +447,7 @@ defineFunction('middle', '{:delim}', {
 
 defineFunction('the', '{:value}', {
   createAtom: (command, args: [LatexValue | null], style) =>
-    new Atom('mord', {
+    new Atom({
       command,
       captureSelection: true,
       args,

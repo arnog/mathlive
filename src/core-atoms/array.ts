@@ -132,9 +132,9 @@ function normalizeArray(
       while (colIndex < lastCol) {
         const cell = row[colIndex];
         if (cell.length === 0)
-          newRow.push([new Atom('first', { mode: atom.mode })]);
+          newRow.push([new Atom({ type: 'first', mode: atom.mode })]);
         else if (cell[0].type !== 'first')
-          newRow.push([new Atom('first', { mode: atom.mode }), ...cell]);
+          newRow.push([new Atom({ type: 'first', mode: atom.mode }), ...cell]);
         else {
           console.assert(!cell.slice(1).some((x) => x.type === 'first'));
           newRow.push(cell);
@@ -167,7 +167,7 @@ function normalizeArray(
     if (row.length !== colCount) {
       for (let i = row.length; i < colCount; i++) {
         row.push([
-          new Atom('first', { mode: atom.mode }),
+          new Atom({ type: 'first', mode: atom.mode }),
           new PlaceholderAtom(),
         ]);
       }
@@ -217,7 +217,7 @@ export class ArrayAtom extends Atom {
     rowGaps: Dimension[],
     options: ArrayAtomConstructorOptions = {}
   ) {
-    super('array');
+    super({ type: 'array' });
     this.environmentName = envName;
     this.rowGaps = rowGaps;
     if (options.mathstyleName) this.mathstyleName = options.mathstyleName;
@@ -650,7 +650,7 @@ export class ArrayAtom extends Atom {
 
     let atoms = value;
     if (value.length === 0 || value[0].type !== 'first')
-      atoms = [new Atom('first', { mode: this.mode }), ...value];
+      atoms = [new Atom({ type: 'first', mode: this.mode }), ...value];
 
     this.array[row][column] = atoms;
     for (const atom of atoms) {
@@ -786,7 +786,7 @@ export class ArrayAtom extends Atom {
  * Create a matrix cell with a placeholder atom in it.
  */
 function makePlaceholderCell(parent: ArrayAtom): Atom[] {
-  const first = new Atom('first', { mode: parent.mode });
+  const first = new Atom({ type: 'first', mode: parent.mode });
   first.parent = parent;
   const placeholder = new PlaceholderAtom();
   placeholder.parent = parent;

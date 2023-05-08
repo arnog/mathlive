@@ -7,7 +7,7 @@ import type { Context } from '../core/context';
  */
 export class ErrorAtom extends Atom {
   constructor(value: string) {
-    super('error', { value, command: value, mode: 'math' });
+    super({ type: 'error', value, command: value, mode: 'math' });
     this.verbatimLatex = value;
   }
 

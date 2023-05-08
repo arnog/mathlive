@@ -9,7 +9,8 @@ import { Mode } from './modes-utils';
 import { BoxInterface, BoxOptions, BoxType } from './types';
 import { Atom, AtomType } from './atom-class';
 
-export function boxType(type: AtomType): BoxType | undefined {
+export function boxType(type: AtomType | undefined): BoxType | undefined {
+  if (!type) return undefined;
   const result = {
     mord: 'ord',
     mbin: 'bin',
@@ -554,14 +555,14 @@ export class Box implements BoxInterface {
    */
   tryCoalesceWith(box: Box): boolean {
     // Don't coalesce if the types are different
-    if (this.type !== box.type) return false;
+    // if (this.type !== box.type) return false;
 
     // Only coalesce some types
-    if (
-      !/ML__text/.test(this.classes) &&
-      !['ord', 'bin', 'rel'].includes(this.type)
-    )
-      return false;
+    // if (
+    //   !/ML__text/.test(this.classes) &&
+    //   !['ord', 'bin', 'rel'].includes(this.type)
+    // )
+    //   return false;
 
     // Don't coalesce if some of the content is SVG
     if (this.svgBody || !this.value) return false;
@@ -572,6 +573,26 @@ export class Box implements BoxInterface {
     const hasChildren = this.children && this.children.length > 0;
     const boxHasChildren = box.children && box.children.length > 0;
     if (hasChildren || boxHasChildren) return false;
+
+    if (box.cssProperties || this.cssProperties) {
+      // If it contains unmergable properties, bail
+      for (const prop of [
+        'border',
+        'border-left',
+        'border-right',
+        'border-right-width',
+        'left',
+        'margin',
+        'margin-left',
+        'margin-right',
+        'padding',
+        'position',
+        'width',
+      ]) {
+        if (box.cssProperties && prop in box.cssProperties) return false;
+        if (this.cssProperties && prop in this.cssProperties) return false;
+      }
+    }
 
     // If they have a different number of styles, can't coalesce
     const thisStyleCount = this.cssProperties
