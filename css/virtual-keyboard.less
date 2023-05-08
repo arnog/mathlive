@@ -222,6 +222,19 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   background: transparent;
 }
 
+/* If a custom layout has a custom container/backdrop
+  (backdrop-is-transparent), make sure to let pointer event go through. */
+.backdrop-is-transparent .MLK__plate {
+  background: transparent;
+  pointer-events: none;
+}
+
+/* If a custom layout has a custom container/backdrop, make sure to 
+   allow pointer events on it. */
+.backdrop-is-transparent .MLK__layer > div > div{
+  pointer-events: all;
+}
+
 .ML__keyboard.is-visible > .MLK__backdrop {
   transform: translate(0, calc(-1 * var(--keyboard-height)));
   opacity: 1;
