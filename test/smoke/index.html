@@ -43,10 +43,12 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf">\not\in \not{}\in \not{}\in \not\in</math-field>
-      <!-- <math-field id="mf"
+      <math-field id="mf"
         >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
-      > -->
+      >
+      <math-field id="mf2"
+        >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
+      >
       <!-- <math-field id="mf">=\overset{\left[\frac{0}{0}\right]}{=}=</math-field> -->
 
       <!-- <math-field id="mf">
@@ -151,7 +153,18 @@
 
       MathfieldElement.computeEngine = ce;
 
+      const mf2 = document.getElementById('mf2');
+      mf2.addEventListener('focus', () => {
+        mathVirtualKeyboard.layouts = 'minimalist';
+        mathVirtualKeyboard.show();
+      });
+
       const mf = document.getElementById('mf');
+
+      mf.addEventListener('focus', () => {
+        mathVirtualKeyboard.layouts = 'default';
+        mathVirtualKeyboard.show();
+      });
 
       mf.onInlineShortcut = (_mf, s) => {
         if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {

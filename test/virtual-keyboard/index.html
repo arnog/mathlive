@@ -292,107 +292,108 @@
       // ];
 
       function makeVirtualKeyboard(variables) {
-        const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
+        // const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
         // const customKeys = symbolsToKeycaps(variables);
-
+        const extraSpecificity = '';
         return {
           label: '',
           layers: [
             {
               style: `
-                .ML__keyboard {
-                  --keyboard-zindex: 2000;
+                      .ML__keyboard {
+                        --keyboard-zindex: 2000;
 
-                }
-                .minimalist-backdrop {
-                  display: flex;
-                  justify-content: center;
-                }
-                ${extraSpecificity} .minimalist-container {
-                  --keycap-height: 45px;
-                  --keycap-max-width: 53px;
-                  --keycap-font-size: 20px;
-                  --keycap-small-font-size: 12px;
-                  --keyboard-background: #f2f2f2;
-                  --keycap-background-hover: #ffffff;
+                      }
+                      .minimalist-backdrop {
+                        display: flex;
+                        justify-content: center;
+                      }
+                      ${extraSpecificity} .minimalist-container {
+                        --keycap-height: 45px;
+                        --keycap-max-width: 53px;
+                        --keycap-font-size: 20px;
+                        --keycap-small-font-size: 12px;
+                        --keyboard-background: #f2f2f2;
+                        --keycap-background-hover: #ffffff;
 
-                  --keycap-secondary-background: #e5e5e5;
-                  --keycap-secondary-background-hover: #c4c4c4;
+                        --keycap-secondary-background: #e5e5e5;
+                        --keycap-secondary-background-hover: #c4c4c4;
 
-                  --placeholder-opacity: 1;
+                        --placeholder-opacity: 1;
 
-                  padding: 15px;
+                        padding: 15px;
 
-                  background: var(--keyboard-background);
-                  border-top-left-radius: 8px;
-                  border-top-right-radius: 8px;
-                  border: none;
-                  box-shadow: 0px 0px 40px 0px #00000033;
-                }
+                        background: var(--keyboard-background);
+                        border-top-left-radius: 8px;
+                        border-top-right-radius: 8px;
+                        border: none;
+                        box-shadow: 0px 0px 40px 0px #00000033;
 
-                @container (max-width: 744px) {
-                  ${extraSpecificity} .minimalist-container {
-                    padding: 4px;
-                  }
+                      }
 
-                  ${extraSpecificity} .MLK__rows {
-                    --keycap-gap: 5px;
-                    --keycap-height: 45px;
-                  }
-                }
+                      @container (max-width: 744px) {
+                        ${extraSpecificity} .minimalist-container {
+                          padding: 4px;
+                        }
 
-                ${extraSpecificity} .minimalist-container .action {
-                  box-shadow: 0px 1px 0px #b5b5b5;
-                  color: var(--keycap-text);
-                  border: none;
-                }
+                        ${extraSpecificity} .MLK__rows {
+                          --keycap-gap: 5px;
+                          --keycap-height: 45px;
+                        }
+                      }
 
-                ${extraSpecificity} .minimalist-container .action.is-pressed {
-                  transform-origin: bottom center;
-                  transform: scale(1.4, 1.4);
-                  background-color: var(--keycap-secondary-background-hover);
-                  color: var(--keycap-text);
-                }
+                      ${extraSpecificity} .minimalist-container .action {
+                        box-shadow: 0px 1px 0px #b5b5b5;
+                        color: var(--keycap-text);
+                        border: none;
+                      }
 
-                ${extraSpecificity} .minimalist-container .action.is-active {
-                  background-color: var(--keycap-secondary-background-hover);
-                  color: var(--keycap-text);
-                }
+                      ${extraSpecificity} .minimalist-container .action.is-pressed {
+                        transform-origin: bottom center;
+                        transform: scale(1.4, 1.4);
+                        background-color: var(--keycap-secondary-background-hover);
+                        color: var(--keycap-text);
+                      }
 
-                ${extraSpecificity} .minimalist-container .MLK__keycap:not(.ghost) {
-                  box-shadow: 0px 1px 0px #b5b5b5;
-                  color: var(--keycap-text);
-                  border: none;
-                }
+                      ${extraSpecificity} .minimalist-container .action.is-active {
+                        background-color: var(--keycap-secondary-background-hover);
+                        color: var(--keycap-text);
+                      }
 
-                ${extraSpecificity} .minimalist-container .MLK__keycap.is-pressed {
-                  transform-origin: bottom center;
-                  transform: scale(1.4, 1.4);
-                  background-color: var(--keycap-background-hover);
-                  color: var(--keycap-text);
-                }
+                      ${extraSpecificity} .minimalist-container .MLK__keycap:not(.ghost) {
+                        box-shadow: 0px 1px 0px #b5b5b5;
+                        color: var(--keycap-text);
+                        border: none;
+                      }
 
-                ${extraSpecificity} .minimalist-container .MLK__keycap.is-active {
-                  background-color: var(--keycap-background-hover);
-                  color: var(--keycap-text);
-                }
+                      ${extraSpecificity} .minimalist-container .MLK__keycap.is-pressed {
+                        transform-origin: bottom center;
+                        transform: scale(1.4, 1.4);
+                        background-color: var(--keycap-background-hover);
+                        color: var(--keycap-text);
+                      }
 
-                ${extraSpecificity} .MLK__rows {
-                  overflow-x: unset;
-                }
+                      // ${extraSpecificity} .minimalist-container .MLK__keycap.is-active {
+                      //   background-color: var(--keycap-background-hover);
+                      //   color: var(--keycap-text);
+                      // }
 
-                ${extraSpecificity} .MLK__rows .row {
-                  justify-content: flex-start;
-                }
+                      ${extraSpecificity} .MLK__rows {
+                        overflow-x: unset;
+                      }
 
-                ${extraSpecificity} .if-can-undo, ${extraSpecificity} .if-can-redo {
-                  opacity: 0.4;
-                }
+                      // ${extraSpecificity} .MLK__rows .row {
+                      //   justify-content: flex-start;
+                      // }
 
-                .ML__keyboard.can-undo .if-can-undo, .ML__keyboard.can-redo .if-can-redo {
-                  opacity: 1;
-                }
-              `,
+                      // ${extraSpecificity} .if-can-undo, ${extraSpecificity} .if-can-redo {
+                      //   opacity: 0.4;
+                      // }
+
+                      // .ML__keyboard.can-undo .if-can-undo, .ML__keyboard.can-redo .if-can-redo {
+                      //   opacity: 1;
+                      // }
+                    `,
               backdrop: 'minimalist-backdrop',
               container: 'minimalist-container',
               rows: [
