@@ -205,6 +205,7 @@ export function createSuggestionPopover(
 }
 
 export function disposeSuggestionPopover(): void {
+  if (!document.getElementById('mathlive-suggestion-popover')) return;
   releaseSharedElement('mathlive-suggestion-popover');
   releaseStylesheet('mathlive-suggestion-popover-stylesheet');
   releaseStylesheet('mathlive-core-stylesheet');

@@ -69,7 +69,8 @@ function createKeystrokeCaption(): HTMLElement {
 }
 
 export function disposeKeystrokeCaption(): void {
+  if (!document.getElementById('mathlive-keystroke-caption-panel')) return;
   releaseSharedElement('mathlive-keystroke-caption-panel');
   releaseStylesheet('mathlive-core-stylesheet');
-  releaseStylesheet('mathlive-keystroke-caption-panel');
+  releaseStylesheet('mathlive-keystroke-caption-stylesheet');
 }

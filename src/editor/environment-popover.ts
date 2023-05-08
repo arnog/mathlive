@@ -302,6 +302,7 @@ export function hideEnvironmentPopover(): void {
 }
 
 export function disposeEnvironmentPopover(): void {
+  if (!document.getElementById('mathlive-environment-popover')) return;
   releaseSharedElement('mathlive-environment-popover');
   releaseStylesheet('mathlive-environment-popover-stylesheet');
   releaseStylesheet('mathlive-core-stylesheet');
