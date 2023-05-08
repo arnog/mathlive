@@ -1,5 +1,3 @@
-import type { GroupAtom } from '../core-atoms/group';
-
 import { Atom, ToLatexOptions } from './atom-class';
 import type { Box } from './box';
 import type {

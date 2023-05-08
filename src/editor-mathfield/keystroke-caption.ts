@@ -1,7 +1,6 @@
 import { getKeybindingMarkup } from '../editor/keybindings';
 import type { MathfieldPrivate } from './mathfield-private';
 
-import { hashCode } from '../common/hash-code';
 import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
 
 // @ts-ignore-error
