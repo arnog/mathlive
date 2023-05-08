@@ -235,9 +235,12 @@ export function normalizeLayout(
   for (const layer of result.layers) {
     if (layer.rows) {
       for (const keycap of layer.rows.flat()) {
-        const label = keycap.label!;
-        if (typeof keycap !== 'string' && isShiftKey(keycap)) hasShift = true;
-        if (['[undo]', '[redo]', '[cut]', '[copy]', '[paste]'].includes(label))
+        if (isShiftKey(keycap)) hasShift = true;
+        const command = keycap.command;
+        if (
+          typeof command === 'string' &&
+          ['undo', 'redo', 'cut', 'copy', 'paste'].includes(command)
+        )
           hasEdit = true;
       }
     }
@@ -549,13 +552,14 @@ function makeLayout(
   if (!('layers' in layout)) return '';
   for (const layer of layout.layers) {
     markup.push(`<div tabindex="-1" class="MLK__layer" id="${layer.id}">`);
-    markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
-    markup.push(makeLayoutsToolbar(keyboard, index));
-    // If there are no keycap with editing commands, add an edit toolbar
-    if (layout.displayEditToolbar)
-      markup.push(`<div class="ML__edit-toolbar right"></div>`);
-    markup.push(`</div>`);
-
+    if (keyboard.normalizedLayouts.length > 1 || layout.displayEditToolbar) {
+      markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
+      markup.push(makeLayoutsToolbar(keyboard, index));
+      // If there are no keycap with editing commands, add an edit toolbar
+      if (layout.displayEditToolbar)
+        markup.push(`<div class="ML__edit-toolbar right"></div>`);
+      markup.push(`</div>`);
+    }
     // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
     // be expanded
     markup.push(makeLayer(keyboard, layer));
