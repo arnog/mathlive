@@ -19,7 +19,7 @@ import { SubsupAtom } from '../core-atoms/subsup';
 import { TextAtom } from '../core-atoms/text';
 
 import { Mode } from './modes-utils';
-import { tokenize, tokensToString } from './tokenizer';
+import { joinLatex, tokenize, tokensToString } from './tokenizer';
 import type {
   Style,
   ParseMode,
@@ -560,15 +560,16 @@ export class Parser {
     };
   }
 
-  scanNumberOrRegister(): LatexValue | null {
+  scanRegister(): LatexValue | null {
     const index = this.index;
 
     const number = this.scanNumber(false);
 
     this.skipWhitespace();
     if (this.match('\\relax')) return number;
+
     let negative = false;
-    if (number !== null) {
+    if (number === null) {
       while (true) {
         const s = this.peek();
         if (s === '-') negative = !negative;
@@ -616,11 +617,19 @@ export class Parser {
   }
 
   scanValue(): LatexValue | null {
-    const value = this.scanNumberOrRegister();
-    if (value) return value;
+    const register = this.scanRegister();
+    if (register) return register;
+
+    const index = this.index;
 
     const glue = this.scanGlueOrDimen();
-    if (glue) return glue;
+    if (glue && ('unit' in glue || ('glue' in glue && 'unit' in glue.glue)))
+      return glue;
+
+    this.index = index;
+
+    const number = this.scanNumber();
+    if (number) return number;
 
     if (this.end() || !isLiteral(this.peek())) return null;
 
@@ -984,6 +993,7 @@ export class Parser {
    * group (i.e. `{}`).
    */
   scanGroup(): Atom | null {
+    const initialIndex = this.index;
     if (this.parseMode === 'text') {
       if (this.match('<{>')) {
         return new Atom('text', {
@@ -1015,6 +1025,9 @@ export class Parser {
       latexOpen: '{',
       latexClose: '}',
     });
+    result.verbatimLatex = tokensToString(
+      this.tokens.slice(initialIndex, this.index)
+    );
 
     return result;
   }
@@ -1254,7 +1267,7 @@ export class Parser {
     info: Partial<FunctionDefinition>
   ): [ParseMode | undefined, (null | Argument)[]] {
     if (!info?.params) return [undefined, []];
-    let explicitGroup: ParseMode | undefined = undefined;
+    let deferredArg: ParseMode | undefined = undefined;
     const args: (null | Argument)[] = [];
     let i = info.infix ? 2 : 0;
     while (i < info.params.length) {
@@ -1271,16 +1284,15 @@ export class Parser {
       } else if (parameter.isOptional)
         args.push(this.scanOptionalArgument(parameter.type));
       else if (parameter.type.endsWith('*')) {
-        // For example 'math*'.
-        // In this case, indicate that a 'yet-to-be-parsed'
-        // argument (an 'explicit group') is present
-        explicitGroup = parameter.type.slice(0, -1) as ParseMode;
+        // Indicate that a 'yet-to-be-parsed' argument is present
+        // which should be accounted for *after* the command has been processed.
+        deferredArg = parameter.type.slice(0, -1) as ParseMode;
       } else args.push(this.scanArgument(parameter.type));
 
       i += 1;
     }
 
-    return [explicitGroup, args];
+    return [deferredArg, args];
   }
 
   scanSymbolOrLiteral(): Atom[] | null {
@@ -1321,8 +1333,8 @@ export class Parser {
           style,
           value: String.fromCodePoint(info.codepoint),
           mode: this.parseMode,
+          verbatimLatex: token,
         });
-        result.verbatimLatex = token;
       } else if (info.applyMode || info.applyStyle || info.infix) {
         // The command modifies the mode or style: can't use here
         this.onError({ code: 'invalid-command', arg: token });
@@ -1533,28 +1545,26 @@ export class Parser {
       return [new PlaceholderAtom({ mode: this.parseMode, style: this.style })];
     }
 
-    let result: Atom | null = null;
-
     if (command === '\\char') {
       const initialIndex = this.index;
       let codepoint = this.scanNumber(true)?.number ?? NaN;
       if (!Number.isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff)
         codepoint = 0x2753; // BLACK QUESTION MARK
 
-      result = new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
-        command: '\\char',
-        mode: this.parseMode,
-        value: String.fromCodePoint(codepoint),
-        verbatimLatex:
-          '\\char' +
-          tokensToString(this.tokens.slice(initialIndex, this.index)),
-      });
-
-      return [result];
+      return [
+        new Atom(this.parseMode === 'math' ? 'mord' : 'text', {
+          command: '\\char',
+          mode: this.parseMode,
+          value: String.fromCodePoint(codepoint),
+          verbatimLatex:
+            '\\char' +
+            tokensToString(this.tokens.slice(initialIndex, this.index)),
+        }),
+      ];
     }
 
     // Is this a macro?
-    result = this.scanMacro(command);
+    let result = this.scanMacro(command);
     if (result) return [result];
 
     // This wasn't a macro, so let's see if it's a regular command
@@ -1669,25 +1679,33 @@ export class Parser {
         });
       }
     }
+
+    if (!result) return null;
+
     if (
       result instanceof Atom &&
       result.verbatimLatex === undefined &&
       !/^\\(llap|rlap|class|cssId|htmlData)$/.test(command)
     ) {
-      result.verbatimLatex =
-        (result.command ?? '') +
-        tokensToString(this.tokens.slice(initialIndex, this.index));
-      if (result.verbatimLatex.length === 0) result.verbatimLatex = undefined;
+      // We have to use `joinLatex` to correctly handle the case of
+      // modal commands, e.g. `{\em m}`
+      const verbatim = joinLatex([
+        command,
+        tokensToString(this.tokens.slice(initialIndex, this.index)),
+      ]);
+      if (verbatim) result.verbatimLatex = verbatim;
+    }
 
-      if (result.isFunction && this.smartFence) {
-        // The command was a function that may be followed by
-        // an argument, like `\sin(`
-        const smartFence = this.scanSmartFence();
-        if (smartFence) return [result, smartFence];
-      }
-    } else if (result?.verbatimLatex === null) result.verbatimLatex = undefined;
+    if (result.verbatimLatex === null) result.verbatimLatex = undefined;
 
-    return result ? [result] : null;
+    if (result.isFunction && this.smartFence) {
+      // The command was a function that may be followed by
+      // an argument, like `\sin(`
+      const smartFence = this.scanSmartFence();
+      if (smartFence) return [result, smartFence];
+    }
+
+    return [result];
   }
 
   scanSymbolCommandOrLiteral(): Atom[] | null {

@@ -13,19 +13,9 @@ export class GroupAtom extends Atom {
   latexOpen?: string;
   latexClose?: string;
 
-  // This CSS class is used only during rendering
-  renderClass?: string;
-
-  cssId?: string;
-  htmlData?: string;
-  htmlStyle?: string;
-  // This CSS class is user-provided
-  customClass?: string;
-
   constructor(
     arg: Atom[] | undefined,
     options?: {
-      command?: string;
       args?: (Argument | null)[];
       mode?: ParseMode;
       style?: Style;
@@ -33,16 +23,10 @@ export class GroupAtom extends Atom {
       mathstyleName?: MathstyleName;
       latexOpen?: string;
       latexClose?: string;
-      cssId?: string;
-      htmlData?: string;
-      htmlStyle?: string;
-      customClass?: string;
-      renderClass?: string;
       captureSelection?: boolean;
     }
   ) {
     super('group', {
-      command: options?.command,
       args: options?.args,
       mode: options?.mode ?? 'math',
       style: options?.style,
@@ -52,11 +36,6 @@ export class GroupAtom extends Atom {
 
     this.latexOpen = options?.latexOpen;
     this.latexClose = options?.latexClose;
-    // this.cssId = options?.cssId;
-    // this.htmlData = options?.htmlData;
-    // this.htmlStyle = options?.htmlStyle;
-    // this.customClass = options?.customClass;
-    this.renderClass = options?.renderClass;
 
     this.boxType = options?.boxType;
     this.skipBoundary = true;
@@ -77,13 +56,7 @@ export class GroupAtom extends Atom {
     if (this.mathstyleName) result.mathstyleName = this.mathstyleName;
     if (this.latexOpen) result.latexOpen = this.latexOpen;
     if (this.latexClose) result.latexClose = this.latexClose;
-    if (this.cssId) result.cssId = this.cssId;
-    if (this.htmlData) result.htmlData = this.htmlData;
-    if (this.htmlStyle) result.htmlStyle = this.htmlStyle;
-    if (this.customClass) result.customClass = this.customClass;
-    if (this.renderClass) result.renderClass = this.renderClass;
     if (this.boxType) result.boxType = this.boxType;
-    if (this.captureSelection) result.captureSelection = true;
 
     return { ...super.toJson(), ...result };
   }
@@ -99,21 +72,12 @@ export class GroupAtom extends Atom {
       { parent: context, mathstyle: this.mathstyleName },
       this.style
     );
-    const classes =
-      this.customClass || this.renderClass
-        ? `${this.customClass ?? ''} ${this.renderClass ?? ''}`
-        : '';
-
     const box = Atom.createBox(localContext, this.body, {
       type: this.boxType,
-      classes,
       mode: this.mode,
       style: { backgroundColor: this.style.backgroundColor },
     });
     if (!box) return null;
-    if (this.cssId) box.cssId = this.cssId;
-    if (this.htmlData) box.htmlData = this.htmlData;
-    if (this.htmlStyle) box.htmlStyle = this.htmlStyle;
     if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
@@ -122,19 +86,11 @@ export class GroupAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    let result = super.serialize(options);
+    const body = super.serialize(options);
 
     if (typeof this.latexOpen === 'string')
-      result = this.latexOpen + result + this.latexClose;
+      return this.latexOpen + body + this.latexClose;
 
-    if (this.htmlData) result = `\\htmlData{${this.htmlData}}{${result}}`;
-
-    if (this.htmlStyle) result = `\\htmlStyle{${this.htmlStyle}}{${result}}`;
-
-    if (this.customClass) result = `\\class{${this.customClass}}{${result}}`;
-
-    if (this.cssId) result = `\\cssId{${this.cssId}}{${result}}`;
-
-    return result;
+    return body;
   }
 }

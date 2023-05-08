@@ -4,41 +4,28 @@ import '../virtual-keyboard/global';
 import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
 
 export type ModelListeners = {
-  onSelectionDidChange: (sender: ModelPrivate) => void;
+  onSelectionDidChange: () => void;
+  onContentWillChange: (options: ContentChangeOptions) => boolean;
 };
 
 export function selectionDidChange(model: ModelPrivate): void {
-  if (
-    typeof model.listeners?.onSelectionDidChange === 'function' &&
-    !model.silenceNotifications
-  ) {
-    model.silenceNotifications = true;
-    model.listeners.onSelectionDidChange(model);
-    model.silenceNotifications = false;
-  }
-  if (window.mathVirtualKeyboard.visible)
-    window.mathVirtualKeyboard.update(makeProxy(model.mathfield));
+  if (model.silenceNotifications) return;
+  const save = model.silenceNotifications;
+  model.silenceNotifications = true;
+  model.listeners.onSelectionDidChange();
+  model.silenceNotifications = save;
 }
 
 export function contentWillChange(
   model: ModelPrivate,
   options: ContentChangeOptions = {}
 ): boolean {
-  if (model.silenceNotifications || !model.mathfield.host) return true;
+  if (model.silenceNotifications) return true;
 
+  const save = model.silenceNotifications;
   model.silenceNotifications = true;
-  const result = model.mathfield.host.dispatchEvent(
-    new InputEvent('beforeinput', {
-      ...options,
-      // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
-      data: options.data ? options.data : options.inputType ?? '',
-      cancelable: true,
-      bubbles: true,
-      composed: true,
-    })
-  );
-
-  model.silenceNotifications = false;
+  const result = model.listeners.onContentWillChange(options);
+  model.silenceNotifications = save;
   return result;
 }
 

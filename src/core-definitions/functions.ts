@@ -114,7 +114,6 @@ defineFunction(['det', 'max', 'min'], '', {
 
 defineFunction(['ang'], '{:math}', {
   ifMode: 'math',
-  isFunction: true,
   createAtom: (_command, args, style) =>
     new GroupAtom(
       [...argAtoms(args[0]), new Atom('mord', { value: '\u00b0', style })],

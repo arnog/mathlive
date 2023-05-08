@@ -74,17 +74,18 @@ export class Context implements ContextInterface {
 
   // Inherited from `Style`: size, letterShapeStyle, color and backgroundColor.
   readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
+  readonly smartFence: boolean;
+
   readonly color: string;
   readonly backgroundColor: string;
   readonly minFontScale: number;
 
+  // `size` is the "base" font size (need to add `mathstyle.sizeDelta`
+  // to get effective size)
   /** @internal */
-  // `size` is the "base" font size (need to add `mathstyle.sizeDelta` to get effective size)
   readonly size: FontSize;
 
   readonly mathstyle: Mathstyle;
-
-  readonly smartFence: boolean;
 
   readonly placeholderSymbol: string;
   readonly colorMap: (name: string) => string | undefined;
@@ -95,9 +96,9 @@ export class Context implements ContextInterface {
     options?: {
       parent?: Context;
       from?: ContextInterface;
-      // color?: string;
-      // backgroundColor?: string;
-      // fontSize?: FontSize | 'auto';
+      color?: string;
+      backgroundColor?: string;
+      fontSize?: FontSize | 'auto';
       isPhantom?: boolean;
       mathstyle?:
         | 'cramp'
@@ -196,16 +197,6 @@ export class Context implements ContextInterface {
 
     console.assert(this.parent !== undefined || this.registers !== undefined);
   }
-
-  // setGlobalRegister(name: string, value: LatexValue): void {
-  //   // eslint-disable-next-line @typescript-eslint/no-this-alias
-  //   let root: Context = this;
-  //   while (root.parent) {
-  //     root.setRegister(name, undefined);
-  //     root = root.parent;
-  //   }
-  //   root.setRegister(name, value);
-  // }
 
   makeID(): string | undefined {
     if (!this.atomIdsSettings) return undefined;
@@ -313,7 +304,7 @@ export class Context implements ContextInterface {
   }
 
   evaluate(value: LatexValue): LatexValue | undefined {
-    if (!('register' in value)) return value;
+    if (!value || !('register' in value)) return value;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let context: Context = this;
     if ('global' in value && value.global)

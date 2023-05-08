@@ -27,8 +27,7 @@ export class TooltipAtom extends Atom {
       displayContainsHighlight: true,
     });
     this.body = body;
-    this.tooltip = new Atom('root', { style: {} });
-    this.tooltip.body = tooltip;
+    this.tooltip = new Atom('root', { body: tooltip, style: {} });
 
     this.skipBoundary = true;
     this.captureSelection = false;

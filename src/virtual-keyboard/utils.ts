@@ -45,13 +45,14 @@ function latexToMarkup(latex: string): string {
 
   const context = new Context();
 
-  const root = new Atom('root');
-  root.body = parseLatex(latex, {
-    context,
-    args: (arg) =>
-      arg === '@'
-        ? '{\\class{ML__box-placeholder}{\\blacksquare}}'
-        : '\\placeholder{}',
+  const root = new Atom('root', {
+    body: parseLatex(latex, {
+      context,
+      args: (arg) =>
+        arg === '@'
+          ? '{\\class{ML__box-placeholder}{\\blacksquare}}'
+          : '\\placeholder{}',
+    }),
   });
 
   const box = coalesce(

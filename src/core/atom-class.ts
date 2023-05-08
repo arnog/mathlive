@@ -261,6 +261,7 @@ export class Atom {
       args?: (Argument | null)[];
       mode?: ParseMode;
       value?: string;
+      body?: Atom[];
       isFunction?: boolean;
       limits?: 'auto' | 'over-under' | 'adjacent';
       style?: Style;
@@ -280,6 +281,7 @@ export class Atom {
     this.captureSelection = options?.captureSelection ?? false;
     this.verbatimLatex = options?.verbatimLatex ?? undefined;
     this.args = options?.args ?? undefined;
+    if (options?.body) this.body = options.body;
   }
 
   /**
@@ -1244,14 +1246,14 @@ export class Atom {
 
   /** Return true if a digit, or a decimal point, or a french decimal `{,}` */
   isDigit(): boolean {
-    if (this.type === 'mord' && this.value) return /^[\d,.]$/.test(this.value);
+    if (this.type === 'mord' && this.value) return /^[\d,\.]$/.test(this.value);
     if (this.type === 'group' && this.body?.length === 2)
       return this.body![0].type === 'first' && this.body![1].value === ',';
 
     return false;
   }
   asDigit(): string {
-    if (this.type === 'mord' && this.value && /^[\d,.]$/.test(this.value))
+    if (this.type === 'mord' && this.value && /^[\d,\.]$/.test(this.value))
       return this.value;
 
     if (this.type === 'group' && this.body?.length === 2) {
@@ -1284,11 +1286,9 @@ export function serializeAtoms(
 
   const tokens: string[] = [];
 
-  for (const cssClassRun of getPropertyRuns(atoms, 'cssClass')) {
-    for (const colorRun of getPropertyRuns(cssClassRun, 'color')) {
-      for (const modeRun of getModeRuns(colorRun))
-        tokens.push(...Mode.serialize(modeRun, options));
-    }
+  for (const colorRun of getPropertyRuns(atoms, 'color')) {
+    for (const modeRun of getModeRuns(colorRun))
+      tokens.push(...Mode.serialize(modeRun, options));
   }
 
   return joinLatex(tokens);

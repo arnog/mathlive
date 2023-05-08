@@ -34,8 +34,7 @@ import {
 import { isOffset, isSelection, isRange, AnnounceVerb } from './utils';
 import { compareSelection, range } from './selection-utils';
 import type { ArrayAtom } from '../core-atoms/array';
-import { LatexAtom } from 'core-atoms/latex';
-import { parseLatex } from 'core/parser';
+import { LatexAtom } from '../core-atoms/latex';
 
 export type ModelState = {
   content: AtomJson;
@@ -52,8 +51,9 @@ export class ModelPrivate implements Model {
   readonly mathfield: MathfieldPrivate;
 
   mode: ParseMode;
-  listeners: ModelListeners;
+
   silenceNotifications: boolean;
+  readonly listeners: ModelListeners;
 
   root: Atom;
 
@@ -61,27 +61,67 @@ export class ModelPrivate implements Model {
   private _anchor: Offset;
   private _position: Offset;
 
-  constructor(target: Mathfield, content: string, listeners: ModelListeners) {
+  constructor(
+    target: Mathfield,
+    mode: ParseMode,
+    root: Atom,
+    listeners: ModelListeners
+  ) {
+    this.mathfield = target as MathfieldPrivate;
+
+    this.mode = mode;
+    this.silenceNotifications = false;
+
+    this.listeners = listeners;
+
     this._selection = { ranges: [[0, 0]], direction: 'none' };
     this._anchor = 0;
     this._position = 0;
 
-    this.mode = 'math';
-    this.mathfield = target as MathfieldPrivate;
-    this.silenceNotifications = false;
-
-    this.root = new Atom('root', { mode: this.mode });
-
-    this.root.body = parseLatex(content, {
-      context: this.mathfield.context,
-    });
-
-    this.setListeners(listeners);
+    this.root = root;
   }
 
   dispose(): void {
     (this as any).mathfield = undefined;
     (this as any).listeners.onSelectionDidChange = undefined;
+    (this as any).listeners.onContentWillChange = undefined;
+  }
+
+  getState(): ModelState {
+    const selection: Selection = { ranges: [...this._selection.ranges] };
+    if (this.selection.direction && this.selection.direction !== 'none')
+      selection.direction = this.selection.direction;
+
+    return {
+      content: this.root.toJson(),
+      selection,
+      mode: this.mode,
+    };
+  }
+
+  setState(
+    state: ModelState,
+    options?: {
+      silenceNotifications?: boolean;
+      type?: 'redo' | 'undo';
+    }
+  ): void {
+    const wasSuppressing = this.silenceNotifications;
+    this.silenceNotifications = options?.silenceNotifications ?? true;
+    let changeOption: ContentChangeOptions = {};
+    if (options?.type === 'undo') changeOption = { inputType: 'historyUndo' };
+    if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
+    // Restore the content and selection
+    if (contentWillChange(this, changeOption)) {
+      const didSuppress = this.silenceNotifications;
+      this.silenceNotifications = true;
+      this.mode = state.mode;
+      this.root = fromJson(state.content);
+      this.selection = state.selection;
+      this.silenceNotifications = didSuppress;
+      contentDidChange(this, changeOption);
+    }
+    this.silenceNotifications = wasSuppressing;
   }
 
   get atoms(): Atom[] {
@@ -197,43 +237,6 @@ export class ModelPrivate implements Model {
       atom.isSuggestion = false;
 
     this.mathfield.stopCoalescingUndo();
-  }
-
-  getState(): ModelState {
-    const selection: Selection = { ranges: [...this._selection.ranges] };
-    if (this.selection.direction && this.selection.direction !== 'none')
-      selection.direction = this.selection.direction;
-
-    return {
-      content: this.root.toJson(),
-      selection,
-      mode: this.mode,
-    };
-  }
-
-  setState(
-    state: ModelState,
-    options?: {
-      silenceNotifications?: boolean;
-      type?: 'redo' | 'undo';
-    }
-  ): void {
-    const wasSuppressing = this.silenceNotifications;
-    this.silenceNotifications = options?.silenceNotifications ?? true;
-    let changeOption: ContentChangeOptions = {};
-    if (options?.type === 'undo') changeOption = { inputType: 'historyUndo' };
-    if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
-    // Restore the content and selection
-    if (contentWillChange(this, changeOption)) {
-      const didSuppress = this.silenceNotifications;
-      this.silenceNotifications = true;
-      this.mode = state.mode;
-      this.root = fromJson(state.content);
-      this.selection = state.selection;
-      this.silenceNotifications = didSuppress;
-      contentDidChange(this, changeOption);
-    }
-    this.silenceNotifications = wasSuppressing;
   }
 
   /**
@@ -434,8 +437,7 @@ export class ModelPrivate implements Model {
       } else {
         // If the root is an array, replace with a plain root
         result = (this.root as ArrayAtom).cells.flat();
-        this.root = new Atom('root');
-        this.root.body = [];
+        this.root = new Atom('root', { body: [] });
         return result;
       }
     }
@@ -629,10 +631,6 @@ export class ModelPrivate implements Model {
         direction: 'none',
       };
     });
-  }
-
-  setListeners(listeners: ModelListeners): void {
-    this.listeners = listeners;
   }
 
   /**

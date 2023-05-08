@@ -13,12 +13,14 @@ export class OverlapAtom extends Atom {
     body: string | Atom[],
     options?: { align?: 'left' | 'right'; boxType?: BoxType; style: Style }
   ) {
-    super('overlap', { command, style: options?.style });
-    this.skipBoundary = true;
-    if (typeof body === 'string')
-      this.body = [new Atom('mord', { value: body })];
-    else this.body = body;
+    super('overlap', {
+      command,
+      body:
+        typeof body === 'string' ? [new Atom('mord', { value: body })] : body,
+      style: options?.style,
+    });
 
+    this.skipBoundary = true;
     this.align = options?.align;
     this.boxType = options?.boxType;
   }

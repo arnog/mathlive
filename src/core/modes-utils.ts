@@ -113,7 +113,7 @@ export function getModeRuns(atoms: Atom[]): Atom[][] {
  */
 export function getPropertyRuns(
   atoms: Atom[],
-  property: keyof Style | 'cssClass'
+  property: keyof Style
 ): Atom[][] {
   const result: Atom[][] = [];
   let run: Atom[] = [];
@@ -125,8 +125,6 @@ export function getPropertyRuns(
         value = atom.style.variant;
         if (atom.style.variantStyle && atom.style.variantStyle !== 'up')
           value += '-' + atom.style.variantStyle;
-      } else if (property === 'cssClass') {
-        if (atom.type === 'group') value = (atom as GroupAtom).customClass;
       } else value = atom.style[property];
 
       if (value === currentValue) {
