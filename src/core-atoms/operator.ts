@@ -22,7 +22,6 @@ export class OperatorAtom extends Atom {
       isExtensibleSymbol?: boolean;
       isFunction?: boolean;
       hasArgument?: boolean;
-      captureSelection?: boolean;
       // Unlike `style`, `variant` and `variantStyle` are applied to the
       // content of this atom, but not propagated to the next atom
       variant?: Variant;
@@ -38,9 +37,10 @@ export class OperatorAtom extends Atom {
       isFunction: options?.isFunction,
     });
     if (typeof symbol === 'string') this.value = symbol;
-    else this.body = symbol;
-
-    this.captureSelection = options.captureSelection ?? false;
+    else {
+      this.body = symbol;
+      this.captureSelection = true;
+    }
 
     this.hasArgument = options.hasArgument ?? false;
     this.variant = options?.variant;

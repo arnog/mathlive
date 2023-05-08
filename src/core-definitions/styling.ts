@@ -743,8 +743,6 @@ defineFunction(['mkern', 'kern', 'mskip', 'hskip', 'mspace'], '{width:value}', {
 defineFunction('mathop', '{:auto}', {
   createAtom: (name, args: (null | Argument)[], style): Atom =>
     new OperatorAtom(name, argAtoms(args[0]), {
-      type: 'mop',
-      captureSelection: true,
       limits: 'over-under',
       isFunction: true,
       hasArgument: true,
@@ -782,7 +780,6 @@ defineFunction(
             '\\mathinner': 'minner',
           } as const
         )[name],
-        captureSelection: true,
         hasArgument: true,
         style,
       }),

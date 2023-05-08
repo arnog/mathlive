@@ -46,9 +46,6 @@
       <math-field id="mf"
         >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
       >
-      <math-field id="mf2"
-        >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
-      >
       <!-- <math-field id="mf">=\overset{\left[\frac{0}{0}\right]}{=}=</math-field> -->
 
       <!-- <math-field id="mf">
@@ -102,6 +99,10 @@
       <h2>Latex to Speakable Text</h2>
       <div class="output" id="latex2speech"></div>
 
+      <script type="math/tex">
+        \pi\sqrt{\frac12}
+      </script>
+
       <div class="button-bar">
         <button id="grow">Grow</button>
         <button id="shrink">Shrink</button>
@@ -122,8 +123,11 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
-      console.log(convertLatexToMarkup('\\not{}\\in'));
-      console.log(convertLatexToMarkup('\\text{Hello world}'));
+      renderMathInDocument();
+
+      const mfe = new MathfieldElement();
+      document.body.appendChild(mfe);
+      mfe.remove();
 
       // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
 
@@ -153,18 +157,7 @@
 
       MathfieldElement.computeEngine = ce;
 
-      const mf2 = document.getElementById('mf2');
-      mf2.addEventListener('focus', () => {
-        mathVirtualKeyboard.layouts = 'minimalist';
-        mathVirtualKeyboard.show();
-      });
-
       const mf = document.getElementById('mf');
-
-      mf.addEventListener('focus', () => {
-        mathVirtualKeyboard.layouts = 'default';
-        mathVirtualKeyboard.show();
-      });
 
       mf.onInlineShortcut = (_mf, s) => {
         if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
