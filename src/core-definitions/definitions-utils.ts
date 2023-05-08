@@ -438,6 +438,8 @@ const DEFAULT_MACROS: MacroDictionary = {
   'differentialD': '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
   'capitalDifferentialD': '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
 
+  'mathstrut': { def: '\\vphantom{(}', expand: false },
+
   // mhchem
 
   'tripledash':
