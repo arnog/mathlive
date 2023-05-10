@@ -5,6 +5,7 @@ import { toggleKeystrokeCaption } from './keystroke-caption';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { requestUpdate } from './render';
 import { ParseMode } from '../public/core-types';
+import { updateAutocomplete } from './autocomplete';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
@@ -170,7 +171,8 @@ registerCommand(
         ) {
           mathfield.stopCoalescingUndo();
           mathfield.stopRecording();
-          if (mathfield.insert(text)) {
+          if (mathfield.insert(text, { mode: mathfield.model.mode })) {
+            updateAutocomplete(mathfield);
             mathfield.startRecording();
             mathfield.snapshot('paste');
             contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
