@@ -744,34 +744,21 @@ export class Parser {
    * Scan a `\(...\)` or `\[...\]` sequence
    * @return group for the sequence or null
    */
-  scanModeSet(): Atom | null {
+  scanModeSet(): Atom[] | null {
     let mathstyle: MathstyleName | undefined = undefined;
     if (this.match('\\(')) mathstyle = 'textstyle';
     if (!mathstyle && this.match('\\[')) mathstyle = 'displaystyle';
     if (!mathstyle) return null;
     this.beginContext({ mode: 'math', mathstyle });
 
-    // const result = this.scan(
-    //   (token) => token === (mathstyle === 'displaystyle' ? '\\]' : '\\)')
-    // );
-    const result = new GroupAtom(
-      this.scan(
-        (token) => token === (mathstyle === 'displaystyle' ? '\\]' : '\\)')
-      ),
-      {
-        mathstyleName: mathstyle,
-        latexOpen: mathstyle === 'displaystyle' ? '\\[' : '\\(',
-        latexClose: mathstyle === 'displaystyle' ? '\\]' : '\\)',
-        boxType: 'lift',
-        style: this.style,
-      }
+    const result = this.scan(
+      (token) => token === (mathstyle === 'displaystyle' ? '\\]' : '\\)')
     );
 
     if (!this.match(mathstyle === 'displaystyle' ? '\\]' : '\\)'))
       this.onError({ code: 'unbalanced-mode-shift' });
 
     this.endContext();
-    if (result.hasEmptyBranch('body')) return null;
 
     return result;
   }
@@ -779,7 +766,7 @@ export class Parser {
   /**
    * Scan a `$...$` or `$$...$$` sequence
    */
-  scanModeShift(): Atom | null {
+  scanModeShift(): Atom[] | null {
     let final: Token = '';
     if (this.match('<$>')) final = '<$>';
     if (!final && this.match('<$$>')) final = '<$$>';
@@ -790,21 +777,11 @@ export class Parser {
       mathstyle: '<$>' ? 'textstyle' : 'displaystyle',
     });
 
-    const result = new GroupAtom(
-      this.scan((token: Token) => token === final),
-      {
-        mathstyleName: final === '<$>' ? 'textstyle' : 'displaystyle',
-        latexOpen: final === '<$>' ? '$ ' : '$$ ',
-        latexClose: final === '<$>' ? ' $' : ' $$',
-        boxType: 'lift',
-        style: this.style,
-      }
-    );
+    const result = this.scan((token) => token === final);
 
     if (!this.match(final)) this.onError({ code: 'unbalanced-mode-shift' });
 
     this.endContext();
-    if (result.hasEmptyBranch('body')) return null;
     return result;
   }
 
