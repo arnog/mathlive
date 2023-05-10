@@ -85,7 +85,9 @@ defineFunction(['underbrace'], '{:auto}', {
 defineFunction(
   [
     'xrightarrow',
+    'longrightarrow', // From mhchem.sty package
     'xleftarrow',
+    'longleftarrow', // From mhchem.sty package
     'xRightarrow',
     'xLeftarrow',
     'xleftharpoonup',
@@ -96,16 +98,21 @@ defineFunction(
     'xtwoheadleftarrow',
     'xtwoheadrightarrow',
     'xleftrightarrow',
+    'longleftrightarrow', // From mhchem.sty package
     'xLeftrightarrow',
-    'xrightleftharpoons',
+    'xrightleftharpoons', // From mhchem.sty package
+    'longrightleftharpoons',
     'xleftrightharpoons',
     'xhookleftarrow',
     'xhookrightarrow',
     'xmapsto',
     'xtofrom',
-    'xrightleftarrows', // From mhchem.sty package
-    'xrightequilibrium', // From mhchem.sty package
-    'xleftequilibrium', // From mhchem.sty package
+    'xleftrightarrows', // From mhchem.sty package
+    'longleftrightarrows', // From mhchem.sty package
+    'xRightleftharpoons', // From mhchem.sty package
+    'longRightleftharpoons', // From mhchem.sty package
+    'xLeftrightharpoons', // From mhchem.sty package
+    'longLeftrightharpoons', // From mhchem.sty package
   ],
   '[:auto]{:auto}',
   {
