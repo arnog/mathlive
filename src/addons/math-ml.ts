@@ -471,9 +471,11 @@ function atomToMathML(atom, options): string {
     overleftarrow: '\u2190',
     underleftarrow: '\u2190',
     xleftarrow: '\u2190',
+    longleftarrow: '\u2190',
     overrightarrow: '\u2192',
     underrightarrow: '\u2192',
     xrightarrow: '\u2192',
+    longrightarrow: '\u2192',
     underbrace: '\u23DF',
     overbrace: '\u23DE',
     overgroup: '\u23E0',
@@ -495,14 +497,17 @@ function atomToMathML(atom, options): string {
     xrightharpoondown: '\u21C1',
     xleftharpoondown: '\u21BD',
     xrightleftharpoons: '\u21CC',
+    longrightleftharpoons: '\u21CC',
     xleftrightharpoons: '\u21CB',
     xtwoheadleftarrow: '\u219E',
     xtwoheadrightarrow: '\u21A0',
     xlongequal: '=',
     xtofrom: '\u21C4',
-    xrightleftarrows: '\u21C4',
-    xrightequilibrium: '\u21CC', // Not a perfect match.
-    xleftequilibrium: '\u21CB', // None better available.
+    xleftrightarrows: '\u21C4',
+    xRightleftharpoons: '\u21CC', // Not a perfect match.
+    longRightleftharpoons: '\u21CC', // Not a perfect match.
+    xLeftrightharpoons: '\u21CB', // None better available.
+    longLeftrightharpoons: '\u21CB', // None better available.
   };
 
   const SPECIAL_IDENTIFIERS = {

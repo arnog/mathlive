@@ -530,7 +530,7 @@ metadata(
     '\\longmapsto',
     '\\mapsto',
     '\\Longleftrightarrow',
-    '\\rightleftarrows',
+    '\\leftrightarrows',
     '\\leftarrow',
     '\\curvearrowleft',
     '\\uparrow',
@@ -634,9 +634,9 @@ metadata(
     '\\xhookrightarrow',
     '\\xmapsto',
     '\\xtofrom',
-    '\\xrightleftarrows', // From mhchem.sty package
-    '\\xrightequilibrium', // From mhchem.sty package
-    '\\xleftequilibrium',
+    '\\xleftrightarrows', // From mhchem.sty package
+    '\\xRightleftharpoons', // From mhchem.sty package
+    '\\xLeftrightharpoons',
   ],
   RARE,
   '$0[below]{above}=0'
