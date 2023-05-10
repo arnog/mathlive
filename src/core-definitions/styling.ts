@@ -1,9 +1,4 @@
-import {
-  Atom,
-  BBoxParameter,
-  ToLatexOptions,
-  serializeAtoms,
-} from '../core/atom-class';
+import { Atom, BBoxParameter, ToLatexOptions } from '../core/atom-class';
 
 import { GroupAtom } from '../core-atoms/group';
 import { BoxAtom } from '../core-atoms/box';
@@ -105,10 +100,9 @@ defineFunction('boxed', '{content:math}', {
     }),
 });
 
-// Technically, using a BoxAtom is more correct (there is a small margin around it)
-// However, just changing the background color makes editing easier
-defineFunction('colorbox', '{:value}{:auto*}', {
-  applyMode: 'text',
+// Technically, using a BoxAtom is more correct (there is a small margin
+// around it). However, just changing the background color makes editing easier
+defineFunction('colorbox', '{:value}{:text*}', {
   applyStyle: (_name, args: [LatexValue | null], context) => {
     return {
       verbatimBackgroundColor: serializeLatexValue(args[0]) ?? undefined,
@@ -121,7 +115,7 @@ defineFunction('colorbox', '{:value}{:auto*}', {
 
 defineFunction(
   'fcolorbox',
-  '{frame-color:value}{background-color:value}{content:auto}',
+  '{frame-color:value}{background-color:value}{content:text}',
   {
     applyMode: 'text',
     createAtom: (
@@ -490,7 +484,7 @@ defineFunction('mbox', '{:text}', {
   serialize: (atom: GroupAtom, options: ToLatexOptions) =>
     latexCommand(
       '\\mbox',
-      atom.bodyToLatex({ ...options, skipModeCommand: true })
+      atom.bodyToLatex({ ...options, defaultMode: 'text' })
     ),
 });
 
@@ -510,8 +504,8 @@ defineFunction(['class', 'htmlClass'], '{name:string}{content:auto}', {
       style,
     }),
   serialize: (atom, options) => {
-    if (!atom.args?.[0]) return atom.serialize(options);
-    return `${atom.command}{${atom.args![0] as string}}{${atom.serialize(
+    if (!atom.args?.[0]) return atom.bodyToLatex(options);
+    return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
       options
     )}}`;
   },
@@ -530,8 +524,8 @@ defineFunction(['cssId', 'htmlId'], '{id:string}{content:auto}', {
       style,
     }),
   serialize: (atom, options) => {
-    if (!atom.args?.[0]) return atom.serialize(options);
-    return `${atom.command}{${atom.args![0] as string}}{${atom.serialize(
+    if (!atom.args?.[0]) return atom.bodyToLatex(options);
+    return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
       options
     )}}`;
   },
@@ -552,8 +546,10 @@ defineFunction('htmlData', '{data:string}{content:auto}', {
       style,
     }),
   serialize: (atom, options) => {
-    if (!atom.args?.[0]) return atom.serialize(options);
-    return `\\htmlData{${atom.args![0] as string}}{${atom.serialize(options)}}`;
+    if (!atom.args?.[0]) return atom.bodyToLatex(options);
+    return `\\htmlData{${atom.args![0] as string}}{${atom.bodyToLatex(
+      options
+    )}}`;
   },
   render: (atom, context) => {
     const box = atom.createBox(context);
@@ -573,8 +569,8 @@ defineFunction(['style', 'htmlStyle'], '{data:string}{content:auto}', {
       style,
     }),
   serialize: (atom, options) => {
-    if (!atom.args?.[0]) return atom.serialize(options);
-    return `${atom.command}{${atom.args![0] as string}}{${atom.serialize(
+    if (!atom.args?.[0]) return atom.bodyToLatex(options);
+    return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
       options
     )}}`;
   },
@@ -1020,11 +1016,11 @@ defineFunction('not', '{:math}', {
   },
   serialize: (atom: Atom | GroupAtom, options) => {
     const arg = atom.args![0]!;
-    const isGroup = typeof arg === 'object' && 'group' in arg;
+    const isGroup = arg && typeof arg === 'object' && 'group' in arg;
     if (atom.value !== '\ue020') {
       return isGroup
-        ? `\\not{${serializeAtoms(arg.group, options)}}`
-        : `\\not${serializeAtoms(arg as Atom[], options)}`;
+        ? `\\not{${Atom.serialize(arg.group, options)}}`
+        : `\\not${Atom.serialize(arg as Atom[], options)}`;
     }
     return isGroup ? `\\not{}` : `\\not`;
   },
@@ -1032,7 +1028,9 @@ defineFunction('not', '{:math}', {
     if (atom.value) return atom.createBox(context);
 
     const isGroup =
-      typeof atom.args![0] === 'object' && 'group' in atom.args![0]!;
+      atom.args![0] &&
+      typeof atom.args![0] === 'object' &&
+      'group' in atom.args![0]!;
     const type = isGroup ? 'ord' : atomsBoxType(argAtoms(atom.args![0]));
     const box = Atom.createBox(context, atom.body, { type })!;
     if (atom.caret) box.caret = atom.caret;

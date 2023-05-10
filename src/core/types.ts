@@ -88,9 +88,10 @@ const BOX_TYPE = [
   'latex',
   'composition',
   'middle', // A box type used by the `\middle` command
-  'skip', // A box that should be skipped during inter-box spacing, e.g. sup/sub atoms
+  'ignore', // A box that should be ignored during inter-box spacing, e.g. sup/sub atoms
   'lift', // For inter-box spacing, the children of the box should be lifted as
   // if they were present instead of the box
+  'skip', // A box that only has some horizontal spacing
 ] as const; // The const assertion prevents widening to string[]
 export type BoxType = (typeof BOX_TYPE)[number];
 
@@ -116,6 +117,7 @@ export type BoxOptions = {
 export interface BoxInterface {
   type: BoxType;
 
+  parent: BoxInterface | undefined;
   children?: BoxInterface[];
   value: string;
 

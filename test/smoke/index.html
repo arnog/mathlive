@@ -44,8 +44,13 @@
     </header>
     <main>
       <math-field id="mf"
-        >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
+        >1+\colorbox{blue}{$2$}+3+\colorbox{red}{4}+\colorbox{green}{\ensuremath{4}}+\text{5+\colorbox{purple}{6}}</math-field
       >
+      <!-- <math-field id="mf">1+\colorbox{blue}{\ensuremath{2}}+1+2</math-field> -->
+
+      <!-- <math-field id="mf"
+        >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
+      > -->
       <!-- <math-field id="mf">=\overset{\left[\frac{0}{0}\right]}{=}=</math-field> -->
 
       <!-- <math-field id="mf">
@@ -98,10 +103,6 @@
 
       <h2>Latex to Speakable Text</h2>
       <div class="output" id="latex2speech"></div>
-
-      <script type="math/tex">
-        \pi\sqrt{\frac12}
-      </script>
 
       <div class="button-bar">
         <button id="grow">Grow</button>

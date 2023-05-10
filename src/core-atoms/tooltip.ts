@@ -76,7 +76,7 @@ export class TooltipAtom extends Atom {
     return latexCommand(
       this.command,
       this.bodyToLatex(options),
-      Atom.serialize(this.tooltip.body, options)
+      this.tooltip.bodyToLatex(options)
     );
   }
 }

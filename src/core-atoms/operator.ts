@@ -5,6 +5,7 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { joinLatex, latexCommand } from '../core/tokenizer';
 import { AXIS_HEIGHT } from '../core/font-metrics';
+import { getDefinition } from '../core-definitions/definitions-utils';
 
 /**
  * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
@@ -151,6 +152,11 @@ export class OperatorAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+      return this.verbatimLatex;
+    const def = getDefinition(this.command, this.mode);
+    if (def?.serialize) return def.serialize(this, options);
+
     // ZERO-WIDTH?
     if (this.value === '\u200B') return this.supsubToLatex(options);
 

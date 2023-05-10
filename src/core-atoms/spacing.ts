@@ -4,6 +4,7 @@ import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import type { Context } from '../core/context';
 import { serializeLatexValue } from '../core/registers-utils';
+import { getDefinition } from '../core-definitions/definitions-utils';
 
 export class SpacingAtom extends Atom {
   private readonly width: LatexValue | undefined;
@@ -59,7 +60,12 @@ export class SpacingAtom extends Atom {
     return result;
   }
 
-  serialize(_options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+      return this.verbatimLatex;
+    const def = getDefinition(this.command, this.mode);
+    if (def?.serialize) return def.serialize(this, options);
+
     // Two kinds of spacing commands:
     // - `\hskip`, `\kern`, `\hspace` and `hspace*` which take one glue
     //     argument:

@@ -144,7 +144,7 @@ const VARIANTS: {
   //   '\\xhookleftarrow{#@}',
   //   '\\xtofrom{#@}',
   //   '\\xleftequilibrium{#@}', // From mhchem.sty package
-  //   '\\xrightleftarrows{#@}', // From mhchem.sty package
+  //   '\\xleftrightarrows{#@}', // From mhchem.sty package
   // ],
   // 'xrightarrows': [
   //   '\\xrightarrow{#@}',
@@ -159,8 +159,8 @@ const VARIANTS: {
   //   '\\xrightleftharpoons{#@}',
   //   '\\xhookrightarrow{#@}',
   //   '\\xmapsto{#@}',
-  //   '\\xrightequilibrium{#@}', // From mhchem.sty package
-  //   '\\xrightleftarrows{#@}', // From mhchem.sty package
+  //   '\\xLeftrightharpoons{#@}', // From mhchem.sty package
+  //   '\\xleftrightarrows{#@}', // From mhchem.sty package
   // ],
 
   // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},

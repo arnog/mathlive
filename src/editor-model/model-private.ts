@@ -16,7 +16,6 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
-import { Mode } from '../core/modes';
 import { AtomJson, BranchName, fromJson } from '../core/atom';
 
 import { toMathML } from '../addons/math-ml';
@@ -359,7 +358,8 @@ export class ModelPrivate implements Model {
     const last = Math.max(start, end);
 
     // If this is the entire selection, return the root
-    if (first === 1 && last === this.lastOffset) return [this.root];
+    if (!options.includeChildren && first === 1 && last === this.lastOffset)
+      return [this.root];
 
     let result: Atom[] = [];
     for (let i = first; i <= last; i++) {
@@ -454,13 +454,11 @@ export class ModelPrivate implements Model {
     const format: string = inFormat ?? 'latex';
 
     if (format.startsWith('latex')) {
-      return joinLatex(
-        Mode.serialize([atom], {
-          expandMacro: format === 'latex-expanded',
-          skipStyles: format === 'latex-unstyled',
-          defaultMode: this.mathfield.options.defaultMode,
-        })
-      );
+      return Atom.serialize([atom], {
+        expandMacro: format === 'latex-expanded',
+        skipStyles: format === 'latex-unstyled',
+        defaultMode: this.mathfield.options.defaultMode,
+      });
     }
 
     if (format === 'math-ml') return toMathML(atom);
@@ -502,7 +500,7 @@ export class ModelPrivate implements Model {
       }
       try {
         const expr = window.MathfieldElement.computeEngine.parse(
-          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
+          atom.serialize({ expandMacro: false, defaultMode: 'math' })
         );
         return JSON.stringify(expr.json);
       } catch (e) {

@@ -1,9 +1,10 @@
-import type { MathstyleName, ParseMode } from '../public/core-types';
+import type { MathstyleName, ParseMode, Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import type { Box } from '../core/box';
 import type { BoxType } from '../core/types';
+import { getDefinition } from '../core-definitions/definitions-utils';
 
 export class GroupAtom extends Atom {
   boxType?: BoxType;
@@ -20,9 +21,14 @@ export class GroupAtom extends Atom {
       mathstyleName?: MathstyleName;
       latexOpen?: string;
       latexClose?: string;
+      style?: Style;
     }
   ) {
-    super({ type: 'group', mode: options?.mode ?? 'math' });
+    super({
+      type: 'group',
+      mode: options?.mode ?? 'math',
+      style: options?.style,
+    });
     this.body = arg;
     this.mathstyleName = options?.mathstyleName;
 
@@ -77,7 +83,12 @@ export class GroupAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
-    const body = super.serialize(options);
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+      return this.verbatimLatex;
+    const def = getDefinition(this.command, this.mode);
+    if (def?.serialize) return def.serialize(this, options);
+
+    const body = this.bodyToLatex(options);
 
     if (typeof this.latexOpen === 'string')
       return this.latexOpen + body + this.latexClose;

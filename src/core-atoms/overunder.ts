@@ -81,7 +81,7 @@ export class OverunderAtom extends Atom {
   render(parentContext: Context): Box | null {
     let body = this.svgBody
       ? makeSVGBox(this.svgBody)
-      : Atom.createBox(parentContext, this.body, { type: 'skip' });
+      : Atom.createBox(parentContext, this.body, { type: 'ignore' });
     const annotationContext = new Context(
       { parent: parentContext, mathstyle: 'scriptstyle' },
       this.style
@@ -89,13 +89,13 @@ export class OverunderAtom extends Atom {
     let above: Box | null = null;
     if (this.svgAbove) above = makeSVGBox(this.svgAbove);
     else if (this.above)
-      above = Atom.createBox(annotationContext, this.above, { type: 'skip' });
+      above = Atom.createBox(annotationContext, this.above, { type: 'ignore' });
 
     let below: Box | null = null;
     // let belowShift: number;
     if (this.svgBelow) below = makeSVGBox(this.svgBelow);
     else if (this.below)
-      below = Atom.createBox(annotationContext, this.below, { type: 'skip' });
+      below = Atom.createBox(annotationContext, this.below, { type: 'ignore' });
 
     if (this.paddedBody) {
       // The base of \overset are padded, but \overbrace aren't
@@ -105,7 +105,7 @@ export class OverunderAtom extends Atom {
           body,
           makeNullDelimiter(parentContext, 'close'),
         ],
-        { type: 'skip' }
+        { type: 'ignore' }
       );
     }
 

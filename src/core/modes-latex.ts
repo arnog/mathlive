@@ -14,12 +14,9 @@ export class LatexMode extends Mode {
   }
 
   serialize(run: Atom[], _options: ToLatexOptions): string[] {
-    return [
-      run
-        .filter((x) => x instanceof LatexAtom && !x.isSuggestion)
-        .map((x) => x.value)
-        .join(''),
-    ];
+    return run
+      .filter((x) => x instanceof LatexAtom && !x.isSuggestion)
+      .map((x) => x.value);
   }
 
   getFont(): string | null {

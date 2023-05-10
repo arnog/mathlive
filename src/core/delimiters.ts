@@ -167,7 +167,7 @@ function makeLargeDelim(
     fontFamily: `Size${size}-Regular`,
     isSelected: options.isSelected,
     classes: (options.classes ?? '') + ` ML__delim-size${size}`,
-    type: options.type ?? 'skip',
+    type: options.type ?? 'ignore',
   }).wrap(context);
 
   if (center) result.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
@@ -751,7 +751,7 @@ export function makeNullDelimiter(parent: Context, classes?: string): Box {
   // The size of the null delimiter is independent of the current mathstyle
   const box = new Box(null, {
     classes: ' nulldelimiter ' + (classes ?? ''),
-    type: 'skip',
+    type: 'ignore',
   });
   box.width = parent.getRegisterAsEm('nulldelimiterspace');
   return box.wrap(new Context({ parent, mathstyle: 'textstyle' }));

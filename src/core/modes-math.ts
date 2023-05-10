@@ -137,35 +137,9 @@ export class MathMode extends Mode {
   }
 
   serialize(run: Atom[], options: ToLatexOptions): string[] {
-    const { parent } = run[0];
-    const contextFontsize = parent?.computedStyle.fontSize;
-    return getPropertyRuns(run, 'fontSize').map((x) => {
-      const result = emitBackgroundColorRun(x, options);
-      const fontsize = x[0].computedStyle.fontSize;
-      if (
-        fontsize &&
-        fontsize !== 'auto' &&
-        (!parent || contextFontsize !== fontsize)
-      ) {
-        return latexCommand(
-          [
-            '',
-            '\\tiny',
-            '\\scriptsize',
-            '\\footnotesize',
-            '\\small',
-            '\\normalsize',
-            '\\large',
-            '\\Large',
-            '\\LARGE',
-            '\\huge',
-            '\\Huge',
-          ][fontsize],
-          result
-        );
-      }
-      return result;
-    });
+    const result = emitFontSize(run, options);
+    if (result.length === 0 || options.defaultMode !== 'text') return result;
+    return ['$ ', ...result, ' $'];
   }
 
   getFont(
@@ -282,7 +256,7 @@ function emitVariantRun(run: Atom[], options: ToLatexOptions): string {
         console.assert(command !== undefined);
       }
 
-      const arg = joinLatex(x.map((x) => Atom.serialize(x, options)));
+      const arg = joinLatex(x.map((x) => x.serialize(options)));
       return !command ? arg : latexCommand(command, arg);
     })
   );
@@ -326,9 +300,6 @@ function emitBackgroundColorRun(run: Atom[], options: ToLatexOptions): string {
         (!parent || parentColor !== style.backgroundColor) &&
         (x.length > 0 || !(x[0] instanceof BoxAtom))
       ) {
-        if (x.length === 1 && x[0].command !== '\\ensuremath')
-          result = latexCommand('\\ensuremath', result);
-
         result = latexCommand(
           '\\colorbox',
           style.verbatimBackgroundColor ?? style.backgroundColor,
@@ -347,6 +318,43 @@ function variantString(atom: Atom): string {
   let result = style.variant;
   if (style.variantStyle && style.variantStyle !== 'up')
     result += '-' + style.variantStyle;
+
+  return result;
+}
+
+function emitFontSize(run: Atom[], options: ToLatexOptions): string[] {
+  if (run.length === 0) return [];
+  const { parent } = run[0];
+  const contextFontsize = parent?.computedStyle.fontSize;
+  const result: string[] = [];
+  for (const sizeRun of getPropertyRuns(run, 'fontSize')) {
+    const fontsize = sizeRun[0].computedStyle.fontSize;
+    const value = emitBackgroundColorRun(sizeRun, options);
+    if (value) {
+      if (
+        fontsize &&
+        fontsize !== 'auto' &&
+        (!parent || contextFontsize !== fontsize)
+      ) {
+        result.push(
+          [
+            '',
+            '\\tiny',
+            '\\scriptsize',
+            '\\footnotesize',
+            '\\small',
+            '\\normalsize',
+            '\\large',
+            '\\Large',
+            '\\LARGE',
+            '\\huge',
+            '\\Huge',
+          ][fontsize],
+          value
+        );
+      } else result.push(value);
+    }
+  }
 
   return result;
 }

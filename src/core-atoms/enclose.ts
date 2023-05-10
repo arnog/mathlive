@@ -4,6 +4,7 @@ import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
 import { latexCommand } from '../core/tokenizer';
+import { getDefinition } from '../core-definitions/definitions-utils';
 
 export type EncloseAtomOptions = {
   shadow?: string;
@@ -103,6 +104,11 @@ export class EncloseAtom extends Atom {
   }
 
   serialize(options: ToLatexOptions): string {
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+      return this.verbatimLatex;
+    const def = getDefinition(this.command, this.mode);
+    if (def?.serialize) return def.serialize(this, options);
+
     let command = this.command ?? '';
     if (this.command === '\\enclose') {
       command += '{' + Object.keys(this.notation).join(' ') + '}';

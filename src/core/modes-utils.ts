@@ -13,6 +13,7 @@ import {
   TokenDefinition,
   getDefinition,
 } from '../core-definitions/definitions-utils';
+import { joinLatex } from './tokenizer';
 
 export abstract class Mode {
   static _registry: Record<string, Mode> = {};
@@ -32,12 +33,15 @@ export abstract class Mode {
     );
   }
 
-  // `run` should be a run (sequence) of atoms all with the same
-  // mode
-  static serialize(run: Atom[], options: ToLatexOptions): string[] {
-    console.assert(run.length > 0);
-    const mode = Mode._registry[run[0].mode];
-    return mode.serialize(run, options);
+  static serialize(atoms: Atom[] | undefined, options: ToLatexOptions): string {
+    if (!atoms || atoms.length === 0) return '';
+
+    const tokens: string[] = [];
+    for (const run of getModeRuns(atoms)) {
+      const mode = Mode._registry[run[0].mode];
+      tokens.push(...mode.serialize(run, options));
+    }
+    return joinLatex(tokens);
   }
 
   static getFont(

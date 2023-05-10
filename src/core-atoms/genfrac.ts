@@ -1,12 +1,11 @@
 import type { MathstyleName, Style } from '../public/core-types';
 
-import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
 import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { Context } from '../core/context';
 import { AXIS_HEIGHT } from '../core/font-metrics';
-import { latexCommand } from '../core/tokenizer';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;
@@ -90,14 +89,6 @@ export class GenfracAtom extends Atom {
     return { ...super.toJson(), ...options };
   }
 
-  serialize(options: ToLatexOptions): string {
-    return latexCommand(
-      this.command,
-      this.aboveToLatex(options),
-      this.belowToLatex(options)
-    );
-  }
-
   // The order of the children, which is used for keyboard navigation order,
   // may be customized for fractions...
   get children(): Atom[] {
@@ -145,10 +136,10 @@ export class GenfracAtom extends Atom {
     const numerBox = this.numerPrefix
       ? new Box(
           [new Box(this.numerPrefix), Atom.createBox(numContext, this.above)],
-          { isTight: numContext.isTight, type: 'skip' }
+          { isTight: numContext.isTight, type: 'ignore' }
         )
-      : Atom.createBox(numContext, this.above, { type: 'skip' }) ??
-        new Box(null, { type: 'skip' });
+      : Atom.createBox(numContext, this.above, { type: 'ignore' }) ??
+        new Box(null, { type: 'ignore' });
 
     const denomContext = new Context(
       {
@@ -160,10 +151,10 @@ export class GenfracAtom extends Atom {
     const denomBox = this.denomPrefix
       ? new Box([
           new Box(this.denomPrefix),
-          Atom.createBox(denomContext, this.below, { type: 'skip' }),
+          Atom.createBox(denomContext, this.below, { type: 'ignore' }),
         ])
-      : Atom.createBox(denomContext, this.below, { type: 'skip' }) ??
-        new Box(null, { type: 'skip' });
+      : Atom.createBox(denomContext, this.below, { type: 'ignore' }) ??
+        new Box(null, { type: 'ignore' });
 
     const ruleWidth = this.hasBarLine ? metrics.defaultRuleThickness : 0;
 

@@ -31,9 +31,9 @@ export class SubsupAtom extends Atom {
     return this.attachSupsub(context, {
       base: phantom,
       isCharacterBox: leftSibling.isCharacterBox(),
-      // Set to 'skip' so that it is skipped during inter-box spacing
+      // Set to 'ignore' so that it is ignored during inter-box spacing
       // adjustment.
-      type: 'skip',
+      type: 'ignore',
     });
   }
 

@@ -1,4 +1,4 @@
-import { Atom, BBoxParameter, serializeAtoms } from './atom-class';
+import { Atom, BBoxParameter } from './atom-class';
 
 import {
   Argument,
@@ -751,6 +751,9 @@ export class Parser {
     if (!mathstyle) return null;
     this.beginContext({ mode: 'math', mathstyle });
 
+    // const result = this.scan(
+    //   (token) => token === (mathstyle === 'displaystyle' ? '\\]' : '\\)')
+    // );
     const result = new GroupAtom(
       this.scan(
         (token) => token === (mathstyle === 'displaystyle' ? '\\]' : '\\)')
@@ -759,7 +762,8 @@ export class Parser {
         mathstyleName: mathstyle,
         latexOpen: mathstyle === 'displaystyle' ? '\\[' : '\\(',
         latexClose: mathstyle === 'displaystyle' ? '\\]' : '\\)',
-        boxType: 'inner',
+        boxType: 'lift',
+        style: this.style,
       }
     );
 
@@ -792,7 +796,8 @@ export class Parser {
         mathstyleName: final === '<$>' ? 'textstyle' : 'displaystyle',
         latexOpen: final === '<$>' ? '$ ' : '$$ ',
         latexClose: final === '<$>' ? ' $' : ' $$',
-        boxType: 'inner',
+        boxType: 'lift',
+        style: this.style,
       }
     );
 
@@ -1022,7 +1027,7 @@ export class Parser {
     // inter-box spacing. Empty groups (`{}`) do not.
 
     const result = new GroupAtom(body, {
-      boxType: body.length > 1 ? 'ord' : 'skip',
+      boxType: body.length > 1 ? 'ord' : 'ignore',
       mode: this.parseMode,
       latexOpen: '{',
       latexClose: '}',
@@ -1388,7 +1393,8 @@ export class Parser {
   scanArgument(type: ArgumentType): null | Argument;
   scanArgument(type: ArgumentType): null | Argument {
     this.skipFiller();
-    if (type === 'auto') type = this.parseMode;
+    const mode = this.parseMode;
+    if (type === 'auto') type = mode;
 
     //
     // Argument without braces
@@ -1398,11 +1404,16 @@ export class Parser {
       if (type === 'value') return this.scanValue();
       if (type === 'delim') return this.scanDelim() ?? '.';
       if (type === 'expression') return this.scanExpression();
-      if (type === 'math') return this.scanSymbolOrLiteral();
-      if (type === 'text') {
-        this.beginContext({ mode: 'text' });
+      if (type === 'math') {
+        if (type !== mode) this.beginContext({ mode: 'math' });
         const result = this.scanSymbolOrLiteral();
-        this.endContext();
+        if (type !== mode) this.endContext();
+        return result;
+      }
+      if (type === 'text') {
+        if (type !== mode) this.beginContext({ mode: 'text' });
+        const result = this.scanSymbolOrLiteral();
+        if (type !== mode) this.endContext();
         return result;
       }
       if (type === 'balanced-string') return null;
@@ -1509,7 +1520,7 @@ export class Parser {
       // default value is legacy, ignored if there is a body
       // We need to check if second argument is `correct`, `incorrect` or to be interpreted as math
       const defaultValue = this.scanOptionalArgument('math') as Atom[];
-      const defaultAsString = serializeAtoms(defaultValue, {
+      const defaultAsString = Atom.serialize(defaultValue, {
         defaultMode: 'math',
       });
       let defaultAtoms = [] as Atom[];

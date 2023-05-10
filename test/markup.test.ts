@@ -17,12 +17,12 @@ function error(expression: string) {
 }
 
 describe('MODE SHIFT', () => {
-  test.each(['\\text{\\ensuremath{\\frac34}}'])(
-    '%#/ %s renders correctly',
-    (a) => {
-      expect(markupAndError(a)).toMatchSnapshot();
-    }
-  );
+  test.each([
+    '\\text{\\ensuremath{\\frac34}}',
+    '1+\\textcolor{blue}{$ 2 $}+3+\\textcolor{red}{4}+\\text{5\\textcolor{purple}{6}}',
+  ])('%#/ %s renders correctly', (a) => {
+    expect(markupAndError(a)).toMatchSnapshot();
+  });
 });
 
 describe('FONTS', () => {
@@ -348,13 +348,12 @@ describe('NOT', () => {
 // ////////////////////////////////////////////////////////////////////////////////
 describe('COLORS', function () {
   test.each([
-    '\\sin x \\textcolor{#f00}{red} \\colorbox{yellow}{x + \\frac1{\\frac34}} \\textcolor{m1}{\\blacktriangle}\\textcolor{m2}{\\blacktriangle}\\textcolor{m3}{\\blacktriangle}\\textcolor{m4}{\\blacktriangle}\\textcolor{m5}{\\blacktriangle}\\textcolor{m6}{\\blacktriangle}\\textcolor{m7}{\\blacktriangle}\\textcolor{m8}{\\blacktriangle}\\textcolor{m9}{\\blacktriangle}',
-    'a+\\colorbox{#f00}{\\frac1{\\frac{a+1}{b+c}}}',
-    'a+\\colorbox{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{\\frac{a+1}{b+c}}}',
-    'a+\\colorbox{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a}',
-    'a+\\colorbox{#f00}{\\frac1{\\frac{a+1}{b+c}}}',
-    'a+\\colorbox{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{\\frac{a+1}{b+c}}}',
-    'a+\\colorbox{#f00}{\\frac{\\frac{\\frac{1}{2}}{c}}{a}',
+    '\\sin x \\textcolor{#f00}{red} \\colorbox{yellow}{$x + \\frac1{\\frac34}$} \\textcolor{m1}{\\blacktriangle}\\textcolor{m2}{\\blacktriangle}\\textcolor{m3}{\\blacktriangle}\\textcolor{m4}{\\blacktriangle}\\textcolor{m5}{\\blacktriangle}\\textcolor{m6}{\\blacktriangle}\\textcolor{m7}{\\blacktriangle}\\textcolor{m8}{\\blacktriangle}\\textcolor{m9}{\\blacktriangle}',
+    'a+\\colorbox{#f00}{$\\frac1{\\frac{a+1}{b+c}}$}',
+    'a+\\colorbox{#f00}{$\\frac{\\frac{\\frac{1}{2}}{c}}{\\frac{a+1}{b+c}}$}',
+    'a+\\colorbox{#f00}{$\\frac{\\frac{\\frac{1}{2}}{c}}{a}$}',
+    'a+\\colorbox{#f00}{$\\frac1{\\frac{a+1}{b+c}}$}',
+    'a+\\colorbox{#f00}{$\\frac{\\frac{\\frac{1}{2}}{c}}{\\frac{a+1}{b+c}}$}',
     'a{b\\color{#f00} c}d',
     'a\\left(b\\color{#f00} c\\right)d',
     `{\\color{Apricot}\\blacksquare}{\\color{Aquamarine}\\blacksquare}

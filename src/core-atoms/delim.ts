@@ -5,6 +5,7 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { makeSizedDelim } from '../core/delimiters';
 import { latexCommand } from '../core/tokenizer';
+import { getDefinition } from '../core-definitions/definitions-utils';
 
 export class DelimAtom extends Atom {
   size: 1 | 2 | 3 | 4;
@@ -33,7 +34,12 @@ export class DelimAtom extends Atom {
     return new Box(this.value, { type: 'middle' });
   }
 
-  serialize(_options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+      return this.verbatimLatex;
+    const def = getDefinition(this.command, this.mode);
+    if (def?.serialize) return def.serialize(this, options);
+
     return latexCommand(this.command, this.value);
   }
 }
@@ -81,7 +87,11 @@ export class SizedDelimAtom extends Atom {
     return result;
   }
 
-  serialize(_options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+      return this.verbatimLatex;
+    const def = getDefinition(this.command, this.mode);
+    if (def?.serialize) return def.serialize(this, options);
     return latexCommand(this.command, this.value);
   }
 }

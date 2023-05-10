@@ -398,8 +398,8 @@ export class ArrayAtom extends Atom {
       const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
       for (const element of inrow) {
         const elt =
-          Atom.createBox(cellContext, element, { type: 'skip' }) ??
-          new Box(null, { type: 'skip' });
+          Atom.createBox(cellContext, element, { type: 'ignore' }) ??
+          new Box(null, { type: 'ignore' });
         depth = Math.max(depth, elt.depth);
         height = Math.max(height, elt.height);
         outrow.cells.push(elt);
@@ -814,7 +814,7 @@ function makeColOfRepeatingElements(
   if (!element) return null;
   const col: VBoxElementAndShift[] = [];
   for (const row of rows) {
-    const cell = Atom.createBox(context, element, { type: 'skip' });
+    const cell = Atom.createBox(context, element, { type: 'ignore' });
     if (cell) {
       cell.depth = row.depth;
       cell.height = row.height;

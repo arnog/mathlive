@@ -38,6 +38,6 @@ export class PlaceholderAtom extends Atom {
   }
 
   serialize(): string {
-    return latexCommand('\\placeholder', this.value);
+    return '\\placeholder{}';
   }
 }

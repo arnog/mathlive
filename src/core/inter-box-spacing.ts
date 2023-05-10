@@ -1,33 +1,6 @@
 import { Box } from './box';
 import { Context } from './context';
-// import { BoxType } from './types';
-
-// /**
-//  * Represent a TeX "math list" (see Chap. 26 of the TeXBook).
-//  *
-//  * TeX atoms are grouped into lists, which are used for layout, particularly
-//  * to adjust the spacing between atoms.
-//  *
-//  */
-// export class BoxGroup extends Box {
-//   constructor(content: Box[], options?: { type?: BoxType }) {
-//     super(content, options);
-//     console.assert(!!this.children);
-//     let prev: Box | undefined = undefined;
-//     for (const cur of this.children!) {
-//       if (prev) {
-//       }
-//       if (cur.type !== 'first' && cur.type !== 'none') prev = cur;
-//     }
-//   }
-
-//   toMarkup(): string {
-//     return this.children!.map((x) => x.toMarkup()).join('');
-//   }
-//   tryCoalesceWith(_box: Box): boolean {
-//     return false;
-//   }
-// }
+import { addSkipBefore } from './skip-box';
 
 /*
  * See http://www.tug.org/TUGboat/tb30-3/tb96vieth.pdf for
@@ -112,7 +85,7 @@ function adjustType(boxes: Box[]): void {
     if (prev?.type === 'bin' && /^(rel|close|punct)$/.test(cur.type))
       prev.type = 'ord';
 
-    if (cur.type !== 'skip') prev = cur;
+    if (cur.type !== 'ignore') prev = cur;
   });
 }
 
@@ -131,16 +104,16 @@ export function applyInterBoxSpacing(root: Box, context: Context): Box {
   const thick = context.getRegisterAsEm('thickmuskip');
 
   traverseBoxes(boxes, (prev, cur) => {
-    // console.log(prevBox?.value, prevBox?.type, box.value, box.type);
+    // console.log(prev?.value, prev?.type, cur.value, cur.type);
     if (!prev) return;
     const prevType = prev.type;
     const table = cur.isTight
       ? INTER_BOX_TIGHT_SPACING[prevType] ?? null
       : INTER_BOX_SPACING[prevType] ?? null;
     const hskip = table?.[cur.type] ?? null;
-    if (hskip === 3) cur.left += thin;
-    if (hskip === 4) cur.left += med;
-    if (hskip === 5) cur.left += thick;
+    if (hskip === 3) addSkipBefore(cur, thin);
+    if (hskip === 4) addSkipBefore(cur, med);
+    if (hskip === 5) addSkipBefore(cur, thick);
   });
 
   return root;
@@ -154,7 +127,7 @@ function traverseBoxes(
   if (!boxes) return undefined;
   for (const cur of boxes) {
     if (cur.type === 'lift') prev = traverseBoxes(cur.children!, f, prev);
-    else if (cur.type === 'skip') traverseBoxes(cur.children!, f);
+    else if (cur.type === 'ignore') traverseBoxes(cur.children!, f);
     else {
       f(prev, cur);
       if (cur.children) traverseBoxes(cur.children, f);

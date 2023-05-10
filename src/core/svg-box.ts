@@ -14,7 +14,9 @@ const SVG_BODY: Record<
   underrightarrow: [['rightarrow'], 0.888, 522, 'xMaxYMin'],
   underleftarrow: [['leftarrow'], 0.888, 522, 'xMinYMin'],
   xrightarrow: [['rightarrow'], 1.469, 522, 'xMaxYMin'],
+  longrightarrow: [['rightarrow'], 1.469, 522, 'xMaxYMin'],
   xleftarrow: [['leftarrow'], 1.469, 522, 'xMinYMin'],
+  longleftarrow: [['leftarrow'], 1.469, 522, 'xMinYMin'],
   Overrightarrow: [['doublerightarrow'], 0.888, 560, 'xMaxYMin'],
   xRightarrow: [['doublerightarrow'], 1.526, 560, 'xMaxYMin'],
   xLeftarrow: [['doubleleftarrow'], 1.526, 560, 'xMinYMin'],
@@ -37,9 +39,20 @@ const SVG_BODY: Record<
   ],
   underleftrightarrow: [['leftarrow', 'rightarrow'], 0.888, 522],
   xleftrightarrow: [['leftarrow', 'rightarrow'], 1.75, 522],
+  longleftrightarrow: [['leftarrow', 'rightarrow'], 1.75, 522],
   xLeftrightarrow: [['doubleleftarrow', 'doublerightarrow'], 1.75, 560],
   xrightleftharpoons: [['leftharpoondownplus', 'rightharpoonplus'], 1.75, 716],
+  longrightleftharpoons: [
+    ['leftharpoondownplus', 'rightharpoonplus'],
+    1.75,
+    716,
+  ],
   xleftrightharpoons: [['leftharpoonplus', 'rightharpoondownplus'], 1.75, 716],
+  longleftrightharpoons: [
+    ['leftharpoonplus', 'rightharpoondownplus'],
+    1.75,
+    716,
+  ],
   xhookleftarrow: [['leftarrow', 'righthook'], 1.08, 522],
   xhookrightarrow: [['lefthook', 'rightarrow'], 1.08, 522],
   overlinesegment: [['leftlinesegment', 'rightlinesegment'], 0.888, 522],
@@ -53,13 +66,24 @@ const SVG_BODY: Record<
   // In mhchem.sty, min-length is 2.0em. But these arrows might appear in the
   // document as \xrightarrow or \xrightleftharpoons. Those have
   // min-length = 1.75em, so we set min-length on these next three to match.
-  xrightleftarrows: [['baraboveleftarrow', 'rightarrowabovebar'], 1.75, 901],
-  xrightequilibrium: [
+  xleftrightarrows: [['baraboveleftarrow', 'rightarrowabovebar'], 1.75, 901],
+  longleftrightarrows: [['baraboveleftarrow', 'rightarrowabovebar'], 1.75, 901],
+  xRightleftharpoons: [
     ['baraboveshortleftharpoon', 'rightharpoonaboveshortbar'],
     1.75,
     716,
   ],
-  xleftequilibrium: [
+  longRightleftharpoons: [
+    ['baraboveshortleftharpoon', 'rightharpoonaboveshortbar'],
+    1.75,
+    716,
+  ],
+  xLeftrightharpoons: [
+    ['shortbaraboveleftharpoon', 'shortrightharpoonabovebar'],
+    1.75,
+    716,
+  ],
+  longLeftrightharpoons: [
     ['shortbaraboveleftharpoon', 'shortrightharpoonabovebar'],
     1.75,
     716,

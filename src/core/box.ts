@@ -20,12 +20,12 @@ export function boxType(type: AtomType | undefined): BoxType | undefined {
     mclose: 'close',
     mpunct: 'punct',
     minner: 'inner',
-    spacing: 'skip',
+    spacing: 'ignore',
     latex: 'latex',
     composition: 'inner',
     error: 'inner',
     placeholder: 'ord',
-    supsub: 'skip',
+    supsub: 'ignore',
   }[type];
 
   return result;
@@ -89,6 +89,7 @@ function toString(arg1: number | string, arg2?: string): string {
 export class Box implements BoxInterface {
   type: BoxType;
 
+  parent: Box | undefined;
   children?: Box[];
   value: string;
 
@@ -129,7 +130,9 @@ export class Box implements BoxInterface {
       this.children = content.filter((x) => x !== null) as Box[];
     else if (content && content instanceof Box) this.children = [content];
 
-    this.type = options?.type ?? 'skip';
+    if (this.children) for (const child of this.children) child.parent = this;
+
+    this.type = options?.type ?? 'ignore';
 
     this.isSelected = options?.isSelected === true;
     if (options?.caret) this.caret = options.caret;
@@ -364,10 +367,15 @@ export class Box implements BoxInterface {
         ? undefined
         : context.effectiveFontSize;
 
-    let newBackgroundColor = context.backgroundColor;
-    if (this.isSelected) newBackgroundColor = highlight(newBackgroundColor);
+    let backgroundColor = context.backgroundColor;
+    if (this.isSelected) backgroundColor = highlight(backgroundColor);
 
-    if (newBackgroundColor === parent.backgroundColor) newBackgroundColor = '';
+    if (backgroundColor === parent.backgroundColor) backgroundColor = '';
+
+    if (backgroundColor) {
+      this.setStyle('background-color', backgroundColor);
+      this.setStyle('display', 'inline-block');
+    }
 
     //
     // Wrap the box if necessary.
@@ -376,21 +384,10 @@ export class Box implements BoxInterface {
     // the wrapper, not to the nucleus, otherwise the size of the element
     // (which is used to calculate the selection rectangle)is incorrect
     //
-    if (
-      !newSize &&
-      !newBackgroundColor &&
-      !(options && (options.classes || options.type))
-    )
+    if (!newSize && !(options && (options.classes || options.type)))
       return this;
 
-    let result: Box;
-    if (newBackgroundColor) {
-      result = makeStruts(this, options);
-      result.selected(this.isSelected);
-      result.setStyle('background-color', newBackgroundColor);
-      result.setStyle('display', 'inline-block');
-    } else result = new Box(this, options);
-
+    const result = new Box(this, { ...options, type: 'lift' });
     //
     // Adjust the dimensions to account for the size variations
     // (since the dimensions are in em, adjusting the font-size will have
@@ -494,11 +491,8 @@ export class Box implements BoxInterface {
 
       const cssProps = this.cssProperties;
       if (cssProps) {
-        const styleString = Object.keys(cssProps)
-          .map((x) => `${x}:${cssProps[x]}`)
-          .join(';');
-
-        if (styleString.length > 0) props += ` style="${styleString}"`;
+        const styles = Object.keys(cssProps).map((x) => `${x}:${cssProps[x]}`);
+        if (styles.length > 0) props += ` style="${styles.join(';')}"`;
       }
 
       //
@@ -688,18 +682,20 @@ export function makeStruts(
   content: Box,
   options?: {
     classes?: string;
-    type?: BoxType;
     attributes?: Record<string, string>;
   }
 ): Box {
   if (!content) return new Box(null, options);
 
-  const topStrut = new Box(null, { classes: 'ML__strut' });
+  const topStrut = new Box(null, { classes: 'ML__strut', type: 'ignore' });
   topStrut.setStyle('height', Math.max(0, content.height), 'em');
   const struts = [topStrut];
 
   if (content.depth !== 0) {
-    const bottomStrut = new Box(null, { classes: 'ML__strut--bottom' });
+    const bottomStrut = new Box(null, {
+      classes: 'ML__strut--bottom',
+      type: 'ignore',
+    });
     bottomStrut.setStyle('height', content.height + content.depth, 'em');
     bottomStrut.setStyle('vertical-align', -content.depth, 'em');
     struts.push(bottomStrut);
@@ -707,7 +703,7 @@ export function makeStruts(
 
   struts.push(content);
 
-  return new Box(struts, options);
+  return new Box(struts, { ...options, type: 'lift' });
 }
 
 /**

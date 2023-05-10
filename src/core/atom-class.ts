@@ -1,5 +1,3 @@
-import { isArray } from '../common/types';
-
 import type {
   ParseMode,
   Style,
@@ -11,7 +9,7 @@ import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { boxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex, latexCommand } from './tokenizer';
-import { getModeRuns, getPropertyRuns, Mode } from './modes-utils';
+import { Mode } from './modes-utils';
 import {
   Argument,
   argumentsToJson,
@@ -353,28 +351,8 @@ export class Atom {
   /**
    * Given an atom or an array of atoms, return a LaTeX string representation
    */
-  static serialize(
-    value: boolean | number | string | Atom | Atom[] | undefined,
-    options: ToLatexOptions
-  ): string {
-    if (isArray<Atom>(value)) return serializeAtoms(value, options);
-
-    if (typeof value === 'number' || typeof value === 'boolean')
-      return value.toString();
-    if (typeof value === 'string') return value;
-
-    if (value === undefined) return '';
-
-    // 1/ Verbatim LaTeX. This allow non-significant punctuation to be
-    // preserved when possible.
-    if (!options.expandMacro && typeof value.verbatimLatex === 'string')
-      return value.verbatimLatex;
-
-    // 2/ Custom serializer
-    const def = getDefinition(value.command, value.mode);
-    if (def?.serialize) return def.serialize(value, options);
-
-    return value.serialize(options);
+  static serialize(value: Atom[] | undefined, options: ToLatexOptions): string {
+    return Mode.serialize(value, options);
   }
 
   /**
@@ -487,7 +465,16 @@ export class Atom {
    * Serialize the atom  to LaTeX
    */
   serialize(options: ToLatexOptions): string {
-    // 1/ Command and body
+    // 1/ Verbatim LaTeX. This allow non-significant punctuation to be
+    // preserved when possible.
+    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+      return this.verbatimLatex;
+
+    // 2/ Custom serializer
+    const def = getDefinition(this.command, this.mode);
+    if (def?.serialize) return def.serialize(this, options);
+
+    // 3/ Command and body
     if (this.body && this.command) {
       return joinLatex([
         latexCommand(this.command, this.bodyToLatex(options)),
@@ -495,7 +482,7 @@ export class Atom {
       ]);
     }
 
-    // 2/ body with no command
+    // 4/ body with no command
     if (this.body) {
       return joinLatex([
         this.bodyToLatex(options),
@@ -503,30 +490,40 @@ export class Atom {
       ]);
     }
 
-    // 3/ A string value (which is a unicode character)
-    if (this.value && this.value !== '\u200B')
-      return this.command ?? unicodeCharToLatex(this.mode, this.value);
+    // 5/ A string value (which is a unicode character)
+    if (!this.value || this.value === '\u200B') return '';
 
-    return '';
+    let c = this.command;
+    if (this.mode === 'text') {
+      c =
+        {
+          '$': '\\$',
+          '{': '\\textbraceleft',
+          '}': '\\textbraceright',
+          '\\': '\\textbackslash',
+        }[c] ?? c;
+    }
+
+    return c ?? unicodeCharToLatex(this.mode, this.value);
   }
 
   bodyToLatex(options: ToLatexOptions): string {
-    return serializeAtoms(this.body, options);
+    return Mode.serialize(this.body, options);
   }
 
   aboveToLatex(options: ToLatexOptions): string {
-    return serializeAtoms(this.above, options);
+    return Mode.serialize(this.above, options);
   }
 
   belowToLatex(options: ToLatexOptions): string {
-    return serializeAtoms(this.below, options);
+    return Mode.serialize(this.below, options);
   }
 
   supsubToLatex(options: ToLatexOptions): string {
     let result = '';
 
     if (this.branch('subscript') !== undefined) {
-      const sub = serializeAtoms(this.subscript, options);
+      const sub = Mode.serialize(this.subscript, options);
       if (sub.length === 0) result += '_{}';
       else if (sub.length === 1) {
         // Using the short form without braces is a stylistic choice
@@ -537,7 +534,7 @@ export class Atom {
     }
 
     if (this.branch('superscript') !== undefined) {
-      const sup = serializeAtoms(this.superscript, options);
+      const sup = Mode.serialize(this.superscript, options);
       if (sup.length === 0) result += '^{}';
       else if (sup.length === 1) {
         if (sup === '\u2032') result += '^\\prime ';
@@ -1270,36 +1267,6 @@ export class Atom {
   }
 }
 
-/**
- *
- * @param atoms the list of atoms to emit as LaTeX
- * @param options.expandMacro true if macros should be expanded
- * @result a LaTeX string
- */
-export function serializeAtoms(
-  atoms: undefined | Atom[],
-  options: ToLatexOptions
-): string {
-  if (!atoms || atoms.length === 0) return '';
-
-  if (atoms[0].type === 'first') {
-    if (atoms.length === 1) return '';
-    // Remove the 'first' atom, if present
-    atoms = atoms.slice(1);
-  }
-
-  if (atoms.length === 0) return '';
-
-  const tokens: string[] = [];
-
-  for (const colorRun of getPropertyRuns(atoms, 'color')) {
-    for (const modeRun of getModeRuns(colorRun))
-      tokens.push(...Mode.serialize(modeRun, options));
-  }
-
-  return joinLatex(tokens);
-}
-
 function getStyleRuns(atoms: Atom[]): Atom[][] {
   let style: Style | undefined = undefined;
   const runs: Atom[][] = [];
@@ -1413,9 +1380,9 @@ function renderStyleRun(
   let result: Box;
   if (options || context.isTight || boxes.length > 1) {
     result = new Box(boxes, {
-      type: 'lift',
       isTight: context.isTight,
       ...(options ?? {}),
+      type: 'lift',
     });
     result.isSelected = boxes.every((x) => x.isSelected);
   } else result = boxes[0];
