@@ -174,7 +174,7 @@ function getRangeBounds(
     includeChildren: true,
   })) {
     if (options?.excludeAtomsWithBackground && atom.style.backgroundColor)
-      break;
+      continue;
 
     // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
     // Without this, the selection indicator will not be in the right place.
