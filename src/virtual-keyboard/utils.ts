@@ -1049,7 +1049,7 @@ function handlePointerDown(ev: PointerEvent) {
   // Is it the Shift key?
   if (isShiftKey(keycap)) {
     target.classList.add('is-active');
-    keyboard.isShifted = true;
+    keyboard.incrementShiftPress();
   }
 
   if (keycap.variants) {
@@ -1091,7 +1091,7 @@ function handleVirtualKeyboardEvent(controller) {
     if (ev.type === 'pointercancel') {
       target.classList.remove('is-pressed');
       if (isShiftKey(keycap)) {
-        keyboard.isShifted = false;
+        keyboard.decrementShiftPress();
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
       }
@@ -1102,7 +1102,7 @@ function handleVirtualKeyboardEvent(controller) {
     if (ev.type === 'pointerleave' && ev.target === target) {
       target.classList.remove('is-pressed');
       if (isShiftKey(keycap)) {
-        keyboard.isShifted = false;
+        keyboard.decrementShiftPress();
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
       }
@@ -1112,15 +1112,14 @@ function handleVirtualKeyboardEvent(controller) {
     if (ev.type === 'pointerup') {
       if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
       if (isShiftKey(keycap)) {
-        keyboard.isShifted = false;
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
       } else if (target.classList.contains('is-pressed')) {
         target.classList.remove('is-pressed');
 
-        if (VirtualKeyboard.singleton.isShifted && keycap.shift) {
+        if (keyboard.isShifted && keycap.shift) {
           if (typeof keycap.shift === 'string') {
-            VirtualKeyboard.singleton.executeCommand([
+            keyboard.executeCommand([
               'insert',
               keycap.shift,
               {
@@ -1134,6 +1133,8 @@ function handleVirtualKeyboardEvent(controller) {
             ]);
           } else executeKeycapCommand(keycap.shift);
         } else executeKeycapCommand(keycap);
+
+        if (keyboard.shiftPressCount === 1) keyboard.resetShiftPress();
       }
       controller.abort();
       ev.preventDefault();
