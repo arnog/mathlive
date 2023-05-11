@@ -70,6 +70,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         ?.classList.remove('is-visible');
       newActive.classList.add('is-visible');
     }
+
+    if (this.isShifted) this.render();
   }
 
   private _isCapslock = false;
