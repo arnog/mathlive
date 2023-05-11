@@ -487,6 +487,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       this.currentLayer = this.latentLayer;
 
       this.render();
+
+      this._element?.classList.toggle(
+        'is-caps-lock',
+        this.shiftPressCount === 2
+      );
     }
 
     this._visible = true;
