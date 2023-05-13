@@ -59,6 +59,10 @@ export function onKeystroke(
   evt: KeyboardEvent
 ): boolean {
   const { model } = mathfield;
+  console.log(
+    'keyboard-input.ts > \n\t 🔨 onKeyStroke >  🍔keystroke:',
+    keystroke
+  );
 
   // 1. Update the keybindings according to the current keyboard layout
 

@@ -151,6 +151,14 @@ defineFunction(
   {
     ifMode: 'math',
     createAtom: (command, args, style) => {
+      console.log(
+        'funtions.ts > createAtom > with command:',
+        command,
+        'args',
+        args,
+        'style',
+        style
+      );
       const genfracOptions: GenfracOptions = { style };
       switch (command) {
         case '\\dfrac':
@@ -187,9 +195,12 @@ defineFunction(
         default:
       }
 
+      console.log('functions.ts > with args[0]', args[0], 'args[1]', args[1]);
+      console.log('!args[0]', args[0]);
+
       return new GenfracAtom(
         command,
-        !args[0] ? [new PlaceholderAtom()] : argAtoms(args[0]),
+        !args[0] ? [new PlaceholderAtom()] : argAtoms(args[0]), //if empty put placeholder
         !args[1] ? [new PlaceholderAtom()] : argAtoms(args[1]),
         genfracOptions
       );

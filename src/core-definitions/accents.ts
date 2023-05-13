@@ -26,6 +26,7 @@ const ACCENTS = {
 
 defineFunction(Object.keys(ACCENTS), '{body:auto}', {
   createAtom: (command, args, style): Atom => {
+    console.log('accents.ts > defineFunction createAtom:');
     return new AccentAtom(
       command,
       !args[0] ? [new PlaceholderAtom()] : argAtoms(args[0]),

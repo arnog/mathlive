@@ -33,6 +33,13 @@ export function requestUpdate(
   mathfield: MathfieldPrivate,
   options?: { interactive: boolean }
 ): void {
+  // console.log(
+  //   'render.ts > \n\t 🔨 requestUpdate >  mathfield:',
+  //   mathfield,
+  //   '\n\t options >',
+  //   options
+  // );
+
   if (mathfield.dirty) return;
   mathfield.dirty = true;
   requestAnimationFrame(() => {
@@ -112,15 +119,18 @@ export function contentMarkup(
   //
   // 1. Update selection state and blinking cursor (caret)
   //
+
   const { model } = mathfield;
   model.root.caret = undefined;
   model.root.isSelected = false;
   model.root.containsCaret = true;
   for (const atom of model.atoms) {
+    // console.log('atom:', atom);
     atom.caret = undefined;
     atom.isSelected = false;
     atom.containsCaret = false;
   }
+  console.log('--------------');
   if (model.selectionIsCollapsed) {
     const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
     if (hasFocus) {
@@ -192,6 +202,7 @@ export function render(
   field.innerHTML = window.MathfieldElement.createHTML(
     contentMarkup(mathfield, renderOptions)
   );
+
   mathfield.fieldContent = field.getElementsByClassName(
     'ML__mathlive'
   )[0]! as HTMLElement;

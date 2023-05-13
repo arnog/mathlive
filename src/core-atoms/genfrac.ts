@@ -1,3 +1,4 @@
+/* eslint-disable curly */
 import type { MathstyleName, Style } from '../public/core-types';
 
 import { Atom, AtomJson } from '../core/atom-class';
@@ -55,6 +56,10 @@ export class GenfracAtom extends Atom {
       displayContainsHighlight: true,
     });
     this.above = above;
+    console.log('----constructor----');
+    console.log('above:', above);
+    console.log('this.above:', this.above);
+
     this.below = below;
     this.hasBarLine = options?.hasBarLine ?? true;
     this.continuousFraction = options?.continuousFraction ?? false;
@@ -120,6 +125,19 @@ export class GenfracAtom extends Atom {
   }
 
   render(context: Context): Box | null {
+
+    console.log('genfrac.ts > render() with context:', context);
+    console.log('genfrac.ts > render() with this.above:', this.above);
+    // console.log('genfrac.ts > render() with this.below:', this.below);
+
+    //either add placeHolderAtom or never delete it during delete keystroke
+    //when u set a frac and its got a placeholder this.above looks like [Atom, PlaceholderAtom];
+    //when you add number then delete it, it looks like [Atom]
+
+    if (this.above?.length === 1) {
+      console.log('missing placeholder!');
+    }
+
     const fracContext = new Context(
       { parent: context, mathstyle: this.mathstyleName },
       this.style

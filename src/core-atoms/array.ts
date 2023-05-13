@@ -786,6 +786,7 @@ export class ArrayAtom extends Atom {
  * Create a matrix cell with a placeholder atom in it.
  */
 function makePlaceholderCell(parent: ArrayAtom): Atom[] {
+  console.log('array.ts > makePlaceholderCell with parent:', parent);
   const first = new Atom({ type: 'first', mode: parent.mode });
   first.parent = parent;
   const placeholder = new PlaceholderAtom();

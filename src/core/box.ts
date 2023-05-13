@@ -404,6 +404,7 @@ export class Box implements BoxInterface {
 
   toMarkup(): string {
     let body = this.value ?? '';
+    // console.log('box.ts > toMarkUp() > \n\t box:', this);
 
     //
     // 1. Render the children
