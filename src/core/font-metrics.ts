@@ -5,6 +5,7 @@
  * `metrics` variable and the getCharacterMetrics function.
  */
 import CHARACTER_METRICS_MAP from './font-metrics-data';
+// import { gFontsState } from './fonts';
 import { FontMetrics } from './types';
 
 // This CHARACTER_METRICS_MAP contains a mapping from font name and character
@@ -18,6 +19,7 @@ interface CharacterMetrics {
   height: number;
   italic: number;
   skew: number;
+  width: number;
 }
 
 // This regex combines
@@ -216,6 +218,99 @@ const extraCharacterMap = {
   'я': 'r',
 };
 
+export type FontName =
+  | 'Main-Regular'
+  | 'Main-Italic'
+  | 'Main-Bold'
+  | 'Main-BoldItalic'
+  | 'Typewriter-Regular'
+  | 'Math-Italic'
+  | 'Math-BoldItalic'
+  | 'AMS-Regular'
+  | 'SansSerif-Regular'
+  | 'Caligraphic-Regular'
+  | 'Script-Regular'
+  | 'Fraktur-Regular'
+  | 'Size1-Regular'
+  | 'Size2-Regular'
+  | 'Size3-Regular'
+  | 'Size4-Regular';
+
+// const CSS_FONT = {
+//   'Main-Regular': '1000px KaTeX_Main',
+//   'Main-Italic': 'italic 1000px KaTeX_Main',
+//   'Main-Bold': 'bold 1000px KaTeX_Main',
+//   'Main-BoldItalic': 'italic bold 1000px KaTeX_Main',
+//   'Typewriter-Regular': '1000px KaTeX_Typewriter',
+//   'Math-Italic': 'italic 1000px  "KaTeX_Math", Helvetica',
+//   'Math-BoldItalic': 'bold italic 1000px "KaTeX_Math", Helvetica',
+//   'AMS-Regular': '1000px KaTeX_AMS',
+//   'SansSerif-Regular': '1000px KaTeX_SansSerif',
+//   'Caligraphic-Regular': '1000px KaTeX_Caligraphic',
+//   'Script-Regular': '1000px KaTeX_Script',
+//   'Fraktur-Regular': '1000px KaTeX_Fraktur',
+//   'Size1-Regular': '1000px KaTeX_Size1',
+//   'Size2-Regular': '1000px KaTeX_Size2',
+//   'Size3-Regular': '1000px KaTeX_Size3',
+//   'Size4-Regular': '1000px KaTeX_Size4',
+// };
+
+// let ALT_FONT_METRICS: any;
+
+// function rebuildMetrics(): void {
+//   const canvas = new OffscreenCanvas(0, 0);
+//   const ctx = canvas.getContext('2d');
+//   if (ctx) {
+//     const fontSize = 1000;
+//     ALT_FONT_METRICS = {};
+
+//     for (const fontName of Object.keys(CSS_FONT)) {
+//       ALT_FONT_METRICS[fontName] = {};
+//       ctx.font = CSS_FONT[fontName];
+//       for (const codepoint of Object.keys(CHARACTER_METRICS_MAP[fontName])) {
+//         const c = String.fromCodePoint(parseInt(codepoint));
+//         const metrics = CHARACTER_METRICS_MAP[fontName][codepoint];
+
+//         const m = ctx.measureText(c);
+
+//         const width = m.width / fontSize;
+//         const fullWidth =
+//           (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) / fontSize;
+//         const italic = fullWidth - width;
+//         const height = m.actualBoundingBoxAscent / fontSize;
+//         const depth = m.actualBoundingBoxDescent / fontSize;
+
+//         ALT_FONT_METRICS[fontName][codepoint] = [depth, height, width, italic];
+
+//         // if (metrics[3]) console.log('skew ', codepoint, metrics[3]);
+//         // if (metrics[2]) console.log('italic ', codepoint, metrics[2]);
+//         if (
+//           // Math.round(10000 * (metrics[0] - depth)) > 100 ||
+//           // Math.round(10000 * (metrics[1] - height)) > 100 ||
+//           Math.round(10000 * (metrics[4] - width)) > 100
+//           // Math.round(10000 * (metrics[2] - italic)) > 0.1
+//         ) {
+//           // ctx.fillText(c, 10, 50);
+//           console.log(
+//             fontName,
+//             c,
+//             ' -> ',
+//             metrics[0],
+//             metrics[1],
+//             metrics[2],
+//             metrics[4],
+//             '/',
+//             depth,
+//             height,
+//             italic,
+//             width
+//           );
+//         }
+//       }
+//     }
+//   }
+// }
+
 /**
  * This function is a convenience function for looking up information in the
  * CHARACTER_METRICS_MAP table. It takes a codepoint, and a font name.
@@ -224,8 +319,11 @@ const extraCharacterMap = {
  */
 export function getCharacterMetrics(
   codepoint: number | undefined,
-  fontName: string
+  fontName: FontName
 ): CharacterMetrics {
+  // if ('document' in globalThis && gFontsState === 'ready' && !ALT_FONT_METRICS)
+  //   rebuildMetrics();
+
   if (codepoint === undefined) codepoint = 77; // 'M'
   const metrics = CHARACTER_METRICS_MAP[fontName][codepoint];
 
@@ -236,6 +334,7 @@ export function getCharacterMetrics(
       height: metrics[1],
       italic: metrics[2],
       skew: metrics[3],
+      width: metrics[4],
     };
   }
 
@@ -247,6 +346,7 @@ export function getCharacterMetrics(
       height: 0.8,
       italic: 0,
       skew: 0,
+      width: 0.8,
     };
   }
 
@@ -262,6 +362,7 @@ export function getCharacterMetrics(
       height: 0.9,
       italic: 0,
       skew: 0,
+      width: 1.0,
     };
   }
 
@@ -271,5 +372,48 @@ export function getCharacterMetrics(
     height: 0.7,
     italic: 0,
     skew: 0,
+    width: 0.8,
   };
 }
+
+//
+// Regenerate the compact version of the font metrics table
+//
+
+// export function compact(m: object): void {
+//   const once = new Set();
+//   const map = new Map();
+//   let i = 1;
+//   for (const font of Object.keys(m)) {
+//     for (const c of Object.keys(m[font])) {
+//       const v = JSON.stringify(m[font][c]);
+//       if (!once.has(v)) once.add(v);
+//       else if (!map.has(v)) map.set(v, i++);
+//     }
+//   }
+
+//   // Output
+//   let result = '';
+//   for (const s of map.keys()) result += `const M${map.get(s)} = ${s};\n`;
+
+//   result += '\nexport default {\n';
+//   for (const font of Object.keys(m)) {
+//     result += `'${font}': {\n`;
+//     for (const c of Object.keys(m[font])) {
+//       const v = JSON.stringify(m[font][c]);
+//       const codepoint = Number.parseInt(c);
+//       const comment = `// U+${codepoint
+//         .toString(16)
+//         .padStart(4, '0')} ${String.fromCodePoint(codepoint)}\n`;
+//       if (map.has(v)) result += `${c}: M${map.get(v)}, ${comment}`;
+//       else result += `${c}: ${v}, ${comment}`;
+//     }
+
+//     result += '},\n';
+//   }
+
+//   result += '}\n';
+//   console.log(result);
+// }
+
+// compact(CHARACTER_METRICS_MAP);
