@@ -1054,6 +1054,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static async playSound(
     name: 'keypress' | 'spacebar' | 'delete' | 'plonk' | 'return'
   ): Promise<void> {
+    // According to MDN:
+    // https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/state
+    //In iOS Safari, when a user leaves the page (e.g. switches tabs, minimizes the browser, or turns off the screen) the audio context's state changes to "interrupted" and needs to be resumed
+
+    if (
+      this.audioContext.state === 'suspended' ||
+      this.audioContext.state === ('interrupted' as AudioContextState)
+    )
+      await this.audioContext.resume();
+
     if (!this.audioBuffers[name]) await this.loadSound(name);
     if (!this.audioBuffers[name]) return;
 
@@ -1071,12 +1081,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /** @internal */
   private _mathfield: null | MathfieldPrivate;
-  // The original text content of the slot.
-  // Recorded at construction to avoid reacting to it if a `slotchange` event
-  // gets fired as part of the construction (different browsers behave
-  // differently).
-  /** @internal */
-  private _slotValue: string;
 
   /** @internal
    * Supported by some browser: allows some (static) attributes to be set
@@ -1126,7 +1130,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               `Option \`${key}\` cannot be used as a constructor option. Use ${DEPRECATED_OPTIONS[key]}`
             );
           }
-        } else warnings.push(`Unexpected option \`${key}\``);
+        }
       }
 
       if (warnings.length > 0) {
@@ -1154,14 +1158,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     this.attachShadow({ mode: 'open', delegatesFocus: true });
     this.shadowRoot!.append(MATHFIELD_TEMPLATE!.content.cloneNode(true));
-
-    const slot =
-      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
-    this._slotValue = slot!
-      .assignedNodes()
-      .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-      .join('')
-      .trim();
 
     // Record the (optional) configuration options, as a deferred state
     if (options) this._setOptions(options);
@@ -1754,22 +1750,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         }
       );
     }
-
-    // slot!.addEventListener('slotchange', (event) => {
-    //   if (event.target !== slot) return;
-    //   const value = slot!
-    //     .assignedNodes()
-    //     .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-    //     .join('')
-    //     .trim();
-    //   if (value === this._slotValue) return;
-    //   if (!this._mathfield) this.value = value;
-    //   else {
-    //     // Don't suppress notification changes. We need to know
-    //     // if the value has changed indirectly through slot manipulation
-    //     this._mathfield.setValue(value);
-    //   }
-    // });
 
     // Notify listeners that we're mounted and ready
     window.queueMicrotask(() => {
