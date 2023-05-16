@@ -647,7 +647,7 @@ export class Box implements BoxInterface {
     this.value += box.value;
     this.height = Math.max(this.height, box.height);
     this.depth = Math.max(this.depth, box.depth);
-    this.width = this.width + box.width;
+    this._width = this._width + box._width;
     this.maxFontSize = Math.max(this.maxFontSize, box.maxFontSize);
     // The italic correction for the coalesced boxes is the
     // italic correction of the last box.
