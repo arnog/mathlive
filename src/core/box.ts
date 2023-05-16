@@ -100,8 +100,16 @@ export class Box implements BoxInterface {
 
   height: number; // Distance above the baseline, in em
   depth: number; // Distance below the baseline, in em
+  _width: number;
+  hasExplicitWidth: boolean;
   skew: number;
   italic: number;
+
+  // The scale relative to the parent box (1.0 = no scale)
+  // The dimensions (height, depth, width, skew, italic) are
+  // pre-multiplied by the scale.
+  scale: number;
+
   // The maxFontSize is a dimension in em large enough that the browser will
   // reserve at least that space above the baseline.
   maxFontSize: number;
@@ -116,7 +124,9 @@ export class Box implements BoxInterface {
   svgOverlay?: string;
   svgStyle?: string;
 
-  attributes?: Record<string, string>; // HTML attributes, for example 'data-atom-id'
+  id?: string;
+
+  attributes?: Record<string, string>; // HTML attributes
 
   cssProperties?: Partial<Record<BoxCSSProperties, string>>;
 
@@ -138,7 +148,6 @@ export class Box implements BoxInterface {
     if (options?.caret) this.caret = options.caret;
 
     this.classes = options?.classes ?? '';
-    if (this.isSelected) this.classes += ' ML__selected';
 
     this.isTight = options?.isTight ?? false;
 
@@ -152,20 +161,25 @@ export class Box implements BoxInterface {
     if (options?.attributes) this.attributes = options.attributes;
 
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    let fontName = options?.fontFamily || 'Main-Regular';
+    let fontName = options?.fontFamily;
     if (options?.style && this.value) {
       fontName =
         Mode.getFont(options.mode ?? 'math', this, {
+          variant: 'normal',
           ...options.style,
           letterShapeStyle: options.letterShapeStyle,
-        }) || 'Main-Regular';
+        }) ?? undefined;
     }
+    fontName ||= 'Main-Regular';
 
     this.height = 0;
     this.depth = 0;
+    this._width = 0;
+    this.hasExplicitWidth = false;
     this.skew = 0;
     this.italic = 0;
     this.maxFontSize = 0;
+    this.scale = 1.0;
 
     //
     // Calculate the dimensions of this box
@@ -176,6 +190,7 @@ export class Box implements BoxInterface {
       //
       this.height = 0.8;
       this.depth = 0.2;
+      this._width = 1.0;
     } else if (typeof content === 'number') {
       //
       // A codepoint, as used by delimiters
@@ -183,6 +198,7 @@ export class Box implements BoxInterface {
       const metrics = getCharacterMetrics(content, fontName);
       this.height = metrics.height;
       this.depth = metrics.depth;
+      this._width = metrics.width;
       this.skew = metrics.skew;
       this.italic = metrics.italic;
     } else if (this.value) {
@@ -193,17 +209,19 @@ export class Box implements BoxInterface {
       // Get the metrics information
       this.height = -Infinity;
       this.depth = -Infinity;
+      this._width = 0;
       this.skew = -Infinity;
       this.italic = -Infinity;
       // @revisit: when this.value has more than one char it can be for
-      // a string like "cos", but sometimes it can be a multi-code-point grapheme
+      // a string like "cos", but sometimes it can be a multi-code-point grapheme. Maybe need a getStringMetrics()?
       for (let i = 0; i < this.value.length; i++) {
         const metrics = getCharacterMetrics(
           this.value.codePointAt(i),
-          fontName || 'Main-Regular'
+          fontName
         );
         this.height = Math.max(this.height, metrics.height);
         this.depth = Math.max(this.depth, metrics.depth);
+        this._width += metrics.width;
         this.skew = metrics.skew;
         this.italic = metrics.italic;
       }
@@ -219,6 +237,7 @@ export class Box implements BoxInterface {
         const child = this.children[0];
         this.height = child.height;
         this.depth = child.depth;
+        this._width = child.width;
         this.maxFontSize = child.maxFontSize;
         this.skew = child.skew;
         this.italic = child.italic;
@@ -230,14 +249,17 @@ export class Box implements BoxInterface {
 
         let height = -Infinity;
         let depth = -Infinity;
+        let width = 0;
         let maxFontSize = 0;
         for (const child of this.children) {
           if (child.height > height) height = child.height;
           if (child.depth > depth) depth = child.depth;
           maxFontSize = Math.max(maxFontSize, child.maxFontSize ?? 0);
+          width += child.width;
         }
         this.height = height;
         this.depth = depth;
+        this._width = width;
         this.maxFontSize = maxFontSize;
       }
     }
@@ -247,14 +269,15 @@ export class Box implements BoxInterface {
     //
     if (options?.height !== undefined) this.height = options.height;
     if (options?.depth !== undefined) this.depth = options.depth;
+    if (options?.width !== undefined) this.width = options.width;
+
     if (options?.maxFontSize !== undefined)
       this.maxFontSize = options.maxFontSize;
   }
 
   set atomID(id: string | undefined) {
     if (id === undefined || id.length === 0) return;
-    if (!this.attributes) this.attributes = {};
-    this.attributes['data-atom-id'] = id;
+    this.id = id;
   }
 
   selected(isSelected: boolean): void {
@@ -325,28 +348,21 @@ export class Box implements BoxInterface {
     }
   }
 
+  get width(): number {
+    return this._width;
+  }
+
   set width(value: number) {
-    if (!Number.isFinite(value)) return;
-    if (value === 0) {
-      if (this.cssProperties) delete this.cssProperties.width;
-    } else {
-      if (!this.cssProperties) this.cssProperties = {};
-      this.cssProperties.width = toString(value, 'em');
-    }
+    this._width = value;
+    this.hasExplicitWidth = true;
   }
 
   /**
+   * Apply the context (color, backgroundColor, size) to the box.
    * If necessary wrap this box with another one that adjust the font-size
    * to account for a change in size between the context and its parent.
-   * Also, apply color and background-color attributes.
    */
-  wrap(
-    context: Context,
-    options?: {
-      classes: string;
-      type: 'open' | 'close' | 'inner';
-    }
-  ): Box {
+  wrap(context: Context): Box {
     const parent = context.parent;
 
     // If we're at the root, nothing to do
@@ -354,48 +370,31 @@ export class Box implements BoxInterface {
 
     if (context.isPhantom) this.setStyle('opacity', 0);
 
-    let newColor = context.color;
-    if (newColor === parent.color) newColor = '';
-
     //
     // Apply color changes to the box
     //
-    this.setStyle('color', newColor);
-
-    const newSize =
-      context.effectiveFontSize === parent.effectiveFontSize
-        ? undefined
-        : context.effectiveFontSize;
+    const color = context.color;
+    if (color && color !== parent.color) this.setStyle('color', color);
 
     let backgroundColor = context.backgroundColor;
     if (this.isSelected) backgroundColor = highlight(backgroundColor);
 
-    if (backgroundColor === parent.backgroundColor) backgroundColor = '';
-
-    if (backgroundColor) {
+    if (backgroundColor && backgroundColor !== parent.backgroundColor) {
       this.setStyle('background-color', backgroundColor);
       this.setStyle('display', 'inline-block');
     }
 
-    //
-    // Wrap the box if necessary.
-    //
-    // Note that when the size changes, the font-size should be applied to
-    // the wrapper, not to the nucleus, otherwise the size of the element
-    // (which is used to calculate the selection rectangle)is incorrect
-    //
-    if (!newSize && !(options && (options.classes || options.type)))
-      return this;
-
-    const result = new Box(this, { ...options, type: 'lift' });
-    //
-    // Adjust the dimensions to account for the size variations
-    // (since the dimensions are in em, adjusting the font-size will have
-    // the same effect)
-    //
-    const factor = context.scalingFactor;
-    if (factor !== 1.0) result.setStyle('font-size', factor * 100, '%');
-    return result;
+    // The scale should only get adjusted once, so it should be 1.0
+    // at this point
+    console.assert(this.scale === 1.0);
+    const scale = context.scalingFactor;
+    this.scale = scale;
+    this.height *= scale;
+    this.depth *= scale;
+    this._width *= scale;
+    this.skew *= scale;
+    this.italic *= scale;
+    return this;
   }
 
   /**
@@ -411,7 +410,44 @@ export class Box implements BoxInterface {
     if (this.children) for (const box of this.children) body += box.toMarkup();
 
     //
-    // 2. Calculate the classes associated with this box
+    // 2. SVG
+    //
+    // If there is some SVG markup associated with this box,
+    // include it now
+    //
+    let svgMarkup = '';
+    if (this.svgBody) svgMarkup = svgBodyToMarkup(this.svgBody);
+    else if (this.svgOverlay) {
+      svgMarkup = '<span style="';
+      svgMarkup += 'display: inline-block;';
+      svgMarkup += `height:${this.height + this.depth}em;`;
+      svgMarkup += `vertical-align:${this.depth}em;`;
+      svgMarkup += '">';
+      svgMarkup += body;
+      svgMarkup += '</span>';
+      svgMarkup += '<svg style="position:absolute;overflow:overlay;';
+      svgMarkup += `height:${this.height + this.depth}em;`;
+      const padding = this.cssProperties?.padding;
+      if (padding) {
+        svgMarkup += `top:${padding};`;
+        svgMarkup += `left:${padding};`;
+        svgMarkup += `width:calc(100% - 2 * ${padding} );`;
+      } else svgMarkup += 'top:0;left:0;width:100%;';
+
+      svgMarkup += 'z-index:2;';
+      svgMarkup += '"';
+      if (this.svgStyle) svgMarkup += ` style="${this.svgStyle}"`;
+
+      svgMarkup += `>${this.svgOverlay}</svg>`;
+    }
+
+    //
+    // 3. Markup for props
+    //
+    let props = '';
+
+    //
+    // 3.1 Classes
     //
     const classes = this.classes.split(' ');
 
@@ -422,8 +458,10 @@ export class Box implements BoxInterface {
         error: 'ML__error',
       }[this.type] ?? ''
     );
+
     if (this.caret === 'latex') classes.push('ML__latex-caret');
 
+    if (this.isSelected) classes.push('ML__selected');
     // Remove duplicate and empty classes
     const classList =
       classes.length === 1
@@ -432,105 +470,85 @@ export class Box implements BoxInterface {
             .filter((x, e, a) => x.length > 0 && a.indexOf(x) === e)
             .join(' ');
 
-    //
-    // 3. Markup for props and SVG
-    //
-    let result = '';
-    if (
-      (body.length > 0 && body !== '\u200B') ||
-      classList.length > 0 ||
-      this.cssId ||
-      this.htmlData ||
-      this.htmlStyle ||
-      this.attributes ||
-      this.cssProperties ||
-      this.svgBody ||
-      this.svgOverlay
-    ) {
-      let props = '';
+    if (classList.length > 0) props += ` class="${classList}"`;
 
-      if (this.cssId) {
-        // A (HTML5) CSS id may not contain a space
-        props += ` id="${this.cssId.replace(/ /g, '-')}" `;
-      }
-      if (this.htmlData) {
-        const entries = this.htmlData.split(',');
-        for (const entry of entries) {
-          const matched = entry.match(/([^=]+)=(.+$)/);
-          if (matched) {
-            const key = matched[1].trim().replace(/ /g, '-');
-            if (key) props += ` data-${key}="${matched[2]}" `;
-          } else {
-            const key = entry.trim().replace(/ /g, '-');
-            if (key) props += ` data-${key} `;
-          }
+    //
+    // 3.2 Id
+    //
+    if (this.id) props += ` data-atom-id=${this.id}`;
+
+    // A (HTML5) CSS id may not contain a space
+    if (this.cssId) props += ` id="${this.cssId.replace(/ /g, '-')}" `;
+
+    //
+    // 3.3 Attributes
+    //
+    if (this.attributes) {
+      props +=
+        ' ' +
+        Object.keys(this.attributes)
+          .map((x) => `${x}="${this.attributes![x]}"`)
+          .join(' ');
+    }
+
+    if (this.htmlData) {
+      const entries = this.htmlData.split(',');
+      for (const entry of entries) {
+        const matched = entry.match(/([^=]+)=(.+$)/);
+        if (matched) {
+          const key = matched[1].trim().replace(/ /g, '-');
+          if (key) props += ` data-${key}="${matched[2]}" `;
+        } else {
+          const key = entry.trim().replace(/ /g, '-');
+          if (key) props += ` data-${key} `;
         }
       }
-      if (this.htmlStyle) {
-        const entries = this.htmlStyle.split(';');
-        let styleString = '';
-        for (const entry of entries) {
-          const matched = entry.match(/([^=]+):(.+$)/);
-          if (matched) {
-            const key = matched[1].trim().replace(/ /g, '-');
-            if (key) styleString += `${key}:${matched[2]};`;
-          }
-        }
-        if (styleString) props += ` style="${styleString}"`;
-      }
-
-      if (this.attributes) {
-        props +=
-          ' ' +
-          Object.keys(this.attributes)
-            .map((x) => `${x}="${this.attributes![x]}"`)
-            .join(' ');
-      }
-
-      if (classList.length > 0) props += ` class="${classList}"`;
-
-      const cssProps = this.cssProperties;
-      if (cssProps) {
-        const styles = Object.keys(cssProps).map((x) => `${x}:${cssProps[x]}`);
-        if (styles.length > 0) props += ` style="${styles.join(';')}"`;
-      }
-
-      //
-      // If there is some SVG markup associated with this box,
-      // include it now
-      //
-      let svgMarkup = '';
-      if (this.svgBody) svgMarkup = svgBodyToMarkup(this.svgBody);
-      else if (this.svgOverlay) {
-        svgMarkup = '<span style="';
-        svgMarkup += 'display: inline-block;';
-        svgMarkup += `height:${this.height + this.depth}em;`;
-        svgMarkup += `vertical-align:${this.depth}em;`;
-        svgMarkup += '">';
-        svgMarkup += body;
-        svgMarkup += '</span>';
-        svgMarkup += '<svg style="position:absolute;overflow:overlay;';
-        svgMarkup += `height:${this.height + this.depth}em;`;
-        if (this.cssProperties?.padding) {
-          svgMarkup += `top:${this.cssProperties.padding}em;`;
-          svgMarkup += `left:${this.cssProperties.padding}em;`;
-          svgMarkup += `width:calc(100% - 2 * ${this.cssProperties.padding}em );`;
-        } else svgMarkup += 'top:0;left:0;width:100%;';
-
-        svgMarkup += 'z-index:2;';
-        svgMarkup += '"';
-        if (this.svgStyle) svgMarkup += ` style="${this.svgStyle}"`;
-
-        svgMarkup += `>${this.svgOverlay}</svg>`;
-      }
-
-      // Note: We can't omit the tag, even if it has no props,
-      // as some layouts (vlist) depends on the presence of the tag to function
-      result = `<span${props}>${body}${svgMarkup}</span>`;
     }
 
     //
-    // 4. Add markup for the caret
+    // 3.4 Styles
+    //
+    const cssProps: Partial<Record<BoxCSSProperties, string>> =
+      this.cssProperties ?? {};
+    if (this.hasExplicitWidth) {
+      console.assert(cssProps.width === undefined);
+      cssProps.width = `${Math.round(this._width * 100) / 100}em`;
+    }
+    const styles = Object.keys(cssProps).map((x) => `${x}:${cssProps[x]}`);
+
+    if (
+      this.scale !== undefined &&
+      this.scale !== 1.0 &&
+      (body.length > 0 || svgMarkup.length > 0)
+    )
+      styles.push(`font-size: ${Math.round(this.scale * 10000) / 100}%`);
+
+    if (this.htmlStyle) {
+      const entries = this.htmlStyle.split(';');
+      let styleString = '';
+      for (const entry of entries) {
+        const matched = entry.match(/([^=]+):(.+$)/);
+        if (matched) {
+          const key = matched[1].trim().replace(/ /g, '-');
+          if (key) styleString += `${key}:${matched[2]};`;
+        }
+      }
+      if (styleString) props += ` style="${styleString}"`;
+    }
+
+    if (styles.length > 0) props += ` style="${styles.join(';')}"`;
+
+    //
+    // 4. Tag markup
+    //
+
+    let result = '';
+    if (props.length > 0 || svgMarkup.length > 0)
+      result = `<span${props}>${body}${svgMarkup}</span>`;
+    else result = body;
+
+    //
+    // 5. Add markup for the caret
     //
     if (this.caret === 'text') result += '<span class="ML__text-caret"></span>';
     else if (this.caret === 'math') result += '<span class="ML__caret"></span>';
@@ -629,6 +647,7 @@ export class Box implements BoxInterface {
     this.value += box.value;
     this.height = Math.max(this.height, box.height);
     this.depth = Math.max(this.depth, box.depth);
+    this.width = this.width + box.width;
     this.maxFontSize = Math.max(this.maxFontSize, box.maxFontSize);
     // The italic correction for the coalesced boxes is the
     // italic correction of the last box.
@@ -643,17 +662,6 @@ export class Box implements BoxInterface {
  *
  */
 function coalesceRecursive(boxes: undefined | Box[]): Box[] {
-  boxes = boxes?.filter(
-    (x) =>
-      !(
-        x.height === 0 &&
-        x.depth === 0 &&
-        !x.value &&
-        !x.classes &&
-        !x.cssProperties
-      )
-  );
-
   if (!boxes || boxes.length === 0) return [];
 
   boxes[0].children = coalesceRecursive(boxes[0].children);

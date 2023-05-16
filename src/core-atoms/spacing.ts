@@ -1,6 +1,11 @@
-import type { LatexValue, Style } from '../public/core-types';
+import type { LatexValue } from '../public/core-types';
 
-import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+import {
+  Atom,
+  AtomJson,
+  CreateAtomOptions,
+  ToLatexOptions,
+} from '../core/atom-class';
 import { Box } from '../core/box';
 import type { Context } from '../core/context';
 import { serializeLatexValue } from '../core/registers-utils';
@@ -8,29 +13,27 @@ import { getDefinition } from '../core-definitions/definitions-utils';
 
 export class SpacingAtom extends Atom {
   private readonly width: LatexValue | undefined;
-  _braced: boolean;
+  private _braced: boolean;
   constructor(
-    command: string,
-    style: Style,
-    width?: LatexValue,
-    options?: { braced: boolean }
+    options: CreateAtomOptions & {
+      width?: LatexValue;
+      braced?: boolean;
+    }
   ) {
-    super({ type: 'spacing', command, style });
-    this.width = width;
+    super({ type: 'spacing', ...options });
+    this.width = options?.width;
     this._braced = options?.braced ?? false;
   }
 
   static fromJson(json: AtomJson): SpacingAtom {
-    return new SpacingAtom(json.command, json.style, json.width, {
-      braced: json.braced,
-    });
+    return new SpacingAtom(json as any);
   }
 
   toJson(): AtomJson {
-    const options: { [key: string]: any } = {};
-    if (this.width !== undefined) options.width = this.width;
-    if (this._braced) options.braced = true;
-    return { ...super.toJson(), ...options };
+    const json: { [key: string]: any } = super.toJson();
+    if (this.width !== undefined) json.width = this.width;
+    if (this._braced) json.braced = true;
+    return json;
   }
 
   render(context: Context): Box {
@@ -40,7 +43,7 @@ export class SpacingAtom extends Atom {
     let result: Box;
     if (this.width !== undefined) {
       result = new Box(null, { classes: 'mspace' });
-      result.left = context.toEm(this.width) ?? 0;
+      result.left = context.toEm(this.width);
     } else {
       const spacingCls =
         {
@@ -60,7 +63,7 @@ export class SpacingAtom extends Atom {
     return result;
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     if (!options.expandMacro && typeof this.verbatimLatex === 'string')
       return this.verbatimLatex;
     const def = getDefinition(this.command, this.mode);

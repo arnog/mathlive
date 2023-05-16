@@ -28,6 +28,7 @@ import {
   PT_PER_EM,
   AXIS_HEIGHT,
   FONT_SCALE,
+  FontName,
 } from './font-metrics';
 import { Context } from './context';
 import type { MathstyleName, ParseMode, Style } from '../public/core-types';
@@ -129,12 +130,10 @@ function makeSmallDelim(
   const text = new Box(getSymbolValue(delim), {
     fontFamily: 'Main-Regular',
     isSelected: options.isSelected,
-  });
-
-  const box = text.wrap(context, {
-    type: options.type,
     classes: 'ML__small-delim ' + (options.classes ?? ''),
   });
+
+  const box = text.wrap(context);
 
   if (center) box.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
 
@@ -164,14 +163,16 @@ function makeLargeDelim(
     options?.style
   );
   const result = new Box(getSymbolValue(delim), {
-    fontFamily: `Size${size}-Regular`,
+    fontFamily: `Size${size}-Regular` as FontName,
     isSelected: options.isSelected,
     classes: (options.classes ?? '') + ` ML__delim-size${size}`,
     type: options.type ?? 'ignore',
   }).wrap(context);
 
   if (center) result.setTop((1 - context.scalingFactor) * AXIS_HEIGHT);
-
+  // result.height *= parentContext.parent!.scalingFactor;
+  // result.depth *= parentContext.parent!.scalingFactor;
+  // result.width *= parentContext.parent!.scalingFactor;
   return result;
 }
 
@@ -200,7 +201,7 @@ function makeStackedDelim(
   top = repeat = bottom = getSymbolValue(delim);
   middle = null;
   // Also keep track of what font the delimiters are in
-  let fontFamily = 'Size1-Regular';
+  let fontFamily: FontName = 'Size1-Regular';
 
   // We set the parts and font based on the symbol. Note that we use
   // 0x23d0 instead of '|' and 0x2016 instead of '\\|' for the
@@ -584,10 +585,11 @@ const stackLargeDelimiterSequence: DelimiterInfo[] = [
 /*
  * Get the font used in a delimiter based on what kind of delimiter it is.
  */
-function delimTypeToFont(info: DelimiterInfo): string {
+function delimTypeToFont(info: DelimiterInfo): FontName {
   if (info.type === 'small') return 'Main-Regular';
 
-  if (info.type === 'large') return 'Size' + info.size + '-Regular';
+  if (info.type === 'large')
+    return ('Size' + info.size + '-Regular') as FontName;
 
   console.assert(info.type === 'stack');
   return 'Size4-Regular';
@@ -752,7 +754,7 @@ export function makeNullDelimiter(parent: Context, classes?: string): Box {
   const box = new Box(null, {
     classes: ' nulldelimiter ' + (classes ?? ''),
     type: 'ignore',
+    width: parent.getRegisterAsEm('nulldelimiterspace'),
   });
-  box.width = parent.getRegisterAsEm('nulldelimiterspace');
   return box.wrap(new Context({ parent, mathstyle: 'textstyle' }));
 }

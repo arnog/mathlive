@@ -500,7 +500,11 @@ export class ModelPrivate implements Model {
       }
       try {
         const expr = window.MathfieldElement.computeEngine.parse(
-          atom.serialize({ expandMacro: false, defaultMode: 'math' })
+          Atom.serialize([atom], {
+            expandMacro: false,
+            skipStyles: true,
+            defaultMode: 'math',
+          })
         );
         return JSON.stringify(expr.json);
       } catch (e) {

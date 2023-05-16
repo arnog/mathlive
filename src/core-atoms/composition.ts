@@ -34,7 +34,7 @@ export class CompositionAtom extends Atom {
     return result;
   }
 
-  serialize(_options: ToLatexOptions): string {
+  _serialize(_options: ToLatexOptions): string {
     return '';
   }
 }

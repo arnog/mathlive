@@ -37,7 +37,7 @@ export class SubsupAtom extends Atom {
     });
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     return this.supsubToLatex(options);
   }
 }

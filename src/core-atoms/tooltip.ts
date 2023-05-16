@@ -1,45 +1,51 @@
-import type { Style } from '../public/core-types';
-
-import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+import {
+  Atom,
+  AtomJson,
+  CreateAtomOptions,
+  ToLatexOptions,
+} from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box, coalesce } from '../core/box';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { fromJson } from '../core/atom';
 import { latexCommand } from '../core/tokenizer';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { Argument } from 'core-definitions/definitions-utils';
 
 export class TooltipAtom extends Atom {
   tooltip: Atom;
 
   constructor(
-    body: Atom[] | undefined,
-    tooltip: Atom[] | undefined,
-    options?: {
-      command?: string;
+    options: CreateAtomOptions<[Argument | null, Argument | null]> & {
       content: 'math' | 'text';
-      style?: Style;
+      body: Atom[] | undefined;
+      tooltip: Atom[] | undefined;
     }
   ) {
     super({
       type: 'tooltip',
-      command: options?.command,
-      mode: 'math',
-      style: options?.style,
+      command: options.command,
+      mode: options.mode,
+      style: options.style,
+      body: options.body,
       displayContainsHighlight: true,
     });
-    this.body = body;
-    this.tooltip = new Atom({ type: 'root', body: tooltip, style: {} });
+    this.tooltip = new Atom({
+      type: 'root',
+      mode: options.content,
+      body: options.tooltip,
+      style: {},
+    });
 
     this.skipBoundary = true;
     this.captureSelection = false;
   }
 
   static fromJson(json: AtomJson): TooltipAtom {
-    return new TooltipAtom(
-      json.body,
-      fromJson(json.tooltip as AtomJson[]),
-      json as any
-    );
+    return new TooltipAtom({
+      ...(json as any),
+      tooltip: fromJson(json.tooltip as AtomJson[]),
+    });
   }
 
   toJson(): AtomJson {
@@ -72,7 +78,7 @@ export class TooltipAtom extends Atom {
     return this.bind(context, box);
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     return latexCommand(
       this.command,
       this.bodyToLatex(options),

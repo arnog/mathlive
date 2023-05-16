@@ -204,10 +204,9 @@ export class Context implements ContextInterface {
     if (this.atomIdsSettings.overrideID) return this.atomIdsSettings.overrideID;
 
     if (typeof this.atomIdsSettings.seed !== 'number') {
-      return (
-        Date.now().toString(36).slice(-2) +
-        Math.floor(Math.random() * 0x186a0).toString(36)
-      );
+      return `${Date.now().toString(36).slice(-2)}${Math.floor(
+        Math.random() * 0x186a0
+      ).toString(36)}`;
     }
 
     const result = this.atomIdsSettings.seed.toString(36);

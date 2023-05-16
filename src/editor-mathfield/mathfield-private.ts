@@ -606,7 +606,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
-    const content = this.model.root.serialize({
+    const content = Atom.serialize([this.model.root], {
       expandMacro: false,
       defaultMode: this.options.defaultMode,
     });
@@ -1632,16 +1632,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   getHTMLElement(atom: Atom): HTMLSpanElement {
-    // find an atom id in this atom or its children
+    // Find an atom id in this atom or its children
     let target = atom;
     while (!target.id && target.hasChildren) target = atom.children[0];
 
-    if (target.id) {
-      return this.fieldContent?.querySelector(
-        `[data-atom-id="${target.id}"]`
-      ) as HTMLSpanElement;
-    }
-    throw new TypeError('Could not get an ID from atom');
+    return this.fieldContent!.querySelector(
+      `[data-atom-id="${target.id}"]`
+    ) as HTMLSpanElement;
   }
 
   get context(): ContextInterface {

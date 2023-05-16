@@ -89,7 +89,7 @@ function convertLastAtomsToMath(
       atom.value === ' ' ||
       (until && !until(atom));
     if (!done) {
-      data.push(atom.serialize({ defaultMode: 'math' }));
+      data.push(Atom.serialize([atom], { defaultMode: 'math' }));
       atom.mode = 'math';
     }
 

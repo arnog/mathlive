@@ -1,6 +1,4 @@
-import type { Style } from '../public/core-types';
-
-import { Atom, AtomJson } from '../core/atom-class';
+import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
 import { makeSVGBox, Box } from '../core/box';
 import { Context } from '../core/context';
 import { X_HEIGHT } from '../core/font-metrics';
@@ -10,15 +8,16 @@ export class AccentAtom extends Atom {
   private readonly accent?: number;
   private readonly svgAccent?: string;
   constructor(
-    command: string,
-    body: Atom[],
-    options: { accentChar?: number; svgAccent?: string; style: Style }
+    options: CreateAtomOptions & {
+      accentChar?: number;
+      svgAccent?: string;
+      body: null | Atom[];
+    }
   ) {
-    super({ type: 'accent', command, style: options.style });
+    super({ ...options, type: 'accent', body: options.body ?? undefined });
     if (options.accentChar) this.accent = options.accentChar;
     else this.svgAccent = options?.svgAccent;
 
-    this.body = body;
     this.skipBoundary = true;
     this.captureSelection = true;
     // this.limits = 'accent'; // This will suppress the regular
@@ -28,11 +27,7 @@ export class AccentAtom extends Atom {
   }
 
   static fromJson(json: { [key: string]: any }): AccentAtom {
-    return new AccentAtom(json.command, json.body, {
-      accentChar: json.accentChar,
-      svgAccent: json.svgAccent,
-      style: json.style,
-    });
+    return new AccentAtom(json as any);
   }
 
   toJson(): AtomJson {
@@ -56,7 +51,8 @@ export class AccentAtom extends Atom {
     //
     // 1. Build the base atom
     //
-    const base = Atom.createBox(context, this.body) ?? new Box(null);
+    const base =
+      Atom.createBox(context, this.body) ?? new Box('▢', { style: this.style });
 
     //
     // 2. Skew

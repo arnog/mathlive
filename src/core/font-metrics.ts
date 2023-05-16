@@ -88,8 +88,10 @@ export const FONT_METRICS: FontMetrics<
   xHeight: [X_HEIGHT, X_HEIGHT, X_HEIGHT],
   quad: [1.0, 1.171, 1.472],
   extraSpace: [0.0, 0.0, 0.0],
-  num1: [0.677, 0.732, 0.925],
-  num2: [0.394, 0.384, 0.387],
+  num1: [0.5, 0.732, 0.925], // Was   num1: [0.677, 0.732, 0.925],
+
+  num2: [0.394, 0.384, 0.5], // Was   num2: [0.394, 0.384, 0.387],
+
   num3: [0.444, 0.471, 0.504],
   denom1: [0.686, 0.752, 1.025],
   denom2: [0.345, 0.344, 0.532],
@@ -285,9 +287,10 @@ export type FontName =
 //         // if (metrics[3]) console.log('skew ', codepoint, metrics[3]);
 //         // if (metrics[2]) console.log('italic ', codepoint, metrics[2]);
 //         if (
+//           metrics[2] !== 0
 //           // Math.round(10000 * (metrics[0] - depth)) > 100 ||
 //           // Math.round(10000 * (metrics[1] - height)) > 100 ||
-//           Math.round(10000 * (metrics[4] - width)) > 100
+//           // Math.round(10000 * (metrics[4] - width)) > 100
 //           // Math.round(10000 * (metrics[2] - italic)) > 0.1
 //         ) {
 //           // ctx.fillText(c, 10, 50);

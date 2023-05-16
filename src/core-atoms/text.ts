@@ -28,7 +28,7 @@ export class TextAtom extends Atom {
     return result;
   }
 
-  serialize(_options: ToLatexOptions): string {
+  _serialize(_options: ToLatexOptions): string {
     return this.verbatimLatex ?? charToLatex('text', this.value.codePointAt(0));
   }
 }

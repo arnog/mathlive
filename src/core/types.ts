@@ -10,6 +10,7 @@ import type {
 } from '../public/core-types';
 import { Atom } from '../core/atom-class';
 import { Context } from '../core/context';
+import { FontName } from './font-metrics';
 
 export interface ParseTokensOptions {
   macros: NormalizedMacroDictionary;
@@ -26,42 +27,41 @@ export interface ParseTokensOptions {
 // See http://www.ntg.nl/maps/38/03.pdf for an explanation of the metrics
 // and how they relate to the OpenFont math metrics
 export interface FontMetrics<T = number> {
-  slant: T;
-  space: T;
-  stretch: T;
-  shrink: T;
-  xHeight: T; // sigma 5 = accent base height
-  quad: T;
-  extraSpace: T;
-  num1: T; // sigma 8 = FractionNumeratorDisplayStyleShiftUp
-  num2: T; // sigma 9 = FractionNumeratorShiftUp
-  num3: T; // sigma 10 = StackTopShiftUp
-  denom1: T; // sigma 11 = StackBottomDisplayStyleShiftDown = FractionDenominatorDisplayStyleShiftDown
-  denom2: T; // sigma 12 = StackBottomShiftDown = FractionDenominatorShiftDown
-  sup1: T; //sigma 13 = SuperscriptShiftUp
-  sup2: T;
-  sup3: T; // sigma 15 = SuperscriptShiftUpCramped
-  sub1: T; // sigma 16 = SubscriptShiftDown
-  sub2: T;
-  supDrop: T; // sigma 18 = SuperscriptBaselineDropMax
-  subDrop: T; // sigma 19 = SubscriptBaselineDropMin
-  delim1: T;
-  delim2: T; // sigma 21 = DelimitedSubFormulaMinHeight
-  axisHeight: T; // sigma 22
+  slant: T; // σ1
+  space: T; // σ2
+  stretch: T; // σ3
+  shrink: T; // σ4
+  xHeight: T; // σ5 = accent base height
+  quad: T; // σ6
+  extraSpace: T; // σ7
+  num1: T; // σ8 = FractionNumeratorDisplayStyleShiftUp
+  num2: T; // σ9 = FractionNumeratorShiftUp
+  num3: T; // σ10 = StackTopShiftUp
+  denom1: T; // σ11 = StackBottomDisplayStyleShiftDown = FractionDenominatorDisplayStyleShiftDown
+  denom2: T; // σ12 = StackBottomShiftDown = FractionDenominatorShiftDown
+  sup1: T; //σ13 = SuperscriptShiftUp
+  sup2: T; // σ14
+  sup3: T; // σ15 = SuperscriptShiftUpCramped
+  sub1: T; // σ16 = SubscriptShiftDown
+  sub2: T; // σ17
+  supDrop: T; // σ18 = SuperscriptBaselineDropMax
+  subDrop: T; // σ19 = SubscriptBaselineDropMin
+  delim1: T; // σ20
+  delim2: T; // σ21 = DelimitedSubFormulaMinHeight
+  axisHeight: T; // σ22
 
   // Note: xi14: offset from baseline for superscript TexBook p. 179
   // Note: xi16: offset from baseline for subscript
 
-  // The \sqrt rule width is taken from the height of the surd character.
-  // Since we use the same font at all sizes, this thickness doesn't scale.
-
-  defaultRuleThickness: T; // xi8; cmex7: 0.049
+  defaultRuleThickness: T; // xi8
   bigOpSpacing1: T; // xi9
   bigOpSpacing2: T; // xi10
   bigOpSpacing3: T; // xi11
-  bigOpSpacing4: T; // xi12; cmex7: 0.611
-  bigOpSpacing5: T; // xi13; cmex7: 0.143
+  bigOpSpacing4: T; // xi12
+  bigOpSpacing5: T; // xi13
 
+  // The \sqrt rule width is taken from the height of the surd character.
+  // Since we use the same font at all sizes, this thickness doesn't scale.
   sqrtRuleThickness: T;
 }
 
@@ -100,9 +100,10 @@ export type BoxOptions = {
   type?: BoxType;
   height?: number;
   depth?: number;
+  width?: number;
   maxFontSize?: number;
   isTight?: boolean;
-  fontFamily?: string;
+  fontFamily?: FontName;
   letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
 
   caret?: ParseMode;
@@ -128,6 +129,7 @@ export interface BoxInterface {
 
   height: number;
   depth: number;
+  width: number;
   skew: number;
   italic: number;
   maxFontSize: number;
@@ -164,7 +166,6 @@ export interface BoxInterface {
 
   left: number;
   right: number;
-  width: number;
 
   wrap(
     context: ContextInterface,

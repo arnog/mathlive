@@ -34,7 +34,12 @@ export function convertDimensionToEm(
   precision?: number
 ): number {
   if (value === null) return 0;
-  return convertDimensionToPt(value, precision) / PT_PER_EM;
+  const result = convertDimensionToPt(value) / PT_PER_EM;
+  if (Number.isFinite(precision)) {
+    const factor = 10 ** precision!;
+    return Math.round(result * factor) / factor;
+  }
+  return result;
 }
 
 export function convertGlueToEm(value: Glue): number {
@@ -86,17 +91,21 @@ export function serializeLatexValue(
       result = `\`${String.fromCodePoint(value.number)}`;
     else {
       const i = Math.round(value.number) >>> 0;
-      let pad = '00000000';
       if (value.base === 'hexadecimal') {
-        if (i <= 0xff) pad = '00';
-        else if (i <= 0xffff) pad = '0000';
-        result = `"${`${pad}${Number(i).toString(16)}`
-          .slice(-pad.length)
-          .toUpperCase()}`;
+        result = Number(i).toString(16).toUpperCase();
+
+        if (i <= 0xff) result = result.padStart(2, '0');
+        else if (i <= 0xffff) result = result.padStart(4, '0');
+        else if (i <= 0xffffff) result = result.padStart(6, '0');
+        else result = result.padStart(8, '0');
+
+        result = `"${result}`;
       } else if (value.base === 'octal') {
-        if (i <= 0o77) pad = '00';
-        else if (i <= 0x7777) pad = '0000';
-        result = `'${`${pad}${Number(i).toString(8)}`.slice(-pad.length)}`;
+        result = Number(i).toString(8);
+        if (i <= 0o77) result = result.padStart(2, '0');
+        else if (i <= 0x7777) result = result.padStart(4, '0');
+        else result = result.padStart(8, '0');
+        result = `'${result}`;
       }
     }
   }
@@ -115,4 +124,47 @@ export function serializeLatexValue(
   if (value.relax ?? false) result += '\\relax';
 
   return result;
+}
+
+export function multiplyLatexValue(
+  value: LatexValue | null,
+  factor: number
+): LatexValue | null {
+  if (value === null || value === undefined) return null;
+
+  if ('number' in value) return { ...value, number: value.number * factor };
+  if ('register' in value) {
+    if ('factor' in value && value.factor)
+      return { ...value, factor: value.factor * factor };
+    return { ...value, factor };
+  }
+
+  if ('dimension' in value)
+    return { ...value, dimension: value.dimension * factor };
+
+  if ('glue' in value) {
+    if (value.shrink && value.grow) {
+      return {
+        glue: multiplyLatexValue(value.glue, factor) as Dimension,
+        shrink: multiplyLatexValue(value.shrink, factor) as Dimension,
+        grow: multiplyLatexValue(value.grow, factor) as Dimension,
+      };
+    }
+    if (value.shrink) {
+      return {
+        glue: multiplyLatexValue(value.glue, factor) as Dimension,
+        shrink: multiplyLatexValue(value.shrink, factor) as Dimension,
+      };
+    }
+    if (value.grow) {
+      return {
+        glue: multiplyLatexValue(value.glue, factor) as Dimension,
+        grow: multiplyLatexValue(value.grow, factor) as Dimension,
+      };
+    }
+    return {
+      glue: multiplyLatexValue(value.glue, factor) as Dimension,
+    };
+  }
+  return null;
 }

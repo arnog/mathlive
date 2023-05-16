@@ -53,14 +53,14 @@ export class ChemAtom extends Atom {
     // as if `captureSelection === true`
     return this.bind(context, box)!;
   }
-  serialize(_options: ToLatexOptions): string {
+  _serialize(_options: ToLatexOptions): string {
     return this.verbatimLatex!;
   }
 }
 
 defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', {
-  createAtom: (command, args: [string]): Atom =>
-    new ChemAtom(command, args[0] ?? ''),
+  createAtom: (options): Atom =>
+    new ChemAtom(options.command!, options.args![0] ?? ''),
 });
 
 /* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */

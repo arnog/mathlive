@@ -55,7 +55,7 @@ export class LeftRightAtom extends Atom {
     return result;
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     const rightDelim = this.matchingRightDelim();
 
     if (this.variant === 'left...right') {

@@ -43,11 +43,15 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf"
-        >1+\colorbox{blue}{$2$}+3+\colorbox{red}{4}+\colorbox{green}{\ensuremath{4}}+\text{5+\colorbox{purple}{6}}</math-field
-      >
-      <!-- <math-field id="mf">1+\colorbox{blue}{\ensuremath{2}}+1+2</math-field> -->
-
+      <math-field id="mf">\frac{1}{123456}\vec{ABCD}\hat{ABCD}</math-field>
+      <!-- <math-field id="mf"
+        >\colorbox{yellow}{$\textcolor{purple}{ \huge \sqrt[3]{x} \binom56 x
+        \text{huge} \Huge a\mathrm{b}c}d$}e</math-field
+      > -->
+      <!-- <math-field id="mf">a\Large b {c} d</math-field> -->
+      <!-- <math-field id="mf"
+        >-\colorbox{BurntOrange}{\ensuremath{x\frac{1}{\colorbox{yellow}{\ensuremath{x}}}}}=</math-field
+      > -->
       <!-- <math-field id="mf"
         >+\raisebox{2ex}{$+x$}\raisebox{0pt}{+x}\boxed{+}</math-field
       > -->
@@ -125,10 +129,11 @@
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
       renderMathInDocument();
+      console.log(convertLatexToMarkup('a-b'));
 
-      const mfe = new MathfieldElement();
-      document.body.appendChild(mfe);
-      mfe.remove();
+      const mfe = new MathfieldElement({
+        mathVirtualKeyboardPolicy: 'manual',
+      });
 
       // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
 

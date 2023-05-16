@@ -77,7 +77,7 @@ export async function loadFonts(): Promise<void> {
       return;
     }
 
-    const fonts: FontFace[] = (
+    const fonts = (
       [
         ['KaTeX_Main-Regular'],
         ['KaTeX_Main-BoldItalic', { style: 'italic', weight: 'bold' }],
@@ -103,7 +103,7 @@ export async function loadFonts(): Promise<void> {
     ).map((x) =>
       makeFontFace(
         x[0].replace(/-[a-zA-Z]+$/, ''),
-        fontsFolder + '/' + x[0],
+        `${fontsFolder}/${x[0]}`,
         x[1]
       )
     );

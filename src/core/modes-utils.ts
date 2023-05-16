@@ -13,7 +13,8 @@ import {
   TokenDefinition,
   getDefinition,
 } from '../core-definitions/definitions-utils';
-import { joinLatex } from './tokenizer';
+import { joinLatex, latexCommand } from './tokenizer';
+import { FontName } from './font-metrics';
 
 export abstract class Mode {
   static _registry: Record<string, Mode> = {};
@@ -36,12 +37,16 @@ export abstract class Mode {
   static serialize(atoms: Atom[] | undefined, options: ToLatexOptions): string {
     if (!atoms || atoms.length === 0) return '';
 
-    const tokens: string[] = [];
-    for (const run of getModeRuns(atoms)) {
-      const mode = Mode._registry[run[0].mode];
-      tokens.push(...mode.serialize(run, options));
+    if (options.skipStyles ?? false) {
+      const body: string[] = [];
+      for (const run of getModeRuns(atoms)) {
+        const mode = Mode._registry[run[0].mode];
+        body.push(...mode.serialize(run, options));
+      }
+      return joinLatex(body);
     }
-    return joinLatex(tokens);
+
+    return joinLatex(emitFontSizeRun(atoms, options));
   }
 
   static getFont(
@@ -58,7 +63,7 @@ export abstract class Mode {
       fontShape?: FontShape;
       fontSeries?: FontSeries;
     }
-  ): string | null {
+  ): FontName | null {
     return Mode._registry[mode].getFont(box, style);
   }
 
@@ -85,7 +90,7 @@ export abstract class Mode {
       fontSize?: FontSize | 'auto';
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
     }
-  ): string | null;
+  ): FontName | null;
 }
 
 /*
@@ -144,5 +149,95 @@ export function getPropertyRuns(
 
   // Push whatever is left
   if (run.length > 0) result.push(run);
+  return result;
+}
+
+function emitColorRun(run: Atom[], options: ToLatexOptions): string[] {
+  const { parent } = run[0];
+  const parentColor = parent?.computedStyle.color;
+  return getPropertyRuns(run, 'color').map((x) => {
+    const body: string[] = [];
+
+    for (const run of getModeRuns(x)) {
+      const mode = Mode._registry[run[0].mode];
+      body.push(...mode.serialize(run, options));
+    }
+
+    const style = x[0].computedStyle;
+    if (
+      style.color &&
+      style.color !== 'none' &&
+      (!parent || parentColor !== style.color)
+    ) {
+      return latexCommand(
+        '\\textcolor',
+        style.verbatimColor ?? style.color,
+        joinLatex(body)
+      );
+    }
+
+    return joinLatex(body);
+  });
+}
+
+function emitBackgroundColorRun(
+  run: Atom[],
+  options: ToLatexOptions
+): string[] {
+  const { parent } = run[0];
+  const parentColor = parent?.computedStyle.backgroundColor;
+  return getPropertyRuns(run, 'backgroundColor').map((x) => {
+    if (x.length > 0 || x[0].type !== 'box') {
+      const style = x[0].computedStyle;
+      if (
+        style.backgroundColor &&
+        style.backgroundColor !== 'none' &&
+        (!parent || parentColor !== style.backgroundColor)
+      ) {
+        return latexCommand(
+          '\\colorbox',
+          style.verbatimBackgroundColor ?? style.backgroundColor,
+          joinLatex(emitColorRun(x, { ...options, defaultMode: 'text' }))
+        );
+      }
+    }
+    return joinLatex(emitColorRun(x, options));
+  });
+}
+
+function emitFontSizeRun(run: Atom[], options: ToLatexOptions): string[] {
+  if (run.length === 0) return [];
+  const { parent } = run[0];
+  const contextFontsize = parent?.computedStyle.fontSize;
+  const result: string[] = [];
+  for (const sizeRun of getPropertyRuns(run, 'fontSize')) {
+    const fontsize = sizeRun[0].computedStyle.fontSize;
+    const body = emitBackgroundColorRun(sizeRun, options);
+    if (body) {
+      if (
+        fontsize &&
+        fontsize !== 'auto' &&
+        (!parent || contextFontsize !== fontsize)
+      ) {
+        result.push(
+          [
+            '',
+            '\\tiny',
+            '\\scriptsize',
+            '\\footnotesize',
+            '\\small',
+            '\\normalsize',
+            '\\large',
+            '\\Large',
+            '\\LARGE',
+            '\\huge',
+            '\\Huge',
+          ][fontsize],
+          ...body
+        );
+      } else result.push(...body);
+    }
+  }
+
   return result;
 }

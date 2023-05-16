@@ -1,6 +1,12 @@
-import type { Variant, VariantStyle, Style } from '../public/core-types';
+import type { Variant, VariantStyle } from '../public/core-types';
 
-import { Atom, AtomJson, AtomType, ToLatexOptions } from '../core/atom-class';
+import {
+  Atom,
+  AtomJson,
+  AtomType,
+  CreateAtomOptions,
+  ToLatexOptions,
+} from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { joinLatex, latexCommand } from '../core/tokenizer';
@@ -16,9 +22,8 @@ export class OperatorAtom extends Atom {
   private readonly hasArgument: boolean;
 
   constructor(
-    command: string,
-    symbol: string | Atom[],
-    options: {
+    symbol: string,
+    options: CreateAtomOptions & {
       type?: AtomType;
       isExtensibleSymbol?: boolean;
       isFunction?: boolean;
@@ -28,20 +33,14 @@ export class OperatorAtom extends Atom {
       variant?: Variant;
       variantStyle?: VariantStyle;
       limits?: 'auto' | 'over-under' | 'adjacent';
-      style?: Style;
     }
   ) {
     super({
+      ...options,
       type: options.type ?? 'mop',
-      command,
-      style: options.style,
       isFunction: options?.isFunction,
     });
-    if (typeof symbol === 'string') this.value = symbol;
-    else {
-      this.body = symbol;
-      this.captureSelection = true;
-    }
+    this.value = symbol;
 
     this.hasArgument = options.hasArgument ?? false;
     this.variant = options?.variant;
@@ -51,11 +50,7 @@ export class OperatorAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): OperatorAtom {
-    return new OperatorAtom(
-      json.command,
-      json.body ? json.body : json.value,
-      json as any
-    );
+    return new OperatorAtom(json.symbol, json as any);
   }
 
   toJson(): AtomJson {
@@ -103,14 +98,6 @@ export class OperatorAtom extends Atom {
       slant = base.italic;
       base.setStyle('color', this.style.color);
       base.setStyle('background-color', this.style.backgroundColor);
-    } else if (this.body) {
-      // If this is a list, decompose that list.
-      base = Atom.createBox(context, this.body, { type: 'inner' });
-
-      if (!base) return null;
-
-      base.setStyle('color', this.style.color);
-      base.setStyle('background-color', this.style.backgroundColor);
     } else {
       // Otherwise, this is a text operator. Build the text from the
       // operator's name.
@@ -151,7 +138,7 @@ export class OperatorAtom extends Atom {
     });
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     if (!options.expandMacro && typeof this.verbatimLatex === 'string')
       return this.verbatimLatex;
     const def = getDefinition(this.command, this.mode);
@@ -165,6 +152,7 @@ export class OperatorAtom extends Atom {
     if (this.hasArgument)
       result.push(latexCommand(this.command, this.bodyToLatex(options)));
     else result.push(this.command!);
+
     if (this.explicitSubsupPlacement) {
       if (this.subsupPlacement === 'over-under') result.push('\\limits');
       if (this.subsupPlacement === 'adjacent') result.push('\\nolimits');

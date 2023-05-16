@@ -42,16 +42,10 @@ export class GenfracAtom extends Atom {
     | 'numerator-denominator'
     | 'denominator-numerator';
 
-  constructor(
-    command: string,
-    above: Atom[],
-    below: Atom[],
-    options: GenfracOptions
-  ) {
+  constructor(above: Atom[], below: Atom[], options: GenfracOptions) {
     super({
+      ...options,
       type: 'genfrac',
-      style: options.style,
-      command,
       displayContainsHighlight: true,
     });
     this.above = above;
@@ -68,7 +62,6 @@ export class GenfracAtom extends Atom {
 
   static fromJson(json: AtomJson): GenfracAtom {
     return new GenfracAtom(
-      json.command,
       json.above,
       json.below,
       json as any as GenfracOptions
@@ -169,19 +162,19 @@ export class GenfracAtom extends Atom {
     let clearance = 0;
     let denomShift: number;
     if (fracContext.isDisplayStyle) {
-      numerShift = metrics.num1; // Set u ← σ8
+      numerShift = numContext.metrics.num1; // Set u ← σ8
       clearance = ruleWidth > 0 ? 3 * ruleWidth : 7 * ruleWidth;
-      denomShift = metrics.denom1; // V ← σ11
+      denomShift = denomContext.metrics.denom1; // V ← σ11
     } else {
       if (ruleWidth > 0) {
-        numerShift = metrics.num2; // U ← σ9
+        numerShift = numContext.metrics.num2; // U ← σ9
         clearance = ruleWidth; //  Φ ← θ
       } else {
-        numerShift = metrics.num3; // U ← σ10
-        clearance = 3 * ruleWidth; // Φ ← 3 ξ8
+        numerShift = numContext.metrics.num3; // U ← σ10
+        clearance = 3 * metrics.defaultRuleThickness; // Φ ← 3 ξ8
       }
 
-      denomShift = metrics.denom2; // V ← σ12
+      denomShift = denomContext.metrics.denom2; // V ← σ12
     }
 
     const classes: string[] = [];
@@ -240,7 +233,7 @@ export class GenfracAtom extends Atom {
             shift: denomShift,
             classes: [...classes, 'ML__center'],
           },
-          { box: fracLine, shift: -denomLine + ruleWidth / 2, classes },
+          { box: fracLine, shift: -denomLine, classes },
           {
             box: numerBox,
             shift: -numerShift,

@@ -121,15 +121,13 @@ export class LatexModeEditor extends ModeEditor {
 }
 
 export function getLatexGroup(model: ModelPrivate): LatexGroupAtom | undefined {
-  return model.atoms.find((x) => x instanceof LatexGroupAtom);
+  return model.atoms.find((x) => x.type === 'latexgroup') as LatexGroupAtom;
 }
 
 export function getLatexGroupBody(model: ModelPrivate): LatexAtom[] {
-  const atom = model.atoms.find((x) => x instanceof LatexGroupAtom);
+  const atom = model.atoms.find((x) => x.type === 'latexgroup');
   if (!atom) return [];
-  return (
-    (atom.body?.filter((x) => x instanceof LatexAtom) as LatexAtom[]) ?? []
-  );
+  return (atom.body?.filter((x) => x.type === 'latex') as LatexAtom[]) ?? [];
 }
 
 export function getCommandSuggestionRange(

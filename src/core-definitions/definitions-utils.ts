@@ -4,6 +4,7 @@ import {
   Atom,
   AtomType,
   BBoxParameter,
+  CreateAtomOptions,
   ToLatexOptions,
 } from '../core/atom-class';
 import type { ColumnFormat } from '../core-atoms/array';
@@ -21,7 +22,6 @@ import type {
   MathstyleName,
   Environment,
   LatexValue,
-  Style,
 } from '../public/core-types';
 import { unicodeToMathVariant } from './unicode';
 import type { ContextInterface, PrivateStyle } from '../core/types';
@@ -50,7 +50,7 @@ export type ParseResult =
 
 export type TokenDefinition = FunctionDefinition | SymbolDefinition;
 
-export type FunctionDefinition = {
+export type FunctionDefinition<T extends any[] = any[]> = {
   definitionType: 'function';
   command?: string;
   params: FunctionArgumentDefinition[];
@@ -64,11 +64,7 @@ export type FunctionDefinition = {
   ifMode?: ParseMode;
   /**  */
   applyMode?: ParseMode;
-  createAtom?: (
-    command: string,
-    args: (null | Argument)[],
-    style: PrivateStyle
-  ) => Atom;
+  createAtom?: (options: CreateAtomOptions<T>) => Atom;
   applyStyle?: (
     command: string,
     args: (null | Argument)[],
@@ -108,7 +104,7 @@ export type SymbolDefinition = {
   template?: string;
 };
 
-export function argAtoms(arg: Argument | null): Atom[] {
+export function argAtoms(arg: Argument | null | undefined): Atom[] {
   if (!arg) return [];
   if (Array.isArray(arg)) return arg as Atom[];
   if (typeof arg === 'object' && 'group' in arg) return arg.group;
@@ -774,11 +770,7 @@ export function defineFunction(
     applyMode?: ParseMode;
     infix?: boolean;
     isFunction?: boolean;
-    createAtom?: (
-      name: string,
-      args: (null | Argument)[],
-      style: Style
-    ) => Atom;
+    createAtom?: (options: CreateAtomOptions) => Atom;
     applyStyle?: (
       name: string,
       args: (null | Argument)[],
@@ -1003,28 +995,4 @@ export function charToLatex(
   }
 
   return String.fromCodePoint(codepoint);
-}
-
-export function argumentsToJson(args: (null | Argument)[]): any {
-  return args.map((arg) => {
-    if (arg === null) return '<null>';
-    if (Array.isArray(arg) && arg[0] instanceof Atom)
-      return { atoms: arg.map((x) => x.toJson()) };
-    if (typeof arg === 'object' && 'group' in arg)
-      return { group: arg.group.map((x) => x.toJson()) };
-    return arg;
-  });
-}
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function argumentsFromJson(json: any): undefined | Argument[] {
-  if (!json) return undefined;
-  if (!Array.isArray(json)) return undefined;
-  return json.map((arg) => {
-    if (arg === '<null>') return null;
-    if (typeof arg === 'object' && 'group' in arg)
-      return { group: arg.group.map((x) => Atom.fromJson(x)) };
-    if ('atoms' in arg) return arg.atoms.map((x) => Atom.fromJson(x));
-    return arg;
-  });
 }

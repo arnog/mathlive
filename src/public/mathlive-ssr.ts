@@ -91,6 +91,7 @@ export function convertLatexToMarkup(
   // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
   //
   const root = new Atom({
+    mode: 'math',
     type: 'root',
     body: parseLatex(text, {
       context,
