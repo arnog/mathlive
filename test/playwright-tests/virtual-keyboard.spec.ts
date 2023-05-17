@@ -130,7 +130,7 @@ test('Switch layer by shift', async ({ page }) => {
   await page.evaluate(() => {
     const shift = {
       class: 'action font-glyph modifier',
-      label: "<svg><use xlink:href='#svg-shift' /></svg>"
+      label: "<svg><use xlink:href='#svg-shift' /></svg>",
     };
     window.mathVirtualKeyboard.layouts = [
       {
@@ -142,13 +142,13 @@ test('Switch layer by shift', async ({ page }) => {
               [
                 {
                   ...shift,
-                  command: ['switchKeyboardLayer', 'abc-upper']
+                  command: ['switchKeyboardLayer', 'abc-upper'],
                 },
                 {
-                  latex: 'a'
-                }
-              ]
-            ]
+                  latex: 'a',
+                },
+              ],
+            ],
           },
           {
             id: 'abc-upper',
@@ -156,21 +156,21 @@ test('Switch layer by shift', async ({ page }) => {
               [
                 {
                   ...shift,
-                  command: ['switchKeyboardLayer', 'abc-lower']
+                  command: ['switchKeyboardLayer', 'abc-lower'],
                 },
                 {
-                  latex: 'A'
-                }
-              ]
-            ]
-          }
-        ]
-      }
+                  latex: 'A',
+                },
+              ],
+            ],
+          },
+        ],
+      },
     ];
   });
 
   await page.locator('.ML__virtual-keyboard-toggle').nth(0).click();
-  const rowLocator = page.locator('.MLK__layer.is-visible .row')
+  const rowLocator = page.locator('.MLK__layer.is-visible .row');
   await rowLocator.locator('> :nth-child(1)').click(); // shift
   await rowLocator.locator('> :nth-child(2)').click(); // A
   await rowLocator.locator('> :nth-child(1)').click(); // shift
@@ -180,4 +180,4 @@ test('Switch layer by shift', async ({ page }) => {
     .locator('#mf-1')
     .evaluate((mfe: MathfieldElement) => mfe.value);
   expect(latex).toBe('Aa');
-})
+});
