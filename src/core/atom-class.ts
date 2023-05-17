@@ -436,7 +436,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
 
       let { parent } = this;
       while (parent) {
-        if (this.type === 'root') parent._changeCounter++;
+        if (parent.type === 'root') parent._changeCounter++;
         if ('verbatimLatex' in parent) parent.verbatimLatex = undefined;
         parent._children = undefined;
 
