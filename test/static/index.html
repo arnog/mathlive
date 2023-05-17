@@ -84,7 +84,19 @@
               'Italic correction after "f"',
               '"\\mathit" is using main font, italic: no extra spacvin',
             ],
-            latex: `-+=:ffif'gvwy0\\sum \\mathit{-+=ffif'gvwy0\\sum}`,
+            latex: `-+=:\\colon \\coloneq ffif'gvwy0\\sum \\mathit{-+=ffif'gvwy0\\sum}`,
+          },
+          {
+            title: 'Math axis',
+            comment: [
+              'Fraction bar on the math axis',
+              'minus sign on math axis',
+              'equal sign centered on math axis',
+              'sum/sigma centerd on math axis',
+              '"o" centered on math axis',
+              '"0" bottom aligned with "o" bottom, but "0" top aligned with "+" top',
+            ],
+            latex: `o0+\\frac00=\\sum`,
           },
           {
             title: 'Math Font: Extensible symbol sup/sub shift',
@@ -502,16 +514,14 @@
           {
             title: 'Tall Fraction',
             latex: `\\sqrt{
-                                    \\frac{x}{
-                                    \\frac{
-                                      \\frac{
-                                        \\frac{3}{4}
-                                      }
-                                      {5}
-                                    }
-                                    {2}
-                                    }
-                                    }`,
+\\frac{x}{
+  \\frac{
+    \\frac{\\frac{3}{4}}
+    {5}
+  }
+  {2}
+  }
+}`,
           },
           {
             title: 'Combination (binomial)',
@@ -633,235 +643,6 @@
             title: 'Limits on a custom operator',
             pic: 'limits-4.gif',
             latex: `\\operatorname{custom-operator}^{above}_{below}\\mathop{operator}^{above}_{below}`,
-          },
-        ],
-        'Examples': [
-          {
-            title: '<kbd>\\text</kbd>',
-            latex: `\\pi={\\text{circumference} \\over \\text{radius}^2}`,
-          },
-          {
-            title: 'Quadratic Roots (<kbd>\\left</kbd>...<kbd>\\right</kbd>)',
-            class: 'small',
-            latex: `ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)`,
-          },
-          {
-            title: 'L’Hôpital’s Rule',
-            pic: 'l-hopital.gif',
-            comment:
-              'The limit of an indeterminate form 0/0 is the limit of the derivatives of the numerator and the denominator.',
-            latex: `\\lim_{x\\to 0}{\\frac{e^x-1}{2x}}
-                                    \\overset{\\left[\\frac{0}{0}\\right]}{\\underset{\\mathop{H}}{=}}
-                                    \\lim_{x\\to 0}{\\frac{e^x}{2}}={\\frac{1}{2}}`,
-          },
-          {
-            title: 'Lorenz Equation',
-            pic: 'lorenz.gif',
-            comment:
-              'Note that "align" (instead of "align*") should display equation numbers',
-            latex: `\\begin{align*}
-                                    \\dot{x} & = \\sigma(y-x) \\\\
-                                    \\dot{y} & = \\rho x - y - xz \\\\
-                                    \\dot{z} & = -\\beta z + xy
-                                    \\end{align*}`,
-          },
-          {
-            title: 'The Cauchy-Schwarz Inequality',
-            comment: '',
-            latex: `\\left( \\sum_{k=1}^n a_k b_k \\right)^{\\!\\!2} \\leq
-                                    \\left( \\sum_{k=1}^n a_k^2 \\right) \\left( \\sum_{k=1}^n b_k^2 \\right)`,
-          },
-          {
-            title: 'Probability of getting k heads when flipping n coins',
-            latex: `\\[P(E) = {n \\choose k} p^k (1-p)^{ n-k} \\]`,
-          },
-          {
-            title: 'An Identity of Ramanujan',
-            latex: `   \\frac{1}{(\\sqrt{\\phi \\sqrt{5}}-\\phi) e^{\\frac25 \\pi}} =
-                                    1+\\cfrac{e^{-2\\pi}} {1+\\cfrac{e^{-4\\pi}} {1+\\cfrac{e^{-6\\pi}}
-                                    {1+\\cfrac{e^{-8\\pi}} {1+\\ldots} } } }`,
-          },
-          {
-            title: 'A Rogers-Ramanujan Identity',
-            class: 'small',
-            latex: `  1 +  \\frac{q^2}{(1-q)}+\\frac{q^6}{(1-q)(1-q^2)}+\\cdots =
-                                    \\prod_{j=0}^{\\infty}\\frac{1}{(1-q^{5j+2})(1-q^{5j+3})},
-                                    \\quad\\quad \\text{for $|q|<1$}.`,
-          },
-          {
-            title: 'DeMorgan’s law',
-            latex: '\\neg(P\\land Q) \\iff (\\neg P)\\lor(\\neg Q)',
-          },
-          {
-            title: 'Taylor Series',
-            latex: `f(x)|_{x=a}=T|^f_a(x)= \\sum_{n=0}^\\infty \\frac{f^{(n)}(a)}{n!}(x-a)^n`,
-          },
-
-          {
-            title: 'Schrodinger’s Equation',
-            comment:
-              'The solution of this equation is a wave that describes the quantum aspects of a system.',
-            latex: `\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V(\\mathbf{r})\\Psi= -i\\hbar \\frac{\\partial\\Psi}{\\partial t}`,
-          },
-
-          {
-            title: 'Black-Scholes',
-            latex: `u(x,\\,\\tau )= Ke^{x + \\frac{1}{2}\\sigma^2 \\tau}N(d_1) - KN(d_2){\\overset {x\\rightsquigarrow \\infty }{\\asymp }}Ke^{x}}`,
-          },
-          {
-            title: 'Rotation Matrix',
-            latex: `\\begin{bmatrix} x' \\\\ y' \\end{bmatrix}
-                                    =
-                                    \\begin{bmatrix}
-                                    \\cos \\theta &  -\\sin\\theta \\\\
-                                    \\sin \\theta & \\cos \\theta
-                                    \\end{bmatrix}
-                                    \\begin{bmatrix} x \\\\ y  \\end{bmatrix}`,
-          },
-          {
-            title: 'Matrix Inversion',
-            class: 'small',
-            comment:
-              'The extra line (\\\\) at the bottom of the matrices is ignored.',
-            latex: `\\mathbf{A}^{-1} =
-            \\begin{bmatrix}
-                a & b \\\\
-                c & d \\\\
-            \\end{bmatrix}^{-1} =
-            \\frac{1}{\\det \\mathbf{A}}
-            \\begin{bmatrix*}[rr]
-                d & -b \\\\
-                -c & a \\\\
-            \\end{bmatrix*} =
-            \\frac{1}{ad - bc}
-            \\begin{bmatrix*}[rr]
-                d & -b \\\\
-                -c & a \\\\
-            \\end{bmatrix*}.`,
-          },
-          {
-            title: 'Cross Product',
-            latex: `\\mathbf{V}_1 \\times \\mathbf{V}_2 =  \
-            \\begin{vmatrix}
-                \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\[.25em]
-                \\frac{\\partial X}{\\partial u} &  \\frac{\\partial Y}{\\partial u} & 0 \\\\[.5em]
-                \\frac{\\partial X}{\\partial v} &  \\frac{\\partial Y}{\\partial v} & 0
-            \\end{vmatrix}`,
-          },
-          {
-            title: 'Maxwell’s Equation',
-            pic: 'maxwell.gif',
-            comment: `The magnetic field induced around a closed loop is proportional
-      to the electric current plus displacement current (rate of change of
-      electric field) it encloses.<br>
-      The electric flux leaving a volume is proportional to the charge inside.<br>
-      The voltage induced in a closed circuit is proportional to the rate of
-      change of the magnetic flux it encloses.<br>
-      There are no magnetic monopoles; the total magnetic flux through a closed
-      surface is zero.
-      `,
-            latex: `\\begin{aligned}
-      \\nabla \\times \\vec{\\mathbf{B}} -\\, \\frac1c\\, \\frac{\\partial\\vec{\\mathbf{E}}}{\\partial t}
-      & = \\frac{4\\pi}{c}\\vec{\\mathbf{j}} \\\\
-      \\nabla \\cdot \\vec{\\mathbf{E}}
-      & = 4 \\pi \\rho \\\\
-      \\nabla \\times \\vec{\\mathbf{E}}\\, +\\, \\frac1c\\, \\frac{\\partial\\vec{\\mathbf{B}}}{\\partial t}
-      & = \\vec{\\mathbf{0}} \\\\
-      \\nabla \\cdot \\vec{\\mathbf{B}}
-      & = 0 \\end{aligned}`,
-          },
-          {
-            title: 'Riemann’s Formula',
-            pic: 'riemann.gif',
-            class: 'small',
-            latex: `\\begin{array}{lc}
-                \\text{Given:}\\\\
-                &    f(x)=\\operatorname {li}(x)-\\sum _{\\rho }\\operatorname {li}(x^{\\rho })-\\log(2)+\\int _{x}^{\\infty }{\\frac  {dt}{t(t^{2}-1)\\log(t)}}\\\\
-                \\text{with}\\\\
-                &    \\operatorname {li}(x)=\\int _{0}^{x}{\\frac  {dt}{\\log(t)}}.\\\\
-                \\text{then}\\\\
-                &    \\pi _{0}(x)=\\sum _{n}{\\frac {1}{n}}\\mu (n)f(x^{1/n})=f(x)-{\\frac {1}{2}}f(x^{1/2})-{\\frac {1}{3}}f(x^{1/3})-{\\frac {1}{5}}f(x^{1/5})+{\\frac {1}{6}}f(x^{1/6})-\\cdots ,\\\\
-                \\text{and}\\\\
-                &    \\Pi _{0}(x)=\\sum _{n=1}^{\\infty }{\\frac {1}{n}}\\pi _{0}(x^{1/n})\\\\
-                \\text{where}\\\\
-                &    \\bigl( \\Pi _{0}(x) \\bigr) \\text{is Riemann's prime counting function.}
-            \\end{array}`,
-          },
-          {
-            title: 'Cnoidal Wave Equation',
-            pic: 'cnoidal.gif',
-            comment:
-              '<a href="https://en.wikipedia.org/wiki/Cnoidal_wave">Cnoidal wave</a>',
-            class: 'small',
-            latex: `\\begin{align*}
-      \\frac{1}{\\lambda}\\, \\int_0^\\lambda \\eta^2\\; \\text{d}x
-      &= \\frac{1}{\\lambda} \\int_0^\\lambda
-              \\left\\{ \\eta_2 + H\\, \\operatorname{cn}^2 \\left(
-                  \\begin{array}{c|c} \\displaystyle \\frac{\\xi}{\\Delta} & m\\end{array}
-              \\right) \\right\\}^2\\;
-              \\text{d}\\xi
-          = \\frac{H^2}{\\lambda} \\int_0^\\lambda
-              \\operatorname{cn}^4 \\left( \\begin{array}{c|c} \\displaystyle \\frac{\\xi}{\\Delta} & m\\end{array} \\right)\\; \\text{d}\\xi
-          - \\eta_2^2
-      \\\\
-      &= \\frac{\\Delta\\, H^2}{\\lambda} \\int_0^{\\pi} \\cos^4\\, \\psi\\, \\frac{\\text{d}\\xi}{\\text{d}\\psi}\\; \\text{d}\\psi - \\eta_2^2
-          = \\frac{H^2}{2\\, K(m)} \\int_0^{\\pi} \\frac{\\cos^4\\, \\psi}{\\sqrt{1 - m\\, \\sin^2\\, \\psi}}\\; \\text{d}\\psi - \\eta_2^2
-      \\\\
-      &= \\frac13\\, \\frac{H^2}{m^2}\\, \\left[ \\left( 2 - 5\\, m + 3\\, m^2 \\right) + \\left( 4\\, m - 2 \\right)\\, \\frac{E(m)}{K(m)} \\right]
-          - \\frac{H^2}{m^2}\\, \\left( 1 - m - \\frac{E(m)}{K(m)} \\right)^2
-      \\end{align*}`,
-          },
-          {
-            title: 'Fibonacci Polynomials',
-            pic: 'fibonacci.gif',
-            comment: 'Fn(1) is the Fibonacci sequence.',
-            latex: `F_n(x)= \\begin{cases}
-                                    0, & \\mbox{if } n =  0\\\\
-                                    1, & \\mbox{if } n =  1\\\\
-                                    x F_{n - 1}(x) + F_{n - 2}(x),& \\mbox{if }  n \\geq 2
-                                    \\end{cases}`,
-          },
-          {
-            title: 'The Loop Equation',
-            comment:
-              'This equation is a description of a loop in a programming language using formal methods.',
-            class: 'small',
-            latex: `\\begin{matrix}
-                \\alpha\\in p(DO)
-                    \\quad\\Longleftrightarrow\\quad
-                    DO(\\alpha)\\subseteq A^\\ast\\\\
-                \\Updownarrow\\\\
-                DO(\\alpha)=\\begin{cases}
-                    \\{\\langle\\alpha\\rangle\\},
-                        &\\mathop{ha}\\neg\\pi(\\alpha)\\\\
-
-                    \\{\\alpha\\in A^\\ast \\mid \\exists n\\in\\mathbb{N}
-                        \\;\\colon\\;\\
-                        \\alpha=\\chi_n(\\alpha^1,\\ldots,\\alpha^n)\\wedge&\\\\
-                    /g\\alpha^1\\in S(\\alpha)
-                        \\wedge
-                    \\forall i \\in [1..n-1]\\;\\colon\\;&\\\\
-                    \\alpha^{i+1}\\in S(\\tau(\\alpha^i))
-                        \\wedge
-                    \\pi(\\tau(\\alpha^i))\\wedge&\\\\
-                    \\neg\\pi(\\tau(\\alpha^n))\\},
-                        &\\mathop{ha} \\pi(\\alpha)
-                \\end{cases}\\\\
-                \\Updownarrow\\\\
-                \\neg \\pi(\\alpha)
-                    \\vee
-                (\\exists\\beta \\in A^\\infty
-                    \\;\\colon\\;
-                \\beta_1=\\alpha
-                    \\wedge
-                \\forall i \\in \\mathbb{N}
-                \\;\\colon\\;
-                \\beta_{i+1}\\in p(S)(\\beta_i)
-                    \\wedge
-                \\pi(\\beta_i))\\\\
-                \\Updownarrow\\\\
-                    \\alpha\\in\\frac{}{p(S)|_\\pi}
-            \\end{matrix}`,
           },
         ],
         'Environments (<kbd>begin...end</kbd>)': [
@@ -1062,33 +843,33 @@
             title: 'Gathered environment',
             comment: 'The cells of the matrix should be in textstyle.',
             latex: `\\begin{gathered}
-      \\text{gathered}   \\\\
-      \\frac12 x^2+y^2=z^2 \\\\
-          x < y
-      \\end{gathered}
-          \\ne
-      \\begin{array}{c}
-      \\text{array\\{c\\}} \\\\
-      \\frac12 x^2+y^2=z^2 \\\\
-          x < y
-      \\end{array}`,
+  \\text{gathered}   \\\\
+  \\frac12 x^2+y^2=z^2 \\\\
+      x < y
+  \\end{gathered}
+      \\ne
+  \\begin{array}{c}
+  \\text{array\\{c\\}} \\\\
+  \\frac12 x^2+y^2=z^2 \\\\
+      x < y
+\\end{array}`,
           },
           {
             title: '<kbd>cases</kbd> environment',
             pic: 'matrix-19.png',
             latex: `\\begin{cases}
-      \\frac{x-y}{4}=\\frac{4-y}{8}\\\\
-      -\\frac{y+3}{8}=\\frac{1-2x}{8}
-      \\end{cases}`,
+  \\frac{x-y}{4}=\\frac{4-y}{8}\\\\
+  -\\frac{y+3}{8}=\\frac{1-2x}{8}
+\\end{cases}`,
           },
           {
             title: '<kbd>cases</kbd> Spacing',
             latex: `\\left|
-      \\begin{cases}
-          \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
-          \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
-      \\end{cases}
-      \\right|`,
+\\begin{cases}
+    \\rule{1em}{1em}&\\rule{1em}{1em}\\\\
+    \\rule{.5em}{1em}&\\rule{.5em}{1em}\\\\
+\\end{cases}
+\\right|`,
           },
           {
             title: 'Cases',
@@ -1110,26 +891,26 @@
           {
             title: '<kbd>dcases</kbd> is <kbd>\\displaystyle</kbd>',
             latex: `= \\begin{dcases}
-      \\sum_n^{100} \\\\
-      \\textstyle\\sum_n^{100}
-      \\end{dcases}`,
+\\sum_n^{100} \\\\
+\\textstyle\\sum_n^{100}
+\\end{dcases}`,
           },
 
           {
             title: 'Matrix with Fractions',
             comment: 'The cells of the matrix should be in textstyle.',
             latex: `\\begin{pmatrix}
-      \\frac12&   0   &\\frac34\\\\[.5em]
-      0&  \\frac12&   \\frac43
-      \\end{pmatrix}`,
+\\frac12&   0   &\\frac34\\\\[.5em]
+0&  \\frac12&   \\frac43
+\\end{pmatrix}`,
           },
           {
             title: 'Aligned Numbers (custom column separator)',
             latex: `\\begin{array}{r@{.}l}
-      3   & 14159 \\\\
-      16  & 2     \\\\
-      123 & 456   \\\\
-      \\end{array}`,
+3   & 14159 \\\\
+16  & 2     \\\\
+123 & 456   \\\\
+\\end{array}`,
           },
         ],
         'Accents': [
@@ -1149,12 +930,12 @@
             class: 'fail small',
             pic: 'stacked-accents.gif',
             latex: `\\vec{\\breve{\\hat{\\acute{Y}}}}^2 =
-      \\vec{\\breve{\\hat{\\acute{XXX}}}}^2 =
-      \\vec{\\breve{\\hat{\\acute{\\sqrt{XXX}}}}}^2 =
-      \\vec{\\breve{\\hat{\\acute{\\frac{1}{2}}}}}^2 =
-      \\xi^A \\, =
-      \\hat{\\bar{\\acute{\\breve{\\vec{\\xi\\alpha XXX}}}}}{}^{A'} =
-      \\left(\\cfrac{\\frac12}{\\frac34}\\right)^2`,
+\\vec{\\breve{\\hat{\\acute{XXX}}}}^2 =
+\\vec{\\breve{\\hat{\\acute{\\sqrt{XXX}}}}}^2 =
+\\vec{\\breve{\\hat{\\acute{\\frac{1}{2}}}}}^2 =
+\\xi^A \\, =
+\\hat{\\bar{\\acute{\\breve{\\vec{\\xi\\alpha XXX}}}}}{}^{A'} =
+\\left(\\cfrac{\\frac12}{\\frac34}\\right)^2`,
           },
         ],
         'Colors and Boxes': [
@@ -1165,50 +946,50 @@
           {
             title: 'All the colors',
             latex: `\\begin{array}{c}
-      {\\color{Apricot}\\blacksquare}{\\color{Aquamarine}\\blacksquare}
-      {\\color{Bittersweet}\\blacksquare}{\\color{Black}\\blacksquare}
-      {\\color{Blue}\\blacksquare}{\\color{BlueGreen}\\blacksquare}
-      {\\color{BlueViolet}\\blacksquare}{\\color{BrickRed}\\blacksquare}\\\\
+  {\\color{Apricot}\\blacksquare}{\\color{Aquamarine}\\blacksquare}
+  {\\color{Bittersweet}\\blacksquare}{\\color{Black}\\blacksquare}
+  {\\color{Blue}\\blacksquare}{\\color{BlueGreen}\\blacksquare}
+  {\\color{BlueViolet}\\blacksquare}{\\color{BrickRed}\\blacksquare}\\\\
 
-      {\\color{Brown}\\blacksquare}{\\color{BurntOrange}\\blacksquare}
-      {\\color{CadetBlue}\\blacksquare}{\\color{CarnationPink}\\blacksquare}
-      {\\color{Cerulean}\\blacksquare}{\\color{CornflowerBlue}\\blacksquare}
-      {\\color{Cyan}\\blacksquare}{\\color{Dandelion}\\blacksquare}\\\\
+  {\\color{Brown}\\blacksquare}{\\color{BurntOrange}\\blacksquare}
+  {\\color{CadetBlue}\\blacksquare}{\\color{CarnationPink}\\blacksquare}
+  {\\color{Cerulean}\\blacksquare}{\\color{CornflowerBlue}\\blacksquare}
+  {\\color{Cyan}\\blacksquare}{\\color{Dandelion}\\blacksquare}\\\\
 
 
-      {\\color{DarkOrchid}\\blacksquare}{\\color{Emerald}\\blacksquare}
-      {\\color{ForestGreen}\\blacksquare}{\\color{Fuchsia}\\blacksquare}
-      {\\color{Goldenrod}\\blacksquare}{\\color{Gray}\\blacksquare}
-      {\\color{Green}\\blacksquare}{\\color{GreenYellow}\\blacksquare}\\\\
+  {\\color{DarkOrchid}\\blacksquare}{\\color{Emerald}\\blacksquare}
+  {\\color{ForestGreen}\\blacksquare}{\\color{Fuchsia}\\blacksquare}
+  {\\color{Goldenrod}\\blacksquare}{\\color{Gray}\\blacksquare}
+  {\\color{Green}\\blacksquare}{\\color{GreenYellow}\\blacksquare}\\\\
 
-      {\\color{JungleGreen}\\blacksquare}{\\color{Lavender}\\blacksquare}
-      {\\color{LimeGreen}\\blacksquare}{\\color{Magenta}\\blacksquare}
-      {\\color{Mahogany}\\blacksquare}{\\color{Maroon}\\blacksquare}
-      {\\color{Melon}\\blacksquare}{\\color{MidnightBlue}\\blacksquare}\\\\
+  {\\color{JungleGreen}\\blacksquare}{\\color{Lavender}\\blacksquare}
+  {\\color{LimeGreen}\\blacksquare}{\\color{Magenta}\\blacksquare}
+  {\\color{Mahogany}\\blacksquare}{\\color{Maroon}\\blacksquare}
+  {\\color{Melon}\\blacksquare}{\\color{MidnightBlue}\\blacksquare}\\\\
 
-      {\\color{Mulberry}\\blacksquare}{\\color{NavyBlue}\\blacksquare}
-      {\\color{OliveGreen}\\blacksquare}{\\color{Orange}\\blacksquare}
-      {\\color{OrangeRed}\\blacksquare}{\\color{Orchid}\\blacksquare}
-      {\\color{Peach}\\blacksquare}{\\color{Periwinkle}\\blacksquare}\\\\
+  {\\color{Mulberry}\\blacksquare}{\\color{NavyBlue}\\blacksquare}
+  {\\color{OliveGreen}\\blacksquare}{\\color{Orange}\\blacksquare}
+  {\\color{OrangeRed}\\blacksquare}{\\color{Orchid}\\blacksquare}
+  {\\color{Peach}\\blacksquare}{\\color{Periwinkle}\\blacksquare}\\\\
 
-      {\\color{PineGreen}\\blacksquare}{\\color{Plum}\\blacksquare}
-      {\\color{ProcessBlue}\\blacksquare}{\\color{Purple}\\blacksquare}
-      {\\color{RawSienna}\\blacksquare}{\\color{Red}\\blacksquare}
-      {\\color{RedOrange}\\blacksquare}{\\color{RedViolet}\\blacksquare}\\\\
+  {\\color{PineGreen}\\blacksquare}{\\color{Plum}\\blacksquare}
+  {\\color{ProcessBlue}\\blacksquare}{\\color{Purple}\\blacksquare}
+  {\\color{RawSienna}\\blacksquare}{\\color{Red}\\blacksquare}
+  {\\color{RedOrange}\\blacksquare}{\\color{RedViolet}\\blacksquare}\\\\
 
-      {\\color{Rhodamine}\\blacksquare}{\\color{RoyalBlue}\\blacksquare}
-      {\\color{RoyalPurple}\\blacksquare}{\\color{RubineRed}\\blacksquare}
-      {\\color{Salmon}\\blacksquare}{\\color{SeaGreen}\\blacksquare}
-      {\\color{Sepia}\\blacksquare}{\\color{SkyBlue}\\blacksquare}\\\\
+  {\\color{Rhodamine}\\blacksquare}{\\color{RoyalBlue}\\blacksquare}
+  {\\color{RoyalPurple}\\blacksquare}{\\color{RubineRed}\\blacksquare}
+  {\\color{Salmon}\\blacksquare}{\\color{SeaGreen}\\blacksquare}
+  {\\color{Sepia}\\blacksquare}{\\color{SkyBlue}\\blacksquare}\\\\
 
-      {\\color{SpringGreen}\\blacksquare}{\\color{Tan}\\blacksquare}
-      {\\color{TealBlue}\\blacksquare}{\\color{Thistle}\\blacksquare}
-      {\\color{Turquoise}\\blacksquare}{\\color{Violet}\\blacksquare}
-      {\\color{VioletRed}\\blacksquare}{\\color{White}\\blacksquare}\\\\
+  {\\color{SpringGreen}\\blacksquare}{\\color{Tan}\\blacksquare}
+  {\\color{TealBlue}\\blacksquare}{\\color{Thistle}\\blacksquare}
+  {\\color{Turquoise}\\blacksquare}{\\color{Violet}\\blacksquare}
+  {\\color{VioletRed}\\blacksquare}{\\color{White}\\blacksquare}\\\\
 
-      {\\color{WildStrawberry}\\blacksquare}{\\color{Yellow}\\blacksquare}
-      {\\color{YellowGreen}\\blacksquare}{\\color{YellowOrange}\\blacksquare}
-      \\end{array}`,
+  {\\color{WildStrawberry}\\blacksquare}{\\color{Yellow}\\blacksquare}
+  {\\color{YellowGreen}\\blacksquare}{\\color{YellowOrange}\\blacksquare}
+\\end{array}`,
           },
           {
             title: '<kbd>\\bbox</kbd> single argument',
@@ -1300,17 +1081,17 @@
           {
             title: 'Spacing',
             latex: `\\begin{gathered}
-      \\rule{.5em}{1em}\\!\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\,\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\:\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\enskip\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\;\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\enspace\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\quad\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\qquad\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\hskip 3em\\rule{.5em}{1em}\\\\
-      \\rule{.5em}{1em}\\hskip 6mu\\rule{.5em}{1em}\\\\
-      \\end{gathered}
+    \\rule{.5em}{1em}\\!\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\,\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\:\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\enskip\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\;\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\enspace\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\quad\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\qquad\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\hskip 3em\\rule{.5em}{1em}\\\\
+    \\rule{.5em}{1em}\\hskip 6mu\\rule{.5em}{1em}\\\\
+\\end{gathered}
       `,
           },
 
@@ -1333,10 +1114,10 @@
             title: 'Modulo',
             class: 'small',
             latex: `\\begin{aligned}
-      \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff p-1\\pmod{4}=0\\\\
-      \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\mod 4 =0\\\\
-      \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\bmod 4 =0
-      \\end{aligned}`,
+  \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff p-1\\pmod{4}=0\\\\
+  \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\mod 4 =0\\\\
+  \\exists p \\in \\mathbb{P}; x,y \\in \\mathbb{N} \\mid p = x^2 + y^2 \\iff (p-1)\\bmod 4 =0
+\\end{aligned}`,
           },
 
           {
@@ -1370,9 +1151,9 @@
             comment:
               '\\def\\stackrel#1#2{\\mathrel{\\mathop{#2}\\limits^{#1}}}',
             latex: `\\begin{aligned}
-      A \\underset{\\text{below}}{\\overset{\\text{above}}{+}} C\\
-      A \\mathop{+}_{\\text{below}}^{\\text{above}} C
-      \\end{aligned}`,
+    A \\underset{\\text{below}}{\\overset{\\text{above}}{+}} C\\
+    A \\mathop{+}_{\\text{below}}^{\\text{above}} C
+\\end{aligned}`,
           },
           {
             title: '<kbd>\\stackrel</kbd>',
@@ -1382,20 +1163,20 @@
           {
             title: 'Big delimiters',
             latex: `\\begin{aligned}
-      \\bigl\\langle a \\bigm\\| b \\bigr\\rangle \\big|\\\\
-      \\Bigl\\langle a \\Bigm\\| b \\Bigr\\rangle \\Big|\\\\
-      \\biggl\\langle a \\biggm\\| b \\biggr\\rangle \\bigg|\\\\
-      \\Biggl\\langle a \\Biggm\\| b \\Biggr\\rangle \\Bigg|\\\\
-      \\end{aligned}`,
+  \\bigl\\langle a \\bigm\\| b \\bigr\\rangle \\big|\\\\
+  \\Bigl\\langle a \\Bigm\\| b \\Bigr\\rangle \\Big|\\\\
+  \\biggl\\langle a \\biggm\\| b \\biggr\\rangle \\bigg|\\\\
+  \\Biggl\\langle a \\Biggm\\| b \\Biggr\\rangle \\Bigg|\\\\
+\\end{aligned}`,
           },
 
           {
             pic: 'overunderbrace-1.gif',
             title: 'Over/under Brace',
             latex: `z = \\overbrace{
-      \\underbrace{x}_\\text{real} + i
-      \\underbrace{y}_\\text{imaginary}
-      }^\\text{complex number}`,
+\\underbrace{x}_\\text{real} + i
+\\underbrace{y}_\\text{imaginary}
+}^\\text{complex number}`,
           },
 
           {
@@ -1485,6 +1266,236 @@
             title: 'Chemistry',
             latex:
               '\\ce{ Hg^2+ ->[\\ce{I-}]$\\underset{\\mathrm{red}}{\\ce{HgI2}}$->C[I-]$\\underset{\\mathrm{red}}{\\ce{[Hg^{II}I4]^2-}}$ } ',
+          },
+        ],
+        'Examples': [
+          {
+            title: '<kbd>\\text</kbd>',
+            latex: `\\pi={\\text{circumference} \\over \\text{radius}^2}`,
+          },
+          {
+            title: 'Quadratic Roots (<kbd>\\left</kbd>...<kbd>\\right</kbd>)',
+            class: 'small',
+            latex: `ax^2+bx+c = a \\left( x - \\frac{-b + \\sqrt {b^2-4ac}}{2a} \\right) \\left( x - \\frac{-b - \\sqrt {b^2-4ac}}{2a} \\right)`,
+          },
+          {
+            title: 'L’Hôpital’s Rule',
+            pic: 'l-hopital.gif',
+            comment:
+              'The limit of an indeterminate form 0/0 is the limit of the derivatives of the numerator and the denominator.',
+            latex: `\\lim_{x\\to 0}{\\frac{e^x-1}{2x}}
+\\overset{\\left[\\frac{0}{0}\\right]}{\\underset{\\mathop{H}}{=}}
+\\lim_{x\\to 0}{\\frac{e^x}{2}}={\\frac{1}{2}}`,
+          },
+          {
+            title: 'Lorenz Equation',
+            pic: 'lorenz.gif',
+            comment:
+              'Note that "align" (instead of "align*") should display equation numbers',
+            latex: `\\begin{align*}
+  \\dot{x} & = \\sigma(y-x) \\\\
+  \\dot{y} & = \\rho x - y - xz \\\\
+  \\dot{z} & = -\\beta z + xy
+\\end{align*}`,
+          },
+          {
+            title: 'The Cauchy-Schwarz Inequality',
+            comment: '',
+            latex: `\\left( \\sum_{k=1}^n a_k b_k \\right)^{\\!\\!2} \\leq
+\\left( \\sum_{k=1}^n a_k^2 \\right) \\left( \\sum_{k=1}^n b_k^2 \\right)`,
+          },
+          {
+            title: 'Probability of getting k heads when flipping n coins',
+            latex: `\\[P(E) = {n \\choose k} p^k (1-p)^{ n-k} \\]`,
+          },
+          {
+            title: 'An Identity of Ramanujan',
+            latex: `\\frac{1}{(\\sqrt{\\phi \\sqrt{5}}-\\phi) e^{\\frac25 \\pi}} =
+1+\\cfrac{e^{-2\\pi}} {1+\\cfrac{e^{-4\\pi}} {1+\\cfrac{e^{-6\\pi}}
+{1+\\cfrac{e^{-8\\pi}} {1+\\ldots} } } }`,
+          },
+          {
+            title: 'A Rogers-Ramanujan Identity',
+            class: 'small',
+            latex: `  1 +  \\frac{q^2}{(1-q)}+\\frac{q^6}{(1-q)(1-q^2)}+\\cdots =
+\\prod_{j=0}^{\\infty}\\frac{1}{(1-q^{5j+2})(1-q^{5j+3})},
+\\quad\\quad \\text{for $|q|<1$}.`,
+          },
+          {
+            title: 'DeMorgan’s law',
+            latex: '\\neg(P\\land Q) \\iff (\\neg P)\\lor(\\neg Q)',
+          },
+          {
+            title: 'Taylor Series',
+            latex: `f(x)|_{x=a}=T|^f_a(x)= \\sum_{n=0}^\\infty \\frac{f^{(n)}(a)}{n!}(x-a)^n`,
+          },
+
+          {
+            title: 'Schrodinger’s Equation',
+            comment:
+              'The solution of this equation is a wave that describes the quantum aspects of a system.',
+            latex: `\\frac{\\hbar^2}{2m}\\nabla^2\\Psi + V(\\mathbf{r})\\Psi= -i\\hbar \\frac{\\partial\\Psi}{\\partial t}`,
+          },
+
+          {
+            title: 'Black-Scholes',
+            latex: `u(x,\\,\\tau )= Ke^{x + \\frac{1}{2}\\sigma^2 \\tau}N(d_1) - KN(d_2){\\overset {x\\rightsquigarrow \\infty }{\\asymp }}Ke^{x}}`,
+          },
+          {
+            title: 'Rotation Matrix',
+            latex: `\\begin{bmatrix} x' \\\\ y' \\end{bmatrix}
+=
+\\begin{bmatrix}
+  \\cos \\theta &  -\\sin\\theta \\\\
+  \\sin \\theta & \\cos \\theta
+\\end{bmatrix}
+\\begin{bmatrix} x \\\\ y  \\end{bmatrix}`,
+          },
+          {
+            title: 'Matrix Inversion',
+            class: 'small',
+            comment:
+              'The extra line (\\\\) at the bottom of the matrices is ignored.',
+            latex: `\\mathbf{A}^{-1} =
+\\begin{bmatrix}
+    a & b \\\\
+    c & d \\\\
+\\end{bmatrix}^{-1} =
+\\frac{1}{\\det \\mathbf{A}}
+\\begin{bmatrix*}[rr]
+    d & -b \\\\
+    -c & a \\\\
+\\end{bmatrix*} =
+\\frac{1}{ad - bc}
+\\begin{bmatrix*}[rr]
+    d & -b \\\\
+    -c & a \\\\
+\\end{bmatrix*}.`,
+          },
+          {
+            title: 'Cross Product',
+            latex: `\\mathbf{V}_1 \\times \\mathbf{V}_2 =  \
+            \\begin{vmatrix}
+    \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\[.25em]
+    \\frac{\\partial X}{\\partial u} &  \\frac{\\partial Y}{\\partial u} & 0 \\\\[.5em]
+    \\frac{\\partial X}{\\partial v} &  \\frac{\\partial Y}{\\partial v} & 0
+\\end{vmatrix}`,
+          },
+          {
+            title: 'Maxwell’s Equation',
+            pic: 'maxwell.gif',
+            comment: `The magnetic field induced around a closed loop is proportional
+      to the electric current plus displacement current (rate of change of
+      electric field) it encloses.<br>
+      The electric flux leaving a volume is proportional to the charge inside.<br>
+      The voltage induced in a closed circuit is proportional to the rate of
+      change of the magnetic flux it encloses.<br>
+      There are no magnetic monopoles; the total magnetic flux through a closed
+      surface is zero.
+      `,
+            latex: `\\begin{aligned}
+  \\nabla \\times \\vec{\\mathbf{B}} -\\, \\frac1c\\, \\frac{\\partial\\vec{\\mathbf{E}}}{\\partial t}
+  & = \\frac{4\\pi}{c}\\vec{\\mathbf{j}} \\\\
+  \\nabla \\cdot \\vec{\\mathbf{E}}
+  & = 4 \\pi \\rho \\\\
+  \\nabla \\times \\vec{\\mathbf{E}}\\, +\\, \\frac1c\\, \\frac{\\partial\\vec{\\mathbf{B}}}{\\partial t}
+  & = \\vec{\\mathbf{0}} \\\\
+  \\nabla \\cdot \\vec{\\mathbf{B}}
+  & = 0 
+\\end{aligned}`,
+          },
+          {
+            title: 'Riemann’s Formula',
+            pic: 'riemann.gif',
+            class: 'small',
+            latex: `\\begin{array}{lc}
+    \\text{Given:}\\\\
+    &    f(x)=\\operatorname {li}(x)-\\sum _{\\rho }\\operatorname {li}(x^{\\rho })-\\log(2)+\\int _{x}^{\\infty }{\\frac  {dt}{t(t^{2}-1)\\log(t)}}\\\\
+    \\text{with}\\\\
+    &    \\operatorname {li}(x)=\\int _{0}^{x}{\\frac  {dt}{\\log(t)}}.\\\\
+    \\text{then}\\\\
+    &    \\pi _{0}(x)=\\sum _{n}{\\frac {1}{n}}\\mu (n)f(x^{1/n})=f(x)-{\\frac {1}{2}}f(x^{1/2})-{\\frac {1}{3}}f(x^{1/3})-{\\frac {1}{5}}f(x^{1/5})+{\\frac {1}{6}}f(x^{1/6})-\\cdots ,\\\\
+    \\text{and}\\\\
+    &    \\Pi _{0}(x)=\\sum _{n=1}^{\\infty }{\\frac {1}{n}}\\pi _{0}(x^{1/n})\\\\
+    \\text{where}\\\\
+    &    \\bigl( \\Pi _{0}(x) \\bigr) \\text{is Riemann's prime counting function.}
+\\end{array}`,
+          },
+          {
+            title: 'Cnoidal Wave Equation',
+            pic: 'cnoidal.gif',
+            comment:
+              '<a href="https://en.wikipedia.org/wiki/Cnoidal_wave">Cnoidal wave</a>',
+            class: 'small',
+            latex: `\\begin{align*}
+  \\frac{1}{\\lambda}\\, \\int_0^\\lambda \\eta^2\\; \\text{d}x
+  &= \\frac{1}{\\lambda} \\int_0^\\lambda
+          \\left\\{ \\eta_2 + H\\, \\operatorname{cn}^2 \\left(
+              \\begin{array}{c|c} \\displaystyle \\frac{\\xi}{\\Delta} & m\\end{array}
+          \\right) \\right\\}^2\\;
+          \\text{d}\\xi
+      = \\frac{H^2}{\\lambda} \\int_0^\\lambda
+          \\operatorname{cn}^4 \\left( \\begin{array}{c|c} \\displaystyle \\frac{\\xi}{\\Delta} & m\\end{array} \\right)\\; \\text{d}\\xi
+      - \\eta_2^2
+  \\\\
+  &= \\frac{\\Delta\\, H^2}{\\lambda} \\int_0^{\\pi} \\cos^4\\, \\psi\\, \\frac{\\text{d}\\xi}{\\text{d}\\psi}\\; \\text{d}\\psi - \\eta_2^2
+      = \\frac{H^2}{2\\, K(m)} \\int_0^{\\pi} \\frac{\\cos^4\\, \\psi}{\\sqrt{1 - m\\, \\sin^2\\, \\psi}}\\; \\text{d}\\psi - \\eta_2^2
+  \\\\
+  &= \\frac13\\, \\frac{H^2}{m^2}\\, \\left[ \\left( 2 - 5\\, m + 3\\, m^2 \\right) + \\left( 4\\, m - 2 \\right)\\, \\frac{E(m)}{K(m)} \\right]
+      - \\frac{H^2}{m^2}\\, \\left( 1 - m - \\frac{E(m)}{K(m)} \\right)^2
+\\end{align*}`,
+          },
+          {
+            title: 'Fibonacci Polynomials',
+            pic: 'fibonacci.gif',
+            comment: 'Fn(1) is the Fibonacci sequence.',
+            latex: `F_n(x)= \\begin{cases}
+    0, & \\mbox{if } n =  0\\\\
+    1, & \\mbox{if } n =  1\\\\
+    x F_{n - 1}(x) + F_{n - 2}(x),& \\mbox{if }  n \\geq 2
+\\end{cases}`,
+          },
+          {
+            title: 'The Loop Equation',
+            comment:
+              'This equation is a description of a loop in a programming language using formal methods.',
+            class: 'small',
+            latex: `\\begin{matrix}
+  \\alpha\\in p(DO)
+      \\quad\\Longleftrightarrow\\quad
+      DO(\\alpha)\\subseteq A^\\ast\\\\
+  \\Updownarrow\\\\
+  DO(\\alpha)=\\begin{cases}
+      \\{\\langle\\alpha\\rangle\\},
+          &\\mathop{ha}\\neg\\pi(\\alpha)\\\\
+
+      \\{\\alpha\\in A^\\ast \\mid \\exists n\\in\\mathbb{N}
+          \\;\\colon\\;\\
+          \\alpha=\\chi_n(\\alpha^1,\\ldots,\\alpha^n)\\wedge&\\\\
+      /g\\alpha^1\\in S(\\alpha)
+          \\wedge
+      \\forall i \\in [1..n-1]\\;\\colon\\;&\\\\
+      \\alpha^{i+1}\\in S(\\tau(\\alpha^i))
+          \\wedge
+      \\pi(\\tau(\\alpha^i))\\wedge&\\\\
+      \\neg\\pi(\\tau(\\alpha^n))\\},
+          &\\mathop{ha} \\pi(\\alpha)
+  \\end{cases}\\\\
+  \\Updownarrow\\\\
+  \\neg \\pi(\\alpha)
+      \\vee
+  (\\exists\\beta \\in A^\\infty
+      \\;\\colon\\;
+  \\beta_1=\\alpha
+      \\wedge
+  \\forall i \\in \\mathbb{N}
+  \\;\\colon\\;
+  \\beta_{i+1}\\in p(S)(\\beta_i)
+      \\wedge
+  \\pi(\\beta_i))\\\\
+  \\Updownarrow\\\\
+      \\alpha\\in\\frac{}{p(S)|_\\pi}
+\\end{matrix}`,
           },
         ],
       };
