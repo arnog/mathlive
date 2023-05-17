@@ -3,7 +3,6 @@ import type { ParseMode, Style } from '../public/core-types';
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { latexCommand } from '../core/tokenizer';
 
 export class PlaceholderAtom extends Atom {
   constructor(options?: { mode?: ParseMode; style?: Style }) {
@@ -29,7 +28,7 @@ export class PlaceholderAtom extends Atom {
     let result: Box;
     this.value = context.placeholderSymbol;
     if (typeof context.renderPlaceholder === 'function')
-      result = context.renderPlaceholder(context);
+      result = context.renderPlaceholder(context) as Box;
     else result = this.createBox(context);
 
     if (this.caret) result.classes += ' ML__placeholder-selected';
@@ -37,7 +36,7 @@ export class PlaceholderAtom extends Atom {
     return result;
   }
 
-  serialize(): string {
+  _serialize(): string {
     return '\\placeholder{}';
   }
 }

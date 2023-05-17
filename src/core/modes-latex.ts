@@ -19,7 +19,7 @@ export class LatexMode extends Mode {
       .map((x) => x.value);
   }
 
-  getFont(): string | null {
+  getFont(): null {
     return null;
   }
 }

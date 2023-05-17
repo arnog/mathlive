@@ -1,6 +1,6 @@
-import type { LatexValue, Style } from '../public/core-types';
+import type { LatexValue } from '../public/core-types';
 
-import { Atom, AtomJson } from '../core/atom-class';
+import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 
@@ -12,19 +12,22 @@ export class BoxAtom extends Atom {
   readonly border?: string;
 
   constructor(
-    command: string,
-    body: Atom[],
-    options: {
+    options: CreateAtomOptions & {
+      body: Atom[];
       framecolor?: LatexValue;
       backgroundcolor?: LatexValue;
       padding?: LatexValue;
       raise?: LatexValue;
       border?: string;
-      style: Style;
     }
   ) {
-    super({ type: 'box', command, style: options.style });
-    this.body = body;
+    super({
+      mode: options.mode,
+      command: options.command,
+      style: options.style,
+      body: options.body,
+      type: 'box',
+    });
 
     this.framecolor = options.framecolor;
     this.backgroundcolor = options.backgroundcolor;
@@ -33,7 +36,7 @@ export class BoxAtom extends Atom {
   }
 
   static fromJson(json: { [key: string]: any }): BoxAtom {
-    return new BoxAtom(json.command, json.body, json as any);
+    return new BoxAtom(json as any);
   }
 
   toJson(): AtomJson {
@@ -48,21 +51,19 @@ export class BoxAtom extends Atom {
   }
 
   render(parentContext: Context): Box | null {
-    const context = new Context({ parent: parentContext }, this.style);
-
-    const fboxsep = context.getRegisterAsEm('fboxsep');
-
-    // The padding extends outside of the base
-    const padding = this.padding ? context.toEm(this.padding) : fboxsep;
-
     // Base is the main content "inside" the box
     const base = Atom.createBox(parentContext, this.body, { type: 'ord' });
     if (!base) return null;
 
-    let borderWidth = '';
-    if (this.framecolor)
-      borderWidth = `${context.getRegisterAsEm('fboxrule')}em`;
-    else if (this.border) borderWidth = lineWidth(this.border);
+    const context = new Context({ parent: parentContext }, this.style);
+
+    // The padding extends outside of the base
+    const padding = context.toEm(this.padding ?? { register: 'fboxsep' });
+
+    // let borderWidth = '';
+    // if (this.framecolor)
+    //   borderWidth = `${context.getRegisterAsEm('fboxrule')}em`;
+    // else if (this.border) borderWidth = lineWidth(this.border);
 
     // This box will represent the box (background and border).
     // It's positioned to overlap the base.
@@ -73,15 +74,11 @@ export class BoxAtom extends Atom {
     box.depth = base.depth + padding;
     box.setStyle('box-sizing', 'border-box');
     box.setStyle('position', 'absolute');
-    if (!borderWidth) box.setStyle('bottom', padding, 'em');
-    else box.setStyle('bottom', `calc(${padding}em - 2 * ${borderWidth})`);
+    box.setStyle('top', -padding + 0.3, 'em'); // empirical
 
     box.setStyle('height', box.height + box.depth, 'em');
-    if (padding === 0) box.setStyle('width', '100%');
-    else {
-      box.setStyle('width', `calc(100% + ${2 * padding}em)`);
-      box.setStyle('left', -padding, 'em');
-    }
+    box.setStyle('left', 0);
+    box.setStyle('width', '100%');
 
     if (this.backgroundcolor) {
       box.setStyle(
@@ -117,8 +114,8 @@ export class BoxAtom extends Atom {
     // The padding adds to the width and height of the pod
     result.height = base.height + padding;
     result.depth = base.depth + padding;
-    result.left = padding;
-    result.right = padding;
+    result.setStyle('padding-left', padding, 'em');
+    result.setStyle('padding-right', padding, 'em');
     result.setStyle('height', base.height + base.depth + 2 * padding, 'em');
     result.setStyle('margin-top', -padding, 'em');
     result.setStyle('top', base.depth - base.height + 2 * padding, 'em');

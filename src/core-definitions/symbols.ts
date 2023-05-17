@@ -6,6 +6,9 @@ import {
   defineFunction,
 } from './definitions-utils';
 
+// See http://www.gang.umass.edu/~franz/latexmanual.pdf p. 139
+// for a list of symbols and their Unicode value
+
 // Simple characters allowed in math mode
 newSymbols('0123456789/@.?!');
 newSymbolRange(0x0041, 0x005a); // a-z
@@ -161,7 +164,7 @@ newSymbols([
 
   // defineSymbol('\\ne', 0x2260, 'mrel'],
   // defineSymbol('\\neq', 0x2260, 'mrel'],
-  // DefineSymbol( '\\longequal', 0xF7D9,  'mrel',  MAIN],   // NOTE: Not TeX
+  // defineSymbol( '\\longequal', 0xF7D9,  'mrel',  MAIN],   // NOTE: Not TeX
 ]);
 
 newSymbols(
@@ -675,11 +678,11 @@ newSymbols(
 );
 // \enspace is a TeX command (not LaTeX)
 defineFunction(['!', ',', ':', ';', 'enskip', 'enspace', 'quad', 'qquad'], '', {
-  createAtom: (command, _args, style) => new SpacingAtom(command, style),
+  createAtom: (options) => new SpacingAtom(options),
 });
 
 defineFunction('space', '', {
-  createAtom: (_command, _args, style) => new SpacingAtom('space', style),
+  createAtom: (options) => new SpacingAtom(options),
 });
 
 // Punctuation

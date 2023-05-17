@@ -1,12 +1,17 @@
 ## [Unreleased]
 
+## Improvements
+
+- Improved parsing/serialization/rendering of content with a mix of text and math.
+- Various rendering improvements, mostly of edge cases.
+
+
 ## Bug Fixes
 
 - Selection display was incorrect when the equation included a colored 
   background.
 - Pasing text while in LaTeX mode now works.
 - Some of the arrows for mhchem have been renamed and are now displaying correctly
-- Correctly serialize mix of text and math
 
 ## 0.93.0 (2023-05-08)
 

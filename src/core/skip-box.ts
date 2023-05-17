@@ -2,13 +2,12 @@ import { Box } from './box';
 
 export class SkipBox extends Box {
   constructor(width: number) {
-    super(null, { type: 'skip' });
-    this.width = width;
+    super(null, { type: 'skip', width });
   }
   toMarkup(): string {
     return `<span style="display:inline-block;width:${
-      this.cssProperties!.width
-    }"></span>`;
+      Math.round(this.width * 100) / 100
+    }em"></span>`;
   }
 }
 

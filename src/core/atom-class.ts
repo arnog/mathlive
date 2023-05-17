@@ -12,7 +12,6 @@ import { joinLatex, latexCommand } from './tokenizer';
 import { Mode } from './modes-utils';
 import {
   Argument,
-  argumentsToJson,
   getDefinition,
   unicodeCharToLatex,
 } from '../core-definitions/definitions-utils';
@@ -34,8 +33,8 @@ export type AtomJson = { type?: AtomType; [key: string]: any };
  * Each atom can have one or more "branches" of child atoms.
  */
 export type BranchName =
-  | 'above'
   | 'body'
+  | 'above'
   | 'below'
   | 'superscript'
   | 'subscript';
@@ -45,8 +44,8 @@ export type BranchName =
  * It can be overriden in `get children()`
  */
 export const NAMED_BRANCHES: BranchName[] = [
-  'above',
   'body',
+  'above',
   'below',
   'superscript',
   'subscript',
@@ -81,13 +80,11 @@ export type Branches = {
 
 export type ToLatexOptions = {
   expandMacro?: boolean;
-  // If true, don't emit a mode command such as `\text`
-  skipModeCommand?: boolean;
-  // If true, don't emit color, backgroundcolor, styling commands
+  // If true, don't emit color, backgroundcolor, fontsize commands
   skipStyles?: boolean;
   // Don't emit unnecessary style shift commands: you can assume we're in
   // this default mode.
-  defaultMode: 'math' | 'text' | 'inline-math';
+  defaultMode: 'text' | 'math' | 'inline-math';
 };
 
 // IMPORTANT: when adding a new atom type, add its constructor to `toJson()`
@@ -147,6 +144,29 @@ export type BBoxParameter = {
   border?: string;
 };
 
+export type CreateAtomOptions<
+  T extends (Argument | null)[] = (Argument | null)[]
+> = {
+  mode?: ParseMode;
+  command?: string;
+  style?: Style;
+  args?: T;
+};
+
+export type AtomOptions<T extends (Argument | null)[] = (Argument | null)[]> =
+  CreateAtomOptions<T> & {
+    verbatimLatex?: string | null;
+
+    type?: AtomType;
+    value?: string;
+    body?: Atom[];
+    isFunction?: boolean;
+    limits?: 'auto' | 'over-under' | 'adjacent';
+    displayContainsHighlight?: boolean;
+    captureSelection?: boolean;
+    skipBoundary?: boolean;
+  };
+
 /**
  * An atom is an object encapsulating an elementary mathematical unit,
  * independent of its graphical representation.
@@ -154,7 +174,8 @@ export type BBoxParameter = {
  * It keeps track of the content, while the dimensions, position and style
  * are tracked by Box objects which are created by the `createBox()` function.
  */
-export class Atom {
+export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
+  // The root has no parent. Every other atom has one.
   parent: Atom | undefined;
 
   // An atom can have multiple "branches" of children,
@@ -167,31 +188,26 @@ export class Atom {
   value: string; // If no branches
 
   // Used to match a DOM element to an Atom
-  // (the corresponding DOM element has a `data-atom-id` attribute)
-  id: string | undefined = undefined;
+  // (the corresponding DOM element has a matching `id` attribute)
+  id?: string;
 
   type: AtomType | undefined;
 
   // LaTeX command ('\sin') or character ('a')
   command: string;
-  args?: (Argument | null)[]; // (optional)
+  args: T; // (optional)
 
   // Verbatim LaTeX of the command and its arguments
-  // Note that the empty string is a valid verbatim LaTeX , so it's important
+  // Note that the empty string is a valid verbatim LaTeX, so it's important
   // to distinguish between `verbatimLatex === undefined` and `typeof verbatimLatex === 'string'`
-  verbatimLatex: string | undefined = undefined;
+  verbatimLatex: string | undefined;
 
-  style: PrivateStyle;
   mode: ParseMode;
-
-  // If true, some structural changes have been made to the atom
-  // (insertion or removal of children) or one of its children is dirty
-  /** @internal */
-  private _isDirty = false;
+  style: PrivateStyle;
 
   // A monotonically increasing counter to detect structural changes
   /** @internal */
-  private _changeCounter = 0;
+  private _changeCounter;
 
   // Cached list of children, invalidated when isDirty = true
   /** @internal */
@@ -252,34 +268,21 @@ export class Atom {
   containsCaret: boolean;
   caret: ParseMode | undefined;
 
-  constructor(options?: {
-    type?: AtomType;
-    command?: string;
-    args?: (Argument | null)[];
-    mode?: ParseMode;
-    value?: string;
-    body?: Atom[];
-    isFunction?: boolean;
-    limits?: 'auto' | 'over-under' | 'adjacent';
-    style?: Style;
-    displayContainsHighlight?: boolean;
-    captureSelection?: boolean;
-    skipBoundary?: boolean;
-    verbatimLatex?: string | null;
-  }) {
-    this.type = options?.type;
-    if (typeof options?.value === 'string') this.value = options.value;
-    this.command = options?.command ?? this.value ?? '';
-    this.mode = options?.mode ?? 'math';
-    this.isFunction = options?.isFunction ?? false;
-    this.subsupPlacement = options?.limits;
-    this.style = { ...options?.style } ?? {};
-    this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
-    this.captureSelection = options?.captureSelection ?? false;
-    this.skipBoundary = options?.skipBoundary ?? false;
-    this.verbatimLatex = options?.verbatimLatex ?? undefined;
-    this.args = options?.args ?? undefined;
-    if (options?.body) this.body = options.body;
+  constructor(options: AtomOptions<T>) {
+    this.type = options.type;
+    if (typeof options.value === 'string') this.value = options.value;
+    this.command = options.command ?? this.value ?? '';
+    this.mode = options.mode ?? 'math';
+    this.isFunction = options.isFunction ?? false;
+    this.subsupPlacement = options.limits;
+    this.style = { ...options.style } ?? {};
+    this.displayContainsHighlight = options.displayContainsHighlight ?? false;
+    this.captureSelection = options.captureSelection ?? false;
+    this.skipBoundary = options.skipBoundary ?? false;
+    this.verbatimLatex = options.verbatimLatex ?? undefined;
+    if (options.args) this.args = options.args;
+    if (options.body) this.body = options.body;
+    if (this.type === 'root') this._changeCounter = 0;
   }
 
   /**
@@ -289,63 +292,42 @@ export class Atom {
    * a box corresponds to something to draw on screen (a character, a line,
    * etc...).
    *
-   * @param parentContext Font family, variant, size, color, and other info useful
+   * @param context Font family, variant, size, color, and other info useful
    * to render an expression
    */
   static createBox(
-    parentContext: Context,
+    context: Context,
     atoms: Atom[] | undefined,
     options?: {
-      type?: BoxType;
-      classes?: string;
-      style?: Style;
       mode?: ParseMode;
+      type?: BoxType;
+      style?: Style;
+      classes?: string;
     }
   ): Box | null {
     if (!atoms) return null;
-    const classes = (options?.classes ?? '').trim();
     const runs = getStyleRuns(atoms);
 
-    //
-    // Special case when there's a single run
-    //
-    if (runs.length === 1) {
-      const run = runs[0];
-      if (run[0].style) {
-        return renderStyleRun(parentContext, run, {
-          ...options,
-          style: {
-            color: run[0].style.color,
-            backgroundColor: run[0].style.backgroundColor,
-            fontSize: run[0].style.fontSize,
-          },
-        });
-      }
-      return renderStyleRun(parentContext, run, options);
-    }
-
-    //
-    // There are multiple runs to handle
-    //
     const boxes: Box[] = [];
     for (const run of runs) {
-      const context = new Context(
-        { parent: parentContext },
-        {
-          color: run[0].style?.color,
-          backgroundColor: run[0].style?.backgroundColor,
-          fontSize: run[0].style?.fontSize,
-        }
-      );
-      const box = renderStyleRun(context, run);
+      const style = run[0].style;
+      const box = renderStyleRun(context, run, {
+        style: {
+          color: style.color,
+          backgroundColor: style.backgroundColor,
+          fontSize: style.fontSize,
+        },
+      });
 
       if (box) boxes.push(box);
     }
     if (boxes.length === 0) return null;
-    if (boxes.length === 1 && !classes && !options?.type)
-      return boxes[0].wrap(parentContext);
 
-    return new Box(boxes, { classes, type: options?.type }).wrap(parentContext);
+    const classes = (options?.classes ?? '').trim();
+    if (boxes.length === 1 && !classes && !options?.type)
+      return boxes[0].wrap(context);
+
+    return new Box(boxes, { classes, type: options?.type }).wrap(context);
   }
 
   /**
@@ -386,8 +368,14 @@ export class Atom {
 
   static fromJson(json: AtomJson): Atom {
     if (typeof json === 'string')
-      return new Atom({ type: 'mord', value: json });
+      return new Atom({ type: 'mord', value: json, mode: 'math' });
     return new Atom(json as any);
+  }
+
+  get latexMode(): 'text' | 'math' | 'inline-math' {
+    if (this.mode === 'math') return 'math';
+
+    return 'text';
   }
 
   toJson(): AtomJson {
@@ -434,26 +422,22 @@ export class Atom {
     return result;
   }
 
+  // Used to detect changes and send appropriate notifications
   get changeCounter(): number {
+    if (this.parent) return this.parent.changeCounter;
     return this._changeCounter;
   }
 
-  get isDirty(): boolean {
-    return this._isDirty;
-  }
-
   set isDirty(dirty: boolean) {
-    this._isDirty = dirty;
     if (dirty) {
-      this._changeCounter++;
-      this.verbatimLatex = undefined;
+      if (this.type === 'root') this._changeCounter++;
+      if ('verbatimLatex' in this) this.verbatimLatex = undefined;
       this._children = undefined;
 
       let { parent } = this;
       while (parent) {
-        parent._isDirty = true;
-        parent._changeCounter++;
-        parent.verbatimLatex = undefined;
+        if (this.type === 'root') parent._changeCounter++;
+        if ('verbatimLatex' in parent) parent.verbatimLatex = undefined;
         parent._children = undefined;
 
         parent = parent.parent;
@@ -462,9 +446,11 @@ export class Atom {
   }
 
   /**
-   * Serialize the atom  to LaTeX
+   * Serialize the atom  to LaTeX.
+   * Used internally by Mode: does not serialize styling. To serialize
+   * one or more atoms, use `Atom.serialize()`
    */
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     // 1/ Verbatim LaTeX. This allow non-significant punctuation to be
     // preserved when possible.
     if (!options.expandMacro && typeof this.verbatimLatex === 'string')
@@ -493,22 +479,14 @@ export class Atom {
     // 5/ A string value (which is a unicode character)
     if (!this.value || this.value === '\u200B') return '';
 
-    let c = this.command;
-    if (this.mode === 'text') {
-      c =
-        {
-          '$': '\\$',
-          '{': '\\textbraceleft',
-          '}': '\\textbraceright',
-          '\\': '\\textbackslash',
-        }[c] ?? c;
-    }
-
-    return c ?? unicodeCharToLatex(this.mode, this.value);
+    return this.command ?? unicodeCharToLatex(this.mode, this.value);
   }
 
   bodyToLatex(options: ToLatexOptions): string {
-    return Mode.serialize(this.body, options);
+    return Mode.serialize(this.body, {
+      ...options,
+      defaultMode: options.defaultMode ?? this.latexMode,
+    });
   }
 
   aboveToLatex(options: ToLatexOptions): string {
@@ -521,6 +499,9 @@ export class Atom {
 
   supsubToLatex(options: ToLatexOptions): string {
     let result = '';
+
+    // Super/subscript are always in math mode
+    options = { ...options, defaultMode: 'math' };
 
     if (this.branch('subscript') !== undefined) {
       const sub = Mode.serialize(this.subscript, options);
@@ -1303,20 +1284,16 @@ function getStyleRuns(atoms: Atom[]): Atom[][] {
 function renderStyleRun(
   parentContext: Context,
   atoms: Atom[] | undefined,
-  options?: {
-    type?: BoxType;
-    classes?: string;
-    style?: Style;
+  options: {
     mode?: ParseMode;
+    type?: BoxType;
+    style?: Style;
+    classes?: string;
   }
 ): Box | null {
-  function isText(atom: Atom): boolean {
-    return atom.mode === 'text';
-  }
-
   if (!atoms || atoms.length === 0) return null;
 
-  const context = new Context({ parent: parentContext }, options?.style);
+  const context = new Context({ parent: parentContext }, options.style);
 
   // In most cases we want to display selection,
   // except if the `atomIdsSettings.groupNumbers` flag is set which is used for
@@ -1377,16 +1354,26 @@ function renderStyleRun(
 
   if (boxes.length === 0) return null;
 
-  let result: Box;
-  if (options || context.isTight || boxes.length > 1) {
-    result = new Box(boxes, {
-      isTight: context.isTight,
-      ...(options ?? {}),
-      type: 'lift',
-    });
-    result.isSelected = boxes.every((x) => x.isSelected);
-  } else result = boxes[0];
+  const result = new Box(boxes, {
+    isTight: context.isTight,
+    ...options,
+    type: options.type ?? 'lift',
+  });
+  result.isSelected = boxes.every((x) => x.isSelected);
+  return result.wrap(context);
+}
 
-  // Apply size correction
-  return result.wrap(context).wrap(parentContext);
+function isText(atom: Atom): boolean {
+  return atom.mode === 'text';
+}
+
+function argumentsToJson<T extends any[]>(args: T): any {
+  return args.map((arg) => {
+    if (arg === null) return '<null>';
+    if (Array.isArray(arg) && arg[0] instanceof Atom)
+      return { atoms: arg.map((x) => x.toJson()) };
+    if (typeof arg === 'object' && 'group' in arg)
+      return { group: arg.group.map((x) => x.toJson()) };
+    return arg;
+  });
 }

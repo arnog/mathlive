@@ -62,7 +62,7 @@ function makeBox(
         // keeps the IDs the same until the content of the field changes.
         seed: renderOptions.forHighlighting
           ? hash(
-              mathfield.model.root.serialize({
+              Atom.serialize([mathfield.model.root], {
                 expandMacro: false,
                 defaultMode: mathfield.options.defaultMode,
               })

@@ -335,6 +335,8 @@ export function latexCommand(command: string, ...args: string[]): string {
   // While TeX (Knuth) tends to minimize the use of braces, e.g. prefering
   // `\frac xy` over `\frac{x}{y}` we are implementing the more conservative
   // LaTeX convention that use braces by default.
+  // Note that the custom serializer for `\frac` does omit braces when
+  // both arguments are digits, i.e. `\frac34`.
   // See a discussion on this topic here: https://tex.stackexchange.com/questions/82329/how-bad-for-tex-is-omitting-braces-even-if-the-result-is-the-same
 
   return joinLatex([command, ...args.map((x) => `{${x}}`)]);

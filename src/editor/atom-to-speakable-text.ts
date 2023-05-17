@@ -5,7 +5,6 @@ import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
 import { osPlatform } from '../common/capabilities';
 import { ArrayAtom } from '../core-atoms/array';
-import { LineAtom } from '../core-atoms/line';
 import { getMacros } from '../core-definitions/definitions-utils';
 import { PromptAtom } from '../core-atoms/prompt';
 
@@ -427,12 +426,6 @@ function atomToSpeakableFragment(
         break;
       case 'overlap':
         // @todo
-        break;
-      case 'line':
-        const position = (atom as LineAtom).position;
-        result += `${position} `;
-        result += atomToSpeakableFragment('math', atom.body);
-        result += ` end ${position} `;
         break;
       case 'macro':
         // @todo implement custom speech for macros

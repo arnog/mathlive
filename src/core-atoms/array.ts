@@ -595,7 +595,7 @@ export class ArrayAtom extends Atom {
     return this.attachSupsub(context, { base: result });
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     const result = [`\\begin{${this.environmentName}}`];
     if (this.environmentName === 'array') {
       result.push('{');
@@ -797,9 +797,7 @@ function makePlaceholderCell(parent: ArrayAtom): Atom[] {
  * Create a column separator box.
  */
 function makeColGap(width: number): Box {
-  const separator = new Box(null, { classes: 'arraycolsep' });
-  separator.width = width;
-  return separator;
+  return new Box(null, { classes: 'arraycolsep', width });
 }
 
 /**

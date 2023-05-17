@@ -80,7 +80,7 @@ export class LatexGroupAtom extends Atom {
     return this.bind(context, box);
   }
 
-  serialize(_options: ToLatexOptions): string {
+  _serialize(_options: ToLatexOptions): string {
     return this.body?.map((x) => x.value).join('') ?? '';
   }
 }

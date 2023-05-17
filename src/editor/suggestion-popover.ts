@@ -26,7 +26,11 @@ import { getSharedElement, releaseSharedElement } from './shared-element';
 function latexToMarkup(mf: MathfieldPrivate, latex: string): string {
   const context = new Context({ from: mf.context });
 
-  const root = new Atom({ type: 'root', body: parseLatex(latex, { context }) });
+  const root = new Atom({
+    mode: 'math',
+    type: 'root',
+    body: parseLatex(latex, { context }),
+  });
 
   const box = coalesce(
     applyInterBoxSpacing(

@@ -47,7 +47,7 @@ export class MacroAtom extends Atom {
     return options;
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     return options.expandMacro && this.expand
       ? this.bodyToLatex(options)
       : this.command + (this.macroArgs ?? '');
@@ -75,7 +75,7 @@ export class MacroArgumentAtom extends Atom {
     return options;
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     return '';
   }
 

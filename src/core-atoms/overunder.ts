@@ -1,9 +1,9 @@
-import { Atom, AtomJson } from '../core/atom-class';
+import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
 import { Box, makeSVGBox } from '../core/box';
 import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 import { makeNullDelimiter } from '../core/delimiters';
-import type { BoxType, PrivateStyle } from '../core/types';
+import type { BoxType } from '../core/types';
 
 // An `overunder` atom has the following attributes:
 // - body: atoms[]: atoms displayed on the base line
@@ -20,8 +20,7 @@ export class OverunderAtom extends Atom {
   paddedBody: boolean;
   paddedLabels: boolean;
   constructor(
-    command: string,
-    options: {
+    options: CreateAtomOptions & {
       body?: Atom[];
       above?: Atom[];
       below?: Atom[];
@@ -29,18 +28,22 @@ export class OverunderAtom extends Atom {
       svgAbove?: string;
       svgBelow?: string;
       skipBoundary?: boolean;
-      style: PrivateStyle;
       boxType?: BoxType;
       supsubPlacement?: 'over-under' | 'adjacent';
       paddedBody?: boolean;
       paddedLabels?: boolean;
     }
   ) {
-    super({ type: 'overunder', command, style: options.style });
-    this.skipBoundary = options.skipBoundary ?? true;
+    super({
+      type: 'overunder',
+      command: options.command,
+      style: options.style,
+      mode: options.mode,
+      body: options.body,
+      skipBoundary: options.skipBoundary ?? true,
+    });
     this.subsupPlacement = options.supsubPlacement;
 
-    this.body = options.body;
     this.svgAbove = options.svgAbove;
     this.svgBelow = options.svgBelow;
     this.svgBody = options.svgBody;
@@ -52,20 +55,20 @@ export class OverunderAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): OverunderAtom {
-    return new OverunderAtom(json.command, json as any);
+    return new OverunderAtom(json as any);
   }
 
   toJson(): AtomJson {
-    const options: { [key: string]: any } = {};
-    if (!this.skipBoundary) options.skipBoundary = false;
-    if (this.subsupPlacement) options.subsupPlacement = this.subsupPlacement;
-    if (this.svgAbove) options.svgAbove = this.svgAbove;
-    if (this.svgBelow) options.svgBelow = this.svgBelow;
-    if (this.svgBody) options.svgBody = this.svgBody;
-    if (this.boxType !== 'ord') options.boxType = this.boxType;
-    if (this.paddedBody) options.paddedBody = true;
-    if (this.paddedLabels) options.paddedLabels = true;
-    return { ...super.toJson(), ...options };
+    const json = super.toJson();
+    if (!this.skipBoundary) json.skipBoundary = false;
+    if (this.subsupPlacement) json.subsupPlacement = this.subsupPlacement;
+    if (this.svgAbove) json.svgAbove = this.svgAbove;
+    if (this.svgBelow) json.svgBelow = this.svgBelow;
+    if (this.svgBody) json.svgBody = this.svgBody;
+    if (this.boxType !== 'ord') json.boxType = this.boxType;
+    if (this.paddedBody) json.paddedBody = true;
+    if (this.paddedLabels) json.paddedLabels = true;
+    return json;
   }
 
   /**

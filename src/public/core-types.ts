@@ -241,7 +241,6 @@ export type DimensionUnit =
 
 /**
  * A dimension is used to specify the size of things
- *
  */
 export type Dimension = {
   dimension: number;
@@ -355,15 +354,15 @@ export type BoxCSSProperties =
   | 'display'
   | 'font-family'
   | 'left'
-  | 'font-size'
   | 'height'
   | 'line-height'
-  | 'margin'
   | 'margin-top'
   | 'margin-left'
   | 'margin-right'
   | 'opacity'
   | 'padding'
+  | 'padding-left'
+  | 'padding-right'
   | 'position'
   | 'top'
   | 'bottom'

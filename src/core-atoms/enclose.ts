@@ -103,7 +103,7 @@ export class EncloseAtom extends Atom {
     };
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     if (!options.expandMacro && typeof this.verbatimLatex === 'string')
       return this.verbatimLatex;
     const def = getDefinition(this.command, this.mode);

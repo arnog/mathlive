@@ -8,9 +8,10 @@ import { Mode, getPropertyRuns } from './modes-utils';
 import type { FontSeries, FontShape, Style } from '../public/core-types';
 import { joinLatex, latexCommand } from './tokenizer';
 import { TokenDefinition } from '../core-definitions/definitions-utils';
+import { FontName } from './font-metrics';
 
 function emitStringTextRun(run: Atom[], options: ToLatexOptions): string[] {
-  return run.map((x) => x.serialize(options));
+  return run.map((x) => x._serialize(options));
 }
 
 function emitFontShapeTextRun(run: Atom[], options: ToLatexOptions): string[] {
@@ -88,53 +89,6 @@ function emitFontFamilyTextRun(run: Atom[], options: ToLatexOptions): string[] {
   });
 }
 
-function emitStyledTextRun(run: Atom[], options: ToLatexOptions): string[] {
-  return emitFontFamilyTextRun(run, options);
-}
-
-function emitBackgroundColorRun(
-  run: Atom[],
-  options: ToLatexOptions
-): string[] {
-  return getPropertyRuns(run, 'backgroundColor').map((x) => {
-    const s = emitColorRun(x, options);
-    const style = x[0].computedStyle;
-    if (
-      !(options.skipStyles ?? false) &&
-      style.backgroundColor &&
-      style.backgroundColor !== 'none'
-    ) {
-      return `\\colorbox{${
-        style.verbatimBackgroundColor ?? style.backgroundColor
-      }}{${joinLatex(s)}}`;
-    }
-    return joinLatex(s);
-  });
-}
-
-function emitColorRun(run: Atom[], options: ToLatexOptions): string[] {
-  if (!run || run.length === 0) return [];
-  const parentColor = run[0].parent?.style.color;
-  return getPropertyRuns(run, 'color').map((x) => {
-    const s = emitStyledTextRun(x, options);
-
-    if (
-      !(options.skipStyles ?? false) &&
-      x[0].style.color &&
-      x[0].style.color !== 'none' &&
-      parentColor !== x[0].style.color
-    ) {
-      // If there is a color specified, and it is different
-      // from our context color, output a command
-      return `\\textcolor{${
-        x[0].style.verbatimColor ?? x[0].style.color
-      }}{${joinLatex(s)}}`;
-    }
-
-    return joinLatex(s);
-  });
-}
-
 const TEXT_FONT_CLASS: Record<string, string> = {
   'roman': '',
   'sans-serif': 'ML__sans',
@@ -163,7 +117,10 @@ export class TextMode extends Mode {
   }
 
   serialize(run: Atom[], options: ToLatexOptions): string[] {
-    const result = emitBackgroundColorRun(run, options);
+    const result = emitFontFamilyTextRun(run, {
+      ...options,
+      defaultMode: 'text',
+    });
 
     if (result.length === 0 || options.defaultMode === 'text') return result;
     return ['\\text{', ...result, '}'];
@@ -179,7 +136,7 @@ export class TextMode extends Mode {
       fontShape?: FontShape;
       fontSeries?: FontSeries;
     }
-  ): string | null {
+  ): FontName | null {
     const { fontFamily } = style;
 
     if (TEXT_FONT_CLASS[fontFamily!])

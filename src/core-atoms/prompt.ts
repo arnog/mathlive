@@ -3,7 +3,6 @@ import type { ParseMode, Style } from '../public/core-types';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
-import { convertDimensionToEm } from '../core/registers-utils';
 import { latexCommand } from '../core/tokenizer';
 
 export class PromptAtom extends Atom {
@@ -61,10 +60,7 @@ export class PromptAtom extends Atom {
   render(parentContext: Context): Box | null {
     const context = new Context({ parent: parentContext });
 
-    const fboxsep = convertDimensionToEm(
-      context.getRegisterAsDimension('fboxsep')
-    );
-
+    const fboxsep = context.getRegisterAsEm('fboxsep');
     const padding = fboxsep;
 
     // Base is the main content "inside" the box
@@ -166,7 +162,7 @@ export class PromptAtom extends Atom {
     );
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     const value = this.bodyToLatex(options) ?? '';
     let command = '\\placeholder';
 

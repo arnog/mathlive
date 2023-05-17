@@ -604,16 +604,17 @@ export class Parser {
 
     register = register.substring(1);
 
-    if (this.context.registers[register]) {
-      if (!negative || number !== null) {
-        return {
-          register,
-          factor: (negative ? -1 : 1) * (number?.number ?? 1),
-        };
-      }
-      return { register };
+    if (!this.context.registers[register]) {
+      this.index = index;
+      return null;
     }
-    return null;
+    if (!negative || number !== null) {
+      return {
+        register,
+        factor: (negative ? -1 : 1) * (number?.number ?? 1),
+      };
+    }
+    return { register };
   }
 
   scanValue(): LatexValue | null {
@@ -925,13 +926,10 @@ export class Parser {
     // To handle infix commands, we'll keep track of their prefix
     // (tokens coming before them) and their arguments
     let infix: Token = '';
-    let infixInfo: FunctionDefinition | null = null;
+    let infixInfo: FunctionDefinition<[Atom[], Atom[]]> | null = null;
     let infixArgs: Atom[][] = [];
     let prefix: Atom[] | null = null;
-    console.assert(this.mathlist.length === 0);
-    const saveAtoms = this.mathlist;
-    this.mathlist = [];
-    while (!this.end() && !done(this.peek() ?? '')) {
+    while (!this.end() && !done(this.peek()!)) {
       if (this.hasInfixCommand() && !infix) {
         // The next token is an infix and we have not seen one yet
         // (there can be only one infix command per implicit group).
@@ -940,8 +938,10 @@ export class Parser {
         // it had when we encountered the infix. However, since all infix are
         // only defined in 'math' mode, we can use the 'math' constant
         // for the parseMode
-        infixInfo = getDefinition(infix, 'math') as FunctionDefinition;
-        if (infixInfo) infixArgs = this.scanArguments(infixInfo)[1] as Atom[][];
+        infixInfo = getDefinition(infix, 'math') as FunctionDefinition<
+          [Atom[], Atom[]]
+        >;
+        if (infixInfo) infixArgs = this.scanArguments(infixInfo)[1] as [Atom[]];
 
         // Save the math list so far and start a new one
         prefix = this.mathlist;
@@ -953,13 +953,16 @@ export class Parser {
     if (infix) {
       console.assert(Boolean(infixInfo));
       infixArgs.unshift(this.mathlist); // Suffix
-      this.mathlist = saveAtoms;
       if (prefix) infixArgs.unshift(prefix);
-      result = [infixInfo!.createAtom!(infix, infixArgs, this.style)];
-    } else {
-      result = this.mathlist;
-      this.mathlist = saveAtoms;
-    }
+      result = [
+        infixInfo!.createAtom!({
+          command: infix,
+          args: infixArgs as [Atom[], Atom[]],
+          style: this.style,
+          mode: this.parseMode,
+        }),
+      ];
+    } else result = this.mathlist;
 
     this.endContext();
 
@@ -976,39 +979,12 @@ export class Parser {
    */
   scanGroup(): Atom | null {
     const initialIndex = this.index;
-    if (this.parseMode === 'text') {
-      if (this.match('<{>')) {
-        return new Atom({
-          type: 'text',
-          value: '{',
-          mode: 'text',
-          style: this.style,
-        });
-      }
-      if (this.match('<}>')) {
-        return new Atom({
-          type: 'text',
-          value: '}',
-          mode: 'text',
-          style: this.style,
-        });
-      }
-      return null;
-    }
     if (!this.match('<{>')) return null;
 
     const body = this.scan((token) => token === '<}>');
     if (!this.match('<}>')) this.onError({ code: 'unbalanced-braces' });
 
-    // Non-empty groups introduce a break in the
-    // inter-box spacing. Empty groups (`{}`) do not.
-
-    const result = new GroupAtom(body, {
-      boxType: body.length > 1 ? 'ord' : 'ignore',
-      mode: this.parseMode,
-      latexOpen: '{',
-      latexClose: '}',
-    });
+    const result = new GroupAtom(body, this.parseMode, this.style);
     result.verbatimLatex = tokensToString(
       this.tokens.slice(initialIndex, this.index)
     );
@@ -1160,11 +1136,13 @@ export class Parser {
     let token = this.peek();
     if (token !== '^' && token !== '_' && token !== "'") return false;
 
+    const target = this.lastSubsupAtom();
+
     while (token === '^' || token === '_' || token === "'") {
       if (this.match("'")) {
         if (this.match("'")) {
           // A single quote, twice, is equivalent to '^{\doubleprime}'
-          this.lastSubsupAtom().addChild(
+          target.addChild(
             new Atom({
               type: 'mord',
               command: '\\doubleprime',
@@ -1175,7 +1153,7 @@ export class Parser {
           );
         } else {
           // A single quote (prime) is equivalent to '^{\prime}'
-          this.lastSubsupAtom().addChild(
+          target.addChild(
             new Atom({
               type: 'mord',
               command: '\\prime',
@@ -1186,7 +1164,7 @@ export class Parser {
           );
         }
       } else if (this.match('^') || this.match('_')) {
-        this.lastSubsupAtom().addChildren(
+        target.addChildren(
           argAtoms(this.scanArgument('expression')),
           token === '_' ? 'subscript' : 'superscript'
         );
@@ -1209,6 +1187,9 @@ export class Parser {
    * `displaystyle` prefers `\limits`).
    */
   parseLimits(): boolean {
+    // No limits in text or LaTeX mode.
+    if (this.parseMode !== 'math') return false;
+
     // Note: `\limits`, `\nolimits` and `\displaylimits` are only applicable \
     // after an operator.
     // We skip them and ignore them if they are after something other
@@ -1226,27 +1207,15 @@ export class Parser {
 
     if (opAtom === null || opAtom.type !== 'mop') return false;
 
-    if (isLimits) {
-      opAtom.subsupPlacement = 'over-under';
-      // Record that the limits was set through an explicit command
-      // so we can generate the appropriate LaTeX later
-      opAtom.explicitSubsupPlacement = true;
-      return true;
-    }
+    // Record that the limits was set through an explicit command
+    // so we can generate the appropriate LaTeX later
+    opAtom.explicitSubsupPlacement = true;
 
-    if (isNoLimits) {
-      opAtom.subsupPlacement = 'adjacent';
-      opAtom.explicitSubsupPlacement = true;
-      return true;
-    }
+    if (isLimits) opAtom.subsupPlacement = 'over-under';
+    if (isNoLimits) opAtom.subsupPlacement = 'adjacent';
+    if (isDisplayLimits) opAtom.subsupPlacement = 'auto';
 
-    if (isDisplayLimits) {
-      opAtom.subsupPlacement = 'auto';
-      opAtom.explicitSubsupPlacement = true;
-      return true;
-    }
-
-    return false;
+    return true;
   }
 
   scanArguments(
@@ -1326,8 +1295,14 @@ export class Parser {
         // The command modifies the mode or style: can't use here
         this.onError({ code: 'invalid-command', arg: token });
         return [new ErrorAtom(token)];
-      } else if (info.createAtom)
-        result = info.createAtom(token, [], this.style);
+      } else if (info.createAtom) {
+        result = info.createAtom({
+          command: token,
+          args: [],
+          style: this.style,
+          mode: this.parseMode,
+        });
+      }
     }
     return result ? [result] : null;
   }
@@ -1403,20 +1378,24 @@ export class Parser {
     //
 
     if (type === 'text') {
-      this.beginContext({ mode: type });
-      this.index -= 1;
-      const s = this.scanLiteralGroup();
-      const atoms = parseLatex(s, {
-        context: this.context,
-        parseMode: 'text',
-        style: this.parsingContext.style,
-      });
+      this.beginContext({ mode: 'text' });
+      do this.mathlist.push(...this.scan());
+      while (!this.match('<}>') && !this.end());
+      const atoms = this.mathlist;
       this.endContext();
+      // this.index -= 1;
+      // const s = this.scanLiteralGroup();
+      // const atoms = parseLatex(s, {
+      //   context: this.context,
+      //   parseMode: 'text',
+      //   style: this.parsingContext.style,
+      // });
+      // this.endContext();
       return { group: atoms };
     }
 
     if (type === 'math') {
-      this.beginContext({ mode: type });
+      this.beginContext({ mode: 'math' });
       do this.mathlist.push(...this.scan());
       while (!this.match('<}>') && !this.end());
       const atoms = this.mathlist;
@@ -1536,24 +1515,24 @@ export class Parser {
       return [new PlaceholderAtom({ mode: this.parseMode, style: this.style })];
     }
 
-    if (command === '\\char') {
-      const initialIndex = this.index;
-      let codepoint = this.scanNumber(true)?.number ?? NaN;
-      if (!Number.isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff)
-        codepoint = 0x2753; // BLACK QUESTION MARK
+    // if (command === '\\char') {
+    //   const initialIndex = this.index;
+    //   let codepoint = this.scanNumber(true)?.number ?? NaN;
+    //   if (!Number.isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff)
+    //     codepoint = 0x2753; // BLACK QUESTION MARK
 
-      return [
-        new Atom({
-          type: this.parseMode === 'math' ? 'mord' : 'text',
-          command: '\\char',
-          mode: this.parseMode,
-          value: String.fromCodePoint(codepoint),
-          verbatimLatex:
-            '\\char' +
-            tokensToString(this.tokens.slice(initialIndex, this.index)),
-        }),
-      ];
-    }
+    //   return [
+    //     new Atom({
+    //       type: this.parseMode === 'math' ? 'mord' : 'text',
+    //       command: '\\char',
+    //       mode: this.parseMode,
+    //       value: String.fromCodePoint(codepoint),
+    //       verbatimLatex:
+    //         '\\char' +
+    //         tokensToString(this.tokens.slice(initialIndex, this.index)),
+    //     }),
+    //   ];
+    // }
 
     // Is this a macro?
     let result = this.scanMacro(command);
@@ -1597,7 +1576,6 @@ export class Parser {
     } else {
       if (info.ifMode && !info.ifMode.includes(this.parseMode)) {
         // Command not applicable in this mode: ignore it (TeX behavior)
-        // (for example `\Huge` in math mode
         return [];
       }
 
@@ -1636,7 +1614,12 @@ export class Parser {
 
       //  Invoke the createAtom() function if present
       if (typeof info.createAtom === 'function') {
-        result = info.createAtom(command, args, this.style);
+        result = info.createAtom({
+          command,
+          args: args as [],
+          style: this.style,
+          mode: this.parseMode,
+        });
         if (deferredArg)
           result!.body = argAtoms(this.scanArgument(deferredArg));
       } else if (typeof info.applyStyle === 'function') {

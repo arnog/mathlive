@@ -1,6 +1,11 @@
-import type { ParseMode, Style } from '../public/core-types';
+import type { ParseMode } from '../public/core-types';
 
-import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+import {
+  Atom,
+  AtomJson,
+  CreateAtomOptions,
+  ToLatexOptions,
+} from '../core/atom-class';
 import { X_HEIGHT } from '../core/font-metrics';
 import { Box } from '../core/box';
 import { VBox } from '../core/v-box';
@@ -12,33 +17,31 @@ import { getDefinition } from '../core-definitions/definitions-utils';
 
 export class SurdAtom extends Atom {
   constructor(
-    command: string,
-    options: {
+    options: CreateAtomOptions & {
       mode?: ParseMode;
       body: Atom[];
       index: undefined | Atom[];
-      style: Style;
     }
   ) {
     super({
+      ...options,
       type: 'surd',
-      command,
       mode: options.mode ?? 'math',
       style: options.style,
       displayContainsHighlight: true,
+      body: options.body,
     });
-    this.body = options.body;
     this.above = options.index;
   }
 
   static fromJson(json: AtomJson): SurdAtom {
-    return new SurdAtom(json.command, {
+    return new SurdAtom({
       ...(json as any),
       index: json.above,
     });
   }
 
-  serialize(options: ToLatexOptions): string {
+  _serialize(options: ToLatexOptions): string {
     if (!options.expandMacro && typeof this.verbatimLatex === 'string')
       return this.verbatimLatex;
     const def = getDefinition(this.command, this.mode);
@@ -54,7 +57,7 @@ export class SurdAtom extends Atom {
     return latexCommand(command, body);
   }
 
-  render(parentContext: Context): Box | null {
+  render(context: Context): Box | null {
     // See the TeXbook pg. 443, Rule 11.
     // http://www.ctex.org/documents/shredder/src/texbook.pdf
 
@@ -63,16 +66,18 @@ export class SurdAtom extends Atom {
     //
     // > 11. If the current item is a Rad atom (from \radical, e.g., \sqrt),
     // > set box x to the nucleus in style C′
-    // TeXBook p.443
+    // -- TeXBook p.443
 
     // > Math accents, and the operations \sqrt and \overline, change
     // > uncramped styles to their cramped counterparts; for example, D
-    // > changes to D′, but D′ stays as it was. -- TeXBook p. 152
+    // > changes to D′, but D′ stays as it was.
+    // -- TeXBook p. 152
     const innerContext = new Context(
-      { parent: parentContext, mathstyle: 'cramp' },
+      { parent: context, mathstyle: 'cramp' },
       this.style
     );
-    const innerBox: Box =
+
+    const innerBox =
       Atom.createBox(innerContext, this.body, {
         style: this.style,
         type: 'inner', // In TeX, 'rac'
@@ -86,7 +91,7 @@ export class SurdAtom extends Atom {
     const ruleWidth = innerContext.metrics.defaultRuleThickness / factor;
 
     // > let φ=σ5 if C>T (TeXBook p. 443)
-    const phi = parentContext.isDisplayStyle ? X_HEIGHT : ruleWidth;
+    const phi = context.isDisplayStyle ? X_HEIGHT : ruleWidth;
 
     const line = new Box(null, {
       classes: 'ML__sqrt-line',
@@ -107,7 +112,7 @@ export class SurdAtom extends Atom {
     );
 
     const minDelimiterHeight = innerTotalHeight + lineClearance + ruleWidth;
-    const delimContext = new Context({ parent: parentContext }, this.style);
+    const delimContext = new Context({ parent: context }, this.style);
 
     const delimBox = this.bind(
       delimContext,
@@ -146,7 +151,7 @@ export class SurdAtom extends Atom {
     //
 
     const bodyBox = this.bind(
-      parentContext,
+      context,
       new VBox({
         firstBaseline: [
           { box: new Box(innerBox) }, // Need to wrap the inner for proper selection bound calculation
@@ -154,10 +159,11 @@ export class SurdAtom extends Atom {
           { box: line },
           ruleWidth,
         ],
-      }).wrap(parentContext)
+      })
     );
+
     //
-    //  5. Assemble the body and the delimiter
+    // 5. Assemble the body and the delimiter
     //
 
     //
@@ -168,12 +174,9 @@ export class SurdAtom extends Atom {
     // > \def\root#1\of{\setbox\rootbox=
     // > \hbox{$\m@th \scriptscriptstyle{#1}$}\mathpalette\r@@t}
     const indexBox = Atom.createBox(
-      new Context(
-        { parent: parentContext, mathstyle: 'scriptscriptstyle' },
-        this.style
-      ),
+      new Context({ parent: context, mathstyle: 'scriptscriptstyle' }),
       this.above,
-      { style: this.style, type: 'ignore' }
+      { type: 'ignore' }
     );
 
     if (!indexBox) {
@@ -188,7 +191,7 @@ export class SurdAtom extends Atom {
       result.setStyle('height', result.height + result.depth, 'em');
 
       if (this.caret) result.caret = this.caret;
-      return this.bind(parentContext, result.wrap(parentContext));
+      return this.bind(context, result);
     }
 
     // Build a stack with the index shifted up correctly.
@@ -219,6 +222,6 @@ export class SurdAtom extends Atom {
     result.depth = delimBox.depth;
 
     if (this.caret) result.caret = this.caret;
-    return this.bind(parentContext, result.wrap(parentContext));
+    return this.bind(context, result);
   }
 }
