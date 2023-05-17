@@ -434,21 +434,22 @@ const DEFAULT_MACROS: MacroDictionary = {
   'differentialD': '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
   'capitalDifferentialD': '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
 
-  'mathstrut': { def: '\\vphantom{(}', expand: false },
+  'mathstrut': { def: '\\vphantom{(}', primitive: true },
 
   // mhchem
 
-  'tripledash':
-    '\\vphantom{-}\\raisebox{2mu}{$\\mkern2mu\\tiny\\text{-}\\mkern1mu\\text{-}\\mkern1mu\\text{-}\\mkern2mu$}',
-
+  'tripledash': {
+    def: '\\vphantom{-}\\raise{4mu}{\\mkern1.5mu\\rule{2mu}{1.5mu}\\mkern{2.25mu}\\rule{2mu}{1.5mu}\\mkern{2.25mu}\\rule{2mu}{1.5mu}\\mkern{2mu}}',
+    expand: true,
+  },
   'braket.sty': { package: BRAKET_MACROS } as MacroPackageDefinition,
   'amsmath.sty': {
     package: AMSMATH_MACROS,
-    expand: false,
+    primitive: true,
   } as MacroPackageDefinition,
   'texvc.sty': {
     package: TEXVC_MACROS,
-    expand: false,
+    primitive: false,
   } as MacroPackageDefinition,
 };
 
@@ -457,10 +458,12 @@ const DEFAULT_MACROS: MacroDictionary = {
 
 export const TEXT_SYMBOLS: Record<string, number> = {
   ' ': 0x0020,
+  // want that in Text mode.
   '\\#': 0x0023,
   '\\&': 0x0026,
   '\\$': 0x0024,
   '\\%': 0x0025,
+  '-': 0x002d, // In Math mode, '-' is substituted to U+2212, but we don't
   '\\_': 0x005f,
   '\\euro': 0x20ac,
   '\\maltese': 0x2720,
@@ -861,7 +864,7 @@ export function normalizeMacroDictionary(
         result[packageMacro] = normalizeMacroDefinition(
           macroDef.package[packageMacro],
           {
-            expand: macroDef.expand,
+            expand: !macroDef.primitive,
             captureSelection: macroDef.captureSelection,
           }
         );

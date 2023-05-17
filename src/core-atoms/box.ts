@@ -120,13 +120,21 @@ export class BoxAtom extends Atom {
     result.setStyle('line-height', 0);
 
     // The padding adds to the depth, height and width of the box
-    result.height = base.height + padding;
-    result.depth = base.depth + padding;
+    result.height = base.height + padding + (offset > 0 ? offset : 0);
+    result.depth = base.depth + padding + (offset < 0 ? -offset : 0);
     result.setStyle('padding-left', padding, 'em');
     result.setStyle('padding-right', padding, 'em');
-    result.setStyle('height', base.height + base.depth + 2 * padding, 'em');
+    result.setStyle(
+      'height',
+      base.height + base.depth + 2 * padding + Math.abs(offset),
+      'em'
+    );
     result.setStyle('margin-top', -padding, 'em');
-    result.setStyle('top', base.depth - base.height + 2 * padding, 'em');
+    result.setStyle(
+      'top',
+      base.depth - base.height + 2 * padding - offset,
+      'em'
+    );
     result.setStyle('vertical-align', base.depth + 2 * padding, 'em');
 
     if (this.caret) result.caret = this.caret;

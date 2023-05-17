@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## New Features
+
+- Added support for `\raise`, `\lower` and `\raisebox` commands
+
 ## Improvements
 
 - Improved parsing/serialization/rendering of content with a mix of text and math.
@@ -8,6 +12,7 @@
   the Shift key to set it temporarily, double-press it key to lock it (similar 
   to CapsLock), triple-press it to unlock. This is a behavior similar to the 
   ones from mobile virtual keyboards.
+- **#1647** Improved rendering of chemical bonds, e.g. `\ce{ O\bond{~-}H}`
 
 
 ## Bug Fixes

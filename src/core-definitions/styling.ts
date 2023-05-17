@@ -1276,7 +1276,9 @@ defineFunction('lower', '{:value}{:auto}', {
   serialize: (atom: BoxAtom, options) =>
     latexCommand(
       '\\lower',
-      serializeLatexValue(atom.offset) ?? '0pt',
+      serializeLatexValue(
+        multiplyLatexValue(atom.offset ?? { dimension: 0 }, -1)
+      ) ?? '0pt',
       atom.bodyToLatex(options)
     ),
 });

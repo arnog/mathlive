@@ -206,7 +206,9 @@ export type MacroDefinition = {
 
 export type MacroPackageDefinition = {
   package: Record<string, string | MacroDefinition>;
-  expand?: boolean;
+  // If `primitive` is true, the macro in this package are not expanded,
+  // event when `expandMacro` is true.
+  primitive?: boolean;
   captureSelection?: boolean;
 };
 
