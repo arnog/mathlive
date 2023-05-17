@@ -290,7 +290,9 @@ export function showEnvironmentPopover(mf: MathfieldPrivate): void {
 
   const position = mf.field?.getBoundingClientRect();
   if (position) {
-    panel.style.top = `${position.top - panel.clientHeight - 15}px`;
+    panel.style.top = `${
+      window.scrollY + (position.top - panel.clientHeight - 15)
+    }px`;
     panel.style.left = `${position.left + 20}px`;
     panel.classList.add('is-visible');
   }
@@ -314,7 +316,7 @@ export function environmentPopoverIsVisible(): boolean {
   return panel.classList.contains('is-visible');
 }
 
-export function updateEnvironmemtPopover(mf: MathfieldPrivate): void {
+export function updateEnvironmentPopover(mf: MathfieldPrivate): void {
   if (!mf.hasFocus()) return;
   let visible = false;
   if (mf.model.mode === 'math' && window.mathVirtualKeyboard.visible) {
