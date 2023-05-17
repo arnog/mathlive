@@ -290,7 +290,9 @@ export function showEnvironmentPopover(mf: MathfieldPrivate): void {
 
   const position = mf.field?.getBoundingClientRect();
   if (position) {
-    panel.style.top = `${position.top - panel.clientHeight - 15}px`;
+    panel.style.top = `${
+      window.scrollY + (position.top - panel.clientHeight - 15)
+    }px`;
     panel.style.left = `${position.left + 20}px`;
     panel.classList.add('is-visible');
   }
