@@ -4,6 +4,10 @@
 
 - Improved parsing/serialization/rendering of content with a mix of text and math.
 - Various rendering improvements, mostly of edge cases.
+- Improved behavior of the Shift key in the math keyboard. Single-press
+  the Shift key to set it temporarily, double-press it key to lock it (similar 
+  to CapsLock), triple-press it to unlock. This is a behavior similar to the 
+  ones from mobile virtual keyboards.
 
 
 ## Bug Fixes
@@ -12,9 +16,11 @@
   background.
 - Pasing text while in LaTeX mode now works.
 - Some of the arrows for mhchem have been renamed and are now displaying correctly
+- **#1964** Prevent a runtime error when a mathfield is embedded in an iframe
+  and MathLive is not loaded in the host document.
+- **#1970** The environment popover was not always positioned correctly.
 
 ## 0.93.0 (2023-05-08)
-
 
 ## New Features
 

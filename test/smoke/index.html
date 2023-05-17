@@ -43,7 +43,7 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf">\frac{1}{123456}\vec{ABCD}\hat{ABCD}</math-field>
+      <math-field id="mf">a\raise{.5em}{b}\lower{.5em}{c}</math-field>
       <!-- <math-field id="mf"
         >\colorbox{yellow}{$\textcolor{purple}{ \huge \sqrt[3]{x} \binom56 x
         \text{huge} \Huge a\mathrm{b}c}d$}e</math-field
@@ -129,7 +129,6 @@
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
       renderMathInDocument();
-      console.log(convertLatexToMarkup('a-b'));
 
       const mfe = new MathfieldElement({
         mathVirtualKeyboardPolicy: 'manual',

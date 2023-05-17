@@ -27,7 +27,10 @@ import type {
 import type { PrivateStyle } from '../core/types';
 import { joinLatex, latexCommand } from '../core/tokenizer';
 import { Box, atomsBoxType } from '../core/box';
-import { serializeLatexValue } from '../core/registers-utils';
+import {
+  multiplyLatexValue,
+  serializeLatexValue,
+} from '../core/registers-utils';
 import { Context } from '../core/context';
 import { T, Tc, S, Sc, SS, SSc } from '../core/mathstyle';
 import { VBox } from '../core/v-box';
@@ -1232,12 +1235,12 @@ defineFunction('raisebox', '{:value}{:text}', {
       ...options,
       body: argAtoms(options.args![1]),
       padding: { dimension: 0 },
-      raise: options.args![0] ?? { dimension: 0 },
+      offset: options.args![0] ?? { dimension: 0 },
     }),
   serialize: (atom: BoxAtom, options) =>
     latexCommand(
       '\\raisebox',
-      serializeLatexValue(atom.raise) ?? '0pt',
+      serializeLatexValue(atom.offset) ?? '0pt',
       atom.bodyToLatex(options)
     ),
 });
@@ -1250,12 +1253,12 @@ defineFunction('raise', '{:value}{:auto}', {
       ...options,
       body: argAtoms(options.args![1]),
       padding: { dimension: 0 },
-      raise: options.args![0] ?? { dimension: 0 },
+      offset: options.args![0] ?? { dimension: 0 },
     }),
   serialize: (atom: BoxAtom, options) =>
     latexCommand(
       '\\raise',
-      serializeLatexValue(atom.raise) ?? '0pt',
+      serializeLatexValue(atom.offset) ?? '0pt',
       atom.bodyToLatex(options)
     ),
 });
@@ -1268,12 +1271,12 @@ defineFunction('lower', '{:value}{:auto}', {
       ...options,
       body: argAtoms(options.args![1]),
       padding: { dimension: 0 },
-      raise: options.args![0] ?? { dimension: 0 },
+      offset: multiplyLatexValue(options.args![0], -1) ?? { dimension: 0 },
     }),
   serialize: (atom: BoxAtom, options) =>
     latexCommand(
       '\\lower',
-      serializeLatexValue(atom.raise) ?? '0pt',
+      serializeLatexValue(atom.offset) ?? '0pt',
       atom.bodyToLatex(options)
     ),
 });

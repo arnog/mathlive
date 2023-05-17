@@ -1,8 +1,16 @@
 /**
- * This module contains metrics regarding fonts and individual symbols. The sigma
- * and xi variables, as well as the CHARACTER_METRICS_MAP map contain data extracted from
- * TeX, TeX font metrics, and the TTF files. These data are then exposed via the
- * `metrics` variable and the getCharacterMetrics function.
+ * This module contains metrics regarding fonts and individual symbols.
+ *
+ * The sigma and xi variables, as well as the CHARACTER_METRICS_MAP map contain
+ * data extracted from TeX, TeX font metrics, and the TTF files. These data
+ * are then exposed via the `metrics` variable and the getCharacterMetrics
+ * function.
+ *
+ * Resources:
+ * - http://www.ntg.nl/maps/38/03.pdf for an explanation of the sigma/chi
+ *   metrics and how they relate to the OpenFont math metrics
+ * - https://typedrawers.com/discussion/4767/design-differences-between-text-font-and-math-font
+ *
  */
 import CHARACTER_METRICS_MAP from './font-metrics-data';
 // import { gFontsState } from './fonts';

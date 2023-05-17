@@ -8,7 +8,7 @@ export class BoxAtom extends Atom {
   readonly framecolor?: LatexValue;
   readonly backgroundcolor?: LatexValue;
   readonly padding?: LatexValue;
-  readonly raise?: LatexValue; // Vertical offset (used by \raisebox)
+  readonly offset?: LatexValue; // Vertical offset (used by \raisebox)
   readonly border?: string;
 
   constructor(
@@ -17,7 +17,7 @@ export class BoxAtom extends Atom {
       framecolor?: LatexValue;
       backgroundcolor?: LatexValue;
       padding?: LatexValue;
-      raise?: LatexValue;
+      offset?: LatexValue;
       border?: string;
     }
   ) {
@@ -32,6 +32,7 @@ export class BoxAtom extends Atom {
     this.framecolor = options.framecolor;
     this.backgroundcolor = options.backgroundcolor;
     this.padding = options.padding;
+    this.offset = options.offset;
     this.border = options.border;
   }
 
@@ -45,7 +46,7 @@ export class BoxAtom extends Atom {
       framecolor: this.framecolor,
       backgroundcolor: this.backgroundcolor,
       padding: this.padding,
-      raise: this.raise,
+      offset: this.offset,
       border: this.border,
     };
   }
@@ -54,6 +55,13 @@ export class BoxAtom extends Atom {
     // Base is the main content "inside" the box
     const base = Atom.createBox(parentContext, this.body, { type: 'ord' });
     if (!base) return null;
+
+    const offset = parentContext.toEm(this.offset ?? { dimension: 0 });
+    base.depth += offset;
+    // base.setStyle('display', 'inline-block');
+    // base.setStyle('position', 'relative');
+    // base.setStyle('background-color', 'rgba(255, 0, 0, .2)');
+    // base.setStyle('vertical-align', raise, 'em');
 
     const context = new Context({ parent: parentContext }, this.style);
 
@@ -111,7 +119,7 @@ export class BoxAtom extends Atom {
     result.setStyle('position', 'relative');
     result.setStyle('line-height', 0);
 
-    // The padding adds to the width and height of the pod
+    // The padding adds to the depth, height and width of the box
     result.height = base.height + padding;
     result.depth = base.depth + padding;
     result.setStyle('padding-left', padding, 'em');
@@ -127,8 +135,8 @@ export class BoxAtom extends Atom {
   }
 }
 
-function lineWidth(s: string): string {
-  const m = s.match(/[\d]+(\.[\d]+)?[a-zA-Z]+/);
-  if (m) return m[0];
-  return '';
-}
+// function lineWidth(s: string): string {
+//   const m = s.match(/[\d]+(\.[\d]+)?[a-zA-Z]+/);
+//   if (m) return m[0];
+//   return '';
+// }
