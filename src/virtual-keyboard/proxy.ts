@@ -47,7 +47,7 @@ export class VirtualKeyboardProxy
     [type: string]: Set<EventListenerOrEventListenerObject | null>;
   };
 
-  private _boundingRect: DOMRect;
+  private _boundingRect = new DOMRect(0, 0, 0, 0);
 
   constructor() {
     window.addEventListener('message', this);
