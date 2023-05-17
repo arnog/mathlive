@@ -316,7 +316,7 @@ export function environmentPopoverIsVisible(): boolean {
   return panel.classList.contains('is-visible');
 }
 
-export function updateEnvironmemtPopover(mf: MathfieldPrivate): void {
+export function updateEnvironmentPopover(mf: MathfieldPrivate): void {
   if (!mf.hasFocus()) return;
   let visible = false;
   if (mf.model.mode === 'math' && window.mathVirtualKeyboard.visible) {
