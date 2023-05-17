@@ -70,6 +70,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         ?.classList.remove('is-visible');
       newActive.classList.add('is-visible');
     }
+
+    if (this.isShifted) this.render();
   }
 
   private _isCapslock = false;
@@ -77,10 +79,42 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return this._isCapslock;
   }
   set isCapslock(val: boolean) {
+    this._element?.classList.toggle('is-caps-lock', this.shiftPressCount === 2);
+
     if (val === this._isCapslock) return;
-    this._element?.classList.toggle('is-caps-lock', val);
+
     this._isCapslock = val;
     this.isShifted = val;
+  }
+
+  /** `0`: not pressed
+   *
+   * `1`: Shift is locked for next char only
+   *
+   * `2`: Shift is locked for all characters
+   */
+  private _shiftPressCount: 0 | 1 | 2 = 0;
+
+  get shiftPressCount(): 0 | 1 | 2 {
+    return this._shiftPressCount;
+  }
+
+  /** Increments `_shiftPressCount` by `1`, and handle the appropriate related behavior for each val */
+  incrementShiftPress(): void {
+    if (++this._shiftPressCount > 2) this.resetShiftPress();
+    else this.isCapslock = true;
+  }
+
+  /** Decrements `_shiftPressCount` by `1`, and sets `isCapslock` to `false` if reaches `0` */
+  decrementShiftPress(): void {
+    this._shiftPressCount = Math.max(--this._shiftPressCount, 0) as 0 | 1 | 2;
+    if (this._shiftPressCount === 0) this.isCapslock = false;
+  }
+
+  /** Resets `_shiftPressCount` to `0`, and sets `isCapslock` to `false` */
+  resetShiftPress(): void {
+    this._shiftPressCount = 0;
+    this.isCapslock = false;
   }
 
   private _isShifted = false;
@@ -453,6 +487,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       this.currentLayer = this.latentLayer;
 
       this.render();
+
+      this._element?.classList.toggle(
+        'is-caps-lock',
+        this.shiftPressCount === 2
+      );
     }
 
     this._visible = true;
@@ -580,22 +619,15 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
       case 'keydown': {
         const kev = evt as KeyboardEvent;
-
-        // Always update the capslock state. We could have gotten out of sync
-        // (i.e. if the capslock was reset in another window)
-        this.isCapslock = kev.getModifierState('CapsLock');
-
-        if (kev.key === 'Shift') this.isShifted = true;
+        if (kev.key === 'Shift') this.incrementShiftPress();
         break;
       }
       case 'keyup': {
         const kev = evt as KeyboardEvent;
-        if (kev.key === 'Shift') this.isShifted = false;
-
-        // The capslock key is "special" and may not get a keydown or keyup
-        // event, depending on its state. It varies by browser. Bottom line:
-        // to detect changes, check state on both keyup and keydown.
-        this.isCapslock = kev.getModifierState('CapsLock');
+        if (kev.key !== 'Shift' && this._shiftPressCount === 1) {
+          this.isCapslock = false;
+          this._shiftPressCount = 0;
+        }
         break;
       }
     }

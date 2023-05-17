@@ -27,6 +27,7 @@ import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
 import { insertSmartFence } from './mode-editor-math';
 import type { ParseMode } from '../mathlive';
+import { VirtualKeyboard } from 'virtual-keyboard/virtual-keyboard';
 
 /**
  * Handler in response to a keystroke event.
@@ -479,7 +480,16 @@ export function onInput(
   // those with a skin tone modifier, the country flags emojis or
   // compound emojis such as the professional emojis, including the
   // David Bowie emoji: 👨🏻‍🎤
-  const graphemes = splitGraphemes(text);
+  let graphemes = splitGraphemes(text);
+
+  // Check if virtual keyboard is visible and the shift key is pressed
+  const keyboard = VirtualKeyboard.singleton;
+  if (keyboard.visible && keyboard.isShifted) {
+    graphemes =
+      typeof graphemes === 'string'
+        ? graphemes.toUpperCase()
+        : graphemes.map((c) => c.toUpperCase());
+  }
 
   if (model.mode === 'latex') {
     model.deferNotifications(
