@@ -134,7 +134,9 @@ export class ModeEditor {
         if (ce) {
           try {
             ce.jsonSerializationOptions = { metadata: ['latex'] };
-            const expr = ce.parse(latex);
+            const expr = ce.parse(
+              model.getValue(exportRange, 'latex-unstyled')
+            );
 
             const mathJson = JSON.stringify(expr.json);
             if (mathJson)

@@ -489,32 +489,9 @@ export class ModelPrivate implements Model {
       return result;
     }
 
-    if (format === 'math-json') {
-      if (!window.MathfieldElement.computeEngine) {
-        if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
-          console.error(
-            'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
-          );
-        }
-        return '["Error", "compute-engine-not-available"]';
-      }
-      try {
-        const expr = window.MathfieldElement.computeEngine.parse(
-          Atom.serialize([atom], {
-            expandMacro: false,
-            skipStyles: true,
-            defaultMode: 'math',
-          })
-        );
-        return JSON.stringify(expr.json);
-      } catch (e) {
-        return JSON.stringify(['Error', `'${e.toString()}'`]);
-      }
-    }
-
     if (format === 'ascii-math') return atomToAsciiMath(atom);
 
-    console.error(`MathLive {{SDK_VERSION}}: Unknown format "${format}`);
+    console.error(`MathLive {{SDK_VERSION}}: Unexpected format "${format}`);
     return '';
   }
 
@@ -537,7 +514,8 @@ export class ModelPrivate implements Model {
     if (arg1 === undefined) return this.atomToString(this.root, 'latex');
 
     // GetValue(format): Output format only
-    if (typeof arg1 === 'string') return this.atomToString(this.root, arg1);
+    if (typeof arg1 === 'string' && arg1 !== 'math-json')
+      return this.atomToString(this.root, arg1);
 
     let ranges: Range[];
     let format: OutputFormat;
@@ -551,8 +529,26 @@ export class ModelPrivate implements Model {
       ranges = arg1.ranges;
       format = arg2 as OutputFormat;
     } else {
-      ranges = [];
-      format = 'latex';
+      ranges = [this.normalizeRange([0, -1])];
+      format = (arg1 as OutputFormat) ?? 'latex';
+    }
+
+    if (format === 'math-json') {
+      if (!window.MathfieldElement.computeEngine) {
+        if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
+          console.error(
+            'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+          );
+        }
+        return '["Error", "compute-engine-not-available"]';
+      }
+      const latex = this.getValue({ ranges }, 'latex-unstyled');
+      try {
+        const expr = window.MathfieldElement.computeEngine.parse(latex);
+        return JSON.stringify(expr.json);
+      } catch (e) {
+        return JSON.stringify(['Error', `'${e.toString()}'`]);
+      }
     }
 
     if (format.startsWith('latex')) {

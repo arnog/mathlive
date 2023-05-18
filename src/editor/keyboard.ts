@@ -325,7 +325,7 @@ export function delegateKeyboardEvents(
       if (!delegate.onPaste(event)) event.preventDefault();
       event.stopImmediatePropagation();
     },
-    { passive: true, signal }
+    { signal }
   );
 
   keyboardSink.addEventListener('cut', (ev) => delegate.onCut(ev), {

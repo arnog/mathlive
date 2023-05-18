@@ -165,6 +165,7 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string[] {
 
     const style = x[0].computedStyle;
     if (
+      !options.skipStyles &&
       style.color &&
       style.color !== 'none' &&
       (!parent || parentColor !== style.color)

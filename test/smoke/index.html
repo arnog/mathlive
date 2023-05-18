@@ -43,9 +43,7 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf"
-        >\sum^q_{n=0}\begin{pmatrix}a & b \\ c & d\\\end{pmatrix}</math-field
-      >
+      <math-field id="mf">\cos^2(x)+\textcolor{red}{\sin^{-1}(x)}</math-field>
 
       <h2>Selection</h2>
       <div class="output" id="selection"></div>
@@ -167,6 +165,9 @@
           `${label('value     ')}"${escapeHtml(
             mf.getValue(selection, 'latex')
           )}"<br>` +
+          // `${label('MathJson  ')}"${escapeHtml(
+          //   mf.getValue(selection, 'math-json')
+          // )}"<br>` +
           label('start     ') +
           selection.ranges[0][0] +
           '<br>' +
@@ -210,7 +211,7 @@
           document.getElementById('result').innerText = result;
           document.getElementById('result-latex').innerText = `$$${result}$$`;
 
-          // renderMathInElement('result-latex');
+          renderMathInElement('result-latex');
         } catch (e) {
           console.error('Error converting', e.toString());
         }

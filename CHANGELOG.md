@@ -13,6 +13,9 @@
   to CapsLock), triple-press it to unlock. This is a behavior similar to the 
   ones from mobile virtual keyboards.
 - **#1647** Improved rendering of chemical bonds, e.g. `\ce{ O\bond{~-}H}`
+- Only on iOS, intercepts the cmd+XCV keyboard shortcut. On other platforms,
+  use the standard cut/copy/paste commands, which do not require user 
+  permission.
 
 
 ## Bug Fixes
@@ -24,6 +27,8 @@
 - **#1964** Prevent a runtime error when a mathfield is embedded in an iframe
   and MathLive is not loaded in the host document.
 - **#1970** The environment popover was not always positioned correctly.
+- Correctly return unstyled LaTeX when requested (with format `unstyled-latex`).
+  This strips any color/background-color/font sizing commands from the ouput.
 
 ## 0.93.0 (2023-05-08)
 

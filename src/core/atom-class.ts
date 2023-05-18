@@ -453,7 +453,10 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   _serialize(options: ToLatexOptions): string {
     // 1/ Verbatim LaTeX. This allow non-significant punctuation to be
     // preserved when possible.
-    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+    if (
+      !(options.expandMacro || options.skipStyles) &&
+      typeof this.verbatimLatex === 'string'
+    )
       return this.verbatimLatex;
 
     // 2/ Custom serializer

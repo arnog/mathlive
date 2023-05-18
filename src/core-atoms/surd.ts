@@ -42,7 +42,10 @@ export class SurdAtom extends Atom {
   }
 
   _serialize(options: ToLatexOptions): string {
-    if (!options.expandMacro && typeof this.verbatimLatex === 'string')
+    if (
+      !(options.expandMacro || options.skipStyles) &&
+      typeof this.verbatimLatex === 'string'
+    )
       return this.verbatimLatex;
     const def = getDefinition(this.command, this.mode);
     if (def?.serialize) return def.serialize(this, options);

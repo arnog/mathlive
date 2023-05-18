@@ -838,7 +838,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       );
       return null;
     }
-    return ce.box(ce.parse(this.model.getValue()));
+    return ce.box(ce.parse(this.model.getValue('latex-unstyled')));
   }
 
   /** Make sure the caret is visible within the matfield.
