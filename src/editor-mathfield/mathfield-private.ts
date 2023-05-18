@@ -1556,9 +1556,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   onCompositionEnd(composition: string): void {
     removeComposition(this.model);
-    onInput(this, composition, {
-      simulateKeystroke: true,
-    });
+    onInput(this, composition, { simulateKeystroke: true });
   }
 
   onCut(ev: ClipboardEvent): void {
