@@ -28,7 +28,7 @@ export class LatexModeEditor extends ModeEditor {
     const text =
       typeof data === 'string'
         ? data
-        : data.getData('text/x-latex') ?? data.getData('text/plain');
+        : data.getData('application/x-latex') || data.getData('text/plain');
 
     if (
       text &&
