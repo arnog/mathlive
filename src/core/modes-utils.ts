@@ -155,30 +155,41 @@ export function getPropertyRuns(
 function emitColorRun(run: Atom[], options: ToLatexOptions): string[] {
   const { parent } = run[0];
   const parentColor = parent?.computedStyle.color;
-  return getPropertyRuns(run, 'color').map((x) => {
-    const body: string[] = [];
 
-    for (const run of getModeRuns(x)) {
-      const mode = Mode._registry[run[0].mode];
-      body.push(...mode.serialize(run, options));
+  const result: string[] = [];
+  // Since `\textcolor{}` applies to both text and math mode, wrap mode first, then
+  // textcolor
+  for (const modeRun of getModeRuns(run)) {
+    const mode = modeRun[0].mode;
+
+    if (mode === 'math' && options.defaultMode === 'text') result.push('$ ');
+
+    for (const colorRun of getPropertyRuns(modeRun, 'color')) {
+      const style = colorRun[0].computedStyle;
+      const body = Mode._registry[mode].serialize(colorRun, {
+        ...options,
+        defaultMode: mode === 'text' ? 'text' : 'math',
+      });
+      if (
+        !options.skipStyles &&
+        style.color &&
+        style.color !== 'none' &&
+        (!parent || parentColor !== style.color)
+      ) {
+        result.push(
+          latexCommand(
+            '\\textcolor',
+            style.verbatimColor ?? style.color,
+            joinLatex(body)
+          )
+        );
+      } else result.push(joinLatex(body));
     }
 
-    const style = x[0].computedStyle;
-    if (
-      !options.skipStyles &&
-      style.color &&
-      style.color !== 'none' &&
-      (!parent || parentColor !== style.color)
-    ) {
-      return latexCommand(
-        '\\textcolor',
-        style.verbatimColor ?? style.color,
-        joinLatex(body)
-      );
-    }
+    if (mode === 'math' && options.defaultMode === 'text') result.push(' $');
+  }
 
-    return joinLatex(body);
-  });
+  return result;
 }
 
 function emitBackgroundColorRun(

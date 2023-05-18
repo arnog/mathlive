@@ -299,9 +299,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     context: Context,
     atoms: Atom[] | undefined,
     options?: {
-      mode?: ParseMode;
       type?: BoxType;
-      style?: Style;
       classes?: string;
     }
   ): Box | null {
@@ -1091,8 +1089,6 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
         shift: -supShift,
         children: [{ box: supBox, marginRight: scriptspace }],
       });
-
-      supsub.wrap(parentContext);
     }
 
     // Display the caret *following* the superscript and subscript,
@@ -1203,12 +1199,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
             letterShapeStyle: context.letterShapeStyle,
             classes,
           })
-        : Atom.createBox(context, value, {
-            type,
-            mode: this.mode,
-            style: this.style,
-            classes,
-          }) ?? new Box(null);
+        : Atom.createBox(context, value, { type, classes }) ?? new Box(null);
 
     // Set other attributes
     if (context.isTight) result.isTight = true;

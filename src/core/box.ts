@@ -521,7 +521,8 @@ export class Box implements BoxInterface {
       this.scale !== 1.0 &&
       (body.length > 0 || svgMarkup.length > 0)
     )
-      styles.push(`font-size: ${Math.round(this.scale * 10000) / 10000}em`);
+      styles.push(`font-size: ${Math.round(this.scale * 10000) / 100}%`);
+    // styles.push(`font-size: ${Math.round(this.scale * 10000) / 10000}em`);
 
     if (this.htmlStyle) {
       const entries = this.htmlStyle.split(';');

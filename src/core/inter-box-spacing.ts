@@ -104,7 +104,6 @@ export function applyInterBoxSpacing(root: Box, context: Context): Box {
   const thick = context.getRegisterAsEm('thickmuskip');
 
   traverseBoxes(boxes, (prev, cur) => {
-    // console.log(prev?.value, prev?.type, cur.value, cur.type);
     if (!prev) return;
     const prevType = prev.type;
     const table = cur.isTight
@@ -124,13 +123,15 @@ function traverseBoxes(
   f: (prev: Box | undefined, cur: Box) => void,
   prev: Box | undefined = undefined
 ): Box | undefined {
-  if (!boxes) return undefined;
+  if (!boxes) return prev;
+  // Make a copy of the boxes, as the `f()` may modify it (when inserting skips)
+  boxes = [...boxes];
   for (const cur of boxes) {
-    if (cur.type === 'lift') prev = traverseBoxes(cur.children!, f, prev);
-    else if (cur.type === 'ignore') traverseBoxes(cur.children!, f);
+    if (cur.type === 'lift') prev = traverseBoxes(cur.children, f, prev);
+    else if (cur.type === 'ignore') traverseBoxes(cur.children, f);
     else {
       f(prev, cur);
-      if (cur.children) traverseBoxes(cur.children, f);
+      traverseBoxes(cur.children, f);
       prev = cur;
     }
   }

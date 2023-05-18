@@ -80,11 +80,10 @@ export class SurdAtom extends Atom {
       this.style
     );
 
+    // In TeX, the type is 'rac'
     const innerBox =
-      Atom.createBox(innerContext, this.body, {
-        style: this.style,
-        type: 'inner', // In TeX, 'rac'
-      }) ?? new Box(null);
+      Atom.createBox(innerContext, this.body, { type: 'inner' }) ??
+      new Box(null);
 
     //
     // 2. Render the radical line

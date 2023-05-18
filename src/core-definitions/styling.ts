@@ -217,11 +217,7 @@ defineFunction(
         { parent: context, mathstyle: atom.command.slice(1) as MathstyleName },
         atom.style
       );
-      const box = Atom.createBox(ctx, atom.body, {
-        type: 'lift',
-        mode: 'math',
-        style: atom.style,
-      })!;
+      const box = Atom.createBox(ctx, atom.body, { type: 'lift' })!;
 
       if (atom.caret) box.caret = atom.caret;
       return atom.bind(context, box);
@@ -751,7 +747,7 @@ defineFunction('mathchoice', '{:math}{:math}{:math}{:math}', {
     if (d === S || d === Sc) i = 2;
     if (d === SS || d === SSc) i = 3;
     const body = argAtoms(atom.args![i] as Atom[]);
-    return Atom.createBox(context, body, { style: atom.style, mode: 'math' });
+    return Atom.createBox(context, body);
   },
   serialize: (atom, options) =>
     `\\mathchoice{${Atom.serialize(
@@ -774,10 +770,7 @@ defineFunction('mathop', '{:auto}', {
       captureSelection: true,
     }),
   render: (atom, context) => {
-    let base = Atom.createBox(context, atom.body, {
-      style: atom.style,
-      mode: atom.mode,
-    })!;
+    let base = Atom.createBox(context, atom.body)!;
     if (atom.superscript || atom.subscript) {
       const limits = atom.subsupPlacement ?? 'auto';
       base =
@@ -881,10 +874,7 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
     });
   },
   render: (atom, context) => {
-    let base = Atom.createBox(context, atom.body, {
-      style: atom.style,
-      mode: atom.mode,
-    })!;
+    let base = Atom.createBox(context, atom.body)!;
     if (atom.superscript || atom.subscript) {
       const limits = atom.subsupPlacement ?? 'auto';
       base =

@@ -30,10 +30,7 @@ export class GroupAtom extends Atom {
   }
 
   render(context: Context): Box | null {
-    const box = Atom.createBox(context, this.body, {
-      type: this.boxType,
-      mode: this.mode,
-    });
+    const box = Atom.createBox(context, this.body, { type: this.boxType });
     if (!box) return null;
     if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched

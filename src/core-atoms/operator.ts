@@ -79,6 +79,7 @@ export class OperatorAtom extends Atom {
         classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
         type: 'op',
         maxFontSize: context.scalingFactor,
+        isSelected: this.isSelected,
       });
 
       if (!base) return null;
@@ -96,30 +97,26 @@ export class OperatorAtom extends Atom {
 
       // The slant of the symbol is just its italic correction.
       slant = base.italic;
-      base.setStyle('color', this.style.color);
-      base.setStyle('background-color', this.style.backgroundColor);
+      base.setTop(baseShift);
     } else {
-      // Otherwise, this is a text operator. Build the text from the
-      // operator's name.
+      // Otherwise, this is a text operator (e.g. `\sin`).
+      // Build the text from the operator's name.
       console.assert(this.type === 'mop');
       // Not all styles are applied, since the operators have a distinct
       // appearance (for example, can't override their font family)
       base = new Box(this.value, {
         type: 'op',
         mode: 'math',
-        caret: this.caret,
         maxFontSize: context.scalingFactor,
         style: {
-          color: this.style.color,
-          backgroundColor: this.style.backgroundColor,
           variant: this.variant,
           variantStyle: this.variantStyle,
         },
+        isSelected: this.isSelected,
         letterShapeStyle: context.letterShapeStyle,
       });
     }
 
-    if (this.isExtensibleSymbol) base.setTop(baseShift);
     let result = base;
     if (this.superscript || this.subscript) {
       const limits = this.subsupPlacement ?? 'auto';
@@ -133,9 +130,10 @@ export class OperatorAtom extends Atom {
     // can all be selected as one
     return new Box(this.bind(context, result), {
       type: 'op',
+      caret: this.caret,
       isSelected: this.isSelected,
       classes: 'op-group',
-    });
+    }).wrap(context);
   }
 
   _serialize(options: ToLatexOptions): string {

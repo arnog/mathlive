@@ -2,7 +2,8 @@
 
 ## New Features
 
-- Added support for `\raise`, `\lower` and `\raisebox` commands
+- Added support for `\raise`, `\lower` and `\raisebox` commands. Those commands
+  were necessary to render some chemical bonds.
 
 ## Improvements
 
@@ -10,8 +11,8 @@
 - Various rendering improvements, mostly of edge cases.
 - Improved behavior of the Shift key in the math keyboard. Single-press
   the Shift key to set it temporarily, double-press it key to lock it (similar 
-  to CapsLock), triple-press it to unlock. This is a behavior similar to the 
-  ones from mobile virtual keyboards.
+  to CapsLock), triple-press it to unlock. This is similar behavior to the 
+  ones of mobile virtual keyboards.
 - **#1647** Improved rendering of chemical bonds, e.g. `\ce{ O\bond{~-}H}`
 - Only on iOS, intercepts the cmd+XCV keyboard shortcut. On other platforms,
   use the standard cut/copy/paste commands, which do not require user 
@@ -31,6 +32,8 @@
 - **#1970** The environment popover was not always positioned correctly.
 - Correctly return unstyled LaTeX when requested (with format `unstyled-latex`).
   This strips any color/background-color/font sizing commands from the ouput.
+- The caret is no longer displayed twice when placed after `\cos^2` (operators
+  with a superscript).
 
 ## 0.93.0 (2023-05-08)
 
