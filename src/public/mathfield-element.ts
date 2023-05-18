@@ -1043,12 +1043,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       return;
 
     // Fetch the audio buffer
-    const response = await fetch(
-      await resolveUrl(`${soundsDirectory}/${soundFile}`)
-    );
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-    this.audioBuffers[sound] = audioBuffer;
+    try {
+      const response = await fetch(
+        await resolveUrl(`${soundsDirectory}/${soundFile}`)
+      );
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      this.audioBuffers[sound] = audioBuffer;
+    } catch {}
   }
 
   static async playSound(
