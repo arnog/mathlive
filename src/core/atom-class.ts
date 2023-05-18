@@ -298,10 +298,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   static createBox(
     context: Context,
     atoms: Atom[] | undefined,
-    options?: {
-      type?: BoxType;
-      classes?: string;
-    }
+    options?: { type?: BoxType; classes?: string }
   ): Box | null {
     if (!atoms) return null;
     const runs = getStyleRuns(atoms);
