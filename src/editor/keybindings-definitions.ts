@@ -109,12 +109,17 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: '[Redo]', command: 'redo' },
   { key: '[EraseEof]', command: 'deleteToGroupEnd' },
 
-  { key: 'ctrl+x', command: 'cutToClipboard' },
-  { key: 'cmd+x', command: 'cutToClipboard' },
-  { key: 'ctrl+c', command: 'copyToClipboard' },
-  { key: 'cmd+c', command: 'copyToClipboard' },
-  { key: 'ctrl+v', command: 'pasteFromClipboard' },
-  { key: 'cmd+v', command: 'pasteFromClipboard' },
+  // Safari on iOS does not send cut/copy/paste commands when the mathfield
+  // is focused, so intercept the keyboard shortcuts.
+  // This is less desirable because the full clipboard API is not accessible
+  // by this path, and user authorization is required.
+  { key: 'ctrl+x', ifPlatform: 'ios', command: 'cutToClipboard' },
+  { key: 'cmd+x', ifPlatform: 'ios', command: 'cutToClipboard' },
+  { key: 'ctrl+c', ifPlatform: 'ios', command: 'copyToClipboard' },
+  { key: 'cmd+c', ifPlatform: 'ios', command: 'copyToClipboard' },
+  { key: 'ctrl+v', ifPlatform: 'ios', command: 'pasteFromClipboard' },
+  { key: 'cmd+v', ifPlatform: 'ios', command: 'pasteFromClipboard' },
+
   { key: 'ctrl+z', ifPlatform: '!macos', command: 'undo' },
   { key: 'cmd+z', command: 'undo' },
   { key: 'ctrl+y', ifPlatform: '!macos', command: 'redo' }, // ARIA recommendation
