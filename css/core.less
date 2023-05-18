@@ -710,3 +710,45 @@
   outline: 1px solid var(--incorrect-color, var(--ML__incorrect-color));
   box-shadow: 0 0 5px var(--incorrect-color, var(--ML__incorrect-color));
 }
+
+/* This class is used to implement the `\mathtip` and `\texttip` commands
+   For UI elements, see `[data-ML__tooltip]`
+*/
+.ML__tooltip-container {
+  position: relative;
+  transform: scale(0); // To override the overflow:hidden
+
+  .ML__tooltip-content {
+    position: fixed;
+    display: inline-table;
+    visibility: hidden;
+    z-index: 2;
+    width: max-content;
+    max-width: 400px;
+    padding: 12px 12px;
+    border-radius: 8px;
+
+    background: #616161; // Grey 700
+    color: #fff;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12),
+      0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    // animation: .150s tooltipFadeOut cubic-bezier(0.4, 0.0, 1, 1) forwards;
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 1, 1);
+
+    .ML__text {
+      white-space: normal; // Make text wrap
+    }
+    .ML__base {
+      display: contents;
+    }
+  }
+  &:hover .ML__tooltip-content {
+    visibility: visible; // Visible triggers the animation...
+    opacity: 1; // ... but we start fully transparent to
+    // give ourselves a delay before showing
+    font-size: 0.75em;
+    transform: scale(1) translate(0, 3em);
+  }
+}
+

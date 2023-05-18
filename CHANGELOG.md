@@ -16,6 +16,8 @@
 - Only on iOS, intercepts the cmd+XCV keyboard shortcut. On other platforms,
   use the standard cut/copy/paste commands, which do not require user 
   permission.
+- The tooltips displayed by the `\mathtooltip{}` and `\texttip{}` commands
+  are now displayed when used with a static formula.
 
 
 ## Bug Fixes
