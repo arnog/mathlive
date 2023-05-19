@@ -80,11 +80,6 @@ export function onKeystroke(
     }
   }
 
-  if (!mathfield.isSelectionEditable) {
-    model.announce('plonk');
-    return true;
-  }
-
   // 2. Clear the timer for the keystroke buffer reset
   clearTimeout(mathfield.inlineShortcutBufferFlushTimer);
   mathfield.inlineShortcutBufferFlushTimer = 0;
@@ -126,7 +121,7 @@ export function onKeystroke(
       mathfield.dirty = true;
       mathfield.scrollIntoView();
       if (evt.preventDefault) evt.preventDefault();
-      return true;
+      return false;
     }
 
     //
@@ -152,7 +147,7 @@ export function onKeystroke(
         mathfield.dirty = true;
         mathfield.scrollIntoView();
         if (evt.preventDefault) evt.preventDefault();
-        return true;
+        return false;
       }
     }
   } else if (
@@ -162,7 +157,7 @@ export function onKeystroke(
     mathfield.dirty = true;
     mathfield.scrollIntoView();
     if (evt.preventDefault) evt.preventDefault();
-    return true;
+    return false;
   }
 
   // 5. Let's try to find a matching inline shortcut
@@ -345,7 +340,7 @@ export function onKeystroke(
           mathfield.snapshot('insert-space');
           mathfield.dirty = true;
           mathfield.scrollIntoView();
-          return true;
+          return false;
         }
       }
 
@@ -550,9 +545,12 @@ export function onInput(
   }
 
   if (options.simulateKeystroke) {
-    for (const c of graphemes)
-      onKeystroke(mathfield, c, new KeyboardEvent('keypress', { key: c }));
-    return;
+    let handled = true;
+    for (const c of graphemes) {
+      if (onKeystroke(mathfield, c, new KeyboardEvent('keypress', { key: c })))
+        handled = false;
+    }
+    if (handled) return;
   }
 
   //

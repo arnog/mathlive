@@ -247,7 +247,7 @@ test('readonly selectable', async ({ page, browserName }) => {
   await page.locator('#mf-4').press(selectAllCommand);
 
   // check contents of selection
-  let selectionLatex = await page
+  const selectionLatex = await page
     .locator('#mf-4')
     .evaluate((mfe: MathfieldElement) => {
       return mfe.getValue(mfe.selection, 'latex');
