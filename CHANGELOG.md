@@ -4,7 +4,8 @@
 
 - Added support for `\raise`, `\lower` and `\raisebox` commands. Those commands
   were necessary to render some chemical bonds.
-
+- Pressing `(`, `[` or `{` with a selection will enclose the selection with 
+  this delimiter.
 ## Improvements
 
 - Improved parsing/serialization/rendering of content with a mix of text and math.
@@ -19,6 +20,7 @@
   permission.
 - The tooltips displayed by the `\mathtooltip{}` and `\texttip{}` commands
   are now displayed when used with a static formula.
+- Improvements to smart fence behavior, including better undoability.
 
 
 ## Bug Fixes

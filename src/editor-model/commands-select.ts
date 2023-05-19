@@ -3,6 +3,7 @@ import type { ModelPrivate } from './model-private';
 import { LETTER_AND_DIGITS } from '../core-definitions/definitions-utils';
 import { getMode } from './selection';
 import { move, skip } from './commands';
+import { range } from './selection-utils';
 
 /**
  * Select all the atoms in the current group, that is all the siblings.
@@ -12,8 +13,7 @@ import { move, skip } from './commands';
  */
 export function selectGroup(model: ModelPrivate): boolean {
   if (getMode(model, model.position) === 'text') {
-    let start = Math.min(model.anchor, model.position);
-    let end = Math.max(model.anchor, model.position);
+    let [start, end] = range(model.selection);
     //
     let done = false;
     while (!done && start > 0) {
@@ -44,16 +44,14 @@ export function selectGroup(model: ModelPrivate): boolean {
     // In a math zone, select all the sibling nodes
     if (atom.isDigit()) {
       // In a number, select all the digits
-      let start = Math.min(model.anchor, model.position);
-      let end = Math.max(model.anchor, model.position);
+      let [start, end] = range(model.selection);
       //
       while (model.at(start)?.isDigit()) start -= 1;
       while (model.at(end)?.isDigit()) end += 1;
       model.setSelection(start, end - 1);
     } else {
       if (atom.style.variant || atom.style.variantStyle) {
-        let start = Math.min(model.anchor, model.position);
-        let end = Math.max(model.anchor, model.position);
+        let [start, end] = range(model.selection);
         let x = model.at(start)?.style;
         while (
           x &&

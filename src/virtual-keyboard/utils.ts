@@ -813,15 +813,30 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
 
   '[(]': {
-    variants: ['\\lbrack', '\\langle', '\\lfloor', '\\lceil', '\\lbrace'],
-    latex: '(',
+    variants: [
+      // We insert the fences as "keys" so they can be handled by smartFence.
+      // They will be sent via `onKeystroke` instead of inserted directly in
+      // the model
+      { latex: '\\lbrack', key: '[' },
+      '\\langle',
+      '\\lfloor',
+      '\\lceil',
+      { latex: '\\lbrace', key: '{' },
+    ],
+    key: '(',
     label: '(',
-    shift: { label: '[', latex: '\\lbrack' },
+    shift: { label: '[', key: '[' },
     class: 'hide-shift',
   },
   '[)]': {
-    variants: ['\\rbrack', '\\rangle', '\\rfloor', '\\rceil', '\\rbrace'],
-    latex: ')',
+    variants: [
+      { latex: '\\rbrack', key: ']' },
+      '\\rangle',
+      '\\rfloor',
+      '\\rceil',
+      { latex: '\\rbrace', key: ']' },
+    ],
+    key: ')',
     label: ')',
     shift: { label: ']', latex: '\\rbrack' },
     class: 'hide-shift',
@@ -1121,7 +1136,7 @@ function handleVirtualKeyboardEvent(controller) {
         if (keyboard.isShifted && keycap.shift) {
           if (typeof keycap.shift === 'string') {
             keyboard.executeCommand([
-              'insert',
+              'typedText',
               keycap.shift,
               {
                 focus: true,
@@ -1163,6 +1178,14 @@ export function executeKeycapCommand(
       },
     ];
   }
+  if (!command && keycap.key) {
+    command = [
+      'typedText',
+      keycap.key,
+      { focus: true, feedback: true, simulateKeystroke: true },
+    ];
+  }
+
   if (!command && keycap.latex) {
     command = [
       'insert',
@@ -1180,7 +1203,7 @@ export function executeKeycapCommand(
   if (!command) {
     command = [
       'typedText',
-      keycap.key || keycap.label,
+      keycap.label,
       { focus: true, feedback: true, simulateKeystroke: true },
     ];
   }

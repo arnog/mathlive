@@ -1,5 +1,5 @@
 import {
-  eventToChar,
+  keyboardEventToChar,
   mightProducePrintableCharacter,
 } from '../editor/keyboard';
 import { contentDidChange } from '../editor-model/listeners';
@@ -181,7 +181,7 @@ export function smartMode(
   // (i.e. not an arrow key, etc...)
   if (!evt || !mightProducePrintableCharacter(evt)) return false;
 
-  const c = eventToChar(evt);
+  const c = keyboardEventToChar(evt);
   if (!model.selectionIsCollapsed) {
     // There is a selection
     if (mathfield.model.mode === 'text') {

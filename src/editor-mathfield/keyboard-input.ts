@@ -4,8 +4,8 @@ import { splitGraphemes } from '../core/grapheme-splitter';
 import { Atom } from '../core/atom';
 
 import {
+  keyboardEventToChar,
   mightProducePrintableCharacter,
-  eventToChar,
 } from '../editor/keyboard';
 import { getInlineShortcut } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
@@ -16,7 +16,11 @@ import {
 } from '../editor/keyboard-layout';
 
 import { moveAfterParent } from '../editor-model/commands-move';
-import { contentDidChange, contentWillChange } from '../editor-model/listeners';
+import {
+  contentDidChange,
+  contentWillChange,
+  selectionDidChange,
+} from '../editor-model/listeners';
 import { range } from '../editor-model/selection-utils';
 
 import { removeSuggestion, updateAutocomplete } from './autocomplete';
@@ -25,15 +29,18 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
-import { insertSmartFence } from './mode-editor-math';
-import type { ParseMode } from '../mathlive';
 import { VirtualKeyboard } from 'virtual-keyboard/virtual-keyboard';
+import type { ParseMode, Style } from 'public/core-types';
+import type { ModelPrivate } from 'editor-model/model-private';
+import { LeftRightAtom } from 'core-atoms/leftright';
+import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
 
 /**
- * Handler in response to a keystroke event.
+ * Handler in response to a keystroke event (or to a virtual keyboard keycap
+ * with a `key` property).
  *
  * Return `false` if the event has been handled as a shortcut or command and
- * need no further processing.
+ * needs no further processing.
  *
  * Return `true` if the event should be handled as a regular textual input.
  *
@@ -61,16 +68,21 @@ export function onKeystroke(
 ): boolean {
   const { model } = mathfield;
 
-  // 1. Update the keybindings according to the current keyboard layout
+  // 1. Update the current keyboard layout based on this event
+  if (evt.isTrusted) {
+    validateKeyboardLayout(evt);
 
-  // 1.1 Possibly update the current keyboard layout based on this event
-  validateKeyboardLayout(evt);
+    const activeLayout = getActiveKeyboardLayout();
+    if (mathfield.keyboardLayout !== activeLayout.id) {
+      mathfield.keyboardLayout = activeLayout.id;
+      // If we changed keyboard layout, we'll have to recache the keybindings
+      mathfield._keybindings = undefined;
+    }
+  }
 
-  const activeLayout = getActiveKeyboardLayout();
-  if (mathfield.keyboardLayout !== activeLayout.id) {
-    mathfield.keyboardLayout = activeLayout.id;
-    // If we changed keyboard layout, we'll have to recache the keybindings
-    mathfield._keybindings = undefined;
+  if (!mathfield.isSelectionEditable) {
+    model.announce('plonk');
+    return true;
   }
 
   // 2. Clear the timer for the keystroke buffer reset
@@ -81,20 +93,87 @@ export function onKeystroke(
   showKeystroke(mathfield, keystroke);
 
   // If the event has already been handled, return
-  if (evt.defaultPrevented) {
+  if (evt.isTrusted && evt.defaultPrevented) {
     mathfield.flushInlineShortcutBuffer();
     return false;
   }
 
-  // 4. Let's try to find a matching inline shortcut
+  //
+  // 4. Try to insert a smart fence.
+  //
+  if (!model.mathfield.smartFence) {
+    //
+    // 4.1. When smartFence is turned off, only do a "smart" fence insert
+    // if we're inside a `leftright`, at the last char
+    //
+    const { parent } = model.at(model.position);
+    if (
+      parent instanceof LeftRightAtom &&
+      parent.rightDelim === '?' &&
+      model.at(model.position).isLastSibling &&
+      /^[)}\]|]$/.test(keystroke)
+    ) {
+      mathfield.snapshot();
+      parent.isDirty = true;
+      parent.rightDelim = keystroke;
+      model.position += 1;
+      selectionDidChange(model);
+      contentDidChange(model, {
+        data: keyboardEventToChar(evt),
+        inputType: 'insertText',
+      });
+      mathfield.snapshot('insert-fence');
+      mathfield.dirty = true;
+      mathfield.scrollIntoView();
+      if (evt.preventDefault) evt.preventDefault();
+      return true;
+    }
+
+    //
+    // 4.2. Or inserting a fence around a selection
+    //
+    if (!model.selectionIsCollapsed) {
+      const fence = keyboardEventToChar(evt);
+      if (fence === '(' || fence === '{' || fence === '[') {
+        const lDelim = { '(': '(', '{': '\\lbrace', '[': '\\lbrack' }[fence];
+        const rDelim = { '(': ')', '{': '\\rbrace', '[': '\\rbrack' }[fence];
+        const [start, end] = range(model.selection);
+        mathfield.snapshot();
+        model.position = end;
+        ModeEditor.insert(model, rDelim, { format: 'latex' });
+        model.position = start;
+        ModeEditor.insert(model, lDelim, { format: 'latex' });
+        model.setSelection(start + 1, end + 1);
+        contentDidChange(model, {
+          data: fence,
+          inputType: 'insertText',
+        });
+        mathfield.snapshot('insert-fence');
+        mathfield.dirty = true;
+        mathfield.scrollIntoView();
+        if (evt.preventDefault) evt.preventDefault();
+        return true;
+      }
+    }
+  } else if (
+    insertSmartFence(model, keyboardEventToChar(evt), mathfield.style)
+  ) {
+    mathfield.flushInlineShortcutBuffer();
+    mathfield.dirty = true;
+    mathfield.scrollIntoView();
+    if (evt.preventDefault) evt.preventDefault();
+    return true;
+  }
+
+  // 5. Let's try to find a matching inline shortcut
   let shortcut: string | undefined;
   let selector: Selector | '' | [Selector, ...any[]] = '';
   let stateIndex: number;
 
-  // 4.1 Check if the keystroke, prefixed with the previously typed keystrokes,
+  // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
   // would match a long shortcut (i.e. '~~')
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
-  // see 4.3)
+  // see 5.3)
   const buffer = mathfield.inlineShortcutBuffer;
   if (mathfield.isSelectionEditable) {
     if (model.mode === 'math') {
@@ -106,7 +185,7 @@ export function onKeystroke(
         // It was a non-alpha character (PageUp, End, etc...)
         mathfield.flushInlineShortcutBuffer();
       } else {
-        const c = eventToChar(evt);
+        const c = keyboardEventToChar(evt);
 
         // Find the longest substring that matches a shortcut
         const keystrokes = [
@@ -159,7 +238,7 @@ export function onKeystroke(
     }
 
     //
-    // 4.2. Should we switch mode?
+    // 5.2. Should we switch mode?
     //
     // Need to check this before determining if there's a valid shortcut
     // since if we switch to math mode, we may want to apply the shortcut
@@ -191,7 +270,7 @@ export function onKeystroke(
     }
   }
 
-  // 4.3 Check if this matches a keybinding.
+  // 5.3 Check if this matches a keybinding.
   //
   // Need to check this **after** checking for inline shortcuts because
   // Shift+Backquote is a keybinding that inserts "\~"", but "~~" is a
@@ -205,7 +284,7 @@ export function onKeystroke(
       );
     }
 
-    // 4.4 Handle the return/enter key
+    // 5.4 Handle the return/enter key
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
       let result = false;
       if (contentWillChange(model, { inputType: 'insertLineBreak' })) {
@@ -232,11 +311,11 @@ export function onKeystroke(
 
     if ((!selector || keystroke === '[Space]') && model.mode === 'math') {
       //
-      // 4.5 If this is the Space bar and we're just before or right after
+      // 5.5 If this is the Space bar and we're just before or right after
       // a text zone, or if `mathModeSpace` is enabled, insert the space
       //
       if (keystroke === '[Space]') {
-        // Temporarily stop adopting the style from surround atoms
+        // Temporarily stop adopting the style from surrounding atoms
         mathfield.adoptStyle = 'none';
 
         // The space bar can be used to separate inline shortcuts
@@ -276,7 +355,7 @@ export function onKeystroke(
       if (
         model.at(model.position)?.isDigit() &&
         window.MathfieldElement.decimalSeparator === ',' &&
-        eventToChar(evt) === ','
+        keyboardEventToChar(evt) === ','
       )
         selector = 'insertDecimalSeparator';
     }
@@ -286,11 +365,11 @@ export function onKeystroke(
   if (!shortcut && !selector) return true;
 
   //
-  // 5. Insert the shortcut or perform the action for this selector
+  // 6. Insert the shortcut or perform the action for this selector
   //
 
   //
-  // 5.1 If we have a `moveAfterParent` selector (usually triggered with
+  // 6.1 If we have a `moveAfterParent` selector (usually triggered with
   // `spacebar`), and we're at the end of a smart fence, close the fence with
   // an empty (.) right delimiter
   //
@@ -310,7 +389,7 @@ export function onKeystroke(
   }
 
   //
-  // 5.2 Cancel the (upcoming) composition
+  // 6.2 Cancel the (upcoming) composition
   //
 
   // This is to prevent starting a composition when the keyboard event
@@ -321,13 +400,13 @@ export function onKeystroke(
   mathfield.keyboardDelegate.cancelComposition();
 
   //
-  // 5.3 Perform the selector or shortcut
+  // 6.3 Perform the selector or shortcut
   //
 
   if (selector) mathfield.executeCommand(selector);
   else if (shortcut) {
     //
-    // 5.4 Insert the shortcut
+    // 6.4 Insert the shortcut
     //
     const style = {
       ...model.at(model.position).computedStyle,
@@ -392,13 +471,13 @@ export function onKeystroke(
   }
 
   //
-  // 6. Make sure the mathfield and the insertion point is scrolled into view
+  // 7. Make sure the mathfield and the insertion point is scrolled into view
   // and rendered
   //
   mathfield.scrollIntoView();
 
   //
-  // 7. Keystroke has been handled, if it wasn't caught in the default
+  // 8. Keystroke has been handled, if it wasn't caught in the default
   // case, so prevent default
   //
   if (evt.preventDefault) evt.preventDefault();
@@ -407,9 +486,8 @@ export function onKeystroke(
 }
 
 /**
- * This handler is invoked when text has been typed, pasted in or input with
- * an input method. As a result, `text` can be a sequence of characters to
- * be inserted.
+ * This handler is invoked when text has been input with an input method.
+ * As a result, `text` can be a sequence of characters to be inserted.
  * @param {object} options
  * @param {boolean} options.focus - If true, the mathfield will be focused
  * @param {boolean} options.feedback - If true, provide audio and haptic feedback
@@ -452,26 +530,6 @@ export function onInput(
   //
   // 3/ Simulate keystroke, if requested
   //
-  if (options.simulateKeystroke) {
-    // For (const c of text) {
-    const c = text.charAt(0);
-    const ev = new KeyboardEvent('keypress', { key: c });
-    if (!onKeystroke(mathfield, c, ev)) return;
-
-    // }
-  }
-
-  //
-  // 4/ Insert the specified text at the current insertion point.
-  // If the selection is not collapsed, the content will be deleted first.
-  //
-  const atom = model.at(model.position);
-  const rightSibling = atom.rightSibling;
-  const style = { ...atom.computedStyle, ...mathfield.style };
-  if (!model.selectionIsCollapsed) {
-    model.deleteAtoms(range(model.selection));
-    mathfield.snapshot('delete');
-  }
 
   // Decompose the string into an array of graphemes.
   // This is necessary to correctly process what is displayed as a single
@@ -491,6 +549,24 @@ export function onInput(
         : graphemes.map((c) => c.toUpperCase());
   }
 
+  if (options.simulateKeystroke) {
+    for (const c of graphemes)
+      onKeystroke(mathfield, c, new KeyboardEvent('keypress', { key: c }));
+    return;
+  }
+
+  //
+  // 4/ Insert the specified text at the current insertion point.
+  // If the selection is not collapsed, the content will be deleted first
+  //
+  const atom = model.at(model.position);
+  const style = { ...atom.computedStyle, ...mathfield.style };
+
+  if (!model.selectionIsCollapsed) {
+    model.deleteAtoms(range(model.selection));
+    mathfield.snapshot('delete');
+  }
+
   if (model.mode === 'latex') {
     model.deferNotifications(
       { content: true, selection: true, data: text, type: 'insertText' },
@@ -507,68 +583,14 @@ export function onInput(
   } else if (model.mode === 'text') {
     for (const c of graphemes) ModeEditor.insert(model, c, { style });
     mathfield.snapshot('insert-text');
-  } else if (model.mode === 'math') {
-    for (const c of graphemes) {
-      // Some characters are mapped to commands. Handle them here.
-      // This is important to handle synthetic text input and
-      // non-US keyboards, on which, fop example, the '^' key is
-      // not mapped to 'Shift-Digit6'.
-      let selector:
-        | undefined
-        | SelectorPrivate
-        | [SelectorPrivate, ...unknown[]] = (
-        {
-          '^': 'moveToSuperscript',
-          '_': 'moveToSubscript',
-          ' ': 'moveAfterParent',
-        } as const
-      )[c];
-      if (c === ' ' && mathfield.options.mathModeSpace)
-        selector = ['insert', mathfield.options.mathModeSpace];
-
-      if (selector) mathfield.executeCommand(selector);
-      else if (
-        /\d/.test(c) &&
-        mathfield.options.smartSuperscript &&
-        atom.parentBranch === 'superscript' &&
-        atom.parent?.type !== 'mop' &&
-        atom.hasNoSiblings
-      ) {
-        // We are inserting a digit into an empty superscript
-        // If smartSuperscript is on, insert the digit, and
-        // exit the superscript.
-        ModeEditor.insert(model, c, { style });
-        mathfield.snapshot();
-        moveAfterParent(model);
-        mathfield.snapshot();
-      } else {
-        if (mathfield.adoptStyle !== 'none') {
-          // If adding an alphabetic character, and the neighboring atom is an
-          // ordinary character, use the same variant/variantStyle (\mathit, \mathrm...)
-          const sibling = mathfield.adoptStyle === 'left' ? atom : rightSibling;
-          if (
-            sibling?.type === 'mord' &&
-            /[a-zA-Z]/.test(sibling.value) &&
-            /[a-zA-Z]/.test(c)
-          ) {
-            if (sibling.style.variant) style.variant = sibling.style.variant;
-            if (sibling.style.variantStyle)
-              style.variantStyle = sibling.style.variantStyle;
-          }
-        }
-        // General purpose character insertion
-        ModeEditor.insert(model, c, { style });
-        mathfield.snapshot(`insert-${model.at(model.position).type}`);
-      }
-    }
-  }
+  } else if (model.mode === 'math')
+    for (const c of graphemes) insertMathModeChar(mathfield, c, style, atom);
 
   //
   // 5/ Render the mathfield
+  //    and make sure the caret is visible
   //
   mathfield.dirty = true;
-
-  // Render and make sure the mathfield and the insertion point is visible
   mathfield.scrollIntoView();
 }
 
@@ -583,4 +605,439 @@ function getLeftSiblings(mf: MathfieldPrivate): Atom[] {
   }
 
   return result;
+}
+
+function insertMathModeChar(
+  mathfield: MathfieldPrivate,
+  c: string,
+  style: Style,
+  atom: Atom
+): void {
+  const model = mathfield.model;
+  // Some characters are mapped to commands. Handle them here.
+  // This is important to handle synthetic text input and
+  // non-US keyboards, on which, for example, the '^' key is
+  // not mapped to 'Shift-Digit6'.
+  let selector: undefined | SelectorPrivate | [SelectorPrivate, ...unknown[]] =
+    (
+      {
+        '^': 'moveToSuperscript',
+        '_': 'moveToSubscript',
+        ' ': 'moveAfterParent',
+      } as const
+    )[c];
+  if (c === ' ' && mathfield.options.mathModeSpace)
+    selector = ['insert', mathfield.options.mathModeSpace];
+
+  if (selector) {
+    mathfield.executeCommand(selector);
+    return;
+  }
+
+  if (
+    /\d/.test(c) &&
+    mathfield.options.smartSuperscript &&
+    atom.parentBranch === 'superscript' &&
+    atom.parent?.type !== 'mop' &&
+    atom.hasNoSiblings
+  ) {
+    // We are inserting a digit into an empty superscript
+    // If smartSuperscript is on, insert the digit, and exit the superscript.
+    clearSelection(model);
+    ModeEditor.insert(model, c, { style });
+    mathfield.snapshot();
+    moveAfterParent(model);
+    mathfield.snapshot();
+    return;
+  }
+
+  if (mathfield.adoptStyle !== 'none') {
+    // If adding an alphabetic character, and the neighboring atom is an
+    // alphanumeric character, use the same variant/variantStyle (\mathit, \mathrm...)
+    const sibling = mathfield.adoptStyle === 'left' ? atom : atom.rightSibling;
+    if (
+      sibling?.type === 'mord' &&
+      /[a-zA-Z0-9]/.test(sibling.value) &&
+      /[a-zA-Z0-9]/.test(c)
+    ) {
+      style = { ...style };
+      if (sibling.style.variant) style.variant = sibling.style.variant;
+      if (sibling.style.variantStyle)
+        style.variantStyle = sibling.style.variantStyle;
+    }
+  }
+
+  // General purpose character insertion
+  ModeEditor.insert(model, c, { style });
+  mathfield.snapshot(`insert-${model.at(model.position).type}`);
+}
+
+function clearSelection(model: ModelPrivate) {
+  if (!model.selectionIsCollapsed) {
+    model.deleteAtoms(range(model.selection));
+    model.mathfield.snapshot('delete');
+  }
+}
+
+/**
+ * Insert a smart fence '(', '{', '[', etc...
+ * If not handled (because `fence` wasn't a fence), return false.
+ */
+export function insertSmartFence(
+  model: ModelPrivate,
+  key: string,
+  style?: Style
+): boolean {
+  if (!key) return false;
+  const atom = model.at(model.position);
+  const { parent } = atom;
+
+  // Normalize some fences (`key` is a character input)
+  const fence = {
+    '(': '(',
+    ')': ')',
+    '{': '\\lbrace',
+    '}': '\\rbrace',
+    '[': '\\lbrack',
+    ']': '\\rbrack',
+    '|': '|',
+  }[key];
+  if (!fence) return false;
+  const lDelim = LEFT_DELIM[fence];
+  const rDelim = RIGHT_DELIM[fence];
+
+  if (!model.selectionIsCollapsed) {
+    // There is a selection, wrap it with the fence
+    model.mathfield.snapshot();
+    const [start, end] = range(model.selection);
+    const body = model.extractAtoms([start, end]);
+    const atom = parent!.addChildrenAfter(
+      [
+        new LeftRightAtom('left...right', body, {
+          leftDelim: fence,
+          rightDelim: rDelim,
+        }),
+      ],
+      model.at(start)
+    );
+    model.setSelection(
+      model.offsetOf(atom.firstChild),
+      model.offsetOf(atom.lastChild)
+    );
+    model.mathfield.snapshot('insert-fence');
+    contentDidChange(model, { data: fence, inputType: 'insertText' });
+    return true;
+  }
+
+  //
+  // 1. Are we inserting a middle fence?
+  // ...as in {...|...}
+  //
+  if (fence === '|') {
+    const delims =
+      parent instanceof LeftRightAtom
+        ? parent.leftDelim! + parent.rightDelim!
+        : '';
+    if (
+      delims === '\\lbrace\\rbrace' ||
+      delims === '\\{\\}' ||
+      delims === '\\lbrace?'
+    ) {
+      model.mathfield.snapshot();
+      ModeEditor.insert(model, '\\,\\middle\\vert\\,', {
+        format: 'latex',
+        style,
+      });
+      model.mathfield.snapshot('insert-fence');
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      return true;
+    }
+  }
+
+  //
+  // 2. Is it an open fence?
+  //
+  if (rDelim) {
+    //
+    // 2.1
+    //
+    if (
+      parent instanceof LeftRightAtom &&
+      parent.firstChild === atom && // At first child
+      (parent.leftDelim! === '?' || parent.leftDelim! === '.')
+    ) {
+      parent.leftDelim = fence;
+      parent.isDirty = true;
+      model.mathfield.snapshot();
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.mathfield.snapshot('insert-fence');
+      return true;
+    }
+
+    //
+    // 2.2
+    //
+    // Is there a matching right delim as a right sibling?
+    //
+    if (!(parent instanceof LeftRightAtom)) {
+      let sibling = atom;
+      while (sibling) {
+        if (sibling.type === 'mclose' && sibling.value === rDelim) break;
+        sibling = sibling.rightSibling;
+      }
+
+      if (sibling) {
+        model.mathfield.snapshot();
+        // We've found a matching sibling
+        const body = model.extractAtoms([
+          model.offsetOf(atom),
+          model.offsetOf(sibling),
+        ]);
+        body.pop();
+        parent!.addChildrenAfter(
+          [
+            new LeftRightAtom('left...right', body, {
+              leftDelim: fence,
+              rightDelim: rDelim,
+            }),
+          ],
+          atom
+        );
+        model.position = model.offsetOf(parent!.firstChild) + 1;
+        contentDidChange(model, { data: fence, inputType: 'insertText' });
+        model.mathfield.snapshot('insert-fence');
+        return true;
+      }
+    }
+
+    // If we have a `leftright` sibling to our right
+    // with an indeterminate left fence,
+    // move what's between us and the `leftright` inside the `leftright`
+    const lastSibling = model.offsetOf(atom.lastSibling);
+    let i: number;
+    for (i = model.position; i <= lastSibling; i++) {
+      const atom = model.at(i);
+      if (
+        atom instanceof LeftRightAtom &&
+        (atom.leftDelim === '?' || atom.leftDelim === '.') &&
+        isValidOpen(fence, atom.rightDelim)
+      )
+        break;
+    }
+
+    //
+    // 2.4
+    //
+    const match = model.at(i);
+    if (i <= lastSibling && match instanceof LeftRightAtom) {
+      match.leftDelim = fence;
+
+      model.mathfield.snapshot();
+      let extractedAtoms = model.extractAtoms([model.position, i - 1]);
+      // remove any atoms of type 'first'
+      extractedAtoms = extractedAtoms.filter((value) => value.type !== 'first');
+      match.addChildren(extractedAtoms, match.parentBranch!);
+
+      model.position += 1;
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.mathfield.snapshot('insert-fence');
+      return true;
+    }
+
+    //
+    // 2.5
+    //
+    // If we're inside a `leftright`, but not the first atom,
+    // and the `leftright` left delim is indeterminate
+    // adjust the body (put everything before the insertion point outside)
+    if (
+      parent instanceof LeftRightAtom &&
+      (parent.leftDelim === '?' || parent.leftDelim === '.') &&
+      isValidOpen(fence, parent.rightDelim)
+    ) {
+      parent.isDirty = true;
+      parent.leftDelim = fence;
+
+      model.mathfield.snapshot();
+      const extractedAtoms = model.extractAtoms([
+        model.offsetOf(atom.firstSibling),
+        model.position,
+      ]);
+
+      for (const extractedAtom of extractedAtoms)
+        parent.parent!.addChildBefore(extractedAtom, parent);
+
+      //model.position = model.offsetOf(parent);
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.mathfield.snapshot('insert-fence');
+
+      return true;
+    }
+
+    //
+    // 2.6 Inserting an open delim, with no body
+    //
+    if (!(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
+      // We have a valid open fence as input
+      model.mathfield.snapshot();
+      ModeEditor.insert(model, `\\left${fence}\\right?`, {
+        format: 'latex',
+        style,
+      });
+      // If there is content after the anchor, move it into the `leftright` atom
+      if (atom.lastSibling.type !== 'first') {
+        const lastSiblingOffset = model.offsetOf(atom.lastSibling);
+        const content = model.extractAtoms([model.position, lastSiblingOffset]);
+        model.at(model.position).body = content;
+        model.position -= 1;
+      }
+      model.mathfield.snapshot('insert-fence');
+      return true;
+    }
+  }
+
+  //
+  // 3. Is it a close fence?
+  //
+  if (lDelim) {
+    // We found a target open fence matching this delim.
+    // Note that `targetLeftDelim` may not match `fence`. That's OK.
+
+    // Check if there's a stand-alone sibling atom matching...
+    let sibling = atom;
+    while (sibling) {
+      // There is a left sibling that matches: make a leftright
+      if (sibling.type === 'mopen' && sibling.value === lDelim) {
+        model.mathfield.snapshot();
+        const insertAfter = sibling.leftSibling!;
+        const body = model.extractAtoms([
+          model.offsetOf(sibling.leftSibling),
+          model.offsetOf(atom),
+        ]);
+        body.shift();
+        const result = new LeftRightAtom('left...right', body, {
+          leftDelim: lDelim,
+          rightDelim: fence,
+        });
+
+        parent!.addChildrenAfter([result], insertAfter);
+        model.position = model.offsetOf(result);
+        contentDidChange(model, { data: fence, inputType: 'insertText' });
+        model.mathfield.snapshot('insert-fence');
+        return true;
+      }
+      sibling = sibling.leftSibling;
+    }
+
+    // If we're the last atom inside a 'leftright', update the parent
+    if (
+      parent instanceof LeftRightAtom &&
+      atom.isLastSibling &&
+      isValidClose(parent.leftDelim, fence)
+    ) {
+      model.mathfield.snapshot();
+      parent.isDirty = true;
+      parent.rightDelim = fence;
+      model.position += 1;
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.mathfield.snapshot('insert-fence');
+      return true;
+    }
+
+    // If we have a `leftright` sibling to our left
+    // with an indeterminate right fence,
+    // move what's between us and the `leftright` inside the `leftright`
+    const firstSibling = model.offsetOf(atom.firstSibling);
+    let i: number;
+    for (i = model.position; i >= firstSibling; i--) {
+      const atom = model.at(i);
+      if (
+        atom instanceof LeftRightAtom &&
+        (atom.rightDelim === '?' || atom.rightDelim === '.') &&
+        isValidClose(atom.leftDelim, fence)
+      )
+        break;
+    }
+
+    const match = model.at(i);
+    if (i >= firstSibling && match instanceof LeftRightAtom) {
+      model.mathfield.snapshot();
+      match.rightDelim = fence;
+      match.addChildren(
+        model.extractAtoms([i, model.position]),
+        match.parentBranch!
+      );
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.mathfield.snapshot('insert-fence');
+      return true;
+    }
+
+    // If we're inside a `leftright`, but not the last atom,
+    // and the `leftright` right delim is indeterminate
+    // adjust the body (put everything after the insertion point outside)
+    if (
+      parent instanceof LeftRightAtom &&
+      (parent.rightDelim === '?' || parent.rightDelim === '.') &&
+      isValidClose(parent.leftDelim, fence)
+    ) {
+      model.mathfield.snapshot();
+      parent.isDirty = true;
+      parent.rightDelim = fence;
+
+      parent.parent!.addChildren(
+        model.extractAtoms([model.position, model.offsetOf(atom.lastSibling)]),
+        parent.parentBranch!
+      );
+      model.position = model.offsetOf(parent);
+      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.mathfield.snapshot('insert-fence');
+
+      return true;
+    }
+
+    // Is our grand-parent a 'leftright'?
+    // If `\left(\frac{1}{x|}\right?` with the cursor at `|`
+    // go up to the 'leftright' and apply it there instead
+    const grandparent = parent!.parent;
+    if (
+      grandparent instanceof LeftRightAtom &&
+      (grandparent.rightDelim === '?' || grandparent.rightDelim === '.') &&
+      model.at(model.position).isLastSibling
+    ) {
+      model.position = model.offsetOf(grandparent);
+      return insertSmartFence(model, fence, style);
+    }
+
+    // Meh... We couldn't find a matching open fence. Just insert the
+    // closing fence as a regular character
+    return false;
+  }
+
+  return false;
+}
+
+function isValidClose(open: string | undefined, close: string): boolean {
+  if (!open) return true;
+
+  if (
+    ['(', '{', '[', '\\lbrace', '\\lparen', '\\{', '\\lbrack'].includes(open)
+  ) {
+    return [')', '}', ']', '\\rbrace', '\\rparen', '\\}', '\\rbrack'].includes(
+      close
+    );
+  }
+  return RIGHT_DELIM[open] === close;
+}
+
+function isValidOpen(open: string, close: string | undefined): boolean {
+  if (!close) return true;
+
+  if (
+    [')', '}', ']', '\\rbrace', '\\rparen', '\\}', '\\rbrack'].includes(close)
+  ) {
+    return ['(', '{', '[', '\\lbrace', '\\lparen', '\\{', '\\lbrack'].includes(
+      open
+    );
+  }
+  return LEFT_DELIM[close] === open;
 }

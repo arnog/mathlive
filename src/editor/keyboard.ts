@@ -149,9 +149,9 @@ function keyboardEventToString(evt: KeyboardEvent): string {
   if (evt.shiftKey) modifiers.push('shift');
 
   // If no modifiers, simply return the key name
-  if (modifiers.length === 0) return '[' + evt.code + ']';
+  if (modifiers.length === 0) return `[${evt.code}]`;
 
-  modifiers.push('[' + evt.code + ']');
+  modifiers.push(`[${evt.code}]`);
 
   return modifiers.join('+');
 }
@@ -444,8 +444,8 @@ function deepActiveElement(): Element | null {
   return a;
 }
 
-export function eventToChar(evt?: KeyboardEvent): string {
-  if (!evt) return '';
+export function keyboardEventToChar(evt?: KeyboardEvent): string {
+  if (!evt || !mightProducePrintableCharacter(evt)) return '';
   let result: string | undefined;
   if (evt.key === 'Unidentified') {
     // On Android, the evt.key seems to always be 'Unidentified'.
