@@ -5,6 +5,15 @@
   'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif;
 
+  .ML__container {
+    min-height: auto !important;
+    --_hue: var(--hue, 212);
+    --_placeholder-color: var(--placeholder-color, hsl(var(--_hue), 40%, 49%));
+    --_placeholder-opacity: var(--placeholder-opacity, 0.4);
+    --_text-font-family: var(--text-font-family, @system);
+  }
+  
+
 .ML__sr-only {
   position: absolute;
   width: 1px;
@@ -53,7 +62,7 @@
 
 /* Text mode */
 .ML__text {
-  font-family: var(--text-font-family, @system);
+  font-family: var(--_text-font-family);
   white-space: pre;
 }
 
@@ -651,22 +660,10 @@
   padding: 0;
 }
 
-.ML__composition {
-  background: #fff1c2;
-  color: black;
-  text-decoration: underline var(--caret-color-computed, var(--ML__caret-color));
-}
-
-// @media (prefers-color-scheme: dark) {
-//   .ML__composition {
-//     background: #69571c;
-//     color: white;
-//   }
-// }
 
 .ML__placeholder {
-  color: var(--placeholder-color, var(--ML__placeholder-color));
-  opacity: var(--placeholder-opacity, 0.4);
+  color:  var(--_placeholder-color);
+  opacity: var(--_placeholder-opacity);
   padding-left: 0.4ex;
   padding-right: 0.4ex;
   font-family: @system;
@@ -678,38 +675,6 @@
   line-height: 0;
 }
 
-.ML__container {
-  min-height: auto !important;
-}
-
-.ML__prompt {
-  border-radius: 2px;
-}
-
-.ML__editablePromptBox {
-  outline: 1px solid #acacac;
-  border-radius: 2px;
-  z-index: -1;
-}
-
-.ML__focusedPromptBox {
-  outline: highlight auto 1px;
-}
-
-.ML__lockedPromptBox {
-  background-color: rgba(142, 142, 141, 0.4);
-  z-index: -1;
-}
-
-.ML__correctPromptBox {
-  outline: 1px solid var(--correct-color, var(--ML__correct-color));
-  box-shadow: 0 0 5px var(--correct-color, var(--ML__correct-color));
-}
-
-.ML__incorrectPromptBox {
-  outline: 1px solid var(--incorrect-color, var(--ML__incorrect-color));
-  box-shadow: 0 0 5px var(--incorrect-color, var(--ML__incorrect-color));
-}
 
 /* This class is used to implement the `\mathtip` and `\texttip` commands
    For UI elements, see `[data-ML__tooltip]`
@@ -729,6 +694,7 @@
     border-radius: 8px;
 
     background: #616161; // Grey 700
+    --_selection-color: #fff;
     color: #fff;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12),
       0 3px 1px -2px rgba(0, 0, 0, 0.2);

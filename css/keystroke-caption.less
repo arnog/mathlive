@@ -9,7 +9,7 @@
   visibility: hidden;
   /*min-width: 160px;*/
   /*background-color: rgba(97, 97, 200, .95);*/
-  background: var(--secondary, hsl(var(--hue, 212), 19%, 26%));
+  background: var(--secondary, hsl(var(--_hue), 19%, 26%));
   border-color: var(--secondary-border, hsl(0, 0%, 91%));
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   text-align: center;
@@ -29,16 +29,16 @@
 }
 @media (prefers-color-scheme: dark) {
   body:not([theme='light']) #mathlive-keystroke-caption-panel {
-    --keystroke: hsl(var(--hue, 212), 50%, 30%);
+    --keystroke: hsl(var(--_hue), 50%, 30%);
     --on-keystroke: hsl(0, 0%, 98%);
-    --keystroke-border: hsl(var(--hue, 212), 50%, 25%);
+    --keystroke-border: hsl(var(--_hue), 50%, 25%);
   }
 }
 
 body[theme='dark'] #mathlive-keystroke-caption-panel {
-  --keystroke: hsl(var(--hue, 212), 50%, 30%);
+  --keystroke: hsl(var(--_hue), 50%, 30%);
   --on-keystroke: hsl(0, 0%, 98%);
-  --keystroke-border: hsl(var(--hue, 212), 50%, 25%);
+  --keystroke-border: hsl(var(--_hue), 50%, 25%);
 }
 #mathlive-keystroke-caption-panel > span {
   min-width: 14px;

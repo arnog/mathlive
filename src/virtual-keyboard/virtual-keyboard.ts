@@ -384,14 +384,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     const h = this.boundingRect.height;
     if (this.container === document.body) {
       this._element?.style.setProperty(
-        '--keyboard-height',
+        '--_keyboard-height',
         `calc(${h}px + env(safe-area-inset-bottom, 0))`
       );
       const keyboardHeight = h - 1;
       this.container!.style.paddingBottom = this.originalContainerBottomPadding
         ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
         : `${keyboardHeight}px`;
-    } else this._element?.style.setProperty('--keyboard-height', `${h}px`);
+    } else this._element?.style.setProperty('--_keyboard-height', `${h}px`);
   }
 
   rebuild(): void {

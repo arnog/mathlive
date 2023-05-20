@@ -4,22 +4,29 @@
 }
 
 #mathlive-environment-popover{
-  --private-panel-height: var(--environment-panel-height, 70px);
+  --_environment-panel-height: var(--environment-panel-height, 70px);
+  --_accent-color: var(--accent-color, #0c75d8);
+  --_background: var(--environment-panel-background, #0c75d8);
+  --_button-background: var(--environment-panel-button-background, white);
+  --_button-background-hover: var(--environment-panel-button-background-hover, #f5f5f7);
+  --_button-background-active: var(--environment-panel-button-background-active, #f5f5f7);
+  --_button-text: var(--environment-panel-button-text,  #e3e4e8);
+
   position: absolute;
-  width: calc(var(--private-panel-height) * 2);
-  height: var(--private-panel-height);
+  width: calc(var(--_environment-panel-height) * 2);
+  height: var(--_environment-panel-height);
   border-radius: 4px;
-  border: 1.5px solid var(--keyboard-accent-color, #0c75d8);
-  background-color: var(--variant-panel-background, #fff);
+  border: 1.5px solid var(--_accent-color);
+  background-color: var(--_background);
   box-shadow: 0 0 30px 0 var(--environment-shadow, rgba(0, 0, 0, 0.4));
   pointer-events: all;
   visibility: hidden;
   
   .MLEP__array-buttons {
-    height: calc(var(--private-panel-height) * 5/4);
-    width: calc(var(--private-panel-height) * 5/4);
-    margin-left: calc(0px - var(--private-panel-height) * 0.16);
-    margin-top: calc(0px - var(--private-panel-height) * 0.19);
+    height: calc(var(--_environment-panel-height) * 5/4);
+    width: calc(var(--_environment-panel-height) * 5/4);
+    margin-left: calc(0px - var(--_environment-panel-height) * 0.16);
+    margin-top: calc(0px - var(--_environment-panel-height) * 0.19);
 
     .font {
       fill: white;
@@ -32,13 +39,13 @@
 
     .MLEP__array-insert-background {
       fill-opacity: 1;
-      fill: var(--variant-panel-background, #fff);
-      stroke: var(--keyboard-accent-color, #0c75d8);
+      fill: var(--_background);
+      stroke: var(--_accent-color);
       stroke-width: 3px;
     }
 
     line {
-      stroke: var(--keyboard-accent-color, #0c75d8);
+      stroke: var(--_accent-color);
       stroke-opacity: 0;
       stroke-width: 40;
       pointer-events: none;
@@ -48,7 +55,7 @@
 
     g[data-command]:hover {
       circle {
-        fill: var(--keyboard-accent-color, #0c75d8);
+        fill: var(--_accent-color);
       }
       line {
         stroke-opacity: 1;
@@ -60,8 +67,8 @@
     height: 100%;
     width: 50%;
     .MLEP__array-delimiter-options {
-      width: var(--private-panel-height);
-      height: var(--private-panel-height);
+      width: var(--_environment-panel-height);
+      height: var(--_environment-panel-height);
       display: flex;
       flex-wrap: wrap;
       flex-direction: row;
@@ -69,16 +76,16 @@
       svg {
         pointer-events: all;
         margin-top: 2px;
-        width: calc(var(--private-panel-height) / 3 * 28 / 24);
-        height: calc(var(--private-panel-height) / 3 - 2px);
-        border-radius: calc(var(--private-panel-height) / 25);
+        width: calc(var(--_environment-panel-height) / 3 * 28 / 24);
+        height: calc(var(--_environment-panel-height) / 3 - 2px);
+        border-radius: calc(var(--_environment-panel-height) / 25);
         &:hover {
-          background-color: var(--keycap-background-hover, #f5f5f7);
+          background-color: var(--_button-background-hover);
         }
-        background-color: var(--keycap-background, white);
+        background-color: var(--_button-background);
 
         path, line {
-          stroke: var(--keycap-text, #e3e4e8);
+          stroke: var(--_button-text);
           stroke-width: 2;
           stroke-linecap: round;
         }
@@ -87,12 +94,12 @@
         }
         &.active {
           pointer-events: none;
-          background-color: var(--keycap-background-active, #f5f5f7);
+          background-color: var(--_button-background-active);
           path, line {
-            stroke: var(--keyboard-accent-color, #0c75d8);
+            stroke: var(--_accent-color);
           }
           circle {
-            fill: var(--keyboard-accent-color, #0c75d8);
+            fill: var(--_accent-color);
           }
         }
       }
