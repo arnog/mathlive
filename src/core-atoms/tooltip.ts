@@ -1,14 +1,8 @@
-import {
-  Atom,
-  AtomJson,
-  CreateAtomOptions,
-  ToLatexOptions,
-} from '../core/atom-class';
+import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box, coalesce } from '../core/box';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { fromJson } from '../core/atom';
-import { latexCommand } from '../core/tokenizer';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 import { Argument } from 'core-definitions/definitions-utils';
 
@@ -74,13 +68,5 @@ export class TooltipAtom extends Atom {
     const box = new Box([tooltip, body], { classes: 'ML__tooltip-container' });
     if (this.caret) box.caret = this.caret;
     return this.bind(context, box);
-  }
-
-  _serialize(options: ToLatexOptions): string {
-    return latexCommand(
-      this.command,
-      this.bodyToLatex(options),
-      this.tooltip.bodyToLatex(options)
-    );
   }
 }
