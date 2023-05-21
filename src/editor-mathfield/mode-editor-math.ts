@@ -535,6 +535,9 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
  * be included as the numerator
  */
 function isImplicitArg(atom: Atom): boolean {
+  // A digit, or a decimal point
+  if (atom.isDigit()) return true;
+
   if (
     atom.type &&
     /^(mord|surd|msubsup|leftright|mop|mclose)$/.test(atom.type)

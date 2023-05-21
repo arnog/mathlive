@@ -5,6 +5,11 @@
 - Use constructable stylesheets. This results in improved performance and a
   reduction of memory consuption by 2/3 in a page with 1,000 mathfields.
 
+## Bug Fixes
+
+- **#1963** Typing a "/" after a digit containing a french decimal (`,`) did 
+  not include the digits before the decimal.
+
 ## 0.94.0 (2023-05-18)
 
 ## New Features
