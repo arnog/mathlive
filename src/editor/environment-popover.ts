@@ -9,11 +9,7 @@ import { SelectorPrivate } from './types';
 import { MathfieldPrivate } from './mathfield';
 import { getSharedElement, releaseSharedElement } from './shared-element';
 
-// @ts-ignore-error
-import POPOVER_STYLESHEET from '../../css/environment-popover.less';
-// @ts-ignore-error
-import CORE_STYLESHEET from '../../css/core.less';
-import { injectStylesheet, releaseStylesheet } from 'common/stylesheet';
+import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
 
 const padding = 4;
 const radius = 20;
@@ -203,11 +199,8 @@ export function showEnvironmentPopover(mf: MathfieldPrivate): void {
   if (!panel) {
     panel = getSharedElement('mathlive-environment-popover');
 
-    injectStylesheet(
-      'mathlive-environment-popover-stylesheet',
-      POPOVER_STYLESHEET
-    );
-    injectStylesheet('mathlive-core-stylesheet', CORE_STYLESHEET);
+    injectStylesheet('environment-popover');
+    injectStylesheet('core');
 
     panel.setAttribute('aria-hidden', 'true');
   }
@@ -306,8 +299,8 @@ export function hideEnvironmentPopover(): void {
 export function disposeEnvironmentPopover(): void {
   if (!document.getElementById('mathlive-environment-popover')) return;
   releaseSharedElement('mathlive-environment-popover');
-  releaseStylesheet('mathlive-environment-popover-stylesheet');
-  releaseStylesheet('mathlive-core-stylesheet');
+  releaseStylesheet('environment-popover');
+  releaseStylesheet('core');
 }
 
 export function environmentPopoverIsVisible(): boolean {

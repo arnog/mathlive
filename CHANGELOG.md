@@ -1,3 +1,10 @@
+## [Unreleased]
+
+## Improvements
+
+- Use constructable stylesheets. This results in improved performance and a
+  reduction of memory consuption by 2/3 in a page with 1,000 mathfields.
+
 ## 0.94.0 (2023-05-18)
 
 ## New Features

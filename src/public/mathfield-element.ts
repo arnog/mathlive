@@ -38,11 +38,7 @@ import { defaultReadAloudHook } from '../editor/speech-read-aloud';
 import type { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { l10n } from '../core/l10n';
-
-// @ts-ignore-error
-import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
-// @ts-ignore-error
-import CORE_STYLESHEET from '../../css/core.less';
+import { getStylesheet } from 'common/stylesheet';
 
 export declare type Expression =
   | number
@@ -149,30 +145,6 @@ declare global {
   }
 }
 
-//
-// Note: the `position: relative` is required to fix https://github.com/arnog/mathlive/issues/971
-//
-
-const MATHFIELD_TEMPLATE = isBrowser()
-  ? document.createElement('template')
-  : null;
-if (MATHFIELD_TEMPLATE) {
-  MATHFIELD_TEMPLATE.innerHTML = `<style>
-  :host { display: inline-block; background-color: field; color: fieldtext; border-width: 1px; border-style: solid; border-color: #acacac; border-radius: 2px; padding:4px; pointer-events: none;}
-  :host([hidden]) { display: none; }
-  :host([disabled]), :host([disabled]:focus), :host([disabled]:focus-within) { outline: none; opacity:  .5; }
-  :host(:focus), :host(:focus-within) {
-    outline: Highlight auto 1px;    /* For Firefox */
-    outline: -webkit-focus-ring-color auto 1px;
-  }
-  :host([readonly]:focus), :host([readonly]:focus-within),
-  :host([read-only]:focus), :host([read-only]:focus-within) {
-    outline: none;
-  }
-  ${CORE_STYLESHEET}${MATHFIELD_STYLESHEET}
-  </style>
-  <span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
-}
 //
 // Deferred State
 //
@@ -1159,7 +1131,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     this.attachShadow({ mode: 'open', delegatesFocus: true });
-    this.shadowRoot!.append(MATHFIELD_TEMPLATE!.content.cloneNode(true));
+    this.shadowRoot!.adoptedStyleSheets = [
+      getStylesheet('core'),
+      getStylesheet('mathfield'),
+      getStylesheet('mathfield-element'),
+    ];
+    this.shadowRoot!.innerHTML = `<span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
+    // this.shadowRoot!.append(MATHFIELD_TEMPLATE!.content.cloneNode(true));
 
     // Record the (optional) configuration options, as a deferred state
     if (options) this._setOptions(options);

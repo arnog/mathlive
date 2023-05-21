@@ -3,10 +3,6 @@ import type { MathfieldPrivate } from './mathfield-private';
 
 import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
 
-// @ts-ignore-error
-import KEYSTROKE_CAPTION_STYLESHEET from '../../css/keystroke-caption.less';
-// @ts-ignore-error
-import CORE_STYLESHEET from '../../css/core.less';
 import {
   getSharedElement,
   releaseSharedElement,
@@ -53,24 +49,19 @@ export function toggleKeystrokeCaption(mathfield: MathfieldPrivate): boolean {
 }
 
 function createKeystrokeCaption(): HTMLElement {
-  let panel = document.getElementById('mathlive-keystroke-caption-panel');
+  const panel = document.getElementById('mathlive-keystroke-caption-panel');
 
   if (panel) return panel;
 
-  panel = getSharedElement('mathlive-keystroke-caption-panel');
+  injectStylesheet('keystroke-caption');
+  injectStylesheet('core');
 
-  injectStylesheet(
-    'mathlive-keystroke-caption-stylesheet',
-    KEYSTROKE_CAPTION_STYLESHEET
-  );
-  injectStylesheet('mathlive-core-stylesheet', CORE_STYLESHEET);
-
-  return panel;
+  return getSharedElement('mathlive-keystroke-caption-panel');
 }
 
 export function disposeKeystrokeCaption(): void {
   if (!document.getElementById('mathlive-keystroke-caption-panel')) return;
   releaseSharedElement('mathlive-keystroke-caption-panel');
-  releaseStylesheet('mathlive-core-stylesheet');
-  releaseStylesheet('mathlive-keystroke-caption-stylesheet');
+  releaseStylesheet('core');
+  releaseStylesheet('keystroke-caption');
 }

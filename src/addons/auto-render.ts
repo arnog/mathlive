@@ -1,8 +1,5 @@
 /* eslint no-console:0 */
 
-// @ts-ignore-error
-import coreStylesheet from '../../css/core.less';
-
 import { AutoRenderOptions } from '../public/options';
 
 import { injectStylesheet } from '../common/stylesheet';
@@ -558,7 +555,7 @@ export function autoRenderMathInElement(
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
     void loadFonts();
-    injectStylesheet('mathlive-core-stylesheet', coreStylesheet);
+    injectStylesheet('core');
 
     scanElement(element, optionsPrivate);
   } catch (error: unknown) {

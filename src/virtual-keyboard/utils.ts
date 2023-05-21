@@ -5,8 +5,6 @@ import { parseLatex } from '../core/parser';
 import { SelectorPrivate } from '../editor/types';
 import { getActiveKeyboardLayout } from '../editor/keyboard-layout';
 
-import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less' assert { type: 'css' };
-import CORE_STYLESHEET from '../../css/core.less' assert { type: 'css' };
 import { releaseStylesheet, injectStylesheet } from '../common/stylesheet';
 import { loadFonts } from '../core/fonts';
 import { Context } from '../core/context';
@@ -404,17 +402,14 @@ function makeSyntheticKeycap(element: HTMLElement): void {
 }
 
 function injectStylesheets(): void {
-  injectStylesheet(
-    'mathlive-virtual-keyboard-stylesheet',
-    VIRTUAL_KEYBOARD_STYLESHEET
-  );
-  injectStylesheet('mathlive-core-stylesheet', CORE_STYLESHEET);
+  injectStylesheet('virtual-keyboard');
+  injectStylesheet('core');
   void loadFonts();
 }
 
 export function releaseStylesheets(): void {
-  releaseStylesheet('mathlive-core-stylesheet');
-  releaseStylesheet('mathlive-virtual-keyboard-stylesheet');
+  releaseStylesheet('core');
+  releaseStylesheet('virtual-keyboard');
 }
 
 const SVG_ICONS = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">

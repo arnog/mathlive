@@ -14,10 +14,6 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 import { getKeybindingsForCommand } from './keybindings';
 
-// @ts-ignore-error
-import POPOVER_STYLESHEET from '../../css/suggestion-popover.less';
-// @ts-ignore-error
-import CORE_STYLESHEET from '../../css/core.less';
 import { complete } from '../editor-mathfield/autocomplete';
 import { ModeEditor } from '../editor-mathfield/mode-editor';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
@@ -181,11 +177,8 @@ export function createSuggestionPopover(
   if (!panel) {
     panel = getSharedElement('mathlive-suggestion-popover');
 
-    injectStylesheet(
-      'mathlive-suggestion-popover-stylesheet',
-      POPOVER_STYLESHEET
-    );
-    injectStylesheet('mathlive-core-stylesheet', CORE_STYLESHEET);
+    injectStylesheet('suggestion-popover');
+    injectStylesheet('core');
 
     panel.addEventListener('pointerdown', (ev) => ev.preventDefault());
     panel.addEventListener('click', (ev) => {
@@ -211,6 +204,6 @@ export function createSuggestionPopover(
 export function disposeSuggestionPopover(): void {
   if (!document.getElementById('mathlive-suggestion-popover')) return;
   releaseSharedElement('mathlive-suggestion-popover');
-  releaseStylesheet('mathlive-suggestion-popover-stylesheet');
-  releaseStylesheet('mathlive-core-stylesheet');
+  releaseStylesheet('suggestion-popover');
+  releaseStylesheet('core');
 }
