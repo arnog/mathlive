@@ -4,6 +4,7 @@
 
 - Use constructable stylesheets. This results in improved performance and a
   reduction of memory consuption by 2/3 in a page with 1,000 mathfields.
+- Improved MathML serialization (**#1933**, variants).
 
 ## Bug Fixes
 

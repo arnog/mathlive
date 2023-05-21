@@ -68,12 +68,12 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
   let body = '';
   let atom: Atom = stream.atoms[stream.index];
 
+  let variant = atom.style?.variant ?? '';
+  const variantStyle = atom.style?.variantStyle ?? '';
   if (atom.command === '\\operatorname') {
     body = toString(atom.body);
     stream.index += 1;
   } else {
-    const variant = atom.style?.variant ?? '';
-    const variantStyle = atom.style?.variantStyle ?? '';
     while (
       stream.index < final &&
       (atom.type === 'mord' || atom.type === 'macro') &&
@@ -86,9 +86,31 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
       atom = stream.atoms[stream.index];
     }
   }
+
+  variant =
+    {
+      'upnormal': 'normal',
+      'boldnormal': 'bold',
+      'italicmain': 'italic',
+      'bolditalicmain': 'bold-italic',
+      'double-struck': 'double-struck',
+      'boldfraktur': 'bold-fraktur',
+      'calligraphic': 'script',
+      'upcalligraphic': 'script',
+      'script': 'script',
+      'boldscript': 'bold-script',
+      'boldcalligraphic': 'bold-script',
+      'fraktur': 'fraktur',
+      'upsans-serif': 'sans-serif',
+      'boldsans-serif': 'bold-sans-serif',
+      'italicsans-serif': 'sans-serif-italic',
+      'bolditalicsans-serif': 'sans-serif-bold-italic',
+      'monospace': 'monospace',
+    }[variantStyle + variant] ?? '';
   if (body.length > 0) {
     result = true;
-    mathML = `<mi>${body}</mi>`;
+    if (variant) mathML = `<mi mathvariant="${variant}">${body}</mi>`;
+    else mathML = `<mi>${body}</mi>`;
 
     if (
       (stream.lastType === 'mi' ||
@@ -99,12 +121,12 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
     )
       mathML = INVISIBLE_TIMES + mathML;
 
-    if (body.endsWith('>f</mi>') || body.endsWith('>g</mi>')) {
+    if (mathML.endsWith('>f</mi>') || mathML.endsWith('>g</mi>')) {
       mathML += APPLY_FUNCTION;
       stream.lastType = 'applyfunction';
     } else stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
 
-    if (!parseSubsup(body, stream, options)) stream.mathML += mathML;
+    if (!parseSubsup(mathML, stream, options)) stream.mathML += mathML;
   }
 
   return result;
@@ -462,6 +484,9 @@ function toString(atoms) {
  *
  */
 function atomToMathML(atom, options): string {
+  if (atom.mode === 'text')
+    return `<mi${makeID(atom.id, options)}>${atom.value}</mi>`;
+
   // For named SVG atoms, map to a Unicode char
   const SVG_CODE_POINTS = {
     widehat: '^',
@@ -530,14 +555,6 @@ function atomToMathML(atom, options): string {
     '\\ldotp': '\u002E',
   };
 
-  const MATH_VARIANTS = {
-    cal: 'script',
-    frak: 'fraktur',
-    bb: 'double-struck',
-    scr: 'script',
-    cmtt: 'monospace',
-    cmss: 'sans-serif',
-  };
   const SPACING = {
     '\\!': -3 / 18,
     '\\ ': 6 / 18,
@@ -558,431 +575,406 @@ function atomToMathML(atom, options): string {
   let underscript;
   let overscript;
   let body;
-  let variant = MATH_VARIANTS[atom.fontFamily ?? atom.font] ?? '';
-  if (variant) variant = ` mathvariant="${variant}"`;
 
   const { command } = atom;
-  if (atom.mode === 'text')
-    result = `<mi${makeID(atom.id, options)}>${atom.value}</mi>`;
-  else {
-    switch (atom.type) {
-      case 'first':
-        break; // Nothing to do
-      case 'group':
-      case 'root':
-        if (SPECIAL_OPERATORS[atom.command])
-          result = SPECIAL_OPERATORS[atom.command];
-        else result = toMathML(atom.body, options);
-        break;
+  switch (atom.type) {
+    case 'first':
+      break; // Nothing to do
+    case 'group':
+    case 'root':
+      if (SPECIAL_OPERATORS[atom.command])
+        result = SPECIAL_OPERATORS[atom.command];
+      else result = toMathML(atom.body, options);
+      break;
 
-      case 'array':
-        if (
-          (atom.leftDelim && atom.leftDelim !== '.') ||
-          (atom.rightDelim && atom.rightDelim !== '.')
-        ) {
-          result += '<mrow>';
-          if (atom.leftDelim && atom.leftDelim !== '.') {
-            result +=
-              '<mo>' +
-              (SPECIAL_OPERATORS[atom.leftDelim] || atom.leftDelim) +
-              '</mo>';
-          }
-        }
-
-        result += '<mtable';
-        if (atom.colFormat) {
-          result += ' columnalign="';
-          for (i = 0; i < atom.colFormat.length; i++) {
-            if (atom.colFormat[i].align) {
-              result +=
-                { l: 'left', c: 'center', r: 'right' }[
-                  atom.colFormat[i].align
-                ] + ' ';
-            }
-          }
-
-          result += '"';
-        }
-
-        result += '>';
-        for (row = 0; row < atom.array.length; row++) {
-          result += '<mtr>';
-          for (col = 0; col < atom.array[row].length; col++) {
-            result +=
-              '<mtd>' + toMathML(atom.array[row][col], options) + '</mtd>';
-          }
-
-          result += '</mtr>';
-        }
-
-        result += '</mtable>';
-
-        if (
-          (atom.leftDelim && atom.leftDelim !== '.') ||
-          (atom.rightDelim && atom.rightDelim !== '.')
-        ) {
-          if (atom.rightDelim && atom.rightDelim !== '.') {
-            result +=
-              '<mo>' +
-              (SPECIAL_OPERATORS[atom.leftDelim] || atom.rightDelim) +
-              '</mo>';
-          }
-
-          result += '</mrow>';
-        }
-
-        break;
-
-      case 'genfrac':
-        if (atom.leftDelim || atom.rightDelim) result += '<mrow>';
-
+    case 'array':
+      if (
+        (atom.leftDelim && atom.leftDelim !== '.') ||
+        (atom.rightDelim && atom.rightDelim !== '.')
+      ) {
+        result += '<mrow>';
         if (atom.leftDelim && atom.leftDelim !== '.') {
           result +=
-            '<mo' +
-            makeID(atom.id, options) +
-            '>' +
+            '<mo>' +
             (SPECIAL_OPERATORS[atom.leftDelim] || atom.leftDelim) +
             '</mo>';
         }
+      }
 
-        if (atom.hasBarLine) {
-          result += '<mfrac>';
-          result += toMathML(atom.above, options) || '<mi>&nbsp;</mi>';
-          result += toMathML(atom.below, options) || '<mi>&nbsp;</mi>';
-          result += '</mfrac>';
-        } else {
-          // No bar line, i.e. \choose, etc...
-          result += '<mtable' + makeID(atom.id, options) + '>';
-          result += '<mtr>' + toMathML(atom.above, options) + '</mtr>';
-          result += '<mtr>' + toMathML(atom.below, options) + '</mtr>';
-          result += '</mtable>';
+      result += '<mtable';
+      if (atom.colFormat) {
+        result += ' columnalign="';
+        for (i = 0; i < atom.colFormat.length; i++) {
+          if (atom.colFormat[i].align) {
+            result +=
+              { l: 'left', c: 'center', r: 'right' }[atom.colFormat[i].align] +
+              ' ';
+          }
         }
 
+        result += '"';
+      }
+
+      result += '>';
+      for (row = 0; row < atom.array.length; row++) {
+        result += '<mtr>';
+        for (col = 0; col < atom.array[row].length; col++) {
+          result +=
+            '<mtd>' + toMathML(atom.array[row][col], options) + '</mtd>';
+        }
+
+        result += '</mtr>';
+      }
+
+      result += '</mtable>';
+
+      if (
+        (atom.leftDelim && atom.leftDelim !== '.') ||
+        (atom.rightDelim && atom.rightDelim !== '.')
+      ) {
         if (atom.rightDelim && atom.rightDelim !== '.') {
           result +=
-            '<mo' +
-            makeID(atom.id, options) +
-            '>' +
-            (SPECIAL_OPERATORS[atom.rightDelim] || atom.rightDelim) +
-            '</mo>';
-        }
-
-        if (atom.leftDelim || atom.rightDelim) result += '</mrow>';
-
-        break;
-
-      case 'surd':
-        if (!atom.hasEmptyBranch('above')) {
-          result += '<mroot' + makeID(atom.id, options) + '>';
-          result += toMathML(atom.body, options);
-          result += toMathML(atom.above, options);
-          result += '</mroot>';
-        } else {
-          result += '<msqrt' + makeID(atom.id, options) + '>';
-          result += toMathML(atom.body, options);
-          result += '</msqrt>';
-        }
-
-        break;
-
-      case 'leftright':
-        // TODO: could add fence=true attribute
-        result = '<mrow>';
-        if (atom.leftDelim && atom.leftDelim !== '.') {
-          result +=
-            '<mo' +
-            makeID(atom.id, options) +
-            '>' +
-            (SPECIAL_OPERATORS[atom.leftDelim] ?? atom.leftDelim) +
-            '</mo>';
-        }
-
-        if (atom.body) result += toMathML(atom.body, options);
-
-        if (atom.rightDelim && atom.rightDelim !== '.') {
-          result +=
-            '<mo' +
-            makeID(atom.id, options) +
-            '>' +
-            (SPECIAL_OPERATORS[atom.rightDelim] ?? atom.rightDelim) +
+            '<mo>' +
+            (SPECIAL_OPERATORS[atom.leftDelim] || atom.rightDelim) +
             '</mo>';
         }
 
         result += '</mrow>';
-        break;
-
-      case 'sizeddelim':
-      case 'delim':
-        result +=
-          '<mo separator="true"' +
-          makeID(atom.id, options) +
-          '>' +
-          (SPECIAL_OPERATORS[atom.delim] || atom.delim) +
-          '</mo>';
-        break;
-
-      case 'accent':
-        result += '<mover accent="true"' + makeID(atom.id, options) + '>';
-        result += toMathML(atom.body, options);
-        result +=
-          '<mo>' + (SPECIAL_OPERATORS[command] || atom.accent) + '</mo>';
-        result += '</mover>';
-        break;
-
-      case 'line':
-      case 'overlap':
-        break;
-
-      case 'overunder':
-        overscript = atom.above;
-        underscript = atom.below;
-        if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript))
-          body = atom.body;
-        else if (overscript && overscript.length > 0) {
-          body = atom.body;
-          if (atom.body?.[0]?.below) {
-            underscript = atom.body[0].below;
-            body = atom.body[0].body;
-          } else if (
-            atom.body?.[0]?.type === 'first' &&
-            atom.body?.[1]?.below
-          ) {
-            underscript = atom.body[1].below;
-            body = atom.body[1].body;
-          }
-        } else if (underscript && underscript.length > 0) {
-          body = atom.body;
-          if (atom.body?.[0]?.above) {
-            overscript = atom.body[0].above;
-            body = atom.body[0].body;
-          } else if (
-            atom.body?.[0]?.type === 'first' &&
-            atom.body?.[1]?.above
-          ) {
-            overscript = atom.body[1].overscript;
-            body = atom.body[1].body;
-          }
-        }
-
-        if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript)) {
-          result += `<munderover ${variant} ${makeID(atom.id, options)}>`;
-          result += SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options);
-          result +=
-            SVG_CODE_POINTS[atom.svgBelow] ?? toMathML(underscript, options);
-          result +=
-            SVG_CODE_POINTS[atom.svgAbove] ?? toMathML(overscript, options);
-          result += '</munderover>';
-        } else if (atom.svgAbove || overscript) {
-          result +=
-            `<mover ${variant} ${makeID(atom.id, options)}>` +
-            (SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options));
-          result +=
-            SVG_CODE_POINTS[atom.svgAbove] ?? toMathML(overscript, options);
-          result += '</mover>';
-        } else if (atom.svgBelow || underscript) {
-          result +=
-            `<munder ${variant} ${makeID(atom.id, options)}>` +
-            (SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options));
-          result +=
-            SVG_CODE_POINTS[atom.svgBelow] ?? toMathML(underscript, options);
-          result += '</munder>';
-        }
-
-        break;
-
-      case 'placeholder': // No real equivalent in MathML -- will generate a '?'qq
-        result += '?';
-        break;
-      case 'mord': {
-        result =
-          SPECIAL_IDENTIFIERS[command] ||
-          command ||
-          (typeof atom.value === 'string' ? atom.value : '');
-        const m = command
-          ? command.match(/{?\\char"([\dabcdefABCDEF]*)}?/)
-          : null;
-        if (m) {
-          // It's a \char command
-          result = '&#x' + m[1] + ';';
-        } else if (result.length > 0 && result.startsWith('\\')) {
-          // This is an identifier with no special handling. Use the
-          // Unicode value
-          if (
-            typeof atom.value === 'string' &&
-            atom.value.charCodeAt(0) > 255
-          ) {
-            result =
-              '&#x' +
-              ('000000' + atom.value.charCodeAt(0).toString(16)).slice(-4) +
-              ';';
-          } else if (typeof atom.value === 'string')
-            result = atom.value.charAt(0);
-          else {
-            console.error('Did not expect this');
-            result = '';
-          }
-        }
-
-        const tag = /\d/.test(result) ? 'mn' : 'mi';
-        result = `<${tag}${variant}${makeID(atom.id, options)}>${xmlEscape(
-          result
-        )}</${tag}>`;
-        break;
       }
 
-      case 'mbin':
-      case 'mrel':
-      case 'minner':
-        if (command && SPECIAL_IDENTIFIERS[command]) {
-          // Some 'textord' are actually identifiers. Check them here.
-          result =
-            '<mi' +
-            makeID(atom.id, options) +
-            '>' +
-            SPECIAL_IDENTIFIERS[command] +
-            '</mi>';
-        } else if (command && SPECIAL_OPERATORS[command]) {
-          result =
-            '<mo' +
-            makeID(atom.id, options) +
-            '>' +
-            SPECIAL_OPERATORS[command] +
-            '</mo>';
-        } else result = toMo(atom, options);
+      break;
 
-        break;
+    case 'genfrac':
+      if (atom.leftDelim || atom.rightDelim) result += '<mrow>';
 
-      case 'mpunct':
-        result =
-          '<mo separator="true"' +
+      if (atom.leftDelim && atom.leftDelim !== '.') {
+        result +=
+          '<mo' +
           makeID(atom.id, options) +
           '>' +
-          (SPECIAL_OPERATORS[command] ?? command) +
+          (SPECIAL_OPERATORS[atom.leftDelim] || atom.leftDelim) +
           '</mo>';
-        break;
+      }
 
-      case 'mop':
-        if (atom.body !== '\u200B') {
-          // Not ZERO-WIDTH
-          result = '<mo' + makeID(atom.id, options) + '>';
-          result +=
-            command === '\\operatorname' ? atom.body : command || atom.body;
-          result += '</mo>';
-        }
+      if (atom.hasBarLine) {
+        result += '<mfrac>';
+        result += toMathML(atom.above, options) || '<mi>&nbsp;</mi>';
+        result += toMathML(atom.below, options) || '<mi>&nbsp;</mi>';
+        result += '</mfrac>';
+      } else {
+        // No bar line, i.e. \choose, etc...
+        result += '<mtable' + makeID(atom.id, options) + '>';
+        result += '<mtr>' + toMathML(atom.above, options) + '</mtr>';
+        result += '<mtr>' + toMathML(atom.below, options) + '</mtr>';
+        result += '</mtable>';
+      }
 
-        break;
-
-      // Case 'mathstyle':
-      // TODO: mathstyle is a switch. Need to figure out its scope to properly wrap it around a <mstyle> tag
-      // if (atom.mathstyle === 'displaystyle') {
-      //     result += '<mstyle displaystyle="true">';
-      //     result += '</mstyle>';
-      // } else {
-      //     result += '<mstyle displaystyle="false">';
-      //     result += '</mstyle>';
-      // };
-      // break;
-
-      case 'box':
-        result = '<menclose notation="box"';
-        if (atom.backgroundcolor)
-          result += ' mathbackground="' + atom.backgroundcolor + '"';
-
+      if (atom.rightDelim && atom.rightDelim !== '.') {
         result +=
+          '<mo' +
           makeID(atom.id, options) +
           '>' +
-          toMathML(atom.body, options) +
-          '</menclose>';
-        break;
+          (SPECIAL_OPERATORS[atom.rightDelim] || atom.rightDelim) +
+          '</mo>';
+      }
 
-      case 'spacing':
-        result += '<mspace width="' + (SPACING[command] ?? 0) + 'em"/>';
-        break;
+      if (atom.leftDelim || atom.rightDelim) result += '</mrow>';
 
-      case 'enclose':
-        result = '<menclose notation="';
-        for (const notation in atom.notation) {
-          if (
-            Object.prototype.hasOwnProperty.call(atom.notation, notation) &&
-            atom.notation[notation]
-          ) {
-            result += sep + notation;
-            sep = ' ';
-          }
-        }
+      break;
 
-        result +=
-          makeID(atom.id, options) +
-          '">' +
-          toMathML(atom.body, options) +
-          '</menclose>';
-        break;
-
-      case 'prompt':
-        result =
-          '<menclose notation="roundexbox""">' +
-          toMathML(atom.body, options) +
-          '</menclose>';
-        break;
-
-      case 'space':
-        result += '&nbsp;';
-        break;
-
-      case 'subsup':
-        // if (atom.superscript && atom.subscript) {
-        //   result = '<msubsup>' + base;
-        //   result += toMathML(atom.subscript, 0, 0, options).mathML;
-        //   result += toMathML(atom.superscript, 0, 0, options).mathML;
-        //   result += '</msubsup>';
-        // } else if (atom.superscript) {
-        //   result = '<msup>' + base;
-        //   result += toMathML(atom.superscript, 0, 0, options).mathML;
-        //   result += '</msup>';
-        // } else if (atom.subscript) {
-        //   result = '<msub>' + base;
-        //   result += toMathML(atom.subscript, 0, 0, options).mathML;
-        //   result += '</msub>';
-        // }
-        break;
-
-      case 'phantom':
-        break;
-      case 'composition':
-        break;
-      case 'rule':
-        console.log('In conversion to MathML, unknown type : ' + atom.type);
-        break;
-      case 'chem':
-        break;
-      case 'mopen':
-        result += toMo(atom, options);
-        break;
-      case 'mclose':
-        result += toMo(atom, options);
-        break;
-      case 'macro':
-        {
-          const body = atom.command + toString((atom as MacroAtom).macroArgs);
-          if (body) result += `<mo ${makeID(atom.id, options)}>${body}</mo>`;
-        }
-        break;
-      case 'error':
-        console.log('In conversion to MathML, unknown type : ' + atom.type);
-        break;
-      case 'latexgroup':
+    case 'surd':
+      if (!atom.hasEmptyBranch('above')) {
+        result += '<mroot' + makeID(atom.id, options) + '>';
         result += toMathML(atom.body, options);
-        break;
-      case 'latex':
-        result +=
-          '<mtext' + makeID(atom.id, options) + '>' + atom.value + '</mtext>';
-        break;
-      case 'tooltip':
+        result += toMathML(atom.above, options);
+        result += '</mroot>';
+      } else {
+        result += '<msqrt' + makeID(atom.id, options) + '>';
         result += toMathML(atom.body, options);
-        break;
-      default:
-        console.log('In conversion to MathML, unknown type : ' + atom.type);
+        result += '</msqrt>';
+      }
+
+      break;
+
+    case 'leftright':
+      result = '<mrow>';
+      if (atom.leftDelim && atom.leftDelim !== '.') {
+        result += `<mo${makeID(atom.id, options)}${
+          SPECIAL_OPERATORS[atom.leftDelim] ?? atom.leftDelim
+        }</mo>`;
+      }
+
+      if (atom.body) result += toMathML(atom.body, options);
+
+      if (atom.rightDelim && atom.rightDelim !== '.') {
+        result += `<mo${makeID(atom.id, options)}>${
+          SPECIAL_OPERATORS[atom.rightDelim] ?? atom.rightDelim
+        }</mo>`;
+      }
+
+      result += '</mrow>';
+      break;
+
+    case 'sizeddelim':
+    case 'delim':
+      result +=
+        '<mo separator="true"' +
+        makeID(atom.id, options) +
+        '>' +
+        (SPECIAL_OPERATORS[atom.delim] || atom.delim) +
+        '</mo>';
+      break;
+
+    case 'accent':
+      result += '<mover accent="true"' + makeID(atom.id, options) + '>';
+      result += toMathML(atom.body, options);
+      result += '<mo>' + (SPECIAL_OPERATORS[command] || atom.accent) + '</mo>';
+      result += '</mover>';
+      break;
+
+    case 'line':
+    case 'overlap':
+      break;
+
+    case 'overunder':
+      overscript = atom.above;
+      underscript = atom.below;
+      if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript))
+        body = atom.body;
+      else if (overscript && overscript.length > 0) {
+        body = atom.body;
+        if (atom.body?.[0]?.below) {
+          underscript = atom.body[0].below;
+          body = atom.body[0].body;
+        } else if (atom.body?.[0]?.type === 'first' && atom.body?.[1]?.below) {
+          underscript = atom.body[1].below;
+          body = atom.body[1].body;
+        }
+      } else if (underscript && underscript.length > 0) {
+        body = atom.body;
+        if (atom.body?.[0]?.above) {
+          overscript = atom.body[0].above;
+          body = atom.body[0].body;
+        } else if (atom.body?.[0]?.type === 'first' && atom.body?.[1]?.above) {
+          overscript = atom.body[1].overscript;
+          body = atom.body[1].body;
+        }
+      }
+
+      if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript)) {
+        result += `<munderover ${makeID(atom.id, options)}>`;
+        result += SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options);
+        result +=
+          SVG_CODE_POINTS[atom.svgBelow] ?? toMathML(underscript, options);
+        result +=
+          SVG_CODE_POINTS[atom.svgAbove] ?? toMathML(overscript, options);
+        result += '</munderover>';
+      } else if (atom.svgAbove || overscript) {
+        result +=
+          `<mover ${makeID(atom.id, options)}>` +
+          (SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options));
+        result +=
+          SVG_CODE_POINTS[atom.svgAbove] ?? toMathML(overscript, options);
+        result += '</mover>';
+      } else if (atom.svgBelow || underscript) {
+        result +=
+          `<munder ${makeID(atom.id, options)}>` +
+          (SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options));
+        result +=
+          SVG_CODE_POINTS[atom.svgBelow] ?? toMathML(underscript, options);
+        result += '</munder>';
+      }
+
+      break;
+
+    case 'placeholder': // No real equivalent in MathML -- will generate a '?'qq
+      result += '?';
+      break;
+    case 'mord': {
+      result =
+        SPECIAL_IDENTIFIERS[command] ||
+        command ||
+        (typeof atom.value === 'string' ? atom.value : '');
+      const m = command
+        ? command.match(/{?\\char"([\dabcdefABCDEF]*)}?/)
+        : null;
+      if (m) {
+        // It's a \char command
+        result = '&#x' + m[1] + ';';
+      } else if (result.length > 0 && result.startsWith('\\')) {
+        // This is an identifier with no special handling. Use the
+        // Unicode value
+        if (typeof atom.value === 'string' && atom.value.charCodeAt(0) > 255) {
+          result =
+            '&#x' +
+            ('000000' + atom.value.charCodeAt(0).toString(16)).slice(-4) +
+            ';';
+        } else if (typeof atom.value === 'string')
+          result = atom.value.charAt(0);
+        else {
+          console.error('Did not expect this');
+          result = '';
+        }
+      }
+
+      const tag = /\d/.test(result) ? 'mn' : 'mi';
+      result = `<${tag}${makeID(atom.id, options)}>${xmlEscape(
+        result
+      )}</${tag}>`;
+      break;
     }
+
+    case 'mbin':
+    case 'mrel':
+    case 'minner':
+      if (command && SPECIAL_IDENTIFIERS[command]) {
+        // Some 'textord' are actually identifiers. Check them here.
+        result =
+          '<mi' +
+          makeID(atom.id, options) +
+          '>' +
+          SPECIAL_IDENTIFIERS[command] +
+          '</mi>';
+      } else if (command && SPECIAL_OPERATORS[command]) {
+        result =
+          '<mo' +
+          makeID(atom.id, options) +
+          '>' +
+          SPECIAL_OPERATORS[command] +
+          '</mo>';
+      } else result = toMo(atom, options);
+
+      break;
+
+    case 'mpunct':
+      result =
+        '<mo separator="true"' +
+        makeID(atom.id, options) +
+        '>' +
+        (SPECIAL_OPERATORS[command] ?? command) +
+        '</mo>';
+      break;
+
+    case 'mop':
+      if (atom.body !== '\u200B') {
+        // Not ZERO-WIDTH
+        result = '<mo' + makeID(atom.id, options) + '>';
+        result +=
+          command === '\\operatorname' ? atom.body : command || atom.body;
+        result += '</mo>';
+      }
+
+      break;
+
+    // Case 'mathstyle':
+    // TODO: mathstyle is a switch. Need to figure out its scope to properly wrap it around a <mstyle> tag
+    // if (atom.mathstyle === 'displaystyle') {
+    //     result += '<mstyle displaystyle="true">';
+    //     result += '</mstyle>';
+    // } else {
+    //     result += '<mstyle displaystyle="false">';
+    //     result += '</mstyle>';
+    // };
+    // break;
+
+    case 'box':
+      result = '<menclose notation="box"';
+      if (atom.backgroundcolor)
+        result += ' mathbackground="' + atom.backgroundcolor + '"';
+
+      result +=
+        makeID(atom.id, options) +
+        '>' +
+        toMathML(atom.body, options) +
+        '</menclose>';
+      break;
+
+    case 'spacing':
+      result += '<mspace width="' + (SPACING[command] ?? 0) + 'em"/>';
+      break;
+
+    case 'enclose':
+      result = '<menclose notation="';
+      for (const notation in atom.notation) {
+        if (
+          Object.prototype.hasOwnProperty.call(atom.notation, notation) &&
+          atom.notation[notation]
+        ) {
+          result += sep + notation;
+          sep = ' ';
+        }
+      }
+
+      result +=
+        makeID(atom.id, options) +
+        '">' +
+        toMathML(atom.body, options) +
+        '</menclose>';
+      break;
+
+    case 'prompt':
+      result =
+        '<menclose notation="roundexbox""">' +
+        toMathML(atom.body, options) +
+        '</menclose>';
+      break;
+
+    case 'space':
+      result += '&nbsp;';
+      break;
+
+    case 'subsup':
+      // if (atom.superscript && atom.subscript) {
+      //   result = '<msubsup>' + base;
+      //   result += toMathML(atom.subscript, 0, 0, options).mathML;
+      //   result += toMathML(atom.superscript, 0, 0, options).mathML;
+      //   result += '</msubsup>';
+      // } else if (atom.superscript) {
+      //   result = '<msup>' + base;
+      //   result += toMathML(atom.superscript, 0, 0, options).mathML;
+      //   result += '</msup>';
+      // } else if (atom.subscript) {
+      //   result = '<msub>' + base;
+      //   result += toMathML(atom.subscript, 0, 0, options).mathML;
+      //   result += '</msub>';
+      // }
+      break;
+
+    case 'phantom':
+      break;
+    case 'composition':
+      break;
+    case 'rule':
+      // @todo
+      break;
+    case 'chem':
+      break;
+    case 'mopen':
+      result += toMo(atom, options);
+      break;
+    case 'mclose':
+      result += toMo(atom, options);
+      break;
+    case 'macro':
+      {
+        const body = atom.command + toString((atom as MacroAtom).macroArgs);
+        if (body) result += `<mo ${makeID(atom.id, options)}>${body}</mo>`;
+      }
+      break;
+    case 'error':
+      break;
+    case 'latexgroup':
+      result += toMathML(atom.body, options);
+      break;
+    case 'latex':
+      result +=
+        '<mtext' + makeID(atom.id, options) + '>' + atom.value + '</mtext>';
+      break;
+    case 'tooltip':
+      result += toMathML(atom.body, options);
+      break;
+    default:
+      console.log('MathML, unknown type : ', atom);
   }
 
   return result;
