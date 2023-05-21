@@ -1136,7 +1136,7 @@ function handleVirtualKeyboardEvent(controller) {
         if (keyboard.isShifted && keycap.shift) {
           if (typeof keycap.shift === 'string') {
             keyboard.executeCommand([
-              'typedText',
+              'insert',
               keycap.shift,
               {
                 focus: true,
