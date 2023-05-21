@@ -1,8 +1,14 @@
 import type { LatexValue } from '../public/core-types';
 
-import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
+import {
+  Atom,
+  AtomJson,
+  CreateAtomOptions,
+  ToLatexOptions,
+} from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
+import { joinLatex } from 'core/tokenizer';
 
 export class BoxAtom extends Atom {
   readonly framecolor?: LatexValue;
@@ -140,6 +146,12 @@ export class BoxAtom extends Atom {
     if (this.caret) result.caret = this.caret;
 
     return this.attachSupsub(parentContext, { base: result });
+  }
+
+  _serialize(options: ToLatexOptions): string {
+    if (!options.skipStyles) return super._serialize(options);
+
+    return joinLatex([this.bodyToLatex(options), this.supsubToLatex(options)]);
   }
 }
 
