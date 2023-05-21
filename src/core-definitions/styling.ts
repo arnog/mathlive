@@ -46,10 +46,15 @@ defineFunction('mathtip', '{:auto}{:math}', {
       content: 'math',
     }),
   serialize: (atom: TooltipAtom, options) =>
-    `\\texttip{${atom.bodyToLatex(options)}}{${Atom.serialize([atom.tooltip], {
-      ...options,
-      defaultMode: 'math',
-    })}}`,
+    options.skipStyles
+      ? atom.bodyToLatex(options)
+      : `\\texttip{${atom.bodyToLatex(options)}}{${Atom.serialize(
+          [atom.tooltip],
+          {
+            ...options,
+            defaultMode: 'math',
+          }
+        )}}`,
 });
 
 defineFunction('texttip', '{:auto}{:text}', {
@@ -63,10 +68,15 @@ defineFunction('texttip', '{:auto}{:text}', {
       content: 'text',
     }),
   serialize: (atom: TooltipAtom, options) =>
-    `\\texttip{${atom.bodyToLatex(options)}}{${Atom.serialize([atom.tooltip], {
-      ...options,
-      defaultMode: 'text',
-    })}}`,
+    options.skipStyles
+      ? atom.bodyToLatex(options)
+      : `\\texttip{${atom.bodyToLatex(options)}}{${Atom.serialize(
+          [atom.tooltip],
+          {
+            ...options,
+            defaultMode: 'text',
+          }
+        )}}`,
 });
 
 defineFunction('error', '{:math}', {
@@ -146,13 +156,15 @@ defineFunction(
         backgroundcolor: options.args![1] ?? { string: 'yellow' },
       });
     },
-    serialize: (atom: BoxAtom, options: ToLatexOptions) =>
-      latexCommand(
-        atom.command,
-        serializeLatexValue(atom.framecolor) ?? '',
-        serializeLatexValue(atom.backgroundcolor) ?? '',
-        atom.bodyToLatex({ ...options, defaultMode: 'text' })
-      ),
+    serialize: (atom: BoxAtom, options) =>
+      options.skipStyles
+        ? atom.bodyToLatex({ ...options, defaultMode: 'text' })
+        : latexCommand(
+            atom.command,
+            serializeLatexValue(atom.framecolor) ?? '',
+            serializeLatexValue(atom.backgroundcolor) ?? '',
+            atom.bodyToLatex({ ...options, defaultMode: 'text' })
+          ),
   }
 );
 
@@ -180,6 +192,7 @@ defineFunction('bbox', '[:bbox]{body:auto}', {
     });
   },
   serialize: (atom: BoxAtom, options: ToLatexOptions) => {
+    if (options.skipStyles) return atom.bodyToLatex(options);
     let result = atom.command;
     if (
       Number.isFinite(atom.padding) ||
@@ -223,7 +236,9 @@ defineFunction(
       return atom.bind(context, box);
     },
     serialize: (atom, options) =>
-      `{${joinLatex([atom.command, atom.bodyToLatex(options)])}}`,
+      options.skipStyles
+        ? atom.bodyToLatex(options)
+        : `{${joinLatex([atom.command, atom.bodyToLatex(options)])}}`,
   }
 );
 
@@ -512,7 +527,7 @@ defineFunction(['class', 'htmlClass'], '{name:string}{content:auto}', {
     options: CreateAtomOptions<[string | null, Argument | null]>
   ): Atom => new Atom({ ...options, body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
-    if (!atom.args![0]) return atom.bodyToLatex(options);
+    if (!atom.args![0] || options.skipStyles) return atom.bodyToLatex(options);
     return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
       options
     )}}`;
@@ -528,7 +543,7 @@ defineFunction(['cssId', 'htmlId'], '{id:string}{content:auto}', {
     options: CreateAtomOptions<[string | null, Argument | null]>
   ): Atom => new Atom({ ...options, body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
-    if (!atom.args?.[0]) return atom.bodyToLatex(options);
+    if (!atom.args?.[0] || options.skipStyles) return atom.bodyToLatex(options);
     return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
       options
     )}}`;
@@ -545,7 +560,7 @@ defineFunction('htmlData', '{data:string}{content:auto}', {
   createAtom: (options: CreateAtomOptions<[string | null, Argument | null]>) =>
     new Atom({ ...options, body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
-    if (!atom.args?.[0]) return atom.bodyToLatex(options);
+    if (!atom.args?.[0] || options.skipStyles) return atom.bodyToLatex(options);
     return `\\htmlData{${atom.args![0] as string}}{${atom.bodyToLatex(
       options
     )}}`;
@@ -563,7 +578,7 @@ defineFunction(['style', 'htmlStyle'], '{data:string}{content:auto}', {
   createAtom: (options: CreateAtomOptions<[string | null, Argument | null]>) =>
     new Atom({ ...options, body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
-    if (!atom.args?.[0]) return atom.bodyToLatex(options);
+    if (!atom.args?.[0] || options.skipStyles) return atom.bodyToLatex(options);
     return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
       options
     )}}`;
@@ -583,7 +598,10 @@ defineFunction(['style', 'htmlStyle'], '{data:string}{content:auto}', {
 defineFunction('em', '{:rest}', {
   createAtom: (options) =>
     new Atom({ ...options, body: argAtoms(options.args![0]) }),
-  serialize: (atom, options) => `{\\em ${atom.bodyToLatex(options)}}`,
+  serialize: (atom, options) =>
+    options.skipStyles
+      ? atom.bodyToLatex(options)
+      : `{\\em ${atom.bodyToLatex(options)}}`,
   render: (atom, context) =>
     atom.createBox(context, { classes: 'ML__emph', boxType: 'lift' }),
 });
@@ -592,7 +610,10 @@ defineFunction('em', '{:rest}', {
 defineFunction('emph', '{:auto}', {
   createAtom: (options) =>
     new Atom({ ...options, body: argAtoms(options.args![1]) }),
-  serialize: (atom, options) => `\\emph{${atom.bodyToLatex(options)}}`,
+  serialize: (atom, options) =>
+    options.skipStyles
+      ? atom.bodyToLatex(options)
+      : `\\emph{${atom.bodyToLatex(options)}}`,
   render: (atom, context) =>
     atom.createBox(context, { classes: 'ML__emph', boxType: 'lift' }),
 });
