@@ -7,6 +7,12 @@
   produced if an attempt is made to modify the array. If using Typescript, 
   a compile-time error is also generated.
   
+## Bug Fixes
+
+- **#1978** Pasting or inserting some content could result in a runtime error
+- **#1978** Text content was not properly serialized in a `\text{}` command
+
+
 ## 0.94.2 (2023-05-22)
 
 ## Bug Fixes

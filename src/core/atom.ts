@@ -128,9 +128,9 @@ function argumentsFromJson(json: any[]): undefined | Argument[] {
   return json.map((arg) => {
     if (arg === '<null>') return null;
     if (typeof arg === 'object' && 'group' in arg)
-      return { group: arg.group.map((x) => Atom.fromJson(x)) };
+      return { group: arg.group.map((x) => fromJson(x)) };
     if (typeof arg === 'object' && 'atoms' in arg)
-      return arg.atoms.map((x) => Atom.fromJson(x));
+      return arg.atoms.map((x) => fromJson(x));
     return arg;
   });
 }

@@ -160,13 +160,11 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string[] {
   // Since `\textcolor{}` applies to both text and math mode, wrap mode first, then
   // textcolor
   for (const modeRun of getModeRuns(run)) {
-    const mode = modeRun[0].mode;
-
-    if (mode === 'math' && options.defaultMode === 'text') result.push('$ ');
+    const mode = options.defaultMode;
 
     for (const colorRun of getPropertyRuns(modeRun, 'color')) {
       const style = colorRun[0].computedStyle;
-      const body = Mode._registry[mode].serialize(colorRun, {
+      const body = Mode._registry[colorRun[0].mode].serialize(colorRun, {
         ...options,
         defaultMode: mode === 'text' ? 'text' : 'math',
       });
@@ -185,8 +183,6 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string[] {
         );
       } else result.push(joinLatex(body));
     }
-
-    if (mode === 'math' && options.defaultMode === 'text') result.push(' $');
   }
 
   return result;
