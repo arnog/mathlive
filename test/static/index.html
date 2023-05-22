@@ -48,6 +48,14 @@
       ul {
         margin-left: 3rem;
       }
+
+      math {
+        font-family: math;
+        font-size: 1.5rem;
+        width: fit-content;
+        margin-left: 3rem;
+        background: rgba(200, 170, 0, 0.1);
+      }
     </style>
   </head>
 
@@ -1611,6 +1619,10 @@
                           '<p><b>latex expanded:</b><br>' + escapeHtml(val);
                     }
                     result += '</code></p>';
+
+                    result += `<math display="block">${mf.getValue(
+                      'math-ml'
+                    )}</math>`;
                     /* result +=
                                 '<p><code style="color: #0066ce">' +
                                 escapeHtml(mf.getValue('json-2')) +
