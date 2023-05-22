@@ -687,6 +687,7 @@ export function insertSmartFence(
   style?: Style
 ): boolean {
   if (!key) return false;
+  if (model.mode !== 'math') return false;
   const atom = model.at(model.position);
   const { parent } = atom;
 
