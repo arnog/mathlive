@@ -121,6 +121,7 @@ export function contentMarkup(
   //
 
   const { model } = mathfield;
+  console.log('contentMarkup > model > ', model);
   model.root.caret = undefined;
   model.root.isSelected = false;
   model.root.containsCaret = true;
