@@ -1,3 +1,12 @@
+## [Unreleased]
+
+## Improvements
+
+- The `mathVirtualKeyboard.layouts` property was a frozen array (an array 
+  that cannot be modified) but that wasn't clear. Now, a runtime error is 
+  produced if an attempt is made to modify the array. If using Typescript, 
+  a compile-time error is also generated.
+  
 ## 0.94.2 (2023-05-22)
 
 ## Bug Fixes

@@ -3,6 +3,7 @@ import {
   EditToolbarOptions,
   VirtualKeyboardKeycap,
   VirtualKeyboardLayout,
+  VirtualKeyboardName,
 } from '../public/virtual-keyboard';
 import { validateOrigin } from '../editor-mathfield/utils';
 import { getCommandTarget } from '../editor/commands';
@@ -57,7 +58,7 @@ export class VirtualKeyboardProxy
   set alphabeticLayout(value: AlphabeticKeyboardLayout) {
     this.sendMessage('update-setting', { alphabeticLayout: value });
   }
-  set layouts(value: (string | VirtualKeyboardLayout)[]) {
+  set layouts(value: (VirtualKeyboardName | VirtualKeyboardLayout)[]) {
     this.sendMessage('update-setting', { layouts: value });
   }
   set editToolbar(value: EditToolbarOptions) {

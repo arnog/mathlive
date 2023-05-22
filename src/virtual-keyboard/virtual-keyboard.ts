@@ -5,6 +5,7 @@ import type {
   VirtualKeyboardKeycap,
   VirtualKeyboardLayout,
   VirtualKeyboardLayoutCore,
+  VirtualKeyboardName,
 } from '../public/virtual-keyboard';
 
 import type {
@@ -198,20 +199,28 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this._tabKeycap = typeof value === 'string' ? { label: value } : value;
   }
 
-  private _layouts: 'default' | (string | VirtualKeyboardLayout)[];
-  get layouts(): 'default' | (string | VirtualKeyboardLayout)[] {
+  private _layouts: Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>;
+
+  get layouts(): Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]> {
     return this._layouts;
   }
-  set layouts(value: 'default' | (string | VirtualKeyboardLayout)[]) {
-    this._layouts = value;
-    this.updateNormalizedLayouts();
+  set layouts(
+    value:
+      | 'default'
+      | (VirtualKeyboardName | VirtualKeyboardLayout)[]
+      | Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>
+  ) {
+    this.updateNormalizedLayouts(value);
     this.rebuild();
   }
 
-  private updateNormalizedLayouts(): void {
-    const layouts = Array.isArray(this._layouts)
-      ? [...this._layouts]
-      : [this._layouts];
+  private updateNormalizedLayouts(
+    value:
+      | 'default'
+      | (VirtualKeyboardName | VirtualKeyboardLayout)[]
+      | Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>
+  ): void {
+    const layouts = Array.isArray(value) ? [...value] : [value];
     const defaultIndex = layouts.findIndex((x) => x === 'default');
     if (defaultIndex >= 0) {
       layouts.splice(
@@ -224,6 +233,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       );
     }
 
+    this._layouts = Object.freeze<
+      (VirtualKeyboardName | VirtualKeyboardLayout)[]
+    >(layouts as (VirtualKeyboardName | VirtualKeyboardLayout)[]);
+
     this._normalizedLayouts = layouts.map((x) => normalizeLayout(x));
   }
 
@@ -235,7 +248,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   get normalizedLayouts(): (VirtualKeyboardLayoutCore & {
     layers: NormalizedVirtualKeyboardLayer[];
   })[] {
-    if (!this._normalizedLayouts) this.updateNormalizedLayouts();
+    if (!this._normalizedLayouts) this.updateNormalizedLayouts(this._layouts);
     return this._normalizedLayouts!;
   }
 
@@ -276,7 +289,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.originValidator = 'none';
 
     this._alphabeticLayout = 'auto';
-    this._layouts = 'default';
+    this._layouts = Object.freeze(['default']);
     this._editToolbar = 'default';
 
     this._container = window.document?.body ?? null;
