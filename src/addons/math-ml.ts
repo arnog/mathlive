@@ -1,36 +1,5 @@
 import { Atom } from '../core/atom-class';
 import { MacroAtom } from '../core-atoms/macro';
-const SPECIAL_OPERATORS = {
-  '\\ne': '<mo>&ne;</mo>',
-  '\\neq': '<mo>&neq;</mo>',
-  '\\pm': '&#177;',
-  '\\times': '&#215;',
-  '\\colon': ':',
-  '\\vert': '|',
-  '\\Vert': '\u2225',
-  '\\mid': '\u2223',
-  '\\lbrace': '{',
-  '\\rbrace': '}',
-  '\\lparen': '(',
-  '\\rparen': ')',
-  '\\langle': '\u27E8',
-  '\\rangle': '\u27E9',
-  '\\lfloor': '\u230A',
-  '\\rfloor': '\u230B',
-  '\\lceil': '\u2308',
-  '\\rceil': '\u2309',
-
-  '\\vec': '&#x20d7;',
-  '\\acute': '&#x00b4;',
-  '\\grave': '&#x0060;',
-  '\\dot': '&#x02d9;',
-  '\\ddot': '&#x00a8;',
-  '\\tilde': '&#x007e;',
-  '\\bar': '&#x00af;',
-  '\\breve': '&#x02d8;',
-  '\\check': '&#x02c7;',
-  '\\hat': '&#x005e;',
-};
 
 export type MathMLStream = {
   atoms: Atom[];
@@ -70,6 +39,39 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
 
   let variant = atom.style?.variant ?? '';
   const variantStyle = atom.style?.variantStyle ?? '';
+
+  const SPECIAL_IDENTIFIERS = {
+    '\\exponentialE': '&#x02147;',
+    '\\imaginaryI': '&#x2148;',
+    '\\differentialD': '&#x2146;',
+    '\\capitalDifferentialD': '&#x2145;',
+    '\\alpha': '&#x03b1;',
+    '\\pi': '&#x03c0;',
+    '\\infty': '&#x221e;',
+    '\\forall': '&#x2200;',
+    '\\nexists': '&#x2204;',
+    '\\exists': '&#x2203;',
+    '\\hbar': '\u210F',
+    '\\cdotp': '\u22C5',
+    '\\ldots': '\u2026',
+    '\\cdots': '\u22EF',
+    '\\ddots': '\u22F1',
+    '\\vdots': '\u22EE',
+    '\\ldotp': '\u002E',
+  };
+
+  if (SPECIAL_IDENTIFIERS[atom.command]) {
+    stream.index += 1;
+    const mathML = `<mi${makeID(atom.id, options)}>${
+      SPECIAL_IDENTIFIERS[atom.command]
+    }</mi>`;
+    if (!parseSubsup(mathML, stream, options)) {
+      stream.mathML += mathML;
+      stream.lastType = 'mi';
+    }
+    return true;
+  }
+
   if (atom.command === '\\operatorname') {
     body = toString(atom.body);
     stream.index += 1;
@@ -312,8 +314,40 @@ function scanOperator(stream: MathMLStream, final: number, options) {
   final = final ?? stream.atoms.length;
   let mathML = '';
   let lastType = '';
-  const atom: Atom = stream.atoms[stream.index];
+  const atom = stream.atoms[stream.index];
 
+  const SPECIAL_OPERATORS = {
+    '\\ne': '&ne;',
+    '\\neq': '&neq;',
+    '\\pm': '&#177;',
+    '\\times': '&#215;',
+    '\\colon': ':',
+    '\\vert': '|',
+    '\\Vert': '\u2225',
+    '\\mid': '\u2223',
+    '\\lbrace': '{',
+    '\\rbrace': '}',
+    '\\lparen': '(',
+    '\\rparen': ')',
+    '\\langle': '\u27E8',
+    '\\rangle': '\u27E9',
+    '\\lfloor': '\u230A',
+    '\\rfloor': '\u230B',
+    '\\lceil': '\u2308',
+    '\\rceil': '\u2309',
+  };
+
+  if (SPECIAL_OPERATORS[atom.command]) {
+    stream.index += 1;
+    const mathML = `<mo${makeID(atom.id, options)}>${
+      SPECIAL_OPERATORS[atom.command]
+    }</mo>`;
+    if (!parseSubsup(mathML, stream, options)) {
+      stream.mathML += mathML;
+      stream.lastType = 'mo';
+    }
+    return true;
+  }
   if (stream.index < final && (atom.type === 'mbin' || atom.type === 'mrel')) {
     mathML += atomToMathML(stream.atoms[stream.index], options);
     stream.index += 1;
@@ -535,26 +569,6 @@ function atomToMathML(atom, options): string {
     longLeftrightharpoons: '\u21CB', // None better available.
   };
 
-  const SPECIAL_IDENTIFIERS = {
-    '\\exponentialE': '&#x02147;',
-    '\\imaginaryI': '&#x2148;',
-    '\\differentialD': '&#x2146;',
-    '\\capitalDifferentialD': '&#x2145;',
-    '\\alpha': '&#x03b1;',
-    '\\pi': '&#x03c0;',
-    '\\infty': '&#x221e;',
-    '\\forall': '&#x2200;',
-    '\\nexists': '&#x2204;',
-    '\\exists': '&#x2203;',
-    '\\hbar': '\u210F',
-    '\\cdotp': '\u22C5',
-    '\\ldots': '\u2026',
-    '\\cdots': '\u22EF',
-    '\\ddots': '\u22F1',
-    '\\vdots': '\u22EE',
-    '\\ldotp': '\u002E',
-  };
-
   const SPACING = {
     '\\!': -3 / 18,
     '\\ ': 6 / 18,
@@ -577,14 +591,41 @@ function atomToMathML(atom, options): string {
   let body;
 
   const { command } = atom;
+
+  const SPECIAL_DELIMS = {
+    '\\vert': '|',
+    '\\Vert': '\u2225',
+    '\\mid': '\u2223',
+    '\\lbrace': '{',
+    '\\rbrace': '}',
+    '\\lparen': '(',
+    '\\rparen': ')',
+    '\\langle': '\u27E8',
+    '\\rangle': '\u27E9',
+    '\\lfloor': '\u230A',
+    '\\rfloor': '\u230B',
+    '\\lceil': '\u2308',
+    '\\rceil': '\u2309',
+  };
+
+  const SPECIAL_ACCENTS = {
+    '\\vec': '&#x20d7;',
+    '\\acute': '&#x00b4;',
+    '\\grave': '&#x0060;',
+    '\\dot': '&#x02d9;',
+    '\\ddot': '&#x00a8;',
+    '\\tilde': '&#x007e;',
+    '\\bar': '&#x00af;',
+    '\\breve': '&#x02d8;',
+    '\\check': '&#x02c7;',
+    '\\hat': '&#x005e;',
+  };
   switch (atom.type) {
     case 'first':
       break; // Nothing to do
     case 'group':
     case 'root':
-      if (SPECIAL_OPERATORS[atom.command])
-        result = SPECIAL_OPERATORS[atom.command];
-      else result = toMathML(atom.body, options);
+      result = toMathML(atom.body, options);
       break;
 
     case 'array':
@@ -596,7 +637,7 @@ function atomToMathML(atom, options): string {
         if (atom.leftDelim && atom.leftDelim !== '.') {
           result +=
             '<mo>' +
-            (SPECIAL_OPERATORS[atom.leftDelim] || atom.leftDelim) +
+            (SPECIAL_DELIMS[atom.leftDelim] || atom.leftDelim) +
             '</mo>';
         }
       }
@@ -635,7 +676,7 @@ function atomToMathML(atom, options): string {
         if (atom.rightDelim && atom.rightDelim !== '.') {
           result +=
             '<mo>' +
-            (SPECIAL_OPERATORS[atom.leftDelim] || atom.rightDelim) +
+            (SPECIAL_DELIMS[atom.leftDelim] || atom.rightDelim) +
             '</mo>';
         }
 
@@ -652,7 +693,7 @@ function atomToMathML(atom, options): string {
           '<mo' +
           makeID(atom.id, options) +
           '>' +
-          (SPECIAL_OPERATORS[atom.leftDelim] || atom.leftDelim) +
+          (SPECIAL_DELIMS[atom.leftDelim] || atom.leftDelim) +
           '</mo>';
       }
 
@@ -674,7 +715,7 @@ function atomToMathML(atom, options): string {
           '<mo' +
           makeID(atom.id, options) +
           '>' +
-          (SPECIAL_OPERATORS[atom.rightDelim] || atom.rightDelim) +
+          (SPECIAL_DELIMS[atom.rightDelim] || atom.rightDelim) +
           '</mo>';
       }
 
@@ -700,7 +741,7 @@ function atomToMathML(atom, options): string {
       result = '<mrow>';
       if (atom.leftDelim && atom.leftDelim !== '.') {
         result += `<mo${makeID(atom.id, options)}${
-          SPECIAL_OPERATORS[atom.leftDelim] ?? atom.leftDelim
+          SPECIAL_DELIMS[atom.leftDelim] ?? atom.leftDelim
         }</mo>`;
       }
 
@@ -708,7 +749,7 @@ function atomToMathML(atom, options): string {
 
       if (atom.rightDelim && atom.rightDelim !== '.') {
         result += `<mo${makeID(atom.id, options)}>${
-          SPECIAL_OPERATORS[atom.rightDelim] ?? atom.rightDelim
+          SPECIAL_DELIMS[atom.rightDelim] ?? atom.rightDelim
         }</mo>`;
       }
 
@@ -721,14 +762,14 @@ function atomToMathML(atom, options): string {
         '<mo separator="true"' +
         makeID(atom.id, options) +
         '>' +
-        (SPECIAL_OPERATORS[atom.delim] || atom.delim) +
+        (SPECIAL_DELIMS[atom.delim] || atom.delim) +
         '</mo>';
       break;
 
     case 'accent':
       result += '<mover accent="true"' + makeID(atom.id, options) + '>';
       result += toMathML(atom.body, options);
-      result += '<mo>' + (SPECIAL_OPERATORS[command] || atom.accent) + '</mo>';
+      result += '<mo>' + (SPECIAL_ACCENTS[command] || atom.accent) + '</mo>';
       result += '</mover>';
       break;
 
@@ -791,10 +832,7 @@ function atomToMathML(atom, options): string {
       result += '?';
       break;
     case 'mord': {
-      result =
-        SPECIAL_IDENTIFIERS[command] ||
-        command ||
-        (typeof atom.value === 'string' ? atom.value : '');
+      result = typeof atom.value === 'string' ? atom.value : command;
       const m = command
         ? command.match(/{?\\char"([\dabcdefABCDEF]*)}?/)
         : null;
@@ -827,22 +865,7 @@ function atomToMathML(atom, options): string {
     case 'mbin':
     case 'mrel':
     case 'minner':
-      if (command && SPECIAL_IDENTIFIERS[command]) {
-        // Some 'textord' are actually identifiers. Check them here.
-        result =
-          '<mi' +
-          makeID(atom.id, options) +
-          '>' +
-          SPECIAL_IDENTIFIERS[command] +
-          '</mi>';
-      } else if (command && SPECIAL_OPERATORS[command]) {
-        result =
-          '<mo' +
-          makeID(atom.id, options) +
-          '>' +
-          SPECIAL_OPERATORS[command] +
-          '</mo>';
-      } else result = toMo(atom, options);
+      result = toMo(atom, options);
 
       break;
 
@@ -851,7 +874,7 @@ function atomToMathML(atom, options): string {
         '<mo separator="true"' +
         makeID(atom.id, options) +
         '>' +
-        (SPECIAL_OPERATORS[command] ?? command) +
+        command +
         '</mo>';
       break;
 
