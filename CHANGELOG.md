@@ -4,6 +4,8 @@
 
 - **#1976** Toggling the virtual keyboard several times would eventually not
   display the virtual keyboard.
+- Only apply smartFence in math mode (not in text or LaTeX mode).
+- **#1975** When inserting a square root, do not insert an index by default
 
 ## 0.94.1 (2023-05-21)
 

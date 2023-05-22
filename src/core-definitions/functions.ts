@@ -135,7 +135,7 @@ defineFunction('sqrt', '[index:auto]{radicand:expression}', {
     new SurdAtom({
       ...options,
       body: argAtoms(options.args![1]),
-      index: argAtoms(options.args![0]) ?? undefined,
+      index: options.args![0] ? argAtoms(options.args![0]) : undefined,
     }),
 });
 
