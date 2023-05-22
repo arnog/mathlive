@@ -85,11 +85,11 @@ let gInjectedStylesheets: Partial<Record<StylesheetId, number>>;
 
 export function injectStylesheet(id: StylesheetId): void {
   if (!gInjectedStylesheets) gInjectedStylesheets = {};
-  if (gInjectedStylesheets[id] !== undefined) gInjectedStylesheets[id]! += 1;
+  if ((gInjectedStylesheets[id] ?? 0) !== 0) gInjectedStylesheets[id]! += 1;
   else {
     const stylesheet = getStylesheet(id);
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, stylesheet];
-    gInjectedStylesheets[id] = 0;
+    gInjectedStylesheets[id] = 1;
   }
 }
 
@@ -97,7 +97,8 @@ export function releaseStylesheet(id: StylesheetId): void {
   if (!gInjectedStylesheets?.[id]) return;
 
   gInjectedStylesheets[id]! -= 1;
-  if (gInjectedStylesheets[id]! <= 1) {
+  if (gInjectedStylesheets[id]! <= 0) {
+    console.log('releasign stylesheet ', id);
     const stylesheet = gStylesheets[id]!;
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
       (x) => x !== stylesheet

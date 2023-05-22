@@ -1,3 +1,10 @@
+## [Unreleased]
+
+## Bug Fixes
+
+- **#1976** Toggling the virtual keyboard several times would eventually not
+  display the virtual keyboard.
+
 ## 0.94.1 (2023-05-21)
 
 ## Improvements
