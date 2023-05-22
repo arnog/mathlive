@@ -37,8 +37,32 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
   let body = '';
   let atom: Atom = stream.atoms[stream.index];
 
-  let variant = atom.style?.variant ?? '';
+  const variant = atom.style?.variant ?? '';
   const variantStyle = atom.style?.variantStyle ?? '';
+  let variantProp = '';
+  if (variant || variantStyle) {
+    variantProp =
+      {
+        'upnormal': 'normal',
+        'boldnormal': 'bold',
+        'italicmain': 'italic',
+        'bolditalicmain': 'bold-italic',
+        'double-struck': 'double-struck',
+        'boldfraktur': 'bold-fraktur',
+        'calligraphic': 'script',
+        'upcalligraphic': 'script',
+        'script': 'script',
+        'boldscript': 'bold-script',
+        'boldcalligraphic': 'bold-script',
+        'fraktur': 'fraktur',
+        'upsans-serif': 'sans-serif',
+        'boldsans-serif': 'bold-sans-serif',
+        'italicsans-serif': 'sans-serif-italic',
+        'bolditalicsans-serif': 'sans-serif-bold-italic',
+        'monospace': 'monospace',
+      }[variantStyle + variant] ?? '';
+    variantProp = `mathvariant="${variantProp}"`;
+  }
 
   const SPECIAL_IDENTIFIERS = {
     '\\exponentialE': '&#x02147;',
@@ -62,9 +86,16 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
 
   if (SPECIAL_IDENTIFIERS[atom.command]) {
     stream.index += 1;
-    const mathML = `<mi${makeID(atom.id, options)}>${
+    let mathML = `<mi${makeID(atom.id, options)}${variantProp}>${
       SPECIAL_IDENTIFIERS[atom.command]
     }</mi>`;
+    if (
+      stream.lastType === 'mi' ||
+      stream.lastType === 'mn' ||
+      stream.lastType === 'mtext' ||
+      stream.lastType === 'fence'
+    )
+      mathML = INVISIBLE_TIMES + mathML;
     if (!parseSubsup(mathML, stream, options)) {
       stream.mathML += mathML;
       stream.lastType = 'mi';
@@ -76,59 +107,48 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
     body = toString(atom.body);
     stream.index += 1;
   } else {
-    while (
-      stream.index < final &&
+    if (variant || variantStyle) {
+      while (
+        stream.index < final &&
+        (atom.type === 'mord' || atom.type === 'macro') &&
+        !atom.isDigit() &&
+        variant === (atom.style?.variant ?? '') &&
+        variantStyle === (atom.style?.variantStyle ?? '')
+      ) {
+        body += toString([atom]);
+        stream.index += 1;
+        atom = stream.atoms[stream.index];
+      }
+    } else if (
       (atom.type === 'mord' || atom.type === 'macro') &&
-      !atom.isDigit() &&
-      variant === (atom.style?.variant ?? '') &&
-      variantStyle === (atom.style?.variantStyle ?? '')
+      !atom.isDigit()
     ) {
       body += toString([atom]);
       stream.index += 1;
-      atom = stream.atoms[stream.index];
     }
   }
 
-  variant =
-    {
-      'upnormal': 'normal',
-      'boldnormal': 'bold',
-      'italicmain': 'italic',
-      'bolditalicmain': 'bold-italic',
-      'double-struck': 'double-struck',
-      'boldfraktur': 'bold-fraktur',
-      'calligraphic': 'script',
-      'upcalligraphic': 'script',
-      'script': 'script',
-      'boldscript': 'bold-script',
-      'boldcalligraphic': 'bold-script',
-      'fraktur': 'fraktur',
-      'upsans-serif': 'sans-serif',
-      'boldsans-serif': 'bold-sans-serif',
-      'italicsans-serif': 'sans-serif-italic',
-      'bolditalicsans-serif': 'sans-serif-bold-italic',
-      'monospace': 'monospace',
-    }[variantStyle + variant] ?? '';
   if (body.length > 0) {
     result = true;
-    if (variant) mathML = `<mi mathvariant="${variant}">${body}</mi>`;
-    else mathML = `<mi>${body}</mi>`;
+    mathML = `<mi${variantProp}>${body}</mi>`;
 
-    if (
-      (stream.lastType === 'mi' ||
-        stream.lastType === 'mn' ||
-        stream.lastType === 'mtext' ||
-        stream.lastType === 'fence') &&
-      !/^<mo>(.*)<\/mo>$/.test(mathML)
-    )
-      mathML = INVISIBLE_TIMES + mathML;
+    const lastType = stream.lastType;
 
     if (mathML.endsWith('>f</mi>') || mathML.endsWith('>g</mi>')) {
       mathML += APPLY_FUNCTION;
       stream.lastType = 'applyfunction';
     } else stream.lastType = /^<mo>(.*)<\/mo>$/.test(mathML) ? 'mo' : 'mi';
 
-    if (!parseSubsup(mathML, stream, options)) stream.mathML += mathML;
+    if (!parseSubsup(mathML, stream, options)) {
+      if (
+        lastType === 'mi' ||
+        lastType === 'mn' ||
+        lastType === 'mtext' ||
+        lastType === 'fence'
+      )
+        mathML = INVISIBLE_TIMES + mathML;
+      stream.mathML += mathML;
+    }
   }
 
   return result;
@@ -178,8 +198,13 @@ function parseSubsup(base: string, stream: MathMLStream, options): boolean {
     } else return false;
   }
 
+  const lastType = stream.lastType;
+  stream.lastType = '';
   const superscript = toMathML(atom.superscript, options);
+  stream.lastType = '';
   const subscript = toMathML(atom.subscript, options);
+
+  stream.lastType = lastType;
 
   if (!superscript && !subscript) return false;
 
@@ -592,6 +617,13 @@ function atomToMathML(atom, options): string {
 
   const { command } = atom;
 
+  if (atom.command === '\\error') {
+    return `<merror${makeID(atom.id, options)}>${toMathML(
+      atom.body,
+      options
+    )}</merror>`;
+  }
+
   const SPECIAL_DELIMS = {
     '\\vert': '|',
     '\\Vert': '\u2225',
@@ -758,12 +790,9 @@ function atomToMathML(atom, options): string {
 
     case 'sizeddelim':
     case 'delim':
-      result +=
-        '<mo separator="true"' +
-        makeID(atom.id, options) +
-        '>' +
-        (SPECIAL_DELIMS[atom.delim] || atom.delim) +
-        '</mo>';
+      result += `<mo${makeID(atom.id, options)}>${
+        SPECIAL_DELIMS[atom.delim] || atom.delim
+      }</mo>`;
       break;
 
     case 'accent':
@@ -983,8 +1012,6 @@ function atomToMathML(atom, options): string {
         const body = atom.command + toString((atom as MacroAtom).macroArgs);
         if (body) result += `<mo ${makeID(atom.id, options)}>${body}</mo>`;
       }
-      break;
-    case 'error':
       break;
     case 'latexgroup':
       result += toMathML(atom.body, options);
