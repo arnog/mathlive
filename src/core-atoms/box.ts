@@ -8,7 +8,7 @@ import {
 } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { joinLatex } from 'core/tokenizer';
+import { joinLatex } from '../core/tokenizer';
 
 export class BoxAtom extends Atom {
   readonly framecolor?: LatexValue;
