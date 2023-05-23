@@ -652,7 +652,12 @@ function insertMathModeChar(
   if (mathfield.adoptStyle !== 'none') {
     // If adding an alphabetic character, and the neighboring atom is an
     // alphanumeric character, use the same variant/variantStyle (\mathit, \mathrm...)
-    const sibling = mathfield.adoptStyle === 'left' ? atom : atom.rightSibling;
+    const sibling =
+      mathfield.adoptStyle === 'left'
+        ? atom
+        : atom.parent
+        ? atom.rightSibling
+        : null;
     if (
       sibling?.type === 'mord' &&
       /[a-zA-Z0-9]/.test(sibling.value) &&
