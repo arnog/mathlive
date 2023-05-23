@@ -372,5 +372,21 @@ test('keyboard select than divide (#1981)', async ({ page }) => {
   ).toBe(String.raw`\frac{x+y}{2}`);
 });
 
+test('text mode serialization (#1978)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('x+y');
+  await page.locator('#mf-1').press(`Shift+'`);
+  await page.locator('#mf-1').type(' Comment ');
+  await page.locator('#mf-1').press(`Shift+'`);
+  await page.locator('#mf-1').type('z-s');
+
+  // check latex of result
+  expect(
+    await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
+  ).toBe(String.raw`x+y\text{ Comment }z-s`);
+});
+
 
 
