@@ -399,7 +399,7 @@ test('cross-origin iframe with physical keyboard', async ({ page, browserName, c
 
   if (frame) {
     // type with physical keyboard
-    await frame.locator('#mf-1').type('x/20+x');
+    await frame.locator('#mf-1').type('x/20+z');
 
     // check resulting latex
     let latex = await frame
