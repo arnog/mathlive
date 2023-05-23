@@ -388,5 +388,26 @@ test('text mode serialization (#1978)', async ({ page }) => {
   ).toBe(String.raw`x+y\text{ Comment }z-s`);
 });
 
+test('cross-origin iframe with physical keyboard', async ({ page, browserName, context }) => {
+  test.skip(browserName === "webkit" && Boolean(process.env.CI), "Iframe test is flaky in webkit on GH actions");
+
+  await page.goto('/dist/playwright-test-page/iframe_test.html');
+
+  const frame = page.frame('mathlive-iframe-cross-origin');
+
+  expect(frame).toBeTruthy();
+
+  if (frame) {
+    // type with physical keyboard
+    await frame.locator('#mf-1').type('x/20+x');
+
+    // check resulting latex
+    let latex = await frame
+      .locator('#mf-1')
+      .evaluate((mfe: MathfieldElement) => mfe.value);
+    expect(latex).toBe(String.raw`\frac{x}{20+z}`);
+  }
+});
+
 
 
