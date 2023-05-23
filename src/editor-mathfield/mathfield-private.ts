@@ -302,13 +302,15 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
     markup.push('</span>');
 
     // 2.1/ The virtual keyboard toggle
-    markup.push(
-      `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button ${
-        this.hasEditableContent ? '' : 'style="display:none;"'
-      }data-ML__tooltip="${localize('tooltip.toggle virtual keyboard')}">`
-    );
-    markup.push(DEFAULT_KEYBOARD_TOGGLE_GLYPH);
-    markup.push('</div>');
+    if (window.mathVirtualKeyboard) {
+      markup.push(
+        `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button ${
+          this.hasEditableContent ? '' : 'style="display:none;"'
+        }data-ML__tooltip="${localize('tooltip.toggle virtual keyboard')}">`
+      );
+      markup.push(DEFAULT_KEYBOARD_TOGGLE_GLYPH);
+      markup.push('</div>');
+    }
 
     markup.push('</span>'); // end container
 

@@ -49,6 +49,7 @@ export class VirtualKeyboardProxy
   };
 
   private _boundingRect = new DOMRect(0, 0, 0, 0);
+  private _isShifted = false;
 
   constructor() {
     window.addEventListener('message', this);
@@ -87,6 +88,10 @@ export class VirtualKeyboardProxy
 
   hide(options?: { animate: boolean }): void {
     this.sendMessage('hide', options);
+  }
+
+  get isShifted(): boolean {
+    return this._isShifted;
   }
 
   get visible(): boolean {
@@ -175,6 +180,7 @@ export class VirtualKeyboardProxy
     if (action === 'synchronize-proxy') {
       console.log('synchronize-proxy', window, msg.boundingRect);
       this._boundingRect = msg.boundingRect;
+      this._isShifted = msg.isShifted;
       return;
     }
 

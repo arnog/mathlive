@@ -29,7 +29,6 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
-import { VirtualKeyboard } from 'virtual-keyboard/virtual-keyboard';
 import type { ParseMode, Style } from 'public/core-types';
 import type { ModelPrivate } from 'editor-model/model-private';
 import { LeftRightAtom } from 'core-atoms/leftright';
@@ -536,8 +535,8 @@ export function onInput(
   let graphemes = splitGraphemes(text);
 
   // Check if virtual keyboard is visible and the shift key is pressed
-  const keyboard = VirtualKeyboard.singleton;
-  if (keyboard.visible && keyboard.isShifted) {
+  const keyboard = window.mathVirtualKeyboard;
+  if (keyboard?.visible && keyboard.isShifted) {
     graphemes =
       typeof graphemes === 'string'
         ? graphemes.toUpperCase()

@@ -15,6 +15,10 @@
 - **#1682** Vectors (and other accents) are now spoken correctly
 - **#1981** Adjusting the selection by moving backwards could result in 
   a runtime error.
+- **#1982** Improved resilience when a mathfield is in an embedded iframe
+  which is not allowed to access the top window by cross-origin policy. In 
+  this situation the virtual keyboard is not available, but input via physical
+  keyboard will work.
 
 ## 0.94.2 (2023-05-22)
 

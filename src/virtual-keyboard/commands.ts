@@ -5,6 +5,8 @@ import { VirtualKeyboard } from './virtual-keyboard';
 
 export function switchKeyboardLayer(layerName: string): boolean {
   const keyboard = VirtualKeyboard.singleton;
+  if (!keyboard) return false;
+
   keyboard.show();
 
   // If the variants panel was visible, hide it

@@ -273,9 +273,15 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   targetOrigin: string;
   originValidator: OriginValidator;
 
-  private static _singleton: VirtualKeyboard;
-  static get singleton(): VirtualKeyboard {
-    if (!this._singleton) this._singleton = new VirtualKeyboard();
+  private static _singleton: VirtualKeyboard | null;
+  static get singleton(): VirtualKeyboard | null {
+    if (this._singleton === undefined) {
+      try {
+        this._singleton = new VirtualKeyboard();
+      } catch (e) {
+        this._singleton = null;
+      }
+    }
     return this._singleton;
   }
 
@@ -469,6 +475,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     const container = this.container;
     if (!container) return;
+
+    if (!window.mathVirtualKeyboard) return;
 
     // Confirm
     if (!this.stateWillChange(true)) return;

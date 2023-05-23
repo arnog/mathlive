@@ -249,7 +249,7 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
   show(options?: { animate: boolean }): void;
   hide(options?: { animate: boolean }): void;
   visible: boolean;
-
+  readonly isShifted: boolean;
   readonly boundingRect: DOMRect;
 
   executeCommand(command: string | [string, ...any[]]): boolean;
@@ -320,6 +320,7 @@ export type VirtualKeyboardMessage =
       shiftKeycap: string | Partial<VirtualKeyboardKeycap>;
       backspaceKeycap: string | Partial<VirtualKeyboardKeycap>;
       tabKeycap: string | Partial<VirtualKeyboardKeycap>;
+      isShifted: boolean;
     }
   | {
       // From proxy to VK

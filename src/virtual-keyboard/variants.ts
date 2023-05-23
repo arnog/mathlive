@@ -247,6 +247,7 @@ export function showVariantsPanel(
   onClose?: () => void
 ): void {
   const keyboard = VirtualKeyboard.singleton;
+  if (!keyboard) return;
   const keycap = parentKeycap(element);
   const variantDef = keyboard.getKeycap(keycap?.id)?.variants ?? '';
   if (
@@ -294,7 +295,7 @@ export function showVariantsPanel(
   //
   if (!Scrim.scrim) Scrim.scrim = new Scrim();
   Scrim.scrim.open({
-    root: keyboard.container?.querySelector('.ML__keyboard'),
+    root: keyboard?.container?.querySelector('.ML__keyboard'),
     child: variantPanel,
   });
 

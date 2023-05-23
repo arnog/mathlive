@@ -357,6 +357,9 @@ export function makeSyntheticKeycaps(elementList: NodeList): void {
 }
 
 function makeSyntheticKeycap(element: HTMLElement): void {
+  const keyboard = VirtualKeyboard.singleton;
+  if (!keyboard) return;
+
   const keycap: Partial<VirtualKeyboardKeycap> = {};
 
   // Generate synthetic keycap from DOM element
@@ -391,7 +394,7 @@ function makeSyntheticKeycap(element: HTMLElement): void {
       } catch (e) {}
     }
 
-    element.id = VirtualKeyboard.singleton.registerKeycap(keycap);
+    element.id = keyboard.registerKeycap(keycap);
   }
 
   // Display
@@ -1000,6 +1003,7 @@ function handlePointerDown(ev: PointerEvent) {
   if (ev.button !== 0) return;
 
   const keyboard = VirtualKeyboard.singleton;
+  if (!keyboard) return;
 
   //
   // Is this event for a layer switch
@@ -1090,6 +1094,7 @@ function handleVirtualKeyboardEvent(controller) {
     if (!target?.id) return;
 
     const keyboard = VirtualKeyboard.singleton;
+    if (!keyboard) return;
     const keycap = keyboard.getKeycap(target.id);
 
     if (!keycap) return;
@@ -1202,7 +1207,7 @@ export function executeKeycapCommand(
       { focus: true, feedback: true, simulateKeystroke: true },
     ];
   }
-  VirtualKeyboard.singleton.executeCommand(command);
+  VirtualKeyboard.singleton?.executeCommand(command);
 }
 
 function isKeycapElement(el: Element): el is HTMLElement {
