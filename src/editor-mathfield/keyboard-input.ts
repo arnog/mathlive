@@ -63,6 +63,7 @@ export function onKeystroke(
     'keyboard-input.ts > \n\t 🔨 onKeyStroke >  🍔keystroke:',
     keystroke
   );
+  console.log('test');
 
   // 1. Update the keybindings according to the current keyboard layout
 
