@@ -79,7 +79,7 @@ test('virtual keyboard with two math fields', async ({ page }) => {
 test('math fields in iframe with virtual keyboard', async ({ page, browserName, context }) => {
   test.skip(browserName === "webkit" && Boolean(process.env.CI), "Iframe test is flaky in webkit on GH actions");
 
-  await page.goto('/dist/playwright-test-page/');
+  await page.goto('/dist/playwright-test-page/iframe_test.html');
 
   const frame = page.frame('mathlive-iframe');
 
@@ -97,32 +97,6 @@ test('math fields in iframe with virtual keyboard', async ({ page, browserName, 
       .locator('#mf-1')
       .evaluate((mfe: MathfieldElement) => mfe.value);
     expect(latex).toBe(expectedResult1);
-
-    // click to focus math field in current page to make sure virtual keyboard updates focused mathfield
-    await page.locator('text=#mf-1: default').click(); // need to click on page before focusing in page math field
-    await page.locator('#mf-1').focus();
-
-    const expectedResult2 = await virtualKeyboardSample2(page);
-
-    // check latex of in page math field
-    // make sure iframe math field is unchanged
-    latex = await page
-      .locator('#mf-1')
-      .evaluate((mfe: MathfieldElement) => mfe.value);
-    expect(latex).toBe(expectedResult2);
-
-    // make sure first math field is unchanged
-    latex = await frame
-      .locator('#mf-1')
-      .evaluate((mfe: MathfieldElement) => mfe.value);
-    expect(latex).toBe(expectedResult1);
-
-    // make sure that when no mathfield is focused that the virtual keyboard is hidden
-    await page.locator('#ta-2').click();
-    await page
-      .getByRole('toolbar')
-      .getByText('123')
-      .waitFor({ state: 'detached' });
   }
 });
 

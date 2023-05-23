@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<script type="module">
+  import { MathfieldElement } from '/dist/mathlive.mjs';
+</script>
+<body>
+  Iframe Test (same origin, virtual keyboard will work):
+  <iframe
+    src="http://127.0.0.1:9029/dist/playwright-test-page/"
+    name="mathlive-iframe"
+    width="100%"
+    height="500px"
+  >
+  </iframe>
+  
+  Iframe Test (cross-origin, virtual keyboard will not work):
+  <iframe
+    src="http://localhost:9029/dist/playwright-test-page/"
+    name="mathlive-iframe-cross-origin"
+    width="100%"
+    height="500px"
+  >
+  </iframe>
+</body>
+</html>
+
