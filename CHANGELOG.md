@@ -9,9 +9,10 @@
   
 ## Bug Fixes
 
+- **#1979** Vectors were displayed with an offset
 - **#1978** Pasting or inserting some content could result in a runtime error
 - **#1978** Text content was not properly serialized in a `\text{}` command
-
+- **#1682** Vectors (and other accents) are now spoken correctly
 
 ## 0.94.2 (2023-05-22)
 

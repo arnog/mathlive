@@ -268,6 +268,42 @@ function atomToSpeakableFragment(
     let supsubHandled = false;
     const { command } = atom;
 
+    switch (command) {
+      case '\\vec':
+        return 'vector ' + atomToSpeakableFragment(mode, atom.body);
+      case '\\acute':
+        return atomToSpeakableFragment(mode, atom.body) + ' acute';
+      case '\\grave':
+        return atomToSpeakableFragment(mode, atom.body) + ' grave';
+      case '\\dot':
+        return 'dot over' + atomToSpeakableFragment(mode, atom.body);
+      case '\\ddot':
+        return 'double dot over' + atomToSpeakableFragment(mode, atom.body);
+      case '\\mathring':
+        return 'ring over' + atomToSpeakableFragment(mode, atom.body);
+      case '\\tilde':
+      case '\\widetilde':
+        return 'tilde over' + atomToSpeakableFragment(mode, atom.body);
+      case '\\bar':
+        return atomToSpeakableFragment(mode, atom.body) + ' bar';
+      case '\\breve':
+        return atomToSpeakableFragment(mode, atom.body) + ' breve';
+      case '\\check':
+      case '\\widecheck':
+        return 'check over ' + atomToSpeakableFragment(mode, atom.body);
+      case '\\hat':
+      case '\\widehat':
+        return 'hat over' + atomToSpeakableFragment(mode, atom.body);
+
+      case '\\overarc':
+      case '\\overparen':
+      case '\\wideparen':
+        return 'arc over ' + atomToSpeakableFragment(mode, atom.body);
+      case '\\underarc':
+      case '\\underparen':
+        return 'arc under ' + atomToSpeakableFragment(mode, atom.body);
+    }
+
     switch (atom.type) {
       case 'prompt':
         const input =
@@ -282,12 +318,6 @@ function atomToSpeakableFragment(
           '. <break time="700ms"/>' +
           ((atom as PromptAtom).correctness ?? '') +
           ' . <break time="700ms"/> ';
-        break;
-      case 'accent':
-        if (command === '\\vec')
-          result += 'vector ' + atomToSpeakableFragment(mode, atom.body);
-
-        // @todo add support for other accents
         break;
       case 'array':
         const array = (atom as ArrayAtom).array;
