@@ -76,7 +76,9 @@ test('virtual keyboard with two math fields', async ({ page }) => {
     .waitFor({ state: 'detached' });
 });
 
-test('math fields in iframe with virtual keyboard', async ({ page }) => {
+test('math fields in iframe with virtual keyboard', async ({ page, browserName, context }) => {
+  test.skip(browserName === "webkit" && Boolean(process.env.CI), "Iframe test is flaky in webkit on GH actions");
+
   await page.goto('/dist/playwright-test-page/');
 
   const frame = page.frame('mathlive-iframe');

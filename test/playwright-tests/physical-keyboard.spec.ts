@@ -325,3 +325,68 @@ test('nested paranthesis', async ({ page }) => {
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
   ).toBe(String.raw`\left(\left(\left(x+y\right)-r\right)-1\right)+30`);
 });
+
+test('sqrt inline shortcut (#1975)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('sqrt22');
+  await page.locator('#mf-1').press('ArrowRight');
+  await page.locator('#mf-1').type('=x');
+
+  // check latex of result
+  expect(
+    await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
+  ).toBe(String.raw`\sqrt{22}=x`);
+});
+
+test('inline shortcut after long expression (#1978)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  const startingLatex = String.raw`x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}`;
+
+  await page.locator('#mf-1').evaluate((e: MathfieldElement, latex: string) => e.value = latex, startingLatex);
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('+alpha');
+
+  // check latex of result
+  expect(
+    await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
+  ).toBe(String.raw`x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}+\alpha`);
+});
+
+test('keyboard select than divide (#1981)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('x+y');
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+  await page.locator('#mf-1').type('/2');
+
+  // check latex of result
+  expect(
+    await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
+  ).toBe(String.raw`\frac{x+y}{2}`);
+});
+
+test('text mode serialization (#1978)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // use latex mode for math field with default settings
+  await page.locator('#mf-1').type('x+y');
+  await page.locator('#mf-1').press(`Shift+'`);
+  await page.locator('#mf-1').type(' Comment ');
+  await page.locator('#mf-1').press(`Shift+'`);
+  await page.locator('#mf-1').type('z-s');
+
+  // check latex of result
+  expect(
+    await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
+  ).toBe(String.raw`x+y\text{ Comment }z-s`);
+});
+
+
+
