@@ -265,7 +265,7 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
   /**
    * Return the content of the `\placeholder{}` command with the `placeholderId`
    */
-  getPromptValue(placeholderId: string): string;
+  getPromptValue(placeholderId: string, format?: OutputFormat): string;
 
   getPrompts(filter?: {
     id?: string;

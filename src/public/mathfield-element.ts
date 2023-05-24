@@ -1172,8 +1172,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     );
   }
 
-  getPromptValue(placeholderId: string): string {
-    return this._mathfield?.getPromptValue(placeholderId) ?? '';
+  getPromptValue(placeholderId: string, format?: OutputFormat): string {
+    return this._mathfield?.getPromptValue(placeholderId, format) ?? '';
   }
 
   /** Return the id of the prompts matching the filter */
