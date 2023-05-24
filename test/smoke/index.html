@@ -43,8 +43,7 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf"
-        >1+\colorbox{blue}{$2$}+3+\colorbox{red}{4}+\colorbox{green}{\ensuremath{4}}+\text{5+\colorbox{purple}{6}}</math-field
+      <math-field id="mf"></math-field
       >
       <!-- <math-field id="mf">1+\colorbox{blue}{\ensuremath{2}}+1+2</math-field> -->
 
@@ -184,7 +183,9 @@
       };
 
       mf.addEventListener('input', (ev) => {
-        console.log('input event');
+        // console.log('index.html > input event', ev);
+        // mf is a reference
+        // console.log("mf", mf);
         updateContent(mf);
       });
 
@@ -233,6 +234,8 @@
       // Handler called when the mathfield content has changed
       //
       function updateContent(mf) {
+        console.log("**** updated content!!***");
+
         const latex = mf.getValue('latex-expanded');
         try {
           setHtml('latex', mf.getValue('latex-expanded'));
@@ -242,6 +245,7 @@
           // setHtml('math-json', ce.parse(mf.value));
           setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
           const result = mf.expression?.evaluate().latex ?? '';
+          console.log('index.html > line 248 > result:', result);
           document.getElementById('result').innerText = result;
           document.getElementById('result-latex').innerText = `$$${result}$$`;
 

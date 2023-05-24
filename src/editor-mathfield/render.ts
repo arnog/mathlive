@@ -121,17 +121,20 @@ export function contentMarkup(
   //
 
   const { model } = mathfield;
-  console.log('contentMarkup > model > ', model);
+  console.log('---render.ts------ contentMarkup > model > ', model);
+  // model.atoms.forEach((atom) => {
+  //   console.log('render.ts > [line 126] > atom.id:', atom.id);
+  // });
+
   model.root.caret = undefined;
   model.root.isSelected = false;
   model.root.containsCaret = true;
   for (const atom of model.atoms) {
-    // console.log('atom:', atom);
+    console.log('atom:', atom);
     atom.caret = undefined;
     atom.isSelected = false;
     atom.containsCaret = false;
   }
-  console.log('--------------');
   if (model.selectionIsCollapsed) {
     const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
     if (hasFocus) {

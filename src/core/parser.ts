@@ -887,7 +887,6 @@ export class Parser {
     if (row.length > 0) array.push(row);
 
     this.endContext();
-
     return def.createAtom(envName, array, rowGaps, args);
   }
 
@@ -962,6 +961,7 @@ export class Parser {
     }
 
     this.endContext();
+    console.log('parser.ts > line 960 > result: ', result);
 
     return result;
   }
@@ -1637,8 +1637,11 @@ export class Parser {
       //  Invoke the createAtom() function if present
       if (typeof info.createAtom === 'function') {
         result = info.createAtom(command, args, this.style);
-        if (deferredArg)
+        console.log('-----parser.ts---- top result:', result);
+        if (deferredArg){
+          console.log('-----parser.ts----defferedArg: true');
           result!.body = argAtoms(this.scanArgument(deferredArg));
+        }
       } else if (typeof info.applyStyle === 'function') {
         const style = {
           ...this.style,
@@ -1700,6 +1703,7 @@ export class Parser {
       if (smartFence) return [result, smartFence];
     }
 
+    console.log('----parser.ts bottom result:', result);
     return [result];
   }
 
@@ -1803,6 +1807,7 @@ export class Parser {
     if (!result) return false;
     if (Array.isArray(result)) this.mathlist.push(...result);
     else this.mathlist.push(result);
+    console.log('parser.ts line 1809 - this.mathlist', this.mathlist);
     return true;
   }
 }
@@ -1834,6 +1839,7 @@ export function parseLatex(
 
   const atoms: Atom[] = [];
   while (!parser.end()) atoms.push(...parser.scan(() => false));
+  console.log('parser.ts > line 1840 > atoms: ', atoms);
   return atoms;
 }
 

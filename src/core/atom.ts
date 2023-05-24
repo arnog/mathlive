@@ -37,6 +37,7 @@ export * from './atom-class';
 export function fromJson(json: AtomJson): Atom;
 export function fromJson(json: AtomJson[]): Atom[];
 export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
+  console.log('atom.ts > fromJson with json', json);
   if (isArray<AtomJson>(json)) return json.map((x) => fromJson(x));
 
   if (typeof json === 'string') return Atom.fromJson(json);

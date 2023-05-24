@@ -15,6 +15,10 @@ export class PlaceholderAtom extends Atom {
       style: options?.style,
     });
     this.captureSelection = true;
+    console.log(
+      '-----PlaceholderAtom > constructor ------with mode:',
+      this.mode
+    );
   }
 
   static fromJson(json: AtomJson): PlaceholderAtom {
@@ -26,8 +30,10 @@ export class PlaceholderAtom extends Atom {
   }
 
   render(context: Context): Box {
+    console.log('--- placeholder.ts----- render');
     let result: Box;
     this.value = context.placeholderSymbol;
+
     if (typeof context.renderPlaceholder === 'function')
       result = context.renderPlaceholder(context);
     else result = this.createBox(context);
@@ -38,6 +44,7 @@ export class PlaceholderAtom extends Atom {
   }
 
   serialize(): string {
+    console.log('\tplaceholder.ts > serialize()');
     return '\\placeholder{}';
   }
 }

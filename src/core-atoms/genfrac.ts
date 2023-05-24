@@ -56,10 +56,6 @@ export class GenfracAtom extends Atom {
       displayContainsHighlight: true,
     });
     this.above = above;
-    console.log('----constructor----');
-    console.log('above:', above);
-    console.log('this.above:', this.above);
-
     this.below = below;
     this.hasBarLine = options?.hasBarLine ?? true;
     this.continuousFraction = options?.continuousFraction ?? false;
@@ -69,6 +65,10 @@ export class GenfracAtom extends Atom {
     this.leftDelim = options?.leftDelim;
     this.rightDelim = options?.rightDelim;
     this.fractionNavigationOrder = options?.fractionNavigationOrder;
+    console.log('--------genfrac.ts > constructor-------');
+    // console.log('above:', JSON.stringify(above));
+    console.log('this.above:', this.above);
+    console.log('this.below:', this.below);
   }
 
   static fromJson(json: AtomJson): GenfracAtom {
@@ -125,17 +125,17 @@ export class GenfracAtom extends Atom {
   }
 
   render(context: Context): Box | null {
-
-    console.log('genfrac.ts > render() with context:', context);
-    console.log('genfrac.ts > render() with this.above:', this.above);
-    // console.log('genfrac.ts > render() with this.below:', this.below);
+    console.log('--------genfrac.ts > render--------');
+    // console.log('genfrac.ts > render() with context:', context);
+    console.log('\tgenfrac.ts > render() with this.above:', this.above); //this is missing placeholder
+    console.log('\tgenfrac.ts > render() with this.below:', this.below);
 
     //either add placeHolderAtom or never delete it during delete keystroke
     //when u set a frac and its got a placeholder this.above looks like [Atom, PlaceholderAtom];
     //when you add number then delete it, it looks like [Atom]
 
     if (this.above?.length === 1) {
-      console.log('missing placeholder!');
+      // console.log('missing placeholder!');
     }
 
     const fracContext = new Context(

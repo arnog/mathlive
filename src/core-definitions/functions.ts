@@ -151,14 +151,9 @@ defineFunction(
   {
     ifMode: 'math',
     createAtom: (command, args, style) => {
-      console.log(
-        'funtions.ts > createAtom > with command:',
-        command,
-        'args',
-        args,
-        'style',
-        style
-      );
+      console.log('---------funtions.ts > createAtom-------');
+      console.warn('error!!');
+
       const genfracOptions: GenfracOptions = { style };
       switch (command) {
         case '\\dfrac':
@@ -194,19 +189,28 @@ defineFunction(
           break;
         default:
       }
+      //when we enter a fraction "/" then enter a numberator then delete it the numerator, the placeholder is missing
 
-      console.log('functions.ts > with args[0]', args[0], 'args[1]', args[1]);
-      console.log('!args[0]', args[0]);
-
+      //replace !args=0] with an isEmpty function - if falsy or empty object
+      let numerEmpty = false;
+      if (args[0]) {
+        numerEmpty = args[0]['group'].length === 0;
+        console.log('numeratorEmpty:', numerEmpty);
+      }
       return new GenfracAtom(
         command,
-        !args[0] ? [new PlaceholderAtom()] : argAtoms(args[0]), //if empty put placeholder
+        numerEmpty ? [new PlaceholderAtom()] : argAtoms(args[0]),
+        // !args[0] ? [new PlaceholderAtom()] : argAtoms(args[0]), //old
         !args[1] ? [new PlaceholderAtom()] : argAtoms(args[1]),
         genfracOptions
       );
     },
     serialize: (atom, options) => {
-      const numer = atom.aboveToLatex(options);
+      let numer = atom.aboveToLatex(options);
+
+      // if (numer === '') numer = '\\placeholder{}'; //delete
+      // console.log('serialize with numer:', numer);
+
       const denom = atom.belowToLatex(options);
       // Special case serialization when numer and denom are digits
       if (/^[0-9]$/.test(numer) && /^[0-9]$/.test(denom))
