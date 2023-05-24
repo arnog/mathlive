@@ -1,3 +1,9 @@
+## [Unreleased]
+
+## Bug Fix
+
+- The selection in read only mathfield was no longer visible.
+
 ## 0.94.3 (2023-05-22)
 
 ## Improvements

@@ -220,8 +220,6 @@ export function renderSelection(
   ))
     element.remove();
 
-  if (!mathfield.hasFocus()) return;
-
   if (
     !(interactive ?? false) &&
     gFontsState !== 'error' &&
