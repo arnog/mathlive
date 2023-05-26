@@ -46,18 +46,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: '[Pageup]', command: 'moveToGroupStart' },
   { key: '[Pagedown]', command: 'moveToGroupEnd' },
 
-  { key: '[Tab]', ifMode: 'math', command: 'moveToNextPlaceholder' },
+  { key: '[Tab]', command: 'moveToNextGroup' },
   {
     key: 'shift+[Tab]',
     ifMode: 'math',
-    command: 'moveToPreviousPlaceholder',
-  },
-
-  { key: '[Tab]', ifMode: 'text', command: 'moveToNextPlaceholder' },
-  {
-    key: 'shift+[Tab]',
-    ifMode: 'text',
-    command: 'moveToPreviousPlaceholder',
+    command: 'moveToPreviousGroup',
   },
 
   { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'latex'] },

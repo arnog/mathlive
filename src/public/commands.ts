@@ -262,6 +262,14 @@ export interface Commands {
   /**
    * @category Selection
    */
+  moveToNextGroup: (model: Model) => boolean;
+  /**
+   * @category Selection
+   */
+  moveToPreviousGroup: (model: Model) => boolean;
+  /**
+   * @category Selection
+   */
   moveToMathfieldStart: (model: Model) => boolean;
   /**
    * @category Selection

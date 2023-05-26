@@ -472,6 +472,72 @@ register(
       model.mathfield.stopCoalescingUndo();
       return true;
     },
+    moveToNextGroup: (model: ModelPrivate): boolean => {
+      let atom = model.at(model.position);
+      const mode = atom.mode;
+      if (mode === 'text') {
+        // Move to first non-text atom
+        while (atom && atom.mode === 'text') atom = atom.rightSibling;
+        if (!atom) return leap(model, 'forward');
+        model.position = model.offsetOf(atom.leftSibling);
+        return true;
+      }
+      if (mode === 'math') {
+        const parent = atom.parent;
+        if (parent) {
+          // If in an atom with a supsub, try subsup
+          if (atom.parentBranch === 'superscript' && parent.subscript) {
+            model.position = model.offsetOf(parent.subscript[0]);
+            return true;
+          }
+          if (atom.parentBranch === 'above' && parent.below) {
+            model.position = model.offsetOf(parent.below[0]);
+            return true;
+          }
+          if (
+            atom.parentBranch === 'subscript' ||
+            atom.parentBranch === 'below'
+          ) {
+            model.position = model.offsetOf(parent);
+            return true;
+          }
+        }
+      }
+      return leap(model, 'forward');
+    },
+    moveToPreviousGroup: (model: ModelPrivate): boolean => {
+      let atom = model.at(model.position);
+      const mode = atom.mode;
+      if (mode === 'text') {
+        // Move to first text atom
+        while (atom && atom.mode === 'text') atom = atom.leftSibling;
+        if (!atom) return leap(model, 'backward');
+        model.position = model.offsetOf(atom);
+        return true;
+      }
+      if (mode === 'math') {
+        const parent = atom.parent;
+        if (parent) {
+          // If in an atom with a supsub, try subsup
+          if (atom.parentBranch === 'subscript' && parent.superscript) {
+            model.position = model.offsetOf(parent.superscript[0]);
+            return true;
+          }
+          if (atom.parentBranch === 'below' && parent.above) {
+            model.position = model.offsetOf(parent.above[0]);
+            return true;
+          }
+          if (
+            atom.parentBranch === 'superscript' ||
+            atom.parentBranch === 'above'
+          ) {
+            model.position = model.offsetOf(parent.leftSibling);
+            return true;
+          }
+        }
+      }
+      return leap(model, 'backward');
+    },
     moveToMathfieldStart: (model: ModelPrivate): boolean => {
       if (model.position === 0) {
         model.announce('plonk');
