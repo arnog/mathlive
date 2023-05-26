@@ -46,7 +46,7 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf" readonly>x+1</math-field>
+      <math-field id="mf">x^2+1</math-field>
 
       <!-- <math-field id="mf"
         >\colorbox{yellow}{$\cos^2(x)+\textcolor{red}{\sin^{-1}(x)}$}</math-field
@@ -65,8 +65,8 @@
         <div id="result-latex"></div>
       </div>
 
-      <h2>MathASCII</h2>
-      <div class="output" id="mathascii"></div>
+      <h2>ASCII Math</h2>
+      <div class="output" id="ascii-math"></div>
 
       <h2>MathML</h2>
       <div class="output" id="mathml"></div>
@@ -212,7 +212,7 @@
         try {
           setHtml('latex', mf.getValue('latex-expanded'));
           setHtml('math-json', mf.getValue('math-json'));
-          setHtml('mathascii', mf.getValue('ascii-math'));
+          setHtml('ascii-math', mf.getValue('ascii-math'));
           setHtml('mathml', mf.getValue('math-ml'));
           // setHtml('math-json', ce.parse(mf.value));
           setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
