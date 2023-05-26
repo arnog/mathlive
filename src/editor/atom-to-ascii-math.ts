@@ -127,6 +127,8 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
   const { command } = atom;
   let m;
 
+  if (command === '\\placeholder') return `(${atomToAsciiMath(atom.body)})`;
+
   switch (atom.type) {
     case 'first':
       return '';

@@ -1,6 +1,14 @@
+## [Unreleased]
+
+### Bug Fixes
+
+- Only display seletion when the mathfield is focused
+- **#1985** Add option for output format of `getPromptValue()`
+- **#1985** Return Ascii Math output for prompts/placeholders.
+
 ## 0.94.5 (2023-05-24)
 
-## Bug Fix
+### Bug Fix
 
 - The selection in read only mathfield was no longer visible.
 
@@ -3344,7 +3352,7 @@ The following functions have been renamed:
 - Fixed an issue where the alphabetic 'sans' keys on the virtual keyboard output
   blackboard.
 - Fixed an issue where the `\mleft.` and `\mright.` commands would not be
-  rendered correctly (or propertly converted to MathASCII).
+  rendered correctly (or propertly converted to ASCIIMath).
   (https://github.com/benetech/MathShare/issues/1182)
 
 ## 0.50 (May 4, 2020)

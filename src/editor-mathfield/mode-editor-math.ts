@@ -148,7 +148,7 @@ export class MathModeEditor extends ModeEditor {
 
     //
     // 4/ If that didn't work, try some plain text
-    // (could be LaTeX, could be MathASCII)
+    // (could be LaTeX, could be ASIIMath)
     //
     if (!text)
       text = typeof data === 'string' ? data : data.getData('text/plain');
