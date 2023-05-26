@@ -6,6 +6,11 @@
 - **#1985** Add option for output format of `getPromptValue()`
 - **#1985** Return Ascii Math output for prompts/placeholders.
 
+### Feature
+
+- Pressing the tab key will move to the "next group" in the mathfield, if 
+  possible.
+
 ## 0.94.5 (2023-05-24)
 
 ### Bug Fix

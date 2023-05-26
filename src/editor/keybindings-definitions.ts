@@ -30,9 +30,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'shift+ctrl+[ArrowLeft]', command: 'extendToGroupStart' },
   { key: 'shift+ctrl+[ArrowRight]', command: 'extendToGroupEnd' },
 
-  { key: '[Space]', ifMode: 'math', command: 'moveAfterParent' },
-  { key: 'shift+[Space]', ifMode: 'math', command: 'moveBeforeParent' },
-
   { key: '[Home]', command: 'moveToMathfieldStart' },
   { key: 'cmd+[ArrowLeft]', command: 'moveToMathfieldStart' },
   { key: 'shift+[Home]', command: 'extendToMathFieldStart' },
