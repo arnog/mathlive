@@ -24,7 +24,7 @@ import { defineFunction } from './definitions-utils';
 export class ChemAtom extends Atom {
   private arg: string;
   constructor(command: string, arg: string) {
-    super('chem', { command, mode: 'math' });
+    super({ type: 'chem' }, { command, mode: 'math' });
     const tex = texify.go(
       mhchemParser.go(arg, command === '\\pu' ? 'pu' : 'ce'),
       false
