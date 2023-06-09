@@ -88,9 +88,9 @@ let gInjectedStylesheets: Partial<Record<StylesheetId, number>>;
 
 export function injectStylesheet(id: StylesheetId): void {
   if (!('adoptedStyleSheets' in document)) {
-    if (window.document.getElementById(id)) return;
+    if (window.document.getElementById(`mathlive-style-${id}`)) return;
     const styleNode = window.document.createElement('style');
-    styleNode.id = id;
+    styleNode.id = `mathlive-style-${id}`;
     styleNode.append(window.document.createTextNode(getStylesheetContent(id)));
     window.document.head.appendChild(styleNode);
     return;
