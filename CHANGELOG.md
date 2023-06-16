@@ -1,3 +1,9 @@
+## [Unreleased]
+
+## Improvements
+
+- On RTL system, do not flip the direction of the virtual keyboard keycaps rows
+
 ## 0.94.7 (2023-06-08)
 
 ## Improvements
