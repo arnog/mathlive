@@ -13,7 +13,7 @@ context({
     './test/mathfield-states/index.html',
     './test/prompts/index.html',
     './test/playwright-test-page/index.html',
-    './test/playwright-test-page/iframe_test.html'
+    './test/playwright-test-page/iframe_test.html',
   ],
   outdir: './dist',
   loader: {
@@ -36,10 +36,12 @@ context({
   sourceRoot: '../src',
   sourcesContent: false,
 }).then((ctx) =>
-  ctx.serve({ host: '127.0.0.1', port: 9029, servedir: '.' }).then(({ host, port }) => {
-    if (host === '0.0.0.0') host = 'localhost';
-    console.log(
-      ` 🚀 Server ready \u001b[1;35m http://${host}:${port}/dist/smoke/\u001b[0m`
-    );
-  })
+  ctx
+    .serve({ host: '127.0.0.1', port: 9029, servedir: '.' })
+    .then(({ host, port }) => {
+      if (host === '0.0.0.0') host = 'localhost';
+      console.log(
+        ` 🚀 Server ready \u001b[1;35m http://${host}:${port}/dist/smoke/\u001b[0m`
+      );
+    })
 );

@@ -5,15 +5,15 @@ set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 # set -x    # for debuging, trace what is being executed.
 
-export EMPH="\033[33m"
 
 export BASENAME="\033[40m MathLive \033[0;0m " # `basename "$0"`
-export DOT="\033[32m 羽 \033[0;0m" # Hourglass
 export CHECK="\033[32m ✔ \033[0;0m"
 export DIM="\033[0;2m"
-export RESET="\033[0;0m"
+export DOT="\033[32m 羽 \033[0;0m" # Hourglass
+export EMPH="\033[33m"
 export ERROR="\033[31;7m ERROR \033[0;0m"
 export LINECLEAR="\033[1G\033[2K" # position to column 1; erase whole line
+export RESET="\033[0;0m"
 
 cd "$(dirname "$0")/.."
 
