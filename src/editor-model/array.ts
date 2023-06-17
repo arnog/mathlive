@@ -164,13 +164,13 @@ function parentArray(
       let array: ArrayAtom;
       if (where.endsWith('column')) {
         array = makeEnvironment('split', [[firstCell, secondCell]]);
-        model.root = array;
+        model.root.body = [array];
         if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
         else if (isPlaceholderCell(array, 0, 1)) selectCell(model, array, 0, 1);
         else model.position = model.offsetOf(cursor);
       } else {
         array = makeEnvironment('lines', [[firstCell], [secondCell]]);
-        model.root = array;
+        model.root.body = [array];
         if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
         else if (isPlaceholderCell(array, 1, 0)) selectCell(model, array, 1, 0);
         else model.position = model.offsetOf(cursor);
