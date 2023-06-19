@@ -772,7 +772,7 @@ function atomToMathML(atom, options): string {
     case 'leftright':
       result = '<mrow>';
       if (atom.leftDelim && atom.leftDelim !== '.') {
-        result += `<mo${makeID(atom.id, options)}${
+        result += `<mo${makeID(atom.id, options)}>${
           SPECIAL_DELIMS[atom.leftDelim] ?? atom.leftDelim
         }</mo>`;
       }
