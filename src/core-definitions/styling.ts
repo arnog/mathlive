@@ -984,7 +984,8 @@ defineFunction('rule', '[raise:value]{width:value}{thickness:value}', {
 
 // An overline
 defineFunction(['overline', 'underline'], '{:auto}', {
-  createAtom: (options) => new Atom(options),
+  createAtom: (options) =>
+    new Atom({ ...options, body: argAtoms(options.args![0]) }),
   render: (atom, parentContext) => {
     const position = atom.command.substring(1);
     // TeXBook:443. Rule 9 and 10

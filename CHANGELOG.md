@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bug Fixed
+
+- **#2008** The `\underline` and `\overline` commands now render correctly.
+
 ## 0.94.6 (2023-05-25)
 
 ### Bug Fixes
