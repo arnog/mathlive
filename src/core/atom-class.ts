@@ -200,6 +200,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   // Verbatim LaTeX of the command and its arguments
   // Note that the empty string is a valid verbatim LaTeX, so it's important
   // to distinguish between `verbatimLatex === undefined` and `typeof verbatimLatex === 'string'`
+
   verbatimLatex: string | undefined;
 
   mode: ParseMode;
@@ -282,7 +283,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     this.verbatimLatex = options.verbatimLatex ?? undefined;
     if (options.args) this.args = options.args;
     if (options.body) this.body = options.body;
-    if (this.type === 'root') this._changeCounter = 0;
+    this._changeCounter = 0;
   }
 
   /**
@@ -425,17 +426,17 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
 
   set isDirty(dirty: boolean) {
     if (dirty) {
-      if (this.type === 'root') this._changeCounter++;
+      if (!this.parent) this._changeCounter++;
       if ('verbatimLatex' in this) this.verbatimLatex = undefined;
       this._children = undefined;
 
-      let { parent } = this;
-      while (parent) {
-        if (parent.type === 'root') parent._changeCounter++;
-        if ('verbatimLatex' in parent) parent.verbatimLatex = undefined;
-        parent._children = undefined;
+      let { parent: atom } = this;
+      while (atom) {
+        if (!atom.parent) atom._changeCounter++;
+        if ('verbatimLatex' in atom) atom.verbatimLatex = undefined;
+        atom._children = undefined;
 
-        parent = parent.parent;
+        atom = atom.parent;
       }
     }
   }

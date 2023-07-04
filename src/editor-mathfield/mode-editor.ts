@@ -117,8 +117,11 @@ export class ModeEditor {
       //
       // 4. Put serialized atoms on clipboard
       //
-      if (atoms.length === 1 && (!atoms[0].parent || atoms[0].type === 'group'))
-        atoms = atoms[0].body!.filter((x) => x.type !== 'first');
+      if (atoms.length === 1) {
+        const atom = atoms[0];
+        if (atom.type === 'root' || atom.type === 'group')
+          atoms = atom.body!.filter((x) => x.type !== 'first');
+      }
       try {
         ev.clipboardData.setData(
           'application/json+mathlive',
