@@ -7,6 +7,7 @@ import type { InlineShortcutDefinitions } from '../public/options';
 export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '&': '\\&',
   '%': '\\%',
+  '$': '\\$',
 
   // Primes
   "''": '^{\\doubleprime}',
