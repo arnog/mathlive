@@ -4,6 +4,11 @@
 ### Improvements
 
 - Improved behavior when pressing the tab key
+- **#2015** New `environmentPopoverPolicy` option. Set to:
+  - `"auto"` to show environment popover when inside a tabular environment and
+    the virtual keyboard is visible (current behavior)
+  - `"on"` to show it when in a tabular environment
+  - `"off"` to never show it
   
 ### Bugs Fixed
 

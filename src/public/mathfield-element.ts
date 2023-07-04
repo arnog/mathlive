@@ -2001,6 +2001,13 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ popoverPolicy: value });
   }
 
+  get environmentPopoverPolicy(): 'auto' | 'off' | 'on' {
+    return this._getOption('environmentPopoverPolicy');
+  }
+  set environmentPopoverPolicy(value: 'auto' | 'off' | 'on') {
+    this._setOptions({ environmentPopoverPolicy: value });
+  }
+
   get mathVirtualKeyboardPolicy(): VirtualKeyboardPolicy {
     return this._getOption('mathVirtualKeyboardPolicy');
   }

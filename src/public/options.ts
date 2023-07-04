@@ -423,12 +423,20 @@ export type EditingOptions = {
   placeholderSymbol: string;
 
   /**
-   * If `true` a popover with suggestions may be displayed when a LaTeX
+   * If `"auto"` a popover with suggestions may be displayed when a LaTeX
    * command is input.
    *
-   * **Default**: `true`
+   * **Default**: `"auto"`
    */
   popoverPolicy: 'auto' | 'off';
+
+  /**
+   * If `"auto"` a popover with commands to edit an environment (matrix)
+   * is displayed when the virtual keyboard is displayed.
+   *
+   * **Default**: `"auto"`
+   */
+  environmentPopoverPolicy: 'auto' | 'on' | 'off';
 
   mathVirtualKeyboardPolicy: 'auto' | 'manual' | 'sandboxed';
 };

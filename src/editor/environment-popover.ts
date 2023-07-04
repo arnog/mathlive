@@ -312,9 +312,15 @@ export function environmentPopoverIsVisible(): boolean {
 export function updateEnvironmentPopover(mf: MathfieldPrivate): void {
   if (!mf.hasFocus()) return;
   let visible = false;
-  if (mf.model.mode === 'math' && window.mathVirtualKeyboard.visible) {
+  if (mf.model.mode === 'math') {
     const env = mf.model.parentEnvironment;
-    visible = !!env?.array && isTabularEnvironment(env.environmentName);
+    if (!!env?.array && isTabularEnvironment(env.environmentName)) {
+      // The focus is inside a tabular environment
+      const policy = mf.options.environmentPopoverPolicy;
+      visible =
+        (policy === 'auto' && window.mathVirtualKeyboard.visible) ||
+        policy === 'on';
+    }
   }
   if (visible) showEnvironmentPopover(mf);
   else hideEnvironmentPopover();

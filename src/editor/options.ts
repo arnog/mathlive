@@ -143,6 +143,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     mathModeSpace: '',
     placeholderSymbol: '▢',
     popoverPolicy: 'auto',
+    environmentPopoverPolicy: 'auto',
 
     keybindings: DEFAULT_KEYBINDINGS,
 
