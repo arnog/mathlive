@@ -970,8 +970,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
       window.MathfieldElement.playSound('keypress');
     }
 
-    if (options.scrollIntoView) this.scrollIntoView();
-
     if (s === '\\\\') {
       // This string is interpreted as an "insert row after" command
       addRowAfter(this.model);
@@ -990,6 +988,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.snapshot(`insert-${this.model.at(this.model.position).type}`);
 
     requestUpdate(this);
+    if (options.scrollIntoView) this.scrollIntoView();
+
     return true;
   }
 

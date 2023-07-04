@@ -5,12 +5,16 @@
 
 - Improved behavior when pressing the tab key
   
-### Bug Fixed
+### Bugs Fixed
 
 - **#2008** The `\underline` and `\overline` commands now render correctly.
 - **#1996**, **#2025** MathML output could occasionally be incorrect for the  
   `\left...\right` command
 - **#2009** Chemical equations did not render correctly
+- **#1990** The closing delimiter of a `\left...\right` command was incorrectly
+  adopting the style of the last atom inside the command.
+- **#2044** When overflowing the mathfield using the virtual keyboard, the 
+  caret would be hidden from view.
 
 ## 0.94.8 (2023-06-15)
 
@@ -242,8 +246,7 @@
 ### Bug Fixes
 - Update editing toolbar when virtual keyboard is made visible
 - **#1919** Correctly position the popover panel above or below the mathfield based on the space available. Allow for more suggestions to be displayed, and include a scrollbar when necessary.
-- **#1990** The closing delimiter of a `\left...\right` command was incorrectly
-  adopting the style of the last atom inside the command.
+  
 ## 0.91.1 (2023-04-05)
 
 ### Bug Fix
