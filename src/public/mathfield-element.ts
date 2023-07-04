@@ -956,16 +956,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (this._computeEngine === undefined) {
       const ComputeEngineCtor =
         window[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
-      if (ComputeEngineCtor) this._computeEngine = new ComputeEngineCtor();
-      else {
-        console.error(
-          `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
-          
-          Load the library, for example with:
-          
-          import "https://unpkg.com/@cortex-js/compute-engine?module"`
-        );
-      }
+
+      if (!ComputeEngineCtor) return null;
+
+      this._computeEngine = new ComputeEngineCtor();
+
       if (this._computeEngine && this.decimalSeparator === ',')
         this._computeEngine.latexOptions.decimalMarker = '{,}';
     }
@@ -1225,6 +1220,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         
         import "https://unpkg.com/@cortex-js/compute-engine?module"`
       );
+      return null;
     }
     return this._mathfield.expression;
   }
