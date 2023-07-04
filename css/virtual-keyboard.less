@@ -43,18 +43,19 @@
   --_padding-bottom: var(--keyboard-padding-bottom, 0px);
 
   --_row-padding-left: var(--keyboard-row-padding-left, 0px);
-  --_row-padding-left: var(--keyboard-row-padding-right, 0px);
+  --_row-padding-right: var(--keyboard-row-padding-right, 0px);
 
   --_toolbar-text:var(--keyboard-toolbar-text,  #2c2e2f);
   --_toolbar-text-active: var(--keyboard-toolbar-text-active, var(--_accent-color));
   --_toolbar-background:var(--keyboard-toolbar-background, transparent);
   --_toolbar-background-hover: var(--keyboard-toolbar-background-hover, #eee);
   --_toolbar-background-selected: var(--keyboard-toolbar-background-selected, transparent);
+  --_toolbar-font-size:var(--keyboard-toolbar-font-size, "135%");
 
   --_horizontal-rule: var(--keyboard-horizontal-rule, 1px solid #fff);
 
   --_keycap-background:var(--keycap-background,  white);
-  --_keycap-background-hover:var(--keycap-background,  #f5f5f7); ;
+  --_keycap-background-hover:var(--keycap-background-hover,  #f5f5f7); ;
   --_keycap-background-active: var(--keycap-background-active, var(--_accent-color));
   --_keycap-background-pressed: var(--keycap-background-pressed, var(--_accent-color));
   --_keycap-border: var(--keycap-border, #e5e6e9);
@@ -86,7 +87,7 @@
   --_keycap-extra-small-font-size: var(--keycap-extra-small-font-size, calc(var(--keycap-font-size) / 1.42));
 
   --_variant-panel-background: var(--variant-panel-background,  #fff);
-  --_variant-keycap-text: var(--variant-keycap-textvar, var(--_keycap-text));
+  --_variant-keycap-text: var(--variant-keycap-text, var(--_keycap-text));
   --_variant-keycap-text-active: var(--variant-keycap-text-active, var(--_keycap-text-active));
   --_variant-keycap-background-active: var(--variant-keycap-background-active, var(--_accent-color));
 
@@ -94,7 +95,7 @@
   --_variant-keycap-font-size: var(--variant-keycap-font-size, 30px);
   --_variant-keycap-aside-font-size: var(--variant-keycap-aside-font-size, 12px);
 
-  --_keycap-shift-font-size: var(--variant-keycap-font-size, 16px);
+  --_keycap-shift-font-size: var(--keycap-shift-font-size, 16px);
   --_keycap-shift-color: var(--keycap-shift-color, var(--_accent-color));
 
   --_box-placeholder-color: var(--box-placeholder-color, var(--_accent-color));
@@ -378,22 +379,22 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
     }
     .w5 {
       width: calc(
-        ~'min(var(--_keycap-max-width, 100px), 10cqw)' / 2 - var(--_keycap-gap);
+        ~'min(var(--_keycap-max-width, 100px), 10%)' / 2 - var(--_keycap-gap);
       );
     }
     .w15 {
       width: calc(
-        1.5 * ~'min(var(--_keycap-max-width, 100px), 10cqw)' - var(--_keycap-gap);
+        1.5 * ~'min(var(--_keycap-max-width, 100px), 10%)' - var(--_keycap-gap);
       );
     }
     .w20 {
       width: calc(
-        2 * ~'min(var(--_keycap-max-width, 100px), 10cqw)' -  var(--_keycap-gap);
+        2 * ~'min(var(--_keycap-max-width, 100px), 10%)' -  var(--_keycap-gap);
       );
     }
     .w50 {
       width: calc(
-        5 * ~'min(var(--_keycap-max-width, 100px), 10cqw)' -  var(--_keycap-gap);
+        5 * ~'min(var(--_keycap-max-width, 100px), 10%)' -  var(--_keycap-gap);
       );
     }
     .MLK__keycap.w50 {
@@ -480,7 +481,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
       align-items: center;
       justify-content: space-evenly;
 
-      width: calc(~'min(var(--_keycap-max-width), 10cqw)' - var(--_keycap-gap));
+      width: calc(~'min(var(--_keycap-max-width), 10%)' - var(--_keycap-gap));
       height: var(--_keycap-height);
       box-sizing: border-box;
       padding: 0;
@@ -653,7 +654,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     color: var(--_toolbar-text);
     fill: currentColor;
     background: var(--_toolbar-background);
-    font-size: 135%;
+    font-size: var(--_toolbar-font-size);
     padding: 4px 15px;
     cursor: pointer;
     width: max-content;

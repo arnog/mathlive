@@ -38,7 +38,7 @@ import { defaultReadAloudHook } from '../editor/speech-read-aloud';
 import type { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { l10n } from '../core/l10n';
-import { getStylesheet } from 'common/stylesheet';
+import { getStylesheet, getStylesheetContent } from 'common/stylesheet';
 
 export declare type Expression =
   | number
@@ -1126,13 +1126,20 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     this.attachShadow({ mode: 'open', delegatesFocus: true });
-    this.shadowRoot!.adoptedStyleSheets = [
-      getStylesheet('core'),
-      getStylesheet('mathfield'),
-      getStylesheet('mathfield-element'),
-    ];
-    this.shadowRoot!.innerHTML = `<span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
-    // this.shadowRoot!.append(MATHFIELD_TEMPLATE!.content.cloneNode(true));
+    if (this.shadowRoot && 'adoptedStyleSheets' in this.shadowRoot) {
+      this.shadowRoot!.adoptedStyleSheets = [
+        getStylesheet('core'),
+        getStylesheet('mathfield'),
+        getStylesheet('mathfield-element'),
+      ];
+      this.shadowRoot!.innerHTML = `<span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
+    } else {
+      this.shadowRoot!.innerHTML = `<style>${getStylesheetContent(
+        'core'
+      )}${getStylesheetContent('mathfield')}${getStylesheetContent(
+        'mathfield-element'
+      )}</style><span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
+    }
 
     // Record the (optional) configuration options, as a deferred state
     if (options) this._setOptions(options);

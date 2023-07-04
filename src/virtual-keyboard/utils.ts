@@ -590,7 +590,7 @@ function makeLayer(
   if (layer.rows) {
     layerMarkup += `<div class='MLK__rows'>`;
     for (const row of layer.rows) {
-      layerMarkup += `<div class=row>`;
+      layerMarkup += `<div dir='ltr' class=row>`;
       for (const keycap of row) {
         if (keycap) {
           const keycapId = keyboard.registerKeycap(keycap);
