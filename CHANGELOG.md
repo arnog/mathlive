@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+
+### Improvements
+
+- Improved behavior when pressing the tab key
+  
 ### Bug Fixed
 
 - **#2008** The `\underline` and `\overline` commands now render correctly.

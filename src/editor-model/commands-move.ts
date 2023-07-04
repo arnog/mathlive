@@ -275,6 +275,49 @@ function getTabbableElements(): HTMLElement[] {
   return tabbable(document.body);
 }
 
+// Select all the children of an atom, or a branch
+function select(
+  model: ModelPrivate,
+  target: Atom | Atom[],
+  direction: 'backward' | 'forward' = 'forward'
+): boolean {
+  const previousPosition = model.position;
+  if (Array.isArray(target)) {
+    // The target is a branch. Select all the atoms in the branch
+    const first = model.offsetOf(target[0]);
+    const last = model.offsetOf(target[target.length - 1]);
+    if (direction === 'forward') model.setSelection(first, last);
+    else model.setSelection(last, first);
+    model.announce('move', previousPosition);
+    model.mathfield.stopCoalescingUndo();
+    return true;
+  }
+  if (direction === 'forward')
+    return select(model, [target.leftSibling, target]);
+  return select(model, [target, target.leftSibling]);
+}
+
+function leapTo(model: ModelPrivate, target: Atom | number): boolean {
+  const previousPosition = model.position;
+
+  if (typeof target === 'number') target = model.at(target);
+  // Set the selection to the next leap target
+  if (target.type === 'prompt') {
+    model.setSelection(
+      model.offsetOf(target.firstChild),
+      model.offsetOf(target.lastChild)
+    );
+  } else {
+    const newPosition = model.offsetOf(target);
+    if (target.type === 'placeholder')
+      model.setSelection(newPosition - 1, newPosition);
+    else model.position = newPosition;
+  }
+  model.announce('move', previousPosition);
+  model.mathfield.stopCoalescingUndo();
+  return true;
+}
+
 /**
  * Move to the next/previous leap target: placeholder, editable prompt or
  * empty child list.
@@ -300,20 +343,7 @@ function leap(
     else origin = model.offsetOf(parentPrompt.leftSibling);
   } else origin = Math.max(model.position + dist, 0);
 
-  // Candidate leap targets are atoms of type 'placeholder' or
-  // 'prompt' or empty children list (except for the root:
-  // if the root is empty, it is not a valid leap target)
-  const target = model.findAtom(
-    (atom) =>
-      atom.type === 'placeholder' ||
-      atom.type === 'prompt' ||
-      (!model.mathfield.readOnly &&
-        atom.treeDepth > 2 &&
-        atom.isFirstSibling &&
-        atom.isLastSibling),
-    origin,
-    dir
-  );
+  const target = leapTarget(model, origin, dir);
 
   // If no leap target was found, call handler or move to the next focusable
   // element in the document
@@ -360,23 +390,32 @@ function leap(
     return true;
   }
 
-  // Set the selection to the next placeholder
-  const previousPosition = model.position;
-  if (target.type === 'prompt') {
-    model.setSelection(
-      model.offsetOf(target.firstChild),
-      model.offsetOf(target.lastChild)
-    );
-  } else {
-    const newPosition = model.offsetOf(target);
-    if (target.type === 'placeholder')
-      model.setSelection(newPosition - 1, newPosition);
-    else model.position = newPosition;
-  }
-  model.announce('move', previousPosition);
+  // Set the selection to the next leap target
+  leapTo(model, target);
 
-  model.mathfield.stopCoalescingUndo();
   return true;
+}
+
+// Candidate leap targets are atoms of type 'placeholder' or
+// 'prompt' or empty children list (except for the root:
+// if the root is empty, it is not a valid leap target)
+
+function leapTarget(
+  model: ModelPrivate,
+  origin = 0,
+  dir: 'forward' | 'backward' = 'forward'
+): Atom | undefined {
+  return model.findAtom(
+    (atom) =>
+      atom.type === 'placeholder' ||
+      atom.type === 'prompt' ||
+      (!model.mathfield.readOnly &&
+        atom.treeDepth > 2 &&
+        atom.isFirstSibling &&
+        atom.isLastSibling),
+    origin,
+    dir
+  );
 }
 
 /**
@@ -473,70 +512,196 @@ register(
       return true;
     },
     moveToNextGroup: (model: ModelPrivate): boolean => {
-      let atom = model.at(model.position);
+      //
+      // 1/ If at the end of the matfield, leap to next tabbable element
+      //
+      if (
+        model.position === model.lastOffset &&
+        model.anchor === model.lastOffset
+      )
+        return leap(model, 'forward');
+
+      //
+      // 2/ If in text zone, move to first non-text atom
+      //
+      const atom = model.at(model.position);
       const mode = atom.mode;
       if (mode === 'text') {
-        // Move to first non-text atom
-        while (atom && atom.mode === 'text') atom = atom.rightSibling;
-        if (!atom) return leap(model, 'forward');
-        model.position = model.offsetOf(atom.leftSibling);
-        return true;
-      }
-      if (mode === 'math') {
-        const parent = atom.parent;
-        if (parent) {
-          // If in an atom with a supsub, try subsup
-          if (atom.parentBranch === 'superscript' && parent.subscript) {
-            model.position = model.offsetOf(parent.subscript[0]);
+        if (model.selectionIsCollapsed) {
+          // 2.1/ Select entire zone
+          let first = atom;
+          while (first && first.mode === 'text') first = first.leftSibling;
+          let last = atom;
+          while (last.rightSibling?.mode === 'text') last = last.rightSibling;
+          if (first && last) return select(model, [first, last]);
+        }
+        if (atom.rightSibling.mode === 'text') {
+          let next = atom;
+          while (next && next.mode === 'text') next = next.rightSibling;
+          // Leap to after text zone
+          if (next) {
+            leapTo(model, next.leftSibling ?? next);
+            model.mathfield.switchMode('math');
             return true;
           }
-          if (atom.parentBranch === 'above' && parent.below) {
-            model.position = model.offsetOf(parent.below[0]);
-            return true;
-          }
-          if (
-            atom.parentBranch === 'subscript' ||
-            atom.parentBranch === 'below'
-          ) {
-            model.position = model.offsetOf(parent);
-            return true;
-          }
+          // If text zone is last zone, move to end of mathfield
+          return leapTo(model, model.lastOffset);
         }
       }
-      return leap(model, 'forward');
+
+      //
+      // 3/ Find a placeholder, a prompt or empty group.
+      // They have priority over other options below
+      //
+      const target = leapTarget(model, model.position + 1, 'forward');
+      if (target) return leapTo(model, target);
+
+      //
+      // ?/ @todo In LaTeX mode, do something?
+      //
+
+      //
+      // 4/ In math zone, move to sibling branch, or out of parent
+      //
+      //
+      // 4.1/ Find the next eligible sibling group
+      //
+      const sibling = findSibling(
+        model,
+        atom,
+        (x) => x.type === 'leftright' || x.type === 'text',
+        'forward'
+      );
+
+      if (sibling) {
+        // If found a text atom, select the entire zone
+        if (sibling.mode === 'text') {
+          let last = sibling;
+          while (last && last.mode === 'text') last = last.rightSibling;
+          return select(model, [
+            sibling.leftSibling ?? sibling,
+            last.leftSibling ?? last,
+          ]);
+        }
+        return select(model, sibling);
+      }
+
+      const parent = atom.parent;
+      if (parent) {
+        // 4.2/ Select parent if leftright or surd without index
+        if (parent.type === 'leftright' || parent.type === 'surd')
+          return select(model, parent);
+
+        // 4.3/ If in an atom with a supsub, try subsup
+        if (atom.parentBranch === 'superscript' && parent.subscript)
+          return select(model, parent.subscript);
+
+        // 4.4/ If an above branch, try below
+        if (atom.parentBranch === 'above' && parent.below)
+          return select(model, parent.below);
+
+        // 4.5/ If in a branch (with no "sister" branch), move after parent
+        if (
+          atom.parentBranch === 'superscript' ||
+          atom.parentBranch === 'subscript'
+        )
+          return leapTo(model, parent);
+        if (atom.parentBranch === 'above' || atom.parentBranch === 'below')
+          return select(model, parent);
+      }
+
+      // 4.6/ No eligible group found, move to end of mathfield
+      return leapTo(model, model.lastOffset);
     },
     moveToPreviousGroup: (model: ModelPrivate): boolean => {
+      //
+      // 1/ If at the start of the matfield, leap to previous tabbable element
+      //
+      if (model.position === 0 && model.anchor === 0)
+        return leap(model, 'backward');
+
+      //
+      // 2/ If in text zone, move to first text atom
+      //
+
       let atom = model.at(model.position);
       const mode = atom.mode;
       if (mode === 'text') {
-        // Move to first text atom
+        if (model.selectionIsCollapsed) {
+          // 2.1/ Select entire zone
+          let first = atom;
+          while (first && first.mode === 'text') first = first.leftSibling;
+          let last = atom;
+          while (last.rightSibling?.mode === 'text') last = last.rightSibling;
+          if (first && last) return select(model, [first, last]);
+        }
         while (atom && atom.mode === 'text') atom = atom.leftSibling;
-        if (!atom) return leap(model, 'backward');
-        model.position = model.offsetOf(atom);
-        return true;
+        if (atom) return leapTo(model, atom);
+        // If text zone is first zone, move to start of mathfield
+        return leapTo(model, 0);
       }
+
+      //
+      // 3/ Find a placeholder, a prompt or empty group.
+      //
+      const target = leapTarget(model, model.position - 1, 'backward');
+      if (target) return leapTo(model, target);
+
+      //
+      // 4/ In math zone, move to sibling branch, or out of parent
+      //
       if (mode === 'math') {
+        //
+        // 4.1/ Find the previous eligible sibling group
+        //
+        const sibling = findSibling(
+          model,
+          atom,
+          (x) => x.type === 'leftright' || x.type === 'text',
+          'backward'
+        );
+
+        if (sibling) {
+          // If found a text atom, select the entire zone
+          if (sibling.mode === 'text') {
+            let first = sibling;
+            while (first && first.mode === 'text') first = first.leftSibling;
+            return select(model, [sibling, first]);
+          }
+          return select(model, sibling);
+        }
+
         const parent = atom.parent;
         if (parent) {
-          // If in an atom with a supsub, try subsup
-          if (atom.parentBranch === 'subscript' && parent.superscript) {
-            model.position = model.offsetOf(parent.superscript[0]);
-            return true;
-          }
-          if (atom.parentBranch === 'below' && parent.above) {
-            model.position = model.offsetOf(parent.above[0]);
-            return true;
-          }
+          // 4.2/ Select parent if leftright or surd without index
+          if (parent.type === 'leftright' || parent.type === 'surd')
+            return select(model, parent);
+
+          // 4.3/ If in an atom with a supsub, try subsup
+          if (atom.parentBranch === 'subscript' && parent.superscript)
+            return select(model, parent.superscript);
+
+          // 4.4/ If in a below branch, try above
+          if (atom.parentBranch === 'below' && parent.above)
+            return select(model, parent.above);
+
+          // 4.5/ If in a branch (with no "sister" branch), move after parent
           if (
             atom.parentBranch === 'superscript' ||
-            atom.parentBranch === 'above'
-          ) {
-            model.position = model.offsetOf(parent.leftSibling);
-            return true;
-          }
+            atom.parentBranch === 'subscript'
+          )
+            return leapTo(model, parent);
+          if (atom.parentBranch === 'above' || atom.parentBranch === 'below')
+            return select(model, parent);
         }
+
+        // 4.6/ No eligible group found, move to start of mathfield
+        return leapTo(model, 0);
       }
-      return leap(model, 'backward');
+      //
+      // 5/ @todo In LaTeX mode, do something?
+      //
+      return false;
     },
     moveToMathfieldStart: (model: ModelPrivate): boolean => {
       if (model.position === 0) {
@@ -572,3 +737,19 @@ register(
   },
   { target: 'model', changeSelection: true, audioFeedback: 'return' }
 );
+
+function findSibling(
+  model: ModelPrivate,
+  atom: Atom,
+  pred: (x: Atom) => boolean,
+  dir: 'forward' | 'backward'
+): Atom | null {
+  if (dir === 'forward') {
+    let result = atom.rightSibling;
+    while (result && !pred(result)) result = result.rightSibling;
+    return result;
+  }
+  let result = atom.leftSibling;
+  while (result && !pred(result)) result = result.leftSibling;
+  return result;
+}

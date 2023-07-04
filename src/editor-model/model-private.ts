@@ -404,21 +404,30 @@ export class ModelPrivate implements Model {
     startingIndex = 0,
     direction: 'forward' | 'backward' = 'forward'
   ): Atom | undefined {
+    let atom: Atom | undefined = undefined;
+    const last = this.lastOffset;
     if (direction === 'forward') {
-      const last = this.lastOffset;
-      for (let i = startingIndex; i <= last; i++)
-        if (filter(this.atoms[i])) return this.atoms[i];
+      for (let i = startingIndex; i <= last; i++) {
+        atom = this.atoms[i];
+        if (filter(atom)) return atom;
+      }
 
-      for (let i = 0; i < startingIndex; i++)
-        if (filter(this.atoms[i])) return this.atoms[i];
+      for (let i = 0; i < startingIndex; i++) {
+        atom = this.atoms[i];
+        if (filter(atom)) return atom;
+      }
       return undefined;
     }
 
-    for (let i = startingIndex; i >= 0; i--)
-      if (filter(this.atoms[i])) return this.atoms[i];
+    for (let i = startingIndex; i >= 0; i--) {
+      atom = this.atoms[i];
+      if (filter(atom)) return atom;
+    }
 
-    for (let i = this.lastOffset; i < startingIndex; i--)
-      if (filter(this.atoms[i])) return this.atoms[i];
+    for (let i = last; i > startingIndex; i--) {
+      atom = this.atoms[i];
+      if (filter(atom)) return atom;
+    }
 
     return undefined;
   }

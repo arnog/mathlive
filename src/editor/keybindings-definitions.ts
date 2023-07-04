@@ -46,7 +46,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: '[Tab]', command: 'moveToNextGroup' },
   {
     key: 'shift+[Tab]',
-    ifMode: 'math',
     command: 'moveToPreviousGroup',
   },
 
