@@ -242,7 +242,8 @@
 ### Bug Fixes
 - Update editing toolbar when virtual keyboard is made visible
 - **#1919** Correctly position the popover panel above or below the mathfield based on the space available. Allow for more suggestions to be displayed, and include a scrollbar when necessary.
-
+- **#1990** The closing delimiter of a `\left...\right` command was incorrectly
+  adopting the style of the last atom inside the command.
 ## 0.91.1 (2023-04-05)
 
 ### Bug Fix

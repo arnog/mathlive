@@ -139,8 +139,6 @@ export class LeftRightAtom extends Atom {
       );
     }
 
-    const closeDelimStyle = this.body?.[this.body.length - 1].style ?? {};
-
     if (inner) {
       // Now that we know the height/depth of the `\left...\right`,
       // replace the middle delimiter (\middle) boxes with correctly sized ones
@@ -174,7 +172,7 @@ export class LeftRightAtom extends Atom {
               isSelected: this.isSelected,
               classes: classes + ' ML__close',
               mode: this.mode,
-              style: closeDelimStyle,
+              style: this.style,
             }
           )
         )

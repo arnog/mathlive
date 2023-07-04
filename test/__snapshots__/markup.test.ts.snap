@@ -303,7 +303,7 @@ exports[`COLORS 6/ color format "m5" renders correctly 1`] = `
 
 exports[`COLORS 7/ a\\left(b\\color{#f00} c\\right)d renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1em;vertical-align:-0.25em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="display:inline-block;width:0.17em"></span><span class="left-right"><span class="ML__small-delim ML__open">(</span><span class="ML__mathit">b</span><span style="color:#ff0000"><span class="ML__mathit">c</span></span><span class="ML__small-delim ML__close" style="color:#ff0000">)</span></span><span style="display:inline-block;width:0.17em"></span><span class="ML__mathit">d</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1em;vertical-align:-0.25em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="display:inline-block;width:0.17em"></span><span class="left-right"><span class="ML__small-delim ML__open">(</span><span class="ML__mathit">b</span><span style="color:#ff0000"><span class="ML__mathit">c</span></span><span class="ML__small-delim ML__close">)</span></span><span style="display:inline-block;width:0.17em"></span><span class="ML__mathit">d</span></span></span>",
   "no-error",
 ]
 `;
@@ -1119,7 +1119,7 @@ exports[`LEFT/RIGHT middle delimiters 2`] = `
 
 exports[`LEFT/RIGHT middle delimiters 3`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1em;vertical-align:-0.25em"></span><span class="ML__base"><span class="left-right"><span class="ML__small-delim ML__open">(</span><span class="ML__mathit">a</span><span style="color:#d7170b"><span class="ML__small-delim">∣</span><span class="ML__mathit">b</span></span><span class="ML__small-delim ML__close" style="color:#d7170b">)</span></span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1em;vertical-align:-0.25em"></span><span class="ML__base"><span class="left-right"><span class="ML__small-delim ML__open">(</span><span class="ML__mathit">a</span><span style="color:#d7170b"><span class="ML__small-delim">∣</span><span class="ML__mathit">b</span></span><span class="ML__small-delim ML__close">)</span></span></span></span>",
   "no-error",
 ]
 `;
