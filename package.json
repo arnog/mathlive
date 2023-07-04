@@ -125,7 +125,7 @@
   },
   "prettier": "@cortex-js/prettier-config",
   "dependencies": {
-    "@cortex-js/compute-engine": "0.12.2"
+    "@cortex-js/compute-engine": "0.12.3"
   },
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.1.0",
@@ -137,7 +137,7 @@
     "@typescript-eslint/parser": "^5.49.0",
     "autoprefixer": "^10.4.13",
     "cssnano": "^5.1.14",
-    "esbuild": "^0.17.5",
+    "esbuild": "^0.18.11",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.27.5",

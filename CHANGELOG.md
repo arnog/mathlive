@@ -15,8 +15,8 @@
   adopting the style of the last atom inside the command.
 - **#2044** When overflowing the mathfield using the virtual keyboard, the 
   caret would be hidden from view.
-- **#2016** Correctly handle when the root is not a group, i.e. when it's a 
-  multi-line array
+- **#2000**, **#2016** Correctly handle when the root is not a group, i.e. 
+  when it's a multi-line array.
 
 ## 0.94.8 (2023-06-15)
 
