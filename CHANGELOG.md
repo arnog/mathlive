@@ -8,6 +8,9 @@
 ### Bug Fixed
 
 - **#2008** The `\underline` and `\overline` commands now render correctly.
+- **#1996**, **#2025** MathML output could occasionally be incorrect for the  
+  `\left...\right` command
+- **#2009** Chemical equations did not render correctly
 
 ## 0.94.8 (2023-06-15)
 
