@@ -60,8 +60,12 @@ test('tab focus', async ({ page }) => {
   // make sure readonly mathfield has focus
   await expect(page.locator('#mf-4')).toBeFocused();
 
-  // Shift-Tab twice to get back to second math field and type
+  // Shift-Tab three times to get back to second math field and type
+  // 1/ go back to end of mf#3
   await page.keyboard.press('Shift+Tab');
+  // 2/ go to start of mf#3
+  await page.keyboard.press('Shift+Tab');
+  // 3/ go to mf#2
   await page.keyboard.press('Shift+Tab');
   await page.keyboard.type('e');
 
@@ -345,7 +349,12 @@ test('inline shortcut after long expression (#1978)', async ({ page }) => {
 
   const startingLatex = String.raw`x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}`;
 
-  await page.locator('#mf-1').evaluate((e: MathfieldElement, latex: string) => e.value = latex, startingLatex);
+  await page
+    .locator('#mf-1')
+    .evaluate(
+      (e: MathfieldElement, latex: string) => (e.value = latex),
+      startingLatex
+    );
 
   // use latex mode for math field with default settings
   await page.locator('#mf-1').type('+alpha');
@@ -388,8 +397,15 @@ test('text mode serialization (#1978)', async ({ page }) => {
   ).toBe(String.raw`x+y\text{ Comment }z-s`);
 });
 
-test('cross-origin iframe with physical keyboard', async ({ page, browserName, context }) => {
-  test.skip(browserName === "webkit" && Boolean(process.env.CI), "Iframe test is flaky in webkit on GH actions");
+test('cross-origin iframe with physical keyboard', async ({
+  page,
+  browserName,
+  context,
+}) => {
+  test.skip(
+    browserName === 'webkit' && Boolean(process.env.CI),
+    'Iframe test is flaky in webkit on GH actions'
+  );
 
   await page.goto('/dist/playwright-test-page/iframe_test.html');
 
@@ -408,6 +424,3 @@ test('cross-origin iframe with physical keyboard', async ({ page, browserName, c
     expect(latex).toBe(String.raw`\frac{x}{20+z}`);
   }
 });
-
-
-
