@@ -540,8 +540,8 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
           ],
         },
         {
-          latex: '\\mathrm{exp}',
-          insert: '\\mathrm{exp}\\left(#0\\right)',
+          latex: '\\exp',
+          insert: '\\exp\\left(#0\\right)',
           variants: ['\\exponentialE^{#0}'],
         },
         '\\left\\Vert#0\\right\\Vert',
