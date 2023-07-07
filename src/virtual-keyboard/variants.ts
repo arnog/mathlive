@@ -240,7 +240,7 @@ const VARIANTS: {
   ],
 };
 
-let variantPanelController: AbortController;
+let variantPanelController: AbortController | null;
 
 export function showVariantsPanel(
   element: HTMLElement,
@@ -299,62 +299,8 @@ export function showVariantsPanel(
     child: variantPanel,
   });
 
-  variantPanelController?.abort();
   variantPanelController = new AbortController();
-  variantPanel.addEventListener(
-    'pointerup',
-    (ev) => {
-      const target = parentKeycap(ev.target);
-      if (!target?.id || !variants[target.id]) return;
-
-      executeKeycapCommand(variants[target.id]);
-
-      hideVariantsPanel();
-      onClose?.();
-      ev.preventDefault();
-    },
-    { capture: true, passive: false, signal: variantPanelController.signal }
-  );
-
-  variantPanel.addEventListener(
-    'pointerenter',
-    (ev) => {
-      const target = parentKeycap(ev.target);
-      if (!target?.id || !variants[target.id]) return;
-
-      target.classList.add('is-active');
-    },
-    { capture: true, signal: variantPanelController.signal }
-  );
-
-  variantPanel.addEventListener(
-    'pointerleave',
-    (ev) => {
-      const target = parentKeycap(ev.target);
-      if (!target?.id || !variants[target.id]) return;
-
-      target.classList.remove('is-active');
-    },
-    { capture: true, signal: variantPanelController.signal }
-  );
-
-  window.addEventListener(
-    'pointercancel',
-    () => {
-      hideVariantsPanel();
-      onClose?.();
-    },
-    { signal: variantPanelController.signal }
-  );
-
-  window.addEventListener(
-    'pointerup',
-    () => {
-      hideVariantsPanel();
-      onClose?.();
-    },
-    { signal: variantPanelController.signal }
-  );
+  const { signal } = variantPanelController;
 
   //
   // Position the variants panel
@@ -381,6 +327,64 @@ export function showVariantsPanel(
     const top = position.top - variantPanel.clientHeight + 5;
     variantPanel.style.transform = `translate(${left}px, ${top}px)`;
     variantPanel.classList.add('is-visible');
+    // Add the events handlers (which may dismiss the panel) only after the
+    // panel has been displayed
+    requestAnimationFrame(() => {
+      variantPanel.addEventListener(
+        'pointerup',
+        (ev) => {
+          const target = parentKeycap(ev.target);
+          if (!target?.id || !variants[target.id]) return;
+
+          executeKeycapCommand(variants[target.id]);
+
+          hideVariantsPanel();
+          onClose?.();
+          ev.preventDefault();
+        },
+        { capture: true, passive: false, signal }
+      );
+
+      variantPanel.addEventListener(
+        'pointerenter',
+        (ev) => {
+          const target = parentKeycap(ev.target);
+          if (!target?.id || !variants[target.id]) return;
+
+          target.classList.add('is-active');
+        },
+        { capture: true, signal }
+      );
+
+      variantPanel.addEventListener(
+        'pointerleave',
+        (ev) => {
+          const target = parentKeycap(ev.target);
+          if (!target?.id || !variants[target.id]) return;
+
+          target.classList.remove('is-active');
+        },
+        { capture: true, signal }
+      );
+
+      window.addEventListener(
+        'pointercancel',
+        () => {
+          hideVariantsPanel();
+          onClose?.();
+        },
+        { signal }
+      );
+
+      window.addEventListener(
+        'pointerup',
+        () => {
+          hideVariantsPanel();
+          onClose?.();
+        },
+        { signal }
+      );
+    });
   }
 
   return;
@@ -388,6 +392,7 @@ export function showVariantsPanel(
 
 export function hideVariantsPanel(): void {
   variantPanelController?.abort();
+  variantPanelController = null;
   Scrim.scrim?.close();
 }
 

@@ -39,6 +39,7 @@ import type { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from 'common/stylesheet';
+import { Scrim } from 'editor/scrim';
 
 export declare type Expression =
   | number
@@ -1652,7 +1653,11 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   handleEvent(evt: Event): void {
     if (evt.type === 'pointerdown') this.onPointerDown();
     if (evt.type === 'focus') this._mathfield?.focus();
-    if (evt.type === 'blur') this._mathfield?.blur();
+
+    // Ignore blur events if the scrim is open (case where the variant panel
+    // is open). Otherwise we disconect from the VK and end up in a weird state.
+    if (evt.type === 'blur' && Scrim.scrim.state === 'closed')
+      this._mathfield?.blur();
   }
 
   /**

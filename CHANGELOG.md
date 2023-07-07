@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixed
+
+- **#1995** When right clicking to bring up the variant panel in the virtual 
+  keyboard, in some situations the virtual keyboard would lock up.
+
 ## 0.95.0 (2023-07-04)
 
 
