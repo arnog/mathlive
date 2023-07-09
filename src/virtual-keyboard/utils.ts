@@ -1080,7 +1080,7 @@ function handlePointerDown(ev: PointerEvent) {
           target?.classList.remove('is-active');
         });
       }
-    }, 200);
+    }, 300);
   }
 
   ev.preventDefault();
