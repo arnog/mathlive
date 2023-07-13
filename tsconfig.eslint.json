@@ -3,12 +3,11 @@
   "include": [
     "./src",
     "./test",
-    "./tutorials",
+    "./examples",
     "./*.js",
     "**/*.js",
     "**/*.test.ts",
     "**/*.spec.ts",
     "**/*.less"
-  ],
-  "exclude": ["coverage", "node_modules", "dist", "build", "examples"]
+  ]
 }

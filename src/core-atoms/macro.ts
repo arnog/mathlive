@@ -66,7 +66,7 @@ export class MacroArgumentAtom extends Atom {
     super({ type: 'macro-argument' });
   }
 
-  static fromJson(json: AtomJson): MacroArgumentAtom {
+  static fromJson(_json: AtomJson): MacroArgumentAtom {
     return new MacroArgumentAtom();
   }
 
@@ -75,11 +75,11 @@ export class MacroArgumentAtom extends Atom {
     return options;
   }
 
-  _serialize(options: ToLatexOptions): string {
+  _serialize(_options: ToLatexOptions): string {
     return '';
   }
 
-  render(context: Context): Box | null {
+  render(_context: Context): Box | null {
     // const result = Atom.createBox(context, this.body);
     // if (!result) return null;
     // if (this.caret) result.caret = this.caret;
