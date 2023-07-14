@@ -37,6 +37,7 @@
         "require": "./dist/mathlive.min.js"
       }
     },
+    "./ssr": "./dist/mathlive-ssr.min.mjs",
     "./fonts.css": "./dist/mathlive-fonts.css",
     "./static.css": "./dist/mathlive-static.css",
     "./fonts/*": "./dist/fonts/*",
