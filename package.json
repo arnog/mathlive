@@ -139,7 +139,7 @@
     "autoprefixer": "^10.4.13",
     "cssnano": "^5.1.14",
     "esbuild": "^0.18.11",
-    "eslint": "^8.33.0",
+    "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-no-unsanitized": "^4.0.2",
