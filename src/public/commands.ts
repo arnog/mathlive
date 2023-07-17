@@ -25,7 +25,7 @@ export type SpeechScope =
 
 // @revisit: maybe a command attribute instead?
 /**
- * Use with [[Mathfield.executeCommand]] or [[MathfieldElement.executeCommand]].
+ * To perform editing commands on a mathfield, use [[MathfieldElement.executeCommand]] with the commands below.
  *
  * ```ts
  * const mf = document.getElementById('mathfield');

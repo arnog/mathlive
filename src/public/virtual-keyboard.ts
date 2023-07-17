@@ -231,6 +231,7 @@ export interface VirtualKeyboardOptions {
   originValidator: OriginValidator;
 }
 
+/** @internal */
 export interface MathfieldProxy {
   value: string;
   readonly selectionIsCollapsed: boolean;

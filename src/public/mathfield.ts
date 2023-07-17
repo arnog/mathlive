@@ -139,6 +139,7 @@ export type Selection = {
   direction?: 'forward' | 'backward' | 'none';
 };
 
+/** @internal */
 export interface Mathfield {
   /**
    * Execute a [[`Commands`|command]] defined by a selector.
@@ -173,7 +174,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    *
    * **Default:** `"latex"`
    *
-   * @category Accessing the Content
    */
   getValue(format?: OutputFormat): string;
   /** Return the value of the mathfield from `start` to `end` */
@@ -193,7 +193,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * Set the content of the mathfield to the text interpreted as a
    * LaTeX expression.
    *
-   * @category Accessing the Content
    */
   setValue(latex?: string, options?: InsertOptions): void;
 
@@ -206,7 +205,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * After the insertion, the selection will be set according to the
    * `options.selectionMode`.
    *
-   * @category Changing the Content
    */
 
   insert(s: string, options?: InsertOptions): boolean;
@@ -215,18 +213,10 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * Return true if the mathfield is currently focused (responds to keyboard
    * input).
    *
-   * @category Focus
-   *
    */
   hasFocus(): boolean;
 
-  /**
-   * @category Focus
-   */
   focus?(): void;
-  /**
-   * @category Focus
-   */
   blur?(): void;
 
   /**
@@ -257,7 +247,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * coordinates.
    *
    * See also [[`setCaretPoint`]]
-   * @category Selection
    */
   getCaretPoint?(): { x: number; y: number } | null;
   setCaretPoint(x: number, y: number): boolean;
@@ -274,6 +263,7 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
   }): string[];
 }
 
+/** @internal */
 export interface Model {
   readonly mathfield: Mathfield;
 }
