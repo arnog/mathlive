@@ -55,7 +55,11 @@ defineTabularEnvironment(
 );
 
 // Note spelling: MULTLINE, not multiline.
-defineTabularEnvironment(['multline', 'multline*'], '', makeEnvironment);
+defineTabularEnvironment(
+  ['multline', 'multline*', 'lines'],
+  '',
+  makeEnvironment
+);
 
 // An AMS-Math environment
 // See amsmath.dtx:3565
