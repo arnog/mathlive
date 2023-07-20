@@ -9,6 +9,7 @@ import { MathfieldPrivate } from './mathfield-private';
 const CLIPBOARD_LATEX_BEGIN = '$$';
 const CLIPBOARD_LATEX_END = '$$';
 
+/** @internal */
 export const defaultExportHook = (
   _from: MathfieldPrivate,
   latex: string,
@@ -25,6 +26,7 @@ export const defaultExportHook = (
   return latex;
 };
 
+/** @internal */
 export class ModeEditor {
   static _modes: Record<string, ModeEditor> = {};
 
@@ -162,7 +164,6 @@ export class ModeEditor {
     return ModeEditor._modes[mode].insert(model, text, options);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   onPaste(
     _mathfield: MathfieldPrivate,
     _data: DataTransfer | string | null

@@ -351,7 +351,7 @@ const DEPRECATED_OPTIONS = {
  * It is a subclass of the standard
  * [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement)
  * class and as such inherits all of its properties and methods.
- * 
+ *
  * It inherits many useful properties and methods from [[`HTMLElement`]] such
  * as `style`, `tabIndex`, `addEventListener()`, `getAttribute()`,  etc...
  *
@@ -371,7 +371,7 @@ const DEPRECATED_OPTIONS = {
  * ```javascript
  * // 1. Create a new MathfieldElement
  * const mf = new MathfieldElement();
- * 
+ *
  * // 2. Attach it to the DOM
  * document.body.appendChild(mf);
  * ```
@@ -383,7 +383,7 @@ const DEPRECATED_OPTIONS = {
  * ```javascript
  * // Setting options during construction
  * const mf = new MathfieldElement({ smartFence: false });
- * 
+ *
  * // Modifying options after construction
  * mf.smartFence = true;
  * ```
@@ -1233,7 +1233,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   get mode(): ParseMode {
-    return this._mathfield?.model.mode ?? 'math';
+    return (
+      this._mathfield?.model.mode ??
+      (this.defaultMode === 'text' ? 'text' : 'math')
+    );
   }
 
   set mode(value: ParseMode) {

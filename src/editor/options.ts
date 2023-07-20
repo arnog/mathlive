@@ -15,14 +15,14 @@ import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { VirtualKeyboard } from '../virtual-keyboard/global';
 
 /** @internal */
-export type MathfieldOptionsPrivate = MathfieldOptions & {
+export type _MathfieldOptions = MathfieldOptions & {
   value: string;
 };
 
 export function update(
-  updates: Partial<MathfieldOptionsPrivate>
-): Partial<MathfieldOptionsPrivate> {
-  const result: Partial<MathfieldOptionsPrivate> = {};
+  updates: Partial<_MathfieldOptions>
+): Partial<_MathfieldOptions> {
+  const result: Partial<_MathfieldOptions> = {};
   for (const key of Object.keys(updates)) {
     switch (key) {
       case 'scriptDepth':
@@ -96,15 +96,15 @@ export function update(
 }
 
 export function get(
-  config: Required<MathfieldOptionsPrivate>,
-  keys?: keyof MathfieldOptionsPrivate | string[]
-): any | Partial<MathfieldOptionsPrivate> {
+  config: Required<_MathfieldOptions>,
+  keys?: keyof _MathfieldOptions | string[]
+): any | Partial<_MathfieldOptions> {
   let resolvedKeys: string[];
   if (typeof keys === 'string') resolvedKeys = [keys];
   else if (keys === undefined) resolvedKeys = Object.keys(config);
   else resolvedKeys = keys;
 
-  const result: Partial<MathfieldOptionsPrivate> = {};
+  const result: Partial<_MathfieldOptions> = {};
   for (const x of resolvedKeys) {
     if (config[x] === null) result[x] = null;
     else if (isArray(config[x])) result[x] = [...config[x]];
@@ -123,7 +123,7 @@ export function get(
   return result;
 }
 
-export function getDefault(): Required<MathfieldOptionsPrivate> {
+export function getDefault(): Required<_MathfieldOptions> {
   return {
     readOnly: false,
 
