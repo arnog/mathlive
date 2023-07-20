@@ -115,7 +115,6 @@ export function releaseStylesheet(id: StylesheetId): void {
 
   gInjectedStylesheets[id]! -= 1;
   if (gInjectedStylesheets[id]! <= 0) {
-    console.log('releasign stylesheet ', id);
     const stylesheet = gStylesheets[id]!;
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
       (x) => x !== stylesheet
