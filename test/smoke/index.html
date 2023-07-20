@@ -23,6 +23,9 @@
         max-width: 640px;
         width: 100%;
       }
+      /* math-field::part(content) {
+        justify-content: center;
+      } */
       /* math-field {
         --selection-background-color: red;
         --selection-color: #f80;
@@ -136,6 +139,15 @@
         '@': '@',
         '$': '\\$',
       };
+
+      MathfieldElement.computeEngine.latexOptions = {
+        ...MathfieldElement.computeEngine.latexOptions,
+        parseUnknownIdentifier: (s) =>
+          /^[a-zA-Z]+$/.test(s) ? 'function' : 'unknown',
+      };
+
+      mf.onInlineShortcut = (_mf, s) =>
+        /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
       // mf.onInlineShortcut = (_mf, s) => {
       //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
       //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
