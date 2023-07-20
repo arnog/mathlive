@@ -5,6 +5,8 @@
 - **#1995** When right clicking to bring up the variant panel in the virtual 
   keyboard, in some situations the virtual keyboard would lock up.
 - **#2047** Use `\exp` instead of `\mathrm{exp}` in the virtual keyboard
+- **#2067** When setting up the virtual keyboard policy to `"sandboxed"` in
+  a cross domain iframe, a runtime error would occur.
 
 ## 0.95.0 (2023-07-04)
 
