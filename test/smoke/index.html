@@ -49,10 +49,11 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf"
+      <math-field id="mf"></math-field>
+      <!-- <math-field id="mf"
         >\text{Hello
         World}\int^{x+1}_{x-1}x^2+y^{1+a}_{b+2}+\frac{x+z}{y^{2+n}+2}+\left(a+3+\frac{2}{4}\right)+\sqrt[1+x]{\frac78}+\frac56</math-field
-      >
+      > -->
 
       <h2>Selection</h2>
       <div class="output" id="selection"></div>
@@ -132,13 +133,14 @@
       // MathfieldElement.computeEngine = ce;
 
       const mf = document.getElementById('mf');
+      mf.smartMode = true;
 
       mf.smartFence = false;
-      mf.inlineShortcuts = {
-        ...mf.inlineShortcuts,
-        '@': '@',
-        '$': '\\$',
-      };
+      // mf.inlineShortcuts = {
+      //   ...mf.inlineShortcuts,
+      //   '@': '@',
+      //   '$': '\\$',
+      // };
 
       MathfieldElement.computeEngine.latexOptions = {
         ...MathfieldElement.computeEngine.latexOptions,
@@ -146,8 +148,8 @@
           /^[a-zA-Z]+$/.test(s) ? 'function' : 'unknown',
       };
 
-      mf.onInlineShortcut = (_mf, s) =>
-        /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
+      // mf.onInlineShortcut = (_mf, s) =>
+      //   /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
       // mf.onInlineShortcut = (_mf, s) => {
       //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
       //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);

@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### Improvements
+
+- **#2064**, **#2065** Improved behavior of virtual keyboard shift key, 
+  contributed by https://github.com/oscarhermoso
+
 ### Bugs Fixed
 
 - **#1995** When right clicking to bring up the variant panel in the virtual 
