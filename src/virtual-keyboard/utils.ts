@@ -1064,7 +1064,7 @@ function handlePointerDown(ev: PointerEvent) {
   // Is it the Shift key?
   if (isShiftKey(keycap)) {
     target.classList.add('is-active');
-    keyboard.incrementShiftPress();
+    keyboard.shiftPressCount++;
   }
 
   if (keycap.variants) {
@@ -1107,7 +1107,7 @@ function handleVirtualKeyboardEvent(controller) {
     if (ev.type === 'pointercancel') {
       target.classList.remove('is-pressed');
       if (isShiftKey(keycap)) {
-        keyboard.decrementShiftPress();
+        keyboard.shiftPressCount--;
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
       }
@@ -1118,7 +1118,7 @@ function handleVirtualKeyboardEvent(controller) {
     if (ev.type === 'pointerleave' && ev.target === target) {
       target.classList.remove('is-pressed');
       if (isShiftKey(keycap)) {
-        keyboard.decrementShiftPress();
+        keyboard.shiftPressCount--;
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
       }
@@ -1150,7 +1150,8 @@ function handleVirtualKeyboardEvent(controller) {
           } else executeKeycapCommand(keycap.shift);
         } else executeKeycapCommand(keycap);
 
-        if (keyboard.shiftPressCount === 1) keyboard.resetShiftPress();
+        if (keyboard.shiftPressCount === 1 && !(ev as MouseEvent).shiftKey)
+          keyboard.shiftPressCount = 0;
       }
       controller.abort();
       ev.preventDefault();
