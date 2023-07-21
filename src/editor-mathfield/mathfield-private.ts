@@ -142,7 +142,6 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
   adoptStyle: 'left' | 'right' | 'none';
 
   dirty: boolean; // If true, need to be redrawn
-  smartModeSuppressed: boolean;
 
   element:
     | (HTMLElement & {
@@ -271,8 +270,6 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
       onSelectionDidChange: () => this.onSelectionDidChange(),
       onContentWillChange: (options) => this.onContentWillChange(options),
     });
-
-    this.smartModeSuppressed = false;
 
     // Prepare to manage undo/redo
     this.undoManager = new UndoManager(this.model);
@@ -1031,10 +1028,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
         let contentChanged = false;
         this.flushInlineShortcutBuffer();
         this.stopCoalescingUndo();
-        // Suppress (temporarily) smart mode if switching to/from text or math
-        // This prevents switching to/from command mode from suppressing smart mode.
-        this.smartModeSuppressed =
-          /text|math/.test(this.model.mode) && /text|math/.test(mode);
         if (prefix && mode !== 'latex') {
           const atoms = parseLatex(prefix, {
             context: this.context,

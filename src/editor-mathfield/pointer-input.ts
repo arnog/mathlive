@@ -144,10 +144,8 @@ export function onPointerDown(
       mathfield.focus({ preventScroll: true });
     }
 
-    // Clicking or tapping the field resets the keystroke buffer and
-    // smart mode
+    // Clicking or tapping the field resets the keystroke buffer
     mathfield.flushInlineShortcutBuffer();
-    mathfield.smartModeSuppressed = false;
     mathfield.adoptStyle = 'left';
 
     anchor = offsetFromPoint(mathfield, anchorX, anchorY, {

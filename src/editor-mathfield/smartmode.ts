@@ -36,6 +36,7 @@ function convertLastAtomsToText(
     done =
       count === 0 ||
       atom === undefined ||
+      atom.type === 'first' ||
       atom.mode !== 'math' ||
       !(
         (atom.type && /mord|mpunct/.test(atom.type)) ||
@@ -67,7 +68,7 @@ function convertLastAtomsToText(
 function convertLastAtomsToMath(
   model: ModelPrivate,
   count?: number,
-  until?
+  until?: (arg: Atom) => boolean
 ): void {
   if (typeof count === 'function') {
     until = count;
@@ -84,10 +85,11 @@ function convertLastAtomsToMath(
     done =
       count === 0 ||
       !atom ||
+      atom.type === 'first' ||
       atom.isFirstSibling ||
       atom.mode !== 'text' ||
       atom.value === ' ' ||
-      (until && !until(atom));
+      (typeof until === 'function' && !until(atom));
     if (!done) {
       data.push(Atom.serialize([atom], { defaultMode: 'math' }));
       atom.mode = 'math';
@@ -171,9 +173,10 @@ export function smartMode(
   keystroke: string,
   evt?: KeyboardEvent
 ): boolean {
-  if (mathfield.smartModeSuppressed) return false;
-
   const { model } = mathfield;
+
+  if (model.mode === 'latex') return false;
+
   // Are we at the end of a group?
   if (!model.at(model.position).isLastSibling) return false;
 
