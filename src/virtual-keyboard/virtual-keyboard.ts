@@ -328,7 +328,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       if (typeof x === 'function') x(event);
       else x?.handleEvent(event);
     });
-
     return !event.defaultPrevented;
   }
 
@@ -608,7 +607,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         break;
 
       case 'keydown': {
-        if (evt.key === 'Shift') this.shiftPressCount = 1;
+        if (evt.key === 'Shift' && !evt.repeat) this.shiftPressCount = 1;
         break;
       }
 
