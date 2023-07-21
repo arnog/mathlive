@@ -232,8 +232,10 @@ function scanText(stream: MathMLStream, final: number, options) {
   }
 
   if (mathML.length > 0) {
-    stream.mathML += `<mtext ${makeID(stream.atoms[initial].id, options)}
-      >${mathML}</mtext>`;
+    stream.mathML += `<mtext ${makeID(
+      stream.atoms[initial].id,
+      options
+    )}>${mathML}</mtext>`;
     stream.lastType = 'mtext';
     return true;
   }
@@ -340,6 +342,7 @@ function scanOperator(stream: MathMLStream, final: number, options) {
   let mathML = '';
   let lastType = '';
   const atom = stream.atoms[stream.index];
+  if (!atom) return false;
 
   const SPECIAL_OPERATORS = {
     '\\ne': '&ne;',
@@ -1022,6 +1025,9 @@ function atomToMathML(atom, options): string {
       break;
     case 'tooltip':
       result += toMathML(atom.body, options);
+      break;
+    case 'text':
+      result += `<mtext ${makeID(atom.id, options)}x>${atom.value}</mtext>`;
       break;
     default:
       console.log('MathML, unknown type : ', atom);
