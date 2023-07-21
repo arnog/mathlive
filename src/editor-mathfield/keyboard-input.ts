@@ -534,9 +534,8 @@ export function onInput(
   // David Bowie emoji: 👨🏻‍🎤
   let graphemes = splitGraphemes(text);
 
-  // Check if virtual keyboard is visible and the shift key is pressed
   const keyboard = window.mathVirtualKeyboard;
-  if (keyboard?.visible && keyboard.isShifted) {
+  if (keyboard?.isShifted) {
     graphemes =
       typeof graphemes === 'string'
         ? graphemes.toUpperCase()
