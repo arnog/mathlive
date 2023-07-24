@@ -16,10 +16,10 @@
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { parseLatex } from '../core/parser';
+import { defineFunction } from './definitions-utils';
+
 import type { Context } from '../core/context';
 import type { Box } from '../core/box';
-
-import { defineFunction } from './definitions-utils';
 
 export class ChemAtom extends Atom {
   private arg: string;

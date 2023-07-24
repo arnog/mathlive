@@ -42,9 +42,9 @@
  */
 
 import { FONT_METRICS } from './font-metrics';
-import type { FontSize } from '../public/core-types';
 import { FontMetrics } from './types';
 
+import type { FontSize } from '../public/core-types';
 // IDs of the different MATHSTYLES
 export const D = 7; // Displaystyle
 export const Dc = 6; // Displaystyle, cramped

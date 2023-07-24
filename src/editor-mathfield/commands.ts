@@ -1,12 +1,12 @@
-import { register as registerCommand } from '../editor/commands';
-import type { MathfieldPrivate } from './mathfield-private';
-import { onInput } from './keyboard-input';
-import { toggleKeystrokeCaption } from './keystroke-caption';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
-import { requestUpdate } from './render';
+import { register as registerCommand } from '../editor/commands';
 import { ParseMode } from '../public/core-types';
 import { updateAutocomplete } from './autocomplete';
+import { onInput } from './keyboard-input';
+import { toggleKeystrokeCaption } from './keystroke-caption';
+import { requestUpdate } from './render';
 
+import type { MathfieldPrivate } from './mathfield-private';
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
     mathfield.undo();

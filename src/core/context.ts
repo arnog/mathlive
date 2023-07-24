@@ -10,10 +10,10 @@ import type {
 } from '../public/core-types';
 import type { ContextInterface, BoxInterface, FontMetrics } from './types';
 
+import { getDefaultContext } from './context-utils';
 import { DEFAULT_FONT_SIZE, FONT_SCALE, PT_PER_EM } from './font-metrics';
 import { D, Dc, Mathstyle, MATHSTYLES } from './mathstyle';
 import { convertDimensionToEm, convertDimensionToPt } from './registers-utils';
-import { getDefaultContext } from './context-utils';
 
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf

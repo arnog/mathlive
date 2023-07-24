@@ -6,30 +6,29 @@
  *
  */
 
-import { Atom } from '../core/atom-class';
-
 import '../core-definitions/definitions';
+import '../core/modes';
+
+import { toMathML } from '../addons/math-ml';
+import { Atom } from '../core/atom-class';
+import { Box, coalesce, makeStruts } from '../core/box';
+import { Context } from '../core/context';
+import { getDefaultContext } from '../core/context-utils';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import {
+  parseLatex,
+  validateLatex as validateLatexInternal,
+} from '../core/parser';
+import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
+import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
+import { parseMathString } from '../editor/parse-math-string';
+import { Expression } from './mathfield-element';
 
 import type {
   ComputeEngine,
   SemiBoxedExpression,
 } from '@cortex-js/compute-engine';
-import { toMathML } from '../addons/math-ml';
-import { Box, coalesce, makeStruts } from '../core/box';
-import { Context } from '../core/context';
-import { parseLatex } from '../core/parser';
-import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
-import { Expression } from './mathfield-element';
-import { validateLatex as validateLatexInternal } from '../core/parser';
-
-import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
-import { parseMathString } from '../editor/parse-math-string';
-
 import type { LatexSyntaxError, ParseMode } from './core-types';
-
-import '../core/modes';
-import { getDefaultContext } from '../core/context-utils';
-import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 
 /**
  * Convert a LaTeX string to a string of HTML markup.

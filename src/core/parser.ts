@@ -1,25 +1,25 @@
-import { Atom, BBoxParameter } from './atom-class';
-
-import {
-  Argument,
-  FunctionDefinition,
-  argAtoms,
-  getDefinition,
-  getEnvironmentDefinition,
-} from '../core-definitions/definitions-utils';
-import type { ColumnFormat } from '../core-atoms/array';
-
 import { ErrorAtom } from '../core-atoms/error';
 import { GroupAtom } from '../core-atoms/group';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { MacroAtom } from '../core-atoms/macro';
-import { PromptAtom } from '../core-atoms/prompt';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { PromptAtom } from '../core-atoms/prompt';
 import { SubsupAtom } from '../core-atoms/subsup';
 import { TextAtom } from '../core-atoms/text';
-
+import {
+  argAtoms,
+  Argument,
+  FunctionDefinition,
+  getDefinition,
+  getEnvironmentDefinition,
+} from '../core-definitions/definitions-utils';
+import { Atom, BBoxParameter } from './atom-class';
+import { Context } from './context';
 import { Mode } from './modes-utils';
 import { joinLatex, tokenize, tokensToString } from './tokenizer';
+
+import type { ColumnFormat } from '../core-atoms/array';
+
 import type {
   Style,
   ParseMode,
@@ -34,8 +34,6 @@ import type {
   DimensionUnit,
 } from '../public/core-types';
 import type { ContextInterface, PrivateStyle } from '../core/types';
-import { Context } from './context';
-
 //
 // - Literal (character token): a letter, digit or punctuation
 // - Token: a space `<space>`, a literal, name, group or mode shift

@@ -1,13 +1,11 @@
+import { Argument } from 'core-definitions/definitions-utils';
+
 import { isArray } from '../common/types';
-
-import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
-
 import { AccentAtom } from '../core-atoms/accent';
 import { ArrayAtom } from '../core-atoms/array';
 import { BoxAtom } from '../core-atoms/box';
 import { CompositionAtom } from '../core-atoms/composition';
-import { ChemAtom } from '../core-definitions/mhchem';
-import { MiddleDelimAtom } from '../core-atoms/delim';
+import { MiddleDelimAtom, SizedDelimAtom } from '../core-atoms/delim';
 import { EncloseAtom } from '../core-atoms/enclose';
 import { ErrorAtom } from '../core-atoms/error';
 import { GenfracAtom } from '../core-atoms/genfrac';
@@ -18,16 +16,16 @@ import { MacroArgumentAtom, MacroAtom } from '../core-atoms/macro';
 import { OperatorAtom } from '../core-atoms/operator';
 import { OverlapAtom } from '../core-atoms/overlap';
 import { OverunderAtom } from '../core-atoms/overunder';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { PhantomAtom } from '../core-atoms/phantom';
-import { SizedDelimAtom } from '../core-atoms/delim';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { PromptAtom } from '../core-atoms/prompt';
 import { SpacingAtom } from '../core-atoms/spacing';
 import { SubsupAtom } from '../core-atoms/subsup';
 import { SurdAtom } from '../core-atoms/surd';
 import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
-import { PromptAtom } from '../core-atoms/prompt';
-import { Argument } from 'core-definitions/definitions-utils';
+import { ChemAtom } from '../core-definitions/mhchem';
+import { Atom, AtomJson, AtomType, NAMED_BRANCHES } from './atom-class';
 
 export * from './atom-class';
 

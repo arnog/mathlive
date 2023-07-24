@@ -1,7 +1,7 @@
 import { CreateAtomOptions } from 'core/atom-class';
-import { EncloseAtom, EncloseAtomOptions } from '../core-atoms/enclose';
 
-import { Argument, argAtoms, defineFunction } from './definitions-utils';
+import { EncloseAtom, EncloseAtomOptions } from '../core-atoms/enclose';
+import { argAtoms, Argument, defineFunction } from './definitions-utils';
 
 // \enclose, a MathJax extension mapping to the MathML `menclose` tag.
 // The first argument is a comma delimited list of notations, as defined

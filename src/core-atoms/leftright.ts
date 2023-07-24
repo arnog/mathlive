@@ -2,8 +2,8 @@ import type { Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { makeLeftRightDelim, RIGHT_DELIM } from '../core/delimiters';
 import { Context } from '../core/context';
+import { makeLeftRightDelim, RIGHT_DELIM } from '../core/delimiters';
 import { joinLatex } from '../core/tokenizer';
 
 /**

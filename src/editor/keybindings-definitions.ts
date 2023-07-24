@@ -1,4 +1,5 @@
 import { Selector } from '../public/commands';
+
 import type { Keybinding } from '../public/options';
 
 export const DEFAULT_KEYBINDINGS: Keybinding[] = [

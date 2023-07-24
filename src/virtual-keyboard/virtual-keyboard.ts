@@ -20,20 +20,18 @@ import type { MathfieldElement } from '../public/mathfield-element';
 import { isTouchCapable } from '../common/capabilities';
 import { isArray } from '../common/types';
 import { validateOrigin } from '../editor-mathfield/utils';
-import { getCommandTarget, COMMANDS } from '../editor/commands';
+import { COMMANDS, getCommandTarget } from '../editor/commands';
 import { SelectorPrivate } from '../editor/types';
-
+import { Style } from '../public/core-types';
 import { isVirtualKeyboardMessage, VIRTUAL_KEYBOARD_MESSAGE } from './proxy';
 import {
-  makeKeyboardElement,
   makeEditToolbar,
-  releaseStylesheets,
+  makeKeyboardElement,
   normalizeLayout,
+  releaseStylesheets,
   renderKeycap,
 } from './utils';
-
 import { hideVariantsPanel, showVariantsPanel } from './variants';
-import { Style } from '../public/core-types';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;

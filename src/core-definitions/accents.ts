@@ -1,13 +1,12 @@
-import { Atom } from '../core/atom-class';
 import { AccentAtom } from '../core-atoms/accent';
 import { OverunderAtom } from '../core-atoms/overunder';
-
+import { Atom } from '../core/atom-class';
+import { atomsBoxType } from '../core/box';
 import {
   argAtoms,
   defineFunction,
   parseArgAsString,
 } from './definitions-utils';
-import { atomsBoxType } from '../core/box';
 
 const ACCENTS = {
   acute: 0x02ca,

@@ -1,10 +1,9 @@
 import { isBrowser } from '../common/capabilities';
-
-import { Atom, BranchName } from '../core/atom';
 import { SubsupAtom } from '../core-atoms/subsup';
+import { Atom, BranchName } from '../core/atom';
 import { register } from '../editor/commands';
-
 import { move, skip } from './commands';
+
 import type { ModelPrivate } from './model-private';
 
 export function moveAfterParent(model: ModelPrivate): boolean {

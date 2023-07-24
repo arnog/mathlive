@@ -1,17 +1,15 @@
+import { canVibrate } from '../common/capabilities';
 import { isArray } from '../common/types';
-
-import { SelectorPrivate, CommandRegistry } from './types';
-
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { requestUpdate } from '../editor-mathfield/render';
 import {
-  updateAutocomplete,
   complete,
   removeSuggestion,
+  updateAutocomplete,
 } from '../editor-mathfield/autocomplete';
-import { canVibrate } from '../common/capabilities';
+import { requestUpdate } from '../editor-mathfield/render';
 import MathfieldElement from '../public/mathfield-element';
+import { CommandRegistry, SelectorPrivate } from './types';
 
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 export { SelectorPrivate };
 
 // @revisit: move to mathfield.vibrate()

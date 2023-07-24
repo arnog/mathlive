@@ -1,14 +1,14 @@
+import { LeftRightAtom } from '../core-atoms/leftright';
+import { Atom } from '../core/atom-class';
+import { joinLatex } from '../core/tokenizer';
+import { contentDidChange } from '../editor-model/listeners';
+import { ModelPrivate } from '../editor-model/model-private';
 import {
   keyboardEventToChar,
   mightProducePrintableCharacter,
 } from '../editor/keyboard';
-import { contentDidChange } from '../editor-model/listeners';
-import type { MathfieldPrivate } from './mathfield-private';
 
-import { ModelPrivate } from '../editor-model/model-private';
-import { Atom } from '../core/atom-class';
-import { LeftRightAtom } from '../core-atoms/leftright';
-import { joinLatex } from '../core/tokenizer';
+import type { MathfieldPrivate } from './mathfield-private';
 
 /**
  * Convert the atoms before the anchor to 'text' mode

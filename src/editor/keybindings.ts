@@ -1,17 +1,16 @@
+import { isBrowser, osPlatform } from '../common/capabilities';
 import { isArray } from '../common/types';
-
-import type { Selector } from '../public/commands';
-import type { Keybinding } from '../public/options';
-
+import { ParseMode } from '../public/core-types';
+import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
 import {
-  KeyboardLayout,
   getCodeForKey,
+  KeyboardLayout,
   keystrokeModifiersFromString,
   keystrokeModifiersToString,
 } from './keyboard-layout';
-import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
-import { isBrowser, osPlatform } from '../common/capabilities';
-import { ParseMode } from '../public/core-types';
+
+import type { Selector } from '../public/commands';
+import type { Keybinding } from '../public/options';
 
 /**
  * @param p The platform to test against.

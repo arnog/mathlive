@@ -1,6 +1,5 @@
 import type { ToLatexOptions } from '../core/atom-class';
 import { OverunderAtom } from '../core-atoms/overunder';
-
 import { argAtoms, defineFunction } from './definitions-utils';
 
 // Extensible (horizontally stretchy) symbols

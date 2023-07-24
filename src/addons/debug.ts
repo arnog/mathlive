@@ -5,13 +5,13 @@
  */
 
 import {
+  ENVIRONMENTS,
   LATEX_COMMANDS,
   MATH_SYMBOLS,
   TEXT_SYMBOLS,
-  ENVIRONMENTS,
 } from '../core-definitions/definitions';
-import { DEFAULT_KEYBINDINGS } from '../editor/keybindings-definitions';
 import { getKeybindingMarkup } from '../editor/keybindings';
+import { DEFAULT_KEYBINDINGS } from '../editor/keybindings-definitions';
 
 const MathliveDebug = {
   FUNCTIONS: LATEX_COMMANDS,

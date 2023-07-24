@@ -13,8 +13,8 @@ import './functions';
 import './mhchem';
 import './styling';
 import './symbols';
-
 import './definitions-utils';
+
 export * from './definitions-utils';
 
 export { MacroDictionary } from '../public/core-types';

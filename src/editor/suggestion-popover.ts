@@ -1,23 +1,20 @@
 import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
-
 import {
+  Atom,
+  Box,
+  coalesce,
+  Context,
   makeStruts,
   parseLatex,
-  Atom,
-  coalesce,
-  Box,
-  Context,
 } from '../core/core';
-
-import { getCaretPoint } from '../editor-mathfield/utils';
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-
-import { getKeybindingsForCommand } from './keybindings';
-
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 import { complete } from '../editor-mathfield/autocomplete';
 import { ModeEditor } from '../editor-mathfield/mode-editor';
-import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { getCaretPoint } from '../editor-mathfield/utils';
+import { getKeybindingsForCommand } from './keybindings';
 import { getSharedElement, releaseSharedElement } from './shared-element';
+
+import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 function latexToMarkup(mf: MathfieldPrivate, latex: string): string {
   const context = new Context({ from: mf.context });

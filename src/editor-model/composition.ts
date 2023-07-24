@@ -1,5 +1,5 @@
-import { ModelPrivate } from './model-private';
 import { CompositionAtom } from '../core-atoms/composition';
+import { ModelPrivate } from './model-private';
 
 /**
  * Create, remove or update a composition atom at the current location

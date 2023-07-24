@@ -20,26 +20,27 @@ import type {
   MathfieldOptions,
 } from './options';
 
+import { getStylesheet, getStylesheetContent } from 'common/stylesheet';
+import { Scrim } from 'editor/scrim';
+
+import { isBrowser } from '../common/capabilities';
+import { resolveUrl } from '../common/script-url';
+import { loadFonts, reloadFonts } from '../core/fonts';
+import { l10n } from '../core/l10n';
+import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { offsetFromPoint } from '../editor-mathfield/pointer-input';
+import { requestUpdate } from '../editor-mathfield/render';
+import { getAtomBounds } from '../editor-mathfield/utils';
+import { isOffset, isRange, isSelection } from '../editor/model';
 import {
   get as getOptions,
   getDefault as getDefaultOptions,
   update as updateOptions,
 } from '../editor/options';
-import { isOffset, isRange, isSelection } from '../editor/model';
-import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { offsetFromPoint } from '../editor-mathfield/pointer-input';
-import { getAtomBounds } from '../editor-mathfield/utils';
-import { isBrowser } from '../common/capabilities';
-import { resolveUrl } from '../common/script-url';
-import { requestUpdate } from '../editor-mathfield/render';
-import { reloadFonts, loadFonts } from '../core/fonts';
 import { defaultSpeakHook } from '../editor/speech';
 import { defaultReadAloudHook } from '../editor/speech-read-aloud';
-import type { ComputeEngine } from '@cortex-js/compute-engine';
 
-import { l10n } from '../core/l10n';
-import { getStylesheet, getStylesheetContent } from 'common/stylesheet';
-import { Scrim } from 'editor/scrim';
+import type { ComputeEngine } from '@cortex-js/compute-engine';
 
 export declare type Expression =
   | number

@@ -6,6 +6,7 @@
  */
 
 import { splitGraphemes } from './grapheme-splitter';
+
 import type { Token } from '../public/core-types';
 
 /**

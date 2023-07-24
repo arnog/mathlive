@@ -1,6 +1,8 @@
-import { MathfieldPrivate } from './mathfield-private';
+import { PrivateStyle } from '../core/types';
 import { applyStyle as applyStyleToModel } from '../editor-model/styling';
 import { register as registerCommand } from '../editor/commands';
+import { MathfieldPrivate } from './mathfield-private';
+
 import type {
   Style,
   FontSeries,
@@ -8,8 +10,6 @@ import type {
   FontSize,
   FontFamily,
 } from '../public/core-types';
-import { PrivateStyle } from '../core/types';
-
 export function applyStyle(
   mathfield: MathfieldPrivate,
   inStyle: Style

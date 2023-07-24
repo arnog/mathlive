@@ -1,17 +1,15 @@
-import { joinLatex, latexCommand } from '../core/tokenizer';
-
-import { Atom, CreateAtomOptions } from '../core/atom-class';
-import { OperatorAtom } from '../core-atoms/operator';
-import { SurdAtom } from '../core-atoms/surd';
-import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
 import { MiddleDelimAtom } from '../core-atoms/delim';
-
-import { Argument, argAtoms, defineFunction } from './definitions-utils';
+import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
+import { OperatorAtom } from '../core-atoms/operator';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
-import { serializeLatexValue } from '../core/registers-utils';
-import { LatexValue } from '../public/core-types';
-import { Context } from '../core/context';
+import { SurdAtom } from '../core-atoms/surd';
+import { Atom, CreateAtomOptions } from '../core/atom-class';
 import { Box } from '../core/box';
+import { Context } from '../core/context';
+import { serializeLatexValue } from '../core/registers-utils';
+import { joinLatex, latexCommand } from '../core/tokenizer';
+import { LatexValue } from '../public/core-types';
+import { argAtoms, Argument, defineFunction } from './definitions-utils';
 
 defineFunction(
   [

@@ -1,21 +1,30 @@
+import '../core-atoms/genfrac';
+
+import { BoxAtom } from '../core-atoms/box';
+import { SizedDelimAtom } from '../core-atoms/delim';
+import { GroupAtom } from '../core-atoms/group';
+import { OverlapAtom } from '../core-atoms/overlap';
+import { OverunderAtom } from '../core-atoms/overunder';
+import { PhantomAtom } from '../core-atoms/phantom';
+import { SpacingAtom } from '../core-atoms/spacing';
+import { TooltipAtom } from '../core-atoms/tooltip';
 import {
   Atom,
   BBoxParameter,
   CreateAtomOptions,
   ToLatexOptions,
 } from '../core/atom-class';
+import { atomsBoxType, Box } from '../core/box';
+import { Context } from '../core/context';
+import { S, Sc, SS, SSc, T, Tc } from '../core/mathstyle';
+import {
+  multiplyLatexValue,
+  serializeLatexValue,
+} from '../core/registers-utils';
+import { joinLatex, latexCommand } from '../core/tokenizer';
+import { VBox } from '../core/v-box';
+import { argAtoms, Argument, defineFunction } from './definitions-utils';
 
-import { GroupAtom } from '../core-atoms/group';
-import { BoxAtom } from '../core-atoms/box';
-import { PhantomAtom } from '../core-atoms/phantom';
-import { SizedDelimAtom } from '../core-atoms/delim';
-import { SpacingAtom } from '../core-atoms/spacing';
-import { OverunderAtom } from '../core-atoms/overunder';
-import { OverlapAtom } from '../core-atoms/overlap';
-import '../core-atoms/genfrac';
-
-import { Argument, argAtoms, defineFunction } from './definitions-utils';
-import { TooltipAtom } from '../core-atoms/tooltip';
 import type {
   FontSize,
   FontSeries,
@@ -25,16 +34,6 @@ import type {
   FontFamily,
 } from '../public/core-types';
 import type { PrivateStyle } from '../core/types';
-import { joinLatex, latexCommand } from '../core/tokenizer';
-import { Box, atomsBoxType } from '../core/box';
-import {
-  multiplyLatexValue,
-  serializeLatexValue,
-} from '../core/registers-utils';
-import { Context } from '../core/context';
-import { T, Tc, S, Sc, SS, SSc } from '../core/mathstyle';
-import { VBox } from '../core/v-box';
-
 defineFunction('mathtip', '{:auto}{:math}', {
   createAtom: (
     options: CreateAtomOptions<[Argument | null, Argument | null]>

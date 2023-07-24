@@ -1,19 +1,15 @@
+import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
 import { Atom } from '../core/atom';
-import { coalesce, Box, makeStruts } from '../core/box';
+import { Box, coalesce, makeStruts } from '../core/box';
+import { Context } from '../core/context';
+import { loadFonts } from '../core/fonts';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 import { l10n as l10nOptions, localize as l10n } from '../core/l10n';
 import { parseLatex } from '../core/parser';
-import { SelectorPrivate } from '../editor/types';
 import { getActiveKeyboardLayout } from '../editor/keyboard-layout';
-
-import { releaseStylesheet, injectStylesheet } from '../common/stylesheet';
-import { loadFonts } from '../core/fonts';
-import { Context } from '../core/context';
-
-import { LAYOUTS } from './data';
-import { VirtualKeyboard } from './virtual-keyboard';
-import { MathfieldProxy } from '../public/virtual-keyboard';
-import { hasVariants, showVariantsPanel } from './variants';
+import { SelectorPrivate } from '../editor/types';
 import {
+  MathfieldProxy,
   NormalizedVirtualKeyboardLayer,
   NormalizedVirtualKeyboardLayout,
   VirtualKeyboardKeycap,
@@ -21,7 +17,9 @@ import {
   VirtualKeyboardLayout,
   VirtualKeyboardOptions,
 } from '../public/virtual-keyboard';
-import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { LAYOUTS } from './data';
+import { hasVariants, showVariantsPanel } from './variants';
+import { VirtualKeyboard } from './virtual-keyboard';
 
 function jsonToCssProps(json) {
   if (typeof json === 'string') return json;

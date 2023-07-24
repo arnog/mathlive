@@ -1,12 +1,11 @@
-import { Atom } from '../core/atom';
-
 import { toMathML } from '../addons/math-ml';
-import { LeftRightAtom } from '../core-atoms/leftright';
-import { isArray } from '../common/types';
 import { osPlatform } from '../common/capabilities';
+import { isArray } from '../common/types';
 import { ArrayAtom } from '../core-atoms/array';
-import { getMacros } from '../core-definitions/definitions-utils';
+import { LeftRightAtom } from '../core-atoms/leftright';
 import { PromptAtom } from '../core-atoms/prompt';
+import { getMacros } from '../core-definitions/definitions-utils';
+import { Atom } from '../core/atom';
 
 declare global {
   interface Window {

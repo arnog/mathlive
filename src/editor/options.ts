@@ -1,18 +1,13 @@
 import type { MathfieldOptions } from '../public/options';
-import { VirtualKeyboardPolicy } from '../public/mathfield-element';
-
 import { isArray } from '../common/types';
-
-import { l10n } from '../core/l10n';
-import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
-
 import { normalizeMacroDictionary } from '../core-definitions/definitions-utils';
-
+import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
+import { l10n } from '../core/l10n';
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
-
-import { INLINE_SHORTCUTS } from './shortcuts-definitions';
-import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
+import { VirtualKeyboardPolicy } from '../public/mathfield-element';
 import { VirtualKeyboard } from '../virtual-keyboard/global';
+import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
+import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 /** @internal */
 export type _MathfieldOptions = MathfieldOptions & {

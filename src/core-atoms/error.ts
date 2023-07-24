@@ -1,4 +1,5 @@
 import { Atom, AtomJson } from '../core/atom-class';
+
 import type { Box } from '../core/box';
 import type { Context } from '../core/context';
 

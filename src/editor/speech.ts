@@ -4,11 +4,11 @@ import type { Atom } from '../core/atom';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
+import { isBrowser } from '../common/capabilities';
+import { render } from '../editor-mathfield/render';
+import { globalMathLive } from '../mathlive';
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
-import { render } from '../editor-mathfield/render';
-import { isBrowser } from '../common/capabilities';
-import { globalMathLive } from '../mathlive';
 
 declare global {
   interface Window {

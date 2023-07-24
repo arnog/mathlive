@@ -1,13 +1,13 @@
+import { mathVariantToUnicode } from '../core-definitions/unicode';
 /* eslint-disable no-new */
 import { Atom, ToLatexOptions } from './atom';
-import { joinLatex, latexCommand } from './tokenizer';
+import { FontName } from './font-metrics';
 import { getPropertyRuns, Mode } from './modes-utils';
+import { joinLatex, latexCommand } from './tokenizer';
+
 import type { Box } from './box';
 import type { Style, Variant, VariantStyle } from '../public/core-types';
-import { mathVariantToUnicode } from '../core-definitions/unicode';
 import type { TokenDefinition } from '../core-definitions/definitions-utils';
-import { FontName } from './font-metrics';
-
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
 // variant combinations.

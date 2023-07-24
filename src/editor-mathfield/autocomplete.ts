@@ -1,23 +1,21 @@
 import { LatexAtom } from '../core-atoms/latex';
 import { suggest } from '../core-definitions/definitions-utils';
-
-import type { ModelPrivate } from '../editor-model/model-private';
-
 import {
   hideSuggestionPopover,
   showSuggestionPopover,
 } from '../editor/suggestion-popover';
-
-import type { MathfieldPrivate } from './mathfield-private';
-import { render } from './render';
+import { ParseMode } from '../public/core-types';
+import { ModeEditor } from './mode-editor';
 import {
-  getLatexGroupBody,
   getCommandSuggestionRange,
   getLatexGroup,
+  getLatexGroupBody,
 } from './mode-editor-latex';
-import { ModeEditor } from './mode-editor';
-import { ParseMode } from '../public/core-types';
+import { render } from './render';
 
+import type { ModelPrivate } from '../editor-model/model-private';
+
+import type { MathfieldPrivate } from './mathfield-private';
 export function removeSuggestion(mathfield: MathfieldPrivate): void {
   const group = getLatexGroupBody(mathfield.model).filter(
     (x) => x.isSuggestion

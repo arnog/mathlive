@@ -1,20 +1,15 @@
 // @ts-ignore-error
-import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
-
-// @ts-ignore-error
 import CORE_STYLESHEET from '../../css/core.less';
-
 // @ts-ignore-error
 import ENVIRONMENT_POPOVER_STYLESHEET from '../../css/environment-popover.less';
-
-// @ts-ignore-error
-import SUGGESTION_POPOVER_STYLESHEET from '../../css/suggestion-popover.less';
-
 // @ts-ignore-error
 import KEYSTROKE_CAPTION_STYLESHEET from '../../css/keystroke-caption.less';
-
 // @ts-ignore-error
-import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less' assert { type: 'css' };
+import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
+// @ts-ignore-error
+import SUGGESTION_POPOVER_STYLESHEET from '../../css/suggestion-popover.less';
+// @ts-ignore-error
+import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less';
 
 type StylesheetId =
   | 'core'

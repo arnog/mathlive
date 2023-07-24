@@ -1,12 +1,11 @@
 /* eslint no-console:0 */
 
-import { AutoRenderOptions } from '../public/options';
+import '../core/atom';
 
 import { injectStylesheet } from '../common/stylesheet';
-
-import '../core/atom';
 import { loadFonts } from '../core/fonts';
 import { parseMathString } from '../editor/parse-math-string';
+import { AutoRenderOptions } from '../public/options';
 
 /** @internal */
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {

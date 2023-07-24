@@ -1,5 +1,6 @@
 import type { Variant, VariantStyle } from '../public/core-types';
 
+import { getDefinition } from '../core-definitions/definitions-utils';
 import {
   Atom,
   AtomJson,
@@ -9,9 +10,8 @@ import {
 } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { joinLatex, latexCommand } from '../core/tokenizer';
 import { AXIS_HEIGHT } from '../core/font-metrics';
-import { getDefinition } from '../core-definitions/definitions-utils';
+import { joinLatex, latexCommand } from '../core/tokenizer';
 
 /**
  * Operators are handled in the TeXbook pg. 443-444, rule 13(a).

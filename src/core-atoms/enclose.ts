@@ -1,10 +1,10 @@
 import type { Style } from '../public/core-types';
 
+import { getDefinition } from '../core-definitions/definitions-utils';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
 import { latexCommand } from '../core/tokenizer';
-import { getDefinition } from '../core-definitions/definitions-utils';
 
 export type EncloseAtomOptions = {
   shadow?: string;

@@ -1,5 +1,6 @@
 import type { LatexValue } from '../public/core-types';
 
+import { getDefinition } from '../core-definitions/definitions-utils';
 import {
   Atom,
   AtomJson,
@@ -7,10 +8,9 @@ import {
   ToLatexOptions,
 } from '../core/atom-class';
 import { Box } from '../core/box';
-import type { Context } from '../core/context';
 import { serializeLatexValue } from '../core/registers-utils';
-import { getDefinition } from '../core-definitions/definitions-utils';
 
+import type { Context } from '../core/context';
 export class SpacingAtom extends Atom {
   private readonly width: LatexValue | undefined;
   private _braced: boolean;

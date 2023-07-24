@@ -1,5 +1,4 @@
 import { isArray } from '../common/types';
-
 import { Atom } from '../core/atom';
 
 /**

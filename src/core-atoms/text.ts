@@ -1,9 +1,9 @@
 import type { Style } from '../public/core-types';
 
+import { charToLatex } from '../core-definitions/definitions-utils';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { charToLatex } from '../core-definitions/definitions-utils';
 
 export class TextAtom extends Atom {
   constructor(command: string, value: string, style: Style) {

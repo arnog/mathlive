@@ -1,7 +1,8 @@
-import { ContentChangeOptions } from '../public/options';
-import { ModelPrivate } from './model-private';
 import '../virtual-keyboard/global';
+
+import { ContentChangeOptions } from '../public/options';
 import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
+import { ModelPrivate } from './model-private';
 
 export type ModelListeners = {
   onSelectionDidChange: () => void;

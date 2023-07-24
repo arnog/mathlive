@@ -1,19 +1,19 @@
-import { Box, makeStruts } from '../core/box';
+import { Atom } from 'core/atom-class';
+import { Context } from 'core/context';
 
+import { Box, makeStruts } from '../core/box';
+import { gFontsState } from '../core/fonts';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { updateSuggestionPopoverPosition } from '../editor/suggestion-popover';
 import {
-  Rect,
+  adjustForScrolling,
+  getAtomBounds,
   getSelectionBounds,
   isValidMathfield,
-  getAtomBounds,
-  adjustForScrolling,
+  Rect,
 } from './utils';
-import type { MathfieldPrivate } from './mathfield-private';
 
-import { updateSuggestionPopoverPosition } from '../editor/suggestion-popover';
-import { gFontsState } from '../core/fonts';
-import { Context } from 'core/context';
-import { Atom } from 'core/atom-class';
-import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import type { MathfieldPrivate } from './mathfield-private';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield

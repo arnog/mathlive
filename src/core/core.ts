@@ -1,17 +1,18 @@
 import './atom-class';
-export * from './atom-class';
 import './atom';
-export * from './atom';
 import './context';
-export * from './context';
 import './delimiters';
-export * from './delimiters';
 import './mathstyle';
-export * from './mathstyle';
 import './parser';
-export * from './parser';
 import './box';
-export * from './box';
 import './font-metrics';
-export * from './font-metrics';
 import './modes';
+
+export * from './atom-class';
+export * from './atom';
+export * from './context';
+export * from './delimiters';
+export * from './mathstyle';
+export * from './parser';
+export * from './box';
+export * from './font-metrics';

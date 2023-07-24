@@ -1,19 +1,18 @@
 import type { ParseMode } from '../public/core-types';
 
+import { getDefinition } from '../core-definitions/definitions-utils';
 import {
   Atom,
   AtomJson,
   CreateAtomOptions,
   ToLatexOptions,
 } from '../core/atom-class';
-import { X_HEIGHT } from '../core/font-metrics';
 import { Box } from '../core/box';
-import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
-
 import { makeCustomSizedDelim } from '../core/delimiters';
+import { X_HEIGHT } from '../core/font-metrics';
 import { latexCommand } from '../core/tokenizer';
-import { getDefinition } from '../core-definitions/definitions-utils';
+import { VBox } from '../core/v-box';
 
 export class SurdAtom extends Atom {
   constructor(

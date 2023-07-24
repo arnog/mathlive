@@ -5,19 +5,18 @@ import type {
   LatexValue,
 } from '../public/core-types';
 
-import { PT_PER_EM, X_HEIGHT } from './font-metrics';
-import { boxType, Box } from './box';
-import { makeLimitsStack, VBox } from './v-box';
-import { joinLatex, latexCommand } from './tokenizer';
-import { Mode } from './modes-utils';
 import {
   Argument,
   getDefinition,
   unicodeCharToLatex,
 } from '../core-definitions/definitions-utils';
-
+import { Box, boxType } from './box';
 import { Context } from './context';
-import { PrivateStyle, BoxType } from './types';
+import { PT_PER_EM, X_HEIGHT } from './font-metrics';
+import { Mode } from './modes-utils';
+import { joinLatex, latexCommand } from './tokenizer';
+import { BoxType, PrivateStyle } from './types';
+import { makeLimitsStack, VBox } from './v-box';
 
 /**
  * This data type is used as a serialized representation of the atom tree.

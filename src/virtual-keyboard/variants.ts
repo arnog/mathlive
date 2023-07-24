@@ -1,4 +1,6 @@
+import { BACKGROUND_COLORS, FOREGROUND_COLORS } from '../core/color';
 import { Scrim } from '../editor/scrim';
+import MathfieldElement from '../public/mathfield-element';
 import {
   executeKeycapCommand,
   normalizeKeycap,
@@ -6,8 +8,7 @@ import {
   renderKeycap,
 } from './utils';
 import { VirtualKeyboard } from './virtual-keyboard';
-import { FOREGROUND_COLORS, BACKGROUND_COLORS } from '../core/color';
-import MathfieldElement from '../public/mathfield-element';
+
 import type { VirtualKeyboardKeycap } from '../public/virtual-keyboard';
 
 const VARIANTS: {

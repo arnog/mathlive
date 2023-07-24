@@ -1,5 +1,4 @@
 import { register } from '../editor/commands';
-
 import { hideVariantsPanel } from './variants';
 import { VirtualKeyboard } from './virtual-keyboard';
 

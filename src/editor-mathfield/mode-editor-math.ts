@@ -2,28 +2,24 @@
 
 import type { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 
-import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
-
-import { requestUpdate } from './render';
-
-import { LEFT_DELIM } from '../core/delimiters';
-import { parseLatex } from '../core/parser';
-import { fromJson } from '../core/atom';
-import { Atom, AtomJson } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LeftRightAtom } from '../core-atoms/leftright';
-
-import { range } from '../editor-model/selection-utils';
-import { ModelPrivate } from '../editor-model/model-private';
-import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
+import { fromJson } from '../core/atom';
+import { Atom, AtomJson } from '../core/atom-class';
+import { LEFT_DELIM } from '../core/delimiters';
+import { parseLatex } from '../core/parser';
 import { contentDidChange, contentWillChange } from '../editor-model/listeners';
+import { ModelPrivate } from '../editor-model/model-private';
+import { range } from '../editor-model/selection-utils';
+import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import {
   parseMathString,
   trimModeShiftCommand,
 } from '../editor/parse-math-string';
-
+import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
+import { requestUpdate } from './render';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
