@@ -23,6 +23,7 @@
         max-width: 640px;
         width: 100%;
       }
+
       /* math-field::part(content) {
         justify-content: center;
       } */
@@ -30,6 +31,10 @@
         --selection-background-color: red;
         --selection-color: #f80;
       } */
+
+      .MLK__shift {
+        transform: translate(0, -5px);
+      }
     </style>
   </head>
   <body>
@@ -131,6 +136,49 @@
       // });
 
       // MathfieldElement.computeEngine = ce;
+      mathVirtualKeyboard.layouts = [
+        {
+          label: 'minimal',
+          tooltip: 'Only the essential',
+          layers: [
+            {
+              style:
+                '.digit { background: blue !important; color: white !important }',
+              rows: [
+                [
+                  {
+                    latex: 'x',
+                    insert: 'x',
+                    shift: { latex: 'a', insert: 's' },
+                  },
+                  '-',
+                  '\\times',
+                  '\\frac{#@}{#?}',
+                  '=',
+                  '.',
+                  '(',
+                  ')',
+                  '\\sqrt{#0}',
+                  '#@^{#?}',
+                ],
+                [
+                  { class: 'digit', latex: '1' },
+                  { class: 'digit', latex: '2' },
+                  { class: 'digit', latex: '3' },
+                  { class: 'digit', latex: '4' },
+                  { class: 'digit', latex: '5' },
+                  { class: 'digit', latex: '6' },
+                  { class: 'digit', latex: '7' },
+                  { class: 'digit', latex: '8' },
+                  { class: 'digit', latex: '9' },
+                  { class: 'digit', latex: '0' },
+                ],
+              ],
+            },
+          ],
+        },
+        'alphabetic',
+      ];
 
       const mf = document.getElementById('mf');
       mf.smartMode = true;
