@@ -126,7 +126,7 @@
 body > .ML__keyboard {
   position: fixed;
   --_padding-bottom: calc(
-    var(--_padding-bottom) + env(safe-area-inset-bottom, 0)
+    var(--keyboard-padding-bottom, 0px) + env(safe-area-inset-bottom, 0)
   );
 }
 
@@ -270,7 +270,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 // It contains all the operable UI (toolbar, rows of keycaps)
 .MLK__plate {
   position: absolute;
-  top: 0;
+  top: var(--_padding-top);
   left: var(--_padding-horizontal);
   width: calc(100% - 2 * var(--_padding-horizontal));
   margin: 0;
