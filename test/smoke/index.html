@@ -24,6 +24,9 @@
         width: 100%;
       }
 
+      body {
+        --keycap-height: 84px;
+      }
       /* math-field::part(content) {
         justify-content: center;
       } */
@@ -54,7 +57,7 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf"></math-field>
+      <math-field id="mf">\sqrt[3]{x+1}</math-field>
       <!-- <math-field id="mf"
         >\text{Hello
         World}\int^{x+1}_{x-1}x^2+y^{1+a}_{b+2}+\frac{x+z}{y^{2+n}+2}+\left(a+3+\frac{2}{4}\right)+\sqrt[1+x]{\frac78}+\frac56</math-field
@@ -181,6 +184,18 @@
       ];
 
       const mf = document.getElementById('mf');
+      mf.addEventListener(
+        'keydown',
+        (ev) => {
+          if (ev.key === 'Escape') {
+            if (ev.shiftKey) mf.executeCommand('moveToPreviousGroup');
+            else mf.executeCommand('moveToNextGroup');
+            ev.preventDefault();
+          }
+        },
+        { capture: true }
+      );
+
       mf.smartMode = true;
 
       mf.smartFence = false;

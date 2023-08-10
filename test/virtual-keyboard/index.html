@@ -407,6 +407,16 @@
                 // customKeys,
                 // customKeys.length > 0 ? ['[hr]'] : [],
                 [
+                  {
+                    label: 'text',
+                    class: 'if-math-mode',
+                    command: ['performWithFeedback', ['switchMode', 'text']],
+                  },
+                  {
+                    label: 'math',
+                    class: 'if-text-mode',
+                    command: ['performWithFeedback', ['switchMode', 'math']],
+                  },
                   '+',
                   '-',
                   '\\times',
