@@ -4,6 +4,7 @@
 
 - Added `if-math-mode` and `if-text-mode` classes to conditionally show 
   virtual keyboard keys.
+- **#2086** When navigation a root with an index, the index is now navigater first.
 
 ## 0.95.1 (2023-07-25)
 
