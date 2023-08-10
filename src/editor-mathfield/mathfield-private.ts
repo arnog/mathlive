@@ -1105,6 +1105,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
     );
 
     this.model.mode = mode;
+
+    // Update the toolbar
+    window.mathVirtualKeyboard.update(makeProxy(this));
   }
 
   hasFocus(): boolean {

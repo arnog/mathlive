@@ -645,7 +645,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       return;
     }
 
-    if (action === 'connect') {
+    if (action === 'connect' || action === 'show') {
       this.sendMessage(
         'synchronize-proxy',
         {
