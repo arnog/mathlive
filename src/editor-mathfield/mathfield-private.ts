@@ -15,19 +15,60 @@ import type {
   ApplyStyleOptions,
 } from '../public/mathfield';
 
-import { canVibrate } from '../common/capabilities';
+import '../core-definitions/definitions';
+import './commands';
+import './styling';
+import './mode-editor-math';
+import './mode-editor-text';
+import '../public/mathfield-element';
+import '../virtual-keyboard/virtual-keyboard';
+import '../virtual-keyboard/global';
 
-import { Atom } from '../core/atom-class';
-import { gFontsState } from '../core/fonts';
-import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
+import {
+  disposeEnvironmentPopover,
+  hideEnvironmentPopover,
+  updateEnvironmentPopover,
+} from 'editor/environment-popover';
+
+import { canVibrate } from '../common/capabilities';
+import { LatexGroupAtom } from '../core-atoms/latex';
+import { PromptAtom } from '../core-atoms/prompt';
 import {
   getMacroDefinition,
   getMacros,
 } from '../core-definitions/definitions-utils';
-import { LatexGroupAtom } from '../core-atoms/latex';
+import { Atom } from '../core/atom-class';
+import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
+import { gFontsState } from '../core/fonts';
+import { l10n, localize } from '../core/l10n';
 import { parseLatex, validateLatex } from '../core/parser';
 import { getDefaultRegisters } from '../core/registers';
-
+import { addColumnAfter, addRowAfter } from '../editor-model/array';
+import {
+  removeComposition,
+  updateComposition,
+} from '../editor-model/composition';
+import { ModelState } from '../editor-model/model-private';
+import { range } from '../editor-model/selection-utils';
+import { applyStyle } from '../editor-model/styling';
+import {
+  getCommandTarget,
+  HAPTIC_FEEDBACK_DURATION,
+  perform,
+  SelectorPrivate,
+} from '../editor/commands';
+import { normalizeKeybindings } from '../editor/keybindings';
+import {
+  delegateKeyboardEvents,
+  KeyboardDelegate,
+  KeyboardDelegateInterface,
+} from '../editor/keyboard';
+import {
+  DEFAULT_KEYBOARD_LAYOUT,
+  getActiveKeyboardLayout,
+  gKeyboardLayout,
+  setKeyboardLayoutLocale,
+} from '../editor/keyboard-layout';
 import {
   contentWillChange,
   deleteRange,
@@ -35,59 +76,33 @@ import {
   isRange,
   ModelPrivate,
 } from '../editor/model';
-import { applyStyle } from '../editor-model/styling';
-import { range } from '../editor-model/selection-utils';
 import {
-  removeComposition,
-  updateComposition,
-} from '../editor-model/composition';
-import { addRowAfter, addColumnAfter } from '../editor-model/array';
-
-import {
-  delegateKeyboardEvents,
-  KeyboardDelegate,
-  KeyboardDelegateInterface,
-} from '../editor/keyboard';
-import { UndoManager } from '../editor/undo';
+  _MathfieldOptions,
+  effectiveMode,
+  get as getOptions,
+  getDefault as getDefaultOptions,
+  update as updateOptions,
+} from '../editor/options';
 import {
   disposeSuggestionPopover,
   updateSuggestionPopoverPosition,
 } from '../editor/suggestion-popover';
-import { l10n, localize } from '../core/l10n';
-import {
-  HAPTIC_FEEDBACK_DURATION,
-  SelectorPrivate,
-  perform,
-  getCommandTarget,
-} from '../editor/commands';
-import {
-  _MathfieldOptions,
-  update as updateOptions,
-  getDefault as getDefaultOptions,
-  get as getOptions,
-  effectiveMode,
-} from '../editor/options';
-import { normalizeKeybindings } from '../editor/keybindings';
-import {
-  setKeyboardLayoutLocale,
-  getActiveKeyboardLayout,
-  DEFAULT_KEYBOARD_LAYOUT,
-  gKeyboardLayout,
-} from '../editor/keyboard-layout';
-import { ModelState } from '../editor-model/model-private';
-
-import { onInput, onKeystroke } from './keyboard-input';
+import { UndoManager } from '../editor/undo';
+import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
+import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
 import { complete } from './autocomplete';
+import { onInput, onKeystroke } from './keyboard-input';
+import { disposeKeystrokeCaption } from './keystroke-caption';
+import { ModeEditor } from './mode-editor';
+import { getLatexGroupBody } from './mode-editor-latex';
+import { offsetFromPoint, onPointerDown } from './pointer-input';
 import {
-  requestUpdate,
+  contentMarkup,
   render,
   renderSelection,
-  contentMarkup,
+  requestUpdate,
 } from './render';
-
-import '../core-definitions/definitions';
-import './commands';
-import './styling';
+import { validateStyle } from './styling';
 import {
   getCaretPoint,
   getSelectionBounds,
@@ -96,36 +111,13 @@ import {
   validateOrigin,
 } from './utils';
 
-import { onPointerDown, offsetFromPoint } from './pointer-input';
-
-import { ModeEditor } from './mode-editor';
-import { getLatexGroupBody } from './mode-editor-latex';
-import './mode-editor-math';
-import './mode-editor-text';
-
-import { validateStyle } from './styling';
-import { disposeKeystrokeCaption } from './keystroke-caption';
-import { PromptAtom } from '../core-atoms/prompt';
-import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
-import '../public/mathfield-element';
-
-import '../virtual-keyboard/virtual-keyboard';
-import '../virtual-keyboard/global';
-
 import type {
   ParseMode,
   Style,
   NormalizedMacroDictionary,
   LatexSyntaxError,
 } from '../public/core-types';
-import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
 import type { ContextInterface } from '../core/types';
-import {
-  disposeEnvironmentPopover,
-  hideEnvironmentPopover,
-  updateEnvironmentPopover,
-} from 'editor/environment-popover';
-
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg style="width: 21px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg>`;
 
 /** @internal */

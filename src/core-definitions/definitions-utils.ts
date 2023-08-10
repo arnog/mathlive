@@ -1,5 +1,4 @@
 import { supportRegexPropertyEscape } from '../common/capabilities';
-
 import {
   Atom,
   AtomType,
@@ -7,9 +6,12 @@ import {
   CreateAtomOptions,
   ToLatexOptions,
 } from '../core/atom-class';
+import { Box } from '../core/box';
+import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { unicodeToMathVariant } from './unicode';
+
 import type { ColumnFormat } from '../core-atoms/array';
 
-import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import type {
   ArgumentType,
   Dimension,
@@ -23,11 +25,8 @@ import type {
   Environment,
   LatexValue,
 } from '../public/core-types';
-import { unicodeToMathVariant } from './unicode';
 import type { ContextInterface, PrivateStyle } from '../core/types';
 import type { Context } from '../core/context';
-import { Box } from '../core/box';
-
 export type FunctionArgumentDefinition = {
   isOptional: boolean;
   type: ArgumentType;

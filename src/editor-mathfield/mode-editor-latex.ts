@@ -1,15 +1,14 @@
-/* eslint-disable no-new */
-import { Offset, Range, InsertOptions } from '../public/mathfield';
 import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
-import { range } from '../editor-model/selection-utils';
-import { Atom } from '../core/atom-class';
-import { ModelPrivate } from '../editor-model/model-private';
-import { contentDidChange, contentWillChange } from '../editor-model/listeners';
-
-import { MathfieldPrivate } from './mathfield-private';
-import { requestUpdate } from './render';
-import { ModeEditor } from './mode-editor';
 import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions-utils';
+import { Atom } from '../core/atom-class';
+import { contentDidChange, contentWillChange } from '../editor-model/listeners';
+import { ModelPrivate } from '../editor-model/model-private';
+import { range } from '../editor-model/selection-utils';
+/* eslint-disable no-new */
+import { InsertOptions, Offset, Range } from '../public/mathfield';
+import { MathfieldPrivate } from './mathfield-private';
+import { ModeEditor } from './mode-editor';
+import { requestUpdate } from './render';
 
 export class LatexModeEditor extends ModeEditor {
   constructor() {

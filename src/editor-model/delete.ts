@@ -1,12 +1,14 @@
-import { ContentChangeType } from '../public/options';
-import type { Range } from '../public/mathfield';
+import MathfieldElement from 'public/mathfield-element';
 
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { Atom, Branch } from '../core/atom';
+import { ContentChangeType } from '../public/options';
+import { contentWillChange } from './listeners';
 import { ModelPrivate } from './model-private';
 import { range } from './selection-utils';
-import { contentWillChange } from './listeners';
-import MathfieldElement from 'public/mathfield-element';
+
+import type { Range } from '../public/mathfield';
+
 // import {
 //     arrayFirstCellByRow,
 //     arrayColRow,

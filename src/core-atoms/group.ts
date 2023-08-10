@@ -1,11 +1,11 @@
 import type { ParseMode, Style } from '../public/core-types';
 
+import { getDefinition } from '../core-definitions/definitions-utils';
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
+
 import type { Context } from '../core/context';
 import type { Box } from '../core/box';
 import type { BoxType } from '../core/types';
-import { getDefinition } from '../core-definitions/definitions-utils';
-
 export class GroupAtom extends Atom {
   private boxType?: BoxType;
 

@@ -1,7 +1,7 @@
 import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
 import { Box } from '../core/box';
-import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
+import { VBox } from '../core/v-box';
 
 export class PhantomAtom extends Atom {
   private readonly isInvisible: boolean;

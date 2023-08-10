@@ -1,14 +1,14 @@
 import type { ModelPrivate } from './model-private';
-import { MathfieldPrivate, getLocalDOMRect } from '../editor/mathfield';
-import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from '../core-atoms/latex';
+import { PromptAtom } from '../core-atoms/prompt';
 import { TextAtom } from '../core-atoms/text';
 import { LETTER_AND_DIGITS } from '../core-definitions/definitions-utils';
-import type { Offset, Selection } from '../public/mathfield';
+import { Atom } from '../core/atom-class';
 import { getCommandSuggestionRange } from '../editor-mathfield/mode-editor-latex';
-import { PromptAtom } from '../core-atoms/prompt';
+import { getLocalDOMRect, MathfieldPrivate } from '../editor/mathfield';
 
+import type { Offset, Selection } from '../public/mathfield';
 /*
  * Calculates the offset of the "next word".
  * This is inspired by the behavior of text editors on macOS, namely:

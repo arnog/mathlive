@@ -1,5 +1,5 @@
 import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
-import { makeSVGBox, Box } from '../core/box';
+import { Box, makeSVGBox } from '../core/box';
 import { Context } from '../core/context';
 import { X_HEIGHT } from '../core/font-metrics';
 import { VBox } from '../core/v-box';

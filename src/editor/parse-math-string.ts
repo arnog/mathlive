@@ -1,5 +1,5 @@
 import { OutputFormat } from '../public/mathfield';
-import { InlineShortcutDefinitions, getInlineShortcut } from './shortcuts';
+import { getInlineShortcut, InlineShortcutDefinitions } from './shortcuts';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 /**

@@ -1,9 +1,8 @@
 import type { Dimension, Environment } from '../public/core-types';
 
-import { Atom } from '../core/atom-class';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
 import { ArrayAtom, ColumnFormat } from '../core-atoms/array';
-
+import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { Atom } from '../core/atom-class';
 import {
   Argument,
   defineEnvironment,

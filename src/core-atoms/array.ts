@@ -4,6 +4,7 @@ import type {
   Environment,
 } from '../public/core-types';
 
+import { isMatrixEnvironment } from '../core-definitions/environment-types';
 import {
   Atom,
   AtomJson,
@@ -13,15 +14,13 @@ import {
   ToLatexOptions,
 } from '../core/atom-class';
 import { Box } from '../core/box';
-import { VBox, VBoxElementAndShift } from '../core/v-box';
-import { makeLeftRightDelim } from '../core/delimiters';
 import { Context } from '../core/context';
-import { joinLatex } from '../core/tokenizer';
+import { makeLeftRightDelim } from '../core/delimiters';
 import { AXIS_HEIGHT, BASELINE_SKIP } from '../core/font-metrics';
 import { convertDimensionToEm } from '../core/registers-utils';
-
+import { joinLatex } from '../core/tokenizer';
+import { VBox, VBoxElementAndShift } from '../core/v-box';
 import { PlaceholderAtom } from './placeholder';
-import { isMatrixEnvironment } from '../core-definitions/environment-types';
 
 export type ColumnFormat =
   | {

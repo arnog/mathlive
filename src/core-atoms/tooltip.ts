@@ -1,10 +1,11 @@
-import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
-import { Context } from '../core/context';
-import { Box, coalesce } from '../core/box';
-import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
-import { fromJson } from '../core/atom';
-import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 import { Argument } from 'core-definitions/definitions-utils';
+
+import { fromJson } from '../core/atom';
+import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
+import { Box, coalesce } from '../core/box';
+import { Context } from '../core/context';
+import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
+import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 
 export class TooltipAtom extends Atom {
   tooltip: Atom;

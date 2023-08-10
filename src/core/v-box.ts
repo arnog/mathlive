@@ -1,8 +1,8 @@
 import { Box } from './box';
 import { Context } from './context';
-import type { Style } from '../public/core-types';
 import { BoxType } from './types';
 
+import type { Style } from '../public/core-types';
 export type VBoxElement = {
   box: Box;
   marginLeft?: number;

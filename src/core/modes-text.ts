@@ -1,15 +1,14 @@
 /* eslint-disable no-new */
 
 import { TextAtom } from '../core-atoms/text';
-
+import { TokenDefinition } from '../core-definitions/definitions-utils';
 import { Atom, ToLatexOptions } from './atom';
 import { Box } from './box';
-import { Mode, getPropertyRuns } from './modes-utils';
-import type { FontSeries, FontShape, Style } from '../public/core-types';
-import { joinLatex, latexCommand } from './tokenizer';
-import { TokenDefinition } from '../core-definitions/definitions-utils';
 import { FontName } from './font-metrics';
+import { getPropertyRuns, Mode } from './modes-utils';
+import { joinLatex, latexCommand } from './tokenizer';
 
+import type { FontSeries, FontShape, Style } from '../public/core-types';
 function emitStringTextRun(run: Atom[], options: ToLatexOptions): string[] {
   return run.map((x) => x._serialize(options));
 }

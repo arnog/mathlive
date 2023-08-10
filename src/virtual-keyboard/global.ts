@@ -1,6 +1,6 @@
 import { isBrowser } from '../common/capabilities';
-import { VirtualKeyboard } from './virtual-keyboard';
 import { VirtualKeyboardProxy } from './proxy';
+import { VirtualKeyboard } from './virtual-keyboard';
 
 export { VirtualKeyboard } from './virtual-keyboard';
 export { VirtualKeyboardProxy } from './proxy';

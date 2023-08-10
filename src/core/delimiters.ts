@@ -22,18 +22,18 @@
  */
 
 import { Box } from './box';
-import { VBoxChild, VBox } from './v-box';
+import { Context } from './context';
 import {
-  getCharacterMetrics,
-  PT_PER_EM,
   AXIS_HEIGHT,
   FONT_SCALE,
   FontName,
+  getCharacterMetrics,
+  PT_PER_EM,
 } from './font-metrics';
-import { Context } from './context';
-import type { MathstyleName, ParseMode, Style } from '../public/core-types';
 import { BoxType } from './types';
+import { VBox, VBoxChild } from './v-box';
 
+import type { MathstyleName, ParseMode, Style } from '../public/core-types';
 export const RIGHT_DELIM = {
   '(': ')',
   '{': '}',

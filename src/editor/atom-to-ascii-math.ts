@@ -1,10 +1,9 @@
 import { isArray } from '../common/types';
-
-import type { Atom } from '../core/atom';
+import { ArrayAtom } from '../core-atoms/array';
 import { GenfracAtom } from '../core-atoms/genfrac';
 import { LeftRightAtom } from '../core-atoms/leftright';
-import { ArrayAtom } from '../core-atoms/array';
 
+import type { Atom } from '../core/atom';
 const SPECIAL_IDENTIFIERS = {
   '\\ne': '≠',
   '\\neq': '≠',

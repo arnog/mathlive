@@ -1,16 +1,15 @@
+import { ArrayAtom } from '../core-atoms/array';
+import { LeftRightAtom } from '../core-atoms/leftright';
+import { PlaceholderAtom } from '../core-atoms/placeholder';
+import { makeEnvironment } from '../core-definitions/environments';
 import { Atom } from '../core/atom';
-
 import { register as registerCommand } from '../editor/commands';
+import { Environment, TabularEnvironment } from '../public/core-types';
+import { arrayCell, arrayIndex } from './array-utils';
+import { contentDidChange, contentWillChange } from './listeners';
 
 import type { ModelPrivate } from './model-private';
-import { contentDidChange, contentWillChange } from './listeners';
-import { arrayIndex, arrayCell } from './array-utils';
-import { ArrayAtom } from '../core-atoms/array';
 import type { Style } from '../public/core-types';
-import { Environment, TabularEnvironment } from '../public/core-types';
-import { makeEnvironment } from '../core-definitions/environments';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-import { LeftRightAtom } from '../core-atoms/leftright';
 export * from './array-utils';
 
 /**

@@ -1,6 +1,7 @@
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { Context } from '../core/context';
 import { Box } from '../core/box';
+import { Context } from '../core/context';
+
 import type { Style } from '../public/core-types';
 
 export class MacroAtom extends Atom {

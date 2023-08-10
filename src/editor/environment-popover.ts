@@ -1,15 +1,14 @@
-import { CasesEnvironment, MatrixEnvironment } from '../public/core-types';
+import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
 import {
   isAlignEnvironment,
   isCasesEnvironment,
   isMatrixEnvironment,
   isTabularEnvironment,
 } from '../core-definitions/environment-types';
-import { SelectorPrivate } from './types';
+import { CasesEnvironment, MatrixEnvironment } from '../public/core-types';
 import { MathfieldPrivate } from './mathfield';
 import { getSharedElement, releaseSharedElement } from './shared-element';
-
-import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
+import { SelectorPrivate } from './types';
 
 const padding = 4;
 const radius = 20;

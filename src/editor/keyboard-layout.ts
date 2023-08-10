@@ -1,4 +1,5 @@
 import { osPlatform } from '../common/capabilities';
+
 import type { KeyboardLayoutName as KeyboardLayoutId } from '../public/options';
 
 type KeystrokeModifiers = {

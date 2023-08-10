@@ -1,9 +1,9 @@
 import { register } from '../editor/commands';
-import type { ModelPrivate } from './model-private';
-import { deleteForward, deleteBackward, deleteRange } from './delete';
 import { wordBoundaryOffset } from './commands';
+import { deleteBackward, deleteForward, deleteRange } from './delete';
 import { contentWillChange } from './listeners';
 
+import type { ModelPrivate } from './model-private';
 register(
   {
     deleteAll: (model: ModelPrivate): boolean =>

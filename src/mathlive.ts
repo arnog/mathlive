@@ -2,20 +2,21 @@
 import type { AutoRenderOptions } from './public/options';
 export * from './public/mathlive';
 
-import {
-  AutoRenderOptionsPrivate,
-  autoRenderMathInElement,
-} from './addons/auto-render';
-export * from './addons/auto-render';
-
 import './virtual-keyboard/commands';
 
+import {
+  autoRenderMathInElement,
+  AutoRenderOptionsPrivate,
+} from './addons/auto-render';
 import {
   convertLatexToMarkup,
   convertLatexToMathMl,
   convertLatexToSpeakableText,
   serializeMathJsonToLatex,
 } from './public/mathlive-ssr';
+
+export * from './addons/auto-render';
+
 import type { VirtualKeyboardInterface } from './public/virtual-keyboard';
 
 export type MathLiveGlobal = {

@@ -1,8 +1,8 @@
 import { Atom } from '../core/atom-class';
-import type { Range } from '../public/mathfield';
 import { OriginValidator } from '../public/options';
 import { MathfieldPrivate } from './mathfield-private';
 
+import type { Range } from '../public/mathfield';
 export type Rect = {
   top: number;
   bottom: number;

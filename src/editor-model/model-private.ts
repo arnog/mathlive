@@ -14,27 +14,24 @@ import type { ParseMode } from '../public/core-types';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
+import { toMathML } from '../addons/math-ml';
+import { LatexAtom } from '../core-atoms/latex';
+import { AtomJson, BranchName, fromJson } from '../core/atom';
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
-import { AtomJson, BranchName, fromJson } from '../core/atom';
-
-import { toMathML } from '../addons/math-ml';
-
+import { defaultAnnounceHook } from '../editor/a11y';
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
-import { defaultAnnounceHook } from '../editor/a11y';
-
 import {
   contentDidChange,
   contentWillChange,
   ModelListeners,
   selectionDidChange,
 } from './listeners';
-import { isOffset, isSelection, isRange, AnnounceVerb } from './utils';
 import { compareSelection, range } from './selection-utils';
-import type { ArrayAtom } from '../core-atoms/array';
-import { LatexAtom } from '../core-atoms/latex';
+import { AnnounceVerb, isOffset, isRange, isSelection } from './utils';
 
+import type { ArrayAtom } from '../core-atoms/array';
 export type ModelState = {
   content: AtomJson;
   selection: Selection;

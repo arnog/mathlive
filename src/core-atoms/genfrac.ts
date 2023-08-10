@@ -2,10 +2,10 @@ import type { MathstyleName, Style } from '../public/core-types';
 
 import { Atom, AtomJson } from '../core/atom-class';
 import { Box } from '../core/box';
-import { VBox } from '../core/v-box';
-import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { Context } from '../core/context';
+import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { AXIS_HEIGHT } from '../core/font-metrics';
+import { VBox } from '../core/v-box';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;

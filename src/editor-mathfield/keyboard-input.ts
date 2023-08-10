@@ -1,20 +1,10 @@
 import type { Selector } from '../public/commands';
 
-import { splitGraphemes } from '../core/grapheme-splitter';
+import { LeftRightAtom } from 'core-atoms/leftright';
+import { LEFT_DELIM, RIGHT_DELIM } from 'core/delimiters';
+
 import { Atom } from '../core/atom';
-
-import {
-  keyboardEventToChar,
-  mightProducePrintableCharacter,
-} from '../editor/keyboard';
-import { getInlineShortcut } from '../editor/shortcuts';
-import { getCommandForKeybinding } from '../editor/keybindings';
-import { SelectorPrivate } from '../editor/commands';
-import {
-  getActiveKeyboardLayout,
-  validateKeyboardLayout,
-} from '../editor/keyboard-layout';
-
+import { splitGraphemes } from '../core/grapheme-splitter';
 import { moveAfterParent } from '../editor-model/commands-move';
 import {
   contentDidChange,
@@ -22,18 +12,26 @@ import {
   selectionDidChange,
 } from '../editor-model/listeners';
 import { range } from '../editor-model/selection-utils';
-
+import { SelectorPrivate } from '../editor/commands';
+import { getCommandForKeybinding } from '../editor/keybindings';
+import {
+  keyboardEventToChar,
+  mightProducePrintableCharacter,
+} from '../editor/keyboard';
+import {
+  getActiveKeyboardLayout,
+  validateKeyboardLayout,
+} from '../editor/keyboard-layout';
+import { getInlineShortcut } from '../editor/shortcuts';
 import { removeSuggestion, updateAutocomplete } from './autocomplete';
-import { requestUpdate } from './render';
-import type { MathfieldPrivate } from './mathfield-private';
-import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
+import { requestUpdate } from './render';
+import { removeIsolatedSpace, smartMode } from './smartmode';
+
+import type { MathfieldPrivate } from './mathfield-private';
 import type { ParseMode, Style } from 'public/core-types';
 import type { ModelPrivate } from 'editor-model/model-private';
-import { LeftRightAtom } from 'core-atoms/leftright';
-import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
-
 /**
  * Handler in response to a keystroke event (or to a virtual keyboard keycap
  * with a `key` property).

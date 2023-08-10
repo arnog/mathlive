@@ -1,3 +1,4 @@
+import { getDefinition } from '../core-definitions/definitions-utils';
 import {
   Atom,
   AtomJson,
@@ -8,7 +9,6 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { makeSizedDelim } from '../core/delimiters';
 import { latexCommand } from '../core/tokenizer';
-import { getDefinition } from '../core-definitions/definitions-utils';
 
 export class MiddleDelimAtom extends Atom {
   size: 1 | 2 | 3 | 4;

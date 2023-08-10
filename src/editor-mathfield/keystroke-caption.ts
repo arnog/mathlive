@@ -1,12 +1,11 @@
-import { getKeybindingMarkup } from '../editor/keybindings';
-import type { MathfieldPrivate } from './mathfield-private';
-
 import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
-
+import { getKeybindingMarkup } from '../editor/keybindings';
 import {
   getSharedElement,
   releaseSharedElement,
 } from '../editor/shared-element';
+
+import type { MathfieldPrivate } from './mathfield-private';
 
 export function showKeystroke(
   mathfield: MathfieldPrivate,

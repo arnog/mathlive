@@ -1,5 +1,5 @@
-import { Atom } from '../core/atom-class';
 import { MacroAtom } from '../core-atoms/macro';
+import { Atom } from '../core/atom-class';
 
 export type MathMLStream = {
   atoms: Atom[];

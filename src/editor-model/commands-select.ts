@@ -1,10 +1,10 @@
-import { register } from '../editor/commands';
-import type { ModelPrivate } from './model-private';
 import { LETTER_AND_DIGITS } from '../core-definitions/definitions-utils';
-import { getMode } from './selection';
+import { register } from '../editor/commands';
 import { move, skip } from './commands';
+import { getMode } from './selection';
 import { range } from './selection-utils';
 
+import type { ModelPrivate } from './model-private';
 /**
  * Select all the atoms in the current group, that is all the siblings.
  * When the selection is in a numerator, the group is the numerator. When

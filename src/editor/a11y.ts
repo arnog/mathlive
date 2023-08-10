@@ -1,11 +1,9 @@
 import { Atom } from '../core/atom';
+import { AnnounceVerb } from '../editor-model/utils';
+import { speakableText } from './speech';
 
 import type { ModelPrivate } from '../editor-model/model-private';
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
-import { AnnounceVerb } from '../editor-model/utils';
-
-import { speakableText } from './speech';
-
 /**
  * Given an atom, describe the relationship between the atom
  * and its siblings and their parent.

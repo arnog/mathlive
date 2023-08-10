@@ -1,6 +1,6 @@
+import { isBrowser } from '../common/capabilities';
 // Import { Keys } from '../types-utils';
 import { STRINGS } from '../editor/l10n-strings';
-import { isBrowser } from '../common/capabilities';
 
 interface L10n {
   locale: string;

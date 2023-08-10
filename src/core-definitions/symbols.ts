@@ -1,9 +1,8 @@
 import { SpacingAtom } from '../core-atoms/spacing';
-
 import {
-  newSymbols,
-  newSymbolRange,
   defineFunction,
+  newSymbolRange,
+  newSymbols,
 } from './definitions-utils';
 
 // See http://www.gang.umass.edu/~franz/latexmanual.pdf p. 139

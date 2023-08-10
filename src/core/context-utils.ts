@@ -2,11 +2,11 @@ import {
   getMacroDefinition,
   getMacros,
 } from '../core-definitions/definitions-utils';
-import type { ContextInterface } from '../core/types';
-
-import { defaultColorMap, defaultBackgroundColorMap } from './color';
+import { defaultBackgroundColorMap, defaultColorMap } from './color';
 import { l10n } from './l10n';
 import { getDefaultRegisters } from './registers';
+
+import type { ContextInterface } from '../core/types';
 
 /** @internal */
 export function getDefaultContext(): ContextInterface {

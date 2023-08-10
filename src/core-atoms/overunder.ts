@@ -1,8 +1,9 @@
 import { Atom, AtomJson, CreateAtomOptions } from '../core/atom-class';
 import { Box, makeSVGBox } from '../core/box';
-import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 import { makeNullDelimiter } from '../core/delimiters';
+import { VBox } from '../core/v-box';
+
 import type { BoxType } from '../core/types';
 
 // An `overunder` atom has the following attributes:

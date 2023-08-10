@@ -1,3 +1,6 @@
+import { validateOrigin } from '../editor-mathfield/utils';
+import { getCommandTarget } from '../editor/commands';
+import { OriginValidator } from '../public/options';
 import {
   AlphabeticKeyboardLayout,
   EditToolbarOptions,
@@ -5,9 +8,7 @@ import {
   VirtualKeyboardLayout,
   VirtualKeyboardName,
 } from '../public/virtual-keyboard';
-import { validateOrigin } from '../editor-mathfield/utils';
-import { getCommandTarget } from '../editor/commands';
-import { OriginValidator } from '../public/options';
+
 import type {
   VirtualKeyboardMessage,
   VirtualKeyboardInterface,
