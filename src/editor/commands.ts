@@ -54,15 +54,14 @@ export function register(
   }
 }
 
-export function getCommandInfo(
+function getCommandInfo(
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
 ): CommandOptions | undefined {
   let selector: SelectorPrivate;
 
   if (Array.isArray(command)) {
-    if (command[0] === 'performWithFeedback' || command[0] === 'performVariant')
-      selector = command[1];
-    else selector = command[0];
+    if (command[0] === 'performWithFeedback') return getCommandInfo(command[1]);
+    selector = command[0];
   } else selector = command;
 
   // Convert kebab case (like-this) to camel case (likeThis).
@@ -163,7 +162,7 @@ export function perform(
  * are pressed.
  */
 
-export function performWithFeedback(
+function performWithFeedback(
   mathfield: MathfieldPrivate,
   selector: SelectorPrivate
 ): boolean {

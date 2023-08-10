@@ -733,7 +733,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
   '[.]': {
     variants: '.',
-    command: 'insertDecimalSeparator',
+    command: ['performWithFeedback', 'insertDecimalSeparator'],
     shift: ',',
     class: 'big-op hide-shift',
   },

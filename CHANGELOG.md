@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Improvements
+
+- Added `if-math-mode` and `if-text-mode` classes to conditionally show 
+  virtual keyboard keys.
+
 ## 0.95.1 (2023-07-25)
 
 ### Improvements

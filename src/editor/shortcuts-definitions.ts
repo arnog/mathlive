@@ -12,6 +12,7 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   // Primes
   "''": '^{\\doubleprime}',
   "'''": '^{\\prime\\prime\\prime}',
+  "''''": '^{\\prime\\prime\\prime\\prime}',
 
   // Greek letters
   'alpha': '\\alpha',
