@@ -149,10 +149,20 @@
                 '.digit { background: blue !important; color: white !important }',
               rows: [
                 [
+                  // {
+                  //   latex: 'x',
+                  //   insert: 'x',
+                  //   shift: { latex: 'a', insert: 's' },
+                  // },
                   {
-                    latex: 'x',
-                    insert: 'x',
-                    shift: { latex: 'a', insert: 's' },
+                    label: 'Aa',
+                    class: 'if-math-mode',
+                    command: ['perform-with-feedback', ['switch-mode', 'text']],
+                  },
+                  {
+                    label: '√x',
+                    class: 'if-text-mode',
+                    command: ['perform-with-feedback', ['switch-mode', 'math']],
                   },
                   '-',
                   '\\times',
@@ -196,7 +206,7 @@
         { capture: true }
       );
 
-      mf.smartMode = true;
+      mf.smartMode = false;
 
       mf.smartFence = false;
       // mf.inlineShortcuts = {
