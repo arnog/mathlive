@@ -322,6 +322,20 @@ function onDelete(
     return true;
   }
 
+  // In the sup or sub of, e.g. \ln.
+  if (
+    direction === 'backward' &&
+    parent?.subsupPlacement === 'adjacent' &&
+    atom.parentBranch !== 'body' &&
+    atom.siblings.length === 2
+  ) {
+    const pos = model.offsetOf(parent.leftSibling);
+    parent.parent!.removeChild(parent);
+    model.announce('delete', undefined, [parent]);
+    model.position = pos;
+    return true;
+  }
+
   return false;
 }
 
