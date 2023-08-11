@@ -62,7 +62,23 @@ export class SurdAtom extends Atom {
 
   // Custom implementation so that the navigation of the index feels natural
   get children(): Atom[] {
-    return [...(this.above ?? []), ...(this.body ?? [])];
+    if (this._children) return this._children;
+    const result: Atom[] = [];
+
+    if (this.above) {
+      for (const x of this.above) {
+        result.push(...x.children);
+        result.push(x);
+      }
+    }
+    if (this.body) {
+      for (const x of this.body) {
+        result.push(...x.children);
+        result.push(x);
+      }
+    }
+    this._children = result;
+    return result;
   }
 
   render(context: Context): Box | null {

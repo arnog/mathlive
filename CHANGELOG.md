@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bugs Fixed
+
+- **#2090** A runtime error could occur when adding a superscript inside a square root
+
 ## 0.95.2 (2023-08-09)
 
 ### Improvements
