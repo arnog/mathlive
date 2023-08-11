@@ -134,6 +134,12 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
     after: 'nothing+text+relop+punct+openfence+space',
     value: 'x \\in',
   },
+  // The shortcut for `\int` is interfering with `\sin x`
+  'sint': {
+    after:
+      'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+    value: '\\sin t',
+  },
   'in': {
     after: 'nothing+letter+closefence',
     value: '\\in',

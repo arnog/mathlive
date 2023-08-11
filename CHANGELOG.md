@@ -7,7 +7,8 @@
 ### Improvements
 
 - **#2089** Added `x^{#?}` in the virtual keyboard variant panel for `x`
-
+- **#2082** The shortcut for `\int` was triggered with `sint`. Note that in case of similar conflicts, pressing the spacebar will prevent the shorcuts from taking effect, i.e. "sin t".
+- 
 ## 0.95.2 (2023-08-09)
 
 ### Improvements
