@@ -4,6 +4,10 @@
 
 - **#2090** A runtime error could occur when adding a superscript inside a square root
 
+### Improvements
+
+- **#2089** Added `x^{#?}` in the virtual keyboard variant panel for `x`
+
 ## 0.95.2 (2023-08-09)
 
 ### Improvements
