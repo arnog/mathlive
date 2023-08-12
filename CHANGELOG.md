@@ -4,7 +4,9 @@
 
 - **#2091** The variant panel for the `7` key was the variant panel for `4`.
 - **#2093** Inline shortcuts can be corrected with backspace, i.e. typing 
-- `sen[backspace][backspace]in` will be corrected to `\\sin`.
+ `sen[backspace][backspace]in` will be corrected to `\\sin`.
+- **#2018** Some VK toolbar items could be offset by a few pixels on some 
+  mobile devices
 
 ## 0.95.4 (2023-08-11)
 
