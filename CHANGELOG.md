@@ -3,7 +3,7 @@
 ### Bugs Fixed
 
 - **#2090** A runtime error could occur when adding a superscript inside a square root
-
+- **#2068** Use a more compact keyboard layout for phones in landscape mode.
 ### Improvements
 
 - **#2089** Added `x^{#?}` in the virtual keyboard variant panel for `x`
