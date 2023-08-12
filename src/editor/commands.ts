@@ -139,9 +139,13 @@ export function perform(
   // Virtual keyboard commands do not update mathfield state
   if (commandTarget !== 'virtual-keyboard') {
     // If the command changed the selection so that it is no longer
-    // collapsed, or if it was an editing command, reset the inline
-    // shortcut buffer and the user style
-    if (!mathfield.model.selectionIsCollapsed || info?.changeSelection) {
+    // collapsed, or if it was an editing command (but not backspace,
+    // which is handled separately), reset the inline shortcut buffer and
+    // the user style
+    if (
+      !mathfield.model.selectionIsCollapsed ||
+      (info?.changeSelection && command !== 'deleteBackward')
+    ) {
       mathfield.flushInlineShortcutBuffer();
       if (!info?.changeContent) mathfield.stopCoalescingUndo();
       mathfield.style = {};
