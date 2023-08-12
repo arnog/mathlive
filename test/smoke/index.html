@@ -24,9 +24,9 @@
         width: 100%;
       }
 
-      body {
+      /* body {
         --keycap-height: 84px;
-      }
+      } */
       /* math-field::part(content) {
         justify-content: center;
       } */
@@ -35,9 +35,9 @@
         --selection-color: #f80;
       } */
 
-      .MLK__shift {
+      /* .MLK__shift {
         transform: translate(0, -5px);
-      }
+      } */
     </style>
   </head>
   <body>
@@ -113,7 +113,10 @@
 
       // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
 
-      // mathVirtualKeyboard.layouts = makeVirtualKeyboard(['x', 'y']);
+      mathVirtualKeyboard.layouts = makeVirtualKeyboard([
+        '\\operatorname*{arg~max}_#?}',
+        '\\%',
+      ]);
       // mathVirtualKeyboard.layouts = 'alphabetic';
 
       // const ce = new ComputeEngine({
@@ -139,59 +142,59 @@
       // });
 
       // MathfieldElement.computeEngine = ce;
-      mathVirtualKeyboard.layouts = [
-        {
-          label: 'minimal',
-          tooltip: 'Only the essential',
-          layers: [
-            {
-              style:
-                '.digit { background: blue !important; color: white !important }',
-              rows: [
-                [
-                  // {
-                  //   latex: 'x',
-                  //   insert: 'x',
-                  //   shift: { latex: 'a', insert: 's' },
-                  // },
-                  {
-                    label: 'Aa',
-                    class: 'if-math-mode',
-                    command: ['perform-with-feedback', ['switch-mode', 'text']],
-                  },
-                  {
-                    label: '√x',
-                    class: 'if-text-mode',
-                    command: ['perform-with-feedback', ['switch-mode', 'math']],
-                  },
-                  '-',
-                  '\\times',
-                  '\\frac{#@}{#?}',
-                  '=',
-                  '.',
-                  '(',
-                  ')',
-                  '\\sqrt{#0}',
-                  '#@^{#?}',
-                ],
-                [
-                  { class: 'digit', latex: '1' },
-                  { class: 'digit', latex: '2' },
-                  { class: 'digit', latex: '3' },
-                  { class: 'digit', latex: '4' },
-                  { class: 'digit', latex: '5' },
-                  { class: 'digit', latex: '6' },
-                  { class: 'digit', latex: '7' },
-                  { class: 'digit', latex: '8' },
-                  { class: 'digit', latex: '9' },
-                  { class: 'digit', latex: '0' },
-                ],
-              ],
-            },
-          ],
-        },
-        'alphabetic',
-      ];
+      // mathVirtualKeyboard.layouts = [
+      //   {
+      //     label: 'minimal',
+      //     tooltip: 'Only the essential',
+      //     layers: [
+      //       {
+      //         style:
+      //           '.digit { background: blue !important; color: white !important }',
+      //         rows: [
+      //           [
+      //             // {
+      //             //   latex: 'x',
+      //             //   insert: 'x',
+      //             //   shift: { latex: 'a', insert: 's' },
+      //             // },
+      //             {
+      //               label: 'Aa',
+      //               class: 'if-math-mode',
+      //               command: ['perform-with-feedback', ['switch-mode', 'text']],
+      //             },
+      //             {
+      //               label: '√x',
+      //               class: 'if-text-mode',
+      //               command: ['perform-with-feedback', ['switch-mode', 'math']],
+      //             },
+      //             '-',
+      //             '\\times',
+      //             '\\frac{#@}{#?}',
+      //             '=',
+      //             '.',
+      //             '(',
+      //             ')',
+      //             '\\sqrt{#0}',
+      //             '#@^{#?}',
+      //           ],
+      //           [
+      //             { class: 'digit', latex: '1' },
+      //             { class: 'digit', latex: '2' },
+      //             { class: 'digit', latex: '3' },
+      //             { class: 'digit', latex: '4' },
+      //             { class: 'digit', latex: '5' },
+      //             { class: 'digit', latex: '6' },
+      //             { class: 'digit', latex: '7' },
+      //             { class: 'digit', latex: '8' },
+      //             { class: 'digit', latex: '9' },
+      //             { class: 'digit', latex: '0' },
+      //           ],
+      //         ],
+      //       },
+      //     ],
+      //   },
+      //   'alphabetic',
+      // ];
 
       const mf = document.getElementById('mf');
       mf.addEventListener(
