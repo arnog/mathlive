@@ -133,7 +133,7 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
       { label: '4', variants: '4' },
       { label: '5', shift: { latex: '\\frac{#@}{#?}' }, variants: '5' },
       { label: '6', shift: { latex: '#@^#?' }, variants: '6' },
-      { label: '7', variants: '4' },
+      { label: '7', variants: '7' },
       { label: '8', shift: { latex: '\\times' }, variants: '8' },
       { label: '9', shift: { label: '(', latex: '(' }, variants: '9' },
       { label: '0', shift: { label: ')', latex: ')' }, variants: '0' },
