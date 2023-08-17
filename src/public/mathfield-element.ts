@@ -1173,6 +1173,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** @internal */
+  get mathVirtualKeyboard(): never {
+    throw new Error(
+      'The `mathVirtualKeyboard` property is not available on the MathfieldElement. Use `window.mathVirtualKeyboard` instead.'
+    );
+  }
+
+  /** @internal */
   onPointerDown(): void {
     window.addEventListener(
       'pointerup',
