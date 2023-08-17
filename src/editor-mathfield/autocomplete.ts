@@ -162,5 +162,6 @@ export function complete(
 
   mathfield.snapshot();
   mathfield.model.announce('replacement');
+  mathfield.switchMode('math');
   return true;
 }
