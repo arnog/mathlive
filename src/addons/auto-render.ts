@@ -259,6 +259,7 @@ function createMarkupNode(
       format: 'html',
     });
     const element = document.createElement('span');
+    element.dataset.latex = text;
     element.style.display =
       mathstyle === 'displaystyle' ? 'flex' : 'inline-flex';
     element.setAttribute('aria-hidden', 'true');
