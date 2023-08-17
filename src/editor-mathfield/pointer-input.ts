@@ -9,8 +9,12 @@ import { selectGroup } from '../editor-model/commands-select';
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;
 
-function isPointerEvent(evt: Event): evt is PointerEvent {
-  return evt instanceof PointerEvent;
+function isPointerEvent(evt: Event | null): evt is PointerEvent {
+  return (
+    evt !== null &&
+    globalThis.PointerEvent !== undefined &&
+    evt instanceof PointerEvent
+  );
 }
 
 export function onPointerDown(
@@ -48,8 +52,7 @@ export function onPointerDown(
         'pointerup pointercancel',
         endPointerTracking as EventListener
       );
-      if (evt instanceof PointerEvent)
-        field.releasePointerCapture(evt.pointerId);
+      if (isPointerEvent(evt)) field.releasePointerCapture(evt.pointerId);
     } else {
       off(window, 'mousemove', onPointerMove);
       off(window, 'mouseup blur', endPointerTracking as EventListener);
@@ -201,8 +204,7 @@ export function onPointerDown(
             'pointerup pointercancel',
             endPointerTracking as EventListener
           );
-          if (evt instanceof PointerEvent)
-            field.setPointerCapture(evt.pointerId);
+          if (isPointerEvent(evt)) field.setPointerCapture(evt.pointerId);
         } else {
           on(window, 'blur', endPointerTracking as EventListener);
           on(window, 'mousemove', onPointerMove);
