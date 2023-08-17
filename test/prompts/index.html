@@ -15,6 +15,12 @@
         margin-top: 1em;
         margin-bottom: 1em;
       }
+      math-field::part(prompt) {
+        background: palegreen;
+      }
+      math-field {
+        --prompt-min-width: 50px;
+      }
     </style>
   </head>
   <body>
@@ -61,7 +67,10 @@
       prompt.addEventListener('placeholder-change', (ev) => {
         console.log('placeholder-change', ev.detail);
       });
-
+      // mf.registers = {
+      //   ...mf.registers,
+      //   ...{ fboxsep: { dimension: 10, unit: 'pt' } },
+      // };
       prompt.addEventListener('input', (evt) => {
         const prompts = prompt.getPrompts();
         console.log(prompts);

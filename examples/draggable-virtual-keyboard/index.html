@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Popup Virtual Keyboard</title>
+    <link rel="stylesheet" href="../style.css" />
+    <style>
+      math-field {
+        max-width: 320px;
+        width: 100%;
+        padding: 5px;
+        margin: 10px 0 10px 0;
+        border-radius: 5px;
+
+        border: 1px solid var(--editable-border);
+        background: var(--editable);
+        color: var(--on-editable);
+      }
+
+      math-field::part(virtual-keyboard-toggle) {
+        display: none;
+      }
+
+      math-field:not(:defined) {
+        visibility: hidden;
+      }
+
+      h2 {
+        font-size: 1em;
+        padding: 0;
+        margin: 0;
+        color: #666;
+      }
+
+      #keyboard-container {
+        /* display: none;
+        position: fixed;
+
+        border-radius: 8px;
+        height: 500px;
+        width: 50vw;
+        min-width: 320px;
+
+        background: #ddd;
+        filter: drop-shadow(0 0 10px #33333310);
+        z-index: 1; */
+
+        --keyboard-background: transparent;
+        --keyboard-padding-horizontal: 10px;
+        --keyboard-padding-bottom: 10px;
+      }
+
+      #draggable-keyboard-container {
+        position: absolute;
+        z-index: 1;
+        display: none;
+        padding-top: 21px;
+        border-radius: 8px;
+        width: min(640px, 50vh);
+        min-width: 320px;
+
+        touch-action: none;
+        user-select: none;
+        resize: horizontal;
+        overflow: hidden;
+
+        background: #ccc;
+        filter: drop-shadow(0 0 10px #33333350);
+        cursor: grab; /* alternatively: move */
+      }
+
+      #keyboard-resize-handle {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 20px;
+        height: 20px;
+
+        border-radius: 8px 0 8px 0;
+        background: transparent;
+        cursor: ew-resize;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header><h1>MathLive Draggable Virtual Keyboard</h1></header>
+    <main class="centered" tabindex="0">
+      <math-field id="mf">\frac{a}{b+1}</math-field>
+    </main>
+
+    <div id="draggable-keyboard-container">
+      <div id="keyboard-container"></div>
+      <div id="keyboard-resize-handle"></div>
+    </div>
+
+    <script type="module">
+      import '/dist/mathlive.mjs';
+      // To use the CDN version instead:
+      // import 'https://unpkg.com/mathlive?module';
+
+      function setupMathfield(mf) {
+        mf.mathVirtualKeyboardPolicy = 'manual';
+      }
+
+      function setupMathfields() {
+        // Setup the virtual keyboard to be displayed in a custom container
+        const kbdPanel = document.getElementById('keyboard-container');
+        window.mathVirtualKeyboard.container = kbdPanel;
+
+        // Adjust the height of the container to match the height of the
+        // virtual keyboard
+        window.mathVirtualKeyboard.addEventListener('geometrychange', (ev) => {
+          kbdPanel.style.height = `${mathVirtualKeyboard.boundingRect.height}px`;
+        });
+
+        const kbdContainer = document.getElementById(
+          'draggable-keyboard-container'
+        );
+        kbdContainer.addEventListener('mousedown', (ev) => {
+          // Restore focus to currently focused DOM element
+          const activeElement = document.activeElement;
+          setTimeout(() => activeElement.focus(), 1);
+
+          // Is the event in the resize handle?
+          const rect = kbdContainer.getBoundingClientRect();
+          const dx = rect.right - ev.clientX;
+          const dy = rect.bottom - ev.clientY;
+          if (dx < 20 && dy < 20) return;
+
+          // Track the mouse position
+          const controller = new AbortController();
+          const signal = controller.signal;
+
+          const offset = {
+            left: ev.clientX - kbdContainer.offsetLeft,
+            top: ev.clientY - kbdContainer.offsetTop,
+          };
+
+          window.addEventListener(
+            'mousemove',
+            (ev) => {
+              kbdContainer.style.left = `${ev.clientX - offset.left}px`;
+              kbdContainer.style.top = `${ev.clientY - offset.top}px`;
+              ev.preventDefault();
+            },
+            { capture: true, signal }
+          );
+          window.addEventListener(
+            'mouseup',
+            (ev) => {
+              ev.preventDefault();
+              controller.abort();
+            },
+            { capture: true, signal }
+          );
+        });
+
+        // Listen for focusin/focusout events on the document, and show/hide
+        // the virtual keyboard accordingly.
+
+        document.addEventListener('focusin', (ev) =>
+          positionDraggableKeyboard()
+        );
+        document.addEventListener('focusout', (ev) => {
+          if (ev.target.tagName === 'MATH-FIELD') {
+            mathVirtualKeyboard.visible = false;
+            kbdContainer.style.display = 'none';
+          }
+        });
+
+        document.querySelectorAll('math-field').forEach(setupMathfield);
+      }
+      function positionDraggableKeyboard() {
+        const mf = document.activeElement;
+        const showKeyboard =
+          mf?.tagName === 'MATH-FIELD' && mf.isSelectionEditable === true;
+
+        const kbdContainer = document.getElementById(
+          'draggable-keyboard-container'
+        );
+
+        if (showKeyboard) {
+          kbdContainer.style.display = 'block';
+          mathVirtualKeyboard.show();
+          return;
+        }
+        kbdContainer.style.display = 'none';
+        mathVirtualKeyboard.hide();
+      }
+
+      customElements.whenDefined('math-field').then(() => {
+        document.body.classList.add('ready');
+        setupMathfields();
+      });
+    </script>
+  </body>
+</html>

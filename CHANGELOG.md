@@ -8,6 +8,21 @@
 - **#2018** Some VK toolbar items could be offset by a few pixels on some 
   mobile devices
 
+### Improvements
+
+- Added `prompt` CSS part to the mathfield element. This allows styling of 
+  prompts (placeholders) in a fill-in-the-blank mathfield.
+- Added `w40` keycap class (4-wide)
+- When using `renderMathInElement()` preserve the LaTeX as a `data-` attribute
+  on the element.
+- Added speakable text for `\imaginaryI`, `\imaginaryJ`, `\ne` and `\neq`
+- Added ARIA label to keyboard toggle glyph
+- More robust check for `PointerEvent` support
+- Throw an error if attempting to access `mf.mathVirtualKeyboard`. The virtual
+  keyboard is now a singleton, accessible as `window.mathVirtualKeyboard`.
+- When a `command` attribute is associated with a keycap, a `math-virtual-keyboard-command` event is dispatched when the keycap is pressed.
+
+
 ## 0.95.4 (2023-08-11)
 
 ### Bugs Fixed
