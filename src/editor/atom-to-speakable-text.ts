@@ -39,7 +39,8 @@ const PRONUNCIATION: Record<string, string> = {
   '\\mu': 'mew ',
   '\\sigma': 'sigma ',
   '\\pi': 'pie ',
-  '\\imaginaryI': 'eye ',
+  '\\imaginaryI': 'imaginary eye ',
+  '\\imaginaryJ': 'imaginary jay ',
 
   '\\sum': 'Summation ',
   '\\prod': 'Product ',
@@ -63,6 +64,8 @@ const PRONUNCIATION: Record<string, string> = {
   '\\ge': 'is greater than or equal to ',
   '\\geq': 'is greater than or equal to ',
   '\\leq': 'is less than or equal to ',
+  '\\ne': 'is not equal to ',
+  '\\neq': 'is not equal to ',
   '!': 'factorial ',
   '\\sin': 'sine ',
   '\\cos': 'cosine ',
