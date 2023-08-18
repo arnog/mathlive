@@ -7,6 +7,7 @@
  `sen[backspace][backspace]in` will be corrected to `\\sin`.
 - **#2018** Some VK toolbar items could be offset by a few pixels on some 
   mobile devices
+- The caret was not visible when placed after an `\operator*{}` command
 
 ### Improvements
 

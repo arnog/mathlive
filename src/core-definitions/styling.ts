@@ -903,6 +903,7 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
           ? atom.attachLimits(context, { base })
           : atom.attachSupsub(context, { base });
     }
+    if (atom.caret) base.caret = atom.caret;
     return new Box(atom.bind(context, base), {
       type: 'op',
       isSelected: atom.isSelected,

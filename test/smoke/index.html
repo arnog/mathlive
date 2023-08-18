@@ -57,7 +57,7 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf">\sqrt[3]{x+1}</math-field>
+      <math-field id="mf">\operatorname*{arg~max}_{}</math-field>
       <!-- <math-field id="mf"
         >\text{Hello
         World}\int^{x+1}_{x-1}x^2+y^{1+a}_{b+2}+\frac{x+z}{y^{2+n}+2}+\left(a+3+\frac{2}{4}\right)+\sqrt[1+x]{\frac78}+\frac56</math-field
@@ -360,9 +360,8 @@
       updateContent(mf);
       // renderMathInDocument();
 
-      function makeVirtualKeyboard(variables) {
+      function makeVirtualKeyboard(customKeys = []) {
         const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
-        // const customKeys = symbolsToKeycaps(variables);
 
         return {
           label: '',
@@ -465,8 +464,8 @@
               backdrop: 'minimalist-backdrop',
               container: 'minimalist-container',
               rows: [
-                // customKeys,
-                // customKeys.length > 0 ? ['[hr]'] : [],
+                customKeys,
+                customKeys.length > 0 ? ['[hr]'] : [],
                 [
                   '+',
                   '-',

@@ -41,8 +41,9 @@ import { Context } from './context';
 // - Token: a space `<space>`, a literal, name, group or mode shift
 // - Name (control sequence): a token with an initial `\` followed by
 //      one or more letters /[a-zA-Z]+\*?/ or followed by a single
-//      non-letter (the `operatorname*` and `hspace*` names end with
-//      a `*`) or the `~` token, e.g. `\frac`, `\alpha`, `\!`
+//      non-letter (the name of some commands such as `operatorname*`
+//      and `hspace*` names end with a `*`) or the `~` token, e.g.
+//      `\frac`, `\alpha`, `\!`
 // - Symbol: a name which is not a command, with no arguments,
 //      e.g. `\pi`
 // - Group: a sequence of tokens that start with `<{>` and end
