@@ -157,6 +157,9 @@ export type EditToolbarOptions = 'none' | 'default';
 
 export type VirtualKeyboardName =
   | 'default'
+  | 'compact'
+  | 'minimalist'
+  | 'numeric-only'
   | 'numeric'
   | 'symbols'
   | 'alphabetic'

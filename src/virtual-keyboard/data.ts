@@ -1,6 +1,11 @@
-import type { VirtualKeyboardLayout } from '../public/virtual-keyboard';
+import type {
+  VirtualKeyboardLayout,
+  VirtualKeyboardName,
+} from '../public/virtual-keyboard';
 
-export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
+export const LAYOUTS: Partial<
+  Record<VirtualKeyboardName, VirtualKeyboardLayout>
+> = {
   'numeric': {
     label: '123',
     labelClass: 'MLK__tex-math',
