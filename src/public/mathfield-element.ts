@@ -1084,6 +1084,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   private _internals: ElementInternals;
 
+  // The content of <style> tags inside the element.
+  /** @internal */
+  private _style: string;
+
   /**
      * To create programmatically a new mathfield use:
      *
@@ -1734,6 +1738,22 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     const slot =
       this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
+    try {
+      this._style = slot!
+        .assignedElements()
+        .filter((x) => x.tagName.toLowerCase() === 'style')
+        .map((x) => x.textContent)
+        .join('');
+    } catch (error: unknown) {
+      console.error(error);
+    }
+    // Add shadowed stylesheet if one was provided
+    // (this is important to support the `\class{}{}` command)
+    if (this._style) {
+      const styleElement = document.createElement('style');
+      styleElement.textContent = this._style;
+      this.shadowRoot!.appendChild(styleElement);
+    }
 
     let value = '';
     // Check if there is a `value` attribute and set the initial value

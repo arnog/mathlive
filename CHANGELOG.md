@@ -8,6 +8,7 @@
 - **#2018** Some VK toolbar items could be offset by a few pixels on some 
   mobile devices
 - The caret was not visible when placed after an `\operator*{}` command
+- The `\class{}{}` command in a mathfield was not working correctly.
 
 ### Improvements
 
