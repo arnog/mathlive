@@ -57,7 +57,16 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf">\operatorname*{arg~max}_{}</math-field>
+      <math-field id="mf"
+        ><style>
+          .decor {
+            text-shadow: 0 0 2px cyan;
+            background: yellow;
+          }</style
+        >123+\operatorname*{arg~max}_{}+\frac{134}{x+3245}+
+        123+456+563=\sin(x)\class{decor}{\Alpha\Beta}\text{hello world, how are
+        you? Well, I hope!}</math-field
+      >
       <!-- <math-field id="mf"
         >\text{Hello
         World}\int^{x+1}_{x-1}x^2+y^{1+a}_{b+2}+\frac{x+z}{y^{2+n}+2}+\left(a+3+\frac{2}{4}\right)+\sqrt[1+x]{\frac78}+\frac56</math-field
@@ -209,6 +218,22 @@
         { capture: true }
       );
 
+      document.addEventListener('focusin', (ev) => {
+        const mf = document.activeElement;
+        const showKeyboard =
+          mf?.tagName === 'MATH-FIELD' && mf.isSelectionEditable === true;
+        console.log(showKeyboard);
+        mathVirtualKeyboard.visible = showKeyboard;
+      });
+
+      mf.addEventListener('selection-change', (ev) => {
+        const mf = ev.target;
+        const showKeyboard =
+          mf?.tagName === 'MATH-FIELD' && mf.isSelectionEditable === true;
+        console.log(showKeyboard);
+        mathVirtualKeyboard.visible = showKeyboard;
+      });
+
       mf.smartMode = false;
 
       mf.locale = 'en-US';
@@ -255,6 +280,11 @@
       //     captureSelection: true,
       //   },
       // };
+
+      mf.macros = {
+        ...mf.macros,
+        speed: '\\mathrm{speed}',
+      };
 
       mf.addEventListener('input', (ev) => {
         console.log('input event');

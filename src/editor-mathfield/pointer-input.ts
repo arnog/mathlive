@@ -102,14 +102,13 @@ export function onPointerDown(
     const focus = offsetFromPoint(that, x, y, {
       bias: x <= anchorX ? (x === anchorX ? 0 : -1) : +1,
     });
-    if (trackingWords) {
-      // @todo: extend focus, actualAnchor to word boundary
-    }
 
     if (actualAnchor >= 0 && focus >= 0) {
       that.model.extendSelectionTo(actualAnchor, focus);
       requestUpdate(mathfield);
     }
+
+    if (trackingWords) selectGroup(that.model);
 
     // Prevent synthetic mouseMove event when this is a touch event
     evt.preventDefault();
@@ -141,12 +140,6 @@ export function onPointerDown(
     anchorY >= bounds.top &&
     anchorY <= bounds.bottom
   ) {
-    // Focus the mathfield
-    if (!mathfield.hasFocus()) {
-      dirty = 'none'; // focus() will refresh
-      mathfield.focus({ preventScroll: true });
-    }
-
     // Clicking or tapping the field resets the keystroke buffer
     mathfield.flushInlineShortcutBuffer();
     mathfield.adoptStyle = 'left';
@@ -218,6 +211,13 @@ export function onPointerDown(
           dirty = 'all';
         }
       }
+    }
+    // Focus the mathfield
+    // (do it after the selection has been set, since the
+    // logic on what to do on focus may depend on the selection)
+    if (!mathfield.hasFocus()) {
+      dirty = 'none'; // focus() will refresh
+      mathfield.focus({ preventScroll: true });
     }
   } else gLastTap = null;
 

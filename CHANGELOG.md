@@ -12,6 +12,8 @@
 
 ### Improvements
 
+- **#2052** When double-clicking then dragging, the selection is now extended
+  to the nearest boundary. This applies to math, text and LaTeX zones.
 - Added `prompt` CSS part to the mathfield element. This allows styling of 
   prompts (placeholders) in a fill-in-the-blank mathfield.
 - Added `w40` keycap class (4-wide)
