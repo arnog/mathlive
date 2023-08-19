@@ -38,7 +38,7 @@ export const LAYOUTS: Partial<
         '[/]',
         '[separator-5]',
         {
-          latex: 'e',
+          latex: '\\exponentialE',
           shift: '\\ln',
           variants: ['\\exp', '\\times 10^{#?}', '\\ln', '\\log_{10}', '\\log'],
         },
