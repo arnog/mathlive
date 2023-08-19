@@ -34,7 +34,7 @@ export type Notations = {
   box?: boolean;
   // phasorangle?: boolean;
   // radical?: boolean;
-  // longdiv?: boolean;
+  longdiv?: boolean;
 };
 
 export class EncloseAtom extends Atom {
@@ -188,6 +188,11 @@ export class EncloseAtom extends Atom {
     if (this.notation.actuarial) {
       notation.setStyle('border-top', this.borderStyle);
       notation.setStyle('border-right', this.borderStyle);
+    }
+
+    if (this.notation.longdiv) {
+      notation.setStyle('border-top', this.borderStyle);
+      notation.setStyle('border-left', this.borderStyle);
     }
 
     if (this.notation.madruwb) {

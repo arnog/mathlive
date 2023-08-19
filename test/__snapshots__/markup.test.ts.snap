@@ -470,6 +470,13 @@ exports[`COLORS 22/ color format "-green!40!yellow" renders correctly 1`] = `
 ]
 `;
 
+exports[`COMMANDS Commands  1`] = `
+[
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1.06em;vertical-align:-0.31em"></span><span class="ML__base"><span class="negativethinspace"></span><span class="ML__cmr">#%&$</span><span class="ML__cmr" style="margin-right:0.03em">_</span><span class="ML__cmr">{}</span><span class="ML__text">áäȧàāãâ</span></span></span>",
+  "no-error",
+]
+`;
+
 exports[`DELIMITER SIZING COMMANDS 0/ sizing command \\bigl, \\bigr, \\bigm, \\big 1`] = `
 [
   "<span class="ML__mathlive"><span class="ML__strut" style="height:0.85em"></span><span class="ML__strut--bottom" style="height:1.21em;vertical-align:-0.35em"></span><span class="ML__base"><span class="ML__delim-size1">(</span><span class="ML__mathit">x</span><span class="ML__delim-mult"><span class="delim-size1 vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.84em"><span style="top:-2.24em"><span class="pstrut" style="height:2.61em"></span><span style="height:0.61em;display:inline-block">∣</span></span><span style="top:-2.83em"><span class="pstrut" style="height:2.61em"></span><span style="height:0.61em;display:inline-block">∣</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.36em"></span></span></span></span><span class="ML__mathit" style="margin-right:0.04em">y</span><span class="ML__delim-size1">)</span><span class="ML__cmr">=</span><span style="display:inline-block;width:0.28em"></span><span class="ML__mathit">x</span><span style="display:inline-block;width:0.22em"></span><span class="ML__cmr">+</span><span style="display:inline-block;width:0.22em"></span><span class="ML__error ML__cmr">\\bigx</span><span class="nulldelimiter" style="width:0.12em"></span></span></span>",

@@ -52,6 +52,7 @@ const SPECIAL_IDENTIFIERS = {
   '\\!': ' ',
   '\\,': ' ',
   '\\:': ' ',
+  '\\>': ' ',
   '\\;': ' ',
   '\\enskip': ' ',
   '\\enspace': ' ',

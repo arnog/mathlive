@@ -77,6 +77,7 @@ metadata(
     '\\csc',
     '\\ctg',
     '\\cth',
+    '\\deg',
     '\\lg',
     '\\lb',
     '\\sec',
@@ -1034,7 +1035,7 @@ metadata(
 );
 metadata(
   'Spacing',
-  ['\\!', '\\,', '\\:', '\\;', '\\enskip', '\\enspace'],
+  ['\\!', '\\,', '\\:', '\\;', '\\>', '\\enskip', '\\enspace'],
   RARE,
   '\\char"203A$0\\char"2039'
 );

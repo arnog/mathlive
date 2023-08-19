@@ -28,16 +28,16 @@ newSymbols([
 // Misc Symbols
 
 newSymbols([
-  ['\\sharp', 0x266f],
-  ['\\flat', 0x266d],
-  ['\\natural', 0x266e],
   ['\\#', 0x0023],
   ['\\&', 0x0026],
-  ['\\clubsuit', 0x2663],
-  ['\\heartsuit', 0x2661],
-  ['\\spadesuit', 0x2660],
-  ['\\diamondsuit', 0x2662],
   ['\\parallelogram', 0x25b1],
+  ['\\spadesuit', 0x2660],
+  ['\\heartsuit', 0x2661],
+  ['\\diamondsuit', 0x2662],
+  ['\\clubsuit', 0x2663],
+  ['\\flat', 0x266d],
+  ['\\natural', 0x266e],
+  ['\\sharp', 0x266f],
 ]);
 
 // DefineSymbol( '\\cross', 0xF4A0,  'mord',  MAIN], // NOTE: not a real TeX symbol, but Mathematica
@@ -677,9 +677,13 @@ newSymbols(
   'space'
 );
 // \enspace is a TeX command (not LaTeX)
-defineFunction(['!', ',', ':', ';', 'enskip', 'enspace', 'quad', 'qquad'], '', {
-  createAtom: (options) => new SpacingAtom(options),
-});
+defineFunction(
+  ['!', ',', ':', ';', '>', 'enskip', 'enspace', 'quad', 'qquad'],
+  '',
+  {
+    createAtom: (options) => new SpacingAtom(options),
+  }
+);
 
 defineFunction('space', '', {
   createAtom: (options) => new SpacingAtom(options),

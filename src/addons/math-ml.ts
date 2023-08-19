@@ -602,6 +602,7 @@ function atomToMathML(atom, options): string {
     '\\ ': 6 / 18,
     '\\,': 3 / 18,
     '\\:': 4 / 18,
+    '\\>': 4 / 18,
     '\\;': 5 / 18,
     '\\enspace': 0.5,
     '\\quad': 1,

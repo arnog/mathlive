@@ -157,8 +157,85 @@ defineFunction("'", '{:string}', {
             I: 'Í',
             O: 'Ó',
             U: 'Ú',
-          }[options.args![0] as string] ?? '\u005E'
-        : '\u005E',
+          }[options.args![0] as string] ?? "'"
+        : "'",
+    }),
+});
+
+defineFunction('"', '{:string}', {
+  createAtom: (options) =>
+    new Atom({
+      ...options,
+      type: 'mord',
+      isFunction: false,
+      limits: 'adjacent',
+      value: options.args?.[0]
+        ? {
+            a: 'ä',
+            e: 'ë',
+            i: 'ï',
+            o: 'ö',
+            u: 'ü',
+            A: 'Ä',
+            E: 'Ë',
+            I: 'Ë',
+            O: 'Ö',
+            U: 'Ü',
+          }[options.args![0] as string] ?? '"' + options.args[0]
+        : '"',
+    }),
+});
+
+defineFunction('.', '{:string}', {
+  createAtom: (options) =>
+    new Atom({
+      ...options,
+      type: 'mord',
+      isFunction: false,
+      limits: 'adjacent',
+      value: options.args?.[0]
+        ? {
+            // a with single dot above
+            a: 'ȧ',
+            e: 'ė',
+            // i with single dot above (combining character)
+            i: '\u0307\u0069',
+            o: 'ȯ',
+            // U with single dot above (combining character)
+            u: '\u0307\u0075',
+            A: 'Ȧ',
+            E: 'Ė',
+            I: 'İ',
+            O: 'Ȯ',
+            // U with single dot above (combining character)
+            U: '\u0307\u0055',
+          }[options.args[0] as string] ?? '.' + options.args[0]
+        : '.',
+    }),
+});
+
+defineFunction('=', '{:string}', {
+  createAtom: (options) =>
+    new Atom({
+      ...options,
+      type: 'mord',
+      isFunction: false,
+      limits: 'adjacent',
+      value: options.args?.[0]
+        ? {
+            // a with macron
+            a: 'ā',
+            e: 'ē',
+            i: 'ī',
+            o: 'ō',
+            u: 'ū',
+            A: 'Ā',
+            E: 'Ē',
+            I: 'Ī',
+            O: 'Ō',
+            U: 'Ū',
+          }[options.args[0] as string] ?? '=' + options.args[0]
+        : '=', // fallback
     }),
 });
 

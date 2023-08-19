@@ -11,9 +11,6 @@
     <link rel="icon" href="data:," />
     <style>
       math-field {
-        /* --caret-color: cyan; */
-        /* --selection-background-color: red;
-        --selection-color: beige; */
         border: 1px solid var(--editable-border);
         padding: 5px;
         margin: 10px 0 10px 0;
@@ -23,21 +20,6 @@
         max-width: 640px;
         width: 100%;
       }
-
-      /* body {
-        --keycap-height: 84px;
-      } */
-      /* math-field::part(content) {
-        justify-content: center;
-      } */
-      /* math-field {
-        --selection-background-color: red;
-        --selection-color: #f80;
-      } */
-
-      /* .MLK__shift {
-        transform: translate(0, -5px);
-      } */
     </style>
   </head>
   <body>
@@ -58,14 +40,7 @@
     </header>
     <main>
       <math-field id="mf"
-        ><style>
-          .decor {
-            text-shadow: 0 0 2px cyan;
-            background: yellow;
-          }</style
-        >123+\operatorname*{arg~max}_{}+\frac{134}{x+3245}+
-        123+456+563=\sin(x)\class{decor}{\Alpha\Beta}\text{hello world, how are
-        you? Well, I hope!}</math-field
+        >\!\#\%\&\$\_\{\}\text{\'{a}\"{a}\.{a}\`{a}\={a}\~{a}\^{a}}</math-field
       >
       <!-- <math-field id="mf"
         >\text{Hello
@@ -122,10 +97,10 @@
 
       // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
 
-      mathVirtualKeyboard.layouts = makeVirtualKeyboard([
+      /* mathVirtualKeyboard.layouts = makeVirtualKeyboard([
         '\\operatorname*{arg~max}_#?}',
         '\\%',
-      ]);
+      ]); */
       // mathVirtualKeyboard.layouts = 'alphabetic';
 
       // const ce = new ComputeEngine({
@@ -206,6 +181,7 @@
       // ];
 
       const mf = document.getElementById('mf');
+      mf.scriptDepth = [0, 0];
       mf.addEventListener(
         'keydown',
         (ev) => {

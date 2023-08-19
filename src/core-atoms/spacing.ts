@@ -52,6 +52,7 @@ export class SpacingAtom extends Atom {
           '\\enspace': 'enspace',
           '\\;': 'thickspace',
           '\\:': 'mediumspace',
+          '\\>': 'mediumspace',
           '\\,': 'thinspace',
           '\\!': 'negativethinspace',
         }[this.command!] ?? 'mediumspace';

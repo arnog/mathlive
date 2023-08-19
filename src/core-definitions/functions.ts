@@ -31,8 +31,10 @@ defineFunction(
     'cth',
     'csc', // Not LaTeX standard. \cth
     'cosec', // Not LaTeX standard.
+    'deg',
     'dim',
     'exp',
+    'gcd',
     'hom',
     'inf',
     'ker',
