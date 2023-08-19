@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Improvements
+
+- Added support for additional commands from the `mathtools` , `actuarialangle`, `colonequals`, `statmath` and `amsopn` packages
+- Added support for `longdiv` enclosure (`\mathenclose{longdiv}{...}`)
+
 ## 0.95.5 (2023-08-18)
 
 ### Bugs Fixed
