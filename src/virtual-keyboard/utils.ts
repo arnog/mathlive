@@ -736,6 +736,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     command: ['performWithFeedback', 'insertDecimalSeparator'],
     shift: ',',
     class: 'big-op hide-shift',
+    label: '.',
   },
   '[+]': {
     variants: [{ latex: '\\sum_{#0}^{#0}', class: 'small' }, '\\oplus'],
