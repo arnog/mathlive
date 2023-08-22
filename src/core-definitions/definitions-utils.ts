@@ -408,6 +408,12 @@ const DEFAULT_MACROS: MacroDictionary = {
   'iff': '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
   'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
+  'phase': {
+    def: '\\enclose{phasorangle}{#1}',
+    args: 1,
+    captureSelection: false,
+  },
+
   // Proof Wiki
   'rd': '\\mathrm{d}',
   'rD': '\\mathrm{D}',

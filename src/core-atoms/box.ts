@@ -114,8 +114,12 @@ export class BoxAtom extends Atom {
 
     base.setStyle('display', 'inline-block');
     base.setStyle('position', 'relative');
-    base.setStyle('height', base.height + base.depth, 'em');
-    base.setStyle('vertical-align', -base.height, 'em');
+    base.setStyle(
+      'height',
+      Math.floor(100 * base.height + base.depth) / 100,
+      'em'
+    );
+    base.setStyle('vertical-align', -Math.floor(100 * base.height) / 100, 'em');
 
     // The result is a box that encloses the box and the base
     const result = new Box([box, base], { type: 'lift' });
@@ -132,16 +136,22 @@ export class BoxAtom extends Atom {
     result.setStyle('padding-right', padding, 'em');
     result.setStyle(
       'height',
-      base.height + base.depth + 2 * padding + Math.abs(offset),
+      Math.floor(
+        100 * (base.height + base.depth + 2 * padding + Math.abs(offset))
+      ) / 100,
       'em'
     );
     result.setStyle('margin-top', -padding, 'em');
     result.setStyle(
       'top',
-      base.depth - base.height + 2 * padding - offset,
+      Math.floor(100 * (base.depth - base.height + 2 * padding - offset)) / 100,
       'em'
     );
-    result.setStyle('vertical-align', base.depth + 2 * padding, 'em');
+    result.setStyle(
+      'vertical-align',
+      Math.floor(100 * (base.depth + 2 * padding)) / 100,
+      'em'
+    );
 
     if (this.caret) result.caret = this.caret;
 

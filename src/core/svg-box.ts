@@ -455,7 +455,7 @@ export function svgBodyToMarkup(svgBodyName: string): string {
       `<path fill="currentcolor" d="${PATHS[svgBodyName]}"></path>` +
       `</svg></span>`;
     return `<span style="display:inline-block;height:${
-      height / 2
+      Math.floor((100 * height) / 2) / 100
     }em;min-width:0">${result}</span>`;
   }
 

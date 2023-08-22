@@ -1,7 +1,7 @@
 import type { ParseMode, Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { addSVGOverlay, Box } from '../core/box';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { latexCommand } from '../core/tokenizer';
 
@@ -131,7 +131,7 @@ export class PromptAtom extends Atom {
       svg +=
         '<line x1="3%"  y1="97%" x2="97%" y2="3%" stroke-width="0.5" stroke="var(--incorrect-color, var(--ML__incorrect-color))" stroke-linecap="round" />';
     }
-    if (svg) addSVGOverlay(box, svg, '');
+    if (svg) box.svgOverlay = svg;
 
     base.setStyle('display', 'inline-block');
     base.setStyle('height', content.height + content.depth, 'em');

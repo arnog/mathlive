@@ -20,7 +20,7 @@ defineFunction('enclose', '{notation:string}[style:string]{body:auto}', {
       strokeStyle: 'solid',
       backgroundcolor: 'transparent',
       padding: 'auto',
-      shadow: 'auto',
+      shadow: 'none',
       svgStrokeStyle: undefined,
       borderStyle: undefined,
       style: atomOptions.style ?? {},
@@ -88,7 +88,7 @@ defineFunction('cancel', '{body:auto}', {
         borderStyle: '1px solid currentColor',
         backgroundcolor: 'transparent',
         padding: 'auto',
-        shadow: 'auto',
+        shadow: 'none',
         style: options.style ?? {},
       }
     ),
@@ -107,7 +107,7 @@ defineFunction('bcancel', '{body:auto}', {
         borderStyle: '1px solid currentColor',
         backgroundcolor: 'transparent',
         padding: 'auto',
-        shadow: 'auto',
+        shadow: 'none',
         style: options.style ?? {},
       }
     ),
@@ -126,7 +126,7 @@ defineFunction('xcancel', '{body:auto}', {
         borderStyle: '1px solid currentColor',
         backgroundcolor: 'transparent',
         padding: 'auto',
-        shadow: 'auto',
+        shadow: 'none',
         style: options.style ?? {},
       }
     ),

@@ -1,7 +1,7 @@
 import type { Style } from '../public/core-types';
 
 import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
-import { addSVGOverlay, Box } from '../core/box';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { latexCommand } from '../core/tokenizer';
 import { getDefinition } from '../core-definitions/definitions-utils';
@@ -32,7 +32,7 @@ export type Notations = {
   madruwb?: boolean;
   actuarial?: boolean;
   box?: boolean;
-  // phasorangle?: boolean;
+  phasorangle?: boolean;
   // radical?: boolean;
   longdiv?: boolean;
 };
@@ -69,15 +69,16 @@ export class EncloseAtom extends Atom {
     }
 
     this.notation = notation;
-    this.shadow = options.shadow;
-    this.strokeWidth = options.strokeWidth;
+    this.shadow = options.shadow ?? 'none';
+    this.strokeWidth = options.strokeWidth ?? '0.08em';
+    if (!this.strokeWidth) this.strokeWidth = '0.08em';
     this.strokeStyle = options.strokeStyle;
     this.svgStrokeStyle = options.svgStrokeStyle;
     this.strokeColor = options.strokeColor;
     this.borderStyle = options.borderStyle;
     this.padding = options.padding;
 
-    this.captureSelection = true; // Do not let children be selected
+    this.captureSelection = false;
   }
 
   static fromJson(json: AtomJson): EncloseAtom {
@@ -145,55 +146,157 @@ export class EncloseAtom extends Atom {
 
   render(parentContext: Context): Box | null {
     const context = new Context({ parent: parentContext }, this.style);
-
     const base = Atom.createBox(context, this.body);
-
     if (!base) return null;
 
-    // Account for the padding
+    const borderWidth = borderDim(this.borderStyle);
+
+    // Calculate the padding
     const padding = context.toEm(
       !this.padding || this.padding === 'auto'
         ? { register: 'fboxsep' }
         : { string: this.padding }
     );
-    const borderWidth = borderDim(this.borderStyle);
 
-    // The 'ML__notation' class is required to prevent the box from being omitted
-    // during rendering (it looks like an empty, no-op box)
-    const notation = new Box(null, { classes: 'ML__notation' });
-    notation.setStyle('box-sizing', 'border-box');
+    base.setStyle('position', 'relative');
+    base.setStyle('display', 'inline-block');
+    base.setStyle('top', padding, 'em');
+    base.setStyle('height', base.height + base.depth, 'em');
+    base.setStyle('width', base.width, 'em');
 
-    notation.setStyle('left', `calc(-${borderWidth} / 2 - ${padding}em)`);
+    let h = base.height + base.depth + 2 * padding;
+    let w = base.width + 2 * padding;
 
-    notation.setStyle(
-      'height',
-      `calc(${base.height + base.depth + 2 * padding}em)`
-    );
+    let svg = '';
 
-    notation.height = base.height + padding;
-    notation.depth = base.depth + padding;
-    notation.setStyle(
-      'width',
-      `calc(100% + ${2 * padding}em + 2 * ${borderWidth})`
-    );
+    if (this.notation.horizontalstrike) svg += this.line(3, 50, 97, 50);
 
-    if (this.backgroundcolor) {
-      notation.setStyle(
-        'background-color',
-        this.backgroundcolor ?? 'transparent'
+    if (this.notation.verticalstrike) svg += this.line(50, 3, 50, 97);
+
+    if (this.notation.updiagonalstrike) svg += this.line(3, 97, 97, 3);
+
+    if (this.notation.downdiagonalstrike) svg += this.line(3, 3, 97, 97);
+
+    if (this.notation.updiagonalarrow) {
+      svg += this.line(
+        padding.toString(),
+        (padding + base.depth + base.height).toString(),
+        (padding + base.width).toString(),
+        padding.toString()
       );
+
+      const t = 1;
+      const length = Math.sqrt(w * w + h * h);
+      const f = 0.03 * length * t;
+      const wf = base.width * f;
+      const hf = (base.depth + base.height) * f;
+      const x = padding + base.width;
+      let y = padding;
+      if (y + hf - 0.4 * wf < 0) y = 0.4 * wf - hf;
+
+      svg += '<polygon points="';
+      svg += `${x},${y} ${x - wf - 0.4 * hf},${y + hf - 0.4 * wf} `;
+      svg += `${x - 0.7 * wf},${y + 0.7 * hf} ${x - wf + 0.4 * hf},${
+        y + hf + 0.4 * wf
+      } `;
+      svg += `${x},${y}`;
+      svg += `" stroke='none' fill="${this.strokeColor}"`;
+      svg += '/>';
+    }
+    if (this.notation.phasorangle) {
+      const clearance = context.toEm({ dimension: 0.15, unit: 'em' });
+      const bot = (
+        base.height +
+        base.depth +
+        2 * clearance +
+        padding
+      ).toString();
+      const angleWidth = (base.height + base.depth) / 2;
+      // Horizontal line
+      svg += this.line(
+        padding.toString(),
+        bot,
+        (padding + angleWidth + base.width).toString(),
+        bot
+      );
+      // Angle line
+      svg += this.line(
+        padding.toString(),
+        bot,
+        (padding + angleWidth).toString(),
+        (padding - clearance).toString()
+      );
+      // Increase height to account for clearance
+      h += clearance;
+      // Increase the width to account for the angle
+      w += angleWidth;
+
+      base.left += h / 2 - padding;
+    }
+    // if (this.notation.radical) {
+    //   svg += '<path d="';
+    //   svg += `M 0,${0.6 * h} L1,${h} L${
+    //     convertDimensionToPixel(padding) * 2
+    //   },1 "`;
+    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+    //   if (this.svgStrokeStyle) {
+    //     svg += ' stroke-linecap="round"';
+    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+    //   }
+    //   svg += '/>';
+    // }
+    if (this.notation.longdiv) {
+      const clearance = context.toEm({ dimension: 0.15, unit: 'em' });
+      h += clearance;
+      svg += this.line(
+        padding.toString(),
+        padding.toString(),
+        (padding + base.width).toString(),
+        padding.toString()
+      );
+      const surdWidth = 0.3;
+      w += surdWidth + clearance;
+      base.left += surdWidth + clearance;
+      base.setTop(padding + clearance);
+
+      svg += '<path d="';
+      svg += `M ${padding} ${padding}  a${surdWidth} ${
+        (base.depth + base.height + 2 * clearance) / 2
+      }, 0, 1, 1, 0 ${base.depth + base.height + 2 * clearance} "`;
+      svg += ` stroke-width="${'0.006em'}" stroke="${
+        this.strokeColor
+      }" fill="none"`;
+      svg += '/>';
     }
 
-    if (this.notation.box) notation.setStyle('border', this.borderStyle);
+    // The 'ML__notation' class is required to prevent the box from being
+    // omitted during rendering (otherwise it would look like an empty, no-op
+    // box)
+    const notation = new Box(null, {
+      classes: 'ML__notation',
+      width: w,
+      height: base.height + padding,
+      depth: base.depth + padding,
+    });
+    notation.setStyle('box-sizing', 'border-box');
+    notation.setStyle('left', `calc(-${borderWidth} / 2 - ${padding}em)`);
+    notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
+    notation.setStyle('width', `${Math.floor(100 * w) / 100}em`);
+
+    if (this.backgroundcolor)
+      notation.setStyle('background-color', this.backgroundcolor);
+
+    if (this.notation.box) notation.setStyle('border', '1px solid red');
+
     if (this.notation.actuarial) {
       notation.setStyle('border-top', this.borderStyle);
       notation.setStyle('border-right', this.borderStyle);
     }
 
-    if (this.notation.longdiv) {
-      notation.setStyle('border-top', this.borderStyle);
-      notation.setStyle('border-left', this.borderStyle);
-    }
+    // if (this.notation.longdiv) {
+    //   notation.setStyle('border-top', this.borderStyle);
+    //   notation.setStyle('border-left', this.borderStyle);
+    // }
 
     if (this.notation.madruwb) {
       notation.setStyle('border-bottom', this.borderStyle);
@@ -220,131 +323,37 @@ export class EncloseAtom extends Atom {
     if (this.notation.bottom)
       notation.setStyle('border-bottom', this.borderStyle);
 
-    let svg = '';
-
-    if (this.notation.horizontalstrike) {
-      svg += '<line x1="3%"  y1="50%" x2="97%" y2="50%"';
-      svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-      svg += ' stroke-linecap="round"';
-      if (this.svgStrokeStyle)
-        svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-
-      svg += '/>';
-    }
-
-    if (this.notation.verticalstrike) {
-      svg += '<line x1="50%"  y1="3%" x2="50%" y2="97%"';
-      svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-      svg += ' stroke-linecap="round"';
-      if (this.svgStrokeStyle)
-        svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-
-      svg += '/>';
-    }
-
-    if (this.notation.updiagonalstrike) {
-      svg += '<line x1="3%"  y1="97%" x2="97%" y2="3%"';
-      svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-      svg += ' stroke-linecap="round"';
-      if (this.svgStrokeStyle)
-        svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-
-      svg += '/>';
-    }
-
-    if (this.notation.downdiagonalstrike) {
-      svg += '<line x1="3%"  y1="3%" x2="97%" y2="97%"';
-      svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-      svg += ' stroke-linecap="round"';
-      if (this.svgStrokeStyle)
-        svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-
-      svg += '/>';
-    }
-
-    // if (this.notation.updiagonalarrow) {
-    //   const t = 1;
-    //   const length = Math.sqrt(w * w + h * h);
-    //   const f = (1 / length / 0.075) * t;
-    //   const wf = w * f;
-    //   const hf = h * f;
-    //   const x = w - t / 2;
-    //   let y = t / 2;
-    //   if (y + hf - 0.4 * wf < 0) y = 0.4 * wf - hf;
-    //   svg += '<line ';
-    //   svg += `x1="1" y1="${h - 1}px" x2="${x - 0.7 * wf}px" y2="${
-    //     y + 0.7 * hf
-    //   }px"`;
-    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-    //   svg += ' stroke-linecap="round"';
-    //   if (this.svgStrokeStyle) {
-    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-    //   }
-    //   svg += '/>';
-    //   svg += '<polygon points="';
-    //   svg += `${x},${y} ${x - wf - 0.4 * hf},${y + hf - 0.4 * wf} `;
-    //   svg += `${x - 0.7 * wf},${y + 0.7 * hf} ${x - wf + 0.4 * hf},${
-    //     y + hf + 0.4 * wf
-    //   } `;
-    //   svg += `${x},${y}`;
-    //   svg += `" stroke='none' fill="${this.strokeColor}"`;
-    //   svg += '/>';
-    // }
-    // if (this.notation.phasorangle) {
-    //   svg += '<path d="';
-    //   svg += `M ${h / 2},1 L1,${h} L${w},${h} "`;
-    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-    //   if (this.svgStrokeStyle) {
-    //     svg += ' stroke-linecap="round"';
-    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-    //   }
-    //   svg += '/>';
-    // }
-    // if (this.notation.radical) {
-    //   svg += '<path d="';
-    //   svg += `M 0,${0.6 * h} L1,${h} L${
-    //     convertDimensionToPixel(padding) * 2
-    //   },1 "`;
-    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-    //   if (this.svgStrokeStyle) {
-    //     svg += ' stroke-linecap="round"';
-    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-    //   }
-    //   svg += '/>';
-    // }
-    // if (this.notation.longdiv) {
-    //   svg += '<path d="';
-    //   svg += `M ${w} 1 L1 1 a${convertDimensionToPixel(padding)} ${
-    //     h / 2
-    //   }, 0, 0, 1, 1 ${h} "`;
-    //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-    //   if (this.svgStrokeStyle) {
-    //     svg += ' stroke-linecap="round"';
-    //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-    //   }
-    //   svg += '/>';
-    // }
     if (svg) {
-      let svgStyle;
-      if (this.shadow !== 'none') {
-        svgStyle =
-          this.shadow === 'auto'
-            ? 'filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333)'
-            : 'filter: drop-shadow(' + this.shadow + ')';
+      let svgStyle = '';
+      if (this.shadow === 'auto') {
+        svgStyle +=
+          'filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333)';
       }
+      if (this.shadow !== 'none')
+        svgStyle += `filter: drop-shadow(${this.shadow})`;
 
-      addSVGOverlay(notation, svg, svgStyle);
+      svgStyle += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+      svgStyle += ' stroke-linecap="round"';
+      if (this.svgStrokeStyle)
+        svgStyle += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+      notation.svgStyle = svgStyle;
+      notation.svgOverlay = svg;
     }
 
+    // Result is a box combining the base and the notation
     const result = new Box([notation, base]);
-    // Set its position as relative so that the box can be absolute positioned
-    // over the base
+    // Set its position as relative so that the notation can be absolute
+    // positioned over the base
     result.setStyle('position', 'relative');
-    result.setStyle('display', 'inline');
+    result.setStyle('vertical-align', padding, 'em');
+    result.setStyle('height', `${Math.floor(100 * h) / 100}em`);
+    // We set the padding later with `left` and `right` so subtract it now
+    result.setStyle('width', `${Math.floor(100 * (w - 2 * padding)) / 100}em`);
+    result.setStyle('display', 'inline-block');
 
     // The padding adds to the width and height of the pod
-    result.height = base.height + padding;
-    result.depth = base.depth + padding;
+    result.height = notation.height;
+    result.depth = notation.depth;
     result.left = padding;
     result.right = padding;
 
@@ -352,6 +361,22 @@ export class EncloseAtom extends Atom {
 
     return result.wrap(context);
   }
+
+  line(
+    x1: number | string,
+    y1: number | string,
+    x2: number | string,
+    y2: number | string
+  ): string {
+    return `<line x1="${coord(x1)}"  y1="${coord(y1)}" x2="${coord(
+      x2
+    )}" y2="${coord(y2)}" vector-effect="non-scaling-stroke"></line>`;
+  }
+}
+
+function coord(c: string | number): string {
+  if (typeof c === 'number') return `${Math.floor(100 * c) / 100}%`;
+  return c;
 }
 
 function borderDim(s: string | undefined): string {

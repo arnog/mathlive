@@ -348,6 +348,16 @@ export class Box implements BoxInterface {
     }
   }
 
+  set bottom(value: number) {
+    if (!Number.isFinite(value)) return;
+    if (value === 0) {
+      if (this.cssProperties) delete this.cssProperties['margin-bottom'];
+    } else {
+      if (!this.cssProperties) this.cssProperties = {};
+      this.cssProperties['margin-bottom'] = toString(value, 'em');
+    }
+  }
+
   get width(): number {
     return this._width;
   }
@@ -420,13 +430,17 @@ export class Box implements BoxInterface {
     else if (this.svgOverlay) {
       svgMarkup = '<span style="';
       svgMarkup += 'display: inline-block;';
-      svgMarkup += `height:${this.height + this.depth}em;`;
-      svgMarkup += `vertical-align:${this.depth}em;`;
+      svgMarkup += `height:${
+        Math.floor(100 * (this.height + this.depth)) / 100
+      }em;`;
+      svgMarkup += `vertical-align:${Math.floor(100 * this.depth) / 100}em;`;
       svgMarkup += '">';
       svgMarkup += body;
       svgMarkup += '</span>';
       svgMarkup += '<svg style="position:absolute;overflow:overlay;';
-      svgMarkup += `height:${this.height + this.depth}em;`;
+      svgMarkup += `height:${
+        Math.floor(100 * (this.height + this.depth)) / 100
+      }em;`;
       const padding = this.cssProperties?.padding;
       if (padding) {
         svgMarkup += `top:${padding};`;
@@ -436,7 +450,12 @@ export class Box implements BoxInterface {
 
       svgMarkup += 'z-index:2;';
       svgMarkup += '"';
-      if (this.svgStyle) svgMarkup += ` style="${this.svgStyle}"`;
+
+      if (this.svgStyle) svgMarkup += this.svgStyle;
+
+      svgMarkup += ` viewBox="0 0 ${Math.floor(100 * this.width) / 100} ${
+        Math.floor(100 * (this.height + this.depth)) / 100
+      }"`;
 
       svgMarkup += `>${this.svgOverlay}</svg>`;
     }
@@ -511,7 +530,7 @@ export class Box implements BoxInterface {
     const cssProps: Partial<Record<BoxCSSProperties, string>> =
       this.cssProperties ?? {};
     if (this.hasExplicitWidth) {
-      console.assert(cssProps.width === undefined);
+      // console.assert(cssProps.width === undefined);
       cssProps.width = `${Math.round(this._width * 100) / 100}em`;
     }
     const styles = Object.keys(cssProps).map((x) => `${x}:${cssProps[x]}`);
@@ -713,19 +732,6 @@ export function makeStruts(
   struts.push(content);
 
   return new Box(struts, { ...options, type: 'lift' });
-}
-
-/**
- * Add some SVG markup to be overlaid on top of the box
- */
-export function addSVGOverlay(
-  body: Box,
-  svgMarkup: string,
-  svgStyle: string
-): Box {
-  body.svgOverlay = svgMarkup;
-  body.svgStyle = svgStyle;
-  return body;
 }
 
 /**

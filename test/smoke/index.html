@@ -40,8 +40,13 @@
     </header>
     <main>
       <math-field id="mf"
-        >\!\#\%\&\$\_\{\}\text{\'{a}\"{a}\.{a}\`{a}\={a}\~{a}\^{a}}</math-field
+        >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12345}}\enclose{box}{\sqrt{\frac{1}{x+1}}}</math-field
       >
+      <!-- <math-field id="mf"
+        >\phase{abc}\enclose{box}{\sqrt{\frac{1}{x+1}}}\enclose{roundedbox}{\sqrt{\frac{1}{x+1}}}\enclose{circle}{\sqrt{\frac{1}{x+1}}}\enclose{top}{\sqrt{\frac{1}{x+1}}}\enclose{left}{\sqrt{\frac{1}{x+1}}}\enclose{right}{\sqrt{\frac{1}{x+1}}}\enclose{bottom}{\sqrt{\frac{1}{x+1}}}\enclose{horizontalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{verticalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{phasorangle}{\sqrt{\frac{1}{x+1}}}\enclose{radical}{\sqrt{\frac{1}{x+1}}}\enclose{longdiv}{\sqrt{\frac{1}{x+1}}}\enclose{actuarial}{\sqrt{\frac{1}{x+1}}}\enclose{madruwb}{\sqrt{\frac{1}{x+1}}}</math-field
+      > -->
+      <!-- <math-field id="mf"
+        >\phase{abc}\phase{\frac{x}{x+1}}\enclose{downdiagonalstrike}{\frac{1}{x+1}}</math-field -->
       <!-- <math-field id="mf"
         >\text{Hello
         World}\int^{x+1}_{x-1}x^2+y^{1+a}_{b+2}+\frac{x+z}{y^{2+n}+2}+\left(a+3+\frac{2}{4}\right)+\sqrt[1+x]{\frac78}+\frac56</math-field
@@ -91,9 +96,7 @@
 
       renderMathInDocument();
 
-      const mfe = new MathfieldElement({
-        mathVirtualKeyboardPolicy: 'manual',
-      });
+      const mfe = new MathfieldElement();
 
       // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
 
@@ -193,38 +196,6 @@
         },
         { capture: true }
       );
-
-      document.addEventListener('focusin', (ev) => {
-        const mf = document.activeElement;
-        const showKeyboard =
-          mf?.tagName === 'MATH-FIELD' && mf.isSelectionEditable === true;
-        console.log(showKeyboard);
-        mathVirtualKeyboard.visible = showKeyboard;
-      });
-
-      mf.addEventListener('selection-change', (ev) => {
-        const mf = ev.target;
-        const showKeyboard =
-          mf?.tagName === 'MATH-FIELD' && mf.isSelectionEditable === true;
-        console.log(showKeyboard);
-        mathVirtualKeyboard.visible = showKeyboard;
-      });
-
-      mf.smartMode = false;
-
-      mf.locale = 'en-US';
-
-      console.log(mf.foo);
-      mf.foo = 'bar';
-
-      console.log(mf.computeEngine);
-
-      mf.smartFence = false;
-      // mf.inlineShortcuts = {
-      //   ...mf.inlineShortcuts,
-      //   '@': '@',
-      //   '$': '\\$',
-      // };
 
       MathfieldElement.computeEngine.latexOptions = {
         ...MathfieldElement.computeEngine.latexOptions,
