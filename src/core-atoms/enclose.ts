@@ -5,6 +5,7 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { latexCommand } from '../core/tokenizer';
 import { getDefinition } from '../core-definitions/definitions-utils';
+import { X_HEIGHT } from 'core/font-metrics';
 
 export type EncloseAtomOptions = {
   shadow?: string;
@@ -70,8 +71,8 @@ export class EncloseAtom extends Atom {
 
     this.notation = notation;
     this.shadow = options.shadow ?? 'none';
-    this.strokeWidth = options.strokeWidth ?? '0.08em';
-    if (!this.strokeWidth) this.strokeWidth = '0.08em';
+    this.strokeWidth = options.strokeWidth ?? '0.06em';
+    if (!this.strokeWidth) this.strokeWidth = '0.06em';
     this.strokeStyle = options.strokeStyle;
     this.svgStrokeStyle = options.svgStrokeStyle;
     this.strokeColor = options.strokeColor;
@@ -204,7 +205,7 @@ export class EncloseAtom extends Atom {
       svg += '/>';
     }
     if (this.notation.phasorangle) {
-      const clearance = context.toEm({ dimension: 0.15, unit: 'em' });
+      const clearance = getClearance(context);
       const bot = (
         base.height +
         base.depth +
@@ -246,7 +247,7 @@ export class EncloseAtom extends Atom {
     //   svg += '/>';
     // }
     if (this.notation.longdiv) {
-      const clearance = context.toEm({ dimension: 0.15, unit: 'em' });
+      const clearance = getClearance(context);
       h += clearance;
       svg += this.line(
         padding.toString(),
@@ -263,7 +264,7 @@ export class EncloseAtom extends Atom {
       svg += `M ${padding} ${padding}  a${surdWidth} ${
         (base.depth + base.height + 2 * clearance) / 2
       }, 0, 1, 1, 0 ${base.depth + base.height + 2 * clearance} "`;
-      svg += ` stroke-width="${'0.006em'}" stroke="${
+      svg += ` stroke-width="${getRuleThickness(context)}" stroke="${
         this.strokeColor
       }" fill="none"`;
       svg += '/>';
@@ -384,4 +385,23 @@ function borderDim(s: string | undefined): string {
   const m = s.match(/([0-9][a-zA-Z\%]+)/);
   if (m === null) return '1px';
   return m[1];
+}
+
+function getRuleThickness(ctx: Context): string {
+  // Same thickness as the surd rule
+  // @todo: mystery: need to divide by 10...
+  return (
+    (
+      Math.floor((100 * ctx.metrics.sqrtRuleThickness) / ctx.scalingFactor) /
+      100 /
+      10
+    ).toString() + 'em'
+  );
+}
+
+function getClearance(ctx: Context): number {
+  // Same clearance as for a sqrt
+
+  const phi = ctx.isDisplayStyle ? X_HEIGHT : ctx.metrics.defaultRuleThickness;
+  return ctx.metrics.defaultRuleThickness + (ctx.scalingFactor * phi) / 4;
 }
