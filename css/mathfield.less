@@ -190,11 +190,13 @@
 }
 
 .ML__latex-caret:after {
-  content: '_';
+  content: '';
   border: none;
-  margin-right: 0;
-  margin-right: calc(-1ex - 2px);
+  border-radius: 2px;
+  border-right: 2px solid var(--_caret-color);
+  margin-right: -2px;
   position: relative;
+  left: -1px;
   color: var(--_caret-color);
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
