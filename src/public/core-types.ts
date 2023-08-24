@@ -356,7 +356,7 @@ export type BoxCSSProperties =
   | 'display'
   | 'font-family'
   | 'left'
-  | 'height'
+  | 'height' // @todo: remove
   | 'line-height'
   | 'margin-top'
   | 'margin-left'
@@ -369,7 +369,7 @@ export type BoxCSSProperties =
   | 'top'
   | 'bottom'
   | 'vertical-align'
-  | 'width'
+  | 'width' // @todo: remove
   | 'z-index';
 
 export type MatrixEnvironment =

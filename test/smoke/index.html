@@ -20,6 +20,10 @@
         max-width: 640px;
         width: 100%;
       }
+      #mathml-render {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
     </style>
   </head>
   <body>
@@ -39,9 +43,10 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf"
-        >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12345}}\enclose{box}{\sqrt{\frac{1}{x+1}}}</math-field
-      >
+      <math-field id="mf"> \sqrt[3]{x} \sqrt{1+2\ne\frac{1}{2345}}</math-field>
+      <!-- <math-field id="mf"
+        >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12+3+4+5}}\enclose{box}{\sqrt[1234567]{\frac{1}{x+1}}}</math-field
+      > -->
       <!-- <math-field id="mf"
         >\phase{abc}\enclose{box}{\sqrt{\frac{1}{x+1}}}\enclose{roundedbox}{\sqrt{\frac{1}{x+1}}}\enclose{circle}{\sqrt{\frac{1}{x+1}}}\enclose{top}{\sqrt{\frac{1}{x+1}}}\enclose{left}{\sqrt{\frac{1}{x+1}}}\enclose{right}{\sqrt{\frac{1}{x+1}}}\enclose{bottom}{\sqrt{\frac{1}{x+1}}}\enclose{horizontalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{verticalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{phasorangle}{\sqrt{\frac{1}{x+1}}}\enclose{radical}{\sqrt{\frac{1}{x+1}}}\enclose{longdiv}{\sqrt{\frac{1}{x+1}}}\enclose{actuarial}{\sqrt{\frac{1}{x+1}}}\enclose{madruwb}{\sqrt{\frac{1}{x+1}}}</math-field
       > -->
@@ -70,6 +75,7 @@
 
       <h2>MathML</h2>
       <div class="output" id="mathml"></div>
+      <div id="mathml-render"></div>
 
       <h2>Latex to Speakable Text</h2>
       <div class="output" id="latex2speech"></div>
@@ -291,6 +297,9 @@
           setHtml('latex', mf.getValue('latex-expanded'));
           setHtml('ascii-math', mf.getValue('ascii-math'));
           setHtml('mathml', mf.getValue('math-ml'));
+          document.getElementById(
+            'mathml-render'
+          ).innerHTML = `<math>${mf.getValue('math-ml')}</math>`;
           // setHtml('math-json', ce.parse(mf.value));
           setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
 

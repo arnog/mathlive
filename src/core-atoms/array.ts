@@ -514,6 +514,7 @@ export class ArrayAtom extends Atom {
         //
 
         const separator = new Box(null, { classes: 'vertical-separator' });
+        separator.height = totalHeight;
         separator.setStyle('height', totalHeight, 'em');
         separator.setStyle(
           'border-right',

@@ -149,7 +149,7 @@ export class GenfracAtom extends Atom {
       : Atom.createBox(denomContext, this.below, { type: 'ignore' }) ??
         new Box(null, { type: 'ignore' });
 
-    const ruleWidth = this.hasBarLine ? metrics.defaultRuleThickness : 0;
+    const ruleThickness = this.hasBarLine ? metrics.defaultRuleThickness : 0;
 
     // Rule 15b from TeXBook Appendix G, p.444
     //
@@ -163,12 +163,12 @@ export class GenfracAtom extends Atom {
     let denomShift: number;
     if (fracContext.isDisplayStyle) {
       numerShift = numContext.metrics.num1; // Set u ← σ8
-      clearance = ruleWidth > 0 ? 3 * ruleWidth : 7 * ruleWidth;
+      clearance = ruleThickness > 0 ? 3 * ruleThickness : 7 * ruleThickness;
       denomShift = denomContext.metrics.denom1; // V ← σ11
     } else {
-      if (ruleWidth > 0) {
+      if (ruleThickness > 0) {
         numerShift = numContext.metrics.num2; // U ← σ9
-        clearance = ruleWidth; //  Φ ← θ
+        clearance = ruleThickness; //  Φ ← θ
       } else {
         numerShift = numContext.metrics.num3; // U ← σ10
         clearance = 3 * metrics.defaultRuleThickness; // Φ ← 3 ξ8
@@ -182,7 +182,7 @@ export class GenfracAtom extends Atom {
     const numerDepth = numerBox.depth;
     const denomHeight = denomBox.height;
     let frac: Box;
-    if (ruleWidth <= 0) {
+    if (ruleThickness <= 0) {
       // Rule 15c from Appendix G
       // No bar line between numerator and denominator
       const candidateClearance =
@@ -209,23 +209,25 @@ export class GenfracAtom extends Atom {
     } else {
       // Rule 15d from Appendix G of the TeXBook.
       // There is a bar line between the numerator and the denominator
-      const numerLine = AXIS_HEIGHT + ruleWidth / 2;
-      const denomLine = AXIS_HEIGHT - ruleWidth / 2;
-      if (numerShift < clearance + numerDepth + numerLine)
-        numerShift = clearance + numerDepth + numerLine;
-
-      if (denomShift < clearance + denomHeight - denomLine)
-        denomShift = clearance + denomHeight - denomLine;
 
       const fracLine = new Box(null, {
         classes: 'ML__frac-line',
         mode: this.mode,
         style: this.style,
       });
-      // Manually set the height of the frac line because its height is
-      // created in CSS
-      fracLine.height = ruleWidth / 2;
-      fracLine.depth = ruleWidth / 2;
+
+      // const numerLine = AXIS_HEIGHT + ruleThickness / 2;
+      const denomLine = AXIS_HEIGHT - ruleThickness / 2;
+      // if (numerShift < clearance + numerDepth + numerLine)
+      //   numerShift = clearance + numerDepth + numerLine;
+
+      fracLine.width = Math.max(numerBox.width, denomBox.width);
+      fracLine.height = ruleThickness / 2;
+      fracLine.depth = ruleThickness / 2;
+
+      if (denomShift < clearance + denomHeight - denomLine)
+        denomShift = clearance + denomHeight - denomLine;
+
       frac = new VBox({
         individualShift: [
           {

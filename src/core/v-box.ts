@@ -145,6 +145,7 @@ function makeRows(
   let minPos = depth;
   let maxPos = depth;
   let currPos = depth;
+  let width = 0;
   for (const child of children) {
     if (typeof child === 'number') currPos += child;
     else {
@@ -166,6 +167,7 @@ function makeRows(
 
       realChildren.push(childWrap);
       currPos += box.height + box.depth;
+      width = Math.max(width, childWrap.width);
     }
     minPos = Math.min(minPos, currPos);
     maxPos = Math.max(maxPos, currPos);
@@ -175,6 +177,8 @@ function makeRows(
   // This cell's bottom edge will determine the containing table's baseline
   // without overly expanding the containing line-box.
   const vlist = new Box(realChildren, { classes: 'vlist' });
+  vlist.width = width;
+  vlist.height = maxPos;
   vlist.setStyle('height', maxPos, 'em');
 
   // A second row is used if necessary to represent the vlist's depth.
@@ -187,6 +191,7 @@ function makeRows(
   // text content. And that min-height over-rides our desired height.
   // So we put another empty box inside the depth strut box.
   const depthStrut = new Box(new Box(null), { classes: 'vlist' });
+  depthStrut.height = -minPos;
   depthStrut.setStyle('height', -minPos, 'em');
 
   // Safari wants the first row to have inline content; otherwise it
@@ -214,15 +219,17 @@ export class VBox extends Box {
     options?: { classes?: string; type?: BoxType }
   ) {
     const [rows, height, depth] = makeRows(content);
+
     super(rows.length === 1 ? rows[0] : rows, {
+      type: options?.type,
       classes:
         (options?.classes ?? '') +
         ' vlist-t' +
         (rows.length === 2 ? ' vlist-t2' : ''),
-      height,
-      depth,
-      type: options?.type,
     });
+    this.height = height;
+    this.depth = depth;
+    this.width = rows.reduce((acc, row) => Math.max(acc, row.width), 0);
   }
 }
 

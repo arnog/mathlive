@@ -64,10 +64,6 @@ export class BoxAtom extends Atom {
 
     const offset = parentContext.toEm(this.offset ?? { dimension: 0 });
     base.depth += offset;
-    // base.setStyle('display', 'inline-block');
-    // base.setStyle('position', 'relative');
-    // base.setStyle('background-color', 'rgba(255, 0, 0, .2)');
-    // base.setStyle('vertical-align', raise, 'em');
 
     const context = new Context({ parent: parentContext }, this.style);
 
@@ -88,10 +84,11 @@ export class BoxAtom extends Atom {
     box.depth = base.depth + padding;
     box.setStyle('box-sizing', 'border-box');
     box.setStyle('position', 'absolute');
+
     box.setStyle('top', -padding + 0.3, 'em'); // empirical
+    box.setStyle('left', 0);
 
     box.setStyle('height', box.height + box.depth, 'em');
-    box.setStyle('left', 0);
     box.setStyle('width', '100%');
 
     if (this.backgroundcolor) {

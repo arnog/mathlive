@@ -437,7 +437,8 @@ export class Box implements BoxInterface {
       svgMarkup += '">';
       svgMarkup += body;
       svgMarkup += '</span>';
-      svgMarkup += '<svg style="position:absolute;overflow:overlay;';
+      svgMarkup += '<svg style="position:absolute;overflow:visible;';
+
       svgMarkup += `height:${
         Math.floor(100 * (this.height + this.depth)) / 100
       }em;`;

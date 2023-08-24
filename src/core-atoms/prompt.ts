@@ -68,9 +68,10 @@ export class PromptAtom extends Atom {
     const content = Atom.createBox(parentContext, this.body);
 
     if (!content) return null;
-    // An empty prompt should not be too small, pretend content has height 0.5em
+    // An empty prompt should not be too small, pretend content
+    // has height sigma 5 (x-height)
 
-    if (!content.height) content.height = 0.5;
+    if (!content.height) content.height = context.metrics.xHeight;
 
     content.setStyle('vertical-align', -content.height, 'em');
     if (this.correctness === 'correct') {
@@ -108,19 +109,21 @@ export class PromptAtom extends Atom {
     });
     box.height = base.height + vPadding;
     box.depth = base.depth + vPadding;
+    box.width = base.width + 2 * hPadding;
     box.setStyle('box-sizing', 'border-box');
     box.setStyle('position', 'absolute');
 
-    box.setStyle('height', base.height + base.depth + 2 * vPadding, 'em');
-    if (hPadding === 0) box.setStyle('width', '100%');
-    else {
-      box.setStyle('width', `calc(100% + ${2 * hPadding}em)`);
+    box.setStyle('height', base.height + base.depth + 2 * vPadding, 'em'); // @todo: remove
+    if (hPadding === 0) box.setStyle('width', '100%'); // @todo: remove
+    if (hPadding !== 0) {
+      box.setStyle('width', `calc(100% + ${2 * hPadding}em)`); // @todo: remove
       box.setStyle('top', fboxsep, 'em'); // empirical
       box.setStyle('left', -hPadding, 'em');
     }
 
     // empty prompt should be a little wider
     if (!this.body || this.body.length === 1) {
+      box.width = 3 * hPadding;
       box.setStyle('width', `calc(100% + ${3 * hPadding}em)`);
       box.setStyle('left', -1.5 * hPadding, 'em');
     }

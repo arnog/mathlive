@@ -353,6 +353,7 @@ export class EncloseAtom extends Atom {
     result.setStyle('display', 'inline-block');
 
     // The padding adds to the width and height of the pod
+    result.width = w - 2 * padding;
     result.height = notation.height;
     result.depth = notation.depth;
     result.left = padding;

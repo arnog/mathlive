@@ -31,9 +31,6 @@ export function addSkipBefore(box: Box, width: number): void {
   }
 
   // If there's a skip box to our left, merge
-  if (i > 0 && siblings[i - 1].type === 'skip') {
-    siblings[i - 1].width += width;
-    return;
-  }
-  siblings.splice(i, 0, new SkipBox(width));
+  if (i > 0 && siblings[i - 1].type === 'skip') siblings[i - 1].width += width;
+  else siblings.splice(i, 0, new SkipBox(width));
 }

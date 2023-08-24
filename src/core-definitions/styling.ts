@@ -999,21 +999,31 @@ defineFunction(['overline', 'underline'], '{:auto}', {
     );
     const inner = Atom.createBox(context, atom.body);
     if (!inner) return null;
-    const ruleWidth =
+    const ruleThickness =
       context.metrics.defaultRuleThickness / context.scalingFactor;
     const line = new Box(null, { classes: position + '-line' });
-    line.height = ruleWidth;
-    line.maxFontSize = ruleWidth * 1.125 * context.scalingFactor;
+    line.height = ruleThickness;
+    line.maxFontSize = ruleThickness * 1.125 * context.scalingFactor;
     let stack: Box;
     if (position === 'overline') {
       stack = new VBox({
         shift: 0,
-        children: [{ box: inner }, 3 * ruleWidth, { box: line }, ruleWidth],
+        children: [
+          { box: inner },
+          3 * ruleThickness,
+          { box: line },
+          ruleThickness,
+        ],
       });
     } else {
       stack = new VBox({
         top: inner.height,
-        children: [ruleWidth, { box: line }, 3 * ruleWidth, { box: inner }],
+        children: [
+          ruleThickness,
+          { box: line },
+          3 * ruleThickness,
+          { box: inner },
+        ],
       });
     }
 
