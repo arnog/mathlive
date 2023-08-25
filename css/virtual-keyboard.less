@@ -136,6 +136,7 @@
   --_keycap-shift-color: var(--keycap-shift-color, var(--_accent-color));
 
   --_box-placeholder-color: var(--box-placeholder-color, var(--_accent-color));
+  --_box-placeholder-pressed-color: var(--box-placeholder-pressed-color, var(--keycap-text-pressed));
 }
 
 .is-math-mode .MLK__rows .if-text-mode,
@@ -573,6 +574,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
         // box-shadow: inset 0 0 1px 1px #8d8f92;
         background: var(--_keycap-background-pressed);
         color: var(--_keycap-text-pressed);
+        --_box-placeholder-color: var(--_box-placeholder-pressed-color);
       }
       &.MLK__keycap.is-active,
       &.action.is-active,

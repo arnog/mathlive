@@ -4,6 +4,8 @@
 
 - Added support for additional commands from the `mathtools` , `actuarialangle`, `colonequals`, `statmath` and `amsopn` packages
 - Added support for `longdiv` enclosure (`\mathenclose{longdiv}{...}`)
+- **#2109** In the virtual keyboard, some placeholders could be hard to see when 
+  a keycap was in a pressed state.
 
 ## 0.95.5 (2023-08-18)
 
