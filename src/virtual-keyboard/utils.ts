@@ -745,7 +745,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     class: 'big-op hide-shift',
     shift: {
       latex: '\\sum',
-      insert: '\\sum_{#?}^{#?}',
+      insert: '\\sum',
       class: 'small',
     },
   },

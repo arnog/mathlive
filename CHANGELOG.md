@@ -6,6 +6,8 @@
 - Added support for `longdiv` enclosure (`\mathenclose{longdiv}{...}`)
 - **#2109** In the virtual keyboard, some placeholders could be hard to see when 
   a keycap was in a pressed state.
+- **#2105** The keycap `shift +` in the numeric keyboard was inserting a sum
+ with limits contrary to what the keycap label indicated.
 
 ## 0.95.5 (2023-08-18)
 
