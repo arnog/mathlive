@@ -4,15 +4,6 @@ export function isBrowser(): boolean {
   return 'window' in globalThis && 'document' in globalThis;
 }
 
-export function throwIfNotInBrowser(): void {
-  if (!isBrowser()) {
-    throw new Error(
-      '<math-field> is an interactive component that needs to run in a browser environment\n' +
-        'If you are using nextjs, see https://nextjs.org/docs/advanced-features/dynamic-import#with-no-ssr'
-    );
-  }
-}
-
 export function isTouchCapable(): boolean {
   if ('matchMedia' in window)
     return window.matchMedia('(any-pointer: coarse)').matches;
