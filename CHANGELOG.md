@@ -4,10 +4,13 @@
 
 - Added support for additional commands from the `mathtools` , `actuarialangle`, `colonequals`, `statmath` and `amsopn` packages
 - Added support for `longdiv` enclosure (`\mathenclose{longdiv}{...}`)
+- The decimal separator key (`.`) in the virtual keyboard was displayed as a blank key.
 - **#2109** In the virtual keyboard, some placeholders could be hard to see when 
   a keycap was in a pressed state.
 - **#2105** The keycap `shift +` in the numeric keyboard was inserting a sum
  with limits contrary to what the keycap label indicated.
+- In the alphabetic virtual keyboard, the `,` key now produces a semicolon
+  when shifted and has a variant panel with additional punctuation.
 
 ## 0.95.5 (2023-08-18)
 

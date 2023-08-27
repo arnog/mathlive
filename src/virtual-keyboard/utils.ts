@@ -169,7 +169,7 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
     '[+]',
     '[=]',
     { label: ' ', width: 1.5 },
-    ',',
+    { label: ',', shift: ';', variants: '.', class: 'hide-shift' },
     '[.]',
     '[left]',
     '[right]',
