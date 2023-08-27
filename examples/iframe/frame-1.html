@@ -16,9 +16,12 @@
     <script type="module">
       import '/dist/mathlive.mjs';
       // import 'https://unpkg.com/mathlive?module';
-      document.getElementById('mf1').addEventListener('input', (ev) => {
+      const mf1 = document.getElementById('mf1');
+      mf1.addEventListener('input', (ev) => {
         document.getElementById('output').innerHTML = ev.target.value;
       });
+
+      mf1.virtualKeyboardTargetOrigin = '*'; // any domain
     </script>
   </body>
 </html>

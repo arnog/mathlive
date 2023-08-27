@@ -1,46 +1,41 @@
 # Iframe Example
 
-This example shows how to interact with a MathLive mathfield on page with
+This example shows how to interact with a MathLive mathfield on a page with
 multiple iframes.
 
-It uses the MathLive SDK distributed via a CDN.
+## Initialize Child Frame
 
-## Initialize child frame
-
-Initialize a mathfield element as usual, just pass an option
-`useSharedVirtualKeyboard` with a value of true or set a
-`use-shared-virtual-keyboard` attribute.
+Initialize a mathfield element as usual
 
 ```html
 <script src="https://unpkg.com/mathlive/"></script>
 
-<math-field
-  virtual-keyboard-mode="onfocus"
-  use-shared-virtual-keyboard
-></math-field>
+<math-field></math-field>
 ```
 
-## Initialize parent frame
+## Initialize Parent Frame
 
-In the parent frame you should also load MathLive using a `<script>` tag and
-invoke `makeSharedVirtualKeyboard()` function to create the shared virtual
-keyboard. Make sure to call `makeSharedVirtualKeyboard()` as early as possible,
-and before creating any mathfield element. `makeSharedVirtualKeyboard()` does
-not apply to previously created mathfield elements.
+In the parent frame you should also load MathLive using a `<script>` tag.
 
 ```html
 <script type="module">
-  import { makeSharedVirtualKeyboard } from 'https://unpkg.com/mathlive?module';
-
-  makeSharedVirtualKeyboard();
+  import 'https://unpkg.com/mathlive?module';
 </script>
 ```
 
-Now, when you focus on keyboard in iframe container, the virtual keyboard will
-shown at parent frame window.
+The virtual keyboard will be shown in the parent frame window.
 
-## Interact with a mathfield
+## Cross-Origin Communication
 
-On a parent frame window you can manipulate with mathfield element via commands
-and few additional methods. That available only when mathfield element are
-focused in child frame. Multiple focuses is not supported by this feature.
+By default browsers will not allow a frame to access the content of another
+frame if they are not on the same domain. 
+
+To allow this, you need to set the `mathVirtualKeyboard.targetOrigin` property to `"*"` (any domain). This will allow the keyboard to communicate with the mathfield.
+
+In addition, you may need to set the mathfield `virtualKeyboardTargetOrigin` property to `"*"` as well. This
+will allow the mathfield to communicate with the virtual keyboard in the parent frame.
+
+You may set the origin to a specific domain if you prefer.
+
+
+
