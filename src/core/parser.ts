@@ -1005,7 +1005,6 @@ export class Parser {
       if (nestLevel !== 0) this.parseExpression();
     }
 
-    if (nestLevel === 0) this.match(')');
     const result = new LeftRightAtom('', this.mathlist, {
       leftDelim: '(',
       rightDelim: nestLevel === 0 ? ')' : '?',

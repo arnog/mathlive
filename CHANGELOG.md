@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### Bugs Fixed
+
+- A closing parenthesis following a function application would be ignored, 
+  i.e. `(f(x))` would be parsed as `(f(x)`.
+
 ### Improvements
 
 - Added support for additional commands from the `mathtools` , `actuarialangle`, `colonequals`, `statmath` and `amsopn` packages
