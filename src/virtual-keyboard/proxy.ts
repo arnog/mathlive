@@ -13,6 +13,8 @@ import type {
   VirtualKeyboardInterface,
   MathfieldProxy,
   VirtualKeyboardMessageAction,
+  VirtualKeyboardLayoutCore,
+  NormalizedVirtualKeyboardLayer,
 } from '../public/virtual-keyboard';
 
 export const VIRTUAL_KEYBOARD_MESSAGE = 'mathlive#virtual-keyboard-message';
@@ -61,6 +63,11 @@ export class VirtualKeyboardProxy
   }
   set layouts(value: (VirtualKeyboardName | VirtualKeyboardLayout)[]) {
     this.sendMessage('update-setting', { layouts: value });
+  }
+  get normalizedLayouts(): (VirtualKeyboardLayoutCore & {
+    layers: NormalizedVirtualKeyboardLayer[];
+  })[] {
+    return [];
   }
   set editToolbar(value: EditToolbarOptions) {
     this.sendMessage('update-setting', { editToolbar: value });

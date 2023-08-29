@@ -189,6 +189,10 @@ export interface VirtualKeyboardOptions {
       | Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>
   );
 
+  readonly normalizedLayouts: (VirtualKeyboardLayoutCore & {
+    layers: NormalizedVirtualKeyboardLayer[];
+  })[];
+
   /**
    * Configuration of the action toolbar, displayed on the right-hand side.
    *
