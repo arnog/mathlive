@@ -271,7 +271,7 @@ function onDelete(
     if (branch && atom.hasEmptyBranch(branch)) atom.removeBranch(branch);
 
     if (!atom.hasChildren) {
-      // We've removed the last branch of a msubsup
+      // We've removed the last branch of a subsup
       const pos =
         direction === 'forward'
           ? model.offsetOf(atom)

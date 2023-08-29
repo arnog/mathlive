@@ -4,6 +4,8 @@
 
 - A closing parenthesis following a function application would be ignored, 
   i.e. `(f(x))` would be parsed as `(f(x)`.
+- **#2116** Pressing the "/" key after an expression ending with a superscript would
+  not recognize the left argument as a numerator.
 
 ### Improvements
 
