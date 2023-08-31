@@ -18,6 +18,9 @@
  with limits contrary to what the keycap label indicated.
 - In the alphabetic virtual keyboard, the `,` key now produces a semicolon
   when shifted and has a variant panel with additional punctuation.
+- Improved virtual keyboard for integrals with more explicit template
+- When removing the limit of an integral or a sum, do not delete the operator
+  itself.
 
 ## 0.95.5 (2023-08-18)
 

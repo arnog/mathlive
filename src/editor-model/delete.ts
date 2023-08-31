@@ -268,9 +268,7 @@ function onDelete(
       return false;
     }
 
-    if (branch && atom.hasEmptyBranch(branch)) atom.removeBranch(branch);
-
-    if (!atom.hasChildren) {
+    if (!atom.hasChildren && atom.type === 'subsup') {
       // We've removed the last branch of a subsup
       const pos =
         direction === 'forward'
@@ -302,6 +300,19 @@ function onDelete(
       }
     }
 
+    if (branch && atom.hasEmptyBranch(branch)) {
+      atom.removeBranch(branch);
+      if (atom.type === 'subsup' && !atom.subscript && !atom.superscript) {
+        // We've removed the last branch of a subsup
+        const pos =
+          direction === 'forward'
+            ? model.offsetOf(atom)
+            : Math.max(0, model.offsetOf(atom) - 1);
+        atom.parent!.removeChild(atom);
+        model.position = pos;
+      }
+    }
+
     return true;
   }
 
@@ -323,11 +334,11 @@ function onDelete(
   }
 
   // In the sup or sub of, e.g. \ln.
+  // removing any sub or sup should remove the parent
   if (
     direction === 'backward' &&
-    parent?.subsupPlacement === 'adjacent' &&
-    atom.parentBranch !== 'body' &&
-    atom.siblings.length === 2
+    (parent?.command === '\\ln' || parent?.command === '\\log') &&
+    atom.parentBranch !== 'body'
   ) {
     const pos = model.offsetOf(parent.leftSibling);
     parent.parent!.removeChild(parent);
