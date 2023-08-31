@@ -105,21 +105,19 @@ export const LAYOUTS: Partial<
         '[-]',
         '[separator-5]',
         {
-          latex: '\\int^{\\infty}_{0}',
+          latex: '\\int^{\\infty}_{0}\\!#?\\,\\mathrm{d}x',
           class: 'small hide-shift',
           shift: '\\int',
           variants: [
             { latex: '\\int_{#?}^{#?}', class: 'small' },
             { latex: '\\int', class: 'small' },
-            { latex: '\\smallint', class: 'small' },
             { latex: '\\iint', class: 'small' },
             { latex: '\\iiint', class: 'small' },
             { latex: '\\oint', class: 'small' },
+            '\\mathrm{d}x',
             { latex: '\\dfrac{\\rd}{\\rd x}', class: 'small' },
             { latex: '\\frac{\\partial}{\\partial x}', class: 'small' },
 
-            '\\capitalDifferentialD',
-            '\\rd',
             '\\partial',
           ],
         },
@@ -437,7 +435,15 @@ export const LAYOUTS: Partial<
             '\\grave{#@}',
           ],
         },
-        '\\lim_{#?}',
+        {
+          class: 'small',
+          latex: '\\lim_{#?}',
+          shift: '\\lim_{x\\to\\infty}',
+          variants: [
+            { class: 'small', latex: '\\liminf_{#?}' },
+            { class: 'small', latex: '\\limsup_{#?}' },
+          ],
+        },
         '\\exponentialE',
       ],
       [
@@ -596,15 +602,14 @@ export const LAYOUTS: Partial<
           variants: ['#@^{\\doubleprime}', '#@\\degree'],
         },
         {
-          latex: '\\rd',
+          latex: '\\mathrm{d}',
           shift: '\\partial',
 
           variants: [
+            '\\mathrm{d}x',
             { latex: '\\dfrac{\\rd}{\\rd x}', class: 'small' },
             { latex: '\\frac{\\partial}{\\partial x}', class: 'small' },
 
-            '\\capitalDifferentialD',
-            '\\rd',
             '\\partial',
           ],
         },
