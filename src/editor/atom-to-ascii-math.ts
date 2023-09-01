@@ -4,6 +4,7 @@ import type { Atom } from '../core/atom';
 import { GenfracAtom } from '../core-atoms/genfrac';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { ArrayAtom } from '../core-atoms/array';
+import { Style } from '../public/core-types';
 
 const SPECIAL_IDENTIFIERS = {
   '\\ne': '≠',
@@ -58,11 +59,11 @@ const SPECIAL_IDENTIFIERS = {
   '\\enspace': ' ',
   '\\qquad': ' ',
   '\\quad': ' ',
+  '\\infty': 'oo',
 };
 
 const SPECIAL_OPERATORS = {
   '\\pm': '+-',
-  '\\times': 'xx',
   '\\colon': ':',
   '\\vert': '|',
   '\\Vert': '||',
@@ -73,6 +74,41 @@ const SPECIAL_OPERATORS = {
   '\\rparen': ')',
   '\\langle': '(:',
   '\\rangle': ':)',
+  '\\sum': 'sum',
+  '\\prod': 'prod',
+  '\\bigcap': 'nnn',
+  '\\bigcup': 'uuu',
+  '\\int': 'int',
+  '\\oint': 'oint',
+  '\\ge': '>=',
+  '\\le': '<=',
+  '\\ne': '!=',
+  '\\neq': '!=',
+  '\\lt': '<',
+  '\\gt': '>',
+  '\\gets': '<-',
+  '\\to': '->',
+  '\\land': 'and',
+  '\\lor': 'or',
+  '\\lnot': 'not',
+  '\\forall': 'AA',
+  '\\exists': 'EE',
+  '\\in': 'in',
+  '\\notin': '!in',
+  '\\mapsto': '|->',
+  '\\implies': '=>',
+  '\\iff': '<=>',
+
+  '\\cdot': '*',
+  '\\ast': '**',
+  '\\star': '***',
+  '\\times': 'xx',
+  '\\div': '-:',
+  '\\ltimes': '|><',
+  '\\rtimes': '><|',
+  '\\bowtie': '|><|',
+  '\\circ': '@',
+
   // '\\lfloor': '\u230a',
   // '\\rfloor': '\u230b',
   // '\\lceil': '\u2308',
@@ -94,35 +130,30 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
   if (!atom) return '';
   if (isArray<Atom>(atom)) {
     if (atom.length === 0) return '';
-    if (atom[0].type === 'first') atom = atom.slice(1);
-    if (atom.length === 0) return '';
-    let result = '';
-    if (atom[0].mode === 'latex')
-      for (const x of atom) result += atomToAsciiMath(x);
-    else if (atom[0].mode === 'text') {
+
+    if (atom[0].mode === 'latex') return atom.map(atomToAsciiMath).join('');
+
+    if (atom[0].mode === 'text') {
       // Text mode... put it in (ASCII) quotes
       let i = 0;
-      result = '"';
+      let text = '';
       while (atom[i]?.mode === 'text') {
-        result += atom[i].body ? atomToAsciiMath(atom[i].body) : atom[i].value;
+        text += atom[i].body ? atomToAsciiMath(atom[i].body) : atom[i].value;
         i++;
       }
 
-      result += '"' + atomToAsciiMath(atom.slice(i));
-    } else if (atom[0].mode === 'math') {
-      let i = 0;
-      while (atom[i] && atom[i].mode === 'math') {
-        result += atomToAsciiMath(atom[i]);
-        i++;
-      }
+      return `"${text}" ${atomToAsciiMath(atom.slice(i))}`;
+    }
 
-      result += atomToAsciiMath(atom.slice(i));
-    } else console.warn('toASCIIMath: Unexpected mode');
+    let i = 0;
+    let result = '';
+    while (atom[i] && atom[i].mode === 'math')
+      result += atomToAsciiMath(atom[i++]);
 
-    return result.trim();
+    return result + atomToAsciiMath(atom.slice(i));
   }
 
-  if (atom.mode === 'text') return '"' + atom.value + '"'; // Text -- add in (ASCII) quotes
+  if (atom.mode === 'text') return `"${atom.value}"`;
 
   let result = '';
   const { command } = atom;
@@ -131,8 +162,28 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
   if (command === '\\placeholder') return `(${atomToAsciiMath(atom.body)})`;
 
   switch (atom.type) {
+    case 'accent':
+      const accent = {
+        '\\vec': 'vec',
+        '\\dot': 'dot',
+        '\\ddot': 'ddot',
+        '\\bar': 'bar',
+        '\\hat': 'hat',
+        '\\acute': 'acute;', // non-standard
+        '\\grave': 'grave', // non-standard
+        '\\tilde': 'tilde', // non-standard
+        '\\breve': 'breave', // non-standard
+        '\\check': 'check', // non-standard
+      }[command];
+
+      result += `${accent ?? ''} ${atomToAsciiMath(atom.body)} `;
+      break;
+
     case 'first':
       return '';
+
+    case 'latexgroup':
+      return atom.body!.map((x) => x.value).join('');
 
     case 'group':
     case 'root':
@@ -204,6 +255,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
     case 'sizeddelim':
     case 'delim':
       // Result += '<mo separator="true"' + makeID(atom.id, options) + '>' + (SPECIAL_OPERATORS[atom.delim] || atom.delim) + '</mo>';
+      result = atom.value;
       break;
 
     case 'overlap':
@@ -218,7 +270,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
         command ??
         (typeof atom.value === 'string' ? atom.value : '');
       if (result.startsWith('\\')) result += ' ';
-      m = command ? command.match(/{?\\char"([\dabcdefABCDEF]*)}?/) : null;
+      m = command ? command.match(/{?\\char"([\dabcdefABCDEF]+)}?/) : null;
       if (m) {
         // It's a \char command
         result = String.fromCodePoint(Number.parseInt('0x' + m[1]));
@@ -230,6 +282,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
             ? atom.value.charAt(0)!
             : atom.command!;
       }
+      result = asciiStyle(result, atom.style);
       break;
 
     case 'mbin':
@@ -251,13 +304,15 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
       break;
 
     case 'mop':
+      // Not ZERO-WIDTH
       if (atom.value !== '\u200B') {
-        // Not ZERO-WIDTH
-        result = '';
-        result +=
-          command === '\\operatorname'
-            ? atomToAsciiMath(atom.body)
-            : atom.value ?? command;
+        if (SPECIAL_OPERATORS[command!]) result = SPECIAL_OPERATORS[command!];
+        else {
+          result =
+            command === '\\operatorname'
+              ? atomToAsciiMath(atom.body)
+              : atom.value ?? command;
+        }
         result += ' ';
       }
       break;
@@ -317,14 +372,32 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
   if (!atom.hasEmptyBranch('subscript')) {
     result += '_';
     const arg = atomToAsciiMath(atom.subscript);
-    result += arg.length > 1 ? '(' + arg + ')' : arg;
+    result += arg.length !== 1 ? `(${arg})` : arg;
   }
 
   if (!atom.hasEmptyBranch('superscript')) {
     result += '^';
     const arg = atomToAsciiMath(atom.superscript);
-    result += arg.length > 1 ? '(' + arg + ')' : arg;
+    result += arg.length !== 1 ? `(${arg})` : arg;
   }
+
+  return result;
+}
+
+function asciiStyle(body: string, style: Style | undefined): string {
+  if (!style) return body;
+
+  let result = body;
+
+  if (style.variant === 'double-struck') result = `bbb "${result}"`;
+  if (style.variant === 'script') result = `cc "${result}"`;
+  if (style.variant === 'fraktur') result = `fr "${result}"`;
+  if (style.variant === 'sans-serif') result = `sf "${result}"`;
+  if (style.variant === 'monospace') result = `tt "${result}"`;
+
+  if (style.variantStyle === 'bold') result = `bb "${result}"`;
+
+  if (style.color) return `color({${style.color}})(${result})`;
 
   return result;
 }

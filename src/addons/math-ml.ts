@@ -1,5 +1,6 @@
 import { Atom } from '../core/atom-class';
 import { MacroAtom } from '../core-atoms/macro';
+import { mathVariantToUnicode } from '../core-definitions/unicode';
 
 export type MathMLStream = {
   atoms: Atom[];
@@ -41,12 +42,29 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
   const variantStyle = atom.style?.variantStyle ?? '';
   let variantProp = '';
   if (variant || variantStyle) {
+    const unicodeVariant = mathVariantToUnicode(
+      atom.value,
+      atom.style?.variant,
+      atom.style?.variantStyle
+    );
+    if (unicodeVariant !== atom.value) {
+      stream.index += 1;
+      mathML = `<mi${makeID(atom.id, options)}>${unicodeVariant}</mi>`;
+      if (!parseSubsup(mathML, stream, options)) {
+        stream.mathML += mathML;
+        stream.lastType = 'mi';
+      }
+
+      return true;
+    }
+
     variantProp =
       {
         'upnormal': 'normal',
         'boldnormal': 'bold',
         'italicmain': 'italic',
         'bolditalicmain': 'bold-italic',
+        'updouble-struck': 'double-struck',
         'double-struck': 'double-struck',
         'boldfraktur': 'bold-fraktur',
         'calligraphic': 'script',
@@ -61,7 +79,7 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
         'bolditalicsans-serif': 'sans-serif-bold-italic',
         'monospace': 'monospace',
       }[variantStyle + variant] ?? '';
-    variantProp = `mathvariant="${variantProp}"`;
+    variantProp = ` mathvariant="${variantProp}"`;
   }
 
   const SPECIAL_IDENTIFIERS = {
@@ -795,7 +813,7 @@ function atomToMathML(atom, options): string {
     case 'sizeddelim':
     case 'delim':
       result += `<mo${makeID(atom.id, options)}>${
-        SPECIAL_DELIMS[atom.delim] || atom.delim
+        SPECIAL_DELIMS[atom.value] || atom.value
       }</mo>`;
       break;
 

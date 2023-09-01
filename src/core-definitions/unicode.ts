@@ -158,10 +158,11 @@ const MATH_UNICODE_BLOCKS: {
  */
 export function mathVariantToUnicode(
   char: string,
-  variant: string,
+  variant?: string,
   style?: string
 ): string {
   if (!/[A-Za-z\d]/.test(char)) return char;
+  if (style === 'up') style = undefined;
   if (!variant && !style) return char;
 
   const codepoint = char.codePointAt(0);

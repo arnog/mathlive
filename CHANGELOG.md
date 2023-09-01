@@ -23,6 +23,7 @@
   itself.
 - **#2122** On the Virtual Keyboard, the multiplication key now produces `\cdot` instead
   of `\times`. Use shift to produce `\times`.
+- Improved serialization to ASCIIMath and MathML
 
 ## 0.95.5 (2023-08-18)
 
