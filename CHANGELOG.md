@@ -21,6 +21,8 @@
 - Improved virtual keyboard for integrals with more explicit template
 - When removing the limit of an integral or a sum, do not delete the operator
   itself.
+- **#2122** On the Virtual Keyboard, the multiplication key now produces `\cdot` instead
+  of `\times`. Use shift to produce `\times`.
 
 ## 0.95.5 (2023-08-18)
 

@@ -764,14 +764,14 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     label: '&divide;',
   },
   '[*]': {
-    variants: [{ latex: '\\prod_{#0}^{#0}', class: 'small' }, '\\otimes'],
-    latex: '\\times',
+    variants: [
+      { latex: '\\prod_{#0}^{#0}', class: 'small' },
+      '\\otimes',
+      '\\cdot',
+    ],
+    latex: '\\cdot',
     label: '&times;',
-    shift: {
-      latex: '\\prod',
-      insert: '\\prod_{#?}^{#?}',
-      class: 'small',
-    },
+    shift: { latex: '\\times' },
     class: 'big-op hide-shift',
   },
   '[=]': {
