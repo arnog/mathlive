@@ -1205,7 +1205,7 @@ export class Parser {
     const opAtom =
       this.mathlist.length > 0 ? this.mathlist[this.mathlist.length - 1] : null;
 
-    if (opAtom === null || opAtom.type !== 'mop') return false;
+    if (opAtom === null) return false;
 
     // Record that the limits was set through an explicit command
     // so we can generate the appropriate LaTeX later

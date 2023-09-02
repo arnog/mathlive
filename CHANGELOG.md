@@ -7,6 +7,9 @@
 - **#2116** Pressing the "/" key after an expression ending with a superscript would
   not recognize the left argument as a numerator.
 - **#2124** In text mode, some characters were incorrectly interpreted as a math command, for example `(` was interpreted as \lparen`. This could cause some interoperability issues.
+- **#2110** If using the keyboard to enter several macros mapping to an 
+ `\operatorname` command,  some of the commands could fail to render. For example,
+ typing "1mm + 2mm" in a mathfield would result in "1 + 2mm" to be displayed.
 
 ### Improvements
 

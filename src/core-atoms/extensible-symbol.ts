@@ -1,4 +1,4 @@
-import type { Variant, VariantStyle } from '../public/core-types';
+import type { Variant } from '../public/core-types';
 
 import {
   Atom,
@@ -9,82 +9,91 @@ import {
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
+import { AXIS_HEIGHT } from '../core/font-metrics';
 import { getDefinition } from '../core-definitions/definitions-utils';
 
 /**
  * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
- *
- * An operator is not necessarily of type 'mop'. It is rendered as text
- * in a fixed font. For example, `\sin` is an operator.
- * On the other hand `\int` is an ExtensibleSymbolAtom.
- *
  */
-export class OperatorAtom extends Atom {
+export class ExtensibleSymbolAtom extends Atom {
   private readonly variant?: Variant;
-  private readonly variantStyle?: VariantStyle;
 
   constructor(
     symbol: string,
     options: CreateAtomOptions & {
       isFunction?: boolean;
+      // Unlike `style`, `variant` and `variantStyle` are applied to the
+      // content of this atom, but not propagated to the next atom
       variant?: Variant;
-      variantStyle?: VariantStyle;
       limits?: 'auto' | 'over-under' | 'adjacent';
     }
   ) {
     super({
       ...options,
-      type: 'operator',
+      type: 'extensible-symbol',
       isFunction: options?.isFunction,
     });
     this.value = symbol;
 
     this.variant = options?.variant;
-    this.variantStyle = options?.variantStyle;
     this.subsupPlacement = options?.limits;
   }
 
-  static fromJson(json: AtomJson): OperatorAtom {
-    return new OperatorAtom(json.symbol, json as any);
+  static fromJson(json: AtomJson): ExtensibleSymbolAtom {
+    return new ExtensibleSymbolAtom(json.symbol, json as any);
   }
 
   toJson(): AtomJson {
     const result = super.toJson();
 
     if (this.variant) result.variant = this.variant;
-    if (this.variantStyle) result.variantStyle = this.variantStyle;
     if (this.subsupPlacement) result.limits = this.subsupPlacement;
+    if (this.isExtensibleSymbol) result.isExtensibleSymbol = true;
     if (this.value) result.symbol = this.value;
     return result;
   }
 
   render(context: Context): Box | null {
-    // Build the text from the operator's name.
+    // Most symbol operators get larger in displaystyle (rule 13)
+    // except `\smallint`
+    const large = context.isDisplayStyle && this.value !== '\\smallint';
 
-    // Not all styles are applied, since the operators have a distinct
-    // appearance (for example, can't override their font family)
     const base = new Box(this.value, {
+      fontFamily: large ? 'Size2-Regular' : 'Size1-Regular',
+      classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
       type: 'op',
-      mode: 'math',
       maxFontSize: context.scalingFactor,
-      style: {
-        variant: this.variant,
-        variantStyle: this.variantStyle,
-      },
       isSelected: this.isSelected,
-      letterShapeStyle: context.letterShapeStyle,
     });
+
+    if (!base) return null;
+
+    // Apply italic correction
+    base.right = base.italic;
+
+    // Shift the symbol so its center lies on the axis (rule 13). It
+    // appears that our fonts have the centers of the symbols already
+    // almost on the axis, so these numbers are very small. Note we
+    // don't actually apply this here, but instead it is used either in
+    // the vlist creation or separately when there are no limits.
+    const baseShift =
+      (base.height - base.depth) / 2 - AXIS_HEIGHT * context.scalingFactor;
+
+    // The slant of the symbol is just its italic correction.
+    const slant = base.italic;
+    base.setTop(baseShift);
 
     let result = base;
     if (this.superscript || this.subscript) {
       const limits = this.subsupPlacement ?? 'auto';
       result =
         limits === 'over-under' || (limits === 'auto' && context.isDisplayStyle)
-          ? this.attachLimits(context, { base })
+          ? this.attachLimits(context, { base, baseShift, slant })
           : this.attachSupsub(context, { base });
     }
 
-    // Bind the generated box with its limits so they can all be selected as one
+    // Bind the generated box with its limits so they
+    // can all be selected as one
     return new Box(this.bind(context, result), {
       type: 'op',
       caret: this.caret,
@@ -102,7 +111,9 @@ export class OperatorAtom extends Atom {
     const def = getDefinition(this.command, this.mode);
     if (def?.serialize) return def.serialize(this, options);
 
-    const result: string[] = [this.command!];
+    const result: string[] = [];
+
+    result.push(this.command!);
 
     if (this.explicitSubsupPlacement) {
       if (this.subsupPlacement === 'over-under') result.push('\\limits');

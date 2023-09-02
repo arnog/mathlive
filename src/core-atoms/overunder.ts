@@ -140,7 +140,7 @@ export class OverunderAtom extends Atom {
  *
  * @param nucleus The base over and under which the atoms will
  * be placed.
- * @param type The type ('mop', 'mrel', etc...) of the result
+ * @param type The type ('rel', 'bin', etc...) of the result
  */
 function makeOverunderStack(
   context: Context,

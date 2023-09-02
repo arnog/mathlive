@@ -528,6 +528,8 @@ function atomToSpeakableFragment(
       }
 
       case 'mop':
+      case 'operator':
+      case 'extensible-symbol':
         // @todo
         if (atom.value !== '\u200B') {
           // Not ZERO-WIDTH

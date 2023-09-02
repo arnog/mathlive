@@ -633,7 +633,9 @@ function insertMathModeChar(
     /\d/.test(c) &&
     mathfield.options.smartSuperscript &&
     atom.parentBranch === 'superscript' &&
-    atom.parent?.type !== 'mop' &&
+    atom.parent!.type !== 'mop' &&
+    atom.parent!.type !== 'operator' &&
+    atom.parent!.type !== 'extensible-symbol' &&
     atom.hasNoSiblings
   ) {
     // We are inserting a digit into an empty superscript

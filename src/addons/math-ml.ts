@@ -403,7 +403,12 @@ function scanOperator(stream: MathMLStream, final: number, options) {
     mathML += atomToMathML(stream.atoms[stream.index], options);
     stream.index += 1;
     lastType = 'mo';
-  } else if (stream.index < final && atom.type === 'mop') {
+  } else if (
+    stream.index < final &&
+    (atom.type === 'mop' ||
+      atom.type === 'operator' ||
+      atom.type === 'extensible-symbol')
+  ) {
     // MathML += '<mrow>';
 
     if (
@@ -938,6 +943,8 @@ function atomToMathML(atom, options): string {
       break;
 
     case 'mop':
+    case 'operator':
+    case 'extensible-symbol':
       if (atom.body !== '\u200B') {
         // Not ZERO-WIDTH
         result = '<mo' + makeID(atom.id, options) + '>';

@@ -15,7 +15,7 @@ import { GroupAtom } from '../core-atoms/group';
 import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { MacroArgumentAtom, MacroAtom } from '../core-atoms/macro';
-import { OperatorAtom } from '../core-atoms/operator';
+import { ExtensibleSymbolAtom } from '../core-atoms/extensible-symbol';
 import { OverlapAtom } from '../core-atoms/overlap';
 import { OverunderAtom } from '../core-atoms/overunder';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
@@ -28,6 +28,7 @@ import { TextAtom } from '../core-atoms/text';
 import { TooltipAtom } from '../core-atoms/tooltip';
 import { PromptAtom } from '../core-atoms/prompt';
 import { Argument } from 'core-definitions/definitions-utils';
+import { OperatorAtom } from '../core-atoms/operator';
 
 export * from './atom-class';
 
@@ -58,6 +59,8 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (type === 'delim') result = MiddleDelimAtom.fromJson(json);
   if (type === 'enclose') result = EncloseAtom.fromJson(json);
   if (type === 'error') result = ErrorAtom.fromJson(json);
+  if (type === 'extensible-symbol')
+    result = ExtensibleSymbolAtom.fromJson(json);
   if (type === 'genfrac') result = GenfracAtom.fromJson(json);
   if (type === 'group') result = GroupAtom.fromJson(json);
   if (type === 'latex') result = LatexAtom.fromJson(json);
@@ -65,7 +68,7 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (type === 'leftright') result = LeftRightAtom.fromJson(json);
   if (type === 'macro') result = MacroAtom.fromJson(json);
   if (type === 'macro-argument') result = MacroArgumentAtom.fromJson(json);
-  if (type === 'subsup') result = SubsupAtom.fromJson(json);
+  if (type === 'operator') result = OperatorAtom.fromJson(json);
   if (type === 'overlap') result = OverlapAtom.fromJson(json);
   if (type === 'overunder') result = OverunderAtom.fromJson(json);
   if (type === 'placeholder') result = PlaceholderAtom.fromJson(json);
@@ -73,11 +76,10 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (type === 'phantom') result = PhantomAtom.fromJson(json);
   if (type === 'sizeddelim') result = SizedDelimAtom.fromJson(json);
   if (type === 'spacing') result = SpacingAtom.fromJson(json);
+  if (type === 'subsup') result = SubsupAtom.fromJson(json);
   if (type === 'surd') result = SurdAtom.fromJson(json);
   if (type === 'text') result = TextAtom.fromJson(json);
   if (type === 'tooltip') result = TooltipAtom.fromJson(json);
-
-  if (type === 'mop') result = OperatorAtom.fromJson(json);
 
   // @todo root;
   // @todo space;
@@ -91,6 +93,7 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
           'mrel',
           'mclose',
           'minner',
+          'mop',
           'mopen',
           'mord',
           'mpunct',

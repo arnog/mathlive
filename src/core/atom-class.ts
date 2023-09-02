@@ -99,6 +99,7 @@ export type AtomType =
   | 'composition' // IME composition area
   | 'delim'
   | 'enclose'
+  | 'extensible-symbol' // Commands such as `\int`, `\sum`, etc...
   | 'error' //  An unknown command, for example `\xyzy`. The text  is displayed with a wavy red underline in the editor.
   | 'first' // A special, empty, atom put as the first atom in math lists in
   // order to be able to position the caret before the first element. Aside from
@@ -113,6 +114,7 @@ export type AtomType =
   | 'macro'
   | 'macro-argument'
   | 'subsup' // A carrier for a superscript/subscript
+  | 'operator' // A function, including special functions, `\sin`
   | 'overlap' // Display a symbol _over_ another
   | 'overunder' // Displays an annotation above or below a symbol
   | 'placeholder' // A temporary item. Placeholders are displayed as a dashed square in the editor.
@@ -132,7 +134,7 @@ export type AtomType =
   | 'mbin' // Binary operator: `+`, `*`, etc...
   | 'mclose' // Closing fence: `)`, `\rangle`, etc...
   | 'minner' // Special layout cases, fraction, overlap, `\left...\right`
-  | 'mop' // `mop`: operators, including special functions, `\sin`, `\sum`, `\cap`.
+  | 'mop' // `mop`: symbols with some space around them
   | 'mopen' // Opening fence: `(`, `\langle`, etc...
   | 'mord' // Ordinary symbol, e.g. `x`, `\alpha`
   | 'mpunct' // Punctuation: `,`, `:`, etc...
@@ -145,7 +147,7 @@ export type BBoxParameter = {
 };
 
 export type CreateAtomOptions<
-  T extends (Argument | null)[] = (Argument | null)[]
+  T extends (Argument | null)[] = (Argument | null)[],
 > = {
   mode?: ParseMode;
   command?: string;
@@ -223,7 +225,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   // - 'adjacent': to the right, above and below the baseline (for example
   // for operators in `textstyle` style)
   // - 'auto': 'over-under' in \displaystyle, 'adjacent' otherwise
-  // If `undefined`, the subsup should be placed on a separate `msubsup` atom.
+  // If `undefined`, the subsup should be placed on a separate `subsup` atom.
   subsupPlacement: 'auto' | 'over-under' | 'adjacent' | undefined = undefined;
 
   // True if the subsupPlacement was set by `\limits`, `\nolimits` or

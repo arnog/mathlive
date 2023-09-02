@@ -57,7 +57,10 @@ function validateShortcut(
     surd = sibling.type === 'surd';
     binop = sibling.type === 'mbin';
     relop = sibling.type === 'mrel';
-    operator = sibling.type === 'mop';
+    operator =
+      sibling.type === 'mop' ||
+      sibling.type === 'operator' ||
+      sibling.type === 'extensible-symbol';
     punct = sibling.type === 'mpunct' || sibling.type === 'minner';
     array = sibling.type === 'array';
     openfence = sibling.type === 'mopen';

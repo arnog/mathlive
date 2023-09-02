@@ -1,7 +1,7 @@
 import { joinLatex, latexCommand } from '../core/tokenizer';
 
 import { Atom, CreateAtomOptions } from '../core/atom-class';
-import { OperatorAtom } from '../core-atoms/operator';
+import { ExtensibleSymbolAtom } from '../core-atoms/extensible-symbol';
 import { SurdAtom } from '../core-atoms/surd';
 import { GenfracAtom, GenfracOptions } from '../core-atoms/genfrac';
 import { MiddleDelimAtom } from '../core-atoms/delim';
@@ -12,6 +12,7 @@ import { serializeLatexValue } from '../core/registers-utils';
 import { LatexValue } from '../public/core-types';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
+import { OperatorAtom } from '../core-atoms/operator';
 
 defineFunction(
   [
@@ -309,7 +310,7 @@ defineFunction(
   {
     ifMode: 'math',
     createAtom: (options) =>
-      new OperatorAtom(
+      new ExtensibleSymbolAtom(
         {
           coprod: '\u2210',
           bigvee: '\u22C1',
@@ -328,7 +329,6 @@ defineFunction(
         }[options.command!.slice(1)]!,
         {
           ...options,
-          isExtensibleSymbol: true,
           limits: 'auto',
           variant: 'main',
         }
@@ -343,7 +343,6 @@ defineFunction('smallint', '', {
     new OperatorAtom('\u222B', {
       ...options,
       limits: 'adjacent',
-      isExtensibleSymbol: false,
       variant: 'main',
     }),
 });
@@ -376,10 +375,9 @@ defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
   createAtom: (options) => {
     const command = options.command!;
     const symbol = EXTENSIBLE_SYMBOLS[command.slice(1)];
-    return new OperatorAtom(symbol, {
+    return new ExtensibleSymbolAtom(symbol, {
       ...options,
       limits: 'adjacent',
-      isExtensibleSymbol: true,
       variant: { '\u22D2': 'ams', '\u22D3': 'ams' }[symbol],
     });
   },

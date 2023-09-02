@@ -39,8 +39,8 @@ function convertLastAtomsToText(
       atom.type === 'first' ||
       atom.mode !== 'math' ||
       !(
-        (atom.type && /mord|mpunct/.test(atom.type)) ||
-        (atom.type === 'mop' && /[a-zA-Z]+/.test(atom.value))
+        (atom.type && /mord|mpunct|operator/.test(atom.type)) ||
+        (atom.type === 'mop' && /[a-zA-Z ]+/.test(atom.value))
       ) ||
       !atom.hasEmptyBranch('superscript') ||
       !atom.hasEmptyBranch('subscript') ||
@@ -138,7 +138,7 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
 /**
  * Return the characters before the insertion point that could potentially be
  * turned into text mode.
- * This excludes things like 'mop' (e.g. \sin)
+ * This excludes things like 'operator' (e.g. \sin)
  */
 function getTextBeforePosition(model: ModelPrivate): string {
   // Going backwards, accumulate

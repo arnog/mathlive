@@ -302,6 +302,8 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
       break;
 
     case 'mop':
+    case 'operator':
+    case 'extensible-symbol':
       // Not ZERO-WIDTH
       if (atom.value !== '\u200B') {
         if (SPECIAL_OPERATORS[command!]) result = SPECIAL_OPERATORS[command!];
