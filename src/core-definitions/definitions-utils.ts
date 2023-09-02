@@ -1045,10 +1045,7 @@ export function getMacroDefinition(
   return macros[command];
 }
 
-export function unicodeCharToLatex(
-  parseMode: ArgumentType,
-  char: string
-): string {
+export function unicodeCharToLatex(parseMode: ParseMode, char: string): string {
   if (parseMode === 'text')
     return charToLatex(parseMode, char.codePointAt(0)) ?? char;
 

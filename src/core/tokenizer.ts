@@ -352,7 +352,7 @@ export function tokensToString(tokens: Token[]): string {
           '<$>': '$',
           '<{>': '{',
           '<}>': '}',
-        }[token] ?? token)
+        })[token] ?? token
     )
   );
 }

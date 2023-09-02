@@ -102,6 +102,7 @@ function makeBox(
       'aria-hidden': 'true',
     },
   });
+
   return wrapper;
 }
 

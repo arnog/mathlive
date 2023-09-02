@@ -434,9 +434,9 @@ metadata(
     '\\imaginaryI',
     '\\imaginaryJ',
     '\\differentialD',
-    '\\rd',
     '\\capitalDifferentialD',
-    '\\rD',
+    '\\rd', // Proof Wiki
+    '\\rD', // Proof Wiki
     '\\differencedelta',
     '\\mid',
     '@',
