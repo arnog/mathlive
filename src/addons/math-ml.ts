@@ -1,6 +1,7 @@
 import { Atom } from '../core/atom-class';
 import { MacroAtom } from '../core-atoms/macro';
 import { mathVariantToUnicode } from '../core-definitions/unicode';
+import { LeftRightAtom } from '../core-atoms/leftright';
 
 export type MathMLStream = {
   atoms: Atom[];
@@ -792,18 +793,21 @@ function atomToMathML(atom, options): string {
       break;
 
     case 'leftright':
+      const leftrightAtom = atom as LeftRightAtom;
+      const lDelim = leftrightAtom.leftDelim;
       result = '<mrow>';
-      if (atom.leftDelim && atom.leftDelim !== '.') {
+      if (lDelim && lDelim !== '.') {
         result += `<mo${makeID(atom.id, options)}>${
-          SPECIAL_DELIMS[atom.leftDelim] ?? atom.leftDelim
+          SPECIAL_DELIMS[lDelim] ?? lDelim
         }</mo>`;
       }
 
       if (atom.body) result += toMathML(atom.body, options);
 
-      if (atom.rightDelim && atom.rightDelim !== '.') {
+      const rDelim = leftrightAtom.matchingRightDelim();
+      if (rDelim && rDelim !== '.') {
         result += `<mo${makeID(atom.id, options)}>${
-          SPECIAL_DELIMS[atom.rightDelim] ?? atom.rightDelim
+          SPECIAL_DELIMS[rDelim] ?? rDelim
         }</mo>`;
       }
 

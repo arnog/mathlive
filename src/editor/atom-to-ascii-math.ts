@@ -74,12 +74,12 @@ const SPECIAL_OPERATORS = {
   '\\rparen': ')',
   '\\langle': '(:',
   '\\rangle': ':)',
-  '\\sum': 'sum',
-  '\\prod': 'prod',
-  '\\bigcap': 'nnn',
-  '\\bigcup': 'uuu',
-  '\\int': 'int',
-  '\\oint': 'oint',
+  '\\sum': ' sum ',
+  '\\prod': ' prod ',
+  '\\bigcap': ' nnn ',
+  '\\bigcup': ' uuu ',
+  '\\int': ' int ',
+  '\\oint': ' oint ',
   '\\ge': '>=',
   '\\le': '<=',
   '\\ne': '!=',
@@ -88,13 +88,13 @@ const SPECIAL_OPERATORS = {
   '\\gt': '>',
   '\\gets': '<-',
   '\\to': '->',
-  '\\land': 'and',
-  '\\lor': 'or',
-  '\\lnot': 'not',
-  '\\forall': 'AA',
-  '\\exists': 'EE',
-  '\\in': 'in',
-  '\\notin': '!in',
+  '\\land': ' and ',
+  '\\lor': ' or ',
+  '\\lnot': ' not ',
+  '\\forall': ' AA ',
+  '\\exists': ' EE ',
+  '\\in': ' in ',
+  '\\notin': ' !in ',
   '\\mapsto': '|->',
   '\\implies': '=>',
   '\\iff': '<=>',
@@ -239,15 +239,11 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
     case 'leftright':
       {
         const leftrightAtom = atom as LeftRightAtom;
-        result +=
-          leftrightAtom.leftDelim === '.' || !leftrightAtom.leftDelim
-            ? '{:'
-            : leftrightAtom.leftDelim;
+        const lDelim = leftrightAtom.leftDelim;
+        result += lDelim === '.' || !lDelim ? '{:' : lDelim;
         result += atomToAsciiMath(leftrightAtom.body);
-        result +=
-          leftrightAtom.rightDelim === '.' || !leftrightAtom.rightDelim
-            ? ':}'
-            : leftrightAtom.rightDelim;
+        const rDelim = leftrightAtom.matchingRightDelim();
+        result += rDelim === '.' || !rDelim ? ':}' : rDelim;
       }
 
       break;
