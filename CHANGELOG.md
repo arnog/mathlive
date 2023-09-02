@@ -6,6 +6,7 @@
   i.e. `(f(x))` would be parsed as `(f(x)`.
 - **#2116** Pressing the "/" key after an expression ending with a superscript would
   not recognize the left argument as a numerator.
+- **#2124** In text mode, some characters were incorrectly interpreted as a math command, for example `(` was interpreted as \lparen`. This could cause some interoperability issues.
 
 ### Improvements
 

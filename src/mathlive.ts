@@ -153,7 +153,6 @@ export const version = {
 // export const debug = {
 //   FUNCTIONS: MathLiveDebug.FUNCTIONS,
 //   MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
-//   TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
 //   ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
 //   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
 //   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,

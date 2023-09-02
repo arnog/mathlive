@@ -1021,9 +1021,9 @@ function isValidClose(open: string | undefined, close: string): boolean {
   if (!open) return true;
 
   if (
-    ['(', '{', '[', '\\lbrace', '\\lparen', '\\{', '\\lbrack'].includes(open)
+    ['(', '\\lparen', '{', '\\{', '\\lbrace', '[', '\\lbrack'].includes(open)
   ) {
-    return [')', '}', ']', '\\rbrace', '\\rparen', '\\}', '\\rbrack'].includes(
+    return [')', '\\rparen', '}', '\\}', '\\rbrace', ']', '\\rbrack'].includes(
       close
     );
   }
@@ -1034,9 +1034,9 @@ function isValidOpen(open: string, close: string | undefined): boolean {
   if (!close) return true;
 
   if (
-    [')', '}', ']', '\\rbrace', '\\rparen', '\\}', '\\rbrack'].includes(close)
+    [')', '\\rparen', '}', '\\}', '\\rbrace', ']', '\\rbrack'].includes(close)
   ) {
-    return ['(', '{', '[', '\\lbrace', '\\lparen', '\\{', '\\lbrack'].includes(
+    return ['(', '\\lparen', '{', '\\{', '\\lbrace', '[', '\\lbrack'].includes(
       open
     );
   }

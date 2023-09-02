@@ -122,8 +122,8 @@ newSymbols([
 
   ['\\lbrace', 0x007b, 'mopen'],
   ['\\rbrace', 0x007d, 'mclose'],
-  ['\\lparen', 0x0028, 'mopen'],
-  ['\\rparen', 0x0029, 'mclose'],
+  ['\\lparen', 0x0028, 'mopen'], // mathtools.sty
+  ['\\rparen', 0x0029, 'mclose'], // mathtools.sty
   ['\\langle', 0x27e8, 'mopen'],
   ['\\rangle', 0x27e9, 'mclose'],
   ['\\lfloor', 0x230a, 'mopen'],
