@@ -1297,6 +1297,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
+   * Return an array of LaTeX syntax errors, if any.
    * @category Accessing and changing the content
    */
   get errors(): LatexSyntaxError[] {

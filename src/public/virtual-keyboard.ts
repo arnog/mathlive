@@ -51,7 +51,7 @@ export interface VirtualKeyboardKeycap {
    * CSS classes to apply to the keycap.
    *
    * - `tex`: use the TeX font for its label.
-   *    Using the tex class is not necessary if using the latex property to
+   *    Using the tex class is not necessary if using the `latex` property to
    *    define the label.
    * - `shift`: a shift key
    * - `small`: display the label in a smaller size

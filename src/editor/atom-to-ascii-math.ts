@@ -68,6 +68,8 @@ const SPECIAL_OPERATORS = {
   '\\vert': '|',
   '\\Vert': '||',
   '\\mid': '|',
+  '\\lbrack': '[',
+  '\\rbrack': ']',
   '\\lbrace': '{',
   '\\rbrace': '}',
   '\\lparen': '(',

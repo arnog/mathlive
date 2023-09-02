@@ -139,8 +139,6 @@ export function validateLatex(s: string): LatexSyntaxError[] {
  * @param options.generateId If true, add an `"extid"` attribute
  * to the MathML nodes with a value matching the `atomID`. This can be used
  * to map items on the screen with their MathML representation or vice-versa.
- * @param options.onError Callback invoked when an error is encountered while
- * parsing the input string.
  *
  * @category Converting
  */

@@ -115,7 +115,7 @@ export const LAYOUTS: Partial<
             { latex: '\\iiint', class: 'small' },
             { latex: '\\oint', class: 'small' },
             '\\mathrm{d}x',
-            { latex: '\\dfrac{\\rd}{\\rd x}', class: 'small' },
+            { latex: '\\dfrac{\\mathrm{d}}{\\mathrm{d} x}', class: 'small' },
             { latex: '\\frac{\\partial}{\\partial x}', class: 'small' },
 
             '\\partial',
@@ -607,7 +607,7 @@ export const LAYOUTS: Partial<
 
           variants: [
             '\\mathrm{d}x',
-            { latex: '\\dfrac{\\rd}{\\rd x}', class: 'small' },
+            { latex: '\\dfrac{\\mathrm{d}}{\\mathrm{d} x}', class: 'small' },
             { latex: '\\frac{\\partial}{\\partial x}', class: 'small' },
 
             '\\partial',
