@@ -13,7 +13,7 @@
 
 ### Improvements
 
-- Added support for additional commands from the `mathtools` , `actuarialangle`, `colonequals`, `statmath` and `amsopn` packages
+- Added support for additional commands from the `mathtools`, `actuarialangle`, `colonequals`, `statmath` and `amsopn` packages
 - Added support for `longdiv` enclosure (`\mathenclose{longdiv}{...}`)
 - The decimal separator key (`.`) in the virtual keyboard was displayed as a blank key.
 - **#2109** In the virtual keyboard, some placeholders could be hard to see when 
@@ -30,6 +30,9 @@
 - Improved serialization to ASCIIMath and MathML
 - **#2121** For ASCIIMath and MathML serialization, including phantom closing
   delimiter in the output.
+- Pressing the Action keycap on the virtual keyboard with the shift key pressed
+  now inserts a new line (similar to what shift+enter does on a physical keyboard).
+  
 
 ## 0.95.5 (2023-08-18)
 
