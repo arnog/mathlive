@@ -15,7 +15,25 @@ export function selectGroup(model: ModelPrivate): boolean {
   start = boundary(model, start, 'backward');
   end = boundary(model, end, 'forward');
 
-  model.setSelection(start, end);
+  if (start === end) {
+    const atom = model.at(start);
+    // Select the content of a leftright (when clicking on the right delimiter)
+    if (atom.type === 'leftright')
+      return model.setSelection(model.offsetOf(atom.firstChild!) - 1, end);
+
+    // Select the content of a leftright (when clicking on the left delimiter)
+    // or on the root of a surd
+    if (
+      atom.type === 'first' &&
+      (atom.parent!.type === 'leftright' || atom.parent!.type === 'surd')
+    ) {
+      return model.setSelection(
+        start - 1,
+        model.offsetOf(atom.parent!.lastChild!) + 1
+      );
+    }
+    model.setSelection(start - 1, end);
+  } else model.setSelection(start, end);
 
   return true;
 }

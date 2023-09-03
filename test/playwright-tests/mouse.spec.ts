@@ -1,4 +1,3 @@
-import { S } from '../../src/core/mathstyle';
 import type { MathfieldElement } from '../../src/public/mathfield-element';
 
 import { test, expect } from '@playwright/test';
@@ -6,10 +5,10 @@ import { test, expect } from '@playwright/test';
 test('double/triple click to select', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
-  await page.locator('#mf-1').type('(x+y)-(r+s)=34');
+  await page.locator('#mf-1').type('(x+y)-(125+s)=34');
 
   // double click to select clicked on block
-  await page.locator('#mf-1 >> span.ML__mathit >> text=r').dblclick();
+  await page.locator('#mf-1 >> span.ML__cmr >> text=2').dblclick();
 
   // check selection latex
   let selectionLatex = await page
@@ -17,7 +16,7 @@ test('double/triple click to select', async ({ page }) => {
     .evaluate((mfe: MathfieldElement) => {
       return mfe.getValue(mfe.selection, 'latex');
     });
-  expect(selectionLatex).toBe('r+s');
+  expect(selectionLatex).toBe('125');
 
   await page.locator('#mf-1').press('ArrowRight'); // unselect current selection
 
@@ -32,5 +31,7 @@ test('double/triple click to select', async ({ page }) => {
     .evaluate((mfe: MathfieldElement) => {
       return mfe.getValue(mfe.selection, 'latex');
     });
-  expect(selectionLatex).toBe(String.raw`\left(x+y\right)-\left(r+s\right)=34`);
+  expect(selectionLatex).toBe(
+    String.raw`\left(x+y\right)-\left(125+s\right)=34`
+  );
 });
