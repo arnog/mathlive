@@ -128,6 +128,17 @@ const SPECIAL_OPERATORS = {
   // '\\hat': '&#x005e;'
 };
 
+function joinAsciiMath(xs: string[]): string {
+  let result = '';
+  for (const x of xs) {
+    const last = result[result.length - 1];
+    if (last !== undefined && /\d/.test(last) && /^\d/.test(x)) result += ' ';
+
+    result += x;
+  }
+  return result;
+}
+
 export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
   if (!atom) return '';
   if (isArray<Atom>(atom)) {
@@ -148,11 +159,16 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
     }
 
     let i = 0;
-    let result = '';
-    while (atom[i] && atom[i].mode === 'math')
-      result += atomToAsciiMath(atom[i++]);
-
-    return result + atomToAsciiMath(atom.slice(i));
+    const result: string[] = [];
+    while (atom[i] && atom[i].mode === 'math') {
+      let digits = '';
+      while (atom[i] && atom[i].type === 'mord' && /\d/.test(atom[i].value))
+        digits += atom[i++].value;
+      if (digits) result.push(digits);
+      else result.push(atomToAsciiMath(atom[i++]));
+    }
+    result.push(atomToAsciiMath(atom.slice(i)));
+    return joinAsciiMath(result);
   }
 
   if (atom.mode === 'text') return `"${atom.value}"`;
@@ -178,7 +194,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
         '\\check': 'check', // non-standard
       }[command];
 
-      result += `${accent ?? ''} ${atomToAsciiMath(atom.body)} `;
+      result = `${accent ?? ''} ${atomToAsciiMath(atom.body)} `;
       break;
 
     case 'first':
@@ -196,7 +212,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
       {
         const genfracAtom = atom as GenfracAtom;
         if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
-          result +=
+          result =
             genfracAtom.leftDelim === '.' || !genfracAtom.leftDelim
               ? '{:'
               : genfracAtom.leftDelim;
@@ -294,7 +310,7 @@ export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
 
     case 'mopen':
     case 'mclose':
-      result += atom.value;
+      result = atom.value;
       break;
 
     case 'mpunct':

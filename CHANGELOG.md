@@ -27,7 +27,7 @@
   itself.
 - **#2122** On the Virtual Keyboard, the multiplication key now produces `\cdot` instead
   of `\times`. Use shift to produce `\times`.
-- Improved serialization to ASCIIMath and MathML
+- Improved serialization to ASCIIMath and MathML (**#2130** and others)
 - **#2121** For ASCIIMath and MathML serialization, including phantom closing
   delimiter in the output.
 - Pressing the Action keycap on the virtual keyboard with the shift key pressed
