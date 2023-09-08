@@ -638,8 +638,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
       // Avoid an infinite messages loop if within one window
       const commandTarget = getCommandTarget(command!);
-      if (commandTarget !== 'virtual-keyboard' && window === window.parent)
-        return;
+      try {
+        if (window.top !== undefined) {
+          if (commandTarget !== 'virtual-keyboard' && window === window.parent)
+            return;
+        }
+      } catch (e) {}
 
       this.executeCommand(command!);
       return;
