@@ -138,10 +138,12 @@ export class ModeEditor {
         const ce = window.MathfieldElement.computeEngine;
         if (ce) {
           try {
+            const options = ce.jsonSerializationOptions;
             ce.jsonSerializationOptions = { metadata: ['latex'] };
             const expr = ce.parse(
               model.getValue(exportRange, 'latex-unstyled')
             );
+            ce.jsonSerializationOptions = options;
 
             const mathJson = JSON.stringify(expr.json);
             if (mathJson)
