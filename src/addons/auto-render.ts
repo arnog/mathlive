@@ -224,6 +224,7 @@ function createMathMLNode(
   // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
   // This node has a style that makes it be invisible to display but is seen by AT
   const span = document.createElement('span');
+  span.setAttribute('translate', 'no');
   try {
     const html =
       "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
@@ -263,6 +264,7 @@ function createMarkupNode(
     element.style.display =
       mathstyle === 'displaystyle' ? 'flex' : 'inline-flex';
     element.setAttribute('aria-hidden', 'true');
+    element.setAttribute('translate', 'no');
     element.innerHTML = window.MathfieldElement.createHTML(html);
     return element;
   } catch (error: unknown) {
@@ -299,6 +301,8 @@ function createAccessibleMarkupPair(
       options.renderToSpeakableText
     ) {
       const span = document.createElement('span');
+      span.setAttribute('translate', 'no');
+
       const html = options.renderToSpeakableText(latex);
       span.innerHTML = window.MathfieldElement.createHTML(html);
       span.className = 'ML__sr-only';
