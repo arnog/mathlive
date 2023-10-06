@@ -75,35 +75,8 @@ if (!isBrowser()) {
 */
 
 /**
- * The `focus-out` event signals that the mathfield has lost focus through keyboard
- * navigation with the **tab** key.
- *
- * The event `detail.direction` property indicates if **tab**
- * (`direction === "forward"`) or **shift+tab** (`direction === "backward") was
- * pressed which can be useful to decide which element to focus next.
- *
- * If the event is canceled by calling `ev.preventDefault()`, no change of
- * focus will occur (but you can manually change the focus in your event
- * handler: this gives you an opportunity to override the default behavior
- * and selects which element should get the focus, or to prevent from a change
- * of focus altogether).
- *
- * If the event is not canceled, the default behavior will take place, which is
- * to change the focus to the next/previous focusable element.
- *
- * ```javascript
- * mfe.addEventListener('focus-out', (ev) => {
- *  console.log("Losing focus ", ev.detail.direction);
- * });
- * ```
- */
-export type FocusOutEvent = {
-  direction: 'forward' | 'backward';
-};
-
-/**
- * The `move-out` event signals that the user pressed an **arrow** key but
- * there was no navigation possible inside the mathfield.
+ * The `move-out` event signals that the user pressed an **arrow** key or
+ * **tab** key but there was no navigation possible inside the mathfield.
  *
  * This event provides an opportunity to handle this situation, for example
  * by focusing an element adjacent to the mathfield.
@@ -133,7 +106,6 @@ declare global {
    * @internal
    */
   interface HTMLElementEventMap {
-    'focus-out': CustomEvent<FocusOutEvent>;
     'mode-change': Event;
     'mount': Event;
     'move-out': CustomEvent<MoveOutEvent>;
@@ -525,8 +497,7 @@ const DEPRECATED_OPTIONS = {
  * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed. Listen for this event on `window.mathVirtualKeyboard` |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
- * | `focus-out` | The user is navigating out of the mathfield, typically using the **tab** key<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
- * | `move-out` | The user has pressed an **arrow** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
+ * | `move-out` | The user has pressed an **arrow** key or the **tab** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
  * | `keystroke` | The user typed a keystroke with a physical keyboard <br> `detail: {keystroke: string, event: KeyboardEvent}` |
  * | `mount` | The element has been attached to the DOM |
  * | `unmount` | The element is about to be removed from the DOM |
