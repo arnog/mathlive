@@ -38,6 +38,7 @@
       }
     },
     "./ssr": "./dist/mathlive-ssr.min.mjs",
+    "./vue": "./dist/vue-mathlive.mjs",
     "./fonts.css": "./dist/mathlive-fonts.css",
     "./static.css": "./dist/mathlive-static.css",
     "./fonts/*": "./dist/fonts/*",
