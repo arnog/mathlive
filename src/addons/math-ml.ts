@@ -1064,7 +1064,19 @@ function atomToMathML(atom, options): string {
       result += `<mtext ${makeID(atom.id, options)}x>${atom.value}</mtext>`;
       break;
     default:
-      console.log('MathML, unknown type : ', atom);
+      if (atom.command === '\\displaystyle') {
+        return `<mrow ${makeID(
+          atom.id,
+          options
+        )} displaystyle="true">${toMathML(atom.body, options)}</mrow>`;
+      }
+      if (atom.command === '\\textstyle') {
+        return `<mrow ${makeID(
+          atom.id,
+          options
+        )} displaystyle="false">${toMathML(atom.body, options)}</mrow>`;
+      }
+      console.info('Unexpected element in conversion to MathML:', atom);
   }
 
   return result;
