@@ -3,7 +3,6 @@ import { Atom } from '../core/atom';
 import { register as registerCommand } from '../editor/commands';
 
 import type { ModelPrivate } from './model-private';
-import { contentDidChange, contentWillChange } from './listeners';
 import { arrayIndex, arrayCell } from './array-utils';
 import { ArrayAtom } from '../core-atoms/array';
 import type { Style } from '../public/core-types';
@@ -331,30 +330,30 @@ function addCell(
 }
 
 export function addRowAfter(model: ModelPrivate): boolean {
-  if (!contentWillChange(model, { inputType: 'insertText' })) return false;
+  if (!model.contentWillChange({ inputType: 'insertText' })) return false;
   addCell(model, 'after row');
-  contentDidChange(model, { inputType: 'insertText' });
+  model.contentDidChange({ inputType: 'insertText' });
   return true;
 }
 
 export function addRowBefore(model: ModelPrivate): boolean {
-  if (!contentWillChange(model, { inputType: 'insertText' })) return false;
+  if (!model.contentWillChange({ inputType: 'insertText' })) return false;
   addCell(model, 'before row');
-  contentDidChange(model, { inputType: 'insertText' });
+  model.contentDidChange({ inputType: 'insertText' });
   return true;
 }
 
 export function addColumnAfter(model: ModelPrivate): boolean {
-  if (!contentWillChange(model, { inputType: 'insertText' })) return false;
+  if (!model.contentWillChange({ inputType: 'insertText' })) return false;
   addCell(model, 'after column');
-  contentDidChange(model, { inputType: 'insertText' });
+  model.contentDidChange({ inputType: 'insertText' });
   return true;
 }
 
 export function addColumnBefore(model: ModelPrivate): boolean {
-  if (!contentWillChange(model, { inputType: 'insertText' })) return false;
+  if (!model.contentWillChange({ inputType: 'insertText' })) return false;
   addCell(model, 'before column');
-  contentDidChange(model, { inputType: 'insertText' });
+  model.contentDidChange({ inputType: 'insertText' });
   return true;
 }
 
@@ -362,7 +361,7 @@ export function setEnvironment(
   model: ModelPrivate,
   environment: TabularEnvironment
 ): boolean {
-  if (!contentWillChange(model, {})) return false;
+  if (!model.contentWillChange({})) return false;
   model.mathfield.snapshot();
   let leftDelim = '.';
   let rightDelim = '.';
@@ -417,7 +416,7 @@ export function setEnvironment(
   arrayAtom.environmentName = environment;
   arrayAtom.leftDelim = leftDelim;
   arrayAtom.rightDelim = rightDelim;
-  contentDidChange(model, {});
+  model.contentDidChange({});
   return true;
 }
 
@@ -466,16 +465,16 @@ function removeCell(model: ModelPrivate, where: 'row' | 'column'): void {
 }
 
 export function removeRow(model: ModelPrivate): boolean {
-  if (!contentWillChange(model, { inputType: 'deleteContent' })) return false;
+  if (!model.contentWillChange({ inputType: 'deleteContent' })) return false;
   removeCell(model, 'row');
-  contentDidChange(model, { inputType: 'deleteContent' });
+  model.contentDidChange({ inputType: 'deleteContent' });
   return true;
 }
 
 export function removeColumn(model: ModelPrivate): boolean {
-  if (!contentWillChange(model, { inputType: 'deleteContent' })) return false;
+  if (!model.contentWillChange({ inputType: 'deleteContent' })) return false;
   removeCell(model, 'column');
-  contentDidChange(model, { inputType: 'deleteContent' });
+  model.contentDidChange({ inputType: 'deleteContent' });
   return true;
 }
 

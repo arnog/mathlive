@@ -5,7 +5,6 @@ import { LeftRightAtom } from '../core-atoms/leftright';
 import { Atom, Branch } from '../core/atom';
 import { ModelPrivate } from './model-private';
 import { range } from './selection-utils';
-import { contentWillChange } from './listeners';
 import MathfieldElement from 'public/mathfield-element';
 // import {
 //     arrayFirstCellByRow,
@@ -356,7 +355,7 @@ function onDelete(
 export function deleteBackward(model: ModelPrivate): boolean {
   if (!model.mathfield.isSelectionEditable) return false;
 
-  if (!contentWillChange(model, { inputType: 'deleteContentBackward' }))
+  if (!model.contentWillChange({ inputType: 'deleteContentBackward' }))
     return false;
 
   if (!model.selectionIsCollapsed)
@@ -396,7 +395,7 @@ export function deleteBackward(model: ModelPrivate): boolean {
 export function deleteForward(model: ModelPrivate): boolean {
   if (!model.mathfield.isSelectionEditable) return false;
 
-  if (!contentWillChange(model, { inputType: 'deleteContentForward' }))
+  if (!model.contentWillChange({ inputType: 'deleteContentForward' }))
     return false;
   if (!model.selectionIsCollapsed)
     return deleteRange(model, range(model.selection), 'deleteContentForward');

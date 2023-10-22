@@ -28,13 +28,7 @@ import { LatexGroupAtom } from '../core-atoms/latex';
 import { parseLatex, validateLatex } from '../core/parser';
 import { getDefaultRegisters } from '../core/registers';
 
-import {
-  contentWillChange,
-  deleteRange,
-  getMode,
-  isRange,
-  ModelPrivate,
-} from '../editor/model';
+import { deleteRange, getMode, isRange, ModelPrivate } from '../editor/model';
 import { applyStyle } from '../editor-model/styling';
 import { range } from '../editor-model/selection-utils';
 import {
@@ -268,10 +262,7 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
       body: parseLatex(elementText, { context: this.context }),
     });
 
-    this.model = new ModelPrivate(this, mode, root, {
-      onSelectionDidChange: () => this.onSelectionDidChange(),
-      onContentWillChange: (options) => this.onContentWillChange(options),
-    });
+    this.model = new ModelPrivate(this, mode, root);
 
     // Prepare to manage undo/redo
     this.undoManager = new UndoManager(this.model);
@@ -1370,7 +1361,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.undoManager?.reset();
   }
 
-  private onSelectionDidChange(): void {
+  onSelectionDidChange(): void {
     const model = this.model;
 
     // Keep the content of the keyboard sink in sync with the selection.
@@ -1405,7 +1396,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     updateEnvironmentPopover(this);
   }
 
-  private onContentWillChange(options: ContentChangeOptions): boolean {
+  onContentWillChange(options: ContentChangeOptions): boolean {
     return (
       this.host?.dispatchEvent(
         new InputEvent('beforeinput', {
@@ -1567,7 +1558,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       return;
     }
 
-    if (contentWillChange(this.model, { inputType: 'deleteByCut' })) {
+    if (this.model.contentWillChange({ inputType: 'deleteByCut' })) {
       // Snapshot the undo state
       this.stopCoalescingUndo();
 

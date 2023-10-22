@@ -16,7 +16,6 @@ import { LeftRightAtom } from '../core-atoms/leftright';
 import { range } from '../editor-model/selection-utils';
 import { ModelPrivate } from '../editor-model/model-private';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
-import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import {
   parseMathString,
   trimModeShiftCommand,
@@ -37,7 +36,7 @@ export class MathModeEditor extends ModeEditor {
     if (!data) return false;
 
     if (
-      !contentWillChange(mathfield.model, {
+      !mathfield.model.contentWillChange({
         data: typeof data === 'string' ? data : null,
         dataTransfer: typeof data === 'string' ? null : data,
         inputType: 'insertFromPaste',
@@ -112,7 +111,7 @@ export class MathModeEditor extends ModeEditor {
 
           model.position = model.offsetOf(atoms[atoms.length - 1]);
 
-          contentDidChange(model, { inputType: 'insertFromPaste' });
+          model.contentDidChange({ inputType: 'insertFromPaste' });
           requestUpdate(mathfield);
 
           return true;
@@ -178,7 +177,7 @@ export class MathModeEditor extends ModeEditor {
         : window.MathfieldElement.computeEngine?.box(input).latex ?? '';
     if (
       !options.silenceNotifications &&
-      !contentWillChange(model, { data, inputType: 'insertText' })
+      !model.contentWillChange({ data, inputType: 'insertText' })
     )
       return false;
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
@@ -242,7 +241,7 @@ export class MathModeEditor extends ModeEditor {
       // We'll use the preceding `mord`s or text mode atoms for it (implicit argument)
       const offset = getImplicitArgOffset(model);
       if (offset >= 0) {
-        args['@'] = model.getValue(offset, model.position, 'latex-unstyled');
+        args['@'] = model.getValue(offset, model.position, 'latex');
         model.deleteAtoms([offset, model.position]);
       }
     }
@@ -330,7 +329,7 @@ export class MathModeEditor extends ModeEditor {
     } else if (options.selectionMode === 'item')
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
 
-    contentDidChange(model, { data, inputType: 'insertText' });
+    model.contentDidChange({ data, inputType: 'insertText' });
 
     model.silenceNotifications = silenceNotifications;
 
@@ -537,10 +536,9 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
 function isImplicitArg(atom: Atom): boolean {
   // A digit, or a decimal point
   if (atom.isDigit()) return true;
-
   if (
     atom.type &&
-    /^(mord|surd|msubsup|leftright|mop|mclose)$/.test(atom.type)
+    /^(mord|surd|subsup|leftright|mop|mclose)$/.test(atom.type)
   ) {
     // Exclude `\int`, \`sum`, etc...
     if (atom.isExtensibleSymbol) return false;

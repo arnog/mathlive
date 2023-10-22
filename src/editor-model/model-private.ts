@@ -24,16 +24,12 @@ import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
 import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
 import { defaultAnnounceHook } from '../editor/a11y';
 
-import {
-  contentDidChange,
-  contentWillChange,
-  ModelListeners,
-  selectionDidChange,
-} from './listeners';
 import { isOffset, isSelection, isRange, AnnounceVerb } from './utils';
 import { compareSelection, range } from './selection-utils';
 import type { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from '../core-atoms/latex';
+import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
+import '../virtual-keyboard/global';
 
 export type ModelState = {
   content: AtomJson;
@@ -52,7 +48,6 @@ export class ModelPrivate implements Model {
   mode: ParseMode;
 
   silenceNotifications: boolean;
-  readonly listeners: ModelListeners;
 
   root: Atom;
 
@@ -60,18 +55,11 @@ export class ModelPrivate implements Model {
   private _anchor: Offset;
   private _position: Offset;
 
-  constructor(
-    target: Mathfield,
-    mode: ParseMode,
-    root: Atom,
-    listeners: ModelListeners
-  ) {
+  constructor(target: Mathfield, mode: ParseMode, root: Atom) {
     this.mathfield = target as MathfieldPrivate;
 
     this.mode = mode;
     this.silenceNotifications = false;
-
-    this.listeners = listeners;
 
     this._selection = { ranges: [[0, 0]], direction: 'none' };
     this._anchor = 0;
@@ -82,8 +70,6 @@ export class ModelPrivate implements Model {
 
   dispose(): void {
     (this as any).mathfield = undefined;
-    (this as any).listeners.onSelectionDidChange = undefined;
-    (this as any).listeners.onContentWillChange = undefined;
   }
 
   getState(): ModelState {
@@ -111,14 +97,14 @@ export class ModelPrivate implements Model {
     if (options?.type === 'undo') changeOption = { inputType: 'historyUndo' };
     if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
     // Restore the content and selection
-    if (contentWillChange(this, changeOption)) {
+    if (this.contentWillChange(changeOption)) {
       const didSuppress = this.silenceNotifications;
       this.silenceNotifications = true;
       this.mode = state.mode;
       this.root = fromJson(state.content);
       this.selection = state.selection;
       this.silenceNotifications = didSuppress;
-      contentDidChange(this, changeOption);
+      this.contentDidChange(changeOption);
     }
     this.silenceNotifications = wasSuppressing;
   }
@@ -703,10 +689,10 @@ export class ModelPrivate implements Model {
 
     // Notify of content change, if requested
     if (options.content && contentChanged)
-      contentDidChange(this, { inputType: options.type });
+      this.contentDidChange({ inputType: options.type });
 
     // If the selection has effectively changed, notify
-    if (options.selection && selectionChanged) selectionDidChange(this);
+    if (options.selection && selectionChanged) this.selectionDidChange();
 
     return contentChanged || selectionChanged;
   }
@@ -777,6 +763,52 @@ export class ModelPrivate implements Model {
     if (parent.type !== 'array') return undefined;
 
     return parent as ArrayAtom;
+  }
+
+  contentWillChange(options: ContentChangeOptions = {}): boolean {
+    // The mathfield could be undefined if the mathfield was disposed
+    // while the content was changing
+    if (this.silenceNotifications || !this.mathfield) return true;
+
+    const save = this.silenceNotifications;
+    this.silenceNotifications = true;
+    const result = this.mathfield.onContentWillChange(options);
+    this.silenceNotifications = save;
+    return result;
+  }
+
+  contentDidChange(options: ContentChangeOptions): void {
+    if (window.mathVirtualKeyboard.visible)
+      window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
+    if (this.silenceNotifications || !this.mathfield.host || !this.mathfield)
+      return;
+
+    const save = this.silenceNotifications;
+    this.silenceNotifications = true;
+
+    this.mathfield.host.dispatchEvent(
+      new InputEvent('input', {
+        ...options,
+        // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
+        data: options.data ? options.data : options.inputType ?? '',
+        bubbles: true,
+        composed: true,
+      } as InputEventInit)
+    );
+    this.silenceNotifications = save;
+  }
+  selectionDidChange(): void {
+    if (!this.mathfield) return;
+    if (window.mathVirtualKeyboard.visible)
+      window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
+
+    if (this.silenceNotifications) return;
+    const save = this.silenceNotifications;
+    this.silenceNotifications = true;
+    // The mathfield could be undefined if the mathfield was disposed
+    // while the selection was changing
+    this.mathfield.onSelectionDidChange();
+    this.silenceNotifications = save;
   }
 }
 

@@ -33,6 +33,8 @@
 - Pressing the Action keycap on the virtual keyboard with the shift key pressed
   now inserts a new line (similar to what shift+enter does on a physical keyboard).
 - Render `\displaystyle` and `\textstyle` to MathML
+- Avoid runtime error if the mathfield gets deleted during a selection change
+  event.
 
 ## 0.95.5 (2023-08-18)
 

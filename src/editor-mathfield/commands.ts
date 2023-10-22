@@ -2,7 +2,6 @@ import { register as registerCommand } from '../editor/commands';
 import type { MathfieldPrivate } from './mathfield-private';
 import { onInput } from './keyboard-input';
 import { toggleKeystrokeCaption } from './keystroke-caption';
-import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 import { requestUpdate } from './render';
 import { ParseMode } from '../public/core-types';
 import { updateAutocomplete } from './autocomplete';
@@ -68,11 +67,11 @@ registerCommand({
   // A 'commit' command is used to simulate pressing the return/enter key,
   // e.g. when using a virtual keyboard
   commit: (mathfield: MathfieldPrivate) => {
-    if (contentWillChange(mathfield.model, { inputType: 'insertLineBreak' })) {
+    if (mathfield.model.contentWillChange({ inputType: 'insertLineBreak' })) {
       mathfield.host?.dispatchEvent(
         new Event('change', { bubbles: true, composed: true })
       );
-      contentDidChange(mathfield.model, { inputType: 'insertLineBreak' });
+      mathfield.model.contentDidChange({ inputType: 'insertLineBreak' });
     }
     return true;
   },
@@ -164,7 +163,7 @@ registerCommand(
       navigator.clipboard.readText().then((text) => {
         if (
           text &&
-          contentWillChange(mathfield.model, {
+          mathfield.model.contentWillChange({
             inputType: 'insertFromPaste',
             data: text,
           })
@@ -175,7 +174,7 @@ registerCommand(
             updateAutocomplete(mathfield);
             mathfield.startRecording();
             mathfield.snapshot('paste');
-            contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
+            mathfield.model.contentDidChange({ inputType: 'insertFromPaste' });
             requestUpdate(mathfield);
           }
         } else mathfield.model.announce('plonk');

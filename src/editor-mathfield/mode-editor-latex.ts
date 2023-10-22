@@ -4,7 +4,6 @@ import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
 import { range } from '../editor-model/selection-utils';
 import { Atom } from '../core/atom-class';
 import { ModelPrivate } from '../editor-model/model-private';
-import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
 import { MathfieldPrivate } from './mathfield-private';
 import { requestUpdate } from './render';
@@ -32,7 +31,7 @@ export class LatexModeEditor extends ModeEditor {
 
     if (
       text &&
-      contentWillChange(mathfield.model, {
+      mathfield.model.contentWillChange({
         inputType: 'insertFromPaste',
         data: text,
       })
@@ -42,7 +41,7 @@ export class LatexModeEditor extends ModeEditor {
       if (this.insert(mathfield.model, text)) {
         mathfield.startRecording();
         mathfield.snapshot('paste');
-        contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
+        mathfield.model.contentDidChange({ inputType: 'insertFromPaste' });
         requestUpdate(mathfield);
       }
       mathfield.startRecording();
@@ -53,7 +52,7 @@ export class LatexModeEditor extends ModeEditor {
   }
 
   insert(model: ModelPrivate, text: string, options?: InsertOptions): boolean {
-    if (!contentWillChange(model, { data: text, inputType: 'insertText' }))
+    if (!model.contentWillChange({ data: text, inputType: 'insertText' }))
       return false;
     if (!options) options = {};
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
@@ -112,7 +111,7 @@ export class LatexModeEditor extends ModeEditor {
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
     else if (lastNewAtom) model.position = model.offsetOf(lastNewAtom);
 
-    contentDidChange(model, { data: text, inputType: 'insertText' });
+    model.contentDidChange({ data: text, inputType: 'insertText' });
 
     model.silenceNotifications = silenceNotifications;
 

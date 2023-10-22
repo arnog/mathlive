@@ -16,11 +16,6 @@ import {
 } from '../editor/keyboard-layout';
 
 import { moveAfterParent } from '../editor-model/commands-move';
-import {
-  contentDidChange,
-  contentWillChange,
-  selectionDidChange,
-} from '../editor-model/listeners';
 import { range } from '../editor-model/selection-utils';
 
 import { removeSuggestion, updateAutocomplete } from './autocomplete';
@@ -111,8 +106,8 @@ export function onKeystroke(
       parent.isDirty = true;
       parent.rightDelim = keystroke;
       model.position += 1;
-      selectionDidChange(model);
-      contentDidChange(model, {
+      model.selectionDidChange();
+      model.contentDidChange({
         data: keyboardEventToChar(evt),
         inputType: 'insertText',
       });
@@ -138,7 +133,7 @@ export function onKeystroke(
         model.position = start;
         ModeEditor.insert(model, lDelim, { format: 'latex' });
         model.setSelection(start + 1, end + 1);
-        contentDidChange(model, {
+        model.contentDidChange({
           data: fence,
           inputType: 'insertText',
         });
@@ -280,7 +275,7 @@ export function onKeystroke(
     // 5.4 Handle the return/enter key
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
       let result = false;
-      if (contentWillChange(model, { inputType: 'insertLineBreak' })) {
+      if (model.contentWillChange({ inputType: 'insertLineBreak' })) {
         // No matching keybinding: trigger a commit
 
         if (mathfield.host) {
@@ -297,7 +292,7 @@ export function onKeystroke(
         }
 
         // Dispatch an 'input' event matching the behavior of `<textarea>`
-        contentDidChange(model, { inputType: 'insertLineBreak' });
+        model.contentDidChange({ inputType: 'insertLineBreak' });
       }
       return result;
     }
@@ -728,7 +723,7 @@ export function insertSmartFence(
       model.offsetOf(atom.lastChild)
     );
     model.mathfield.snapshot('insert-fence');
-    contentDidChange(model, { data: fence, inputType: 'insertText' });
+    model.contentDidChange({ data: fence, inputType: 'insertText' });
     return true;
   }
 
@@ -752,7 +747,7 @@ export function insertSmartFence(
         style,
       });
       model.mathfield.snapshot('insert-fence');
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       return true;
     }
   }
@@ -772,7 +767,7 @@ export function insertSmartFence(
       parent.leftDelim = fence;
       parent.isDirty = true;
       model.mathfield.snapshot();
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
       return true;
     }
@@ -807,7 +802,7 @@ export function insertSmartFence(
           atom
         );
         model.position = model.offsetOf(parent!.firstChild) + 1;
-        contentDidChange(model, { data: fence, inputType: 'insertText' });
+        model.contentDidChange({ data: fence, inputType: 'insertText' });
         model.mathfield.snapshot('insert-fence');
         return true;
       }
@@ -842,7 +837,7 @@ export function insertSmartFence(
       match.addChildren(extractedAtoms, match.parentBranch!);
 
       model.position += 1;
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
       return true;
     }
@@ -871,7 +866,7 @@ export function insertSmartFence(
         parent.parent!.addChildBefore(extractedAtom, parent);
 
       //model.position = model.offsetOf(parent);
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
 
       return true;
@@ -925,7 +920,7 @@ export function insertSmartFence(
 
         parent!.addChildrenAfter([result], insertAfter);
         model.position = model.offsetOf(result);
-        contentDidChange(model, { data: fence, inputType: 'insertText' });
+        model.contentDidChange({ data: fence, inputType: 'insertText' });
         model.mathfield.snapshot('insert-fence');
         return true;
       }
@@ -942,7 +937,7 @@ export function insertSmartFence(
       parent.isDirty = true;
       parent.rightDelim = fence;
       model.position += 1;
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
       return true;
     }
@@ -970,7 +965,7 @@ export function insertSmartFence(
         model.extractAtoms([i, model.position]),
         match.parentBranch!
       );
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
       return true;
     }
@@ -992,7 +987,7 @@ export function insertSmartFence(
         parent.parentBranch!
       );
       model.position = model.offsetOf(parent);
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
 
       return true;

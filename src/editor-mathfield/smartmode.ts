@@ -2,7 +2,6 @@ import {
   keyboardEventToChar,
   mightProducePrintableCharacter,
 } from '../editor/keyboard';
-import { contentDidChange } from '../editor-model/listeners';
 import type { MathfieldPrivate } from './mathfield-private';
 
 import { ModelPrivate } from '../editor-model/model-private';
@@ -56,7 +55,7 @@ function convertLastAtomsToText(
     count -= 1;
   }
 
-  contentDidChange(model, { data: text, inputType: 'insertText' });
+  model.contentDidChange({ data: text, inputType: 'insertText' });
 }
 
 /**
@@ -100,7 +99,7 @@ function convertLastAtomsToMath(
   }
 
   removeIsolatedSpace(model);
-  contentDidChange(model, { data: joinLatex(data), inputType: 'insertText' });
+  model.contentDidChange({ data: joinLatex(data), inputType: 'insertText' });
 }
 
 /**
@@ -131,7 +130,7 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
     model.position -= 1;
     model.silenceNotifications = save;
 
-    contentDidChange(model, { inputType: 'deleteContent' });
+    model.contentDidChange({ inputType: 'deleteContent' });
   }
 }
 
@@ -258,7 +257,7 @@ export function smartMode(
       atom.style.variant = 'normal'; // @revisit. Was 'auto'. Check for proper conversion.
       atom.command = '\\cdot';
       atom.verbatimLatex = undefined;
-      contentDidChange(model, { data: '\\cdot', inputType: 'insertText' });
+      model.contentDidChange({ data: '\\cdot', inputType: 'insertText' });
       return true;
     }
 
