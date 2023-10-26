@@ -173,7 +173,7 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '?=': '\\questeq',
   '÷': '\\div',
   '¬': '\\neg',
-  ':=': '\\coloneq',
+  ':=': '\\coloneqq',
   '::': '\\Colon',
 
   // Fences
