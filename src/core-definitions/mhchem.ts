@@ -23,6 +23,7 @@ import { defineFunction } from './definitions-utils';
 
 export class ChemAtom extends Atom {
   private arg: string;
+  private _verbatimLatex: string;
   constructor(command: string, arg: string) {
     super({ type: 'chem' }, { command, mode: 'math' });
     const tex = texify.go(
@@ -31,13 +32,20 @@ export class ChemAtom extends Atom {
     );
 
     this.body = parseLatex(tex);
-    this.verbatimLatex = command + '{' + arg + '}';
+    this._verbatimLatex = command + '{' + arg + '}';
     this.arg = arg;
     this.captureSelection = true;
   }
 
   static fromJson(json: AtomJson): ChemAtom {
     return new ChemAtom(json.command, json.arg);
+  }
+
+  // We do not allow resetting the verbatimLatex for 'chem' atoms:
+  // once it is set in the ctor, it is immutable.
+  set verbatimLatex(_latex: string | undefined) {}
+  get verbatimLatex(): string | undefined {
+    return this._verbatimLatex;
   }
 
   toJson(): AtomJson {
@@ -54,6 +62,7 @@ export class ChemAtom extends Atom {
     return this.bind(context, box)!;
   }
   _serialize(_options: ToLatexOptions): string {
+    console.assert(this.verbatimLatex !== undefined);
     return this.verbatimLatex!;
   }
 }

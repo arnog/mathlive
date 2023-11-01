@@ -10,6 +10,8 @@
 - **#2110** If using the keyboard to enter several macros mapping to an 
  `\operatorname` command,  some of the commands could fail to render. For example,
  typing "1mm + 2mm" in a mathfield would result in "1 + 2mm" to be displayed.
+- When inserting an mchem atom, preserve the `verbatimLatex` associated with 
+  the atom, so that the `value` property of the atom is correctly serialized.
 
 ### Improvements
 
