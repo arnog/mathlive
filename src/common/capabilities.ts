@@ -6,7 +6,7 @@ export function isBrowser(): boolean {
 
 export function isTouchCapable(): boolean {
   if ('matchMedia' in window)
-    return window.matchMedia('(any-pointer: coarse)').matches;
+    return window.matchMedia('(pointer: coarse)').matches;
   return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 }
 
