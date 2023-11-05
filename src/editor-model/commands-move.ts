@@ -704,7 +704,7 @@ register(
       return false;
     },
     moveToMathfieldStart: (model: ModelPrivate): boolean => {
-      if (model.position === 0) {
+      if (model.selectionIsCollapsed && model.position === 0) {
         model.announce('plonk');
         return false;
       }
@@ -714,7 +714,7 @@ register(
       return true;
     },
     moveToMathfieldEnd: (model: ModelPrivate): boolean => {
-      if (model.position === model.lastOffset) {
+      if (model.selectionIsCollapsed && model.position === model.lastOffset) {
         model.announce('plonk');
         return false;
       }

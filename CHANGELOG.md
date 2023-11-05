@@ -12,6 +12,9 @@
  typing "1mm + 2mm" in a mathfield would result in "1 + 2mm" to be displayed.
 - When inserting an mchem atom, preserve the `verbatimLatex` associated with 
   the atom, so that the `value` property of the atom is correctly serialized.
+- When invoking the `moveToMathfieldEnd` command, the selection was not 
+  changed if it was not collapsed and already at the end of the mathfield.
+  Similarly for `moveToMathfieldStart`.
 
 ### Improvements
 
