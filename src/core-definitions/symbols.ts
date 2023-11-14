@@ -523,7 +523,9 @@ newSymbols(
 
     ['\\ll', 0x226a],
     ['\\gg', 0x226b],
-    ['\\coloneq', 0x2254],
+    ['\\coloneq', 0x2254], // Prefered form as of Summer 2022. See § 3.7.3 https://ctan.math.illinois.edu/macros/latex/contrib/mathtools/mathtools.pdf)
+    ['\\coloneqq', 0x2254], // Legacy form
+    ['\\colonequals', 0x2254], // From the colonequals package
     ['\\measeq', 0x225d], // MEASSURED BY
     ['\\eqdef', 0x225e],
     ['\\questeq', 0x225f], // QUESTIONED EQUAL TO
