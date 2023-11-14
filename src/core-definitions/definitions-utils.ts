@@ -405,7 +405,11 @@ export const BRAKET_MACROS: MacroDictionary = {
 };
 
 const DEFAULT_MACROS: MacroDictionary = {
-  'iff': '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
+  'iff': {
+    primitive: true,
+    captureSelection: true,
+    def: '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
+  },
   'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
   'phase': {
@@ -450,60 +454,72 @@ const DEFAULT_MACROS: MacroDictionary = {
 
   //////////////////////////////////////////////////////////////////////
   // mathtools.sty
+  // In the summer of 2022, mathtools did some renaming of macros.
+  // This is the latest version, with some legacy commands.
 
-  //\providecommand\ordinarycolon{:}
-  'ordinarycolon': ':',
-  //\def\vcentcolon{\mathrel{\mathop\ordinarycolon}}
-  //TODO(edemaine): Not yet centered. Fix via \raisebox or #726
-  'vcentcolon': '\\mathrel{\\mathop\\ordinarycolon}',
-  // \providecommand*\dblcolon{\vcentcolon\mathrel{\mkern-.9mu}\vcentcolon}
-  'dblcolon': '{\\mathop{\\char"2237}}',
-  // \providecommand*\coloneqq{\vcentcolon\mathrel{\mkern-1.2mu}=}
-  'coloneqq': '{\\mathop{\\char"2254}}', // ≔
-  // \providecommand*\Coloneqq{\dblcolon\mathrel{\mkern-1.2mu}=}
-  'Coloneqq': '{\\mathop{\\char"2237\\char"3D}}',
-  // \providecommand*\coloneq{\vcentcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
-  'coloneq': '{\\mathop{\\char"3A\\char"2212}}',
-  // \providecommand*\Coloneq{\dblcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
-  'Coloneq': '{\\mathop{\\char"2237\\char"2212}}',
-  // \providecommand*\eqqcolon{=\mathrel{\mkern-1.2mu}\vcentcolon}
-  'eqqcolon': '{\\mathop{\\char"2255}}', // ≕
-  // \providecommand*\Eqqcolon{=\mathrel{\mkern-1.2mu}\dblcolon}
-  'Eqqcolon': '{\\mathop{\\char"3D\\char"2237}}',
-  // \providecommand*\eqcolon{\mathrel{-}\mathrel{\mkern-1.2mu}\vcentcolon}
-  'eqcolon': '{\\mathop{\\char"2239}}',
-  // \providecommand*\Eqcolon{\mathrel{-}\mathrel{\mkern-1.2mu}\dblcolon}
-  'Eqcolon': '{\\mathop{\\char"2212\\char"2237}}',
-  // \providecommand*\colonapprox{\vcentcolon\mathrel{\mkern-1.2mu}\approx}
-  'colonapprox': '{\\mathop{\\char"003A\\char"2248}}',
-  // \providecommand*\Colonapprox{\dblcolon\mathrel{\mkern-1.2mu}\approx}
-  'Colonapprox': '{\\mathop{\\char"2237\\char"2248}}',
-  // \providecommand*\colonsim{\vcentcolon\mathrel{\mkern-1.2mu}\sim}
-  'colonsim': '{\\mathop{\\char"3A\\char"223C}}',
-  // \providecommand*\Colonsim{\dblcolon\mathrel{\mkern-1.2mu}\sim}
-  'Colonsim': '{\\mathop{\\char"2237\\char"223C}}',
+  'mathtools': {
+    primitive: true,
+    package: {
+      //\providecommand\ordinarycolon{:}
+      ordinarycolon: ':',
+      //\def\vcentcolon{\mathrel{\mathop\ordinarycolon}}
+      //TODO(edemaine): Not yet centered. Fix via \raisebox or #726
+      vcentcolon: '\\mathrel{\\mathop\\ordinarycolon}',
+      // \providecommand*\dblcolon{\vcentcolon\mathrel{\mkern-.9mu}\vcentcolon}
+      dblcolon: '{\\mathop{\\char"2237}}',
+      // \providecommand*\coloneqq{\vcentcolon\mathrel{\mkern-1.2mu}=}
+      coloneqq: '{\\mathop{\\char"2254}}', // ≔
+      // \providecommand*\Coloneqq{\dblcolon\mathrel{\mkern-1.2mu}=}
+      Coloneqq: '{\\mathop{\\char"2237\\char"3D}}',
+      // \providecommand*\coloneq{\vcentcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
+      coloneq: '{\\mathop{\\char"3A\\char"2212}}',
+      // \providecommand*\Coloneq{\dblcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
+      Coloneq: '{\\mathop{\\char"2237\\char"2212}}',
+      // \providecommand*\eqqcolon{=\mathrel{\mkern-1.2mu}\vcentcolon}
+      eqqcolon: '{\\mathop{\\char"2255}}', // ≕
+      // \providecommand*\Eqqcolon{=\mathrel{\mkern-1.2mu}\dblcolon}
+      Eqqcolon: '{\\mathop{\\char"3D\\char"2237}}',
+      // \providecommand*\eqcolon{\mathrel{-}\mathrel{\mkern-1.2mu}\vcentcolon}
+      eqcolon: '{\\mathop{\\char"2239}}',
+      // \providecommand*\Eqcolon{\mathrel{-}\mathrel{\mkern-1.2mu}\dblcolon}
+      Eqcolon: '{\\mathop{\\char"2212\\char"2237}}',
+      // \providecommand*\colonapprox{\vcentcolon\mathrel{\mkern-1.2mu}\approx}
+      colonapprox: '{\\mathop{\\char"003A\\char"2248}}',
+      // \providecommand*\Colonapprox{\dblcolon\mathrel{\mkern-1.2mu}\approx}
+      Colonapprox: '{\\mathop{\\char"2237\\char"2248}}',
+      // \providecommand*\colonsim{\vcentcolon\mathrel{\mkern-1.2mu}\sim}
+      colonsim: '{\\mathop{\\char"3A\\char"223C}}',
+      // \providecommand*\Colonsim{\dblcolon\mathrel{\mkern-1.2mu}\sim}
+      Colonsim: '{\\mathop{\\char"2237\\char"223C}}',
 
-  // Some Unicode characters are implemented with macros to mathtools functions.
-  // defineMacro("\u2237", "\\dblcolon");  // ::
-  // defineMacro("\u2239", "\\eqcolon");  // -:
-  // defineMacro("\u2254", "\\coloneqq");  // :=
-  // defineMacro("\u2255", "\\eqqcolon");  // =:
-  // defineMacro("\u2A74", "\\Coloneqq");  // ::=
+      colondash: '\\mathrel{\\vcentcolon\\mathrel{\\mkern-1.2mu}\\mathrel{-}}',
+      Colondash: '\\mathrel{\\dblcolon\\mathrel{\\mkern-1.2mu}\\mathrel{-}}',
 
+      dashcolon: '\\mathrel{\\mathrel{-}\\mathrel{\\mkern-1.2mu}\\vcentcolon}',
+      Dashcolon: '\\mathrel{\\mathrel{-}\\mathrel{\\mkern-1.2mu}\\dblcolon}',
+
+      // Some Unicode characters are implemented with macros to mathtools functions.
+      // defineMacro("\u2237", "\\dblcolon");  // ::
+      // defineMacro("\u2239", "\\eqcolon");  // -:
+      // defineMacro("\u2254", "\\coloneqq");  // :=
+      // defineMacro("\u2255", "\\eqqcolon");  // =:
+      // defineMacro("\u2A74", "\\Coloneqq");  // ::=
+    },
+  },
   //////////////////////////////////////////////////////////////////////
   // colonequals.sty
 
   // Alternate names for mathtools's macros:
   'ratio': '\\vcentcolon',
   'coloncolon': '\\dblcolon',
-  'colonequals': '\\coloneqq',
-  'coloncolonequals': '\\Coloneqq',
-  'equalscolon': '\\eqqcolon',
-  'equalscoloncolon': '\\Eqqcolon',
-  'colonminus': '\\coloneq',
-  'coloncolonminus': '\\Coloneq',
-  'minuscolon': '\\eqcolon',
-  'minuscoloncolon': '\\Eqcolon',
+  'colonequals': '\\coloneq',
+  'coloncolonequals': '\\Coloneq',
+  'equalscolon': '\\eqcolon',
+  'equalscoloncolon': '\\Eqcolon',
+  'colonminus': '\\colondash',
+  'coloncolonminus': '\\Colondash',
+  'minuscolon': '\\dashcolon',
+  'minuscoloncolon': '\\Dashcolon',
   // \colonapprox name is same in mathtools and colonequals.
   'coloncolonapprox': '\\Colonapprox',
   // \colonsim name is same in mathtools and colonequals.
@@ -511,8 +527,10 @@ const DEFAULT_MACROS: MacroDictionary = {
 
   // Additional macros, implemented by analogy with mathtools definitions:
   'simcolon': '\\mathrel{\\sim\\mathrel{\\mkern-1.2mu}\\vcentcolon}',
+  'Simcolon': '\\mathrel{\\sim\\mathrel{\\mkern-1.2mu}\\dblcolon}',
   'simcoloncolon': '\\mathrel{\\sim\\mathrel{\\mkern-1.2mu}\\dblcolon}',
   'approxcolon': '\\mathrel{\\approx\\mathrel{\\mkern-1.2mu}\\vcentcolon}',
+  'Approxcolon': '\\mathrel{\\approx\\mathrel{\\mkern-1.2mu}\\dblcolon}',
   'approxcoloncolon': '\\mathrel{\\approx\\mathrel{\\mkern-1.2mu}\\dblcolon}',
 
   // Present in newtxmath, pxfonts and txfonts
