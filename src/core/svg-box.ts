@@ -4,7 +4,7 @@ const SVG_BODY: Record<
     name: string[],
     minWidth: number,
     viewBoxHeight: number,
-    align?: 'xMaxYMin' | 'xMinYMin'
+    align?: 'xMaxYMin' | 'xMinYMin',
   ]
 > = {
   // Adapted from https://github.com/KaTeX/KaTeX/blob/master/src/stretchy.js
