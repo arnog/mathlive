@@ -82,6 +82,7 @@ export function getStylesheet(id: StylesheetId): CSSStyleSheet {
 
   gStylesheets[id] = new CSSStyleSheet();
 
+  // @ts-ignore
   gStylesheets[id]!.replaceSync(getStylesheetContent(id));
 
   return gStylesheets[id]!;
@@ -103,6 +104,7 @@ export function injectStylesheet(id: StylesheetId): void {
   if ((gInjectedStylesheets[id] ?? 0) !== 0) gInjectedStylesheets[id]! += 1;
   else {
     const stylesheet = getStylesheet(id);
+    // @ts-ignore
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, stylesheet];
     gInjectedStylesheets[id] = 1;
   }
@@ -116,6 +118,7 @@ export function releaseStylesheet(id: StylesheetId): void {
   gInjectedStylesheets[id]! -= 1;
   if (gInjectedStylesheets[id]! <= 0) {
     const stylesheet = gStylesheets[id]!;
+    // @ts-ignore
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
       (x) => x !== stylesheet
     );

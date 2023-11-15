@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Improvements
+
+- Simplified the syntax to modify registers. Use `mf.registers.arraystretch = 1.5`
+  instead of mf.registers = {...mf.registers, arraystretch: 1.5}`
+
+
 ## 0.96.0 (2023-11-14)
 
 ### Breaking Changes

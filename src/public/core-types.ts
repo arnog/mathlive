@@ -300,19 +300,30 @@ export type LatexValue = { relax?: boolean } & (
 //   }
 
 /**
- * TeX registers represent 'variables' and 'constants'.
+ * TeX registers represent "variables" and "constants".
  *
  * Changing the values of some registers can modify the layout
  * of math expressions.
  *
  * The following registers might be of interest:
  *
- * - `thinmuskip`
- * - `medmuskip`
- * - `thickmuskip`
- * - `nulldelimiterspace`
- * - `delimitershortfall`
- * - `jot`
+ * - `thinmuskip`: space between items of math lists
+ * - `medmuskip`: space between binary operations
+ * - `thickmuskip`: space between relational operators
+ * - `nulldelimiterspace`: minimum space to leave blank in delimiter constructions, for example around a fraction
+ * - `delimitershortfall`: maximum space to overlap adjacent elements when a delimiter is too short
+ * - `jot`: space between lines in an array, or between rows in a multiline construct
+ * - `arraycolsep`: space between columns in an array
+ * - `arraystretch`: factor by which to stretch the height of each row in an array
+ *
+ * To modify a register, use:
+ *
+ * ```javascript
+ * mf.registers.arraystretch = 1.5;
+ * mf.registers.thinmuskip = { dimension: 2, unit: "mu" };
+ * mf.registers.medmuskip = "3mu";
+ *```
+ *
  */
 export type Registers = Record<string, number | string | LatexValue>;
 

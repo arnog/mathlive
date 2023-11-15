@@ -1,6 +1,7 @@
 import type { Selector } from './commands';
 import type {
   LatexSyntaxError,
+  LatexValue,
   MacroDictionary,
   ParseMode,
   Registers,
@@ -1129,11 +1130,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     this.attachShadow({ mode: 'open', delegatesFocus: true });
     if (this.shadowRoot && 'adoptedStyleSheets' in this.shadowRoot) {
+      // @ts-ignore
       this.shadowRoot!.adoptedStyleSheets = [
         getStylesheet('core'),
         getStylesheet('mathfield'),
         getStylesheet('mathfield-element'),
       ];
+      // @ts-ignore
       this.shadowRoot!.innerHTML = `<span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
     } else {
       this.shadowRoot!.innerHTML = `<style>${getStylesheetContent(
@@ -1858,7 +1861,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     const hasValue: boolean = newValue !== null;
     switch (name) {
       case 'contenteditable':
-        if (this._mathfield) requestUpdate(this._mathfield);
+        requestUpdate(this._mathfield);
         break;
       case 'disabled':
         this.disabled = hasValue;
@@ -1961,11 +1964,28 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /** @category Customization
-   * @inheritDoc LayoutOptions.registers
+   * @inheritDoc Registers
    */
   get registers(): Registers {
-    return this._getOption('registers');
+    const that = this;
+    return new Proxy(
+      {},
+      {
+        get: (_, prop): number | string | LatexValue | undefined => {
+          if (typeof prop !== 'string') return undefined;
+          return that._getOption('registers')[prop];
+        },
+        set(_, prop, value): boolean {
+          if (typeof prop !== 'string') return false;
+          that._setOptions({
+            registers: { ...that._getOption('registers'), [prop]: value },
+          });
+          return true;
+        },
+      }
+    );
   }
+
   set registers(value: Registers) {
     this._setOptions({ registers: value });
   }

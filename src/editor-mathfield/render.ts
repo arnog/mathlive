@@ -30,9 +30,10 @@ function hash(latex: string): number {
 }
 
 export function requestUpdate(
-  mathfield: MathfieldPrivate,
+  mathfield: MathfieldPrivate | undefined | null,
   options?: { interactive: boolean }
 ): void {
+  if (!mathfield) return;
   if (mathfield.dirty) return;
   mathfield.dirty = true;
   requestAnimationFrame(() => {
