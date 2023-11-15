@@ -712,6 +712,24 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
       command: ['performWithFeedback', 'extendSelectionForward'],
     },
   },
+  '[up]': {
+    class: 'action hide-shift',
+    label: '↑',
+    command: ['performWithFeedback', 'moveUp'],
+    shift: {
+      label: '↟',
+      command: ['performWithFeedback', 'extendSelectionUpward'],
+    },
+  },
+  '[down]': {
+    class: 'action hide-shift',
+    label: '↓',
+    command: ['performWithFeedback', 'moveDown'],
+    shift: {
+      label: '↡',
+      command: ['performWithFeedback', 'extendSelectionDownward'],
+    },
+  },
   '[return]': {
     class: 'action hide-shift',
     command: ['performWithFeedback', 'commit'],

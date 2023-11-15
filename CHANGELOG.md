@@ -6,6 +6,9 @@
   instead of mf.registers = {...mf.registers, arraystretch: 1.5}`
 - Allow changing registers using `\renewcommand`, for example
   `\renewcommand{\arraystretch}{1.5}`
+- Added keycap shortcuts `[up]` and `[down]` to move the selection up or down
+  in a matrix.
+
 
 ## 0.96.0 (2023-11-14)
 
