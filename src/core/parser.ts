@@ -1515,24 +1515,37 @@ export class Parser {
       return [new PlaceholderAtom({ mode: this.parseMode, style: this.style })];
     }
 
-    // if (command === '\\char') {
-    //   const initialIndex = this.index;
-    //   let codepoint = this.scanNumber(true)?.number ?? NaN;
-    //   if (!Number.isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff)
-    //     codepoint = 0x2753; // BLACK QUESTION MARK
+    if (
+      command === '\\renewcommand' ||
+      command === '\\newcommand' ||
+      command === '\\providecommand' ||
+      command === '\\def'
+    ) {
+      // \\renewcommand: error if command is not already defined
+      // \\newcommand: error if command is already defined
+      // \\providecommand: define command only if it is not already defined
+      // \\def: define command, silently overwriting any existing definition
+      const index = this.index;
+      // Get the command name
+      const cmd = this.scanLiteralGroup() || this.next();
+      if (!cmd) return null;
 
-    //   return [
-    //     new Atom({
-    //       type: this.parseMode === 'math' ? 'mord' : 'text',
-    //       command: '\\char',
-    //       mode: this.parseMode,
-    //       value: String.fromCodePoint(codepoint),
-    //       verbatimLatex:
-    //         '\\char' +
-    //         tokensToString(this.tokens.slice(initialIndex, this.index)),
-    //     }),
-    //   ];
-    // }
+      // Define (or redefine) a command (or register)
+      if (this.context.registers[cmd.substring(1)]) {
+        const value = this.scanArgument('string');
+        if (value !== null) this.context.registers[cmd.substring(1)] = value;
+
+        const verbatimLatex = joinLatex([
+          command,
+          tokensToString(this.tokens.slice(index, this.index)),
+        ]);
+
+        return [new Atom({ type: 'text', value: '', verbatimLatex })];
+      }
+
+      // Could be a macro definition... @todo
+      // \newcommand{\cmd}[nargs][optargdefault]{defn}
+    }
 
     // Is this a macro?
     let result = this.scanMacro(command);
