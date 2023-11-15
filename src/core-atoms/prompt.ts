@@ -68,6 +68,7 @@ export class PromptAtom extends Atom {
     const content = Atom.createBox(parentContext, this.body);
 
     if (!content) return null;
+
     // An empty prompt should not be too small, pretend content
     // has height sigma 5 (x-height)
 
@@ -85,7 +86,11 @@ export class PromptAtom extends Atom {
         'var(--incorrect-color, var(--ML__incorrect-color))'
       );
     }
+
     const base = new Box(content, { type: 'ord' });
+    base.setStyle('display', 'inline-block');
+    base.setStyle('height', content.height + content.depth, 'em');
+    base.setStyle('vertical-align', -vPadding, 'em');
 
     // This box will represent the box (background and border).
     // It's positioned to overlap the base.
@@ -120,14 +125,12 @@ export class PromptAtom extends Atom {
       box.setStyle('top', fboxsep, 'em'); // empirical
       box.setStyle('left', -hPadding, 'em');
     }
-
     // empty prompt should be a little wider
     if (!this.body || this.body.length === 1) {
       box.width = 3 * hPadding;
       box.setStyle('width', `calc(100% + ${3 * hPadding}em)`);
       box.setStyle('left', -1.5 * hPadding, 'em');
     }
-
     let svg = ''; // strike through incorrect prompt, for users with impaired color vision
 
     if (this.correctness === 'incorrect') {
@@ -135,10 +138,6 @@ export class PromptAtom extends Atom {
         '<line x1="3%"  y1="97%" x2="97%" y2="3%" stroke-width="0.5" stroke="var(--incorrect-color, var(--ML__incorrect-color))" stroke-linecap="round" />';
     }
     if (svg) box.svgOverlay = svg;
-
-    base.setStyle('display', 'inline-block');
-    base.setStyle('height', content.height + content.depth, 'em');
-    base.setStyle('vertical-align', -vPadding, 'em');
 
     // The result is a box that encloses the box and the base
     const result = new Box([box, base], { classes: 'ML__prompt-atom' });

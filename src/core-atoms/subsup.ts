@@ -25,7 +25,9 @@ export class SubsupAtom extends Atom {
     const phantomCtx = new Context({ parent: context, isPhantom: true });
     const leftSibling = this.leftSibling;
     const base = leftSibling.render(phantomCtx) ?? new Box(null);
-    const phantom = new Box(null, { height: base.height, depth: base.depth });
+    const phantom = new Box(null);
+    phantom.height = base.height;
+    phantom.depth = base.depth;
     // > subscripts and superscripts merely get attached to atoms without
     // > changing the atomic type. -- TeXBook p. 171
     return this.attachSupsub(context, {

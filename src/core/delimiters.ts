@@ -754,7 +754,7 @@ export function makeNullDelimiter(parent: Context, classes?: string): Box {
   const box = new Box(null, {
     classes: ' nulldelimiter ' + (classes ?? ''),
     type: 'ignore',
-    width: parent.getRegisterAsEm('nulldelimiterspace'),
   });
+  box.width = parent.getRegisterAsEm('nulldelimiterspace');
   return box.wrap(new Context({ parent, mathstyle: 'textstyle' }));
 }

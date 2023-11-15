@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
@@ -20,6 +20,12 @@
         max-width: 640px;
         width: 100%;
       }
+      @media (prefers-color-scheme: dark) {
+        math-field {
+          --contains-highlight-background-color: hsl(212, 40%, 25%);
+        }
+      }
+
       #mathml-render {
         margin-top: 1rem;
         margin-bottom: 1rem;
@@ -43,7 +49,17 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf"> \sqrt[3]{x} \sqrt{1+2\ne\frac{1}{2345}}</math-field>
+      <!-- <math-field id="mf">\funfunction{123}{456}</math-field> -->
+      <!-- <math-field id="mf"
+        >\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field
+      > -->
+      <!-- <math-field id="mf"
+        >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
+      > -->
+      <math-field id="mf" name="formula">\frac{\frac12}{\frac34}</math-field>
+
+      <div id="math-container"></div>
+
       <!-- <math-field id="mf"
         >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12+3+4+5}}\enclose{box}{\sqrt[1234567]{\frac{1}{x+1}}}</math-field
       > -->
@@ -100,17 +116,18 @@
         version,
       } from 'https://unpkg.com/@cortex-js/compute-engine?module';
 
+      const MAX_LINE_LENGTH = 74;
+
       renderMathInDocument();
 
-      const mfe = new MathfieldElement();
-
-      // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
-
-      /* mathVirtualKeyboard.layouts = makeVirtualKeyboard([
-        '\\operatorname*{arg~max}_#?}',
-        '\\%',
-      ]); */
-      // mathVirtualKeyboard.layouts = 'alphabetic';
+      let mathfieldElement;
+      document.addEventListener('DOMContentLoaded', (event) => {
+        mathfieldElement = new MathfieldElement();
+        mathfieldElement.value = 'hello';
+        document.querySelector('#math-container').appendChild(mathfieldElement);
+        mathfieldElement.focus();
+        mathfieldElement.executeCommand('moveToMathfieldEnd');
+      });
 
       // const ce = new ComputeEngine({
       //   latexDictionary: [
@@ -135,14 +152,46 @@
       // });
 
       // MathfieldElement.computeEngine = ce;
+
+      MathfieldElement.computeEngine.latexOptions = {
+        ...MathfieldElement.computeEngine.latexOptions,
+        parseUnknownIdentifier: (s) =>
+          /^[a-zA-Z]+$/.test(s) ? 'function' : 'unknown',
+      };
+
+      // mathVirtualKeyboard.layouts = {
+      //   rows: [
+      //     [
+      //       { width: 1.5, latex: '\\ce{H2O}' },
+      //       '+',
+      //       '-',
+      //       '\\times',
+      //       '\\frac{#@}{#?}',
+      //       '=',
+      //       '.',
+      //       '(',
+      //       ')',
+      //       '\\sqrt{#0}',
+      //       '#@^{#?}',
+      //     ],
+      //     ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+      //   ],
+      // };
+      // makeVirtualKeyboard([
+      //   '\\operatorname*{arg~max}_#?}',
+      //   '\\%',
+      // ]);
+      // mathVirtualKeyboard.layouts = 'alphabetic';
+
       // mathVirtualKeyboard.layouts = [
       //   {
       //     label: 'minimal',
       //     tooltip: 'Only the essential',
       //     layers: [
       //       {
-      //         style:
-      //           '.digit { background: blue !important; color: white !important }',
+      //         style: `
+      //           .digit { background: blue !important; color: white !important }
+      //           .variant_indicator::before { content: '•'; color: #38d; }`,
       //         rows: [
       //           [
       //             // {
@@ -171,7 +220,7 @@
       //             '#@^{#?}',
       //           ],
       //           [
-      //             { class: 'digit', latex: '1' },
+      //             { class: 'variant_indicator', latex: '1' },
       //             { class: 'digit', latex: '2' },
       //             { class: 'digit', latex: '3' },
       //             { class: 'digit', latex: '4' },
@@ -190,24 +239,35 @@
       // ];
 
       const mf = document.getElementById('mf');
-      mf.scriptDepth = [0, 0];
-      mf.addEventListener(
-        'keydown',
-        (ev) => {
-          if (ev.key === 'Escape') {
-            if (ev.shiftKey) mf.executeCommand('moveToPreviousGroup');
-            else mf.executeCommand('moveToNextGroup');
-            ev.preventDefault();
-          }
-        },
-        { capture: true }
-      );
 
-      MathfieldElement.computeEngine.latexOptions = {
-        ...MathfieldElement.computeEngine.latexOptions,
-        parseUnknownIdentifier: (s) =>
-          /^[a-zA-Z]+$/.test(s) ? 'function' : 'unknown',
+      MathfieldElement.computeEngine.notation = 'scientific';
+
+      mf.inlineShortcuts = {
+        '--': '\\_',
+        ...mf.inlineShortcuts,
       };
+      // eslint-disable-next-line no-undef
+      // mathVirtualKeyboard.layouts = [
+      //   'alphabetic',
+      //   {
+      //     label: 'Test Keyboard',
+      //     rows: [[{ key: '-' }]],
+      //   },
+      // ];
+      // mf.mathModeSpace = '\\;';
+
+      // mf.scriptDepth = [0, 0];
+      // mf.addEventListener(
+      //   'keydown',
+      //   (ev) => {
+      //     if (ev.key === 'Escape') {
+      //       if (ev.shiftKey) mf.executeCommand('moveToPreviousGroup');
+      //       else mf.executeCommand('moveToNextGroup');
+      //       ev.preventDefault();
+      //     }
+      //   },
+      //   { capture: true }
+      // );
 
       // mf.onInlineShortcut = (_mf, s) =>
       //   /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
@@ -223,30 +283,38 @@
       //   }
       //   return '';
       // };
-      // mf.macros = {
-      //   ...mf.macros,
-      //   // Alpha: undefined,
-      //   minutes: '\\prime',
-      //   smolfrac: {
-      //     args: 2,
-      //     def: '{}^{#1}\\!\\!/\\!{}_{#2}',
-      //     captureSelection: true,
-      //   },
-      // };
-
       mf.macros = {
         ...mf.macros,
-        speed: '\\mathrm{speed}',
+        // Alpha: undefined,
+        minutes: '\\prime',
+        smolfrac: {
+          args: 2,
+          def: '{}^{#1}\\!\\!/\\!{}_{#2}',
+          captureSelection: false,
+        },
+        funfunction: {
+          captureSelection: false,
+          args: 2,
+          def: 'FunFunction\\left({#1},{#2}\\right)',
+        },
       };
 
-      mf.addEventListener('input', (ev) => {
-        console.log('input event');
-        updateContent(mf);
-      });
+      // mf.macros = {
+      //   ...mf.macros,
+      //   // speed: { def: '\\mathrm{speed}', captureSelection: true },
+      //   speed: '\\mathrm{speed}',
+      // };
+      // mf.onInlineShortcut = (_mf, s) => {
+      //   if (/^[A-Z][a-z]+$/.test(s)) return `\\mathrm{${s}}`;
+      //   if (/^[a-z][a-z]+$/.test(s)) return `\\mathit{${s}}`;
+      //   return '';
+      // };
 
       // mf.addEventListener('beforeinput', (ev) => {
       //   if (ev.inputType === 'insertLineBreak') console.log('enter');
       // });
+
+      mf.addEventListener('input', (ev) => updateContent(mf));
 
       // mf.addEventListener('keydown', (ev) => {
       //   console.log('keydown', ev);
@@ -288,6 +356,9 @@
         document.querySelectorAll('math-field').forEach((x) => x.remove());
       });
 
+      // First time update
+      updateContent(mf);
+
       //
       // Handler called when the mathfield content has changed
       //
@@ -305,7 +376,7 @@
 
           const expr = mf.expression;
           if (expr) {
-            setHtml('math-json', JSON.stringify(expr.json));
+            setHtml('math-json', exprToString(expr));
             const result = expr.evaluate().latex ?? '';
             document.getElementById('result').innerText = result;
             document.getElementById('result-latex').innerText = `$$${result}$$`;
@@ -338,13 +409,9 @@
               '`': '&#x60;',
               '=': '&#x3D;',
               '\u200b': '&amp;#zws;',
-            }[s] ?? s)
+            })[s] ?? s
         );
       }
-
-      // First time update
-      updateContent(mf);
-      // renderMathInDocument();
 
       function makeVirtualKeyboard(customKeys = []) {
         const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
@@ -354,99 +421,99 @@
           layers: [
             {
               style: `
-                .ML__keyboard {
-                  --keyboard-zindex: 2000;
+                  .ML__keyboard {
+                    --keyboard-zindex: 2000;
 
-                }
-                .minimalist-backdrop {
-                  display: flex;
-                  justify-content: center;
-                }
-                ${extraSpecificity} .minimalist-container {
-                  --keycap-height: 45px;
-                  --keycap-max-width: 53px;
-                  --keycap-font-size: 20px;
-                  --keycap-small-font-size: 12px;
-                  --keyboard-background: #f2f2f2;
-                  --keycap-background-hover: #ffffff;
-
-                  --keycap-secondary-background: #e5e5e5;
-                  --keycap-secondary-background-hover: #c4c4c4;
-
-                  --placeholder-opacity: 1;
-
-                  padding: 15px;
-
-                  background: var(--keyboard-background);
-                  border-top-left-radius: 8px;
-                  border-top-right-radius: 8px;
-                  border: none;
-                  box-shadow: 0px 0px 40px 0px #00000033;
-                }
-
-                @container (max-width: 744px) {
+                  }
+                  .minimalist-backdrop {
+                    display: flex;
+                    justify-content: center;
+                  }
                   ${extraSpecificity} .minimalist-container {
-                    padding: 4px;
+                    --keycap-height: 45px;
+                    --keycap-max-width: 53px;
+                    --keycap-font-size: 20px;
+                    --keycap-small-font-size: 12px;
+                    --keyboard-background: #f2f2f2;
+                    --keycap-background-hover: #ffffff;
+
+                    --keycap-secondary-background: #e5e5e5;
+                    --keycap-secondary-background-hover: #c4c4c4;
+
+                    --placeholder-opacity: 1;
+
+                    padding: 15px;
+
+                    background: var(--keyboard-background);
+                    border-top-left-radius: 8px;
+                    border-top-right-radius: 8px;
+                    border: none;
+                    box-shadow: 0px 0px 40px 0px #00000033;
+                  }
+
+                  @container (max-width: 744px) {
+                    ${extraSpecificity} .minimalist-container {
+                      padding: 4px;
+                    }
+
+                    ${extraSpecificity} .MLK__rows {
+                      --keycap-gap: 5px;
+                      --keycap-height: 45px;
+                    }
+                  }
+
+                  ${extraSpecificity} .minimalist-container .action {
+                    box-shadow: 0px 1px 0px #b5b5b5;
+                    color: var(--keyboard-text);
+                    border: none;
+                  }
+
+                  ${extraSpecificity} .minimalist-container .action.is-pressed {
+                    transform-origin: bottom center;
+                    transform: scale(1.4, 1.4);
+                    background-color: var(--keycap-secondary-background-hover);
+                    color: var(--keyboard-text);
+                  }
+
+                  ${extraSpecificity} .minimalist-container .action.is-active {
+                    background-color: var(--keycap-secondary-background-hover);
+                    color: var(--keyboard-text);
+                  }
+
+                  ${extraSpecificity} .minimalist-container .MLK__keycap:not(.ghost) {
+                    box-shadow: 0px 1px 0px #b5b5b5;
+                    color: var(--keyboard-text);
+                    border: none;
+                  }
+
+                  ${extraSpecificity} .minimalist-container .MLK__keycap.is-pressed {
+                    transform-origin: bottom center;
+                    transform: scale(1.4, 1.4);
+                    background-color: var(--keycap-background-hover);
+                    color: var(--keyboard-text);
+                  }
+
+                  ${extraSpecificity} .minimalist-container .MLK__keycap.is-active {
+                    background-color: var(--keycap-background-hover);
+                    color: var(--keyboard-text);
                   }
 
                   ${extraSpecificity} .MLK__rows {
-                    --keycap-gap: 5px;
-                    --keycap-height: 45px;
+                    overflow-x: unset;
                   }
-                }
 
-                ${extraSpecificity} .minimalist-container .action {
-                  box-shadow: 0px 1px 0px #b5b5b5;
-                  color: var(--keyboard-text);
-                  border: none;
-                }
+                  ${extraSpecificity} .MLK__rows .row {
+                    justify-content: flex-start;
+                  }
 
-                ${extraSpecificity} .minimalist-container .action.is-pressed {
-                  transform-origin: bottom center;
-                  transform: scale(1.4, 1.4);
-                  background-color: var(--keycap-secondary-background-hover);
-                  color: var(--keyboard-text);
-                }
+                  ${extraSpecificity} .if-can-undo, ${extraSpecificity} .if-can-redo {
+                    opacity: 0.4;
+                  }
 
-                ${extraSpecificity} .minimalist-container .action.is-active {
-                  background-color: var(--keycap-secondary-background-hover);
-                  color: var(--keyboard-text);
-                }
-
-                ${extraSpecificity} .minimalist-container .MLK__keycap:not(.ghost) {
-                  box-shadow: 0px 1px 0px #b5b5b5;
-                  color: var(--keyboard-text);
-                  border: none;
-                }
-
-                ${extraSpecificity} .minimalist-container .MLK__keycap.is-pressed {
-                  transform-origin: bottom center;
-                  transform: scale(1.4, 1.4);
-                  background-color: var(--keycap-background-hover);
-                  color: var(--keyboard-text);
-                }
-
-                ${extraSpecificity} .minimalist-container .MLK__keycap.is-active {
-                  background-color: var(--keycap-background-hover);
-                  color: var(--keyboard-text);
-                }
-
-                ${extraSpecificity} .MLK__rows {
-                  overflow-x: unset;
-                }
-
-                ${extraSpecificity} .MLK__rows .row {
-                  justify-content: flex-start;
-                }
-
-                ${extraSpecificity} .if-can-undo, ${extraSpecificity} .if-can-redo {
-                  opacity: 0.4;
-                }
-
-                .ML__keyboard.can-undo .if-can-undo, .ML__keyboard.can-redo .if-can-redo {
-                  opacity: 1;
-                }
-              `,
+                  .ML__keyboard.can-undo .if-can-undo, .ML__keyboard.can-redo .if-can-redo {
+                    opacity: 1;
+                  }
+                `,
               backdrop: 'minimalist-backdrop',
               container: 'minimalist-container',
               rows: [
@@ -485,6 +552,49 @@
             },
           ],
         };
+      }
+
+      function exprToStringRecursive(expr, start) {
+        let indent = ' '.repeat(start);
+        if (Array.isArray(expr)) {
+          const elements = expr.map((x) => exprToStringRecursive(x, start + 2));
+          let result = `[${elements.join(', ')}]`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          return `[\n${indent}  ${elements.join(`,\n${indent}  `)}\n${indent}]`;
+        }
+        if (expr === null) return 'null';
+        if (typeof expr === 'object') {
+          const elements = {};
+          Object.keys(expr).forEach(
+            (x) => (elements[x] = exprToStringRecursive(expr[x], start + 2))
+          );
+          let result = `{${Object.keys(expr)
+            .map((key) => `"${key}": ${elements[key]}`)
+            .join('; ')}}`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          result = `\n${indent}{${Object.keys(expr)
+            .map((key) => {
+              return `"${key}": ${elements[key]}`;
+            })
+            .join('; ')}}`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          return (
+            `\n${indent}{\n` +
+            Object.keys(expr)
+              .map((key) => {
+                return `${indent}  "${key}": ${elements[key]}`;
+              })
+              .join(`;\n${indent}`) +
+            '\n' +
+            indent +
+            '}'
+          );
+        }
+        return JSON.stringify(expr, null, 2);
+      }
+
+      function exprToString(expr) {
+        return exprToStringRecursive(expr.json, 0);
       }
     </script>
   </body>

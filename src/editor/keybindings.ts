@@ -41,7 +41,8 @@ export function getCommandForKeybinding(
 ): Selector | [Selector, ...any[]] | '' {
   if (keybindings.length === 0) return '';
 
-  // Normalize keystroke to the format (order of modifiers) expected by keybindings
+  // Normalize keystroke to the format (order of modifiers) expected
+  // by keybindings
   const keystroke = keystrokeModifiersToString(
     keystrokeModifiersFromString(inKeystroke)
   );
@@ -252,19 +253,25 @@ function normalizeKeybinding(
 
   if (platform && !matchPlatform(platform)) return undefined;
 
-  if (/^\[.+\]$/.test(modifiers.key)) {
-    // This is a keybinding specified with a key code (e.g.  `[KeyW]`)
-    return {
-      ...keybinding,
-      ifPlatform: platform,
-      key: keystrokeModifiersToString(modifiers),
-    };
-  }
+  // if (/^\[.+\]$/.test(modifiers.key)) {
+  //   // This is a keybinding specified with a key code (e.g.  `[KeyW]`)
+  //   return {
+  //     ...keybinding,
+  //     ifPlatform: platform,
+  //     key: keystrokeModifiersToString(modifiers),
+  //   };
+  // }
+  // Is this a keybinding specified with a key code (e.g.  `[KeyW]`)?
+  if (/^\[.+\]$/.test(modifiers.key))
+    return { ...keybinding, key: keystrokeModifiersToString(modifiers) };
 
   // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`).
   // Convert it to a key code.
   const code = getCodeForKey(modifiers.key, layout);
-  if (!code) throw new Error('Invalid keybinding key "' + keybinding.key + '"');
+  // if (!code) throw new Error('Invalid keybinding key "' + keybinding.key + '"');
+  if (!code) {
+    return { ...keybinding, key: keystrokeModifiersToString(modifiers) };
+  }
 
   if ((code.shift && modifiers.shift) || (code.alt && modifiers.alt)) {
     throw new Error(
@@ -284,6 +291,7 @@ function normalizeKeybinding(
     ifPlatform: platform,
     key: keystrokeModifiersToString(code),
   };
+  // return { ...keybinding, key: keystrokeModifiersToString(code) };
 }
 
 function selectorToString(selector: Selector | [Selector, ...any[]]): string {

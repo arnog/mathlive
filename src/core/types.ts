@@ -98,9 +98,6 @@ export type BoxType = (typeof BOX_TYPE)[number];
 export type BoxOptions = {
   mode?: ParseMode;
   type?: BoxType;
-  height?: number;
-  depth?: number;
-  width?: number;
   maxFontSize?: number;
   isTight?: boolean;
   fontFamily?: FontName;
@@ -109,7 +106,6 @@ export type BoxOptions = {
   caret?: ParseMode;
   isSelected?: boolean;
   classes?: string;
-  properties?: Partial<Record<BoxCSSProperties, string>>;
   attributes?: Record<string, string>;
 
   style?: Style; // If a `style` option is provided, a `mode` must also be provided.

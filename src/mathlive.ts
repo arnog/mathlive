@@ -14,7 +14,7 @@ import {
   convertLatexToMarkup,
   convertLatexToMathMl,
   convertLatexToSpeakableText,
-  serializeMathJsonToLatex,
+  convertMathJsonToLatex,
 } from './public/mathlive-ssr';
 import type { VirtualKeyboardInterface } from './public/virtual-keyboard';
 
@@ -129,7 +129,7 @@ export function renderMathInElement(
   optionsPrivate.renderToMarkup ??= convertLatexToMarkup;
   optionsPrivate.renderToMathML ??= convertLatexToMathMl;
   optionsPrivate.renderToSpeakableText ??= convertLatexToSpeakableText;
-  optionsPrivate.serializeToLatex ??= serializeMathJsonToLatex;
+  optionsPrivate.serializeToLatex ??= convertMathJsonToLatex;
   autoRenderMathInElement(el, optionsPrivate);
 }
 

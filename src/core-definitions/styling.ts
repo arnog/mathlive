@@ -960,10 +960,10 @@ defineFunction('rule', '[raise:value]{width:value}{thickness:value}', {
     const result = new Box(null, {
       classes: 'rule',
       type: 'ord',
-      width,
-      height: height + shift,
-      depth: -shift,
     });
+    result.width = width;
+    result.height = height + shift;
+    result.depth = -shift;
     result.setStyle('border-right-width', width, 'em');
     result.setStyle('border-top-width', height, 'em');
     result.setStyle('border-color', atom.style.color);

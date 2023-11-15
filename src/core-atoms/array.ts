@@ -798,7 +798,9 @@ function makePlaceholderCell(parent: ArrayAtom): Atom[] {
  * Create a column separator box.
  */
 function makeColGap(width: number): Box {
-  return new Box(null, { classes: 'arraycolsep', width });
+  const result = new Box(null, { classes: 'arraycolsep' });
+  result.width = width;
+  return result;
 }
 
 /**

@@ -660,6 +660,10 @@ function atomToMathML(atom, options): string {
     '\\vert': '|',
     '\\Vert': '\u2225',
     '\\mid': '\u2223',
+    '\\lbrack': '[',
+    '\\rbrack': ']',
+    '\\{': '{',
+    '\\}': '}',
     '\\lbrace': '{',
     '\\rbrace': '}',
     '\\lparen': '(',
@@ -897,12 +901,10 @@ function atomToMathML(atom, options): string {
       break;
     case 'mord': {
       result = typeof atom.value === 'string' ? atom.value : command;
-      const m = command
-        ? command.match(/{?\\char"([\dabcdefABCDEF]*)}?/)
-        : null;
-      if (m) {
+      if (command === '\\char') {
         // It's a \char command
-        result = '&#x' + m[1] + ';';
+        result =
+          '&#x' + ('000000' + atom.args[0].number.toString(16)).slice(-4) + ';';
       } else if (result.length > 0 && result.startsWith('\\')) {
         // This is an identifier with no special handling. Use the
         // Unicode value

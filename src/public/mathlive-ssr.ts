@@ -181,7 +181,7 @@ export function convertLatexToSpeakableText(latex: string): string {
 
 let gComputeEngine: ComputeEngine;
 
-export function serializeMathJsonToLatex(json: Expression): string {
+export function convertMathJsonToLatex(json: Expression): string {
   if (!gComputeEngine) {
     const ComputeEngineCtor =
       globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;

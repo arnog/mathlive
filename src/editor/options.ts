@@ -26,11 +26,17 @@ export function update(
   for (const key of Object.keys(updates)) {
     switch (key) {
       case 'scriptDepth':
-        if (isArray<number>(updates.scriptDepth))
-          result.scriptDepth = [updates.scriptDepth[0], updates.scriptDepth[1]];
-        else if (typeof updates.scriptDepth === 'number')
-          result.scriptDepth = [updates.scriptDepth, updates.scriptDepth];
-        else throw new TypeError('Unexpected value for scriptDepth');
+        const scriptDepth = updates.scriptDepth;
+        if (isArray<number>(scriptDepth))
+          result.scriptDepth = [scriptDepth[0], scriptDepth[1]];
+        else if (typeof scriptDepth === 'number')
+          result.scriptDepth = [scriptDepth, scriptDepth];
+        else if (typeof scriptDepth === 'string') {
+          const [from, to] = (scriptDepth as string)
+            .split(',')
+            .map((x) => parseInt(x.trim()));
+          result.scriptDepth = [from, to];
+        } else throw new TypeError('Unexpected value for scriptDepth');
 
         break;
 

@@ -215,16 +215,15 @@ export class GenfracAtom extends Atom {
         mode: this.mode,
         style: this.style,
       });
-
-      // const numerLine = AXIS_HEIGHT + ruleThickness / 2;
-      const denomLine = AXIS_HEIGHT - ruleThickness / 2;
-      // if (numerShift < clearance + numerDepth + numerLine)
-      //   numerShift = clearance + numerDepth + numerLine;
-
-      fracLine.width = Math.max(numerBox.width, denomBox.width);
+      fracLine.softWidth = Math.max(numerBox.width, denomBox.width);
       fracLine.height = ruleThickness / 2;
       fracLine.depth = ruleThickness / 2;
 
+      const numerLine = AXIS_HEIGHT + ruleThickness / 2;
+      if (numerShift < clearance + numerDepth + numerLine)
+        numerShift = clearance + numerDepth + numerLine;
+
+      const denomLine = AXIS_HEIGHT - ruleThickness / 2;
       if (denomShift < clearance + denomHeight - denomLine)
         denomShift = clearance + denomHeight - denomLine;
 

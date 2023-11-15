@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The function `serializeMathJsonToLatex()` has been renamed to `convertMathJsonToLatex()` for consistency.
+
 ### Bugs Fixed
 
 - A closing parenthesis following a function application would be ignored, 

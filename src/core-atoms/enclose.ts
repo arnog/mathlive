@@ -5,7 +5,7 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { latexCommand } from '../core/tokenizer';
 import { getDefinition } from '../core-definitions/definitions-utils';
-import { X_HEIGHT } from 'core/font-metrics';
+import { X_HEIGHT } from '../core/font-metrics';
 
 export type EncloseAtomOptions = {
   shadow?: string;
@@ -158,15 +158,19 @@ export class EncloseAtom extends Atom {
         ? { register: 'fboxsep' }
         : { string: this.padding }
     );
-
     base.setStyle('position', 'relative');
     base.setStyle('display', 'inline-block');
     base.setStyle('top', padding, 'em');
     base.setStyle('height', base.height + base.depth, 'em');
     base.setStyle('width', base.width, 'em');
 
+    const notation = new Box(null, { classes: 'ML__notation' });
+
+    // The 'ML__notation' class is required to prevent the box from being
+    // omitted during rendering (otherwise it would look like an empty, no-op
+    // box)
     let h = base.height + base.depth + 2 * padding;
-    let w = base.width + 2 * padding;
+    const w = base.width + 2 * padding;
 
     let svg = '';
 
@@ -204,6 +208,7 @@ export class EncloseAtom extends Atom {
       svg += `" stroke='none' fill="${this.strokeColor}"`;
       svg += '/>';
     }
+    let wDelta = 0;
     if (this.notation.phasorangle) {
       const clearance = getClearance(context);
       const bot = (
@@ -230,7 +235,7 @@ export class EncloseAtom extends Atom {
       // Increase height to account for clearance
       h += clearance;
       // Increase the width to account for the angle
-      w += angleWidth;
+      wDelta = angleWidth;
 
       base.left += h / 2 - padding;
     }
@@ -256,7 +261,7 @@ export class EncloseAtom extends Atom {
         padding.toString()
       );
       const surdWidth = 0.3;
-      w += surdWidth + clearance;
+      wDelta = surdWidth + clearance;
       base.left += surdWidth + clearance;
       base.setTop(padding + clearance);
 
@@ -269,20 +274,14 @@ export class EncloseAtom extends Atom {
       }" fill="none"`;
       svg += '/>';
     }
-
-    // The 'ML__notation' class is required to prevent the box from being
-    // omitted during rendering (otherwise it would look like an empty, no-op
-    // box)
-    const notation = new Box(null, {
-      classes: 'ML__notation',
-      width: w,
-      height: base.height + padding,
-      depth: base.depth + padding,
-    });
+    notation.width = base.width + 2 * padding + wDelta;
+    notation.height = base.height + padding;
+    notation.depth = base.depth + padding;
     notation.setStyle('box-sizing', 'border-box');
-    notation.setStyle('left', `calc(-${borderWidth} / 2 - ${padding}em)`);
+    notation.setStyle('left', `calc(-${borderWidth} / 2 )`);
     notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
-    notation.setStyle('width', `${Math.floor(100 * w) / 100}em`);
+    notation.setStyle('top', `calc(${borderWidth} / 2 )`);
+    // notation.setStyle('width', `${Math.floor(100 * w) / 100}em`);
 
     if (this.backgroundcolor)
       notation.setStyle('background-color', this.backgroundcolor);
@@ -293,11 +292,6 @@ export class EncloseAtom extends Atom {
       notation.setStyle('border-top', this.borderStyle);
       notation.setStyle('border-right', this.borderStyle);
     }
-
-    // if (this.notation.longdiv) {
-    //   notation.setStyle('border-top', this.borderStyle);
-    //   notation.setStyle('border-left', this.borderStyle);
-    // }
 
     if (this.notation.madruwb) {
       notation.setStyle('border-bottom', this.borderStyle);
@@ -347,15 +341,18 @@ export class EncloseAtom extends Atom {
     // positioned over the base
     result.setStyle('position', 'relative');
     result.setStyle('vertical-align', padding, 'em');
-    result.setStyle('height', `${Math.floor(100 * h) / 100}em`);
+    result.setStyle(
+      'height',
+      `${Math.floor(100 * (base.height + base.depth + 2 * padding)) / 100}em`
+    );
     // We set the padding later with `left` and `right` so subtract it now
-    result.setStyle('width', `${Math.floor(100 * (w - 2 * padding)) / 100}em`);
+    // result.setStyle('width', `${Math.floor(100 * base.width) / 100}em`);
+    // result.setStyle('width', `100%`);
     result.setStyle('display', 'inline-block');
 
-    // The padding adds to the width and height of the pod
-    result.width = w - 2 * padding;
     result.height = notation.height;
     result.depth = notation.depth;
+    result.width = notation.width - 2 * padding;
     result.left = padding;
     result.right = padding;
 

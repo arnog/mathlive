@@ -116,11 +116,9 @@ export class SurdAtom extends Atom {
     // > let φ=σ5 if C>T (TeXBook p. 443)
     const phi = context.isDisplayStyle ? X_HEIGHT : ruleWidth;
 
-    const line = new Box(null, {
-      classes: 'ML__sqrt-line',
-      style: this.style,
-      height: ruleWidth,
-    });
+    const line = new Box(null, { classes: 'ML__sqrt-line', style: this.style });
+    line.height = ruleWidth;
+    line.softWidth = innerBox.width;
 
     //
     // 3. Create a radical delimiter of the required minimum size
@@ -212,7 +210,6 @@ export class SurdAtom extends Atom {
       });
       result.setStyle('display', 'inline-block');
       result.setStyle('height', result.height + result.depth, 'em');
-
       if (this.caret) result.caret = this.caret;
       return this.bind(context, result);
     }

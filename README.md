@@ -9,13 +9,19 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
 MathLive is a powerful web component that provides an easy-to-use interface for
-editing math formulas. With over 800 **built-in LaTeX commands**, MathLive
-enables beautiful, **TeX-quality typesetting**. It's designed for **mobile
-devices** with an extensive set of virtual keyboards for math input, and is also
-compatible with screen readers, including custom math-to-speech support for
-improved accessibility. In addition, MathLive outputs to LaTeX, MathML,
-ASCIIMath, and MathJSON formats, making it incredibly versatile. And the best
-part? It's easy to customize to your needs!
+editing math formulas.
+
+With over 800 **built-in LaTeX commands**, MathLive renders beautiful, 
+**TeX-quality typesetting**. 
+
+It's designed for **mobile devices** with an extensive set of virtual keyboards 
+for math input, and is compatible with screen readers, including custom 
+math-to-speech support for improved accessibility. 
+
+MathLive outputs to LaTeX, MathML, ASCIIMath, and MathJSON formats, making it 
+incredibly versatile. 
+
+And the best part? It's easy to customize to your needs!
 
 <img src="assets/screenshots/mathlive-demo.png">
 
@@ -51,25 +57,27 @@ its internal state changes.
 ```html
 <!DOCTYPE html>
 <html lang="en-US">
+  <head>
+    <script src="https://unpkg.com/mathlive"></script>
+  </head>
   <body>
     <math-field>f(x)=</math-field>
-    <script src="https://unpkg.com/mathlive"></script>
   </body>
 </html>
 ```
 
-## Documentation
+## 📖 Documentation
 
 MathLive has an extensive set of documentation to help you get started,
 including guides on interacting with a mathfield, customizing it, executing
 commands, defining custom LaTeX macros, managing inline and keyboard shortcuts,
 controlling speech output, and displaying static math formulas. You can find all
-of these guides on the [MathLive website](https://cortexjs.io/mathlive/).
+of these guides on the [CortexJS.io website](https://cortexjs.io/mathlive/).
 
 In addition to the guides, you can also find reference documentation of the
 MathLive API on the [MathLive SDK page](https://cortexjs.io/docs/mathlive).
 
-## Related Projects
+## ⋯ Related Projects
 
 <dl>
   <dt><a href="https://cortexjs.io/math-json">MathJSON</a> (on <a href="https://github.com/cortex-js/math-json">GitHub</a>)</dt>
@@ -80,10 +88,12 @@ MathLive API on the [MathLive SDK page](https://cortexjs.io/docs/mathlive).
   <dd>Cortex is a programming language for scientific computing</dd>  
 </dl>
 
-## Contact Us
+## 💬 Contact Us
 
+- Chat with the [CortexJS Assistant](https://chat.openai.com/g/g-8YgEfR7ig-cortexjs-assistant)
+- Join our [Discord server](https://discord.gg/yhmvVeJ4Hd)
 - Join our [Gitter forum](https://cortexjs.io/gitter/)
-- Drop a line to arno@arno.org
+- Drop a line to [arno@arno.org](arno@arno.org)
 
 ## 📃 License
 

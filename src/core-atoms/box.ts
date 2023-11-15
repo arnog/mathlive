@@ -10,6 +10,11 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
 
+/**
+ * A BoxAtom is an atom that renders a box around its content.
+ * Not to be confused with the Box class, which represents the geometric
+ * rendering of an atom.
+ */
 export class BoxAtom extends Atom {
   readonly framecolor?: LatexValue;
   readonly backgroundcolor?: LatexValue;
@@ -63,7 +68,17 @@ export class BoxAtom extends Atom {
     if (!base) return null;
 
     const offset = parentContext.toEm(this.offset ?? { dimension: 0 });
+
     base.depth += offset;
+
+    base.setStyle('display', 'inline-block');
+    base.setStyle('position', 'relative');
+    base.setStyle(
+      'height',
+      Math.floor(100 * base.height + base.depth) / 100,
+      'em'
+    );
+    base.setStyle('vertical-align', -Math.floor(100 * base.height) / 100, 'em');
 
     const context = new Context({ parent: parentContext }, this.style);
 
@@ -82,6 +97,7 @@ export class BoxAtom extends Atom {
     const box = new Box(null, { classes: 'ML__box' });
     box.height = base.height + padding;
     box.depth = base.depth + padding;
+
     box.setStyle('box-sizing', 'border-box');
     box.setStyle('position', 'absolute');
 
@@ -109,17 +125,9 @@ export class BoxAtom extends Atom {
     if (this.border) box.setStyle('border', this.border);
     // box.setStyle('top', /* width of the border */);
 
-    base.setStyle('display', 'inline-block');
-    base.setStyle('position', 'relative');
-    base.setStyle(
-      'height',
-      Math.floor(100 * base.height + base.depth) / 100,
-      'em'
-    );
-    base.setStyle('vertical-align', -Math.floor(100 * base.height) / 100, 'em');
-
     // The result is a box that encloses the box and the base
     const result = new Box([box, base], { type: 'lift' });
+
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('display', 'inline-block');
