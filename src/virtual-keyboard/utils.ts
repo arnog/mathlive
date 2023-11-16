@@ -831,13 +831,13 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     class: 'ghost if-can-undo',
     command: 'undo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-undo /></svg>',
-    tooltip: l10n('tooltip.undo'),
+    tooltip: 'tooltip.undo',
   },
   '[redo]': {
     class: 'ghost  if-can-redo',
     command: 'redo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-redo /></svg>',
-    tooltip: l10n('tooltip.redo'),
+    tooltip: 'tooltip.redo',
   },
 
   '[(]': {

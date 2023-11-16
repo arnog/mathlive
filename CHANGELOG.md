@@ -4,6 +4,10 @@
 
 - The vertical alignment of formulas containing some fractions was incorrect
   in some cases.
+- **#2168** Changing the `MathfieldELement.locale` or `MathfieldElement.strings`
+  would not affect existing mathfields.
+- Incorrectly accessing static properties (for example using `mf.locale` 
+  instead of `MathfieldElement.locale`) will now throw an error.
 
 ## 0.96.1 (2023-11-15)
 

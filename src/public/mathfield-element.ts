@@ -602,8 +602,18 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       reloadFonts();
     }
   }
+
   /** @internal */
-  static _fontsDirectory: string | null = './fonts';
+  get fontsDirectory(): never {
+    throw new Error('Use MathfieldElement.fontsDirectory instead');
+  }
+  /** @internal */
+  set fontsDirectory(_value: unknown) {
+    throw new Error('Use MathfieldElement.fontsDirectory instead');
+  }
+
+  /** @internal */
+  private static _fontsDirectory: string | null = './fonts';
 
   /**
    * A URL fragment pointing to the directory containing the optional
@@ -621,8 +631,18 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._soundsDirectory = value;
     this.audioBuffers = {};
   }
+
   /** @internal */
-  static _soundsDirectory: string | null = './sounds';
+  get soundsDirectory(): never {
+    throw new Error('Use MathfieldElement.soundsDirectory instead');
+  }
+  /** @internal */
+  set soundsDirectory(_value: unknown) {
+    throw new Error('Use MathfieldElement.soundsDirectory instead');
+  }
+
+  /** @internal */
+  private static _soundsDirectory: string | null = './sounds';
 
   /**
    * When a key on the virtual keyboard is pressed, produce a short haptic
@@ -694,7 +714,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
   }
   /** @internal */
-  static _keypressSound: {
+  private static _keypressSound: {
     spacebar: null | string;
     return: null | string;
     delete: null | string;
@@ -707,7 +727,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   };
 
   /** @internal */
-  static _plonkSound: string | null = 'plonk.wav';
+  private static _plonkSound: string | null = 'plonk.wav';
   /**
    * Sound played to provide feedback when a command has no effect, for example
    * when pressing the spacebar at the root level.
@@ -725,11 +745,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** @internal */
-  static audioBuffers: { [key: string]: AudioBuffer } = {};
+  private static audioBuffers: { [key: string]: AudioBuffer } = {};
   /** @internal */
-  static _audioContext: AudioContext;
+  private static _audioContext: AudioContext;
   /** @internal */
-  static get audioContext(): AudioContext {
+  private static get audioContext(): AudioContext {
     if (!this._audioContext) this._audioContext = new AudioContext();
     return this._audioContext;
   }
@@ -875,6 +895,51 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     l10n.locale = value;
   }
 
+  /** @internal */
+  get locale(): never {
+    throw new Error('Use MathfieldElement.locale instead');
+  }
+  /** @internal */
+  set locale(_value: unknown) {
+    throw new Error('Use MathfieldElement.locale instead');
+  }
+
+  /**
+  * An object whose keys are a locale string, and whose values are an object of
+  * string identifier to localized string.
+  *
+  * **Example**
+  *
+  ```js example
+  mf.strings = {
+    "fr-CA": {
+        "tooltip.undo": "Annuler",
+        "tooltip.redo": "Refaire",
+    }
+  }
+  ```
+  *
+  * If the locale is already supported, this will override the existing
+  * strings. If the locale is not supported, it will be added.
+  *
+  * @category Localization
+  */
+  static get strings(): Record<string, Record<string, string>> {
+    return l10n.strings;
+  }
+  static set strings(value: Record<string, Record<string, string>>) {
+    l10n.merge(value);
+  }
+
+  /** @internal */
+  get strings(): never {
+    throw new Error('Use MathfieldElement.strings instead');
+  }
+  /** @internal */
+  set strings(_val: unknown) {
+    throw new Error('Use MathfieldElement.strings instead');
+  }
+
   /**
    * The symbol used to separate the integer part from the fractional part of a
    * number.
@@ -903,6 +968,15 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** @internal */
+  get decimalSeparator(): never {
+    throw new Error('Use MathfieldElement.decimalSeparator instead');
+  }
+  /** @internal */
+  set decimalSeparator(_val: unknown) {
+    throw new Error('Use MathfieldElement.decimalSeparator instead');
+  }
+
+  /** @internal */
   private static _decimalSeparator: ',' | '.' = '.';
 
   /**
@@ -921,31 +995,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static fractionNavigationOrder:
     | 'numerator-denominator'
     | 'denominator-numerator' = 'numerator-denominator';
-
-  /**
-  * An object whose keys are a locale string, and whose values are an object of
-  * string identifier to localized string.
-  *
-  * **Example**
-  *
-  ```json
-  {
-    "fr-CA": {
-        "tooltip.undo": "Annuler",
-        "tooltip.redo": "Refaire",
-    }
-  }
-  ```
-  *
-  * This will override the default localized strings.
-  * @category Localization
-  */
-  static get strings(): Record<string, Record<string, string>> {
-    return l10n.strings;
-  }
-  static set strings(value: Record<string, Record<string, string>>) {
-    l10n.merge(value);
-  }
 
   /**
    * A custom compute engine instance. If none is provided, a default one is
@@ -968,6 +1017,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set computeEngine(value: ComputeEngine | null) {
     this._computeEngine = value;
   }
+
+  /** @internal */
+  get computeEngine(): never {
+    throw new Error('Use MathfieldElement.computeEngine instead');
+  }
+  /** @internal */
+  set computeEngine(_val: unknown) {
+    throw new Error('Use MathfieldElement.computeEngine instead');
+  }
+
   /** @internal */
   private static _computeEngine: ComputeEngine | null;
 

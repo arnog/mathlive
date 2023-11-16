@@ -58,7 +58,7 @@
       > -->
 
       <math-field id="mf" name="formula"
-        >\left(\frac{5}{3}+1\right)+1</math-field
+        >1+\frac{5}{\frac{3}{\frac{7}{29}}}+\left(\frac{5}{\frac{3}{\frac{7}{29}}}\right){</math-field
       >
 
       <!-- <math-field id="mf"
@@ -151,25 +151,25 @@
           /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
       };
 
-      mathVirtualKeyboard.layouts = {
-        rows: [
-          [
-            "[hide-keyboard]",
-            { width: 1.5, latex: "\\ce{H2O}" },
-            "+",
-            "-",
-            "\\times",
-            "\\frac{#@}{#?}",
-            "=",
-            ".",
-            "(",
-            ")",
-            "\\sqrt{#0}",
-            "#@^{#?}",
-          ],
-          ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-        ],
-      };
+      // mathVirtualKeyboard.layouts = {
+      //   rows: [
+      //     [
+      //       "[hide-keyboard]",
+      //       { width: 1.5, latex: "\\ce{H2O}" },
+      //       "+",
+      //       "-",
+      //       "\\times",
+      //       "\\frac{#@}{#?}",
+      //       "=",
+      //       ".",
+      //       "(",
+      //       ")",
+      //       "\\sqrt{#0}",
+      //       "#@^{#?}",
+      //     ],
+      //     ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+      //   ],
+      // };
       // makeVirtualKeyboard([
       //   '\\operatorname*{arg~max}_#?}',
       //   '\\%',
@@ -233,6 +233,21 @@
 
       const mf = document.getElementById("mf");
 
+      MathfieldElement.strings = {
+        "int": {
+          "keyboard.tooltip.functions": "-Functions",
+          "keyboard.tooltip.greek": "-Greek Letters",
+          "keyboard.tooltip.command": "-LaTeX Command Mode",
+          "keyboard.tooltip.numeric": "-Numeric",
+          "keyboard.tooltip.roman": "-Symbols and Roman Letters",
+          "tooltip.copy to clipboard": "-Copy to Clipboard",
+          "tooltip.redo": "-Redo",
+          "tooltip.toggle virtual keyboard": "-Toggle Virtual Keyboard",
+          "tooltip.undo": "-Undo",
+        },
+      };
+      MathfieldElement.locale = "int";
+
       // console.info(mf.registers);
       // console.info(mf.registers.jot);
       // mf.registers.jot = '2em';
@@ -281,6 +296,16 @@
       //   }
       //   return '';
       // };
+
+      mathVirtualKeyboard.addEventListener("geometrychange", (ev) => {
+        console.log(
+          "geometrychange",
+          ev,
+          "bounds",
+          mathVirtualKeyboard.boundingRect
+        );
+      });
+
       mf.macros = {
         ...mf.macros,
         // Alpha: undefined,

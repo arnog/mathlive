@@ -220,6 +220,9 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
     this.element = element;
     element.mathfield = this;
 
+    // Where the localized elements will be searched and updated
+    l10n.root = element;
+
     // Focus/blur state
     this.blurred = true;
 
@@ -296,7 +299,7 @@ export class MathfieldPrivate implements Mathfield, KeyboardDelegateInterface {
       markup.push(
         `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button ${
           this.hasEditableContent ? '' : 'style="display:none;"'
-        }data-ML__tooltip="${localize('tooltip.toggle virtual keyboard')}">`
+        }data-l10n-tooltip="tooltip.toggle virtual keyboard">`
       );
       markup.push(DEFAULT_KEYBOARD_TOGGLE_GLYPH);
       markup.push('</div>');
