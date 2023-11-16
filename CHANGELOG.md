@@ -16,6 +16,8 @@
   origin
 - **#2175** Addressed some rendering issues with Safar where a fraction inside a `\left...\right` was vertically offset.
 - **#2176** Using the `[hide-keyboard]` virtual keycap would cause a runtime error.
+- **#2161** When the virtual keyboard is hidden, a `geometrychange` event is 
+  dispatched.
 
 ## 0.96.0 (2023-11-14)
 

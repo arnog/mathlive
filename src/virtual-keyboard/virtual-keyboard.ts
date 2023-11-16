@@ -778,9 +778,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   stateChanged(): void {
     this.dispatchEvent(new Event('virtual-keyboard-toggle'));
-    this.sendMessage('geometry-changed', {
-      boundingRect: this.boundingRect,
-    });
+    if (!this._visible) {
+      this.dispatchEvent(new Event('geometrychange'));
+      this.sendMessage('geometry-changed', {
+        boundingRect: this.boundingRect,
+      });
+    }
   }
 
   /**
