@@ -87,82 +87,15 @@ export function onKeystroke(
     return false;
   }
 
-  //
-  // 4. Try to insert a smart fence.
-  //
-  if (!model.mathfield.smartFence) {
-    //
-    // 4.1. When smartFence is turned off, only do a "smart" fence insert
-    // if we're inside a `leftright`, at the last char
-    //
-    const { parent } = model.at(model.position);
-    if (
-      parent instanceof LeftRightAtom &&
-      parent.rightDelim === '?' &&
-      model.at(model.position).isLastSibling &&
-      /^[)}\]|]$/.test(keystroke)
-    ) {
-      mathfield.snapshot();
-      parent.isDirty = true;
-      parent.rightDelim = keystroke;
-      model.position += 1;
-      model.selectionDidChange();
-      model.contentDidChange({
-        data: keyboardEventToChar(evt),
-        inputType: 'insertText',
-      });
-      mathfield.snapshot('insert-fence');
-      mathfield.dirty = true;
-      mathfield.scrollIntoView();
-      if (evt.preventDefault) evt.preventDefault();
-      return false;
-    }
-
-    //
-    // 4.2. Or inserting a fence around a selection
-    //
-    if (!model.selectionIsCollapsed) {
-      const fence = keyboardEventToChar(evt);
-      if (fence === '(' || fence === '{' || fence === '[') {
-        const lDelim = { '(': '(', '{': '\\lbrace', '[': '\\lbrack' }[fence];
-        const rDelim = { '(': ')', '{': '\\rbrace', '[': '\\rbrack' }[fence];
-        const [start, end] = range(model.selection);
-        mathfield.snapshot();
-        model.position = end;
-        ModeEditor.insert(model, rDelim, { format: 'latex' });
-        model.position = start;
-        ModeEditor.insert(model, lDelim, { format: 'latex' });
-        model.setSelection(start + 1, end + 1);
-        model.contentDidChange({
-          data: fence,
-          inputType: 'insertText',
-        });
-        mathfield.snapshot('insert-fence');
-        mathfield.dirty = true;
-        mathfield.scrollIntoView();
-        if (evt.preventDefault) evt.preventDefault();
-        return false;
-      }
-    }
-  } else if (
-    insertSmartFence(model, keyboardEventToChar(evt), mathfield.style)
-  ) {
-    mathfield.flushInlineShortcutBuffer();
-    mathfield.dirty = true;
-    mathfield.scrollIntoView();
-    if (evt.preventDefault) evt.preventDefault();
-    return false;
-  }
-
-  // 5. Let's try to find a matching inline shortcut
+  // 4. Let's try to find a matching inline shortcut
   let shortcut: string | undefined;
   let selector: Selector | '' | [Selector, ...any[]] = '';
   let stateIndex: number;
 
-  // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
+  // 4.1 Check if the keystroke, prefixed with the previously typed keystrokes,
   // would match a long shortcut (i.e. '~~')
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
-  // see 5.3)
+  // see 4.3)
   const buffer = mathfield.inlineShortcutBuffer;
   if (mathfield.isSelectionEditable) {
     if (model.mode === 'math') {
@@ -226,7 +159,7 @@ export function onKeystroke(
     }
 
     //
-    // 5.2. Should we switch mode?
+    // 4.2. Should we switch mode?
     //
     // Need to check this before determining if there's a valid shortcut
     // since if we switch to math mode, we may want to apply the shortcut
@@ -258,7 +191,7 @@ export function onKeystroke(
     }
   }
 
-  // 5.3 Check if this matches a keybinding.
+  // 4.3 Check if this matches a keybinding.
   //
   // Need to check this **after** checking for inline shortcuts because
   // Shift+Backquote is a keybinding that inserts "\~"", but "~~" is a
@@ -349,8 +282,76 @@ export function onKeystroke(
     }
   }
 
-  // No shortcut, no selector. We're done.
-  if (!shortcut && !selector) return true;
+  // No shortcut, no selector. Consider a smartfence
+  if (!shortcut && !selector) {
+    //
+    // 5. Try to insert a smart fence.
+    //
+    if (!model.mathfield.smartFence) {
+      //
+      // 5.1. When smartFence is turned off, only do a "smart" fence insert
+      // if we're inside a `leftright`, at the last char
+      //
+      const { parent } = model.at(model.position);
+      if (
+        parent instanceof LeftRightAtom &&
+        parent.rightDelim === '?' &&
+        model.at(model.position).isLastSibling &&
+        /^[)}\]|]$/.test(keystroke)
+      ) {
+        mathfield.snapshot();
+        parent.isDirty = true;
+        parent.rightDelim = keystroke;
+        model.position += 1;
+        model.selectionDidChange();
+        model.contentDidChange({
+          data: keyboardEventToChar(evt),
+          inputType: 'insertText',
+        });
+        mathfield.snapshot('insert-fence');
+        mathfield.dirty = true;
+        mathfield.scrollIntoView();
+        if (evt.preventDefault) evt.preventDefault();
+        return false;
+      }
+
+      //
+      // 5.2. Or inserting a fence around a selection
+      //
+      if (!model.selectionIsCollapsed) {
+        const fence = keyboardEventToChar(evt);
+        if (fence === '(' || fence === '{' || fence === '[') {
+          const lDelim = { '(': '(', '{': '\\lbrace', '[': '\\lbrack' }[fence];
+          const rDelim = { '(': ')', '{': '\\rbrace', '[': '\\rbrack' }[fence];
+          const [start, end] = range(model.selection);
+          mathfield.snapshot();
+          model.position = end;
+          ModeEditor.insert(model, rDelim, { format: 'latex' });
+          model.position = start;
+          ModeEditor.insert(model, lDelim, { format: 'latex' });
+          model.setSelection(start + 1, end + 1);
+          model.contentDidChange({
+            data: fence,
+            inputType: 'insertText',
+          });
+          mathfield.snapshot('insert-fence');
+          mathfield.dirty = true;
+          mathfield.scrollIntoView();
+          if (evt.preventDefault) evt.preventDefault();
+          return false;
+        }
+      }
+    } else if (
+      insertSmartFence(model, keyboardEventToChar(evt), mathfield.style)
+    ) {
+      mathfield.flushInlineShortcutBuffer();
+      mathfield.dirty = true;
+      mathfield.scrollIntoView();
+      if (evt.preventDefault) evt.preventDefault();
+      return false;
+    }
+    return true;
+  }
 
   //
   // 6. Insert the shortcut or perform the action for this selector

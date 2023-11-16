@@ -9,6 +9,8 @@
 - Incorrectly accessing static properties (for example using `mf.locale` 
   instead of `MathfieldElement.locale`) will now throw an error.
 - **#2160** The keycap tooltips were not displayed.
+- **#2144** When `smartFence` was on, an inline shortcut that conflicted
+  with a delimiter was ignored.
 
 ### Improvements
 
