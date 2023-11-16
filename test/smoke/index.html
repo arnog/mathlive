@@ -56,9 +56,10 @@
       <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
       > -->
-      <math-field id="mf" name="formula">\frac{\frac12}{\frac34}</math-field>
 
-      <div id="math-container"></div>
+      <math-field id="mf" name="formula"
+        >\left(\frac{5}{3}+1\right)+1</math-field
+      >
 
       <!-- <math-field id="mf"
         >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12+3+4+5}}\enclose{box}{\sqrt[1234567]{\frac{1}{x+1}}}</math-field
@@ -109,25 +110,16 @@
         MathfieldElement,
         convertLatexToMarkup,
         convertLatexToSpeakableText,
-      } from '/dist/mathlive.mjs';
+      } from "/dist/mathlive.mjs";
 
       import {
         ComputeEngine,
         version,
-      } from 'https://unpkg.com/@cortex-js/compute-engine?module';
+      } from "https://unpkg.com/@cortex-js/compute-engine?module";
 
       const MAX_LINE_LENGTH = 74;
 
       renderMathInDocument();
-
-      let mathfieldElement;
-      document.addEventListener('DOMContentLoaded', (event) => {
-        mathfieldElement = new MathfieldElement();
-        mathfieldElement.value = 'hello';
-        document.querySelector('#math-container').appendChild(mathfieldElement);
-        mathfieldElement.focus();
-        mathfieldElement.executeCommand('moveToMathfieldEnd');
-      });
 
       // const ce = new ComputeEngine({
       //   latexDictionary: [
@@ -156,7 +148,7 @@
       MathfieldElement.computeEngine.latexOptions = {
         ...MathfieldElement.computeEngine.latexOptions,
         parseUnknownIdentifier: (s) =>
-          /^[a-zA-Z]+$/.test(s) ? 'function' : 'unknown',
+          /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
       };
 
       // mathVirtualKeyboard.layouts = {
@@ -238,12 +230,17 @@
       //   'alphabetic',
       // ];
 
-      const mf = document.getElementById('mf');
+      const mf = document.getElementById("mf");
 
-      MathfieldElement.computeEngine.notation = 'scientific';
+      // console.info(mf.registers);
+      // console.info(mf.registers.jot);
+      // mf.registers.jot = '2em';
+      // console.info(mf.registers.jot);
+
+      MathfieldElement.computeEngine.notation = "scientific";
 
       mf.inlineShortcuts = {
-        '--': '\\_',
+        "--": "\\_",
         ...mf.inlineShortcuts,
       };
       // eslint-disable-next-line no-undef
@@ -286,16 +283,16 @@
       mf.macros = {
         ...mf.macros,
         // Alpha: undefined,
-        minutes: '\\prime',
+        minutes: "\\prime",
         smolfrac: {
           args: 2,
-          def: '{}^{#1}\\!\\!/\\!{}_{#2}',
+          def: "{}^{#1}\\!\\!/\\!{}_{#2}",
           captureSelection: false,
         },
         funfunction: {
           captureSelection: false,
           args: 2,
-          def: 'FunFunction\\left({#1},{#2}\\right)',
+          def: "FunFunction\\left({#1},{#2}\\right)",
         },
       };
 
@@ -314,46 +311,46 @@
       //   if (ev.inputType === 'insertLineBreak') console.log('enter');
       // });
 
-      mf.addEventListener('input', (ev) => updateContent(mf));
+      mf.addEventListener("input", (ev) => updateContent(mf));
 
       // mf.addEventListener('keydown', (ev) => {
       //   console.log('keydown', ev);
       // });
 
-      mf.addEventListener('selection-change', (ev) => {
+      mf.addEventListener("selection-change", (ev) => {
         const selection = mf.selection;
-        document.getElementById('selection').innerHTML =
-          `${label('value     ')}"${escapeHtml(
-            mf.getValue(selection, 'latex')
+        document.getElementById("selection").innerHTML =
+          `${label("value     ")}"${escapeHtml(
+            mf.getValue(selection, "latex")
           )}"<br>` +
           // `${label('MathJson  ')}"${escapeHtml(
           //   mf.getValue(selection, 'math-json')
           // )}"<br>` +
-          label('start     ') +
+          label("start     ") +
           selection.ranges[0][0] +
-          '<br>' +
-          label('end       ') +
+          "<br>" +
+          label("end       ") +
           selection.ranges[0][1] +
-          '<br>' +
-          label('position  ') +
+          "<br>" +
+          label("position  ") +
           mf.position +
-          '<br>' +
-          label('direction ') +
+          "<br>" +
+          label("direction ") +
           '"' +
           selection.direction +
           '"<br>' +
-          label('depth     ') +
+          label("depth     ") +
           mf.getOffsetDepth(mf.position);
       });
 
-      document.getElementById('grow').addEventListener('click', () => {
+      document.getElementById("grow").addEventListener("click", () => {
         for (let i = 0; i < 1000; i++) {
           document.body.appendChild(new MathfieldElement());
         }
       });
 
-      document.getElementById('shrink').addEventListener('click', () => {
-        document.querySelectorAll('math-field').forEach((x) => x.remove());
+      document.getElementById("shrink").addEventListener("click", () => {
+        document.querySelectorAll("math-field").forEach((x) => x.remove());
       });
 
       // First time update
@@ -363,27 +360,26 @@
       // Handler called when the mathfield content has changed
       //
       function updateContent(mf) {
-        const latex = mf.getValue('latex-expanded');
+        const latex = mf.getValue("latex-expanded");
         try {
-          setHtml('latex', mf.getValue('latex-expanded'));
-          setHtml('ascii-math', mf.getValue('ascii-math'));
-          setHtml('mathml', mf.getValue('math-ml'));
-          document.getElementById(
-            'mathml-render'
-          ).innerHTML = `<math>${mf.getValue('math-ml')}</math>`;
+          setHtml("latex", mf.getValue("latex-expanded"));
+          setHtml("ascii-math", mf.getValue("ascii-math"));
+          setHtml("mathml", mf.getValue("math-ml"));
+          document.getElementById("mathml-render").innerHTML =
+            `<math>${mf.getValue("math-ml")}</math>`;
           // setHtml('math-json', ce.parse(mf.value));
-          setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
+          setHtml("latex2speech", convertLatexToSpeakableText(mf.getValue()));
 
           const expr = mf.expression;
           if (expr) {
-            setHtml('math-json', exprToString(expr));
-            const result = expr.evaluate().latex ?? '';
-            document.getElementById('result').innerText = result;
-            document.getElementById('result-latex').innerText = `$$${result}$$`;
-            renderMathInElement('result-latex');
+            setHtml("math-json", exprToString(expr));
+            const result = expr.evaluate().latex ?? "";
+            document.getElementById("result").innerText = result;
+            document.getElementById("result-latex").innerText = `$$${result}$$`;
+            renderMathInElement("result-latex");
           }
         } catch (e) {
-          console.error('Error converting', e.toString());
+          console.error("Error converting", e.toString());
         }
       }
 
@@ -400,15 +396,15 @@
           /[&<>"'`= /\u200b]/g,
           (s) =>
             ({
-              '&': '&amp;',
-              '<': '&lt;',
-              '>': '&gt;',
-              '"': '&quot;',
-              "'": '&#39;',
-              '/': '&#x2F;',
-              '`': '&#x60;',
-              '=': '&#x3D;',
-              '\u200b': '&amp;#zws;',
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+              "/": "&#x2F;",
+              "`": "&#x60;",
+              "=": "&#x3D;",
+              "\u200b": "&amp;#zws;",
             })[s] ?? s
         );
       }
@@ -417,7 +413,7 @@
         const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
 
         return {
-          label: '',
+          label: "",
           layers: [
             {
               style: `
@@ -514,39 +510,39 @@
                     opacity: 1;
                   }
                 `,
-              backdrop: 'minimalist-backdrop',
-              container: 'minimalist-container',
+              backdrop: "minimalist-backdrop",
+              container: "minimalist-container",
               rows: [
                 customKeys,
-                customKeys.length > 0 ? ['[hr]'] : [],
+                customKeys.length > 0 ? ["[hr]"] : [],
                 [
-                  '+',
-                  '-',
-                  '\\times',
+                  "+",
+                  "-",
+                  "\\times",
                   {
-                    insert: '\\frac{#@}{#0}',
-                    latex: '\\frac{#?}{#?}',
-                    class: 'small',
+                    insert: "\\frac{#@}{#0}",
+                    latex: "\\frac{#?}{#?}",
+                    class: "small",
                   },
-                  '=',
-                  '[.]',
-                  '(',
-                  ')',
-                  { latex: '\\sqrt{#0}', class: 'small' },
-                  { insert: '#@^{#?}', class: 'small', latex: '#?^{#?}' },
+                  "=",
+                  "[.]",
+                  "(",
+                  ")",
+                  { latex: "\\sqrt{#0}", class: "small" },
+                  { insert: "#@^{#?}", class: "small", latex: "#?^{#?}" },
                 ],
-                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-                ['[hr]'],
+                ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+                ["[hr]"],
                 [
-                  { label: '[undo]' },
-                  '[redo]',
-                  '[separator]',
-                  '[separator]',
-                  '[separator]',
-                  { label: '[separator]', width: 1.5 },
-                  '[left]',
-                  '[right]',
-                  { label: '[backspace]', class: 'action hide-shift' },
+                  { label: "[undo]" },
+                  "[redo]",
+                  "[separator]",
+                  "[separator]",
+                  "[separator]",
+                  { label: "[separator]", width: 1.5 },
+                  "[left]",
+                  "[right]",
+                  { label: "[backspace]", class: "action hide-shift" },
                 ],
               ],
             },
@@ -555,28 +551,28 @@
       }
 
       function exprToStringRecursive(expr, start) {
-        let indent = ' '.repeat(start);
+        let indent = " ".repeat(start);
         if (Array.isArray(expr)) {
           const elements = expr.map((x) => exprToStringRecursive(x, start + 2));
-          let result = `[${elements.join(', ')}]`;
+          let result = `[${elements.join(", ")}]`;
           if (start + result.length < MAX_LINE_LENGTH) return result;
           return `[\n${indent}  ${elements.join(`,\n${indent}  `)}\n${indent}]`;
         }
-        if (expr === null) return 'null';
-        if (typeof expr === 'object') {
+        if (expr === null) return "null";
+        if (typeof expr === "object") {
           const elements = {};
           Object.keys(expr).forEach(
             (x) => (elements[x] = exprToStringRecursive(expr[x], start + 2))
           );
           let result = `{${Object.keys(expr)
             .map((key) => `"${key}": ${elements[key]}`)
-            .join('; ')}}`;
+            .join("; ")}}`;
           if (start + result.length < MAX_LINE_LENGTH) return result;
           result = `\n${indent}{${Object.keys(expr)
             .map((key) => {
               return `"${key}": ${elements[key]}`;
             })
-            .join('; ')}}`;
+            .join("; ")}}`;
           if (start + result.length < MAX_LINE_LENGTH) return result;
           return (
             `\n${indent}{\n` +
@@ -585,9 +581,9 @@
                 return `${indent}  "${key}": ${elements[key]}`;
               })
               .join(`;\n${indent}`) +
-            '\n' +
+            "\n" +
             indent +
-            '}'
+            "}"
           );
         }
         return JSON.stringify(expr, null, 2);

@@ -269,9 +269,8 @@ function normalizeKeybinding(
   // Convert it to a key code.
   const code = getCodeForKey(modifiers.key, layout);
   // if (!code) throw new Error('Invalid keybinding key "' + keybinding.key + '"');
-  if (!code) {
+  if (!code)
     return { ...keybinding, key: keystrokeModifiersToString(modifiers) };
-  }
 
   if ((code.shift && modifiers.shift) || (code.alt && modifiers.alt)) {
     throw new Error(

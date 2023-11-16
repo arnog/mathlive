@@ -650,8 +650,8 @@ function insertMathModeChar(
       mathfield.adoptStyle === 'left'
         ? atom
         : atom.parent
-        ? atom.rightSibling
-        : null;
+          ? atom.rightSibling
+          : null;
     if (
       sibling?.type === 'mord' &&
       /[a-zA-Z0-9]/.test(sibling.value) &&

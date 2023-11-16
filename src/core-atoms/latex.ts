@@ -40,8 +40,8 @@ export class LatexAtom extends Atom {
       classes: this.isSuggestion
         ? 'ML__suggestion'
         : this.isError
-        ? 'ML__error'
-        : '',
+          ? 'ML__error'
+          : '',
       type: 'latex',
       maxFontSize: 1.0,
     });
