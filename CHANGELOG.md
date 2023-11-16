@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bugs Fixed
+
+- The vertical alignment of formulas containing some fractions was incorrect
+  in some cases.
+
 ## 0.96.1 (2023-11-15)
 
 ### Improvements

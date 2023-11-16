@@ -346,7 +346,10 @@
   font-stretch: normal;
   font-variant-caps: normal;
   letter-spacing: normal;
-  line-height: .7;
+
+  // This value is critical in gettin the vertical alignment correct.
+  // Check with 1+\frac{5}{\frac{3}{\frac{7}{29}}}+\left(\frac{5}{\frac{3}{\frac{7}{29}}}\right)
+  line-height: 1.2;
 
   word-wrap: normal;
   word-spacing: normal;
@@ -364,10 +367,6 @@
 
   .mfrac {
     display: inline-block;
-    // Safari has a "special" interpretation of the baseline. By setting the position to relative, 
-    // we'll adjust the vertical offset of the fraction in JS based on the calculated depth.
-    position: relative;
-    vertical-align: bottom;
   }
   
   .left-right {

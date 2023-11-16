@@ -291,7 +291,6 @@ export class GenfracAtom extends Atom {
       type: 'inner',
       classes: 'mfrac',
     });
-    mfrac.setStyle('bottom', `${-mfrac.depth}em`);
 
     const result = this.bind(context, mfrac);
     if (this.caret) result.caret = this.caret;
