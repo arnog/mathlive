@@ -13,6 +13,7 @@
 
 - **#2141**: Added St Mary's Road symbols for theoretical computer science, 
   including `\mapsfrom`.
+- **#2158** Support the German keyboard layout on Linux.
 
 ## 0.96.1 (2023-11-15)
 
