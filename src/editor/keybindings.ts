@@ -4,7 +4,6 @@ import type { Selector } from '../public/commands';
 import type { Keybinding } from '../public/options';
 
 import {
-  KeyboardLayout,
   getCodeForKey,
   keystrokeModifiersFromString,
   keystrokeModifiersToString,
@@ -12,6 +11,7 @@ import {
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
 import { isBrowser, osPlatform } from '../common/capabilities';
 import { ParseMode } from '../public/core-types';
+import { KeyboardLayout } from './keyboard-layouts/types';
 
 /**
  * @param p The platform to test against.

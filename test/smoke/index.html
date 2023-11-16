@@ -156,42 +156,6 @@
         class: "action font-glyph modifier",
         label: "<svg><use xlink:href='#svg-shift' /></svg>",
       };
-      mathVirtualKeyboard.layouts = [
-        {
-          label: "abc",
-          layers: [
-            {
-              id: "abc-lower",
-              rows: [
-                [
-                  {
-                    ...shift,
-                    command: ["switchKeyboardLayer", "abc-upper"],
-                  },
-                  {
-                    latex: "a",
-                  },
-                ],
-              ],
-            },
-            {
-              id: "abc-upper",
-              rows: [
-                [
-                  {
-                    ...shift,
-                    command: ["switchKeyboardLayer", "abc-lower"],
-                  },
-                  {
-                    latex: "A",
-                  },
-                ],
-              ],
-            },
-          ],
-        },
-      ];
-
       // mathVirtualKeyboard.layouts = {
       //   rows: [
       //     [

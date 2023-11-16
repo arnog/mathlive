@@ -65,8 +65,8 @@ import { normalizeKeybindings } from '../editor/keybindings';
 import {
   setKeyboardLayoutLocale,
   getActiveKeyboardLayout,
-  DEFAULT_KEYBOARD_LAYOUT,
   gKeyboardLayout,
+  getDefaultKeyboardLayout,
 } from '../editor/keyboard-layout';
 import { ModelState } from '../editor-model/model-private';
 
@@ -569,7 +569,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     const [keybindings, errors] = normalizeKeybindings(
       this.options.keybindings,
-      getActiveKeyboardLayout() ?? DEFAULT_KEYBOARD_LAYOUT
+      getActiveKeyboardLayout() ?? getDefaultKeyboardLayout()
     );
 
     if (getActiveKeyboardLayout()?.score > 0) {

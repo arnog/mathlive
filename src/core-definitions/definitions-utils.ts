@@ -394,14 +394,30 @@ export const AMSMATH_MACROS: MacroDictionary = {
 
 // From `braket.sty`, Dirac notation
 export const BRAKET_MACROS: MacroDictionary = {
-  bra: '\\mathinner{\\langle{#1}|}',
-  ket: '\\mathinner{|{#1}\\rangle}',
-  braket: '\\mathinner{\\langle{#1}\\rangle}',
-  set: '\\mathinner{\\lbrace #1 \\rbrace}',
-  Bra: '\\left\\langle #1\\right|',
-  Ket: '\\left|#1\\right\\rangle',
-  Braket: '\\left\\langle{#1}\\right\\rangle',
-  Set: '\\left\\lbrace #1 \\right\\rbrace',
+  bra: { def: '\\mathinner{\\langle{#1}|}', args: 1, captureSelection: false },
+  ket: { def: '\\mathinner{|{#1}\\rangle}', args: 1, captureSelection: false },
+  braket: {
+    def: '\\mathinner{\\langle{#1}\\rangle}',
+    args: 1,
+    captureSelection: false,
+  },
+  set: {
+    def: '\\mathinner{\\lbrace #1 \\rbrace}',
+    args: 1,
+    captureSelection: false,
+  },
+  Bra: { def: '\\left\\langle #1\\right|', args: 1, captureSelection: false },
+  Ket: { def: '\\left|#1\\right\\rangle', args: 1, captureSelection: false },
+  Braket: {
+    def: '\\left\\langle{#1}\\right\\rangle',
+    args: 1,
+    captureSelection: false,
+  },
+  Set: {
+    def: '\\left\\lbrace #1 \\right\\rbrace',
+    args: 1,
+    captureSelection: false,
+  },
 };
 
 const DEFAULT_MACROS: MacroDictionary = {
