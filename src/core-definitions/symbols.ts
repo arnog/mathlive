@@ -7,6 +7,7 @@ import {
 } from './definitions-utils';
 
 // See http://www.gang.umass.edu/~franz/latexmanual.pdf p. 139
+// and https://milde.users.sourceforge.net/LUCR/Math/unimathsymbols.pdf
 // for a list of symbols and their Unicode value
 
 // Simple characters allowed in math mode
@@ -65,7 +66,7 @@ newSymbols([
   // TODO Koppa, Stigma, Sampi
 ]);
 
-// Arrow Symbols
+// Arrow Symbols (Relational Operators)
 newSymbols(
   [
     ['\\rightarrow', 0x2192],
@@ -115,6 +116,41 @@ newSymbols(
   ],
   'mrel'
 );
+
+// St Mary's Road symbols
+newSymbols([
+  ['\\mapsfrom', 0x21a4, 'mrel'],
+  ['\\Mapsfrom', 0x2906, 'mrel'],
+  ['\\MapsTo', 0x2907, 'mrel'],
+  ['\\Yup', 0x2144, 'mord'],
+  ['\\lightning', 0x21af, 'mrel'],
+  ['\\leftarrowtriangle', 0x21fd, 'mrel'],
+  ['\\rightarrowtriangle', 0x21fe, 'mrel'],
+  ['\\leftrightarrowtriangle', 0x21ff, 'mrel'],
+  ['\\boxdot', 0x22a1, 'mbin'],
+  ['\\bigtriangleup', 0x25b3, 'mbin'],
+  ['\\bigtriangledown', 0x25bd, 'mbin'],
+  ['\\boxbar', 0x25eb, 'mbin'],
+  ['\\Lbag', 0x27c5, 'mopen'],
+  ['\\Rbag', 0x27c6, 'mclose'],
+  ['\\llbracket', 0x27e6, 'mopen'],
+  ['\\rrbracket', 0x27e7, 'mclose'],
+  ['\\longmapsfrom', 0x27fb, 'mrel'],
+  ['\\Longmapsfrom', 0x27fd, 'mrel'],
+  ['\\Longmapsto', 0x27fe, 'mrel'],
+  ['\\boxslash', 0x29c4, 'mbin'],
+  ['\\boxbslash', 0x29c5, 'mbin'],
+  ['\\boxast', 0x29c6, 'mbin'],
+  ['\\boxcircle', 0x29c7, 'mbin'],
+  ['\\boxbox', 0x29c8, 'mbin'],
+  ['\\fatsemi', 0x2a1f, 'mop'],
+  ['\\leftslice', 0x2aa6, 'mrel'],
+  ['\\rightslice', 0x2aa7, 'mrel'],
+  ['\\interleave', 0x2af4, 'mbin'],
+  ['\\biginterleave', 0x2afc, 'mop'],
+  ['\\sslash', 0x2afd, 'mbin'],
+  ['\\talloblong', 0x2afe, 'mbin'],
+]);
 
 // 'ams' Misc
 newSymbols([

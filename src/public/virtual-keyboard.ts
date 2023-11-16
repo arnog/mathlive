@@ -274,7 +274,7 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
 // Commands return true if they resulted in a dirty state
 // @revisit: maybe a command attribute instead?
 export interface VirtualKeyboardCommands {
-  switchKeyboardLayer: (layer: string) => boolean;
+  switchKeyboardLayer: (mathfield: undefined, layer: string) => boolean;
 
   toggleVirtualKeyboard: () => boolean;
   hideVirtualKeyboard: () => boolean;

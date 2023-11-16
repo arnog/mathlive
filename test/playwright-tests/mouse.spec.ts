@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 test('double/triple click to select', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
-  await page.locator('#mf-1').type('(x+y)-(125+s)=34');
+  await page.locator('#mf-1').pressSequentially('(x+y)-(125+s)=34');
 
   // double click to select clicked on block
   await page.locator('#mf-1 >> span.ML__cmr >> text=2').dblclick();

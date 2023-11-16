@@ -58,7 +58,8 @@
       > -->
 
       <math-field id="mf" name="formula"
-        >1+\frac{5}{\frac{3}{\frac{7}{29}}}+\left(\frac{5}{\frac{3}{\frac{7}{29}}}\right){</math-field
+        >x\frac{15}{12}= \frac {\placeholder[numerator]{\frac{1}{\frac{2}{3}}}}
+        {\placeholder[denominator]{?}}</math-field
       >
 
       <!-- <math-field id="mf"
@@ -150,6 +151,46 @@
         parseUnknownIdentifier: (s) =>
           /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
       };
+
+      const shift = {
+        class: "action font-glyph modifier",
+        label: "<svg><use xlink:href='#svg-shift' /></svg>",
+      };
+      mathVirtualKeyboard.layouts = [
+        {
+          label: "abc",
+          layers: [
+            {
+              id: "abc-lower",
+              rows: [
+                [
+                  {
+                    ...shift,
+                    command: ["switchKeyboardLayer", "abc-upper"],
+                  },
+                  {
+                    latex: "a",
+                  },
+                ],
+              ],
+            },
+            {
+              id: "abc-upper",
+              rows: [
+                [
+                  {
+                    ...shift,
+                    command: ["switchKeyboardLayer", "abc-lower"],
+                  },
+                  {
+                    latex: "A",
+                  },
+                ],
+              ],
+            },
+          ],
+        },
+      ];
 
       // mathVirtualKeyboard.layouts = {
       //   rows: [

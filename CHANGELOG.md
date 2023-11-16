@@ -9,6 +9,11 @@
 - Incorrectly accessing static properties (for example using `mf.locale` 
   instead of `MathfieldElement.locale`) will now throw an error.
 
+### Improvements
+
+- **#2141**: Added St Mary's Road symbols for theoretical computer science, 
+  including `\mapsfrom`.
+
 ## 0.96.1 (2023-11-15)
 
 ### Improvements
