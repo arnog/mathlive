@@ -292,6 +292,7 @@ export function showEnvironmentPopover(mf: MathfieldPrivate): void {
 }
 
 export function hideEnvironmentPopover(): void {
+  // return;
   const panel = document.getElementById('mathlive-environment-popover');
   panel?.classList.remove('is-visible');
 }
@@ -317,9 +318,7 @@ export function updateEnvironmentPopover(mf: MathfieldPrivate): void {
     if (!!env?.array && isTabularEnvironment(env.environmentName)) {
       // The focus is inside a tabular environment
       const policy = mf.options.environmentPopoverPolicy;
-      visible =
-        (policy === 'auto' && window.mathVirtualKeyboard.visible) ||
-        policy === 'on';
+      visible = policy === 'auto' || policy === 'on';
     }
   }
   if (visible) showEnvironmentPopover(mf);
