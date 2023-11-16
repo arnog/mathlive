@@ -8,6 +8,7 @@
   would not affect existing mathfields.
 - Incorrectly accessing static properties (for example using `mf.locale` 
   instead of `MathfieldElement.locale`) will now throw an error.
+- **#2160** The keycap tooltips were not displayed.
 
 ### Improvements
 

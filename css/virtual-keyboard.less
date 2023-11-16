@@ -375,7 +375,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   compensate. */
   padding-left: var(--_row-padding-left);
   padding-right: var(--_row-padding-right);
-  overflow-x: auto;
+  overflow: visible;
 
   touch-action: none;
 
@@ -541,6 +541,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
       touch-action: none;
 
       &:hover {
+        overflow: visible;
         background: var(--_keycap-background-hover);
       }
 
@@ -627,7 +628,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 /* Add an attribute 'data-tooltip' to display a tooltip on hover.
 Note there are a different set of tooltip rules for the keyboard toggle
 (it's in a different CSS tree) */
-.MLK__tooltip {
+.ML__keyboard [data-tooltip] {
   position: relative;
   &::after {
     position: absolute;
