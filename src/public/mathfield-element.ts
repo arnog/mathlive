@@ -27,7 +27,7 @@ import {
   update as updateOptions,
 } from '../editor/options';
 import { isOffset, isRange, isSelection } from '../editor/model';
-import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
 import { isBrowser } from '../common/capabilities';
@@ -1107,7 +1107,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** @internal */
-  private _mathfield: null | MathfieldPrivate;
+  private _mathfield: null | _Mathfield;
 
   /** @internal
    * Supported by some browser: allows some (static) attributes to be set
@@ -1802,7 +1802,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
           .trim() ?? '';
     }
 
-    this._mathfield = new MathfieldPrivate(
+    this._mathfield = new _Mathfield(
       this.shadowRoot!.querySelector(':host > span')!,
       {
         ...(gDeferredState.has(this)

@@ -21,7 +21,7 @@ import {
   trimModeShiftCommand,
 } from '../editor/parse-math-string';
 
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 
 export class MathModeEditor extends ModeEditor {
@@ -29,10 +29,7 @@ export class MathModeEditor extends ModeEditor {
     super('math');
   }
 
-  onPaste(
-    mathfield: MathfieldPrivate,
-    data: DataTransfer | string | null
-  ): boolean {
+  onPaste(mathfield: _Mathfield, data: DataTransfer | string | null): boolean {
     if (!data) return false;
 
     if (

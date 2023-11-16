@@ -46,7 +46,7 @@
     //             "methods": [
     //                 "createHTML",
     //                 "mathfield.config.createHTML",
-    //                 "MathfieldPrivate.config.createHTML"
+    //                 "_Mathfield.config.createHTML"
     //             ]
     //         }
     //     }

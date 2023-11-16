@@ -9,7 +9,7 @@ import {
 } from '../core/atom-class';
 import type { ColumnFormat } from '../core-atoms/array';
 
-import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import type {
   ArgumentType,
   Dimension,
@@ -743,7 +743,7 @@ export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
  * For example, for '\si', it could return ['\sin', '\sinh', '\sim', 'simeq', '\sigma']
  * Infix operators are excluded, since they are deprecated commands.
  */
-export function suggest(mf: MathfieldPrivate, s: string): string[] {
+export function suggest(mf: _Mathfield, s: string): string[] {
   if (s.length === 0 || s === '\\' || !s.startsWith('\\')) return [];
 
   const result: { match: string; frequency: number }[] = [];

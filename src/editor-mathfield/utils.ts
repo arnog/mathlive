@@ -1,7 +1,7 @@
 import { Atom } from '../core/atom-class';
 import type { Range } from '../public/mathfield';
 import { OriginValidator } from '../public/options';
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 
 export type Rect = {
   top: number;
@@ -55,7 +55,7 @@ export function off(
  * operations invoked via requestAnimationFrame() for example, that would
  * need to ensure the mathfield is still valid by the time they're executed.
  */
-export function isValidMathfield(mf: MathfieldPrivate): boolean {
+export function isValidMathfield(mf: _Mathfield): boolean {
   return mf.element?.mathfield === mf;
 }
 
@@ -97,7 +97,7 @@ function branchId(atom: Atom): string {
 }
 
 export function adjustForScrolling(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   rect: Rect | null,
   scaleFactor: number
 ): Rect | null {
@@ -142,10 +142,7 @@ function getNodeBounds(node: Element): Rect {
   return result;
 }
 
-export function getAtomBounds(
-  mathfield: MathfieldPrivate,
-  atom: Atom
-): Rect | null {
+export function getAtomBounds(mathfield: _Mathfield, atom: Atom): Rect | null {
   if (!atom.id) return null;
   let result: Rect | null = mathfield.atomBoundsCache?.get(atom.id) ?? null;
   if (result !== null) return result;
@@ -165,7 +162,7 @@ export function getAtomBounds(
  * one rect per branch.
  */
 function getRangeBounds(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   range: Range,
   options?: { excludeAtomsWithBackground?: boolean }
 ): Rect[] {
@@ -212,7 +209,7 @@ function getRangeBounds(
 }
 
 export function getSelectionBounds(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   options?: { excludeAtomsWithBackground?: boolean }
 ): Rect[] {
   return mathfield.model.selection.ranges.reduce(

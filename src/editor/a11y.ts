@@ -1,7 +1,7 @@
 import { Atom } from '../core/atom';
 
 import type { ModelPrivate } from '../editor-model/model-private';
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { AnnounceVerb } from '../editor-model/utils';
 
 import { speakableText } from './speech';
@@ -46,7 +46,7 @@ function relationName(atom: Atom): string {
  * @param previousPosition The position of the insertion point before the change
  */
 export function defaultAnnounceHook(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   action: AnnounceVerb,
   previousPosition?: number,
   atoms?: Atom[]

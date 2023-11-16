@@ -1,4 +1,4 @@
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 import { applyStyle as applyStyleToModel } from '../editor-model/styling';
 import { register as registerCommand } from '../editor/commands';
 import type {
@@ -10,10 +10,7 @@ import type {
 } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 
-export function applyStyle(
-  mathfield: MathfieldPrivate,
-  inStyle: Style
-): boolean {
+export function applyStyle(mathfield: _Mathfield, inStyle: Style): boolean {
   mathfield.flushInlineShortcutBuffer();
   mathfield.stopCoalescingUndo();
 
@@ -73,7 +70,7 @@ registerCommand(
  * Validate a style specification object
  */
 export function validateStyle(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   style: Record<string, any>
 ): PrivateStyle {
   const result: PrivateStyle = {};

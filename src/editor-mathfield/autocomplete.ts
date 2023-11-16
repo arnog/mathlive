@@ -8,7 +8,7 @@ import {
   showSuggestionPopover,
 } from '../editor/suggestion-popover';
 
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 import { render } from './render';
 import {
   getLatexGroupBody,
@@ -18,7 +18,7 @@ import {
 import { ModeEditor } from './mode-editor';
 import { ParseMode } from '../public/core-types';
 
-export function removeSuggestion(mathfield: MathfieldPrivate): void {
+export function removeSuggestion(mathfield: _Mathfield): void {
   const group = getLatexGroupBody(mathfield.model).filter(
     (x) => x.isSuggestion
   );
@@ -28,7 +28,7 @@ export function removeSuggestion(mathfield: MathfieldPrivate): void {
 }
 
 export function updateAutocomplete(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   options?: { atIndex?: number }
 ): void {
   const { model } = mathfield;
@@ -120,7 +120,7 @@ export function acceptCommandSuggestion(model: ModelPrivate): boolean {
  *
  */
 export function complete(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   completion: 'reject' | 'accept' | 'accept-suggestion' = 'accept',
   options?: { mode?: ParseMode; selectItem?: boolean }
 ): boolean {

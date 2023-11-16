@@ -5,7 +5,7 @@ import { range } from '../editor-model/selection-utils';
 import { Atom } from '../core/atom-class';
 import { ModelPrivate } from '../editor-model/model-private';
 
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 import { requestUpdate } from './render';
 import { ModeEditor } from './mode-editor';
 import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions-utils';
@@ -19,10 +19,7 @@ export class LatexModeEditor extends ModeEditor {
     return new LatexAtom(command);
   }
 
-  onPaste(
-    mathfield: MathfieldPrivate,
-    data: DataTransfer | string | null
-  ): boolean {
+  onPaste(mathfield: _Mathfield, data: DataTransfer | string | null): boolean {
     if (!data) return false;
     const text =
       typeof data === 'string'

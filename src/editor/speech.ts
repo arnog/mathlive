@@ -2,7 +2,7 @@ import type { SpeechScope } from '../public/commands';
 
 import type { Atom } from '../core/atom';
 
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
@@ -31,7 +31,7 @@ export function speakableText(prefix: string, atoms: Atom | Atom[]): string {
 registerCommand(
   {
     speak: (
-      mathfield: MathfieldPrivate,
+      mathfield: _Mathfield,
       scope: SpeechScope,
       options: { withHighlighting: boolean }
     ): boolean => {
@@ -42,7 +42,7 @@ registerCommand(
 );
 
 function speak(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   scope: SpeechScope,
   speakOptions: { withHighlighting: boolean }
 ): boolean {
@@ -140,7 +140,7 @@ function speak(
 
   const text = atomToSpeakableText(atoms);
   if (isBrowser() && speakOptions.withHighlighting) {
-    globalMathLive().readAloudMathField = mathfield;
+    globalMathLive().readAloudMathfield = mathfield;
     render(mathfield, { forHighlighting: true });
     if (window.MathfieldElement.readAloudHook)
       window.MathfieldElement.readAloudHook(mathfield.field!, text);

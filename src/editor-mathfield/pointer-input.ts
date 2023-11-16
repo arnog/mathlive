@@ -1,5 +1,5 @@
 import { on, off, getAtomBounds, Rect } from './utils';
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 import { requestUpdate } from './render';
 import { Offset } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
@@ -17,10 +17,7 @@ function isPointerEvent(evt: Event | null): evt is PointerEvent {
   );
 }
 
-export function onPointerDown(
-  mathfield: MathfieldPrivate,
-  evt: PointerEvent
-): void {
+export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
   //Reset the atom bounds cache
   mathfield.atomBoundsCache = new Map<string, Rect>();
 
@@ -240,7 +237,7 @@ function distance(x: number, y: number, r: Rect): number {
 }
 
 function nearestAtomFromPointRecursive(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   cache: Map<string, [distance: number, atom: Atom | null]>,
   atom: Atom,
   x: number,
@@ -282,7 +279,7 @@ function nearestAtomFromPointRecursive(
 }
 
 export function nearestAtomFromPoint(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   x: number,
   y: number
 ): Atom {
@@ -302,7 +299,7 @@ export function nearestAtomFromPoint(
  * favored, if >0, the right sibling
  */
 export function offsetFromPoint(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   x: number,
   y: number,
   options?: { bias?: -1 | 0 | 1 }

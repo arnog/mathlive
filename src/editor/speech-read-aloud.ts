@@ -124,7 +124,7 @@ export function defaultReadAloudHook(element: HTMLElement, text: string): void {
       if (!global.readAloudAudio) {
         global.readAloudAudio = new Audio();
         global.readAloudAudio.addEventListener('ended', () => {
-          const mathfield = global.readAloudMathField;
+          const mathfield = global.readAloudMathfield;
 
           global.readAloudStatus = 'ended';
           document.body.dispatchEvent(
@@ -137,7 +137,7 @@ export function defaultReadAloudHook(element: HTMLElement, text: string): void {
           if (mathfield) {
             render(mathfield);
             global.readAloudElement = null;
-            global.readAloudMathField = null;
+            global.readAloudMathfield = null;
             global.readAloudTokens = [];
             global.readAloudMarks = [];
             global.readAloudCurrentMark = '';

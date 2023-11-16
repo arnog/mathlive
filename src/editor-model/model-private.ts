@@ -12,7 +12,7 @@ import type {
 } from '../public/options';
 import type { ParseMode } from '../public/core-types';
 
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
@@ -43,7 +43,7 @@ export type GetAtomOptions = {
 
 /** @internal */
 export class ModelPrivate implements Model {
-  readonly mathfield: MathfieldPrivate;
+  readonly mathfield: _Mathfield;
 
   mode: ParseMode;
 
@@ -56,7 +56,7 @@ export class ModelPrivate implements Model {
   private _position: Offset;
 
   constructor(target: Mathfield, mode: ParseMode, root: Atom) {
-    this.mathfield = target as MathfieldPrivate;
+    this.mathfield = target as _Mathfield;
 
     this.mode = mode;
     this.silenceNotifications = false;

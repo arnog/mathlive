@@ -2,7 +2,7 @@ import { isArray } from '../common/types';
 
 import { SelectorPrivate, CommandRegistry } from './types';
 
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { requestUpdate } from '../editor-mathfield/render';
 import {
   updateAutocomplete,
@@ -79,7 +79,7 @@ export function getCommandTarget(
 }
 
 export function perform(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   command: SelectorPrivate | [SelectorPrivate, ...any[]]
 ): boolean {
   if (!command) return false;
@@ -167,7 +167,7 @@ export function perform(
  */
 
 function performWithFeedback(
-  mathfield: MathfieldPrivate | undefined,
+  mathfield: _Mathfield | undefined,
   selector: SelectorPrivate
 ): boolean {
   if (!mathfield) return false;
@@ -186,19 +186,19 @@ function performWithFeedback(
 
 register({
   performWithFeedback: (
-    mathfield: MathfieldPrivate,
+    mathfield: _Mathfield,
     command: SelectorPrivate
   ): boolean => performWithFeedback(mathfield, command),
 });
 
-function nextSuggestion(mathfield: MathfieldPrivate): boolean {
+function nextSuggestion(mathfield: _Mathfield): boolean {
   // The modulo of the suggestionIndex is used to determine which suggestion
   // to display, so no need to worry about rolling over.
   updateAutocomplete(mathfield, { atIndex: mathfield.suggestionIndex + 1 });
   return false;
 }
 
-function previousSuggestion(mathfield: MathfieldPrivate): boolean {
+function previousSuggestion(mathfield: _Mathfield): boolean {
   updateAutocomplete(mathfield, { atIndex: mathfield.suggestionIndex - 1 });
   return false;
 }

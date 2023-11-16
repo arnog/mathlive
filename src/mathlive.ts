@@ -28,7 +28,7 @@ export type MathLiveGlobal = {
   readAloudCurrentMark: string;
   readAloudAudio: HTMLAudioElement;
   readAloudStatus: string;
-  readAloudMathField: any; // MathfieldPrivate;
+  readAloudMathfield: any; // _Mathfield;
 };
 
 // Note that this global is only global to the "browsing context". In the

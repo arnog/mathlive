@@ -1,7 +1,7 @@
-import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { MathfieldProxy } from '../public/virtual-keyboard';
 
-export function makeProxy(mf: MathfieldPrivate): MathfieldProxy {
+export function makeProxy(mf: _Mathfield): MathfieldProxy {
   return {
     value: mf.model.getValue(),
     selectionIsCollapsed: mf.model.selectionIsCollapsed,

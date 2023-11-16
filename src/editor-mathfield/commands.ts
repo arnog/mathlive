@@ -1,5 +1,5 @@
 import { register as registerCommand } from '../editor/commands';
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 import { onInput } from './keyboard-input';
 import { toggleKeystrokeCaption } from './keystroke-caption';
 import { requestUpdate } from './render';
@@ -7,34 +7,34 @@ import { ParseMode } from '../public/core-types';
 import { updateAutocomplete } from './autocomplete';
 
 registerCommand({
-  undo: (mathfield: MathfieldPrivate) => {
+  undo: (mathfield: _Mathfield) => {
     mathfield.undo();
     return true;
   },
-  redo: (mathfield: MathfieldPrivate) => {
+  redo: (mathfield: _Mathfield) => {
     mathfield.redo();
     return true;
   },
-  scrollIntoView: (mathfield: MathfieldPrivate) => {
+  scrollIntoView: (mathfield: _Mathfield) => {
     mathfield.scrollIntoView();
     return true;
   },
-  scrollToStart: (mathfield: MathfieldPrivate) => {
+  scrollToStart: (mathfield: _Mathfield) => {
     mathfield.field!.scroll(0, 0);
     return true;
   },
-  scrollToEnd: (mathfield: MathfieldPrivate) => {
+  scrollToEnd: (mathfield: _Mathfield) => {
     const fieldBounds = mathfield.field!.getBoundingClientRect();
     mathfield.field!.scroll(fieldBounds.left - window.scrollX, 0);
     return true;
   },
   toggleKeystrokeCaption: toggleKeystrokeCaption,
-  plonk: (mathfield: MathfieldPrivate) => {
+  plonk: (mathfield: _Mathfield) => {
     mathfield.model.announce('plonk');
     return true;
   },
   switchMode: (
-    mathfield: MathfieldPrivate,
+    mathfield: _Mathfield,
     mode: ParseMode,
     prefix: string,
     suffix: string
@@ -42,13 +42,13 @@ registerCommand({
     mathfield.switchMode(mode, prefix, suffix);
     return true;
   },
-  insert: (mathfield: MathfieldPrivate, s: string, options) =>
+  insert: (mathfield: _Mathfield, s: string, options) =>
     mathfield.insert(s, options),
-  typedText: (mathfield: MathfieldPrivate, text: string, options) => {
+  typedText: (mathfield: _Mathfield, text: string, options) => {
     onInput(mathfield, text, options);
     return true;
   },
-  insertDecimalSeparator: (mathfield: MathfieldPrivate) => {
+  insertDecimalSeparator: (mathfield: _Mathfield) => {
     const model = mathfield.model;
     if (
       model.mode === 'math' &&
@@ -66,7 +66,7 @@ registerCommand({
   },
   // A 'commit' command is used to simulate pressing the return/enter key,
   // e.g. when using a virtual keyboard
-  commit: (mathfield: MathfieldPrivate) => {
+  commit: (mathfield: _Mathfield) => {
     if (mathfield.model.contentWillChange({ inputType: 'insertLineBreak' })) {
       mathfield.host?.dispatchEvent(
         new Event('change', { bubbles: true, composed: true })
@@ -75,11 +75,7 @@ registerCommand({
     }
     return true;
   },
-  insertPrompt: (
-    mathfield: MathfieldPrivate,
-    id?: string,
-    options?
-  ): boolean => {
+  insertPrompt: (mathfield: _Mathfield, id?: string, options?): boolean => {
     const promptIds = mathfield.getPrompts();
     let prospectiveId =
       'prompt-' +
@@ -104,7 +100,7 @@ registerCommand({
 
 registerCommand(
   {
-    copyToClipboard: (mathfield: MathfieldPrivate) => {
+    copyToClipboard: (mathfield: _Mathfield) => {
       mathfield.focus();
       // If the selection is empty, select the entire field before
       // copying it.
@@ -131,7 +127,7 @@ registerCommand(
 
 registerCommand(
   {
-    cutToClipboard: (mathfield: MathfieldPrivate) => {
+    cutToClipboard: (mathfield: _Mathfield) => {
       mathfield.focus();
 
       if (
@@ -150,7 +146,7 @@ registerCommand(
       return true;
     },
 
-    pasteFromClipboard: (mathfield: MathfieldPrivate) => {
+    pasteFromClipboard: (mathfield: _Mathfield) => {
       mathfield.focus();
       if (
         'queryCommandSupported' in document &&

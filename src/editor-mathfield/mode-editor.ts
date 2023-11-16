@@ -4,14 +4,14 @@ import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { MODE_SHIFT_COMMANDS } from '../editor/parse-math-string';
 import { InsertOptions, Range } from '../public/mathfield';
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 
 const CLIPBOARD_LATEX_BEGIN = '$$';
 const CLIPBOARD_LATEX_END = '$$';
 
 /** @internal */
 export const defaultExportHook = (
-  _from: MathfieldPrivate,
+  _from: _Mathfield,
   latex: string,
   _range: Range
 ): string => {
@@ -36,7 +36,7 @@ export class ModeEditor {
 
   static onPaste(
     mode: ParseMode,
-    mathfield: MathfieldPrivate,
+    mathfield: _Mathfield,
     data: DataTransfer | string | null
   ): boolean {
     if (!mathfield.contentEditable && mathfield.userSelect === 'none') {
@@ -58,7 +58,7 @@ export class ModeEditor {
     return ModeEditor._modes[mode].onPaste(mathfield, data);
   }
 
-  static onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
+  static onCopy(mathfield: _Mathfield, ev: ClipboardEvent): void {
     if (!ev.clipboardData) return;
     if (!mathfield.contentEditable && mathfield.userSelect === 'none') {
       mathfield.model.announce('plonk');
@@ -167,7 +167,7 @@ export class ModeEditor {
   }
 
   onPaste(
-    _mathfield: MathfieldPrivate,
+    _mathfield: _Mathfield,
     _data: DataTransfer | string | null
   ): boolean {
     return false;

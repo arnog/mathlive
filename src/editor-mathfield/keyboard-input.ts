@@ -20,7 +20,7 @@ import { range } from '../editor-model/selection-utils';
 
 import { removeSuggestion, updateAutocomplete } from './autocomplete';
 import { requestUpdate } from './render';
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
@@ -56,7 +56,7 @@ import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
  *
  */
 export function onKeystroke(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   keystroke: string,
   evt: KeyboardEvent
 ): boolean {
@@ -485,7 +485,7 @@ export function onKeystroke(
  * @private
  */
 export function onInput(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   text: string,
   options?: {
     focus?: boolean;
@@ -585,7 +585,7 @@ export function onInput(
   mathfield.scrollIntoView();
 }
 
-function getLeftSiblings(mf: MathfieldPrivate): Atom[] {
+function getLeftSiblings(mf: _Mathfield): Atom[] {
   const model = mf.model;
 
   const result: Atom[] = [];
@@ -599,7 +599,7 @@ function getLeftSiblings(mf: MathfieldPrivate): Atom[] {
 }
 
 function insertMathModeChar(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   c: string,
   style: Style,
   atom: Atom

@@ -7,7 +7,7 @@ import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { requestUpdate } from './render';
 import { ContextInterface } from 'core/types';
@@ -17,10 +17,7 @@ export class TextModeEditor extends ModeEditor {
     super('text');
   }
 
-  onPaste(
-    mathfield: MathfieldPrivate,
-    data: DataTransfer | string | null
-  ): boolean {
+  onPaste(mathfield: _Mathfield, data: DataTransfer | string | null): boolean {
     if (!data) return false;
 
     const text = typeof data === 'string' ? data : data.getData('text/plain');

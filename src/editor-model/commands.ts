@@ -1,5 +1,5 @@
 import type { ModelPrivate } from './model-private';
-import { MathfieldPrivate, getLocalDOMRect } from '../editor/mathfield';
+import { _Mathfield, getLocalDOMRect } from '../editor/mathfield';
 import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from '../core-atoms/latex';
@@ -390,7 +390,7 @@ function isValidPosition(model: ModelPrivate, pos: number): boolean {
 }
 
 function getClosestAtomToXPosition(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   search: Atom[],
   x: number
 ): Atom {

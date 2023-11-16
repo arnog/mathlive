@@ -2,7 +2,7 @@ import {
   keyboardEventToChar,
   mightProducePrintableCharacter,
 } from '../editor/keyboard';
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 
 import { ModelPrivate } from '../editor-model/model-private';
 import { Atom } from '../core/atom-class';
@@ -168,7 +168,7 @@ function getTextBeforePosition(model: ModelPrivate): string {
  */
 
 export function smartMode(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   keystroke: string,
   evt?: KeyboardEvent
 ): boolean {

@@ -6,7 +6,7 @@ import {
   isTabularEnvironment,
 } from '../core-definitions/environment-types';
 import { SelectorPrivate } from './types';
-import { MathfieldPrivate } from './mathfield';
+import { _Mathfield } from './mathfield';
 import { getSharedElement, releaseSharedElement } from './shared-element';
 
 import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
@@ -184,7 +184,7 @@ const rcases: svgBuilder = (className) => `
 const matrixButtons = { matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix };
 const casesButtons = { cases, rcases, Bmatrix };
 
-export function showEnvironmentPopover(mf: MathfieldPrivate): void {
+export function showEnvironmentPopover(mf: _Mathfield): void {
   const array = mf.model.parentEnvironment?.array;
   if (!array) return;
 
@@ -310,7 +310,7 @@ export function environmentPopoverIsVisible(): boolean {
   return panel.classList.contains('is-visible');
 }
 
-export function updateEnvironmentPopover(mf: MathfieldPrivate): void {
+export function updateEnvironmentPopover(mf: _Mathfield): void {
   if (!mf.hasFocus()) return;
   let visible = false;
   if (mf.model.mode === 'math') {

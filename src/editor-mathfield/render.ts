@@ -7,7 +7,7 @@ import {
   getAtomBounds,
   adjustForScrolling,
 } from './utils';
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 
 import { updateSuggestionPopoverPosition } from '../editor/suggestion-popover';
 import { gFontsState } from '../core/fonts';
@@ -30,7 +30,7 @@ function hash(latex: string): number {
 }
 
 export function requestUpdate(
-  mathfield: MathfieldPrivate | undefined | null,
+  mathfield: _Mathfield | undefined | null,
   options?: { interactive: boolean }
 ): void {
   if (!mathfield) return;
@@ -51,7 +51,7 @@ export function requestUpdate(
  * @param renderOptions
  */
 function makeBox(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): Box {
   renderOptions = renderOptions ?? {};
@@ -108,7 +108,7 @@ function makeBox(
 }
 
 export function contentMarkup(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): string {
   //
@@ -160,7 +160,7 @@ export function contentMarkup(
  *
  */
 export function render(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
   if (!isValidMathfield(mathfield)) return;
@@ -207,7 +207,7 @@ export function render(
 }
 
 export function renderSelection(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   interactive?: boolean
 ): void {
   const field = mathfield.field;
