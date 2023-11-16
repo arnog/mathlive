@@ -15,7 +15,7 @@
 - **#2159** Runtime error in sandboxed mode when in an iframe from different 
   origin
 - **#2175** Addressed some rendering issues with Safar where a fraction inside a `\left...\right` was vertically offset.
-
+- **#2176** Using the `[hide-keyboard]` virtual keycap would cause a runtime error.
 
 ## 0.96.0 (2023-11-14)
 

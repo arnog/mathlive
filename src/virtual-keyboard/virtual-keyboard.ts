@@ -834,8 +834,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   ): boolean {
     let selector: SelectorPrivate;
     let args: string[] = [];
+    let target = getCommandTarget(command);
+
     if (isArray(command)) {
       selector = command[0];
+      if (selector === 'performWithFeedback') {
+        command = command.slice(1) as [SelectorPrivate, ...any[]];
+        target = getCommandTarget(command);
+      }
       args = command.slice(1);
     } else selector = command;
 
@@ -843,8 +849,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     selector = selector.replace(/-\w/g, (m) =>
       m[1].toUpperCase()
     ) as SelectorPrivate;
-    if (getCommandTarget(command) === 'virtual-keyboard')
-      return COMMANDS[selector]!.fn(...args);
+
+    if (target === 'virtual-keyboard')
+      return COMMANDS[selector]!.fn(undefined, ...args);
 
     this.sendMessage('execute-command', { command });
     return false;

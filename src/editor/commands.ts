@@ -162,14 +162,15 @@ export function perform(
  * Perform a command, but:
  * * focus the mathfield
  * * provide haptic and audio feedback
- * This is used by the virtual keyboard when command keys (delete, arrows, etc..)
- * are pressed.
+ * This is used by the virtual keyboard when command keys (delete, arrows,
+ *  etc..) are pressed.
  */
 
 function performWithFeedback(
-  mathfield: MathfieldPrivate,
+  mathfield: MathfieldPrivate | undefined,
   selector: SelectorPrivate
 ): boolean {
+  if (!mathfield) return false;
   mathfield.focus();
 
   if (MathfieldElement.keypressVibration && canVibrate())

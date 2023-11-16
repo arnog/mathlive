@@ -752,7 +752,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
   '[hide-keyboard]': {
     class: 'action',
-    command: ['performWithFeedback', 'hideVirtualKeyboard'],
+    command: ['hideVirtualKeyboard'],
     width: 1.5,
     label:
       '<svg class=svg-glyph-lg><use xlink:href=#svg-keyboard-down /></svg>',
