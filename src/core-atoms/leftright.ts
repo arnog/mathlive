@@ -190,6 +190,8 @@ export class LeftRightAtom extends Atom {
       type: tightSpacing ? 'close' : 'inner',
       classes: 'left-right',
     });
+    result.setStyle('margin-top', `${-inner.depth}em`);
+    result.setStyle('height', `${inner.height + inner.depth}em`);
 
     if (this.caret) result.caret = this.caret;
 

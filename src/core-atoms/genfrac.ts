@@ -285,15 +285,15 @@ export class GenfracAtom extends Atom {
     }
 
     // TeXBook p. 170 "fractions are treated as type Inner."
-    const result = this.bind(
-      context,
-      new Box([leftDelim, frac, rightDelim], {
-        isTight: fracContext.isTight,
-        type: 'inner',
-        classes: 'mfrac',
-      })
-    );
-    if (!result) return null;
+
+    const mfrac = new Box([leftDelim, frac, rightDelim], {
+      isTight: fracContext.isTight,
+      type: 'inner',
+      classes: 'mfrac',
+    });
+    mfrac.setStyle('bottom', `${-mfrac.depth}em`);
+
+    const result = this.bind(context, mfrac);
     if (this.caret) result.caret = this.caret;
 
     return this.attachSupsub(context, { base: result });

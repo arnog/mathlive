@@ -362,7 +362,14 @@
     position: relative;
   }
 
-  .mfrac,
+  .mfrac {
+    display: inline-block;
+    // Safari has a "special" interpretation of the baseline. By setting the position to relative, 
+    // we'll adjust the vertical offset of the fraction in JS based on the calculated depth.
+    position: relative;
+    vertical-align: bottom;
+  }
+  
   .left-right {
     display: inline-block;
   }

@@ -8,6 +8,13 @@
   `\renewcommand{\arraystretch}{1.5}`
 - Added keycap shortcuts `[up]` and `[down]` to move the selection up or down
   in a matrix.
+- Display the environment popover when the selection is inside a matrix, even when the virtual keyboard is not visible.
+
+### Bugs Fixed
+
+- **#2159** Runtime error in sandboxed mode when in an iframe from different 
+  origin
+- **#2175** Addressed some rendering issues with Safar where a fraction inside a `\left...\right` was vertically offset.
 
 
 ## 0.96.0 (2023-11-14)
