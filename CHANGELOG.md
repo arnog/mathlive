@@ -17,6 +17,8 @@
 - **#2141**: Added St Mary's Road symbols for theoretical computer science, 
   including `\mapsfrom`.
 - **#2158** Support the German keyboard layout on Linux.
+- **#2102** The mathfield element now respects the `user-select` CSS property.
+  If it is set to `none`, the mathfield will not be selectable.
 
 ## 0.96.1 (2023-11-15)
 

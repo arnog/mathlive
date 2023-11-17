@@ -1188,6 +1188,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     this.attachShadow({ mode: 'open', delegatesFocus: true });
+
+    const computedStyle = window.getComputedStyle(this);
+    const pointerEvents = computedStyle.userSelect === 'none' ? 'none' : 'auto';
+    const shadowRootMarkup = `<span style="pointer-events:${pointerEvents}"></span><slot style="display:none"></slot>`;
+
     if (this.shadowRoot && 'adoptedStyleSheets' in this.shadowRoot) {
       // @ts-ignore
       this.shadowRoot!.adoptedStyleSheets = [
@@ -1196,13 +1201,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         getStylesheet('mathfield-element'),
       ];
       // @ts-ignore
-      this.shadowRoot!.innerHTML = `<span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
+      this.shadowRoot!.innerHTML = shadowRootMarkup;
     } else {
       this.shadowRoot!.innerHTML = `<style>${getStylesheetContent(
         'core'
       )}${getStylesheetContent('mathfield')}${getStylesheetContent(
         'mathfield-element'
-      )}</style><span style="pointer-events:auto"></span><slot style="display:none"></slot>`;
+      )}</style>${shadowRootMarkup}`;
     }
 
     // Record the (optional) configuration options, as a deferred state
