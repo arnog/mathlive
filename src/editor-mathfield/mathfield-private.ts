@@ -60,6 +60,7 @@ import {
   getDefault as getDefaultOptions,
   get as getOptions,
   effectiveMode,
+  getDefaultMenuItems,
 } from '../editor/options';
 import { normalizeKeybindings } from '../editor/keybindings';
 import {
@@ -119,10 +120,15 @@ import {
   hideEnvironmentPopover,
   updateEnvironmentPopover,
 } from 'editor/environment-popover';
+import { Menu } from 'ui/menu/menu';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg style="width: 21px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" role="img" aria-label="${localize(
   'tooltip.toggle virtual keyboard'
 )}"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg>`;
+
+const MENU_GLYPH = `<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512" role="img" aria-label="${localize(
+  'tooltip.menu'
+)}"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg>`;
 
 /** @internal */
 export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
@@ -172,6 +178,8 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   inlineShortcutBufferFlushTimer: ReturnType<typeof setTimeout>;
 
   private blurred: boolean;
+
+  private _menu: Menu;
 
   // The value of the mathfield when it is focussed.
   // If this value is different when the field is blured
@@ -305,6 +313,13 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
       markup.push('</div>');
     }
 
+    // 2.2// The menu toggle
+    markup.push(
+      `<div part=menu-toggle class=ML__menu-toggle role=button data-l10n-tooltip="tooltip.menu">`
+    );
+    markup.push(MENU_GLYPH);
+    markup.push('</div>');
+
     markup.push('</span>'); // end container
 
     // 3.1/ The aria-live region for announcements
@@ -373,6 +388,30 @@ If you are using Vue, this may be because you are using the runtime-only build o
         },
         { signal: this.eventController.signal }
       );
+
+    this._menu = new Menu(getDefaultMenuItems(this));
+
+    const menuToggle =
+      this.element!.querySelector<HTMLElement>('[part=menu-toggle]')!;
+    menuToggle?.addEventListener(
+      'pointerdown',
+      (ev) => {
+        if (ev.currentTarget !== menuToggle) return;
+        if (this._menu.state !== 'closed') return;
+        this.element!.classList.add('tracking');
+        this._menu.show({
+          parent: menuToggle,
+          location: {
+            x: menuToggle.offsetLeft,
+            y: menuToggle.offsetHeight + menuToggle.offsetTop,
+          },
+          onDismiss: () => this.element!.classList.remove('tracking'),
+        });
+        ev.preventDefault();
+        ev.stopPropagation();
+      },
+      { signal: this.eventController.signal }
+    );
 
     this.ariaLiveText = this.element.querySelector('[role=status]')!;
     // this.accessibleMathML = this.element.querySelector('.accessibleMathML')!;

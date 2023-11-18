@@ -765,6 +765,18 @@ export class ModelPrivate implements Model {
     return parent as ArrayAtom;
   }
 
+  /** Return the cell (row, col) that the current selection is in */
+  get cell(): [number, number] | undefined {
+    let atom: Atom | undefined = this.at(this.position);
+    if (!atom) return undefined;
+
+    while (atom && atom.parent?.type !== 'array') atom = atom.parent;
+
+    if (!atom?.parent || atom.parent.type !== 'array') return undefined;
+
+    return atom.parentBranch as [number, number];
+  }
+
   contentWillChange(options: ContentChangeOptions = {}): boolean {
     // The mathfield could be undefined if the mathfield was disposed
     // while the content was changing

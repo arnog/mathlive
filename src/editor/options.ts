@@ -3,7 +3,7 @@ import { VirtualKeyboardPolicy } from '../public/mathfield-element';
 
 import { isArray } from '../common/types';
 
-import { l10n } from '../core/l10n';
+import { l10n, localize } from '../core/l10n';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 
 import { normalizeMacroDictionary } from '../core-definitions/definitions-utils';
@@ -13,6 +13,8 @@ import { defaultExportHook } from '../editor-mathfield/mode-editor';
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { VirtualKeyboard } from '../virtual-keyboard/global';
+import { MenuItemTemplate } from 'ui/menu/types';
+import { _Mathfield } from './mathfield';
 
 /** @internal */
 export type _MathfieldOptions = MathfieldOptions & {
@@ -171,4 +173,147 @@ export function getDefault(): Required<_MathfieldOptions> {
 export function effectiveMode(options: MathfieldOptions): 'math' | 'text' {
   if (options.defaultMode === 'inline-math') return 'math';
   return options.defaultMode;
+}
+
+export function getDefaultMenuItems(mf: _Mathfield): MenuItemTemplate[] {
+  return [
+    {
+      label: 'Undo',
+      onSelect: () => mf.executeCommand('undo'),
+      visible: () => mf.undoManager.canUndo(),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: 'Cut',
+      onSelect: () => mf.executeCommand('cutToClipboard'),
+      visible: () => !mf.options.readOnly,
+    },
+    {
+      label: 'Copy',
+      onSelect: () => mf.executeCommand('copyToClipboard'),
+    },
+    {
+      label: 'Paste',
+      onSelect: () => mf.executeCommand('pasteFromClipboard'),
+      visible: () => !mf.options.readOnly,
+    },
+    {
+      label: 'Select All',
+      onSelect: () => mf.executeCommand('selectAll'),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: 'Show Virtual Keyboard',
+      onSelect: () => window.mathVirtualKeyboard.show({ animate: true }),
+      visible: () => window.mathVirtualKeyboard.visible === false,
+    },
+    {
+      label: 'Hide Virtual Keyboard',
+      onSelect: () => window.mathVirtualKeyboard.hide({ animate: true }),
+      visible: () => window.mathVirtualKeyboard.visible === true,
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: 'Switch to Text Mode',
+      onSelect: () => mf.executeCommand(['switchMode', 'text']),
+      visible: () => mf.model.mode === 'math',
+    },
+    {
+      label: 'Switch to Math Mode',
+      onSelect: () => mf.executeCommand(['switchMode', 'math']),
+      visible: () => mf.model.mode === 'text',
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: localize('menu.array.add row above'),
+      onSelect: () => mf.executeCommand('addRowBefore'),
+      visible: () => inMatrix(mf),
+    },
+    {
+      label: localize('menu.array.add row below'),
+      onSelect: () => mf.executeCommand('addRowAfter'),
+      visible: () => inMatrix(mf),
+    },
+    {
+      label: localize('menu.array.add column before'),
+      onSelect: () => mf.executeCommand('addColumnBefore'),
+      visible: () => inMatrix(mf),
+      enabled: () => {
+        const array = mf.model.parentEnvironment;
+        if (!array) return false;
+        const [rows, _cols] = shape(mf);
+        return rows < array.maxColumns;
+      },
+    },
+    {
+      label: localize('menu.array.add column after'),
+      onSelect: () => mf.executeCommand('addColumnAfter'),
+      visible: () => inMatrix(mf),
+    },
+    {
+      label: localize('menu.array.delete row'),
+      onSelect: () => mf.executeCommand('removeRow'),
+      visible: () => inMatrix(mf),
+    },
+    {
+      label: localize('menu.array.delete column'),
+      onSelect: () => mf.executeCommand('removeColumn'),
+      visible: () => inMatrix(mf),
+    },
+
+    {
+      label: 'Insert Matrix',
+      submenu: [
+        {
+          label: '(⋱)',
+          onSelect: () => {
+            mf.executeCommand([
+              'insert',
+              '\\begin{pmatrix}#@ & #? \\\\ #? & #? \\end{pmatrix}',
+            ]);
+          },
+        },
+        {
+          label: '[⋱]',
+          onSelect: () => {
+            mf.executeCommand([
+              'insert',
+              '\\begin{bmatrix}#@ & #? \\\\ #? & #?\\end{bmatrix}',
+            ]);
+          },
+        },
+        {
+          label: '{⋱}',
+          onSelect: () => {
+            mf.executeCommand([
+              'insert',
+              '\\begin{Bmatrix}#@ & #? \\\\ #? & #?\\end{Bmatrix}',
+            ]);
+          },
+        },
+      ],
+    },
+  ];
+}
+
+function inMatrix(mf: _Mathfield): boolean {
+  return !!mf.model.parentEnvironment?.array;
+}
+
+function shape(mf: _Mathfield): [number, number] {
+  const array = mf.model.parentEnvironment?.array;
+  if (!array) return [0, 0];
+
+  return [
+    array.length,
+    array.reduce((acc, col) => Math.max(acc, col.length), 0),
+  ];
 }

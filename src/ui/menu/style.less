@@ -1,0 +1,132 @@
+.ui-menu *,
+.ui-menu ::before,
+.ui-menu ::after {
+    box-sizing: border-box;
+}
+.ui-menu {
+    display: none;
+    color-scheme: light dark;
+    -webkit-user-select: none;  /* Important: Safari iOS doesn't respect user-select */
+    user-select: none;
+    cursor: default;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: rgba(0 0 0 0);
+
+    --active-label-color: #fff; /* ui-menu-text-active */
+    --label-color: #121212;   /* ui-menu-text */
+    --menu-bg: #e2e2e2; /* ui-menu-background */
+    --active-bg: #5898ff; /* ui-menu-background-active */
+    --active-bg-dimmed: #c5c5c5;  /* ui-menu-background-active-muted */
+  
+  }
+
+ul.ui-menu-container {
+    position: absolute;
+    width: auto;
+    height: auto;
+    z-index: 10000;
+    border-radius: 8px;
+    background: var(--ui-menu-bg);
+    box-shadow: var(--ui-menu-shadow);
+
+    list-style: none;
+    padding: 6px 0 6px 0;
+    margin: 0;
+    user-select: none;
+    cursor: default;
+
+    color: var(--ui-menu-text);
+    font-weight: normal;
+    font-style: normal;
+    text-shadow: none;
+    text-transform: none;
+    letter-spacing: 0;
+    outline: none;
+    opacity: 1;
+}
+
+ul.ui-menu-container > li {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    padding: 1px 7px 1px 7px;
+    margin-top: 0;
+    margin-left: 6px;
+    margin-right: 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    position: relative;
+    outline: none;
+    fill: currentColor;
+    user-select: none;
+    cursor: default;
+    text-align: left;
+    color: inherit;
+
+    font-family:  var(--ui-font-family);
+    font-size: 13px;
+    line-height: 16px;
+    letter-spacing: 0.007em;
+}
+
+ul.ui-menu-container > li > .label {
+    appearance: none;
+    background: none;
+    outline: none;
+    width: 100%;
+    margin: 0;
+    padding: 1px 2px 1px 1px;
+    overflow: visible;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+ul.ui-menu-container > li > .label.indent {
+    margin-left: 12px;
+}
+ul.ui-menu-container > li[role=divider] {
+    border-bottom: 1px solid var(--ui-menu-divider);
+    border-radius: 0;
+    padding: 0;
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-top: 5px;
+    margin-bottom: 5px;
+    width: calc(100% - 30px); /** 100% - (margin-left + margin-right) */
+}
+ul.ui-menu-container > li[aria-disabled=true] {
+    opacity: .5;
+}
+
+ul.ui-menu-container > li.active {
+    background: var(--ui-menu-bg-active);
+    background: -apple-system-control-accent;
+    color: var(--ui-menu-text-active);
+}
+
+ul.ui-menu-container > li.active.is-submenu-open {
+    background: var(--ui-menu-bg-active-muted);
+    color: inherit;
+}
+
+ul.ui-menu-container > li[aria-haspopup=true]>.label {
+     padding-right: 0;
+}
+
+.ui-right-chevron {
+    margin-left: 24px;
+    width: 10px;
+    height: 10px;
+    margin-bottom: 4px;
+}
+.ui-checkmark {
+    margin-right: -11px;
+    margin-left: -4px;
+    margin-top : 2px;
+    width: 16px;
+    height: 16px;
+}
+
+ul.ui-menu-container > li[aria-haspopup=true].active::after {
+    color: white;
+}

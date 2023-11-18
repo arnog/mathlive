@@ -1,4 +1,4 @@
-import { Scrim } from '../editor/scrim';
+import { Scrim } from '../ui/utils/scrim';
 import {
   executeKeycapCommand,
   normalizeKeycap,

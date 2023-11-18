@@ -40,7 +40,7 @@ import type { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from 'common/stylesheet';
-import { Scrim } from 'editor/scrim';
+import { Scrim } from 'ui/utils/scrim';
 
 export declare type Expression =
   | number
@@ -1199,15 +1199,21 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         getStylesheet('core'),
         getStylesheet('mathfield'),
         getStylesheet('mathfield-element'),
+        getStylesheet('ui'),
+        getStylesheet('menu'),
       ];
       // @ts-ignore
       this.shadowRoot!.innerHTML = shadowRootMarkup;
     } else {
-      this.shadowRoot!.innerHTML = `<style>${getStylesheetContent(
-        'core'
-      )}${getStylesheetContent('mathfield')}${getStylesheetContent(
-        'mathfield-element'
-      )}</style>${shadowRootMarkup}`;
+      this.shadowRoot!.innerHTML =
+        '<style>' +
+        getStylesheetContent('core') +
+        getStylesheetContent('mathfield') +
+        getStylesheetContent('mathfield-element') +
+        getStylesheetContent('ui') +
+        getStylesheetContent('menu') +
+        '</style>' +
+        shadowRootMarkup;
     }
 
     // Record the (optional) configuration options, as a deferred state

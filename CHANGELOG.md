@@ -1,3 +1,13 @@
+## [Unreleased]
+
+### New Features
+
+- A menu is available when right-clicking on a mathfield or when clicking
+  the menu glyph next to the virtual keyboard glyph. The menu allows
+  toggling the virtual keyboard, changing the mathfield mode (math, text)
+  and inserting and editing matrixes.
+
+
 ## 0.96.2 (2023-11-16)
 
 ### Bugs Fixed

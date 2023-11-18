@@ -16,7 +16,13 @@ import KEYSTROKE_CAPTION_STYLESHEET from '../../css/keystroke-caption.less';
 // @ts-ignore-error
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less' assert { type: 'css' };
 
+import UI_STYLESHEET from '../ui/style.less' assert { type: 'css' };
+
+import MENU_STYLESHEET from '../ui/menu/style.less' assert { type: 'css' };
+
 type StylesheetId =
+  | 'ui'
+  | 'menu'
   | 'core'
   | 'mathfield-element'
   | 'mathfield'
@@ -68,6 +74,12 @@ export function getStylesheetContent(id: StylesheetId): string {
       break;
     case 'virtual-keyboard':
       content = VIRTUAL_KEYBOARD_STYLESHEET;
+      break;
+    case 'ui':
+      content = UI_STYLESHEET;
+      break;
+    case 'menu':
+      content = MENU_STYLESHEET;
       break;
     default:
       debugger;

@@ -57,9 +57,8 @@
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
       > -->
 
-      <math-field id="mf" name="formula" style="user-select: none" readonly
-        >x\frac{15}{12}= \frac {\placeholder[numerator]{\frac{1}{\frac{2}{3}}}}
-        {\placeholder[denominator]{?}}</math-field
+      <math-field id="mf" name="formula"
+        >\begin{pmatrix}a\end{pmatrix}</math-field
       >
 
       <!-- <math-field id="mf"
@@ -208,26 +207,6 @@
       // ];
 
       const mf = document.getElementById("mf");
-
-      MathfieldElement.strings = {
-        "int": {
-          "keyboard.tooltip.functions": "-Functions",
-          "keyboard.tooltip.greek": "-Greek Letters",
-          "keyboard.tooltip.command": "-LaTeX Command Mode",
-          "keyboard.tooltip.numeric": "-Numeric",
-          "keyboard.tooltip.roman": "-Symbols and Roman Letters",
-          "tooltip.copy to clipboard": "-Copy to Clipboard",
-          "tooltip.redo": "-Redo",
-          "tooltip.toggle virtual keyboard": "-Toggle Virtual Keyboard",
-          "tooltip.undo": "-Undo",
-        },
-      };
-      MathfieldElement.locale = "int";
-
-      // console.info(mf.registers);
-      // console.info(mf.registers.jot);
-      // mf.registers.jot = '2em';
-      // console.info(mf.registers.jot);
 
       MathfieldElement.computeEngine.notation = "scientific";
 

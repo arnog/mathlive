@@ -91,7 +91,7 @@
   width: 100%;
 }
 
-.ML__virtual-keyboard-toggle {
+.ML__virtual-keyboard-toggle, .ML__menu-toggle {
   box-sizing: border-box;
   display: flex;
   align-self: center;
@@ -275,28 +275,23 @@ with this style */
 
 /* Add an attribute 'data-tooltip' to automatically show a
    tooltip over a element on hover.
-   Use 'data-position="top"' to place the tooltip above the
-   element rather than below.
-   Use 'data-delay' to delay the triggering of the tooltip.
 */
 [data-tooltip] {
   position: relative;
-  &[data-placement='top']::after {
-    top: inherit;
-    bottom: 100%;
-  }
   &::after {
     content: attr(data-tooltip);
     position: absolute;
-    display: none;
+    display: block;
     z-index: 2;
+    pointer-events: none;
 
-    right: 110%;
-    left: calc(100% + 8px);
+    right: auto;  // center tooltip
+    top: calc(-100% - 4px); // place tooltip above element
+
     width: max-content;
     max-width: 200px;
     padding: 8px 8px;
-    border-radius: 2px;
+    border-radius: 4px;
 
     background: #616161; // Grey 700
     color: #fff;
@@ -308,7 +303,7 @@ with this style */
     font-family: @system;
     font-style: normal;
     font-weight: 400;
-    font-size: 12px;
+    font-size: 13px;
 
     /* Phone */
     @media only screen and (max-width: 767px) {
@@ -318,30 +313,29 @@ with this style */
 
     opacity: 0;
     transform: scale(0.5);
-    // animation: .150s tooltipFadeOut cubic-bezier(0.4, 0.0, 1, 1) forwards;
-    transition: all 0.15s cubic-bezier(0.4, 0, 1, 1);
   }
 }
 
-:not(.tracking) [data-tooltip]:hover {
+[data-tooltip]:hover {
   position: relative;
   &::after {
     visibility: visible; // Visible triggers the animation...
-    display: inline-table;
     opacity: 1; // ... but we start fully transparent to
-    // give ourselves a delay before showing
     transform: scale(1);
+    transition-property: opacity, scale;
+    transition-duration: 0.15s;
+    // give ourselves a delay before showing
+    transition-delay: 1s;
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1) 
+    }
+}
+
+.tracking [data-tooltip]:hover {
+  &::after {
+    display: none
   }
 }
 
-[data-tooltip][data-delay]::after {
-  // On fade out, we don't want a delay
-  transition-delay: 0s;
-}
-[data-tooltip][data-delay]:hover::after {
-  // But we do want a delay on fade in
-  transition-delay: 1s; /* attr(data-delay); Should work. But doesn't. */
-}
 
 
 

@@ -3,10 +3,7 @@ import type { Selector } from '../public/commands';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { Atom } from '../core/atom';
 
-import {
-  keyboardEventToChar,
-  mightProducePrintableCharacter,
-} from '../editor/keyboard';
+import { keyboardEventToChar } from '../editor/keyboard';
 import { getInlineShortcut } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
 import { SelectorPrivate } from '../editor/commands';
@@ -28,6 +25,7 @@ import type { ParseMode, Style } from 'public/core-types';
 import type { ModelPrivate } from 'editor-model/model-private';
 import { LeftRightAtom } from 'core-atoms/leftright';
 import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
+import { mightProducePrintableCharacter } from 'ui/events/utils';
 
 /**
  * Handler in response to a keystroke event (or to a virtual keyboard keycap
