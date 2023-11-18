@@ -197,3 +197,10 @@ export function fitInViewport(
   element.style.height = `${Math.round(height).toString()}px`;
   element.style.width = `${Math.round(width).toString()}px`;
 }
+
+export function distance(
+  p1: { x: number; y: number },
+  p2: { x: number; y: number }
+): number {
+  return Math.hypot(p2.x - p1.x, p2.y - p1.y);
+}

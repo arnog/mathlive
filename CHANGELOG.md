@@ -7,6 +7,10 @@
   toggling the virtual keyboard, changing the mathfield mode (math, text)
   and inserting and editing matrixes.
 
+### Improvements
+
+- The tooltip above the virtual keyboard toggle (and the menu glyph) now
+  only appears after a delay.
 
 ## 0.96.2 (2023-11-16)
 

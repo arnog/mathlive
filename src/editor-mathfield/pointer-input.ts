@@ -1,4 +1,4 @@
-import { on, off, getAtomBounds, Rect } from './utils';
+import { getAtomBounds, Rect } from './utils';
 import type { _Mathfield } from './mathfield-private';
 import { requestUpdate } from './render';
 import { Offset } from '../public/mathfield';
@@ -8,6 +8,8 @@ import { selectGroup } from '../editor-model/commands-select';
 
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;
+let gTrackingEventController: AbortController | undefined = undefined;
+let gPointerCaptureId: number | undefined;
 
 function isPointerEvent(evt: Event | null): evt is PointerEvent {
   return (
@@ -15,6 +17,15 @@ function isPointerEvent(evt: Event | null): evt is PointerEvent {
     globalThis.PointerEvent !== undefined &&
     evt instanceof PointerEvent
   );
+}
+
+export function stopTrackingPointer(mathfield: _Mathfield): void {
+  gTrackingEventController?.abort();
+  gTrackingEventController = undefined;
+  if (typeof gPointerCaptureId === 'number') {
+    mathfield.field!.releasePointerCapture(gPointerCaptureId);
+    gPointerCaptureId = undefined;
+  }
 }
 
 export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
@@ -41,19 +52,9 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
     if (scrollLeft) field.scroll({ top: 0, left: field.scrollLeft - 16 });
     else if (scrollRight) field.scroll({ top: 0, left: field.scrollLeft + 16 });
   }, 32);
-  function endPointerTracking(evt: null | PointerEvent | MouseEvent): void {
-    if ('PointerEvent' in window) {
-      off(field, 'pointermove', onPointerMove);
-      off(
-        field,
-        'pointerup pointercancel',
-        endPointerTracking as EventListener
-      );
-      if (isPointerEvent(evt)) field.releasePointerCapture(evt.pointerId);
-    } else {
-      off(window, 'mousemove', onPointerMove);
-      off(window, 'mouseup blur', endPointerTracking as EventListener);
-    }
+
+  function endPointerTracking(): void {
+    stopTrackingPointer(mathfield);
 
     trackingPointer = false;
     clearInterval(scrollInterval);
@@ -64,7 +65,7 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
   function onPointerMove(evt: PointerEvent | MouseEvent): void {
     // If we've somehow lost focus, end tracking
     if (!that.hasFocus()) {
-      endPointerTracking(null);
+      endPointerTracking();
       return;
     }
 
@@ -106,10 +107,8 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
     }
 
     if (trackingWords) selectGroup(that.model);
-
-    // Prevent synthetic mouseMove event when this is a touch event
-    evt.preventDefault();
-    evt.stopPropagation();
+    // Note: do not prevent default, as we need to track
+    // the pointer to prevent long press if the pointer has moved
   }
 
   // Calculate the tap count
@@ -177,7 +176,7 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
       // for double-click, triple-click, etc...
       // (note that `evt.detail` is not set when using pointerEvent)
       if (evt.detail === 3 || gTapCount > 2) {
-        endPointerTracking(evt);
+        endPointerTracking();
         if (evt.detail === 3 || gTapCount === 3) {
           // This is a triple-click
           mathfield.model.selection = {
@@ -187,18 +186,24 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
         }
       } else if (!trackingPointer) {
         trackingPointer = true;
+        if (!gTrackingEventController)
+          gTrackingEventController = new AbortController();
+        const options = { signal: gTrackingEventController.signal };
         if ('PointerEvent' in window) {
-          on(field, 'pointermove', onPointerMove);
-          on(
-            field,
-            'pointerup pointercancel',
-            endPointerTracking as EventListener
-          );
-          if (isPointerEvent(evt)) field.setPointerCapture(evt.pointerId);
+          field.addEventListener('pointermove', onPointerMove, options);
+          field.addEventListener('pointerup', endPointerTracking, options);
+          field.addEventListener('pointercancel', endPointerTracking, options);
+          if (isPointerEvent(evt)) {
+            gPointerCaptureId = evt.pointerId;
+            field.setPointerCapture(gPointerCaptureId);
+          }
         } else {
-          on(window, 'blur', endPointerTracking as EventListener);
-          on(window, 'mousemove', onPointerMove);
-          on(window, 'mouseup', endPointerTracking as EventListener);
+          // @ts-ignore
+          window.addEventListener('blur', endPointerTracking, options);
+          // @ts-ignore
+          window.addEventListener('mousemove', onPointerMove, options);
+          // @ts-ignore
+          window.addEventListener('mouseup', endPointerTracking, options);
         }
 
         if (evt.detail === 2 || gTapCount === 2) {

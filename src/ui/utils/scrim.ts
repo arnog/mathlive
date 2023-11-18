@@ -94,7 +94,10 @@ export class Scrim {
   }
 
   close(): void {
-    if (this.state !== 'open') return;
+    if (this.state !== 'open') {
+      console.assert(this.element.parentElement !== null);
+      return;
+    }
     this.state = 'closing';
 
     if (typeof this.onClose === 'function') this.onClose();

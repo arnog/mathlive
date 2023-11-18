@@ -129,7 +129,7 @@ export class MenuItem implements MenuItemInterface {
     }
 
     if (this.ariaLabel) li.setAttribute('aria-label', this.ariaLabel);
-    if (this.ariaDetails) li.setAttribute('aria-label', this.ariaDetails);
+    if (this.ariaDetails) li.setAttribute('aria-details', this.ariaDetails);
 
     if (!this.enabled) li.setAttribute('aria-disabled', 'true');
     else {

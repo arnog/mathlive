@@ -301,13 +301,24 @@ export class MenuList implements MenuInterface {
     ul.setAttribute('tabindex', '-1');
     ul.setAttribute('role', 'menu');
     ul.setAttribute('aria-orientation', 'vertical');
-    ul.addEventListener('wheel', this);
+    ul.addEventListener('wheel', this, { passive: true });
 
     // Remove all items
     ul.textContent = '';
 
     // Add back all necessary items (after they've been updated if applicable)
-    for (const { element } of this._menuItems) if (element) ul.append(element);
+    let wasDivider = false;
+    for (const { element, type } of this._menuItems) {
+      if (element) {
+        // Avoid consecutive dividers
+        if (type === 'divider') {
+          if (wasDivider) continue;
+          wasDivider = true;
+        }
+        wasDivider = false;
+        ul.append(element);
+      }
+    }
 
     ul.querySelector('li:first-of-type')?.setAttribute('tabindex', '0');
 

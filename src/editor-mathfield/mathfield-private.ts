@@ -91,7 +91,11 @@ import {
   validateOrigin,
 } from './utils';
 
-import { onPointerDown, offsetFromPoint } from './pointer-input';
+import {
+  onPointerDown,
+  offsetFromPoint,
+  stopTrackingPointer,
+} from './pointer-input';
 
 import { ModeEditor } from './mode-editor';
 import { getLatexGroupBody } from './mode-editor-latex';
@@ -121,6 +125,8 @@ import {
   updateEnvironmentPopover,
 } from 'editor/environment-popover';
 import { Menu } from 'ui/menu/menu';
+import { onContextMenu } from 'ui/menu/context-menu';
+import { keyboardModifiersFromEvent } from 'ui/events/utils';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg style="width: 21px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" role="img" aria-label="${localize(
   'tooltip.toggle virtual keyboard'
@@ -155,7 +161,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   readonly host: HTMLElement | undefined;
 
   field: HTMLElement;
-  fieldContent: HTMLElement;
+  fieldContent: HTMLElement; // set in render() function
   readonly ariaLiveText: HTMLElement;
   // readonly accessibleMathML: HTMLElement;
 
@@ -391,6 +397,15 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     this._menu = new Menu(getDefaultMenuItems(this));
 
+    // Listen for contextmenu events on the field
+    this.field.addEventListener('contextmenu', this, {
+      signal: this.eventController.signal,
+    });
+    // Listen to keydown (for context menu shortcut)
+    this.field.addEventListener('keydown', this, {
+      signal: this.eventController.signal,
+    });
+
     const menuToggle =
       this.element!.querySelector<HTMLElement>('[part=menu-toggle]')!;
     menuToggle?.addEventListener(
@@ -405,6 +420,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
             x: menuToggle.offsetLeft,
             y: menuToggle.offsetHeight + menuToggle.offsetTop,
           },
+          keyboardModifiers: keyboardModifiersFromEvent(ev),
           onDismiss: () => this.element!.classList.remove('tracking'),
         });
         ev.preventDefault();
@@ -451,7 +467,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // The mathfield container is initially set with a visibility of hidden
     // to minimize flashing during construction.
     element
-      .querySelector<HTMLElement>('.ML__container')!
+      .querySelector<HTMLElement>('[part=container')!
       .style.removeProperty('visibility');
 
     // Now start recording potentially undoable actions
@@ -735,6 +751,21 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
       case 'pointerdown':
         onPointerDown(this, evt as PointerEvent);
+        onContextMenu(
+          evt,
+          this.element!.querySelector<HTMLElement>('[part=container')!,
+          this._menu,
+          () => stopTrackingPointer(this)
+        );
+        break;
+
+      case 'contextmenu':
+        onContextMenu(
+          evt,
+          this.element!.querySelector<HTMLElement>('[part=container')!,
+          this._menu,
+          () => stopTrackingPointer(this)
+        );
         break;
 
       case 'virtual-keyboard-toggle':
