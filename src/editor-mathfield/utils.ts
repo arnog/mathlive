@@ -10,44 +10,6 @@ export type Rect = {
   right: number;
 };
 
-export function on(
-  element: EventTarget,
-  inSelectors: string,
-  listener: EventListenerOrEventListenerObject,
-  options?: AddEventListenerOptions
-): void {
-  const selectors = inSelectors.split(' ');
-  for (const sel of selectors) {
-    const m = sel.match(/(.*):(.*)/);
-    if (m) {
-      const options2 = options ?? {};
-      if (m[2] === 'active') options2.passive = false;
-      else options2[m[2]] = true;
-
-      element.addEventListener(m[1], listener, options2);
-    } else element.addEventListener(sel, listener, options);
-  }
-}
-
-export function off(
-  element: EventTarget,
-  inSelectors: string,
-  listener: EventListenerOrEventListenerObject,
-  options?: AddEventListenerOptions
-): void {
-  const selectors = inSelectors.split(' ');
-  for (const sel of selectors) {
-    const m = sel.match(/(.*):(.*)/);
-    if (m) {
-      const options2 = options ?? {};
-      if (m[2] === 'active') options2.passive = false;
-      else options2[m[2]] = true;
-
-      element.removeEventListener(m[1], listener, options2);
-    } else element.removeEventListener(sel, listener, options);
-  }
-}
-
 /**
  * Checks if the argument is a valid Mathfield.
  * After a Mathfield has been destroyed (for example by calling `dispose()`
