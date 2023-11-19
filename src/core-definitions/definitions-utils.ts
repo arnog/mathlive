@@ -1,4 +1,4 @@
-import { supportRegexPropertyEscape } from '../common/capabilities';
+import { supportRegexPropertyEscape } from '../ui/utils/capabilities';
 
 import {
   Atom,

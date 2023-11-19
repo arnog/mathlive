@@ -7,7 +7,7 @@ import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { render } from '../editor-mathfield/render';
-import { isBrowser } from '../common/capabilities';
+import { isBrowser } from '../ui/utils/capabilities';
 import { globalMathLive } from '../mathlive';
 
 declare global {

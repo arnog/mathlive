@@ -11,6 +11,7 @@ import {
   MenuItemType,
 } from './types';
 import { icon } from 'ui/icons/icons';
+import { getKeybindingMarkup } from 'ui/events/keyboard';
 
 const BLINK_SPEED = 80;
 
@@ -29,6 +30,8 @@ export class _MenuItem<T> implements MenuItemInterface {
   _label?: string;
   _enabled: boolean;
   _visible: boolean;
+
+  _keyboardShortcut?: string;
 
   _class?: string;
 
@@ -64,6 +67,7 @@ export class _MenuItem<T> implements MenuItemInterface {
       evalToBoolean(template, template.checked, modifiers) ?? false;
 
     this._class = template.class;
+    this._keyboardShortcut = template.keyboardShortcut;
 
     this.id = template.id;
     this._label = evalToString(template, template.label, modifiers);
@@ -171,6 +175,13 @@ export class _MenuItem<T> implements MenuItemInterface {
     }
 
     li.append(span);
+
+    if (this._keyboardShortcut) {
+      const kbd = document.createElement('kbd');
+      kbd.innerHTML = getKeybindingMarkup(this._keyboardShortcut);
+      li.append(kbd);
+    }
+
     if (this.submenu) li.append(icon('chevron-right')!);
 
     return li;

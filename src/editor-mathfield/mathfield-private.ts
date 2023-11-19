@@ -15,7 +15,7 @@ import type {
   ApplyStyleOptions,
 } from '../public/mathfield';
 
-import { canVibrate } from '../common/capabilities';
+import { canVibrate } from '../ui/utils/capabilities';
 
 import { Atom } from '../core/atom-class';
 import { gFontsState } from '../core/fonts';
@@ -60,7 +60,6 @@ import {
   getDefault as getDefaultOptions,
   get as getOptions,
   effectiveMode,
-  getDefaultMenuItems,
 } from '../editor/options';
 import { normalizeKeybindings } from '../editor/keybindings';
 import {
@@ -127,6 +126,7 @@ import {
 import { Menu } from 'ui/menu/menu';
 import { onContextMenu } from 'ui/menu/context-menu';
 import { keyboardModifiersFromEvent } from 'ui/events/utils';
+import { getDefaultMenuItems } from 'editor/default-menu';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg style="width: 21px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" role="img" aria-label="${localize(
   'tooltip.toggle virtual keyboard'

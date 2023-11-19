@@ -9,9 +9,10 @@ import {
   keystrokeModifiersToString,
 } from './keyboard-layout';
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
-import { isBrowser, osPlatform } from '../common/capabilities';
+import { isBrowser, osPlatform } from '../ui/utils/capabilities';
 import { ParseMode } from '../public/core-types';
 import { KeyboardLayout } from './keyboard-layouts/types';
+import { getKeybindingMarkup } from '../ui/events/keyboard';
 
 /**
  * @param p The platform to test against.
@@ -101,95 +102,6 @@ export function getKeybindingsForCommand(
   }
 
   return result.map(getKeybindingMarkup);
-}
-
-/**
- * Return a human readable representation of a shortcut as a markup string
- * @revisit
- */
-export function getKeybindingMarkup(keystroke: string): string {
-  const useSymbol = /macos|ios|/.test(osPlatform());
-  const segments = keystroke.split('+');
-  let result = '';
-  for (const segment of segments) {
-    if (!useSymbol && result)
-      result += '<span class="ML__shortcut-join">+</span>';
-
-    if (segment.startsWith('[Key')) result += segment.slice(4, 5);
-    else if (segment.startsWith('Key')) result += segment.slice(3, 4);
-    else if (segment.startsWith('[Digit')) result += segment.slice(6, 7);
-    else if (segment.startsWith('Digit')) result += segment.slice(5, 6);
-    else {
-      result +=
-        {
-          'cmd': '\u2318',
-          'meta': useSymbol ? '\u2318' : 'command',
-          'shift': useSymbol ? '\u21E7' : 'shift',
-          'alt': useSymbol ? '\u2325' : 'alt',
-          'ctrl': useSymbol ? '\u2303' : 'control',
-          '\n': useSymbol ? '\u23CE' : 'return',
-          '[return]': useSymbol ? '\u23CE' : 'return',
-          '[enter]': useSymbol ? '\u2324' : 'enter',
-          '[tab]': useSymbol ? '\u21E5' : 'tab',
-          // 'Esc':          useSymbol ? '\u238b' : 'esc',
-          '[escape]': 'esc',
-
-          '[backspace]': useSymbol ? '\u232B' : 'backspace',
-          '[delete]': useSymbol ? '\u2326' : 'del',
-          '[pageup]': useSymbol ? '\u21DE' : 'page up',
-          '[pagedown]': useSymbol ? '\u21DF' : 'page down',
-          '[home]': useSymbol ? '\u2912' : 'home',
-          '[end]': useSymbol ? '\u2913' : 'end',
-          '[space]': 'space',
-          '[equal]': '=',
-          '[minus]': '-',
-          '[comma]': ',',
-          '[slash]': '/',
-          '[backslash]': '\\',
-          '[bracketleft]': '[',
-          '[bracketright]': ']',
-          'semicolon': ';',
-          'period': '.',
-          'comma': ',',
-          'minus': '-',
-          'equal': '=',
-          'quote': "'",
-          'bracketLeft': '[',
-          'bracketRight': ']',
-          'backslash': '\\',
-          'intlbackslash': '\\',
-          'backquote': '`',
-          'slash': '/',
-          'numpadmultiply': '* &#128290;',
-          'numpaddivide': '/ &#128290;', // Numeric keypad
-          'numpadsubtract': '- &#128290;',
-          'numpadadd': '+ &#128290;',
-          'numpaddecimal': '. &#128290;',
-          'numpadcomma': ', &#128290;',
-          'help': 'help',
-          'left': '\u21E0',
-          'up': '\u21E1',
-          'right': '\u21E2',
-          'down': '\u21E3',
-          '[arrowleft]': '\u21E0',
-          '[arrowup]': '\u21E1',
-          '[arrowright]': '\u21E2',
-          '[arrowdown]': '\u21E3',
-          '[digit0]': '0',
-          '[digit1]': '1',
-          '[digit2]': '2',
-          '[digit3]': '3',
-          '[digit4]': '4',
-          '[digit5]': '5',
-          '[digit6]': '6',
-          '[digit7]': '7',
-          '[digit8]': '8',
-          '[digit9]': '9',
-        }[segment.toLowerCase()] ?? segment.toUpperCase();
-    }
-  }
-
-  return result;
 }
 
 function normalizeKeybinding(

@@ -4,13 +4,13 @@
  * It is also used by the automated test suite.
  */
 
+import { getKeybindingMarkup } from 'ui/events/keyboard';
 import {
   LATEX_COMMANDS,
   MATH_SYMBOLS,
   ENVIRONMENTS,
 } from '../core-definitions/definitions';
 import { DEFAULT_KEYBINDINGS } from '../editor/keybindings-definitions';
-import { getKeybindingMarkup } from '../editor/keybindings';
 
 const MathliveDebug = {
   FUNCTIONS: LATEX_COMMANDS,

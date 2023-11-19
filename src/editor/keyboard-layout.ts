@@ -1,5 +1,5 @@
 import { KeyboardLayoutName } from 'public/options';
-import { osPlatform } from '../common/capabilities';
+import { osPlatform } from '../ui/utils/capabilities';
 import { DVORAK } from './keyboard-layouts/dvorak';
 import {
   APPLE_ENGLISH,

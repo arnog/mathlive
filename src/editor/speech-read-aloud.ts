@@ -1,5 +1,5 @@
 import { globalMathLive } from '../mathlive';
-import { isBrowser } from '../common/capabilities';
+import { isBrowser } from '../ui/utils/capabilities';
 import { render } from '../editor-mathfield/render';
 
 function removeHighlight(element: Element | null): void {

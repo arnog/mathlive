@@ -1,4 +1,3 @@
-import { getKeybindingMarkup } from '../editor/keybindings';
 import type { _Mathfield } from './mathfield-private';
 
 import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
@@ -7,6 +6,7 @@ import {
   getSharedElement,
   releaseSharedElement,
 } from '../editor/shared-element';
+import { getKeybindingMarkup } from 'ui/events/keyboard';
 
 export function showKeystroke(mathfield: _Mathfield, keystroke: string): void {
   if (!mathfield.isSelectionEditable || !mathfield.keystrokeCaptionVisible)

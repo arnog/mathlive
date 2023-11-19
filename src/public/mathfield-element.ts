@@ -30,7 +30,7 @@ import { isOffset, isRange, isSelection } from '../editor/model';
 import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
-import { isBrowser } from '../common/capabilities';
+import { isBrowser } from '../ui/utils/capabilities';
 import { resolveUrl } from '../common/script-url';
 import { requestUpdate } from '../editor-mathfield/render';
 import { reloadFonts, loadFonts } from '../core/fonts';

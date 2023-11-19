@@ -9,7 +9,7 @@ import {
   complete,
   removeSuggestion,
 } from '../editor-mathfield/autocomplete';
-import { canVibrate } from '../common/capabilities';
+import { canVibrate } from '../ui/utils/capabilities';
 import MathfieldElement from '../public/mathfield-element';
 
 export { SelectorPrivate };

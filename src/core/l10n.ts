@@ -1,5 +1,5 @@
 import { STRINGS } from '../editor/l10n-strings';
-import { isBrowser } from '../common/capabilities';
+import { isBrowser } from '../ui/utils/capabilities';
 
 interface L10n {
   locale: string;

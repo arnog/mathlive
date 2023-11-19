@@ -3,7 +3,7 @@ import { Atom } from '../core/atom';
 import { toMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
-import { osPlatform } from '../common/capabilities';
+import { osPlatform } from '../ui/utils/capabilities';
 import { ArrayAtom } from '../core-atoms/array';
 import { getMacros } from '../core-definitions/definitions-utils';
 import { PromptAtom } from '../core-atoms/prompt';

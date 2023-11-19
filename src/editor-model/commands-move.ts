@@ -1,4 +1,4 @@
-import { isBrowser } from '../common/capabilities';
+import { isBrowser } from '../ui/utils/capabilities';
 
 import { Atom, BranchName } from '../core/atom';
 import { SubsupAtom } from '../core-atoms/subsup';

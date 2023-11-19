@@ -42,6 +42,8 @@ export type MenuItem<T = unknown> = {
   ariaLabel?: DynamicString<T>;
   ariaDetails?: DynamicString<T>;
 
+  keyboardShortcut?: string;
+
   visible?: DynamicBoolean<T>;
 
   enabled?: DynamicBoolean<T>;

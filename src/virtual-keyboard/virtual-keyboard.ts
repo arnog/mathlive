@@ -17,7 +17,7 @@ import type {
 import type { OriginValidator } from '../public/options';
 import type { MathfieldElement } from '../public/mathfield-element';
 
-import { isTouchCapable } from '../common/capabilities';
+import { isTouchCapable } from '../ui/utils/capabilities';
 import { isArray } from '../common/types';
 import { validateOrigin } from '../editor-mathfield/utils';
 import { getCommandTarget, COMMANDS } from '../editor/commands';
