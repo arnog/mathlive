@@ -460,7 +460,7 @@ export class Box implements BoxInterface {
     if (this.hasExplicitWidth) {
       // console.assert(cssProps.width === undefined);
       if (cssProps.width === undefined)
-        cssProps.width = `${Math.round(this._width * 100) / 100}em`;
+        cssProps.width = `${Math.ceil(this._width * 100) / 100}em`;
       // cssProps['height'] = `${Math.round(this.height * 100) / 100}em`;
     }
     const styles = Object.keys(cssProps).map((x) => `${x}:${cssProps[x]}`);
@@ -470,7 +470,7 @@ export class Box implements BoxInterface {
       this.scale !== 1.0 &&
       (body.length > 0 || svgMarkup.length > 0)
     )
-      styles.push(`font-size: ${Math.round(this.scale * 10000) / 100}%`);
+      styles.push(`font-size: ${Math.ceil(this.scale * 10000) / 100}%`);
 
     if (this.htmlStyle) {
       const entries = this.htmlStyle.split(';');

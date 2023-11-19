@@ -31,7 +31,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   renderToSpeakableText?: (text: string) => string;
 
   /** A function to convert MathJSON to a LaTeX string */
-  serializeToLatex?: (json: any) => string;
+  serializeToLatex?: (json: unknown) => string;
 
   ignoreClassPattern?: RegExp;
   processClassPattern?: RegExp;

@@ -5,13 +5,14 @@ import {
   MenuItemInterface,
   MenuItem,
   RootMenuInterface,
+  MenuSelectEvent,
 } from './types';
 import { _MenuItem } from './menu-item';
 
 /**
  * A collection of menu items.
  *
- * Can be a main menu, or a submenu.
+ * Can be a main menu or a submenu.
  *
  */
 export class MenuList implements MenuInterface {
@@ -28,20 +29,24 @@ export class MenuList implements MenuInterface {
   /*
    * The menu items template are preserved so that the actual menu items
    * can be recalculated, for example if the keyboard modifiers change.
-   * (when isDynamic is true)
+   * (when Menu.isDynamic is true)
    */
   private _menuItemsDescriptions: MenuItem[];
+
+  private _containerClass?: string;
 
   constructor(
     menuItems: MenuItem[],
     options?: {
       parentMenu?: MenuInterface;
+      containerClass?: string;
     }
   ) {
     this.parentMenu = options?.parentMenu ?? null;
 
     this._menuItemsDescriptions = [...menuItems];
     this.isSubmenuOpen = false;
+    this._containerClass = options?.containerClass;
   }
 
   handleEvent(event: Event): void {
@@ -50,7 +55,7 @@ export class MenuList implements MenuInterface {
       // Scroll wheel: adjust scroll position
       this._element.scrollBy(0, ev.deltaY);
 
-      event.preventDefault();
+      // event.preventDefault();
       event.stopPropagation();
     }
   }
@@ -261,8 +266,10 @@ export class MenuList implements MenuInterface {
       result =
         candidates.find(
           (x) =>
-            MenuList.collator.compare(text, x.label.substr(i, text.length)) ===
-            0
+            MenuList.collator.compare(
+              text,
+              x.label.substring(i, text.length)
+            ) === 0
         ) ?? null;
       i++;
     }
@@ -271,34 +278,32 @@ export class MenuList implements MenuInterface {
   }
 
   makeElement(): HTMLElement {
-    const ul = document.createElement('ul');
-    ul.classList.add('ui-menu-container');
-    ul.setAttribute('part', 'ui-menu-container');
-    ul.setAttribute('tabindex', '-1');
-    ul.setAttribute('role', 'menu');
-    ul.setAttribute('aria-orientation', 'vertical');
-    ul.addEventListener('wheel', this, { passive: true });
-
-    // Remove all items
-    ul.textContent = '';
+    const menu = document.createElement('menu');
+    menu.setAttribute('role', 'menu');
+    menu.setAttribute('tabindex', '-1');
+    menu.setAttribute('aria-orientation', 'vertical');
+    menu.setAttribute('part', 'ui-menu-container');
+    if (this._containerClass) menu.classList.add(this._containerClass);
+    menu.classList.add('ui-menu-container');
+    menu.addEventListener('wheel', this, { passive: true });
 
     // Remove consecutive dividers
-    let wasDivider = false;
+    let wasDivider = true; // Avoid divider as first item
     for (const item of this._menuItems) {
-      // Avoid consecutive dividers
       if (item.type === 'divider') {
+        // Avoid consecutive dividers
         if (wasDivider) item.visible = false;
         wasDivider = true;
       } else if (item.visible) wasDivider = false;
     }
 
-    // Add back all necessary items (after they've been updated if applicable)
+    // Add all visible items
     for (const { element, visible } of this._menuItems)
-      if (element && visible) ul.append(element);
+      if (element && visible) menu.append(element);
 
-    ul.querySelector('li:first-of-type')?.setAttribute('tabindex', '0');
+    menu.querySelector('li:first-of-type')?.setAttribute('tabindex', '0');
 
-    return ul;
+    return menu;
   }
 
   /**
@@ -429,20 +434,12 @@ export function evalToString(
   return undefined;
 }
 
-export type MenuSelectEvent = {
-  keyboardModifiers?: KeyboardModifiers;
-  id?: string;
-  label?: string;
-  data?: any;
-  element?: HTMLElement;
-};
-
 declare global {
   /**
    * Map the custom event names to types
    * @internal
    */
   export interface DocumentEventMap {
-    ['select']: CustomEvent<MenuSelectEvent>;
+    ['menu-select']: CustomEvent<MenuSelectEvent>;
   }
 }

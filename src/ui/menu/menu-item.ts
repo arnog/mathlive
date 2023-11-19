@@ -2,7 +2,7 @@ import { KeyboardModifiers } from 'ui/events/types';
 import { keyboardModifiersFromEvent } from 'ui/events/utils';
 import { MenuList } from './menu-list';
 import {
-  DynamicPredicate,
+  DynamicBoolean,
   DynamicString,
   MenuInterface,
   MenuItemInterface,
@@ -29,6 +29,8 @@ export class _MenuItem<T> implements MenuItemInterface {
   _label?: string;
   _enabled: boolean;
   _visible: boolean;
+
+  _class?: string;
 
   id?: string;
   data?: T;
@@ -61,6 +63,8 @@ export class _MenuItem<T> implements MenuItemInterface {
     this.checked =
       evalToBoolean(template, template.checked, modifiers) ?? false;
 
+    this._class = template.class;
+
     this.id = template.id;
     this._label = evalToString(template, template.label, modifiers);
     this.ariaLabel = evalToString(template, template.ariaLabel, modifiers);
@@ -72,7 +76,10 @@ export class _MenuItem<T> implements MenuItemInterface {
 
     if (Array.isArray(template.submenu)) {
       this._type = 'submenu';
-      this.submenu = new MenuList(template.submenu, { parentMenu });
+      this.submenu = new MenuList(template.submenu, {
+        parentMenu,
+        containerClass: template.containerClass,
+      });
       this.submenu.updateMenu(modifiers);
     } else if (template.type === undefined && template.checked !== undefined)
       this._type = 'checkbox';
@@ -108,6 +115,7 @@ export class _MenuItem<T> implements MenuItemInterface {
 
     if (this.type === 'divider') {
       const li = document.createElement('li');
+      if (this._class) li.className = this._class;
       li.setAttribute('part', 'menu-divider');
       li.setAttribute('role', 'divider');
       return li;
@@ -122,6 +130,7 @@ export class _MenuItem<T> implements MenuItemInterface {
       return null;
 
     const li = document.createElement('li');
+    if (this._class) li.className = this._class;
     li.setAttribute('part', 'menu-item');
     li.setAttribute('tabindex', '-1');
     if (this.type === 'radio') li.setAttribute('role', 'menuitemradio');
@@ -144,7 +153,6 @@ export class _MenuItem<T> implements MenuItemInterface {
 
     if (!this.enabled) li.setAttribute('aria-disabled', 'true');
     else {
-      li.removeAttribute('aria-disabled');
       li.addEventListener('pointerenter', this);
       li.addEventListener('pointerleave', this);
       li.addEventListener('pointerup', this);
@@ -337,7 +345,7 @@ function speed(dx: number, dy: number, dt: number): number {
 
 function evalToBoolean(
   item: MenuItem,
-  value: DynamicPredicate | undefined,
+  value: DynamicBoolean | undefined,
   modifiers?: KeyboardModifiers
 ): boolean | undefined {
   if (typeof value === 'boolean') return value;

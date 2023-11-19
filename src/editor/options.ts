@@ -209,6 +209,57 @@ function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
       visible: () => getSelection(mf).length === 1,
       onMenuSelect: () => mf.insert('\\mathbf{#@}', { selectionMode: 'item' }),
     },
+    {
+      label: () => convertLatexToMarkup(`\\vec{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () => mf.insert('\\vec{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () =>
+        convertLatexToMarkup(`\\overrightarrow{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length > 0,
+      onMenuSelect: () =>
+        mf.insert('\\overrightarrow{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\overleftarrow{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length > 0,
+      onMenuSelect: () =>
+        mf.insert('\\overleftarrow{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\dot{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () => mf.insert('\\dot{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\ddot{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () => mf.insert('\\ddot{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\bar{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () => mf.insert('\\bar{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\overline{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length > 0,
+      onMenuSelect: () =>
+        mf.insert('\\overline{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\overgroup{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length > 0,
+      onMenuSelect: () =>
+        mf.insert('\\overgroup{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\overbrace{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length > 0,
+      onMenuSelect: () =>
+        mf.insert('\\overbrace{#@}', { selectionMode: 'item' }),
+    },
   ];
 }
 
@@ -227,11 +278,6 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     // {
     //   type: 'divider',
     // },
-    {
-      label: 'Insert Text',
-      onMenuSelect: () => mf.executeCommand(['switchMode', 'text']),
-      visible: () => mf.model.mode === 'math',
-    },
     {
       label: 'Switch to Math Mode',
       onMenuSelect: () => mf.executeCommand(['switchMode', 'math']),
@@ -279,6 +325,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
 
     {
       label: 'Insert Matrix',
+      containerClass: 'menu-container-insert-matrix',
       submenu: [
         {
           label: '(⋱)',
@@ -309,11 +356,20 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
         },
       ],
     },
+    {
+      label: 'Insert Text',
+      onMenuSelect: () => mf.executeCommand(['switchMode', 'text']),
+      visible: () => mf.model.mode === 'math',
+    },
 
     {
       type: 'divider',
     },
-    { label: 'Variant', submenu: getVariantSubmenu(mf) },
+    {
+      label: 'Variant',
+      containerClass: 'menu-container-variant',
+      submenu: getVariantSubmenu(mf),
+    },
     {
       type: 'divider',
     },

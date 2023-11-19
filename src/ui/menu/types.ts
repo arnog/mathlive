@@ -1,6 +1,6 @@
 import { KeyboardModifiers } from 'ui/events/types';
 
-export type MenuSelectEvent<T = any> = {
+export type MenuSelectEvent<T = unknown> = {
   modifiers?: KeyboardModifiers;
   id?: string;
   label?: string;
@@ -8,20 +8,20 @@ export type MenuSelectEvent<T = any> = {
   element?: HTMLElement;
 };
 
-export type DynamicString =
+export type DynamicString<T = unknown> =
   | string
   | ((props: {
       modifiers?: KeyboardModifiers;
       id?: string;
-      data?: any;
+      data?: T;
     }) => string);
 
-export type DynamicPredicate =
+export type DynamicBoolean<T = unknown> =
   | boolean
   | ((props: {
       modifiers?: KeyboardModifiers;
       id?: string;
-      data?: any;
+      data?: T;
     }) => boolean);
 
 export type MenuItemType =
@@ -31,22 +31,30 @@ export type MenuItemType =
   | 'checkbox'
   | 'radio';
 
-export type MenuItem<T = any> = {
+export type MenuItem<T = unknown> = {
+  /** If no type is specified, defaults to "command", unless
+   * a submenu is specified, in which case the type is "submenu"
+   */
   type?: MenuItemType;
 
-  // className?: string;
+  /** The label is a string of HTML markup used to describe the item */
+  label?: DynamicString<T>;
+  ariaLabel?: DynamicString<T>;
+  ariaDetails?: DynamicString<T>;
 
-  label?: DynamicString;
-  ariaLabel?: DynamicString;
-  ariaDetails?: DynamicString;
+  visible?: DynamicBoolean<T>;
 
-  submenu?: MenuItem[];
+  enabled?: DynamicBoolean<T>;
 
-  visible?: DynamicPredicate;
+  checked?: DynamicBoolean<T>;
 
-  enabled?: DynamicPredicate;
+  /** Optional CSS class applied to the menu item */
+  class?: string;
 
-  checked?: DynamicPredicate;
+  /** If the menu item has an associated container (e.g. submenu)
+   * this is the CSS class applied to the container.
+   */
+  containerClass?: string;
 
   /** Caller defined id string. Passed to the `onMenuSelect()` hook. */
   id?: string;
@@ -54,11 +62,16 @@ export type MenuItem<T = any> = {
   /** Caller defined data block. Passed to the `onMenuSelect()` hook. */
   data?: T;
 
-  /** When the menu item is selected,  */
+  /** When the menu item is selected, a `menu-select` event is dispatched
+   * and this hook is called.
+   */
   onMenuSelect?: (props: { label?: string; id?: string; data?: T }) => void;
+
+  /** If type is `"submenu"`, the items of the submenu */
+  submenu?: MenuItem[];
 };
 
-export interface MenuItemInterface<T = any> {
+export interface MenuItemInterface<T = unknown> {
   parentMenu: MenuInterface;
   active: boolean;
 

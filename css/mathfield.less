@@ -367,3 +367,27 @@ with this style */
   outline: 1px solid var(--_incorrect-color);
   box-shadow: 0 0 5px var(--_incorrect-color);
 }
+
+.menu-container-variant {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  column-count: 3;
+  column-gap: 8px;
+  padding: 8px;
+  margin: 8px;
+}
+
+.menu-container-variant [part=menu-item] {
+  font-size: 2rem;
+  text-align: center;
+  margin: 0;
+}
+
+.menu-container-insert-matrix [part=menu-item] {
+  font-size: 2rem;
+  line-height: 1.2;
+  text-align: center;
+}
+

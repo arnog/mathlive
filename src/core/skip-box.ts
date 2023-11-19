@@ -7,7 +7,7 @@ export class SkipBox extends Box {
   }
   toMarkup(): string {
     return `<span style="display:inline-block;width:${
-      Math.round(this.width * 100) / 100
+      Math.ceil(this.width * 100) / 100
     }em"></span>`;
   }
 }

@@ -3,8 +3,7 @@
 
 :host {
   --ui-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-    'Droid Sans', 'Helvetica Neue', sans-serif;
+    'Segoe UI', Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
   --mono-font-family: 'Berkeley Mono', 'JetBrains Mono', 'IBM Plex Mono',
     'Source Code Pro', Menlo, Monaco, 'Courier New', monospace;
@@ -74,3 +73,53 @@
 
 }
 
+/* PingFang SC is a macOS font. Microsoft Yahei is a Windows font. 
+  Noto  is a Linux/Android font.
+*/
+:lang(zh-cn), :lang(zh-sg), :lang(zh-my), :lang(zh) {
+  --ui-font-family: -apple-system, system-ui, 
+    "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans CJK SC", "Noto Sans SC", "Noto Sans", 
+    "Microsoft Yahei UI", "Microsoft YaHei New", "Microsoft Yahei",
+    "微软雅黑", SimSun, "宋体", STXihei, "华文细黑", sans-serif;
+  font-size: 24px;
+  line-height: 1.7;
+}
+
+:lang(zh-tw), :lang(zh-hk), :lang(zh-mo){
+  --ui-font-family: -apple-system, system-ui, 
+    "Noto Sans",
+    "Microsoft JhengHei UI", "Microsoft JhengHei", 
+    "微軟正黑體", "新細明體", "PMingLiU", "細明體", "MingLiU", sans-serif;
+  font-size: 24px;
+  line-height: 1.7;
+}
+
+:lang(ja), :lang(ja-jp), :lang(ja-jp-mac){
+  --ui-font-family: -apple-system, system-ui, 
+    "Hiragino Sans", "Hiragino Kaku Gothic ProN", 
+    "Noto Sans CJK JP", "Noto Sans JP", "Noto Sans", 
+    "游ゴシック", "游ゴシック体", YuGothic, "Yu Gothic", "メイリオ", Meiryo,
+    "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+  font-size: 24px;
+  line-height: 1.7;
+}
+
+:lang(ko), :lang(ko-kr), :lang(ko-kr-std){
+  --ui-font-family: -apple-system, system-ui, 
+    "Noto Sans CJK KR", "Noto Sans KR", "Noto Sans", 
+    "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", 
+    "애플 SD 산돌고딕 Neo", "Apple SD 산돌고딕 Neo", 
+    "돋움", Dotum, sans-serif;
+  font-size: 24px;
+  line-height: 1.7;
+}
+
+:lang(ko-kr-apple){
+  --ui-font-family: -apple-system, system-ui, 
+    "Noto Sans CJK KR", "Noto Sans KR", "Noto Sans", 
+    "Apple SD Gothic Neo", "애플 SD 산돌고딕 Neo", "Apple SD 산돌고딕 Neo", 
+    "돋움", Dotum, sans-serif;
+  font-size: 24px;
+  line-height: 1.7;
+}
