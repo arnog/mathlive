@@ -269,7 +269,8 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   'argmin': '\\operatorname*{arg~min}_{#?}',
   'argmax': '\\operatorname*{arg~max}_{#?}',
   'det': '\\det',
-  'mod': '\\mod',
+  'mod': '\\bmod{#?}',
+  '(mod': '\\pmod{#?}',
   'max': '\\max',
   'min': '\\min',
 

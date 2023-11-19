@@ -342,7 +342,6 @@ export function onKeystroke(
     } else if (
       insertSmartFence(model, keyboardEventToChar(evt), mathfield.style)
     ) {
-      mathfield.flushInlineShortcutBuffer();
       mathfield.dirty = true;
       mathfield.scrollIntoView();
       if (evt.preventDefault) evt.preventDefault();
