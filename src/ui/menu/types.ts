@@ -1,7 +1,7 @@
 import { KeyboardModifiers } from 'ui/events/types';
 
 export type MenuSelectEvent<T = any> = {
-  keyboardModifiers?: KeyboardModifiers;
+  modifiers?: KeyboardModifiers;
   id?: string;
   label?: string;
   data?: T;
@@ -10,28 +10,37 @@ export type MenuSelectEvent<T = any> = {
 
 export type DynamicString =
   | string
-  | ((
-      keyboardModifiers: KeyboardModifiers | undefined,
-      item: MenuItemTemplate
-    ) => string);
+  | ((props: {
+      modifiers?: KeyboardModifiers;
+      id?: string;
+      data?: any;
+    }) => string);
 
 export type DynamicPredicate =
   | boolean
-  | ((
-      keyboardModifiers: KeyboardModifiers | undefined,
-      item: MenuItemTemplate
-    ) => boolean);
+  | ((props: {
+      modifiers?: KeyboardModifiers;
+      id?: string;
+      data?: any;
+    }) => boolean);
 
-export type MenuItemTemplate<T = any> = {
-  onSelect?: (ev: CustomEvent<MenuSelectEvent<T>>) => void;
-  type?: 'normal' | 'divider' | 'submenu' | 'checkbox' | 'radio';
-  className?: string;
+export type MenuItemType =
+  | 'command'
+  | 'divider'
+  | 'submenu'
+  | 'checkbox'
+  | 'radio';
+
+export type MenuItem<T = any> = {
+  type?: MenuItemType;
+
+  // className?: string;
 
   label?: DynamicString;
   ariaLabel?: DynamicString;
   ariaDetails?: DynamicString;
 
-  submenu?: MenuItemTemplate[];
+  submenu?: MenuItem[];
 
   visible?: DynamicPredicate;
 
@@ -39,25 +48,28 @@ export type MenuItemTemplate<T = any> = {
 
   checked?: DynamicPredicate;
 
-  /** Caller defined id string. Passed to the `onSelect()` hook. */
+  /** Caller defined id string. Passed to the `onMenuSelect()` hook. */
   id?: string;
 
-  /** Caller defined data block. Passed to the `onSelect()` hook. */
+  /** Caller defined data block. Passed to the `onMenuSelect()` hook. */
   data?: T;
+
+  /** When the menu item is selected,  */
+  onMenuSelect?: (props: { label?: string; id?: string; data?: T }) => void;
 };
 
-export interface MenuItemInterface {
+export interface MenuItemInterface<T = any> {
   parentMenu: MenuInterface;
   active: boolean;
 
-  readonly type: 'normal' | 'divider' | 'submenu' | 'checkbox' | 'radio';
+  readonly type: MenuItemType;
   readonly label: string;
   readonly enabled: boolean;
   readonly visible: boolean;
   readonly checked: boolean;
   readonly submenu?: MenuInterface;
   readonly id?: string;
-  readonly data?: any;
+  readonly data?: T;
   readonly ariaLabel?: string;
   readonly ariaDetails?: string;
 
@@ -95,10 +107,10 @@ export interface MenuInterface {
 
   hide(): void;
   show(options: {
-    parent: Node | null;
+    container: Node | null;
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
-    keyboardModifiers?: KeyboardModifiers;
+    modifiers?: KeyboardModifiers;
   }): boolean;
   nextMenuItem(dir: number): MenuItemInterface | null;
   findMenuItem(text: string): MenuItemInterface | null;

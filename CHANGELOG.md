@@ -2,10 +2,18 @@
 
 ### New Features
 
-- A menu is available when right-clicking on a mathfield or when clicking
-  the menu glyph next to the virtual keyboard glyph. The menu allows
-  toggling the virtual keyboard, changing the mathfield mode (math, text)
-  and inserting and editing matrixes.
+- **Contextual Menu**
+  Right-clicking on a mathfield or clicking the menu glyph next to the 
+  virtual keyboard glyph will bring up a contextual menu. 
+  
+  The menu allows toggling the virtual keyboard, inserting text, 
+  copying LaTeX, MathML or  MathASCII and inserting and editing matrixes.
+
+  The content of the menu may change in future versions.
+
+  The menu can be customized by setting the `mf.menu` property of the
+  mathfield. The value of this property is an array of menu items. 
+  See [the documentation](https://cortexjs.io/mathlive/guides/menus/) for details.
 
 ### Improvements
 

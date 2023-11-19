@@ -8,12 +8,12 @@ import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 
 import { normalizeMacroDictionary } from '../core-definitions/definitions-utils';
 
-import { defaultExportHook } from '../editor-mathfield/mode-editor';
+import { ModeEditor, defaultExportHook } from '../editor-mathfield/mode-editor';
 
 import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { VirtualKeyboard } from '../virtual-keyboard/global';
-import { MenuItemTemplate } from 'ui/menu/types';
+import { MenuItem } from 'ui/menu/types';
 import { _Mathfield } from './mathfield';
 
 /** @internal */
@@ -175,58 +175,29 @@ export function effectiveMode(options: MathfieldOptions): 'math' | 'text' {
   return options.defaultMode;
 }
 
-export function getDefaultMenuItems(mf: _Mathfield): MenuItemTemplate[] {
+export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
   return [
+    // // {
+    // //   label: 'Show Virtual Keyboard',
+    // //   onMenuSelect: () => window.mathVirtualKeyboard.show({ animate: true }),
+    // //   visible: () => window.mathVirtualKeyboard.visible === false,
+    // // },
+    // // {
+    // //   label: 'Hide Virtual Keyboard',
+    // //   onMenuSelect: () => window.mathVirtualKeyboard.hide({ animate: true }),
+    // //   visible: () => window.mathVirtualKeyboard.visible === true,
+    // // },
+    // {
+    //   type: 'divider',
+    // },
     {
-      label: 'Undo',
-      onSelect: () => mf.executeCommand('undo'),
-      visible: () => mf.undoManager.canUndo(),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      label: 'Cut',
-      onSelect: () => mf.executeCommand('cutToClipboard'),
-      visible: () => !mf.options.readOnly,
-    },
-    {
-      label: 'Copy',
-      onSelect: () => mf.executeCommand('copyToClipboard'),
-    },
-    {
-      label: 'Paste',
-      onSelect: () => mf.executeCommand('pasteFromClipboard'),
-      visible: () => !mf.options.readOnly,
-    },
-    {
-      label: 'Select All',
-      onSelect: () => mf.executeCommand('selectAll'),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      label: 'Show Virtual Keyboard',
-      onSelect: () => window.mathVirtualKeyboard.show({ animate: true }),
-      visible: () => window.mathVirtualKeyboard.visible === false,
-    },
-    {
-      label: 'Hide Virtual Keyboard',
-      onSelect: () => window.mathVirtualKeyboard.hide({ animate: true }),
-      visible: () => window.mathVirtualKeyboard.visible === true,
-    },
-    {
-      type: 'divider',
-    },
-    {
-      label: 'Switch to Text Mode',
-      onSelect: () => mf.executeCommand(['switchMode', 'text']),
+      label: 'Insert Text',
+      onMenuSelect: () => mf.executeCommand(['switchMode', 'text']),
       visible: () => mf.model.mode === 'math',
     },
     {
       label: 'Switch to Math Mode',
-      onSelect: () => mf.executeCommand(['switchMode', 'math']),
+      onMenuSelect: () => mf.executeCommand(['switchMode', 'math']),
       visible: () => mf.model.mode === 'text',
     },
     {
@@ -234,17 +205,17 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItemTemplate[] {
     },
     {
       label: localize('menu.array.add row above'),
-      onSelect: () => mf.executeCommand('addRowBefore'),
+      onMenuSelect: () => mf.executeCommand('addRowBefore'),
       visible: () => inMatrix(mf),
     },
     {
       label: localize('menu.array.add row below'),
-      onSelect: () => mf.executeCommand('addRowAfter'),
+      onMenuSelect: () => mf.executeCommand('addRowAfter'),
       visible: () => inMatrix(mf),
     },
     {
       label: localize('menu.array.add column before'),
-      onSelect: () => mf.executeCommand('addColumnBefore'),
+      onMenuSelect: () => mf.executeCommand('addColumnBefore'),
       visible: () => inMatrix(mf),
       enabled: () => {
         const array = mf.model.parentEnvironment;
@@ -255,17 +226,17 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItemTemplate[] {
     },
     {
       label: localize('menu.array.add column after'),
-      onSelect: () => mf.executeCommand('addColumnAfter'),
+      onMenuSelect: () => mf.executeCommand('addColumnAfter'),
       visible: () => inMatrix(mf),
     },
     {
       label: localize('menu.array.delete row'),
-      onSelect: () => mf.executeCommand('removeRow'),
+      onMenuSelect: () => mf.executeCommand('removeRow'),
       visible: () => inMatrix(mf),
     },
     {
       label: localize('menu.array.delete column'),
-      onSelect: () => mf.executeCommand('removeColumn'),
+      onMenuSelect: () => mf.executeCommand('removeColumn'),
       visible: () => inMatrix(mf),
     },
 
@@ -274,7 +245,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItemTemplate[] {
       submenu: [
         {
           label: '(⋱)',
-          onSelect: () => {
+          onMenuSelect: () => {
             mf.executeCommand([
               'insert',
               '\\begin{pmatrix}#@ & #? \\\\ #? & #? \\end{pmatrix}',
@@ -283,7 +254,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItemTemplate[] {
         },
         {
           label: '[⋱]',
-          onSelect: () => {
+          onMenuSelect: () => {
             mf.executeCommand([
               'insert',
               '\\begin{bmatrix}#@ & #? \\\\ #? & #?\\end{bmatrix}',
@@ -292,7 +263,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItemTemplate[] {
         },
         {
           label: '{⋱}',
-          onSelect: () => {
+          onMenuSelect: () => {
             mf.executeCommand([
               'insert',
               '\\begin{Bmatrix}#@ & #? \\\\ #? & #?\\end{Bmatrix}',
@@ -300,6 +271,46 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItemTemplate[] {
           },
         },
       ],
+    },
+
+    {
+      type: 'divider',
+    },
+    {
+      label: 'Cut',
+      onMenuSelect: () => mf.executeCommand('cutToClipboard'),
+      visible: () => !mf.options.readOnly,
+    },
+    // {
+    //   label: 'Copy',
+    //   onMenuSelect: () => mf.executeCommand('copyToClipboard'),
+    // },
+    {
+      label: 'Copy',
+      submenu: [
+        {
+          label: 'Copy LaTeX',
+          onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'latex'),
+        },
+        {
+          label: 'Copy ASCII Math',
+          onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'ascii-math'),
+        },
+        {
+          label: 'Copy MathML',
+          onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'math-ml'),
+        },
+      ],
+    },
+
+    {
+      label: 'Paste',
+      onMenuSelect: () => mf.executeCommand('pasteFromClipboard'),
+      visible: () => !mf.options.readOnly,
+    },
+    {
+      label: 'Select All',
+      onMenuSelect: () => mf.executeCommand('selectAll'),
     },
   ];
 }

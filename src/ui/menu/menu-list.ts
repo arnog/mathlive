@@ -3,10 +3,10 @@ import { fitInViewport } from 'ui/geometry/utils';
 import {
   MenuInterface,
   MenuItemInterface,
-  MenuItemTemplate,
+  MenuItem,
   RootMenuInterface,
 } from './types';
-import { MenuItem } from './menu-item';
+import { _MenuItem } from './menu-item';
 
 /**
  * A collection of menu items.
@@ -18,16 +18,11 @@ export class MenuList implements MenuInterface {
   parentMenu: MenuInterface | null;
   isSubmenuOpen: boolean; // If true, _activeMenuItem.submenu_ is open
 
-  /**
-   * The Element from which menu items will be used as template (optional)
-   */
-  menuHost?: Element;
-
   hasCheckbox = false; // If true, has at least one checkbox menu item
   hasRadio = false; // If true, has at least one radio menu item
 
-  protected _element: HTMLElement | null = null;
-  protected _menuItems: MenuItemInterface[] = [];
+  private _element: HTMLElement | null = null;
+  private _menuItems: MenuItemInterface[] = [];
   private _activeMenuItem: MenuItemInterface | null = null;
 
   /*
@@ -35,40 +30,18 @@ export class MenuList implements MenuInterface {
    * can be recalculated, for example if the keyboard modifiers change.
    * (when isDynamic is true)
    */
-  private _menuItemsTemplate: MenuItemTemplate[] | undefined;
+  private _menuItemsDescriptions: MenuItem[];
 
-  /**
-   * Optional, an HTML element to be used as the container for this menu.
-   * Used when this maps to a custom element with a <ul> in its template.
-   */
-  protected _assignedContainer?: HTMLElement | null;
-
-  /**
-   * - host: if the menu is inside an element, the host is this element.
-   * This is where a set of <ui-menu-item> elements will be read from.
-   * - assignedContainer: the element into which the menu items will be
-   * inserted. A <ul>. Could be in a custom element. If none is provided,
-   * a new <ul> is created.
-   * - wrapper: an element that wraps the container. This elements
-   * gets attached to the scrim for display. If none is provided,
-   * the container is used directly. Pass the custom element when
-   * a custom element wrapper is used (e.g. for <ui-submenu>)
-   */
   constructor(
-    menuItems?: MenuItemTemplate[],
+    menuItems: MenuItem[],
     options?: {
       parentMenu?: MenuInterface;
-      host?: Element;
-      assignedContainer?: HTMLElement | null;
     }
   ) {
     this.parentMenu = options?.parentMenu ?? null;
-    this._assignedContainer = options?.assignedContainer;
 
-    this._menuItemsTemplate = menuItems;
+    this._menuItemsDescriptions = [...menuItems];
     this.isSubmenuOpen = false;
-
-    this.menuHost = options?.host;
   }
 
   handleEvent(event: Event): void {
@@ -92,14 +65,12 @@ export class MenuList implements MenuInterface {
 
   /**
    * Update the 'model' of this menu (i.e. list of menu items) based
-   * on:
-   * - the state of the keyboard, for programmatically specified items
-   * - the content of the JSON and elements inside the host element
-   * (if there is one)
+   * on the state of the keyboard
    */
-  updateMenu(keyboardModifiers?: KeyboardModifiers): void {
+  updateMenu(modifiers?: KeyboardModifiers): void {
     // Save the current menu
     const element = this._element;
+
     let saveCurrentItem = -1;
     let left = 0;
     let top = 0;
@@ -117,13 +88,9 @@ export class MenuList implements MenuInterface {
       this._element = null;
     }
 
-    this._menuItems = [];
-    this.hasCheckbox = false;
-    this.hasRadio = false;
-    if (this._menuItemsTemplate) {
-      for (const x of this._menuItemsTemplate)
-        this.appendMenuItem(x, keyboardModifiers);
-    }
+    this._menuItems = this._menuItemsDescriptions.map(
+      (x) => new _MenuItem(x, this, modifiers)
+    );
 
     this.hasCheckbox = this._menuItems.some((x) => x.type === 'checkbox');
     this.hasRadio = this._menuItems.some((x) => x.type === 'radio');
@@ -140,33 +107,29 @@ export class MenuList implements MenuInterface {
       });
 
       this.activeMenuItem =
-        saveCurrentItem >= 0 ? this.menuItems[saveCurrentItem] : null;
+        saveCurrentItem >= 0 ? this._menuItems[saveCurrentItem] : null;
       if (this.activeMenuItem?.submenu)
-        this.activeMenuItem.openSubmenu(keyboardModifiers);
+        this.activeMenuItem.openSubmenu(modifiers);
     }
   }
 
-  get menuItems(): MenuItemInterface[] {
-    return this._menuItems;
+  get menuItems(): MenuItem[] {
+    return this._menuItemsDescriptions;
   }
 
-  set menuItemTemplates(value: MenuItemTemplate[]) {
-    this._menuItemsTemplate = value;
-    if (this._element) {
-      if (this.menuItems.filter((x) => x.visible).length === 0) {
-        this.hide();
-        return;
-      }
+  set menuItems(items: MenuItem[]) {
+    this._menuItemsDescriptions = items;
 
-      this.updateMenu();
-    }
+    this.updateMenu();
+
+    if (this._menuItems.filter((x) => x.visible).length === 0) this.hide();
   }
 
   /** First activable menu item */
   get firstMenuItem(): MenuItemInterface | null {
     let result = 0;
     let found = false;
-    const { menuItems } = this;
+    const menuItems = this._menuItems;
     while (!found && result <= menuItems.length - 1) {
       const item = menuItems[result];
       found = item.type !== 'divider' && item.visible && item.enabled;
@@ -178,15 +141,16 @@ export class MenuList implements MenuInterface {
 
   /** Last activable menu item */
   get lastMenuItem(): MenuItemInterface | null {
-    let result = this.menuItems.length - 1;
+    const menuItems = this._menuItems;
+    let result = menuItems.length - 1;
     let found = false;
     while (!found && result >= 0) {
-      const item = this.menuItems[result];
+      const item = menuItems[result];
       found = item.type !== 'divider' && item.visible && item.enabled;
       result -= 1;
     }
 
-    return found ? this.menuItems[result + 1] : null;
+    return found ? menuItems[result + 1] : null;
   }
 
   /**
@@ -294,8 +258,8 @@ export class MenuList implements MenuInterface {
     return result;
   }
 
-  makeElement(container?: HTMLElement | null): HTMLElement {
-    const ul = container ?? document.createElement('ul');
+  makeElement(): HTMLElement {
+    const ul = document.createElement('ul');
     ul.classList.add('ui-menu-container');
     ul.setAttribute('part', 'ui-menu-container');
     ul.setAttribute('tabindex', '-1');
@@ -330,26 +294,25 @@ export class MenuList implements MenuInterface {
    * the items in this menu (model -> view)
    */
   get element(): HTMLElement {
-    if (!this._element)
-      this._element = this.makeElement(this._assignedContainer);
+    if (!this._element) this._element = this.makeElement();
 
     return this._element;
   }
 
   /**
-   * @param parent: where the menu should be attached
+   * @param container: where the menu should be attached
    * @return false if no menu to show
    */
   show(options: {
-    parent: Node;
+    container: Node;
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
-    keyboardModifiers?: KeyboardModifiers;
+    modifiers?: KeyboardModifiers;
   }): boolean {
-    this.updateMenu(options?.keyboardModifiers);
-    if (this.menuItems.filter((x) => x.visible).length === 0) return false;
+    this.updateMenu(options?.modifiers);
+    if (this._menuItems.filter((x) => x.visible).length === 0) return false;
 
-    options.parent.appendChild(this.element);
+    options.container.appendChild(this.element);
 
     if (options.location) {
       fitInViewport(this.element, {
@@ -402,7 +365,7 @@ export class MenuList implements MenuInterface {
   }
 
   appendMenuItem(
-    menuItem: MenuItemTemplate,
+    menuItem: MenuItem,
     keyboardModifiers?: KeyboardModifiers
   ): void {
     this.insertMenuItem(-1, menuItem, keyboardModifiers);
@@ -410,53 +373,46 @@ export class MenuList implements MenuInterface {
 
   insertMenuItem(
     pos: number,
-    menuItem: MenuItemTemplate,
-    keyboardModifiers?: KeyboardModifiers
+    menuItem: MenuItem,
+    modifiers?: KeyboardModifiers
   ): void {
     if (pos < 0) pos = Math.max(0, this._menuItems.length - 1);
 
-    const item = new MenuItem(menuItem, this, {
-      keyboardModifiers,
-    });
+    const item = new _MenuItem(menuItem, this, modifiers);
 
     this._menuItems.splice(pos + 1, 0, item);
   }
 }
 
 export function evalToBoolean(
-  item: MenuItemTemplate,
+  item: MenuItem,
   value:
     | boolean
     | undefined
-    | ((
-        item: MenuItemTemplate,
-        keyboardModifiers?: KeyboardModifiers
-      ) => boolean),
-  keyboardModifiers?: KeyboardModifiers
+    | ((item: MenuItem, keyboardModifiers: KeyboardModifiers) => boolean),
+  modifiers?: KeyboardModifiers
 ): boolean | undefined {
   if (typeof value === 'boolean') return value;
-  if (typeof value === 'function') return value(item, keyboardModifiers);
+
+  modifiers ??= { alt: false, control: false, shift: false, meta: false };
+  if (typeof value === 'function') return value(item, modifiers);
 
   return undefined;
 }
 
 export function evalToString(
-  item: MenuItemTemplate,
+  item: MenuItem,
   value:
     | string
     | undefined
-    | ((
-        item: MenuItemTemplate,
-        keyboardModifiers?: KeyboardModifiers
-      ) => string),
-  options?: {
-    keyboardModifiers?: KeyboardModifiers;
-  }
+    | ((item: MenuItem, keyboardModifiers: KeyboardModifiers) => string),
+  modifiers?: KeyboardModifiers
 ): string | undefined {
   if (typeof value === 'string') return value;
 
-  if (typeof value === 'function')
-    return value(item, options?.keyboardModifiers);
+  modifiers ??= { alt: false, control: false, shift: false, meta: false };
+
+  if (typeof value === 'function') return value(item, modifiers);
 
   return undefined;
 }

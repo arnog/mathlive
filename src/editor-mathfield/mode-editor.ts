@@ -3,7 +3,7 @@ import { TextAtom } from '../core-atoms/text';
 import { ModelPrivate } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { MODE_SHIFT_COMMANDS } from '../editor/parse-math-string';
-import { InsertOptions, Range } from '../public/mathfield';
+import { InsertOptions, OutputFormat, Range } from '../public/mathfield';
 import { _Mathfield } from './mathfield-private';
 
 const CLIPBOARD_LATEX_BEGIN = '$$';
@@ -58,6 +58,28 @@ export class ModeEditor {
     return ModeEditor._modes[mode].onPaste(mathfield, data);
   }
 
+  /** Call this method from a menu */
+  static copyToClipboard(mathfield: _Mathfield, format: OutputFormat): void {
+    if (!mathfield.contentEditable && mathfield.userSelect === 'none') {
+      mathfield.model.announce('plonk');
+      return;
+    }
+    const model = mathfield.model;
+    const exportRange: Range = model.selectionIsCollapsed
+      ? [0, model.lastOffset]
+      : range(model.selection);
+
+    const latex = model.getValue(exportRange, format);
+
+    navigator.clipboard.writeText(latex).then(
+      () => {
+        /* Resolved - text copied to clipboard successfully */
+      },
+      () => mathfield.model.announce('plonk')
+    );
+  }
+
+  /** Call this method in response to a clipboard event */
   static onCopy(mathfield: _Mathfield, ev: ClipboardEvent): void {
     if (!ev.clipboardData) return;
     if (!mathfield.contentEditable && mathfield.userSelect === 'none') {

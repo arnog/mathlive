@@ -16,9 +16,9 @@ export function onContextMenu(
     const evt = event as MouseEvent;
     onTrigger?.();
     menu.show({
-      parent: target,
+      container: target,
       location: { x: Math.round(evt.clientX), y: Math.round(evt.clientY) },
-      keyboardModifiers: keyboardModifiersFromEvent(evt),
+      modifiers: keyboardModifiersFromEvent(evt),
     });
     event.preventDefault();
     event.stopPropagation();
@@ -37,12 +37,12 @@ export function onContextMenu(
       if (bounds) {
         onTrigger?.();
         menu.show({
-          parent: target,
+          container: target,
           location: {
             x: Math.round(bounds.left + bounds.width / 2),
             y: Math.round(bounds.top + bounds.height / 2),
           },
-          keyboardModifiers: keyboardModifiersFromEvent(evt),
+          modifiers: keyboardModifiersFromEvent(evt),
         });
         event.preventDefault();
         event.stopPropagation();
@@ -62,13 +62,11 @@ export function onContextMenu(
     if (!eventTarget) return false;
 
     const pt = eventLocation(event);
-    const keyboardModifiers = keyboardModifiersFromEvent(event);
+    const modifiers = keyboardModifiersFromEvent(event);
     onLongPress(event, () => {
       if (menu.state !== 'closed') return;
       onTrigger?.();
-      menu.show({ parent: target, location: pt, keyboardModifiers });
-      // // @ts-ignore
-      // if (menu.state === 'open') menu.state = 'modal';
+      menu.show({ container: target, location: pt, modifiers });
     });
     return true;
   }

@@ -41,6 +41,7 @@ import type { ComputeEngine } from '@cortex-js/compute-engine';
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from 'common/stylesheet';
 import { Scrim } from 'ui/utils/scrim';
+import { MenuItem } from 'ui/menu/types';
 
 export declare type Expression =
   | number
@@ -2180,7 +2181,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ popoverPolicy: value });
   }
 
-  /** @category Customization
+  /**
+   * @category Customization
    * @inheritDoc EditingOptions.environmentPopoverPolicy
    */
   get environmentPopoverPolicy(): 'auto' | 'off' | 'on' {
@@ -2190,7 +2192,19 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ environmentPopoverPolicy: value });
   }
 
-  /** @category Customization
+  /**
+   * @category Customization
+   */
+
+  get menu(): MenuItem[] {
+    return this._mathfield?.menu.menuItems ?? [];
+  }
+  set menu(menuItems: MenuItem[]) {
+    if (this._mathfield?.menu) this._mathfield.menu.menuItems = menuItems;
+  }
+
+  /**
+   * @category Customization
    * @category Virtual Keyboard
    * @inheritDoc EditingOptions.mathVirtualKeyboardPolicy
    */

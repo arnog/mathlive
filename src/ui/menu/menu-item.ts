@@ -6,8 +6,9 @@ import {
   DynamicString,
   MenuInterface,
   MenuItemInterface,
-  MenuItemTemplate,
+  MenuItem,
   MenuSelectEvent,
+  MenuItemType,
 } from './types';
 import { icon } from 'ui/icons/icons';
 
@@ -19,51 +20,53 @@ const BLINK_SPEED = 80;
  * Menu items are grouped in a menulist, which can be a root menu or a submenu.
  *
  */
-export class MenuItem implements MenuItemInterface {
+export class _MenuItem<T> implements MenuItemInterface {
   parentMenu: MenuInterface;
   /** If this menu _type is 'submenu' */
   submenu?: MenuInterface;
 
-  _type: 'normal' | 'divider' | 'submenu' | 'checkbox' | 'radio';
+  _type: MenuItemType;
   _label?: string;
   _enabled: boolean;
   _visible: boolean;
 
+  id?: string;
+  data?: T;
+
   ariaLabel?: string;
   ariaDetails?: string;
   checked: boolean;
-  onSelect?: (ev: CustomEvent<MenuSelectEvent>) => void;
-  id?: string;
-  data?: any;
+  onMenuSelect?: (props: {
+    modifiers: KeyboardModifiers;
+    label?: string;
+    id?: string;
+    data?: T;
+    element?: HTMLElement | null;
+  }) => void;
 
   /** The DOM element the menu item is rendered as */
   _element: HTMLElement | null = null;
 
   constructor(
-    template: MenuItemTemplate,
+    template: MenuItem<T>,
     parentMenu: MenuInterface,
-    options?: {
-      keyboardModifiers?: KeyboardModifiers;
-    }
+    modifiers?: KeyboardModifiers
   ) {
     this.parentMenu = parentMenu;
 
     this._visible =
-      evalToBoolean(template, template.visible, options?.keyboardModifiers) ??
-      true;
+      evalToBoolean(template, template.visible, modifiers) ?? true;
     this._enabled =
-      evalToBoolean(template, template.enabled, options?.keyboardModifiers) ??
-      true;
+      evalToBoolean(template, template.enabled, modifiers) ?? true;
     this.checked =
-      evalToBoolean(template, template.checked, options?.keyboardModifiers) ??
-      false;
+      evalToBoolean(template, template.checked, modifiers) ?? false;
 
     this.id = template.id;
-    this._label = evalToString(template, template.label, options);
-    this.ariaLabel = evalToString(template, template.ariaLabel, options);
-    this.ariaDetails = evalToString(template, template.ariaDetails, options);
-    if (typeof template.onSelect === 'function')
-      this.onSelect = template.onSelect;
+    this._label = evalToString(template, template.label, modifiers);
+    this.ariaLabel = evalToString(template, template.ariaLabel, modifiers);
+    this.ariaDetails = evalToString(template, template.ariaDetails, modifiers);
+    if (typeof template.onMenuSelect === 'function')
+      this.onMenuSelect = template.onMenuSelect;
 
     this.data = template.data;
 
@@ -74,9 +77,9 @@ export class MenuItem implements MenuItemInterface {
       });
     } else if (template.type === undefined && template.checked !== undefined)
       this._type = 'checkbox';
-    else this._type = template.type ?? 'normal';
+    else this._type = template.type ?? 'command';
   }
-  get type(): 'normal' | 'divider' | 'submenu' | 'checkbox' | 'radio' {
+  get type(): MenuItemType {
     return this._type;
   }
 
@@ -103,7 +106,7 @@ export class MenuItem implements MenuItemInterface {
     }
 
     if (
-      this.type !== 'normal' &&
+      this.type !== 'command' &&
       this.type !== 'submenu' &&
       this.type !== 'radio' &&
       this.type !== 'checkbox'
@@ -173,17 +176,35 @@ export class MenuItem implements MenuItemInterface {
     return this._element;
   }
 
-  dispatchSelect(kbd?: KeyboardModifiers): void {
-    const ev = new CustomEvent<MenuSelectEvent>('select', {
+  /** Dispatch a menu-select event, and call the
+   * `onMenuSelect()` hook if defined.
+   */
+  dispatchSelect(modifiers?: KeyboardModifiers): void {
+    modifiers ??= { alt: false, control: false, shift: false, meta: false };
+
+    const ev = new CustomEvent<MenuSelectEvent>('menu-select', {
+      cancelable: true,
+      bubbles: true,
       detail: {
-        keyboardModifiers: kbd,
+        modifiers,
         id: this.id,
         label: this.label,
         data: this.data,
+        element: this.element ?? undefined,
       },
     });
-    if (typeof this.onSelect === 'function') this.onSelect(ev);
-    else this.parentMenu.dispatchEvent(ev);
+
+    const notCanceled = this.parentMenu.dispatchEvent(ev);
+
+    if (notCanceled && typeof this.onMenuSelect === 'function') {
+      this.onMenuSelect({
+        modifiers,
+        label: this.label,
+        id: this.id,
+        data: this.data,
+        element: this.element,
+      });
+    }
   }
 
   handleEvent(event: Event): void {
@@ -252,21 +273,24 @@ export class MenuItem implements MenuItemInterface {
    * Open the submenu of this menu item, with a delay if options.delay
    * This delay improves targeting of submenus with the mouse.
    */
-  openSubmenu(kbd?: KeyboardModifiers, options?: { withDelay: boolean }): void {
+  openSubmenu(
+    modifiers?: KeyboardModifiers,
+    options?: { withDelay: boolean }
+  ): void {
     if (!this.submenu || !this.element) return;
     if (options?.withDelay ?? false) {
       this.parentMenu.rootMenu.scheduleOperation(() => {
-        this.openSubmenu(kbd);
+        this.openSubmenu(modifiers);
       });
       return;
     }
 
     const bounds = this.element.getBoundingClientRect();
     this.submenu.show({
+      container: this.parentMenu.rootMenu.element?.parentNode ?? null,
       location: { x: bounds.right, y: bounds.top - 4 },
       alternateLocation: { x: bounds.left, y: bounds.top - 4 },
-      parent: this.parentMenu.rootMenu.element?.parentNode ?? null,
-      keyboardModifiers: kbd,
+      modifiers: modifiers,
     });
   }
 
@@ -304,27 +328,37 @@ function speed(dx: number, dy: number, dt: number): number {
 }
 
 function evalToBoolean(
-  item: MenuItemTemplate,
+  item: MenuItem,
   value: DynamicPredicate | undefined,
-  keyboardModifiers?: KeyboardModifiers
+  modifiers?: KeyboardModifiers
 ): boolean | undefined {
   if (typeof value === 'boolean') return value;
-  if (typeof value === 'function') return value(keyboardModifiers, item);
+  modifiers ??= { alt: false, control: false, shift: false, meta: false };
 
+  if (typeof value === 'function') {
+    return value({
+      modifiers,
+      id: item.id,
+      data: item.data,
+    });
+  }
   return undefined;
 }
 
 function evalToString(
-  item: MenuItemTemplate,
+  item: MenuItem,
   value: DynamicString | undefined,
-  options?: {
-    keyboardModifiers?: KeyboardModifiers;
-  }
+  modifiers?: KeyboardModifiers
 ): string | undefined {
   if (typeof value === 'string') return value;
+  modifiers ??= { alt: false, control: false, shift: false, meta: false };
 
-  if (typeof value === 'function')
-    return value(options?.keyboardModifiers, item);
-
+  if (typeof value === 'function') {
+    return value({
+      modifiers,
+      id: item.id,
+      data: item.data,
+    });
+  }
   return undefined;
 }

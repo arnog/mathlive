@@ -395,7 +395,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         { signal: this.eventController.signal }
       );
 
-    this._menu = new Menu(getDefaultMenuItems(this));
+    this._menu = new Menu(getDefaultMenuItems(this), { host: this.host });
 
     // Listen for contextmenu events on the field
     this.field.addEventListener('contextmenu', this, {
@@ -415,12 +415,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (this._menu.state !== 'closed') return;
         this.element!.classList.add('tracking');
         this._menu.show({
-          parent: menuToggle,
+          container: menuToggle,
           location: {
             x: menuToggle.offsetLeft,
             y: menuToggle.offsetHeight + menuToggle.offsetTop,
           },
-          keyboardModifiers: keyboardModifiersFromEvent(ev),
+          modifiers: keyboardModifiersFromEvent(ev),
           onDismiss: () => this.element!.classList.remove('tracking'),
         });
         ev.preventDefault();
@@ -638,6 +638,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
       }
     }
     return keybindings;
+  }
+
+  get menu(): Menu {
+    return this._menu;
   }
 
   setOptions(config: Partial<_MathfieldOptions>): void {

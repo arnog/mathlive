@@ -49,17 +49,18 @@
       </ul>
     </header>
     <main>
-      <!-- <math-field id="mf">\funfunction{123}{456}</math-field> -->
+      <math-field id="mf" name="formula"> {(\sin(5))} </math-field>
+
+      <!-- <math-field id="mf" name="formula"
+        >\begin{pmatrix}a\end{pmatrix}</math-field
+      > -->
+
       <!-- <math-field id="mf"
         >\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field
       > -->
       <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
       > -->
-
-      <math-field id="mf" name="formula"
-        >\begin{pmatrix}a\end{pmatrix}</math-field
-      >
 
       <!-- <math-field id="mf"
         >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12+3+4+5}}\enclose{box}{\sqrt[1234567]{\frac{1}{x+1}}}</math-field
@@ -211,6 +212,14 @@
       MathfieldElement.computeEngine.notation = "scientific";
 
       // mf.smartFence = false;
+
+      // mf.menu = [
+      //   {
+      //     label: "My Menu Item",
+      //     id: "my-menu-item",
+      //   },
+      // ];
+
       mf.inlineShortcuts = {
         ...mf.inlineShortcuts,
         "[": { mode: "math", value: "$foo$" },
@@ -294,6 +303,10 @@
       // mf.addEventListener('beforeinput', (ev) => {
       //   if (ev.inputType === 'insertLineBreak') console.log('enter');
       // });
+
+      mf.addEventListener("menu-select", (ev) => {
+        console.log("menu-select", ev.detail);
+      });
 
       mf.addEventListener("input", (ev) => updateContent(mf));
 

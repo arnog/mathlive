@@ -6,7 +6,7 @@ import {
 } from 'ui/events/utils';
 import { Scrim } from 'ui/utils/scrim';
 import { MenuList } from './menu-list';
-import { RootMenuInterface, MenuItemTemplate, MenuInterface } from './types';
+import { RootMenuInterface, MenuItem, MenuInterface } from './types';
 
 /** A top-level menu */
 export class Menu extends MenuList implements RootMenuInterface {
@@ -32,26 +32,21 @@ export class Menu extends MenuList implements RootMenuInterface {
    */
   isDynamic: boolean;
 
+  private _host: HTMLElement | null;
+
   /**
-   * If an `options.assignedElement` is provided, the root menu is
-   * attached to that element (the element will be modified
-   * to display the menu). Use this when using a popup menu.
-   * In this mode, call `show()` and `hide()` to control the
-   * display of the menu.
+   * The host is the element that the events will be dispatched from
    *
    */
   constructor(
-    menuItems: MenuItemTemplate[],
+    menuItems: MenuItem[],
     options?: {
-      host?: Element;
-      assignedElement?: HTMLElement | null;
+      host?: HTMLElement | null;
       keyboardModifiers?: KeyboardModifiers;
     }
   ) {
-    super(menuItems, {
-      host: options?.host,
-      assignedContainer: options?.assignedElement ?? null,
-    });
+    super(menuItems);
+    this._host = options?.host ?? null;
     this.isDynamic = menuItems.some(isDynamic);
     this.currentKeyboardModifiers = options?.keyboardModifiers;
     this.typingBuffer = '';
@@ -211,9 +206,10 @@ export class Menu extends MenuList implements RootMenuInterface {
     super.handleEvent(event);
   }
 
+  /** Return true if the event is **not** canceled */
   dispatchEvent(ev: Event): boolean {
-    if (!this.menuHost) return false;
-    return this.menuHost.dispatchEvent(ev);
+    if (!this._host) return true;
+    return this._host.dispatchEvent(ev);
   }
 
   get scrim(): Element {
@@ -251,16 +247,16 @@ export class Menu extends MenuList implements RootMenuInterface {
   }
 
   show(options?: {
+    container?: Node | null; // Where the menu should attach
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
-    parent?: Node | null; // Where the menu should attach
-    keyboardModifiers?: KeyboardModifiers;
+    modifiers?: KeyboardModifiers;
     onDismiss?: () => void;
   }): boolean {
     this._onDismiss = options?.onDismiss;
     // Connect the scrim now, so that the menu can be measured and placed
-    this.connectScrim(options?.parent);
-    if (!super.show({ ...options, parent: this.scrim })) {
+    this.connectScrim(options?.container);
+    if (!super.show({ ...options, container: this.scrim })) {
       // There was nothing to show: remove the scrim
       this.disconnectScrim();
       return false;
@@ -320,7 +316,7 @@ export class Menu extends MenuList implements RootMenuInterface {
   }
 }
 
-function isDynamic(item: MenuItemTemplate): boolean {
+function isDynamic(item: MenuItem): boolean {
   const result =
     typeof item.enabled === 'function' ||
     typeof item.visible === 'function' ||
