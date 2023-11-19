@@ -1749,10 +1749,21 @@ export class Parser {
 
     // Carry forward the placeholder argument, if any.
     const args: Record<string, string | undefined> = { '?': this.args?.('?') };
+
     // Parse each argument group as a string. We don't know yet
     // what the proper parse mode is, so defer parsing till later
     // when invoking `parseLatex`
-    for (let i = 1; i <= argCount; i++) args[i] = this.scanLiteralGroup();
+    for (let i = 1; i <= argCount; i++) {
+      let arg = this.scanLiteralGroup();
+      if (!arg) {
+        // If the argument wasn't a group ({}), it may have
+        // been a single token or expression, e.g. \frac12
+        const index = this.index;
+        this.scanExpression();
+        arg = tokensToString(this.tokens.slice(index, this.index));
+      }
+      args[i] = arg;
+    }
 
     // Group the result of the macro expansion
     return new MacroAtom(macro, {

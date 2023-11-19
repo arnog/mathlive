@@ -12,6 +12,13 @@
 - The tooltip above the virtual keyboard toggle (and the menu glyph) now
   only appears after a delay.
 
+### Bugs Fixed
+
+- The expression `\pmod5` is now correctly parsed as `\pmod{5}`.
+  Macros that used an argument that was not a literal group
+  were not parsed correctly.
+
+
 ## 0.96.2 (2023-11-16)
 
 ### Bugs Fixed
