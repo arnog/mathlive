@@ -15,6 +15,7 @@ import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { VirtualKeyboard } from '../virtual-keyboard/global';
 import { MenuItem } from 'ui/menu/types';
 import { _Mathfield } from './mathfield';
+import { convertLatexToMarkup } from 'public/mathlive-ssr';
 
 /** @internal */
 export type _MathfieldOptions = MathfieldOptions & {
@@ -175,6 +176,42 @@ export function effectiveMode(options: MathfieldOptions): 'math' | 'text' {
   return options.defaultMode;
 }
 
+function getSelection(mf: _Mathfield): string {
+  const model = mf.model;
+  return model.getValue(model.selection, 'latex');
+}
+
+function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
+  return [
+    {
+      label: () => convertLatexToMarkup(`\\mathbb{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () => mf.insert('\\mathbb{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\mathfrak{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () =>
+        mf.insert('\\mathfrak{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\mathcal{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () => mf.insert('\\mathcal{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\mathrm{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () => mf.insert('\\mathrm{#@}', { selectionMode: 'item' }),
+    },
+    {
+      label: () => convertLatexToMarkup(`\\mathbf{${getSelection(mf)}}`),
+      visible: () => getSelection(mf).length === 1,
+      onMenuSelect: () => mf.insert('\\mathbf{#@}', { selectionMode: 'item' }),
+    },
+  ];
+}
+
 export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
   return [
     // // {
@@ -273,6 +310,10 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       ],
     },
 
+    {
+      type: 'divider',
+    },
+    { label: 'Variant', submenu: getVariantSubmenu(mf) },
     {
       type: 'divider',
     },

@@ -6,8 +6,12 @@
   Right-clicking on a mathfield or clicking the menu glyph next to the 
   virtual keyboard glyph will bring up a contextual menu. 
   
-  The menu allows toggling the virtual keyboard, inserting text, 
-  copying LaTeX, MathML or  MathASCII and inserting and editing matrixes.
+  The menu includes commands to:
+  - toggle the virtual keyboard
+  - insert text
+  - copying LaTeX, MathML or  MathASCII to the clipboard
+  - insert and edit matrixes
+  - change the variant of a symbol (blackboard, bold, fraktur, etc...)
 
   The content of the menu may change in future versions.
 

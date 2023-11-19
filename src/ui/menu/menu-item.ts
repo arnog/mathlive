@@ -23,7 +23,7 @@ const BLINK_SPEED = 80;
 export class _MenuItem<T> implements MenuItemInterface {
   parentMenu: MenuInterface;
   /** If this menu _type is 'submenu' */
-  submenu?: MenuInterface;
+  submenu?: MenuList;
 
   _type: MenuItemType;
   _label?: string;
@@ -72,9 +72,8 @@ export class _MenuItem<T> implements MenuItemInterface {
 
     if (Array.isArray(template.submenu)) {
       this._type = 'submenu';
-      this.submenu = new MenuList(template.submenu, {
-        parentMenu,
-      });
+      this.submenu = new MenuList(template.submenu, { parentMenu });
+      this.submenu.updateMenu(modifiers);
     } else if (template.type === undefined && template.checked !== undefined)
       this._type = 'checkbox';
     else this._type = template.type ?? 'command';
@@ -90,9 +89,18 @@ export class _MenuItem<T> implements MenuItemInterface {
   get visible(): boolean {
     return this._visible;
   }
+  set visible(value: boolean) {
+    this._visible = value;
+    if (this.element) this.element.hidden = !value;
+  }
 
   get enabled(): boolean {
     return this._enabled;
+  }
+
+  get items(): MenuItemInterface[] | undefined {
+    if (this.type === 'submenu' && this.submenu) return this.submenu.items;
+    return undefined;
   }
 
   private render(): HTMLElement | null {
@@ -287,7 +295,7 @@ export class _MenuItem<T> implements MenuItemInterface {
 
     const bounds = this.element.getBoundingClientRect();
     this.submenu.show({
-      container: this.parentMenu.rootMenu.element?.parentNode ?? null,
+      container: this.parentMenu.rootMenu.element!.parentNode!,
       location: { x: bounds.right, y: bounds.top - 4 },
       alternateLocation: { x: bounds.left, y: bounds.top - 4 },
       modifiers: modifiers,

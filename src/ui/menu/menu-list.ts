@@ -22,7 +22,7 @@ export class MenuList implements MenuInterface {
   hasRadio = false; // If true, has at least one radio menu item
 
   private _element: HTMLElement | null = null;
-  private _menuItems: MenuItemInterface[] = [];
+  _menuItems: MenuItemInterface[] = [];
   private _activeMenuItem: MenuItemInterface | null = null;
 
   /*
@@ -92,6 +92,14 @@ export class MenuList implements MenuInterface {
       (x) => new _MenuItem(x, this, modifiers)
     );
 
+    // Make any item list (submenus, etc..) empty, invisible
+    for (const item of this._menuItems) {
+      if (
+        item.items &&
+        item.items.reduce((acc, x) => (x.visible ? acc + 1 : acc), 0) === 0
+      )
+        item.visible = false;
+    }
     this.hasCheckbox = this._menuItems.some((x) => x.type === 'checkbox');
     this.hasRadio = this._menuItems.some((x) => x.type === 'radio');
 
@@ -123,6 +131,10 @@ export class MenuList implements MenuInterface {
     this.updateMenu();
 
     if (this._menuItems.filter((x) => x.visible).length === 0) this.hide();
+  }
+
+  get items(): undefined | MenuItemInterface[] {
+    return this._menuItems;
   }
 
   /** First activable menu item */
@@ -270,19 +282,19 @@ export class MenuList implements MenuInterface {
     // Remove all items
     ul.textContent = '';
 
-    // Add back all necessary items (after they've been updated if applicable)
+    // Remove consecutive dividers
     let wasDivider = false;
-    for (const { element, type } of this._menuItems) {
-      if (element) {
-        // Avoid consecutive dividers
-        if (type === 'divider') {
-          if (wasDivider) continue;
-          wasDivider = true;
-        }
-        wasDivider = false;
-        ul.append(element);
-      }
+    for (const item of this._menuItems) {
+      // Avoid consecutive dividers
+      if (item.type === 'divider') {
+        if (wasDivider) item.visible = false;
+        wasDivider = true;
+      } else if (item.visible) wasDivider = false;
     }
+
+    // Add back all necessary items (after they've been updated if applicable)
+    for (const { element, visible } of this._menuItems)
+      if (element && visible) ul.append(element);
 
     ul.querySelector('li:first-of-type')?.setAttribute('tabindex', '0');
 

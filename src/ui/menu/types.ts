@@ -65,9 +65,10 @@ export interface MenuItemInterface<T = any> {
   readonly type: MenuItemType;
   readonly label: string;
   readonly enabled: boolean;
-  readonly visible: boolean;
+  visible: boolean;
   readonly checked: boolean;
   readonly submenu?: MenuInterface;
+  readonly items?: MenuItemInterface[]; // if a list of items
   readonly id?: string;
   readonly data?: T;
   readonly ariaLabel?: string;
