@@ -101,6 +101,16 @@ export function applyStyle(
       // If the selection already has this size, reset it to default size
       style.fontSize = DEFAULT_FONT_SIZE;
     }
+
+    if (style.variant && everyStyle('variant', style.variant)) {
+      // If the selection already has this variant, turn it off
+      style.variant = 'normal';
+    }
+
+    if (style.variantStyle && everyStyle('variantStyle', style.variantStyle)) {
+      // If the selection already has this variant, turn it off
+      style.variantStyle = '';
+    }
   }
 
   for (const atom of atoms) atom.applyStyle(style);

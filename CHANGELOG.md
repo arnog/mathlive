@@ -7,15 +7,17 @@
   virtual keyboard glyph will bring up a contextual menu. 
   
   The menu includes commands to:
-  - toggle the virtual keyboard
+  - insert and edit matrixes
+  - change the variant of a symbol (blackboard, fraktur, etc...)
+  - change the style (italic, bold, etc...) of the selection
+  - change the color and background color
   - insert text
   - copying LaTeX, MathML or  MathASCII to the clipboard
-  - insert and edit matrixes
-  - change the variant of a symbol (blackboard, bold, fraktur, etc...)
+  - toggle the virtual keyboard
 
   The content of the menu may change in future versions.
 
-  The menu can be customized by setting the `mf.menu` property of the
+  The menu can be customized by setting the `mf.menuItems` property of the
   mathfield. The value of this property is an array of menu items. 
   See [the documentation](https://cortexjs.io/mathlive/guides/menus/) for details.
 

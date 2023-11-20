@@ -26,6 +26,7 @@ export type DynamicBoolean<T = unknown> =
 
 export type MenuItemType =
   | 'command'
+  | 'group'
   | 'divider'
   | 'submenu'
   | 'checkbox'

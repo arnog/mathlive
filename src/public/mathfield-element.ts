@@ -2196,10 +2196,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Customization
    */
 
-  get menu(): MenuItem[] {
+  get menuItems(): MenuItem[] {
     return this._mathfield?.menu.menuItems ?? [];
   }
-  set menu(menuItems: MenuItem[]) {
+  set menuItems(menuItems: MenuItem[]) {
     if (this._mathfield?.menu) this._mathfield.menu.menuItems = menuItems;
   }
 

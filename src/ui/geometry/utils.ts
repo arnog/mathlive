@@ -98,7 +98,7 @@ export function fitInViewport(
   const dir = getComputedDir(element) ?? 'ltr';
 
   // Reset any location, so we can get the natural width/height
-  element.style.display = 'block';
+  // element.style.display = 'unset';
   element.style.position = 'absolute';
   element.style.left = 'auto';
   element.style.top = 'auto';
@@ -194,8 +194,8 @@ export function fitInViewport(
 
   element.style.left = `${Math.ceil(left!).toString()}px`;
   element.style.top = `${Math.ceil(top!).toString()}px`;
-  element.style.height = `${Math.ceil(height).toString()}px`;
-  element.style.width = `${Math.ceil(width).toString()}px`;
+  // element.style.height = `${Math.ceil(height).toString()}px`;
+  // element.style.width = `${Math.ceil(width).toString()}px`;
 }
 
 export function distance(

@@ -385,9 +385,66 @@ with this style */
   margin: 0;
 }
 
+.menu-container-insert-matrix {
+  column-count: 5;
+  column-gap: 0;
+}
+
 .menu-container-insert-matrix [part=menu-item] {
+  font-size: 21px;
+  // color: transparent;
+  border: none;
+  border-radius: 2px;
+  line-height: 1;
+  text-align: center;
+  padding: 4px;
+  margin: 0;
+}
+
+.menu-container-border [part=menu-item] {
   font-size: 2rem;
   line-height: 1.2;
   text-align: center;
 }
 
+.menu-container-swatches {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  column-count: 4;
+  column-gap: 0;
+  padding: 8px;
+  margin: 8px;
+  max-width: calc(4 * (2rem + 18px));
+}
+
+.menu-swatch {
+  box-sizing: border-box;
+  width: fit-content;
+  height: fit-content;
+  margin: 2px;
+  padding: 0;
+
+  & > span {
+    padding: 0;
+    margin: 0;
+  }
+
+  & > span > span {
+    display: inline-block;
+    margin: 6px;
+    min-width: 2rem;
+    min-height: 2rem;
+    border-radius: 50%;
+  }
+  box-sizing: border-box;
+  background: #fbfbfb;
+  &:hover {
+    background: #f0f0f0;
+    & > span > span {
+      border-radius: 2px;
+    }
+  }
+}

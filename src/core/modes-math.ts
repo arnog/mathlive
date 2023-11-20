@@ -61,7 +61,7 @@ const VARIANTS: Record<string, [fontName: FontName, cssClass: string]> = {
   'double-struck-bolditalic': ['AMS-Regular', 'ML__bb'],
 };
 
-const VARIANT_REPERTOIRE = {
+export const VARIANT_REPERTOIRE = {
   'double-struck': /^[A-Z ]$/,
   'script': /^[A-Z ]$/,
   'calligraphic': /^[\dA-Z ]$/,

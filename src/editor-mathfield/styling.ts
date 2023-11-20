@@ -7,6 +7,8 @@ import type {
   FontShape,
   FontSize,
   FontFamily,
+  Variant,
+  VariantStyle,
 } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 
@@ -119,6 +121,11 @@ export function validateStyle(
         normal: 'n',
       }[result.fontShape] ?? result.fontShape;
   }
+
+  if (style.variant) result.variant = style.variant.toLowerCase() as Variant;
+
+  if (style.variantStyle)
+    result.variantStyle = style.variantStyle.toLowerCase() as VariantStyle;
 
   const size = style.size ?? style.fontSize;
 

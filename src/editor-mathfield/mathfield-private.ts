@@ -1210,6 +1210,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     };
     if (isRange(inOptions)) options.range = inOptions;
     else {
+      if (inOptions.operation === 'toggle') options.operation = 'toggle';
       options.range = inOptions.range;
       options.silenceNotifications = inOptions.silenceNotifications ?? false;
     }

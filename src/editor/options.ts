@@ -150,7 +150,7 @@ export function getDefault(): Required<_MathfieldOptions> {
     mathModeSpace: '',
     placeholderSymbol: '▢',
     popoverPolicy: 'auto',
-    environmentPopoverPolicy: 'auto',
+    environmentPopoverPolicy: 'off',
 
     keybindings: DEFAULT_KEYBINDINGS,
 

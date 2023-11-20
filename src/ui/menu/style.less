@@ -47,7 +47,7 @@
   opacity: 1;
 }
 
-.ui-menu-container > li {
+:where(.ui-menu-container > li) {
   display: flex;
   flex-flow: row;
   align-items: center;
@@ -71,7 +71,7 @@
   letter-spacing: 0.007em;
 }
 
-.ui-menu-container > li > .label {
+:where(.ui-menu-container > li > .label) {
   appearance: none;
   background: none;
   outline: none;
@@ -83,11 +83,11 @@
   white-space: nowrap;
 }
 
-.ui-menu-container > li > .label.indent {
+:where(.ui-menu-container > li > .label.indent) {
   margin-left: 12px;
 }
 
-.ui-menu-container > li[role='divider'] {
+:where(.ui-menu-container > li[role='divider']) {
   border-bottom: 1px solid var(--ui-menu-divider);
   border-radius: 0;
   padding: 0;
@@ -98,26 +98,26 @@
   width: calc(100% - 30px); /** 100% - (margin-left + margin-right) */
 }
 
-.ui-menu-container > li[aria-disabled='true'] {
+:where(.ui-menu-container > li[aria-disabled='true']) {
   opacity: 0.5;
 }
 
-.ui-menu-container > li.active {
+:where(.ui-menu-container > li.active) {
   background: var(--ui-menu-bg-active);
   background: -apple-system-control-accent;
   color: var(--ui-menu-text-active);
 }
 
-.ui-menu-container > li.active.is-submenu-open {
+:where(.ui-menu-container > li.active.is-submenu-open) {
   background: var(--ui-menu-bg-active-muted);
   color: inherit;
 }
 
-.ui-menu-container > li[aria-haspopup='true'] > .label {
+:where(.ui-menu-container > li[aria-haspopup='true'] > .label) {
   padding-right: 0;
 }
 
-.ui-menu-container > li[aria-haspopup='true'].active::after {
+:where(.ui-menu-container > li[aria-haspopup='true'].active::after) {
   color: white;
 }
 
