@@ -4,7 +4,7 @@ import { localize } from 'core/l10n';
 import { ModeEditor } from 'editor-mathfield/mode-editor';
 import { _Mathfield } from './mathfield';
 import { setEnvironment } from 'editor-model/array';
-import { TabularEnvironment } from 'public/core-types';
+import { TabularEnvironment, VariantStyle } from 'public/core-types';
 import { requestUpdate } from 'editor-mathfield/render';
 import { removeSuggestion } from 'editor-mathfield/autocomplete';
 import { BACKGROUND_COLORS, FOREGROUND_COLORS } from 'core/color';
@@ -399,6 +399,76 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       containerClass: 'menu-container-swatches',
       visible: () => mf.isSelectionEditable,
       submenu: getBackgroundColorSubmenu(mf),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: 'Evaluate',
+      id: 'ce-evaluate',
+      visible: () => window.MathfieldElement.computeEngine !== null,
+      onMenuSelect: () => {
+        const result = mf.expression?.evaluate();
+        if (mf.model.selectionIsCollapsed) {
+          mf.model.position = mf.model.lastOffset;
+          mf.insert(`=${result?.latex ?? ''}`, {
+            insertionMode: 'insertAfter',
+            selectionMode: 'item',
+          });
+        } else {
+          mf.insert(result?.latex ?? '', {
+            insertionMode: 'replaceSelection',
+            selectionMode: 'item',
+          });
+        }
+      },
+    },
+    {
+      label: 'Simplify',
+      id: 'ce-simplify',
+      visible: () => window.MathfieldElement.computeEngine !== null,
+      onMenuSelect: () => {
+        const result = mf.expression?.simplify();
+        if (mf.model.selectionIsCollapsed) {
+          mf.model.position = mf.model.lastOffset;
+          mf.insert(`=${result?.latex ?? ''}`, {
+            insertionMode: 'insertAfter',
+            selectionMode: 'item',
+          });
+        } else {
+          mf.insert(result?.latex ?? '', {
+            insertionMode: 'replaceSelection',
+            selectionMode: 'item',
+          });
+        }
+      },
+    },
+    {
+      label: 'Solve',
+      id: 'ce-solve',
+      visible: () =>
+        window.MathfieldElement.computeEngine !== null &&
+        mf.expression?.unknowns.length === 1,
+      onMenuSelect: () => {
+        const expr = mf.expression!;
+        const unknown = expr?.unknowns[0];
+        const results = expr.solve(unknown)?.map((x) => x.latex ?? '');
+        if (!results) {
+          mf.model.announce('plonk');
+          return;
+        }
+        mf.insert(
+          `${unknown}=${
+            results.length === 1
+              ? results[0]
+              : '\\left\\lbrace' + results?.join(', ') + '\\right\\rbrace'
+          }`,
+          {
+            insertionMode: 'replaceAll',
+            selectionMode: 'item',
+          }
+        );
+      },
     },
     {
       type: 'divider',

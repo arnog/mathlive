@@ -8,6 +8,7 @@
   
   The menu includes commands to:
   - insert and edit matrixes
+  - evaluate, simplify and solve equations
   - change the variant of a symbol (blackboard, fraktur, etc...)
   - change the style (italic, bold, etc...) of the selection
   - change the color and background color
